@@ -7624,32 +7624,41 @@ Templated table cell with untemplated attributes: Common use cases
 !! wikitext
 {|
 |-
-|colspan="3" class="test"{{table_cell_content}}
+!class="test"{{table_cell_content}} /* <th> & <td> combine */
 |-
-|colspan="3" class="test"{{table_cell_content|attr=style='color:red;'}}
-|-
-|colspan="3" class="test"{{table_cell_content|cmt=<!--bar-->}}
+|class="test"{{table_cell_content}} /* <td> & <td> combine */
+|
+|class="test"{{table_cell_content|attr=style='color:red;'}}
+|
+|class="test"{{table_cell_content|cmt=<!--bar-->}}
 |}
 !! html/php
 <table>
 
 <tbody><tr>
-<td colspan="3" class="test">foo
+<th class="test">foo /* </th><th> &amp; </th><td> combine */
 </td></tr>
 <tr>
-<td colspan="3" class="test" style="color:red;">foo
-</td></tr>
-<tr>
-<td colspan="3" class="test">foo
+<td class="test">foo /* </td><td> &amp; </td><td> combine */
+</td>
+<td>
+</td>
+<td class="test" style="color:red;">foo
+</td>
+<td>
+</td>
+<td class="test">foo
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
-<td colspan="3" class="test" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|colspan=\"3\" class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{},"i":0}}]}'>foo</td></tr>
+<th class="test" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["!class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{},"i":0}}," /* "]}'>foo /*</th><th data-parsoid='{"stx":"html","autoInsertedEnd":true}'> &amp; </th><td data-parsoid='{"stx":"html","autoInsertedEnd":true}'> combine */</td></tr>
 <tr data-parsoid='{"startTagSrc":"|-"}'>
-<td colspan="3" class="test" style="color:red;" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[{"k":"attr","named":true}]]}' data-mw='{"parts":["|colspan=\"3\" class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{"attr":{"wt":"style=&apos;color:red;&apos;"}},"i":0}}]}'>foo</td></tr>
-<tr data-parsoid='{"startTagSrc":"|-"}'>
-<td colspan="3" class="test" typeof="mw:Transclusion" about="#mwt3" data-parsoid='{"pi":[[{"k":"cmt","named":true}]]}' data-mw='{"parts":["|colspan=\"3\" class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{"cmt":{"wt":"&lt;!--bar-->"}},"i":0}}]}'>foo</td></tr>
+<td class="test" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{},"i":0}}," /* "]}'>foo /*</td><td data-parsoid='{"stx":"html","autoInsertedEnd":true}'> &amp; </td><td data-parsoid='{"stx":"html","autoInsertedEnd":true}'> combine */</td>
+<td></td>
+<td class="test" style="color:red;" typeof="mw:Transclusion" about="#mwt3" data-parsoid='{"pi":[[{"k":"attr","named":true}]]}' data-mw='{"parts":["|class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{"attr":{"wt":"style=&apos;color:red;&apos;"}},"i":0}}]}'>foo</td>
+<td></td>
+<td class="test" typeof="mw:Transclusion" about="#mwt4" data-parsoid='{"pi":[[{"k":"cmt","named":true}]]}' data-mw='{"parts":["|class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{"cmt":{"wt":"&lt;!--bar-->"}},"i":0}}]}'>foo</td></tr>
 </tbody></table>
 !! end
 

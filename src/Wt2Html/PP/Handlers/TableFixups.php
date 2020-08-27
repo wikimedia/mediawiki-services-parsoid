@@ -454,6 +454,16 @@ class TableFixups {
 	private const OTHER_REPARSE = 2;
 
 	/**
+	 * Can we combine two table cells?
+	 * @param string $cell
+	 * @param string $prev
+	 * @return bool
+	 */
+	private function combinableNodes( string $cell, string $prev ): bool {
+		return $cell === 'td' && ( $prev === 'td' || $prev === 'th' );
+	}
+
+	/**
 	 * @param DOMElement $node
 	 * @return int
 	 */
@@ -476,7 +486,7 @@ class TableFixups {
 			// So, unless there is a simpler redesign of this table fixup code,
 			// we are deliberately constraining support to the 'noAttrs' case.
 			isset( $dp->tmp->noAttrs ) && !isset( $dp->stx ) &&
-			( $node->previousSibling->nodeName ?? '' ) === $node->nodeName
+			$this->combinableNodes( $node->nodeName, $node->previousSibling->nodeName ?? '' )
 		) {
 			return self::COMBINE_WITH_PREV_CELL;
 		}
