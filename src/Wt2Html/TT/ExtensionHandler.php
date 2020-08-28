@@ -54,41 +54,37 @@ class ExtensionHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param Token $token
-	 * @param array $ret
-	 * @return string
+	 * Process extension metadata and record it somewhere (Env state or the DOM)
+	 *
+	 * @param DOMDocument $doc
+	 * @param array $modules
+	 * @param array $modulestyles
+	 * @param ?array $categories
 	 */
-	private function mangleParserResponse( Token $token, array $ret ): string {
-		$env = $this->env;
-		$html = $ret['html'];
-
-		// Strip a paragraph wrapper, if any
-		$html = preg_replace( '#(^<p>)|(\n</p>$)#D', '', $html );
-
+	private function processExtMetadata(
+		DOMDocument $doc, array $modules, array $modulestyles, ?array $categories
+	): void {
 		// Add the modules to the page data
-		$env->addOutputProperty( 'modules', $ret['modules'] );
-		$env->addOutputProperty( 'modulestyles', $ret['modulestyles'] );
+		$this->env->addOutputProperty( 'modules', $modules );
+		$this->env->addOutputProperty( 'modulestyles', $modulestyles );
 
 		/*  - categories: (array) [ Category name => sortkey ] */
 		// Add the categories which were added by extensions directly into the
 		// page and not as in-text links
-		if ( $ret['categories'] ) {
-			foreach ( $ret['categories'] as $name => $sortkey ) {
-				$dummyDoc = $env->createDocument( '' );
-				$link = $dummyDoc->createElement( "link" );
-				$link->setAttribute( "rel", "mw:PageProp/Category" );
-				$href = $env->getSiteConfig()->relativeLinkPrefix() .
-					"Category:" . PHPUtils::encodeURIComponent( (string)$name );
-				if ( $sortkey ) {
-					$href .= "#" . PHPUtils::encodeURIComponent( $sortkey );
-				}
-				$link->setAttribute( "href", $href );
-
-				$html .= "\n" . DOMCompat::getOuterHTML( $link );
+		foreach ( ( $categories ?? [] ) as $name => $sortkey ) {
+			$link = $doc->createElement( "link" );
+			$link->setAttribute( "rel", "mw:PageProp/Category" );
+			$href = $this->env->getSiteConfig()->relativeLinkPrefix() .
+				"Category:" . PHPUtils::encodeURIComponent( (string)$name );
+			if ( $sortkey ) {
+				$href .= "#" . PHPUtils::encodeURIComponent( $sortkey );
 			}
-		}
+			$link->setAttribute( "href", $href );
 
-		return $html;
+			$body = DOMCompat::getBody( $doc );
+			$body->appendChild( $doc->createTextNode( '\n' ) );
+			$body->appendChild( $link );
+		}
 	}
 
 	/**
@@ -146,8 +142,9 @@ class ExtensionHandler extends TokenHandler {
 		} else {
 			$pageConfig = $env->getPageConfig();
 			$ret = $env->getDataAccess()->parseWikitext( $pageConfig, $token->getAttribute( 'source' ) );
-			$html = $this->mangleParserResponse( $token, $ret );
-			$doc = $env->createDocument( $html );
+			// Strip a paragraph wrapper, if any, before parsing HTML to DOM
+			$doc = $env->createDocument( preg_replace( '#(^<p>)|(\n</p>$)#D', '', $ret['html'] ) );
+			$this->processExtMetadata( $doc, $ret['modules'], $ret['modulestyles'], $ret['categories'] );
 			$toks = $this->onDocument( $nativeExt, $token, $doc );
 		}
 		return( [ 'tokens' => $toks ] );
