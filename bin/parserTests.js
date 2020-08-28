@@ -1515,7 +1515,7 @@ Promise.async(function *() {
 		testFilePaths = [path.resolve(process.cwd(), options._[0])];
 	} else {
 		var testDir = path.join(__dirname, '../tests/parser/');
-		var testFilesPath = path.join(testDir, 'parserTests.json');
+		var testFilesPath = path.join(testDir, '../parserTests.json');
 		var testFiles = require(testFilesPath);
 		testFilePaths = Object.keys(testFiles).map(function(f) {
 			return path.join(testDir, f);
