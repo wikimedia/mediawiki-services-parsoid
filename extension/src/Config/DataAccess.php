@@ -271,7 +271,6 @@ class DataAccess implements IDataAccess {
 		return [
 			'html' => $out->getText( [ 'unwrap' => true ] ),
 			'modules' => array_values( array_unique( $out->getModules() ) ),
-			'modulescripts' => [], // $out->getModuleScripts() is deprecated and always returns []
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
 			'categories' => $out->getCategories(),
 		];
@@ -286,7 +285,6 @@ class DataAccess implements IDataAccess {
 		return [
 			'wikitext' => $wikitext,
 			'modules' => array_values( array_unique( $out->getModules() ) ),
-			'modulescripts' => [], // $out->getModuleScripts() is deprecated and always returns []
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
 			'categories' => $out->getCategories(),
 			'properties' => $out->getProperties()

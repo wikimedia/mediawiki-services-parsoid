@@ -297,7 +297,6 @@ class DataAccess implements IDataAccess {
 			$ret = [
 				'html' => $data['text'],
 				'modules' => $data['modules'],
-				'modulescripts' => $data['modulescripts'],
 				'modulestyles' => $data['modulestyles'],
 				'categories' => $cats,
 			];
@@ -331,7 +330,6 @@ class DataAccess implements IDataAccess {
 			$ret = [
 				'wikitext' => $data['wikitext'],
 				'modules' => $data['modules'] ?? [],
-				'modulescripts' => $data['modulescripts'] ?? [],
 				'modulestyles' => $data['modulestyles'] ?? [],
 				'categories' => $cats,
 				'properties' => $data['properties'] ?? [],

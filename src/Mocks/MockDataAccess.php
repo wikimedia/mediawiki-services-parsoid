@@ -551,7 +551,6 @@ class MockDataAccess implements DataAccess {
 		return [
 			'html' => $html,
 			'modules' => [],
-			'modulescripts' => [],
 			'modulestyles' => [],
 			'categories' => [],
 		];
@@ -562,7 +561,6 @@ class MockDataAccess implements DataAccess {
 		$revid = $pageConfig->getRevisionId();
 		$ret = [
 			'modules' => [],
-			'modulescripts' => [],
 			'modulestyles' => [],
 			'categories' => [],
 			'properties' => [],

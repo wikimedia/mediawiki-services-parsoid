@@ -514,7 +514,6 @@ class MockApiHelper extends ApiHelper {
 					$ret = $ret + [
 						'categories' => [],
 						'modules' => [],
-						'modulescripts' => [],
 						'modulestyles' => []
 					];
 				}
@@ -867,7 +866,6 @@ class MockApiHelper extends ApiHelper {
 			'text' => $res,
 			'categories' => [],
 			'modules' => [],
-			'modulescripts' => [],
 			'modulestyles' => []
 		];
 		return [ 'parse' => $parse ];

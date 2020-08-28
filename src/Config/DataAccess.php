@@ -72,13 +72,11 @@ interface DataAccess {
 	 * This replaces PHPParseRequest with onlypst = false, and Batcher.parse()
 	 *
 	 * @todo Parsoid should be able to do this itself.
-	 * @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
 	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
 	 * @return array
 	 *  - html: (string) Output HTML.
 	 *  - modules: (string[]) ResourceLoader module names
-	 *  - modulescripts: (string[]) ResourceLoader module names to load scripts-only
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
@@ -90,13 +88,11 @@ interface DataAccess {
 	 * This replaces PreprocessorRequest and Batcher.preprocess()
 	 *
 	 * @todo Parsoid should be able to do this itself.
-	 * @todo ParsoidBatchAPI also returns page properties, but they don't seem to be used in Parsoid?
 	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
 	 * @return array
 	 *  - wikitext: (string) Expanded wikitext
 	 *  - modules: (string[]) ResourceLoader module names
-	 *  - modulescripts: (string[]) ResourceLoader module names to load scripts-only
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */

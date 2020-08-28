@@ -1160,7 +1160,7 @@ class TemplateHandler extends TokenHandler {
 		$env = $this->env;
 		$wikitext = $ret['wikitext'];
 
-		foreach ( [ 'modules', 'modulescripts', 'modulestyles' ] as $prop ) {
+		foreach ( [ 'modules', 'modulestyles' ] as $prop ) {
 			$env->addOutputProperty( $prop, $ret[$prop] );
 		}
 

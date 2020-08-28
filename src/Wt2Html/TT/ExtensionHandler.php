@@ -68,7 +68,6 @@ class ExtensionHandler extends TokenHandler {
 
 		// Add the modules to the page data
 		$env->addOutputProperty( 'modules', $ret['modules'] );
-		$env->addOutputProperty( 'modulescripts', $ret['modulescripts'] );
 		$env->addOutputProperty( 'modulestyles', $ret['modulestyles'] );
 
 		/*  - categories: (array) [ Category name => sortkey ] */
