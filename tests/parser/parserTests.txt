@@ -16186,6 +16186,17 @@ File:Foobar.jpg|link=https://example.com?foo&params=bar
 !! end
 
 !! test
+Image link markup is not generated when redundant (T108504) - encoded href
+!! options
+parsoid=html2wt,wt2wt
+language=sr
+!! wikitext
+[[Датотека:Foobar.jpg]]
+!! html/parsoid
+<p><figure-inline class="mw-default-size" typeof="mw:Image"><a href="./%D0%94%D0%B0%D1%82%D0%BE%D1%82%D0%B5%D0%BA%D0%B0:Foobar.jpg"><img resource="./Датотека:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="178" width="172"/></a></figure-inline></p>
+!! end
+
+!! test
 Image with table with attributes in caption
 !! options
 parsoid=wt2html,html2html
