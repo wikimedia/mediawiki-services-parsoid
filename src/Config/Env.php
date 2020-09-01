@@ -590,8 +590,8 @@ class Env {
 	 * @return string
 	 */
 	public function makeLink( Title $title ): string {
-		return Sanitizer::sanitizeTitleURI(
-			$this->getSiteConfig()->relativeLinkPrefix() . $this->titleToString( $title ),
+		return $this->getSiteConfig()->relativeLinkPrefix() . Sanitizer::sanitizeTitleURI(
+			$this->titleToString( $title ),
 			false
 		);
 	}
