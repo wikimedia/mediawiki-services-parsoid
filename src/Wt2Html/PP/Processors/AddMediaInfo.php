@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -586,24 +587,18 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$urlParser = new PegTokenizer( $env );
 		$containers = DOMCompat::querySelectorAll( $root, 'figure,figure-inline' );
 
-		// Try to ensure `addMediaInfo` is idempotent based on finding the
-		// structure unaltered from the emitted tokens.  Note that we may hit
-		// false positivies in link-in-link scenarios but, in those cases, link
-		// content would already have been processed to dom in a subpipeline
-		// and would necessitate filtering here anyways.
-		$containers = array_filter(
-			$containers,
-			function ( $c ) {
-				return $c->firstChild && $c->firstChild->nodeName === 'a' &&
-					$c->firstChild->firstChild && $c->firstChild->firstChild->nodeName === 'span' &&
-					// The media element may remain a <span> if we hit an error
-					// below so use the annotation as another indicator of having
-					// already been processed.
-					!DOMUtils::hasTypeOf( $c, 'mw:Error' );
-			}
-		);
-
 		foreach ( $containers as $container ) {
+			// Media info for fragments was already added in their
+			// respective pipelines
+			if ( WTUtils::isDOMFragmentWrapper( $container ) ) {
+				return;
+			}
+
+			Assert::invariant(
+				WTUtils::isGeneratedFigure( $container ),
+				'Figure is missing a media typeof'
+			);
+
 			$dataMw = DOMDataUtils::getDataMw( $container );
 			$span = $container->firstChild->firstChild;
 			/** @var DOMElement $span */
