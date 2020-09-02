@@ -981,10 +981,10 @@ class LinkHandlerUtils {
 	 *
 	 * All figures have a fixed structure:
 	 * ```
-	 * <figure or figure-inline typeof="mw:Image...">
+	 * <figure or span typeof="mw:Image...">
 	 *  <a or span><img ...><a or span>
 	 *  <figcaption>....</figcaption>
-	 * </figure or figure-inline>
+	 * </figure or span>
 	 * ```
 	 * Pull out this fixed structure, being as generous as possible with
 	 * possibly-broken HTML.

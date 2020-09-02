@@ -199,7 +199,7 @@ class TraditionalMode extends Mode {
 		$thumb->setAttribute( 'class', 'thumb' );
 		$thumb->setAttribute( 'style', $this->thumbStyle( $width, $height ) );
 
-		$wrapper = $doc->createElement( 'figure-inline' );
+		$wrapper = $doc->createElement( 'span' );
 		$wrapper->setAttribute( 'typeof', $o->rdfaType );
 		ParsoidExtensionAPI::migrateChildrenAndTransferWrapperDataAttribs(
 			$o->thumb, $wrapper

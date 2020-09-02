@@ -554,7 +554,7 @@ class WikiLinkHandler extends TokenHandler {
 					// when we get to the dom pass to add media info.
 					if (
 						$t instanceof TagTk &&
-						preg_match( '/^figure/', $t->getName() ) &&
+						( $t->getName() === 'figure' || $t->getName() === 'span' ) &&
 						// Only testing for Image here since we haven't added
 						// media info yet
 						TokenUtils::matchTypeOf( $t, '#^mw:Image($|/)#D' ) !== null
@@ -1487,7 +1487,7 @@ class WikiLinkHandler extends TokenHandler {
 		$wrapperInfo = self::getWrapperInfo( $opts );
 
 		$isInline = $wrapperInfo['isInline'];
-		$containerName = $isInline ? 'figure-inline' : 'figure';
+		$containerName = $isInline ? 'span' : 'figure';
 
 		$classes = $wrapperInfo['classes'];
 		if ( !empty( $opts['class'] ) ) {

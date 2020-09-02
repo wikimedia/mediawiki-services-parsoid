@@ -13,7 +13,7 @@ Simple video element
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test
@@ -42,7 +42,7 @@ File:Video.ogv
 </ul>
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><figure-inline typeof="mw:Video"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" height="90" width="120" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Video"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" height="90" width="120" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></div><div class="gallerytext"></div></li>
 </ul>
 !! end
 
@@ -54,7 +54,7 @@ Video with thumbtime=1:25
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["thumbtime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["thumbtime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test
@@ -65,7 +65,7 @@ Video with starttime offset
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:03.366" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["starttime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv#t=3.3666666666667" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["starttime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv#t=3.3666666666667" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test
@@ -76,7 +76,7 @@ Video with starttime and endtime offsets
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:01.200,00:00:02.300" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["starttime",{"txt":"0:1.2"}],["endtime",{"txt":"00:00:2.3"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv#t=1.2,2.3" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["starttime",{"txt":"0:1.2"}],["endtime",{"txt":"00:00:2.3"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv#t=1.2,2.3" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test
@@ -87,7 +87,7 @@ Video with unsupported alt
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["alt",{"txt":"Test"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["alt",{"txt":"Test"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test
@@ -98,7 +98,7 @@ Video with unsupported link
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test
@@ -119,7 +119,7 @@ Simple audio element
 <p><audio id="mwe_player_1" controls="" preload="none" width="180" data-durationhint="0.99875" data-startoffset="0" data-mwtitle="Audio.oga" data-mwprovider="local"><source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source" data-width="0" data-height="0" data-bandwidth="41107" /></audio>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio"><span><audio controls="" preload="none" height="32" width="220" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"' data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source"/></audio></span></figure-inline></p>
+<p><span class="mw-default-size mw-default-audio-height" typeof="mw:Audio"><span><audio controls="" preload="none" height="32" width="220" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"' data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source"/></audio></span></span></p>
 !! end
 
 ## For backwards compatibility with Parsoid content versions up to 1.7.0
@@ -128,7 +128,7 @@ Simple audio element, rendered as a video tag
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p><figure-inline class="mw-default-size mw-default-audio-height" typeof="mw:Audio"><span><video poster="http://example.com/images/w/resources/assets/file-type-icons/fileicon-ogg.png" controls="" preload="none" height="32" width="220" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></video></span></figure-inline></p>
+<p><span class="mw-default-size mw-default-audio-height" typeof="mw:Audio"><span><video poster="http://example.com/images/w/resources/assets/file-type-icons/fileicon-ogg.png" controls="" preload="none" height="32" width="220" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></video></span></span></p>
 !! wikitext
 [[File:Audio.oga]]
 !! end
@@ -141,5 +141,5 @@ Flag noplayer, noicon, and disablecontrols as bogus options in Parsoid
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><figure-inline class="mw-default-size" typeof="mw:Video" data-parsoid='{"optList":[{"ck":"bogus","ak":"noplayer"},{"ck":"bogus","ak":"noicon"},{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></figure-inline></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-parsoid='{"optList":[{"ck":"bogus","ak":"noplayer"},{"ck":"bogus","ak":"noicon"},{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end

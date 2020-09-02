@@ -215,8 +215,6 @@ class WikitextConstants {
 				'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var',
 				// Those defined in tidy.conf
 				'video', 'audio', 'bdi', 'data', 'time', 'mark',
-				// FIXME(T251641)
-				'figure-inline'
 			] ),
 
 			'ListTags' => PHPUtils::makeSet( [ 'ul', 'ol', 'dl' ] ),

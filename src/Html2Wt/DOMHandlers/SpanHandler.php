@@ -34,9 +34,6 @@ class SpanHandler extends DOMHandler {
 				$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
 				$state->serializer->emitWikitext( $src, $node );
 			} elseif ( WTUtils::isInlineMedia( $node ) ) {
-				// TODO: Remove when 1.5.0 content is deprecated,
-				// since we no longer emit media in spans.  See the test,
-				// "Serialize simple image with span wrapper"
 				$state->serializer->figureHandler( $node );
 			} elseif (
 				DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
