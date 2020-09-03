@@ -727,18 +727,6 @@ class DOMPostProcessor extends PipelineStage {
 			DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
 		}
 
-		// html5shiv
-		$shiv = $document->createElement( 'script' );
-		$src = $modulesBaseURI . '?lang=' . $lang . '&modules=html5shiv&only=scripts&skin=vector&sync=1';
-		$shiv->setAttribute( 'src', $src );
-		$fi = $document->createElement( 'script' );
-		$fi->appendChild( $document->createTextNode( "html5.addElements('figure-inline');" ) );
-		$comment = $document->createComment(
-			'[if lt IE 9]>' . DOMCompat::getOuterHTML( $shiv ) .
-			DOMCompat::getOuterHTML( $fi ) . '<![endif]'
-		);
-		DOMCompat::getHead( $document )->appendChild( $comment );
-
 		// Indicate whether LanguageConverter is enabled, so that downstream
 		// caches can split on variant (if necessary)
 		$this->appendToHead( $document, 'meta', [
