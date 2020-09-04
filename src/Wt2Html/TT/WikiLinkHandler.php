@@ -544,6 +544,21 @@ class WikiLinkHandler extends TokenHandler {
 				$n = count( $toks );
 				$newToks = [];
 				foreach ( $toks as $j => $t ) {
+					// Bail on media-syntax in wikilink-syntax scenarios,
+					// since the legacy parser explodes on [[, last one wins.
+					// Note that without this, anchors tags in media output
+					// will be stripped and we won't have the right structure
+					// when we get to the dom pass to add media info.
+					if (
+						$t instanceof TagTk &&
+						preg_match( '/^figure/', $t->getName() ) &&
+						// Only testing for Image here since we haven't added
+						// media info yet
+						TokenUtils::matchTypeOf( $t, '#^mw:Image($|/)#D' ) !== null
+					) {
+						throw new InternalException( 'Media-in-link' );
+					}
+
 					if ( $t instanceof TagTk && $t->getName() === 'a' ) {
 						// Bail on wikilink-syntax in wiklink-syntax scenarios,
 						// since the legacy parser explodes on [[, last one wins

@@ -9125,6 +9125,17 @@ Wikilink in wikilink
 <p>[[Hi|<a rel="mw:WikiLink" href="./Ho" title="Ho" data-parsoid='{"stx":"simple","a":{"href":"./Ho"},"sa":{"href":"Ho"}}' class="new">Ho</a>]]</p>
 !! end
 
+!! test
+Media in wikilink
+!! wikitext
+[[Test|[[File:Foobar.jpg]]]]
+!! html/php
+<p>[[Test|<a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>]]
+</p>
+!! html/parsoid
+<p>[[Test|<figure-inline class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></figure-inline>]]</p>
+!! end
+
 ###
 ### Interwiki links (see maintenance/interwiki.sql)
 ###
