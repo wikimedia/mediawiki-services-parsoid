@@ -591,7 +591,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// Media info for fragments was already added in their
 			// respective pipelines
 			if ( WTUtils::isDOMFragmentWrapper( $container ) ) {
-				return;
+				continue;
 			}
 
 			Assert::invariant(
