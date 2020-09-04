@@ -506,6 +506,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param stdClass $target
 	 * @param bool $buildDOMFragment
 	 * @return array
+	 * @throws InternalException
 	 */
 	private function addLinkAttributesAndGetContent(
 		Token $newTk, Token $token, stdClass $target, bool $buildDOMFragment = false
@@ -531,6 +532,8 @@ class WikiLinkHandler extends TokenHandler {
 			foreach ( $content as $i => $kv ) {
 				$toks = $kv->v;
 				// since this is already a link, strip autolinks from content
+				// FIXME: Maybe add a stop in the grammar so that autolinks
+				// aren't tokenized in link content to begin with?
 				if ( !is_array( $toks ) ) {
 					$toks = [ $toks ];
 				}
@@ -542,6 +545,19 @@ class WikiLinkHandler extends TokenHandler {
 				$newToks = [];
 				foreach ( $toks as $j => $t ) {
 					if ( $t instanceof TagTk && $t->getName() === 'a' ) {
+						// Bail on wikilink-syntax in wiklink-syntax scenarios,
+						// since the legacy parser explodes on [[, last one wins
+						if (
+							preg_match(
+								'#^mw:WikiLink(/Interwiki)?$#D',
+								$t->getAttribute( 'rel' )
+							) &&
+							// ISBN links don't use wikilink-syntax but still
+							// get the same "rel", so should be ignored
+							( $t->dataAttribs->stx ?? '' ) !== 'magiclink'
+						) {
+							throw new InternalException( 'Link-in-link' );
+						}
 						if ( $j + 1 < $n && $toks[$j + 1] instanceof EndTagTk &&
 							$toks[$j + 1]->getName() === 'a'
 						) {
@@ -620,7 +636,11 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	private function renderWikiLink( Token $token, stdClass $target ): array {
 		$newTk = new TagTk( 'a' );
-		$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target, true );
+		try {
+			$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target, true );
+		} catch ( InternalException $e ) {
+			return [ 'tokens' => self::bailTokens( $this->env, $token, false ) ];
+		}
 
 		$newTk->addNormalizedAttribute( 'href', $this->env->makeLink( $target->title ),
 			$target->hrefSrc );
@@ -643,7 +663,11 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	private function renderCategory( Token $token, stdClass $target ): array {
 		$newTk = new SelfclosingTagTk( 'link' );
-		$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target );
+		try {
+			$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target );
+		} catch ( InternalException $e ) {
+			return [ 'tokens' => self::bailTokens( $this->env, $token, false ) ];
+		}
 		$env = $this->manager->env;
 
 		// Change the rel to be mw:PageProp/Category
@@ -700,7 +724,11 @@ class WikiLinkHandler extends TokenHandler {
 		// The prefix is listed in the interwiki map
 
 		$newTk = new SelfclosingTagTk( 'link', [], $token->dataAttribs );
-		$this->addLinkAttributesAndGetContent( $newTk, $token, $target );
+		try {
+			$this->addLinkAttributesAndGetContent( $newTk, $token, $target );
+		} catch ( InternalException $e ) {
+			return [ 'tokens' => self::bailTokens( $this->env, $token, false ) ];
+		}
 
 		// add title attribute giving the presentation name of the
 		// "extra language link"
@@ -736,7 +764,11 @@ class WikiLinkHandler extends TokenHandler {
 
 		$tokens = [];
 		$newTk = new TagTk( 'a', [], $token->dataAttribs );
-		$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target, true );
+		try {
+			$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target, true );
+		} catch ( InternalException $e ) {
+			return [ 'tokens' => self::bailTokens( $this->env, $token, false ) ];
+		}
 
 		// We set an absolute link to the article in the other wiki/language
 		$isLocal = !empty( $target->interwiki['local'] );
