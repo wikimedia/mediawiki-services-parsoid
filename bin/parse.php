@@ -44,6 +44,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->setOptionDefault( 'body_only', true );
+		$this->addOption( 'profile', 'Proxy for --trace time' );
 		$this->addOption( 'selser',
 						 'Use the selective serializer to go from HTML to Wikitext.' );
 		$this->addOption(
@@ -515,6 +516,12 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );
+		if ( $this->hasOption( 'profile' ) ) {
+			if ( !isset( $parsoidOpts['traceFlags'] ) ) {
+				$parsoidOpts['traceFlags'] = [];
+			}
+			$parsoidOpts['traceFlags']['time'] = true;
+		}
 
 		$startsAtHtml = $this->hasOption( 'html2wt' ) ||
 			$this->hasOption( 'html2html' ) ||

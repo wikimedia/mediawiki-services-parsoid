@@ -68,6 +68,9 @@ class DOMPostProcessor extends PipelineStage {
 	/** @var bool */
 	private $atTopLevel = false;
 
+	/** @var string */
+	private $timeProfile = '';
+
 	/**
 	 * @param Env $env
 	 * @param array $options
@@ -768,6 +771,13 @@ class DOMPostProcessor extends PipelineStage {
 		// Set 'mw-parser-output' directly on the body.
 		// Templates target this class as part of the TemplateStyles RFC
 		$bodyCL->add( 'mw-parser-output' );
+
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
+			$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
+			$body->appendChild( $body->ownerDocument->createComment( $this->timeProfile ) );
+			$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
+		}
 	}
 
 	/**
@@ -783,27 +793,26 @@ class DOMPostProcessor extends PipelineStage {
 			ContentUtils::dumpDOM( $node, 'DOM: after tree builder', $opts );
 		}
 
-		$tracePP = $env->hasTraceFlag( 'time/dompp' ) || $env->hasTraceFlag( 'time' );
-
 		$startTime = null;
 		$endTime = null;
 		$prefix = null;
-		$logLevel = null;
+		$traceLevel = null;
 		$resourceCategory = null;
 
-		if ( $tracePP ) {
+		$profile = null;
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
 			if ( $this->atTopLevel ) {
+				$this->timeProfile = str_repeat( "-", 85 ) . "\n";
 				$prefix = 'TOP';
 				// Turn off DOM pass timing tracing on non-top-level documents
-				$logLevel = 'trace/time/dompp';
 				$resourceCategory = 'DOMPasses:TOP';
 			} else {
 				$prefix = '---';
-				$logLevel = 'debug/time/dompp';
 				$resourceCategory = 'DOMPasses:NESTED';
 			}
 			$startTime = PHPUtils::getStartHRTime();
-			$env->log( $logLevel, $prefix . '; start=' . $startTime );
+			$env->log( 'debug/time/dompp', $prefix . '; start=' . $startTime );
 		}
 
 		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
@@ -816,13 +825,13 @@ class DOMPostProcessor extends PipelineStage {
 			$ppStart = null;
 
 			// Trace
-			if ( $tracePP ) {
+			if ( $profile ) {
 				$ppName = $pp['name'] . str_repeat(
 					" ",
 					( strlen( $pp['name'] ) < 30 ) ? 30 - strlen( $pp['name'] ) : 0
 				);
 				$ppStart = PHPUtils::getStartHRTime();
-				$env->log( $logLevel, $prefix . '; ' . $ppName . ' start' );
+				$env->log( 'debug/time/dompp', $prefix . '; ' . $ppName . ' start' );
 			}
 
 			$opts = null;
@@ -844,22 +853,27 @@ class DOMPostProcessor extends PipelineStage {
 				ContentUtils::dumpDOM( $node, 'DOM: post-' . $pp['shortcut'], $opts );
 			}
 
-			if ( $tracePP ) {
+			if ( $profile ) {
 				$ppElapsed = PHPUtils::getHRTimeDifferential( $ppStart );
 				$env->log(
-					$logLevel,
-					$prefix . '; ' . $ppName . ' end; time = ' . number_format( $ppElapsed, 5 )
+					'debug/time/dompp',
+					$prefix . '; ' . $ppName . ' end; time = ' . $ppElapsed
 				);
-				$env->bumpTimeUse( $resourceCategory, $ppElapsed, 'DOM' );
+				if ( $this->atTopLevel ) {
+					$this->timeProfile .= str_pad( $prefix . '; ' . $ppName, 65 ) .
+						' time = ' .
+						str_pad( number_format( $ppElapsed, 2 ), 10, ' ', STR_PAD_LEFT ) . "\n";
+				}
+				$profile->bumpTimeUse( $resourceCategory, $ppElapsed, 'DOM' );
 			}
 		}
 
-		if ( $tracePP ) {
+		if ( $profile ) {
 			$endTime = PHPUtils::getStartHRTime();
 			$env->log(
-				$logLevel,
-				$prefix . '; end=' . number_format( $endTime, 5 ) . '; time = ' .
-				number_format( PHPUtils::getHRTimeDifferential( $startTime ), 5 )
+				'debug/time/dompp',
+				$prefix . '; end=' . number_format( $endTime, 2 ) . '; time = ' .
+				number_format( PHPUtils::getHRTimeDifferential( $startTime ), 2 )
 			);
 		}
 
@@ -867,13 +881,9 @@ class DOMPostProcessor extends PipelineStage {
 		// For the top-level document, we generate <head> and add it.
 		if ( $this->atTopLevel ) {
 			self::addMetaData( $env, $node->ownerDocument );
-			// @phan-suppress-next-line PhanPluginEmptyStatementIf
-			if ( $env->hasTraceFlag( 'time' ) ) {
-				// $env->printTimeProfile();
-			}
-			// @phan-suppress-next-line PhanPluginEmptyStatementIf
 			if ( $env->hasDumpFlag( 'wt2html:limits' ) ) {
 				/*
+				 * PORT-FIXME: Not yet implemented
 				$env->printWt2HtmlResourceUsage( [
 					'HTML Size' => strlen( DOMCompat::getOuterHTML( $document->documentElement ) )
 				] );

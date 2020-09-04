@@ -171,7 +171,7 @@ abstract class TokenHandler extends PipelineStage {
 	public function process( $tokens, array $opts = null ) {
 		'@phan-var array $tokens'; // @var array $tokens
 		$traceState = $this->manager->getTraceState();
-		$traceTime = $traceState['traceTime'] ?? false;
+		$profile = $traceState['profile'] ?? null;
 		$accum = [];
 		$i = 0;
 		$n = count( $tokens );
@@ -184,7 +184,7 @@ abstract class TokenHandler extends PipelineStage {
 			$res = null;
 			$resTokens = null; // Not needed but helpful for code comprehension
 			$modified = false;
-			if ( $traceTime ) {
+			if ( $profile ) {
 				$s = PHPUtils::getStartHRTime();
 				if ( $token instanceof NlTk ) {
 					$res = $this->onNewline( $token );
@@ -201,8 +201,8 @@ abstract class TokenHandler extends PipelineStage {
 				}
 				if ( $traceName ) {
 					$t = PHPUtils::getHRTimeDifferential( $s );
-					$this->env->bumpTimeUse( $traceName, $t, "TT" );
-					$this->env->bumpCount( $traceName );
+					$profile->bumpTimeUse( $traceName, $t, "TT" );
+					$profile->bumpCount( $traceName );
 					$traceState['tokenTimes'] += $t;
 				}
 			} else {
@@ -230,13 +230,13 @@ abstract class TokenHandler extends PipelineStage {
 			if ( $modified ) {
 				$resTokens = $res['tokens'] ?? null;
 			} elseif ( $this->onAnyEnabled && ( !is_array( $res ) || empty( $res['skipOnAny'] ) ) ) {
-				if ( $traceTime ) {
+				if ( $profile ) {
 					$s = PHPUtils::getStartHRTime();
 					$traceName = $traceState['transformer'] . '.onAny';
 					$res = $this->onAny( $token );
 					$t = PHPUtils::getHRTimeDifferential( $s );
-					$this->env->bumpTimeUse( $traceName, $t, "TT" );
-					$this->env->bumpCount( $traceName );
+					$profile->bumpTimeUse( $traceName, $t, "TT" );
+					$profile->bumpCount( $traceName );
 					$traceState['tokenTimes'] += $t;
 				} else {
 					$res = $this->onAny( $token );

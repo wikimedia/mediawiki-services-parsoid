@@ -36,8 +36,6 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\PrepareDOM;
 
 class HTML5TreeBuilder extends PipelineStage {
-	private $traceTime;
-
 	/** @var int */
 	private $tagId;
 
@@ -76,8 +74,6 @@ class HTML5TreeBuilder extends PipelineStage {
 		?PipelineStage $prevStage = null
 	) {
 		parent::__construct( $env, $prevStage );
-
-		$this->traceTime = $env->hasTraceFlag( 'time' );
 
 		// Reset variable state and set up the parser
 		$this->resetState( [] );
@@ -125,15 +121,18 @@ class HTML5TreeBuilder extends PipelineStage {
 	 */
 	public function processChunk( array $tokens ): void {
 		$s = null;
-		if ( $this->traceTime ) {
+		$profile = null;
+		if ( $this->env->profiling() ) {
+			$profile = $this->env->getCurrentProfile();
 			$s = PHPUtils::getStartHRTime();
 		}
 		$n = count( $tokens );
 		for ( $i = 0;  $i < $n;  $i++ ) {
 			$this->processToken( $tokens[$i] );
 		}
-		if ( $this->traceTime ) {
-			$this->env->bumpTimeUse( 'HTML5 TreeBuilder', PHPUtils::getHRTimeDifferential( $s ), 'HTML5' );
+		if ( $profile ) {
+			$profile->bumpTimeUse(
+				'HTML5 TreeBuilder', PHPUtils::getHRTimeDifferential( $s ), 'HTML5' );
 		}
 	}
 

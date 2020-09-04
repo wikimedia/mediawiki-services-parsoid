@@ -151,9 +151,15 @@ class ExtensionHandler extends TokenHandler {
 			);
 		} else {
 			$pageConfig = $env->getPageConfig();
+			$start = PHPUtils::getStartHRTime();
 			$ret = $env->getDataAccess()->parseWikitext(
 				$pageConfig, $token->getAttribute( 'source' )
 			);
+			if ( $env->profiling() ) {
+				$profile = $env->getCurrentProfile();
+				$profile->bumpMWTime( "Extension", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpCount( "Extension" );
+			}
 
 			$domFragment = DOMUtils::parseHTMLToFragment(
 				$this->env->topLevelDoc,

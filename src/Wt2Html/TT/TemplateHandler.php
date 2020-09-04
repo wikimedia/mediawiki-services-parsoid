@@ -672,7 +672,7 @@ class TemplateHandler extends TokenHandler {
 			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
 		}
 
-		$this->env->log( 'debug', 'TemplateHandler.processTemplateSource',
+		$env->log( 'debug', 'TemplateHandler.processTemplateSource',
 			$tplArgs['name'], $tplArgs['attribs'] );
 
 		// Get a nested transformation pipeline for the wikitext that takes
@@ -684,7 +684,7 @@ class TemplateHandler extends TokenHandler {
 		// types will have already been handled the first time through, but
 		// it does present chances for confusion, like in attribute expansion.
 		$toks = PipelineUtils::processContentInPipeline(
-			$this->env,
+			$env,
 			$this->manager->getFrame(),
 			$src,
 			[
@@ -1134,7 +1134,13 @@ class TemplateHandler extends TokenHandler {
 			}
 			return [ 'tokens' => $tokens ];
 		} else {
+			$start = PHPUtils::getStartHRTime();
 			$pageContent = $env->getDataAccess()->fetchTemplateSource( $env->getPageConfig(), $templateName );
+			if ( $env->profiling() ) {
+				$profile = $env->getCurrentProfile();
+				$profile->bumpMWTime( "TemplateFetch", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpCount( "TemplateFetch" );
+			}
 			if ( !$pageContent ) {
 				// Missing page!
 				// FIXME: This should be a redlink here!
@@ -1164,8 +1170,14 @@ class TemplateHandler extends TokenHandler {
 			];
 		} else {
 			$pageConfig = $env->getPageConfig();
+			$start = PHPUtils::getStartHRTime();
 			$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
 			$wikitext = $this->manglePreprocessorResponse( $ret );
+			if ( $env->profiling() ) {
+				$profile = $env->getCurrentProfile();
+				$profile->bumpMWTime( "Template", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpCount( "Template" );
+			}
 			return [
 				'error' => false,
 				'src' => $wikitext

@@ -126,6 +126,11 @@ class ParserPipeline {
 	 * @return array|DOMDocument
 	 */
 	public function parse( $input, array $opts ) {
+		$profile = $this->env->profiling() ? $this->env->pushNewProfile() : null;
+		if ( $profile !== null ) {
+			$profile->start();
+		}
+
 		$output = $input;
 		foreach ( $this->stages as $stage ) {
 			$output = $stage->process( $output, $opts );
@@ -135,6 +140,18 @@ class ParserPipeline {
 		}
 
 		$this->env->getPipelineFactory()->returnPipeline( $this );
+
+		if ( $profile !== null ) {
+			$this->env->popProfile();
+			$profile->end();
+
+			if ( isset( $opts['atTopLevel'] ) ) {
+				$body = $output;
+				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
+				$body->appendChild( $body->ownerDocument->createComment( $profile->print() ) );
+				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
+			}
+		}
 
 		return $output;
 	}
@@ -147,6 +164,11 @@ class ParserPipeline {
 	 * @return DOMDocument|array final DOM or array of token chnks
 	 */
 	public function parseChunkily( string $input, array $opts ) {
+		$profile = $this->env->profiling() ? $this->env->pushNewProfile() : null;
+		if ( $profile !== null ) {
+			$profile->start();
+		}
+
 		$ret = [];
 		$lastStage = PHPUtils::lastItem( $this->stages );
 		foreach ( $lastStage->processChunkily( $input, $opts ) as $output ) {
@@ -154,6 +176,19 @@ class ParserPipeline {
 		}
 
 		$this->env->getPipelineFactory()->returnPipeline( $this );
+
+		if ( $profile !== null ) {
+			$this->env->popProfile();
+			$profile->end();
+
+			if ( isset( $opts['atTopLevel'] ) ) {
+				Assert::invariant( $this->outputType === 'DOM', 'Expected top-level output to be DOM' );
+				$body = $ret[0];
+				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
+				$body->appendChild( $body->ownerDocument->createComment( $profile->print() ) );
+				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
+			}
+		}
 
 		// Return either the DOM or the array of chunks
 		return $this->outputType === "DOM" ? $ret[0] : $ret;
@@ -188,17 +223,13 @@ class ParserPipeline {
 		// maintained across all pipelines used by the document.
 		// (Ex: Cite state)
 		$this->resetState( [ 'toplevel' => true ] );
-		if ( empty( $this->env->startTime ) ) {
-			$this->env->startTime = PHPUtils::getStartHRTime();
-		}
-		$this->env->log( 'trace/time', 'Starting parse at ', $this->env->startTime );
-
 		if ( !$opts ) {
 			$opts = [];
 		}
 
 		// Top-level doc parsing always start in SOL state
 		$opts['sol'] = true;
+		$opts['atTopLevel'] = true;
 
 		if ( !empty( $opts['chunky'] ) ) {
 			$result = $this->parseChunkily( $input, $opts );

@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DataBag;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TitleNamespace;
@@ -87,6 +88,12 @@ class Env {
 	/** @phan-var array<string,int> */
 	private $html2wtUsage = [];
 
+	/** @var bool */
+	private $profiling = false;
+
+	/** @var array<Profile> */
+	private $profileStack = [];
+
 	/** @var DOMDocument[] */
 	private $liveDocs = [];
 
@@ -133,9 +140,6 @@ class Env {
 
 	/** @var ParsoidLogger */
 	private $parsoidLogger;
-
-	/** @var float */
-	public $startTime;
 
 	/** @var bool */
 	private $scrubWikitext = false;
@@ -307,6 +311,52 @@ class Env {
 		] );
 
 		$this->initDocumentDispatcher();
+		if ( $this->hasTraceFlag( 'time' ) || $this->hasTraceFlag( 'time/dompp' ) ) {
+			$this->profiling = true;
+		}
+	}
+
+	/**
+	 * Is profiling enabled?
+	 * @return bool
+	 */
+	public function profiling(): bool {
+		return $this->profiling;
+	}
+
+	/**
+	 * Get the profile at the top of the stack
+	 *
+	 * FIXME: This implicitly assumes sequential in-order processing
+	 * This wouldn't have worked in Parsoid/JS and may not work in the future
+	 * depending on how / if we restructure the pipeline for concurrency, etc.
+	 *
+	 * @return Profile
+	 */
+	public function getCurrentProfile(): Profile {
+		return PHPUtils::lastItem( $this->profileStack );
+	}
+
+	/**
+	 * New pipeline started. Push profile.
+	 * @return Profile
+	 */
+	public function pushNewProfile(): Profile {
+		$currProfile = count( $this->profileStack ) > 0 ? $this->getCurrentProfile() : null;
+		$profile = new Profile();
+		$this->profileStack[] = $profile;
+		if ( $currProfile !== null ) {
+			$currProfile->pushNestedProfile( $profile );
+		}
+		return $profile;
+	}
+
+	/**
+	 * Pipeline ended. Pop profile.
+	 * @return Profile
+	 */
+	public function popProfile(): Profile {
+		return array_pop( $this->profileStack );
 	}
 
 	/**
@@ -905,28 +955,6 @@ class Env {
 	 */
 	public function log( ...$args ): void {
 		$this->parsoidLogger->log( ...$args );
-	}
-
-	/**
-	 * Update a profile timer.
-	 *
-	 * @param string $resource
-	 * @param mixed $time
-	 * @param mixed $cat
-	 */
-	public function bumpTimeUse( string $resource, $time, $cat ): void {
-		// --trace ttm:* trip on this if we throw an exception
-		// throw new \BadMethodCallException( 'not yet ported' );
-	}
-
-	/**
-	 * Update a profile counter.
-	 *
-	 * @param string $resource
-	 * @param int $n The amount to increment the counter; defaults to 1.
-	 */
-	public function bumpCount( string $resource, int $n = 1 ): void {
-		throw new \BadMethodCallException( 'not yet ported' );
 	}
 
 	/**

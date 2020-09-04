@@ -8,6 +8,7 @@ use DOMElement;
 use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class AddRedLinks implements Wt2HtmlDOMProcessor {
@@ -38,7 +39,13 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
+		$start = PHPUtils::getStartHRTime();
 		$titleMap = $env->getDataAccess()->getPageInfo( $env->getPageConfig(), $titles );
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
+			$profile->bumpMWTime( "RedLinks", PHPUtils::getHRTimeDifferential( $start ), "api" );
+			$profile->bumpCount( "RedLinks" );
+		}
 
 		foreach ( $wikiLinks as $a ) {
 			if ( !$a->hasAttribute( 'title' ) ) {

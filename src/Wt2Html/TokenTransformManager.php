@@ -57,7 +57,6 @@ class TokenTransformManager extends PipelineStage {
 		if ( $env->hasTraceFlags() ) {
 			$this->traceState = [
 				'tokenTimes' => 0,
-				'traceTime' => $env->hasTraceFlag( 'time' ),
 				'tracer' => function ( $token, $transformer ) use ( $env ) {
 					$cname = Utils::stripNamespace( get_class( $transformer ) );
 					$cnameStr = $cname . str_repeat( ' ', 23 - strlen( $cname ) ) . "|";
@@ -65,7 +64,7 @@ class TokenTransformManager extends PipelineStage {
 						$this->traceType, $this->pipelineId, $cnameStr,
 						PHPUtils::jsonEncode( $token )
 					);
-				},
+				}
 			];
 		}
 	}
@@ -103,7 +102,12 @@ class TokenTransformManager extends PipelineStage {
 		}
 
 		$startTime = null;
-		if ( isset( $this->traceState['traceTime'] ) ) {
+		$profile = null;
+		if ( $this->traceState ) {
+			$profile = $this->traceState['profile'] =
+				$this->env->profiling() ? $this->env->getCurrentProfile() : null;
+		}
+		if ( $profile ) {
 			$startTime = PHPUtils::getStartHRTime();
 		}
 
@@ -120,8 +124,8 @@ class TokenTransformManager extends PipelineStage {
 			}
 		}
 
-		if ( isset( $this->traceState['traceTime'] ) ) {
-			$this->env->bumpTimeUse( 'SyncTTM',
+		if ( $profile ) {
+			$profile->bumpTimeUse( 'TTM',
 				( PHPUtils::getStartHRTime() - $startTime - $this->traceState['tokenTimes'] ),
 				'TTM' );
 		}

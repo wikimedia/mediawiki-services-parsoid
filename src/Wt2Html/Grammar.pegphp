@@ -39,6 +39,8 @@
 
 	private $extTags;
 
+	private $startTime;
+
 	protected function initialize() {
 		$this->env = $this->options['env'];
 		$this->siteConfig = $this->env->getSiteConfig();
@@ -368,7 +370,25 @@ redirect_word =
  */
 start_async =
 	(
-		tlb
+		(
+			& {
+				$this->startTime = null;
+				if ( $this->env->profiling() ) {
+					$profile = $this->env->getCurrentProfile();
+					$this->startTime = PHPUtils::getStartHRTime();
+				}
+				return true;
+			}
+			t:tlb
+			& {
+				if ( $this->env->profiling() ) {
+					$profile = $this->env->getCurrentProfile();
+					$profile->bumpTimeUse(
+						'PEG', PHPUtils::getHRTimeDifferential( $this->startTime ), 'PEG' );
+				}
+				return true;
+			}
+		) { return $t; }
 		/ newlineToken* &{
 			// "tlb" matches "block" matches "sol" matches "newlineToken"
 			// But, "tlb" is prefixed with a !eof clause, so, we should only

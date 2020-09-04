@@ -25,7 +25,6 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {
-	private $traceTime;
 	private $options;
 	private $offsets;
 
@@ -47,7 +46,6 @@ class PegTokenizer extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 		$this->env = $env;
-		$this->traceTime = $env->hasTraceFlag( 'time' );
 		$this->options = $options;
 		$this->offsets = [];
 	}
@@ -126,10 +124,6 @@ class PegTokenizer extends PipelineStage {
 			'startRule' => 'start_async',
 		];
 
-		$start = null;
-		if ( $this->traceTime ) {
-			$start = PHPUtils::getStartHRTime();
-		}
 		try {
 			// Wrap wikipeg's generator with our own generator
 			// to catch exceptions and track time usage.
@@ -139,11 +133,6 @@ class PegTokenizer extends PipelineStage {
 		} catch ( SyntaxError $e ) {
 			$this->lastError = $e;
 			throw $e;
-		}
-
-		if ( $this->traceTime ) {
-			$this->env->bumpTimeUse( 'PEG-async', PHPUtils::getHRTimeDifferential( $start ),
-				'PEG' );
 		}
 	}
 
@@ -168,18 +157,24 @@ class PegTokenizer extends PipelineStage {
 			'sol' => $args['sol'] ?? true, // defaults to true
 			'env' => $this->env
 		];
+
 		$start = null;
-		if ( $this->traceTime ) {
+		$profile = null;
+		if ( $this->env->profiling() ) {
+			$profile = $this->env->getCurrentProfile();
 			$start = PHPUtils::getStartHRTime();
 		}
+
 		try {
 			$toks = $this->grammar->parse( $text, $args );
 		} catch ( SyntaxError $e ) {
 			$this->lastError = $e;
 			return false;
 		}
-		if ( $this->traceTime ) {
-			$this->env->bumpTimeUse( 'PEG-sync', PHPUtils::getHRTimeDifferential( $start ), 'PEG' );
+
+		if ( $profile ) {
+			$profile->bumpTimeUse(
+				'PEG', PHPUtils::getHRTimeDifferential( $start ), 'PEG' );
 		}
 		return $toks;
 	}

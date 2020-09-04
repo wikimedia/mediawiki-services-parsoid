@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
@@ -422,10 +423,16 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 */
 	public static function requestInfo( Env $env, string $key, array $dims ): array {
 		$err = null;
+		$start = PHPUtils::getStartHRTime();
 		$info = $env->getDataAccess()->getFileInfo(
 			$env->getPageConfig(),
 			[ $key => $dims ]
 		)[$key] ?? null;
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
+			$profile->bumpMWTime( "Media", PHPUtils::getHRTimeDifferential( $start ), "api" );
+			$profile->bumpCount( "Media" );
+		}
 		if ( !$info ) {
 			$info = self::errorInfo( $env, $key, $dims );
 			$err = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
