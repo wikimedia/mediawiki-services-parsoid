@@ -9114,6 +9114,17 @@ wgFragmentMode=[ 'legacy' ]
 </p>
 !! end
 
+!! test
+Wikilink in wikilink
+!! wikitext
+[[Hi|[[Ho]]]]
+!! html/php
+<p>[[Hi|<a href="/index.php?title=Ho&amp;action=edit&amp;redlink=1" class="new" title="Ho (page does not exist)">Ho</a>]]
+</p>
+!! html/parsoid
+<p>[[Hi|<a rel="mw:WikiLink" href="./Ho" title="Ho" data-parsoid='{"stx":"simple","a":{"href":"./Ho"},"sa":{"href":"Ho"}}' class="new">Ho</a>]]</p>
+!! end
+
 ###
 ### Interwiki links (see maintenance/interwiki.sql)
 ###
