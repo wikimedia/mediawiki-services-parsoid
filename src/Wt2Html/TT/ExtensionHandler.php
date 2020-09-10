@@ -82,7 +82,7 @@ class ExtensionHandler extends TokenHandler {
 			$link->setAttribute( "href", $href );
 
 			$body = DOMCompat::getBody( $doc );
-			$body->appendChild( $doc->createTextNode( '\n' ) );
+			$body->appendChild( $doc->createTextNode( "\n" ) );
 			$body->appendChild( $link );
 		}
 	}
