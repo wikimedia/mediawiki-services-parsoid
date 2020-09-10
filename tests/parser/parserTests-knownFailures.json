@@ -1596,6 +1596,16 @@
     "Nested lists 10 (list and span siblings: wt2wt regression)": {
         "html2wt": "* a <span>x</span>\n** b <span>y</span>\n"
     },
+    "Nested lists 11 (T262409: trailing whitespace & selser)": {
+        "selser [[2]]": "* mi5h3i\n**a\n***b  ",
+        "selser [[1]]": "**a\n***b  ",
+        "selser [2]": "dz9syw\n**a\n***b  ",
+        "selser [[[2]]]": "*1sd3fyg\n**a\n***b  ",
+        "selser [1]": "**a\n***b  ",
+        "selser [[[1]]]": "**a\n***b  ",
+        "selser [[[[1]]]]": "**a\n***b  ",
+        "selser [[[[[3,0]]]]]": "***b  "
+    },
     "Nested lists 2": {
         "html2wt": "** foo\n* bar"
     },

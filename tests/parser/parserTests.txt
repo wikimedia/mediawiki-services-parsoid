@@ -10361,6 +10361,37 @@ Nested lists 9 (extension interaction)
 !! end
 
 !! test
+Nested lists 10 (list and span siblings: wt2wt regression)
+!! wikitext
+*a <span>x</span>
+**b <span>y</span>
+!! html/parsoid
+<ul><li>a <span>x</span>
+<ul><li>b <span>y</span></li></ul></li></ul>
+!! end
+
+!! test
+Nested lists 11 (T262409: trailing whitespace & selser)
+!! options
+parsoid={
+  "modes": ["wt2html","selser"],
+  "changes": [
+    [ "ul > li > ul > li > ul > li", "after", "<li>b-new</li>" ]
+  ]
+}
+!! wikitext
+**a
+***b  
+!! html/parsoid
+<ul><li><ul><li>a
+<ul><li>b</li></ul></li></ul></li></ul>
+!! wikitext/edited
+**a
+***b  
+*** b-new
+!! end
+
+!! test
 1. Lists with start-of-line-transparent tokens before bullets: Comments
 !! wikitext
 *foo
@@ -10374,16 +10405,6 @@ Nested lists 9 (extension interaction)
 <ul><li>foo</li>
 <li><!--cmt-->bar</li>
 <!--cmt--><li>baz</li></ul>
-!! end
-
-!! test
-Nested lists 10 (list and span siblings: wt2wt regression)
-!! wikitext
-*a <span>x</span>
-**b <span>y</span>
-!! html/parsoid
-<ul><li>a <span>x</span>
-<ul><li>b <span>y</span></li></ul></li></ul>
 !! end
 
 # Parsoid handles this case differently from the legacy parser, as a side
