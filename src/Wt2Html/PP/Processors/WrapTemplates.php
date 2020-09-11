@@ -1016,16 +1016,6 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node
 				$encapInfo->datamw = (object)[ 'parts' => $tplArray ];
-				if ( WTUtils::isGeneratedFigure( $encapTgt ) ) {
-					// Preserve attributes for media since those will be used
-					// when adding info, which only happens after this pass.
-					// FIXME: There's a question here about whether we should
-					// be doing this unconditionally, which is T214241
-					$oldMw = DOMDataUtils::getDataMw( $encapTgt );
-					if ( isset( $oldMw->attribs ) ) {
-						$encapInfo->datamw->attribs = $oldMw->attribs;
-					}
-				}
 				DOMDataUtils::setDataMw( $encapTgt, $encapInfo->datamw );
 				$encapInfo->dp->pi = $paramInfoArrays;
 
