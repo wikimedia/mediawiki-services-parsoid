@@ -62,7 +62,7 @@ class PageHandler extends ParsoidHandler {
 	}
 
 	/** @inheritDoc */
-	public function realExecute(): Response {
+	public function execute(): Response {
 		$request = $this->getRequest();
 		$format = $request->getPathParam( 'format' );
 
