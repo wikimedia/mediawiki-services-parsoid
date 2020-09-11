@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DOMDocument;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -226,8 +227,13 @@ class ExtensionHandler extends TokenHandler {
 			DOMUtils::assertElt( $firstNode );
 
 			// Adds the wrapper attributes to the first element
-			$firstNode->setAttribute(
-				'typeof', "mw:Extension/{$extensionName}"
+			DOMUtils::addTypeOf( $firstNode, "mw:Extension/{$extensionName}" );
+
+			// FIXME: What happens if $firstNode is template generated, since
+			// they have higher precedence?  These questions and more in T214241
+			Assert::invariant(
+				!DOMUtils::hasTypeOf( $firstNode, 'mw:Transclusion' ),
+				'First node of extension content is transcluded.'
 			);
 
 			// Add about to all wrapper tokens.
@@ -239,6 +245,7 @@ class ExtensionHandler extends TokenHandler {
 			}
 
 			// Set data-mw
+			// FIXME: Similar to T214241, we're clobbering $firstNode
 			DOMDataUtils::setDataMw( $firstNode, $argDict );
 
 			// Update data-parsoid

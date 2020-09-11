@@ -1016,6 +1016,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node
 				$encapInfo->datamw = (object)[ 'parts' => $tplArray ];
+				// FIXME: This is going to clobber any data-mw on $encapTgt, see T214241
 				DOMDataUtils::setDataMw( $encapTgt, $encapInfo->datamw );
 				$encapInfo->dp->pi = $paramInfoArrays;
 
