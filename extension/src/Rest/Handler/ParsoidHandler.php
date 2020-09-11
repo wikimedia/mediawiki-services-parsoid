@@ -401,10 +401,13 @@ abstract class ParsoidHandler extends Handler {
 	 *
 	 * @param array $attribs
 	 * @param ?string $wikitext
+	 * @param bool $html2WtMode
 	 * @return PageConfig
 	 * @throws HttpException
 	 */
-	protected function tryToCreatePageConfig( array $attribs, ?string $wikitext = null ): PageConfig {
+	protected function tryToCreatePageConfig(
+		array $attribs, ?string $wikitext = null, bool $html2WtMode = false
+	): PageConfig {
 		$oldid = $attribs['oldid'];
 
 		try {
@@ -413,19 +416,18 @@ abstract class ParsoidHandler extends Handler {
 				$attribs['pagelanguage']
 			);
 		} catch ( RevisionAccessException $exception ) {
-			throw new HttpException(
-				'The specified revision is deleted or suppressed.', 404
-			);
+			throw new HttpException( 'The specified revision is deleted or suppressed.', 404 );
 		}
 
-		if ( $pageConfig->getRevisionContent() === null ) {
+		$hasOldId = ( $attribs['oldid'] !== null );
+		if ( ( !$html2WtMode || $hasOldId ) && $pageConfig->getRevisionContent() === null ) {
 			// T234549
 			throw new HttpException(
 				'The specified revision does not exist.', 404
 			);
 		}
 
-		if ( $wikitext === null && $oldid === null ) {
+		if ( !$html2WtMode && $wikitext === null && !$hasOldId ) {
 			// Redirect to the latest revid
 			throw new ResponseException(
 				$this->createRedirectToOldidResponse( $pageConfig, $attribs )
