@@ -1220,21 +1220,25 @@ class LinkHandlerUtils {
 
 		// Ok, start assembling options, beginning with link & alt & lang
 		// Other media don't have links in output.
-		$linkCond = $elt->nodeName === 'img' && (
-			!$link ||
-			!(
+		$linkCond = $elt->nodeName === 'img';
+		if ( $linkCond && $link ) {
+			// Check whether the link goes to the default place, in which
+			// case an explicit link tag isn't needed.
+			// The link may be external, or may include wikitext template markup,
+			// therefore check first that it parses to a title.
+			$linkTitle = $env->normalizedTitleKey(
+				Utils::decodeURIComponent( $link['value'] ), true
+			);
+			$resourceTitle = $env->normalizedTitleKey(
+				Utils::decodeURIComponent( $resource['value'] ), true
+			);
+			if (
 				$link['value'] === $resource['value'] ||
-				(
-					// Check if the text is different but represent the same page,
-					// e.g. percent-encoded or using a namespace alias.
-					// The link may be external, or may include wikitext template markup,
-					// therefore check first that it parses to a title.
-					$env->normalizedTitleKey( Utils::decodeURIComponent( $link['value'] ), true ) !== null &&
-					$env->normalizedTitleKey( Utils::decodeURIComponent( $link['value'] ), true )
-						=== $env->normalizedTitleKey( Utils::decodeURIComponent( $resource['value'] ), true )
-				)
-			)
-		);
+				( $linkTitle !== null && $linkTitle === $resourceTitle )
+			) {
+				$linkCond = false; // No explicit link attribute needed
+			}
+		}
 
 		// "alt" for non-image is handle below
 		$altCond = $alt['value'] !== null && $elt->nodeName === 'img';
