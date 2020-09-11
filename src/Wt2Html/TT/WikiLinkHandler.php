@@ -565,7 +565,7 @@ class WikiLinkHandler extends TokenHandler {
 						if (
 							preg_match(
 								'#^mw:WikiLink(/Interwiki)?$#D',
-								$t->getAttribute( 'rel' )
+								$t->getAttribute( 'rel' ) ?? ''
 							) &&
 							// ISBN links don't use wikilink-syntax but still
 							// get the same "rel", so should be ignored
