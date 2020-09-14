@@ -653,6 +653,34 @@ Forward-referenced ref with magical follow edge case
 !! end
 
 !! test
+Multiple follow after refs without content and trailing ref with content in references section
+!! wikitext
+ADD<ref name="theName" />
+SUB<ref name="theName"></ref>
+MUL<ref follow="theName">theFollowValue</ref>
+MOD<ref follow="theName">anotherFollowValue</ref>
+<references>
+<ref name="theName"> theValue</ref>
+</references>
+!! html/php
+<p>ADD<sup id="cite_ref-theName_1-0" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
+SUB<sup id="cite_ref-theName_1-1" class="reference"><a href="#cite_note-theName-1">&#91;1&#93;</a></sup>
+MUL
+MOD
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-theName-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-theName_1-0">1.0</a></sup> <sup><a href="#cite_ref-theName_1-1">1.1</a></sup></span> <span class="reference-text"> theFollowValue anotherFollowValue <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; name "theName" defined multiple times with different content</span></span>
+</li>
+</ol></div>
+!! html/parsoid
+<p>ADD<sup about="#mwt2" class="mw-ref" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"theName"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+SUB<sup about="#mwt4" class="mw-ref" id="cite_ref-theName_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"theName"},"body":{"html":""}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+MUL<sup about="#mwt6" class="mw-ref" id="cite_ref-theName_1-1" rel="dc:references" typeof="mw:Extension/ref" style="display: none;" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+MOD<sup about="#mwt8" class="mw-ref" id="cite_ref-theName_1-1" rel="dc:references" typeof="mw:Extension/ref" style="display: none;" data-mw='{"name":"ref","attrs":{"follow":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"}}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt12" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt11\" class=\"mw-ref\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"theName\"},\"body\":{\"html\":\" theValue\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\"}]}&apos;>&lt;a href=\"./Parser_test#cite_note-theName-1\" style=\"counter-reset: mw-Ref 1;\">&lt;span class=\"mw-reflink-text\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><li about="#cite_note-theName-1" id="cite_note-theName-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-theName_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-theName_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-theName-1" class="mw-reference-text"><span typeof="mw:Cite/Follow" about="#mwt6"> theFollowValue</span><span typeof="mw:Cite/Follow" about="#mwt8"> anotherFollowValue</span></span></li></ol>
+!!end
+
+!! test
 Valid parameters become invalid when a third is present
 !! wikitext
 <ref name="theName" group="theGroup" dummy="dummy">theValue</ref>
