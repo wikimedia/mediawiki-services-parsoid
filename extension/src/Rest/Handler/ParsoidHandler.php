@@ -873,10 +873,10 @@ abstract class ParsoidHandler extends Handler {
 		);
 
 		if ( !empty( $opts['updates'] ) ) {
-			$pageConfig = $this->createPageConfig(
-				$attribs['pageName'], $attribs['oldid'], null,
-				$attribs['pagelanguage']
-			);
+			// FIXME: Handling missing revisions uniformly for all update types
+			// is not probably the right thing to do but probably okay for now.
+			// This might need revisiting as we add newer types.
+			$pageConfig = $this->tryToCreatePageConfig( $attribs, null, true );
 			// If we're only updating parts of the original version, it should
 			// satisfy the requested content version, since we'll be returning
 			// that same one.
