@@ -19,10 +19,10 @@ use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 /**
  * TableFixups class.
  *
- * Provides two DOMTraverser visitors that implement the two parts of
- * https://phabricator.wikimedia.org/T52603 :
+ * Provides DOMTraverser visitors that fix template-induced interrupted table cell parsing
+ * by recombining table cells and/or reparsing table cell content as attributes.
  * - stripDoubleTDs
- * - reparseTemplatedAttributes
+ * - handleTableCellTemplates
  * @class
  */
 class TableFixups {
@@ -414,13 +414,43 @@ class TableFixups {
 	 * @return bool
 	 */
 	private function combineWithPreviousCell( Frame $frame, DOMElement $cell ): bool {
+		// UNSUPPORTED SCENARIO 1:
+		// While in the general case, we should look for combinability no matter
+		// whether $cell has attributes or not,  we are currently restricting
+		// our support to use cases where $cell doesn't have attributes since that
+		// is the common scenario and use case for this kind of markup.
+		//
+		//     Ex: |class="foo"{{1x|1={{!}}title="x"{{!}}foo}}
+		//         should parse as <td class="foo">title="x"|foo</td>
+		$cellDp = DOMDataUtils::getDataParsoid( $cell );
+		if ( !isset( $cellDp->tmp->noAttrs ) ) {
+			return false;
+		}
+
 		$prev = $cell->previousSibling;
 		DOMUtils::assertElt( $prev );
 
+		// UNSUPPORTED SCENARIO 2:
+		// If the previous cell had attributes, the attributes/content of $cell
+		// would end up as the content of the combined cell.
+		//
+		//     Ex: |class="foo"|bar{{1x|1={{!}}foo}}
+		//         should parse as <td class="foo">bar|foo</td>
+		//
+		// UNSUPPORTED SCENARIO 3:
+		// The template produced attributes as well as maybe a new cell.
+		//     Ex: |class="foo"{{1x| foo}} and |class="foo"{{1x|&nbsp;foo}}
+		// We let the more general 'reparseTemplatedAttributes' code handle
+		// this scenario for now.
+		$prevDp = DOMDataUtils::getDataParsoid( $prev );
+		if ( !isset( $prevDp->tmp->noAttrs ) ) {
+			return false;
+		}
+
 		// Build the attribute string
-		$dp = DOMDataUtils::getDataParsoid( $prev );
-		$prevCellSrc = PHPUtils::safeSubstr( $frame->getSrcText(), $dp->dsr->start, $dp->dsr->length() );
-		$cellAttrSrc = substr( $prevCellSrc, $dp->dsr->openWidth );
+		$prevCellSrc = PHPUtils::safeSubstr(
+			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length() );
+		$cellAttrSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth );
 		$reparseSrc = $cellAttrSrc . "|"; // "|" or "!", but doesn't matter since we discard that anyway
 
 		// Reparse the attributish prefix
@@ -436,7 +466,7 @@ class TableFixups {
 		// Update data-mw, DSR
 		$dataMW = DOMDataUtils::getDataMw( $cell );
 		array_unshift( $dataMW->parts, $prevCellSrc );
-		$cellDSR = DOMDataUtils::getDataParsoid( $cell )->dsr ?? null;
+		$cellDSR = $cellDp->dsr ?? null;
 		if ( $cellDSR && $cellDSR->start ) {
 			$cellDSR->start -= strlen( $prevCellSrc );
 		}
@@ -451,34 +481,35 @@ class TableFixups {
 	private const OTHER_REPARSE = 2;
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMElement $node $node is known to be <td>/<th>
 	 * @return int
 	 */
 	private function getReparseType( DOMElement $node ): int {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$isTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $node );
-		if ( $isTplWrapper &&
+		if ( $isTplWrapper && // See long comment below
 			!isset( $dp->tmp->failedReparse ) &&
-			// If this is a (templated) cell without attributes, then it could
-			// combine with the previous cell (outside the template) and reparse.
-			// A cell with attributes doesn't have the right syntactic form
-			// for this specific recombination to be triggered.
-			// i.e. |class="foo"{{1x|{{!}}foo}}
-			// vs.  |class="foo"{{1x|1={{!}}title="x"{{!}}foo}}
-			// In the second example above, a recombination and reparse could still
-			// alter the table cell but we'll need to add additional code and for now,
-			// we are only supporting a narrow range of use cases. There are at least
-			// two other known edge cases that we aren't supporting besides this one.
-			// |class="foo"{{1x| foo}} and |class="foo"{{1x|&nbsp;foo}}
-			// So, unless there is a simpler redesign of this table fixup code,
-			// we are deliberately constraining support to the 'noAttrs' case.
-			isset( $dp->tmp->noAttrs ) && !isset( $dp->stx ) &&
+			!isset( $dp->stx ) && // has to be first cell of the row
 			// only | can separate attributes & content => $node has to be <td>
-			$node->nodeName === 'td' &&
-			$node->previousSibling instanceof DOMElement &&
-			!WTUtils::isLiteralHTMLNode( $node->previousSibling )
+			$node->nodeName === 'td'
 		) {
-			return self::COMBINE_WITH_PREV_CELL;
+			// Parsoid parses content of templates independent of top-level content.
+			// But, this breaks legacy-parser-supported use-cases where template
+			// content combines with top-level content to yield a table cell whose
+			// source straddles the template boundary.
+			//
+			// In Parsoid, we handle this by looking for opportunities where
+			// table cells could combine. This obviously requires $node to be
+			// a templated cell. But, we don't support combining templated cells
+			// with other templated cells.  So, previous sibling cannot be templated.
+
+			$prev = $node->previousSibling;
+			if ( $prev instanceof DOMElement &&
+				!WTUtils::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $prev ) ) &&
+				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' )
+			) {
+				return self::COMBINE_WITH_PREV_CELL;
+			}
 		}
 
 		$testRE = ( $node->nodeName === 'td' ) ? '/[|]/' : '/[!|]/';
@@ -498,7 +529,7 @@ class TableFixups {
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param DOMElement $node $node is known to be <td>/<th>
 	 * @param Frame $frame
 	 * @return mixed
 	 */
