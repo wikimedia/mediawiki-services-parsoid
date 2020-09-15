@@ -4454,6 +4454,43 @@ parsoid=wt2html
 </tr></table></dd></dl></dd></dl>
 !! end
 
+# Note that the legacy parser closes the list completely for the
+# hacky-indent table and then reopens it; Parsoid emits the "expected"
+# output.  Parsoid team regards this as a bug in the legacy parser.
+!! test
+Definition Lists: Hack use to indent tables, in a nested list context (T262943)
+!! wikitext
+This is a discussion thread.
+
+:Parent comment.
+::Child comment
+::{|
+|With a
+|Table!
+|}
+!! html/php
+<p>This is a discussion thread.
+</p>
+<dl><dd>Parent comment.
+<dl><dd>Child comment</dd></dl></dd></dl>
+<dl><dd><dl><dd><table>
+<tbody><tr>
+<td>With a
+</td>
+<td>Table!
+</td></tr></tbody></table></dd></dl></dd></dl>
+!! html/parsoid
+<p>This is a discussion thread.</p>
+
+<dl><dd data-parsoid='{}'>Parent comment.
+<dl><dd data-parsoid='{}'>Child comment</dd>
+<dd data-parsoid='{}'><table>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td>With a</td>
+<td>Table!</td></tr>
+</tbody></table></dd></dl></dd></dl>
+!! end
+
+
 # The trailing whitespace in this test is to catch a regression in
 # Parsoid after T54473.
 !! test
