@@ -11,6 +11,18 @@ Template:1x
 {{{1}}}
 !! endarticle
 
+!! article
+Template:td_class
+!! text
+class="foo"
+!! endarticle
+
+!! article
+Template:td_style_and_content
+!! text
+style='border:1px solid blue' | foobar
+!! endarticle
+
 !! test
 Unsupported scenario: Cell combining with captions
 !! options
@@ -88,5 +100,25 @@ parsoid=wt2html
 !! html/parsoid
 <table>
 <tbody><tr><td class="foo">title="foo"</td><td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Table cell attributes and content from multiple templates
+!! wikitext
+{|
+|-
+| {{td_class}} {{td_style_and_content}} baz
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td class="foo" style="border:1px solid blue">foobar baz
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+<td class="foo" style="border:1px solid blue" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[],[]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_class","href":"./Template:Td_class"},"params":{},"i":0}}," ",{"template":{"target":{"wt":"td_style_and_content","href":"./Template:Td_style_and_content"},"params":{},"i":1}}," baz"]}'>foobar baz</td></tr>
 </tbody></table>
 !! end
