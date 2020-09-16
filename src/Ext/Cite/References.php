@@ -262,7 +262,8 @@ class References extends ExtensionTagHandler {
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
 				'class' => 'mw-ref',
-				'id' => $nestedInReferences ? null : ( $ref->name ? $lastLinkback : $ref->id ),
+				'id' => ( $nestedInReferences || ( $hasFollow && count( $errs ) === 0 ) ) ?
+					null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
 				'typeof' => $nodeType
 			]
@@ -293,6 +294,7 @@ class References extends ExtensionTagHandler {
 		}
 		DOMDataUtils::setDataMw( $linkBack, $dmw );
 
+		// FIXME (T263052) This should be moved to CSS
 		if ( $hasFollow && count( $errs ) === 0 ) {
 			$linkBack->setAttribute( 'style', 'display: none;' );
 		}
