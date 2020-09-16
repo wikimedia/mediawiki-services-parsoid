@@ -415,12 +415,9 @@ class TableFixups {
 	 */
 	private function combineWithPreviousCell( Frame $frame, DOMElement $cell ): bool {
 		$prev = $cell->previousSibling;
-		if ( !$prev ) {
-			return false;
-		}
+		DOMUtils::assertElt( $prev );
 
 		// Build the attribute string
-		DOMUtils::assertElt( $prev );
 		$dp = DOMDataUtils::getDataParsoid( $prev );
 		$prevCellSrc = PHPUtils::safeSubstr( $frame->getSrcText(), $dp->dsr->start, $dp->dsr->length() );
 		$cellAttrSrc = substr( $prevCellSrc, $dp->dsr->openWidth );
@@ -454,16 +451,6 @@ class TableFixups {
 	private const OTHER_REPARSE = 2;
 
 	/**
-	 * Can we combine two table cells?
-	 * @param string $cell
-	 * @param string $prev
-	 * @return bool
-	 */
-	private function combinableNodes( string $cell, string $prev ): bool {
-		return $cell === 'td' && ( $prev === 'td' || $prev === 'th' );
-	}
-
-	/**
 	 * @param DOMElement $node
 	 * @return int
 	 */
@@ -486,7 +473,10 @@ class TableFixups {
 			// So, unless there is a simpler redesign of this table fixup code,
 			// we are deliberately constraining support to the 'noAttrs' case.
 			isset( $dp->tmp->noAttrs ) && !isset( $dp->stx ) &&
-			$this->combinableNodes( $node->nodeName, $node->previousSibling->nodeName ?? '' )
+			// only | can separate attributes & content => $node has to be <td>
+			$node->nodeName === 'td' &&
+			$node->previousSibling instanceof DOMElement &&
+			!WTUtils::isLiteralHTMLNode( $node->previousSibling )
 		) {
 			return self::COMBINE_WITH_PREV_CELL;
 		}
