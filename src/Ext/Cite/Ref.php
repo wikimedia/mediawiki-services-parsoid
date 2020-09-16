@@ -148,7 +148,12 @@ class Ref extends ExtensionTagHandler {
 			$hasRefName = strlen( $dataMw->attrs->name ?? '' ) > 0;
 			$hasFollow = strlen( $dataMw->attrs->follow ?? '' ) > 0;
 
-			if ( $hasFollow && !DOMUtils::hasTypeOf( $node, 'mw:Error' ) ) {
+			// FIXME: This isn't exactly right since a valid follow could
+			// potentially produce some other type of error, so this may
+			// need some more smarts
+			$validFollow = $hasFollow && !DOMUtils::hasTypeOf( $node, 'mw:Error' );
+
+			if ( $validFollow ) {
 				$about = $node->getAttribute( 'about' );
 				$followNode = DOMCompat::querySelector(
 					$bodyElt, "span[typeof~='mw:Cite/Follow'][about='{$about}']"

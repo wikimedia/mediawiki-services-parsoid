@@ -170,6 +170,8 @@ class References extends ExtensionTagHandler {
 		$hasRefName = strlen( $refName ) > 0;
 		$hasFollow = strlen( $followName ) > 0;
 
+		$validFollow = false;
+
 		if ( $hasFollow ) {
 			if ( $hasRefName ) {
 				$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
@@ -178,6 +180,7 @@ class References extends ExtensionTagHandler {
 				// been defined
 				$group = $refsData->getRefGroup( $groupName );
 				if ( isset( $group->indexByName[$followName] ) ) {
+					$validFollow = true;
 					$ref = $group->indexByName[$followName];
 
 					$span = $c->ownerDocument->createElement( 'span' );
@@ -262,7 +265,7 @@ class References extends ExtensionTagHandler {
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
 				'class' => 'mw-ref',
-				'id' => ( $nestedInReferences || ( $hasFollow && count( $errs ) === 0 ) ) ?
+				'id' => ( $nestedInReferences || $validFollow ) ?
 					null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
 				'typeof' => $nodeType
@@ -294,8 +297,8 @@ class References extends ExtensionTagHandler {
 		}
 		DOMDataUtils::setDataMw( $linkBack, $dmw );
 
-		// FIXME (T263052) This should be moved to CSS
-		if ( $hasFollow && count( $errs ) === 0 ) {
+		// FIXME(T263052): This should be moved to CSS
+		if ( $validFollow ) {
 			$linkBack->setAttribute( 'style', 'display: none;' );
 		}
 
