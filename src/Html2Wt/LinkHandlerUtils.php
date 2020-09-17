@@ -210,7 +210,8 @@ class LinkHandlerUtils {
 		// (This may get converted back to a WikiLink below, in the interwiki
 		// handling code.)
 		if ( $rtData->type === 'mw:WikiLink' &&
-			( preg_match( '#^(\w+:)?//#', $rtData->href ) || $rtData->origHref[0] === '/' )
+			( preg_match( '#^(\w+:)?//#', $rtData->href ) ||
+				substr( $rtData->origHref ?? '', 0, 1 ) === '/' )
 		) {
 			$rtData->type = 'mw:ExtLink';
 		}
