@@ -1,0 +1,92 @@
+!! Version 2
+#
+# This file will hold tests for table fixup dom handlers.
+# For now, we are only adding tests for unsupported scenarios here.
+# Eventually, once the monolithic parser test file is split up,
+# all table fixup tests will move here.
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! test
+Unsupported scenario: Cell combining with captions
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|+class="foo"{{1x|1={{!}}some caption}}
+|bar
+|}
+!! html/php
+<table>
+<caption class="foo">some caption
+</caption>
+<tbody><tr>
+<td>bar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<caption>class="foo"</caption><tbody about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}some caption"}},"i":0}},"\n|bar\n"]}'><tr><td>some caption</td>
+<td>bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Unsupported scenario: Templated cell cannot merged with another templated cell
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|{{1x|1=class="foo"}}{{1x|1={{!}}foo}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td class="foo">foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"class=\"foo\""}},"i":0}}]}'>class="foo"</span></td><td about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Unsupported scenario: Templated cell with attributes cannot combine with previous cell
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|class="foo"{{1x|1={{!}}title="foo"{{!}}foo}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td class="foo">title="foo"|foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>class="foo"</td><td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}title=\"foo\"{{!}}foo"}},"i":0}}]}'>title="foo"</td><td about="#mwt1">foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Unsupported scenario: Templated cell cannot combine with previous cell with attributes
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+|class="foo"|title="foo"{{1x|1={{!}}foo}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td class="foo">title="foo"|foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td class="foo">title="foo"</td><td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr>
+</tbody></table>
+!! end

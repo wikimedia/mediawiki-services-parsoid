@@ -9,6 +9,10 @@
 		"repo": "--UNUSED--",
 		"path": "--UNUSED--"
 	},
+	"tableFixupsParserTests.txt": {
+		"repo": "--UNUSED--",
+		"path": "--UNUSED--"
+	},
 	"langParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-services-parsoid/",
 		"path": "tests/langParserTests.txt"
