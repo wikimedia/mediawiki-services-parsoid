@@ -28,7 +28,6 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\Handler;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\Response;
-use MediaWiki\Rest\ResponseException;
 use MediaWiki\Revision\RevisionAccessException;
 use MobileContext;
 use MWParsoid\Config\PageConfigFactory;
@@ -1041,7 +1040,17 @@ abstract class ParsoidHandler extends Handler {
 	}
 
 	/** @inheritDoc */
-	abstract public function execute(): Response;
+	public function execute() {
+		// Until core supports ResponseException (T260959)
+		try {
+			return $this->realExecute();
+		} catch ( ResponseException $re ) {
+			return $re->getResponse();
+		}
+	}
+
+	/** @inheritDoc ::execute() */
+	abstract public function realExecute(): Response;
 
 	/**
 	 * Validate a PageBundle against the given contentVersion, and throw

@@ -70,7 +70,7 @@ class TransformHandler extends ParsoidHandler {
 	 * @return Response
 	 * @throws HttpException
 	 */
-	public function execute(): Response {
+	public function realExecute(): Response {
 		$request = $this->getRequest();
 		$from = $request->getPathParam( 'from' );
 		$format = $request->getPathParam( 'format' );
