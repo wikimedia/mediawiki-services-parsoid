@@ -495,9 +495,11 @@ class TestRunner {
 		$domSubtreeIsEditable = function ( DOMNode $node ): bool {
 			return !( $node instanceof DOMElement ) ||
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
-					// Deleting these div wrappers is tantamount to removing the
+					// These wrappers can only be edited in restricted ways.
+					// Simpler to just block all editing on them.
 					!DOMUtils::matchTypeOf( $node, '#^mw:(Entity|Placeholder|DisplaySpace)(/|$)#' ) &&
-					// reference tag encaption wrappers, which results in errors.
+					// Deleting these wrappers is tantamount to removing the
+					// references-tag encapsulation wrappers, which results in errors.
 					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? '' )
 				);
 		};
