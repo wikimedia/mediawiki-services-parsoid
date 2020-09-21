@@ -1615,6 +1615,14 @@ class WikitextSerializer {
 	}
 
 	/**
+	 * @param Env $env
+	 * @param DOMElement $body
+	 * @suppress PhanEmptyPublicMethod
+	 */
+	public function preprocessDOM( Env $env, DOMElement $body ): void {
+	}
+
+	/**
 	 * Serialize an HTML DOM document.
 	 * WARNING: You probably want to use {@link FromHTML::serializeDOM} instead.
 	 * @param DOMElement $body

@@ -37,7 +37,6 @@ abstract class DOMProcessor {
 	 *
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $root
-	 * @suppress PhanEmptyPublicMethod
 	 */
 	public function htmlPreprocess(
 		ParsoidExtensionAPI $extApi,

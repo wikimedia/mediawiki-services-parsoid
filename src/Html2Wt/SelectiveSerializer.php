@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -43,6 +44,17 @@ class SelectiveSerializer {
 	}
 
 	/**
+	 * @param Env $env
+	 * @param DOMElement $body
+	 */
+	public function preprocessDOM( Env $env, DOMElement $body ): void {
+		// Strip <section> and mw:FallbackId <span> tags, if present.
+		// This ensures that we can accept HTML from CX / VE
+		// and other clients that might have stripped them.
+		ContentUtils::stripSectionTagsAndFallbackIds( $body );
+	}
+
+	/**
 	 * Selectively serialize an HTML DOM document.
 	 *
 	 * WARNING: You probably want to use FromHTML.serializeDOM instead.
@@ -67,15 +79,7 @@ class SelectiveSerializer {
 			$body = $diff->dom;
 		} else {
 			$domDiffTiming = Timing::start( $this->metrics );
-
-			// Strip <section> and mw:FallbackId <span> tags, if present.
-			// This ensures that we can accept HTML from CX / VE
-			// and other clients that might have stripped them.
-			ContentUtils::stripSectionTagsAndFallbackIds( $body );
-			ContentUtils::stripSectionTagsAndFallbackIds( $this->selserData->oldDOM );
-
 			$diff = ( new DOMDiff( $this->env ) )->diff( $this->selserData->oldDOM, $body );
-
 			$domDiffTiming->end( 'html2wt.selser.domDiff' );
 		}
 

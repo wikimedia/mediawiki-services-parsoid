@@ -4,8 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use DOMDocument;
+use DOMElement;
 
+use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\SelectiveSerializer;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -15,12 +19,28 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 class WikitextContentModelHandler extends ContentModelHandler {
 
 	/**
+	 * Bring DOM to expected canonical form
+	 * @param Env $env
+	 * @param DOMElement $body
+	 */
+	private function canonicalizeDOM( Env $env, DOMElement $body ): void {
+		// Convert DOM to internal canonical form
+		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
+
+		// Update DSR offsets if necessary.
+		ContentUtils::convertOffsets(
+			$env, $body->ownerDocument, $env->getRequestOffsetType(), 'byte'
+		);
+	}
+
+	/**
 	 * Fetch prior DOM for selser.
 	 *
 	 * @param Env $env
+	 * @param SelectiveSerializer $selser
 	 * @param SelserData $selserData
 	 */
-	private function setupSelser( Env $env, SelserData $selserData ) {
+	private function setupSelser( Env $env, SelectiveSerializer $selser, SelserData $selserData ) {
 		// Why is it safe to use a reparsed dom for dom diff'ing?
 		// (Since that's the only use of `env.page.dom`)
 		//
@@ -65,11 +85,8 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		}
 
 		$body = DOMCompat::getBody( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
-		// Update DSR offsets if necessary.
-		ContentUtils::convertOffsets(
-			$env, $doc, $env->getRequestOffsetType(), 'byte'
-		);
+		$this->canonicalizeDOM( $env, $body );
+		$selser->preprocessDOM( $env, $body );
 		$selserData->oldDOM = $body;
 	}
 
@@ -83,34 +100,54 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	}
 
 	/**
+	 * Preprocess the edited DOM as required before attempting to convert it to wikitext
+	 * 1. The edited DOM (represented by body) might not be in canonical form
+	 *    because Parsoid might be providing server-side management of global state
+	 *    for extensions. To address this and bring the DOM back to canonical form,
+	 *    we run extension-provided handlers. The original DOM isn't subject to this problem.
+	 *    FIXME: But, this is not the only reason an extension might register a preprocessor.
+	 *    How do we know when to run a preprocessor on both original & edited DOMs?
+	 * 2. We need to do this after all data attributes have been loaded.
+	 * 3. We need to do this before we run dom-diffs to eliminate spurious diffs.
+	 *
+	 * @param Env $env
+	 * @param DOMElement $body
+	 */
+	private function preprocessDOM( Env $env, DOMElement $body ): void {
+		// Run any registered DOM preprocessors
+		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
+			foreach ( $domProcs as $i => $classNameOrSpec ) {
+				$c = ObjectFactory::getObjectFromSpec( $classNameOrSpec, [
+					'allowClassName' => true,
+					'assertClass' => ExtDOMProcessor::class,
+				] );
+				$c->htmlPreprocess( new ParsoidExtensionAPI( $env ), $body );
+			}
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function fromDOM(
 		Env $env, DOMDocument $doc, ?SelserData $selserData = null
 	): string {
-		$serializerOpts = [
-			'env' => $env,
-			'selserData' => $selserData,
-		];
-		$Serializer = null;
-		if ( $selserData && $selserData->oldText !== null ) {
-			$Serializer = SelectiveSerializer::class;
-			$this->setupSelser( $env, $selserData );
-		}
-
-		if ( !$Serializer ) {
-			// Fallback
-			$selserData = null;
-			$Serializer = WikitextSerializer::class;
-		}
-		$serializer = new $Serializer( $serializerOpts );
 		$env->getPageConfig()->editedDoc = $doc;
 		$body = DOMCompat::getBody( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
-		// Update DSR offsets if necessary.
-		ContentUtils::convertOffsets(
-			$env, $doc, $env->getRequestOffsetType(), 'byte'
-		);
+		$this->canonicalizeDOM( $env, $body );
+
+		$serializerOpts = [ 'env' => $env, 'selserData' => $selserData ];
+		if ( $selserData && $selserData->oldText !== null ) {
+			$serializer = new SelectiveSerializer( $serializerOpts );
+			$this->setupSelser( $env, $serializer, $selserData );
+		} else {
+			// Fallback
+			$serializer = new WikitextSerializer( $serializerOpts );
+		}
+
+		$this->preprocessDOM( $env, $body );
+		$serializer->preprocessDOM( $env, $body );
+
 		return $serializer->serializeDOM( $body );
 	}
 

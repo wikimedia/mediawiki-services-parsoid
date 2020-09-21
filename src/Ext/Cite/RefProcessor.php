@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
+use DOMElement;
 use DOMNode;
 use Wikimedia\Parsoid\Ext\DOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -25,5 +26,18 @@ class RefProcessor extends DOMProcessor {
 		}
 	}
 
-	// FIXME: should implement an htmlPreprocess method as well.
+	/**
+	 * html -> wt DOM PreProcessor
+	 *
+	 * Nothing to do right now.
+	 *
+	 * But, for example, as part of some future functionality, this could be used to
+	 * reconstitute page-level information from local annotations left behind by editing clients.
+	 *
+	 * @param ParsoidExtensionAPI $extApi
+	 * @param DOMElement $root
+	 */
+	public function htmlPreprocess( ParsoidExtensionAPI $extApi, DOMElement $root ): void {
+		// TODO
+	}
 }
