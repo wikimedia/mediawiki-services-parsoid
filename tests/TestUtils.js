@@ -86,8 +86,8 @@ TestUtils.normalizeOut = function(domBody, options) {
 	}
 
 	var stripTypeof = parsoidOnly ?
-		/(?:^|mw:DisplaySpace\s+)mw:Placeholder$/ :
-		/^mw:(?:(?:DisplaySpace\s+mw:)?Placeholder|Nowiki|Transclusion|Entity)$/;
+		/^mw:Placeholder$/ :
+		/^mw:(?:DisplaySpace|Placeholder|Nowiki|Transclusion|Entity)$/;
 	domBody = this.unwrapSpansAndNormalizeIEW(domBody, stripTypeof, parsoidOnly, preserveIEW);
 	var out = ContentUtils.toXML(domBody, { innerXML: true });
 	// NOTE that we use a slightly restricted regexp for "attribute"

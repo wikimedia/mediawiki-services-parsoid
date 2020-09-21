@@ -1731,6 +1731,18 @@ protection !! here
 |}
 !! end
 
+## The output here may change with the outcome of T255007
+!! test
+Nowiki and french spacing
+!! wikitext
+<nowiki>test : 123</nowiki>
+!! html/php
+<p>test&#160;: 123
+</p>
+!! html/parsoid
+<p><span typeof="mw:Nowiki">test<span typeof="mw:DisplaySpace"> </span>: 123</span></p>
+!! end
+
 ###
 ### Comments
 ###

@@ -84,7 +84,7 @@ class TestUtils {
 
 		$stripTypeof = $parsoidOnly ?
 			'/^mw:Placeholder$/' :
-			'/^mw:(?:Placeholder|Nowiki|Transclusion|Entity)$/';
+			'/^mw:(?:DisplaySpace|Placeholder|Nowiki|Transclusion|Entity)$/';
 		$domBody = self::unwrapSpansAndNormalizeIEW( $domBody, $stripTypeof, $parsoidOnly, $preserveIEW );
 		$out = ContentUtils::toXML( $domBody, [ 'innerXML' => true ] );
 		// NOTE that we use a slightly restricted regexp for "attribute"

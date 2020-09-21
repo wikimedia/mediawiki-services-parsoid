@@ -93,6 +93,16 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 						// Edited content
 						$out = Utils::entityEncodeAll( $child->firstChild->nodeValue );
 					}
+				// DisplaySpace is added in a final post-processing pass so,
+				// even though it isn't emitted in the extension handler, we
+				// need to deal with the possibility of its presence
+				// FIXME(T254501): Should avoid the need for this
+				} elseif (
+					$child->nodeName === 'span' &&
+					DOMUtils::hasTypeOf( $child, 'mw:DisplaySpace' ) &&
+					DOMUtils::hasNChildren( $child, 1 )
+				) {
+					$out = ' ';
 				} else {
 					/* This is a hacky fallback for what is essentially
 					 * undefined behavior. No matter what we emit here,
