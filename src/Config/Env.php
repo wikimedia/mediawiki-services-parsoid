@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use DOMDocument;
-use DOMElement;
 use DOMNode;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
@@ -179,9 +178,6 @@ class Env {
 
 	/** @var bool */
 	public $discardDataParsoid = false;
-
-	/** @var DOMNode */
-	private $origDOM;
 
 	/** @var DOMDocument */
 	private $domDiff;
@@ -632,22 +628,6 @@ class Env {
 	 */
 	public function newAboutId(): string {
 		return "#" . $this->newObjectId();
-	}
-
-	/**
-	 * Store reference to original DOM (body)
-	 * @param DOMElement $domBody
-	 */
-	public function setOrigDOM( DOMElement $domBody ): void {
-		$this->origDOM = $domBody;
-	}
-
-	/**
-	 * Return reference to original DOM (body)
-	 * @return DOMElement
-	 */
-	public function getOrigDOM(): DOMElement {
-		return $this->origDOM;
 	}
 
 	/**

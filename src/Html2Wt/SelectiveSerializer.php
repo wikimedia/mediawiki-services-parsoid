@@ -66,47 +66,40 @@ class SelectiveSerializer {
 
 		$timing = Timing::start( $this->metrics );
 
-		if (
-			( !$this->env->getOrigDOM() && !$this->env->getDOMDiff() ) ||
-			$this->selserData->oldText === null
-		) {
-			// If there's no old source, fall back to non-selective serialization.
-			$r = $this->wts->serializeDOM( $body, false );
-			$timing->end( 'html2wt.full.serialize' );
+		// Use provided diff-marked DOM (used during testing)
+		// or generate one (used in production)
+		if ( $this->env->getDOMDiff() ) {
+			$diff = $this->env->getDOMDiff();
+			$body = $diff->dom;
 		} else {
-			// Use provided diff-marked DOM (used during testing)
-			// or generate one (used in production)
-			if ( $this->env->getDOMDiff() ) {
-				$diff = $this->env->getDOMDiff();
-				$body = $diff->dom;
-			} else {
-				$domDiffTiming = Timing::start( $this->metrics );
+			$domDiffTiming = Timing::start( $this->metrics );
 
-				// Strip <section> and mw:FallbackId <span> tags, if present.
-				// This ensures that we can accept HTML from CX / VE
-				// and other clients that might have stripped them.
-				ContentUtils::stripSectionTagsAndFallbackIds( $body );
-				ContentUtils::stripSectionTagsAndFallbackIds( $this->env->getOrigDOM() );
+			// Strip <section> and mw:FallbackId <span> tags, if present.
+			// This ensures that we can accept HTML from CX / VE
+			// and other clients that might have stripped them.
+			ContentUtils::stripSectionTagsAndFallbackIds( $body );
+			ContentUtils::stripSectionTagsAndFallbackIds( $this->selserData->oldDOM );
 
-				$diff = ( new DOMDiff( $this->env ) )->diff( $this->env->getOrigDOM(), $body );
+			$diff = ( new DOMDiff( $this->env ) )->diff( $this->selserData->oldDOM, $body );
 
-				$domDiffTiming->end( 'html2wt.selser.domDiff' );
-			}
-
-			if ( $diff['isEmpty'] ) {
-				// Nothing was modified, just re-use the original source
-				$r = $this->selserData->oldText;
-			} else {
-				if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
-					$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
-					ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options );
-				}
-
-				// Call the WikitextSerializer to do our bidding
-				$r = $this->wts->serializeDOM( $body, true );
-			}
-			$timing->end( 'html2wt.selser.serialize' );
+			$domDiffTiming->end( 'html2wt.selser.domDiff' );
 		}
+
+		if ( $diff['isEmpty'] ) {
+			// Nothing was modified, just re-use the original source
+			$r = $this->selserData->oldText;
+		} else {
+			if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
+				$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
+				ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options );
+			}
+
+			// Call the WikitextSerializer to do our bidding
+			$r = $this->wts->serializeDOM( $body, true );
+		}
+
+		$timing->end( 'html2wt.selser.serialize' );
+
 		return $r;
 	}
 }

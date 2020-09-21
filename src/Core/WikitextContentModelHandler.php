@@ -57,17 +57,20 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		//
 		// So, we're forced to trade off the correctness for usability.
 		if ( $selserData->oldHTML === null ) {
+			// This effectively parses $selserData->oldText for us because
+			// $selserData->oldText = $env->getPageconfig()->getPageMainContent()
 			$doc = $this->toDOM( $env );
 		} else {
 			$doc = $env->createDocument( $selserData->oldHTML, true );
 		}
+
 		$body = DOMCompat::getBody( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
 		// Update DSR offsets if necessary.
 		ContentUtils::convertOffsets(
 			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
-		$env->setOrigDOM( $body );
+		$selserData->oldDOM = $body;
 	}
 
 	/**
@@ -90,10 +93,14 @@ class WikitextContentModelHandler extends ContentModelHandler {
 			'selserData' => $selserData,
 		];
 		$Serializer = null;
-		if ( $selserData ) {
+		if ( $selserData && $selserData->oldText !== null ) {
 			$Serializer = SelectiveSerializer::class;
 			$this->setupSelser( $env, $selserData );
-		} else {
+		}
+
+		if ( !$Serializer ) {
+			// Fallback
+			$selserData = null;
 			$Serializer = WikitextSerializer::class;
 		}
 		$serializer = new $Serializer( $serializerOpts );
