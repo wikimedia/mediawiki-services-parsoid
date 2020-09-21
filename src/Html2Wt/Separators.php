@@ -638,7 +638,8 @@ class Separators {
 					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr->closeWidth ?? null ) === 0
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );
-				} elseif ( $prevNode->previousSibling &&
+				} elseif (
+					// FIXME(T263502): See the matching condition in DOMHandler::getTrailingSpace()
 					$prevNode->previousSibling instanceof DOMElement &&
 					// FIXME: Not sure why we need this check because data-parsoid
 					// is loaded on all nodes. mw:Diffmarker maybe? But, if so, why?

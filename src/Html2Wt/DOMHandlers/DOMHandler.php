@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use DOMElement;
 use DOMNode;
 use LogicException;
+use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -337,8 +338,10 @@ class DOMHandler {
 			if ( $fc && ( !DOMUtils::isText( $fc ) || !preg_match( '/^\s/', $fc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
-		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
-			&& ( !$fc || !DOMUtils::isElt( $fc ) || WTUtils::isNewElt( $fc ) )
+		} elseif (
+			// FIXME(T263502): Consolidate this in buildSep
+			$state->useWhitespaceHeuristics && $state->selserMode &&
+			( !$fc || !DOMUtils::isElt( $fc ) || WTUtils::isNewElt( $fc ) )
 		) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
@@ -373,9 +376,28 @@ class DOMHandler {
 			if ( $lc && ( !DOMUtils::isText( $lc ) || !preg_match( '/\s$/D', $lc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
-		} elseif ( $state->useWhitespaceHeuristics && $state->selserMode
-			&& ( !$lc || !DOMUtils::isElt( $lc ) || WTUtils::isNewElt( $lc ) )
+		} elseif (
+			// FIXME(T263502): Consolidate this in buildSep
+			$state->useWhitespaceHeuristics && $state->selserMode &&
+			( !$lc || !DOMUtils::isElt( $lc ) || WTUtils::isNewElt( $lc ) )
 		) {
+			// In buildSep, if $origSepUsable and there's an element previous
+			// to the non-element node, we use that to help calculate $dsrA
+			// Note the asymmetry with getLeadingSpace above where the
+			// assumption that we won't be able to reuse an original separator
+			// holds for non-element nodes
+			if (
+				$lc && !DOMUtils::isElt( $lc ) &&
+				$lc->previousSibling instanceof DOMElement &&
+				/* @phan-suppress-next-line PhanTypeMismatchArgument */
+				!empty( DOMDataUtils::getDataParsoid( $lc->previousSibling )->dsr ) &&
+				!DiffUtils::directChildrenChanged( $node->parentNode, $state->getEnv() )
+			) {
+				// Don't double dip on the spaces:  if we continued in this
+				// branch and getOrigSrc, we'd be restoring the spacing that
+				// will again be restored in buildSep
+				return $space;
+			}
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
 				$offset = $dsr->innerEnd() - 1;
