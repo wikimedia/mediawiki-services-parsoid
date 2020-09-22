@@ -87,6 +87,20 @@ class DOMDiff {
 			'data-parsoid' => function ( $nodeA, $dpA, $nodeB, $dpB ) {
 				return $dpA == $dpB;
 			},
+			// TODO(T254502): This is added temporarily for backwards
+			// compatibility and can be removed when versions up to 2.1.0
+			// are no longer stored
+			'typeof' => function ( $nodeA, $valA, $nodeB, $valB ) {
+				if ( $valA === $valB ) {
+					return true;
+				} elseif ( $valA === 'mw:DisplaySpace' ) {
+					return $valB === 'mw:DisplaySpace mw:Placeholder';
+				} elseif ( $valB === 'mw:DisplaySpace' ) {
+					return $valA === 'mw:DisplaySpace mw:Placeholder';
+				} else {
+					return false;
+				}
+			}
 		];
 	}
 
