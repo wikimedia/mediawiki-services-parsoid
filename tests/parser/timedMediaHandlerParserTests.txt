@@ -1,4 +1,10 @@
 !! version 2
+
+# Only run these tests if the TimedMediaHandler is loaded.
+!! hooks
+extension:TimedMediaHandler
+!! endhooks
+
 !! test
 Simple video element
 !! wikitext
