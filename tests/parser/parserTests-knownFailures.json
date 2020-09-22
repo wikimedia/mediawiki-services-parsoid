@@ -2013,6 +2013,26 @@
     "Space and question mark encoding in interlanguage links (T95473)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://es.wikipedia.org/wiki/Foo%20bar%3F\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Foo%20bar%3F\"},\"sa\":{\"href\":\"es:Foo bar?\"},\"dsr\":[15,30,null,null]}'/>"
     },
+    "Spaced heading with element": {
+        "selser [manual]": "=== hi <span id=\"x\" class=\"y\">hi</span> hi ho  ===",
+        "selser [[3,4,0]]": "=== 1z3xsf hi ho ===",
+        "selser [[2,0,0]]": "=== 170gdm3hi <span id=\"x\">hi</span> hi ho  ===",
+        "selser [1]": "=== hi <span id=\"x\">hi</span> hi ho ===",
+        "selser [2]": "y61ost\n\n=== hi <span id=\"x\">hi</span> hi ho ===",
+        "selser [[0,3,0]]": "=== hi  hi ho ===",
+        "selser [[4,[2],0]]": "=== 3r47fx<span id=\"x\">13z345whi</span> hi ho  ===",
+        "selser [[3,4,3]]": "=== 7t8v47 ===",
+        "selser [[3,0,0]]": "===<span id=\"x\">hi</span> hi ho  ===",
+        "selser [[0,1,2]]": "=== hi <span id=\"x\" data-foobar=\"1f91hhe\">hi</span>r9yx8e hi ho ===",
+        "selser [[0,3,4]]": "=== hi 1wfz4el ===",
+        "selser [[0,1,0]]": "=== hi <span id=\"x\" data-foobar=\"bwaljq\">hi</span> hi ho  ===",
+        "selser [[4,3,0]]": "=== 1r0v4o9 hi ho ===",
+        "selser [[0,[2],0]]": "=== hi <span id=\"x\">1icvnnlhi</span> hi ho  ===",
+        "selser [[3,0,4]]": "===<span id=\"x\">hi</span>12czxl1 ===",
+        "selser [[0,2,2]]": "=== hi 15wkygl<span id=\"x\">hi</span>vzqtm7 hi ho ===",
+        "selser [[0,0,2]]": "=== hi <span id=\"x\">hi</span>1w2au0v hi ho ===",
+        "selser [[4,[3],0]]": "=== 64yg7h<span id=\"x\"></span> hi ho  ==="
+    },
     "Spacing of numbers in formatted dates": {
         "wt2html": "<p about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,26,0,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:January 15\",\"function\":\"formatdate\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</p>",
         "html2wt": "<span class=\"mw-formatted-date\" title=\"01-15\">January 15</span>\n"

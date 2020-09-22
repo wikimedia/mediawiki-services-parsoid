@@ -33206,6 +33206,21 @@ footer
 !! end
 
 !! test
+Spaced heading with element
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+    ["#x", "attr", "class", "y"]
+  ]
+}
+!! wikitext
+=== hi <span id="x">hi</span> hi ho ===
+!! wikitext/edited
+=== hi <span id="x" class="y">hi</span> hi ho ===
+!! end
+
+!! test
 Ensure disambiguation links are marked properly
 !! options
 parsoid=wt2html
