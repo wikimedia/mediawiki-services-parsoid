@@ -480,57 +480,50 @@ class SerializerState {
 	 * Determines if we can use the original seperator for this node or if we
 	 * need to build one based on its constraints, and then emits it.
 	 *
-	 * The following comment applies to `origSepUsable` but is placed outside the
-	 * function body since character count (including comments) can prevent
-	 * inlining in older versions of v8 (node < 8.3).
-	 *
-	 * ---
-	 *
-	 * When block nodes are deleted, the deletion affects whether unmodified
-	 * newline separators between a pair of unmodified P tags can be reused.
-	 *
-	 * Example:
-	 * ```
-	 * Original WT  : "<div>x</div>foo\nbar"
-	 * Original HTML: "<div>x</div><p>foo</p>\n<p>bar</p>"
-	 * Edited HTML  : "<p>foo</p>\n<p>bar</p>"
-	 * Annotated DOM: "<mw:DiffMarker is-block><p>foo</p>\n<p>bar</p>"
-	 * Expected WT  : "foo\n\nbar"
-	 * ```
-	 *
-	 * Note the additional newline between "foo" and "bar" even though originally,
-	 * there was just a single newline.
-	 *
-	 * So, even though the two P tags and the separator between them is
-	 * unmodified, it is insufficient to rely on just that. We have to look at
-	 * what has happened on the two wikitext lines onto which the two P tags
-	 * will get serialized.
-	 *
-	 * Now, if you check the code for `nextToDeletedBlockNodeInWT`, that code is
-	 * not really looking at ALL the nodes before/after the nodes that could
-	 * serialize onto the wikitext lines. It is looking at the immediately
-	 * adjacent nodes, i.e. it is not necessary to look if a block-tag was
-	 * deleted 2 or 5 siblings away. If we had to actually examine all of those,
-	 * nodes, this would get very complex, and it would be much simpler to just
-	 * discard the original separators => potentially lots of dirty diffs.
-	 *
-	 * To understand why it is sufficient (for correctness) to examine just
-	 * the immediately adjacent nodes, let us look at an additional example.
-	 * ```
-	 * Original WT  : "a<div>b</div>c<div>d</div>e\nf"
-	 * Original HTML: "<p>a</p><div>b</div><p>c</p><div>d</div><p>e</p>\n<p>f</p>"
-	 * ```
-	 * Note how `<block>` tags and `<p>` tags interleave in the HTML. This would be
-	 * the case always no matter how much inline content showed up between the
-	 * block tags in wikitext. If the b-`<div>` was deleted, we don't care
-	 * about it, since we still have the d-`<div>` before the P tag that preserves
-	 * the correctness of the single `"\n"` separator. If the d-`<div>` was deleted,
-	 * we conservatively ignore the original separator and let normal P-P constraints
-	 * take care of it. At worst, we might generate a dirty diff in this scenario.
-	 *
 	 * @param DOMNode $node
 	 */
 	private function emitSepForNode( DOMNode $node ): void {
+		/* When block nodes are deleted, the deletion affects whether unmodified
+		 * newline separators between a pair of unmodified P tags can be reused.
+		 *
+		 * Example:
+		 * ```
+		 * Original WT  : "<div>x</div>foo\nbar"
+		 * Original HTML: "<div>x</div><p>foo</p>\n<p>bar</p>"
+		 * Edited HTML  : "<p>foo</p>\n<p>bar</p>"
+		 * Annotated DOM: "<mw:DiffMarker is-block><p>foo</p>\n<p>bar</p>"
+		 * Expected WT  : "foo\n\nbar"
+		 * ```
+		 *
+		 * Note the additional newline between "foo" and "bar" even though originally,
+		 * there was just a single newline.
+		 *
+		 * So, even though the two P tags and the separator between them is
+		 * unmodified, it is insufficient to rely on just that. We have to look at
+		 * what has happened on the two wikitext lines onto which the two P tags
+		 * will get serialized.
+		 *
+		 * Now, if you check the code for `nextToDeletedBlockNodeInWT`, that code is
+		 * not really looking at ALL the nodes before/after the nodes that could
+		 * serialize onto the wikitext lines. It is looking at the immediately
+		 * adjacent nodes, i.e. it is not necessary to look if a block-tag was
+		 * deleted 2 or 5 siblings away. If we had to actually examine all of those,
+		 * nodes, this would get very complex, and it would be much simpler to just
+		 * discard the original separators => potentially lots of dirty diffs.
+		 *
+		 * To understand why it is sufficient (for correctness) to examine just
+		 * the immediately adjacent nodes, let us look at an additional example.
+		 * ```
+		 * Original WT  : "a<div>b</div>c<div>d</div>e\nf"
+		 * Original HTML: "<p>a</p><div>b</div><p>c</p><div>d</div><p>e</p>\n<p>f</p>"
+		 * ```
+		 * Note how `<block>` tags and `<p>` tags interleave in the HTML. This would be
+		 * the case always no matter how much inline content showed up between the
+		 * block tags in wikitext. If the b-`<div>` was deleted, we don't care
+		 * about it, since we still have the d-`<div>` before the P tag that preserves
+		 * the correctness of the single `"\n"` separator. If the d-`<div>` was deleted,
+		 * we conservatively ignore the original separator and let normal P-P constraints
+		 * take care of it. At worst, we might generate a dirty diff in this scenario. */
 		$again = ( $node === $this->sep->lastSourceNode );
 		$origSepUsable = !$again
 			&& $this->prevNodeUnmodified && !WTSUtils::nextToDeletedBlockNodeInWT( $this->prevNode, true )

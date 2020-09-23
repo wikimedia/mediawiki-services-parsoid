@@ -65,7 +65,7 @@ class XMLSerializer {
 	];
 
 	/**
-	 * HTML entity encoder helper. Replaces calls to the entities npm module.
+	 * HTML entity encoder helper.
 	 * Only supports the few entities we'll actually need: <&'"
 	 * @param string $raw Input string
 	 * @param string $encodeChars String with the characters that should be encoded
