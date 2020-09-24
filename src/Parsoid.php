@@ -343,11 +343,11 @@ class Parsoid {
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		$doc = $env->createDocument( $html, true );
-		ContentUtils::convertOffsets(
-			$env, $doc, $env->getRequestOffsetType(), 'byte'
-		);
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
+		);
+		ContentUtils::convertOffsets(
+			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
 		if ( $update === 'redlinks' ) {
 			( new AddRedLinks() )->run( $env, DOMCompat::getBody( $doc ) );
@@ -384,6 +384,7 @@ class Parsoid {
 		} else {
 			throw new LogicException( 'Unknown transformation.' );
 		}
+		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ) );
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
 				'discardDataParsoid' => $env->discardDataParsoid,
@@ -391,7 +392,6 @@ class Parsoid {
 				'env' => $env,
 			]
 		);
-		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ) );
 		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		// No need to `ContentUtils.extractDpAndSerialize`, it wasn't applied.
 		$body_only = !empty( $options['body_only'] );
