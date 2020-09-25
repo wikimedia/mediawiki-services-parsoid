@@ -26,18 +26,40 @@ class DomSourceRange extends SourceRange {
 	public $closeWidth;
 
 	/**
+	 * Width of trimmed whitespace between opening tag & first child.
+	 * Defaults to zero since for most nodes, there is no ws trimming.
+	 * -1 indicates that this information is invalid and should not be used.
+	 * @var int
+	 */
+	public $leadingWS = 0;
+
+	/**
+	 * Width of trimmed whitespace between last child & closing tag.
+	 * Defaults to zero since for most nodes, there is no ws trimming.
+	 * -1 indicates that this information is invalid and should not be used.
+	 * @var int
+	 */
+	public $trailingWS = 0;
+
+	/**
 	 * Create a new DOM source offset.
 	 * @param ?int $start The starting index (UTF-8 byte count, inclusive)
 	 * @param ?int $end The ending index (UTF-8 byte count, exclusive)
 	 * @param ?int $openWidth The width of the open container tag
 	 * @param ?int $closeWidth The width of the close container tag
+	 * @param int $leadingWS The width of WS chars between opening tag & first child
+	 * @param int $trailingWS The width of WS chars between last child & closing tag
 	 */
 	public function __construct(
-		?int $start, ?int $end, ?int $openWidth, ?int $closeWidth
+		?int $start, ?int $end, ?int $openWidth, ?int $closeWidth,
+		int $leadingWS = 0,
+		int $trailingWS = 0
 	) {
 		parent::__construct( $start, $end );
 		$this->openWidth = $openWidth;
 		$this->closeWidth = $closeWidth;
+		$this->leadingWS = $leadingWS;
+		$this->trailingWS = $trailingWS;
 	}
 
 	/**
@@ -129,7 +151,9 @@ class DomSourceRange extends SourceRange {
 			$this->start + $amount,
 			$this->end + $amount,
 			$this->openWidth,
-			$this->closeWidth
+			$this->closeWidth,
+			$this->leadingWS,
+			$this->trailingWS
 		);
 	}
 
@@ -157,12 +181,10 @@ class DomSourceRange extends SourceRange {
 	 * @return DomSourceRange
 	 */
 	public static function fromArray( array $dsr ): DomSourceRange {
-		Assert::invariant(
-			count( $dsr ) === 2 || count( $dsr ) === 4,
-			'Not enough elements in DSR array'
-		);
+		$n = count( $dsr );
+		Assert::invariant( $n === 2 || $n === 4 || $n === 6, 'Not enough elements in DSR array' );
 		return new DomSourceRange(
-			$dsr[0], $dsr[1], $dsr[2] ?? null, $dsr[3] ?? null
+			$dsr[0], $dsr[1], $dsr[2] ?? null, $dsr[3] ?? null, $dsr[4] ?? 0, $dsr[5] ?? 0
 		);
 	}
 
@@ -170,6 +192,11 @@ class DomSourceRange extends SourceRange {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {
-		return [ $this->start, $this->end, $this->openWidth, $this->closeWidth ];
+		$a = [ $this->start, $this->end, $this->openWidth, $this->closeWidth ];
+		if ( $this->leadingWS !== 0 || $this->trailingWS !== 0 ) {
+			$a[] = $this->leadingWS;
+			$a[] = $this->trailingWS;
+		}
+		return $a;
 	}
 }
