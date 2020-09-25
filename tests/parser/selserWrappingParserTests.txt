@@ -1,0 +1,133 @@
+!! Version 2
+# This file contains manual edit tests and primarily are used
+# to spec and verify expectations of selective serialization.
+
+!! test
+Don't dirty diff list items up the tree when a sibling list item is added (preserve whitespace)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
+  ]
+}
+!! wikitext
+*  a 
+** b 
+!! wikitext/edited
+*  a 
+** b 
+** b-new
+!! end
+
+!! test
+Don't dirty diff list items up the tree when a nested list item is added (preserve whitespace)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
+  ]
+}
+!! wikitext
+*  a 
+** b 
+!! wikitext/edited
+*  a 
+** b 
+*** b-new
+!! end
+
+!! test
+Don't dirty diff list items up the tree when a sibling list item is added (don't add nowikis)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
+  ]
+}
+!! wikitext
+* a {{x
+** b
+!! wikitext/edited
+* a {{x
+** b
+** b-new
+!! end
+
+!! test
+Don't dirty diff list items up the tree when a nested list item is added (don't add nowikis)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
+  ]
+}
+!! wikitext
+* a {{x
+** b
+!! wikitext/edited
+* a {{x
+** b
+*** b-new
+!! end
+
+!! test
+Don't dirty diff list items up the tree when a sibling list item is added (preserve empty list items)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li > ul > li", "after", "<li>b-new</li>" ]
+  ]
+}
+!! wikitext
+*
+**
+*** b
+!! wikitext/edited
+*
+**
+*** b
+*** b-new
+!! end
+
+!! test
+Don't dirty diff list items up the tree when a nested list item is added (preserve empty list items)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
+  ]
+}
+!! wikitext
+*
+**
+*** b
+!! wikitext/edited
+*
+**
+*** b
+**** b-new
+!! end
+
+!! test
+Unbalanced closing tags cannot be preserved if it is an ancestor of an edited list item
+!! options
+parsoid={
+  "modes": ["selser"],
+  "changes": [
+     [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
+  ]
+}
+!! wikitext
+* x</span>
+** b
+!! wikitext/edited
+* x
+** b
+** b-new
+!! end

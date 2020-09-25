@@ -65,6 +65,8 @@ class SpanHandler extends DOMHandler {
 					( new FallbackHTMLHandler )->handle( $node, $state );
 				}
 			}
+		} elseif ( $node->hasAttribute( 'data-mw-selser-wrapper' ) ) {
+			$state->serializeChildren( $node );
 		} else {
 			$kvs = array_filter( WTSUtils::getAttributeKVArray( $node ), function ( KV $kv ) {
 				return !preg_match( '/^data-parsoid/', $kv->k )

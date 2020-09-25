@@ -603,6 +603,12 @@ class Separators {
 	 */
 	private function fetchLeadingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
 		$parentNode = $node->parentNode;
+		if ( $parentNode instanceof DOMElement &&
+			$parentNode->hasAttribute( 'data-mw-selser-wrapper' )
+		) {
+			$parentNode = $parentNode->parentNode;
+		}
+
 		'@phan-var \DOMElement $parentNode'; // @var \DOMElement $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
 			( DOMUtils::isElt( $node ) || !preg_match( '/^[ \t]/', $node->nodeValue ) )
@@ -645,6 +651,11 @@ class Separators {
 	private function fetchTrailingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
 		$sep = null;
 		$parentNode = $node->parentNode;
+		if ( $parentNode instanceof DOMElement
+			&& $parentNode->hasAttribute( 'data-mw-selser-wrapper' )
+		) {
+			$parentNode = $parentNode->parentNode;
+		}
 		'@phan-var \DOMElement $parentNode'; // @var \DOMElement $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
 			( DOMUtils::isElt( $node ) || !preg_match( '/[ \t]$/', $node->nodeValue ) )

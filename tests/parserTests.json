@@ -17,6 +17,10 @@
 		"repo": "--UNUSED--",
 		"path": "--UNUSED--"
 	},
+	"selserWrappingParserTests.txt": {
+		"repo": "--UNUSED--",
+		"path": "--UNUSED--"
+	},
 	"langParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-services-parsoid/",
 		"path": "tests/langParserTests.txt"

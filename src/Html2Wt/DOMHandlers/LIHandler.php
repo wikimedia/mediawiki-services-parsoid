@@ -40,7 +40,8 @@ class LIHandler extends DOMHandler {
 		//   every nested <li> node which makes for lotsa dirty diffs. ]
 		$lastChild = DOMUtils::lastNonSepChild( $node );
 		if ( $lastChild && !DOMUtils::isList( $lastChild ) &&
-			!DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() )
+			!DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() ) &&
+			!( $lastChild instanceof DOMElement && $lastChild->hasAttribute( 'data-mw-selser-wrapper' ) )
 		) {
 			$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
 			if ( $trailingSpace ) {

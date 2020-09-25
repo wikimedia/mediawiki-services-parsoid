@@ -599,7 +599,13 @@
         "html2wt": ":* d1\n:* d2\n"
     },
     "Definition Lists: Mixed Lists: Test 8": {
-        "html2wt": ":* d1\n::* d2\n"
+        "html2wt": ":* d1\n::* d2\n",
+        "selser [[[1,2,1]]]": ":*d1 zmr5na\n::*d2",
+        "selser [[[1,4,[2]]]]": ":*d1 mzvb16\n:: 101qtoa\n::*d2",
+        "selser [[[1,2,[[[[4]]]]]]]": ":*d1 1p1a6zd\n::*1pbzx7v\n",
+        "selser [[[[3],2,[1]]]]": ": 17llcws\n::*d2",
+        "selser [[[3,0,[4]]]]": ":\n:: 14p3rxo\n",
+        "selser [[[[[2]],4,2]]]": ":*1j4b9ocd1 7prueald6si3\n::*d2"
     },
     "Definition Lists: Nesting: Multi-level (Parsoid only)": {
         "html2wt": "\n; t1 \n: d1      \n;; t2 \n;: :d2              \n;;; t3 \n;;: ::d3                    \n"
@@ -1607,14 +1613,11 @@
     },
     "Nested lists 11 (T262409: trailing whitespace & selser)": {
         "selser [[2]]": "* mi5h3i\n**a\n***b  ",
-        "selser [[[[[0,4]]]]]": "**a 15fwzap \n",
         "selser [[1]]": "**a\n***b  ",
         "selser [2]": "dz9syw\n**a\n***b  ",
         "selser [[[2]]]": "*1sd3fyg\n**a\n***b  ",
-        "selser [[[[[0,3]]]]]": "**a\n ",
         "selser [1]": "**a\n***b  ",
         "selser [[[1]]]": "**a\n***b  ",
-        "selser [[[4]]]": "*ajlo2d ",
         "selser [[[[1]]]]": "**a\n***b  ",
         "selser [[[[[3,0]]]]]": "***b  "
     },
@@ -1626,6 +1629,9 @@
         "html2wt": "\n** bar\n",
         "selser [2]": "1b8vuw9\n*\n**bar",
         "selser [1]": "*\n**bar",
+        "selser [[1]]": "*\n**bar",
+        "selser [[[0,[[3]]]]]": "*\n**",
+        "selser [[[0,[1]]]]": "*\n**bar",
         "selser [[2]]": "* 1yzerqh\n*\n**bar"
     },
     "Nested lists 4 (first element empty)": {
@@ -1636,6 +1642,8 @@
         "html2wt": "\n**\n",
         "selser [1]": "*\n**",
         "selser [2]": "1u5v0i7\n*\n**",
+        "selser [[[0,1]]]": "*\n**",
+        "selser [[1]]": "*\n**",
         "selser [[2]]": "* 14d3cex\n*\n**"
     },
     "Nested lists 7 (skip initial nesting levels)": {
@@ -2196,26 +2204,21 @@
         "selser [2]": "xpt49k\n*Foo {{bullet}}",
         "selser [[2,0]]": "* 12na0t\n*Foo {{bullet}}",
         "selser [1]": "*Foo {{bullet}}",
-        "selser [[[2],0]]": "*1icjqylFoo {{bullet}}",
-        "selser [[[4],0]]": "*1i4depe {{bullet}}",
         "selser [[1,0]]": "*Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list": {
         "wt2wt": "*******Foo\n{{bullet}}",
         "html2wt": "******* Foo\n* Bar",
-        "selser [[[4],0]]": "*4419q2 {{bullet}}",
-        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo \n{{bullet}}",
-        "selser [[[[2]],0]]": "** hfccqc\n*******Foo \n{{bullet}}",
+        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo {{bullet}}",
+        "selser [[[[2]],0]]": "** hfccqc\n*******Foo {{bullet}}",
         "selser [[2,0]]": "* 173c0q7\n*******Foo {{bullet}}",
         "selser [1]": "*******Foo {{bullet}}",
-        "selser [[[1],0]]": "*******Foo \n{{bullet}}",
+        "selser [[[1],0]]": "*******Foo {{bullet}}",
         "selser [2]": "113swo7\n*******Foo {{bullet}}",
-        "selser [[[[1]],0]]": "*******Foo \n{{bullet}}",
-        "selser [[[2],0]]": "*qr9mgy\n*******Foo \n{{bullet}}",
-        "selser [[1,0]]": "*******Foo \n{{bullet}}",
-        "selser [[[[[4]]],0]]": "**y85ciu \n{{bullet}}",
-        "selser [[[[[[[[[4]]]]]]],0]]": "****brs0d \n{{bullet}}",
-        "selser [[[[[[[1]]]]],0]]": "*******Foo \n{{bullet}}"
+        "selser [[[[1]],0]]": "*******Foo {{bullet}}",
+        "selser [[[2],0]]": "*qr9mgy\n*******Foo {{bullet}}",
+        "selser [[1,0]]": "*******Foo {{bullet}}",
+        "selser [[[[[[[1]]]]],0]]": "*******Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in parser function result": {
         "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",

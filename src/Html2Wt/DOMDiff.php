@@ -26,11 +26,13 @@ class DOMDiff {
 
 	// These attributes are ignored for equality purposes if they are added to a node.
 	private const IGNORE_ATTRIBUTES = [
-		// SSS: Don't ignore data-parsoid because in VE, sometimes wrappers get
-		// moved around without their content which occasionally leads to incorrect
-		// DSR being used by selser.  Hard to describe a reduced test case here.
-		// Discovered via: /mnt/bugs/2013-05-01T09:43:14.960Z-Reverse_innovation
-		// 'data-parsoid',
+		// Note that we are explicitly not ignoring data-parsoid even though clients
+		// would never modify data-parsoid because SelectiveSerializer is wrapping text
+		// nodes in spans and speculatively computes DSR offsets for these span tags
+		// which are accurate for original DOM and may be inaccurate for the edited DOM.
+		// By diffing data-parsoid which diffs the DSR as well, we ensure we mark such
+		// nodes as modified and prevent use of those speculatively computed incorrect
+		// DSR values.
 		'data-parsoid-diff',
 		'about',
 		DOMDataUtils::DATA_OBJECT_ATTR_NAME,
@@ -558,6 +560,13 @@ class DOMDiff {
 
 		if ( $mark === 'deleted' || $mark === 'inserted' ) {
 			$this->markNode( $node->parentNode, 'children-changed' );
+		}
+
+		// Clear out speculatively computed DSR values for data-mw-selser-wrapper nodes
+		// since they may be incorrect. This eliminates any inadvertent use of
+		// these incorrect values.
+		if ( $node instanceof DOMElement && $node->hasAttribute( 'data-mw-selser-wrapper' ) ) {
+			DOMDataUtils::getDataParsoid( $node )->dsr = null;
 		}
 	}
 
