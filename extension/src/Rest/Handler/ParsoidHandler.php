@@ -656,14 +656,9 @@ abstract class ParsoidHandler extends Handler {
 
 		$doc = DOMUtils::parseHTML( $html );
 
-		// send domparse time, input size and init time to statsd/Graphite
-		// init time is the time elapsed before serialization
-		// init.domParse, a component of init time, is the time elapsed
-		// from html string to DOM tree
-		$timing->end( 'html2wt.init.domparse' );
-		# Should perhaps be strlen instead (or cached!): T239841
+		// send input size to statsd/Graphite
+		// Should perhaps be strlen instead (or cached!): T239841
 		$metrics->timing( 'html2wt.size.input', mb_strlen( $html ) );
-		$timing->end( 'html2wt.init' );
 
 		$original = $opts['original'] ?? null;
 		$oldBody = null;
@@ -815,6 +810,8 @@ abstract class ParsoidHandler extends Handler {
 
 		$html = ContentUtils::toXML( $doc );
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
+
+		$timing->end( 'html2wt.init' );
 
 		try {
 			$wikitext = $parsoid->html2wikitext( $pageConfig, $html, [

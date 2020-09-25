@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Timing;
 
 class WikitextContentModelHandler extends ContentModelHandler {
 
@@ -114,6 +115,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * @param DOMElement $body
 	 */
 	private function preprocessDOM( Env $env, DOMElement $body ): void {
+		$metrics = $env->getSiteConfig()->metrics();
+		$preprocTiming = Timing::start( $metrics );
+
 		// Run any registered DOM preprocessors
 		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
 			foreach ( $domProcs as $i => $classNameOrSpec ) {
@@ -124,6 +128,8 @@ class WikitextContentModelHandler extends ContentModelHandler {
 				$c->htmlPreprocess( new ParsoidExtensionAPI( $env ), $body );
 			}
 		}
+
+		$preprocTiming->end( 'html2wt.preprocess' );
 	}
 
 	/**
@@ -132,6 +138,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	public function fromDOM(
 		Env $env, DOMDocument $doc, ?SelserData $selserData = null
 	): string {
+		$metrics = $env->getSiteConfig()->metrics();
+		$setupTiming = Timing::start( $metrics );
+
 		$env->getPageConfig()->editedDoc = $doc;
 		$body = DOMCompat::getBody( $doc );
 		$this->canonicalizeDOM( $env, $body );
@@ -144,6 +153,8 @@ class WikitextContentModelHandler extends ContentModelHandler {
 			// Fallback
 			$serializer = new WikitextSerializer( $serializerOpts );
 		}
+
+		$setupTiming->end( 'html2wt.setup' );
 
 		$this->preprocessDOM( $env, $body );
 		$serializer->preprocessDOM( $env, $body );
