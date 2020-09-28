@@ -1,13 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * This is a Serializer class that will compare two versions of a DOM
- * and re-use the original wikitext for unmodified regions of the DOM.
- * Originally this relied on special change markers inserted by the
- * editor, but we now generate these ourselves using DOMDiff.
- */
-
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
@@ -18,9 +11,10 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 
 /**
- * If we have the page source (this.env.page.src), we use the selective
- * serialization method, only reporting the serialized wikitext for parts of
- * the page that changed. Else, we fall back to serializing the whole DOM.
+ * This is a Serializer class that will compare two versions of a DOM
+ * and re-use the original wikitext for unmodified regions of the DOM.
+ * Originally this relied on special change markers inserted by the
+ * editor, but we now generate these ourselves using DOMDiff.
  */
 class SelectiveSerializer {
 	private $env;

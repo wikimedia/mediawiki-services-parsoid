@@ -1325,9 +1325,6 @@ class WikitextSerializer {
 					// `state.sep.lastSourceNode` is cleared here so that removed
 					// separators between otherwise unmodified nodes don't get
 					// restored.
-					// `state.sep.lastSourceNode` is cleared here so that removed
-					// separators between otherwise unmodified nodes don't get
-					// restored.
 					$state->updateSep( $node );
 					return $node->nextSibling;
 				}

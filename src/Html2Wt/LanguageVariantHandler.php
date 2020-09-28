@@ -1,11 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * Serializes language variant markup, like `-{ ... }-`.
- * @module
- */
-
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
@@ -15,6 +10,9 @@ use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
+/**
+ * Serializes language variant markup, like `-{ ... }-`.
+ */
 class LanguageVariantHandler {
 	/**
 	 * @param array $a
