@@ -186,8 +186,8 @@ class WTSUtils {
 	}
 
 	/**
-	 * Emit the start tag source when not round-trip testing, or when the node is
-	 * not marked with autoInsertedStart.
+	 * Emit the end tag source when not round-trip testing, or when the node is
+	 * not marked with autoInsertedEnd.
 	 *
 	 * @param string $src
 	 * @param DOMElement $node

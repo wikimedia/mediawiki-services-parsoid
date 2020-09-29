@@ -180,8 +180,8 @@ class RegressionSpecsTest extends TestCase {
 			"| <!--cmt-->edited cell",
 			"| <div>edited cell</div>",
 			"| [[Link|edited cell]]",
-			"|  unedited c1  || edited cell || unedited c3 || edited cell",
-			"|  unedited c1  || edited cell || unedited c3 ||   unedited c4",
+			"|  unedited c1  || edited cell ||  unedited c3  || edited cell",
+			"|  unedited c1  || edited cell ||  unedited c3  ||   unedited c4",
 			"|}"
 		] );
 

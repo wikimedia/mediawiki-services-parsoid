@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
+use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -31,6 +32,22 @@ class LIHandler extends DOMHandler {
 		};
 		$state->singleLineContext->enforce();
 		$state->serializeChildren( $node, $liHandler );
+
+		// Recover trailing whitespace (only on unmodified innermost <li> nodes);
+		// Consider "*** foo ". Since WS is only trimmed on the innermost <li> node,
+		// it makes sense to recover this only for the innermost <li> node.
+		// [ Given current DSR offsets, without this check, we'll recover one space for
+		//   every nested <li> node which makes for lotsa dirty diffs. ]
+		$lastChild = DOMUtils::lastNonSepChild( $node );
+		if ( $lastChild && !DOMUtils::isList( $lastChild ) &&
+			!DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() )
+		) {
+			$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
+			if ( $trailingSpace ) {
+				$state->appendSep( $trailingSpace, $node );
+			}
+		}
+
 		$state->singleLineContext->pop();
 		return $node->nextSibling;
 	}

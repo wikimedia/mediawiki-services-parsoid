@@ -202,6 +202,18 @@ class WikitextSerializer {
 	}
 
 	/**
+	 * Recovers and emits any trimmed whitespace for $node
+	 * @param DOMNode $node
+	 * @param bool $leading
+	 *   if true, trimmed leading whitespace is emitted
+	 *   if false, trimmed railing whitespace is emitted
+	 * @return string|null
+	 */
+	public function recoverTrimmedWhitespace( DOMNode $node, bool $leading ): ?string {
+		return $this->separators->recoverTrimmedWhitespace( $node, $leading );
+	}
+
+	/**
 	 * Escape wikitext-like strings in '$text' so that $text renders as a plain string
 	 * when rendered as HTML. The escaping is done based on the context in which $text
 	 * is present (ex: start-of-line, in a link, etc.)

@@ -6,13 +6,11 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use DOMElement;
 use DOMNode;
 use LogicException;
-use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -332,25 +330,11 @@ class DOMHandler {
 		SerializerState $state, DOMElement $node, string $newEltDefault
 	): string {
 		$space = '';
-		$fc = DOMUtils::firstNonDeletedChild( $node );
 		if ( WTUtils::isNewElt( $node ) ) {
+			$fc = DOMUtils::firstNonDeletedChild( $node );
 			// PORT-FIXME are different \s semantics going to be a problem?
 			if ( $fc && ( !DOMUtils::isText( $fc ) || !preg_match( '/^\s/', $fc->nodeValue ) ) ) {
 				$space = $newEltDefault;
-			}
-		} elseif (
-			// FIXME(T263502): Consolidate this in buildSep
-			$state->useWhitespaceHeuristics && $state->selserMode &&
-			( !$fc || !DOMUtils::isElt( $fc ) || WTUtils::isNewElt( $fc ) )
-		) {
-			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			if ( Utils::isValidDSR( $dsr, true ) ) {
-				$offset = $dsr->innerStart();
-				$space = $offset < $dsr->innerEnd() ?
-					( $state->getOrigSrc( $offset, $offset + 1 ) ?? '' ) : '';
-				if ( !preg_match( '/[ \t]/', $space ) ) {
-					$space = '';
-				}
 			}
 		}
 		return $space;
@@ -370,45 +354,11 @@ class DOMHandler {
 		SerializerState $state, DOMElement $node, string $newEltDefault
 	): string {
 		$space = '';
-		$lc = DOMUtils::lastNonDeletedChild( $node );
 		if ( WTUtils::isNewElt( $node ) ) {
+			$lc = DOMUtils::lastNonDeletedChild( $node );
 			// PORT-FIXME are different \s semantics going to be a problem?
 			if ( $lc && ( !DOMUtils::isText( $lc ) || !preg_match( '/\s$/D', $lc->nodeValue ) ) ) {
 				$space = $newEltDefault;
-			}
-		} elseif (
-			// FIXME(T263502): Consolidate this in buildSep
-			$state->useWhitespaceHeuristics && $state->selserMode &&
-			( !$lc || !DOMUtils::isElt( $lc ) || WTUtils::isNewElt( $lc ) )
-		) {
-			// In buildSep, if $origSepUsable and there's an element previous
-			// to the non-element node, we use that to help calculate $dsrA
-			// Note the asymmetry with getLeadingSpace above where the
-			// assumption that we won't be able to reuse an original separator
-			// holds for non-element nodes
-			if (
-				$lc && !DOMUtils::isElt( $lc ) &&
-				$lc->previousSibling instanceof DOMElement &&
-				/* @phan-suppress-next-line PhanTypeMismatchArgument */
-				!empty( DOMDataUtils::getDataParsoid( $lc->previousSibling )->dsr ) &&
-				!DiffUtils::directChildrenChanged( $node->parentNode, $state->getEnv() )
-			) {
-				// Don't double dip on the spaces:  if we continued in this
-				// branch and getOrigSrc, we'd be restoring the spacing that
-				// will again be restored in buildSep
-				return $space;
-			}
-			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			if ( Utils::isValidDSR( $dsr, true ) ) {
-				$offset = $dsr->innerEnd() - 1;
-				// The > instead of >= is to deal with an edge case
-				// = = where that single space is captured by the
-				// getLeadingSpace case above
-				$space = $offset > $dsr->innerStart() ?
-					( $state->getOrigSrc( $offset, $offset + 1 ) ?? '' ) : '';
-				if ( !preg_match( '/[ \t]/', $space ) ) {
-					$space = '';
-				}
 			}
 		}
 		return $space;

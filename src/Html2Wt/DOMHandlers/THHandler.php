@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
+use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -66,8 +67,18 @@ class THHandler extends DOMHandler {
 		$state->serializeChildren( $node, $thHandler );
 
 		// PORT-FIXME does regexp whitespace semantics change matter?
-		if ( $nextUsesRowSyntax && !preg_match( '/\s$/D', $state->currLine->text ) ) {
-			$trailingSpace = $this->getTrailingSpace( $state, $node, '' );
+		if ( !preg_match( '/\s$/D', $state->currLine->text ) ) {
+			$trailingSpace = null;
+			if ( $nextUsesRowSyntax ) {
+				$trailingSpace = $this->getTrailingSpace( $state, $node, '' );
+			}
+			// Recover any trimmed whitespace only on unmodified nodes
+			if ( !$trailingSpace ) {
+				$lastChild = DOMUtils::lastNonSepChild( $node );
+				if ( $lastChild && !DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() ) ) {
+					$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
+				}
+			}
 			if ( $trailingSpace ) {
 				$state->appendSep( $trailingSpace, $node );
 			}

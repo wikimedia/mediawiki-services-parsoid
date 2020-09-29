@@ -72,7 +72,8 @@
         "selser [[4],1]": "xui722<table data-foobar=\"10ikk0v\">\n<tr> || ||\n<td> a\n</table>",
         "selser [1,[2,0]]": "<nowiki> </nowiki><nowiki>||</nowiki> <nowiki>||</nowiki>\n<table><!--1ltoszy-->\n<tr> || ||\n<td> a\n</table>",
         "selser [2,[0,[3]]]": "rltcpa\n\n<table>\n</table>",
-        "selser [[4],[4,2]]": "695dyy<table><!--a592r9--><!--tunxvk--><tr> || ||\n<td> a\n</table>"
+        "selser [[4],[4,2]]": "695dyy<table><!--a592r9--><!--tunxvk--><tr> || ||\n<td> a\n</table>",
+        "selser [[2],[0,[[[2]]]]]": "rsud82 || ||\n<table>\n<tr><td> 1a3cvg2 a\n</table>"
     },
     "2. Link fragments separated by <i> and <b> tags": {
         "html2wt": "[[''foo''hello]]\n\n[['''foo'''hello]]"
@@ -422,6 +423,7 @@
         "selser [1]": "{| class=\"wikitable\" data-foobar=\"1rf2fk9\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}",
         "selser [[4,[[[4],3,2],2,[0,[3],3],0,[0,1,[2]],4,2,0]]]": "{| class=\"wikitable\"<!--1o9xso6-->\n!8oq0v1\n!1tl00ic\n!second header<!--1j4wwbz-->\n|- style=\"color:red;\"\n|\n|-\n| style=\"color:red;\" data-foobar=\"19rgv15\" |<nowiki>data with |</nowiki> || style=\"color:red;\" | i40agxsecond data with |<!--6hjy2a--><!--b719zh-->\n|-\n||data with | |||second data with |\n|}",
         "selser [[2,1]]": "{| class=\"wikitable\"<!--et2ta6-->\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki> || style=\"color:red;\" | second data with |\n|-\n||<nowiki>data with |</nowiki> |||second data with |\n|}",
+        "selser [[4,[2,0,4,0,4,0,[0,[4],4],4]]]": "{| class=\"wikitable\"<!--16xy0b2--><!--1ogs26n-->\n!header\n!second header\n<!--yub1iq-->\n<!--1sf2qp9-->\n|-\n||gr6c9b \n|668z7c<!--11k7ju3-->\n|}",
         "selser [[0,1]]": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |data with | || style=\"color:red;\" | second data with |\n|-\n||data with | |||second data with |\n|}",
         "selser [[3,[1,0,3,0,1,0,[3,3,3],3]]]": "{| class=\"wikitable\"\n!header\n!second header\n\n|- data-foobar=\"1vb433k\"\n| style=\"color:red;\" |<nowiki>data with |</nowiki> || style=\"color:red;\" | second data with |\n|-\n|}",
         "selser [[2,[[0,0,[3]],2,2,0,[3,[2],[2]],4,2,3]]]": "{| class=\"wikitable\"<!--1qbanhh-->\n!header\n!<!--1pboxi1-->\n<!--66zv5p-->|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>1865j9mdata with |</nowiki> || style=\"color:red;\" | b45gipsecond data with |<!--32n7kr--><!--13um9nu-->\n|-\n||<nowiki>data with |</nowiki> |||second data with |\n|}",
@@ -516,8 +518,9 @@
     },
     "Correct handling of <td>, <tr> (T8171)": {
         "html2wt": "{|  \n    | Some tabular data\n    | More tabular data ...\n    | And yet som tabular data  \n|}",
-        "selser [[4,[[4,1,0,[2],0,[4],3],2]]]": "<table><!--1c9p8ag--><tr><td>8f9cr6</td><td data-foobar=\"trdzwz\"> Some tabular data</td>\n    <td>10bfmus More tabular data ...</td>\n    <td>brkgdj</td>\n  </tr><!--1s1b0su-->\n</table>",
-        "selser [[2,[[3,[2],4,[3],3,[4],0],3]]]": "<table><!--kic9hg-->\n  <tr><td>5jp55q Some tabular data</td><td>zxz05u</td><td></td><td>1l2mrts</td>\n  </tr>\n</table>"
+        "selser [[0,[[0,0,0,[4],4,0,3],0]]]": "<table>\n  <tr>\n    <td> Some tabular data</td>\n    <td> pa70ih</td><td>ewy9pe</td><td> And yet som tabular data</td></tr>\n</table>",
+        "selser [[4,[[4,1,0,[2],0,[4],3],2]]]": "<table><!--1c9p8ag--><tr><td>8f9cr6</td><td data-foobar=\"trdzwz\"> Some tabular data</td>\n    <td> 10bfmus More tabular data ...</td>\n    <td> brkgdj</td>\n  </tr><!--1s1b0su-->\n</table>",
+        "selser [[2,[[3,[2],4,[3],3,[4],0],3]]]": "<table><!--kic9hg-->\n  <tr><td> 5jp55q Some tabular data</td><td>zxz05u</td><td></td><td> 1l2mrts</td>\n  </tr>\n</table>"
     },
     "DIV IN UPPERCASE": {
         "wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>",
@@ -1184,7 +1187,10 @@
         "html2wt": "{|\n|\n|foo\n|}"
     },
     "Indented table with blank lines in between (T85627)": {
-        "selser [0,[0,[0,2]]]": " {|\n |foo\n \n <!--1amzorg-->\n |}"
+        "selser [2,[0,[[[0,4]],3]]]": "1yrf6mr \n{|\n |foo\n<nowiki> </nowiki>cyilqp \n|}",
+        "selser [4,[4,2]]": "1p9rmqy\n{|<!--12uqdsp--><!--1qa1jub-->\n|foo\n \n  \n |}",
+        "selser [0,[0,[0,2]]]": " {|\n |foo\n \n <!--1amzorg-->\n |}",
+        "selser [2,[0,2]]": "1xis7o8 \n{|\n <!--c7irv8-->|foo\n \n  \n |}"
     },
     "Inline HTML vs wiki block nesting": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[17,37,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'>New wiki paragraph</p></b>",
@@ -1254,7 +1260,7 @@
         "selser [[0,4]]": "{| <span>boo</span> style='border:1px solid black'\n<!--6zvpcd-->|}",
         "selser [1]": "{| style=\"border:1px solid black\" data-foobar=\"1lzmi9u\" boo\n|  <span>boo</span> style='color:blue'  | 1\n|<span>boo</span> style='color:blue'| 2\n|}",
         "selser [[2,3]]": "{| <span>boo</span> style='border:1px solid black'<!--4oj8ff-->\n|}",
-        "selser [[4,[[1,0,[3]],2]]]": "{| <span>boo</span> style='border:1px solid black'<!--s0q54v-->\n| style=\"color:blue\" data-foobar=\"2rpjng\" boo | 1\n|<span>boo</span> style='color:blue'| <!--1q7ejf2-->\n|}",
+        "selser [[4,[[1,0,[3]],2]]]": "{| <span>boo</span> style='border:1px solid black'<!--s0q54v-->\n| style=\"color:blue\" data-foobar=\"2rpjng\" boo | 1\n|<span>boo</span> style='color:blue'|<!--1q7ejf2-->\n|}",
         "selser [[2,[3,0]]]": "{| <span>boo</span> style='border:1px solid black'<!--s1wznv-->\n\n|}",
         "selser [[0,[1,0]]]": "{| <span>boo</span> style='border:1px solid black'\n|  <span>boo</span> style='color:blue'  | 1\n|<span>boo</span> style='color:blue'| 2\n|}",
         "selser [[0,1]]": "{| <span>boo</span> style='border:1px solid black'\n|  <span>boo</span> style='color:blue'  | 1\n|<span>boo</span> style='color:blue'| 2\n|}",
@@ -1601,11 +1607,14 @@
     },
     "Nested lists 11 (T262409: trailing whitespace & selser)": {
         "selser [[2]]": "* mi5h3i\n**a\n***b  ",
+        "selser [[[[[0,4]]]]]": "**a 15fwzap \n",
         "selser [[1]]": "**a\n***b  ",
         "selser [2]": "dz9syw\n**a\n***b  ",
         "selser [[[2]]]": "*1sd3fyg\n**a\n***b  ",
+        "selser [[[[[0,3]]]]]": "**a\n ",
         "selser [1]": "**a\n***b  ",
         "selser [[[1]]]": "**a\n***b  ",
+        "selser [[[4]]]": "*ajlo2d ",
         "selser [[[[1]]]]": "**a\n***b  ",
         "selser [[[[[3,0]]]]]": "***b  "
     },
@@ -1647,7 +1656,7 @@
         "selser [[4,1]]": "{| border=1<!--136o031-->\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}",
         "selser [1]": "{| border=\"1\" data-foobar=\"1iqpwix\"\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}",
         "selser [[3,2]]": "{| border=1<!--1c2y0bu-->\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again\n|}",
-        "selser [[2,1]]": "{| border=1<!--myauc2-->\n|&alpha;\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n|nested\n|-\n|table\n|}\n|the original table again\n|}",
+        "selser [[2,1]]": "{| border=1<!--myauc2-->\n| &alpha;\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n|nested\n|-\n|table\n|}\n|the original table again\n|}",
         "selser [[3,[3,0]]]": "{| border=1\n|}",
         "selser [[0,[[0,4,[4,1],2,2],0]]]": "{| border=1\n| &alpha;\n|1f7ogne\n|1iqtqxq\n{| bgcolor=\"#ABCDEF\" border=\"2\" data-foobar=\"u9eo14\"\n|nested\n|-\n|table\n|}\n|1jsu3wr\n|1vtmfkq\n|the original table again\n|}",
         "selser [[3,[1,4]]]": "{| border=1\n| &alpha;\n|\n{| bgcolor=#ABCDEF border=2\n|nested\n|-\n|table\n|}\n|the original table again<!--1ifutu9-->\n|}",
@@ -2024,14 +2033,15 @@
         "selser [[0,3,0]]": "=== hi  hi ho ===",
         "selser [[4,[2],0]]": "=== 3r47fx<span id=\"x\">13z345whi</span> hi ho ===",
         "selser [[3,4,3]]": "=== 7t8v47 ===",
-        "selser [[3,0,0]]": "===<span id=\"x\">hi</span> hi ho ===",
+        "selser [[3,0,0]]": "=== <span id=\"x\">hi</span> hi ho ===",
         "selser [[0,1,2]]": "=== hi <span id=\"x\" data-foobar=\"1f91hhe\">hi</span>r9yx8e hi ho ===",
         "selser [[0,3,4]]": "=== hi 1wfz4el ===",
         "selser [[0,1,0]]": "=== hi <span id=\"x\" data-foobar=\"bwaljq\">hi</span> hi ho ===",
         "selser [[4,3,0]]": "=== 1r0v4o9 hi ho ===",
         "selser [[0,[2],0]]": "=== hi <span id=\"x\">1icvnnlhi</span> hi ho ===",
-        "selser [[3,0,4]]": "===<span id=\"x\">hi</span>12czxl1 ===",
+        "selser [[3,0,4]]": "=== <span id=\"x\">hi</span>12czxl1 ===",
         "selser [[0,2,2]]": "=== hi 15wkygl<span id=\"x\">hi</span>vzqtm7 hi ho ===",
+        "selser [[3,0,3]]": "=== <span id=\"x\">hi</span> ===",
         "selser [[0,0,2]]": "=== hi <span id=\"x\">hi</span>1w2au0v hi ho ===",
         "selser [[4,[3],0]]": "=== 64yg7h<span id=\"x\"></span> hi ho ==="
     },
@@ -2102,7 +2112,7 @@
         "selser [[0,[1,0]]]": "{|\n|- data-foobar=\"1gyt116\"\n| -{R|B}-\n|}",
         "selser [[3,1]]": "{|\n|-\n| -{R|B}-\n|}",
         "selser [1]": "{| data-foobar=\"6y5vda\"\n|-\n| -{R|B}-\n|}",
-        "selser [[0,[[4,[3]],4]]]": "{|\n|-\n|rof27f\n| <!--1i8nlzg-->\n|}",
+        "selser [[2,1]]": "{|<!--m84v5d-->\n|-\n| -{R|B}-\n|}",
         "selser [[4,2]]": "{|<!--1868jd--><!--1d0w5t2-->\n|-\n| -{R|B}-\n|}",
         "selser [[0,[1,2]]]": "{|\n|- data-foobar=\"1i6qbai\"\n| -{R|B}-<!--17qpaqz-->\n|}",
         "selser [[0,[[0,2],4]]]": "{|\n|-\n|1owe1ce\n| -{R|B}-<!--a2zy4x-->\n|}",
@@ -2185,23 +2195,27 @@
         "html2wt": "* Foo\n* Bar",
         "selser [2]": "xpt49k\n*Foo {{bullet}}",
         "selser [[2,0]]": "* 12na0t\n*Foo {{bullet}}",
-        "selser [1]": "*Foo {{bullet}}"
+        "selser [1]": "*Foo {{bullet}}",
+        "selser [[[2],0]]": "*1icjqylFoo {{bullet}}",
+        "selser [[[4],0]]": "*1i4depe {{bullet}}",
+        "selser [[1,0]]": "*Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list": {
         "wt2wt": "*******Foo\n{{bullet}}",
         "html2wt": "******* Foo\n* Bar",
-        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo{{bullet}}",
-        "selser [[[[2]],0]]": "** hfccqc\n*******Foo{{bullet}}",
+        "selser [[[4],0]]": "*4419q2 {{bullet}}",
+        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo \n{{bullet}}",
+        "selser [[[[2]],0]]": "** hfccqc\n*******Foo \n{{bullet}}",
         "selser [[2,0]]": "* 173c0q7\n*******Foo {{bullet}}",
         "selser [1]": "*******Foo {{bullet}}",
-        "selser [[[1],0]]": "*******Foo{{bullet}}",
+        "selser [[[1],0]]": "*******Foo \n{{bullet}}",
         "selser [2]": "113swo7\n*******Foo {{bullet}}",
-        "selser [[[[1]],0]]": "*******Foo{{bullet}}",
-        "selser [[[2],0]]": "*qr9mgy\n*******Foo{{bullet}}",
-        "selser [[1,0]]": "*******Foo{{bullet}}",
-        "selser [[[[[4]]],0]]": "**y85ciu{{bullet}}",
-        "selser [[[[[[[[[4]]]]]]],0]]": "****brs0d{{bullet}}",
-        "selser [[[[[[[1]]]]],0]]": "*******Foo{{bullet}}"
+        "selser [[[[1]],0]]": "*******Foo \n{{bullet}}",
+        "selser [[[2],0]]": "*qr9mgy\n*******Foo \n{{bullet}}",
+        "selser [[1,0]]": "*******Foo \n{{bullet}}",
+        "selser [[[[[4]]],0]]": "**y85ciu \n{{bullet}}",
+        "selser [[[[[[[[[4]]]]]]],0]]": "****brs0d \n{{bullet}}",
+        "selser [[[[[[[1]]]]],0]]": "*******Foo \n{{bullet}}"
     },
     "T2529: Uncovered bullet in parser function result": {
         "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",
@@ -2371,12 +2385,15 @@
         "selser [[4,1]]": "{|<!--avsco0-->\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
         "selser [[2,2]]": "{|<!--198ykec-->\n<!--1ja8163-->!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
         "selser [2]": "1qlsswu\n{|\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[2,1]]": "{|<!--g6mv6-->\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
         "selser [[3,1]]": "{|\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
         "selser [[4,[0,4,4,3,1,4]]]": "{|<!--sz0yg8-->\n!-\n!- <!--ammywp--><!--1qztxse-->\n|- data-foobar=\"x39tdc\"\n|<small>-</small>\n|<br />\n-\n|<br />-<!--5q1uzu-->\n|}",
         "selser [1]": "{| data-foobar=\"1eth3uj\"\n!-\n!- \n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
+        "selser [[4,[[3,3,[2]],3,[0,0,0,1],4,[0,2,3,[0,4,[3]],0,[3,3]],0]]]": "{|<!--lfm8t7-->\n!1r6l1p8- \n|-\n|<nowiki>-</nowiki>\n| data-foobar=\"15cp7gd\" |<nowiki>- </nowiki><!--14jqi8b-->\n|-\n|1o8h1ob\n|<small>-</small>\n|<br />1d00lsm\n|\n|}",
         "selser [[3,[1,0,3,4,[2,[2],3,1,3,[0,4]],4]]]": "{|\n!-\n!- \n<!--6f0mue-->|-\n|1qnprdx\n|nxpi5d<small>-</small>\n| data-foobar=\"j5al7i\" |<br />\n-\n|<br />11v0cd4<!--1nx3jrc-->\n|}",
         "selser [[0,[2,3,2,0,1,0]]]": "{|\n<!--1guo0fq-->!-\n!- <!--ude1c1-->\n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|- data-foobar=\"arur3a\"\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}",
-        "selser [[4,[[2,4,0],4,[0,[3],4,1],3,[0,2,0,[2,2,0],2,[0,3]],0]]]": "{|<!--1umn7ye-->\n!gvfg8v\n!-\n!15hviht\n!- <!--sgt3q3-->\n|-\n|\n|kkn25m\n| data-foobar=\"1n0s8vl\" |<nowiki>- </nowiki>\n|-\n|158hpl0\n|<small>-</small>\n|3mzszf<br />4wyn44\n-\n|yfh4qc\n|<br />\n|}"
+        "selser [[4,[[2,4,0],4,[0,[3],4,1],3,[0,2,0,[2,2,0],2,[0,3]],0]]]": "{|<!--1umn7ye-->\n!gvfg8v\n!-\n!15hviht\n!- <!--sgt3q3-->\n|-\n|\n|kkn25m\n| data-foobar=\"1n0s8vl\" |<nowiki>- </nowiki>\n|-\n|158hpl0\n|<small>-</small>\n|3mzszf<br />4wyn44\n-\n|yfh4qc\n|<br />\n|}",
+        "selser [[0,[[2,3,1],2,3,3,1,0]]]": "{|\n!esps5t\n!-\n! data-foobar=\"i5sm52\" |- <!--1ot4a6a-->\n|- data-foobar=\"ogk7sg\"\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}"
     },
     "T90902: Normalize weird characters in section IDs": {
         "html2wt": "== Foo&nbsp;bar ==\n[[#Foo&nbsp;bar]]",
@@ -2598,6 +2615,11 @@
     },
     "Template with template name as unnamed argument": {
         "html2wt": "(test)\n"
+    },
+    "Templated table cell with untemplated attributes: Common use cases": {
+        "selser [[4,[2,4,[0,0,[2],[3],3,1,0,0,3,3,3,0],0]]]": "{|<!--1x93lp0--><!--1yjt9bx-->\n|-\n!class=\"test\"{{table_cell_content}} /* <th> & <td> combine */<!--mqgz70-->\n|-\n|class=\"test\"{{table_cell_content}} /* <td> 1e3but0 & <td>\n| data-foobar=\"gmpvrd\" |\n|class=\"test\"{{table_cell_content|attr=style='color:red;'}}|class=\"test\"{{table_cell_content|cmt=<!--bar-->}}\n|}",
+        "selser [[0,[[2,0,[3],1],0,[2,0,2,[2],2,0,0,0,0,3,0,0],0]]]": "{|\n|-\n!1gucydu\n!class=\"test\"{{table_cell_content}} /* <th><td data-foobar=\"78dyk9\"> combine */\n|-\n|1fozkbq\n|class=\"test\"{{table_cell_content}} /* \n|za6cbp<td> & <td> ad0eli combine */\n|10j5o2v\n|\n|class=\"test\"{{table_cell_content|attr=style='color:red;'}}\n\n|class=\"test\"{{table_cell_content|cmt=<!--bar-->}}\n|}",
+        "selser [[0,[[0,0,2,[4]],2,[2,0,4,[2],2,4,0,0,3,4,0,0],0]]]": "{|\n|-\n!class=\"test\"{{table_cell_content}} /* \n!126ykcp<th> & <td> 1l9d78f<!--1qp3mmf-->\n|-\n|1ofav6h\n|class=\"test\"{{table_cell_content}} /* \n|bgcv6z<td> 168x5rr combine */\n|15edkql\n|167t1vi\n|class=\"test\"{{table_cell_content|attr=style='color:red;'}}\n|sxwe00\n|class=\"test\"{{table_cell_content|cmt=<!--bar-->}}\n|}"
     },
     "Templated table cell with untemplated attributes: Unsupported Scenarios": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,128,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,126,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,36,2,0]}'>\n<td data-parsoid='{\"dsr\":[6,18,1,0]}'>class=\"foo\"</td><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[18,36,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true,\"spc\":[\"\",\"\",\" \",\"\"]}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[37,75,2,0]}'>\n<td about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[40,75,1,0],\"firstWikitextNode\":\"TD\",\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;nbsp;{{!}}bar\"}},\"i\":0}}]}'>class=\"foo\"<span typeof=\"mw:Entity\"> </span></td><td about=\"#mwt3\">bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[76,125,2,0]}'>\n<td data-parsoid='{\"dsr\":[79,91,1,0]}'>class=\"foo\"</td><td about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[91,125,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>title=\"fail\"</td><td about=\"#mwt5\">bar</td></tr>\n</tbody></table>"
@@ -2871,19 +2893,23 @@
     "Templates: Wiki Tables: 6. Templated tags, templated td-tags": {
         "html2wt": "{|\n|foo\n|}"
     },
+    "Test the li-hack (a hack from Tidy days, but doesn't work as advertised with Remex)": {
+        "selser [[0,4,4,0,0,2,4,[4]],0,3]": "*foo\n* uqm6lp\n* 1vkiq8\n*{{1x|<li>templated li-hack}}* 1qqsbwt\n* 1livzi9<li> cdysnd\n",
+        "selser [[3,2,0,2,0,0,0,[2]],3,1]": "* oplt3w\n*<li>li-hack* 9uz7vq\n*{{1x|<li>templated li-hack}}\n*<!--foo--><li> qyjg93 unsupported li-hack with preceding comments<ul data-foobar=\"lnsjg\">\n<li><li>not a li-hack\n</li>\n</ul>"
+    },
     "Testing serialization after deletion of table cells": {
         "selser [manual]": "{|\n!h1 !!h2 !!h3\n|c2 |||c3\n|}",
         "selser [[0,[[2,4,[3],2,3,2,1],0]]]": "{|\n!csxba4\n!h1 \n!t84r7o!!\n!1awkle6\n!1cz1t59\n|c2 || data-foobar=\"ztx97e\"|c3\n|}",
         "selser [1]": "{| data-foobar=\"1wk5r9j\"\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
         "selser [[0,2]]": "{|\n<!--pikbtg-->!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
         "selser [2]": "jjco8\n{|\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
-        "selser [[4,[[1,[4],2,4,0,0,1],2]]]": "{|<!--1suoukh-->\n! data-foobar=\"rk18oo\" |h1 !!18wtl70\n!qnyy7b!!h3\n!zs6fgw\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 || data-foobar=\"kaqv9t\"|c3<!--ux8nfz-->\n|}",
+        "selser [[4,[[1,[4],2,4,0,0,1],2]]]": "{|<!--1suoukh-->\n! data-foobar=\"rk18oo\" |h1 !!18wtl70 \n!qnyy7b!!h3\n!zs6fgw\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 || data-foobar=\"kaqv9t\"|c3<!--ux8nfz-->\n|}",
         "selser [[0,[[[2],0,0,2,0,1,0],3]]]": "{|\n!w2yar5h1 !!h2 !!h3\n!bwqkmm\n| id=\"x\" |c1 {{!}}{{!}} data-foobar=\"132iz66\"{{!}}c2 |||c3\n|}",
-        "selser [[2,[[1,0,0,0,1,0,3],0]]]": "{|<!--pql4jf-->\n! data-foobar=\"bhnvrw\" |h1 !!h2 !!h3\n| id=\"x\" data-foobar=\"12hrisq\" |c1 {{!}}{{!}}{{!}}c2\n|}",
+        "selser [[2,[[1,0,0,0,1,0,3],0]]]": "{|<!--pql4jf-->\n! data-foobar=\"bhnvrw\" |h1 !!h2 !!h3\n| id=\"x\" data-foobar=\"12hrisq\" |c1 {{!}}{{!}}{{!}}c2 \n|}",
         "selser [[4,[[1,0,1,0,0,4,4],0]]]": "{|<!--jbstp9-->\n! data-foobar=\"1pn0sp4\" |h1 !!h2 !! data-foobar=\"1f5qbgd\" |h3\n| id=\"x\" |c1 \n|uz7gua\n|vakcz3\n|}",
         "selser [[0,[2,4]]]": "{|\n<!--5xh8o9-->!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3<!--w8wfis-->\n|}",
         "selser [[0,1]]": "{|\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
-        "selser [[2,[[4,1,4,2,0,[4],[4]],3]]]": "{|<!--qcs46g-->\n!11pa019!! data-foobar=\"1y95ntw\" |h2\n!zdryfg\n!h2f3sk\n| id=\"x\" |c1 {{!}}{{!}}{{!}}r4h39b |||1lmf1dk\n|}",
+        "selser [[2,[[4,1,4,2,0,[4],[4]],3]]]": "{|<!--qcs46g-->\n!11pa019!! data-foobar=\"1y95ntw\" |h2 \n!zdryfg\n!h2f3sk\n| id=\"x\" |c1 {{!}}{{!}}{{!}}r4h39b |||1lmf1dk\n|}",
         "selser [[4,2]]": "{|<!--cgr2fy--><!--1sny8l1-->\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}",
         "selser [[3,[2,0]]]": "{|<!--1kfzavr-->\n!h1 !!h2 !!h3\n| id=\"x\" |c1 {{!}}{{!}}{{!}}c2 |||c3\n|}"
     },

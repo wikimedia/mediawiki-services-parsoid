@@ -294,6 +294,8 @@ class SerializerState {
 	 */
 	private $logPrefix = 'OUT:';
 
+	public $haveTrimmedWsDSR = false;
+
 	/**
 	 * @param WikitextSerializer $serializer
 	 * @param array $options
@@ -311,6 +313,7 @@ class SerializerState {
 		$this->resetCurrLine( null );
 		$this->singleLineContext = new SingleLineContext();
 		$this->resetSep();
+		$this->haveTrimmedWsDSR = Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.1' );
 	}
 
 	/**
@@ -558,6 +561,22 @@ class SerializerState {
 			$sep = $this->serializer->buildSep( $node );
 			$this->emitSep( $sep ?: '', $node, 'SEP:' );
 		}
+	}
+
+	/**
+	 * Recovers and emits any trimmed whitespace for $node
+	 * @param DOMNode $node
+	 * @param bool $leading
+	 *   if true, trimmed leading whitespace is emitted
+	 *   if false, trimmed railing whitespace is emitted
+	 * @return string|null
+	 */
+	public function recoverTrimmedWhitespace( DOMNode $node, bool $leading ): ?string {
+		$sep = $this->serializer->recoverTrimmedWhitespace( $node, $leading );
+		$this->serializer->trace( '--->', "TRIMMED-SEP:", function () use ( $sep ) {
+			return PHPUtils::jsonEncode( $sep );
+		} );
+		return $sep;
 	}
 
 	/**

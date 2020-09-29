@@ -597,6 +597,111 @@ class Separators {
 	}
 
 	/**
+	 * @param SerializerState $state
+	 * @param DOMNode $node
+	 * @return ?string
+	 */
+	private function fetchLeadingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
+		$parentNode = $node->parentNode;
+		'@phan-var \DOMElement $parentNode'; // @var \DOMElement $parentNode
+		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
+			( DOMUtils::isElt( $node ) || !preg_match( '/^[ \t]/', $node->nodeValue ) )
+		) {
+			// FIXME: Is this complexity worth some minor dirty diff on this test?
+			// ParserTest: "3. List embedded in a formatting tag in a misnested way"
+			// I've not added an equivalent check in the trailing whitespace case
+			if ( $node instanceof DOMElement &&
+				isset( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart ) &&
+				preg_match( '/^[ \t]/', $node->firstChild->textContent ?? '' )
+			) {
+				return null;
+			}
+
+			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
+			if ( Utils::isValidDSR( $dsr, true ) ) {
+				if ( $state->haveTrimmedWsDSR && (
+					$dsr->leadingWS > 0 || ( $dsr->leadingWS === 0 && $dsr->trailingWS > 0 )
+				) ) {
+					$sep = $state->getOrigSrc( $dsr->innerStart(), $dsr->innerStart() + $dsr->leadingWS ) ?? '';
+					return preg_match( '/^[ \t]*$/', $sep ) ? $sep : null;
+				} else {
+					$offset = $dsr->innerStart();
+					if ( $offset < $dsr->innerEnd() ) {
+						$sep = $state->getOrigSrc( $offset, $offset + 1 ) ?? '';
+						return preg_match( '/[ \t]/', $sep ) ? $sep : null;
+					}
+				}
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param SerializerState $state
+	 * @param DOMNode $node
+	 * @return ?string
+	 */
+	private function fetchTrailingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
+		$sep = null;
+		$parentNode = $node->parentNode;
+		'@phan-var \DOMElement $parentNode'; // @var \DOMElement $parentNode
+		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
+			( DOMUtils::isElt( $node ) || !preg_match( '/[ \t]$/', $node->nodeValue ) )
+		) {
+			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
+			if ( Utils::isValidDSR( $dsr, true ) ) {
+				if ( $state->haveTrimmedWsDSR && (
+					$dsr->trailingWS > 0 || ( $dsr->trailingWS === 0 && $dsr->leadingWS > 0 )
+				) ) {
+					$sep = $state->getOrigSrc( $dsr->innerEnd() - $dsr->trailingWS, $dsr->innerEnd() ) ?? '';
+					if ( !preg_match( '/^[ \t]*$/', $sep ) ) {
+						$sep = null;
+					}
+				} else {
+					$offset = $dsr->innerEnd() - 1;
+					// The > instead of >= is to deal with an edge case
+					// = = where that single space is captured by the
+					// getLeadingSpace case above
+					if ( $offset > $dsr->innerStart() ) {
+						$sep = $state->getOrigSrc( $offset, $offset + 1 ) ?? '';
+						if ( !preg_match( '/[ \t]/', $sep ) ) {
+							$sep = null;
+						}
+					}
+				}
+			}
+		}
+
+		return $sep;
+	}
+
+	/**
+	 * Emit a separator based on the collected (and merged) constraints
+	 * and existing separator text. Called when new output is triggered.
+	 * @param DOMNode $node
+	 * @param bool $leading
+	 *   if true, trimmed leading whitespace is emitted
+	 *   if false, trimmed railing whitespace is emitted
+	 * @return string|null
+	 */
+	public function recoverTrimmedWhitespace( DOMNode $node, bool $leading ): ?string {
+		// Deal with scenarios where leading / trailing whitespace were trimmed.
+		// We now need to figure out if we need to add any leading / trailing WS back.
+		$state = $this->state;
+		if ( $state->useWhitespaceHeuristics && $state->selserMode ) {
+			if ( $leading ) {
+				return $this->fetchLeadingTrimmedSpace( $state, $node );
+			} else {
+				$lastChild = DOMUtils::lastNonDeletedChild( $node );
+				return $lastChild ? $this->fetchTrailingTrimmedSpace( $state, $lastChild ) : null;
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Emit a separator based on the collected (and merged) constraints
 	 * and existing separator text. Called when new output is triggered.
 	 * @param DOMNode $node
@@ -605,12 +710,25 @@ class Separators {
 	 */
 	public function buildSep( DOMNode $node ): ?string {
 		$state = $this->state;
+		$sepType = $state->sep->constraints['constraintInfo']['sepType'] ?? null;
+		if ( $sepType === 'parent-child' ) {
+			$sep = $this->recoverTrimmedWhitespace( $node, true );
+			if ( $sep !== null ) {
+				$state->sep->src = $sep . $state->sep->src;
+			}
+		} elseif ( $sepType === 'child-parent' ) {
+			$sep = $this->recoverTrimmedWhitespace( $node, false );
+			if ( $sep !== null ) {
+				$state->sep->src = $state->sep->src . $sep;
+			}
+		} else {
+			$sep = null;
+		}
+
 		$origNode = $node;
 		$prevNode = $state->sep->lastSourceNode;
-		$sep = null;
 		$dsrA = null;
 		$dsrB = null;
-
 		/* ----------------------------------------------------------------------
 		 * Assuming we have access to the original source, we can use it only if:
 		 * - If we are in selser mode AND
@@ -622,14 +740,14 @@ class Separators {
 		 * In other scenarios, DSR values on "adjacent" nodes in the edited DOM
 		 * may not reflect deleted content between them.
 		 * ---------------------------------------------------------------------- */
-		$again = ( $node === $prevNode );
-		$origSepUsable = !$again && $state->selserMode && !$state->inModifiedContent &&
+		$origSepNeededAndUsable = ( $sep === null ) && ( $node !== $prevNode ) &&
+			$state->selserMode && !$state->inModifiedContent &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $prevNode, true ) &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $node, false ) &&
 			WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $prevNode ) &&
 			WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node );
 
-		if ( $origSepUsable ) {
+		if ( $origSepNeededAndUsable ) {
 			if ( !DOMUtils::isElt( $prevNode ) ) {
 				// Check if this is the last child of a zero-width element, and use
 				// that for dsr purposes instead. Typical case: text in p.
@@ -639,7 +757,6 @@ class Separators {
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );
 				} elseif (
-					// FIXME(T263502): See the matching condition in DOMHandler::getTrailingSpace()
 					$prevNode->previousSibling instanceof DOMElement &&
 					// FIXME: Not sure why we need this check because data-parsoid
 					// is loaded on all nodes. mw:Diffmarker maybe? But, if so, why?
