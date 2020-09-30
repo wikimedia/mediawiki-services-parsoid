@@ -344,7 +344,7 @@ class Parsoid {
 		} else {
 			throw new LogicException( 'Unknown transformation.' );
 		}
-		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ) );
+		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
 				'discardDataParsoid' => $env->discardDataParsoid,
