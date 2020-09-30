@@ -245,8 +245,20 @@ class ContentUtils {
 				DOMDataUtils::setDataMw( $node, $dmw );
 			}
 
-			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment(/|$)#D' ) ) {
+			// DOMFragments will have already been unpacked when DSR shifting is run
+			if ( DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) ) {
 				PHPUtils::unreachable( "Shouldn't encounter these nodes here." );
+			}
+
+			// However, extensions can choose to handle sealed fragments whenever
+			// they want and so may be returned in subpipelines which could
+			// subsequently be shifted
+			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment/sealed/\w+$#D' ) ) {
+				$dp = DOMDataUtils::getDataParsoid( $node );
+				if ( $dp->html ?? null ) {
+					$domFragment = $env->getDOMFragment( $dp->html );
+					DOMPostOrder::traverse( $domFragment, $convertNode );
+				}
 			}
 		};
 		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {
