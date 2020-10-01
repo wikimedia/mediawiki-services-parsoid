@@ -657,6 +657,12 @@ class TemplateHandler extends TokenHandler {
 		// Get a nested transformation pipeline for the input type. The input
 		// pipeline includes the tokenizer, synchronous stage-1 transforms for
 		// 'text/wiki' input and asynchronous stage-2 transforms).
+		// FIXME: Note, however, that since template handling is itself in
+		// stage-2, tokens returned here will be run through that stage again,
+		// except not necessarily with the same pipeline options we're setting
+		// below.  The overall effect is mostly harmless, in that the token
+		// types will have already been handled the first time through, but
+		// it does present chances for confusion, like in attribute expansion.
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),

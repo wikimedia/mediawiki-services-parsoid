@@ -14115,6 +14115,25 @@ Table cell with attribute before expanded attribute
 </tbody></table>
 !! end
 
+!! test
+Extension tag in templated tag attribute
+!! wikitext
+{{1x|1=
+{{{!}} class="123" <nowiki />
+{{!}} hi
+{{!}}}
+}}
+!! html/php
+<table class="123">
+<tbody><tr>
+<td>hi
+</td></tr></tbody></table>
+!! html/parsoid
+<table class="123" about="#mwt2" typeof="mw:Transclusion mw:ExpandedAttrs" data-parsoid='{"startTagSrc":"{{{!}}","a":{"&lt;nowiki />":null},"sa":{"&lt;nowiki />":""},"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{{!}} class=\"123\" &lt;nowiki />\n{{!}} hi\n{{!}}}"}},"i":0}}]}'>
+<tbody><tr><td>hi</td></tr>
+</tbody></table>
+!! end
+
 !!test
 Templates: HTML Tables: 1. Generating start of a HTML table
 !! wikitext
