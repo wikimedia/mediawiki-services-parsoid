@@ -1257,8 +1257,8 @@ class LinkHandlerUtils {
 		foreach ( [
 			[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond ],
 			[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond ],
-			[ 'name' => 'page', 'value' => $page, 'cond' => $page['value'] !== null ],
-			[ 'name' => 'lang', 'value' => $lang, 'cond' => $lang['value'] !== null ]
+			[ 'name' => 'page', 'value' => $page, 'cond' => isset( $page['value'] ) ],
+			[ 'name' => 'lang', 'value' => $lang, 'cond' => isset( $lang['value'] ) ]
 		] as $o ) {
 			if ( !$o['cond'] ) {
 				continue;
