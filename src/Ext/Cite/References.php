@@ -473,6 +473,16 @@ class References extends ExtensionTagHandler {
 	}
 
 	/**
+	 * The fragment generated is scoped to the function so we can't keep
+	 * pointers to subtrees of it when collecting references data.
+	 * See https://bugs.php.net/bug.php?id=39593
+	 *
+	 * Removing the nodes would keep them alive but updating them in
+	 * insertReferencesIntoDOM isn't helpful because we've already serialized
+	 * the fragment.
+	 *
+	 * There's already a FIXME there to say this isn't supported.
+	 *
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param ReferencesData $refsData
 	 * @param string $str
@@ -482,7 +492,10 @@ class References extends ExtensionTagHandler {
 		ParsoidExtensionAPI $extApi, ReferencesData $refsData, string $str
 	): string {
 		$domFragment = $extApi->htmlToDom( $str );
+		$inEmbeddedContent = $refsData->inEmbeddedContent;
+		$refsData->inEmbeddedContent = true;
 		self::processRefs( $extApi, $refsData, $domFragment );
+		$refsData->inEmbeddedContent = $inEmbeddedContent;
 		return $extApi->domToHtml( $domFragment, true, true );
 	}
 

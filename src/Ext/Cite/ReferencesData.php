@@ -20,11 +20,17 @@ class ReferencesData {
 	private $refGroups;
 
 	/**
+	 * @var bool
+	 */
+	 public $inEmbeddedContent;
+
+	/**
 	 * ReferencesData constructor.
 	 */
 	public function __construct() {
 		$this->index = 0;
 		$this->refGroups = [];
+		$this->inEmbeddedContent = false;
 	}
 
 	/**
@@ -72,7 +78,9 @@ class ReferencesData {
 				$c = $extApi->getContentDOM( $ref->contentId )->firstChild;
 				$ref->cachedHtml = $extApi->domToHtml( $c, true, false );
 			}
-			$ref->nodes[] = $linkBack;
+			if ( !$this->inEmbeddedContent ) {
+				$ref->nodes[] = $linkBack;
+			}
 		} else {
 			// The ids produced Cite.php have some particulars:
 			// Simple refs get 'cite_ref-' + index
@@ -107,7 +115,9 @@ class ReferencesData {
 			$group->refs[] = $ref;
 			if ( $hasRefName ) {
 				$group->indexByName[$refName] = $ref;
-				$ref->nodes[] = $linkBack;
+				if ( !$this->inEmbeddedContent ) {
+					$ref->nodes[] = $linkBack;
+				}
 			}
 		}
 
