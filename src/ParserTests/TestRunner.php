@@ -647,6 +647,18 @@ class TestRunner {
 					DOMUtils::migrateChildren( $div, $node->parentNode, $node->nextSibling );
 				}
 			},
+			'append' => function ( DOMNode $node, string $html ) {
+				if ( $node->nodeName === 'tr' ) {
+					$tbl = $node->ownerDocument->createElement( 'table' );
+					DOMCompat::setInnerHTML( $tbl, $html );
+					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
+					DOMUtils::migrateChildren( $tbl->firstChild, $node );
+				} else {
+					$div = $node->ownerDocument->createElement( 'div' );
+					DOMCompat::setInnerHTML( $div, $html );
+					DOMUtils::migrateChildren( $div, $node );
+				}
+			},
 			'attr' => function ( DOMNode $node, string $name, string $val ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				$node->setAttribute( $name, $val );
