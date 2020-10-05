@@ -150,6 +150,7 @@ class References extends ExtensionTagHandler {
 		// to TokenUtils::kvToHash() and ExtensionHandler::normalizeExtOptions()
 		$refName = $refDmw->attrs->name ?? '';
 		$followName = $refDmw->attrs->follow ?? '';
+		$refDir = strtolower( $refDmw->attrs->dir ?? '' );
 
 		// Looks like Cite.php doesn't try to fix ids that already have
 		// a "_" in them. Ex: name="a b" and name="a_b" are considered
@@ -214,6 +215,10 @@ class References extends ExtensionTagHandler {
 				$extApi, $groupName, $refName, $about, $nestedInReferences,
 				$linkBack
 			);
+		}
+
+		if ( isset( $refDmw->attrs->dir ) && $refDir !== 'rtl' && $refDir !== 'ltr' ) {
+			$errs[] = [ 'key' => 'cite_error_ref_invalid_dir' ];
 		}
 
 		// Check for missing content, added ?? '' to fix T259676 crasher
@@ -333,7 +338,7 @@ class References extends ExtensionTagHandler {
 		// Keep the first content to compare multiple <ref>s with the same name.
 		if ( $ref->contentId === null && !$missingContent ) {
 			$ref->contentId = $contentId;
-			$ref->dir = strtolower( $refDmw->attrs->dir ?? '' );
+			$ref->dir = $refDir;
 		} else {
 			DOMCompat::remove( $c );
 			$extApi->clearContentDOM( $contentId );
