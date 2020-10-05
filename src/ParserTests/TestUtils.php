@@ -100,12 +100,6 @@ class TestUtils {
 		// Eliminate a source of indeterminacy from leaked strip markers
 		$out = preg_replace( '/UNIQ-.*?-QINU/u', '', $out );
 
-		// And from the imagemap extension - the id attribute is not always around, it appears!
-		$out = preg_replace(
-			'/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?( data-parsoid="[^"]*")?>/u',
-			'<map>', $out
-		);
-
 		// Normalize COINS ids -- they aren't stable
 		$out = preg_replace( '/\s?id=[\'"]coins_\d+[\'"]/iu', '', $out );
 

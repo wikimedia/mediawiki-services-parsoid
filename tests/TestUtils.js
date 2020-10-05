@@ -103,9 +103,6 @@ TestUtils.normalizeOut = function(domBody, options) {
 	// Eliminate a source of indeterminacy from leaked strip markers
 	out = out.replace(/UNIQ-.*?-QINU/g, '');
 
-	// And from the imagemap extension - the id attribute is not always around, it appears!
-	out = out.replace(/<map name="ImageMap_[^"]*"( id="ImageMap_[^"]*")?( data-parsoid="[^"]*")?>/g, '<map>');
-
 	// Normalize COINS ids -- they aren't stable
 	out = out.replace(/\s?id=['"]coins_\d+['"]/ig, '');
 
