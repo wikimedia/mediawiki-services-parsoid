@@ -173,6 +173,17 @@ class References extends ExtensionTagHandler {
 		$validFollow = false;
 
 		if ( $hasFollow ) {
+			// Always wrap follows content so that there's no ambiguity
+			// where to find it when roundtripping
+			$span = $doc->createElement( 'span' );
+			DOMUtils::addTypeOf( $span, 'mw:Cite/Follow' );
+			$span->setAttribute( 'about', $about );
+			$span->appendChild(
+				$doc->createTextNode( ' ' )
+			);
+			DOMUtils::migrateChildren( $c, $span );
+			$c->appendChild( $span );
+
 			if ( $hasRefName ) {
 				$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
 			} else {
@@ -182,15 +193,6 @@ class References extends ExtensionTagHandler {
 				if ( isset( $group->indexByName[$followName] ) ) {
 					$validFollow = true;
 					$ref = $group->indexByName[$followName];
-
-					$span = $doc->createElement( 'span' );
-					DOMUtils::addTypeOf( $span, 'mw:Cite/Follow' );
-					$span->setAttribute( 'about', $about );
-					$span->appendChild(
-						$doc->createTextNode( ' ' )
-					);
-					DOMUtils::migrateChildren( $c, $span );
-					$c->appendChild( $span );
 
 					if ( $ref->contentId ) {
 						$refContent = $extApi->getContentDOM( $ref->contentId )->firstChild;
