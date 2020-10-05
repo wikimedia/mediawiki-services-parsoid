@@ -221,6 +221,13 @@ class References extends ExtensionTagHandler {
 			$errs[] = [ 'key' => 'cite_error_ref_invalid_dir' ];
 		}
 
+		// FIXME: At some point this error message can be changed to a warning, as Parsoid Cite now
+		// supports numerals as a name without it being an actual error, but core Cite does not.
+		// Follow refs do not duplicate the error which can be correlated with the original ref.
+		if ( ctype_digit( $refName ) ) {
+			$errs[] = [ 'key' => 'cite_error_ref_numeric_key' ];
+		}
+
 		// Check for missing content, added ?? '' to fix T259676 crasher
 		// FIXME: See T260082 for a more complete description of cause and deeper fix
 		$missingContent = ( !empty( $cDp->empty ) || trim( $refDmw->body->extsrc ?? '' ) === '' );
