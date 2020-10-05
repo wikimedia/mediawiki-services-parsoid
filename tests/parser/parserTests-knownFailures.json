@@ -2955,6 +2955,10 @@
         "selser [2,4,3,0,2,0,1,0,[3],0,[2],0,2,0,0,2,[2,2,4,0,1,0],2,4,3,4]": "1n8istl\n\n'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n12d31bp\n\nx5l5oh\n\n'''Bold text..\n\n..spanning two paragraphs (should not work).'''\n\nin7y9g''Italic tag left open\n\n1lselvv\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->m5ct7x\n\n1sjjpk5'''This year'<nowiki/>'''12gxn62s election uti2ye beat '''last year''''s.\n\n16ejn0z\n\n11lx057\n\n1n5is1f",
         "selser [[1],2,4,0,[4],0,[4,0],0,[[2]],3,2,0,2,0,0,2,[0,2,2,0,1,0],0,1,0,2]": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n1cn27kg\n\n10dnr9\n\nkuvhny\n\n26hv6l'''<nowiki/>'''\n\n'''ic15fxBold tag left open'''\n\nldzxcv\n\n''Italic tag left open\n\n11ofp2j\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->1fx6om2\n\n'''This year'<nowiki/>'''zpmbius election 1c8m37r''should'' beat '''last year''''s.\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\ncfphse\n\nPlain ''italic'''s plain"
     },
+    "Using {{=}} when it expands to \"=\" should not create a tracking category": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,35,0,0]}'>This uses <span typeof=\"mw:Nowiki mw:Transclusion\" about=\"#mwt1\" data-parsoid='{\"pi\":[[]],\"dsr\":[10,15,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"=\",\"href\":\"./Template:=\"},\"params\":{},\"i\":0}}]}'>=</span> and <span typeof=\"mw:Nowiki mw:Transclusion\" about=\"#mwt3\" data-parsoid='{\"pi\":[[]],\"dsr\":[20,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Template:=\",\"href\":\"./Template:=\"},\"params\":{},\"i\":0}}]}'>=</span>.</p>",
+        "html2wt": "This uses = and =.\n"
+    },
     "WTS of an autolink surrounded by square brackets (T220018)": {
         "html2wt": "[http://example.com<nowiki>]</nowiki>"
     },
