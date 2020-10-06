@@ -639,12 +639,11 @@ abstract class ParsoidHandler extends Handler {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $attribs Request attributes from getRequestAttributes()
-	 * @param ?string $html HTML to transform (or null to use the page specified in
-	 *   the request attributes).
+	 * @param string $html HTML to transform
 	 * @return Response
 	 */
 	protected function html2wt(
-		PageConfig $pageConfig, array $attribs, ?string $html = null
+		PageConfig $pageConfig, array $attribs, string $html
 	) {
 		$request = $this->getRequest();
 		$opts = $attribs['opts'];

@@ -119,14 +119,14 @@ class TransformHandler extends ParsoidHandler {
 			return $this->wt2html( $pageConfig, $attribs, $wikitext );
 		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
 			$html = $attribs['opts']['html'] ?? null;
+			// Accept html as a string or object{body,headers}
+			if ( is_array( $html ) ) {
+				$html = $html['body'];
+			}
 			if ( $html === null ) {
 				throw new HttpException(
 					'No html was supplied.', 400
 				);
-			}
-			// Accept html as a string or object{body,headers}
-			if ( is_array( $html ) ) {
-				$html = $html['body'];
 			}
 			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
 			$pageConfig = $this->tryToCreatePageConfig( $attribs, $wikitext, true );
