@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid;
 
 use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
+use DOMDocument;
 use InvalidArgumentException;
 use LogicException;
 use Wikimedia\Parsoid\Config\DataAccess;
@@ -235,10 +236,10 @@ class Parsoid {
 	}
 
 	/**
-	 * Serialize HTML to wikitext.
+	 * Serialize DOM to wikitext.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param string $html Data attributes are expected to have been applied
+	 * @param DOMDocument $doc Data attributes are expected to have been applied
 	 *   already.  Loading them will happen once the environment is created.
 	 * @param array $options [
 	 *   'scrubWikitext'       => (bool) Indicates emit "clean" wikitext.
@@ -254,12 +255,13 @@ class Parsoid {
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options
 	 *   'logLevels'           => (string[]) Levels to log
+	 *   'htmlSize'            => (int) Size of the HTML that generated $doc
 	 * ]
 	 * @param ?SelserData $selserData
 	 * @return string
 	 */
-	public function html2wikitext(
-		PageConfig $pageConfig, string $html, array $options = [],
+	public function dom2wikitext(
+		PageConfig $pageConfig, DOMDocument $doc, array $options = [],
 		?SelserData $selserData = null
 	): string {
 		$envOptions = $this->setupCommonOptions( $options );
@@ -272,12 +274,28 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		# Should perhaps be strlen instead (or cached!): T239841
-		$env->bumpHtml2WtResourceUse( 'htmlSize', mb_strlen( $html ) );
-		$doc = $env->createDocument( $html, true );
+		$env->bumpHtml2WtResourceUse( 'htmlSize', $options['htmlSize'] ?? 0 );
+		$env->prepareDocument( $doc );
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		return $handler->fromDOM( $env, $doc, $selserData );
+	}
+
+	/**
+	 * Serialize HTML to wikitext.  Convenience method for dom2wikitext.
+	 *
+	 * @param PageConfig $pageConfig
+	 * @param string $html
+	 * @param array $options
+	 * @param ?SelserData $selserData
+	 * @return string
+	 */
+	public function html2wikitext(
+		PageConfig $pageConfig, string $html, array $options = [],
+		?SelserData $selserData = null
+	): string {
+		$doc = DOMUtils::parseHTML( $html, true );
+		return $this->dom2wikitext( $pageConfig, $doc, $options, $selserData );
 	}
 
 	/**

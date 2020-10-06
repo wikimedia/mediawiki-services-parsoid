@@ -654,11 +654,17 @@ abstract class ParsoidHandler extends Handler {
 		// Performance Timing options
 		$timing = Timing::start( $metrics );
 
-		$doc = DOMUtils::parseHTML( $html );
+		try {
+			$doc = DOMUtils::parseHTML( $html, true );
+		} catch ( ClientError $e ) {
+			throw new HttpException( $e->getMessage(), 400 );
+		}
 
-		// send input size to statsd/Graphite
 		// Should perhaps be strlen instead (or cached!): T239841
-		$metrics->timing( 'html2wt.size.input', mb_strlen( $html ) );
+		$htmlSize = mb_strlen( $html );
+
+		// Send input size to statsd/Graphite
+		$metrics->timing( 'html2wt.size.input', $htmlSize );
 
 		$original = $opts['original'] ?? null;
 		$oldBody = null;
@@ -808,17 +814,17 @@ abstract class ParsoidHandler extends Handler {
 			$selserData = null;
 		}
 
-		$html = ContentUtils::toXML( $doc );
 		$parsoid = new Parsoid( $this->siteConfig, $this->dataAccess );
 
 		$timing->end( 'html2wt.init' );
 
 		try {
-			$wikitext = $parsoid->html2wikitext( $pageConfig, $html, [
+			$wikitext = $parsoid->dom2wikitext( $pageConfig, $doc, [
 				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 				'offsetType' => $envOptions['offsetType'],
 				'contentmodel' => $opts['contentmodel'] ?? null,
+				'htmlSize' => $htmlSize,
 			], $selserData );
 		} catch ( ClientError $e ) {
 			throw new HttpException( $e->getMessage(), 400 );

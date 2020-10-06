@@ -748,7 +748,6 @@ class Env {
 		$doc = $domBuilder->getFragment();
 		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
 
-		// Special case where we can't call `$env->createDocument()`
 		$this->referenceDataObject( $doc, $this->bag );
 
 		return [ $doc, $dispatcher ];
@@ -763,11 +762,18 @@ class Env {
 		string $html = '', bool $validateXMLNames = false
 	): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
+		$this->prepareDocument( $doc );
+		return $doc;
+	}
+
+	/**
+	 * @param DOMDocument $doc
+	 */
+	public function prepareDocument( DOMDocument $doc ): void {
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
 		DOMCompat::getBody( $doc );
 		$this->referenceDataObject( $doc );
-		return $doc;
 	}
 
 	/**
