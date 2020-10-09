@@ -399,16 +399,13 @@ class DOMDataUtils {
 		}
 		if ( isset( $dp->tsr ) ) {
 			// tsr is generally for tokens, not DOM trees.
-			/* @phan-suppress-next-line PhanTypeMismatchArgument */
 			$dp->tsr = SourceRange::fromArray( $dp->tsr );
 		}
 		if ( isset( $dp->extTagOffsets ) ) {
-			/* @phan-suppress-next-line PhanTypeMismatchArgument */
 			$dp->extTagOffsets = DomSourceRange::fromArray( $dp->extTagOffsets );
 		}
 		if ( isset( $dp->extLinkContentOffsets ) ) {
 			$dp->extLinkContentOffsets =
-				/* @phan-suppress-next-line PhanTypeMismatchArgument */
 				SourceRange::fromArray( $dp->extLinkContentOffsets );
 		}
 		if ( !empty( $options['markNew'] ) ) {

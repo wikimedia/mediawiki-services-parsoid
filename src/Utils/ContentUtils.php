@@ -55,7 +55,6 @@ class ContentUtils {
 	): DOMNode {
 		$options += [
 			'node' => null,
-			'reinsertFosterableContent' => null,
 			'toFragment' => false,
 		];
 		$node = $options['node'];
@@ -66,19 +65,7 @@ class ContentUtils {
 		} else {
 			DOMCompat::setInnerHTML( $node, $html );
 		}
-
-		if ( $options['reinsertFosterableContent'] ) {
-			DOMUtils::visitDOM( $node, function ( $n, ...$args ) use ( $env ) {
-				// untunnel fostered content
-				$meta = WTUtils::reinsertFosterableContent( $env, $n, true );
-				$n = $meta ?? $n;
-
-				// load data attribs
-				DOMDataUtils::loadDataAttribs( $n, ...$args );
-			}, $options );
-		} else {
-			DOMDataUtils::visitAndLoadDataAttribs( $node, $options );
-		}
+		DOMDataUtils::visitAndLoadDataAttribs( $node, $options );
 		return $node;
 	}
 
