@@ -36,9 +36,7 @@ class CleanUpTest extends TestCase {
 		$pageConfig = new MockPageConfig( [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		$doc = ContentUtils::ppToDOM( $env, $html );
-
-		return( $doc );
+		return ContentUtils::ppToDOM( $env, $html );
 	}
 
 	/**
@@ -78,8 +76,8 @@ class CleanUpTest extends TestCase {
 		error_log( "Cleanup DOM pass should confirm removal of autoInsertedEnd flag\n" .
 			"for wikitext table tags without closing tag syntax using DOM traversal\n" );
 		$mockEnv = new MockEnv( [] );
-		$doc = $this->parseWT( $mockEnv, $test );
-		$fragment = $doc->firstChild;
+		$body = $this->parseWT( $mockEnv, $test );
+		$fragment = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'tr', 'td', ];
@@ -111,8 +109,8 @@ class CleanUpTest extends TestCase {
 		error_log( "Cleanup DOM pass should confirm removal of autoInsertedEnd flag\n" .
 			"for all wikitext tags without closing tags\n" );
 		$mockEnv = new MockEnv( [] );
-		$doc = $this->parseWT( $mockEnv, $test );
-		$table = $doc->firstChild;
+		$body = $this->parseWT( $mockEnv, $test );
+		$table = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
@@ -157,8 +155,8 @@ class CleanUpTest extends TestCase {
 		error_log( "Cleanup DOM pass should confirm presence of autoInsertedEnd flag\n" .
 			"for all HTML wikitext tags that can appear without closing tags\n" );
 		$mockEnv = new MockEnv( [] );
-		$doc = $this->parseWT( $mockEnv, $test );
-		$fragment = $doc->firstChild;
+		$body = $this->parseWT( $mockEnv, $test );
+		$fragment = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
