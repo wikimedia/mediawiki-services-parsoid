@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Parsoid;
 
 class TemplateDataTest extends TestCase {
 
-	private $defaultContentVersion = '2.1.0';
+	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
 	private function verifyTransformation( $newHTML, $origHTML, $origWT, $expectedWT, $description,
 		$contentVersion = null ) {
@@ -420,7 +420,7 @@ class TemplateDataTest extends TestCase {
 	public function defineVersionTestData(): array {
 		return [
 			[
-				'contentVersion' => $this->defaultContentVersion,
+				'contentVersion' => self::$defaultContentVersion,
 				'html' => '<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
 					'{"pi":[[{"k":"f1"},{"k":"f1"}]]}' . "' data-mw='" .
 					'{"parts":[{"template":{"target":{"wt":"TplWithoutTemplateData",' .

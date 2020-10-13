@@ -17,6 +17,8 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  */
 class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
+	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
+
 	/**
 	 * @covers ::wikitext2html
 	 * @dataProvider provideWt2Html
@@ -183,7 +185,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p><a rel="mw:WikiLink" href="./Special:Version" title="Special:Version">Special:Version</a> <a rel="mw:WikiLink" href="./Doesnotexist" title="Doesnotexist" class="new">Doesnotexist</a> <a rel="mw:WikiLink" href="./Redirected" title="Redirected" class="mw-redirect">Redirected</a></p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -200,7 +202,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p id="mwAQ"><a rel="mw:WikiLink" href="./Not_an_article" title="Not an article" id="mwAg" class="new">abcd</a></p>' . "\n",
 					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,24,0,0]},"mwAQ":{"dsr":[0,23,0,0]},"mwAg":{"stx":"piped","a":{"href":"./Not_an_article"},"sa":{"href":"Not an article"},"dsr":[0,23,17,2]}},"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -219,7 +221,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p id="mwAQ"><a id="mwAg" href="./Not_an_article">abcd</a></p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -237,7 +239,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -259,7 +261,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}],"rt":true}\'>абвг</span> абцд x</p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -281,7 +283,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p id="mwAQ" data-mw-variant-lang="sr-el"><b id="mwAg">абцд</b></p>',
 					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,11,0,0]},"mwAQ":{"dsr":[0,10,0,0]},"mwAg":{"dsr":[0,10,3,3]}},"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
@@ -305,7 +307,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'html' => '<p id="mwAQ" data-mw-variant-lang="sr-el"><b id="mwAg">абцд</b></p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
-					'version' => '2.1.0',
+					'version' => self::$defaultContentVersion,
 				],
 				[
 					'body_only' => true,
