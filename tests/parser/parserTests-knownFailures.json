@@ -1587,6 +1587,9 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/MemoryAlpha:AlphaTest\" title=\"Wiki/MemoryAlpha:AlphaTest\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/MemoryAlpha:AlphaTest\"},\"sa\":{\"href\":\"wiki/MemoryAlpha:AlphaTest\"},\"dsr\":[0,52,29,2]}'>MemoryAlpha:AlphaTest</a></p>\n",
         "html2wt": "[[wiki/MemoryAlpha:AlphaTest|MemoryAlpha:AlphaTest]]\n"
     },
+    "Nested <noinclude>s": {
+        "selser [4,0,[3,0,3,4,0],3,0]": "95w6d2\n\n<noinclude>k1e0sn\nz\n</noinclude>"
+    },
     "Nested definition lists using html syntax": {
         "html2wt": "; x\n: a\n: b"
     },

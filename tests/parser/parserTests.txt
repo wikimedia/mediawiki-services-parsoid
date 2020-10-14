@@ -12777,6 +12777,27 @@ Hello<noinclude></noinclude>!
 !! end
 
 !! test
+Nested <noinclude>s
+!! wikitext
+<noinclude>
+x
+<noinclude>y</noinclude>
+z
+</noinclude>
+!! html/php
+<p>x
+y
+z
+</p>
+!! html/parsoid
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>
+<p>x
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/>y<meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
+z</p>
+<meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
+!! end
+
+!! test
 <onlyinclude> on a page
 !! wikitext
 <onlyinclude>Foo</onlyinclude>bar
