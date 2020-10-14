@@ -17,6 +17,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+use MediaWiki\Config\ServiceOptions;
 use MediaWiki\MediaWikiServices;
 use MWParsoid\Config\DataAccess as MWDataAccess;
 use MWParsoid\Config\PageConfigFactory as MWPageConfigFactory;
@@ -34,7 +35,24 @@ return [
 		if ( !empty( $parsoidSettings['debugApi'] ) ) {
 			return ApiSiteConfig::fromSettings( $parsoidSettings );
 		}
-		return new MWSiteConfig( $mainConfig, $parsoidSettings, $services->getContentLanguage() );
+		return new MWSiteConfig(
+			new ServiceOptions( MWSiteConfig::CONSTRUCTOR_OPTIONS, $mainConfig ),
+			$parsoidSettings,
+			$services->getContentLanguage(),
+			$services->getStatsdDataFactory(),
+			$services->getMagicWordFactory(),
+			$services->getNamespaceInfo(),
+			$services->getSpecialPageFactory(),
+			$services->getInterwikiLookup(),
+			$services->getUserOptionsLookup(),
+			$services->getLanguageFactory(),
+			$services->getLanguageConverterFactory(),
+			$services->getLanguageNameUtils(),
+			// These arguments are temporary and will be removed once
+			// better solutions are found.
+			$services->getParser(), // T268776
+			$mainConfig // T268777
+		);
 	},
 
 	'ParsoidPageConfigFactory' => function ( MediaWikiServices $services ): MWPageConfigFactory {

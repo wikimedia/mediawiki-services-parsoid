@@ -89,6 +89,7 @@ if ( $STANDALONE ) {
 	// Analyze RTTestSettings only in the context of core code (ie, !STANDALONE)
 	$cfg['exclude_file_list'][] = 'tests/RTTestSettings.php';
 } else {
+	$cfg['exclude_analysis_directory_list'][] = 'extension/tests/';
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
 
 	foreach ( [

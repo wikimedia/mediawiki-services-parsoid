@@ -27,12 +27,24 @@ use Language;
 use LanguageConverter;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use MagicWordArray;
+use MagicWordFactory;
+use MediaWiki\Config\ServiceOptions;
+use MediaWiki\Interwiki\InterwikiLookup;
+use MediaWiki\Languages\LanguageConverterFactory;
+use MediaWiki\Languages\LanguageFactory;
+use MediaWiki\Languages\LanguageNameUtils;
 use MediaWiki\Logger\LoggerFactory;
-use MediaWiki\MediaWikiServices;
+use MediaWiki\Special\SpecialPageFactory;
+use MediaWiki\User\UserOptionsLookup;
 use MutableConfig;
+use MWException;
+use NamespaceInfo;
+use Parser;
+use PrefixingStatsdDataFactoryProxy;
 use Psr\Log\LoggerInterface;
 use Title;
-use User;
+use UnexpectedValueException;
+use WikiMap;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 
 /**
@@ -51,8 +63,31 @@ class SiteConfig extends ISiteConfig {
 	 */
 	protected const COMMENT_REGEXP_FRAGMENT = '<!--(?>[\s\S]*?-->)';
 
-	/** @var Config MediaWiki configuration object */
+	public const CONSTRUCTOR_OPTIONS = [
+		'GalleryOptions',
+		'AllowExternalImages',
+		'AllowExternalImagesFrom',
+		'Server',
+		'ArticlePath',
+		'InterwikiMagic',
+		'ExtraInterlanguageLinkPrefixes',
+		'LocalInterwikis',
+		'LanguageCode',
+		'NamespaceAliases',
+		'UrlProtocols',
+		'Script',
+		'ScriptPath',
+		'LoadScript',
+		'LocalTZoffset',
+		'ThumbLimits',
+		'MaxTemplateDepth',
+	];
+
+	/** @var ServiceOptions */
 	private $config;
+
+	/** @var Config */
+	private $optionalConfig;
 
 	/** @var array Parsoid-specific options array from $config */
 	private $parsoidSettings;
@@ -60,8 +95,35 @@ class SiteConfig extends ISiteConfig {
 	/** @var Language */
 	private $contLang;
 
-	/** @var LoggerInterface|null */
-	private $traceLogger, $dumpLogger;
+	/** @var StatsdDataFactoryInterface */
+	private $stats;
+
+	/** @var MagicWordFactory */
+	private $magicWordFactory;
+
+	/** @var NamespaceInfo */
+	private $namespaceInfo;
+
+	/** @var SpecialPageFactory */
+	private $specialPageFactory;
+
+	/** @var InterwikiLookup */
+	private $interwikiLookup;
+
+	/** @var Parser */
+	private $parser;
+
+	/** @var UserOptionsLookup */
+	private $userOptionsLookup;
+
+	/** @var LanguageFactory */
+	private $languageFactory;
+
+	/** @var LanguageConverterFactory */
+	private $languageConverterFactory;
+
+	/** @var LanguageNameUtils */
+	private $languageNameUtils;
 
 	/** @var string|null */
 	private $baseUri, $relativeLinkPrefix;
@@ -73,16 +135,58 @@ class SiteConfig extends ISiteConfig {
 	private $extensionTags;
 
 	/**
-	 * @param Config $mainConfig MediaWiki main configuration object
+	 * @param ServiceOptions $config MediaWiki main configuration object
 	 * @param array $parsoidSettings Parsoid-specific options array from main configuration.
 	 * @param Language $contentLanguage Content language.
+	 * @param StatsdDataFactoryInterface $stats
+	 * @param MagicWordFactory $magicWordFactory
+	 * @param NamespaceInfo $namespaceInfo
+	 * @param SpecialPageFactory $specialPageFactory
+	 * @param InterwikiLookup $interwikiLookup
+	 * @param UserOptionsLookup $userOptionsLookup
+	 * @param LanguageFactory $languageFactory
+	 * @param LanguageConverterFactory $languageConverterFactory
+	 * @param LanguageNameUtils $languageNameUtils
+	 * @param Parser $parser
+	 * @param Config $optionalConfig
 	 */
-	public function __construct( Config $mainConfig, array $parsoidSettings, Language $contentLanguage ) {
+	public function __construct(
+		ServiceOptions $config,
+		array $parsoidSettings,
+		Language $contentLanguage,
+		StatsdDataFactoryInterface $stats,
+		MagicWordFactory $magicWordFactory,
+		NamespaceInfo $namespaceInfo,
+		SpecialPageFactory $specialPageFactory,
+		InterwikiLookup $interwikiLookup,
+		UserOptionsLookup $userOptionsLookup,
+		LanguageFactory $languageFactory,
+		LanguageConverterFactory $languageConverterFactory,
+		LanguageNameUtils $languageNameUtils,
+		// These arguments are temporary and will be removed once
+		// better solutions are found.
+		Parser $parser, // T268776
+		Config $optionalConfig // T268777
+	) {
 		parent::__construct();
 
-		$this->config = $mainConfig;
+		$config->assertRequiredOptions( self::CONSTRUCTOR_OPTIONS );
+		$this->config = $config;
+		$this->optionalConfig = $optionalConfig;
 		$this->parsoidSettings = $parsoidSettings;
+
 		$this->contLang = $contentLanguage;
+		$this->stats = $stats;
+		$this->magicWordFactory = $magicWordFactory;
+		$this->namespaceInfo = $namespaceInfo;
+		$this->specialPageFactory = $specialPageFactory;
+		$this->interwikiLookup = $interwikiLookup;
+		$this->parser = $parser;
+		$this->userOptionsLookup = $userOptionsLookup;
+		$this->languageFactory = $languageFactory;
+		$this->languageConverterFactory = $languageConverterFactory;
+		$this->languageNameUtils = $languageNameUtils;
+
 		// Override parent default
 		if ( isset( $this->parsoidSettings['rtTestMode'] ) ) {
 			// @todo: Add this setting to MW's DefaultSettings.php
@@ -104,7 +208,9 @@ class SiteConfig extends ISiteConfig {
 				$this->html2wtLimits, $this->parsoidSettings['html2wtLimits']
 			);
 		}
+
 		// Register extension modules
+		// TODO: inject this (T257586)
 		$parsoidModules = ExtensionRegistry::getInstance()->getAttribute( 'ParsoidModules' );
 		foreach ( $parsoidModules as $configOrSpec ) {
 			$this->registerExtensionModule( $configOrSpec );
@@ -113,6 +219,7 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function getLogger(): LoggerInterface {
+		// TODO: inject
 		if ( $this->logger === null ) {
 			$this->logger = LoggerFactory::getInstance( 'Parsoid' );
 		}
@@ -120,11 +227,12 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function metrics(): ?StatsdDataFactoryInterface {
+		// TODO: inject
 		static $prefixedMetrics = null;
 		if ( $prefixedMetrics === null ) {
-			$prefixedMetrics = new \PrefixingStatsdDataFactoryProxy(
+			$prefixedMetrics = new PrefixingStatsdDataFactoryProxy(
 				// Our stats will also get prefixed with 'MediaWiki.'
-				MediaWikiServices::getInstance()->getStatsdDataFactory(),
+				$this->stats,
 				$this->parsoidSettings['metricsPrefix'] ?? 'Parsoid.'
 			);
 		}
@@ -159,13 +267,13 @@ class SiteConfig extends ISiteConfig {
 		$url = $this->config->get( 'Server' ) . $this->config->get( 'ArticlePath' );
 
 		if ( substr( $url, -2 ) !== '$1' ) {
-			throw new \UnexpectedValueException( "Article path '$url' does not have '$1' at the end" );
+			throw new UnexpectedValueException( "Article path '$url' does not have '$1' at the end" );
 		}
 		$url = substr( $url, 0, -2 );
 
 		$bits = wfParseUrl( $url );
 		if ( !$bits ) {
-			throw new \UnexpectedValueException( "Failed to parse article path '$url'" );
+			throw new UnexpectedValueException( "Failed to parse article path '$url'" );
 		}
 
 		if ( empty( $bits['path'] ) ) {
@@ -217,16 +325,12 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function redirectRegexp(): string {
-		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
-		$redirect = self::mwaToRegex(
-			$mwFactory->newArray( [ 'redirect' ] ), '@'
-		);
+		$redirect = self::mwaToRegex( $this->magicWordFactory->newArray( [ 'redirect' ] ), '@' );
 		return "@$redirect@Su";
 	}
 
 	public function categoryRegexp(): string {
-		$namespaceInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
-		$canon = $namespaceInfo->getCanonicalName( NS_CATEGORY );
+		$canon = $this->namespaceInfo->getCanonicalName( NS_CATEGORY );
 		$result = [ $canon ];
 		foreach ( $this->contLang->getNamespaceAliases() as $alias => $ns ) {
 			if ( $ns === NS_CATEGORY && $alias !== $canon ) {
@@ -240,17 +344,13 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function bswRegexp(): string {
-		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
-		$words = $mwFactory->getDoubleUnderscoreArray();
-		$bsw = self::mwaToRegex(
-			$mwFactory->getDoubleUnderscoreArray(), '@'
-		);
+		$bsw = self::mwaToRegex( $this->magicWordFactory->getDoubleUnderscoreArray(), '@' );
 		return "@$bsw@Su";
 	}
 
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
-		$ret = MediaWikiServices::getInstance()->getNamespaceInfo()->getCanonicalIndex( $name );
+		$ret = $this->namespaceInfo->getCanonicalIndex( $name );
 		return $ret === false ? null : $ret;
 	}
 
@@ -268,18 +368,17 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function namespaceHasSubpages( int $ns ): bool {
-		return MediaWikiServices::getInstance()->getNamespaceInfo()->hasSubpages( $ns );
+		return $this->namespaceInfo->hasSubpages( $ns );
 	}
 
 	/** @inheritDoc */
 	public function namespaceCase( int $ns ): string {
-		$nsInfo = MediaWikiServices::getInstance()->getNamespaceInfo();
-		return $nsInfo->isCapitalized( $ns ) ? 'first-letter' : 'case-sensitive';
+		return $this->namespaceInfo->isCapitalized( $ns ) ? 'first-letter' : 'case-sensitive';
 	}
 
 	/** @inheritDoc */
 	public function namespaceIsTalk( int $ns ): bool {
-		return MediaWikiServices::getInstance()->getNamespaceInfo()->isTalk( $ns );
+		return $this->namespaceInfo->isTalk( $ns );
 	}
 
 	/** @inheritDoc */
@@ -289,9 +388,8 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function specialPageLocalName( string $alias ): ?string {
-		$specialPageFactory = MediaWikiServices::getInstance()->getSpecialPageFactory();
-		$aliases = $specialPageFactory->resolveAlias( $alias );
-		return $aliases[0] !== null ? $specialPageFactory->getLocalNameFor( ...$aliases ) : $alias;
+		$aliases = $this->specialPageFactory->resolveAlias( $alias );
+		return $aliases[0] !== null ? $this->specialPageFactory->getLocalNameFor( ...$aliases ) : $alias;
 	}
 
 	public function interwikiMagic(): bool {
@@ -303,8 +401,8 @@ class SiteConfig extends ISiteConfig {
 		if ( $this->interwikiMap === null ) {
 			$this->interwikiMap = [];
 
-			$getPrefixes = MediaWikiServices::getInstance()->getInterwikiLookup()->getAllPrefixes();
-			$langNames = Language::fetchLanguageNames();
+			$getPrefixes = $this->interwikiLookup->getAllPrefixes();
+			$langNames = $this->languageNameUtils->getLanguageNames();
 			$extraLangPrefixes = $this->config->get( 'ExtraInterlanguageLinkPrefixes' );
 			$localInterwikis = $this->config->get( 'LocalInterwikis' );
 
@@ -312,7 +410,10 @@ class SiteConfig extends ISiteConfig {
 				$prefix = $row['iw_prefix'];
 				$val = [];
 				$val['prefix'] = $prefix;
-				$val['url'] = wfExpandUrl( $row['iw_url'], PROTO_CURRENT );
+				// ApiQuerySiteInfo::appendInterwikiMap uses PROTO_CURRENT here,
+				// but that's the 'current' protocol *of the API request*; use
+				// PROTO_CANONICAL instead.
+				$val['url'] = wfExpandUrl( $row['iw_url'], PROTO_CANONICAL );
 
 				// Fix up broken interwiki hrefs that are missing a $1 placeholder
 				// Just append the placeholder at the end.
@@ -337,10 +438,16 @@ class SiteConfig extends ISiteConfig {
 				if ( in_array( $prefix, $extraLangPrefixes, true ) ) {
 					$val['extralanglink'] = true;
 
-					$linktext = wfMessage( "interlanguage-link-$prefix" );
-					if ( !$linktext->isDisabled() ) {
-						$val['linktext'] = $linktext->text();
-					}
+					/**
+					 * ApiQuerySiteinfo adds a 'linktext' field, but Parsoid
+					 * doesn't use this -- and because it uses wfMessage()
+					 * it implicitly uses a MessageCache which would have to
+					 * be injected here.
+					 */
+					// $linktext = wfMessage( "interlanguage-link-$prefix" );
+					// if ( !$linktext->isDisabled() ) {
+					// 	$val['linktext'] = $linktext->text();
+					// }
 				}
 
 				$this->interwikiMap[$prefix] = $val;
@@ -350,7 +457,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function iwp(): string {
-		return wfWikiID();
+		return WikiMap::getCurrentWikiId();
 	}
 
 	public function legalTitleChars() : string {
@@ -374,14 +481,16 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function mainpage(): string {
+		// @todo Perhaps should inject TitleFactory here?
 		return Title::newMainPage()->getPrefixedText();
 	}
 
 	public function responsiveReferences(): array {
 		// @todo This is from the Cite extension, which shouldn't be known about by core
+		// T268777
 		return [
-			'enabled' => $this->config->has( 'CiteResponsiveReferences' ) ?
-				$this->config->get( 'CiteResponsiveReferences' ) : false,
+			'enabled' => $this->optionalConfig->has( 'CiteResponsiveReferences' ) ?
+				$this->optionalConfig->get( 'CiteResponsiveReferences' ) : false,
 			'threshold' => 10,
 		];
 	}
@@ -392,11 +501,17 @@ class SiteConfig extends ISiteConfig {
 
 	/** @inheritDoc */
 	public function langConverterEnabled( string $lang ): bool {
+		if ( $this->languageConverterFactory->isConversionDisabled() ) {
+			return false;
+		}
+		if ( !in_array( $lang, LanguageConverter::$languagesWithVariants, true ) ) {
+			return false;
+		}
 		try {
-			return !$this->config->get( 'DisableLangConversion' ) &&
-				in_array( $lang, LanguageConverter::$languagesWithVariants, true ) &&
-				Language::factory( $lang )->getConverter()->hasVariants();
-		} catch ( \MWException $ex ) {
+			$langObject = $this->languageFactory->getLanguage( $lang );
+			$converter = $this->languageConverterFactory->getLanguageConverter( $langObject );
+			return $converter->hasVariants();
+		} catch ( MWException $ex ) {
 			// Probably a syntactically invalid language code
 			return false;
 		}
@@ -427,20 +542,21 @@ class SiteConfig extends ISiteConfig {
 			$this->variants = [];
 
 			$langNames = LanguageConverter::$languagesWithVariants;
-			if ( $this->config->get( 'DisableLangConversion' ) ) {
+			if ( $this->languageConverterFactory->isConversionDisabled() ) {
 				// Ensure result is empty if language conversion is disabled.
 				$langNames = [];
 			}
 
 			foreach ( $langNames as $langCode ) {
-				$lang = Language::factory( $langCode );
-				if ( !$lang->getConverter()->hasVariants() ) {
+				$lang = $this->languageFactory->getLanguage( $langCode );
+				$converter = $this->languageConverterFactory->getLanguageConverter( $lang );
+				if ( !$converter->hasVariants() ) {
 					continue;
 				}
 
-				$variants = $lang->getVariants();
+				$variants = $converter->getVariants();
 				foreach ( $variants as $v ) {
-					$fallbacks = $lang->getConverter()->getVariantFallbacks( $v );
+					$fallbacks = $converter->getVariantFallbacks( $v );
 					if ( !is_array( $fallbacks ) ) {
 						$fallbacks = [ $fallbacks ];
 					}
@@ -461,27 +577,27 @@ class SiteConfig extends ISiteConfig {
 		if ( isset( $this->parsoidSettings['thumbsize'] ) ) {
 			return $this->parsoidSettings['thumbsize'];
 		}
-		return $this->config->get( 'ThumbLimits' )[User::getDefaultOption( 'thumbsize' )];
+		$thumbsize = $this->userOptionsLookup->getDefaultOption( 'thumbsize' );
+		return $this->config->get( 'ThumbLimits' )[$thumbsize];
 	}
 
 	/** @inheritDoc */
 	protected function getVariableIDs(): array {
-		return MediaWikiServices::getInstance()->getMagicWordFactory()->getVariableIDs();
+		return $this->magicWordFactory->getVariableIDs();
 	}
 
 	/** @inheritDoc */
 	protected function getFunctionHooks(): array {
-		return MediaWikiServices::getInstance()->getParser()->getFunctionHooks();
+		return $this->parser->getFunctionHooks();
 	}
 
 	/** @inheritDoc */
 	protected function getMagicWords(): array {
-		return MediaWikiServices::getInstance()->getContentLanguage()->getMagicWords();
+		return $this->contLang->getMagicWords();
 	}
 
 	public function getMagicWordMatcher( string $id ): string {
-		return MediaWikiServices::getInstance()->getMagicWordFactory()
-			->get( $id )->getRegexStartToEnd();
+		return $this->magicWordFactory->get( $id )->getRegexStartToEnd();
 	}
 
 	/** @inheritDoc */
@@ -491,11 +607,10 @@ class SiteConfig extends ISiteConfig {
 		// in that method.
 		// Filter out timedmedia-* unless that extension is loaded, so Parsoid
 		// doesn't have a hard dependency on an extension.
-		if ( !\ExtensionRegistry::getInstance()->isLoaded( 'TimedMediaHandler' ) ) {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'TimedMediaHandler' ) ) {
 			$words = preg_grep( '/^timedmedia_/', $words, PREG_GREP_INVERT );
 		}
-		$words = MediaWikiServices::getInstance()->getMagicWordFactory()
-			->newArray( $words );
+		$words = $this->magicWordFactory->newArray( $words );
 		return function ( $text ) use ( $words ) {
 			$ret = $words->matchVariableStartToEnd( $text );
 			if ( $ret[0] === false || $ret[1] === false ) {
@@ -507,8 +622,7 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	private function populateExtensionTags(): void {
-		$parser = MediaWikiServices::getInstance()->getParser();
-		$this->extensionTags = array_fill_keys( $parser->getTags(), true );
+		$this->extensionTags = array_fill_keys( $this->parser->getTags(), true );
 	}
 
 	/** @inheritDoc */
@@ -528,6 +642,11 @@ class SiteConfig extends ISiteConfig {
 	 * @param int $depth
 	 */
 	public function setMaxTemplateDepth( int $depth ): void {
+		// Parsoid's command-line tools let you set the max template depth
+		// as a CLI argument.  Since we currently invoke the legacy
+		// preprocessor in some situations, we can't just override
+		// ::getMaxTemplateDepth() above, we need to reset the Config
+		// service.
 		if ( $this->config instanceof MutableConfig ) {
 			$this->config->set( 'MaxTemplateDepth', $depth );
 		} else {
