@@ -81,7 +81,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		/* Step 2: Add new section where it belongs: a parent section OR body */
 		$parentSection = count( $stack ) > 0 ? PHPUtils::lastItem( $stack ) : null;
 		if ( $parentSection ) {
-			// print "Appending to " . $parentSection['debug_id'] . '\n';
+			// error_log( "Appending to " . $parentSection['debug_id'] . '\n' );
 			$parentSection['container']->appendChild( $section['container'] );
 		} else {
 			$rootNode->insertBefore( $section['container'], $node );
@@ -113,6 +113,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		} else {
 			$section['container']->setAttribute( 'data-mw-section-id', (string)$state['sectionNumber'] );
 		}
+		// $section['container']->setAttribute( 'data-debug-id', (string)$section['debug_id'] );
 
 		/* Ensure that template continuity is not broken if the section
 		 * tags aren't stripped by a client */
@@ -257,11 +258,11 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	private function getDSR( array $tplInfo, DOMElement $node, bool $start ): int {
 		if ( $node->nodeName !== 'section' ) {
 			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			$tmplDsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
+			$tplDsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
 			if ( $start ) {
-				return $nodeDsr->start ?? $tmplDsr->start;
+				return $nodeDsr->start ?? $tplDsr->start;
 			} else {
-				return $nodeDsr->end ?? $tmplDsr->end;
+				return $nodeDsr->end ?? $tplDsr->end;
 			}
 		}
 
@@ -294,13 +295,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	private function resolveTplExtSectionConflicts( array &$state ) {
 		foreach ( $state['tplsAndExtsToExamine'] as $tplInfo ) {
 			// could be null
-			if ( isset( $tplInfo['firstSection'] ) &&
-				isset( $tplInfo['firstSection']['container'] )
-			) {
-				$s1 = $tplInfo['firstSection']['container'];
-			} else {
-				$s1 = null;
-			}
+			$s1 = $tplInfo['firstSection']['container'] ?? null;
 
 			// guaranteed to be non-null
 			$s2 = $tplInfo['lastSection']['container'];
