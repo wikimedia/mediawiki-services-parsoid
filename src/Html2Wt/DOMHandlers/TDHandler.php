@@ -68,7 +68,7 @@ class TDHandler extends DOMHandler {
 		if ( $nextUsesRowSyntax && !preg_match( '/\s$/D', $state->currLine->text ) ) {
 			$trailingSpace = $this->getTrailingSpace( $state, $node, '' );
 			if ( $trailingSpace ) {
-				$state->appendSep( $trailingSpace );
+				$state->appendSep( $trailingSpace, $node );
 			}
 		}
 

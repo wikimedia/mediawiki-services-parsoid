@@ -1,0 +1,18 @@
+!! Version 2
+#
+# This file will hold tests for separator handling functionality
+
+# This is a regression test that indirectly tests the expectation
+# by ensuring that there are no nowikis around [2] on the second line
+!! test
+Newlines reset separator state
+!! options
+parsoid=wt2wt
+!! wikitext
+{|
+|[[Foo]] [1]
+ |[[Bar]] [2]
+|}
+!! html/parsoid
+NOT NEEDED
+!! end

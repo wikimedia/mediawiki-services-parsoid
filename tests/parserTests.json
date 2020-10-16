@@ -13,6 +13,10 @@
 		"repo": "--UNUSED--",
 		"path": "--UNUSED--"
 	},
+	"separatorTests.txt": {
+		"repo": "--UNUSED--",
+		"path": "--UNUSED--"
+	},
 	"langParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-services-parsoid/",
 		"path": "tests/langParserTests.txt"

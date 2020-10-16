@@ -1085,7 +1085,7 @@ class WikitextSerializer {
 		if ( !$state->inIndentPre ) {
 			// Strip leading newlines and other whitespace
 			if ( preg_match( self::$separatorREs['sepPrefixWithNlsRE'], $res, $match ) ) {
-				$state->appendSep( $match[0] );
+				$state->appendSep( $match[0], $node );
 				$res = substr( $res, strlen( $match[0] ) );
 			}
 		}
@@ -1106,7 +1106,7 @@ class WikitextSerializer {
 		// Move trailing newlines into the next separator
 		if ( $newSepMatch ) {
 			if ( !$state->sep->src ) {
-				$state->appendSep( $newSepMatch[0] );
+				$state->appendSep( $newSepMatch[0], $node );
 			} else {
 				/* SSS FIXME: what are we doing with the stripped NLs?? */
 			}
@@ -1344,7 +1344,7 @@ class WikitextSerializer {
 					// but that does not seem useful
 					&& preg_match( self::$separatorREs['pureSepRE'], $text )
 				) {
-					$state->appendSep( $text );
+					$state->appendSep( $text, $node );
 					return $node->nextSibling;
 				}
 				if ( $state->selserMode ) {
@@ -1364,7 +1364,7 @@ class WikitextSerializer {
 				break;
 			case XML_COMMENT_NODE:
 				// Merge this into separators
-				$state->appendSep( WTSUtils::commentWT( $node->nodeValue ) );
+				$state->appendSep( WTSUtils::commentWT( $node->nodeValue ), $node );
 				return $node->nextSibling;
 			default:
 				// PORT-FIXME the JS code used node.outerHTML here; probably a bug?

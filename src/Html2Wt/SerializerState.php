@@ -339,10 +339,11 @@ class SerializerState {
 	/**
 	 * Appends the seperator source and updates the SOL state if necessary.
 	 * @param string $src
+	 * @param DOMNode $node
 	 */
-	public function appendSep( string $src ): void {
+	public function appendSep( string $src, DOMNode $node ): void {
 		$this->sep->src = ( $this->sep->src ?: '' ) . $src;
-		$this->sepIntroducedSOL( $src );
+		$this->sepIntroducedSOL( $src, $node );
 	}
 
 	/**
@@ -417,11 +418,13 @@ class SerializerState {
 	/**
 	 * Separators put us in SOL state.
 	 * @param string $sep
+	 * @param DOMNode $node
 	 */
-	private function sepIntroducedSOL( string $sep ): void {
+	private function sepIntroducedSOL( string $sep, DOMNode $node ): void {
 		// Don't get tripped by newlines in comments!  Be wary of nowikis added
 		// by makeSepIndentPreSafe on the last line.
-		if ( substr( preg_replace( Utils::COMMENT_REGEXP, '', $sep ), -1 ) === "\n" ) {
+		$nonCommentSep = preg_replace( Utils::COMMENT_REGEXP, '', $sep );
+		if ( substr( $nonCommentSep, -1 ) === "\n" ) {
 			// Since we are stashing away newlines for emitting
 			// before the next element, we are in SOL state wrt
 			// the content of that next element.
@@ -436,6 +439,12 @@ class SerializerState {
 			// HTML to avoid these problems. To be figured out later when
 			// it is a real issue.
 			$this->onSOL = true;
+		}
+
+		if ( preg_match( '/\n/', $nonCommentSep ) ) {
+			// process escapes in our full line
+			$this->flushLine();
+			$this->resetCurrLine( $node );
 		}
 	}
 
@@ -470,12 +479,11 @@ class SerializerState {
 		}
 
 		$this->pushToCurrLine( $sep, $debugPrefix );
+		$this->sepIntroducedSOL( $sep->text, $node );
 
 		// Reset separator state
 		$this->resetSep();
 		$this->updateSep( $node );
-
-		$this->sepIntroducedSOL( $sep->text );
 	}
 
 	/**
@@ -568,14 +576,13 @@ class SerializerState {
 		// Emit separator first
 		if ( $res->noSep ) {
 			/* skip separators for internal tokens from SelSer */
+			if ( $this->onSOL ) {
+				// process escapes in our full line
+				$this->flushLine();
+				$this->resetCurrLine( $node );
+			}
 		} else {
 			$this->emitSepForNode( $node );
-		}
-
-		if ( $this->onSOL ) {
-			// process escapes in our full line
-			$this->flushLine();
-			$this->resetCurrLine( $node );
 		}
 
 		// Escape 'res' if necessary
