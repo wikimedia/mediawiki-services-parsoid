@@ -1635,12 +1635,6 @@ class WikitextSerializer {
 	 */
 	public function serializeDOM( DOMElement $body, bool $selserMode = false ) {
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
-		// `editedDoc` is simply body's ownerDocument.  However, since we make
-		// recursive calls to WikitextSerializer.prototype.serializeDOM with elements from dom fragments
-		// from data-mw, we need this to be set prior to the initial call.
-		// It's mainly required for correct serialization of citations in some
-		// scenarios (Ex: <ref> nested in <references>).
-		Assert::invariant( $this->env->getPageConfig()->editedDoc !== null, 'Should be set.' );
 
 		$this->logType = $selserMode ? 'trace/selser' : 'trace/wts';
 

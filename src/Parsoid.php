@@ -271,14 +271,14 @@ class Parsoid {
 		if ( isset( $options['scrubWikitext'] ) ) {
 			$envOptions['scrubWikitext'] = !empty( $options['scrubWikitext'] );
 		}
+		$envOptions['topLevelDoc'] = $doc;
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		$env->bumpHtml2WtResourceUse( 'htmlSize', $options['htmlSize'] ?? 0 );
-		$env->prepareDocument( $doc );
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
-		return $handler->fromDOM( $env, $doc, $selserData );
+		return $handler->fromDOM( $env, $selserData );
 	}
 
 	/**
@@ -316,11 +316,14 @@ class Parsoid {
 		PageConfig $pageConfig, string $update, PageBundle $pb,
 		array $options = []
 	): PageBundle {
-		$envOptions = [ 'pageBundle' => true ];
+		$envOptions = [
+			'pageBundle' => true,
+			'topLevelDoc' => DOMUtils::parseHTML( $pb->toHtml(), true ),
+		];
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		$doc = $env->createDocument( $pb->toHtml(), true );
+		$doc = $env->topLevelDoc;
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
 		);

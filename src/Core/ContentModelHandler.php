@@ -17,12 +17,11 @@ abstract class ContentModelHandler {
 
 	/**
 	 * @param Env $env
-	 * @param DOMDocument $doc
 	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	abstract public function fromDOM(
-		Env $env, DOMDocument $doc, ?SelserData $selserData = null
+		Env $env, ?SelserData $selserData = null
 	): string;
 
 }

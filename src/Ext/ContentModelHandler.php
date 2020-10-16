@@ -14,20 +14,14 @@ abstract class ContentModelHandler {
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param string $txt
 	 * @return DOMDocument
 	 */
-	abstract public function toDOM(
-		ParsoidExtensionAPI $extApi, string $txt
-	): DOMDocument;
+	abstract public function toDOM( ParsoidExtensionAPI $extApi ): DOMDocument;
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMDocument $doc
 	 * @return string
 	 */
-	abstract public function fromDOM(
-		ParsoidExtensionAPI $extApi, DOMDocument $doc
-	): string;
+	abstract public function fromDOM( ParsoidExtensionAPI $extApi ): string;
 
 }

@@ -235,9 +235,6 @@ class Env {
 	/** @var Dispatcher */
 	private $dispatcher;
 
-	/** @var DataBag */
-	private $bag;
-
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
@@ -264,6 +261,8 @@ class Env {
 	 *      wikitext variant in wt2html mode, and in html2wt mode new
 	 *      or edited HTML will be left unconverted.
 	 *  - logLevels: (string[]) Levels to log
+	 *  - topLevelDoc: (DOMDocument) Set explicitly when serializing otherwise
+	 *      it gets initialized for parsing.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess,
@@ -309,11 +308,10 @@ class Env {
 			'dumpFlags' => $this->dumpFlags,
 			'traceFlags' => $this->traceFlags
 		] );
-
-		$this->initDocumentDispatcher();
 		if ( $this->hasTraceFlag( 'time' ) || $this->hasTraceFlag( 'time/dompp' ) ) {
 			$this->profiling = true;
 		}
+		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
 	}
 
 	/**
@@ -725,38 +723,38 @@ class Env {
 	 * FIXME: This function could be given a better name to reflect what it does.
 	 *
 	 * @param DOMDocument $doc
-	 * @param ?DataBag $bag
 	 */
-	public function referenceDataObject( DOMDocument $doc, ?DataBag $bag = null ): void {
+	private function referenceDataObject( DOMDocument $doc ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = $bag ?? new DataBag();
+		$doc->bag = new DataBag();
 
 		// Prevent GC from collecting the PHP wrapper around the libxml doc
 		$this->liveDocs[] = $doc;
-	}
 
-	/**
-	 * FIXME: See the poor naming convention above.
-	 *
-	 * @param DOMDocument $doc
-	 */
-	public function unreferenceDataObject( DOMDocument $doc ): void {
-		$ind = array_search( $doc, $this->liveDocs, true );
-		Assert::invariant( $ind !== false, 'A live document was not found.' );
-		array_splice( $this->liveDocs, $ind, 1 );
+		// Cache the head and body.
+		DOMCompat::getHead( $doc );
+		DOMCompat::getBody( $doc );
 	}
 
 	/**
 	 * When an environment is constructed, we initialize a document (and
 	 * dispatcher to it) to be used throughout the parse.
+	 *
+	 * @param ?DOMDocument $topLevelDoc
 	 */
-	private function initDocumentDispatcher() {
-		$this->bag = new DataBag();
-		list(
-			$this->topLevelDoc,
-			$this->dispatcher
-		) = $this->createDocumentDispatcher();
+	public function setupTopLevelDoc( ?DOMDocument $topLevelDoc = null ) {
+		if ( $topLevelDoc ) {
+			$this->topLevelDoc = $topLevelDoc;
+		} else {
+			list(
+				$this->topLevelDoc,
+				$this->dispatcher
+			) = $this->createDocumentDispatcher();
+		}
+
+		// FIXME: Putting this is in `liveDocs` is redundant
+		$this->referenceDataObject( $this->topLevelDoc );
 	}
 
 	/**
@@ -767,6 +765,9 @@ class Env {
 		if ( $atTopLevel ) {
 			return [ $this->topLevelDoc, $this->dispatcher ];
 		} else {
+			// Shouldn't need a bag since children are migrated to a fragment
+			// of the top level doc immediately after the tree is built and
+			// before data objects are loaded.
 			return $this->createDocumentDispatcher();
 		}
 	}
@@ -798,12 +799,12 @@ class Env {
 		$doc = $domBuilder->getFragment();
 		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
 
-		$this->referenceDataObject( $doc, $this->bag );
-
 		return [ $doc, $dispatcher ];
 	}
 
 	/**
+	 * FIXME: Remove in favour of constructing the environment with a `topLevelDoc`
+	 *
 	 * @param string $html
 	 * @param bool $validateXMLNames
 	 * @return DOMDocument
@@ -812,18 +813,8 @@ class Env {
 		string $html = '', bool $validateXMLNames = false
 	): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
-		$this->prepareDocument( $doc );
-		return $doc;
-	}
-
-	/**
-	 * @param DOMDocument $doc
-	 */
-	public function prepareDocument( DOMDocument $doc ): void {
-		// Cache the head and body.
-		DOMCompat::getHead( $doc );
-		DOMCompat::getBody( $doc );
 		$this->referenceDataObject( $doc );
+		return $doc;
 	}
 
 	/**

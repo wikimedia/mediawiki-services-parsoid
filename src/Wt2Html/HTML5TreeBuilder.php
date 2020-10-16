@@ -156,9 +156,6 @@ class HTML5TreeBuilder extends PipelineStage {
 			DOMUtils::migrateChildrenBetweenDocs(
 				DOMCompat::getBody( $this->doc ), $node
 			);
-			$this->env->unreferenceDataObject( $this->doc );
-			$this->doc = null;
-			$this->dispatcher = null;
 		}
 
 		// Preparing the DOM is considered one "unit" with treebuilding,
@@ -217,7 +214,9 @@ class HTML5TreeBuilder extends PipelineStage {
 				}
 				return true;
 		} );
-		$docId = $this->doc->bag->stashObject( (object)$data );
+		// Store in the top level bag since we'll be importing the nodes after treebuilding
+		// @phan-suppress-next-line PhanUndeclaredProperty
+		$docId = $this->env->topLevelDoc->bag->stashObject( (object)$data );
 		$attribs[] = new KV( DOMDataUtils::DATA_OBJECT_ATTR_NAME, (string)$docId );
 		return $attribs;
 	}

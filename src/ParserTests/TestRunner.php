@@ -800,7 +800,10 @@ class TestRunner {
 		$env->topFrame = new PageConfigFrame(
 			$env, $env->getPageConfig(), $env->getSiteConfig()
 		);
-
+		if ( $mode === 'html2html' ) {
+			// Since this was set when serializing we need to setup a new doc
+			$env->setupTopLevelDoc();
+		}
 		$handler = $env->getContentHandler();
 		$doc = $handler->toDOM( $env );
 		return DOMCompat::getBody( $doc );
@@ -827,7 +830,8 @@ class TestRunner {
 			}
 		}
 		$handler = $env->getContentHandler();
-		return $handler->fromDOM( $env, $body->ownerDocument, $selserData );
+		$env->topLevelDoc = $body->ownerDocument;
+		return $handler->fromDOM( $env, $selserData );
 	}
 
 	/**

@@ -158,12 +158,10 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * Implementation matches that from includes/content/JsonContent.php in
 	 * mediawiki core, except that we distinguish value types.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param string $jsonText
 	 * @return DOMDocument
 	 */
-	public function toDOM(
-		ParsoidExtensionAPI $extApi, string $jsonText
-	): DOMDocument {
+	public function toDOM( ParsoidExtensionAPI $extApi ): DOMDocument {
+		$jsonText = $extApi->getPageConfig()->getPageMainContent();
 		$document = $extApi->getTopLevelDoc();
 		$body = DOMCompat::getBody( $document );
 
@@ -334,15 +332,13 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	/**
 	 * DOM to JSON.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMDocument $doc
 	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	public function fromDOM(
-		ParsoidExtensionAPI $extApi, DOMDocument $doc,
-		?SelserData $selserData = null
+		ParsoidExtensionAPI $extApi, ?SelserData $selserData = null
 	): string {
-		$body = DOMCompat::getBody( $doc );
+		$body = DOMCompat::getBody( $extApi->getTopLevelDoc() );
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
 		$t = $body->firstChild;
 		DOMUtils::assertElt( $t );

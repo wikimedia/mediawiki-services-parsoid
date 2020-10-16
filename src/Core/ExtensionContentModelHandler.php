@@ -28,20 +28,18 @@ class ExtensionContentModelHandler extends ContentModelHandler {
 	 */
 	public function toDOM( Env $env ): DOMDocument {
 		$extApi = new ParsoidExtensionAPI( $env );
-		return $this->impl->toDOM(
-			$extApi, $env->getPageConfig()->getPageMainContent()
-		);
+		return $this->impl->toDOM( $extApi );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function fromDOM(
-		Env $env, DOMDocument $doc, ?SelserData $selserData = null
+		Env $env, ?SelserData $selserData = null
 	): string {
 		$extApi = new ParsoidExtensionAPI( $env );
 		// FIXME: `$selserData` is ignored?
-		return $this->impl->fromDOM( $extApi, $doc );
+		return $this->impl->fromDOM( $extApi );
 	}
 
 }

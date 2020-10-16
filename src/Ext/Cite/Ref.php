@@ -104,13 +104,12 @@ class Ref extends ExtensionTagHandler {
 			// If the body isn't contained in data-mw.body.html, look if
 			// there's an element pointed to by body.id.
 			$bodyElt = DOMCompat::getElementById( $node->ownerDocument, $dataMw->body->id );
-			$editedDoc = $extApi->getPageConfig()->editedDoc ?? null;
-			if ( !$bodyElt && $editedDoc ) {
+			if ( !$bodyElt ) {
 				// Try to get to it from the top-level page.
 				// This can happen when the <ref> is inside another extension,
 				// most commonly inside <references>.
 				// The recursive call to serializeDOM puts us inside a new document.
-				$bodyElt = DOMCompat::getElementById( $editedDoc, $dataMw->body->id );
+				$bodyElt = DOMCompat::getElementById( $extApi->getTopLevelDoc(), $dataMw->body->id );
 			}
 
 			// If we couldn't find a body element, this is a bug.
@@ -125,7 +124,7 @@ class Ref extends ExtensionTagHandler {
 						if ( $ref ) {
 							$extraDebug .= ' [own doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
 						}
-						$ref = DOMCompat::querySelector( $editedDoc, $href );
+						$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
 						if ( $ref ) {
 							$extraDebug .= ' [main doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
 						}

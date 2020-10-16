@@ -139,13 +139,12 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * @inheritDoc
 	 */
 	public function fromDOM(
-		Env $env, DOMDocument $doc, ?SelserData $selserData = null
+		Env $env, ?SelserData $selserData = null
 	): string {
 		$metrics = $env->getSiteConfig()->metrics();
 		$setupTiming = Timing::start( $metrics );
 
-		$env->getPageConfig()->editedDoc = $doc;
-		$body = DOMCompat::getBody( $doc );
+		$body = DOMCompat::getBody( $env->topLevelDoc );
 		$this->canonicalizeDOM( $env, $body );
 
 		$serializerOpts = [ 'env' => $env, 'selserData' => $selserData ];
