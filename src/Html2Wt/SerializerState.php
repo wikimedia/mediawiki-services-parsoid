@@ -442,14 +442,12 @@ class SerializerState {
 	/**
 	 * Accumulates chunks on the current line.
 	 * @param ConstrainedText $chunk
-	 * @param DOMNode $node
 	 * @param string $logPrefix
 	 */
-	private function pushToCurrLine( ConstrainedText $chunk, DOMNode $node, string $logPrefix ) {
+	private function pushToCurrLine( ConstrainedText $chunk, string $logPrefix ) {
 		// Emitting text that has not been escaped
 		$this->currLine->text .= $chunk->text;
 
-		// TODO $node is probably not needed since ConstrainedText already includes it
 		$this->currLine->chunks[] = $chunk;
 
 		$this->serializer->trace( '--->', $logPrefix, function () use ( $chunk ) {
@@ -471,7 +469,7 @@ class SerializerState {
 			$sep->text = preg_replace( '/\n/', ' ', $sep->text );
 		}
 
-		$this->pushToCurrLine( $sep, $node, $debugPrefix );
+		$this->pushToCurrLine( $sep, $debugPrefix );
 
 		// Reset separator state
 		$this->resetSep();
@@ -646,7 +644,7 @@ class SerializerState {
 		}
 
 		// Output res
-		$this->pushToCurrLine( $res, $node, $this->logPrefix );
+		$this->pushToCurrLine( $res, $this->logPrefix );
 
 		// Update sol flag. Test for newlines followed by optional includeonly or comments
 		if ( !$res->match( $this->solRegexp() ) ) {
