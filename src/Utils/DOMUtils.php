@@ -471,6 +471,16 @@ class DOMUtils {
 	}
 
 	/**
+	 * Check whether `node` is a heading.
+	 *
+	 * @param ?DOMNode $n
+	 * @return bool
+	 */
+	public static function isHeading( ?DOMNode $n ): bool {
+		return $n && preg_match( '/^h[1-6]$/D', $n->nodeName );
+	}
+
+	/**
 	 * Check whether `node` is a list.
 	 *
 	 * @param ?DOMNode $n

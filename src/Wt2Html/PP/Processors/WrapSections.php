@@ -112,6 +112,23 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * @param DOMElement $span
+	 * @return bool
+	 */
+	private function isEmptySpan( DOMElement $span ): bool {
+		$n = $span->firstChild;
+		while ( $n ) {
+			if ( $n instanceof DOMElement ) {
+				return false;
+			} elseif ( $n instanceof DOMText && !preg_match( '/^\s*$/D',  $n->nodeValue ) ) {
+				return false;
+			}
+			$n = $n->nextSibling;
+		}
+		return true;
+	}
+
+	/**
 	 * Walk the DOM and add <section> wrappers where required.
 	 * This is the workhorse code that wrapSections relies on.
 	 *
@@ -132,6 +149,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		while ( $node ) {
 			$next = $node->nextSibling;
 			$addedNode = false;
+			$expandSectionBoundary = false;
 
 			// Track entry into templated output
 			if ( !$state['inTemplate'] && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
@@ -142,34 +160,69 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$tplInfo = [
 					'first' => $node,
 					'about' => $about,
-					'last' => end( $aboutSiblings )
+					'last' => end( $aboutSiblings ),
+					'rtContentNodes' => [] // Rendering-transparent content before a heading
 				];
 				$state['aboutIdMap'][$about] = $tplInfo;
+
+				// Collect a sequence of rendering transparent nodes starting at $node
+				while ( $node ) {
+					if ( WTUtils::isRenderingTransparentNode( $node ) || (
+							$node->nodeName === 'span' &&
+							!WTUtils::isLiteralHTMLNode( $node ) &&
+							$this->isEmptySpan( $node )
+						)
+					) {
+						$tplInfo['rtContentNodes'][] = $node;
+						$node = $node->nextSibling;
+					} else {
+						break;
+					}
+				}
+
+				if ( count( $tplInfo['rtContentNodes'] ) > 0 &&
+					DOMUtils::isHeading( $node ) && !WTUtils::isLiteralHTMLNode( $node )
+				) {
+					// In this scenario, we can expand the section boundary to include these nodes
+					// rather than start with the heading. This eliminates unnecessary conflicts
+					// between section & template boundaries.
+					$expandSectionBoundary = true;
+					$next = $node->nextSibling;
+				} else {
+					// Reset to normal sectioning behavior!
+					$node = $tplInfo['first'];
+					$tplInfo['rtContentNodes'] = [];
+				}
 			}
 
-			if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
+			// HTML <h*> tags don't get section numbers!
+			if ( DOMUtils::isHeading( $node ) && !WTUtils::isLiteralHTMLNode( $node ) ) {
 				DOMUtils::assertElt( $node ); // headings are elements
 				$level = (int)$node->nodeName[1];
 
-				// HTML <h*> tags don't get section numbers!
-				if ( !WTUtils::isLiteralHTMLNode( $node ) ) {
-					// This could be just `state.sectionNumber++` without the
-					// complicated if-guard if T214538 were fixed in core;
-					// see T213468 where this more-complicated behavior was
-					// added to match core's eccentricities.
-					$dp = DOMDataUtils::getDataParsoid( $node );
-					if ( isset( $dp->tmp->headingIndex ) ) {
-						$state['sectionNumber'] = $dp->tmp->headingIndex;
-					}
-					if ( $level < $highestSectionLevel ) {
-						$highestSectionLevel = $level;
-					}
-					$currSection = $this->createNewSection(
-						$state, $rootNode, $sectionStack, $tplInfo,
-						$currSection, $node, $level, false
-					);
-					$addedNode = true;
+				// This could be just `state.sectionNumber++` without the
+				// complicated if-guard if T214538 were fixed in core;
+				// see T213468 where this more-complicated behavior was
+				// added to match core's eccentricities.
+				$dp = DOMDataUtils::getDataParsoid( $node );
+				if ( isset( $dp->tmp->headingIndex ) ) {
+					$state['sectionNumber'] = $dp->tmp->headingIndex;
 				}
+				if ( $level < $highestSectionLevel ) {
+					$highestSectionLevel = $level;
+				}
+				$currSection = $this->createNewSection(
+					$state, $rootNode, $sectionStack,
+					$tplInfo && !$expandSectionBoundary ? $tplInfo : null,
+					$currSection, $node, $level, false
+				);
+				if ( $tplInfo && $expandSectionBoundary ) {
+					foreach ( $tplInfo['rtContentNodes'] as $rtn ) {
+						$currSection->container->insertBefore( $rtn, $node );
+					}
+					$tplInfo['firstSection'] = $currSection;
+				}
+				$addedNode = true;
 			} elseif ( $node instanceof DOMElement ) {
 				$nestedHighestSectionLevel = $this->wrapSectionsInDOM( $state, null, $node );
 				if ( $currSection && !$currSection->hasNestedLevel( $nestedHighestSectionLevel ) ) {

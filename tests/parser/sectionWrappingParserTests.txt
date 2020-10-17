@@ -4,6 +4,28 @@
 ##
 
 !! article
+Template:Foobar1
+!! text
+<noinclude>{{1x|boo}}</noinclude>
+
+== <noinclude>Foo</noinclude><includeonly>bar</includeonly> ==
+baz
+!! endarticle
+
+!! article
+Template:Foobar2
+!! text
+<!--Some comment-->
+<!--Some comment-->
+<noinclude>{{1x|boo}}</noinclude>
+[[Category:BadTemplate]]
+__NOTOC__
+
+== <noinclude>Foo</noinclude><includeonly>bar</includeonly> ==
+baz
+!! endarticle
+
+!! article
 Template:1x
 !! text
 {{{1}}}
@@ -828,4 +850,62 @@ x
 <section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'>x</p><span about="#mwt1">
 </span></section><section data-mw-section-id="-1" about="#mwt2" data-parsoid="{}"><h2 about="#mwt1" id="boo" data-parsoid="{}">boo</h2></section>
+!! end
+
+!! test
+T265737: 1. Relax section start requirements to reduce unnecessary conflicts between template and section boundaries
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+= x =
+{{Foobar1}}
+y
+!! html/php
+<h1><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar1&amp;action=edit&amp;section=T-1" title="Edit section: ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>baz
+y
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="x">x</h1>
+<section data-mw-section-id="-1"><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Foobar1","href":"./Template:Foobar1"},"params":{},"i":0}},"\ny"]}'>
+
+</span><h2 about="#mwt1" id="bar">bar</h2><span about="#mwt1">
+</span><p about="#mwt1">baz
+y</p></section></section>
+!! end
+
+!! test
+T265737: 2. Relax section start requirements to reduce unnecessary conflicts between template and section boundaries
+!! options
+notoc
+parsoid={
+  "wrapSections": true
+}
+!! wikitext
+= x =
+{{Foobar2}}
+y
+!! html/php
+<h1><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<p><br />
+</p>
+<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar2&amp;action=edit&amp;section=T-1" title="Edit section: ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<p>baz
+y
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="x">x</h1>
+<section data-mw-section-id="-1"><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Foobar2","href":"./Template:Foobar2"},"params":{},"i":0}},"\ny"]}'><!--Some comment--></span><span about="#mwt1">
+</span><span about="#mwt1"><!--Some comment--></span><span about="#mwt1">
+
+</span><link rel="mw:PageProp/Category" href="./Category:BadTemplate" about="#mwt1"/><span about="#mwt1">
+</span><meta property="mw:PageProp/notoc" about="#mwt1"/><span about="#mwt1">
+
+</span><h2 about="#mwt1" id="bar">bar</h2><span about="#mwt1">
+</span><p about="#mwt1">baz
+y</p></section></section>
 !! end
