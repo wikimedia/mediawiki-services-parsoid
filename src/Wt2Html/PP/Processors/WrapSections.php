@@ -37,19 +37,19 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param array &$state
 	 * @param DOMElement|DOMDocumentFragment $rootNode
-	 * @param array &$sectionStack
+	 * @param array<Section> &$sectionStack
 	 * @param ?array $tplInfo
-	 * @param ?array $currSection
+	 * @param ?Section $currSection
 	 * @param DOMNode $node
 	 * @param int $newLevel
 	 * @param bool $pseudoSection
-	 * @return array
+	 * @return Section
 	 */
 	private function createNewSection(
 		array &$state, DOMNode $rootNode, array &$sectionStack,
-		?array $tplInfo, ?array $currSection, DOMNode $node, int $newLevel,
+		?array $tplInfo, ?Section $currSection, DOMNode $node, int $newLevel,
 		bool $pseudoSection
-	): array {
+	): Section {
 		/* Structure for regular (editable or not) sections
 		 *   <section data-mw-section-id="..">
 		 *     <h*>..</h*>
@@ -58,37 +58,31 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		 *
 		 * Lead sections and pseudo-sections won't have <h*> or <div> tags
 		 */
-		$section = [
-			'level' => $newLevel,
-			// useful during debugging, unrelated to the data-mw-section-id
-			'debug_id' => $state['count']++,
-			'container' => $state['doc']->createElement( 'section' )
-		];
+		$section = new Section( $newLevel, $state['count']++, $state['doc'] );
 
 		/* Step 1. Get section stack to the right nesting level
 		 * 1a. Pop stack till we have a higher-level section.
 		 */
 		$stack = &$sectionStack;
-		while ( count( $stack ) > 0 && $newLevel <= PHPUtils::lastItem( $stack )['level'] ) {
+		while ( count( $stack ) > 0 && !( PHPUtils::lastItem( $stack )->hasNestedLevel( $newLevel ) ) ) {
 			array_pop( $stack );
 		}
 
 		/* 1b. Push current section onto stack if it is a higher-level section */
-		if ( $currSection && $newLevel > $currSection['level'] ) {
+		if ( $currSection && $currSection->hasNestedLevel( $newLevel ) ) {
 			$stack[] = $currSection;
 		}
 
 		/* Step 2: Add new section where it belongs: a parent section OR body */
 		$parentSection = count( $stack ) > 0 ? PHPUtils::lastItem( $stack ) : null;
 		if ( $parentSection ) {
-			// error_log( "Appending to " . $parentSection['debug_id'] . '\n' );
-			$parentSection['container']->appendChild( $section['container'] );
+			$parentSection->addSection( $section );
 		} else {
-			$rootNode->insertBefore( $section['container'], $node );
+			$rootNode->insertBefore( $section->container, $node );
 		}
 
 		/* Step 3: Add <h*> to the <section> */
-		$section['container']->appendChild( $node );
+		$section->addNode( $node );
 
 		/* Step 4: Assign data-mw-section-id attribute
 		 *
@@ -107,18 +101,17 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		 * The code here handles uneditable sections because of templating.
 		 */
 		if ( $pseudoSection ) {
-			$section['container']->setAttribute( 'data-mw-section-id', '-2' );
+			$section->setId( -2 );
 		} elseif ( $state['inTemplate'] ) {
-			$section['container']->setAttribute( 'data-mw-section-id', '-1' );
+			$section->setId( -1 );
 		} else {
-			$section['container']->setAttribute( 'data-mw-section-id', (string)$state['sectionNumber'] );
+			$section->setId( $state['sectionNumber'] );
 		}
-		// $section['container']->setAttribute( 'data-debug-id', (string)$section['debug_id'] );
 
 		/* Ensure that template continuity is not broken if the section
 		 * tags aren't stripped by a client */
 		if ( $tplInfo && $node !== $tplInfo['first'] ) {
-			$section['container']->setAttribute( 'about', $tplInfo['about'] );
+			$section->setAboutId( $tplInfo['about'] );
 		}
 
 		return $section;
@@ -129,12 +122,12 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * This is the workhorse code that wrapSections relies on.
 	 *
 	 * @param array &$state
-	 * @param ?array $currSection
+	 * @param ?Section $currSection
 	 * @param DOMElement|DOMDocumentFragment $rootNode
 	 * @return int
 	 */
 	private function wrapSectionsInDOM(
-		array &$state, ?array $currSection, DOMNode $rootNode
+		array &$state, ?Section $currSection, DOMNode $rootNode
 	): int {
 		$tplInfo = null;
 		$sectionStack = [];
@@ -193,14 +186,14 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				// c
 				// =2=
 				// 1. Create a new pseudo-section to wrap '$node'
-				// There will be a <section> around the <div> which includes 'c'.
+				//    There will be a <section> around the <div> which includes 'c'.
 				// 2. Don't create the pseudo-section by setting '$currSection = null'
-				// But, this can leave some content outside any top-level section.
-				// 'c' will not be in any section.
+				//    But, this can leave some content outside any top-level section.
+				//    'c' will not be in any section.
 				// The code below implements strategy 1.
 				$nestedHighestSectionLevel = $this->wrapSectionsInDOM( $state, null, $node );
-				if ( $currSection && $nestedHighestSectionLevel <= $currSection['level'] ) {
-					$currSection['container']->setAttribute( 'data-mw-section-id', '-1' );
+				if ( $currSection && !$currSection->hasNestedLevel( $nestedHighestSectionLevel ) ) {
+					$currSection->setId( -1 );
 					$currSection = $this->createNewSection(
 						$state, $rootNode, $sectionStack, $tplInfo,
 						$currSection, $node, $nestedHighestSectionLevel, true
@@ -210,7 +203,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 			}
 
 			if ( $currSection && !$addedNode ) {
-				$currSection['container']->appendChild( $node );
+				$currSection->addNode( $node );
 			}
 
 			if ( $tplInfo && $tplInfo['first'] === $node ) {
@@ -238,7 +231,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		// the closing tag (ex: </div>) showing up in the source editor
 		// which we cannot support in a visual editing $environment.
 		if ( $currSection && !DOMUtils::atTheTop( $rootNode ) ) {
-			$currSection['container']->setAttribute( 'data-mw-section-id', '-1' );
+			$currSection->setId( -1 );
 		}
 
 		return $highestSectionLevel;
@@ -295,10 +288,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	private function resolveTplExtSectionConflicts( array &$state ) {
 		foreach ( $state['tplsAndExtsToExamine'] as $tplInfo ) {
 			// could be null
-			$s1 = $tplInfo['firstSection']['container'] ?? null;
+			$s1 = $tplInfo['firstSection']->container ?? null;
 
 			// guaranteed to be non-null
-			$s2 = $tplInfo['lastSection']['container'];
+			$s2 = $tplInfo['lastSection']->container;
 
 			// Find a common ancestor of s1 and s2 (could be s1)
 			$s2Ancestors = DOMUtils::pathToRoot( $s2 );
@@ -426,15 +419,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		}
 
 		$doc = $root->ownerDocument;
-		$leadSection = [
-			'container' => $doc->createElement( 'section' ),
-			'debug_id' => 0,
-			// lowest possible level since we don't want
-			// any nesting of h-tags in the lead section
-			'level' => 6,
-			'lead' => true
-		];
-		$leadSection['container']->setAttribute( 'data-mw-section-id', '0' );
+		// 6 is the lowest possible level since we don't want
+		// any nesting of h-tags in the lead section
+		$leadSection = new Section( 6, 0, $doc );
+		$leadSection->setId( 0 );
 
 		// Global $state
 		$state = [
@@ -451,7 +439,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 
 		// There will always be a lead section, even if sometimes it only
 		// contains whitespace + comments.
-		$root->insertBefore( $leadSection['container'], $root->firstChild );
+		$root->insertBefore( $leadSection->container, $root->firstChild );
 
 		// Resolve template conflicts after all sections have been added to the DOM
 		$this->resolveTplExtSectionConflicts( $state );
