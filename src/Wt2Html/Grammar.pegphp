@@ -560,7 +560,7 @@ inline_element =
 	& '<' r:( xmlish_tag / comment ) { return $r; }
 	/ & '{' r:tplarg_or_template { return $r; }
 	/ & "-{" r:lang_variant_or_tpl { return $r; }
-	// FIXME: The old parser's replaceInternalLinks2 splits on [[, resulting
+	// FIXME: The old parser's handleInternalLinks2 splits on [[, resulting
 	// in sequences with odd number of brackets parsing as text, and sequences
 	// with even number of brackets having its innermost pair parse as a
 	// wikilink.  For now, we faithfully reproduce what's found there but
@@ -1461,7 +1461,7 @@ link_text_parameterized =
 	c:(
 		// This group is similar to "block_line" but "list_item"
 		// is omitted since `doBlockLevels` happens after
-		// `replaceInternalLinks2`, where newlines are stripped.
+		// `handleInternalLinks2`, where newlines are stripped.
 		(sol (heading / hr / full_table_in_link_caption))
 		/ urltext
 		/ (

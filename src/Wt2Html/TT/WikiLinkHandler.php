@@ -326,7 +326,7 @@ class WikiLinkHandler extends TokenHandler {
 		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
 
 		// Don't allow internal links to pages containing PROTO:
-		// See Parser::replaceInternalLinks2()
+		// See Parser::handleInternalLinks2()
 		if ( $env->getSiteConfig()->hasValidProtocol( $hrefTokenStr ) ) {
 			$src = substr( $token->dataAttribs->tsr->substr(
 				$this->manager->getFrame()->getSrcText()
@@ -344,7 +344,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Xmlish tags in title position are invalid.  Not according to the
 		// preprocessor ABNF but at later stages in the legacy parser,
-		// namely replaceInternalLinks.
+		// namely handleInternalLinks.
 		if ( is_array( $hrefKV->v ) ) {
 			// Use the expanded attr instead of trying to unpackDOMFragments
 			// since the fragment will have been released when expanding to DOM
