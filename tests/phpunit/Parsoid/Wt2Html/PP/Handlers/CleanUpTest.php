@@ -202,9 +202,6 @@ class CleanUpTest extends TestCase {
 	 * @covers ::trimWhiteSpace
 	 */
 	public function testWhitespaceTrimming( string $wt, string $selector, int $leadingWS, int $trailingWS ): void {
-		if ( Parsoid::defaultHTMLVersion() === '2.1.0' ) {
-			$this->markTestSkipped( '6-element DSRs not yet enabled' );
-		}
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $mockEnv, $wt );
 		$node = DOMCompat::querySelector( $body, $selector );

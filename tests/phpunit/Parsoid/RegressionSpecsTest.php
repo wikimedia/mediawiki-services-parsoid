@@ -117,9 +117,6 @@ class RegressionSpecsTest extends TestCase {
 	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 */
 	public function testPreserveWhitespace(): void {
-		if ( Parsoid::defaultHTMLVersion() === '2.1.0' ) {
-			$this->markTestSkipped( '6-element DSRs not yet enabled' );
-		}
 		$description = "should ensure edited lists, headings, table cells preserve original " .
 			"whitespace in some scenarios";
 

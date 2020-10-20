@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
@@ -194,12 +193,6 @@ class DomSourceRange extends SourceRange {
 	 */
 	public function jsonSerialize(): array {
 		$a = [ $this->start, $this->end, $this->openWidth, $this->closeWidth ];
-		if ( Parsoid::defaultHTMLVersion() === '2.1.0' ) {
-			// Temporary hack for deployment: in order to facilitate a rollback
-			// to wmf.13 if possible, don't start generating 6-element DSRs
-			// quite yet.
-			return $a;
-		}
 		if ( $this->leadingWS !== 0 || $this->trailingWS !== 0 ) {
 			$a[] = $this->leadingWS;
 			$a[] = $this->trailingWS;
