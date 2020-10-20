@@ -57,14 +57,22 @@ class ContentUtils {
 			'node' => null,
 			'toFragment' => false,
 		];
+
 		$node = $options['node'];
 		if ( $options['toFragment'] ) {
-			$node = DOMUtils::parseHTMLToFragment( $env->topLevelDoc, $html );
-		} elseif ( $node === null ) {
+			$node = $env->topLevelDoc->createDocumentFragment();
+		}
+
+		if ( $node === null ) {
 			$node = DOMCompat::getBody( $env->createDocument( $html ) );
 		} else {
-			DOMCompat::setInnerHTML( $node, $html );
+			if ( $node instanceof DOMDocumentFragment ) {
+				DOMUtils::setFragmentInnerHTML( $node, $html );
+			} else {
+				DOMCompat::setInnerHTML( $node, $html );
+			}
 		}
+
 		DOMDataUtils::visitAndLoadDataAttribs( $node, $options );
 		return $node;
 	}
