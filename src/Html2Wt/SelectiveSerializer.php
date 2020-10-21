@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Html2Wt;
 
 use DOMElement;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -41,17 +40,6 @@ class SelectiveSerializer {
 
 		// Performance Timing option
 		$this->metrics = $env->getSiteConfig()->metrics();
-	}
-
-	/**
-	 * @param Env $env
-	 * @param DOMElement $body
-	 */
-	public function preprocessDOM( Env $env, DOMElement $body ): void {
-		// Strip <section> and mw:FallbackId <span> tags, if present.
-		// This ensures that we can accept HTML from CX / VE
-		// and other clients that might have stripped them.
-		ContentUtils::stripSectionTagsAndFallbackIds( $body );
 	}
 
 	/**

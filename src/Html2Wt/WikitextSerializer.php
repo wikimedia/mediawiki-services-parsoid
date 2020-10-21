@@ -1627,15 +1627,6 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Env $env
-	 * @param DOMElement $body
-	 */
-	public function preprocessDOM( Env $env, DOMElement $body ): void {
-		// Strip <section> tags
-		ContentUtils::stripSectionTagsAndFallbackIds( $body );
-	}
-
-	/**
 	 * Serialize an HTML DOM document.
 	 * WARNING: You probably want to use {@link FromHTML::serializeDOM} instead.
 	 * @param DOMElement $body
