@@ -1629,9 +1629,10 @@ class WikitextSerializer {
 	/**
 	 * @param Env $env
 	 * @param DOMElement $body
-	 * @suppress PhanEmptyPublicMethod
 	 */
 	public function preprocessDOM( Env $env, DOMElement $body ): void {
+		// Strip <section> tags
+		ContentUtils::stripSectionTagsAndFallbackIds( $body );
 	}
 
 	/**
@@ -1649,12 +1650,6 @@ class WikitextSerializer {
 		// It's mainly required for correct serialization of citations in some
 		// scenarios (Ex: <ref> nested in <references>).
 		Assert::invariant( $this->env->getPageConfig()->editedDoc !== null, 'Should be set.' );
-
-		if ( !$selserMode ) {
-			// Strip <section> tags
-			// Selser mode will have done that already before running dom-diff
-			ContentUtils::stripSectionTagsAndFallbackIds( $body );
-		}
 
 		$this->logType = $selserMode ? 'trace/selser' : 'trace/wts';
 
