@@ -490,18 +490,37 @@ class TemplateHandler extends TokenHandler {
 		TokenUtils::stripEOFTkfromTokens( $toks );
 
 		$hasTemplatedTarget = isset( $state['token']->dataAttribs->tmp->templatedAttribs );
-		if ( $hasTemplatedTarget && $this->wrapTemplates ) {
-			// Add encapsulation if we had a templated target
-			// FIXME: This is a deliberate wrapping of the entire
-			// "broken markup" where one or more templates are nested
-			// inside invalid transclusion markup. The proper way to do
-			// this would be to disentangle everything and identify
-			// transclusions and wrap them individually with meta tags
-			// and data-mw info. But, this is an edge case which can be
-			// more readily fixed by fixing the markup. The goal here is
-			// to ensure that the output renders properly and it roundtrips
-			// without dirty diffs rather then faithful DOMspec representation.
-			$toks = $this->encapTokens( $state, $toks );
+		if ( $hasTemplatedTarget ) {
+			// Since we have a templated target, attributes have gone through
+			// the attribute expander, which processes them to dom, meaning
+			// that any mw:DOMFragment will have been unpacked and unavailable
+			// if returned here.  If we encounter any, let's just do the easiest
+			// thing and return the source for the template.  But note that
+			// that will have the effect of converting any of the parsed
+			// constructs in the tokens above back to untokenized strings.
+			// FIXME: We can do something fancier, like for the href in
+			// WikiLinkHandler::bailTokens, but this is already considered
+			// an edge case not really worth supporting (see below)
+			foreach ( $attribTokens as $t ) {
+				if ( $t instanceof Token && TokenUtils::hasDOMFragmentType( $t ) ) {
+					$toks = [ $state['token']->dataAttribs->src ];
+					break;
+				}
+			}
+
+			if ( $this->wrapTemplates ) {
+				// Add encapsulation if we had a templated target
+				// FIXME: This is a deliberate wrapping of the entire
+				// "broken markup" where one or more templates are nested
+				// inside invalid transclusion markup. The proper way to do
+				// this would be to disentangle everything and identify
+				// transclusions and wrap them individually with meta tags
+				// and data-mw info. But, this is an edge case which can be
+				// more readily fixed by fixing the markup. The goal here is
+				// to ensure that the output renders properly and it roundtrips
+				// without dirty diffs rather then faithful DOMspec representation.
+				$toks = $this->encapTokens( $state, $toks );
+			}
 		}
 
 		return $toks;

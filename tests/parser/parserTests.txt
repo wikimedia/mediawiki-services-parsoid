@@ -3173,6 +3173,19 @@ parsoid=wt2html
 <p typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1&lt;!--X-->x&lt;!--X-->  \n   &lt;!--X-->   &lt;!--X-->\n\n ","href":"./Template:1x"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</p>
 !! end
 
+## NOTE: Parsoid is punting on this edge case for now and just returning
+## something that will roundtrip.
+!! test
+Templates: Target with an extension tag
+!! wikitext
+{{{{1x|1x}}<nowiki>hi</nowiki>|ho}}
+!! html/php
+<p>{{1xhi|ho}}
+</p>
+!! html/parsoid
+<p about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{1x|1x}}&lt;nowiki>hi&lt;/nowiki>"},"params":{"1":{"wt":"ho"}},"i":0}}]}'>{{{{1x|1x}}&lt;nowiki>hi&lt;/nowiki>|ho}}</p>
+!! end
+
 !! test
 Templates: Handle empty comment-and-ws-only lines correctly
 !! wikitext
