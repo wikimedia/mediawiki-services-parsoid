@@ -468,8 +468,10 @@ class TemplateHandler extends TokenHandler {
 
 		$tokens = array_merge( array_merge( [ '{{' ], $attribTokens ), [ '}}', new EOFTk() ] );
 
-		// Process exploded token in a new pipeline that
-		// converts the tokens to DOM.
+		// Process exploded token in a new pipeline that takes us through
+		// Stages 2-3.
+		// FIXME: Similar to processTemplateSource, we're returning tokens at
+		// the beginning of Stage 3 that have already been through this stage.
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
@@ -654,11 +656,10 @@ class TemplateHandler extends TokenHandler {
 		$this->env->log( 'debug', 'TemplateHandler.processTemplateSource',
 			$tplArgs['name'], $tplArgs['attribs'] );
 
-		// Get a nested transformation pipeline for the input type. The input
-		// pipeline includes the tokenizer, synchronous stage-1 transforms for
-		// 'text/wiki' input and asynchronous stage-2 transforms).
+		// Get a nested transformation pipeline for the wikitext that takes
+		// us through Stages 1-3.
 		// FIXME: Note, however, that since template handling is itself in
-		// stage-2, tokens returned here will be run through that stage again,
+		// Stage 3, tokens returned here will be run through that stage again,
 		// except not necessarily with the same pipeline options we're setting
 		// below.  The overall effect is mostly harmless, in that the token
 		// types will have already been handled the first time through, but
