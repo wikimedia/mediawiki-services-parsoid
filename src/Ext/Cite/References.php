@@ -371,6 +371,7 @@ class References extends ExtensionTagHandler {
 		// back-patch typeof and data-mw error information into named ref
 		// instances without content
 		// FIXME: This doesn't update the refs found while processEmbeddedRefs
+		// and processRefsInReferences
 		if ( $refGroup ) {
 			foreach ( $refGroup->indexByName as $ref ) {
 				if ( $ref->contentId === null ) {
@@ -530,6 +531,8 @@ class References extends ExtensionTagHandler {
 				} elseif ( DOMUtils::matchTypeOf( $child, '#^mw:Extension/references$#' ) ) {
 					$referencesId = $child->getAttribute( 'about' ) ?? '';
 					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group ?? null;
+					$inEmbeddedContent = $refsData->inEmbeddedContent;
+					$refsData->inEmbeddedContent = true;
 					self::processRefsInReferences(
 						$extApi,
 						$refsData,
@@ -537,6 +540,7 @@ class References extends ExtensionTagHandler {
 						$referencesId,
 						$referencesGroup
 					);
+					$refsData->inEmbeddedContent = $inEmbeddedContent;
 					self::insertReferencesIntoDOM( $extApi, $child, $refsData, false );
 				} else {
 					// Look for <ref>s embedded in data attributes
