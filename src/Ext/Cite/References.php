@@ -132,7 +132,9 @@ class References extends ExtensionTagHandler {
 		$cDp = DOMDataUtils::getDataParsoid( $c );
 		$refDmw = DOMDataUtils::getDataMw( $c );
 		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
+			$refsData->pushInEmbeddedContent();
 			self::processRefs( $extApi, $refsData, $c );
+			$refsData->popInEmbeddedContent();
 		}
 
 		// Use the about attribute on the wrapper with priority, since it's
