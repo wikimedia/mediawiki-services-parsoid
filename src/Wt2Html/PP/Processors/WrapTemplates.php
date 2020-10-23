@@ -66,17 +66,18 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param stdClass $range
-	 * @param ?bool $startsWithText
+	 * @param bool $startsWithText
 	 * @return bool
 	 */
 	private static function expandRangeToAvoidSpanWrapping(
-		stdClass $range, ?bool $startsWithText = null
+		stdClass $range, bool $startsWithText = false
 	): bool {
-		// SSS FIXME: Later on, if safe, we could consider expanding the
+		// FIXME: Later on, if safe, we could consider expanding the
 		// range unconditionally rather than only if a span is required.
+		// Ex: Look at output of {{1x|foo}} vs {{1x|''foo''}}
 
 		$mightAddSpan = $startsWithText;
-		if ( $startsWithText === null ) {
+		if ( !$startsWithText ) {
 			$n = $range->start;
 			if ( WTUtils::isTplMarkerMeta( $n ) ) {
 				$n = $n->nextSibling;
@@ -807,9 +808,9 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// Here, #mwt1 leaves a table open and the end meta from #mwt2 is
 			// fostered, since it gets closed into the div.  The range for #mwt1
 			// is the entire table, which thankfully contains #mwt2, so we still
-			// have the expected entire neseting.  Any tricks to extend the range
-			// of #mwt2 beyond the table so that we have an overlapping range will
-			// ineviatbly result in the end meta not being fostered, and we avoid
+			// have the expected entire nesting.  Any tricks to extend the range
+			// of #mwt2 beyond the table (so that we have an overlapping range) will
+			// inevitably result in the end meta not being fostered, and we avoid
 			// this situation altogether.
 			//
 			// The very edgy case is as follows,
