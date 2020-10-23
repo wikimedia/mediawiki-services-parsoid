@@ -12,25 +12,28 @@ class ReferencesData {
 	/**
 	 * @var int
 	 */
-	private $index;
+	private $index = 0;
 
 	/**
 	 * @var RefGroup[]
 	 */
-	private $refGroups;
+	private $refGroups = [];
 
 	/**
-	 * @var bool
+	 * @var array
 	 */
-	 public $inEmbeddedContent;
+	private $inEmbeddedContent = [ false ];
 
-	/**
-	 * ReferencesData constructor.
-	 */
-	public function __construct() {
-		$this->index = 0;
-		$this->refGroups = [];
-		$this->inEmbeddedContent = false;
+	public function inEmbeddedContent(): bool {
+		return $this->inEmbeddedContent[0];
+	}
+
+	public function pushInEmbeddedContent() {
+		array_unshift( $this->inEmbeddedContent, true );
+	}
+
+	public function popInEmbeddedContent() {
+		array_shift( $this->inEmbeddedContent );
 	}
 
 	/**
@@ -78,7 +81,7 @@ class ReferencesData {
 				$c = $extApi->getContentDOM( $ref->contentId )->firstChild;
 				$ref->cachedHtml = $extApi->domToHtml( $c, true, false );
 			}
-			if ( !$this->inEmbeddedContent ) {
+			if ( !$this->inEmbeddedContent() ) {
 				$ref->nodes[] = $linkBack;
 			}
 		} else {
@@ -115,7 +118,7 @@ class ReferencesData {
 			$group->refs[] = $ref;
 			if ( $hasRefName ) {
 				$group->indexByName[$refName] = $ref;
-				if ( !$this->inEmbeddedContent ) {
+				if ( !$this->inEmbeddedContent() ) {
 					$ref->nodes[] = $linkBack;
 				}
 			}

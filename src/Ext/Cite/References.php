@@ -507,10 +507,7 @@ class References extends ExtensionTagHandler {
 		ParsoidExtensionAPI $extApi, ReferencesData $refsData, string $str
 	): string {
 		$domFragment = $extApi->htmlToDom( $str );
-		$inEmbeddedContent = $refsData->inEmbeddedContent;
-		$refsData->inEmbeddedContent = true;
 		self::processRefs( $extApi, $refsData, $domFragment );
-		$refsData->inEmbeddedContent = $inEmbeddedContent;
 		return $extApi->domToHtml( $domFragment, true, true );
 	}
 
@@ -531,8 +528,7 @@ class References extends ExtensionTagHandler {
 				} elseif ( DOMUtils::matchTypeOf( $child, '#^mw:Extension/references$#' ) ) {
 					$referencesId = $child->getAttribute( 'about' ) ?? '';
 					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group ?? null;
-					$inEmbeddedContent = $refsData->inEmbeddedContent;
-					$refsData->inEmbeddedContent = true;
+					$refsData->pushInEmbeddedContent();
 					self::processRefsInReferences(
 						$extApi,
 						$refsData,
@@ -540,15 +536,17 @@ class References extends ExtensionTagHandler {
 						$referencesId,
 						$referencesGroup
 					);
-					$refsData->inEmbeddedContent = $inEmbeddedContent;
+					$refsData->popInEmbeddedContent();
 					self::insertReferencesIntoDOM( $extApi, $child, $refsData, false );
 				} else {
+					$refsData->pushInEmbeddedContent();
 					// Look for <ref>s embedded in data attributes
 					$extApi->processHiddenHTMLInDataAttributes( $child,
 						function ( string $html ) use ( $extApi, $refsData ) {
 							return self::processEmbeddedRefs( $extApi, $refsData, $html );
 						}
 					);
+					$refsData->popInEmbeddedContent();
 
 					if ( $child->hasChildNodes() ) {
 						self::processRefs( $extApi, $refsData, $child );
