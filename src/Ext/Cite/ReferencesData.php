@@ -20,6 +20,8 @@ class ReferencesData {
 	private $refGroups = [];
 
 	/**
+	 * FIXME(T266356): Need a solution for embedded content too
+	 *
 	 * @var array
 	 */
 	private $inEmbeddedContent = [ false ];
