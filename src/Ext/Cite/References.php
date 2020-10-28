@@ -283,7 +283,7 @@ class References extends ExtensionTagHandler {
 		$lastLinkback = $ref->linkbacks[count( $ref->linkbacks ) - 1] ?? null;
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
-				'class' => 'mw-ref',
+				'class' => 'mw-ref reference',
 				'id' => ( $nestedInReferences || $validFollow ) ?
 					null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
