@@ -1,18 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * This class is an attempt to fixup the token stream to reparse strings
- * as tokens that failed to parse in the tokenizer because of sol or
- * other constraints OR because tags were being constructed in pieces
- * or whatever.
- *
- * This is a pure hack to improve compatibility with the PHP parser
- * given that we dont have a preprocessor.  This will be a grab-bag of
- * heuristics and tricks to handle different scenarios.
- * @module
- */
-
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -27,6 +15,16 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
+/**
+ * This class is an attempt to fixup the token stream to reparse strings
+ * as tokens that failed to parse in the tokenizer because of SOL or
+ * other constraints OR because tags were being constructed in pieces
+ * or whatever.
+ *
+ * This is a pure hack to improve compatibility with the core parser
+ * given that we dont have a preprocessor.  This will be a grab-bag of
+ * heuristics and tricks to handle different scenarios.
+ */
 class TokenStreamPatcher extends TokenHandler {
 	/** @var PegTokenizer */
 	private $tokenizer;

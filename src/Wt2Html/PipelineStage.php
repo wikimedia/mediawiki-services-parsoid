@@ -40,6 +40,9 @@ abstract class PipelineStage {
 	/** @var Env */
 	protected $env = null;
 
+	/** @var bool */
+	protected $atTopLevel;
+
 	/**
 	 * @param Env $env
 	 * @param ?PipelineStage $prevStage
@@ -47,6 +50,8 @@ abstract class PipelineStage {
 	public function __construct( Env $env, ?PipelineStage $prevStage = null ) {
 		$this->env = $env;
 		$this->prevStage = $prevStage;
+		// Defaults to false and resetState initializes it
+		$this->atTopLevel = false;
 	}
 
 	/**
@@ -85,7 +90,8 @@ abstract class PipelineStage {
 	 * @param array $options
 	 */
 	public function resetState( array $options ): void {
-		/* Default implementation: Do nothing */
+		/* Default implementation */
+		$this->atTopLevel = $options['toplevel'] ?? false;
 	}
 
 	/**

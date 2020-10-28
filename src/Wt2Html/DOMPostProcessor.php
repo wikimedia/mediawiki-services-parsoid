@@ -65,9 +65,6 @@ class DOMPostProcessor extends PipelineStage {
 	/** @var array */
 	private $metadataMap;
 
-	/** @var bool */
-	private $atTopLevel = false;
-
 	/** @var string */
 	private $timeProfile = '';
 
@@ -545,10 +542,11 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * @param array $opts
+	 * @inheritDoc
 	 */
-	public function resetState( array $opts ): void {
-		$this->atTopLevel = $opts['toplevel'] ?? false;
+	public function resetState( array $options ): void {
+		parent::resetState( $options );
+
 		// $this->env->getPageConfig()->meta->displayTitle = null;
 		$this->seenIds = [];
 	}

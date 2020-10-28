@@ -60,9 +60,6 @@ class HTML5TreeBuilder extends PipelineStage {
 	/** @var bool */
 	private $needTransclusionShadow;
 
-	/** @var bool */
-	private $atTopLevel;
-
 	/**
 	 * @param Env $env
 	 * @param array $options
@@ -83,7 +80,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function resetState( array $options ): void {
-		$this->atTopLevel = $options['toplevel'] ?? false;
+		parent::resetState( $options );
 
 		// Reset vars
 		$this->tagId = 1; // Assigned to start/self-closing tags

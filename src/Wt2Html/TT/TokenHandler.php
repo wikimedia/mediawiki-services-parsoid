@@ -25,8 +25,6 @@ abstract class TokenHandler extends PipelineStage {
 	/** @var array */
 	protected $options;
 	/** @var bool */
-	protected $atTopLevel;
-	/** @var bool */
 	protected $disabled;
 	/** @var bool */
 	protected $onAnyEnabled;
@@ -43,9 +41,6 @@ abstract class TokenHandler extends PipelineStage {
 		// Initialize a few options to simplify checks elsewhere
 		$this->options['inTemplate'] = !empty( $this->options['inTemplate'] );
 		$this->options['expandTemplates'] = !empty( $this->options['expandTemplates'] );
-
-		// Defaults to false and resetState initializes it
-		$this->atTopLevel = false;
 
 		// This is set if the token handler is disabled for the entire pipeline.
 		$this->disabled = false;
@@ -127,13 +122,6 @@ abstract class TokenHandler extends PipelineStage {
 	 */
 	public function onAny( $token ) {
 		return $token;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function resetState( array $opts ): void {
-		$this->atTopLevel = $opts['toplevel'] ?? false;
 	}
 
 	/**
