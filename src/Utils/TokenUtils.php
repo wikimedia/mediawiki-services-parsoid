@@ -263,7 +263,7 @@ class TokenUtils {
 					$da = $t->dataAttribs;
 					$tsr = $da->tsr;
 					if ( $tsr ) {
-						if ( $offset !== false ) {
+						if ( $offset ) {
 							$da->tsr = $tsr->offset( $offset );
 						} else {
 							$da->tsr = null;
@@ -303,7 +303,7 @@ class TokenUtils {
 							}
 
 							// src offsets used to set mw:TemplateParams
-							if ( $offset === null ) {
+							if ( !$offset ) {
 								$a->srcOffsets = null;
 							} elseif ( $a->srcOffsets !== null ) {
 								$a->srcOffsets = $a->srcOffsets->offset( $offset );
