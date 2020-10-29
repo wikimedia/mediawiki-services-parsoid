@@ -82,9 +82,14 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		//
 		// So, we're forced to trade off the correctness for usability.
 		if ( $selserData->oldHTML === null ) {
+			// FIXME(T266838): Create a new Env for this parse?  Something is
+			// needed to avoid this rigmarole.
+			$topLevelDoc = $env->topLevelDoc;
+			$env->setupTopLevelDoc();
 			// This effectively parses $selserData->oldText for us because
 			// $selserData->oldText = $env->getPageconfig()->getPageMainContent()
 			$doc = $this->toDOM( $env );
+			$env->topLevelDoc = $topLevelDoc;
 		} else {
 			$doc = $env->createDocument( $selserData->oldHTML, true );
 		}
