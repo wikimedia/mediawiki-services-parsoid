@@ -150,6 +150,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 					'about' => $about,
 					'last' => end( $aboutSiblings )
 				];
+				$state['aboutIdMap'][$about] = $tplInfo;
 			}
 
 			if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
@@ -246,20 +247,22 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * and if a section, when it has leading/trailing non-element nodes
 	 * that don't have recorded DSR values.
 	 *
-	 * @param array $tplInfo
+	 * @param array $state
 	 * @param DOMElement $node
 	 * @param bool $start
 	 * @return int
 	 */
-	private function getDSR( array $tplInfo, DOMElement $node, bool $start ): int {
+	private function getDSR( array $state, DOMElement $node, bool $start ): int {
 		if ( $node->nodeName !== 'section' ) {
-			$nodeDsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			$tplDsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
-			if ( $start ) {
-				return $nodeDsr->start ?? $tplDsr->start;
-			} else {
-				return $nodeDsr->end ?? $tplDsr->end;
+			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
+			if ( !$dsr ) {
+				$about = $node->getAttribute( 'about' );
+				Assert::invariant( $about !== null, 'Expected non-null about id' );
+				$tplInfo = $state['aboutIdMap'][$about];
+				$dsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
 			}
+
+			return $start ? $dsr->start : $dsr->end;
 		}
 
 		$offset = 0;
@@ -271,7 +274,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$offset += WTUtils::decodedCommentLength( $c );
 			} else {
 				DOMUtils::assertElt( $c );
-				return $this->getDSR( $tplInfo, $c, $start ) + ( $start ? -$offset : $offset );
+				return $this->getDSR( $state, $c, $start ) + ( $start ? -$offset : $offset );
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;
 		}
@@ -319,7 +322,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				// If so, append the content of the section after the last $node
 				// to data-mw.parts.
 				if ( $tplInfo['last']->nextSibling ) {
-					$newTplEndOffset = $this->getDSR( $tplInfo, $s2, false );
+					$newTplEndOffset = $this->getDSR( $state, $s2, false );
 					// The next line will succeed because it traverses non-tpl content
 					$tplDsr = &DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
 					$tplEndOffset = $tplDsr->end;
@@ -375,8 +378,8 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				DOMUtils::assertElt( $newS2 );
 
 				// Update transclusion info
-				$dsr1 = $this->getDSR( $tplInfo, $newS1, true );  // Traverses non-tpl content => will succeed
-				$dsr2 = $this->getDSR( $tplInfo, $newS2, false ); // Traverses non-tpl content => will succeed
+				$dsr1 = $this->getDSR( $state, $newS1, true );  // Traverses non-tpl content => will succeed
+				$dsr2 = $this->getDSR( $state, $newS2, false ); // Traverses non-tpl content => will succeed
 				$tplDP = DOMDataUtils::getDataParsoid( $tplInfo['first'] );
 				$tplDsr = &$tplDP->dsr;
 				$dmw = Utils::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
@@ -434,6 +437,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 			'count' => 1,
 			'doc' => $doc,
 			'rootNode' => $root,
+			'aboutIdMap' => [], // Maps about id to $tplInfo
 			'sectionNumber' => 0,
 			'inTemplate' => false,
 			'tplsAndExtsToExamine' => []
