@@ -129,6 +129,8 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	private function wrapSectionsInDOM(
 		array &$state, ?Section $currSection, DOMNode $rootNode
 	): int {
+		// Since template wrapping is done and template wrappers are well-nested,
+		// we can reset template state for every subtree.
 		$tplInfo = null;
 		$sectionStack = [];
 		$highestSectionLevel = 7;
@@ -174,25 +176,24 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 					$addedNode = true;
 				}
 			} elseif ( $node instanceof DOMElement ) {
-				// If we find a higher level nested section,
-				// (a) Make current section non-editable
-				// (b) There are 2 $options here.
-				// Best illustrated with an example
-				// Consider the wiktiext below.
-				// <div>
-				// =1=
-				// b
-				// </div>
-				// c
-				// =2=
-				// 1. Create a new pseudo-section to wrap '$node'
-				//    There will be a <section> around the <div> which includes 'c'.
-				// 2. Don't create the pseudo-section by setting '$currSection = null'
-				//    But, this can leave some content outside any top-level section.
-				//    'c' will not be in any section.
-				// The code below implements strategy 1.
 				$nestedHighestSectionLevel = $this->wrapSectionsInDOM( $state, null, $node );
 				if ( $currSection && !$currSection->hasNestedLevel( $nestedHighestSectionLevel ) ) {
+					// If we find a higher level nested section,
+					// (a) Make current section non-editable
+					// (b) There are 2 options here best illustrated with an example.
+					//     Consider the wiktiext below.
+					//       <div>
+					//       =1=
+					//       b
+					//       </div>
+					//       c
+					//       =2=
+					//     1. Create a new pseudo-section to wrap '$node'
+					//        There will be a <section> around the <div> which includes 'c'.
+					//     2. Don't create the pseudo-section by setting '$currSection = null'
+					//        But, this can leave some content outside any top-level section.
+					//        'c' will not be in any section.
+					// The code below implements strategy 1.
 					$currSection->setId( -1 );
 					$currSection = $this->createNewSection(
 						$state, $rootNode, $sectionStack, $tplInfo,
@@ -212,9 +213,11 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 
 			// Track exit from templated output
 			if ( $tplInfo && $tplInfo['last'] === $node ) {
-				// The opening $node and closing $node of the template
-				// are in different sections! This might require resolution.
 				if ( $currSection !== $tplInfo['firstSection'] ) {
+					// The opening $node and closing $node of the template
+					// are in different sections! This might require resolution.
+					// While 'firstSection' could be null, if we get here,
+					// 'lastSection' is guaranteed to always be non-null.
 					$tplInfo['lastSection'] = $currSection;
 					$state['tplsAndExtsToExamine'][] = $tplInfo;
 				}
