@@ -275,10 +275,9 @@ class WikitextSerializer {
 	/**
 	 * @param DOMElement $node
 	 * @param string $key Attribute name.
-	 * @param mixed $value Fallback value to use if the attibute is not present.
-	 * @return mixed
+	 * @return ?string The wikitext value, or null if the attribute is not present.
 	 */
-	public function getAttributeValue( DOMElement $node, string $key, $value ) {
+	public function getAttributeValue( DOMElement $node, string $key ): ?string {
 		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
 		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's value is generated content,
@@ -302,7 +301,7 @@ class WikitextSerializer {
 				], $attr[1]->html );
 			}
 		}
-		return $value;
+		return null;
 	}
 
 	/**
@@ -312,7 +311,7 @@ class WikitextSerializer {
 	 *   with an extra 'fromDataMW' flag.
 	 */
 	public function getAttributeValueAsShadowInfo( DOMElement $node, string $key ): ?array {
-		$v = $this->getAttributeValue( $node, $key, null );
+		$v = $this->getAttributeValue( $node, $key );
 		if ( $v === null ) {
 			return $v;
 		}
@@ -517,7 +516,7 @@ class WikitextSerializer {
 				// Pass in kv.k, not k since k can potentially
 				// be original wikitext source for 'k' rather than
 				// the string value of the key.
-				$vv = $this->getAttributeValue( $node, $kv->k, $v );
+				$vv = $this->getAttributeValue( $node, $kv->k ) ?? $v;
 				// Remove encapsulation from protected attributes
 				// in pegTokenizer.pegjs:generic_newline_attribute
 				$kk = preg_replace( '/^data-x-/i', '', $kk, 1 );

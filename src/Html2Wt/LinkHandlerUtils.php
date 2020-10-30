@@ -1379,7 +1379,9 @@ class LinkHandlerUtils {
 				}
 			}
 			if ( $v !== null ) {
-				$ak = $state->serializer->getAttributeValue( $outerElt, $o['ck'], $mwAliases[$o['alias']] );
+				$ak = $state->serializer->getAttributeValue(
+					$outerElt, $o['ck']
+				) ?? $mwAliases[$o['alias']];
 				$nopts[] = [
 					'ck' => $o['ck'],
 					'ak' => $ak,
@@ -1398,22 +1400,24 @@ class LinkHandlerUtils {
 				$nopts[] = [
 					'ck' => 'thumbnail',
 					'ak' => $state->serializer->getAttributeValue(
-						$outerElt, 'thumbnail', $mwAliases['img_thumbnail']
-					),
+						$outerElt, 'thumbnail'
+					) ?? $mwAliases['img_thumbnail'],
 				];
 				break;
 			case 'Frame':
 				$nopts[] = [
 					'ck' => 'framed',
-					'ak' => $state->serializer->getAttributeValue( $outerElt, 'framed', $mwAliases['img_framed'] ),
+					'ak' => $state->serializer->getAttributeValue(
+						$outerElt, 'framed'
+					) ?? $mwAliases['img_framed'],
 				];
 				break;
 			case 'Frameless':
 				$nopts[] = [
 					'ck' => 'frameless',
 					'ak' => $state->serializer->getAttributeValue(
-						$outerElt, 'frameless', $mwAliases['img_frameless']
-					),
+						$outerElt, 'frameless'
+					) ?? $mwAliases['img_frameless'],
 				];
 				break;
 		}
