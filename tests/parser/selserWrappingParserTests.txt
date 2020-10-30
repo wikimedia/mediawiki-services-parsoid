@@ -7,6 +7,7 @@ Don't dirty diff list items up the tree when a sibling list item is added (prese
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
   ]
@@ -25,6 +26,7 @@ Don't dirty diff list items up the tree when a nested list item is added (preser
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
   ]
@@ -43,6 +45,7 @@ Don't dirty diff list items up the tree when a sibling list item is added (don't
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
   ]
@@ -61,6 +64,7 @@ Don't dirty diff list items up the tree when a nested list item is added (don't 
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
   ]
@@ -79,6 +83,7 @@ Don't dirty diff list items up the tree when a sibling list item is added (prese
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li > ul > li", "after", "<li>b-new</li>" ]
   ]
@@ -99,6 +104,7 @@ Don't dirty diff list items up the tree when a nested list item is added (preser
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
   ]
@@ -119,6 +125,7 @@ Unbalanced closing tags cannot be preserved if it is an ancestor of an edited li
 !! options
 parsoid={
   "modes": ["selser"],
+  "selser": "noauto",
   "changes": [
      [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
   ]
@@ -130,4 +137,12 @@ parsoid={
 * x
 ** b
 ** b-new
+!! end
+
+!! test
+Verify that our internal selser wrapper can't be spoofed from wikitext
+!! wikitext
+<span data-mw-selser-wrapper="foo">bar</span>
+!! html/parsoid
+<p><span data-x-data-mw-selser-wrapper="foo">bar</span></p>
 !! end

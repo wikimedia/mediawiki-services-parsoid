@@ -74,6 +74,9 @@ class SelectiveSerializer {
 	 * @param string $nodeName
 	 */
 	private function wrapTextChildrenOfNode( DOMElement $body, string $nodeName ): void {
+		// FIXME (optimization): This probably only has to wrap the
+		// *first/last* children *if* they are Text, not *every* Text
+		// child (T266908)
 		$inListItem = isset( WikitextConstants::$HTML['ListItemTags'][$nodeName] );
 		foreach ( DOMCompat::querySelectorAll( $body, $nodeName ) as $elt ) {
 			if ( WTUtils::isLiteralHTMLNode( $elt ) ) {
