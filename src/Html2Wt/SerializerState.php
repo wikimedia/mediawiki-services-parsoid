@@ -231,7 +231,7 @@ class SerializerState {
 	/** @var ParsoidExtensionAPI */
 	public $extApi;
 
-	/** @var ConstrainedText|string The serialized output */
+	/** @var string The serialized output */
 	public $out = '';
 
 	/**

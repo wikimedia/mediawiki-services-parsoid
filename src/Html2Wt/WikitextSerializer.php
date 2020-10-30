@@ -232,9 +232,9 @@ class WikitextSerializer {
 	/**
 	 * @param array $opts
 	 * @param DOMElement $elt
-	 * @return ConstrainedText|string
+	 * @return string
 	 */
-	public function domToWikitext( array $opts, DOMElement $elt ) {
+	public function domToWikitext( array $opts, DOMElement $elt ): string {
 		$opts['logType'] = $this->logType;
 		$serializer = new WikitextSerializer( $opts );
 		return $serializer->serializeDOM( $elt );
@@ -243,9 +243,9 @@ class WikitextSerializer {
 	/**
 	 * @param array $opts
 	 * @param string $html
-	 * @return ConstrainedText|string
+	 * @return string
 	 */
-	public function htmlToWikitext( array $opts, string $html ) {
+	public function htmlToWikitext( array $opts, string $html ): string {
 		$body = ContentUtils::ppToDOM( $this->env, $html, [ 'markNew' => true ] );
 		'@phan-var DOMElement $body';  // @var DOMElement $body
 		return $this->domToWikitext( $opts, $body );
@@ -276,7 +276,7 @@ class WikitextSerializer {
 	 * @param DOMElement $node
 	 * @param string $key Attribute name.
 	 * @param mixed $value Fallback value to use if the attibute is not present.
-	 * @return ConstrainedText|string
+	 * @return mixed
 	 */
 	public function getAttributeValue( DOMElement $node, string $key, $value ) {
 		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
@@ -1631,9 +1631,11 @@ class WikitextSerializer {
 	 * WARNING: You probably want to use {@link FromHTML::serializeDOM} instead.
 	 * @param DOMElement $body
 	 * @param bool $selserMode
-	 * @return ConstrainedText|string
+	 * @return string
 	 */
-	public function serializeDOM( DOMElement $body, bool $selserMode = false ) {
+	public function serializeDOM(
+		DOMElement $body, bool $selserMode = false
+	): string {
 		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
 
 		$this->logType = $selserMode ? 'trace/selser' : 'trace/wts';

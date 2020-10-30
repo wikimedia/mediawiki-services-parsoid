@@ -642,9 +642,9 @@ class ParsoidExtensionAPI {
 	 *  - extName: (string) Name of the extension whose body we are serializing
 	 *  - inPHPBlock: (bool) FIXME: This needs to be removed
 	 * @param string $html HTML for the extension's body
-	 * @return mixed // FIXME: Don't want to expose ConstrainedText object
+	 * @return string
 	 */
-	public function htmlToWikitext( array $opts, string $html ) {
+	public function htmlToWikitext( array $opts, string $html ): string {
 		// Type cast so phan has more information to ensure type safety
 		$state = $this->serializerState;
 		$opts['env'] = $this->env;

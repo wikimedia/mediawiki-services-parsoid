@@ -37,7 +37,7 @@ class LanguageVariantHandler {
 	 * @param SerializerState $state
 	 * @param string|bool $t
 	 * @param ?array $opts
-	 * @return ConstrainedText\ConstrainedText|string
+	 * @return string
 	 */
 	private static function ser( SerializerState $state, string $t, ?array $opts ) {
 		$options = array_merge( [
