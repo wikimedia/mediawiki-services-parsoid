@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -u
+
 if [ $# -lt 4 ]
 then
 	echo "USAGE: $0 <uid> <oracle> <commit> <file>"
@@ -19,15 +22,17 @@ file=$4
 scp -q $file $uid@testreduce1001.eqiad.wmnet:/tmp/titles
 
 function runTest() {
-   cdDir="cd /srv/parsoid-testing"
-   restartPHP="sudo systemctl restart php7.2-fpm.service"
-   testScript="$cdDir && node tools/runRtTests.js --proxyURL http://scandium.eqiad.wmnet:80 --parsoidURL http://DOMAIN/w/rest.php -f /tmp/titles"
-
 	local sha=$1
+
+	cdDir="cd /srv/parsoid-testing"
+	restartPHP="sudo systemctl restart php7.2-fpm.service"
+	testScript="$cdDir && node tools/runRtTests.js --proxyURL http://scandium.eqiad.wmnet:80 --parsoidURL http://DOMAIN/w/rest.php -f /tmp/titles -o /tmp/results.$sha.json"
+
 	echo "---- Checking out $sha ----"
 	ssh $uid@scandium.eqiad.wmnet "$cdDir && git checkout $sha && $restartPHP"
 	echo "---- Running tests ----"
-	ssh $uid@testreduce1001.eqiad.wmnet "$testScript" 2> $file.results.$sha.json
+	ssh $uid@testreduce1001.eqiad.wmnet "$testScript"
+	scp $uid@testreduce1001.eqiad.wmnet:/tmp/results.$sha.json /tmp/
 }
 
 runTest $oracle
@@ -45,11 +50,11 @@ const titles = fs.readFileSync("$file", 'utf8').trim().split('\n').map(function(
 
 let oracleResults = {};
 let commitResults = {};
-JSON.parse(fs.readFileSync("$file.results.$oracle.json", 'utf8')).forEach(function(r) {
+JSON.parse(fs.readFileSync("/tmp/results.$oracle.json", 'utf8')).forEach(function(r) {
 	oracleResults[r.prefix + ":" + r.title] = r.results;
 });
 
-JSON.parse(fs.readFileSync("$file.results.$commit.json", 'utf8')).forEach(function(r) {
+JSON.parse(fs.readFileSync("/tmp/results.$commit.json", 'utf8')).forEach(function(r) {
 	commitResults[r.prefix + ":" + r.title] = r.results;
 });
 
