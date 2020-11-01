@@ -318,6 +318,21 @@ class DOMUtils {
 	}
 
 	/**
+	 * Find an ancestor of $node with nodeName $name.
+	 *
+	 * @param DOMNode $node
+	 * @param string $name
+	 * @return ?DOMNode
+	 */
+	public static function findAncestorOfName( DOMNode $node, string $name ): ?DOMNode {
+		$node = $node->parentNode;
+		while ( $node && $node->nodeName !== $name ) {
+			$node = $node->parentNode;
+		}
+		return $node;
+	}
+
+	/**
 	 * Check whether $node has $name or has an ancestor named $name.
 	 *
 	 * @param DOMNode $node
@@ -325,10 +340,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function hasNameOrHasAncestorOfName( DOMNode $node, string $name ): bool {
-		while ( $node && $node->nodeName !== $name ) {
-			$node = $node->parentNode;
-		}
-		return $node !== null;
+		return $node->nodeName === $name || self::findAncestorOfName( $node, $name ) !== null;
 	}
 
 	/**

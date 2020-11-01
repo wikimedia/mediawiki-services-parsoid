@@ -178,7 +178,7 @@ d
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
 <p>a</p>
 
-<section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"dsr":[9,33,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb"}},"i":0}}]}'>1.1</h2><span about="#mwt1">
+<section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb"}},"i":0}}]}'>1.1</h2><span about="#mwt1">
 </span><p about="#mwt1">b</p>
 </section><section data-mw-section-id="3"><h2 id="1.2" data-parsoid="{}">1.2</h2>
 <p>c</p>
@@ -227,11 +227,11 @@ e
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1">1</h1>
 <p>a</p>
 
-<section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}},"\n"]}'>1.1</h2><span about="#mwt1">
+<section data-mw-section-id="-1" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}},"\n"]}'><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}}]}'>1.1</h2><span about="#mwt1">
 </span><p about="#mwt1">b</p><span about="#mwt1">
 </span><section data-mw-section-id="-1" about="#mwt1"><h3 about="#mwt1" id="1.1.1">1.1.1</h3><span about="#mwt1">
-</span><p about="#mwt1">d</p><span about="#mwt1">
-</span></section></section></section><section data-mw-section-id="4" data-parsoid="{}"><h1 id="2">2</h1>
+</span><p about="#mwt1">d</p>
+</section></section></section><section data-mw-section-id="4" data-parsoid="{}"><h1 id="2">2</h1>
 <p>e</p></section>
 !! end
 
@@ -279,17 +279,17 @@ e
 <p>e
 </p>
 !! html/parsoid
-<section data-mw-section-id="0"></section><section data-mw-section-id="1" data-parsoid="{}"><h1 id="1"> 1 </h1>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["=1=\na\n\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==1.1==\nb\n==1.2==\nc\n===1.2.1===\nd"}},"i":0}},"\n"]}'><h1 id="1"> 1 </h1>
 <p>a</p>
 
-<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"dsr":[9,60,0,0],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==1.1==\nb\n==1.2==\nc\n===1.2.1===\nd"}},"i":0}},"\n"]}'>x</p><span about="#mwt1">
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==1.1==\nb\n==1.2==\nc\n===1.2.1===\nd"}},"i":0}}]}'>x</p><span about="#mwt1">
 </span><section data-mw-section-id="-1" about="#mwt1"><h2 about="#mwt1" id="1.1">1.1</h2><span about="#mwt1">
 </span><p about="#mwt1">b</p><span about="#mwt1">
 </span></section><section data-mw-section-id="-1" about="#mwt1"><h2 about="#mwt1" id="1.2">1.2</h2><span about="#mwt1">
 </span><p about="#mwt1">c</p><span about="#mwt1">
 </span><section data-mw-section-id="-1" about="#mwt1"><h3 about="#mwt1" id="1.2.1">1.2.1</h3><span about="#mwt1">
-</span><p about="#mwt1">d</p><span about="#mwt1">
-</span></section></section></section><section data-mw-section-id="5"><h1 id="2">2</h1>
+</span><p about="#mwt1">d</p>
+</section></section></section><section data-mw-section-id="5"><h1 id="2">2</h1>
 <p>e</p></section>
 !! end
 
@@ -380,14 +380,14 @@ e
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1" data-parsoid="{}">1</h1>
 <p>a</p>
 
-</section><section data-mw-section-id="-1"><h1 about="#mwt1" typeof="mw:Transclusion" id="2" data-parsoid='{"dsr":[9,45,null,null],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"=2=\nb\n==2.1==\nc"}},"i":0}},"\n\nd\n\n"]}'>2</h1><span about="#mwt1">
+</section><section data-mw-section-id="-1" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"=2=\nb\n==2.1==\nc"}},"i":0}},"\n\nd\n\n"]}'><h1 about="#mwt1" typeof="mw:Transclusion" id="2" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"=2=\nb\n==2.1==\nc"}},"i":0}}]}'>2</h1><span about="#mwt1">
 </span><p about="#mwt1">b</p><span about="#mwt1">
 </span><section data-mw-section-id="-1" about="#mwt1"><h2 about="#mwt1" id="2.1">2.1</h2><span about="#mwt1">
-</span><p about="#mwt1">c</p><span about="#mwt1">
+</span><p about="#mwt1">c</p>
 
-</span><p about="#mwt1">d</p><span about="#mwt1">
+<p>d</p>
 
-</span></section></section><section data-mw-section-id="4"><h1 id="3" data-parsoid="{}">3</h1>
+</section></section><section data-mw-section-id="4"><h1 id="3" data-parsoid="{}">3</h1>
 <p>e</p></section>
 !! end
 
@@ -766,7 +766,7 @@ parsoid={
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="PHP_section=1" data-parsoid="{}"><span id="PHP_section.3D1" typeof="mw:FallbackId"></span>PHP section=1</h2>
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a section"},"2":{"wt":"\n== This is counted as if it were section 2 ==\n"}},"i":0}}]}'>Not a section</p>
 </section><section data-mw-section-id="3"><h2 id="PHP_section=3" data-parsoid="{}"><span id="PHP_section.3D3" typeof="mw:FallbackId"></span>PHP section=3</h2>
-</section><section data-mw-section-id="-1" about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["",{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}},"\n"]}'><h2 about="#mwt2" typeof="mw:Transclusion" id="This_is_counted_as_if_it_were_section_4" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}}]}'>This is counted as if it were section 4</h2><span about="#mwt2">
+</section><section data-mw-section-id="-1" about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}},"\n"]}'><h2 about="#mwt2" typeof="mw:Transclusion" id="This_is_counted_as_if_it_were_section_4" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}}]}'>This is counted as if it were section 4</h2><span about="#mwt2">
 </span></section><section data-mw-section-id="-1" about="#mwt5"><h2 about="#mwt2" id="This_is_counted_as_if_it_were_section_4_2">This is counted as if it were section 4</h2><span about="#mwt2">
 </span></section><section data-mw-section-id="-1" about="#mwt5"><h2 about="#mwt2" id="This_is_counted_as_if_it_were_section_4_3">This is counted as if it were section 4</h2>
 </section><section data-mw-section-id="5"><h2 id="PHP_section=5" data-parsoid="{}"><span id="PHP_section.3D5" typeof="mw:FallbackId"></span>PHP section=5</h2>
@@ -777,7 +777,7 @@ parsoid={
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n== This is counted as if it were section 9 ==\n"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
 <section data-mw-section-id="-1"><h2 id="This_is_section_9,_even_though_it's_in_a_caption" data-parsoid="{}"><span id="This_is_section_9.2C_even_though_it.27s_in_a_caption" typeof="mw:FallbackId"></span>This is section 9, even though it's in a caption</h2>
 </section></figcaption></figure>
-</section><section data-mw-section-id="10"><h2 id="PHP_section=10" data-parsoid="{}"><span id="PHP_section.3D10" typeof="mw:FallbackId" data-parsoid='{"dsr":[412,412]}'></span>PHP section=10</h2></section>
+</section><section data-mw-section-id="10"><h2 id="PHP_section=10" data-parsoid="{}"><span id="PHP_section.3D10" typeof="mw:FallbackId" data-parsoid='{}'></span>PHP section=10</h2></section>
 !! end
 
 !! test
@@ -825,7 +825,7 @@ x
 </p>
 <h2><span class="mw-headline" id="boo">boo</span></h2>
 !! html/parsoid
-<section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]],"dsr":[0,93,null,null]}' data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}},""]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
-<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"dsr":[73,93,0,0],"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'>x</p><span about="#mwt1">
+<section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'>x</p><span about="#mwt1">
 </span></section><section data-mw-section-id="-1" about="#mwt2" data-parsoid="{}"><h2 about="#mwt1" id="boo" data-parsoid="{}">boo</h2></section>
 !! end

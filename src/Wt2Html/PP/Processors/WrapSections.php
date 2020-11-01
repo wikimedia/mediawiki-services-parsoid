@@ -11,10 +11,10 @@ use DOMText;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -106,12 +106,6 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 			$section->setId( -1 );
 		} else {
 			$section->setId( $state['sectionNumber'] );
-		}
-
-		/* Ensure that template continuity is not broken if the section
-		 * tags aren't stripped by a client */
-		if ( $tplInfo && $node !== $tplInfo['first'] ) {
-			$section->setAboutId( $tplInfo['about'] );
 		}
 
 		return $section;
@@ -283,128 +277,191 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Section wrappers and template/extension wrappers can conflict because
-	 * of partial overlaps. This method identifies those conflicts and fixes up
-	 * the template/extension encapsulation by expanding those ranges as necessary.
-	 * This algorithm is not fully foolproof and there are known edge case bugs.
-	 * See phabricator for these open bugs.
+	 * FIXME: Duplicated with TableFixups code.
+	 * @param array &$parts
+	 * @param Frame $frame
+	 * @param int $offset1
+	 * @param int $offset2
+	 */
+	private function fillDSRGap( array &$parts, Frame $frame, int $offset1, int $offset2 ): void {
+		if ( $offset1 < $offset2 ) {
+			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $offset1,  $offset2 - $offset1 );
+		}
+	}
+
+	/**
+	 * FIXME: There is strong overlap with TableFixups code.
+	 * $wrapper will hold tpl/ext encap info for the array of tpls/exts as well as
+	 * content before, after and in between them.
+	 *
+	 * @param Frame $frame
+	 * @param DOMElement $wrapper
+	 * @param array $encapWrappers
+	 */
+	private function collapseWrappers( Frame $frame, DOMElement $wrapper, array $encapWrappers ) {
+		$wrapperDp = DOMDataUtils::getDataParsoid( $wrapper );
+
+		// Build up $parts, $pi to set up the combined transclusion info on $wrapper
+		$parts = [];
+		$pi = [];
+		$index = 0;
+		$prev = null;
+		$prevDp = null;
+		$haveTemplate = false;
+		foreach ( $encapWrappers as $i => $encapNode ) {
+			$dp = DOMDataUtils::getDataParsoid( $encapNode );
+
+			// Plug DSR gaps between encapWrappers
+			if ( !$prevDp ) {
+				$this->fillDSRGap( $parts, $frame, $wrapperDp->dsr->start, $dp->dsr->start );
+			} else {
+				$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $dp->dsr->start );
+			}
+
+			$typeOf = $encapNode->getAttribute( 'typeof' );
+			if ( DOMUtils::hasTypeOf( $encapNode, "mw:Transclusion" ) ) {
+				$haveTemplate = true;
+				// Assimilate $encapNode's data-mw and data-parsoid pi info
+				$dmw = DOMDataUtils::getDataMw( $encapNode );
+				foreach ( $dmw->parts ?? [] as $part ) {
+					$part = clone $part;
+					if ( !is_string( $part ) ) {
+						// This index in the template object is expected to be
+						// relative to other template objects.
+						$part->template->i = $index++;
+					}
+					$parts[] = $part;
+				}
+				$pi = array_merge( $pi, $dp->pi ?? [ [] ] );
+			} else {
+				// Where a non-template type is present, we are going to treat that
+				// segment as a "string" in the parts array. So, we effectively treat
+				// "mw:Transclusion" as a generic type that covers a single template
+				// as well as a run of segments where at least one segment comes from
+				// a template but others may be from other generators (ex: extensions).
+				$this->fillDSRGap( $parts, $frame, $dp->dsr->start, $dp->dsr->end );
+			}
+
+			$prev = $encapNode;
+			$prevDp = $dp;
+		}
+
+		if ( $haveTemplate ) {
+			DOMUtils::addTypeOf( $wrapper, "mw:Transclusion" );
+			$wrapperDp->pi = $pi;
+			$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $wrapperDp->dsr->end );
+			DOMDataUtils::setDataMw( $wrapper, (object)[ 'parts' => $parts ] );
+		} else {
+			// FIXME: If we stop stripped section wrappers in the html->wt direction,
+			// we may need to check if this is sufficient for serialization.
+			DOMUtils::addTypeOf( $wrapper, "mw:Placeholder" );
+		}
+	}
+
+	/**
+	 * Section wrappers and encapsulation wrappers can conflict because of
+	 * partial overlaps. This method identifies those conflicts and fixes up
+	 * the encapsulation by expanding those ranges as necessary.
 	 *
 	 * @param array &$state
 	 */
 	private function resolveTplExtSectionConflicts( array &$state ) {
+		$secRanges = [];
+		'@phan-var array[] $secRanges';
 		foreach ( $state['tplsAndExtsToExamine'] as $tplInfo ) {
-			// could be null
-			$s1 = $tplInfo['firstSection']->container ?? null;
+			$s1 = $tplInfo['firstSection']->container ??
+				DOMUtils::findAncestorOfName( $tplInfo['first'], 'section' );
 
 			// guaranteed to be non-null
 			$s2 = $tplInfo['lastSection']->container;
 
-			// Find a common ancestor of s1 and s2 (could be s1)
+			// Find a common ancestor of s1 and s2 (could be s1 or s2)
 			$s2Ancestors = DOMUtils::pathToRoot( $s2 );
 			$s1Ancestors = [];
-			$ancestor = null;
-			$i = 0;
-			if ( $s1 ) {
-				$ancestor = $s1;
-				while ( !in_array( $ancestor, $s2Ancestors, true ) ) {
-					$s1Ancestors[] = $ancestor;
-					$ancestor = $ancestor->parentNode;
-				}
-				// ancestor is now the common ancestor of s1 and s2
+			$n = 0;
+			$ancestor = $s1;
+			while ( !in_array( $ancestor, $s2Ancestors, true ) ) {
 				$s1Ancestors[] = $ancestor;
-				$i = array_search( $ancestor, $s2Ancestors, true );
+				$ancestor = $ancestor->parentNode;
+				$n++;
 			}
 
-			if ( !$s1 || $ancestor === $s1 ) {
-				// Scenario 1: s1 is s2's ancestor OR s1 doesn't exist.
-				// In either case, s2 only covers part of the transcluded content.
-				// But, s2 could also include content that follows the transclusion.
-				// If so, append the content of the section after the last $node
-				// to data-mw.parts.
-				if ( $tplInfo['last']->nextSibling ) {
-					$newTplEndOffset = $this->getDSR( $state, $s2, false );
-					// The next line will succeed because it traverses non-tpl content
-					$tplDsr = &DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
-					$tplEndOffset = $tplDsr->end;
-					$dmw = DOMDataUtils::getDataMw( $tplInfo['first'] );
-					if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
-						if ( $dmw->parts ) {
-							$dmw->parts[] = $this->getSrc( $state['frame'], $tplEndOffset, $newTplEndOffset );
-						}
-					} else { /* Extension */
-						// https://phabricator.wikimedia.org/T184779
-						$dmw->extSuffix = $this->getSrc( $state['frame'], $tplEndOffset, $newTplEndOffset );
-					}
+			// ancestor is now the common ancestor of s1 and s2
+			$s1Ancestors[] = $ancestor;
+			$n++;
 
-					// Update DSR
-					$tplDsr->end = $newTplEndOffset;
+			// Set up start/end of the new encapsulation range
+			if ( $ancestor === $s1 || $ancestor === $s2 ) {
+				$start = $ancestor;
+				$end = $ancestor;
+			} else {
+				// While creating a new section (see createNewSection), it only
+				// gets added where its parent is either another section,
+				// or body, so all ancestors are themselves sections, or body.
+				$start = $s1Ancestors[$n - 2];
+				$i = array_search( $ancestor, $s2Ancestors, true );
+				$end = $s2Ancestors[$i - 1];
+			}
 
-					// Set about attributes on all children of s2 - add span wrappers if required
-					$span = null;
-					for ( $n = $tplInfo['last']->nextSibling; $n; $n = $n->nextSibling ) {
-						if ( $n instanceof DOMElement ) {
-							$n->setAttribute( 'about', $tplInfo['about'] );
-							$span = null;
-						} else {
-							if ( !$span ) {
-								$span = $state['doc']->createElement( 'span' );
-								$span->setAttribute( 'about', $tplInfo['about'] );
-								$n->parentNode->replaceChild( $span, $n );
-							}
-							$span->appendChild( $n );
-							$n = $span; // to ensure n->nextSibling is correct
-						}
-					}
+			'@phan-var DOMElement $start';  // @var DOMElement $start
+			'@phan-var DOMElement $end';    // @var DOMElement $end
+
+			// Add new OR update existing range
+			if ( $start->hasAttribute( 'about' ) ) {
+				// Overlaps with an existing range.
+				$about = $start->getAttribute( 'about' );
+				if ( !$end->hasAttribute( 'about' ) ) {
+					// Extend existing range till $end
+					$secRanges[$about]['end'] = $end;
+					$end->setAttribute( 'about', $about );
+				} else {
+					Assert::invariant( $end->getAttribute( 'about' ) === $about,
+						"Expected end-range about id to be $about instead of " .
+						$end->getAttribute( 'about' ) . " in the overlap scenario." );
 				}
 			} else {
-				// Scenario 2: s1 and s2 are in different subtrees
-				// Find children of the common ancestor that are on the
-				// path from s1 -> ancestor and s2 -> ancestor
-				Assert::invariant(
-					count( $s1Ancestors ) >= 2 && $i >= 1,
-					'Scenario assumptions violated.'
-				);
-				$newS1 = $s1Ancestors[count( $s1Ancestors ) - 2]; // length >= 2 since we know ancestors != s1
-				$newS2 = $s2Ancestors[$i - 1]; // i >= 1 since we know s2 is not s1's ancestor
-				$newAbout = $state['env']->newAboutId(); // new about id for the new wrapping layer
-
-				// Ensure that all children from newS1 and newS2 have about attrs set
-				for ( $n = $newS1; $n !== $newS2->nextSibling; $n = $n->nextSibling ) {
-					$n->setAttribute( 'about', $newAbout );
+				// Check for nesting in another range.  Since $start and $end
+				// are siblings, this is sufficient to know the entire range
+				// is nested
+				$about = null;
+				$n = $start->parentNode;
+				$body = DOMCompat::getBody( $start->ownerDocument );
+				while ( $n !== $body ) {
+					'@phan-var DOMElement $n';  // @var DOMElement $n
+					if ( $n->nodeName === 'section' && $n->hasAttribute( 'about' ) ) {
+						$about = $n->getAttribute( 'about' );
+						break;
+					}
+					$n = $n->parentNode;
 				}
 
-				// $newS2 is $s2, or its ancestor
-				DOMUtils::assertElt( $s2 );
-				DOMUtils::assertElt( $newS2 );
-
-				// Update transclusion info
-				$dsr1 = $this->getDSR( $state, $newS1, true );  // Traverses non-tpl content => will succeed
-				$dsr2 = $this->getDSR( $state, $newS2, false ); // Traverses non-tpl content => will succeed
-				$tplDP = DOMDataUtils::getDataParsoid( $tplInfo['first'] );
-				$tplDsr = &$tplDP->dsr;
-				$dmw = Utils::clone( DOMDataUtils::getDataMw( $tplInfo['first'] ) );
-				if ( DOMUtils::hasTypeOf( $tplInfo['first'], 'mw:Transclusion' ) ) {
-					if ( $dmw->parts ) {
-						array_unshift( $dmw->parts, $this->getSrc( $state['frame'], $dsr1, $tplDsr->start ) );
-						$dmw->parts[] = $this->getSrc( $state['frame'], $tplDsr->end, $dsr2 );
-					}
-					DOMDataUtils::setDataMw( $newS1, $dmw );
-					DOMUtils::addTypeOf( $newS1, 'mw:Transclusion' );
-					// Copy the template's parts-information object
-					// which has white-space information for formatting
-					// the transclusion and eliminates dirty-diffs.
-					$dp = (object)[ 'pi' => $tplDP->pi, 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ];
-					DOMDataUtils::setDataParsoid( $newS1, $dp );
-				} else { /* extension */
-					// https://phabricator.wikimedia.org/T184779
-					$dmw->extPrefix = $this->getSrc( $state['frame'], $dsr1, $tplDsr->start );
-					$dmw->extSuffix = $this->getSrc( $state['frame'], $tplDsr->end, $dsr2 );
-					DOMDataUtils::setDataMw( $newS1, $dmw );
-					$newS1->setAttribute( 'typeof', $tplInfo['first']->getAttribute( 'typeof' ) );
-					$dp = (object)[ 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ];
-					DOMDataUtils::setDataParsoid( $newS1, $dp );
+				if ( !$about ) {
+					// Not overlapping, not nested => new range
+					$about = $state['env']->newAboutId();
+					$start->setAttribute( 'about', $about );
+					$end->setAttribute( 'about', $about );
+					$secRanges[$about] = [ 'start' => $start, 'end' => $end, 'encapWrappers' => [] ];
 				}
 			}
+			$secRanges[$about]['encapWrappers'][] = $tplInfo['first'];
+		}
+
+		// Process recorded ranges into new encapsulation information
+		// that spans all content in that range.
+		foreach ( $secRanges as $about => $range ) {
+			// Ensure that all top level nodes of the range have the same about id
+			for ( $n = $range['start']; $n !== $range['end']->nextSibling; $n = $n->nextSibling ) {
+				Assert::invariant( $n->nodeName === 'section',
+					"Encountered non-section node ({$n->nodeName}) while updating template wrappers" );
+				$n->setAttribute( 'about', $about );
+			}
+
+			$dsr1 = $this->getDSR( $state, $range['start'], true ); // Traverses non-tpl content => will succeed
+			$dsr2 = $this->getDSR( $state, $range['end'], false );  // Traverses non-tpl content => will succeed
+			DOMDataUtils::setDataParsoid( $range['start'],
+				(object)[ 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ] );
+
+			$this->collapseWrappers( $state['frame'], $range['start'], $range['encapWrappers'] );
 		}
 	}
 
