@@ -40,6 +40,12 @@ if ( $STANDALONE ) {
 		# use our local wikimedia/langconv if not redundant
 		$cfg['directory_list'][] = 'vendor/wikimedia/langconv';
 	}
+
+	// Make sure only the version of wikimedia-object-factory in *our* vendor is used,
+	// not the one in core, since if one of the versions has an issue that needs suppression
+	// but the other doesn't, its impossible to make tests for both pass.
+	$cfg['file_list'][] = 'vendor/wikimedia/object-factory/src/ObjectFactory.php';
+	$cfg['exclude_file_list'][] = $IP . '/vendor/wikimedia/object-factory/src/ObjectFactory.php';
 }
 
 // If the optional wikimedia/langconv package isn't installed, ignore files

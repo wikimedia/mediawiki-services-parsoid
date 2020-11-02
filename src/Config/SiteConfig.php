@@ -93,6 +93,8 @@ abstract class SiteConfig {
 		$this->getExtensionModules(); // ensure it's initialized w/ core modules
 		if ( is_string( $configOrSpec ) || isset( $configOrSpec['class'] ) || isset( $configOrSpec['factory'] ) ) {
 			// Treat this as an object factory spec for an ExtensionModule
+			// ObjectFactory::getObjectFromSpec accepts an array, not just a callable (phan bug)
+			// @phan-suppress-next-line PhanTypeInvalidCallableArraySize
 			$module = ObjectFactory::getObjectFromSpec( $configOrSpec, [
 				'allowClassName' => true,
 				'assertClass' => ExtensionModule::class,
