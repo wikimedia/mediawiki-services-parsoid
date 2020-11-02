@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use DOMComment;
+use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use stdClass;
@@ -830,5 +832,22 @@ class WTUtils {
 		$matchingTag = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
 		return $matchingTag ?
 			$env->getSiteConfig()->getExtTagImpl( $matchingTag ) : null;
+	}
+
+	/**
+	 * @param DOMDocument $doc
+	 * @param array $i18n With "key" and "params" for wfMessage
+	 * @return DOMDocumentFragment
+	 */
+	public static function createLocalizationFragment(
+		DOMDocument $doc, array $i18n
+	): DOMDocumentFragment {
+		$frag = $doc->createDocumentFragment();
+		$span = $doc->createElement( 'span' );
+		DOMUtils::addTypeOf( $span, 'mw:I18n' );
+		$dp = DOMDataUtils::getDataParsoid( $span );
+		$dp->tmp->i18n = $i18n;
+		$frag->appendChild( $span );
+		return $frag;
 	}
 }
