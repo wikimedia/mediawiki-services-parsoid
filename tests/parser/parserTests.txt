@@ -4293,10 +4293,7 @@ parsoid=wt2html,html2html
 <dl><dt>onetwo</dt>
 <dd>bad tag fun</dd></dl>
 !! html/parsoid
-<dl>
-<dt>onetwo</dt>
-<dd>bad tag fun</dd>
-</dl>
+<dl><dt>one<meta typeof="mw:Placeholder/StrippedTag" data-parsoid='{"src":"&lt;/b>","name":"b"}'/>two</dt><dd data-parsoid='{"stx":"row"}'>bad tag fun</dd></dl>
 !! end
 
 !! test
@@ -4982,7 +4979,7 @@ Definition Lists: colons occurring in tags
 <dt><span data-parsoid='{"stx":"html"}'>a:b</span></dt>
 <dt><div data-parsoid='{"stx":"html"}'>a:b</div></dt>
 <dt><div data-parsoid='{"stx":"html","autoInsertedEnd":true}'>a</div></dt>
-<dd>b</dd>
+<dd>b<meta typeof="mw:Placeholder/StrippedTag" data-parsoid='{"src":"&lt;/div>","name":"div"}'/></dd>
 <dt><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"a:b"}},"i":0}}]}'>a:b</span></dt>
 <dt><i about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&#39;&#39;a:b&#39;&#39;"}},"i":0}}]}'>a:b</i>
 <dl><dt><dl><dt><i>a:b</i></dt></dl></dt></dl></dt></dl>
@@ -10783,8 +10780,8 @@ parsoid=wt2html,html2html
 <li>b</li></ul>
 !! html/parsoid
 <p><span data-parsoid='{"stx":"html","autoInsertedEnd":true}'></span></p>
-<ul><li>a<span data-parsoid='{"stx":"html","autoInsertedEnd":true}'></span></li>
-<li>b</li></ul>
+<ul><li>a<meta typeof="mw:Placeholder/StrippedTag" data-parsoid='{"src":"&lt;/span>","name":"span"}'/><span data-parsoid='{"stx":"html","autoInsertedEnd":true}'></span></li>
+<li>b<meta typeof="mw:Placeholder/StrippedTag" data-parsoid='{"src":"&lt;/span>","name":"span"}'/></li></ul>
 !! end
 
 # Parsoid does some post-dom-building cleanup

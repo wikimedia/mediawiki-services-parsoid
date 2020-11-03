@@ -159,7 +159,7 @@ class SelectiveSerializer {
 	 * @param DOMElement $body
 	 */
 	private function preprocessDOM( Env $env, DOMElement $body ): void {
-		if ( Semver::satisfies( $env->getInputContentVersion(), '>=2.1.1' ) ) {
+		if ( Semver::satisfies( $env->getInputContentVersion(), '>=2.1.2' ) ) {
 			// Wrap text node children of <li> elements in dummy spans
 			$this->wrapTextChildrenOfNode( $body, 'li' );
 			$this->wrapTextChildrenOfNode( $body, 'dd' );

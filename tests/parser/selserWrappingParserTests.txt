@@ -121,7 +121,7 @@ parsoid={
 !! end
 
 !! test
-Unbalanced closing tags cannot be preserved if it is an ancestor of an edited list item
+Don't dirty diff list items up the tree when a nested list item is added (preserve unbalanced closing tags - test 1)
 !! options
 parsoid={
   "modes": ["selser"],
@@ -134,7 +134,27 @@ parsoid={
 * x</span>
 ** b
 !! wikitext/edited
-* x
+* x</span>
+** b
+** b-new
+!! end
+
+# Without StrippedTag meta marker in the HTML output, this test will cause corruption (HTML version 2.1.1)
+!! test
+Don't dirty diff list items up the tree when a nested list item is added (preserve unbalanced closing tags - test 2)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "ul > li > ul > li", "after", "<li>b-new</li>" ]
+  ]
+}
+!! wikitext
+* </span>x
+** b
+!! wikitext/edited
+* </span>x
 ** b
 ** b-new
 !! end

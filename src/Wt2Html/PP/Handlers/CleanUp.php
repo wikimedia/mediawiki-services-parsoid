@@ -31,7 +31,8 @@ class CleanUp {
 		if (
 			(
 				!$rtTestMode &&
-				DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' )
+				DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' ) &&
+				!DOMUtils::isNestedInListItem( $node )
 			) || (
 				DOMUtils::matchTypeOf( $node, '#^mw:(StartTag|EndTag|TSRMarker|Transclusion)(/|$)#' ) &&
 				!DOMDataUtils::validDataMw( $node )
