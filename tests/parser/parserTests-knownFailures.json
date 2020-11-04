@@ -2889,8 +2889,7 @@
         "html2wt": "{|\n|foo\n|}"
     },
     "Test the li-hack (a hack from Tidy days, but doesn't work as advertised with Remex)": {
-        "selser [[0,4,4,0,0,2,4,[4]],0,3]": "*foo\n* uqm6lp\n* 1vkiq8\n*{{1x|<li>templated li-hack}}* 1qqsbwt\n* 1livzi9<li> cdysnd\n",
-        "selser [[3,2,0,2,0,0,0,[2]],3,1]": "* oplt3w\n*<li>li-hack* 9uz7vq\n*{{1x|<li>templated li-hack}}\n*<!--foo--><li> qyjg93 unsupported li-hack with preceding comments<ul data-foobar=\"lnsjg\">\n<li><li>not a li-hack\n</li>\n</ul>"
+        "selser [[0,4,4,0,0,2,4,[4]],0,3]": "*foo\n* uqm6lp\n* 1vkiq8\n*{{1x|<li>templated li-hack}}\n**bar2* 1qqsbwt\n* 1livzi9<li> cdysnd\n"
     },
     "Testing serialization after deletion of table cells": {
         "selser [manual]": "{|\n!h1 !!h2 !!h3\n|c2 |||c3\n|}",

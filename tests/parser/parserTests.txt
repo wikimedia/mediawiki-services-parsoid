@@ -10643,7 +10643,9 @@ parsoid=wt2html,wt2wt
 !! wikitext
 *foo
 *<li>li-hack
+**bar1
 *{{1x|<li>templated li-hack}}
+**bar2
 *<!--foo--><li> unsupported li-hack with preceding comments
 
 <ul>
@@ -10652,18 +10654,22 @@ parsoid=wt2html,wt2wt
 </ul>
 !! html+tidy
 <ul><li>foo</li>
-<li class="mw-empty-elt"></li><li>li-hack</li>
-<li class="mw-empty-elt"></li><li>templated li-hack</li>
+<li class="mw-empty-elt"></li><li>li-hack
+<ul><li>bar1</li></ul></li>
+<li class="mw-empty-elt"></li><li>templated li-hack
+<ul><li>bar2</li></ul></li>
 <li class="mw-empty-elt"></li><li> unsupported li-hack with preceding comments</li></ul>
 <ul>
 <li class="mw-empty-elt"></li><li>not a li-hack
 </li>
 </ul>
 !! html/parsoid
-<ul><li> foo</li>
-<li data-parsoid='{"stx":"html","autoInsertedEnd":true,"liHackSrc":"*"}'>li-hack</li>
-<li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["*",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;li>templated li-hack"}},"i":0}}]}'>templated li-hack</li>
-<li data-parsoid='{}'><!--foo--></li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>unsupported li-hack with preceding comments</li></ul>
+<ul><li>foo</li>
+<li data-parsoid='{"stx":"html","autoInsertedEnd":true,"liHackSrc":"*"}'>li-hack
+<ul><li>bar1</li></ul></li>
+<li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["*",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;li>templated li-hack"}},"i":0}},"\n**bar2"]}'>templated li-hack
+<ul><li>bar2</li></ul></li>
+<li><!--foo--></li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'> unsupported li-hack with preceding comments</li></ul>
 
 <ul data-parsoid='{"stx":"html"}'>
 <li class="mw-empty-elt" data-parsoid='{"stx":"html","autoInsertedEnd":true}'></li><li data-parsoid='{"stx":"html"}'>not a li-hack

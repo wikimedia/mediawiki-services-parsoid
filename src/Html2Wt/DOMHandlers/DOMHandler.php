@@ -209,7 +209,7 @@ class DOMHandler {
 		while ( $node ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			$stx = $dp->stx ?? null;
-			if ( $stx !== 'html' && isset( $listTypes[$node->nodeName] ) ) {
+			if ( ( $stx !== 'html' || isset( $dp->liHackSrc ) ) && isset( $listTypes[$node->nodeName] ) ) {
 				if ( $node->nodeName === 'li' ) {
 					$parentNode = $node->parentNode;
 					while ( $parentNode && !( isset( $parentTypes[$parentNode->nodeName] ) ) ) {
