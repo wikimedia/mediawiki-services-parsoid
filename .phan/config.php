@@ -30,22 +30,25 @@ if ( $STANDALONE ) {
 		# mediawiki-phan-config doesn't include core's parser test framework
 		# by default:
 		$IP . '/tests/parser',
-		# don't use our vendor directory, use the one from core...
-		# but we still need a few things from require-dev
+		# We're not including our vendor directory here because
+		# mediawiki-phan-config sets us up to use the one from core. *However*:
+		# 1. we still need a few things from our require-dev
 		'vendor/wikimedia/alea',
+		# 2. use our version of some shared libraries because otherwise it
+		# can become impossible to get phan to pass in both standalone and
+		# integrated modes: during a library upgrade an issue needing
+		# suppression w/ (say) our newer version of the library would
+		# cause phan to fail with 'unnecessary suppression' when run w/ the
+		# older version in core (T267074).
+		'vendor/wikimedia/object-factory',
 	] );
+
 	if ( is_dir( "{$IP}/vendor/wikimedia/langconv" ) ) {
 		$hasLangConv = true;
 	} elseif ( $hasLangConv ) {
 		# use our local wikimedia/langconv if not redundant
 		$cfg['directory_list'][] = 'vendor/wikimedia/langconv';
 	}
-
-	// Make sure only the version of wikimedia-object-factory in *our* vendor is used,
-	// not the one in core, since if one of the versions has an issue that needs suppression
-	// but the other doesn't, its impossible to make tests for both pass.
-	$cfg['file_list'][] = 'vendor/wikimedia/object-factory/src/ObjectFactory.php';
-	$cfg['exclude_file_list'][] = $IP . '/vendor/wikimedia/object-factory/src/ObjectFactory.php';
 }
 
 // If the optional wikimedia/langconv package isn't installed, ignore files
@@ -65,7 +68,7 @@ if ( $STANDALONE ) {
 	$cfg['exclude_file_list'][] = 'tests/RTTestSettings.php';
 } else {
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
-	$cfg['exclude_file_regex'] = '@/vendor/(wikimedia/parsoid|jakub-onderka/php-parallel-lint)/@';
+	$cfg['exclude_file_regex'] = '@(' . preg_quote( $IP, '@' ) . '/vendor/wikimedia/(parsoid|object-factory))|/vendor/jakub-onderka/php-parallel-lint/@';
 }
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
