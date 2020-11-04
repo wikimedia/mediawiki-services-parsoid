@@ -102,15 +102,16 @@ class Ref extends ExtensionTagHandler {
 			$src = $extApi->htmlToWikitext( $html2wtOpts, $dataMw->body->html );
 		} elseif ( is_string( $dataMw->body->id ?? null ) ) {
 			// If the body isn't contained in data-mw.body.html, look if
-			// there's an element pointed to by body.id.
-			$bodyElt = DOMCompat::getElementById( $node->ownerDocument, $dataMw->body->id );
-			if ( !$bodyElt ) {
-				// Try to get to it from the top-level page.
-				// This can happen when the <ref> is inside another extension,
-				// most commonly inside <references>.
-				// The recursive call to serializeDOM puts us inside a new document.
-				$bodyElt = DOMCompat::getElementById( $extApi->getTopLevelDoc(), $dataMw->body->id );
-			}
+			// there's an element pointed to by body->id.
+			$bodyElt = DOMCompat::getElementById( $extApi->getTopLevelDoc(), $dataMw->body->id );
+
+			// So far, this is specified for Cite and relies on the "id"
+			// referring to an element in the top level dom, even though the
+			// <ref> itself may be in embedded content,
+			// https://www.mediawiki.org/wiki/Specs/HTML/2.1.0/Extensions/Cite#Ref_and_References
+			// FIXME: This doesn't work if the <references> section
+			// itself is in embedded content, since we aren't traversing
+			// in there.
 
 			// If we couldn't find a body element, this is a bug.
 			// Add some extra debugging for the editing client (ex: VisualEditor)
@@ -120,13 +121,9 @@ class Ref extends ExtensionTagHandler {
 				$href = $firstA->getAttribute( 'href' );
 				if ( $firstA && preg_match( '/^#/', $href ) ) {
 					try {
-						$ref = DOMCompat::querySelector( $node->ownerDocument, $href );
-						if ( $ref ) {
-							$extraDebug .= ' [own doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
-						}
 						$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
 						if ( $ref ) {
-							$extraDebug .= ' [main doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
+							$extraDebug .= ' [doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
 						}
 					} catch ( Exception $e ) {
 						// We are just providing VE with debugging info.

@@ -187,8 +187,13 @@ class DOMDiff {
 			} elseif ( gettype( $vA ) !== gettype( $vB ) ) {
 				return false;
 			} elseif ( $kA === 'id' && ( $options['inDmwBody'] ?? null ) ) {
-				// For <refs> in <references> the element id refers to the
-				// global DOM, not the fragment DOM.
+				// So far, this is specified for Cite and relies on the "id"
+				// referring to an element in the top level dom, even though the
+				// <ref> itself may be in embedded content,
+				// https://www.mediawiki.org/wiki/Specs/HTML/2.1.0/Extensions/Cite#Ref_and_References
+				// FIXME: This doesn't work if the <references> section
+				// itself is in embedded content, since we aren't traversing
+				// in there.
 				$htmlA = DOMCompat::getElementById( $nodeA->ownerDocument, $vA );
 				$htmlB = DOMCompat::getElementById( $nodeB->ownerDocument, $vB );
 
