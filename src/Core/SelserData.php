@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
-use DOMElement;
+use DOMDocument;
 
 /**
  * Data that's necessary for selective serialization, to be passed to the
@@ -18,8 +18,8 @@ class SelserData {
 	public $oldHTML;
 
 	/**
-	 * Body of DOM document corresponding to $oldHTML
-	 * @var DOMElement
+	 * DOM document corresponding to $oldHTML
+	 * @var DOMDocument
 	 */
 	public $oldDOM;
 

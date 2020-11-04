@@ -3,6 +3,8 @@
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Closure;
+use DOMDocument;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Exception;
@@ -231,13 +233,15 @@ class WikitextSerializer {
 
 	/**
 	 * @param array $opts
-	 * @param DOMElement $elt
+	 * @param DOMDocumentFragment $node
 	 * @return string
 	 */
-	public function domToWikitext( array $opts, DOMElement $elt ): string {
+	public function domToWikitext(
+		array $opts, DOMDocumentFragment $node
+	): string {
 		$opts['logType'] = $this->logType;
 		$serializer = new WikitextSerializer( $opts );
-		return $serializer->serializeDOM( $elt );
+		return $serializer->serializeDOM( $node );
 	}
 
 	/**
@@ -246,9 +250,10 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function htmlToWikitext( array $opts, string $html ): string {
-		$body = ContentUtils::ppToDOM( $this->env, $html, [ 'markNew' => true ] );
-		'@phan-var DOMElement $body';  // @var DOMElement $body
-		return $this->domToWikitext( $opts, $body );
+		$domFragment = ContentUtils::ppToDOM( $this->env, $html, [
+			'markNew' => true, 'toFragment' => true,
+		] );
+		return $this->domToWikitext( $opts, $domFragment );
 	}
 
 	/**
@@ -1356,7 +1361,7 @@ class WikitextSerializer {
 				if ( $state->selserMode ) {
 					$prev = $node->previousSibling;
 					if ( !$state->inModifiedContent && (
-						( !$prev && DOMUtils::isBody( $node->parentNode ) ) ||
+						( !$prev && DOMUtils::atTheTop( $node->parentNode ) ) ||
 						( $prev && !DOMUtils::isDiffMarker( $prev ) )
 					) ) {
 						$state->currNodeUnmodified = true;
@@ -1620,16 +1625,22 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * Serialize an HTML DOM document.
-	 * WARNING: You probably want to use {@link FromHTML::serializeDOM} instead.
-	 * @param DOMElement $body
+	 * Serialize an HTML DOM.
+	 *
+	 * WARNING: You probably want to use WikitextContentModelHandler::fromDOM instead.
+	 *
+	 * @param DOMDocument|DOMDocumentFragment $node
 	 * @param bool $selserMode
 	 * @return string
 	 */
 	public function serializeDOM(
-		DOMElement $body, bool $selserMode = false
+		DOMNode $node, bool $selserMode = false
 	): string {
-		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
+		Assert::parameterType( 'DOMDocument|DOMDocumentFragment', $node, '$node' );
+
+		if ( $node instanceof DOMDocument ) {
+			$node = DOMCompat::getBody( $node );
+		}
 
 		$this->logType = $selserMode ? 'trace/selser' : 'trace/wts';
 
@@ -1637,14 +1648,14 @@ class WikitextSerializer {
 		$state->initMode( $selserMode );
 
 		$domNormalizer = new DOMNormalizer( $state );
-		$domNormalizer->normalize( $body );
+		$domNormalizer->normalize( $node );
 
 		if ( $this->env->hasDumpFlag( 'dom:post-normal' ) ) {
 			$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
-			ContentUtils::dumpDOM( $body, 'DOM: post-normal', $options );
+			ContentUtils::dumpDOM( $node, 'DOM: post-normal', $options );
 		}
 
-		$state->kickOffSerialize( $body );
+		$state->kickOffSerialize( $node );
 
 		if ( $state->hasIndentPreNowikis ) {
 			// FIXME: Perhaps this can be done on a per-line basis

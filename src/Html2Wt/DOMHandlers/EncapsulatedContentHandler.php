@@ -153,7 +153,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			if ( isset( $dataMw->name ) ) {
 				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
 				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
-					WTUtils::isNewElt( $node ) && !DOMUtils::isBody( $otherNode )
+					WTUtils::isNewElt( $node ) && !DOMUtils::atTheTop( $otherNode )
 				) {
 					return [ 'min' => 1, 'max' => 2 ];
 				}

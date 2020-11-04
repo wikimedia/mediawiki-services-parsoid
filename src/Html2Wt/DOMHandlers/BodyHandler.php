@@ -22,12 +22,12 @@ class BodyHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 0, 'max' => 1 ];
 	}
 
 	/** @inheritDoc */
-	public function lastChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function lastChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 0, 'max' => 1 ];
 	}
 

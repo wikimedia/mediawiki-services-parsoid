@@ -53,7 +53,7 @@ class DTHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( !DOMUtils::isList( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 0 ];
 		} else {

@@ -1216,6 +1216,7 @@ class LinkHandlerUtils {
 
 		$caption = null;
 		if ( $captionElt ) {
+			// FIXME: Just accept a DOMDocumentFragment and parse directly to one above
 			$caption = $state->serializeCaptionChildrenToString(
 				$captionElt, [ $state->serializer->wteHandlers, 'mediaOptionHandler' ]
 			);

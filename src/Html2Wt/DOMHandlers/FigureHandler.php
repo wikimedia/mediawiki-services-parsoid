@@ -25,10 +25,7 @@ class FigureHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
-		if ( WTUtils::isNewElt( $node )
-			&& $node->parentNode
-			&& DOMUtils::isBody( $node->parentNode )
-		) {
+		if ( WTUtils::isNewElt( $node ) && DOMUtils::atTheTop( $node->parentNode ) ) {
 			return [ 'min' => 1 ];
 		}
 		return [];
@@ -36,10 +33,7 @@ class FigureHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
-		if ( WTUtils::isNewElt( $node )
-			&& $node->parentNode
-			&& DOMUtils::isBody( $node->parentNode )
-		) {
+		if ( WTUtils::isNewElt( $node ) && DOMUtils::atTheTop( $node->parentNode ) ) {
 			return [ 'min' => 1 ];
 		}
 		return [];

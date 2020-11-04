@@ -339,7 +339,6 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		ParsoidExtensionAPI $extApi, ?SelserData $selserData = null
 	): string {
 		$body = DOMCompat::getBody( $extApi->getTopLevelDoc() );
-		Assert::invariant( DOMUtils::isBody( $body ), 'Expected a body node.' );
 		$t = $body->firstChild;
 		DOMUtils::assertElt( $t );
 		Assert::invariant( $t && $t->tagName === 'table',

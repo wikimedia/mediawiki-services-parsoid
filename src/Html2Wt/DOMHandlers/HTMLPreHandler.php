@@ -22,12 +22,12 @@ class HTMLPreHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'max' => PHP_INT_MAX ];
 	}
 
 	/** @inheritDoc */
-	public function lastChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function lastChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'max' => PHP_INT_MAX ];
 	}
 

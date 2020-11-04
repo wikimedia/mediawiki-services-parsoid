@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Wikimedia\Assert\Assert;
@@ -149,7 +150,7 @@ class DOMNormalizer {
 			if ( DiffUtils::hasInsertedDiffMark( $node, $this->env ) ) {
 				return true;
 			}
-			if ( DOMUtils::isBody( $node ) ) {
+			if ( DOMUtils::atTheTop( $node ) ) {
 				return false;
 			}
 			$node = $node->parentNode;
@@ -217,7 +218,7 @@ class DOMNormalizer {
 
 		// Walk up the subtree and add 'subtree-changed' markers
 		$node = $node->parentNode;
-		while ( DOMUtils::isElt( $node ) && !DOMUtils::isBody( $node ) ) {
+		while ( DOMUtils::isElt( $node ) && !DOMUtils::atTheTop( $node ) ) {
 			if ( DiffUtils::hasDiffMark( $node, $env, 'subtree-changed' ) ) {
 				return;
 			}
@@ -588,7 +589,7 @@ class DOMNormalizer {
 		}
 
 		// Skip unmodified content
-		if ( $this->inSelserMode && !DOMUtils::isBody( $node ) &&
+		if ( $this->inSelserMode && !DOMUtils::atTheTop( $node ) &&
 			!$this->inInsertedContent && !DiffUtils::hasDiffMarkers( $node, $this->env ) &&
 			// If orig-src is not valid, this in effect becomes
 			// an edited node and needs normalizations applied to it.
@@ -851,10 +852,10 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param DOMElement $body
-	 * @return DOMElement
+	 * @param DOMElement|DOMDocumentFragment $node
+	 * @return DOMNode
 	 */
-	public function normalize( DOMElement $body ): DOMElement {
-		return $this->processNode( $body, true );
+	public function normalize( DOMNode $node ): DOMNode {
+		return $this->processNode( $node, true );
 	}
 }

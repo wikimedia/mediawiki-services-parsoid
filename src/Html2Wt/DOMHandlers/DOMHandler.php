@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use LogicException;
@@ -96,24 +97,24 @@ class DOMHandler {
 	/**
 	 * How many newlines should be emitted before the first child?
 	 *
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param DOMNode $otherNode
 	 * @param SerializerState $state
 	 * @return array
 	 */
-	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [];
 	}
 
 	/**
 	 * How many newlines should be emitted after the last child?
 	 *
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param DOMNode $otherNode
 	 * @param SerializerState $state
 	 * @return array
 	 */
-	public function lastChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function lastChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [];
 	}
 
@@ -136,7 +137,7 @@ class DOMHandler {
 	 * @return array An array in the form [ 'min' => <int>, 'max' => <int> ] or an empty array.
 	 */
 	protected function wtListEOL( DOMElement $node, DOMNode $otherNode ): array {
-		if ( !DOMUtils::isElt( $otherNode ) || DOMUtils::isBody( $otherNode ) ) {
+		if ( !DOMUtils::isElt( $otherNode ) || DOMUtils::atTheTop( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		}
 		'@phan-var DOMElement $otherNode';/** @var DOMElement $otherNode */
@@ -242,11 +243,11 @@ class DOMHandler {
 
 	/**
 	 * Helper: Newline constraint helper for table nodes
-	 * @param DOMElement $node
+	 * @param DOMNode $node
 	 * @param DOMNode $origNode
 	 * @return int
 	 */
-	protected function maxNLsInTable( DOMElement $node, DOMNode $origNode ): int {
+	protected function maxNLsInTable( DOMNode $node, DOMNode $origNode ): int {
 		return ( WTUtils::isNewElt( $node ) || WTUtils::isNewElt( $origNode ) ) ? 1 : 2;
 	}
 

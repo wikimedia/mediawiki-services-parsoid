@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Wikimedia\Parsoid\Config\WikitextConstants;
@@ -113,6 +114,10 @@ class DOMHandlerFactory {
 	 * @return DOMHandler
 	 */
 	public function getDOMHandler( ?DOMNode $node ): DOMHandler {
+		if ( $node instanceof DOMDocumentFragment ) {
+			return new BodyHandler();
+		}
+
 		if ( !$node || !DOMUtils::isElt( $node ) ) {
 			return new DOMHandler();
 		}

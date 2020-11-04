@@ -65,15 +65,6 @@ class DOMUtils {
 	}
 
 	/**
-	 * Check whether this is the <body> DOM element.
-	 * @param ?DOMNode $node
-	 * @return bool
-	 */
-	public static function isBody( ?DOMNode $node ): bool {
-		return DU::isBody( $node );
-	}
-
-	/**
 	 * Check whether this is a DOM element node.
 	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
 	 * @param ?DOMNode $node

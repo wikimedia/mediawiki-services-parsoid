@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use Wikimedia\Assert\Assert;
@@ -372,13 +373,13 @@ class Separators {
 
 		if ( $nodeB->parentNode === $nodeA ) {
 			// parent-child separator, nodeA parent of nodeB
-			'@phan-var \DOMElement $nodeA'; // @var \DOMElement $nodeA
+			'@phan-var DOMElement|DOMDocumentFragment $nodeA'; // @var DOMElement|DOMDocumentFragment $nodeA
 			$sepType = 'parent-child';
 			$aCons = $sepHandlerA->firstChild( $nodeA, $nodeB, $state );
 			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
 		} elseif ( $nodeA->parentNode === $nodeB ) {
 			// parent-child separator, nodeB parent of nodeA
-			'@phan-var \DOMElement $nodeB'; // @var \DOMElement $nodeA
+			'@phan-var DOMElement|DOMDocumentFragment $nodeB'; // @var DOMElement|DOMDocumentFragment $nodeA
 			$sepType = 'child-parent';
 			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
 			$bCons = $sepHandlerB->lastChild( $nodeB, $nodeA, $state );

@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use DOMDocument;
-use DOMElement;
-
 use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
@@ -22,15 +20,17 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	/**
 	 * Bring DOM to expected canonical form
 	 * @param Env $env
-	 * @param DOMElement $body
+	 * @param DOMDocument $doc
 	 */
-	private function canonicalizeDOM( Env $env, DOMElement $body ): void {
+	private function canonicalizeDOM( Env $env, DOMDocument $doc ): void {
+		$body = DOMCompat::getBody( $doc );
+
 		// Convert DOM to internal canonical form
 		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
 
 		// Update DSR offsets if necessary.
 		ContentUtils::convertOffsets(
-			$env, $body->ownerDocument, $env->getRequestOffsetType(), 'byte'
+			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
 
 		// Strip <section> and mw:FallbackId <span> tags, if present.
@@ -94,9 +94,8 @@ class WikitextContentModelHandler extends ContentModelHandler {
 			$doc = $env->createDocument( $selserData->oldHTML, true );
 		}
 
-		$body = DOMCompat::getBody( $doc );
-		$this->canonicalizeDOM( $env, $body );
-		$selserData->oldDOM = $body;
+		$this->canonicalizeDOM( $env, $doc );
+		$selserData->oldDOM = $doc;
 	}
 
 	/**
@@ -120,9 +119,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * 3. We need to do this before we run dom-diffs to eliminate spurious diffs.
 	 *
 	 * @param Env $env
-	 * @param DOMElement $body
+	 * @param DOMDocument $doc
 	 */
-	private function preprocessDOM( Env $env, DOMElement $body ): void {
+	private function preprocessDOM( Env $env, DOMDocument $doc ): void {
 		$metrics = $env->getSiteConfig()->metrics();
 		$preprocTiming = Timing::start( $metrics );
 
@@ -133,7 +132,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 					'allowClassName' => true,
 					'assertClass' => ExtDOMProcessor::class,
 				] );
-				$c->htmlPreprocess( new ParsoidExtensionAPI( $env ), $body );
+				$c->htmlPreprocess(
+					new ParsoidExtensionAPI( $env ), DOMCompat::getBody( $doc )
+				);
 			}
 		}
 
@@ -149,8 +150,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 		$metrics = $env->getSiteConfig()->metrics();
 		$setupTiming = Timing::start( $metrics );
 
-		$body = DOMCompat::getBody( $env->topLevelDoc );
-		$this->canonicalizeDOM( $env, $body );
+		$this->canonicalizeDOM( $env, $env->topLevelDoc );
 
 		$serializerOpts = [ 'env' => $env, 'selserData' => $selserData ];
 		if ( $selserData && $selserData->oldText !== null ) {
@@ -163,9 +163,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 
 		$setupTiming->end( 'html2wt.setup' );
 
-		$this->preprocessDOM( $env, $body );
+		$this->preprocessDOM( $env, $env->topLevelDoc );
 
-		return $serializer->serializeDOM( $body );
+		return $serializer->serializeDOM( $env->topLevelDoc );
 	}
 
 }

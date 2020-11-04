@@ -224,7 +224,7 @@ class WTSUtils {
 	public static function nextToDeletedBlockNodeInWT(
 		?DOMNode $origNode, bool $before
 	): bool {
-		if ( !$origNode || DOMUtils::isBody( $origNode ) ) {
+		if ( !$origNode || DOMUtils::atTheTop( $origNode ) ) {
 			return false;
 		}
 
@@ -309,7 +309,7 @@ class WTSUtils {
 		$prev = null;
 
 		if ( WTUtils::isRedirectLink( $node ) ) {
-			return DOMUtils::isBody( $node->parentNode ) && !$node->previousSibling;
+			return DOMUtils::atTheTop( $node->parentNode ) && !$node->previousSibling;
 		} elseif ( $node->nodeName === 'th' || $node->nodeName === 'td' ) {
 			DOMUtils::assertElt( $node );
 			// The wikitext representation for them is dependent

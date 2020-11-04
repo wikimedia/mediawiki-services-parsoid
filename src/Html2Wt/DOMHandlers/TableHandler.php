@@ -68,7 +68,7 @@ class TableHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( ( WTUtils::isNewElt( $node ) || WTUtils::isNewElt( $otherNode ) )
-			&& !DOMUtils::isBody( $otherNode )
+			&& !DOMUtils::atTheTop( $otherNode )
 		) {
 			return [ 'min' => 1, 'max' => 2 ];
 		} else {
@@ -77,12 +77,12 @@ class TableHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
 
 	/** @inheritDoc */
-	public function lastChild( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function lastChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
 

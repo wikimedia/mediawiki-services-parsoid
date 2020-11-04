@@ -55,7 +55,7 @@ class ListHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
-		if ( DOMUtils::isBody( $otherNode ) ) {
+		if ( DOMUtils::atTheTop( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 0 ];
 		}
 

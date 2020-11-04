@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Composer\Semver\Semver;
+use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
 use stdClass;
@@ -684,14 +685,13 @@ class SerializerState {
 	/**
 	 * Serialize the children of a DOM node, sharing the global serializer state.
 	 * Typically called by a DOM-based handler to continue handling its children.
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param ?callable $wtEscaper ( $state, $text, $opts )
 	 *   PORT-FIXME document better; should this be done via WikitextEscapeHandlers somehow?
 	 * @param ?DOMNode $firstChild
 	 */
 	public function serializeChildren(
-		DOMElement $node, ?callable $wtEscaper = null,
-		?DOMNode $firstChild = null
+		DOMNode $node, ?callable $wtEscaper = null, ?DOMNode $firstChild = null
 	): void {
 		// SSS FIXME: Unsure if this is the right thing always
 		if ( $wtEscaper ) {
@@ -715,12 +715,13 @@ class SerializerState {
 
 	/**
 	 * Abstracts some steps taken in `serializeChildrenToString` and `serializeDOM`
-	 * @param DOMElement $node
+	 *
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @internal For use by WikitextSerializer only
 	 */
 	public function kickOffSerialize(
-		DOMElement $node, ?callable $wtEscaper = null
+		DOMNode $node, ?callable $wtEscaper = null
 	): void {
 		$this->updateSep( $node );
 		$this->currNodeUnmodified = false;

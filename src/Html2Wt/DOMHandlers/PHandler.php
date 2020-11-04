@@ -95,7 +95,7 @@ class PHandler extends DOMHandler {
 			 && !$this->newWikitextLineMightHaveBlockNode( $otherNode )
 		) {
 			return [ 'min' => 2, 'max' => 2 ];
-		} elseif ( DOMUtils::isBody( $otherNode ) ) {
+		} elseif ( DOMUtils::atTheTop( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
 			|| ( DOMUtils::isWikitextBlockNode( $otherNode )
@@ -217,7 +217,7 @@ class PHandler extends DOMHandler {
 		// * template wrapper
 		// * mw:Includes meta or a SOL-transparent link
 		return DOMUtils::isText( $node )
-			|| ( !DOMUtils::isBody( $node )
+			|| ( !DOMUtils::atTheTop( $node )
 				&& !DOMUtils::isWikitextBlockNode( $node )
 				&& !WTUtils::isLiteralHTMLNode( $node )
 				&& !WTUtils::isEncapsulationWrapper( $node )
