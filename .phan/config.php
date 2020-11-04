@@ -10,7 +10,8 @@ $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.
 
 $cfg['target_php_version'] = '7.2';
 
-$hasLangConv = is_dir( 'vendor/wikimedia/langconv' );
+$root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
+$hasLangConv = is_dir( "{$root}/vendor/wikimedia/langconv" );
 
 if ( $STANDALONE ) {
 	$cfg['directory_list'] = [
@@ -57,6 +58,27 @@ if ( !$hasLangConv ) {
 	$cfg['exclude_analysis_directory_list'][] = 'src/Language/';
 }
 
+/**
+ * Quick implementation of a recursive directory list.
+ * @param string $dir The directory to list
+ * @param ?array &$result Where to put the result
+ */
+function wfCollectPhpFiles( string $dir, ?array &$result = [] ) {
+	if ( !is_dir( $dir ) ) {
+		return;
+	}
+	foreach ( scandir( $dir ) as $f ) {
+		if ( $f === '.' || $f === '..' ) {
+			continue;
+		}
+		$fullName = $dir . DIRECTORY_SEPARATOR . $f;
+		wfCollectPhpFiles( $fullName, $result );
+		if ( is_file( $fullName ) && preg_match( '/\.php$/D', $fullName ) ) {
+			$result[] = $fullName;
+		}
+	}
+}
+
 // Should probably analyze tests eventually, but let's reduce our workload
 // for initial adoption:
 $cfg['exclude_analysis_directory_list'] = array_merge(
@@ -68,45 +90,21 @@ if ( $STANDALONE ) {
 	$cfg['exclude_file_list'][] = 'tests/RTTestSettings.php';
 } else {
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
-	$cfg['exclude_file_regex'] = '@(' . preg_quote( $VP, '@' ) . '/vendor/wikimedia/(parsoid|object-factory))|/vendor/jakub-onderka/php-parallel-lint/@';
+
+	foreach ( [
+		'wikimedia/parsoid',
+		'jakub-onderka/php-parallel-lint',
+		# These are libraries we have in common w/ core which we always want
+		# to use the parsoid version of (see above, T267074):
+		'wikimedia/object-factory',
+	] as $d ) {
+		wfCollectPhpFiles( "{$VP}/vendor/{$d}", $cfg['exclude_file_list'] );
+	}
 }
+wfCollectPhpFiles( "{$root}/vendor/jakub-onderka/php-parallel-lint", $cfg['exclude_file_list'] );
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';
-
-/**
- * Quick implementation of a recursive directory list.
- * @param string $dir The directory to list
- * @param ?array &$result Where to put the result
- */
-function wfCollectPhpFiles( string $dir, ?array &$result = [] ) {
-	foreach ( scandir( $dir ) as $f ) {
-		if ( $f === '.' || $f === '..' ) {
-			continue;
-		}
-		$fullName = $dir . DIRECTORY_SEPARATOR . $f;
-		if ( is_dir( $fullName ) ) {
-			wfCollectPhpFiles( $fullName, $result );
-		} elseif ( is_file( $fullName ) && preg_match( '/\.php$/D', $fullName ) ) {
-			$result[] = $fullName;
-		}
-	}
-}
-
-// Look for files with the "REMOVE THIS COMMENT AFTER PORTING" comment
-// and exclude them.
-$root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
-wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'src', $phpFiles );
-wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'bin', $phpFiles );
-wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'tests', $phpFiles );
-wfCollectPhpFiles( $root . DIRECTORY_SEPARATOR . 'tools', $phpFiles );
-foreach ( $phpFiles as $f ) {
-	$c = file_get_contents( $f, false, null, 0, 1024 );
-	if ( preg_match( '/REMOVE THIS COMMENT AFTER PORTING/', $c ) ) {
-		// remove $root from $f and add to exclude file list
-		$cfg['exclude_file_list'][] = substr( $f, strlen( $root ) + 1 );
-	}
-}
 
 // Exclude peg-generated output
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
