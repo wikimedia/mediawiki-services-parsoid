@@ -27,7 +27,10 @@ use Wikimedia\Parsoid\Utils\WTUtils;
  * editor, but we now generate these ourselves using DOMDiff.
  */
 class SelectiveSerializer {
+
+	/** @var Env */
 	private $env;
+
 	private $wts;
 	private $trace;
 	private $metrics;
@@ -40,16 +43,15 @@ class SelectiveSerializer {
 	 * @param array $options
 	 */
 	public function __construct( $options ) {
-		$env = $options['env'];
-		$this->env = $env;
+		$this->env = $options['env'];
 		$this->wts = new WikitextSerializer( $options );
 		$this->selserData = $options['selserData'];
 
 		// Debug options
-		$this->trace = $env->hasTraceFlag( 'selser' );
+		$this->trace = $this->env->hasTraceFlag( 'selser' );
 
 		// Performance Timing option
-		$this->metrics = $env->getSiteConfig()->metrics();
+		$this->metrics = $this->env->getSiteConfig()->metrics();
 	}
 
 	/**
@@ -155,11 +157,10 @@ class SelectiveSerializer {
 	}
 
 	/**
-	 * @param Env $env
 	 * @param DOMElement $body
 	 */
-	private function preprocessDOM( Env $env, DOMElement $body ): void {
-		if ( Semver::satisfies( $env->getInputContentVersion(), '>=2.1.2' ) ) {
+	private function preprocessDOM( DOMElement $body ): void {
+		if ( Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.2' ) ) {
 			// Wrap text node children of <li> elements in dummy spans
 			$this->wrapTextChildrenOfNode( $body, 'li' );
 			$this->wrapTextChildrenOfNode( $body, 'dd' );
@@ -179,25 +180,24 @@ class SelectiveSerializer {
 		$serializeStart = null;
 		$domDiffStart = null;
 		$r = null;
-		$env = $this->env;
 
 		// Preprocess DOMs
 		// FIXME: The work done here isn't account for in any timing metrics
 		// This is not dom-diffing and seems silly to introduce yet one more timing component.
 		// We already have five: init, setup, preprocess, domdiff, serialize
-		$this->preprocessDOM( $env, $this->selserData->oldDOM );
-		$this->preprocessDOM( $env, $body );
+		$this->preprocessDOM( $this->selserData->oldDOM );
+		$this->preprocessDOM( $body );
 
 		$timing = Timing::start( $this->metrics );
 
 		// Use provided diff-marked DOM (used during testing)
 		// or generate one (used in production)
-		if ( $env->getDOMDiff() ) {
-			$diff = $env->getDOMDiff();
-			$body = $diff->dom;
+		if ( $this->env->getDOMDiff() ) {
+			$diff = [ 'isEmpty' => false ];
+			$body = DOMCompat::getBody( $this->env->getDOMDiff() );
 		} else {
 			$domDiffTiming = Timing::start( $this->metrics );
-			$diff = ( new DOMDiff( $env ) )->diff( $this->selserData->oldDOM, $body );
+			$diff = ( new DOMDiff( $this->env ) )->diff( $this->selserData->oldDOM, $body );
 			$domDiffTiming->end( 'html2wt.selser.domDiff' );
 		}
 
@@ -205,8 +205,8 @@ class SelectiveSerializer {
 			// Nothing was modified, just re-use the original source
 			$r = $this->selserData->oldText;
 		} else {
-			if ( $this->trace || $env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
-				$options = [ 'storeDiffMark' => true, 'env' => $env ];
+			if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
+				$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
 				ContentUtils::dumpDOM( $this->selserData->oldDOM, 'OLD DOM ', $options );
 				ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options );
 			}

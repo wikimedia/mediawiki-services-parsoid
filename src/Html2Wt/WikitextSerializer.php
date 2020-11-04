@@ -791,8 +791,6 @@ class WikitextSerializer {
 			return $buf . $formatEnd;
 		}
 
-		$env = $this->env;
-
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dpArgInfo = isset( $part->i ) ? ( $dp->pi[$part->i] ?? [] ) : [];
@@ -819,7 +817,7 @@ class WikitextSerializer {
 			if ( property_exists( $param, 'wt' ) ) {
 				$value = $param->wt;
 			} else {
-				$value = $this->htmlToWikitext( [ 'env' => $env ], $param->html );
+				$value = $this->htmlToWikitext( [ 'env' => $this->env ], $param->html );
 			}
 
 			Assert::invariant( is_string( $value ), "For param: $key, wt property should be a string '
@@ -980,8 +978,7 @@ class WikitextSerializer {
 	public function serializeFromParts(
 		SerializerState $state, DOMElement $node, array $srcParts
 	): string {
-		$env = $this->env;
-		$useTplData = WTUtils::isNewElt( $node ) || DiffUtils::hasDiffMarkers( $node, $env );
+		$useTplData = WTUtils::isNewElt( $node ) || DiffUtils::hasDiffMarkers( $node, $this->env );
 		$buf = '';
 		foreach ( $srcParts as $i => $part ) {
 			$prevPart = $srcParts[$i - 1] ?? null;
@@ -1013,11 +1010,11 @@ class WikitextSerializer {
 			if ( $isTpl && $useTplData && !$this->env->noDataAccess() ) {
 				$title = preg_replace( '#^\./#', '', $tplHref, 1 );
 				try {
-					$tplData = $this->env->getDataAccess()->fetchTemplateData( $env->getPageConfig(), $title );
+					$tplData = $this->env->getDataAccess()->fetchTemplateData( $this->env->getPageConfig(), $title );
 				} catch ( Exception $err ) {
 					// Log the error, and use default serialization mode.
 					// Better to misformat a transclusion than to lose an edit.
-					$env->log( 'error/html2wt/tpldata', $err );
+					$this->env->log( 'error/html2wt/tpldata', $err );
 				}
 			}
 			// If the template doesn't exist, or does but has no TemplateData, ignore it
@@ -1074,7 +1071,7 @@ class WikitextSerializer {
 		} elseif ( is_string( $dataMw->body->extsrc ?? null ) ) {
 			$src .= $dataMw->body->extsrc;
 		} else {
-			$state->getEnv()->log( 'error/html2wt/ext', 'Extension src unavailable for: '
+			$this->env->log( 'error/html2wt/ext', 'Extension src unavailable for: '
 				. DOMCompat::getOuterHTML( $node ) );
 		}
 		return $src . '</' . $dataMw->name . '>';
@@ -1187,7 +1184,7 @@ class WikitextSerializer {
 
 		if ( $state->selserMode
 			&& !$state->inModifiedContent
-			&& WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node )
+			&& WTSUtils::origSrcValidInEditedContext( $this->env, $node )
 			&& Utils::isValidDSR( $dp->dsr ?? null )
 			&& ( $dp->dsr->end > $dp->dsr->start
 				// FIXME: <p><br/></p>
@@ -1251,7 +1248,7 @@ class WikitextSerializer {
 				if ( $suppressSLC ) {
 					$state->singleLineContext->disable();
 				}
-				foreach ( ConstrainedText::fromSelSer( $out, $node, $dp, $state->getEnv() ) as $ct ) {
+				foreach ( ConstrainedText::fromSelSer( $out, $node, $dp, $this->env ) as $ct ) {
 					$state->emitChunk( $ct, $ct->node );
 				}
 				if ( $suppressSLC ) {
@@ -1428,12 +1425,11 @@ class WikitextSerializer {
 	}
 
 	private function stripUnnecessaryIndentPreNowikis(): void {
-		$env = $this->env;
 		// FIXME: The solTransparentWikitextRegexp includes redirects, which really
 		// only belong at the SOF and should be unique. See the "New redirect" test.
 		// PORT-FIXME do the different whitespace semantics matter?
 		$noWikiRegexp = '@^'
-			. PHPUtils::reStrip( $env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '@' )
+			. PHPUtils::reStrip( $this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '@' )
 			. '((?i:<nowiki>\s+</nowiki>))([^\n]*(?:\n|$))' . '@Dm';
 		$pieces = preg_split( $noWikiRegexp, $this->state->out, -1, PREG_SPLIT_DELIM_CAPTURE );
 		$out = $pieces[0];
@@ -1445,7 +1441,7 @@ class WikitextSerializer {
 			preg_match_all( '/<[^!][^<>]*>/', $rest, $htmlTags );
 
 			// Not required if just sol transparent wt.
-			$reqd = !preg_match( $env->getSiteConfig()->solTransparentWikitextRegexp(), $rest );
+			$reqd = !preg_match( $this->env->getSiteConfig()->solTransparentWikitextRegexp(), $rest );
 
 			if ( $reqd ) {
 				foreach ( $htmlTags[0] as $j => $rawTagName ) {
@@ -1471,9 +1467,9 @@ class WikitextSerializer {
 			// PORT-FIXME do the different whitespace semantics matter?
 			if ( !$reqd ) {
 				$nowiki = preg_replace( '#^<nowiki>(\s+)</nowiki>#', '$1', $nowiki, 1 );
-			} elseif ( $env->shouldScrubWikitext() ) {
+			} elseif ( $this->env->shouldScrubWikitext() ) {
 				$solTransparentWikitextNoWsRegexpFragment = PHPUtils::reStrip(
-					$env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' );
+					$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' );
 				$wsReplacementRE = '/^(' . $solTransparentWikitextNoWsRegexpFragment . ')?\s+/';
 				// Replace all leading whitespace
 				do {
