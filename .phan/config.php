@@ -43,7 +43,7 @@ if ( $STANDALONE ) {
 		'vendor/wikimedia/object-factory',
 	] );
 
-	if ( is_dir( "{$IP}/vendor/wikimedia/langconv" ) ) {
+	if ( is_dir( "{$VP}/vendor/wikimedia/langconv" ) ) {
 		$hasLangConv = true;
 	} elseif ( $hasLangConv ) {
 		# use our local wikimedia/langconv if not redundant
@@ -68,7 +68,7 @@ if ( $STANDALONE ) {
 	$cfg['exclude_file_list'][] = 'tests/RTTestSettings.php';
 } else {
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
-	$cfg['exclude_file_regex'] = '@(' . preg_quote( $IP, '@' ) . '/vendor/wikimedia/(parsoid|object-factory))|/vendor/jakub-onderka/php-parallel-lint/@';
+	$cfg['exclude_file_regex'] = '@(' . preg_quote( $VP, '@' ) . '/vendor/wikimedia/(parsoid|object-factory))|/vendor/jakub-onderka/php-parallel-lint/@';
 }
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
