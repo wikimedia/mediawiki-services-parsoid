@@ -82,9 +82,6 @@ class ReferencesData {
 				$c = $extApi->getContentDOM( $ref->contentId )->firstChild;
 				$ref->cachedHtml = $extApi->domToHtml( $c, true, false );
 			}
-			if ( !$this->inEmbeddedContent() ) {
-				$ref->nodes[] = $linkBack;
-			}
 		} else {
 			// The ids produced Cite.php have some particulars:
 			// Simple refs get 'cite_ref-' + index
@@ -119,13 +116,11 @@ class ReferencesData {
 			$group->refs[] = $ref;
 			if ( $hasRefName ) {
 				$group->indexByName[$refName] = $ref;
-				if ( !$this->inEmbeddedContent() ) {
-					$ref->nodes[] = $linkBack;
-				}
 			}
 		}
 
 		if ( !$this->inEmbeddedContent() ) {
+			$ref->nodes[] = $linkBack;
 			$ref->linkbacks[] = $ref->key . '-' . count( $ref->linkbacks );
 		}
 
