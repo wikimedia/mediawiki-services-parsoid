@@ -23,6 +23,9 @@ class RefProcessor extends DOMProcessor {
 			$refsData = new ReferencesData();
 			References::processRefs( $extApi, $refsData, $node );
 			References::insertMissingReferencesIntoDOM( $extApi, $refsData, $node );
+			if ( count( $refsData->embeddedErrors ) > 0 ) {
+				References::addEmbeddedErrors( $extApi, $refsData, $node );
+			}
 		}
 	}
 

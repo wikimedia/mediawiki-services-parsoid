@@ -19,11 +19,10 @@ class ReferencesData {
 	 */
 	private $refGroups = [];
 
-	/**
-	 * FIXME(T266356): Need a solution for embedded content too
-	 *
-	 * @var array
-	 */
+	/** @var array */
+	public $embeddedErrors = [];
+
+	/** @var array */
 	private $inEmbeddedContent = [ false ];
 
 	public function inEmbeddedContent(): bool {
@@ -97,7 +96,6 @@ class ReferencesData {
 			$this->index += 1;
 
 			$ref = (object)[
-				'about' => $about,
 				'contentId' => null,
 				'dir' => '',
 				'group' => $group->name,
@@ -112,6 +110,7 @@ class ReferencesData {
 				// Just used for comparison when we have multiples
 				'cachedHtml' => '',
 				'nodes' => [],
+				'embeddedNodes' => [],
 			];
 			$group->refs[] = $ref;
 			if ( $hasRefName ) {
@@ -119,7 +118,9 @@ class ReferencesData {
 			}
 		}
 
-		if ( !$this->inEmbeddedContent() ) {
+		if ( $this->inEmbeddedContent() ) {
+			$ref->embeddedNodes[] = $about;
+		} else {
 			$ref->nodes[] = $linkBack;
 			$ref->linkbacks[] = $ref->key . '-' . count( $ref->linkbacks );
 		}

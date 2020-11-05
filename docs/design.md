@@ -45,3 +45,20 @@ templates to return DOM-representable strings and split some of these
 monolithic templates into multiple templates, one that generate just the
 attribute, and another that return just additional content.  This also improves
 WYSIWYG editability of some of these tables.
+
+## Mark up cite errors in embedded content
+
+It's a feature of named refs that we only know at the time of inserting the
+references list whether they have content or not, and are therefore in err.
+The initial strategy was to keep pointers to all named ref nodes so that if an
+error does occur, we can mark them up.
+
+The problem with embedded content is that, at the time when we find out about
+the errors, it's been serialized and stored, and so any pointers we might have
+kept around are no longer live or relevant.  We need to go back and process all
+that embedded content again to find where the refs with errors are hiding.
+
+We slightly optimizes that by keeping a map of all the errors for refs in
+embedded content so that only one pass is necessary, rather than for each
+references list.  Also, it's helpful that, in the common case, this pass won't
+need to run since we won't have any errors in embedded content.
