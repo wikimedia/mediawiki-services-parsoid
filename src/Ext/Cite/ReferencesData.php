@@ -41,9 +41,11 @@ class ReferencesData {
 	/**
 	 * @param string $groupName
 	 * @param bool $allocIfMissing
-	 * @return RefGroup|null
+	 * @return ?RefGroup
 	 */
-	public function getRefGroup( string $groupName = '', bool $allocIfMissing = false ): ?RefGroup {
+	public function getRefGroup(
+		string $groupName, bool $allocIfMissing = false
+	): ?RefGroup {
 		if ( !isset( $this->refGroups[$groupName] ) && $allocIfMissing ) {
 			$this->refGroups[$groupName] = new RefGroup( $groupName );
 		}
@@ -51,13 +53,11 @@ class ReferencesData {
 	}
 
 	/**
-	 * @param ?string $groupName
+	 * @param string $groupName
 	 */
-	public function removeRefGroup( ?string $groupName = null ): void {
-		if ( $groupName !== null ) {
-			// '' is a valid group (the default group)
-			unset( $this->refGroups[$groupName] );
-		}
+	public function removeRefGroup( string $groupName ): void {
+		// '' is a valid group (the default group)
+		unset( $this->refGroups[$groupName] );
 	}
 
 	/**
