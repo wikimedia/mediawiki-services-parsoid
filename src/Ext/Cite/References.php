@@ -106,16 +106,14 @@ class References extends ExtensionTagHandler {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $node
 	 * @param ReferencesData $refsData
-	 * @param ?string $referencesAboutId
 	 * @param ?string $referencesGroup
 	 */
 	private static function extractRefFromNode(
 		ParsoidExtensionAPI $extApi,
 		DOMElement $node, ReferencesData $refsData,
-		?string $referencesAboutId = null, ?string $referencesGroup = ''
+		?string $referencesGroup = ''
 	): void {
 		$doc = $node->ownerDocument;
-		$nestedInReferences = $referencesAboutId !== null;
 
 		// This is data-parsoid from the dom fragment node that's gone through
 		// dsr computation and template wrapping.
@@ -214,8 +212,7 @@ class References extends ExtensionTagHandler {
 
 		if ( !$ref ) {
 			$ref = $refsData->add(
-				$extApi, $groupName, $refName, $about, $nestedInReferences,
-				$linkBack
+				$extApi, $groupName, $refName, $about, $linkBack
 			);
 		}
 
@@ -284,7 +281,7 @@ class References extends ExtensionTagHandler {
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
 				'class' => 'mw-ref reference',
-				'id' => ( $nestedInReferences || $validFollow ) ?
+				'id' => ( $refsData->inEmbeddedContent() || $validFollow ) ?
 					null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
 				'typeof' => $nodeType
@@ -538,14 +535,12 @@ class References extends ExtensionTagHandler {
 				if ( WTUtils::isSealedFragmentOfType( $child, 'ref' ) ) {
 					self::extractRefFromNode( $extApi, $child, $refsData );
 				} elseif ( DOMUtils::matchTypeOf( $child, '#^mw:Extension/references$#' ) ) {
-					$referencesId = $child->getAttribute( 'about' ) ?? '';
 					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group ?? null;
 					$refsData->pushInEmbeddedContent();
 					self::processRefsInReferences(
 						$extApi,
 						$refsData,
 						$child,
-						$referencesId,
 						$referencesGroup
 					);
 					$refsData->popInEmbeddedContent();
@@ -579,12 +574,11 @@ class References extends ExtensionTagHandler {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param ReferencesData $refsData
 	 * @param DOMElement $node
-	 * @param string $referencesId
 	 * @param ?string $referencesGroup
 	 */
 	private static function processRefsInReferences(
 		ParsoidExtensionAPI $extApi, ReferencesData $refsData,
-		DOMElement $node, string $referencesId, ?string $referencesGroup
+		DOMElement $node, ?string $referencesGroup
 	): void {
 		$child = $node->firstChild;
 		while ( $child !== null ) {
@@ -595,7 +589,6 @@ class References extends ExtensionTagHandler {
 						$extApi,
 						$child,
 						$refsData,
-						$referencesId,
 						$referencesGroup
 					);
 				} elseif ( $child->hasChildNodes() ) {
@@ -603,7 +596,6 @@ class References extends ExtensionTagHandler {
 						$extApi,
 						$refsData,
 						$child,
-						$referencesId,
 						$referencesGroup
 					);
 				}

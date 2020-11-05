@@ -65,13 +65,12 @@ class ReferencesData {
 	 * @param string $groupName
 	 * @param string $refName
 	 * @param string $about
-	 * @param bool $skipLinkback
 	 * @param DOMElement $linkBack
 	 * @return stdClass
 	 */
 	public function add(
 		ParsoidExtensionAPI $extApi, string $groupName, string $refName,
-		string $about, bool $skipLinkback, DOMElement $linkBack
+		string $about, DOMElement $linkBack
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		$hasRefName = strlen( $refName ) > 0;
@@ -126,7 +125,7 @@ class ReferencesData {
 			}
 		}
 
-		if ( !$skipLinkback ) {
+		if ( !$this->inEmbeddedContent() ) {
 			$ref->linkbacks[] = $ref->key . '-' . count( $ref->linkbacks );
 		}
 
