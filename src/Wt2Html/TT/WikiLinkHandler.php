@@ -349,7 +349,7 @@ class WikiLinkHandler extends TokenHandler {
 			// Use the expanded attr instead of trying to unpackDOMFragments
 			// since the fragment will have been released when expanding to DOM
 			$expandedVal = $token->fetchExpandedAttrValue( 'href' );
-			if ( preg_match( '/mw:(Nowiki|Extension)/', $expandedVal ?? '' ) ) {
+			if ( preg_match( '#mw:(Nowiki|Extension|DOMFragment/sealed)#', $expandedVal ?? '' ) ) {
 				return [ 'tokens' => self::bailTokens( $env, $token, false ) ];
 			}
 		}
