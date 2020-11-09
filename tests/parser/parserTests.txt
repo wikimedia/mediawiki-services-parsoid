@@ -13870,6 +13870,16 @@ b</p><p class="mw-empty-elt"></p>
 </span><p about="#mwt1">b</p>
 !! end
 
+!! test
+Drop stripped tag markers, unless they have encapsulation info
+!! wikitext
+{{1x|<tr></tr>}}
+!! html/php
+
+!! html/parsoid
+<meta typeof="mw:Transclusion mw:Placeholder/StrippedTag" about="#mwt1" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>&lt;/tr>"}},"i":0}}]}'/>
+!! end
+
 !!test
 Templates: Links: 1. Simple example
 !! wikitext

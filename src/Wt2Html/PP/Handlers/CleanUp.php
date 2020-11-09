@@ -25,17 +25,17 @@ class CleanUp {
 	public static function stripMarkerMetas( DOMElement $node, Env $env ) {
 		$rtTestMode = $env->getSiteConfig()->rtTestMode();
 
-		// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
-		// element attached to it. So, check if the node has data-mw,
-		// in which case we also have to keep it.
 		if (
-			(
-				!$rtTestMode &&
-				DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' ) &&
-				!DOMUtils::isNestedInListItem( $node )
-			) || (
-				DOMUtils::matchTypeOf( $node, '#^mw:(StartTag|EndTag|TSRMarker|Transclusion)(/|$)#' ) &&
-				!DOMDataUtils::validDataMw( $node )
+			// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
+			// element attached to it. So, check if the node has data-mw,
+			// in which case we also have to keep it.
+			!DOMDataUtils::validDataMw( $node ) && (
+				(
+					!$rtTestMode &&
+					DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' ) &&
+					!DOMUtils::isNestedInListItem( $node )
+				) ||
+				DOMUtils::matchTypeOf( $node, '#^mw:(StartTag|EndTag|TSRMarker|Transclusion)(/|$)#' )
 			)
 		) {
 			$nextNode = $node->nextSibling;
