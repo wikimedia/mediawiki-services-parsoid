@@ -181,14 +181,11 @@ class SelectiveSerializer {
 		$domDiffStart = null;
 		$r = null;
 
+		$timing = Timing::start( $this->metrics );
+
 		// Preprocess DOMs
-		// FIXME: The work done here isn't account for in any timing metrics
-		// This is not dom-diffing and seems silly to introduce yet one more timing component.
-		// We already have five: init, setup, preprocess, domdiff, serialize
 		$this->preprocessDOM( $this->selserData->oldDOM );
 		$this->preprocessDOM( $body );
-
-		$timing = Timing::start( $this->metrics );
 
 		// Use provided diff-marked DOM (used during testing)
 		// or generate one (used in production)
