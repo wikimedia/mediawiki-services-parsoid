@@ -2,6 +2,12 @@
 # This file contains manual edit tests and primarily are used
 # to spec and verify expectations of selective serialization.
 
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
 !! test
 Don't dirty diff list items up the tree when a sibling list item is added (preserve whitespace)
 !! options
@@ -19,6 +25,25 @@ parsoid={
 *  a 
 ** b 
 ** b-new
+!! end
+
+!! test
+Template edition: Don't dirty diff list items up the tree when a nested list item is added (preserve whitespace)
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "ul > li > ul > li", "append", "<ul><li>b-new</li></ul>" ]
+  ]
+}
+!! wikitext
+*  a 
+** {{1x|<span>dummy</span> b}} c 
+!! wikitext/edited
+*  a 
+** {{1x|<span>dummy</span> b}} c 
+*** b-new
 !! end
 
 !! test

@@ -85,6 +85,17 @@ class SelectiveSerializer {
 				continue;
 			}
 
+			// Skip items with about id => part of templates / extensions like Cite
+			// CAVEAT: In some cases, this might be bailing out a little too early.
+			// For example, where certain extensions might actually support nested DSR
+			// values inside and where <li> items in them might benefit. But, given that
+			// so far, such extensions are more the exception than the norm, we will take
+			// the easy way out here and revisit this if dirty diffs for those <li> items
+			// merit further action in the future.
+			if ( $elt->hasAttribute( 'about' ) ) {
+				continue;
+			}
+
 			// No point wrapping text nodes if there is no usable DSR
 			$eltDSR = DOMDataUtils::getDataParsoid( $elt )->dsr ?? null;
 			if ( !Utils::isValidDSR( $eltDSR ) ) {
@@ -150,6 +161,7 @@ class SelectiveSerializer {
 						break;
 					}
 					$start = $cDSR->end;
+					$next = $c->hasAttribute( 'about' ) ? WTUtils::skipOverEncapsulatedContent( $c ) : $next;
 				}
 				$c = $next;
 			}
