@@ -772,10 +772,16 @@ class LinkHandlerUtils {
 			} else {
 				$pipedText = '';
 			}
+			if ( $isPiped ) {
+				$state->singleLineContext->disable();
+			}
 			$state->emitChunk( new WikiLinkText(
 				$linkData->prefix . '[[' . $linkTarget . $pipedText . ']]' . $linkData->tail,
 				$node, $siteConfig, $linkData->type
 			), $node );
+			if ( $isPiped ) {
+				$state->singleLineContext->pop();
+			}
 		}
 	}
 

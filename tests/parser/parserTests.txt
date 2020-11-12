@@ -30255,6 +30255,36 @@ ha
 |}
 !! end
 
+# Note that core parser doesn't like newlines in wikilinks in headings.
+# But, Parsoid handles it just fine. We'll consider this acceptable divergence.
+# We can change behavior if this becomes a real problem (ex: VE users start
+# adding newlines in links in headings which then breaks rendering when rendered
+# outside of Parsoid, or breaks section editing code). Eventually Parsoid will
+# core parser everywhere and this inconsistency will go away.
+!! test
+Ignore single-line context for wikilinks
+!! options
+parsoid=html2wt
+!! html/parsoid
+<ul><li><a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect">
+bar</a></li></ul>
+<h2><a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect">
+bar</a></h2>
+<ul><li><a rel="mw:WikiLink" href="./Foo" title="Foo" class="mw-redirect">bar
+<span style="background-color:green;
+color:blue" data-parsoid='{"stx":"html"}'>x</span></a></li></ul>
+!! wikitext
+* [[Foo|
+bar]]
+
+== [[Foo|
+bar]] ==
+
+* [[Foo|bar
+<span style="background-color:green;
+color:blue">x</span>]]
+!! end
+
 !! test
 Serialize new displayspace spans
 !! options
