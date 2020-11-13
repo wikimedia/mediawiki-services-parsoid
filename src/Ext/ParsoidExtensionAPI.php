@@ -654,15 +654,10 @@ class ParsoidExtensionAPI {
 	/**
 	 * @param DOMElement $elt
 	 * @param int $context OR-ed bit flags specifying escaping / serialization context
-	 * @param bool $singleLine Should the output be in a single line?
-	 *   If so, all embedded newlines will be dropped. Ex: list content has this constraint.
 	 * @return string
 	 */
-	public function domChildrenToWikitext( DOMElement $elt, int $context, bool $singleLine ): string {
+	public function domChildrenToWikitext( DOMElement $elt, int $context ): string {
 		$state = $this->serializerState;
-		if ( $singleLine ) {
-			$state->singleLineContext->enforce();
-		}
 		if ( $context & self::IN_IMG_CAPTION ) {
 			if ( $context & self::IN_OPTION ) {
 				$escapeHandler = 'mediaOptionHandler'; // Escapes "|" as well
@@ -674,10 +669,6 @@ class ParsoidExtensionAPI {
 		} else {
 			throw new \RuntimeException( 'Not yet supported!' );
 		}
-		if ( $singleLine ) {
-			$state->singleLineContext->pop();
-		}
-
 		return $out;
 	}
 

@@ -235,12 +235,14 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					if ( $showfilename ) {
 						DOMCompat::remove( $showfilename ); // Destructive to the DOM!
 					}
-					$caption = $extApi->domChildrenToWikitext( $gallerytext,
-						$extApi::IN_IMG_CAPTION,
-						true /* singleLine */
+					$caption = $extApi->domChildrenToWikitext(
+						$gallerytext, $extApi::IN_IMG_CAPTION
 					);
 					// Drop empty captions
 					if ( !preg_match( '/^\s*$/D', $caption ) ) {
+						// Ensure that this only takes one line since gallery
+						// tag content is split by line
+						$caption = preg_replace( '/\n/', ' ', $caption );
 						$content .= '|' . $caption;
 					}
 				}
@@ -272,9 +274,8 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			// `caption` from data-mw.
 			!is_string( $dataMw->attrs->caption ?? null )
 		) {
-			$dataMw->attrs->caption = $extApi->domChildrenToWikitext( $galcaption,
-				$extApi::IN_IMG_CAPTION | $extApi::IN_OPTION,
-				false /* singleLine */
+			$dataMw->attrs->caption = $extApi->domChildrenToWikitext(
+				$galcaption, $extApi::IN_IMG_CAPTION | $extApi::IN_OPTION
 			);
 		}
 		$startTagSrc = $extApi->extStartTagToWikitext( $node );

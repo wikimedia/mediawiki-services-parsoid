@@ -770,7 +770,9 @@ class SerializerState {
 		$this->atStartOfOutput = false;
 		$this->$inState = true;
 
+		$this->singleLineContext->disable();
 		$this->kickOffSerialize( $node, $wtEscaper );
+		$this->singleLineContext->pop();
 
 		// restore the state
 		$bits = $this->out;
