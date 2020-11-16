@@ -110,9 +110,9 @@ class DOMHandlerFactory {
 	/**
 	 * Get a DOMHandler for an element node.
 	 * @param ?DOMNode $node
-	 * @return ?DOMHandler
+	 * @return DOMHandler
 	 */
-	public function getDOMHandler( ?DOMNode $node ): ?DOMHandler {
+	public function getDOMHandler( ?DOMNode $node ): DOMHandler {
 		if ( !$node || !DOMUtils::isElt( $node ) ) {
 			return new DOMHandler();
 		}

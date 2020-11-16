@@ -370,28 +370,25 @@ class Separators {
 	): void {
 		$state = $this->state;
 
-		// Non-element DOM nodes will have a null dom handler
 		if ( $nodeB->parentNode === $nodeA ) {
 			// parent-child separator, nodeA parent of nodeB
 			'@phan-var \DOMElement $nodeA'; // @var \DOMElement $nodeA
 			$sepType = 'parent-child';
 			$aCons = $sepHandlerA->firstChild( $nodeA, $nodeB, $state );
 			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
-			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		} elseif ( $nodeA->parentNode === $nodeB ) {
 			// parent-child separator, nodeB parent of nodeA
 			'@phan-var \DOMElement $nodeB'; // @var \DOMElement $nodeA
 			$sepType = 'child-parent';
 			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
 			$bCons = $sepHandlerB->lastChild( $nodeB, $nodeA, $state );
-			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		} else {
 			// sibling separator
 			$sepType = 'sibling';
 			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
 			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
-			$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 		}
+		$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
 
 		if ( !empty( $state->sep->constraints ) ) {
 			// Merge the constraints

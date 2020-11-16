@@ -1303,7 +1303,7 @@ class WikitextSerializer {
 	 * Internal worker. Recursively serialize a DOM subtree.
 	 * @private
 	 * @param DOMNode $node
-	 * @return DOMNode|null
+	 * @return ?DOMNode
 	 */
 	public function serializeNode( DOMNode $node ): ?DOMNode {
 		$domHandler = $method = null;
@@ -1338,8 +1338,6 @@ class WikitextSerializer {
 					return $node->nextSibling;
 				}
 				$domHandler = $domHandlerFactory->getDOMHandler( $node );
-				Assert::invariant( $domHandler !== null, 'No dom handler found for '
-					. DOMCompat::getOuterHTML( $node ) );
 				$method = [ $this, 'serializeDOMNode' ];
 				break;
 			case XML_TEXT_NODE:
