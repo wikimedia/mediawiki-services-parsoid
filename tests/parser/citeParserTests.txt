@@ -97,7 +97,7 @@ Templating<ref>{{simple template}}</ref>
 </li>
 </ol></div>
 !! html/parsoid
-<p >Templating<sup about="#mwt4" class="mw-ref reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<p>Templating<sup about="#mwt4" class="mw-ref reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 
 <ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"><span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[]],"dsr":[15,34,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"simple template","href":"./Template:Simple_template"},"params":{},"i":0}}]}'>A </span><i about="#mwt2">simple</i><span about="#mwt2"> template.</span></span></li></ol>
 !! end
@@ -457,7 +457,7 @@ Erroneous refs
 
 <p><sup about="#mwt4" class="mw-ref reference" id="cite_ref-2" rel="dc:references" typeof="mw:Extension/ref"  data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-2"}}'><a href="./Parser_test#cite_note-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup></p>
 
-<p ><sup about="#mwt6" class="mw-ref reference" id="cite_ref-3" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{},"errors":[{"key":"cite_error_ref_no_key"}]}'><a href="./Parser_test#cite_note-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
+<p><sup about="#mwt6" class="mw-ref reference" id="cite_ref-3" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{},"errors":[{"key":"cite_error_ref_no_key"}]}'><a href="./Parser_test#cite_note-3" style="counter-reset: mw-Ref 3;"><span class="mw-reflink-text">[3]</span></a></sup></p>
 
 <p><sup about="#mwt8" class="mw-ref reference" id="cite_ref-bar_4-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"bar"},"errors":[{"key":"cite_error_references_no_text"}]}'><a href="./Parser_test#cite_note-bar-4" style="counter-reset: mw-Ref 4;"><span class="mw-reflink-text">[4]</span></a></sup></p>
 
@@ -2635,7 +2635,7 @@ Report bad attributes in reference tags
 <p><br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup", but no corresponding <code>&lt;references group="theGroup"/&gt;</code> tag was found</span>
 </p>
 !! html/parsoid
-<p ><sup about="#mwt2" class="mw-ref reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"dsr":[0,29,5,6]}' data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"dsr":[0,29,5,6]}' data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references mw:Error" about="#mwt4" data-mw='{"name":"references","attrs":{"badattrib":"invalidAttribute"},"errors":[{"key":"cite_error_references_invalid_parameters"}]}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">noGroupOrNameValue</span></li></ol>
 <p data-parsoid='{"dsr":[74,112,0,0]}'><sup about="#mwt6" class="mw-ref reference" id="cite_ref-theName_2-0" rel="dc:references" typeof="mw:Extension/ref" data-parsoid='{"dsr":[74,112,20,6]}' data-mw='{"name":"ref","attrs":{"name":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-2"}}'><a href="./Parser_test#cite_note-theName-2" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references mw:Error" about="#mwt8" data-mw='{"name":"references","attrs":{"name":"theName","badattrib":"invalidNameAttribute"},"errors":[{"key":"cite_error_references_invalid_parameters"}]}'><li about="#cite_note-theName-2" id="cite_note-theName-2"><a href="./Parser_test#cite_ref-theName_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-theName-2" class="mw-reference-text">theNameValue</span></li></ol>
