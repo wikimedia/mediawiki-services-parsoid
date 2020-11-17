@@ -201,7 +201,7 @@ L3
 </p>
 </div>
 !! html/parsoid
-<div class="poem" typeof="mw:Extension/poem" about="#mwt4" data-parsoid='{"dsr":[0,92,2,2]}' data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\nL1\nL2\n&lt;nowiki>\n&lt;ref>Not a ref&lt;/ref>\nfoo &amp;amp; bar\n[[Not a link]]\n&lt;/nowiki>\nL3\n"}}'><p>L1<br/>
+<div class="poem" typeof="mw:Extension/poem" about="#mwt4" data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\nL1\nL2\n&lt;nowiki>\n&lt;ref>Not a ref&lt;/ref>\nfoo &amp;amp; bar\n[[Not a link]]\n&lt;/nowiki>\nL3\n"}}'><p>L1<br/>
 L2<br/>
 <br/>
 &lt;ref>Not a ref&lt;/ref><br/>
