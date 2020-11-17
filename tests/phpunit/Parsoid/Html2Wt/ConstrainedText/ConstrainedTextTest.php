@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -32,7 +33,8 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 			'linkPrefixRegex' => $t->linkPrefixRegex ?? null,
 			'linkTrailRegex' => $t->linkTrailRegex ?? null,
 		] );
-		$node = ContentUtils::ppToDOM( $env, $t->html )->firstChild;
+		$doc = ContentUtils::createAndLoadDocument( $t->html );
+		$node = DOMCompat::getBody( $doc )->firstChild;
 		DOMUtils::assertElt( $node );
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
 

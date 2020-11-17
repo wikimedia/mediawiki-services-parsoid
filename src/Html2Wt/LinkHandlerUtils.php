@@ -1204,19 +1204,24 @@ class LinkHandlerUtils {
 
 		// Reconstruct the caption
 		if ( !$captionElt && is_string( $outerDMW->caption ?? null ) ) {
-			$captionElt = $outerElt->ownerDocument->createElement( 'div' );
-			ContentUtils::ppToDOM( $env, $outerDMW->caption, [ 'node' => $captionElt, 'markNew' => true ] );
-			// Needs a parent node in order for WTS to be happy:
-			// DocumentFragment to the rescue!
 			// IMPORTANT: Assign to a variable to prevent the fragment
 			// from getting GCed before we are done with it.
-			$fragment = $outerElt->ownerDocument->createDocumentFragment();
+			$fragment = ContentUtils::createAndLoadDocumentFragment(
+				$outerElt->ownerDocument, $outerDMW->caption,
+				[ 'markNew' => true ]
+			);
+			// FIXME: We should just be able to serialize the children of the
+			// fragment, however, we need some way of marking this as being
+			// inModifiedContent so that any bare text is assured to be escaped
+			$captionElt = $outerElt->ownerDocument->createElement( 'div' );
+			DOMDataUtils::getDataParsoid( $captionElt )->tmp->isNew = true;
+			DOMUtils::migrateChildren( $fragment, $captionElt );
+			// Needs a parent node in order for WTS to be happy
 			$fragment->appendChild( $captionElt );
 		}
 
 		$caption = null;
 		if ( $captionElt ) {
-			// FIXME: Just accept a DOMDocumentFragment and parse directly to one above
 			$caption = $state->serializeCaptionChildrenToString(
 				$captionElt, [ $state->serializer->wteHandlers, 'mediaOptionHandler' ]
 			);

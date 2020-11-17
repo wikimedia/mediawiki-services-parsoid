@@ -2,9 +2,9 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMDocument;
 use DOMElement;
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
@@ -24,11 +24,10 @@ use Wikimedia\Parsoid\Utils\DOMTraverser;
 class CleanUpTest extends TestCase {
 
 	/**
-	 * @param Env $env
 	 * @param string $wt
-	 * @return DOMElement
+	 * @return DOMDocument
 	 */
-	private function parseWT( Env $env, string $wt ): DOMElement {
+	private function parseWT( string $wt ): DOMDocument {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -37,7 +36,7 @@ class CleanUpTest extends TestCase {
 		$pageConfig = new MockPageConfig( [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
-		return ContentUtils::ppToDOM( $env, $html );
+		return ContentUtils::createAndLoadDocument( $html );
 	}
 
 	/**
@@ -77,7 +76,8 @@ class CleanUpTest extends TestCase {
 		error_log( "Cleanup DOM pass should confirm removal of autoInsertedEnd flag\n" .
 			"for wikitext table tags without closing tag syntax using DOM traversal\n" );
 		$mockEnv = new MockEnv( [] );
-		$body = $this->parseWT( $mockEnv, $test );
+		$doc = $this->parseWT( $test );
+		$body = DOMCompat::getBody( $doc );
 		$fragment = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
@@ -110,7 +110,8 @@ class CleanUpTest extends TestCase {
 		error_log( "Cleanup DOM pass should confirm removal of autoInsertedEnd flag\n" .
 			"for all wikitext tags without closing tags\n" );
 		$mockEnv = new MockEnv( [] );
-		$body = $this->parseWT( $mockEnv, $test );
+		$doc = $this->parseWT( $test );
+		$body = DOMCompat::getBody( $doc );
 		$table = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
@@ -156,7 +157,8 @@ class CleanUpTest extends TestCase {
 		error_log( "Cleanup DOM pass should confirm presence of autoInsertedEnd flag\n" .
 			"for all HTML wikitext tags that can appear without closing tags\n" );
 		$mockEnv = new MockEnv( [] );
-		$body = $this->parseWT( $mockEnv, $test );
+		$doc = $this->parseWT( $test );
+		$body = DOMCompat::getBody( $doc );
 		$fragment = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
@@ -203,7 +205,8 @@ class CleanUpTest extends TestCase {
 	 */
 	public function testWhitespaceTrimming( string $wt, string $selector, int $leadingWS, int $trailingWS ): void {
 		$mockEnv = new MockEnv( [] );
-		$body = $this->parseWT( $mockEnv, $wt );
+		$doc = $this->parseWT( $wt );
+		$body = DOMCompat::getBody( $doc );
 		$node = DOMCompat::querySelector( $body, $selector );
 		$this->assertEquals( $leadingWS, DOMDataUtils::getDataParsoid( $node )->dsr->leadingWS );
 		$this->assertEquals( $trailingWS, DOMDataUtils::getDataParsoid( $node )->dsr->trailingWS );

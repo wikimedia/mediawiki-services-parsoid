@@ -42,39 +42,47 @@ class ContentUtils {
 	}
 
 	/**
-	 * .dataobject aware HTML parser, to be used in the DOM
-	 * post-processing phase.
+	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
+	 * to create new documents when parsing or serializing.  A document lives
+	 * on the environment which can be used to create fragments.  The bag added
+	 * here as a dynamic property to the PHP wrapper around the libxml doc
+	 * is at risk of being GC.
 	 *
-	 * @param Env $env
 	 * @param string $html
 	 * @param array $options
-	 * @return DOMElement|DOMDocumentFragment
+	 * @return DOMDocument
 	 */
-	public static function ppToDOM(
-		Env $env, string $html, array $options = []
-	): DOMNode {
-		$options += [
-			'node' => null,
-			'toFragment' => false,
-		];
+	public static function createAndLoadDocument(
+		string $html, array $options = []
+	): DOMDocument {
+		$doc = DOMUtils::parseHTML( $html );
 
-		$node = $options['node'];
-		if ( $options['toFragment'] ) {
-			$node = $env->topLevelDoc->createDocumentFragment();
-		}
+		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		$doc->bag = new DataBag();
 
-		if ( $node === null ) {
-			$node = DOMCompat::getBody( $env->createDocument( $html ) );
-		} else {
-			if ( $node instanceof DOMDocumentFragment ) {
-				DOMUtils::setFragmentInnerHTML( $node, $html );
-			} else {
-				DOMCompat::setInnerHTML( $node, $html );
-			}
-		}
+		// Cache the head and body.
+		DOMCompat::getHead( $doc );
+		$body = DOMCompat::getBody( $doc );
 
-		DOMDataUtils::visitAndLoadDataAttribs( $node, $options );
-		return $node;
+		DOMDataUtils::visitAndLoadDataAttribs( $body, $options );
+
+		return $doc;
+	}
+
+	/**
+	 * @param DOMDocument $doc
+	 * @param string $html
+	 * @param array $options
+	 * @return DOMDocumentFragment
+	 */
+	public static function createAndLoadDocumentFragment(
+		DOMDocument $doc, string $html, array $options = []
+	): DOMDocumentFragment {
+		$domFragment = $doc->createDocumentFragment();
+		DOMUtils::setFragmentInnerHTML( $domFragment, $html );
+		DOMDataUtils::visitAndLoadDataAttribs( $domFragment, $options );
+		return $domFragment;
 	}
 
 	/**
@@ -261,8 +269,7 @@ class ContentUtils {
 			}
 		};
 		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {
-			$parentNode = $doc->createElement( 'body' );
-			$node = self::ppToDOM( $env, $str, [ 'node' => $parentNode ] );
+			$node = self::createAndLoadDocumentFragment( $doc, $str );
 			DOMPostOrder::traverse( $node, $convertNode );
 			return self::ppToXML( $node, [ 'innerXML' => true ] );
 		};

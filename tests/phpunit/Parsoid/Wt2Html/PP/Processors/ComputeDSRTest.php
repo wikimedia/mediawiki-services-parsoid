@@ -57,12 +57,12 @@ class ComputeDSRTest extends TestCase {
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
 		$mockEnv = new MockEnv( [] );
-		$doc = ContentUtils::ppToDOM( $mockEnv, $html );
+		$doc = ContentUtils::createAndLoadDocument( $html );
 
 		$wt = $test['wt'];
 		$specs = $test['specs'];
 		foreach ( $specs as $spec ) {
-			$this->validateSpec( $wt, $doc, $spec );
+			$this->validateSpec( $wt, DOMCompat::getBody( $doc ), $spec );
 		}
 	}
 

@@ -8,8 +8,8 @@ use Wikimedia\Parsoid\Html2Wt\DOMHandlers\MetaHandler;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 class MetaHandlerTest extends TestCase {
 	/**
@@ -36,9 +36,8 @@ class MetaHandlerTest extends TestCase {
 	}
 
 	protected function processMeta( $env, $state, $html, $res ) {
-		$doc = $env->createDocument( $html );
+		$doc = ContentUtils::createAndLoadDocument( $html );
 		$metaNode = DOMCompat::getBody( $doc )->firstChild;
-		DOMDataUtils::visitAndLoadDataAttribs( $metaNode );
 
 		$state->currLine->text = '';
 		( new MetaHandler() )->handle( $metaNode, $state );

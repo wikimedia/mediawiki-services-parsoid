@@ -21,7 +21,8 @@ class PWrapTest extends TestCase {
 	 */
 	private function verifyPWrap( string $html, string $expected ): void {
 		$mockEnv = new MockEnv( [] );
-		$body = ContentUtils::ppToDOM( $mockEnv, $html );
+		$doc = ContentUtils::createAndLoadDocument( $html );
+		$body = DOMCompat::getBody( $doc );
 		$pwrap = new PWrap();
 		$pwrap->run( $mockEnv, $body );
 

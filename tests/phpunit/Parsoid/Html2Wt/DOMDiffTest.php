@@ -17,32 +17,32 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  */
 class DOMDiffTest extends TestCase {
 
-	private function parseAndDiff( $a, $b ) {
-		$mockEnv = new MockEnv( [] );
-
-		$oldDOM = ContentUtils::ppToDOM( $mockEnv, $a, [ 'markNew' => true ] );
-		$newDOM = ContentUtils::ppToDOM( $mockEnv, $b, [ 'markNew' => true ] );
-
-		$domDiff = new DOMDiff( $mockEnv );
-		$domDiff->diff( $oldDOM, $newDOM );
-
-		return [ 'body' => $newDOM, 'env' => $mockEnv ];
-	}
-
 	/**
 	 * @covers ::doDOMDiff
 	 * @dataProvider provideDiff
 	 * @param array $test
 	 */
 	public function testDOMDiff( $test ) {
-		$result = $this->parseAndDiff( $test['orig'], $test['edit'] );
-		$body = $result['body'];
+		$mockEnv = new MockEnv( [] );
+
+		$oldDOM = ContentUtils::createAndLoadDocument(
+			$test['orig'], [ 'markNew' => true ]
+		);
+		$newDOM = ContentUtils::createAndLoadDocument(
+			$test['edit'], [ 'markNew' => true ]
+		);
+
+		$oldBody = DOMCompat::getBody( $oldDOM );
+		$body = DOMCompat::getBody( $newDOM );
+
+		$domDiff = new DOMDiff( $mockEnv );
+		$domDiff->diff( $oldBody, $body );
 
 		if ( count( $test['specs'] ) === 0 ) {
 			// Verify that body has no diff markers
 			// Dump DOM *with* diff marker attributes to ensure diff markers show up!
 			$opts = [
-				'env' => $result['env'],
+				'env' => $mockEnv,
 				'keepTmp' => true,
 				'storeDiffMark' => true,
 				'tunnelFosteredContent' => true,

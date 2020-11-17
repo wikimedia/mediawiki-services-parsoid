@@ -250,9 +250,9 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function htmlToWikitext( array $opts, string $html ): string {
-		$domFragment = ContentUtils::ppToDOM( $this->env, $html, [
-			'markNew' => true, 'toFragment' => true,
-		] );
+		$domFragment = ContentUtils::createAndLoadDocumentFragment(
+			$this->env->topLevelDoc, $html, [ 'markNew' => true ]
+		);
 		return $this->domToWikitext( $opts, $domFragment );
 	}
 

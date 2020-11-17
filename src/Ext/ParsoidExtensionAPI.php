@@ -590,8 +590,8 @@ class ParsoidExtensionAPI {
 	 * @return DOMDocumentFragment
 	 */
 	public function htmlToDom( string $html ): DOMDocumentFragment {
-		return ContentUtils::ppToDOM(
-			$this->env, $html, [ 'toFragment' => true ]
+		return ContentUtils::createAndLoadDocumentFragment(
+			$this->getTopLevelDoc(), $html
 		);
 	}
 

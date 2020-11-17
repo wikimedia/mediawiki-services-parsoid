@@ -105,6 +105,11 @@ class DOMDiff {
 	 * @return array
 	 */
 	public function diff( DOMElement $nodeA, DOMElement $nodeB ): array {
+		Assert::invariant(
+			$nodeA->ownerDocument !== $nodeB->ownerDocument,
+			'Expected to be diff\'ing different documents.'
+		);
+
 		$this->debug( function () use( $nodeA, $nodeB ) {
 			return "ORIG:\n" .
 				DOMCompat::getOuterHTML( $nodeA ) .
@@ -224,25 +229,17 @@ class DOMDiff {
 					}
 				}
 			} elseif ( $kA === 'html' && ( $options['inDmwBody'] ?? null ) ) {
+				// It's important that the fragments are constructed from the
+				// correct node's ownerDocument so that the search by id above
+				// is looking in the right place
+				$fragmentA = ContentUtils::createAndLoadDocumentFragment(
+					$nodeA->ownerDocument, $vA, [ 'markNew' => true ]
+				);
+				$fragmentB = ContentUtils::createAndLoadDocumentFragment(
+					$nodeB->ownerDocument, $vB, [ 'markNew' => true ]
+				);
 				// For 'html' attributes, parse string and recursively compare DOM
-				if ( !$this->treeEquals(
-						ContentUtils::ppToDOM( $this->env, $vA, [
-							'markNew' => true,
-							// Don't use 'toFragment' option here since $nodeA
-							// is from selserData->oldDOM and we want the id
-							// check above to search the right dom
-							'node' => $nodeA->ownerDocument->createDocumentFragment(),
-						] ),
-						ContentUtils::ppToDOM( $this->env, $vB, [
-							'markNew' => true,
-							// We could use 'toFragment' since this is equivalent
-							// to $env->topLevelDoc but this makes it a little more
-							// generic for uses outside the call from SelectiveSerializer
-							'node' => $nodeB->ownerDocument->createDocumentFragment(),
-						] ),
-						true
-					)
-				) {
+				if ( !$this->treeEquals( $fragmentA, $fragmentB, true ) ) {
 					return false;
 				}
 			} elseif ( is_object( $vA ) || is_array( $vA ) ) {

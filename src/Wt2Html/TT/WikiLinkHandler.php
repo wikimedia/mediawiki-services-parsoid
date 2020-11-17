@@ -293,9 +293,9 @@ class WikiLinkHandler extends TokenHandler {
 				$tsr = null;
 			}
 
-			$domFragment = ContentUtils::ppToDOM( $env, $html, [
-				'toFragment' => true,
-			] );
+			$domFragment = ContentUtils::createAndLoadDocumentFragment(
+				$env->topLevelDoc, $html
+			);
 			$dft = PipelineUtils::tunnelDOMThroughTokens(
 				$env, $token, $domFragment, [
 					'tsr' => $tsr,

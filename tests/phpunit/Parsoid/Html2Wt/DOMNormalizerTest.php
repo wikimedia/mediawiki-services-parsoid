@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\TestingAccessWrapper;
 
@@ -40,7 +41,8 @@ class DOMNormalizerTest extends TestCase {
 		] );
 		/** @var DOMNormalizer $DOMNormalizer */
 		$DOMNormalizer = TestingAccessWrapper::newFromObject( new DOMNormalizer( $mockState ) );
-		$body = ContentUtils::ppToDOM( $mockEnv, $html, [ 'markNew' => true ] );
+		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );
+		$body = DOMCompat::getBody( $doc );
 		$DOMNormalizer->normalize( $body );
 
 		if ( $stripDiffMarkers ) {

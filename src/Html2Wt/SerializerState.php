@@ -740,13 +740,13 @@ class SerializerState {
 	 * FIXME(arlorla): Shouldn't affect the separator state, but accidents have
 	 * have been known to happen. T109793 suggests using its own wts / state.
 	 *
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @param string $inState
 	 * @return string
 	 */
 	private function serializeChildrenToString(
-		DOMElement $node, ?callable $wtEscaper, string $inState
+		DOMNode $node, ?callable $wtEscaper, string $inState
 	): string {
 		$states = [ 'inLink', 'inCaption', 'inIndentPre', 'inHTMLPre', 'inPHPBlock', 'inAttribute' ];
 		Assert::parameter( in_array( $inState, $states, true ), '$inState', 'Must be one of: '
@@ -793,36 +793,36 @@ class SerializerState {
 
 	/**
 	 * Serialize children of a link to a string
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
 	public function serializeLinkChildrenToString(
-		DOMElement $node, ?callable $wtEscaper = null
+		DOMNode $node, ?callable $wtEscaper = null
 	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inLink' );
 	}
 
 	/**
 	 * Serialize children of a caption to a string
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
 	public function serializeCaptionChildrenToString(
-		DOMElement $node, ?callable $wtEscaper = null
+		DOMNode $node, ?callable $wtEscaper = null
 	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inCaption' );
 	}
 
 	/**
 	 * Serialize children of an indent-pre to a string
-	 * @param DOMElement $node
+	 * @param DOMElement|DOMDocumentFragment $node
 	 * @param ?callable $wtEscaper See {@link serializeChildren()}
 	 * @return string
 	 */
 	public function serializeIndentPreChildrenToString(
-		DOMElement $node, ?callable $wtEscaper = null
+		DOMNode $node, ?callable $wtEscaper = null
 	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inIndentPre' );
 	}
