@@ -223,7 +223,7 @@ UTF-8 sequences in extension tags (T231945)
 </p>
 </div>
 !! html/parsoid
-<div class="poem" typeof="mw:Extension/poem" about="#mwt4" data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\n{{1x|ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ}}\n"}}'><p about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ"}},"i":0}}]}'>ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ</p></div>
+<div class="poem" typeof="mw:Extension/poem" about="#mwt4" data-mw='{"name":"poem","attrs":{},"body":{"extsrc":"\n{{1x|ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ}}\n"}}'><p><span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ"}},"i":0}}]}'>ၶိူဝ်းႁဝ်ၶိူဝ်းရႃႇၸႃႇ</span></p></div>
 !! end
 
 !! test

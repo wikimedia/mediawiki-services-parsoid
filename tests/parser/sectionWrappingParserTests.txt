@@ -752,6 +752,7 @@ parsoid={
 {{1x|Not a section|
 == This is counted as if it were section 2 ==
 }}
+
 ==PHP section=3==
 {{3x_on_newline|1=
 == This is counted as if it were section 4 ==
@@ -762,6 +763,7 @@ parsoid={
 }}
 ==PHP section=7==
 {{1x|1=Not a ==heading==}}
+
 ==PHP section=8==
 [[File:Foobar.jpg|thumb|
 ==This is section 9, even though it's in a caption==
@@ -786,7 +788,7 @@ parsoid={
 <h2><span class="mw-headline" id="PHP_section.3D10">PHP section=10</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=10" title="Edit section: PHP section=10">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 !! html/parsoid
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="PHP_section=1" data-parsoid="{}"><span id="PHP_section.3D1" typeof="mw:FallbackId"></span>PHP section=1</h2>
-<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a section"},"2":{"wt":"\n== This is counted as if it were section 2 ==\n"}},"i":0}}]}'>Not a section</p>
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a section"},"2":{"wt":"\n== This is counted as if it were section 2 ==\n"}},"i":0}}]}'>Not a section</span></p>
 </section><section data-mw-section-id="3"><h2 id="PHP_section=3" data-parsoid="{}"><span id="PHP_section.3D3" typeof="mw:FallbackId"></span>PHP section=3</h2>
 </section><section data-mw-section-id="-1" about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}},"\n"]}'><h2 about="#mwt2" typeof="mw:Transclusion" id="This_is_counted_as_if_it_were_section_4" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"== This is counted as if it were section 4 =="}},"i":0}}]}'>This is counted as if it were section 4</h2><span about="#mwt2">
 </span></section><section data-mw-section-id="-1" about="#mwt5"><h2 about="#mwt2" id="This_is_counted_as_if_it_were_section_4_2">This is counted as if it were section 4</h2><span about="#mwt2">
@@ -794,7 +796,7 @@ parsoid={
 </section><section data-mw-section-id="5"><h2 id="PHP_section=5" data-parsoid="{}"><span id="PHP_section.3D5" typeof="mw:FallbackId"></span>PHP section=5</h2>
 <p data-ignored=" This is counted as if it were section 6 " about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"data-ignored","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"#tag:p","function":"tag"},"params":{"1":{"wt":"Not a section"},"data-ignored":{"wt":"== This is counted as if it were section 6 =="}},"i":0}}]}'>Not a section</p>
 </section><section data-mw-section-id="7"><h2 id="PHP_section=7" data-parsoid="{}"><span id="PHP_section.3D7" typeof="mw:FallbackId"></span>PHP section=7</h2>
-<p about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a ==heading=="}},"i":0}}]}'>Not a ==heading==</p>
+<p><span about="#mwt4" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a ==heading=="}},"i":0}}]}'>Not a ==heading==</span></p>
 </section><section data-mw-section-id="8"><h2 id="PHP_section=8" data-parsoid="{}"><span id="PHP_section.3D8" typeof="mw:FallbackId"></span>PHP section=8</h2>
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"\n== This is counted as if it were section 9 ==\n"}]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption>
 <section data-mw-section-id="-1"><h2 id="This_is_section_9,_even_though_it's_in_a_caption" data-parsoid="{}"><span id="This_is_section_9.2C_even_though_it.27s_in_a_caption" typeof="mw:FallbackId"></span>This is section 9, even though it's in a caption</h2>

@@ -65,48 +65,6 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	];
 
 	/**
-	 * @param stdClass $range
-	 * @param bool $startsWithText
-	 * @return bool
-	 */
-	private static function expandRangeToAvoidSpanWrapping(
-		stdClass $range, bool $startsWithText = false
-	): bool {
-		// FIXME: Later on, if safe, we could consider expanding the
-		// range unconditionally rather than only if a span is required.
-		// Ex: Look at output of {{1x|foo}} vs {{1x|''foo''}}
-
-		$mightAddSpan = $startsWithText;
-		if ( !$startsWithText ) {
-			$n = $range->start;
-			if ( WTUtils::isTplMarkerMeta( $n ) ) {
-				$n = $n->nextSibling;
-			}
-			$mightAddSpan = DOMUtils::isText( $n );
-		}
-
-		$expandable = false;
-		if ( $mightAddSpan ) {
-			// See if we can expand the range to the parent node.
-			// Eliminates useless spanning of wikitext of the form: {{1x|foo}}
-			// where the the entire template content is contained in a paragraph.
-			$contentParent = $range->start->parentNode;
-			$expandable = $contentParent->nodeName === 'p' &&
-				!WTUtils::isLiteralHTMLNode( $contentParent ) &&
-				$contentParent->firstChild === $range->startElem &&
-				$contentParent->lastChild === $range->endElem &&
-				$contentParent === $range->end->parentNode;
-
-			if ( $expandable ) {
-				$range->start = $contentParent;
-				$range->end = $contentParent;
-			}
-		}
-
-		return $expandable;
-	}
-
-	/**
 	 * @param DOMElement $target
 	 * @param DOMElement $source
 	 */
@@ -280,9 +238,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 		// Ensure range.start is an element node since we want to
 		// add/update the data-parsoid attribute to it.
-		if ( !DOMUtils::isElt( $range->start ) &&
-			!self::expandRangeToAvoidSpanWrapping( $range, true )
-		) {
+		if ( !DOMUtils::isElt( $range->start ) ) {
 			$span = $doc->createElement( 'span' );
 			$range->start->parentNode->insertBefore( $span, $range->start );
 			$span->appendChild( $range->start );
@@ -829,8 +785,6 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 					'Encapsulating a flipped range: ' . $range->id
 				);
 			}
-
-			self::expandRangeToAvoidSpanWrapping( $range );
 
 			$n = $range->start;
 			$e = $range->end;
