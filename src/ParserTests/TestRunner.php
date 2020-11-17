@@ -118,10 +118,10 @@ class TestRunner {
 		]
 	];
 
-	/** @var boolean */
+	/** @var bool */
 	private $runDisabled;
 
-	/** @var boolean */
+	/** @var bool */
 	private $runPHP;
 
 	/** @var string */

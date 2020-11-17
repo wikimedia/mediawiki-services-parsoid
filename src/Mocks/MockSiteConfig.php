@@ -39,7 +39,7 @@ class MockSiteConfig extends SiteConfig {
 		'category_talk' => 15,
 	];
 
-	/** @var array<int, bool> */
+	/** @var array<int,bool> */
 	protected $namespacesWithSubpages = [];
 
 	/** @var array */

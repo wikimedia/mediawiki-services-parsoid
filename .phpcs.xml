@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <ruleset>
 	<file>.</file>
-	<arg name="extensions" value="php,php5,inc" />
+	<arg name="extensions" value="php" />
 	<arg name="encoding" value="UTF-8" />
 	<exclude-pattern>coverage</exclude-pattern>
 	<exclude-pattern>doc/html</exclude-pattern>
@@ -10,6 +10,13 @@
 	<exclude-pattern>src/ParserTests/Grammar.php</exclude-pattern>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.Commenting.FunctionComment.PHP71NullableDocOptionalArg" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.ObjectTypeHintParam" />
+		<exclude name="MediaWiki.Commenting.FunctionComment.ObjectTypeHintReturn" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingDocumentationPublic" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingDocumentationProtected" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingDocumentationPrivate" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.MissingVar" />
+		<exclude name="MediaWiki.Commenting.PropertyDocumentation.WrongStyle" />
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 	</rule>
 	<rule ref="Squiz.Arrays.ArrayBracketSpacing" />

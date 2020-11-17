@@ -138,7 +138,7 @@ class PageConfigFactory {
 
 		// If we have a revision record, check that we are allowed to see it.
 		if ( $revisionRecord != null
-			 && ( 0 != ( self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) ) ) {
+			&& ( ( self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) != 0 ) ) {
 			throw new RevisionAccessException( 'Not an available content version.' );
 		}
 

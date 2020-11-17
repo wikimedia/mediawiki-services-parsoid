@@ -651,7 +651,7 @@ class WikitextEscapeHandlers {
 				}
 
 				// </br>!
-				if ( 'br' === mb_strtolower( $t->getName() ) ) {
+				if ( mb_strtolower( $t->getName() ) === 'br' ) {
 					continue;
 				}
 

@@ -30,7 +30,7 @@ class ParserPipeline {
 	/** @var Env */
 	private $env;
 
-	/** @var String */
+	/** @var string */
 	private $cacheKey;
 
 	/**
