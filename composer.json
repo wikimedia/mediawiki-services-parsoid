@@ -68,8 +68,8 @@
 	"scripts": {
 		"test": [
 			"@lint",
-			"@phpunit",
 			"@phan",
+			"@phpunit",
 			"@toolcheck",
 			"@parserTests"
 		],
