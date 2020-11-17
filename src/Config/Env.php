@@ -16,9 +16,7 @@ use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DataBag;
-use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -93,9 +91,6 @@ class Env {
 
 	/** @var array<Profile> */
 	private $profileStack = [];
-
-	/** @var DOMDocument[] */
-	private $liveDocs = [];
 
 	/** @var bool */
 	private $wrapSections = true;
@@ -229,7 +224,10 @@ class Env {
 	 */
 	public $extensionCache = [];
 
-	/** @var DOMDocument */
+	/**
+	 * Prevent GC from collecting the PHP wrapper around the libxml doc
+	 * @var DOMDocument
+	 */
 	public $topLevelDoc;
 
 	/** @var Dispatcher */
@@ -720,24 +718,6 @@ class Env {
 	}
 
 	/**
-	 * FIXME: This function could be given a better name to reflect what it does.
-	 *
-	 * @param DOMDocument $doc
-	 */
-	private function referenceDataObject( DOMDocument $doc ): void {
-		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = new DataBag();
-
-		// Prevent GC from collecting the PHP wrapper around the libxml doc
-		$this->liveDocs[] = $doc;
-
-		// Cache the head and body.
-		DOMCompat::getHead( $doc );
-		DOMCompat::getBody( $doc );
-	}
-
-	/**
 	 * When an environment is constructed, we initialize a document (and
 	 * dispatcher to it) to be used throughout the parse.
 	 *
@@ -752,9 +732,7 @@ class Env {
 				$this->dispatcher
 			) = $this->createDocumentDispatcher();
 		}
-
-		// FIXME: Putting this is in `liveDocs` is redundant
-		$this->referenceDataObject( $this->topLevelDoc );
+		ContentUtils::prepareDoc( $this->topLevelDoc );
 	}
 
 	/**
@@ -800,21 +778,6 @@ class Env {
 		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
 
 		return [ $doc, $dispatcher ];
-	}
-
-	/**
-	 * FIXME: Remove in favour of constructing the environment with a `topLevelDoc`
-	 *
-	 * @param string $html
-	 * @param bool $validateXMLNames
-	 * @return DOMDocument
-	 */
-	public function createDocument(
-		string $html = '', bool $validateXMLNames = false
-	): DOMDocument {
-		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
-		$this->referenceDataObject( $doc );
-		return $doc;
 	}
 
 	/**

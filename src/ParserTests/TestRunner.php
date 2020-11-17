@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
+use DOMDocument;
 use DOMElement;
 use DOMNode;
 use Error;
@@ -307,13 +308,12 @@ class TestRunner {
 	 *
 	 * @param Env $env
 	 * @param Test $test
-	 * @param DOMElement $body
+	 * @param DOMDocument $doc
 	 * @param array $changelist
-	 * @return DOMNode The altered body.
 	 */
 	private function applyChanges(
-		Env $env, Test $test, DOMElement $body, array $changelist
-	): DOMNode {
+		Env $env, Test $test, DOMDocument $doc, array $changelist
+	) {
 		// Seed the random-number generator based on the item title and changelist
 		$alea = new Alea( ( json_encode( $changelist ) ?? '' ) . ( $test->testName ?? '' ) );
 
@@ -449,6 +449,8 @@ class TestRunner {
 			}
 		};
 
+		$body = DOMCompat::getBody( $doc );
+
 		if ( $env->hasDumpFlag( 'dom:post-changes' ) ) {
 			ContentUtils::dumpDOM( $body, 'Original DOM' );
 		}
@@ -458,7 +460,7 @@ class TestRunner {
 			// children: Append a comment with known content. This is later
 			// stripped from the output, and the result is compared to the
 			// original wikitext rather than the non-selser wt2wt result.
-			$body->appendChild( $body->ownerDocument->createComment( self::STATIC_RANDOM_STRING ) );
+			$body->appendChild( $doc->createComment( self::STATIC_RANDOM_STRING ) );
 		} elseif ( $test->changes !== [] ) {
 			$applyChangesInternal( $body, $test->changes );
 		}
@@ -467,8 +469,6 @@ class TestRunner {
 			error_log( 'Change tree : ' . json_encode( $test->changes ) . "\n" );
 			ContentUtils::dumpDOM( $body, 'Edited DOM' );
 		}
-
-		return $body;
 	}
 
 	/**
@@ -476,13 +476,11 @@ class TestRunner {
 	 *
 	 * @param array $options
 	 * @param Test $test
-	 * @param DOMElement $body
-	 * @return array $The body and change tree.
-	 *  - body DOMElement The altered body.
-	 *  - changetree array The list of changes.
+	 * @param DOMDocument $doc
+	 * @return array The list of changes.
 	 */
 	private function generateChanges(
-		array $options, Test $test, DOMElement $body
+		array $options, Test $test, DOMDocument $doc
 	): array {
 		$alea = new Alea( ( $test->seed ?? '' ) . ( $test->testName ?? '' ) );
 
@@ -587,6 +585,8 @@ class TestRunner {
 			return $hasChangeMarkers( $changelist ) ? $changelist : [];
 		};
 
+		$body = DOMCompat::getBody( $doc );
+
 		$changetree = null;
 		$numAttempts = 0;
 		do {
@@ -603,18 +603,17 @@ class TestRunner {
 			$test->duplicateChange = true;
 		}
 
-		return [ 'body' => $body, 'changetree' => $changetree ];
+		return $changetree;
 	}
 
 	/**
 	 * Apply manually-specified changes, which are provided in a pseudo-jQuery
 	 * format.
 	 *
-	 * @param DOMElement $body
+	 * @param DOMDocument $doc
 	 * @param array $changes
-	 * @return DOMElement The changed body.
 	 */
-	private function applyManualChanges( DOMElement $body, array $changes ): DOMElement {
+	private function applyManualChanges( DOMDocument $doc, array $changes ) {
 		$err = null;
 		// changes are specified using jquery methods.
 		//  [x,y,z...] becomes $(x)[y](z....)
@@ -739,6 +738,8 @@ class TestRunner {
 			}
 		];
 
+		$body = DOMCompat::getBody( $doc );
+
 		foreach ( $changes as $change ) {
 			if ( $err ) {
 				continue;
@@ -776,7 +777,6 @@ class TestRunner {
 			print TestUtils::colorString( (string)$err, "red" ) . "\n";
 			throw $err;
 		}
-		return $body;
 	}
 
 	/**
@@ -786,11 +786,11 @@ class TestRunner {
 	 * @param Test $test
 	 * @param string $mode
 	 * @param string $wikitext
-	 * @return DOMElement
+	 * @return DOMDocument
 	 */
 	private function convertWt2Html(
 		Env $env, Test $test, string $mode, string $wikitext
-	): DOMElement {
+	): DOMDocument {
 		// FIXME: Ugly!  Maybe we should switch to using the entrypoint to
 		// the library for parserTests instead of reusing the environment
 		// and touching these internals.
@@ -806,7 +806,7 @@ class TestRunner {
 		}
 		$handler = $env->getContentHandler();
 		$doc = $handler->toDOM( $env );
-		return DOMCompat::getBody( $doc );
+		return $doc;
 	}
 
 	/**
@@ -816,11 +816,11 @@ class TestRunner {
 	 * @param Test $test
 	 * @param array $options
 	 * @param string $mode
-	 * @param DOMElement $body
+	 * @param DOMDocument $doc
 	 * @return string
 	 */
 	private function convertHtml2Wt(
-		Env $env, Test $test, array $options, string $mode, DOMElement $body
+		Env $env, Test $test, array $options, string $mode, DOMDocument $doc
 	): string {
 		$selserData = null;
 		$startsAtWikitext = $mode === 'wt2wt' || $mode === 'wt2html' || $mode === 'selser';
@@ -830,7 +830,7 @@ class TestRunner {
 			}
 		}
 		$handler = $env->getContentHandler();
-		$env->topLevelDoc = $body->ownerDocument;
+		$env->topLevelDoc = $doc;
 		return $handler->fromDOM( $env, $selserData );
 	}
 
@@ -869,7 +869,7 @@ class TestRunner {
 			( !empty( $test->options['parsoid'] ) &&
 			!isset( $test->options['parsoid']['normalizePhp'] ) );
 		$test->time['start'] = microtime( true );
-		$body = null;
+		$doc = null;
 		$wt = null;
 
 		// Source preparation
@@ -881,17 +881,17 @@ class TestRunner {
 				// therefore causes false failures.
 				$html = TestUtils::normalizePhpOutput( $html );
 			}
-			$body = DOMCompat::getBody( $env->createDocument( $html ) );
-			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $body );
+			$doc = ContentUtils::createDocumentWithBag( $html );
+			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $doc );
 		} else { // startsAtWikitext
 			// Always serialize DOM to string and reparse before passing to wt2wt
 			if ( $test->cachedBODYstr === null ) {
-				$body = $this->convertWt2Html( $env, $test, $mode, $test->wikitext );
+				$doc = $this->convertWt2Html( $env, $test, $mode, $test->wikitext );
 				// Caching stage 1 - save the result of the first two stages
 				// so we can maybe skip them later
 
 				// Cache parsed HTML
-				$test->cachedBODYstr = ContentUtils::toXML( $body );
+				$test->cachedBODYstr = ContentUtils::toXML( DOMCompat::getBody( $doc ) );
 
 				// - In wt2html mode, pass through original DOM
 				//   so that it is serialized just once.
@@ -901,10 +901,10 @@ class TestRunner {
 				if ( $mode === 'wt2html' ) {
 					// no-op
 				} else {
-					$body = DOMCompat::getBody( $env->createDocument( $test->cachedBODYstr ) );
+					$doc = ContentUtils::createDocumentWithBag( $test->cachedBODYstr );
 				}
 			} else {
-				$body = DOMCompat::getBody( $env->createDocument( $test->cachedBODYstr ) );
+				$doc = ContentUtils::createDocumentWithBag( $test->cachedBODYstr );
 			}
 		}
 
@@ -916,40 +916,38 @@ class TestRunner {
 				// Ensure that we have this set here in case it hasn't been
 				// set in buildTasks because the 'selser=noauto' option was passed.
 				$test->changetree = [ 'manual' ];
-				$body = $this->applyManualChanges( $body, $test->options['parsoid']['changes'] );
+				$this->applyManualChanges( $doc, $test->options['parsoid']['changes'] );
 			} else {
 				$changetree = isset( $options['changetree'] ) ?
 					json_decode( $options['changetree'] ) : $test->changetree;
-				if ( $changetree ) {
-					$r = [ 'body' => $body, 'changetree' => $changetree ];
-				} else {
-					$r = $this->generateChanges( $options, $test, $body );
+				if ( !$changetree ) {
+					$changetree = $this->generateChanges( $options, $test, $doc );
 				}
-				$body = $this->applyChanges( $env, $test, $r['body'], $r['changetree'] );
+				$this->applyChanges( $env, $test, $doc, $changetree );
 			}
 			// Save the modified DOM so we can re-test it later
 			// Always serialize to string and reparse before passing to selser/wt2wt
-			$test->changedHTMLStr = ContentUtils::toXML( $body );
-			$body = DOMCompat::getBody( $env->createDocument( $test->changedHTMLStr ) );
+			$test->changedHTMLStr = ContentUtils::toXML( DOMCompat::getBody( $doc ) );
+			$doc = ContentUtils::createDocumentWithBag( $test->changedHTMLStr );
 		} elseif ( $mode === 'wt2wt' ) {
 			// handle a 'changes' option if present.
 			if ( isset( $test->options['parsoid']['changes'] ) ) {
-				$body = $this->applyManualChanges( $body, $test->options['parsoid']['changes'] );
+				$this->applyManualChanges( $doc, $test->options['parsoid']['changes'] );
 			}
 		}
 
 		// Roundtrip stage
 		if ( $mode === 'wt2wt' || $mode === 'selser' ) {
-			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $body );
+			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $doc );
 		} elseif ( $mode === 'html2html' ) {
-			$body = $this->convertWt2Html( $env, $test, $mode, $wt );
+			$doc = $this->convertWt2Html( $env, $test, $mode, $wt );
 		}
 
 		// Processing stage
 		if ( $endsAtWikitext ) {
 			$this->processSerializedWT( $env, $test, $options, $mode, $wt );
 		} elseif ( $endsAtHtml ) {
-			$this->processParsedHTML( $test, $options, $mode, $body );
+			$this->processParsedHTML( $test, $options, $mode, $doc );
 		}
 	}
 
@@ -960,14 +958,16 @@ class TestRunner {
 	 * @param Test $test
 	 * @param array $options
 	 * @param string $mode
-	 * @param DOMElement $body
+	 * @param DOMDocument $doc
 	 */
 	private function processParsedHTML(
-		Test $test, array $options, string $mode, DOMElement $body
+		Test $test, array $options, string $mode, DOMDocument $doc
 	): void {
 		$test->time['end'] = microtime( true );
 		// Check the result vs. the expected result.
-		$checkPassed = $this->checkHTML( $test, $body, $options, $mode );
+		$checkPassed = $this->checkHTML(
+			$test, DOMCompat::getBody( $doc ), $options, $mode
+		);
 
 		// Only throw an error if --exit-unexpected was set and there was an error
 		// Otherwise, continue running tests
@@ -995,8 +995,8 @@ class TestRunner {
 			if ( $test->changetree === [ 5 ] ) {
 				$test->resultWT = $test->wikitext;
 			} else {
-				$body = DOMCompat::getBody( $env->createDocument( $test->changedHTMLStr ) );
-				$test->resultWT = $this->convertHtml2Wt( $env, $test, $options, 'wt2wt', $body );
+				$doc = ContentUtils::createDocumentWithBag( $test->changedHTMLStr );
+				$test->resultWT = $this->convertHtml2Wt( $env, $test, $options, 'wt2wt', $doc );
 			}
 		}
 

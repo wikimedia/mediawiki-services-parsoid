@@ -42,6 +42,38 @@ class ContentUtils {
 	}
 
 	/**
+	 * @param DOMDocument $doc
+	 */
+	public static function prepareDoc( DOMDocument $doc ) {
+		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		$doc->bag = new DataBag();
+
+		// Cache the head and body.
+		DOMCompat::getHead( $doc );
+		DOMCompat::getBody( $doc );
+	}
+
+	/**
+	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
+	 * to create new documents when parsing or serializing.  A document lives
+	 * on the environment which can be used to create fragments.  The bag added
+	 * here as a dynamic property to the PHP wrapper around the libxml doc
+	 * is at risk of being GC.
+	 *
+	 * @param string $html
+	 * @param bool $validateXMLNames
+	 * @return DOMDocument
+	 */
+	public static function createDocumentWithBag(
+		string $html = '', bool $validateXMLNames = false
+	): DOMDocument {
+		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
+		self::prepareDoc( $doc );
+		return $doc;
+	}
+
+	/**
 	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
 	 * to create new documents when parsing or serializing.  A document lives
 	 * on the environment which can be used to create fragments.  The bag added
@@ -55,18 +87,10 @@ class ContentUtils {
 	public static function createAndLoadDocument(
 		string $html, array $options = []
 	): DOMDocument {
-		$doc = DOMUtils::parseHTML( $html );
-
-		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = new DataBag();
-
-		// Cache the head and body.
-		DOMCompat::getHead( $doc );
-		$body = DOMCompat::getBody( $doc );
-
-		DOMDataUtils::visitAndLoadDataAttribs( $body, $options );
-
+		$doc = self::createDocumentWithBag( $html );
+		DOMDataUtils::visitAndLoadDataAttribs(
+			DOMCompat::getBody( $doc ), $options
+		);
 		return $doc;
 	}
 
