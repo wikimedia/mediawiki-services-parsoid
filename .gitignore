@@ -9,6 +9,7 @@
 .api-testing.config.json
 npm-debug.log
 node_modules
+.eslintcache
 
 contrib/
 extensions/
