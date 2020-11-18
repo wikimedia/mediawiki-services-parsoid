@@ -173,6 +173,10 @@ class References extends ExtensionTagHandler {
 
 		$validFollow = false;
 
+		if ( !$hasRefName && $refsData->inReferencesContent() ) {
+			$errs[] = [ 'key' => 'cite_error_references_no_key' ];
+		}
+
 		if ( $hasFollow ) {
 			// Always wrap follows content so that there's no ambiguity
 			// where to find it when roundtripping
