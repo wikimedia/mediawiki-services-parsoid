@@ -286,9 +286,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isInlineMedia( DOMNode $node ): bool {
-		return DOMUtils::matchNameAndTypeOf(
-			$node, 'figure-inline', '#^mw:(Image|Video|Audio)($|/)#D'
-		) !== null;
+		return self::isGeneratedFigure( $node ) &&
+			$node->nodeName !== 'figure';  // span, figure-inline
 	}
 
 	/**
@@ -296,7 +295,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isGeneratedFigure( DOMNode $node ): bool {
-		return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)($|/)#' ) !== null;
+		return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)($|/)#D' ) !== null;
 	}
 
 	/**
@@ -828,7 +827,7 @@ class WTUtils {
 	 * @return ?ExtensionTagHandler
 	 */
 	public static function getNativeExt( Env $env, DOMNode $node ): ?ExtensionTagHandler {
-		$match = DOMUtils::matchTypeOf( $node, '/^mw:Extension\/(.+?)$/' );
+		$match = DOMUtils::matchTypeOf( $node, '#^mw:Extension/(.+?)$#D' );
 		$matchingTag = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
 		return $matchingTag ?
 			$env->getSiteConfig()->getExtTagImpl( $matchingTag ) : null;

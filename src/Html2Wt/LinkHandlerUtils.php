@@ -1042,9 +1042,10 @@ class LinkHandlerUtils {
 
 		// Maybe this is "missing" media, i.e. a redlink
 		$isMissing = false;
-		if ( !$elt && preg_match( '/^figure/', $outerElt->nodeName ) &&
-			$outerElt->firstChild && $outerElt->firstChild->nodeName === 'a' &&
-			$outerElt->firstChild->firstChild && $outerElt->firstChild->firstChild->nodeName === 'span'
+		if (
+			!$elt &&
+			( $outerElt->firstChild->nodeName ?? '' ) === 'a' &&
+			( $outerElt->firstChild->firstChild->nodeName ?? '' ) === 'span'
 		) {
 			$linkElt = $outerElt->firstChild;
 			$elt = $linkElt->firstChild;

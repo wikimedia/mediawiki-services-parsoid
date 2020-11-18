@@ -217,7 +217,11 @@ class ContentUtils {
 				DOMDataUtils::setJSONAttribute( $node, 'data-mw-variant', $dmwv );
 			}
 
-			if ( DOMUtils::matchTypeOf( $node, '#^mw:(ExpandedAttrs|Image|Extension)\b#D' ) ) {
+			if (
+				DOMUtils::matchTypeOf( $node, '#^mw:Extension/(.+?)$#D' ) ||
+				WTUtils::hasExpandedAttrsType( $node ) ||
+				WTUtils::isInlineMedia( $node )
+			) {
 				$dmw = DOMDataUtils::getDataMw( $node );
 				// Handle embedded HTML in template-affected attributes
 				if ( $dmw->attribs ?? null ) {
@@ -229,7 +233,7 @@ class ContentUtils {
 						}
 					}
 				}
-				// Handle embedded HTML in figure-inline captions
+				// Handle embedded HTML in inline media captions
 				if ( $dmw->caption ?? null ) {
 					$dmw->caption = $convertString( $dmw->caption );
 				}

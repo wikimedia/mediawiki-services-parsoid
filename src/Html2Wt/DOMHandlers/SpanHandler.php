@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 class SpanHandler extends DOMHandler {
 
@@ -32,9 +33,7 @@ class SpanHandler extends DOMHandler {
 				$ext = $env->getSiteConfig()->getExtTagImpl( 'nowiki' );
 				$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
 				$state->serializer->emitWikitext( $src, $node );
-			} elseif ( DOMUtils::matchTypeOf(
-				$node, '#^mw:(Image|Video|Audio)(/(Frame|Frameless|Thumb))?$#'
-			) ) {
+			} elseif ( WTUtils::isInlineMedia( $node ) ) {
 				// TODO: Remove when 1.5.0 content is deprecated,
 				// since we no longer emit media in spans.  See the test,
 				// "Serialize simple image with span wrapper"
