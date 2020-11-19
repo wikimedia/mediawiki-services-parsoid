@@ -16,7 +16,7 @@ use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
- * These utilites pertain to extracting / modifying wikitext information from the DOM.
+ * These utilites pertain to querying / extracting / modifying wikitext information from the DOM.
  */
 class WTUtils {
 	private const FIRST_ENCAP_REGEXP =
@@ -553,6 +553,21 @@ class WTUtils {
 				return true;
 			}
 			$parentNode = $parentNode->parentNode;
+		}
+		return false;
+	}
+
+	/**
+	 * Is $node from encapsulated (template, extension, etc.) content?
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function fromEncapsulatedContent( DOMNode $node ): bool {
+		while ( $node && !DOMUtils::atTheTop( $node ) ) {
+			if ( self::findFirstEncapsulationWrapperNode( $node ) !== null ) {
+				return true;
+			}
+			$node = $node->parentNode;
 		}
 		return false;
 	}
