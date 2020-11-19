@@ -237,7 +237,9 @@ class References extends ExtensionTagHandler {
 
 		if ( $missingContent ) {
 			// Check for missing name and content to generate error code
-			if ( !$hasRefName ) {
+			if ( $refsData->inReferencesContent() ) {
+				$errs[] = [ 'key' => 'cite_error_empty_references_define' ];
+			} elseif ( !$hasRefName ) {
 				if ( !empty( $cDp->selfClose ) ) {
 					$errs[] = [ 'key' => 'cite_error_ref_no_key' ];
 				} else {
