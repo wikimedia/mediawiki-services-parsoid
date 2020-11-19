@@ -288,7 +288,9 @@ class TableFixups {
 					// Save the content and add in a marker to splice out later.
 					$nowikis[] = $child->textContent;
 					$buf[] = '<nowiki-marker>';
-				} elseif ( $child->getAttribute( "rel" ) === "mw:WikiLink" ) {
+				} elseif ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
+					WTUtils::isGeneratedFigure( $child )
+				) {
 					// Wikilinks abort attribute parsing
 					return self::buildRes( $buf, $nowikis, $transclusions );
 				} else {
@@ -344,14 +346,14 @@ class TableFixups {
 		// Collect attribute content and examine it
 		$attributishContent = $this->collectAttributishContent( $env, $cell, $templateWrapper );
 
-		/**
-		 * If $cell is part of templated content, this count will be zero
-		 * We could add that more expensive check here if useful
-		 * if ( count( $attributishContent['transclusions'] ) === 0 ) {
-		 * // If there are no templates, no point retrying a parse
-		 * return;
-		 * }
-		 */
+		// This DOM pass is trying to bridge broken parses across
+		// template boundaries. so, if templates aren't involved,
+		// no reason to reparse.
+		if ( count( $attributishContent['transclusions'] ) === 0 &&
+			!WTUtils::fromEncapsulatedContent( $cell )
+		) {
+			return;
+		}
 
 		$attrText = $attributishContent['txt'] ?? '';
 		// Check for the pipe character in the attributish text.

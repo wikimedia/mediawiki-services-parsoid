@@ -23,6 +23,12 @@ Template:td_style_and_content
 style='border:1px solid blue' | foobar
 !! endarticle
 
+!! article
+Template:td_attrs_and_content
+!! text
+{{{1}}} | foobar
+!! endarticle
+
 !! test
 Unsupported scenario: Cell combining with captions
 !! options
@@ -120,5 +126,37 @@ Table cell attributes and content from multiple templates
 <table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
 <td class="foo" style="border:1px solid blue" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[],[]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_class","href":"./Template:Td_class"},"params":{},"i":0}}," ",{"template":{"target":{"wt":"td_style_and_content","href":"./Template:Td_style_and_content"},"params":{},"i":1}}," baz"]}'>foobar baz</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Table cell attribute merging edge cases
+!! wikitext
+{|
+| {{td_attrs_and_content|1=<div>foo</div> class="foo"}} baz
+|-
+|{{td_attrs_and_content|1=[[No Merging Here]] class="foo"}} baz
+|-
+|{{td_attrs_and_content|1=[[File:Foo.jpg]] class="foo"}} baz
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td class="foo">foobar baz
+</td></tr>
+<tr>
+<td><a href="/index.php?title=No_Merging_Here&amp;action=edit&amp;redlink=1" class="new" title="No Merging Here (page does not exist)">No Merging Here</a> class="foo" | foobar baz
+</td></tr>
+<tr>
+<td><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg">File:Foo.jpg</a> class="foo" | foobar baz
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr>
+<td class="foo" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"&lt;div>foo&lt;/div> class=\"foo\""}},"i":0}}," baz"]}'>foobar baz</td></tr>
+<tr>
+<td><a rel="mw:WikiLink" href="./No_Merging_Here" title="No Merging Here" about="#mwt2" typeof="mw:Transclusion" class="new" data-parsoid='{"stx":"simple","a":{"href":"./No_Merging_Here"},"sa":{"href":"No Merging Here"},"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[No Merging Here]] class=\"foo\""}},"i":0}}]}'>No Merging Here</a><span about="#mwt2"> class="foo" | foobar</span> baz</td></tr>
+<tr>
+<td><figure-inline class="mw-default-size" typeof="mw:Transclusion mw:Error mw:Image" about="#mwt3" data-parsoid='{"optList":[],"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[File:Foo.jpg]] class=\"foo\""}},"i":0}}]}'><a href="./Special:FilePath/Foo.jpg"><span resource="./File:Foo.jpg">File:Foo.jpg</span></a></figure-inline><span about="#mwt3"> class="foo" | foobar</span> baz</td></tr>
 </tbody></table>
 !! end
