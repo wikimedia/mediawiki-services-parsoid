@@ -111,6 +111,7 @@ class References extends ExtensionTagHandler {
 		ParsoidExtensionAPI $extApi, DOMElement $node, ReferencesData $refsData
 	): void {
 		$doc = $node->ownerDocument;
+		$errs = [];
 
 		// This is data-parsoid from the dom fragment node that's gone through
 		// dsr computation and template wrapping.
@@ -143,6 +144,13 @@ class References extends ExtensionTagHandler {
 		// elt has a group attribute, what takes precedence?
 		$groupName = $refDmw->attrs->group ?? $refsData->referencesGroup;
 
+		if (
+			$refsData->inReferencesContent() &&
+			$groupName !== $refsData->referencesGroup
+		) {
+			$errs[] = [ 'key' => 'cite_error_references_group_mismatch' ];
+		}
+
 		// NOTE: This will have been trimmed in Utils::getExtArgInfo()'s call
 		// to TokenUtils::kvToHash() and ExtensionHandler::normalizeExtOptions()
 		$refName = $refDmw->attrs->name ?? '';
@@ -163,7 +171,6 @@ class References extends ExtensionTagHandler {
 		$linkBack = $doc->createElement( 'sup' );
 
 		$ref = null;
-		$errs = [];
 
 		$hasRefName = strlen( $refName ) > 0;
 		$hasFollow = strlen( $followName ) > 0;
