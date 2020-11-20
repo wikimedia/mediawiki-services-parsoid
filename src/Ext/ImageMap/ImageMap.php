@@ -195,7 +195,7 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 			$externLink = (bool)preg_match( "/^mw:ExtLink/", $a->getAttribute( 'rel' ) );
 			$alt = '';
 
-			$hasContent = $externLink || DOMDataUtils::getDataParsoid( $a )->stx === 'piped';
+			$hasContent = $externLink || ( DOMDataUtils::getDataParsoid( $a )->stx ?? null ) === 'piped';
 
 			if ( $hasContent ) {
 				// FIXME: The legacy extension does ad hoc link parsing, which
