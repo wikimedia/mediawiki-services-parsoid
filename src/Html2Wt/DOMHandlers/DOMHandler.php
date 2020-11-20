@@ -207,7 +207,7 @@ class DOMHandler {
 		$space = $this->getLeadingSpace( $state, $node, ' ' );
 
 		$res = '';
-		while ( $node ) {
+		while ( !DOMUtils::atTheTop( $node ) ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			$stx = $dp->stx ?? null;
 			if ( ( $stx !== 'html' || isset( $dp->liHackSrc ) ) && isset( $listTypes[$node->nodeName] ) ) {
