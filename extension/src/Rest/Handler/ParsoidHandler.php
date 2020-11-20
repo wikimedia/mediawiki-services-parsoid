@@ -206,7 +206,7 @@ abstract class ParsoidHandler extends Handler {
 		$attribs = [
 			'titleMissing' => empty( $request->getPathParams()['title'] ),
 			'pageName' => $request->getPathParam( 'title' ) ?? '',
-			'oldid' => $request->getPathParam( 'revision' ) ?? null,
+			'oldid' => $request->getPathParam( 'revision' ),
 			// "body_only" flag to return just the body (instead of the entire HTML doc)
 			// We would like to deprecate use of this flag: T181657
 			'body_only' => $request->getQueryParams()['body_only'] ?? $body['body_only'] ?? null,

@@ -101,7 +101,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function onlySubtreeChanged( DOMElement $node, Env $env ): bool {
-		$dmark = self::getDiffMark( $node, $env ) ?? null;
+		$dmark = self::getDiffMark( $node, $env );
 		if ( !$dmark ) {
 			return false;
 		}

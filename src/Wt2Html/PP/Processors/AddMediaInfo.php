@@ -46,6 +46,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$height = $info['thumbheight'];
 		}
 
+		// @phan-suppress-next-line PhanRedundantCondition
 		if ( !empty( $info['thumburl'] ) && !empty( $info['thumbwidth'] ) ) {
 			$width = $info['thumbwidth'];
 		}
