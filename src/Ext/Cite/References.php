@@ -404,6 +404,10 @@ class References extends ExtensionTagHandler {
 			}
 		}
 
+		// Note that `$sup`s here are probably all we really need to check for
+		// errors caught with `$refsData->inReferencesContent()` but it's
+		// probably easier to just know that state while they're being
+		// constructed.
 		$nestedRefsHTML = array_map(
 			function ( DOMElement $sup ) use ( $extApi ) {
 				return $extApi->domToHtml( $sup, false, true ) . "\n";
@@ -531,7 +535,7 @@ class References extends ExtensionTagHandler {
 					self::extractRefFromNode( $extApi, $child, $refsData );
 				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Extension/references' ) ) {
 					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group ?? null;
-					$refsData->pushInEmbeddedContent();
+					$refsData->pushInEmbeddedContent( 'references' );
 					self::processRefsInReferences(
 						$extApi,
 						$refsData,

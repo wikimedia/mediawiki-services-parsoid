@@ -23,14 +23,32 @@ class ReferencesData {
 	public $embeddedErrors = [];
 
 	/** @var array */
-	private $inEmbeddedContent = [ false ];
+	private $inEmbeddedContent = [];
 
-	public function inEmbeddedContent(): bool {
-		return $this->inEmbeddedContent[0];
+	/**
+	 * @return bool
+	 */
+	public function inReferencesContent(): bool {
+		return $this->inEmbeddedContent( 'references' );
 	}
 
-	public function pushInEmbeddedContent() {
-		array_unshift( $this->inEmbeddedContent, true );
+	/**
+	 * @param ?string $needle
+	 * @return bool
+	 */
+	public function inEmbeddedContent( ?string $needle = null ): bool {
+		if ( $needle ) {
+			return in_array( $needle, $this->inEmbeddedContent, true );
+		} else {
+			return count( $this->inEmbeddedContent ) > 0;
+		}
+	}
+
+	/**
+	 * @param string $needle
+	 */
+	public function pushInEmbeddedContent( string $needle = 'embed' ) {
+		array_unshift( $this->inEmbeddedContent, $needle );
 	}
 
 	public function popInEmbeddedContent() {
