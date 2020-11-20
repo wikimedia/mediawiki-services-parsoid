@@ -607,7 +607,7 @@ class Separators {
 			$parentNode = $parentNode->parentNode;
 		}
 
-		'@phan-var \DOMElement $parentNode'; // @var \DOMElement $parentNode
+		'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
 			( DOMUtils::isElt( $node ) || !preg_match( '/^[ \t]/', $node->nodeValue ) )
 		) {
@@ -649,12 +649,13 @@ class Separators {
 	private function fetchTrailingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
 		$sep = null;
 		$parentNode = $node->parentNode;
-		if ( $parentNode instanceof DOMElement
-			&& $parentNode->hasAttribute( 'data-mw-selser-wrapper' )
+		if (
+			$parentNode instanceof DOMElement &&
+			$parentNode->hasAttribute( 'data-mw-selser-wrapper' )
 		) {
 			$parentNode = $parentNode->parentNode;
 		}
-		'@phan-var \DOMElement $parentNode'; // @var \DOMElement $parentNode
+		'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
 			( DOMUtils::isElt( $node ) || !preg_match( '/[ \t]$/', $node->nodeValue ) )
 		) {
@@ -757,11 +758,15 @@ class Separators {
 			WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node );
 
 		if ( $origSepNeededAndUsable ) {
-			if ( !DOMUtils::isElt( $prevNode ) ) {
+			if ( $prevNode instanceof DOMElement ) {
+				$dsrA = self::handleAutoInserted( $prevNode );
+			} elseif ( !( $prevNode instanceof DOMDocumentFragment ) ) {
 				// Check if this is the last child of a zero-width element, and use
 				// that for dsr purposes instead. Typical case: text in p.
-				if ( !$prevNode->nextSibling && $prevNode->parentNode && $prevNode->parentNode !== $node &&
-					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr ?? null ) &&
+				if (
+					!$prevNode->nextSibling &&
+					$prevNode->parentNode !== $node &&
+					$prevNode->parentNode instanceof DOMElement &&
 					( DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr->closeWidth ?? null ) === 0
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );
@@ -791,42 +796,13 @@ class Separators {
 						);
 					}
 				}
-			} else {
-				$dsrA = self::handleAutoInserted( $prevNode );
 			}
 
 			if ( !$dsrA ) {
 				// nothing to do -- no reason to compute dsrB if dsrA is null
-			} elseif ( !DOMUtils::isElt( $node ) ) {
-				// If this is the child of a zero-width element
-				// and is only preceded by separator elements, we
-				// can use the parent for dsr after correcting the dsr
-				// with the separator run length.
-				//
-				// 1. text in p.
-				// 2. ws-only child of a node with auto-inserted start tag
-				// Ex: "<span> <s>x</span> </s>" --> <span> <s>x</s*></span><s*> </s>
-				// 3. ws-only children of a node with auto-inserted start tag
-				// Ex: "{|\n|-\n <!--foo--> \n|}"
-				$parentNode = $node->parentNode;
-				/** @var DOMElement $parentNode */
-				DOMUtils::assertElt( $parentNode );
-
-				$npDP = DOMDataUtils::getDataParsoid( $parentNode );
-				if ( $parentNode !== $prevNode && isset( $npDP->dsr ) && $npDP->dsr->openWidth === 0 ) {
-					$sepTxt = self::precedingSeparatorTxt( $node );
-					if ( $sepTxt !== null ) {
-						$dsrB = $npDP->dsr;
-						if ( is_int( $dsrB->start ) && strlen( $sepTxt ) > 0 ) {
-							$dsrB = clone $dsrB;
-							$dsrB->start += strlen( $sepTxt );
-						}
-					}
-				}
-			} else {
+			} elseif ( $node instanceof DOMElement ) {
 				if ( $prevNode->parentNode === $node ) {
-					/** @var DOMElement $node */
-					DOMUtils::assertElt( $node );
+					'@phan-var DOMElement|DOMDocumentFragment $node'; // @var DOMElement|DOMDocumentFragment $node
 					// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
 					//
 					// When we are in the lastChild sep scenario and the parent doesn't have
@@ -835,8 +811,11 @@ class Separators {
 					//
 					// This fix is needed to handle trailing newlines in this wikitext:
 					// [[File:foo.jpg|thumb|300px|foo\n{{1x|A}}\n{{1x|B}}\n{{1x|C}}\n\n]]
-					while ( !$node->nextSibling && !DOMUtils::atTheTop( $node ) &&
-						( empty( DOMDataUtils::getDataParsoid( $node )->dsr ) ||
+					while (
+						!$node->nextSibling &&
+						!DOMUtils::atTheTop( $node ) &&
+						(
+							empty( DOMDataUtils::getDataParsoid( $node )->dsr ) ||
 							DOMDataUtils::getDataParsoid( $node )->dsr->start === null ||
 							DOMDataUtils::getDataParsoid( $node )->dsr->end === null
 						)
@@ -848,6 +827,35 @@ class Separators {
 				// The top node could be a document fragment, which is not
 				// an element, and so getDataParsoid will return `null`.
 				$dsrB = $node instanceof DOMElement ? self::handleAutoInserted( $node ) : null;
+			} elseif ( !( $node instanceof DOMDocumentFragment ) ) {
+				// If this is the child of a zero-width element
+				// and is only preceded by separator elements, we
+				// can use the parent for dsr after correcting the dsr
+				// with the separator run length.
+				//
+				// 1. text in p.
+				// 2. ws-only child of a node with auto-inserted start tag
+				// Ex: "<span> <s>x</span> </s>" --> <span> <s>x</s*></span><s*> </s>
+				// 3. ws-only children of a node with auto-inserted start tag
+				// Ex: "{|\n|-\n <!--foo--> \n|}"
+				$parentNode = $node->parentNode;
+				// phpcs:ignore Generic.Files.LineLength.TooLong
+				'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
+
+				if (
+					$parentNode !== $prevNode &&
+					$parentNode instanceof DOMElement &&
+					( DOMDataUtils::getDataParsoid( $parentNode )->dsr->openWidth ?? null ) === 0
+				) {
+					$sepTxt = self::precedingSeparatorTxt( $node );
+					if ( $sepTxt !== null ) {
+						$dsrB = DOMDataUtils::getDataParsoid( $parentNode )->dsr;
+						if ( is_int( $dsrB->start ) && strlen( $sepTxt ) > 0 ) {
+							$dsrB = clone $dsrB;
+							$dsrB->start += strlen( $sepTxt );
+						}
+					}
+				}
 			}
 
 			// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
