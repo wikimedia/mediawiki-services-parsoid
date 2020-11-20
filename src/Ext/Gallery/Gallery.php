@@ -280,7 +280,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}
 		$startTagSrc = $extApi->extStartTagToWikitext( $node );
 
-		if ( !$dataMw->body ) {
+		if ( !isset( $dataMw->body ) ) {
 			return $startTagSrc; // We self-closed this already.
 		} else {
 			// FIXME: VE should signal to use the HTML by removing the
