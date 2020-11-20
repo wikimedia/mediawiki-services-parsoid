@@ -772,7 +772,7 @@ class Separators {
 					// Should be fixed.
 					!empty( DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr ) &&
 					// Don't extrapolate if the string was potentially changed
-					!DiffUtils::directChildrenChanged( $node->parentNode, $this->env )
+					!DiffUtils::directChildrenChanged( $prevNode->parentNode, $this->env )
 				) {
 					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr->end ?? null;
 					$correction = null;
