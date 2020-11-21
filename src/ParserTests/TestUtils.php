@@ -74,7 +74,7 @@ class TestUtils {
 			] );
 			if ( is_string( $domBody ) ) {
 				// Careful about the lifetime of this document
-				$doc = ContentUtils::createDocumentWithBag( $domBody );
+				$doc = ContentUtils::createDocument( $domBody );
 				$domBody = DOMCompat::getBody( $doc );
 			}
 			DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );

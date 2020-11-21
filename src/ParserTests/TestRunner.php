@@ -881,7 +881,7 @@ class TestRunner {
 				// therefore causes false failures.
 				$html = TestUtils::normalizePhpOutput( $html );
 			}
-			$doc = ContentUtils::createDocumentWithBag( $html );
+			$doc = ContentUtils::createDocument( $html );
 			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $doc );
 		} else { // startsAtWikitext
 			// Always serialize DOM to string and reparse before passing to wt2wt
@@ -901,10 +901,10 @@ class TestRunner {
 				if ( $mode === 'wt2html' ) {
 					// no-op
 				} else {
-					$doc = ContentUtils::createDocumentWithBag( $test->cachedBODYstr );
+					$doc = ContentUtils::createDocument( $test->cachedBODYstr );
 				}
 			} else {
-				$doc = ContentUtils::createDocumentWithBag( $test->cachedBODYstr );
+				$doc = ContentUtils::createDocument( $test->cachedBODYstr );
 			}
 		}
 
@@ -928,7 +928,7 @@ class TestRunner {
 			// Save the modified DOM so we can re-test it later
 			// Always serialize to string and reparse before passing to selser/wt2wt
 			$test->changedHTMLStr = ContentUtils::toXML( DOMCompat::getBody( $doc ) );
-			$doc = ContentUtils::createDocumentWithBag( $test->changedHTMLStr );
+			$doc = ContentUtils::createDocument( $test->changedHTMLStr );
 		} elseif ( $mode === 'wt2wt' ) {
 			// handle a 'changes' option if present.
 			if ( isset( $test->options['parsoid']['changes'] ) ) {
@@ -995,7 +995,7 @@ class TestRunner {
 			if ( $test->changetree === [ 5 ] ) {
 				$test->resultWT = $test->wikitext;
 			} else {
-				$doc = ContentUtils::createDocumentWithBag( $test->changedHTMLStr );
+				$doc = ContentUtils::createDocument( $test->changedHTMLStr );
 				$test->resultWT = $this->convertHtml2Wt( $env, $test, $options, 'wt2wt', $doc );
 			}
 		}

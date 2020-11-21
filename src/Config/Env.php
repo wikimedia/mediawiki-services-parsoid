@@ -16,7 +16,7 @@ use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -732,7 +732,7 @@ class Env {
 				$this->dispatcher
 			) = $this->createDocumentDispatcher();
 		}
-		ContentUtils::prepareDoc( $this->topLevelDoc );
+		DOMDataUtils::prepareDoc( $this->topLevelDoc );
 	}
 
 	/**

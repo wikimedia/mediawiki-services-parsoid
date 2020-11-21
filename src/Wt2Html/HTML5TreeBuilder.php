@@ -214,9 +214,8 @@ class HTML5TreeBuilder extends PipelineStage {
 				}
 				return true;
 		} );
-		// Store in the top level bag since we'll be importing the nodes after treebuilding
-		// @phan-suppress-next-line PhanUndeclaredProperty
-		$docId = $this->env->topLevelDoc->bag->stashObject( (object)$data );
+		// Store in the top level doc since we'll be importing the nodes after treebuilding
+		$docId = DOMDataUtils::stashObjectInDoc( $this->env->topLevelDoc, (object)$data );
 		$attribs[] = new KV( DOMDataUtils::DATA_OBJECT_ATTR_NAME, (string)$docId );
 		return $attribs;
 	}

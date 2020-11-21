@@ -25,11 +25,34 @@ class DOMDataUtils {
 	 * @param DOMDocument $doc
 	 * @return DataBag
 	 */
-	public static function getBag( DOMDocument $doc ): DataBag {
+	private static function getBag( DOMDocument $doc ): DataBag {
 		// This is a dynamic property; it is not declared.
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
 		return $doc->bag;
+	}
+
+	/**
+	 * @param DOMDocument $doc
+	 */
+	public static function prepareDoc( DOMDocument $doc ) {
+		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		$doc->bag = new DataBag();
+
+		// Cache the head and body.
+		DOMCompat::getHead( $doc );
+		DOMCompat::getBody( $doc );
+	}
+
+	/**
+	 * Stash $obj in $doc and return an id for later retrieval
+	 * @param DOMDocument $doc
+	 * @param stdClass $obj
+	 * @return int
+	 */
+	public static function stashObjectInDoc( DOMDocument $doc, stdClass $obj ): int {
+		return self::getBag( $doc )->stashObject( $obj );
 	}
 
 	/**
@@ -85,7 +108,7 @@ class DOMDataUtils {
 	 * @param stdClass $data data
 	 */
 	public static function setNodeData( DOMElement $node, stdClass $data ): void {
-		$docId = self::getBag( $node->ownerDocument )->stashObject( $data );
+		$docId = self::stashObjectInDoc( $node->ownerDocument, $data );
 		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$docId );
 	}
 

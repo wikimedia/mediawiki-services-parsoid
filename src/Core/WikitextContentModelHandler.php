@@ -91,9 +91,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 			$doc = $this->toDOM( $env );
 			$env->topLevelDoc = $topLevelDoc;
 		} else {
-			$doc = ContentUtils::createDocumentWithBag(
-				$selserData->oldHTML, true
-			);
+			$doc = ContentUtils::createDocument( $selserData->oldHTML, true );
 		}
 
 		$this->canonicalizeDOM( $env, $doc );

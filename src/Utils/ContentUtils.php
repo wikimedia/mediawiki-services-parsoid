@@ -42,34 +42,21 @@ class ContentUtils {
 	}
 
 	/**
-	 * @param DOMDocument $doc
-	 */
-	public static function prepareDoc( DOMDocument $doc ) {
-		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = new DataBag();
-
-		// Cache the head and body.
-		DOMCompat::getHead( $doc );
-		DOMCompat::getBody( $doc );
-	}
-
-	/**
 	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
 	 * to create new documents when parsing or serializing.  A document lives
 	 * on the environment which can be used to create fragments.  The bag added
-	 * here as a dynamic property to the PHP wrapper around the libxml doc
-	 * is at risk of being GC.
+	 * as a dynamic property to the PHP wrapper around the libxml doc
+	 * is at risk of being GC-ed.
 	 *
 	 * @param string $html
 	 * @param bool $validateXMLNames
 	 * @return DOMDocument
 	 */
-	public static function createDocumentWithBag(
+	public static function createDocument(
 		string $html = '', bool $validateXMLNames = false
 	): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
-		self::prepareDoc( $doc );
+		DOMDataUtils::prepareDoc( $doc );
 		return $doc;
 	}
 
@@ -77,8 +64,8 @@ class ContentUtils {
 	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
 	 * to create new documents when parsing or serializing.  A document lives
 	 * on the environment which can be used to create fragments.  The bag added
-	 * here as a dynamic property to the PHP wrapper around the libxml doc
-	 * is at risk of being GC.
+	 * as a dynamic property to the PHP wrapper around the libxml doc
+	 * is at risk of being GC-ed.
 	 *
 	 * @param string $html
 	 * @param array $options
@@ -87,7 +74,7 @@ class ContentUtils {
 	public static function createAndLoadDocument(
 		string $html, array $options = []
 	): DOMDocument {
-		$doc = self::createDocumentWithBag( $html );
+		$doc = self::createDocument( $html );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), $options
 		);
