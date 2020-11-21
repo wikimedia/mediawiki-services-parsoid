@@ -280,6 +280,7 @@ class TableFixups {
 					// continue to apply. Ex: <ref> tags might leave an orphaned ref in
 					// the <references> section).
 					$child = WTUtils::skipOverEncapsulatedContent( $child );
+					continue;
 				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
 					$buf[] = $child->textContent;
 				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Nowiki' ) ) {
