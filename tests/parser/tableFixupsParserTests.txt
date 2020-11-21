@@ -18,12 +18,6 @@ class="foo"
 !! endarticle
 
 !! article
-Template:td_style_and_content
-!! text
-style='border:1px solid blue' | foobar
-!! endarticle
-
-!! article
 Template:td_attrs_and_content
 !! text
 {{{1}}} | foobar
@@ -114,7 +108,7 @@ Table cell attributes and content from multiple templates
 !! wikitext
 {|
 |-
-| {{td_class}} {{td_style_and_content}} baz
+| {{td_class}} {{td_attrs_and_content|1=style='border:1px solid blue'}} baz
 |}
 !! html/php
 <table>
@@ -125,7 +119,7 @@ Table cell attributes and content from multiple templates
 !! html/parsoid
 <table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
-<td class="foo" style="border:1px solid blue" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[],[]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_class","href":"./Template:Td_class"},"params":{},"i":0}}," ",{"template":{"target":{"wt":"td_style_and_content","href":"./Template:Td_style_and_content"},"params":{},"i":1}}," baz"]}'>foobar baz</td></tr>
+<td class="foo" style="border:1px solid blue" typeof="mw:Transclusion" about="#mwt2" data-parsoid='{"pi":[[],[{"k":"1","named":true}]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_class","href":"./Template:Td_class"},"params":{},"i":0}}," ",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"style=&apos;border:1px solid blue&apos;"}},"i":1}}," baz"]}'>foobar baz</td></tr>
 </tbody></table>
 !! end
 
