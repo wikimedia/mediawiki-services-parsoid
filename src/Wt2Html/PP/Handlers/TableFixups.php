@@ -347,14 +347,21 @@ class TableFixups {
 		// Collect attribute content and examine it
 		$attributishContent = $this->collectAttributishContent( $env, $cell, $templateWrapper );
 
-		// This DOM pass is trying to bridge broken parses across
-		// template boundaries. so, if templates aren't involved,
-		// no reason to reparse.
-		if ( count( $attributishContent['transclusions'] ) === 0 &&
-			!WTUtils::fromEncapsulatedContent( $cell )
-		) {
-			return;
-		}
+		/**
+		 * FIXME: These checks are insufficient.
+		 * Previous rounds of table fixups might have created this cell without
+		 * any templated content (the while loop in handleTableCellTemplates).
+		 * Till we figure out a reliable test for this, we'll reparse attributes always.
+		 *
+		 * // This DOM pass is trying to bridge broken parses across
+		 * // template boundaries. so, if templates aren't involved,
+		 * // no reason to reparse.
+		 * if ( count( $attributishContent['transclusions'] ) === 0 &&
+		 * 	!WTUtils::fromEncapsulatedContent( $cell )
+		 * ) {
+		 * 	return;
+		 * }
+		 */
 
 		$attrText = $attributishContent['txt'] ?? '';
 		// Check for the pipe character in the attributish text.
@@ -533,8 +540,10 @@ class TableFixups {
 				$child = WTUtils::skipOverEncapsulatedContent( $child );
 			} else {
 				if ( $child instanceof DOMElement ) {
-					if ( $child->getAttribute( "rel" ) === "mw:WikiLink" ) {
-						// Wikilinks abort attribute parsing
+					if ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
+						WTUtils::isGeneratedFigure( $child )
+					) {
+						// Wikilinks/images abort attribute parsing
 						return self::NO_REPARSING;
 					}
 					if ( preg_match( $testRE, DOMCompat::getOuterHTML( $child ) ) ) {

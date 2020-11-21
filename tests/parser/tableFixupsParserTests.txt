@@ -154,3 +154,24 @@ Table cell attribute merging edge cases
 <td><figure-inline class="mw-default-size" typeof="mw:Transclusion mw:Error mw:Image" about="#mwt3" data-parsoid='{"optList":[],"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[File:Foo.jpg]] class=\"foo\""}},"i":0}}]}'><a href="./Special:FilePath/Foo.jpg"><span resource="./File:Foo.jpg">File:Foo.jpg</span></a></figure-inline><span about="#mwt3"> class="foo" | foobar</span> baz</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Fixup of interrupted table-cell parsing because of multi-line tranclusion
+!! wikitext
+{|
+! class="c1" | Col 1 !! class="c2" |{{1x|
+1=Col 2}} !! class="c3" | Col 3 !! class="c4" | Col 4
+|}
+!! html/php
+<table>
+<tbody><tr>
+<th class="c1">Col 1</th>
+<th class="c2">Col 2</th>
+<th class="c3">Col 3</th>
+<th class="c4">Col 4
+</th></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><th class="c1">Col 1</th><th class="c2" data-parsoid='{"stx":"row"}'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["\n","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Col 2"}},"i":0}}]}'>Col 2</span></th><th class="c3" data-parsoid="{}">Col 3</th><th class="c4" data-parsoid="{}">Col 4</th></tr>
+</tbody></table>
+!! end
