@@ -17,6 +17,9 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  */
 class DOMUtilsTest extends TestCase {
 
+	/** @var DOMDocument[] */
+	private $liveDocs = [];
+
 	/**
 	 * @covers ::isDiffMarker
 	 */
@@ -24,8 +27,7 @@ class DOMUtilsTest extends TestCase {
 		$orig = '<p>a</p><p>b</p>';
 		$edit = '<p>A</p><p>b</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:first-child' ),
@@ -45,8 +47,7 @@ class DOMUtilsTest extends TestCase {
 		$orig = '<p>a</p><p>b</p>';
 		$edit = '<p>a</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers( $body, [ 'children-changed' ] );
 
@@ -63,8 +64,7 @@ class DOMUtilsTest extends TestCase {
 		$orig = '<p>a</p><p>b</p>';
 		$edit = '<p>b</p><p>a</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
@@ -94,8 +94,7 @@ class DOMUtilsTest extends TestCase {
 		$orig = '<p>a</p>';
 		$edit = '<p>x</p><p>a</p><p>y</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers( $body, [ 'children-changed' ] );
 
@@ -127,8 +126,7 @@ class DOMUtilsTest extends TestCase {
 		$orig = '<p>a</p><p>b</p><p>c</p>';
 		$edit = '<p>x</p><p>b</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers( $body, [ 'children-changed' ] );
 
@@ -155,8 +153,7 @@ class DOMUtilsTest extends TestCase {
 		$orig = '<p class="a">a</p><p class="b">b</p>';
 		$edit = '<p class="X">a</p><p class="b">b</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers( $body, [ 'children-changed' ] );
 
@@ -175,8 +172,7 @@ class DOMUtilsTest extends TestCase {
 		$edit = '<p about="#mwt1" typeof="mw:Transclusion" data-mw=\'{"parts":[{"template":' .
 			'{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"foo"}},"i":0}}]}\'>foo</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers( $body, [ 'children-changed' ] );
 
@@ -199,8 +195,7 @@ class DOMUtilsTest extends TestCase {
 			'{"1":{"wt":"foo\n\nbar\n\nbaz"}},"i":0}}]}\'>foo</p>' .
 			'<p about="#mwt1">bar</p><p about="#mwt1">baz</p>';
 
-		$doc = $this->parseAndDiff( $orig, $edit );
-		$body = DOMCompat::getBody( $doc );
+		$body = $this->parseAndDiff( $orig, $edit );
 
 		$this->checkMarkers( $body, [ 'children-changed' ] );
 
@@ -213,9 +208,9 @@ class DOMUtilsTest extends TestCase {
 	/**
 	 * @param string $html1
 	 * @param string $html2
-	 * @return DOMDocument
+	 * @return DOMElement
 	 */
-	private function parseAndDiff( string $html1, string $html2 ): DOMDocument {
+	private function parseAndDiff( string $html1, string $html2 ): DOMElement {
 		$mockEnv = new MockEnv( [] );
 
 		$doc1 = ContentUtils::createAndLoadDocument( $html1 );
@@ -227,7 +222,11 @@ class DOMUtilsTest extends TestCase {
 		$domDiff = new DOMDiff( $mockEnv );
 		$domDiff->diff( $body1, $body2 );
 
-		return $doc2;
+		// Prevent GC from reclaiming doc2 once we exit this function.
+		// Necessary hack because we use PHPDOM which wraps libxml.
+		$this->liveDocs[] = $doc2;
+
+		return DOMCompat::getBody( $doc2 );
 	}
 
 	private function selectNode( DOMElement $body, string $selector ): DOMElement {
