@@ -41,7 +41,7 @@ class CleanUpTest extends TestCase {
 
 		$doc = ContentUtils::createAndLoadDocument( $html );
 
-		// Prevent GC from reclaiming doc2 once we exit this function.
+		// Prevent GC from reclaiming $doc once we exit this function.
 		// Necessary hack because we use PHPDOM which wraps libxml.
 		$this->liveDocs[] = $doc;
 
