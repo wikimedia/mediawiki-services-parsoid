@@ -177,18 +177,6 @@ class References extends ExtensionTagHandler {
 
 		$validFollow = false;
 
-		// FIXME: Reconcile this with `$hasFollow`
-		if ( $refsData->inReferencesContent() ) {
-			if ( $hasRefName ) {
-				$group = $refsData->getRefGroup( $groupName );
-				if ( !isset( $group->indexByName[$refName] ) ) {
-					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
-				}
-			} else {
-				$errs[] = [ 'key' => 'cite_error_references_no_key' ];
-			}
-		}
-
 		if ( $hasFollow ) {
 			// Always wrap follows content so that there's no ambiguity
 			// where to find it when roundtripping
@@ -200,10 +188,21 @@ class References extends ExtensionTagHandler {
 			);
 			DOMUtils::migrateChildren( $c, $span );
 			$c->appendChild( $span );
+		}
 
-			if ( $hasRefName ) {
+		if ( $hasRefName ) {
+			if ( $hasFollow ) {
+				// Presumably, "name" has higher precedence
 				$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
-			} else {
+			}
+			if ( $refsData->inReferencesContent() ) {
+				$group = $refsData->getRefGroup( $groupName );
+				if ( !isset( $group->indexByName[$refName] ) ) {
+					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
+				}
+			}
+		} else {
+			if ( $hasFollow ) {
 				// This is a follows ref, so check that a named ref has already
 				// been defined
 				$group = $refsData->getRefGroup( $groupName );
@@ -228,6 +227,8 @@ class References extends ExtensionTagHandler {
 					// equivalent key and just outputs something wacky.
 					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
 				}
+			} elseif ( $refsData->inReferencesContent() ) {
+				$errs[] = [ 'key' => 'cite_error_references_no_key' ];
 			}
 		}
 
