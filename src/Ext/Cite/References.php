@@ -177,8 +177,16 @@ class References extends ExtensionTagHandler {
 
 		$validFollow = false;
 
-		if ( !$hasRefName && $refsData->inReferencesContent() ) {
-			$errs[] = [ 'key' => 'cite_error_references_no_key' ];
+		// FIXME: Reconcile this with `$hasFollow`
+		if ( $refsData->inReferencesContent() ) {
+			if ( $hasRefName ) {
+				$group = $refsData->getRefGroup( $groupName );
+				if ( !isset( $group->indexByName[$refName] ) ) {
+					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
+				}
+			} else {
+				$errs[] = [ 'key' => 'cite_error_references_no_key' ];
+			}
 		}
 
 		if ( $hasFollow ) {
@@ -213,6 +221,11 @@ class References extends ExtensionTagHandler {
 						// This will be set below with `$ref->contentId = $contentId;`
 					}
 				} else {
+					// FIXME: This key isn't exactly appropriate since this
+					// is more general than just being in a <references>
+					// section and it's the $followName we care about, but the
+					// extension to the legacy parser doesn't have an
+					// equivalent key and just outputs something wacky.
 					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
 				}
 			}
