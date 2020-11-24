@@ -183,7 +183,7 @@ class TableFixups {
 		$aboutId = $lastTpl->getAttribute( 'about' );
 
 		// Hoist transclusion information to $td.
-		$td->setAttribute( 'typeof', $lastTpl->getAttribute( 'typeof' ) );
+		$td->setAttribute( 'typeof', 'mw:Transclusion' );
 		$td->setAttribute( 'about', $aboutId );
 
 		// Add wikitext for the table cell content following $lastTpl
