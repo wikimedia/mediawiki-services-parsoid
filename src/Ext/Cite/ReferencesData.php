@@ -25,6 +25,9 @@ class ReferencesData {
 	/** @var array */
 	private $inEmbeddedContent = [];
 
+	/** @var string */
+	public $referencesGroup = '';
+
 	/**
 	 * @return bool
 	 */

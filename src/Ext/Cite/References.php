@@ -106,12 +106,9 @@ class References extends ExtensionTagHandler {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMElement $node
 	 * @param ReferencesData $refsData
-	 * @param ?string $referencesGroup
 	 */
 	private static function extractRefFromNode(
-		ParsoidExtensionAPI $extApi,
-		DOMElement $node, ReferencesData $refsData,
-		?string $referencesGroup = ''
+		ParsoidExtensionAPI $extApi, DOMElement $node, ReferencesData $refsData
 	): void {
 		$doc = $node->ownerDocument;
 
@@ -144,7 +141,7 @@ class References extends ExtensionTagHandler {
 		// FIXME(SSS): Need to clarify semantics here.
 		// If both the containing <references> elt as well as the nested <ref>
 		// elt has a group attribute, what takes precedence?
-		$groupName = $refDmw->attrs->group ?? $referencesGroup ?? '';
+		$groupName = $refDmw->attrs->group ?? $refsData->referencesGroup;
 
 		// NOTE: This will have been trimmed in Utils::getExtArgInfo()'s call
 		// to TokenUtils::kvToHash() and ExtensionHandler::normalizeExtOptions()
@@ -540,16 +537,19 @@ class References extends ExtensionTagHandler {
 				if ( WTUtils::isSealedFragmentOfType( $child, 'ref' ) ) {
 					self::extractRefFromNode( $extApi, $child, $refsData );
 				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Extension/references' ) ) {
-					$referencesGroup = DOMDataUtils::getDataParsoid( $child )->group ?? null;
+					if ( !$refsData->inReferencesContent() ) {
+						$refsData->referencesGroup =
+							DOMDataUtils::getDataParsoid( $child )->group ?? '';
+					}
 					$refsData->pushInEmbeddedContent( 'references' );
-					self::processRefsInReferences(
-						$extApi,
-						$refsData,
-						$child,
-						$referencesGroup
-					);
+					if ( $child->hasChildNodes() ) {
+						self::processRefs( $extApi, $refsData, $child );
+					}
 					$refsData->popInEmbeddedContent();
-					self::insertReferencesIntoDOM( $extApi, $child, $refsData, false );
+					if ( !$refsData->inReferencesContent() ) {
+						$refsData->referencesGroup = '';
+						self::insertReferencesIntoDOM( $extApi, $child, $refsData, false );
+					}
 				} else {
 					$refsData->pushInEmbeddedContent();
 					// Look for <ref>s embedded in data attributes
@@ -559,50 +559,9 @@ class References extends ExtensionTagHandler {
 						}
 					);
 					$refsData->popInEmbeddedContent();
-
 					if ( $child->hasChildNodes() ) {
 						self::processRefs( $extApi, $refsData, $child );
 					}
-				}
-			}
-			$child = $nextChild;
-		}
-	}
-
-	/**
-	 * This handles wikitext like this:
-	 * ```
-	 *   <references> <ref>foo</ref> </references>
-	 *   <references> <ref>bar</ref> </references>
-	 * ```
-	 *
-	 * @param ParsoidExtensionAPI $extApi
-	 * @param ReferencesData $refsData
-	 * @param DOMElement $node
-	 * @param ?string $referencesGroup
-	 */
-	private static function processRefsInReferences(
-		ParsoidExtensionAPI $extApi, ReferencesData $refsData,
-		DOMElement $node, ?string $referencesGroup
-	): void {
-		$child = $node->firstChild;
-		while ( $child !== null ) {
-			$nextChild = $child->nextSibling;
-			if ( $child instanceof DOMElement ) {
-				if ( WTUtils::isSealedFragmentOfType( $child, 'ref' ) ) {
-					self::extractRefFromNode(
-						$extApi,
-						$child,
-						$refsData,
-						$referencesGroup
-					);
-				} elseif ( $child->hasChildNodes() ) {
-					self::processRefsInReferences(
-						$extApi,
-						$refsData,
-						$child,
-						$referencesGroup
-					);
 				}
 			}
 			$child = $nextChild;
