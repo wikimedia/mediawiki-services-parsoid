@@ -118,8 +118,8 @@ class Ref extends ExtensionTagHandler {
 			if ( !$bodyElt ) {
 				$extraDebug = '';
 				$firstA = DOMCompat::querySelector( $node, 'a[href]' );
-				$href = $firstA->getAttribute( 'href' );
-				if ( $firstA && preg_match( '/^#/', $href ) ) {
+				if ( $firstA && preg_match( '/^#/', $firstA->getAttribute( 'href' ) ) ) {
+					$href = $firstA->getAttribute( 'href' );
 					try {
 						$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
 						if ( $ref ) {
@@ -129,7 +129,6 @@ class Ref extends ExtensionTagHandler {
 						// We are just providing VE with debugging info.
 						// So, ignore all exceptions / errors in this code.
 					}
-
 					if ( !$extraDebug ) {
 						$extraDebug = ' [reference ' . $href . ' not found]';
 					}
