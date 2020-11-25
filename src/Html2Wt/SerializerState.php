@@ -283,6 +283,9 @@ class SerializerState {
 	 */
 	public $protect;
 
+	/** @var Separators */
+	public $separators;
+
 	/** @var Env */
 	private $env;
 
@@ -315,6 +318,7 @@ class SerializerState {
 		$this->singleLineContext = new SingleLineContext();
 		$this->resetSep();
 		$this->haveTrimmedWsDSR = Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.1' );
+		$this->separators = new Separators( $this->env, $this );
 	}
 
 	/**
@@ -559,7 +563,7 @@ class SerializerState {
 		if ( $origSep !== null && WTSUtils::isValidSep( $origSep ) ) {
 			$this->emitSep( $origSep, $node, 'ORIG-SEP:' );
 		} else {
-			$sep = $this->serializer->buildSep( $node );
+			$sep = $this->separators->buildSep( $node );
 			$this->emitSep( $sep ?: '', $node, 'SEP:' );
 		}
 	}
@@ -573,7 +577,7 @@ class SerializerState {
 	 * @return string|null
 	 */
 	public function recoverTrimmedWhitespace( DOMNode $node, bool $leading ): ?string {
-		$sep = $this->serializer->recoverTrimmedWhitespace( $node, $leading );
+		$sep = $this->separators->recoverTrimmedWhitespace( $node, $leading );
 		$this->serializer->trace( '--->', "TRIMMED-SEP:", function () use ( $sep ) {
 			return PHPUtils::jsonEncode( $sep );
 		} );

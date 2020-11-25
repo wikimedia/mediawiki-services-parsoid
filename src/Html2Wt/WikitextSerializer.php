@@ -107,9 +107,6 @@ class WikitextSerializer {
 	/** @var SerializerState */
 	private $state;
 
-	/** @var Separators */
-	private $separators;
-
 	/**
 	 * @var array
 	 *   - env: (Env)
@@ -135,7 +132,6 @@ class WikitextSerializer {
 		] );
 		$this->logType = $this->options['logType'];
 		$this->state = new SerializerState( $this, $this->options );
-		$this->separators = new Separators( $this->env, $this->state );
 		$this->wteHandlers = new WikitextEscapeHandlers( $this->options );
 	}
 
@@ -177,42 +173,6 @@ class WikitextSerializer {
 	 */
 	public function languageVariantHandler( DOMNode $node ): void {
 		LanguageVariantHandler::handleLanguageVariant( $this->state, $node );
-	}
-
-	/**
-	 * Figure out separator constraints and merge them with existing constraints
-	 * in state so that they can be emitted when the next content emits source.
-	 * @param DOMNode $nodeA
-	 * @param DOMHandler $handlerA
-	 * @param DOMNode $nodeB
-	 * @param DOMHandler $handlerB
-	 */
-	public function updateSeparatorConstraints(
-		DOMNode $nodeA, DOMHandler $handlerA, DOMNode $nodeB, DOMHandler $handlerB
-	): void {
-		$this->separators->updateSeparatorConstraints( $nodeA, $handlerA, $nodeB, $handlerB );
-	}
-
-	/**
-	 * Emit a separator based on the collected (and merged) constraints
-	 * and existing separator text. Called when new output is triggered.
-	 * @param DOMNode $node
-	 * @return string|null
-	 */
-	public function buildSep( DOMNode $node ): ?string {
-		return $this->separators->buildSep( $node );
-	}
-
-	/**
-	 * Recovers and emits any trimmed whitespace for $node
-	 * @param DOMNode $node
-	 * @param bool $leading
-	 *   if true, trimmed leading whitespace is emitted
-	 *   if false, trimmed railing whitespace is emitted
-	 * @return string|null
-	 */
-	public function recoverTrimmedWhitespace( DOMNode $node, bool $leading ): ?string {
-		return $this->separators->recoverTrimmedWhitespace( $node, $leading );
 	}
 
 	/**
@@ -1383,7 +1343,7 @@ class WikitextSerializer {
 		}
 
 		$prev = DOMUtils::previousNonSepSibling( $node ) ?: $node->parentNode;
-		$this->updateSeparatorConstraints(
+		$state->separators->updateSeparatorConstraints(
 			$prev, $domHandlerFactory->getDOMHandler( $prev ),
 			$node, $domHandler
 		);
@@ -1391,7 +1351,7 @@ class WikitextSerializer {
 		$nextNode = call_user_func( $method, $node, $domHandler );
 
 		$next = DOMUtils::nextNonSepSibling( $node ) ?: $node->parentNode;
-		$this->updateSeparatorConstraints(
+		$state->separators->updateSeparatorConstraints(
 			$node, $domHandler,
 			$next, $domHandlerFactory->getDOMHandler( $next )
 		);
