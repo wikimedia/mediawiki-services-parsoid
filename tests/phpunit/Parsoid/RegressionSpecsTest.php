@@ -112,6 +112,22 @@ class RegressionSpecsTest extends TestCase {
 	}
 
 	/**
+	 * should prevent regression of T268737
+	 * @covers \Wikimedia\Parsoid\Html2Wt\Separators::recoverTrimmedWhitespace
+	 */
+	public function testPreventRegressionT268737(): void {
+		$description = "Regression Specs: should prevent regression of T262737";
+		$wt = "* [[Foo]]--[[Bar]]";
+		$searchItems = [ '--' ];
+		$replaceItems = [ '..' ];
+		$withoutSelser = "*[[Foo]]..[[Bar]]";
+		$withSelser = "* [[Foo]]..[[Bar]]";
+
+		$this->sharedTest( $description, $wt, $searchItems, $replaceItems,
+			$withoutSelser, $withSelser );
+	}
+
+	/**
 	 * should ensure edited lists, headings, table cells preserve original
 	 * whitespace in some scenarios
 	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline

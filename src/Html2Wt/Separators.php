@@ -595,6 +595,19 @@ class Separators {
 	}
 
 	/**
+	 * $node is embedded inside a parent node that has its leading/trailing whitespace trimmed
+	 * in the wt->html direction. In this method, we attempt to recover leading trimmed whitespace
+	 * using DSR information on $node.
+	 *
+	 * In some cases, $node might have an additional "data-mw-selser-wrapper" span
+	 * that is added by SelSer - look past those wrappers.
+	 *
+	 * The recovery is attempted in two different ways:
+	 * 1. If we have additional DSR fields about leading/trailing WS
+	 *    (represented by $state->haveTrimmedWsDSR), that info is used.
+	 * 2. If not, we simply inspect source at $dsr->innerStart and if it
+	 *    happens to be whitespace, we use that.
+	 *
 	 * @param SerializerState $state
 	 * @param DOMNode $node
 	 * @return ?string
@@ -602,7 +615,9 @@ class Separators {
 	private function fetchLeadingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
 		$parentNode = $node->parentNode;
 		if ( $parentNode instanceof DOMElement &&
-			$parentNode->hasAttribute( 'data-mw-selser-wrapper' )
+			$parentNode->hasAttribute( 'data-mw-selser-wrapper' ) &&
+			// Leading trimmed whitespace only make sense for first child
+			!$parentNode->previousSibling
 		) {
 			$parentNode = $parentNode->parentNode;
 		}
@@ -642,6 +657,19 @@ class Separators {
 	}
 
 	/**
+	 * $node is embedded inside a parent node that has its leading/trailing whitespace trimmed
+	 * in the wt->html direction. In this method, we attempt to recover trailing trimmed whitespace
+	 * using DSR information on $node.
+	 *
+	 * In some cases, $node might have an additional "data-mw-selser-wrapper" span
+	 * that is added by SelSer - look past those wrappers.
+	 *
+	 * The recovery is attempted in two different ways:
+	 * 1. If we have additional DSR fields about leading/trailing WS
+	 *    (represented by $state->haveTrimmedWsDSR), that info is used.
+	 * 2. If not, we simply inspect source at $dsr->innerEnd and if it
+	 *    happens to be whitespace, we use that.
+	 *
 	 * @param SerializerState $state
 	 * @param DOMNode $node
 	 * @return ?string
@@ -651,7 +679,9 @@ class Separators {
 		$parentNode = $node->parentNode;
 		if (
 			$parentNode instanceof DOMElement &&
-			$parentNode->hasAttribute( 'data-mw-selser-wrapper' )
+			$parentNode->hasAttribute( 'data-mw-selser-wrapper' ) &&
+			// Trailing trimmed whitespace only make sense for last child
+			!$parentNode->nextSibling
 		) {
 			$parentNode = $parentNode->parentNode;
 		}
