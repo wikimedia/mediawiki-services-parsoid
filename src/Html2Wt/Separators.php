@@ -117,17 +117,16 @@ class Separators {
 	 * Collects, checks and integrates separator newline requirements to a simple
 	 * min, max structure.
 	 *
-	 * @param SerializerState $state
 	 * @param DOMNode $nodeA
 	 * @param array $aCons
 	 * @param DOMNode $nodeB
 	 * @param array $bCons
 	 * @return array
 	 */
-	private static function getSepNlConstraints(
-		SerializerState $state, DOMNode $nodeA, array $aCons, DOMNode $nodeB, array $bCons
+	private function getSepNlConstraints(
+		DOMNode $nodeA, array $aCons, DOMNode $nodeB, array $bCons
 	): array {
-		$env = $state->getEnv();
+		$env = $this->state->getEnv();
 
 		$nlConstraints = [
 			'min' => $aCons['min'] ?? null,
@@ -186,14 +185,11 @@ class Separators {
 	 * Create a separator given a (potentially empty) separator text and newline
 	 * constraints.
 	 *
-	 * @param SerializerState $state
 	 * @param string $sep
 	 * @param array $nlConstraints
 	 * @return string
 	 */
-	private static function makeSeparator(
-		SerializerState $state, string $sep, array $nlConstraints
-	): string {
+	private function makeSeparator( string $sep, array $nlConstraints ): string {
 		$origSep = $sep;
 
 		// Split on comment/ws-only lines, consuming subsequent newlines since
@@ -208,7 +204,7 @@ class Separators {
 		$sepNlCount = preg_match_all( '/\n/', implode( preg_split( $splitRe, $sep ) ) );
 		$minNls = $nlConstraints['min'] ?? 0;
 
-		if ( $state->atStartOfOutput && $minNls > 0 ) {
+		if ( $this->state->atStartOfOutput && $minNls > 0 ) {
 			// Skip first newline as we are in start-of-line context
 			$minNls--;
 		}
@@ -288,7 +284,7 @@ class Separators {
 			$sep = implode( $newBits );
 		}
 
-		$state->getEnv()->log(
+		$this->state->getEnv()->log(
 			'debug/wts/sep',
 			'make-new   |',
 			function () use ( $nlConstraints, $sepNlCount, $minNls, $sep, $origSep ) {
@@ -389,7 +385,7 @@ class Separators {
 			$aCons = $nodeA instanceof DOMElement ? $sepHandlerA->after( $nodeA, $nodeB, $state ) : [];
 			$bCons = $nodeB instanceof DOMElement ? $sepHandlerB->before( $nodeB, $nodeA, $state ) : [];
 		}
-		$nlConstraints = self::getSepNlConstraints( $state, $nodeA, $aCons, $nodeB, $bCons );
+		$nlConstraints = $this->getSepNlConstraints( $nodeA, $aCons, $nodeB, $bCons );
 
 		if ( !empty( $state->sep->constraints ) ) {
 			// Merge the constraints
@@ -433,14 +429,14 @@ class Separators {
 	}
 
 	/**
-	 * @param SerializerState $state
 	 * @param string $sep
 	 * @param array $nlConstraints
 	 * @return string
 	 */
 	private function makeSepIndentPreSafe(
-		SerializerState $state, string $sep, array $nlConstraints
+		string $sep, array $nlConstraints
 	): string {
+		$state = $this->state;
 		$constraintInfo = $nlConstraints['constraintInfo'] ?? [];
 		$sepType = $constraintInfo['sepType'] ?? null;
 		$nodeA = $constraintInfo['nodeA'] ?? null;
@@ -608,11 +604,10 @@ class Separators {
 	 * 2. If not, we simply inspect source at $dsr->innerStart and if it
 	 *    happens to be whitespace, we use that.
 	 *
-	 * @param SerializerState $state
 	 * @param DOMNode $node
 	 * @return ?string
 	 */
-	private function fetchLeadingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
+	private function fetchLeadingTrimmedSpace( DOMNode $node ): ?string {
 		$parentNode = $node->parentNode;
 		if ( $parentNode instanceof DOMElement &&
 			$parentNode->hasAttribute( 'data-mw-selser-wrapper' ) &&
@@ -636,6 +631,7 @@ class Separators {
 				return null;
 			}
 
+			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
 				if ( $state->haveTrimmedWsDSR && (
@@ -670,11 +666,10 @@ class Separators {
 	 * 2. If not, we simply inspect source at $dsr->innerEnd and if it
 	 *    happens to be whitespace, we use that.
 	 *
-	 * @param SerializerState $state
 	 * @param DOMNode $node
 	 * @return ?string
 	 */
-	private function fetchTrailingTrimmedSpace( SerializerState $state, DOMNode $node ): ?string {
+	private function fetchTrailingTrimmedSpace( DOMNode $node ): ?string {
 		$sep = null;
 		$parentNode = $node->parentNode;
 		if (
@@ -689,6 +684,7 @@ class Separators {
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
 			( DOMUtils::isElt( $node ) || !preg_match( '/[ \t]$/', $node->nodeValue ) )
 		) {
+			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
 				if ( $state->haveTrimmedWsDSR && (
@@ -728,13 +724,12 @@ class Separators {
 	public function recoverTrimmedWhitespace( DOMNode $node, bool $leading ): ?string {
 		// Deal with scenarios where leading / trailing whitespace were trimmed.
 		// We now need to figure out if we need to add any leading / trailing WS back.
-		$state = $this->state;
-		if ( $state->useWhitespaceHeuristics && $state->selserMode ) {
+		if ( $this->state->useWhitespaceHeuristics && $this->state->selserMode ) {
 			if ( $leading ) {
-				return $this->fetchLeadingTrimmedSpace( $state, $node );
+				return $this->fetchLeadingTrimmedSpace( $node );
 			} else {
 				$lastChild = DOMUtils::lastNonDeletedChild( $node );
-				return $lastChild ? $this->fetchTrailingTrimmedSpace( $state, $lastChild ) : null;
+				return $lastChild ? $this->fetchTrailingTrimmedSpace( $lastChild ) : null;
 			}
 		}
 
@@ -940,14 +935,14 @@ class Separators {
 			if ( !empty( $state->sep->constraints ) || !empty( $state->sep->src ) ) {
 				// TODO: set modified flag if start or end node (but not both) are
 				// modified / new so that the selser can use the separator
-				$sep = self::makeSeparator( $state, $state->sep->src ?? '', $sepConstraints );
+				$sep = $this->makeSeparator( $state->sep->src ?? '', $sepConstraints );
 			} else {
 				$sep = null;
 			}
 		}
 
 		if ( $sep !== null ) {
-			$sep = self::makeSepIndentPreSafe( $state, $sep, $sepConstraints );
+			$sep = self::makeSepIndentPreSafe( $sep, $sepConstraints );
 		}
 		return $sep;
 	}
