@@ -28,7 +28,6 @@ use Language;
 use LanguageConverter;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use MagicWordArray;
-use MagicWordFactory;
 use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MutableConfig;
@@ -207,41 +206,23 @@ class SiteConfig extends ISiteConfig {
 	 * don't emit the named grouping constructs, which can cause havoc
 	 * when embedded in other regexps with grouping constructs.
 	 *
-	 * @param MagicWordFactory $factory
 	 * @param MagicWordArray $magicWordArray
 	 * @param string $delimiter
 	 * @return string
 	 */
 	private static function mwaToRegex(
-		MagicWordFactory $factory,
 		MagicWordArray $magicWordArray,
 		string $delimiter = '/'
 	): string {
-		$regex = [ 0 => [], 1 => [] ];
-		foreach ( $magicWordArray->getNames() as $name ) {
-			$magic = $factory->get( $name );
-			$case = $magic->isCaseSensitive() ? 1 : 0;
-			foreach ( $magic->getSynonyms() as $syn ) {
-				$regex[$case][] = preg_quote( $syn, $delimiter );
-			}
-		}
-		'@phan-var array<int,string[]> $regex'; /** @var array<int,string[]> $regex */
-		$result = [];
-		if ( count( $regex[1] ) > 0 ) {
-			$result[] = implode( '|', $regex[1] );
-		}
-		if ( count( $regex[0] ) > 0 ) {
-			$result[] = '(?i:' . implode( '|', $regex[0] ) . ')';
-		}
-		return count( $result ) ? implode( '|', $result ) : '(?!)';
+		return implode( '|', $magicWordArray->getBaseRegex( false, $delimiter ) );
 	}
 
 	public function redirectRegexp(): string {
 		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
 		$redirect = self::mwaToRegex(
-			$mwFactory, $mwFactory->newArray( [ 'redirect' ] ), '@'
+			$mwFactory->newArray( [ 'redirect' ] ), '@'
 		);
-		return "@$redirect@";
+		return "@$redirect@Su";
 	}
 
 	public function categoryRegexp(): string {
@@ -263,9 +244,9 @@ class SiteConfig extends ISiteConfig {
 		$mwFactory = MediaWikiServices::getInstance()->getMagicWordFactory();
 		$words = $mwFactory->getDoubleUnderscoreArray();
 		$bsw = self::mwaToRegex(
-			$mwFactory, $mwFactory->getDoubleUnderscoreArray(), '@'
+			$mwFactory->getDoubleUnderscoreArray(), '@'
 		);
-		return "@$bsw@";
+		return "@$bsw@Su";
 	}
 
 	/** @inheritDoc */
