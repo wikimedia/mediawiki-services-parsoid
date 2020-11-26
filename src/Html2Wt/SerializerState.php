@@ -544,6 +544,7 @@ class SerializerState {
 		 * take care of it. At worst, we might generate a dirty diff in this scenario. */
 		$again = ( $node === $this->sep->lastSourceNode );
 		$origSepUsable = !$again
+			&& $this->prevNode && $this->prevNode->parentNode === $node->parentNode
 			&& $this->prevNodeUnmodified && !WTSUtils::nextToDeletedBlockNodeInWT( $this->prevNode, true )
 			&& $this->currNodeUnmodified && !WTSUtils::nextToDeletedBlockNodeInWT( $node, false );
 
@@ -555,12 +556,14 @@ class SerializerState {
 					DOMDataUtils::getDataParsoid( $this->prevNode )->dsr->end,
 					DOMDataUtils::getDataParsoid( $node )->dsr->start
 				);
-			} else {
+			} elseif ( $this->sep->src && WTSUtils::isValidSep( $this->sep->src ) ) {
+				// We don't know where '$this->sep->src' comes from. So, reuse it
+				// only if it is a valid separator string.
 				$origSep = $this->sep->src;
 			}
 		}
 
-		if ( $origSep !== null && WTSUtils::isValidSep( $origSep ) ) {
+		if ( $origSep !== null ) {
 			$this->emitSep( $origSep, $node, 'ORIG-SEP:' );
 		} else {
 			$sep = $this->separators->buildSep( $node );

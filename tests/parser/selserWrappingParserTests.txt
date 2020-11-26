@@ -191,3 +191,28 @@ Verify that our internal selser wrapper can't be spoofed from wikitext
 !! html/parsoid
 <p><span data-x-data-mw-selser-wrapper="foo">bar</span></p>
 !! end
+
+!! test
+Preserve stray </div> tags between unmodified nodes
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "ul > li", "after", "<li>y-new</li>" ]
+  ]
+}
+!! wikitext
+<div>foo</div></div>
+<div>bar</div></div>
+abcd
+<div>baz</div></div>
+* x
+!! wikitext/edited
+<div>foo</div></div>
+<div>bar</div></div>
+abcd
+<div>baz</div>
+* x
+* y-new
+!! end
