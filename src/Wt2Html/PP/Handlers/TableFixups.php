@@ -365,7 +365,7 @@ class TableFixups {
 
 		$attrText = $attributishContent['txt'] ?? '';
 		// Check for the pipe character in the attributish text.
-		if ( !preg_match( '/^[^|]+\|([^|].*)?$/D', $attrText ) ) {
+		if ( !preg_match( '/^[^|]+\|([^|]|$)/D', $attrText ) ) {
 			return;
 		}
 

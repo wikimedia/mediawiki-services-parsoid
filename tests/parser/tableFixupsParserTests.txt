@@ -23,6 +23,13 @@ Template:td_attrs_and_content
 {{{1}}} | foobar
 !! endarticle
 
+!! article
+Template:td_attrs_and_content_with_newlines
+!! text
+class="foo" | foobar 
+  baz 
+!! endarticle
+
 !! test
 Unsupported scenario: Cell combining with captions
 !! options
@@ -173,5 +180,25 @@ Fixup of interrupted table-cell parsing because of multi-line tranclusion
 !! html/parsoid
 <table>
 <tbody><tr><th class="c1">Col 1</th><th class="c2" data-parsoid='{"stx":"row"}'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["\n","","",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Col 2"}},"i":0}}]}'>Col 2</span></th><th class="c3" data-parsoid="{}">Col 3</th><th class="c4" data-parsoid="{}">Col 4</th></tr>
+</tbody></table>
+!! end
+
+!! test
+Ensure newlines in collected attribute doesn't trip up reparsing
+!! wikitext
+{|
+|rowspan="1" {{td_attrs_and_content_with_newlines}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td rowspan="1" class="foo">foobar
+<pre> baz
+</pre>
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td rowspan="1" class="foo" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|rowspan=\"1\" ",{"template":{"target":{"wt":"td_attrs_and_content_with_newlines","href":"./Template:Td_attrs_and_content_with_newlines"},"params":{},"i":0}}]}'>foobar 
+<pre about="#mwt1"> baz </pre></td></tr>
 </tbody></table>
 !! end
