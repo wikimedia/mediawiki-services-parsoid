@@ -731,6 +731,9 @@ class DOMPostProcessor extends PipelineStage {
 			}
 		}
 
+		// FIXME: Maybe think about using an associative array or DS\Set
+		$modules = array_unique( $modules );
+
 		// PageConfig guarantees language and dir will always be non-null.
 		$lang = $env->getPageConfig()->getPageLanguage();
 		$dir = $env->getPageConfig()->getPageLanguageDir();
