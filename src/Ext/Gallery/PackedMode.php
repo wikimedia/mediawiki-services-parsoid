@@ -74,4 +74,11 @@ class PackedMode extends TraditionalMode {
 		$wrapper->appendChild( $div );
 		$box->appendChild( $wrapper );
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getModules(): array {
+		return [ 'mediawiki.page.gallery' ];
+	}
 }

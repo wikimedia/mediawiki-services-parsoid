@@ -867,4 +867,19 @@ class ParsoidExtensionAPI {
 
 		return $thumb;
 	}
+
+	/**
+	 * @param array $modules
+	 */
+	public function addModules( array $modules ) {
+		$this->env->addOutputProperty( 'modules', $modules );
+	}
+
+	/**
+	 * @param array $modulestyles
+	 */
+	public function addModuleStyles( array $modulestyles ) {
+		$this->env->addOutputProperty( 'modulestyles', $modulestyles );
+	}
+
 }

@@ -33,10 +33,6 @@ class Cite implements ExtensionModule {
 					],
 				]
 			],
-			'styles' => [
-				'ext.cite.style',
-				'ext.cite.styles'
-			]
 		];
 	}
 }

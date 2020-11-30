@@ -23,6 +23,20 @@ abstract class Mode {
 	}
 
 	/**
+	 * @return array
+	 */
+	public function getModules(): array {
+		return [];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getModuleStyles(): array {
+		return [];
+	}
+
+	/**
 	 * Format the dimensions as a string.
 	 * @param Opts $opts
 	 * @return string

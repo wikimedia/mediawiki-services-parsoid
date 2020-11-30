@@ -176,7 +176,6 @@ abstract class SiteConfig {
 		'allTags'        => [],
 		'parsoidExtTags' => [],
 		'domProcessors'  => [],
-		'styles'         => [],
 		'contentModels'  => [],
 	];
 
@@ -1171,18 +1170,6 @@ abstract class SiteConfig {
 			$this->extConfig['domProcessors'][$name] = $extConfig['domProcessors'];
 		}
 
-		// Does this extension export any native styles?
-		// FIXME: When we integrate with core, this will probably generalize
-		// to all resources (scripts, modules, etc). not just styles.
-		// De-dupe styles after merging.
-		// FIXME: This will unconditionally export all styles in the <head>
-		// when DOMPostProcessor fetches this. Instead these styles should
-		// be added to a ParserOutput equivalent object whenever the exttag
-		// is used.
-		$this->extConfig['styles'] = array_unique( array_merge(
-			$this->extConfig['styles'], $extConfig['styles'] ?? []
-		) );
-
 		if ( isset( $extConfig['contentModels'] ) ) {
 			foreach ( $extConfig['contentModels'] as $cm => $spec ) {
 				// For compatibility with mediawiki core, the first
@@ -1279,14 +1266,6 @@ abstract class SiteConfig {
 	public function getExtDOMProcessors(): array {
 		$extConfig = $this->getExtConfig();
 		return $extConfig['domProcessors'];
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getExtStyles(): array {
-		$extConfig = $this->getExtConfig();
-		return $extConfig['styles'];
 	}
 
 	/** @phan-var array<string,int> */

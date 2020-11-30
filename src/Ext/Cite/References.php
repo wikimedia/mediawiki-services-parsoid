@@ -38,6 +38,19 @@ class References extends ExtensionTagHandler {
 	}
 
 	/**
+	 * It should be sufficient to only include styles when we're rendering
+	 * a references tag.
+	 *
+	 * @return array
+	 */
+	private static function getModuleStyles(): array {
+		return [
+			'ext.cite.style',
+			'ext.cite.styles'
+		];
+	}
+
+	/**
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param DOMDocumentFragment $domFragment
 	 * @param array $refsOpts
@@ -98,6 +111,8 @@ class References extends ExtensionTagHandler {
 		if ( $modifyDp ) {
 			$modifyDp( $dp );
 		}
+
+		$extApi->addModuleStyles( self::getModuleStyles() );
 
 		return $frag;
 	}

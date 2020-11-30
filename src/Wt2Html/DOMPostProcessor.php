@@ -718,11 +718,6 @@ class DOMPostProcessor extends PipelineStage {
 			'site.styles'
 		];
 
-		// Styles from native extensions
-		foreach ( $env->getSiteConfig()->getExtStyles() as $style ) {
-			$modules[] = $style;
-		}
-
 		// Styles from modules returned from preprocessor / parse requests
 		$outputProps = $env->getOutputProperties();
 		if ( isset( $outputProps['modulestyles'] ) ) {

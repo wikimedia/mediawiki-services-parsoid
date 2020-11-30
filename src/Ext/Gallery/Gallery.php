@@ -39,7 +39,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					'handler' => self::class,
 				]
 			],
-			'styles' => [ 'mediawiki.page.gallery.styles' ]
 		];
 	}
 
@@ -168,6 +167,8 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		} );
 
 		$mode = Mode::byName( $opts->mode );
+		$extApi->addModules( $mode->getModules() );
+		$extApi->addModuleStyles( $mode->getModuleStyles() );
 		return $mode->render( $extApi, $opts, $caption, $lines );
 	}
 

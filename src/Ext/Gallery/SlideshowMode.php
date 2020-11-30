@@ -23,4 +23,12 @@ class SlideshowMode extends TraditionalMode {
 	protected function perRow( Opts $opts, DOMElement $ul ): void {
 		/* do nothing */
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getModules(): array {
+		return [ 'mediawiki.page.gallery.slideshow' ];
+	}
+
 }

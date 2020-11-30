@@ -228,4 +228,12 @@ class TraditionalMode extends Mode {
 		$ul->appendChild( $domFragment->ownerDocument->createTextNode( "\n" ) );
 		return $domFragment;
 	}
+
+	/**
+	 * @return array
+	 */
+	public function getModuleStyles(): array {
+		return [ 'mediawiki.page.gallery.styles' ];
+	}
+
 }
