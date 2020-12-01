@@ -316,10 +316,15 @@ class References extends ExtensionTagHandler {
 			}
 		}
 
+		$class = 'mw-ref reference';
+		if ( $validFollow ) {
+			$class .= ' mw-ref-follow';
+		}
+
 		$lastLinkback = $ref->linkbacks[count( $ref->linkbacks ) - 1] ?? null;
 		DOMUtils::addAttributes( $linkBack, [
 				'about' => $about,
-				'class' => 'mw-ref reference',
+				'class' => $class,
 				'id' => ( $refsData->inEmbeddedContent() || $validFollow ) ?
 					null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
@@ -347,11 +352,6 @@ class References extends ExtensionTagHandler {
 		// $isTplWrapper?  Here and other calls to addErrorsToNode.
 		if ( count( $errs ) > 0 ) {
 			self::addErrorsToNode( $linkBack, $errs );
-		}
-
-		// FIXME(T263052): This should be moved to CSS
-		if ( $validFollow ) {
-			$linkBack->setAttribute( 'style', 'display: none;' );
 		}
 
 		// refLink is the link to the citation
