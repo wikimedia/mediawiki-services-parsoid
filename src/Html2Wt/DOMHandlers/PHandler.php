@@ -67,7 +67,7 @@ class PHandler extends DOMHandler {
 			|| ( WTUtils::emitsSolTransparentSingleLineWT( $otherNode )
 				&& WTUtils::isNewElt( $node ) )
 		) {
-			if ( !DOMUtils::hasNameOrhasAncestorOfName( $otherNode, 'figcaption' ) ) {
+			if ( !DOMUtils::hasNameOrHasAncestorOfName( $otherNode, 'figcaption' ) ) {
 				return [ 'min' => 1, 'max' => 2 ];
 			} else {
 				return [ 'min' => 0, 'max' => 2 ];
@@ -102,7 +102,7 @@ class PHandler extends DOMHandler {
 				&& $otherNode->nodeName !== 'blockquote'
 				&& $node->parentNode === $otherNode )
 		) {
-			if ( !DOMUtils::hasNameOrhasAncestorOfName( $otherNode, 'figcaption' ) ) {
+			if ( !DOMUtils::hasNameOrHasAncestorOfName( $otherNode, 'figcaption' ) ) {
 				return [ 'min' => 1, 'max' => 2 ];
 			} else {
 				return [ 'min' => 0, 'max' => 2 ];

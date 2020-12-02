@@ -324,7 +324,7 @@ class DOMUtils {
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function hasNameOrhasAncestorOfName( DOMNode $node, string $name ): bool {
+	public static function hasNameOrHasAncestorOfName( DOMNode $node, string $name ): bool {
 		while ( $node && $node->nodeName !== $name ) {
 			$node = $node->parentNode;
 		}
