@@ -318,13 +318,13 @@ class DOMUtils {
 	}
 
 	/**
-	 * Check whether `node` has an ancestor named `name`.
+	 * Check whether $node has $name or has an ancestor named $name.
 	 *
 	 * @param DOMNode $node
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function hasAncestorOfName( DOMNode $node, string $name ): bool {
+	public static function hasNameOrhasAncestorOfName( DOMNode $node, string $name ): bool {
 		while ( $node && $node->nodeName !== $name ) {
 			$node = $node->parentNode;
 		}

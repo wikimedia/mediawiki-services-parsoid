@@ -666,7 +666,7 @@ class SerializerState {
 							|| ( preg_match( '/^[\|!]/', $match[2] ) && $this->wikiTableNesting > 0 )
 							// indent-pres are suppressed inside <blockquote>
 							|| ( preg_match( '/^ [^\s]/', $match[2] )
-								&& !DOMUtils::hasAncestorOfName( $node, 'blockquote' ) )
+								&& !DOMUtils::hasNameOrhasAncestorOfName( $node, 'blockquote' ) )
 						) {
 							$res = ConstrainedText::cast( ( $match[1] ?: '' )
 								. '<nowiki>' . substr( $match[2], 0, 1 ) . '</nowiki>'

@@ -511,7 +511,7 @@ class Separators {
 
 				// The token stream paragraph wrapper (and legacy doBlockLevels)
 				// tracks this separately with $inBlockquote
-				$isIndentPreSafe = DOMUtils::hasAncestorOfName(
+				$isIndentPreSafe = DOMUtils::hasNameOrhasAncestorOfName(
 					$parentB, 'blockquote'
 				);
 

@@ -165,7 +165,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			$fosteredTransclusions = false;
 
 			if ( DOMUtils::hasNameAndTypeOf( $c, 'table', 'mw:FosterBox' ) ) {
-				$inPTag = DOMUtils::hasAncestorOfName( $c->parentNode, 'p' );
+				$inPTag = DOMUtils::hasNameOrhasAncestorOfName( $c->parentNode, 'p' );
 				$fosterContentHolder = self::getFosterContentHolder( $c->ownerDocument, $inPTag );
 
 				// mark as fostered until we hit the table
