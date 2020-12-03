@@ -324,8 +324,8 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				// Assimilate $encapNode's data-mw and data-parsoid pi info
 				$dmw = DOMDataUtils::getDataMw( $encapNode );
 				foreach ( $dmw->parts ?? [] as $part ) {
-					$part = clone $part;
 					if ( !is_string( $part ) ) {
+						$part = clone $part;
 						// This index in the template object is expected to be
 						// relative to other template objects.
 						$part->template->i = $index++;
