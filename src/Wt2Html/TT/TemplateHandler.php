@@ -527,31 +527,26 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * checkRes
+	 * Enforce template loops / loop depth limit constraints and emit
+	 * error message if constraints are violated.
 	 *
 	 * @param mixed $target
 	 * @param Title $title
 	 * @param bool $ignoreLoop
 	 * @return ?array
 	 */
-	private function checkRes(
-		$target, Title $title, bool $ignoreLoop
-	): ?array {
-		$checkRes = $this->manager->getFrame()->loopAndDepthCheck(
+	private function enforceTemplateConstraints( $target, Title $title, bool $ignoreLoop ): ?array {
+		$error = $this->manager->getFrame()->loopAndDepthCheck(
 			$title, $this->env->getSiteConfig()->getMaxTemplateDepth(),
 			$ignoreLoop
 		);
-		if ( $checkRes ) {
-			// Loop detected or depth limit exceeded, abort!
-			$res = [
-				new TagTk( 'span', [ new KV( 'class', 'error' ) ] ),
-				$checkRes,
-				new SelfclosingTagTk( 'wikilink', [ new KV( 'href', $target, null, '', '' ) ] ),
-				new EndTagTk( 'span' ),
-			];
-			return $res;
-		}
-		return null;
+
+		return $error ? [ // Loop detected or depth limit exceeded, abort!
+			new TagTk( 'span', [ new KV( 'class', 'error' ) ] ),
+			$error,
+			new SelfclosingTagTk( 'wikilink', [ new KV( 'href', $target, null, '', '' ) ] ),
+			new EndTagTk( 'span' ),
+		] : null;
 	}
 
 	/**
@@ -615,11 +610,10 @@ class TemplateHandler extends TokenHandler {
 			return $res;
 		}
 
-		// Loop detection needs to be enabled since we're doing our own template
-		// expansion
-		$checkRes = $this->checkRes( $target, $resolvedTgt['title'], false );
-		if ( is_array( $checkRes ) ) {
-			return $checkRes;
+		// Loop detection needs to be enabled since we're doing our own template expansion
+		$error = $this->enforceTemplateConstraints( $target, $resolvedTgt['title'], false );
+		if ( is_array( $error ) ) {
+			return $error;
 		}
 
 		// XXX: notes from brion's mediawiki.parser.environment
@@ -1501,9 +1495,9 @@ class TemplateHandler extends TokenHandler {
 				// We still need to check for limit violations because of the
 				// higher precedence of extension tags, which can result in nested
 				// templates even while using the php preprocessor for expansion.
-				$checkRes = $this->checkRes( $templateName, $templateTitle, true );
-				if ( is_array( $checkRes ) ) {
-					return [ 'tokens' => $checkRes ];
+				$error = $this->enforceTemplateConstraints( $templateName, $templateTitle, true );
+				if ( is_array( $error ) ) {
+					return [ 'tokens' => $error ];
 				}
 
 				// Check if we have an expansion for this template in the cache already
