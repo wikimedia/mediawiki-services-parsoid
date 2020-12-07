@@ -395,7 +395,7 @@ class SiteConfig extends ISiteConfig {
 		try {
 			return !$this->config->get( 'DisableLangConversion' ) &&
 				in_array( $lang, LanguageConverter::$languagesWithVariants, true ) &&
-				!Language::factory( $lang )->getConverter()->hasVariants();
+				Language::factory( $lang )->getConverter()->hasVariants();
 		} catch ( \MWException $ex ) {
 			// Probably a syntactically invalid language code
 			return false;
@@ -434,7 +434,7 @@ class SiteConfig extends ISiteConfig {
 
 			foreach ( $langNames as $langCode ) {
 				$lang = Language::factory( $langCode );
-				if ( $lang->getConverter()->hasVariants() ) {
+				if ( !$lang->getConverter()->hasVariants() ) {
 					continue;
 				}
 
