@@ -684,7 +684,7 @@ class References extends ExtensionTagHandler {
 		// Detect invalid parameters on the references tag
 		$knownAttributes = [ 'group', 'responsive' ];
 		foreach ( $refsOpts as $key => $value ) {
-			if ( !in_array( strtolower( $key ), $knownAttributes, true ) ) {
+			if ( !in_array( strtolower( (string)$key ), $knownAttributes, true ) ) {
 				$extApi->pushError( 'cite_error_references_invalid_parameters' );
 				break;
 			}
