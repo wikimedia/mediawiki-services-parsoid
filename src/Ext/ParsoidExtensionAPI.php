@@ -342,7 +342,7 @@ class ParsoidExtensionAPI {
 		$domFragment->appendChild( $wrapper );
 
 		// Sanitize args and set on the wrapper
-		$this->sanitizeArgs( $wrapper, $extArgs );
+		Sanitizer::applySanitizedArgs( $this->env->getSiteConfig(), $wrapper, $extArgs );
 
 		// Mark empty content DOMs
 		if ( $wikitext === '' ) {
@@ -446,41 +446,6 @@ class ParsoidExtensionAPI {
 	 */
 	public function addNewArg( array &$extArgs, string $key, string $value ): void {
 		$extArgs[] = new KV( $key, $value );
-	}
-
-	/**
-	 * @param DOMElement $elt
-	 * @param array $extArgs
-	 */
-	public function sanitizeArgs( DOMElement $elt, array $extArgs ): void {
-		Sanitizer::applySanitizedArgs( $this->env->getSiteConfig(), $elt, $extArgs );
-	}
-
-	/**
-	 * Sanitize string to be used as a valid HTML id attribute
-	 * @param string $id
-	 * @return string
-	 */
-	public function sanitizeHTMLId( string $id ): string {
-		return Sanitizer::escapeIdForAttribute( $id );
-	}
-
-	/**
-	 * Sanitize string to be used as a CSS value
-	 * @param string $css
-	 * @return string
-	 */
-	public function sanitizeCss( string $css ): string {
-		return Sanitizer::checkCss( $css );
-	}
-
-	/**
-	 * Get the list of valid attributes useable for a HTML element
-	 * @param string $eltName
-	 * @return array
-	 */
-	public function getValidHTMLAttributes( string $eltName ): array {
-		return Sanitizer::attributeWhitelist( $eltName );
 	}
 
 	// TODO: Provide support for extensions to register lints

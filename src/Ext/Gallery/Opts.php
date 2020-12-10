@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
 
@@ -44,14 +45,14 @@ class Opts {
 		$this->caption = (bool)( $attrs['caption'] ?? false );
 
 		// TODO: Good contender for T54941
-		$validUlAttrs = $extApi->getValidHTMLAttributes( 'ul' );
+		$validUlAttrs = Sanitizer::attributeWhitelist( 'ul' );
 		$this->attrs = [];
 		foreach ( $attrs as $k => $v ) {
 			if ( !isset( $validUlAttrs[$k] ) ) {
 				continue;
 			}
 			if ( $k === 'style' ) {
-				$v = $extApi->sanitizeCss( $v );
+				$v = Sanitizer::checkCss( $v );
 			}
 			$this->attrs[$k] = $v;
 		}

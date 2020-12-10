@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Pre;
 
 use DOMDocumentFragment;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -37,7 +38,7 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 		$doc = $domFragment->ownerDocument;
 		$pre = $doc->createElement( 'pre' );
 
-		$extApi->sanitizeArgs( $pre, $extArgs );
+		Sanitizer::applySanitizedArgs( $extApi->getSiteConfig(), $pre, $extArgs );
 		DOMDataUtils::getDataParsoid( $pre )->stx = 'html';
 
 		// Support nowikis in pre.  Do this before stripping newlines, see test,

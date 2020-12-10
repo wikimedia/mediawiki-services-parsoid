@@ -8,6 +8,7 @@ use DOMElement;
 use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -179,8 +180,8 @@ class References extends ExtensionTagHandler {
 		// (i.e. '&' === '&amp;'), which is done:
 		//  in PHP: Sanitizer#decodeTagAttributes and
 		//  in Parsoid: ExtensionHandler#normalizeExtOptions
-		$refName = $extApi->sanitizeHTMLId( $refName );
-		$followName = $extApi->sanitizeHTMLId( $followName );
+		$refName = Sanitizer::escapeIdForAttribute( $refName );
+		$followName = Sanitizer::escapeIdForAttribute( $followName );
 
 		// Add ref-index linkback
 		$linkBack = $doc->createElement( 'sup' );

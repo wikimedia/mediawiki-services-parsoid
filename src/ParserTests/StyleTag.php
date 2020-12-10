@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\ParserTests;
 
 use DOMDocumentFragment;
 
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -18,7 +19,7 @@ class StyleTag extends ExtensionTagHandler implements ExtensionModule {
 		$domFragment = $extApi->htmlToDom( '' );
 		$style = $domFragment->ownerDocument->createElement( 'style' );
 		DOMCompat::setInnerHTML( $style, $content );
-		$extApi->sanitizeArgs( $style, $args );
+		Sanitizer::applySanitizedArgs( $extApi->getSiteConfig(), $style, $args );
 		$domFragment->appendChild( $style );
 		return $domFragment;
 	}
