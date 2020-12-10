@@ -6,8 +6,8 @@ namespace Wikimedia\Parsoid\Utils;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
 
 /**
  * This file contains general utilities for token transforms.

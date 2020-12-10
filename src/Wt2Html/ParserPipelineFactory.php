@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\Wt2Html\TT\OnlyInclude;
 use Wikimedia\Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\QuoteTransformer;
-use Wikimedia\Parsoid\Wt2Html\TT\Sanitizer;
+use Wikimedia\Parsoid\Wt2Html\TT\SanitizerHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenStreamPatcher;
 use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
@@ -79,7 +79,7 @@ class ParserPipelineFactory {
 				BehaviorSwitchHandler::class,
 
 				ListHandler::class,
-				Sanitizer::class,
+				SanitizerHandler::class,
 				// Wrap tokens into paragraphs post-sanitization so that
 				// tags that converted to text by the sanitizer have a chance
 				// of getting wrapped into paragraphs.  The sanitizer does not
