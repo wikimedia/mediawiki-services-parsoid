@@ -68,6 +68,7 @@ return [
 		return new MWDataAccess(
 			$services->getRepoGroup(),
 			$services->getBadFileLookup(),
+			$services->getHookContainer(),
 			$services->getParserFactory() // *legacy* parser factory
 		);
 	},

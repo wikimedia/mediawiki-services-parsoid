@@ -21,11 +21,11 @@ namespace MWParsoid\Config;
 
 use ContentHandler;
 use File;
-use Hooks;
 use LinkBatch;
 use Linker;
 use MediaTransformError;
 use MediaWiki\BadFileLookup;
+use MediaWiki\HookContainer\HookContainer;
 use PageProps;
 use Parser;
 use ParserFactory;
@@ -43,6 +43,9 @@ class DataAccess implements IDataAccess {
 	/** @var BadFileLookup */
 	private $badFileLookup;
 
+	/** @var HookContainer */
+	private $hookContainer;
+
 	/** @var Parser */
 	private $parser;
 
@@ -52,15 +55,17 @@ class DataAccess implements IDataAccess {
 	/**
 	 * @param RepoGroup $repoGroup
 	 * @param BadFileLookup $badFileLookup
+	 * @param HookContainer $hookContainer
 	 * @param ParserFactory $parserFactory A legacy parser factory,
 	 *   for PST/preprocessing/extension handling
 	 */
 	public function __construct(
 		RepoGroup $repoGroup, BadFileLookup $badFileLookup,
-		ParserFactory $parserFactory
+		HookContainer $hookContainer, ParserFactory $parserFactory
 	) {
 		$this->repoGroup = $repoGroup;
 		$this->badFileLookup = $badFileLookup;
+		$this->hookContainer = $hookContainer;
 
 		// Use the same legacy parser object for all calls to extension tag
 		// processing, for greater compatibility.
@@ -308,8 +313,10 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function fetchTemplateData( IPageConfig $pageConfig, string $title ): ?array {
 		$ret = [];
-		// @todo: Document this hook in MediaWiki
-		Hooks::runWithoutAbort( 'ParserFetchTemplateData', [ [ $title ], &$ret ] );
+		// @todo: Document this hook in MediaWiki / Extension:TemplateData
+		$this->hookContainer->run(
+			'ParserFetchTemplateData', [ [ $title ], &$ret ]
+		);
 
 		// Cast value to array since the hook returns this as a stdclass
 		$tplData = $ret[$title] ?? null;
@@ -334,8 +341,10 @@ class DataAccess implements IDataAccess {
 
 		// Only send the request if it the latest revision
 		if ( $revId !== null && $revId === $latest ) {
-			// @todo: Document this hook in MediaWiki
-			Hooks::runWithoutAbort( 'ParserLogLinterData', [ $title, $revId, $lints ] );
+			// @todo: Document this hook in MediaWiki / Extension:Linter
+			$this->hookContainer->run(
+				'ParserLogLinterData', [ $title, $revId, $lints ]
+			);
 		}
 	}
 
