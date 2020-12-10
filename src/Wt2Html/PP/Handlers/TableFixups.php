@@ -408,7 +408,7 @@ class TableFixups {
 
 		// Found attributes; sanitize them
 		// and transfer the sanitized attributes to the td node
-		Sanitizer::applySanitizedArgs( $env, $cell, $attrs );
+		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
 
 		// If the transclusion node was embedded within the td node,
 		// lift up the about group to the td node.
@@ -477,7 +477,7 @@ class TableFixups {
 		// returns an array consisting of [table_attributes, spaces, pipe]
 		$attrs = $attributeTokens[0];
 
-		Sanitizer::applySanitizedArgs( $frame->getEnv(), $cell, $attrs );
+		Sanitizer::applySanitizedArgs( $frame->getEnv()->getSiteConfig(), $cell, $attrs );
 
 		// Update data-mw, DSR
 		$dataMW = DOMDataUtils::getDataMw( $cell );

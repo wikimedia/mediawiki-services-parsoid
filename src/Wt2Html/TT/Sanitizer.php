@@ -16,7 +16,7 @@ use DOMElement;
 use InvalidArgumentException;
 use RemexHtml\HTMLData;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -527,12 +527,12 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param SiteConfig $siteConfig
 	 * @param string $href
 	 * @param string $mode
 	 * @return string|null
 	 */
-	public static function cleanUrl( Env $env, string $href, string $mode ): ?string {
+	public static function cleanUrl( SiteConfig $siteConfig, string $href, string $mode ): ?string {
 		if ( $mode !== 'wikilink' ) {
 			$href = preg_replace_callback(
 				'/([\][<>"\x00-\x20\x7F\|])/', function ( $matches ) {
@@ -544,8 +544,7 @@ class Sanitizer extends TokenHandler {
 		$matched = preg_match( '#^((?:[a-zA-Z][^:/]*:)?(?://)?)([^/]+)(/?.*)#', $href, $bits );
 		if ( $matched === 1 ) {
 			$proto = $bits[1];
-			// if ( $proto && !$env->conf->wiki->hasValidProtocol( $proto ) ) {
-			if ( $proto && !$env->getSiteConfig()->hasValidProtocol( $proto ) ) {
+			if ( $proto && !$siteConfig->hasValidProtocol( $proto ) ) {
 				// invalid proto, disallow URL
 				return null;
 			}
@@ -856,14 +855,14 @@ class Sanitizer extends TokenHandler {
 	}
 
 	/**
-	 * @param Env $env
+	 * @param SiteConfig $siteConfig
 	 * @param ?string $tagName
 	 * @param ?Token $token
 	 * @param array $attrs
 	 * @return array
 	 */
 	private static function sanitizeTagAttrs(
-		Env $env, ?string $tagName, ?Token $token, array $attrs
+		SiteConfig $siteConfig, ?string $tagName, ?Token $token, array $attrs
 	): array {
 		$tag = $tagName ?: $token->getName();
 
@@ -989,7 +988,7 @@ class Sanitizer extends TokenHandler {
 					preg_match( '#^mw:WikiLink(/Interwiki)?$#', $rel['value'] )
 				) ? 'wikilink' : 'external';
 				$origHref = $token->getAttributeShadowInfo( $k )['value'];
-				$newHref = self::cleanUrl( $env, $v, $mode );
+				$newHref = self::cleanUrl( $siteConfig, $v, $mode );
 				if ( $newHref !== $v ) {
 					$newAttrs[$k] = [ $newHref, $origHref, $origK ];
 					continue;
@@ -1025,14 +1024,16 @@ class Sanitizer extends TokenHandler {
 	 * Used primarily when we're applying tokenized attributes directly to
 	 * dom elements, which wouldn't have had a chance to be sanitized before
 	 * tree building.
-	 * @param Env $env environment
+	 * @param SiteConfig $siteConfig
 	 * @param DOMElement $wrapper wrapper
 	 * @param array $attrs attributes
 	 */
-	public static function applySanitizedArgs( Env $env, DOMElement $wrapper, array $attrs ): void {
+	public static function applySanitizedArgs(
+		SiteConfig $siteConfig, DOMElement $wrapper, array $attrs
+	): void {
 		// We can switch to a different DOM library that can return uppercase node name
 		$nodeName = strtolower( $wrapper->nodeName );
-		$sanitizedAttrs = self::sanitizeTagAttrs( $env, $nodeName, null, $attrs );
+		$sanitizedAttrs = self::sanitizeTagAttrs( $siteConfig, $nodeName, null, $attrs );
 		foreach ( $sanitizedAttrs as $k => $v ) {
 			if ( isset( $v[0] ) ) {
 				$wrapper->setAttribute( $k, $v[0] );
@@ -1090,14 +1091,14 @@ class Sanitizer extends TokenHandler {
 	 * token.dataAttribs object (which is serialized as JSON in a data-parsoid
 	 * attribute in the DOM).
 	 *
-	 * @param Env $env
+	 * @param SiteConfig $siteConfig
 	 * @param Frame $frame
 	 * @param Token|string $token
 	 * @param bool $inTemplate
 	 * @return Token|string
 	 */
 	private static function sanitizeToken(
-		Env $env, Frame $frame, $token, bool $inTemplate
+		SiteConfig $siteConfig, Frame $frame, $token, bool $inTemplate
 	) {
 		$i = null;
 		$l = null;
@@ -1134,7 +1135,7 @@ class Sanitizer extends TokenHandler {
 		} elseif ( $attribs && count( $attribs ) > 0 ) {
 			// Sanitize attributes
 			if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
-				$newAttrs = self::sanitizeTagAttrs( $env, null, $token, $attribs );
+				$newAttrs = self::sanitizeTagAttrs( $siteConfig, null, $token, $attribs );
 
 				// Reset token attribs and rebuild
 				$token->attribs = [];
@@ -1384,7 +1385,9 @@ class Sanitizer extends TokenHandler {
 			return [ 'tokens' => [ $token ] ];
 		}
 
-		$token = self::sanitizeToken( $env, $this->manager->getFrame(), $token, $this->inTemplate );
+		$token = self::sanitizeToken(
+			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
+		);
 
 		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
 			return ' ---> ' . PHPUtils::jsonEncode( $token );

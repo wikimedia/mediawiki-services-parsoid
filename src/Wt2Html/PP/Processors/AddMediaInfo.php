@@ -581,7 +581,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		}
 
 		if ( $anchor->nodeName === 'a' ) {
-			$href = Sanitizer::cleanUrl( $env, $anchor->getAttribute( 'href' ), 'external' );
+			$href = Sanitizer::cleanUrl(
+				$env->getSiteConfig(), $anchor->getAttribute( 'href' ), 'external'
+			);
 			$anchor->setAttribute( 'href', $href );
 		}
 

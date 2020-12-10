@@ -453,7 +453,7 @@ class ParsoidExtensionAPI {
 	 * @param array $extArgs
 	 */
 	public function sanitizeArgs( DOMElement $elt, array $extArgs ): void {
-		Sanitizer::applySanitizedArgs( $this->env, $elt, $extArgs );
+		Sanitizer::applySanitizedArgs( $this->env->getSiteConfig(), $elt, $extArgs );
 	}
 
 	/**
