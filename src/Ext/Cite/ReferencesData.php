@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext\Cite;
 
 use DOMElement;
 use stdClass;
+use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class ReferencesData {
@@ -110,8 +111,13 @@ class ReferencesData {
 			// Notes whose ref has a name are 'cite_note-' + name + '-' + index
 			$n = $this->index;
 			$refKey = strval( 1 + $n );
-			$refIdBase = 'cite_ref-' . ( $hasRefName ? $refName . '_' . $refKey : $refKey );
-			$noteId = 'cite_note-' . ( $hasRefName ? $refName . '-' . $refKey : $refKey );
+
+			// FIXME: normalizeKey in core performs a few more operations on $refName,
+			// which will be addressed in a follow up
+			$refNameSanitized = Sanitizer::escapeIdForAttribute( $refName );
+
+			$refIdBase = 'cite_ref-' . ( $hasRefName ? $refNameSanitized . '_' . $refKey : $refKey );
+			$noteId = 'cite_note-' . ( $hasRefName ? $refNameSanitized . '-' . $refKey : $refKey );
 
 			// bump index
 			$this->index += 1;
