@@ -612,7 +612,7 @@ var pageProps = function(titles) {
 		if (specialTitles.has(t)) { props.special = true; }
 		if (redirectTitles.has(t)) { props.redirect = true; }
 		if (disambigTitles.has(t)) {
-			props.pageprops = { disambiguation: true };
+			props.linkclasses = [ 'mw-disambig' ];
 		}
 		return props;
 	});

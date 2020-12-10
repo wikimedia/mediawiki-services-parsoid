@@ -183,8 +183,8 @@ class MockDataAccess implements DataAccess {
 					'*' => "This is a mock disambiguation page with no more info!"
 				]
 			],
-			"pageprops" => [
-				"disambiguation" => "",
+			"linkclasses" => [
+				"mw-disambig",
 			]
 		],
 		"Special:Version" => [
@@ -364,7 +364,7 @@ class MockDataAccess implements DataAccess {
 				'missing' => $pageData === null,
 				'known' => $pageData !== null || ( $pageData['known'] ?? false ),
 				'redirect' => $pageData['redirect'] ?? false,
-				'disambiguation' => ( $pageData['pageprops']['disambiguation'] ?? false ) !== false,
+				'linkclasses' => $pageData['linkclasses'] ?? [],
 			];
 		}
 

@@ -26,7 +26,6 @@ use Linker;
 use MediaTransformError;
 use MediaWiki\BadFileLookup;
 use MediaWiki\HookContainer\HookContainer;
-use PageProps;
 use Parser;
 use ParserFactory;
 use RepoGroup;
@@ -114,6 +113,8 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getPageInfo( IPageConfig $pageConfig, array $titles ): array {
 		$titleObjs = [];
+		$pagemap = [];
+		$classes = [];
 		$ret = [];
 		foreach ( $titles as $name ) {
 			$t = Title::newFromText( $name );
@@ -133,27 +134,33 @@ class DataAccess implements IDataAccess {
 				];
 			} else {
 				$titleObjs[$name] = $t;
+				$pdbk = $t->getPrefixedDBkey();
+				$pagemap[$t->getArticleID()] = $pdbk;
+				$classes[$pdbk] = $t->isRedirect() ? 'mw-redirect' : '';
 			}
 		}
 		$linkBatch = new LinkBatch( $titleObjs );
 		$linkBatch->execute();
 
-		// This depends on the Disambiguator extension :(
-		// @todo Either merge that extension into core, or we'll need to make
-		// a "ParsoidGetRedlinkData" hook that Disambiguator can implement.
-		// T237538
-		$pageProps = PageProps::getInstance();
-		$properties = $pageProps->getProperties( $titleObjs, [ 'disambiguation' ] );
+		$context_title = Title::newFromText( $pageConfig->getTitle() );
+		$this->hookContainer->run(
+			'GetLinkColours',
+			[ $pagemap, &$classes, $context_title ]
+		);
 
 		foreach ( $titleObjs as $name => $obj ) {
 			/** @var Title $obj */
+			$pdbk = $obj->getPrefixedDBkey();
+			$c = preg_split(
+				'/\s+/', $classes[$pdbk] ?? '', -1, PREG_SPLIT_NO_EMPTY
+			);
 			$ret[$name] = [
 				'pageId' => $obj->getArticleID(),
 				'revId' => $obj->getLatestRevID(),
 				'missing' => !$obj->exists(),
 				'known' => $obj->isKnown(),
 				'redirect' => $obj->isRedirect(),
-				'disambiguation' => isset( $properties[$obj->getArticleID()] ),
+				'linkclasses' => $c, # See ApiQueryInfo::getLinkClasses() in core
 			];
 		}
 		return $ret;

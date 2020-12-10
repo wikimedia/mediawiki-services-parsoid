@@ -66,12 +66,8 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			if ( !empty( $data['redirect'] ) ) {
 				DOMCompat::getClassList( $a )->add( 'mw-redirect' );
 			}
-			// Jforrester suggests that, "ideally this'd be a registry so that
-			// extensions could, er, extend this functionality – this is an
-			// API response/CSS class that is provided by the Disambiguation
-			// extension." T237538
-			if ( !empty( $data['disambiguation'] ) ) {
-				DOMCompat::getClassList( $a )->add( 'mw-disambig' );
+			foreach ( $data['linkclasses'] ?? [] as $extraClass ) {
+				DOMCompat::getClassList( $a )->add( $extraClass );
 			}
 		}
 	}

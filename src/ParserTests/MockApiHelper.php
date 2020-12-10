@@ -745,7 +745,7 @@ class MockApiHelper extends ApiHelper {
 			}
 		}
 
-		if ( ( $params['prop'] ?? null ) === 'info|pageprops' ) {
+		if ( ( $params['prop'] ?? null ) === 'info' ) {
 			$ret = [];
 			$titles = preg_split( '/\|/', $params['titles'] );
 			foreach ( $titles as $t ) {
@@ -765,7 +765,7 @@ class MockApiHelper extends ApiHelper {
 					$props['missing'] = false;
 				}
 				if ( in_array( $t, self::$disambigTitles, true ) ) {
-					$props['pageprops'] = [ 'disambiguation' => true ];
+					$props['linkclasses'] = [ 'mw-disambig' ];
 					$props['missing'] = false;
 				}
 				$ret[] = $props;

@@ -108,8 +108,9 @@ class DataAccess implements IDataAccess {
 		foreach ( array_chunk( $titles, 50 ) as $batch ) {
 			$data = $this->api->makeRequest( [
 				'action' => 'query',
-				'prop' => 'info|pageprops',
-				'ppprop' => 'disambiguation',
+				'prop' => 'info',
+				'inprop' => 'linkclasses',
+				'inlinkcontext' => $pageConfig->getTitle(),
 				'titles' => implode( '|', $batch ),
 			] )['query'];
 			$norm = [];
@@ -138,7 +139,7 @@ class DataAccess implements IDataAccess {
 					'missing' => $page['missing'] ?? false,
 					'known' => ( $page['known'] ?? false ),
 					'redirect' => $page['redirect'] ?? false,
-					'disambiguation' => ( $page['pageprops']['disambiguation'] ?? false ) !== false,
+					'linkclasses' => $page['linkclasses'] ?? [],
 					'invalid' => $page['invalid'] ?? false,
 				];
 				if ( !( $ret[$title]['missing'] || $ret[$title]['invalid'] ) ) {

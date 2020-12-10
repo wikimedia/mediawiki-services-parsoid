@@ -20,7 +20,8 @@ interface DataAccess {
 	 *  - missing: (bool) Whether the page is missing
 	 *  - known: (bool) Whether the special page is known
 	 *  - redirect: (bool) Whether the page is a redirect
-	 *  - disambiguation: (bool) Whether the page is a disambiguation page
+	 *  - linkclasses: (string[]) Extensible "link color" information; see
+	 *      ApiQueryInfo::getLinkClasses() in MediaWiki core
 	 */
 	public function getPageInfo( PageConfig $pageConfig, array $titles ): array;
 

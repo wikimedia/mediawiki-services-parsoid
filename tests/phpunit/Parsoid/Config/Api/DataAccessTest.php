@@ -35,22 +35,22 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 		$this->assertSame( [
 			'Foo' => [ 'pageId' => 1, 'revId' => 10, 'missing' => false,
-				'known' => true, 'redirect' => true, 'disambiguation' => false,
+				'known' => true, 'redirect' => true, 'linkclasses' => [],
 				'invalid' => false ],
 			'Bar_(disambiguation)' => [ 'pageId' => 2, 'revId' => 11, 'missing' => false,
-				'known' => true, 'redirect' => false, 'disambiguation' => true,
+				'known' => true, 'redirect' => false, 'linkclasses' => [ 'mw-disambig' ],
 				'invalid' => false ],
 			'Special:SpecialPages' => [ 'pageId' => null, 'revId' => null, 'missing' => false,
-				'known' => true, 'redirect' => false, 'disambiguation' => false,
+				'known' => true, 'redirect' => false, 'linkclasses' => [],
 				'invalid' => false ],
 			'ThisPageDoesNotExist' => [ 'pageId' => null, 'revId' => null, 'missing' => true,
-				'known' => false, 'redirect' => false, 'disambiguation' => false,
+				'known' => false, 'redirect' => false, 'linkclasses' => [],
 				'invalid' => false ],
 			'File:Example.svg' => [ 'pageId' => null, 'revId' => null,	'missing' => true,
-				'known' => true, 'redirect' => false, 'disambiguation' => false,
+				'known' => true, 'redirect' => false, 'linkclasses' => [],
 				'invalid' => false ],
 			':' => [ 'pageId' => null, 'revId' => null, 'missing' => false,
-					'known' => false, 'redirect' => false, 'disambiguation' => false,
+					'known' => false, 'redirect' => false, 'linkclasses' => [],
 					'invalid' => true ],
 		], $data );
 	}
