@@ -216,3 +216,26 @@ abcd
 * x
 * y-new
 !! end
+
+# T269901
+!! test
+Regression test: No bogus recovery of trimmed whitespace
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "dl > dd > dl > dd > dl > dd", "html", "d" ]
+  ]
+}
+!! wikitext
+: a
+:: b
+:* c
+::: FOO
+!! wikitext/edited
+: a
+:: b
+:* c
+::: d
+!! end

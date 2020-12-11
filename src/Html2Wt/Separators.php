@@ -608,25 +608,31 @@ class Separators {
 	 * @return ?string
 	 */
 	private function fetchLeadingTrimmedSpace( DOMNode $node ): ?string {
+		$origNode = $node;
 		$parentNode = $node->parentNode;
-		if ( $parentNode instanceof DOMElement &&
-			$parentNode->hasAttribute( 'data-mw-selser-wrapper' ) &&
-			// Leading trimmed whitespace only make sense for first child
-			!$parentNode->previousSibling
-		) {
+
+		// Skip past the artificial span wrapper
+		if ( $parentNode instanceof DOMElement && $parentNode->hasAttribute( 'data-mw-selser-wrapper' ) ) {
+			$node = $parentNode;
 			$parentNode = $parentNode->parentNode;
+		}
+
+		// Leading trimmed whitespace only makes sense for first child.
+		// Ignore comments (which are part of separators) + deletion markers.
+		if ( DOMUtils::previousNonSepSibling( $node ) ) {
+			return null;
 		}
 
 		'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
-			( DOMUtils::isElt( $node ) || !preg_match( '/^[ \t]/', $node->nodeValue ) )
+			( DOMUtils::isElt( $origNode ) || !preg_match( '/^[ \t]/', $origNode->nodeValue ) )
 		) {
 			// FIXME: Is this complexity worth some minor dirty diff on this test?
 			// ParserTest: "3. List embedded in a formatting tag in a misnested way"
-			// I've not added an equivalent check in the trailing whitespace case
-			if ( $node instanceof DOMElement &&
-				isset( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart ) &&
-				preg_match( '/^[ \t]/', $node->firstChild->textContent ?? '' )
+			// I've not added an equivalent check in the trailing whitespace case.
+			if ( $origNode instanceof DOMElement &&
+				isset( DOMDataUtils::getDataParsoid( $origNode )->autoInsertedStart ) &&
+				preg_match( '/^[ \t]/', $origNode->firstChild->textContent ?? '' )
 			) {
 				return null;
 			}
@@ -670,19 +676,25 @@ class Separators {
 	 * @return ?string
 	 */
 	private function fetchTrailingTrimmedSpace( DOMNode $node ): ?string {
-		$sep = null;
+		$origNode = $node;
 		$parentNode = $node->parentNode;
-		if (
-			$parentNode instanceof DOMElement &&
-			$parentNode->hasAttribute( 'data-mw-selser-wrapper' ) &&
-			// Trailing trimmed whitespace only make sense for last child
-			!$parentNode->nextSibling
-		) {
+
+		// Skip past the artificial span wrapper
+		if ( $parentNode instanceof DOMElement && $parentNode->hasAttribute( 'data-mw-selser-wrapper' ) ) {
+			$node = $parentNode;
 			$parentNode = $parentNode->parentNode;
 		}
+
+		// Trailing trimmed whitespace only makes sense for last child.
+		// Ignore comments (which are part of separators) + deletion markers.
+		if ( DOMUtils::nextNonSepSibling( $node ) ) {
+			return null;
+		}
+
+		$sep = null;
 		'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
-			( DOMUtils::isElt( $node ) || !preg_match( '/[ \t]$/', $node->nodeValue ) )
+			( DOMUtils::isElt( $origNode ) || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
 		) {
 			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
