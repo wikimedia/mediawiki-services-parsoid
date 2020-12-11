@@ -24,14 +24,18 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 		$contents = file_get_contents( $filename ) ?: '';
 		if ( substr( $contents, -1 ) !== "\n" ) {
 			# ensure that the file is terminated with a newline
-			# to match `end_test` rule (and other uses of `eol`)
+			# to match `end_section` rule (and other uses of `eol`)
 			$contents .= "\n";
 		}
 		return $g->parse( $contents );
 	}
 }
 
-testfile = format? lined_chunk+
+testfile = format? testfile_options? lined_chunk+
+
+testfile_options = sec:option_section end_section {
+	return $sec['text'];
+}
 
 /* Line number bookkeeping.
  * Be careful about backtracking after you successfully match this production.
@@ -83,7 +87,7 @@ comment =
 	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }
 
 article =
-	start_article title:line start_text text:text end_article
+	start_article title:line start_text text:text ( end_article / end_section )
 {
 	return [
 		'type' => 'article',
@@ -103,7 +107,7 @@ end_article =
 
 // function hooks
 
-functionhooks = start_functionhooks text:text end_functionhooks
+functionhooks = start_functionhooks text:text ( end_functionhooks / end_section )
 {
 	return [ 'type' => 'functionhooks', 'text' => $text ];
 }
@@ -118,7 +122,7 @@ test =
 	start_test
 	testName:text
 	sections:(section / option_section)*
-	end_test
+	end_section
 {
 	$test = [
 		'type' => 'test',
@@ -251,10 +255,10 @@ json_value = "{" v:( [^\"\{\}\n] / quoted_value / json_value / eol )* "}"
 start_test =
 	"!!" ws? "test" ws? eol
 
-end_test =
+end_section =
 	"!!" ws? "end" ws? eol
 
-hooks = start_hooks text:text end_hooks
+hooks = start_hooks text:text ( end_hooks / end_section )
 {
 	return [ 'type' => 'hooks', 'text' => $text ];
 }

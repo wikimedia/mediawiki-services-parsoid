@@ -4,8 +4,14 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\ParserTests;
 
 class TestFileReader {
-	/** @var int */
+	/**
+	 * @var int
+	 * @deprecated Use $this->fileOptions['version'] instead.
+	 */
 	public $testFormat;
+
+	/** @var array File-level options and requirements for these parser tests */
+	public $fileOptions = [];
 
 	/** @var Test[] */
 	public $testCases = [];
@@ -13,7 +19,10 @@ class TestFileReader {
 	/** @var Article[] */
 	public $articles = [];
 
-	/** @var array */
+	/**
+	 * @var array
+	 * @deprecated Use $this->fileOptions['requirements'] instead.
+	 */
 	public $requirements = [];
 
 	/**
@@ -64,11 +73,13 @@ class TestFileReader {
 		$this->knownFailuresPath = $knownFailuresPath;
 		$parsedTests = Grammar::load( $testFilePath );
 		$testFormat = $parsedTests[0];
-		$rawTestItems = $parsedTests[1];
+		$this->fileOptions = $parsedTests[1] ?? [];
+		$rawTestItems = $parsedTests[2];
 		if ( $testFormat === null ) {
 			$this->testFormat = 1;
 		} else {
 			$this->testFormat = intval( $testFormat['text'] );
+			$this->fileOptions['version'] = strval( $this->testFormat );
 		}
 		$knownFailures = $knownFailuresPath && is_readable( $knownFailuresPath ) ?
 			json_decode( file_get_contents( $knownFailuresPath ), true ) :
@@ -105,7 +116,7 @@ class TestFileReader {
 				$lastComment .= $item['text'];
 			} elseif ( $item['type'] === 'hooks' ) {
 				foreach ( explode( "\n", $item['text'] ) as $line ) {
-					$this->requirements[] = [
+					$this->fileOptions['requirements'][] = [
 						'type' => 'hook',
 						'name' => trim( $line ),
 					];
@@ -113,7 +124,7 @@ class TestFileReader {
 				$lastComment = '';
 			} elseif ( $item['type'] === 'functionhooks' ) {
 				foreach ( explode( "\n", $item['text'] ) as $line ) {
-					$this->requirements[] = [
+					$this->fileOptions['requirements'][] = [
 						'type' => 'functionHook',
 						'name' => trim( $line ),
 					];
@@ -127,5 +138,27 @@ class TestFileReader {
 				( new Item( $item ) )->error( 'Unknown item type', $item['type'] );
 			}
 		}
+		// Convenience function to expand 'requirements'
+		if ( isset( $this->fileOptions['requirements'] ) ) {
+			if ( !is_array( $this->fileOptions['requirements'] ) ) {
+				$this->fileOptions['requirements'] = [
+					$this->fileOptions['requirements']
+				];
+			}
+			foreach ( $this->fileOptions['requirements'] as &$item ) {
+				if ( is_string( $item ) ) {
+					$item = [
+						'type' => 'hook',
+						'name' => "$item",
+					];
+				}
+			}
+			unset( $item );
+		}
+		// Backward compatibility for core
+		if ( isset( $this->fileOptions['version'] ) ) {
+			$this->testFormat = intval( $this->fileOptions['version'] );
+		}
+		$this->requirements = $this->fileOptions['requirements'] ?? [];
 	}
 }
