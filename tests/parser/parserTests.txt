@@ -29994,16 +29994,6 @@ parsoid={
 === hi <span id="x" class="y">hi</span> hi ho ===
 !! end
 
-!! test
-Ensure disambiguation links are marked properly
-!! options
-parsoid=wt2html
-!! wikitext
-[[Disambiguation]]
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Disambiguation" title="Disambiguation" class="mw-disambig">Disambiguation</a></p>
-!! end
-
 ## Note that there's a leading \r here that's necessary for the test
 !! test
 Stray carriage return in text
