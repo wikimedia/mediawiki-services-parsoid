@@ -25,7 +25,7 @@ var Diff = require('../lib/utils/Diff.js').Diff;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
-var defaultContentVersion = '2.1.0';
+var defaultContentVersion = '2.2.0';
 
 function displayDiff(type, count) {
 	var pad = (10 - type.length);  // Be positive!
