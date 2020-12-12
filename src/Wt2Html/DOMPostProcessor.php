@@ -20,7 +20,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
@@ -81,7 +80,7 @@ class DOMPostProcessor extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 
-		$this->options = $options + [ 'frame' => $env->topFrame ];
+		$this->options = $options;
 		$this->seenIds = [];
 		$this->processors = [];
 		$this->extApi = new ParsoidExtensionAPI( $env );
@@ -373,19 +372,19 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => 'td',
 						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
-							return $tableFixer->stripDoubleTDs( $node, $options['frame'] );
+							return $tableFixer->stripDoubleTDs( $node, $this->frame );
 						}
 					],
 					[
 						'nodeName' => 'td',
 						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $options['frame'] );
+							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
 						}
 					],
 					[
 						'nodeName' => 'th',
 						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $options['frame'] );
+							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
 						}
 					],
 					// 3. Deduplicate template styles
@@ -529,27 +528,6 @@ class DOMPostProcessor extends PipelineStage {
 	 */
 	public function setSourceOffsets( SourceRange $so ): void {
 		$this->options['sourceOffsets'] = $so;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setFrame(
-		?Frame $parentFrame, ?Title $title, array $args, string $srcText
-	): void {
-		if ( !$parentFrame ) {
-			$this->options['frame'] = $this->env->topFrame->newChild(
-				$title, $args, $srcText
-			);
-		} elseif ( !$title ) {
-			$this->options['frame'] = $parentFrame->newChild(
-				$parentFrame->getTitle(), $parentFrame->getArgs()->args, $srcText
-			);
-		} else {
-			$this->options['frame'] = $parentFrame->newChild(
-				$title, $args, $srcText
-			);
-		}
 	}
 
 	/**
@@ -854,7 +832,9 @@ class DOMPostProcessor extends PipelineStage {
 				}
 			}
 
-			$pp['proc']( $node, $this->options, $this->atTopLevel );
+			// Excessive to do it here always, but protects against future changes
+			// to how $this->frame may be updated.
+			$pp['proc']( $node, [ 'frame' => $this->frame ] + $this->options, $this->atTopLevel );
 
 			if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] ) ) {
 				ContentUtils::dumpDOM( $node, 'DOM: post-' . $pp['shortcut'], $opts );

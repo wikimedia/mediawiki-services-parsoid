@@ -90,27 +90,17 @@ class PipelineUtils {
 		// Build a pipeline
 		$pipeline = $env->getPipelineFactory()->getPipeline(
 			$opts['pipelineType'],
-			$opts['pipelineOpts']
+			$frame,
+			$opts['pipelineOpts'] + [
+				'toplevel' => false,
+				'tplArgs' => $opts['tplArgs'] ?? null,
+				'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
+				'srcOffsets' => $opts['srcOffsets'] ?? null
+			]
 		);
 
-		// Set frame if necessary
-		$srcText = $opts['srcText'] ?? $frame->getSrcText();
-		if ( isset( $opts['tplArgs'] ) ) {
-			$pipeline->setFrame(
-				$frame, $opts['tplArgs']['title'], $opts['tplArgs']['attribs'],
-				$srcText
-			);
-		} else {
-			$pipeline->setFrame( $frame, null, [], $srcText );
-		}
-
-		// Set source offsets for this pipeline's content
-		if ( isset( $opts['srcOffsets'] ) ) {
-			$pipeline->setSourceOffsets( $opts['srcOffsets'] );
-		}
-
 		// Off the starting block ... ready, set, go!
-		return $pipeline->parse( $content, [ "sol" => $opts['sol'] ] );
+		return $pipeline->parse( $content, [ 'sol' => $opts['sol'] ] );
 	}
 
 	/**

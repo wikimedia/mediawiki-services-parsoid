@@ -185,10 +185,6 @@ class ParserPipelineFactory {
 	 * @return array
 	 */
 	private function defaultOptions( array $options ): array {
-		if ( !$options ) {
-			$options = [];
-		}
-
 		foreach ( $options as $k => $v ) {
 			Assert::invariant(
 				in_array( $k, self::$supportedOptions, true ),
@@ -295,8 +291,8 @@ class ParserPipelineFactory {
 	 * @return DOMDocument
 	 */
 	public function parse( string $src ): DOMDocument {
-		return $this->getPipeline( 'text/x-mediawiki/full' )
-			->parseToplevelDoc( $src, [ 'chunky' => true ] );
+		$pipe = $this->getPipeline( 'text/x-mediawiki/full', $this->env->topFrame );
+		return $pipe->parseToplevelDoc( $src, [ 'chunky' => true ] );
 	}
 
 	/**
@@ -304,10 +300,25 @@ class ParserPipelineFactory {
 	 * Subpipelines are cached as they are frequently created.
 	 *
 	 * @param string $type
+	 * @param Frame $frame
 	 * @param array $options
 	 * @return ParserPipeline
 	 */
-	public function getPipeline( string $type, array $options = [] ): ParserPipeline {
+	public function getPipeline( string $type, Frame $frame, array $options = [] ): ParserPipeline {
+		// FIXME: Defaulting this to true to prevent the need to pass in
+		// the options array in the getPipeline(..) call in parse(..) above
+		// since it seems to be confusing phan. Not quite sure if that is
+		// a real issue that is being exposed.
+		$toplevel = $options['toplevel'] ?? true;
+		$tplArgs = $options['tplArgs'] ?? null;
+		$srcText = $options['srcText'] ?? null;
+		$srcOffsets = $options['srcOffsets'] ?? null;
+
+		// Strip away keys that aren't used in pipeline caching
+		foreach ( [ 'toplevel', 'tplArgs', 'srcText', 'srcOffsets' ] as $key ) {
+			unset( $options[$key] );
+		}
+
 		$options = $this->defaultOptions( $options );
 		$cacheKey = $this->getCacheKey( $type, $options );
 		if ( empty( $this->pipelineCache[$cacheKey] ) ) {
@@ -317,9 +328,32 @@ class ParserPipelineFactory {
 		$pipe = null;
 		if ( count( $this->pipelineCache[$cacheKey] ) ) {
 			$pipe = array_pop( $this->pipelineCache[$cacheKey] );
-			$pipe->resetState();
 		} else {
 			$pipe = $this->makePipeline( $type, $cacheKey, $options );
+		}
+
+		// Reset pipeline state once per top-level doc.
+		// This clears state from any per-doc global state
+		// maintained across all pipelines used by the document.
+		// (Ex: Cite state)
+		$pipe->resetState( [ 'toplevel' => $toplevel ] );
+
+		// Set frame
+		if ( !$toplevel ) {
+			if ( isset( $tplArgs['title'] ) ) {
+				$title = $tplArgs['title'];
+				$args = $tplArgs['attribs'];
+			} else {
+				$title = $frame->getTitle();
+				$args = $frame->getArgs()->args;
+			}
+			$frame = $frame->newChild( $title, $args, $srcText );
+		}
+		$pipe->setFrame( $frame );
+
+		// Set source offsets for this pipeline's content
+		if ( $srcOffsets ) {
+			$pipe->setSourceOffsets( $srcOffsets );
 		}
 
 		// Debugging aid: Assign unique id to the pipeline

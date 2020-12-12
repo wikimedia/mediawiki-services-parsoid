@@ -8,7 +8,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * Wrap some stages into a pipeline.
@@ -32,6 +31,9 @@ class ParserPipeline {
 
 	/** @var string */
 	private $cacheKey;
+
+	/** @var Frame */
+	private $frame;
 
 	/**
 	 * @param string $type
@@ -107,10 +109,12 @@ class ParserPipeline {
 	}
 
 	/**
-	 * @inheritDoc
+	 * Set frame on this pipeline stage (stages decide if they need it or not)
+	 * @param Frame $frame frame
 	 */
-	public function setFrame( ?Frame $frame, ?Title $title, array $args, string $srcText ): void {
-		$this->applyToStage( 'setFrame', $frame, $title, $args, $srcText );
+	public function setFrame( Frame $frame ): void {
+		$this->frame = $frame;
+		$this->applyToStage( 'setFrame', $frame );
 	}
 
 	/**
@@ -199,12 +203,10 @@ class ParserPipeline {
 	 * The input is expected to be the wikitext string for the doc.
 	 *
 	 * @param string $input
-	 * @param ?array $opts
+	 * @param array $opts
 	 * @return DOMDocument
 	 */
-	public function parseToplevelDoc(
-		string $input, ?array $opts = null
-	): DOMDocument {
+	public function parseToplevelDoc( string $input, array $opts ): DOMDocument {
 		Assert::invariant( $this->pipelineType === 'text/x-mediawiki/full',
 			'You cannot process top-level document from wikitext to DOM with a pipeline of type ' .
 			$this->pipelineType );
@@ -216,15 +218,6 @@ class ParserPipeline {
 			gc_disable();
 		} else {
 			$gcDisabled = false;
-		}
-
-		// Reset pipeline state once per top-level doc.
-		// This clears state from any per-doc global state
-		// maintained across all pipelines used by the document.
-		// (Ex: Cite state)
-		$this->resetState( [ 'toplevel' => true ] );
-		if ( !$opts ) {
-			$opts = [];
 		}
 
 		// Top-level doc parsing always start in SOL state

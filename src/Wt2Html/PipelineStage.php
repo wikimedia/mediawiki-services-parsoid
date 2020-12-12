@@ -8,7 +8,6 @@ use Generator;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -42,6 +41,9 @@ abstract class PipelineStage {
 
 	/** @var bool */
 	protected $atTopLevel;
+
+	/** @var Frame */
+	protected $frame;
 
 	/**
 	 * @param Env $env
@@ -95,21 +97,11 @@ abstract class PipelineStage {
 	}
 
 	/**
-	 * Pass parent-frame, title and args of the new pipeline (for template expansions)
-	 * to the new pipeline's stages.
-	 *
-	 * FIXME: This can be refactored to deal directly with the pipeline's constructor
-	 * and TTM instead of exposing this on the pipeline.
-	 *
-	 * @param ?Frame $frame Parent pipeline frame
-	 * @param ?Title $title Title (template) being processed in this (nested) pipeline
-	 * @param array $args Template args for the title (template)
-	 * @param string $srcText The wikitext source for this frame
+	 * Set frame on this pipeline stage
+	 * @param Frame $frame Pipeline frame
 	 */
-	public function setFrame(
-		?Frame $frame, ?Title $title, array $args, string $srcText
-	): void {
-		/* Default implementation: Do nothing */
+	public function setFrame( Frame $frame ): void {
+		$this->frame = $frame;
 	}
 
 	/**

@@ -31,6 +31,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 			'toplevel' => $atTopLevel
 		];
 		$dpp->resetState( $opts );
+		$dpp->setFrame( $mockEnv->topFrame );
 		$document = ContentUtils::createAndLoadDocument( $html );
 		$dpp->doPostProcess( DOMCompat::getBody( $document ) );
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );

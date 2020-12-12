@@ -6,7 +6,6 @@ use Generator;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
@@ -33,9 +32,6 @@ class TokenTransformManager extends PipelineStage {
 	/** @var TokenHandler[] */
 	private $transformers = [];
 
-	/** @var Frame */
-	private $frame;
-
 	/**
 	 * @param Env $env
 	 * @param array $options
@@ -50,7 +46,6 @@ class TokenTransformManager extends PipelineStage {
 		$this->options = $options;
 		$this->traceType = 'trace/ttm:' . preg_replace( '/TokenTransform/', '', $stageId );
 		$this->pipelineId = null;
-		$this->frame = $env->topFrame;
 
 		// Compute tracing state
 		$this->traceState = null;
@@ -148,28 +143,6 @@ class TokenTransformManager extends PipelineStage {
 	public function setSourceOffsets( SourceRange $so ): void {
 		foreach ( $this->transformers as $transformer ) {
 			$transformer->setSourceOffsets( $so );
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setFrame(
-		?Frame $parentFrame, ?Title $title, array $args, string $srcText
-	): void {
-		// now actually set up the frame
-		if ( !$parentFrame ) {
-			$this->frame = $this->env->topFrame->newChild(
-				$title, $args, $srcText
-			);
-		} elseif ( !$title ) {
-			$this->frame = $parentFrame->newChild(
-				$parentFrame->getTitle(), $parentFrame->getArgs()->args, $srcText
-			);
-		} else {
-			$this->frame = $parentFrame->newChild(
-				$title, $args, $srcText
-			);
 		}
 	}
 
