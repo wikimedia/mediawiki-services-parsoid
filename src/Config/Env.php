@@ -585,15 +585,6 @@ class Env {
 	}
 
 	/**
-	 * Normalize and resolve the page title
-	 * @deprecated Just use $this->getPageConfig()->getTitle() directly
-	 * @return string
-	 */
-	public function normalizeAndResolvePageTitle(): string {
-		return $this->getPageConfig()->getTitle();
-	}
-
-	/**
 	 * Create a Title object
 	 * @param string $text URL-decoded text
 	 * @param int|TitleNamespace $defaultNs
