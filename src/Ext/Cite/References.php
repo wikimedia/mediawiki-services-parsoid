@@ -308,7 +308,8 @@ class References extends ExtensionTagHandler {
 				if ( $contentDiffers ) {
 					// TODO: Since this error is being placed on the ref, the
 					// key should arguably be "cite_error_ref_duplicate_key"
-					$errs[] = [ 'key' => 'cite_error_references_duplicate_key' ];
+					$errs[] = [ 'key' => 'cite_error_references_duplicate_key',
+						'params' => [ $refDmw->attrs->name ] ];
 				}
 			}
 			if ( $contentDiffers ) {
