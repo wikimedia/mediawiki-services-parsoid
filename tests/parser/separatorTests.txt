@@ -2,6 +2,12 @@
 #
 # This file will hold tests for separator handling functionality
 
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
 # This is a regression test that indirectly tests the expectation
 # by ensuring that there are no nowikis around [2] on the second line
 !! test
@@ -15,4 +21,24 @@ parsoid=wt2wt
 |}
 !! html/parsoid
 NOT NEEDED
+!! end
+
+!! test
+Selser: Reuse separator before first content node of body
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "p", "html", "BAR" ]
+  ]
+}
+!! wikitext
+ <noinclude>{{1x|<div>foo</div>}}</noinclude>
+
+FOO
+!! wikitext/edited
+ <noinclude>{{1x|<div>foo</div>}}</noinclude>
+
+BAR
 !! end

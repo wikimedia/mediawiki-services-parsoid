@@ -543,17 +543,31 @@ class SerializerState {
 		 * we conservatively ignore the original separator and let normal P-P constraints
 		 * take care of it. At worst, we might generate a dirty diff in this scenario. */
 		$again = ( $node === $this->sep->lastSourceNode );
-		$origSepUsable = !$again
-			&& $this->prevNode && $this->prevNode->parentNode === $node->parentNode
-			&& $this->prevNodeUnmodified && !WTSUtils::nextToDeletedBlockNodeInWT( $this->prevNode, true )
-			&& $this->currNodeUnmodified && !WTSUtils::nextToDeletedBlockNodeInWT( $node, false );
+		$origSepUsable = !$again &&
+			(
+				// first-content-node of <body> ($this->prevNode)
+				(
+					DOMUtils::isBody( $this->prevNode ) &&
+					$node->parentNode === $this->prevNode
+				)
+				||
+				// unmodified sibling node of $this->prevNode
+				(
+					$this->prevNode && $this->prevNodeUnmodified &&
+					$node->parentNode === $this->prevNode->parentNode &&
+					!WTSUtils::nextToDeletedBlockNodeInWT( $this->prevNode, true )
+				)
+			) &&
+			$this->currNodeUnmodified && !WTSUtils::nextToDeletedBlockNodeInWT( $node, false );
 
 		$origSep = null;
 		if ( $origSepUsable ) {
 			if ( DOMUtils::isElt( $this->prevNode ) && DOMUtils::isElt( $node ) ) {
 				'@phan-var DOMElement $node';/** @var DOMElement $node */
 				$origSep = $this->getOrigSrc(
-					DOMDataUtils::getDataParsoid( $this->prevNode )->dsr->end,
+					// <body> won't have DSR in body_only scenarios
+					( DOMUtils::isBody( $this->prevNode ) ?
+						0 : DOMDataUtils::getDataParsoid( $this->prevNode )->dsr->end ),
 					DOMDataUtils::getDataParsoid( $node )->dsr->start
 				);
 			} elseif ( $this->sep->src && WTSUtils::isValidSep( $this->sep->src ) ) {
