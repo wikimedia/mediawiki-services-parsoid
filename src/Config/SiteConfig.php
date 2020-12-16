@@ -77,9 +77,14 @@ abstract class SiteConfig {
 
 	/**
 	 * Array specifying fully qualified class name for Parsoid-compatible extensions
-	 * @var ExtensionModule[]|null
+	 * @var ?array<int,ExtensionModule>
 	 */
 	private $extModules = null;
+	/**
+	 * Private counter to assign IDs to $extModules
+	 * @var int
+	 */
+	private $extModuleNextId = 0;
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
 
@@ -90,8 +95,10 @@ abstract class SiteConfig {
 	 *  or else the configuration array which ExtensionModule::getConfig()
 	 *  would return.  (The latter is preferred, but our internal extensions
 	 *  use the former.)
+	 * @return int An integer identifier that can be passed to
+	 *  ::unregisterExtensionModule to remove this extension (
 	 */
-	public function registerExtensionModule( $configOrSpec ): void {
+	final public function registerExtensionModule( $configOrSpec ): int {
 		$this->getExtensionModules(); // ensure it's initialized w/ core modules
 		if ( is_string( $configOrSpec ) || isset( $configOrSpec['class'] ) || isset( $configOrSpec['factory'] ) ) {
 			// Treat this as an object factory spec for an ExtensionModule
@@ -118,31 +125,39 @@ abstract class SiteConfig {
 				}
 			};
 		}
-		$this->extModules[] = $module;
+		$extId = $this->extModuleNextId++;
+		$this->extModules[$extId] = $module;
+		return $extId;
 	}
 
 	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
+	 * Unregister a Parsoid extension module.  This is typically used
+	 * only for testing purposes in order to reset a shared SiteConfig
+	 * to its original configuration.
+	 * @param int $extId The value returned by the call to
+	 *   ::registerExtensionModule()
+	 */
+	final public function unregisterExtensionModule( int $extId ): void {
+		unset( $this->extModules[$extId] );
+		$this->extConfig = null; // remove cached extConfig
+	}
+
+	/**
 	 * Return the set of Parsoid extension modules associated with this
-	 * SiteConfig.  An implementation of SiteConfig may elect either to
-	 * call the ::registerExtension() method above, or else to override the
-	 * implementation of getExtensions() to return the proper list.
-	 * (But be sure to delegate to the superclass implementation in order
-	 * to include the Parsoid core extension modules.)
-	 *
-	 * FIXME: choose one method!
+	 * SiteConfig.
 	 *
 	 * @return ExtensionModule[]
 	 */
-	public function getExtensionModules() {
+	final public function getExtensionModules() {
 		if ( $this->extModules === null ) {
 			$this->extModules = [];
 			foreach ( self::$coreExtModules as $m ) {
-				$this->extModules[] = new $m();
+				$this->extModules[$this->extModuleNextId++] = new $m();
 			}
 		}
-		return $this->extModules;
+		return array_values( $this->extModules );
 	}
 
 	/** @var LoggerInterface|null */
@@ -171,16 +186,8 @@ abstract class SiteConfig {
 	 */
 	protected $linterEnabled = false;
 
-	/** var array */
-	protected $extConfig = [
-		'allTags'        => [],
-		'parsoidExtTags' => [],
-		'domProcessors'  => [],
-		'contentModels'  => [],
-	];
-
-	/** @var bool */
-	private $extConfigInitialized = false;
+	/** var ?array */
+	protected $extConfig = null;
 
 	public function __construct() {
 	}
@@ -1122,9 +1129,22 @@ abstract class SiteConfig {
 	abstract protected function getNonNativeExtensionTags(): array;
 
 	/**
-	 * FIXME: might benefit from T250230 (caching)
+	 * FIXME: might benefit from T250230 (caching) but see T270307 --
+	 * currently SiteConfig::unregisterExtensionModule() is called
+	 * during testing, which requires invalidating $this->extConfig.
+	 * (See also SiteConfig::fakeTimestamp() etc.)  We'd probably need
+	 * to more fully separate/mock the "testing SiteConfig" as well
+	 * as provide a way for parser options to en/disable individual
+	 * registered modules before this class can be considered immutable
+	 * and cached.
 	 */
 	private function constructExtConfig() {
+		$this->extConfig = [
+			'allTags'        => [],
+			'parsoidExtTags' => [],
+			'domProcessors'  => [],
+			'contentModels'  => [],
+		];
 		// We always support wikitext
 		$this->extConfig['contentModels']['wikitext'] =
 			new WikitextContentModelHandler();
@@ -1144,7 +1164,7 @@ abstract class SiteConfig {
 	 * @param ExtensionModule $ext
 	 */
 	protected function processExtensionModule( ExtensionModule $ext ): void {
-		Assert::invariant( $this->extConfigInitialized, "not yet inited!" );
+		Assert::invariant( $this->extConfig !== null, "not yet inited!" );
 		$extConfig = $ext->getConfig();
 		Assert::invariant(
 			isset( $extConfig['name'] ),
@@ -1194,8 +1214,7 @@ abstract class SiteConfig {
 	 * @return array
 	 */
 	protected function getExtConfig(): array {
-		if ( !$this->extConfigInitialized ) {
-			$this->extConfigInitialized = true;
+		if ( !$this->extConfig ) {
 			$this->constructExtConfig();
 		}
 		return $this->extConfig;
