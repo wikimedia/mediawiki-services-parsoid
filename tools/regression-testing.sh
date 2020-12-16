@@ -5,11 +5,12 @@ set -u
 
 if [ $# -lt 4 ]
 then
-	echo "USAGE: $0 <uid> <oracle> <commit> <file>"
+	echo "USAGE: $0 <uid> <oracle> <commit> <file> <outputContentVersion>"
 	echo " - <uid> is your bastion uid you use to log in to scandium/testreduce1001"
 	echo " - <oracle> is the commit hash to use as the oracle"
 	echo " - <commit> is the commit hash to test against"
 	echo " - <file> has the list of pages to test (formatted as lines of dbname:title)"
+	echo " - <outputContentVersion> (optional) If different than the default"
 	exit 1
 fi
 
@@ -17,6 +18,11 @@ uid=$1
 oracle=$2
 commit=$3
 file=$4
+outputContentVersion=""
+
+if [ $# -gt 4 ] ; then
+	outputContentVersion="--outputContentVersion $5"
+fi
 
 # Copy over test file
 titlesPath="/tmp/titles"
@@ -29,7 +35,7 @@ function runTest() {
 	cdDir="cd /srv/parsoid-testing"
 	restartPHP="sudo systemctl restart php7.2-fpm.service"
 	resultPath="/tmp/results.$sha.json"
-	testScript="$cdDir && node tools/runRtTests.js --proxyURL http://scandium.eqiad.wmnet:80 --parsoidURL http://DOMAIN/w/rest.php -f $titlesPath -o $resultPath"
+	testScript="$cdDir && node tools/runRtTests.js --proxyURL http://scandium.eqiad.wmnet:80 --parsoidURL http://DOMAIN/w/rest.php $outputContentVersion -f $titlesPath -o $resultPath"
 
 	echo "---- Checking out $sha ----"
 	ssh $uid@scandium.eqiad.wmnet "$cdDir && git checkout $sha && $restartPHP"
