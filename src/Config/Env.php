@@ -990,7 +990,7 @@ class Env {
 	/**
 	 * The HTML content version of the input document (for html2wt and html2html conversions).
 	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
-	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML#Versioning
 	 * @return string A semver version number
 	 */
 	public function getInputContentVersion(): string {
@@ -1000,7 +1000,7 @@ class Env {
 	/**
 	 * The HTML content version of the input document (for html2wt and html2html conversions).
 	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
-	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML#Versioning
 	 * @return string A semver version number
 	 */
 	public function getOutputContentVersion(): string {

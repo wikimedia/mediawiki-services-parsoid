@@ -30,7 +30,7 @@ class Parsoid {
 	/**
 	 * Available HTML content versions.
 	 * @see https://www.mediawiki.org/wiki/Parsoid/API#Content_Negotiation
-	 * @see https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Versioning
+	 * @see https://www.mediawiki.org/wiki/Specs/HTML#Versioning
 	 */
 	public const AVAILABLE_VERSIONS = [ '2.2.0', '999.0.0' ];
 

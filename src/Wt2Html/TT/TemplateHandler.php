@@ -1345,7 +1345,7 @@ class TemplateHandler extends TokenHandler {
 			$metaToken->addAttribute( 'about', $env->newAboutId() );
 			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 
-			// See [[mw:Specs/HTML/1.4.0#Transclusion-affected_attributes]]
+			// See [[mw:Specs/HTML#Generated_attributes_of_HTML_tags]]
 			//
 			// For every attribute that has a templated name and/or value,
 			// AttributeExpander creates a 2-item array for that attribute.

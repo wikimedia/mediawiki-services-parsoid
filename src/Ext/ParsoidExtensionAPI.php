@@ -100,7 +100,7 @@ class ParsoidExtensionAPI {
 	 * $key and $params are basically the arguments to wfMessage, although they
 	 * will be stored in the data-mw of the encapsulation wrapper.
 	 *
-	 * See https://www.mediawiki.org/wiki/Specs/HTML/2.1.0#Error_handling
+	 * See https://www.mediawiki.org/wiki/Specs/HTML#Error_handling
 	 *
 	 * The returned fragment can be inserted in the dom and will be populated
 	 * with the localized message.  See T266666

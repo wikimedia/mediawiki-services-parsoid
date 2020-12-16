@@ -108,7 +108,7 @@ class Ref extends ExtensionTagHandler {
 			// So far, this is specified for Cite and relies on the "id"
 			// referring to an element in the top level dom, even though the
 			// <ref> itself may be in embedded content,
-			// https://www.mediawiki.org/wiki/Specs/HTML/2.1.0/Extensions/Cite#Ref_and_References
+			// https://www.mediawiki.org/wiki/Specs/HTML/Extensions/Cite#Ref_and_References
 			// FIXME: This doesn't work if the <references> section
 			// itself is in embedded content, since we aren't traversing
 			// in there.
