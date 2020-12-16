@@ -255,7 +255,8 @@ class References extends ExtensionTagHandler {
 		}
 
 		if ( isset( $refDmw->attrs->dir ) && $refDir !== 'rtl' && $refDir !== 'ltr' ) {
-			$errs[] = [ 'key' => 'cite_error_ref_invalid_dir' ];
+			$errs[] = [ 'key' => 'cite_error_ref_invalid_dir',
+				'params' => [ $refDmw->attrs->dir ] ];
 		}
 
 		// FIXME: At some point this error message can be changed to a warning, as Parsoid Cite now
