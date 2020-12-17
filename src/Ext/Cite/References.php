@@ -215,7 +215,8 @@ class References extends ExtensionTagHandler {
 			if ( $refsData->inReferencesContent() ) {
 				$group = $refsData->getRefGroup( $groupName );
 				if ( !isset( $group->indexByName[$refName] ) ) {
-					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
+					$errs[] = [ 'key' => 'cite_error_references_missing_key',
+						'params' => [ $refDmw->attrs->name ] ];
 				}
 			}
 		} else {
@@ -242,7 +243,8 @@ class References extends ExtensionTagHandler {
 					// section and it's the $followName we care about, but the
 					// extension to the legacy parser doesn't have an
 					// equivalent key and just outputs something wacky.
-					$errs[] = [ 'key' => 'cite_error_references_missing_key' ];
+					$errs[] = [ 'key' => 'cite_error_references_missing_key',
+						'params' => [ $refDmw->attrs->follow ] ];
 				}
 			} elseif ( $refsData->inReferencesContent() ) {
 				$errs[] = [ 'key' => 'cite_error_references_no_key' ];
