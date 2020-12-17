@@ -164,7 +164,8 @@ class References extends ExtensionTagHandler {
 			$refsData->inReferencesContent() &&
 			$groupName !== $refsData->referencesGroup
 		) {
-			$errs[] = [ 'key' => 'cite_error_references_group_mismatch' ];
+			$errs[] = [ 'key' => 'cite_error_references_group_mismatch',
+				'params' => [ $refDmw->attrs->group ] ];
 		}
 
 		// NOTE: This will have been trimmed in Utils::getExtArgInfo()'s call
