@@ -2569,19 +2569,18 @@
         "html2wt": "This is a test template\n"
     },
     "Template with invalid target containing tags": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,48,0,0]}'>{{a<b data-parsoid='{\"stx\":\"html\",\"dsr\":[3,11,3,4]}'>b</b>|<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[12,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>|<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,31,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span>=<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[32,40,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b\"}},\"i\":0}}]}'>b</span>|a =b}}</p>",
-        "wt2wt": "<nowiki>{{a</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}<nowiki>|a =b}}</nowiki>",
+        "wt2wt": "<nowiki>{{a</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}<nowiki>|a = b}}</nowiki>",
         "html2wt": "<nowiki>{{a</nowiki>'''b'''<nowiki>|foo|a=b|a = b}}</nowiki>\n",
         "selser [2]": "6m3b6y\n\n{{a<b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}|a = b}}",
-        "selser [[3,3,3,0,4,0,2,0,0]]": "{{1x|foo}}napzwa{{1x|a}}iofwsk={{1x|b}}|a =b}}",
-        "selser [[3,[4],2,0,0,0,3,0,0]]": "<b>1xxs67g</b>uckcy2|{{1x|foo}}|{{1x|a}}{{1x|b}}|a =b}}",
-        "selser [1]": "<nowiki>{{a</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}|a =b}}",
-        "selser [[2,[2],4,0,2,0,0,0,0]]": "<nowiki>9xe14n{{a</nowiki><b>eohk8ob</b>60vmj7{{1x|foo}}1i8dgjo|{{1x|a}}={{1x|b}}|a =b}}",
-        "selser [[0,[2],2,0,0,0,3,0,0]]": "<nowiki>{{a</nowiki><b>1orfzvwb</b>1k84mlk|{{1x|foo}}|{{1x|a}}{{1x|b}}|a =b}}",
-        "selser [[0,2,0,0,0,0,4,0,0]]": "<nowiki>{{aruce93</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}1klwcjt{{1x|b}}|a =b}}",
-        "selser [[2,0,0,0,4,0,0,0,0]]": "<nowiki>9lhhf6{{a</nowiki><b>b</b>|{{1x|foo}}10rdcyk{{1x|a}}={{1x|b}}|a =b}}",
-        "selser [[0,0,4,0,0,0,0,0,0]]": "<nowiki>{{a</nowiki><b>b</b>112xyy0{{1x|foo}}|{{1x|a}}={{1x|b}}|a =b}}",
-        "selser [[4,1,0,0,4,0,3,0,0]]": "t9hq36<b data-foobar=\"ngjfip\">b</b>|{{1x|foo}}hc4wv8{{1x|a}}{{1x|b}}|a =b}}"
+        "selser [[3,3,3,0,4,0,2,0,0]]": "{{1x|foo}}napzwa{{1x|a}}iofwsk={{1x|b}}|a = b}}",
+        "selser [[3,[4],2,0,0,0,3,0,0]]": "<b>1xxs67g</b>uckcy2|{{1x|foo}}|{{1x|a}}{{1x|b}}|a = b}}",
+        "selser [1]": "<nowiki>{{a</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}={{1x|b}}|a = b}}",
+        "selser [[2,[2],4,0,2,0,0,0,0]]": "<nowiki>9xe14n{{a</nowiki><b>eohk8ob</b>60vmj7{{1x|foo}}1i8dgjo|{{1x|a}}={{1x|b}}|a = b}}",
+        "selser [[0,[2],2,0,0,0,3,0,0]]": "<nowiki>{{a</nowiki><b>1orfzvwb</b>1k84mlk|{{1x|foo}}|{{1x|a}}{{1x|b}}|a = b}}",
+        "selser [[0,2,0,0,0,0,4,0,0]]": "<nowiki>{{aruce93</nowiki><b>b</b>|{{1x|foo}}|{{1x|a}}1klwcjt{{1x|b}}|a = b}}",
+        "selser [[2,0,0,0,4,0,0,0,0]]": "<nowiki>9lhhf6{{a</nowiki><b>b</b>|{{1x|foo}}10rdcyk{{1x|a}}={{1x|b}}|a = b}}",
+        "selser [[0,0,4,0,0,0,0,0,0]]": "<nowiki>{{a</nowiki><b>b</b>112xyy0{{1x|foo}}|{{1x|a}}={{1x|b}}|a = b}}",
+        "selser [[4,1,0,0,4,0,3,0,0]]": "t9hq36<b data-foobar=\"ngjfip\">b</b>|{{1x|foo}}hc4wv8{{1x|a}}{{1x|b}}|a = b}}"
     },
     "Template with invalid target containing wikilink": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'>{{<a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[2,15,2,2]}'>Main Page</a>}}</p>",

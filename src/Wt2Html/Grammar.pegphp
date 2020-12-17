@@ -1062,15 +1062,15 @@ template_param =
 	name:template_param_name
 	val:(
 		kEndPos:("" { return $this->endOffset(); })
-		optionalSpaceToken
+		// no optionalSpaceToken here, it's eaten by template_param_name
 		"="
 		vStartPos:("" { return $this->endOffset(); })
-		optionalSpaceToken
+		optSp:optionalSpaceToken
 		tpv:template_param_value? {
 			return [
 				'kEndPos' => $kEndPos,
 				'vStartPos' => $vStartPos,
-				'value' => $tpv ? $tpv['tokens'] : []
+				'value' => TokenizerUtils::flattenString( [ $optSp, $tpv['tokens'] ?? [] ] ),
 			];
 		}
 	)? {
