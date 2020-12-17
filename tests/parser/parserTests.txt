@@ -15348,7 +15348,7 @@ Special:Foobar_nonexistent
 ### Images
 ###
 ### For Parsoid-specific tests, see
-#### https://www.mediawiki.org/wiki/Parsoid/MediaWiki_DOM_spec#Images
+### https://www.mediawiki.org/wiki/Specs/HTML#Images
 
 !! test
 Simple image
@@ -17058,7 +17058,7 @@ wgEnableUploads=0
 !! end
 
 # Parsoid-specific testing for images
-# https://www.mediawiki.org/wiki/Parsoid/MediaWiki_DOM_spec#Images
+# https://www.mediawiki.org/wiki/Specs/HTML#Images
 # Currently imperfect due to a flaw in the Parsoid testrunner
 # Work in progress
 # THESE TESTS SHOULD BE MOVED UP and merged with the php-specific

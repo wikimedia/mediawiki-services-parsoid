@@ -421,7 +421,9 @@ class AttributeExpander extends TokenHandler {
 							// that string is setting attributes for [id, title, style], not just id.
 							//
 							// That requires the ability for the data-mw.attribs[i].txt to be an array.
-							// However, the spec at [[mw:Parsoid/MediaWiki_DOM_spec]] says:
+							// However, the spec at [[mw:Specs/HTML#Generated_attributes_of_HTML_tags]]
+							// says:
+							//
 							//    "This spec also assumes that a template can only
 							//     generate one attribute rather than multiple attributes."
 							//

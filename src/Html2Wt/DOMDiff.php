@@ -145,7 +145,7 @@ class DOMDiff {
 	}
 
 	/**
-	 * According to MediaWiki_DOM_spec, `id` and `html` attributes are acceptable
+	 * According to [[mw:Specs/HTML]], `id` and `html` attributes are acceptable
 	 * formats in `data-mw.body` and in those contexts, they reference DOMs and
 	 * we are going to treat them as such.
 	 *
