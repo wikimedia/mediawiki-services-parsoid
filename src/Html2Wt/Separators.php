@@ -766,7 +766,7 @@ class Separators {
 		} elseif ( $sepType === 'child-parent' ) {
 			$sep = $this->recoverTrimmedWhitespace( $node, false );
 			if ( $sep !== null ) {
-				$state->sep->src = $state->sep->src . $sep;
+				$state->sep->src .= $sep;
 			}
 		} else {
 			$sep = null;

@@ -511,7 +511,7 @@ class MockApiHelper extends ApiHelper {
 			case 'expandtemplates':
 				$ret = $this->preProcess( $params['titles'] ?? $params['title'], $params['text'], $params['revid'] ?? null );
 				if ( $ret ) {
-					$ret = $ret + [
+					$ret += [
 						'categories' => [],
 						'modules' => [],
 						'modulestyles' => []

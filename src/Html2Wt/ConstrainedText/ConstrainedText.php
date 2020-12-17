@@ -165,7 +165,7 @@ class ConstrainedText {
 	 * @return array|null
 	 *  An array containing the matched results or null if there were no matches.
 	 */
-	public function match( string $re ): ?array {
+	public function matches( string $re ): ?array {
 		$r = preg_match( $re, $this->text, $m );
 		if ( $r === false ) {
 			throw new \Error( 'Bad regular expression' );

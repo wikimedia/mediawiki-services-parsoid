@@ -102,6 +102,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = true;
 				$cnode = $n->cloneNode();
+				'@phan-var DOMElement $cnode'; // @var DOMElement $cnode
 				$cnode->removeAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
 				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $cnode ];
 				$i++;

@@ -659,7 +659,7 @@ class SerializerState {
 				// If a text node, we have to make sure that the text doesn't
 				// get reparsed as non-text in the wt2html pipeline.
 				if ( $pChild && DOMUtils::isText( $pChild ) ) {
-					$match = $res->match( $this->solWikitextRegexp() );
+					$match = $res->matches( $this->solWikitextRegexp() );
 					if ( $match && isset( $match[2] ) ) {
 						if ( preg_match( '/^([\*#:;]|{\||.*=$)/D', $match[2] )
 							// ! and | chars are harmless outside tables
@@ -681,7 +681,7 @@ class SerializerState {
 		$this->pushToCurrLine( $res, $this->logPrefix );
 
 		// Update sol flag. Test for newlines followed by optional includeonly or comments
-		if ( !$res->match( $this->solRegexp() ) ) {
+		if ( !$res->matches( $this->solRegexp() ) ) {
 			$this->onSOL = false;
 		}
 

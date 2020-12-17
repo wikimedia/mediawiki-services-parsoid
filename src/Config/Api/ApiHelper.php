@@ -58,7 +58,7 @@ class ApiHelper {
 	 */
 	public function makeRequest( array $params ): array {
 		$filename = null;
-		$params = $params + [ 'formatversion' => 2 ];
+		$params += [ 'formatversion' => 2 ];
 		if ( $this->cacheDir !== null ) {
 			# sort the parameters for a repeatable filename
 			ksort( $params );

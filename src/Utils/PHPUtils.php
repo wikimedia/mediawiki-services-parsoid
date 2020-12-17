@@ -23,7 +23,7 @@ class PHPUtils {
 		$str = '';
 		do {
 			$str = chr( $n & 0xff ) . $str;
-			$n = $n >> 8;
+			$n >>= 8;
 		} while ( $n > 0 );
 		return rtrim( strtr( base64_encode( $str ), '+/', '-_' ), '=' );
 	}
