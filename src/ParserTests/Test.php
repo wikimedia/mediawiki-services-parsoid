@@ -875,8 +875,10 @@ class Test extends Item {
 	 */
 	public function normalizeHTML( $actual, ?string $normExpected, bool $standalone = true ): array {
 		$opts = $this->options;
+		$haveStandaloneHTML = $standalone && isset( $this->sections['html/parsoid+standalone'] );
 		$haveIntegratedHTML = !$standalone && isset( $this->sections['html/parsoid+integrated'] );
 		$parsoidOnly = isset( $this->sections['html/parsoid'] ) ||
+			$haveStandaloneHTML ||
 			$haveIntegratedHTML ||
 			isset( $this->sections['html/parsoid+langconv'] ) ||
 			( isset( $opts['parsoid'] ) && !isset( $opts['parsoid']['normalizePhp'] ) );
@@ -888,6 +890,8 @@ class Test extends Item {
 		if ( !$normExpected ) {
 			if ( $haveIntegratedHTML ) {
 				$parsoidHTML = $this->sections['html/parsoid+integrated'];
+			} elseif ( $haveStandaloneHTML ) {
+				$parsoidHTML = $this->sections['html/parsoid+standalone'];
 			} else {
 				$parsoidHTML = $this->parsoidHtml;
 			}

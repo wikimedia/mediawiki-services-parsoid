@@ -376,13 +376,18 @@ class TestRunner {
 		$startsAtHtml = $mode === 'html2html' || $mode === 'html2wt';
 		$endsAtHtml = $mode === 'wt2html' || $mode === 'html2html';
 
-		$parsoidOnly = isset( $test->sections['html/parsoid'] ) || (
+		$parsoidOnly = isset( $test->sections['html/parsoid'] ) ||
+			isset( $test->sections['html/parsoid+standalone'] ) || (
 			!empty( $testOpts['parsoid'] ) &&
 			!isset( $testOpts['parsoid']['normalizePhp'] )
 		);
 		$test->time['start'] = microtime( true );
 		$doc = null;
 		$wt = null;
+
+		if ( isset( $test->sections['html/parsoid+standalone'] ) ) {
+			$test->parsoidHtml = $test->sections['html/parsoid+standalone'];
+		}
 
 		// Source preparation
 		if ( $startsAtHtml ) {
@@ -703,6 +708,9 @@ class TestRunner {
 		$haveHtml = ( $test->parsoidHtml !== null ) ||
 			isset( $test->sections['wikitext/edited'] ) ||
 			isset( $test->sections['html/parsoid+langconv'] );
+		$hasHtmlParsoid =
+			isset( $test->sections['html/parsoid'] ) ||
+			isset( $test->sections['html/parsoid+standalone'] );
 
 		// Skip test whose title does not match --filter
 		// or which is disabled or php-only
@@ -710,7 +718,7 @@ class TestRunner {
 			!$haveHtml ||
 			( isset( $testOpts['disabled'] ) && !$this->runDisabled ) ||
 			( isset( $testOpts['php'] ) && !(
-				isset( $test->sections['html/parsoid'] ) || $this->runPHP )
+				$hasHtmlParsoid || $this->runPHP )
 			) ||
 			!$test->matchesFilter( $this->testFilter )
 		) {
