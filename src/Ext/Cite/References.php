@@ -273,8 +273,13 @@ class References extends ExtensionTagHandler {
 
 		if ( $missingContent ) {
 			// Check for missing name and content to generate error code
+			//
+			// In references content, refs should be used for definition so missing content
+			// is an error.  It's possible that no name is present (!hasRefName), which also
+			// gets the error "cite_error_references_no_key" above, so protect against that.
 			if ( $refsData->inReferencesContent() ) {
-				$errs[] = [ 'key' => 'cite_error_empty_references_define' ];
+				$errs[] = [ 'key' => 'cite_error_empty_references_define',
+					'params' => [ $refDmw->attrs->name ?? '' ] ];
 			} elseif ( !$hasRefName ) {
 				if ( !empty( $cDp->selfClose ) ) {
 					$errs[] = [ 'key' => 'cite_error_ref_no_key' ];
