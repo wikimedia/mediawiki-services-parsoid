@@ -8504,7 +8504,7 @@ File containing double quotes and spaces
 !! wikitext
 [[File:Cool "Gator".png]]
 !! html/php+tidy
-<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Cool_%22Gator%22.png" class="new" title="File:Cool &quot;Gator&quot;.png">File:Cool "Gator".png</a>
+<p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Cool_%22Gator%22.png" class="new" title="File:Cool &quot;Gator&quot;.png">File:Cool &quot;Gator&quot;.png</a>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Cool_%22Gator%22.png"><span resource='./File:Cool_"Gator".png' data-parsoid='{"a":{"resource":"./File:Cool_\"Gator\".png"},"sa":{"resource":"File:Cool \"Gator\".png"}}'>File:Cool "Gator".png</span></a></span></p>
@@ -26591,6 +26591,98 @@ Special parser function
 <p>Special:Random
 Special:Badtitle
 Special:Foobar
+</p>
+!! end
+
+!! test
+Langconvert tag: crh-latn to crh-cyrl
+!! wikitext
+<langconvert from="crh-latn" to="crh-cyrl">test</langconvert>
+!! html/php
+<p>тест
+</p>
+!! end
+
+!! test
+Langconvert tag: en to en-x-piglatin
+!! config
+wgUsePigLatinVariant=true
+!! wikitext
+<langconvert from="en" to="en-x-piglatin">test</langconvert>
+!! html/php
+<p>esttay
+</p>
+!! end
+
+!! test
+Langconvert tag: gan-hans to gan-hant
+!! wikitext
+<langconvert from="gan-hans" to="gan-hant">爱</langconvert>
+!! html/php
+<p>愛
+</p>
+!! end
+
+!! test
+Langconvert tag: kk-latn to kk-cyrl
+!! wikitext
+<langconvert from="kk-latn" to="kk-cyrl">test</langconvert>
+!! html/php
+<p>тест
+</p>
+!! end
+
+!! test
+Langconvert tag: ku-latn to ku-arab
+!! wikitext
+<langconvert from="ku-latn" to="ku-arab">test</langconvert>
+!! html/php
+<p>تەست
+</p>
+!! end
+
+!! test
+Langconvert tag: shi-latn to shi-tfng
+!! wikitext
+<langconvert from="shi-latn" to="shi-tfng">test</langconvert>
+!! html/php
+<p>ⵜⴻⵙⵜ
+</p>
+!! end
+
+!! test
+Langconvert tag: sr-el to sr-ec
+!! wikitext
+<langconvert from="sr-el" to="sr-ec">zdravo</langconvert>
+!! html/php
+<p>здраво
+</p>
+!! end
+
+!! test
+Langconvert tag: tg to tg-latn
+!! wikitext
+<langconvert from="tg" to="tg-latn">тест</langconvert>
+!! html/php
+<p>test
+</p>
+!! end
+
+!! test
+Langconvert tag: uz-cyrl to uz-latn
+!! wikitext
+<langconvert from="uz-cyrl" to="uz-latn">тест</langconvert>
+!! html/php
+<p>test
+</p>
+!! end
+
+!! test
+Langconvert tag: zh-hans to zh-hant
+!! wikitext
+<langconvert from="zh-hans" to="zh-hant">爱</langconvert>
+!! html/php
+<p>愛
 </p>
 !! end
 
