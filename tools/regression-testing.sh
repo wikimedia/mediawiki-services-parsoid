@@ -26,7 +26,7 @@ fi
 
 # Copy over test file
 titlesPath="/tmp/titles"
-ssh $uid@testreduce1001.eqiad.wmnet "sudo rm $titlesPath"
+ssh $uid@testreduce1001.eqiad.wmnet "sudo rm -f $titlesPath"
 scp -q $file $uid@testreduce1001.eqiad.wmnet:$titlesPath
 
 function runTest() {
@@ -40,7 +40,7 @@ function runTest() {
 	echo "---- Checking out $sha ----"
 	ssh $uid@scandium.eqiad.wmnet "$cdDir && git checkout $sha && $restartPHP"
 	echo "---- Running tests ----"
-	ssh $uid@testreduce1001.eqiad.wmnet "sudo rm $resultPath"
+	ssh $uid@testreduce1001.eqiad.wmnet "sudo rm -f $resultPath"
 	ssh $uid@testreduce1001.eqiad.wmnet "$testScript"
 	scp $uid@testreduce1001.eqiad.wmnet:$resultPath /tmp/
 }
