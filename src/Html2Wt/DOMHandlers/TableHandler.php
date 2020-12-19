@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class TableHandler extends DOMHandler {
@@ -23,7 +22,7 @@ class TableHandler extends DOMHandler {
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?DOMNode {
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$wt = PHPUtils::coalesce( $dp->startTagSrc ?? null, '{|' );
+		$wt = $dp->startTagSrc ?? '{|';
 		$indentTable = $node->parentNode->nodeName === 'dd'
 			&& DOMUtils::previousNonSepSibling( $node ) === null;
 		if ( $indentTable ) {
@@ -48,7 +47,7 @@ class TableHandler extends DOMHandler {
 			// is never computed and set here.
 			$state->sep->constraints = [ 'min' => 1, 'max' => 2, 'constraintInfo' => [] ];
 		}
-		WTSUtils::emitEndTag( PHPUtils::coalesce( $dp->endTagSrc ?? null, '|}' ), $node, $state );
+		WTSUtils::emitEndTag( $dp->endTagSrc ?? '|}', $node, $state );
 		if ( $indentTable ) {
 			$state->singleLineContext->pop();
 		}

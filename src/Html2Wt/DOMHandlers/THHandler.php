@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class THHandler extends DOMHandler {
 
@@ -23,7 +22,7 @@ class THHandler extends DOMHandler {
 	): ?DOMNode {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$usableDP = $this->stxInfoValidForTableCell( $state, $node );
-		$attrSepSrc = $usableDP ? PHPUtils::coalesce( $dp->attrSepSrc ?? null, null ) : null;
+		$attrSepSrc = $usableDP ? ( $dp->attrSepSrc ?? null ) : null;
 		$startTagSrc = $usableDP ? ( $dp->startTagSrc ?? null ) : '';
 		if ( !$startTagSrc ) {
 			$startTagSrc = $usableDP && ( $dp->stx ?? null ) === 'row' ? '!!' : '!';

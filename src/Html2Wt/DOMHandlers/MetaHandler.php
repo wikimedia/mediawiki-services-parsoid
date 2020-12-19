@@ -8,7 +8,6 @@ use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -69,22 +68,22 @@ class MetaHandler extends DOMHandler {
 			switch ( $node->getAttribute( 'typeof' ) ?? '' ) {
 				case 'mw:Includes/IncludeOnly':
 					// Remove the dp.src when older revisions of HTML expire in RESTBase
-					$state->emitChunk( PHPUtils::coalesce( $dmw->src ?? null, $dp->src ?? null,  '' ), $node );
+					$state->emitChunk( $dmw->src ?? $dp->src ?? '', $node );
 					break;
 				case 'mw:Includes/IncludeOnly/End':
 					// Just ignore.
 					break;
 				case 'mw:Includes/NoInclude':
-					$state->emitChunk( PHPUtils::coalesce( $dp->src ?? null, '<noinclude>' ), $node );
+					$state->emitChunk( $dp->src ?? '<noinclude>', $node );
 					break;
 				case 'mw:Includes/NoInclude/End':
-					$state->emitChunk( PHPUtils::coalesce( $dp->src ?? null, '</noinclude>' ), $node );
+					$state->emitChunk( $dp->src ?? '</noinclude>', $node );
 					break;
 				case 'mw:Includes/OnlyInclude':
-					$state->emitChunk( PHPUtils::coalesce( $dp->src ?? null, '<onlyinclude>' ), $node );
+					$state->emitChunk( $dp->src ?? '<onlyinclude>', $node );
 					break;
 				case 'mw:Includes/OnlyInclude/End':
-					$state->emitChunk( PHPUtils::coalesce( $dp->src ?? null, '</onlyinclude>' ), $node );
+					$state->emitChunk( $dp->src ?? '</onlyinclude>', $node );
 					break;
 				case 'mw:DiffMarker/inserted':
 				case 'mw:DiffMarker/deleted':

@@ -329,22 +329,6 @@ class PHPUtils {
 	}
 
 	/**
-	 * Simulate the JS || operator.
-	 * @param mixed ...$args
-	 * @return mixed
-	 */
-	public static function coalesce( ...$args ) {
-		foreach ( $args as $arg ) {
-			// != '' has the same semantics as JS truthiness: false for null, false,
-			// 0, 0.0, '', true for everything else
-			if ( $arg != '' ) {
-				return $arg;
-			}
-		}
-		return end( $args );
-	}
-
-	/**
 	 * Convert an array to an object. Workaround for
 	 * T228346 / https://bugs.php.net/bug.php?id=78379
 	 *
