@@ -356,7 +356,7 @@ class TestRunner {
 		Env $env, Test $test, DOMElement $body, array $changelist
 	): DOMNode {
 		// Seed the random-number generator based on the item title and changelist
-		$alea = new Alea( ( json_encode( $changelist ) ?? '' ) . ( $test->title ?? '' ) );
+		$alea = new Alea( ( json_encode( $changelist ) ) . ( $test->title ?? '' ) );
 
 		// Keep the changes in the test object
 		// to check for duplicates while building tasks
@@ -364,7 +364,7 @@ class TestRunner {
 
 		// Helper function for getting a random string
 		$randomString = function () use ( &$alea ): string {
-			return (string)base_convert( (string)$alea->uint32(), 10, 36 );
+			return base_convert( (string)$alea->uint32(), 10, 36 );
 		};
 
 		$insertNewNode = function ( DOMNode $n ) use ( $randomString ): void {
