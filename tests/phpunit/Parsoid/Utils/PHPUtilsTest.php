@@ -26,31 +26,6 @@ class PHPUtilsTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::coalesce
-	 * @dataProvider provideCoalesce
-	 */
-	public function testCoalesce( array $args, $expectedResult ) {
-		$this->assertSame( $expectedResult, PHPUtils::coalesce( ...$args ) );
-	}
-
-	public function provideCoalesce() {
-		return [
-			[ [ 1, 2 ], 1 ],
-			[ [ 1, null ], 1 ],
-			[ [ null, 1 ], 1 ],
-			[ [ false, 1 ], 1 ],
-			[ [ 0, 1 ], 1 ],
-			[ [ 0.0, 1 ], 1 ],
-			[ [ '', 1 ], 1 ],
-			[ [ '0', 1 ], '0' ],
-			[ [ ' ', 1 ], ' ' ],
-			[ [ [], 1 ], [] ],
-			[ [ 0 ], 0 ],
-			[ [ 0, 0, 1, 0 ], 1 ],
-		];
-	}
-
-	/**
 	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::safeSubstr
 	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::assertValidUTF8
 	 * @dataProvider provideSafeSubstr

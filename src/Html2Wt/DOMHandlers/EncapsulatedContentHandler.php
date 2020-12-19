@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class EncapsulatedContentHandler extends DOMHandler {
@@ -89,8 +88,8 @@ class EncapsulatedContentHandler extends DOMHandler {
 		}
 		$state->singleLineContext->disable();
 		// FIXME: https://phabricator.wikimedia.org/T184779
-		$src = PHPUtils::coalesce( $dataMw->extPrefix ?? null, '' ) . $src
-			. PHPUtils::coalesce( $dataMw->extSuffix ?? null, '' );
+		$src = ( $dataMw->extPrefix ?? '' ) . $src
+			. ( $dataMw->extSuffix ?? '' );
 		$serializer->emitWikitext( $this->handleListPrefix( $node, $state ) . $src, $node );
 		$state->singleLineContext->pop();
 		return WTUtils::skipOverEncapsulatedContent( $node );

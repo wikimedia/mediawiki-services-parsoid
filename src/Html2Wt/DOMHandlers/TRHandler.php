@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class TRHandler extends DOMHandler {
 
@@ -28,7 +27,7 @@ class TRHandler extends DOMHandler {
 		if ( $this->trWikitextNeeded( $node, $dp ) ) {
 			WTSUtils::emitStartTag(
 				$this->serializeTableTag(
-					PHPUtils::coalesce( $dp->startTagSrc ?? null, '|-' ), '', $state,
+					$dp->startTagSrc ?? '|-', '', $state,
 					$node, $wrapperUnmodified
 				),
 				$node, $state

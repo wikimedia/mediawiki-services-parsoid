@@ -8,7 +8,6 @@ use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class CaptionHandler extends DOMHandler {
 
@@ -23,7 +22,7 @@ class CaptionHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// Serialize the tag itself
 		$tableTag = $this->serializeTableTag(
-			PHPUtils::coalesce( $dp->startTagSrc ?? null, '|+' ), null, $state, $node,
+			$dp->startTagSrc ?? '|+', null, $state, $node,
 			$wrapperUnmodified
 		);
 		WTSUtils::emitStartTag( $tableTag, $node, $state );
