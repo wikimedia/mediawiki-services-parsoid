@@ -23,7 +23,7 @@ if ( !isset( $wgParsoidSettings ) ) {
 
 // Override Parsoid-specific settings for rt-testing.
 $wgParsoidSettings['useSelser'] = true;
-$wgParsoidSettings['rtTestMode'] = true;
+$wgParsoidSettings['rtTestMode'] = false;
 
 // Linting during rt testing is useful to catch errors and crashers,
 // but we don't want to save lints to the production db.
