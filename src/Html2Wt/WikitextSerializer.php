@@ -1195,10 +1195,15 @@ class WikitextSerializer {
 				} );
 
 				// When reusing source, we should only suppress serializing
-				// to a single line for the cases we've allowed in
-				// normal serialization.
+				// to a single line for the cases we've allowed in normal serialization.
+				// <a> tags might look surprising here, but, here is the rationale.
+				// If some link syntax (wikilink, extlink, etc.) accepted a newline
+				// originally, we can safely let it through here. There is no need to have
+				// specific checks for wikilnks / extlinks / ... etc. The only concern is
+				// if the surrounding context in which this link-syntax is embedded also
+				// breaks the link syntax. There is no such syntax right now.
 				$suppressSLC = WTUtils::isFirstEncapsulationWrapperNode( $node )
-					|| in_array( $node->nodeName, [ 'dl', 'ul', 'ol' ], true )
+					|| in_array( $node->nodeName, [ 'dl', 'ul', 'ol', 'a' ], true )
 					|| ( $node->nodeName === 'table'
 						&& $node->parentNode->nodeName === 'dd'
 						&& DOMUtils::previousNonSepSibling( $node ) === null );

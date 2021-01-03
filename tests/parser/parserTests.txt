@@ -30378,6 +30378,25 @@ color:blue">x</span>]]
 !! end
 
 !! test
+Selser: Ignore single-line context for wikilinks
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "ul > li ", "append", "<ul><li>foo</li></ul>" ]
+  ]
+}
+!! wikitext
+* [[Foo|
+bar]]
+!! wikitext/edited
+* [[Foo|
+bar]]
+** foo
+!! end
+
+!! test
 Serialize new displayspace spans
 !! options
 parsoid=html2wt
