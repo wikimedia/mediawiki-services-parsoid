@@ -44,11 +44,6 @@ git checkout master
 git pull
 git log --oneline -n 1
 
-# Temporary hack to get Parsoid's RT testing client (still written
-# in node.js) linked up to its npm modules (still hanging out in
-# an otherwise-obsolete deploy repo).
-ln -s -f /srv/deployment/parsoid/deploy/node_modules
-
 echo 'Adding new test id ...'
 echo $testid > /srv/parsoid-testing/tests/testreduce/parsoid.rt-test.ids
 
