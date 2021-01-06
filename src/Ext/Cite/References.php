@@ -296,7 +296,7 @@ class References extends ExtensionTagHandler {
 				// Empty the <sup> since we've serialized its children and
 				// removing it below asserts everything has been migrated out
 				DOMCompat::replaceChildren( $c );
-				$refDmw->body = (object)[ 'html' => $refDmw->body->extsrc ];
+				$refDmw->body = (object)[ 'html' => $refDmw->body->extsrc ?? '' ];
 			}
 		} else {
 			// If there are multiple <ref>s with the same name, but different content,
