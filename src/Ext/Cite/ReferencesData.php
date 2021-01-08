@@ -115,6 +115,7 @@ class ReferencesData {
 			// FIXME: normalizeKey in core performs a few more operations on $refName,
 			// which will be addressed in a follow up
 			$refNameSanitized = Sanitizer::escapeIdForAttribute( $refName );
+			$refNameSanitized = preg_replace( '/__+/', '_', $refNameSanitized );
 
 			$refIdBase = 'cite_ref-' . ( $hasRefName ? $refNameSanitized . '_' . $refKey : $refKey );
 			$noteId = 'cite_note-' . ( $hasRefName ? $refNameSanitized . '-' . $refKey : $refKey );

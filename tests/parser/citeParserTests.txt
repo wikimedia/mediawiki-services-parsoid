@@ -411,15 +411,23 @@ Ref names containing a number
 !! test
 T184912: Consistent normalization of consecutive underscores
 !! wikitext
-<ref name="x__x">example</ref>
+<ref name="test_123">example</ref>
+<ref name="test__123">example</ref>
 <references />
-!! html
-<p><sup id="cite_ref-x_x_1-0" class="reference"><a href="#cite_note-x_x-1">&#91;1&#93;</a></sup>
+!! html/php
+<p><sup id="cite_ref-test_123_1-0" class="reference"><a href="#cite_note-test_123-1">&#91;1&#93;</a></sup>
+<sup id="cite_ref-test_123_2-0" class="reference"><a href="#cite_note-test_123-2">&#91;2&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-x_x-1"><span class="mw-cite-backlink"><a href="#cite_ref-x_x_1-0">↑</a></span> <span class="reference-text">example</span>
+<li id="cite_note-test_123-1"><span class="mw-cite-backlink"><a href="#cite_ref-test_123_1-0">↑</a></span> <span class="reference-text">example</span>
+</li>
+<li id="cite_note-test_123-2"><span class="mw-cite-backlink"><a href="#cite_ref-test_123_2-0">↑</a></span> <span class="reference-text">example</span>
 </li>
 </ol></div>
+!! html/parsoid
+<p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-test_123_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"test_123"},"body":{"id":"mw-reference-text-cite_note-test_123-1"}}'><a href="./Parser_test#cite_note-test_123-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt4" class="mw-ref reference" id="cite_ref-test_123_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"test__123"},"body":{"id":"mw-reference-text-cite_note-test_123-2"}}'><a href="./Parser_test#cite_note-test_123-2" style="counter-reset: mw-Ref 2;"><span class="mw-reflink-text">[2]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-test_123-1" id="cite_note-test_123-1"><a href="./Parser_test#cite_ref-test_123_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-test_123-1" class="mw-reference-text">example</span></li><li about="#cite_note-test_123-2" id="cite_note-test_123-2"><a href="./Parser_test#cite_ref-test_123_2-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-test_123-2" class="mw-reference-text">example</span></li></ol>
 !! end
 
 !! test
