@@ -57,7 +57,6 @@ class DOMNormalizer {
 	private $env;
 
 	private $inSelserMode;
-	private $inRtTestMode;
 	private $inInsertedContent;
 
 	/**
@@ -75,7 +74,6 @@ class DOMNormalizer {
 
 		$this->env = $state->getEnv();
 		$this->inSelserMode = $state->selserMode;
-		$this->inRtTestMode = $state->rtTestMode;
 		$this->inInsertedContent = false;
 	}
 
@@ -354,17 +352,15 @@ class DOMNormalizer {
 	public function stripIfEmpty( DOMElement $node ): ?DOMNode {
 		$next = DOMUtils::nextNonDeletedSibling( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$strict = $this->inRtTestMode;
 		$autoInserted = isset( $dp->autoInsertedStart ) || isset( $dp->autoInsertedEnd );
 
-		// In rtTestMode, let's reduce noise by requiring the node to be fully
-		// empty (ie. exclude whitespace text) and not having auto-inserted tags.
-		$strippable = !( $this->inRtTestMode && $autoInserted ) &&
-			DOMUtils::nodeEssentiallyEmpty( $node, $strict ) &&
+		$strippable =
+			DOMUtils::nodeEssentiallyEmpty( $node, false ) &&
 			// Ex: "<a..>..</a><b></b>bar"
 			// From [[Foo]]<b/>bar usage found on some dewiki pages.
-			// FIXME: Should this always than just in rt-test mode
-			!( $this->inRtTestMode && ( $dp->stx ?? null ) === 'html' );
+			// FIXME: Should we enable this?
+			// @phan-suppress-next-line PhanImpossibleCondition
+			!( false /* used to be rt-test mode */ && ( $dp->stx ?? null ) === 'html' );
 
 		if ( $strippable ) {
 			// Update diff markers (before the deletion)
@@ -382,9 +378,8 @@ class DOMNormalizer {
 	public function moveTrailingSpacesOut( DOMNode $node ): void {
 		$next = DOMUtils::nextNonDeletedSibling( $node );
 		$last = DOMUtils::lastNonDeletedChild( $node );
-		// Conditional on rtTestMode to reduce the noise in testing.
 		$matches = null;
-		if ( !$this->inRtTestMode && DOMUtils::isText( $last ) &&
+		if ( DOMUtils::isText( $last ) &&
 			preg_match( '/\s+$/D', $last->nodeValue, $matches ) > 0
 		) {
 			$trailing = $matches[0];
@@ -479,7 +474,7 @@ class DOMNormalizer {
 	 * @return DOMNode|null
 	 */
 	public function moveFormatTagOutsideATag( DOMElement $node ): ?DOMNode {
-		if ( $this->inRtTestMode || $node->nodeName !== 'a' ) {
+		if ( $node->nodeName !== 'a' ) {
 			return $node;
 		}
 		$sibling = DOMUtils::nextNonDeletedSibling( $node );

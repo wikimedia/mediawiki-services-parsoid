@@ -75,15 +75,6 @@ class SerializerState {
 	}
 
 	/**
-	 * Are we currently running round-trip tests?  If yes, then we know
-	 * there won't be any edits and we more aggressively try to use original
-	 * source and source flags during serialization since this is a test of
-	 * Parsoid's efficacy in preserving information.
-	 * @var bool
-	 */
-	public $rtTestMode = true;
-
-	/**
 	 * Separator information:
 	 * - constraints (array<array|int>|null): min/max number of newlines
 	 * - src (string|null): collected separator text from DOM text/comment nodes
@@ -341,7 +332,6 @@ class SerializerState {
 		$this->useWhitespaceHeuristics =
 			Semver::satisfies( $this->env->getInputContentVersion(), '>=1.7.0' );
 		$this->selserMode = $selserMode;
-		$this->rtTestMode = $this->rtTestMode && !$this->selserMode; // Always false in selser mode.
 	}
 
 	/**

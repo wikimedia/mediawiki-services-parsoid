@@ -170,9 +170,6 @@ abstract class SiteConfig {
 	private $iwMatcher = null;
 
 	/** @var bool */
-	protected $rtTestMode = false;
-
-	/** @var bool */
 	protected $addHTMLTemplateParameters = false;
 
 	/** @var bool */
@@ -206,14 +203,6 @@ abstract class SiteConfig {
 			$this->logger = new NullLogger;
 		}
 		return $this->logger;
-	}
-
-	/**
-	 * Test in rt test mode (changes some parse & serialization strategies)
-	 * @return bool
-	 */
-	public function rtTestMode(): bool {
-		return $this->rtTestMode;
 	}
 
 	/**

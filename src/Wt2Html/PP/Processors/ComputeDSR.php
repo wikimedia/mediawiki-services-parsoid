@@ -331,7 +331,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// the child dom are indeed identical.  Alternatively, we could
 		// explicitly code this check before everything and bypass this.
 		$cs = $ce;
-		$rtTestMode = $env->getSiteConfig()->rtTestMode();
 
 		$child = $node->lastChild;
 		while ( $child !== null ) {
@@ -343,31 +342,29 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$fosteredNode = false;
 			$cs = null;
 
-			// In edit mode, StrippedTag marker tags will be removed and wont
-			// be around to miss in the filling gap.  So, absorb its width into
+			// StrippedTag marker tags will be removed and wont
+			// be around to fill in the missing gap.  So, absorb its width into
 			// the DSR of its previous sibling.  Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
-			if ( !$rtTestMode ) {
-				$next = $child->nextSibling;
-				if ( $next && ( $next instanceof DOMElement ) ) {
-					$ndp = DOMDataUtils::getDataParsoid( $next );
-					if ( isset( $ndp->src ) &&
-						 DOMUtils::hasTypeOf( $next, 'mw:Placeholder/StrippedTag' )
-					) {
-						if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
-							isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {
-							$correction = strlen( $ndp->src );
-							$ce += $correction;
-							$dsrCorrection = $correction;
-							if ( Utils::isValidDSR( $ndp->dsr ?? null ) ) {
-								// Record original DSR for the meta tag
-								// since it will now get corrected to zero width
-								// since child acquires its width->
-								if ( !$ndp->tmp ) {
-									$ndp->tmp = [];
-								}
-								$ndp->tmp->origDSR = new DomSourceRange( $ndp->dsr->start, $ndp->dsr->end, null, null );
+			$next = $child->nextSibling;
+			if ( $next && ( $next instanceof DOMElement ) ) {
+				$ndp = DOMDataUtils::getDataParsoid( $next );
+				if ( isset( $ndp->src ) &&
+					 DOMUtils::hasTypeOf( $next, 'mw:Placeholder/StrippedTag' )
+				) {
+					if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
+						isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {
+						$correction = strlen( $ndp->src );
+						$ce += $correction;
+						$dsrCorrection = $correction;
+						if ( Utils::isValidDSR( $ndp->dsr ?? null ) ) {
+							// Record original DSR for the meta tag
+							// since it will now get corrected to zero width
+							// since child acquires its width->
+							if ( !$ndp->tmp ) {
+								$ndp->tmp = [];
 							}
+							$ndp->tmp->origDSR = new DomSourceRange( $ndp->dsr->start, $ndp->dsr->end, null, null );
 						}
 					}
 				}
@@ -414,7 +411,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 				$fosteredNode = $dp->fostered ?? false;
 
-				// In edit-mode, we are making dsr corrections to account for
+				// We are making dsr corrections to account for
 				// stripped tags (end tags usually). When stripping happens,
 				// in most common use cases, a corresponding end tag is added
 				// back elsewhere in the DOM.
@@ -425,7 +422,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				//
 				// Currently, this fix is only for
 				// B and I tags where the fix is clear-cut and obvious.
-				if ( !$rtTestMode && $ce !== null && !empty( $dp->autoInsertedEnd ) &&
+				if ( $ce !== null && !empty( $dp->autoInsertedEnd ) &&
 					DOMUtils::isQuoteElt( $child )
 				) {
 					$correction = 3 + strlen( $child->nodeName );

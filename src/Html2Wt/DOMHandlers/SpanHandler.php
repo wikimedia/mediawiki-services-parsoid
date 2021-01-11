@@ -69,7 +69,7 @@ class SpanHandler extends DOMHandler {
 					&& ( $kv->k !== DOMDataUtils::DATA_OBJECT_ATTR_NAME )
 					&& !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $kv->v ) );
 			} );
-			if ( !$state->rtTestMode && !empty( $dp->misnested ) && ( $dp->stx ?? null ) !== 'html'
+			if ( !empty( $dp->misnested ) && ( $dp->stx ?? null ) !== 'html'
 				&& !count( $kvs )
 			) {
 				// Discard span wrappers added to flag misnested content.

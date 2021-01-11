@@ -197,7 +197,6 @@ var ScriptUtils = {
 			'fetchTemplates',
 			'fetchImageInfo',
 			'expandExtensions',
-			'rtTestMode',
 			'addHTMLTemplateParameters',
 		].forEach(function(c) {
 			if (cliOpts[c] !== undefined) {
@@ -340,11 +339,6 @@ var ScriptUtils = {
 			'apiURL': {
 				description: 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
 				'default': null,
-			},
-			'rtTestMode': {
-				description: 'Test in rt test mode (changes some parse & serialization strategies)',
-				'boolean': true,
-				'default': false,
 			},
 			'useBatchAPI': {
 				description: 'Turn on/off the API batching system',

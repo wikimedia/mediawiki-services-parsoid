@@ -57,9 +57,6 @@ class MockSiteConfig extends SiteConfig {
 	public function __construct( array $opts ) {
 		parent::__construct();
 
-		if ( isset( $opts['rtTestMode'] ) ) {
-			$this->rtTestMode = !empty( $opts['rtTestMode'] );
-		}
 		if ( isset( $opts['linting'] ) ) {
 			$this->linterEnabled = $opts['linting'];
 		}

@@ -35,10 +35,7 @@ class DOMNormalizerTest extends TestCase {
 		];
 		$mockEnv = new MockEnv( $opts );
 		$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
-		$mockState = new SerializerState( $mockSerializer, [
-			'selserMode' => false,
-			'rtTestMode' => false,
-		] );
+		$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 		/** @var DOMNormalizer $DOMNormalizer */
 		$DOMNormalizer = TestingAccessWrapper::newFromObject( new DOMNormalizer( $mockState ) );
 		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );

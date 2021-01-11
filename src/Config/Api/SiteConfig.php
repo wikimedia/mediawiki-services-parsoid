@@ -73,10 +73,6 @@ class SiteConfig extends ISiteConfig {
 
 		$this->api = $api;
 
-		if ( isset( $opts['rtTestMode'] ) ) {
-			$this->rtTestMode = !empty( $opts['rtTestMode'] );
-		}
-
 		if ( isset( $opts['linting'] ) ) {
 			$this->linterEnabled = !empty( $opts['linting'] );
 		}

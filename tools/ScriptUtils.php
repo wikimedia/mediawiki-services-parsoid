@@ -218,7 +218,6 @@ class ScriptUtils {
 			'fetchTemplates',
 			'fetchImageInfo',
 			'expandExtensions',
-			'rtTestMode',
 			'addHTMLTemplateParameters'
 		];
 
@@ -371,11 +370,6 @@ class ScriptUtils {
 			'apiURL' => [
 				'description' => 'http path to remote API, e.g. http://en.wikipedia.org/w/api.php',
 				'default' => null
-			],
-			'rtTestMode' => [
-				'description' => 'Test in rt test mode (changes some parse & serialization strategies)',
-				'boolean' => true,
-				'default' => false
 			],
 			// handled by `setColorFlags`
 			'color' => [

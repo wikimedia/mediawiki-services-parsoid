@@ -172,17 +172,10 @@ class WTSUtils {
 	public static function emitStartTag(
 		string $src, DOMElement $node, SerializerState $state, bool $dontEmit = false
 	): bool {
-		if ( empty( $state->rtTestMode ) ||
-			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
-		) {
-			if ( !$dontEmit ) {
-				$state->emitChunk( $src, $node );
-			}
-			return true;
-		} else {
-			// drop content
-			return false;
+		if ( !$dontEmit ) {
+			$state->emitChunk( $src, $node );
 		}
+		return true;
 	}
 
 	/**
@@ -198,17 +191,10 @@ class WTSUtils {
 	public static function emitEndTag(
 		string $src, DOMElement $node, SerializerState $state, bool $dontEmit = false
 	): bool {
-		if ( empty( $state->rtTestMode ) ||
-			empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd )
-		) {
-			if ( !$dontEmit ) {
-				$state->emitChunk( $src, $node );
-			}
-			return true;
-		} else {
-			// drop content
-			return false;
+		if ( !$dontEmit ) {
+			$state->emitChunk( $src, $node );
 		}
+		return true;
 	}
 
 	/**

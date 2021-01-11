@@ -49,7 +49,6 @@ class TestUtils {
 	 *  - parsoidOnly (bool) Is this test Parsoid Only? Optional. Default: false
 	 *  - preserveIEW (bool) Should inter-element WS be preserved? Optional. Default: false
 	 *  - scrubWikitext (bool) Are we running html2wt in scrubWikitext mode? Optional. Default: false
-	 *  - rtTestMode (bool) Are we running the test in roundtrip test mode? Optional. Default: false
 	 * @return string
 	 */
 	public static function normalizeOut( $domBody, array $options = [] ): string {
@@ -68,10 +67,7 @@ class TestUtils {
 			//     on the env object.
 			$mockEnv = new MockEnv( [ 'scrubWikitext' => true ] );
 			$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
-			$mockState = new SerializerState( $mockSerializer, [
-				'selserMode' => false,
-				'rtTestMode' => !empty( $options['rtTestMode'] )
-			] );
+			$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 			if ( is_string( $domBody ) ) {
 				// Careful about the lifetime of this document
 				$doc = ContentUtils::createDocument( $domBody );

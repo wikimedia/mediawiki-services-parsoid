@@ -479,7 +479,7 @@ var checkIfSignificant = function(offsets, data) {
 		// the wt-diffs are purely syntactic.
 		//
 		// FIXME: abstract to ensure same opts are used for parsoidPost and normalizeOut
-		const normOpts = { parsoidOnly: true, scrubWikitext: true, rtTestMode: false };
+		const normOpts = { parsoidOnly: true, scrubWikitext: true };
 		const normalizedOld = TestUtils.normalizeOut(oldBody, normOpts);
 		const normalizedNew = TestUtils.normalizeOut(newBody, normOpts);
 		if (normalizedOld === normalizedNew) {
@@ -901,7 +901,6 @@ if (require.main === module) {
 				parsoidOptions: {
 					loadWMF: true,
 					useSelser: true,
-					rtTestMode: false,
 				}
 			};
 			if (argv.apiURL) {

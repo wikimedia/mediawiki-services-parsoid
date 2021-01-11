@@ -14,8 +14,7 @@ $html = file_get_contents( $argv[1] );
 $mockEnv = new MockEnv( [] );
 $mockState = (object)[
 	"env" => $mockEnv,
-	"selserMode" => true,
-	"rtTestMode" => false,
+	"selserMode" => true
 ];
 
 $doc = ContentUtils::createAndLoadDocument( $html, [ "markNew" => true ] );

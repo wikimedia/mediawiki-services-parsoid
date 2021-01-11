@@ -2045,8 +2045,7 @@ parsoid=wt2html,html2html
 ## The output here may look funny, but it's what the php parser will do.  The
 ## unclosed references tag becomes escaped text, and then a new references
 ## tag is auto-generated.  The test is wt2html only because it roundtrips with
-## nowiki tags, and the auto-generated references tag is only dropped in
-## rtTestMode.
+## nowiki tags.
 !! test
 Generate references for unclosed references tag
 !! options

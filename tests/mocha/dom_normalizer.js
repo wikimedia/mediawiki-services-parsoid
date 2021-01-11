@@ -19,7 +19,6 @@ const parseAndNormalize = function(html, opts) {
 	const dummyState = {
 		env: dummyEnv,
 		selserMode: false,
-		rtTestMode: false
 	};
 
 	const body = ContentUtils.ppToDOM(dummyEnv, html, { markNew: true });

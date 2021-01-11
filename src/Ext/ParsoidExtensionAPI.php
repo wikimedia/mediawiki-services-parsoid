@@ -595,16 +595,6 @@ class ParsoidExtensionAPI {
 	public const IN_OPTION = 16;
 
 	/**
-	 * FIXME: We should get rid of this and simply let RT tests fail on this or add
-	 * other test output normalizations to deal with it. But, this should be done
-	 * as a separate refactoring step to isolate its affects and reset the rt test baseline.
-	 * @return bool
-	 */
-	public function rtTestMode(): bool {
-		return $this->serializerState->rtTestMode;
-	}
-
-	/**
 	 * FIXME: This is a bit broken - shouldn't be needed ideally
 	 * @param string $flag
 	 */

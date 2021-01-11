@@ -109,10 +109,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'Output <section> tags (default false)'
 		);
 		$this->addOption(
-			'rtTestMode',
-			'Test in rt test mode (changes some parse & serialization strategies)'
-		);
-		$this->addOption(
 			'linting',
 			'Parse with linter enabled.'
 		);
@@ -478,7 +474,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$configOpts = [
 			"standalone" => !$this->hasOption( 'integrated' ),
 			"apiEndpoint" => $apiURL,
-			"rtTestMode" => $this->hasOption( 'rtTestMode' ),
 			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
 			"linting" => $this->hasOption( 'linting' ),
 			"mock" => $this->hasOption( 'mock' )

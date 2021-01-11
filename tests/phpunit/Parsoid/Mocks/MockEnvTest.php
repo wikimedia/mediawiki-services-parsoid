@@ -40,7 +40,6 @@ class MockEnvTest extends \PHPUnit\Framework\TestCase {
 		);
 
 		$this->assertSame( 946782245, $env->getSiteConfig()->fakeTimestamp() );
-		$this->assertFalse( $env->getSiteConfig()->rtTestMode() );
 		ob_start();
 		$env->log( 'prefix', 'foo', function () {
 			$this->fail( 'Callback should not be called' );

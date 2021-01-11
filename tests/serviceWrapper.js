@@ -68,7 +68,6 @@ var runServices = function(options) {
 					useBatchAPI: false,
 					loadWMF: true,
 					useSelser: true,
-					rtTestMode: true,
 				}),
 			};
 			if (ret.mockURL) {

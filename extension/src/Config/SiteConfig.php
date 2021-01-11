@@ -188,10 +188,6 @@ class SiteConfig extends ISiteConfig {
 		$this->languageNameUtils = $languageNameUtils;
 
 		// Override parent default
-		if ( isset( $this->parsoidSettings['rtTestMode'] ) ) {
-			// @todo: Add this setting to MW's DefaultSettings.php
-			$this->rtTestMode = $this->parsoidSettings['rtTestMode'];
-		}
 		// Override parent default
 		if ( isset( $this->parsoidSettings['linting'] ) ) {
 			// @todo: Add this setting to MW's DefaultSettings.php

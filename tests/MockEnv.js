@@ -18,7 +18,6 @@ class MockEnv {
 				magicWordCanonicalName: function() { return "toc"; }	// mock function returns string for BehaviorSwitchHandler
 			},
 			parsoid: {
-				rtTestMode: false,
 				debug: argv.debug,
 			},
 		};

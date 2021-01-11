@@ -47,7 +47,6 @@ TestUtils.encodeXml = function(string) {
  * @param {boolean} [options.parsoidOnly=false]
  * @param {boolean} [options.preserveIEW=false]
  * @param {boolean} [options.scrubWikitext=false]
- * @param {boolean} [options.rtTestMode=false]
  * @return {string}
  */
 TestUtils.normalizeOut = function(domBody, options) {
@@ -74,7 +73,6 @@ TestUtils.normalizeOut = function(domBody, options) {
 		var mockState = {
 			env,
 			selserMode: false,
-			rtTestMode: options.rtTestMode,
 		};
 		DOMDataUtils.visitAndLoadDataAttribs(domBody, { markNew: true });
 		domBody = (new DOMNormalizer(mockState).normalize(domBody));

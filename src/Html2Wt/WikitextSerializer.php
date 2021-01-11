@@ -110,7 +110,6 @@ class WikitextSerializer {
 	/**
 	 * @var array
 	 *   - env: (Env)
-	 *   - rtTestMode: (boolean)
 	 *   - logType: (string)
 	 */
 	private $options;
@@ -121,13 +120,11 @@ class WikitextSerializer {
 	/**
 	 * @param array $options List of options for serialization:
 	 *   - env: (Env) (required)
-	 *   - rtTestMode: (boolean)
 	 *   - logType: (string)
 	 */
 	public function __construct( $options ) {
 		$this->env = $options['env'];
 		$this->options = array_merge( $options, [
-			'rtTestMode' => $this->env->getSiteConfig()->rtTestMode(),
 			'logType' => 'trace/wts',
 		] );
 		$this->logType = $this->options['logType'];

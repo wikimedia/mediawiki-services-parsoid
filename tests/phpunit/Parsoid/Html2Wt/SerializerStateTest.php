@@ -64,11 +64,7 @@ class SerializerStateTest extends TestCase {
 	 */
 	public function testConstruct() {
 		$state = $this->getState();
-		$this->assertTrue( $state->rtTestMode );
 		$this->assertSame( [], $state->currLine->chunks );
-
-		$state = $this->getState( [ 'rtTestMode' => false ] );
-		$this->assertFalse( $state->rtTestMode );
 	}
 
 	/**
