@@ -82,6 +82,22 @@ class ReferencesData {
 	}
 
 	/**
+	 * Normalizes and sanitizes a reference key
+	 *
+	 * @param string $key
+	 * @return string
+	 */
+	private function normalizeKey( string $key ): string {
+		$ret = Sanitizer::escapeIdForAttribute( $key );
+		$ret = preg_replace( '/__+/', '_', $ret );
+		// FIXME: The extension to the legacy parser does the following too,
+		// but Parsoid hasn't ported it yet and needs investigation of
+		// whether it's still relevant in the Parsoid context.
+		// $ret = Sanitizer::safeEncodeAttribute( $ret );
+		return $ret;
+	}
+
+	/**
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $groupName
 	 * @param string $refName
@@ -112,10 +128,7 @@ class ReferencesData {
 			$n = $this->index;
 			$refKey = strval( 1 + $n );
 
-			// FIXME: normalizeKey in core performs a few more operations on $refName,
-			// which will be addressed in a follow up
-			$refNameSanitized = Sanitizer::escapeIdForAttribute( $refName );
-			$refNameSanitized = preg_replace( '/__+/', '_', $refNameSanitized );
+			$refNameSanitized = $this->normalizeKey( $refName );
 
 			$refIdBase = 'cite_ref-' . ( $hasRefName ? $refNameSanitized . '_' . $refKey : $refKey );
 			$noteId = 'cite_note-' . ( $hasRefName ? $refNameSanitized . '-' . $refKey : $refKey );

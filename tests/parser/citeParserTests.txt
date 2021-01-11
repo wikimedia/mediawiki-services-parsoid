@@ -408,6 +408,8 @@ Ref names containing a number
 </ol></div>
 !! end
 
+## Note that the underscores are normalized in the id only and these remain
+## separate names (T184912#4758775)
 !! test
 T184912: Consistent normalization of consecutive underscores
 !! wikitext
