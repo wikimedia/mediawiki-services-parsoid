@@ -90,14 +90,16 @@ class PipelineUtils {
 		// Build a pipeline
 		$pipeline = $env->getPipelineFactory()->getPipeline(
 			$opts['pipelineType'],
-			$frame,
-			$opts['pipelineOpts'] + [
-				'toplevel' => false,
-				'tplArgs' => $opts['tplArgs'] ?? null,
-				'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
-				'srcOffsets' => $opts['srcOffsets'] ?? null
-			]
+			$opts['pipelineOpts']
 		);
+
+		$pipeline->init( [
+			'toplevel' => false,
+			'frame' => $frame,
+			'tplArgs' => $opts['tplArgs'] ?? null,
+			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
+			'srcOffsets' => $opts['srcOffsets'] ?? null,
+		] );
 
 		// Off the starting block ... ready, set, go!
 		return $pipeline->parse( $content, [ 'sol' => $opts['sol'] ] );

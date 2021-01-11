@@ -197,4 +197,39 @@ class ParserPipeline {
 		// Return either the DOM or the array of chunks
 		return $this->outputType === "DOM" ? $ret[0] : $ret;
 	}
+
+	/**
+	 * @param array $initialState Once the pipeline is retrieved / constructed
+	 *   it will be initialized with this state.
+	 */
+	public function init( array $initialState = [] ) {
+		// Reset pipeline state once per top-level doc.
+		// This clears state from any per-doc global state
+		// maintained across all pipelines used by the document.
+		// (Ex: Cite state)
+		$toplevel = $initialState['toplevel'];
+		$this->resetState( [ 'toplevel' => $toplevel ] );
+
+		// Set frame
+		$frame = $initialState['frame'];
+		if ( !$toplevel ) {
+			$tplArgs = $initialState['tplArgs'] ?? null;
+			$srcText = $initialState['srcText'] ?? null;
+			if ( isset( $tplArgs['title'] ) ) {
+				$title = $tplArgs['title'];
+				$args = $tplArgs['attribs'];
+			} else {
+				$title = $frame->getTitle();
+				$args = $frame->getArgs()->args;
+			}
+			$frame = $frame->newChild( $title, $args, $srcText );
+		}
+		$this->setFrame( $frame );
+
+		// Set source offsets for this pipeline's content
+		$srcOffsets = $initialState['srcOffsets'] ?? null;
+		if ( $srcOffsets ) {
+			$this->setSourceOffsets( $srcOffsets );
+		}
+	}
 }
