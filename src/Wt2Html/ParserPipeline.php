@@ -197,46 +197,4 @@ class ParserPipeline {
 		// Return either the DOM or the array of chunks
 		return $this->outputType === "DOM" ? $ret[0] : $ret;
 	}
-
-	/**
-	 * Feed input to the first pipeline stage.
-	 * The input is expected to be the wikitext string for the doc.
-	 *
-	 * @param string $input
-	 * @param array $opts
-	 * @return DOMDocument
-	 */
-	public function parseToplevelDoc( string $input, array $opts ): DOMDocument {
-		Assert::invariant( $this->pipelineType === 'text/x-mediawiki/full',
-			'You cannot process top-level document from wikitext to DOM with a pipeline of type ' .
-			$this->pipelineType );
-
-		// Disable the garbage collector in PHP 7.2 (T230861)
-		if ( gc_enabled() && version_compare( PHP_VERSION, '7.3.0', '<' ) ) {
-			$gcDisabled = true;
-			gc_collect_cycles();
-			gc_disable();
-		} else {
-			$gcDisabled = false;
-		}
-
-		// Top-level doc parsing always start in SOL state
-		$opts['sol'] = true;
-		$opts['atTopLevel'] = true;
-
-		if ( !empty( $opts['chunky'] ) ) {
-			$result = $this->parseChunkily( $input, $opts );
-		} else {
-			$result = $this->parse( $input, $opts );
-		}
-
-		if ( $gcDisabled ) {
-			gc_enable();
-			// There's no point running gc_collect_cycles() here, since objects
-			// are not marked for collection while the GC is disabled. The root
-			// buffer will be empty.
-		}
-
-		return $result->ownerDocument;
-	}
 }

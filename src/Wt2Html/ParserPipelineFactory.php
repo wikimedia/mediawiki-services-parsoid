@@ -292,7 +292,30 @@ class ParserPipelineFactory {
 	 */
 	public function parse( string $src ): DOMDocument {
 		$pipe = $this->getPipeline( 'text/x-mediawiki/full', $this->env->topFrame );
-		return $pipe->parseToplevelDoc( $src, [ 'chunky' => true ] );
+
+		// Disable the garbage collector in PHP 7.2 (T230861)
+		if ( gc_enabled() && version_compare( PHP_VERSION, '7.3.0', '<' ) ) {
+			$gcDisabled = true;
+			gc_collect_cycles();
+			gc_disable();
+		} else {
+			$gcDisabled = false;
+		}
+
+		$result = $pipe->parseChunkily( $src, [
+			'atTopLevel' => true,
+			// Top-level doc parsing always start in SOL state
+			'sol' => true,
+		] );
+
+		if ( $gcDisabled ) {
+			gc_enable();
+			// There's no point running gc_collect_cycles() here, since objects
+			// are not marked for collection while the GC is disabled. The root
+			// buffer will be empty.
+		}
+
+		return $result->ownerDocument;
 	}
 
 	/**
