@@ -67,5 +67,7 @@
     "no-unmodified-loop-condition": "off",
 
     "no-buffer-constructor": "warn",
+
+    "valid-jsdoc": "off",
   }
 }

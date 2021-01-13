@@ -78,19 +78,21 @@ Promise.async(function *() {
 	const results = yield Promise.async(function *() {
 		// Do this serially for now.
 		yield Promise.reduce(titles, function(_, t) {
-			let parsoidURLOpts = { baseUrl: argv.parsoidURL };
+			const parsoidURLOpts = { baseUrl: argv.parsoidURL };
 			if (argv.proxyURL) {
 				parsoidURLOpts.proxy = { host: argv.proxyURL };
 			}
-			return rtTest.runTests(t.title, {
+			return rtTest.runTests(
+				t.title,
+				{
 					prefix: t.prefix,
 					parsoidURLOpts: parsoidURLOpts,
 					outputContentVersion: argv.outputContentVersion,
-				}, rtTest.jsonFormat
-			)
-			.then(function(ret) {
+				},
+				rtTest.jsonFormat
+			).then(function(ret) {
 				if (ret.output.error) {
-					t.results = {"html2wt":{"error":1},"selser":{"error":1}};
+					t.results = { "html2wt":{ "error":1 },"selser":{ "error":1 } };
 				} else {
 					t.results = ret.output.results;
 				}

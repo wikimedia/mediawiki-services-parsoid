@@ -1,9 +1,2 @@
-node_modules
-
-lib/wt2html/mediawiki.tokenizer.js
-
-coverage/
-contrib/
-extensions/
-nocks/
+node_modules/
 vendor/
