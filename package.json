@@ -29,7 +29,7 @@
     "eslint": "6.8.0",
     "eslint-config-wikimedia": "0.15.3",
     "js2php": "git+https://github.com/cscott/js2php.git#c4e4b1d30546e5346448a145cd7e0ff1145e0d4a",
-    "mocha": "^8.0.1",
+    "mocha": "^8.2.1",
     "nock": "^9.2.5",
     "supertest": "^3.0.0"
   },
@@ -44,7 +44,7 @@
     "regen-php-tokenizer-trace": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --trace",
     "regen-php-tests-tokenizer": "node_modules/wikipeg/bin/wikipeg --php --class-name Grammar src/ParserTests/Grammar.pegphp src/ParserTests/Grammar.php",
     "api-testing": "mocha tests/api-testing",
-    "test": "npm run eslint"
+    "test": "npm audit && npm run eslint"
   },
   "repository": {
     "type": "git",
