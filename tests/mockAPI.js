@@ -15,7 +15,7 @@ var busboy = require('connect-busboy');
 var Promise = require('../lib/utils/promise.js');
 
 // Get Parsoid limits.
-var optionsPath = path.resolve(__dirname, './mocha/test.config.yaml');
+var optionsPath = path.resolve(__dirname, './test.config.yaml');
 var optionsYaml = fs.readFileSync(optionsPath, 'utf8');
 var parsoidOptions = yaml.load(optionsYaml).services[0].conf;
 

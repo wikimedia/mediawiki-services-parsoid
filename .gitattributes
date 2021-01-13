@@ -12,7 +12,6 @@ phpunit.xml.dist export-ignore
 # ignore javascript code and docs
 docs/ export-ignore
 lib/ export-ignore
-tests/mocha/ export-ignore
 tools/*.js export-ignore
 # don't export-ignore the tests directory, because core mediawiki
 # wants to be able to run parserTests tests out of
