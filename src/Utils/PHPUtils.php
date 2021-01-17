@@ -247,12 +247,7 @@ class PHPUtils {
 	 */
 	public static function assertValidUTF8( string $s ): void {
 		// Slow complete O(N) check for UTF-8 validity
-		$r = preg_match( "/^(?:
-			[\\x00-\\x7F] |
-			[\\xC0-\\xDF][\\x80-\\xBF] |
-			[\\xE0-\\xEF][\\x80-\\xBF]{2} |
-			[\\xF0-\\xF7][\\x80-\\xBF]{3}
-		)*+$/xSD", $s );
+		$r = preg_match( '//u', $s );
 		Assert::invariant(
 			$r === 1,
 			'Bad UTF-8 (full string verification)'
