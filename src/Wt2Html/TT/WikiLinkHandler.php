@@ -626,7 +626,7 @@ class WikiLinkHandler extends TokenHandler {
 				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#D', $morecontent, $match ) ) {
 					$morecontent = $match[3];
 				} elseif ( preg_match( '#^\.\./#', $morecontent ) ) {
-					$morecontent = $env->resolveTitle( $morecontent );
+					$morecontent = $target->title->getPrefixedText();
 				}
 			}
 

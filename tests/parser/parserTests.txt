@@ -15343,7 +15343,7 @@ subpage title=[[Subpage test/1/2/3/4]]
 </p>
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">subpage</a></p>
-<p><a rel="mw:WikiLink" href="./Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage_test/1/2/subpage</a></p>
+<p><a rel="mw:WikiLink" href="./Subpage_test/1/2/subpage" title="Subpage test/1/2/subpage">Subpage test/1/2/subpage</a></p>
 !! end
 
 !! test
@@ -20176,7 +20176,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 <p><a href="/index.php?title=Subpage_test/L1/L2&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1/L2 (page does not exist)">Subpage test/L1/L2</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Subpage_test/L1/L2" title="Subpage test/L1/L2" data-parsoid='{"stx":"simple","a":{"href":"./Subpage_test/L1/L2"},"sa":{"href":"../"}}' class="new">Subpage_test/L1/L2</a></p>
+<p><a rel="mw:WikiLink" href="./Subpage_test/L1/L2" title="Subpage test/L1/L2" data-parsoid='{"stx":"simple","a":{"href":"./Subpage_test/L1/L2"},"sa":{"href":"../"}}' class="new">Subpage test/L1/L2</a></p>
 !! end
 
 
@@ -20220,7 +20220,7 @@ subpage title=[[Subpage test/L1/L2/L3]]
 <p><a href="/index.php?title=Subpage_test/L1&amp;action=edit&amp;redlink=1" class="new" title="Subpage test/L1 (page does not exist)">Subpage test/L1</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Subpage_test/L1" title="Subpage test/L1" data-parsoid='{"stx":"simple","a":{"href":"./Subpage_test/L1"},"sa":{"href":"../../////"}}' class="new">Subpage_test/L1</a></p>
+<p><a rel="mw:WikiLink" href="./Subpage_test/L1" title="Subpage test/L1" data-parsoid='{"stx":"simple","a":{"href":"./Subpage_test/L1"},"sa":{"href":"../../////"}}' class="new">Subpage test/L1</a></p>
 !! end
 
 !! article
