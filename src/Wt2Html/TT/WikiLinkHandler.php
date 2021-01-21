@@ -832,7 +832,10 @@ class WikiLinkHandler extends TokenHandler {
 			$classes[] = 'mw-default-size';
 		}
 
-		if ( isset( $opts['border'] ) ) {
+		// Border isn't applicable to 'thumbnail' or 'framed' formats
+		// Using $isInline as a shorthand for that here (see above),
+		// but this isn't about being *inline* per se
+		if ( $isInline && isset( $opts['border'] ) ) {
 			$classes[] = 'mw-image-border';
 		}
 
