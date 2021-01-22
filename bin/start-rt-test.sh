@@ -18,6 +18,7 @@ ssh $uid@scandium.eqiad.wmnet <<EOF
 set -e
 set -u
 
+umask 0002 # Make sure everyone in wikidev group can write
 cd /srv/parsoid-testing
 git checkout master
 git pull
@@ -40,6 +41,7 @@ cd /srv/parsoid-testing
 # Strictly speaking, it is not necessary to update code on testreduce1001
 # It is only needed if rt-testing related code is updated.
 # But, it is simpler to just update it every single time.
+umask 0002 # Make sure everyone in wikidev group can write
 git checkout master
 git pull
 git log --oneline -n 1
