@@ -292,7 +292,7 @@ class TableFixups {
 				} elseif ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
 					WTUtils::isGeneratedFigure( $child )
 				) {
-					// Wikilinks abort attribute parsing
+					// Wikilinks/images abort attribute parsing
 					return self::buildRes( $buf, $nowikis, $transclusions );
 				} else {
 					$buf[] = $child->textContent;
@@ -406,8 +406,7 @@ class TableFixups {
 		// returns an array consisting of [table_attributes, spaces, pipe]
 		$attrs = $attributeTokens[0];
 
-		// Found attributes; sanitize them
-		// and transfer the sanitized attributes to the td node
+		// Sanitize attrs and transfer them to the td node
 		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
 
 		// If the transclusion node was embedded within the td node,
@@ -503,12 +502,10 @@ class TableFixups {
 	private function getReparseType( DOMElement $cell ): int {
 		$isTd = $cell->nodeName === 'td';
 		$dp = DOMDataUtils::getDataParsoid( $cell );
-		$isTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $cell );
-		if ( $isTplWrapper && // See long comment below
+		if ( $isTd && // only | can separate attributes & content => $cell has to be <td>
+			WTUtils::isFirstEncapsulationWrapperNode( $cell ) && // See long comment below
 			!isset( $dp->tmp->failedReparse ) &&
-			!isset( $dp->stx ) && // has to be first cell of the row
-			// only | can separate attributes & content => $cell has to be <td>
-			$isTd
+			!isset( $dp->stx ) // has to be first cell of the row
 		) {
 			// Parsoid parses content of templates independent of top-level content.
 			// But, this breaks legacy-parser-supported use-cases where template
@@ -534,7 +531,9 @@ class TableFixups {
 		while ( $child ) {
 			if ( DOMUtils::isText( $child ) && preg_match( $testRE, $child->textContent ) ) {
 				return self::OTHER_REPARSE;
-			} elseif ( DOMUtils::matchTypeOf( $child, "#mw:Extension/#" ) ) {
+			}
+
+			if ( DOMUtils::matchTypeOf( $child, "#mw:Extension/#" ) ) {
 				// "|" chars in extension content don't trigger table-cell parsing
 				// since they have higher precedence in tokenization
 				$child = WTUtils::skipOverEncapsulatedContent( $child );
