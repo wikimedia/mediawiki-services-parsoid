@@ -1066,6 +1066,30 @@ class LinterTest extends TestCase {
 		$this->assertSame( 1, count( $result ), $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 83, 26, 1 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint figure wikilink in external link correctly";
+		$result = $this->parseWT(
+			"[http://foo.bar/some.link [[File:Foobar.jpg|scale=0.5]] image]" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 62, 26, 1 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint image wikilink in external link correctly";
+		$result = $this->parseWT(
+			"[http://foo.bar/other.link [[File:Foobar.jpg|thumb]] image]" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 59, 27, 1 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint image wikilink in external link with |link= correctly";
+		$result = $this->parseWT(
+			"[http://foo.bar/other.link [[File:Foobar.jpg|link=]] image]" );
+		$this->assertSame( 0, count( $result ), $desc );
+
+		$desc = "should not generate lint error for image wikilink following external link";
+		$result = $this->parseWT(
+			"[http://foo.bar/other.link testing123][[File:Foobar.jpg]]" );
+		$this->assertSame( 0, count( $result ), $desc );
 	}
 
 }

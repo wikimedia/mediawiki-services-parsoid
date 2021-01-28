@@ -1141,7 +1141,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log wikilinks in external links
+	 * Log wikilinks or media in external links
 	 *
 	 * HTML tags can be nested but this is not the case for <a> tags
 	 * which when nested outputs the <a> tags adjacent to each other
@@ -1158,23 +1158,36 @@ class Linter implements Wt2HtmlDOMProcessor {
 		Env $env, DOMElement $c, stdClass $dp, ?stdClass $tplInfo
 	) {
 		if ( $c->nodeName === 'a' && $c->getAttribute( 'rel' ) === 'mw:ExtLink' ) {
+			$lintError = false;
 			$element = $c->nextSibling;
 			while ( $element instanceof DOMElement ) {
-				if ( $element->nodeName === 'a' &&
-					$element->getAttribute( 'rel' ) === 'mw:WikiLink' &&
-						( DOMDataUtils::getDataParsoid( $element )->misnested ?? null ) === true
-					) {
-					$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
-					$lintObj = [
-						'dsr' => $this->findLintDSR(
-							$templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $c )->dsr ?? null
-						),
-						'templateInfo' => $templateInfo,
-					];
-					$env->recordLint( 'wikilink-in-extlink', $lintObj );
+				if (
+					$element->nodeName === 'a' &&
+					( DOMDataUtils::getDataParsoid( $element )->misnested ?? false ) &&
+					(
+						$element->getAttribute( 'rel' ) === 'mw:WikiLink' ||
+						// Media structure gets blown apart when nested in an
+						// external link so testing by typeof is not very
+						// useful.  We'll just have to assume the img tag here
+						// came from media syntax.
+						( $element->firstChild instanceof DOMElement &&
+							$element->firstChild->nodeName === 'img' )
+					)
+				) {
+					$lintError = true;
 					break;
 				}
 				$element = $element->firstChild;
+			}
+			if ( $lintError ) {
+				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+				$lintObj = [
+					'dsr' => $this->findLintDSR(
+						$templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $c )->dsr ?? null
+					),
+					'templateInfo' => $templateInfo,
+				];
+				$env->recordLint( 'wikilink-in-extlink', $lintObj );
 			}
 		}
 	}
