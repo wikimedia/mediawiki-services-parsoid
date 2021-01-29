@@ -6,6 +6,7 @@ require('../core-upgrade.js');
 
 /**
    == USAGE ==
+
    Script to synchronize parsoid parserTests with parserTests in other repos.
 
    Basic use:
@@ -34,8 +35,37 @@ require('../core-upgrade.js');
    $ git commit -m "Sync parserTests with core"
    $ git review
 
-  Simple, right?
-== USAGE ==
+   Simple, right?
+
+   == WHY ==
+
+   There are two copies of parserTests files.
+
+   Since Parsoid & core are in different repositories and both Parsoid
+   and the legacy parser are still operational, we need a parserTests
+   file in each repository. They are usually in sync but since folks
+   are hacking both wikitext engines simultaneously, the two copies
+   might be modified independently. So, we need to periodically sync
+   them (which is just a multi-repo rebase).
+
+   We detect incompatible divergence of the two copies via CI. We run the
+   legacy parser against Parsoid's copy of the test file and test failures
+   indicate a divergence and necessitates a sync. We don't yet have CI
+   code that runs Parsoid against core's copy of the test file, but that
+   might come soon.
+
+   This discussion only touched upon tests/parser/parserTests.txt but
+   all of the same considerations apply to the parser test file for
+   extensions since we have a Parsoid-version and a legacy-parser version
+   of many extensions at this time.
+
+   == THINKING ==
+
+   The "thinking" part of the sync is to look at the patches created and
+   make sure that whatever change was made upstream (as shown in the diff
+   of the sync patch) doesn't require a corresponding change in Parsoid
+   and file a phab task and regenerate the known-differences list if that
+   happens to be the case.
 */
 
 var yargs = require('yargs');
@@ -67,7 +97,7 @@ Promise.async(function *() {
 	if (argv.help || argv._.length < 2 || argv._.length > 3) {
 		opts.showHelp();
 		var morehelp = yield fs.readFile(__filename, 'utf8');
-		morehelp = strip(morehelp.split(/== USAGE ==/, 2)[1]);
+		morehelp = strip(morehelp.split(/== [A-Z]* ==/, 2)[1]);
 		console.log(morehelp.replace(/^ {3}/mg, ''));
 		return;
 	}
