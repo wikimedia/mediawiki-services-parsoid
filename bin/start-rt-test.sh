@@ -4,12 +4,16 @@ if [ $# -lt 2 ]
 then
 	echo "USAGE: start-rt-test.sh <uid> <rt-test-id>"
 	echo " - <uid> is your bastion uid you use to log in to scandium/testreduce1001"
-	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char substring of a git hash)"
+	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char prefix of a git hash)"
 	exit 1
 fi
 
 uid=$1
 testid=$2
+
+# By convention we truncate testids to 8 characters, but some users
+# copy-and-paste full git hashes on the command line.  Normalize.
+testid=$(echo -n "$testid" | head -c 8)
 
 # Update code on scandium since RT testing scripts will hit the Parsoid REST API on scandium
 echo "---- Updating code on scandium ----"
