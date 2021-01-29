@@ -14852,17 +14852,21 @@ pst title=[[Somearticle (context)]]
 !! end
 
 !! test
-pre-save transform: context links ("pipe trick") with comma in title
+pre-save transform: context links ("pipe trick") with single, double-width and Arabic comma in title
 !! options
 pst title=[[Someplace, Somewhere]]
 !! wikitext
 [[|Otherplace]]
 [[Otherplace, Elsewhere|]]
 [[Otherplace, Elsewhere, Anywhere|]]
+[[Otherplace，Elsewhere|]]
+[[Otherplace، Elsewhere|]]
 !! html/php
 [[Otherplace, Somewhere|Otherplace]]
 [[Otherplace, Elsewhere|Otherplace]]
 [[Otherplace, Elsewhere, Anywhere|Otherplace]]
+[[Otherplace，Elsewhere|Otherplace]]
+[[Otherplace، Elsewhere|Otherplace]]
 !! end
 
 !! test
@@ -23635,11 +23639,20 @@ Langconvert tag: shi-latn to shi-tfng
 !! end
 
 !! test
-Langconvert tag: sr-el to sr-ec
+Langconvert tag: sr-latn to sr-cyrl
+!! wikitext
+<langconvert from="sr-latn" to="sr-cyrl">zdravo</langconvert>
+!! html/php
+<p>здраво
+</p>
+!! end
+
+!! test
+Langconvert tag: sr-el to sr-ec (should fail)
 !! wikitext
 <langconvert from="sr-el" to="sr-ec">zdravo</langconvert>
 !! html/php
-<p>здраво
+<p><span class="error"><strong>Error:</strong> Langconvert tag's <code>from</code> and <code>to</code> attributes must not be empty and must contain BCP 47 codes for convertible variants of the same language.</span>
 </p>
 !! end
 
