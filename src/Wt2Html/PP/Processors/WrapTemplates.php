@@ -174,67 +174,76 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$parentNode = $elem->parentNode;
 		}
 
-		// Detect empty content in unfosterable positions and
-		// wrap them in spans.
-		if ( $startElem->nodeName === 'meta' &&
-			$startElem->nextSibling === $endElem &&
-			!DOMUtils::isFosterablePosition( $startElem )
-		) {
-			$emptySpan = $doc->createElement( 'span' );
-			$startElem->parentNode->insertBefore( $emptySpan, $endElem );
-		}
+		$startsInFosterablePosn = DOMUtils::isFosterablePosition( $range->start );
+		$next = $range->start->nextSibling;
+
+		// Detect empty content and handle them!
+		if ( WTUtils::isTplMarkerMeta( $range->start ) && $next === $endElem ) {
+			Assert::invariant( $range->start === $startElem,
+				"Expected startElem to be same as range.start" );
+			if ( $startsInFosterablePosn ) {
+				// Expand range!
+				$range->start = $range->end = $range->start->parentNode;
+				$startsInFosterablePosn = false;
+			} else {
+				$emptySpan = $doc->createElement( 'span' );
+				$range->start->parentNode->insertBefore( $emptySpan, $endElem );
+			}
 
 		// Handle unwrappable content in fosterable positions
 		// and expand template range, if required.
-		if ( DOMUtils::isFosterablePosition( $range->start ) &&
+		// NOTE: Template marker meta tags are translated from comments
+		// *after* the DOM has been built which is why they can show up in
+		// fosterable positions in the DOM.
+		} elseif ( $startsInFosterablePosn &&
 			( !DOMUtils::isElt( $range->start ) ||
-				// NOTE: These template marker meta tags are translated from comments
-				// *after* the DOM has been built which is why they can show up in
-				// fosterable positions in the DOM.
-				( WTUtils::isTplMarkerMeta( $range->start ) &&
-					WTUtils::isTplMarkerMeta( $range->start->nextSibling ) ) ||
-				( WTUtils::isTplMarkerMeta( $range->start ) &&
-					!DOMUtils::isElt( $range->start->nextSibling ) )
+				WTUtils::isTplMarkerMeta( $range->start ) &&
+				( !DOMUtils::isElt( $next ) || WTUtils::isTplMarkerMeta( $next ) )
 			)
 		) {
 			$rangeStartParent = $range->start->parentNode;
 
-			// 1. If we are in a table in a foster-element position, then all non-element
+			// If we are in a table in a foster-element position, then all non-element
 			// nodes will be white-space and comments. Skip over all of them and find
-			// the first table content node
+			// the first table content node.
+			$noWS = true;
+			$nodesToMigrate = [];
 			$newStart = $range->start;
-			while ( $newStart && !$newStart instanceof DOMElement ) {
-				$newStart = $newStart->nextSibling;
+			$n = DOMUtils::isElt( $range->start ) ? $next : $range->start;
+			while ( !$n instanceof DOMElement ) {
+				if ( $n instanceof DOMText ) {
+					$noWS = false;
+				}
+				$nodesToMigrate[] = $n;
+				$n = $n->nextSibling;
+				$newStart = $n;
 			}
 
-			// 2. Push leading comments and whitespace into the element node
-			// as long as it is a tr/tbody -- pushing whitespace into the
-			// other (th/td/caption) can change display semantics.
-			if ( $newStart && isset( self::MAP_TBODY_TR[$newStart->nodeName] ) ) {
+			// As long as $newStart is a tr/tbody or we don't have whitespace
+			// migrate $nodesToMigrate into $newStart. Pushing whitespace into
+			// th/td/caption can change display semantics.
+			if ( $newStart && ( $noWS || isset( self::MAP_TBODY_TR[$newStart->nodeName] ) ) ) {
 				/**
 				 * The point of the above loop is to ensure we're working
-				 * with a DOMElement if there is an $newStart.
+				 * with a DOMElement if there is a $newStart.
 				 *
 				 * @var DOMElement $newStart
 				 */
 				'@phan-var DOMElement $newStart';
 				$insertPosition = $newStart->firstChild;
-				$n = $range->start;
-				while ( $n !== $newStart ) {
-					$next = $n->nextSibling;
+				foreach ( $nodesToMigrate as $n ) {
 					$newStart->insertBefore( $n, $insertPosition );
-					$n = $next;
 				}
 				$range->start = $newStart;
 				// Update dsr to point to original start
 				self::updateDSRForFirstTplNode( $range->start, $startElem );
 			} else {
-				$range->start = $rangeStartParent;
-				$range->end = $rangeStartParent;
+				// If not, we are forced to expand the template range.
+				$range->start = $range->end = $rangeStartParent;
 			}
 		}
 
-		// Ensure range.start is an element node since we want to
+		// Ensure range->start is an element node since we want to
 		// add/update the data-parsoid attribute to it.
 		if ( !DOMUtils::isElt( $range->start ) ) {
 			$span = $doc->createElement( 'span' );
@@ -827,8 +836,6 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			'@phan-var \DOMNode $encapTgt';
 
 			// Skip template-marker meta-tags.
-			// Also, skip past comments/text nodes found in fosterable positions
-			// which wouldn't have been span-wrapped in the while-loop above.
 			while ( WTUtils::isTplMarkerMeta( $encapTgt ) ||
 				!( $encapTgt instanceof DOMElement )
 			) {
