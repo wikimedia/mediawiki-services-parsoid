@@ -162,12 +162,10 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$i = array_search( $parentNode, $startAncestors, true );
 			if ( $i === 0 ) {
 				// widen the scope to include the full subtree
-				$range->root = $startElem;
 				$range->start = $startElem->firstChild;
 				$range->end = $startElem->lastChild;
 				break;
 			} elseif ( $i > 0 ) {
-				$range->root = $parentNode;
 				$range->start = $startAncestors[$i - 1];
 				$range->end = $elem;
 				break;
