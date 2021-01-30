@@ -587,7 +587,7 @@ class WikitextEscapeHandlers {
 				}
 
 				// ignore TSR marker metas
-				if ( $t->getName() === 'meta' && TokenUtils::hasTypeOf( $t, 'mw:TSRMarker' ) ) {
+				if ( TokenUtils::hasTypeOf( $t, 'mw:TSRMarker' ) ) {
 					continue;
 				}
 
@@ -1263,6 +1263,10 @@ class WikitextEscapeHandlers {
 					break;
 				case 'SelfclosingTagTk':
 					$da = $t->dataAttribs;
+					if ( TokenUtils::hasTypeOf( $t, 'mw:TSRMarker' ) ) {
+						// Skip this marker tag
+						break;
+					}
 					if ( empty( $da->tsr ) ) {
 						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );
