@@ -376,7 +376,6 @@ class MockDataAccess implements DataAccess {
 		$ret = [];
 		foreach ( $files as $name => $dims ) {
 			// From mockAPI.js
-			$normPageName = self::PNAMES[$name] ?? $name;
 			$normFileName = self::FNAMES[$name] ?? $name;
 			$props = self::FILE_PROPS[$normFileName] ?? null;
 			if ( $props === null ) {
@@ -474,7 +473,7 @@ class MockDataAccess implements DataAccess {
 						}
 						$turl .= '-';
 					}
-					$turl .= $normFilename;
+					$turl .= $normFileName;
 					switch ( $mediatype ) {
 						case 'AUDIO':
 							// No thumbs are generated for audio

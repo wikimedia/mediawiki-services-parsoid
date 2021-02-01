@@ -534,21 +534,21 @@ class MockApiHelper extends ApiHelper {
 	private function imageInfo(
 		string $filename, ?int $twidth, ?int $theight, ?string $extraParam
 	) : ?array {
-		$normPagename = self::PNAMES[$filename] ?? $filename;
-		$normFilename = self::FNAMES[$filename] ?? $filename;
-		$props = self::FILE_PROPS[$normFilename] ?? null;
+		$normPageName = self::PNAMES[$filename] ?? $filename;
+		$normFileName = self::FNAMES[$filename] ?? $filename;
+		$props = self::FILE_PROPS[$normFileName] ?? null;
 		if ( $props === null ) {
 			// We don't have info for this file
 			return null;
 		}
 
-		$md5 = md5( $normFilename );
+		$md5 = md5( $normFileName );
 		$md5prefix = $md5[0] . '/' . $md5[0] . $md5[1] . '/';
-		$baseurl = self::IMAGE_BASE_URL . '/' . $md5prefix . $normFilename;
+		$baseurl = self::IMAGE_BASE_URL . '/' . $md5prefix . $normFileName;
 		$height = $props['height'];
 		$width = $props['width'];
-		$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFilename;
-		$durl = self::IMAGE_DESC_URL . '/' . $normFilename;
+		$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFileName;
+		$durl = self::IMAGE_DESC_URL . '/' . $normFileName;
 		$mediatype = $props['mediatype'] ??
 			( $props['mime'] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP' );
 
@@ -625,7 +625,7 @@ class MockApiHelper extends ApiHelper {
 					}
 					$turl .= '-';
 				}
-				$turl .= $normFilename;
+				$turl .= $normFileName;
 				switch ( $mediatype ) {
 					case 'AUDIO':
 						// No thumbs are generated for audio
@@ -657,7 +657,7 @@ class MockApiHelper extends ApiHelper {
 					if ( $page !== null ) {
 						$turl .= "page{$page}-";
 					}
-					$turl .= round( $twidth * $scale ) . 'px-' . $normFilename;
+					$turl .= round( $twidth * $scale ) . 'px-' . $normFileName;
 					if ( $mediatype === 'VIDEO' || $mediatype === 'OFFICE' ) {
 						$turl .= '.jpg';
 					} elseif ( $mediatype === 'DRAWING' ) {
@@ -689,7 +689,7 @@ class MockApiHelper extends ApiHelper {
 
 		return [
 			'result' => $info,
-			'normPagename' => $normPagename
+			'normPageName' => $normPageName
 		];
 	}
 
@@ -803,15 +803,15 @@ class MockApiHelper extends ApiHelper {
 				$p['missing'] = $p['imageinfo']['filemissing'] = true;
 				$p['badfile'] = false;
 			} else {
-				if ( $filename !== $ii['normPagename'] ) {
+				if ( $filename !== $ii['normPageName'] ) {
 					$response['query']['normalized'] = [
-						[ 'from' => $filename, 'to' => $ii['normPagename'] ]
+						[ 'from' => $filename, 'to' => $ii['normPageName'] ]
 					];
 				}
 				$p = [
 					'pageid' => 1,
 					'ns' => 6,
-					'title' => $ii['normPagename'],
+					'title' => $ii['normPageName'],
 					'imageinfo' => [ $ii['result'] ]
 				];
 				$p['badfile'] = false;
