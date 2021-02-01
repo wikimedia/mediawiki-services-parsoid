@@ -1157,20 +1157,25 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logWikilinksInExtlinks(
 		Env $env, DOMElement $c, stdClass $dp, ?stdClass $tplInfo
 	) {
-		$sibling = $c->nextSibling;
-		if ( $c->nodeName === 'a' && $sibling instanceof DOMElement && $sibling->nodeName === 'a' &&
-			$c->getAttribute( 'rel' ) === 'mw:ExtLink' &&
-			$sibling->getAttribute( 'rel' ) === 'mw:WikiLink' &&
-			( DOMDataUtils::getDataParsoid( $sibling )->misnested ?? null ) === true
-		) {
-			$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
-			$lintObj = [
-				'dsr' => $this->findLintDSR(
-					$templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $c )->dsr ?? null
-				),
-				'templateInfo' => $templateInfo,
-			];
-			$env->recordLint( 'wikilink-in-extlink', $lintObj );
+		if ( $c->nodeName === 'a' && $c->getAttribute( 'rel' ) === 'mw:ExtLink' ) {
+			$element = $c->nextSibling;
+			while ( $element instanceof DOMElement ) {
+				if ( $element->nodeName === 'a' &&
+					$element->getAttribute( 'rel' ) === 'mw:WikiLink' &&
+						( DOMDataUtils::getDataParsoid( $element )->misnested ?? null ) === true
+					) {
+					$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+					$lintObj = [
+						'dsr' => $this->findLintDSR(
+							$templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $c )->dsr ?? null
+						),
+						'templateInfo' => $templateInfo,
+					];
+					$env->recordLint( 'wikilink-in-extlink', $lintObj );
+					break;
+				}
+				$element = $element->firstChild;
+			}
 		}
 	}
 

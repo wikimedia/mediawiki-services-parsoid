@@ -1014,6 +1014,27 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 0, 66, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+
+		$desc = "should lint wikilink set in italics in external link correctly";
+		$result = $this->parseWT(
+			"[http://stackexchange.com is the official website for ''[[Stack Exchange]]'']" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 77, 26, 1 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint wikilink set in bold in external link correctly";
+		$result = $this->parseWT(
+			"[http://stackexchange.com is the official website for '''[[Stack Exchange]]''']" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 79, 26, 1 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint wikilink set in italics and bold in external link correctly";
+		$result = $this->parseWT(
+			"[http://stackexchange.com is the official website for '''''[[Stack Exchange]]''''']" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 83, 26, 1 ], $result[0]['dsr'], $desc );
 	}
 
 }
