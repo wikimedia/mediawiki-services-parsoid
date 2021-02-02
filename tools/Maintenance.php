@@ -77,9 +77,9 @@ if ( $parsoidMode === 'integrated' ) {
 		 * @inheritDoc
 		 */
 		public function addOption(
-			string $name, string $description, bool $required = false,
-			bool $withArg = false, bool $shortName = false,
-			bool $multiOccurrence = false
+			$name, $description, $required = false,
+			$withArg = false, $shortName = false,
+			$multiOccurrence = false
 		) {
 			parent::addOption(
 				$name, $description, $required, $withArg, $shortName,

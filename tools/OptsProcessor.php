@@ -152,7 +152,7 @@ class OptsProcessor {
 	 */
 	public function addOption(
 		string $name, string $description, bool $required = false,
-		bool $withArg = false, bool $shortName = false,
+		bool $withArg = false, $shortName = false,
 		bool $multiOccurrence = false
 	): void {
 		$this->params[$name] = [
@@ -187,7 +187,7 @@ class OptsProcessor {
 	 * @param mixed $default Anything you want, default null
 	 * @return mixed
 	 */
-	public function getOption( string $name, $default = null ) {
+	public function getOption( $name, $default = null ) {
 		if ( $this->hasOption( $name ) ) {
 			return $this->options[$name];
 		} else {

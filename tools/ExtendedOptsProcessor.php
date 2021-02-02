@@ -14,7 +14,7 @@ trait ExtendedOptsProcessor {
 	}
 
 	/** @inheritDoc */
-	public function getOption( string $name, $default = null ) {
+	public function getOption( $name, $default = null ) {
 		return parent::getOption(
 			$name, $default ?? $this->optionDefaults[$name] ?? null
 		);
