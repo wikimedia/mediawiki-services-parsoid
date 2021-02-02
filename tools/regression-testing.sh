@@ -6,9 +6,9 @@ set -u
 if [ $# -lt 4 ]
 then
 	echo "USAGE: $0 <uid> <oracle> <commit> <file> <outputContentVersion>"
-	echo " - <uid> is your bastion uid you use to log in to scandium/testreduce1001"
-	echo " - <oracle> is the commit hash to use as the oracle"
-	echo " - <commit> is the commit hash to test against"
+	echo " - <uid> is your bastion username you use to log in to scandium/testreduce1001"
+	echo " - <oracle> is the commit hash to use as the oracle ('known good')"
+	echo " - <commit> is the commit hash to test against ('maybe bad')"
 	echo " - <file> has the list of pages to test (formatted as lines of dbname:title)"
 	echo " - <outputContentVersion> (optional) If different than the default"
 	exit 1
