@@ -111,6 +111,8 @@ class OptsProcessor {
 	 */
 	public function __construct() {
 		$this->addDefaultParams();
+		global $argv;
+		$this->self = $argv[0];
 	}
 
 	/**
