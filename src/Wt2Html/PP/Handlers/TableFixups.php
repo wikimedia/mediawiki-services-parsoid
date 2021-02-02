@@ -520,7 +520,8 @@ class TableFixups {
 			$prev = $cell->previousSibling;
 			if ( $prev instanceof DOMElement &&
 				!WTUtils::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $prev ) ) &&
-				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' )
+				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
+				!preg_match( '/\n/', DOMCompat::getInnerHTML( $prev ) )
 			) {
 				return self::COMBINE_WITH_PREV_CELL;
 			}

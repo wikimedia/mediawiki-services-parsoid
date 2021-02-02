@@ -18,6 +18,12 @@ class="foo"
 !! endarticle
 
 !! article
+Template:td_content
+!! text
+| foobar
+!! endarticle
+
+!! article
 Template:td_attrs_and_content
 !! text
 {{{1}}} | foobar
@@ -200,5 +206,36 @@ Ensure newlines in collected attribute doesn't trip up reparsing
 <table>
 <tbody><tr><td rowspan="1" class="foo" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[]]}' data-mw='{"parts":["|rowspan=\"1\" ",{"template":{"target":{"wt":"td_attrs_and_content_with_newlines","href":"./Template:Td_attrs_and_content_with_newlines"},"params":{},"i":0}}]}'>foobar 
 <pre about="#mwt1"> baz </pre></td></tr>
+</tbody></table>
+!! end
+
+!! test
+Ensure a cell with newlines doesn't combine with following cell
+!! wikitext
+{|
+|-
+| combined-and-lost {{td_content|}}
+|-
+|not combined
+ {{td_content|}}
+|}
+!! html/php
+<table>
+
+<tbody><tr>
+<td>foobar
+</td></tr>
+<tr>
+<td>not combined
+</td>
+<td>foobar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+<td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":["| combined-and-lost ",{"template":{"target":{"wt":"td_content","href":"./Template:Td_content"},"params":{"1":{"wt":""}},"i":0}}]}'>foobar</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
+<td>not combined
+ </td><td about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_content","href":"./Template:Td_content"},"params":{"1":{"wt":""}},"i":0}}]}'>foobar</td></tr>
 </tbody></table>
 !! end
