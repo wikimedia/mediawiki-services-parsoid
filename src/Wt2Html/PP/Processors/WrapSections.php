@@ -11,6 +11,7 @@ use DOMText;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -297,9 +298,9 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @param array $state
 	 * @param DOMElement $node
 	 * @param bool $start
-	 * @return int
+	 * @return ?int
 	 */
-	private function getDSR( array $state, DOMElement $node, bool $start ): int {
+	private function getDSR( array $state, DOMElement $node, bool $start ): ?int {
 		if ( $node->nodeName !== 'section' ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( !$dsr ) {
@@ -321,7 +322,8 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$offset += WTUtils::decodedCommentLength( $c );
 			} else {
 				DOMUtils::assertElt( $c );
-				return $this->getDSR( $state, $c, $start ) + ( $start ? -$offset : $offset );
+				$ret = $this->getDSR( $state, $c, $start );
+				return $ret === null ? null : $ret + ( $start ? -$offset : $offset );
 			}
 			$c = $start ? $c->nextSibling : $c->previousSibling;
 		}
@@ -333,10 +335,14 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * FIXME: Duplicated with TableFixups code.
 	 * @param array &$parts
 	 * @param Frame $frame
-	 * @param int $offset1
-	 * @param int $offset2
+	 * @param ?int $offset1
+	 * @param ?int $offset2
+	 * @throws InternalException
 	 */
-	private function fillDSRGap( array &$parts, Frame $frame, int $offset1, int $offset2 ): void {
+	private function fillDSRGap( array &$parts, Frame $frame, ?int $offset1, ?int $offset2 ): void {
+		if ( $offset1 === null || $offset2 === null ) {
+			throw new InternalException();
+		}
 		if ( $offset1 < $offset2 ) {
 			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $offset1,  $offset2 - $offset1 );
 		}
@@ -344,8 +350,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * FIXME: There is strong overlap with TableFixups code.
+	 *
 	 * $wrapper will hold tpl/ext encap info for the array of tpls/exts as well as
-	 * content before, after and in between them.
+	 * content before, after and in between them. Right now, this will always be a
+	 * <section> node, but not asserting this since code doesn't depend on it being so.
 	 *
 	 * @param Frame $frame
 	 * @param DOMElement $wrapper
@@ -361,53 +369,66 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		$prev = null;
 		$prevDp = null;
 		$haveTemplate = false;
-		foreach ( $encapWrappers as $i => $encapNode ) {
-			$dp = DOMDataUtils::getDataParsoid( $encapNode );
+		try {
+			foreach ( $encapWrappers as $i => $encapNode ) {
+				$dp = DOMDataUtils::getDataParsoid( $encapNode );
 
-			// Plug DSR gaps between encapWrappers
-			if ( !$prevDp ) {
-				$this->fillDSRGap( $parts, $frame, $wrapperDp->dsr->start, $dp->dsr->start );
-			} else {
-				$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $dp->dsr->start );
-			}
-
-			$typeOf = $encapNode->getAttribute( 'typeof' );
-			if ( DOMUtils::hasTypeOf( $encapNode, "mw:Transclusion" ) ) {
-				$haveTemplate = true;
-				// Assimilate $encapNode's data-mw and data-parsoid pi info
-				$dmw = DOMDataUtils::getDataMw( $encapNode );
-				foreach ( $dmw->parts ?? [] as $part ) {
-					if ( !is_string( $part ) ) {
-						$part = clone $part;
-						// This index in the template object is expected to be
-						// relative to other template objects.
-						$part->template->i = $index++;
-					}
-					$parts[] = $part;
+				// Plug DSR gaps between encapWrappers
+				if ( !$prevDp ) {
+					$this->fillDSRGap( $parts, $frame, $wrapperDp->dsr->start, $dp->dsr->start );
+				} else {
+					$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $dp->dsr->start );
 				}
-				$pi = array_merge( $pi, $dp->pi ?? [ [] ] );
-			} else {
-				// Where a non-template type is present, we are going to treat that
-				// segment as a "string" in the parts array. So, we effectively treat
-				// "mw:Transclusion" as a generic type that covers a single template
-				// as well as a run of segments where at least one segment comes from
-				// a template but others may be from other generators (ex: extensions).
-				$this->fillDSRGap( $parts, $frame, $dp->dsr->start, $dp->dsr->end );
+
+				$typeOf = $encapNode->getAttribute( 'typeof' );
+				if ( DOMUtils::hasTypeOf( $encapNode, "mw:Transclusion" ) ) {
+					$haveTemplate = true;
+					// Assimilate $encapNode's data-mw and data-parsoid pi info
+					$dmw = DOMDataUtils::getDataMw( $encapNode );
+					foreach ( $dmw->parts ?? [] as $part ) {
+						if ( !is_string( $part ) ) {
+							$part = clone $part;
+							// This index in the template object is expected to be
+							// relative to other template objects.
+							$part->template->i = $index++;
+						}
+						$parts[] = $part;
+					}
+					$pi = array_merge( $pi, $dp->pi ?? [ [] ] );
+				} else {
+					// Where a non-template type is present, we are going to treat that
+					// segment as a "string" in the parts array. So, we effectively treat
+					// "mw:Transclusion" as a generic type that covers a single template
+					// as well as a run of segments where at least one segment comes from
+					// a template but others may be from other generators (ex: extensions).
+					$this->fillDSRGap( $parts, $frame, $dp->dsr->start, $dp->dsr->end );
+				}
+
+				$prev = $encapNode;
+				$prevDp = $dp;
 			}
 
-			$prev = $encapNode;
-			$prevDp = $dp;
-		}
+			if ( !$haveTemplate ) {
+				throw new InternalException();
+			}
 
-		if ( $haveTemplate ) {
 			DOMUtils::addTypeOf( $wrapper, "mw:Transclusion" );
 			$wrapperDp->pi = $pi;
 			$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $wrapperDp->dsr->end );
 			DOMDataUtils::setDataMw( $wrapper, (object)[ 'parts' => $parts ] );
-		} else {
-			// FIXME: If we stop stripped section wrappers in the html->wt direction,
-			// we may need to check if this is sufficient for serialization.
-			DOMUtils::addTypeOf( $wrapper, "mw:Placeholder" );
+		} catch ( InternalException $e ) {
+			// We don't have accurate template wrapping information.
+			// Set typeof to 'mw:Placeholder' since 'mw:Transclusion'
+			// typeof is not actionable without valid data-mw.
+			//
+			// FIXME:
+			// 1. If we stop stripping section wrappers in the html->wt direction,
+			//    we will need to add a DOMHandler for <section> or mw:Placeholder typeof
+			//    on arbitrary DOMElements to traverse into children and serialize and
+			//    prevent page corruption.
+			// 2. This may be a good place to collect stats for T191641#6357136
+			// 3. Maybe we need a special error typeof rather than mw:Placeholder
+			$wrapper->setAttribute( 'typeof', 'mw:Placeholder' );
 		}
 	}
 
