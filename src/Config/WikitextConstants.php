@@ -246,6 +246,12 @@ class WikitextConstants {
 				'input', 'link', 'meta', 'param', 'source',
 				'track', 'wbr',
 			] ),
+
+			# HTML5 elements with raw (unescaped) content
+			'RawTextElements' => PHPUtils::makeSet( [
+				'style', 'script', 'xmp', 'iframe', 'noembed', 'noframes',
+				'plaintext', 'noscript',
+			] ),
 		];
 
 		/**

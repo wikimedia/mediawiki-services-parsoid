@@ -33,18 +33,6 @@ class XMLSerializer {
 		'keygen' => true
 	];
 
-	/** HTML5 elements with raw (unescaped) content */
-	private static $hasRawContent = [
-		'style' => true,
-		'script' => true,
-		'xmp' => true,
-		'iframe' => true,
-		'noembed' => true,
-		'noframes' => true,
-		'plaintext' => true,
-		'noscript' => true
-	];
-
 	/**
 	 * Elements that strip leading newlines
 	 * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#html-fragment-serialization-algorithm
@@ -145,7 +133,7 @@ class XMLSerializer {
 				) ) {
 					$accum( '>', $node, 'start' );
 					// if is cdata child node
-					if ( isset( self::$hasRawContent[$nodeName] ) ) {
+					if ( DOMUtils::isRawTextElement( $node ) ) {
 						// TODO: perform context-sensitive escaping?
 						// Currently this content is not normally part of our DOM, so
 						// no problem. If it was, we'd probably have to do some

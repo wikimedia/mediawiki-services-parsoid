@@ -955,4 +955,12 @@ class DOMUtils {
 		self::setFragmentInnerHTML( $frag, $html );
 		return $frag;
 	}
+
+	/**
+	 * @param DOMNode $node
+	 * @return bool
+	 */
+	public static function isRawTextElement( DOMNode $node ): bool {
+		return isset( WikitextConstants::$HTML['RawTextElements'][$node->nodeName] );
+	}
 }

@@ -1754,6 +1754,22 @@ Nowiki and french spacing
 <p><span typeof="mw:Nowiki">test<span typeof="mw:DisplaySpace"> </span>: 123</span></p>
 !! end
 
+!! test
+T255007: French spacing in raw text elements
+!! options
+wgRawHtml=1
+!! wikitext
+<html>
+<script>test ; 123</script>
+<style>test : 123</style>
+</html>
+!! html/parsoid
+<p><span typeof="mw:Extension/html" about="#mwt2" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"\n&lt;script>test ; 123&lt;/script>\n&lt;style>test : 123&lt;/style>\n"}}'>
+</span><script about="#mwt2">test ; 123</script><span about="#mwt2">
+</span><style about="#mwt2">test : 123</style><span about="#mwt2">
+</span></p>
+!! end
+
 ###
 ### Comments
 ###

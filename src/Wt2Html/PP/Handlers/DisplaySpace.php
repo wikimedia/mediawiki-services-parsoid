@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -92,6 +93,9 @@ class DisplaySpace {
 	 * @return bool|DOMElement
 	 */
 	public static function leftHandler( DOMText $node, Env $env ) {
+		if ( DOMUtils::isRawTextElement( $node->parentNode ) ) {
+			return true;
+		}
 		$key = array_keys( array_slice( Sanitizer::FIXTAGS, 0, 1 ) )[0];
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[0][1];
@@ -109,6 +113,9 @@ class DisplaySpace {
 	 * @return bool|DOMElement
 	 */
 	public static function rightHandler( DOMText $node, Env $env ) {
+		if ( DOMUtils::isRawTextElement( $node->parentNode ) ) {
+			return true;
+		}
 		$key = array_keys( array_slice( Sanitizer::FIXTAGS, 1, 1 ) )[0];
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[1][1] + strlen( $matches[1][0] );
