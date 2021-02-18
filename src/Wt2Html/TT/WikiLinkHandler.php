@@ -1361,6 +1361,8 @@ class WikiLinkHandler extends TokenHandler {
 						];
 						// Only round-trip a valid size
 						$opts['size']['src'] = $oContent->vsrc ?? $optInfo['ak'];
+					} else {
+						$opt['ck'] = 'bogus';
 					}
 				} else {
 					$opts[$optInfo['ck']] = [

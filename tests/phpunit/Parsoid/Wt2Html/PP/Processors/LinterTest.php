@@ -306,6 +306,19 @@ class LinterTest extends TestCase {
 
 		$desc = 'should not crash on gallery images';
 		$this->expectEmptyResults( $desc, "<gallery>\nfile:a.jpg\n</gallery>" );
+
+		$desc = 'should lint Bogus image width options correctly';
+		$result = $this->parseWT( '[[File:Foobar.jpg|thumb|left150px|Caption]]' );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 43, 2, 2 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint Bogus image with bogus width definition correctly";
+		$result = $this->parseWT(
+			"[[File:Foobar.jpg|thumb|300px300px|Caption]]" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 44, 2, 2 ], $result[0]['dsr'], $desc );
 	}
 
 	/**
