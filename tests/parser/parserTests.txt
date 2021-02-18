@@ -1763,6 +1763,12 @@ wgRawHtml=1
 <script>test ; 123</script>
 <style>test : 123</style>
 </html>
+!! html/php
+<p>
+<script>test ; 123</script>
+<style>test : 123</style>
+
+</p>
 !! html/parsoid
 <p><span typeof="mw:Extension/html" about="#mwt2" data-mw='{"name":"html","attrs":{},"body":{"extsrc":"\n&lt;script>test ; 123&lt;/script>\n&lt;style>test : 123&lt;/style>\n"}}'>
 </span><script about="#mwt2">test ; 123</script><span about="#mwt2">
@@ -18269,7 +18275,7 @@ Punctuation: CSS ! important (T13874; with space after)
 !! wikitext
 <div style="width:50% ! important">important</div>
 !! html
-<div style="width:50%&#32;! important">important</div>
+<div style="width:50% ! important">important</div>
 !! end
 
 !! test
@@ -21863,6 +21869,17 @@ language=sr
 !! end
 
 !! test
+Balinese language conversion
+!! options
+language=ban variant=ban-x-palmleaf
+!! wikitext
+ᬫᬦ᭄ᬢ᭄ᬭ -{ban-x-palmleaf:AAA;ban:BBB}-
+!! html/php
+<p>mantra AAA
+</p>
+!! end
+
+!! test
 T2529: Uncovered bullet
 !! wikitext
 *Foo {{bullet}}
@@ -22825,7 +22842,7 @@ Play a bit with r67090 and T5158
 <div style="width:50% !important">&#160;</div>
 <div style="width:50%&#160;!important">&#160;</div>
 <div style="width:50%&#160;!important">&#160;</div>
-<div style="border&#32;: solid;">&#160;</div>
+<div style="border : solid;">&#160;</div>
 !! html/parsoid
 <div style="width:50% !important" data-parsoid='{"stx":"html"}'><span typeof="mw:Entity" data-parsoid='{"srcContent":" "}'> </span></div>
 <div style="width:50% !important" data-parsoid='{"stx":"html","a":{"style":"width:50% !important"},"sa":{"style":"width:50%&amp;nbsp;!important"}}'><span typeof="mw:Entity" data-parsoid='{"srcContent":" "}'> </span></div>
@@ -22865,7 +22882,7 @@ T5158: Test for French spaces in attributes
 !! wikitext
 <br style=" clear : both ; " />
 !! html/php
-<p><br style="clear&#32;: both&#32;;" />
+<p><br style="clear : both ;" />
 </p>
 !! end
 
