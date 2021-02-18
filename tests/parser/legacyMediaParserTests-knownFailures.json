@@ -79,10 +79,7 @@
         "html2wt": "[[File:Foobar.jpg|right|Caption3 - accepted]]\n"
     },
     "Image with multiple widths -- use last": {
-        "wt2wt": "[[File:Foobar.jpg|300px|caption]]",
-        "html2wt": "[[File:Foobar.jpg|300x300px|caption]]",
-        "selser [2]": "dlfvvn\n\n[[File:Foobar.jpg|200px|300px|caption]]",
-        "selser [1]": "[[File:Foobar.jpg|200px|300px|caption]]"
+        "html2wt": "[[File:Foobar.jpg|300x300px|caption]]"
     },
     "Image with width attribute at different positions": {
         "html2wt": "[[File:Foobar.jpg|right|200x200px|Caption]]\n[[File:Foobar.jpg|right|200x200px|Caption]]\n[[File:Foobar.jpg|right|200x200px|Caption]]\n",

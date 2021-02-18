@@ -1361,6 +1361,13 @@ class WikiLinkHandler extends TokenHandler {
 						];
 						// Only round-trip a valid size
 						$opts['size']['src'] = $oContent->vsrc ?? $optInfo['ak'];
+						// check for duplicated options
+						foreach ( $dataAttribs->optList as &$value ) {
+							if ( $value['ck'] === 'width' ) {
+								$value['ck'] = 'bogus'; // mark the previous definition as bogus, last one wins
+								break;
+							}
+						}
 					} else {
 						$opt['ck'] = 'bogus';
 					}

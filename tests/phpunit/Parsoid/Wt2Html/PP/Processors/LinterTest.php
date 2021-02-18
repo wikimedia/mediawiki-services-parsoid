@@ -319,6 +319,24 @@ class LinterTest extends TestCase {
 		$this->assertSame( 1, count( $result ), $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 44, 2, 2 ], $result[0]['dsr'], $desc );
+
+		$desc = "should lint Bogus image with duplicate width options correctly";
+		$result = $this->parseWT(
+			"[[File:Foobar.jpg|thumb|300px|250px|Caption]]" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 45, 2, 2 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( '300px', $result[0]['params']['items'][0], $desc );
+
+		$desc = "should lint Bogus image with separated duplicate widths options correctly";
+		$result = $this->parseWT(
+			"[[File:Foobar.jpg|thumb|250px|right|thumb|x216px|Caption]]" );
+		$this->assertSame( 1, count( $result ), $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 58, 2, 2 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( '250px', $result[0]['params']['items'][0], $desc );
 	}
 
 	/**
