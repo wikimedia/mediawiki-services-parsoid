@@ -444,7 +444,7 @@ class WikitextEscapeHandlers {
 				} else {
 					while ( $node ) {
 						$node = DOMUtils::previousNonSepSibling( $node );
-						if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+						if ( $node && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 							// FIXME: This is not entirely correct.
 							// Assumes that extlink content doesn't have templates.
 							// Solution: Count # of non-nested templates encountered
