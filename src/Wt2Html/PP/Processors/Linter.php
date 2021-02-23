@@ -1179,6 +1179,20 @@ class Linter implements Wt2HtmlDOMProcessor {
 				}
 				$element = $element->firstChild;
 			}
+			// Media as opposed to most instances of img (barring the link= trick), don't result
+			// in misnesting according the html5 spec since we're actively suppressing links in
+			// their structure. However, since timed media is inherently clickable, being nested
+			// in an extlink could surprise a user clicking on it by navigating away from the page.
+			if ( !$lintError ) {
+				DOMUtils::visitDOM( $c, function ( $element ) use ( &$lintError ) {
+					if ( $element instanceof DOMElement &&
+						( $element->nodeName === 'audio' ||
+							$element->nodeName === 'video' )
+					) {
+						$lintError = true;
+					}
+				} );
+			}
 			if ( $lintError ) {
 				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 				$lintObj = [
