@@ -390,11 +390,8 @@ class MockDataAccess implements DataAccess {
 			$width = $props['width'] ?? 1941;
 			$turl = self::IMAGE_BASE_URL . '/thumb/' . $md5prefix . $normFileName;
 			$durl = self::IMAGE_DESC_URL . '/' . $normFileName;
-			if ( isset( $props['mediatype'] ) ) {
-				$mediatype = $props['mime'] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP';
-			} else {
-				$mediatype = null;
-			}
+			$mediatype = $props['mediatype'] ??
+				$props['mime'] === 'image/svg+xml' ? 'DRAWING' : 'BITMAP';
 
 			$info = [
 				'size' => $props['size'] ?? 12345,
@@ -514,7 +511,7 @@ class MockDataAccess implements DataAccess {
 			$ret = array_merge( $ret, [ $normFileName => $info ] );
 		}
 
-	return $ret;
+		return $ret;
 	}
 
 	/** @inheritDoc */
