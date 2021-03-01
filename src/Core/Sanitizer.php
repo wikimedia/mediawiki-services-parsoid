@@ -1099,9 +1099,8 @@ class Sanitizer {
 
 	public const FIXTAGS = [
 		# French spaces, last one Guillemet-left
-		# only if there is something before the space
-		# and a non-word character after the punctuation.
-		'/(?<=\S) (?=[?:;!%»›](?!\w))/u' => "%s",
+		# only if it isn't followed by a word character.
+		'/ (?=[?:;!%»›](?!\w))/u' => "%s",
 		# French spaces, Guillemet-right
 		'/([«‹]) /u' => "\\1%s",
 	];
