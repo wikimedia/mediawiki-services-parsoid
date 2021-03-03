@@ -294,7 +294,7 @@ class References extends ExtensionTagHandler {
 			// HTML inline for all of them.
 			$html = '';
 			$contentDiffers = false;
-			if ( $ref->hasMultiples ) {
+			if ( $ref->hasMultiples && !$validFollow ) {
 				// FIXME: Strip the mw:Cite/Follow wrappers
 				// See the test, "Forward-referenced ref with magical follow edge case"
 				$html = $extApi->domToHtml( $c, true, true );

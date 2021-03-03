@@ -671,6 +671,20 @@ Forward-referenced ref with magical follow edge case
 !! end
 
 !! test
+Follow following a named ref with multiple definitions
+!! wikitext
+<ref name="test">123</ref>
+<ref name="test">234</ref>
+<ref follow="test">345</ref>
+<references />
+!! html/parsoid
+<p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-test_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"test"},"body":{"id":"mw-reference-text-cite_note-test-1"}}'><a href="./Parser_test#cite_note-test-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt4" class="mw-ref reference" id="cite_ref-test_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"test"},"body":{"html":"234"},"errors":[{"key":"cite_error_references_duplicate_key","params":["test"]}]}'><a href="./Parser_test#cite_note-test-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup about="#mwt6" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"follow":"test"},"body":{"id":"mw-reference-text-cite_note-test-1"}}'><a href="./Parser_test#cite_note-test-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<ol class="mw-references references" typeof="mw:Extension/references" about="#mwt7" data-mw='{"name":"references","attrs":{}}'><li about="#cite_note-test-1" id="cite_note-test-1"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-test_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-test_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-test-1" class="mw-reference-text">123<span typeof="mw:Cite/Follow" about="#mwt6"> 345</span></span></li></ol>
+!! end
+
+!! test
 Multiple follow after refs without content and trailing ref with content in references section
 !! wikitext
 ADD<ref name="theName" />
