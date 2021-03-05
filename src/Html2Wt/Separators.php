@@ -787,8 +787,9 @@ class Separators {
 		 * In other scenarios, DSR values on "adjacent" nodes in the edited DOM
 		 * may not reflect deleted content between them.
 		 * ---------------------------------------------------------------------- */
-		$origSepNeededAndUsable = ( $sep === null ) && ( $node !== $prevNode ) &&
-			$state->selserMode && !$state->inModifiedContent &&
+		$origSepNeeded = $sep === null && $node !== $prevNode && $state->selserMode;
+		$origSepNeededAndUsable =
+			$origSepNeeded && !$state->inModifiedContent &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $prevNode, true ) &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $node, false ) &&
 			WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $prevNode ) &&
@@ -918,6 +919,70 @@ class Separators {
 					}
 				} else {
 					$this->env->log( 'info/html2wt', 'dsr backwards: should not happen!' );
+				}
+			}
+		} elseif ( $origSepNeeded && !DiffUtils::hasDiffMarkers( $prevNode, $this->env ) ) {
+			// Given the following conditions:
+			// - $prevNode has no diff markers. (checked above)
+			// - $prevNode's next non-sep sibling ($next) was inserted.
+			// - $next is an ancestor of $node.
+			// - all of those ancestor nodes from $node->$next have zero-width
+			//   wikitext (otherwise, the separator isn't usable)
+			// Try to extract a separator from original source that existed
+			// between $prevNode and its original next sibling or its parent
+			// (if $prevNode was the last non-sep child).
+			//
+			// This minimizes dirty-diffs to that separator text from
+			// the insertion of $next after $prevNode.
+			$next = DOMUtils::nextNonSepSibling( $prevNode );
+			$origSepUsable = $next && DiffUtils::hasInsertedDiffMark( $next, $this->env );
+
+			// Check that $next is an ancestor of $node and all nodes
+			// on that path have zero-width wikitext
+			if ( $origSepUsable && $node !== $next ) {
+				$n = $node->parentNode;
+				while ( $n && $next !== $n ) {
+					if ( !WTUtils::isZeroWidthWikitextElt( $n ) ) {
+						$origSepUsable = false;
+						break;
+					}
+					$n = $n->parentNode;
+				}
+				$origSepUsable = $origSepUsable && $n !== null;
+			}
+
+			// Extract separator from original source if possible
+			if ( $origSepUsable ) {
+				$origNext = DOMUtils::nextNonSepSibling( $next );
+				if ( !$origNext ) { // $prevNode was last non-sep child of its parent
+					// We could work harder for text/comments and extrapolate, but skipping that here
+					// FIXME: If we had a generic DSR extrapolation utility, that would be useful
+					$dsr1 = $prevNode instanceof DOMElement ?
+						DOMDataUtils::getDataParsoid( $prevNode )->dsr : null;
+					$o1 = $dsr1->end ?? null;
+					if ( $o1 !== null ) {
+						$dsr2 = DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr ?? null;
+						$o2 = $dsr2 ? $dsr2->innerEnd() : null;
+						$sep = $o2 !== null ? $state->getOrigSrc( $o1, $o2 ) : null;
+					}
+				} elseif ( !DiffUtils::hasDiffMarkers( $origNext, $this->env ) ) {
+					// We could work harder for text/comments and extrapolate, but skipping that here
+					// FIXME: If we had a generic DSR extrapolation utility, that would be useful
+					$o1 = $prevNode instanceof DOMElement ?
+						DOMDataUtils::getDataParsoid( $prevNode )->dsr->end ?? null : null;
+					if ( $o1 !== null ) {
+						$o2 = $origNext instanceof DOMElement ?
+							DOMDataUtils::getDataParsoid( $origNext )->dsr->start ?? null : null;
+						$sep = $o2 !== null ? $state->getOrigSrc( $o1, $o2 ) : null;
+					}
+				}
+
+				if ( $sep !== null ) {
+					// Since this is an inserted node, we might have to augment this
+					// with newline constraints and so, we just set this recovered sep
+					// to the buffered sep in state->sep->src
+					$state->sep->src = $sep;
+					$sep = null;
 				}
 			}
 		}

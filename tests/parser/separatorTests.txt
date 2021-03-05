@@ -42,3 +42,28 @@ FOO
 
 BAR
 !! end
+
+!! test
+Insertions: Separators recovered from original source
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "li:nth-child(3)", "append", "<ul><li>c-new</li></ul>" ],
+     [ "li:nth-child(4)", "append", "<ul><li>d-new</li></ul>" ]
+  ]
+}
+!! wikitext
+* a 
+* b<!--c1--> 
+* c <!--c2--> 
+* d <!--c3--> 
+!! wikitext/edited
+* a 
+* b<!--c1--> 
+* c <!--c2--> 
+** c-new
+* d <!--c3--> 
+** d-new
+!! end
