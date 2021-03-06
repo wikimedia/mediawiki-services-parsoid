@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use DOMComment;
 use DOMDocumentFragment;
 use DOMElement;
 use DOMNode;
@@ -76,7 +77,7 @@ class Separators {
 	 * @param DOMNode $n
 	 * @return string|null
 	 */
-	private static function precedingSeparatorTxt( DOMNode $n ): ?string {
+	private static function precedingSeparatorTextLen( DOMNode $n ): ?int {
 		// Given the CSS white-space property and specifically,
 		// "pre" and "pre-line" values for this property, it seems that any
 		// sane HTML editor would have to preserve IEW in HTML documents
@@ -84,23 +85,21 @@ class Separators {
 		// IEW drastically would be when the user explicitly requests it
 		// (Ex: pretty-printing of raw source code).
 		//
-		// For now, we are going to exploit this.  This information is
+		// For now, we are going to exploit this. This information is
 		// only used to extrapolate DSR values and extract a separator
-		// string from source, and is only used locally.  In addition,
+		// string from source, and is only used locally. In addition,
 		// the extracted text is verified for being a valid separator.
 		//
 		// So, at worst, this can create a local dirty diff around separators
 		// and at best, it gets us a clean diff.
 
-		$buf = '';
+		$len = 0;
 		$orig = $n;
 		while ( $n ) {
 			if ( DOMUtils::isIEW( $n ) ) {
-				$buf .= $n->nodeValue;
-			} elseif ( DOMUtils::isComment( $n ) ) {
-				$buf .= '<!--';
-				$buf .= $n->nodeValue;
-				$buf .= '-->';
+				$len += strlen( $n->nodeValue );
+			} elseif ( $n instanceof DOMComment ) {
+				$len += WTUtils::decodedCommentLength( $n );
 			} elseif ( $n !== $orig ) { // dont return if input node!
 				return null;
 			}
@@ -108,7 +107,7 @@ class Separators {
 			$n = $n->previousSibling;
 		}
 
-		return $buf;
+		return $len;
 	}
 
 	/**
@@ -777,12 +776,13 @@ class Separators {
 		$dsrA = null;
 		$dsrB = null;
 		/* ----------------------------------------------------------------------
-		 * Assuming we have access to the original source, we can use it only if:
-		 * - If we are in selser mode AND
-		 *   . this node is not part of a subtree that has been marked 'modified'
-		 *     (massively edited, either in actuality or because DOMDiff is not smart enough).
-		 *   . neither node is adjacent to a deleted block node
-		 *     (see the extensive comment in SSP.emitChunk in wts.SerializerState.js)
+		 * Assuming we have access to the original source, we can use DSR offsets
+		 * to extract separators from source only if:
+		 * - we are in selser mode AND
+		 * - this node is not part of a newly inserted subtree (marked 'modified')
+		 *   for which DSR isn't available
+		 * - neither node is adjacent to a deleted block node
+		 *   (see the long comment in SerializerState::emitChunk in the middle)
 		 *
 		 * In other scenarios, DSR values on "adjacent" nodes in the edited DOM
 		 * may not reflect deleted content between them.
@@ -798,8 +798,8 @@ class Separators {
 			if ( $prevNode instanceof DOMElement ) {
 				$dsrA = self::handleAutoInserted( $prevNode );
 			} elseif ( !( $prevNode instanceof DOMDocumentFragment ) ) {
-				// Check if this is the last child of a zero-width element, and use
-				// that for dsr purposes instead. Typical case: text in p.
+				// Check if $prevNode is the last child of a zero-width element,
+				// and use that for dsr purposes instead. Typical case: text in p.
 				if (
 					!$prevNode->nextSibling &&
 					$prevNode->parentNode !== $node &&
@@ -808,12 +808,9 @@ class Separators {
 				) {
 					$dsrA = self::handleAutoInserted( $prevNode->parentNode );
 				} elseif (
+					// Can we extrapolate DSR from $prevNode->previousSibling?
+					// Yes, if $prevNode->parentNode didn't have its children edited.
 					$prevNode->previousSibling instanceof DOMElement &&
-					// FIXME: Not sure why we need this check because data-parsoid
-					// is loaded on all nodes. mw:Diffmarker maybe? But, if so, why?
-					// Should be fixed.
-					!empty( DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr ) &&
-					// Don't extrapolate if the string was potentially changed
 					!DiffUtils::directChildrenChanged( $prevNode->parentNode, $this->env )
 				) {
 					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr->end ?? null;
@@ -838,6 +835,7 @@ class Separators {
 			if ( !$dsrA ) {
 				// nothing to do -- no reason to compute dsrB if dsrA is null
 			} elseif ( $node instanceof DOMElement ) {
+				// $node is parent of $prevNode
 				if ( $prevNode->parentNode === $node ) {
 					'@phan-var DOMElement|DOMDocumentFragment $node'; // @var DOMElement|DOMDocumentFragment $node
 					// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
@@ -861,35 +859,33 @@ class Separators {
 					}
 				}
 
-				// The top node could be a document fragment, which is not
-				// an element, and so getDataParsoid will return `null`.
+				// The top node could be a document fragment
 				$dsrB = $node instanceof DOMElement ? self::handleAutoInserted( $node ) : null;
 			} elseif ( !( $node instanceof DOMDocumentFragment ) ) {
-				// If this is the child of a zero-width element
-				// and is only preceded by separator elements, we
-				// can use the parent for dsr after correcting the dsr
-				// with the separator run length.
+				// $node is text/comment. Can we extrapolate DSR from $node->parentNode?
+				// Yes, if this is the child of a zero-width element and
+				// is only preceded by separator elements.
 				//
 				// 1. text in p.
 				// 2. ws-only child of a node with auto-inserted start tag
-				// Ex: "<span> <s>x</span> </s>" --> <span> <s>x</s*></span><s*> </s>
+				//    Ex: "<span> <s>x</span> </s>" --> <span> <s>x</s*></span><s*> </s>
 				// 3. ws-only children of a node with auto-inserted start tag
-				// Ex: "{|\n|-\n <!--foo--> \n|}"
-				$parentNode = $node->parentNode;
+				//    Ex: "{|\n|-\n <!--foo--> \n|}"
+				$nodeParent = $node->parentNode;
 				// phpcs:ignore Generic.Files.LineLength.TooLong
-				'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
+				'@phan-var DOMElement|DOMDocumentFragment $nodeParent'; // @var DOMElement|DOMDocumentFragment $nodeParent
 
 				if (
-					$parentNode !== $prevNode &&
-					$parentNode instanceof DOMElement &&
-					( DOMDataUtils::getDataParsoid( $parentNode )->dsr->openWidth ?? null ) === 0
+					$nodeParent !== $prevNode &&
+					$nodeParent instanceof DOMElement &&
+					( DOMDataUtils::getDataParsoid( $nodeParent )->dsr->openWidth ?? null ) === 0
 				) {
-					$sepTxt = self::precedingSeparatorTxt( $node );
-					if ( $sepTxt !== null ) {
-						$dsrB = DOMDataUtils::getDataParsoid( $parentNode )->dsr;
-						if ( is_int( $dsrB->start ) && strlen( $sepTxt ) > 0 ) {
+					$sepLen = self::precedingSeparatorTextLen( $node );
+					if ( $sepLen !== null ) {
+						$dsrB = DOMDataUtils::getDataParsoid( $nodeParent )->dsr;
+						if ( is_int( $dsrB->start ) && $sepLen > 0 ) {
 							$dsrB = clone $dsrB;
-							$dsrB->start += strlen( $sepTxt );
+							$dsrB->start += $sepLen;
 						}
 					}
 				}
