@@ -757,24 +757,12 @@ class Separators {
 	public function buildSep( DOMNode $node ): ?string {
 		$state = $this->state;
 		$sepType = $state->sep->constraints['constraintInfo']['sepType'] ?? null;
-		if ( $sepType === 'parent-child' ) {
-			$sep = $this->recoverTrimmedWhitespace( $node, true );
-			if ( $sep !== null ) {
-				$state->sep->src = $sep . $state->sep->src;
-			}
-		} elseif ( $sepType === 'child-parent' ) {
-			$sep = $this->recoverTrimmedWhitespace( $node, false );
-			if ( $sep !== null ) {
-				$state->sep->src .= $sep;
-			}
-		} else {
-			$sep = null;
-		}
-
+		$sep = null;
 		$origNode = $node;
 		$prevNode = $state->sep->lastSourceNode;
 		$dsrA = null;
 		$dsrB = null;
+
 		/* ----------------------------------------------------------------------
 		 * Assuming we have access to the original source, we can use DSR offsets
 		 * to extract separators from source only if:
@@ -787,7 +775,7 @@ class Separators {
 		 * In other scenarios, DSR values on "adjacent" nodes in the edited DOM
 		 * may not reflect deleted content between them.
 		 * ---------------------------------------------------------------------- */
-		$origSepNeeded = $sep === null && $node !== $prevNode && $state->selserMode;
+		$origSepNeeded = $node !== $prevNode && $state->selserMode;
 		$origSepNeededAndUsable =
 			$origSepNeeded && !$state->inModifiedContent &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $prevNode, true ) &&
@@ -920,6 +908,11 @@ class Separators {
 				} else {
 					$this->env->log( 'info/html2wt', 'dsr backwards: should not happen!' );
 				}
+
+				// Reset if $sep is invalid
+				if ( $sep && !WTSUtils::isValidSep( $sep ) ) {
+					$sep = null;
+				}
 			}
 		} elseif ( $origSepNeeded && !DiffUtils::hasDiffMarkers( $prevNode, $this->env ) ) {
 			// Given the following conditions:
@@ -986,6 +979,24 @@ class Separators {
 			}
 		}
 
+		// If all efforts failed, use special-purpose heuristics to recover
+		// trimmed leading / trailing whitespace from lists, headings, table-cells
+		if ( $sep === null ) {
+			if ( $sepType === 'parent-child' ) {
+				$sep = $this->recoverTrimmedWhitespace( $node, true );
+				if ( $sep !== null ) {
+					$state->sep->src = $sep . $state->sep->src;
+				}
+			} elseif ( $sepType === 'child-parent' ) {
+				$sep = $this->recoverTrimmedWhitespace( $node, false );
+				if ( $sep !== null ) {
+					$state->sep->src .= $sep;
+				}
+			} else {
+				$sep = null;
+			}
+		}
+
 		$this->env->log(
 			'debug/wts/sep',
 			function () use ( $prevNode, $origNode, $sep, $state ) {
@@ -996,14 +1007,10 @@ class Separators {
 			}
 		);
 
-		// 1. Verify that the separator is really one (has to be whitespace and comments)
-		// 2. If the separator is being emitted before a node that emits sol-transparent WT,
+		// If the separator is being emitted before a node that emits sol-transparent WT,
 		// go through makeSeparator to verify indent-pre constraints are met.
 		$sepConstraints = $state->sep->constraints ?? [ 'max' => 0 ];
-		if ( $sep === null ||
-			!WTSUtils::isValidSep( $sep ) ||
-			( $state->sep->src && $state->sep->src !== $sep )
-		) {
+		if ( $sep === null || ( $state->sep->src && $state->sep->src !== $sep ) ) {
 			if ( !empty( $state->sep->constraints ) || !empty( $state->sep->src ) ) {
 				// TODO: set modified flag if start or end node (but not both) are
 				// modified / new so that the selser can use the separator
