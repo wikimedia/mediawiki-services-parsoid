@@ -712,7 +712,7 @@
         "html2wt": " <\n"
     },
     "Escaping of interlanguage links (T129218, T156308)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink\" href=\"./Zh_:_Chinese\" title=\"Zh : Chinese\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Zh_:_Chinese\"},\"sa\":{\"href\":\" : zh : Chinese \"},\"dsr\":[31,51,2,2]}'> : zh<span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[38,39,0,0]}'> </span>: Chinese </a></p>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink\" href=\"./Chinese\" title=\"Chinese\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Chinese\"},\"sa\":{\"href\":\" : zh : Chinese \"},\"dsr\":[31,51,2,2]}'> : zh<span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[38,39,0,0]}'> </span>: Chinese </a></p>",
         "html2wt": "Blah blah blah\n[[:es:Spanish]]\n[[:zh:Chinese| zh : Chinese ]]"
     },
     "Expansion of multi-line templates in attribute values (T8255 sanity check 2)": {

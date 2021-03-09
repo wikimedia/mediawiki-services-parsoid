@@ -626,6 +626,8 @@ class WikiLinkHandler extends TokenHandler {
 				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#D', $morecontent, $match ) ) {
 					$morecontent = $match[3];
 				} elseif ( preg_match( '#^\.\./#', $morecontent ) ) {
+					// Subpages on interwiki / language links aren't valid,
+					// so $target->title should always be present here
 					$morecontent = $target->title->getPrefixedText();
 				}
 			}

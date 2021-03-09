@@ -490,9 +490,6 @@ class Env {
 	 * Resolve strings that are page-fragments or subpage references with
 	 * respect to the current page name.
 	 *
-	 * TODO: Handle namespaces relative links like [[User:../../]] correctly, they
-	 * shouldn't be treated like links at all.
-	 *
 	 * @param string $str Page fragment or subpage reference. Not URL encoded.
 	 * @param bool $resolveOnly If true, only trim and add the current title to
 	 *  lone fragments. TODO: This parameter seems poorly named.

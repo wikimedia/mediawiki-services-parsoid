@@ -15491,6 +15491,19 @@ subpage title=[[Page]]
 </p>
 !! end
 
+!! test
+Subpage with namespaces
+!! options
+subpage title=[[Subpage test/1/2/3/4]]
+!! wikitext
+[[User:../subpage]]
+[[meatball:../subpage]]
+!! html
+<p>[[User:../subpage]]
+[[meatball:../subpage]]
+</p>
+!! end
+
 ###
 ### Categories
 ###
