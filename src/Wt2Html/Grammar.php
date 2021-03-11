@@ -229,7 +229,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   					//
   					// Expand `extSrc` as long as there is a <tagName> found in the
   					// extension source body.
-  					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '[^/<>]*>~i';
+  					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '[^/>]*>~i';
   					$s = substr( $extSrc, $dp->tsr->end - $dp->tsr->start );
   					while ( strlen( $s ) ) {
   						if ( !preg_match( $startTagRE, $s ) ) {
