@@ -176,7 +176,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   				break;
   
   			case TagTk::class:
-  				$endTagRE = '~.*?(</\s*' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
+  				$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
   				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
   
   				if ( !$tagContentFound ) {
