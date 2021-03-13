@@ -737,6 +737,75 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Encapsulation requires adding about attributes on the top-level
+	 * nodes of the range. This requires them to all be DOMElements.
+	 *
+	 * @param DOMDocument $doc
+	 * @param stdClass $range
+	 */
+	private static function ensureDOMElementsInRange( DOMDocument $doc, stdClass $range ): void {
+		$n = $range->start;
+		$e = $range->end;
+		$about = $range->startElem->getAttribute( 'about' );
+		while ( $n ) {
+			$next = $n->nextSibling;
+			if ( !DOMUtils::isElt( $n ) ) {
+				// Don't add span-wrappers in fosterable positions
+				//
+				// NOTE: there cannot be any non-IEW text in fosterable position
+				// since the HTML tree builder would already have fostered it out.
+				if ( !DOMUtils::isFosterablePosition( $n ) ) {
+					$span = $doc->createElement( 'span' );
+					$span->setAttribute( 'about', $about );
+					$n->parentNode->replaceChild( $span, $n );
+					$span->appendChild( $n );
+					$n = $span;
+				}
+			} else {
+				$n->setAttribute( 'about', $about );
+			}
+
+			if ( $n === $e ) {
+				break;
+			}
+
+			$n = $next;
+		}
+	}
+
+	/**
+	 * Find the first element to be encapsulated.
+	 * Skip past marker metas and non-elements (which will all be IEW
+	 * in fosterable positions in a table).
+	 *
+	 * @param stdClass $range
+	 * @return DOMElement
+	 */
+	private static function findEncapTarget( stdClass $range ): DOMElement {
+		$encapTgt = $range->start;
+		'@phan-var \DOMNode $encapTgt';
+
+		// Skip template-marker meta-tags.
+		while ( WTUtils::isTplMarkerMeta( $encapTgt ) ||
+			!( $encapTgt instanceof DOMElement )
+		) {
+			// Detect unwrappable template and bail out early.
+			if ( $encapTgt === $range->end ||
+				( !( $encapTgt instanceof DOMElement ) &&
+					!DOMUtils::isFosterablePosition( $encapTgt )
+				)
+			) {
+				throw new Error( 'Cannot encapsulate transclusion. Start=' .
+					DOMCompat::getOuterHTML( $range->startElem ) );
+			}
+			$encapTgt = $encapTgt->nextSibling;
+		}
+
+		'@phan-var \DOMElement $encapTgt';
+		return $encapTgt;
+	}
+
+	/**
 	 * @param DOMDocument $doc
 	 * @param Frame $frame
 	 * @param array $tplRanges
@@ -793,71 +862,24 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				);
 			}
 
-			$n = $range->start;
-			$e = $range->end;
-			$startElem = $range->startElem;
-			$about = $startElem->getAttribute( 'about' );
-
-			while ( $n ) {
-				$next = $n->nextSibling;
-				if ( !DOMUtils::isElt( $n ) ) {
-					// Don't add span-wrappers in fosterable positions
-					//
-					// NOTE: there cannot be any non-IEW text in fosterable position
-					// since the HTML tree builder would already have fostered it out.
-					if ( !DOMUtils::isFosterablePosition( $n ) ) {
-						$span = $doc->createElement( 'span' );
-						$span->setAttribute( 'about', $about );
-						$n->parentNode->replaceChild( $span, $n );
-						$span->appendChild( $n );
-						$n = $span;
-					}
-				} else {
-					$n->setAttribute( 'about', $about );
-				}
-
-				if ( $n === $e ) {
-					break;
-				}
-
-				$n = $next;
-			}
+			self::ensureDOMElementsInRange( $doc, $range );
 
 			// Encap. info for the range
 			$encapInfo = (object)[
 				'valid' => false,
-				'target' => $range->start,
+				'target' => null,
 				'tplArray' => $tplArrays[$range->id],
 				'datamw' => null,
 				'dp' => null
 			];
 
-			$encapTgt = $encapInfo->target;
-			'@phan-var \DOMNode $encapTgt';
-
-			// Skip template-marker meta-tags.
-			while ( WTUtils::isTplMarkerMeta( $encapTgt ) ||
-				!( $encapTgt instanceof DOMElement )
-			) {
-				// Detect unwrappable template and bail out early.
-				if ( $encapTgt === $range->end ||
-					( !( $encapTgt instanceof DOMElement ) &&
-						!DOMUtils::isFosterablePosition( $encapTgt )
-					)
-				) {
-					throw new Error( 'Cannot encapsulate transclusion. Start=' .
-						DOMCompat::getOuterHTML( $startElem ) );
-				}
-				$encapTgt = $encapTgt->nextSibling;
-			}
-
-			'@phan-var \DOMElement $encapTgt';
-			$encapInfo->target = $encapTgt;
+			$encapTgt = $encapInfo->target = self::findEncapTarget( $range );
 			$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapTgt );
 
 			// Update type-of (always even if tpl-encap below will fail).
 			// This ensures that VE will still "edit-protect" this template
 			// and not allow its content to be edited directly.
+			$startElem = $range->startElem;
 			if ( $startElem !== $encapTgt ) {
 				$t1 = $startElem->getAttribute( 'typeof' );
 				$t2 = $encapTgt->getAttribute( 'typeof' );
