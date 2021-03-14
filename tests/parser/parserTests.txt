@@ -10448,6 +10448,42 @@ parsoid={
 !! end
 
 !! test
+1. Lists and block-element interaction
+!! options
+parsoid=wt2html,selser
+!! wikitext
+*<div>a
+*b
+</div>ಕ
+!! html/php+tidy
+<ul><li><div>a</div></li>
+<li>b</li></ul>
+<p>ಕ</p>
+!! html/parsoid
+<ul><li><div data-parsoid='{"stx":"html","autoInsertedEnd":true}'>a</div></li>
+<li>b</li></ul>
+<p>ಕ</p>
+!! end
+
+!! test
+2. Lists and block-element interaction
+!! options
+parsoid=wt2html,selser
+!! wikitext
+*{{1x|<div>a
+*b
+}}</div>ಕ
+!! html/php+tidy
+<ul><li><div>a</div></li>
+<li>b</li></ul>
+<p>ಕ</p>
+!! html/parsoid
+<ul about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"firstWikitextNode":"UL","pi":[[{"k":"1"}]]}' data-mw='{"parts":["*",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>a\n*b\n"}},"i":0}}]}'><li><div>a</div></li>
+<li>b</li></ul><span about="#mwt1">
+</span><p>ಕ</p>
+!! end
+
+!! test
 1. Lists with start-of-line-transparent tokens before bullets: Comments
 !! wikitext
 *foo

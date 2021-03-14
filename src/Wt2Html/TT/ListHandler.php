@@ -140,8 +140,13 @@ class ListHandler extends TokenHandler {
 					return [ 'tokens' => $this->closeLists( $token ) ];
 				} else {
 					$this->currListFrame->numOpenBlockTags--;
-					$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
-					return [ 'tokens' => [ $token ] ];
+					if ( $this->currListFrame->atEOL ) {
+						// Non-list item in newline context ==> close all previous lists
+						return [ 'tokens' => $this->closeLists( $token ) ];
+					} else {
+						$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
+						return [ 'tokens' => [ $token ] ];
+					}
 				}
 			}
 
@@ -161,8 +166,7 @@ class ListHandler extends TokenHandler {
 				return [ 'tokens' => [] ];
 			} else {
 				// Non-list item in newline context ==> close all previous lists
-				$tokens = $this->closeLists( $token );
-				return [ 'tokens' => $tokens ];
+				return [ 'tokens' => $this->closeLists( $token ) ];
 			}
 		}
 
