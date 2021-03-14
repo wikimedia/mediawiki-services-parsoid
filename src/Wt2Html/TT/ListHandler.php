@@ -113,6 +113,7 @@ class ListHandler extends TokenHandler {
 				$this->nestedTableCount++;
 			}
 
+			$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
 			return [ 'tokens' => [ $token ] ];
 		}
 
@@ -139,6 +140,7 @@ class ListHandler extends TokenHandler {
 					return [ 'tokens' => $this->closeLists( $token ) ];
 				} else {
 					$this->currListFrame->numOpenBlockTags--;
+					$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
 					return [ 'tokens' => [ $token ] ];
 				}
 			}
@@ -181,10 +183,12 @@ class ListHandler extends TokenHandler {
 			} elseif ( self::generateImpliedEndTags( $token->getName() ) ) {
 				$this->currListFrame->numOpenBlockTags++;
 			}
+			$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
 			return [ 'tokens' => [ $token ] ];
 		}
 
 		// Nothing else left to do
+		$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
 		return [ 'tokens' => [ $token ] ];
 	}
 
@@ -233,7 +237,7 @@ class ListHandler extends TokenHandler {
 		$this->resetCurrListFrame();
 
 		$this->env->log( 'trace/list', $this->manager->pipelineId, '----closing all lists----' );
-		$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET', $tokens );
+		$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $tokens );
 
 		return $tokens;
 	}
@@ -254,6 +258,7 @@ class ListHandler extends TokenHandler {
 				if ( PHPUtils::lastItem( $bullets ) === ':'
 					&& $this->currListFrame->numOpenTags > 0
 				) {
+					$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', ':' );
 					return [ 'tokens' => [ ':' ] ];
 				}
 			} else {
@@ -265,6 +270,7 @@ class ListHandler extends TokenHandler {
 			return [ 'tokens' => $res, 'skipOnAny' => true ];
 		}
 
+		$this->env->log( 'trace/list', $this->manager->pipelineId, 'RET: ', $token );
 		return [ 'tokens' => [ $token ] ];
 	}
 
