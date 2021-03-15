@@ -288,7 +288,12 @@ class LinkHandlerUtils {
 			// Ensure we have a valid link target, otherwise falling back to extlink
 			// is preferable, since it won't serialize as a link.
 			(
-				$interWikiMatch[1] === '' || !self::escapeLinkTarget( $interWikiMatch[1], $state )->invalidLink
+				$interWikiMatch[1] === '' || !self::escapeLinkTarget(
+					// Append the prefix since we want to validate the target
+					// with respect to it being an interwiki.
+					$interWikiMatch[0] . ':' . $interWikiMatch[1],
+					$state
+				)->invalidLink
 			) &&
 			// ExtLinks should have content to convert.
 			(
