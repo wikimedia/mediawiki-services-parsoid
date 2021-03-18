@@ -693,14 +693,14 @@ class WikiLinkHandler extends TokenHandler {
 		// Change the rel to be mw:PageProp/Category
 		$newTk->getAttributeKV( 'rel' )->v = 'mw:PageProp/Category';
 
-		$strContent = TokenUtils::tokensToString( $content );
-		$saniContent = preg_replace( '/#/', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
 		$newTk->addNormalizedAttribute( 'href', $env->makeLink( $target->title ), $target->hrefSrc );
+
 		// Change the href to include the sort key, if any (but don't update the rt info)
-		if ( isset( $strContent ) && $strContent !== '' && $strContent !== $target->href ) {
+		$strContent = str_replace( "\n", '', TokenUtils::tokensToString( $content ) );
+		if ( $strContent !== '' && $strContent !== $target->href ) {
 			$hrefkv = $newTk->getAttributeKV( 'href' );
 			$hrefkv->v .= '#';
-			$hrefkv->v .= $saniContent;
+			$hrefkv->v .= preg_replace( '/#/', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
 		}
 
 		if ( count( $content ) !== 1 ) {

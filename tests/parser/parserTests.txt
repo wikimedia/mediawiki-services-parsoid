@@ -15568,6 +15568,20 @@ cat=MediaWiki_User's_Guide sort=MediaWiki User's Guide
 !! end
 
 !! test
+Category with newline in sort key
+!! options
+cat
+parsoid=wt2html,html2html
+!! wikitext
+[[Category:Wikidata:Tools|
+*]]
+!! html/php
+cat=Wikidata:Tools sort=*
+!! html/parsoid
+<link rel="mw:PageProp/Category" href="./Category:Wikidata:Tools#*"/>
+!! end
+
+!! test
 Category with template-generated sort key
 !! options
 cat
