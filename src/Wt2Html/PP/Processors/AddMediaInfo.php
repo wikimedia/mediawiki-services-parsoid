@@ -603,18 +603,33 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		);
 
 		foreach ( $containers as $container ) {
-			// Media info for fragments was already added in their
-			// respective pipelines.  In any case, we shouldn't match them in
-			// the query above.
+			// DOMFragmentWrappers assume the element name of their outermost
+			// content so, depending how the above query is written, we're
+			// protecting against getting a figure of the wrong type.  However,
+			// since we're currently using typeof, it shouldn't be a problem.
+			// Also note that info for the media nested in the fragment has
+			// already been added in their respective pipeline.
 			Assert::invariant(
 				!WTUtils::isDOMFragmentWrapper( $container ),
 				'Media info for fragment was already added'
 			);
 
 			$dataMw = DOMDataUtils::getDataMw( $container );
-			$span = $container->firstChild->firstChild;
-			/** @var DOMElement $span */
-			DOMUtils::assertElt( $span );
+
+			// We expect this structure to be predictable based on how it's
+			// emitted in the TT/WikiLinkHandler but treebuilding may have
+			// messed that up for us.
+			$anchor = $container->firstChild;
+			if ( !( $anchor instanceof DOMElement && $anchor->nodeName === 'a' ) ) {
+				$env->log( 'error', 'Unexpected structure when adding media info.' );
+				continue;
+			}
+			$span = $anchor->firstChild;
+			if ( !( $span instanceof DOMElement && $span->nodeName === 'span' ) ) {
+				$env->log( 'error', 'Unexpected structure when adding media info.' );
+				continue;
+			}
+
 			$attrs = [
 				'size' => [
 					'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
@@ -699,6 +714,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			self::handleLink( $env, $urlParser, $container, $attrs, $dataMw, $isImage, (int)( $dims['page'] ?? 0 ) );
 
+			// Get the anchor again, it may have been replaced in the handlers
 			$anchor = $container->firstChild;
 			$anchor->appendChild( $elt );
 
