@@ -1620,28 +1620,35 @@ class WikiLinkHandler extends TokenHandler {
 		$imgHref = $info['url']; // Copied from getPath
 		$imgHrefFileName = preg_replace( '#.*/#', '', $imgHref, 1 );
 
-		$link = new TagTk( 'a', [], Utils::clone( $token->dataAttribs ) );
-		$link->addAttribute( 'rel', 'mw:MediaLink' );
-		$link->addAttribute( 'href', $imgHref );
+		$link = new TagTk( 'a' );
+
+		try {
+			$content = $this->addLinkAttributesAndGetContent( $link, $token, $target );
+		} catch ( InternalException $e ) {
+			return [ 'tokens' => self::bailTokens( $this->env, $token, false ) ];
+		}
+
+		// Change the rel to be mw:MediaLink
+		$link->getAttributeKV( 'rel' )->v = 'mw:MediaLink';
+
+		$link->setAttribute( 'href', $imgHref );
+
 		// html2wt will use the resource rather than try to parse the href.
 		$link->addNormalizedAttribute(
 			'resource',
 			$this->env->makeLink( $target->title ),
 			$target->hrefSrc
 		);
+
 		// Normalize title according to how PHP parser does it currently
 		$link->setAttribute( 'title', preg_replace( '/_/', ' ', $imgHrefFileName ) );
-		unset( $link->dataAttribs->src ); // clear src string since we can serialize this
-
-		$type = $token->getAttribute( 'typeof' );
-		if ( $type ) {
-			$link->addSpaceSeparatedAttribute( 'typeof', $type );
-		}
 
 		if ( count( $errs ) > 0 ) {
 			// Set RDFa type to mw:Error so VE and other clients
 			// can use this to do client-specific action on these.
-			$link->addAttribute( 'typeof', 'mw:Error' );
+			if ( !TokenUtils::hasTypeOf( $link, 'mw:Error' ) ) {
+				$link->addSpaceSeparatedAttribute( 'typeof', 'mw:Error' );
+			}
 
 			// Update data-mw
 			$dataMwAttr = $token->getAttribute( 'data-mw' );
@@ -1650,13 +1657,11 @@ class WikiLinkHandler extends TokenHandler {
 				$errs = array_merge( $dataMw->errors, $errs );
 			}
 			$dataMw->errors = $errs;
-			$link->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
+			$link->setAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
 		}
 
-		$content = preg_replace( '/^:/', '',
-			TokenUtils::tokensToString( $token->getAttribute( 'href' ) ), 1 );
-		$content = $token->getAttribute( 'mw:maybeContent' ) ?? [ $content ];
 		$tokens = array_merge( [ $link ], $content, [ new EndTagTk( 'a' ) ] );
+
 		return [ 'tokens' => $tokens ];
 	}
 

@@ -17303,13 +17303,38 @@ Media link to nonexistent file (T3702)
 !! end
 
 !! test
+Media link with nested wikilinks
+!! wikitext
+[[Media:Foobar.jpg|[[Test]]]]
+[[Media:Foobar.jpg|[[File:Foobar.jpg]]]]
+!! html/php
+<p>[[Media:Foobar.jpg|<a href="/index.php?title=Test&amp;action=edit&amp;redlink=1" class="new" title="Test (page does not exist)">Test</a>]]
+[[Media:Foobar.jpg|<a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>]]
+</p>
+!! html/parsoid
+<p>[[Media:Foobar.jpg|<a rel="mw:WikiLink" href="./Test" title="Test" class="new">Test</a>]]
+[[Media:Foobar.jpg|<span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span>]]</p>
+!! end
+
+!! test
+Media link with multiple options
+!! wikitext
+[[Media:Foobar.jpg|123|345]]
+!! html/php
+<p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">123|345</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg">123|345</a></p>
+!! end
+
+!! test
 Character reference normalization in link text (T3938)
 !! wikitext
 [[Main Page|this&that]]
 !! html
 <p><a href="/wiki/Main_Page" title="Main Page">this&amp;that</a>
 </p>
-!!end
+!! end
 
 !! article
 אַ
