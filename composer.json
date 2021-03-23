@@ -31,7 +31,7 @@
 		"wikimedia/assert": "0.4.0|^0.5.0",
 		"wikimedia/ip-utils": "^1.0.0|^3.0.0",
 		"wikimedia/object-factory": "^3.0.0",
-		"wikimedia/remex-html": "^2.2.0",
+		"wikimedia/remex-html": "^2.2.0|^2.3.0",
 		"wikimedia/scoped-callback": "^3.0.0",
 		"wikimedia/wikipeg": "^2.0.5",
 		"wikimedia/zest-css": "^1.1.3",
