@@ -530,8 +530,8 @@ var checkIfSignificant = function(offsets, data) {
 				thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 25);
 
 				// Don't clog the rt-test server db with humongous diffs
-				if (diff.length > 2000) {
-					diff = diff.substring(0, 2000) + "-- TRUNCATED TO 2000 chars --";
+				if (diff.length > 1000) {
+					diff = diff.substring(0, 1000) + "-- TRUNCATED TO 1000 chars --";
 				}
 				thisResult.htmlDiff = diff;
 			}
