@@ -1642,10 +1642,20 @@ class WikitextSerializer {
 				// Don't strip |param = <nowiki/> since that pattern is used
 				// in transclusions and where the trailing <nowiki /> is a valid
 				// template arg. So, use a conservative regexp to detect that usage.
-				$line = preg_replace( '#^([^=]*?)(?:<nowiki\s*/>\s*)+$#D', '$1', $line, 1 );
+				$replaced_line = preg_replace( '#^([^=]*?)(?:<nowiki\s*/>\s*)+$#D', '$1', $line, 1 );
 
-				$line = $this->stripUnnecessaryHeadingNowikis( $line );
-				return $line;
+				// Try to determine what happened in T277800
+				if ( $replaced_line === null ) {
+					if ( version_compare( PHP_VERSION, '8.0.0', '>' ) ) {
+						$error_msg = preg_last_error_msg();
+					} else {
+						$error_msg = "preg_last_error: " . preg_last_error();
+					}
+					$this->env->log( 'error', $error_msg, $line );
+					throw new \Error( "Failed to strip trailing nowikis." );
+				}
+
+				return $this->stripUnnecessaryHeadingNowikis( $replaced_line );
 			}, explode( "\n", $state->out ) ) );
 		}
 
