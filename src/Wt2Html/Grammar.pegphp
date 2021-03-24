@@ -1560,10 +1560,11 @@ nowiki_text =
  * parsed as regular inline, but the source positions of the tag are added
  * to allow reconstructing the unparsed text from the input. */
 
-// See http://www.w3.org/TR/html5/syntax.html#tag-open-state and
-// following paragraphs.
-tag_name_chars = [^\t\n\v />\0]
-tag_name = $([A-Za-z] tag_name_chars*)
+// See http://www.w3.org/TR/html5/syntax.html#tag-open-state and the following
+// paragraphs.  Note that we don't enforce ascii alpha for the first character
+// here because we need to be more permissive for extension tag names.  That
+// happens in xmlish_tag_opened below.
+tag_name = $[^\t\n\v />\0]+
 
 // This rule is used in carefully crafted places of xmlish tag tokenizing with
 // the inclusion of solidus to match where the spec would ignore those
@@ -1584,7 +1585,10 @@ xmlish_tag_opened =
 		if ( $extTag ) {
 			return $this->isExtTag( $name );
 		} else {
-			return $this->isXMLTag( $name, $isBlock );
+			// Only enforce ascii alpha first char for non-extension tags.
+			// See tag_name above for the details.
+			return preg_match( '/^[A-Za-z]/', $name ) &&
+				$this->isXMLTag( $name, $isBlock );
 		}
 	}
 	// By the time we get to `doTableStuff` in the old parser, we've already
