@@ -150,7 +150,7 @@ var ScriptUtils = {
 			"",
 			"    Available passes (in the order they run):",
 			"",
-			"      dpload, fostered, tb-fixups, normalize, pwrap, ",
+			"      fostered, tb-fixups, normalize, pwrap, ",
 			"      migrate-metas, pres, migrate-nls, dsr, tplwrap, ",
 			"      dom-unpack, tag:EXT (replace EXT with extension: cite, poem, etc)",
 			"      sections, heading-ids, lang-converter, linter, ",
@@ -162,7 +162,7 @@ var ScriptUtils = {
 			"  * wt2html:limits    : dumps used resources (along with configured limits)\n",
 			"--debug dumps state at these different stages\n",
 			"Examples:",
-			"$ node parse --dump dom:pre-dpload,dom:pre-dsr,dom:pre-tplwrap < foo",
+			"$ node parse --dump dom:pre-dsr,dom:pre-tplwrap < foo",
 			"$ node parse --trace html --dump dom:pre-tplwrap < foo",
 			"\n",
 		].join('\n');
