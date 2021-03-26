@@ -30,6 +30,10 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				// newline constraints.
 				return $extApi->htmlToDom( '<span />' );
 
+			case 'asidetag':
+				// T278565
+				return $extApi->htmlToDom( '<aside>Some aside content</aside>' );
+
 			default:
 				throw new Error( "Unexpected tag name: $extName in ParserHook" );
 		}
@@ -43,6 +47,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				[ 'name' => 'tag', 'handler' => self::class ],
 				[ 'name' => 'tåg', 'handler' => self::class ],
 				[ 'name' => 'statictag', 'handler' => self::class ],
+				[ 'name' => 'asidetag', 'handler' => self::class ],
 			],
 			'domProcessors' => [
 				ParserHookProcessor::class

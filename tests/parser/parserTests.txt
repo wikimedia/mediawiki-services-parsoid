@@ -30230,6 +30230,8 @@ aside tag in extension HTML is not p-wrapped (T278565)
 <asidetag></asidetag>This is some article content.
 !! html/php
 <aside>Some aside content</aside><p>This is some article content.</p>
+!! html/parsoid
+<aside typeof="mw:Extension/asidetag" data-mw='{"name":"asidetag","attrs":{},"body":{"extsrc":""}}'>Some aside content</aside><p>This is some article content.</p>
 !! end
 
 !! test

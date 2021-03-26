@@ -149,7 +149,7 @@ class WikitextConstants {
 		] );
 		// Closes block scope when entering, closes when exiting too
 		self::$neverBlockElems = PHPUtils::makeSet( [
-			'center', 'blockquote', 'div', 'hr', 'figure'
+			'center', 'blockquote', 'div', 'hr', 'figure', 'aside', // T278565
 		] );
 
 		self::$wikitextBlockElems = PHPUtils::makeSet( array_merge(
