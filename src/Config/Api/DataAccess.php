@@ -299,7 +299,7 @@ class DataAccess implements IDataAccess {
 				'html' => $data['text'],
 				'modules' => $data['modules'] ?? [],
 				'modulestyles' => $data['modulestyles'] ?? [],
-				'jsconfigvars' => $data['jsconfivars'] ?? [],
+				'jsconfigvars' => $data['jsconfigvars'] ?? [],
 				'categories' => $cats,
 			];
 			$this->setCache( $key, $ret );
@@ -333,7 +333,7 @@ class DataAccess implements IDataAccess {
 				'wikitext' => $data['wikitext'],
 				'modules' => $data['modules'] ?? [],
 				'modulestyles' => $data['modulestyles'] ?? [],
-				'jsconfigvars' => $data['jsconfivars'] ?? [],
+				'jsconfigvars' => $data['jsconfigvars'] ?? [],
 				'categories' => $cats,
 				'properties' => $data['properties'] ?? [],
 			];

@@ -284,7 +284,7 @@ class DataAccess implements IDataAccess {
 			'html' => $out->getText( [ 'unwrap' => true ] ),
 			'modules' => array_values( array_unique( $out->getModules() ) ),
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
-			'jsconfigvars' => array_values( array_unique( $out->getJsConfigVars() ) ),
+			'jsconfigvars' => $out->getJsConfigVars(),
 			'categories' => $out->getCategories(),
 		];
 	}
@@ -299,7 +299,7 @@ class DataAccess implements IDataAccess {
 			'wikitext' => $wikitext,
 			'modules' => array_values( array_unique( $out->getModules() ) ),
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
-			'jsconfigvars' => array_values( array_unique( $out->getJsConfigVars() ) ),
+			'jsconfigvars' => $out->getJsConfigVars(),
 			'categories' => $out->getCategories(),
 			'properties' => $out->getProperties()
 		];

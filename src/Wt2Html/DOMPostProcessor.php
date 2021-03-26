@@ -550,40 +550,79 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * Get the array of style modules to add to <head>
+	 * Export used style modules via a meta tag (and via a stylesheet for now to aid some clients)
 	 * @param Document $document
 	 * @param Env $env
 	 * @param string $lang
 	 */
 	private function exportStyleModules( Document $document, Env $env, string $lang ): void {
-		// Hack: link styles
-		$styleModules = [
+		// Styles from modules returned from preprocessor / parse requests
+		$styleModules = $env->getOutputProperties()['modulestyles'] ?? [];
+		if ( $styleModules ) {
+			// FIXME: Maybe think about using an associative array or DS\Set
+			$styleModules = array_unique( $styleModules );
+
+			// mw:styleModules are CSS modules that are render-blocking.
+			$this->appendToHead( $document, 'meta', [
+				'property' => 'mw:styleModules',
+				'content' => implode( '|', $styleModules )
+			] );
+		}
+
+		// While unnecessary, a stylesheet url in the <head> is useful for clients
+		// like Kiwix and others who might not want to process the meta tags above to
+		// construct the resourceloader url. That said, note that JS-generated parts
+		// of the page will still require them to have more intimate knowledge of how
+		// to process the JS modules. Except for <graph>s, page content doesn't require
+		// JS modules at this point.
+		$styleModules = array_unique( array_merge( [
 			'mediawiki.skinning.content.parsoid',
-			// Use the base styles that apioutput and fallback skin use.
+			// Use the base styles that API output and fallback skin use.
 			'mediawiki.skinning.interface',
 			// Make sure to include contents of user generated styles
 			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
 			'site.styles'
-		];
+		], $styleModules ) );
 
-		// Styles from modules returned from preprocessor / parse requests
-		$outputProps = $env->getOutputProperties();
-		if ( isset( $outputProps['modulestyles'] ) ) {
-			$styleModules = array_merge( $styleModules, $outputProps['modulestyles'] );
-		}
-
-		// FIXME: Maybe think about using an associative array or DS\Set
-		$styleModules = array_unique( $styleModules );
 		$styleURI = $env->getSiteConfig()->getModulesLoadURI() .
 			'?lang=' . $lang . '&modules=' .
 			PHPUtils::encodeURIComponent( implode( '|', $styleModules ) ) .
 			// FIXME: Hardcodes vector skin
 			'&only=styles&skin=vector';
-
-		// FIXME: We should add the list of style modules in a meta tag and
-		// have clients massage that into a a style URI based on skin and
-		// other baseline style modules they need for rendering.
 		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
+	}
+
+	/**
+	 * Export general modules (usually JS scripts) via a meta tag
+	 * @param Document $document
+	 * @param Env $env
+	 */
+	private function exportGeneralModules( Document $document, Env $env ): void {
+		// Styles from modules returned from preprocessor / parse requests
+		$generalModules = $env->getOutputProperties()['modules'] ?? [];
+		if ( $generalModules ) {
+			// mw:generalModules can be processed via JS (and async) and are usually (but
+			// not always) JS scripts.
+			$this->appendToHead( $document, 'meta', [
+				'property' => 'mw:generalModules',
+				'content' => implode( '|', array_unique( $generalModules ) )
+			] );
+		}
+	}
+
+	/**
+	 * Export used JS config vars via a meta tag
+	 * @param Document $document
+	 * @param Env $env
+	 */
+	private function exportJSConfigVars( Document $document, Env $env ): void {
+		$vars = $env->getOutputProperties()['jsconfigvars'] ?? [];
+		if ( $vars ) {
+			$this->appendToHead( $document, 'meta', [
+				'property' => 'mw:jsConfigVars',
+				'content' => PHPUtils::jsonEncode( $vars )
+			] );
+		}
 	}
 
 	/**
@@ -762,6 +801,8 @@ class DOMPostProcessor extends PipelineStage {
 		$body = DOMCompat::getBody( $document );
 		$body->setAttribute( 'lang', Utils::bcp47n( $lang ) );
 		$this->updateBodyClasslist( $body, $env );
+		$this->exportJSConfigVars( $document, $env );
+		$this->exportGeneralModules( $document, $env );
 		$this->exportStyleModules( $document, $env, $lang );
 
 		// Indicate whether LanguageConverter is enabled, so that downstream
