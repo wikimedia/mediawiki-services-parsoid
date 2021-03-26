@@ -591,6 +591,31 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
+	 * @param DOMElement $body
+	 * @param Env $env
+	 */
+	private function updateBodyClasslist( DOMElement $body, Env $env ): void {
+		$dir = $env->getPageConfig()->getPageLanguageDir();
+		$bodyCL = DOMCompat::getClassList( $body );
+		$bodyCL->add( 'mw-content-' . $dir );
+		$bodyCL->add( 'sitedir-' . $dir );
+		$bodyCL->add( $dir );
+		$body->setAttribute( 'dir', $dir );
+
+		// Set 'mw-body-content' directly on the body.
+		// This is the designated successor for #bodyContent in core skins.
+		$bodyCL->add( 'mw-body-content' );
+		// Set 'parsoid-body' to add the desired layout styling from Vector.
+		$bodyCL->add( 'parsoid-body' );
+		// Also, add the 'mediawiki' class.
+		// Some Mediawiki:Common.css seem to target this selector.
+		$bodyCL->add( 'mediawiki' );
+		// Set 'mw-parser-output' directly on the body.
+		// Templates target this class as part of the TemplateStyles RFC
+		$bodyCL->add( 'mw-parser-output' );
+	}
+
+	/**
 	 * FIXME: consider moving to DOMUtils or Env.
 	 *
 	 * @param Env $env
@@ -723,14 +748,17 @@ class DOMPostProcessor extends PipelineStage {
 			'href' => $env->getSiteConfig()->baseURI()
 		] );
 
-		// PageConfig guarantees language and dir will always be non-null.
-		$lang = $env->getPageConfig()->getPageLanguage();
-		$this->exportStyleModules( $document, $env, $lang );
-
 		// Stick data attributes in the head
 		if ( $env->pageBundle ) {
 			DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
 		}
+
+		// PageConfig guarantees language will always be non-null.
+		$lang = $env->getPageConfig()->getPageLanguage();
+		$body = DOMCompat::getBody( $document );
+		$body->setAttribute( 'lang', Utils::bcp47n( $lang ) );
+		$this->updateBodyClasslist( $body, $env );
+		$this->exportStyleModules( $document, $env, $lang );
 
 		// Indicate whether LanguageConverter is enabled, so that downstream
 		// caches can split on variant (if necessary)
@@ -744,28 +772,6 @@ class DOMPostProcessor extends PipelineStage {
 				'content' => $env->htmlVary()
 			]
 		);
-
-		$body = DOMCompat::getBody( $document );
-		$bodyCL = DOMCompat::getClassList( $body );
-		// PageConfig guarantees language will always be non-null.
-		$dir = $env->getPageConfig()->getPageLanguageDir();
-		$body->setAttribute( 'lang', Utils::bcp47n( $lang ) );
-		$bodyCL->add( 'mw-content-' . $dir );
-		$bodyCL->add( 'sitedir-' . $dir );
-		$bodyCL->add( $dir );
-		$body->setAttribute( 'dir', $dir );
-
-		// Set 'mw-body-content' directly on the body.
-		// This is the designated successor for #bodyContent in core skins.
-		$bodyCL->add( 'mw-body-content' );
-		// Set 'parsoid-body' to add the desired layout styling from Vector.
-		$bodyCL->add( 'parsoid-body' );
-		// Also, add the 'mediawiki' class.
-		// Some Mediawiki:Common.css seem to target this selector.
-		$bodyCL->add( 'mediawiki' );
-		// Set 'mw-parser-output' directly on the body.
-		// Templates target this class as part of the TemplateStyles RFC
-		$bodyCL->add( 'mw-parser-output' );
 
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
