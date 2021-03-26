@@ -61,15 +61,17 @@ class ExtensionHandler extends TokenHandler {
 	 * @param DOMDocumentFragment $domFragment
 	 * @param array $modules
 	 * @param array $modulestyles
+	 * @param array $jsConfigVars
 	 * @param ?array $categories
 	 */
 	private function processExtMetadata(
-		DOMDocumentFragment $domFragment, array $modules, array $modulestyles,
+		DOMDocumentFragment $domFragment, array $modules, array $modulestyles, array $jsConfigVars,
 		?array $categories
 	): void {
 		// Add the modules to the page data
 		$this->env->addOutputProperty( 'modules', $modules );
 		$this->env->addOutputProperty( 'modulestyles', $modulestyles );
+		$this->env->addOutputProperty( 'jsconfigvars', $jsConfigVars );
 
 		/*  - categories: (array) [ Category name => sortkey ] */
 		// Add the categories which were added by extensions directly into the
@@ -181,7 +183,7 @@ class ExtensionHandler extends TokenHandler {
 			);
 
 			$this->processExtMetadata(
-				$domFragment, $ret['modules'], $ret['modulestyles'],
+				$domFragment, $ret['modules'], $ret['modulestyles'], $ret['jsconfigvars'] ?? [],
 				$ret['categories']
 			);
 

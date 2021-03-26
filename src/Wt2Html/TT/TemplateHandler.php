@@ -1192,8 +1192,8 @@ class TemplateHandler extends TokenHandler {
 		$env = $this->env;
 		$wikitext = $ret['wikitext'];
 
-		foreach ( [ 'modules', 'modulestyles' ] as $prop ) {
-			$env->addOutputProperty( $prop, $ret[$prop] );
+		foreach ( [ 'modules', 'modulestyles', 'jsconfigvars' ] as $prop ) {
+			$env->addOutputProperty( $prop, $ret[$prop] ?? [] );
 		}
 
 		// Add the categories which were added by parser functions directly

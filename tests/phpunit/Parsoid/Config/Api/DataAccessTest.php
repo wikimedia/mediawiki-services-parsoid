@@ -106,6 +106,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'html' => "<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~\n</p>",
 			'modules' => [],
 			'modulestyles' => [],
+			'jsconfigvars' => [],
 			'categories' => [
 				'All_articles_with_unsourced_statements' => '',
 				'Articles_with_unsourced_statements' => '',
@@ -127,6 +128,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'wikitext' => "Foobar.[[Category:All articles with unsourced statements]][[Category:Articles with unsourced statements ]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
 			'modules' => [],
 			'modulestyles' => [],
+			'jsconfigvars' => [],
 			'categories' => [],
 			'properties' => [],
 		], $ret );
