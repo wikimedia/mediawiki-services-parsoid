@@ -13724,27 +13724,22 @@ Template:quote
 Templates: Template Name/Arg clash: 1. Use of positional param
 !! wikitext
 {{quote|foo}}
-!! html
+!! html/php
 <p>foo
 </p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"quote","href":"./Template:Quote"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
 !!end
 
 !!test
 Templates: Template Name/Arg clash: 2. Use of named param
 !! wikitext
 {{quote|quote=foo}}
-!! html
+!! html/php
 <p>foo
 </p>
-!!end
-
-!!test
-Templates: Template Name/Arg clash: 3. Use of named param with empty input
-!! wikitext
-{{quote|quote}}
-!! html
-<p>quote
-</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"quote","href":"./Template:Quote"},"params":{"quote":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
 !!end
 
 ###

@@ -2723,15 +2723,6 @@
     "Templates: Strip leading and trailing whitespace from named-param values": {
         "html2wt": "a\n\nb\n\nc\n\n* d"
     },
-    "Templates: Template Name/Arg clash: 1. Use of positional param": {
-        "html2wt": "foo\n"
-    },
-    "Templates: Template Name/Arg clash: 2. Use of named param": {
-        "html2wt": "foo\n"
-    },
-    "Templates: Template Name/Arg clash: 3. Use of named param with empty input": {
-        "html2wt": "quote\n"
-    },
     "Templates: Ugly nesting: 1. Quotes opened/closed across templates (1x)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><i about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,34,null,null],\"pi\":[[{\"k\":\"1\"}],[{\"k\":\"1\"}],[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;a\"}},\"i\":0}},{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b&apos;&apos;c&apos;&apos;d\"}},\"i\":1}},{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&apos;&apos;e\"}},\"i\":2}}]}'>ab</i><span about=\"#mwt1\">c</span><i about=\"#mwt1\">d</i><span about=\"#mwt1\">e</span></p>",
         "html2wt": "''ab''c''d''e\n"
