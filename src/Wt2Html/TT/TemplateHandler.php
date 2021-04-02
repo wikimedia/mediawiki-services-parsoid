@@ -111,13 +111,14 @@ class TemplateHandler extends TokenHandler {
 	private function encapTokens(
 		array $state, array $tokens, array $extraDict = []
 	): array {
+		Assert::invariant(
+			$this->wrapTemplates, 'Encapsulating tokens when not wrapping!'
+		);
 		$toks = $this->getEncapsulationInfo( $state, $tokens );
 		$toks[] = $this->getEncapsulationInfoEndTag( $state );
-		if ( $this->wrapTemplates ) {
-			$argInfo = $this->getArgInfo( $state );
-			$argInfo['dict'] = array_merge( $argInfo['dict'], $extraDict );
-			$toks[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
-		}
+		$argInfo = $this->getArgInfo( $state );
+		$argInfo['dict'] = array_merge( $argInfo['dict'], $extraDict );
+		$toks[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
 		return $toks;
 	}
 
@@ -1287,7 +1288,7 @@ class TemplateHandler extends TokenHandler {
 	 * @param bool $atTopLevel
 	 * @param Token $tplToken
 	 * @param ?array $resolvedTgt
-	 * @return Token[]|null
+	 * @return ?array
 	 */
 	public function processSpecialMagicWord(
 		bool $atTopLevel, Token $tplToken, ?array $resolvedTgt = null
@@ -1298,7 +1299,8 @@ class TemplateHandler extends TokenHandler {
 		// because of the call from the TokenStreamPatcher.  Otherwise, ! is a
 		// variable like any other and can be dropped from this function.
 		// However, we keep both cases flowing through here for consistency.
-		if ( ( $resolvedTgt && $resolvedTgt['magicWordType'] === '!' ) ||
+		if (
+			( $resolvedTgt && $resolvedTgt['magicWordType'] === '!' ) ||
 			$tplToken->attribs[0]->k === '!'
 		) {
 			// If we're not at the top level, return a table cell. This will always
@@ -1314,11 +1316,14 @@ class TemplateHandler extends TokenHandler {
 				'wrappedObjectId' => $env->newObjectId()
 			];
 			$this->resolveTemplateTarget( $state, '!', $tplToken->attribs[0]->srcOffsets->key );
-			return $this->encapTokens( $state, [ '|' ] );
+			$toks = [ '|' ];
+			return $this->wrapTemplates ?
+				$this->encapTokens( $state, $toks ) : $toks;
 		}
 
 		if ( !$resolvedTgt || $resolvedTgt['magicWordType'] !== 'MASQ' ) {
 			// Nothing to do
+			// FIXME: This is going to result in a throw
 			return null;
 		}
 
