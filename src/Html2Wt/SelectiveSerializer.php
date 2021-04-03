@@ -120,7 +120,7 @@ class SelectiveSerializer {
 				if ( $c instanceof DOMText ) {
 					$text = $c->nodeValue;
 					$len = strlen( $text );
-					if ( $text[$len - 1] === "\n" ) {
+					if ( $len > 0 && $text[$len - 1] === "\n" ) {
 						$nl = "\n";
 						$text = rtrim( $text, "\n" );
 						$len--;
