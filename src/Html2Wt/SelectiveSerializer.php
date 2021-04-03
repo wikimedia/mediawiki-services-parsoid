@@ -120,23 +120,32 @@ class SelectiveSerializer {
 				if ( $c instanceof DOMText ) {
 					$text = $c->nodeValue;
 					$len = strlen( $text );
+
+					// Don't wrap newlines since single-line-context handling will convert these
+					// newlines into spaces and introduce dirty-diffs. Leaving nls outside the
+					// wrapped text lets it be handled as separator text and emitted appropriately.
 					if ( $len > 0 && $text[$len - 1] === "\n" ) {
-						$nl = "\n";
 						$text = rtrim( $text, "\n" );
-						$len--;
+						$numOfNls = $len - strlen( $text );
+						$nl = str_repeat( "\n", $numOfNls );
+						$len -= $numOfNls;
 					} else {
 						$nl = null;
-					}
 
-					// Detect last child of "original" item and tack on trailingWS width
-					// to the contents of this text node. If this is a list item and
-					// we added a nested list, that nested list will be the last item.
-					if ( $eltDSR && (
-						!$next || (
-							$inListItem && DOMUtils::isList( $next ) && WTUtils::isNewElt( $next )
-						)
-					) ) {
-						$len += $eltDSR->trailingWS;
+						// Detect last child of "original" item and tack on trailingWS width
+						// to the contents of this text node. If this is a list item and
+						// we added a nested list, that nested list will be the last item.
+						//
+						// Note that trailingWS is only captured for the last line, so if
+						// the text ends in a newline (the "if" condition), we shouldn't need
+						// to do this.
+						if ( $eltDSR && (
+							!$next || (
+								$inListItem && DOMUtils::isList( $next ) && WTUtils::isNewElt( $next )
+							)
+						) ) {
+							$len += $eltDSR->trailingWS;
+						}
 					}
 
 					$span = $doc->createElement( 'span' );
@@ -149,6 +158,7 @@ class SelectiveSerializer {
 						$elt->insertBefore( $span, $c );
 						$span->appendChild( $doc->createTextNode( $text ) );
 						$c->nodeValue = $nl;
+						$start += $numOfNls;
 					} else {
 						$elt->replaceChild( $span, $c );
 						$span->appendChild( $c );
