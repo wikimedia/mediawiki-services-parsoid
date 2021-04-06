@@ -784,35 +784,29 @@ class WTUtils {
 	 *
 	 * @param string $typeOf
 	 * @param array $attrs
-	 * @param bool $encode
 	 * @return string
 	 */
-	public static function fosterCommentData( string $typeOf, array $attrs, bool $encode ): string {
-		$str = PHPUtils::jsonEncode( [
+	public static function fosterCommentData( string $typeOf, array $attrs ): string {
+		return PHPUtils::jsonEncode( [
 			'@type' => $typeOf,
 			'attrs' => $attrs
 		] );
-		if ( $encode ) {
-			$str = self::encodeComment( $str );
-		}
-		return $str;
 	}
 
 	/**
 	 * @param Env $env
 	 * @param DOMNode $node
-	 * @param bool $decode
 	 * @return ?DOMNode
 	 */
 	public static function reinsertFosterableContent(
-		Env $env, DOMNode $node, bool $decode
+		Env $env, DOMNode $node
 	): ?DOMNode {
 		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/D', $node->nodeValue ) ) {
 			// Convert serialized meta tags back from comments.
 			// We use this trick because comments won't be fostered,
 			// providing more accurate information about where tags are expected
 			// to be found.
-			$data = json_decode( $decode ? self::decodeComment( $node->nodeValue ) : $node->nodeValue );
+			$data = json_decode( $node->nodeValue );
 			if ( $data === null ) {
 				// not a valid json attribute, do nothing
 				return null;

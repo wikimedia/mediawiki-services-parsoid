@@ -47,7 +47,7 @@ class PrepareDOM {
 			}
 			return true;
 		}
-		$meta = WTUtils::reinsertFosterableContent( $env, $node, false );
+		$meta = WTUtils::reinsertFosterableContent( $env, $node );
 		return $meta ?? true;
 	}
 }

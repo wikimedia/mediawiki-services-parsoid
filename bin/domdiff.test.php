@@ -27,7 +27,6 @@ $opts = [
 	'env' => $mockEnv,
 	'keepTmp' => true,
 	'storeDiffMark' => true,
-	'tunnelFosteredContent' => true,
 	'quiet' => true
 ];
 ContentUtils::dumpDOM( $body2, 'DIFF-marked DOM',  $opts );

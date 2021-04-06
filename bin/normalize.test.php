@@ -26,7 +26,6 @@ $norm->normalize( $body );
 $opts = [ 'env' => $mockEnv,
 	'keepTmp' => true,
 	'storeDiffMark' => true,
-	'tunnelFosteredContent' => true,
 ];
 ContentUtils::dumpDOM( $body, 'DOM post-normalization', $opts );
 print "\n";

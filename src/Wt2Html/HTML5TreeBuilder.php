@@ -309,7 +309,7 @@ class HTML5TreeBuilder extends PipelineStage {
 					new KV( 'data-stag', "{$tName}:{$dataAttribs->tmp->tagId}" )
 				], Utils::clone( $dataAttribs ) );
 				$this->dispatcher->comment(
-					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ), false ),
+					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ) ),
 					0, 0
 				);
 			}
@@ -347,8 +347,7 @@ class HTML5TreeBuilder extends PipelineStage {
 					$this->dispatcher->comment(
 						WTUtils::fosterCommentData(
 							$token->getAttribute( 'typeof' ) ?? '',
-							$this->kvArrToFoster( $attribs ),
-							false
+							$this->kvArrToFoster( $attribs )
 						), 0, 0
 					);
 					$wasInserted = true;
@@ -382,7 +381,7 @@ class HTML5TreeBuilder extends PipelineStage {
 					]
 				);
 				$this->dispatcher->comment(
-					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ), false ),
+					WTUtils::fosterCommentData( 'mw:shadow', $this->kvArrToFoster( $attrs ) ),
 					0, 0
 				);
 			}

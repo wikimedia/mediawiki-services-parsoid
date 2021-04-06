@@ -77,33 +77,6 @@ class XMLSerializer {
 	 */
 	private static function serializeToString( DOMNode $node, array $options, callable $accum ): void {
 		$child = null;
-		if ( !empty( $options['tunnelFosteredContent'] ) &&
-			isset( WikitextConstants::$HTML['FosterablePosition'][$node->nodeName] )
-		) {
-			// Tunnel fosterable metas as comments.
-			// This is analogous to what is done when treebuilding.
-			$ownerDoc = $node->ownerDocument;
-			$allowedTags = WikitextConstants::$HTML['TableContentModels'][$node->nodeName];
-			$child = $node->firstChild;
-			while ( $child ) {
-				$next = $child->nextSibling;
-				if ( DOMUtils::isText( $child ) ) {
-					Assert::invariant( DOMUtils::isIEW( $child ), 'Only expecting whitespace!' );
-				} elseif (
-					$child instanceof DOMElement &&
-					!in_array( $child->nodeName, $allowedTags, true )
-				) {
-					Assert::invariant( $child->nodeName === 'meta', 'Only fosterable metas expected!' );
-					$as = [];
-					foreach ( DOMCompat::attributes( $child ) as $attr ) {
-						$as[] = [ $attr->name, $attr->value ];
-					}
-					$comment = WTUtils::fosterCommentData( $child->getAttribute( 'typeof' ), $as, true );
-					$node->replaceChild( $ownerDoc->createComment( $comment ), $child );
-				}
-				$child = $next;
-			}
-		}
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				DOMUtils::assertElt( $node );

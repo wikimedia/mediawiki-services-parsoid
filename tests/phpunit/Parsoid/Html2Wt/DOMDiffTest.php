@@ -45,7 +45,6 @@ class DOMDiffTest extends TestCase {
 				'env' => $mockEnv,
 				'keepTmp' => true,
 				'storeDiffMark' => true,
-				'tunnelFosteredContent' => true,
 				'quiet' => true
 			];
 			DOMDataUtils::visitAndStoreDataAttribs( $body, $opts );
