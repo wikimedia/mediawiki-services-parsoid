@@ -957,9 +957,8 @@ class Separators {
 				if ( !$origNext ) { // $prevNode was last non-sep child of its parent
 					// We could work harder for text/comments and extrapolate, but skipping that here
 					// FIXME: If we had a generic DSR extrapolation utility, that would be useful
-					$dsr1 = $prevNode instanceof DOMElement ?
-						DOMDataUtils::getDataParsoid( $prevNode )->dsr : null;
-					$o1 = $dsr1->end ?? null;
+					$o1 = $prevNode instanceof DOMElement ?
+						DOMDataUtils::getDataParsoid( $prevNode )->dsr->end ?? null : null;
 					if ( $o1 !== null ) {
 						$dsr2 = DOMDataUtils::getDataParsoid( $prevNode->parentNode )->dsr ?? null;
 						$o2 = $dsr2 ? $dsr2->innerEnd() : null;
