@@ -2079,6 +2079,18 @@ IE conditional comments
 <![endif]-->
 !! end
 
+## Regession test for Parsoid
+!! test
+Comment with valid json
+!! wikitext
+hi <!--{"hi":"ho"}--> ho
+!! html/php
+<p>hi  ho
+</p>
+!! html/parsoid
+<p>hi <!--{"hi":"ho"}--> ho</p>
+!! end
+
 ###
 ### paragraph wrapping tests
 ###

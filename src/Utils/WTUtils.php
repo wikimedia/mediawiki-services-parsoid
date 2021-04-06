@@ -817,7 +817,7 @@ class WTUtils {
 				// not a valid json attribute, do nothing
 				return null;
 			}
-			$type = $data->{'@type'};
+			$type = $data->{'@type'} ?? '';
 			if ( preg_match( '/^mw:/', $type ) ) {
 				$meta = $node->ownerDocument->createElement( 'meta' );
 				foreach ( $data->attrs as $attr ) {
