@@ -537,6 +537,8 @@ class Grammar extends \WikiPEG\PEGParserBase {
   }
   private function a23($c) {
   
+  		// WARNING(T279451): This encoding is important for the choice of key
+  		// in WTUtils::fosterCommentData
   		$data = WTUtils::encodeComment( $c );
   		return [ new CommentTk( $data, (object)[ 'tsr' => $this->tsrOffsets() ] ) ];
   	
