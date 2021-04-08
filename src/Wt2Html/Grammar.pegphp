@@ -1983,6 +1983,7 @@ table_row_tag =
 	p:pipe dashes:$"-"+
 	a:(table_attributes<table=false> / &{ $this->unreachable(); })
 	tagEndPos:("" { return $this->endOffset(); })
+	s2:space*
 	{
 		$coms = TokenizerUtils::popComments( $a );
 		if ( $coms ) {
@@ -1999,7 +2000,7 @@ table_row_tag =
 		// individual cells or rows.
 		$trToken = new TagTk( 'tr', $a, $da );
 
-		return array_merge( [ $trToken ], $coms ? $coms['buf'] : [] );
+		return array_merge( [ $trToken ], $coms ? $coms['buf'] : [], $s2 );
 	}
 
 tds =

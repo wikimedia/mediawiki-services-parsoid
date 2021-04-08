@@ -1509,7 +1509,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   private function a148($p, $dashes, $a) {
    return $this->endOffset(); 
   }
-  private function a149($p, $dashes, $a, $tagEndPos) {
+  private function a149($p, $dashes, $a, $tagEndPos, $s2) {
   
   		$coms = TokenizerUtils::popComments( $a );
   		if ( $coms ) {
@@ -1526,7 +1526,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
   		// individual cells or rows.
   		$trToken = new TagTk( 'tr', $a, $da );
   
-  		return array_merge( [ $trToken ], $coms ? $coms['buf'] : [] );
+  		return array_merge( [ $trToken ], $coms ? $coms['buf'] : [], $s2 );
   	
   }
   private function a150($p, $td) {
@@ -12205,11 +12205,22 @@ class Grammar extends \WikiPEG\PEGParserBase {
       $r1 = self::$FAILED;
       goto seq_1;
     }
+    $r10 = [];
+    for (;;) {
+      $r11 = $this->parsespace($silence);
+      if ($r11!==self::$FAILED) {
+        $r10[] = $r11;
+      } else {
+        break;
+      }
+    }
+    // s2 <- $r10
+    // free $r11
     $r1 = true;
     seq_1:
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
-      $r1 = $this->a149($r5, $r6, $r8, $r9);
+      $r1 = $this->a149($r5, $r6, $r8, $r9, $r10);
     }
     // free $p3
     $cached = ['nextPos' => $this->currPos, 'result' => $r1];
