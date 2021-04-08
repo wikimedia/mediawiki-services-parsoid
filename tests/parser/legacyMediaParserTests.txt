@@ -3496,3 +3496,16 @@ Thumbnail output
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Thumb.png"><img resource="./File:Thumb.png" src="http://example.com/images/e/ea/Thumb.png" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
 !! end
+
+## The bogus option here isn't going to roundtrip
+!! test
+File with caption with pipe in extension tag attribute
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+[[File:Foobar.jpg|thumb|Test <nowiki bogus="attri|bute"/> 123]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>Test  123</div></div></div>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x"/></a><figcaption>Test <span typeof="mw:Nowiki"></span> 123</figcaption></figure>
+!! end

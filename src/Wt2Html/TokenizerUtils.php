@@ -203,12 +203,14 @@ class TokenizerUtils {
 					) );
 
 			case '|':
-				return ( $stops['templateArg'] && !$stops['extTag'] )
+				return !$stops['extTag'] && (
+					$stops['templateArg']
 					|| $stops['tableCellArg']
 					|| $stops['linkdesc']
 					|| ( $stops['table']
 						&& $pos < strlen( $input ) - 1
-						&& preg_match( '/[}|]/', $input[$pos + 1] ) );
+						&& preg_match( '/[}|]/', $input[$pos + 1] ) )
+				);
 
 			case '!':
 				return $stops['th']
