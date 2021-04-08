@@ -1,7 +1,7 @@
 {
   "name": "parsoid",
   "description": "A bidirectional runtime wikitext parser. Converts back and forth between wikitext and HTML/XML DOM with RDFa.",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "license": "GPL-2.0+",
   "dependencies": {
     "babybird": "^0.0.1",
