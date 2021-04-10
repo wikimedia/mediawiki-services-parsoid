@@ -27,6 +27,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 	public function __construct() {
 		parent::__construct();
+		parent::addDefaultParams();
 		$this->addDescription(
 			"Omnibus script to convert between wikitext and HTML, and roundtrip wikitext or HTML. "
 			. "Supports a number of options pertaining to pointing at a specific wiki "
