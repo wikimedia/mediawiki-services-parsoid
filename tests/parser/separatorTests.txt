@@ -67,3 +67,21 @@ parsoid={
 * d <!--c3--> 
 ** d-new
 !! end
+
+# Regression test for T280050
+!! test
+Ensure DSR fixups for misnested links don't lead to incorrect separator reuse
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "li:nth-child(1)", "append", "<ul><li>foo</li></ul>" ]
+  ]
+}
+!! wikitext
+* [http://example.org Misnested [[wikilink]] in extlink]. More text.
+!! wikitext/edited
+* [http://example.org Misnested [[wikilink]] in extlink]. More text.
+** foo
+!! end

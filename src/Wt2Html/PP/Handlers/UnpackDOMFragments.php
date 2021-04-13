@@ -39,12 +39,12 @@ class UnpackDOMFragments {
 	}
 
 	/**
-	 * @param DOMNode $targetNode
+	 * @param DOMElement $targetNode
 	 * @param DOMDocumentFragment $fragment
 	 * @param Env $env
 	 */
-	private static function fixUpMisnestedTagDSR(
-		DOMNode $targetNode, DOMDocumentFragment $fragment, Env $env
+	public static function fixUpMisnestedTagDSR(
+		DOMElement $targetNode, DOMDocumentFragment $fragment, Env $env
 	): void {
 		// Currently, this only deals with A-tags
 		if ( $targetNode->nodeName !== 'a' ) {
@@ -62,20 +62,23 @@ class UnpackDOMFragments {
 		PipelineUtils::addSpanWrappers( $fragment->childNodes );
 
 		$resetDSR = false;
-		$currOffset = 0;
 		$dsrFixer = new DOMTraverser();
-		$fixHandler = function ( DOMNode $node ) use ( &$resetDSR, &$currOffset ) {
+		$newOffset = DOMDataUtils::getDataParsoid( $targetNode )->dsr->end ?? null;
+		$fixHandler = function ( DOMNode $node ) use ( &$resetDSR, &$newOffset ) {
 			if ( $node instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $node->nodeName === 'a' ) {
 					$resetDSR = true;
 				}
 				if ( $resetDSR ) {
-					if ( isset( $dp->dsr->start ) ) {
-						$currOffset = $dp->dsr->end = $dp->dsr->start;
-					} else {
-						$dp->dsr = new DomSourceRange( $currOffset, $currOffset, null, null );
+					if ( $newOffset === null ) {
+						// We end up here when $targetNode is part of encapsulated content.
+						// Till we add logic to prevent that from happening, we need this fallback.
+						if ( isset( $dp->dsr->start ) ) {
+							$newOffset = $dp->dsr->start;
+						}
 					}
+					$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
 					$dp->misnested = true;
 				} elseif ( !empty( $dp->tmp->wrapper ) ) {
 					// Unnecessary wrapper added above -- strip it.
