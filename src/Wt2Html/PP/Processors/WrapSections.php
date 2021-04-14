@@ -304,8 +304,11 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		if ( $node->nodeName !== 'section' ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( !$dsr ) {
+				Assert::invariant(
+					$node->hasAttribute( 'about' ),
+					'Expected an about id'
+				);
 				$about = $node->getAttribute( 'about' );
-				Assert::invariant( $about !== null, 'Expected non-null about id' );
 				$tplInfo = $state['aboutIdMap'][$about];
 				$dsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
 			}
