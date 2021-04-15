@@ -221,24 +221,6 @@ class TableFixups {
 	}
 
 	/**
-	 * Build the result
-	 *
-	 * @param array $buf
-	 * @param array $nowikis
-	 * @param DOMElement[] $transclusions
-	 * @return array
-	 */
-	private static function buildRes(
-		array $buf, array $nowikis, array $transclusions
-	): array {
-		return [
-			'txt' => implode( '', $buf ),
-			'nowikis' => $nowikis,
-			'transclusions' => $transclusions,
-		];
-	}
-
-	/**
 	 * Collect potential attribute content.
 	 *
 	 * We expect this to be text nodes without a pipe character followed by one or
@@ -261,55 +243,69 @@ class TableFixups {
 		// wikitext that is outside templates. But since we have to walk over
 		// templated content in this fashion anyway, we might as well use the
 		// same logic uniformly.
-		$child = $cell->firstChild;
-		while ( $child ) {
-			if ( DOMUtils::isComment( $child ) ) {
-				// Legacy parser strips comments during parsing => drop them.
-			} elseif ( DOMUtils::isText( $child ) ) {
-				$buf[] = $child->nodeValue;
-			} else {
-				'@phan-var DOMElement $child';  /** @var DOMElement $child */
-				if ( DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
-					$transclusions[] = $child;
-				}
 
-				if ( DOMUtils::matchTypeOf( $child, "#mw:Extension/#" ) ) {
-					// "|" chars in extension content don't trigger table-cell parsing
-					// since they have higher precedence in tokenization. The extension
-					// content will simply be dropped (but any side effects it had will
-					// continue to apply. Ex: <ref> tags might leave an orphaned ref in
-					// the <references> section).
-					$child = WTUtils::skipOverEncapsulatedContent( $child );
-					continue;
-				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
-					$buf[] = $child->textContent;
-				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Nowiki' ) ) {
-					// Nowiki span were added to protect otherwise
-					// meaningful wikitext chars used in attributes.
-					// Save the content and add in a marker to splice out later.
-					$nowikis[] = $child->textContent;
-					$buf[] = '<nowiki-marker>';
-				} elseif ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
-					WTUtils::isGeneratedFigure( $child )
-				) {
-					// Wikilinks/images abort attribute parsing
-					return self::buildRes( $buf, $nowikis, $transclusions );
+		$traverse = function ( ?DOMNode $child ) use (
+			&$traverse, &$buf, &$nowikis, &$transclusions
+		): bool {
+			while ( $child ) {
+				if ( DOMUtils::isComment( $child ) ) {
+					// Legacy parser strips comments during parsing => drop them.
+				} elseif ( DOMUtils::isText( $child ) ) {
+					$buf[] = $child->nodeValue;
 				} else {
-					$buf[] = $child->textContent;
+					'@phan-var DOMElement $child';  /** @var DOMElement $child */
+					if ( DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
+						$transclusions[] = $child;
+					}
+
+					if ( DOMUtils::matchTypeOf( $child, "#mw:Extension/#" ) ) {
+						// "|" chars in extension content don't trigger table-cell parsing
+						// since they have higher precedence in tokenization. The extension
+						// content will simply be dropped (but any side effects it had will
+						// continue to apply. Ex: <ref> tags might leave an orphaned ref in
+						// the <references> section).
+						$child = WTUtils::skipOverEncapsulatedContent( $child );
+						continue;
+					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
+						$buf[] = $child->textContent;
+					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Nowiki' ) ) {
+						// Nowiki span were added to protect otherwise
+						// meaningful wikitext chars used in attributes.
+						// Save the content and add in a marker to splice out later.
+						$nowikis[] = $child->textContent;
+						$buf[] = '<nowiki-marker>';
+					} elseif ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
+						WTUtils::isGeneratedFigure( $child )
+					) {
+						// Wikilinks/images abort attribute parsing
+						return true;
+					} else {
+						if ( $traverse( $child->firstChild ) ) {
+							return true;
+						}
+					}
 				}
+
+				// Are we done accumulating?
+				if ( count( $buf ) > 0 &&
+					preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', PHPUtils::lastItem( $buf ) )
+				) {
+					return true;
+				}
+
+				$child = $child->nextSibling;
 			}
 
-			// Are we done accumulating?
-			if ( count( $buf ) > 0 &&
-				preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', PHPUtils::lastItem( $buf ) )
-			) {
-				return self::buildRes( $buf, $nowikis, $transclusions );
-			}
+			return false;
+		};
 
-			$child = $child->nextSibling;
-		}
+		$traverse( $cell->firstChild );
 
-		return self::buildRes( $buf, $nowikis, $transclusions );
+		return [
+			'txt' => implode( '', $buf ),
+			'nowikis' => $nowikis,
+			'transclusions' => $transclusions,
+		];
 	}
 
 	/**

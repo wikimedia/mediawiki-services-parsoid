@@ -7136,6 +7136,23 @@ Table cell attributes: Pipes protected by nowikis should be treated as a plain c
 </tbody></table>
 !! end
 
+!! test
+Table cell attributes: Pipes protected by nested nowikis should be treated as a plain character
+!! wikitext
+{|
+|<code><nowiki>{{ACB|PG}}</nowiki></code>
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td><code>{{ACB|PG}}</code>
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td><code><span typeof="mw:Nowiki">{{ACB|PG}}</span></code></td></tr>
+</tbody></table>
+!! end
+
 # See: http://lists.wikimedia.org/mailman/htdig/wikitech-l/2006-April/022293.html
 # N.B. The "|}" to close the table is missing from the input, so parsoid's
 #      *2wt modes will fail.
