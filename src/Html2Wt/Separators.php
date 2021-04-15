@@ -624,8 +624,13 @@ class Separators {
 
 		'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
-			( DOMUtils::isElt( $origNode ) || !preg_match( '/^[ \t]/', $origNode->nodeValue ) )
+			( $origNode instanceof DOMElement || !preg_match( '/^[ \t]/', $origNode->nodeValue ) )
 		) {
+			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
+			if ( DOMUtils::hasTypeOf( $origNode, 'mw:DisplaySpace' ) ) {
+				return null;
+			}
+
 			// FIXME: Is this complexity worth some minor dirty diff on this test?
 			// ParserTest: "3. List embedded in a formatting tag in a misnested way"
 			// I've not added an equivalent check in the trailing whitespace case.
@@ -693,8 +698,13 @@ class Separators {
 		$sep = null;
 		'@phan-var DOMElement|DOMDocumentFragment $parentNode'; // @var DOMElement|DOMDocumentFragment $parentNode
 		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
-			( DOMUtils::isElt( $origNode ) || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
+			( $origNode instanceof DOMElement || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
 		) {
+			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
+			if ( DOMUtils::hasTypeOf( $origNode, 'mw:DisplaySpace' ) ) {
+				return null;
+			}
+
 			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {

@@ -241,3 +241,22 @@ parsoid={
 :* c
 ::: d
 !! end
+
+## T279963
+!! test
+Do not reintroduce whitespace when it's captured as a DisplaySpace
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+    [ "dd", "append", " 123" ]
+  ]
+}
+!! wikitext
+: : test
+!! wikitext/edited
+: : test 123
+!! html/parsoid
+<dl><dd><span typeof="mw:DisplaySpace"> </span>: test</dd></dl>
+!! end
