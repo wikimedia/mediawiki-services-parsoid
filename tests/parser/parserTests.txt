@@ -1742,6 +1742,19 @@ protection !! here
 |}
 !! end
 
+!! test
+Nowiki with newlines in list
+!! wikitext
+:<nowiki>test
+123</nowiki>
+!! html/php
+<dl><dd>test
+123</dd></dl>
+!! html/parsoid
+<dl><dd data-parsoid="{}"><span typeof="mw:Nowiki">test
+123</span></dd></dl>
+!! end
+
 ## The output here may change with the outcome of T255007
 !! test
 Nowiki and french spacing

@@ -1200,6 +1200,7 @@ class WikitextSerializer {
 				// if the surrounding context in which this link-syntax is embedded also
 				// breaks the link syntax. There is no such syntax right now.
 				$suppressSLC = WTUtils::isFirstEncapsulationWrapperNode( $node )
+					|| DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
 					|| in_array( $node->nodeName, [ 'dl', 'ul', 'ol', 'a' ], true )
 					|| ( $node->nodeName === 'table'
 						&& $node->parentNode->nodeName === 'dd'

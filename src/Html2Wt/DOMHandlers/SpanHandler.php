@@ -32,7 +32,9 @@ class SpanHandler extends DOMHandler {
 			if ( DOMUtils::hasTypeOf( $node, 'mw:Nowiki' ) ) {
 				$ext = $env->getSiteConfig()->getExtTagImpl( 'nowiki' );
 				$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
+				$state->singleLineContext->disable();
 				$state->serializer->emitWikitext( $src, $node );
+				$state->singleLineContext->pop();
 			} elseif ( WTUtils::isInlineMedia( $node ) ) {
 				$state->serializer->figureHandler( $node );
 			} elseif (
