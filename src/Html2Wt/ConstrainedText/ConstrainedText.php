@@ -162,12 +162,20 @@ class ConstrainedText {
 	/**
 	 * Useful shortcut: execute a regular expression on the raw wikitext.
 	 * @param string $re
+	 * @param Env $env
 	 * @return array|null
 	 *  An array containing the matched results or null if there were no matches.
 	 */
-	public function matches( string $re ): ?array {
+	public function matches( string $re, Env $env ): ?array {
 		$r = preg_match( $re, $this->text, $m );
 		if ( $r === false ) {
+			// Try to determine what happened in T280449
+			if ( version_compare( PHP_VERSION, '8.0.0', '>' ) ) {
+				$error_msg = preg_last_error_msg();
+			} else {
+				$error_msg = "preg_last_error: " . preg_last_error();
+			}
+			$env->log( 'error', $error_msg, $re, $this->text );
 			throw new \Error( 'Bad regular expression' );
 		}
 		return $r === 0 ? null : $m;
