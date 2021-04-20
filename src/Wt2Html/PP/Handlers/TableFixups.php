@@ -199,6 +199,13 @@ class TableFixups {
 		// invoking 'reparseTemplatedAttributes' on split cells
 		// with some modifications.
 		$child = $lastTpl;
+
+		// Transclusions may be nested in elements in some ugly wikitext so
+		// make sure we're starting at a direct descendant of td
+		while ( $child->parentNode !== $td ) {
+			$child = $child->parentNode;
+		}
+
 		while ( $child ) {
 			if ( $child->nodeName === 'span' && $child->getAttribute( 'about' ) === $aboutId ) {
 				// Remove the encapsulation attributes. If there are no more attributes left,
@@ -414,6 +421,7 @@ class TableFixups {
 		// Drop content that has been consumed by the reparsed attribute content.
 		// NOTE: We serialize and reparse data-object-id attributes as well which
 		// ensures stashed data-* attributes continue to be usable.
+		// FIXME: This is too naive.  What about all the care we showed in `collectAttributishContent`?
 		DOMCompat::setInnerHTML( $cell,
 			preg_replace( '/^[^|]*\|/', '', DOMCompat::getInnerHTML( $cell ) ) );
 	}

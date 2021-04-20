@@ -239,3 +239,20 @@ Ensure a cell with newlines doesn't combine with following cell
  </td><td about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_content","href":"./Template:Td_content"},"params":{"1":{"wt":""}},"i":0}}]}'>foobar</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Table cell attributes and nested transclusions
+!! wikitext
+{|
+| '''{{td_attrs_and_content|1=style='border:1px solid blue;'}}'''
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>foobar<b></b>
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td style="border:1px solid blue;" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| &apos;&apos;&apos;",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"style=&apos;border:1px solid blue;&apos;"}},"i":0}},"&apos;&apos;&apos;"]}'>foobar</td></tr>
+</tbody></table>
+!! end
