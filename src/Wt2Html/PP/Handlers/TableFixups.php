@@ -24,7 +24,6 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
  * by recombining table cells and/or reparsing table cell content as attributes.
  * - stripDoubleTDs
  * - handleTableCellTemplates
- * @class
  */
 class TableFixups {
 	/**

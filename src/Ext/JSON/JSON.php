@@ -22,7 +22,6 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
  * Native Parsoid implementation of the "json" contentmodel.
- * @class
  */
 class JSON extends ContentModelHandler implements ExtensionModule {
 	private const PARSE_ERROR_HTML = "<table typeof=\"mw:Error\" data-mw='{\"errors\":[{\"key\":\"bad-json\"}]}'>";

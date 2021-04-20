@@ -7,9 +7,6 @@ use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
 
-/**
- * @class
- */
 class Opts {
 	/**
 	 * Parse options from an attribute array.

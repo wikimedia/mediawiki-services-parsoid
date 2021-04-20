@@ -11,9 +11,6 @@ use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
 
-/**
- * @class
- */
 class TraditionalMode extends Mode {
 	/**
 	 * Create a TraditionalMode singleton.

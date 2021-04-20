@@ -5,9 +5,6 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use DOMElement;
 
-/**
- * @class
- */
 class ParsedLine {
 
 	/**

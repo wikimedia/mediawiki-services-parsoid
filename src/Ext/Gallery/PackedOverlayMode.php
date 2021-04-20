@@ -3,10 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-/**
- * @class
- * @extends ~PackedMode
- */
 class PackedOverlayMode extends PackedMode {
 	/**
 	 * Create a PackedOverlayMode singleton.
