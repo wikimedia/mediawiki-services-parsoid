@@ -36,7 +36,7 @@ var opts = yargs
 	commit: {
 		description: 'A commit hash to test against.',
 		'boolean': false,
-		'default': 'master',
+		'default': 'main',
 		alias: 'c',
 	},
 	outputContentVersion: {
