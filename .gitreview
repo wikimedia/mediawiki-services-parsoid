@@ -2,5 +2,5 @@
 host=gerrit.wikimedia.org
 port=29418
 project=mediawiki/services/parsoid.git
-defaultbranch=master
+defaultbranch=main
 defaultrebase=0
