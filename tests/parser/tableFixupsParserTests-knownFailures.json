@@ -1,16 +1,17 @@
 {
-    "Fixup of interrupted table-cell parsing because of multi-line tranclusion": {
+    "Fixup of interrupted table-cell parsing because of multi-line transclusion": {
         "wt2wt": "{|\n! class=\"c1\" |Col 1!! class=\"c2\" |{{1x|\n1=Col 2}}\n! class=\"c3\" |Col 3\n! class=\"c4\" |Col 4\n|}",
         "html2wt": "{|\n! class=\"c1\" |Col 1!! class=\"c2\" |{{1x|\n1=Col 2}}\n! class=\"c3\" |Col 3\n! class=\"c4\" |Col 4\n|}",
-        "selser [1]": "{| data-foobar=\"11vgvni\"\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
-        "selser [[0,[2,0]]]": "{|\n<!--jduq3u-->! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
-        "selser [[0,[[0,2,4,1],0]]]": "{|\n! class=\"c1\" | Col 1 \n!h63obb!! class=\"c2\" |{{1x|\n1=Col 2}}\n!16uojvj\n! class=\"c4\" data-foobar=\"1on8c7u\" |Col 4\n|}",
-        "selser [[2,[1,0]]]": "{|<!--1fu5z0u-->\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}}\n! class=\"c3\" |Col 3\n! class=\"c4\" |Col 4\n|}",
-        "selser [2]": "8ikvas\n{|\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
-        "selser [[0,2]]": "{|\n<!--100ejfy-->! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
+        "selser [1]": "{| data-foobar=\"5zrjnj\"\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
+        "selser [[4,[1,2]]]": "{|<!--2w7f9-->\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n! class=\"c3\" |Col 3\n! class=\"c4\" |Col 4<!--hmsf0s-->\n|}",
+        "selser [[0,[[0,2,0,[2]],4]]]": "{|\n! class=\"c1\" | Col 1 \n!7p120r!! class=\"c2\" |{{1x|\n1=Col 2}}\n! class=\"c3\" |Col 3\n! class=\"c4\" |1d1a9s4Col 4<!--o4ml7v-->\n|}",
+        "selser [[4,2]]": "{|<!--1nbwqgs--><!--12uesl-->\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
         "selser [[0,1]]": "{|\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
-        "selser [[4,2]]": "{|<!--yzkicy--><!--mhg40u-->\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
-        "selser [[0,[1,3]]]": "{|\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n! class=\"c3\" |Col 3\n! class=\"c4\" |Col 4\n|}"
+        "selser [[2,[[2,0,4,1],2]]]": "{|<!--65qrv6-->\n!1wovo1n\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}}\n!1dm33vj\n! class=\"c4\" data-foobar=\"zsarz2\" |Col 4<!--2mgvcg-->\n|}",
+        "selser [2]": "d3q2oc\n{|\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
+        "selser [[3,1]]": "{|\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}",
+        "selser [[2,[1,0]]]": "{|<!--1jw34q3-->\n! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}}\n! class=\"c3\" |Col 3\n! class=\"c4\" |Col 4\n|}",
+        "selser [[0,[2,0]]]": "{|\n<!--z5v0kd-->! class=\"c1\" | Col 1 !! class=\"c2\" |{{1x|\n1=Col 2}} !! class=\"c3\" | Col 3 !! class=\"c4\" | Col 4\n|}"
     },
     "Table cell attribute merging edge cases": {
         "selser [[0,[0,0,[0,[0,0,4]],0,[3,2],0]]]": "{|\n| {{td_attrs_and_content|1=<div>foo</div> class=\"foo\"}} baz\n|-\n|{{td_attrs_and_content|1=[[No Merging Here]] class=\"foo\"}}<nowiki/>xd7gu\n|-\n|1yjfcke\n|{{td_attrs_and_content|1=[[File:Foo.jpg]] class=\"foo\"}} baz\n|}"

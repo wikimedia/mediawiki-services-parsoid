@@ -169,7 +169,7 @@ Table cell attribute merging edge cases
 !! end
 
 !! test
-Fixup of interrupted table-cell parsing because of multi-line tranclusion
+Fixup of interrupted table-cell parsing because of multi-line transclusion
 !! wikitext
 {|
 ! class="c1" | Col 1 !! class="c2" |{{1x|
