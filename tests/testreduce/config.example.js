@@ -11,7 +11,7 @@ var path = require('path');
 	if (typeof module === 'object') {
 		module.exports = {
 			server: {
-				// The address of the master HTTP server (for getting titles and posting results) (no protocol)
+				// The address of the primary HTTP server (for getting titles and posting results) (no protocol)
 				host: 'localhost',
 
 				// The port where the server is running

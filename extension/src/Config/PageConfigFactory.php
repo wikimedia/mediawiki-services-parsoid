@@ -111,14 +111,14 @@ class PageConfigFactory {
 		} else {
 			// Fetch the correct revision record by the supplied id.
 			// This accesses the replica DB and may (or may not) fail over to
-			// the master DB if the revision isn't found.
+			// the primary DB if the revision isn't found.
 			$revisionRecord = $this->revisionStore->getRevisionById(
 				$revisionId
 			);
 			if ( $revisionRecord === null ) {
-				// This revision really ought to exist.  Check the master DB.
-				// This *could* cause two requests to the master if there were
-				// pending writes, but this codepath should be very rare.
+				// This revision really ought to exist.  Check the primary DB.
+				// This *could* cause two requests to the primary DB if there
+				// were pending writes, but this codepath should be very rare.
 				// [T259855]
 				$revisionRecord = $this->revisionStore->getRevisionById(
 					$revisionId, RevisionStore::READ_LATEST
