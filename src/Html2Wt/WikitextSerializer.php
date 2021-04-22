@@ -709,7 +709,7 @@ class WikitextSerializer {
 			$format = $defaultInlineSpc;
 		}
 		// Check format string for validity.
-		preg_match( self::FORMATSTRING_REGEXP, $format, $parsedFormat );
+		preg_match( self::FORMATSTRING_REGEXP, $format ?? '', $parsedFormat );
 		if ( !$parsedFormat ) {
 			preg_match( self::FORMATSTRING_REGEXP, $defaultInlineSpc, $parsedFormat );
 			$format = null; // Indicates that no valid custom format was present.
@@ -729,7 +729,7 @@ class WikitextSerializer {
 		}
 
 		// handle SOL newline requirement
-		if ( $formatSOL && !preg_match( '/\n$/D', ( $prevPart !== null ) ? $buf : $state->sep->src ) ) {
+		if ( $formatSOL && !preg_match( '/\n$/D', ( $prevPart !== null ) ? $buf : ( $state->sep->src ?? '' ) ) ) {
 			$buf .= "\n";
 		}
 

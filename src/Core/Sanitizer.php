@@ -972,7 +972,7 @@ class Sanitizer {
 				// that instead.
 				$rel = $token->getAttributeShadowInfo( 'rel' );
 				$mode = ( $k === 'href' &&
-					$rel &&
+					isset( $rel['value'] ) &&
 					preg_match( '#^mw:WikiLink(/Interwiki)?$#', $rel['value'] )
 				) ? 'wikilink' : 'external';
 				$origHref = $token->getAttributeShadowInfo( $k )['value'];
