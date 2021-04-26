@@ -13689,7 +13689,7 @@ parsoid=wt2html
 ###
 ### These tests won't always pass wt2wt and other modes because
 ### on serialization, the table will be output on a new line.
-### For now, we are blacklisting them, and using this to test selser.
+### For now, we are prohibiting them, and using this to test selser.
 ###
 
 !!test
@@ -14880,6 +14880,12 @@ Template:SafeSubstTest
 {{<includeonly>safesubst:</includeonly>Includes}}
 !! endarticle
 
+!! article
+Template:SafeSubstSelfTest
+!! text
+{{safesubst:SafeSubstSelfTest}}
+!! endarticle
+
 !! test
 T24297: safesubst: works during PST
 !! options
@@ -14906,6 +14912,16 @@ subst: does not work during normal parse
 !! html
 <p>{{subst:Includes}}
 </p>
+!! end
+
+!! test
+safesubst self: does not work during normal parse - T276476
+!! options
+pst title=[[Template:SafeSubstSelfTest]]
+!! wikitext
+{{SafeSubstSelfTest}}
+!! html/php
+{{SafeSubstSelfTest}}
 !! end
 
 !! test
@@ -21297,7 +21313,7 @@ language=zh variant=zh-cn
 !! html/php
 <p>大陆
 </p><p>台灣
-</p><p>српски (ћирилица)‎
+</p><p>српски (ћирилица)
 </p>
 !! html/parsoid
 <p><span typeof="mw:LanguageVariant" data-mw-variant='{"name":{"t":"zh-cn"}}'></span></p>
@@ -30206,4 +30222,21 @@ parsoid=wt2html
 <div tabindex="3">A</div>
 !! html+tidy
 <div>A</div>
+!! end
+
+!! test
+aside tag in extension HTML is not p-wrapped (T278565)
+!! wikitext
+<asidetag></asidetag>This is some article content.
+!! html/php
+<aside>Some aside content</aside><p>This is some article content.</p>
+!! end
+
+!! test
+aside tag is not allowed directly in wikitext (T278565)
+!! wikitext
+<aside>This aside tag in wikitext should be escaped</aside>
+!! html
+<p>&lt;aside&gt;This aside tag in wikitext should be escaped&lt;/aside&gt;
+</p>
 !! end
