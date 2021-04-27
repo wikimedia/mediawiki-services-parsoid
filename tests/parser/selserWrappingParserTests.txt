@@ -1,6 +1,8 @@
 !! Version 2
-# This file contains manual edit tests and primarily are used
-# to spec and verify expectations of selective serialization.
+
+## This file contains manual edit tests and primarily are used
+## to spec and verify expectations of selective serialization
+## in the presence of span-wrapping in lists.
 
 !! article
 Template:1x
