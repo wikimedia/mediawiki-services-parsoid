@@ -248,12 +248,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param stdClass $dataMw
 	 * @param Element $container
-	 * @return array
+	 * @return Element
 	 */
 	private static function handleAudio(
 		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
 		Element $container
-	): array {
+	): Element {
 		$doc = $span->ownerDocument;
 		$audio = $doc->createElement( 'audio' );
 
@@ -277,7 +277,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		self::addSources( $audio, $info, $dataMw, false );
 		self::addTracks( $audio, $info );
 
-		return [ 'mw:Audio', $audio ];
+		return $audio;
 	}
 
 	/**
@@ -287,12 +287,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param stdClass $dataMw
 	 * @param Element $container
-	 * @return array
+	 * @return Element
 	 */
 	private static function handleVideo(
 		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
 		Element $container
-	): array {
+	): Element {
 		$doc = $span->ownerDocument;
 		$video = $doc->createElement( 'video' );
 
@@ -316,7 +316,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		self::addSources( $video, $info, $dataMw, true );
 		self::addTracks( $video, $info );
 
-		return [ 'mw:Video', $video ];
+		return $video;
 	}
 
 	/**
@@ -328,12 +328,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param stdClass $dataMw
 	 * @param Element $container
-	 * @return array
+	 * @return Element
 	 */
 	private static function handleImage(
 		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
 		Element $container
-	): array {
+	): Element {
 		$doc = $span->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
@@ -368,7 +368,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			}
 		}
 
-		return [ 'mw:Image', $img ];
+		return $img;
 	}
 
 	/**
@@ -457,8 +457,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$doc = $oldAnchor->ownerDocument;
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'link', true );
 
-		$anchor = $doc->createElement( 'a' );
 		if ( $isImage ) {
+			$anchor = $doc->createElement( 'a' );
 			$addDescriptionLink = static function ( Title $title ) use ( $env, $anchor, $page, $lang ) {
 				$href = $env->makeLink( $title );
 				$qs = [];
@@ -546,9 +546,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$validContainers = [];
 		$files = [];
 
-		// Since we haven't fetched info yet, they were all assumed to be mw:Image
-		// See WikiLinkHandler::renderFile()
-		$containers = DOMCompat::querySelectorAll( $root, '[typeof*="mw:Image"]' );
+		$containers = DOMCompat::querySelectorAll( $root, '[typeof*="mw:File"]' );
 
 		foreach ( $containers as $container ) {
 			// DOMFragmentWrappers assume the element name of their outermost
@@ -727,25 +725,22 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// the "resource" copied over from the span relates to the file.
 			'@phan-var array $info';  // @var array $info
 
-			$isImage = false;
 			switch ( $info['mediatype'] ) {
 				case 'AUDIO':
 					$handler = 'handleAudio';
+					$isImage = false;
 					break;
 				case 'VIDEO':
 					$handler = 'handleVideo';
+					$isImage = false;
 					break;
 				default:
 					$handler = 'handleImage';
 					$isImage = true;
+					break;
 			}
 
-			// The rdfa type comes from the $info (which might be $manualinfo
-			// from the thumbnail) because it should follow what's actually
-			// embedded on the page and not the ultimate type of the file.
-			[ $rdfaType, $elt ] = self::$handler(
-				$env, $span, $attrs, $info, $dataMw, $container
-			);
+			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container );
 
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $container, $anchor, $attrs, $dataMw, $isImage,
@@ -753,10 +748,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$attrs['dims']['lang'] ?? ''
 			);
 			$anchor->appendChild( $elt );
-
-			$typeOf = $container->getAttribute( 'typeof' ) ?? '';
-			$typeOf = preg_replace( '#\bmw:(Image)(/\w*)?\b#', "$rdfaType$2", $typeOf, 1 );
-			$container->setAttribute( 'typeof', $typeOf );
 
 			if ( isset( $dataMw->attribs ) && count( $dataMw->attribs ) === 0 ) {
 				unset( $dataMw->attribs );

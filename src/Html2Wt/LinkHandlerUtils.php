@@ -1316,7 +1316,7 @@ class LinkHandlerUtils {
 		$mwParams = [
 			[ 'prop' => 'thumb', 'ck' => 'manualthumb', 'alias' => 'img_manualthumb' ],
 			[ 'prop' => 'page', 'ck' => 'page', 'alias' => 'img_page' ],
-			// mw:Video specific
+			// Video specific
 			[ 'prop' => 'starttime', 'ck' => 'starttime', 'alias' => 'timedmedia_starttime' ],
 			[ 'prop' => 'endtime', 'ck' => 'endtime', 'alias' => 'timedmedia_endtime' ],
 			[ 'prop' => 'thumbtime', 'ck' => 'thumbtime', 'alias' => 'timedmedia_thumbtime' ]
@@ -1593,10 +1593,7 @@ class LinkHandlerUtils {
 		$wikitext .= ']]';
 
 		$state->emitChunk( new WikiLinkText(
-			$wikitext, $node, $state->getEnv()->getSiteConfig(),
-			// FIXME: Does this matter? Emit a constant for now, it'll all
-			// be same in the follow up patch to consolidate the types
-			'mw:Image'
+			$wikitext, $node, $state->getEnv()->getSiteConfig(), 'mw:File'
 		), $node );
 	}
 

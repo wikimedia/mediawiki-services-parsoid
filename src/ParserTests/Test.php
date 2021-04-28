@@ -678,14 +678,14 @@ class Test extends Item {
 				return true;
 			}
 
-			// - Image wrapper is an uneditable image elt.
-			// - Any node nested in an image elt that is not a fig-caption
-			//   is an uneditable image elt.
+			// - File wrapper is an uneditable elt.
+			// - Any node nested in a file wrapper that is not a figcaption
+			//   is an uneditable elt.
 			// - Entity spans are uneditable as well
 			// - Placeholder is defined to be uneditable in the spec
 			// - ExtendedAnnRange is an "unknown" type in the spec, and hence uneditable
 			return DOMUtils::matchTypeOf( $node,
-					'#^mw:(Image|Video|Audio|Entity|Placeholder|DisplaySpace|ExtendedAnnRange)(/|$)#' ) || (
+					'#^mw:(File|Entity|Placeholder|DisplaySpace|ExtendedAnnRange)(/|$)#' ) || (
 				DOMCompat::nodeName( $node ) !== 'figcaption' &&
 				$node->parentNode &&
 				DOMCompat::nodeName( $node->parentNode ) !== 'body' &&

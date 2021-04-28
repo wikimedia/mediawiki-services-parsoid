@@ -212,7 +212,7 @@ var findMatchingNodes = function(node, range) {
 
 	// Cannot inspect image subtree at a finer grained level
 	var typeOf = node.getAttribute('typeof') || '';
-	if (/\bmw:Image(\/|\s|$)/.test(typeOf) && /^(FIGURE|SPAN)$/.test(node.nodeName)) {
+	if (/\bmw:File(\/|\s|$)/.test(typeOf) && /^(FIGURE|SPAN)$/.test(node.nodeName)) {
 		return [node];
 	}
 

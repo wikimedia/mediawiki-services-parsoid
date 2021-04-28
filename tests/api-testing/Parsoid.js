@@ -2081,7 +2081,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
-				html: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+				html: '<p><span class="mw-default-size" typeof="mw:File" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 				original: {
 					title: 'Doesnotexist',
 					'data-parsoid': {
@@ -2104,7 +2104,7 @@ describe('Parsoid API', function() {
 						headers: {
 							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
-						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+						body: '<p><span class="mw-default-size" typeof="mw:File" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 					},
 				},
 			})
@@ -2116,7 +2116,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
-				html: '<p><span class="mw-default-size" typeof="mw:Image" data-mw="{}" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+				html: '<p><span class="mw-default-size" typeof="mw:File" data-mw="{}" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 				'data-mw': {
 					body: {
 						ids: {
@@ -2146,7 +2146,7 @@ describe('Parsoid API', function() {
 						headers: {
 							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
-						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+						body: '<p><span class="mw-default-size" typeof="mw:File" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 					},
 				},
 			})
@@ -2158,7 +2158,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
-				html: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+				html: '<p><span class="mw-default-size" typeof="mw:File" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 				'data-mw': {
 					body: {
 						ids: {
@@ -2188,7 +2188,7 @@ describe('Parsoid API', function() {
 						headers: {
 							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
-						body: '<p><span class="mw-default-size" typeof="mw:Image" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
+						body: '<p><span class="mw-default-size" typeof="mw:File" id="mwAg"><a href="./File:Foobar.jpg" id="mwAw"><img resource="./File:Foobar.jpg" src="//upload.wikimedia.org/wikipedia/commons/3/3a/Foobar.jpg" data-file-width="240" data-file-height="28" data-file-type="bitmap" height="28" width="240" id="mwBA"/></a></span></p>',
 					},
 				},
 			})

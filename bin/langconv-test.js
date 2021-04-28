@@ -297,11 +297,11 @@ const extractText = function(env, document) {
 	});
 	dt.addHandler('figcaption', (node) => {
 		/* Captions are suppressed in PHP for:
-		 * figure[typeof~="mw:Image/Frameless"], figure[typeof~="mw:Image"]
+		 * figure[typeof~="mw:File/Frameless"], figure[typeof~="mw:File"]
 		 * See Note 5 of https://www.mediawiki.org/wiki/Specs/HTML/1.7.0#Images
 		 */
-		if (DOMDataUtils.hasTypeOf(node.parentNode, 'mw:Image/Frameless') ||
-			DOMDataUtils.hasTypeOf(node.parentNode, 'mw:Image')) {
+		if (DOMDataUtils.hasTypeOf(node.parentNode, 'mw:File/Frameless') ||
+			DOMDataUtils.hasTypeOf(node.parentNode, 'mw:File')) {
 			// Skip caption contents, since they don't appear in PHP output.
 			return node.nextSibling;
 		}

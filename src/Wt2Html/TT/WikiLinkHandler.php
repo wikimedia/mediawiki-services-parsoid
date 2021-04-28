@@ -509,9 +509,7 @@ class WikiLinkHandler extends TokenHandler {
 					if (
 						$t instanceof TagTk &&
 						( $t->getName() === 'figure' || $t->getName() === 'span' ) &&
-						// Only testing for Image here since we haven't added
-						// media info yet
-						TokenUtils::matchTypeOf( $t, '#^mw:Image($|/)#D' ) !== null
+						TokenUtils::matchTypeOf( $t, '#^mw:File($|/)#D' ) !== null
 					) {
 						throw new InternalException( 'Media-in-link' );
 					}
@@ -1453,8 +1451,7 @@ class WikiLinkHandler extends TokenHandler {
 			}
 		}
 
-		// FIXME: Default type, since we don't have the info.  That right?
-		$rdfaType = 'mw:Image';
+		$rdfaType = 'mw:File';
 
 		// If the format is something we *recognize*, add the subtype
 		switch ( $format ) {
