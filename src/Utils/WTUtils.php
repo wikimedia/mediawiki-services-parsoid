@@ -299,7 +299,9 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isGeneratedFigure( Node $node ): bool {
-		return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)($|/)#D' ) !== null;
+		// TODO: Remove "Image|Video|Audio" when version 2.4.0 of the content
+		// is no longer supported
+		return DOMUtils::matchTypeOf( $node, '#^mw:(File|Image|Video|Audio)($|/)#D' ) !== null;
 	}
 
 	/**
@@ -921,13 +923,15 @@ class WTUtils {
 	}
 
 	/**
-	 * Extracts the media format from attribute string
+	 * Extracts the media format from the attribute string
 	 *
 	 * @param Element $node
 	 * @return string
 	 */
 	public static function getMediaFormat( Element $node ): string {
-		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/|$)#' );
+		// TODO: Remove "Image|Video|Audio" when version 2.4.0 of the content
+		// is no longer supported
+		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(File|Image|Video|Audio)(/|$)#' );
 		$parts = explode( '/', $mediaType ?? '' );
 		return $parts[1] ?? '';
 	}

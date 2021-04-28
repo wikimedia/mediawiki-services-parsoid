@@ -100,9 +100,11 @@ class SpanHandler extends DOMHandler {
 		return DOMUtils::matchTypeOf(
 			$node,
 			// FIXME(T254501): Remove mw:DisplaySpace
+			// TODO: Remove "Image|Video|Audio" when version 2.4.0 of the content
+			// is no longer supported
 			'#^mw:('
 				. 'Nowiki|Entity|DisplaySpace|Placeholder(/\w+)?'
-				. '|(Image|Video|Audio)(/(Frameless|Frame|Thumb))?'
+				. '|(File|Image|Video|Audio)(/(Frameless|Frame|Thumb))?'
 				. ')$#'
 		);
 	}
