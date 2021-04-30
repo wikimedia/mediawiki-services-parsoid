@@ -14153,32 +14153,17 @@ class Grammar extends \WikiPEG\PEGParserBase {
     $p2 = $this->currPos;
     // start seq_1
     $p3 = $this->currPos;
-    // start choice_1
-    $p5 = $this->currPos;
-    $r4 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-    if ($r4 === self::$FAILED) {
-      $r4 = false;
-      goto choice_1;
+    $p4 = $this->currPos;
+    $r5 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+    if ($r5 === self::$FAILED) {
+      $r5 = false;
     } else {
-      $r4 = self::$FAILED;
-      $this->currPos = $p5;
-    }
-    // free $p5
-    $p5 = $this->currPos;
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
-      $r4 = "{{!}}";
-      $this->currPos += 5;
-      $r4 = false;
-      $this->currPos = $p5;
-    } else {
-      $r4 = self::$FAILED;
-    }
-    // free $p5
-    choice_1:
-    if ($r4===self::$FAILED) {
+      $r5 = self::$FAILED;
+      $this->currPos = $p4;
       $r1 = self::$FAILED;
       goto seq_1;
     }
+    // free $p4
     $r6 = $this->parsefull_table_in_link_caption_parameterized($silence, ($boolParams & ~0x400) | 0x20, $param_preproc, $param_th);
     // r <- $r6
     if ($r6===self::$FAILED) {

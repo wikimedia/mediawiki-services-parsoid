@@ -1900,7 +1900,7 @@ inlineline_break_on_colon =
  ******************************************************************************/
 
 full_table_in_link_caption =
-	(! inline_breaks / & '{{!}}' )
+	!inline_breaks
 	// Note that "linkdesc" is suppressed here to provide a nested parsing
 	// context in which to parse the table.  Otherwise, we may break on
 	// on pipes in the `table_start_tag` and `table_row_tag` attributes.
