@@ -25,7 +25,6 @@ use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Revision\SlotRoleHandler;
 use ParserOptions;
-use Revision;
 use Title;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
@@ -168,17 +167,10 @@ class PageConfig extends IPageConfig {
 		// The callback defaults to Parser::statelessFetchTemplate()
 		$templateCb = $this->parserOptions->getTemplateCallback();
 		$stuff = call_user_func( $templateCb, $title, $this );
-		// Compatibility; the 'revision' property was deprecated in 1.35.
 		if ( isset( $stuff['revision-record'] ) ) {
 			$revRecord = $stuff['revision-record'];
 		} else {
-			// Triggers deprecation warnings via DeprecatablePropertyArray
-			$rev = $stuff['revision'] ?? null;
-			if ( $rev instanceof Revision ) {
-				$revRecord = $rev->getRevisionRecord();
-			} else {
-				$revRecord = null;
-			}
+			$revRecord = null;
 		}
 		return $revRecord;
 	}
