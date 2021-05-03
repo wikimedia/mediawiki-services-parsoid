@@ -166,7 +166,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::getTokenType
 	 * @dataProvider provideTokens
 	 */
-	public function testGetTokenType( $testCase ) {
+	public function testGetTokenType( array $testCase ) {
 		$this->assertEquals(
 			$testCase['getTokenType'] ?? 'unknown',
 			TokenUtils::getTokenType( $testCase['token'] )
@@ -177,7 +177,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::tagOpensBlockScope
 	 * @dataProvider provideTokens
 	 */
-	public function testTagOpensBlockScope( $testCase ) {
+	public function testTagOpensBlockScope( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['tagOpensBlockScope'] ?? false,
@@ -190,7 +190,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::tagClosesBlockScope
 	 * @dataProvider provideTokens
 	 */
-	public function testTagClosesBlockScope( $testCase ) {
+	public function testTagClosesBlockScope( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['tagClosesBlockScope'] ?? false,
@@ -203,7 +203,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::isTemplateToken
 	 * @dataProvider provideTokens
 	 */
-	public function testIsTemplateToken( $testCase ) {
+	public function testIsTemplateToken( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isTemplateToken'] ?? false,
@@ -215,7 +215,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::isHTMLTag
 	 * @dataProvider provideTokens
 	 */
-	public function testIsHTMLTag( $testCase ) {
+	public function testIsHTMLTag( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isHTMLTag'] ?? false,
@@ -227,7 +227,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::hasDOMFragmentType
 	 * @dataProvider provideTokens
 	 */
-	public function testIsDOMFragmentType( $testCase ) {
+	public function testIsDOMFragmentType( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['hasDOMFragmentType'] ?? false,
@@ -242,7 +242,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::isTableTag
 	 * @dataProvider provideTokens
 	 */
-	public function testIsTableTag( $testCase ) {
+	public function testIsTableTag( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isTableTag'] ?? false,
@@ -254,7 +254,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::isSolTransparentLinkTag
 	 * @dataProvider provideTokens
 	 */
-	public function testIsSolTransparentLinkTag( $testCase ) {
+	public function testIsSolTransparentLinkTag( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isSolTransparentLinkTag'] ?? false,
@@ -266,7 +266,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::isEntitySpanToken
 	 * @dataProvider provideTokens
 	 */
-	public function testIsEntitySpanToken( $testCase ) {
+	public function testIsEntitySpanToken( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isEntitySpanToken'] ?? false,
@@ -278,7 +278,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::isEmptyLineMetaToken
 	 * @dataProvider provideTokens
 	 */
-	public function testIsEmptyLineMetaToken( $testCase ) {
+	public function testIsEmptyLineMetaToken( array $testCase ) {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['isEmptyLineMetaToken'] ?? false,
@@ -290,7 +290,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::tokensToString
 	 * @dataProvider provideTokens
 	 */
-	public function testTokensToString( $testCase ) {
+	public function testTokensToString( array $testCase ) {
 		$tokens = [ 'abc', $testCase['token'], 'def', new NlTk( null ) ];
 		$this->assertEquals(
 			'abc' . ( $testCase['tokensToString'] ?? '' ) . 'def',
@@ -303,7 +303,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::tokenTrim
 	 * @dataProvider provideTokens
 	 */
-	public function testKvToHash( $testCase ) {
+	public function testKvToHash( array $testCase ) {
 		$k = [ '  key', $testCase['token'], 'ABC  ' ];
 		$v = [ ' vaLUE', $testCase['token'], new NlTk( null ) ];
 		$kExpect = 'key' . ( $testCase['tokensToString'] ?? '' ) . 'abc';

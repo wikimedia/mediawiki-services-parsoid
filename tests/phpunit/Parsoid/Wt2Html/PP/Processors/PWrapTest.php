@@ -66,7 +66,7 @@ class PWrapTest extends TestCase {
 		$this->verifyPWrap( $html, $expected );
 	}
 
-	public function provideSimplePWrapper() {
+	public function provideSimplePWrapper(): array {
 		return [
 			[ 'a', '<p>a</p>' ],
 			// <span> is not a splittable tag, but gets p-wrapped in simple wrapping scenarios
@@ -92,7 +92,7 @@ class PWrapTest extends TestCase {
 		$this->verifyPWrap( $html, $expected );
 	}
 
-	public function provideComplexPWrapper() {
+	public function provideComplexPWrapper(): array {
 		return [
 			[
 				'<i>x<div>a</div>y</i>',

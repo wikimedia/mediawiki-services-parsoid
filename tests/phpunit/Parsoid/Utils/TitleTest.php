@@ -57,8 +57,12 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		];
 	}
 
-	/** @return MockObject|MockSiteConfig */
-	private function getMockSiteConfig( $lang = 'en' ) {
+	/**
+	 * @param string $lang
+	 *
+	 * @return MockObject|MockSiteConfig
+	 */
+	private function getMockSiteConfig( string $lang = 'en' ) {
 		$siteConfig = $this->getMockBuilder( MockSiteConfig::class )
 			->setConstructorArgs( [ [] ] )
 			->setMethods( [ 'lang', 'namespaceCase', 'specialPageLocalName' ] )

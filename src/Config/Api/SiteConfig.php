@@ -26,19 +26,37 @@ class SiteConfig extends ISiteConfig {
 	private $api;
 
 	/** @var array|null */
-	private $siteData, $protocols;
+	private $siteData;
+
+	/** @var array|null */
+	private $protocols;
 
 	/** @var string|null */
-	private $baseUri, $relativeLinkPrefix;
+	private $baseUri;
+
+	/** @var string|null */
+	private $relativeLinkPrefix;
 
 	/** @var string */
-	private $savedCategoryRegexp, $savedRedirectRegexp, $savedBswRegexp;
+	private $savedCategoryRegexp;
+
+	/** @var string */
+	private $savedRedirectRegexp;
+
+	/** @var string */
+	private $savedBswRegexp;
 
 	/** @phan-var array<int,string> */
-	protected $nsNames = [], $nsCase = [];
+	protected $nsNames = [];
+
+	/** @phan-var array<int,string> */
+	protected $nsCase = [];
 
 	/** @phan-var array<string,int> */
-	protected $nsIds = [], $nsCanon = [];
+	protected $nsIds = [];
+
+	/** @phan-var array<string,int> */
+	protected $nsCanon = [];
 
 	/** @phan-var array<int,bool> */
 	protected $nsWithSubpages = [];
@@ -50,10 +68,31 @@ class SiteConfig extends ISiteConfig {
 	private $specialPageAliases = [];
 
 	/** @var array|null */
-	private $interwikiMap, $variants,
-		$langConverterEnabled, $apiMagicWords, $paramMWs,
-		$apiVariables, $apiFunctionHooks,
-		$allMWs, $extensionTags;
+	private $interwikiMap;
+
+	/** @var array|null */
+	private $variants;
+
+	/** @var array|null */
+	private $langConverterEnabled;
+
+	/** @var array|null */
+	private $apiMagicWords;
+
+	/** @var array|null */
+	private $paramMWs;
+
+	/** @var array|null */
+	private $apiVariables;
+
+	/** @var array|null */
+	private $apiFunctionHooks;
+
+	/** @var array|null */
+	private $allMWs;
+
+	/** @var array|null */
+	private $extensionTags;
 
 	/** @var int|null */
 	private $widthOption;

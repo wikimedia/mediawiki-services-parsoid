@@ -31,7 +31,7 @@ class LintLoggerTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $lints[0]["dsr"], $ucs2DSR, "byte → ucs2" );
 	}
 
-	public static function provideConvertDSROffsets() {
+	public static function provideConvertDSROffsets(): iterable {
 		# This string and the offsets are borrowed from Utils\TokenUtilsTest.php
 		# Ensure that we have char from each UTF-8 class here.
 		#

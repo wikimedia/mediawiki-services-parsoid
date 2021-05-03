@@ -33,7 +33,7 @@ class PHPUtilsTest extends TestCase {
 	 * @covers \Wikimedia\Parsoid\Utils\PHPUtils::assertValidUTF8
 	 * @dataProvider provideSafeSubstr
 	 */
-	public function testSafeSubstr( $s, $start, $end, $expectedOk ) {
+	public function testSafeSubstr( string $s, int $start, int $end, bool $expectedOk ) {
 		// The full string needs to be valid UTF-8
 		PHPUtils::assertValidUTF8( $s );
 		PHPUtils::safeSubstr( $s, 0, null, true );
@@ -112,7 +112,7 @@ class PHPUtilsTest extends TestCase {
 	 * @covers ::assertValidUTF8
 	 * @dataProvider provideAssertValidUTF8
 	 */
-	public function testAssertValidUTF8( $s, $expectedOk ) {
+	public function testAssertValidUTF8( string $s, bool $expectedOk ) {
 		if ( !$expectedOk ) {
 			$this->expectException( \Exception::class );
 		}

@@ -24,7 +24,7 @@ class ComputeDSRTest extends TestCase {
 	 * @param DOMElement $doc
 	 * @param array $spec
 	 */
-	public function validateSpec( string $wt, DOMElement $doc, $spec ): void {
+	public function validateSpec( string $wt, DOMElement $doc, array $spec ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, $spec['selector'] );
 		$this->assertEquals( count( $elts ), 1 );
 

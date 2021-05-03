@@ -17,7 +17,7 @@ class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 	 * @covers \Wikimedia\Parsoid\Utils\DOMTraverser::addHandler
 	 * @covers \Wikimedia\Parsoid\Utils\DOMTraverser::traverse
 	 */
-	public function testTraverse( $callback, $nodeName, $env, $expectedTrace ) {
+	public function testTraverse( callable $callback, ?string $nodeName, Env $env, array $expectedTrace ) {
 		$html = <<<'HTML'
 <html><body>
 	<div id="x1">
@@ -61,7 +61,7 @@ HTML;
 		$expectError->expects( $this->atLeastOnce() )
 			->method( 'log' )
 			->willReturnCallback( function ( $prefix ) {
-				$this->assertSame( $prefix, 'error' );
+				$this->assertSame( 'error', $prefix );
 			} );
 		$dontExpectError = $this->getMockBuilder( MockEnv::class )
 			->setConstructorArgs( [ [] ] )

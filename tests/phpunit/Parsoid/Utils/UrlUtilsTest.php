@@ -13,7 +13,7 @@ class UrlUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::parseUrl
 	 * @dataProvider provideParsedUrl
 	 */
-	public function testParseUrl( $url, $parsed ) {
+	public function testParseUrl( string $url, array $parsed ) {
 		$parsed += [
 			'scheme' => null,
 			'authority' => null,
@@ -27,11 +27,11 @@ class UrlUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::assembleUrl
 	 * @dataProvider provideParsedUrl
 	 */
-	public function testAssembleUrl( $url, $parsed ) {
+	public function testAssembleUrl( string $url, array $parsed ) {
 		$this->assertEquals( $url, UrlUtils::assembleUrl( $parsed ) );
 	}
 
-	public function provideParsedUrl() {
+	public function provideParsedUrl(): array {
 		return [
 			'Full URL' => [
 				'http://user@example.com/some/path?que/ry#fra/gme?nt',

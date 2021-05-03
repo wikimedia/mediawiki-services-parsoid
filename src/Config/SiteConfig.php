@@ -43,7 +43,13 @@ abstract class SiteConfig {
 	protected $magicWordMap;
 
 	/** @var array|null */
-	private $mwAliases, $variables, $functionHooks;
+	private $mwAliases;
+
+	/** @var array|null */
+	private $variables;
+
+	/** @var array|null */
+	private $functionHooks;
 
 	/**
 	 * FIXME: not private so that ParserTests can reset these variables

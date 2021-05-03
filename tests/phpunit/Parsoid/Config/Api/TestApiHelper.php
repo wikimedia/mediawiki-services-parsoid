@@ -13,7 +13,10 @@ class TestApiHelper extends ApiHelper {
 	private $test;
 
 	/** @var array|null */
-	private $params, $ret;
+	private $params;
+
+	/** @var array|null */
+	private $ret;
 
 	/**
 	 * @param TestCase $test

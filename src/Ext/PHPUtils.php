@@ -26,7 +26,7 @@ class PHPUtils {
 	 * @param array $array
 	 * @return \stdClass
 	 */
-	public static function arrayToObject( $array ) {
+	public static function arrayToObject( $array ): \stdClass {
 		return (object)array_combine( array_keys( $array ), array_values( $array ) );
 	}
 

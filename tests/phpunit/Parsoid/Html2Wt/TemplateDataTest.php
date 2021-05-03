@@ -14,8 +14,8 @@ class TemplateDataTest extends TestCase {
 
 	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
-	private function verifyTransformation( $newHTML, $origHTML, $origWT, $expectedWT, $description,
-		$contentVersion = null ) {
+	private function verifyTransformation( string $newHTML, ?string $origHTML, ?string $origWT, string $expectedWT,
+		string $description, ?string $contentVersion = null ) {
 		$parserOpts = [];
 		$opts = [];
 

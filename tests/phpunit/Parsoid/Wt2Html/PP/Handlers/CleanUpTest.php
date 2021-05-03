@@ -53,7 +53,7 @@ class CleanUpTest extends TestCase {
 	 * @param array $tags
 	 * @param bool $value
 	 */
-	private function addHandlers( DOMTraverser $domVisitor, array $tags, bool $value ) {
+	private function addHandlers( DOMTraverser $domVisitor, array $tags, bool $value ): void {
 		foreach ( $tags as $tag ) {
 			$domVisitor->addHandler( $tag,
 				function ( ...$args ) use ( $value ) {
@@ -205,7 +205,8 @@ class CleanUpTest extends TestCase {
 	/**
 	 * @param string $wt
 	 * @param string $selector
-	 * @param array $dsr
+	 * @param int $leadingWS
+	 * @param int $trailingWS
 	 * @dataProvider provideWhitespaceTrimming
 	 * @covers ::trimWhiteSpace
 	 */

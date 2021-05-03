@@ -54,8 +54,12 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 	 * This is a direct copy of Sanitizer::validateCodepoint; when/if
 	 * Parsoid is integrated into MediaWiki we could replace this with
 	 * a direct call.
+	 *
+	 * @param int $codepoint Unicode codepoint.
+	 *
+	 * @return bool
 	 */
-	private static function validateCodePoint( int $codepoint ):bool {
+	private static function validateCodePoint( int $codepoint ): bool {
 		# U+000C is valid in HTML5 but not allowed in XML.
 		# U+000D is valid in XML but not allowed in HTML5.
 		# U+007F - U+009F are disallowed in HTML5 (control characters).

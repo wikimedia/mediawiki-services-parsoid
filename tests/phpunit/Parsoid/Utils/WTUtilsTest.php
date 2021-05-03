@@ -15,7 +15,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::decodedCommentLength
 	 * @dataProvider provideCommentEncoding
 	 */
-	public function testCommentEncoding( $wikitext, $html, $length ) {
+	public function testCommentEncoding( string $wikitext, string $html, int $length ) {
 		$actualHtml = WTUtils::encodeComment( $wikitext );
 		$this->assertEquals( $html, $actualHtml );
 		$actualWt = WTUtils::decodeComment( $html );
@@ -28,7 +28,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $length, $actualLen );
 	}
 
-	public function provideCommentEncoding() {
+	public function provideCommentEncoding(): array {
 		// length includes the length of the <!-- and --> delimiters
 		return [
 			[ 'abc', 'abc', 10 ],

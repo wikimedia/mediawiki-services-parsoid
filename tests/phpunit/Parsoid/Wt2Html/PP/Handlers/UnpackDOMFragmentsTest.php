@@ -39,7 +39,7 @@ class UnpackDOMFragmentsTest extends TestCase {
 	/**
 	 * @param DOMElement $body
 	 */
-	private function validateFixedupDSR( DOMElement $body ) {
+	private function validateFixedupDSR( DOMElement $body ): void {
 		$links = DOMCompat::querySelectorAll( $body, 'a' );
 		foreach ( $links as $link ) {
 			$dp = DOMDataUtils::getDataParsoid( $link );

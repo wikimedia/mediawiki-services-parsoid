@@ -252,7 +252,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideEncodeHtmlEntities() {
+	public function provideEncodeHtmlEntities(): array {
 		return [
 			[ 'ab&cd<>e"f\'g&h"j', '&<\'"', 'ab&amp;cd&lt;>e&quot;f&apos;g&amp;h&quot;j' ],
 			[ 'ab&cd<>e"f\'g&h"j', '&<"', 'ab&amp;cd&lt;>e&quot;f\'g&amp;h&quot;j' ],

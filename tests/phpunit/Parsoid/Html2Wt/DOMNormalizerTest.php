@@ -24,11 +24,12 @@ class DOMNormalizerTest extends TestCase {
 	 * @dataProvider provideNormalize
 	 * @param string $html
 	 * @param string $expected
+	 * @param string|null $message
 	 * @param array $opts
 	 * @param bool $stripDiffMarkers
 	 */
 	public function testNormalize(
-		string $html, string $expected, $message = null, array $opts = [], bool $stripDiffMarkers = true
+		string $html, string $expected, ?string $message = null, array $opts = [], bool $stripDiffMarkers = true
 	) {
 		$opts += [
 			'scrubWikitext' => true
@@ -54,7 +55,7 @@ class DOMNormalizerTest extends TestCase {
 		$this->assertEquals( $expected, $actual, $message );
 	}
 
-	public function provideNormalize() {
+	public function provideNormalize(): array {
 		return [
 			// Tag Minimization
 			[ '<i>X</i><i>Y</i>', '<i>XY</i>', 'Tag Minimization #1', ],

@@ -16,7 +16,7 @@ class HTML5TreeBuilderTest extends \PHPUnit\Framework\TestCase {
 	 * @covers \Wikimedia\Parsoid\Wt2Html\HTML5TreeBuilder
 	 * @dataProvider provideTreeBuilder
 	 */
-	public function testTreeBuilder( $tokens, $expected ) {
+	public function testTreeBuilder( array $tokens, string $expected ) {
 		$mockEnv = new MockEnv( [] );
 		$tb = new HTML5TreeBuilder( $mockEnv );
 		$tb->resetState( [ 'toplevel' => true ] );
@@ -25,7 +25,7 @@ class HTML5TreeBuilderTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, DOMCompat::getInnerHTML( $body ) );
 	}
 
-	public function provideTreeBuilder() {
+	public function provideTreeBuilder(): array {
 		return [
 			[
 				[

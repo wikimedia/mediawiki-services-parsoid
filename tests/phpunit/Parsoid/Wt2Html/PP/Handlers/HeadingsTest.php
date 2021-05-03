@@ -27,7 +27,7 @@ class HeadingsTest extends TestCase {
 	public function validateId( string $name, string $heading, string $description, array $expectedIds,
 								DOMElement $doc ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, 'body > h1' );
-		$this->assertEquals( count( $elts ), count( $expectedIds ) );
+		$this->assertCount( count( $expectedIds ), $elts );
 
 		foreach ( $expectedIds as $key => $id ) {
 			$h = $elts[$key];
@@ -35,12 +35,12 @@ class HeadingsTest extends TestCase {
 			if ( is_String( $id ) ) {
 				$attrib = $h->getAttribute( 'id' );
 				$this->assertEquals( $id, $attrib, $name . $heading . $description . $id );
-				$this->assertSame( 0, count( $fallback ), $name . $description .
+				$this->assertCount( 0, $fallback, $name . $description .
 					' fallback should not be set.' );
 			} else {
 				$attrib = $h->getAttribute( 'id' );
 				$this->assertEquals( $attrib, $id[0], $name . $heading . $description . $id[0] );
-				$this->assertSame( 1, count( $fallback ), $name . $description .
+				$this->assertCount( 1, $fallback, $name . $description .
 					' fallback should be set to 1.' );
 				$fallbackAttribute = $fallback[0]->getAttribute( 'id' );
 				$this->assertEquals( $id[1], $fallbackAttribute, $name . $heading . $description . $id[1] );
@@ -178,6 +178,7 @@ class HeadingsTest extends TestCase {
 	public function provideNonEnglishHeadings(): array {
 		return [
 			[ [ "=Références=", [ "Références", "R.C3.A9f.C3.A9rences" ] ] ],
+			// phpcs:ignore Generic.Files.LineLength.TooLong
 			[ [ "=बादलों का वगीर्करण=", [ "बादलों_का_वगीर्करण",
 				".E0.A4.AC.E0.A4.BE.E0.A4.A6.E0.A4.B2.E0.A5.8B.E0.A4.82_.E0.A4.95.E0.A4.BE_" .
 				".E0.A4.B5.E0.A4.97.E0.A5.80.E0.A4.B0.E0.A5.8D.E0.A4.95.E0.A4.B0.E0.A4.A3" ] ] ]

@@ -19,7 +19,7 @@ class SerializerStateTest extends TestCase {
 	 * @param array $extraMethodsToMock
 	 * @return WikitextSerializer|MockObject
 	 */
-	private function getBaseSerializerMock( $extraMethodsToMock = [] ) {
+	private function getBaseSerializerMock( array $extraMethodsToMock = [] ): WikitextSerializer {
 		$serializer = $this->getMockBuilder( WikitextSerializer::class )
 			->disableOriginalConstructor()
 			->setMethods( array_merge( [ 'buildSep', 'trace' ], $extraMethodsToMock ) )
@@ -37,7 +37,7 @@ class SerializerStateTest extends TestCase {
 
 	private function getState(
 		array $options = [], MockEnv $env = null, WikitextSerializer $serializer = null
-	) {
+	): SerializerState {
 		if ( !$env ) {
 			$env = new MockEnv( [] );
 		}
@@ -53,7 +53,7 @@ class SerializerStateTest extends TestCase {
 	 * @param string $selector
 	 * @return DOMElement
 	 */
-	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ) {
+	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ): DOMElement {
 		$document = new DOMDocument();
 		$document->loadHTML( "<html><body>$html</body></html>" );
 		return Zest::find( $selector, $document )[0];

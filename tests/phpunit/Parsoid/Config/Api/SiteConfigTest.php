@@ -11,7 +11,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	private static $siteConfig;
 
-	protected function getSiteConfig() {
+	protected function getSiteConfig(): SiteConfig {
 		if ( self::$siteConfig === null ) {
 			$helper = new TestApiHelper( $this, 'siteinfo' );
 			self::$siteConfig = new SiteConfig( $helper, [] );

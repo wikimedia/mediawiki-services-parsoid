@@ -62,8 +62,17 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 		return $this->createNoOpMock( $class );
 	}
 
-	// TODO it might save code to have this helper always return a
-	// TestingAccessWrapper?
+	/**
+	 * TODO it might save code to have this helper always return a
+	 * TestingAccessWrapper?
+	 *
+	 * @param array $configOverrides Configuration options overriding default ServiceOptions config defined in
+	 *                               DEFAULT_CONFIG above.
+	 * @param array $parsoidSettings
+	 * @param array $serviceOverrides
+	 *
+	 * @return SiteConfig
+	 */
 	private function createSiteConfig(
 		array $configOverrides = [],
 		array $parsoidSettings = [],
@@ -90,7 +99,7 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 		);
 	}
 
-	public function provideConfigParameterPassed() {
+	public function provideConfigParameterPassed(): iterable {
 		yield 'galleryOptions' => [
 			[ 'GalleryOptions' => [ 'blabla' ] ],
 			'galleryOptions',
@@ -192,7 +201,7 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 	 * @dataProvider provideConfigParameterPassed
 	 * @param array $settings
 	 * @param string $method
-	 * @param $expectedValue
+	 * @param mixed $expectedValue
 	 */
 	public function testConfigParametersPassed(
 		array $settings,
@@ -223,7 +232,7 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 	 * @dataProvider provideParsoidSettingPassed
 	 * @param array $settings
 	 * @param string $method
-	 * @param $expectedValue
+	 * @param mixed $expectedValue
 	 */
 	public function testParsoidSettingPassed(
 		array $settings,
@@ -305,9 +314,9 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 	 * @param string $serviceClass
 	 * @param string $serviceMethod
 	 * @param array $arguments
-	 * @param $returnValue
+	 * @param mixed $returnValue
 	 * @param string $method
-	 * @param $expectedValue
+	 * @param mixed $expectedValue
 	 */
 	public function testServiceMethodProxied(
 		string $serviceClass,

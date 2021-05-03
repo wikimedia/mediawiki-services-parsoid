@@ -11,7 +11,11 @@ use Wikimedia\TestingAccessWrapper;
  */
 class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
-	/** @return MockObject|SiteConfig */
+	/**
+	 * @param array $methods Subset of methods to mock.
+	 *
+	 * @return MockObject|SiteConfig
+	 */
 	private function getSiteConfig( array $methods = [] ) {
 		return $this->getMockBuilder( SiteConfig::class )
 			->setMethods( $methods )
@@ -47,12 +51,12 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @dataProvider provideMakeExtResourceURL
 	 */
-	public function testMakeExtResourceURL( $match, $href, $content, $expect ) {
+	public function testMakeExtResourceURL( array $match, string $href, string $content, string $expect ) {
 		$siteConfig = $this->getSiteConfig();
 		$this->assertSame( $expect, $siteConfig->makeExtResourceURL( $match, $href, $content ) );
 	}
 
-	public function provideMakeExtResourceURL() {
+	public function provideMakeExtResourceURL(): array {
 		return [
 			[
 				[ 'ISBN', '9780615720302' ], './Special:Booksources/9780615720302', 'ISBN 978-0615720302',

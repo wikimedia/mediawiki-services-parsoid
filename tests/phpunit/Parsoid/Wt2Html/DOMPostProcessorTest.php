@@ -21,7 +21,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 	 * @covers \Wikimedia\Parsoid\Wt2Html\DOMPostProcessor
 	 * @dataProvider provideDOMPostProcessor
 	 */
-	public function testDOMPostProcessor( $atTopLevel, $processors, $html, $expected ) {
+	public function testDOMPostProcessor( bool $atTopLevel, array $processors, string $html, string $expected ) {
 		// Use 'Test Page' to verify that dc:isVersioOf link in header uses underscores
 		// but the user rendered version in <title> in header uses spaces.
 		$mockEnv = new MockEnv( [ 'title' => 'Test Page' ] );
@@ -37,7 +37,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );
 	}
 
-	public function provideDOMPostProcessor() {
+	public function provideDOMPostProcessor(): array {
 		return [
 			[
 				false,

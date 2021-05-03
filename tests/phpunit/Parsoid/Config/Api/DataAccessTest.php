@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Mocks\MockPageConfig;
  */
 class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
-	protected function getDataAccess( string $filename ) {
+	protected function getDataAccess( string $filename ): DataAccess {
 		$helper = new TestApiHelper( $this, $filename );
 		return new DataAccess( $helper, null, [] );
 	}

@@ -24,7 +24,7 @@ class TraditionalMode extends Mode {
 
 	/** @var float */
 	protected $scale;
-	/** @var object */
+	/** @var \stdClass */
 	protected $padding;
 
 	/**

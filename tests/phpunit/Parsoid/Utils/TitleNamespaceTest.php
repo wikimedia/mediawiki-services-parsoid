@@ -14,7 +14,7 @@ class TitleNamespaceTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideNamespace
 	 */
 	public function testNamespace(
-		$ns, $isATalk, $isUser, $isUserTalk, $isMedia, $isFile, $isCategory
+		int $ns, bool $isATalk, bool $isUser, bool $isUserTalk, bool $isMedia, bool $isFile, bool $isCategory
 	) {
 		$namespace = new TitleNamespace( $ns, new MockSiteConfig( [] ) );
 		$this->assertSame( $ns, $namespace->getId() );

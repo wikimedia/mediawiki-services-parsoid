@@ -22,7 +22,7 @@ class DOMDiffTest extends TestCase {
 	 * @dataProvider provideDiff
 	 * @param array $test
 	 */
-	public function testDOMDiff( $test ) {
+	public function testDOMDiff( array $test ) {
 		$mockEnv = new MockEnv( [] );
 
 		$oldDOM = ContentUtils::createAndLoadDocument(
@@ -57,7 +57,7 @@ class DOMDiffTest extends TestCase {
 				$node = $body;
 			} else {
 				$nodes = DOMCompat::querySelectorAll( $body, $spec['selector'] );
-				$this->assertSame( 1, count( $nodes ) );
+				$this->assertCount( 1, $nodes );
 				$node = $nodes[0];
 			}
 			if ( isset( $spec['diff'] ) ) {
@@ -70,7 +70,7 @@ class DOMDiffTest extends TestCase {
 				$data = DOMDataUtils::getNodeData( $node );
 				$markers = $data->parsoid_diff->diff;
 
-				$this->assertEquals( count( $spec['markers'] ), count( $markers ),
+				$this->assertCount( count( $spec['markers'] ), $markers,
 					'number of markers does not match' );
 
 				foreach ( $markers as $k => $m ) {
@@ -81,11 +81,13 @@ class DOMDiffTest extends TestCase {
 		}
 	}
 
-	// FIXME: The subtree-changed marker seems to be applied inconsistently.
-	// Check if that marker is still needed / used by serialization code and
-	// update code accordingly. If possible, simplify / reduce the different
-	// markers being used.
-	public function provideDiff() {
+	/**
+	 * FIXME: The subtree-changed marker seems to be applied inconsistently.
+	 * Check if that marker is still needed / used by serialization code and
+	 * update code accordingly. If possible, simplify / reduce the different
+	 * markers being used.
+	 */
+	public function provideDiff(): array {
 		return [
 			[
 				[

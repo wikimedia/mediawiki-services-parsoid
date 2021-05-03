@@ -185,7 +185,7 @@ class DataParsoid extends stdClass {
 	public $flagSp;
 	/**
 	 * texts
-	 * @var object
+	 * @var array
 	 */
 	public $texts;
 

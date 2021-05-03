@@ -21,7 +21,7 @@ class NowikiTest extends TestCase {
 	 * @param string $selector
 	 * @return DOMElement
 	 */
-	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ) {
+	private function getNode( string $html = '<div id="main"></div>', string $selector = '#main' ): DOMElement {
 		$document = new DOMDocument();
 		$document->loadHTML( "<html><body>$html</body></html>" );
 		return DOMCompat::querySelector( $document, $selector );

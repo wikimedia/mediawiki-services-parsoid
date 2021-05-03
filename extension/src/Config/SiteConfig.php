@@ -126,10 +126,16 @@ class SiteConfig extends ISiteConfig {
 	private $languageNameUtils;
 
 	/** @var string|null */
-	private $baseUri, $relativeLinkPrefix;
+	private $baseUri;
+
+	/** @var string|null */
+	private $relativeLinkPrefix;
 
 	/** @var array|null */
-	private $interwikiMap, $variants;
+	private $interwikiMap;
+
+	/** @var array|null */
+	private $variants;
 
 	/** @var array */
 	private $extensionTags;

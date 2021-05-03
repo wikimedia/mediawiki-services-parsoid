@@ -38,7 +38,7 @@ class EnvTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expect, $env->resolveTitle( ...$args ) );
 	}
 
-	public function provideResolveTitle() {
+	public function provideResolveTitle(): array {
 		return [
 			[ [ ' xxx ' ], 'xxx' ],
 			[ [ '#fragment' ], 'Wikipedia:Foo/bar/baz#fragment' ],

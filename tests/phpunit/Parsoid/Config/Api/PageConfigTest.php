@@ -12,7 +12,7 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 
 	private static $pageConfigs = [];
 
-	protected function getPageConfig( string $id ) {
+	protected function getPageConfig( string $id ): PageConfig {
 		if ( !self::$pageConfigs ) {
 			foreach (
 				[

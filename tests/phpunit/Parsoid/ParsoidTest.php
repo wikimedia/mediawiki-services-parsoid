@@ -23,7 +23,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::wikitext2html
 	 * @dataProvider provideWt2Html
 	 */
-	public function testWt2Html( $wt, $expected, $parserOpts = [] ) {
+	public function testWt2Html( string $wt, string $expected, array $parserOpts = [] ) {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
@@ -41,7 +41,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
-	public function provideWt2Html() {
+	public function provideWt2Html(): array {
 		return [
 			[
 				"'''hi ho'''",
