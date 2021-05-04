@@ -156,7 +156,7 @@ class ZhTest extends TestCase {
 	}
 
 	public function provideZh() {
-		return array_map( function ( $item ) {
+		return array_map( static function ( $item ) {
 			return [
 				$item['title'],
 				$item['output'],

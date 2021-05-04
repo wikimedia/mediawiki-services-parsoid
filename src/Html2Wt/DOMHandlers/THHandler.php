@@ -47,7 +47,7 @@ class THHandler extends DOMHandler {
 			$node,
 			$state
 		);
-		$thHandler = function ( $state, $text, $opts ) use ( $node ) {
+		$thHandler = static function ( $state, $text, $opts ) use ( $node ) {
 			return $state->serializer->wteHandlers->thHandler( $node, $state, $text, $opts );
 		};
 

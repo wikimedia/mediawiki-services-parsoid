@@ -449,7 +449,7 @@ class References extends ExtensionTagHandler {
 		// probably easier to just know that state while they're being
 		// constructed.
 		$nestedRefsHTML = array_map(
-			function ( DOMElement $sup ) use ( $extApi ) {
+			static function ( DOMElement $sup ) use ( $extApi ) {
 				return $extApi->domToHtml( $sup, false, true ) . "\n";
 			},
 			DOMCompat::querySelectorAll(
@@ -526,7 +526,7 @@ class References extends ExtensionTagHandler {
 					'group' => (string)$groupName,
 					'responsive' => null,
 				],
-				function ( $dp ) use ( $extApi ) {
+				static function ( $dp ) use ( $extApi ) {
 					// The new references come out of "nowhere", so to make selser work
 					// properly, add a zero-sized DSR pointing to the end of the document.
 					$content = $extApi->getPageConfig()->getRevisionContent()->getContent( 'main' );
@@ -629,7 +629,7 @@ class References extends ExtensionTagHandler {
 			self::addEmbeddedErrors( $extApi, $refsData, $domFragment );
 			return $extApi->domToHtml( $domFragment, true, true );
 		};
-		$processBodyHtml = function ( DOMElement $n ) use ( $processEmbeddedErrors ) {
+		$processBodyHtml = static function ( DOMElement $n ) use ( $processEmbeddedErrors ) {
 			$dataMw = DOMDataUtils::getDataMw( $n );
 			if ( is_string( $dataMw->body->html ?? null ) ) {
 				$dataMw->body->html = $processEmbeddedErrors(
@@ -695,7 +695,7 @@ class References extends ExtensionTagHandler {
 			$extApi,
 			$domFragment,
 			$refsOpts,
-			function ( $dp ) use ( $extApi ) {
+			static function ( $dp ) use ( $extApi ) {
 				$dp->src = $extApi->extTag->getSource();
 				// Setting redundant info on fragment.
 				// $docBody->firstChild info feels cumbersome to use downstream.

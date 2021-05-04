@@ -158,7 +158,7 @@ class ParagraphWrapper extends TokenHandler {
 			$res = array_merge( $res, $this->currLine['tokens'] );
 			$this->resetCurrLine();
 		}
-		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', function () use( $res ) {
+		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', static function () use( $res ) {
 			return PHPUtils::jsonEncode( $res );
 		} );
 		return $res;
@@ -178,7 +178,7 @@ class ParagraphWrapper extends TokenHandler {
 		$resToks = array_merge( $this->tokenBuffer, $this->nlWsTokens );
 		$this->resetBuffers();
 		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
-			function () use( $resToks ) {
+			static function () use( $resToks ) {
 				return PHPUtils::jsonEncode( $resToks );
 			} );
 		return $resToks;
@@ -293,7 +293,7 @@ class ParagraphWrapper extends TokenHandler {
 	 */
 	private function onNewLineOrEOF( Token $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'NL    |',
-			function () use( $token ) {
+			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
 		$l = $this->currLine;
@@ -316,7 +316,7 @@ class ParagraphWrapper extends TokenHandler {
 			$this->closeOpenPTag( $this->tokenBuffer );
 			$res = $this->processPendingNLs();
 			$this->reset();
-			$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', function () use( $res ) {
+			$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', static function () use( $res ) {
 				return PHPUtils::jsonEncode( $res );
 			} );
 			return [ 'tokens' => $res, 'skipOnAny' => true ];
@@ -394,7 +394,7 @@ class ParagraphWrapper extends TokenHandler {
 	 */
 	public function onAny( $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'ANY   |',
-			function () use( $token ) {
+			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
 		$res = null;
@@ -432,7 +432,7 @@ class ParagraphWrapper extends TokenHandler {
 				$this->currLine['blockTagSeen'] = true;
 				$this->currLine['blockTagOpen'] = false;
 				$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
-					function () use( $token ) {
+					static function () use( $token ) {
 						return PHPUtils::jsonEncode( $token );
 					} );
 				$res = [ $token ];
@@ -441,7 +441,7 @@ class ParagraphWrapper extends TokenHandler {
 			}
 		} elseif ( $token instanceof EOFTk || $this->inPre ) {
 			$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
-				function () use( $token ) {
+				static function () use( $token ) {
 					return PHPUtils::jsonEncode( $token );
 				}
 			 );

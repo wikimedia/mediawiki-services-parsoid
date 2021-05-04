@@ -67,7 +67,7 @@ class SrTest extends TestCase {
 	}
 
 	public function provideSr() {
-		return array_map( function ( $item ) {
+		return array_map( static function ( $item ) {
 			return [
 				$item['title'],
 				$item['output'],

@@ -738,7 +738,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					$templateInfo,
 					$tplInfo,
 					$dp->dsr ?? null,
-					function ( ?DomSourceRange $nodeDSR ): ?DomSourceRange {
+					static function ( ?DomSourceRange $nodeDSR ): ?DomSourceRange {
 						// Identify the dsr-span of the opening tag
 						// of the table that needs to be deleted
 						$x = $nodeDSR === null ? null : ( clone $nodeDSR );
@@ -814,7 +814,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			DOMUtils::isWikitextBlockNode( $node->parentNode ) &&
 			$this->hasNoWrapCSS( $node )
 		) {
-			$p = $this->findMatchingChild( $node, function ( $e ) {
+			$p = $this->findMatchingChild( $node, static function ( $e ) {
 				return $e->nodeName === 'p';
 			} );
 			if ( $p ) {
@@ -959,7 +959,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			}
 		}
 
-		$markProcessedNodes = function () use ( &$nowrapNodes ) { // Helper
+		$markProcessedNodes = static function () use ( &$nowrapNodes ) { // Helper
 			foreach ( $nowrapNodes as $o ) {
 				// Phan fails at applying the instanceof type restriction to the array member when analyzing the
 				// following call, but is fine when it's copied to a local variable.
@@ -1184,7 +1184,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			// their structure. However, since timed media is inherently clickable, being nested
 			// in an extlink could surprise a user clicking on it by navigating away from the page.
 			if ( !$lintError ) {
-				DOMUtils::visitDOM( $c, function ( $element ) use ( &$lintError ) {
+				DOMUtils::visitDOM( $c, static function ( $element ) use ( &$lintError ) {
 					if ( $element instanceof DOMElement &&
 						( $element->nodeName === 'audio' ||
 							$element->nodeName === 'video' )

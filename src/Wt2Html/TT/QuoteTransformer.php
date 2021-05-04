@@ -134,7 +134,7 @@ class QuoteTransformer extends TokenHandler {
 			"trace/quote",
 			$this->manager->pipelineId,
 			"ANY |",
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -163,7 +163,7 @@ class QuoteTransformer extends TokenHandler {
 			"trace/quote",
 			$this->manager->pipelineId,
 			"QUOTE |",
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -196,7 +196,7 @@ class QuoteTransformer extends TokenHandler {
 			"trace/quote",
 			$this->manager->pipelineId,
 			"NL    |",
-			function () use( $token ) {
+			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -280,7 +280,7 @@ class QuoteTransformer extends TokenHandler {
 			"trace/quote",
 			$this->manager->pipelineId,
 			"----->",
-			function () use ( $res ) {
+			static function () use ( $res ) {
 				return PHPUtils::jsonEncode( $res["tokens"] );
 			}
 		);

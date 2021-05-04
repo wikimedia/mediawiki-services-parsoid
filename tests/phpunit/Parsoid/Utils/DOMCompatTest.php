@@ -403,7 +403,7 @@ HTML;
 			'does not select outside context' => [
 				'html' => $html1,
 				'selector' => '.xxx',
-				'context' => function ( DOMDocument $doc ) {
+				'context' => static function ( DOMDocument $doc ) {
 					return $doc->getElementById( 'ctx1' );
 				},
 				'expectedTagHtmls' => [ 'x2' ],
@@ -411,7 +411,7 @@ HTML;
 			'does not select context' => [
 				'html' => $html1,
 				'selector' => '.f',
-				'context' => function ( DOMDocument $doc ) {
+				'context' => static function ( DOMDocument $doc ) {
 					return $doc->getElementById( 'ctx2' );
 				},
 				'expectedTagHtmls' => [ 'x3' ],

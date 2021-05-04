@@ -161,7 +161,7 @@ class Utils {
 		return preg_replace_callback(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
 			'/%[0-7][0-9A-F]|%[CD][0-9A-F]%[89AB][0-9A-F]|%E[0-9A-F](?:%[89AB][0-9A-F]){2}|%F[0-4](?:%[89AB][0-9A-F]){3}/i',
-			function ( $match ) {
+			static function ( $match ) {
 				$ret = rawurldecode( $match[0] );
 				return mb_check_encoding( $ret, 'UTF-8' ) ? $ret : $match[0];
 			}, $s

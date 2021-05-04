@@ -64,7 +64,7 @@ class UnpackDOMFragments {
 		$resetDSR = false;
 		$dsrFixer = new DOMTraverser();
 		$newOffset = DOMDataUtils::getDataParsoid( $targetNode )->dsr->end ?? null;
-		$fixHandler = function ( DOMNode $node ) use ( &$resetDSR, &$newOffset ) {
+		$fixHandler = static function ( DOMNode $node ) use ( &$resetDSR, &$newOffset ) {
 			if ( $node instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $node->nodeName === 'a' ) {

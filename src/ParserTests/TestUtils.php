@@ -169,7 +169,7 @@ class TestUtils {
 		$out = preg_replace( '#<span>\s*</span>#u', '', $out );
 		$out = preg_replace( '#(href=")(?:\.?\./)+#u', '$1', $out );
 		// replace unnecessary URL escaping
-		$out = preg_replace_callback( '/ href="[^"]*"/u', function ( $m ) {
+		$out = preg_replace_callback( '/ href="[^"]*"/u', static function ( $m ) {
 			return Utils::decodeURI( $m[0] );
 		}, $out );
 		// strip thumbnail size prefixes
@@ -407,7 +407,7 @@ class TestUtils {
 			$html = preg_replace( '/href="#/', 'href="Main Page#', $html );
 			// replace unnecessary URL escaping
 			$html = preg_replace_callback( '/ href="[^"]*"/',
-				function ( $m ) {
+				static function ( $m ) {
 					return Utils::decodeURI( $m[0] );
 				},
 				$html );

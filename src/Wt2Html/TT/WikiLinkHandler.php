@@ -541,7 +541,7 @@ class WikiLinkHandler extends TokenHandler {
 					$toks = [ $toks ];
 				}
 
-				$toks = array_values( array_filter( $toks, function ( $t ) {
+				$toks = array_values( array_filter( $toks, static function ( $t ) {
 					return $t !== '';
 				} ) );
 				$n = count( $toks );
@@ -1276,7 +1276,7 @@ class WikiLinkHandler extends TokenHandler {
 					// for pipes in table cell content.  For the moment, breaking
 					// here is acceptable since it matches the php implementation
 					// bug for bug.
-					$pieces = array_map( function ( $s ) {
+					$pieces = array_map( static function ( $s ) {
 						return new KV( 'mw:maybeContent', $s );
 					}, explode( '|', $oText ) );
 					$optKVs = array_merge( $pieces, $optKVs );

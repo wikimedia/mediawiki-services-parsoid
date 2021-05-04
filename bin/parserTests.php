@@ -451,7 +451,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$ppValue = null; // Forward declaration
-		$ppValue = function ( $v ) use ( &$ppValue ) {
+		$ppValue = static function ( $v ) use ( &$ppValue ) {
 			if ( is_array( $v ) ) {
 				return implode( ',', array_map( $ppValue, $v ) );
 			}
@@ -466,7 +466,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		};
 
 		$strPieces = array_map(
-			function ( $k ) use ( $iopts, $ppValue ) {
+			static function ( $k ) use ( $iopts, $ppValue ) {
 				if ( $iopts[$k] === '' ) {
 					return $k;
 				}
@@ -498,7 +498,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$knownFailures = false;
 		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && $expectFail !== null ) {
 			// compare with remembered output
-			$normalizeAbout = function ( $s ) {
+			$normalizeAbout = static function ( $s ) {
 				return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $s );
 			};
 			$offsetType = $options['offsetType'] ?? 'byte';
@@ -600,11 +600,11 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	public static function getActualExpected( array $actual, array $expected, callable $getDiff ): string {
 		if ( self::$colors_mode === 'none' ) {
-			$mkVisible = function ( $s ) {
+			$mkVisible = static function ( $s ) {
 				return $s;
 			};
 		} else {
-			$mkVisible = function ( $s ) {
+			$mkVisible = static function ( $s ) {
 				return preg_replace( '/\xA0/', TestUtils::colorString( "␣", "white" ),
 					preg_replace( '/\n/', TestUtils::colorString( "↵\n", "white" ), $s ) );
 			};
@@ -647,10 +647,10 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$diffs = self::$differ->diff( $e, $a );
-		$diffs = preg_replace_callback( '/^(-.*)/m', function ( $m ) {
+		$diffs = preg_replace_callback( '/^(-.*)/m', static function ( $m ) {
 			return TestUtils::colorString( $m[0], 'green' );
 		}, $diffs );
-		$diffs = preg_replace_callback( '/^(\+.*)/m', function ( $m ) {
+		$diffs = preg_replace_callback( '/^(\+.*)/m', static function ( $m ) {
 			return TestUtils::colorString( $m[0], 'red' );
 		}, $diffs );
 

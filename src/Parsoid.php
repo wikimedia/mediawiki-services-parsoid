@@ -347,7 +347,7 @@ class Parsoid {
 				);
 			}
 			// Update content-language and vary headers.
-			$ensureHeader = function ( string $h ) use ( $doc ) {
+			$ensureHeader = static function ( string $h ) use ( $doc ) {
 				$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$h}\"i]" );
 				if ( !$el ) {
 					$el = $doc->createElement( 'meta' );

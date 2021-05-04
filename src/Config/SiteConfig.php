@@ -1026,7 +1026,7 @@ abstract class SiteConfig {
 			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
 		];
 		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
-		return function ( $text ) use ( $pats, $regex ) {
+		return static function ( $text ) use ( $pats, $regex ) {
 			if ( preg_match( $regex, $text, $m ) ) {
 				foreach ( $pats as $k => $re ) {
 					if ( isset( $m[$k] ) && $m[$k] !== '' ) {

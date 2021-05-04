@@ -33,7 +33,7 @@ class DDHandler extends DOMHandler {
 		) {
 			$state->emitChunk( $chunk, $node );
 		}
-		$liHandler = function ( $state, $text, $opts ) use ( $node ) {
+		$liHandler = static function ( $state, $text, $opts ) use ( $node ) {
 			return $state->serializer->wteHandlers->liHandler( $node, $state, $text, $opts );
 		};
 		$state->singleLineContext->enforce();

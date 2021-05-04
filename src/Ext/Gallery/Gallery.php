@@ -148,7 +148,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		// Prepare the lines for processing
 		$lines = explode( "\n", $content );
-		$lines = array_map( function ( $line ) use ( &$offset ) {
+		$lines = array_map( static function ( $line ) use ( &$offset ) {
 				$lineObj = [ 'line' => $line, 'offset' => $offset ];
 				$offset += strlen( $line ) + 1; // For the nl
 				return $lineObj;
@@ -162,7 +162,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}, $lines );
 
 		// Drop invalid lines like "References: 5."
-		$lines = array_filter( $lines, function ( $lineObj ) {
+		$lines = array_filter( $lines, static function ( $lineObj ) {
 			return $lineObj !== null;
 		} );
 

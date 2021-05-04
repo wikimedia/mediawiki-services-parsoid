@@ -313,7 +313,7 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		$redirect = '(?i:\#REDIRECT)';
-		$quote = function ( $s ) {
+		$quote = static function ( $s ) {
 			$q = preg_quote( $s, '@' );
 			# Note that PHP < 7.3 doesn't escape # in preg_quote.  That means
 			# that the $redirect regexp will fail if used with the `x` flag.
@@ -598,7 +598,7 @@ class SiteConfig extends ISiteConfig {
 	public function getParameterizedAliasMatcher( array $words ): callable {
 		$this->loadSiteData();
 		$regexes = array_intersect_key( $this->paramMWs, array_flip( $words ) );
-		return function ( $text ) use ( $regexes ) {
+		return static function ( $text ) use ( $regexes ) {
 			/**
 			 * $name is the canonical magic word name
 			 * $re has patterns for matching aliases

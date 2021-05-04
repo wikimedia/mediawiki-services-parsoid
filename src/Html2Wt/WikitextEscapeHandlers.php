@@ -371,7 +371,7 @@ class WikitextEscapeHandlers {
 		$env = $state->getEnv();
 		$env->log(
 			'trace/wt-escape', 'link-test-text=',
-			function () use ( $text ) {
+			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
 		);
@@ -495,7 +495,7 @@ class WikitextEscapeHandlers {
 		$env = $state->getEnv();
 		$env->log(
 			'trace/wt-escape', 'nl:', $onNewline, ':text=',
-			function () use ( $text ) {
+			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
 		);
@@ -520,7 +520,7 @@ class WikitextEscapeHandlers {
 
 			$env->log(
 				'trace/wt-escape', 'T:',
-				function () use ( $t ) {
+				static function () use ( $t ) {
 					return PHPUtils::jsonEncode( $t );
 				}
 			);
@@ -839,7 +839,7 @@ class WikitextEscapeHandlers {
 		$env = $state->getEnv();
 		$env->log(
 			'trace/wt-escape', 'EWT:',
-			function () use ( $text ) {
+			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
 		);
@@ -961,7 +961,7 @@ class WikitextEscapeHandlers {
 
 		$env->log(
 			'trace/wt-escape', 'SOL:', $sol,
-			function () use ( $text ) {
+			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
 		);

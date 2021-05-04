@@ -31,7 +31,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 					  mb_chr( $cp, "utf-8" ) : $s;
 			yield $s => [ $s, $expected ];
 		};
-		$check = function ( int $cp ) use ( $checkEntity ) {
+		$check = static function ( int $cp ) use ( $checkEntity ) {
 			yield from $checkEntity( $cp, "&#$cp;" );
 			yield from $checkEntity( $cp, strtolower( "&#x" . dechex( $cp ) . ";" ) );
 			yield from $checkEntity( $cp, strtoupper( "&#x" . dechex( $cp ) . ";" ) );

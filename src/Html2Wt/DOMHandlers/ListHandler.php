@@ -45,7 +45,7 @@ class ListHandler extends DOMHandler {
 			$state->emitChunk( $this->getListBullets( $state, $node ), $node );
 		}
 
-		$liHandler = function ( $state, $text, $opts ) use ( $node ) {
+		$liHandler = static function ( $state, $text, $opts ) use ( $node ) {
 			return $state->serializer->wteHandlers->liHandler( $node, $state, $text, $opts );
 		};
 		$state->serializeChildren( $node, $liHandler );

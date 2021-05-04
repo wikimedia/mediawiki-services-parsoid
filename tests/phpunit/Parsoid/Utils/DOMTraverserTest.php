@@ -39,7 +39,7 @@ HTML;
 		$trace = [];
 		$traverser = new DOMTraverser();
 		$traverser->addHandler( $nodeName, $callback );
-		$traverser->addHandler( null, function (
+		$traverser->addHandler( null, static function (
 			DOMNode $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
 		) use ( &$trace ) {
 			if ( $node instanceof DOMElement && $node->hasAttribute( 'id' ) ) {
@@ -56,7 +56,7 @@ HTML;
 
 		$expectError = $this->getMockBuilder( MockEnv::class )
 			->setConstructorArgs( [ [] ] )
-			->setMethods( [ 'log' ] )
+			->onlyMethods( [ 'log' ] )
 			->getMock();
 		$expectError->expects( $this->atLeastOnce() )
 			->method( 'log' )
@@ -65,7 +65,7 @@ HTML;
 			} );
 		$dontExpectError = $this->getMockBuilder( MockEnv::class )
 			->setConstructorArgs( [ [] ] )
-			->setMethods( [ 'log' ] )
+			->onlyMethods( [ 'log' ] )
 			->getMock();
 		$dontExpectError->expects( $this->never() )
 			->method( 'log' );
@@ -85,7 +85,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return true' => [
-				'callback' => function (
+				'callback' => static function (
 					DOMNode $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
@@ -96,7 +96,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return first child' => [
-				'callback' => function (
+				'callback' => static function (
 					DOMNode $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
@@ -110,7 +110,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2_1', 'x1_2_2', 'x2', 'x2_1' ],
 			],
 			'return next sibling' => [
-				'callback' => function (
+				'callback' => static function (
 					DOMNode $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
@@ -124,7 +124,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return null' => [
-				'callback' => function (
+				'callback' => static function (
 					DOMNode $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
@@ -138,7 +138,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x2', 'x2_1' ],
 			],
 			'return another node' => [
-				'callback' => function (
+				'callback' => static function (
 					DOMNode $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
@@ -154,7 +154,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'new', 'x2', 'x2_1' ],
 			],
 			'name filter' => [
-				'callback' => function (
+				'callback' => static function (
 					DOMNode $node, Env $env, array $options,
 					bool $atTopLevel, ?stdClass $tplInfo
 				) {

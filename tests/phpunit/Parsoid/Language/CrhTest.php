@@ -238,7 +238,7 @@ class CrhTest extends TestCase {
 	}
 
 	public function provideCrh() {
-		return array_map( function ( $item ) {
+		return array_map( static function ( $item ) {
 			return [
 				$item['title'],
 				$item['output'],

@@ -18,7 +18,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	 */
 	private function getSiteConfig( array $methods = [] ) {
 		return $this->getMockBuilder( SiteConfig::class )
-			->setMethods( $methods )
+			->onlyMethods( $methods )
 			->getMockForAbstractClass();
 	}
 

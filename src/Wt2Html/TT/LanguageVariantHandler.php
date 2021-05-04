@@ -166,7 +166,7 @@ class LanguageVariantHandler extends TokenHandler {
 				'show' => true
 			];
 		} else {
-			$dataMWV = array_reduce( $flags, function ( array $dmwv, string $f ) use ( &$sawFlagA ) {
+			$dataMWV = array_reduce( $flags, static function ( array $dmwv, string $f ) use ( &$sawFlagA ) {
 				if ( array_key_exists( $f, WikitextConstants::$LCFlagMap ) ) {
 					if ( WikitextConstants::$LCFlagMap[$f] ) {
 						$dmwv[WikitextConstants::$LCFlagMap[$f]] = true;
@@ -186,7 +186,7 @@ class LanguageVariantHandler extends TokenHandler {
 			) {
 				if ( isset( $dataMWV['add'] ) || isset( $dataMWV['remove'] ) ) {
 					$variants = [ '*' ];
-					$twoway = array_map( function ( string $code ) use ( $texts, &$sawTwoway ) {
+					$twoway = array_map( static function ( string $code ) use ( $texts, &$sawTwoway ) {
 						return [ 'l' => $code, 't' => $texts[0]['text'] ];
 					}, $variants );
 					$sawTwoway = true;

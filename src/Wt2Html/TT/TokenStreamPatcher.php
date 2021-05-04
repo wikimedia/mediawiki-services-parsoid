@@ -86,7 +86,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 */
 	public function onNewline( NlTk $token ) {
 		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -184,7 +184,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 */
 	public function onAny( $token ) {
 		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
 

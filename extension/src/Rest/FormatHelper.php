@@ -119,8 +119,10 @@ class FormatHelper {
 				case 'HTML':
 				case 'html':
 					$format = self::FORMAT_HTML;
+					break;
 				case 'pagebundle':
 					$format = self::FORMAT_PAGEBUNDLE;
+					break;
 			}
 			return $m[3];
 		}

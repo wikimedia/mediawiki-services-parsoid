@@ -449,7 +449,7 @@ class DOMUtils {
 	public static function removeTypeOf( DOMElement $node, string $type ): void {
 		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
 		if ( $typeOf !== '' ) {
-			$types = array_filter( preg_split( '/\s+/', $typeOf ), function ( $t ) use ( $type ) {
+			$types = array_filter( preg_split( '/\s+/', $typeOf ), static function ( $t ) use ( $type ) {
 				return $t !== $type;
 			} );
 			if ( count( $types ) > 0 ) {

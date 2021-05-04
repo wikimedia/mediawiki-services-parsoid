@@ -776,7 +776,7 @@ class MockApiHelper extends ApiHelper {
 		if ( ( $params['prop'] ?? null ) === 'imageinfo' ) {
 			$response = [ 'query' => [] ];
 			$filename = $params['titles']; // assumes this is a single file
-			$tonum = function ( $x ) {
+			$tonum = static function ( $x ) {
 				return $x ? (int)$x : null;
 			};
 			$ii = self::imageInfo(

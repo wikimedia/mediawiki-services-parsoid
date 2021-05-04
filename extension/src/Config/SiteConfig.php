@@ -613,7 +613,7 @@ class SiteConfig extends ISiteConfig {
 			$words = preg_grep( '/^timedmedia_/', $words, PREG_GREP_INVERT );
 		}
 		$words = $this->magicWordFactory->newArray( $words );
-		return function ( $text ) use ( $words ) {
+		return static function ( $text ) use ( $words ) {
 			$ret = $words->matchVariableStartToEnd( $text );
 			if ( $ret[0] === false || $ret[1] === false ) {
 				return null;

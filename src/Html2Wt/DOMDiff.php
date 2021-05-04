@@ -76,13 +76,13 @@ class DOMDiff {
 			'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
 				return $this->dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB );
 			},
-			'data-parsoid' => function ( $nodeA, $dpA, $nodeB, $dpB ) {
+			'data-parsoid' => static function ( $nodeA, $dpA, $nodeB, $dpB ) {
 				return $dpA == $dpB;
 			},
 			// TODO(T254502): This is added temporarily for backwards
 			// compatibility and can be removed when versions up to 2.1.0
 			// are no longer stored
-			'typeof' => function ( $nodeA, $valA, $nodeB, $valB ) {
+			'typeof' => static function ( $nodeA, $valA, $nodeB, $valB ) {
 				if ( $valA === $valB ) {
 					return true;
 				} elseif ( $valA === 'mw:DisplaySpace' ) {
@@ -110,7 +110,7 @@ class DOMDiff {
 			'Expected to be diff\'ing different documents.'
 		);
 
-		$this->debug( function () use( $nodeA, $nodeB ) {
+		$this->debug( static function () use( $nodeA, $nodeB ) {
 			return "ORIG:\n" .
 				DOMCompat::getOuterHTML( $nodeA ) .
 				"\nNEW :\n" .

@@ -718,7 +718,7 @@ class WTUtils {
 	 */
 	public static function encodeComment( string $comment ): string {
 		// Undo wikitext escaping to obtain "true value" of comment.
-		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/', function ( $m ) {
+		$trueValue = preg_replace_callback( '/--&(amp;)*gt;/', static function ( $m ) {
 				return Utils::decodeWtEntities( $m[0] );
 		}, $comment );
 
@@ -727,7 +727,7 @@ class WTUtils {
 		// This part doesn't have to map strings 1-to-1.
 		// WARNING(T279451): This is actually the part which protects the
 		// "-type" key in self::fosterCommentData
-		return preg_replace_callback( '/[->&]/', function ( $m ) {
+		return preg_replace_callback( '/[->&]/', static function ( $m ) {
 			return Utils::entityEncodeAll( $m[0] );
 		}, $trueValue );
 	}
@@ -743,7 +743,7 @@ class WTUtils {
 
 		// ok, now encode this "true value" of the comment in such a way
 		// that the string "-->" never shows up.  (See above.)
-		return preg_replace_callback( '/--(&(amp;)*gt;|>)/', function ( $m ) {
+		return preg_replace_callback( '/--(&(amp;)*gt;|>)/', static function ( $m ) {
 			$s = $m[0];
 				return $s === '-->' ? '--&gt;' : '--&amp;' . substr( $s, 3 );
 		}, $trueValue );

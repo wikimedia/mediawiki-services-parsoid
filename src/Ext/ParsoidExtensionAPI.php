@@ -289,7 +289,7 @@ class ParsoidExtensionAPI {
 			);
 
 			if ( !empty( $opts['clearDSROffsets'] ) ) {
-				$dsrFn = function ( DOMSourceRange $dsr ) {
+				$dsrFn = static function ( DOMSourceRange $dsr ) {
 					return null;
 				};
 			} else {
@@ -754,7 +754,7 @@ class ParsoidExtensionAPI {
 		$pieces = array_merge( $pieces, $imageOpts );
 		$pieces[] = ']]';
 
-		$shiftOffset = function ( int $offset ) use ( $pieces ): ?int {
+		$shiftOffset = static function ( int $offset ) use ( $pieces ): ?int {
 			foreach ( $pieces as $p ) {
 				if ( is_string( $p ) ) {
 					$offset -= strlen( $p );
@@ -774,7 +774,7 @@ class ParsoidExtensionAPI {
 			return null;
 		};
 
-		$imageWt = array_reduce( $pieces, function ( $c, $p ) {
+		$imageWt = array_reduce( $pieces, static function ( $c, $p ) {
 			return $c . ( is_string( $p ) ? $p : $p[0] );
 		}, '' );
 
@@ -791,7 +791,7 @@ class ParsoidExtensionAPI {
 				// Shift the DSRs in the DOM by startOffset, and strip DSRs
 				// for bits which aren't the caption or file, since they
 				// don't refer to actual source wikitext
-				'shiftDSRFn' => function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
+				'shiftDSRFn' => static function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
 					$start = $dsr->start === null ? null :
 						   $shiftOffset( $dsr->start );
 					$end = $dsr->end === null ? null :

@@ -393,20 +393,36 @@ class TokenUtils {
 			++$charPos;
 			$c = ord( $s[$bytePos] ) & 0xf8;
 			switch ( $c ) {
-				case 0x00: case 0x08: case 0x10: case 0x18:
-				case 0x20: case 0x28: case 0x30: case 0x38:
-				case 0x40: case 0x48: case 0x50: case 0x58:
-				case 0x60: case 0x68: case 0x70: case 0x78:
+				case 0x00:
+				case 0x08:
+				case 0x10:
+				case 0x18:
+				case 0x20:
+				case 0x28:
+				case 0x30:
+				case 0x38:
+				case 0x40:
+				case 0x48:
+				case 0x50:
+				case 0x58:
+				case 0x60:
+				case 0x68:
+				case 0x70:
+				case 0x78:
 					++$bytePos;
 					++$ucs2Pos;
 					break;
 
-				case 0xc0: case 0xc8: case 0xd0: case 0xd8:
+				case 0xc0:
+				case 0xc8:
+				case 0xd0:
+				case 0xd8:
 					$bytePos += 2;
 					++$ucs2Pos;
 					break;
 
-				case 0xe0: case 0xe8:
+				case 0xe0:
+				case 0xe8:
 					$bytePos += 3;
 					++$ucs2Pos;
 					break;
@@ -443,7 +459,7 @@ class TokenUtils {
 		string $s, string $from, string $to, array $tokens
 	) : void {
 		$offsets = []; /* @var array<int> $offsets */
-		self::collectOffsets( $tokens, function ( $sr ) use ( &$offsets ) {
+		self::collectOffsets( $tokens, static function ( $sr ) use ( &$offsets ) {
 			if ( $sr instanceof DomSourceRange ) {
 				// Adjust the widths to be actual character offsets
 				if ( $sr->openWidth !== null ) {
@@ -465,7 +481,7 @@ class TokenUtils {
 			}
 		} );
 		self::convertOffsets( $s, $from, $to, $offsets );
-		self::collectOffsets( $tokens, function ( $sr ) use ( &$offsets ) {
+		self::collectOffsets( $tokens, static function ( $sr ) use ( &$offsets ) {
 			if ( $sr instanceof DomSourceRange ) {
 				// Adjust widths back from being character offsets
 				if ( $sr->openWidth !== null ) {

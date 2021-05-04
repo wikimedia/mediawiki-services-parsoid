@@ -188,12 +188,12 @@ class ContentUtils {
 	 */
 	public static function shiftDSR( Env $env, DOMNode $rootNode, callable $dsrFunc ): DOMNode {
 		$doc = $rootNode->ownerDocument;
-		$convertString = function ( $str ) {
+		$convertString = static function ( $str ) {
 			// Stub $convertString out to allow definition of a pair of
 			// mutually-recursive functions.
 			return $str;
 		};
-		$convertNode = function ( DOMNode $node ) use (
+		$convertNode = static function ( DOMNode $node ) use (
 			$env, $dsrFunc, &$convertString, &$convertNode
 		) {
 			if ( !( $node instanceof DOMElement ) ) {
@@ -316,7 +316,7 @@ class ContentUtils {
 		}
 		$offsetMap = [];
 		$offsets = [];
-		$collect = function ( int $n ) use ( &$offsetMap, &$offsets ) {
+		$collect = static function ( int $n ) use ( &$offsetMap, &$offsets ) {
 			if ( !array_key_exists( $n, $offsetMap ) ) {
 				$box = PHPUtils::arrayToObject( [ 'value' => $n ] );
 				$offsetMap[$n] = $box;
@@ -324,7 +324,7 @@ class ContentUtils {
 			}
 		};
 		// Collect DSR offsets throughout the document
-		$collectDSR = function ( DomSourceRange $dsr ) use ( $collect ) {
+		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect ) {
 			if ( $dsr->start !== null ) {
 				$collect( $dsr->start );
 				$collect( $dsr->innerStart() );
@@ -345,7 +345,7 @@ class ContentUtils {
 			$env->topFrame->getSrcText(), $from, $to, $offsets
 		);
 		// Apply converted offsets
-		$applyDSR = function ( DomSourceRange $dsr ) use ( $offsetMap ) {
+		$applyDSR = static function ( DomSourceRange $dsr ) use ( $offsetMap ) {
 			$start = $dsr->start;
 			$openWidth = $dsr->openWidth;
 			if ( $start !== null ) {

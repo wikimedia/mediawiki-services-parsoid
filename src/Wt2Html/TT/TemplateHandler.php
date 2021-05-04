@@ -80,7 +80,7 @@ class TemplateHandler extends TokenHandler {
 			// This is only for the Parsoid native expansion pipeline used in
 			// parser tests. The "" token sometimes changes foster parenting
 			// behavior and trips up some tests.
-			$tokens = array_values( array_filter( $tokens, function ( $t ) {
+			$tokens = array_values( array_filter( $tokens, static function ( $t ) {
 				return $t !== '';
 			} ) );
 
@@ -139,9 +139,9 @@ class TemplateHandler extends TokenHandler {
 			}
 
 			switch ( get_class( $tok ) ) {
-				case TagTk::class :
-				case EndTagTk::class :
-				case SelfclosingTagTk::class :
+				case TagTk::class:
+				case EndTagTk::class:
+				case SelfclosingTagTk::class:
 					$tokName = $tok->getName();
 					if ( $tokName === 'noinclude' || $tokName === 'onlyinclude' ) {
 						break;
@@ -191,7 +191,7 @@ class TemplateHandler extends TokenHandler {
 						// {{..}} and {{{..}}} in template targets.
 						return null;
 					}
-				break;
+					break;
 
 				case TagTk::class:
 				case EndTagTk::class:
@@ -805,7 +805,7 @@ class TemplateHandler extends TokenHandler {
 		// to skip dsr computation to begin with.  Worth revisitting
 		// if / when `addHTMLTemplateParameters` is enabled.
 		// Remove DSR from children
-		DOMUtils::visitDOM( $domFragment, function ( $node ) {
+		DOMUtils::visitDOM( $domFragment, static function ( $node ) {
 			if ( !DOMUtils::isElt( $node ) ) {
 				return;
 			}

@@ -395,7 +395,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$profiler->setPeriod( 0.01 );
 			$profiler->setEventType( EXCIMER_CPU );
 			$profiler->start();
-			register_shutdown_function( function () use ( $profiler ) {
+			register_shutdown_function( static function () use ( $profiler ) {
 				$profiler->stop();
 				$fgPath = getenv( 'FLAMEGRAPH_PATH' );
 				if ( empty( $fgPath ) ) {

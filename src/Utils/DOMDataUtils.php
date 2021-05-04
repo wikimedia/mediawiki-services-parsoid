@@ -479,7 +479,7 @@ class DOMDataUtils {
 	public static function usedIdIndex( DOMNode $node ): array {
 		$index = [];
 		DOMUtils::visitDOM( DOMCompat::getBody( $node->ownerDocument ),
-			function ( DOMNode $n, ?array $options = null ) use ( &$index ) {
+			static function ( DOMNode $n, ?array $options = null ) use ( &$index ) {
 				if ( $n instanceof DOMElement && $n->hasAttribute( 'id' ) ) {
 					$index[$n->getAttribute( 'id' )] = true;
 				}

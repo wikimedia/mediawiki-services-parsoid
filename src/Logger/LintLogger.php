@@ -114,7 +114,7 @@ class LintLogger {
 		if ( $linting === true ) {
 			$enabledBuffer = $env->getLints(); // Everything is enabled
 		} elseif ( is_array( $linting ) ) {
-			$enabledBuffer = array_filter( $env->getLints(), function ( $item ) use ( &$linting ) {
+			$enabledBuffer = array_filter( $env->getLints(), static function ( $item ) use ( &$linting ) {
 				return array_search( $item['type'], $linting, true ) !== false;
 			} );
 		} else {

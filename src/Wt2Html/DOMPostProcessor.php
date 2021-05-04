@@ -107,7 +107,7 @@ class DOMPostProcessor extends PipelineStage {
 			],
 			'rev_timestamp' => [
 				'property' => 'dc:modified',
-				'content' => function ( $m ) {
+				'content' => static function ( $m ) {
 					# Convert from TS_MW ("mediawiki timestamp") format
 					$dt = DateTime::createFromFormat( 'YmdHis', $m['rev_timestamp'] );
 					# Note that DateTime::ISO8601 is not actually ISO8601, alas.
@@ -408,7 +408,7 @@ class DOMPostProcessor extends PipelineStage {
 					],
 					[
 						'nodeName' => null,
-						'action' => function ( $node, $env ) use ( &$seenIds ) {
+						'action' => static function ( $node, $env ) use ( &$seenIds ) {
 							return Headings::dedupeHeadingIds( $seenIds, $node );
 						}
 					]
@@ -504,7 +504,7 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => function (
+						'action' => static function (
 							$node, $env, $options, $atTopLevel, $tplInfo
 						) use ( &$usedIdIndex ) {
 							if ( $atTopLevel && DOMUtils::isBody( $node ) ) {
@@ -727,7 +727,7 @@ class DOMPostProcessor extends PipelineStage {
 
 		$expTitle = strtr( $env->getPageConfig()->getTitle(), ' ', '_' );
 		$expTitle = explode( '/', $expTitle );
-		$expTitle = array_map( function ( $comp ) {
+		$expTitle = array_map( static function ( $comp ) {
 			return PHPUtils::encodeURIComponent( $comp );
 		}, $expTitle );
 

@@ -316,7 +316,7 @@ class PreHandler extends TokenHandler {
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'NL    |',
 			self::stateStr()[$this->state], '|',
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -331,44 +331,44 @@ class PreHandler extends TokenHandler {
 		$skipOnAny = false;
 		switch ( $this->state ) {
 			case self::STATE_SOL:
-			$ret = $this->getResultAndReset( $token );
-			$skipOnAny = true;
-			$this->preTSR = self::initPreTSR( $token );
-			break;
+				$ret = $this->getResultAndReset( $token );
+				$skipOnAny = true;
+				$this->preTSR = self::initPreTSR( $token );
+				break;
 
 			case self::STATE_PRE:
-			$ret = $this->getResultAndReset( $token );
-			$skipOnAny = true;
-			$this->preTSR = self::initPreTSR( $token );
-			$this->state = self::STATE_SOL;
-			break;
+				$ret = $this->getResultAndReset( $token );
+				$skipOnAny = true;
+				$this->preTSR = self::initPreTSR( $token );
+				$this->state = self::STATE_SOL;
+				break;
 
 			case self::STATE_PRE_COLLECT:
-			$this->resetPreCollectCurrentLine();
-			$this->lastNlTk = $token;
-			$this->state = self::STATE_MULTILINE_PRE;
-			break;
+				$this->resetPreCollectCurrentLine();
+				$this->lastNlTk = $token;
+				$this->state = self::STATE_MULTILINE_PRE;
+				break;
 
 			case self::STATE_MULTILINE_PRE:
-			$this->preWSToken = null;
-			$this->multiLinePreWSToken = null;
-			$ret = $this->processPre( $token );
-			$skipOnAny = true;
-			$this->preTSR = self::initPreTSR( $token );
-			$this->state = self::STATE_SOL;
-			break;
+				$this->preWSToken = null;
+				$this->multiLinePreWSToken = null;
+				$ret = $this->processPre( $token );
+				$skipOnAny = true;
+				$this->preTSR = self::initPreTSR( $token );
+				$this->state = self::STATE_SOL;
+				break;
 
 			case self::STATE_IGNORE:
-			$ret = [ $token ];
-			$skipOnAny = true;
-			$this->reset();
-			$this->preTSR = self::initPreTSR( $token );
-			break;
+				$ret = [ $token ];
+				$skipOnAny = true;
+				$this->reset();
+				$this->preTSR = self::initPreTSR( $token );
+				break;
 		}
 
 		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
-			function () use ( $ret ) {
+			static function () use ( $ret ) {
 				return PHPUtils::jsonEncode( $ret );
 			}
 		);
@@ -382,7 +382,7 @@ class PreHandler extends TokenHandler {
 	public function onEnd( EOFTk $token ) {
 		$this->manager->env->log( 'trace/pre', $this->manager->pipelineId, 'eof   |',
 			self::stateStr()[$this->state], '|',
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -409,7 +409,7 @@ class PreHandler extends TokenHandler {
 
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
-			function () use ( $ret ){
+			static function () use ( $ret ){
 				return PHPUtils::jsonEncode( $ret );
 			}
 		);
@@ -446,13 +446,13 @@ class PreHandler extends TokenHandler {
 
 		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
 			self::stateStr()[$this->state], '|',
-			function () use ( $token ) {
+			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
 		);
 
 		if ( $this->state === self::STATE_IGNORE ) {
-			$env->log( 'error', function () use ( $token ) {
+			$env->log( 'error', static function () use ( $token ) {
 				return '!ERROR! IGNORE! Cannot get here: ' . PHPUtils::jsonEncode( $token );
 			} );
 			return $token;
@@ -461,83 +461,83 @@ class PreHandler extends TokenHandler {
 		$ret = [];
 		switch ( $this->state ) {
 			case self::STATE_SOL:
-			if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
-				$ret = $this->tokens;
-				$this->tokens = [];
-				$this->preWSToken = $token[0];
-				$this->state = self::STATE_PRE;
-				if ( strlen( $token ) > 1 ) {
-					// Treat everything after the first space
-					// as a new token
-					// (`substr` not `mb_substr` since we know space is ASCII)
-					$this->onAny( substr( $token, 1 ) );
+				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
+					$ret = $this->tokens;
+					$this->tokens = [];
+					$this->preWSToken = $token[0];
+					$this->state = self::STATE_PRE;
+					if ( strlen( $token ) > 1 ) {
+						// Treat everything after the first space
+						// as a new token
+						// (`substr` not `mb_substr` since we know space is ASCII)
+						$this->onAny( substr( $token, 1 ) );
+					}
+				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
+					// continue watching ...
+					// update pre-tsr since we haven't transitioned to PRE yet
+					$this->preTSR = $this->getUpdatedPreTSR( $this->preTSR, $token );
+					$this->tokens[] = $token;
+				} else {
+					$ret = $this->getResultAndReset( $token );
+					$this->moveToIgnoreState();
 				}
-			} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
-				// continue watching ...
-				// update pre-tsr since we haven't transitioned to PRE yet
-				$this->preTSR = $this->getUpdatedPreTSR( $this->preTSR, $token );
-				$this->tokens[] = $token;
-			} else {
-				$ret = $this->getResultAndReset( $token );
-				$this->moveToIgnoreState();
-			}
-			break;
+				break;
 
 			case self::STATE_PRE:
-			if ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
-				$this->solTransparentTokens[] = $token;
-			} elseif ( TokenUtils::isTableTag( $token ) ||
-				( TokenUtils::isHTMLTag( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) )
-			) {
-				$ret = $this->getResultAndReset( $token );
-				$this->moveToIgnoreState();
-			} else {
-				$this->preCollectCurrentLine = $this->solTransparentTokens;
-				$this->preCollectCurrentLine[] = $token;
-				$this->solTransparentTokens = [];
-				$this->state = self::STATE_PRE_COLLECT;
-			}
-			break;
+				if ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
+					$this->solTransparentTokens[] = $token;
+				} elseif ( TokenUtils::isTableTag( $token ) ||
+					( TokenUtils::isHTMLTag( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) )
+				) {
+					$ret = $this->getResultAndReset( $token );
+					$this->moveToIgnoreState();
+				} else {
+					$this->preCollectCurrentLine = $this->solTransparentTokens;
+					$this->preCollectCurrentLine[] = $token;
+					$this->solTransparentTokens = [];
+					$this->state = self::STATE_PRE_COLLECT;
+				}
+				break;
 
 			case self::STATE_PRE_COLLECT:
-			if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
-				$ret = $this->encounteredBlockWhileCollecting( $token );
-				$this->moveToIgnoreState();
-			} else {
-				// nothing to do .. keep collecting!
-				$this->preCollectCurrentLine[] = $token;
-			}
-			break;
+				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
+					$ret = $this->encounteredBlockWhileCollecting( $token );
+					$this->moveToIgnoreState();
+				} else {
+					// nothing to do .. keep collecting!
+					$this->preCollectCurrentLine[] = $token;
+				}
+				break;
 
 			case self::STATE_MULTILINE_PRE:
-			if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
-				$this->popLastNL( $this->tokens );
-				$this->state = self::STATE_PRE_COLLECT;
-				$this->preWSToken = null;
+				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
+					$this->popLastNL( $this->tokens );
+					$this->state = self::STATE_PRE_COLLECT;
+					$this->preWSToken = null;
 
-				// Pop buffered sol-transparent tokens
-				$this->tokens = array_merge( $this->tokens, $this->solTransparentTokens );
-				$this->solTransparentTokens = [];
+					// Pop buffered sol-transparent tokens
+					$this->tokens = array_merge( $this->tokens, $this->solTransparentTokens );
+					$this->solTransparentTokens = [];
 
-				// check if token is single-space or more
-				$this->multiLinePreWSToken = $token[0];
-				if ( strlen( $token ) > 1 ) {
-					// Treat everything after the first space as a new token
-					// (`substr` not `mb_substr` since we know space is ASCII)
-					$this->onAny( substr( $token, 1 ) );
+					// check if token is single-space or more
+					$this->multiLinePreWSToken = $token[0];
+					if ( strlen( $token ) > 1 ) {
+						// Treat everything after the first space as a new token
+						// (`substr` not `mb_substr` since we know space is ASCII)
+						$this->onAny( substr( $token, 1 ) );
+					}
+				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
+					$this->solTransparentTokens[] = $token;
+				} else {
+					$ret = $this->processPre( $token );
+					$this->moveToIgnoreState();
 				}
-			} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
-				$this->solTransparentTokens[] = $token;
-			} else {
-				$ret = $this->processPre( $token );
-				$this->moveToIgnoreState();
-			}
-			break;
+				break;
 		}
 
 		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
-			function () use ( $ret ) {
+			static function () use ( $ret ) {
 				return PHPUtils::jsonEncode( $ret );
 			}
 		);

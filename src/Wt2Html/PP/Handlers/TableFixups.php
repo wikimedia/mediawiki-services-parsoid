@@ -250,7 +250,7 @@ class TableFixups {
 		// templated content in this fashion anyway, we might as well use the
 		// same logic uniformly.
 
-		$traverse = function ( ?DOMNode $child ) use (
+		$traverse = static function ( ?DOMNode $child ) use (
 			&$traverse, &$buf, &$nowikis, &$transclusions
 		): bool {
 			while ( $child ) {
@@ -383,7 +383,7 @@ class TableFixups {
 		if ( preg_match( '/<nowiki-marker>/', $attributishPrefix ) ) {
 			$attributishPrefix = preg_replace_callback(
 				'/<nowiki-marker>/',
-				function ( $unused ) use ( &$attributishContent ) {
+				static function ( $unused ) use ( &$attributishContent ) {
 					// This is a little tricky. We want to use the content from the
 					// nowikis to reparse the string to key/val pairs but the rule,
 					// single_cell_table_args, will invariably get tripped up on

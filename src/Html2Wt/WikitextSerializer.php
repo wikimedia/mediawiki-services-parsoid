@@ -567,7 +567,7 @@ class WikitextSerializer {
 		if ( $forceTrim ) {
 			$value = trim( $value );
 		}
-		return preg_replace_callback( '/_+/', function ( $m ) use ( $value ) {
+		return preg_replace_callback( '/_+/', static function ( $m ) use ( $value ) {
 			if ( $value === '' ) {
 				return $value;
 			}
@@ -591,7 +591,7 @@ class WikitextSerializer {
 		array $dpArgInfo, ?array $tplData, array $dataMwKeys
 	): Closure {
 		// Record order of parameters in new data-mw
-		$newOrder = array_map( function ( $key, $i ) {
+		$newOrder = array_map( static function ( $key, $i ) {
 			return [ $key, [ 'order' => $i ] ];
 		}, $dataMwKeys, array_keys( $dataMwKeys ) );
 		// Record order of parameters in templatedata (if present)
@@ -627,7 +627,7 @@ class WikitextSerializer {
 		// so that newly-added parameters are placed near the parameters which
 		// templatedata says they should be adjacent to.
 		$nearestOrder = $origOrder;
-		$reduceF = function ( $acc, $val ) use ( &$origOrder, &$nearestOrder ) {
+		$reduceF = static function ( $acc, $val ) use ( &$origOrder, &$nearestOrder ) {
 			if ( isset( $origOrder[$val] ) ) {
 				$acc = $origOrder[$val];
 			}
@@ -647,12 +647,12 @@ class WikitextSerializer {
 		// Helper function to return a large number if the given key isn't
 		// in the sort order map
 		$big = max( count( $nearestOrder ), count( $newOrder ) );
-		$defaultGet = function ( $map, $key1, $key2 = null ) use ( &$big ) {
+		$defaultGet = static function ( $map, $key1, $key2 = null ) use ( &$big ) {
 			$key = ( !$key2 || isset( $map[$key1] ) ) ? $key1 : $key2;
 			return $map[$key]['order'] ?? $big;
 		};
 
-		return function ( $a, $b ) use (
+		return static function ( $a, $b ) use (
 			&$aliasMap, &$defaultGet, &$nearestOrder, &$tplDataOrder, &$newOrder
 		) {
 			$aCanon = $aliasMap[$a] ?? [ 'key' => $a, 'order' => -1 ];
@@ -741,7 +741,7 @@ class WikitextSerializer {
 		// Trim whitespace from data-mw keys to deal with non-compliant
 		// clients. Make sure param info is accessible for the stripped key
 		// since later code will be using the stripped key always.
-		$tplKeysFromDataMw = array_map( function ( $key ) use ( $part ) {
+		$tplKeysFromDataMw = array_map( static function ( $key ) use ( $part ) {
 			// PORT-FIXME do we care about different whitespace semantics for trim?
 			$strippedKey = trim( $key );
 			if ( $key !== $strippedKey ) {
@@ -813,7 +813,7 @@ class WikitextSerializer {
 		$argIndex = 1;
 		$numericIndex = 1;
 
-		$numPositionalArgs = array_reduce( $dpArgInfo, function ( $n, $pi ) use ( $part ) {
+		$numPositionalArgs = array_reduce( $dpArgInfo, static function ( $n, $pi ) use ( $part ) {
 			return ( isset( $part->params->{$pi->k} ) && empty( $pi->named ) ) ? $n + 1 : $n;
 		}, 0 );
 
@@ -1001,7 +1001,7 @@ class WikitextSerializer {
 		// key='value'
 		// FIXME: with no dataAttribs, shadow info will mark it as new
 		$attrs = (array)( $dataMw->attrs ?? [] );
-		$extTok = new TagTk( $extName, array_map( function ( $key ) use ( $attrs ) {
+		$extTok = new TagTk( $extName, array_map( static function ( $key ) use ( $attrs ) {
 			return new KV( $key, $attrs[$key] );
 		}, array_keys( $attrs ) ) );
 
@@ -1186,7 +1186,7 @@ class WikitextSerializer {
 
 				$out = $state->getOrigSrc( $dp->dsr->start, $dp->dsr->end ) ?? '';
 
-				$this->trace( 'ORIG-src with DSR', function () use ( $dp, $out ) {
+				$this->trace( 'ORIG-src with DSR', static function () use ( $dp, $out ) {
 					return '[' . $dp->dsr->start . ',' . $dp->dsr->end . '] = '
 						. PHPUtils::jsonEncode( $out );
 				} );
@@ -1280,14 +1280,14 @@ class WikitextSerializer {
 
 		if ( $state->selserMode ) {
 			$this->trace(
-				function () use ( $node ) {
+				static function () use ( $node ) {
 					return WTSUtils::traceNodeName( $node );
 				},
 				'; prev-unmodified: ', $state->prevNodeUnmodified,
 				'; SOL: ', $state->onSOL );
 		} else {
 			$this->trace(
-				function () use ( $node ) {
+				static function () use ( $node ) {
 					return WTSUtils::traceNodeName( $node );
 				},
 				'; SOL: ', $state->onSOL );
@@ -1375,7 +1375,7 @@ class WikitextSerializer {
 			return $line;
 		}
 
-		$escaper = function ( string $wt ) use ( $state ) {
+		$escaper = static function ( string $wt ) use ( $state ) {
 			$ret = $state->serializer->wteHandlers->escapedText( $state, false, $wt, false, true );
 			return $ret;
 		};

@@ -526,7 +526,7 @@ class Sanitizer {
 	public static function cleanUrl( SiteConfig $siteConfig, string $href, string $mode ): ?string {
 		if ( $mode !== 'wikilink' ) {
 			$href = preg_replace_callback(
-				'/([\][<>"\x00-\x20\x7F\|])/', function ( $matches ) {
+				'/([\][<>"\x00-\x20\x7F\|])/', static function ( $matches ) {
 					return urlencode( $matches[0] );
 				}, $href
 			);
@@ -789,7 +789,7 @@ class Sanitizer {
 	): string {
 		return self::delimiterReplaceCallback(
 			$startDelim, $endDelim,
-			function ( array $matches ) use ( $replace ) {
+			static function ( array $matches ) use ( $replace ) {
 				return strtr( $replace, [ '$0' => $matches[0], '$1' => $matches[1] ] );
 			},
 			$subject, $flags
@@ -1089,7 +1089,7 @@ class Sanitizer {
 			$title = $bits[0];
 		}
 		$title = preg_replace_callback(
-			'/[%? \[\]#|<>]/', function ( $matches ) {
+			'/[%? \[\]#|<>]/', static function ( $matches ) {
 				return PHPUtils::encodeURIComponent( $matches[0] );
 			}, $title );
 		if ( $anchor !== null ) {
@@ -1121,7 +1121,7 @@ class Sanitizer {
 		$space = preg_replace( '#(?<!\\\\)(\\$|\\\\)#', '\\\\$1', $space );
 		return preg_replace(
 			array_keys( self::FIXTAGS ),
-			array_map( function ( string $replacement ) use ( $space ) {
+			array_map( static function ( string $replacement ) use ( $space ) {
 				// @phan-suppress-next-line PhanPluginPrintfVariableFormatString
 				return sprintf( $replacement, $space );
 			}, array_values( self::FIXTAGS ) ),

@@ -92,7 +92,7 @@ class LanguageVariantHandler {
 		array $originalFlags, array $flSp, array $flags, bool $noFilter,
 		?string $protectFunc
 	): string {
-		$filterInternal = function ( $f ) use ( $noFilter ) {
+		$filterInternal = static function ( $f ) use ( $noFilter ) {
 			// Filter out internal-use-only flags
 			if ( $noFilter ) {
 				return true;
@@ -101,14 +101,14 @@ class LanguageVariantHandler {
 		};
 		$flags = array_filter( $flags, $filterInternal );
 
-		$sortByOriginalPosition = function ( $a, $b ) use ( $originalFlags ) {
+		$sortByOriginalPosition = static function ( $a, $b ) use ( $originalFlags ) {
 			$ai = $originalFlags[$a] ?? -1;
 			$bi = $originalFlags[$b] ?? -1;
 			return $ai - $bi;
 		};
 		usort( $flags, $sortByOriginalPosition );
 
-		$insertOriginalWhitespace = function ( $f ) use ( $originalFlags, $protectFunc, $flSp ) {
+		$insertOriginalWhitespace = static function ( $f ) use ( $originalFlags, $protectFunc, $flSp ) {
 			// Reinsert the original whitespace around the flag (if any)
 			$i = $originalFlags[$f] ?? null;
 			if ( !empty( $protectFunc ) ) {

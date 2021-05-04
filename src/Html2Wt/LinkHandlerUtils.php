@@ -391,7 +391,7 @@ class LinkHandlerUtils {
 			preg_replace_callback(
 				// phpcs:ignore Generic.Files.LineLength.TooLong
 				'/[\]\[<>"\x00-\x20\x7F\x{A0}\x{1680}\x{180E}\x{2000}-\x{200A}\x{202F}\x{205F}\x{3000}]|-(?=\{)/u',
-				function ( $m ) {
+				static function ( $m ) {
 					return Utils::entityEncodeAll( $m[0] );
 				},
 				$urlStr
@@ -1102,7 +1102,7 @@ class LinkHandlerUtils {
 		$mwAliases = $state->getEnv()->getSiteConfig()->mwAliases();
 
 		// Return ref to the array element in case it is modified
-		$getOpt = function & ( $key ) use ( &$outerDP ): ?array {
+		$getOpt = static function & ( $key ) use ( &$outerDP ): ?array {
 			$null = null;
 			if ( empty( $outerDP->optList ) ) {
 				return $null;
@@ -1115,7 +1115,7 @@ class LinkHandlerUtils {
 			return $null;
 		};
 		// Return ref to the array element in case it is modified
-		$getLastOpt = function & ( $key ) use ( &$outerDP ) : ?array {
+		$getLastOpt = static function & ( $key ) use ( &$outerDP ) : ?array {
 			$null = null;
 			$opts = $outerDP->optList ?? [];
 			for ( $i = count( $opts ) - 1;  $i >= 0;  $i-- ) {
@@ -1605,17 +1605,17 @@ class LinkHandlerUtils {
 
 		// Filter out bogus options if the image options/caption have changed.
 		if ( $changed ) {
-			$nopts = array_filter( $nopts, function ( $no ) {
+			$nopts = array_filter( $nopts, static function ( $no ) {
 				return $no['ck'] !== 'bogus';
 			} );
 			// empty captions should get filtered out in this case, too (T64264)
-			$nopts = array_filter( $nopts, function ( $no ) {
+			$nopts = array_filter( $nopts, static function ( $no ) {
 				return !( $no['ck'] === 'caption' && $no['ak'] === '' );
 			} );
 		}
 
 		// sort!
-		usort( $nopts, function ( $a, $b ) {
+		usort( $nopts, static function ( $a, $b ) {
 			return $a['sortId'] <=> $b['sortId'];
 		} );
 

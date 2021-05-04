@@ -270,7 +270,7 @@ class XMLSerializer {
 			? function ( string $bit, DOMNode $node, ?string $flag = null ) use ( &$out ): void {
 				self::accumOffsets( $out, $bit, $node, $flag );
 			}
-			: function ( string $bit ) use ( &$out ): void {
+			: static function ( string $bit ) use ( &$out ): void {
 				$out['html'] .= $bit;
 			};
 

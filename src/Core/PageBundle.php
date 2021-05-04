@@ -131,7 +131,7 @@ class PageBundle {
 	public static function apply( DOMDocument $doc, PageBundle $pb ): void {
 		DOMUtils::visitDOM(
 			DOMCompat::getBody( $doc ),
-			function ( DOMNode $node ) use ( &$pb ): void {
+			static function ( DOMNode $node ) use ( &$pb ): void {
 				if ( $node instanceof DOMElement ) {
 					$id = $node->getAttribute( 'id' ) ?? '';
 					if ( isset( $pb->parsoid['ids'][$id] ) ) {

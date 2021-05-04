@@ -70,7 +70,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( PHP_VERSION_ID < 70400 ) {
 			// Below PHP 7.4, proc_open only takes a string, not an array :(
 			// Do a hacky job of escaping shell arguments
-			$cmd = implode( ' ', array_map( function ( $a ) {
+			$cmd = implode( ' ', array_map( static function ( $a ) {
 				return '"' . str_replace(
 					[ '"', '$' ],
 					[ '\"', '\$' ],
@@ -116,7 +116,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @return array<string>
 	 */
 	private static function cmd( ...$commands ):array {
-		return array_merge( ...array_map( function ( $item ) {
+		return array_merge( ...array_map( static function ( $item ) {
 			return is_string( $item ) ? explode( ' ', $item ) : $item;
 		}, $commands ) );
 	}
@@ -272,7 +272,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 				var_dump( $oracleRes );
 				echo( "$maybeBad (maybe bad) results:\n" );
 				var_dump( $commitRes );
-				$degraded = function ( $newRes, $oldRes ) {
+				$degraded = static function ( $newRes, $oldRes ) {
 					// NOTE: We are conservatively assuming that even if semantic
 					// errors go down but syntactic errors go up, it is a degradation.
 					return ( $newRes['error'] ?? 0 ) > ( $oldRes['error'] ?? 0 ) ||

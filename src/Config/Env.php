@@ -850,7 +850,7 @@ class Env {
 	 */
 	public function recordLint( string $type, array $lintData ): void {
 		// Parsoid-JS tests don't like getting null properties where JS had undefined.
-		$lintData = array_filter( $lintData, function ( $v ) {
+		$lintData = array_filter( $lintData, static function ( $v ) {
 			return $v !== null;
 		} );
 

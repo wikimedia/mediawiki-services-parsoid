@@ -26,7 +26,7 @@ class ConfigUtils {
 			'extralanglink' => true,
 			'linktext' => true,
 		];
-		$cb = function ( $v ) {
+		$cb = static function ( $v ) {
 			return $v !== false;
 		};
 		foreach ( $iwData as $iwEntry ) {

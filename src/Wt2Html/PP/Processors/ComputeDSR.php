@@ -276,7 +276,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param mixed ...$args
 	 */
 	private function trace( Env $env, ...$args ): void {
-		$env->log( "trace/dsr", function () use ( $args ) {
+		$env->log( "trace/dsr", static function () use ( $args ) {
 			$buf = '';
 			foreach ( $args as $arg ) {
 				$buf .= ( gettype( $arg ) === 'string' ? $arg : PHPUtils::jsonEncode( $arg ) );
@@ -370,7 +370,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				}
 			}
 
-			$env->log( "trace/dsr", function () use ( $child, $cs, $ce ) {
+			$env->log( "trace/dsr", static function () use ( $child, $cs, $ce ) {
 				// slow, for debugging only
 				$i = 0;
 				foreach ( $child->parentNode->childNodes as $x ) {
@@ -574,7 +574,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						 * ------------------------------------------------------------- */
 						$newDsr = [ $ccs, $cce ];
 					} else {
-						$env->log( "trace/dsr", function () use ( $env, $cs, $ce, $stWidth, $etWidth, $ccs, $cce ) {
+						$env->log( "trace/dsr", static function () use (
+							$env, $cs, $ce, $stWidth, $etWidth, $ccs, $cce
+						) {
 							return "     before-recursing:" .
 								"[cs,ce]=" . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 								"; [sw,ew]=" . PHPUtils::jsonEncode( [ $stWidth, $etWidth ] ) .
@@ -624,7 +626,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth );
 					}
 
-					$env->log( "trace/dsr", function () use ( $frame, $child, $cs, $ce, $dp ) {
+					$env->log( "trace/dsr", static function () use ( $frame, $child, $cs, $ce, $dp ) {
 						$str = "     UPDATING " . $child->nodeName .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $child->getAttribute( "typeof" ) ?? "" );
@@ -673,7 +675,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							}
 
 							// Update and move right
-							$env->log( "trace/dsr", function () use ( $frame, $newCE, $sibling, $siblingDP ) {
+							$env->log( "trace/dsr", static function () use ( $frame, $newCE, $sibling, $siblingDP ) {
 								$str = "     CHANGING ce.start of " . $sibling->nodeName .
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
 								// debug info

@@ -18,7 +18,7 @@ class EnvTest extends \PHPUnit\Framework\TestCase {
 	public function testResolveTitle( $args, $expect, $ns = 4, $title = 'Wikipedia:Foo/bar/baz' ) {
 		$pageConfig = $this->getMockBuilder( MockPageConfig::class )
 			->setConstructorArgs( [ [], null ] )
-			->setMethods( [ 'getTitle', 'getNs', 'getRevisionContent' ] )
+			->onlyMethods( [ 'getTitle', 'getNs', 'getRevisionContent' ] )
 			->getMock();
 		$pageConfig->method( 'getTitle' )->willReturn( $title );
 		$pageConfig->method( 'getNs' )->willReturn( $ns );
@@ -28,9 +28,9 @@ class EnvTest extends \PHPUnit\Framework\TestCase {
 
 		$siteConfig = $this->getMockBuilder( MockSiteConfig::class )
 			->setConstructorArgs( [ [] ] )
-			->setMethods( [ 'namespaceHasSubpages' ] )
+			->onlyMethods( [ 'namespaceHasSubpages' ] )
 			->getMock();
-		$siteConfig->method( 'namespaceHasSubpages' )->willReturnCallback( function ( $ns ) {
+		$siteConfig->method( 'namespaceHasSubpages' )->willReturnCallback( static function ( $ns ) {
 			return $ns !== 0;
 		} );
 

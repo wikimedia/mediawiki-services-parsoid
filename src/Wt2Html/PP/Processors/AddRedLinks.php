@@ -25,7 +25,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 		$titles = array_reduce(
 			$wikiLinks,
-			function ( array $s, DOMElement $a ): array {
+			static function ( array $s, DOMElement $a ): array {
 				// Magic links, at least, don't have titles
 				if ( $a->hasAttribute( 'title' ) ) {
 					$s[] = $a->getAttribute( 'title' );

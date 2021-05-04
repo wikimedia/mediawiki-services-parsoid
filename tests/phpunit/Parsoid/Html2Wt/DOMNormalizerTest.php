@@ -44,7 +44,7 @@ class DOMNormalizerTest extends TestCase {
 		$DOMNormalizer->normalize( $body );
 
 		if ( $stripDiffMarkers ) {
-			DOMUtils::visitDOM( $body, function ( \DOMNode $node ) {
+			DOMUtils::visitDOM( $body, static function ( \DOMNode $node ) {
 				if ( DOMUtils::isDiffMarker( $node ) ) {
 					$node->parentNode->removeChild( $node );
 				}

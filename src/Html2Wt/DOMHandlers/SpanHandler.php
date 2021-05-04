@@ -66,7 +66,7 @@ class SpanHandler extends DOMHandler {
 		} elseif ( $node->hasAttribute( 'data-mw-selser-wrapper' ) ) {
 			$state->serializeChildren( $node );
 		} else {
-			$kvs = array_filter( WTSUtils::getAttributeKVArray( $node ), function ( KV $kv ) {
+			$kvs = array_filter( WTSUtils::getAttributeKVArray( $node ), static function ( KV $kv ) {
 				return !preg_match( '/^data-parsoid/', $kv->k )
 					&& ( $kv->k !== DOMDataUtils::DATA_OBJECT_ATTR_NAME )
 					&& !( $kv->k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $kv->v ) );

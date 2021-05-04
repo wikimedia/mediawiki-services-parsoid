@@ -258,7 +258,7 @@ class TestRunner {
 	 */
 	private function buildTests(): void {
 		// Startup by loading .txt test file
-		$warnFunc = function ( string $warnMsg ):void {
+		$warnFunc = static function ( string $warnMsg ):void {
 			error_log( $warnMsg );
 		};
 		$normFunc = function ( string $title ):string {
@@ -322,11 +322,11 @@ class TestRunner {
 		$test->changes = $changelist;
 
 		// Helper function for getting a random string
-		$randomString = function () use ( &$alea ): string {
+		$randomString = static function () use ( &$alea ): string {
 			return base_convert( (string)$alea->uint32(), 10, 36 );
 		};
 
-		$insertNewNode = function ( DOMNode $n ) use ( $randomString ): void {
+		$insertNewNode = static function ( DOMNode $n ) use ( $randomString ): void {
 			// Insert a text node, if not in a fosterable position.
 			// If in foster position, enter a comment.
 			// In either case, dom-diff should register a new node
@@ -387,11 +387,11 @@ class TestRunner {
 			$n->parentNode->insertBefore( $newNode, $n );
 		};
 
-		$removeNode = function ( DOMNode $n ): void {
+		$removeNode = static function ( DOMNode $n ): void {
 			$n->parentNode->removeChild( $n );
 		};
 
-		$applyChangesInternal = function ( DOMNode $node, array $changes ) use (
+		$applyChangesInternal = static function ( DOMNode $node, array $changes ) use (
 			&$env, &$applyChangesInternal, $removeNode, $insertNewNode,
 			$randomString
 		): void {
@@ -490,7 +490,7 @@ class TestRunner {
 		 *
 		 * Currently true for template and extension content, and for entities.
 		 */
-		$domSubtreeIsEditable = function ( DOMNode $node ): bool {
+		$domSubtreeIsEditable = static function ( DOMNode $node ): bool {
 			return !( $node instanceof DOMElement ) ||
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
 					// These wrappers can only be edited in restricted ways.
@@ -509,7 +509,7 @@ class TestRunner {
 		 * Currently, this restriction is only applied to DOMs generated for images.
 		 * Possibly, there are other candidates.
 		 */
-		$nodeIsUneditable = function ( DOMNode $node ) use ( &$nodeIsUneditable ): bool {
+		$nodeIsUneditable = static function ( DOMNode $node ) use ( &$nodeIsUneditable ): bool {
 			// Text and comment nodes are always editable
 			if ( !( $node instanceof DOMElement ) ) {
 				return false;
@@ -530,7 +530,7 @@ class TestRunner {
 
 		$defaultChangeType = 0;
 
-		$hasChangeMarkers = function ( array $list ) use (
+		$hasChangeMarkers = static function ( array $list ) use (
 			&$hasChangeMarkers, $defaultChangeType
 		): bool {
 			// If all recorded changes are 0, then nothing has been modified
@@ -544,7 +544,7 @@ class TestRunner {
 			return false;
 		};
 
-		$genChangesInternal = function ( DOMNode $node ) use (
+		$genChangesInternal = static function ( DOMNode $node ) use (
 			&$genChangesInternal, &$hasChangeMarkers,
 			$domSubtreeIsEditable, $nodeIsUneditable, $alea,
 			$defaultChangeType
@@ -624,7 +624,7 @@ class TestRunner {
 		// on the results of the selector in the first argument, which is
 		// a good way to get at the text and comment nodes
 		$jquery = [
-			'after' => function ( DOMNode $node, string $html ) {
+			'after' => static function ( DOMNode $node, string $html ) {
 				$div = null;
 				$tbl = null;
 				if ( $node->parentNode->nodeName === 'tbody' ) {
@@ -646,7 +646,7 @@ class TestRunner {
 					DOMUtils::migrateChildren( $div, $node->parentNode, $node->nextSibling );
 				}
 			},
-			'append' => function ( DOMNode $node, string $html ) {
+			'append' => static function ( DOMNode $node, string $html ) {
 				if ( $node->nodeName === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
@@ -658,11 +658,11 @@ class TestRunner {
 					DOMUtils::migrateChildren( $div, $node );
 				}
 			},
-			'attr' => function ( DOMNode $node, string $name, string $val ) {
+			'attr' => static function ( DOMNode $node, string $name, string $val ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				$node->setAttribute( $name, $val );
 			},
-			'before' => function ( DOMNode $node, string $html ) {
+			'before' => static function ( DOMNode $node, string $html ) {
 				$div = null;
 				$tbl = null;
 				if ( $node->parentNode->nodeName === 'tbody' ) {
@@ -683,26 +683,26 @@ class TestRunner {
 					DOMUtils::migrateChildren( $div, $node->parentNode, $node );
 				}
 			},
-			'removeAttr' => function ( DOMNode $node, string $name ) {
+			'removeAttr' => static function ( DOMNode $node, string $name ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				$node->removeAttribute( $name );
 			},
-			'removeClass' => function ( DOMNode $node, string $c ) {
+			'removeClass' => static function ( DOMNode $node, string $c ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				DOMCompat::getClassList( $node )->remove( $c );
 			},
-			'addClass' => function ( DOMNode $node, string $c ) {
+			'addClass' => static function ( DOMNode $node, string $c ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				DOMCompat::getClassList( $node )->add( $c );
 			},
-			'text' => function ( DOMNode $node, string $t ) {
+			'text' => static function ( DOMNode $node, string $t ) {
 				$node->textContent = $t;
 			},
-			'html' => function ( DOMNode $node, string $h ) {
+			'html' => static function ( DOMNode $node, string $h ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				DOMCompat::setInnerHTML( $node, $h );
 			},
-			'remove' => function ( DOMNode $node, string $optSelector = null ) {
+			'remove' => static function ( DOMNode $node, string $optSelector = null ) {
 				// jquery lets us specify an optional selector to further
 				// restrict the removed elements.
 				// text nodes don't have the "querySelectorAll" method, so
@@ -722,11 +722,11 @@ class TestRunner {
 					}
 				}
 			},
-			'empty' => function ( DOMNode $node ) {
+			'empty' => static function ( DOMNode $node ) {
 				'@phan-var \DOMElement $node'; // @var \DOMElement $node
 				DOMCompat::replaceChildren( $node );
 			},
-			'wrap' => function ( DOMNode $node, string $w ) {
+			'wrap' => static function ( DOMNode $node, string $w ) {
 				$frag = $node->ownerDocument->createElement( 'div' );
 				DOMCompat::setInnerHTML( $frag, $w );
 				$first = $frag->firstChild;
@@ -1273,7 +1273,7 @@ class TestRunner {
 						 ')/m';
 					$fileContent = preg_replace_callback(
 						$exp,
-						function ( array $matches ) use ( $fail, $updateFormat ) {
+						static function ( array $matches ) use ( $fail, $updateFormat ) {
 							return $matches[1] . $fail[$updateFormat];
 						},
 						$fileContent
@@ -1354,7 +1354,7 @@ class TestRunner {
 				$testModes[] = 'selser';
 			}
 
-			$targetModes = array_filter( $targetModes, function ( string $mode ) use ( $testModes ): bool {
+			$targetModes = array_filter( $targetModes, static function ( string $mode ) use ( $testModes ): bool {
 				return array_search( $mode, $testModes, true ) !== false;
 			} );
 		}

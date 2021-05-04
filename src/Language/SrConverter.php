@@ -41,7 +41,7 @@ class SrConverter extends LanguageConverter {
 				];
 			}
 		}
-		uasort( $r, function ( $a, $b ) {
+		uasort( $r, static function ( $a, $b ) {
 			return $a['stats']->unsafe - $b['stats']->unsafe;
 		} );
 		return $r[0]['othercode'] === $variant;

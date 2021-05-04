@@ -168,7 +168,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		// which must be reinserted, again before storing ...
 		$seenDataIds = [];
 		$t = new DOMTraverser();
-		$t->addHandler( null, function ( ...$args ) use ( &$seenDataIds ) {
+		$t->addHandler( null, static function ( ...$args ) use ( &$seenDataIds ) {
 			return PrepareDOM::handler( $seenDataIds, ...$args );
 		} );
 		$t->traverse( $this->env, $node, [], $this->atTopLevel, null );
@@ -181,7 +181,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	 * @return array
 	 */
 	private function kvArrToAttr( array $maybeAttribs ): array {
-		return array_reduce( $maybeAttribs, function ( $prev, $next ) {
+		return array_reduce( $maybeAttribs, static function ( $prev, $next ) {
 			$prev[$next->k] = $next->v;
 			return $prev;
 		}, [] );
@@ -192,7 +192,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	 * @return array
 	 */
 	private function kvArrToFoster( array $maybeAttribs ): array {
-		return array_map( function ( $attr ) {
+		return array_map( static function ( $attr ) {
 			return [ $attr->k, $attr->v ];
 		}, $maybeAttribs );
 	}
@@ -206,7 +206,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	 */
 	public function stashDataAttribs( array $attribs, object $dataAttribs ): array {
 		$data = [ 'parsoid' => $dataAttribs ];
-		$attribs = array_filter( $attribs, function ( $attr ) use ( &$data ) {
+		$attribs = array_filter( $attribs, static function ( $attr ) use ( &$data ) {
 				if ( $attr->k === 'data-mw' ) {
 					Assert::invariant( !isset( $data['mw'] ), "data-mw already set." );
 					$data['mw'] = json_decode( $attr->v );
@@ -249,7 +249,7 @@ class HTML5TreeBuilder extends PipelineStage {
 
 		$attribs = $this->stashDataAttribs( $attribs, $dataAttribs );
 
-		$this->env->log( 'trace/html', $this->pipelineId, function () use ( $token ) {
+		$this->env->log( 'trace/html', $this->pipelineId, static function () use ( $token ) {
 			return PHPUtils::jsonEncode( $token );
 		} );
 

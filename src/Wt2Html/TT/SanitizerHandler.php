@@ -124,7 +124,7 @@ class SanitizerHandler extends TokenHandler {
 	 */
 	public function onAny( $token ) {
 		$env = $this->manager->env;
-		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
+		$env->log( 'trace/sanitizer', $this->manager->pipelineId, static function () use ( $token ) {
 			return PHPUtils::jsonEncode( $token );
 		} );
 
@@ -138,7 +138,7 @@ class SanitizerHandler extends TokenHandler {
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
 		);
 
-		$env->log( 'trace/sanitizer', $this->manager->pipelineId, function () use ( $token ) {
+		$env->log( 'trace/sanitizer', $this->manager->pipelineId, static function () use ( $token ) {
 			return ' ---> ' . PHPUtils::jsonEncode( $token );
 		} );
 		return [ 'tokens' => [ $token ] ];

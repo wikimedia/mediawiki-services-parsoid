@@ -18,7 +18,7 @@ class State {
 	 */
 	public function __construct( array $line ) {
 		$this->leftContext = '';
-		$this->rightContext = implode( '', array_map( function ( $ct ) {
+		$this->rightContext = implode( '', array_map( static function ( $ct ) {
 			return $ct->text;
 		}, $line ) );
 		$this->line = $line;

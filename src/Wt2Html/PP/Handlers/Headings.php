@@ -145,7 +145,7 @@ class Headings {
 		$key = $node->getAttribute( 'id' );
 		$key = preg_replace_callback(
 			'/[A-Z]+/',
-			function ( $matches ) {
+			static function ( $matches ) {
 				return strtolower( $matches[0] );
 			},
 			$key

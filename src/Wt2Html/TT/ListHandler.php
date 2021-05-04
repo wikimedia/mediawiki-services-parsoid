@@ -92,7 +92,7 @@ class ListHandler extends TokenHandler {
 	 */
 	public function onAny( $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'ANY:', function () use ( $token ) {
+			'ANY:', static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
 		$tokens = null;
@@ -201,7 +201,7 @@ class ListHandler extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'END:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
+			'END:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
 			} );
 
 		$this->listFrames = [];
@@ -362,14 +362,14 @@ class ListHandler extends TokenHandler {
 	 */
 	private function doListItem( array $bs, array $bn, Token $token ): array {
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'BEGIN:', function () use ( $token ) { return PHPUtils::jsonEncode( $token );
+			'BEGIN:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
 			} );
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
 		$dp = $token->dataAttribs;
 
-		$makeDP = function ( $k, $j ) use ( $dp ) {
+		$makeDP = static function ( $k, $j ) use ( $dp ) {
 			$newDP = Utils::clone( $dp );
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
@@ -386,7 +386,7 @@ class ListHandler extends TokenHandler {
 		$itemToken = null;
 
 		// emit close tag tokens for closed lists
-		$this->env->log( 'trace/list', $this->manager->pipelineId, function () use ( $bs, $bn ) {
+		$this->env->log( 'trace/list', $this->manager->pipelineId, static function () use ( $bs, $bn ) {
 			return '    bs: ' . PHPUtils::jsonEncode( $bs ) . '; bn: ' . PHPUtils::jsonEncode( $bn );
 		} );
 
@@ -525,7 +525,7 @@ class ListHandler extends TokenHandler {
 		$this->currListFrame->atEOL = false;
 
 		$this->env->log( 'trace/list', $this->manager->pipelineId,
-			'RET:', function () use ( $res ) { return PHPUtils::jsonEncode( $res );
+			'RET:', static function () use ( $res ) { return PHPUtils::jsonEncode( $res );
 			} );
 		return $res;
 	}

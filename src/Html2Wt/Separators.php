@@ -286,7 +286,7 @@ class Separators {
 		$this->state->getEnv()->log(
 			'debug/wts/sep',
 			'make-new   |',
-			function () use ( $nlConstraints, $sepNlCount, $minNls, $sep, $origSep ) {
+			static function () use ( $nlConstraints, $sepNlCount, $minNls, $sep, $origSep ) {
 				$constraints = Utils::clone( $nlConstraints );
 				unset( $constraints['constraintInfo'] );
 				return PHPUtils::jsonEncode( $sep ) . ', ' . PHPUtils::jsonEncode( $origSep ) . ', ' .
@@ -538,7 +538,7 @@ class Separators {
 				// This avoids triggering indent-pres.
 				$sep = preg_replace_callback(
 					self::WS_COMMENTS_SEP_REGEXP,
-					function ( $matches ) use ( $stripLeadingSpace, $state ) {
+					static function ( $matches ) use ( $stripLeadingSpace, $state ) {
 						$rest = $matches[2] ?? '';
 						if ( $stripLeadingSpace ) {
 							// No other option but to strip the leading space
@@ -558,7 +558,7 @@ class Separators {
 		$state->getEnv()->log(
 			'debug/wts/sep',
 			'ipre-safe  |',
-			function () use ( $sep, $nlConstraints ) {
+			static function () use ( $sep, $nlConstraints ) {
 				$constraints = Utils::clone( $nlConstraints );
 				unset( $constraints['constraintInfo'] );
 				return PHPUtils::jsonEncode( $sep ) . ', ' . PHPUtils::jsonEncode( $constraints );
@@ -1009,7 +1009,7 @@ class Separators {
 
 		$this->env->log(
 			'debug/wts/sep',
-			function () use ( $prevNode, $origNode, $sep, $state ) {
+			static function () use ( $prevNode, $origNode, $sep, $state ) {
 				return 'maybe-sep  | ' . 'prev:' . ( $prevNode ? $prevNode->nodeName : '--none--' ) .
 					', node:' . ( $origNode->nodeName ?? '--none--' ) .
 					', sep: ' . PHPUtils::jsonEncode( $sep ) .

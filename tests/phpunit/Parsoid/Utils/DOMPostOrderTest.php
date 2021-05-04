@@ -29,7 +29,7 @@ HTML;
 		$doc = new DOMDocument();
 		$doc->loadHTML( $html );
 
-		DOMPostOrder::traverse( $doc->documentElement, function ( DOMNode $node ) use ( &$trace ) {
+		DOMPostOrder::traverse( $doc->documentElement, static function ( DOMNode $node ) use ( &$trace ) {
 			if ( $node instanceof DOMElement && $node->hasAttribute( 'id' ) ) {
 				$trace[] = $node->getAttribute( 'id' );
 			}

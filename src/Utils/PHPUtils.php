@@ -307,7 +307,7 @@ class PHPUtils {
 		$newCloseDelimiter = $delimiterPairs[$startDelimiter] ?? $startDelimiter;
 		// escape the new delimiter
 		preg_match_all( '/[^\\\\]|\\\\./s', $stripped, $matches );
-		return implode( '', array_map( function ( $c ) use ( $newDelimiter, $newCloseDelimiter ) {
+		return implode( '', array_map( static function ( $c ) use ( $newDelimiter, $newCloseDelimiter ) {
 			return ( $c === $newDelimiter || $c === $newCloseDelimiter )
 				? ( '\\' . $c ) : $c;
 		}, $matches[0] ) );

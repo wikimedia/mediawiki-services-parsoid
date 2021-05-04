@@ -287,7 +287,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 		$env->log(
 			'trace/tplwrap/findranges',
-			function () use ( &$range ) {
+			static function () use ( &$range ) {
 				$msg = '';
 				$dp1 = DOMDataUtils::getDataParsoid( $range->start );
 				$dp2 = DOMDataUtils::getDataParsoid( $range->end );
@@ -505,7 +505,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 						// 'r' is nested for sure
 						// Record the outermost range in which 'r' is nested.
 						$rangeIds = array_keys( $ranges );
-						$findOutermostRange = function ( $previous, $next ) use ( &$ranges ) {
+						$findOutermostRange = static function ( $previous, $next ) use ( &$ranges ) {
 							return ( $ranges[$next]->startOffset < $ranges[$previous]->startOffset )
 								? $next
 								: $previous;
@@ -568,7 +568,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		}
 
 		// Sort by start offset in source wikitext
-		usort( $tplRanges, function ( $r1, $r2 ) {
+		usort( $tplRanges, static function ( $r1, $r2 ) {
 			return $r1->startOffset - $r2->startOffset;
 		} );
 
@@ -600,7 +600,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				Assert::invariant( isset( $tmp->fromFoster ), 'Template range without arginfo.' );
 			}
 
-			$env->log( 'trace/tplwrap/merge', function () use ( &$DOMDataUtils, &$r ) {
+			$env->log( 'trace/tplwrap/merge', static function () use ( &$DOMDataUtils, &$r ) {
 				$msg = '';
 				$dp1 = DOMDataUtils::getDataParsoid( $r->start );
 				$dp2 = DOMDataUtils::getDataParsoid( $r->end );
@@ -976,7 +976,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				// Map the array of { dsr: .. , args: .. } objects to just the args property
 				$infoIndex = 0;
 				$tplArray = array_map(
-					function ( $a ) use ( &$infoIndex, $startElem ) {
+					static function ( $a ) use ( &$infoIndex, $startElem ) {
 						if ( !empty( $a->wt ) ) {
 							return $a->wt;
 						} else {

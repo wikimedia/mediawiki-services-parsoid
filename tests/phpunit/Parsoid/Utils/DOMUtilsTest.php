@@ -161,6 +161,8 @@ class DOMUtilsTest extends TestCase {
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
 			[ 'modified-wrapper' ]
 		);
+
+		$this->expectNotToPerformAssertions();
 	}
 
 	/**
@@ -180,6 +182,8 @@ class DOMUtilsTest extends TestCase {
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
 			[ 'modified-wrapper' ]
 		);
+
+		$this->expectNotToPerformAssertions();
 	}
 
 	/**
@@ -203,6 +207,8 @@ class DOMUtilsTest extends TestCase {
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
 			[ 'modified-wrapper' ]
 		);
+
+		$this->expectNotToPerformAssertions();
 	}
 
 	/**

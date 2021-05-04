@@ -25,12 +25,12 @@ abstract class RegExpConstrainedText extends ConstrainedText {
 		$this->prefix = $this->prefix ?? '<nowiki/>';
 		$this->suffix = $this->suffix ?? '<nowiki/>';
 		// functions which return true if escape prefix/suffix need to be added
-		$matcher = function ( string $re, bool $invert ): callable {
-			return ( function ( string $context ) use ( $re, $invert ): bool {
+		$matcher = static function ( string $re, bool $invert ): callable {
+			return ( static function ( string $context ) use ( $re, $invert ): bool {
 				return ( preg_match( $re, $context ) ) ? !$invert : $invert;
 			} );
 		};
-		$false = function ( string $context ): bool {
+		$false = static function ( string $context ): bool {
 			return false;
 		};
 		$this->prefixMatcher =

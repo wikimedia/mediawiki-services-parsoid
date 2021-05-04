@@ -114,7 +114,7 @@ class LanguageConverter {
 		if ( $fallback && $code === 'en' ) {
 			return '\Wikimedia\Parsoid\Language\Language';
 		} else {
-			$code = preg_replace_callback( '/^\w/', function ( $matches ) {
+			$code = preg_replace_callback( '/^\w/', static function ( $matches ) {
 				return strtoupper( $matches[0] );
 			}, $code, 1 );
 			$code = preg_replace( '/-/', '_', $code );

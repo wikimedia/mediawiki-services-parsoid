@@ -91,7 +91,7 @@ class ExternalLinkHandler extends TokenHandler {
 		// See https://phabricator.wikimedia.org/T53092
 		return $hasImageExtension &&
 			// true if some prefix in the list matches href
-			self::arraySome( $allowedPrefixes, function ( string $prefix ) use ( &$href ) {
+			self::arraySome( $allowedPrefixes, static function ( string $prefix ) use ( &$href ) {
 				return $prefix === "" || strpos( $href, $prefix ) === 0;
 			} );
 	}

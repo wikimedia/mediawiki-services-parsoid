@@ -300,7 +300,7 @@ class MockSiteConfig extends SiteConfig {
 			'img_class' => "/^(?:(?:class\=(.*?)))$/uS"
 		];
 		$regexes = array_intersect_key( $paramMWs, array_flip( $words ) );
-		return function ( $text ) use ( $regexes ) {
+		return static function ( $text ) use ( $regexes ) {
 			/**
 			 * $name is the canonical magic word name
 			 * $re has patterns for matching aliases

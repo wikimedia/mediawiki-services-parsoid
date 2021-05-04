@@ -57,7 +57,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 
 			// 3. above
 			$contentArray = explode( "\n", $content );
-			$contentMap = array_map( function ( $line ) use ( $extApi ) {
+			$contentMap = array_map( static function ( $line ) use ( $extApi ) {
 				$i = 0;
 				$lineLength = strlen( $line );
 				while ( $i < $lineLength && $line[$i] === ':' ) {
@@ -84,7 +84,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 			$splitContent = preg_split( '/(<nowiki>[\s\S]*?<\/nowiki>)/', $content,
 				-1, PREG_SPLIT_DELIM_CAPTURE );
 			$content = implode( '',
-				array_map( function ( $p, $i ) {
+				array_map( static function ( $p, $i ) {
 					if ( $i % 2 === 1 ) {
 						return $p;
 					}
@@ -102,7 +102,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		// Add the 'poem' class to the 'class' attribute, or if not found, add it
-		$value = $extApi->findAndUpdateArg( $extArgs, 'class', function ( string $value ) {
+		$value = $extApi->findAndUpdateArg( $extArgs, 'class', static function ( string $value ) {
 			return strlen( $value ) ? "poem {$value}" : 'poem';
 		} );
 

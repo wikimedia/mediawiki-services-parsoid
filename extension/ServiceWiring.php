@@ -29,7 +29,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 
 return [
 
-	'ParsoidSiteConfig' => function ( MediaWikiServices $services ): SiteConfig {
+	'ParsoidSiteConfig' => static function ( MediaWikiServices $services ): SiteConfig {
 		$mainConfig = $services->getMainConfig();
 		$parsoidSettings = $mainConfig->get( 'ParsoidSettings' );
 		if ( !empty( $parsoidSettings['debugApi'] ) ) {
@@ -55,12 +55,12 @@ return [
 		);
 	},
 
-	'ParsoidPageConfigFactory' => function ( MediaWikiServices $services ): MWPageConfigFactory {
+	'ParsoidPageConfigFactory' => static function ( MediaWikiServices $services ): MWPageConfigFactory {
 		return new MWPageConfigFactory( $services->getRevisionStore(),
 			$services->getSlotRoleRegistry() );
 	},
 
-	'ParsoidDataAccess' => function ( MediaWikiServices $services ): DataAccess {
+	'ParsoidDataAccess' => static function ( MediaWikiServices $services ): DataAccess {
 		$parsoidSettings = $services->getMainConfig()->get( 'ParsoidSettings' );
 		if ( !empty( $parsoidSettings['debugApi'] ) ) {
 			return ApiDataAccess::fromSettings( $parsoidSettings );
