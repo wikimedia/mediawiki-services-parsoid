@@ -5,6 +5,8 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
+use Wikimedia\Parsoid\Core\MediaStructure;
+use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -34,7 +36,9 @@ class SpanHandler extends DOMHandler {
 				$state->serializer->emitWikitext( $src, $node );
 				$state->singleLineContext->pop();
 			} elseif ( WTUtils::isInlineMedia( $node ) ) {
-				$state->serializer->figureHandler( $node );
+				LinkHandlerUtils::figureHandler(
+					$state, $node, MediaStructure::parse( $node )
+				);
 			} elseif (
 				DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
 				DOMUtils::hasNChildren( $node, 1 )

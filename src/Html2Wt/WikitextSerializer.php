@@ -143,28 +143,6 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * Main figure handler.
-	 *
-	 * All figures have a fixed structure:
-	 * ```
-	 * <figure or span typeof="mw:Image...">
-	 *  <a or span><img ...><a or span>
-	 *  <figcaption>....</figcaption>
-	 * </figure or span>
-	 * ```
-	 * Pull out this fixed structure, being as generous as possible with
-	 * possibly-broken HTML.
-	 *
-	 * @param DOMElement $node
-	 * Used in multiple tag handlers(<figure> and <a>.linkHandler above), and hence added as
-	 * top-level method
-	 * PORT-TODO: rename to something like handleFigure()?
-	 */
-	public function figureHandler( DOMElement $node ): void {
-		LinkHandlerUtils::figureHandler( $this->state, $node );
-	}
-
-	/**
 	 * @param DOMElement $node
 	 * @return void
 	 */

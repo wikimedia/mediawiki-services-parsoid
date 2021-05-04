@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 use DOMDocumentFragment;
 use DOMElement;
 use stdClass;
+use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -196,26 +197,23 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 				if ( !$thumb ) {
 					break;
 				}
-				// FIXME: The below would benefit from a refactoring that
-				// assumes the figure structure, as in the link handler.
-				$elt = DOMUtils::selectMediaElt( $thumb );
-				if ( $elt ) {
-					// FIXME: Should we preserve the original namespace?  See T151367
-					if ( $elt->hasAttribute( 'resource' ) ) {
-						$resource = $elt->getAttribute( 'resource' );
+				$ms = MediaStructure::parse( DOMUtils::firstNonSepChild( $thumb ) );
+				if ( $ms ) {
+					// FIXME: Dry all this out with T252246 / T262833
+					if ( $ms->hasResource() ) {
+						$resource = $ms->getResource();
 						$content .= preg_replace( '#^\./#', '', $resource, 1 );
 						// FIXME: Serializing of these attributes should
 						// match the link handler so that values stashed in
 						// data-mw aren't ignored.
-						if ( $elt->hasAttribute( 'alt' ) ) {
-							$alt = $elt->getAttribute( 'alt' );
+						if ( $ms->hasAlt() ) {
+							$alt = $ms->getAlt();
 							$content .= '|alt=' .
 								$extApi->escapeWikitext( $alt, $child, $extApi::IN_MEDIA );
 						}
-						// The first "a" is for the link, hopefully.
-						$a = DOMCompat::querySelector( $thumb, 'a' );
-						if ( $a && $a->hasAttribute( 'href' ) ) {
-							$href = $a->getAttribute( 'href' );
+						// FIXME: Handle missing media
+						if ( $ms->hasMediaUrl() && !$ms->isRedLink() ) {
+							$href = $ms->getMediaUrl();
 							if ( $href !== $resource ) {
 								$href = preg_replace( '#^\./#', '', $href, 1 );
 								$content .= '|link=' .

@@ -379,18 +379,15 @@ class WTSUtils {
 	}
 
 	/**
-	 * Extracts the media type from attribute string
+	 * Extracts the media format from attribute string
 	 *
 	 * @param DOMElement $node
-	 * @return array
+	 * @return string
 	 */
-	public static function getMediaType( DOMElement $node ): array {
+	public static function getMediaFormat( DOMElement $node ): string {
 		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/|$)#' );
 		$parts = explode( '/', $mediaType ?? '' );
-		return [
-			'rdfaType' => $parts[0] ?? '',
-			'format' => $parts[1] ?? '',
-		];
+		return $parts[1] ?? '';
 	}
 
 	/**

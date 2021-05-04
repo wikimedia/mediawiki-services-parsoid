@@ -151,12 +151,14 @@ class DOMUtils {
 	}
 
 	/**
-	 * Returns a media element nested in `node`
+	 * Get the first child element or non-IEW text node, ignoring
+	 * whitespace-only text nodes, comments, and deleted nodes.
 	 *
-	 * @param DOMElement $node
-	 * @return ?DOMElement
+	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	public static function selectMediaElt( DOMElement $node ): ?DOMElement {
-		return DU::selectMediaElt( $node );
+	public static function firstNonSepChild( DOMNode $node ): ?DOMNode {
+		return DU::firstNonSepChild( $node );
 	}
+
 }

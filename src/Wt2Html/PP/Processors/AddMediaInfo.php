@@ -636,7 +636,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
 					'height' => (int)$span->getAttribute( 'data-height' ) ?: null,
 				],
-				'format' => WTSUtils::getMediaType( $container )['format'],
+				'format' => WTSUtils::getMediaFormat( $container ),
 				'title' => $env->makeTitleFromText( $span->textContent ),
 			];
 

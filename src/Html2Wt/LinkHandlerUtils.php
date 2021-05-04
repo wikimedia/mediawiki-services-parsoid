@@ -7,6 +7,7 @@ use DOMNode;
 use stdClass;
 use UnexpectedValueException;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
@@ -919,153 +920,77 @@ class LinkHandlerUtils {
 				}
 			}
 
-			$isFigure = false;
 			if ( $isComplexLink ) {
 				$env->log( 'error/html2wt/link', 'Encountered', DOMCompat::getOuterHTML( $node ),
 					'-- serializing as extlink and dropping <a> attributes unsupported in wikitext.'
 				);
 			} else {
-				$media = DOMUtils::selectMediaElt( $node );
-				$isFigure = $media && $media->parentNode === $node;
-			}
-
-			$hrefStr = null;
-			if ( $isFigure ) {
-				// this is a basic html figure: <a><img></a>
-				$state->serializer->figureHandler( $node );
-				return;
-			} else {
-				// href is already percent-encoded, etc., but it might contain
-				// spaces or other wikitext nasties.  escape the nasties.
-				$hrefStr = self::escapeExtLinkURL( self::getHref( $env, $node ) );
-				$handler = [ $state->serializer->wteHandlers, 'aHandler' ];
-				$str = $state->serializeLinkChildrenToString( $node, $handler );
-				$chunk = null;
-				if ( !$hrefStr ) {
-					// Without an href, we just emit the string as text.
-					// However, to preserve targets for anchor links,
-					// serialize as a span with a name.
-					if ( $node->hasAttribute( 'name' ) ) {
-						$name = $node->getAttribute( 'name' );
-						$doc = $node->ownerDocument;
-						$span = $doc->createElement( 'span' );
-						$span->setAttribute( 'name', $name );
-						$span->appendChild( $doc->createTextNode( $str ) );
-						$chunk = DOMCompat::getOuterHTML( $span );
-					} else {
-						$chunk = $str;
-					}
-				} else {
-					$chunk = new ExtLinkText( '[' . $hrefStr . ' ' . $str . ']',
-						$node, $siteConfig, 'mw:ExtLink'
-					);
+				$media = DOMUtils::selectMediaElt( $node );  // TODO: Handle missing media too
+				$isFigure = ( $media instanceof DOMElement && $media->parentNode === $node );
+				if ( $isFigure ) {
+					// this is a basic html figure: <a><img></a>
+					self::figureHandler( $state, $node, new MediaStructure( $media, $node ) );
+					return;
 				}
-				$state->emitChunk( $chunk, $node );
 			}
-		}
-	}
 
-	/**
-	 * Get element name from media type
-	 * @param string $type
-	 * @return string
-	 */
-	private static function eltNameFromMediaType( string $type ): string {
-		switch ( $type ) {
-			case 'mw:Audio':
-				return 'audio';
-			case 'mw:Video':
-				return 'video';
-			default:
-				return 'img';
+			// href is already percent-encoded, etc., but it might contain
+			// spaces or other wikitext nasties.  escape the nasties.
+			$hrefStr = self::escapeExtLinkURL( self::getHref( $env, $node ) );
+			$handler = [ $state->serializer->wteHandlers, 'aHandler' ];
+			$str = $state->serializeLinkChildrenToString( $node, $handler );
+			$chunk = null;
+			if ( !$hrefStr ) {
+				// Without an href, we just emit the string as text.
+				// However, to preserve targets for anchor links,
+				// serialize as a span with a name.
+				if ( $node->hasAttribute( 'name' ) ) {
+					$name = $node->getAttribute( 'name' );
+					$doc = $node->ownerDocument;
+					$span = $doc->createElement( 'span' );
+					$span->setAttribute( 'name', $name );
+					$span->appendChild( $doc->createTextNode( $str ) );
+					$chunk = DOMCompat::getOuterHTML( $span );
+				} else {
+					$chunk = $str;
+				}
+			} else {
+				$chunk = new ExtLinkText( '[' . $hrefStr . ' ' . $str . ']',
+					$node, $siteConfig, 'mw:ExtLink'
+				);
+			}
+			$state->emitChunk( $chunk, $node );
 		}
 	}
 
 	/**
 	 * Main figure handler.
 	 *
-	 * All figures have a fixed structure:
-	 * ```
-	 * <figure or span typeof="mw:Image...">
-	 *  <a or span><img ...><a or span>
-	 *  <figcaption>....</figcaption>
-	 * </figure or span>
-	 * ```
-	 * Pull out this fixed structure, being as generous as possible with
-	 * possibly-broken HTML.
-	 *
 	 * @param SerializerState $state
 	 * @param DOMElement $node
+	 * @param ?MediaStructure $ms
 	 */
-	public static function figureHandler( SerializerState $state, DOMElement $node ): void {
+	public static function figureHandler(
+		SerializerState $state, DOMElement $node, ?MediaStructure $ms
+	): void {
 		$env = $state->getEnv();
-		$outerElt = $node;
 
-		$mediaTypeInfo = WTSUtils::getMediaType( $node );
-		$rdfaType = $mediaTypeInfo['rdfaType'];
-		$format = $mediaTypeInfo['format'];
-
-		$eltName = self::eltNameFromMediaType( $rdfaType );
-		$elt = DOMCompat::querySelector( $node, $eltName );
-		// TODO: Remove this when version 1.7.0 of the content is no longer supported
-		if ( !$elt && $rdfaType === 'mw:Audio' ) {
-			$eltName = 'video';
-			$elt = DOMCompat::querySelector( $node, $eltName );
-		}
-
-		$linkElt = null;
-		// parent of elt is probably the linkElt
-		$parentElt = $elt ? $elt->parentNode : null;
-		if ( $elt && $parentElt instanceof DOMElement && (
-			$parentElt->tagName === 'a' ||
-			( $parentElt->tagName === 'span' && $parentElt !== $outerElt )
-		) ) {
-			$linkElt = $parentElt;
-		}
-
-		// FIGCAPTION or last child (which is not the linkElt) is the caption.
-		$captionElt = DOMCompat::querySelector( $node, 'figcaption' );
-		if ( !$captionElt ) {
-			for (
-				$captionElt = DOMCompat::getLastElementChild( $node );
-				$captionElt;
-				$captionElt = DOMCompat::getPreviousElementSibling( $captionElt )
-			) {
-				if ( $captionElt !== $linkElt && $captionElt !== $elt &&
-					preg_match( '/^(span|div)$/D', $captionElt->tagName )
-				) {
-					break;
-				}
-			}
-		}
-
-		// special case where `node` is the ELT tag itself!
-		if ( $node->tagName === $eltName ) {
-			$linkElt = $captionElt = null;
-			$outerElt = $elt = $node;
-		}
-
-		// Maybe this is "missing" media, i.e. a redlink
-		$isMissing = false;
-		if (
-			!$elt &&
-			( $outerElt->firstChild->nodeName ?? '' ) === 'a' &&
-			( $outerElt->firstChild->firstChild->nodeName ?? '' ) === 'span'
-		) {
-			$linkElt = $outerElt->firstChild;
-			$elt = $linkElt->firstChild;
-			$isMissing = true;
-		}
-
-		// The only essential thing is the ELT tag!
-		if ( !$elt ) {
-			$env->log( 'error/html2wt/figure',
-				'In WSP.figureHandler, node does not have any ' . $eltName . ' elements:',
+		if ( !$ms ) {
+			$env->log(
+				'error/html2wt/figure',
+				"Couldn't parse media structure: ",
 				DOMCompat::getOuterHTML( $node )
 			);
 			$state->emitChunk( '', $node );
 			return;
 		}
+
+		$outerElt = $ms->containerElt ?? $ms->mediaElt;
+		$linkElt = $ms->linkElt;
+		$elt = $ms->mediaElt;
+		$captionElt = $ms->captionElt;
+
+		$format = WTSUtils::getMediaFormat( $outerElt );
 
 		// Try to identify the local title to use for this image.
 		$resource = $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'resource' );
@@ -1446,11 +1371,11 @@ class LinkHandlerUtils {
 
 		// Get the user-specified height from wikitext
 		$wh = $state->serializer->serializedImageAttrVal(
-			$outerElt, $elt, $isMissing ? 'data-height' : 'height'
+			$outerElt, $elt, $ms->isRedLink() ? 'data-height' : 'height'
 		);
 		// Get the user-specified width from wikitext
 		$ww = $state->serializer->serializedImageAttrVal(
-			$outerElt, $elt, $isMissing ? 'data-width' : 'width'
+			$outerElt, $elt, $ms->isRedLink() ? 'data-width' : 'width'
 		);
 
 		$sizeUnmodified = !empty( $ww['fromDataMW'] ) ||
@@ -1500,7 +1425,7 @@ class LinkHandlerUtils {
 					// present, a defined height for audio is ignored while parsing,
 					// so this only has the effect of modifying the width.
 					(
-						$rdfaType !== 'mw:Audio' ||
+						$elt->nodeName !== 'audio' ||
 						!DOMCompat::getClassList( $outerElt )->contains( 'mw-default-audio-height' )
 					)
 				) {
@@ -1631,10 +1556,12 @@ class LinkHandlerUtils {
 		}
 		$wikitext .= ']]';
 
-		$state->emitChunk(
-			new WikiLinkText( $wikitext, $node, $state->getEnv()->getSiteConfig(), $rdfaType ),
-			$node
-		);
+		$state->emitChunk( new WikiLinkText(
+			$wikitext, $node, $state->getEnv()->getSiteConfig(),
+			// FIXME: Does this matter? Emit a constant for now, it'll all
+			// be same in the follow up patch to consolidate the types
+			'mw:Image'
+		), $node );
 	}
 
 }

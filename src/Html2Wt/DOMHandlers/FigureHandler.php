@@ -5,6 +5,8 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use DOMElement;
 use DOMNode;
+use Wikimedia\Parsoid\Core\MediaStructure;
+use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -19,7 +21,9 @@ class FigureHandler extends DOMHandler {
 	public function handle(
 		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?DOMNode {
-		$state->serializer->figureHandler( $node );
+		LinkHandlerUtils::figureHandler(
+			$state, $node, MediaStructure::parse( $node )
+		);
 		return $node->nextSibling;
 	}
 
