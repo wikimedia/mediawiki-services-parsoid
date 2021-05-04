@@ -598,9 +598,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	): void {
 		'@phan-var DOMElement|DOMDocumentFragment $root';  // @var DOMElement|DOMDocumentFragment $root
 		$urlParser = new PegTokenizer( $env );
-		$containers = DOMCompat::querySelectorAll(
-			$root, '[typeof*="mw:Image"], [typeof*="mw:Video"], [typeof*="mw:Audio"]'
-		);
+
+		// Since we haven't fetched info yet, they were all assumed to be mw:Image
+		// See WikiLinkHandler::renderFile()
+		$containers = DOMCompat::querySelectorAll( $root, '[typeof*="mw:Image"]' );
 
 		foreach ( $containers as $container ) {
 			// DOMFragmentWrappers assume the element name of their outermost
