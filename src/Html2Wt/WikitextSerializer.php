@@ -728,6 +728,9 @@ class WikitextSerializer {
 			return $strippedKey;
 		}, array_keys( get_object_vars( $part->params ) ) );
 		if ( !$tplKeysFromDataMw ) {
+			if ( substr( $formatEnd, 0, 1 ) === "\n" ) {
+				$formatEnd = substr( $formatEnd, 1 );
+			}
 			return $buf . $formatEnd;
 		}
 

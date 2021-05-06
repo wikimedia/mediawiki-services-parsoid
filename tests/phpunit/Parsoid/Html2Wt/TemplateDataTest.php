@@ -353,7 +353,7 @@ class TemplateDataTest extends TestCase {
 				]
 			],
 
-			// 19. Custom block formatting 5 - T199849
+			// 20. Custom block formatting 5 - T199849
 			[
 				'name' => 'Custom block formatting 5 - T199849',
 				'html' => "x\n" . '<span about="#mwt1" typeof="mw:Transclusion" data-mw=' . "'" .
@@ -370,7 +370,7 @@ class TemplateDataTest extends TestCase {
 				]
 			],
 
-			// 20. Custom block formatting 6
+			// 21. Custom block formatting 6
 			[
 				'name' => 'Custom block formatting 6',
 				'html' => 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
@@ -383,7 +383,22 @@ class TemplateDataTest extends TestCase {
 					'new_content' => "x{{BlockFormattedTpl_3|\n f1    = |\n f2    = foo}}y", // normalized
 					'edited' => "x{{BlockFormattedTpl_3|\n f1    = |\n f2    = BAR}}y" // normalized
 				]
-			]
+			],
+
+			// 22. Block formatting without params - T282031
+			[
+				'name' => 'Block formatting without params',
+				'html' => 'x<span about="#mwt1" typeof="mw:Transclusion" data-parsoid=' . "'" .
+					'{"pi":[[]]}' . "' data-mw='" .
+					'{"parts":[{"template":{"target":{"wt":"BlockTplNoParamOrder",' .
+					'"href":"./Template:BlockTplNoParamOrder"},"params":{' .
+					'},"i":0}}]}' . "'" . '>something</span>y',
+				'wt' => [
+					'no_selser' => "x{{BlockTplNoParamOrder}}y",
+					'new_content' => "x{{BlockTplNoParamOrder}}y", // normalized
+					'edited' => "x{{BlockTplNoParamOrder}}y" // normalized
+				]
+			],
 		];
 	}
 
