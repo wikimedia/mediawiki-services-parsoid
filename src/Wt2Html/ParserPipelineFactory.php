@@ -226,10 +226,7 @@ class ParserPipelineFactory {
 		$prevStage = null;
 		$recipeStages = $recipe["stages"];
 
-		for ( $i = 0, $l = count( $recipeStages ); $i < $l; $i++ ) {
-			// create the stage
-			$stageId = $recipeStages[$i];
-
+		foreach ( $recipeStages as $stageId ) {
 			$stageData = self::$stages[$stageId];
 			$stage = new $stageData["class"]( $this->env, $options, $stageId, $prevStage );
 			if ( isset( $stageData["transformers"] ) ) {

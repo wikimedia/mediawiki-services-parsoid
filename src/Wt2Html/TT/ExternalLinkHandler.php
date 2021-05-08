@@ -20,9 +20,6 @@ class ExternalLinkHandler extends TokenHandler {
 	/** @var PegTokenizer */
 	private $urlParser;
 
-	/** @var int */
-	private $linkCount;
-
 	/** @inheritDoc */
 	public function __construct( object $manager, array $options ) {
 		parent::__construct( $manager, $options );
@@ -33,12 +30,6 @@ class ExternalLinkHandler extends TokenHandler {
 			// url rule only.
 			$this->urlParser = new PegTokenizer( $this->env );
 		}
-
-		$this->reset();
-	}
-
-	private function reset(): void {
-		$this->linkCount = 1;
 	}
 
 	/**
@@ -278,7 +269,6 @@ class ExternalLinkHandler extends TokenHandler {
 
 	/** @inheritDoc */
 	public function onEnd( EOFTk $token ) {
-		$this->reset();
 		return $token;
 	}
 }

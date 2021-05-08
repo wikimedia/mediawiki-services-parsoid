@@ -93,7 +93,7 @@ class IncludeOnly extends TokenCollector {
 			// and can be handled similarly by downstream handlers.
 			$name = 'mw:Includes/IncludeOnly';
 			$tokens[] = TokenCollector::buildStrippedMetaToken( $this->manager, $name,
-				$start, ( $eof ) ? null : $end );
+				$start, $eof ? null : $end );
 
 			if ( $start->dataAttribs->src ) {
 				$dataMw = PHPUtils::jsonEncode( [ 'src' => $start->dataAttribs->src ] );

@@ -92,7 +92,7 @@ class NoInclude extends TokenCollector {
 		} elseif ( empty( $this->options['inTemplate'] ) ) {
 			// Content is stripped
 			$tokens[] = TokenCollector::buildStrippedMetaToken( $this->manager,
-				'mw:Includes/NoInclude', $start, ( $eof ) ? null : $end );
+				'mw:Includes/NoInclude', $start, $eof ? null : $end );
 		}
 
 		// Preserve EOF
