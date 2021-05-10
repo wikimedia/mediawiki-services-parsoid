@@ -26,8 +26,6 @@ class SpanHandler extends DOMHandler {
 	): ?DOMNode {
 		$env = $state->getEnv();
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		$contentSrc = ( $node->textContent != '' ) ? $node->textContent
-			: DOMCompat::getInnerHTML( $node );
 		if ( self::isRecognizedSpanWrapper( $node ) ) {
 			if ( DOMUtils::hasTypeOf( $node, 'mw:Nowiki' ) ) {
 				$ext = $env->getSiteConfig()->getExtTagImpl( 'nowiki' );
@@ -41,6 +39,8 @@ class SpanHandler extends DOMHandler {
 				DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
 				DOMUtils::hasNChildren( $node, 1 )
 			) {
+				$contentSrc = ( $node->textContent != '' ) ? $node->textContent
+					: DOMCompat::getInnerHTML( $node );
 				// handle a new mw:Entity (not handled by selser) by
 				// serializing its children
 				if ( isset( $dp->src ) && $contentSrc === ( $dp->srcContent ?? null ) ) {
