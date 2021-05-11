@@ -911,6 +911,15 @@ class Env {
 		$n = $this->wt2htmlUsage[$resource] ?? 0;
 		$n += $count;
 		$this->wt2htmlUsage[$resource] = $n;
+		$this->compareWt2HtmlLimit( $resource, $n );
+	}
+
+	/**
+	 * @param string $resource
+	 * @param int $n
+	 * @throws ResourceLimitExceededException
+	 */
+	public function compareWt2HtmlLimit( string $resource, int $n ) {
 		$wt2htmlLimits = $this->siteConfig->getWt2HtmlLimits();
 		if (
 			isset( $wt2htmlLimits[$resource] ) &&

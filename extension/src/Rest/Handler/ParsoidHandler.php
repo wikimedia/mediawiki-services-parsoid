@@ -569,8 +569,7 @@ abstract class ParsoidHandler extends Handler {
 		$timing->end( "wt2html.$mstr.init" );
 		$metrics->timing(
 			"wt2html.$mstr.size.input",
-			# Should perhaps be strlen instead (or cached!): T239841
-			mb_strlen( $pageConfig->getPageMainContent() )
+			strlen( $pageConfig->getPageMainContent() )
 		);
 		$parseTiming = Timing::start( $metrics );
 
@@ -660,7 +659,7 @@ abstract class ParsoidHandler extends Handler {
 			throw new HttpException( $e->getMessage(), 400 );
 		}
 
-		// Should perhaps be strlen instead (or cached!): T239841
+		// FIXME: Should perhaps be strlen instead
 		$htmlSize = mb_strlen( $html );
 
 		// Send input size to statsd/Graphite
@@ -833,8 +832,7 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$timing->end( 'html2wt.total' );
-		# Should perhaps be strlen instead (or cached!): T239841
-		$metrics->timing( 'html2wt.size.output', mb_strlen( $wikitext ) );
+		$metrics->timing( 'html2wt.size.output', strlen( $wikitext ) );
 
 		$response = $this->getResponseFactory()->create();
 		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT );

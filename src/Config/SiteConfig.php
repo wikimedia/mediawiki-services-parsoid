@@ -1285,7 +1285,7 @@ abstract class SiteConfig {
 	/** @phan-var array<string,int> */
 	protected $wt2htmlLimits = [
 		// We won't handle pages beyond this size
-		'wikitextSize' => 1000000, // 1M
+		'wikitextSize' => 2048 * 1024,  // ParserOptions::maxIncludeSize
 
 		// Max list items per page
 		'listItem' => 30000,

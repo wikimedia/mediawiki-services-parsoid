@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -48,6 +49,11 @@ class TemplateHandler extends TokenHandler {
 	private $parserFunctions;
 
 	/**
+	 * @var bool
+	 */
+	 private $atMaxArticleSize;
+
+	/**
 	 * @param TokenTransformManager $manager
 	 * @param array $options
 	 *  - ?bool inTemplate Is this being invoked while processing a template?
@@ -63,6 +69,19 @@ class TemplateHandler extends TokenHandler {
 			'standalone' => true, 'expandTemplates' => true
 		] );
 		$this->wrapTemplates = empty( $options['inTemplate'] );
+
+		// In the legacy parser, the call to replaceVariables from internalParse
+		// returns early if the text is already greater than the $wgMaxArticleSize
+		// We're going to compare and set a boolean here, then do the "early
+		// return" below.
+		try {
+			$this->env->compareWt2HtmlLimit(
+				'wikitextSize',
+				strlen( $this->env->getPageConfig()->getPageMainContent() )
+			);
+		} catch ( ResourceLimitExceededException $e ) {
+			$this->atMaxArticleSize = true;
+		}
 	}
 
 	/**
@@ -1111,6 +1130,14 @@ class TemplateHandler extends TokenHandler {
 			$pageConfig = $env->getPageConfig();
 			$start = PHPUtils::getStartHRTime();
 			$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
+			try {
+				$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) );
+			} catch ( ResourceLimitExceededException $e ) {
+				return [
+					'error' => true,
+					'tokens' => [ $e->getMessage() ],
+				];
+			}
 			$wikitext = $this->manglePreprocessorResponse( $ret );
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
@@ -1399,9 +1426,34 @@ class TemplateHandler extends TokenHandler {
 
 		$expandTemplates = $this->options['expandTemplates'];
 
+		// FIXME: Should the tokens returned from convertAttribsToString be
+		// template wrapped in the calls below?
+
 		if ( $expandTemplates && $tgt === null ) {
 			// Target contains tags, convert template braces and pipes back into text
 			// Re-join attribute tokens with '=' and '|'
+			return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
+		}
+
+		if ( $this->atMaxArticleSize ) {
+			// As described above, if we were already greater than $wgMaxArticleSize
+			// we're going to return the tokens without expanding them.
+			// (This case is where the original article as fetched from the DB
+			// or passed to the API exceeded max article size.)
+			return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
+		}
+
+		// There's no point in proceeding if we've already hit the maximum inclusion size
+		// XXX should this be combined with the previous test?
+		try {
+			$env->bumpWt2HtmlResourceUse( 'wikitextSize', 0 );
+		} catch ( ResourceLimitExceededException $e ) {
+			// FIXME: The legacy parser would try to make this a link and
+			// elsewhere we'd return the $e->getMessage()
+			// (This case is where the template post-expansion accumulation is
+			// over the maximum wikitext size.)
+			// XXX: It could be combined with the previous test, but we might
+			// want to use different error messages in the future.
 			return [ 'tokens' => $this->convertAttribsToString( $state, $token->attribs ) ];
 		}
 
