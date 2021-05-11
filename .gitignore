@@ -10,17 +10,8 @@
 npm-debug.log
 node_modules
 
-localsettings.js
-config.yaml
-!.pipeline/config.yaml
-lib/wt2html/mediawiki.tokenizer.js
-lib/wt2html/mediawiki.tokenizer.rules.js
-tests/parserTests.cache
-
-coverage/
 contrib/
 extensions/
-nocks/
 deploy/
 
 composer.lock
