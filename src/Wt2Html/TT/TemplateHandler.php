@@ -96,30 +96,7 @@ class TemplateHandler extends TokenHandler {
 
 			$chunkToks = $this->processTemplateTokens( $state, $tokens );
 		}
-
-		// Now, ready to finish up
-		$endToks = $this->finalizeTemplateTokens( $state );
-		return array_merge( $chunkToks, $endToks );
-	}
-
-	/**
-	 * @param array $state
-	 * @param array $tokens
-	 * @param array $extraDict
-	 * @return array
-	 */
-	private function encapTokens(
-		array $state, array $tokens, array $extraDict = []
-	): array {
-		Assert::invariant(
-			$this->wrapTemplates, 'Encapsulating tokens when not wrapping!'
-		);
-		$toks = $this->getEncapsulationInfo( $state, $tokens );
-		$toks[] = $this->getEncapsulationInfoEndTag( $state );
-		$argInfo = $this->getArgInfo( $state );
-		$argInfo['dict'] = array_merge( $argInfo['dict'], $extraDict );
-		$toks[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
-		return $toks;
+		return $chunkToks;
 	}
 
 	/**
@@ -590,11 +567,8 @@ class TemplateHandler extends TokenHandler {
 			// FIXME: Parsoid may not have implemented the parser function natively
 			// Emit an error message, but encapsulate it so it roundtrips back.
 			if ( !is_callable( [ $this->parserFunctions, $target ] ) ) {
-				$res = [ 'Parser function implementation for ' . $target . ' missing in Parsoid.' ];
-				if ( $this->wrapTemplates ) {
-					$res[] = $this->getEncapsulationInfoEndTag( $state );
-				}
-				return $res;
+				// FIXME: Consolidate error response format with enforceTemplateConstraints
+				return [ 'Parser function implementation for ' . $target . ' missing in Parsoid.' ];
 			}
 
 			$pfAttribs = new Params( $attribs );
@@ -706,8 +680,7 @@ class TemplateHandler extends TokenHandler {
 			]
 		);
 
-		$toks = $this->processTemplateTokens( $state, $toks );
-		return array_merge( $toks, $this->finalizeTemplateTokens( $state ) );
+		return $this->processTemplateTokens( $state, $toks );
 	}
 
 	/**
@@ -821,14 +794,10 @@ class TemplateHandler extends TokenHandler {
 	 * Process the main template element, including the arguments.
 	 *
 	 * @param array $state
+	 * @param array $tokens
 	 * @return array
 	 */
-	private function encapsulateTemplate( array $state ): array {
-		$i = null;
-		$n = null;
-		$env = $this->env;
-		$chunk = $this->getEncapsulationInfo( $state );
-
+	private function encapTokens( array $state, array $tokens ): array {
 		// Template encapsulation normally wouldn't happen in nested context,
 		// since they should have already been expanded, and indeed we set
 		// expandTemplates === false in processTemplateSource.  However,
@@ -842,63 +811,69 @@ class TemplateHandler extends TokenHandler {
 		// used in getArgInfo are no longer accurate, and so tplarginfo should be
 		// omitted.  Presumably, template wrapping in the dom post processor won't
 		// be happening anyways, so this is unnecessary work as it is.
-		if ( $this->wrapTemplates ) {
-			// Get the arg dict
-			$argInfo = $this->getArgInfo( $state );
-			$argDict = $argInfo['dict'];
+		Assert::invariant(
+			$this->wrapTemplates, 'Encapsulating tokens when not wrapping!'
+		);
 
-			if ( $env->getSiteConfig()->addHTMLTemplateParameters() ) {
-				// Collect the parameters that need parsing into HTML, that is,
-				// those that are not simple strings.
-				// This optimizes for the common case where all are simple strings,
-				// in which we don't need to go async.
-				$params = [];
-				foreach ( $argInfo['paramInfos'] as $paramInfo ) {
-					$param = $argDict['params']->{$paramInfo['k']};
-					$paramTokens = null;
-					if ( !empty( $paramInfo['named'] ) ) {
-						$paramTokens = $state['token']->getAttribute( $paramInfo['k'] );
-					} else {
-						$paramTokens = $state['token']->attribs[$paramInfo['k']]->v;
-					}
+		$toks = $this->getEncapsulationInfo( $state, $tokens );
+		$toks[] = $this->getEncapsulationInfoEndTag( $state );
+		$argInfo = $this->getArgInfo( $state );
+		$argDict = $argInfo['dict'];
 
-					// No need to pass through a whole sub-pipeline to get the
-					// html if the param is either a single string, or if it's
-					// just text, comments or newlines.
-					if ( $paramTokens &&
-						( is_string( $paramTokens ) || self::isSimpleParam( $paramTokens ) )
-					) {
-						$param->html = $param->wt;
-					} elseif ( preg_match( '#^https?://[^[\]{}\s]*$#D', $param->wt ) ) {
-						// If the param is just a simple URL, we can process it to
-						// HTML directly without going through a sub-pipeline.
-						$param->html = "<a rel='mw:ExtLink' href='" .
-							preg_replace( "/'/", '&#39;', $param->wt ) . "'>" . $param->wt . '</a>';
-					} else {
-						// Prepare the data needed to parse to HTML
-						$params[] = [
-							'param' => $param,
-							'info' => $paramInfo,
-							'tokens' => $paramTokens
-						];
-					}
+		if ( $this->env->getSiteConfig()->addHTMLTemplateParameters() ) {
+			// Collect the parameters that need parsing into HTML, that is,
+			// those that are not simple strings.
+			// This optimizes for the common case where all are simple strings,
+			// in which we don't need to go async.
+			$params = [];
+			foreach ( $argInfo['paramInfos'] as $paramInfo ) {
+				$param = $argDict['params']->{$paramInfo['k']};
+				$paramTokens = null;
+				if ( !empty( $paramInfo['named'] ) ) {
+					$paramTokens = $state['token']->getAttribute( $paramInfo['k'] );
+				} else {
+					$paramTokens = $state['token']->attribs[$paramInfo['k']]->v;
 				}
 
-				if ( count( $params ) ) {
-					foreach ( $params as $paramData ) {
-						$this->getParamHTML( $paramData );
-					}
+				// No need to pass through a whole sub-pipeline to get the
+				// html if the param is either a single string, or if it's
+				// just text, comments or newlines.
+				if ( $paramTokens &&
+					( is_string( $paramTokens ) || self::isSimpleParam( $paramTokens ) )
+				) {
+					$param->html = $param->wt;
+				} elseif ( preg_match( '#^https?://[^[\]{}\s]*$#D', $param->wt ) ) {
+					// If the param is just a simple URL, we can process it to
+					// HTML directly without going through a sub-pipeline.
+					$param->html = "<a rel='mw:ExtLink' href='" .
+						preg_replace( "/'/", '&#39;', $param->wt ) . "'>" . $param->wt . '</a>';
+				} else {
+					// Prepare the data needed to parse to HTML
+					$params[] = [
+						'param' => $param,
+						'info' => $paramInfo,
+						'tokens' => $paramTokens
+					];
 				}
-			} else {
-				// Don't add the HTML template parameters, just use their wikitext
 			}
-			// Use a data-attribute to prevent the sanitizer from stripping this
-			// attribute before it reaches the DOM pass where it is needed
-			$chunk[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
+
+			if ( count( $params ) ) {
+				foreach ( $params as $paramData ) {
+					$this->getParamHTML( $paramData );
+				}
+			}
+		} else {
+			// Don't add the HTML template parameters, just use their wikitext
 		}
 
-		$env->log( 'debug', 'TemplateHandler.encapsulateTemplate', $chunk );
-		return $chunk;
+		$argInfo['dict'] = $argDict;
+
+		// Use a data-attribute to prevent the sanitizer from stripping this
+		// attribute before it reaches the DOM pass where it is needed
+		$toks[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
+
+		$this->env->log( 'debug', 'TemplateHandler.encapTokens', $toks );
+		return $toks;
 	}
 
 	/**
@@ -940,19 +915,6 @@ class TemplateHandler extends TokenHandler {
 
 		$this->env->log( 'debug', 'TemplateHandler.processTemplateTokens', $chunk );
 		return $chunk;
-	}
-
-	/**
-	 * @param array $state
-	 * @return array
-	 */
-	private function finalizeTemplateTokens( array $state ): array {
-		$this->env->log( 'debug', 'TemplateHandler.finalizeTemplateTokens' );
-		$toks = [];
-		if ( $this->wrapTemplates ) {
-			$toks[] = $this->getEncapsulationInfoEndTag( $state );
-		}
-		return $toks;
 	}
 
 	/**
@@ -1109,25 +1071,8 @@ class TemplateHandler extends TokenHandler {
 			$tplSrc = $env->pageCache[$templateName];
 		} elseif ( $env->noDataAccess() ) {
 			// This is only useful for offline development mode
-			$tokens = [ $state['token']->dataAttribs->src ];
-			if ( $this->wrapTemplates ) {
-				// FIXME: We've already emitted a start meta to the accumulator in
-				// `encapsulateTemplate`.  We could reach for that and modify it,
-				// or refactor to emit it later for all paths, but the pragmatic
-				// thing to do is just ignore it and wrap this anew.
-				$state['wrappedObjectId'] = $env->newObjectId();
-				$tokens = $this->encapTokens( $state, $tokens, [
-					'errors' => [
-						[
-							'key' => 'mw-api-tplfetch-error',
-							'message' => 'Page / template fetching disabled, and no cache for ' . $templateName
-						]
-					]
-				] );
-				$typeOf = $tokens[0]->getAttribute( 'typeof' );
-				$tokens[0]->setAttribute( 'typeof', 'mw:Error' . ( $typeOf ? " $typeOf" : '' ) );
-			}
-			return [ 'tokens' => $tokens ];
+			// FIXME: Consolidate error response format with enforceTemplateConstraints
+			return [ 'tokens' => [ 'Page / template fetching disabled, and no cache for ' . $templateName ] ];
 		} else {
 			$start = PHPUtils::getStartHRTime();
 			$pageContent = $env->getDataAccess()->fetchTemplateSource( $env->getPageConfig(), $templateName );
@@ -1145,7 +1090,6 @@ class TemplateHandler extends TokenHandler {
 				$tplSrc = $pageContent->getContent( 'main' );
 			}
 		}
-
 		return [ 'tplSrc' => $tplSrc ];
 	}
 
@@ -1158,10 +1102,10 @@ class TemplateHandler extends TokenHandler {
 	private function fetchExpandedTpl( string $transclusion ): array {
 		$env = $this->env;
 		if ( $env->noDataAccess() ) {
-			$err = 'Warning: Page/template fetching disabled cannot expand ' . $transclusion;
+			// FIXME: Consolidate error response format with enforceTemplateConstraints
 			return [
 				'error' => true,
-				'tokens' => [ $err ]
+				'tokens' => [ 'Warning: Page/template fetching disabled cannot expand ' . $transclusion ],
 			];
 		} else {
 			$pageConfig = $env->getPageConfig();
@@ -1225,41 +1169,36 @@ class TemplateHandler extends TokenHandler {
 	 */
 	private function fetchArg( $arg, SourceRange $srcOffsets ): array {
 		if ( is_string( $arg ) ) {
-			return [ 'tokens' => [ $arg ] ];
+			return [ $arg ];
 		} else {
 			$toks = $this->manager->getFrame()->expand( $arg, [
 				'expandTemplates' => false,
 				'type' => 'tokens/x-mediawiki/expanded',
 				'srcOffsets' => $srcOffsets,
 			] );
-			TokenUtils::stripEOFTkfromTokens( $toks );
-			return [ 'tokens' => $toks ];
+			return TokenUtils::stripEOFTkfromTokens( $toks );
 		}
 	}
 
 	/**
 	 * @param array $args
 	 * @param KV[] $attribs
-	 * @param array $ret
+	 * @param array $toks
 	 * @return array
 	 */
-	private function lookupArg( array $args, $attribs, array $ret ): array {
-		$toks = $ret['tokens'];
-		// FIXME: Why is there a trim in one, but not the other??
-		// Feels like a bug
-		$argName = is_string( $toks ) ? $toks : trim( TokenUtils::tokensToString( $toks ) );
+	private function lookupArg( array $args, $attribs, array $toks ): array {
+		$argName = trim( TokenUtils::tokensToString( $toks ) );
 		$res = $args['dict'][$argName] ?? null;
 
 		if ( $res !== null ) {
 			if ( is_string( $res ) ) {
 				$res = [ $res ];
 			}
-			return [ 'tokens' =>
-				isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res ];
+			return isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res;
 		} elseif ( count( $attribs ) > 1 ) {
 			return $this->fetchArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
 		} else {
-			return [ 'tokens' => [ '{{{' . $argName . '}}}' ] ];
+			return [ '{{{' . $argName . '}}}' ];
 		}
 	}
 
@@ -1473,12 +1412,10 @@ class TemplateHandler extends TokenHandler {
 			);
 			$newAttribs = $atm->process( $token->attribs );
 			$tplToks = $this->expandTemplate( $state, $newAttribs );
-			if ( $expandTemplates ) {
-				$encapToks = $this->encapsulateTemplate( $state );
-				return [ 'tokens' => array_merge( $encapToks, $tplToks ) ];
-			} else {
-				return [ 'tokens' => $tplToks ];
-			}
+			return [
+				'tokens' => ( $expandTemplates && $this->wrapTemplates ) ?
+					$this->encapTokens( $state, $tplToks ) : $tplToks,
+			];
 		} else {
 			if ( $expandTemplates ) {
 				// Use MediaWiki's preprocessor
@@ -1530,11 +1467,10 @@ class TemplateHandler extends TokenHandler {
 							$expansion['src']
 						);
 					}
-
-					// Encapsulate
-					$encapToks = $this->encapsulateTemplate( $state );
-
-					return [ 'tokens' => array_merge( $encapToks, $tplToks ) ];
+					return [
+						'tokens' => $this->wrapTemplates ?
+							$this->encapTokens( $state, $tplToks ) : $tplToks,
+					];
 				}
 			} else {
 				// We don't perform recursive template expansion- something
@@ -1554,8 +1490,9 @@ class TemplateHandler extends TokenHandler {
 	private function onTemplateArg( Token $token ): array {
 		$args = $this->manager->getFrame()->getArgs()->named();
 		$attribs = $token->attribs;
-		$res = $this->fetchArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
-		$res = $this->lookupArg( $args, $attribs, $res );
+
+		$toks = $this->fetchArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
+		$toks = $this->lookupArg( $args, $attribs, $toks );
 
 		if ( $this->wrapTemplates && $this->options['expandTemplates'] ) {
 			// This is a bare use of template arg syntax at the top level
@@ -1566,10 +1503,10 @@ class TemplateHandler extends TokenHandler {
 				'wrapperType' => 'mw:Param',
 				'wrappedObjectId' => $this->env->newObjectId()
 			];
-			$res = [ 'tokens' => $this->encapTokens( $state, $res['tokens'] ) ];
+			return [ 'tokens' => $this->encapTokens( $state, $toks ) ];
+		} else {
+			return [ 'tokens' => $toks ];
 		}
-
-		return $res;
 	}
 
 	/**
