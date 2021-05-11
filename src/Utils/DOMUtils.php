@@ -905,7 +905,8 @@ class DOMUtils {
 	 * @return string|null
 	 */
 	public static function extractInlinedContentVersion( Document $doc ): ?string {
-		$el = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
+		$el = DOMCompat::querySelector( $doc,
+			'meta[property="mw:htmlVersion"], meta[property="mw:html:version"]' );
 		return $el ? $el->getAttribute( 'content' ) : null;
 	}
 

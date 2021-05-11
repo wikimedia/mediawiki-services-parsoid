@@ -720,6 +720,14 @@ class DOMPostProcessor extends PipelineStage {
 		// Set the parsoid content-type strings
 		// FIXME: Should we be using http-equiv for this?
 		$this->appendToHead( $document, 'meta', [
+				'property' => 'mw:htmlVersion',
+				'content' => $env->getOutputContentVersion()
+			]
+		);
+		// Temporary backward compatibility for clients
+		// This could be skipped if we support a version downgrade path
+		// with a major version bump.
+		$this->appendToHead( $document, 'meta', [
 				'property' => 'mw:html:version',
 				'content' => $env->getOutputContentVersion()
 			]

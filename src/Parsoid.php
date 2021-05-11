@@ -469,7 +469,8 @@ class Parsoid {
 				// FIXME: Maybe this should be a helper to avoid the rt
 				$doc = DOMUtils::parseHTML( $pageBundle->html );
 				// Match the http-equiv meta to the content-type header
-				$meta = DOMCompat::querySelector( $doc, 'meta[property="mw:html:version"]' );
+				$meta = DOMCompat::querySelector( $doc,
+					'meta[property="mw:htmlVersion"], meta[property="mw:html:version"]' );
 				if ( $meta ) {
 					$meta->setAttribute( 'content', $pageBundle->version );
 					$pageBundle->html = ContentUtils::toXML( $doc );

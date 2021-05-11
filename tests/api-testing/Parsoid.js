@@ -2362,7 +2362,7 @@ describe('Parsoid API', function() {
 						headers: {
 							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"',
 						},
-						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="999.0.0"/></head><body><p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p></body></html>',
+						body: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:htmlVersion" content="999.0.0"/></head><body><p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p></body></html>',
 					},
 				},
 			})
@@ -2372,7 +2372,7 @@ describe('Parsoid API', function() {
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
 				html.should.not.match(/\s+data-parsoid\s*=\s*['"]/);
 				var doc = domino.createDocument(html);
-				var meta = doc.querySelector('meta[property="mw:html:version"]');
+				var meta = doc.querySelector('meta[property="mw:html:version"], meta[property="mw:htmlVersion"]');
 				meta.getAttribute('content').should.equal(contentVersion);
 			}))
 			.end(done);
