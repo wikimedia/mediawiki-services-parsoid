@@ -260,3 +260,23 @@ parsoid={
 !! html/parsoid
 <dl><dd><span typeof="mw:DisplaySpace"> </span>: test</dd></dl>
 !! end
+
+# NOTE: This test requires (a) at least a nested dl-dd (b) a non-text last non-sep child
+!! test
+Don't dirty diff dd list items up the tree when a different list child is modified
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "dl > dd > dl > dd:last-child", "append", "<dl><dd>bar</dd></dl>" ]
+  ]
+}
+!! wikitext
+::x ''y'' 
+::z
+!! wikitext/edited
+::x ''y'' 
+::z
+::: bar
+!! end
