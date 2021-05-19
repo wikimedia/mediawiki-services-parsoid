@@ -94,7 +94,7 @@ if ( $STANDALONE ) {
 
 	foreach ( [
 		'wikimedia/parsoid',
-		'jakub-onderka/php-parallel-lint',
+		'php-parallel-lint/php-parallel-lint',
 		# These are libraries we have in common w/ core which we always want
 		# to use the parsoid version of (see above, T267074):
 		'wikimedia/object-factory',
@@ -102,7 +102,7 @@ if ( $STANDALONE ) {
 		wfCollectPhpFiles( "{$VP}/vendor/{$d}", $cfg['exclude_file_list'] );
 	}
 }
-wfCollectPhpFiles( "{$root}/vendor/jakub-onderka/php-parallel-lint", $cfg['exclude_file_list'] );
+wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';
