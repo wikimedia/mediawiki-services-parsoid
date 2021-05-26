@@ -3,11 +3,9 @@
 	<file>.</file>
 	<arg name="extensions" value="php" />
 	<arg name="encoding" value="UTF-8" />
-	<exclude-pattern>coverage</exclude-pattern>
-	<exclude-pattern>doc/html</exclude-pattern>
-	<exclude-pattern>vendor</exclude-pattern>
-	<exclude-pattern>src/Wt2Html/Grammar.php</exclude-pattern>
-	<exclude-pattern>src/ParserTests/Grammar.php</exclude-pattern>
+	<exclude-pattern type="relative">^doc/html/*</exclude-pattern>
+	<exclude-pattern type="relative">^src/Wt2Html/Grammar\.php</exclude-pattern>
+	<exclude-pattern type="relative">^src/ParserTests/Grammar\.php</exclude-pattern>
 	<rule ref="./vendor/mediawiki/mediawiki-codesniffer/MediaWiki">
 		<exclude name="MediaWiki.Commenting.FunctionComment.PHP71NullableDocOptionalArg" />
 		<exclude name="MediaWiki.Commenting.FunctionComment.ObjectTypeHintParam" />
