@@ -631,7 +631,7 @@ var availableActions = {
 		var formatversion = +(body.formatversion || 1);
 		if (body.meta === 'siteinfo') {
 			return querySiteinfo(prefix, formatversion, cb);
-		} else if (body.prop === "info|pageprops") {
+		} else if (body.prop === 'info' && body.inprop === 'linkclasses') {
 			console.assert(formatversion === 2);
 			return cb(null, {
 				query: {
