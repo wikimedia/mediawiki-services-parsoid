@@ -896,8 +896,8 @@ describe('Parsoid API', function() {
 			})
 			.expect(validHtmlResponse(function(doc) {
 				validateDoc(doc, 'P', false);
-				var p = doc.querySelector('P[typeof="mw:Transclusion"]');
-				var dmw = JSON.parse(p.getAttribute('data-mw'));
+				var span = doc.querySelector('span[typeof="mw:Transclusion"]');
+				var dmw = JSON.parse(span.getAttribute('data-mw'));
 				var template = dmw.parts[0].template;
 				template.target.wt.should.equal('1x');
 				template.params[1].wt.should.equal('foo');
