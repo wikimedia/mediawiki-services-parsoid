@@ -1,9 +1,9 @@
 /** Cases for testing the Parsoid API through HTTP */
-/* global describe, it */
+/* global describe, it, before */
 
 'use strict';
 
-const { REST } = require( 'api-testing' );
+const { action, REST } = require( 'api-testing' );
 
 var domino = require('domino');
 var should = require('chai').should();
@@ -11,6 +11,7 @@ var semver = require('semver');
 var url = require('url');
 
 var Util = require('../../lib/utils/Util.js').Util;
+var JSUtils = require('../../lib/utils/jsutils').JSUtils;
 
 const parsoidOptions = {
 	limits: {
@@ -19,6 +20,7 @@ const parsoidOptions = {
 	},
 };
 
+// FIXME(T283875): These should all be re-enabled
 var skipForNow = true;
 
 var defaultContentVersion = '2.2.0';
@@ -44,6 +46,13 @@ function validateDoc(doc, nodeName, emptyLead) {
 	var nonEmptySection = emptyLead ? leadSection.nextSibling : leadSection;
 	nonEmptySection.firstChild.nodeName.should.equal(nodeName);
 }
+
+before(async () => {
+	const alice = await action.alice();
+
+	// Create pages
+	const edit = await alice.edit( 'Lint Page', { text: '{|\nhi\n|ho\n|}' } );
+});
 
 describe('Parsoid API', function() {
 	const client = new REST();
@@ -806,7 +815,6 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept an original title, other than main', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create Lint Page
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
@@ -817,8 +825,8 @@ describe('Parsoid API', function() {
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/Lint%20Page/102'
+				res.headers.location.should.match(
+					new RegExp( '^' + JSUtils.escapeRegExp(PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/Lint%20Page/') )
 				);
 			})
 			.end(done);

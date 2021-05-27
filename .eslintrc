@@ -1,5 +1,8 @@
 {
   "extends": "wikimedia/server",
+  "parserOptions": {
+    "ecmaVersion": 2017,
+  },
   "rules": {
     // These are somewhat agreed upon explicit divergences.
     "indent": ["error", "tab", {
