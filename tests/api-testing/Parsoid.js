@@ -51,7 +51,12 @@ before(async () => {
 	const alice = await action.alice();
 
 	// Create pages
-	const edit = await alice.edit( 'Lint Page', { text: '{|\nhi\n|ho\n|}' } );
+	let edit = await alice.edit('Lint Page', { text: '{|\nhi\n|ho\n|}' });
+	edit.result.should.equal('Success');
+	edit = await alice.edit('JSON Page', {
+		text: '[1]', contentmodel: 'json'
+	});
+	edit.result.should.equal('Success');
 });
 
 describe('Parsoid API', function() {
@@ -609,9 +614,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should get from a title and revision (html, json content)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create JSON_Page
 			client.req
-			.get(mockDomain + '/v3/page/html/JSON_Page/101')
+			.get(mockDomain + '/v3/page/html/JSON_Page')
+			.redirects(1)
 			.expect(validHtmlResponse(function(doc) {
 				doc.body.firstChild.nodeName.should.equal('TABLE');
 			}))
@@ -626,9 +631,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should get from a title and revision (pagebundle, json content)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create JSON_Page
 			client.req
-			.get(mockDomain + '/v3/page/pagebundle/JSON_Page/101')
+			.get(mockDomain + '/v3/page/pagebundle/JSON_Page')
+			.redirects(1)
 			.expect(validPageBundleResponse(function(doc) {
 				doc.body.firstChild.nodeName.should.equal('TABLE');
 			}))
