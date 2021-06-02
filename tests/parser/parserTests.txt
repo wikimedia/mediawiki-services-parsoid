@@ -13684,6 +13684,21 @@ parsoid=wt2html
 <p>-{{</p>
 !! end
 
+## Regression test for Parsoid
+!! test
+Language converter over extlink
+!! wikitext
+{{1x
+| [-{oh no]}-]
+}}
+!! html/php
+<pre>[-{oh no]}-]
+</pre>
+!! html/parsoid
+<pre about="#mwt1" typeof="mw:Transclusion" data-parsoid='{}' data-mw='{"parts":[{"template":{"target":{"wt":"1x\n","href":"./Template:1x"},"params":{"1":{"wt":" [-{oh no]}-]\n"}},"i":0}}]}'>[-{oh no]}-]</pre><span about="#mwt1">
+</span>
+!! end
+
 ###
 ### Token Stream Patcher tests
 ###

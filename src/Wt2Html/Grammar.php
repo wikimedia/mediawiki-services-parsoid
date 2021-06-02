@@ -10253,7 +10253,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
     return $r2;
   }
   private function parselang_variant($silence, $boolParams, &$param_th, &$param_preproc) {
-    $key = json_encode([372, $boolParams & 0x77ff, $param_th, $param_preproc]);
+    $key = json_encode([372, $boolParams & 0x77fb, $param_th, $param_preproc]);
     $bucket = $this->currPos;
     $cached = $this->cache[$bucket][$key] ?? null;
     if ($cached) {
@@ -10265,7 +10265,7 @@ class Grammar extends \WikiPEG\PEGParserBase {
         $saved_th=$param_th;
         $saved_preproc=$param_preproc;
     // start choice_1
-    $r1 = $this->parselang_variant_preproc($silence, $boolParams, self::newRef("}-"), $param_th);
+    $r1 = $this->parselang_variant_preproc($silence, $boolParams & ~0x4, self::newRef("}-"), $param_th);
     if ($r1!==self::$FAILED) {
       goto choice_1;
     }
