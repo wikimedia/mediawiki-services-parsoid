@@ -14,7 +14,6 @@ class ConstantLanguageGuesser extends LanguageGuesser {
 	private $langCode;
 
 	/**
-	 * ConstantLanguageGuesser constructor.
 	 * @param string $langCode
 	 */
 	public function __construct( string $langCode ) {

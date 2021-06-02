@@ -417,8 +417,6 @@ class Separators {
 	}
 
 	/**
-	 * Separators constructor.
-	 *
 	 * @param Env $env
 	 * @param SerializerState $state
 	 */

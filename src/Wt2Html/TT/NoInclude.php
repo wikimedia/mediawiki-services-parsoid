@@ -13,7 +13,6 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  */
 class NoInclude extends TokenCollector {
 	/**
-	 * NoInclude constructor.
 	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */

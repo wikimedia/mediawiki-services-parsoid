@@ -27,7 +27,6 @@ class OnlyInclude extends TokenHandler {
 	private $foundOnlyInclude = false;
 
 	/**
-	 * OnlyInclude constructor.
 	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */

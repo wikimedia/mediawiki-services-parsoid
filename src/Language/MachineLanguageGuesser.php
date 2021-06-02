@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class MachineLanguageGuesser extends LanguageGuesser {
 
 	/**
-	 * MachineLanguageGuesser constructor.
 	 * @param ReplacementMachine $machine
 	 * @param DOMNode $root
 	 * @param string $destCode

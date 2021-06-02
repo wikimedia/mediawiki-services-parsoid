@@ -24,7 +24,6 @@ abstract class TokenCollector extends TokenHandler {
 	protected $scopeStack;
 
 	/**
-	 * TokenCollector constructor.
 	 * @param TokenTransformManager $manager manager enviroment
 	 * @param array $options various configuration options
 	 */

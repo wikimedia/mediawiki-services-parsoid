@@ -31,7 +31,6 @@ class RefGroup {
 	public $indexByName;
 
 	/**
-	 * RefGroup constructor.
 	 * @param string $group
 	 */
 	public function __construct( string $group = '' ) {

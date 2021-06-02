@@ -18,8 +18,6 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 /**
- * TableFixups class.
- *
  * Provides DOMTraverser visitors that fix template-induced interrupted table cell parsing
  * by recombining table cells and/or reparsing table cell content as attributes.
  * - stripDoubleTDs
@@ -32,7 +30,6 @@ class TableFixups {
 	private $tokenizer;
 
 	/**
-	 * TableFixups constructor.
 	 * @param Env $env
 	 */
 	public function __construct( Env $env ) {

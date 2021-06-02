@@ -15,7 +15,6 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  */
 class IncludeOnly extends TokenCollector {
 	/**
-	 * IncludeOnly constructor.
 	 * @param TokenTransformManager $manager
 	 * @param array $options options
 	 */

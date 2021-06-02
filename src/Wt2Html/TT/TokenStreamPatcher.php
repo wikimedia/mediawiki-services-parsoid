@@ -51,7 +51,6 @@ class TokenStreamPatcher extends TokenHandler {
 	private $templateHandler;
 
 	/**
-	 * TokenStreamPatcher constructor.
 	 * @param TokenTransformManager $manager
 	 * @param array $options
 	 */

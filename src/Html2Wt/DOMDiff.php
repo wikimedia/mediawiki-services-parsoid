@@ -67,7 +67,6 @@ class DOMDiff {
 	}
 
 	/**
-	 * DOMDiff constructor.
 	 * @param Env $env
 	 */
 	public function __construct( Env $env ) {

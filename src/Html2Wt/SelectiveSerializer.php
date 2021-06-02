@@ -39,7 +39,6 @@ class SelectiveSerializer {
 	private $selserData;
 
 	/**
-	 * SelectiveSerializer constructor.
 	 * @param array $options
 	 */
 	public function __construct( $options ) {

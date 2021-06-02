@@ -53,8 +53,6 @@ class ListHandler extends TokenHandler {
 	}
 
 	/**
-	 * Class constructor
-	 *
 	 * @param TokenTransformManager $manager manager environment
 	 * @param array $options options
 	 */

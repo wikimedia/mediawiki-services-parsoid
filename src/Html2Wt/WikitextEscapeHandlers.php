@@ -35,7 +35,6 @@ class WikitextEscapeHandlers {
 	private $tokenizer;
 
 	/**
-	 * WikitextEscapeHandlers constructor.
 	 * @param array $options [ 'env' => Env, 'extName' => ?string ]
 	 */
 	public function __construct( array $options ) {

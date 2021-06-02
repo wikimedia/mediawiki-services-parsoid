@@ -30,7 +30,6 @@ class ConversionTraverser extends DOMTraverser {
 	private $machine;
 
 	/**
-	 * ConversionTraverser constructor.
 	 * @param string $toLang target language for conversion
 	 * @param LanguageGuesser $guesser oracle to determine "original language" for round-tripping
 	 * @param ReplacementMachine $machine machine to do actual conversion

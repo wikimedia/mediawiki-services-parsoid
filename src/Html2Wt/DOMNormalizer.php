@@ -60,7 +60,6 @@ class DOMNormalizer {
 	private $inInsertedContent;
 
 	/**
-	 * DOMNormalizer constructor.
 	 * @param SerializerState $state
 	 */
 	public function __construct( SerializerState $state ) {
