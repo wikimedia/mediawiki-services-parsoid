@@ -47,7 +47,9 @@ function validateDoc(doc, nodeName, emptyLead) {
 	nonEmptySection.firstChild.nodeName.should.equal(nodeName);
 }
 
-before(async () => {
+before(async function() {
+	this.timeout(10000);
+
 	const alice = await action.alice();
 
 	// Create pages
