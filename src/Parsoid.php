@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
@@ -153,9 +154,13 @@ class Parsoid {
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
-		$env->compareWt2HtmlLimit(
+		if ( !$env->compareWt2HtmlLimit(
 			'wikitextSize', strlen( $pageConfig->getPageMainContent() )
-		);
+		) ) {
+			throw new ResourceLimitExceededException(
+				"wt2html: wikitextSize limit exceeded"
+			);
+		}
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		return [ $env, $handler->toDOM( $env ), $contentmodel ];

@@ -228,7 +228,11 @@ class HTML5TreeBuilder extends PipelineStage {
 	 */
 	public function processToken( $token ): void {
 		if ( $this->pipelineId === 0 ) {
-			$this->env->bumpWt2HtmlResourceUse( 'token' );
+			if ( $this->env->bumpWt2HtmlResourceUse( 'token' ) === false ) {
+				// `false` indicates that this bump pushed us over the threshold
+				// We don't want to log every token above that, which would be `null`
+				$this->env->log( 'info', "wt2html: token limit exceeded" );
+			}
 		}
 
 		$attribs = $token->attribs ?? [];

@@ -905,31 +905,26 @@ class Env {
 	 *
 	 * @param string $resource
 	 * @param int $count How much of the resource is used?
-	 * @throws ResourceLimitExceededException
+	 * @return ?bool Returns `null` if the limit was already reached, `false` when exceeded
 	 */
-	public function bumpWt2HtmlResourceUse( string $resource, int $count = 1 ): void {
+	public function bumpWt2HtmlResourceUse( string $resource, int $count = 1 ): ?bool {
 		$n = $this->wt2htmlUsage[$resource] ?? 0;
+		if ( !$this->compareWt2HtmlLimit( $resource, $n ) ) {
+			return null;
+		}
 		$n += $count;
 		$this->wt2htmlUsage[$resource] = $n;
-		$this->compareWt2HtmlLimit( $resource, $n );
+		return $this->compareWt2HtmlLimit( $resource, $n );
 	}
 
 	/**
 	 * @param string $resource
 	 * @param int $n
-	 * @throws ResourceLimitExceededException
+	 * @return bool Return `false` when exceeded
 	 */
-	public function compareWt2HtmlLimit( string $resource, int $n ) {
+	public function compareWt2HtmlLimit( string $resource, int $n ): bool {
 		$wt2htmlLimits = $this->siteConfig->getWt2HtmlLimits();
-		if (
-			isset( $wt2htmlLimits[$resource] ) &&
-			$n > $wt2htmlLimits[$resource]
-		) {
-			// TODO: re-evaluate whether throwing an exception is really
-			// the right failure strategy when Parsoid is integrated into MW
-			// (T221238)
-			throw new ResourceLimitExceededException( "wt2html: $resource limit exceeded: $n" );
-		}
+		return !( isset( $wt2htmlLimits[$resource] ) && $n > $wt2htmlLimits[$resource] );
 	}
 
 	/**

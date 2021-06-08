@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -74,14 +73,10 @@ class TemplateHandler extends TokenHandler {
 		// returns early if the text is already greater than the $wgMaxArticleSize
 		// We're going to compare and set a boolean here, then do the "early
 		// return" below.
-		try {
-			$this->env->compareWt2HtmlLimit(
-				'wikitextSize',
-				strlen( $this->env->getPageConfig()->getPageMainContent() )
-			);
-		} catch ( ResourceLimitExceededException $e ) {
-			$this->atMaxArticleSize = true;
-		}
+		$this->atMaxArticleSize = !$this->env->compareWt2HtmlLimit(
+			'wikitextSize',
+			strlen( $this->env->getPageConfig()->getPageMainContent() )
+		);
 	}
 
 	/**
@@ -1130,12 +1125,10 @@ class TemplateHandler extends TokenHandler {
 			$pageConfig = $env->getPageConfig();
 			$start = PHPUtils::getStartHRTime();
 			$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
-			try {
-				$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) );
-			} catch ( ResourceLimitExceededException $e ) {
+			if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) ) ) {
 				return [
 					'error' => true,
-					'tokens' => [ $e->getMessage() ],
+					'tokens' => [ "wt2html: wikitextSize limit exceeded" ],
 				];
 			}
 			$wikitext = $this->manglePreprocessorResponse( $ret );
@@ -1445,9 +1438,7 @@ class TemplateHandler extends TokenHandler {
 
 		// There's no point in proceeding if we've already hit the maximum inclusion size
 		// XXX should this be combined with the previous test?
-		try {
-			$env->bumpWt2HtmlResourceUse( 'wikitextSize', 0 );
-		} catch ( ResourceLimitExceededException $e ) {
+		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', 0 ) ) {
 			// FIXME: The legacy parser would try to make this a link and
 			// elsewhere we'd return the $e->getMessage()
 			// (This case is where the template post-expansion accumulation is
