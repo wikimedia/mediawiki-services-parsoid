@@ -72,7 +72,6 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			[ 'STATICREDIRECT', true ],
 
 			// Case insensitive
-			[ 'NoCollaborationHubTOC', false ],
 			[ 'NoTOC', false ],
 			[ 'NoGallery', false ],
 			[ 'ForceTOC', false ],
@@ -236,7 +235,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testSolTransparentWikitextRegexp() {
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@',
+			'@^[ \t\n\r\0\x0b]*(?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|EXPECTUNUSEDCATEGORY|HIDDENCAT|INDEX|NEWSECTIONLINK|NOINDEX|NONEWSECTIONLINK|STATICREDIRECT)|(?i:FORCETOC|NOCONTENTCONVERT|NOCC|NOEDITSECTION|NOGALLERY|NOTITLECONVERT|NOTC|NOTOC|TOC))__|<!--(?>[\s\S]*?-->)|[ \t\n\r\0\x0b])*$@',
 			$this->getSiteConfig()->solTransparentWikitextRegexp()
 		);
 	}
@@ -244,7 +243,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testSolTransparentWikitextNoWsRegexp() {
 		$this->assertSame(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'@((?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|NEWSECTIONLINK|NONEWSECTIONLINK|HIDDENCAT|EXPECTUNUSEDCATEGORY|INDEX|NOINDEX|STATICREDIRECT)|(?i:NOCOLLABORATIONHUBTOC|NOTOC|NOGALLERY|FORCETOC|TOC|NOEDITSECTION|NOTITLECONVERT|NOTC|NOCONTENTCONVERT|NOCC))__|<!--(?>[\s\S]*?-->))*)@',
+			'@((?:(?:(?i:\#REDIRECT))[ \t\n\r\x0c]*(?::[ \t\n\r\x0c]*)?\[\[[^\]]+\]\])?(?:\[\[Category\:[^\]]*?\]\]|__(?:(?:NOGLOBAL|DISAMBIG|EXPECTUNUSEDCATEGORY|HIDDENCAT|INDEX|NEWSECTIONLINK|NOINDEX|NONEWSECTIONLINK|STATICREDIRECT)|(?i:FORCETOC|NOCONTENTCONVERT|NOCC|NOEDITSECTION|NOGALLERY|NOTITLECONVERT|NOTC|NOTOC|TOC))__|<!--(?>[\s\S]*?-->))*)@',
 			$this->getSiteConfig()->solTransparentWikitextNoWsRegexp()
 		);
 	}
@@ -355,18 +354,15 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'nowiki' => true,
 				'gallery' => true,
 				'indicator' => true,
+				'langconvert' => true,
 				'timeline' => true,
 				'hiero' => true,
-				'charinsert' => true,
-				'ref' => true,
-				'references' => true,
 				'inputbox' => true,
 				'imagemap' => true,
 				'source' => true,
 				'syntaxhighlight' => true,
 				'poem' => true,
 				'categorytree' => true,
-				'section' => true,
 				'score' => true,
 				'templatestyles' => true,
 				'templatedata' => true,
@@ -376,6 +372,10 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'graph' => true,
 				'maplink' => true,
 				'mapframe' => true,
+				'charinsert' => true,
+				'ref' => true,
+				'references' => true,
+				'section' => true,
 				'labeledsectiontransclusion' => true,
 				'labeledsectiontransclusion/begin' => true,
 				'labeledsectiontransclusion/end' => true,

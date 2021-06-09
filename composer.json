@@ -14,7 +14,7 @@
 	],
 	"license": "GPL-2.0-or-later",
 	"support": {
-		"irc": "irc://irc.freenode.net/mediawiki-parsoid",
+		"irc": "irc://irc.libera.chat/mediawiki-parsoid",
 		"wiki": "https://www.mediawiki.org/wiki/Parsoid"
 	},
 	"suggest": {

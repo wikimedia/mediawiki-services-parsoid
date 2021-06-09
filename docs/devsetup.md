@@ -35,7 +35,7 @@ has a whole section on the subject.
 In making changes to Parsoid, you should use [our documentation](#!/api) to
 help guide you through the code. Where you aren't sure how to proceed, and if
 you think you're lost, you can try joining our IRC channel,
-`#mediawiki-parsoid` on `irc.freenode.net`, and asking for help there.
+`#mediawiki-parsoid` on `irc.libera.chat`, and asking for help there.
 
 ## Testing your changes
 
