@@ -2741,10 +2741,6 @@
     "Templates: Wiki Tables: 3. td-content via multiple templates": {
         "html2wt": "{|\n|ab\n|}"
     },
-    "Templates: Wiki Tables: 4. Templated tags, no content": {
-        "wt2html": "<table about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,25,null,null],\"pi\":[[],[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"tbl-start\",\"href\":\"./Template:Tbl-start\"},\"params\":{},\"i\":0}},\"\\n\",{\"template\":{\"target\":{\"wt\":\"tbl-end\",\"href\":\"./Template:Tbl-end\"},\"params\":{},\"i\":1}}]}'>\n</table>",
-        "html2wt": "{|\n|\n|}"
-    },
     "Templates: Wiki Tables: 5. Templated tags, regular td-tags": {
         "html2wt": "{|\n|foo\n|}"
     },
