@@ -103,6 +103,15 @@ class SiteConfig extends ISiteConfig {
 	private $featureDetectionDone = false;
 	private $hasVideoInfo = false;
 
+	/** @var string[] Base parameters for a siteinfo query */
+	public const SITE_CONFIG_QUERY_PARAMS = [
+		'action' => 'query',
+		'meta' => 'siteinfo',
+		'siprop' => 'general|protocols|namespaces|namespacealiases|magicwords|interwikimap|'
+			. 'languagevariants|defaultoptions|specialpagealiases|extensiontags|'
+			. 'functionhooks|variables',
+	];
+
 	/**
 	 * @param ApiHelper $api
 	 * @param array $opts
@@ -220,13 +229,7 @@ class SiteConfig extends ISiteConfig {
 			return;
 		}
 
-		$data = $this->api->makeRequest( [
-			'action' => 'query',
-			'meta' => 'siteinfo',
-			'siprop' => 'general|protocols|namespaces|namespacealiases|magicwords|interwikimap|'
-				. 'languagevariants|defaultoptions|specialpagealiases|extensiontags|'
-				. 'functionhooks|variables',
-		] )['query'];
+		$data = $this->api->makeRequest( self::SITE_CONFIG_QUERY_PARAMS )['query'];
 
 		$this->siteData = $data['general'];
 		$this->widthOption = $data['general']['thumblimits'][$data['defaultoptions']['thumbsize']];
