@@ -46,7 +46,7 @@ class BRHandler extends DOMHandler {
 		// any content that follows the <br/>.
 		// Whether we need 4 depends what comes after <br/>.
 		// content or a </p>. The after handler deals with it.
-		return [ 'min' => max( 3, $c['min'] + 1 ), 'force' => true ];
+		return [ 'min' => max( 3, $c['min'] + 1 ) ];
 	}
 
 	/**
@@ -75,14 +75,14 @@ class BRHandler extends DOMHandler {
 			//
 			// Ex: <p><br/></p><p>..</p> => at least 4 newlines before
 			// content of the *next* p-tag.
-			return [ 'min' => max( 4, $c['min'] + 1 ), 'force' => true ];
+			return [ 'min' => max( 4, $c['min'] + 1 ) ];
 		} elseif ( $this->isPbr( $node ) ) {
 			// Since the <br/> is followed by content, the newline
 			// constraint isn't bumped.
 			//
 			// Ex: <p><br/>..<p><p>..</p> => at least 2 newlines after
 			// content of *this* p-tag
-			return [ 'min' => max( 2, $c['min'] ), 'force' => true ];
+			return [ 'min' => max( 2, $c['min'] ) ];
 		}
 
 		return [];

@@ -59,7 +59,6 @@ class Separators {
 			'b' => $constraints['b'] ?? null,
 			'min' => $constraints['min'] ?? null,
 			'max' => $constraints['max'] ?? null,
-			'force' => $constraints['force'] ?? false,
 		];
 		if ( !empty( $constraints['constraintInfo'] ) ) {
 			$constraintInfo = $constraints['constraintInfo'];
@@ -130,7 +129,6 @@ class Separators {
 		$nlConstraints = [
 			'min' => $aCons['min'] ?? null,
 			'max' => $aCons['max'] ?? null,
-			'force' => ( $aCons['force'] ?? false ) ?: $bCons['force'] ?? false,
 			'constraintInfo' => [],
 		];
 
@@ -310,20 +308,10 @@ class Separators {
 		$res = [
 			'min' => max( $oldConstraints['min'] ?? 0, $newConstraints['min'] ?? 0 ),
 			'max' => min( $oldConstraints['max'] ?? 2, $newConstraints['max'] ?? 2 ),
-			'force' => ( $oldConstraints['force'] ?? false ) ?: $newConstraints['force'] ?? false,
 			'constraintInfo' => [],
 		];
 
 		if ( $res['min'] > $res['max'] ) {
-			// If oldConstraints.force is set, older constraints win
-			if ( empty( $oldConstraints['force'] ) ) {
-				// let newConstraints win, but complain
-				if ( isset( $newConstraints['max'] ) && $newConstraints['max'] > $res['min'] ) {
-					$res['max'] = $newConstraints['max'];
-				} elseif ( !empty( $newConstraints['min'] ) && $newConstraints['min'] < $res['min'] ) {
-					$res['min'] = $newConstraints['min'];
-				}
-			}
 			$res['max'] = $res['min'];
 			$env->log(
 				'info/html2wt',
