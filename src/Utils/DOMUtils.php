@@ -672,7 +672,7 @@ class DOMUtils {
 	}
 
 	/**
-	 * Get the previous non seperator sibling node.
+	 * Get the previous non separator sibling node.
 	 *
 	 * @param Node $node
 	 * @return Node|null
@@ -686,7 +686,7 @@ class DOMUtils {
 	}
 
 	/**
-	 * Get the next non seperator sibling node.
+	 * Get the next non separator sibling node.
 	 *
 	 * @param Node $node
 	 * @return Node|null

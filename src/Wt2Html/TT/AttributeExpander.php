@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -22,7 +23,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  * Generic attribute expansion handler.
  */
 class AttributeExpander extends TokenHandler {
-	private const META_TYPE_MATCHER = '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#D';
+	private const META_TYPE_MATCHER = '#(mw:(LanguageVariant|Transclusion|Param|Includes|Annotation/)(.*)$)#D';
 
 	/**
 	 * Used for re-tokenizing attribute strings that need to be re-expanded
@@ -183,6 +184,7 @@ class AttributeExpander extends TokenHandler {
 	): array {
 		$buf = [];
 		$hasGeneratedContent = false;
+		$annotationType = [];
 
 		foreach ( $tokens as $t ) {
 			if ( $t instanceof TagTk || $t instanceof SelfclosingTagTk ) {
@@ -202,6 +204,10 @@ class AttributeExpander extends TokenHandler {
 						if ( !str_ends_with( $typeMatch[1], '/End' ) ) {
 							$hasGeneratedContent = true;
 						}
+						$groups = [];
+						if ( preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $type, $groups ) ) {
+							$annotationType[] = $groups[1];
+						}
 					} else {
 						$buf[] = $t;
 						continue;
@@ -217,7 +223,11 @@ class AttributeExpander extends TokenHandler {
 			}
 		}
 
-		return [ 'hasGeneratedContent' => $hasGeneratedContent, 'value' => $buf ];
+		return [
+			'hasGeneratedContent' => $hasGeneratedContent,
+			'annotationType' => $annotationType,
+			'value' => $buf
+		];
 	}
 
 	/**
@@ -257,6 +267,7 @@ class AttributeExpander extends TokenHandler {
 		$newAttrs = null;
 		$nlTkPos = -1;
 		$nlTkOkay = TokenUtils::isHTMLTag( $token ) || !TokenUtils::isTableTag( $token );
+		$annotationTypes = [];
 
 		// Identify attributes that were generated in full or in part using templates
 		foreach ( $oldAttrs as $i => $oldA ) {
@@ -362,6 +373,7 @@ class AttributeExpander extends TokenHandler {
 					} else {
 						// Maybe scenario 2 from the documentation comment above.
 						$updatedK = self::stripMetaTags( $env, $expandedK, $wrapTemplates );
+						PHPUtils::pushArray( $annotationTypes, $updatedK['annotationType'] );
 						$expandedK = $updatedK['value'];
 					}
 
@@ -452,6 +464,7 @@ class AttributeExpander extends TokenHandler {
 					} else {
 						// Maybe scenario 2 from the documentation comment above.
 						$updatedV = self::stripMetaTags( $env, $expandedV, $wrapTemplates );
+						PHPUtils::pushArray( $annotationTypes, $updatedV['annotationType'] );
 						$expandedV = $updatedV['value'];
 					}
 					$expandedA->v = $expandedV;
@@ -586,6 +599,9 @@ class AttributeExpander extends TokenHandler {
 				// Mark token as having expanded attrs.
 				$token->addAttribute( 'about', $this->env->newAboutId() );
 				$token->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
+				foreach ( $annotationTypes as $annotationType ) {
+					$token->addSpaceSeparatedAttribute( 'typeof', 'mw:Annotation/' . $annotationType );
+				}
 				$token->addAttribute( 'data-mw', PHPUtils::jsonEncode( [ 'attribs' => $expAttrs ] ) );
 			}
 		}

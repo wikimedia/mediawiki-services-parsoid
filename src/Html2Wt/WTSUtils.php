@@ -259,6 +259,8 @@ class WTSUtils {
 
 		if ( WTUtils::isRedirectLink( $node ) ) {
 			return DOMUtils::atTheTop( $node->parentNode ) && !$node->previousSibling;
+		} elseif ( self::dsrContainsOpenExtendedRangeAnnotationTag( $node, $state ) ) {
+			return false;
 		} elseif ( DOMCompat::nodeName( $node ) === 'th' || DOMCompat::nodeName( $node ) === 'td' ) {
 			DOMUtils::assertElt( $node );
 			// The wikitext representation for them is dependent
@@ -336,9 +338,41 @@ class WTSUtils {
 			}
 
 			return true;
+		} elseif ( WTUtils::isMovedMetaTag( $node ) ) {
+			return false;
 		} else {
 			return true;
 		}
+	}
+
+	/**
+	 * We keep track in $state of all extended ranges that are currently open by a <meta> tag.
+	 * This method checks whether the wikitext source pointed by the dsr of the node contains either
+	 * an opening or closing tag matching that annotation (<translate> or </translate> for example.)
+	 * @param Node $node
+	 * @param SerializerState $state
+	 * @return bool
+	 */
+	private static function dsrContainsOpenExtendedRangeAnnotationTag( Node $node,
+		SerializerState $state
+	): bool {
+		if ( empty( $state->openAnnotations ) || !$node instanceof Element ) {
+			return false;
+		}
+
+		$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
+		if ( !$dsr ) {
+			return false;
+		}
+		$src = $state->getOrigSrc( $dsr->innerStart(), $dsr->innerEnd() );
+		foreach ( $state->openAnnotations as $ann => $extended ) {
+			if ( $extended ) {
+				if ( preg_match( '</?' . $ann . '.*>', $src ) ) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**

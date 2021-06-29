@@ -144,7 +144,8 @@ class DOMDataUtils {
 		return $data->parsoid;
 	}
 
-	/** Set data parsoid info on a node.
+	/**
+	 * Set data parsoid info on a node.
 	 *
 	 * @param Element $node node
 	 * @param DataParsoid $dp data-parsoid
@@ -166,7 +167,8 @@ class DOMDataUtils {
 		return $data->parsoid_diff ?? null;
 	}
 
-	/** Set data diff info on a node.
+	/**
+	 * Set data diff info on a node.
 	 *
 	 * @param Element $node node
 	 * @param ?stdClass $diffObj data-parsoid-diff object
@@ -190,7 +192,8 @@ class DOMDataUtils {
 		return $data->mw;
 	}
 
-	/** Set data meta wiki info from a node.
+	/**
+	 * Set data meta wiki info from a node.
 	 *
 	 * @param Element $node node
 	 * @param ?stdClass $dmw data-mw

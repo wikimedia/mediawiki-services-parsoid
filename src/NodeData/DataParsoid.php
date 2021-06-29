@@ -135,6 +135,14 @@ use Wikimedia\Parsoid\Utils\Utils;
  * the extension's sourceToDom() and consumed by wtPostprocess().
  * @property string $group
  *
+ * == Annotations ==
+ * This is used on annotation meta tags to indicate that the corresponding
+ * tag has been moved compared to it's initial location defined by wikitext.
+ * An annotation tag can be moved either as the result of fostering or as
+ * the result of annotation range extension to enclose a contiguous DOM
+ * forest.
+ * @property bool|null $wasMoved
+ *
  * == HTML tags ==
  *
  * Are void tags self-closed? (Ex: `<br>` vs `<br />`)

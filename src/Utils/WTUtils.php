@@ -31,6 +31,12 @@ class WTUtils {
 	private const TPL_META_TYPE_REGEXP = '#^mw:(?:Transclusion|Param)(?:/End)?$#D';
 
 	/**
+	 * Regexp for checking marker metas typeofs representing
+	 * annotation markup
+	 */
+	public const ANNOTATION_META_TYPE_REGEXP = '#^mw:(?:Annotation/([\w\d]+))(?:/End)?$#uD';
+
+	/**
 	 * Check whether a node's data-parsoid object includes
 	 * an indicator that the original wikitext was a literal
 	 * HTML element (like table or p)
@@ -211,8 +217,7 @@ class WTUtils {
 	}
 
 	/**
-	 * Check whether a node is a meta signifying the end of a template
-	 * expansion.
+	 * Check whether a node is a meta signifying the end of a template expansion.
 	 *
 	 * @param Node $node
 	 * @return bool
@@ -805,5 +810,77 @@ class WTUtils {
 		$dp->getTemp()->i18n = $i18n;
 		$frag->appendChild( $span );
 		return $frag;
+	}
+
+	/** Check whether a node is an annotation meta; if yes, returns its type
+	 * @param Node $node
+	 * @return ?string
+	 */
+	public static function matchAnnotationMeta( Node $node ): ?string {
+		return DOMUtils::matchNameAndTypeOf( $node, 'meta', self::ANNOTATION_META_TYPE_REGEXP );
+	}
+
+	/**
+	 * Extract the annotation type, excluding potential "/End" suffix; returns null if not a valid
+	 * annotation meta. &$isStart is set to true if the annotation is a start tag, false otherwise.
+	 *
+	 * @param Node $node
+	 * @param bool &$isStart
+	 * @return ?string The matched type, or null if no match.
+	 */
+	public static function extractAnnotationType( Node $node, bool &$isStart = false ): ?string {
+		$t = DOMUtils::matchTypeOf( $node, self::ANNOTATION_META_TYPE_REGEXP );
+		if ( $t !== null && preg_match( self::ANNOTATION_META_TYPE_REGEXP, $t, $matches ) ) {
+			$isStart = !str_ends_with( $t, '/End' );
+			return $matches[1];
+		}
+		return null;
+	}
+
+	/**
+	 * Check whether a node is a meta signifying the start of an annotated part of the DOM
+	 *
+	 * @param Node $node
+	 * @return bool
+	 */
+	public static function isAnnotationStartMarkerMeta( Node $node ): bool {
+		$isStart = false;
+		$t = self::extractAnnotationType( $node, $isStart );
+		return $t !== null && $isStart;
+	}
+
+	/**
+	 * Check whether a node is a meta signifying the end of an annotated part of the DOM
+	 *
+	 * @param Node $node
+	 * @return bool
+	 */
+	public static function isAnnotationEndMarkerMeta( Node $node ): bool {
+		$isStart = false;
+		$t = self::extractAnnotationType( $node, $isStart );
+		return $t !== null && !$isStart;
+	}
+
+	/**
+	 * Check whether the meta tag was moved from its initial position
+	 * @param Node $node
+	 * @return bool
+	 */
+	public static function isMovedMetaTag( Node $node ): bool {
+		if ( $node instanceof Element && self::matchAnnotationMeta( $node ) !== null ) {
+			$parsoidData = DOMDataUtils::getDataParsoid( $node );
+			if ( isset( $parsoidData->wasMoved ) ) {
+				return $parsoidData->wasMoved;
+			}
+		}
+		return false;
+	}
+
+	/** Returns true if a node is a (start or end) annotation meta tag
+	 * @param ?Node $n
+	 * @return bool
+	 */
+	public static function isMarkerAnnotation( ?Node $n ): bool {
+		return $n !== null && self::matchAnnotationMeta( $n ) !== null;
 	}
 }

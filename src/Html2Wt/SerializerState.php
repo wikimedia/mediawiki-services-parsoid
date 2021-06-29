@@ -275,6 +275,9 @@ class SerializerState {
 	/** @var Element */
 	private $prevNode;
 
+	/** @var array */
+	public $openAnnotations;
+
 	/**
 	 * Log prefix to use in trace output
 	 * @var string
@@ -818,6 +821,23 @@ class SerializerState {
 		Node $node, ?callable $wtEscaper = null
 	): string {
 		return $this->serializeChildrenToString( $node, $wtEscaper, 'inIndentPre' );
+	}
+
+	/**
+	 * Take notes of the open annotation ranges and whether they have been extended.
+	 * @param string $ann
+	 * @param bool $extended
+	 */
+	public function openAnnotationRange( string $ann, bool $extended ) {
+		$this->openAnnotations[$ann] = $extended;
+	}
+
+	/**
+	 * Removes the corresponding annotation range from the list of open ranges.
+	 * @param string $ann
+	 */
+	public function closeAnnotationRange( string $ann ) {
+		unset( $this->openAnnotations[$ann] );
 	}
 
 }

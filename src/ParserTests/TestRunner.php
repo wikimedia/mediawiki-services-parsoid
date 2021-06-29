@@ -501,10 +501,11 @@ class TestRunner {
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
 					// These wrappers can only be edited in restricted ways.
 					// Simpler to just block all editing on them.
-					!DOMUtils::matchTypeOf( $node, '#^mw:(Entity|Placeholder|DisplaySpace)(/|$)#' ) &&
+					!DOMUtils::matchTypeOf( $node, '#^mw:(Entity|Placeholder|DisplaySpace|Annotation)(/|$)#' ) &&
 					// Deleting these wrappers is tantamount to removing the
 					// references-tag encapsulation wrappers, which results in errors.
-					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? '' )
+					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? ''
+					)
 				);
 		};
 
@@ -519,6 +520,10 @@ class TestRunner {
 			// Text and comment nodes are always editable
 			if ( !( $node instanceof Element ) ) {
 				return false;
+			}
+
+			if ( WTUtils::isMarkerAnnotation( $node ) ) {
+				return true;
 			}
 
 			// - Image wrapper is an uneditable image elt.
@@ -560,7 +565,6 @@ class TestRunner {
 			$children = $node->childNodes ? iterator_to_array( $node->childNodes ) : [];
 			foreach ( $children as $child ) {
 				$changeType = $defaultChangeType;
-
 				if ( $domSubtreeIsEditable( $child ) ) {
 					if ( $nodeIsUneditable( $child ) || $alea->random() < 0.5 ) {
 						// This call to random is a hack to preserve the current
@@ -586,6 +590,7 @@ class TestRunner {
 				}
 
 				$changelist[] = $changeType;
+
 			}
 
 			return $hasChangeMarkers( $changelist ) ? $changelist : [];

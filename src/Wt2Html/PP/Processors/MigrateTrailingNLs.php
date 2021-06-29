@@ -123,7 +123,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @param Node $elt
 	 * @param Env $env
 	 */
-	private function doMigrateTrailingNLs( Node $elt, Env $env ) {
+	public function doMigrateTrailingNLs( Node $elt, Env $env ) {
 		// Nothing to do for text and comment nodes
 		if (
 			!( $elt instanceof Element ) &&

@@ -238,6 +238,8 @@ class ParagraphWrapper extends TokenHandler {
 						// Let us leave them all out of the p-wrapping.
 						$tplStartIndex = -1;
 						continue;
+					} elseif ( TokenUtils::isAnnotationStartToken( $t ) ) {
+						break;
 					}
 				}
 				// Not a transclusion meta; Check for nl/sol-transparent tokens
@@ -277,6 +279,8 @@ class ParagraphWrapper extends TokenHandler {
 						// Let us leave them all out of the p-wrapping.
 						$tplEndIndex = $i;
 						continue;
+					} elseif ( TokenUtils::isAnnotationEndToken( $t ) ) {
+						break;
 					}
 				}
 				// Not a transclusion meta; Check for nl/sol-transparent tokens

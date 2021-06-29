@@ -155,8 +155,29 @@
 		return $isInstalledExt || $isIncludeTag;
 	}
 
-	private function maybeExtensionTag( Token $t ) {
+	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
 		$tagName = mb_strtolower( $t->getName() );
+
+        $isAnnotationExt = $this->siteConfig->isAnnotationTag( $tagName );
+        if ( $isAnnotationExt ) {
+            $metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
+            if ( count( $attribs ) > 0 ) {
+                $attrMap = [];
+                foreach ( $attribs as $attr ) {
+                    $attrMap[$attr->k] = $attr->v;
+                }
+                $datamw = [];
+                // Possible follow-up in T295168 for attribute sanitation
+                $datamw['attrs'] = $attrMap;
+                array_push( $metaAttrs, new KV( 'data-mw', PHPUtils::jsonEncode( $datamw ) ) );
+            }
+            $dp = new DataParsoid();
+            $dp->tsr = $tsr;
+            return [ new SelfclosingTagTk ( 'meta',
+                $metaAttrs,
+                $dp
+            ) ];
+        }
 
 		$isInstalledExt = isset( $this->extTags[$tagName] );
 		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
@@ -1577,15 +1598,16 @@ quote =
  * Pre and xmlish tags
  ***********************************************************/
 
-extension_tag =
+extension_annotation_tag =
 	!<extTag>
 	extToken:xmlish_tag
-	// Account for `maybeExtensionTag` returning unmatched start / end tags
-	&{ return $extToken[0]->getName() === 'extension'; }
+	// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
+	&{ return $extToken[0]->getName() === 'extension' ||
+	    ($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); }
 	{ return $extToken[0]; }
 
 nowiki =
-	extToken:extension_tag
+	extToken:extension_annotation_tag
 	&{ return $extToken->getAttribute( 'name' ) === 'nowiki'; }
 	{ return $extToken; }
 
@@ -1666,7 +1688,7 @@ xmlish_tag_opened =
 			$res->dataAttribs->noClose = true;
 		}
 
-		$met = $this->maybeExtensionTag( $res );
+		$met = $this->maybeAnnotationOrExtensionTag( $res, $end, $attribs, $tsr );
 		return ( is_array( $met ) ) ? $met : [ $met ];
 	}
 
@@ -2434,7 +2456,7 @@ comment_space_eolf = (space+ / comment)* eolf
 // plain-text content.
 directive =
 	comment
-	/ extension_tag
+	/ extension_annotation_tag
 	/ tplarg_or_template
 	/ & "-{" v:lang_variant_or_tpl { return $v; }
 	/ & "&" e:htmlentity { return $e; }

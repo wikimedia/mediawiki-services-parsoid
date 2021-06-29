@@ -66,5 +66,8 @@
 		"path": "tests/parser/imageMapParserTests.txt",
 		"expectedSHA1": "df1f578a27c3e2e950c8e2d32967a153c1e3e3fd",
 		"latestCommit": "86e2a3a971b8e0fcef771e0312eafc4a40f200a5"
+	},
+	"annotationParserTests.txt": {
+		"path": "tests/parser/annotationParserTests.txt"
 	}
 }

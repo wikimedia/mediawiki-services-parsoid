@@ -715,4 +715,24 @@ class TokenUtils {
 
 		return $tokens;
 	}
+
+	/**
+	 * Checks whether the provided meta tag token is an annotation start token
+	 * @param Token $t
+	 * @return bool
+	 */
+	public static function isAnnotationStartToken( Token $t ): bool {
+		$type = self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP );
+		return $type !== null && !str_ends_with( $type, '/End' );
+	}
+
+	/**
+	 * Checks whether the provided meta tag token is an annotation end token
+	 * @param Token $t
+	 * @return bool
+	 */
+	public static function isAnnotationEndToken( Token $t ): bool {
+		$type = self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP );
+		return $type !== null && str_ends_with( $type, '/End' );
+	}
 }

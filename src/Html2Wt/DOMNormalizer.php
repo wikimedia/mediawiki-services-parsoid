@@ -103,7 +103,8 @@ class DOMNormalizer {
 		}
 	}
 
-	/** Can a and b be merged into a single node?
+	/**
+	 * Can a and b be merged into a single node?
 	 * @param Node $a
 	 * @param Node $b
 	 * @return bool
@@ -599,6 +600,7 @@ class DOMNormalizer {
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );
 			$this->stripBRs( $node );
+
 			return $this->stripIfEmpty( $node );
 
 			// Quote tags
@@ -613,10 +615,13 @@ class DOMNormalizer {
 			// the case of links without any annotations,
 			// the positive test is semantically safer than the
 			// negative test.
-			if ( $node->getAttribute( 'rel' ) === 'mw:WikiLink' && $this->stripIfEmpty( $node ) !== $node ) {
+			if ( $node->getAttribute( 'rel' ) === 'mw:WikiLink' &&
+				$this->stripIfEmpty( $node ) !== $node
+			) {
 				return $next;
 			}
 			$this->moveTrailingSpacesOut( $node );
+
 			return $this->moveFormatTagOutsideATag( $node );
 
 			// Table cells
@@ -629,8 +634,7 @@ class DOMNormalizer {
 			// won't have escapable prefixes.
 			$stx = $dp->stx ?? null;
 			if ( $stx === 'html' ||
-				( DOMUtils::firstNonSepChild( $node->parentNode ) !== $node && $stx === 'row' )
-			) {
+				( DOMUtils::firstNonSepChild( $node->parentNode ) !== $node && $stx === 'row' ) ) {
 				return $node;
 			}
 
@@ -641,6 +645,7 @@ class DOMNormalizer {
 				$first->nodeValue = ' ' . $first->nodeValue;
 				$this->addDiffMarks( $first, 'inserted', true );
 			}
+
 			return $node;
 
 			// Font tags without any attributes
@@ -648,46 +653,60 @@ class DOMNormalizer {
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 			$node->parentNode->removeChild( $node );
+
 			return $next;
-
-			// T184755: Convert sequences of <p></p> nodes to sequences of
-			// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
-			// they serialize to as many newlines as the count of <p></p> nodes.
-		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'p' &&
-			!WTUtils::isLiteralHTMLNode( $node ) &&
-			// Don't apply normalization to <p></p> nodes that
-			// were generated through deletions or other normalizations.
-			// FIXME: This trick fails for non-selser mode since
-			// diff markers are only added in selser mode.
-			DOMUtils::hasNChildren( $node, 0, true ) &&
-			// FIXME: Also, skip if this is the only child.
-			// Eliminates spurious test failures in non-selser mode.
-			!DOMUtils::hasNChildren( $node->parentNode, 1 )
-		) {
-			$next = DOMUtils::nextNonSepSibling( $node );
-			if ( $next && DOMCompat::nodeName( $next ) === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
-				// Replace 'node' (<p></p>) with a <br/> and make it the
-				// first child of 'next' (<p>..</p>). If 'next' was actually
-				// a <p></p> (i.e. empty), 'next' becomes <p><br/></p>
-				// which will serialize to 2 newlines.
-				$br = $node->ownerDocument->createElement( 'br' );
-				$next->insertBefore( $br, $next->firstChild );
-
-				// Avoid nested insertion markers
-				if ( !$this->isInsertedContent( $next ) ) {
-					$this->addDiffMarks( $br, 'inserted' );
-				}
-
-				// Delete node
-				$this->addDiffMarks( $node->parentNode, 'deleted' );
+		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'p'
+			&& !WTUtils::isLiteralHTMLNode( $node ) ) {
+			// Normalization of <p></p>, <p><br/></p>, <p><meta/></p> and the like to avoid
+			// extraneous new lines
+			if ( DOMUtils::hasNChildren( $node, 1 ) &&
+				WTUtils::isMarkerAnnotation( $node->firstChild )
+			) {
+				// Converts <p><meta /></p> (where meta is an annotation tag) to <meta /> without
+				// the wrapping <p> (that would typically be added by VE) to avoid getting too many
+				// newlines.
+				$ann = $node->firstChild;
+				DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 				$node->parentNode->removeChild( $node );
+				return $ann;
+			} elseif (
+				// Don't apply normalization to <p></p> nodes that
+				// were generated through deletions or other normalizations.
+				// FIXME: This trick fails for non-selser mode since
+				// diff markers are only added in selser mode.
+				DOMUtils::hasNChildren( $node, 0, true ) &&
+				// FIXME: Also, skip if this is the only child.
+				// Eliminates spurious test failures in non-selser mode.
+				!DOMUtils::hasNChildren( $node->parentNode, 1 )
+			) {
+				// T184755: Convert sequences of <p></p> nodes to sequences of
+				// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
+				// they serialize to as many newlines as the count of <p></p> nodes.
+				// Also handles <p><meta/></p> case for annotations.
+				$next = DOMUtils::nextNonSepSibling( $node );
+				if ( $next && DOMCompat::nodeName( $next ) === 'p' &&
+					!WTUtils::isLiteralHTMLNode( $next ) ) {
+					// Replace 'node' (<p></p>) with a <br/> and make it the
+					// first child of 'next' (<p>..</p>). If 'next' was actually
+					// a <p></p> (i.e. empty), 'next' becomes <p><br/></p>
+					// which will serialize to 2 newlines.
+					$br = $node->ownerDocument->createElement( 'br' );
+					$next->insertBefore( $br, $next->firstChild );
+
+					// Avoid nested insertion markers
+					if ( !$this->isInsertedContent( $next ) ) {
+						$this->addDiffMarks( $br, 'inserted' );
+					}
+
+					// Delete node
+					$this->addDiffMarks( $node->parentNode, 'deleted' );
+					$node->parentNode->removeChild( $node );
+				}
 			} else {
 				// We cannot merge the <br/> with 'next' because
 				// it is not a <p>..</p>.
 			}
-
 			return $next;
-
 		}
 		// Default
 		return $node;

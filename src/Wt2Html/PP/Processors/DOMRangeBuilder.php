@@ -73,7 +73,7 @@ class DOMRangeBuilder {
 	private $frame;
 
 	/** @var Env */
-	private $env;
+	protected $env;
 
 	/** @var SplObjectStorage */
 	private $nodeRanges;
@@ -98,7 +98,7 @@ class DOMRangeBuilder {
 	 * @param Element $target
 	 * @param Element $source
 	 */
-	private static function updateDSRForFirstTplNode( Element $target, Element $source ): void {
+	protected static function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
 		$srcDP = DOMDataUtils::getDataParsoid( $source );
 		$tgtDP = DOMDataUtils::getDataParsoid( $target );
 
@@ -167,6 +167,15 @@ class DOMRangeBuilder {
 	}
 
 	/**
+	 * Returns the range ID of a node - in the case of templates, its "about" attribute.
+	 * @param Element $node
+	 * @return string
+	 */
+	protected function getRangeId( Element $node ): string {
+		return $node->getAttribute( "about" ) ?? '';
+	}
+
+	/**
 	 * Find the common DOM ancestor of two DOM nodes.
 	 *
 	 * @param Element $startElem
@@ -180,7 +189,7 @@ class DOMRangeBuilder {
 		$range = new DOMRangeInfo;
 		$range->startElem = $startElem;
 		$range->endElem = $endMeta;
-		$range->id = Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ?? '' );
+		$range->id = Utils::stripParsoidIdPrefix( $this->getRangeId( $startElem ) );
 		$range->startOffset = DOMDataUtils::getDataParsoid( $startElem )->tsr->start;
 
 		// Find common ancestor of startElem and endElem
@@ -265,7 +274,7 @@ class DOMRangeBuilder {
 				}
 				$range->start = $newStart;
 				// Update dsr to point to original start
-				self::updateDSRForFirstTplNode( $range->start, $startElem );
+				$this->updateDSRForFirstRangeNode( $range->start, $startElem );
 			} else {
 				// If not, we are forced to expand the template range.
 				$range->start = $range->end = $rangeStartParent;
@@ -278,21 +287,11 @@ class DOMRangeBuilder {
 			$span = $this->document->createElement( 'span' );
 			$range->start->parentNode->insertBefore( $span, $range->start );
 			$span->appendChild( $range->start );
-			self::updateDSRForFirstTplNode( $span, $startElem );
+			$this->updateDSRForFirstRangeNode( $span, $startElem );
 			$range->start = $span;
 		}
 
-		if ( DOMCompat::nodeName( $range->start ) === 'table' ) {
-			// If we have any fostered content, include it as well.
-			for (
-				$rangeStartPreviousSibling = $range->start->previousSibling;
-				$rangeStartPreviousSibling instanceof Element &&
-				!empty( DOMDataUtils::getDataParsoid( $rangeStartPreviousSibling )->fostered );
-				$rangeStartPreviousSibling = $range->start->previousSibling
-			) {
-				$range->start = $rangeStartPreviousSibling;
-			}
-		}
+		$range->start = $this->getStartConsideringFosteredContent( $range->start );
 
 		$rangeStartNextSibling = $range->start->nextSibling;
 		if ( $range->start === $startElem && $rangeStartNextSibling instanceof Element ) {
@@ -302,7 +301,7 @@ class DOMRangeBuilder {
 			// is supporting that HACK there.
 			//
 			// (The parser test for T52603 will fail without this fix)
-			self::updateDSRForFirstTplNode( $rangeStartNextSibling, $startElem );
+			$this->updateDSRForFirstRangeNode( $rangeStartNextSibling, $startElem );
 		}
 
 		// Use the negative test since it doesn't mark the range as flipped
@@ -348,8 +347,28 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * @param Element $meta
+	 * Returns the current node if it's not just after fostered content, the first node
+	 * of fostered content otherwise.
+	 * @param Node $node
+	 * @return Node
 	 */
+	protected static function getStartConsideringFosteredContent( Node $node ): Node {
+		if ( DOMCompat::nodeName( $node ) === 'table' ) {
+			// If we have any fostered content, include it as well.
+			for ( $previousSibling = $node->previousSibling;
+				$previousSibling instanceof Element &&
+				!empty( DOMDataUtils::getDataParsoid( $previousSibling )->fostered );
+				$previousSibling = $node->previousSibling
+			) {
+				$node = $previousSibling;
+			}
+		}
+		return $node;
+	}
+
+/**
+ * @param Element $meta
+ */
 	private static function stripStartMeta( Element $meta ): void {
 		if ( DOMCompat::nodeName( $meta ) === 'meta' ) {
 			$meta->parentNode->removeChild( $meta );
@@ -1085,7 +1104,7 @@ class DOMRangeBuilder {
 	 * @param Node $rootNode
 	 * @return DOMRangeInfo[]
 	 */
-	private function findWrappableTemplateRanges( Node $rootNode ) {
+	protected function findWrappableMetaRanges( Node $rootNode ): array {
 		$tpls = [];
 		$tplRanges = [];
 		$this->findWrappableTemplateRangesRecursive( $rootNode, $tpls, $tplRanges );
@@ -1111,7 +1130,7 @@ class DOMRangeBuilder {
 			$nextSibling = $elem->nextSibling;
 
 			if ( $elem instanceof Element ) {
-				$metaType = WTUtils::matchTplType( $elem );
+				$metaType = $this->matchMetaType( $elem );
 
 				// Ignore templates without tsr.
 				//
@@ -1129,7 +1148,7 @@ class DOMRangeBuilder {
 						str_ends_with( $metaType, '/End' )
 					)
 				) {
-					$about = $elem->getAttribute( 'about' ) ?? '';
+					$about = $this->getRangeId( $elem );
 					$tpl = $tpls[$about] ?? null;
 					// Is this a start marker?
 					if ( !str_ends_with( $metaType, '/End' ) ) {
@@ -1224,10 +1243,21 @@ class DOMRangeBuilder {
 	}
 
 	/**
+	 * Returns the meta type of the element if it exists and matches the type expected by the
+	 * current class, null otherwise
+	 * @param Element $elem the element to check
+	 * @return string|null
+	 */
+	protected function matchMetaType( Element $elem ): ?string {
+		// for this class we're interested in the template type
+		return WTUtils::matchTplType( $elem );
+	}
+
+	/**
 	 * @param Node $root
 	 */
 	public function execute( Node $root ): void {
-		$tplRanges = $this->findWrappableTemplateRanges( $root );
+		$tplRanges = $this->findWrappableMetaRanges( $root );
 		if ( count( $tplRanges ) > 0 ) {
 			$nonOverlappingRanges = $this->findTopLevelNonOverlappingRanges( $root, $tplRanges );
 			$this->encapsulateTemplates( $nonOverlappingRanges );

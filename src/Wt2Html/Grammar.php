@@ -161,8 +161,29 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 		return $isInstalledExt || $isIncludeTag;
 	}
 
-	private function maybeExtensionTag( Token $t ) {
+	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
 		$tagName = mb_strtolower( $t->getName() );
+
+        $isAnnotationExt = $this->siteConfig->isAnnotationTag( $tagName );
+        if ( $isAnnotationExt ) {
+            $metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
+            if ( count( $attribs ) > 0 ) {
+                $attrMap = [];
+                foreach ( $attribs as $attr ) {
+                    $attrMap[$attr->k] = $attr->v;
+                }
+                $datamw = [];
+                // Possible follow-up in T295168 for attribute sanitation
+                $datamw['attrs'] = $attrMap;
+                array_push( $metaAttrs, new KV( 'data-mw', PHPUtils::jsonEncode( $datamw ) ) );
+            }
+            $dp = new DataParsoid();
+            $dp->tsr = $tsr;
+            return [ new SelfclosingTagTk ( 'meta',
+                $metaAttrs,
+                $dp
+            ) ];
+        }
 
 		$isInstalledExt = isset( $this->extTags[$tagName] );
 		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
@@ -1090,7 +1111,7 @@ private function a92($end, $name, $extTag, $isBlock, $attribs, $selfclose) {
 			$res->dataAttribs->noClose = true;
 		}
 
-		$met = $this->maybeExtensionTag( $res );
+		$met = $this->maybeAnnotationOrExtensionTag( $res, $end, $attribs, $tsr );
 		return ( is_array( $met ) ) ? $met : [ $met ];
 	
 }
@@ -1238,7 +1259,8 @@ private function a110(&$preproc, $a) {
 	
 }
 private function a111($extToken) {
- return $extToken[0]->getName() === 'extension'; 
+ return $extToken[0]->getName() === 'extension' ||
+	    ($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); 
 }
 private function a112($extToken) {
  return $extToken[0]; 
@@ -6585,7 +6607,7 @@ private function parsedirective($silence, $boolParams, &$param_preproc, &$param_
   if ($r1!==self::$FAILED) {
     goto choice_1;
   }
-  $r1 = $this->parseextension_tag($silence, $boolParams, $param_preproc, $param_th);
+  $r1 = $this->parseextension_annotation_tag($silence, $boolParams, $param_preproc, $param_th);
   if ($r1!==self::$FAILED) {
     goto choice_1;
   }
@@ -9702,7 +9724,7 @@ private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, 
   $this->cache[$bucket][$key] = $cached;
   return $r1;
 }
-private function parseextension_tag($silence, $boolParams, &$param_preproc, &$param_th) {
+private function parseextension_annotation_tag($silence, $boolParams, &$param_preproc, &$param_th) {
   $key = json_encode([412, $boolParams & 0x775f, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
@@ -14719,7 +14741,7 @@ private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_t
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
-  $r4 = $this->parseextension_tag($silence, $boolParams, $param_preproc, $param_th);
+  $r4 = $this->parseextension_annotation_tag($silence, $boolParams, $param_preproc, $param_th);
   // extToken <- $r4
   if ($r4===self::$FAILED) {
     $r1 = self::$FAILED;
@@ -14789,7 +14811,7 @@ private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th)
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
-  $r4 = $this->parseextension_tag($silence, $boolParams, $param_preproc, $param_th);
+  $r4 = $this->parseextension_annotation_tag($silence, $boolParams, $param_preproc, $param_th);
   // extToken <- $r4
   if ($r4===self::$FAILED) {
     $r1 = self::$FAILED;

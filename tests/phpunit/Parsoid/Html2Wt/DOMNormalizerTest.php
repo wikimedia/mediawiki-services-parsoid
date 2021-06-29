@@ -108,6 +108,11 @@ class DOMNormalizerTest extends TestCase {
 				'<a href="http://foo.org"></a>',
 				'Empty tag normalization #7',
 			],
+			[
+				'<p><meta typeof="mw:Annotation/translate"/></p>',
+				'<meta typeof="mw:Annotation/translate"/>',
+				'Normalization of annotations in paragraph',
+			],
 			// Trailing spaces in links
 			[
 				'<a rel="mw:WikiLink" href="./Foo">Foo </a>',

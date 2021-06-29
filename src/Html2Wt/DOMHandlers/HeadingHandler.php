@@ -49,14 +49,19 @@ class HeadingHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( WTUtils::isNewElt( $node ) && DOMUtils::previousNonSepSibling( $node ) ) {
+		if ( WTUtils::isNewElt( $node ) && DOMUtils::previousNonSepSibling( $node ) &&
+			!WTUtils::isAnnotationStartMarkerMeta( $otherNode )
+		) {
 			// Default to two preceding newlines for new content
 			return [ 'min' => 2, 'max' => 2 ];
 		} elseif ( WTUtils::isNewElt( $otherNode )
 			&& DOMUtils::previousNonSepSibling( $node ) === $otherNode
 		) {
 			// T72791: The previous node was newly inserted, separate
-			// them for readability
+			// them for readability, except if it's an annotation tag
+			if ( WTUtils::isAnnotationStartMarkerMeta( $otherNode ) ) {
+				return [ 'min' => 1, 'max' => 2 ];
+			}
 			return [ 'min' => 2, 'max' => 2 ];
 		} else {
 			return [ 'min' => 1, 'max' => 2 ];

@@ -22,6 +22,7 @@ use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DedupeStyles;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\DisplaySpace;
@@ -44,6 +45,7 @@ use Wikimedia\Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\Normalize;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapAnnotations;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapTemplates;
 
@@ -180,6 +182,8 @@ class DOMPostProcessor extends PipelineStage {
 		$options = $this->options;
 		$seenIds = &$this->seenIds;
 		$usedIdIndex = [];
+		$abouts = [];
+		$annotationId = 0;
 
 		$tableFixer = new TableFixups( $env );
 
@@ -259,10 +263,40 @@ class DOMPostProcessor extends PipelineStage {
 			// 1. Link prefixes and suffixes
 			// 2. Unpack DOM fragments
 			[
-				'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
+				'name' => 'HandleLinkNeighbours,UnpackDOMFragments,AddAnnotationIds',
 				'shortcut' => 'dom-unpack',
 				'isTraverser' => true,
 				'handlers' => [
+					[
+						'nodeName' => 'meta',
+						'action' => static function ( $node ) use ( &$annotationId, &$abouts ) {
+							$isStart = false;
+							$t = WTUtils::extractAnnotationType( $node, $isStart );
+							if ( $t !== null ) {
+								$about = null;
+								if ( $isStart ) {
+									// The 'mwa' prefix is specific to annotations;
+									// if other DOM ranges are to use this mecanism, another prefix
+									// should be used.
+									$about = 'mwa' . $annotationId++;
+									if ( !array_key_exists( $t, $abouts ) ) {
+										$abouts[$t] = [];
+									}
+									array_push( $abouts[$t], $about );
+								} else {
+									if ( array_key_exists( $t, $abouts ) ) {
+										$about = array_pop( $abouts[$t] );
+									}
+								}
+								if ( $about !== null ) {
+									$datamw = DOMDataUtils::getDataMw( $node );
+									$datamw->rangeId = $about;
+									DOMDataUtils::setDataMw( $node, $datamw );
+								}
+							}
+							return true;
+						}
+					],
 					[
 						'nodeName' => 'a',
 						'action' => [ HandleLinkNeighbours::class, 'handler' ]
@@ -272,6 +306,11 @@ class DOMPostProcessor extends PipelineStage {
 						'action' => [ UnpackDOMFragments::class, 'handler' ]
 					]
 				]
+			],
+			[
+				'Processor' => WrapAnnotations::class,
+				'shortcut' => 'annwrap',
+				'omit' => !empty( $options['inTemplate'] )
 			]
 		];
 

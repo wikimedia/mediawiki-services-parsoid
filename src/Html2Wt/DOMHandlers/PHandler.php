@@ -58,6 +58,8 @@ class PHandler extends DOMHandler {
 				// there => we can make do with 1 newline separator instead of 2
 				// before the P-tag.
 				&& !$this->currWikitextLineHasBlockNode( $state->currLine, $otherNode ) )
+			|| ( WTUtils::isMarkerAnnotation( DOMUtils::nextNonSepSibling( $otherNode ) )
+				&& DOMUtils::nextNonSepSibling( DOMUtils::nextNonSepSibling( $otherNode ) ) === $node )
 		) {
 			return [ 'min' => 2, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
@@ -216,14 +218,15 @@ class PHandler extends DOMHandler {
 		// If an element, it should not be a:
 		// * block node or literal HTML node
 		// * template wrapper
-		// * mw:Includes meta or a SOL-transparent link
+		// * mw:Includes or Annotation meta or a SOL-transparent link
 		return $node instanceof Text
 			|| ( !DOMUtils::atTheTop( $node )
 				&& !DOMUtils::isWikitextBlockNode( $node )
 				&& !WTUtils::isLiteralHTMLNode( $node )
 				&& !WTUtils::isEncapsulationWrapper( $node )
 				&& !WTUtils::isSolTransparentLink( $node )
-				&& !DOMUtils::matchTypeOf( $node, '#^mw:Includes/#' ) );
+				&& !DOMUtils::matchTypeOf( $node, '#^mw:Includes/#' )
+				&& !DOMUtils::matchTypeOf( $node, '#^mw:Annotation/#' ) );
 	}
 
 	/**

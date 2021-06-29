@@ -5,7 +5,9 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -26,7 +28,9 @@ class MetaHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dmw = DOMDataUtils::getDataMw( $node );
 
-		if ( isset( $dp->src ) && DOMUtils::matchTypeOf( $node, '#^mw:Placeholder(/|$)#' ) ) {
+		if ( isset( $dp->src ) &&
+			DOMUtils::matchTypeOf( $node, '#^mw:Placeholder(/|$)#' )
+		) {
 			$this->emitPlaceholderSrc( $node, $state );
 			return $node->nextSibling;
 		}
@@ -63,6 +67,30 @@ class MetaHandler extends DOMHandler {
 			} else {
 				( new FallbackHTMLHandler )->handle( $node, $state );
 			}
+		} elseif ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
+			$annType = WTUtils::extractAnnotationType( $node );
+			if ( $this->needToWriteStartMeta( $state, $node ) ) {
+				$datamw = DOMDataUtils::getDataMw( $node );
+				$attrs = "";
+				if ( isset( $datamw->attrs ) ) {
+					foreach ( get_object_vars( $datamw->attrs ) as $k => $v ) {
+						if ( $v === "" ) {
+							$attrs .= ' ' . $k;
+						} else {
+							$attrs .= ' ' . $k . '="' . $v . '"';
+						}
+					}
+				}
+				// Follow-up on attributes sanitation to happen in T295168
+				$state->emitChunk( '<' . $annType . $attrs . '>', $node );
+				$state->openAnnotationRange( $annType, $datamw->extendedRange ?? false );
+			}
+		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
+			if ( $this->needToWriteEndMeta( $state, $node ) ) {
+				$annType = WTUtils::extractAnnotationType( $node );
+				$state->emitChunk( '</' . $annType . '>', $node );
+				$state->closeAnnotationRange( $annType );
+			}
 		} else {
 			switch ( $node->getAttribute( 'typeof' ) ?? '' ) {
 				case 'mw:Includes/IncludeOnly':
@@ -97,8 +125,117 @@ class MetaHandler extends DOMHandler {
 		return $node->nextSibling;
 	}
 
+	/**
+	 * Decides if we need to write an annotation start meta at the place we encounter it
+	 * @param SerializerState $state
+	 * @param Element $node
+	 * @return bool
+	 */
+	private function needToWriteStartMeta( SerializerState $state, Element $node ): bool {
+		if ( !$state->selserMode ) {
+			return true;
+		}
+		if ( WTUtils::isMovedMetaTag( $node ) ) {
+			$nextContentSibling = DOMCompat::getNextElementSibling( $node );
+			// If the meta tag has been moved, it comes from its next element.... "almost".
+			// First exception is if we have several marker annotations in a row - then we need
+			// to pass them all. Second exception is if we have fostered content: then we're
+			// interested in what happens in the table, which happens _after_ the fostered content.
+			while ( $nextContentSibling !== null &&
+				( WTUtils::isMarkerAnnotation( $nextContentSibling ) ||
+					!empty( DOMDataUtils::getDataParsoid( $nextContentSibling )->fostered )
+				)
+			) {
+				$nextContentSibling = DOMCompat::getNextElementSibling( $nextContentSibling );
+			}
+
+			// When the content from which the meta tag comes gets
+			// deleted or modified, we emit _now_ so that we don't risk losing it. The range
+			// stays extended in the round-tripped version of the wikitext.
+			$nextdiffdata = DOMDataUtils::getDataParsoidDiff( $nextContentSibling );
+			if ( DOMUtils::isDiffMarker( $nextContentSibling ) ||
+				( $nextdiffdata->diff ?? null )
+			) {
+				return true;
+			}
+			return !WTSUtils::origSrcValidInEditedContext( $state, $nextContentSibling );
+		}
+		return true;
+	}
+
+	/**
+	 * Decides if we need to write an annotation end meta at the place we encounter it
+	 * @param SerializerState $state
+	 * @param Element $node
+	 * @return bool
+	 */
+	private function needToWriteEndMeta( SerializerState $state, Element $node ): bool {
+		if ( !$state->selserMode ) {
+			return true;
+		}
+		if ( WTUtils::isMovedMetaTag( $node ) ) {
+			$prevElementSibling = DOMCompat::getPreviousElementSibling( $node );
+			while ( $prevElementSibling !== null &&
+				WTUtils::isMarkerAnnotation( $prevElementSibling )
+			) {
+				$prevElementSibling = DOMCompat::getPreviousElementSibling( $prevElementSibling );
+			}
+			if ( $prevElementSibling ) {
+				$prevdiffdata = DOMDataUtils::getDataParsoidDiff( $prevElementSibling );
+
+				if (
+					DOMUtils::isDiffMarker( $prevElementSibling ) ||
+					$prevdiffdata !== null && $prevdiffdata->diff !== null
+				) {
+					return true;
+				}
+				return !WTSUtils::origSrcValidInEditedContext( $state, $prevElementSibling );
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * We create a newline (or two) if:
+	 *   * the previous element is a block element
+	 *   * the previous element is text, AND we're not in an inline-text situation: this
+	 *     corresponds to text having been added in VE without creating a paragraph, which happens
+	 *     when inserting a new line before the <meta> tag in VE. The "we're not in an inline text"
+	 *     is a heuristic and doesn't work for the ends of line for instance, but it shouldn't add
+	 *     semantic whitespace either.
+	 * @param Node $meta
+	 * @param Node $otherNode
+	 * @return bool
+	 */
+	private function needNewLineSepBeforeMeta( Node $meta, Node $otherNode ) {
+		return ( $otherNode !== $meta->parentNode
+			&& ( $otherNode instanceof Element &&
+				DOMUtils::isWikitextBlockNode( $otherNode ) ||
+				( $otherNode instanceof Text &&
+					DOMUtils::isWikitextBlockNode( DOMUtils::nextNonSepSibling( $meta ) )
+				)
+			) );
+	}
+
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
+		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
+			if ( $this->needNewLineSepBeforeMeta( $node, $otherNode ) ) {
+				return [ 'min' => 2 ];
+			} else {
+				return [];
+			}
+		}
+		if ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
+			if ( $this->needNewLineSepBeforeMeta( $node, $otherNode ) ) {
+				return [
+					'min' => 1
+				];
+			} else {
+				return [];
+			}
+		}
+
 		$type = $node->getAttribute( 'typeof' ) ?: $node->getAttribute( 'property' ) ?:	null;
 		if ( $type && str_contains( $type, 'mw:PageProp/categorydefaultsort' ) ) {
 			if ( $otherNode instanceof Element
@@ -111,10 +248,10 @@ class MetaHandler extends DOMHandler {
 			} else {
 				return [ 'min' => 1 ];
 			}
-		} elseif (
-			WTUtils::isNewElt( $node )
-			// Placeholder metas or <*include*> tags don't need to be serialized on their own line
-			&& !DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes)(/|$)#' )
+		} elseif ( WTUtils::isNewElt( $node ) &&
+			// Placeholder and annotation metas or <*include*> tags don't need to be serialized on
+			// their own line
+			!DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes|Annotation)(/|$)#' )
 		) {
 			return [ 'min' => 1 ];
 		} else {
@@ -124,16 +261,32 @@ class MetaHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
+		if ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
+			if ( $otherNode !== $node->parentNode && $otherNode instanceof Element &&
+				DOMUtils::isWikitextBlockNode( $otherNode ) ) {
+				return [ 'min' => 2 ];
+			} else {
+				return [];
+			}
+		}
+		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
+			if ( $otherNode !== $node->parentNode && $otherNode instanceof Element &&
+				DOMUtils::isWikitextBlockNode( $otherNode ) ) {
+				return [ 'min' => 1 ];
+			} else {
+				return [];
+			}
+		}
+
 		// No diffs
-		if (
-			WTUtils::isNewElt( $node )
-			// Placeholder metas or <*include*> tags don't need to be serialized on their own line
-			&& !DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes)(/|$)#' )
+		if ( WTUtils::isNewElt( $node ) &&
+			// Placeholder and annotation metas or <*include*> tags don't need to be serialized on
+			// their own line
+			!DOMUtils::matchTypeOf( $node, '#^mw:(Placeholder|Includes|Annotation)(/|$)#' )
 		) {
 			return [ 'min' => 1 ];
 		} else {
 			return [];
 		}
 	}
-
 }

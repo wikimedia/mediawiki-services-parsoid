@@ -76,7 +76,11 @@ class ListHandler extends DOMHandler {
 		} elseif ( DOMUtils::isFormattingElt( $otherNode ) ) {
 			return [ 'min' => 1, 'max' => 1 ];
 		} else {
-			return [ 'min' => WTUtils::isNewElt( $node ) ? 2 : 1, 'max' => 2 ];
+			return [
+				'min' => WTUtils::isNewElt( $node ) && !WTUtils::isMarkerAnnotation( $otherNode )
+					? 2 : 1,
+				'max' => 2
+			];
 		}
 	}
 
