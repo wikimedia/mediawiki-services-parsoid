@@ -350,7 +350,7 @@ class TokenizerUtils {
 			) {
 				// `false` indicates that this bump pushed us over the threshold
 				// We don't want to log every token above that, which would be `null`
-				$env->log( 'info', "wt2html: $resource limit exceeded" );
+				$env->log( 'warn', "wt2html: $resource limit exceeded" );
 			}
 		}
 	}
