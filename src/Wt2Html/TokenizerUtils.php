@@ -331,25 +331,26 @@ class TokenizerUtils {
 
 	public static function enforceParserResourceLimits( Env $env, $token ) {
 		if ( $token && ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) ) {
-			$bump = null;
+			$resource = null;
 			switch ( $token->getName() ) {
 				case 'listItem':
-					$bump = $env->bumpWt2HtmlResourceUse( 'listItem' );
+					$resource = 'listItem';
 					break;
-
 				case 'template':
-					$bump = $env->bumpWt2HtmlResourceUse( 'transclusion' );
+					$resource = 'transclusion';
 					break;
-
 				case 'td':
 				case 'th':
-					$bump = $env->bumpWt2HtmlResourceUse( 'tableCell' );
+					$resource = 'tableCell';
 					break;
 			}
-			if ( $bump === false ) {
+			if (
+				$resource !== null &&
+				$env->bumpWt2HtmlResourceUse( $resource ) === false
+			) {
 				// `false` indicates that this bump pushed us over the threshold
 				// We don't want to log every token above that, which would be `null`
-				$env->log( 'info', "wt2html: token limit exceeded" );
+				$env->log( 'info', "wt2html: $resource limit exceeded" );
 			}
 		}
 	}
