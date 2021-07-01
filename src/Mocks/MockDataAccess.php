@@ -571,6 +571,9 @@ class MockDataAccess implements DataAccess {
 			$ret['wikitext'] = 'purple';
 		} elseif ( $wikitext === '{{REVISIONID}}' ) {
 			$ret['wikitext'] = (string)$revid;
+		} elseif ( $wikitext === '{{mangle}}' ) {
+			$ret['wikitext'] = 'hi';
+			$ret['categories']['Mangle'] = 'ho';
 		} else {
 			$ret['wikitext'] = '';
 		}

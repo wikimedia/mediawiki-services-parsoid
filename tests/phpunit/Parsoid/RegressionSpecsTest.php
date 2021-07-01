@@ -393,4 +393,16 @@ EOT;
 		$this->assertEquals( "Ha ha <ref follow=\"123\">hi ho</ref>\n\n", $editedWt );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler::manglePreprocessorResponse
+	 */
+	public function testPreprocessorMangling(): void {
+		$wt = '{{mangle}}';
+		$docBody = $this->parseWT( $wt );
+		$link = DOMCompat::querySelector( $docBody, 'link' );
+		$this->assertEquals( './Category:Mangle#ho', $link->getAttribute( 'href' ) );
+		// Ensure we aren't introducing extraneous spacing, T277760
+		$this->assertStringNotContainsString( "\n", DOMCompat::getInnerHTML( $docBody->firstChild ) );
+		$this->assertTrue( $docBody->firstChild->firstChild->nextSibling === $link );
+	}
 }
