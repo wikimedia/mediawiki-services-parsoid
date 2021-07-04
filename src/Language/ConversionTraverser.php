@@ -2,13 +2,13 @@
 
 namespace Wikimedia\Parsoid\Language;
 
-use DOMDocumentFragment;
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
@@ -80,15 +80,15 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/**
-	 * @param DOMElement $el
+	 * @param Element $el
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function noConvertHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		Element $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		// Don't touch the inside of this node!
@@ -96,15 +96,15 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function anyHandler(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		Node $node, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		/* Look for `lang` attributes */
@@ -120,15 +120,15 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/**
-	 * @param DOMElement $el
+	 * @param Element $el
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function langContextHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		Element $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		$this->fromLang = $this->guesser->guessLang( $el );
@@ -137,31 +137,32 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function textHandler(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		Node $node, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		Assert::invariant( $this->fromLang !== null, 'Text w/o a context' );
+		// @phan-suppress-next-line PhanTypeMismatchArgument,PhanTypeMismatchReturn both declared as DOMNode
 		return $this->machine->replace( $node, $this->toLang, $this->fromLang );
 	}
 
 	/**
-	 * @param DOMElement $el
+	 * @param Element $el
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function aHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		Element $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		// Is this a wikilink?  If so, extract title & convert it
@@ -172,6 +173,7 @@ class ConversionTraverser extends DOMTraverser {
 			$toPageFrag = $this->machine->convert(
 				$el->ownerDocument, $fromPage, $this->toLang, $this->fromLang
 			);
+			'@phan-var DocumentFragment $toPageFrag'; // @var DocumentFragment $toPageFrag
 			$toPage = $this->docFragToString( $toPageFrag );
 			if ( $toPage === null ) {
 				// Non-reversible transform (sigh); mark this for rt.
@@ -210,15 +212,15 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function attrHandler(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		Node $node, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		// Convert `alt` and `title` attributes on elements
@@ -242,6 +244,7 @@ class ConversionTraverser extends DOMTraverser {
 			$toFrag = $this->machine->convert(
 				$node->ownerDocument, $orig, $this->toLang, $this->fromLang
 			);
+			'@phan-var DocumentFragment $toFrag'; // @var DocumentFragment $toFrag
 			$to = $this->docFragToString( $toFrag );
 			if ( $to === null ) {
 				// Non-reversible transform (sigh); mark for rt.
@@ -256,15 +259,15 @@ class ConversionTraverser extends DOMTraverser {
 	/**
 	 * Handler for LanguageConverter markup
 	 *
-	 * @param DOMElement $el
+	 * @param Element $el
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return ?DOMNode|bool
+	 * @return ?Node|bool
 	 */
 	private function lcHandler(
-		DOMElement $el, Env $env, array $options, bool $atTopLevel,
+		Element $el, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		if ( !DOMUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
@@ -291,12 +294,12 @@ class ConversionTraverser extends DOMTraverser {
 	}
 
 	/**
-	 * @param DOMDocumentFragment $docFrag
+	 * @param DocumentFragment $docFrag
 	 * @param bool $force
 	 * @return ?string
 	 */
 	private function docFragToString(
-		DOMDocumentFragment $docFrag, bool $force = false
+		DocumentFragment $docFrag, bool $force = false
 	): ?string {
 		if ( !$force ) {
 			for ( $child = $docFrag->firstChild; $child; $child = $child->nextSibling ) {

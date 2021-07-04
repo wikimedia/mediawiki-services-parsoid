@@ -9,14 +9,14 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html;
 
-use DOMDocument;
-use DOMNode;
 use Generator;
 use RemexHtml\Tokenizer\PlainAttributes;
 use RemexHtml\TreeBuilder\Dispatcher;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -45,7 +45,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	/** @var int */
 	private $tableDepth;
 
-	/** @var DOMDocument */
+	/** @var Document */
 	private $doc;
 
 	/** @var Dispatcher */
@@ -134,9 +134,9 @@ class HTML5TreeBuilder extends PipelineStage {
 	}
 
 	/**
-	 * @return DOMNode
+	 * @return Node
 	 */
-	public function finalizeDOM(): DOMNode {
+	public function finalizeDOM(): Node {
 		// Check if the EOFTk actually made it all the way through, and flag the
 		// page where it did not!
 		if ( isset( $this->lastToken ) && !( $this->lastToken instanceof EOFTk ) ) {

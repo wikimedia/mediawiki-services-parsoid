@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
 use Wikimedia\Parsoid\Core\MediaStructure;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -19,8 +19,8 @@ class FigureHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		LinkHandlerUtils::figureHandler(
 			$state, $node, MediaStructure::parse( $node )
 		);
@@ -28,7 +28,7 @@ class FigureHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( WTUtils::isNewElt( $node ) && DOMUtils::atTheTop( $node->parentNode ) ) {
 			return [ 'min' => 1 ];
 		}
@@ -36,7 +36,7 @@ class FigureHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( WTUtils::isNewElt( $node ) && DOMUtils::atTheTop( $node->parentNode ) ) {
 			return [ 'min' => 1 ];
 		}

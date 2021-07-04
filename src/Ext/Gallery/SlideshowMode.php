@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use DOMElement;
+use Wikimedia\Parsoid\DOM\Element;
 
 class SlideshowMode extends TraditionalMode {
 	/**
@@ -15,12 +15,12 @@ class SlideshowMode extends TraditionalMode {
 	}
 
 	/** @inheritDoc */
-	protected function setAdditionalOptions( Opts $opts, DOMElement $ul ): void {
+	protected function setAdditionalOptions( Opts $opts, Element $ul ): void {
 		$ul->setAttribute( 'data-showthumbnails', $opts->showthumbnails ? '1' : '' );
 	}
 
 	/** @inheritDoc */
-	protected function perRow( Opts $opts, DOMElement $ul ): void {
+	protected function perRow( Opts $opts, Element $ul ): void {
 		/* do nothing */
 	}
 

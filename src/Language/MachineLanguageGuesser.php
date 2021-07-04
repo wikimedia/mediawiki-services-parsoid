@@ -2,10 +2,10 @@
 
 namespace Wikimedia\Parsoid\Language;
 
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMPostOrder;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -18,10 +18,10 @@ class MachineLanguageGuesser extends LanguageGuesser {
 
 	/**
 	 * @param ReplacementMachine $machine
-	 * @param DOMNode $root
+	 * @param Node $root
 	 * @param string $destCode
 	 */
-	public function __construct( ReplacementMachine $machine, DOMNode $root, $destCode ) {
+	public function __construct( ReplacementMachine $machine, Node $root, $destCode ) {
 		$codes = [];
 		foreach ( $machine->getCodes() as $invertCode => $ignore ) {
 			if ( $machine->isValidCodePair( $destCode, $invertCode ) ) {
@@ -34,10 +34,10 @@ class MachineLanguageGuesser extends LanguageGuesser {
 		}
 
 		DOMPostOrder::traverse(
-			$root, function ( DOMNode &$node ) use (
+			$root, function ( Node &$node ) use (
 				$machine, $codes, $destCode, $zeroCounts
 			) {
-				if ( !( $node instanceof DOMElement ) ) {
+				if ( !( $node instanceof Element ) ) {
 					// Elements only!
 					return;
 				}
@@ -58,7 +58,7 @@ class MachineLanguageGuesser extends LanguageGuesser {
 								$invertCode
 							)->safe;
 						}
-					} elseif ( $child instanceof DOMElement ) {
+					} elseif ( $child instanceof Element ) {
 						$countMap = self::getNodeData( $child )->countMap;
 					} else {
 						continue; // skip this non-element non-text node
@@ -90,10 +90,10 @@ class MachineLanguageGuesser extends LanguageGuesser {
 	 * Helper function that namespaces all of our node data used in
 	 * this class into the top-level `mw_variant` key.
 	 *
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @return stdClass
 	 */
-	private static function getNodeData( DOMElement $node ): stdClass {
+	private static function getNodeData( Element $node ): stdClass {
 		$nodeData = DOMDataUtils::getNodeData( $node );
 		if ( !isset( $nodeData->mw_variant ) ) {
 			$nodeData->mw_variant = new stdClass;
@@ -102,7 +102,7 @@ class MachineLanguageGuesser extends LanguageGuesser {
 	}
 
 	/** @inheritDoc */
-	public function guessLang( DOMElement $node ): string {
+	public function guessLang( Element $node ): string {
 		return self::getNodeData( $node )->guessLang;
 	}
 }

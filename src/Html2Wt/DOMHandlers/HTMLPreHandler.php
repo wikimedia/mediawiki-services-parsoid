@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 
 class HTMLPreHandler extends DOMHandler {
@@ -15,19 +15,19 @@ class HTMLPreHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		( new FallbackHTMLHandler )->handle( $node, $state, $wrapperUnmodified );
 		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( Node $node, Node $otherNode, SerializerState $state ): array {
 		return [ 'max' => PHP_INT_MAX ];
 	}
 
 	/** @inheritDoc */
-	public function lastChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function lastChild( Node $node, Node $otherNode, SerializerState $state ): array {
 		return [ 'max' => PHP_INT_MAX ];
 	}
 

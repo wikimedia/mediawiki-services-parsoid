@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
-use DOMDocument;
-use DOMElement;
 use stdClass;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -45,13 +45,13 @@ class RefGroup {
 	 * @param string $href
 	 * @param ?string $group
 	 * @param string $text
-	 * @param DOMDocument $ownerDoc
-	 * @return DOMElement
+	 * @param Document $ownerDoc
+	 * @return Element
 	 */
 	private static function createLinkback(
 		ParsoidExtensionAPI $extApi, string $href, ?string $group,
-		string $text, DOMDocument $ownerDoc
-	): DOMElement {
+		string $text, Document $ownerDoc
+	): Element {
 		$a = $ownerDoc->createElement( 'a' );
 		$s = $ownerDoc->createElement( 'span' );
 		$textNode = $ownerDoc->createTextNode( $text . ' ' );
@@ -67,11 +67,11 @@ class RefGroup {
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMElement $refsList
+	 * @param Element $refsList
 	 * @param stdClass $ref
 	 */
 	public function renderLine(
-		ParsoidExtensionAPI $extApi, DOMElement $refsList, stdClass $ref
+		ParsoidExtensionAPI $extApi, Element $refsList, stdClass $ref
 	): void {
 		$ownerDoc = $refsList->ownerDocument;
 
@@ -101,7 +101,7 @@ class RefGroup {
 			// `extApi->extTagToDOM()`.  Only its contents are relevant.
 			$sup = $extApi->getContentDOM( $refContentId )->firstChild;
 			DOMUtils::migrateChildren( $sup, $reftextSpan );
-			'@phan-var DOMElement $sup';  /** @var DOMElement $sup */
+			'@phan-var Element $sup';  /** @var Element $sup */
 			DOMCompat::remove( $sup );
 			$extApi->clearContentDOM( $refContentId );
 		}

@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid;
 
 use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
-use DOMDocument;
 use InvalidArgumentException;
 use LogicException;
 use Wikimedia\Parsoid\Config\DataAccess;
@@ -15,6 +14,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -243,7 +243,7 @@ class Parsoid {
 	 * Serialize DOM to wikitext.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param DOMDocument $doc Data attributes are expected to have been applied
+	 * @param Document $doc Data attributes are expected to have been applied
 	 *   already.  Loading them will happen once the environment is created.
 	 * @param array $options [
 	 *   'scrubWikitext'       => (bool) Indicates emit "clean" wikitext.
@@ -265,7 +265,7 @@ class Parsoid {
 	 * @return string
 	 */
 	public function dom2wikitext(
-		PageConfig $pageConfig, DOMDocument $doc, array $options = [],
+		PageConfig $pageConfig, Document $doc, array $options = [],
 		?SelserData $selserData = null
 	): string {
 		$envOptions = $this->setupCommonOptions( $options );

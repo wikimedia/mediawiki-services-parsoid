@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Poem;
 
-use DOMDocumentFragment;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -38,7 +38,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $extArgs
-	): DOMDocumentFragment {
+	): DocumentFragment {
 		/*
 		 * Transform wikitext found in <poem>...</poem>
 		 * 1. Strip leading & trailing newlines

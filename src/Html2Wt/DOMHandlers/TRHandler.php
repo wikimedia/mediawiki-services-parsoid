@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Core\DataParsoid;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -20,8 +20,8 @@ class TRHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		if ( $this->trWikitextNeeded( $node, $dp ) ) {
@@ -39,7 +39,7 @@ class TRHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( $this->trWikitextNeeded( $node,  DOMDataUtils::getDataParsoid( $node ) ) ) {
 			return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 		} else {
@@ -48,16 +48,16 @@ class TRHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		return [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param stdClass|DataParsoid $dp
 	 * @return bool
 	 */
-	private function trWikitextNeeded( DOMElement $node, stdClass $dp ): bool {
+	private function trWikitextNeeded( Element $node, stdClass $dp ): bool {
 		// If the token has 'startTagSrc' set, it means that the tr
 		// was present in the source wikitext and we emit it -- if not,
 		// we ignore it.

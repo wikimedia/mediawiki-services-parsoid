@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 
 namespace Test\Parsoid;
 
-use DOMElement;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -23,9 +23,9 @@ class RegressionSpecsTest extends TestCase {
 	/**
 	 * @param string $wt
 	 * @param array $opts
-	 * @return DOMElement
+	 * @return Element
 	 */
-	private function parseWT( string $wt, array $opts = [] ): DOMElement {
+	private function parseWT( string $wt, array $opts = [] ): Element {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );

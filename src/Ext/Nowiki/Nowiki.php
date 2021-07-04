@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Nowiki;
 
-use DOMDocumentFragment;
-use DOMElement;
-use DOMText;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -36,7 +36,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
-	): DOMDocumentFragment {
+	): DocumentFragment {
 		$domFragment = $extApi->htmlToDom( '' );
 		$doc = $domFragment->ownerDocument;
 		$span = $doc->createElement( 'span' );
@@ -70,7 +70,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function domToWikitext(
-		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+		ParsoidExtensionAPI $extApi, Element $node, bool $wrapperUnmodified
 	) {
 		if ( !$node->hasChildNodes() ) {
 			$extApi->setHtml2wtStateFlag( 'hasSelfClosingNowikis' ); // FIXME
@@ -79,7 +79,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 		$str = '<nowiki>';
 		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
 			$out = null;
-			if ( $child instanceof DOMElement ) {
+			if ( $child instanceof Element ) {
 				if ( DOMUtils::isDiffMarker( $child ) ) {
 					/* ignore */
 				} elseif ( $child->nodeName === 'span' &&
@@ -111,7 +111,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 					$extApi->log( 'error/html2wt/nowiki', 'Invalid nowiki content' );
 					$out = $child->textContent;
 				}
-			} elseif ( $child instanceof DOMText ) {
+			} elseif ( $child instanceof Text ) {
 				$out = $child->nodeValue;
 			} else {
 				Assert::invariant( DOMUtils::isComment( $child ), "Expected a comment here" );

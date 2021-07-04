@@ -3,11 +3,14 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html;
 
-use DOMDocument;
-use DOMElement;
-use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\Comment;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -67,15 +70,15 @@ class XMLSerializer {
 	/**
 	 * Serialize an HTML DOM3 node to XHTML. The XHTML and associated information will be fed
 	 * step-by-step to the callback given in $accum.
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param array $options See {@link XMLSerializer::serialize()}
 	 * @param callable $accum function( $bit, $node, $flag )
 	 *   - $bit: (string) piece of HTML code
-	 *   - $node: (DOMNode) ??
+	 *   - $node: (Node) ??
 	 *   - $flag: (string|null) 'start' or 'end' (??)
 	 * @return void
 	 */
-	private static function serializeToString( DOMNode $node, array $options, callable $accum ): void {
+	private static function serializeToString( Node $node, array $options, callable $accum ): void {
 		$child = null;
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
@@ -141,8 +144,8 @@ class XMLSerializer {
 
 			case XML_DOCUMENT_NODE:
 			case XML_DOCUMENT_FRAG_NODE:
-				'@phan-var \DOMDocument|\DOMDocumentFragment $node';
-				// @var \DOMDocument|\DOMDocumentFragment $node
+				'@phan-var Document|DocumentFragment $node';
+				// @var Document|DocumentFragment $node
 				$child = $node->firstChild;
 				while ( $child ) {
 					self::serializeToString( $child, $options, $accum );
@@ -151,7 +154,7 @@ class XMLSerializer {
 				return;
 
 			case XML_TEXT_NODE:
-				'@phan-var \DOMText $node'; // @var \DOMText $node
+				'@phan-var Text $node'; // @var Text $node
 				$accum( self::encodeHtmlEntities( $node->data, '<&' ), $node );
 				return;
 
@@ -162,7 +165,7 @@ class XMLSerializer {
 				// a "well-formed" XML comment.  But we use entity encoding when
 				// we create the comment node to ensure that node.data will always
 				// be okay; see DOMUtils.encodeComment().
-				'@phan-var \DOMComment $node'; // @var \DOMComment $node
+				'@phan-var Comment $node'; // @var Comment $node
 				$accum( '<!--' . $node->data . '-->', $node );
 				return;
 
@@ -178,17 +181,17 @@ class XMLSerializer {
 	 *   'html' and 'offset' fields. The other fields (positions are 0-based
 	 *   and refer to UTF-8 byte indices):
 	 *   - start: position in the HTML of the end of the opening tag of <body>
-	 *   - last: (DOMNode) last "about sibling" of the currently processed element
+	 *   - last: (Node) last "about sibling" of the currently processed element
 	 *     (see {@link WTUtils::getAboutSiblings()}
 	 *   - uid: the ID of the element
 	 * @param string $bit A piece of the HTML string
-	 * @param DOMNode $node The DOM node $bit is a part of
+	 * @param Node $node The DOM node $bit is a part of
 	 * @param ?string $flag 'start' when receiving the final part of the opening tag
 	 *   of an element, 'end' when receiving the final part of the closing tag of an element
 	 *   or the final part of a self-closing element.
 	 */
 	private static function accumOffsets(
-		array &$out, string $bit, DOMNode $node, ?string $flag = null
+		array &$out, string $bit, Node $node, ?string $flag = null
 	): void {
 		if ( DOMUtils::atTheTop( $node ) ) {
 			$out['html'] .= $bit;
@@ -199,7 +202,7 @@ class XMLSerializer {
 				$out['uid'] = null;
 			}
 		} elseif (
-			!( $node instanceof DOMElement ) || $out['start'] === null ||
+			!( $node instanceof Element ) || $out['start'] === null ||
 			!DOMUtils::atTheTop( $node->parentNode )
 		) {
 			// In case you're wondering, out.start may never be set if body
@@ -239,7 +242,7 @@ class XMLSerializer {
 	/**
 	 * Serialize an HTML DOM3 node to an XHTML string.
 	 *
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param array $options
 	 *   - smartQuote (bool, default true): use single quotes for attributes when that's less escaping
 	 *   - innerXML (bool, default false): only serialize the contents of $node, exclude $node itself
@@ -255,19 +258,19 @@ class XMLSerializer {
 	 *     sibling. The positions are relative to the end of the opening <body> tag
 	 *     (the DOCTYPE header is not counted), and only present when the captureOffsets flag is set.
 	 */
-	public static function serialize( DOMNode $node, array $options = [] ): array {
+	public static function serialize( Node $node, array $options = [] ): array {
 		$options += [
 			'smartQuote' => true,
 			'innerXML' => false,
 			'captureOffsets' => false,
 			'addDoctype' => true,
 		];
-		if ( $node instanceof DOMDocument ) {
+		if ( $node instanceof Document ) {
 			$node = $node->documentElement;
 		}
 		$out = [ 'html' => '', 'offsets' => [], 'start' => null, 'uid' => null, 'last' => null ];
 		$accum = $options['captureOffsets']
-			? function ( string $bit, DOMNode $node, ?string $flag = null ) use ( &$out ): void {
+			? function ( string $bit, Node $node, ?string $flag = null ) use ( &$out ): void {
 				self::accumOffsets( $out, $bit, $node, $flag );
 			}
 			: static function ( string $bit ) use ( &$out ): void {

@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils\DOMCompat;
 
-use DOMElement;
 use Iterator;
 use LogicException;
+use Wikimedia\Parsoid\DOM\Element;
 
 /**
  * Implements the parts of DOMTokenList interface which are used by Parsoid.
@@ -15,7 +15,7 @@ use LogicException;
  */
 class TokenList implements Iterator {
 
-	/** @var DOMElement The node whose classes are listed. */
+	/** @var Element The node whose classes are listed. */
 	protected $node;
 
 	/** @var string Copy of the attribute text, used for change detection. */
@@ -27,9 +27,9 @@ class TokenList implements Iterator {
 	private $classList;
 
 	/**
-	 * @param DOMElement $node The node whose classes are listed.
+	 * @param Element $node The node whose classes are listed.
 	 */
-	public function __construct( DOMElement $node ) {
+	public function __construct( Element $node ) {
 		$this->node = $node;
 		$this->lazyLoadClassList();
 	}

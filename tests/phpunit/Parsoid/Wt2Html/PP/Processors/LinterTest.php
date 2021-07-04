@@ -1123,14 +1123,14 @@ class LinterTest extends TestCase {
 
 		$desc = "should lint audio wikilink in extlink followed by span correctly";
 		$result = $this->parseWT(
-			"[http://foo.bar/other.link [[File:Audio.oga]] audio]<span>this is a DOMElement</span>" );
+			"[http://foo.bar/other.link [[File:Audio.oga]] audio]<span>this is an Element</span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 52, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint audio wikilink in extlink with preceding text followed by span correctly";
 		$result = $this->parseWT(
-			"[http://foo.bar/other.link text content [[File:Audio.oga]] audio]<span>this is a DOMElement</span>" );
+			"[http://foo.bar/other.link text content [[File:Audio.oga]] audio]<span>this is an Element</span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 65, 27, 1 ], $result[0]['dsr'], $desc );

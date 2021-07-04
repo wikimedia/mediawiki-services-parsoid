@@ -2,9 +2,9 @@
 
 namespace Test\Parsoid\Utils;
 
-use DOMDocument;
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMPostOrder;
 
 class DOMPostOrderTest extends \PHPUnit\Framework\TestCase {
@@ -26,11 +26,11 @@ class DOMPostOrderTest extends \PHPUnit\Framework\TestCase {
 	</div>
 </body></html>
 HTML;
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 		$doc->loadHTML( $html );
 
-		DOMPostOrder::traverse( $doc->documentElement, static function ( DOMNode $node ) use ( &$trace ) {
-			if ( $node instanceof DOMElement && $node->hasAttribute( 'id' ) ) {
+		DOMPostOrder::traverse( $doc->documentElement, static function ( Node $node ) use ( &$trace ) {
+			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {
 				$trace[] = $node->getAttribute( 'id' );
 			}
 		} );

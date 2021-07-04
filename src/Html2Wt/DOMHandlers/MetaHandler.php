@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -19,8 +19,8 @@ class MetaHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		$property = $node->getAttribute( 'property' ) ?: '';
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dmw = DOMDataUtils::getDataMw( $node );
@@ -99,11 +99,11 @@ class MetaHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		$type = $node->getAttribute( 'typeof' ) ?: $node->getAttribute( 'property' ) ?:	null;
 		if ( $type && preg_match( '#mw:PageProp/categorydefaultsort#', $type ) ) {
 			if ( $otherNode->nodeName === 'p'
-				&& $otherNode instanceof DOMElement // for static analyizers
+				&& $otherNode instanceof Element // for static analyizers
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
 			) {
 				// Since defaultsort is outside the p-tag, we need 2 newlines
@@ -124,7 +124,7 @@ class MetaHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		// No diffs
 		if (
 			WTUtils::isNewElt( $node )

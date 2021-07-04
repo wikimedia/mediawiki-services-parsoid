@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
-use DOMDocumentFragment;
-use DOMElement;
-use DOMNode;
 use Exception;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -22,7 +22,7 @@ class Ref extends ExtensionTagHandler {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
-	): ?DOMDocumentFragment {
+	): ?DocumentFragment {
 		// Drop nested refs entirely, unless we've explicitly allowed them
 		$parentExtTag = $extApi->parentExtTag();
 		if ( $parentExtTag === 'ref' && empty( $extApi->parentExtTagOpts()['allowNestedRef'] ) ) {
@@ -58,8 +58,8 @@ class Ref extends ExtensionTagHandler {
 
 	/** @inheritDoc */
 	public function lintHandler(
-		ParsoidExtensionAPI $extApi, DOMElement $ref, callable $defaultHandler
-	): ?DOMNode {
+		ParsoidExtensionAPI $extApi, Element $ref, callable $defaultHandler
+	): ?Node {
 		// Don't lint the content of ref in ref, since it can lead to cycles
 		// using named refs
 		if ( WTUtils::fromExtensionContent( $ref, 'references' ) ) {
@@ -82,7 +82,7 @@ class Ref extends ExtensionTagHandler {
 
 	/** @inheritDoc */
 	public function domToWikitext(
-		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+		ParsoidExtensionAPI $extApi, Element $node, bool $wrapperUnmodified
 	) {
 		$startTagSrc = $extApi->extStartTagToWikitext( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );

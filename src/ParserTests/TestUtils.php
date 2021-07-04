@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-use DOMElement;
-use DOMNode;
-use DOMText;
 use Error;
 use Exception;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\DOMNormalizer;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
@@ -44,7 +44,7 @@ class TestUtils {
 	 * If parsoidOnly is true-ish, we allow more markup through (like property
 	 * and typeof attributes), for better checking of parsoid-only test cases.
 	 *
-	 * @param DOMElement|string $domBody
+	 * @param Element|string $domBody
 	 * @param array $options
 	 *  - parsoidOnly (bool) Is this test Parsoid Only? Optional. Default: false
 	 *  - preserveIEW (bool) Should inter-element WS be preserved? Optional. Default: false
@@ -180,11 +180,11 @@ class TestUtils {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param ?string $stripSpanTypeof
 	 */
 	private static function cleanSpans(
-		DOMNode $node, ?string $stripSpanTypeof
+		Node $node, ?string $stripSpanTypeof
 	): void {
 		if ( !$stripSpanTypeof ) {
 			return;
@@ -194,7 +194,7 @@ class TestUtils {
 		$next = null;
 		for ( $child = $node->firstChild; $child; $child = $next ) {
 			$next = $child->nextSibling;
-			if ( $child instanceof DOMElement && $child->nodeName === 'span' &&
+			if ( $child instanceof Element && $child->nodeName === 'span' &&
 				preg_match( $stripSpanTypeof, $child->getAttribute( 'typeof' ) ?? '' )
 			) {
 				self::unwrapSpan( $node, $child, $stripSpanTypeof );
@@ -203,12 +203,12 @@ class TestUtils {
 	}
 
 	/**
-	 * @param DOMNode $parent
-	 * @param DOMNode $node
+	 * @param Node $parent
+	 * @param Node $node
 	 * @param ?string $stripSpanTypeof
 	 */
 	private static function unwrapSpan(
-		DOMNode $parent, DOMNode $node, ?string $stripSpanTypeof
+		Node $parent, Node $node, ?string $stripSpanTypeof
 	):void {
 		// first recurse to unwrap any spans in the immediate children.
 		self::cleanSpans( $node, $stripSpanTypeof );
@@ -218,22 +218,22 @@ class TestUtils {
 	}
 
 	/**
-	 * @param ?DOMNode $node
+	 * @param ?Node $node
 	 * @return bool
 	 */
-	private static function newlineAround( ?DOMNode $node ): bool {
+	private static function newlineAround( ?Node $node ): bool {
 		return $node &&
 			preg_match( '/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D', $node->nodeName );
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param array $opts
-	 * @return DOMNode
+	 * @return Node
 	 */
 	private static function normalizeIEWVisitor(
-		DOMNode $node, array $opts
-	): DOMNode {
+		Node $node, array $opts
+	): Node {
 		$child = null;
 		$next = null;
 		$prev = null;
@@ -241,7 +241,7 @@ class TestUtils {
 			// Preserve newlines in <pre> tags
 			$opts['inPRE'] = true;
 		}
-		if ( !$opts['preserveIEW'] && $node instanceof DOMText ) {
+		if ( !$opts['preserveIEW'] && $node instanceof Text ) {
 			if ( !$opts['inPRE'] ) {
 				$node->data = preg_replace( '/\s+/u', ' ', $node->data );
 			}
@@ -264,7 +264,7 @@ class TestUtils {
 			}
 		}
 		// reassemble text nodes split by a comment or span, if necessary
-		if ( $node instanceof DOMElement ) {
+		if ( $node instanceof Element ) {
 			DOMCompat::normalize( $node );
 		}
 		// now recurse.
@@ -304,13 +304,13 @@ class TestUtils {
 			$prev = $child->previousSibling;
 			$next = $child->nextSibling;
 			if ( self::newlineAround( $child ) ) {
-				if ( $prev && $prev instanceof DOMText ) {
+				if ( $prev && $prev instanceof Text ) {
 					$prev->data = preg_replace( '/\s*$/uD', "\n", $prev->data, 1 );
 				} else {
 					$prev = $node->ownerDocument->createTextNode( "\n" );
 					$node->insertBefore( $prev, $child );
 				}
-				if ( $next && $next instanceof DOMText ) {
+				if ( $next && $next instanceof Text ) {
 					$next->data = preg_replace( '/^\s*/u', "\n", $next->data, 1 );
 				} else {
 					$next = $node->ownerDocument->createTextNode( "\n" );
@@ -324,15 +324,15 @@ class TestUtils {
 	/**
 	 * Normalize newlines in IEW to spaces instead.
 	 *
-	 * @param DOMElement $body The document body node to normalize.
+	 * @param Element $body The document body node to normalize.
 	 * @param ?string $stripSpanTypeof Regular expression to strip typeof attributes
 	 * @param bool $parsoidOnly
 	 * @param bool $preserveIEW
-	 * @return DOMElement
+	 * @return Element
 	 */
 	public static function unwrapSpansAndNormalizeIEW(
-		DOMElement $body, ?string $stripSpanTypeof = null, bool $parsoidOnly = false, bool $preserveIEW = false
-	): DOMElement {
+		Element $body, ?string $stripSpanTypeof = null, bool $parsoidOnly = false, bool $preserveIEW = false
+	): Element {
 		$opts = [
 			'preserveIEW' => $preserveIEW,
 			'parsoidOnly' => $parsoidOnly,

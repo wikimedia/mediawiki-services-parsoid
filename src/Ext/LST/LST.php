@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\LST;
 
-use DOMElement;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -36,7 +36,7 @@ class LST extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function domToWikitext(
-		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+		ParsoidExtensionAPI $extApi, Element $node, bool $wrapperUnmodified
 	) {
 		// TODO: We're keeping this serial handler around to remain backwards
 		// compatible with stored content version 1.3.0 and below.  Remove it

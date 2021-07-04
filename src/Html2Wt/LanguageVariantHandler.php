@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use DOMElement;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -149,10 +149,10 @@ class LanguageVariantHandler {
 	/**
 	 * LanguageVariantHandler
 	 * @param SerializerState $state
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @return void
 	 */
-	public static function handleLanguageVariant( SerializerState $state, DOMElement $node ): void {
+	public static function handleLanguageVariant( SerializerState $state, Element $node ): void {
 		$dataMWV = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', [] );
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$flSp = self::expandSpArray( $dp->flSp ?? [] );

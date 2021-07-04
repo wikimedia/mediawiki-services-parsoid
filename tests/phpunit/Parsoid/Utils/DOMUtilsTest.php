@@ -1,9 +1,9 @@
 <?php
 namespace spec\Parsoid\Utils;
 
-use DOMDocument;
-use DOMElement;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  */
 class DOMUtilsTest extends TestCase {
 
-	/** @var DOMDocument[] */
+	/** @var Document[] */
 	private $liveDocs = [];
 
 	/**
@@ -214,9 +214,9 @@ class DOMUtilsTest extends TestCase {
 	/**
 	 * @param string $html1
 	 * @param string $html2
-	 * @return DOMElement
+	 * @return Element
 	 */
-	private function parseAndDiff( string $html1, string $html2 ): DOMElement {
+	private function parseAndDiff( string $html1, string $html2 ): Element {
 		$mockEnv = new MockEnv( [] );
 
 		$doc1 = ContentUtils::createAndLoadDocument( $html1 );
@@ -235,7 +235,7 @@ class DOMUtilsTest extends TestCase {
 		return DOMCompat::getBody( $doc2 );
 	}
 
-	private function selectNode( DOMElement $body, string $selector ): DOMElement {
+	private function selectNode( Element $body, string $selector ): Element {
 		$nodes = DOMCompat::querySelectorAll( $body, $selector );
 		if ( count( $nodes ) !== 1 ) {
 			$this->fail( 'It should be exactly one node for the selector' );
@@ -243,7 +243,7 @@ class DOMUtilsTest extends TestCase {
 		return $nodes[0];
 	}
 
-	private function checkMarkers( DOMElement $node, array $markers ): void {
+	private function checkMarkers( Element $node, array $markers ): void {
 		$data = DOMDataUtils::getNodeData( $node );
 		$diff = $data->parsoid_diff->diff;
 		if ( count( $markers ) !== count( $diff ) ) {

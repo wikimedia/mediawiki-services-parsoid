@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-use DOMDocumentFragment;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -13,7 +13,7 @@ class RawHTML extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
-	): DOMDocumentFragment {
+	): DocumentFragment {
 		return $extApi->htmlToDom( $content );
 	}
 

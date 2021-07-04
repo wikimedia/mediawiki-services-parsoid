@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use DOMDocumentFragment;
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
@@ -38,18 +38,18 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * @param ?string $nodeName An optional node name filter
 	 * @param callable $action A callback, called on each node we traverse that matches nodeName.
 	 *   Will be called with the following parameters:
-	 *   - DOMNode $node: the node being processed
+	 *   - Node $node: the node being processed
 	 *   - Env $env: the parser environment
 	 *   - array $options: (only passed if optional $passOptions is true)
 	 *        a closure of extra information passed to DOMTraverser::traverse
 	 *   - bool $atTopLevel: passed through from DOMTraverser::traverse
 	 *   - stdClass $tplInfo: Template information. See traverse().
-	 *   Return value: DOMNode|null|true.
+	 *   Return value: Node|null|true.
 	 *   - true: proceed normally
-	 *   - DOMNode: traversal will continue on the new node (further handlers will not be called
+	 *   - Node: traversal will continue on the new node (further handlers will not be called
 	 *     on the current node); after processing it and its siblings, it will continue with the
 	 *     next sibling of the closest ancestor which has one.
-	 *   - null: like the DOMNode case, except there is no new node to process before continuing.
+	 *   - null: like the Node case, except there is no new node to process before continuing.
 	 */
 	public function addHandler(
 		?string $nodeName, callable $action
@@ -61,7 +61,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
@@ -69,7 +69,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * @return bool|mixed
 	 */
 	private function callHandlers(
-		DOMNode $node, Env $env, array $options, bool $atTopLevel,
+		Node $node, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
 		$name = $node->nodeName ?: '';
@@ -104,21 +104,21 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * - `true`: continues regular processing on current node.
 	 *
 	 * @param Env $env
-	 * @param DOMNode $workNode The root node for the traversal.
+	 * @param Node $workNode The root node for the traversal.
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo Template information. When set, it must have all of these fields:
-	 *   - first: (DOMNode) first sibling
-	 *   - last: (DOMNode) last sibling
+	 *   - first: (Node) first sibling
+	 *   - last: (Node) last sibling
 	 *   - dsr: field from Pasoid ino
 	 *   - clear: when set, the template will not be passed along for further processing
 	 */
 	public function traverse(
-		Env $env, DOMNode $workNode, array $options = [],
+		Env $env, Node $workNode, array $options = [],
 		bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
 		while ( $workNode !== null ) {
-			if ( $workNode instanceof DOMElement ) {
+			if ( $workNode instanceof Element ) {
 				// Identify the first template/extension node.
 				// You'd think the !tplInfo check isn't necessary since
 				// we don't have nested transclusions, however, you can
@@ -145,7 +145,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 			}
 
 			// Call the handlers on this workNode
-			if ( $workNode instanceof DOMDocumentFragment ) {
+			if ( $workNode instanceof DocumentFragment ) {
 				$possibleNext = true;
 			} else {
 				$possibleNext = $this->callHandlers(
@@ -183,7 +183,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMNode $workNode, array $options = [], bool $atTopLevel = false
+		Env $env, Node $workNode, array $options = [], bool $atTopLevel = false
 	): void {
 		$this->traverse( $env, $workNode, $options, $atTopLevel );
 	}

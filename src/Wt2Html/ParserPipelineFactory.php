@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html;
 
-use DOMDocument;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\InternalException;
+use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\AttributeExpander;
 use Wikimedia\Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
@@ -285,9 +285,9 @@ class ParserPipelineFactory {
 
 	/**
 	 * @param string $src
-	 * @return DOMDocument
+	 * @return Document
 	 */
-	public function parse( string $src ): DOMDocument {
+	public function parse( string $src ): Document {
 		$pipe = $this->getPipeline( 'text/x-mediawiki/full' );
 		$pipe->init( [
 			'toplevel' => true,

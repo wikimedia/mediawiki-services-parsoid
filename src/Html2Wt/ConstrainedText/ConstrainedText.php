@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -79,7 +79,7 @@ class ConstrainedText {
 	public $text;
 	/**
 	 * The DOM Node associated with this chunk.
-	 * @var DOMNode
+	 * @var Node
 	 */
 	public $node;
 	/**
@@ -106,7 +106,7 @@ class ConstrainedText {
 	public $noSep;
 
 	/**
-	 * @param array{text:string,node:DOMNode,prefix?:string,suffix?:string} $args Options.
+	 * @param array{text:string,node:Node,prefix?:string,suffix?:string} $args Options.
 	 */
 	public function __construct( array $args ) {
 		$this->text = $args['text'];
@@ -121,11 +121,11 @@ class ConstrainedText {
 	 * Ensure that the argument `o`, which is perhaps a string, is a instance of
 	 * `ConstrainedText`.
 	 * @param string|ConstrainedText $o
-	 * @param DOMNode $node
-	 *   The {@link DOMNode} corresponding to `o`.
+	 * @param Node $node
+	 *   The {@link Node} corresponding to `o`.
 	 * @return ConstrainedText
 	 */
-	public static function cast( $o, DOMNode $node ): ConstrainedText {
+	public static function cast( $o, Node $node ): ConstrainedText {
 		if ( $o instanceof ConstrainedText ) {
 			return $o;
 		}
@@ -194,14 +194,14 @@ class ConstrainedText {
 	 * the proper boundary constraints.
 	 *
 	 * @param string $text
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param stdClass $dataParsoid
 	 * @param Env $env
 	 * @param array $opts
 	 * @return ConstrainedText[]
 	 */
 	public static function fromSelSer(
-		string $text, DOMElement $node, stdClass $dataParsoid,
+		string $text, Element $node, stdClass $dataParsoid,
 		Env $env, array $opts = []
 	): array {
 		// Main dispatch point: iterate through registered subclasses, asking
@@ -241,14 +241,14 @@ class ConstrainedText {
 	 * boundary conditions.
 	 *
 	 * @param string $text
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param stdClass $dataParsoid
 	 * @param Env $env
 	 * @param array $opts
 	 * @return ConstrainedText|ConstrainedText[]
 	 */
 	protected static function fromSelSerImpl(
-		string $text, DOMElement $node, stdClass $dataParsoid,
+		string $text, Element $node, stdClass $dataParsoid,
 		Env $env, array $opts
 	) {
 		// look at leftmost and rightmost children, it may be that we need
@@ -256,9 +256,9 @@ class ConstrainedText {
 		// the proper escape conditions on the prefix/suffix text.
 		$firstChild = DOMUtils::firstNonDeletedChild( $node );
 		$lastChild = DOMUtils::lastNonDeletedChild( $node );
-		$firstChildDp = $firstChild instanceof DOMElement ?
+		$firstChildDp = $firstChild instanceof Element ?
 			DOMDataUtils::getDataParsoid( $firstChild ) : null;
-		$lastChildDp = $lastChild instanceof DOMElement ?
+		$lastChildDp = $lastChild instanceof Element ?
 			DOMDataUtils::getDataParsoid( $lastChild ) : null;
 		$prefixChunks = [];
 		$suffixChunks = [];

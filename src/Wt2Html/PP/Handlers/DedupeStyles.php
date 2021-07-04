@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use DOMElement;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -12,11 +12,11 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class DedupeStyles {
 
 	/**
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param Env $env
-	 * @return bool|DOMElement
+	 * @return bool|Element
 	 */
-	public static function dedupe( DOMElement $node, Env $env ) {
+	public static function dedupe( Element $node, Env $env ) {
 		if ( !$node->hasAttribute( 'data-mw-deduplicate' ) ) {
 			// Not a templatestyles <style> tag
 			return true;

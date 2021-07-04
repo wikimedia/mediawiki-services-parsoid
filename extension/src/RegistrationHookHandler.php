@@ -15,5 +15,7 @@ class RegistrationHookHandler {
 				__DIR__ . '/../restRoutes.json', $IP
 			);
 		}
+		// ensure DOM implementation aliases are set up
+		require_once __DIR__ . '/../../DomImpl.php';
 	}
 }

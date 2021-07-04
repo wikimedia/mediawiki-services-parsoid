@@ -9,6 +9,7 @@ $STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
 $cfg['target_php_version'] = '7.2';
+$cfg['enable_class_alias_support'] = true; // should be on by default: T224704
 
 $root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
 $hasLangConv = is_dir( "{$root}/vendor/wikimedia/langconv" );
@@ -42,6 +43,9 @@ if ( $STANDALONE ) {
 		# cause phan to fail with 'unnecessary suppression' when run w/ the
 		# older version in core (T267074).
 		'vendor/wikimedia/object-factory',
+		# These are experimental and not included in mediawiki-vendor yet
+		'vendor/wikimedia/dodo',
+		'vendor/wikimedia/idle-dom',
 	] );
 
 	if ( is_dir( "{$VP}/vendor/wikimedia/langconv" ) ) {
@@ -98,10 +102,14 @@ if ( $STANDALONE ) {
 		# These are libraries we have in common w/ core which we always want
 		# to use the parsoid version of (see above, T267074):
 		'wikimedia/object-factory',
+		# These are experimental and not included in mediawiki-vendor yet
+		'vendor/wikimedia/dodo',
+		'vendor/wikimedia/idle-dom',
 	] as $d ) {
 		wfCollectPhpFiles( "{$VP}/vendor/{$d}", $cfg['exclude_file_list'] );
 	}
 }
+wfCollectPhpFiles( "vendor/wikimedia/dodo/.phan", $cfg['exclude_file_list'] );
 wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.

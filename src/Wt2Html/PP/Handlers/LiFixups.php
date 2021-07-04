@@ -3,14 +3,14 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use DOMComment;
-use DOMElement;
-use DOMNode;
-use DOMText;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\DOM\Comment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -31,18 +31,18 @@ class LiFixups {
 	 * However, note that the wikitext `<li></li>`, any preceding wikitext
 	 * asterisk `*` absent, should indeed expand into two nodes in the
 	 * DOM.
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param Env $env
 	 * @param array $options
 	 * @return bool
 	 */
 	public static function handleLIHack(
-		DOMElement $node, Env $env, array $options
+		Element $node, Env $env, array $options
 	): bool {
 		$prevNode = $node->previousSibling;
 
 		if ( WTUtils::isLiteralHTMLNode( $node ) &&
-			$prevNode instanceof DOMElement &&
+			$prevNode instanceof Element &&
 			$prevNode->nodeName === 'li' &&
 			!WTUtils::isLiteralHTMLNode( $prevNode ) &&
 			DOMUtils::nodeEssentiallyEmpty( $prevNode )
@@ -85,10 +85,10 @@ class LiFixups {
 	}
 
 	/**
-	 * @param DOMNode $c
+	 * @param Node $c
 	 * @return array
 	 */
-	private static function getMigrationInfo( DOMNode $c ): array {
+	private static function getMigrationInfo( Node $c ): array {
 		$tplRoot = WTUtils::findFirstEncapsulationWrapperNode( $c );
 		if ( $tplRoot !== null ) {
 			// Check if everything between tplRoot and c is migratable.
@@ -108,10 +108,10 @@ class LiFixups {
 	}
 
 	/**
-	 * @param DOMNode $li
-	 * @return DOMNode|null
+	 * @param Node $li
+	 * @return Node|null
 	 */
-	private static function findLastMigratableNode( DOMNode $li ): ?DOMNode {
+	private static function findLastMigratableNode( Node $li ): ?Node {
 		$sentinel = null;
 		$c = DOMUtils::lastNonSepChild( $li );
 		// c is known to be a category link.
@@ -126,7 +126,7 @@ class LiFixups {
 				$c = $info['tplRoot'];
 			}
 
-			if ( $c instanceof DOMText ) {
+			if ( $c instanceof Text ) {
 				// Update sentinel if we hit a newline.
 				// We want to migrate these newlines and
 				// everything following them out of 'li'.
@@ -138,7 +138,7 @@ class LiFixups {
 				if ( !preg_match( '/^\s*$/D', $c->nodeValue ) ) {
 					break;
 				}
-			} elseif ( $c instanceof DOMComment ) {
+			} elseif ( $c instanceof Comment ) {
 				$sentinel = $c;
 			} elseif ( !WTUtils::isCategoryLink( $c ) ) {
 				// We are done if we hit anything but text
@@ -162,7 +162,7 @@ class LiFixups {
 	 * when serializing list items). This needs addressing because
 	 * this pattern is extremely common (some list at the end of the page
 	 * followed by a list of categories for the page).
-	 * @param DOMElement $li
+	 * @param Element $li
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
@@ -170,7 +170,7 @@ class LiFixups {
 	 * @return bool
 	 */
 	public static function migrateTrailingCategories(
-		DOMElement $li, Env $env, array $options, bool $atTopLevel = false,
+		Element $li, Env $env, array $options, bool $atTopLevel = false,
 		?stdClass $tplInfo = null
 	): bool {
 		// * Don't bother fixing up template content when processing the full page
@@ -208,11 +208,11 @@ class LiFixups {
 			$liDsr = DOMDataUtils::getDataParsoid( $li )->dsr ?? null;
 			$newEndDsr = -1; // dummy to eliminate useless null checks
 			while ( true ) {
-				if ( $c instanceof DOMElement ) {
+				if ( $c instanceof Element ) {
 					$dsr = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
 					$newEndDsr = $dsr->start ?? -1;
 					$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
-				} elseif ( $c instanceof DOMText ) {
+				} elseif ( $c instanceof Text ) {
 					if ( preg_match( '/^\s*$/D', $c->nodeValue ) ) {
 						$newEndDsr -= strlen( $c->nodeValue );
 						$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
@@ -225,7 +225,7 @@ class LiFixups {
 						$outerList->parentNode->insertBefore( $nlNode, $outerList->nextSibling );
 						$newEndDsr -= strlen( $nls );
 					}
-				} elseif ( $c instanceof DOMComment ) {
+				} elseif ( $c instanceof Comment ) {
 					$newEndDsr -= WTUtils::decodedCommentLength( $c );
 					$outerList->parentNode->insertBefore( $c, $outerList->nextSibling );
 				}

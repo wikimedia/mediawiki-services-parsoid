@@ -2,9 +2,9 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
-use DOMDocument;
-use DOMElement;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
@@ -23,14 +23,14 @@ use Wikimedia\Parsoid\Utils\DOMTraverser;
  */
 class CleanUpTest extends TestCase {
 
-	/** @var DOMDocument[] */
+	/** @var Document[] */
 	private $liveDocs = [];
 
 	/**
 	 * @param string $wt
-	 * @return DOMElement
+	 * @return Element
 	 */
-	private function parseWT( string $wt ): DOMElement {
+	private function parseWT( string $wt ): Element {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -65,10 +65,10 @@ class CleanUpTest extends TestCase {
 
 	/**
 	 * @param bool $expectedValue
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @return bool
 	 */
-	private function autoInsValidation( bool $expectedValue, DOMElement $node ): bool {
+	private function autoInsValidation( bool $expectedValue, Element $node ): bool {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$autoInsEnd = isset( $dp->autoInsertedEnd );
 		$this->assertEquals( $expectedValue,  $autoInsEnd );

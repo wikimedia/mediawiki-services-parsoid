@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -18,8 +18,8 @@ class DTHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		$firstChildElement = DOMUtils::firstNonSepChild( $node );
 		if ( !DOMUtils::isList( $firstChildElement )
 			 || WTUtils::isLiteralHTMLNode( $firstChildElement )
@@ -36,14 +36,14 @@ class DTHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		return [ 'min' => 1, 'max' => 2 ];
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( $otherNode->nodeName === 'dd'
-			&& $otherNode instanceof DOMElement // for static analyzers
+			&& $otherNode instanceof Element // for static analyzers
 			&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) === 'row'
 		) {
 			return [ 'min' => 0, 'max' => 0 ];
@@ -53,7 +53,7 @@ class DTHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( Node $node, Node $otherNode, SerializerState $state ): array {
 		if ( !DOMUtils::isList( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 0 ];
 		} else {

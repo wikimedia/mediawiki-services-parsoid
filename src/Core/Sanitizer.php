@@ -12,11 +12,11 @@
 
 namespace Wikimedia\Parsoid\Core;
 
-use DOMElement;
 use InvalidArgumentException;
 use RemexHtml\HTMLData;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -1016,11 +1016,11 @@ class Sanitizer {
 	 * dom elements, which wouldn't have had a chance to be sanitized before
 	 * tree building.
 	 * @param SiteConfig $siteConfig
-	 * @param DOMElement $wrapper wrapper
+	 * @param Element $wrapper wrapper
 	 * @param array $attrs attributes
 	 */
 	public static function applySanitizedArgs(
-		SiteConfig $siteConfig, DOMElement $wrapper, array $attrs
+		SiteConfig $siteConfig, Element $wrapper, array $attrs
 	): void {
 		// We can switch to a different DOM library that can return uppercase node name
 		$nodeName = strtolower( $wrapper->nodeName );

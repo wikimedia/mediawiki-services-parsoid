@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -18,8 +18,8 @@ class PreHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		// Handle indent pre
 
 		// XXX: Use a pre escaper?
@@ -68,9 +68,9 @@ class PreHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( $otherNode->nodeName === 'pre'
-			&& $otherNode instanceof DOMElement // for static analyzers
+			&& $otherNode instanceof Element // for static analyzers
 			&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
 		) {
 			return [ 'min' => 2 ];
@@ -80,9 +80,9 @@ class PreHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( $otherNode->nodeName === 'pre'
-			&& $otherNode instanceof DOMElement // for static analyzers
+			&& $otherNode instanceof Element // for static analyzers
 			&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
 		) {
 			return [ 'min' => 2 ];
@@ -92,12 +92,12 @@ class PreHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function firstChild( Node $node, Node $otherNode, SerializerState $state ): array {
 		return [];
 	}
 
 	/** @inheritDoc */
-	public function lastChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function lastChild( Node $node, Node $otherNode, SerializerState $state ): array {
 		return [];
 	}
 

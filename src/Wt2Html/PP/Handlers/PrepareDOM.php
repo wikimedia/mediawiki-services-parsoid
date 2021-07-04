@@ -3,10 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use DOMElement;
-use DOMNode;
-
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -21,12 +20,12 @@ class PrepareDOM {
 	 * DOM traversals.
 	 *
 	 * @param array &$seenDataIds
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @return bool|mixed
 	 */
-	public static function handler( array &$seenDataIds, DOMNode $node, Env $env ) {
-		if ( $node instanceof DOMElement ) {
+	public static function handler( array &$seenDataIds, Node $node, Env $env ) {
+		if ( $node instanceof Element ) {
 			// Deduplicate docIds that come from splitting nodes because of
 			// content model violations when treebuilding.
 			if ( $node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {

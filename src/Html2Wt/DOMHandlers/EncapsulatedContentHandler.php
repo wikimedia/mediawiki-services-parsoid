@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
 use LogicException;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\ClientError;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -32,8 +32,8 @@ class EncapsulatedContentHandler extends DOMHandler {
 	 * @throws ClientError
 	 */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		$env = $state->getEnv();
 		$serializer = $state->serializer;
 		$dp = DOMDataUtils::getDataParsoid( $node );
@@ -102,7 +102,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 	// template content.
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		$env = $state->getEnv();
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
@@ -145,7 +145,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		$env = $state->getEnv();
 		$dataMw = DOMDataUtils::getDataMw( $node );
 
@@ -169,11 +169,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param SerializerState $state
 	 * @return string
 	 */
-	private function handleListPrefix( DOMElement $node, SerializerState $state ): string {
+	private function handleListPrefix( Element $node, SerializerState $state ): string {
 		$bullets = '';
 		if ( DOMUtils::isListOrListItem( $node )
 			&& !$this->parentBulletsHaveBeenEmitted( $node )
@@ -184,9 +184,9 @@ class EncapsulatedContentHandler extends DOMHandler {
 			 && !( $node->nodeName === 'dd'
 				   && ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row' )
 		) {
-			// phan fails to infer that the parent of a DOMElement is always a DOMElement
+			// phan fails to infer that the parent of a Element is always a Element
 			$parentNode = $node->parentNode;
-			'@phan-var DOMElement $parentNode';
+			'@phan-var Element $parentNode';
 			$bullets = $this->getListBullets( $state, $parentNode );
 		}
 		return $bullets;
@@ -217,10 +217,10 @@ class EncapsulatedContentHandler extends DOMHandler {
 	 * associated. When it's about-id marked, serializing the data-mw parts or
 	 * src would miss the bullet assigned to the container li.
 	 *
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @return bool
 	 */
-	private function isTplListWithoutSharedPrefix( DOMElement $node ): bool {
+	private function isTplListWithoutSharedPrefix( Element $node ): bool {
 		if ( !WTUtils::isEncapsulationWrapper( $node ) ) {
 			return false;
 		}
@@ -247,10 +247,10 @@ class EncapsulatedContentHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @return bool
 	 */
-	private function parentBulletsHaveBeenEmitted( DOMElement $node ): bool {
+	private function parentBulletsHaveBeenEmitted( Element $node ): bool {
 		if ( WTUtils::isLiteralHTMLNode( $node ) ) {
 			return true;
 		} elseif ( DOMUtils::isList( $node ) ) {

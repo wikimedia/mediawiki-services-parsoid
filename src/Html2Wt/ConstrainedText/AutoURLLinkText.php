@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
-use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Element;
 
 /**
  * An autolink to an external resource, like `http://example.com`.
@@ -13,9 +13,9 @@ use Wikimedia\Parsoid\Config\Env;
 class AutoURLLinkText extends RegExpConstrainedText {
 	/**
 	 * @param string $url
-	 * @param DOMElement $node
+	 * @param Element $node
 	 */
-	public function __construct( string $url, DOMElement $node ) {
+	public function __construct( string $url, Element $node ) {
 		parent::__construct( [
 				'text' => $url,
 				'node' => $node,
@@ -57,14 +57,14 @@ class AutoURLLinkText extends RegExpConstrainedText {
 
 	/**
 	 * @param string $text
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param stdClass $dataParsoid
 	 * @param Env $env
 	 * @param array $opts
 	 * @return ?AutoURLLinkText
 	 */
 	protected static function fromSelSerImpl(
-		string $text, DOMElement $node, stdClass $dataParsoid,
+		string $text, Element $node, stdClass $dataParsoid,
 		Env $env, array $opts
 	): ?AutoURLLinkText {
 		$stx = $dataParsoid->stx ?? null;

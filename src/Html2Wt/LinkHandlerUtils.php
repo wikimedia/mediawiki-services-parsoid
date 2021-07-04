@@ -2,12 +2,12 @@
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use DOMElement;
-use DOMNode;
 use stdClass;
 use UnexpectedValueException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\MediaStructure;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
@@ -69,10 +69,10 @@ class LinkHandlerUtils {
 	 * try to find a localinterwiki protocol that would work.
 	 *
 	 * @param Env $env
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @return string
 	 */
-	private static function getHref( Env $env, DOMElement $node ): string {
+	private static function getHref( Env $env, Element $node ): string {
 		$href = $node->getAttribute( 'href' );
 		if ( preg_match( '#^/[^/]#', $href ) ) {
 			// protocol-less but absolute.  let's find a base href
@@ -135,10 +135,10 @@ class LinkHandlerUtils {
 	 * FIXME(T254501): This function can return `$node->textContent` instead
 	 * of the string concatenation once mw:DisplaySpace is preprocessed away.
 	 *
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @return ?string
 	 */
-	private static function getContentString( DOMNode $node ): ?string {
+	private static function getContentString( Node $node ): ?string {
 		if ( !$node->hasChildNodes() ) {
 			return null;
 		}
@@ -161,12 +161,12 @@ class LinkHandlerUtils {
 	/**
 	 * Helper function for getting RT data from the tokens
 	 * @param Env $env
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param SerializerState $state
 	 * @return stdClass
 	 */
 	private static function getLinkRoundTripData(
-		Env $env, DOMElement $node, SerializerState $state
+		Env $env, Element $node, SerializerState $state
 	): stdClass {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$siteConfig = $env->getSiteConfig();
@@ -425,11 +425,11 @@ class LinkHandlerUtils {
 	/**
 	 * Test if something is a URL link
 	 * @param Env $env
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param stdClass $linkData
 	 * @return bool
 	 */
-	private static function isURLLink( Env $env, DOMElement $node, stdClass $linkData ): bool {
+	private static function isURLLink( Env $env, Element $node, stdClass $linkData ): bool {
 		$target = $linkData->target;
 
 		// Get plain text content, if any
@@ -531,12 +531,12 @@ class LinkHandlerUtils {
 
 	/**
 	 * Serialize as wiki link
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param SerializerState $state
 	 * @param stdClass $linkData
 	 */
 	private static function serializeAsWikiLink(
-		DOMElement $node, SerializerState $state, stdClass $linkData
+		Element $node, SerializerState $state, stdClass $linkData
 	): void {
 		$contentParts = null;
 		$contentSrc = '';
@@ -629,7 +629,7 @@ class LinkHandlerUtils {
 						// in which case we don't want the ':'.
 						$nextNode = $node->nextSibling;
 						if ( !(
-							$nextNode && $nextNode instanceof DOMElement && $nextNode->nodeName === 'link' &&
+							$nextNode && $nextNode instanceof Element && $nextNode->nodeName === 'link' &&
 							$nextNode->getAttribute( 'rel' ) === 'mw:PageProp/Category' &&
 							$nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
 						) ) {
@@ -793,12 +793,12 @@ class LinkHandlerUtils {
 
 	/**
 	 * Serialize as external link
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param SerializerState $state
 	 * @param stdClass $linkData
 	 */
 	private static function serializeAsExtLink(
-		DOMElement $node, SerializerState $state, stdClass $linkData
+		Element $node, SerializerState $state, stdClass $linkData
 	): void {
 		$target = $linkData->target;
 		$urlStr = $target['value'];
@@ -870,9 +870,9 @@ class LinkHandlerUtils {
 	/**
 	 * Main link handler.
 	 * @param SerializerState $state
-	 * @param DOMElement $node
+	 * @param Element $node
 	 */
-	public static function linkHandler( SerializerState $state, DOMElement $node ): void {
+	public static function linkHandler( SerializerState $state, Element $node ): void {
 		// TODO: handle internal/external links etc using RDFa and dataAttribs
 		// Also convert unannotated html links without advanced attributes to
 		// external wiki links for html import. Might want to consider converting
@@ -926,7 +926,7 @@ class LinkHandlerUtils {
 				);
 			} else {
 				$media = DOMUtils::selectMediaElt( $node );  // TODO: Handle missing media too
-				$isFigure = ( $media instanceof DOMElement && $media->parentNode === $node );
+				$isFigure = ( $media instanceof Element && $media->parentNode === $node );
 				if ( $isFigure ) {
 					// this is a basic html figure: <a><img></a>
 					self::figureHandler( $state, $node, new MediaStructure( $media, $node ) );
@@ -967,11 +967,11 @@ class LinkHandlerUtils {
 	 * Main figure handler.
 	 *
 	 * @param SerializerState $state
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param ?MediaStructure $ms
 	 */
 	public static function figureHandler(
-		SerializerState $state, DOMElement $node, ?MediaStructure $ms
+		SerializerState $state, Element $node, ?MediaStructure $ms
 	): void {
 		$env = $state->getEnv();
 

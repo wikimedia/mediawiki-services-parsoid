@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMDocumentFragment;
-use DOMElement;
-use DOMNode;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -113,18 +113,18 @@ class DOMHandlerFactory {
 
 	/**
 	 * Get a DOMHandler for an element node.
-	 * @param ?DOMNode $node
+	 * @param ?Node $node
 	 * @return DOMHandler
 	 */
-	public function getDOMHandler( ?DOMNode $node ): DOMHandler {
-		if ( $node instanceof DOMDocumentFragment ) {
+	public function getDOMHandler( ?Node $node ): DOMHandler {
+		if ( $node instanceof DocumentFragment ) {
 			return new BodyHandler();
 		}
 
 		if ( !$node || !DOMUtils::isElt( $node ) ) {
 			return new DOMHandler();
 		}
-		'@phan-var DOMElement $node';/** @var DOMElement $node */
+		'@phan-var Element $node';/** @var Element $node */
 
 		if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 			return new EncapsulatedContentHandler();

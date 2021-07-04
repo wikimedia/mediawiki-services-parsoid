@@ -2,10 +2,9 @@
 
 namespace Test\Parsoid\Ext\Nowiki;
 
-use DOMDocument;
-use DOMElement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
@@ -19,10 +18,10 @@ class NowikiTest extends TestCase {
 	 * Create a DOM document with the given HTML body and return the given node within it.
 	 * @param string $html
 	 * @param string $selector
-	 * @return DOMElement
+	 * @return Element
 	 */
-	private function getNode( string $html = '<div id="main"></div>', string $selector = '#main' ): DOMElement {
-		$document = new DOMDocument();
+	private function getNode( string $html = '<div id="main"></div>', string $selector = '#main' ): Element {
+		$document = DOMCompat::newDocument( true );
 		$document->loadHTML( "<html><body>$html</body></html>" );
 		return DOMCompat::querySelector( $document, $selector );
 	}

@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -23,10 +23,10 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 	 * If the first child of a node is an end-meta,
 	 * move it up and make it the parent's left sibling.
 	 *
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 */
-	private function doMigrate( DOMNode $node, Env $env ): void {
+	private function doMigrate( Node $node, Env $env ): void {
 		$c = $node->firstChild;
 		while ( $c ) {
 			$sibling = $c->nextSibling;
@@ -85,7 +85,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
+		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$this->doMigrate( $root, $env );
 	}

@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
-use DOMDocumentFragment;
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 
 /**
  * A Parsoid extension module may register handlers for one or more
@@ -27,8 +27,8 @@ abstract class ExtensionTagHandler {
 	 * @param array $extArgs Extension tag arguments
 	 *   The extension tag arguments should be treated as opaque objects
 	 *   and any necessary inspection should be handled through the API.
-	 * @return DOMDocumentFragment|false|null
-	 *   `DOMDocumentFragment` if returning some parsed content
+	 * @return DocumentFragment|false|null
+	 *   `DocumentFragment` if returning some parsed content
 	 *   `false` to fallback to the default handler for the content
 	 *   `null` to drop the instance completely
 	 */
@@ -53,17 +53,17 @@ abstract class ExtensionTagHandler {
 	 * after the lint handler returns.
 	 *
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMElement $rootNode Extension content's root node
+	 * @param Element $rootNode Extension content's root node
 	 * @param callable $defaultHandler Default lint handler
-	 *    - Default lint handler has signature $defaultHandler( DOMElement $elt ): void
-	 * @return DOMNode|null|false Return `false` to indicate that this
+	 *    - Default lint handler has signature $defaultHandler( Element $elt ): void
+	 * @return Node|null|false Return `false` to indicate that this
 	 *   extension has no special lint handler (the default lint handler will
 	 *   be used.  Return `null` to indicate linting should proceed with the
-	 *   next sibling.  (Deprecated) A `DOMNode` can be returned to indicate
+	 *   next sibling.  (Deprecated) A `Node` can be returned to indicate
 	 *   the point in the tree where linting should resume.
 	 */
 	public function lintHandler(
-		ParsoidExtensionAPI $extApi, DOMElement $rootNode, callable $defaultHandler
+		ParsoidExtensionAPI $extApi, Element $rootNode, callable $defaultHandler
 	) {
 		/* Use default linter */
 		return false;
@@ -72,12 +72,12 @@ abstract class ExtensionTagHandler {
 	/**
 	 * Serialize a DOM node created by this extension to wikitext.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param bool $wrapperUnmodified
 	 * @return string|false Return false to use the default serialization.
 	 */
 	public function domToWikitext(
-		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
+		ParsoidExtensionAPI $extApi, Element $node, bool $wrapperUnmodified
 	) {
 		/* Use default serialization */
 		return false;

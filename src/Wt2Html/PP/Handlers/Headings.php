@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use DOMElement;
-use DOMNode;
-use DOMText;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -20,15 +20,15 @@ class Headings {
 	 * Generate anchor ids that the PHP parser assigns to headings.
 	 * This is to ensure that links that are out there in the wild
 	 * continue to be valid links into Parsoid HTML.
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @return bool
 	 */
-	public static function genAnchors( DOMNode $node, Env $env ): bool {
+	public static function genAnchors( Node $node, Env $env ): bool {
 		if ( !preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
 			return true;
 		}
-		'@phan-var DOMElement $node';  /** @var DOMElement $node */
+		'@phan-var Element $node';  /** @var Element $node */
 
 		// Cannot generate an anchor id if the heading already has an id!
 		//
@@ -78,14 +78,14 @@ class Headings {
 	 * markup the same way PHP does (ie, uses the source wikitext), and
 	 * handles <style>/<script> tags the same way PHP does (ie, ignores
 	 * the contents)
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @return string
 	 */
-	private static function textContentOf( DOMNode $node ): string {
+	private static function textContentOf( Node $node ): string {
 		$str = '';
 		if ( $node->hasChildNodes() ) {
 			foreach ( $node->childNodes as $n ) {
-				if ( $n instanceof DOMText ) {
+				if ( $n instanceof Text ) {
 					$str .= $n->nodeValue;
 				} elseif ( DOMUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
 					// Special case for -{...}-
@@ -118,10 +118,10 @@ class Headings {
 
 	/**
 	 * @param array &$seenIds
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @return bool
 	 */
-	public static function dedupeHeadingIds( array &$seenIds, DOMNode $node ): bool {
+	public static function dedupeHeadingIds( array &$seenIds, Node $node ): bool {
 		// NOTE: This is not completely compliant with how PHP parser does it.
 		// If there is an id in the doc elsewhere, this will assign
 		// the heading a suffixed id, whereas the PHP parser processes
@@ -132,7 +132,7 @@ class Headings {
 		// consistent when handling this edge case, and in the common
 		// case (where heading ids won't conflict with ids elsewhere),
 		// matches PHP parser behavior.
-		if ( !$node instanceof DOMElement ) {
+		if ( !$node instanceof Element ) {
 			// Not an Element
 			return true;
 		}

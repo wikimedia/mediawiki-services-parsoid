@@ -2,11 +2,11 @@
 
 namespace Test\Parsoid\Language;
 
-use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class ZhTest extends TestCase {
 
@@ -145,7 +145,7 @@ class ZhTest extends TestCase {
 				continue;
 			}
 
-			$doc = new DOMDocument();
+			$doc = DOMCompat::newDocument( true );
 			$out = self::$machine->convert(
 				$doc, $input, $variantCode,
 				$invertCode ?? $this->getInvertCode( $variantCode )

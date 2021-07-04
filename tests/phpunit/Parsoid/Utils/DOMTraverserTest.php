@@ -2,12 +2,12 @@
 
 namespace Test\Parsoid\Utils;
 
-use DOMDocument;
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 
 class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
@@ -33,16 +33,16 @@ class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 	</div>
 </body></html>
 HTML;
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 		$doc->loadHTML( $html );
 
 		$trace = [];
 		$traverser = new DOMTraverser();
 		$traverser->addHandler( $nodeName, $callback );
 		$traverser->addHandler( null, static function (
-			DOMNode $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
+			Node $node, Env $env, array $options, bool $atTopLevel, ?stdClass $tplInfo
 		) use ( &$trace ) {
-			if ( $node instanceof DOMElement && $node->hasAttribute( 'id' ) ) {
+			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {
 				$trace[] = $node->getAttribute( 'id' );
 			}
 			return true;
@@ -73,7 +73,7 @@ HTML;
 		return [
 			'basic' => [
 				'callback' => function (
-					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					Node $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) use ( $basicEnv ) {
 					$this->assertSame( $basicEnv, $env );
@@ -86,7 +86,7 @@ HTML;
 			],
 			'return true' => [
 				'callback' => static function (
-					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					Node $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
 					return true;
@@ -97,10 +97,10 @@ HTML;
 			],
 			'return first child' => [
 				'callback' => static function (
-					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					Node $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return $node->firstChild;
 					}
 					return true;
@@ -111,10 +111,10 @@ HTML;
 			],
 			'return next sibling' => [
 				'callback' => static function (
-					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					Node $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return $node->nextSibling;
 					}
 					return true;
@@ -125,10 +125,10 @@ HTML;
 			],
 			'return null' => [
 				'callback' => static function (
-					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					Node $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return null;
 					}
 					return true;
@@ -139,10 +139,10 @@ HTML;
 			],
 			'return another node' => [
 				'callback' => static function (
-					DOMNode $node, Env $env, array $options, bool $atTopLevel,
+					Node $node, Env $env, array $options, bool $atTopLevel,
 					?stdClass $tplInfo
 				) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						$newNode = $node->ownerDocument->createElement( 'div' );
 						$newNode->setAttribute( 'id', 'new' );
 						return $newNode;
@@ -155,10 +155,10 @@ HTML;
 			],
 			'name filter' => [
 				'callback' => static function (
-					DOMNode $node, Env $env, array $options,
+					Node $node, Env $env, array $options,
 					bool $atTopLevel, ?stdClass $tplInfo
 				) {
-					if ( $node instanceof DOMElement && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return null;
 					}
 					return true;

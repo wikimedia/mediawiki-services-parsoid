@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
-use DOMDocument;
 use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\SelectiveSerializer;
@@ -20,9 +20,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	/**
 	 * Bring DOM to expected canonical form
 	 * @param Env $env
-	 * @param DOMDocument $doc
+	 * @param Document $doc
 	 */
-	private function canonicalizeDOM( Env $env, DOMDocument $doc ): void {
+	private function canonicalizeDOM( Env $env, Document $doc ): void {
 		$body = DOMCompat::getBody( $doc );
 
 		// Convert DOM to internal canonical form
@@ -101,7 +101,7 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function toDOM( Env $env ): DOMDocument {
+	public function toDOM( Env $env ): Document {
 		return $env->getPipelineFactory()->parse(
 			$env->getPageConfig()->getPageMainContent()
 		);
@@ -119,9 +119,9 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * 3. We need to do this before we run dom-diffs to eliminate spurious diffs.
 	 *
 	 * @param Env $env
-	 * @param DOMDocument $doc
+	 * @param Document $doc
 	 */
-	private function preprocessDOM( Env $env, DOMDocument $doc ): void {
+	private function preprocessDOM( Env $env, Document $doc ): void {
 		$metrics = $env->getSiteConfig()->metrics();
 		$preprocTiming = Timing::start( $metrics );
 

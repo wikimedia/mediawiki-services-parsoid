@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use DOMElement;
-use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -44,10 +44,10 @@ class WikitextEscapeHandlers {
 
 	/**
 	 * Ignore the cases where the serializer adds newlines not present in the dom
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @return bool
 	 */
-	private static function startsOnANewLine( DOMNode $node ): bool {
+	private static function startsOnANewLine( Node $node ): bool {
 		$name = $node->nodeName;
 		return TokenUtils::tagOpensBlockScope( $name ) &&
 			!WTUtils::isLiteralHTMLNode( $node );
@@ -56,11 +56,11 @@ class WikitextEscapeHandlers {
 	/**
 	 * Look ahead on current line for block content
 	 *
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param bool $first
 	 * @return bool
 	 */
-	private static function hasBlocksOnLine( DOMNode $node, bool $first ): bool {
+	private static function hasBlocksOnLine( Node $node, bool $first ): bool {
 		// special case for firstNode:
 		// we're at sol so ignore possible \n at first char
 		if ( $first ) {
@@ -71,7 +71,7 @@ class WikitextEscapeHandlers {
 		}
 
 		while ( $node ) {
-			if ( $node instanceof DOMElement ) {
+			if ( $node instanceof Element ) {
 				if ( DOMUtils::isWikitextBlockNode( $node ) ) {
 					return !self::startsOnANewLine( $node );
 				}
@@ -92,11 +92,11 @@ class WikitextEscapeHandlers {
 
 	/**
 	 * @param string $text
-	 * @param array $opts [ 'node' => DOMNode ]
+	 * @param array $opts [ 'node' => Node ]
 	 * @return bool
 	 */
 	private static function hasLeadingEscapableQuoteChar( string $text, array $opts ): bool {
-		/** @var DOMNode $node */
+		/** @var Node $node */
 		$node = $opts['node'];
 		// Use 'node.textContent' to do the tests since it hasn't had newlines
 		// stripped out from it.
@@ -120,7 +120,7 @@ class WikitextEscapeHandlers {
 
 	/**
 	 * @param string $text
-	 * @param array $opts [ 'node' => DOMNode ]
+	 * @param array $opts [ 'node' => Node ]
 	 * @return bool
 	 */
 	private static function hasTrailingEscapableQuoteChar( string $text, array $opts ): bool {
@@ -156,7 +156,7 @@ class WikitextEscapeHandlers {
 	 *
 	 * @param SerializerState $state
 	 * @param string $text
-	 * @param array $opts [ 'node' => DOMNode ]
+	 * @param array $opts [ 'node' => Node ]
 	 * @return string
 	 */
 	private static function escapedIBSiblingNodeText(
@@ -194,25 +194,25 @@ class WikitextEscapeHandlers {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @return bool
 	 */
-	public function isFirstContentNode( DOMNode $node ): bool {
+	public function isFirstContentNode( Node $node ): bool {
 		// Skip deleted-node markers
 		return DOMUtils::previousNonDeletedSibling( $node ) === null;
 	}
 
 	/**
-	 * @param DOMNode $liNode
+	 * @param Node $liNode
 	 * @param SerializerState $state
 	 * @param string $text
-	 * @param array $opts [ 'node' => DOMNode ]
+	 * @param array $opts [ 'node' => Node ]
 	 * @return bool
 	 */
 	public function liHandler(
-		DOMNode $liNode, SerializerState $state, string $text, array $opts
+		Node $liNode, SerializerState $state, string $text, array $opts
 	): bool {
-		/** @var DOMNode $node */
+		/** @var Node $node */
 		$node = $opts['node'];
 		if ( $node->parentNode !== $liNode ) {
 			return false;
@@ -235,14 +235,14 @@ class WikitextEscapeHandlers {
 	}
 
 	/**
-	 * @param DOMNode $thNode
+	 * @param Node $thNode
 	 * @param SerializerState $state
 	 * @param string $text
-	 * @param array $opts [ 'node' => DOMNode ]
+	 * @param array $opts [ 'node' => Node ]
 	 * @return bool
 	 */
 	public function thHandler(
-		DOMNode $thNode, SerializerState $state, string $text, array $opts
+		Node $thNode, SerializerState $state, string $text, array $opts
 	): bool {
 		// {|
 		// !a<div>!!b</div>
@@ -290,15 +290,15 @@ class WikitextEscapeHandlers {
 	}
 
 	/**
-	 * @param DOMNode $tdNode
+	 * @param Node $tdNode
 	 * @param bool $inWideTD
 	 * @param SerializerState $state
 	 * @param string $text
-	 * @param array $opts [ 'node' => ?DOMNode ]
+	 * @param array $opts [ 'node' => ?Node ]
 	 * @return bool
 	 */
 	public function tdHandler(
-		DOMNode $tdNode, bool $inWideTD, SerializerState $state, string $text, array $opts
+		Node $tdNode, bool $inWideTD, SerializerState $state, string $text, array $opts
 	): bool {
 		$node = $opts['node'] ?? null;
 		/*
@@ -361,12 +361,12 @@ class WikitextEscapeHandlers {
 	}
 
 	/**
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param SerializerState $state
 	 * @param string $text
 	 * @return bool
 	 */
-	public function textCanParseAsLink( DOMNode $node, SerializerState $state, string $text ): bool {
+	public function textCanParseAsLink( Node $node, SerializerState $state, string $text ): bool {
 		$env = $state->getEnv();
 		$env->log(
 			'trace/wt-escape', 'link-test-text=',
@@ -831,7 +831,7 @@ class WikitextEscapeHandlers {
 	/**
 	 * @param SerializerState $state
 	 * @param string $text
-	 * @param array $opts [ 'node' => DOMNode, 'inMultilineMode' => ?bool, 'isLastChild' => ?bool ]
+	 * @param array $opts [ 'node' => Node, 'inMultilineMode' => ?bool, 'isLastChild' => ?bool ]
 	 * @return string
 	 */
 	public function escapeWikiText( SerializerState $state, string $text, array $opts ): string {
@@ -1354,12 +1354,12 @@ class WikitextEscapeHandlers {
 	 * @param SerializerState $state
 	 * @param string $str
 	 * @param bool $solState
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param bool $isMedia
 	 * @return string
 	 */
 	public function escapeLinkContent(
-		SerializerState $state, string $str, bool $solState, DOMNode $node, bool $isMedia
+		SerializerState $state, string $str, bool $solState, Node $node, bool $isMedia
 	): string {
 		// Entity-escape the content.
 		$str = Utils::escapeWtEntities( $str );

@@ -3,12 +3,12 @@
 
 namespace Test\Parsoid\Ext\JSON;
 
-use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class JSONTest extends TestCase {
 	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
@@ -27,7 +27,7 @@ class JSONTest extends TestCase {
 		$env = new MockEnv( $opts );
 		$API = new ParsoidExtensionAPI( $env );
 
-		$expected = '<!DOCTYPE html>' . "\n" .
+		$expected = # '<!DOCTYPE html>' . "\n" .
 				  '<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="https://my.wiki.example/wikix/Special:Redirect/revision/1"><head prefix="mwr: https://my.wiki.example/wikix/Special:Redirect/"><meta charset="utf-8"><meta property="mw:pageId" content="-1"><meta property="mw:pageNamespace" content="0"><meta property="mw:html:version" content="' . self::$defaultContentVersion . '"><link rel="dc:isVersionOf" href="//my.wiki.example/wikix/TestPage"><title>TestPage</title><base href="//my.wiki.example/wikix/"><link rel="stylesheet" href="//my.wiki.example/wx/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"><meta http-equiv="content-language" content="en"><meta http-equiv="vary" content="Accept"></head><body data-parsoid="{}" lang="en" class="mw-content-rtl sitedir-rtl rtl mw-body-content parsoid-body mediawiki mw-parser-output" dir="rtl"><table typeof="mw:Error" data-mw=\'{"errors":[{"key":"bad-json"}]}\' data-parsoid="{}"></table></body></html>' .
 			"\n";
 
@@ -37,7 +37,7 @@ class JSONTest extends TestCase {
 
 		$pageContent =
 			'{"array":[{"foo":"bar","key":["string1",null,false,true,0,1,123,456.789]}]}';
-		$expected = '<!DOCTYPE html>' . "\n" .
+		$expected = # '<!DOCTYPE html>' . "\n" .
 				  '<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="https://my.wiki.example/wikix/Special:Redirect/revision/1"><head prefix="mwr: https://my.wiki.example/wikix/Special:Redirect/"><meta charset="utf-8"><meta property="mw:pageId" content="-1"><meta property="mw:pageNamespace" content="0"><meta property="mw:html:version" content="' . self::$defaultContentVersion . '"><link rel="dc:isVersionOf" href="//my.wiki.example/wikix/TestPage"><title>TestPage</title><base href="//my.wiki.example/wikix/"><link rel="stylesheet" href="//my.wiki.example/wx/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"><meta http-equiv="content-language" content="en"><meta http-equiv="vary" content="Accept"></head><body data-parsoid="{}" lang="en" class="mw-content-rtl sitedir-rtl rtl mw-body-content parsoid-body mediawiki mw-parser-output" dir="rtl"><table class="mw-json mw-json-object" data-parsoid="{}"><tbody data-parsoid="{}"><tr data-parsoid="{}"><th data-parsoid="{}">array</th><td data-parsoid="{}"><table class="mw-json mw-json-array" data-parsoid="{}"><tbody data-parsoid="{}"><tr data-parsoid="{}"><td data-parsoid="{}"><table class="mw-json mw-json-object" data-parsoid="{}"><tbody data-parsoid="{}"><tr data-parsoid="{}"><th data-parsoid="{}">foo</th><td class="value mw-json-string" data-parsoid="{}">bar</td></tr><tr data-parsoid="{}"><th data-parsoid="{}">key</th><td data-parsoid="{}"><table class="mw-json mw-json-array" data-parsoid="{}"><tbody data-parsoid="{}"><tr data-parsoid="{}"><td class="value mw-json-string" data-parsoid="{}">string1</td></tr><tr data-parsoid="{}"><td class="value mw-json-null" data-parsoid="{}">null</td></tr><tr data-parsoid="{}"><td class="value mw-json-boolean" data-parsoid="{}">false</td></tr><tr data-parsoid="{}"><td class="value mw-json-boolean" data-parsoid="{}">true</td></tr><tr data-parsoid="{}"><td class="value mw-json-number" data-parsoid="{}">0</td></tr><tr data-parsoid="{}"><td class="value mw-json-number" data-parsoid="{}">1</td></tr><tr data-parsoid="{}"><td class="value mw-json-number" data-parsoid="{}">123</td></tr><tr data-parsoid="{}"><td class="value mw-json-number" data-parsoid="{}">456.789</td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>' .
 			"\n";
 
@@ -74,7 +74,7 @@ class JSONTest extends TestCase {
 			'</tbody></table></td></tr></tbody></table></td></tr></tbody></table></body></html>' .
 			"\n";
 
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 		$doc->loadHTML( $html );
 
 		$opts = [ 'topLevelDoc' => $doc ];

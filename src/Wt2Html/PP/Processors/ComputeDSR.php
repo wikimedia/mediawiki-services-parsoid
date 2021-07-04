@@ -3,13 +3,14 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use DOMElement;
-use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\DOM\Comment;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -61,11 +62,11 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	/**
 	 * Do $parsoidData->tsr values span the entire DOM subtree rooted at $n?
 	 *
-	 * @param DOMElement $n
+	 * @param Element $n
 	 * @param stdClass $parsoidData
 	 * @return bool
 	 */
-	private function tsrSpansTagDOM( DOMElement $n, stdClass $parsoidData ): bool {
+	private function tsrSpansTagDOM( Element $n, stdClass $parsoidData ): bool {
 		// - tags known to have tag-specific tsr
 		// - html tags with 'stx' set
 		// - tags with certain typeof properties (Parsoid-generated
@@ -87,12 +88,12 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * If so, we can suppress warnings.
 	 *
 	 * @param array $opts
-	 * @param DOMNode $node
+	 * @param Node $node
 	 * @param int $cs
 	 * @param int $s
 	 * @return bool
 	 */
-	private function acceptableInconsistency( array $opts, DOMNode $node, int $cs, int $s ): bool {
+	private function acceptableInconsistency( array $opts, Node $node, int $cs, int $s ): bool {
 		/**
 		 * 1. For wikitext URL links, suppress cs-s diff warnings because
 		 *    the diffs can come about because of various reasons since the
@@ -128,10 +129,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * Compute wikitext string length that contributes to this
 	 * list item's open tag. Closing tag width is always 0 for lists.
 	 *
-	 * @param DOMNode $li
+	 * @param Node $li
 	 * @return int
 	 */
-	private function computeListEltWidth( DOMNode $li ): int {
+	private function computeListEltWidth( Node $li ): int {
 		if ( !$li->previousSibling && $li->firstChild ) {
 			if ( DOMUtils::isList( $li->firstChild ) ) {
 				// Special case!!
@@ -156,12 +157,12 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * Compute wikitext string lengths that contribute to this
 	 * anchor's opening (<a>) and closing (</a>) tags.
 	 *
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param ?stdClass $dp
 	 * @return int[]|null
 	 */
 	private function computeATagWidth(
-		DOMElement $node, ?stdClass $dp
+		Element $node, ?stdClass $dp
 	): ?array {
 		/* -------------------------------------------------------------
 		 * Tag widths are computed as per this logic here:
@@ -218,11 +219,11 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * node's opening and closing tags.
 	 *
 	 * @param int[] $widths
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param DataParsoid $dp
 	 * @return int[]
 	 */
-	private function computeTagWidths( array $widths, DOMElement $node, stdClass $dp ): array {
+	private function computeTagWidths( array $widths, Element $node, stdClass $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {
 			return [
 				$dp->extTagOffsets->openWidth,
@@ -306,7 +307,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 *          node's subtree
 	 *
 	 * @param Frame $frame
-	 * @param DOMNode $node node to process
+	 * @param Node $node node to process
 	 * @param ?int $s start position, inclusive
 	 * @param ?int $e end position, exclusive
 	 * @param int $dsrCorrection
@@ -314,7 +315,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @return array
 	 */
 	private function computeNodeDSR(
-		Frame $frame, DOMNode $node, ?int $s, ?int $e, int $dsrCorrection,
+		Frame $frame, Node $node, ?int $s, ?int $e, int $dsrCorrection,
 		array $opts
 	): array {
 		$env = $frame->getEnv();
@@ -347,7 +348,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			// the DSR of its previous sibling.  Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
 			$next = $child->nextSibling;
-			if ( $next && ( $next instanceof DOMElement ) ) {
+			if ( $next && ( $next instanceof Element ) ) {
 				$ndp = DOMDataUtils::getDataParsoid( $next );
 				if (
 					isset( $ndp->src ) &&
@@ -389,8 +390,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				}
 				return "     CHILD: <" . $child->parentNode->nodeName . ":" . $i .
 					">=" .
-					( $child instanceof DOMElement ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
-					( ( $child instanceof DOMElement ) ?
+					( $child instanceof Element ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
+					( ( $child instanceof Element ) ?
 						( $child->nodeName === 'meta' ?
 							DOMCompat::getOuterHTML( $child ) : $child->nodeName ) :
 							PHPUtils::jsonEncode( $child->nodeValue ) ) .
@@ -403,7 +404,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					$cs = $ce - strlen( $child->textContent ) - WTUtils::indentPreDSRCorrection( $child );
 				}
 			} elseif ( $cType === XML_COMMENT_NODE ) {
-				'@phan-var \DOMComment $child'; // @var \DOMComment $child
+				'@phan-var Comment $child'; // @var Comment $child
 				if ( $ce !== null ) {
 					// Decode HTML entities & re-encode as wikitext to find length
 					$cs = $ce - WTUtils::decodedCommentLength( $child );
@@ -660,7 +661,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							$newCE = $newCE + strlen( $sibling->textContent ) +
 								WTUtils::indentPreDSRCorrection( $sibling );
 						} elseif ( $nType === XML_COMMENT_NODE ) {
-							'@phan-var \DOMComment $sibling'; // @var \DOMComment $sibling
+							'@phan-var Comment $sibling'; // @var Comment $sibling
 							$newCE += WTUtils::decodedCommentLength( $sibling );
 						} elseif ( $nType === XML_ELEMENT_NODE ) {
 							DOMUtils::assertElt( $sibling );
@@ -790,7 +791,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * This pass is only invoked on the top-level page.
 	 *
 	 * @param Env $env The environment/context for the parse pipeline
-	 * @param DOMNode $root The root of the tree for which DSR has to be computed
+	 * @param Node $root The root of the tree for which DSR has to be computed
 	 * @param array $options Options governing DSR computation
 	 * - sourceOffsets: [start, end] source offset. If missing, this defaults to
 	 *                  [0, strlen($frame->getSrcText())]
@@ -798,7 +799,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param bool $atTopLevel Are we running this on the top level?
 	 */
 	public function run(
-		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
+		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$frame = $options['frame'] ?? $env->topFrame;
 		$startOffset = $options['sourceOffsets']->start ?? 0;
@@ -810,7 +811,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		$this->computeNodeDSR( $frame, $root, $startOffset, $endOffset, 0, $opts );
 
 		if ( $atTopLevel ) {
-			'@phan-var DOMElement $root';  // @var DOMElement $root
+			'@phan-var Element $root';  // @var Element $root
 			$dp = DOMDataUtils::getDataParsoid( $root );
 			$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
 		}

@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use DOMElement;
-use DOMNode;
+use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -16,14 +16,14 @@ class LinkHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?DOMNode {
+		Element $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?Node {
 		$state->serializer->linkHandler( $node );
 		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */
-	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		// sol-transparent link nodes are the only thing on their line.
 		// But, don't force separators wrt to its parent (body, p, list, td, etc.)
 		if ( $otherNode !== $node->parentNode
@@ -37,7 +37,7 @@ class LinkHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
+	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		// sol-transparent link nodes are the only thing on their line
 		// But, don't force separators wrt to its parent (body, p, list, td, etc.)
 		if ( $otherNode !== $node->parentNode

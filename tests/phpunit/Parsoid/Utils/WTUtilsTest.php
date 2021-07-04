@@ -2,6 +2,7 @@
 
 namespace Test\Parsoid\Utils;
 
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -20,7 +21,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $html, $actualHtml );
 		$actualWt = WTUtils::decodeComment( $html );
 		$this->assertEquals( $wikitext, $actualWt );
-		$doc = new \DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 		$doc->loadHTML( "<html><body><!--$html--></body></html>" );
 		$body = $doc->getElementsByTagName( "body" )->item( 0 );
 		$node = $body->childNodes->item( 0 );

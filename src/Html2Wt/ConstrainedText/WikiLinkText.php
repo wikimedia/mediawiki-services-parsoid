@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
-use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
@@ -18,13 +18,13 @@ class WikiLinkText extends RegExpConstrainedText {
 
 	/**
 	 * @param string $text
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param SiteConfig $siteConfig
 	 * @param string $type
 	 *   The type of the link, as described by the `rel` attribute.
 	 */
 	public function __construct(
-		string $text, DOMElement $node,
+		string $text, Element $node,
 		SiteConfig $siteConfig, string $type
 	) {
 		// category links/external links/images don't use link trails or prefixes
@@ -62,14 +62,14 @@ class WikiLinkText extends RegExpConstrainedText {
 
 	/**
 	 * @param string $text
-	 * @param DOMElement $node
+	 * @param Element $node
 	 * @param stdClass $dataParsoid
 	 * @param Env $env
 	 * @param array $opts
 	 * @return ?WikiLinkText
 	 */
 	protected static function fromSelSerImpl(
-		string $text, DOMElement $node, stdClass $dataParsoid,
+		string $text, Element $node, stdClass $dataParsoid,
 		Env $env, array $opts
 	): ?WikiLinkText {
 		$type = $node->getAttribute( 'rel' ) ?? '';

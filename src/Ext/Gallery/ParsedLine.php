@@ -3,19 +3,19 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use DOMElement;
+use Wikimedia\Parsoid\DOM\Element;
 
 class ParsedLine {
 
 	/**
 	 * DOM node representing the thumbnail image.
-	 * @var DOMElement
+	 * @var Element
 	 */
 	public $thumb;
 
 	/**
 	 * DOM node representing the caption (if any).
-	 * @var ?DOMElement
+	 * @var ?Element
 	 */
 	public $gallerytext;
 
@@ -27,12 +27,12 @@ class ParsedLine {
 
 	/**
 	 * Construct a new ParsedLine object.
-	 * @param DOMElement $thumb
-	 * @param ?DOMElement $gallerytext
+	 * @param Element $thumb
+	 * @param ?Element $gallerytext
 	 * @param string $rdfaType
 	 */
 	public function __construct(
-		DOMElement $thumb, ?DOMElement $gallerytext, string $rdfaType
+		Element $thumb, ?Element $gallerytext, string $rdfaType
 	) {
 		$this->thumb = $thumb;
 		$this->gallerytext = $gallerytext;

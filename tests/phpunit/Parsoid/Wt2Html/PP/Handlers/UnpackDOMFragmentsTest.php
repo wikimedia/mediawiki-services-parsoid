@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
-use DOMElement;
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -16,9 +16,9 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 class UnpackDOMFragmentsTest extends TestCase {
 	/**
 	 * @param array $wt
-	 * @return DOMElement
+	 * @return Element
 	 */
-	private function getOutput( string $wt ): DOMElement {
+	private function getOutput( string $wt ): Element {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -37,9 +37,9 @@ class UnpackDOMFragmentsTest extends TestCase {
 	}
 
 	/**
-	 * @param DOMElement $body
+	 * @param Element $body
 	 */
-	private function validateFixedupDSR( DOMElement $body ): void {
+	private function validateFixedupDSR( Element $body ): void {
 		$links = DOMCompat::querySelectorAll( $body, 'a' );
 		foreach ( $links as $link ) {
 			$dp = DOMDataUtils::getDataParsoid( $link );
