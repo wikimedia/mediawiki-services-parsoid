@@ -532,8 +532,8 @@ class SerializerState {
 		 * the correctness of the single `"\n"` separator. If the d-`<div>` was deleted,
 		 * we conservatively ignore the original separator and let normal P-P constraints
 		 * take care of it. At worst, we might generate a dirty diff in this scenario. */
-		$again = ( $node === $this->sep->lastSourceNode );
-		$origSepUsable = !$again &&
+		$origSepNeeded = ( $node !== $this->sep->lastSourceNode );
+		$origSepUsable = $origSepNeeded &&
 			(
 				// first-content-node of <body> ($this->prevNode)
 				(
