@@ -419,7 +419,7 @@ class WikitextSerializer {
 				if ( !empty( DOMDataUtils::getDataParsoid( $node )->reusedId ) ) {
 					$vInfo = $token->getAttributeShadowInfo( $k );
 					// PORT-FIXME: is this safe? value could be a token or token array
-					$out[] = $k . '=' . '"' . preg_replace( '/"/', '&quot;', $vInfo['value'] ) . '"';
+					$out[] = $k . '="' . preg_replace( '/"/', '&quot;', $vInfo['value'] ) . '"';
 				}
 				continue;
 			}
@@ -443,7 +443,7 @@ class WikitextSerializer {
 			if ( $parsoidValueRegExp && preg_match( $parsoidValueRegExp, $kv->v ) ) {
 				$v = preg_replace( $parsoidValueRegExp, '', $kv->v );
 				if ( $v ) {
-					$out[] = $k . '=' . '"' . $v . '"';
+					$out[] = $k . '="' . $v . '"';
 				}
 				continue;
 			}
@@ -466,7 +466,7 @@ class WikitextSerializer {
 						// Escape wikitext entities
 						$vv = preg_replace( '/>/', '&gt;', Utils::escapeWtEntities( $vv ) );
 					}
-					$out[] = $kk . '=' . '"' . preg_replace( '/"/', '&quot;', $vv ) . '"';
+					$out[] = $kk . '="' . preg_replace( '/"/', '&quot;', $vv ) . '"';
 				} elseif ( preg_match( '/[{<]/', $kk ) ) {
 					// Templated, <*include*>, or <ext-tag> generated
 					$out[] = $kk;
@@ -498,7 +498,7 @@ class WikitextSerializer {
 					$v = $dataAttribs->sa[$k] ?? null;
 					// PORT-FIXME check type
 					if ( $v !== null && $v !== '' ) {
-						$out[] = $k . '=' . '"' . preg_replace( '/"/', '&quot;', $v ) . '"';
+						$out[] = $k . '="' . preg_replace( '/"/', '&quot;', $v ) . '"';
 					} else {
 						// at least preserve the key
 						$out[] = $k;
@@ -1319,7 +1319,6 @@ class WikitextSerializer {
 				$state->appendSep( WTSUtils::commentWT( $node->nodeValue ), $node );
 				return $node->nextSibling;
 			default:
-				// PORT-FIXME the JS code used node.outerHTML here; probably a bug?
 				Assert::invariant( 'Unhandled node type: ', $node->nodeType );
 		}
 

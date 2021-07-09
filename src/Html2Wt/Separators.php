@@ -132,7 +132,6 @@ class Separators {
 			'constraintInfo' => [],
 		];
 
-		// now figure out if this conflicts with the nlConstraints so far
 		if ( isset( $bCons['min'] ) ) {
 			if ( $nlConstraints['max'] !== null && $nlConstraints['max'] < $bCons['min'] ) {
 				// Conflict, warn and let nodeB win.
@@ -151,7 +150,7 @@ class Separators {
 		}
 
 		if ( isset( $bCons['max'] ) ) {
-			if ( $nlConstraints['min'] !== null && $nlConstraints['min'] > $bCons['max'] ) {
+			if ( ( $nlConstraints['min'] ?? 0 ) > $bCons['max'] ) {
 				// Conflict, warn and let nodeB win.
 				$env->log(
 					'info/html2wt',
@@ -162,10 +161,8 @@ class Separators {
 				);
 				$nlConstraints['min'] = $bCons['max'];
 				$nlConstraints['max'] = $bCons['max'];
-			} elseif ( $nlConstraints['max'] !== null ) {
-				$nlConstraints['max'] = min( $nlConstraints['max'], $bCons['max'] );
 			} else {
-				$nlConstraints['max'] = $bCons['max'];
+				$nlConstraints['max'] = min( $nlConstraints['max'] ?? $bCons['max'], $bCons['max'] );
 			}
 		}
 
@@ -179,8 +176,7 @@ class Separators {
 	}
 
 	/**
-	 * Create a separator given a (potentially empty) separator text and newline
-	 * constraints.
+	 * Create a separator given a (potentially empty) separator text and newline constraints.
 	 *
 	 * @param string $sep
 	 * @param array $nlConstraints
