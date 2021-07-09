@@ -172,6 +172,10 @@ class Separators {
 			$nlConstraints['max'] = 2;
 		}
 
+		if ( ( $nlConstraints['min'] ?? 0 ) > $nlConstraints['max'] ) {
+			$nlConstraints['max'] = $nlConstraints['min'];
+		}
+
 		return $nlConstraints;
 	}
 
