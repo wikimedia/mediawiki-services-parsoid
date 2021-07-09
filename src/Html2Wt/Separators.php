@@ -397,7 +397,7 @@ class Separators {
 		$state->sep->constraints['constraintInfo'] = [
 			'onSOL' => $state->onSOL,
 			// force SOL state when separator is built/emitted
-			'forceSOL' => $sepHandlerB->isForceSOL(),
+			'forceSOL' => $sepHandlerB->forceSOL(),
 			'sepType' => $sepType,
 			'nodeA' => $nodeA,
 			'nodeB' => $nodeB,

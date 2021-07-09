@@ -125,7 +125,7 @@ class DOMHandler {
 	 *
 	 * @return bool
 	 */
-	public function isForceSOL(): bool {
+	public function forceSOL(): bool {
 		return $this->forceSOL;
 	}
 
