@@ -255,29 +255,40 @@ class Separators {
 				$sep .= implode( $nlBuf );
 			}
 		} elseif ( isset( $nlConstraints['max'] ) && $sepNlCount > $nlConstraints['max'] ) {
-			// Strip some newlines outside of comments
+			// Strip some newlines outside of comments.
+			//
 			// Capture separators in a single array with a capturing version of
 			// the split regexp, so that we can work on the non-separator bits
 			// when stripping newlines.
+			//
+			// Dirty-diff minimizing heuristic: Strip newlines away from an unmodified node.
+			// If both nodes are unmodified, this dirties the separator before the current node.
+			// If both nodes are modified, this dirties the separator after the previous node.
 			$allBits = preg_split( '#(' . PHPUtils::reStrip( $splitRe, '#' ) . ')#',
 				$sep, -1, PREG_SPLIT_DELIM_CAPTURE );
 			$newBits = [];
-			$n = $sepNlCount;
+			$n = $sepNlCount - $nlConstraints['max'];
 
-			while ( $n > $nlConstraints['max'] ) {
-				$bit = array_pop( $allBits );
+			$stripAtEnd = $this->state->prevNodeUnmodified;
+			while ( $n > 0 ) {
+				$bit = $stripAtEnd ? array_pop( $allBits ) : array_shift( $allBits );
 				while ( $bit && preg_match( $splitRe, $bit ) ) {
-					// skip comments
+					// Retain comment-only lines as is
 					$newBits[] = $bit;
-					$bit = array_pop( $allBits );
+					$bit = $stripAtEnd ? array_pop( $allBits ) : array_shift( $allBits );
 				}
-				while ( $n > $nlConstraints['max'] && preg_match( '/\n/', $bit ) ) {
+				// @phan-suppress-next-line PhanPluginLoopVariableReuse
+				while ( $n > 0 && preg_match( '/\n/', $bit ) ) {
 					$bit = preg_replace( '/\n([^\n]*)/', '$1', $bit, 1 );
 					$n--;
 				}
 				$newBits[] = $bit;
 			}
-			$newBits = array_merge( $allBits, array_reverse( $newBits ) );
+			if ( $stripAtEnd ) {
+				$newBits = array_merge( $allBits, array_reverse( $newBits ) );
+			} else {
+				$newBits = array_merge( $newBits, $allBits );
+			}
 			$sep = implode( $newBits );
 		}
 

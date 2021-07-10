@@ -85,3 +85,29 @@ parsoid={
 * [http://example.org Misnested [[wikilink]] in extlink]. More text.
 ** foo
 !! end
+
+# Regression test for T276512
+!! test
+Strip excess separator newlines near a modified node
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "p", "after", "\n<ul><li>x</li></ul>" ]
+  ]
+}
+!! wikitext
+foo
+
+<!--bar-->
+
+[[Category:Baz]]
+!! wikitext/edited
+foo
+
+* x
+<!--bar-->
+
+[[Category:Baz]]
+!! end
