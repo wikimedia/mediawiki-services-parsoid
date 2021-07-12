@@ -168,7 +168,10 @@ class Separators {
 
 		if ( $nlConstraints['max'] === null ) {
 			// Anything more than two lines will trigger paragraphs, so default to
-			// two if nothing is specified.
+			// two if nothing is specified. (FIXME: This is a conservative strategy
+			// since strictly speaking, this is not always true. This is more a
+			// cautious fallback to handle cases where some DOM handler is missing
+			// a necessary max constraint.)
 			$nlConstraints['max'] = 2;
 		}
 
