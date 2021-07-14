@@ -1177,6 +1177,9 @@ class WikitextSerializer {
 				// specific checks for wikilnks / extlinks / ... etc. The only concern is
 				// if the surrounding context in which this link-syntax is embedded also
 				// breaks the link syntax. There is no such syntax right now.
+				// FIXME: Note the limitation here, that if these nodes are nested
+				// in something as trivial as an i / b, the suppression won't happen
+				// and we'll dirty the text.
 				$suppressSLC = WTUtils::isFirstEncapsulationWrapperNode( $node )
 					|| DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
 					|| in_array( $node->nodeName, [ 'dl', 'ul', 'ol', 'a' ], true )
