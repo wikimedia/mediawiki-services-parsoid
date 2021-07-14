@@ -46,6 +46,10 @@ class DOMDataUtils {
 	 * @return DataBag
 	 */
 	public static function getBag( Document $doc ): DataBag {
+		if ( method_exists( $doc, "getExtensionData" ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			return $doc->getExtensionData( "bag" );
+		}
 		// This is a dynamic property; it is not declared.
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
@@ -60,6 +64,10 @@ class DOMDataUtils {
 	public static function getCodec( Node $node ): DOMDataCodec {
 		// Owner document is set for all nodes except Document itself.
 		$doc = $node->ownerDocument ?? $node;
+		if ( method_exists( $doc, "getExtensionData" ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			return $doc->getExtensionData( "codec" );
+		}
 		// This is a dynamic property; it is not declared.
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
@@ -67,6 +75,10 @@ class DOMDataUtils {
 	}
 
 	public static function isPrepared( Document $doc ): bool {
+		if ( method_exists( $doc, "getExtensionData" ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			return $doc->getExtensionData( "bag" ) !== null;
+		}
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		return isset( $doc->bag );
@@ -77,12 +89,20 @@ class DOMDataUtils {
 	}
 
 	public static function prepareDoc( Document $doc ): void {
-		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = new DataBag();
-		// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->codec = new DOMDataCodec( $doc, [] );
+		$bag = new DataBag();
+		$codec = new DOMDataCodec( $doc, [] );
+		if ( method_exists( $doc, "setExtensionData" ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			$doc->setExtensionData( "bag", $bag );
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			$doc->setExtensionData( "codec", $codec );
+		} else {
+			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+			$doc->bag = $bag;
+			// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
+			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+			$doc->codec = $codec;
+		}
 
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
@@ -94,12 +114,19 @@ class DOMDataUtils {
 	 * @param Document $childDoc
 	 */
 	public static function prepareChildDoc( Document $topLevelDoc, Document $childDoc ): void {
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		Assert::invariant( $topLevelDoc->bag instanceof DataBag, 'doc bag not set' );
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$childDoc->bag = $topLevelDoc->bag;
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$childDoc->codec = $topLevelDoc->codec;
+		if ( method_exists( $childDoc, "setExtensionData" ) ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			$childDoc->setExtensionData( "bag", $topLevelDoc->getExtensionData( "bag" ) );
+			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
+			$childDoc->setExtensionData( "codec", $topLevelDoc->getExtensionData( "codec" ) );
+		} else {
+			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+			Assert::invariant( $topLevelDoc->bag instanceof DataBag, 'doc bag not set' );
+			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+			$childDoc->bag = $topLevelDoc->bag;
+			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+			$childDoc->codec = $topLevelDoc->codec;
+		}
 	}
 
 	/**

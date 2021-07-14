@@ -9,14 +9,14 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 
 if ( DOMCompat::isUsingDodo() ) {
 
-	class_alias( \Wikimedia\Dodo\ProcessingInstruction::class, ProcessingInstruction::class );
+	class_alias( \Wikimedia\Dodo\DOMException::class, DOMException::class );
 
 } elseif ( DOMCompat::isUsing84Dom() ) {
 
-	class_alias( \Dom\ProcessingInstruction::class, ProcessingInstruction::class );
+	class_alias( \DOMException::class, DOMException::class );
 
 } else {
 
-	class ProcessingInstruction extends \DOMProcessingInstruction implements Node {
-	}
+	class_alias( \DOMException::class, DOMException::class );
+
 }
