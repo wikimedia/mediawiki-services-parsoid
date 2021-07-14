@@ -146,7 +146,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		DOMCompat::remove( $x );
 
 		// https://bugs.php.net/bug.php?id=77686
-		if ( version_compare( PHP_VERSION, '8.1.20', '>' ) ) {
+		if ( DOMCompat::isStandardsMode( $doc ) || version_compare( PHP_VERSION, '8.1.20', '>' ) ) {
 			$this->assertNull( $doc->getElementById( 'x' ) );
 		} else {
 			$this->assertSame( $x, $doc->getElementById( 'x' ) );

@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
+use Wikimedia\Parsoid\DOM\DOMException;
+use Wikimedia\Parsoid\DOM\DOMImplementation;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\RemexHtml\DOM\DOMBuilder as RemexDOMBuilder;
 
@@ -11,10 +13,12 @@ use Wikimedia\RemexHtml\DOM\DOMBuilder as RemexDOMBuilder;
  */
 class DOMBuilder extends RemexDOMBuilder {
 	public function __construct() {
-		parent::__construct( [
+		parent::__construct( DOMCompat::isStandardsMode() ? [
+			'suppressIdAttribute' => !DOMCompat::isUsing84Dom(),
+			'domExceptionClass' => DOMException::class,
+			'domImplementationClass' => DOMImplementation::class,
+		] : [
 			'suppressHtmlNamespace' => true,
-			# 'suppressIdAttribute' => true,
-			#'domExceptionClass' => \Wikimdedia\Dodo\DOMException::class,
 		] );
 	}
 

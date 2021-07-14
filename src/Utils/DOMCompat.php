@@ -7,7 +7,9 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\DOM\CharacterData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\DOMParser;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\HTMLDocument;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
@@ -44,12 +46,55 @@ use Wikimedia\Zest\Zest;
  * HTML-standards-compliant.
  */
 class DOMCompat {
-
 	/**
 	 * Tab, LF, FF, CR, space
 	 * @see https://infra.spec.whatwg.org/#ascii-whitespace
 	 */
 	private const ASCII_WHITESPACE = "\t\r\f\n ";
+
+	/**
+	 * @param Node|null $node If present, we'll use the type of the given node
+	 *  to determine whether to use standards mode.
+	 * @return bool When false, we'll use DOMDocument workarounds.
+	 */
+	public static function isStandardsMode( $node = null ): bool {
+		if ( $node !== null ) {
+			return !( $node instanceof \DOMNode );
+		}
+		return self::isUsingDodo() || self::isUsing84Dom();
+	}
+
+	private static function zestOptions(): array {
+		return self::isUsingDodo() ? [ 'standardsMode' => true, ] : [];
+	}
+
+	/**
+	 * @param Node|null $node If present, we'll use the type of the given node
+	 *   to determine whether we're using Dodo.
+	 * @return bool When true, we're using the Dodo DOM implementation.
+	 * @internal
+	 */
+	public static function isUsingDodo( $node = null ): bool {
+		if ( $node !== null ) {
+			return is_a( $node, '\Wikimedia\Dodo\Node', false );
+		}
+		// Change this to switch to using Dodo for Parsoid.
+		return false;
+	}
+
+	/**
+	 * @param Node|null $node If present, we'll use the type of the given node
+	 *   to determine whether we're using the PHP 8.4 DOM implementation.
+	 * @return bool When true, we're using the PHP 8.4 DOM implementation.
+	 * @internal
+	 */
+	public static function isUsing84Dom( $node = null ): bool {
+		if ( $node !== null ) {
+			return is_a( $node, '\Dom\Node', false );
+		}
+		// Defaults to using \Dom\Document on PHP 8.4 (unless we're using Dodo)
+		return !self::isUsingDodo() && class_exists( '\Dom\Document' );
+	}
 
 	/**
 	 * Create a new empty document.
@@ -60,8 +105,22 @@ class DOMCompat {
 	 * @return Document
 	 */
 	public static function newDocument( bool $isHtml ) {
-		// @phan-suppress-next-line PhanParamTooMany,PhanTypeInstantiateInterface
-		return new Document( "1.0", "UTF-8" );
+		if ( self::isUsingDodo() ) {
+			$doc = ( new DOMParser() )->parseFromString(
+				'<div></div>', $isHtml ? 'text/html' : 'text/xml'
+			);
+		} elseif ( self::isUsing84Dom() ) {
+			Assert::invariant( $isHtml, "only HTML documents are supported" );
+			$doc = HTMLDocument::createEmpty( "UTF-8" );
+		} else {
+			// @phan-suppress-next-line PhanParamTooMany,PhanTypeInstantiateInterface
+			$doc = new Document( "1.0", "UTF-8" );
+		}
+		// Remove doctype, head, body, etc for compat w/ PHP
+		while ( $doc->firstChild !== null ) {
+			$doc->removeChild( $doc->firstChild );
+		}
+		return $doc;
 	}
 
 	/**
@@ -84,6 +143,10 @@ class DOMCompat {
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-body
 	 */
 	public static function getBody( $document ) {
+		if ( self::isStandardsMode( $document ) ) {
+			return $document->body;
+		}
+		// Use an undeclared dynamic property as a cache.
 		// WARNING: this will not be updated if (for some reason) the
 		// document body changes.
 		if ( $document->body !== null ) {
@@ -113,6 +176,9 @@ class DOMCompat {
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-head
 	 */
 	public static function getHead( $document ) {
+		if ( self::isStandardsMode( $document ) ) {
+			return $document->head;
+		}
 		// Use an undeclared dynamic property as a cache.
 		// WARNING: this will not be updated if (for some reason) the
 		// document head changes.
@@ -198,7 +264,7 @@ class DOMCompat {
 			],
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
-		$elements = Zest::getElementsById( $node, $id );
+		$elements = Zest::getElementsById( $node, $id, self::zestOptions() );
 		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return $elements[0] ?? null;
 	}
@@ -240,7 +306,7 @@ class DOMCompat {
 			],
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
-		$result = Zest::getElementsByTagName( $node, $tagName );
+		$result = Zest::getElementsByTagName( $node, $tagName, self::zestOptions() );
 		'@phan-var array<Element> $result'; // @var array<Element> $result
 		return $result;
 	}
@@ -301,6 +367,9 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-queryselector
 	 */
 	public static function querySelector( $node, string $selector ) {
+		if ( self::isUsingDodo( $node ) ) {
+			return $node->querySelector( $selector );
+		}
 		foreach ( self::querySelectorAll( $node, $selector ) as $el ) {
 			return $el;
 		}
@@ -316,6 +385,9 @@ class DOMCompat {
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
 	public static function querySelectorAll( $node, string $selector ): iterable {
+		if ( self::isUsingDodo( $node ) ) {
+			return $node->querySelectorAll( $selector );
+		}
 		Assert::parameterType( [
 				Document::class, DocumentFragment::class, Element::class,
 				// For compatibility with code which might call this from
@@ -324,7 +396,7 @@ class DOMCompat {
 			],
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode
-		return Zest::find( $selector, $node );
+		return Zest::find( $selector, $node, self::zestOptions() );
 	}
 
 	/**
@@ -420,6 +492,9 @@ class DOMCompat {
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-innerhtml-innerhtml
 	 */
 	public static function getInnerHTML( $element ): string {
+		// Always use Parsoid's serializer even in standards mode,
+		// since the "standard" DOM spec isn't quite the same as Parsoid
+		// expects w/r/t quoting etc.
 		return XMLSerializer::serialize( $element, [ 'innerXML' => true ] )['html'];
 	}
 
@@ -431,6 +506,7 @@ class DOMCompat {
 	 * @param string $html
 	 */
 	public static function setInnerHTML( $element, string $html ): void {
+		// Always use Remex for parsing, even in standards mode.
 		$domBuilder = new DOMBuilder; // Our version, not Remex's
 		$treeBuilder = new TreeBuilder( $domBuilder );
 		$dispatcher = new Dispatcher( $treeBuilder );

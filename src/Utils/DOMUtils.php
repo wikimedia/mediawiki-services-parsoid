@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\DOMParser;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -41,6 +42,10 @@ class DOMUtils {
 			// elements.
 			$html = '<body>' . $html;
 		}
+		if ( DOMCompat::isUsingDodo() ) {
+			return ( new DOMParser() )->parseFromString( $html, 'text/html' );
+		}
+		// If DOMCompat::isUsing84Dom use Remex to parse.
 
 		$domBuilder = new DOMBuilder; // our DOMBuilder, not remex's
 		$treeBuilder = new TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
@@ -813,10 +818,12 @@ class DOMUtils {
 	 */
 	public static function attributes( Element $element ): array {
 		$result = [];
-		// The 'xmlns' attribute is "invisible" T235295
-		$xmlns = DOMCompat::getAttribute( $element, 'xmlns' );
-		if ( $xmlns !== null ) {
-			$result['xmlns'] = $xmlns;
+		if ( !DOMCompat::isStandardsMode( $element ) ) {
+			// The 'xmlns' attribute is "invisible" T235295
+			$xmlns = DOMCompat::getAttribute( $element, 'xmlns' );
+			if ( $xmlns !== null ) {
+				$result['xmlns'] = $xmlns;
+			}
 		}
 		foreach ( $element->attributes as $attr ) {
 			$result[$attr->name] = $attr->value;
