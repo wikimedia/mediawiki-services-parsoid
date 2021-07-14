@@ -30,6 +30,9 @@ class CleanUp {
 			!DOMDataUtils::validDataMw( $node ) && (
 				(
 					DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' ) &&
+					// NOTE: In ComputeDSR, we don't zero out the width of these
+					// markers because they're staying in the DOM and serializeDOMNode
+					// only handles a few cases of zero width nodes.
 					!DOMUtils::isNestedInListItem( $node )
 				) ||
 				DOMUtils::matchTypeOf( $node, '#^mw:(StartTag|EndTag|TSRMarker|Transclusion)(/|$)#' )

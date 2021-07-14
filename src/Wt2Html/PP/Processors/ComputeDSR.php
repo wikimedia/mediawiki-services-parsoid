@@ -342,15 +342,23 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$fosteredNode = false;
 			$cs = null;
 
-			// StrippedTag marker tags will be removed and wont
+			// StrippedTag marker tags will be removed and won't
 			// be around to fill in the missing gap.  So, absorb its width into
 			// the DSR of its previous sibling.  Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
 			$next = $child->nextSibling;
 			if ( $next && ( $next instanceof DOMElement ) ) {
 				$ndp = DOMDataUtils::getDataParsoid( $next );
-				if ( isset( $ndp->src ) &&
-					 DOMUtils::hasTypeOf( $next, 'mw:Placeholder/StrippedTag' )
+				if (
+					isset( $ndp->src ) &&
+					DOMUtils::hasTypeOf( $next, 'mw:Placeholder/StrippedTag' ) &&
+					// NOTE: This inlist check matches the case in CleanUp where
+					// the placeholders are not removed from the DOM.  We don't want
+					// to move the width into the sibling here and then leave around a
+					// a zero width placeholder because serializeDOMNode only handles
+					// a few cases of zero width nodes, so we'll end up duplicating
+					// it from ->src.
+					!DOMUtils::isNestedInListItem( $next )
 				) {
 					if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
 						isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {

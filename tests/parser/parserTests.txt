@@ -30270,3 +30270,19 @@ aside tag is not allowed directly in wikitext (T278565)
 <p>&lt;aside&gt;This aside tag in wikitext should be escaped&lt;/aside&gt;
 </p>
 !! end
+
+!! test
+Stripped tag in list
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+    ["dd", "append", "ho"]
+  ]
+}
+!! wikitext
+:<i>hi</i></b>
+!! wikitext/edited
+:<i>hi</i></b>ho
+!! end
