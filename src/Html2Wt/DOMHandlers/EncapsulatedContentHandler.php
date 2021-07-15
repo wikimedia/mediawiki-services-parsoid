@@ -126,8 +126,13 @@ class EncapsulatedContentHandler extends DOMHandler {
 		// use the first node in that block for determining
 		// newline constraints.
 		if ( isset( $dp->firstWikitextNode ) ) {
-			$h = ( new DOMHandlerFactory )->newFromTagHandler( mb_strtolower( $dp->firstWikitextNode ) );
-			if ( !$h && ( $dp->stx ?? null ) === 'html' && $dp->firstWikitextNode !== 'a' ) {
+			// Note: this should match the case returned by DOMCompat::nodeName
+			// so that this is effectively a case-insensitive comparison here.
+			// (ie, data-parsoid could have either uppercase tag names or
+			// lowercase tag names and this code should still work.)
+			$ftn = mb_strtolower( $dp->firstWikitextNode, "UTF-8" );
+			$h = ( new DOMHandlerFactory )->newFromTagHandler( $ftn );
+			if ( !$h && ( $dp->stx ?? null ) === 'html' && $ftn !== 'a_html' ) {
 				$h = new FallbackHTMLHandler();
 			}
 			if ( $h ) {

@@ -697,8 +697,14 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Note that the case of nodeName varies with DOM implementation.  This
+	 * method currently forces the name nodeName to uppercase.  In the future
+	 * we can/should switch to using the "native" case of the DOM
+	 * implementation; we do a case-insensitive match (by converting the result
+	 * to the "native" case of the DOM implementation) in
+	 * EncapsulatedContentHandler when this value is used.
 	 * @param stdClass $range
-	 * @return string|null
+	 * @return string|null nodeName with an optional "_$stx" suffix.
 	 */
 	private static function findFirstTemplatedNode( stdClass $range ): ?string {
 		$firstNode = $range->start;
@@ -731,7 +737,8 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 		// FIXME spec-compliant values would be upper-case, this is just a workaround
 		// for current PHP DOM implementation and could be removed in the future
-		$nodeName = mb_strtoupper( $firstNode->nodeName );
+		// See discussion in the method comment above.
+		$nodeName = mb_strtoupper( $firstNode->nodeName, "UTF-8" );
 
 		return !empty( $dp->stx ) ? $nodeName . '_' . $dp->stx : $nodeName;
 	}
