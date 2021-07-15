@@ -71,7 +71,7 @@ class Ref extends ExtensionTagHandler {
 		}
 		$refFirstChild = $ref->firstChild;
 		DOMUtils::assertElt( $refFirstChild );
-		$linkBackId = preg_replace( '/[^#]*#/', '', $refFirstChild->getAttribute( 'href' ), 1 );
+		$linkBackId = preg_replace( '/[^#]*#/', '', $refFirstChild->getAttribute( 'href' ) ?? '', 1 );
 		$refNode = $ref->ownerDocument->getElementById( $linkBackId );
 		if ( $refNode ) {
 			// Ex: Buggy input wikitext without ref content
@@ -118,8 +118,8 @@ class Ref extends ExtensionTagHandler {
 			if ( !$bodyElt ) {
 				$extraDebug = '';
 				$firstA = DOMCompat::querySelector( $node, 'a[href]' );
-				if ( $firstA && preg_match( '/^#/', $firstA->getAttribute( 'href' ) ) ) {
-					$href = $firstA->getAttribute( 'href' );
+				if ( $firstA && preg_match( '/^#/', $firstA->getAttribute( 'href' ) ?? '' ) ) {
+					$href = $firstA->getAttribute( 'href' ) ?? '';
 					try {
 						$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
 						if ( $ref ) {
@@ -147,7 +147,7 @@ class Ref extends ExtensionTagHandler {
 			$hasFollow = strlen( $dataMw->attrs->follow ?? '' ) > 0;
 
 			if ( $hasFollow ) {
-				$about = $node->getAttribute( 'about' );
+				$about = $node->getAttribute( 'about' ) ?? '';
 				$followNode = DOMCompat::querySelector(
 					$bodyElt, "span[typeof~='mw:Cite/Follow'][about='{$about}']"
 				);

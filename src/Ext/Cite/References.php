@@ -131,7 +131,7 @@ class References extends ExtensionTagHandler {
 		// This is data-parsoid from the dom fragment node that's gone through
 		// dsr computation and template wrapping.
 		$nodeDp = DOMDataUtils::getDataParsoid( $node );
-		$typeOf = $node->getAttribute( 'typeof' );
+		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
 		$isTplWrapper = DOMUtils::hasTypeOf( $node, 'mw:Transclusion' );
 		$nodeType = preg_replace( '#mw:DOMFragment/sealed/ref#', '', $typeOf, 1 );
 		$contentId = $nodeDp->html;

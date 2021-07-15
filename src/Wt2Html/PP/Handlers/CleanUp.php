@@ -226,7 +226,7 @@ class CleanUp {
 		// handle the HTML markup.
 		$validDSR = DOMDataUtils::validDataMw( $node ) && Utils::isValidDSR( $dp->dsr ?? null );
 		$isPageProp = DOMCompat::nodeName( $node ) === 'meta' &&
-			preg_match( '#^mw:PageProp/(.*)$#D', $node->getAttribute( 'property' ) );
+			preg_match( '#^mw:PageProp/(.*)$#D', $node->getAttribute( 'property' ) ?? '' );
 		if ( $validDSR && !$isPageProp ) {
 			unset( $dp->src );
 		} elseif ( $isFirstEncapsulationWrapperNode && ( !$atTopLevel || empty( $dp->tsr ) ) ) {

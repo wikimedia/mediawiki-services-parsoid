@@ -123,10 +123,10 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 				// factor when one is much larger than the other
 				// (sx+sy)/(x+y) = s
 
-				$thumbWidth = (int)$imageNode->getAttribute( 'width' );
-				$thumbHeight = (int)$imageNode->getAttribute( 'height' );
-				$imageWidth = (int)$imageNode->getAttribute( 'data-file-width' );
-				$imageHeight = (int)$imageNode->getAttribute( 'data-file-height' );
+				$thumbWidth = (int)( $imageNode->getAttribute( 'width' ) ?? '' );
+				$thumbHeight = (int)( $imageNode->getAttribute( 'height' ) ?? '' );
+				$imageWidth = (int)( $imageNode->getAttribute( 'data-file-width' ) ?? '' );
+				$imageHeight = (int)( $imageNode->getAttribute( 'data-file-height' ) ?? '' );
 
 				$denominator = $imageWidth + $imageHeight;
 				$numerator = $thumbWidth + $thumbHeight;
@@ -191,8 +191,8 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 			}
 			DOMUtils::assertElt( $a );
 
-			$href = $a->getAttribute( 'href' );
-			$externLink = (bool)preg_match( "/^mw:ExtLink/", $a->getAttribute( 'rel' ) );
+			$href = $a->getAttribute( 'href' ) ?? '';
+			$externLink = (bool)preg_match( "/^mw:ExtLink/", $a->getAttribute( 'rel' ) ?? '' );
 			$alt = '';
 
 			$hasContent = $externLink || ( DOMDataUtils::getDataParsoid( $a )->stx ?? null ) === 'piped';

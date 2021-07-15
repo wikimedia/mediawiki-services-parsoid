@@ -92,7 +92,7 @@ class MediaStructure {
 	 * @return string
 	 */
 	public function getResource(): string {
-		return $this->mediaElt->getAttribute( 'resource' );
+		return $this->mediaElt->getAttribute( 'resource' ) ?? '';
 	}
 
 	/**
@@ -106,7 +106,7 @@ class MediaStructure {
 	 * @return string
 	 */
 	public function getAlt(): string {
-		return $this->mediaElt->getAttribute( 'alt' );
+		return $this->mediaElt->getAttribute( 'alt' ) ?? '';
 	}
 
 	/**
@@ -120,7 +120,7 @@ class MediaStructure {
 	 * @return string
 	 */
 	public function getMediaUrl(): string {
-		return $this->linkElt ? $this->linkElt->getAttribute( 'href' ) : '';
+		return $this->linkElt ? ( $this->linkElt->getAttribute( 'href' ) ?? '' ) : '';
 	}
 
 	/**

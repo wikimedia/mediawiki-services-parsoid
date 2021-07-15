@@ -176,7 +176,7 @@ class TableFixups {
 			$prevDp = $tplDp;
 		}
 
-		$aboutId = $lastTpl->getAttribute( 'about' );
+		$aboutId = $lastTpl->getAttribute( 'about' ) ?? '';
 
 		// Hoist transclusion information to $td.
 		$td->setAttribute( 'typeof', 'mw:Transclusion' );
@@ -645,12 +645,12 @@ class TableFixups {
 						 */
 						'@phan-var Element $child';
 						// Fix up transclusion wrapping
-						$about = $child->getAttribute( 'about' );
+						$about = $child->getAttribute( 'about' ) ?? '';
 						$this->hoistTransclusionInfo( $frame, [ $child ], $cell );
 					} else {
 						// Refetch the about attribute since 'reparseTemplatedAttributes'
 						// might have added one to it.
-						$about = $cell->getAttribute( 'about' );
+						$about = $cell->getAttribute( 'about' ) ?? '';
 					}
 
 					// about may not be present if the cell was inside

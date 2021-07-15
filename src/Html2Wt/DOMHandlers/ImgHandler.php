@@ -20,7 +20,7 @@ class ImgHandler extends DOMHandler {
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
 		if ( $node->getAttribute( 'rel' ) === 'mw:externalImage' ) {
-			$state->serializer->emitWikitext( $node->getAttribute( 'src' ) ?: '', $node );
+			$state->serializer->emitWikitext( $node->getAttribute( 'src' ) ?? '', $node );
 		} else {
 			LinkHandlerUtils::figureHandler( $state, $node, new MediaStructure( $node ) );
 		}

@@ -445,7 +445,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 */
 	private static function addErrors( Element $container, array $errs, stdClass $dataMw ): void {
 		if ( !DOMUtils::hasTypeOf( $container, 'mw:Error' ) ) {
-			$typeOf = $container->getAttribute( 'typeof' );
+			$typeOf = $container->getAttribute( 'typeof' ) ?? '';
 			$typeOf = 'mw:Error' . ( $typeOf ? ' ' . $typeOf : '' );
 			$container->setAttribute( 'typeof', $typeOf );
 		}
@@ -466,7 +466,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		DOMDataUtils::addNormalizedAttribute(
 			$elt,
 			$attribute,
-			$span->getAttribute( $attribute ),
+			$span->getAttribute( $attribute ) ?? '',
 			WTSUtils::getAttributeShadowInfo( $span, $attribute )['value']
 		);
 	}
@@ -575,7 +575,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		if ( DOMCompat::nodeName( $anchor ) === 'a' ) {
 			$href = Sanitizer::cleanUrl(
-				$env->getSiteConfig(), $anchor->getAttribute( 'href' ), 'external'
+				$env->getSiteConfig(), $anchor->getAttribute( 'href' ) ?? '', 'external'
 			);
 			$anchor->setAttribute( 'href', $href );
 		}

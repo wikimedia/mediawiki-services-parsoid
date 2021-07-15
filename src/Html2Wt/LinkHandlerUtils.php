@@ -73,7 +73,7 @@ class LinkHandlerUtils {
 	 * @return string
 	 */
 	private static function getHref( Env $env, Element $node ): string {
-		$href = $node->getAttribute( 'href' );
+		$href = $node->getAttribute( 'href' ) ?? '';
 		if ( preg_match( '#^/[^/]#', $href ) ) {
 			// protocol-less but absolute.  let's find a base href
 			foreach ( $env->getSiteConfig()->interwikiMap() as $prefix => $interwikiInfo ) {
@@ -183,7 +183,7 @@ class LinkHandlerUtils {
 
 		// Figure out the type of the link
 		if ( $node->hasAttribute( 'rel' ) ) {
-			$rel = $node->getAttribute( 'rel' );
+			$rel = $node->getAttribute( 'rel' ) ?? '';
 			// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
 			// Everything else defaults to ExtLink during serialization (unless it is
 			// serializable to a wikilink)
@@ -998,7 +998,7 @@ class LinkHandlerUtils {
 				$state->emitChunk( '', $node );
 				return;
 			}
-			$src = $elt->getAttribute( 'src' );
+			$src = $elt->getAttribute( 'src' ) ?? '';
 			if ( preg_match( '/^https?:/', $src ) ) {
 				// external image link, presumably $wgAllowExternalImages=true
 				$state->emitChunk( new AutoURLLinkText( $src, $node ), $node );

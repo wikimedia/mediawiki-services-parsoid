@@ -138,10 +138,10 @@ class TokenList implements Iterator {
 	 * Set the classList property based on the class attribute of the wrapped element.
 	 */
 	private function lazyLoadClassList(): void {
-		$attrib = $this->node->getAttribute( 'class' );
+		$attrib = $this->node->getAttribute( 'class' ) ?? '';
 		if ( $attrib !== $this->attribute ) {
 			$this->attribute = $attrib;
-			$this->classList = preg_split( '/\s+/', $this->node->getAttribute( 'class' ), -1,
+			$this->classList = preg_split( '/\s+/', $attrib, -1,
 				PREG_SPLIT_NO_EMPTY );
 		}
 	}

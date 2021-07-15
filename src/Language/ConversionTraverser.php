@@ -111,7 +111,7 @@ class ConversionTraverser extends DOMTraverser {
 		if ( DOMUtils::isElt( $node ) ) {
 			DOMUtils::assertElt( $node );
 			if ( $node->hasAttribute( 'lang' ) ) {
-				$lang = $node->getAttribute( 'lang' );
+				$lang = $node->getAttribute( 'lang' ) ?? '';
 				// XXX validate lang! override fromLang?
 				// $this->>fromLang = $lang;
 			}
@@ -168,7 +168,7 @@ class ConversionTraverser extends DOMTraverser {
 		// Is this a wikilink?  If so, extract title & convert it
 		$rel = $el->getAttribute( 'rel' ) ?? '';
 		if ( $rel === 'mw:WikiLink' ) {
-			$href = preg_replace( '#^(\.\.?/)+#', '', $el->getAttribute( 'href' ), 1 );
+			$href = preg_replace( '#^(\.\.?/)+#', '', $el->getAttribute( 'href' ) ?? '', 1 );
 			$fromPage = Utils::decodeURI( $href );
 			$toPageFrag = $this->machine->convert(
 				$el->ownerDocument, $fromPage, $this->toLang, $this->fromLang

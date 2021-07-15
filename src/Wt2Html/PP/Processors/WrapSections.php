@@ -383,7 +383,6 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 					$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $dp->dsr->start );
 				}
 
-				$typeOf = $encapNode->getAttribute( 'typeof' );
 				if ( DOMUtils::hasTypeOf( $encapNode, "mw:Transclusion" ) ) {
 					$haveTemplate = true;
 					// Assimilate $encapNode's data-mw and data-parsoid pi info

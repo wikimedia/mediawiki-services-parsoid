@@ -289,7 +289,7 @@ class UnpackDOMFragments {
 		// of whether we're coming `fromCache` or not.
 		// FIXME: Presumably we have a nesting issue here if this is a cached
 		// transclusion.
-		$about = $node->getAttribute( 'about' );
+		$about = $node->getAttribute( 'about' ) ?? '';
 		if ( $about !== '' ) {
 			// Span wrapping may not have happened for the transclusion above if
 			// the fragment is not the first encapsulation wrapper node.
@@ -336,7 +336,7 @@ class UnpackDOMFragments {
 			// In this example, the <a> corresponding to Foo is fragmentParent and has an about.
 			// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup
 			// "[[bad]], very bad" are at encapsulation level and need about ids.
-			$about = $fragmentParent->getAttribute( 'about' );
+			$about = $fragmentParent->getAttribute( 'about' ) ?? '';
 			if ( $about !== '' ) {
 				self::makeChildrenEncapWrappers( $domFragment, $about );
 			}

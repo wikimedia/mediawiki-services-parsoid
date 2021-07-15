@@ -47,9 +47,9 @@ class LST extends ExtensionTagHandler implements ExtensionModule {
 		if ( isset( $dp->src ) ) {
 			$src = $dp->src;
 		} elseif ( DOMUtils::matchTypeOf( $node, '/begin/' ) ) {
-			$src = '<section begin="' . $node->getAttribute( 'content' ) . '" />';
+			$src = '<section begin="' . ( $node->getAttribute( 'content' ) ?? '' ) . '" />';
 		} elseif ( DOMUtils::matchTypeOf( $node, '/end/' ) ) {
-			$src = '<section end="' . $node->getAttribute( 'content' ) . '" />';
+			$src = '<section end="' . ( $node->getAttribute( 'content' ) ?? '' ) . '" />';
 		} else {
 			$extApi->log( 'error', 'LST <section> without content in: ' .
 				DOMCompat::getOuterHTML( $node ) );

@@ -338,7 +338,7 @@ class HTML5TreeBuilder extends PipelineStage {
 					'#^mw:Includes/(OnlyInclude|IncludeOnly|NoInclude)(/|$)#'
 				);
 				if ( !$shouldFoster ) {
-					$prop = $token->getAttribute( 'property' ) ?: '';
+					$prop = $token->getAttribute( 'property' ) ?? '';
 					$shouldFoster = preg_match( '/^(mw:PageProp\/[a-zA-Z]*)\b/', $prop );
 				}
 				if ( !$shouldFoster ) {

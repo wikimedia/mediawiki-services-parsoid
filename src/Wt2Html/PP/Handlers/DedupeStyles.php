@@ -34,8 +34,8 @@ class DedupeStyles {
 			$link = $node->ownerDocument->createElement( 'link' );
 			$link->setAttribute( 'rel', 'mw-deduplicated-inline-style' );
 			$link->setAttribute( 'href', 'mw-data:' . $key );
-			$link->setAttribute( 'about', $node->getAttribute( 'about' ) );
-			$link->setAttribute( 'typeof', $node->getAttribute( 'typeof' ) );
+			$link->setAttribute( 'about', $node->getAttribute( 'about' ) ?? '' );
+			$link->setAttribute( 'typeof', $node->getAttribute( 'typeof' ) ?? '' );
 			DOMDataUtils::setDataParsoid( $link, DOMDataUtils::getDataParsoid( $node ) );
 			DOMDataUtils::setDataMw( $link, DOMDataUtils::getDataMw( $node ) );
 			$node->parentNode->replaceChild( $link, $node );

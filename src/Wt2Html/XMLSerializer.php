@@ -220,7 +220,7 @@ class XMLSerializer {
 				if ( !WTUtils::isEncapsulationWrapper( $node ) ) {
 					$out['uid'] = $newUid;
 				} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-					$about = $node->getAttribute( 'about' );
+					$about = $node->getAttribute( 'about' ) ?? '';
 					$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 					$out['last'] = end( $aboutSiblings );
 					$out['uid'] = $newUid;

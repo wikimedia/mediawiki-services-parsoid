@@ -135,7 +135,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 				$dp = DOMDataUtils::getDataParsoid( $c );
 				if ( DOMCompat::nodeName( $c ) === 'meta' ) {
 					if ( DOMUtils::hasTypeOf( $c, 'mw:StartTag' ) ) {
-						$dataStag = $c->getAttribute( 'data-stag' );
+						$dataStag = $c->getAttribute( 'data-stag' ) ?? '';
 						$data = explode( ':', $dataStag );
 						$expectedName = $data[0];
 						$prevSibling = $c->previousSibling;
@@ -272,7 +272,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 						$expectedName = $cNodeName . ':' . $dp->tmp->tagId;
 						if ( $fc instanceof Element && DOMUtils::isMarkerMeta( $fc, 'mw:StartTag' ) &&
 							substr(
-								$fc->getAttribute( 'data-stag' ),
+								$fc->getAttribute( 'data-stag' ) ?? '',
 								0,
 								strlen( $expectedName )
 							) === $expectedName
@@ -292,7 +292,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 						// Got an mw:EndTag meta element, see if the previous sibling
 						// is the corresponding element.
 						$sibling = $c->previousSibling;
-						$expectedName = $c->getAttribute( 'data-etag' );
+						$expectedName = $c->getAttribute( 'data-etag' ) ?? '';
 						if ( !$sibling || DOMCompat::nodeName( $sibling ) !== $expectedName ) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping

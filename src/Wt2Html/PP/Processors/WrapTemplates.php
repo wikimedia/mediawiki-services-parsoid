@@ -149,7 +149,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		$range = (object)[
 			'startElem' => $startElem,
 			'endElem' => $endMeta,
-			'id' => Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ),
+			'id' => Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ?? '' ),
 			'startOffset' => DOMDataUtils::getDataParsoid( $startElem )->tsr->start,
 			'flipped' => false
 		];
@@ -324,7 +324,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$meta->parentNode->removeChild( $meta );
 		} else {
 			// Remove mw:* from the typeof.
-			$type = $meta->getAttribute( 'typeof' );
+			$type = $meta->getAttribute( 'typeof' ) ?? '';
 			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/[^\s]+|(?=$|\s))/D', '', $type );
 			$meta->setAttribute( 'typeof', $type );
 		}
@@ -753,7 +753,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	private static function ensureElementsInRange( Document $doc, stdClass $range ): void {
 		$n = $range->start;
 		$e = $range->end;
-		$about = $range->startElem->getAttribute( 'about' );
+		$about = $range->startElem->getAttribute( 'about' ) ?? '';
 		while ( $n ) {
 			$next = $n->nextSibling;
 			if ( !DOMUtils::isElt( $n ) ) {
@@ -888,8 +888,8 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// and not allow its content to be edited directly.
 			$startElem = $range->startElem;
 			if ( $startElem !== $encapTgt ) {
-				$t1 = $startElem->getAttribute( 'typeof' );
-				$t2 = $encapTgt->getAttribute( 'typeof' );
+				$t1 = $startElem->getAttribute( 'typeof' ) ?? '';
+				$t2 = $encapTgt->getAttribute( 'typeof' ) ?? '';
 				$encapTgt->setAttribute( 'typeof', $t2 ? $t1 . ' ' . $t2 : $t1 );
 			}
 
@@ -1124,7 +1124,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 						preg_match( '#/End$#D', $metaType )
 					)
 				) {
-					$about = $elem->getAttribute( 'about' );
+					$about = $elem->getAttribute( 'about' ) ?? '';
 					$aboutRef = $tpls[$about] ?? null;
 					// Is this a start marker?
 					if ( !preg_match( '#/End$#D', $metaType ) ) {

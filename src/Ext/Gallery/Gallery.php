@@ -93,7 +93,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		$doc = $thumb->ownerDocument;
-		$rdfaType = $thumb->getAttribute( 'typeof' );
+		$rdfaType = $thumb->getAttribute( 'typeof' ) ?? '';
 
 		// Detach figcaption as well
 		$figcaption = DOMCompat::querySelector( $thumb, 'figcaption' );

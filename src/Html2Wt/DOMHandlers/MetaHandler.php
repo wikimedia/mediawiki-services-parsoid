@@ -22,7 +22,7 @@ class MetaHandler extends DOMHandler {
 	public function handle(
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
-		$property = $node->getAttribute( 'property' ) ?: '';
+		$property = $node->getAttribute( 'property' ) ?? '';
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dmw = DOMDataUtils::getDataMw( $node );
 

@@ -91,7 +91,7 @@ class HandleLinkNeighbours {
 
 				// Link prefix node is templated => migrate transclusion info to $aNode
 				if ( $unwrappedSpan && $unwrappedSpan->hasAttribute( 'typeof' ) ) {
-					DOMUtils::addTypeOf( $aNode, $unwrappedSpan->getAttribute( 'typeof' ) );
+					DOMUtils::addTypeOf( $aNode, $unwrappedSpan->getAttribute( 'typeof' ) ?? '' );
 					DOMDataUtils::setDataMw( $aNode, DOMDataUtils::getDataMw( $unwrappedSpan ) );
 				}
 
@@ -133,7 +133,7 @@ class HandleLinkNeighbours {
 	 * @return bool|Element
 	 */
 	public static function handler( Element $node, Env $env ) {
-		$rel = $node->getAttribute( 'rel' );
+		$rel = $node->getAttribute( 'rel' ) ?? '';
 		if ( !preg_match( '#^mw:WikiLink(/Interwiki)?$#D', $rel ) ) {
 			return true;
 		}

@@ -30,7 +30,7 @@ class PrepareDOM {
 			// Deduplicate docIds that come from splitting nodes because of
 			// content model violations when treebuilding.
 			if ( $node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
-				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
+				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ?? '';
 				if ( isset( $seenDataIds[$docId] ) ) {
 					$data = DOMDataUtils::getNodeData( $node );
 					DOMDataUtils::setNodeData( $node, Utils::clone( $data ) );
@@ -43,7 +43,7 @@ class PrepareDOM {
 				&& $node->getAttribute( 'property' ) === 'mw:PageProp/displaytitle'
 			) {
 				// PORT-FIXME: Meh
-				// $env->getPageConfig()->meta->displayTitle = $node->getAttribute( 'content' );
+				// $env->getPageConfig()->meta->displayTitle = $node->getAttribute( 'content' ) ?? '';
 			}
 			return true;
 		}

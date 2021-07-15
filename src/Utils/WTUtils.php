@@ -358,7 +358,7 @@ class WTUtils {
 	public static function isRedirectLink( Node $node ): bool {
 		return DOMCompat::nodeName( $node ) === 'link' &&
 			DOMUtils::assertElt( $node ) &&
-			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) );
+			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) ?? '' );
 	}
 
 	/**
@@ -370,7 +370,7 @@ class WTUtils {
 	public static function isCategoryLink( ?Node $node ): bool {
 		return $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'link' &&
-			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
+			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) ?? '' );
 	}
 
 	/**
@@ -382,7 +382,7 @@ class WTUtils {
 	public static function isSolTransparentLink( Node $node ): bool {
 		return DOMCompat::nodeName( $node ) === 'link' &&
 			DOMUtils::assertElt( $node ) &&
-			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) );
+			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) ?? '' );
 	}
 
 	/**

@@ -134,7 +134,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 					// may have expanded ranges.
 					&& !WTUtils::isParsoidSectionTag( $workNode )
 				) {
-					$about = $workNode->getAttribute( 'about' );
+					$about = $workNode->getAttribute( 'about' ) ?? '';
 					$aboutSiblings = WTUtils::getAboutSiblings( $workNode, $about );
 					$tplInfo = (object)[
 						'first' => $workNode,

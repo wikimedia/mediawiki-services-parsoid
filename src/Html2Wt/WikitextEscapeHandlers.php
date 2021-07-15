@@ -592,7 +592,7 @@ class WikitextEscapeHandlers {
 				}
 
 				if ( $t->getName() === 'wikilink' ) {
-					if ( $env->isValidLinkTarget( $t->getAttribute( 'href' ) ) ) {
+					if ( $env->isValidLinkTarget( $t->getAttribute( 'href' ) ?? '' ) ) {
 						return true;
 					} else {
 						continue;
