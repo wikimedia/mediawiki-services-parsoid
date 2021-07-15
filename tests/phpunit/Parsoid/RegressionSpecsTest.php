@@ -302,7 +302,7 @@ class RegressionSpecsTest extends TestCase {
 		$description = "Regression Specs: should not wrap templatestyles style tags in p-wrappers";
 		$wt = "<templatestyles src='Template:Quote/styles.css'/><div>foo</div>";
 		$docBody = $this->parseWT( $wt );
-		$node = $docBody->firstChild->nodeName;
+		$node = DOMCompat::nodeName( $docBody->firstChild );
 
 		$this->assertEquals( "style",  $node, $description );
 	}
@@ -318,10 +318,10 @@ class RegressionSpecsTest extends TestCase {
 			'[[File:Thumb.png|thumb|250px]]';
 		$docBody = $this->parseWT( $wt );
 
-		$node = $docBody->firstChild->nodeName;
+		$node = DOMCompat::nodeName( $docBody->firstChild );
 		$this->assertEquals( "p",  $node, $description );
 
-		$node = DOMUtils::nextNonSepSibling( $docBody->firstChild )->nodeName;
+		$node = DOMCompat::nodeName( DOMUtils::nextNonSepSibling( $docBody->firstChild ) );
 		$this->assertEquals( "figure",  $node, $description );
 	}
 
@@ -339,10 +339,10 @@ class RegressionSpecsTest extends TestCase {
 		$docBody = $this->parseWT( $wt );
 
 		$firstStyle = $docBody->firstChild->firstChild;
-		$this->assertEquals( "style",  $firstStyle->nodeName, $description );
+		$this->assertEquals( "style",  DOMCompat::nodeName( $firstStyle ), $description );
 
 		$secondStyle = $firstStyle->nextSibling->nextSibling->nextSibling;
-		$this->assertEquals( "link",  $secondStyle->nodeName, $description );
+		$this->assertEquals( "link",  DOMCompat::nodeName( $secondStyle ), $description );
 
 		$this->assertEquals( "mw-deduplicated-inline-style",
 			$secondStyle->getAttribute( 'rel' ), $description );

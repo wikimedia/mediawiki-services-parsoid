@@ -573,7 +573,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$anchor = $doc->createElement( 'span' );
 		}
 
-		if ( $anchor->nodeName === 'a' ) {
+		if ( DOMCompat::nodeName( $anchor ) === 'a' ) {
 			$href = Sanitizer::cleanUrl(
 				$env->getSiteConfig(), $anchor->getAttribute( 'href' ), 'external'
 			);
@@ -616,22 +616,24 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// emitted in the TT/WikiLinkHandler but treebuilding may have
 			// messed that up for us.
 			$anchor = $container->firstChild;
+			$anchorNodeName = DOMCompat::nodeName( $anchor );
 			if (
-				$anchor instanceof Element && $anchor->nodeName !== 'a' &&
-				isset( Consts::$HTML['FormattingTags'][$anchor->nodeName] )
+				$anchor instanceof Element && $anchorNodeName !== 'a' &&
+				isset( Consts::$HTML['FormattingTags'][$anchorNodeName] )
 			) {
 				// An active formatting element may have been reopened inside
 				// the wrapper if a content model violation was encountered
 				// during treebuiling.  Try to be a little lenient about that
 				// instead of bailing out
 				$anchor = $anchor->firstChild;
+				$anchorNodeName = DOMCompat::nodeName( $anchor );
 			}
-			if ( !( $anchor instanceof Element && $anchor->nodeName === 'a' ) ) {
+			if ( !( $anchor instanceof Element && $anchorNodeName === 'a' ) ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
 			}
 			$span = $anchor->firstChild;
-			if ( !( $span instanceof Element && $span->nodeName === 'span' ) ) {
+			if ( !( $span instanceof Element && DOMCompat::nodeName( $span ) === 'span' ) ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
 			}

@@ -7,6 +7,7 @@ use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -132,14 +133,14 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 			$sibling = $c->nextSibling;
 			if ( $c instanceof Element ) {
 				$dp = DOMDataUtils::getDataParsoid( $c );
-				if ( $c->nodeName === 'meta' ) {
+				if ( DOMCompat::nodeName( $c ) === 'meta' ) {
 					if ( DOMUtils::hasTypeOf( $c, 'mw:StartTag' ) ) {
 						$dataStag = $c->getAttribute( 'data-stag' );
 						$data = explode( ':', $dataStag );
 						$expectedName = $data[0];
 						$prevSibling = $c->previousSibling;
-						if ( ( $prevSibling && $prevSibling->nodeName !== $expectedName ) ||
-							( !$prevSibling && $c->parentNode->nodeName !== $expectedName )
+						if ( ( $prevSibling && DOMCompat::nodeName( $prevSibling ) !== $expectedName ) ||
+							( !$prevSibling && DOMCompat::nodeName( $c->parentNode ) !== $expectedName )
 						) {
 							if ( $c && ( $dp->stx ?? null ) !== 'html' &&
 								( $expectedName === 'td' || $expectedName === 'tr' || $expectedName === 'th' )
@@ -232,7 +233,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 				self::findAutoInsertedTags( $frame, $c );
 
 				$dp = DOMDataUtils::getDataParsoid( $c );
-				$cNodeName = $c->nodeName;
+				$cNodeName = DOMCompat::nodeName( $c );
 
 				// Dont bother detecting auto-inserted start/end if:
 				// -> c is a void element
@@ -292,7 +293,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 						// is the corresponding element.
 						$sibling = $c->previousSibling;
 						$expectedName = $c->getAttribute( 'data-etag' );
-						if ( !$sibling || $sibling->nodeName !== $expectedName ) {
+						if ( !$sibling || DOMCompat::nodeName( $sibling ) !== $expectedName ) {
 							// Not found, the tag was stripped. Insert an
 							// mw:Placeholder for round-tripping
 							self::addPlaceholderMeta( $frame, $c, $dp, $expectedName,

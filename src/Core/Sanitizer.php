@@ -1022,8 +1022,7 @@ class Sanitizer {
 	public static function applySanitizedArgs(
 		SiteConfig $siteConfig, Element $wrapper, array $attrs
 	): void {
-		// We can switch to a different DOM library that can return uppercase node name
-		$nodeName = strtolower( $wrapper->nodeName );
+		$nodeName = DOMCompat::nodeName( $wrapper );
 		$sanitizedAttrs = self::sanitizeTagAttrs( $siteConfig, $nodeName, null, $attrs );
 		foreach ( $sanitizedAttrs as $k => $v ) {
 			if ( isset( $v[0] ) ) {

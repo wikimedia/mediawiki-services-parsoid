@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -38,7 +39,7 @@ class PrepareDOM {
 				}
 			}
 			// Set title to display when present (last one wins).
-			if ( $node->nodeName === 'META'
+			if ( DOMCompat::nodeName( $node ) === 'meta'
 				&& $node->getAttribute( 'property' ) === 'mw:PageProp/displaytitle'
 			) {
 				// PORT-FIXME: Meh

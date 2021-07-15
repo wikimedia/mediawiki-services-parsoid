@@ -56,7 +56,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isZeroWidthWikitextElt( Node $node ): bool {
-		return isset( Consts::$ZeroWidthWikitextTags[$node->nodeName] ) &&
+		return isset( Consts::$ZeroWidthWikitextTags[DOMCompat::nodeName( $node )] ) &&
 			!self::isLiteralHTMLNode( $node );
 	}
 
@@ -278,7 +278,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isIndentPre( Node $node ): bool {
-		return $node->nodeName === "pre" && !self::isLiteralHTMLNode( $node );
+		return DOMCompat::nodeName( $node ) === "pre" && !self::isLiteralHTMLNode( $node );
 	}
 
 	/**
@@ -287,7 +287,7 @@ class WTUtils {
 	 */
 	public static function isInlineMedia( Node $node ): bool {
 		return self::isGeneratedFigure( $node ) &&
-			$node->nodeName !== 'figure';  // span, figure-inline
+			DOMCompat::nodeName( $node ) !== 'figure';  // span, figure-inline
 	}
 
 	/**
@@ -356,7 +356,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isRedirectLink( Node $node ): bool {
-		return $node->nodeName === 'link' &&
+		return DOMCompat::nodeName( $node ) === 'link' &&
 			DOMUtils::assertElt( $node ) &&
 			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) );
 	}
@@ -369,7 +369,7 @@ class WTUtils {
 	 */
 	public static function isCategoryLink( ?Node $node ): bool {
 		return $node instanceof Element &&
-			$node->nodeName === 'link' &&
+			DOMCompat::nodeName( $node ) === 'link' &&
 			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) );
 	}
 
@@ -380,7 +380,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isSolTransparentLink( Node $node ): bool {
-		return $node->nodeName === 'link' &&
+		return DOMCompat::nodeName( $node ) === 'link' &&
 			DOMUtils::assertElt( $node ) &&
 			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) );
 	}
@@ -437,12 +437,12 @@ class WTUtils {
 		// FIXME: Can we change this entire thing to
 		// DOMUtils::isComment($node) ||
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
-		// ($node->nodeName === 'meta' || $node->nodeName === 'link')
+		// (DOMCompat::nodeName($node) === 'meta' || DOMCompat::nodeName($node) === 'link')
 		//
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
-				$node->nodeName === 'meta' &&
+				DOMCompat::nodeName( $node ) === 'meta' &&
 				DOMUtils::assertElt( $node ) &&
 				(
 					// (Start|End)Tag metas clone data-parsoid from the tokens
@@ -467,7 +467,7 @@ class WTUtils {
 		while ( DOMUtils::isTableTag( $p ) ) {
 			if ( self::isLiteralHTMLNode( $p ) ) {
 				return true;
-			} elseif ( $p->nodeName === 'table' ) {
+			} elseif ( DOMCompat::nodeName( $p ) === 'table' ) {
 				// Don't cross <table> boundaries
 				return false;
 			}
@@ -535,7 +535,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isParsoidSectionTag( Node $node ): bool {
-		return $node->nodeName === 'section' &&
+		return DOMCompat::nodeName( $node ) === 'section' &&
 			DOMUtils::assertElt( $node ) &&
 			$node->hasAttribute( 'data-mw-section-id' );
 	}

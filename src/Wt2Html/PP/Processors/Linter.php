@@ -124,10 +124,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		if ( DOMUtils::isMarkerMeta( $node, 'mw:Placeholder/StrippedTag' ) ) {
 			$name = DOMDataUtils::getDataParsoid( $node )->name ?? null;
-			return $name === $match->nodeName ? $node : null;
+			return $name === DOMCompat::nodeName( $match ) ? $node : null;
 		}
 
-		if ( $node->nodeName === $match->nodeName ) {
+		if ( DOMCompat::nodeName( $node ) === DOMCompat::nodeName( $match ) ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			if ( ( DOMDataUtils::getDataParsoid( $match )->stx ?? null ) === ( $dp->stx ?? null ) &&
 				!empty( $dp->autoInsertedStart )
@@ -246,7 +246,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$c = $node->firstChild;
 		while ( $c ) {
 			if ( $c instanceof Element ) {
-				if ( $c->nodeName === $name && empty( DOMDataUtils::getDataParsoid( $c )->autoInsertedInd ) ) {
+				if (
+					DOMCompat::nodeName( $c ) === $name &&
+					empty( DOMDataUtils::getDataParsoid( $c )->autoInsertedInd )
+				) {
 					return true;
 				}
 
@@ -269,7 +272,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// For A, TD, TH, H* tags, Tidy doesn't seem to propagate
 		// the unclosed tag outside these tags.
 		// No need to check for tr/table since content cannot show up there
-		if ( DOMUtils::atTheTop( $node ) || preg_match( '/^(?:a|td|th|h\d)$/D', $node->nodeName ) ) {
+		if ( DOMUtils::atTheTop( $node ) || preg_match( '/^(?:a|td|th|h\d)$/D', DOMCompat::nodeName( $node ) ) ) {
 			return false;
 		}
 
@@ -279,7 +282,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		}
 
 		$contentNode = null;
-		if ( $next->nodeName === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
+		if ( DOMCompat::nodeName( $next ) === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
 			$contentNode = DOMUtils::firstNonSepChild( $next );
 		} else {
 			$contentNode = $next;
@@ -321,7 +324,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function endTagOptional( Node $node ): bool {
 		static $tagNames = [ 'tr', 'td', 'th', 'li' ];
-		return in_array( $node->nodeName, $tagNames, true );
+		return in_array( DOMCompat::nodeName( $node ), $tagNames, true );
 	}
 
 	/**
@@ -330,7 +333,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @return Node|null
 	 */
 	private function getHeadingAncestor( Node $node ): ?Node {
-		while ( $node && !preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
+		while ( $node && !preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) ) {
 			$node = $node->parentNode;
 		}
 		return $node;
@@ -349,7 +352,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function matchedOpenTagPairExists( Node $c, stdClass $dp ): bool {
 		$lc = $c->lastChild;
-		if ( !$lc instanceof Element || $lc->nodeName !== $c->nodeName ) {
+		if ( !$lc instanceof Element || DOMCompat::nodeName( $lc ) !== DOMCompat::nodeName( $c ) ) {
 			return false;
 		}
 
@@ -424,7 +427,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// 3. c is not an HTML element (unless they are i/b quotes)
 		//
 		// 4. c doesn't have DSR info and doesn't come from a template either
-		$cNodeName = strtolower( $c->nodeName );
+		$cNodeName = DOMCompat::nodeName( $c );
 		$ancestor = null;
 		$isHtmlElement = WTUtils::hasLiteralHTMLMarker( $dp );
 		if ( !Utils::isVoidElement( $cNodeName ) &&
@@ -461,8 +464,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 				// But, in the interest of long-term maintenance in the face of
 				// changes (to wikitext or html specs), let us make it explicit.
 				if ( $isHtmlElement &&
-					isset( $this->getTagsWithChangedMisnestingBehavior()[$c->nodeName] ) &&
-					$this->hasMisnestableContent( $c, $c->nodeName ) &&
+					isset( $this->getTagsWithChangedMisnestingBehavior()[DOMCompat::nodeName( $c )] ) &&
+					$this->hasMisnestableContent( $c, DOMCompat::nodeName( $c ) ) &&
 					// Tidy WTF moment here!
 					// I don't know why Tidy does something very different
 					// when there is an identical nested tag here.
@@ -477,14 +480,14 @@ class Linter implements Wt2HtmlDOMProcessor {
 					//
 					// For the corresponding wikitext that generates the above token stream,
 					// Parsoid (and Remex) won't wrap 'b' with the id=1' span at all.
-					!$this->hasIdenticalNestedTag( $c, $c->nodeName )
+					!$this->hasIdenticalNestedTag( $c, DOMCompat::nodeName( $c ) )
 				) {
 					$env->recordLint( 'html5-misnesting', $lintObj );
 				// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
 				} elseif ( !$isHtmlElement && DOMUtils::isQuoteElt( $c ) &&
 					( $ancestor = $this->getHeadingAncestor( $c->parentNode ) )
 				) {
-					$lintObj['params']['ancestorName'] = strtolower( $ancestor->nodeName );
+					$lintObj['params']['ancestorName'] = DOMCompat::nodeName( $ancestor );
 					$env->recordLint( 'unclosed-quotes-in-heading', $lintObj );
 				} else {
 					$adjNode = $this->getMatchingMisnestedNode( $c, $c );
@@ -498,7 +501,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					} elseif ( !$this->endTagOptional( $c ) && empty( $dp->autoInsertedStart ) ) {
 						$lintObj['params']['inTable'] = DOMUtils::hasNameOrHasAncestorOfName( $c, 'table' );
 						$env->recordLint( 'missing-end-tag', $lintObj );
-						if ( isset( Consts::$HTML['FormattingTags'][$c->nodeName] ) &&
+						if ( isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $c )] ) &&
 							$this->matchedOpenTagPairExists( $c, $dp )
 						) {
 							$env->recordLint( 'multiple-unclosed-formatting-tags', $lintObj );
@@ -534,7 +537,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$maybeTable = $node->nextSibling;
 		$clear = false;
 
-		while ( $maybeTable && $maybeTable->nodeName !== 'table' ) {
+		while ( $maybeTable && DOMCompat::nodeName( $maybeTable ) !== 'table' ) {
 			if ( $tplInfo && $maybeTable === $tplInfo->last ) {
 				$clear = true;
 			}
@@ -601,18 +604,18 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		$templateInfo = null;
 		if ( ( empty( $dp->autoInsertedStart ) || empty( $dp->autoInsertedEnd ) ) &&
-			preg_match( $this->obsoleteTagsRE, $c->nodeName )
+			preg_match( $this->obsoleteTagsRE, DOMCompat::nodeName( $c ) )
 		) {
 			$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 			$lintObj = [
 				'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ?? null ),
 				'templateInfo' => $templateInfo,
-				'params' => [ 'name' => $c->nodeName ],
+				'params' => [ 'name' => DOMCompat::nodeName( $c ) ],
 			];
 			$env->recordLint( 'obsolete-tag', $lintObj );
 		}
 
-		if ( $c->nodeName === 'font' && $c->hasAttribute( 'color' ) ) {
+		if ( DOMCompat::nodeName( $c ) === 'font' && $c->hasAttribute( 'color' ) ) {
 			/* ----------------------------------------------------------
 			 * Tidy migrates <font> into the link in these cases
 			 *     <font>[[Foo]]</font>
@@ -640,7 +643,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$tidyFontBug = $c->firstChild !== null;
 			$haveLink = false;
 			for ( $n = $c->firstChild;  $n;  $n = $n->nextSibling ) {
-				if ( $n->nodeName !== 'a' &&
+				if ( DOMCompat::nodeName( $n ) !== 'a' &&
 					!WTUtils::isRenderingTransparentNode( $n ) &&
 					!WTUtils::isTplMarkerMeta( $n )
 				) {
@@ -648,7 +651,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					break;
 				}
 
-				if ( $n->nodeName === 'a' || $n->nodeName === 'figure' ) {
+				if ( DOMCompat::nodeName( $n ) === 'a' || DOMCompat::nodeName( $n ) === 'figure' ) {
 					if ( !$haveLink ) {
 						$haveLink = true;
 					} else {
@@ -728,9 +731,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logDeletableTables(
 		Env $env, Node $c, stdClass $dp, ?stdClass $tplInfo
 	): void {
-		if ( $c->nodeName === 'table' ) {
+		if ( DOMCompat::nodeName( $c ) === 'table' ) {
 			$prev = DOMUtils::previousNonSepSibling( $c );
-			if ( $prev instanceof Element && $prev->nodeName === 'table' &&
+			if ( $prev instanceof Element && DOMCompat::nodeName( $prev ) === 'table' &&
 				!empty( DOMDataUtils::getDataParsoid( $prev )->autoInsertedEnd )
 			) {
 				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
@@ -815,7 +818,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$this->hasNoWrapCSS( $node )
 		) {
 			$p = $this->findMatchingChild( $node, static function ( $e ) {
-				return $e->nodeName === 'p';
+				return DOMCompat::nodeName( $e ) === 'p';
 			} );
 			if ( $p ) {
 				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
@@ -823,8 +826,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 					'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ?? null ),
 					'templateInfo' => $templateInfo,
 					'params' => [
-						'root' => $node->parentNode->nodeName,
-						'child' => $node->nodeName,
+						'root' => DOMCompat::nodeName( $node->parentNode ),
+						'child' => DOMCompat::nodeName( $node ),
 					]
 				];
 				$env->recordLint( 'pwrap-bug-workaround', $lintObj );
@@ -842,12 +845,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logTidyDivSpanFlip(
 		Env $env, Element $node, stdClass $dp, ?stdClass $tplInfo
 	): void {
-		if ( $node->nodeName !== 'span' ) {
+		if ( DOMCompat::nodeName( $node ) !== 'span' ) {
 			return;
 		}
 
 		$fc = DOMUtils::firstNonSepChild( $node );
-		if ( !$fc instanceof Element || $fc->nodeName !== 'div' ) {
+		if ( !$fc instanceof Element || DOMCompat::nodeName( $fc ) !== 'div' ) {
 			return;
 		}
 
@@ -901,7 +904,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		// <br>, <wbr>, <hr> break a line
 		while ( $node && !DOMUtils::isRemexBlockNode( $node ) &&
-			!preg_match( '/^(?:h|b|wb)r$/D', $node->nodeName )
+			!preg_match( '/^(?:h|b|wb)r$/D', DOMCompat::nodeName( $node ) )
 		) {
 			if ( DOMUtils::isText( $node ) || !$this->hasNoWrapCSS( $node ) ) {
 				// No CSS property that affects whitespace.
@@ -1015,8 +1018,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 					),
 					'templateInfo' => $templateInfo,
 					'params' => [
-						'node' => $o['node']->nodeName,
-						'sibling' => $o['node']->nextSibling->nodeName
+						'node' => DOMCompat::nodeName( $o['node'] ),
+						'sibling' => DOMCompat::nodeName( $o['node']->nextSibling )
 					]
 				];
 
@@ -1116,7 +1119,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$li = null;
 		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
 		if ( !WTUtils::isLiteralHTMLNode( $node ) ||
-			$node->nodeName !== 'table' ||
+			DOMCompat::nodeName( $node ) !== 'table' ||
 			!( $li = $this->getWikitextListItemAncestor( $node ) ) ||
 			!preg_match( '/\n/', DOMCompat::getOuterHTML( $node ) )
 		) {
@@ -1134,7 +1137,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			'templateInfo' => $templateInfo,
 			'params' => [
 				'name' => 'table',
-				'ancestorName' => $li->nodeName,
+				'ancestorName' => DOMCompat::nodeName( $li ),
 			],
 		];
 		$env->recordLint( 'multiline-html-table-in-list', $lintObj );
@@ -1157,12 +1160,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logWikilinksInExtlinks(
 		Env $env, Element $c, stdClass $dp, ?stdClass $tplInfo
 	) {
-		if ( $c->nodeName === 'a' && $c->getAttribute( 'rel' ) === 'mw:ExtLink' ) {
+		if ( DOMCompat::nodeName( $c ) === 'a' && $c->getAttribute( 'rel' ) === 'mw:ExtLink' ) {
 			$lintError = false;
 			$element = $c->nextSibling;
 			while ( $element instanceof Element ) {
 				if (
-					$element->nodeName === 'a' &&
+					DOMCompat::nodeName( $element ) === 'a' &&
 					( DOMDataUtils::getDataParsoid( $element )->misnested ?? false ) &&
 					(
 						$element->getAttribute( 'rel' ) === 'mw:WikiLink' ||
@@ -1171,7 +1174,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 						// useful.  We'll just have to assume the img tag here
 						// came from media syntax.
 						( $element->firstChild instanceof Element &&
-							$element->firstChild->nodeName === 'img' )
+							DOMCompat::nodeName( $element->firstChild ) === 'img' )
 					)
 				) {
 					$lintError = true;
@@ -1186,8 +1189,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 			if ( !$lintError ) {
 				DOMUtils::visitDOM( $c, static function ( $element ) use ( &$lintError ) {
 					if ( $element instanceof Element &&
-						( $element->nodeName === 'audio' ||
-							$element->nodeName === 'video' )
+						( DOMCompat::nodeName( $element ) === 'audio' ||
+							DOMCompat::nodeName( $element ) === 'video' )
 					) {
 						$lintError = true;
 					}

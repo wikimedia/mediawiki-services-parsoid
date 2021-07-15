@@ -194,7 +194,7 @@ class TestUtils {
 		$next = null;
 		for ( $child = $node->firstChild; $child; $child = $next ) {
 			$next = $child->nextSibling;
-			if ( $child instanceof Element && $child->nodeName === 'span' &&
+			if ( $child instanceof Element && DOMCompat::nodeName( $child ) === 'span' &&
 				preg_match( $stripSpanTypeof, $child->getAttribute( 'typeof' ) ?? '' )
 			) {
 				self::unwrapSpan( $node, $child, $stripSpanTypeof );
@@ -222,8 +222,10 @@ class TestUtils {
 	 * @return bool
 	 */
 	private static function newlineAround( ?Node $node ): bool {
-		return $node &&
-			preg_match( '/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D', $node->nodeName );
+		return $node && preg_match(
+			'/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D',
+			DOMCompat::nodeName( $node )
+		);
 	}
 
 	/**
@@ -237,7 +239,7 @@ class TestUtils {
 		$child = null;
 		$next = null;
 		$prev = null;
-		if ( $node->nodeName === 'pre' ) {
+		if ( DOMCompat::nodeName( $node ) === 'pre' ) {
 			// Preserve newlines in <pre> tags
 			$opts['inPRE'] = true;
 		}
@@ -268,11 +270,11 @@ class TestUtils {
 			DOMCompat::normalize( $node );
 		}
 		// now recurse.
-		if ( $node->nodeName === 'pre' ) {
+		if ( DOMCompat::nodeName( $node ) === 'pre' ) {
 			// hack, since PHP adds a newline before </pre>
 			$opts['stripLeadingWS'] = false;
 			$opts['stripTrailingWS'] = true;
-		} elseif ( $node->nodeName === 'span' &&
+		} elseif ( DOMCompat::nodeName( $node ) === 'span' &&
 			preg_match( '/^mw[:]/', $node->getAttribute( 'typeof' ) ?? '' )
 		) {
 			// SPAN is transparent; pass the strip parameters down to kids
@@ -282,7 +284,7 @@ class TestUtils {
 		$child = $node->firstChild;
 		// Skip over the empty mw:FallbackId <span> and strip leading WS
 		// on the other side of it.
-		if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) &&
+		if ( preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) &&
 			$child && WTUtils::isFallbackIdSpan( $child )
 		) {
 			$child = $child->nextSibling;

@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -169,7 +170,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 				$fosterContentHolder = self::getFosterContentHolder( $c->ownerDocument, $inPTag );
 
 				// mark as fostered until we hit the table
-				while ( $sibling && ( !DOMUtils::isElt( $sibling ) || $sibling->nodeName !== 'table' ) ) {
+				while ( $sibling && ( !DOMUtils::isElt( $sibling ) || DOMCompat::nodeName( $sibling ) !== 'table' ) ) {
 					$next = $sibling->nextSibling;
 					if ( $sibling instanceof Element ) {
 						// TODO: Note the similarity here with the p-wrapping pass.
@@ -207,7 +208,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 
 				// we should be able to reach the table from the fosterbox
 				Assert::invariant(
-					$table && $table instanceof Element && $table->nodeName === 'table',
+					$table && $table instanceof Element && DOMCompat::nodeName( $table ) === 'table',
 					"Table isn't a sibling. Something's amiss!"
 				);
 

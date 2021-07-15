@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -188,7 +189,7 @@ class LanguageVariantHandler {
 		}
 
 		// Tweak flag set to account for implicitly-enabled flags.
-		if ( $node->tagName !== 'meta' ) {
+		if ( DOMCompat::nodeName( $node ) !== 'meta' ) {
 			$flags['$S'] = true;
 		}
 		if ( !isset( $flags['$S'] ) && !isset( $flags['T'] ) && !isset( $dataMWV->filter ) ) {

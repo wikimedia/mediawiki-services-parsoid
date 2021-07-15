@@ -222,7 +222,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// As long as $newStart is a tr/tbody or we don't have whitespace
 			// migrate $nodesToMigrate into $newStart. Pushing whitespace into
 			// th/td/caption can change display semantics.
-			if ( $newStart && ( $noWS || isset( self::MAP_TBODY_TR[$newStart->nodeName] ) ) ) {
+			if ( $newStart && ( $noWS || isset( self::MAP_TBODY_TR[DOMCompat::nodeName( $newStart )] ) ) ) {
 				/**
 				 * The point of the above loop is to ensure we're working
 				 * with a Element if there is a $newStart.
@@ -253,7 +253,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$range->start = $span;
 		}
 
-		if ( $range->start->nodeName === 'table' ) {
+		if ( DOMCompat::nodeName( $range->start ) === 'table' ) {
 			// If we have any fostered content, include it as well.
 			for (
 				$rangeStartPreviousSibling = $range->start->previousSibling;
@@ -320,7 +320,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	 * @param Element $meta
 	 */
 	private static function stripStartMeta( Element $meta ): void {
-		if ( $meta->nodeName === 'meta' ) {
+		if ( DOMCompat::nodeName( $meta ) === 'meta' ) {
 			$meta->parentNode->removeChild( $meta );
 		} else {
 			// Remove mw:* from the typeof.
@@ -731,14 +731,14 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		// newline constraint requirements. So, for now, I am skipping that
 		// can of worms to prevent confusing the serializer with an overloaded
 		// tag name.
-		if ( $firstNode->nodeName === 'meta' ) {
+		if ( DOMCompat::nodeName( $firstNode ) === 'meta' ) {
 			return null;
 		}
 
 		// FIXME spec-compliant values would be upper-case, this is just a workaround
 		// for current PHP DOM implementation and could be removed in the future
 		// See discussion in the method comment above.
-		$nodeName = mb_strtoupper( $firstNode->nodeName, "UTF-8" );
+		$nodeName = mb_strtoupper( DOMCompat::nodeName( $firstNode ), "UTF-8" );
 
 		return !empty( $dp->stx ) ? $nodeName . '_' . $dp->stx : $nodeName;
 	}
@@ -922,7 +922,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 					// Case 2. above
 					$endDsr = $dp2DSR->start;
-					if ( $range->end->nodeName === 'table' &&
+					if ( DOMCompat::nodeName( $range->end ) === 'table' &&
 						$endDsr !== null &&
 						( $endDsr < $dp1->dsr->start || !empty( $dp1->fostered ) )
 					) {
@@ -1189,7 +1189,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 							$dp = !DOMUtils::atTheTop( $sm->parentNode ) ?
 								DOMDataUtils::getDataParsoid( $sm->parentNode ) : null;
-							if ( $tbl && $tbl->nodeName === 'table' && !empty( $dp->fostered ) ) {
+							if ( $tbl && DOMCompat::nodeName( $tbl ) === 'table' && !empty( $dp->fostered ) ) {
 								'@phan-var Element $tbl';  /** @var Element $tbl */
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
 								if ( isset( $dp->tsr->start ) && $dp->tsr->start !== null &&

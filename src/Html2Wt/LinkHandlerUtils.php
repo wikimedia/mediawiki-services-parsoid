@@ -628,7 +628,7 @@ class LinkHandlerUtils {
 						// in which case we don't want the ':'.
 						$nextNode = $node->nextSibling;
 						if ( !(
-							$nextNode && $nextNode instanceof Element && $nextNode->nodeName === 'link' &&
+							$nextNode && $nextNode instanceof Element && DOMCompat::nodeName( $nextNode ) === 'link' &&
 							$nextNode->getAttribute( 'rel' ) === 'mw:PageProp/Category' &&
 							$nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
 						) ) {
@@ -1157,7 +1157,7 @@ class LinkHandlerUtils {
 
 		// Ok, start assembling options, beginning with link & alt & lang
 		// Other media don't have links in output.
-		$linkCond = $elt->nodeName === 'img';
+		$linkCond = DOMCompat::nodeName( $elt ) === 'img';
 		if ( $linkCond && $link ) {
 			// Check whether the link goes to the default place, in which
 			// case an explicit link tag isn't needed.
@@ -1178,7 +1178,7 @@ class LinkHandlerUtils {
 		}
 
 		// "alt" for non-image is handle below
-		$altCond = $alt['value'] !== null && $elt->nodeName === 'img';
+		$altCond = $alt['value'] !== null && DOMCompat::nodeName( $elt ) === 'img';
 
 		// This loop handles media options which *mostly* correspond 1-1 with
 		// HTML attributes.  `img_$name` is the name of the media option,
@@ -1299,7 +1299,7 @@ class LinkHandlerUtils {
 		// `img_link` and `img_alt` are only surfaced as HTML attributes
 		// for image media. For all other media we treat them as set only
 		// from data-mw.
-		if ( $elt->nodeName !== 'img' ) {
+		if ( DOMCompat::nodeName( $elt ) !== 'img' ) {
 			$mwParams = array_merge( $mwParams, [
 				[ 'prop' => 'link', 'ck' => 'link', 'alias' => 'img_link' ],
 				[ 'prop' => 'alt', 'ck' => 'alt', 'alias' => 'img_alt' ]
@@ -1418,7 +1418,7 @@ class LinkHandlerUtils {
 					// present, a defined height for audio is ignored while parsing,
 					// so this only has the effect of modifying the width.
 					(
-						$elt->nodeName !== 'audio' ||
+						DOMCompat::nodeName( $elt ) !== 'audio' ||
 						!DOMCompat::getClassList( $outerElt )->contains( 'mw-default-audio-height' )
 					)
 				) {

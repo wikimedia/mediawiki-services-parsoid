@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -56,7 +57,7 @@ class LIHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( ( $otherNode === $node->parentNode
-				&& in_array( $otherNode->nodeName, [ 'ul', 'ol' ], true ) )
+				&& in_array( DOMCompat::nodeName( $otherNode ), [ 'ul', 'ol' ], true ) )
 			|| ( DOMUtils::isElt( $otherNode )
 				&& $otherNode instanceof Element // for static type analyzers
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) === 'html' )

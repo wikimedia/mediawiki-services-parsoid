@@ -217,7 +217,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( $tbody->firstChild ) {
 			$child = $tbody->firstChild;
 			DOMUtils::assertElt( $child );
-			if ( $child->tagName === 'tbody' ) {
+			if ( DOMCompat::nodeName( $child ) === 'tbody' ) {
 				$tbody = $child;
 			}
 		}
@@ -267,7 +267,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( $tbody->firstChild ) {
 			$child = $tbody->firstChild;
 			DOMUtils::assertElt( $child );
-			if ( $child->tagName === 'tbody' ) {
+			if ( DOMCompat::nodeName( $child ) === 'tbody' ) {
 				$tbody = $child;
 			}
 		}
@@ -296,7 +296,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @return array|object|false|float|int|string|null
 	 */
 	private function valueCellFrom( Element $el ) {
-		Assert::invariant( $el->tagName === 'td', 'Expected tagName = td' );
+		Assert::invariant( DOMCompat::nodeName( $el ) === 'td', 'Expected tagName = td' );
 		$table = $el->firstChild;
 		if ( $table && DOMUtils::isElt( $table ) ) {
 			DOMUtils::assertElt( $table );
@@ -340,7 +340,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$body = DOMCompat::getBody( $extApi->getTopLevelDoc() );
 		$t = $body->firstChild;
 		DOMUtils::assertElt( $t );
-		Assert::invariant( $t && $t->tagName === 'table',
+		Assert::invariant( $t && DOMCompat::nodeName( $t ) === 'table',
 			'Expected tagName = table' );
 		self::rootValueTableFrom( $t );
 		return PHPUtils::jsonEncode( self::rootValueTableFrom( $t ) );

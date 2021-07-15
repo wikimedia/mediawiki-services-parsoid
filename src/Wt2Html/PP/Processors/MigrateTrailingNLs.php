@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -36,7 +37,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 				]
 			);
 		}
-		return isset( self::$nodesToMigrateFrom[$node->nodeName] ) &&
+		return isset( self::$nodesToMigrateFrom[DOMCompat::nodeName( $node )] ) &&
 			!WTUtils::hasLiteralHTMLMarker( $dp );
 	}
 
@@ -45,16 +46,16 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @return Node|null
 	 */
 	private function getTableParent( Node $node ): ?Node {
-		if ( preg_match( '/^(td|th)$/D', $node->nodeName ) ) {
+		if ( preg_match( '/^(td|th)$/D', DOMCompat::nodeName( $node ) ) ) {
 			$node = $node->parentNode;
 		}
-		if ( $node->nodeName === 'tr' ) {
+		if ( DOMCompat::nodeName( $node ) === 'tr' ) {
 			$node = $node->parentNode;
 		}
-		if ( preg_match( '/^(tbody|thead|tfoot|caption)$/D', $node->nodeName ) ) {
+		if ( preg_match( '/^(tbody|thead|tfoot|caption)$/D', DOMCompat::nodeName( $node ) ) ) {
 			$node = $node->parentNode;
 		}
-		return ( $node->nodeName === 'table' ) ? $node : null;
+		return ( DOMCompat::nodeName( $node ) === 'table' ) ? $node : null;
 	}
 
 	/**
@@ -68,7 +69,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	private function canMigrateNLOutOfNode( Node $node ): bool {
-		if ( $node->nodeName === 'table' || DOMUtils::atTheTop( $node ) ) {
+		if ( DOMCompat::nodeName( $node ) === 'table' || DOMUtils::atTheTop( $node ) ) {
 			return false;
 		}
 
@@ -206,7 +207,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 					DOMUtils::isMarkerMeta( $insertPosition, 'mw:EndTag' )
 				) {
 					'@phan-var Element $insertPosition'; // @var Element $insertPosition
-					if ( $insertPosition->getAttribute( 'data-etag' ) === strtolower( $elt->nodeName )
+					if ( $insertPosition->getAttribute( 'data-etag' ) === DOMCompat::nodeName( $elt )
 					) {
 						$insertPosition = $insertPosition->nextSibling;
 					}

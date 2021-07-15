@@ -294,7 +294,7 @@ class DOMDiff {
 				// Compare node name and attribute length
 				if (
 					!( $nodeB instanceof Element ) ||
-					$nodeA->nodeName !== $nodeB->nodeName ||
+					DOMCompat::nodeName( $nodeA ) !== DOMCompat::nodeName( $nodeB ) ||
 					!DiffUtils::attribsEquals(
 						$nodeA,
 						$nodeB,
@@ -437,7 +437,7 @@ class DOMDiff {
 					if ( !( $savedNewNode instanceof Element ) ) {
 						$this->debug( '--found diff: modified text/comment--' );
 						$this->markNode( $savedNewNode, 'deleted', WTUtils::isBlockNodeWithVisibleWT( $baseNode ) );
-					} elseif ( $savedNewNode->nodeName === $baseNode->nodeName &&
+					} elseif ( DOMCompat::nodeName( $savedNewNode ) === DOMCompat::nodeName( $baseNode ) &&
 						DOMUtils::assertElt( $baseNode ) &&
 						( DOMDataUtils::getDataParsoid( $savedNewNode )->stx ?? null ) ===
 						( DOMDataUtils::getDataParsoid( $baseNode )->stx ?? null )

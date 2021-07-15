@@ -169,7 +169,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				// Collect a sequence of rendering transparent nodes starting at $node
 				while ( $node ) {
 					if ( WTUtils::isRenderingTransparentNode( $node ) || (
-							$node->nodeName === 'span' &&
+							DOMCompat::nodeName( $node ) === 'span' &&
 							!WTUtils::isLiteralHTMLNode( $node ) &&
 							$this->isEmptySpan( $node )
 						)
@@ -199,7 +199,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 			// HTML <h*> tags don't get section numbers!
 			if ( DOMUtils::isHeading( $node ) && !WTUtils::isLiteralHTMLNode( $node ) ) {
 				DOMUtils::assertElt( $node ); // headings are elements
-				$level = (int)$node->nodeName[1];
+				$level = (int)DOMCompat::nodeName( $node )[1];
 
 				// This could be just `state.sectionNumber++` without the
 				// complicated if-guard if T214538 were fixed in core;
@@ -301,7 +301,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @return ?int
 	 */
 	private function getDSR( array $state, Element $node, bool $start ): ?int {
-		if ( $node->nodeName !== 'section' ) {
+		if ( DOMCompat::nodeName( $node ) !== 'section' ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( !$dsr ) {
 				Assert::invariant(
@@ -505,7 +505,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$body = DOMCompat::getBody( $start->ownerDocument );
 				while ( $n !== $body ) {
 					'@phan-var Element $n';  // @var Element $n
-					if ( $n->nodeName === 'section' && $n->hasAttribute( 'about' ) ) {
+					if ( DOMCompat::nodeName( $n ) === 'section' && $n->hasAttribute( 'about' ) ) {
 						$about = $n->getAttribute( 'about' );
 						break;
 					}
@@ -528,8 +528,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		foreach ( $secRanges as $about => $range ) {
 			// Ensure that all top level nodes of the range have the same about id
 			for ( $n = $range['start']; $n !== $range['end']->nextSibling; $n = $n->nextSibling ) {
-				Assert::invariant( $n->nodeName === 'section',
-					"Encountered non-section node ({$n->nodeName}) while updating template wrappers" );
+				Assert::invariant( DOMCompat::nodeName( $n ) === 'section',
+					"Encountered non-section node (" .
+					DOMCompat::nodeName( $n ) .
+					") while updating template wrappers" );
 				$n->setAttribute( 'about', $about );
 			}
 

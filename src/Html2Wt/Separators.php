@@ -54,8 +54,8 @@ class Separators {
 			$c['constraintInfo'] = [
 				'onSOL' => $constraintInfo['onSOL'] ?? false,
 				'sepType' => $constraintInfo['sepType'] ?? null,
-				'nodeA' => $constraintInfo['nodeA']->nodeName ?? null,
-				'nodeB' => $constraintInfo['nodeB']->nodeName ?? null,
+				'nodeA' => DOMCompat::nodeName( $constraintInfo['nodeA'] ),
+				'nodeB' => DOMCompat::nodeName( $constraintInfo['nodeB'] ),
 			];
 		}
 		return $c;
@@ -127,8 +127,8 @@ class Separators {
 				$env->log(
 					'info/html2wt',
 					'Incompatible constraints 1:',
-					$nodeA->nodeName,
-					$nodeB->nodeName,
+					DOMCompat::nodeName( $nodeA ),
+					DOMCompat::nodeName( $nodeB ),
 					self::loggableConstraints( $nlConstraints )
 				);
 				$nlConstraints['min'] = $bCons['min'];
@@ -144,8 +144,8 @@ class Separators {
 				$env->log(
 					'info/html2wt',
 					'Incompatible constraints 2:',
-					$nodeA->nodeName,
-					$nodeB->nodeName,
+					DOMCompat::nodeName( $nodeA ),
+					DOMCompat::nodeName( $nodeB ),
 					self::loggableConstraints( $nlConstraints )
 				);
 				$nlConstraints['min'] = $bCons['max'];
@@ -236,7 +236,7 @@ class Separators {
 				$sepType === 'parent-child' &&
 				!DOMUtils::isContentNode( DOMUtils::firstNonDeletedChild( $nodeA ) ) &&
 				!(
-					isset( WikitextConstants::$HTML['ChildTableTags'][$nodeB->nodeName] ) &&
+					isset( WikitextConstants::$HTML['ChildTableTags'][DOMCompat::nodeName( $nodeB )] ) &&
 					!WTUtils::isLiteralHTMLNode( $nodeB )
 				)
 			) {
@@ -391,7 +391,9 @@ class Separators {
 		$this->env->log(
 			'debug/wts/sep',
 			function () use ( $sepType, $nodeA, $nodeB, $state ) {
-				return 'constraint' . ' | ' . $sepType . ' | <' . $nodeA->nodeName . ',' . $nodeB->nodeName .
+				return 'constraint' . ' | ' .
+					$sepType . ' | ' .
+					'<' . DOMCompat::nodeName( $nodeA ) . ',' . DOMCompat::nodeName( $nodeB ) .
 					'>' . ' | ' . PHPUtils::jsonEncode( $state->sep->constraints ) . ' | ' .
 					self::debugOut( $nodeA ) . ' | ' . self::debugOut( $nodeB );
 			}
@@ -507,13 +509,13 @@ class Separators {
 				// First scope wins
 				while ( !$isIndentPreSafe && !DOMUtils::atTheTop( $parentB ) ) {
 					if (
-						TokenUtils::tagOpensBlockScope( $parentB->nodeName ) &&
+						TokenUtils::tagOpensBlockScope( DOMCompat::nodeName( $parentB ) ) &&
 						// Only html p-tag is indent pre suppressing
-						( $parentB->nodeName !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) )
+						( DOMCompat::nodeName( $parentB ) !== 'p' || WTUtils::isLiteralHTMLNode( $parentB ) )
 					) {
 						$isIndentPreSafe = true;
 						break;
-					} elseif ( TokenUtils::tagClosesBlockScope( $parentB->nodeName ) ) {
+					} elseif ( TokenUtils::tagClosesBlockScope( DOMCompat::nodeName( $parentB ) ) ) {
 						break;
 					}
 					$parentB = $parentB->parentNode;
@@ -522,7 +524,7 @@ class Separators {
 
 			$stripLeadingSpace = ( !empty( $constraintInfo['onSOL'] ) || $forceSOL ) &&
 				$nodeB && !WTUtils::isLiteralHTMLNode( $nodeB ) &&
-				isset( WikitextConstants::$HTMLTagsRequiringSOLContext[$nodeB->nodeName] );
+				isset( WikitextConstants::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $nodeB )] );
 			if ( !$isIndentPreSafe || $stripLeadingSpace ) {
 				// Wrap non-nl ws from last line, but preserve comments.
 				// This avoids triggering indent-pres.
@@ -610,7 +612,7 @@ class Separators {
 		}
 
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
-		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
+		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/^[ \t]/', $origNode->nodeValue ) )
 		) {
 			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
@@ -684,7 +686,7 @@ class Separators {
 
 		$sep = null;
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
-		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$parentNode->nodeName] ) &&
+		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
 		) {
 			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
@@ -996,8 +998,9 @@ class Separators {
 		$this->env->log(
 			'debug/wts/sep',
 			static function () use ( $prevNode, $origNode, $sep, $state ) {
-				return 'maybe-sep  | ' . 'prev:' . ( $prevNode ? $prevNode->nodeName : '--none--' ) .
-					', node:' . ( $origNode->nodeName ?? '--none--' ) .
+				return 'maybe-sep  | ' .
+					'prev:' . ( $prevNode ? DOMCompat::nodeName( $prevNode ) : '--none--' ) .
+					', node:' . DOMCompat::nodeName( $origNode ) .
 					', sep: ' . PHPUtils::jsonEncode( $sep ) .
 					', state.sep.src: ' . PHPUtils::jsonEncode( $state->sep->src ?? null );
 			}

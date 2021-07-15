@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -39,7 +40,7 @@ class ListHandler extends DOMHandler {
 			$firstChildElt = DOMUtils::firstNonSepChild( $firstChildElt );
 		}
 
-		if ( !$firstChildElt || !in_array( $firstChildElt->nodeName, $this->firstChildNames, true )
+		if ( !$firstChildElt || !in_array( DOMCompat::nodeName( $firstChildElt ), $this->firstChildNames, true )
 			|| WTUtils::isLiteralHTMLNode( $firstChildElt )
 		) {
 			$state->emitChunk( $this->getListBullets( $state, $node ), $node );

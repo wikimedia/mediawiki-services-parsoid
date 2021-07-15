@@ -59,7 +59,7 @@ class TableFixups {
 		$nextNode = $node->nextSibling;
 		if ( !WTUtils::isLiteralHTMLNode( $node ) &&
 			$nextNode instanceof Element &&
-			$nextNode->nodeName === 'td' &&
+			DOMCompat::nodeName( $nextNode ) === 'td' &&
 			!WTUtils::isLiteralHTMLNode( $nextNode ) &&
 			DOMUtils::nodeEssentiallyEmpty( $node ) && (
 				// FIXME: will not be set for nested templates
@@ -100,7 +100,7 @@ class TableFixups {
 	 * @return bool
 	 */
 	private function isSimpleTemplatedSpan( Node $node ): bool {
-		return $node->nodeName === 'span' &&
+		return DOMCompat::nodeName( $node ) === 'span' &&
 			DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&
 			DOMUtils::allChildrenAreTextOrComments( $node );
 	}
@@ -204,7 +204,7 @@ class TableFixups {
 		}
 
 		while ( $child ) {
-			if ( $child->nodeName === 'span' && $child->getAttribute( 'about' ) === $aboutId ) {
+			if ( DOMCompat::nodeName( $child ) === 'span' && $child->getAttribute( 'about' ) === $aboutId ) {
 				// Remove the encapsulation attributes. If there are no more attributes left,
 				// the span wrapper is useless and can be removed.
 				$child->removeAttribute( 'about' );
@@ -500,7 +500,7 @@ class TableFixups {
 	 * @return int
 	 */
 	private function getReparseType( Element $cell ): int {
-		$isTd = $cell->nodeName === 'td';
+		$isTd = DOMCompat::nodeName( $cell ) === 'td';
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $isTd && // only | can separate attributes & content => $cell has to be <td>
 			WTUtils::isFirstEncapsulationWrapperNode( $cell ) && // See long comment below
@@ -604,7 +604,7 @@ class TableFixups {
 		// if any addition attribute fixup or splits are required,
 		// they will get done.
 		$newCell = null;
-		$isTd = $cell->nodeName === 'td';
+		$isTd = DOMCompat::nodeName( $cell ) === 'td';
 		$ownerDoc = $cell->ownerDocument;
 		$child = $cell->firstChild;
 		while ( $child ) {
@@ -614,7 +614,7 @@ class TableFixups {
 				$newCell->appendChild( $child );
 			} elseif ( DOMUtils::isText( $child ) || $this->isSimpleTemplatedSpan( $child ) ) {
 				// FIXME: This skips over scenarios like <div>foo||bar</div>.
-				$cellName = $cell->nodeName;
+				$cellName = DOMCompat::nodeName( $cell );
 				$hasSpanWrapper = !DOMUtils::isText( $child );
 				$match = null;
 

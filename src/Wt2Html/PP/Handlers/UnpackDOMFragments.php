@@ -34,8 +34,8 @@ class UnpackDOMFragments {
 		// A-tags cannot ever be nested inside each other at any level.
 		// This is the one scenario we definitely have to handle right now.
 		// We need a generic robust solution for other nesting scenarios.
-		return $targetNode->nodeName === 'a' &&
-			DOMUtils::treeHasElement( $fragment, $targetNode->nodeName );
+		return DOMCompat::nodeName( $targetNode ) === 'a' &&
+			DOMUtils::treeHasElement( $fragment, DOMCompat::nodeName( $targetNode ) );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class UnpackDOMFragments {
 		Element $targetNode, DocumentFragment $fragment, Env $env
 	): void {
 		// Currently, this only deals with A-tags
-		if ( $targetNode->nodeName !== 'a' ) {
+		if ( DOMCompat::nodeName( $targetNode ) !== 'a' ) {
 			return;
 		}
 
@@ -67,7 +67,7 @@ class UnpackDOMFragments {
 		$fixHandler = static function ( Node $node ) use ( &$resetDSR, &$newOffset ) {
 			if ( $node instanceof Element ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
-				if ( !$resetDSR && $node->nodeName === 'a' ) {
+				if ( !$resetDSR && DOMCompat::nodeName( $node ) === 'a' ) {
 					$resetDSR = true;
 					// Wrap next siblings to the 'A', since they can end up bare
 					// after the misnesting

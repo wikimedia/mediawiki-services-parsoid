@@ -151,11 +151,11 @@ class DOMHandler {
 		if ( $nextSibling === $otherNode && ( $dp->stx ?? null ) === 'html' || isset( $dp->src ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} elseif ( $nextSibling === $otherNode && DOMUtils::isListOrListItem( $otherNode ) ) {
-			if ( DOMUtils::isList( $node ) && $otherNode->nodeName === $node->nodeName ) {
+			if ( DOMUtils::isList( $node ) && DOMCompat::nodeName( $otherNode ) === DOMCompat::nodeName( $node ) ) {
 				// Adjacent lists of same type need extra newline
 				return [ 'min' => 2, 'max' => 2 ];
 			} elseif ( DOMUtils::isListItem( $node )
-				|| in_array( $node->parentNode->nodeName, [ 'li', 'dd' ], true )
+				|| in_array( DOMCompat::nodeName( $node->parentNode ), [ 'li', 'dd' ], true )
 			) {
 				// Top-level list
 				return [ 'min' => 1, 'max' => 1 ];
@@ -209,16 +209,16 @@ class DOMHandler {
 		$res = '';
 		while ( !DOMUtils::atTheTop( $node ) ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
-			if ( isset( $listTypes[$node->nodeName] ) ) {
-				if ( $node->nodeName === 'li' ) {
+			if ( isset( $listTypes[DOMCompat::nodeName( $node )] ) ) {
+				if ( DOMCompat::nodeName( $node ) === 'li' ) {
 					$parentNode = $node->parentNode;
-					while ( $parentNode && !( isset( $parentTypes[$parentNode->nodeName] ) ) ) {
+					while ( $parentNode && !( isset( $parentTypes[DOMCompat::nodeName( $parentNode )] ) ) ) {
 						$parentNode = $parentNode->parentNode;
 					}
 
 					if ( $parentNode ) {
 						if ( !WTUtils::isLiteralHTMLNode( $parentNode ) ) {
-							$res = $parentTypes[$parentNode->nodeName] . $res;
+							$res = $parentTypes[DOMCompat::nodeName( $parentNode )] . $res;
 						}
 					} else {
 						$state->getEnv()->log( 'error/html2wt', 'Input DOM is not well-formed.',
@@ -227,7 +227,7 @@ class DOMHandler {
 						);
 					}
 				} elseif ( !WTUtils::isLiteralHTMLNode( $node ) ) {
-					$res = $listTypes[$node->nodeName] . $res;
+					$res = $listTypes[DOMCompat::nodeName( $node )] . $res;
 				}
 			} elseif ( !WTUtils::isLiteralHTMLNode( $node ) ||
 				empty( $dp->autoInsertedStart ) || empty( $dp->autoInsertedEnd )
@@ -315,7 +315,7 @@ class DOMHandler {
 
 		// If we have an identical previous sibling, nothing to worry about
 		$prev = DOMUtils::previousNonDeletedSibling( $node );
-		return $prev !== null && $prev->nodeName === $node->nodeName;
+		return $prev !== null && DOMCompat::nodeName( $prev ) === DOMCompat::nodeName( $node );
 	}
 
 	/**

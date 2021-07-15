@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -48,7 +49,7 @@ class WikitextEscapeHandlers {
 	 * @return bool
 	 */
 	private static function startsOnANewLine( Node $node ): bool {
-		$name = $node->nodeName;
+		$name = DOMCompat::nodeName( $node );
 		return TokenUtils::tagOpensBlockScope( $name ) &&
 			!WTUtils::isLiteralHTMLNode( $node );
 	}
@@ -220,7 +221,7 @@ class WikitextEscapeHandlers {
 
 		// For <dt> nodes, ":" trigger nowiki outside of elements
 		// For first nodes of <li>'s, bullets in sol posn trigger escaping
-		if ( $liNode->nodeName === 'dt' && preg_match( '/:/', $text ) ) {
+		if ( DOMCompat::nodeName( $liNode ) === 'dt' && preg_match( '/:/', $text ) ) {
 			return true;
 		} elseif ( preg_match( '/^[#*:;]*$/D', $state->currLine->text ) &&
 			$this->isFirstContentNode( $node )
@@ -454,7 +455,7 @@ class WikitextEscapeHandlers {
 						}
 					}
 
-					if ( $node && $node->nodeName === 'a' && DOMUtils::assertElt( $node ) &&
+					if ( $node && DOMCompat::nodeName( $node ) === 'a' && DOMUtils::assertElt( $node ) &&
 						$node->textContent === $node->getAttribute( 'href' )
 					) {
 						// The template expands to an url link => needs nowiking
@@ -1023,7 +1024,7 @@ class WikitextEscapeHandlers {
 			// 1. we have an open heading char, and
 			// - text ends in a '='
 			// - text comes from the last child
-			preg_match( '/^h(\d)/', $state->currLine->firstNode->nodeName, $headingMatch );
+			preg_match( '/^h(\d)/', DOMCompat::nodeName( $state->currLine->firstNode ), $headingMatch );
 			if ( $headingMatch ) {
 				$n = $headingMatch[1];
 				if ( ( $state->currLine->text . $text )[$n] === '=' ) {

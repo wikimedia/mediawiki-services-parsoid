@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -33,7 +34,7 @@ class PHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		$otherNodeName = $otherNode->nodeName;
+		$otherNodeName = DOMCompat::nodeName( $otherNode );
 		$tableCellOrBody = [ 'td', 'th', 'body' ];
 		if ( $node->parentNode === $otherNode
 			&& ( DOMUtils::isListItem( $otherNode ) || in_array( $otherNodeName, $tableCellOrBody, true ) )
@@ -60,7 +61,7 @@ class PHandler extends DOMHandler {
 			return [ 'min' => 2, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
 			|| ( DOMUtils::isWikitextBlockNode( $otherNode )
-				&& $otherNode->nodeName !== 'blockquote'
+				&& DOMCompat::nodeName( $otherNode ) !== 'blockquote'
 				&& $node->parentNode === $otherNode )
 			// new p-node added after sol-transparent wikitext should always
 			// get serialized onto a new wikitext line.
@@ -79,7 +80,7 @@ class PHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( !( $node->lastChild && $node->lastChild->nodeName === 'br' )
+		if ( !( $node->lastChild && DOMCompat::nodeName( $node->lastChild ) === 'br' )
 			&& self::isPPTransition( $otherNode )
 			// A new wikitext line could start at this P-tag. We have to figure out
 			// if 'node' needs a separation of 2 newlines from that P-tag. Examine
@@ -99,7 +100,7 @@ class PHandler extends DOMHandler {
 			return [ 'min' => 0, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
 			|| ( DOMUtils::isWikitextBlockNode( $otherNode )
-				&& $otherNode->nodeName !== 'blockquote'
+				&& DOMCompat::nodeName( $otherNode ) !== 'blockquote'
 				&& $node->parentNode === $otherNode )
 		) {
 			if ( !DOMUtils::hasNameOrHasAncestorOfName( $otherNode, 'figcaption' ) ) {
@@ -183,7 +184,7 @@ class PHandler extends DOMHandler {
 			} elseif ( DOMUtils::isElt( $node ) ) {
 				// These tags will always serialize onto a new line
 				if (
-					isset( WikitextConstants::$HTMLTagsRequiringSOLContext[$node->nodeName] ) &&
+					isset( WikitextConstants::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $node )] ) &&
 					!WTUtils::isLiteralHTMLNode( $node )
 				) {
 					return false;
@@ -235,7 +236,7 @@ class PHandler extends DOMHandler {
 		if ( !$node ) {
 			return false;
 		}
-		return $node->nodeName === 'p'
+		return DOMCompat::nodeName( $node ) === 'p'
 				&& $node instanceof Element // for static analyzers
 				&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'html'
 			|| self::treatAsPPTransition( $node );

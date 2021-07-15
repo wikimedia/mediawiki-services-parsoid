@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -71,7 +72,7 @@ class TRHandler extends DOMHandler {
 			$parentSibling = DOMUtils::previousNonSepSibling( $node->parentNode );
 
 			// thead/tbody/tfoot is always present around tr tags in the DOM.
-			return $parentSibling && $parentSibling->nodeName !== 'caption';
+			return $parentSibling && DOMCompat::nodeName( $parentSibling ) !== 'caption';
 		}
 	}
 

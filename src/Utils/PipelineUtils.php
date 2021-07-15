@@ -216,7 +216,7 @@ class PipelineUtils {
 	 */
 	private static function convertDOMtoTokens( Node $node, array $tokBuf ): array {
 		if ( $node instanceof Element ) {
-			$nodeName = strtolower( $node->nodeName );
+			$nodeName = DOMCompat::nodeName( $node );
 			$attrInfo = self::domAttrsToTagAttrs( $node, DOMCompat::attributes( $node ) );
 
 			if ( Utils::isVoidElement( $nodeName ) ) {
@@ -316,7 +316,7 @@ class PipelineUtils {
 		$wrapperName = null;
 		if ( $wrapperType === 'BLOCK' && !DOMUtils::isWikitextBlockNode( $node ) ) {
 			$wrapperName = 'div';
-		} elseif ( $node->nodeName === 'a' ) {
+		} elseif ( DOMCompat::nodeName( $node ) === 'a' ) {
 			// Do not use 'A' as a wrapper node because it could
 			// end up getting nested inside another 'A' and the DOM
 			// structure can change where the wrapper tokens are no
@@ -324,7 +324,7 @@ class PipelineUtils {
 			// Ex: "[http://foo.com Bad nesting [[Here]]].
 			$wrapperName = 'span';
 		} elseif (
-			in_array( $node->nodeName, [ 'style', 'script' ], true ) &&
+			in_array( DOMCompat::nodeName( $node ), [ 'style', 'script' ], true ) &&
 			count( $domFragment->childNodes ) > 1
 		) {
 			// <style>/<script> tags are not fostered, so if we're wrapping
@@ -336,7 +336,7 @@ class PipelineUtils {
 		} elseif ( !DOMUtils::isElt( $node ) ) {
 			$wrapperName = 'span';
 		} else {
-			$wrapperName = $node->nodeName;
+			$wrapperName = DOMCompat::nodeName( $node );
 		}
 
 		if ( $node instanceof Element ) {
@@ -348,7 +348,7 @@ class PipelineUtils {
 
 			$nodeData = Utils::clone( DOMDataUtils::getNodeData( $node ) );
 
-			if ( $wrapperName !== $node->nodeName ) {
+			if ( $wrapperName !== DOMCompat::nodeName( $node ) ) {
 				// Create a copy of the node without children
 				$workNode = $node->ownerDocument->createElement( $wrapperName );
 

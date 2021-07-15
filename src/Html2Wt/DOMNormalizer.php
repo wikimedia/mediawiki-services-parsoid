@@ -82,7 +82,7 @@ class DOMNormalizer {
 	 * @return bool
 	 */
 	private static function similar( Node $a, Node $b ): bool {
-		if ( $a->nodeName === 'a' ) {
+		if ( DOMCompat::nodeName( $a ) === 'a' ) {
 			// FIXME: Similar to 1ce6a98, DOMUtils.nextNonDeletedSibling is being
 			// used in this file where maybe DOMUtils.nextNonSepSibling belongs.
 			return $a instanceof Element && $b instanceof Element &&
@@ -111,7 +111,7 @@ class DOMNormalizer {
 	 * @return bool
 	 */
 	private static function mergable( Node $a, Node $b ): bool {
-		return $a->nodeName === $b->nodeName && self::similar( $a, $b );
+		return DOMCompat::nodeName( $a ) === DOMCompat::nodeName( $b ) && self::similar( $a, $b );
 	}
 
 	/**
@@ -160,7 +160,7 @@ class DOMNormalizer {
 	 * @return bool
 	 */
 	private function rewriteablePair( Node $a, Node $b ): bool {
-		if ( isset( WikitextConstants::$WTQuoteTags[$a->nodeName] ) ) {
+		if ( isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $a )] ) ) {
 			// For <i>/<b> pair, we need not check whether the node being transformed
 			// are new / edited, etc. since these minimization scenarios can
 			// never show up in HTML that came from parsed wikitext.
@@ -175,12 +175,12 @@ class DOMNormalizer {
 			// didn't originate from wikitext OR the HTML has been subsequently edited.
 			// In both cases, we want to transform the DOM.
 
-			return isset( WikitextConstants::$WTQuoteTags[$b->nodeName] );
-		} elseif ( $this->env->shouldScrubWikitext() && $a->nodeName === 'a' ) {
+			return isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $b )] );
+		} elseif ( $this->env->shouldScrubWikitext() && DOMCompat::nodeName( $a ) === 'a' ) {
 			// Link merging is only supported in scrubWikitext mode.
 			// For <a> tags, we require at least one of the two tags
 			// to be a newly created element.
-			return $b->nodeName === 'a' && ( WTUtils::isNewElt( $a ) || WTUtils::isNewElt( $b ) );
+			return DOMCompat::nodeName( $b ) === 'a' && ( WTUtils::isNewElt( $a ) || WTUtils::isNewElt( $b ) );
 		}
 		return false;
 	}
@@ -406,7 +406,7 @@ class DOMNormalizer {
 		$child = $node->firstChild;
 		while ( $child ) {
 			$next = $child->nextSibling;
-			if ( $child->nodeName === 'br' ) {
+			if ( DOMCompat::nodeName( $child ) === 'br' ) {
 				// replace <br/> with a single space
 				$node->removeChild( $child );
 				$node->insertBefore( $node->ownerDocument->createTextNode( ' ' ), $next );
@@ -473,7 +473,7 @@ class DOMNormalizer {
 	 * @return Node|null
 	 */
 	public function moveFormatTagOutsideATag( Element $node ): ?Node {
-		if ( $node->nodeName !== 'a' ) {
+		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
 			return $node;
 		}
 		$sibling = DOMUtils::nextNonDeletedSibling( $node );
@@ -547,7 +547,7 @@ class DOMNormalizer {
 	 */
 	public function normalizeNode( Node $node ): ?Node {
 		$dp = null;
-		if ( $node->nodeName === 'th' || $node->nodeName === 'td' ) {
+		if ( DOMCompat::nodeName( $node ) === 'th' || DOMCompat::nodeName( $node ) === 'td' ) {
 			'@phan-var Element $node'; // @var Element $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// Table cells (td/th) previously used the stx_v flag for single-row syntax.
@@ -593,7 +593,7 @@ class DOMNormalizer {
 		}
 
 		// Headings
-		if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
+		if ( preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) ) {
 			'@phan-var Element $node'; // @var Element $node
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );
@@ -601,11 +601,11 @@ class DOMNormalizer {
 			return $this->stripIfEmpty( $node );
 
 			// Quote tags
-		} elseif ( isset( WikitextConstants::$WTQuoteTags[$node->nodeName] ) ) {
+		} elseif ( isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $node )] ) ) {
 			return $this->stripIfEmpty( $node );
 
 			// Anchors
-		} elseif ( $node->nodeName === 'a' ) {
+		} elseif ( DOMCompat::nodeName( $node ) === 'a' ) {
 			'@phan-var Element $node'; // @var Element $node
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			// We could have checked for !mw:ExtLink but in
@@ -619,7 +619,7 @@ class DOMNormalizer {
 			return $this->moveFormatTagOutsideATag( $node );
 
 			// Table cells
-		} elseif ( $node->nodeName === 'td' ) {
+		} elseif ( DOMCompat::nodeName( $node ) === 'td' ) {
 			'@phan-var Element $node'; // @var Element $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// * HTML <td>s won't have escapable prefixes
@@ -643,7 +643,7 @@ class DOMNormalizer {
 			return $node;
 
 			// Font tags without any attributes
-		} elseif ( $node->nodeName === 'font' && DOMDataUtils::noAttrs( $node ) ) {
+		} elseif ( DOMCompat::nodeName( $node ) === 'font' && DOMDataUtils::noAttrs( $node ) ) {
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 			$node->parentNode->removeChild( $node );
@@ -652,7 +652,7 @@ class DOMNormalizer {
 			// T184755: Convert sequences of <p></p> nodes to sequences of
 			// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
 			// they serialize to as many newlines as the count of <p></p> nodes.
-		} elseif ( $node instanceof Element && $node->nodeName === 'p' &&
+		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'p' &&
 			!WTUtils::isLiteralHTMLNode( $node ) &&
 			// Don't apply normalization to <p></p> nodes that
 			// were generated through deletions or other normalizations.
@@ -664,7 +664,7 @@ class DOMNormalizer {
 			!DOMUtils::hasNChildren( $node->parentNode, 1 )
 		) {
 			$next = DOMUtils::nextNonSepSibling( $node );
-			if ( $next && $next->nodeName === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
+			if ( $next && DOMCompat::nodeName( $next ) === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
 				// Replace 'node' (<p></p>) with a <br/> and make it the
 				// first child of 'next' (<p>..</p>). If 'next' was actually
 				// a <p></p> (i.e. empty), 'next' becomes <p><br/></p>

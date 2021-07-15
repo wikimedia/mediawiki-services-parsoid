@@ -342,7 +342,7 @@ class TestRunner {
 
 			// For these container nodes, it would be buggy
 			// to insert text nodes as children
-			switch ( $n->parentNode->nodeName ) {
+			switch ( DOMCompat::nodeName( $n->parentNode ) ) {
 				case 'ol':
 				case 'ul':
 					$wrapperName = 'li';
@@ -354,12 +354,12 @@ class TestRunner {
 					$prev = DOMCompat::getPreviousElementSibling( $n );
 					if ( $prev ) {
 						// TH or TD
-						$wrapperName = $prev->nodeName;
+						$wrapperName = DOMCompat::nodeName( $prev );
 					} else {
 						$next = DOMCompat::getNextElementSibling( $n );
 						if ( $next ) {
 							// TH or TD
-							$wrapperName = $next->nodeName;
+							$wrapperName = DOMCompat::nodeName( $next );
 						} else {
 							$wrapperName = 'td';
 						}
@@ -375,7 +375,7 @@ class TestRunner {
 					break;
 			}
 
-			if ( DOMUtils::isFosterablePosition( $n ) && $n->parentNode->nodeName !== 'tr' ) {
+			if ( DOMUtils::isFosterablePosition( $n ) && DOMCompat::nodeName( $n->parentNode ) !== 'tr' ) {
 				$newNode = $ownerDoc->createComment( $str );
 			} elseif ( $wrapperName ) {
 				$newNode = $ownerDoc->createElement( $wrapperName );
@@ -521,9 +521,9 @@ class TestRunner {
 			// - Entity spans are uneditable as well
 			// - Placeholder is defined to be uneditable in the spec
 			return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio|Entity|Placeholder|DisplaySpace)(/|$)#' ) || (
-				$node->nodeName !== 'figcaption' &&
+				DOMCompat::nodeName( $node ) !== 'figcaption' &&
 				$node->parentNode &&
-				$node->parentNode->nodeName !== 'body' &&
+				DOMCompat::nodeName( $node->parentNode ) !== 'body' &&
 				$nodeIsUneditable( $node->parentNode )
 			);
 		};
@@ -627,12 +627,12 @@ class TestRunner {
 			'after' => static function ( Node $node, string $html ) {
 				$div = null;
 				$tbl = null;
-				if ( $node->parentNode->nodeName === 'tbody' ) {
+				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
 					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
 					DOMUtils::migrateChildren( $tbl->firstChild, $node->parentNode, $node->nextSibling );
-				} elseif ( $node->parentNode->nodeName === 'tr' ) {
+				} elseif ( DOMCompat::nodeName( $node->parentNode ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, '<tbody><tr></tr></tbody>' );
 					$tr = $tbl->firstChild->firstChild;
@@ -647,7 +647,7 @@ class TestRunner {
 				}
 			},
 			'append' => static function ( Node $node, string $html ) {
-				if ( $node->nodeName === 'tr' ) {
+				if ( DOMCompat::nodeName( $node ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
 					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
@@ -665,12 +665,12 @@ class TestRunner {
 			'before' => static function ( Node $node, string $html ) {
 				$div = null;
 				$tbl = null;
-				if ( $node->parentNode->nodeName === 'tbody' ) {
+				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
 					// <tbody> is implicitly added when inner html is set to <tr>..</tr>
 					DOMUtils::migrateChildren( $tbl->firstChild, $node->parentNode, $node );
-				} elseif ( $node->parentNode->nodeName === 'tr' ) {
+				} elseif ( DOMCompat::nodeName( $node->parentNode ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, '<tbody><tr></tr></tbody>' );
 					$tr = $tbl->firstChild->firstChild;

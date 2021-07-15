@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -25,7 +26,7 @@ class Headings {
 	 * @return bool
 	 */
 	public static function genAnchors( Node $node, Env $env ): bool {
-		if ( !preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
+		if ( !preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) ) {
 			return true;
 		}
 		'@phan-var Element $node';  /** @var Element $node */
@@ -91,7 +92,7 @@ class Headings {
 					// Special case for -{...}-
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$str .= $dp->src ?? '';
-				} elseif ( $n->nodeName === 'style' || $n->nodeName === 'script' ) {
+				} elseif ( DOMCompat::nodeName( $n ) === 'style' || DOMCompat::nodeName( $n ) === 'script' ) {
 					/* ignore children */
 				} else {
 					$str .= self::textContentOf( $n );
@@ -155,7 +156,7 @@ class Headings {
 			return true;
 		}
 		// Only update headings and legacy links (first children of heading)
-		if ( preg_match( '/^h\d$/D', $node->nodeName ) ||
+		if ( preg_match( '/^h\d$/D', DOMCompat::nodeName( $node ) ) ||
 			WTUtils::isFallbackIdSpan( $node )
 		) {
 			$suffix = 2;

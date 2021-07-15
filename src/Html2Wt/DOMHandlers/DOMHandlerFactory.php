@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -134,18 +135,18 @@ class DOMHandlerFactory {
 
 		// If available, use a specialized handler for serializing
 		// to the specialized syntactic form of the tag.
-		$handler = $this->newFromTagHandler( $node->nodeName . '_' . ( $dp->stx ?? null ) );
+		$handler = $this->newFromTagHandler( DOMCompat::nodeName( $node ) . '_' . ( $dp->stx ?? null ) );
 
 		// Unless a specialized handler is available, use the HTML handler
 		// for html-stx tags. But, <a> tags should never serialize as HTML.
-		if ( !$handler && ( $dp->stx ?? null ) === 'html' && $node->nodeName !== 'a' ) {
+		if ( !$handler && ( $dp->stx ?? null ) === 'html' && DOMCompat::nodeName( $node ) !== 'a' ) {
 			return new FallbackHTMLHandler();
 		}
 
 		// If in a HTML table tag, serialize table tags in the table
 		// using HTML tags, instead of native wikitext tags.
-		if ( isset( WikitextConstants::$HTML['ChildTableTags'][$node->nodeName] )
-			 && !isset( WikitextConstants::$ZeroWidthWikitextTags[$node->nodeName] )
+		if ( isset( WikitextConstants::$HTML['ChildTableTags'][DOMCompat::nodeName( $node )] )
+			 && !isset( WikitextConstants::$ZeroWidthWikitextTags[DOMCompat::nodeName( $node )] )
 			 && WTUtils::inHTMLTableTag( $node )
 		) {
 			return new FallbackHTMLHandler();
@@ -161,7 +162,7 @@ class DOMHandlerFactory {
 		}
 
 		// Pick the best available handler
-		return $handler ?: $this->newFromTagHandler( $node->nodeName ) ?: new FallbackHTMLHandler();
+		return $handler ?: $this->newFromTagHandler( DOMCompat::nodeName( $node ) ) ?: new FallbackHTMLHandler();
 	}
 
 }

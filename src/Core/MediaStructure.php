@@ -65,7 +65,7 @@ class MediaStructure {
 		$this->mediaElt = $mediaElt;
 		$this->linkElt = $linkElt;
 		$this->containerElt = $containerElt;
-		if ( $containerElt && $containerElt->nodeName === 'figure' ) {
+		if ( $containerElt && DOMCompat::nodeName( $containerElt ) === 'figure' ) {
 			// FIXME: Support last child, which is not the linkElt, as the caption?
 			$this->captionElt = DOMCompat::querySelector( $containerElt, 'figcaption' );
 		}
@@ -78,7 +78,7 @@ class MediaStructure {
 	 * @return bool
 	 */
 	public function isRedLink(): bool {
-		return ( $this->mediaElt->nodeName === 'span' );
+		return ( DOMCompat::nodeName( $this->mediaElt ) === 'span' );
 	}
 
 	/**
@@ -134,8 +134,8 @@ class MediaStructure {
 		'@phan-var Element $node';  // @var Element $node
 		$linkElt = DOMUtils::firstNonSepChild( $node );
 		if (
-			$linkElt instanceof Element && $linkElt->nodeName !== 'a' &&
-			isset( Consts::$HTML['FormattingTags'][$linkElt->nodeName] )
+			$linkElt instanceof Element && DOMCompat::nodeName( $linkElt ) !== 'a' &&
+			isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $linkElt )] )
 		) {
 			// Try being lenient, maybe there was a content model violation when
 			// parsing and an active formatting element was reopened in the wrapper
@@ -143,7 +143,7 @@ class MediaStructure {
 		}
 		if (
 			!( $linkElt instanceof Element &&
-				in_array( $linkElt->nodeName, [ 'a', 'span' ], true ) )
+				in_array( DOMCompat::nodeName( $linkElt ), [ 'a', 'span' ], true ) )
 		) {
 			if ( $linkElt instanceof Element ) {
 				// Try being lenient, maybe this is the media element and we don't
@@ -158,7 +158,7 @@ class MediaStructure {
 		}
 		if (
 			!( $mediaElt instanceof Element &&
-				in_array( $mediaElt->nodeName, [ 'audio', 'img', 'span', 'video' ], true ) )
+				in_array( DOMCompat::nodeName( $mediaElt ), [ 'audio', 'img', 'span', 'video' ], true ) )
 		) {
 			return null;
 		}

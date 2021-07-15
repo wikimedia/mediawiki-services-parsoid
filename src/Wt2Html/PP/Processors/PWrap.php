@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -34,7 +35,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	private function emitsSolTransparentWT( Node $n ): bool {
 		return DOMUtils::isText( $n ) && preg_match( '/^\s*$/D', $n->nodeValue ) ||
 			DOMUtils::isComment( $n ) ||
-			isset( WikitextConstants::$HTML['MetaTags'][$n->nodeName] );
+			isset( WikitextConstants::$HTML['MetaTags'][DOMCompat::nodeName( $n )] );
 	}
 
 	/**
@@ -233,7 +234,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( $c instanceof Element ) {
-				if ( $c->nodeName === $tagName ) {
+				if ( DOMCompat::nodeName( $c ) === $tagName ) {
 					$this->pWrapDOM( $c );
 				} else {
 					$this->pWrapInsideTag( $c, $tagName );

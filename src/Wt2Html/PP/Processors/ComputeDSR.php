@@ -71,7 +71,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// - html tags with 'stx' set
 		// - tags with certain typeof properties (Parsoid-generated
 		//   constructs: placeholders, lang variants)
-		$name = $n->nodeName;
+		$name = DOMCompat::nodeName( $n );
 		return !(
 			isset( self::$WtTagsWithLimitedTSR[$name] ) ||
 			DOMUtils::matchTypeOf(
@@ -111,7 +111,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		 *
 		 * 3. Other scenarios .. to be added
 		 */
-		if ( $node->nodeName === 'a' &&
+		if ( DOMCompat::nodeName( $node ) === 'a' &&
 			 DOMUtils::assertElt( $node ) && (
 				WTUtils::usesURLLinkSyntax( $node, null ) ||
 				WTUtils::usesMagicLinkSyntax( $node, null )
@@ -145,7 +145,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// count nest listing depth and assign
 		// that to the opening tag width.
 		$depth = 0;
-		while ( $li->nodeName === 'li' || $li->nodeName === 'dd' ) {
+		while ( DOMCompat::nodeName( $li ) === 'li' || DOMCompat::nodeName( $li ) === 'dd' ) {
 			$depth++;
 			$li = $li->parentNode->parentNode;
 		}
@@ -242,7 +242,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$stWidth = 2; // -{
 			$etWidth = 2; // }-
 		} else {
-			$nodeName = $node->nodeName;
+			$nodeName = DOMCompat::nodeName( $node );
 			// 'tr' tags not in the original source have zero width
 			if ( $nodeName === 'tr' && !isset( $dp->startTagSrc ) ) {
 				$stWidth = 0;
@@ -323,7 +323,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$e = $s;
 		}
 
-		$this->trace( $env, "BEG: ", $node->nodeName, " with [s, e]=", [ $s, $e ] );
+		$this->trace( $env, "BEG: ", DOMCompat::nodeName( $node ), " with [s, e]=", [ $s, $e ] );
 
 		$savedEndTagWidth = null;
 		$ce = $e;
@@ -362,7 +362,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					!DOMUtils::isNestedInListItem( $next )
 				) {
 					if ( isset( Consts::$WTQuoteTags[$ndp->name] ) &&
-						isset( Consts::$WTQuoteTags[$child->nodeName] ) ) {
+						isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $child )] ) ) {
 						$correction = strlen( $ndp->src );
 						$ce += $correction;
 						$dsrCorrection = $correction;
@@ -388,12 +388,12 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					}
 					$i++;
 				}
-				return "     CHILD: <" . $child->parentNode->nodeName . ":" . $i .
+				return "     CHILD: <" . DOMCompat::nodeName( $child->parentNode ) . ":" . $i .
 					">=" .
 					( $child instanceof Element ? '' : ( DOMUtils::isText( $child ) ? '#' : '!' ) ) .
 					( ( $child instanceof Element ) ?
-						( $child->nodeName === 'meta' ?
-							DOMCompat::getOuterHTML( $child ) : $child->nodeName ) :
+						( DOMCompat::nodeName( $child ) === 'meta' ?
+							DOMCompat::getOuterHTML( $child ) : DOMCompat::nodeName( $child ) ) :
 							PHPUtils::jsonEncode( $child->nodeValue ) ) .
 					" with " . PHPUtils::jsonEncode( [ $cs, $ce ] );
 			} );
@@ -434,14 +434,14 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				if ( $ce !== null && !empty( $dp->autoInsertedEnd ) &&
 					DOMUtils::isQuoteElt( $child )
 				) {
-					$correction = 3 + strlen( $child->nodeName );
+					$correction = 3 + strlen( DOMCompat::nodeName( $child ) );
 					if ( $correction === $dsrCorrection ) {
 						$ce -= $correction;
 						$dsrCorrection = 0;
 					}
 				}
 
-				if ( $child->nodeName === "meta" ) {
+				if ( DOMCompat::nodeName( $child ) === "meta" ) {
 					// Unless they have been foster-parented,
 					// meta marker tags have valid tsr info->
 					if ( DOMUtils::matchTypeOf( $child, '#^mw:(EndTag|TSRMarker)$#D' ) ) {
@@ -453,7 +453,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							//
 							// Update table-end syntax using info from the meta tag
 							$prev = $child->previousSibling;
-							if ( $prev && $prev->nodeName === "table" ) {
+							if ( $prev && DOMCompat::nodeName( $prev ) === "table" ) {
 								DOMUtils::assertElt( $prev );
 								$prevDP = DOMDataUtils::getDataParsoid( $prev );
 								if ( !WTUtils::hasLiteralHTMLMarker( $prevDP ) ) {
@@ -564,7 +564,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						// just a wrapper token with the right DSR but without any
 						// nested subtree that could account for the DSR span.
 						$newDsr = [ $ccs, $cce ];
-					} elseif ( $child->nodeName === 'a'
+					} elseif ( DOMCompat::nodeName( $child ) === 'a'
 						&& DOMUtils::assertElt( $child )
 						&& WTUtils::usesWikiLinkSyntax( $child, $dp )
 						&& ( !isset( $dp->stx ) || $dp->stx !== "piped" ) ) {
@@ -618,7 +618,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					if ( $ce < 0 ) {
 						if ( !$fosteredNode ) {
 							$env->log( "info/dsr/negative",
-								"Negative DSR for node: " . $node->nodeName . "; resetting to zero" );
+								"Negative DSR for node: " . DOMCompat::nodeName( $node ) . "; resetting to zero" );
 						}
 						$ce = 0;
 					}
@@ -636,7 +636,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					}
 
 					$env->log( "trace/dsr", static function () use ( $frame, $child, $cs, $ce, $dp ) {
-						$str = "     UPDATING " . $child->nodeName .
+						$str = "     UPDATING " . DOMCompat::nodeName( $child ) .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $child->getAttribute( "typeof" ) ?? "" );
 						// Set up 'dbsrc' so we can debug this
@@ -685,7 +685,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 							// Update and move right
 							$env->log( "trace/dsr", static function () use ( $frame, $newCE, $sibling, $siblingDP ) {
-								$str = "     CHANGING ce.start of " . $sibling->nodeName .
+								$str = "     CHANGING ce.start of " . DOMCompat::nodeName( $sibling ) .
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
 								// debug info
 								if ( $siblingDP->dsr->end ) {
@@ -730,7 +730,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 				// Save end-tag width from marker meta tag
 				if ( $endTagInfo && $child->previousSibling &&
-					$endTagInfo['nodeName'] === $child->previousSibling->nodeName ) {
+					$endTagInfo['nodeName'] === DOMCompat::nodeName( $child->previousSibling ) ) {
 					$savedEndTagWidth = $endTagInfo['width'];
 				} else {
 					$savedEndTagWidth = null;
@@ -778,10 +778,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// Detect errors
 		if ( $s !== null && $cs !== $s && !$this->acceptableInconsistency( $opts, $node, $cs, $s ) ) {
 			$env->log( "info/dsr/inconsistent", "DSR inconsistency: cs/s mismatch for node:",
-				$node->nodeName, "s:", $s, "; cs:", $cs );
+				DOMCompat::nodeName( $node ), "s:", $s, "; cs:", $cs );
 		}
 
-		$this->trace( $env, "END: ", $node->nodeName, ", returning: ", $cs, ", ", $e );
+		$this->trace( $env, "END: ", DOMCompat::nodeName( $node ), ", returning: ", $cs, ", ", $e );
 
 		return [ $cs, $e ];
 	}

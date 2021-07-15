@@ -88,7 +88,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		];
 
 		$thumb = $extApi->renderMedia( $titleStr, $imageOpts );
-		if ( !$thumb || $thumb->nodeName !== 'figure' ) {
+		if ( !$thumb || DOMCompat::nodeName( $thumb ) !== 'figure' ) {
 			return null;
 		}
 
@@ -188,7 +188,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 				DOMUtils::assertElt( $child );
 				// Ignore if it isn't a "gallerybox"
 				if (
-					$child->nodeName !== 'li' ||
+					DOMCompat::nodeName( $child ) !== 'li' ||
 					$child->getAttribute( 'class' ) !== 'gallerybox'
 				) {
 					break;

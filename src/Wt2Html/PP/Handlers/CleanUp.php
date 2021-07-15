@@ -60,7 +60,7 @@ class CleanUp {
 		?stdClass $tplInfo = null
 	) {
 		if ( !( $node instanceof Element ) ||
-			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][$node->nodeName] ) ||
+			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
 			!DOMUtils::nodeEssentiallyEmpty( $node )
 		) {
 			return true;
@@ -207,7 +207,7 @@ class CleanUp {
 
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
 		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-			isset( WikitextConstants::$WTTagsWithNoClosingTags[$node->nodeName] )
+			isset( WikitextConstants::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] )
 		) {
 			unset( $dp->autoInsertedEnd );
 		}
@@ -225,7 +225,7 @@ class CleanUp {
 		// content where data-mw isn't necessary and html2wt knows how to
 		// handle the HTML markup.
 		$validDSR = DOMDataUtils::validDataMw( $node ) && Utils::isValidDSR( $dp->dsr ?? null );
-		$isPageProp = $node->nodeName === 'meta' &&
+		$isPageProp = DOMCompat::nodeName( $node ) === 'meta' &&
 			preg_match( '#^mw:PageProp/(.*)$#D', $node->getAttribute( 'property' ) );
 		if ( $validDSR && !$isPageProp ) {
 			unset( $dp->src );
@@ -279,7 +279,7 @@ class CleanUp {
 			// Trim whitespace from some wikitext markup
 			// not involving explicit HTML tags (T157481)
 			if ( !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-				isset( WikitextConstants::$WikitextTagsWithTrimmableWS[$node->nodeName] )
+				isset( WikitextConstants::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $node )] )
 			) {
 				self::trimWhiteSpace( $node, $dp->dsr ?? null );
 			}

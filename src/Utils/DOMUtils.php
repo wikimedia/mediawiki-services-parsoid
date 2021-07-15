@@ -172,10 +172,10 @@ class DOMUtils {
 	 */
 	public static function isRemexBlockNode( ?Node $node ): bool {
 		return self::isElt( $node ) &&
-			!isset( WikitextConstants::$HTML['OnlyInlineElements'][$node->nodeName] ) &&
+			!isset( WikitextConstants::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
 			// From \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
 			// This is a superset but matches `emitsSolTransparentWT` below
-			!isset( WikitextConstants::$HTML['MetaTags'][$node->nodeName] );
+			!isset( WikitextConstants::$HTML['MetaTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -183,7 +183,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isWikitextBlockNode( ?Node $node ): bool {
-		return $node && TokenUtils::isWikitextBlockTag( $node->nodeName );
+		return $node && TokenUtils::isWikitextBlockTag( DOMCompat::nodeName( $node ) );
 	}
 
 	/**
@@ -192,7 +192,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isFormattingElt( ?Node $node ): bool {
-		return $node && isset( WikitextConstants::$HTML['FormattingTags'][$node->nodeName] );
+		return $node && isset( WikitextConstants::$HTML['FormattingTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -201,7 +201,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isQuoteElt( ?Node $node ): bool {
-		return $node && isset( WikitextConstants::$WTQuoteTags[$node->nodeName] );
+		return $node && isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -210,7 +210,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isBody( ?Node $node ): bool {
-		return $node && $node->nodeName === 'body';
+		return $node && DOMCompat::nodeName( $node ) === 'body';
 	}
 
 	/**
@@ -341,7 +341,7 @@ class DOMUtils {
 	 */
 	public static function findAncestorOfName( Node $node, string $name ): ?Node {
 		$node = $node->parentNode;
-		while ( $node && $node->nodeName !== $name ) {
+		while ( $node && DOMCompat::nodeName( $node ) !== $name ) {
 			$node = $node->parentNode;
 		}
 		return $node;
@@ -355,7 +355,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function hasNameOrHasAncestorOfName( Node $node, string $name ): bool {
-		return $node->nodeName === $name || self::findAncestorOfName( $node, $name ) !== null;
+		return DOMCompat::nodeName( $node ) === $name || self::findAncestorOfName( $node, $name ) !== null;
 	}
 
 	/**
@@ -370,7 +370,7 @@ class DOMUtils {
 	 *   no match.
 	 */
 	public static function matchNameAndTypeOf( Node $n, string $name, string $typeRe ): ?string {
-		return $n->nodeName === $name ? self::matchTypeOf( $n, $typeRe ) : null;
+		return DOMCompat::nodeName( $n ) === $name ? self::matchTypeOf( $n, $typeRe ) : null;
 	}
 
 	/**
@@ -482,7 +482,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isFosterablePosition( ?Node $n ): bool {
-		return $n && isset( WikitextConstants::$HTML['FosterablePosition'][$n->parentNode->nodeName] );
+		return $n && isset( WikitextConstants::$HTML['FosterablePosition'][DOMCompat::nodeName( $n->parentNode )] );
 	}
 
 	/**
@@ -492,7 +492,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isHeading( ?Node $n ): bool {
-		return $n && preg_match( '/^h[1-6]$/D', $n->nodeName );
+		return $n && preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $n ) );
 	}
 
 	/**
@@ -502,7 +502,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isList( ?Node $n ): bool {
-		return $n && isset( WikitextConstants::$HTML['ListTags'][$n->nodeName] );
+		return $n && isset( WikitextConstants::$HTML['ListTags'][DOMCompat::nodeName( $n )] );
 	}
 
 	/**
@@ -512,7 +512,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isListItem( ?Node $n ): bool {
-		return $n && isset( WikitextConstants::$HTML['ListItemTags'][$n->nodeName] );
+		return $n && isset( WikitextConstants::$HTML['ListItemTags'][DOMCompat::nodeName( $n )] );
 	}
 
 	/**
@@ -583,7 +583,7 @@ class DOMUtils {
 		if ( $mark ) {
 			return self::isMarkerMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
-			return $node->nodeName === 'meta' &&
+			return DOMCompat::nodeName( $node ) === 'meta' &&
 				self::matchTypeOf( $node, '#^mw:DiffMarker/#' );
 		}
 	}
@@ -855,7 +855,7 @@ class DOMUtils {
 		$node = $node->firstChild;
 		while ( $node ) {
 			if ( self::isElt( $node ) ) {
-				if ( $node->nodeName === $tagName || self::treeHasElement( $node, $tagName ) ) {
+				if ( DOMCompat::nodeName( $node ) === $tagName || self::treeHasElement( $node, $tagName ) ) {
 					return true;
 				}
 			}
@@ -871,7 +871,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isTableTag( Node $node ): bool {
-		return isset( WikitextConstants::$HTML['TableTags'][$node->nodeName] );
+		return isset( WikitextConstants::$HTML['TableTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -977,6 +977,6 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isRawTextElement( Node $node ): bool {
-		return isset( WikitextConstants::$HTML['RawTextElements'][$node->nodeName] );
+		return isset( WikitextConstants::$HTML['RawTextElements'][DOMCompat::nodeName( $node )] );
 	}
 }

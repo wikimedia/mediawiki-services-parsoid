@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -21,7 +22,7 @@ class BRHandler extends DOMHandler {
 	): ?Node {
 		if ( $state->singleLineContext->enforced()
 			 || ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'html'
-			 || $node->parentNode->nodeName !== 'p'
+			 || DOMCompat::nodeName( $node->parentNode ) !== 'p'
 		) {
 			// <br/> has special newline-based semantics in
 			// parser-generated <p><br/>.. HTML
@@ -94,7 +95,7 @@ class BRHandler extends DOMHandler {
 	 */
 	private function isPbr( Element $br ): bool {
 		return ( DOMDataUtils::getDataParsoid( $br )->stx ?? null ) !== 'html'
-			&& $br->parentNode->nodeName === 'p'
+			&& DOMCompat::nodeName( $br->parentNode ) === 'p'
 			&& DOMUtils::firstNonSepChild( $br->parentNode ) === $br;
 	}
 

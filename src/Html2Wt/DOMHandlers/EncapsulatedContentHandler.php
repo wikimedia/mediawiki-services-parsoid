@@ -181,7 +181,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 			&& $this->isTplListWithoutSharedPrefix( $node )
 			// Nothing to do for definition list rows,
 			// since we're emitting for the parent node.
-			 && !( $node->nodeName === 'dd'
+			 && !( DOMCompat::nodeName( $node ) === 'dd'
 				   && ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row' )
 		) {
 			// phan fails to infer that the parent of a Element is always a Element
@@ -263,7 +263,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 			while ( $this->isBuilderInsertedElt( $parentNode ) ) {
 				$parentNode = $parentNode->parentNode;
 			}
-			return !in_array( $parentNode->nodeName, $this->parentMap[$node->nodeName], true );
+			return !in_array(
+				DOMCompat::nodeName( $parentNode ),
+				$this->parentMap[DOMCompat::nodeName( $node )],
+				true
+			);
 		}
 	}
 }

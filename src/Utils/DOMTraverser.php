@@ -72,7 +72,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 		Node $node, Env $env, array $options, bool $atTopLevel,
 		?stdClass $tplInfo
 	) {
-		$name = $node->nodeName ?: '';
+		$name = DOMCompat::nodeName( $node );
 
 		foreach ( $this->handlers as $handler ) {
 			if ( $handler['nodeName'] === null || $handler['nodeName'] === $name ) {

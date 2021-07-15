@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -42,7 +43,7 @@ class DTHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( $otherNode->nodeName === 'dd'
+		if ( DOMCompat::nodeName( $otherNode ) === 'dd'
 			&& $otherNode instanceof Element // for static analyzers
 			&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) === 'row'
 		) {

@@ -61,7 +61,7 @@ class WTSUtils {
 	public static function mkTagTk( Element $node ): TagTk {
 		$attribKVs = self::getAttributeKVArray( $node );
 		return new TagTk(
-			$node->nodeName,
+			DOMCompat::nodeName( $node ),
 			$attribKVs,
 			DOMDataUtils::getDataParsoid( $node )
 		);
@@ -76,7 +76,7 @@ class WTSUtils {
 	public static function mkEndTagTk( Element $node ): EndTagTk {
 		$attribKVs = self::getAttributeKVArray( $node );
 		return new EndTagTk(
-			$node->nodeName,
+			DOMCompat::nodeName( $node ),
 			$attribKVs,
 			DOMDataUtils::getDataParsoid( $node )
 		);
@@ -255,7 +255,7 @@ class WTSUtils {
 			// at the beginning of it has been stripped out already, and
 			// we cannot use it to test it for indent-pre safety
 			return (bool)preg_match( '/^[ \t]*\n/', $node->nodeValue );
-		} elseif ( $node->nodeName === 'br' ) {
+		} elseif ( DOMCompat::nodeName( $node ) === 'br' ) {
 			return true;
 		} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 			DOMUtils::assertElt( $node );
@@ -273,13 +273,13 @@ class WTSUtils {
 	public static function traceNodeName( Node $node ): string {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				return ( DOMUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . $node->nodeName;
+				return ( DOMUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . DOMCompat::nodeName( $node );
 			case XML_TEXT_NODE:
 				return 'TEXT: ' . PHPUtils::jsonEncode( $node->nodeValue );
 			case XML_COMMENT_NODE:
 				return 'CMT : ' . PHPUtils::jsonEncode( self::commentWT( $node->nodeValue ) );
 			default:
-				return $node->nodeName;
+				return DOMCompat::nodeName( $node );
 		}
 	}
 
@@ -296,7 +296,7 @@ class WTSUtils {
 
 		if ( WTUtils::isRedirectLink( $node ) ) {
 			return DOMUtils::atTheTop( $node->parentNode ) && !$node->previousSibling;
-		} elseif ( $node->nodeName === 'th' || $node->nodeName === 'td' ) {
+		} elseif ( DOMCompat::nodeName( $node ) === 'th' || DOMCompat::nodeName( $node ) === 'td' ) {
 			DOMUtils::assertElt( $node );
 			// The wikitext representation for them is dependent
 			// on cell position (first cell is always single char).
@@ -319,7 +319,7 @@ class WTSUtils {
 			// showed up on the same line via the "||" or "!!" syntax, nothing
 			// to worry about.
 			return ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'row';
-		} elseif ( $node->nodeName === 'tr' && DOMUtils::assertElt( $node ) &&
+		} elseif ( DOMCompat::nodeName( $node ) === 'tr' && DOMUtils::assertElt( $node ) &&
 			empty( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
 		) {
 			// If this <tr> didn't have a startTagSrc, it would have been

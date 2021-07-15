@@ -84,7 +84,7 @@ class XMLSerializer {
 			case XML_ELEMENT_NODE:
 				DOMUtils::assertElt( $node );
 				$child = $node->firstChild;
-				$nodeName = $node->tagName;
+				$nodeName = DOMCompat::nodeName( $node );
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
 				foreach ( DOMCompat::attributes( $node ) as $attr ) {
@@ -170,7 +170,7 @@ class XMLSerializer {
 				return;
 
 			default:
-				$accum( '??' . $node->nodeName, $node );
+				$accum( '??' . DOMCompat::nodeName( $node ), $node );
 		}
 	}
 
@@ -285,7 +285,7 @@ class XMLSerializer {
 			self::serializeToString( $node, $options, $accum );
 		}
 		// Ensure there's a doctype for documents.
-		if ( !$options['innerXML'] && $node->nodeName === 'html' && $options['addDoctype'] ) {
+		if ( !$options['innerXML'] && DOMCompat::nodeName( $node ) === 'html' && $options['addDoctype'] ) {
 			$out['html'] = "<!DOCTYPE html>\n" . $out['html'];
 		}
 		// Verify UTF-8 soundness (transitional check for PHP port)

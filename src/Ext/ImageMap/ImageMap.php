@@ -114,7 +114,7 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 				$imageNode = $anchor->firstChild;
 
 				// Could be a span
-				if ( $imageNode->nodeName !== 'img' ) {
+				if ( DOMCompat::nodeName( $imageNode ) !== 'img' ) {
 					throw new ExtensionError( 'imagemap_invalid_image' );
 				}
 				DOMUtils::assertElt( $imageNode );

@@ -61,6 +61,28 @@ class DOMCompat {
 	}
 
 	/**
+	 * Return the lower-case version of the node name (HTML says this should
+	 * be capitalized).
+	 * @param Node $node
+	 * @return string
+	 */
+	public static function nodeName( Node $node ): string {
+		static $cache = [];
+		$key = $node->nodeName;
+		$lower = $cache[$key] ?? null;
+		if ( $lower === null ) {
+			// "To ASCII lowercase" (strtolower is locale-dependent, boo)
+			$lower = strtr(
+				$key,
+				'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+				'abcdefghijklmnopqrstuvwxyz'
+			);
+			$cache[$key] = $lower;
+		}
+		return $lower;
+	}
+
+	/**
 	 * Get document body.
 	 * Unlike the spec we return it as a native PHP DOM object.
 	 * @param Document $document
@@ -76,7 +98,7 @@ class DOMCompat {
 		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var Element $element */
-			if ( $element->nodeName === 'body' || $element->nodeName === 'frameset' ) {
+			if ( self::nodeName( $element ) === 'body' || self::nodeName( $element ) === 'frameset' ) {
 				$document->body = $element; // Caching!
 				return $element;
 			}
@@ -100,7 +122,7 @@ class DOMCompat {
 		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var Element $element */
-			if ( $element->nodeName === 'head' ) {
+			if ( self::nodeName( $element ) === 'head' ) {
 				$document->head = $element; // Caching!
 				return $element;
 			}
@@ -410,7 +432,7 @@ class DOMCompat {
 
 		$tokenizer->execute( [
 			'fragmentNamespace' => HTMLData::NS_HTML,
-			'fragmentName' => $element->nodeName,
+			'fragmentName' => self::nodeName( $element ),
 		] );
 
 		// Empty the element

@@ -73,7 +73,8 @@
 			"@phan",
 			"@phpunit",
 			"@toolcheck",
-			"@parserTests"
+			"@parserTests",
+			"@nodeNameCheck"
 		],
 		"lint": [
 			"parallel-lint . --exclude vendor --exclude node_modules",
@@ -93,7 +94,8 @@
 		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true",
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true --offsetType ucs2",
 		"phpunit": "phpunit",
-		"toolcheck": "bin/toolcheck.php.sh"
+		"toolcheck": "bin/toolcheck.php.sh",
+		"nodeNameCheck": "bin/nodenamecheck.sh"
 	},
 	"config": {
 		"process-timeout": 0,

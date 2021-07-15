@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -87,7 +88,7 @@ class TDHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( $otherNode->nodeName === 'td'
+		if ( DOMCompat::nodeName( $otherNode ) === 'td'
 			&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row'
 		) {
 			// force single line
