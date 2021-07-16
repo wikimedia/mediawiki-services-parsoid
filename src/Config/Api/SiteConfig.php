@@ -262,6 +262,7 @@ class SiteConfig extends ISiteConfig {
 			$allMWs = [];
 			foreach ( $mw['aliases'] as $alias ) {
 				$this->apiMagicWords[$mwName][] = $alias;
+				// Aliases for double underscore mws include the underscores
 				if ( substr( $alias, 0, 2 ) === '__' && substr( $alias, -2 ) === '__' ) {
 					$bsws[$cs][] = preg_quote( substr( $alias, 2, -2 ), '@' );
 				}

@@ -347,6 +347,10 @@ class SiteConfig extends ISiteConfig {
 
 	public function bswRegexp(): string {
 		$bsw = self::mwaToRegex( $this->magicWordFactory->getDoubleUnderscoreArray(), '@' );
+		// Aliases for double underscore mws include the underscores
+		// So, strip them since the base regexp will have included them
+		// and they aren't expected at the use sites of bswRegexp
+		$bsw = str_replace( '__', '', $bsw );
 		return "@$bsw@Su";
 	}
 
