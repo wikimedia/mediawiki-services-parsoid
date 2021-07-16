@@ -169,7 +169,6 @@ class ConstrainedText {
 	public function matches( string $re, Env $env ): ?array {
 		$r = preg_match( $re, $this->text, $m );
 		if ( $r === false ) {
-			// Try to determine what happened in T280449
 			if ( version_compare( PHP_VERSION, '8.0.0', '>' ) ) {
 				$error_msg = preg_last_error_msg();
 			} else {

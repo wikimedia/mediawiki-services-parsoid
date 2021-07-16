@@ -35,14 +35,11 @@ class SerializerState {
 		static $solWikitextRegexp = null;
 		if ( $solWikitextRegexp === null ) {
 			$sol = PHPUtils::reStrip(
-				$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(),
+				$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp( true ),
 				'@'
 			);
 			$solWikitextRegexp = '@' .
-				'^((?:' . $sol . '|' .
-				# SSS FIXME: What about onlyinclude and noinclude?
-				'<includeonly>.*?</includeonly>' .
-				')*)' .
+				'^(' . $sol . ')' .
 				'([\ \*#:;{\|!=].*)$' .
 				'@D';
 		}
@@ -59,17 +56,10 @@ class SerializerState {
 		static $solRegexp = null;
 		if ( $solRegexp === null ) {
 			$sol = PHPUtils::reStrip(
-				$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(),
+				$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp( true ),
 				'@'
 			);
-			$solRegexp = '@' .
-				'(^|\\n)' .
-				'(' .
-				# SSS FIXME: What about onlyinclude and noinclude?
-				'<includeonly>.*?</includeonly>' .
-				'|' . $sol .
-				')*$' .
-				'@D';
+			$solRegexp = '@(^|\n)' . $sol . '$@D';
 		}
 		return $solRegexp;
 	}

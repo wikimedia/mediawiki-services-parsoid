@@ -723,9 +723,13 @@ abstract class SiteConfig {
 	/**
 	 * A regex matching a line containing just comments and
 	 * sol transparent links and behavior switches.
+	 *
+	 * @param bool $addIncludes
 	 * @return string
 	 */
-	public function solTransparentWikitextNoWsRegexp(): string {
+	public function solTransparentWikitextNoWsRegexp(
+		bool $addIncludes = false
+	): string {
 		// cscott sadly says: Note that this depends on the precise
 		// localization of the magic words of this particular wiki.
 		static $solTransparentWikitextNoWsRegexp = null;
@@ -743,6 +747,8 @@ abstract class SiteConfig {
 				'\[\[' . $category . '\:[^\]]*?\]\]|' .
 				'__(?:' . $bswRegexp . ')__|' .
 				$comment .
+				// FIXME(SSS): What about onlyinclude and noinclude?
+				( $addIncludes ? '|<includeonly>[\S\s]*?</includeonly>' : '' ) .
 				')*)@';
 		}
 		return $solTransparentWikitextNoWsRegexp;
