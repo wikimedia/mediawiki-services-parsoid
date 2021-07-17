@@ -82,14 +82,14 @@ class ParagraphWrapper extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ) {
-		return $this->inPre ? $token : $this->onNewLineOrEOF( $token );
+		return $this->inPre ? $token : $this->onNewlineOrEOF( $token );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ) {
-		return $this->onNewLineOrEOF( $token );
+		return $this->onNewlineOrEOF( $token );
 	}
 
 	/**
@@ -291,13 +291,13 @@ class ParagraphWrapper extends TokenHandler {
 	 * @param Token $token token
 	 * @return array
 	 */
-	private function onNewLineOrEOF( Token $token ): array {
+	private function onNewlineOrEOF( Token $token ): array {
 		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'NL    |',
 			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
 		$l = $this->currLine;
-		if ( $this->currLine['blockTagSeen'] ) {
+		if ( $l['blockTagSeen'] ) {
 			$this->closeOpenPTag( $l['tokens'] );
 		} elseif ( !$this->inBlockElem && !$this->hasOpenPTag && $l['hasWrappableTokens'] ) {
 			$this->openPTag( $l['tokens'] );
@@ -305,7 +305,7 @@ class ParagraphWrapper extends TokenHandler {
 
 		// Assertion to catch bugs in p-wrapping; both cannot be true.
 		if ( $this->newLineCount > 0 && count( $l['tokens'] ) > 0 ) {
-			$this->env->log( 'error/p-wrap', 'Failed assertion in onNewLineOrEOF: newline-count:',
+			$this->env->log( 'error/p-wrap', 'Failed assertion in onNewlineOrEOF: newline-count:',
 			$this->newLineCount, '; current line tokens: ', PHPUtils::jsonEncode( $l['tokens'] ) );
 		}
 
