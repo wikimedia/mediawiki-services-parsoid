@@ -693,7 +693,7 @@ abstract class ParsoidHandler extends Handler {
 				$envOptions['inputContentVersion'] = $vOriginal;
 			} else {
 				$envOptions['inputContentVersion'] = $vEdited;
-				// We need to downgrade the original to match the the edited doc's version.
+				// We need to downgrade the original to match the edited doc's version.
 				$downgrade = Parsoid::findDowngrade( $vOriginal, $vEdited );
 				// Downgrades are only for pagebundle
 				if ( $downgrade && $opts['from'] === FormatHelper::FORMAT_PAGEBUNDLE ) {

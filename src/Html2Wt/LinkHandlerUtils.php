@@ -603,7 +603,7 @@ class LinkHandlerUtils {
 			// }
 		} else {
 			if ( $linkData->type === 'mw:PageProp/Language' ) {
-				// Fix up the the content string
+				// Fix up the content string
 				// TODO: see if linkData can be cleaner!
 				if ( !isset( $linkData->content->string ) ) {
 					$linkData->content->string = Utils::decodeWtEntities( $target['value'] );

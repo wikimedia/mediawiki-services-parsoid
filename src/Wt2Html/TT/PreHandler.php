@@ -284,7 +284,7 @@ class PreHandler extends TokenHandler {
 		// sol-transparent toks
 		$ret = array_merge( $ret, $this->solTransparentTokens );
 
-		// push the the current token
+		// push the current token
 		if ( $token !== null ) {
 			$ret[] = $token;
 		}

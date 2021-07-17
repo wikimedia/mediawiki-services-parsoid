@@ -247,7 +247,7 @@ class LanguageConverter {
 		$loadTiming->end( "langconv.{$targetVariant}.init" );
 		$loadTiming->end( 'langconv.init' );
 
-		// Check the the target variant is valid (and implemented!)
+		// Check the target variant is valid (and implemented!)
 		$validTarget = $langconv !== null && $langconv->getMachine() !== null
 			&& array_key_exists( $targetVariant, $langconv->getMachine()->getCodes() );
 		if ( !$validTarget ) {
