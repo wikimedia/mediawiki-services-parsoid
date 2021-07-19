@@ -22051,6 +22051,8 @@ language=ban variant=ban-x-palmleaf
 !! html/php
 <p>mantra AAA
 </p>
+!! html/parsoid
+<p>ᬫᬦ᭄ᬢ᭄ᬭ <span typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[{"l":"ban-x-palmleaf","t":"AAA"},{"l":"ban","t":"BBB"}]}' data-parsoid='{"fl":[],"src":"-{ban-x-palmleaf:AAA;ban:BBB}-","tSp":[6]}'></span></p>
 !! end
 
 !! test
