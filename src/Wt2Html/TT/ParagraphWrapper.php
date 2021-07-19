@@ -325,7 +325,7 @@ class ParagraphWrapper extends TokenHandler {
 			$this->newLineCount++;
 			$this->nlWsTokens[] = $token;
 			if ( $this->undoIndentPre ) {
-				$this->currLine['tokens'][] = ' ';
+				$this->nlWsTokens[] = ' ';
 			}
 			return [ 'tokens' => [] ];
 		}
@@ -403,8 +403,12 @@ class ParagraphWrapper extends TokenHandler {
 		) {
 			if ( $this->inBlockElem || $this->inBlockquote ) {
 				$this->undoIndentPre = true;
-				$this->currLine['tokens'][] = ' ';
-				return [ 'tokens' => [] ];
+				if ( $this->newLineCount === 0 ) {
+					return [ 'tokens' => $this->flushBuffers( ' ' ), 'skipOnAny' => true ];
+				} else {
+					$this->nlWsTokens[] = ' ';
+					return [ 'tokens' => [] ];
+				}
 			} else {
 				$this->inPre = true;
 				// This will put us `inBlockElem`, so we need the extra `!inPre`
@@ -426,9 +430,7 @@ class ParagraphWrapper extends TokenHandler {
 				// No pre-tokens inside block tags -- swallow it.
 				return [ 'tokens' => [] ];
 			} else {
-				if ( $this->inPre ) {
-					$this->inPre = false;
-				}
+				$this->inPre = false;
 				$this->currLine['blockTagSeen'] = true;
 				$this->currLine['blockTagOpen'] = false;
 				$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
