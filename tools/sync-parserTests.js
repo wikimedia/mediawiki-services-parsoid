@@ -50,14 +50,19 @@ require('../core-upgrade.js');
 
    We detect incompatible divergence of the two copies via CI. We run the
    legacy parser against Parsoid's copy of the test file and test failures
-   indicate a divergence and necessitates a sync. We don't yet have CI
-   code that runs Parsoid against core's copy of the test file, but that
-   might come soon.
+   indicate a divergence and necessitates a sync. Core also runs Parsoid
+   against core's copy of the test file in certain circumstances (and
+   this uses the version of Parsoid from mediawiki-vendor, which is
+   "the latest deployed version" not "the latest version").
 
    This discussion only touched upon tests/parser/parserTests.txt but
    all of the same considerations apply to the parser test file for
    extensions since we have a Parsoid-version and a legacy-parser version
-   of many extensions at this time.
+   of many extensions at this time.  When CI runs tests on extension
+   repositories it runs them through both the legacy parser and
+   Parsoid (but only if you opt-in by adding a 'parsoid-compatible'
+   flag to the parser test file).
+   https://codesearch.wmcloud.org/search/?q=parsoid-compatible&i=nope
 
    == THINKING ==
 
