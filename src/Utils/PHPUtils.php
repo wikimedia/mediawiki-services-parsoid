@@ -46,6 +46,31 @@ class PHPUtils {
 	}
 
 	/**
+	 * FIXME: Copied from FormatJson.php in core
+	 *
+	 * Characters problematic in JavaScript.
+	 *
+	 * @note These are listed in ECMA-262 (5.1 Ed.), §7.3 Line Terminators along with U+000A (LF)
+	 *       and U+000D (CR). However, PHP already escapes LF and CR according to RFC 4627.
+	 */
+	private const BAD_CHARS = [
+		"\u{2028}", // U+2028 LINE SEPARATOR
+		"\u{2029}", // U+2029 PARAGRAPH SEPARATOR
+	];
+
+	/**
+	 * FIXME: Copied from FormatJson.php in core
+	 *
+	 * Escape sequences for characters listed in FormatJson::BAD_CHARS.
+	 */
+	private const BAD_CHARS_ESCAPED = [
+		'\u2028', // U+2028 LINE SEPARATOR
+		'\u2029', // U+2029 PARAGRAPH SEPARATOR
+	];
+
+	/**
+	 * FIXME: Core has FormatJson::encode that does a more comprehensive job
+	 *
 	 * json_encode wrapper function
 	 * - unscapes slashes and unicode
 	 *
@@ -58,10 +83,12 @@ class PHPUtils {
 			// Do this manually until JSON_THROW_ON_ERROR is available
 			throw new Exception( 'JSON encoding failed.' );
 		}
+		$str = str_replace( self::BAD_CHARS, self::BAD_CHARS_ESCAPED, $str );
 		return $str;
 	}
 
 	/**
+	 * FIXME: Core has FormatJson::parse that does a more comprehensive job
 	 * json_decode wrapper function
 	 * @param string $str String to decode into the json object
 	 * @param bool $assoc Controls whether to parse as an an associative array - defaults to true
