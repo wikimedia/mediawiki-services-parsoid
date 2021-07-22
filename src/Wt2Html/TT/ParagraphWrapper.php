@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -167,14 +168,13 @@ class ParagraphWrapper extends TokenHandler {
 	/**
 	 * Process and flush existing buffer contents
 	 *
+	 * @param Token|string $token token
 	 * @return array
 	 */
-	private function flushBuffers(): array {
-		// Assertion to catch bugs in p-wrapping; both cannot be true.
-		if ( $this->newLineCount > 0 ) {
-			$this->manager->env->log( 'error/p-wrap', 'Failed assertion in flushBuffers: newline-count:',
-			$this->newLineCount, '; buffered tokens: ', PHPUtils::jsonEncode( $this->nlWsTokens ) );
-		}
+	private function flushBuffers( $token ): array {
+		Assert::invariant( $this->newLineCount === 0, "PWrap: Trying to flush buffers with pending newlines" );
+
+		$this->currLine['tokens'][] = $token;
 		$resToks = array_merge( $this->tokenBuffer, $this->nlWsTokens );
 		$this->resetBuffers();
 		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
@@ -453,10 +453,9 @@ class ParagraphWrapper extends TokenHandler {
 			|| TokenUtils::isEmptyLineMetaToken( $token )
 		) {
 			if ( $this->newLineCount === 0 ) {
-				$this->currLine['tokens'][] = $token;
 				// Since we have no pending newlines to trip us up,
 				// no need to buffer -- just flush everything
-				return [ 'tokens' => $this->flushBuffers(), 'skipOnAny' => true ];
+				return [ 'tokens' => $this->flushBuffers( $token ), 'skipOnAny' => true ];
 			} else {
 				// We are in buffering mode waiting till we are ready to
 				// process pending newlines.
@@ -470,10 +469,9 @@ class ParagraphWrapper extends TokenHandler {
 			( TokenUtils::isSolTransparent( $this->env, $token ) || $token->getName() === 'style' )
 		) {
 			if ( $this->newLineCount === 0 ) {
-				$this->currLine['tokens'][] = $token;
 				// Since we have no pending newlines to trip us up,
 				// no need to buffer -- just flush everything
-				return [ 'tokens' => $this->flushBuffers(), 'skipOnAny' => true ];
+				return [ 'tokens' => $this->flushBuffers( $token ), 'skipOnAny' => true ];
 			} elseif ( $this->newLineCount === 1 ) {
 				// Swallow newline, whitespace, comments, and the current line
 				$this->tokenBuffer = array_merge( $this->tokenBuffer, $this->nlWsTokens );
