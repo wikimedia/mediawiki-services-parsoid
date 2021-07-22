@@ -1422,7 +1422,7 @@ class WikitextSerializer {
 			} elseif ( $this->env->shouldScrubWikitext() ) {
 				$solTransparentWikitextNoWsRegexpFragment = PHPUtils::reStrip(
 					$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' );
-				$wsReplacementRE = '/^(' . $solTransparentWikitextNoWsRegexpFragment . ')?\s+/';
+				$wsReplacementRE = '/^(' . $solTransparentWikitextNoWsRegexpFragment . ')\s+/';
 				// Replace all leading whitespace
 				do {
 					$oldRest = $rest;
