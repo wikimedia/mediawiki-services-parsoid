@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -133,11 +134,19 @@ class MediaStructure {
 		'@phan-var Element $node';  // @var Element $node
 		$linkElt = DOMUtils::firstNonSepChild( $node );
 		if (
+			$linkElt instanceof Element && $linkElt->nodeName !== 'a' &&
+			isset( Consts::$HTML['FormattingTags'][$linkElt->nodeName] )
+		) {
+			// Try being lenient, maybe there was a content model violation when
+			// parsing and an active formatting element was reopened in the wrapper
+			$linkElt = DOMUtils::firstNonSepChild( $linkElt );
+		}
+		if (
 			!( $linkElt instanceof Element &&
 				in_array( $linkElt->nodeName, [ 'a', 'span' ], true ) )
 		) {
 			if ( $linkElt instanceof Element ) {
-				// Try being lenient, maybe this is media element and we don't
+				// Try being lenient, maybe this is the media element and we don't
 				// have a link elt.  See the test, "Image: from basic HTML (1)"
 				$mediaElt = $linkElt;
 				$linkElt = null;

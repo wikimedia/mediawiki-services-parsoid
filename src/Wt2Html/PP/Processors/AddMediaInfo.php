@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -242,16 +243,19 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param Env $env
-	 * @param Element $container
+	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
+	 * @param ?array $manualinfo
 	 * @param stdClass $dataMw
+	 * @param Element $container
 	 * @return array
 	 */
 	private static function handleAudio(
-		Env $env, Element $container, array $attrs, array $info, stdClass $dataMw
+		Env $env, Element $span, array $attrs, array $info, ?array $manualinfo,
+		stdClass $dataMw, Element $container
 	): array {
-		$doc = $container->ownerDocument;
+		$doc = $span->ownerDocument;
 		$audio = $doc->createElement( 'audio' );
 
 		$audio->setAttribute( 'controls', '' );
@@ -265,13 +269,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		// See `AddMediaInfo.handleSize`
 		DOMCompat::getClassList( $container )->add( 'mw-default-audio-height' );
 
-		self::copyOverAttribute( $audio, $container, 'resource' );
+		self::copyOverAttribute( $audio, $span, 'resource' );
 
-		$grandChild = $container->firstChild->firstChild;
-		/** @var Element $grandChild */
-		DOMUtils::assertElt( $grandChild );
-		if ( $grandChild->hasAttribute( 'lang' ) ) {
-			self::copyOverAttribute( $audio, $container, 'lang' );
+		if ( $span->hasAttribute( 'lang' ) ) {
+			self::copyOverAttribute( $audio, $span, 'lang' );
 		}
 
 		self::addSources( $audio, $info, $dataMw, false );
@@ -282,7 +283,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param Env $env
-	 * @param Element $container
+	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
 	 * @param ?array $manualinfo
@@ -290,10 +291,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @return array
 	 */
 	private static function handleVideo(
-		Env $env, Element $container, array $attrs,
-		array $info, ?array $manualinfo, stdClass $dataMw
+		Env $env, Element $span, array $attrs, array $info, ?array $manualinfo,
+		stdClass $dataMw
 	): array {
-		$doc = $container->ownerDocument;
+		$doc = $span->ownerDocument;
 		$video = $doc->createElement( 'video' );
 
 		if ( $manualinfo || !empty( $info['thumburl'] ) ) {
@@ -307,13 +308,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		DOMDataUtils::addNormalizedAttribute( $video, 'height', (string)$size['height'], null, true );
 		DOMDataUtils::addNormalizedAttribute( $video, 'width', (string)$size['width'], null, true );
 
-		self::copyOverAttribute( $video, $container, 'resource' );
+		self::copyOverAttribute( $video, $span, 'resource' );
 
-		$grandChild = $container->firstChild->firstChild;
-		/** @var Element $grandChild */
-		DOMUtils::assertElt( $grandChild );
-		if ( $grandChild->hasAttribute( 'lang' ) ) {
-			self::copyOverAttribute( $video, $container, 'lang' );
+		if ( $span->hasAttribute( 'lang' ) ) {
+			self::copyOverAttribute( $video, $span, 'lang' );
 		}
 
 		self::addSources( $video, $info, $dataMw, true );
@@ -326,7 +324,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * Set up the actual image structure, attributes, etc.
 	 *
 	 * @param Env $env
-	 * @param Element $container
+	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
 	 * @param ?array $manualinfo
@@ -334,10 +332,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @return array
 	 */
 	private static function handleImage(
-		Env $env, Element $container, array $attrs,
-		array $info, ?array $manualinfo, stdClass $dataMw
+		Env $env, Element $span, array $attrs, array $info, ?array $manualinfo,
+		stdClass $dataMw
 	): array {
-		$doc = $container->ownerDocument;
+		$doc = $span->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
 		self::addAttributeFromDataMw( $img, $dataMw, 'alt' );
@@ -346,15 +344,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$info = $manualinfo;
 		}
 
-		self::copyOverAttribute( $img, $container, 'resource' );
+		self::copyOverAttribute( $img, $span, 'resource' );
 
 		$img->setAttribute( 'src', self::getPath( $info ) );
 
-		$grandChild = $container->firstChild->firstChild;
-		/** @var Element $grandChild */
-		DOMUtils::assertElt( $grandChild );
-		if ( $grandChild->hasAttribute( 'lang' ) ) {
-			self::copyOverAttribute( $img, $container, 'lang' );
+		if ( $span->hasAttribute( 'lang' ) ) {
+			self::copyOverAttribute( $img, $span, 'lang' );
 		}
 
 		// Add (read-only) information about original file size (T64881)
@@ -462,15 +457,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param Element $elt
-	 * @param Element $container
+	 * @param Element $span
 	 * @param string $attribute
 	 */
 	private static function copyOverAttribute(
-		Element $elt, Element $container, string $attribute
+		Element $elt, Element $span, string $attribute
 	): void {
-		$span = $container->firstChild->firstChild;
-		/** @var Element $span */
-		DOMUtils::assertElt( $span );
 		DOMDataUtils::addNormalizedAttribute(
 			$elt,
 			$attribute,
@@ -531,17 +523,18 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param Env $env
 	 * @param PegTokenizer $urlParser
-	 * @param Element $container
+	 * @param Element $oldAnchor
 	 * @param array $attrs
 	 * @param stdClass $dataMw
 	 * @param bool $isImage
 	 * @param int $page
+	 * @return Element
 	 */
-	private static function handleLink(
-		Env $env, PegTokenizer $urlParser, Element $container,
-		array $attrs, stdClass $dataMw, bool $isImage, int $page
-	): void {
-		$doc = $container->ownerDocument;
+	private static function replaceAnchor(
+		Env $env, PegTokenizer $urlParser, Element $oldAnchor, array $attrs,
+		stdClass $dataMw, bool $isImage, int $page
+	): Element {
+		$doc = $oldAnchor->ownerDocument;
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'link', true );
 
 		$anchor = $doc->createElement( 'a' );
@@ -587,7 +580,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$anchor->setAttribute( 'href', $href );
 		}
 
-		$container->replaceChild( $anchor, $container->firstChild );
+		$oldAnchor->parentNode->replaceChild( $anchor, $oldAnchor );
+
+		return $anchor;
 	}
 
 	/**
@@ -621,6 +616,16 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// emitted in the TT/WikiLinkHandler but treebuilding may have
 			// messed that up for us.
 			$anchor = $container->firstChild;
+			if (
+				$anchor instanceof Element && $anchor->nodeName !== 'a' &&
+				isset( Consts::$HTML['FormattingTags'][$anchor->nodeName] )
+			) {
+				// An active formatting element may have been reopened inside
+				// the wrapper if a content model violation was encountered
+				// during treebuiling.  Try to be a little lenient about that
+				// instead of bailing out
+				$anchor = $anchor->firstChild;
+			}
 			if ( !( $anchor instanceof Element && $anchor->nodeName === 'a' ) ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
@@ -701,22 +706,22 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$isImage = false;
 			switch ( $info['mediatype'] ) {
 				case 'AUDIO':
-					$o = self::handleAudio( $env, $container, $attrs, $info, $dataMw );
+					$o = self::handleAudio( $env, $span, $attrs, $info, $manualinfo, $dataMw, $container );
 					break;
 				case 'VIDEO':
-					$o = self::handleVideo( $env, $container, $attrs, $info, $manualinfo, $dataMw );
+					$o = self::handleVideo( $env, $span, $attrs, $info, $manualinfo, $dataMw );
 					break;
 				default:
 					$isImage = true;
-					$o = self::handleImage( $env, $container, $attrs, $info, $manualinfo, $dataMw );
+					$o = self::handleImage( $env, $span, $attrs, $info, $manualinfo, $dataMw );
 			}
 			$rdfaType = $o['rdfaType'];
 			$elt = $o['elt'];
 
-			self::handleLink( $env, $urlParser, $container, $attrs, $dataMw, $isImage, (int)( $dims['page'] ?? 0 ) );
-
-			// Get the anchor again, it may have been replaced in the handlers
-			$anchor = $container->firstChild;
+			$anchor = self::replaceAnchor(
+				$env, $urlParser, $anchor, $attrs, $dataMw, $isImage,
+				(int)( $dims['page'] ?? 0 )
+			);
 			$anchor->appendChild( $elt );
 
 			$typeOf = $container->getAttribute( 'typeof' ) ?? '';

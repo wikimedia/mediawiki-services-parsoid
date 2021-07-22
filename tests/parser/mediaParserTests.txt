@@ -3832,3 +3832,16 @@ wgParserEnableLegacyMediaDOM=false
 </tbody></table>
 </figcaption></figure>
 !! end
+
+## Expect the media structure to account for cases like this since it's common enough
+!! test
+File in formatting element violating content model
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+<p>''[[File:Foobar.jpg|thumb]]''</p>
+!! html/php
+<p><i></i></p><figure class="mw-default-size" typeof="mw:Image/Thumb"><i><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a><figcaption></figcaption></i></figure><p class="mw-empty-elt"></p>
+!! html/parsoid
+<p data-parsoid='{"stx":"html","autoInsertedEnd":true}'><i data-parsoid='{"autoInsertedEnd":true}'></i></p><figure class="mw-default-size" typeof="mw:Image/Thumb"><i data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x"/></a><figcaption></figcaption></i></figure><p class="mw-empty-elt" data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
+!! end
