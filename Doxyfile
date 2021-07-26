@@ -9,7 +9,8 @@ JAVADOC_AUTOBRIEF      = YES
 QT_AUTOBRIEF           = YES
 WARN_NO_PARAMDOC       = YES
 INPUT                  = README.md src/
-FILE_PATTERNS          = *.php
+FILE_PATTERNS          = *.php *.md
+MARKDOWN_SUPPORT       = YES
 RECURSIVE              = YES
 USE_MDFILE_AS_MAINPAGE = README.md
 # FILTER_PATTERNS        = *md=build/doxygen_escape.sh
