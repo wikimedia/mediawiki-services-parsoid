@@ -26,6 +26,7 @@ use Linker;
 use MediaTransformError;
 use MediaWiki\BadFileLookup;
 use MediaWiki\HookContainer\HookContainer;
+use MediaWiki\User\UserFactory;
 use Parser;
 use ParserFactory;
 use RepoGroup;
@@ -45,6 +46,9 @@ class DataAccess implements IDataAccess {
 	/** @var HookContainer */
 	private $hookContainer;
 
+	/** @var UserFactory */
+	private $userFactory;
+
 	/** @var Parser */
 	private $parser;
 
@@ -55,16 +59,21 @@ class DataAccess implements IDataAccess {
 	 * @param RepoGroup $repoGroup
 	 * @param BadFileLookup $badFileLookup
 	 * @param HookContainer $hookContainer
+	 * @param UserFactory $userFactory
 	 * @param ParserFactory $parserFactory A legacy parser factory,
 	 *   for PST/preprocessing/extension handling
 	 */
 	public function __construct(
-		RepoGroup $repoGroup, BadFileLookup $badFileLookup,
-		HookContainer $hookContainer, ParserFactory $parserFactory
+		RepoGroup $repoGroup,
+		BadFileLookup $badFileLookup,
+		HookContainer $hookContainer,
+		UserFactory $userFactory,
+		ParserFactory $parserFactory
 	) {
 		$this->repoGroup = $repoGroup;
 		$this->badFileLookup = $badFileLookup;
 		$this->hookContainer = $hookContainer;
+		$this->userFactory = $userFactory;
 
 		// Use the same legacy parser object for all calls to extension tag
 		// processing, for greater compatibility.
@@ -269,8 +278,9 @@ class DataAccess implements IDataAccess {
 		// This could use prepareParser(), but it's only called once per page,
 		// so it's not essential.
 		$titleObj = Title::newFromText( $pageConfig->getTitle() );
+		$user = $this->userFactory->newFromUserIdentity( $pageConfig->getParserOptions()->getUserIdentity() );
 		return ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
-			->preSaveTransform( $titleObj, $pageConfig->getParserOptions()->getUser(), $pageConfig->getParserOptions() )
+			->preSaveTransform( $titleObj, $user, $pageConfig->getParserOptions() )
 			->serialize();
 	}
 
