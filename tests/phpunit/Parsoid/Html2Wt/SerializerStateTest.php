@@ -2,14 +2,14 @@
 
 namespace Test\Parsoid\Html2Wt;
 
+use DOMDocument;
+use DOMElement;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Core\SelserData;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Zest\Zest;
 
 class SerializerStateTest extends TestCase {
@@ -48,10 +48,10 @@ class SerializerStateTest extends TestCase {
 	 * Create a DOM document with the given HTML body and return the given node within it.
 	 * @param string $html
 	 * @param string $selector
-	 * @return Element
+	 * @return DOMElement
 	 */
-	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ): Element {
-		$document = DOMCompat::newDocument( true );
+	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ): DOMElement {
+		$document = new DOMDocument();
 		$document->loadHTML( "<html><body>$html</body></html>" );
 		return Zest::find( $selector, $document )[0];
 	}
@@ -157,7 +157,7 @@ class SerializerStateTest extends TestCase {
 				[ $node->firstChild ],
 				[ $node->firstChild->nextSibling ]
 			)
-			->willReturnCallback( static function ( Element $node ) {
+			->willReturnCallback( static function ( DOMElement $node ) {
 				return $node->nextSibling;
 			} );
 		$state = $this->getState( [], null, $serializer );
@@ -170,7 +170,7 @@ class SerializerStateTest extends TestCase {
 		$serializer->expects( $this->once() )
 			->method( 'serializeNode' )
 			->with( $node->firstChild )
-			->willReturnCallback( function ( Element $node ) use ( &$state, $callback ) {
+			->willReturnCallback( function ( DOMElement $node ) use ( &$state, $callback ) {
 				$this->assertSame( $callback, end( $state->wteHandlerStack ) );
 				return $node->nextSibling;
 			} );

@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
+use DOMDocument;
+use DOMDocumentFragment;
+use DOMElement;
 
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -28,11 +28,11 @@ class TraditionalMode extends Mode {
 	protected $padding;
 
 	/**
-	 * @param Element $ul
+	 * @param DOMElement $ul
 	 * @param string $k
 	 * @param string $v
 	 */
-	private function appendAttr( Element $ul, string $k, string $v ) {
+	private function appendAttr( DOMElement $ul, string $k, string $v ) {
 		$val = $ul->hasAttribute( $k ) ? $ul->getAttribute( $k ) : '';
 		if ( strlen( $val ) > 0 ) {
 			$val .= ' ';
@@ -42,12 +42,12 @@ class TraditionalMode extends Mode {
 
 	/**
 	 * @param Opts $opts
-	 * @param DocumentFragment $domFragment
-	 * @return Element
+	 * @param DOMDocumentFragment $domFragment
+	 * @return DOMElement
 	 */
 	private function ul(
-		Opts $opts, DocumentFragment $domFragment
-	): Element {
+		Opts $opts, DOMDocumentFragment $domFragment
+	): DOMElement {
 		$ul = $domFragment->ownerDocument->createElement( 'ul' );
 		$cl = 'gallery mw-gallery-' . $this->mode;
 		$ul->setAttribute( 'class', $cl );
@@ -62,9 +62,9 @@ class TraditionalMode extends Mode {
 
 	/**
 	 * @param Opts $opts
-	 * @param Element $ul
+	 * @param DOMElement $ul
 	 */
-	protected function perRow( Opts $opts, Element $ul ): void {
+	protected function perRow( Opts $opts, DOMElement $ul ): void {
 		if ( $opts->imagesPerRow > 0 ) {
 			$padding = $this->padding;
 			$total = $opts->imageWidth + $padding->thumb + $padding->box + $padding->border;
@@ -76,18 +76,18 @@ class TraditionalMode extends Mode {
 
 	/**
 	 * @param Opts $opts
-	 * @param Element $ul
+	 * @param DOMElement $ul
 	 */
-	protected function setAdditionalOptions( Opts $opts, Element $ul ): void {
+	protected function setAdditionalOptions( Opts $opts, DOMElement $ul ): void {
 	}
 
 	/**
 	 * @param Opts $opts
-	 * @param Element $ul
-	 * @param DocumentFragment $caption
+	 * @param DOMElement $ul
+	 * @param DOMDocumentFragment $caption
 	 */
 	private function caption(
-		Opts $opts, Element $ul, DocumentFragment $caption
+		Opts $opts, DOMElement $ul, DOMDocumentFragment $caption
 	) {
 		$doc = $ul->ownerDocument;
 		$li = $doc->createElement( 'li' );
@@ -104,10 +104,10 @@ class TraditionalMode extends Mode {
 
 	/**
 	 * @param Opts $opts
-	 * @param Element $wrapper
+	 * @param DOMElement $wrapper
 	 * @return int|float
 	 */
-	protected function scaleMedia( Opts $opts, Element $wrapper ) {
+	protected function scaleMedia( Opts $opts, DOMElement $wrapper ) {
 		return $opts->imageWidth;
 	}
 
@@ -158,13 +158,13 @@ class TraditionalMode extends Mode {
 	}
 
 	/**
-	 * @param Document $doc
-	 * @param Element $box
-	 * @param ?Element $gallerytext
+	 * @param DOMDocument $doc
+	 * @param DOMElement $box
+	 * @param ?DOMElement $gallerytext
 	 * @param float $width
 	 */
 	protected function galleryText(
-		Document $doc, Element $box, ?Element $gallerytext,
+		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext,
 		float $width
 	): void {
 		$div = $doc->createElement( 'div' );
@@ -179,10 +179,10 @@ class TraditionalMode extends Mode {
 
 	/**
 	 * @param Opts $opts
-	 * @param Element $ul
+	 * @param DOMElement $ul
 	 * @param ParsedLine $o
 	 */
-	private function line( Opts $opts, Element $ul, ParsedLine $o ): void {
+	private function line( Opts $opts, DOMElement $ul, ParsedLine $o ): void {
 		$doc = $ul->ownerDocument;
 
 		$width = $this->scaleMedia( $opts, $o->thumb );
@@ -211,9 +211,9 @@ class TraditionalMode extends Mode {
 
 	/** @inheritDoc */
 	public function render(
-		ParsoidExtensionAPI $extApi, Opts $opts, ?DocumentFragment $caption,
+		ParsoidExtensionAPI $extApi, Opts $opts, ?DOMDocumentFragment $caption,
 		array $lines
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		$domFragment = $extApi->htmlToDom( '' );
 		$ul = $this->ul( $opts, $domFragment );
 		if ( $caption ) {

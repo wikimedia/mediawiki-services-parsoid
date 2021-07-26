@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -18,14 +18,14 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
+		'@phan-var DOMElement|DOMDocumentFragment $root';  // @var DOMElement|DOMDocumentFragment $root
 		$wikiLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' );
 
 		$titles = array_reduce(
 			$wikiLinks,
-			static function ( array $s, Element $a ): array {
+			static function ( array $s, DOMElement $a ): array {
 				// Magic links, at least, don't have titles
 				if ( $a->hasAttribute( 'title' ) ) {
 					$s[] = $a->getAttribute( 'title' );

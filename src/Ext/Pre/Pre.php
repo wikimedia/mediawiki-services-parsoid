@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Pre;
 
+use DOMDocumentFragment;
 use Wikimedia\Parsoid\Core\Sanitizer;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -33,7 +33,7 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		$domFragment = $extApi->htmlToDom( '' );
 		$doc = $domFragment->ownerDocument;
 		$pre = $doc->createElement( 'pre' );

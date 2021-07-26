@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMElement;
+use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -51,14 +51,14 @@ class TableFixups {
 	 * ```
 	 *
 	 * @see https://phabricator.wikimedia.org/T52603
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param Frame $frame
-	 * @return bool|Node
+	 * @return bool|DOMNode
 	 */
-	public function stripDoubleTDs( Element $node, Frame $frame ) {
+	public function stripDoubleTDs( DOMElement $node, Frame $frame ) {
 		$nextNode = $node->nextSibling;
 		if ( !WTUtils::isLiteralHTMLNode( $node ) &&
-			$nextNode instanceof Element &&
+			$nextNode instanceof DOMElement &&
 			$nextNode->nodeName === 'td' &&
 			!WTUtils::isLiteralHTMLNode( $nextNode ) &&
 			DOMUtils::nodeEssentiallyEmpty( $node ) && (
@@ -96,10 +96,10 @@ class TableFixups {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	private function isSimpleTemplatedSpan( Node $node ): bool {
+	private function isSimpleTemplatedSpan( DOMNode $node ): bool {
 		return $node->nodeName === 'span' &&
 			DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&
 			DOMUtils::allChildrenAreTextOrComments( $node );
@@ -122,11 +122,11 @@ class TableFixups {
 	 * onto the cell itself.
 	 *
 	 * @param Frame $frame
-	 * @param Element[] $transclusions
-	 * @param Element $td
+	 * @param DOMElement[] $transclusions
+	 * @param DOMElement $td
 	 */
 	private function hoistTransclusionInfo(
-		Frame $frame, array $transclusions, Element $td
+		Frame $frame, array $transclusions, DOMElement $td
 	): void {
 		// Initialize dsr for $td
 		// In `handleTableCellTemplates`, we're creating a cell w/o dsr info.
@@ -231,12 +231,12 @@ class TableFixups {
 	 * nowiki content. Collection stops when encountering a pipe character.
 	 *
 	 * @param Env $env
-	 * @param Element $cell known to be <td> / <th>
-	 * @param ?Element $templateWrapper
+	 * @param DOMElement $cell known to be <td> / <th>
+	 * @param ?DOMElement $templateWrapper
 	 * @return array
 	 */
 	public function collectAttributishContent(
-		Env $env, Element $cell, ?Element $templateWrapper
+		Env $env, DOMElement $cell, ?DOMElement $templateWrapper
 	): array {
 		$buf = [];
 		$nowikis = [];
@@ -247,7 +247,7 @@ class TableFixups {
 		// templated content in this fashion anyway, we might as well use the
 		// same logic uniformly.
 
-		$traverse = static function ( ?Node $child ) use (
+		$traverse = static function ( ?DOMNode $child ) use (
 			&$traverse, &$buf, &$nowikis, &$transclusions
 		): bool {
 			while ( $child ) {
@@ -256,7 +256,7 @@ class TableFixups {
 				} elseif ( DOMUtils::isText( $child ) ) {
 					$buf[] = $child->nodeValue;
 				} else {
-					'@phan-var Element $child';  /** @var Element $child */
+					'@phan-var DOMElement $child';  /** @var DOMElement $child */
 					if ( DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
 						$transclusions[] = $child;
 					}
@@ -336,11 +336,11 @@ class TableFixups {
 	 *   limitation can be lifted with more advanced data-mw construction.
 	 *
 	 * @param Frame $frame
-	 * @param Element $cell known to be <td> / <th>
-	 * @param ?Element $templateWrapper
+	 * @param DOMElement $cell known to be <td> / <th>
+	 * @param ?DOMElement $templateWrapper
 	 */
 	public function reparseTemplatedAttributes(
-		Frame $frame, Element $cell, ?Element $templateWrapper
+		Frame $frame, DOMElement $cell, ?DOMElement $templateWrapper
 	): void {
 		$env = $frame->getEnv();
 		// Collect attribute content and examine it
@@ -425,10 +425,10 @@ class TableFixups {
 
 	/**
 	 * @param Frame $frame
-	 * @param Element $cell
+	 * @param DOMElement $cell
 	 * @return bool
 	 */
-	private function combineWithPreviousCell( Frame $frame, Element $cell ): bool {
+	private function combineWithPreviousCell( Frame $frame, DOMElement $cell ): bool {
 		// UNSUPPORTED SCENARIO 1:
 		// While in the general case, we should look for combinability no matter
 		// whether $cell has attributes or not,  we are currently restricting
@@ -496,10 +496,10 @@ class TableFixups {
 	private const OTHER_REPARSE = 2;
 
 	/**
-	 * @param Element $cell $cell is known to be <td>/<th>
+	 * @param DOMElement $cell $cell is known to be <td>/<th>
 	 * @return int
 	 */
-	private function getReparseType( Element $cell ): int {
+	private function getReparseType( DOMElement $cell ): int {
 		$isTd = $cell->nodeName === 'td';
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $isTd && // only | can separate attributes & content => $cell has to be <td>
@@ -518,7 +518,7 @@ class TableFixups {
 			// with other templated cells.  So, previous sibling cannot be templated.
 
 			$prev = $cell->previousSibling;
-			if ( $prev instanceof Element &&
+			if ( $prev instanceof DOMElement &&
 				!WTUtils::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $prev ) ) &&
 				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
 				!preg_match( '/\n/', DOMCompat::getInnerHTML( $prev ) )
@@ -539,7 +539,7 @@ class TableFixups {
 				// since they have higher precedence in tokenization
 				$child = WTUtils::skipOverEncapsulatedContent( $child );
 			} else {
-				if ( $child instanceof Element ) {
+				if ( $child instanceof DOMElement ) {
 					if ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
 						WTUtils::isGeneratedFigure( $child )
 					) {
@@ -561,12 +561,12 @@ class TableFixups {
 	}
 
 	/**
-	 * @param Element $cell $cell is known to be <td>/<th>
+	 * @param DOMElement $cell $cell is known to be <td>/<th>
 	 * @param Frame $frame
 	 * @return mixed
 	 */
 	public function handleTableCellTemplates(
-		Element $cell, Frame $frame
+		DOMElement $cell, Frame $frame
 	) {
 		if ( WTUtils::isLiteralHTMLNode( $cell ) ) {
 			return true;
@@ -641,9 +641,9 @@ class TableFixups {
 						/**
 						 * $hasSpanWrapper above ensures $child is a span.
 						 *
-						 * @var Element $child
+						 * @var DOMElement $child
 						 */
-						'@phan-var Element $child';
+						'@phan-var DOMElement $child';
 						// Fix up transclusion wrapping
 						$about = $child->getAttribute( 'about' );
 						$this->hoistTransclusionInfo( $frame, [ $child ], $cell );

@@ -3,8 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMElement;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -27,39 +26,39 @@ class MediaStructure {
 	/**
 	 * Node names: figure, span
 	 *
-	 * @var ?Element
+	 * @var ?DOMElement
 	 */
 	 public $containerElt;
 
 	/**
 	 * Node names: a, span
 	 *
-	 * @var ?Element
+	 * @var ?DOMElement
 	 */
 	public $linkElt;
 
 	/**
 	 * Node names: img, audio, video, span
 	 *
-	 * @var ?Element
+	 * @var ?DOMElement
 	 */
 	public $mediaElt;
 
 	/**
 	 * Node names: figcaption
 	 *
-	 * @var ?Element
+	 * @var ?DOMElement
 	 */
 	public $captionElt;
 
 	/**
-	 * @param Element $mediaElt
-	 * @param ?Element $linkElt
-	 * @param ?Element $containerElt
+	 * @param DOMElement $mediaElt
+	 * @param ?DOMElement $linkElt
+	 * @param ?DOMElement $containerElt
 	 */
 	public function __construct(
-		Element $mediaElt, ?Element $linkElt = null,
-		?Element $containerElt = null
+		DOMElement $mediaElt, ?DOMElement $linkElt = null,
+		?DOMElement $containerElt = null
 	) {
 		$this->mediaElt = $mediaElt;
 		$this->linkElt = $linkElt;
@@ -123,20 +122,20 @@ class MediaStructure {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param \DOMNode $node
 	 * @return ?MediaStructure
 	 */
-	public static function parse( Node $node ): ?MediaStructure {
+	public static function parse( \DOMNode $node ): ?MediaStructure {
 		if ( !WTUtils::isGeneratedFigure( $node ) ) {
 			return null;
 		}
-		'@phan-var Element $node';  // @var Element $node
+		'@phan-var DOMElement $node';  // @var DOMElement $node
 		$linkElt = DOMUtils::firstNonSepChild( $node );
 		if (
-			!( $linkElt instanceof Element &&
+			!( $linkElt instanceof DOMElement &&
 				in_array( $linkElt->nodeName, [ 'a', 'span' ], true ) )
 		) {
-			if ( $linkElt instanceof Element ) {
+			if ( $linkElt instanceof DOMElement ) {
 				// Try being lenient, maybe this is media element and we don't
 				// have a link elt.  See the test, "Image: from basic HTML (1)"
 				$mediaElt = $linkElt;
@@ -148,7 +147,7 @@ class MediaStructure {
 			$mediaElt = DOMUtils::firstNonSepChild( $linkElt );
 		}
 		if (
-			!( $mediaElt instanceof Element &&
+			!( $mediaElt instanceof DOMElement &&
 				in_array( $mediaElt->nodeName, [ 'audio', 'img', 'span', 'video' ], true ) )
 		) {
 			return null;

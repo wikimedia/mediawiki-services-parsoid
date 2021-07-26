@@ -3,9 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMElement;
+use DOMText;
+
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -16,10 +17,10 @@ class HandleLinkNeighbours {
 	 * The content will be reversed, so be ready for that.
 	 *
 	 * @param Env $env
-	 * @param Element $aNode
+	 * @param DOMElement $aNode
 	 * @return ?array
 	 */
-	private static function getLinkPrefix( Env $env, Element $aNode ): ?array {
+	private static function getLinkPrefix( Env $env, DOMElement $aNode ): ?array {
 		$regex = $env->getSiteConfig()->linkPrefixRegex();
 		if ( !$regex ) {
 			return null;
@@ -33,10 +34,10 @@ class HandleLinkNeighbours {
 	 * Function for fetching the link trail based on a link node.
 	 *
 	 * @param Env $env
-	 * @param Element $aNode
+	 * @param DOMelement $aNode
 	 * @return ?array
 	 */
-	private static function getLinkTrail( Env $env, Element $aNode ): ?array {
+	private static function getLinkTrail( Env $env, DOMelement $aNode ): ?array {
 		$regex = $env->getSiteConfig()->linkTrailRegex();
 		if ( !$regex ) {
 			return null;
@@ -52,12 +53,12 @@ class HandleLinkNeighbours {
 	 * @param Env $env
 	 * @param bool $goForward
 	 * @param string $regex
-	 * @param Element $aNode
+	 * @param DOMElement $aNode
 	 * @param string $baseAbout
 	 * @return array
 	 */
 	private static function findAndHandleNeighbour(
-		Env $env, bool $goForward, string $regex, Element $aNode, string $baseAbout
+		Env $env, bool $goForward, string $regex, DOMElement $aNode, string $baseAbout
 	): array {
 		$nbrs = [];
 		$node = $goForward ? $aNode->nextSibling : $aNode->previousSibling;
@@ -65,7 +66,7 @@ class HandleLinkNeighbours {
 			$nextSibling = $goForward ? $node->nextSibling : $node->previousSibling;
 			$fromTpl = WTUtils::hasParsoidAboutId( $node );
 			$unwrappedSpan = null;
-			if ( $node instanceof Element && $node->nodeName === 'span' &&
+			if ( $node instanceof DOMElement && $node->nodeName === 'span' &&
 				!WTUtils::isLiteralHTMLNode( $node ) &&
 				// <span> comes from the same template we are in
 				$fromTpl && $baseAbout !== '' && $node->getAttribute( 'about' ) === $baseAbout &&
@@ -85,7 +86,7 @@ class HandleLinkNeighbours {
 				}
 			}
 
-			if ( $node instanceof Text && preg_match( $regex, $node->nodeValue, $matches ) && $matches[0] !== '' ) {
+			if ( $node instanceof DOMText && preg_match( $regex, $node->nodeValue, $matches ) && $matches[0] !== '' ) {
 				$nbr = [ 'node' => $node, 'src' => $matches[0], 'fromTpl' => $fromTpl ];
 
 				// Link prefix node is templated => migrate transclusion info to $aNode
@@ -127,11 +128,11 @@ class HandleLinkNeighbours {
 	 * Workhorse function for bringing linktrails and link prefixes into link content.
 	 * NOTE that this function mutates the node's siblings on either side.
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param Env $env
-	 * @return bool|Element
+	 * @return bool|DOMElement
 	 */
-	public static function handler( Element $node, Env $env ) {
+	public static function handler( DOMElement $node, Env $env ) {
 		$rel = $node->getAttribute( 'rel' );
 		if ( !preg_match( '#^mw:WikiLink(/Interwiki)?$#D', $rel ) ) {
 			return true;

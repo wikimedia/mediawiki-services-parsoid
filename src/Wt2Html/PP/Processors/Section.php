@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 
 class Section {
 	/** @var int */
@@ -17,15 +17,15 @@ class Section {
 	 */
 	private $debugId;
 
-	/** @var Element */
+	/** @var DOMElement */
 	public $container;
 
 	/**
 	 * @param int $level
 	 * @param int $debugId
-	 * @param Document $ownerDoc
+	 * @param DOMDocument $ownerDoc
 	 */
-	public function __construct( int $level, int $debugId, Document $ownerDoc ) {
+	public function __construct( int $level, int $debugId, DOMDocument $ownerDoc ) {
 		$this->level = $level;
 		$this->debugId = $debugId;
 		$this->container = $ownerDoc->createElement( 'section' );
@@ -47,9 +47,9 @@ class Section {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	public function addNode( Node $node ): void {
+	public function addNode( DOMNode $node ): void {
 		$this->container->appendChild( $node );
 	}
 

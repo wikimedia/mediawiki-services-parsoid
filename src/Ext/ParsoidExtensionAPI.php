@@ -4,15 +4,15 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 use Closure;
+use DOMDocument;
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -108,9 +108,9 @@ class ParsoidExtensionAPI {
 	 * @unstable
 	 * @param string $key
 	 * @param mixed ...$params
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
-	public function pushError( string $key, ...$params ): DocumentFragment {
+	public function pushError( string $key, ...$params ): DOMDocumentFragment {
 		$err = [ 'key' => $key ];
 		if ( count( $params ) > 0 ) {
 			$err['params'] = $params;
@@ -130,9 +130,9 @@ class ParsoidExtensionAPI {
 	 * Returns the main document we're parsing.  Extension content is parsed
 	 * to fragments of this document.
 	 *
-	 * @return Document
+	 * @return DOMDocument
 	 */
-	public function getTopLevelDoc(): Document {
+	public function getTopLevelDoc(): DOMDocument {
 		return $this->env->topLevelDoc;
 	}
 
@@ -229,9 +229,9 @@ class ParsoidExtensionAPI {
 	/**
 	 * Get the content DOM corresponding to an id
 	 * @param string $contentId
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
-	public function getContentDOM( string $contentId ): DocumentFragment {
+	public function getContentDOM( string $contentId ): DOMDocumentFragment {
 		return $this->env->getDOMFragment( $contentId );
 	}
 
@@ -254,11 +254,11 @@ class ParsoidExtensionAPI {
 	 *   - extTagOpts
 	 *   - context "inline", "block", etc. Currently, only "inline" is supported
 	 * @param bool $sol
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
 	public function wikitextToDOM(
 		string $wikitext, array $opts, bool $sol
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		if ( $wikitext === '' ) {
 			$domFragment = $this->getTopLevelDoc()->createDocumentFragment();
 		} else {
@@ -319,11 +319,11 @@ class ParsoidExtensionAPI {
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - context
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
 	public function extTagToDOM(
 		array $extArgs, string $leadingWS, string $wikitext, array $opts
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		$extTagOffsets = $this->extTag->getOffsets();
 		if ( !isset( $opts['srcOffsets'] ) ) {
 			$opts['srcOffsets'] = new SourceRange(
@@ -363,11 +363,11 @@ class ParsoidExtensionAPI {
 	 * @param KV[] $extArgs
 	 * @param string $key should be lower-case
 	 * @param bool $context
-	 * @return ?DocumentFragment
+	 * @return ?DOMDocumentFragment
 	 */
 	public function extArgToDOM(
 		array $extArgs, string $key, string $context = "inline"
-	): ?DocumentFragment {
+	): ?DOMDocumentFragment {
 		$argKV = KV::lookupKV( $extArgs, strtolower( $key ) );
 		if ( $argKV === null || !$argKV->v ) {
 			return null;
@@ -466,10 +466,10 @@ class ParsoidExtensionAPI {
 	 * Ex: inline media captions that aren't rendered, language variant markup,
 	 *     attributes that are transcluded. More scenarios might be added later.
 	 *
-	 * @param Element $elt The node whose data attributes need to be examined
+	 * @param DOMElement $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
 	 */
-	public function processHiddenHTMLInDataAttributes( Element $elt, Closure $proc ): void {
+	public function processHiddenHTMLInDataAttributes( DOMElement $elt, Closure $proc ): void {
 		/* -----------------------------------------------------------------
 		 * FIXME: This works but feels special cased, maybe?
 		 *
@@ -531,11 +531,11 @@ class ParsoidExtensionAPI {
 	 * Copy $from->childNodes to $to and clone the data attributes of $from
 	 * to $to.
 	 *
-	 * @param Element $from
-	 * @param Element $to
+	 * @param DOMElement $from
+	 * @param DOMElement $to
 	 */
 	public static function migrateChildrenAndTransferWrapperDataAttribs(
-		Element $from, Element $to
+		DOMElement $from, DOMElement $to
 	): void {
 		DOMUtils::migrateChildren( $from, $to );
 		DOMDataUtils::setDataParsoid(
@@ -552,9 +552,9 @@ class ParsoidExtensionAPI {
 	 * to convert HTML to DOM that will be passed into Parsoid's code processing code.
 	 *
 	 * @param string $html
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
-	public function htmlToDom( string $html ): DocumentFragment {
+	public function htmlToDom( string $html ): DOMDocumentFragment {
 		return ContentUtils::createAndLoadDocumentFragment(
 			$this->getTopLevelDoc(), $html
 		);
@@ -565,7 +565,7 @@ class ParsoidExtensionAPI {
 	 * If $releaseDom is set to true, the DOM will be left in non-canonical form
 	 * and is not safe to use after this call. This is primarily a performance optimization.
 	 *
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param bool $innerHTML if true, inner HTML of the element will be returned
 	 *    This flag defaults to false
 	 * @param bool $releaseDom if true, the DOM will not be in canonical form after this call
@@ -573,7 +573,7 @@ class ParsoidExtensionAPI {
 	 * @return string
 	 */
 	public function domToHtml(
-		Node $node, bool $innerHTML = false, bool $releaseDom = false
+		DOMNode $node, bool $innerHTML = false, bool $releaseDom = false
 	): string {
 		// FIXME: This is going to drop any diff markers but since
 		// the dom differ doesn't traverse into extension content (right now),
@@ -606,10 +606,10 @@ class ParsoidExtensionAPI {
 	 * Emit the opening tag (including attributes) for the extension
 	 * represented by this node.
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return string
 	 */
-	public function extStartTagToWikitext( Element $node ): string {
+	public function extStartTagToWikitext( DOMElement $node ): string {
 		$state = $this->serializerState;
 		return $state->serializer->serializeExtensionStartTag( $node, $state );
 	}
@@ -620,13 +620,13 @@ class ParsoidExtensionAPI {
 	 * @param array $opts
 	 *  - extName: (string) Name of the extension whose body we are serializing
 	 *  - inPHPBlock: (bool) FIXME: This needs to be removed
-	 * @param Element $node DOM to serialize
+	 * @param DOMElement $node DOM to serialize
 	 * @param bool $releaseDom If $releaseDom is set to true, the DOM will be left in
 	 *  non-canonical form and is not safe to use after this call. This is primarily a
 	 *  performance optimization.  This flag defaults to false.
 	 * @return mixed
 	 */
-	public function domToWikitext( array $opts, Element $node, bool $releaseDom = false ) {
+	public function domToWikitext( array $opts, DOMElement $node, bool $releaseDom = false ) {
 		// FIXME: WTS expects the input DOM to be a <body> element!
 		// Till that is fixed, we have to go through this round-trip!
 		// TODO: Move $node children to a fragment and call `$serializer->domToWikitext`
@@ -650,11 +650,11 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * @param Element $elt
+	 * @param DOMElement $elt
 	 * @param int $context OR-ed bit flags specifying escaping / serialization context
 	 * @return string
 	 */
-	public function domChildrenToWikitext( Element $elt, int $context ): string {
+	public function domChildrenToWikitext( DOMElement $elt, int $context ): string {
 		$state = $this->serializerState;
 		if ( $context & self::IN_IMG_CAPTION ) {
 			if ( $context & self::IN_OPTION ) {
@@ -679,11 +679,11 @@ class ParsoidExtensionAPI {
 	 * links, and transclusions.
 	 *
 	 * @param string $str
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param int $context OR-ed bit flags specifying escaping / serialization context
 	 * @return string
 	 */
-	public function escapeWikitext( string $str, Node $node, int $context ): string {
+	public function escapeWikitext( string $str, DOMNode $node, int $context ): string {
 		if ( $context & ( self::IN_MEDIA | self::IN_LINK ) ) {
 			$state = $this->serializerState;
 			return $state->serializer->wteHandlers->escapeLinkContent(
@@ -703,9 +703,9 @@ class ParsoidExtensionAPI {
 	 * not wikitext. For now, we are only storing data attribs back to the DOM
 	 * and adding metadata to the page.
 	 *
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 */
-	public function postProcessDOM( Document $doc ): void {
+	public function postProcessDOM( DOMDocument $doc ): void {
 		$env = $this->env;
 		// From CleanUp::cleanupAndSaveDataParsoid
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
@@ -725,11 +725,11 @@ class ParsoidExtensionAPI {
 	 *     [0] is the fully-constructed image option
 	 *     [1] is the full wikitext source offset for it
 	 * @param ?string &$error
-	 * @return ?Element
+	 * @return ?DOMElement
 	 */
 	public function renderMedia(
 		string $titleStr, array $imageOpts, ?string &$error = null
-	): ?Element {
+	): ?DOMElement {
 		$extTagName = $this->extTag->getName();
 
 		$title = $this->makeTitle(

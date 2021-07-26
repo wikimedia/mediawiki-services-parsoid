@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -19,8 +19,8 @@ class LIHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		Element $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?Node {
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMNode {
 		$firstChildElement = DOMUtils::firstNonSepChild( $node );
 		if ( !DOMUtils::isList( $firstChildElement )
 			 || WTUtils::isLiteralHTMLNode( $firstChildElement )
@@ -41,7 +41,7 @@ class LIHandler extends DOMHandler {
 		$lastChild = DOMUtils::lastNonSepChild( $node );
 		if ( $lastChild && !DOMUtils::isList( $lastChild ) &&
 			!DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() ) &&
-			!( $lastChild instanceof Element && $lastChild->hasAttribute( 'data-mw-selser-wrapper' ) )
+			!( $lastChild instanceof DOMElement && $lastChild->hasAttribute( 'data-mw-selser-wrapper' ) )
 		) {
 			$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
 			if ( $trailingSpace ) {
@@ -54,11 +54,11 @@ class LIHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( ( $otherNode === $node->parentNode
 				&& in_array( $otherNode->nodeName, [ 'ul', 'ol' ], true ) )
 			|| ( DOMUtils::isElt( $otherNode )
-				&& $otherNode instanceof Element // for static type analyzers
+				&& $otherNode instanceof DOMElement // for static type analyzers
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) === 'html' )
 		) {
 			return [];
@@ -68,12 +68,12 @@ class LIHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		return $this->wtListEOL( $node, $otherNode );
 	}
 
 	/** @inheritDoc */
-	public function firstChild( Node $node, Node $otherNode, SerializerState $state ): array {
+	public function firstChild( DOMNode $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( !DOMUtils::isList( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 0 ];
 		} else {

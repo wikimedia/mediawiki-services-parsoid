@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use DOMDocumentFragment;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -58,14 +58,14 @@ class ExtensionHandler extends TokenHandler {
 	/**
 	 * Process extension metadata and record it somewhere (Env state or the DOM)
 	 *
-	 * @param DocumentFragment $domFragment
+	 * @param DOMDocumentFragment $domFragment
 	 * @param array $modules
 	 * @param array $modulestyles
 	 * @param array $jsConfigVars
 	 * @param ?array $categories
 	 */
 	private function processExtMetadata(
-		DocumentFragment $domFragment, array $modules, array $modulestyles, array $jsConfigVars,
+		DOMDocumentFragment $domFragment, array $modules, array $modulestyles, array $jsConfigVars,
 		?array $categories
 	): void {
 		// Add the modules to the page data
@@ -199,13 +199,13 @@ class ExtensionHandler extends TokenHandler {
 	 *
 	 * @param ?ExtensionTagHandler $nativeExt
 	 * @param Token $extToken
-	 * @param DocumentFragment $domFragment
+	 * @param DOMDocumentFragment $domFragment
 	 * @param array $errors
 	 * @return array
 	 */
 	private function onDocumentFragment(
 		?ExtensionTagHandler $nativeExt, Token $extToken,
-		DocumentFragment $domFragment, array $errors
+		DOMDocumentFragment $domFragment, array $errors
 	): array {
 		$env = $this->env;
 		$extensionName = $extToken->getAttribute( 'name' );

@@ -3,8 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
+use DOMDocumentFragment;
 use Error;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
+
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -17,7 +18,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		$extName = $extApi->extTag->getName();
 		switch ( $extName ) {
 			case 'tag':

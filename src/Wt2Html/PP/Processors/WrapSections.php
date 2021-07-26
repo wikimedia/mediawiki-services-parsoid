@@ -3,15 +3,15 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMComment;
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
+use DOMText;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
-use Wikimedia\Parsoid\DOM\Comment;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -37,18 +37,18 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * Create a new section element
 	 *
 	 * @param array &$state
-	 * @param Element|DocumentFragment $rootNode
+	 * @param DOMElement|DOMDocumentFragment $rootNode
 	 * @param array<Section> &$sectionStack
 	 * @param ?array $tplInfo
 	 * @param ?Section $currSection
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param int $newLevel
 	 * @param bool $pseudoSection
 	 * @return Section
 	 */
 	private function createNewSection(
-		array &$state, Node $rootNode, array &$sectionStack,
-		?array $tplInfo, ?Section $currSection, Node $node, int $newLevel,
+		array &$state, DOMNode $rootNode, array &$sectionStack,
+		?array $tplInfo, ?Section $currSection, DOMNode $node, int $newLevel,
 		bool $pseudoSection
 	): Section {
 		/* Structure for regular (editable or not) sections
@@ -113,15 +113,15 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * @param Element $span
+	 * @param DOMElement $span
 	 * @return bool
 	 */
-	private function isEmptySpan( Element $span ): bool {
+	private function isEmptySpan( DOMElement $span ): bool {
 		$n = $span->firstChild;
 		while ( $n ) {
-			if ( $n instanceof Element ) {
+			if ( $n instanceof DOMElement ) {
 				return false;
-			} elseif ( $n instanceof Text && !preg_match( '/^\s*$/D',  $n->nodeValue ) ) {
+			} elseif ( $n instanceof DOMText && !preg_match( '/^\s*$/D',  $n->nodeValue ) ) {
 				return false;
 			}
 			$n = $n->nextSibling;
@@ -135,11 +135,11 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param array &$state
 	 * @param ?Section $currSection
-	 * @param Element|DocumentFragment $rootNode
+	 * @param DOMElement|DOMDocumentFragment $rootNode
 	 * @return int
 	 */
 	private function wrapSectionsInDOM(
-		array &$state, ?Section $currSection, Node $rootNode
+		array &$state, ?Section $currSection, DOMNode $rootNode
 	): int {
 		// Since template wrapping is done and template wrappers are well-nested,
 		// we can reset template state for every subtree.
@@ -224,7 +224,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 					$tplInfo['firstSection'] = $currSection;
 				}
 				$addedNode = true;
-			} elseif ( $node instanceof Element ) {
+			} elseif ( $node instanceof DOMElement ) {
 				$nestedHighestSectionLevel = $this->wrapSectionsInDOM( $state, null, $node );
 				if ( $currSection && !$currSection->hasNestedLevel( $nestedHighestSectionLevel ) ) {
 					// If we find a higher level nested section,
@@ -296,11 +296,11 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * that don't have recorded DSR values.
 	 *
 	 * @param array $state
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param bool $start
 	 * @return ?int
 	 */
-	private function getDSR( array $state, Element $node, bool $start ): ?int {
+	private function getDSR( array $state, DOMElement $node, bool $start ): ?int {
 		if ( $node->nodeName !== 'section' ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
 			if ( !$dsr ) {
@@ -319,9 +319,9 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 		$offset = 0;
 		$c = $start ? $node->firstChild : $node->lastChild;
 		while ( $c ) {
-			if ( $c instanceof Text ) {
+			if ( $c instanceof DOMText ) {
 				$offset += strlen( $c->textContent );
-			} elseif ( $c instanceof Comment ) {
+			} elseif ( $c instanceof DOMComment ) {
 				$offset += WTUtils::decodedCommentLength( $c );
 			} else {
 				DOMUtils::assertElt( $c );
@@ -359,10 +359,10 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * <section> node, but not asserting this since code doesn't depend on it being so.
 	 *
 	 * @param Frame $frame
-	 * @param Element $wrapper
+	 * @param DOMElement $wrapper
 	 * @param array $encapWrappers
 	 */
-	private function collapseWrappers( Frame $frame, Element $wrapper, array $encapWrappers ) {
+	private function collapseWrappers( Frame $frame, DOMElement $wrapper, array $encapWrappers ) {
 		$wrapperDp = DOMDataUtils::getDataParsoid( $wrapper );
 
 		// Build up $parts, $pi to set up the combined transclusion info on $wrapper
@@ -427,7 +427,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 			// FIXME:
 			// 1. If we stop stripping section wrappers in the html->wt direction,
 			//    we will need to add a DOMHandler for <section> or mw:Placeholder typeof
-			//    on arbitrary Elements to traverse into children and serialize and
+			//    on arbitrary DOMElements to traverse into children and serialize and
 			//    prevent page corruption.
 			// 2. This may be a good place to collect stats for T191641#6357136
 			// 3. Maybe we need a special error typeof rather than mw:Placeholder
@@ -480,8 +480,8 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$end = $s2Ancestors[$i - 1];
 			}
 
-			'@phan-var Element $start';  // @var Element $start
-			'@phan-var Element $end';    // @var Element $end
+			'@phan-var DOMElement $start';  // @var DOMElement $start
+			'@phan-var DOMElement $end';    // @var DOMElement $end
 
 			// Add new OR update existing range
 			if ( $start->hasAttribute( 'about' ) ) {
@@ -504,7 +504,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 				$n = $start->parentNode;
 				$body = DOMCompat::getBody( $start->ownerDocument );
 				while ( $n !== $body ) {
-					'@phan-var Element $n';  // @var Element $n
+					'@phan-var DOMElement $n';  // @var DOMElement $n
 					if ( $n->nodeName === 'section' && $n->hasAttribute( 'about' ) ) {
 						$about = $n->getAttribute( 'about' );
 						break;
@@ -550,9 +550,9 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
+		'@phan-var DOMElement|DOMDocumentFragment $root';  // @var DOMElement|DOMDocumentFragment $root
 
 		if ( !$env->getWrapSections() ) {
 			return;

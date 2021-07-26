@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
-use Wikimedia\Parsoid\DOM\Node;
+use DOMNode;
 use Wikimedia\Parsoid\Utils\WTUtils as WTU;
 
 /**
@@ -13,21 +13,21 @@ use Wikimedia\Parsoid\Utils\WTUtils as WTU;
 class WTUtils {
 	/**
 	 * Is the $node from extension content?
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param string $extType
 	 * @return bool
 	 */
-	public static function fromExtensionContent( Node $node, string $extType ): bool {
+	public static function fromExtensionContent( DOMNode $node, string $extType ): bool {
 		return WTU::fromExtensionContent( $node, $extType );
 	}
 
 	/**
 	 * Is $node a sealed DOMFragment of a specific extension?
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param string $name
 	 * @return bool
 	 */
-	public static function isSealedFragmentOfType( Node $node, string $name ): bool {
+	public static function isSealedFragmentOfType( DOMNode $node, string $name ): bool {
 		return WTU::isSealedFragmentOfType( $node, $name );
 	}
 

@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -49,10 +49,10 @@ class DOMDiff {
 	public $specializedAttribHandlers;
 
 	/**
-	 * @param Node $node
-	 * @return Node|null
+	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	private function nextNonTemplateSibling( Node $node ): ?Node {
+	private function nextNonTemplateSibling( DOMNode $node ): ?DOMNode {
 		if ( WTUtils::isEncapsulationWrapper( $node ) ) {
 			return WTUtils::skipOverEncapsulatedContent( $node );
 		}
@@ -99,11 +99,11 @@ class DOMDiff {
 	 * Diff two HTML documents, and add / update data-parsoid-diff attributes with
 	 * change information.
 	 *
-	 * @param Element $nodeA
-	 * @param Element $nodeB
+	 * @param DOMElement $nodeA
+	 * @param DOMElement $nodeB
 	 * @return array
 	 */
-	public function diff( Element $nodeA, Element $nodeB ): array {
+	public function diff( DOMElement $nodeA, DOMElement $nodeB ): array {
 		Assert::invariant(
 			$nodeA->ownerDocument !== $nodeB->ownerDocument,
 			'Expected to be diff\'ing different documents.'
@@ -127,14 +127,14 @@ class DOMDiff {
 	 * - html attributes are parsed to DOM and recursively compared
 	 * - for id attributes, the DOM fragments are fetched and compared.
 	 *
-	 * @param Node $nodeA
+	 * @param DOMNode $nodeA
 	 * @param stdClass $dmwA
-	 * @param Node $nodeB
+	 * @param DOMNode $nodeB
 	 * @param stdClass $dmwB
 	 * @return bool
 	 */
 	public function dataMWEquals(
-		Node $nodeA, stdClass $dmwA, Node $nodeB, stdClass $dmwB
+		DOMNode $nodeA, stdClass $dmwA, DOMNode $nodeB, stdClass $dmwB
 	): bool {
 		return $this->realDataMWEquals( $nodeA, (array)$dmwA, $nodeB, (array)$dmwB, [
 				'isTopLevel' => true,
@@ -148,15 +148,15 @@ class DOMDiff {
 	 * formats in `data-mw.body` and in those contexts, they reference DOMs and
 	 * we are going to treat them as such.
 	 *
-	 * @param Node $nodeA
+	 * @param DOMNode $nodeA
 	 * @param array $dmwA
-	 * @param Node $nodeB
+	 * @param DOMNode $nodeB
 	 * @param array $dmwB
 	 * @param array $options
 	 * @return bool
 	 */
 	private function realDataMWEquals(
-		Node $nodeA, array $dmwA, Node $nodeB, array $dmwB, array $options
+		DOMNode $nodeA, array $dmwA, DOMNode $nodeB, array $dmwB, array $options
 	): bool {
 		$keysA = array_keys( $dmwA );
 		$keysB = array_keys( $dmwB );
@@ -267,12 +267,12 @@ class DOMDiff {
 	/**
 	 * Test if two DOM nodes are equal.
 	 *
-	 * @param Node $nodeA
-	 * @param Node $nodeB
+	 * @param DOMNode $nodeA
+	 * @param DOMNode $nodeB
 	 * @param bool $deep
 	 * @return bool
 	 */
-	public function treeEquals( Node $nodeA, Node $nodeB, bool $deep ): bool {
+	public function treeEquals( DOMNode $nodeA, DOMNode $nodeB, bool $deep ): bool {
 		if ( $nodeA->nodeType !== $nodeB->nodeType ) {
 			return false;
 		} elseif ( DOMUtils::isText( $nodeA ) ) {
@@ -285,15 +285,15 @@ class DOMDiff {
 		} elseif ( DOMUtils::isComment( $nodeA ) ) {
 			return WTUtils::decodeComment( $nodeA->nodeValue ) ===
 				WTUtils::decodeComment( $nodeB->nodeValue );
-		} elseif ( $nodeA instanceof Element || $nodeA instanceof DocumentFragment ) {
-			if ( $nodeA instanceof DocumentFragment ) {
-				if ( !( $nodeB instanceof DocumentFragment ) ) {
+		} elseif ( $nodeA instanceof DOMElement || $nodeA instanceof DOMDocumentFragment ) {
+			if ( $nodeA instanceof DOMDocumentFragment ) {
+				if ( !( $nodeB instanceof DOMDocumentFragment ) ) {
 					return false;
 				}
-			} else {  // $nodeA instanceof Element
+			} else {  // $nodeA instanceof DOMElement
 				// Compare node name and attribute length
 				if (
-					!( $nodeB instanceof Element ) ||
+					!( $nodeB instanceof DOMElement ) ||
 					$nodeA->nodeName !== $nodeB->nodeName ||
 					!DiffUtils::attribsEquals(
 						$nodeA,
@@ -355,11 +355,11 @@ class DOMDiff {
 	 * TODO:
 	 * Assume typical CSS white-space, so ignore ws diffs in non-pre content.
 	 *
-	 * @param Node $baseParentNode
-	 * @param Node $newParentNode
+	 * @param DOMNode $baseParentNode
+	 * @param DOMNode $newParentNode
 	 * @return bool
 	 */
-	public function doDOMDiff( Node $baseParentNode, Node $newParentNode ): bool {
+	public function doDOMDiff( DOMNode $baseParentNode, DOMNode $newParentNode ): bool {
 		// Perform a relaxed version of the recursive treeEquals algorithm that
 		// allows for some minor differences and tries to produce a sensible diff
 		// marking using heuristics like look-ahead on siblings.
@@ -434,7 +434,7 @@ class DOMDiff {
 				}
 
 				if ( !$foundDiff ) {
-					if ( !( $savedNewNode instanceof Element ) ) {
+					if ( !( $savedNewNode instanceof DOMElement ) ) {
 						$this->debug( '--found diff: modified text/comment--' );
 						$this->markNode( $savedNewNode, 'deleted', WTUtils::isBlockNodeWithVisibleWT( $baseNode ) );
 					} elseif ( $savedNewNode->nodeName === $baseNode->nodeName &&
@@ -529,17 +529,17 @@ class DOMDiff {
 	 * ***************************************************/
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param string $mark
 	 * @param bool $blockNodeDeleted
 	 */
-	private function markNode( Node $node, string $mark, bool $blockNodeDeleted = false ): void {
+	private function markNode( DOMNode $node, string $mark, bool $blockNodeDeleted = false ): void {
 		$meta = null;
 		if ( $mark === 'deleted' ) {
 			// insert a meta tag marking the place where content used to be
 			$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
-			if ( $node instanceof Element ) {
+			if ( $node instanceof DOMElement ) {
 				DiffUtils::setDiffMark( $node, $this->env, $mark );
 			} elseif ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
 				if ( $mark !== 'inserted' ) {
@@ -566,21 +566,21 @@ class DOMDiff {
 		// Clear out speculatively computed DSR values for data-mw-selser-wrapper nodes
 		// since they may be incorrect. This eliminates any inadvertent use of
 		// these incorrect values.
-		if ( $node instanceof Element && $node->hasAttribute( 'data-mw-selser-wrapper' ) ) {
+		if ( $node instanceof DOMElement && $node->hasAttribute( 'data-mw-selser-wrapper' ) ) {
 			DOMDataUtils::getDataParsoid( $node )->dsr = null;
 		}
 	}
 
 	/**
-	 * @param Node $nodeA
-	 * @param Node $nodeB
+	 * @param DOMNode $nodeA
+	 * @param DOMNode $nodeB
 	 * @param string $laPrefix
 	 */
-	private function debugOut( Node $nodeA, Node $nodeB, string $laPrefix = '' ): void {
+	private function debugOut( DOMNode $nodeA, DOMNode $nodeB, string $laPrefix = '' ): void {
 		$this->env->log(
 			'trace/domdiff',
 			'--> A' . $laPrefix . ':' .
-				( $nodeA instanceof Element
+				( $nodeA instanceof DOMElement
 					? DOMCompat::getOuterHTML( $nodeA )
 					: PHPUtils::jsonEncode( $nodeA->nodeValue ) )
 		);
@@ -588,7 +588,7 @@ class DOMDiff {
 		$this->env->log(
 			'trace/domdiff',
 			'--> B' . $laPrefix . ':' .
-				( $nodeB instanceof Element
+				( $nodeB instanceof DOMElement
 					? DOMCompat::getOuterHTML( $nodeB )
 					: PHPUtils::jsonEncode( $nodeB->nodeValue ) )
 		);

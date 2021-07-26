@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMElement;
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -22,10 +22,10 @@ class HeadingsTest extends TestCase {
 	 * @param string $heading
 	 * @param string $description
 	 * @param array $expectedIds
-	 * @param Element $doc
+	 * @param DOMElement $doc
 	 */
 	public function validateId( string $name, string $heading, string $description, array $expectedIds,
-								Element $doc ): void {
+								DOMElement $doc ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, 'body > h1' );
 		$this->assertCount( count( $expectedIds ), $elts );
 

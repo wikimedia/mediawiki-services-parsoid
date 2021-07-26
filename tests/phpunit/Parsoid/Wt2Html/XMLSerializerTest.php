@@ -2,7 +2,7 @@
 
 namespace Test\Parsoid\Wt2Html;
 
-use Wikimedia\Parsoid\Utils\DOMCompat;
+use DOMDocument;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\TestingAccessWrapper;
 
@@ -12,11 +12,6 @@ use Wikimedia\TestingAccessWrapper;
  * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\XMLSerializer
  */
 class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
-	private static function parse( string $html, int $options = 0 ) {
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, $options );
-		return $doc;
-	}
 
 	/**
 	 * @covers ::serialize
@@ -31,7 +26,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$expectedInnerHtml = "<head><title>hi</title></head><body>"
 			. '<div id="123">ok<div id="234">nope</div></div>'
 			. "\n\n" . '<!--comment--><div id="345">end</div></body>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc );
 		$this->assertIsArray( $ret );
@@ -56,7 +52,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$html = '<html><head><title>hi</title><body>'
 			. '<div id="123">ok<div id="234">nope</div></div>'
 			. "\n\n" . '<!--comment--><div id="345">end</div></body></html>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
@@ -86,7 +83,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '<p about="#mwt1" id="justhappenstobehere">b</p>'
 			. '<p id="mwAg">c</p>'
 			. '</body></html>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
@@ -107,7 +105,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '<div style="color:red" about="#mwt2" typeof="mw:ExpandedAttrs" id="mwAQ" data-mw=\'{"attribs":[[{"txt":"style"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=\"{&amp;quot;pi&amp;quot;:[[{&amp;quot;k&amp;quot;:&amp;quot;1&amp;quot;}]],&amp;quot;dsr&amp;quot;:[12,30,null,null]}\" data-mw=\"{&amp;quot;parts&amp;quot;:[{&amp;quot;template&amp;quot;:{&amp;quot;target&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;1x&amp;quot;,&amp;quot;href&amp;quot;:&amp;quot;./Template:1x&amp;quot;},&amp;quot;params&amp;quot;:{&amp;quot;1&amp;quot;:{&amp;quot;wt&amp;quot;:&amp;quot;color:red&amp;quot;}},&amp;quot;i&amp;quot;:0}}]}\">color:red&lt;/span>"}]]}\'>boo</div>'
 			. '<p id="mwAg">next!</p>'
 			. '</body></html>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
@@ -129,7 +128,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			// phpcs:ignore Generic.Files.LineLength.TooLong
 			. '<map name="timeline" id="timeline" typeof="mw:Extension/timeline" data-mw=\'{"name":"timeline","attrs":{},"body":{"extsrc":"yadayadayada"}}\' about="#mwt1"></map>'
 			. '</body></html>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
@@ -149,7 +149,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$expectedHtml = "<!DOCTYPE html>\n<html><head><title>hi</title></head><body>"
 			. '<div id="123">ok<div id="234">nope</div></div>'
 			. "\n\n" . '<!--comment--><div id="345">end</div></body></html>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc );
 		$this->assertIsArray( $ret );
@@ -179,7 +180,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '<div attr="\'&quot;\'"></div>'
 			. '<div attr="\'&quot;\'"></div>'
 			. '</body></html>';
-		$doc = self::parse( $html );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
@@ -199,7 +201,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		// Must have a single root node, otherwise libxml messes up parsing in NOIMPLIED mode.
 		$html = '<div><span /><hr/></div>';
 		$expectedHtml = '<div><span></span><hr/></div>';
-		$doc = self::parse( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
@@ -212,7 +215,8 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testSerialize_rawContent() {
 		$html = '<script>x</script>';
-		$doc = self::parse( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
@@ -225,11 +229,12 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testSerialize_newlineStrippingElements() {
 		// Must have a single root node, otherwise libxml messes up parsing in NOIMPLIED mode.
-		// This test looks confusing because Document::loadHTML doesn't fully follow the spec;
+		// This test looks confusing because DOMDocument::loadHTML doesn't fully follow the spec;
 		// it should strip the first newline within a pre block.
 		$html = "<div><pre>\n</pre><div>\n</div></div>";
 		$expectedHtml = "<div><pre>\n\n</pre><div>\n</div></div>";
-		$doc = self::parse( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = new DOMDocument();
+		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 
 		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );

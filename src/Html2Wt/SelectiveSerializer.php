@@ -4,14 +4,14 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Composer\Semver\Semver;
+use DOMComment;
+use DOMDocument;
+use DOMElement;
+use DOMText;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\SelserData;
-use Wikimedia\Parsoid\DOM\Comment;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -71,10 +71,10 @@ class SelectiveSerializer {
 	 * have selser reuse apply to them and the speculatively computed DSR values will
 	 * be discarded.
 	 *
-	 * @param Element $body
+	 * @param DOMElement $body
 	 * @param string $nodeName
 	 */
-	private function wrapTextChildrenOfNode( Element $body, string $nodeName ): void {
+	private function wrapTextChildrenOfNode( DOMElement $body, string $nodeName ): void {
 		// Note that while it might seem that only the first and last child need to be
 		// wrapped, when nested list items are added, the previously last child of
 		// a list item become an intermediate child in the new DOM. Without the span
@@ -116,7 +116,7 @@ class SelectiveSerializer {
 					}
 				}
 				$next = $c->nextSibling;
-				if ( $c instanceof Text ) {
+				if ( $c instanceof DOMText ) {
 					$text = $c->nodeValue;
 					$len = strlen( $text );
 
@@ -162,9 +162,9 @@ class SelectiveSerializer {
 						$elt->replaceChild( $span, $c );
 						$span->appendChild( $c );
 					}
-				} elseif ( $c instanceof Comment ) {
+				} elseif ( $c instanceof DOMComment ) {
 					$start += WTUtils::decodedCommentLength( $c );
-				} elseif ( $c instanceof Element ) {
+				} elseif ( $c instanceof DOMElement ) {
 					// No point wrapping following text nodes if there won't be any usable DSR
 					$cDSR = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
 					if ( !Utils::isValidDSR( $cDSR ) ) {
@@ -179,9 +179,9 @@ class SelectiveSerializer {
 	}
 
 	/**
-	 * @param Element $body
+	 * @param DOMElement $body
 	 */
-	private function preprocessDOM( Element $body ): void {
+	private function preprocessDOM( DOMElement $body ): void {
 		if ( Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.2' ) ) {
 			// Wrap text node children of <li> elements in dummy spans
 			$this->wrapTextChildrenOfNode( $body, 'li' );
@@ -194,10 +194,10 @@ class SelectiveSerializer {
 	 *
 	 * WARNING: You probably want to use WikitextContentModelHandler::fromDOM instead.
 	 *
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 * @return string
 	 */
-	public function serializeDOM( Document $doc ): string {
+	public function serializeDOM( DOMDocument $doc ): string {
 		$serializeStart = null;
 		$domDiffStart = null;
 		$r = null;

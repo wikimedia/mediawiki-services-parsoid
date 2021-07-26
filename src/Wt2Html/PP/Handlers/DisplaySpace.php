@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMComment;
+use DOMElement;
+use DOMText;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
-use Wikimedia\Parsoid\DOM\Comment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -22,12 +22,12 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 class DisplaySpace {
 
 	/**
-	 * @param Text $node
+	 * @param DOMText $node
 	 * @return ?int
 	 */
-	private static function getTextNodeDSRStart( Text $node ): ?int {
+	private static function getTextNodeDSRStart( DOMText $node ): ?int {
 		$parent = $node->parentNode;
-		'@phan-var Element $parent';  /** @var Element $parent */
+		'@phan-var DOMElement $parent';  /** @var DOMElement $parent */
 		$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
 		if ( !Utils::isValidDSR( $dsr, true ) ) {
 			return null;
@@ -35,12 +35,12 @@ class DisplaySpace {
 		$start = $dsr->innerStart();
 		$c = $parent->firstChild;
 		while ( $c !== $node ) {
-			if ( $c instanceof Comment ) {
+			if ( $c instanceof DOMComment ) {
 				$start += WTUtils::decodedCommentLength( $c );
-			} elseif ( $c instanceof Text ) {
+			} elseif ( $c instanceof DOMText ) {
 				$start += strlen( $c->nodeValue );
 			} else {
-				'@phan-var Element $c';  /** @var Element $c */
+				'@phan-var DOMElement $c';  /** @var DOMElement $c */
 				$dsr = DOMDataUtils::getDataParsoid( $c )->dsr ?? null;
 				if ( !Utils::isValidDSR( $dsr ) ) {
 					return null;
@@ -53,11 +53,11 @@ class DisplaySpace {
 	}
 
 	/**
-	 * @param Text $node
+	 * @param DOMText $node
 	 * @param int $offset
 	 */
 	private static function insertDisplaySpace(
-		Text $node, int $offset
+		DOMText $node, int $offset
 	): void {
 		$str = $str = $node->nodeValue;
 
@@ -88,11 +88,11 @@ class DisplaySpace {
 	/**
 	 * French spaces, Guillemet-left
 	 *
-	 * @param Text $node
+	 * @param DOMText $node
 	 * @param Env $env
-	 * @return bool|Element
+	 * @return bool|DOMElement
 	 */
-	public static function leftHandler( Text $node, Env $env ) {
+	public static function leftHandler( DOMText $node, Env $env ) {
 		if ( DOMUtils::isRawTextElement( $node->parentNode ) ) {
 			return true;
 		}
@@ -108,11 +108,11 @@ class DisplaySpace {
 	/**
 	 * French spaces, Guillemet-right
 	 *
-	 * @param Text $node
+	 * @param DOMText $node
 	 * @param Env $env
-	 * @return bool|Element
+	 * @return bool|DOMElement
 	 */
-	public static function rightHandler( Text $node, Env $env ) {
+	public static function rightHandler( DOMText $node, Env $env ) {
 		if ( DOMUtils::isRawTextElement( $node->parentNode ) ) {
 			return true;
 		}

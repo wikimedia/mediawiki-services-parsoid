@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -28,10 +28,10 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * This is equivalent to DOMUtils.emitsSolTransparentSingleLineWT except
 	 * for the single line constraint.
 	 *
-	 * @param Node $n
+	 * @param DOMNode $n
 	 * @return bool
 	 */
-	private function emitsSolTransparentWT( Node $n ): bool {
+	private function emitsSolTransparentWT( DOMNode $n ): bool {
 		return DOMUtils::isText( $n ) && preg_match( '/^\s*$/D', $n->nodeValue ) ||
 			DOMUtils::isComment( $n ) ||
 			isset( WikitextConstants::$HTML['MetaTags'][$n->nodeName] );
@@ -45,10 +45,10 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * This is probably equivalent to asking if this node supports the
 	 * adoption agency algorithm in the HTML5 spec.
 	 *
-	 * @param Node $n
+	 * @param DOMNode $n
 	 * @return bool
 	 */
-	private function isSplittableTag( Node $n ): bool {
+	private function isSplittableTag( DOMNode $n ): bool {
 		// Seems safe to split span, sub, sup, cite tags
 		//
 		// However, if we want to mimic Parsoid and HTML5 spec
@@ -60,10 +60,10 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * Is 'n' a block tag, or does the subtree rooted at 'n' have a block tag
 	 * in it?
 	 *
-	 * @param Node $n
+	 * @param DOMNode $n
 	 * @return bool
 	 */
-	private function hasBlockTag( Node $n ): bool {
+	private function hasBlockTag( DOMNode $n ): bool {
 		if ( DOMUtils::isRemexBlockNode( $n ) ) {
 			return true;
 		}
@@ -80,11 +80,11 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	/**
 	 * Merge a contiguous run of split subtrees that have identical pwrap properties
 	 *
-	 * @param Element $n
+	 * @param DOMElement $n
 	 * @param array $a
 	 * @return array
 	 */
-	private function mergeRuns( Element $n, array $a ): array {
+	private function mergeRuns( DOMElement $n, array $a ): array {
 		$ret = [];
 		// This flag should be transferred to the rightmost
 		// clone of this node in the loop below.
@@ -102,7 +102,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 				// @phan-suppress-next-line PhanTypeInvalidDimOffset
 				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = true;
 				$cnode = $n->cloneNode();
-				'@phan-var Element $cnode'; // @var Element $cnode
+				'@phan-var DOMElement $cnode'; // @var DOMElement $cnode
 				$cnode->removeAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
 				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $cnode ];
 				$i++;
@@ -120,10 +120,10 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	/**
 	 * Implements the split operation described in the algorithm below.
 	 *
-	 * @param Node $n
+	 * @param DOMNode $n
 	 * @return array
 	 */
-	private function split( Node $n ): array {
+	private function split( DOMNode $n ): array {
 		if ( $this->emitsSolTransparentWT( $n ) ) {
 			// The null stuff here is mainly to support mw:EndTag metas getting in
 			// the way of runs and causing unnecessary wrapping.
@@ -185,9 +185,9 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *    or a comment node. The current algorithm does not ensure that it doesn't
 	 *    end with one of those either, but that is a potential future enhancement.
 	 *
-	 * @param Element|DocumentFragment $root
+	 * @param DOMElement|DOMDocumentFragment $root
 	 */
-	private function pWrapDOM( Node $root ) {
+	private function pWrapDOM( DOMNode $root ) {
 		$p = null;
 		$c = $root->firstChild;
 		while ( $c ) {
@@ -225,14 +225,14 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * and uses pWrapDOM to add appropriate paragraph wrapper
 	 * tags around children of nodes with tag name '$tagName'.
 	 *
-	 * @param Element|DocumentFragment $root
+	 * @param DOMElement|DOMDocumentFragment $root
 	 * @param string $tagName
 	 */
-	private function pWrapInsideTag( Node $root, string $tagName ) {
+	private function pWrapInsideTag( DOMNode $root, string $tagName ) {
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
-			if ( $c instanceof Element ) {
+			if ( $c instanceof DOMElement ) {
 				if ( $c->nodeName === $tagName ) {
 					$this->pWrapDOM( $c );
 				} else {
@@ -250,9 +250,9 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
+		'@phan-var DOMElement|DOMDocumentFragment $root';  // @var DOMElement|DOMDocumentFragment $root
 		$this->pWrapDOM( $root );
 		$this->pWrapInsideTag( $root, 'blockquote' );
 	}

@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -24,8 +24,8 @@ class QuoteHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		Element $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?Node {
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMNode {
 		if ( $this->precedingQuoteEltRequiresEscape( $node ) ) {
 			WTSUtils::emitStartTag( '<nowiki/>', $node, $state );
 		}
@@ -47,11 +47,11 @@ class QuoteHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return bool
 	 */
 	private function precedingQuoteEltRequiresEscape(
-		Element $node
+		DOMElement $node
 	): bool {
 		// * <i> and <b> siblings don't need a <nowiki/> separation
 		// as long as quote chars in text nodes are always

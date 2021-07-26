@@ -3,8 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use DOMDocument;
+
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ContentModelHandler as ExtContentModelHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
@@ -25,7 +26,7 @@ class ExtensionContentModelHandler extends ContentModelHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function toDOM( Env $env ): Document {
+	public function toDOM( Env $env ): DOMDocument {
 		$extApi = new ParsoidExtensionAPI( $env );
 		return $this->impl->toDOM( $extApi );
 	}

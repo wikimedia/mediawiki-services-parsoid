@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -17,8 +17,8 @@ class BRHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		Element $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?Node {
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMNode {
 		if ( $state->singleLineContext->enforced()
 			 || ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'html'
 			 || $node->parentNode->nodeName !== 'p'
@@ -34,7 +34,7 @@ class BRHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( $state->singleLineContext->enforced() || !$this->isPbr( $node ) ) {
 			return [];
 		}
@@ -53,7 +53,7 @@ class BRHandler extends DOMHandler {
 	 * @inheritDoc
 	 * NOTE: There is an asymmetry in the before/after handlers.
 	 */
-	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		// Note that the before handler has already forced 1 additional
 		// newline for all <p><br/> scenarios which simplifies the work
 		// of the after handler.
@@ -89,20 +89,20 @@ class BRHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param Element $br
+	 * @param DOMElement $br
 	 * @return bool
 	 */
-	private function isPbr( Element $br ): bool {
+	private function isPbr( DOMElement $br ): bool {
 		return ( DOMDataUtils::getDataParsoid( $br )->stx ?? null ) !== 'html'
 			&& $br->parentNode->nodeName === 'p'
 			&& DOMUtils::firstNonSepChild( $br->parentNode ) === $br;
 	}
 
 	/**
-	 * @param Element $br
+	 * @param DOMElement $br
 	 * @return bool
 	 */
-	private function isPbrP( Element $br ): bool {
+	private function isPbrP( DOMElement $br ): bool {
 		return $this->isPbr( $br ) && DOMUtils::nextNonSepSibling( $br ) === null;
 	}
 

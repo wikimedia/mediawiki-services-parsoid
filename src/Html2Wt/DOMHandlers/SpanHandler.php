@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Core\MediaStructure;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
@@ -24,8 +24,8 @@ class SpanHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		Element $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?Node {
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMNode {
 		$env = $state->getEnv();
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		if ( self::isRecognizedSpanWrapper( $node ) ) {
@@ -92,10 +92,10 @@ class SpanHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return string|null
 	 */
-	private static function isRecognizedSpanWrapper( Element $node ): ?string {
+	private static function isRecognizedSpanWrapper( DOMElement $node ): ?string {
 		return DOMUtils::matchTypeOf(
 			$node,
 			// FIXME(T254501): Remove mw:DisplaySpace

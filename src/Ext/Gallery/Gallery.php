@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
+use DOMDocumentFragment;
+use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Core\MediaStructure;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -47,11 +47,11 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	 * Parse the gallery caption.
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param array $extArgs
-	 * @return ?DocumentFragment
+	 * @return ?DOMDocumentFragment
 	 */
 	private function pCaption(
 		ParsoidExtensionAPI $extApi, array $extArgs
-	): ?DocumentFragment {
+	): ?DOMDocumentFragment {
 		return $extApi->extArgToDOM( $extArgs, 'caption' );
 	}
 
@@ -141,7 +141,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		$attrs = $extApi->extArgsToArray( $args );
 		$opts = new Opts( $extApi, $attrs );
 
@@ -175,11 +175,11 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return string
 	 */
 	private function contentHandler(
-		ParsoidExtensionAPI $extApi, Element $node
+		ParsoidExtensionAPI $extApi, DOMElement $node
 	): string {
 		$content = "\n";
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
@@ -261,7 +261,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function domToWikitext(
-		ParsoidExtensionAPI $extApi, Element $node, bool $wrapperUnmodified
+		ParsoidExtensionAPI $extApi, DOMElement $node, bool $wrapperUnmodified
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$dataMw->attrs = $dataMw->attrs ?? new stdClass;

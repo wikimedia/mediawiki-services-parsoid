@@ -3,16 +3,17 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use DOMDocument;
+
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Document;
 
 abstract class ContentModelHandler {
 
 	/**
 	 * @param Env $env
-	 * @return Document
+	 * @return DOMDocument
 	 */
-	abstract public function toDOM( Env $env ): Document;
+	abstract public function toDOM( Env $env ): DOMDocument;
 
 	/**
 	 * @param Env $env

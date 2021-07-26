@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -19,12 +19,12 @@ use Wikimedia\Parsoid\Utils\Utils;
 
 class UnpackDOMFragments {
 	/**
-	 * @param Node $targetNode
-	 * @param DocumentFragment $fragment
+	 * @param DOMNode $targetNode
+	 * @param DOMDocumentFragment $fragment
 	 * @return bool
 	 */
 	private static function hasBadNesting(
-		Node $targetNode, DocumentFragment $fragment
+		DOMNode $targetNode, DOMDocumentFragment $fragment
 	): bool {
 		// SSS FIXME: This is not entirely correct. This is only
 		// looking for nesting of identical tags. But, HTML tree building
@@ -39,12 +39,12 @@ class UnpackDOMFragments {
 	}
 
 	/**
-	 * @param Element $targetNode
-	 * @param DocumentFragment $fragment
+	 * @param DOMElement $targetNode
+	 * @param DOMDocumentFragment $fragment
 	 * @param Env $env
 	 */
 	public static function fixUpMisnestedTagDSR(
-		Element $targetNode, DocumentFragment $fragment, Env $env
+		DOMElement $targetNode, DOMDocumentFragment $fragment, Env $env
 	): void {
 		// Currently, this only deals with A-tags
 		if ( $targetNode->nodeName !== 'a' ) {
@@ -64,8 +64,8 @@ class UnpackDOMFragments {
 		$resetDSR = false;
 		$dsrFixer = new DOMTraverser();
 		$newOffset = DOMDataUtils::getDataParsoid( $targetNode )->dsr->end ?? null;
-		$fixHandler = static function ( Node $node ) use ( &$resetDSR, &$newOffset ) {
-			if ( $node instanceof Element ) {
+		$fixHandler = static function ( DOMNode $node ) use ( &$resetDSR, &$newOffset ) {
+			if ( $node instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $node->nodeName === 'a' ) {
 					$resetDSR = true;
@@ -96,15 +96,15 @@ class UnpackDOMFragments {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param int $delta
 	 */
-	public static function addDeltaToDSR( Node $node, int $delta ): void {
+	public static function addDeltaToDSR( DOMNode $node, int $delta ): void {
 		// Add 'delta' to dsr->start and dsr->end for nodes in the subtree
 		// node's dsr has already been updated
 		$child = $node->firstChild;
 		while ( $child ) {
-			if ( $child instanceof Element ) {
+			if ( $child instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				if ( !empty( $dp->dsr ) ) {
 					// SSS FIXME: We've exploited partial DSR information
@@ -131,13 +131,13 @@ class UnpackDOMFragments {
 
 	/**
 	 * @param Env $env
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param array &$aboutIdMap
 	 */
-	private static function fixAbouts( Env $env, Node $node, array &$aboutIdMap = [] ): void {
+	private static function fixAbouts( Env $env, DOMNode $node, array &$aboutIdMap = [] ): void {
 		$c = $node->firstChild;
 		while ( $c ) {
-			if ( $c instanceof Element ) {
+			if ( $c instanceof DOMElement ) {
 				if ( $c->hasAttribute( 'about' ) ) {
 					$cAbout = $c->getAttribute( 'about' );
 					// Update about
@@ -155,11 +155,11 @@ class UnpackDOMFragments {
 	}
 
 	/**
-	 * @param DocumentFragment $domFragment
+	 * @param DOMDocumentFragment $domFragment
 	 * @param string $about
 	 */
 	private static function makeChildrenEncapWrappers(
-		DocumentFragment $domFragment, string $about
+		DOMDocumentFragment $domFragment, string $about
 	): void {
 		PipelineUtils::addSpanWrappers( $domFragment->childNodes );
 
@@ -167,11 +167,11 @@ class UnpackDOMFragments {
 		while ( $c ) {
 			/**
 			 * We just span wrapped the child nodes, so it's safe to assume
-			 * they're all Elements.
+			 * they're all DOMElements.
 			 *
-			 * @var Element $c
+			 * @var DOMElement $c
 			 */
-			'@phan-var Element $c';
+			'@phan-var DOMElement $c';
 			// FIXME: This unconditionally sets about on children
 			// This is currently safe since all of them are nested
 			// inside a transclusion, but do we need future-proofing?
@@ -183,12 +183,12 @@ class UnpackDOMFragments {
 	/**
 	 * DOMTraverser handler that unpacks DOM fragments which were injected in the
 	 * token pipeline.
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param Env $env
-	 * @return bool|Node
+	 * @return bool|DOMNode
 	 */
-	public static function handler( Node $node, Env $env ) {
-		if ( !$node instanceof Element ) {
+	public static function handler( DOMNode $node, Env $env ) {
+		if ( !$node instanceof DOMElement ) {
 			return true;
 		}
 

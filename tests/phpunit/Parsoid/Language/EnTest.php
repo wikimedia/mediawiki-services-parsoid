@@ -2,11 +2,11 @@
 
 namespace Test\Parsoid\Language;
 
+use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class EnTest extends TestCase {
 
@@ -58,7 +58,7 @@ class EnTest extends TestCase {
 				continue;
 			}
 
-			$doc = DOMCompat::newDocument( true );
+			$doc = new DOMDocument();
 			$out = self::$machine->convert(
 				$doc, $input, $variantCode,
 				$invertCode ?? $this->getInvertCode( $variantCode )

@@ -3,11 +3,11 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use DOMElement;
+use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -41,10 +41,10 @@ class WTSUtils {
 	/**
 	 * Get the attributes on a node in an array of KV objects.
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return KV[]
 	 */
-	public static function getAttributeKVArray( Element $node ): array {
+	public static function getAttributeKVArray( DOMElement $node ): array {
 		$kvs = [];
 		foreach ( DOMCompat::attributes( $node ) as $attrib ) {
 			$kvs[] = new KV( $attrib->name, $attrib->value );
@@ -55,10 +55,10 @@ class WTSUtils {
 	/**
 	 * Create a `TagTk` corresponding to a DOM node.
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return TagTk
 	 */
-	public static function mkTagTk( Element $node ): TagTk {
+	public static function mkTagTk( DOMElement $node ): TagTk {
 		$attribKVs = self::getAttributeKVArray( $node );
 		return new TagTk(
 			$node->nodeName,
@@ -70,10 +70,10 @@ class WTSUtils {
 	/**
 	 * Create a `EndTagTk` corresponding to a DOM node.
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return EndTagTk
 	 */
-	public static function mkEndTagTk( Element $node ): EndTagTk {
+	public static function mkEndTagTk( DOMElement $node ): EndTagTk {
 		$attribKVs = self::getAttributeKVArray( $node );
 		return new EndTagTk(
 			$node->nodeName,
@@ -93,12 +93,12 @@ class WTSUtils {
 	 * fromsrc => bool (Whether we got the value from source-based roundtripping)
 	 * ]
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $name
 	 * @param ?string $curVal
 	 * @return array
 	 */
-	public static function getShadowInfo( Element $node, string $name, ?string $curVal ): array {
+	public static function getShadowInfo( DOMElement $node, string $name, ?string $curVal ): array {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		// Not the case, continue regular round-trip information.
@@ -139,11 +139,11 @@ class WTSUtils {
 	 * fromsrc => bool (Whether we got the value from source-based roundtripping)
 	 * ]
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $name
 	 * @return array
 	 */
-	public static function getAttributeShadowInfo( Element $node, string $name ): array {
+	public static function getAttributeShadowInfo( DOMElement $node, string $name ): array {
 		return self::getShadowInfo(
 			$node,
 			$name,
@@ -164,13 +164,13 @@ class WTSUtils {
 	 * not marked with autoInsertedStart.
 	 *
 	 * @param string $src
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param SerializerState $state
 	 * @param bool $dontEmit
 	 * @return bool
 	 */
 	public static function emitStartTag(
-		string $src, Element $node, SerializerState $state, bool $dontEmit = false
+		string $src, DOMElement $node, SerializerState $state, bool $dontEmit = false
 	): bool {
 		if ( !$dontEmit ) {
 			$state->emitChunk( $src, $node );
@@ -183,13 +183,13 @@ class WTSUtils {
 	 * not marked with autoInsertedEnd.
 	 *
 	 * @param string $src
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param SerializerState $state
 	 * @param bool $dontEmit
 	 * @return bool
 	 */
 	public static function emitEndTag(
-		string $src, Element $node, SerializerState $state, bool $dontEmit = false
+		string $src, DOMElement $node, SerializerState $state, bool $dontEmit = false
 	): bool {
 		if ( !$dontEmit ) {
 			$state->emitChunk( $src, $node );
@@ -203,12 +203,12 @@ class WTSUtils {
 	 * transparent in rendering. (See emitsSolTransparentSingleLineWT for
 	 * which nodes.)
 	 *
-	 * @param ?Node $origNode
+	 * @param ?DOMNode $origNode
 	 * @param bool $before
 	 * @return bool
 	 */
 	public static function nextToDeletedBlockNodeInWT(
-		?Node $origNode, bool $before
+		?DOMNode $origNode, bool $before
 	): bool {
 		if ( !$origNode || DOMUtils::atTheTop( $origNode ) ) {
 			return false;
@@ -245,11 +245,11 @@ class WTSUtils {
 	/**
 	 * Check if whitespace preceding this node would NOT trigger an indent-pre.
 	 *
-	 * @param Node $node
-	 * @param Node $sepNode
+	 * @param DOMNode $node
+	 * @param DOMNode $sepNode
 	 * @return bool
 	 */
-	public static function precedingSpaceSuppressesIndentPre( Node $node, Node $sepNode ): bool {
+	public static function precedingSpaceSuppressesIndentPre( DOMNode $node, DOMNode $sepNode ): bool {
 		if ( $node !== $sepNode && DOMUtils::isText( $node ) ) {
 			// if node is the same as sepNode, then the separator text
 			// at the beginning of it has been stripped out already, and
@@ -267,10 +267,10 @@ class WTSUtils {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @return string
 	 */
-	public static function traceNodeName( Node $node ): string {
+	public static function traceNodeName( DOMNode $node ): string {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				return ( DOMUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . $node->nodeName;
@@ -288,10 +288,10 @@ class WTSUtils {
 	 * is reusable as is.
 	 *
 	 * @param Env $env
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	public static function origSrcValidInEditedContext( Env $env, Node $node ): bool {
+	public static function origSrcValidInEditedContext( Env $env, DOMNode $node ): bool {
 		$prev = null;
 
 		if ( WTUtils::isRedirectLink( $node ) ) {
@@ -381,10 +381,10 @@ class WTSUtils {
 	/**
 	 * Extracts the media format from attribute string
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return string
 	 */
-	public static function getMediaFormat( Element $node ): string {
+	public static function getMediaFormat( DOMElement $node ): string {
 		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/|$)#' );
 		$parts = explode( '/', $mediaType ?? '' );
 		return $parts[1] ?? '';

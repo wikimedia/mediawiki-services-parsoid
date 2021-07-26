@@ -3,13 +3,13 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
+use DOMElement;
+use DOMNode;
+use DOMText;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -18,11 +18,11 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 
 class CleanUp {
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param Env $env
-	 * @return bool|Element
+	 * @return bool|DOMElement
 	 */
-	public static function stripMarkerMetas( Element $node, Env $env ) {
+	public static function stripMarkerMetas( DOMElement $node, Env $env ) {
 		if (
 			// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 			// element attached to it. So, check if the node has data-mw,
@@ -48,18 +48,18 @@ class CleanUp {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return bool|Node
+	 * @return bool|DOMNode
 	 */
 	public static function handleEmptyElements(
-		Node $node, Env $env, array $options, bool $atTopLevel = false,
+		DOMNode $node, Env $env, array $options, bool $atTopLevel = false,
 		?stdClass $tplInfo = null
 	) {
-		if ( !( $node instanceof Element ) ||
+		if ( !( $node instanceof DOMElement ) ||
 			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][$node->nodeName] ) ||
 			!DOMUtils::nodeEssentiallyEmpty( $node )
 		) {
@@ -98,10 +98,10 @@ class CleanUp {
 	 * FIXME: Worry about "about" siblings
 	 *
 	 * @param Env $env
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return bool
 	 */
-	private static function inNativeContent( Env $env, Element $node ): bool {
+	private static function inNativeContent( Env $env, DOMElement $node ): bool {
 		while ( !DOMUtils::atTheTop( $node ) ) {
 			if ( WTUtils::getNativeExt( $env, $node ) !== null ) {
 				return true;
@@ -113,10 +113,10 @@ class CleanUp {
 
 	/**
 	 * Whitespace in this function refers to [ \t] only
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param ?DomSourceRange $dsr
 	 */
-	private static function trimWhiteSpace( Element $node, ?DomSourceRange $dsr ): void {
+	private static function trimWhiteSpace( DOMElement $node, ?DomSourceRange $dsr ): void {
 		// Trim leading ws (on the first line)
 		$trimmedLen = 0;
 		$updateDSR = true;
@@ -186,17 +186,17 @@ class CleanUp {
 	 * Perform some final cleanup and save data-parsoid attributes on each node.
 	 *
 	 * @param array $usedIdIndex
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param Env $env
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return bool|Text
+	 * @return bool|DOMText
 	 */
 	public static function cleanupAndSaveDataParsoid(
-		array $usedIdIndex, Node $node, Env $env,
+		array $usedIdIndex, DOMNode $node, Env $env,
 		bool $atTopLevel = false, ?stdClass $tplInfo = null
 	) {
-		if ( !( $node instanceof Element ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return true;
 		}
 

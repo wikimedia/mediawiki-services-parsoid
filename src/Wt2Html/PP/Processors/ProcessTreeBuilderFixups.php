@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
+use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -24,9 +24,9 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	 * PORT-FIXME: This comment was true for domino in JS.
 	 * PORT-FIXME: We should confirm if this is also true for PHP DOM.
 	 *
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	private static function deleteShadowMeta( Node $node ): void {
+	private static function deleteShadowMeta( DOMNode $node ): void {
 		$node->parentNode->replaceChild(
 			$node->ownerDocument->createTextNode( '' ),
 			$node
@@ -35,13 +35,13 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param Frame $frame
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param stdClass $dp
 	 * @param string $name
 	 * @param stdClass $opts
 	 */
 	private static function addPlaceholderMeta(
-		Frame $frame, Node $node, stdClass $dp, string $name, stdClass $opts
+		Frame $frame, DOMNode $node, stdClass $dp, string $name, stdClass $opts
 	): void {
 		// If node is in a position where the placeholder
 		// node will get fostered out, dont bother adding one
@@ -85,21 +85,21 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	/**
 	 * Search forward for a shadow meta, skipping over other end metas
 	 *
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param string $type
 	 * @param string $name
-	 * @return Element|null
+	 * @return DOMElement|null
 	 */
 	private static function findMetaShadowNode(
-		Node $node, string $type, string $name
-	): ?Element {
+		DOMNode $node, string $type, string $name
+	): ?DOMElement {
 		$isHTML = WTUtils::isLiteralHTMLNode( $node );
 		while ( $node ) {
 			$sibling = $node->nextSibling;
 			if ( !$sibling || !DOMUtils::isMarkerMeta( $sibling, $type ) ) {
 				return null;
 			}
-			'@phan-var Element $sibling';  /** @var Element $sibling */
+			'@phan-var DOMElement $sibling';  /** @var DOMElement $sibling */
 			if ( $sibling->getAttribute( 'data-etag' ) === $name &&
 				// If the node was literal html, the end tag should be as well.
 				// However, the converse isn't true. A node for an
@@ -123,14 +123,14 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	 * 2. Deletes any useless end-tag marker metas
 	 *
 	 * @param Frame $frame
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	private static function findDeletedStartTags( Frame $frame, Node $node ): void {
+	private static function findDeletedStartTags( Frame $frame, DOMNode $node ): void {
 		// handle unmatched mw:StartTag meta tags
 		$c = $node->firstChild;
 		while ( $c !== null ) {
 			$sibling = $c->nextSibling;
-			if ( $c instanceof Element ) {
+			if ( $c instanceof DOMElement ) {
 				$dp = DOMDataUtils::getDataParsoid( $c );
 				if ( $c->nodeName === 'meta' ) {
 					if ( DOMUtils::hasTypeOf( $c, 'mw:StartTag' ) ) {
@@ -215,9 +215,9 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	 * the HTML tree builder
 	 *
 	 * @param Frame $frame
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	private static function findAutoInsertedTags( Frame $frame, Node $node ): void {
+	private static function findAutoInsertedTags( Frame $frame, DOMNode $node ): void {
 		$c = $node->firstChild;
 
 		while ( $c !== null ) {
@@ -227,7 +227,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 
-			if ( $c instanceof Element ) {
+			if ( $c instanceof DOMElement ) {
 				// Process subtree first
 				self::findAutoInsertedTags( $frame, $c );
 
@@ -257,7 +257,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 						// Detect auto-inserted start-tags
 						$fc = $c->firstChild;
 						while ( $fc ) {
-							if ( !$fc instanceof Element ) {
+							if ( !$fc instanceof DOMElement ) {
 								break;
 							}
 							$fcDP = DOMDataUtils::getDataParsoid( $fc );
@@ -269,7 +269,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 						}
 
 						$expectedName = $cNodeName . ':' . $dp->tmp->tagId;
-						if ( $fc instanceof Element && DOMUtils::isMarkerMeta( $fc, 'mw:StartTag' ) &&
+						if ( $fc instanceof DOMElement && DOMUtils::isMarkerMeta( $fc, 'mw:StartTag' ) &&
 							substr(
 								$fc->getAttribute( 'data-stag' ),
 								0,
@@ -317,9 +317,9 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	 * is indeed empty.
 	 *
 	 * @param Frame $frame
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	private static function removeAutoInsertedEmptyTags( Frame $frame, Node $node ) {
+	private static function removeAutoInsertedEmptyTags( Frame $frame, DOMNode $node ) {
 		$c = $node->firstChild;
 		while ( $c !== null ) {
 			// FIXME: Encapsulation only happens after this phase, so you'd think
@@ -331,7 +331,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 
-			if ( $c instanceof Element ) {
+			if ( $c instanceof DOMElement ) {
 				self::removeAutoInsertedEmptyTags( $frame, $c );
 				$dp = DOMDataUtils::getDataParsoid( $c );
 
@@ -369,7 +369,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$frame = $options['frame'];
 		self::findAutoInsertedTags( $frame, $root );

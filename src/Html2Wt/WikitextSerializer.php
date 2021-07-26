@@ -3,15 +3,15 @@
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Closure;
+use DOMDocument;
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Exception;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandlerFactory;
@@ -134,19 +134,19 @@ class WikitextSerializer {
 
 	/**
 	 * Main link handler.
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * Used in multiple tag handlers (<a> and <link>), and hence added as top-level method
 	 * PORT-TODO: rename to something like handleLink()?
 	 */
-	public function linkHandler( Element $node ): void {
+	public function linkHandler( DOMElement $node ): void {
 		LinkHandlerUtils::linkHandler( $this->state, $node );
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return void
 	 */
-	public function languageVariantHandler( Node $node ): void {
+	public function languageVariantHandler( DOMNode $node ): void {
 		LanguageVariantHandler::handleLanguageVariant( $this->state, $node );
 	}
 
@@ -158,7 +158,7 @@ class WikitextSerializer {
 	 * @param SerializerState $state
 	 * @param string $text
 	 * @param array $opts
-	 *   - node: (Node)
+	 *   - node: (DOMNode)
 	 *   - isLastChild: (bool)
 	 * @return string
 	 */
@@ -168,11 +168,11 @@ class WikitextSerializer {
 
 	/**
 	 * @param array $opts
-	 * @param DocumentFragment $node
+	 * @param DOMDocumentFragment $node
 	 * @return string
 	 */
 	public function domToWikitext(
-		array $opts, DocumentFragment $node
+		array $opts, DOMDocumentFragment $node
 	): string {
 		$opts['logType'] = $this->logType;
 		$serializer = new WikitextSerializer( $opts );
@@ -192,11 +192,11 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $key
 	 * @return string
 	 */
-	public function getAttributeKey( Element $node, string $key ): string {
+	public function getAttributeKey( DOMElement $node, string $key ): string {
 		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
 		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's key is generated content,
@@ -213,11 +213,11 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $key Attribute name.
 	 * @return ?string The wikitext value, or null if the attribute is not present.
 	 */
-	public function getAttributeValue( Element $node, string $key ): ?string {
+	public function getAttributeValue( DOMElement $node, string $key ): ?string {
 		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
 		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's value is generated content,
@@ -245,12 +245,12 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $key
 	 * @return array|null A tuple in {@link WTSUtils::getShadowInfo()} format,
 	 *   with an extra 'fromDataMW' flag.
 	 */
-	public function getAttributeValueAsShadowInfo( Element $node, string $key ): ?array {
+	public function getAttributeValueAsShadowInfo( DOMElement $node, string $key ): ?array {
 		$v = $this->getAttributeValue( $node, $key );
 		if ( $v === null ) {
 			return $v;
@@ -264,34 +264,34 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $dataMWnode
-	 * @param Element $htmlAttrNode
+	 * @param DOMElement $dataMWnode
+	 * @param DOMElement $htmlAttrNode
 	 * @param string $key
 	 * @return array A tuple in {@link WTSUtils::getShadowInfo()} format,
 	 *   possibly with an extra 'fromDataMW' flag.
 	 */
 	public function serializedImageAttrVal(
-		Element $dataMWnode, Element $htmlAttrNode, string $key
+		DOMElement $dataMWnode, DOMElement $htmlAttrNode, string $key
 	): array {
 		$v = $this->getAttributeValueAsShadowInfo( $dataMWnode, $key );
 		return $v ?: WTSUtils::getAttributeShadowInfo( $htmlAttrNode, $key );
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $name
 	 * @return array
 	 */
-	public function serializedAttrVal( Element $node, string $name ): array {
+	public function serializedAttrVal( DOMElement $node, string $name ): array {
 		return $this->serializedImageAttrVal( $node, $node, $name );
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param bool $wrapperUnmodified
 	 * @return string
 	 */
-	public function serializeHTMLTag( Element $node, bool $wrapperUnmodified ): string {
+	public function serializeHTMLTag( DOMElement $node, bool $wrapperUnmodified ): string {
 		// TODO(arlolra): As of 1.3.0, html pre is considered an extension
 		// and wrapped in encapsulation.  When that version is no longer
 		// accepted for serialization, we can remove this backwards
@@ -339,11 +339,11 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param bool $wrapperUnmodified
 	 * @return string
 	 */
-	public function serializeHTMLEndTag( Element $node, $wrapperUnmodified ): string {
+	public function serializeHTMLEndTag( DOMElement $node, $wrapperUnmodified ): string {
 		if ( $wrapperUnmodified ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
 			return $this->state->getOrigSrc( $dsr->innerEnd(), $dsr->end ) ?? '';
@@ -373,12 +373,12 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param Token $token
 	 * @param bool $isWt
 	 * @return string
 	 */
-	public function serializeAttributes( Element $node, Token $token, bool $isWt = false ): string {
+	public function serializeAttributes( DOMElement $node, Token $token, bool $isWt = false ): string {
 		$attribs = $token->attribs;
 
 		$out = [];
@@ -511,9 +511,9 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 */
-	public function handleLIHackIfApplicable( Element $node ): void {
+	public function handleLIHackIfApplicable( DOMElement $node ): void {
 		$liHackSrc = DOMDataUtils::getDataParsoid( $node )->liHackSrc ?? null;
 		$prev = DOMUtils::previousNonSepSibling( $node );
 
@@ -661,7 +661,7 @@ class WikitextSerializer {
 	 * Serialize part of a templatelike expression.
 	 * @param SerializerState $state
 	 * @param string $buf
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param string $type The type of the part to be serialized. One of template, templatearg,
 	 *   parserfunction.
 	 * @param stdClass $part The expression fragment to serialize. See $srcParts
@@ -673,7 +673,7 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	private function serializePart(
-		SerializerState $state, string $buf, Element $node, string $type, stdClass $part,
+		SerializerState $state, string $buf, DOMElement $node, string $type, stdClass $part,
 		?array $tplData, $prevPart, $nextPart
 	): string {
 		// Parse custom format specification, if present.
@@ -911,12 +911,12 @@ class WikitextSerializer {
 	/**
 	 * Serialize a template from its parts.
 	 * @param SerializerState $state
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param stdClass[] $srcParts PORT-FIXME document
 	 * @return string
 	 */
 	public function serializeFromParts(
-		SerializerState $state, Element $node, array $srcParts
+		SerializerState $state, DOMElement $node, array $srcParts
 	): string {
 		$useTplData = WTUtils::isNewElt( $node ) || DiffUtils::hasDiffMarkers( $node, $this->env );
 		$buf = '';
@@ -967,11 +967,11 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param SerializerState $state
 	 * @return string
 	 */
-	public function serializeExtensionStartTag( Element $node, SerializerState $state ): string {
+	public function serializeExtensionStartTag( DOMElement $node, SerializerState $state ): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$extName = $dataMw->name;
 
@@ -999,11 +999,11 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param SerializerState $state
 	 * @return string
 	 */
-	public function defaultExtensionHandler( Element $node, SerializerState $state ): string {
+	public function defaultExtensionHandler( DOMElement $node, SerializerState $state ): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$src = $this->serializeExtensionStartTag( $node, $state );
 		if ( !isset( $dataMw->body ) ) {
@@ -1020,10 +1020,10 @@ class WikitextSerializer {
 	/**
 	 * Consolidate separator handling when emitting text.
 	 * @param string $res
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param bool $omitEscaping
 	 */
-	private function serializeText( string $res, Node $node, bool $omitEscaping ): void {
+	private function serializeText( string $res, DOMNode $node, bool $omitEscaping ): void {
 		$state = $this->state;
 
 		// Deal with trailing separator-like text (at least 1 newline and other whitespace)
@@ -1063,10 +1063,10 @@ class WikitextSerializer {
 
 	/**
 	 * Serialize the content of a text node
-	 * @param Node $node
-	 * @return Node|null
+	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	private function serializeTextNode( Node $node ): ?Node {
+	private function serializeTextNode( DOMNode $node ): ?DOMNode {
 		$this->serializeText( $node->nodeValue, $node, false );
 		return $node->nextSibling;
 	}
@@ -1074,19 +1074,19 @@ class WikitextSerializer {
 	/**
 	 * Emit non-separator wikitext that does not need to be escaped.
 	 * @param string $res
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	public function emitWikitext( string $res, Node $node ): void {
+	public function emitWikitext( string $res, DOMNode $node ): void {
 		$this->serializeText( $res, $node, true );
 	}
 
 	/**
 	 * DOM-based serialization
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param DOMHandler $domHandler
-	 * @return Node|null
+	 * @return DOMNode|null
 	 */
-	private function serializeNodeInternal( Element $node, DOMHandler $domHandler ) {
+	private function serializeDOMNode( DOMElement $node, DOMHandler $domHandler ) {
 		// To serialize a node from source, the node should satisfy these
 		// conditions:
 		//
@@ -1257,10 +1257,10 @@ class WikitextSerializer {
 	/**
 	 * Internal worker. Recursively serialize a DOM subtree.
 	 * @private
-	 * @param Node $node
-	 * @return ?Node
+	 * @param DOMNode $node
+	 * @return ?DOMNode
 	 */
-	public function serializeNode( Node $node ): ?Node {
+	public function serializeNode( DOMNode $node ): ?DOMNode {
 		$domHandler = $method = null;
 		$domHandlerFactory = new DOMHandlerFactory();
 		$state = $this->state;
@@ -1282,7 +1282,7 @@ class WikitextSerializer {
 
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				'@phan-var Element $node';/** @var Element $node */
+				'@phan-var DOMElement $node';/** @var DOMElement $node */
 				// Ignore DiffMarker metas, but clear unmodified node state
 				if ( DOMUtils::isDiffMarker( $node ) ) {
 					$state->updateModificationFlags( $node );
@@ -1293,7 +1293,7 @@ class WikitextSerializer {
 					return $node->nextSibling;
 				}
 				$domHandler = $domHandlerFactory->getDOMHandler( $node );
-				$method = [ $this, 'serializeNodeInternal' ];
+				$method = [ $this, 'serializeDOMNode' ];
 				break;
 			case XML_TEXT_NODE:
 				// This code assumes that the DOM is in normalized form with no
@@ -1578,18 +1578,16 @@ class WikitextSerializer {
 	 *
 	 * WARNING: You probably want to use WikitextContentModelHandler::fromDOM instead.
 	 *
-	 * @param Document|DocumentFragment $node
+	 * @param DOMDocument|DOMDocumentFragment $node
 	 * @param bool $selserMode
 	 * @return string
 	 */
 	public function serializeDOM(
-		Node $node, bool $selserMode = false
+		DOMNode $node, bool $selserMode = false
 	): string {
-		Assert::parameterType(
-			Document::class . '|' . DocumentFragment::class,
-			$node, '$node' );
+		Assert::parameterType( 'DOMDocument|DOMDocumentFragment', $node, '$node' );
 
-		if ( $node instanceof Document ) {
+		if ( $node instanceof DOMDocument ) {
 			$node = DOMCompat::getBody( $node );
 		}
 

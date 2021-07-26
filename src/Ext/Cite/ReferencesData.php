@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
+use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Core\Sanitizer;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 class ReferencesData {
@@ -102,12 +102,12 @@ class ReferencesData {
 	 * @param string $groupName
 	 * @param string $refName
 	 * @param string $about
-	 * @param Element $linkBack
+	 * @param DOMElement $linkBack
 	 * @return stdClass
 	 */
 	public function add(
 		ParsoidExtensionAPI $extApi, string $groupName, string $refName,
-		string $about, Element $linkBack
+		string $about, DOMElement $linkBack
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		$hasRefName = strlen( $refName ) > 0;

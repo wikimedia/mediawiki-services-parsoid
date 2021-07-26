@@ -3,15 +3,15 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMText;
 use Error;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -65,10 +65,10 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	];
 
 	/**
-	 * @param Element $target
-	 * @param Element $source
+	 * @param DOMElement $target
+	 * @param DOMElement $source
 	 */
-	private static function updateDSRForFirstTplNode( Element $target, Element $source ): void {
+	private static function updateDSRForFirstTplNode( DOMElement $target, DOMElement $source ): void {
 		$srcDP = DOMDataUtils::getDataParsoid( $source );
 		$tgtDP = DOMDataUtils::getDataParsoid( $target );
 
@@ -92,7 +92,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	 */
 	private static function getRangeEndDSR( stdClass $range ): ?DomSourceRange {
 		$endNode = $range->end;
-		if ( $endNode instanceof Element ) {
+		if ( $endNode instanceof DOMElement ) {
 			return DOMDataUtils::getDataParsoid( $endNode )->dsr ?? null;
 		} else {
 			// In the rare scenario where the last element of a range is not an ELEMENT,
@@ -100,8 +100,8 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// We don't try any harder than this for now.
 			$offset = 0;
 			$n = $endNode->previousSibling;
-			while ( $n && !( $n instanceof Element ) ) {
-				if ( $n instanceof Text ) {
+			while ( $n && !( $n instanceof DOMElement ) ) {
+				if ( $n instanceof DOMText ) {
 					$offset += strlen( $n->nodeValue );
 				} else {
 					// A comment
@@ -114,16 +114,16 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			if ( $n ) {
 				/**
 				 * The point of the above loop is to ensure we're working
-				 * with a Element if there is an $n.
+				 * with a DOMElement if there is an $n.
 				 *
-				 * @var Element $n
+				 * @var DOMElement $n
 				 */
-				'@phan-var Element $n';
+				'@phan-var DOMElement $n';
 				$dsr = DOMDataUtils::getDataParsoid( $n )->dsr ?? null;
 			}
 
 			if ( $dsr && is_int( $dsr->end ?? null ) ) {
-				$len = $endNode instanceof Text
+				$len = $endNode instanceof DOMText
 					? strlen( $endNode->nodeValue )
 					: WTUtils::decodedCommentLength( $endNode );
 				$dsr = new DomSourceRange( $dsr->end + $offset, $dsr->end + $offset + $len, null, null );
@@ -136,14 +136,14 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	/**
 	 * Find the common DOM ancestor of two DOM nodes.
 	 * @param Frame $frame
-	 * @param Document $doc
-	 * @param Element $startElem
-	 * @param Element $endMeta
-	 * @param Element $endElem
+	 * @param DOMDocument $doc
+	 * @param DOMElement $startElem
+	 * @param DOMElement $endMeta
+	 * @param DOMElement $endElem
 	 * @return object
 	 */
 	private static function getDOMRange(
-		Frame $frame, Document $doc, Element $startElem, Element $endMeta, Element $endElem
+		Frame $frame, DOMDocument $doc, DOMElement $startElem, DOMElement $endMeta, DOMElement $endElem
 	) {
 		$env = $frame->getEnv();
 		$range = (object)[
@@ -210,8 +210,8 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$nodesToMigrate = [];
 			$newStart = $range->start;
 			$n = DOMUtils::isElt( $range->start ) ? $next : $range->start;
-			while ( !$n instanceof Element ) {
-				if ( $n instanceof Text ) {
+			while ( !$n instanceof DOMElement ) {
+				if ( $n instanceof DOMText ) {
 					$noWS = false;
 				}
 				$nodesToMigrate[] = $n;
@@ -225,11 +225,11 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			if ( $newStart && ( $noWS || isset( self::MAP_TBODY_TR[$newStart->nodeName] ) ) ) {
 				/**
 				 * The point of the above loop is to ensure we're working
-				 * with a Element if there is a $newStart.
+				 * with a DOMElement if there is a $newStart.
 				 *
-				 * @var Element $newStart
+				 * @var DOMElement $newStart
 				 */
-				'@phan-var Element $newStart';
+				'@phan-var DOMElement $newStart';
 				$insertPosition = $newStart->firstChild;
 				foreach ( $nodesToMigrate as $n ) {
 					$newStart->insertBefore( $n, $insertPosition );
@@ -257,7 +257,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// If we have any fostered content, include it as well.
 			for (
 				$rangeStartPreviousSibling = $range->start->previousSibling;
-				$rangeStartPreviousSibling instanceof Element &&
+				$rangeStartPreviousSibling instanceof DOMElement &&
 					!empty( DOMDataUtils::getDataParsoid( $rangeStartPreviousSibling )->fostered );
 				$rangeStartPreviousSibling = $range->start->previousSibling
 			) {
@@ -266,7 +266,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		}
 
 		$rangeStartNextSibling = $range->start->nextSibling;
-		if ( $range->start === $startElem && $rangeStartNextSibling instanceof Element ) {
+		if ( $range->start === $startElem && $rangeStartNextSibling instanceof DOMElement ) {
 			// HACK!
 			// The strip-double-tds pass has a HACK that requires DSR and src
 			// information being set on this element node. So, this HACK here
@@ -317,9 +317,9 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * @param Element $meta
+	 * @param DOMElement $meta
 	 */
-	private static function stripStartMeta( Element $meta ): void {
+	private static function stripStartMeta( DOMElement $meta ): void {
 		if ( $meta->nodeName === 'meta' ) {
 			$meta->parentNode->removeChild( $meta );
 		} else {
@@ -436,14 +436,14 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * @param Document $document
+	 * @param DOMDocument $document
 	 * @param Frame $frame
-	 * @param Node $docRoot
+	 * @param DOMNode $docRoot
 	 * @param array $tplRanges
 	 * @return stdClass [ 'ranges' => $newRanges, 'tplArrays' => $compoundTpls ]
 	 */
 	public static function findTopLevelNonOverlappingRanges(
-		Document $document, Frame $frame, Node $docRoot, array $tplRanges
+		DOMDocument $document, Frame $frame, DOMNode $docRoot, array $tplRanges
 	): stdClass {
 		$env = $frame->getEnv();
 		$numRanges = count( $tplRanges );
@@ -461,7 +461,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$e = !$r->flipped ? $r->end : $r->start;
 
 			while ( $n ) {
-				if ( $n instanceof Element ) {
+				if ( $n instanceof DOMElement ) {
 					// Initialize tplRanges, if necessary.
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					if ( !isset( $dp->tmp->tplRanges ) ) {
@@ -721,7 +721,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		$dp = DOMDataUtils::getDataParsoid( $firstNode );
 		while ( !empty( $dp->fostered ) ) {
 			$firstNode = $firstNode->nextSibling;
-			/** @var Element $firstNode */
+			/** @var DOMElement $firstNode */
 			DOMUtils::assertElt( $firstNode );
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
 		}
@@ -745,12 +745,12 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * Encapsulation requires adding about attributes on the top-level
-	 * nodes of the range. This requires them to all be Elements.
+	 * nodes of the range. This requires them to all be DOMElements.
 	 *
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 * @param stdClass $range
 	 */
-	private static function ensureElementsInRange( Document $doc, stdClass $range ): void {
+	private static function ensureDOMElementsInRange( DOMDocument $doc, stdClass $range ): void {
 		$n = $range->start;
 		$e = $range->end;
 		$about = $range->startElem->getAttribute( 'about' );
@@ -786,19 +786,19 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	 * in fosterable positions in a table).
 	 *
 	 * @param stdClass $range
-	 * @return Element
+	 * @return DOMElement
 	 */
-	private static function findEncapTarget( stdClass $range ): Element {
+	private static function findEncapTarget( stdClass $range ): DOMElement {
 		$encapTgt = $range->start;
-		'@phan-var Node $encapTgt';
+		'@phan-var \DOMNode $encapTgt';
 
 		// Skip template-marker meta-tags.
 		while ( WTUtils::isTplMarkerMeta( $encapTgt ) ||
-			!( $encapTgt instanceof Element )
+			!( $encapTgt instanceof DOMElement )
 		) {
 			// Detect unwrappable template and bail out early.
 			if ( $encapTgt === $range->end ||
-				( !( $encapTgt instanceof Element ) &&
+				( !( $encapTgt instanceof DOMElement ) &&
 					!DOMUtils::isFosterablePosition( $encapTgt )
 				)
 			) {
@@ -808,18 +808,18 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$encapTgt = $encapTgt->nextSibling;
 		}
 
-		'@phan-var Element $encapTgt';
+		'@phan-var \DOMElement $encapTgt';
 		return $encapTgt;
 	}
 
 	/**
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 * @param Frame $frame
 	 * @param array $tplRanges
 	 * @param array $tplArrays
 	 */
 	private static function encapsulateTemplates(
-		Document $doc, Frame $frame, array $tplRanges, array $tplArrays
+		DOMDocument $doc, Frame $frame, array $tplRanges, array $tplArrays
 	): void {
 		$env = $frame->getEnv();
 		$numRanges = count( $tplRanges );
@@ -869,7 +869,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				);
 			}
 
-			self::ensureElementsInRange( $doc, $range );
+			self::ensureDOMElementsInRange( $doc, $range );
 
 			// Encap. info for the range
 			$encapInfo = (object)[
@@ -1085,14 +1085,14 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	/**
 	 * Recursive worker.
 	 * @private
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 * @param Frame $frame
-	 * @param Node $rootNode
+	 * @param DOMNode $rootNode
 	 * @param array &$tpls
 	 * @return array
 	 */
 	private static function findWrappableTemplateRanges(
-		Document $doc, Frame $frame, Node $rootNode, array &$tpls = []
+		DOMDocument $doc, Frame $frame, DOMNode $rootNode, array &$tpls = []
 	): array {
 		$env = $frame->getEnv();
 		$tplRanges = [];
@@ -1105,7 +1105,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// we may delete elem as part of encapsulation
 			$nextSibling = $elem->nextSibling;
 
-			if ( $elem instanceof Element ) {
+			if ( $elem instanceof DOMElement ) {
 				$metaType = WTUtils::matchTplType( $elem );
 
 				// Ignore templates without tsr.
@@ -1183,14 +1183,14 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 							// Dont get distracted by a newline node -- skip over it
 							// Unsure why it shows up occasionally
-							if ( $tbl && $tbl instanceof Text && preg_match( '/^\n$/D', $tbl->data ) ) {
+							if ( $tbl && $tbl instanceof DOMText && preg_match( '/^\n$/D', $tbl->data ) ) {
 								$tbl = $tbl->nextSibling;
 							}
 
 							$dp = !DOMUtils::atTheTop( $sm->parentNode ) ?
 								DOMDataUtils::getDataParsoid( $sm->parentNode ) : null;
 							if ( $tbl && $tbl->nodeName === 'table' && !empty( $dp->fostered ) ) {
-								'@phan-var Element $tbl';  /** @var Element $tbl */
+								'@phan-var DOMElement $tbl';  /** @var DOMElement $tbl */
 								$tblDP = DOMDataUtils::getDataParsoid( $tbl );
 								if ( isset( $dp->tsr->start ) && $dp->tsr->start !== null &&
 									isset( $tblDP->dsr->start ) && $tblDP->dsr->start === null
@@ -1220,12 +1220,12 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * @param Document $document
+	 * @param DOMDocument $document
 	 * @param Frame $frame
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
 	private static function wrapTemplatesInTree(
-		Document $document, Frame $frame, Node $node
+		DOMDocument $document, Frame $frame, DOMNode $node
 	): void {
 		$tplRanges = self::findWrappableTemplateRanges( $document, $frame, $node );
 		if ( count( $tplRanges ) > 0 ) {
@@ -1241,7 +1241,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
+		Env $env, DOMNode $root, array $options = [], bool $atTopLevel = false
 	): void {
 		self::wrapTemplatesInTree( $root->ownerDocument, $options['frame'], $root );
 	}

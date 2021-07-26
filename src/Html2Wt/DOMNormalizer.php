@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -77,15 +77,15 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $a
-	 * @param Node $b
+	 * @param DOMNode $a
+	 * @param DOMNode $b
 	 * @return bool
 	 */
-	private static function similar( Node $a, Node $b ): bool {
+	private static function similar( DOMNode $a, DOMNode $b ): bool {
 		if ( $a->nodeName === 'a' ) {
 			// FIXME: Similar to 1ce6a98, DOMUtils.nextNonDeletedSibling is being
 			// used in this file where maybe DOMUtils.nextNonSepSibling belongs.
-			return $a instanceof Element && $b instanceof Element &&
+			return $a instanceof DOMElement && $b instanceof DOMElement &&
 				DiffUtils::attribsEquals( $a, $b, self::IGNORABLE_ATTRS, self::$specializedAttribHandlers );
 		} else {
 			$aIsHtml = WTUtils::isLiteralHTMLNode( $a );
@@ -100,17 +100,17 @@ class DOMNormalizer {
 			// we'll preserve existing functionality here.
 			return ( !$aIsHtml && !$bIsHtml ) ||
 				( $aIsHtml && $bIsHtml &&
-					$a instanceof Element && $b instanceof Element &&
+					$a instanceof DOMElement && $b instanceof DOMElement &&
 					DiffUtils::attribsEquals( $a, $b, $ignorableAttrs, self::$specializedAttribHandlers ) );
 		}
 	}
 
 	/** Can a and b be merged into a single node?
-	 * @param Node $a
-	 * @param Node $b
+	 * @param DOMNode $a
+	 * @param DOMNode $b
 	 * @return bool
 	 */
-	private static function mergable( Node $a, Node $b ): bool {
+	private static function mergable( DOMNode $a, DOMNode $b ): bool {
 		return $a->nodeName === $b->nodeName && self::similar( $a, $b );
 	}
 
@@ -119,30 +119,30 @@ class DOMNormalizer {
 	 * if we swap a and a.firstChild?
 	 *
 	 * For example: A='<b><i>x</i></b>' b='<i>y</i>' => '<i><b>x</b>y</i>'.
-	 * @param Node $a
-	 * @param Node $b
+	 * @param DOMNode $a
+	 * @param DOMNode $b
 	 * @return bool
 	 */
-	private static function swappable( Node $a, Node $b ): bool {
+	private static function swappable( DOMNode $a, DOMNode $b ): bool {
 		return DOMUtils::numNonDeletedChildNodes( $a ) === 1
 			&& self::similar( $a, DOMUtils::firstNonDeletedChild( $a ) )
 			&& self::mergable( DOMUtils::firstNonDeletedChild( $a ), $b );
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param bool $rtl
-	 * @return Node|null
+	 * @return DOMNode|null
 	 */
-	private static function firstChild( Node $node, bool $rtl ): ?Node {
+	private static function firstChild( DOMNode $node, bool $rtl ): ?DOMNode {
 		return $rtl ? DOMUtils::lastNonDeletedChild( $node ) : DOMUtils::firstNonDeletedChild( $node );
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	private function isInsertedContent( Node $node ): bool {
+	private function isInsertedContent( DOMNode $node ): bool {
 		while ( true ) {
 			if ( DiffUtils::hasInsertedDiffMark( $node, $this->env ) ) {
 				return true;
@@ -155,11 +155,11 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $a
-	 * @param Node $b
+	 * @param DOMNode $a
+	 * @param DOMNode $b
 	 * @return bool
 	 */
-	private function rewriteablePair( Node $a, Node $b ): bool {
+	private function rewriteablePair( DOMNode $a, DOMNode $b ): bool {
 		if ( isset( WikitextConstants::$WTQuoteTags[$a->nodeName] ) ) {
 			// For <i>/<b> pair, we need not check whether the node being transformed
 			// are new / edited, etc. since these minimization scenarios can
@@ -186,11 +186,11 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param string $mark
 	 * @param bool $dontRecurse
 	 */
-	public function addDiffMarks( Node $node, string $mark, bool $dontRecurse = false ): void {
+	public function addDiffMarks( DOMNode $node, string $mark, bool $dontRecurse = false ): void {
 		$env = $this->env;
 		if ( !$this->inSelserMode || DiffUtils::hasDiffMark( $node, $env, $mark ) ) {
 			return;
@@ -228,11 +228,11 @@ class DOMNormalizer {
 
 	/**
 	 * Transfer all of b's children to a and delete b.
-	 * @param Element $a
-	 * @param Element $b
-	 * @return Element
+	 * @param DOMElement $a
+	 * @param DOMElement $b
+	 * @return DOMElement
 	 */
-	public function merge( Element $a, Element $b ): Element {
+	public function merge( DOMElement $a, DOMElement $b ): DOMElement {
 		$sentinel = $b->firstChild;
 
 		// Migrate any intermediate nodes (usually 0 / 1 diff markers)
@@ -272,11 +272,11 @@ class DOMNormalizer {
 
 	/**
 	 * b is a's sole non-deleted child.  Switch them around.
-	 * @param Element $a
-	 * @param Element $b
-	 * @return Element
+	 * @param DOMElement $a
+	 * @param DOMElement $b
+	 * @return DOMElement
 	 */
-	public function swap( Element $a, Element $b ): Element {
+	public function swap( DOMElement $a, DOMElement $b ): DOMElement {
 		DOMUtils::migrateChildren( $b, $a );
 		$a->parentNode->insertBefore( $b, $a );
 		$b->appendChild( $a );
@@ -295,10 +295,10 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param bool $rtl
 	 */
-	public function hoistLinks( Element $node, bool $rtl ): void {
+	public function hoistLinks( DOMElement $node, bool $rtl ): void {
 		$sibling = self::firstChild( $node, $rtl );
 		$hasHoistableContent = false;
 
@@ -345,10 +345,10 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Element $node
-	 * @return Node|null
+	 * @param DOMElement $node
+	 * @return DOMNode|null
 	 */
-	public function stripIfEmpty( Element $node ): ?Node {
+	public function stripIfEmpty( DOMElement $node ): ?DOMNode {
 		$next = DOMUtils::nextNonDeletedSibling( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$autoInserted = isset( $dp->autoInsertedStart ) || isset( $dp->autoInsertedEnd );
@@ -372,9 +372,9 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	public function moveTrailingSpacesOut( Node $node ): void {
+	public function moveTrailingSpacesOut( DOMNode $node ): void {
 		$next = DOMUtils::nextNonDeletedSibling( $node );
 		$last = DOMUtils::lastNonDeletedChild( $node );
 		$matches = null;
@@ -400,9 +400,9 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 */
-	public function stripBRs( Element $node ): void {
+	public function stripBRs( DOMElement $node ): void {
 		$child = $node->firstChild;
 		while ( $child ) {
 			$next = $child->nextSibling;
@@ -410,7 +410,7 @@ class DOMNormalizer {
 				// replace <br/> with a single space
 				$node->removeChild( $child );
 				$node->insertBefore( $node->ownerDocument->createTextNode( ' ' ), $next );
-			} elseif ( $child instanceof Element ) {
+			} elseif ( $child instanceof DOMElement ) {
 				$this->stripBRs( $child );
 			}
 			$child = $next;
@@ -420,10 +420,10 @@ class DOMNormalizer {
 	/**
 	 * FIXME see
 	 * https://gerrit.wikimedia.org/r/#/c/mediawiki/services/parsoid/+/500975/7/src/Html2Wt/DOMNormalizer.php@423
-	 * @param Node $node
-	 * @return Node|null
+	 * @param DOMNode $node
+	 * @return DOMNode|null
 	 */
-	public function stripBidiCharsAroundCategories( Node $node ): ?Node {
+	public function stripBidiCharsAroundCategories( DOMNode $node ): ?DOMNode {
 		if ( !DOMUtils::isText( $node ) ||
 			( !WTUtils::isCategoryLink( $node->previousSibling ) &&
 				!WTUtils::isCategoryLink( $node->nextSibling ) )
@@ -469,10 +469,10 @@ class DOMNormalizer {
 	 * Also merge a single sibling A tag that is mergable
 	 * The link href and text must match for this normalization to take effect
 	 *
-	 * @param Element $node
-	 * @return Node|null
+	 * @param DOMElement $node
+	 * @return DOMNode|null
 	 */
-	public function moveFormatTagOutsideATag( Element $node ): ?Node {
+	public function moveFormatTagOutsideATag( DOMElement $node ): ?DOMNode {
 		if ( $node->nodeName !== 'a' ) {
 			return $node;
 		}
@@ -498,7 +498,7 @@ class DOMNormalizer {
 		$nodeHref = $node->getAttribute( 'href' );
 
 		// If there are no tags to swap, we are done
-		if ( $firstChild instanceof Element &&
+		if ( $firstChild instanceof DOMElement &&
 			// No reordering possible with multiple children
 			$fcNextSibling === null &&
 			// Do not normalize WikiLinks with these attributes
@@ -513,7 +513,7 @@ class DOMNormalizer {
 				 DOMUtils::isFormattingElt( $child );
 				 $child = DOMUtils::firstNonDeletedChild( $node )
 			) {
-				'@phan-var Element $child'; // @var Element $child
+				'@phan-var \DOMElement $child'; // @var \DOMElement $child
 				$this->swap( $node, $child );
 			}
 			return $firstChild;
@@ -542,13 +542,13 @@ class DOMNormalizer {
 	 * If you return a node other than this, normalizations may not
 	 * apply cleanly and may be skipped.
 	 *
-	 * @param Node $node
-	 * @return Node|null the normalized node
+	 * @param DOMNode $node
+	 * @return DOMNode|null the normalized node
 	 */
-	public function normalizeNode( Node $node ): ?Node {
+	public function normalizeNode( DOMNode $node ): ?DOMNode {
 		$dp = null;
 		if ( $node->nodeName === 'th' || $node->nodeName === 'td' ) {
-			'@phan-var Element $node'; // @var Element $node
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// Table cells (td/th) previously used the stx_v flag for single-row syntax.
 			// Newer code uses stx flag since that is used everywhere else.
@@ -594,7 +594,7 @@ class DOMNormalizer {
 
 		// Headings
 		if ( preg_match( '/^h[1-6]$/D', $node->nodeName ) ) {
-			'@phan-var Element $node'; // @var Element $node
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );
 			$this->stripBRs( $node );
@@ -606,7 +606,7 @@ class DOMNormalizer {
 
 			// Anchors
 		} elseif ( $node->nodeName === 'a' ) {
-			'@phan-var Element $node'; // @var Element $node
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$next = DOMUtils::nextNonDeletedSibling( $node );
 			// We could have checked for !mw:ExtLink but in
 			// the case of links without any annotations,
@@ -620,7 +620,7 @@ class DOMNormalizer {
 
 			// Table cells
 		} elseif ( $node->nodeName === 'td' ) {
-			'@phan-var Element $node'; // @var Element $node
+			'@phan-var \DOMElement $node'; // @var \DOMElement $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// * HTML <td>s won't have escapable prefixes
 			// * First cell should always be checked for escapable prefixes
@@ -652,7 +652,7 @@ class DOMNormalizer {
 			// T184755: Convert sequences of <p></p> nodes to sequences of
 			// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
 			// they serialize to as many newlines as the count of <p></p> nodes.
-		} elseif ( $node instanceof Element && $node->nodeName === 'p' &&
+		} elseif ( $node instanceof DOMElement && $node->nodeName === 'p' &&
 			!WTUtils::isLiteralHTMLNode( $node ) &&
 			// Don't apply normalization to <p></p> nodes that
 			// were generated through deletions or other normalizations.
@@ -693,19 +693,19 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $a
-	 * @param Node $b
-	 * @return Node
+	 * @param DOMNode $a
+	 * @param DOMNode $b
+	 * @return DOMNode
 	 */
-	public function normalizeSiblingPair( Node $a, Node $b ): Node {
+	public function normalizeSiblingPair( DOMNode $a, DOMNode $b ): DOMNode {
 		if ( !$this->rewriteablePair( $a, $b ) ) {
 			return $b;
 		}
 
 		// Since 'a' and 'b' make a rewriteable tag-pair, we are good to go.
 		if ( self::mergable( $a, $b ) ) {
-			'@phan-var Element $a'; // @var Element $a
-			'@phan-var Element $b'; // @var Element $b
+			'@phan-var \DOMElement $a'; // @var \DOMElement $a
+			'@phan-var \DOMElement $b'; // @var \DOMElement $b
 			$a = $this->merge( $a, $b );
 			// The new a's children have new siblings. So let's look
 			// at a again. But their grandkids haven't changed,
@@ -715,10 +715,10 @@ class DOMNormalizer {
 		}
 
 		if ( self::swappable( $a, $b ) ) {
-			'@phan-var Element $a'; // @var Element $a
-			'@phan-var Element $b'; // @var Element $b
+			'@phan-var \DOMElement $a'; // @var \DOMElement $a
+			'@phan-var \DOMElement $b'; // @var \DOMElement $b
 			$firstNonDeletedChild = DOMUtils::firstNonDeletedChild( $a );
-			'@phan-var Element $firstNonDeletedChild'; // @var Element $firstNonDeletedChild
+			'@phan-var \DOMElement $firstNonDeletedChild'; // @var \DOMElement $firstNonDeletedChild
 			$a = $this->merge( $this->swap( $a, $firstNonDeletedChild ), $b );
 			// Again, a has new children, but the grandkids have already
 			// been minimized.
@@ -727,10 +727,10 @@ class DOMNormalizer {
 		}
 
 		if ( self::swappable( $b, $a ) ) {
-			'@phan-var Element $a'; // @var Element $a
-			'@phan-var Element $b'; // @var Element $b
+			'@phan-var \DOMElement $a'; // @var \DOMElement $a
+			'@phan-var \DOMElement $b'; // @var \DOMElement $b
 			$firstNonDeletedChild = DOMUtils::firstNonDeletedChild( $b );
-			'@phan-var Element $firstNonDeletedChild'; // @var Element $firstNonDeletedChild
+			'@phan-var \DOMElement $firstNonDeletedChild'; // @var \DOMElement $firstNonDeletedChild
 			$a = $this->merge( $a, $this->swap( $b, $firstNonDeletedChild ) );
 			// Again, a has new children, but the grandkids have already
 			// been minimized.
@@ -742,10 +742,10 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param bool $recurse
 	 */
-	public function processSubtree( Node $node, bool $recurse ): void {
+	public function processSubtree( DOMNode $node, bool $recurse ): void {
 		// Process the first child outside the loop.
 		$a = DOMUtils::firstNonDeletedChild( $node );
 		if ( !$a ) {
@@ -775,11 +775,11 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param bool $recurse
-	 * @return Node|null
+	 * @return DOMNode|null
 	 */
-	public function processNode( Node $node, bool $recurse ): ?Node {
+	public function processNode( DOMNode $node, bool $recurse ): ?DOMNode {
 		// Normalize 'node' and the subtree rooted at 'node'
 		// recurse = true  => recurse and normalize subtree
 		// recurse = false => assume the subtree is already normalized
@@ -846,10 +846,10 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * @param Element|DocumentFragment $node
-	 * @return Node
+	 * @param DOMElement|DOMDocumentFragment $node
+	 * @return DOMNode
 	 */
-	public function normalize( Node $node ): Node {
+	public function normalize( DOMNode $node ): DOMNode {
 		return $this->processNode( $node, true );
 	}
 }

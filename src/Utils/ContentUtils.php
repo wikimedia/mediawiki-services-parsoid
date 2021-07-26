@@ -3,13 +3,13 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use DOMDocument;
+use DOMDocumentFragment;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
@@ -20,22 +20,22 @@ class ContentUtils {
 	/**
 	 * XML Serializer.
 	 *
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param array $options XMLSerializer options.
 	 * @return string
 	 */
-	public static function toXML( Node $node, array $options = [] ): string {
+	public static function toXML( DOMNode $node, array $options = [] ): string {
 		return XMLSerializer::serialize( $node, $options )['html'];
 	}
 
 	/**
 	 * dataobject aware XML serializer, to be used in the DOM post-processing phase.
 	 *
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param array $options
 	 * @return string
 	 */
-	public static function ppToXML( Node $node, array $options = [] ): string {
+	public static function ppToXML( DOMNode $node, array $options = [] ): string {
 		// We really only want to pass along `$options['keepTmp']`
 		DOMDataUtils::visitAndStoreDataAttribs( $node, $options );
 		return self::toXML( $node, $options );
@@ -50,11 +50,11 @@ class ContentUtils {
 	 *
 	 * @param string $html
 	 * @param bool $validateXMLNames
-	 * @return Document
+	 * @return DOMDocument
 	 */
 	public static function createDocument(
 		string $html = '', bool $validateXMLNames = false
-	): Document {
+	): DOMDocument {
 		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
 		DOMDataUtils::prepareDoc( $doc );
 		return $doc;
@@ -69,11 +69,11 @@ class ContentUtils {
 	 *
 	 * @param string $html
 	 * @param array $options
-	 * @return Document
+	 * @return DOMDocument
 	 */
 	public static function createAndLoadDocument(
 		string $html, array $options = []
-	): Document {
+	): DOMDocument {
 		$doc = self::createDocument( $html );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), $options
@@ -82,14 +82,14 @@ class ContentUtils {
 	}
 
 	/**
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 * @param string $html
 	 * @param array $options
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
 	public static function createAndLoadDocumentFragment(
-		Document $doc, string $html, array $options = []
-	): DocumentFragment {
+		DOMDocument $doc, string $html, array $options = []
+	): DOMDocumentFragment {
 		$domFragment = $doc->createDocumentFragment();
 		DOMUtils::setFragmentInnerHTML( $domFragment, $html );
 		DOMDataUtils::visitAndLoadDataAttribs( $domFragment, $options );
@@ -99,11 +99,11 @@ class ContentUtils {
 	/**
 	 * Pull the data-parsoid script element out of the doc before serializing.
 	 *
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param array $options XMLSerializer options.
 	 * @return array
 	 */
-	public static function extractDpAndSerialize( Node $node, array $options = [] ): array {
+	public static function extractDpAndSerialize( DOMNode $node, array $options = [] ): array {
 		$doc = DOMUtils::isBody( $node ) ? $node->ownerDocument : $node;
 		$pb = DOMDataUtils::extractPageBundle( $doc );
 		$out = XMLSerializer::serialize( $node, $options );
@@ -115,13 +115,13 @@ class ContentUtils {
 	 * Strip Parsoid-inserted section wrappers and fallback id spans with
 	 * HTML4 ids for headings from the DOM.
 	 *
-	 * @param Element $node
+	 * @param DOMElement $node
 	 */
-	public static function stripSectionTagsAndFallbackIds( Element $node ): void {
+	public static function stripSectionTagsAndFallbackIds( DOMElement $node ): void {
 		$n = $node->firstChild;
 		while ( $n ) {
 			$next = $n->nextSibling;
-			if ( $n instanceof Element ) {
+			if ( $n instanceof DOMElement ) {
 				// Recurse into subtree before stripping this
 				self::stripSectionTagsAndFallbackIds( $n );
 
@@ -141,14 +141,14 @@ class ContentUtils {
 	}
 
 	/**
-	 * @param Node $node
-	 * @param Node $clone
+	 * @param DOMNode $node
+	 * @param DOMNode $clone
 	 * @param array $options
 	 */
 	private static function cloneData(
-		Node $node, Node $clone, array $options
+		DOMNode $node, DOMNode $clone, array $options
 	): void {
-		if ( !( $node instanceof Element ) ) {
+		if ( !( $node instanceof DOMElement ) ) {
 			return;
 		}
 		DOMUtils::assertElt( $clone );
@@ -182,21 +182,21 @@ class ContentUtils {
 	/**
 	 * Shift the DSR of a DOM fragment.
 	 * @param Env $env
-	 * @param Node $rootNode
+	 * @param DOMNode $rootNode
 	 * @param callable $dsrFunc
-	 * @return Node Returns the $rootNode passed in to allow chaining.
+	 * @return DOMNode Returns the $rootNode passed in to allow chaining.
 	 */
-	public static function shiftDSR( Env $env, Node $rootNode, callable $dsrFunc ): Node {
+	public static function shiftDSR( Env $env, DOMNode $rootNode, callable $dsrFunc ): DOMNode {
 		$doc = $rootNode->ownerDocument;
 		$convertString = static function ( $str ) {
 			// Stub $convertString out to allow definition of a pair of
 			// mutually-recursive functions.
 			return $str;
 		};
-		$convertNode = static function ( Node $node ) use (
+		$convertNode = static function ( DOMNode $node ) use (
 			$env, $dsrFunc, &$convertString, &$convertNode
 		) {
-			if ( !( $node instanceof Element ) ) {
+			if ( !( $node instanceof DOMElement ) ) {
 				return;
 			}
 			$dp = DOMDataUtils::getDataParsoid( $node );
@@ -300,13 +300,13 @@ class ContentUtils {
 	 * @see TokenUtils::convertTokenOffsets for a related function on tokens.
 	 *
 	 * @param Env $env
-	 * @param Document $doc The document to convert
+	 * @param DOMDocument $doc The document to convert
 	 * @param string $from Offset type to convert from.
 	 * @param string $to Offset type to convert to.
 	 */
 	public static function convertOffsets(
 		Env $env,
-		Document $doc,
+		DOMDocument $doc,
 		string $from,
 		string $to
 	): void {
@@ -368,18 +368,18 @@ class ContentUtils {
 	/**
 	 * Dump the DOM with attributes.
 	 *
-	 * @param Node $rootNode
+	 * @param DOMNode $rootNode
 	 * @param string $title
 	 * @param array &$options
 	 */
 	public static function dumpDOM(
-		Node $rootNode, string $title, array &$options = []
+		DOMNode $rootNode, string $title, array &$options = []
 	): void {
 		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
 
-		if ( $rootNode instanceof Element ) {
+		if ( $rootNode instanceof DOMElement ) {
 			// cloneNode doesn't clone data => walk DOM to clone it
 			$clonedRoot = $rootNode->cloneNode( true );
 			self::cloneData( $rootNode, $clonedRoot, $options );

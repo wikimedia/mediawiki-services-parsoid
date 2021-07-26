@@ -5,12 +5,12 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Closure;
 use DateTime;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Generator;
 use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -543,11 +543,11 @@ class DOMPostProcessor extends PipelineStage {
 	/**
 	 * Create an element in the document.head with the given attrs.
 	 *
-	 * @param Document $document
+	 * @param DOMDocument $document
 	 * @param string $tagName
 	 * @param array $attrs
 	 */
-	private function appendToHead( Document $document, string $tagName, array $attrs = [] ): void {
+	private function appendToHead( DOMDocument $document, string $tagName, array $attrs = [] ): void {
 		$elt = $document->createElement( $tagName );
 		DOMUtils::addAttributes( $elt, $attrs );
 		( DOMCompat::getHead( $document ) )->appendChild( $elt );
@@ -555,11 +555,11 @@ class DOMPostProcessor extends PipelineStage {
 
 	/**
 	 * Get the array of style modules to add to <head>
-	 * @param Document $document
+	 * @param DOMDocument $document
 	 * @param Env $env
 	 * @param string $lang
 	 */
-	private function exportStyleModules( Document $document, Env $env, string $lang ): void {
+	private function exportStyleModules( DOMDocument $document, Env $env, string $lang ): void {
 		// Hack: link styles
 		$styleModules = [
 			'mediawiki.skinning.content.parsoid',
@@ -591,10 +591,10 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * @param Element $body
+	 * @param DOMElement $body
 	 * @param Env $env
 	 */
-	private function updateBodyClasslist( Element $body, Env $env ): void {
+	private function updateBodyClasslist( DOMElement $body, Env $env ): void {
 		$dir = $env->getPageConfig()->getPageLanguageDir();
 		$bodyCL = DOMCompat::getClassList( $body );
 		$bodyCL->add( 'mw-content-' . $dir );
@@ -619,11 +619,11 @@ class DOMPostProcessor extends PipelineStage {
 	 * FIXME: consider moving to DOMUtils or Env.
 	 *
 	 * @param Env $env
-	 * @param Document $document
+	 * @param DOMDocument $document
 	 */
-	public function addMetaData( Env $env, Document $document ): void {
+	public function addMetaData( Env $env, DOMDocument $document ): void {
 		// add <head> element if it was missing
-		if ( !( DOMCompat::getHead( $document ) instanceof Element ) ) {
+		if ( !( DOMCompat::getHead( $document ) instanceof DOMElement ) ) {
 			$document->documentElement->insertBefore(
 				$document->createElement( 'head' ),
 				DOMCompat::getBody( $document )
@@ -782,9 +782,9 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 */
-	public function doPostProcess( Node $node ): void {
+	public function doPostProcess( DOMNode $node ): void {
 		$env = $this->env;
 
 		$hasDumpFlags = $env->hasDumpFlags();
@@ -899,7 +899,7 @@ class DOMPostProcessor extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function process( $node, array $opts = null ) {
-		'@phan-var Node $node'; // @var Node $node
+		'@phan-var DOMNode $node'; // @var DOMNode $node
 		$this->doPostProcess( $node );
 		return $node;
 	}

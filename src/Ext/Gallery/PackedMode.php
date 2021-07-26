@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
+use DOMDocument;
+use DOMElement;
 
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -22,7 +22,7 @@ class PackedMode extends TraditionalMode {
 	}
 
 	/** @inheritDoc */
-	protected function perRow( Opts $opts, Element $ul ): void {
+	protected function perRow( Opts $opts, DOMElement $ul ): void {
 		/* do nothing */
 	}
 
@@ -33,7 +33,7 @@ class PackedMode extends TraditionalMode {
 	}
 
 	/** @inheritDoc */
-	public function scaleMedia( Opts $opts, Element $wrapper ) {
+	public function scaleMedia( Opts $opts, DOMElement $wrapper ) {
 		$elt = $wrapper->firstChild->firstChild;
 		DOMUtils::assertElt( $elt );
 		$width = $elt->getAttribute( 'width' ) ?? '';
@@ -54,7 +54,7 @@ class PackedMode extends TraditionalMode {
 
 	/** @inheritDoc */
 	protected function galleryText(
-		Document $doc, Element $box, ?Element $gallerytext, float $width
+		DOMDocument $doc, DOMElement $box, ?DOMElement $gallerytext, float $width
 	): void {
 		if ( $this->useTraditionalGalleryText() ) {
 			parent::galleryText( $doc, $box, $gallerytext, $width );

@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Poem;
 
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Ext\DOMProcessor;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -15,7 +15,7 @@ class PoemProcessor extends DOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, Node $node, array $options, bool $atTopLevel
+		ParsoidExtensionAPI $extApi, DOMNode $node, array $options, bool $atTopLevel
 	): void {
 		if ( !$atTopLevel ) {
 			return;
@@ -23,7 +23,7 @@ class PoemProcessor extends DOMProcessor {
 
 		$c = $node->firstChild;
 		while ( $c ) {
-			if ( $c instanceof Element ) {
+			if ( $c instanceof DOMElement ) {
 				if ( DOMUtils::hasTypeOf( $c, 'mw:Extension/poem' ) ) {
 					// Replace newlines found in <nowiki> fragment with <br/>s
 					self::processNowikis( $c );
@@ -36,13 +36,13 @@ class PoemProcessor extends DOMProcessor {
 	}
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 */
-	private function processNowikis( Element $node ): void {
+	private function processNowikis( DOMElement $node ): void {
 		$doc = $node->ownerDocument;
 		$c = $node->firstChild;
 		while ( $c ) {
-			if ( !$c instanceof Element ) {
+			if ( !$c instanceof DOMElement ) {
 				$c = $c->nextSibling;
 				continue;
 			}

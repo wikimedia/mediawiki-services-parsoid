@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
+use DOMElement;
+use DOMNode;
 use stdClass;
 use Wikimedia\Parsoid\Config\WikitextConstants;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -24,15 +24,15 @@ class PHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		Element $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?Node {
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMNode {
 		// XXX: Handle single-line mode by switching to HTML handler!
 		$state->serializeChildren( $node );
 		return $node->nextSibling;
 	}
 
 	/** @inheritDoc */
-	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		$otherNodeName = $otherNode->nodeName;
 		$tableCellOrBody = [ 'td', 'th', 'body' ];
 		if ( $node->parentNode === $otherNode
@@ -46,7 +46,7 @@ class PHandler extends DOMHandler {
 		} elseif ( ( $otherNode === DOMUtils::previousNonDeletedSibling( $node )
 				// p-p transition
 				&& $otherNodeName === 'p'
-				&& $otherNode instanceof Element // for static analyzers
+				&& $otherNode instanceof DOMElement // for static analyzers
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html' )
 			|| ( self::treatAsPPTransition( $otherNode )
 				&& $otherNode === DOMUtils::previousNonSepSibling( $node )
@@ -78,7 +78,7 @@ class PHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( !( $node->lastChild && $node->lastChild->nodeName === 'br' )
 			&& self::isPPTransition( $otherNode )
 			// A new wikitext line could start at this P-tag. We have to figure out
@@ -120,12 +120,12 @@ class PHandler extends DOMHandler {
 
 	/**
 	 * @param ?stdClass $line See SerializerState::$currLine
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param bool $skipNode
 	 * @return bool
 	 */
 	private function currWikitextLineHasBlockNode(
-		?stdClass $line, Node $node, bool $skipNode = false
+		?stdClass $line, DOMNode $node, bool $skipNode = false
 	): bool {
 		$parentNode = $node->parentNode;
 		if ( !$skipNode ) {
@@ -169,10 +169,10 @@ class PHandler extends DOMHandler {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	private function newWikitextLineMightHaveBlockNode( Node $node ): bool {
+	private function newWikitextLineMightHaveBlockNode( DOMNode $node ): bool {
 		$node = DOMUtils::nextNonDeletedSibling( $node );
 		while ( $node ) {
 			if ( DOMUtils::isText( $node ) ) {
@@ -207,10 +207,10 @@ class PHandler extends DOMHandler {
 	 * Node is being serialized before/after a P-tag.
 	 * While computing newline constraints, this function tests
 	 * if node should be treated as a P-wrapped node.
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @return bool
 	 */
-	private static function treatAsPPTransition( Node $node ): bool {
+	private static function treatAsPPTransition( DOMNode $node ): bool {
 		// Treat text/p similar to p/p transition
 		// If an element, it should not be a:
 		// * block node or literal HTML node
@@ -228,15 +228,15 @@ class PHandler extends DOMHandler {
 	/**
 	 * Test if $node is a P-wrapped node or should be treated as one.
 	 *
-	 * @param ?Node $node
+	 * @param ?DOMNode $node
 	 * @return bool
 	 */
-	public static function isPPTransition( ?Node $node ): bool {
+	public static function isPPTransition( ?DOMNode $node ): bool {
 		if ( !$node ) {
 			return false;
 		}
 		return $node->nodeName === 'p'
-				&& $node instanceof Element // for static analyzers
+				&& $node instanceof DOMElement // for static analyzers
 				&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'html'
 			|| self::treatAsPPTransition( $node );
 	}

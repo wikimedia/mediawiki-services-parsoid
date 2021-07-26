@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use Wikimedia\Parsoid\DOM\Node;
+use DOMNode;
 
 /**
  * Non-recursive post-order traversal of a DOM tree.
@@ -18,10 +18,10 @@ class DOMPostOrder {
 
 	/**
 	 * Non-recursive post-order traversal of a DOM tree.
-	 * @param Node $root
+	 * @param DOMNode $root
 	 * @param callable $visitFunc Called in post-order on each node.
 	 */
-	public static function traverse( Node $root, callable $visitFunc ): void {
+	public static function traverse( DOMNode $root, callable $visitFunc ): void {
 		$node = $root;
 		while ( true ) {
 			// Find leftmost (grand)child, and visit that first.

@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
+use DOMElement;
+use DOMNode;
 use stdClass;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -18,13 +18,13 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 class ParserHookProcessor extends ExtDOMProcessor {
 
 	/**
-	 * @param Node $node
+	 * @param DOMNode $node
 	 * @param stdClass $obj
 	 */
 	public function staticTagPostProcessor(
-		Node $node, stdClass $obj
+		DOMNode $node, stdClass $obj
 	): void {
-		if ( $node instanceof Element ) {
+		if ( $node instanceof DOMElement ) {
 			if ( DOMUtils::hasTypeOf( $node, 'mw:Extension/statictag' ) ) {
 				$dataMw = DOMDataUtils::getDataMw( $node );
 				if ( ( $dataMw->attrs->action ?? null ) === 'flush' ) {
@@ -41,7 +41,7 @@ class ParserHookProcessor extends ExtDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, Node $node, array $options,
+		ParsoidExtensionAPI $extApi, DOMNode $node, array $options,
 		bool $atTopLevel
 	): void {
 		if ( $atTopLevel ) {

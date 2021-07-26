@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
@@ -19,8 +19,8 @@ class THHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function handle(
-		Element $node, SerializerState $state, bool $wrapperUnmodified = false
-	): ?Node {
+		DOMElement $node, SerializerState $state, bool $wrapperUnmodified = false
+	): ?DOMNode {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$usableDP = $this->stxInfoValidForTableCell( $state, $node );
 		$attrSepSrc = $usableDP ? ( $dp->attrSepSrc ?? null ) : null;
@@ -53,7 +53,7 @@ class THHandler extends DOMHandler {
 
 		$nextTh = DOMUtils::nextNonSepSibling( $node );
 		$nextUsesRowSyntax = DOMUtils::isElt( $nextTh )
-			&& $nextTh instanceof Element // for static analyzers
+			&& $nextTh instanceof DOMElement // for static analyzers
 			&& ( DOMDataUtils::getDataParsoid( $nextTh )->stx ?? null ) === 'row';
 
 		// For empty cells, emit a single whitespace to make wikitext
@@ -86,7 +86,7 @@ class THHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function before( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( $otherNode->nodeName === 'th'
 			&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row'
 		) {
@@ -98,7 +98,7 @@ class THHandler extends DOMHandler {
 	}
 
 	/** @inheritDoc */
-	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
+	public function after( DOMElement $node, DOMNode $otherNode, SerializerState $state ): array {
 		if ( $otherNode->nodeName === 'td' ) {
 			// Force a newline break
 			return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];

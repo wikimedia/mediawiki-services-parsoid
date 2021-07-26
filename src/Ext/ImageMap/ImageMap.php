@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\ImageMap;
 
-use Wikimedia\Parsoid\DOM\DocumentFragment;
+use DOMDocumentFragment;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionError;
@@ -53,7 +53,7 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $src, array $extArgs
-	): DocumentFragment {
+	): DOMDocumentFragment {
 		$domFragment = $extApi->getTopLevelDoc()->createDocumentFragment();
 
 		$thumb = null;

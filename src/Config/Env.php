@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config;
 
+use DOMDocument;
+use DOMDocumentFragment;
 use RemexHtml\DOM\DOMBuilder;
 use RemexHtml\Tokenizer\PlainAttributes;
 use RemexHtml\Tokenizer\Tokenizer;
@@ -12,12 +14,9 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\Sanitizer;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -106,8 +105,8 @@ class Env {
 	private $behaviorSwitches = [];
 
 	/**
-	 * Maps fragment id to the fragment forest (array of Nodes).
-	 * @var array<string,DocumentFragment>
+	 * Maps fragment id to the fragment forest (array of DOMNodes).
+	 * @var array<string,DOMDocumentFragment>
 	 */
 	private $fragmentMap = [];
 
@@ -185,7 +184,7 @@ class Env {
 	/** @var bool */
 	public $discardDataParsoid = false;
 
-	/** @var Document */
+	/** @var DOMDocument */
 	private $domDiff;
 
 	/**
@@ -227,7 +226,7 @@ class Env {
 
 	/**
 	 * Prevent GC from collecting the PHP wrapper around the libxml doc
-	 * @var Document
+	 * @var DOMDocument
 	 */
 	public $topLevelDoc;
 
@@ -260,7 +259,7 @@ class Env {
 	 *      wikitext variant in wt2html mode, and in html2wt mode new
 	 *      or edited HTML will be left unconverted.
 	 *  - logLevels: (string[]) Levels to log
-	 *  - topLevelDoc: (Document) Set explicitly when serializing otherwise
+	 *  - topLevelDoc: (DOMDocument) Set explicitly when serializing otherwise
 	 *      it gets initialized for parsing.
 	 */
 	public function __construct(
@@ -684,7 +683,7 @@ class Env {
 
 	/**
 	 * Store reference to DOM diff document
-	 * @param Document $doc
+	 * @param DOMDocument $doc
 	 */
 	public function setDOMDiff( $doc ): void {
 		$this->domDiff = $doc;
@@ -692,9 +691,9 @@ class Env {
 
 	/**
 	 * Return reference to DOM diff document
-	 * @return Document|null
+	 * @return DOMDocument|null
 	 */
-	public function getDOMDiff(): ?Document {
+	public function getDOMDiff(): ?DOMDocument {
 		return $this->domDiff;
 	}
 
@@ -710,9 +709,9 @@ class Env {
 	 * When an environment is constructed, we initialize a document (and
 	 * dispatcher to it) to be used throughout the parse.
 	 *
-	 * @param ?Document $topLevelDoc
+	 * @param ?DOMDocument $topLevelDoc
 	 */
-	public function setupTopLevelDoc( ?Document $topLevelDoc = null ) {
+	public function setupTopLevelDoc( ?DOMDocument $topLevelDoc = null ) {
 		if ( $topLevelDoc ) {
 			$this->topLevelDoc = $topLevelDoc;
 		} else {
@@ -753,21 +752,7 @@ class Env {
 	private function createDocumentDispatcher(): array {
 		// The options to DOMBuilder should be kept in sync with its other
 		// uses, so grep for it before changing
-		$domBuilder = new class( [
-			'suppressHtmlNamespace' => true,
-			# 'suppressIdAttribute' => true,
-			#'domExceptionClass' => \Wikimdedia\Dodo\DOMException::class,
-		] ) extends DOMBuilder {
-				/** @inheritDoc */
-				protected function createDocument(
-					string $doctypeName = null,
-					string $public = null,
-					string $system = null
-				) {
-					// @phan-suppress-next-line PhanTypeMismatchReturn
-					return DOMCompat::newDocument( $doctypeName === 'html' );
-				}
-		};
+		$domBuilder = new DOMBuilder( [ 'suppressHtmlNamespace' => true ] );
 		$dispatcher = new Dispatcher( new TreeBuilder( $domBuilder ) );
 
 		// PORT-FIXME: Necessary to setEnableCdataCallback
@@ -778,7 +763,7 @@ class Env {
 		$dispatcher->startTag( 'body', new PlainAttributes(), false, 0, 0 );
 
 		$doc = $domBuilder->getFragment();
-		'@phan-var Document $doc'; // @var Document $doc
+		'@phan-var DOMDocument $doc'; // @var DOMDocument $doc
 
 		return [ $doc, $dispatcher ];
 	}
@@ -819,7 +804,7 @@ class Env {
 	}
 
 	/**
-	 * @return array<string,DocumentFragment>
+	 * @return array<string,DOMDocumentFragment>
 	 */
 	public function getDOMFragmentMap(): array {
 		return $this->fragmentMap;
@@ -827,19 +812,19 @@ class Env {
 
 	/**
 	 * @param string $id Fragment id
-	 * @return DocumentFragment
+	 * @return DOMDocumentFragment
 	 */
-	public function getDOMFragment( string $id ): DocumentFragment {
+	public function getDOMFragment( string $id ): DOMDocumentFragment {
 		return $this->fragmentMap[$id];
 	}
 
 	/**
 	 * @param string $id Fragment id
-	 * @param DocumentFragment $forest DOM forest
+	 * @param DOMDocumentFragment $forest DOM forest
 	 *   to store against the fragment id
 	 */
 	public function setDOMFragment(
-		string $id, DocumentFragment $forest
+		string $id, DOMDocumentFragment $forest
 	): void {
 		$this->fragmentMap[$id] = $forest;
 	}

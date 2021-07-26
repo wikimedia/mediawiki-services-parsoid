@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
+use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\DOM\Element;
 
 /**
  * An external link, like `[http://example.com]`.
@@ -14,13 +14,13 @@ use Wikimedia\Parsoid\DOM\Element;
 class ExtLinkText extends ConstrainedText {
 	/**
 	 * @param string $text
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param SiteConfig $siteConfig
 	 * @param string $type
 	 *   The type of the link, as described by the `rel` attribute.
 	 */
 	public function __construct(
-		string $text, Element $node,
+		string $text, DOMElement $node,
 		SiteConfig $siteConfig, string $type
 	) {
 		parent::__construct( [
@@ -32,14 +32,14 @@ class ExtLinkText extends ConstrainedText {
 
 	/**
 	 * @param string $text
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param stdClass $dataParsoid
 	 * @param Env $env
 	 * @param array $opts
 	 * @return ?ExtLinkText
 	 */
 	protected static function fromSelSerImpl(
-		string $text, Element $node, stdClass $dataParsoid,
+		string $text, DOMElement $node, stdClass $dataParsoid,
 		Env $env, array $opts
 	): ?ExtLinkText {
 		$type = $node->getAttribute( 'rel' ) ?? '';

@@ -2,8 +2,8 @@
 
 namespace Test\Parsoid\Wt2Html\PP\Processors;
 
+use DOMElement;
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
@@ -21,10 +21,10 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 class ComputeDSRTest extends TestCase {
 	/**
 	 * @param string $wt
-	 * @param Element $doc
+	 * @param DOMElement $doc
 	 * @param array $spec
 	 */
-	public function validateSpec( string $wt, Element $doc, array $spec ): void {
+	public function validateSpec( string $wt, DOMElement $doc, array $spec ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, $spec['selector'] );
 		$this->assertEquals( count( $elts ), 1 );
 

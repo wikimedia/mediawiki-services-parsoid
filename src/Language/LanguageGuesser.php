@@ -2,7 +2,7 @@
 
 namespace Wikimedia\Parsoid\Language;
 
-use Wikimedia\Parsoid\DOM\Element;
+use DOMElement;
 
 /**
  * An oracle that gives you a predicted "source language" for every node in a DOM, which is used
@@ -11,9 +11,9 @@ use Wikimedia\Parsoid\DOM\Element;
 abstract class LanguageGuesser {
 
 	/**
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @return string predicted source language
 	 */
-	abstract public function guessLang( Element $node ): string;
+	abstract public function guessLang( DOMElement $node ): string;
 
 }

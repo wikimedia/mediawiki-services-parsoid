@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
-use Wikimedia\Parsoid\DOM\Document;
+use DOMDocument;
 
 /**
  * A Parsoid extension module may contain one more more
@@ -14,9 +14,9 @@ abstract class ContentModelHandler {
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
-	 * @return Document
+	 * @return DOMDocument
 	 */
-	abstract public function toDOM( ParsoidExtensionAPI $extApi ): Document;
+	abstract public function toDOM( ParsoidExtensionAPI $extApi ): DOMDocument;
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi

@@ -3,9 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
 
+use DOMElement;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
@@ -14,9 +14,9 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class LanguageVariantText extends RegExpConstrainedText {
 	/**
 	 * @param string $text
-	 * @param Element $node
+	 * @param DOMElement $node
 	 */
-	public function __construct( string $text, Element $node ) {
+	public function __construct( string $text, DOMElement $node ) {
 		parent::__construct( [
 				'text' => $text,
 				'node' => $node,
@@ -28,14 +28,14 @@ class LanguageVariantText extends RegExpConstrainedText {
 
 	/**
 	 * @param string $text
-	 * @param Element $node
+	 * @param DOMElement $node
 	 * @param stdClass $dataParsoid
 	 * @param Env $env
 	 * @param array $opts
 	 * @return ?LanguageVariantText
 	 */
 	protected static function fromSelSerImpl(
-		string $text, Element $node, stdClass $dataParsoid,
+		string $text, DOMElement $node, stdClass $dataParsoid,
 		Env $env, array $opts
 	): ?LanguageVariantText {
 		if ( DOMUtils::hasTypeOf( $node, 'mw:LanguageVariant' ) ) {

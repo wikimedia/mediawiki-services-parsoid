@@ -3,7 +3,6 @@
 namespace Test\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DOMNormalizer;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
@@ -45,7 +44,7 @@ class DOMNormalizerTest extends TestCase {
 		$DOMNormalizer->normalize( $body );
 
 		if ( $stripDiffMarkers ) {
-			DOMUtils::visitDOM( $body, static function ( Node $node ) {
+			DOMUtils::visitDOM( $body, static function ( \DOMNode $node ) {
 				if ( DOMUtils::isDiffMarker( $node ) ) {
 					$node->parentNode->removeChild( $node );
 				}

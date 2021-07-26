@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -125,14 +125,14 @@ class PageBundle {
 	 * Leaves `id` attributes behind -- they are used by citation code to
 	 * extract `<ref>` body from the DOM.
 	 *
-	 * @param Document $doc doc
+	 * @param DOMDocument $doc doc
 	 * @param PageBundle $pb page bundle
 	 */
-	public static function apply( Document $doc, PageBundle $pb ): void {
+	public static function apply( DOMDocument $doc, PageBundle $pb ): void {
 		DOMUtils::visitDOM(
 			DOMCompat::getBody( $doc ),
-			static function ( Node $node ) use ( &$pb ): void {
-				if ( $node instanceof Element ) {
+			static function ( DOMNode $node ) use ( &$pb ): void {
+				if ( $node instanceof DOMElement ) {
 					$id = $node->getAttribute( 'id' ) ?? '';
 					if ( isset( $pb->parsoid['ids'][$id] ) ) {
 						DOMDataUtils::setJSONAttribute(
