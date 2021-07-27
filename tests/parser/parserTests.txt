@@ -30283,3 +30283,19 @@ parsoid={
 !! wikitext/edited
 :<i>hi</i></b>ho
 !! end
+
+!! test
+Misnested link nested in span
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+    ["dd", "append", " ho"]
+  ]
+}
+!! wikitext
+: [http://google.com <span>[[Lala]]:</span>ok]-hi
+!! wikitext/edited
+: [http://google.com <span>[[Lala]]:</span>ok]-hi ho
+!! end

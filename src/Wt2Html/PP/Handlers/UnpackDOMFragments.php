@@ -67,8 +67,12 @@ class UnpackDOMFragments {
 		$fixHandler = static function ( Node $node ) use ( &$resetDSR, &$newOffset ) {
 			if ( $node instanceof Element ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
-				if ( $node->nodeName === 'a' ) {
+				if ( !$resetDSR && $node->nodeName === 'a' ) {
 					$resetDSR = true;
+					// Wrap next siblings to the 'A', since they can end up bare
+					// after the misnesting
+					PipelineUtils::addSpanWrappers( $node->parentNode->childNodes, $node );
+					return $node;
 				}
 				if ( $resetDSR ) {
 					if ( $newOffset === null ) {
