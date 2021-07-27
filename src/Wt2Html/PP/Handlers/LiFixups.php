@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -16,74 +15,6 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class LiFixups {
-	/**
-	 * For the following wikitext (called the "LI hack"):
-	 * ```
-	 *     * <li class="..."> foo
-	 * ```
-	 * the Parsoid parser, pre-post processing generates something like
-	 * ```
-	 *     <li></li><li class="...">foo</li>
-	 * ```
-	 * This visitor deletes such spurious `<li>`s to match the output of
-	 * the PHP parser.
-	 *
-	 * However, note that the wikitext `<li></li>`, any preceding wikitext
-	 * asterisk `*` absent, should indeed expand into two nodes in the
-	 * DOM.
-	 * @param Element $node
-	 * @param Env $env
-	 * @param array $options
-	 * @return bool
-	 */
-	public static function handleLIHack(
-		Element $node, Env $env, array $options
-	): bool {
-		$prevNode = $node->previousSibling;
-
-		if ( WTUtils::isLiteralHTMLNode( $node ) &&
-			$prevNode instanceof Element &&
-			$prevNode->nodeName === 'li' &&
-			!WTUtils::isLiteralHTMLNode( $prevNode ) &&
-			DOMUtils::nodeEssentiallyEmpty( $prevNode )
-		) {
-			$dp = DOMDataUtils::getDataParsoid( $node );
-			$liHackSrc = WTUtils::getWTSource( $options['frame'], $prevNode );
-
-			if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
-				$dataMW = DOMDataUtils::getDataMw( $node );
-				if ( isset( $dataMW->parts ) ) {
-					array_unshift( $dataMW->parts, $liHackSrc );
-				}
-			} else {
-				// We have to store the extra information in order to
-				// reconstruct the original source for roundtripping.
-				$dp->liHackSrc = $liHackSrc;
-			}
-
-			// Update the dsr. Since we are coalescing the first
-			// node with the second (or, more precisely, deleting
-			// the first node), we have to update the second DSR's
-			// starting point and start tag width.
-			$nodeDSR = $dp->dsr ?? null;
-			$prevNodeDSR = DOMDataUtils::getDataParsoid( $prevNode )->dsr ?? null;
-
-			if ( $nodeDSR !== null && $prevNodeDSR !== null ) {
-				$dp->dsr = new DomSourceRange(
-					$prevNodeDSR->start,
-					$nodeDSR->end,
-					$nodeDSR->openWidth + $prevNodeDSR->length(),
-					$nodeDSR->closeWidth
-				);
-			}
-
-			// Delete the duplicated <li> node.
-			$prevNode->parentNode->removeChild( $prevNode );
-		}
-
-		return true;
-	}
-
 	/**
 	 * @param Node $c
 	 * @return array

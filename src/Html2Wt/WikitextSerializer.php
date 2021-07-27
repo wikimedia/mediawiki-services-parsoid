@@ -511,6 +511,8 @@ class WikitextSerializer {
 	}
 
 	/**
+	 * FIXME: Get rid of this function after content version 2.2.0 has expired from caches.
+	 *
 	 * @param Element $node
 	 */
 	public function handleLIHackIfApplicable( Element $node ): void {

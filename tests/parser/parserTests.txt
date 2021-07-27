@@ -10708,8 +10708,8 @@ Replacing whitespace with tabs still doesn't break the list (gerrit 78327)
 <li>d</li></ul>
 !!end
 
-# FIXME: Parsoid has a dedicated DOM pass to mimic this Tidy-specific li-hack
-# That pass could possibly be removed.
+## FIXME: This test could possibly be renamed / simplified since this is
+## no longer a hack and works as expected without any special handling.
 !!test
 Test the li-hack (a hack from Tidy days, but doesn't work as advertised with Remex)
 !!options
@@ -10739,9 +10739,9 @@ parsoid=wt2html,wt2wt
 </ul>
 !! html/parsoid
 <ul><li>foo</li>
-<li data-parsoid='{"stx":"html","autoInsertedEnd":true,"liHackSrc":"*"}'>li-hack
+<li class="mw-empty-elt"></li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'>li-hack
 <ul><li>bar1</li></ul></li>
-<li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["*",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;li>templated li-hack"}},"i":0}},"\n**bar2"]}'>templated li-hack
+<li class="mw-empty-elt"></li><li about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","autoInsertedEnd":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;li>templated li-hack"}},"i":0}},"\n**bar2"]}'>templated li-hack
 <ul><li>bar2</li></ul></li>
 <li><!--foo--></li><li data-parsoid='{"stx":"html","autoInsertedEnd":true}'> unsupported li-hack with preceding comments</li></ul>
 

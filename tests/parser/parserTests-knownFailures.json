@@ -2748,7 +2748,7 @@
         "html2wt": "{|\n|foo\n|}"
     },
     "Test the li-hack (a hack from Tidy days, but doesn't work as advertised with Remex)": {
-        "selser [[0,4,4,0,0,2,4,[4]],0,3]": "*foo\n* uqm6lp\n* 1vkiq8\n*{{1x|<li>templated li-hack}}\n**bar2* 1qqsbwt\n* 1livzi9<li> cdysnd\n"
+        "selser [[0,2,1,[3,3],3,0,0,3,2,[3]],0,3]": "*foo\n* v8yh25\n*<li>\n*{{1x|<li>templated li-hack}}\n**bar2* ksjd4q\n*<!--foo--><li>\n"
     },
     "Testing serialization after deletion of table cells": {
         "selser [manual]": "{|\n!h1 !!h2 !!h3\n|c2 |||c3\n|}",
@@ -2854,9 +2854,6 @@
     "WTS of edited external link surrounded by square brackets (T220018)": {
         "wt2wt": "[[http://example.com foo]]",
         "selser [manual]": "[[http://example.com foo]]"
-    },
-    "Wikitext lists can be nested inside HTML lists": {
-        "html2wt": "<ul>\n<li>a\n* b\n</li>\n</ul>\n\n<ul>\n<li>x\n** y\n</li>\n</ul>"
     },
     "Wikitext table with a lot of comments": {
         "html2wt": "{|\n|foo\n|-\n|\n|}"

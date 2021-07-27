@@ -209,8 +209,7 @@ class DOMHandler {
 		$res = '';
 		while ( !DOMUtils::atTheTop( $node ) ) {
 			$dp = DOMDataUtils::getDataParsoid( $node );
-			$stx = $dp->stx ?? null;
-			if ( ( $stx !== 'html' || isset( $dp->liHackSrc ) ) && isset( $listTypes[$node->nodeName] ) ) {
+			if ( isset( $listTypes[$node->nodeName] ) ) {
 				if ( $node->nodeName === 'li' ) {
 					$parentNode = $node->parentNode;
 					while ( $parentNode && !( isset( $parentTypes[$parentNode->nodeName] ) ) ) {
@@ -218,17 +217,19 @@ class DOMHandler {
 					}
 
 					if ( $parentNode ) {
-						$res = $parentTypes[$parentNode->nodeName] . $res;
+						if ( !WTUtils::isLiteralHTMLNode( $parentNode ) ) {
+							$res = $parentTypes[$parentNode->nodeName] . $res;
+						}
 					} else {
 						$state->getEnv()->log( 'error/html2wt', 'Input DOM is not well-formed.',
 							"Top-level <li> found that is not nested in <ol>/<ul>\n LI-node:",
 							DOMCompat::getOuterHTML( $node )
 						);
 					}
-				} else {
+				} elseif ( !WTUtils::isLiteralHTMLNode( $node ) ) {
 					$res = $listTypes[$node->nodeName] . $res;
 				}
-			} elseif ( $stx !== 'html' ||
+			} elseif ( !WTUtils::isLiteralHTMLNode( $node ) ||
 				empty( $dp->autoInsertedStart ) || empty( $dp->autoInsertedEnd )
 			) {
 				break;

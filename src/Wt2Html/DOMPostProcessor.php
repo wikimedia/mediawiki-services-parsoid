@@ -346,16 +346,12 @@ class DOMPostProcessor extends PipelineStage {
 
 		$processors = array_merge( $processors, [
 			[
-				'name' => 'LiFixups,TableFixups,DedupeStyles',
+				'name' => 'MigrateTrailingCategories,TableFixups,DedupeStyles',
 				'shortcut' => 'fixups',
 				'isTraverser' => true,
 				'skipNested' => true,
 				'handlers' => [
-					// 1. Deal with <li>-hack and move trailing categories in <li>s out of the list
-					[
-						'nodeName' => 'li',
-						'action' => [ LiFixups::class, 'handleLIHack' ],
-					],
+					// Move trailing categories in <li>s out of the list
 					[
 						'nodeName' => 'li',
 						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
