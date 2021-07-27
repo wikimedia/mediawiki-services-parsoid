@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Tools\ScriptUtils;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
@@ -749,7 +750,9 @@ class TestRunner {
 				continue;
 			}
 			// use document.querySelectorAll as a poor man's $(...)
-			$els = DOMCompat::querySelectorAll( $body, $change[0] );
+			$els = PHPUtils::iterable_to_array(
+				DOMCompat::querySelectorAll( $body, $change[0] )
+			);
 			if ( !count( $els ) ) {
 				$err = new Error( $change[0] .
 					' did not match any elements: ' . DOMCompat::getOuterHTML( $body ) );

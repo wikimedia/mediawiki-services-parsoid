@@ -15,7 +15,6 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\DOM\NodeList;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
@@ -261,13 +260,13 @@ class DOMCompat {
 	 * and the lack of Element::getElementsByTagName().
 	 * @param Document|Element $node
 	 * @param string $tagName
-	 * @return NodeList
+	 * @return iterable<Element> Either an array or an HTMLCollection object
 	 * @see https://dom.spec.whatwg.org/#dom-document-getelementsbytagname
 	 * @see https://dom.spec.whatwg.org/#dom-element-getelementsbytagname
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
-	public static function getElementsByTagName( $node, string $tagName ) {
+	public static function getElementsByTagName( $node, string $tagName ): iterable {
 		Assert::parameterType(
 			self::or(
 				Document::class, Element::class,
@@ -276,7 +275,7 @@ class DOMCompat {
 				\DOMDocument::class, \DOMElement::class
 			),
 			$node, '$node' );
-		// @phan-suppress-next-line PhanTypeMismatchArgument,PhanTypeMismatchReturn DOMNode,DOMNodeList
+		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode,DOMNodeList
 		return Zest::getElementsByTagName( $node, $tagName );
 	}
 
@@ -309,18 +308,21 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-queryselector
 	 */
 	public static function querySelector( $node, string $selector ) {
-		return self::querySelectorAll( $node, $selector )[0] ?? null;
+		foreach ( self::querySelectorAll( $node, $selector ) as $el ) {
+			return $el;
+		}
+		return null;
 	}
 
 	/**
 	 * @param Document|DocumentFragment|Element $node
 	 * @param string $selector
-	 * @return Element[]
+	 * @return iterable<Element> Either a NodeList or an array
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-queryselectorall
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
-	public static function querySelectorAll( $node, string $selector ): array {
+	public static function querySelectorAll( $node, string $selector ): iterable {
 		Assert::parameterType(
 			self::or(
 				Document::class, DocumentFragment::class, Element::class,

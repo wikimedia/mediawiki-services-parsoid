@@ -395,6 +395,31 @@ class PHPUtils {
 	}
 
 	/**
+	 * Convert an iterable to an array.
+	 *
+	 * This function is similar to *but not the same as* the built-in
+	 * iterator_to_array, because arrays are iterable but not Traversable!
+	 *
+	 * This function is also present in the wmde/iterable-functions library,
+	 * but it's short enough that we don't need to pull in an entire new
+	 * dependency here.
+	 *
+	 * @see https://stackoverflow.com/questions/44587973/php-iterable-to-array-or-traversable
+	 * @see https://github.com/wmde/iterable-functions/blob/master/src/functions.php
+	 *
+	 * @phan-template T
+	 * @param iterable<T> $iterable
+	 * @return array<T>
+	 */
+	public static function iterable_to_array( iterable $iterable ): array { // phpcs:ignore MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName,Generic.Files.LineLength.TooLong
+		if ( is_array( $iterable ) ) {
+			return $iterable;
+		}
+		'@phan-var \Traversable $iterable'; // @var \Traversable $iterable
+		return iterator_to_array( $iterable );
+	}
+
+	/**
 	 * Indicate that the code which calls this function is intended to be
 	 * unreachable.
 	 *

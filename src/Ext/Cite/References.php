@@ -452,9 +452,9 @@ class References extends ExtensionTagHandler {
 			static function ( Element $sup ) use ( $extApi ) {
 				return $extApi->domToHtml( $sup, false, true ) . "\n";
 			},
-			DOMCompat::querySelectorAll(
+			PHPUtils::iterable_to_array( DOMCompat::querySelectorAll(
 				$refsNode, 'sup[typeof~=\'mw:Extension/ref\']'
-			)
+			) )
 		);
 
 		if ( !$isTplWrapper ) {

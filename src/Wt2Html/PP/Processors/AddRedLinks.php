@@ -24,7 +24,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 		$wikiLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' );
 
 		$titles = array_reduce(
-			$wikiLinks,
+			PHPUtils::iterable_to_array( $wikiLinks ),
 			static function ( array $s, Element $a ): array {
 				// Magic links, at least, don't have titles
 				if ( $a->hasAttribute( 'title' ) ) {
