@@ -162,7 +162,7 @@ class WikitextSerializer {
 	 *   - isLastChild: (bool)
 	 * @return string
 	 */
-	public function escapeWikiText( SerializerState $state, string $text, array $opts ): string {
+	public function escapeWikitext( SerializerState $state, string $text, array $opts ): string {
 		return $this->wteHandlers->escapeWikitext( $state, $text, $opts );
 	}
 

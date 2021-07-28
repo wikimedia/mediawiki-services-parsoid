@@ -609,7 +609,7 @@ class SerializerState {
 		// Escape 'res' if necessary
 		if ( $this->escapeText ) {
 			$res = new ConstrainedText( [
-				'text' => $this->serializer->escapeWikiText( $this, $res->text, [
+				'text' => $this->serializer->escapeWikitext( $this, $res->text, [
 					'node' => $node,
 					'isLastChild' => DOMUtils::nextNonDeletedSibling( $node ) === null,
 				] ),

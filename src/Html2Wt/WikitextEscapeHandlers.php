@@ -834,7 +834,7 @@ class WikitextEscapeHandlers {
 	 * @param array $opts [ 'node' => Node, 'inMultilineMode' => ?bool, 'isLastChild' => ?bool ]
 	 * @return string
 	 */
-	public function escapeWikiText( SerializerState $state, string $text, array $opts ): string {
+	public function escapeWikitext( SerializerState $state, string $text, array $opts ): string {
 		$env = $state->getEnv();
 		$env->log(
 			'trace/wt-escape', 'EWT:',
@@ -941,7 +941,7 @@ class WikitextEscapeHandlers {
 					$state->currLine->text = '';
 					$opts['inMultilineMode'] = true;
 				}
-				$tmp[] = $this->escapeWikiText( $state, $line, $opts );
+				$tmp[] = $this->escapeWikitext( $state, $line, $opts );
 			}
 			$ret = implode( "\n", $tmp );
 
@@ -1370,7 +1370,7 @@ class WikitextEscapeHandlers {
 			? [ $this, 'mediaOptionHandler' ]
 			: [ $this, 'wikilinkHandler' ];
 		$state->inLink = true;
-		$res = $this->escapeWikiText( $state, $str, [ 'node' => $node ] );
+		$res = $this->escapeWikitext( $state, $str, [ 'node' => $node ] );
 		$state->inLink = false;
 		array_pop( $state->wteHandlerStack );
 
