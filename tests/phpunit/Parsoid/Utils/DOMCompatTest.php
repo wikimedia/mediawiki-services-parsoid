@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 use Wikimedia\TestingAccessWrapper;
 
@@ -580,8 +581,8 @@ HTML;
 	private function assertSameNode( Node $expected, Node $actual, $message = '' ) {
 		if ( !$expected->isSameNode( $actual ) ) {
 			// try to give a somewhat informative error
-			$actualHtml = $actual->ownerDocument->saveHTML( $actual );
-			$expectedHtml = $expected->ownerDocument->saveHTML( $expected );
+			$actualHtml = XMLSerializer::serialize( $actual )['html'];
+			$expectedHtml = XMLSerializer::serialize( $expected )['html'];
 			$this->assertSame( $expectedHtml, $actualHtml, $message );
 			$this->assertSame( $expected, $actual, $message );
 		} else {
