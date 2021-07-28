@@ -26,7 +26,18 @@ use Wikimedia\Zest\Zest;
  * For a DOM method $node->foo( $bar) the equivalent helper is DOMCompat::foo( $node, $bar ).
  * For a DOM property $node->foo there is a DOMCompat::getFoo( $node ) and
  * DOMCompat::setFoo( $node, $value ).
+ *
  * Only implements the methods that are actually used by Parsoid.
+ *
+ * Because this class may be used by code outside Parsoid it tries to
+ * be relatively tolerant of object types: you can call it either with
+ * PHP's DOM* types or with a "proper" DOM implementation, and it will
+ * attempt to Do The Right Thing regardless.  As a result there are
+ * generally not parameter type hints for DOM object types, and the
+ * return types will be broad enough to accomodate the value a "real"
+ * DOM implementation would return, as well as the values our
+ * thunk will return. (For instance, we can't create a "real" NodeList
+ * in our compatibility thunk.)
  */
 class DOMCompat {
 
@@ -56,7 +67,7 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-body
 	 */
-	public static function getBody( Document $document ): ?Element {
+	public static function getBody( $document ) {
 		// Use an undeclared dynamic property as a cache.
 		// WARNING: this will not be updated if (for some reason) the
 		// document body changes.
@@ -80,7 +91,7 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-head
 	 */
-	public static function getHead( Document $document ): ?Element {
+	public static function getHead( $document ) {
 		// Use an undeclared dynamic property as a cache.
 		// WARNING: this will not be updated if (for some reason) the
 		// document head changes.
@@ -103,7 +114,7 @@ class DOMCompat {
 	 * @return string
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#document.title
 	 */
-	public static function getTitle( Document $document ): string {
+	public static function getTitle( $document ): string {
 		$titleElement = self::querySelector( $document, 'title' );
 		return $titleElement ? self::stripAndCollapseASCIIWhitespace( $titleElement->textContent ) : '';
 	}
@@ -114,7 +125,7 @@ class DOMCompat {
 	 * @param string $title
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#document.title
 	 */
-	public static function setTitle( Document $document, string $title ): void {
+	public static function setTitle( $document, string $title ): void {
 		$titleElement = self::querySelector( $document, 'title' );
 		if ( !$titleElement ) {
 			$headElement = self::getHead( $document );
@@ -134,7 +145,7 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-node-parentelement
 	 */
-	public static function getParentElement( Node $node ): ?Element {
+	public static function getParentElement( $node ) {
 		$parent = $node->parentNode;
 		if ( $parent && $parent->nodeType === XML_ELEMENT_NODE ) {
 			/** @var Element $parent */
@@ -152,9 +163,14 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-nonelementparentnode-getelementbyid
 	 */
-	public static function getElementById( Node $node, string $id ): ?Element {
+	public static function getElementById( $node, string $id ) {
 		Assert::parameterType(
-			self::or( Document::class, DocumentFragment::class ),
+			self::or(
+				Document::class, DocumentFragment::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class
+			),
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
 		$elements = Zest::getElementsById( $node, $id );
@@ -172,7 +188,7 @@ class DOMCompat {
 	 * @param string $id The desired value for the `id` attribute on $element.
 	 * @see https://phabricator.wikimedia.org/T232390
 	 */
-	public static function setIdAttribute( Element $element, string $id ): void {
+	public static function setIdAttribute( $element, string $id ): void {
 		$element->setAttribute( 'id', $id );
 		$element->setIdAttribute( 'id', true );// phab:T232390
 	}
@@ -185,7 +201,7 @@ class DOMCompat {
 	 * @return Attr[]
 	 * @see https://phabricator.wikimedia.org/T235295
 	 */
-	public static function attributes( Element $element ): array {
+	public static function attributes( $element ): array {
 		$result = [];
 		// The 'xmlns' attribute is "invisible" T235295
 		if ( $element->hasAttribute( 'xmlns' ) ) {
@@ -212,7 +228,7 @@ class DOMCompat {
 	 * @return bool True if the element has any attributes
 	 * @see https://phabricator.wikimedia.org/T235295
 	 */
-	public static function hasAttributes( Element $element ): bool {
+	public static function hasAttributes( $element ): bool {
 		// The 'xmlns' attribute is "invisible" T235295
 		return $element->hasAttributes() || $element->hasAttribute( 'xmlns' );
 	}
@@ -229,9 +245,14 @@ class DOMCompat {
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
-	public static function getElementsByTagName( Node $node, string $tagName ) {
+	public static function getElementsByTagName( $node, string $tagName ) {
 		Assert::parameterType(
-			self::or( Document::class, Element::class ),
+			self::or(
+				Document::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMElement::class
+			),
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument,PhanTypeMismatchReturn DOMNode,DOMNodeList
 		return Zest::getElementsByTagName( $node, $tagName );
@@ -243,9 +264,14 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-lastelementchild
 	 */
-	public static function getLastElementChild( Node $node ): ?Element {
+	public static function getLastElementChild( $node ) {
 		Assert::parameterType(
-			self::or( Document::class, DocumentFragment::class, Element::class ),
+			self::or(
+				Document::class, DocumentFragment::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
+			),
 			$node, '$node' );
 		$lastChild = $node->lastChild;
 		while ( $lastChild && $lastChild->nodeType !== XML_ELEMENT_NODE ) {
@@ -260,7 +286,7 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-queryselector
 	 */
-	public static function querySelector( Node $node, string $selector ): ?Element {
+	public static function querySelector( $node, string $selector ) {
 		return self::querySelectorAll( $node, $selector )[0] ?? null;
 	}
 
@@ -272,9 +298,14 @@ class DOMCompat {
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
-	public static function querySelectorAll( Node $node, string $selector ): array {
+	public static function querySelectorAll( $node, string $selector ): array {
 		Assert::parameterType(
-			self::or( Document::class, DocumentFragment::class, Element::class ),
+			self::or(
+				Document::class, DocumentFragment::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
+			),
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode
 		return Zest::find( $selector, $node );
@@ -286,9 +317,14 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-previouselementsibling
 	 */
-	public static function getPreviousElementSibling( Node $node ): ?Element {
+	public static function getPreviousElementSibling( $node ) {
 		Assert::parameterType(
-			self::or( Element::class, CharacterData::class ),
+			self::or(
+				Element::class, CharacterData::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMElement::class, \DOMCharacterData::class
+			),
 			$node, '$node' );
 		$previousSibling = $node->previousSibling;
 		while ( $previousSibling && $previousSibling->nodeType !== XML_ELEMENT_NODE ) {
@@ -303,9 +339,14 @@ class DOMCompat {
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-nextelementsibling
 	 */
-	public static function getNextElementSibling( Node $node ): ?Element {
+	public static function getNextElementSibling( $node ) {
 		Assert::parameterType(
-			self::or( Element::class, CharacterData::class ),
+			self::or(
+				Element::class, CharacterData::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMElement::class, \DOMCharacterData::class
+			),
 			$node, '$node' );
 		$nextSibling = $node->nextSibling;
 		while ( $nextSibling && $nextSibling->nodeType !== XML_ELEMENT_NODE ) {
@@ -319,9 +360,14 @@ class DOMCompat {
 	 * @param Element|CharacterData $node
 	 * @see https://dom.spec.whatwg.org/#dom-childnode-remove
 	 */
-	public static function remove( Node $node ): void {
+	public static function remove( $node ): void {
 		Assert::parameterType(
-			self::or( Element::class, CharacterData::class ),
+			self::or(
+				Element::class, CharacterData::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMElement::class, \DOMCharacterData::class
+			),
 			$node, '$node' );
 		if ( $node->parentNode ) {
 			$node->parentNode->removeChild( $node );
@@ -334,7 +380,7 @@ class DOMCompat {
 	 * @return string
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-innerhtml-innerhtml
 	 */
-	public static function getInnerHTML( Element $element ): string {
+	public static function getInnerHTML( $element ): string {
 		return XMLSerializer::serialize( $element, [ 'innerXML' => true ] )['html'];
 	}
 
@@ -344,7 +390,7 @@ class DOMCompat {
 	 * @param Element $element
 	 * @param string $html
 	 */
-	public static function setInnerHTML( Element $element, string $html ): void {
+	public static function setInnerHTML( $element, string $html ): void {
 		$domBuilder = new class( [
 			'suppressHtmlNamespace' => true,
 		] ) extends DOMBuilder {
@@ -383,7 +429,7 @@ class DOMCompat {
 	 * @return string
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-element-outerhtml
 	 */
-	public static function getOuterHTML( Element $element ): string {
+	public static function getOuterHTML( $element ): string {
 		return XMLSerializer::serialize( $element, [ 'addDoctype' => false ] )['html'];
 	}
 
@@ -393,7 +439,7 @@ class DOMCompat {
 	 * @return TokenList
 	 * @see https://dom.spec.whatwg.org/#dom-element-classlist
 	 */
-	public static function getClassList( Element $node ): TokenList {
+	public static function getClassList( $node ): TokenList {
 		return new TokenList( $node );
 	}
 
@@ -410,7 +456,7 @@ class DOMCompat {
 	/**
 	 * @param Element|DocumentFragment $e
 	 */
-	private static function stripEmptyTextNodes( Node $e ): void {
+	private static function stripEmptyTextNodes( $e ): void {
 		$c = $e->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
@@ -429,7 +475,7 @@ class DOMCompat {
 	 * @param Element|DocumentFragment $elt root of the DOM tree that
 	 *   needs to be normalized
 	 */
-	public static function normalize( Node $elt ): void {
+	public static function normalize( $elt ): void {
 		$elt->normalize();
 
 		// Now traverse the tree rooted at $elt and remove any stray empty text nodes
@@ -447,10 +493,15 @@ class DOMCompat {
 	 * @param array<string|Node> ...$nodes
 	 */
 	public static function replaceChildren(
-		Node $parentNode, ...$nodes
+		$parentNode, ...$nodes
 	): void {
 		Assert::parameterType(
-			self::or( Document::class, DocumentFragment::class, Element::class ),
+			self::or(
+				Document::class, DocumentFragment::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
+			),
 			$parentNode, '$parentNode'
 		);
 		while ( $parentNode->firstChild ) {
