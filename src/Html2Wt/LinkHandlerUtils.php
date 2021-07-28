@@ -544,7 +544,6 @@ class LinkHandlerUtils {
 		$requiresEscaping = true;
 		$env = $state->getEnv();
 		$siteConfig = $env->getSiteConfig();
-		$oldSOLState = $state->onSOL;
 		$target = $linkData->target;
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
@@ -759,13 +758,7 @@ class LinkHandlerUtils {
 
 			// For non-piped content, use the original invalid link text
 			$pipedText = $isPiped ? $contentSrc : $linkTarget;
-
-			if ( $requiresEscaping ) {
-				// Escape the text in the old sol context
-				$state->onSOL = $oldSOLState;
-				$pipedText = $state->serializer->wteHandlers
-					   ->escapeWikiText( $state, $pipedText, [ 'node' => $node ] );
-			}
+			$state->escapeText = $requiresEscaping;
 			$state->emitChunk( $linkData->prefix . $pipedText . $linkData->tail, $node );
 		} else {
 			if ( $isPiped && $requiresEscaping ) {
