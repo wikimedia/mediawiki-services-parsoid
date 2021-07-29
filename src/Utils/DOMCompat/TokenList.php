@@ -29,7 +29,7 @@ class TokenList implements Iterator {
 	/**
 	 * @param Element $node The node whose classes are listed.
 	 */
-	public function __construct( Element $node ) {
+	public function __construct( $node ) {
 		$this->node = $node;
 		$this->lazyLoadClassList();
 	}
