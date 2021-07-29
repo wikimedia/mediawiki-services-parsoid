@@ -59,24 +59,18 @@ class ExtensionHandler extends TokenHandler {
 	 * Process extension metadata and record it somewhere (Env state or the DOM)
 	 *
 	 * @param DocumentFragment $domFragment
-	 * @param array $modules
-	 * @param array $modulestyles
-	 * @param array $jsConfigVars
-	 * @param ?array $categories
+	 * @param array $ret
 	 */
-	private function processExtMetadata(
-		DocumentFragment $domFragment, array $modules, array $modulestyles, array $jsConfigVars,
-		?array $categories
-	): void {
+	private function processExtMetadata( DocumentFragment $domFragment, array $ret ): void {
 		// Add the modules to the page data
-		$this->env->addOutputProperty( 'modules', $modules );
-		$this->env->addOutputProperty( 'modulestyles', $modulestyles );
-		$this->env->addOutputProperty( 'jsconfigvars', $jsConfigVars );
+		$this->env->addOutputProperty( 'modules', $ret['modules'] );
+		$this->env->addOutputProperty( 'modulestyles', $ret['modulestyles'] );
+		$this->env->addOutputProperty( 'jsconfigvars', $ret['jsconfigvars'] );
 
 		/*  - categories: (array) [ Category name => sortkey ] */
 		// Add the categories which were added by extensions directly into the
 		// page and not as in-text links
-		foreach ( ( $categories ?? [] ) as $name => $sortkey ) {
+		foreach ( $ret['categories'] as $name => $sortkey ) {
 			$link = $domFragment->ownerDocument->createElement( "link" );
 			$link->setAttribute( "rel", "mw:PageProp/Category" );
 			$href = $this->env->getSiteConfig()->relativeLinkPrefix() .
@@ -182,10 +176,7 @@ class ExtensionHandler extends TokenHandler {
 				preg_replace( '#(^<p>)|(\n</p>$)#D', '', $ret['html'] )
 			);
 
-			$this->processExtMetadata(
-				$domFragment, $ret['modules'], $ret['modulestyles'], $ret['jsconfigvars'] ?? [],
-				$ret['categories']
-			);
+			$this->processExtMetadata( $domFragment, $ret );
 
 			$toks = $this->onDocumentFragment(
 				$nativeExt, $token, $domFragment, []

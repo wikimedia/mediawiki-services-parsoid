@@ -548,6 +548,7 @@ class MockDataAccess implements DataAccess {
 			'html' => $html,
 			'modules' => [],
 			'modulestyles' => [],
+			'jsconfigvars' => [],
 			'categories' => [],
 		];
 	}
@@ -558,6 +559,7 @@ class MockDataAccess implements DataAccess {
 		$ret = [
 			'modules' => [],
 			'modulestyles' => [],
+			'jsconfigvars' => [],
 			'categories' => [],
 			'properties' => [],
 		];
