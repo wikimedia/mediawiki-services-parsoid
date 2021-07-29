@@ -28,11 +28,13 @@ class Document extends \DOMDocument implements Node {
 			# 'CharacterData', # see above
 			'Comment',
 			'DocumentFragment',
+			'DocumentType',
 			# 'DOMException', # see above
 			# 'DOMParser', # see above
 			'Element',
 			# 'Node', # see above
 			# 'NodeList', # see above
+			'ProcessingInstruction',
 			'Text',
 		] as $cls ) {
 			$this->registerNodeClass(

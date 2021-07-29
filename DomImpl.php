@@ -16,6 +16,7 @@ foreach ( [
 	'Comment',
 	'Document',
 	'DocumentFragment',
+	'DocumentType',
 	'DOMException', # see below caveat for NodeList; same applies.
 	'DOMParser', # this doesn't exist in PHP's dom extension
 	'Element',
@@ -28,6 +29,7 @@ foreach ( [
 	# We will avoid using NodeList in PHP type checks for this reason, although
 	# it's fine to use in PHPDoc because phan thinks we're always using Dodo.
 	'NodeList',
+	'ProcessingInstruction',
 	'Text',
 ] as $cls ) {
 	if ( $wgParsoidUseDodo ) {
