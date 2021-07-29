@@ -7,7 +7,17 @@
 # such as the one below, and just ignores them.  See `.phan/stubs/DomImpl.php`
 # for a "simpler" version of this for phan to use.
 
+# NOTE: WMF CI will always use the version of DomImpl.php from mediawiki-vendor
+# when testing in integrated mode, since the hack that we use to force core
+# to load the code from extensions/parsoid is executed after DomImpl.php has
+# already been evaluated.  See extension/src/RegistrationHookHandler.php
+# for an opportunity to "fix up" the alias mapping if this proves necessary.
+# (We'll use $wgParsoidDomImplVersion to communicate what version we've
+# already set up.)
+
+global $wgParsoidUseDodo, $wgParsoidDomImplVersion;
 $wgParsoidUseDodo = false;
+$wgParsoidDomImplVersion = 1; // See RegistrationHookHandler
 
 foreach ( [
 	# This list should match the one in src/DOM/Compat/Document.php
