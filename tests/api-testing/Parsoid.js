@@ -23,7 +23,7 @@ const parsoidOptions = {
 // FIXME(T283875): These should all be re-enabled
 var skipForNow = true;
 
-var defaultContentVersion = '2.2.0';
+var defaultContentVersion = '2.3.0';
 
 // section wrappers are a distraction from the main business of
 // this file which is to verify functionality of API end points
@@ -276,7 +276,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept',
-				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.2.0"; q=0.5,' +
+				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.3.0"; q=0.5,' +
 				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
@@ -289,7 +289,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept',
-				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.2.0"; q=0.5,' +
+				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.3.0"; q=0.5,' +
 				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
 			.expect(200)
@@ -316,7 +316,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept requests for content version 2.x (html)', function(done) {
-			var contentVersion = '2.2.0';
+			var contentVersion = '2.3.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
@@ -327,7 +327,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept requests for content version 2.x (pagebundle)', function(done) {
-			var contentVersion = '2.2.0';
+			var contentVersion = '2.3.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
@@ -343,7 +343,7 @@ describe('Parsoid API', function() {
 		// Note that these tests aren't that useful directly after a major version bump
 
 		it('should accept requests for older content version 2.x (html)', function(done) {
-			var contentVersion = '2.2.0';
+			var contentVersion = '2.3.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"')  // Keep this on the older version
@@ -354,7 +354,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept requests for older content version 2.x (pagebundle)', function(done) {
-			var contentVersion = '2.2.0';
+			var contentVersion = '2.3.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"')  // Keep this on the older version
@@ -369,7 +369,7 @@ describe('Parsoid API', function() {
 
 		it('should sanity check 2.x content (pagebundle)', function(done) {
 			if (skipForNow) { return this.skip(); }  // Missing files in wiki
-			var contentVersion = '2.2.0';
+			var contentVersion = '2.3.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
@@ -1896,7 +1896,7 @@ describe('Parsoid API', function() {
 					},
 					html: {
 						headers: {
-							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.2.0"',
+							'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.3.0"',
 						},
 						body: '<p about="#mwt1" typeof="mw:Transclusion" id="mwAQ">ho</p>',
 					},
@@ -2237,7 +2237,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/pagebundle/to/wikitext/')
 			.send({
-				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:html:version" content="2.2.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
+				html: '<!DOCTYPE html>\n<html><head><meta charset="utf-8"/><meta property="mw:htmlVersion" content="2.3.0"/></head><body id="mwAA" lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body-content parsoid-body mediawiki mw-parser-output" dir="ltr">123</body></html>',
 				original: {
 					title: 'Doesnotexist',
 					'data-parsoid': { body: { "ids": {} } },
@@ -2329,7 +2329,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should refuse an unknown conversion (2.x -> 999.x)', function(done) {
-			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.2.0"');
+			previousRevHTML.html.headers['content-type'].should.equal('text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/2.3.0"');
 			client.req
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/Reuse_Page/100')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"')
@@ -2341,7 +2341,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should downgrade 999.x content to 2.x', function(done) {
-			var contentVersion = '2.2.0';
+			var contentVersion = '2.3.0';
 			client.req
 			.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
