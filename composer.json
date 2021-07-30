@@ -73,14 +73,14 @@
 			"@phan",
 			"@phpunit",
 			"@toolcheck",
-			"@parserTests",
-			"@nodeNameCheck"
+			"@parserTests"
 		],
 		"lint": [
 			"parallel-lint . --exclude vendor --exclude node_modules",
 			"phpcs -p -s",
 			"minus-x check .",
-			"covers-validator"
+			"covers-validator",
+			"@nodeNameCheck"
 		],
 		"fix": [
 			"minus-x fix .",
