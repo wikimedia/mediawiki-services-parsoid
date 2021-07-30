@@ -2026,8 +2026,7 @@ aDifferentNameGROUP <sup id="cite_ref-anotherName2_6-0" class="reference"><a hre
 <li id="cite_note-theName-4"><span class="mw-cite-backlink"><a href="#cite_ref-theName_4-0">↑</a></span> <span class="reference-text">anotherValue3differentName</span>
 </li>
 </ol></div>
-<p><br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup", but no corresponding <code>&lt;references group="theGroup"/&gt;</code> tag was found</span>
-<br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup2", but no corresponding <code>&lt;references group="theGroup2"/&gt;</code> tag was found</span>
+<p><br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup", but no corresponding <code>&lt;references group="theGroup"/&gt;</code> tag was found</span><br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup2", but no corresponding <code>&lt;references group="theGroup2"/&gt;</code> tag was found</span>
 </p>
 !! html/parsoid
 <p>GROUP <sup about="#mwt2" class="mw-ref reference" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"group":"theGroup","name":"theName"},"body":{"id":"mw-reference-text-cite_note-theName-1"},"errors":[{"key":"cite_error_group_refs_without_references","params":["theGroup"]}]}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;" data-mw-group="theGroup"><span class="mw-reflink-text">[theGroup 1]</span></a></sup>
@@ -2736,9 +2735,7 @@ Report bad attributes in reference tags
 </li>
 <li id="cite_note-theName-2"><span class="mw-cite-backlink"><a href="#cite_ref-theName_2-0">↑</a></span> <span class="reference-text">theNameValue</span>
 </li>
-</ol></div>
-<p><br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup", but no corresponding <code>&lt;references group="theGroup"/&gt;</code> tag was found</span>
-</p>
+</ol></div><p><br /><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tags exist for a group named "theGroup", but no corresponding <code>&lt;references group="theGroup"/&gt;</code> tag was found</span></p>
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{},"body":{"id":"mw-reference-text-cite_note-1"}}'><a href="./Parser_test#cite_note-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <ol class="mw-references references" typeof="mw:Extension/references mw:Error" about="#mwt4" data-mw='{"name":"references","attrs":{"badattrib":"invalidAttribute"},"errors":[{"key":"cite_error_references_invalid_parameters"}]}'><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">noGroupOrNameValue</span></li></ol>
