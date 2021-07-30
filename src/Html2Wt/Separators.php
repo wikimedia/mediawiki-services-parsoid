@@ -22,19 +22,8 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class Separators {
-
-	private const WS_COMMENTS_SEP_STRING = '( +)' .
-		'(' . Utils::COMMENT_REGEXP_FRAGMENT . '[^\n]*' . ')?$';
-
-	/**
-	 * spaces + (comments and anything but newline)?
-	 */
-	private const WS_COMMENTS_SEP_REGEXP = '/' . self::WS_COMMENTS_SEP_STRING . '/D';
-
-	/**
-	 * multiple newlines followed by spaces + (comments and anything but newline)?
-	 */
-	private const NL_WS_COMMENTS_SEP_REGEXP = '/\n+' . self::WS_COMMENTS_SEP_STRING . '/D';
+	private const WS_COMMENTS_SEP_REGEXP =
+		'/((?:^|\n)(?:' . Utils::COMMENT_REGEXP_FRAGMENT . ')*)( +)([^\n]*)$/D';
 
 	/**
 	 * @var SerializerState
@@ -448,10 +437,11 @@ class Separators {
 		// We also should test for onSOL state to deal with HTML like
 		// <ul> <li>foo</li></ul>
 		// and strip the leading space before non-indent-pre-safe tags
-		if ( !$state->inPHPBlock && !$state->inIndentPre &&
-			( preg_match( self::NL_WS_COMMENTS_SEP_REGEXP, $sep ) ||
-				preg_match( self::WS_COMMENTS_SEP_REGEXP, $sep ) &&
-				( !empty( $constraintInfo['onSOL'] ) || $forceSOL )
+		if (
+			!$state->inPHPBlock &&
+			!$state->inIndentPre &&
+			preg_match( self::WS_COMMENTS_SEP_REGEXP, $sep ) && (
+				preg_match( '/\n/', $sep ) || !empty( $constraintInfo['onSOL'] ) || $forceSOL
 			)
 		) {
 			// 'sep' is the separator before 'nodeB' and it has leading spaces on a newline.
@@ -539,16 +529,13 @@ class Separators {
 				$sep = preg_replace_callback(
 					self::WS_COMMENTS_SEP_REGEXP,
 					static function ( $matches ) use ( $stripLeadingSpace, $state ) {
-						$rest = $matches[2] ?? '';
-						if ( $stripLeadingSpace ) {
-							// No other option but to strip the leading space
-							return $rest;
-						} else {
+						if ( !$stripLeadingSpace ) {
 							// Since we nowiki-ed, we are no longer in sol state
 							$state->onSOL = false;
 							$state->hasIndentPreNowikis = true;
-							return '<nowiki>' . $matches[1] . '</nowiki>' . $rest;
+							$space = '<nowiki>' . $matches[2] . '</nowiki>';
 						}
+						return ( $matches[1] ?? '' ) . ( $space ?? '' ) . ( $matches[3] ?? '' );
 					},
 					$sep
 				);
