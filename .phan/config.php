@@ -43,7 +43,8 @@ if ( $STANDALONE ) {
 		# cause phan to fail with 'unnecessary suppression' when run w/ the
 		# older version in core (T267074).
 		'vendor/wikimedia/object-factory',
-		# These are experimental and not included in mediawiki-vendor yet
+		# As above, during a Dodo upgrade make sure we're testing with
+		# our "new" version of dodo/idle-dom, not the "old" upstream one
 		'vendor/wikimedia/dodo',
 		'vendor/wikimedia/idle-dom',
 	] );
@@ -102,14 +103,12 @@ if ( $STANDALONE ) {
 		# These are libraries we have in common w/ core which we always want
 		# to use the parsoid version of (see above, T267074):
 		'wikimedia/object-factory',
-		# These are experimental and not included in mediawiki-vendor yet
-		'vendor/wikimedia/dodo',
-		'vendor/wikimedia/idle-dom',
+		'wikimedia/dodo',
+		'wikimedia/idle-dom',
 	] as $d ) {
 		wfCollectPhpFiles( "{$VP}/vendor/{$d}", $cfg['exclude_file_list'] );
 	}
 }
-wfCollectPhpFiles( "vendor/wikimedia/dodo/.phan", $cfg['exclude_file_list'] );
 wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
