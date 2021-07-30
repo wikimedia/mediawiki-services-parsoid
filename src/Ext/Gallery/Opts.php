@@ -42,7 +42,7 @@ class Opts {
 		$this->caption = (bool)( $attrs['caption'] ?? false );
 
 		// TODO: Good contender for T54941
-		$validUlAttrs = Sanitizer::attributeWhitelist( 'ul' );
+		$validUlAttrs = Sanitizer::attributesAllowedInternal( 'ul' );
 		$this->attrs = [];
 		foreach ( $attrs as $k => $v ) {
 			if ( !isset( $validUlAttrs[$k] ) ) {
