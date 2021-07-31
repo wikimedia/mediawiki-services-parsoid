@@ -33,7 +33,8 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		);
 		$this->addOption(
 			"contentVersion",
-			"The outputContentVersion to use, if different from the default"
+			"The outputContentVersion to use, if different from the default",
+			false, true
 		);
 		$this->addOption(
 			"titles",
