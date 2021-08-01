@@ -111,3 +111,18 @@ foo
 
 [[Category:Baz]]
 !! end
+
+!! test
+Ensure that make-sep-indent-pre-safe logic isn't tripped up by newlines in comments
+!! options
+parsoid=html2wt
+!! html/parsoid
+<!-- cmt
+ --><p>x</p>
+!! wikitext
+<!-- cmt
+ -->x
+!! html/php
+<p>x
+</p>
+!! end

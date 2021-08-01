@@ -22,8 +22,14 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class Separators {
-	private const WS_COMMENTS_SEP_REGEXP =
-		'/((?:^|\n)(?:' . Utils::COMMENT_REGEXP_FRAGMENT . ')*)( +)([^\n]*)$/D';
+	/*
+	 * This regexp looks for leading whitespace on the last line of a separator string.
+	 * So, only comments (single or multi-line) or other newlines can precede that
+	 * whitespace-of-interest. But, also account for any whitespace preceding newlines
+	 * since that needs to be skipped over (Ex: "   \n  ").
+	 */
+	private const INDENT_PRE_WS_IN_SEP_REGEXP =
+		'/^((?: *\n|(?:' . Utils::COMMENT_REGEXP_FRAGMENT . '))*)( +)([^\n]*)$/D';
 
 	/**
 	 * @var SerializerState
@@ -442,7 +448,7 @@ class Separators {
 		if (
 			!$state->inPHPBlock &&
 			!$state->inIndentPre &&
-			preg_match( self::WS_COMMENTS_SEP_REGEXP, $sep ) && (
+			preg_match( self::INDENT_PRE_WS_IN_SEP_REGEXP, $sep ) && (
 				preg_match( '/\n/', $sep ) || !empty( $constraintInfo['onSOL'] ) || $forceSOL
 			)
 		) {
@@ -529,7 +535,7 @@ class Separators {
 				// Wrap non-nl ws from last line, but preserve comments.
 				// This avoids triggering indent-pres.
 				$sep = preg_replace_callback(
-					self::WS_COMMENTS_SEP_REGEXP,
+					self::INDENT_PRE_WS_IN_SEP_REGEXP,
 					static function ( $matches ) use ( $stripLeadingSpace, $state ) {
 						if ( !$stripLeadingSpace ) {
 							// Since we nowiki-ed, we are no longer in sol state
