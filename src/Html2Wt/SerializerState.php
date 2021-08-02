@@ -327,13 +327,16 @@ class SerializerState {
 	}
 
 	/**
-	 * Appends the seperator source and updates the SOL state if necessary.
+	 * Appends the seperator source to the separator src buffer.
+	 * Don't update $state->onSOL since this string hasn't been emitted yet.
+	 * If content handlers change behavior based on whether this newline will
+	 * be emitted or not, they should peek into this buffer (ex: see TDHandler
+	 * and THHandler code).
+	 *
 	 * @param string $src
-	 * @param Node $node
 	 */
-	public function appendSep( string $src, Node $node ): void {
+	public function appendSep( string $src ): void {
 		$this->sep->src = ( $this->sep->src ?: '' ) . $src;
-		$this->sepIntroducedSOL( $src, $node );
 	}
 
 	/**
@@ -415,19 +418,6 @@ class SerializerState {
 		// by makeSepIndentPreSafe on the last line.
 		$nonCommentSep = preg_replace( Utils::COMMENT_REGEXP, '', $sep );
 		if ( substr( $nonCommentSep, -1 ) === "\n" ) {
-			// Since we are stashing away newlines for emitting
-			// before the next element, we are in SOL state wrt
-			// the content of that next element.
-			//
-			// FIXME: The only serious caveat is if all these newlines
-			// will get stripped out in the context of any parent node
-			// that suppress newlines (ex: <li> nodes that are forcibly
-			// converted to non-html wikitext representation -- newlines
-			// will get suppressed in those context). We currently don't
-			// handle arbitrary HTML which cause these headaches. And,
-			// in any case, we might decide to emit such HTML as native
-			// HTML to avoid these problems. To be figured out later when
-			// it is a real issue.
 			$this->onSOL = true;
 		}
 

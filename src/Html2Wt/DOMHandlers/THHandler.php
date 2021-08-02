@@ -32,7 +32,9 @@ class THHandler extends DOMHandler {
 		// T149209: Special case to deal with scenarios
 		// where the previous sibling put us in a SOL state
 		// (or will put in a SOL state when the separator is emitted)
-		if ( $state->onSOL || ( $state->sep->constraints['min'] ?? 0 ) > 0 ) {
+		$min = $state->sep->constraints['min'] ?? 0;
+		$max = $state->sep->constraints['max'] ?? 1;
+		if ( $min > 0 || ( $max > 0 && str_contains( $state->sep->src ?? '', "\n" ) ) ) {
 			// You can use both "!!" and "||" for same-row headings (ugh!)
 			$startTagSrc = preg_replace( '/!!/', '!', $startTagSrc, 1 );
 			$startTagSrc = preg_replace( '/\|\|/', '!', $startTagSrc, 1 );
@@ -75,7 +77,7 @@ class THHandler extends DOMHandler {
 				}
 			}
 			if ( $trailingSpace ) {
-				$state->appendSep( $trailingSpace, $node );
+				$state->appendSep( $trailingSpace );
 			}
 		}
 		return $node->nextSibling;

@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class TRHandler extends DOMHandler {
 
 	public function __construct() {
-		parent::__construct( false );
+		parent::__construct( true );
 	}
 
 	/** @inheritDoc */

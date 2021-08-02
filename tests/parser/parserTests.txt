@@ -27045,7 +27045,7 @@ parsoid={
 
 == hi pal ==
 
-<!--foo-->[[Category:A3]]
+<!--foo-->  [[Category:A3]]
 
 == how goes it ==
 

@@ -397,7 +397,7 @@ class DOMHandler {
 		// FIXME: Should this also check for tabs and plain space
 		// chars interspersed with newlines?
 		if ( preg_match( '/^\n+$/D', $dp->src ?? '' ) ) {
-			$state->appendSep( $dp->src, $node );
+			$state->appendSep( $dp->src );
 		} else {
 			$state->serializer->emitWikitext( $dp->src, $node );
 		}

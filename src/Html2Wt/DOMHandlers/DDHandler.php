@@ -52,7 +52,7 @@ class DDHandler extends DOMHandler {
 		) {
 			$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
 			if ( $trailingSpace ) {
-				$state->appendSep( $trailingSpace, $node );
+				$state->appendSep( $trailingSpace );
 			}
 		}
 

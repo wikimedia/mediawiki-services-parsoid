@@ -66,7 +66,7 @@ class PreHandler extends DOMHandler {
 		$state->emitChunk( $content, $node );
 
 		// Preserve separator source
-		$state->appendSep( $trailingNL, $node );
+		$state->appendSep( $trailingNL );
 		return $node->nextSibling;
 	}
 

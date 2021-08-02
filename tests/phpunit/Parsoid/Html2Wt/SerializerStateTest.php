@@ -78,9 +78,8 @@ class SerializerStateTest extends TestCase {
 	 */
 	public function testAppendSep() {
 		$state = $this->getState();
-		$node = $this->getNode(); // some dummy node to satisfy appendSep
-		$state->appendSep( 'foo', $node );
-		$state->appendSep( 'bar', $node );
+		$state->appendSep( 'foo' );
+		$state->appendSep( 'bar' );
 		$this->assertSame( 'foobar', $state->sep->src );
 	}
 

@@ -1038,7 +1038,7 @@ class WikitextSerializer {
 		if ( !$state->inIndentPre ) {
 			// Strip leading newlines and other whitespace
 			if ( preg_match( self::$separatorREs['sepPrefixWithNlsRE'], $res, $match ) ) {
-				$state->appendSep( $match[0], $node );
+				$state->appendSep( $match[0] );
 				$res = substr( $res, strlen( $match[0] ) );
 			}
 		}
@@ -1059,7 +1059,7 @@ class WikitextSerializer {
 		// Move trailing newlines into the next separator
 		if ( $newSepMatch ) {
 			if ( !$state->sep->src ) {
-				$state->appendSep( $newSepMatch[0], $node );
+				$state->appendSep( $newSepMatch[0] );
 			} else {
 				/* SSS FIXME: what are we doing with the stripped NLs?? */
 			}
@@ -1298,7 +1298,7 @@ class WikitextSerializer {
 					// but that does not seem useful
 					&& preg_match( self::$separatorREs['pureSepRE'], $text )
 				) {
-					$state->appendSep( $text, $node );
+					$state->appendSep( $text );
 					return $node->nextSibling;
 				}
 				if ( $state->selserMode ) {
@@ -1318,7 +1318,7 @@ class WikitextSerializer {
 				break;
 			case XML_COMMENT_NODE:
 				// Merge this into separators
-				$state->appendSep( WTSUtils::commentWT( $node->nodeValue ), $node );
+				$state->appendSep( WTSUtils::commentWT( $node->nodeValue ) );
 				return $node->nextSibling;
 			default:
 				Assert::invariant( 'Unhandled node type: ', $node->nodeType );
