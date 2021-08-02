@@ -37,6 +37,40 @@ class DOMCompat {
 	private static $ASCII_WHITESPACE = "\t\r\f\n ";
 
 	/**
+	 * Create a new empty document.
+	 * This is abstracted because the process is a little different depending
+	 * on whether we're using Dodo or DOMDocument, and phan gets a little
+	 * confused by this.
+	 * @param bool $isHtml
+	 * @return Document
+	 */
+	public static function newDocument( bool $isHtml ) {
+		return new Document( "1.0", "UTF-8" );
+	}
+
+	/**
+	 * Return the lower-case version of the node name (HTML says this should
+	 * be capitalized).
+	 * @param Node $node
+	 * @return string
+	 */
+	public static function nodeName( $node ): string {
+		static $cache = [];
+		$key = $node->nodeName;
+		$lower = $cache[$key] ?? null;
+		if ( $lower === null ) {
+			// "To ASCII lowercase" (strtolower is locale-dependent, boo)
+			$lower = strtr(
+				$key,
+				'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+				'abcdefghijklmnopqrstuvwxyz'
+			);
+			$cache[$key] = $lower;
+		}
+		return $lower;
+	}
+
+	/**
 	 * Get document body.
 	 * Unlike the spec we return it as a native PHP DOM object.
 	 * @param DOMDocument $document
