@@ -21,7 +21,7 @@
 		"wikimedia/langconv": "Provides script conversion support"
 	},
 	"conflict": {
-		"wikimedia/langconv": "<0.3.5 || >=0.4"
+		"wikimedia/langconv": "<0.4.2"
 	},
 	"require": {
 		"composer/semver": "^1.7.2|^3.2.4",
@@ -49,7 +49,7 @@
 		"phpunit/phpunit": "^8.5",
 		"sebastian/diff": "^3.0.2",
 		"wikimedia/alea": "^0.9.3",
-		"wikimedia/langconv": "^0.3.5",
+		"wikimedia/langconv": "^0.4.2",
 		"wikimedia/testing-access-wrapper": "~1.0",
 		"ext-curl": "*",
 		"ockcyp/covers-validator": "1.3.3",

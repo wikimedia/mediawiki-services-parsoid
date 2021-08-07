@@ -2,12 +2,12 @@
 
 namespace Wikimedia\Parsoid\Language;
 
-use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\LangConv\FstReplacementMachine;
 
 class SrConverter extends LanguageConverter {
 
 	public function loadDefaultTables() {
-		$this->setMachine( new ReplacementMachine( 'sr', [ 'sr-ec', 'sr-el' ] ) );
+		$this->setMachine( new FstReplacementMachine( 'sr', [ 'sr-ec', 'sr-el' ] ) );
 	}
 
 	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
@@ -29,15 +29,17 @@ class SrConverter extends LanguageConverter {
 	 */
 	public function guessVariant( $text, $variant ) {
 		$r = [];
-		foreach ( $this->getMachine()->getCodes() as $code => $ignore1 ) {
-			foreach ( $this->getMachine()->getCodes() as $othercode => $ignore2 ) {
+		$machine = $this->getMachine();
+		'@phan-var FstReplacementMachine $machine'; /* @var FstReplacementMachine $machine */
+		foreach ( $machine->getCodes() as $code => $ignore1 ) {
+			foreach ( $machine->getCodes() as $othercode => $ignore2 ) {
 				if ( $code === $othercode ) {
 					return false;
 				}
 				$r[] = [
 					'code' => $code,
 					'othercode' => $othercode,
-					'stats' => $this->getMachine()->countBrackets( $text, $code, $othercode )
+					'stats' => $machine->countBrackets( $text, $code, $othercode )
 				];
 			}
 		}

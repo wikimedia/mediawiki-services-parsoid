@@ -3,7 +3,7 @@
 namespace Wikimedia\Parsoid\Language;
 
 use stdClass;
-use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\LangConv\FstReplacementMachine;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -17,11 +17,12 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class MachineLanguageGuesser extends LanguageGuesser {
 
 	/**
-	 * @param ReplacementMachine $machine
+	 * MachineLanguageGuesser constructor.
+	 * @param FstReplacementMachine $machine
 	 * @param Node $root
 	 * @param string $destCode
 	 */
-	public function __construct( ReplacementMachine $machine, Node $root, $destCode ) {
+	public function __construct( FstReplacementMachine $machine, Node $root, $destCode ) {
 		$codes = [];
 		foreach ( $machine->getCodes() as $invertCode => $ignore ) {
 			if ( $machine->isValidCodePair( $destCode, $invertCode ) ) {

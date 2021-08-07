@@ -2,12 +2,12 @@
 
 namespace Wikimedia\Parsoid\Language;
 
-use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\LangConv\FstReplacementMachine;
 
 class EnConverter extends LanguageConverter {
 
 	public function loadDefaultTables() {
-		$this->setMachine( new ReplacementMachine( 'en', [ 'en', 'en-x-piglatin' ] ) );
+		$this->setMachine( new FstReplacementMachine( 'en', [ 'en', 'en-x-piglatin' ] ) );
 	}
 
 	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic

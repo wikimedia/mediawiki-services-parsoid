@@ -49,11 +49,11 @@ if ( $STANDALONE ) {
 		'vendor/wikimedia/idle-dom',
 	] );
 
-	if ( is_dir( "{$VP}/vendor/wikimedia/langconv" ) ) {
-		$hasLangConv = true;
-	} elseif ( $hasLangConv ) {
-		# use our local wikimedia/langconv if not redundant
+	if ( $hasLangConv ) {
+		# prefer our local wikimedia/langconv
 		$cfg['directory_list'][] = 'vendor/wikimedia/langconv';
+	} elseif ( is_dir( "{$VP}/vendor/wikimedia/langconv" ) ) {
+		$hasLangConv = true;
 	}
 }
 
@@ -107,6 +107,10 @@ if ( $STANDALONE ) {
 		'wikimedia/idle-dom',
 	] as $d ) {
 		wfCollectPhpFiles( "{$VP}/vendor/{$d}", $cfg['exclude_file_list'] );
+	}
+	// Prefer our local copy of langconv
+	if ( is_dir( "{$root}/vendor/wikimedia/langconv" ) ) {
+		wfCollectPhpFiles( "{$VP}/vendor/wikimedia/langconv", $cfg['exclude_file_list'] );
 	}
 }
 wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );

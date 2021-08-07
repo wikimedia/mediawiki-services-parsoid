@@ -2,12 +2,12 @@
 
 namespace Wikimedia\Parsoid\Language;
 
-use Wikimedia\LangConv\ReplacementMachine;
+use Wikimedia\LangConv\FstReplacementMachine;
 
 class CrhConverter extends LanguageConverter {
 
 	public function loadDefaultTables() {
-		$this->setMachine( new ReplacementMachine( 'crh', [ 'crh-latn', 'crh-cyrl' ] ) );
+		$this->setMachine( new FstReplacementMachine( 'crh', [ 'crh-latn', 'crh-cyrl' ] ) );
 	}
 
 	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
