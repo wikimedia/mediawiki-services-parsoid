@@ -2,7 +2,7 @@
 
 namespace Wikimedia\Parsoid\Wt2Html;
 
-class Grammar extends \WikiPEG\PEGParserBase {
+class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	/**
 	 * @param string $input Input string
 	 * @param array $options Parse options

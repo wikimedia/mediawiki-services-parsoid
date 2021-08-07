@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use WikiPEG\SyntaxError;
+use Wikimedia\WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {
 	private $options;

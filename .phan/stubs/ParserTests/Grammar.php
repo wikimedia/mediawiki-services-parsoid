@@ -2,7 +2,7 @@
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-class Grammar extends \WikiPEG\PEGParserBase {
+class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	/**
 	 * @param string $filename
 	 * @return array
