@@ -34,7 +34,7 @@
 		"wikimedia/object-factory": "^3.0.0",
 		"wikimedia/remex-html": "^2.2.0|^2.3.0",
 		"wikimedia/scoped-callback": "^3.0.0",
-		"wikimedia/wikipeg": "^2.0.5",
+		"wikimedia/wikipeg": "^2.0.6",
 		"wikimedia/zest-css": "^1.1.5",
 		"ext-dom": "*",
 		"ext-json": "*"
@@ -48,7 +48,7 @@
 		"mediawiki/minus-x": "1.1.1",
 		"phpunit/phpunit": "^8.5",
 		"sebastian/diff": "^3.0.2",
-		"wikimedia/alea": "^0.9.2",
+		"wikimedia/alea": "^0.9.3",
 		"wikimedia/langconv": "^0.3.5",
 		"wikimedia/testing-access-wrapper": "~1.0",
 		"ext-curl": "*",
