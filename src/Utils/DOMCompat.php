@@ -275,8 +275,10 @@ class DOMCompat {
 				\DOMDocument::class, \DOMElement::class
 			),
 			$node, '$node' );
-		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode,DOMNodeList
-		return Zest::getElementsByTagName( $node, $tagName );
+		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
+		$result = Zest::getElementsByTagName( $node, $tagName );
+		'@phan-var array<Element> $result'; // @var array<Element> $result
+		return $result;
 	}
 
 	/**
