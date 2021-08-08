@@ -13,7 +13,6 @@
 namespace Wikimedia\Parsoid\Core;
 
 use InvalidArgumentException;
-use RemexHtml\HTMLData;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
@@ -23,6 +22,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\RemexHtml\HTMLData;
 
 class Sanitizer {
 	/**

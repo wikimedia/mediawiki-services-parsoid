@@ -10,8 +10,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
-use RemexHtml\Tokenizer\PlainAttributes;
-use RemexHtml\TreeBuilder\Dispatcher;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
@@ -34,6 +32,8 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\PrepareDOM;
+use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
+use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 
 class HTML5TreeBuilder extends PipelineStage {
 	/** @var int */
