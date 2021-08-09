@@ -18,7 +18,7 @@
     "service-runner": "git+https://github.com/cscott/service-runner.git#npm-audit-fix",
     "simplediff": "^0.1.1",
     "wikimedia-langconv": "^0.1.0",
-    "wikipeg": "^2.0.5",
+    "wikipeg": "^2.0.6",
     "yargs": "^13.2.4"
   },
   "devDependencies": {
