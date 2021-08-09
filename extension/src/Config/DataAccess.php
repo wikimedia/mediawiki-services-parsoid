@@ -25,8 +25,8 @@ use LinkBatch;
 use Linker;
 use MediaTransformError;
 use MediaWiki\BadFileLookup;
+use MediaWiki\Content\Transform\ContentTransformer;
 use MediaWiki\HookContainer\HookContainer;
-use MediaWiki\User\UserFactory;
 use Parser;
 use ParserFactory;
 use RepoGroup;
@@ -46,8 +46,8 @@ class DataAccess implements IDataAccess {
 	/** @var HookContainer */
 	private $hookContainer;
 
-	/** @var UserFactory */
-	private $userFactory;
+	/** @var ContentTransformer */
+	private $contentTransformer;
 
 	/** @var Parser */
 	private $parser;
@@ -59,7 +59,7 @@ class DataAccess implements IDataAccess {
 	 * @param RepoGroup $repoGroup
 	 * @param BadFileLookup $badFileLookup
 	 * @param HookContainer $hookContainer
-	 * @param UserFactory $userFactory
+	 * @param ContentTransformer $contentTransformer
 	 * @param ParserFactory $parserFactory A legacy parser factory,
 	 *   for PST/preprocessing/extension handling
 	 */
@@ -67,13 +67,13 @@ class DataAccess implements IDataAccess {
 		RepoGroup $repoGroup,
 		BadFileLookup $badFileLookup,
 		HookContainer $hookContainer,
-		UserFactory $userFactory,
+		ContentTransformer $contentTransformer,
 		ParserFactory $parserFactory
 	) {
 		$this->repoGroup = $repoGroup;
 		$this->badFileLookup = $badFileLookup;
 		$this->hookContainer = $hookContainer;
-		$this->userFactory = $userFactory;
+		$this->contentTransformer = $contentTransformer;
 
 		// Use the same legacy parser object for all calls to extension tag
 		// processing, for greater compatibility.
@@ -278,10 +278,14 @@ class DataAccess implements IDataAccess {
 		// This could use prepareParser(), but it's only called once per page,
 		// so it's not essential.
 		$titleObj = Title::newFromText( $pageConfig->getTitle() );
-		$user = $this->userFactory->newFromUserIdentity( $pageConfig->getParserOptions()->getUserIdentity() );
-		return ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT )
-			->preSaveTransform( $titleObj, $user, $pageConfig->getParserOptions() )
-			->serialize();
+		$user = $pageConfig->getParserOptions()->getUserIdentity();
+		$content = ContentHandler::makeContent( $wikitext, $titleObj, CONTENT_MODEL_WIKITEXT );
+		return $this->contentTransformer->preSaveTransform(
+			$content,
+			$titleObj,
+			$user,
+			$pageConfig->getParserOptions()
+		)->serialize();
 	}
 
 	/** @inheritDoc */

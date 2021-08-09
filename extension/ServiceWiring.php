@@ -69,7 +69,7 @@ return [
 			$services->getRepoGroup(),
 			$services->getBadFileLookup(),
 			$services->getHookContainer(),
-			$services->getUserFactory(),
+			$services->getContentTransformer(),
 			$services->getParserFactory() // *legacy* parser factory
 		);
 	},
