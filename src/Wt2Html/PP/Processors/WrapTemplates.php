@@ -1183,7 +1183,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 							// Dont get distracted by a newline node -- skip over it
 							// Unsure why it shows up occasionally
-							if ( $tbl && $tbl instanceof Text && preg_match( '/^\n$/D', $tbl->data ) ) {
+							if ( $tbl && $tbl instanceof Text && preg_match( '/^\n$/D', $tbl->nodeValue ) ) {
 								$tbl = $tbl->nextSibling;
 							}
 

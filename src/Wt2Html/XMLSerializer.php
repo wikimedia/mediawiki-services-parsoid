@@ -155,7 +155,7 @@ class XMLSerializer {
 
 			case XML_TEXT_NODE:
 				'@phan-var Text $node'; // @var Text $node
-				$accum( self::encodeHtmlEntities( $node->data, '<&' ), $node );
+				$accum( self::encodeHtmlEntities( $node->nodeValue, '<&' ), $node );
 				return;
 
 			case XML_COMMENT_NODE:
@@ -166,7 +166,7 @@ class XMLSerializer {
 				// we create the comment node to ensure that node.data will always
 				// be okay; see DOMUtils.encodeComment().
 				'@phan-var Comment $node'; // @var Comment $node
-				$accum( '<!--' . $node->data . '-->', $node );
+				$accum( '<!--' . $node->nodeValue . '-->', $node );
 				return;
 
 			default:
