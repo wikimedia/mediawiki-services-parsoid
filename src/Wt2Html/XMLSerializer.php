@@ -88,18 +88,20 @@ class XMLSerializer {
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
 				foreach ( DOMCompat::attributes( $node ) as $attr ) {
+					$an = $attr->name;
+					$av = $attr->value;
 					if ( $options['smartQuote']
 						// More double quotes than single quotes in value?
-						&& substr_count( $attr->value, '"' ) > substr_count( $attr->value, "'" )
+						&& substr_count( $av, '"' ) > substr_count( $av, "'" )
 					) {
 						// use single quotes
-						$accum( ' ' . $attr->name . "='"
-							. self::encodeHtmlEntities( $attr->value, "<&'" ) . "'",
+						$accum( ' ' . $an . "='"
+							. self::encodeHtmlEntities( $av, "<&'" ) . "'",
 							$node );
 					} else {
 						// use double quotes
-						$accum( ' ' . $attr->name . '="'
-							. self::encodeHtmlEntities( $attr->value, '<&"' ) . '"',
+						$accum( ' ' . $an . '="'
+							. self::encodeHtmlEntities( $av, '<&"' ) . '"',
 							$node );
 					}
 				}
