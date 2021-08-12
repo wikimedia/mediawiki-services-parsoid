@@ -305,6 +305,9 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 		$defaultAnchor->appendChild( $imageNode );
 		$thumb->replaceChild( $defaultAnchor, $anchor );
 
+		// For T22030
+		DOMCompat::getClassList( $thumb )->add( 'noresize' );
+
 		$domFragment->appendChild( $thumb );
 		return $domFragment;
 	}
