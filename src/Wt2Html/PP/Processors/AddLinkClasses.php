@@ -11,18 +11,17 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class AddExtLinkClasses implements Wt2HtmlDOMProcessor {
+class AddLinkClasses implements Wt2HtmlDOMProcessor {
 	/**
-	 * Add class info to ExtLink information.
-	 * Currently positions the class immediately after the rel attribute
-	 * to keep tests stable.
-	 *
 	 * @inheritDoc
 	 */
 	public function run(
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
+		// Add class info to ExtLink information.
+		// Currently positions the class immediately after the rel attribute
+		// to keep tests stable.
 		$extLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:ExtLink"]' );
 		foreach ( $extLinks as $a ) {
 			$classInfoText = 'external autonumber';
@@ -40,8 +39,12 @@ class AddExtLinkClasses implements Wt2HtmlDOMProcessor {
 					$classInfoText = 'external mw-magiclink';
 				}
 			}
-
 			$a->setAttribute( 'class', $classInfoText );
+		}
+		// Add classes to Interwiki links
+		$iwLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink/Interwiki"]' );
+		foreach ( $iwLinks as $a ) {
+			DOMCompat::getClassList( $a )->add( 'extiw' );
 		}
 	}
 }

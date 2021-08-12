@@ -29,7 +29,7 @@ use Wikimedia\Parsoid\Wt2Html\PP\Handlers\Headings;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\LiFixups;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\TableFixups;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\UnpackDOMFragments;
-use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddExtLinkClasses;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddLinkClasses;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\ComputeDSR;
@@ -460,8 +460,9 @@ class DOMPostProcessor extends PipelineStage {
 				]
 			],
 			[
-				'Processor' => AddExtLinkClasses::class,
+				'Processor' => AddLinkClasses::class,
 				'shortcut' => 'linkclasses',
+				// Note that embedded content doesn't get these classes
 				'skipNested' => true
 			],
 			// Add <section> wrappers around sections
