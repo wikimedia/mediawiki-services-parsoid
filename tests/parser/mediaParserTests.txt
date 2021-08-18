@@ -3846,3 +3846,34 @@ wgParserEnableLegacyMediaDOM=false
 !! html/parsoid
 <p data-parsoid='{"stx":"html","autoInsertedEnd":true}'><i data-parsoid='{"autoInsertedEnd":true}'></i></p><figure class="mw-default-size" typeof="mw:Image/Thumb"><i data-parsoid='{"autoInsertedEnd":true,"autoInsertedStart":true}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x"/></a><figcaption></figcaption></i></figure><p class="mw-empty-elt" data-parsoid='{"autoInsertedStart":true,"stx":"html"}'></p>
 !! end
+
+!! test
+Table in figcaption nested in table
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+{|
+|foo
+|[[File:Foobar.jpg|thumb|
+{|
+|bar
+|}
+]]
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>foo
+</td>
+<td><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="/wiki/File:Foobar.jpg"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a><figcaption><table> <tbody><tr> <td>bar </td></tr></tbody></table></figcaption></figure>
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>foo</td>
+<td><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x"/></a><figcaption>
+<table>
+<tbody><tr><td>bar</td></tr>
+</tbody></table>
+</figcaption></figure></td></tr>
+</tbody></table>
+!! end

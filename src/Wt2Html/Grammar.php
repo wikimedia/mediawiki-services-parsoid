@@ -14144,7 +14144,7 @@ private function discardrow_syntax_table_args($silence, $boolParams, &$param_pre
   return $r1;
 }
 private function parsefull_table_in_link_caption($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([456, $boolParams & 0x77ff, $param_preproc, $param_th]);
+  $key = json_encode([456, $boolParams & 0x77fe, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14169,7 +14169,7 @@ private function parsefull_table_in_link_caption($silence, $boolParams, &$param_
     goto seq_1;
   }
   // free $p4
-  $r6 = $this->parsefull_table_in_link_caption_parameterized($silence, ($boolParams & ~0x400) | 0x20, $param_preproc, $param_th);
+  $r6 = $this->parsefull_table_in_link_caption_parameterized($silence, ($boolParams & ~0x401) | 0x20, $param_preproc, $param_th);
   // r <- $r6
   if ($r6===self::$FAILED) {
     $this->currPos = $p3;

@@ -1906,8 +1906,11 @@ full_table_in_link_caption =
 	// context in which to parse the table.  Otherwise, we may break on
 	// on pipes in the `table_start_tag` and `table_row_tag` attributes.
 	// However, as a result, this can be more permissive than the old
-	// implementation, but likelier to match the users intent.
-	r: full_table_in_link_caption_parameterized<linkdesc=false, table> {
+	// implementation (legacy parser?), but likelier to match the users intent.
+	// Suppress the recursion protection from tableDataBlock since we're trying
+	// to parse a full table and if the link is itself nested in a table this
+	// will always stop.  Hopefully, this won't result in any overflows.
+	r: full_table_in_link_caption_parameterized<linkdesc=false, table, tableDataBlock=false> {
 		return $r;
 	}
 
