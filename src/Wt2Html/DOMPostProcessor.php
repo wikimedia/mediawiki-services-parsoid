@@ -648,6 +648,11 @@ class DOMPostProcessor extends PipelineStage {
 		$bodyCL->add( 'mediawiki' );
 		// Set 'mw-parser-output' directly on the body.
 		// Templates target this class as part of the TemplateStyles RFC
+		// FIXME: This isn't expected to be found on the same element as the
+		// body class above, since some css targets it as a descendant.
+		// In visual diff'ing, we migrate the body contents to a wrapper div
+		// with this class to reduce visual differences.  Consider getting
+		// rid of it.
 		$bodyCL->add( 'mw-parser-output' );
 	}
 
