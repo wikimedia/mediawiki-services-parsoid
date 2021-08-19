@@ -551,6 +551,48 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
+	 * While unnecessary for Wikimedia clients, a stylesheet url in the <head>
+	 * is useful for clients like Kiwix and others who might not want to process
+	 * the meta tags to construct the resourceloader url.
+	 *
+	 * Given that these clients will be consuming Parsoid HTML outside a MediaWiki skin,
+	 * the clients are effectively responsible for their own "skin". But, once again,
+	 * as a courtesy, we are hardcoding the vector skin modules for them. But, note
+	 * that this may cause page elements to render differently than how they render
+	 * on Wikimedia sites with the vector skin since this is probably missing a number
+	 * of other modules.
+	 *
+	 * All that said, note that JS-generated parts of the page will still require them
+	 * to have more intimate knowledge of how  to process the JS modules. Except for
+	 * <graph>s, page content doesn't require JS modules at this point. So, where these
+	 * clients want to invest in the necessary logic to construct a better resourceloader
+	 * url, they could simply delete / ignore this stylesheet.
+	 *
+	 * @param Document $document
+	 * @param Env $env
+	 * @param string $lang
+	 * @param array $styleModules
+	 */
+	private function addCourtesyBasicStyleSheet(
+		Document $document, Env $env, string $lang, array $styleModules
+	): void {
+		$styleModules = array_unique( array_merge( $styleModules, [
+			'mediawiki.skinning.content.parsoid',
+			// Use the base styles that API output and fallback skin use.
+			'mediawiki.skinning.interface',
+			// Make sure to include contents of user generated styles
+			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
+			'site.styles'
+		] ) );
+
+		$styleURI = $env->getSiteConfig()->getModulesLoadURI() .
+			'?lang=' . $lang . '&modules=' .
+			PHPUtils::encodeURIComponent( implode( '|', $styleModules ) ) .
+			'&only=styles&skin=vector';
+		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
+	}
+
+	/**
 	 * Export used style modules via a meta tag (and via a stylesheet for now to aid some clients)
 	 * @param Document $document
 	 * @param Env $env
@@ -570,27 +612,7 @@ class DOMPostProcessor extends PipelineStage {
 			] );
 		}
 
-		// While unnecessary, a stylesheet url in the <head> is useful for clients
-		// like Kiwix and others who might not want to process the meta tags above to
-		// construct the resourceloader url. That said, note that JS-generated parts
-		// of the page will still require them to have more intimate knowledge of how
-		// to process the JS modules. Except for <graph>s, page content doesn't require
-		// JS modules at this point.
-		$styleModules = array_unique( array_merge( [
-			'mediawiki.skinning.content.parsoid',
-			// Use the base styles that API output and fallback skin use.
-			'mediawiki.skinning.interface',
-			// Make sure to include contents of user generated styles
-			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
-			'site.styles'
-		], $styleModules ) );
-
-		$styleURI = $env->getSiteConfig()->getModulesLoadURI() .
-			'?lang=' . $lang . '&modules=' .
-			PHPUtils::encodeURIComponent( implode( '|', $styleModules ) ) .
-			// FIXME: Hardcodes vector skin
-			'&only=styles&skin=vector';
-		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
+		$this->addCourtesyBasicStyleSheet( $document, $env, $lang, $styleModules );
 	}
 
 	/**
