@@ -142,11 +142,6 @@ class References extends ExtensionTagHandler {
 		DOMUtils::assertElt( $c );
 		$cDp = DOMDataUtils::getDataParsoid( $c );
 		$refDmw = DOMDataUtils::getDataMw( $c );
-		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
-			$refsData->pushInEmbeddedContent();
-			self::processRefs( $extApi, $refsData, $c );
-			$refsData->popInEmbeddedContent();
-		}
 
 		// Use the about attribute on the wrapper with priority, since it's
 		// only added when the wrapper is a template sibling.
@@ -257,6 +252,16 @@ class References extends ExtensionTagHandler {
 				}
 			} elseif ( $refsData->inReferencesContent() ) {
 				$errs[] = [ 'key' => 'cite_error_references_no_key' ];
+			}
+		}
+
+		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
+			if ( $contentDiffers ) {
+				$refsData->pushInEmbeddedContent();
+			}
+			self::processRefs( $extApi, $refsData, $c );
+			if ( $contentDiffers ) {
+				$refsData->popInEmbeddedContent();
 			}
 		}
 
