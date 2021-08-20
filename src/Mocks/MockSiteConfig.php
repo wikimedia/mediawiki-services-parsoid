@@ -265,11 +265,11 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	protected function getMagicWords(): array {
-		// make all magic words case-sensitive
-		return [ 'toc'           => [ 1, 'toc' ],
+		return [
+			'toc'           => [ 0, '__TOC__' ],
 			'img_thumbnail' => [ 1, 'thumb' ],
 			'img_none'      => [ 1, 'none' ],
-			'__notoc__'     => [ 1, '__notoc__' ]
+			'notoc'         => [ 0, '__NOTOC__' ]
 		];
 	}
 

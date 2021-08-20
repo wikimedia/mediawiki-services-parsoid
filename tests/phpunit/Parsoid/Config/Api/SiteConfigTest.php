@@ -277,7 +277,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function testMagicWords() {
 		$ret = $this->getSiteConfig()->magicWords();
 		$this->assertIsArray( $ret );
-		$this->assertSame( 'disambiguation', $ret['__DISAMBIG__'] ?? null );
+		$this->assertSame( [ 1, 'disambiguation' ], $ret['__DISAMBIG__'] ?? null );
 	}
 
 	public function testMwAliases() {

@@ -827,7 +827,7 @@ abstract class SiteConfig {
 					$alias = mb_strtolower( $alias );
 					$this->mwAliases[$magicword][] = $alias;
 				}
-				$this->magicWordMap[$alias] = $magicword;
+				$this->magicWordMap[$alias] = [ $caseSensitive, $magicword ];
 				if ( isset( $variablesMap[$magicword] ) ) {
 					$this->variables[$alias] = $magicword;
 				}
@@ -847,7 +847,7 @@ abstract class SiteConfig {
 
 	/**
 	 * List all magic words by alias
-	 * @return string[] Keys are aliases, values are canonical names.
+	 * @return string[] Keys are aliases, values are arrays of case-sensitive, canonical names.
 	 */
 	public function magicWords(): array {
 		$this->populateMagicWords();
@@ -891,7 +891,11 @@ abstract class SiteConfig {
 	 */
 	public function magicWordCanonicalName( string $word ): ?string {
 		$mws = $this->magicWords();
-		return $mws[$word] ?? $mws[mb_strtolower( $word )] ?? null;
+		if ( isset( $mws[$word] ) ) {
+			return $mws[$word][1];
+		}
+		$mw = $mws[mb_strtolower( $word )] ?? null;
+		return ( $mw && !$mw[0] ) ? $mw[1] : null;
 	}
 
 	/**
