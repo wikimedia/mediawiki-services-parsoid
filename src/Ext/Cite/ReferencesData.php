@@ -125,7 +125,15 @@ class ReferencesData {
 		$this->index += 1;
 
 		$ref = (object)[
+			// Pointer to the contents of the ref, accessible with the
+			// $extApi->getContentDOM(), to be used when serializing the
+			// references group.  It gets set when extracting the ref from a
+			// node and not $missingContent.  Note that that might not
+			// be the first one for named refs.  Also, for named refs, it's
+			// used to detect multiple conflicting definitions.
 			'contentId' => null,
+			// Just used for comparison when we have multiples
+			'cachedHtml' => null,
 			'dir' => '',
 			'group' => $group->name,
 			'groupIndex' => count( $group->refs ) + 1,
@@ -135,9 +143,6 @@ class ReferencesData {
 			'linkbacks' => [],
 			'name' => $refName,
 			'target' => $noteId,
-			'hasMultiples' => false,
-			// Just used for comparison when we have multiples
-			'cachedHtml' => '',
 			'nodes' => [],
 			'embeddedNodes' => [],
 		];

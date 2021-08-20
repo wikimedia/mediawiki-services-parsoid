@@ -197,6 +197,9 @@ class References extends ExtensionTagHandler {
 			$c->appendChild( $span );
 		}
 
+		$html = '';
+		$contentDiffers = false;
+
 		if ( $hasRefName ) {
 			if ( $hasFollow ) {
 				// Presumably, "name" has higher precedence
@@ -204,10 +207,19 @@ class References extends ExtensionTagHandler {
 			}
 			if ( isset( $group->indexByName[$refName] ) ) {
 				$ref = $group->indexByName[$refName];
-				if ( $ref->contentId && !$ref->hasMultiples ) {
-					$ref->hasMultiples = true;
-					$firstC = $extApi->getContentDOM( $ref->contentId )->firstChild;
-					$ref->cachedHtml = $extApi->domToHtml( $firstC, true, false );
+				// If there are multiple <ref>s with the same name, but different content,
+				// the content of the first <ref> shows up in the <references> section.
+				// in order to ensure lossless RT-ing for later <refs>, we have to record
+				// HTML inline for all of them.
+				if ( $ref->contentId ) {
+					if ( $ref->cachedHtml === null ) {
+						$firstC = $extApi->getContentDOM( $ref->contentId )->firstChild;
+						$ref->cachedHtml = $extApi->domToHtml( $firstC, true, false );
+					}
+					// FIXME: Strip the mw:Cite/Follow wrappers
+					// See the test, "Forward-referenced ref with magical follow edge case"
+					$html = $extApi->domToHtml( $c, true, false );
+					$contentDiffers = ( $html !== $ref->cachedHtml );
 				}
 			} else {
 				if ( $refsData->inReferencesContent() ) {
@@ -304,28 +316,18 @@ class References extends ExtensionTagHandler {
 				$refDmw->body = (object)[ 'html' => $refDmw->body->extsrc ?? '' ];
 			}
 		} else {
-			// If there are multiple <ref>s with the same name, but different content,
-			// the content of the first <ref> shows up in the <references> section.
-			// in order to ensure lossless RT-ing for later <refs>, we have to record
-			// HTML inline for all of them.
-			$html = '';
-			$contentDiffers = false;
-			if ( $ref->hasMultiples && !$validFollow ) {
-				// FIXME: Strip the mw:Cite/Follow wrappers
-				// See the test, "Forward-referenced ref with magical follow edge case"
-				$html = $extApi->domToHtml( $c, true, true );
+			if ( $ref->contentId && !$validFollow ) {
 				// Empty the <sup> since we've serialized its children and
 				// removing it below asserts everything has been migrated out
 				DOMCompat::replaceChildren( $c );
-				$contentDiffers = $html !== $ref->cachedHtml;
-				if ( $contentDiffers ) {
-					// TODO: Since this error is being placed on the ref, the
-					// key should arguably be "cite_error_ref_duplicate_key"
-					$errs[] = [ 'key' => 'cite_error_references_duplicate_key',
-						'params' => [ $refDmw->attrs->name ] ];
-				}
 			}
 			if ( $contentDiffers ) {
+				// TODO: Since this error is being placed on the ref, the
+				// key should arguably be "cite_error_ref_duplicate_key"
+				$errs[] = [
+					'key' => 'cite_error_references_duplicate_key',
+					'params' => [ $refDmw->attrs->name ]
+				];
 				$refDmw->body = (object)[ 'html' => $html ];
 			} else {
 				$refDmw->body = (object)[ 'id' => 'mw-reference-text-' . $ref->target ];
