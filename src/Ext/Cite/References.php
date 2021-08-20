@@ -158,6 +158,7 @@ class References extends ExtensionTagHandler {
 		// If both the containing <references> elt as well as the nested <ref>
 		// elt has a group attribute, what takes precedence?
 		$groupName = $refDmw->attrs->group ?? $refsData->referencesGroup;
+		$group = $refsData->getRefGroup( $groupName );
 
 		if (
 			$refsData->inReferencesContent() &&
@@ -201,18 +202,25 @@ class References extends ExtensionTagHandler {
 				// Presumably, "name" has higher precedence
 				$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
 			}
-			if ( $refsData->inReferencesContent() ) {
-				$group = $refsData->getRefGroup( $groupName );
-				if ( !isset( $group->indexByName[$refName] ) ) {
-					$errs[] = [ 'key' => 'cite_error_references_missing_key',
-						'params' => [ $refDmw->attrs->name ] ];
+			if ( isset( $group->indexByName[$refName] ) ) {
+				$ref = $group->indexByName[$refName];
+				if ( $ref->contentId && !$ref->hasMultiples ) {
+					$ref->hasMultiples = true;
+					$firstC = $extApi->getContentDOM( $ref->contentId )->firstChild;
+					$ref->cachedHtml = $extApi->domToHtml( $firstC, true, false );
+				}
+			} else {
+				if ( $refsData->inReferencesContent() ) {
+					$errs[] = [
+						'key' => 'cite_error_references_missing_key',
+						'params' => [ $refDmw->attrs->name ]
+					];
 				}
 			}
 		} else {
 			if ( $hasFollow ) {
 				// This is a follows ref, so check that a named ref has already
 				// been defined
-				$group = $refsData->getRefGroup( $groupName );
 				if ( isset( $group->indexByName[$followName] ) ) {
 					$validFollow = true;
 					$ref = $group->indexByName[$followName];
@@ -241,9 +249,17 @@ class References extends ExtensionTagHandler {
 		}
 
 		if ( !$ref ) {
-			$ref = $refsData->add(
-				$extApi, $groupName, $refName, $about, $linkBack
-			);
+			$ref = $refsData->add( $extApi, $groupName, $refName );
+		}
+
+		// Handle linkbacks
+		if ( !$validFollow ) {
+			if ( $refsData->inEmbeddedContent() ) {
+				$ref->embeddedNodes[] = $about;
+			} else {
+				$ref->nodes[] = $linkBack;
+				$ref->linkbacks[] = $ref->key . '-' . count( $ref->linkbacks );
+			}
 		}
 
 		if ( isset( $refDmw->attrs->dir ) && $refDir !== 'rtl' && $refDir !== 'ltr' ) {
