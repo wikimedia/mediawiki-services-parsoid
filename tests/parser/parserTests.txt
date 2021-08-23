@@ -29175,29 +29175,6 @@ parsoid=html2wt
 &lt;nowiki&gt;''foo''&lt;/nowiki&gt;
 !! end
 
-# This is meant to be an interim fix while we go about figuring out
-# how to not introduce these trailing <nowiki/>s in the first place.
-!! test
-T115717: Strip trailing <nowiki/>s (without affecting valid uses)
-!! options
-parsoid=html2wt
-!! html/parsoid
-<p>x<meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/><meta typeof="mw:Placeholder" data-parsoid='{"src":"&lt;nowiki/>"}'/>
-y</p>
-<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["\n"," "," ",""]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;nowiki/>"}},"i":0}}]}'></span></p>
-<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["\n"," "," ","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;nowiki/>"}},"i":0}}]}'></span></p>
-!! wikitext
-x
-y
-
-{{1x|
-1 = <nowiki/>}}
-
-{{1x|
-1 = <nowiki/>
-}}
-!! end
-
 !! test
 New list is serialized on newlines
 !! options
