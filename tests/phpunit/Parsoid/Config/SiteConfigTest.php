@@ -282,7 +282,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	private function setupMagicWordTestConfig(): SiteConfig {
 		$mws = [
-			"img_lossy"     => [ false, "lossy=$1" ],
+			"img_lossy"     => [ true, "lossy=$1" ],
 			"numberofwikis" => [ false, "numberofwikis" ], // variable
 			"lcfirst"       => [ false, "LCFIRST:" ], // is a no-hash function hook
 			"expr"          => [ false, "expr" ], // function hook with valid hashed version
@@ -308,7 +308,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig = $this->setupMagicWordTestConfig();
 		// Expected results
 		$mwMap = [
-			'lossy=$1'             => [ false, 'img_lossy' ],
+			'lossy=$1'             => [ true, 'img_lossy' ],
 			'numberofwikis'        => [ false, 'numberofwikis' ],
 			'lcfirst:'             => [ false, 'lcfirst' ],
 			'expr'                 => [ false, 'expr' ],
@@ -327,7 +327,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig = $this->setupMagicWordTestConfig();
 		$aliases = [
 			// FIXME: Should the magic word code be de-duping the aliases array?
-			"img_lossy"     => [ "lossy=$1", "lossy=$1" ],
+			"img_lossy"     => [ "lossy=$1" ],
 			"numberofwikis" => [ "numberofwikis", "numberofwikis" ],
 			"lcfirst"       => [ "LCFIRST:", "lcfirst:" ],
 			"expr"          => [ "expr", "expr" ],
