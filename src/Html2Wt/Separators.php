@@ -180,12 +180,14 @@ class Separators {
 	/**
 	 * Create a separator given a (potentially empty) separator text and newline constraints.
 	 *
+	 * @param Node $node
 	 * @param string $sep
 	 * @param array $nlConstraints
 	 * @return string
 	 */
-	private function makeSeparator( string $sep, array $nlConstraints ): string {
+	private function makeSeparator( Node $node, string $sep, array $nlConstraints ): string {
 		$origSep = $sep;
+		$sepType = $nlConstraints['constraintInfo']['sepType'] ?? null;
 
 		// Split on comment/ws-only lines, consuming subsequent newlines since
 		// those lines are ignored by the PHP parser
@@ -252,7 +254,16 @@ class Separators {
 			} else {
 				$sep .= implode( $nlBuf );
 			}
-		} elseif ( isset( $nlConstraints['max'] ) && $sepNlCount > $nlConstraints['max'] ) {
+		} elseif ( isset( $nlConstraints['max'] ) && $sepNlCount > $nlConstraints['max'] && (
+			// In selser mode, if the current node is an unmodified rendering-transparent node
+			// of a sibling pair, leave the separator alone since the excess newlines aren't
+			// going to change the semantics of how this node will be parsed in wt->html direction.
+			// This will instead eliminate a dirty diff on the page.
+			!$this->state->selserMode ||
+			$sepType !== 'sibling' ||
+			!$this->state->currNodeUnmodified ||
+			!WTUtils::isRenderingTransparentNode( $node )
+		) ) {
 			// Strip some newlines outside of comments.
 			//
 			// Capture separators in a single array with a capturing version of
@@ -1019,7 +1030,7 @@ class Separators {
 			if ( !empty( $state->sep->constraints ) || !empty( $state->sep->src ) ) {
 				// TODO: set modified flag if start or end node (but not both) are
 				// modified / new so that the selser can use the separator
-				$sep = $this->makeSeparator( $state->sep->src ?? '', $sepConstraints );
+				$sep = $this->makeSeparator( $node, $state->sep->src ?? '', $sepConstraints );
 			} else {
 				$sep = null;
 			}

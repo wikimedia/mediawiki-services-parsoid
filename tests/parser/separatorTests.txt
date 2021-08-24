@@ -88,7 +88,7 @@ parsoid={
 
 # Regression test for T276512
 !! test
-Strip excess separator newlines near a modified node
+Don't strip excess new lines before/after an unmodified rendering-transparent node
 !! options
 parsoid={
   "modes": ["selser"],
@@ -107,6 +107,7 @@ foo
 foo
 
 * x
+
 <!--bar-->
 
 [[Category:Baz]]
