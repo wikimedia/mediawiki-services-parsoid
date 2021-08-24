@@ -329,6 +329,12 @@ class DataAccess implements IDataAccess {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
 		$out = $parser->getOutput();
 		$wikitext = $parser->replaceVariables( $wikitext, $this->ppFrame );
+		// FIXME (T289545): StripState markers protect content that need to be protected from further
+		// "wikitext processing". So, where the result has strip state markers, we actually
+		// need to tunnel this content through rather than unwrap and let it go through the
+		// rest of the parsoid pipeline. For example, some parser functions might return HTML
+		// not wikitext, and where the content might contain wikitext characters, we are now
+		// going to potentially mangle that output.
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
 		return [
 			'wikitext' => $wikitext,
