@@ -2,6 +2,10 @@
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\ScopedCallback;
+
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.NotMatch
 class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	use \Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
@@ -20,11 +24,13 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		);
 		$this->addArg(
 			'knownGood',
-			"git commit hash to use as the oracle ('known good')"
+			"git commit hash to use as the oracle ('known good')",
+			false
 		);
 		$this->addArg(
 			'maybeBad',
-			"git commit hash to test ('maybe bad')"
+			"git commit hash to test ('maybe bad')",
+			false
 		);
 		$this->addOption(
 			"uid",
@@ -302,23 +308,98 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
+	/**
+	 * @param string $url
+	 * @return string
+	 */
+	private function makeCurlRequest( string $url ): string {
+		$curlopt = [
+			CURLOPT_USERAGENT => 'Parsoid-RT-Test',
+			CURLOPT_CONNECTTIMEOUT => 60,
+			CURLOPT_TIMEOUT => 60,
+			CURLOPT_FOLLOWLOCATION => false,
+			CURLOPT_ENCODING => '', // Enable compression
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_POST => false
+		];
+		$ch = curl_init( $url );
+		if ( !$ch ) {
+			throw new \RuntimeException( "Failed to open curl handle to $url" );
+		}
+		$reset = new ScopedCallback( 'curl_close', [ $ch ] );
+
+		if ( !curl_setopt_array( $ch, $curlopt ) ) {
+			throw new \RuntimeException( "Error setting curl options: " . curl_error( $ch ) );
+		}
+
+		$res = curl_exec( $ch );
+
+		if ( curl_errno( $ch ) !== 0 ) {
+			throw new \RuntimeException( "HTTP request failed: " . curl_error( $ch ) );
+		}
+
+		$code = curl_getinfo( $ch, CURLINFO_RESPONSE_CODE );
+		if ( $code !== 200 ) {
+			throw new \RuntimeException( "HTTP request failed: HTTP code $code" );
+		}
+
+		ScopedCallback::consume( $reset );
+
+		if ( !$res ) {
+			throw new \RuntimeException( "HTTP request failed: Empty response" );
+		}
+
+		return $res;
+	}
+
+	/**
+	 * @param string $baseUrl
+	 * @param array &$titles
+	 */
+	private function updateSemanticErrorTitles( string $baseUrl, array &$titles ): void {
+		$url = $baseUrl;
+		$done = true;
+		$page = 0;
+		do {
+			$dom = DOMUtils::parseHTML( $this->makeCurlRequest( $url ) );
+			$titleRows = DOMCompat::querySelectorAll( $dom, 'tr[status=fail]' );
+			foreach ( $titleRows as $tr ) {
+				$titles[] = DOMCompat::querySelector( $tr, 'td[class=title] a' )->firstChild->nodeValue;
+			}
+			// Fetch more if necessary
+			if ( !DOMCompat::querySelectorAll( $dom, 'tr[status=skip]' ) ) {
+				$done = false;
+				$page++;
+				$url = $baseUrl . "/$page";
+				if ( $page > 2 ) {
+					throw new \RuntimeException( "Too many regressions? Fetched $page pages of $baseUrl. Aborting." );
+				}
+			}
+		} while ( !$done );
+	}
+
 	/** @inheritDoc */
 	public function execute() {
 		$this->maybeHelp();
-		$knownGood = $this->getArg( 0 );
-		$maybeBad = $this->getArg( 1 );
 		$titles = [];
 
 		if ( $this->hasOption( 'url' ) ) {
-			$this->error( "Not yet implemented" );
+			$baseUrl = $this->getOption( 'url' );
+			if ( !preg_match( "#.*/between/(.*)/(.*)#", $baseUrl, $matches ) ) {
+				$this->error( "Please check the source url. Don't recognize format of $baseUrl." );
+				return -1;
+			}
+			$knownGood = $matches[1];
+			$maybeBad = $matches[2];
+			$rtSelserUrl = preg_replace( "#regressions/between/.*/(.*)$#", "rtselsererrors/$1", $baseUrl );
+			$titles = [];
+
+			$this->updateSemanticErrorTitles( $baseUrl, $titles );
+			$this->updateSemanticErrorTitles( $rtSelserUrl, $titles );
+			$localTitlesPath = "/tmp/titles";
+			file_put_contents( $localTitlesPath, implode( "\n", $titles ) );
 		} elseif ( $this->hasOption( 'titles' ) ) {
-			$this->ssh( self::cmd( 'sudo rm -f', [ $this->titlesPath ] ) );
-			$this->sh( self::cmd(
-				'scp',
-				$this->hasOption( 'quiet' ) ? '-q' : [],
-				[ $this->getOption( 'titles' ) ],
-				[ $this->hostname() . ":" . $this->titlesPath ]
-			), true );
+			$localTitlesPath = $this->getOption( 'titles' );
 			$lines = preg_split(
 				'/\r\n?|\n/',
 				file_get_contents( $this->getOption( 'titles' ) )
@@ -329,9 +410,24 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 					$titles[] = $line;
 				}
 			}
+
+			$knownGood = $this->getArg( 0 );
+			$maybeBad = $this->getArg( 1 );
+			if ( !$knownGood || !$maybeBad ) {
+				$this->error( "Missing known-good and maybe-bad git hashes" );
+				return -1;
+			}
 		} else {
 			$this->error( "Either --titles or --url is required." );
 		}
+
+		$this->ssh( self::cmd( 'sudo rm -f', [ $this->titlesPath ] ) );
+		$this->sh( self::cmd(
+			'scp',
+			$this->hasOption( 'quiet' ) ? '-q' : [],
+			[ $localTitlesPath ],
+			[ $this->hostname() . ":" . $this->titlesPath ]
+		), true );
 
 		$this->runTest( $knownGood );
 		$this->runTest( $maybeBad );
