@@ -50,11 +50,11 @@ class ReferencesData {
 	/**
 	 * @param string $needle
 	 */
-	public function pushInEmbeddedContent( string $needle = 'embed' ) {
+	public function pushEmbeddedContentFlag( string $needle = 'embed' ) {
 		array_unshift( $this->inEmbeddedContent, $needle );
 	}
 
-	public function popInEmbeddedContent() {
+	public function popEmbeddedContentFlag() {
 		array_shift( $this->inEmbeddedContent );
 	}
 

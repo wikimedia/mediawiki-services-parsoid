@@ -257,11 +257,11 @@ class References extends ExtensionTagHandler {
 
 		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
 			if ( $contentDiffers ) {
-				$refsData->pushInEmbeddedContent();
+				$refsData->pushEmbeddedContentFlag();
 			}
 			self::processRefs( $extApi, $refsData, $c );
 			if ( $contentDiffers ) {
-				$refsData->popInEmbeddedContent();
+				$refsData->popEmbeddedContentFlag();
 			}
 		}
 
@@ -601,24 +601,24 @@ class References extends ExtensionTagHandler {
 						$refsData->referencesGroup =
 							DOMDataUtils::getDataParsoid( $child )->group ?? '';
 					}
-					$refsData->pushInEmbeddedContent( 'references' );
+					$refsData->pushEmbeddedContentFlag( 'references' );
 					if ( $child->hasChildNodes() ) {
 						self::processRefs( $extApi, $refsData, $child );
 					}
-					$refsData->popInEmbeddedContent();
+					$refsData->popEmbeddedContentFlag();
 					if ( !$refsData->inReferencesContent() ) {
 						$refsData->referencesGroup = '';
 						self::insertReferencesIntoDOM( $extApi, $child, $refsData, false );
 					}
 				} else {
-					$refsData->pushInEmbeddedContent();
+					$refsData->pushEmbeddedContentFlag();
 					// Look for <ref>s embedded in data attributes
 					$extApi->processHiddenHTMLInDataAttributes( $child,
 						function ( string $html ) use ( $extApi, $refsData ) {
 							return self::processEmbeddedRefs( $extApi, $refsData, $html );
 						}
 					);
-					$refsData->popInEmbeddedContent();
+					$refsData->popEmbeddedContentFlag();
 					if ( $child->hasChildNodes() ) {
 						self::processRefs( $extApi, $refsData, $child );
 					}
