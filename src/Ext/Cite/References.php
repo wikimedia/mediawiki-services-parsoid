@@ -262,6 +262,14 @@ class References extends ExtensionTagHandler {
 			self::processRefs( $extApi, $refsData, $c );
 			if ( $contentDiffers ) {
 				$refsData->popEmbeddedContentFlag();
+				// If we have refs and the content differs, we need to
+				// reserialize now that we processed the refs.  Unfortunately,
+				// the cachedHtml we compared against already had its refs
+				// processed so that would presumably never match and this will
+				// always be considered a redefinition.  The implementation for
+				// the legacy parser also considers this a redefinition so
+				// there is likely little content out there like this :)
+				$html = $extApi->domToHtml( $c, true, true );
 			}
 		}
 
