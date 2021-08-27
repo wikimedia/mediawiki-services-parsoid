@@ -208,8 +208,8 @@ class References extends ExtensionTagHandler {
 				// HTML inline for all of them.
 				if ( $ref->contentId ) {
 					if ( $ref->cachedHtml === null ) {
-						$firstC = $extApi->getContentDOM( $ref->contentId )->firstChild;
-						$ref->cachedHtml = $extApi->domToHtml( $firstC, true, false );
+						$refContent = $extApi->getContentDOM( $ref->contentId )->firstChild;
+						$ref->cachedHtml = $extApi->domToHtml( $refContent, true, false );
 					}
 					// FIXME: Strip the mw:Cite/Follow wrappers
 					// See the test, "Forward-referenced ref with magical follow edge case"
@@ -231,16 +231,6 @@ class References extends ExtensionTagHandler {
 				if ( isset( $group->indexByName[$followName] ) ) {
 					$validFollow = true;
 					$ref = $group->indexByName[$followName];
-
-					if ( $ref->contentId ) {
-						$refContent = $extApi->getContentDOM( $ref->contentId )->firstChild;
-						DOMUtils::migrateChildren( $c, $refContent );
-					} else {
-						// Otherwise, we have a follow that comes after a named
-						// ref without content so use the follow fragment as
-						// the content
-						// This will be set below with `$ref->contentId = $contentId;`
-					}
 				} else {
 					// FIXME: This key isn't exactly appropriate since this
 					// is more general than just being in a <references>
@@ -255,7 +245,11 @@ class References extends ExtensionTagHandler {
 			}
 		}
 
-		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) { // nested ref-in-ref
+		// Process nested ref-in-ref
+		//
+		// Do this before possibly adding the a ref below or
+		// migrating contents out of $c if we have a valid follow
+		if ( empty( $cDp->empty ) && self::hasRef( $c ) ) {
 			if ( $contentDiffers ) {
 				$refsData->pushEmbeddedContentFlag();
 			}
@@ -273,12 +267,23 @@ class References extends ExtensionTagHandler {
 			}
 		}
 
-		if ( !$ref ) {
-			$ref = $refsData->add( $extApi, $groupName, $refName );
-		}
+		if ( $validFollow ) {
+			// Migrate content from the follow to the ref
+			if ( $ref->contentId ) {
+				$refContent = $extApi->getContentDOM( $ref->contentId )->firstChild;
+				DOMUtils::migrateChildren( $c, $refContent );
+			} else {
+				// Otherwise, we have a follow that comes after a named
+				// ref without content so use the follow fragment as
+				// the content
+				// This will be set below with `$ref->contentId = $contentId;`
+			}
+		} else {
+			if ( !$ref ) {
+				$ref = $refsData->add( $extApi, $groupName, $refName );
+			}
 
-		// Handle linkbacks
-		if ( !$validFollow ) {
+			// Handle linkbacks
 			if ( $refsData->inEmbeddedContent() ) {
 				$ref->embeddedNodes[] = $about;
 			} else {
