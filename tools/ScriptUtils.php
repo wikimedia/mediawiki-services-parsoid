@@ -65,7 +65,8 @@ class ScriptUtils {
 				'',
 				'Examples:',
 				'$ php parse.php --trace pre,p-wrap,html < foo',
-				'$ php parse.php --trace ttm:3,dsr < foo'
+				'$ php parse.php --trace ttm:3,dsr < foo',
+				''
 			]
 		);
 	}

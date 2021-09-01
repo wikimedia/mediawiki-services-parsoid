@@ -389,6 +389,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->maybeHelp();
 		$this->maybeVersion();
 
+		$parsoidOpts = [];
+		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );
+
 		if ( $this->hasOption( 'flamegraph' ) ) {
 			$this->startFlameGraphProfiler();
 		}
@@ -466,7 +469,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$configOpts['maxDepth'] = (int)$this->getOption( 'maxdepth' );
 		}
 
-		$parsoidOpts = [
+		$parsoidOpts += [
 			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
 			"body_only" => ScriptUtils::booleanOption( $this->getOption( 'body_only' ) ),
 			"wrapSections" => $this->hasOption( 'wrapSections' ),
@@ -488,7 +491,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$parsoidOpts['logLevels'] = [ 'fatal', 'error', 'warn' ];
 		}
 
-		ScriptUtils::setDebuggingFlags( $parsoidOpts, $this->getOptions() );
 		if ( $this->hasOption( 'profile' ) ) {
 			if ( !isset( $parsoidOpts['traceFlags'] ) ) {
 				$parsoidOpts['traceFlags'] = [];
