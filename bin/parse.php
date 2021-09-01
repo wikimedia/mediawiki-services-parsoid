@@ -62,7 +62,17 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->setOptionDefault( 'body_only', true );
+
 		$this->addOption( 'profile', 'Proxy for --trace time' );
+		$this->addOption( 'benchmark', 'Suppress output and show timing summary' );
+		$this->addOption( 'count',
+			'Repeat the operation this many times',
+			false, true );
+		$this->addOption( 'warmup', 'Run the operation once before benchmarking' );
+		$this->addOption( 'delay',
+			'Wait for the specified number of milliseconds after warmup. For use with perf -D.',
+			false, true );
+
 		$this->addOption( 'selser',
 						 'Use the selective serializer to go from HTML to Wikitext.' );
 		$this->addOption(
@@ -378,7 +388,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			# XXX: This doesn't work on production machines or in integrated
 			# mode, since Composer\Factory isn't in the production `vendor`
 			# deploy.
-			$composer = Factory::create( new NullIo(), './composer.json', false );
+			$composer = Factory::create( new NullIO(), './composer.json', false );
 			$root = $composer->getPackage();
 			$this->output( $root->getFullPrettyVersion() . "\n" );
 			die( 0 );
@@ -507,10 +517,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		} else {
 			$this->transformFromWt( $configOpts, $parsoidOpts, $input );
 		}
-
-		if ( self::posix_isatty( STDOUT ) ) {
-			$this->output( "\n" );
-		}
 	}
 
 	/**
@@ -540,6 +546,39 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			}
 			file_put_contents( "$fgOutDir/aggregated.txt", $report );
 		} );
+	}
+
+	/**
+	 * Optionally benchmark a callback. If benchmarking is disabled, just call
+	 * it and output the return value.
+	 *
+	 * @param callable $callback
+	 */
+	private function benchmark( $callback ) {
+		if ( $this->hasOption( 'warmup' ) ) {
+			$callback();
+		}
+		if ( $this->hasOption( 'benchmark' ) ) {
+			$count = $this->getOption( 'count', 1 );
+			if ( $this->hasOption( 'delay' ) ) {
+				usleep( $this->getOption( 'delay' ) * 1000 );
+			}
+			$startTime = microtime( true );
+			for ( $i = 0; $i < $count; $i++ ) {
+				$callback();
+			}
+			$total = ( microtime( true ) - $startTime ) * 1000;
+			$this->output( "Total time: $total ms\n" );
+			if ( $count > 1 ) {
+				$mean = $total / $count;
+				$this->output( "Mean: $mean ms\n" );
+			}
+		} else {
+			$this->output( $callback() );
+			if ( self::posix_isatty( STDOUT ) ) {
+				$this->output( "\n" );
+			}
+		}
 	}
 
 	/**
@@ -585,12 +624,20 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$selserData = null;
 		}
 
-		$wt = $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
 		if ( $this->hasOption( 'html2html' ) ) {
-			$html = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
-			$this->output( $this->maybeNormalize( $html ) );
+			$this->benchmark(
+				function () use ( $configOpts, $parsoidOpts, $input, $selserData ) {
+					$wt = $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
+					$html = $this->wt2Html( $configOpts, $parsoidOpts, $wt );
+					return $this->maybeNormalize( $html );
+				}
+			);
 		} else {
-			$this->output( $wt );
+			$this->benchmark(
+				function () use ( $configOpts, $parsoidOpts, $input, $selserData ) {
+					return $this->html2Wt( $configOpts, $parsoidOpts, $input, $selserData );
+				}
+			);
 		}
 	}
 
@@ -629,12 +676,14 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string $input
 	 */
 	private function transformFromWt( $configOpts, $parsoidOpts, $input ) {
-		$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 		if ( $this->hasOption( 'wt2wt' ) ) {
-			$wt = $this->html2Wt( $configOpts, $parsoidOpts, $html );
-			$this->output( $wt );
-		} else {
+			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input ) {
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
+				return $this->html2Wt( $configOpts, $parsoidOpts, $html );
+			} );
+		} elseif ( $parsoidOpts['pageBundle'] ?? false ) {
 			if ( $this->hasOption( 'pboutfile' ) ) {
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				file_put_contents(
 					$this->getOption( 'pboutfile' ),
 					PHPUtils::jsonEncode( [
@@ -644,6 +693,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				);
 				$html = $html->html;
 			} elseif ( $this->hasOption( 'pageBundle' ) ) {
+				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				// Stitch this back in, even though it was just extracted
 				$doc = DOMUtils::parseHTML( $html->html );
 				DOMDataUtils::injectPageBundle(
@@ -655,6 +705,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$html = ContentUtils::toXML( $doc );
 			}
 			$this->output( $this->maybeNormalize( $html ) );
+		} else {
+			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input ) {
+				return $this->wt2Html( $configOpts, $parsoidOpts, $input );
+			} );
 		}
 	}
 }
