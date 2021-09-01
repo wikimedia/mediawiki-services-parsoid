@@ -136,21 +136,6 @@ abstract class TokenHandler extends PipelineStage {
 	}
 
 	/**
-	 * -------------------------- PORT-FIXME ------------------------------
-	 * We should benchmark a version of this function
-	 * without any of the tracing code in it. There are upto 4 untaken branches
-	 * that are executed in the hot loop for every single token. Unlike V8,
-	 * this code will not be JIT-ted to eliminate that overhead.
-	 *
-	 * In the common case where tokens come through functions unmodified
-	 * because of hitting default identity handlers, these 4 extra branches
-	 * could potentially amount to something. That might be partially ameliorated
-	 * by the fact that most modern processors have branch prediction and these
-	 * branches will always fail and so might not be such a big deal.
-	 *
-	 * In any case, worth a performance test after the port.
-	 * --------------------------------------------------------------------
-	 *
 	 * Push an input array of tokens through the transformer
 	 * and return the transformed tokens
 	 * @inheritDoc
@@ -247,8 +232,9 @@ abstract class TokenHandler extends PipelineStage {
 
 			if ( !$modified ) {
 				$accum[] = $token;
-			} elseif ( $resTokens && count( $resTokens ) > 0 ) {
-				$accum = array_merge( $accum, $resTokens );
+			} elseif ( $resTokens ) {
+				// Avoid array_merge() -- see https://w.wiki/3zvE
+				PHPUtils::pushArray( $accum, $resTokens );
 			}
 
 			$i++;
