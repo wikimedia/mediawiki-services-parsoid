@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Closure;
 use DateTime;
+use Exception;
 use Generator;
 use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
@@ -641,9 +642,19 @@ class DOMPostProcessor extends PipelineStage {
 	private function exportJSConfigVars( Document $document, Env $env ): void {
 		$vars = $env->getOutputProperties()['jsconfigvars'] ?? [];
 		if ( $vars ) {
+			try {
+				$content = PHPUtils::jsonEncode( $vars );
+			} catch ( Exception $e ) {
+				// Similar to ResourceLoader::makeConfigSetScript.  See T289358
+				$env->log(
+					'warn', 'JSON serialization of config data failed. ' .
+						'This usually means the config data is not valid UTF-8.'
+				);
+				return;
+			}
 			$this->appendToHead( $document, 'meta', [
 				'property' => 'mw:jsConfigVars',
-				'content' => PHPUtils::jsonEncode( $vars )
+				'content' => $content,
 			] );
 		}
 	}
