@@ -93,8 +93,19 @@ class ExtensionHandler extends TokenHandler {
 	 */
 	private function onExtension( Token $token ): array {
 		$env = $this->env;
+		$siteConfig = $env->getSiteConfig();
+		$pageConfig = $env->getPageConfig();
 		$extensionName = $token->getAttribute( 'name' );
-		$nativeExt = $env->getSiteConfig()->getExtTagImpl( $extensionName );
+
+		// Track uses of extensions in the talk namespace
+		if ( $siteConfig->namespaceIsTalk( $pageConfig->getNS() ) ) {
+			$metrics = $siteConfig->metrics();
+			if ( $metrics ) {
+				$metrics->increment( "extension.ns.talk.name.{$extensionName}.count" );
+			}
+		}
+
+		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
 		$cachedExpansion = $env->extensionCache[$token->dataAttribs->src] ?? null;
 
 		$options = $token->getAttribute( 'options' );
@@ -159,7 +170,6 @@ class ExtensionHandler extends TokenHandler {
 				$nativeExt, $token, $domFragment, [ $err ]
 			);
 		} else {
-			$pageConfig = $env->getPageConfig();
 			$start = PHPUtils::getStartHRTime();
 			$ret = $env->getDataAccess()->parseWikitext(
 				$pageConfig, $token->getAttribute( 'source' )
@@ -171,7 +181,7 @@ class ExtensionHandler extends TokenHandler {
 			}
 
 			$domFragment = DOMUtils::parseHTMLToFragment(
-				$this->env->topLevelDoc,
+				$env->topLevelDoc,
 				// Strip a paragraph wrapper, if any, before parsing HTML to DOM
 				preg_replace( '#(^<p>)|(\n</p>$)#D', '', $ret['html'] )
 			);
