@@ -55,7 +55,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @param array $options
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
-		$newOptions = array_merge( $options, [ 'tsp' => true ] );
+		$newOptions = [ 'tsp' => true ] + $options;
 		parent::__construct( $manager, $newOptions );
 		$this->tokenizer = new PegTokenizer( $this->env );
 		$this->templateHandler = new TemplateHandler( $manager, $options );
@@ -151,7 +151,7 @@ class TokenStreamPatcher extends TokenHandler {
 				} else {
 					$t = [ $t ];
 				}
-				$ret = array_merge( $ret, $t );
+				PHPUtils::pushArray( $ret, $t );
 			}
 			return $ret;
 		} elseif ( !empty( $da->autoInsertedStart ) && !empty( $da->autoInsertedEnd ) ) {

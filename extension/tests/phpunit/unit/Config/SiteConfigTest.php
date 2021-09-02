@@ -775,7 +775,7 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 		] );
 		$config = TestingAccessWrapper::newFromObject( $config );
 		$this->assertSame(
-			[ 'Special', 'Special[ _]Special', 'From[ _]Config', 'From[ _]Language' ],
+			[ 'Special', 'Special[ _]Special', 'From[ _]Language', 'From[ _]Config' ],
 			$config->getSpecialNSAliases()
 		);
 	}

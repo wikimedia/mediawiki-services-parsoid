@@ -762,7 +762,7 @@ class TestRunner {
 				$change = array_slice( $change, 1 );
 				$acc = [];
 				foreach ( $els as $el ) {
-					$acc = array_merge( $acc, iterator_to_array( $el->childNodes ) );
+					PHPUtils::pushArray( $acc, iterator_to_array( $el->childNodes ) );
 				}
 				$els = $acc;
 			}

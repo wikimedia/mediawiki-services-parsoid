@@ -396,7 +396,7 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 						}
 						$parts[] = $part;
 					}
-					$pi = array_merge( $pi, $dp->pi ?? [ [] ] );
+					PHPUtils::pushArray( $pi, $dp->pi ?? [ [] ] );
 				} else {
 					// Where a non-template type is present, we are going to treat that
 					// segment as a "string" in the parts array. So, we effectively treat

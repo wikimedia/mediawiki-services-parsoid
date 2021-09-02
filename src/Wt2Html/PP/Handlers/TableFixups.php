@@ -169,7 +169,7 @@ class TableFixups {
 				}
 				$parts[] = $tplInfo;
 			}
-			$pi = array_merge( $pi, $tplDp->pi ?? [ [] ] );
+			PHPUtils::pushArray( $pi, $tplDp->pi ?? [ [] ] );
 			DOMDataUtils::setDataMw( $tpl, null );
 
 			$lastTpl = $tpl;

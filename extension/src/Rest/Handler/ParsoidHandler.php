@@ -538,13 +538,13 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		$reqOpts = array_merge( [
+		$reqOpts = $attribs['envOptions'] + [
 			'pageBundle' => $needsPageBundle,
 			// When substing, set data-parsoid to be discarded, so that the subst'ed
 			// content is considered new when it comes back.
 			'discardDataParsoid' => $doSubst,
 			'contentmodel' => $opts['contentmodel'] ?? null,
-		], $attribs['envOptions'] );
+		];
 
 		// VE, the only client using body_only property,
 		// doesn't want section tags when this flag is set.

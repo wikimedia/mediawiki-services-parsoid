@@ -27,7 +27,7 @@ function array_flatten( array $array ): array {
 	$ret = [];
 	foreach ( $array as $key => $value ) {
 		if ( is_array( $value ) ) {
-			$ret = array_merge( $ret, array_flatten( $value ) );
+			PHPUtils::pushArray( $ret, array_flatten( $value ) );
 		} else {
 			$ret[$key] = $value;
 		}
@@ -274,7 +274,7 @@ class QuoteTransformer extends TokenHandler {
 		$this->currentChunk[] = $token;
 		$this->startNewChunk();
 		// PORT-FIXME: Is there a more efficient way of doing this?
-		$res = [ "tokens" => array_flatten( array_merge( [], $this->chunks ) ) ];
+		$res = [ "tokens" => array_flatten( $this->chunks ) ];
 
 		$this->manager->env->log(
 			"trace/quote",

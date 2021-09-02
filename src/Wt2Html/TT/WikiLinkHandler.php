@@ -229,7 +229,8 @@ class WikiLinkHandler extends TokenHandler {
 			], (object)[ 'tsr' => $tsr0 ] );
 			$ntokens[] = $li;
 			$ntokens[] = substr( $src, strlen( $srcMatch[0] ) );
-			return [ 'tokens' => array_merge( $ntokens, $r['tokens'] ) ];
+			PHPUtils::pushArray( $ntokens, $r['tokens'] );
+			return [ 'tokens' => $ntokens ];
 		}
 	}
 
@@ -257,13 +258,13 @@ class WikiLinkHandler extends TokenHandler {
 			if ( is_string( $mwc ) ) {
 				$content[] = $mwc;
 			} elseif ( count( $mwc ) ) {
-				$content = array_merge( $content, $mwc );
+				PHPUtils::pushArray( $content, $mwc );
 			}
 		} else {
 			foreach ( $token->attribs as $kv ) {
 				if ( $kv->k === 'mw:maybeContent' ) {
 					$content[] = '|';
-					$content = array_merge( $content, $kv->v );
+					PHPUtils::pushArray( $content, $kv->v );
 				}
 			}
 		}
@@ -489,7 +490,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		if ( $linkAttrs ) {
-			$newAttrs = array_merge( $newAttrs, $linkAttrs );
+			PHPUtils::pushArray( $newAttrs, $linkAttrs );
 		}
 
 		return [
@@ -545,7 +546,6 @@ class WikiLinkHandler extends TokenHandler {
 					return $t !== '';
 				} ) );
 				$n = count( $toks );
-				$newToks = [];
 				foreach ( $toks as $j => $t ) {
 					// Bail on media-syntax in wikilink-syntax scenarios,
 					// since the legacy parser explodes on [[, last one wins.
@@ -583,7 +583,7 @@ class WikiLinkHandler extends TokenHandler {
 							// as an <a> tag with no content -- but these ought
 							// to be treated as plaintext since we don't allow
 							// nested links.
-							$newToks[] = '[' . $t->getAttribute( 'href' ) . ']';
+							$out[] = '[' . $t->getAttribute( 'href' ) . ']';
 						}
 						// suppress <a>
 						continue;
@@ -593,9 +593,8 @@ class WikiLinkHandler extends TokenHandler {
 						continue; // suppress </a>
 					}
 
-					$newToks[] = $t;
+					$out[] = $t;
 				}
-				$out = array_merge( $out, $newToks );
 				if ( $i < $l - 1 ) {
 					$out[] = '|';
 				}
@@ -813,7 +812,8 @@ class WikiLinkHandler extends TokenHandler {
 		}
 		$tokens[] = $newTk;
 
-		$tokens = array_merge( $tokens, $content, [ new EndTagTk( 'a' ) ] );
+		PHPUtils::pushArray( $tokens, $content );
+		$tokens[] = new EndTagTk( 'a' );
 		return [ 'tokens' => $tokens ];
 	}
 
@@ -1505,7 +1505,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		$classes = $wrapperInfo['classes'];
 		if ( !empty( $opts['class'] ) ) {
-			$classes = array_merge( $classes, explode( ' ', $opts['class']['v'] ) );
+			PHPUtils::pushArray( $classes, explode( ' ', $opts['class']['v'] ) );
 		}
 
 		$attribs = [ new KV( 'typeof', $rdfaType ) ];
@@ -1605,7 +1605,8 @@ class WikiLinkHandler extends TokenHandler {
 			$container->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
 		}
 
-		return [ 'tokens' => array_merge( $tokens, [ $containerClose ] ) ];
+		$tokens[] = $containerClose;
+		return [ 'tokens' => $tokens ];
 	}
 
 	/**
@@ -1654,9 +1655,10 @@ class WikiLinkHandler extends TokenHandler {
 			$dataMwAttr = $token->getAttribute( 'data-mw' );
 			$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
 			if ( is_array( $dataMw->errors ?? null ) ) {
-				$errs = array_merge( $dataMw->errors, $errs );
+				PHPUtils::pushArray( $dataMw->errors, $errs );
+			} else {
+				$dataMw->errors = $errs;
 			}
-			$dataMw->errors = $errs;
 			$link->setAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
 		}
 

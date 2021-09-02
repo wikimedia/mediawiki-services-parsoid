@@ -1206,7 +1206,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 						}
 					}
 				} else {
-					$tplRanges = array_merge(
+					PHPUtils::pushArray(
 						$tplRanges,
 						self::findWrappableTemplateRanges( $doc, $frame, $elem, $tpls )
 					);

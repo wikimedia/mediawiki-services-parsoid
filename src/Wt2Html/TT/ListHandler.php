@@ -225,7 +225,7 @@ class ListHandler extends TokenHandler {
 		$tokens = $this->popTags( count( $this->currListFrame->bstack ) );
 
 		// purge all stashed sol-tokens
-		$tokens = array_merge( $tokens, $this->currListFrame->solTokens );
+		PHPUtils::pushArray( $tokens, $this->currListFrame->solTokens );
 		if ( $this->currListFrame->nlTk ) {
 			$tokens[] = $this->currListFrame->nlTk;
 		}
@@ -442,13 +442,18 @@ class ListHandler extends TokenHandler {
 					$newTag = new TagTk( $newName, [], $makeDP( 0, $prefixLen + 1 ) );
 				}
 
-				$tokens = array_merge( $tokens, [ $endTag, $this->currListFrame->nlTk ?: '', $newTag ] );
+				$tokens[] = $endTag;
+				$tokens[] = $this->currListFrame->nlTk ?: '';
+				$tokens[] = $newTag;
 
 				$prefixCorrection = 1;
 			} else {
 				$this->env->log( 'trace/list', $this->manager->pipelineId, '    -> reduced nesting' );
-				$tokens = array_merge( $tokens, $this->popTags( count( $bs ) - $prefixLen ) );
-				$tokens = array_merge( $this->currListFrame->solTokens, $tokens );
+				$tokens = array_merge(
+					$this->currListFrame->solTokens,
+					$tokens,
+					$this->popTags( count( $bs ) - $prefixLen )
+				);
 				if ( $this->currListFrame->nlTk ) {
 					$tokens[] = $this->currListFrame->nlTk;
 				}
@@ -510,7 +515,7 @@ class ListHandler extends TokenHandler {
 					$listItemDP = $makeDP( $i, $i + 1 );
 				}
 
-				$tokens = array_merge( $tokens, $this->pushList(
+				PHPUtils::pushArray( $tokens, $this->pushList(
 					self::$bullet_chars_map[$bn[$i]], $listDP, $listItemDP
 				) );
 			}

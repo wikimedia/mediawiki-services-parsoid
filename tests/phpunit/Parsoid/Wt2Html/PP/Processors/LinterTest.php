@@ -25,7 +25,7 @@ class LinterTest extends TestCase {
 			'wrapSections' => false
 		];
 
-		$siteOptions = array_merge( [ 'linting' => true ], $options );
+		$siteOptions = [ 'linting' => true ] + $options;
 		$siteConfig = new MockSiteConfig( $siteOptions );
 		$dataAccess = new MockDataAccess( [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );

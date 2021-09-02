@@ -1300,10 +1300,8 @@ class LinkHandlerUtils {
 		// for image media. For all other media we treat them as set only
 		// from data-mw.
 		if ( DOMCompat::nodeName( $elt ) !== 'img' ) {
-			$mwParams = array_merge( $mwParams, [
-				[ 'prop' => 'link', 'ck' => 'link', 'alias' => 'img_link' ],
-				[ 'prop' => 'alt', 'ck' => 'alt', 'alias' => 'img_alt' ]
-			] );
+			$mwParams[] = [ 'prop' => 'link', 'ck' => 'link', 'alias' => 'img_link' ];
+			$mwParams[] = [ 'prop' => 'alt', 'ck' => 'alt', 'alias' => 'img_alt' ];
 		}
 
 		foreach ( $mwParams as $o ) {

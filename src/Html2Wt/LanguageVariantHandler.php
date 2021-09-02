@@ -41,11 +41,11 @@ class LanguageVariantHandler {
 	 * @return string
 	 */
 	private static function ser( SerializerState $state, string $t, ?array $opts ) {
-		$options = array_merge( [
+		$options =
+			( $opts ?? [] ) + [
 				'env' => $state->getEnv(),
 				'onSOL' => false
-			], $opts ?? []
-		);
+			];
 		return $state->serializer->htmlToWikitext( $options, $t );
 	}
 

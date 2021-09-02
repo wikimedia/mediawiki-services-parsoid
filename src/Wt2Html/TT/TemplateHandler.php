@@ -402,7 +402,7 @@ class TemplateHandler extends TokenHandler {
 				if ( $prefix !== null && $prefix !== '' ) {
 					$tokens[] = $prefix;
 				}
-				$tokens = array_merge( $tokens, $t );
+				PHPUtils::pushArray( $tokens, $t );
 			}
 		} elseif ( is_string( $t ) ) {
 			$len = strlen( $t );
@@ -458,7 +458,10 @@ class TemplateHandler extends TokenHandler {
 			$attribTokens[] = $trailWS;
 		}
 
-		$tokens = array_merge( array_merge( [ '{{' ], $attribTokens ), [ '}}', new EOFTk() ] );
+		$tokens = [ '{{' ];
+		PHPUtils::pushArray( $tokens, $attribTokens );
+		$tokens[] = '}}';
+		$tokens[] = new EOFTk();
 
 		// Process exploded token in a new pipeline that takes us through
 		// Stages 2-3.

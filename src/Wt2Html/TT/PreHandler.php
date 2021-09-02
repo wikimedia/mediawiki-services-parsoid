@@ -183,7 +183,7 @@ class PreHandler extends TokenHandler {
 	 */
 	private function resetPreCollectCurrentLine(): void {
 		if ( count( $this->preCollectCurrentLine ) > 0 ) {
-			$this->tokens = array_merge( $this->tokens, $this->preCollectCurrentLine );
+			PHPUtils::pushArray( $this->tokens, $this->preCollectCurrentLine );
 			$this->preCollectCurrentLine = [];
 			// Since the multi-line pre materialized, the multiline-pre-ws token
 			// should be discarded so that it is not emitted after <pre>..</pre>
@@ -228,7 +228,8 @@ class PreHandler extends TokenHandler {
 		}
 
 		$this->resetPreCollectCurrentLine();
-		return array_merge( $ret, $this->getResultAndReset( $token ) );
+		PHPUtils::pushArray( $ret, $this->getResultAndReset( $token ) );
+		return $ret;
 	}
 
 	/**
@@ -246,7 +247,7 @@ class PreHandler extends TokenHandler {
 			$this->preWSToken = null;
 		}
 		if ( count( $this->solTransparentTokens ) > 0 ) {
-			$ret = array_merge( $ret, $this->solTransparentTokens );
+			PHPUtils::pushArray( $ret, $this->solTransparentTokens );
 			$this->solTransparentTokens = [];
 		}
 		$ret[] = $token;
@@ -282,7 +283,7 @@ class PreHandler extends TokenHandler {
 		$this->popLastNL( $ret );
 
 		// sol-transparent toks
-		$ret = array_merge( $ret, $this->solTransparentTokens );
+		PHPUtils::pushArray( $ret, $this->solTransparentTokens );
 
 		// push the current token
 		if ( $token !== null ) {
@@ -516,7 +517,7 @@ class PreHandler extends TokenHandler {
 					$this->preWSToken = null;
 
 					// Pop buffered sol-transparent tokens
-					$this->tokens = array_merge( $this->tokens, $this->solTransparentTokens );
+					PHPUtils::pushArray( $this->tokens, $this->solTransparentTokens );
 					$this->solTransparentTokens = [];
 
 					// check if token is single-space or more

@@ -247,7 +247,7 @@ class ExternalLinkHandler extends TokenHandler {
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 
-			$tokens = array_merge( [ $aStart ], [ $content ], [ new EndTagTk( 'a' ) ] );
+			$tokens = [ $aStart, $content, new EndTagTk( 'a' ) ];
 			return [ 'tokens' => $tokens ];
 		} else {
 			// Not a link, convert href to plain text.

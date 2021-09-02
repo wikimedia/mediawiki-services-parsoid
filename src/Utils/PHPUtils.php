@@ -157,6 +157,8 @@ class PHPUtils {
 	 * Append an array to an accumulator using the most efficient method
 	 * available. Makes sure that accumulation is O(n).
 	 *
+	 * See https://w.wiki/3zvE
+	 *
 	 * @param array &$dest Destination array
 	 * @param array $source Array to merge
 	 */

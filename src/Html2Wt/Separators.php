@@ -296,7 +296,7 @@ class Separators {
 			if ( $stripAtEnd ) {
 				$newBits = array_merge( $allBits, array_reverse( $newBits ) );
 			} else {
-				$newBits = array_merge( $newBits, $allBits );
+				PHPUtils::pushArray( $newBits, $allBits );
 			}
 			$sep = implode( $newBits );
 		}

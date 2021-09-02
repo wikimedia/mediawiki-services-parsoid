@@ -156,7 +156,7 @@ class ParagraphWrapper extends TokenHandler {
 		$res = $this->processPendingNLs();
 		$this->currLine['tokens'][] = $token;
 		if ( $flushCurrentLine ) {
-			$res = array_merge( $res, $this->currLine['tokens'] );
+			PHPUtils::pushArray( $res, $this->currLine['tokens'] );
 			$this->resetCurrLine();
 		}
 		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', static function () use( $res ) {
@@ -175,8 +175,11 @@ class ParagraphWrapper extends TokenHandler {
 		Assert::invariant( $this->newLineCount === 0, "PWrap: Trying to flush buffers with pending newlines" );
 
 		$this->currLine['tokens'][] = $token;
-		$resToks = array_merge( $this->tokenBuffer, $this->nlWsTokens );
+		// Juggle the array reference count to allow us to append to it without
+		// copying the array
+		$resToks = $this->tokenBuffer;
 		$this->resetBuffers();
+		PHPUtils::pushArray( $resToks, $this->nlWsTokens );
 		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
 			static function () use( $resToks ) {
 				return PHPUtils::jsonEncode( $resToks );
@@ -309,7 +312,7 @@ class ParagraphWrapper extends TokenHandler {
 			$this->newLineCount, '; current line tokens: ', PHPUtils::jsonEncode( $l['tokens'] ) );
 		}
 
-		$this->tokenBuffer = array_merge( $this->tokenBuffer, $l['tokens'] );
+		PHPUtils::pushArray( $this->tokenBuffer, $l['tokens'] );
 
 		if ( $token instanceof EOFTk ) {
 			$this->nlWsTokens[] = $token;
@@ -381,7 +384,7 @@ class ParagraphWrapper extends TokenHandler {
 
 		// Gather remaining ws and nl tokens
 
-		$resToks = array_merge( $resToks, $this->nlWsTokens );
+		PHPUtils::pushArray( $resToks, $this->nlWsTokens );
 
 		// reset buffers
 		$this->resetBuffers();
@@ -476,8 +479,8 @@ class ParagraphWrapper extends TokenHandler {
 				return [ 'tokens' => $this->flushBuffers( $token ), 'skipOnAny' => true ];
 			} elseif ( $this->newLineCount === 1 ) {
 				// Swallow newline, whitespace, comments, and the current line
-				$this->tokenBuffer = array_merge( $this->tokenBuffer, $this->nlWsTokens );
-				$this->tokenBuffer = array_merge( $this->tokenBuffer, $this->currLine['tokens'] );
+				PHPUtils::pushArray( $this->tokenBuffer, $this->nlWsTokens );
+				PHPUtils::pushArray( $this->tokenBuffer, $this->currLine['tokens'] );
 				$this->newLineCount = 0;
 				$this->nlWsTokens = [];
 				$this->resetCurrLine();

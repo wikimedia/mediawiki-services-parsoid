@@ -508,7 +508,7 @@ class MockDataAccess implements DataAccess {
 				}
 			}
 
-			$ret = array_merge( $ret, [ $normFileName => $info ] );
+			$ret[$normFileName] = $info;
 		}
 
 		return $ret;

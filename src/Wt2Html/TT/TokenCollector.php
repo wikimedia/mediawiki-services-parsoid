@@ -115,9 +115,9 @@ abstract class TokenCollector extends TokenHandler {
 				// EOF -- collapse stack!
 				$allToks = [];
 				for ( $i = 0,  $n = count( $this->scopeStack );  $i < $n;  $i++ ) {
-					$allToks = array_merge( $allToks, $this->scopeStack[$i] );
+					PHPUtils::pushArray( $allToks, $this->scopeStack[$i] );
 				}
-				$allToks = array_merge( $allToks, $activeTokens );
+				PHPUtils::pushArray( $allToks, $activeTokens );
 
 				$res = $this->toEnd() ? $this->transformation( $allToks ) : [ 'tokens' => $allToks ];
 				if ( isset( $res['tokens'] ) ) {

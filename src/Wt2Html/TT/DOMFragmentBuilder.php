@@ -88,12 +88,15 @@ class DOMFragmentBuilder extends TokenHandler {
 				'inTemplate' => $this->options['inTemplate']
 			];
 
+			// Append EOF
+			$content[] = new EOFTk();
+
 			// Process tokens
 			$domFragment = PipelineUtils::processContentInPipeline(
 				$this->manager->env,
 				$this->manager->getFrame(),
 				// Append EOF
-				array_merge( $content, [ new EOFTk() ] ),
+				$content,
 				[
 					'pipelineType' => 'tokens/x-mediawiki/expanded',
 					'pipelineOpts' => $pipelineOpts,

@@ -234,7 +234,7 @@ class PipelineUtils {
 				$tokBuf[] = $endTag;
 			}
 		} elseif ( $node instanceof Text ) {
-			$tokBuf = array_merge( $tokBuf, TokenUtils::newlinesToNlTks( $node->nodeValue ) );
+			PHPUtils::pushArray( $tokBuf, TokenUtils::newlinesToNlTks( $node->nodeValue ) );
 		} elseif ( $node instanceof Comment ) {
 			$tokBuf[] = new CommentTk( $node->nodeValue );
 		} else {

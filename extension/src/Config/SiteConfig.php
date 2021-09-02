@@ -201,14 +201,10 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		if ( isset( $this->parsoidSettings['wt2htmlLimits'] ) ) {
-			$this->wt2htmlLimits = array_merge(
-				$this->wt2htmlLimits, $this->parsoidSettings['wt2htmlLimits']
-			);
+			$this->wt2htmlLimits = $this->parsoidSettings['wt2htmlLimits'] + $this->wt2htmlLimits;
 		}
 		if ( isset( $this->parsoidSettings['html2wtLimits'] ) ) {
-			$this->html2wtLimits = array_merge(
-				$this->html2wtLimits, $this->parsoidSettings['html2wtLimits']
-			);
+			$this->html2wtLimits = $this->parsoidSettings['html2wtLimits'] + $this->html2wtLimits;
 		}
 
 		// Register extension modules
@@ -669,7 +665,7 @@ class SiteConfig extends ISiteConfig {
 			$this->quoteTitleRe( $this->contLang->getNsText( NS_SPECIAL ) )
 		];
 		foreach (
-			array_merge( $this->config->get( 'NamespaceAliases' ), $this->contLang->getNamespaceAliases() )
+			$this->contLang->getNamespaceAliases() + $this->config->get( 'NamespaceAliases' )
 			as $name => $ns
 		) {
 			if ( $ns === NS_SPECIAL ) {

@@ -434,7 +434,7 @@ class AttributeExpander extends TokenHandler {
 							if ( !$newAttrs ) {
 								$newAttrs = $i === 0 ? [] : array_slice( $expandedAttrs, 0, $i );
 							}
-							$newAttrs = array_merge( $newAttrs, $kvs );
+							PHPUtils::pushArray( $newAttrs, $kvs );
 						}
 					}
 				}

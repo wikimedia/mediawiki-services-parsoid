@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
@@ -83,7 +84,7 @@ class NoInclude extends TokenCollector {
 			$tokens[] = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
 				false, $startTSR, null );
 
-			$tokens = array_merge( $tokens, $collection );
+			PHPUtils::pushArray( $tokens, $collection );
 			if ( $end && !$eof ) {
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
 					true, $endTSR, null );

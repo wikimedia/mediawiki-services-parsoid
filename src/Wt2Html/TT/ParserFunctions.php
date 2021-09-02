@@ -406,25 +406,24 @@ class ParserFunctions {
 	}
 
 	private function tag_worker( $target, array $kvs ) {
-		$contentToks = [];
+		$tagTk = new TagTk( $target );
+		$toks = [ $tagTk ];
 		$tagAttribs = [];
 		foreach ( $kvs as $kv ) {
 			if ( $kv->k === '' ) {
 				if ( is_array( $kv->v ) ) {
-					$contentToks = array_merge( $contentToks, $kv->v );
+					PHPUtils::pushArray( $toks, $kv->v );
 				} else {
-					$contentToks[] = $kv->v;
+					$toks[] = $kv->v;
 				}
 			} else {
 				$tagAttribs[] = $kv;
 			}
 		}
 
-		return array_merge(
-			[ new TagTk( $target, $tagAttribs ) ],
-			$contentToks,
-			[ new EndTagTk( $target ) ]
-		);
+		$tagTk->attribs = $tagAttribs;
+		$toks[] = new EndTagTk( $target );
+		return $toks;
 	}
 
 	public function pf_currentyear( $token, Frame $frame, Params $params ): array {
@@ -595,7 +594,7 @@ class ParserFunctions {
 		foreach ( $args as $item ) {
 			// FIXME: we are swallowing all errors
 			$res = $this->expandKV( $item, $frame, '', 'text/x-mediawiki/expanded', false );
-			$accum = array_merge( $accum, $res );
+			PHPUtils::pushArray( $accum, $res );
 		}
 
 		return [
