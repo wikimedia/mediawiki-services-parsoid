@@ -267,6 +267,7 @@ class Env {
 		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess,
 		?array $options = null
 	) {
+		self::checkPlatform();
 		$options = $options ?? [];
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
@@ -311,6 +312,24 @@ class Env {
 			$this->profiling = true;
 		}
 		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
+	}
+
+	/**
+	 * Check to see if the PHP platform is sane
+	 */
+	private static function checkPlatform() {
+		static $checked;
+		if ( !$checked ) {
+			if ( strtolower( 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' )
+				!== 'abcdefghijklmnopqrstuvwxyz'
+			) {
+				// This is probably unreachable -- glibc has a test case (tst-ctype.c)
+				// which confirms that all locales correctly case-convert ASCII characters
+				throw new \RuntimeException( 'Cannot transform ASCII characters -- ' .
+					'please set the locale to something that can convert ASCII' );
+			}
+			$checked = true;
+		}
 	}
 
 	/**

@@ -66,19 +66,7 @@ class DOMCompat {
 	 * @return string
 	 */
 	public static function nodeName( Node $node ): string {
-		static $cache = [];
-		$key = $node->nodeName;
-		$lower = $cache[$key] ?? null;
-		if ( $lower === null ) {
-			// "To ASCII lowercase" (strtolower is locale-dependent, boo)
-			$lower = strtr(
-				$key,
-				'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-				'abcdefghijklmnopqrstuvwxyz'
-			);
-			$cache[$key] = $lower;
-		}
-		return $lower;
+		return strtolower( $node->nodeName );
 	}
 
 	/**
