@@ -51,6 +51,9 @@ abstract class SiteConfig {
 	/** @var array|null */
 	private $functionHooks;
 
+	/** @var string[] */
+	private $protocolsRegexes = [];
+
 	/**
 	 * FIXME: not private so that ParserTests can reset these variables
 	 * since they reuse site config and other objects between tests for
@@ -1093,12 +1096,32 @@ abstract class SiteConfig {
 	abstract protected function getProtocols(): array;
 
 	/**
+	 * Get a regex fragment matching URL protocols, quoted for an exclamation
+	 * mark delimiter. The case-insensitive option should be used.
+	 *
+	 * @param bool $excludeProtRel Whether to exclude protocol-relative URLs
+	 * @return string
+	 */
+	public function getProtocolsRegex( $excludeProtRel = false ) {
+		if ( !isset( $this->protocolsRegexes[$excludeProtRel] ) ) {
+			$parts = [];
+			foreach ( $this->getProtocols() as $protocol ) {
+				if ( !$excludeProtRel || $protocol !== '//' ) {
+					$parts[] = preg_quote( $protocol, '!' );
+				}
+			}
+			$this->protocolsRegexes[$excludeProtRel] = implode( '|', $parts );
+		}
+		return $this->protocolsRegexes[$excludeProtRel];
+	}
+
+	/**
 	 * Matcher for valid protocols, must be anchored at start of string.
 	 * @param string $potentialLink
 	 * @return bool Whether $potentialLink begins with a valid protocol
 	 */
 	public function hasValidProtocol( string $potentialLink ): bool {
-		$re = '!^(?:' . implode( '|', array_map( 'preg_quote', $this->getProtocols() ) ) . ')!i';
+		$re = '!^(?:' . $this->getProtocolsRegex() . ')!i';
 		return (bool)preg_match( $re, $potentialLink );
 	}
 
@@ -1108,7 +1131,7 @@ abstract class SiteConfig {
 	 * @return bool Whether $potentialLink contains a valid protocol
 	 */
 	public function findValidProtocol( string $potentialLink ): bool {
-		$re = '!(?:\W|^)(?:' . implode( '|', array_map( 'preg_quote', $this->getProtocols() ) ) . ')!i';
+		$re = '!(?:\W|^)(?:' . $this->getProtocolsRegex() . ')!i';
 		return (bool)preg_match( $re, $potentialLink );
 	}
 

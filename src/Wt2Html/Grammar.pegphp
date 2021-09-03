@@ -41,6 +41,15 @@
 
 	private $startTime;
 
+	/** @var string */
+	private $reUrltextLookahead;
+
+	/** @var string */
+	private $urltextPlainSegment = '';
+
+	/** @var bool */
+	private $urltextFoundAutolink = false;
+
 	protected function initialize() {
 		$this->env = $this->options['env'];
 		$this->siteConfig = $this->env->getSiteConfig();
@@ -49,6 +58,14 @@
 		$this->pipelineOpts = $tokenizer->getOptions();
 		$this->pipelineOffset = $this->options['pipelineOffset'] ?? 0;
 		$this->extTags = $this->siteConfig->getExtensionTagNameMap();
+
+		// Non-greedy text_char sequence: stop at ampersand, double-underscore,
+		 // magic link prefix or protocol
+		$this->reUrltextLookahead = '!(?:' .
+			'([^-\'<[{\n\r:;\]}|\!=&]*?)' .
+			'(?:__|$|[-\'<[{\n\r:;\]}|\!=&]|(RFC|PMID|ISBN|(?i)' .
+			$this->siteConfig->getProtocolsRegex( true ) .
+			')))!A';
 	}
 
 	private $prevOffset = 0;
@@ -2149,8 +2166,8 @@ row_syntax_table_args =
  * text_char is not quite right and had to be augmented. Try to minimize /
  * clarify this carefully!
  *
- * This character class is inlined into urltext. Changes here may also need to
- * be reflected there.
+ * This character class is inlined into $this->reUrltextLookahead. Changes
+ * here may also need to be reflected there.
  */
 
 text_char = [^-'<[{\n\r:;\]}|!=]
@@ -2179,11 +2196,30 @@ text_char = [^-'<[{\n\r:;\]}|!=]
 
 urltext =
 	(
-		& [A-Za-z] al:autolink { return $al; }
+		/* Very special performance hack:
+		 * Look for a plain text sequence, and if found, pretend to match the
+		 * empty string, but then advance currPos in the action and return the
+		 * whole plain text segment as a single result.
+		 */
+		& {
+			if ( preg_match( $this->reUrltextLookahead, $this->input, $m, 0, $this->currPos ) ) {
+				$plain = $m[1];
+				$this->urltextPlainSegment = $plain;
+				$this->urltextFoundAutolink = ( $m[2] ?? '' ) !== '';
+				return (bool)strlen( $plain );
+			} else {
+				$this->urltextFoundAutolink = false;
+				return false;
+			}
+		}
+		'' {
+			$this->currPos += strlen( $this->urltextPlainSegment );
+			return $this->urltextPlainSegment;
+		}
+		/ & { return $this->urltextFoundAutolink; } al:autolink { return $al; }
 		/ & "&" he:htmlentity { return $he; }
 		/ & ('__') bs:behavior_switch { return $bs; }
-		// About 96% of text_char calls originated here, so inline it for efficiency
-		/ [^-'<[{\n\r:;\]}|!=]
+		/ text_char
 	)+
 
 raw_htmlentity =
