@@ -63,8 +63,8 @@
 		 // magic link prefix or protocol
 		$this->reUrltextLookahead = '!(?:' .
 			'([^-\'<[{\n\r:;\]}|\!=&]*?)' .
-			'(?:__|$|[-\'<[{\n\r:;\]}|\!=&]|(RFC|PMID|ISBN|(?i)' .
-			$this->siteConfig->getProtocolsRegex( true ) .
+			'(?:__|$|[-\'<[{\n\r:;\]}|\!=&]|(RFC|PMID|ISBN|' .
+			'(?i)' . $this->siteConfig->getProtocolsRegex( true ) .
 			')))!A';
 	}
 
