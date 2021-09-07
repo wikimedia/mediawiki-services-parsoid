@@ -81,13 +81,15 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		$imageOpts = [
 			"|{$mode->dimensions( $opts )}",
-			// NOTE: We add "none" here so that this renders in the block form
-			// (ie. figure) for an easier structure to manipulate.
-			'|none',
 			[ $imageOptStr, $lineStartOffset + strlen( $titleStr ) ],
 		];
 
-		$thumb = $extApi->renderMedia( $titleStr, $imageOpts );
+		$thumb = $extApi->renderMedia(
+			$titleStr, $imageOpts, $error,
+			// Force block for an easier structure to manipulate, otherwise
+			// we have to pull the caption out of the data-mw
+			true
+		);
 		if ( !$thumb || DOMCompat::nodeName( $thumb ) !== 'figure' ) {
 			return null;
 		}

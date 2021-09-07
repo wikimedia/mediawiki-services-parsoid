@@ -725,10 +725,12 @@ class ParsoidExtensionAPI {
 	 *     [0] is the fully-constructed image option
 	 *     [1] is the full wikitext source offset for it
 	 * @param ?string &$error
+	 * @param ?bool $forceBlock
 	 * @return ?Element
 	 */
 	public function renderMedia(
-		string $titleStr, array $imageOpts, ?string &$error = null
+		string $titleStr, array $imageOpts, ?string &$error = null,
+		?bool $forceBlock = false
 	): ?Element {
 		$extTagName = $this->extTag->getName();
 
@@ -752,6 +754,16 @@ class ParsoidExtensionAPI {
 		// well
 		$pieces[] = $file;
 		$pieces = array_merge( $pieces, $imageOpts );
+
+		if ( $forceBlock ) {
+			// We add "none" here so that this renders in the block form
+			// (ie. figure).  It's a valid media option, so shouldn't turn into
+			// a caption.  And since it's first wins, it shouldn't interfere
+			// with another horizontal alignment defined in $imageOpts.
+			// We just have to remember to strip the class below.
+			$pieces[] = '|none';
+		}
+
 		$pieces[] = ']]';
 
 		$shiftOffset = static function ( int $offset ) use ( $pieces ): ?int {
@@ -819,6 +831,22 @@ class ParsoidExtensionAPI {
 		// Detach the $thumb since the $domFragment is going out of scope
 		// See https://bugs.php.net/bug.php?id=39593
 		DOMCompat::remove( $thumb );
+
+		if ( $forceBlock ) {
+			$dp = DOMDataUtils::getDataParsoid( $thumb );
+			array_pop( $dp->optList );
+			$explicitNone = false;
+			foreach ( $dp->optList as $opt ) {
+				if ( $opt['ck'] === 'none' ) {
+					$explicitNone = true;
+				}
+			}
+			if ( !$explicitNone ) {
+				// FIXME: Should we worry about someone adding this with the
+				// "class=" option?
+				DOMCompat::getClassList( $thumb )->remove( 'mw-halign-none' );
+			}
+		}
 
 		return $thumb;
 	}

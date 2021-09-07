@@ -105,7 +105,11 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 					[ $options, $offset + strlen( $image ) ],
 				];
 
-				$thumb = $extApi->renderMedia( $image, $imageOpts, $error );
+				$thumb = $extApi->renderMedia(
+					$image, $imageOpts, $error,
+					// NOTE(T290044): Imagemaps are always rendered as blocks
+					true
+				);
 				if ( !$thumb ) {
 					throw new ExtensionError( $error );
 				}
