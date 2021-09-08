@@ -62,3 +62,34 @@ We slightly optimizes that by keeping a map of all the errors for refs in
 embedded content so that only one pass is necessary, rather than for each
 references list.  Also, it's helpful that, in the common case, this pass won't
 need to run since we won't have any errors in embedded content.
+
+## Redefinitions in the face of nested refs are ambiguous / undefined behaviour
+
+A redefinition is like,
+
+<ref name="name">123</ref>
+<ref name="name">345</ref>
+
+The latter of which will result in an error.
+
+In the case of nested refs, we might have,
+
+{{#tag:ref|123 <ref>haha</ref>|name="name"}}
+{{#tag:ref|123 <ref>haha</ref>|name="name"}}
+
+If you go by the wikitext, those definitions sort of look the same and one
+might assume it shouldn't generate an error.
+
+However, if you go by the html rendering of the content, because of linkback
+ids and whatnot, those will never be same and presumably always generate an
+error in the legacy parser.
+
+On the parsoid side, we're doing a comparison that looks like,
+
+<sup typeof="mw:DOMFragment/sealed/ref"> ... </sup>
+
+vs
+
+<sup type="mw:Extension/ref"></sup>
+
+which is always going to be a redefinition error / contents differ.
