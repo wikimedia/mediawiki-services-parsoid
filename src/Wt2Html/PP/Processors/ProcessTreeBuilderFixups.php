@@ -18,23 +18,6 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	/**
-	 * Replace a meta node with an empty text node, which will be deleted by
-	 * the normalize pass. This is faster than just deleting the node if there
-	 * are many nodes in the sibling array, since node deletion is sometimes
-	 * done with {@link Array#splice} which is O(N).
-	 * PORT-FIXME: This comment was true for domino in JS.
-	 * PORT-FIXME: We should confirm if this is also true for PHP DOM.
-	 *
-	 * @param Node $node
-	 */
-	private static function deleteShadowMeta( Node $node ): void {
-		$node->parentNode->replaceChild(
-			$node->ownerDocument->createTextNode( '' ),
-			$node
-		);
-	}
-
-	/**
 	 * @param Frame $frame
 	 * @param Node $node
 	 * @param stdClass $dp
@@ -192,12 +175,12 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 								);
 							}
 						}
-						self::deleteShadowMeta( $c );
+						$c->parentNode->removeChild( $c );
 					} elseif ( DOMUtils::hasTypeOf( $c, 'mw:EndTag' ) && empty( $dp->tsr ) ) {
 						// If there is no tsr, this meta is useless for DSR
 						// calculations. Remove the meta to avoid breaking
 						// other brittle DOM passes working on the DOM.
-						self::deleteShadowMeta( $c );
+						$c->parentNode->removeChild( $c );
 
 						// TODO: preserve stripped wikitext end tags similar
 						// to start tags!
@@ -278,7 +261,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 							) === $expectedName
 						) {
 							// Strip start-tag marker metas that has its matching node
-							self::deleteShadowMeta( $fc );
+							$fc->parentNode->removeChild( $fc );
 						} else {
 							$dp->autoInsertedStart = true;
 						}

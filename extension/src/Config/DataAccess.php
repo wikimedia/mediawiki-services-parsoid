@@ -143,14 +143,16 @@ class DataAccess implements IDataAccess {
 				];
 			} else {
 				$titleObjs[$name] = $t;
-				$pdbk = $t->getPrefixedDBkey();
-				$pagemap[$t->getArticleID()] = $pdbk;
-				$classes[$pdbk] = $t->isRedirect() ? 'mw-redirect' : '';
 			}
 		}
 		$linkBatch = new LinkBatch( $titleObjs );
 		$linkBatch->execute();
 
+		foreach ( $titleObjs as $obj ) {
+			$pdbk = $obj->getPrefixedDBkey();
+			$pagemap[$obj->getArticleID()] = $pdbk;
+			$classes[$pdbk] = $obj->isRedirect() ? 'mw-redirect' : '';
+		}
 		$context_title = Title::newFromText( $pageConfig->getTitle() );
 		$this->hookContainer->run(
 			'GetLinkColours',

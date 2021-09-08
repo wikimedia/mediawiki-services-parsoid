@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -190,7 +189,7 @@ class CleanUp {
 	 * @param Env $env
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo
-	 * @return bool|Text
+	 * @return bool|Node The next node or true to continue with $node->nextSibling
 	 */
 	public static function cleanupAndSaveDataParsoid(
 		array $usedIdIndex, Node $node, Env $env,
@@ -269,10 +268,8 @@ class CleanUp {
 				 DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
 			) {
 				DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
-				// Replace the span with an empty text node.
-				// (better for perf instead of deleting the node)
-				$next = $node->ownerDocument->createTextNode( '' );
-				$node->parentNode->replaceChild( $next, $node );
+				$next = $node->nextSibling;
+				$node->parentNode->removeChild( $node );
 				return $next;
 			}
 
