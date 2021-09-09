@@ -52,6 +52,9 @@ class TemplateHandler extends TokenHandler {
 	 */
 	 private $atMaxArticleSize;
 
+	 /** @var string|null */
+	 private $safeSubstRegex;
+
 	/**
 	 * @param TokenTransformManager $manager
 	 * @param array $options
@@ -226,6 +229,18 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
+	 * Is the prefix "safesubst"
+	 * @param string $prefix
+	 * @return bool
+	 */
+	private function isSafeSubst( $prefix ) {
+		if ( $this->safeSubstRegex === null ) {
+			$this->safeSubstRegex = $this->env->getSiteConfig()->getMagicWordMatcher( 'safesubst' );
+		}
+		return (bool)preg_match( $this->safeSubstRegex, $prefix . ':' );
+	}
+
+	/**
 	 * @param array &$state
 	 * @param string|Token|array $targetToks
 	 * @param SourceRange $srcOffsets
@@ -247,12 +262,18 @@ class TemplateHandler extends TokenHandler {
 			$target = TokenUtils::tokensToString( $includesStrippedTokens );
 		}
 
-		// safesubst found in content should be treated as if no modifier were
-		// present. See https://en.wikipedia.org/wiki/Help:Substitution#The_safesubst:_modifier
-		$target = preg_replace( '/^safesubst:/', '', trim( $target ), 1 );
-
+		$target = trim( $target );
 		$pieces = explode( ':', $target );
 		$prefix = trim( $pieces[0] );
+
+		// safesubst found in content should be treated as if no modifier were
+		// present. See https://en.wikipedia.org/wiki/Help:Substitution#The_safesubst:_modifier
+		if ( $this->isSafeSubst( $prefix ) ) {
+			$target = substr( $target, strlen( $pieces[0] ) + 1 );
+			array_shift( $pieces );
+			$prefix = trim( $pieces[0] );
+		}
+
 		$lowerPrefix = mb_strtolower( $prefix );
 		// The check for pieces.length > 1 is required to distinguish between
 		// {{lc:FOO}} and {{lc|FOO}}.  The latter is a template transclusion
