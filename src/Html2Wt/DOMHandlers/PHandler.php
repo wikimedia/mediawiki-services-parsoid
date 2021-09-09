@@ -133,7 +133,6 @@ class PHandler extends DOMHandler {
 			// If this node could break this wikitext line and emit
 			// non-ws content on a new line, the P-tag will be on that new line
 			// with text content that needs P-wrapping.
-			// PORT-FIXME: does regex whitespace semantics change matter?
 			if ( preg_match( '/\n[^\s]/', $node->textContent ) ) {
 				return false;
 			}

@@ -498,7 +498,7 @@ class Env {
 	 */
 	public function resolveTitle( string $str, bool $resolveOnly = false ): string {
 		$origName = $str;
-		$str = trim( $str ); // PORT-FIXME: Care about non-ASCII whitespace?
+		$str = trim( $str );
 
 		$pageConfig = $this->getPageConfig();
 

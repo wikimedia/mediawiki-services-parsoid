@@ -360,12 +360,9 @@ class HTML5TreeBuilder extends PipelineStage {
 
 			if ( !$wasInserted ) {
 				$this->dispatcher->startTag(
-					$tName, new PlainAttributes( $this->kvArrToAttr( $attribs ) ), true, 0, 0
+					$tName, new PlainAttributes( $this->kvArrToAttr( $attribs ) ), false, 0, 0
 				);
 				if ( !Utils::isVoidElement( $tName ) ) {
-					// PORT-FIXME: startTag has a self-closed flag?
-					// VOID_ELEMENTS are automagically treated as self-closing by
-					// the tree builder
 					$this->dispatcher->endTag( $tName, 0, 0 );
 				}
 			}

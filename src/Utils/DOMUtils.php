@@ -223,10 +223,8 @@ class DOMUtils {
 	}
 
 	/**
-	 * PORT-FIXME: Is this necessary with PHP DOM unlike Domino in JS?
-	 *
 	 * Test the number of children this node has without using
-	 * `Node#childNodes.length`.  This walks the sibling list and so
+	 * `DOMNode::$childNodes->count()`.  This walks the sibling list and so
 	 * takes O(`nchildren`) time -- so `nchildren` is expected to be small
 	 * (say: 0, 1, or 2).
 	 *
