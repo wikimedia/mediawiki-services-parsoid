@@ -289,8 +289,6 @@ class TemplateHandler extends TokenHandler {
 		if ( $canonicalFunctionName !== null ) {
 			// Extract toks that make up pfArg
 			$pfArgToks = null;
-			// PORT-FIXME shouldn't we be preg_quote'ing this?
-			$re = '/^(.*?)' . $prefix . '/i';
 
 			// Because of the lenient stringifying above, we need to find the
 			// prefix.  The strings we've seen so far are buffered in case they
@@ -298,19 +296,19 @@ class TemplateHandler extends TokenHandler {
 			// to $this->stripIncludeTokens above and the safesubst replace.
 			$buf = '';
 			$index = -1;
+			$partialPrefix = false;
 			foreach ( $targetToks as $i => $t ) {
 				if ( !is_string( $t ) ) {
 					continue;
 				}
 
 				$buf .= $t;
-				preg_match( $re, $buf, $match );
-				if ( $match ) {
+				$prefixPos = stripos( $buf, $prefix );
+				if ( $prefixPos !== false ) {
 					// Check if they combined
-					$offset = strlen( $buf ) - strlen( $t ) - strlen( $match[1] );
+					$offset = strlen( $buf ) - strlen( $t ) - $prefixPos;
 					if ( $offset > 0 ) {
-						// PORT-FIXME shouldn't we be preg_quote'ing this?
-						$re = '/^' . substr( $prefix, $offset ) . '/i';
+						$partialPrefix = substr( $prefix, $offset );
 					}
 					$index = $i;
 					break;
@@ -319,7 +317,23 @@ class TemplateHandler extends TokenHandler {
 
 			if ( $index > -1 ) {
 				// Strip parser-func / magic-word prefix
-				$firstTok = preg_replace( $re, '', $targetToks[$index] );
+				$firstTok = $targetToks[$index];
+				if ( $partialPrefix !== false ) {
+					// Remove the partial prefix if it case insensitively
+					// appears at the start of the token
+					if ( substr_compare( $firstTok, $partialPrefix,
+							0, strlen( $partialPrefix ), true ) === 0
+					) {
+						$firstTok = substr( $firstTok, strlen( $partialPrefix ) );
+					}
+				} else {
+					// Remove the first occurrence of the prefix from $firstTok,
+					// case insensitively
+					$prefixPos = stripos( $firstTok, $prefix );
+					if ( $prefixPos !== false ) {
+						$firstTok = substr_replace( $firstTok, '', $prefixPos, strlen( $prefix ) );
+					}
+				}
 				$targetToks = array_slice( $targetToks, $index + 1 );
 
 				if ( $isPF ) {
