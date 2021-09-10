@@ -347,6 +347,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		self::copyOverAttribute( $img, $span, 'resource' );
 
 		$img->setAttribute( 'src', self::getPath( $info ) );
+		$img->setAttribute( 'decoding', 'async' );
 
 		if ( $span->hasAttribute( 'lang' ) ) {
 			self::copyOverAttribute( $img, $span, 'lang' );
