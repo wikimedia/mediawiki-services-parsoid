@@ -199,7 +199,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$name = null;
 			if ( !empty( $p0->template->target->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = preg_replace( '#^\./#', '', $p0->template->target->href, 1 );
+				$name = PHPUtils::stripPrefix( $p0->template->target->href, './' );
 			} elseif ( !empty( $p0->template ) ) {
 				$name = trim( $p0->template->target->wt );
 			} else {
@@ -796,7 +796,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function hasNoWrapCSS( Node $node ): bool {
 		return $node instanceof Element && (
-			preg_match( '/nowrap/', $node->getAttribute( 'style' ) ?? '' ) ||
+			str_contains( $node->getAttribute( 'style' ) ?? '', 'nowrap' ) ||
 			preg_match( '/(?:^|\s)nowrap(?:$|\s)/D', $node->getAttribute( 'class' ) ?? '' )
 		);
 	}
@@ -904,7 +904,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		// <br>, <wbr>, <hr> break a line
 		while ( $node && !DOMUtils::isRemexBlockNode( $node ) &&
-			!preg_match( '/^(?:h|b|wb)r$/D', DOMCompat::nodeName( $node ) )
+			!in_array( DOMCompat::nodeName( $node ), [ 'hr', 'br', 'wbr' ], true )
 		) {
 			if ( DOMUtils::isText( $node ) || !$this->hasNoWrapCSS( $node ) ) {
 				// No CSS property that affects whitespace.
@@ -1121,7 +1121,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		if ( !WTUtils::isLiteralHTMLNode( $node ) ||
 			DOMCompat::nodeName( $node ) !== 'table' ||
 			!( $li = $this->getWikitextListItemAncestor( $node ) ) ||
-			!preg_match( '/\n/', DOMCompat::getOuterHTML( $node ) )
+			!str_contains( DOMCompat::getOuterHTML( $node ), "\n" )
 		) {
 			return;
 		}

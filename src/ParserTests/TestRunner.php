@@ -1084,10 +1084,10 @@ class TestRunner {
 		$toWikiText = $mode === 'html2wt' || $mode === 'wt2wt' || $mode === 'selser';
 		// FIXME: normalization not in place yet
 		$normalizedExpected = $toWikiText ?
-			preg_replace( '/\n+$/D', '', $testWikitext, 1 ) : $testWikitext;
+			rtrim( $testWikitext, "\n" ) : $testWikitext;
 
 		// FIXME: normalization not in place yet
-		$normalizedOut = ( $toWikiText ) ? preg_replace( '/\n+$/D', '', $out, 1 ) : $out;
+		$normalizedOut = ( $toWikiText ) ? rtrim( $out, "\n" ) : $out;
 
 		$input = $mode === 'selser' ? $test->changedHTMLStr :
 			( $mode === 'html2wt' ? $test->parsoidHtml : $testWikitext );
@@ -1369,7 +1369,7 @@ class TestRunner {
 
 		// Honor language option in parserTests.txt
 		$prefix = $test->options['language'] ?? 'enwiki';
-		if ( !preg_match( '/wiki/', $prefix ) ) {
+		if ( !str_contains( $prefix, 'wiki' ) ) {
 			// Convert to our enwiki.. format
 			$prefix .= 'wiki';
 		}

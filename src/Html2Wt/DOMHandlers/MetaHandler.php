@@ -102,7 +102,7 @@ class MetaHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		$type = $node->getAttribute( 'typeof' ) ?: $node->getAttribute( 'property' ) ?:	null;
-		if ( $type && preg_match( '#mw:PageProp/categorydefaultsort#', $type ) ) {
+		if ( $type && str_contains( $type, 'mw:PageProp/categorydefaultsort' ) ) {
 			if ( DOMCompat::nodeName( $otherNode ) === 'p'
 				&& $otherNode instanceof Element // for static analyizers
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'

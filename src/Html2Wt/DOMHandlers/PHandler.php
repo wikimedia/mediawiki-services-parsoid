@@ -148,7 +148,7 @@ class PHandler extends DOMHandler {
 				// If this node could break this wikitext line, we are done.
 				// This is conservative because textContent could be looking at descendents
 				// of 'node' that may not have been serialized yet. But this is safe.
-				if ( preg_match( '/\n/', $node->textContent ) ) {
+				if ( str_contains( $node->textContent, "\n" ) ) {
 					return false;
 				}
 

@@ -196,7 +196,7 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 			DOMUtils::assertElt( $a );
 
 			$href = $a->getAttribute( 'href' ) ?? '';
-			$externLink = (bool)preg_match( "/^mw:ExtLink/", $a->getAttribute( 'rel' ) ?? '' );
+			$externLink = str_starts_with( $a->getAttribute( 'rel' ) ?? '', "mw:ExtLink/" );
 			$alt = '';
 
 			$hasContent = $externLink || ( DOMDataUtils::getDataParsoid( $a )->stx ?? null ) === 'piped';

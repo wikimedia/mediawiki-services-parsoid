@@ -132,8 +132,9 @@ class References extends ExtensionTagHandler {
 		// dsr computation and template wrapping.
 		$nodeDp = DOMDataUtils::getDataParsoid( $node );
 		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
-		$isTplWrapper = DOMUtils::hasTypeOf( $node, 'mw:Transclusion' );
-		$nodeType = preg_replace( '#mw:DOMFragment/sealed/ref#', '', $typeOf, 1 );
+		$types = explode( ' ', $typeOf );
+		$isTplWrapper = in_array( 'mw:Transclusion', $types, true );
+		$nodeType = implode( ' ', array_diff( $types, [ 'mw:DOMFragment/sealed/ref' ] ) );
 		$contentId = $nodeDp->html;
 		$tplDmw = $isTplWrapper ? DOMDataUtils::getDataMw( $node ) : null;
 

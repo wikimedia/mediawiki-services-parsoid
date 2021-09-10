@@ -377,7 +377,7 @@ class TableFixups {
 
 		// Splice in nowiki content.  We added in <nowiki> markers to prevent the
 		// above regexps from matching on nowiki-protected chars.
-		if ( preg_match( '/<nowiki-marker>/', $attributishPrefix ) ) {
+		if ( str_contains( $attributishPrefix, '<nowiki-marker>' ) ) {
 			$attributishPrefix = preg_replace_callback(
 				'/<nowiki-marker>/',
 				static function ( $unused ) use ( &$attributishContent ) {
@@ -521,7 +521,7 @@ class TableFixups {
 			if ( $prev instanceof Element &&
 				!WTUtils::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $prev ) ) &&
 				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
-				!preg_match( '/\n/', DOMCompat::getInnerHTML( $prev ) )
+				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
 			) {
 				return self::COMBINE_WITH_PREV_CELL;
 			}

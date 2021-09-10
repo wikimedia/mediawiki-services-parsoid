@@ -124,7 +124,7 @@ class XMLSerializer {
 						}
 					} else {
 						if ( $child && isset( self::$newlineStrippingElements[$localName] )
-							&& $child->nodeType === XML_TEXT_NODE && preg_match( '/^\n/', $child->nodeValue )
+							&& $child->nodeType === XML_TEXT_NODE && str_starts_with( $child->nodeValue, "\n" )
 						) {
 							/* If current node is a pre, textarea, or listing element,
 							 * and the first child node of the element, if any, is a

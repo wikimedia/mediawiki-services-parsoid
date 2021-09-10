@@ -181,7 +181,7 @@ class ConversionTraverser extends DOMTraverser {
 				$toPage = $this->docFragToString( $toPageFrag, true/* force */ );
 			}
 			if ( $el->hasAttribute( 'title' ) ) {
-				$el->setAttribute( 'title', preg_replace( '/_/', ' ', $toPage ) );
+				$el->setAttribute( 'title', str_replace( '_', ' ', $toPage ) );
 			}
 			$el->setAttribute( 'href', "./{$toPage}" );
 		} elseif ( $rel === 'mw:WikiLink/Interwiki' ) {
@@ -238,7 +238,7 @@ class ConversionTraverser extends DOMTraverser {
 				continue;
 			}
 			$orig = $node->getAttribute( $attr );
-			if ( preg_match( '#://#', $orig ) ) {
+			if ( str_contains( $orig, '://' ) ) {
 				continue; /* Don't convert URLs */
 			}
 			$toFrag = $this->machine->convert(

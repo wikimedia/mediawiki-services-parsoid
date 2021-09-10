@@ -50,7 +50,7 @@ class Utils {
 	 */
 	public static function isParsoidObjectId( string $aboutId ): bool {
 		// 'mwt' is the prefix used for new ids
-		return (bool)preg_match( '/^#mwt/', $aboutId );
+		return str_starts_with( $aboutId, '#mwt' );
 	}
 
 	/**

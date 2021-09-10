@@ -46,16 +46,20 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @return Node|null
 	 */
 	private function getTableParent( Node $node ): ?Node {
-		if ( preg_match( '/^(td|th)$/D', DOMCompat::nodeName( $node ) ) ) {
+		$nodeName = DOMCompat::nodeName( $node );
+		if ( in_array( $nodeName, [ 'td', 'th' ], true ) ) {
 			$node = $node->parentNode;
+			$nodeName = DOMCompat::nodeName( $node );
 		}
-		if ( DOMCompat::nodeName( $node ) === 'tr' ) {
+		if ( $nodeName === 'tr' ) {
 			$node = $node->parentNode;
+			$nodeName = DOMCompat::nodeName( $node );
 		}
-		if ( preg_match( '/^(tbody|thead|tfoot|caption)$/D', DOMCompat::nodeName( $node ) ) ) {
+		if ( in_array( $nodeName, [ 'tbody', 'thead', 'tfoot', 'caption' ], true ) ) {
 			$node = $node->parentNode;
+			$nodeName = DOMCompat::nodeName( $node );
 		}
-		return ( DOMCompat::nodeName( $node ) === 'table' ) ? $node : null;
+		return ( $nodeName === 'table' ) ? $node : null;
 	}
 
 	/**
@@ -175,7 +179,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 						$partialContent = false;
 						// all whitespace is moved
 						$tsrCorrection += strlen( $n->nodeValue );
-					} elseif ( preg_match( '/\n$/D', $n->nodeValue ) ) {
+					} elseif ( str_ends_with( $n->nodeValue, "\n" ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;
 						$partialContent = true;

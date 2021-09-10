@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class Poem extends ExtensionTagHandler implements ExtensionModule {
 
@@ -49,8 +50,8 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 
 		if ( strlen( $content ) > 0 ) {
 			// 1. above
-			$content = preg_replace( '/^\n/', '', $content, 1 );
-			$content = preg_replace( '/\n$/D', '', $content, 1 );
+			$content = PHPUtils::stripPrefix( $content, "\n" );
+			$content = PHPUtils::stripSuffix( $content, "\n" );
 
 			// 2. above
 			$content = preg_replace( '/^ /m', '&nbsp;', $content );

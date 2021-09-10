@@ -822,7 +822,7 @@ class ParsoidExtensionAPI {
 		);
 
 		$thumb = $domFragment->firstChild;
-		if ( !preg_match( "/^figure|span$/", DOMCompat::nodeName( $thumb ) ) ) {
+		if ( !in_array( DOMCompat::nodeName( $thumb ), [ 'figure', 'span' ], true ) ) {
 			$error = "{$extTagName}_invalid_image";
 			return null;
 		}

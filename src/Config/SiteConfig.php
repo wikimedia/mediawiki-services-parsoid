@@ -1076,7 +1076,7 @@ abstract class SiteConfig {
 					return $content;
 				}
 				// strip "./" prefix. TODO: Use relativeLinkPrefix() instead?
-				$href = preg_replace( '!^\./!', '', $href );
+				$href = PHPUtils::stripPrefix( $href, './' );
 				return "[[$href|$content]]";
 
 			case 'RFC':

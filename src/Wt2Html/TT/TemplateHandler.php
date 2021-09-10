@@ -389,7 +389,7 @@ class TemplateHandler extends TokenHandler {
 		// `resolveTitle()` adds the namespace prefix when it resolves fragments
 		// and relative titles, and a leading colon should resolve to a template
 		// from the main namespace, hence we omit a default when making a title
-		$namespaceId = preg_match( '!^[:#/\.]!', $target ) ?
+		$namespaceId = strspn( $target, ':#/.' ) ?
 			null : $siteConfig->canonicalNamespaceId( 'template' );
 
 		// Resolve a possibly relative link and
@@ -898,7 +898,7 @@ class TemplateHandler extends TokenHandler {
 					// If the param is just a simple URL, we can process it to
 					// HTML directly without going through a sub-pipeline.
 					$param->html = "<a rel='mw:ExtLink' href='" .
-						preg_replace( "/'/", '&#39;', $param->wt ) . "'>" . $param->wt . '</a>';
+						str_replace( "'", '&#39;', $param->wt ) . "'>" . $param->wt . '</a>';
 				} else {
 					// Prepare the data needed to parse to HTML
 					$params[] = [
@@ -1387,7 +1387,7 @@ class TemplateHandler extends TokenHandler {
 			$src = $tplToken->dataAttribs->src ?? '';
 			if ( $src ) {
 				// If the token has original wikitext, shadow the sort-key
-				$origKey = preg_replace( '/}}$/D', '', preg_replace( '/[^:]+:?/', '', $src, 1 ), 1 );
+				$origKey = PHPUtils::stripSuffix( preg_replace( '/[^:]+:?/', '', $src, 1 ), '}}' );
 				$metaToken->addNormalizedAttribute( 'content', $key, $origKey );
 			} else {
 				// If not, this token came from an extension/template

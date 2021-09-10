@@ -206,7 +206,7 @@ class WTUtils {
 	 */
 	public static function isTplStartMarkerMeta( Node $node ): bool {
 		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', self::TPL_META_TYPE_REGEXP );
-		return $t !== null && !preg_match( '#/End$#D', $t );
+		return $t !== null && !str_ends_with( $t, '/End' );
 	}
 
 	/**
@@ -218,7 +218,7 @@ class WTUtils {
 	 */
 	public static function isTplEndMarkerMeta( Node $node ): bool {
 		$t = DOMUtils::matchNameAndTypeOf( $node, 'meta', self::TPL_META_TYPE_REGEXP );
-		return $t !== null && preg_match( '#/End$#D', $t );
+		return $t !== null && str_ends_with( $t, '/End' );
 	}
 
 	/**
@@ -310,13 +310,14 @@ class WTUtils {
 		//
 		// FIXME: Doesn't handle text nodes that are not direct children of the pre
 		if ( self::isIndentPre( $textNode->parentNode ) ) {
+			$numNLs = substr_count( $textNode->nodeValue, "\n" );
 			if ( $textNode->parentNode->lastChild === $textNode ) {
 				// We dont want the trailing newline of the last child of the pre
 				// to contribute a pre-correction since it doesn't add new content
 				// in the pre-node after the text
-				$numNLs = preg_match_all( '/\n./', $textNode->nodeValue );
-			} else {
-				$numNLs = preg_match_all( '/\n/', $textNode->nodeValue );
+				if ( str_ends_with( $textNode->nodeValue, "\n" ) ) {
+					$numNLs--;
+				}
 			}
 			return $numNLs;
 		} else {
@@ -818,7 +819,7 @@ class WTUtils {
 				return null;
 			}
 			$type = $data->{'-type'} ?? '';
-			if ( preg_match( '/^mw:/', $type ) ) {
+			if ( str_starts_with( $type, 'mw:' ) ) {
 				$meta = $node->ownerDocument->createElement( 'meta' );
 				foreach ( $data->attrs as $attr ) {
 					try {

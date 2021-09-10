@@ -203,7 +203,7 @@ class TokenStreamPatcher extends TokenHandler {
 				// Attempt to match "{|" after a newline and convert
 				// it to a table token.
 				if ( $this->sol ) {
-					if ( $this->atTopLevel && preg_match( '/^\{\|/', $token ) ) {
+					if ( $this->atTopLevel && str_starts_with( $token, '{|' ) ) {
 						// Reparse string with the 'table_start_tag' rule
 						// and shift tsr of result tokens by source offset
 						$retoks = $this->tokenizer->tokenizeAs( $token, 'table_start_tag', /* sol */true );

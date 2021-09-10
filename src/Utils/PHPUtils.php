@@ -435,4 +435,42 @@ class PHPUtils {
 		Assert::invariant( false, $reason );
 	}
 
+	/**
+	 * If a string starts with a given prefix, remove the prefix. Otherwise,
+	 * return the original string. Like preg_replace( "/^$prefix/", '', $subject )
+	 * except about 1.14x faster in the replacement case and 2x faster in
+	 * the no-op case.
+	 *
+	 * Note: adding type declarations to the parameters adds an overhead of 3%.
+	 * The benchmark above was without type declarations.
+	 *
+	 * @param string $subject
+	 * @param string $prefix
+	 * @return string
+	 */
+	public static function stripPrefix( $subject, $prefix ) {
+		if ( str_starts_with( $subject, $prefix ) ) {
+			return substr( $subject, strlen( $prefix ) );
+		} else {
+			return $subject;
+		}
+	}
+
+	/**
+	 * If a string ends with a given suffix, remove the suffix. Otherwise,
+	 * return the original string. Like preg_replace( "/$suffix$/", '', $subject )
+	 * except faster.
+	 *
+	 * @param string $subject
+	 * @param string $suffix
+	 * @return string
+	 */
+	public static function stripSuffix( $subject, $suffix ) {
+		if ( str_ends_with( $subject, $suffix ) ) {
+			return substr( $subject, 0, -strlen( $suffix ) );
+		} else {
+			return $subject;
+		}
+	}
+
 }

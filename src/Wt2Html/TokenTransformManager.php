@@ -44,7 +44,7 @@ class TokenTransformManager extends PipelineStage {
 	) {
 		parent::__construct( $env, $prevStage );
 		$this->options = $options;
-		$this->traceType = 'trace/ttm:' . preg_replace( '/TokenTransform/', '', $stageId );
+		$this->traceType = 'trace/ttm:' . str_replace( 'TokenTransform', '', $stageId );
 		$this->pipelineId = null;
 
 		// Compute tracing state

@@ -430,7 +430,7 @@ class SerializerState {
 			$this->onSOL = true;
 		}
 
-		if ( preg_match( '/\n/', $nonCommentSep ) ) {
+		if ( str_contains( $nonCommentSep, "\n" ) ) {
 			// process escapes in our full line
 			$this->flushLine();
 			$this->resetCurrLine( $node );
@@ -592,7 +592,7 @@ class SerializerState {
 
 		// Replace newlines if we're in a single-line context
 		if ( $this->singleLineContext->enforced() ) {
-			$res->text = preg_replace( '/\n/', ' ', $res->text );
+			$res->text = str_replace( "\n", ' ', $res->text );
 		}
 
 		// Emit separator first
@@ -658,7 +658,7 @@ class SerializerState {
 					if ( $match && isset( $match[2] ) ) {
 						if ( preg_match( '/^([\*#:;]|{\||.*=$)/D', $match[2] )
 							// ! and | chars are harmless outside tables
-							|| ( preg_match( '/^[\|!]/', $match[2] ) && $this->wikiTableNesting > 0 )
+							|| ( strspn( $match[2], '|!' ) && $this->wikiTableNesting > 0 )
 							// indent-pres are suppressed inside <blockquote>
 							|| ( preg_match( '/^ [^\s]/', $match[2] )
 								&& !DOMUtils::hasNameOrHasAncestorOfName( $node, 'blockquote' ) )

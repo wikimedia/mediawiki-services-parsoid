@@ -462,7 +462,7 @@ class PreHandler extends TokenHandler {
 		$ret = [];
 		switch ( $this->state ) {
 			case self::STATE_SOL:
-				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
+				if ( is_string( $token ) && ( $token[0] ?? '' ) === ' ' ) {
 					$ret = $this->tokens;
 					$this->tokens = [];
 					$this->preWSToken = $token[0];

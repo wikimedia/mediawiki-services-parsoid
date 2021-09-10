@@ -134,7 +134,7 @@ class HandleLinkNeighbours {
 	 */
 	public static function handler( Element $node, Env $env ) {
 		$rel = $node->getAttribute( 'rel' ) ?? '';
-		if ( !preg_match( '#^mw:WikiLink(/Interwiki)?$#D', $rel ) ) {
+		if ( !in_array( $rel, [ 'mw:WikiLink', 'mw:WikiLink/Interwiki' ], true ) ) {
 			return true;
 		}
 

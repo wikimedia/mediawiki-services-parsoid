@@ -818,7 +818,7 @@ class Sanitizer {
 		// unconditionally discard the entire attribute or process it further.
 		// That further processing will catch and discard any dangerous
 		// strings in the rest of the attribute
-		return preg_match( ( '/^(?:typeof|property|rel)$/D' ), $k )
+		return in_array( $k, [ 'typeof', 'property', 'rel' ], true )
 			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', $v )
 			|| $k === 'about' && preg_match( '/^#mwt\d+$/D', $v )
 			|| $k === 'content'

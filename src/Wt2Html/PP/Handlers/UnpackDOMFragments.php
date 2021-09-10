@@ -206,7 +206,7 @@ class UnpackDOMFragments {
 		// Replace this node and possibly a sibling with node.dp.html
 		$fragmentParent = $node->parentNode;
 
-		Assert::invariant( preg_match( '/^mwf/', $dp->html ), '' );
+		Assert::invariant( str_starts_with( $dp->html, 'mwf' ), '' );
 		$domFragment = $env->getDOMFragment( $dp->html );
 
 		$contentNode = $domFragment->firstChild;

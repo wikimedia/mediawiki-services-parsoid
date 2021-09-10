@@ -38,7 +38,7 @@ class LanguageVariantHandler extends TokenHandler {
 		// we're going to fetch the actual token list from attribs
 		// (this ensures that it has gone through the earlier stages
 		// of the pipeline already to be expanded)
-		$t = preg_replace( '/^mw:lv/', '', $t, 1 );
+		$t = PHPUtils::stripPrefix( $t, 'mw:lv' );
 		$srcOffsets = $attribs[$t]->srcOffsets;
 		$domFragment = PipelineUtils::processContentInPipeline(
 			$manager->env, $manager->getFrame(), array_merge( $attribs[$t]->v, [ new EOFTk() ] ),

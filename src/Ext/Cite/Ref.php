@@ -118,19 +118,21 @@ class Ref extends ExtensionTagHandler {
 			if ( !$bodyElt ) {
 				$extraDebug = '';
 				$firstA = DOMCompat::querySelector( $node, 'a[href]' );
-				if ( $firstA && preg_match( '/^#/', $firstA->getAttribute( 'href' ) ?? '' ) ) {
+				if ( $firstA ) {
 					$href = $firstA->getAttribute( 'href' ) ?? '';
-					try {
-						$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
-						if ( $ref ) {
-							$extraDebug .= ' [doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
+					if ( str_starts_with( $href, '#' ) ) {
+						try {
+							$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
+							if ( $ref ) {
+								$extraDebug .= ' [doc: ' . DOMCompat::getOuterHTML( $ref ) . ']';
+							}
+						} catch ( Exception $e ) {
+							// We are just providing VE with debugging info.
+							// So, ignore all exceptions / errors in this code.
 						}
-					} catch ( Exception $e ) {
-						// We are just providing VE with debugging info.
-						// So, ignore all exceptions / errors in this code.
-					}
-					if ( !$extraDebug ) {
-						$extraDebug = ' [reference ' . $href . ' not found]';
+						if ( !$extraDebug ) {
+							$extraDebug = ' [reference ' . $href . ' not found]';
+						}
 					}
 				}
 				$extApi->log(

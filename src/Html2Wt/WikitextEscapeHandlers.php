@@ -65,7 +65,9 @@ class WikitextEscapeHandlers {
 		// special case for firstNode:
 		// we're at sol so ignore possible \n at first char
 		if ( $first ) {
-			if ( preg_match( '/\n/', mb_substr( $node->textContent, 1 ) ) ) {
+			$textContent = $node->textContent;
+			$offset = strlen( $textContent ) ? 1 : 0;
+			if ( strpos( $textContent, "\n", $offset ) !== false ) {
 				return false;
 			}
 			$node = $node->nextSibling;
@@ -82,7 +84,7 @@ class WikitextEscapeHandlers {
 					}
 				}
 			} else {
-				if ( preg_match( '/\n/', $node->textContent ) ) {
+				if ( str_contains( $node->textContent, "\n" ) ) {
 					return false;
 				}
 			}
@@ -221,7 +223,7 @@ class WikitextEscapeHandlers {
 
 		// For <dt> nodes, ":" trigger nowiki outside of elements
 		// For first nodes of <li>'s, bullets in sol posn trigger escaping
-		if ( DOMCompat::nodeName( $liNode ) === 'dt' && preg_match( '/:/', $text ) ) {
+		if ( DOMCompat::nodeName( $liNode ) === 'dt' && str_contains( $text, ':' ) ) {
 			return true;
 		} elseif ( preg_match( '/^[#*:;]*$/D', $state->currLine->text ) &&
 			$this->isFirstContentNode( $node )
@@ -229,7 +231,7 @@ class WikitextEscapeHandlers {
 			// Wikitext styling might require whitespace insertion after list bullets.
 			// In those scenarios, presence of bullet-wiktext in the text node is okay.
 			// Hence the check for /^[#*:;]*$/ above.
-			return (bool)preg_match( '/^[#*:;]/', $text );
+			return (bool)strspn( $text, '#*:;', 0, 1 );
 		} else {
 			return false;
 		}
@@ -269,7 +271,7 @@ class WikitextEscapeHandlers {
 	 * @return bool
 	 */
 	public function mediaOptionHandler( SerializerState $state, string $text ): bool {
-		return preg_match( '/\|/', $text ) || preg_match( self::LINKS_ESCAPE_RE, $text );
+		return str_contains( $text, '|' ) || preg_match( self::LINKS_ESCAPE_RE, $text );
 	}
 
 	/**
@@ -287,7 +289,7 @@ class WikitextEscapeHandlers {
 	 * @return bool
 	 */
 	public function aHandler( SerializerState $state, string $text ): bool {
-		return (bool)preg_match( '/\]/', $text );
+		return str_contains( $text, ']' );
 	}
 
 	/**
@@ -324,12 +326,12 @@ class WikitextEscapeHandlers {
 		// * +-} in SOL position (if they show up on the leftmost path with
 		// only zero-wt-emitting nodes on that path)
 		if ( !$node || $state->currLine->firstNode === $tdNode ) {
-			if ( preg_match( '/\|/', $text ) ) {
+			if ( str_contains( $text, '|' ) ) {
 				return true;
 			}
 			if ( !$inWideTD &&
 				$state->currLine->text === '|' &&
-				preg_match( '/^[\-+}]/', $text ) &&
+				strspn( $text, '-+}', 0, 1 ) &&
 				$node
 			) {
 				$patch = DOMUtils::pathToAncestor( $node, $tdNode );
@@ -385,7 +387,7 @@ class WikitextEscapeHandlers {
 		// text only contains ']' chars.
 		// Since we stripped everything after ']' above, if a newline is
 		// present, a link would have to straddle newlines which is not valid.
-		if ( preg_match( '/\n/', $text ) ) {
+		if ( str_contains( $text, "\n" ) ) {
 			return false;
 		}
 
@@ -507,7 +509,7 @@ class WikitextEscapeHandlers {
 		// newline so that the tokenizer correctly parses all tokens in a pre
 		// instead of just the first one. See T95794.
 		if ( $state->inIndentPre ) {
-			$text = preg_replace( '/\n/', "\n ", $text );
+			$text = str_replace( "\n", "\n ", $text );
 		}
 
 		$tokens = $this->tokenizeStr( $text, $sol );
@@ -736,7 +738,7 @@ class WikitextEscapeHandlers {
 			if ( is_string( $t ) ) {
 				if ( strlen( $t ) > 0 ) {
 					$t = WTUtils::escapeNowikiTags( $t );
-					if ( !$inNowiki && ( ( $sol && $t[0] === ' ' ) || preg_match( '/\n /', $t ) ) ) {
+					if ( !$inNowiki && ( ( $sol && $t[0] === ' ' ) || str_contains( $t, "\n " ) ) ) {
 						$x = preg_split( '/(^|\n) /', $t, -1, PREG_SPLIT_DELIM_CAPTURE );
 						$buf .= $x[0];
 						$lastIndexX = count( $x ) - 1;
@@ -864,7 +866,7 @@ class WikitextEscapeHandlers {
 		}
 
 		if ( !$fullCheckNeeded ) {
-			$hasQuoteChar = preg_match( "/'/", $text );
+			$hasQuoteChar = str_contains( $text, "'" );
 			$indentPreUnsafe = !$indentPreSafeMode && (
 				preg_match( '/\n +[^\r\n]*?[^\s]+/', $text ) ||
 				$sol && preg_match( '/^ +[^\r\n]*?[^\s]+/', $text )
@@ -892,7 +894,7 @@ class WikitextEscapeHandlers {
 		}
 
 		// Quote-escape test
-		if ( preg_match( "/''+/", $text ) ||
+		if ( str_contains( $text, "''" ) ||
 			self::hasLeadingEscapableQuoteChar( $text, $opts ) ||
 			self::hasTrailingEscapableQuoteChar( $text, $opts )
 		) {
@@ -1074,7 +1076,7 @@ class WikitextEscapeHandlers {
 		// '=' is not allowed in positional parameters.  We can either
 		// nowiki escape it or convert the named parameter into a
 		// positional param to avoid the escaping.
-		if ( $isTemplate && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
+		if ( $isTemplate && !$serializeAsNamed && str_contains( $str, '=' ) ) {
 			// In certain situations, it is better to add a nowiki escape
 			// rather than convert this to a named param.
 			//
@@ -1114,16 +1116,16 @@ class WikitextEscapeHandlers {
 		if ( preg_match( '/\{\{|\}\}|\[\[|\]\]|-\{/', $bracketPairStrippedStr ) ) {
 			$needNowikiCount++;
 		}
-		if ( $opts['type'] !== 'templatearg' && !$serializeAsNamed && preg_match( '/[=]/', $str ) ) {
+		if ( $opts['type'] !== 'templatearg' && !$serializeAsNamed && str_contains( $str, '=' ) ) {
 			$needNowikiCount++;
 		}
-		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && preg_match( '/\}$/D', $str ) ) {
+		if ( $opts['argIndex'] === $opts['numArgs'] && $isLast && str_ends_with( $str, '}' ) ) {
 			// If this is the last part of the last argument, we need to protect
 			// against an ending }, as it would get confused with the template ending }}.
 			$needNowikiCount++;
 			$neededSubstitution = [ '/(\})$/D', '<nowiki>}</nowiki>' ];
 		}
-		if ( preg_match( '/\|/', $str ) ) {
+		if ( str_contains( $str, '|' ) ) {
 			// If there's an unprotected |, guard it so it doesn't get confused
 			// with the beginning of a different parameter.
 			$needNowikiCount++;
@@ -1299,16 +1301,16 @@ class WikitextEscapeHandlers {
 								// as above for escapeStr, however, here we replace
 								// with an entity to avoid breaking up querystrings
 								// with nowikis.
-								if ( $isTemplate && !$serializeAsNamed && preg_match( '/[=]/', $bit ) ) {
+								if ( $isTemplate && !$serializeAsNamed && str_contains( $bit, '=' ) ) {
 									if ( $opts['numPositionalArgs'] === 0
 										|| $opts['numPositionalArgs'] === $opts['argIndex']
 									) {
 										$serializeAsNamed = true;
 									} else {
-										$bit = preg_replace( '/=/', '&#61;', $bit );
+										$bit = str_replace( '=', '&#61;', $bit );
 									}
 								}
-								$buf .= preg_replace( '/\|/', '&#124;', $bit );
+								$buf .= str_replace( '|', '&#124;', $bit );
 							}
 						}
 					} else {

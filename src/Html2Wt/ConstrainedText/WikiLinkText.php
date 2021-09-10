@@ -80,7 +80,7 @@ class WikiLinkText extends RegExpConstrainedText {
 		}
 		if (
 			preg_match( '#^mw:WikiLink(/Interwiki)?$#D', $type ) &&
-			preg_match( '/^(simple|piped)$/D', $stx )
+			in_array( $stx, [ 'simple', 'piped' ], true )
 		) {
 			return new WikiLinkText( $text, $node, $env->getSiteConfig(), $type );
 		}

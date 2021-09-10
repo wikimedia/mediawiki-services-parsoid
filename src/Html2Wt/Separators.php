@@ -198,7 +198,7 @@ class Separators {
 				Utils::COMMENT_REGEXP_FRAGMENT,
 				"#"
 			] );
-		$sepNlCount = preg_match_all( '/\n/', implode( preg_split( $splitRe, $sep ) ) );
+		$sepNlCount = substr_count( implode( preg_split( $splitRe, $sep ) ), "\n" );
 		$minNls = $nlConstraints['min'] ?? 0;
 
 		if ( $this->state->atStartOfOutput && $minNls > 0 ) {
@@ -287,7 +287,7 @@ class Separators {
 					$bit = $stripAtEnd ? array_pop( $allBits ) : array_shift( $allBits );
 				}
 				// @phan-suppress-next-line PhanPluginLoopVariableReuse
-				while ( $n > 0 && preg_match( '/\n/', $bit ) ) {
+				while ( $n > 0 && str_contains( $bit, "\n" ) ) {
 					$bit = preg_replace( '/\n([^\n]*)/', '$1', $bit, 1 );
 					$n--;
 				}
@@ -460,7 +460,7 @@ class Separators {
 			!$state->inPHPBlock &&
 			!$state->inIndentPre &&
 			preg_match( self::INDENT_PRE_WS_IN_SEP_REGEXP, $sep ) && (
-				preg_match( '/\n/', $sep ) || !empty( $constraintInfo['onSOL'] ) || $forceSOL
+				str_contains( $sep, "\n" ) || !empty( $constraintInfo['onSOL'] ) || $forceSOL
 			)
 		) {
 			// 'sep' is the separator before 'nodeB' and it has leading spaces on a newline.
@@ -642,7 +642,7 @@ class Separators {
 			// I've not added an equivalent check in the trailing whitespace case.
 			if ( $origNode instanceof Element &&
 				isset( DOMDataUtils::getDataParsoid( $origNode )->autoInsertedStart ) &&
-				preg_match( '/^[ \t]/', $origNode->firstChild->textContent ?? '' )
+				strspn( $origNode->firstChild->textContent ?? '', " \t" ) >= 1
 			) {
 				return null;
 			}
@@ -654,7 +654,7 @@ class Separators {
 					$dsr->leadingWS > 0 || ( $dsr->leadingWS === 0 && $dsr->trailingWS > 0 )
 				) ) {
 					$sep = $state->getOrigSrc( $dsr->innerStart(), $dsr->innerStart() + $dsr->leadingWS ) ?? '';
-					return preg_match( '/^[ \t]*$/', $sep ) ? $sep : null;
+					return strspn( $sep, " \t" ) === strlen( $sep ) ? $sep : null;
 				} else {
 					$offset = $dsr->innerStart();
 					if ( $offset < $dsr->innerEnd() ) {

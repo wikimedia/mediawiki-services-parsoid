@@ -396,10 +396,17 @@ class DOMUtils {
 	 *   no match.
 	 */
 	public static function matchTypeOf( Node $n, string $typeRe ): ?string {
-		if ( !( $n instanceof Element && $n->hasAttribute( 'typeof' ) ) ) {
+		if ( !( $n instanceof Element ) ) {
 			return null;
 		}
-		foreach ( preg_split( '/\s+/', $n->getAttribute( 'typeof' ), -1, PREG_SPLIT_NO_EMPTY ) as $ty ) {
+		$attrValue = $n->getAttribute( 'typeof' );
+		if ( $attrValue === '' ) {
+			return null;
+		}
+		foreach ( explode( ' ', $attrValue ) as $ty ) {
+			if ( $ty === '' ) {
+				continue;
+			}
 			$count = preg_match( $typeRe, $ty );
 			Assert::invariant( $count !== false, "Bad regexp" );
 			if ( $count ) {
@@ -419,16 +426,18 @@ class DOMUtils {
 	 */
 	public static function hasTypeOf( Node $n, string $type ) {
 		// fast path
-		if ( !( $n instanceof Element && $n->hasAttribute( 'typeof' ) ) ) {
+		if ( !( $n instanceof Element ) ) {
 			return false;
 		}
-		if ( $n->getAttribute( 'typeof' ) === $type ) {
+		$attrValue = $n->getAttribute( 'typeof' );
+		if ( $attrValue === '' ) {
+			return false;
+		}
+		if ( $attrValue === $type ) {
 			return true;
 		}
 		// fallback
-		return self::matchTypeOf(
-			$n, '/^' . preg_quote( $type, '/' ) . '$/D'
-		) !== null;
+		return in_array( $type, explode( ' ', $attrValue ), true );
 	}
 
 	/**
@@ -440,9 +449,9 @@ class DOMUtils {
 	 * @param string $type type
 	 */
 	public static function addTypeOf( Element $node, string $type ): void {
-		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
-		if ( $typeOf !== '' ) {
-			$types = preg_split( '/\s+/', $typeOf );
+		$oldValue = $node->getAttribute( 'typeof' ) ?? '';
+		if ( $oldValue !== '' ) {
+			$types = explode( ' ', $oldValue );
 			if ( !in_array( $type, $types, true ) ) {
 				// not in type set yet, so add it.
 				$types[] = $type;
@@ -460,11 +469,9 @@ class DOMUtils {
 	 * @param string $type type
 	 */
 	public static function removeTypeOf( Element $node, string $type ): void {
-		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
-		if ( $typeOf !== '' ) {
-			$types = array_filter( preg_split( '/\s+/', $typeOf ), static function ( $t ) use ( $type ) {
-				return $t !== $type;
-			} );
+		$oldValue = $node->getAttribute( 'typeof' ) ?? '';
+		if ( $oldValue !== '' ) {
+			$types = array_diff( explode( ' ', $oldValue ), [ $type ] );
 			if ( count( $types ) > 0 ) {
 				$node->setAttribute( 'typeof', implode( ' ', $types ) );
 			} else {

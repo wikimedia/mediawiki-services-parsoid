@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * The `<pre>` extension tag shadows the html pre tag, but has different
@@ -50,7 +51,7 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 		// Of course, this leads to indistinguishability between n=0 and n=1
 		// newlines, but that only seems to affect parserTests output.  Rendering
 		// is the same, and the newline is preserved for rt in the `extSrc`.
-		$txt = preg_replace( '/^\n/', '', $txt, 1 );
+		$txt = PHPUtils::stripPrefix( $txt, "\n" );
 
 		// `extSrc` will take care of rt'ing these
 		$txt = Utils::decodeWtEntities( $txt );

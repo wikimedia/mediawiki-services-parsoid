@@ -226,7 +226,7 @@ abstract class Token implements \JsonSerializable {
 	public function addSpaceSeparatedAttribute( string $name, string $value ): void {
 		$curVal = $this->getAttributeKV( $name );
 		if ( $curVal !== null ) {
-			if ( preg_match( '/(?:^|\s)' . preg_quote( $value, '/' ) . '(?:\s|$)/', $curVal->v ) ) {
+			if ( in_array( $value, explode( ' ', $curVal->v ), true ) ) {
 				// value is already included, nothing to do.
 				return;
 			}

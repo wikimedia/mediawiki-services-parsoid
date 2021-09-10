@@ -69,7 +69,7 @@ class LanguageVariantHandler {
 	 * @return string
 	 */
 	private static function combine( string $flagStr, string $bodyStr, $useTrailingSemi ): string {
-		if ( !empty( $flagStr ) || preg_match( '/\|/', $bodyStr ) ) {
+		if ( !empty( $flagStr ) || str_contains( $bodyStr, '|' ) ) {
 			$flagStr .= '|';
 		}
 		if ( $useTrailingSemi !== false ) {

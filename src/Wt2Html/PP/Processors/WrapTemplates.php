@@ -1121,13 +1121,13 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				// Ex: "<ref>{{1x|bar}}<!--bad-></ref>"
 				if ( $metaType !== null &&
 					( !empty( DOMDataUtils::getDataParsoid( $elem )->tsr ) ||
-						preg_match( '#/End$#D', $metaType )
+						str_ends_with( $metaType, '/End' )
 					)
 				) {
 					$about = $elem->getAttribute( 'about' ) ?? '';
 					$aboutRef = $tpls[$about] ?? null;
 					// Is this a start marker?
-					if ( !preg_match( '#/End$#D', $metaType ) ) {
+					if ( !str_ends_with( $metaType, '/End' ) ) {
 						if ( $aboutRef ) {
 							$aboutRef->start = $elem;
 							// content or end marker existed already
@@ -1183,7 +1183,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 							// Dont get distracted by a newline node -- skip over it
 							// Unsure why it shows up occasionally
-							if ( $tbl && $tbl instanceof Text && preg_match( '/^\n$/D', $tbl->nodeValue ) ) {
+							if ( $tbl && $tbl instanceof Text && $tbl->nodeValue === "\n" ) {
 								$tbl = $tbl->nextSibling;
 							}
 

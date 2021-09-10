@@ -771,8 +771,8 @@ class DOMPostProcessor extends PipelineStage {
 
 		// Normalize before comparison
 		if (
-			preg_replace( '/_/', ' ', $env->getSiteConfig()->mainpage() ) ===
-			preg_replace( '/_/', ' ', $env->getPageConfig()->getTitle() )
+			str_replace( '_', ' ', $env->getSiteConfig()->mainpage() ) ===
+			str_replace( '_', ' ', $env->getPageConfig()->getTitle() )
 		) {
 			$this->appendToHead( $document, 'meta', [
 				'property' => 'isMainPage',

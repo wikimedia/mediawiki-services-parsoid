@@ -23,6 +23,8 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  * Generic attribute expansion handler.
  */
 class AttributeExpander extends TokenHandler {
+	private const META_TYPE_MATCHER = '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#D';
+
 	/**
 	 * Used for re-tokenizing attribute strings that need to be re-expanded
 	 * @var PegTokenizer
@@ -78,7 +80,7 @@ class AttributeExpander extends TokenHandler {
 				$type = $t->getAttribute( 'typeof' );
 				$typeMatch = [];
 				if ( $type && preg_match( $includeRE, $type, $typeMatch, PREG_UNMATCHED_AS_NULL ) ) {
-					$inInclude = !preg_match( '#/End$#D', $typeMatch[1] ?? '' );
+					$inInclude = !str_ends_with( $typeMatch[1] ?? '', '/End' );
 				}
 			} elseif ( !$inInclude && $t instanceof NlTk ) {
 				// newline token outside <*include*>
@@ -87,13 +89,6 @@ class AttributeExpander extends TokenHandler {
 		}
 
 		return -1;
-	}
-
-	/**
-	 * @return string
-	 */
-	private static function metaTypeMatcher(): string {
-		return '#(mw:(LanguageVariant|Transclusion|Param|Includes/)(.*)$)#D';
 	}
 
 	/**
@@ -125,8 +120,8 @@ class AttributeExpander extends TokenHandler {
 					// Don't trip on transclusion end tags
 					$typeMatch = [];
 					if ( $type &&
-						preg_match( self::metaTypeMatcher(), $type, $typeMatch ) &&
-						!preg_match( '#/End$#D', $typeMatch[1] )
+						preg_match( self::META_TYPE_MATCHER, $type, $typeMatch ) &&
+						!str_ends_with( $typeMatch[1], '/End' )
 					) {
 						$startMeta = $t;
 					}
@@ -204,8 +199,8 @@ class AttributeExpander extends TokenHandler {
 					// Strip all meta tags.
 					$type = $t->getAttribute( 'typeof' );
 					$typeMatch = [];
-					if ( $type && preg_match( self::metaTypeMatcher(), $type, $typeMatch ) ) {
-						if ( !preg_match( '#/End$#D', $typeMatch[1] ) ) {
+					if ( $type && preg_match( self::META_TYPE_MATCHER, $type, $typeMatch ) ) {
+						if ( !str_ends_with( $typeMatch[1], '/End' ) ) {
 							$hasGeneratedContent = true;
 						}
 					} else {
@@ -391,7 +386,7 @@ class AttributeExpander extends TokenHandler {
 							'env' => $env
 						] ) );
 						$rule = $nlTkOkay ? 'generic_newline_attributes' : 'table_attributes';
-						$kvs = preg_match( '/=/', $kStr ) ?
+						$kvs = str_contains( $kStr, '=' ) ?
 							$this->tokenizer->tokenizeAs( $kStr, $rule, /* sol */true ) : null;
 						if ( $kvs ) {
 							// At this point, templates should have been expanded.
@@ -441,7 +436,7 @@ class AttributeExpander extends TokenHandler {
 
 				// We have a potentially expanded value.
 				// Check if the value came from a template/extension expansion.
-				if ( is_string( $expandedK ) && !preg_match( '/^mw:/', $expandedK )
+				if ( is_string( $expandedK ) && !str_starts_with( $expandedK, 'mw:' )
 					&& is_array( $oldA->v )
 				) {
 					$nlTkPos = self::nlTkIndex( $nlTkOkay, $expandedV, $wrapTemplates );
@@ -656,7 +651,7 @@ class AttributeExpander extends TokenHandler {
 			// in the stream at the beginning of "TokenTransform2" (since template
 			// handling is the first step of that phase) and pass through here
 			// again.  So, ignore anything that might have already been expanded.
-			preg_match( '/mw:ExpandedAttrs/', $typeOf )
+			str_contains( $typeOf, 'mw:ExpandedAttrs' )
 		) {
 			return [ 'tokens' => [ $token ] ];
 		}

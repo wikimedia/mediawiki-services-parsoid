@@ -174,7 +174,7 @@ class ExternalLinkHandler extends TokenHandler {
 		if ( $magLinkType ) {
 			$newHref = $href;
 			$newRel = 'mw:ExtLink';
-			if ( preg_match( '#/ISBN$#', $magLinkType ) ) {
+			if ( str_ends_with( $magLinkType, '/ISBN' ) ) {
 				$newHref = $env->getSiteConfig()->relativeLinkPrefix() . $href;
 				// ISBNs use mw:WikiLink instead of mw:ExtLink
 				$newRel = 'mw:WikiLink';

@@ -96,12 +96,12 @@ class WikiLinkHandler extends TokenHandler {
 			'fromColonEscapedText' => null
 		];
 
-		if ( preg_match( '/^:/', $info->href ) ) {
+		if ( ( $info->href[0] ?? '' ) === ':' ) {
 			$info->fromColonEscapedText = true;
 			// remove the colon escape
 			$info->href = substr( $info->href, 1 );
 		}
-		if ( preg_match( '/^:/', $info->href ) ) {
+		if ( ( $info->href[0] ?? '' ) === ':' ) {
 			if ( $siteConfig->linting() ) {
 				$lint = [
 					'dsr' => DomSourceRange::fromTsr( $token->dataAttribs->tsr ),
@@ -111,10 +111,9 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $this->options['inTemplate'] ) {
 					// Match Linter.findEnclosingTemplateName(), by first
 					// converting the title to an href using env.makeLink
-					$name = preg_replace(
-						'#^\./#', '',
+					$name = PHPUtils::stripPrefix(
 						$env->makeLink( $this->manager->getFrame()->getTitle() ),
-						1
+						'./'
 					);
 					$lint['templateInfo'] = [ 'name' => $name ];
 					// TODO(arlolra): Pass tsr info to the frame
@@ -143,7 +142,8 @@ class WikiLinkHandler extends TokenHandler {
 					// Empty title => main page (T66167)
 					$info->title = $env->makeTitleFromURLDecodedStr( $siteConfig->mainpage() );
 				} else {
-					$info->href = ( preg_match( '/:/', $hrefBits['title'] ) ? ':' : '' ) . $hrefBits['title'];
+					$info->href = str_contains( $hrefBits['title'], ':' )
+						? ':' . $hrefBits['title'] : $hrefBits['title'];
 					// Recurse!
 					$info = $this->getWikiLinkTargetInfo( $token, $info->href, $info->hrefSrc );
 					$info->localprefix = $nsPrefix .
@@ -210,7 +210,7 @@ class WikiLinkHandler extends TokenHandler {
 		$r = $this->onWikiLink( $wikiLinkTk );
 		$firstToken = ( $r['tokens'][0] ?? null );
 		$isValid = $firstToken instanceof Token &&
-			preg_match( '/^(a|link)$/D', $firstToken->getName() );
+			in_array( $firstToken->getName(), [ 'a', 'link' ], true );
 		if ( $isValid ) {
 			$da = $r['tokens'][0]->dataAttribs;
 			$rlink->addNormalizedAttribute( 'href', $da->a['href'], $da->sa['href'] );
@@ -357,7 +357,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		// First check if the expanded href contains a pipe.
-		if ( preg_match( '/[|]/', $hrefTokenStr ) ) {
+		if ( str_contains( $hrefTokenStr, '|' ) ) {
 			// It does. This 'href' was templated and also returned other
 			// parameters separated by a pipe. We don't have any sane way to
 			// handle such a construct currently, so prevent people from editing
@@ -616,7 +616,7 @@ class WikiLinkHandler extends TokenHandler {
 			$morecontent = Utils::decodeURIComponent( $target->href );
 
 			// Strip leading colon
-			$morecontent = preg_replace( '/^:/', '', $morecontent, 1 );
+			$morecontent = PHPUtils::stripPrefix( $morecontent, ':' );
 
 			// Try to match labeling in core
 			if ( $env->getSiteConfig()->namespaceHasSubpages( $env->getPageConfig()->getNs() ) ) {
@@ -624,7 +624,7 @@ class WikiLinkHandler extends TokenHandler {
 				// See https://gerrit.wikimedia.org/r/173431
 				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#D', $morecontent, $match ) ) {
 					$morecontent = $match[3];
-				} elseif ( preg_match( '#^\.\./#', $morecontent ) ) {
+				} elseif ( str_starts_with( $morecontent, '../' ) ) {
 					// Subpages on interwiki / language links aren't valid,
 					// so $target->title should always be present here
 					$morecontent = $target->title->getPrefixedText();
@@ -699,7 +699,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $strContent !== '' && $strContent !== $target->href ) {
 			$hrefkv = $newTk->getAttributeKV( 'href' );
 			$hrefkv->v .= '#';
-			$hrefkv->v .= preg_replace( '/#/', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
+			$hrefkv->v .= str_replace( '#', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
 		}
 
 		if ( count( $content ) !== 1 ) {
@@ -806,8 +806,8 @@ class WikiLinkHandler extends TokenHandler {
 		// (The normalization here is similar to what Title#getPrefixedDBKey() does.)
 		if ( $target->href === '' || $target->href[0] !== '#' ) {
 			$titleAttr = $target->interwiki['prefix'] . ':' .
-				Utils::decodeURIComponent( preg_replace( '/_/', ' ',
-					preg_replace( '/#[\s\S]*/', '', $target->href, 1 ) ) );
+				Utils::decodeURIComponent( str_replace( '_', ' ',
+					preg_replace( '/#.*/s', '', $target->href, 1 ) ) );
 			$newTk->setAttribute( 'title', $titleAttr );
 		}
 		$tokens[] = $newTk;
@@ -1002,7 +1002,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $optInfo === null ) {
 			$optInfo = self::getOptionInfo( $prefix . $resultStr, $env );
 		}
-		return $optInfo !== null && preg_match( '/^(link|alt)$/D', $optInfo['ck'] );
+		return $optInfo !== null && in_array( $optInfo['ck'], [ 'link', 'alt' ], true );
 	}
 
 	/**
@@ -1057,6 +1057,7 @@ class WikiLinkHandler extends TokenHandler {
 								// become mw:maybeContent that gets expanded
 								// below where $hasExpandableOpt is set.
 								'unpackDOMFragments' => true,
+								// FIXME: Sneaking in `env` to avoid changing the signature
 								'env' => $env
 							]
 						);
@@ -1064,8 +1065,6 @@ class WikiLinkHandler extends TokenHandler {
 						// them from fragments and we're about to attempt to
 						// when this function returns.
 						// This is similar to getting the shadow "href" below.
-						// FIXME: Sneaking in `env` to avoid changing the signature
-
 						$resultStr .= preg_replace( '/\|/', '&vert;', $str, 1 );
 						$optInfo = null; // might change the nature of opt
 						continue;
@@ -1262,7 +1261,7 @@ class WikiLinkHandler extends TokenHandler {
 
 			$optInfo = null;
 			if ( is_string( $oText ) ) {
-				if ( preg_match( '/\|/', $oText ) ) {
+				if ( str_contains( $oText, '|' ) ) {
 					// Split the pipe-separated string into pieces
 					// and convert each one into a KV obj and add them
 					// to the beginning of the array. Note that this is
@@ -1642,7 +1641,7 @@ class WikiLinkHandler extends TokenHandler {
 		);
 
 		// Normalize title according to how PHP parser does it currently
-		$link->setAttribute( 'title', preg_replace( '/_/', ' ', $imgHrefFileName ) );
+		$link->setAttribute( 'title', str_replace( '_', ' ', $imgHrefFileName ) );
 
 		if ( count( $errs ) > 0 ) {
 			// Set RDFa type to mw:Error so VE and other clients

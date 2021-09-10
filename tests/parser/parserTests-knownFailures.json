@@ -162,18 +162,6 @@
     "4a. Table cells without escapable prefixes after edits": {
         "selser [manual]": "{|\n| id=\"x\" | -\n|}"
     },
-    "5a. White-space in indent-pre": {
-        "selser [[0,0,4]]": " a<br />\n 6redz2",
-        "selser [1]": " a<br />\n \n \n b",
-        "selser [[3,0,0]]": " <br />\n \n \n b",
-        "selser [[3,2,0]]": " 2ktta3<br />\n \n \n b",
-        "selser [[0,2,2]]": " ah3w411<br />\n 17okchj\n \n b",
-        "selser [[2,0,0]]": " 146g09ka<br />\n \n \n b",
-        "selser [[0,0,2]]": " a<br />\n su2t1p\n \n b",
-        "selser [[2,0,4]]": " 19o67u9a<br />\n 1oye104",
-        "selser [[3,0,4]]": " <br />\n 1ihfrmb",
-        "selser [[0,2,0]]": " ao8n78o<br />\n \n \n b"
-    },
     "6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content": {
         "wt2html": "<pre data-parsoid='{\"dsr\":[0,26,1,0]}'>a\n\n <!-- continue -->\nb</pre>\n\n<pre data-parsoid='{\"dsr\":[28,30,1,0]}'>c</pre>\n \n<p data-parsoid='{\"dsr\":[33,34,0,0]}'>d</p>",
         "html2wt": " a\n \n b\n\n c\n \n\nd\n"

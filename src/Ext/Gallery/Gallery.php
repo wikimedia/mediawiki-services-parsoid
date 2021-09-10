@@ -204,7 +204,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					// FIXME: Dry all this out with T252246 / T262833
 					if ( $ms->hasResource() ) {
 						$resource = $ms->getResource();
-						$content .= preg_replace( '#^\./#', '', $resource, 1 );
+						$content .= PHPUtils::stripPrefix( $resource, './' );
 						// FIXME: Serializing of these attributes should
 						// match the link handler so that values stashed in
 						// data-mw aren't ignored.
@@ -217,7 +217,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 						if ( $ms->hasMediaUrl() && !$ms->isRedLink() ) {
 							$href = $ms->getMediaUrl();
 							if ( $href !== $resource ) {
-								$href = preg_replace( '#^\./#', '', $href, 1 );
+								$href = PHPUtils::stripPrefix( $href, './' );
 								$content .= '|link=' .
 									$extApi->escapeWikitext( $href, $child, $extApi::IN_MEDIA );
 							}
@@ -243,7 +243,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					if ( !preg_match( '/^\s*$/D', $caption ) ) {
 						// Ensure that this only takes one line since gallery
 						// tag content is split by line
-						$caption = preg_replace( '/\n/', ' ', $caption );
+						$caption = str_replace( "\n", ' ', $caption );
 						$content .= '|' . $caption;
 					}
 				}

@@ -318,7 +318,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( DOMCompat::getClassList( $el )->contains( 'mw-json-null' ) ) {
 			return null;
 		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-boolean' ) ) {
-			return [ false, true ][preg_match( '/true/', $el->textContent )];
+			return str_contains( $el->textContent, 'true' );
 		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-number' ) ) {
 			return floatval( $el->textContent );
 		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-string' ) ) {

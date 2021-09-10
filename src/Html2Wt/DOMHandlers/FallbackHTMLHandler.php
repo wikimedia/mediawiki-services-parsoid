@@ -62,8 +62,7 @@ class FallbackHTMLHandler extends DOMHandler {
 				$lostLine = '';
 				$fc = $node->firstChild;
 				if ( $fc && DOMUtils::isText( $fc ) ) {
-					 preg_match( '/^\n/', $fc->nodeValue, $m );
-					$lostLine = $m[0] ?? '';
+					$lostLine = str_starts_with( $fc->nodeValue, "\n" ) ? "\n" : '';
 				}
 
 				if ( !$lostLine && ( DOMDataUtils::getDataParsoid( $node )->strippedNL ?? false ) ) {

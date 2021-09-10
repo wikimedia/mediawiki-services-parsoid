@@ -507,7 +507,7 @@ class DOMNormalizer {
 			!$firstChild->hasAttribute( 'class' ) &&
 			// Compare textContent to the href, noting that this matching doesn't handle all
 			// possible simple-wiki-link scenarios that isSimpleWikiLink in link handler tackles
-			$node->textContent === preg_replace( '#^\./#', '', $nodeHref, 1 )
+			$node->textContent === PHPUtils::stripPrefix( $nodeHref, './' )
 		) {
 			for ( $child = DOMUtils::firstNonDeletedChild( $node );
 				 DOMUtils::isFormattingElt( $child );
@@ -636,7 +636,7 @@ class DOMNormalizer {
 			$first = DOMUtils::firstNonDeletedChild( $node );
 			// Emit a space before escapable prefix
 			// This is preferable to serializing with a nowiki.
-			if ( DOMUtils::isText( $first ) && preg_match( '/^[\-+}]/', $first->nodeValue ) ) {
+			if ( DOMUtils::isText( $first ) && strspn( $first->nodeValue, '-+}', 0, 1 ) ) {
 				$first->nodeValue = ' ' . $first->nodeValue;
 				$this->addDiffMarks( $first, 'inserted', true );
 			}
