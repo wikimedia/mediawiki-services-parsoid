@@ -358,9 +358,9 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function updateSemanticErrorTitles( string $baseUrl, array &$titles ): void {
 		$url = $baseUrl;
-		$done = true;
 		$page = 0;
 		do {
+			$done = true;
 			$dom = DOMUtils::parseHTML( $this->makeCurlRequest( $url ) );
 			$titleRows = DOMCompat::querySelectorAll( $dom, 'tr[status=fail]' );
 			foreach ( $titleRows as $tr ) {
