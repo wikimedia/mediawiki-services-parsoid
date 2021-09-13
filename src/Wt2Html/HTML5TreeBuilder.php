@@ -177,14 +177,16 @@ class HTML5TreeBuilder extends PipelineStage {
 	}
 
 	/**
-	 * @param array $maybeAttribs
+	 * @param array $kvArr
 	 * @return array
 	 */
-	private function kvArrToAttr( array $maybeAttribs ): array {
-		return array_reduce( $maybeAttribs, static function ( $prev, $next ) {
-			$prev[$next->k] = $next->v;
-			return $prev;
-		}, [] );
+	private function kvArrToAttr( array $kvArr ): array {
+		$attribs = [];
+		foreach ( $kvArr as $kv ) {
+			$attribs[$kv->k] = $kv->v;
+
+		}
+		return $attribs;
 	}
 
 	/**

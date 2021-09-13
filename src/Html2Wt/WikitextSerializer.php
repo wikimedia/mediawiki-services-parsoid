@@ -794,9 +794,12 @@ class WikitextSerializer {
 		$argIndex = 1;
 		$numericIndex = 1;
 
-		$numPositionalArgs = array_reduce( $dpArgInfo, static function ( $n, $pi ) use ( $part ) {
-			return ( isset( $part->params->{$pi->k} ) && empty( $pi->named ) ) ? $n + 1 : $n;
-		}, 0 );
+		$numPositionalArgs = 0;
+		foreach ( $dpArgInfo as $pi ) {
+			if ( isset( $part->params->{$pi->k} ) && empty( $pi->named ) ) {
+				$numPositionalArgs++;
+			}
+		}
 
 		$argBuf = [];
 		foreach ( $argOrder as $param ) {

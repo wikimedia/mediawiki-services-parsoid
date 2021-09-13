@@ -166,19 +166,19 @@ class LanguageVariantHandler extends TokenHandler {
 				'show' => true
 			];
 		} else {
-			$dataMWV = array_reduce( $flags, static function ( array $dmwv, string $f ) use ( &$sawFlagA ) {
+			$dataMWV = [];
+			foreach ( $flags as $f ) {
 				if ( array_key_exists( $f, WikitextConstants::$LCFlagMap ) ) {
 					if ( WikitextConstants::$LCFlagMap[$f] ) {
-						$dmwv[WikitextConstants::$LCFlagMap[$f]] = true;
+						$dataMWV[WikitextConstants::$LCFlagMap[$f]] = true;
 						if ( $f === 'A' ) {
 							$sawFlagA = true;
 						}
 					}
 				} else {
-					$dmwv['error'] = true;
+					$dataMWV['error'] = true;
 				}
-				return $dmwv;
-			}, [] );
+			}
 			// (this test is done at the top of ConverterRule::getRuleConvertedStr)
 			// (also partially in ConverterRule::parse)
 			if ( count( $texts ) === 1 &&

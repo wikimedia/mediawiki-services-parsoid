@@ -786,9 +786,10 @@ class ParsoidExtensionAPI {
 			return null;
 		};
 
-		$imageWt = array_reduce( $pieces, static function ( $c, $p ) {
-			return $c . ( is_string( $p ) ? $p : $p[0] );
-		}, '' );
+		$imageWt = '';
+		foreach ( $pieces as $p ) {
+			$imageWt .= ( is_string( $p ) ? $p : $p[0] );
+		}
 
 		$domFragment = $this->wikitextToDOM(
 			$imageWt,
