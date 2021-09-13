@@ -1253,7 +1253,7 @@ class TestRunner {
 				$testKnownFailures,
 				JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES |
 				JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE
-			);
+			) . "\n";
 			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
 				file_put_contents( $this->knownFailuresPath, $contents );
 			} elseif ( $allModes && $offsetType === 'byte' ) {
