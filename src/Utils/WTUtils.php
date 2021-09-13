@@ -821,12 +821,12 @@ class WTUtils {
 			$type = $data->{'-type'} ?? '';
 			if ( str_starts_with( $type, 'mw:' ) ) {
 				$meta = $node->ownerDocument->createElement( 'meta' );
-				foreach ( $data->attrs as $attr ) {
+				foreach ( $data->attrs as $key => $value ) {
 					try {
-						$meta->setAttribute( ...$attr );
+						$meta->setAttribute( $key, $value );
 					} catch ( \Exception $e ) {
 						$env->log( 'warn', 'prepareDOM: Dropped invalid attribute',
-							PHPUtils::jsonEncode( $attr )
+							$key, '=>', $value
 						);
 					}
 				}
