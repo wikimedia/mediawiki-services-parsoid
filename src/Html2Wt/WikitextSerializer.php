@@ -1225,20 +1225,8 @@ class WikitextSerializer {
 				}
 			}
 
-			if ( DiffUtils::onlySubtreeChanged( $node, $this->env )
-				&& WTSUtils::hasValidTagWidths( $dp->dsr ?? null )
-				// In general, we want to avoid nodes with auto-inserted
-				// start/end tags since dsr for them might not be entirely
-				// trustworthy. But, since wikitext does not have closing tags
-				// for tr/td/th in the first place, dsr for them can be trusted.
-				//
-				// SSS FIXME: I think this is only for b/i tags for which we do
-				// dsr fixups. It may be okay to use this for other tags.
-				&& ( ( empty( $dp->autoInsertedStart ) && empty( $dp->autoInsertedEnd ) )
-					|| preg_match( '/^(td|th|tr)$/D', DOMCompat::nodeName( $node ) ) )
-			) {
-				$wrapperUnmodified = true;
-			}
+			$wrapperUnmodified = DiffUtils::onlySubtreeChanged( $node, $this->env ) &&
+				WTSUtils::hasValidTagWidths( $dp->dsr ?? null );
 		}
 
 		$state->currNodeUnmodified = false;
