@@ -58,7 +58,7 @@ class OnlyInclude extends TokenHandler {
 	 * @param Token $token
 	 * @return TokenHandlerResult
 	 */
-	private function onOnlyInclude( Token $token ) {
+	private function onOnlyInclude( Token $token ): TokenHandlerResult {
 		$tsr = $token->dataAttribs->tsr;
 		$src = empty( $this->options['inTemplate'] )
 			? $token->getWTSource( $this->manager->getFrame() )
@@ -73,9 +73,9 @@ class OnlyInclude extends TokenHandler {
 
 	/**
 	 * @param Token|array $token
-	 * @return TokenHandlerResult
+	 * @return TokenHandlerResult|null
 	 */
-	private function onAnyInclude( $token ) {
+	private function onAnyInclude( $token ): ?TokenHandlerResult {
 		$tagName = null;
 		$isTag = null;
 		$meta = null;

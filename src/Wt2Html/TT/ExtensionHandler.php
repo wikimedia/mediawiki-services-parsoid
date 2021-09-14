@@ -91,7 +91,7 @@ class ExtensionHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return TokenHandlerResult
 	 */
-	private function onExtension( Token $token ) {
+	private function onExtension( Token $token ): TokenHandlerResult {
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
 		$pageConfig = $env->getPageConfig();

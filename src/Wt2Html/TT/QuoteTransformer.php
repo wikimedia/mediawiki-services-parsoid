@@ -156,7 +156,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param Token $token token
 	 * @return TokenHandlerResult
 	 */
-	private function onQuote( Token $token ) {
+	private function onQuote( Token $token ): TokenHandlerResult {
 		$v = $token->getAttribute( 'value' );
 		$qlen = strlen( $v );
 		$this->env->log(
@@ -186,7 +186,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @param Token $token token
 	 * @return TokenHandlerResult|null
 	 */
-	private function processQuotes( Token $token ) {
+	private function processQuotes( Token $token ): ?TokenHandlerResult {
 		if ( !$this->onAnyEnabled ) {
 			// Nothing to do, quick abort.
 			return null;

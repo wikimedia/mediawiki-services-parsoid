@@ -59,9 +59,9 @@ class DOMFragmentBuilder extends TokenHandler {
 
 	/**
 	 * @param Token $scopeToken
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 */
-	private function buildDOMFragment( Token $scopeToken ) {
+	private function buildDOMFragment( Token $scopeToken ): TokenHandlerResult {
 		$contentKV = $scopeToken->getAttributeKV( 'content' );
 		$content = $contentKV->v;
 		if ( is_string( $content ) ||

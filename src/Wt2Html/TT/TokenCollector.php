@@ -159,7 +159,7 @@ abstract class TokenCollector extends TokenHandler {
 	 * @param Token|string $token
 	 * @return TokenHandlerResult
 	 */
-	private function onAnyToken( $token ) {
+	private function onAnyToken( $token ): TokenHandlerResult {
 		// Simply collect anything ordinary in between
 		$this->scopeStack[count( $this->scopeStack ) - 1][] = $token;
 		return new TokenHandlerResult( [] );

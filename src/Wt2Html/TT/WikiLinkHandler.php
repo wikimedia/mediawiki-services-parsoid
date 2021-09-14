@@ -178,10 +178,10 @@ class WikiLinkHandler extends TokenHandler {
 	 * Handle mw:redirect tokens
 	 *
 	 * @param Token $token
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 * @throws InternalException
 	 */
-	private function onRedirect( Token $token ): ?TokenHandlerResult {
+	private function onRedirect( Token $token ): TokenHandlerResult {
 		// Avoid duplicating the link-processing code by invoking the
 		// standard onWikiLink handler on the embedded link, intercepting
 		// the generated tokens using the callback mechanism, reading
@@ -319,10 +319,10 @@ class WikiLinkHandler extends TokenHandler {
 	 * Handle a mw:WikiLink token.
 	 *
 	 * @param Token $token
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 * @throws InternalException
 	 */
-	private function onWikiLink( Token $token ): ?TokenHandlerResult {
+	private function onWikiLink( Token $token ): TokenHandlerResult {
 		$env = $this->env;
 		$hrefKV = $token->getAttributeKV( 'href' );
 		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
@@ -389,10 +389,12 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param Token $token
 	 * @param stdClass $target
 	 * @param bool $isRedirect
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 * @throws InternalException
 	 */
-	private function wikiLinkHandler( Token $token, stdClass $target, bool $isRedirect ) {
+	private function wikiLinkHandler(
+		Token $token, stdClass $target, bool $isRedirect
+	): TokenHandlerResult {
 		$title = $target->title ?? null;
 		if ( $title ) {
 			if ( $isRedirect ) {
@@ -737,9 +739,9 @@ class WikiLinkHandler extends TokenHandler {
 	 *
 	 * @param Token $token
 	 * @param stdClass $target
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 */
-	private function renderLanguageLink( Token $token, stdClass $target ): ?TokenHandlerResult {
+	private function renderLanguageLink( Token $token, stdClass $target ): TokenHandlerResult {
 		// The prefix is listed in the interwiki map
 
 		$newTk = new SelfclosingTagTk( 'link', [], $token->dataAttribs );
@@ -776,9 +778,9 @@ class WikiLinkHandler extends TokenHandler {
 	 *
 	 * @param Token $token
 	 * @param stdClass $target
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 */
-	private function renderInterwikiLink( Token $token, stdClass $target ): ?TokenHandlerResult {
+	private function renderInterwikiLink( Token $token, stdClass $target ): TokenHandlerResult {
 		// The prefix is listed in the interwiki map
 
 		$tokens = [];
@@ -993,8 +995,9 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param string $resultStr
 	 * @return bool
 	 */
-	private static function isWikitextOpt( Env $env, ?array &$optInfo, string $prefix,
-											  string $resultStr ): bool {
+	private static function isWikitextOpt(
+		Env $env, ?array &$optInfo, string $prefix, string $resultStr
+	): bool {
 		// link and alt options are allowed to contain arbitrary
 		// wikitext (even though only strings are supported in reality)
 		// SSS FIXME: Is this actually true of all options rather than
@@ -1148,7 +1151,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param array $opts
 	 * @return string|null
 	 */
-	private static function getFormat( array $opts ) {
+	private static function getFormat( array $opts ): ?string {
 		if ( $opts['manualthumb'] ) {
 			return 'thumbnail';
 		}
@@ -1203,7 +1206,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param stdClass $target
 	 * @return TokenHandlerResult
 	 */
-	private function renderFile( Token $token, stdClass $target ) {
+	private function renderFile( Token $token, stdClass $target ): TokenHandlerResult {
 		$manager = $this->manager;
 		$env = $this->env;
 
@@ -1613,9 +1616,9 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param stdClass $target
 	 * @param array $errs
 	 * @param array $info
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 */
-	private function linkToMedia( Token $token, stdClass $target, array $errs, array $info ): ?TokenHandlerResult {
+	private function linkToMedia( Token $token, stdClass $target, array $errs, array $info ): TokenHandlerResult {
 		// Only pass in the url, since media links should not link to the thumburl
 		$imgHref = $info['url']; // Copied from getPath
 		$imgHrefFileName = preg_replace( '#.*/#', '', $imgHref, 1 );
@@ -1674,7 +1677,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @param stdClass $target
 	 * @return TokenHandlerResult
 	 */
-	private function renderMedia( Token $token, stdClass $target ) {
+	private function renderMedia( Token $token, stdClass $target ): TokenHandlerResult {
 		$env = $this->env;
 		$title = $target->title;
 		$errs = [];

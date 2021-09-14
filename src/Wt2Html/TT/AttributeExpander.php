@@ -608,7 +608,7 @@ class AttributeExpander extends TokenHandler {
 	 * @param Token $token Token whose attrs being expanded.
 	 * @return TokenHandlerResult
 	 */
-	public function processComplexAttributes( Token $token ) {
+	public function processComplexAttributes( Token $token ): TokenHandlerResult {
 		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
 			'expandTemplates' => $this->options['expandTemplates'],
 			'inTemplate' => $this->options['inTemplate']

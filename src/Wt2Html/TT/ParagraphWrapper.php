@@ -294,7 +294,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @param Token $token token
 	 * @return TokenHandlerResult
 	 */
-	private function onNewlineOrEOF( Token $token ) {
+	private function onNewlineOrEOF( Token $token ): TokenHandlerResult {
 		$this->env->log( 'trace/p-wrap', $this->pipelineId, 'NL    |',
 			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );

@@ -28,7 +28,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 	 * @param Token $token
 	 * @return TokenHandlerResult
 	 */
-	public function onBehaviorSwitch( Token $token ) {
+	public function onBehaviorSwitch( Token $token ): TokenHandlerResult {
 		$env = $this->env;
 		$magicWord = $env->getSiteConfig()->magicWordCanonicalName( $token->attribs[0]->v );
 		$env->setVariable( $magicWord, true );

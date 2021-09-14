@@ -233,7 +233,7 @@ class TemplateHandler extends TokenHandler {
 	 * @param string $prefix
 	 * @return bool
 	 */
-	private function isSafeSubst( $prefix ) {
+	private function isSafeSubst( $prefix ): bool {
 		if ( $this->safeSubstRegex === null ) {
 			$this->safeSubstRegex = $this->env->getSiteConfig()->getMagicWordMatcher( 'safesubst' );
 		}
@@ -1408,9 +1408,9 @@ class TemplateHandler extends TokenHandler {
 	 * processes the template.
 	 *
 	 * @param Token $token
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 */
-	private function onTemplate( Token $token ): ?TokenHandlerResult {
+	private function onTemplate( Token $token ): TokenHandlerResult {
 		// If the template name is templated, use the attribute transform manager
 		// to process all attributes to tokens, and force reprocessing of the token.
 		if ( self::hasTemplateToken( $token->attribs[0]->k ) ) {
@@ -1568,9 +1568,9 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Expand template arguments with tokens from the containing frame.
 	 * @param Token $token
-	 * @return TokenHandlerResult|null
+	 * @return TokenHandlerResult
 	 */
-	private function onTemplateArg( Token $token ): ?TokenHandlerResult {
+	private function onTemplateArg( Token $token ): TokenHandlerResult {
 		$args = $this->manager->getFrame()->getArgs()->named();
 		$attribs = $token->attribs;
 

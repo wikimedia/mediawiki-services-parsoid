@@ -247,9 +247,9 @@ class ListHandler extends TokenHandler {
 	 * Handle a list item
 	 *
 	 * @param Token $token
-	 * @return TokenHandlerResult
+	 * @return TokenHandlerResult|null
 	 */
-	private function onListItem( Token $token ) {
+	private function onListItem( Token $token ): ?TokenHandlerResult {
 		if ( $token instanceof TagTk ) {
 			$this->onAnyEnabled = true;
 			if ( $this->currListFrame ) {

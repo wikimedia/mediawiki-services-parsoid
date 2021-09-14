@@ -138,7 +138,7 @@ abstract class TokenHandler {
 	 * @param array|null $opts
 	 * @return array
 	 */
-	public function process( $tokens, array $opts = null ) {
+	public function process( $tokens, array $opts = null ): array {
 		$traceState = $this->manager->getTraceState();
 		$profile = $traceState['profile'] ?? null;
 		$accum = [];
