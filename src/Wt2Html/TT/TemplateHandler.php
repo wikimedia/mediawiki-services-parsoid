@@ -331,7 +331,7 @@ class TemplateHandler extends TokenHandler {
 					// case insensitively
 					$prefixPos = stripos( $firstTok, $prefix );
 					if ( $prefixPos !== false ) {
-						$firstTok = substr_replace( $firstTok, '', $prefixPos, strlen( $prefix ) );
+						$firstTok = substr( $firstTok, $prefixPos + strlen( $prefix ) );
 					}
 				}
 				$targetToks = array_slice( $targetToks, $index + 1 );
