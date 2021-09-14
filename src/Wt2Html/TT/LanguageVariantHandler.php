@@ -41,7 +41,7 @@ class LanguageVariantHandler extends TokenHandler {
 		$t = PHPUtils::stripPrefix( $t, 'mw:lv' );
 		$srcOffsets = $attribs[$t]->srcOffsets;
 		$domFragment = PipelineUtils::processContentInPipeline(
-			$manager->env, $manager->getFrame(), array_merge( $attribs[$t]->v, [ new EOFTk() ] ),
+			$this->env, $manager->getFrame(), array_merge( $attribs[$t]->v, [ new EOFTk() ] ),
 			[
 				'pipelineType' => 'tokens/x-mediawiki/expanded',
 				'pipelineOpts' => [

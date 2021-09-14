@@ -123,14 +123,14 @@ class SanitizerHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
-		$env = $this->manager->env;
-		$env->log( 'trace/sanitizer', $this->manager->pipelineId, static function () use ( $token ) {
+		$env = $this->env;
+		$env->log( 'trace/sanitizer', $this->pipelineId, static function () use ( $token ) {
 			return PHPUtils::jsonEncode( $token );
 		} );
 
 		// Pass through a transparent line meta-token
 		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-			$env->log( 'trace/sanitizer', $this->manager->pipelineId, '--unchanged--' );
+			$env->log( 'trace/sanitizer', $this->pipelineId, '--unchanged--' );
 			return [ 'tokens' => [ $token ] ];
 		}
 
@@ -138,7 +138,7 @@ class SanitizerHandler extends TokenHandler {
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
 		);
 
-		$env->log( 'trace/sanitizer', $this->manager->pipelineId, static function () use ( $token ) {
+		$env->log( 'trace/sanitizer', $this->pipelineId, static function () use ( $token ) {
 			return ' ---> ' . PHPUtils::jsonEncode( $token );
 		} );
 		return [ 'tokens' => [ $token ] ];

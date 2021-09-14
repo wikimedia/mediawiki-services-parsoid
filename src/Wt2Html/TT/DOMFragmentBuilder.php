@@ -93,7 +93,7 @@ class DOMFragmentBuilder extends TokenHandler {
 
 			// Process tokens
 			$domFragment = PipelineUtils::processContentInPipeline(
-				$this->manager->env,
+				$this->env,
 				$this->manager->getFrame(),
 				// Append EOF
 				$content,
@@ -106,7 +106,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			);
 
 			$toks = PipelineUtils::tunnelDOMThroughTokens(
-				$this->manager->env,
+				$this->env,
 				$scopeToken,
 				$domFragment,
 				[ "pipelineOpts" => $pipelineOpts ]

@@ -84,7 +84,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ) {
-		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
+		$this->env->log( 'trace/tsp', $this->pipelineId,
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			}
@@ -147,7 +147,8 @@ class TokenStreamPatcher extends TokenHandler {
 				// All of these need uniform handling. To be addressed separately
 				// if this proves to be a real problem on production pages.
 				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'template' ) {
-					$t = $this->templateHandler->processSpecialMagicWord( $this->atTopLevel, $t ) ?? [ $t ];
+					$t = $this->templateHandler->processSpecialMagicWord(
+						$this->atTopLevel, $t ) ?? [ $t ];
 				} else {
 					$t = [ $t ];
 				}
@@ -182,7 +183,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
-		$this->manager->env->log( 'trace/tsp', $this->manager->pipelineId,
+		$this->env->log( 'trace/tsp', $this->pipelineId,
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
@@ -211,7 +212,7 @@ class TokenStreamPatcher extends TokenHandler {
 							// XXX: The string begins with table start syntax,
 							// we really shouldn't be here.  Anything else on the
 							// line would get swallowed up as attributes.
-							$this->manager->env->log( 'error', 'Failed to tokenize table start tag.' );
+							$this->env->log( 'error', 'Failed to tokenize table start tag.' );
 							$this->clearSOL();
 						} else {
 							TokenUtils::shiftTokenTSR( $retoks, $this->srcOffset );

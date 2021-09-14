@@ -4,7 +4,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
@@ -61,6 +60,16 @@ class TokenTransformManager extends PipelineStage {
 					);
 				}
 			];
+		}
+	}
+
+	/**
+	 * @param int $id
+	 */
+	public function setPipelineId( int $id ): void {
+		parent::setPipelineId( $id );
+		foreach ( $this->transformers as $transformer ) {
+			$transformer->setPipelineId( $id );
 		}
 	}
 
@@ -132,17 +141,9 @@ class TokenTransformManager extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function resetState( array $opts ): void {
+		parent::resetState( $opts );
 		foreach ( $this->transformers as $transformer ) {
 			$transformer->resetState( $opts );
-		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setSourceOffsets( SourceRange $so ): void {
-		foreach ( $this->transformers as $transformer ) {
-			$transformer->setSourceOffsets( $so );
 		}
 	}
 
@@ -154,7 +155,6 @@ class TokenTransformManager extends PipelineStage {
 	 * @return array Returns the array of processed tokens
 	 */
 	public function process( $tokens, ?array $opts = null ): array {
-		'@phan-var array $tokens'; // @var array $tokens
 		return $this->processChunk( $tokens );
 	}
 

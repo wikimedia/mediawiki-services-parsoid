@@ -84,7 +84,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @throws InternalException
 	 */
 	private function getWikiLinkTargetInfo( Token $token, string $href, string $hrefSrc ): stdClass {
-		$env = $this->manager->env;
+		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
 		$info = (object)[
 			'href' => $href,
@@ -323,7 +323,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @throws InternalException
 	 */
 	private function onWikiLink( Token $token ) {
-		$env = $this->manager->env;
+		$env = $this->env;
 		$hrefKV = $token->getAttributeKV( 'href' );
 		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
 
@@ -519,7 +519,7 @@ class WikiLinkHandler extends TokenHandler {
 		$dataAttribs = $token->dataAttribs;
 		$newAttrData = self::buildLinkAttrs( $attribs, true, null, [ new KV( 'rel', 'mw:WikiLink' ) ] );
 		$content = $newAttrData['contentKVs'];
-		$env = $this->manager->env;
+		$env = $this->env;
 
 		// Set attribs and dataAttribs
 		$newTk->attribs = $newAttrData['attribs'];
@@ -687,7 +687,7 @@ class WikiLinkHandler extends TokenHandler {
 		} catch ( InternalException $e ) {
 			return [ 'tokens' => self::bailTokens( $this->env, $token, false ) ];
 		}
-		$env = $this->manager->env;
+		$env = $this->env;
 
 		// Change the rel to be mw:PageProp/Category
 		$newTk->getAttributeKV( 'rel' )->v = 'mw:PageProp/Category';
@@ -708,7 +708,7 @@ class WikiLinkHandler extends TokenHandler {
 			$contentKV = $token->getAttributeKV( 'mw:maybeContent' );
 			$so = $contentKV->valueOffset();
 			$val = PipelineUtils::expandValueToDOM(
-				$this->manager->env,
+				$this->env,
 				$this->manager->getFrame(),
 				[ 'html' => $content, 'srcOffsets' => $so ],
 				$this->options['expandTemplates'],
@@ -1205,7 +1205,7 @@ class WikiLinkHandler extends TokenHandler {
 	 */
 	private function renderFile( Token $token, stdClass $target ) {
 		$manager = $this->manager;
-		$env = $manager->env;
+		$env = $this->env;
 
 		// FIXME: Re-enable use of media cache and figure out how that fits
 		// into this new processing model. See T98995
@@ -1562,7 +1562,7 @@ class WikiLinkHandler extends TokenHandler {
 				}
 				// Parse the caption
 				$captionDOM = PipelineUtils::processContentInPipeline(
-					$this->manager->env,
+					$this->env,
 					$this->manager->getFrame(),
 					array_merge( $optsCaption['v'], [ new EOFTk() ] ),
 					[
@@ -1675,7 +1675,7 @@ class WikiLinkHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function renderMedia( Token $token, stdClass $target ) {
-		$env = $this->manager->env;
+		$env = $this->env;
 		$title = $target->title;
 		$errs = [];
 		$temp2 = AddMediaInfo::requestInfo( $env, $title->getKey(), [

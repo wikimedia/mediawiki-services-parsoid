@@ -130,9 +130,9 @@ class QuoteTransformer extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
-		$this->manager->env->log(
+		$this->env->log(
 			"trace/quote",
-			$this->manager->pipelineId,
+			$this->pipelineId,
 			"ANY |",
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -159,9 +159,9 @@ class QuoteTransformer extends TokenHandler {
 	private function onQuote( Token $token ): array {
 		$v = $token->getAttribute( 'value' );
 		$qlen = strlen( $v );
-		$this->manager->env->log(
+		$this->env->log(
 			"trace/quote",
-			$this->manager->pipelineId,
+			$this->pipelineId,
 			"QUOTE |",
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -192,9 +192,9 @@ class QuoteTransformer extends TokenHandler {
 			return $token;
 		}
 
-		$this->manager->env->log(
+		$this->env->log(
 			"trace/quote",
-			$this->manager->pipelineId,
+			$this->pipelineId,
 			"NL    |",
 			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -276,9 +276,9 @@ class QuoteTransformer extends TokenHandler {
 		// PORT-FIXME: Is there a more efficient way of doing this?
 		$res = [ "tokens" => array_flatten( $this->chunks ) ];
 
-		$this->manager->env->log(
+		$this->env->log(
 			"trace/quote",
-			$this->manager->pipelineId,
+			$this->pipelineId,
 			"----->",
 			static function () use ( $res ) {
 				return PHPUtils::jsonEncode( $res["tokens"] );

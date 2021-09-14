@@ -3,39 +3,36 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Generator;
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2Html\PipelineStage;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
-/**
- * Currently, all token handlers are managed by the TokenTransformManager,
- * but that is just a carryover from the JS codebase. We could probably
- * get rid of TokenTransformManager and inline all the TokenHandlers into
- * parser pipeline, if we wanted to.
- *
- * But, effectively, all the token handlers happen to actually extend
- * pipeline stage functionality and it makes sense to declare that inheritance.
- */
-abstract class TokenHandler extends PipelineStage {
+abstract class TokenHandler {
+	/** @var Env */
+	protected $env;
+	/** @var TokenTransformManager */
 	protected $manager;
+	/** @var int|null */
+	protected $pipelineId;
 	/** @var array */
 	protected $options;
 	/** @var bool */
 	protected $disabled;
 	/** @var bool */
 	protected $onAnyEnabled;
+	/** @var bool */
+	protected $atTopLevel = false;
 
 	/**
 	 * @param TokenTransformManager $manager The manager for this stage of the parse.
 	 * @param array $options Any options for the expander.
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
-		parent::__construct( $manager->env );
 		$this->manager = $manager;
+		$this->env = $manager->getEnv();
 		$this->options = $options;
 
 		// Initialize a few options to simplify checks elsewhere
@@ -49,6 +46,22 @@ abstract class TokenHandler extends PipelineStage {
 		// in the token stream based on what is encountered.
 		// This only enables/disables the onAny handler.
 		$this->onAnyEnabled = true;
+	}
+
+	/**
+	 * @param int $id
+	 */
+	public function setPipelineId( int $id ): void {
+		$this->pipelineId = $id;
+	}
+
+	/**
+	 * Resets any internal state for this token handler.
+	 *
+	 * @param array $options
+	 */
+	public function resetState( array $options ): void {
+		$this->atTopLevel = $options['toplevel'] ?? false;
 	}
 
 	/**
@@ -138,11 +151,11 @@ abstract class TokenHandler extends PipelineStage {
 	/**
 	 * Push an input array of tokens through the transformer
 	 * and return the transformed tokens
-	 * @inheritDoc
+	 * @param array $tokens
+	 * @param array|null $opts
 	 * @return array
 	 */
 	public function process( $tokens, array $opts = null ) {
-		'@phan-var array $tokens'; // @var array $tokens
 		$traceState = $this->manager->getTraceState();
 		$profile = $traceState['profile'] ?? null;
 		$accum = [];
@@ -241,14 +254,5 @@ abstract class TokenHandler extends PipelineStage {
 		}
 
 		return $accum;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function processChunkily( $input, ?array $options ): Generator {
-		throw new \BadMethodCallException(
-			"Token handlers don't currently support additional chunked processing."
-		);
 	}
 }

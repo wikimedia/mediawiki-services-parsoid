@@ -199,7 +199,7 @@ class PreHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function encounteredBlockWhileCollecting( Token $token ): array {
-		$env = $this->manager->env;
+		$env = $this->env;
 		$ret = [];
 		$mlp = null;
 
@@ -313,9 +313,9 @@ class PreHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ): array {
-		$env = $this->manager->env;
+		$env = $this->env;
 
-		$env->log( 'trace/pre', $this->manager->pipelineId, 'NL    |',
+		$env->log( 'trace/pre', $this->pipelineId, 'NL    |',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -367,8 +367,8 @@ class PreHandler extends TokenHandler {
 				break;
 		}
 
-		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
-		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
+		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
+		$env->log( 'debug/pre', $this->pipelineId, '---->  ',
 			static function () use ( $ret ) {
 				return PHPUtils::jsonEncode( $ret );
 			}
@@ -381,7 +381,7 @@ class PreHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ) {
-		$this->manager->env->log( 'trace/pre', $this->manager->pipelineId, 'eof   |',
+		$this->env->log( 'trace/pre', $this->pipelineId, 'eof   |',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -408,8 +408,8 @@ class PreHandler extends TokenHandler {
 				break;
 		}
 
-		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
-		$this->manager->env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
+		$this->env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
+		$this->env->log( 'debug/pre', $this->pipelineId, '---->  ',
 			static function () use ( $ret ){
 				return PHPUtils::jsonEncode( $ret );
 			}
@@ -443,9 +443,9 @@ class PreHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ) {
-		$env = $this->manager->env;
+		$env = $this->env;
 
-		$env->log( 'trace/pre', $this->manager->pipelineId, 'any   |', $this->state, ':',
+		$env->log( 'trace/pre', $this->pipelineId, 'any   |', $this->state, ':',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -536,8 +536,8 @@ class PreHandler extends TokenHandler {
 				break;
 		}
 
-		$env->log( 'debug/pre', $this->manager->pipelineId, 'saved :', $this->tokens );
-		$env->log( 'debug/pre', $this->manager->pipelineId, '---->  ',
+		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
+		$env->log( 'debug/pre', $this->pipelineId, '---->  ',
 			static function () use ( $ret ) {
 				return PHPUtils::jsonEncode( $ret );
 			}

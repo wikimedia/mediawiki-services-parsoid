@@ -562,7 +562,7 @@ class AttributeExpander extends TokenHandler {
 
 			// Expand all token arrays to DOM.
 			$eVals = PipelineUtils::expandValuesToDOM(
-				$this->manager->env, $this->manager->getFrame(), $vals,
+				$this->env, $this->manager->getFrame(), $vals,
 				$this->options['expandTemplates'],
 				$this->options['inTemplate']
 			);
@@ -588,7 +588,7 @@ class AttributeExpander extends TokenHandler {
 				$token->dataAttribs->tmp->templatedAttribs = $expAttrs;
 			} else {
 				// Mark token as having expanded attrs.
-				$token->addAttribute( 'about', $this->manager->env->newAboutId() );
+				$token->addAttribute( 'about', $this->env->newAboutId() );
 				$token->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 				$token->addAttribute( 'data-mw', PHPUtils::jsonEncode( [ 'attribs' => $expAttrs ] ) );
 			}

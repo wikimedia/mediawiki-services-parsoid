@@ -67,7 +67,7 @@ class ExternalLinkHandler extends TokenHandler {
 	 * @return bool
 	 */
 	private function hasImageLink( string $href ): bool {
-		$allowedPrefixes = $this->manager->env->getSiteConfig()->allowedExternalImagePrefixes();
+		$allowedPrefixes = $this->env->getSiteConfig()->allowedExternalImagePrefixes();
 		$bits = explode( '.', $href );
 		$hasImageExtension = count( $bits ) > 1 &&
 			self::imageExtensions( end( $bits ) ) &&
@@ -94,7 +94,7 @@ class ExternalLinkHandler extends TokenHandler {
 	private function onUrlLink( Token $token ) {
 		$tagAttrs = null;
 		$builtTag = null;
-		$env = $this->manager->env;
+		$env = $this->env;
 		$origHref = $token->getAttribute( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$dataAttribs = Utils::clone( $token->dataAttribs );
@@ -156,7 +156,7 @@ class ExternalLinkHandler extends TokenHandler {
 	private function onExtLink( Token $token ) {
 		$newAttrs = null;
 		$aStart = null;
-		$env = $this->manager->env;
+		$env = $this->env;
 		$origHref = $token->getAttribute( 'href' );
 		$hasExpandedAttrs = TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' );
 		$href = TokenUtils::tokensToString( $origHref );

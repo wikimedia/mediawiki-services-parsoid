@@ -76,7 +76,7 @@ abstract class TokenCollector extends TokenHandler {
 			if ( count( $this->scopeStack ) === 0 ) {
 				$this->onAnyEnabled = true;
 				// Set up transforms
-				$this->manager->env->log( 'debug', 'starting collection on ', $token );
+				$this->env->log( 'debug', 'starting collection on ', $token );
 			}
 
 			// Push a new scope
@@ -90,7 +90,7 @@ abstract class TokenCollector extends TokenHandler {
 			return $this->transformation( [ $token, $token ] );
 		} elseif ( $haveOpenTag ) {
 			// EOFTk or EndTagTk
-			$this->manager->env->log( 'debug', 'finishing collection on ', $token );
+			$this->env->log( 'debug', 'finishing collection on ', $token );
 
 			// Pop top scope and push token onto it
 			$activeTokens = array_pop( $this->scopeStack );
@@ -124,7 +124,7 @@ abstract class TokenCollector extends TokenHandler {
 					if ( count( $res['tokens'] )
 						&& !( PHPUtils::lastItem( $res['tokens'] ) instanceof EOFTk )
 					) {
-						$this->manager->env->log( 'error', $this::name(), 'handler dropped the EOFTk!' );
+						$this->env->log( 'error', $this::name(), 'handler dropped the EOFTk!' );
 
 						// preserve the EOFTk
 						$res['tokens'][] = $token;

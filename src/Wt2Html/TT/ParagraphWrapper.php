@@ -159,7 +159,7 @@ class ParagraphWrapper extends TokenHandler {
 			PHPUtils::pushArray( $res, $this->currLine['tokens'] );
 			$this->resetCurrLine();
 		}
-		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', static function () use( $res ) {
+		$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ', static function () use( $res ) {
 			return PHPUtils::jsonEncode( $res );
 		} );
 		return $res;
@@ -180,7 +180,7 @@ class ParagraphWrapper extends TokenHandler {
 		$resToks = $this->tokenBuffer;
 		$this->resetBuffers();
 		PHPUtils::pushArray( $resToks, $this->nlWsTokens );
-		$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
+		$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ',
 			static function () use( $resToks ) {
 				return PHPUtils::jsonEncode( $resToks );
 			} );
@@ -295,7 +295,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @return array
 	 */
 	private function onNewlineOrEOF( Token $token ): array {
-		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'NL    |',
+		$this->env->log( 'trace/p-wrap', $this->pipelineId, 'NL    |',
 			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
@@ -319,7 +319,7 @@ class ParagraphWrapper extends TokenHandler {
 			$this->closeOpenPTag( $this->tokenBuffer );
 			$res = $this->processPendingNLs();
 			$this->reset();
-			$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ', static function () use( $res ) {
+			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ', static function () use( $res ) {
 				return PHPUtils::jsonEncode( $res );
 			} );
 			return [ 'tokens' => $res, 'skipOnAny' => true ];
@@ -344,7 +344,7 @@ class ParagraphWrapper extends TokenHandler {
 		$newLineCount = $this->newLineCount;
 		$nlTk = null;
 
-		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, '        NL-count: ',
+		$this->env->log( 'trace/p-wrap', $this->pipelineId, '        NL-count: ',
 			$newLineCount );
 
 		if ( $newLineCount >= 2 && !$this->inBlockElem ) {
@@ -396,7 +396,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): array {
-		$this->manager->env->log( 'trace/p-wrap', $this->manager->pipelineId, 'ANY   |',
+		$this->env->log( 'trace/p-wrap', $this->pipelineId, 'ANY   |',
 			static function () use( $token ) {
 				return PHPUtils::jsonEncode( $token );
 			} );
@@ -436,7 +436,7 @@ class ParagraphWrapper extends TokenHandler {
 				$this->inPre = false;
 				$this->currLine['blockTagSeen'] = true;
 				$this->currLine['blockTagOpen'] = false;
-				$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
+				$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ',
 					static function () use( $token ) {
 						return PHPUtils::jsonEncode( $token );
 					} );
@@ -445,7 +445,7 @@ class ParagraphWrapper extends TokenHandler {
 				return [ 'tokens' => $res, 'skipOnAny' => true ];
 			}
 		} elseif ( $token instanceof EOFTk || $this->inPre ) {
-			$this->env->log( 'trace/p-wrap', $this->manager->pipelineId, '---->  ',
+			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ',
 				static function () use( $token ) {
 					return PHPUtils::jsonEncode( $token );
 				}
