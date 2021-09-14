@@ -42,23 +42,23 @@ class OnlyInclude extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ) {
-		return !empty( $this->options['isInclude'] ) ? $this->onAnyInclude( $token ) : $token;
+	public function onAny( $token ): ?TokenHandlerResult {
+		return !empty( $this->options['isInclude'] ) ? $this->onAnyInclude( $token ) : null;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ) {
+	public function onTag( Token $token ): ?TokenHandlerResult {
 		return empty( $this->options['isInclude'] ) && $token->getName() === 'onlyinclude' ?
-			$this->onOnlyInclude( $token ) : $token;
+			$this->onOnlyInclude( $token ) : null;
 	}
 
 	/**
 	 * @param Token $token
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
-	private function onOnlyInclude( Token $token ): array {
+	private function onOnlyInclude( Token $token ) {
 		$tsr = $token->dataAttribs->tsr;
 		$src = empty( $this->options['inTemplate'] )
 			? $token->getWTSource( $this->manager->getFrame() )
@@ -68,12 +68,12 @@ class OnlyInclude extends TokenHandler {
 				( ( $token instanceof EndTagTk ) ? '/End' : '' ) )
 		];
 		$meta = new SelfclosingTagTk( 'meta', $attribs, (object)[ 'tsr' => $tsr, 'src' => $src ] );
-		return [ 'tokens' => [ $meta ] ];
+		return new TokenHandlerResult( [ $meta ] );
 	}
 
 	/**
 	 * @param Token|array $token
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
 	private function onAnyInclude( $token ) {
 		$tagName = null;
@@ -87,11 +87,11 @@ class OnlyInclude extends TokenHandler {
 				$res = $this->accum;
 				$res[] = $token;
 				$this->accum = [];
-				return [ 'tokens' => $res ];
+				return new TokenHandlerResult( $res );
 			} else {
 				$this->foundOnlyInclude = false;
 				$this->accum = [];
-				return [ 'tokens' => [ $token ] ];
+				return null;
 			}
 		}
 
@@ -122,13 +122,13 @@ class OnlyInclude extends TokenHandler {
 				$meta = TokenCollector::buildMetaToken( $this->manager, $tagName,
 					$tc === 'EndTagTk', $token->dataAttribs->tsr ?? null, '' );
 			}
-			return [ 'tokens' => [ $meta ] ];
+			return new TokenHandlerResult( [ $meta ] );
 		} else {
 			if ( $this->inOnlyInclude ) {
-				return [ 'tokens' => [ $token ] ];
+				return null;
 			} else {
 				$this->accum[] = $token;
-				return [];
+				return new TokenHandlerResult( [] );
 			}
 		}
 	}

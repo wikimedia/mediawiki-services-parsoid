@@ -52,9 +52,9 @@ class IncludeOnly extends TokenCollector {
 
 	/**
 	 * @param array $collection
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
-	protected function transformation( array $collection ): array {
+	protected function transformation( array $collection ): TokenHandlerResult {
 		$start = array_shift( $collection );
 
 		// Handle self-closing tag case specially!
@@ -71,8 +71,7 @@ class IncludeOnly extends TokenCollector {
 				$token->addAttribute( 'data-mw', $datamw );
 			}
 			return ( $this->options['isInclude'] ) ?
-			[ 'tokens' => [] ] :
-			[ 'tokens' => [ $token ] ];
+				new TokenHandlerResult( [] ) : new TokenHandlerResult( [ $token ] );
 		}
 
 		$tokens = [];
@@ -115,6 +114,6 @@ class IncludeOnly extends TokenCollector {
 			$tokens[] = $end;
 		}
 
-		return [ 'tokens' => $tokens ];
+		return new TokenHandlerResult( $tokens );
 	}
 }

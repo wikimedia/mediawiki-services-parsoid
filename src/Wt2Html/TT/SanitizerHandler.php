@@ -33,6 +33,8 @@ class SanitizerHandler extends TokenHandler {
 	/**
 	 * Sanitize a token.
 	 *
+	 * If the token is unmodified, return null.
+	 *
 	 * XXX: Make attribute sanitation reversible by storing round-trip info in
 	 * token.dataAttribs object (which is serialized as JSON in a data-parsoid
 	 * attribute in the DOM).
@@ -41,7 +43,7 @@ class SanitizerHandler extends TokenHandler {
 	 * @param Frame $frame
 	 * @param Token|string $token
 	 * @param bool $inTemplate
-	 * @return Token|string
+	 * @return Token|string|null
 	 */
 	private function sanitizeToken(
 		SiteConfig $siteConfig, Frame $frame, $token, bool $inTemplate
@@ -78,7 +80,10 @@ class SanitizerHandler extends TokenHandler {
 			} else {
 				$token = '</' . $token->getName() . '>';
 			}
-		} elseif ( $attribs && count( $attribs ) > 0 ) {
+			return $token;
+		}
+
+		if ( $attribs && count( $attribs ) > 0 ) {
 			// Sanitize attributes
 			if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
 				$newAttrs = Sanitizer::sanitizeTagAttrs( $siteConfig, null, $token, $attribs );
@@ -105,9 +110,10 @@ class SanitizerHandler extends TokenHandler {
 				// EndTagTk, drop attributes
 				$token->attribs = [];
 			}
+			return $token;
 		}
 
-		return $token;
+		return null;
 	}
 
 	/**
@@ -122,7 +128,10 @@ class SanitizerHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ) {
+	public function onAny( $token ): ?TokenHandlerResult {
+		if ( is_string( $token ) ) {
+			return null;
+		}
 		$env = $this->env;
 		$env->log( 'trace/sanitizer', $this->pipelineId, static function () use ( $token ) {
 			return PHPUtils::jsonEncode( $token );
@@ -131,7 +140,7 @@ class SanitizerHandler extends TokenHandler {
 		// Pass through a transparent line meta-token
 		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
 			$env->log( 'trace/sanitizer', $this->pipelineId, '--unchanged--' );
-			return [ 'tokens' => [ $token ] ];
+			return null;
 		}
 
 		$token = $this->sanitizeToken(
@@ -141,6 +150,6 @@ class SanitizerHandler extends TokenHandler {
 		$env->log( 'trace/sanitizer', $this->pipelineId, static function () use ( $token ) {
 			return ' ---> ' . PHPUtils::jsonEncode( $token );
 		} );
-		return [ 'tokens' => [ $token ] ];
+		return $token === null ? null : new TokenHandlerResult( [ $token ] );
 	}
 }

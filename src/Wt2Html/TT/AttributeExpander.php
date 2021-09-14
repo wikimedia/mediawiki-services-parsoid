@@ -240,9 +240,9 @@ class AttributeExpander extends TokenHandler {
 	 * Callback for attribute expansion in AttributeTransformManager
 	 * @param Token $token
 	 * @param KV[] $expandedAttrs
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
-	private function buildExpandedAttrs( Token $token, array $expandedAttrs ): array {
+	private function buildExpandedAttrs( Token $token, array $expandedAttrs ) {
 		// If we're not in a template, we'll be doing template wrapping in dom
 		// post-processing (same conditional there), so take care of meta markers
 		// found while processing tokens.
@@ -594,11 +594,11 @@ class AttributeExpander extends TokenHandler {
 			}
 		}
 
-		// Retry this pass if we expanded templates in $token's attributes
-		$retry = count( $metaTokens ) > 0;
-		$metaTokens[] = $token;
-
-		return [ 'tokens' => array_merge( $metaTokens, $postNLToks ), 'retry' => $retry ];
+		return new TokenHandlerResult(
+			array_merge( $metaTokens, [ $token ], $postNLToks ),
+			// Retry this pass if we expanded templates in $token's attributes
+			count( $metaTokens ) > 0
+		);
 	}
 
 	/**
@@ -606,9 +606,9 @@ class AttributeExpander extends TokenHandler {
 	 * (Ex: Templated styles)
 	 *
 	 * @param Token $token Token whose attrs being expanded.
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
-	public function processComplexAttributes( Token $token ): array {
+	public function processComplexAttributes( Token $token ) {
 		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
 			'expandTemplates' => $this->options['expandTemplates'],
 			'inTemplate' => $this->options['inTemplate']
@@ -624,14 +624,14 @@ class AttributeExpander extends TokenHandler {
 	 * (Ex: Templated styles)
 	 *
 	 * @param Token|string $token Token whose attrs being expanded.
-	 * @return array
+	 * @return TokenHandlerResult|null
 	 */
-	public function onAny( $token ): array {
+	public function onAny( $token ): ?TokenHandlerResult {
 		if (
 			!( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) ||
 			!count( $token->attribs )
 		) {
-			return [ 'tokens' => [ $token ] ];
+			return null;
 		}
 
 		$name = $token->getName();
@@ -653,7 +653,7 @@ class AttributeExpander extends TokenHandler {
 			// again.  So, ignore anything that might have already been expanded.
 			str_contains( $typeOf, 'mw:ExpandedAttrs' )
 		) {
-			return [ 'tokens' => [ $token ] ];
+			return null;
 		}
 
 		return $this->processComplexAttributes( $token );

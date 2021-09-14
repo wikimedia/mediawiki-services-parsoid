@@ -51,9 +51,9 @@ class NoInclude extends TokenCollector {
 
 	/**
 	 * @param array $collection
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
-	protected function transformation( array $collection ): array {
+	protected function transformation( array $collection ): TokenHandlerResult {
 		$start = array_shift( $collection );
 		$sc = TokenUtils::getTokenType( $start );
 
@@ -61,15 +61,21 @@ class NoInclude extends TokenCollector {
 		if ( $sc === 'EndTagTk' ) {
 			$meta = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
 				true, ( $start->dataAttribs->tsr ?? null ), null );
-			return [ 'tokens' => [ $meta ] ];
+			return new TokenHandlerResult( [ $meta ] );
 		}
 
 		// Handle self-closing tag case specially!
 		if ( $sc === 'SelfclosingTagTk' ) {
 			return ( $this->options['isInclude'] ) ?
-			[ 'tokens' => [] ] :
-			[ 'tokens' => [ TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
-				false, ( $start->dataAttribs->tsr ?? null ), null ) ] ];
+				new TokenHandlerResult( [] ) :
+				new TokenHandlerResult( [
+					TokenCollector::buildMetaToken(
+						$this->manager,
+						'mw:Includes/NoInclude',
+						false,
+						( $start->dataAttribs->tsr ?? null ),
+						null )
+				] );
 		}
 
 		$tokens = [];
@@ -100,6 +106,6 @@ class NoInclude extends TokenCollector {
 			$tokens[] = $end;
 		}
 
-		return [ 'tokens' => $tokens ];
+		return new TokenHandlerResult( $tokens );
 	}
 }

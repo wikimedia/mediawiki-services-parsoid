@@ -83,7 +83,7 @@ class TokenStreamPatcher extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onNewline( NlTk $token ) {
+	public function onNewline( NlTk $token ): ?TokenHandlerResult {
 		$this->env->log( 'trace/tsp', $this->pipelineId,
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -92,13 +92,13 @@ class TokenStreamPatcher extends TokenHandler {
 		$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
 		$this->sol = true;
 		$this->tokenBuf[] = $token;
-		return [ 'tokens' => [] ];
+		return new TokenHandlerResult( [] );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onEnd( EOFTk $token ) {
+	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
 		$res = $this->onAny( $token );
 		$this->reset();
 		return $res;
@@ -182,7 +182,7 @@ class TokenStreamPatcher extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ) {
+	public function onAny( $token ): ?TokenHandlerResult {
 		$this->env->log( 'trace/tsp', $this->pipelineId,
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -197,7 +197,7 @@ class TokenStreamPatcher extends TokenHandler {
 				// white-space as well.
 				if ( count( $this->tokenBuf ) > 0 && preg_match( '/^\s*$/D', $token ) ) {
 					$this->tokenBuf[] = $token;
-					return [ 'tokens' => [] ];
+					return new TokenHandlerResult( [] );
 				}
 
 				// TRICK #1:
@@ -247,7 +247,7 @@ class TokenStreamPatcher extends TokenHandler {
 					) {
 						// Swallow the token and clear the marker
 						$this->lastConvertedTableCellToken = null;
-						return [ 'tokens' => [] ];
+						return new TokenHandlerResult( [] );
 					} elseif (
 						count( $this->tokenBuf ) > 0 &&
 						TokenUtils::hasTypeOf( $token, 'mw:Transclusion' )
@@ -255,7 +255,7 @@ class TokenStreamPatcher extends TokenHandler {
 						// If we have buffered newlines, we might very well encounter
 						// a category link, so continue buffering.
 						$this->tokenBuf[] = $token;
-						return [ 'tokens' => [] ];
+						return new TokenHandlerResult( [] );
 					}
 				} elseif ( $token->getName() === 'link' &&
 					$token->getAttribute( 'rel' ) === 'mw:PageProp/Category'
@@ -346,6 +346,6 @@ class TokenStreamPatcher extends TokenHandler {
 			$tokens = array_merge( $this->tokenBuf, $tokens );
 			$this->tokenBuf = [];
 		}
-		return [ 'tokens' => $tokens ];
+		return new TokenHandlerResult( $tokens );
 	}
 }

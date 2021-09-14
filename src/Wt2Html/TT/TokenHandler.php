@@ -75,27 +75,21 @@ abstract class TokenHandler {
 	/**
 	 * This handler is called for EOF tokens only
 	 * @param EOFTk $token EOF token to be processed
-	 * @return EOFTk|array
-	 *    return value can be one of 'token'
-	 *    or { tokens: [..] }
-	 *    or { tokens: [..], skip: .. }
-	 *    if 'skip' is set, onAny handler is skipped
+	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 *   indicate that the input token is unchanged.
 	 */
-	public function onEnd( EOFTk $token ) {
-		return $token;
+	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
+		return null;
 	}
 
 	/**
 	 * This handler is called for newline tokens only
 	 * @param NlTk $token Newline token to be processed
-	 * @return NlTk|array
-	 *    return value can be one of 'token'
-	 *    or { tokens: [..] }
-	 *    or { tokens: [..], skip: .. }
-	 *    if 'skip' is set, onAny handler is skipped
+	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 *   indicate that the input token is unchanged.
 	 */
-	public function onNewline( NlTk $token ) {
-		return $token;
+	public function onNewline( NlTk $token ): ?TokenHandlerResult {
+		return null;
 	}
 
 	/**
@@ -104,17 +98,11 @@ abstract class TokenHandler {
 	 * For example, a list handler may only process 'listitem' TagTk tokens.
 	 *
 	 * @param Token $token Token to be processed
-	 * @return Token|array
-	 *    return value can be one of 'token'
-	 *    or { tokens: [..] }
-	 *    or { tokens: [..], skip: .. }
-	 *       if 'skip' is set, onAny handler is skipped
-	 *    or { tokens: [..], retry: .. }
-	 *       if 'retry' is set, result 'tokens' (OR input token if the handler was a no-op)
-	 *       are retried in the transform loop again.
+	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 *   indicate that the input token is unchanged.
 	 */
-	public function onTag( Token $token ) {
-		return $token;
+	public function onTag( Token $token ): ?TokenHandlerResult {
+		return null;
 	}
 
 	/**
@@ -126,26 +114,21 @@ abstract class TokenHandler {
 	 *     of the handlers).
 	 *
 	 * @param Token|string $token Token to be processed
-	 * @return Token|array
-	 *    return value can be one of 'token'
-	 *    or { tokens: [..] }
-	 *    or { tokens: [..], retry: .. }
-	 *       if 'retry' is set, result 'tokens' (OR input token if the handler was a no-op)
-	 *       are retried in the transform loop again.
+	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 *   indicate that the input token is unchanged.
 	 */
-	public function onAny( $token ) {
-		return $token;
+	public function onAny( $token ): ?TokenHandlerResult {
+		return null;
 	}
 
 	/**
 	 * @param mixed $token
-	 * @param mixed $res
+	 * @param TokenHandlerResult $res
 	 * @return bool
 	 */
 	private function isModified( $token, $res ): bool {
-		return $res !== $token && (
-			!isset( $res['tokens'] ) || count( $res['tokens'] ) !== 1 || $res['tokens'][0] !== $token
-		);
+		return $res->tokens !== null
+			&& $res->tokens !== [ $token ];
 	}
 
 	/**
@@ -183,7 +166,7 @@ abstract class TokenHandler {
 					$traceName = $traceState['transformer'] . '.onTag';
 				} else {
 					$traceName = null;
-					$res = $token;
+					$res = null;
 				}
 				if ( $traceName ) {
 					$t = PHPUtils::getHRTimeDifferential( $s );
@@ -199,23 +182,23 @@ abstract class TokenHandler {
 				} elseif ( !is_string( $token ) ) {
 					$res = $this->onTag( $token );
 				} else {
-					$res = $token;
+					$res = null;
 				}
 			}
 
 			// onTag handler might return a retry signal
-			if ( is_array( $res ) && !empty( $res['retry'] ) ) {
-				if ( isset( $res['tokens'] ) ) {
-					array_splice( $tokens, $i, 1, $res['tokens'] );
+			if ( $res && $res->retry ) {
+				if ( $res->tokens !== null ) {
+					array_splice( $tokens, $i, 1, $res->tokens );
 					$n = count( $tokens );
 				}
 				continue;
 			}
 
-			$modified = $this->isModified( $token, $res );
+			$modified = $res && $this->isModified( $token, $res );
 			if ( $modified ) {
-				$resTokens = $res['tokens'] ?? null;
-			} elseif ( $this->onAnyEnabled && ( !is_array( $res ) || empty( $res['skipOnAny'] ) ) ) {
+				$resTokens = $res->tokens;
+			} elseif ( $this->onAnyEnabled && ( !$res || !$res->skipOnAny ) ) {
 				if ( $profile ) {
 					$s = PHPUtils::getStartHRTime();
 					$traceName = $traceState['transformer'] . '.onAny';
@@ -229,17 +212,17 @@ abstract class TokenHandler {
 				}
 
 				// onAny handler might return a retry signal
-				if ( is_array( $res ) && !empty( $res['retry'] ) ) {
-					if ( isset( $res['tokens'] ) ) {
-						array_splice( $tokens, $i, 1, $res['tokens'] );
+				if ( $res && $res->retry ) {
+					if ( $res->tokens !== null ) {
+						array_splice( $tokens, $i, 1, $res->tokens );
 						$n = count( $tokens );
 					}
 					continue;
 				}
 
-				$modified = $this->isModified( $token, $res );
+				$modified = $res && $this->isModified( $token, $res );
 				if ( $modified ) {
-					$resTokens = $res['tokens'] ?? null;
+					$resTokens = $res->tokens;
 				}
 			}
 

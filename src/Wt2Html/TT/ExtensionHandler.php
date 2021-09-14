@@ -89,9 +89,9 @@ class ExtensionHandler extends TokenHandler {
 
 	/**
 	 * @param Token $token
-	 * @return array
+	 * @return TokenHandlerResult
 	 */
-	private function onExtension( Token $token ): array {
+	private function onExtension( Token $token ) {
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
 		$pageConfig = $env->getPageConfig();
@@ -139,13 +139,13 @@ class ExtensionHandler extends TokenHandler {
 					$toks = $this->onDocumentFragment(
 						$nativeExt, $token, $domFragment, $errors
 					);
-					return( [ 'tokens' => $toks ] );
+					return new TokenHandlerResult( $toks );
 				} else {
 					// The extension dropped this instance completely (!!)
 					// Should be a rarity and presumably the extension
 					// knows what it is doing. Ex: nested refs are dropped
 					// in some scenarios.
-					return [ 'tokens' => [] ];
+					return new TokenHandlerResult( [] );
 				}
 			}
 			// Fall through: this extension is electing not to use
@@ -192,7 +192,7 @@ class ExtensionHandler extends TokenHandler {
 				$nativeExt, $token, $domFragment, []
 			);
 		}
-		return( [ 'tokens' => $toks ] );
+		return new TokenHandlerResult( $toks );
 	}
 
 	/**
@@ -314,7 +314,7 @@ class ExtensionHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ) {
-		return $token->getName() === 'extension' ? $this->onExtension( $token ) : $token;
+	public function onTag( Token $token ): ?TokenHandlerResult {
+		return $token->getName() === 'extension' ? $this->onExtension( $token ) : null;
 	}
 }

@@ -312,7 +312,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onNewline( NlTk $token ): array {
+	public function onNewline( NlTk $token ): ?TokenHandlerResult {
 		$env = $this->env;
 
 		$env->log( 'trace/pre', $this->pipelineId, 'NL    |',
@@ -326,7 +326,6 @@ class PreHandler extends TokenHandler {
 		// the newline's tsr->end.  This will later be  used
 		// to assign 'tsr' values to the <pre> token.
 
-		$ret = [];
 		// See TokenHandler's documentation for the onAny handler
 		// for what this flag is about.
 		$skipOnAny = false;
@@ -345,6 +344,7 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_PRE_COLLECT:
+				$ret = [];
 				$this->resetPreCollectCurrentLine();
 				$this->lastNlTk = $token;
 				$this->state = self::STATE_MULTILINE_PRE;
@@ -360,11 +360,15 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_IGNORE:
-				$ret = [ $token ];
+				$ret = null;
 				$skipOnAny = true;
 				$this->reset();
 				$this->preTSR = self::initPreTSR( $token );
 				break;
+
+			default:
+				// probably unreachable but makes phan happy
+				$ret = [];
 		}
 
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
@@ -374,13 +378,13 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return [ 'tokens' => $ret, 'skipOnAny' => $skipOnAny ];
+		return new TokenHandlerResult( $ret, false, $skipOnAny );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onEnd( EOFTk $token ) {
+	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
 		$this->env->log( 'trace/pre', $this->pipelineId, 'eof   |',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
@@ -388,7 +392,6 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		$ret = [];
 		switch ( $this->state ) {
 			case self::STATE_SOL:
 			case self::STATE_PRE:
@@ -404,8 +407,12 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_IGNORE:
-				$ret[] = $token;
+				$ret = null;
 				break;
+
+			default:
+				// Probably unreachable but makes phan happy
+				$ret = [];
 		}
 
 		$this->env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
@@ -415,7 +422,7 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return [ 'tokens' => $ret, 'skipOnAny' => true ];
+		return new TokenHandlerResult( $ret, false, true );
 	}
 
 	/**
@@ -442,7 +449,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ) {
+	public function onAny( $token ): ?TokenHandlerResult {
 		$env = $this->env;
 
 		$env->log( 'trace/pre', $this->pipelineId, 'any   |', $this->state, ':',
@@ -456,7 +463,7 @@ class PreHandler extends TokenHandler {
 			$env->log( 'error', static function () use ( $token ) {
 				return '!ERROR! IGNORE! Cannot get here: ' . PHPUtils::jsonEncode( $token );
 			} );
-			return $token;
+			return null;
 		}
 
 		$ret = [];
@@ -543,6 +550,6 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return [ 'tokens' => $ret ];
+		return new TokenHandlerResult( $ret );
 	}
 }

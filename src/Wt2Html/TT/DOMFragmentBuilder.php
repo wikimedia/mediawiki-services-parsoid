@@ -59,7 +59,7 @@ class DOMFragmentBuilder extends TokenHandler {
 
 	/**
 	 * @param Token $scopeToken
-	 * @return array|null
+	 * @return TokenHandlerResult|null
 	 */
 	private function buildDOMFragment( Token $scopeToken ) {
 		$contentKV = $scopeToken->getAttributeKV( 'content' );
@@ -68,7 +68,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			$this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) )
 		) {
 			// New pipeline not needed. Pass them through
-			return [ 'tokens' => is_string( $content ) ? [ $content ] : $content ];
+			return new TokenHandlerResult( is_string( $content ) ? [ $content ] : $content );
 		} else {
 			// Source offsets of content
 			$srcOffsets = $contentKV->srcOffsets;
@@ -112,15 +112,15 @@ class DOMFragmentBuilder extends TokenHandler {
 				[ "pipelineOpts" => $pipelineOpts ]
 			);
 
-			return [ 'tokens' => $toks ];
+			return new TokenHandlerResult( $toks );
 		}
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ) {
+	public function onTag( Token $token ): ?TokenHandlerResult {
 		return $token->getName() === 'mw:dom-fragment-token' ?
-			$this->buildDOMFragment( $token ) : $token;
+			$this->buildDOMFragment( $token ) : null;
 	}
 }
