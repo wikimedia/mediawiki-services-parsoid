@@ -407,8 +407,7 @@ class ParagraphWrapper extends TokenHandler {
 			if ( $this->inBlockElem || $this->inBlockquote ) {
 				$this->undoIndentPre = true;
 				if ( $this->newLineCount === 0 ) {
-					return new TokenHandlerResult(
-						$this->flushBuffers( ' ' ), false, true );
+					return new TokenHandlerResult( $this->flushBuffers( ' ' ) );
 				} else {
 					$this->nlWsTokens[] = ' ';
 					return new TokenHandlerResult( [] );
@@ -424,8 +423,7 @@ class ParagraphWrapper extends TokenHandler {
 				$this->currLine['blockTagSeen'] = true;
 				$this->currLine['blockTagOpen'] = true;
 				// skip ensures this doesn't hit the AnyHandler
-				return new TokenHandlerResult(
-					$this->processBuffers( $token, true ), false, true );
+				return new TokenHandlerResult( $this->processBuffers( $token, true ) );
 			}
 		} elseif ( $token instanceof EndTagTk && $token->getName() === 'pre' &&
 			!TokenUtils::isHTMLTag( $token )
@@ -443,8 +441,7 @@ class ParagraphWrapper extends TokenHandler {
 						return PHPUtils::jsonEncode( $token );
 					} );
 				$res = [ $token ];
-				// skip ensures this doesn't hit the AnyHandler
-				return new TokenHandlerResult( $res, false, true );
+				return new TokenHandlerResult( $res );
 			}
 		} elseif ( $token instanceof EOFTk || $this->inPre ) {
 			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ',
@@ -453,8 +450,7 @@ class ParagraphWrapper extends TokenHandler {
 				}
 			 );
 			$res = [ $token ];
-			// skip ensures this doesn't hit the AnyHandler
-			return new TokenHandlerResult( $res, false, true );
+			return new TokenHandlerResult( $res );
 		} elseif ( $token instanceof CommentTk
 			|| is_string( $token ) && preg_match( '/^[\t ]*$/D', $token )
 			|| TokenUtils::isEmptyLineMetaToken( $token )
@@ -462,7 +458,7 @@ class ParagraphWrapper extends TokenHandler {
 			if ( $this->newLineCount === 0 ) {
 				// Since we have no pending newlines to trip us up,
 				// no need to buffer -- just flush everything
-				return new TokenHandlerResult( $this->flushBuffers( $token ), false, true );
+				return new TokenHandlerResult( $this->flushBuffers( $token ) );
 			} else {
 				// We are in buffering mode waiting till we are ready to
 				// process pending newlines.
@@ -478,7 +474,7 @@ class ParagraphWrapper extends TokenHandler {
 			if ( $this->newLineCount === 0 ) {
 				// Since we have no pending newlines to trip us up,
 				// no need to buffer -- just flush everything
-				return new TokenHandlerResult( $this->flushBuffers( $token ), false, true );
+				return new TokenHandlerResult( $this->flushBuffers( $token ) );
 			} elseif ( $this->newLineCount === 1 ) {
 				// Swallow newline, whitespace, comments, and the current line
 				PHPUtils::pushArray( $this->tokenBuffer, $this->nlWsTokens );
@@ -491,8 +487,7 @@ class ParagraphWrapper extends TokenHandler {
 				$this->currLine['tokens'][] = $token;
 				return new TokenHandlerResult( [] );
 			} else {
-				return new TokenHandlerResult(
-					$this->processBuffers( $token, false ), false, true );
+				return new TokenHandlerResult( $this->processBuffers( $token, false ) );
 			}
 		} else {
 			if ( !is_string( $token ) ) {
@@ -513,8 +508,7 @@ class ParagraphWrapper extends TokenHandler {
 				}
 			}
 			$this->currLine['hasWrappableTokens'] = true;
-			return new TokenHandlerResult(
-				$this->processBuffers( $token, false ), false, true );
+			return new TokenHandlerResult( $this->processBuffers( $token, false ) );
 		}
 	}
 }

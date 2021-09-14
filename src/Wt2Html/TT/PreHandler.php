@@ -260,7 +260,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Process a pre
 	 *
-	 * @param Token|string $token
+	 * @param Token|string|null $token
 	 * @return array
 	 */
 	private function processPre( $token ): array {
@@ -328,17 +328,14 @@ class PreHandler extends TokenHandler {
 
 		// See TokenHandler's documentation for the onAny handler
 		// for what this flag is about.
-		$skipOnAny = false;
 		switch ( $this->state ) {
 			case self::STATE_SOL:
 				$ret = $this->getResultAndReset( $token );
-				$skipOnAny = true;
 				$this->preTSR = self::initPreTSR( $token );
 				break;
 
 			case self::STATE_PRE:
 				$ret = $this->getResultAndReset( $token );
-				$skipOnAny = true;
 				$this->preTSR = self::initPreTSR( $token );
 				$this->state = self::STATE_SOL;
 				break;
@@ -354,14 +351,12 @@ class PreHandler extends TokenHandler {
 				$this->preWSToken = null;
 				$this->multiLinePreWSToken = null;
 				$ret = $this->processPre( $token );
-				$skipOnAny = true;
 				$this->preTSR = self::initPreTSR( $token );
 				$this->state = self::STATE_SOL;
 				break;
 
 			case self::STATE_IGNORE:
 				$ret = null;
-				$skipOnAny = true;
 				$this->reset();
 				$this->preTSR = self::initPreTSR( $token );
 				break;
@@ -378,7 +373,7 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return new TokenHandlerResult( $ret, false, $skipOnAny );
+		return new TokenHandlerResult( $ret, false, true );
 	}
 
 	/**

@@ -268,7 +268,7 @@ class ListHandler extends TokenHandler {
 			// convert listItem to list and list item tokens
 			$res = $this->doListItem( $this->currListFrame->bstack, $token->getAttribute( 'bullets' ),
 				$token );
-			return new TokenHandlerResult( $res, false, true );
+			return new TokenHandlerResult( $res );
 		}
 
 		$this->env->log( 'trace/list', $this->pipelineId, 'RET: ', $token );
