@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -46,7 +45,7 @@ class TDHandler extends DOMHandler {
 		);
 		$inWideTD = (bool)preg_match( '/\|\||^{{!}}{{!}}/', $tdTag );
 		$leadingSpace = $this->getLeadingSpace( $state, $node, '' );
-		WTSUtils::emitStartTag( $tdTag . $leadingSpace, $node, $state );
+		$state->emitChunk( $tdTag . $leadingSpace, $node );
 		$tdHandler = static function ( $state, $text, $opts ) use ( $node, $inWideTD ) {
 			return $state->serializer->wteHandlers->tdHandler( $node, $inWideTD, $state, $text, $opts );
 		};

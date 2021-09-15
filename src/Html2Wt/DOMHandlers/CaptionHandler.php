@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
@@ -26,7 +25,7 @@ class CaptionHandler extends DOMHandler {
 			$dp->startTagSrc ?? '|+', null, $state, $node,
 			$wrapperUnmodified
 		);
-		WTSUtils::emitStartTag( $tableTag, $node, $state );
+		$state->emitChunk( $tableTag, $node );
 		$state->serializeChildren( $node );
 		return $node->nextSibling;
 	}

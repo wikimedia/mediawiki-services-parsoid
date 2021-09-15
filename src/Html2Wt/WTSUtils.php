@@ -160,44 +160,6 @@ class WTSUtils {
 	}
 
 	/**
-	 * Emit the start tag source when not round-trip testing, or when the node is
-	 * not marked with autoInsertedStart.
-	 *
-	 * @param string $src
-	 * @param Element $node
-	 * @param SerializerState $state
-	 * @param bool $dontEmit
-	 * @return bool
-	 */
-	public static function emitStartTag(
-		string $src, Element $node, SerializerState $state, bool $dontEmit = false
-	): bool {
-		if ( !$dontEmit ) {
-			$state->emitChunk( $src, $node );
-		}
-		return true;
-	}
-
-	/**
-	 * Emit the end tag source when not round-trip testing, or when the node is
-	 * not marked with autoInsertedEnd.
-	 *
-	 * @param string $src
-	 * @param Element $node
-	 * @param SerializerState $state
-	 * @param bool $dontEmit
-	 * @return bool
-	 */
-	public static function emitEndTag(
-		string $src, Element $node, SerializerState $state, bool $dontEmit = false
-	): bool {
-		if ( !$dontEmit ) {
-			$state->emitChunk( $src, $node );
-		}
-		return true;
-	}
-
-	/**
 	 * In wikitext, did origNode occur next to a block node which has been
 	 * deleted? While looking for next, we look past DOM nodes that are
 	 * transparent in rendering. (See emitsSolTransparentSingleLineWT for

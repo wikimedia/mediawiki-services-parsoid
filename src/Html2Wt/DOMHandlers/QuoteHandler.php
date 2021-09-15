@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class QuoteHandler extends DOMHandler {
@@ -27,22 +26,20 @@ class QuoteHandler extends DOMHandler {
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
 		if ( $this->precedingQuoteEltRequiresEscape( $node ) ) {
-			WTSUtils::emitStartTag( '<nowiki/>', $node, $state );
+			$state->emitChunk( '<nowiki/>', $node );
 		}
-		WTSUtils::emitStartTag( $this->quotes, $node, $state );
+		$state->emitChunk( $this->quotes, $node );
 
-		if ( !$node->hasChildNodes() ) {
+		if ( $node->hasChildNodes() ) {
+			$state->serializeChildren( $node );
+		} else {
 			// Empty nodes like <i></i> or <b></b> need
 			// a <nowiki/> in place of the empty content so that
 			// they parse back identically.
-			if ( WTSUtils::emitEndTag( $this->quotes, $node, $state, true ) ) {
-				WTSUtils::emitStartTag( '<nowiki/>', $node, $state );
-				WTSUtils::emitEndTag( $this->quotes, $node, $state );
-			}
-		} else {
-			$state->serializeChildren( $node );
-			WTSUtils::emitEndTag( $this->quotes, $node, $state );
+			$state->emitChunk( '<nowiki/>', $node );
 		}
+
+		$state->emitChunk( $this->quotes, $node );
 		return $node->nextSibling;
 	}
 

@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -26,12 +25,12 @@ class TRHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		if ( $this->trWikitextNeeded( $node, $dp ) ) {
-			WTSUtils::emitStartTag(
+			$state->emitChunk(
 				$this->serializeTableTag(
 					$dp->startTagSrc ?? '|-', '', $state,
 					$node, $wrapperUnmodified
 				),
-				$node, $state
+				$node
 			);
 		}
 

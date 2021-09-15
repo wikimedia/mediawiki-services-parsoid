@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -36,7 +35,7 @@ class FallbackHTMLHandler extends DOMHandler {
 		$serializer->handleLIHackIfApplicable( $node );
 
 		$tag = $serializer->serializeHTMLTag( $node, $wrapperUnmodified );
-		WTSUtils::emitStartTag( $tag, $node, $state );
+		$state->emitChunk( $tag, $node );
 
 		if ( $node->hasChildNodes() ) {
 			$inPHPBlock = $state->inPHPBlock;
@@ -77,7 +76,7 @@ class FallbackHTMLHandler extends DOMHandler {
 		}
 
 		$endTag = $serializer->serializeHTMLEndTag( $node, $wrapperUnmodified );
-		WTSUtils::emitEndTag( $endTag, $node, $state );
+		$state->emitChunk( $endTag, $node );
 		return $node->nextSibling;
 	}
 }

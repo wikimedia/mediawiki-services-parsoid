@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -48,7 +47,7 @@ class TableHandler extends DOMHandler {
 			// is never computed and set here.
 			$state->sep->constraints = [ 'min' => 1, 'max' => 2, 'constraintInfo' => [] ];
 		}
-		WTSUtils::emitEndTag( $dp->endTagSrc ?? '|}', $node, $state );
+		$state->emitChunk( $dp->endTagSrc ?? '|}', $node );
 		if ( $indentTable ) {
 			$state->singleLineContext->pop();
 		}

@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -44,10 +43,7 @@ class THHandler extends DOMHandler {
 		$leadingSpace = $this->getLeadingSpace( $state, $node, '' );
 		// If the HTML for the first th is not enclosed in a tr-tag,
 		// we start a new line.  If not, tr will have taken care of it.
-		WTSUtils::emitStartTag( $thTag . $leadingSpace,
-			$node,
-			$state
-		);
+		$state->emitChunk( $thTag . $leadingSpace, $node );
 		$thHandler = static function ( $state, $text, $opts ) use ( $node ) {
 			return $state->serializer->wteHandlers->thHandler( $node, $state, $text, $opts );
 		};
