@@ -526,8 +526,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// the table are expected to be elements.
 		$maybeFostered = $node->previousSibling;
 
-		// Skip rendering-transparent nodes
-		while ( $maybeFostered instanceof Element && (
+		// Skip rendering-transparent nodes if they come from a template
+		while ( $tplInfo && $maybeFostered instanceof Element && (
 			WTUtils::isRenderingTransparentNode( $maybeFostered ) ||
 			// TODO: Section tags are rendering transparent but not sol transparent,
 			// and that method only considers WTUtils::isSolTransparentLink, though
