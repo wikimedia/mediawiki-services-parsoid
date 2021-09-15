@@ -52,6 +52,9 @@ class DataAccess implements IDataAccess {
 	/** @var Parser */
 	private $parser;
 
+	/** @var \PPFrame */
+	private $ppFrame;
+
 	/** @var ?PageConfig */
 	private $previousPageConfig;
 
@@ -271,6 +274,12 @@ class DataAccess implements IDataAccess {
 			Title::newFromText( $pageConfig->getTitle() ), $pageConfig->getParserOptions(),
 			$outputType, $clearState, $pageConfig->getRevisionId() );
 		$this->parser->resetOutput();
+
+		// Retain a PPFrame object between preprocess requests since it contains
+		// some useful caches.
+		if ( $clearState ) {
+			$this->ppFrame = $this->parser->getPreprocessor()->newFrame();
+		}
 		return $this->parser;
 	}
 
@@ -309,7 +318,7 @@ class DataAccess implements IDataAccess {
 	public function preprocessWikitext( IPageConfig $pageConfig, string $wikitext ): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
 		$out = $parser->getOutput();
-		$wikitext = $parser->replaceVariables( $wikitext );
+		$wikitext = $parser->replaceVariables( $wikitext, $this->ppFrame );
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
 		return [
 			'wikitext' => $wikitext,
