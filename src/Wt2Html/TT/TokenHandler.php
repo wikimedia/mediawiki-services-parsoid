@@ -135,55 +135,25 @@ abstract class TokenHandler {
 	 * Push an input array of tokens through the transformer
 	 * and return the transformed tokens
 	 * @param array $tokens
-	 * @param array|null $opts
 	 * @return array
 	 */
-	public function process( $tokens, array $opts = null ): array {
-		$traceState = $this->manager->getTraceState();
-		$profile = $traceState['profile'] ?? null;
+	public function process( $tokens ): array {
 		$accum = [];
 		$i = 0;
 		$n = count( $tokens );
 		while ( $i < $n ) {
 			$token = $tokens[$i];
-			if ( $traceState ) {
-				$traceState['tracer']( $token, $this );
-			}
 
 			$res = null;
 			$resTokens = null; // Not needed but helpful for code comprehension
-			$modified = false;
-			if ( $profile ) {
-				$s = PHPUtils::getStartHRTime();
-				if ( $token instanceof NlTk ) {
-					$res = $this->onNewline( $token );
-					$traceName = $traceState['transformer'] . '.onNewLine';
-				} elseif ( $token instanceof EOFTk ) {
-					$res = $this->onEnd( $token );
-					$traceName = $traceState['transformer'] . '.onEnd';
-				} elseif ( !is_string( $token ) ) {
-					$res = $this->onTag( $token );
-					$traceName = $traceState['transformer'] . '.onTag';
-				} else {
-					$traceName = null;
-					$res = null;
-				}
-				if ( $traceName ) {
-					$t = PHPUtils::getHRTimeDifferential( $s );
-					$profile->bumpTimeUse( $traceName, $t, "TT" );
-					$profile->bumpCount( $traceName );
-					$traceState['tokenTimes'] += $t;
-				}
+			if ( $token instanceof NlTk ) {
+				$res = $this->onNewline( $token );
+			} elseif ( $token instanceof EOFTk ) {
+				$res = $this->onEnd( $token );
+			} elseif ( !is_string( $token ) ) {
+				$res = $this->onTag( $token );
 			} else {
-				if ( $token instanceof NlTk ) {
-					$res = $this->onNewline( $token );
-				} elseif ( $token instanceof EOFTk ) {
-					$res = $this->onEnd( $token );
-				} elseif ( !is_string( $token ) ) {
-					$res = $this->onTag( $token );
-				} else {
-					$res = null;
-				}
+				$res = null;
 			}
 
 			// onTag handler might return a retry signal
@@ -199,17 +169,7 @@ abstract class TokenHandler {
 			if ( $modified ) {
 				$resTokens = $res->tokens;
 			} elseif ( $this->onAnyEnabled && ( !$res || !$res->skipOnAny ) ) {
-				if ( $profile ) {
-					$s = PHPUtils::getStartHRTime();
-					$traceName = $traceState['transformer'] . '.onAny';
-					$res = $this->onAny( $token );
-					$t = PHPUtils::getHRTimeDifferential( $s );
-					$profile->bumpTimeUse( $traceName, $t, "TT" );
-					$profile->bumpCount( $traceName );
-					$traceState['tokenTimes'] += $t;
-				} else {
-					$res = $this->onAny( $token );
-				}
+				$res = $this->onAny( $token );
 
 				// onAny handler might return a retry signal
 				if ( $res && $res->retry ) {

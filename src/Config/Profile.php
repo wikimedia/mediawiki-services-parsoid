@@ -64,7 +64,7 @@ class Profile {
 	/**
 	 * @param array &$profile
 	 * @param string $resource
-	 * @param float $time
+	 * @param float $time Time in milliseconds
 	 * @param ?string $cat
 	 */
 	private function bumpProfileTimeUse(
@@ -93,7 +93,7 @@ class Profile {
 	 * Update a profile timer.
 	 *
 	 * @param string $resource
-	 * @param float $time
+	 * @param float $time Time in milliseconds
 	 * @param string|null $cat
 	 */
 	public function bumpTimeUse( string $resource, float $time, string $cat = null ): void {
@@ -104,7 +104,7 @@ class Profile {
 	 * Update profile usage for "MW API" requests
 	 *
 	 * @param string $resource
-	 * @param float $time
+	 * @param float $time Time in milliseconds
 	 * @param string|null $cat
 	 */
 	public function bumpMWTime( string $resource, float $time, string $cat = null ): void {
