@@ -170,13 +170,13 @@ class ExtensionHandler extends TokenHandler {
 				$nativeExt, $token, $domFragment, [ $err ]
 			);
 		} else {
-			$start = PHPUtils::getStartHRTime();
+			$start = microtime( true );
 			$ret = $env->getDataAccess()->parseWikitext(
 				$pageConfig, $token->getAttribute( 'source' )
 			);
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "Extension", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpMWTime( "Extension", 1000 * ( microtime( true ) - $start ), "api" );
 				$profile->bumpCount( "Extension" );
 			}
 

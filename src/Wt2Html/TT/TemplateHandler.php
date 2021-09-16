@@ -1127,11 +1127,11 @@ class TemplateHandler extends TokenHandler {
 			// FIXME: Consolidate error response format with enforceTemplateConstraints
 			return [ 'tokens' => [ 'Page / template fetching disabled, and no cache for ' . $templateName ] ];
 		} else {
-			$start = PHPUtils::getStartHRTime();
+			$start = microtime( true );
 			$pageContent = $env->getDataAccess()->fetchTemplateSource( $env->getPageConfig(), $templateName );
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "TemplateFetch", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpMWTime( "TemplateFetch", 1000 * ( microtime( true ) - $start ), "api" );
 				$profile->bumpCount( "TemplateFetch" );
 			}
 			if ( !$pageContent ) {
@@ -1162,7 +1162,7 @@ class TemplateHandler extends TokenHandler {
 			];
 		} else {
 			$pageConfig = $env->getPageConfig();
-			$start = PHPUtils::getStartHRTime();
+			$start = microtime( true );
 			$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
 			if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) ) ) {
 				return [
@@ -1173,7 +1173,7 @@ class TemplateHandler extends TokenHandler {
 			$wikitext = $this->manglePreprocessorResponse( $ret );
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "Template", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpMWTime( "Template", 1000 * ( microtime( true ) - $start ), "api" );
 				$profile->bumpCount( "Template" );
 			}
 			return [

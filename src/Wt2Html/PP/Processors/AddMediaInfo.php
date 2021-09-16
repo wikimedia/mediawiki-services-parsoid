@@ -15,7 +15,6 @@ use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -419,14 +418,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 */
 	public static function requestInfo( Env $env, string $key, array $dims ): array {
 		$err = null;
-		$start = PHPUtils::getStartHRTime();
+		$start = microtime( true );
 		$info = $env->getDataAccess()->getFileInfo(
 			$env->getPageConfig(),
 			[ $key => $dims ]
 		)[$key] ?? null;
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
-			$profile->bumpMWTime( "Media", PHPUtils::getHRTimeDifferential( $start ), "api" );
+			$profile->bumpMWTime( "Media", 1000 * ( microtime( true ) - $start ), "api" );
 			$profile->bumpCount( "Media" );
 		}
 		if ( !$info ) {

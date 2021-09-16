@@ -120,7 +120,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		$profile = null;
 		if ( $this->env->profiling() ) {
 			$profile = $this->env->getCurrentProfile();
-			$s = PHPUtils::getStartHRTime();
+			$s = microtime( true );
 		}
 		$n = count( $tokens );
 		for ( $i = 0;  $i < $n;  $i++ ) {
@@ -128,7 +128,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		}
 		if ( $profile ) {
 			$profile->bumpTimeUse(
-				'HTML5 TreeBuilder', PHPUtils::getHRTimeDifferential( $s ), 'HTML5' );
+				'HTML5 TreeBuilder', 1000 * ( microtime( true ) - $s ), 'HTML5' );
 		}
 	}
 

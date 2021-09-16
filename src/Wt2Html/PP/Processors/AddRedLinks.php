@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class AddRedLinks implements Wt2HtmlDOMProcessor {
@@ -47,11 +46,11 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				return;
 			}
 
-			$start = PHPUtils::getStartHRTime();
+			$start = microtime( true );
 			$titleMap = $env->getDataAccess()->getPageInfo( $env->getPageConfig(), array_keys( $titles ) );
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "RedLinks", PHPUtils::getHRTimeDifferential( $start ), "api" );
+				$profile->bumpMWTime( "RedLinks", 1000 * ( microtime( true ) - $start ), "api" );
 				$profile->bumpCount( "RedLinks" );
 			}
 

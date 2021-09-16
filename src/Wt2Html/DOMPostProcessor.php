@@ -895,7 +895,7 @@ class DOMPostProcessor extends PipelineStage {
 				$prefix = '---';
 				$resourceCategory = 'DOMPasses:NESTED';
 			}
-			$startTime = PHPUtils::getStartHRTime();
+			$startTime = microtime( true );
 			$env->log( 'debug/time/dompp', $prefix . '; start=' . $startTime );
 		}
 
@@ -914,7 +914,7 @@ class DOMPostProcessor extends PipelineStage {
 					" ",
 					( strlen( $pp['name'] ) < 30 ) ? 30 - strlen( $pp['name'] ) : 0
 				);
-				$ppStart = PHPUtils::getStartHRTime();
+				$ppStart = microtime( true );
 				$env->log( 'debug/time/dompp', $prefix . '; ' . $ppName . ' start' );
 			}
 
@@ -940,7 +940,7 @@ class DOMPostProcessor extends PipelineStage {
 			}
 
 			if ( $profile ) {
-				$ppElapsed = PHPUtils::getHRTimeDifferential( $ppStart );
+				$ppElapsed = 1000 * ( microtime( true ) - $ppStart );
 				$env->log(
 					'debug/time/dompp',
 					$prefix . '; ' . $ppName . ' end; time = ' . $ppElapsed
@@ -955,11 +955,11 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		if ( $profile ) {
-			$endTime = PHPUtils::getStartHRTime();
+			$endTime = microtime( true );
 			$env->log(
 				'debug/time/dompp',
 				$prefix . '; end=' . number_format( $endTime, 2 ) . '; time = ' .
-				number_format( PHPUtils::getHRTimeDifferential( $startTime ), 2 )
+				number_format( 1000 * ( microtime( true ) - $startTime ), 2 )
 			);
 		}
 

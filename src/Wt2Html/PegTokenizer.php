@@ -162,7 +162,7 @@ class PegTokenizer extends PipelineStage {
 		$profile = null;
 		if ( $this->env->profiling() ) {
 			$profile = $this->env->getCurrentProfile();
-			$start = PHPUtils::getStartHRTime();
+			$start = microtime( true );
 		}
 
 		try {
@@ -174,7 +174,7 @@ class PegTokenizer extends PipelineStage {
 
 		if ( $profile ) {
 			$profile->bumpTimeUse(
-				'PEG', PHPUtils::getHRTimeDifferential( $start ), 'PEG' );
+				'PEG', 1000 * ( microtime( true ) - $start ), 'PEG' );
 		}
 		return $toks;
 	}

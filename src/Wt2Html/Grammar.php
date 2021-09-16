@@ -416,7 +416,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 				$this->startTime = null;
 				if ( $this->env->profiling() ) {
 					$profile = $this->env->getCurrentProfile();
-					$this->startTime = PHPUtils::getStartHRTime();
+					$this->startTime = microtime( true );
 				}
 				return true;
 			
@@ -426,7 +426,7 @@ private function a1($t) {
 				if ( $this->env->profiling() ) {
 					$profile = $this->env->getCurrentProfile();
 					$profile->bumpTimeUse(
-						'PEG', PHPUtils::getHRTimeDifferential( $this->startTime ), 'PEG' );
+						'PEG', 1000 * ( microtime( true ) - $this->startTime ), 'PEG' );
 				}
 				return true;
 			
