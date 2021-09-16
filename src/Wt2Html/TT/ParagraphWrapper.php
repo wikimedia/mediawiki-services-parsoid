@@ -178,8 +178,9 @@ class ParagraphWrapper extends TokenHandler {
 		// Juggle the array reference count to allow us to append to it without
 		// copying the array
 		$resToks = $this->tokenBuffer;
+		$nlWsTokens = $this->nlWsTokens;
 		$this->resetBuffers();
-		PHPUtils::pushArray( $resToks, $this->nlWsTokens );
+		PHPUtils::pushArray( $resToks, $nlWsTokens );
 		$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ',
 			static function () use( $resToks ) {
 				return PHPUtils::jsonEncode( $resToks );
