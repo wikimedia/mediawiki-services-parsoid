@@ -129,7 +129,7 @@ class Headings {
 		// headings in textual order and can introduce duplicate ids
 		// in a document in the process.
 		//
-		// However, we believe this implemention behavior is more
+		// However, we believe this implementation behavior is more
 		// consistent when handling this edge case, and in the common
 		// case (where heading ids won't conflict with ids elsewhere),
 		// matches PHP parser behavior.
@@ -151,20 +151,21 @@ class Headings {
 			},
 			$key
 		);
-		if ( empty( $seenIds[$key] ) ) {
-			$seenIds[$key] = true;
+		if ( !isset( $seenIds[$key] ) ) {
+			$seenIds[$key] = 1;
 			return true;
 		}
 		// Only update headings and legacy links (first children of heading)
 		if ( preg_match( '/^h\d$/D', DOMCompat::nodeName( $node ) ) ||
 			WTUtils::isFallbackIdSpan( $node )
 		) {
-			$suffix = 2;
+			$suffix = ++$seenIds[$key];
 			while ( !empty( $seenIds[$key . '_' . $suffix] ) ) {
 				$suffix++;
+				$seenIds[$key]++;
 			}
 			$node->setAttribute( 'id', $node->getAttribute( 'id' ) . '_' . $suffix );
-			$seenIds[$key . '_' . $suffix] = true;
+			$seenIds[$key . '_' . $suffix] = 1;
 		}
 		return true;
 	}
