@@ -281,7 +281,7 @@ class WTSUtils {
 			// showed up on the same line via the "||" or "!!" syntax, nothing
 			// to worry about.
 			return ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'row';
-		} elseif ( DOMCompat::nodeName( $node ) === 'tr' && DOMUtils::assertElt( $node ) &&
+		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'tr' &&
 			empty( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
 		) {
 			// If this <tr> didn't have a startTagSrc, it would have been

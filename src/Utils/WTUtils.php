@@ -357,8 +357,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isRedirectLink( Node $node ): bool {
-		return DOMCompat::nodeName( $node ) === 'link' &&
-			DOMUtils::assertElt( $node ) &&
+		return $node instanceof Element &&
+			DOMCompat::nodeName( $node ) === 'link' &&
 			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) ?? '' );
 	}
 
@@ -381,8 +381,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isSolTransparentLink( Node $node ): bool {
-		return DOMCompat::nodeName( $node ) === 'link' &&
-			DOMUtils::assertElt( $node ) &&
+		return $node instanceof Element &&
+			DOMCompat::nodeName( $node ) === 'link' &&
 			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) ?? '' );
 	}
 
@@ -443,8 +443,8 @@ class WTUtils {
 		return DOMUtils::isComment( $node ) ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
+				$node instanceof Element &&
 				DOMCompat::nodeName( $node ) === 'meta' &&
-				DOMUtils::assertElt( $node ) &&
 				(
 					// (Start|End)Tag metas clone data-parsoid from the tokens
 					// they're shadowing, which trips up on the stx check.
@@ -536,8 +536,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isParsoidSectionTag( Node $node ): bool {
-		return DOMCompat::nodeName( $node ) === 'section' &&
-			DOMUtils::assertElt( $node ) &&
+		return $node instanceof Element &&
+			DOMCompat::nodeName( $node ) === 'section' &&
 			$node->hasAttribute( 'data-mw-section-id' );
 	}
 

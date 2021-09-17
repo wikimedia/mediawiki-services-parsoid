@@ -111,8 +111,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		 *
 		 * 3. Other scenarios .. to be added
 		 */
-		if ( DOMCompat::nodeName( $node ) === 'a' &&
-			 DOMUtils::assertElt( $node ) && (
+		if ( $node instanceof Element &&
+			DOMCompat::nodeName( $node ) === 'a' && (
 				WTUtils::usesURLLinkSyntax( $node, null ) ||
 				WTUtils::usesMagicLinkSyntax( $node, null )
 			)
@@ -348,7 +348,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			// the DSR of its previous sibling.  Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
 			$next = $child->nextSibling;
-			if ( $next && ( $next instanceof Element ) ) {
+			if ( $next && $next instanceof Element ) {
 				$ndp = DOMDataUtils::getDataParsoid( $next );
 				if (
 					isset( $ndp->src ) &&

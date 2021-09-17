@@ -437,8 +437,8 @@ class DOMDiff {
 					if ( !( $savedNewNode instanceof Element ) ) {
 						$this->debug( '--found diff: modified text/comment--' );
 						$this->markNode( $savedNewNode, 'deleted', WTUtils::isBlockNodeWithVisibleWT( $baseNode ) );
-					} elseif ( DOMCompat::nodeName( $savedNewNode ) === DOMCompat::nodeName( $baseNode ) &&
-						DOMUtils::assertElt( $baseNode ) &&
+					} elseif ( $baseNode instanceof Element &&
+						DOMCompat::nodeName( $savedNewNode ) === DOMCompat::nodeName( $baseNode ) &&
 						( DOMDataUtils::getDataParsoid( $savedNewNode )->stx ?? null ) ===
 						( DOMDataUtils::getDataParsoid( $baseNode )->stx ?? null )
 					) {

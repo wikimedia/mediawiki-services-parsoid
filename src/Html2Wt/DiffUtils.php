@@ -82,7 +82,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function isDeletedBlockNode( ?Node $node ): bool {
-		return self::maybeDeletedNode( $node ) && DOMUtils::assertElt( $node ) &&
+		return $node instanceof Element && self::maybeDeletedNode( $node ) &&
 			$node->hasAttribute( 'data-is-block' );
 	}
 
