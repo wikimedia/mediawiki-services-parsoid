@@ -141,16 +141,13 @@ class Headings {
 		if ( !$node->hasAttribute( 'id' ) ) {
 			return true;
 		}
-		// FIXME: Must be case-insensitively unique (T12721)
-		// ...but note that core parser uses strtolower, which only does A-Z :(
 		$key = $node->getAttribute( 'id' );
-		$key = preg_replace_callback(
-			'/[A-Z]+/',
-			static function ( $matches ) {
-				return strtolower( $matches[0] );
-			},
-			$key
-		);
+		// IE 7 required attributes to be case-insensitively unique (T12721)
+		// but it did not support non-ASCII IDs. We don't support IE 7 anymore,
+		// but changing the algorithm would change the relevant fragment URLs.
+		// This case folding and matching algorithm has to stay exactly the
+		// same to preserve external links to the page.
+		$key = strtolower( $key );
 		if ( !isset( $seenIds[$key] ) ) {
 			$seenIds[$key] = 1;
 			return true;
