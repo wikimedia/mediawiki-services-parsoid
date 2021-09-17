@@ -266,7 +266,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		}
 
 		if ( is_string( $token ) || $token instanceof NlTk ) {
-			$data = ( $token instanceof NlTk ) ? "\n" : $token;
+			$data = $token instanceof NlTk ? "\n" : $token;
 			$this->dispatcher->characters( $data, 0, strlen( $data ), 0, 0 );
 			// NlTks are only fostered when accompanied by non-whitespace.
 			// Safe to ignore.

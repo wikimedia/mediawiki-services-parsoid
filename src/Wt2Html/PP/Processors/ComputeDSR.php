@@ -349,7 +349,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			// the DSR of its previous sibling.  Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
 			$next = $child->nextSibling;
-			if ( $next && $next instanceof Element ) {
+			if ( $next instanceof Element ) {
 				$ndp = DOMDataUtils::getDataParsoid( $next );
 				if (
 					isset( $ndp->src ) &&

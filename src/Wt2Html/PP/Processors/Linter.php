@@ -926,12 +926,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 			} else {
 				// Find last non-comment child of node
 				$last = $node->lastChild;
-				while ( $last && $last instanceof Comment ) {
+				while ( $last instanceof Comment ) {
 					$last = $last->previousSibling;
 				}
 
 				$bug = false;
-				if ( $last && $last instanceof Text &&
+				if ( $last instanceof Text &&
 					preg_match( '/\s$/D', $last->nodeValue ) // PORT-FIXME: non-ASCII whitespace?
 				) {
 					// In this scenario, when Tidy hoists the whitespace to
@@ -959,7 +959,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 			// Move to the next non-comment sibling
 			$node = $node->nextSibling;
-			while ( $node && $node instanceof Comment ) {
+			while ( $node instanceof Comment ) {
 				$node = $node->nextSibling;
 			}
 		}

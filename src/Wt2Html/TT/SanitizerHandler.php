@@ -63,7 +63,7 @@ class SanitizerHandler extends TokenHandler {
 				// Just get the original token source, so that we can avoid
 				// whitespace differences.
 				$token = $token->getWTSource( $frame );
-			} elseif ( !$token instanceof EndTagTk ) {
+			} elseif ( !( $token instanceof EndTagTk ) ) {
 				// Handle things without a TSR: For example template or extension
 				// content. Whitespace in these is not necessarily preserved.
 				$buf = '<' . $token->getName();

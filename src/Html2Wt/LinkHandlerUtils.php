@@ -636,7 +636,7 @@ class LinkHandlerUtils {
 						// in which case we don't want the ':'.
 						$nextNode = $node->nextSibling;
 						if ( !(
-							$nextNode && $nextNode instanceof Element && DOMCompat::nodeName( $nextNode ) === 'link' &&
+							$nextNode instanceof Element && DOMCompat::nodeName( $nextNode ) === 'link' &&
 							$nextNode->getAttribute( 'rel' ) === 'mw:PageProp/Category' &&
 							$nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
 						) ) {
@@ -927,7 +927,7 @@ class LinkHandlerUtils {
 				);
 			} else {
 				$media = DOMUtils::selectMediaElt( $node );  // TODO: Handle missing media too
-				$isFigure = ( $media instanceof Element && $media->parentNode === $node );
+				$isFigure = $media instanceof Element && $media->parentNode === $node;
 				if ( $isFigure ) {
 					// this is a basic html figure: <a><img></a>
 					self::figureHandler( $state, $node, new MediaStructure( $media, $node ) );

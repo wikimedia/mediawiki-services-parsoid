@@ -212,7 +212,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 
 				// we should be able to reach the table from the fosterbox
 				Assert::invariant(
-					$table && $table instanceof Element && DOMCompat::nodeName( $table ) === 'table',
+					$table instanceof Element && DOMCompat::nodeName( $table ) === 'table',
 					"Table isn't a sibling. Something's amiss!"
 				);
 

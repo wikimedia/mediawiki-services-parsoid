@@ -899,7 +899,7 @@ class WikitextSerializer {
 				// if the next non-comment node is not a text node
 				// of if the text node doesn't have a leading \n.
 				$next = DOMUtils::nextNonDeletedSibling( $node );
-				while ( $next && $next instanceof Comment ) {
+				while ( $next instanceof Comment ) {
 					$next = DOMUtils::nextNonDeletedSibling( $next );
 				}
 				if ( !( $next instanceof Text ) || substr( $next->nodeValue, 0, 1 ) !== "\n" ) {

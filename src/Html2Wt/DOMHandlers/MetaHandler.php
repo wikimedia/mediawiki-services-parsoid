@@ -103,8 +103,8 @@ class MetaHandler extends DOMHandler {
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		$type = $node->getAttribute( 'typeof' ) ?: $node->getAttribute( 'property' ) ?:	null;
 		if ( $type && str_contains( $type, 'mw:PageProp/categorydefaultsort' ) ) {
-			if ( DOMCompat::nodeName( $otherNode ) === 'p'
-				&& $otherNode instanceof Element // for static analyizers
+			if ( $otherNode instanceof Element
+				&& DOMCompat::nodeName( $otherNode ) === 'p'
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html'
 			) {
 				// Since defaultsort is outside the p-tag, we need 2 newlines

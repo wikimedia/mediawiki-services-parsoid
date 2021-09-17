@@ -210,7 +210,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$nodesToMigrate = [];
 			$newStart = $range->start;
 			$n = $range->start instanceof Element ? $next : $range->start;
-			while ( !$n instanceof Element ) {
+			while ( !( $n instanceof Element ) ) {
 				if ( $n instanceof Text ) {
 					$noWS = false;
 				}

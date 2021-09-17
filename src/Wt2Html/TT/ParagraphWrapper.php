@@ -241,7 +241,7 @@ class ParagraphWrapper extends TokenHandler {
 				}
 				// Not a transclusion meta; Check for nl/sol-transparent tokens
 				// and leave them out of the p-wrapping.
-				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && !$t instanceof NlTk ) {
+				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && !( $t instanceof NlTk ) ) {
 					break;
 				}
 			}
@@ -280,7 +280,7 @@ class ParagraphWrapper extends TokenHandler {
 				}
 				// Not a transclusion meta; Check for nl/sol-transparent tokens
 				// and leave them out of the p-wrapping.
-				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && !$t instanceof NlTk ) {
+				if ( !TokenUtils::isSolTransparent( $this->env, $t ) && !( $t instanceof NlTk ) ) {
 					break;
 				}
 			}
@@ -507,7 +507,7 @@ class ParagraphWrapper extends TokenHandler {
 					}
 				}
 				if ( $name === 'blockquote' ) {
-					$this->inBlockquote = ( !$token instanceof EndTagTk );
+					$this->inBlockquote = !( $token instanceof EndTagTk );
 				}
 			}
 			$this->currLineHasWrappableTokens = true;

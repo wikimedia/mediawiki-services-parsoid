@@ -47,9 +47,8 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isLiteralHTMLNode( ?Node $node ): bool {
-		return ( $node &&
-			$node instanceof Element &&
-			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) ) );
+		return $node instanceof Element &&
+			self::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $node ) );
 	}
 
 	/**
@@ -240,7 +239,6 @@ class WTUtils {
 			$node = $prev;
 			$prev = DOMUtils::previousNonDeletedSibling( $node );
 		} while (
-			$prev &&
 			$prev instanceof Element &&
 			$prev->getAttribute( 'about' ) === $about
 		);
@@ -618,9 +616,8 @@ class WTUtils {
 
 		$node = $node->nextSibling;
 		while ( $node && (
-			$node instanceof Element &&
-			$node->getAttribute( 'about' ) === $about ||
-			DOMUtils::isFosterablePosition( $node ) && !( $node instanceof Element ) && DOMUtils::isIEW( $node )
+			( $node instanceof Element && $node->getAttribute( 'about' ) === $about ) ||
+			( DOMUtils::isFosterablePosition( $node ) && DOMUtils::isIEW( $node ) )
 		) ) {
 			$nodes[] = $node;
 			$node = $node->nextSibling;

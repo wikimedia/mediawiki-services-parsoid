@@ -47,8 +47,8 @@ class PHandler extends DOMHandler {
 			}
 		} elseif ( ( $otherNode === DOMUtils::previousNonDeletedSibling( $node )
 				// p-p transition
-				&& $otherNodeName === 'p'
 				&& $otherNode instanceof Element // for static analyzers
+				&& $otherNodeName === 'p'
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html' )
 			|| ( self::treatAsPPTransition( $otherNode )
 				&& $otherNode === DOMUtils::previousNonSepSibling( $node )
@@ -236,9 +236,9 @@ class PHandler extends DOMHandler {
 		if ( !$node ) {
 			return false;
 		}
-		return DOMCompat::nodeName( $node ) === 'p'
-				&& $node instanceof Element // for static analyzers
-				&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'html'
+		return ( $node instanceof Element // for static analyzers
+				&& DOMCompat::nodeName( $node ) === 'p'
+				&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'html' )
 			|| self::treatAsPPTransition( $node );
 	}
 

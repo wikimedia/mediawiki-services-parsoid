@@ -73,7 +73,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function maybeDeletedNode( ?Node $node ): bool {
-		return $node && $node instanceof Element && DOMUtils::isDiffMarker( $node, 'deleted' );
+		return $node instanceof Element && DOMUtils::isDiffMarker( $node, 'deleted' );
 	}
 
 	/**

@@ -60,7 +60,7 @@ class FallbackHTMLHandler extends DOMHandler {
 
 				$lostLine = '';
 				$fc = $node->firstChild;
-				if ( $fc && $fc instanceof Text ) {
+				if ( $fc instanceof Text ) {
 					$lostLine = str_starts_with( $fc->nodeValue, "\n" ) ? "\n" : '';
 				}
 

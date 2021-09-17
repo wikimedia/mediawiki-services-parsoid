@@ -307,13 +307,13 @@ class TestUtils {
 			$prev = $child->previousSibling;
 			$next = $child->nextSibling;
 			if ( self::newlineAround( $child ) ) {
-				if ( $prev && $prev instanceof Text ) {
+				if ( $prev instanceof Text ) {
 					$prev->data = preg_replace( '/\s*$/uD', "\n", $prev->data, 1 );
 				} else {
 					$prev = $node->ownerDocument->createTextNode( "\n" );
 					$node->insertBefore( $prev, $child );
 				}
-				if ( $next && $next instanceof Text ) {
+				if ( $next instanceof Text ) {
 					$next->data = preg_replace( '/^\s*/u', "\n", $next->data, 1 );
 				} else {
 					$next = $node->ownerDocument->createTextNode( "\n" );

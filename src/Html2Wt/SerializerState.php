@@ -654,7 +654,7 @@ class SerializerState {
 				$pChild = DOMUtils::firstNonSepChild( $node );
 				// If a text node, we have to make sure that the text doesn't
 				// get reparsed as non-text in the wt2html pipeline.
-				if ( $pChild && $pChild instanceof Text ) {
+				if ( $pChild instanceof Text ) {
 					$match = $res->matches( $this->solWikitextRegexp(), $this->env );
 					if ( $match && isset( $match[2] ) ) {
 						if ( preg_match( '/^([\*#:;]|{\||.*=$)/D', $match[2] )

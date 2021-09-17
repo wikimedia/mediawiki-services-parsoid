@@ -168,7 +168,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 			// or an element node).
 			$foundNL = false;
 			$tsrCorrection = 0;
-			while ( $n && ( $n instanceof Text || $n instanceof Comment ) ) {
+			while ( $n instanceof Text || $n instanceof Comment ) {
 				if ( $n instanceof Comment ) {
 					$firstEltToMigrate = $n;
 					// <!--comment-->

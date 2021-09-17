@@ -457,7 +457,7 @@ class WikitextEscapeHandlers {
 						}
 					}
 
-					if ( $node && $node instanceof Element && DOMCompat::nodeName( $node ) === 'a' &&
+					if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'a' &&
 						$node->textContent === $node->getAttribute( 'href' )
 					) {
 						// The template expands to an url link => needs nowiking
