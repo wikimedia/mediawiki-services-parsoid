@@ -24,7 +24,7 @@ class References extends ExtensionTagHandler {
 	private static function hasRef( Node $node ): bool {
 		$c = $node->firstChild;
 		while ( $c ) {
-			if ( DOMUtils::isElt( $c ) ) {
+			if ( $c instanceof Element ) {
 				if ( WTUtils::isSealedFragmentOfType( $c, 'ref' ) ) {
 					return true;
 				}

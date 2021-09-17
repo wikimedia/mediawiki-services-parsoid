@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -215,7 +216,7 @@ class DOMNormalizer {
 
 		// Walk up the subtree and add 'subtree-changed' markers
 		$node = $node->parentNode;
-		while ( DOMUtils::isElt( $node ) && !DOMUtils::atTheTop( $node ) ) {
+		while ( $node instanceof Element && !DOMUtils::atTheTop( $node ) ) {
 			if ( DiffUtils::hasDiffMark( $node, $env, 'subtree-changed' ) ) {
 				return;
 			}
@@ -330,7 +331,7 @@ class DOMNormalizer {
 			}
 
 			// and drop any leading whitespace
-			if ( DOMUtils::isText( $sibling ) ) {
+			if ( $sibling instanceof Text ) {
 				$sibling->nodeValue = $rtl ? rtrim( $sibling->nodeValue ) : ltrim( $sibling->nodeValue );
 			}
 
@@ -378,14 +379,14 @@ class DOMNormalizer {
 		$next = DOMUtils::nextNonDeletedSibling( $node );
 		$last = DOMUtils::lastNonDeletedChild( $node );
 		$matches = null;
-		if ( DOMUtils::isText( $last ) &&
+		if ( $last instanceof Text &&
 			preg_match( '/\s+$/D', $last->nodeValue, $matches ) > 0
 		) {
 			$trailing = $matches[0];
 			$last->nodeValue = substr( $last->nodeValue, 0, -strlen( $trailing ) );
 			// Try to be a little smarter and drop the spaces if possible.
-			if ( $next && ( !DOMUtils::isText( $next ) || !preg_match( '/^\s+/', $next->nodeValue ) ) ) {
-				if ( !DOMUtils::isText( $next ) ) {
+			if ( $next && ( !( $next instanceof Text ) || !preg_match( '/^\s+/', $next->nodeValue ) ) ) {
+				if ( !( $next instanceof Text ) ) {
 					$txt = $node->ownerDocument->createTextNode( '' );
 					$node->parentNode->insertBefore( $txt, $next );
 					$next = $txt;
@@ -424,7 +425,7 @@ class DOMNormalizer {
 	 * @return Node|null
 	 */
 	public function stripBidiCharsAroundCategories( Node $node ): ?Node {
-		if ( !DOMUtils::isText( $node ) ||
+		if ( !( $node instanceof Text ) ||
 			( !WTUtils::isCategoryLink( $node->previousSibling ) &&
 				!WTUtils::isCategoryLink( $node->nextSibling ) )
 		) {
@@ -636,7 +637,7 @@ class DOMNormalizer {
 			$first = DOMUtils::firstNonDeletedChild( $node );
 			// Emit a space before escapable prefix
 			// This is preferable to serializing with a nowiki.
-			if ( DOMUtils::isText( $first ) && strspn( $first->nodeValue, '-+}', 0, 1 ) ) {
+			if ( $first instanceof Text && strspn( $first->nodeValue, '-+}', 0, 1 ) ) {
 				$first->nodeValue = ' ' . $first->nodeValue;
 				$this->addDiffMarks( $first, 'inserted', true );
 			}
@@ -809,7 +810,7 @@ class DOMNormalizer {
 					$this->env->log( 'error/html2wt/dom',
 						"--- Nested inserted dom-diff flags ---\n",
 						'Node:',
-						( DOMUtils::isElt( $node ) ) ? ContentUtils::ppToXML( $node ) : $node->textContent,
+						$node instanceof Element ? ContentUtils::ppToXML( $node ) : $node->textContent,
 						"\nNode's parent:",
 						ContentUtils::ppToXML( $node->parentNode ),
 						$options['outBuffer']
@@ -823,7 +824,7 @@ class DOMNormalizer {
 
 			// Post-order traversal: Process subtree first, and current node after.
 			// This lets multiple normalizations take effect cleanly.
-			if ( $recurse && DOMUtils::isElt( $node ) ) {
+			if ( $recurse && $node instanceof Element ) {
 				$this->processSubtree( $node, true );
 			}
 

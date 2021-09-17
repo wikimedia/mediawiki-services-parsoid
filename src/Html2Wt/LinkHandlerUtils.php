@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
@@ -145,7 +146,7 @@ class LinkHandlerUtils {
 		$contentString = '';
 		$child = $node->firstChild;
 		while ( $child ) {
-			if ( DOMUtils::isText( $child ) ) {
+			if ( $child instanceof Text ) {
 				$contentString .= $child->nodeValue;
 			} elseif ( DOMUtils::hasTypeOf( $child, 'mw:DisplaySpace' ) ) {
 				$contentString .= ' ';

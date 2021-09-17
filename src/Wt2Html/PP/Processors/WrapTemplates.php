@@ -196,9 +196,9 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		// *after* the DOM has been built which is why they can show up in
 		// fosterable positions in the DOM.
 		} elseif ( $startsInFosterablePosn &&
-			( !DOMUtils::isElt( $range->start ) ||
+			( !( $range->start instanceof Element ) ||
 				WTUtils::isTplMarkerMeta( $range->start ) &&
-				( !DOMUtils::isElt( $next ) || WTUtils::isTplMarkerMeta( $next ) )
+				( !( $next instanceof Element ) || WTUtils::isTplMarkerMeta( $next ) )
 			)
 		) {
 			$rangeStartParent = $range->start->parentNode;
@@ -209,7 +209,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$noWS = true;
 			$nodesToMigrate = [];
 			$newStart = $range->start;
-			$n = DOMUtils::isElt( $range->start ) ? $next : $range->start;
+			$n = $range->start instanceof Element ? $next : $range->start;
 			while ( !$n instanceof Element ) {
 				if ( $n instanceof Text ) {
 					$noWS = false;
@@ -245,7 +245,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 
 		// Ensure range->start is an element node since we want to
 		// add/update the data-parsoid attribute to it.
-		if ( !DOMUtils::isElt( $range->start ) ) {
+		if ( !( $range->start instanceof Element ) ) {
 			$span = $doc->createElement( 'span' );
 			$range->start->parentNode->insertBefore( $span, $range->start );
 			$span->appendChild( $range->start );
@@ -759,7 +759,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 		$about = $range->startElem->getAttribute( 'about' ) ?? '';
 		while ( $n ) {
 			$next = $n->nextSibling;
-			if ( !DOMUtils::isElt( $n ) ) {
+			if ( !( $n instanceof Element ) ) {
 				// Don't add span-wrappers in fosterable positions
 				//
 				// NOTE: there cannot be any non-IEW text in fosterable position

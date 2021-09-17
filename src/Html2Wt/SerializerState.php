@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -543,7 +544,7 @@ class SerializerState {
 
 		$origSep = null;
 		if ( $origSepUsable ) {
-			if ( DOMUtils::isElt( $this->prevNode ) && DOMUtils::isElt( $node ) ) {
+			if ( $this->prevNode instanceof Element && $node instanceof Element ) {
 				'@phan-var Element $node';/** @var Element $node */
 				$origSep = $this->getOrigSrc(
 					// <body> won't have DSR in body_only scenarios
@@ -653,7 +654,7 @@ class SerializerState {
 				$pChild = DOMUtils::firstNonSepChild( $node );
 				// If a text node, we have to make sure that the text doesn't
 				// get reparsed as non-text in the wt2html pipeline.
-				if ( $pChild && DOMUtils::isText( $pChild ) ) {
+				if ( $pChild && $pChild instanceof Text ) {
 					$match = $res->matches( $this->solWikitextRegexp(), $this->env );
 					if ( $match && isset( $match[2] ) ) {
 						if ( preg_match( '/^([\*#:;]|{\||.*=$)/D', $match[2] )

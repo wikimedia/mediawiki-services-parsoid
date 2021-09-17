@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\ParserTests;
 
 use Error;
 use Exception;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -260,7 +261,7 @@ class TestUtils {
 		if ( !$opts['parsoidOnly'] ) {
 			for ( $child = $node->firstChild;  $child;  $child = $next ) {
 				$next = $child->nextSibling;
-				if ( DOMUtils::isComment( $child ) ) {
+				if ( $child instanceof Comment ) {
 					$node->removeChild( $child );
 				}
 			}

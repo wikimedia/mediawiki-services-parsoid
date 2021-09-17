@@ -8,10 +8,12 @@ use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandlerFactory;
@@ -897,10 +899,10 @@ class WikitextSerializer {
 				// if the next non-comment node is not a text node
 				// of if the text node doesn't have a leading \n.
 				$next = DOMUtils::nextNonDeletedSibling( $node );
-				while ( $next && DOMUtils::isComment( $next ) ) {
+				while ( $next && $next instanceof Comment ) {
 					$next = DOMUtils::nextNonDeletedSibling( $next );
 				}
-				if ( !DOMUtils::isText( $next ) || substr( $next->nodeValue, 0, 1 ) !== "\n" ) {
+				if ( !( $next instanceof Text ) || substr( $next->nodeValue, 0, 1 ) !== "\n" ) {
 					$buf .= "\n";
 				}
 			} elseif ( !is_string( $nextPart ) || substr( $nextPart, 0, 1 ) !== "\n" ) {

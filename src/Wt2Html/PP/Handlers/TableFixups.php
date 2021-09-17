@@ -6,8 +6,10 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -251,9 +253,9 @@ class TableFixups {
 			&$traverse, &$buf, &$nowikis, &$transclusions
 		): bool {
 			while ( $child ) {
-				if ( DOMUtils::isComment( $child ) ) {
+				if ( $child instanceof Comment ) {
 					// Legacy parser strips comments during parsing => drop them.
-				} elseif ( DOMUtils::isText( $child ) ) {
+				} elseif ( $child instanceof Text ) {
 					$buf[] = $child->nodeValue;
 				} else {
 					'@phan-var Element $child';  /** @var Element $child */
@@ -530,7 +532,7 @@ class TableFixups {
 		$testRE = $isTd ? '/[|]/' : '/[!|]/';
 		$child = $cell->firstChild;
 		while ( $child ) {
-			if ( DOMUtils::isText( $child ) && preg_match( $testRE, $child->textContent ) ) {
+			if ( $child instanceof Text && preg_match( $testRE, $child->textContent ) ) {
 				return self::OTHER_REPARSE;
 			}
 
@@ -612,10 +614,10 @@ class TableFixups {
 
 			if ( $newCell ) {
 				$newCell->appendChild( $child );
-			} elseif ( DOMUtils::isText( $child ) || $this->isSimpleTemplatedSpan( $child ) ) {
+			} elseif ( $child instanceof Text || $this->isSimpleTemplatedSpan( $child ) ) {
 				// FIXME: This skips over scenarios like <div>foo||bar</div>.
 				$cellName = DOMCompat::nodeName( $cell );
-				$hasSpanWrapper = !DOMUtils::isText( $child );
+				$hasSpanWrapper = !( $child instanceof Text );
 				$match = null;
 
 				if ( $isTd ) {

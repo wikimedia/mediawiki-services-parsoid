@@ -58,8 +58,7 @@ class LIHandler extends DOMHandler {
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( ( $otherNode === $node->parentNode
 				&& in_array( DOMCompat::nodeName( $otherNode ), [ 'ul', 'ol' ], true ) )
-			|| ( DOMUtils::isElt( $otherNode )
-				&& $otherNode instanceof Element // for static type analyzers
+			|| ( $otherNode instanceof Element
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) === 'html' )
 		) {
 			return [];

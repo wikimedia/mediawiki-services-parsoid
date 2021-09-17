@@ -65,36 +65,6 @@ class DOMUtils {
 	}
 
 	/**
-	 * Check whether this is a DOM element node.
-	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
-	 * @param ?Node $node
-	 * @return bool
-	 */
-	public static function isElt( ?Node $node ): bool {
-		return DU::isElt( $node );
-	}
-
-	/**
-	 * Check whether this is a DOM text node.
-	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
-	 * @param ?Node $node
-	 * @return bool
-	 */
-	public static function isText( ?Node $node ): bool {
-		return DU::isText( $node );
-	}
-
-	/**
-	 * Check whether this is a DOM comment node.
-	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
-	 * @param ?Node $node
-	 * @return bool
-	 */
-	public static function isComment( ?Node $node ): bool {
-		return DU::isComment( $node );
-	}
-
-	/**
 	 * Check a node to see whether it's a diff marker.
 	 *
 	 * @param ?Node $node

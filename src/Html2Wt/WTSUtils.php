@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -212,7 +213,7 @@ class WTSUtils {
 	 * @return bool
 	 */
 	public static function precedingSpaceSuppressesIndentPre( Node $node, Node $sepNode ): bool {
-		if ( $node !== $sepNode && DOMUtils::isText( $node ) ) {
+		if ( $node !== $sepNode && $node instanceof Text ) {
 			// if node is the same as sepNode, then the separator text
 			// at the beginning of it has been stripped out already, and
 			// we cannot use it to test it for indent-pre safety

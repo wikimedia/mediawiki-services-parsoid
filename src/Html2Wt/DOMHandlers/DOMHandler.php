@@ -7,6 +7,7 @@ use LogicException;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -137,7 +138,7 @@ class DOMHandler {
 	 * @return array An array in the form [ 'min' => <int>, 'max' => <int> ] or an empty array.
 	 */
 	protected function wtListEOL( Element $node, Node $otherNode ): array {
-		if ( !DOMUtils::isElt( $otherNode ) || DOMUtils::atTheTop( $otherNode ) ) {
+		if ( !( $otherNode instanceof Element ) || DOMUtils::atTheTop( $otherNode ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		}
 		'@phan-var Element $otherNode';/** @var Element $otherNode */
@@ -163,7 +164,7 @@ class DOMHandler {
 				return [ 'min' => 1, 'max' => 2 ];
 			}
 		} elseif ( DOMUtils::isList( $otherNode )
-			|| ( DOMUtils::isElt( $otherNode ) && ( $dp->stx ?? null ) === 'html' )
+			|| ( $otherNode instanceof Element && ( $dp->stx ?? null ) === 'html' )
 		) {
 			// last child in ul/ol (the list element is our parent), defer
 			// separator constraints to the list.
@@ -335,7 +336,7 @@ class DOMHandler {
 		if ( WTUtils::isNewElt( $node ) ) {
 			$fc = DOMUtils::firstNonDeletedChild( $node );
 			// PORT-FIXME are different \s semantics going to be a problem?
-			if ( $fc && ( !DOMUtils::isText( $fc ) || !preg_match( '/^\s/', $fc->nodeValue ) ) ) {
+			if ( $fc && ( !( $fc instanceof Text ) || !preg_match( '/^\s/', $fc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
 		}
@@ -359,7 +360,7 @@ class DOMHandler {
 		if ( WTUtils::isNewElt( $node ) ) {
 			$lc = DOMUtils::lastNonDeletedChild( $node );
 			// PORT-FIXME are different \s semantics going to be a problem?
-			if ( $lc && ( !DOMUtils::isText( $lc ) || !preg_match( '/\s$/D', $lc->nodeValue ) ) ) {
+			if ( $lc && ( !( $lc instanceof Text ) || !preg_match( '/\s$/D', $lc->nodeValue ) ) ) {
 				$space = $newEltDefault;
 			}
 		}
@@ -373,7 +374,7 @@ class DOMHandler {
 	 * @return bool
 	 */
 	protected function isBuilderInsertedElt( Node $node ): bool {
-		if ( !DOMUtils::isElt( $node ) ) {
+		if ( !( $node instanceof Element ) ) {
 			return false;
 		}
 		'@phan-var Element $node';/** @var Element $node */

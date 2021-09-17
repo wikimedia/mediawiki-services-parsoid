@@ -6,9 +6,11 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -122,7 +124,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			) {
 				$sibling = $sibling->nextSibling;
 				$beforeText = null;
-			} elseif ( DOMUtils::isComment( $sibling ) || DOMUtils::isText( $sibling ) ) {
+			} elseif ( $sibling instanceof Comment || $sibling instanceof Text ) {
 				if ( !$beforeText ) {
 					$beforeText = $sibling;
 				}
@@ -170,7 +172,9 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 				$fosterContentHolder = self::getFosterContentHolder( $c->ownerDocument, $inPTag );
 
 				// mark as fostered until we hit the table
-				while ( $sibling && ( !DOMUtils::isElt( $sibling ) || DOMCompat::nodeName( $sibling ) !== 'table' ) ) {
+				while ( $sibling &&
+					( !( $sibling instanceof Element ) || DOMCompat::nodeName( $sibling ) !== 'table' )
+				) {
 					$next = $sibling->nextSibling;
 					if ( $sibling instanceof Element ) {
 						// TODO: Note the similarity here with the p-wrapping pass.
@@ -227,7 +231,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 
 			} elseif ( DOMUtils::isMarkerMeta( $c, 'mw:TransclusionShadow' ) ) {
 				$c->parentNode->removeChild( $c );
-			} elseif ( DOMUtils::isElt( $c ) ) {
+			} elseif ( $c instanceof Element ) {
 				if ( $c->hasChildNodes() ) {
 					self::processRecursively( $c, $env );
 				}

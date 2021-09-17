@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext\Poem;
 
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\DOMProcessor;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -59,7 +60,7 @@ class PoemProcessor extends DOMProcessor {
 			$cc = $c->firstChild;
 			while ( $cc ) {
 				$next = $cc->nextSibling;
-				if ( DOMUtils::isText( $cc ) ) {
+				if ( $cc instanceof Text ) {
 					$pieces = preg_split( '/\n/', $cc->nodeValue );
 					$n = count( $pieces );
 					$nl = '';

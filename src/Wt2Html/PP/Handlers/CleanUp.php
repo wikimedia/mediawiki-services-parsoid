@@ -149,7 +149,7 @@ class CleanUp {
 		$skipped = false;
 		for ( $c = $node->firstChild; $c; $c = $next ) {
 			$next = $c->nextSibling;
-			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/D', $c->nodeValue ) ) {
+			if ( $c instanceof Text && preg_match( '/^[ \t]*$/D', $c->nodeValue ) ) {
 				$node->removeChild( $c );
 				$trimmedLen += strlen( $c->nodeValue );
 				$updateDSR = !$skipped;
@@ -163,7 +163,7 @@ class CleanUp {
 			}
 		}
 
-		if ( DOMUtils::isText( $c ) &&
+		if ( $c instanceof Text &&
 			preg_match( '/^([ \t]+)([\s\S]*)$/D', $c->nodeValue, $matches )
 		) {
 			$updateDSR = !$skipped;
@@ -181,7 +181,7 @@ class CleanUp {
 		$skipped = false;
 		for ( $c = $node->lastChild; $c; $c = $prev ) {
 			$prev = $c->previousSibling;
-			if ( DOMUtils::isText( $c ) && preg_match( '/^[ \t]*$/D', $c->nodeValue ) ) {
+			if ( $c instanceof Text && preg_match( '/^[ \t]*$/D', $c->nodeValue ) ) {
 				$trimmedLen += strlen( $c->nodeValue );
 				$node->removeChild( $c );
 				$updateDSR = !$skipped;
@@ -195,7 +195,7 @@ class CleanUp {
 			}
 		}
 
-		if ( DOMUtils::isText( $c ) &&
+		if ( $c instanceof Text &&
 			preg_match( '/^([\s\S]*\S)([ \t]+)$/D', $c->nodeValue, $matches )
 		) {
 			$updateDSR = !$skipped;

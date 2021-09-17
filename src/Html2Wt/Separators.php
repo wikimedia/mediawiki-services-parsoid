@@ -820,7 +820,7 @@ class Separators {
 					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr->end ?? null;
 					$correction = null;
 					if ( is_int( $endDsr ) ) {
-						if ( DOMUtils::isComment( $prevNode ) ) {
+						if ( $prevNode instanceof Comment ) {
 							'@phan-var Comment $prevNode'; // @var Comment $prevNode
 							$correction = WTUtils::decodedCommentLength( $prevNode );
 						} else {

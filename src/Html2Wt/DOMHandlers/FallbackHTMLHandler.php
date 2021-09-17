@@ -5,10 +5,10 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
@@ -60,7 +60,7 @@ class FallbackHTMLHandler extends DOMHandler {
 
 				$lostLine = '';
 				$fc = $node->firstChild;
-				if ( $fc && DOMUtils::isText( $fc ) ) {
+				if ( $fc && $fc instanceof Text ) {
 					$lostLine = str_starts_with( $fc->nodeValue, "\n" ) ? "\n" : '';
 				}
 

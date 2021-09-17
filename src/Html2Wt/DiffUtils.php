@@ -5,8 +5,10 @@ namespace Wikimedia\Parsoid\Html2Wt;
 
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -49,7 +51,7 @@ class DiffUtils {
 	public static function hasDiffMark( Node $node, Env $env, string $mark ): bool {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
-		if ( $mark === 'deleted' || ( $mark === 'inserted' && !DOMUtils::isElt( $node ) ) ) {
+		if ( $mark === 'deleted' || ( $mark === 'inserted' && !( $node instanceof Element ) ) ) {
 			return DOMUtils::isDiffMarker( $node->previousSibling, $mark );
 		} else {
 			$diffMark = self::getDiffMark( $node, $env );
@@ -71,7 +73,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function maybeDeletedNode( ?Node $node ): bool {
-		return $node && DOMUtils::isElt( $node ) && DOMUtils::isDiffMarker( $node, 'deleted' );
+		return $node && $node instanceof Element && DOMUtils::isDiffMarker( $node, 'deleted' );
 	}
 
 	/**
@@ -123,7 +125,7 @@ class DiffUtils {
 	public static function addDiffMark( Node $node, Env $env, string $mark ): void {
 		if ( $mark === 'deleted' || $mark === 'moved' ) {
 			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-		} elseif ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
+		} elseif ( $node instanceof Text || $node instanceof Comment ) {
 			if ( $mark !== 'inserted' ) {
 				$env->log( 'error', 'BUG! CHANGE-marker for ', $node->nodeType, ' node is: ', $mark );
 			}

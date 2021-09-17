@@ -6,10 +6,12 @@ namespace Wikimedia\Parsoid\Utils;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\ClientError;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\RemexHtml\DOM\DOMBuilder;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
@@ -119,16 +121,6 @@ class DOMUtils {
 		}
 	}
 
-	/**
-	 * Check whether this is a DOM element node.
-	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
-	 * @param ?Node $node
-	 * @return bool
-	 */
-	public static function isElt( ?Node $node ): bool {
-		return $node && $node->nodeType === XML_ELEMENT_NODE;
-	}
-
 	// phpcs doesn't like @phan-assert...
 	// phpcs:disable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
 
@@ -144,34 +136,12 @@ class DOMUtils {
 		return true;
 	}
 
-	// phpcs:enable MediaWiki.Commenting.FunctionAnnotations.UnrecognizedAnnotation
-
-	/**
-	 * Check whether this is a DOM text node.
-	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
-	 * @param ?Node $node
-	 * @return bool
-	 */
-	public static function isText( ?Node $node ): bool {
-		return $node && $node->nodeType === XML_TEXT_NODE;
-	}
-
-	/**
-	 * Check whether this is a DOM comment node.
-	 * @see http://dom.spec.whatwg.org/#dom-node-nodetype
-	 * @param ?Node $node
-	 * @return bool
-	 */
-	public static function isComment( ?Node $node ): bool {
-		return $node && $node->nodeType === XML_COMMENT_NODE;
-	}
-
 	/**
 	 * @param ?Node $node
 	 * @return bool
 	 */
 	public static function isRemexBlockNode( ?Node $node ): bool {
-		return self::isElt( $node ) &&
+		return $node instanceof Element &&
 			!isset( WikitextConstants::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
 			// From \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
 			// This is a superset but matches `emitsSolTransparentWT` below
@@ -601,7 +571,7 @@ class DOMUtils {
 	 */
 	public static function hasElementChild( Node $node ): bool {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
-			if ( self::isElt( $child ) ) {
+			if ( $child instanceof Element ) {
 				return true;
 			}
 		}
@@ -616,7 +586,7 @@ class DOMUtils {
 	 */
 	public static function hasBlockElementDescendant( Node $node ): bool {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
-			if ( self::isElt( $child ) &&
+			if ( $child instanceof Element &&
 				( self::isWikitextBlockNode( $child ) || // Is a block-level node
 				self::hasBlockElementDescendant( $child ) ) // or has a block-level child or grandchild or..
 			) {
@@ -634,7 +604,7 @@ class DOMUtils {
 	 */
 	public static function isIEW( ?Node $node ): bool {
 		// ws-only
-		return self::isText( $node ) && preg_match( '/^\s*$/D', $node->nodeValue );
+		return $node instanceof Text && preg_match( '/^\s*$/D', $node->nodeValue );
 	}
 
 	/**
@@ -664,7 +634,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isContentNode( ?Node $node ): bool {
-		return !self::isComment( $node ) &&
+		return !( $node instanceof Comment ) &&
 			!self::isIEW( $node ) &&
 			!self::isDiffMarker( $node );
 	}
@@ -813,8 +783,8 @@ class DOMUtils {
 		$child = $node->firstChild;
 		while ( $child ) {
 			if ( !self::isDiffMarker( $child )
-				&& !self::isText( $child )
-				&& !self::isComment( $child )
+				&& !( $child instanceof Text )
+				&& !( $child instanceof Comment )
 			) {
 				return false;
 			}
@@ -834,13 +804,13 @@ class DOMUtils {
 	public static function nodeEssentiallyEmpty( Node $node, bool $strict = false ): bool {
 		$n = $node->firstChild;
 		while ( $n ) {
-			if ( self::isElt( $n ) && !self::isDiffMarker( $n ) ) {
+			if ( $n instanceof Element && !self::isDiffMarker( $n ) ) {
 				return false;
-			} elseif ( self::isText( $n ) &&
+			} elseif ( $n instanceof Text &&
 				( $strict || !preg_match( '/^[ \t]*$/D',  $n->nodeValue ) )
 			) {
 				return false;
-			} elseif ( self::isComment( $n ) ) {
+			} elseif ( $n instanceof Comment ) {
 				return false;
 			}
 			$n = $n->nextSibling;
@@ -859,7 +829,7 @@ class DOMUtils {
 	public static function treeHasElement( Node $node, string $tagName ): bool {
 		$node = $node->firstChild;
 		while ( $node ) {
-			if ( self::isElt( $node ) ) {
+			if ( $node instanceof Element ) {
 				if ( DOMCompat::nodeName( $node ) === $tagName || self::treeHasElement( $node, $tagName ) ) {
 					return true;
 				}

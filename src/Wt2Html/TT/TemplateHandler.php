@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -831,7 +832,7 @@ class TemplateHandler extends TokenHandler {
 		// if / when `addHTMLTemplateParameters` is enabled.
 		// Remove DSR from children
 		DOMUtils::visitDOM( $domFragment, static function ( $node ) {
-			if ( !DOMUtils::isElt( $node ) ) {
+			if ( !( $node instanceof Element ) ) {
 				return;
 			}
 			$dp = DOMDataUtils::getDataParsoid( $node );

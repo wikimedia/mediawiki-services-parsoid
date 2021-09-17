@@ -6,9 +6,11 @@ namespace Wikimedia\Parsoid\Html2Wt;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -275,14 +277,14 @@ class DOMDiff {
 	public function treeEquals( Node $nodeA, Node $nodeB, bool $deep ): bool {
 		if ( $nodeA->nodeType !== $nodeB->nodeType ) {
 			return false;
-		} elseif ( DOMUtils::isText( $nodeA ) ) {
+		} elseif ( $nodeA instanceof Text ) {
 			// In the past we've had bugs where we let non-primitive strings
 			// leak into our DOM.  Safety first:
 			Assert::invariant( $nodeA->nodeValue === (string)$nodeA->nodeValue, '' );
 			Assert::invariant( $nodeB->nodeValue === (string)$nodeB->nodeValue, '' );
 			// ok, now do the comparison.
 			return $nodeA->nodeValue === $nodeB->nodeValue;
-		} elseif ( DOMUtils::isComment( $nodeA ) ) {
+		} elseif ( $nodeA instanceof Comment ) {
 			return WTUtils::decodeComment( $nodeA->nodeValue ) ===
 				WTUtils::decodeComment( $nodeB->nodeValue );
 		} elseif ( $nodeA instanceof Element || $nodeA instanceof DocumentFragment ) {
@@ -541,7 +543,7 @@ class DOMDiff {
 		} else {
 			if ( $node instanceof Element ) {
 				DiffUtils::setDiffMark( $node, $this->env, $mark );
-			} elseif ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
+			} elseif ( $node instanceof Text || $node instanceof Comment ) {
 				if ( $mark !== 'inserted' ) {
 					$this->env->log( 'error/domdiff',
 						'BUG! CHANGE-marker for ' . $node->nodeType . ' node is: ' . $mark

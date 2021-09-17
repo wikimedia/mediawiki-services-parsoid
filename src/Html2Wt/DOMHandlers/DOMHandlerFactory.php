@@ -122,7 +122,7 @@ class DOMHandlerFactory {
 			return new BodyHandler();
 		}
 
-		if ( !$node || !DOMUtils::isElt( $node ) ) {
+		if ( !( $node && $node instanceof Element ) ) {
 			return new DOMHandler();
 		}
 		'@phan-var Element $node';/** @var Element $node */

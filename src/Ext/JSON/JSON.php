@@ -298,8 +298,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	private function valueCellFrom( Element $el ) {
 		Assert::invariant( DOMCompat::nodeName( $el ) === 'td', 'Expected tagName = td' );
 		$table = $el->firstChild;
-		if ( $table && DOMUtils::isElt( $table ) ) {
-			DOMUtils::assertElt( $table );
+		if ( $table instanceof Element ) {
 			if ( DOMCompat::getClassList( $table )->contains( 'mw-json-array' ) ) {
 				return self::arrayTableFrom( $table );
 			} elseif ( DOMCompat::getClassList( $table )->contains( 'mw-json-object' ) ) {

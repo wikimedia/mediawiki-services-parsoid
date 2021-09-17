@@ -420,7 +420,7 @@ class TestRunner {
 						// Change node wrapper
 						// (sufficient to insert a random attr)
 						case 1:
-							if ( DOMUtils::isElt( $child ) ) {
+							if ( $child instanceof Element ) {
 								$child->setAttribute( 'data-foobar', $randomString() );
 							} else {
 								$env->log( 'error',
@@ -570,7 +570,7 @@ class TestRunner {
 							$changeType = $defaultChangeType;
 						}
 					} else {
-						if ( !DOMUtils::isElt( $child ) ) {
+						if ( !( $child instanceof Element ) ) {
 							// Text or comment node -- valid changes: 2, 3, 4
 							// since we cannot set attributes on these
 							$changeType = floor( $alea->random() * 3 ) + 2;

@@ -8,8 +8,10 @@ use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -363,7 +365,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		$prev = $lc->previousSibling;
 		// PORT-FIXME: Do we care about non-ASCII whitespace here?
-		if ( DOMUtils::isText( $prev ) && !preg_match( '/\s$/D', $prev->nodeValue ) ) {
+		if ( $prev instanceof Text && !preg_match( '/\s$/D', $prev->nodeValue ) ) {
 			return true;
 		}
 
@@ -906,7 +908,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		while ( $node && !DOMUtils::isRemexBlockNode( $node ) &&
 			!in_array( DOMCompat::nodeName( $node ), [ 'hr', 'br', 'wbr' ], true )
 		) {
-			if ( DOMUtils::isText( $node ) || !$this->hasNoWrapCSS( $node ) ) {
+			if ( $node instanceof Text || !$this->hasNoWrapCSS( $node ) ) {
 				// No CSS property that affects whitespace.
 				$s = $node->textContent;
 				if ( preg_match( '/^([^\s]*)\s/', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace?
@@ -924,12 +926,12 @@ class Linter implements Wt2HtmlDOMProcessor {
 			} else {
 				// Find last non-comment child of node
 				$last = $node->lastChild;
-				while ( $last && DOMUtils::isComment( $last ) ) {
+				while ( $last && $last instanceof Comment ) {
 					$last = $last->previousSibling;
 				}
 
 				$bug = false;
-				if ( $last && DOMUtils::isText( $last ) &&
+				if ( $last && $last instanceof Text &&
 					preg_match( '/\s$/D', $last->nodeValue ) // PORT-FIXME: non-ASCII whitespace?
 				) {
 					// In this scenario, when Tidy hoists the whitespace to
@@ -957,7 +959,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 			// Move to the next non-comment sibling
 			$node = $node->nextSibling;
-			while ( $node && DOMUtils::isComment( $node ) ) {
+			while ( $node && $node instanceof Comment ) {
 				$node = $node->nextSibling;
 			}
 		}
@@ -982,7 +984,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// Find run before startNode that doesn't have a whitespace break
 		$prev = $startNode->previousSibling;
 		while ( $prev && !DOMUtils::isRemexBlockNode( $prev ) ) {
-			if ( !DOMUtils::isComment( $prev ) ) {
+			if ( !( $prev instanceof Comment ) ) {
 				$s = $prev->textContent;
 				// Find the last \s in the string
 				if ( preg_match( '/\s([^\s]*)$/D', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace here?

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
@@ -49,7 +50,7 @@ class SpanHandler extends DOMHandler {
 				// serializing its children
 				if ( isset( $dp->src ) && $contentSrc === ( $dp->srcContent ?? null ) ) {
 					$state->serializer->emitWikitext( $dp->src, $node );
-				} elseif ( DOMUtils::isText( $node->firstChild ) ) {
+				} elseif ( $node->firstChild instanceof Text ) {
 					$state->emitChunk(
 						Utils::entityEncodeAll( $node->firstChild->nodeValue ),
 						$node->firstChild );

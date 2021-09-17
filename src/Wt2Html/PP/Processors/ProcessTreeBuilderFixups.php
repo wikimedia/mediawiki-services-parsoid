@@ -329,7 +329,7 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 				if ( !empty( $dp->autoInsertedStart ) && !empty( $dp->autoInsertedEnd ) &&
 					( !$c->hasChildNodes() ||
 						( DOMUtils::hasNChildren( $c, 1 ) &&
-							!DOMUtils::isElt( $c->firstChild ) &&
+							!( $c->firstChild instanceof Element ) &&
 							preg_match( '/^\s*$/D', $c->textContent )
 						)
 					)

@@ -333,7 +333,7 @@ class PipelineUtils {
 			// in a fosterable position after treebuilding is done, which isn't
 			// roundtrippable.
 			$wrapperName = 'span';
-		} elseif ( !DOMUtils::isElt( $node ) ) {
+		} elseif ( !( $node instanceof Element ) ) {
 			$wrapperName = 'span';
 		} else {
 			$wrapperName = DOMCompat::nodeName( $node );
@@ -527,7 +527,7 @@ class PipelineUtils {
 				}
 				continue;
 			}
-			if ( DOMUtils::isText( $node ) || DOMUtils::isComment( $node ) ) {
+			if ( $node instanceof Text || $node instanceof Comment ) {
 				$textCommentAccum[] = $node;
 			} elseif ( count( $textCommentAccum ) ) {
 				self::wrapAccum( $doc, $textCommentAccum );

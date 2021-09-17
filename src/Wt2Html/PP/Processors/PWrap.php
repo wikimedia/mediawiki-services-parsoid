@@ -5,9 +5,11 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -33,8 +35,8 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	private function emitsSolTransparentWT( Node $n ): bool {
-		return DOMUtils::isText( $n ) && preg_match( '/^\s*$/D', $n->nodeValue ) ||
-			DOMUtils::isComment( $n ) ||
+		return ( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
+			$n instanceof Comment ||
 			isset( WikitextConstants::$HTML['MetaTags'][DOMCompat::nodeName( $n )] );
 	}
 
@@ -129,7 +131,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			// The null stuff here is mainly to support mw:EndTag metas getting in
 			// the way of runs and causing unnecessary wrapping.
 			return [ [ 'pwrap' => null, 'node' => $n ] ];
-		} elseif ( DOMUtils::isText( $n ) ) {
+		} elseif ( $n instanceof Text ) {
 			return [ [ 'pwrap' => true, 'node' => $n ] ];
 		} elseif ( !$this->isSplittableTag( $n ) || count( $n->childNodes ) === 0 ) {
 			// block tag OR non-splittable inline tag

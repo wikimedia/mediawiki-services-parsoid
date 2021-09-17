@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -399,7 +400,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function emitsSolTransparentSingleLineWT( Node $node ): bool {
-		if ( DOMUtils::isText( $node ) ) {
+		if ( $node instanceof Text ) {
 			// NB: We differ here to meet the nl condition.
 			return (bool)preg_match( '/^[ \t]*$/D', $node->nodeValue );
 		} elseif ( self::isRenderingTransparentNode( $node ) ) {
@@ -436,11 +437,11 @@ class WTUtils {
 	 */
 	public static function isRenderingTransparentNode( Node $node ): bool {
 		// FIXME: Can we change this entire thing to
-		// DOMUtils::isComment($node) ||
+		// $node instanceof Comment ||
 		// DOMUtils::getDataParsoid($node).stx !== 'html' &&
 		// (DOMCompat::nodeName($node) === 'meta' || DOMCompat::nodeName($node) === 'link')
 		//
-		return DOMUtils::isComment( $node ) ||
+		return $node instanceof Comment ||
 			self::isSolTransparentLink( $node ) || (
 				// Catch-all for everything else.
 				$node instanceof Element &&
@@ -619,7 +620,7 @@ class WTUtils {
 		while ( $node && (
 			$node instanceof Element &&
 			$node->getAttribute( 'about' ) === $about ||
-				DOMUtils::isFosterablePosition( $node ) && !DOMUtils::isElt( $node ) && DOMUtils::isIEW( $node )
+			DOMUtils::isFosterablePosition( $node ) && !( $node instanceof Element ) && DOMUtils::isIEW( $node )
 		) ) {
 			$nodes[] = $node;
 			$node = $node->nextSibling;
@@ -808,7 +809,7 @@ class WTUtils {
 	public static function reinsertFosterableContent(
 		Env $env, Node $node
 	): ?Node {
-		if ( DOMUtils::isComment( $node ) && preg_match( '/^\{.+\}$/D', $node->nodeValue ) ) {
+		if ( $node instanceof Comment && preg_match( '/^\{.+\}$/D', $node->nodeValue ) ) {
 			// Convert serialized meta tags back from comments.
 			// We use this trick because comments won't be fostered,
 			// providing more accurate information about where tags are expected

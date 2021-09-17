@@ -51,8 +51,7 @@ class TDHandler extends DOMHandler {
 		};
 
 		$nextTd = DOMUtils::nextNonSepSibling( $node );
-		$nextUsesRowSyntax = DOMUtils::isElt( $nextTd )
-			&& $nextTd instanceof Element // for static analyzers
+		$nextUsesRowSyntax = $nextTd instanceof Element
 			&& ( DOMDataUtils::getDataParsoid( $nextTd )->stx ?? null ) === 'row';
 
 		// For empty cells, emit a single whitespace to make wikitext

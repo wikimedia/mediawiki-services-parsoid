@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -80,7 +81,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 		// Don't allow migration out of a table if the table has had
 		// content fostered out of it.
 		$tableParent = $this->getTableParent( $node );
-		if ( $tableParent && DOMUtils::isElt( $tableParent->previousSibling ) ) {
+		if ( $tableParent && $tableParent->previousSibling instanceof Element ) {
 			$previousSibling = $tableParent->previousSibling;
 			'@phan-var Element $previousSibling'; // @var Element $previousSibling
 			if ( !empty( DOMDataUtils::getDataParsoid( $previousSibling )->fostered ) ) {
@@ -167,7 +168,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 			// or an element node).
 			$foundNL = false;
 			$tsrCorrection = 0;
-			while ( $n && ( DOMUtils::isText( $n ) || DOMUtils::isComment( $n ) ) ) {
+			while ( $n && ( $n instanceof Text || $n instanceof Comment ) ) {
 				if ( $n instanceof Comment ) {
 					$firstEltToMigrate = $n;
 					// <!--comment-->
