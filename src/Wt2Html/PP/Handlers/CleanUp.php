@@ -7,8 +7,10 @@ use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -48,6 +50,31 @@ class CleanUp {
 
 	/**
 	 * @param Node $node
+	 * @return bool
+	 */
+	private static function isEmptyNode( Node $node ): bool {
+		$n = $node->firstChild;
+		while ( $n ) {
+			// Comments, sol-transparent links, nowiki spans without content
+			// are all stripped  by the core parser.
+			// Text nodes with whitespace don't count either.
+			if ( $n instanceof Comment ||
+				WTUtils::isSolTransparentLink( $n ) ||
+				( $n instanceof Text && preg_match( '/^[ \t]*$/D',  $n->nodeValue ) ) ||
+				( DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) && self::isEmptyNode( $n ) )
+			) {
+				$n = $n->nextSibling;
+				continue;
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param Node $node
 	 * @param Env $env
 	 * @param array $options
 	 * @param bool $atTopLevel
@@ -60,7 +87,7 @@ class CleanUp {
 	) {
 		if ( !( $node instanceof Element ) ||
 			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
-			!DOMUtils::nodeEssentiallyEmpty( $node )
+			!self::isEmptyNode( $node )
 		) {
 			return true;
 		}
