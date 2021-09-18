@@ -345,6 +345,7 @@ class TestUtils {
 			'inPRE' => false
 		];
 		// clone body first, since we're going to destructively mutate it.
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return self::normalizeIEWVisitor( $body->cloneNode( true ), $opts );
 	}
 

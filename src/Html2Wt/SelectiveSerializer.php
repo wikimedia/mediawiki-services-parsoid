@@ -157,6 +157,7 @@ class SelectiveSerializer {
 						$elt->insertBefore( $span, $c );
 						$span->appendChild( $doc->createTextNode( $text ) );
 						$c->nodeValue = $nl;
+						// @phan-suppress-next-line PhanPossiblyUndeclaredVariable
 						$start += $numOfNls;
 					} else {
 						$elt->replaceChild( $span, $c );

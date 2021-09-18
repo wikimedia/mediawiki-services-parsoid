@@ -153,7 +153,6 @@ class DOMPostProcessor extends PipelineStage {
 				$classNameOrSpec = $p['Processor'];
 				if ( empty( $p['isExtPP'] ) ) {
 					// Internal processor w/ ::run() method, class name given
-					// @phan-suppress-next-line PhanNonClassMethodCall
 					$c = new $classNameOrSpec();
 					$p['proc'] = function ( ...$args ) use ( $c ) {
 						return $c->run( $this->env, ...$args );
@@ -985,6 +984,7 @@ class DOMPostProcessor extends PipelineStage {
 	public function process( $node, array $opts = null ) {
 		'@phan-var Node $node'; // @var Node $node
 		$this->doPostProcess( $node );
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $node;
 	}
 

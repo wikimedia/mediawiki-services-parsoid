@@ -48,6 +48,7 @@ class Item {
 	 * @param string $desc The error description.
 	 * @param ?string $text Optional additional context.
 	 * @throws \Error
+	 * @return never
 	 */
 	public function error( string $desc, ?string $text = null ) {
 		throw new \Error( $this->errorMsg( $desc, $text ) );

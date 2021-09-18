@@ -198,6 +198,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	private function stashDataAttribs( array $attribs, object $dataAttribs ): array {
 		$data = [ 'parsoid' => $dataAttribs ];
 		if ( isset( $attribs['data-mw'] ) ) {
+			// @phan-suppress-next-line PhanImpossibleCondition
 			Assert::invariant( !isset( $data['mw'] ), "data-mw already set." );
 			$data['mw'] = json_decode( $attribs['data-mw'] );
 			unset( $attribs['data-mw'] );
@@ -389,6 +390,7 @@ class HTML5TreeBuilder extends PipelineStage {
 	public function process( $input, array $opts = null ) {
 		'@phan-var array $input'; // @var array $input
 		$this->processChunk( $input );
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $this->finalizeDOM();
 	}
 

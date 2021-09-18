@@ -280,7 +280,6 @@ class ConstrainedText {
 				$env->log( "error/html2wt/dsr",
 					"Bad DSR: " . PHPUtils::jsonEncode( $firstChildDp->dsr ),
 					"Node: " . DOMCompat::getOuterHTML( $firstChild ) );
-				$prefixChunks = [];
 			} else {
 				if ( $len > strlen( $text ) ) { // T254412: Bad DSR
 					$env->log( "error/html2wt/dsr",
@@ -311,7 +310,6 @@ class ConstrainedText {
 				$env->log( "error/html2wt/dsr",
 					"Bad DSR: " . PHPUtils::jsonEncode( $lastChildDp->dsr ),
 					"Node: " . DOMCompat::getOuterHTML( $lastChild ) );
-				$suffixChunks = [];
 			} else {
 				if ( $len > strlen( $text ) ) { // T254412: Bad DSR
 					$env->log( "error/html2wt/dsr",

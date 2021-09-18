@@ -132,6 +132,7 @@ class PHPUtils {
 	 * @return array
 	 */
 	public static function makeMap( array $a ) {
+		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
 		throw new \BadMethodCallException(
 			'Don\'t use this, just declare your associative array directly'
 		);

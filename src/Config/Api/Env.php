@@ -35,6 +35,7 @@ class Env extends IEnv {
 
 	/** @return SiteConfig */
 	public function getSiteConfig(): \Wikimedia\Parsoid\Config\SiteConfig {
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return parent::getSiteConfig();
 	}
 }

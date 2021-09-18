@@ -130,6 +130,7 @@ class DOMUtils {
 	 * @phan-assert Element $node
 	 * @param ?Node $node
 	 * @return bool Always returns true
+	 * @phan-assert Element $node
 	 */
 	public static function assertElt( ?Node $node ): bool {
 		Assert::invariant( $node instanceof Element, "Expected an element" );

@@ -142,7 +142,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 			return;
 		} elseif ( is_bool( $val ) ) {
 			DOMCompat::getClassList( $parent )->add( 'mw-json-boolean' );
-			$parent->textContent = [ 'false', 'true' ][$val === true];
+			$parent->textContent = $val ? 'true' : 'false';
 			return;
 		} elseif ( is_int( $val ) || is_float( $val ) ) {
 			DOMCompat::getClassList( $parent )->add( 'mw-json-number' );

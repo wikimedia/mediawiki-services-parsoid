@@ -395,7 +395,7 @@ class ParserFunctions {
 		// Check http://www.mediawiki.org/wiki/Extension:TagParser for more info
 		// about the #tag parser function.
 		$target = $args[0]->k;
-		if ( !$target || $target === '' ) {
+		if ( !$target ) {
 			return [];
 		} else {
 			// remove tag-name

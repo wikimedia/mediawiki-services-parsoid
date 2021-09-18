@@ -39,6 +39,7 @@ class MockMetrics implements StatsdDataFactoryInterface {
 	public function produceStatsdData(
 		$key, $value = 1, $metric = StatsdDataInterface::STATSD_METRIC_COUNT
 	) {
+		// @phan-suppress-next-line PhanTypeMismatchReturn FIXME, phan seems right
 		return $metric;
 	}
 

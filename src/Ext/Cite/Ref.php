@@ -166,6 +166,7 @@ class Ref extends ExtensionTagHandler {
 						$bodyElt = $bodyElt->cloneNode( true );
 						foreach ( $bodyElt->childNodes as $child ) {
 							if ( DOMUtils::hasTypeOf( $child, 'mw:Cite/Follow' ) ) {
+								// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
 								DOMCompat::remove( $child );
 							}
 						}

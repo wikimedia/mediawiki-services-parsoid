@@ -87,6 +87,7 @@ class DOMCompat {
 			/** @var Element $element */
 			if ( self::nodeName( $element ) === 'body' || self::nodeName( $element ) === 'frameset' ) {
 				$document->body = $element; // Caching!
+				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 				return $element;
 			}
 		}
@@ -111,6 +112,7 @@ class DOMCompat {
 			/** @var Element $element */
 			if ( self::nodeName( $element ) === 'head' ) {
 				$document->head = $element; // Caching!
+				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 				return $element;
 			}
 		}
@@ -158,6 +160,7 @@ class DOMCompat {
 		$parent = $node->parentNode;
 		if ( $parent && $parent->nodeType === XML_ELEMENT_NODE ) {
 			/** @var Element $parent */
+			// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 			return $parent;
 		}
 		return null;
@@ -183,6 +186,7 @@ class DOMCompat {
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
 		$elements = Zest::getElementsById( $node, $id );
+		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return $elements[0] ?? null;
 	}
 
@@ -288,6 +292,7 @@ class DOMCompat {
 		while ( $lastChild && $lastChild->nodeType !== XML_ELEMENT_NODE ) {
 			$lastChild = $lastChild->previousSibling;
 		}
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $lastChild;
 	}
 
@@ -344,6 +349,7 @@ class DOMCompat {
 		while ( $previousSibling && $previousSibling->nodeType !== XML_ELEMENT_NODE ) {
 			$previousSibling = $previousSibling->previousSibling;
 		}
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $previousSibling;
 	}
 
@@ -366,6 +372,7 @@ class DOMCompat {
 		while ( $nextSibling && $nextSibling->nodeType !== XML_ELEMENT_NODE ) {
 			$nextSibling = $nextSibling->nextSibling;
 		}
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $nextSibling;
 	}
 

@@ -125,6 +125,7 @@ class Utils {
 	 * @return string
 	 */
 	public static function phpURLEncode( $txt ) {
+		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
 		throw new \BadMethodCallException( 'Use urlencode( $txt ) instead' );
 	}
 
@@ -387,6 +388,7 @@ class Utils {
 	 * @return object
 	 */
 	public static function getStar( $revision ) {
+		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
 		/*
 		$content = $revision;
 		if ( $revision && isset( $revision->slots ) ) {

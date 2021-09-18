@@ -217,13 +217,6 @@ class DiffUtils {
 	public static function attribsEquals(
 		Element $nodeA, Element $nodeB, array $ignoreableAttribs, array $specializedAttribHandlers
 	): bool {
-		if ( !$ignoreableAttribs ) {
-			$ignoreableAttribs = [];
-		}
-		if ( !$specializedAttribHandlers ) {
-			$specializedAttribHandlers = [];
-		}
-
 		$xA = self::arrayToHash( $nodeA, $ignoreableAttribs );
 		$xB = self::arrayToHash( $nodeB, $ignoreableAttribs );
 

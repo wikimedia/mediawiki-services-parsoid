@@ -272,6 +272,7 @@ class LanguageConverter {
 			$guesser = new ConstantLanguageGuesser( $sourceVariant );
 		} else {
 			$guesser = new MachineLanguageGuesser(
+				// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
 				$langconv->getMachine(), $rootNode, $targetVariant
 			);
 		}

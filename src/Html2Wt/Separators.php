@@ -69,7 +69,7 @@ class Separators {
 
 	/**
 	 * @param Node $n
-	 * @return string|null
+	 * @return int|null
 	 */
 	private static function precedingSeparatorTextLen( Node $n ): ?int {
 		// Given the CSS white-space property and specifically,
@@ -1007,8 +1007,6 @@ class Separators {
 				if ( $sep !== null ) {
 					$state->sep->src .= $sep;
 				}
-			} else {
-				$sep = null;
 			}
 		}
 

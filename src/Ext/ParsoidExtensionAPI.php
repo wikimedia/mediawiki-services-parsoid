@@ -362,7 +362,7 @@ class ParsoidExtensionAPI {
 	 * every whitespace character to a single space.
 	 * @param KV[] $extArgs
 	 * @param string $key should be lower-case
-	 * @param bool $context
+	 * @param string $context
 	 * @return ?DocumentFragment
 	 */
 	public function extArgToDOM(

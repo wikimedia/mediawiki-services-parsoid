@@ -36,7 +36,7 @@ class LanguageVariantHandler {
 	/**
 	 * Helper function: serialize a DOM string
 	 * @param SerializerState $state
-	 * @param string|bool $t
+	 * @param string $t
 	 * @param ?array $opts
 	 * @return string
 	 */

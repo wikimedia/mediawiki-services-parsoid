@@ -100,7 +100,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onTag( Token $token ): ?TokenHandlerResult {
-		$tkName = is_string( $token ) ? '' : $token->getName();
+		$tkName = $token->getName();
 		if ( $tkName === 'mw-quote' ) {
 			return $this->onQuote( $token );
 		} elseif ( $tkName === 'td' || $tkName === 'th' ) {

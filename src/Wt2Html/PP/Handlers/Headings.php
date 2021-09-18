@@ -90,6 +90,7 @@ class Headings {
 					$str .= $n->nodeValue;
 				} elseif ( DOMUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
 					// Special case for -{...}-
+					// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$str .= $dp->src ?? '';
 				} elseif ( DOMCompat::nodeName( $n ) === 'style' || DOMCompat::nodeName( $n ) === 'script' ) {
