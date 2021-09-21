@@ -101,7 +101,7 @@ class ExtensionHandler extends TokenHandler {
 		if ( $siteConfig->namespaceIsTalk( $pageConfig->getNS() ) ) {
 			$metrics = $siteConfig->metrics();
 			if ( $metrics ) {
-				$metrics->increment( "extension.ns.talk.name.{$extensionName}.count" );
+				$metrics->increment( "extension.talk.{$extensionName}" );
 			}
 		}
 
