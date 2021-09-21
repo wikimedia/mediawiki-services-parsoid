@@ -865,12 +865,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			// a flipped range where, since the end meta for the first range was
 			// also fostered, the ranges still don't overlap.
 
-			if ( $range->flipped ) {
-				// FIXME: The code below needs to be aware of flipped ranges.
-				$env->log( 'warn/template',
-					'Encapsulating a flipped range: ' . $range->id
-				);
-			}
+			// FIXME: The code below needs to be aware of flipped ranges.
 
 			self::ensureElementsInRange( $doc, $range );
 
@@ -1137,7 +1132,6 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 							if ( !empty( $aboutRef->end ) ) {
 								// End marker was foster-parented.
 								// Found actual start tag.
-								$env->log( 'warn/template', 'end marker was foster-parented for', $about );
 								$tplRanges[] = self::getDOMRange( $frame, $doc, $elem, $aboutRef->end, $aboutRef->end );
 							} else {
 								// should not happen!

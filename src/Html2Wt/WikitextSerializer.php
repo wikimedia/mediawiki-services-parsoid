@@ -400,10 +400,7 @@ class WikitextSerializer {
 			// for this id.
 			if ( $k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $kv->v ) ) {
 				if ( WTUtils::isNewElt( $node ) ) {
-					$this->env->log( 'warn/html2wt',
-						'Parsoid id found on element without a matching data-parsoid '
-						. 'entry: ID=' . $kv->v . '; ELT=' . DOMCompat::getOuterHTML( $node )
-					);
+					// Parsoid id found on element without a matching data-parsoid. Drop it!
 				} else {
 					$vInfo = $token->getAttributeShadowInfo( $k );
 					if ( !$vInfo['modified'] && $vInfo['fromsrc'] ) {

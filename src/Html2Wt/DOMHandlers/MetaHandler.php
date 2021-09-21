@@ -53,8 +53,6 @@ class MetaHandler extends DOMHandler {
 						}
 					} else {
 						$magicWord = mb_strtoupper( $catMatch[1] );
-						$state->getEnv()->log( 'warn', $catMatch[1]
-							. " is missing source. Rendering as $magicWord magicword" );
 						$out = '{{' . $magicWord . ':' . $contentInfo['value'] . '}}';
 					}
 				} else {
