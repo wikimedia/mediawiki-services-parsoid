@@ -109,7 +109,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string|null $hostname The host on which to execute the command.
 	 * @throws Error if the command does not successfully execute
 	 */
-	private function ssh( array $cmd, string $hostname = null ):void {
+	private function ssh( array $cmd, string $hostname = null ): void {
 		array_unshift( $cmd, 'ssh', $this->hostname( $hostname ) );
 		$this->sh( $cmd );
 	}
@@ -122,7 +122,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string|array<string> ...$commands
 	 * @return array<string>
 	 */
-	private static function cmd( ...$commands ):array {
+	private static function cmd( ...$commands ): array {
 		return array_merge( ...array_map( static function ( $item ) {
 			return is_string( $item ) ? explode( ' ', $item ) : $item;
 		}, $commands ) );
@@ -258,7 +258,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string $knownGood the oracle commit
 	 * @param string $maybeBad the test commit
 	 */
-	public function compareResults( $titles, $knownGood, $maybeBad ):void {
+	public function compareResults( $titles, $knownGood, $maybeBad ): void {
 		$this->dashes( "Comparing results" );
 		$oracleResults = $this->readResults( $knownGood );
 		$commitResults = $this->readResults( $maybeBad );

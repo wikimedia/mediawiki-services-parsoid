@@ -241,7 +241,7 @@ class ComputeDSRTest extends TestCase {
 	/**
 	 * @return array
 	 */
-	public function providePreComputeDSR() : array {
+	public function providePreComputeDSR(): array {
 		return [
 			[
 				[ 'wt' => " Preformatted text ",

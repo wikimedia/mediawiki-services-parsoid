@@ -1041,7 +1041,7 @@ class LinkHandlerUtils {
 			return $null;
 		};
 		// Return ref to the array element in case it is modified
-		$getLastOpt = static function & ( $key ) use ( &$outerDP ) : ?array {
+		$getLastOpt = static function & ( $key ) use ( &$outerDP ): ?array {
 			$null = null;
 			$opts = $outerDP->optList ?? [];
 			for ( $i = count( $opts ) - 1;  $i >= 0;  $i-- ) {

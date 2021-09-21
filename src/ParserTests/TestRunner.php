@@ -259,10 +259,10 @@ class TestRunner {
 	 */
 	private function buildTests(): void {
 		// Startup by loading .txt test file
-		$warnFunc = static function ( string $warnMsg ):void {
+		$warnFunc = static function ( string $warnMsg ): void {
 			error_log( $warnMsg );
 		};
-		$normFunc = function ( string $title ):string {
+		$normFunc = function ( string $title ): string {
 			return $this->dummyEnv->normalizedTitleKey( $title, false, true );
 		};
 		$testReader = TestFileReader::read(

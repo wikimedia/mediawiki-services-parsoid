@@ -489,7 +489,7 @@ class MockApiHelper extends ApiHelper {
 	 * @param string $key The normalized title of the article
 	 * @param Article $article The contents of the article
 	 */
-	public function addArticle( string $key, Article $article ):void {
+	public function addArticle( string $key, Article $article ): void {
 		$this->articleCache[$key] = $article;
 	}
 
@@ -533,7 +533,7 @@ class MockApiHelper extends ApiHelper {
 	 */
 	private function imageInfo(
 		string $filename, ?int $twidth, ?int $theight, ?string $extraParam
-	) : ?array {
+	): ?array {
 		$normPageName = self::PNAMES[$filename] ?? $filename;
 		$normFileName = self::FNAMES[$filename] ?? $filename;
 		$props = self::FILE_PROPS[$normFileName] ?? null;

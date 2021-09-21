@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class TestUtils {
-	/** @var mixed $consoleColor */
+	/** @var mixed */
 	private static $consoleColor;
 
 	/**
@@ -210,7 +210,7 @@ class TestUtils {
 	 */
 	private static function unwrapSpan(
 		Node $parent, Node $node, ?string $stripSpanTypeof
-	):void {
+	): void {
 		// first recurse to unwrap any spans in the immediate children.
 		self::cleanSpans( $node, $stripSpanTypeof );
 		// now unwrap this span.

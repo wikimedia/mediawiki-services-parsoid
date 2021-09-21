@@ -173,7 +173,7 @@ class SyncBaseConfig extends Maintenance {
 	 * @param string $formatVersion either "1" or "2"
 	 * @return string the full path of the file where the baseconfig will be stored
 	 */
-	private function getFileName( string $wikiId, string $formatVersion ) : string {
+	private function getFileName( string $wikiId, string $formatVersion ): string {
 		// HACK for be-tarask
 		if ( $wikiId === 'be_x_oldwiki' ) {
 			$wikiId = 'be-taraskwiki';

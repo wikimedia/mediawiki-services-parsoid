@@ -554,7 +554,7 @@ abstract class SiteConfig {
 	 *
 	 * @return string Regex character class (i.e. the bit that goes inside `[]`)
 	 */
-	abstract public function legalTitleChars() : string;
+	abstract public function legalTitleChars(): string;
 
 	/**
 	 * Link prefix regular expression.

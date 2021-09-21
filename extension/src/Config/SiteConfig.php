@@ -462,7 +462,7 @@ class SiteConfig extends ISiteConfig {
 		return WikiMap::getCurrentWikiId();
 	}
 
-	public function legalTitleChars() : string {
+	public function legalTitleChars(): string {
 		return Title::legalChars();
 	}
 

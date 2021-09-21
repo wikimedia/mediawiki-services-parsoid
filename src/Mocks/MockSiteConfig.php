@@ -170,7 +170,7 @@ class MockSiteConfig extends SiteConfig {
 		return 'mywiki';
 	}
 
-	public function legalTitleChars() : string {
+	public function legalTitleChars(): string {
 		return ' %!"$&\'()*,\-.\/0-9:;=?@A-Z\\\\^_`a-z~\x80-\xFF+';
 	}
 

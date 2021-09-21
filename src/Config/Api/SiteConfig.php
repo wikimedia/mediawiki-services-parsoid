@@ -467,7 +467,7 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['wikiid'];
 	}
 
-	public function legalTitleChars() : string {
+	public function legalTitleChars(): string {
 		$this->loadSiteData();
 		return $this->siteData['legaltitlechars'];
 	}

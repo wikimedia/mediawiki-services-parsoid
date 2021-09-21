@@ -457,7 +457,7 @@ class TokenUtils {
 	 */
 	public static function convertTokenOffsets(
 		string $s, string $from, string $to, array $tokens
-	) : void {
+	): void {
 		$offsets = []; /* @var array<int> $offsets */
 		self::collectOffsets( $tokens, static function ( $sr ) use ( &$offsets ) {
 			if ( $sr instanceof DomSourceRange ) {

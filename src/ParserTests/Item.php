@@ -34,7 +34,7 @@ class Item {
 	 * @return string The error message string, including the line number and
 	 *   filename of this item.
 	 */
-	public function errorMsg( string $desc, ?string $text = null ):string {
+	public function errorMsg( string $desc, ?string $text = null ): string {
 		$start = $this->lineNumStart;
 		$end = $this->lineNumEnd;
 		$lineDesc = $end > $start ? "lines $start-$end" : "line $start";
