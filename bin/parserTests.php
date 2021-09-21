@@ -673,7 +673,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	public static function printResult(
 		callable $reportFailure, callable $reportSuccess,
 		Stats $stats, Test $item, array $options, string $mode,
-		array $expected, array $actual, callable $pre = null, callable $post = null
+		array $expected, array $actual, ?callable $pre = null, ?callable $post = null
 	): bool {
 		$title = $item->testName; // Title may be modified here, so pass it on.
 
