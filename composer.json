@@ -33,7 +33,7 @@
 		"wikimedia/object-factory": "^2.1",
 		"wikimedia/remex-html": "^2.2.0",
 		"wikimedia/scoped-callback": "^3.0.0",
-		"wikimedia/wikipeg": "^2.0.4",
+		"wikimedia/wikipeg": "^2.0.5",
 		"wikimedia/zest-css": "^1.1.3",
 		"ext-dom": "*",
 		"ext-json": "*"
