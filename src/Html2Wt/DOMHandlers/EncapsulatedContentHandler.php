@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class EncapsulatedContentHandler extends DOMHandler {
@@ -42,10 +43,11 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$transclusionType = DOMUtils::matchTypeOf( $node, '/^mw:(Transclusion|Param)$/' );
 		$extType = DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' );
 		if ( $transclusionType ) {
-			if ( !empty( $dataMw->parts ) ) {
+			if ( is_array( $dataMw->parts ?? null ) ) {
 				$src = $serializer->serializeFromParts( $state, $node, $dataMw->parts );
 			} elseif ( isset( $dp->src ) ) {
-				$env->log( 'error', 'data-mw missing in: ' . DOMCompat::getOuterHTML( $node ) );
+				$env->log( 'error', 'data-mw.parts is not an array: ', DOMCompat::getOuterHTML( $node ),
+					PHPUtils::jsonEncode( $dataMw ) );
 				$src = $dp->src;
 			} else {
 				throw new ClientError(
