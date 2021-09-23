@@ -46,6 +46,10 @@ $maintenance->setup();
 
 $maintenance->finalSetup();
 
+// Set an appropriate locale (T291234)
+// Matches core's Setup.php
+putenv( "LC_ALL=" . setlocale( LC_ALL, 'C.UTF-8', 'C' ) );
+
 $maintenance->validateParamsAndArgs();
 
 // Do the work
