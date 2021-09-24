@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
@@ -58,25 +57,23 @@ class AttributeTransformManager {
 			$n = is_array( $v ) ? count( $v ) : -1;
 			if ( $n > 1 || ( $n === 1 && !is_string( $v[0] ) ) ) {
 				// transform the value
-				$tokens = $this->frame->expand( $v, [
+				$v = $this->frame->expand( $v, [
 					'expandTemplates' => $this->options['expandTemplates'],
 					'inTemplate' => $this->options['inTemplate'],
 					'type' => 'tokens/x-mediawiki/expanded',
 					'srcOffsets' => $cur->srcOffsets->value,
 				] );
-				$v = TokenUtils::stripEOFTkfromTokens( $tokens );
 			}
 
 			$n = is_array( $k ) ? count( $k ) : -1;
 			if ( $n > 1 || ( $n === 1 && !is_string( $k[0] ) ) ) {
 				// transform the key
-				$tokens = $this->frame->expand( $k, [
+				$k = $this->frame->expand( $k, [
 					'expandTemplates' => $this->options['expandTemplates'],
 					'inTemplate' => $this->options['inTemplate'],
 					'type' => 'tokens/x-mediawiki/expanded',
 					'srcOffsets' => $cur->srcOffsets->key,
 				] );
-				$k = TokenUtils::stripEOFTkfromTokens( $tokens );
 			}
 
 			$cur = new KV( $k, $v, $cur->srcOffsets );

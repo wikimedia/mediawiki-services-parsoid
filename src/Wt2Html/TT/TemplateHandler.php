@@ -1230,12 +1230,11 @@ class TemplateHandler extends TokenHandler {
 		if ( is_string( $arg ) ) {
 			return [ $arg ];
 		} else {
-			$toks = $this->manager->getFrame()->expand( $arg, [
+			return $this->manager->getFrame()->expand( $arg, [
 				'expandTemplates' => false,
 				'type' => 'tokens/x-mediawiki/expanded',
 				'srcOffsets' => $srcOffsets,
 			] );
-			return TokenUtils::stripEOFTkfromTokens( $toks );
 		}
 	}
 
