@@ -54,28 +54,49 @@ class AttributeTransformManager {
 				continue;
 			}
 
-			$n = is_array( $v ) ? count( $v ) : -1;
-			if ( $n > 1 || ( $n === 1 && !is_string( $v[0] ) ) ) {
-				// transform the value
-				$v = $this->frame->expand( $v, [
-					'expandTemplates' => $this->options['expandTemplates'],
-					'inTemplate' => $this->options['inTemplate'],
-					'srcOffsets' => $cur->srcOffsets->value,
-				] );
+			$expandV = false;
+			if ( is_array( $v ) ) {
+				foreach ( $v as $vv ) {
+					if ( !is_string( $vv ) ) {
+						$expandV = true;
+						break;
+					}
+				}
+
+				if ( $expandV ) {
+					// transform the value
+					$v = $this->frame->expand( $v, [
+						'expandTemplates' => $this->options['expandTemplates'],
+						'inTemplate' => $this->options['inTemplate'],
+						'srcOffsets' => $cur->srcOffsets->value,
+					] );
+				}
 			}
 
-			$n = is_array( $k ) ? count( $k ) : -1;
-			if ( $n > 1 || ( $n === 1 && !is_string( $k[0] ) ) ) {
-				// transform the key
-				$k = $this->frame->expand( $k, [
-					'expandTemplates' => $this->options['expandTemplates'],
-					'inTemplate' => $this->options['inTemplate'],
-					'srcOffsets' => $cur->srcOffsets->key,
-				] );
+			$expandK = false;
+			if ( is_array( $k ) ) {
+				foreach ( $k as $kk ) {
+					if ( !is_string( $kk ) ) {
+						$expandK = true;
+						break;
+					}
+				}
+
+				if ( $expandK ) {
+					// transform the key
+					$k = $this->frame->expand( $k, [
+						'expandTemplates' => $this->options['expandTemplates'],
+						'inTemplate' => $this->options['inTemplate'],
+						'srcOffsets' => $cur->srcOffsets->key,
+					] );
+				}
 			}
 
-			$cur = new KV( $k, $v, $cur->srcOffsets );
+			if ( $expandK || $expandV ) {
+				$cur = new KV( $k, $v, $cur->srcOffsets );
+			}
 		}
+
 		return $attributes;
 	}
 }
