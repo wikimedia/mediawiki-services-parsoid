@@ -183,7 +183,7 @@ class ExtensionHandler extends TokenHandler {
 			$domFragment = DOMUtils::parseHTMLToFragment(
 				$env->topLevelDoc,
 				// Strip a paragraph wrapper, if any, before parsing HTML to DOM
-				preg_replace( '#(^<p>)|(\n</p>$)#D', '', $ret['html'] )
+				preg_replace( '#(^<p>)|(\n</p>(' . Utils::COMMENT_REGEXP_FRAGMENT . '|\s)*$)#D', '', $ret['html'] )
 			);
 
 			$this->processExtMetadata( $domFragment, $ret );
