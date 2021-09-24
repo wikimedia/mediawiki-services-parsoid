@@ -60,7 +60,6 @@ class AttributeTransformManager {
 				$v = $this->frame->expand( $v, [
 					'expandTemplates' => $this->options['expandTemplates'],
 					'inTemplate' => $this->options['inTemplate'],
-					'type' => 'tokens/x-mediawiki/expanded',
 					'srcOffsets' => $cur->srcOffsets->value,
 				] );
 			}
@@ -71,7 +70,6 @@ class AttributeTransformManager {
 				$k = $this->frame->expand( $k, [
 					'expandTemplates' => $this->options['expandTemplates'],
 					'inTemplate' => $this->options['inTemplate'],
-					'type' => 'tokens/x-mediawiki/expanded',
 					'srcOffsets' => $cur->srcOffsets->key,
 				] );
 			}

@@ -1232,7 +1232,6 @@ class TemplateHandler extends TokenHandler {
 		} else {
 			return $this->manager->getFrame()->expand( $arg, [
 				'expandTemplates' => false,
-				'type' => 'tokens/x-mediawiki/expanded',
 				'srcOffsets' => $srcOffsets,
 			] );
 		}
