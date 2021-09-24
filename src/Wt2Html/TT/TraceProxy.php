@@ -28,6 +28,8 @@ class TraceProxy extends TokenHandler {
 		$this->traceType = $traceType;
 		$this->handler = $handler;
 		$this->name = ( new \ReflectionClass( $handler ) )->getShortName();
+		// Copy onAnyEnabled for TraceProxy::process() to read
+		$this->onAnyEnabled = $this->handler->onAnyEnabled;
 	}
 
 	/**
@@ -106,6 +108,7 @@ class TraceProxy extends TokenHandler {
 	 * @param int $id
 	 */
 	public function setPipelineId( int $id ): void {
+		$this->pipelineId = $id;
 		$this->handler->setPipelineId( $id );
 	}
 
