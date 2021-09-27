@@ -29318,9 +29318,9 @@ T238721: New transclusion without the "i" property for a template part should be
 !! options
 parsoid=html2wt
 !! html/parsoid
-<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"foo"}}}}]}'>foo</span>
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"}}}]}'>foo</span>
 !! wikitext
-{{1x|foo}}
+{{1x}}
 !! end
 
 # -----------------------------------------------------------------

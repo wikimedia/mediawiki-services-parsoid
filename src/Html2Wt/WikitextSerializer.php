@@ -715,6 +715,12 @@ class WikitextSerializer {
 		'@phan-var stdClass $tgt';
 		$buf .= $this->formatStringSubst( $formatStart, $tgt->wt, $forceTrim );
 
+		// Account for clients leaving off the params array, presumably when empty.
+		// See T291741
+		if ( !isset( $part->params ) ) {
+			$part->params = new stdClass;
+		}
+
 		// Trim whitespace from data-mw keys to deal with non-compliant
 		// clients. Make sure param info is accessible for the stripped key
 		// since later code will be using the stripped key always.
@@ -735,6 +741,7 @@ class WikitextSerializer {
 
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
+		// Account for clients not setting the `i`, see T238721
 		$dpArgInfo = isset( $part->i ) ? ( $dp->pi[$part->i] ?? [] ) : [];
 
 		// Build a key -> arg info map
