@@ -55,7 +55,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
@@ -78,7 +78,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
 !! test
@@ -90,7 +90,7 @@ wgParserEnableLegacyMediaDOM=false
 !! html/php
 <figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a><figcaption></figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption></figcaption></figure>
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -102,7 +102,7 @@ wgParserEnableLegacyMediaDOM=false
 !! html/php
 <figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg" title="Caption text"><img alt="Caption text" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a><figcaption>Caption text</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption text</figcaption></figure>
+<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption>Caption text</figcaption></figure>
 !! end
 
 !! test
