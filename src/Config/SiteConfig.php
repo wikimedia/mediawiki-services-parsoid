@@ -1170,6 +1170,7 @@ abstract class SiteConfig {
 		$this->extConfig = [
 			'allTags'        => [],
 			'parsoidExtTags' => [],
+			'annotationTags' => [],
 			'domProcessors'  => [],
 			'contentModels'  => [],
 		];
@@ -1209,6 +1210,12 @@ abstract class SiteConfig {
 				$this->extConfig['allTags'][$lowerTagName] = true;
 				$this->extConfig['parsoidExtTags'][$lowerTagName] = $tagConfig;
 			}
+		}
+
+		foreach ( $extConfig['annotations'] ?? [] as $aTag ) {
+			$lowerTagName = mb_strtolower( $aTag );
+			$this->extConfig['allTags'][$lowerTagName] = true;
+			$this->extConfig['annotationTags'][$lowerTagName] = true;
 		}
 
 		// Extension modules may also register dom processors.
@@ -1269,6 +1276,23 @@ abstract class SiteConfig {
 	 */
 	public function isExtensionTag( string $name ): bool {
 		return isset( $this->getExtensionTagNameMap()[$name] );
+	}
+
+	/**
+	 * @param string $tagName is $tagName an annotation tag?
+	 * @return bool
+	 */
+	public function isAnnotationTag( string $tagName ): bool {
+		return $this->getExtConfig()['annotationTags'][mb_strtolower( $tagName )] ?? false;
+	}
+
+	/**
+	 * Get an array of defined annotation tags in lower case
+	 * @return array
+	 */
+	public function getAnnotationTags(): array {
+		$extConfig = $this->getExtConfig();
+		return array_keys( $extConfig['annotationTags'] );
 	}
 
 	/**
