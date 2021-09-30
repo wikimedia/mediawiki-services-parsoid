@@ -944,7 +944,13 @@ class WikitextSerializer {
 
 			$tpl = $part->template ?? null;
 			if ( !$tpl ) {
-				$buf .= $part;
+				if ( is_string( $part ) ) {
+					$buf .= $part;
+				} else {
+					// Maybe we should just raise a ClientError
+					$this->env->log( 'error', 'data-mw.parts array is malformed: ',
+						DOMCompat::getOuterHTML( $node ), PHPUtils::jsonEncode( $srcParts ) );
+				}
 				continue;
 			}
 
