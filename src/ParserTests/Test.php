@@ -115,11 +115,9 @@ class Test extends Item {
 	private const WARN_DEPRECATED_KEYS = [
 		'input',
 		'result',
-		# Don't hard-deprecate +tidy quite yet, too noisy.
-		# Will happen in followup patches after these are removed from everywhere
-		// 'html/php+tidy',
-		// 'html/*+tidy',
-		// 'html+tidy',
+		'html/php+tidy',
+		'html/*+tidy',
+		'html+tidy',
 		'html/php+untidy',
 		'html+untidy',
 	];
