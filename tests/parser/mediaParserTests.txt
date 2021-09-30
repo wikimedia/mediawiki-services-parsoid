@@ -286,11 +286,6 @@ wgParserEnableLegacyMediaDOM=false
 123[[File:Foobar.jpg]]456
 123[[File:Foobar.jpg|right]]456
 123[[File:Foobar.jpg|thumb]]456
-!! html/php+untidy
-<p>123<a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>456
-</p>
-123<figure class="mw-default-size mw-halign-right" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a><figcaption></figcaption></figure>456
-123<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" decoding="async" width="220" height="25" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" /></a><figcaption></figcaption></figure>456
 !! html/php+tidy
 <p>123<span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>456
 </p><p>
@@ -2210,8 +2205,6 @@ Template with thumb image (with link in description)
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
 {{paramtest|param=[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
-!! html/php+untidy
-This is a test template with parameter <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="File:Noimage.png">File:Noimage.png</a>  <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">caption</a></div></div></div>
 !! html+tidy
 <p>This is a test template with parameter </p><figure class="mw-default-size" typeof="mw:Error mw:Image/Thumb"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="File:Noimage.png"><span data-width="180">File:Noimage.png</span></a><figcaption><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">caption</a></figcaption></figure>
 !! html/parsoid

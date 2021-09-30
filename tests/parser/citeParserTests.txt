@@ -1810,11 +1810,6 @@ B <sup about="#mwt4" class="mw-ref reference" id="cite_ref-b_2-0" rel="dc:refere
 References: 6. <references /> from a transclusion
 !! wikitext
 <ref>Foo</ref> {{1x|<references />}}
-!! html/php+untidy
-<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup> <div class="mw-references-wrap"><ol class="references">
-<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>
-</li>
-</ol></div>
 !! html/php+tidy
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup> </p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>

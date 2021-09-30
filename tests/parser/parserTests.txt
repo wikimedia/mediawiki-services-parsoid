@@ -875,9 +875,6 @@ Italics and bold: 3-quote opening sequence: (3,5)
 parsoid=wt2html
 !! wikitext
 '''foo'''''
-!! html/php+untidy
-<p><b>foo</b>
-</p>
 !! html+tidy
 <p><b>foo</b><i></i>
 </p>
@@ -888,9 +885,6 @@ parsoid=wt2html
 Italics and bold: 3-quote opening sequence: (3,5+2) w/ nowiki
 !! wikitext
 '''foo'''''<nowiki/>''
-!! html/php+untidy
-<p><b>foo</b>
-</p>
 !! html+tidy
 <p><b>foo</b><i></i>
 </p>
@@ -959,9 +953,6 @@ Italics and bold: 4-quote opening sequence: (4,5)
 parsoid=wt2html
 !! wikitext
 ''''foo'''''
-!! html/php+untidy
-<p>'<b>foo</b>
-</p>
 !! html+tidy
 <p>'<b>foo</b><i></i>
 </p>
@@ -972,9 +963,6 @@ parsoid=wt2html
 Italics and bold: 4-quote opening sequence: (4,5+2) w/ nowiki
 !! wikitext
 '<nowiki/>'''foo'''''<nowiki/>''
-!! html/php+untidy
-<p>'<b>foo</b>
-</p>
 !! html+tidy
 <p>'<b>foo</b><i></i>
 </p>
@@ -1066,9 +1054,6 @@ Italics and bold: multiple quote sequences: (2,4,2)
 parsoid=wt2html
 !! wikitext
 ''foo''''bar''
-!! html+untidy
-<p><i>foo'<b>bar</b></i>
-</p>
 !! html+tidy
 <p><i>foo'<b>bar</b></i><b></b>
 </p>
@@ -1430,14 +1415,6 @@ Non-word characters don't terminate tag names (T19663, T42670, T54022)
 <s.foo> doesn't terminate </s.foo>
 
 <sub-ID#1>
-!! html/php+untidy
-<p>&lt;blockquote|&gt;a&lt;/blockquote&gt;
-</p><p>&lt;b→&gt; doesn't terminate &lt;/b→&gt;
-</p><p>&lt;bä&gt; doesn't terminate &lt;/bä&gt;
-</p><p>&lt;boo&gt; doesn't terminate &lt;/boo&gt;
-</p><p>&lt;s.foo&gt; doesn't terminate &lt;/s.foo&gt;
-</p><p>&lt;sub-ID#1&gt;
-</p>
 !! html+tidy
 <p>&lt;blockquote|&gt;a
 </p><p>&lt;b→&gt; doesn't terminate &lt;/b→&gt;
@@ -2126,10 +2103,6 @@ Block tag on one line (<div>)
 a <div>foo</div>
 
 b
-!! html+untidy
-a <div>foo</div>
-<p>b
-</p>
 !! html+tidy
 <p>a </p><div>foo</div>
 <p>b
@@ -2167,10 +2140,6 @@ Block tag on one line (<blockquote>)
 a <blockquote>foo</blockquote>
 
 b
-!! html+untidy
-a <blockquote>foo</blockquote>
-<p>b
-</p>
 !! html+tidy
 <p>a </p><blockquote><p>foo</p></blockquote>
 <p>b
@@ -2183,9 +2152,6 @@ Block tag on both lines (<div>)
 a <div>foo</div>
 
 b <div>foo</div>
-!! html+untidy
-a <div>foo</div>
-b <div>foo</div>
 !! html+tidy
 <p>a </p><div>foo</div><p>
 b </p><div>foo</div>
@@ -2196,9 +2162,6 @@ Block tag on both lines (<blockquote>)
 !! wikitext
 a <blockquote>foo</blockquote>
 
-b <blockquote>foo</blockquote>
-!! html+untidy
-a <blockquote>foo</blockquote>
 b <blockquote>foo</blockquote>
 !! html+tidy
 <p>a </p><blockquote><p>foo</p></blockquote><p>
@@ -2212,13 +2175,6 @@ Multiple lines without block tags
 b
 c
 d<!--foo--> e
-x <div>foo</div> z
-!! html+untidy
-<div>foo</div> a
-<p>b
-c
-d e
-</p>
 x <div>foo</div> z
 !! html+tidy
 <div>foo</div><p> a
@@ -2249,18 +2205,6 @@ b
 <div>b</div>d
 
 
-<div>e</div>
-!! html+untidy
-<div></div>
-<p><br />
-</p>
-<div></div>a
-<p>b
-</p>
-<div>a</div>b
-<div>b</div>d
-<p><br />
-</p>
 <div>e</div>
 !! html+tidy
 <div></div>
@@ -2660,11 +2604,6 @@ T17491: <ins>/<del> in blockquote
 <blockquote>
 Foo <del>bar</del> <ins>baz</ins> quux
 </blockquote>
-!! html+untidy
-<blockquote>
-<p>Foo <del>bar</del> <ins>baz</ins> quux
-</p>
-</blockquote>
 !! html+tidy
 <blockquote>
 <p>Foo <del>bar</del> <ins>baz</ins> quux
@@ -2675,9 +2614,6 @@ Foo <del>bar</del> <ins>baz</ins> quux
 !! test
 T17491: <ins>/<del> in blockquote (2)
 !! wikitext
-<blockquote>Foo <del>bar</del> <ins>baz</ins> quux
-</blockquote>
-!! html+untidy
 <blockquote>Foo <del>bar</del> <ins>baz</ins> quux
 </blockquote>
 !! html+tidy
@@ -3008,9 +2944,6 @@ parsoid=wt2html
 {{1x|<pre <pre>x</pre>}}
 
 <table><pre </table>
-!! html/php+untidy
-<pre>x</pre>
-<table>&lt;pre </table>
 !! html/php+tidy
 <pre>x</pre>
 &lt;pre <table></table>
@@ -3685,12 +3618,6 @@ parsoid=wt2html,html2html
  b <div> foo </div>
  c <blockquote> foo </blockquote>
  <span> foo </span>
-!! html+untidy
- a <p> foo </p>
- b <div> foo </div>
- c <blockquote> foo </blockquote>
-<pre><span> foo </span>
-</pre>
 !! html/php+tidy
 <p> a </p><p> foo </p><p>
  b </p><div> foo </div><p>
@@ -3709,10 +3636,6 @@ parsoid=wt2html,html2html
 !! wikitext
  a <span>foo</span>
 <!-- comment --> b <div> foo </div>
-!! html/php+untidy
-<pre>a <span>foo</span>
-</pre>
- b <div> foo </div>
 !! html/parsoid
 <pre>a <span data-parsoid='{"stx":"html"}'>foo</span></pre>
 <!-- comment --> <p>b </p><div data-parsoid='{"stx":"html"}'> foo </div>
@@ -4716,7 +4639,7 @@ Definition Lists: Mixed Lists: Test 1
 :;*foo
 ::*bar
 :;baz
-!! html/php+untidy
+!! html/php+tidy
 <dl><dd><dl><dt><ul><li>foo</li>
 <li>bar</li></ul></dt></dl>
 <dl><dt>baz</dt></dl></dd></dl>
@@ -4872,11 +4795,6 @@ parsoid=wt2html,html2html
 !! wikitext
 *#*#;*;;foo :bar
 *#*#;boo :baz
-!! html/php+untidy
-<ul><li><ol><li><ul><li><ol><li><dl><dt>foo</dt>
-<dd><ul><li><dl><dt><dl><dt>bar</dt></dl></dd></dl></li></ul></dd></dl>
-<dl><dt>boo</dt>
-<dd>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>
 !! html/php+tidy
 <ul><li><ol><li><ul><li><ol><li><dl><dt>foo</dt>
 <dd><ul><li><dl><dt><dl><dt>bar</dt></dl></dt></dl></li></ul></dd></dl></li></ol></li></ul>
@@ -6044,9 +5962,6 @@ Some [http://example.com/ pretty ''italics'' and stuff]!
 External link containing double-single-quotes in text embedded in italics (T6598 sanity check)
 !! wikitext
 ''Some [http://example.com/ pretty ''italics'' and stuff]!''
-!! html+untidy
-<p><i>Some </i><a rel="nofollow" class="external text" href="http://example.com/"><i>pretty </i>italics<i> and stuff</i></a><i>!</i>
-</p>
 !! html+tidy
 <p><i>Some <a rel="nofollow" class="external text" href="http://example.com/">pretty </a></i><a rel="nofollow" class="external text" href="http://example.com/">italics<i> and stuff</i></a><i>!</i>
 </p>
@@ -7235,9 +7150,6 @@ Break on | in element attribute in template
 parsoid=wt2html,html2html
 !! wikitext
 {{1x|1=<div class="hi|ho">ha</div>}}
-!! html/php+untidy
-<p>ho"&gt;ha&lt;/div&gt;
-</p>
 !! html/php+tidy
 <p>ho"&gt;ha</p>
 !! html/parsoid
@@ -7697,11 +7609,6 @@ parsoid=wt2html
 |-
 a
 |}
-!! html/php+untidy
-<table>
-
-a
-</table>
 !! html/php+tidy
 
 
@@ -7726,12 +7633,6 @@ parsoid={ "modes": ["wt2html","selser"], "suppressErrors": true }
 *a
 *b
 |}
-!! html/php+untidy
-<table>
-
-<ul><li>a</li>
-<li>b</li></ul>
-</table>
 !! html/php+tidy
 <ul><li>a</li>
 <li>b</li></ul><table>
@@ -9271,9 +9172,6 @@ parsoid=wt2html,wt2wt
 !! wikitext
 *[[Wikipedia:ro:Olteni&#0355;a]]
 *[[Wikipedia:ro:Olteni&#355;a]]
-!! html/php+untidy
-<ul><li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class="extiw" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#355;a</a></li>
-<li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class="extiw" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#355;a</a></li></ul>
 !! html/php+tidy
 <ul><li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class="extiw" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#355;a</a></li>
 <li><a href="http://en.wikipedia.org/wiki/ro:Olteni%C5%A3a" class="extiw" title="wikipedia:ro:Olteniţa">Wikipedia:ro:Olteni&#355;a</a></li></ul>
@@ -10075,9 +9973,6 @@ Broken br tag sanitization
 parsoid=wt2html,html2html
 !! wikitext
 </br>
-!! html/php+untidy
-<p>&lt;/br&gt;
-</p>
 !! html/php+tidy
 <p><br />
 </p>
@@ -10259,8 +10154,6 @@ Horizontal ruler -- <4 dashes render as plain text
 Horizontal ruler -- Supports content following dashes on same line
 !! wikitext
 ---- Foo
-!! html+untidy
-<hr /> Foo
 !! html+tidy
 <hr /><p> Foo</p>
 !! html/parsoid
@@ -10619,13 +10512,6 @@ Multiple list tags generated by templates
 {{1x|<li>}}a
 {{1x|<li>}}b
 {{1x|<li>}}c
-!! html+untidy
-<li>a
-<li>b
-<li>c</li>
-</li>
-</li>
-
 !! html+tidy
 <li>a
 </li><li>b
@@ -12950,9 +12836,6 @@ Template:Includeonly section
 T8563: Edit link generation for section shown by <includeonly>
 !! wikitext
 {{includeonly section}}
-!! html+untidy
-<h2><span class="mw-headline" id="Includeonly_section">Includeonly section</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Includeonly_section&amp;action=edit&amp;section=T-1" title="Template:Includeonly section">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="Section_T-1">Section T-1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Includeonly_section&amp;action=edit&amp;section=T-2" title="Template:Includeonly section">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 !! html+tidy
 <h2><span class="mw-headline" id="Includeonly_section">Includeonly section</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Includeonly_section&amp;action=edit&amp;section=T-1" title="Edit section: ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <h2><span class="mw-headline" id="Section_T-1">Section T-1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Includeonly_section&amp;action=edit&amp;section=T-2" title="Edit section: ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
@@ -13816,9 +13699,6 @@ Templates: 2. Inside a block tag
 !! wikitext
 <div>{{1x|Foo}}</div>
 <blockquote>{{1x|Foo}}</blockquote>
-!! html+untidy
-<div>Foo</div>
-<blockquote>Foo</blockquote>
 !! html+tidy
 <div>Foo</div>
 <blockquote><p>Foo</p></blockquote>
@@ -13854,10 +13734,6 @@ Templates: P-wrapping: 1c. Templates on consecutive lines
 !! wikitext
 {{1x|Foo}}
 {{1x|bar}} <div>baz</div>
-!! html+untidy
-<p>Foo
-</p>
-bar <div>baz</div>
 !! html+tidy
 <p>Foo
 </p><p>
@@ -14357,10 +14233,6 @@ Templates: Wiki Tables: 1a. Fostering of entire template content
 {|
 {{1x|a}}
 |}
-!! html/php+untidy
-<table>
-a
-<tr><td></td></tr></table>
 !! html/php+tidy
 
 a
@@ -14379,13 +14251,6 @@ Templates: Wiki Tables: 1b. Fostering of entire template content
 foo
 {{1x|</div>}}
 |}
-!! html+untidy
-<table>
-<div>
-<p>foo
-</p>
-</div>
-<tr><td></td></tr></table>
 !! html/php+tidy
 <div>
 <p>foo
@@ -14409,11 +14274,6 @@ Templates: Wiki Tables: 2. Fostering of partial template content
 {{1x|a
 <div>b</div>}}
 |}
-!! html/php+untidy
-<table>
-a
-<div>b</div>
-<tr><td></td></tr></table>
 !! html/php+tidy
 
 a
@@ -14585,8 +14445,6 @@ parsoid=wt2html,wt2wt
 Templates: Ugly nesting: 4. Divs opened/closed across templates
 !! wikitext
 a<div>b{{1x|c</div>d}}e
-!! html+untidy
-a<div>bc</div>de
 !! html+tidy
 <p>a</p><div>bc</div><p>de</p>
 !! end
@@ -17340,8 +17198,6 @@ Media link with nasty text
 parsoid=wt2html,html2html
 !! wikitext
 [[Media:Foobar.jpg|Safe Link<div style=display:none>" onmouseover="alert(document.cookie)" onfoo="</div>]]
-!! html/php+untidy
-<a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Safe Link&lt;div style="display:none"&gt;" onmouseover="alert(document.cookie)" onfoo="&lt;/div&gt;</a>
 !! html/php+tidy
 <p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Safe Link</a></p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg"><div style="display:none">" onmouseover="alert(document.cookie)" onfoo="</div></a>
 !! html/parsoid
@@ -18003,12 +17859,6 @@ Parser hook: nested tags
 parsoid=wt2html
 !! wikitext
 <tag><tag></tag></tag>
-!! html/php+untidy
-<pre>
-'<tag>'
-array (
-)
-</pre>&lt;/tag&gt;
 !! html/php+tidy
 <pre>'<tag>'
 array (
@@ -18710,14 +18560,6 @@ Fuzz testing: Parser14
 !! wikitext
 ==onmouseover===
 http://__TOC__
-!! html/php+untidy
-<h2><span class="mw-headline" id="onmouseover.3D">onmouseover=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: onmouseover=">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-http://<div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none"/><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
-<ul>
-<li class="toclevel-1 tocsection-1"><a href="#onmouseover.3D"><span class="tocnumber">1</span> <span class="toctext">onmouseover=</span></a></li>
-</ul>
-</div>
-
 !! html/php+tidy
 <h2><span class="mw-headline" id="onmouseover.3D">onmouseover=</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: onmouseover=">edit</a><span class="mw-editsection-bracket">]</span></span></h2><p>
 http://</p><div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none" /><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
@@ -18737,11 +18579,6 @@ parsoid=wt2html,html2html
 !! wikitext
 ==a==
 {| STYLE=__TOC__
-!! html/php+untidy
-<h2><span class="mw-headline" id="a">a</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: a">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<table style="&#95;_TOC&#95;_">
-<tr><td></td></tr>
-</table>
 !! html/php+tidy
 <h2><span class="mw-headline" id="a">a</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: a">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <table style="&#95;_TOC&#95;_">
@@ -18836,18 +18673,6 @@ parsoid=wt2html
 
 MOVE YOUR MOUSE CURSOR OVER THIS TEXT
 |
-!! html/php+untidy
-<table>
-{{{|
-<u class="&#124;">}}}} &gt;
-<br style="onmouseover=&#39;alert(document.cookie);&#39;" />
-
-MOVE YOUR MOUSE CURSOR OVER THIS TEXT
-<tr>
-<td></u>
-</td>
-</tr>
-</table>
 !! html/php+tidy
 
 {{{|
@@ -18920,8 +18745,6 @@ http://example.com<nowiki>junk</nowiki>
 Fuzz testing: URL adjacent extension (no space, dirty; pre)
 !! wikitext
 http://example.com<pre>junk</pre>
-!! html/php+untidy
-<a rel="nofollow" class="external free" href="http://example.com">http://example.com</a><pre>junk</pre>
 !! html/php+tidy
 <p><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></p><pre>junk</pre>
 !! html/parsoid
@@ -19038,10 +18861,6 @@ Inline HTML vs wiki block nesting
 <b>Bold paragraph
 
 New wiki paragraph
-!! html/php+untidy
-<p><b>Bold paragraph
-</p><p>New wiki paragraph</b>
-</p>
 !! html/php+tidy
 <p><b>Bold paragraph
 </b></p><p><b>New wiki paragraph
@@ -22269,9 +22088,6 @@ T8200: paragraphs inside blockquotes (no extra line breaks)
 <blockquote>Line one
 
 Line two</blockquote>
-!! html+untidy
-<blockquote>Line one
-Line two</blockquote>
 !! html+tidy
 <blockquote><p>Line one
 Line two</p></blockquote>
@@ -22283,11 +22099,6 @@ T8200: paragraphs inside blockquotes (extra line break on open)
 <blockquote>
 Line one
 
-Line two</blockquote>
-!! html+untidy
-<blockquote>
-<p>Line one
-</p>
 Line two</blockquote>
 !! html+tidy
 <blockquote>
@@ -22302,11 +22113,6 @@ T8200: paragraphs inside blockquotes (extra line break on close)
 <blockquote>Line one
 
 Line two
-</blockquote>
-!! html+untidy
-<blockquote>Line one
-<p>Line two
-</p>
 </blockquote>
 !! html+tidy
 <blockquote><p>Line one
@@ -23305,14 +23111,6 @@ title=[[Main Page]]
 !! wikitext
 __TOC__
 ==<blockquote>Quote</blockquote>==
-!! html/php+untidy
-<div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none"/><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
-<ul>
-<li class="toclevel-1 tocsection-1"><a href="#Quote"><span class="tocnumber">1</span> <span class="toctext">Quote</span></a></li>
-</ul>
-</div>
-
-<h2><span class="mw-headline" id="Quote"><blockquote>Quote</blockquote></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Quote">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 !! html/php+tidy
 <div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none" /><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
 <ul>
@@ -23362,16 +23160,6 @@ __TOC__
 ==<i>Foo</i> <b>Bar</b>==
 
 ==<i>Foo</i> <blockquote>Bar</blockquote>==
-!! html/php+untidy
-<div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none"/><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
-<ul>
-<li class="toclevel-1 tocsection-1"><a href="#Foo_Bar"><span class="tocnumber">1</span> <span class="toctext"><i>Foo</i> <b>Bar</b></span></a></li>
-<li class="toclevel-1 tocsection-2"><a href="#Foo_Bar_2"><span class="tocnumber">2</span> <span class="toctext"><i>Foo</i> Bar</span></a></li>
-</ul>
-</div>
-
-<h2><span class="mw-headline" id="Foo_Bar"><i>Foo</i> <b>Bar</b></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: Foo Bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="Foo_Bar_2"><i>Foo</i> <blockquote>Bar</blockquote></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: Foo Bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 !! html/php+tidy
 <div id="toc" class="toc" role="navigation" aria-labelledby="mw-toc-heading"><input type="checkbox" role="button" id="toctogglecheckbox" class="toctogglecheckbox" style="display:none" /><div class="toctitle" lang="en" dir="ltr"><h2 id="mw-toc-heading">Contents</h2><span class="toctogglespan"><label class="toctogglelabel" for="toctogglecheckbox"></label></span></div>
 <ul>
