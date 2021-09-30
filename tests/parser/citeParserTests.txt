@@ -152,7 +152,7 @@ Templating<!--<ref>{{simple template}}</ref>-->
 Templating<ref>Text<!--comment--></ref>
 
 <references />
-!! html/php+tidy
+!! html/php
 <p>Templating<sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -171,7 +171,7 @@ Templating<ref>Text<!--comment--></ref>
 [[File:Foobar.jpg|frameless|ignored caption with a ref<ref>boo</ref>]]
 
 <references />
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="ignored caption with a ref[1]"><img alt="ignored caption with a ref[1]" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -194,7 +194,7 @@ parsoid=wt2html,wt2wt
 |x
 |}
 <references />
-!! html/php+tidy
+!! html/php
 <table>
 
 <tbody><tr id="cite_ref-1" class="reference">
@@ -219,7 +219,7 @@ language=sr variant=sr-ec
 !! wikitext
 -{lj <ref>a</ref>}-аб-{nj <ref name="y">b</ref>}-вг-{dž}- c <ref name="y" />
 <references />
-!! html/php+tidy
+!! html/php
 <p>lj <sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup>абnj <sup id="cite_ref-y_2-0" class="reference"><a href="#cite_note-y-2">&#91;2&#93;</a></sup>вгdž ц <sup id="cite_ref-y_2-1" class="reference"><a href="#cite_note-y-2">&#91;2&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
@@ -1810,7 +1810,7 @@ B <sup about="#mwt4" class="mw-ref reference" id="cite_ref-b_2-0" rel="dc:refere
 References: 6. <references /> from a transclusion
 !! wikitext
 <ref>Foo</ref> {{1x|<references />}}
-!! html/php+tidy
+!! html/php
 <p><sup id="cite_ref-1" class="reference"><a href="#cite_note-1">&#91;1&#93;</a></sup> </p><div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">Foo</span>
 </li>

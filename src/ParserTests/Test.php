@@ -116,9 +116,10 @@ class Test extends Item {
 		'input',
 		'result',
 		# Don't hard-deprecate +tidy quite yet, too noisy.
-		#'html/php+tidy',
-		#'html/*+tidy',
-		#'html+tidy',
+		# Will happen in followup patches after these are removed from everywhere
+		// 'html/php+tidy',
+		// 'html/*+tidy',
+		// 'html+tidy',
 		'html/php+untidy',
 		'html+untidy',
 	];

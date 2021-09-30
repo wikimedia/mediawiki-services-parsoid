@@ -64,7 +64,7 @@ e
 
 =3=
 f
-!! html/php+tidy
+!! html/php
 
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
@@ -128,7 +128,7 @@ b
 
 ==2.1==
 c
-!! html/php+tidy
+!! html/php
 <p>Para 1.
 </p><p>
 Para 2 with a </p><div>nested in it</div>
@@ -182,7 +182,7 @@ c
 
 =2=
 d
-!! html/php+tidy
+!! html/php
 
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
@@ -231,7 +231,7 @@ d
 }}
 =2=
 e
-!! html/php+tidy
+!! html/php
 
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
@@ -282,7 +282,7 @@ d
 }}
 =2=
 e
-!! html/php+tidy
+!! html/php
 
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
@@ -337,7 +337,7 @@ b
 
 c
 </div>
-!! html/php+tidy
+!! html/php
 <div>
 <p>a
 </p>
@@ -383,7 +383,7 @@ d
 
 =3=
 e
-!! html/php+tidy
+!! html/php
 
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
@@ -442,7 +442,7 @@ d
 
 =3=
 e
-!! html/php+tidy
+!! html/php
 
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
@@ -497,7 +497,7 @@ d
 
 ==3.1==
 e
-!! html/php+tidy
+!! html/php
 <p>foo
 </p>
 <div style="border:1px solid red;">
@@ -568,7 +568,7 @@ f
 
 ==3.1==
 g
-!! html/php+tidy
+!! html/php
 <p>foo
 </p>
 
@@ -634,7 +634,7 @@ foo
 <h1>c</h1>
 
 =d=
-!! html/php+tidy
+!! html/php
 <p>foo
 </p>
 
@@ -669,7 +669,7 @@ a
 
 =2=
 b
-!! html/php+tidy
+!! html/php
 <h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>a
 </p>
@@ -701,7 +701,7 @@ foo
 ==b==
 </div>
 }}
-!! html/php+tidy
+!! html/php
 <p>foo
 </p>
 <div>
@@ -730,7 +730,7 @@ parsoid={
 == This is counted as if it were section 2 ==
 }}
 ==PHP section=3==
-!! html/php+tidy
+!! html/php
 <h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_2">This is counted as if it were section 2</span></h2>
 <h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
@@ -769,7 +769,7 @@ parsoid={
 ==This is section 9, even though it's in a caption==
 ]]
 ==PHP section=10==
-!! html/php+tidy
+!! html/php
 
 <h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <p>Not a section
@@ -821,7 +821,7 @@ parsoid={
 ==This is not counted as section 4==
 </includeonly>
 ==PHP section=4==
-!! html/php+tidy
+!! html/php
 
 <h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <h2><span class="mw-headline" id="PHP_section.3D2">PHP section=2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: PHP section=2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>

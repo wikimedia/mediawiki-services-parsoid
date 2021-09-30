@@ -252,7 +252,7 @@ thumbsize=220
 123[[File:Foobar.jpg]]456
 123[[File:Foobar.jpg|right]]456
 123[[File:Foobar.jpg|thumb]]456
-!! html/php+tidy
+!! html/php
 <p>123<a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>456
 </p><p>
 123</p><div class="floatright"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></div><p>456
@@ -612,7 +612,7 @@ Ampersand in alt attribute (T206940)
 <gallery>
 File:Foobar.jpg|alt=&amp;amp;
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image"><img alt="&amp;amp;" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -651,7 +651,7 @@ parsoid=wt2html
 File:Foobar.jpg|alt=http://testing.123?4=5&#x7C;6|caption
 File:Foobar.jpg|alt=http://testing.123?4=5&vert;6|caption
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="http://testing.123?4=5|6" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p><p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="http://testing.123?4=5|6" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
@@ -691,7 +691,7 @@ parsoid=wt2html,html2html
 <gallery>
 File:Foobar.jpg|alt=''x''|caption
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="x" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -727,7 +727,7 @@ parsoid=html2wt
 <gallery>
 File:Foobar.jpg|alt=<nowiki>''</nowiki>x<nowiki>''</nowiki>|caption
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="&#39;&#39;x&#39;&#39;" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -760,7 +760,7 @@ Nowiki markup in alt attribute (edited html, no data-parsoid) (T206940)
 <gallery>
 File:Foobar.jpg|alt=<nowiki>''x''</nowiki>|caption
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/File:Foobar.jpg" class="image" title="caption"><img alt="&#39;&#39;x&#39;&#39;" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -796,7 +796,7 @@ parsoid=html2wt
 <gallery>
 File:Foobar.jpg|link=Foo &amp; bar
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/Foo_%26_bar" title="Foo &amp; bar"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -827,7 +827,7 @@ Ampersand in link attribute (edited html, no data-parsoid) (T206940)
 <gallery>
 File:Foobar.jpg|link=Foo_&_bar
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/Foo_%26_bar" title="Foo &amp; bar"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -866,7 +866,7 @@ parsoid=wt2html,html2html
 File:Foobar.jpg|link=Foo''s bar''s|caption1
 File:Foobar.jpg|link=''Main Page''|caption2
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/Foo%27%27s_bar%27%27s" title="Foo&#39;&#39;s bar&#39;&#39;s">Foo''s bar''s</a>
 </p><p><a href="/wiki/Foos_bars" title="caption1"><img alt="caption1" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p><p><a href="/wiki/Main_Page" title="caption2"><img alt="caption2" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
@@ -921,7 +921,7 @@ parsoid=html2wt
 <gallery>
 File:Foobar.jpg|link=Foo<nowiki>''</nowiki>s_bar<nowiki>''</nowiki>s|caption
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/Foo%27%27s_bar%27%27s" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -954,7 +954,7 @@ Nowiki markup in link attribute (edited html, no data-parsoid) (T206940)
 <gallery>
 File:Foobar.jpg|link=Foo<nowiki>''s_bar''</nowiki>s|caption
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/Foo%27%27s_bar%27%27s" title="caption"><img alt="caption" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -987,7 +987,7 @@ HTML entity prefix in link markup (T209236)
 <gallery>
 File:Foobar.jpg|link=https://example.com?foo&params=bar
 </gallery>
-!! html/php+tidy
+!! html/php
 <p><a href="https://example.com?foo&amp;params=bar" rel="nofollow"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <ul class="gallery mw-gallery-traditional">
@@ -1955,7 +1955,7 @@ bar</p>
 File containing double quotes and spaces
 !! wikitext
 [[File:Cool "Gator".png]]
-!! html/php+tidy
+!! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Cool_%22Gator%22.png" class="new" title="File:Cool &quot;Gator&quot;.png">File:Cool &quot;Gator&quot;.png</a>
 </p>
 !! html/parsoid
@@ -1967,7 +1967,7 @@ File containing single quotes
 !! wikitext
 [[File:Foo's ''italic'' bar.jpg]]
 [[File:Foo's ''italic'' bar.jpg|Foo's ''italic'' bar]]
-!! html/php+tidy
+!! html/php
 <p><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo%27s_%27%27italic%27%27_bar.jpg" class="new" title="File:Foo&#39;s &#39;&#39;italic&#39;&#39; bar.jpg">File:Foo's <i>italic</i> bar.jpg</a>
 <a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo%27s_%27%27italic%27%27_bar.jpg" class="new" title="File:Foo&#39;s &#39;&#39;italic&#39;&#39; bar.jpg">Foo's italic bar</a>
 </p>
@@ -2008,7 +2008,7 @@ Media in wikilink
 Template with thumb image (with link in description)
 !! wikitext
 {{paramtest|param=[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]}}
-!! html+tidy
+!! html/php
 <p>This is a test template with parameter </p><div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Noimage.png" class="new" title="File:Noimage.png">File:Noimage.png</a>  <div class="thumbcaption"><a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">link</a> <a href="/index.php?title=No_link&amp;action=edit&amp;redlink=1" class="new" title="No link (page does not exist)">caption</a></div></div></div>
 !! html/parsoid
 <p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"paramtest","href":"./Template:Paramtest"},"params":{"param":{"wt":"[[Image:noimage.png|thumb|[[no link|link]] [[no link|caption]]]]"}},"i":0}}]}'>This is a test template with parameter </p><figure class="mw-default-size" typeof="mw:Error mw:Image/Thumb" about="#mwt1" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Noimage.png"><span resource="./File:Noimage.png" data-width="220">File:Noimage.png</span></a><figcaption><a rel="mw:WikiLink" href="./No_link" title="No link" class="new">link</a> <a rel="mw:WikiLink" href="./No_link" title="No link" class="new">caption</a></figcaption></figure>
@@ -2449,7 +2449,7 @@ parsoid=wt2html,html2html
 <gallery>
 File:Foobar.jpg|</ref>
 </gallery>
-!! html/php+tidy
+!! html/php
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
 			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
@@ -3091,7 +3091,7 @@ parsoid=wt2html,wt2wt
 [[Image:Foobar.jpg|right|Test]]
 </small>
 |}
-!! html/php+tidy
+!! html/php
 <table>
 <tbody><tr>
 <td>
@@ -3118,7 +3118,7 @@ parsoid=wt2html,wt2wt
 '''foo[[File:Foobar.jpg|thumb|caption]]bar'''
 
 <small>[[Image:Foobar.jpg|right|300px]]</small>
-!! html/php+tidy
+!! html/php
 <p><b>foo</b></p><b><div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>caption</div></div></div></b><p><b>bar</b>
 </p><small><div class="floatright"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" decoding="async" width="300" height="34" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/450px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/600px-Foobar.jpg 2x" /></a></div></small>
 !! html/parsoid
@@ -3133,7 +3133,7 @@ parsoid=wt2html,wt2wt
 parsoid=wt2html,wt2wt
 !! wikitext
 <small>'''foo[[File:Foobar.jpg|thumb|caption]]bar'''</small>
-!! html/php+tidy
+!! html/php
 <p><small><b>foo</b></small></p><small><b><div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>caption</div></div></div></b></small><p><small><b>bar</b></small></p>
 !! html/parsoid
 <p><small><b>foo</b></small></p><small><b><figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x"/></a><figcaption>caption</figcaption></figure></b></small><p><small><b>bar</b></small></p>
@@ -3145,7 +3145,7 @@ parsoid=wt2html,wt2wt
 parsoid=wt2html,wt2wt
 !! wikitext
 '''<small>[[Image:Foobar.jpg|right|300px]]</small>'''
-!! html/php+tidy
+!! html/php
 <b><small><div class="floatright"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" decoding="async" width="300" height="34" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/450px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/600px-Foobar.jpg 2x" /></a></div></small></b>
 !! html/parsoid
 <b><small><figure class="mw-halign-right" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="34" width="300" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/450px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/600px-Foobar.jpg 2x"/></a><figcaption></figcaption></figure></small></b>
@@ -3283,7 +3283,7 @@ parsoid={
 Image: empty alt attribute (T50924)
 !! wikitext
 [[File:Foobar.jpg|thumb|alt=|bar]]
-!! html/php+tidy
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>bar</div></div></div>
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"alt","ak":"alt="},{"ck":"caption","ak":"bar"}]}'><a href="./File:Foobar.jpg" data-parsoid='{"a":{"href":"./File:Foobar.jpg"}}'><img alt="" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" data-parsoid='{"a":{"alt":"","resource":"./File:Foobar.jpg","height":"25","width":"220"},"sa":{"alt":"alt=","resource":"File:Foobar.jpg"}}'/></a><figcaption>bar</figcaption></figure>
@@ -3414,7 +3414,7 @@ Various link types in alt and link options
 [[File:Foobar.jpg|link=[[Media:Thumb.png]]|alt=[[Media:Thumb.png]]|caption]]
 
 [[File:Foobar.jpg|link=[[wikipedia:Foo]]|alt=[[wikipedia:Foo]]|caption]]
-!! html/php+tidy
+!! html/php
 <p><a href="/wiki/Main_Page" title="caption"><img alt="Main Page" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p><p><a href="/wiki/Media:Thumb.png" title="caption"><img alt="Media:Thumb.png" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p><p><a href="http://en.wikipedia.org/wiki/Foo" title="caption"><img alt="wikipedia:Foo" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
@@ -3434,7 +3434,7 @@ Magic links inside image captions (autolinked)
 [[File:Foobar.jpg|thumb|RFC 1234]]
 [[File:Foobar.jpg|thumb|PMID 1234]]
 [[File:Foobar.jpg|thumb|ISBN 123456789x]]
-!! html+tidy
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a rel="nofollow" class="external free" href="http://example.com">http://example.com</a></div></div></div>
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc1234">RFC 1234</a></div></div></div>
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a></div></div></div>
@@ -3452,7 +3452,7 @@ Interwiki links inside image captions
 language=de
 !! wikitext
 [[File:Foobar.jpg|thumb|right|[[:Wikipedia:Foo]] bar]]
-!! html+tidy
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><a href="/wiki/Datei:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/Datei:Foobar.jpg" class="internal" title="vergrößern"></a></div><a href="http://en.wikipedia.org/wiki/Foo" class="extiw" title="wikipedia:Foo">Wikipedia:Foo</a> bar</div></div></div>
 !! html/parsoid
 <figure class="mw-default-size mw-halign-right" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"right","ak":"right"},{"ck":"caption","ak":"[[:Wikipedia:Foo]] bar"}]}'><a href="./Datei:Foobar.jpg" data-parsoid="{}"><img resource="./Datei:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/220px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="25" width="220" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/330px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/440px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./Datei:Foobar.jpg","height":"25","width":"220"},"sa":{"resource":"File:Foobar.jpg"}}'/></a><figcaption><a rel="mw:WikiLink" href="./Wikipedia:Foo" title="Wikipedia:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Wikipedia:Foo"},"sa":{"href":":Wikipedia:Foo"}}' class="new">Wikipedia:Foo</a> bar</figcaption></figure>
@@ -3470,7 +3470,7 @@ parsoid={
 [http://www.google.com [[File:Foobar.jpg|123]]]
 
 [http://www.google.com [[File:Foobar.jpg|thumb|123]]]
-!! html/php+tidy
+!! html/php
 <p><a rel="nofollow" class="external text" href="http://www.google.com"></a><a href="/wiki/File:Foobar.jpg" class="image" title="123"><img alt="123" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>
 </p>
 <a rel="nofollow" class="external text" href="http://www.google.com"></a><div class="thumb tright"><a rel="nofollow" class="external text" href="http://www.google.com"></a><div class="thumbinner" style="width:182px;"><a rel="nofollow" class="external text" href="http://www.google.com"></a><a href="/wiki/File:Foobar.jpg" class="image"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="thumbimage" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div>123</div></div></div>
@@ -3484,7 +3484,7 @@ parsoid={
 Thumbnail output
 !! wikitext
 [[File:Thumb.png|thumb]]
-!! html/php+tidy
+!! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/File:Thumb.png" class="image"><img alt="Thumb.png" src="http://example.com/images/e/ea/Thumb.png" decoding="async" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Thumb.png" class="internal" title="Enlarge"></a></div></div></div></div>
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Thumb.png"><img resource="./File:Thumb.png" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
