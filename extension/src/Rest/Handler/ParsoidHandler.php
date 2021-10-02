@@ -612,8 +612,14 @@ abstract class ParsoidHandler extends Handler {
 		}
 
 		$parseTime = $parseTiming->end( "wt2html.$mstr.parse" );
-		$metrics->timing( "wt2html.$mstr.size.output", $response->getBody()->getSize() );
 		$timing->end( 'wt2html.total' );
+		$outSize = $response->getBody()->getSize();
+		$metrics->timing( "wt2html.$mstr.size.output", $outSize );
+
+		// FIXME: This is slightly misleading since there are fixed costs
+		// for generating output like the <head> section and should be factored in,
+		// but this is good enough for now as a useful first degree of approxmation.
+		$metrics->timing( 'wt2html.timePerKB', $parseTime * 1024 / $outSize );
 
 		if ( $parseTime > 3000 ) {
 			LoggerFactory::getInstance( 'slow-parsoid' )
@@ -840,8 +846,9 @@ abstract class ParsoidHandler extends Handler {
 			throw new HttpException( $e->getMessage(), 413 );
 		}
 
-		$timing->end( 'html2wt.total' );
+		$total = $timing->end( 'html2wt.total' );
 		$metrics->timing( 'html2wt.size.output', strlen( $wikitext ) );
+		$metrics->timing( 'html2wt.timePerInputKB', $total * 1024 / strlen( $html ) );
 
 		$response = $this->getResponseFactory()->create();
 		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT );
