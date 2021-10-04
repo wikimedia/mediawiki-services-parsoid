@@ -26,11 +26,11 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
-use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddMediaInfo;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 class WikiLinkHandler extends TokenHandler {
@@ -1542,8 +1542,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		$anchor = new TagTk( 'a' );
-		$filePath = Sanitizer::sanitizeTitleURI( $target->title->getKey(), false );
-		$anchor->setAttribute( 'href', "./Special:FilePath/{$filePath}" );
+		$anchor->setAttribute( 'href', $this->specialFilePath( $target->title ) );
 
 		$tokens = [
 			$container,
@@ -1611,15 +1610,24 @@ class WikiLinkHandler extends TokenHandler {
 	}
 
 	/**
+	 * @param Title $title
+	 * @return string
+	 */
+	private function specialFilePath( Title $title ): string {
+		$filePath = Sanitizer::sanitizeTitleURI( $title->getKey(), false );
+		return "./Special:FilePath/{$filePath}";
+	}
+
+	/**
 	 * @param Token $token
 	 * @param stdClass $target
 	 * @param array $errs
-	 * @param array $info
+	 * @param ?array $info
 	 * @return TokenHandlerResult
 	 */
-	private function linkToMedia( Token $token, stdClass $target, array $errs, array $info ): TokenHandlerResult {
+	private function linkToMedia( Token $token, stdClass $target, array $errs, ?array $info ): TokenHandlerResult {
 		// Only pass in the url, since media links should not link to the thumburl
-		$imgHref = $info['url']; // Copied from getPath
+		$imgHref = $info['url'] ?? $this->specialFilePath( $target->title );  // Copied from getPath
 		$imgHrefFileName = preg_replace( '#.*/#', '', $imgHref, 1 );
 
 		$link = new TagTk( 'a' );
@@ -1679,17 +1687,21 @@ class WikiLinkHandler extends TokenHandler {
 	private function renderMedia( Token $token, stdClass $target ): TokenHandlerResult {
 		$env = $this->env;
 		$title = $target->title;
+		$info = null;
 		$errs = [];
-		$temp2 = AddMediaInfo::requestInfo( $env, $title->getKey(), [
-			'height' => null, 'width' => null
-		] );
-
-		$err = $temp2['err'];
-		if ( $err ) {
-			$errs[] = $err;
+		if ( $env->noDataAccess() ) {
+			$errs[] = [ 'key' => 'apierror-unknownerror', 'message' => 'Fetch of image info disabled.' ];
+		} else {
+			$info = $env->getDataAccess()->getFileInfo(
+				$env->getPageConfig(),
+				[ [ $title->getKey(), [ 'height' => null, 'width' => null ] ] ]
+			)[0];
+			if ( !$info ) {
+				$errs[] = [ 'key' => 'apierror-filedoesnotexist', 'message' => 'This image does not exist.' ];
+			} elseif ( isset( $info['thumberror'] ) ) {
+				$errs[] = [ 'key' => 'apierror-unknownerror', 'message' => $info['thumberror'] ];
+			}
 		}
-
-		$info = $temp2['info'];
 		return $this->linkToMedia( $token, $target, $errs, $info );
 	}
 

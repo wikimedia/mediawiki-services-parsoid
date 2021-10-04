@@ -63,11 +63,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		// Calculate the scaling ratio from the user-specified width and height
 		$ratio = null;
-		if ( !empty( $attrs['size']['height'] ) && !empty( $info['height'] ) ) {
-			$ratio = $attrs['size']['height'] / $info['height'];
+		if ( !empty( $attrs['dims']['height'] ) && !empty( $info['height'] ) ) {
+			$ratio = $attrs['dims']['height'] / $info['height'];
 		}
-		if ( !empty( $attrs['size']['width'] ) && !empty( $info['width'] ) ) {
-			$r = $attrs['size']['width'] / $info['width'];
+		if ( !empty( $attrs['dims']['width'] ) && !empty( $info['width'] ) ) {
+			$r = $attrs['dims']['width'] / $info['width'];
 			$ratio = ( $ratio === null || $r < $ratio ) ? $r : $ratio;
 		}
 
@@ -375,25 +375,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Use sane defaults
-	 *
-	 * @param Env $env
-	 * @param string $key
-	 * @param array $dims
-	 * @return array
-	 */
-	private static function errorInfo( Env $env, string $key, array $dims ): array {
-		$widthOption = $env->getSiteConfig()->widthOption();
-		return [
-			'url' => './Special:FilePath/' . Sanitizer::sanitizeTitleURI( $key, false ),
-			// Preserve width and height from the wikitext options
-			// even if the image is non-existent.
-			'width' => $dims['width'] ?? $widthOption,
-			'height' => $dims['height'] ?? $dims['width'] ?? $widthOption,
-		];
-	}
-
-	/**
 	 * @param string $key
 	 * @param string $message
 	 * @param ?array $params
@@ -408,33 +389,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$e['params'] = $params;
 		}
 		return $e;
-	}
-
-	/**
-	 * @param Env $env
-	 * @param string $key
-	 * @param array $dims
-	 * @return array
-	 */
-	public static function requestInfo( Env $env, string $key, array $dims ): array {
-		$err = null;
-		$start = microtime( true );
-		$info = $env->getDataAccess()->getFileInfo(
-			$env->getPageConfig(),
-			[ $key => $dims ]
-		)[$key] ?? null;
-		if ( $env->profiling() ) {
-			$profile = $env->getCurrentProfile();
-			$profile->bumpMWTime( "Media", 1000 * ( microtime( true ) - $start ), "api" );
-			$profile->bumpCount( "Media" );
-		}
-		if ( !$info ) {
-			$info = self::errorInfo( $env, $key, $dims );
-			$err = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
-		} elseif ( isset( $info['thumberror'] ) ) {
-			$err = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
-		}
-		return [ 'err' => $err, 'info' => $info ];
 	}
 
 	/**
@@ -468,39 +422,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$span->getAttribute( $attribute ) ?? '',
 			WTSUtils::getAttributeShadowInfo( $span, $attribute )['value']
 		);
-	}
-
-	/**
-	 * If this is a manual thumbnail, fetch the info for that as well
-	 *
-	 * @param Env $env
-	 * @param array $attrs
-	 * @param array $dims
-	 * @param stdClass $dataMw
-	 * @return array
-	 */
-	private static function manualInfo(
-		Env $env, array $attrs, array $dims, stdClass $dataMw
-	): array {
-		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
-		if ( $attr === null ) {
-			return [ 'err' => null, 'info' => null ];
-		}
-
-		$val = $attr[1]->txt;
-		$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespace(), true );
-		if ( $title === null ) {
-			return [
-				'info' => self::errorInfo( $env, $attrs['title']->getKey(), $dims ),
-				'err' => self::makeErr(
-					'apierror-invalidtitle',
-					'Invalid thumbnail title.',
-					[ 'name' => $val ]
-				),
-			];
-		}
-
-		return self::requestInfo( $env, $title->getKey(), $dims );
 	}
 
 	/**
@@ -593,6 +514,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
 		$urlParser = new PegTokenizer( $env );
 
+		$validContainers = [];
+		$files = [];
+
 		// Since we haven't fetched info yet, they were all assumed to be mw:Image
 		// See WikiLinkHandler::renderFile()
 		$containers = DOMCompat::querySelectorAll( $root, '[typeof*="mw:Image"]' );
@@ -608,8 +532,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				!WTUtils::isDOMFragmentWrapper( $container ),
 				'Media info for fragment was already added'
 			);
-
-			$dataMw = DOMDataUtils::getDataMw( $container );
 
 			// We expect this structure to be predictable based on how it's
 			// emitted in the TT/WikiLinkHandler but treebuilding may have
@@ -637,25 +559,22 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 
-			$attrs = [
-				'size' => [
-					'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
-					'height' => (int)$span->getAttribute( 'data-height' ) ?: null,
-				],
-				'format' => WTSUtils::getMediaFormat( $container ),
-				'title' => $env->makeTitleFromText( $span->textContent ),
-			];
-
-			$dims = $attrs['size'];
+			$dataMw = DOMDataUtils::getDataMw( $container );
 
 			if ( $env->noDataAccess() ) {
-				$errs = [ self::makeErr(
+				$errs = [
+					self::makeErr(
 					'apierror-unknownerror',
 					'Fetch of image info disabled.'
 				) ];
 				self::addErrors( $container, $errs, $dataMw );
 				continue;
 			}
+
+			$dims = [
+				'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
+				'height' => (int)$span->getAttribute( 'data-height' ) ?: null,
+			];
 
 			$page = WTSUtils::getAttrFromDataMw( $dataMw, 'page', true );
 			if ( $page ) {
@@ -678,15 +597,90 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				}
 			}
 
-			$i = self::requestInfo( $env, $attrs['title']->getKey(), $dims );
-			$m = self::manualInfo( $env, $attrs, $dims, $dataMw );
+			$attrs = [
+				'dims' => $dims,
+				'format' => WTSUtils::getMediaFormat( $container ),
+				'title' => $env->makeTitleFromText( $span->textContent ),
+			];
+
+			$file = [ $attrs['title']->getKey(), $dims ];
+			$infoKey = md5( json_encode( $file ) );
+			$files[$infoKey] = $file;
+
+			$manualKey = null;
+			$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
+			if ( $manualthumb !== null ) {
+				$val = $manualthumb[1]->txt;
+				$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespace(), true );
+				if ( $title === null ) {
+					$errs = [
+						self::makeErr(
+							'apierror-invalidtitle',
+							'Invalid thumbnail title.',
+							[ 'name' => $val ]
+						)
+					];
+					self::addErrors( $container, $errs, $dataMw );
+					continue;
+				} else {
+					$file = [ $title->getKey(), $dims ];
+					$manualKey = md5( json_encode( $file ) );
+					$files[$manualKey] = $file;
+				}
+			}
+
+			$validContainers[] = [
+				'container' => $container,
+				'attrs' => $attrs,
+				// Pass the anchor because we did some work to find it above
+				'anchor' => $anchor,
+				'infoKey' => $infoKey,
+				'manualKey' => $manualKey,
+			];
+		}
+
+		$start = microtime( true );
+
+		$infos = $env->getDataAccess()->getFileInfo(
+			$env->getPageConfig(),
+			array_values( $files )
+		);
+
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
+			$profile->bumpMWTime( "Media", 1000 * ( microtime( true ) - $start ), "api" );
+			$profile->bumpCount( "Media" );
+		}
+
+		$files = array_combine(
+			array_keys( $files ),
+			$infos
+		);
+
+		foreach ( $validContainers as $c ) {
+			$container = $c['container'];
+			$anchor = $c['anchor'];
+			$span = $anchor->firstChild;
+			$attrs = $c['attrs'];
+			$dataMw = DOMDataUtils::getDataMw( $container );
 
 			$errs = [];
-			if ( $i['err'] !== null ) {
-				$errs[] = $i['err'];
+
+			$info = $files[$c['infoKey']];
+			if ( !$info ) {
+				$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
+			} elseif ( isset( $info['thumberror'] ) ) {
+				$errs[] = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
 			}
-			if ( $m['err'] !== null ) {
-				$errs[] = $m['err'];
+
+			$manualinfo = null;
+			if ( $c['manualKey'] !== null ) {
+				$manualinfo = $files[$c['manualKey']];
+				if ( !$manualinfo ) {
+					$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
+				} elseif ( isset( $manualinfo['thumberror'] ) ) {
+					$errs[] = self::makeErr( 'apierror-unknownerror', $manualinfo['thumberror'] );
+				}
 			}
 
 			// Add mw:Error to the RDFa type.
@@ -695,8 +689,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 
-			$info = $i['info'];
-			$manualinfo = $m['info'];
+			'@phan-var array $info';  // @var array $info
 
 			// T110692: The batching API seems to return these as strings.
 			// Till that is fixed, let us make sure these are numbers.
@@ -721,7 +714,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $anchor, $attrs, $dataMw, $isImage,
-				(int)( $dims['page'] ?? 0 )
+				(int)( $attrs['dims']['page'] ?? 0 )
 			);
 			$anchor->appendChild( $elt );
 

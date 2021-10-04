@@ -183,15 +183,25 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getFileInfo( IPageConfig $pageConfig, array $files ): array {
 		$page = Title::newFromText( $pageConfig->getTitle() );
-		$fileObjs = $this->repoGroup->findFiles( array_keys( $files ) );
+
+		$keys = [];
+		foreach ( $files as $f ) {
+			$keys[] = $f[0];
+		}
+		$fileObjs = $this->repoGroup->findFiles( $keys );
+
 		$ret = [];
-		foreach ( $files as $filename => $dims ) {
+		foreach ( $files as $f ) {
+			$filename = $f[0];
+			$dims = $f[1];
+
 			/** @var File $file */
 			$file = $fileObjs[$filename] ?? null;
 			if ( !$file ) {
-				$ret[$filename] = null;
+				$ret[] = null;
 				continue;
 			}
+
 			// See Linker::makeImageLink; 'page' is a key in $handlerParams
 			// core uses 'false' as the default then casts to (int) => 0
 			$pageNum = $dims['page'] ?? 0;
@@ -250,7 +260,7 @@ class DataAccess implements IDataAccess {
 				$result['thumberror'] = "Presumably, invalid parameters, despite validation.";
 			}
 
-			$ret[$filename] = $result;
+			$ret[] = $result;
 		}
 
 		return $ret;

@@ -79,8 +79,8 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		];
 		foreach ( $files as $file => $dims ) {
 			$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-			$data = $this->getDataAccess( "fileinfo.$file" )->getFileInfo( $pageConfig, [ $file => $dims ] );
-			$this->assertSame( [ $file => $results[$file] ], $data );
+			$data = $this->getDataAccess( "fileinfo.$file" )->getFileInfo( $pageConfig, [ [ $file, $dims ] ] );
+			$this->assertSame( [ $results[$file] ], $data );
 		}
 	}
 

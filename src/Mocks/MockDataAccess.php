@@ -374,12 +374,16 @@ class MockDataAccess implements DataAccess {
 	/** @inheritDoc */
 	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
 		$ret = [];
-		foreach ( $files as $name => $dims ) {
+		foreach ( $files as $f ) {
+			$name = $f[0];
+			$dims = $f[1];
+
 			// From mockAPI.js
 			$normFileName = self::FNAMES[$name] ?? $name;
 			$props = self::FILE_PROPS[$normFileName] ?? null;
 			if ( $props === null ) {
 				// We don't have info for this file
+				$ret[] = null;
 				continue;
 			}
 
@@ -508,7 +512,7 @@ class MockDataAccess implements DataAccess {
 				}
 			}
 
-			$ret[$normFileName] = $info;
+			$ret[] = $info;
 		}
 
 		return $ret;

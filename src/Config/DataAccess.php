@@ -31,12 +31,12 @@ interface DataAccess {
 	 * This replaces ImageInfoRequest and Batcher.imageinfo()
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param array $files [ string Name => array Dims ]. The array may contain
+	 * @param array $files [ [string Name, array Dims] ]. The array may contain
 	 *  - width: (int) Requested thumbnail width
 	 *  - height: (int) Requested thumbnail height
 	 *  - page: (int) Requested thumbnail page number
 	 *  - seek: (int) Requested thumbnail time offset
-	 * @return array [ string Title => array|null ], where the array contains
+	 * @return array [ array|null ], where the array contains
 	 *  - width: (int|false) File width, false if unknown
 	 *  - height: (int|false) File height, false if unknown
 	 *  - size: (int|false) File size in bytes, false if unknown

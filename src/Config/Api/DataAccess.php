@@ -154,7 +154,6 @@ class DataAccess implements IDataAccess {
 	/** @inheritDoc */
 	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
 		$sc = $this->siteConfig;
-		$ret = array_fill_keys( array_keys( $files ), null );
 		if ( $sc && $sc->hasVideoInfo() ) {
 			$prefix = "vi";
 			$propName = "videoinfo";
@@ -162,7 +161,7 @@ class DataAccess implements IDataAccess {
 			$prefix = "ii";
 			$propName = "imageinfo";
 		}
-		$apiArgs = [
+		$apiArgs2 = [
 			'action' => 'query',
 			'format' => 'json',
 			'formatversion' => 2,
@@ -174,9 +173,14 @@ class DataAccess implements IDataAccess {
 			] )
 		];
 		if ( $prefix === 'vi' ) {
-			$apiArgs["viprop"] .= '|derivatives|timedtext';
+			$apiArgs2["viprop"] .= '|derivatives|timedtext';
 		}
-		foreach ( $files as $name => $dims ) {
+		$ret = [];
+		foreach ( $files as $file ) {
+			$apiArgs = $apiArgs2;  // Copy since we modify it
+			$name = $file[0];
+			$dims = $file[1];
+
 			$imgNS = $sc ? $sc->namespaceName( $sc->canonicalNamespaceId( "File" ) ) : "File";
 			$apiArgs['titles'] = "$imgNS:$name";
 			$needPage = isset( $dims['page'] );
@@ -234,9 +238,8 @@ class DataAccess implements IDataAccess {
 					}
 				}
 			}
-			$ret[$name] = $fileinfo;
+			$ret[] = $fileinfo;
 		}
-
 		return $ret;
 	}
 
