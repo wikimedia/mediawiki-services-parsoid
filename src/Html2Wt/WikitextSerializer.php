@@ -1142,7 +1142,7 @@ class WikitextSerializer {
 
 		if ( $state->selserMode
 			&& !$state->inModifiedContent
-			&& WTSUtils::origSrcValidInEditedContext( $this->env, $node )
+			&& WTSUtils::origSrcValidInEditedContext( $state, $node )
 			&& Utils::isValidDSR( $dp->dsr ?? null )
 			&& ( $dp->dsr->end > $dp->dsr->start
 				// FIXME: <p><br/></p>

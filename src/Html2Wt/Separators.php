@@ -795,8 +795,8 @@ class Separators {
 			$origSepNeeded && !$state->inModifiedContent &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $prevNode, true ) &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $node, false ) &&
-			WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $prevNode ) &&
-			WTSUtils::origSrcValidInEditedContext( $state->getEnv(), $node );
+			WTSUtils::origSrcValidInEditedContext( $state, $prevNode ) &&
+			WTSUtils::origSrcValidInEditedContext( $state, $node );
 
 		if ( $origSepNeededAndUsable ) {
 			if ( $prevNode instanceof Element ) {

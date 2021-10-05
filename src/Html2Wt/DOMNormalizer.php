@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -52,13 +51,11 @@ class DOMNormalizer {
 
 	private static $specializedAttribHandlers;
 
-	/**
-	 * @var Env
-	 */
-	private $env;
-
-	private $inSelserMode;
+	/** @var bool */
 	private $inInsertedContent;
+
+	/** @var SerializerState */
+	private $state;
 
 	/**
 	 * @param SerializerState $state
@@ -72,8 +69,8 @@ class DOMNormalizer {
 			];
 		}
 
-		$this->env = $state->getEnv();
-		$this->inSelserMode = $state->selserMode;
+		$this->state = $state;
+
 		$this->inInsertedContent = false;
 	}
 
@@ -145,7 +142,7 @@ class DOMNormalizer {
 	 */
 	private function isInsertedContent( Node $node ): bool {
 		while ( true ) {
-			if ( DiffUtils::hasInsertedDiffMark( $node, $this->env ) ) {
+			if ( DiffUtils::hasInsertedDiffMark( $node, $this->state->getEnv() ) ) {
 				return true;
 			}
 			if ( DOMUtils::atTheTop( $node ) ) {
@@ -177,7 +174,9 @@ class DOMNormalizer {
 			// In both cases, we want to transform the DOM.
 
 			return isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $b )] );
-		} elseif ( $this->env->shouldScrubWikitext() && DOMCompat::nodeName( $a ) === 'a' ) {
+		} elseif ( $this->state->getEnv()->shouldScrubWikitext() &&
+			DOMCompat::nodeName( $a ) === 'a'
+		) {
 			// Link merging is only supported in scrubWikitext mode.
 			// For <a> tags, we require at least one of the two tags
 			// to be a newly created element.
@@ -192,8 +191,8 @@ class DOMNormalizer {
 	 * @param bool $dontRecurse
 	 */
 	public function addDiffMarks( Node $node, string $mark, bool $dontRecurse = false ): void {
-		$env = $this->env;
-		if ( !$this->inSelserMode || DiffUtils::hasDiffMark( $node, $env, $mark ) ) {
+		$env = $this->state->getEnv();
+		if ( !$this->state->selserMode || DiffUtils::hasDiffMark( $node, $env, $mark ) ) {
 			return;
 		}
 
@@ -446,7 +445,7 @@ class DOMNormalizer {
 
 			if ( $oldLength !== $newLength ) {
 				// Log changes for editors benefit
-				$this->env->log( 'warn/html2wt/bidi',
+				$this->state->getEnv()->log( 'warn/html2wt/bidi',
 					'LRM/RLM unicode chars stripped around categories'
 				);
 			}
@@ -489,7 +488,7 @@ class DOMNormalizer {
 		}
 
 		if ( !$node->hasAttribute( 'href' ) ) {
-			$this->env->log(
+			$this->state->getEnv()->log(
 				'error/normalize',
 				'href is missing from a tag',
 				DOMCompat::getOuterHTML( $node )
@@ -567,13 +566,13 @@ class DOMNormalizer {
 		}
 
 		// The following are done only if scrubWikitext flag is enabled
-		if ( !$this->env->shouldScrubWikitext() ) {
+		if ( !$this->state->getEnv()->shouldScrubWikitext() ) {
 			return $node;
 		}
 
 		$next = null;
 
-		if ( $this->env->getSiteConfig()->scrubBidiChars() ) {
+		if ( $this->state->getEnv()->getSiteConfig()->scrubBidiChars() ) {
 			// Strip bidirectional chars around categories
 			// Note that this is being done everywhere,
 			// not just in selser mode
@@ -584,11 +583,12 @@ class DOMNormalizer {
 		}
 
 		// Skip unmodified content
-		if ( $this->inSelserMode && !DOMUtils::atTheTop( $node ) &&
-			!$this->inInsertedContent && !DiffUtils::hasDiffMarkers( $node, $this->env ) &&
+		if ( $this->state->selserMode && !DOMUtils::atTheTop( $node ) &&
+			!$this->inInsertedContent &&
+			!DiffUtils::hasDiffMarkers( $node, $this->state->getEnv() ) &&
 			// If orig-src is not valid, this in effect becomes
 			// an edited node and needs normalizations applied to it.
-			WTSUtils::origSrcValidInEditedContext( $this->env, $node )
+			WTSUtils::origSrcValidInEditedContext( $this->state, $node )
 		) {
 			return $node;
 		}
@@ -798,16 +798,20 @@ class DOMNormalizer {
 			}
 
 			// Set insertion marker
-			$insertedSubtree = DiffUtils::hasInsertedDiffMark( $node, $this->env );
+			$insertedSubtree = DiffUtils::hasInsertedDiffMark( $node, $this->state->getEnv() );
 			if ( $insertedSubtree ) {
 				if ( $this->inInsertedContent ) {
 					// Dump debugging info
-					$options = [ 'storeDiffMark' => true, 'env' => $this->env, 'outBuffer' => [] ];
+					$options = [
+						'storeDiffMark' => true,
+						'env' => $this->state->getEnv(),
+						'outBuffer' => []
+					];
 					ContentUtils::dumpDOM( DOMCompat::getBody( $node->ownerDocument ),
 						'-- DOM triggering nested inserted dom-diff flags --',
 						$options
 					);
-					$this->env->log( 'error/html2wt/dom',
+					$this->state->getEnv()->log( 'error/html2wt/dom',
 						"--- Nested inserted dom-diff flags ---\n",
 						'Node:',
 						$node instanceof Element ? ContentUtils::ppToXML( $node ) : $node->textContent,

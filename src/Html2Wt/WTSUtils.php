@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use stdClass;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -250,11 +249,12 @@ class WTSUtils {
 	 * In selser mode, check if an unedited node's wikitext from source wikitext
 	 * is reusable as is.
 	 *
-	 * @param Env $env
+	 * @param SerializerState $state
 	 * @param Node $node
 	 * @return bool
 	 */
-	public static function origSrcValidInEditedContext( Env $env, Node $node ): bool {
+	public static function origSrcValidInEditedContext( SerializerState $state, Node $node ): bool {
+		$env = $state->getEnv();
 		$prev = null;
 
 		if ( WTUtils::isRedirectLink( $node ) ) {
