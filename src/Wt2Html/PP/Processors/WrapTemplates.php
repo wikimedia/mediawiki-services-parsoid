@@ -908,29 +908,30 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			 *    2b. If dp2.dsr->start is unknown, we rely on fostered flag on
 			 *        range.start, if any.
 			 * ---------------------------------------------------------------- */
-			$dp1 = Utils::clone( DOMDataUtils::getDataParsoid( $range->start ) );
+			$dp1 = DOMDataUtils::getDataParsoid( $range->start );
+			$dp1DSR = isset( $dp1->dsr ) ? clone $dp1->dsr : null;
 			$dp2DSR = self::getRangeEndDSR( $range );
 
-			if ( isset( $dp1->dsr ) ) {
+			if ( $dp1DSR ) {
 				if ( $dp2DSR ) {
 					// Case 1. above
-					if ( $dp2DSR->end > $dp1->dsr->end ) {
-						$dp1->dsr->end = $dp2DSR->end;
+					if ( $dp2DSR->end > $dp1DSR->end ) {
+						$dp1DSR->end = $dp2DSR->end;
 					}
 
 					// Case 2. above
 					$endDsr = $dp2DSR->start;
 					if ( DOMCompat::nodeName( $range->end ) === 'table' &&
 						$endDsr !== null &&
-						( $endDsr < $dp1->dsr->start || !empty( $dp1->fostered ) )
+						( $endDsr < $dp1DSR->start || !empty( $dp1->fostered ) )
 					) {
-						$dp1->dsr->start = $endDsr;
+						$dp1DSR->start = $endDsr;
 					}
 				}
 
 				// encapsulation possible only if dp1.dsr is valid
-				$encapInfo->valid = Utils::isValidDSR( $dp1->dsr ?? null ) &&
-					$dp1->dsr->end >= $dp1->dsr->start;
+				$encapInfo->valid = Utils::isValidDSR( $dp1DSR ) &&
+					$dp1DSR->end >= $dp1DSR->start;
 			}
 
 			$tplArray = $encapInfo->tplArray;
@@ -940,7 +941,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				$firstTplInfo = !empty( $tplArray[0]->wt ) ? $tplArray[1] : $tplArray[0];
 
 				// Add any leading wikitext
-				if ( $firstTplInfo->dsr->start > $dp1->dsr->start ) {
+				if ( $firstTplInfo->dsr->start > $dp1DSR->start ) {
 					// This gap in dsr (between the final encapsulated content, and the
 					// content that actually came from a template) is indicative of this
 					// being a mixed-template-content-block and/or multi-template-content-block
@@ -953,17 +954,17 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 					if ( $ftn !== null ) {
 						$encapInfo->dp->firstWikitextNode = $ftn;
 					}
-					$width = $firstTplInfo->dsr->start - $dp1->dsr->start;
+					$width = $firstTplInfo->dsr->start - $dp1DSR->start;
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => PHPUtils::safeSubstr( $frame->getSrcText(), $dp1->dsr->start, $width ) ]
+						(object)[ 'wt' => PHPUtils::safeSubstr( $frame->getSrcText(), $dp1DSR->start, $width ) ]
 					);
 				}
 
 				// Add any trailing wikitext
 				$lastTplInfo = PHPUtils::lastItem( $tplArray );
-				if ( $lastTplInfo->dsr->end < $dp1->dsr->end ) {
-					$width = $dp1->dsr->end - $lastTplInfo->dsr->end;
+				if ( $lastTplInfo->dsr->end < $dp1DSR->end ) {
+					$width = $dp1DSR->end - $lastTplInfo->dsr->end;
 					$tplArray[] = (object)[
 						'wt' => PHPUtils::safeSubstr( $frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
 					];
@@ -1021,7 +1022,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				$errors = [ 'Do not have necessary info. to encapsulate Tpl: ' . $i ];
 				$errors[] = 'Start Elt : ' . DOMCompat::getOuterHTML( $startElem );
 				$errors[] = 'End Elt   : ' . DOMCompat::getOuterHTML( $range->endElem );
-				$errors[] = 'Start DSR : ' . PHPUtils::jsonEncode( $dp1->dsr ?? 'no-start-dsr' );
+				$errors[] = 'Start DSR : ' . PHPUtils::jsonEncode( $dp1DSR ?? 'no-start-dsr' );
 				$errors[] = 'End   DSR : ' . PHPUtils::jsonEncode( $dp2DSR ?? [] );
 				$env->log( 'error', implode( "\n", $errors ) );
 			}
@@ -1046,7 +1047,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 					!$encapInfo->datamw->parts ||
 					count( $encapInfo->datamw->parts ) === 1
 				) {
-					$dp1->dsr->end = $dp1->dsr->start;
+					$dp1DSR->end = $dp1DSR->start;
 				}
 			}
 
@@ -1059,10 +1060,10 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				// encapInfo.dp points to DOMDataUtils.getDataParsoid(encapInfo.target)
 				// and all updates below update properties in that object tree.
 				if ( empty( $encapInfo->dp->dsr ) ) {
-					$encapInfo->dp->dsr = $dp1->dsr;
+					$encapInfo->dp->dsr = $dp1DSR;
 				} else {
-					$encapInfo->dp->dsr->start = $dp1->dsr->start;
-					$encapInfo->dp->dsr->end = $dp1->dsr->end;
+					$encapInfo->dp->dsr->start = $dp1DSR->start;
+					$encapInfo->dp->dsr->end = $dp1DSR->end;
 				}
 				$encapInfo->dp->src = $encapInfo->dp->dsr->substr(
 					$frame->getSrcText()
