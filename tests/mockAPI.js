@@ -563,8 +563,8 @@ var querySiteinfo = function(prefix, formatversion, cb) {
 };
 
 var parse = function(text, onlypst, formatversion) {
-	var fmt = (text) => {
-		return { text: (formatversion === 2) ? text : { "*": text } };
+	var fmt = (text2) => {
+		return { text: (formatversion === 2) ? text2 : { "*": text2 } };
 	};
 	// We're performing a subst
 	if (onlypst) {
@@ -791,7 +791,7 @@ var availableActions = {
 					// NOTE: Return early here since a null is acceptable.
 					return (ii !== null) ? ii.result : null;
 				case 'parse':
-					res = parse(b.text, /* onlypst*/false, formatversion);
+					res = parse(b.text, /* onlypst */false, formatversion);
 					break;
 				case 'pageprops':
 					res = pageProps(b.titles);

@@ -1,2 +1,6 @@
 node_modules/
 vendor/
+
+tests/parser/
+tests/parserTests.json
+tools/data/wmf.sitematrix.json

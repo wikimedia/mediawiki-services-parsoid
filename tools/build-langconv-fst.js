@@ -10,6 +10,7 @@ require('../core-upgrade.js');
  * The input is expected to be a "byte machine", that is, unicode code units
  * have already been decomposed into code points corresponding to UTF-8
  * bytes.  Symbols used in the ATT file:
+ *
  *  @0@      Epsilon ("no character").  Used in both input and output edges;
  *           as an input edge this introduced nondeterminism.
  *  <hh>    The input byte with hexadecimal value <hh>
@@ -322,8 +323,8 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 			alphabet.add(sym2byte(e.inChar));
 			alphabet.add(sym2byte(e.outChar));
 		}
-	}, (fs) => {
-		finalStates = new Set(fs);
+	}, (fs2) => {
+		finalStates = new Set(fs2);
 	});
 	// Anything not in `alphabet` is going to be treated as 'anything else'
 	// but we want to force 0x00 and 0xF8-0xFF to be treated as 'anything else'
@@ -359,9 +360,9 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 			if (!e) { e = { outByte: BYTE_FAIL, to: state }; }
 			// where possible remap outByte to IDENTITY to maximize chances
 			// of adjacent states matching
-			const out = (i === e.outByte) ? BYTE_IDENTITY : e.outByte;
-			if (out !== lastEdge.outByte || e.to !== lastEdge.to) {
-				lastEdge = { inByte: i, outByte: out, to: e.to };
+			const out2 = (i === e.outByte) ? BYTE_IDENTITY : e.outByte;
+			if (out2 !== lastEdge.outByte || e.to !== lastEdge.to) {
+				lastEdge = { inByte: i, outByte: out2, to: e.to };
 				r.push(lastEdge);
 			}
 		}

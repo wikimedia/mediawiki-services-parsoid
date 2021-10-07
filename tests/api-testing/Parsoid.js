@@ -63,7 +63,7 @@ before(async function() {
 
 describe('Parsoid API', function() {
 	const client = new REST();
-	const parsedUrl = url.parse(client.req.app);
+	const parsedUrl = new url.URL(client.req.app);
 	const PARSOID_URL = parsedUrl.href;
 	const hostname = parsedUrl.hostname;
 	const mockDomain = client.pathPrefix = `rest.php/${hostname}`;

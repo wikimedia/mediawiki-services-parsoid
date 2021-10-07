@@ -281,6 +281,9 @@ var ScriptUtils = {
 	 *
 	 * The `defaults` option is optional, and lets you override
 	 * the defaults for the standard options.
+	 *
+	 * @param opts
+	 * @param defaults
 	 */
 	addStandardOptions: function(opts, defaults) {
 		var standardOpts = {

@@ -71,7 +71,7 @@ require('../core-upgrade.js');
    of the sync patch) doesn't require a corresponding change in Parsoid
    and file a phab task and regenerate the known-differences list if that
    happens to be the case.
-*/
+ */
 
 var yargs = require('yargs');
 var childProcess = require('pn/child_process');
