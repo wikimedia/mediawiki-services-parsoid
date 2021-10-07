@@ -24,6 +24,7 @@ use Composer\Semver\Semver;
 use ExtensionRegistry;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use LogicException;
+use MediaWiki\Logger\LoggerFactory;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\Handler;
 use MediaWiki\Rest\HttpException;
@@ -610,9 +611,17 @@ abstract class ParsoidHandler extends Handler {
 			}
 		}
 
-		$parseTiming->end( "wt2html.$mstr.parse" );
+		$parseTime = $parseTiming->end( "wt2html.$mstr.parse" );
 		$metrics->timing( "wt2html.$mstr.size.output", $response->getBody()->getSize() );
 		$timing->end( 'wt2html.total' );
+
+		if ( $parseTime > 3000 ) {
+			LoggerFactory::getInstance( 'slow-parsoid' )
+				->info( 'Parsing {title} was slow, took {time} seconds', [
+					'time' => number_format( $parseTime / 1000, 2 ),
+					'title' => $pageConfig->getTitle(),
+				] );
+		}
 
 		if ( $wikitext !== null ) {
 			// Don't cache requests when wt is set in case somebody uses

@@ -36,11 +36,14 @@ class Timing {
 	/**
 	 * End this timing measurement, reporting it under the given `name`.
 	 * @param string $name
+	 * @return float Number of milliseconds reported
 	 */
-	public function end( string $name ): void {
+	public function end( string $name ): float {
+		$elapsed = self::millis() - $this->startTime;
 		if ( $this->metrics ) {
-			$this->metrics->timing( $name, self::millis() - $this->startTime );
+			$this->metrics->timing( $name, $elapsed );
 		}
+		return $elapsed;
 	}
 
 	/**
