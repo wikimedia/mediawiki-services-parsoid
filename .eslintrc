@@ -71,6 +71,15 @@
 
     "no-buffer-constructor": "warn",
 
-    "valid-jsdoc": "off",
+    "no-process-exit": "off",
+    "node/no-missing-require": "off",
+
+    "jsdoc/require-returns": "off",
+    "jsdoc/require-param-type": "off",
+    "jsdoc/check-alignment": "off",
+    "jsdoc/check-param-names": "off",
+    "jsdoc/no-undefined-types": "off",
+    "jsdoc/check-tag-names": "off",
+    "jsdoc/require-returns-check": "off",
   }
 }

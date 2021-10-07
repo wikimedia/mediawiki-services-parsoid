@@ -207,6 +207,9 @@ const nodeHrefToTitle = function(node, suppressCategory) {
 
 /**
  * Pull a list of local titles from wikilinks in a Parsoid HTML document.
+ *
+ * @param env
+ * @param document
  */
 const spiderDocument = function(env, document) {
 	const redirect = document.querySelector('link[rel~="mw:PageProp/redirect"]');
@@ -221,6 +224,9 @@ const spiderDocument = function(env, document) {
  * Pull "just the text" from an HTML document, normalizing whitespace
  * differences and suppressing places where Parsoid and PHP output
  * deliberately differs.
+ *
+ * @param env
+ * @param document
  */
 const extractText = function(env, document) {
 	var dt = new DOMTraverser();
@@ -237,7 +243,7 @@ const extractText = function(env, document) {
 		sep = ' ';
 	};
 	const emit = (s) => { if (s !== '') { buf += sep; buf += s; sep = ''; } };
-	dt.addHandler('#text', (node, env, atTopLevel, tplInfo) => {
+	dt.addHandler('#text', (node, env2, atTopLevel, tplInfo) => {
 		const v = node.nodeValue.replace(/\s+/g, ' ');
 		const m = /^(\s*)(.*?)(\s*)$/.exec(v);
 		addSep(m[1]);

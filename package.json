@@ -15,19 +15,19 @@
     "prfun": "^2.1.5",
     "request": "^2.87.0",
     "semver": "^6.1.0",
-    "service-runner": "git+https://github.com/cscott/service-runner.git#npm-audit-fix",
+    "service-runner": "git+https://github.com/wikimedia/service-runner.git#yarg",
     "simplediff": "^0.1.1",
     "wikimedia-langconv": "^0.1.0",
     "wikipeg": "^2.0.6",
-    "yargs": "^13.2.4"
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "api-testing": "^1.2.0",
     "chai": "^4.1.2",
     "colors": "^1.2.4",
-    "eslint": "6.8.0",
-    "eslint-config-wikimedia": "0.15.3",
-    "mocha": "^8.2.1",
+    "eslint": "^7.32.0",
+    "eslint-config-wikimedia": "^0.20.0",
+    "mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
     "nock": "^9.2.5"
   },
   "scripts": {

@@ -35,7 +35,7 @@ const sampleTitles = [
 	{ wiki: 'knwikisource', title: 'ಪಂಪಭಾರತ_ಪ್ರಥಮಾಶ್ವಾಸಂ', revid: 170413 },
 ];
 
-let config = {
+let outerConfig = {
 	// File with \n-separated json blobs with at least (wiki, title, oldId / revid) properties
 	// If domain is provided, it is used, if not wiki is treated as a prefix
 	// All other properties are ignored.
@@ -241,9 +241,9 @@ function runTests(opts, finalizer) {
 		if (state.outStanding < opts.config.maxOutstanding) {
 			const url = opts.reqs[opts.reqs.length - state.numPendingRequests][opts.type];
 			if (opts.type === 'js') {
-				opts.proxy = config.jsServer.proxy || '';
+				opts.proxy = opts.config.jsServer.proxy || '';
 			} else { // 'php' or 'init' For init, content is always fetched from Parsoid/PHP
-				opts.proxy = config.phpServer.proxy || '';
+				opts.proxy = opts.config.phpServer.proxy || '';
 			}
 			if (opts.type === 'init' && fs.existsSync(contentFileName(url))) {
 				// Content exists. Don't fetch.
@@ -262,23 +262,23 @@ function runTests(opts, finalizer) {
 
 // Override default config
 if (process.argv.length > 2) {
-	config = yaml.load(fs.readFileSync(process.argv[2], 'utf8'));
+	outerConfig = yaml.load(fs.readFileSync(process.argv[2], 'utf8'));
 }
 
 // CLI overrides config
 if (process.argv.length > 3) {
-	config.maxOutstanding = parseInt(process.argv[3], 10);
+	outerConfig.maxOutstanding = parseInt(process.argv[3], 10);
 }
 
 // CLI overrides config
 if (process.argv.length > 4) {
-	config.maxRequests = parseInt(process.argv[4], 10);
+	outerConfig.maxRequests = parseInt(process.argv[4], 10);
 }
 
 let testUrls;
-if (config.testTitles) {
+if (outerConfig.testTitles) {
 	// Parse production logs and generate test urls
-	const logs = fs.readFileSync(config.testTitles, 'utf8');
+	const logs = fs.readFileSync(outerConfig.testTitles, 'utf8');
 	const lines = logs.split(/\n/);
 	testUrls = [];
 	lines.forEach(function(l) {
@@ -286,33 +286,33 @@ if (config.testTitles) {
 			const log = JSON.parse(l);
 			const domain = log.domain || prefixToDomain(log.wiki);
 			if (domain) {
-				testUrls.push(genFullUrls(config, domain, log.title, log.oldId || log.revid));
+				testUrls.push(genFullUrls(outerConfig, domain, log.title, log.oldId || log.revid));
 			}
 		}
 	});
 } else {
 	testUrls = [];
 	sampleTitles.forEach(function(t) {
-		testUrls.push(genFullUrls(config, t.domain || prefixToDomain(t.wiki), t.title, t.revid));
+		testUrls.push(genFullUrls(outerConfig, t.domain || prefixToDomain(t.wiki), t.title, t.revid));
 	});
 }
 
-const reqStream = computeRandomRequestStream(testUrls, config);
+const reqStream = computeRandomRequestStream(testUrls, outerConfig);
 const opts = {
-	config: config,
+	config: outerConfig,
 	reqs: reqStream,
 	results: [],
 };
 
 let p;
-if (/2wt$/.test(config.mode)) {
+if (/2wt$/.test(outerConfig.mode)) {
 	// Fetch pb / html as necessary and save to disk
 	// so we can run and benchmark pb2wt or html2wt after
 	p = new Promise(function(resolve, reject) {
 		opts.type = 'init';
-		opts.mode = config.mode === 'pb2wt' ? 'wt2pb' : 'wt2html';
+		opts.mode = outerConfig.mode === 'pb2wt' ? 'wt2pb' : 'wt2html';
 		console.log("--- Initialization ---");
-		reset(config);
+		reset(outerConfig);
 		runTests(opts, function() {
 			console.log("--- Initialization done---");
 			resolve();
@@ -323,15 +323,15 @@ if (/2wt$/.test(config.mode)) {
 }
 
 p.then(function() {
-	reset(config);
+	reset(outerConfig);
 	opts.type = 'js';
-	opts.mode = config.mode;
+	opts.mode = outerConfig.mode;
 	console.log("\n\n--- JS tests ---");
 	runTests(opts, function() {
 		console.log("\n\n--- PHP tests---");
-		reset(config);
+		reset(outerConfig);
 		opts.type = 'php';
-		opts.mode = config.mode;
+		opts.mode = outerConfig.mode;
 		runTests(opts, function() {
 			console.log("\n--- All done---\n");
 			let numJSFaster = 0;
