@@ -154,7 +154,7 @@ class ContentUtils {
 		DOMUtils::assertElt( $clone );
 
 		$d = DOMDataUtils::getNodeData( $node );
-		DOMDataUtils::setNodeData( $clone,  Utils::clone( $d ) );
+		DOMDataUtils::setNodeData( $clone,  $d->clone() );
 		$node = $node->firstChild;
 		$clone = $clone->firstChild;
 		while ( $node ) {

@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -189,7 +190,7 @@ class WikiLinkHandler extends TokenHandler {
 		// <link rel="mw:PageProp/redirect"> token from it.
 
 		$rlink = new SelfclosingTagTk( 'link', Utils::clone( $token->attribs ),
-			Utils::clone( $token->dataAttribs ) );
+			$token->dataAttribs->clone() );
 		$wikiLinkTk = $rlink->dataAttribs->linkTk;
 		$rlink->setAttribute( 'rel', 'mw:PageProp/redirect' );
 
@@ -224,9 +225,12 @@ class WikiLinkHandler extends TokenHandler {
 			$ntokens = strlen( $srcMatch[1] ) ? [ $srcMatch[1] ] : [];
 			$hashPos = $tsr->start + strlen( $srcMatch[1] );
 			$tsr0 = new SourceRange( $hashPos, $hashPos + 1 );
-			$li = new TagTk( 'listItem', [
-				new KV( 'bullets', [ '#' ], $tsr0->expandTsrV() )
-			], (object)[ 'tsr' => $tsr0 ] );
+			$dp = new DataParsoid;
+			$dp->tsr = $tsr0;
+			$li = new TagTk(
+				'listItem',
+				[ new KV( 'bullets', [ '#' ], $tsr0->expandTsrV() ) ],
+				$dp );
 			$ntokens[] = $li;
 			$ntokens[] = substr( $src, strlen( $srcMatch[0] ) );
 			PHPUtils::pushArray( $ntokens, $r->tokens );
@@ -525,7 +529,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Set attribs and dataAttribs
 		$newTk->attribs = $newAttrData['attribs'];
-		$newTk->dataAttribs = Utils::clone( $dataAttribs );
+		$newTk->dataAttribs = $dataAttribs->clone();
 		unset( $newTk->dataAttribs->src ); // clear src string since we can serialize this
 
 		// Note: Link tails are handled on the DOM in handleLinkNeighbours, so no
@@ -1214,7 +1218,7 @@ class WikiLinkHandler extends TokenHandler {
 		// into this new processing model. See T98995
 		// const cachedMedia = env.mediaCache[token.dataAttribs.src];
 
-		$dataAttribs = Utils::clone( $token->dataAttribs );
+		$dataAttribs = $token->dataAttribs->clone();
 		$dataAttribs->optList = [];
 
 		// Account for the possibility of an expanded target
@@ -1586,7 +1590,9 @@ class WikiLinkHandler extends TokenHandler {
 		} else {
 			// We always add a figcaption for blocks
 			$tsr = $optsCaption['srcOffsets'] ?? null;
-			$tokens[] = new TagTk( 'figcaption', [], (object)[ 'tsr' => $tsr ] );
+			$dp = new DataParsoid;
+			$dp->tsr = $tsr;
+			$tokens[] = new TagTk( 'figcaption', [], $dp );
 			if ( $optsCaption ) {
 				if ( is_string( $optsCaption['v'] ) ) {
 					$tokens[] = $optsCaption['v'];

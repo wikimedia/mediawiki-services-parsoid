@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -51,10 +52,10 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 					// in the tokenizer.
 					$entity = $doc->createElement( 'span' );
 					DOMUtils::addTypeOf( $entity, 'mw:Entity' );
-					DOMDataUtils::setDataParsoid( $entity, (object)[
-						'src' => $t,
-						'srcContent' => $cc,
-					] );
+					$dp = new DataParsoid;
+					$dp->src = $t;
+					$dp->srcContent = $cc;
+					DOMDataUtils::setDataParsoid( $entity, $dp );
 					$entity->appendChild( $doc->createTextNode( $cc ) );
 					$span->appendChild( $entity );
 					continue;

@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -536,8 +537,9 @@ class WrapSections implements Wt2HtmlDOMProcessor {
 
 			$dsr1 = $this->getDSR( $state, $range['start'], true ); // Traverses non-tpl content => will succeed
 			$dsr2 = $this->getDSR( $state, $range['end'], false );  // Traverses non-tpl content => will succeed
-			DOMDataUtils::setDataParsoid( $range['start'],
-				(object)[ 'dsr' => new DomSourceRange( $dsr1, $dsr2, null, null ) ] );
+			$dp = new DataParsoid;
+			$dp->dsr = new DomSourceRange( $dsr1, $dsr2, null, null );
+			DOMDataUtils::setDataParsoid( $range['start'], $dp );
 
 			$this->collapseWrappers( $state['frame'], $range['start'], $range['encapWrappers'] );
 		}

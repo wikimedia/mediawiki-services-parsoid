@@ -6,12 +6,12 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
-use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -64,10 +64,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * Do $parsoidData->tsr values span the entire DOM subtree rooted at $n?
 	 *
 	 * @param Element $n
-	 * @param stdClass $parsoidData
+	 * @param DataParsoid $parsoidData
 	 * @return bool
 	 */
-	private function tsrSpansTagDOM( Element $n, stdClass $parsoidData ): bool {
+	private function tsrSpansTagDOM( Element $n, DataParsoid $parsoidData ): bool {
 		// - tags known to have tag-specific tsr
 		// - html tags with 'stx' set
 		// - tags with certain typeof properties (Parsoid-generated
@@ -159,11 +159,11 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * anchor's opening (<a>) and closing (</a>) tags.
 	 *
 	 * @param Element $node
-	 * @param ?stdClass $dp
+	 * @param ?DataParsoid $dp
 	 * @return int[]|null
 	 */
 	private function computeATagWidth(
-		Element $node, ?stdClass $dp
+		Element $node, ?DataParsoid $dp
 	): ?array {
 		/* -------------------------------------------------------------
 		 * Tag widths are computed as per this logic here:
@@ -224,7 +224,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param DataParsoid $dp
 	 * @return int[]
 	 */
-	private function computeTagWidths( array $widths, Element $node, stdClass $dp ): array {
+	private function computeTagWidths( array $widths, Element $node, DataParsoid $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {
 			return [
 				$dp->extTagOffsets->openWidth,
@@ -372,7 +372,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							// since it will now get corrected to zero width
 							// since child acquires its width->
 							if ( !$ndp->tmp ) {
-								$ndp->tmp = [];
+								$ndp->tmp = new stdClass;
 							}
 							$ndp->tmp->origDSR = new DomSourceRange( $ndp->dsr->start, $ndp->dsr->end, null, null );
 						}
@@ -500,7 +500,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					if ( isset( $dp->extTagOffsets ) ) {
 						$stWidth = $dp->extTagOffsets->openWidth;
 						$etWidth = $dp->extTagOffsets->closeWidth;
-						/** @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty */
 						unset( $dp->extTagOffsets );
 					}
 				} elseif ( DOMUtils::hasTypeOf( $child, "mw:Entity" ) && $ce !== null && $dp->src ) {

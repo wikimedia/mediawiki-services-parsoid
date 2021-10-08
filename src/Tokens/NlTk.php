@@ -3,31 +3,27 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;
 
-use stdClass;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 
 /**
  * Newline token.
  */
 class NlTk extends Token {
-	/** @var stdClass Data attributes for this token
-	 * TODO: Expand on this.
-	 */
-	public $dataAttribs;
-
 	/**
 	 * @param ?SourceRange $tsr
 	 *    TSR ("tag source range") represents the (start, end) wikitext
 	 *    byte offsets for a token (in this case, the newline) in the
 	 *    UTF8-encoded source string
-	 * @param ?stdClass $dataAttribs
+	 * @param ?DataParsoid $dataAttribs
 	 */
 	public function __construct(
-		?SourceRange $tsr, ?stdClass $dataAttribs = null
+		?SourceRange $tsr, ?DataParsoid $dataAttribs = null
 	) {
 		if ( $dataAttribs ) {
 			$this->dataAttribs = $dataAttribs;
 		} elseif ( $tsr ) {
-			$this->dataAttribs = (object)[ "tsr" => $tsr ];
+			$this->dataAttribs = new DataParsoid;
+			$this->dataAttribs->tsr = $tsr;
 		}
 	}
 

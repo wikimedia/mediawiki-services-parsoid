@@ -4,15 +4,14 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 class ExternalLinkHandler extends TokenHandler {
@@ -96,7 +95,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$env = $this->env;
 		$origHref = $token->getAttribute( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
-		$dataAttribs = Utils::clone( $token->dataAttribs );
+		$dataAttribs = $token->dataAttribs->clone();
 
 		if ( $this->hasImageLink( $href ) ) {
 			$checkAlt = explode( '/', $href );
@@ -133,6 +132,8 @@ class ExternalLinkHandler extends TokenHandler {
 				$builtTag->addAttribute( 'href', $href );
 			}
 
+			$dp = new DataParsoid;
+			$dp->tsr = $dataAttribs->tsr->expandTsrK()->value;
 			return new TokenHandlerResult( [
 					$builtTag,
 					// Make sure there are no IDN-ignored characters in the text so
@@ -141,7 +142,7 @@ class ExternalLinkHandler extends TokenHandler {
 					new EndTagTk(
 						'a',
 						[],
-						(object)[ 'tsr' => $dataAttribs->tsr->expandTsrK()->value ]
+						$dp
 					)
 				]
 			);
@@ -165,7 +166,7 @@ class ExternalLinkHandler extends TokenHandler {
 			]
 		);
 		$content = $token->getAttribute( 'mw:content' );
-		$dataAttribs = Utils::clone( $token->dataAttribs );
+		$dataAttribs = $token->dataAttribs->clone();
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
 		);
@@ -210,10 +211,12 @@ class ExternalLinkHandler extends TokenHandler {
 					$this->hasImageLink( $src )
 				) {
 					$checkAlt = explode( '/', $src );
+					$dp = new DataParsoid;
+					$dp->type = 'extlink';
 					$content = [ new SelfclosingTagTk( 'img', [
 						new KV( 'src', $src ),
 						new KV( 'alt', end( $checkAlt ) )
-						], PHPUtils::arrayToObject( [ 'type' => 'extlink' ] )
+						], $dp
 					) ];
 				}
 			}

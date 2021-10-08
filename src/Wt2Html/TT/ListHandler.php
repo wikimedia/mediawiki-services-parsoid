@@ -3,7 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use stdClass;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
@@ -297,11 +296,11 @@ class ListHandler extends TokenHandler {
 	 * Push a list
 	 *
 	 * @param array $container
-	 * @param stdClass $dp1
-	 * @param stdClass $dp2
+	 * @param DataParsoid $dp1
+	 * @param DataParsoid $dp2
 	 * @return array
 	 */
-	private function pushList( array $container, stdClass $dp1, stdClass $dp2 ): array {
+	private function pushList( array $container, DataParsoid $dp1, DataParsoid $dp2 ): array {
 		$this->currListFrame->endtags[] = new EndTagTk( $container['list'] );
 		$this->currListFrame->endtags[] = new EndTagTk( $container['item'] );
 
@@ -367,7 +366,7 @@ class ListHandler extends TokenHandler {
 		$dp = $token->dataAttribs;
 
 		$makeDP = static function ( $k, $j ) use ( $dp ) {
-			$newDP = Utils::clone( $dp );
+			$newDP = $dp->clone();
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
 				$newDP->tsr = new SourceRange(

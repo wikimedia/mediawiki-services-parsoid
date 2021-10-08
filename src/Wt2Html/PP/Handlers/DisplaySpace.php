@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -81,7 +82,9 @@ class DisplaySpace {
 		$span = $doc->createElement( 'span' );
 		$span->appendChild( $doc->createTextNode( "\u{00A0}" ) );
 		$span->setAttribute( 'typeof', 'mw:DisplaySpace' );
-		DOMDataUtils::setDataParsoid( $span, (object)[ 'dsr' => $dsr ] );
+		$dp = new DataParsoid;
+		$dp->dsr = $dsr;
+		DOMDataUtils::setDataParsoid( $span, $dp );
 		$node->parentNode->insertBefore( $span, $post );
 	}
 

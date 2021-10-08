@@ -7,12 +7,12 @@ use Composer\Semver\Semver;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
@@ -119,10 +119,10 @@ class DOMDataUtils {
 	 * @param Element $node node
 	 * @return DataParsoid
 	 */
-	public static function getDataParsoid( Element $node ): stdClass {
+	public static function getDataParsoid( Element $node ): DataParsoid {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->parsoid ) ) {
-			$data->parsoid = new stdClass;
+			$data->parsoid = new DataParsoid;
 		}
 		if ( !isset( $data->parsoid->tmp ) ) {
 			$data->parsoid->tmp = new stdClass;
@@ -133,9 +133,9 @@ class DOMDataUtils {
 	/** Set data parsoid info on a node.
 	 *
 	 * @param Element $node node
-	 * @param stdClass $dp data-parsoid
+	 * @param DataParsoid $dp data-parsoid
 	 */
-	public static function setDataParsoid( Element $node, stdClass $dp ): void {
+	public static function setDataParsoid( Element $node, DataParsoid $dp ): void {
 		$data = self::getNodeData( $node );
 		$data->parsoid = $dp;
 	}
@@ -460,8 +460,12 @@ class DOMDataUtils {
 		}
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, new NodeData );
-		$dp = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
-		self::massageLoadedDataParsoid( $dp, $options, $node );
+		$stdDP = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
+		self::massageLoadedDataParsoid( $stdDP, $options, $node );
+		$dp = new DataParsoid;
+		foreach ( $stdDP as $key => $value ) {
+			$dp->$key = $value;
+		}
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
 		$dmw = self::getJSONAttribute( $node, 'data-mw', null );
@@ -523,9 +527,6 @@ class DOMDataUtils {
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );
-		// $dp will be a DataParsoid object once but currently it is an stdClass
-		// with a fake type hint. Unfake it to prevent phan complaining about unset().
-		'@phan-var stdClass $dp';
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( !empty( $dp->tmp->isNew ) ) {
 			// Only necessary to support the cite extension's getById,
@@ -549,6 +550,7 @@ class DOMDataUtils {
 					unset( $dp->tmp->tplRanges );
 				}
 			} else {
+				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 				unset( $dp->tmp );
 			}
 

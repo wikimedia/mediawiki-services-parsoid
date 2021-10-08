@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -183,10 +184,13 @@ abstract class TokenCollector extends TokenHandler {
 
 		$srcText = $manager->getFrame()->getSrcText();
 		$newSrc = $tsr->substr( $srcText );
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$dp->src = $newSrc;
 
 		return new SelfclosingTagTk( 'meta',
 			[ new KV( 'typeof', $tokenName ) ],
-			(object)[ 'tsr' => $tsr, 'src' => $newSrc ]
+			$dp
 		);
 	}
 

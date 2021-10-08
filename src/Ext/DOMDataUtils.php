@@ -4,8 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 use stdClass;
-use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMDataUtils as DDU;
 
 /**
@@ -18,16 +18,16 @@ class DOMDataUtils {
 	 * @param Element $elt
 	 * @return DataParsoid ( this is mostly used for type hinting )
 	 */
-	public static function getDataParsoid( Element $elt ): stdClass {
+	public static function getDataParsoid( Element $elt ): DataParsoid {
 		return DDU::getDataParsoid( $elt );
 	}
 
 	/**
 	 * Set data parsoid info on a DOM element
 	 * @param Element $elt
-	 * @param ?stdClass $dp data-parsoid
+	 * @param ?DataParsoid $dp data-parsoid
 	 */
-	public static function setDataParsoid( Element $elt, ?stdClass $dp ): void {
+	public static function setDataParsoid( Element $elt, ?DataParsoid $dp ): void {
 		DDU::setDataParsoid( $elt, $dp );
 	}
 

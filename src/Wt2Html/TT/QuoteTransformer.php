@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -310,7 +311,9 @@ class QuoteTransformer extends TokenHandler {
 		if ( $tsr ) {
 			$tsr = new SourceRange( $tsr->start + 1, $tsr->end );
 		}
-		$newbold = new SelfclosingTagTk( 'mw-quote', [], (object)[ "tsr" => $tsr ] );
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$newbold = new SelfclosingTagTk( 'mw-quote', [], $dp );
 		$newbold->setAttribute( "value", "''" ); // italic!
 		$this->chunks[$i] = [ $newbold ];
 	}

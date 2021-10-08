@@ -7,6 +7,7 @@ use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -20,12 +21,12 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param Frame $frame
 	 * @param Node $node
-	 * @param stdClass $dp
+	 * @param DataParsoid $dp
 	 * @param string $name
 	 * @param stdClass $opts
 	 */
 	private static function addPlaceholderMeta(
-		Frame $frame, Node $node, stdClass $dp, string $name, stdClass $opts
+		Frame $frame, Node $node, DataParsoid $dp, string $name, stdClass $opts
 	): void {
 		// If node is in a position where the placeholder
 		// node will get fostered out, dont bother adding one
@@ -54,12 +55,11 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 		if ( $src ) {
 			$placeHolder = $node->ownerDocument->createElement( 'meta' );
 			DOMUtils::addTypeOf( $placeHolder, 'mw:Placeholder/StrippedTag' );
-			DOMDataUtils::setDataParsoid( $placeHolder, (object)[
-					'src' => $src,
-					'name' => $name,
-					'tmp' => new stdClass,
-				]
-			);
+			$dp = new DataParsoid;
+			$dp->src = $src;
+			$dp->name = $name;
+			$dp->tmp = new stdClass;
+			DOMDataUtils::setDataParsoid( $placeHolder, $dp );
 
 			// Insert the placeHolder
 			$node->parentNode->insertBefore( $placeHolder, $node );

@@ -9,9 +9,9 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use DateTime;
 use DateTimeZone;
-use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
@@ -708,12 +708,15 @@ class ParserFunctions {
 
 	private function encodeCharEntity( string $c, array &$tokens ) {
 		$enc = Utils::entityEncodeAll( $c );
+		$dp = new DataParsoid;
+		$dp->src = $enc;
+		$dp->srcContent = $c;
 		$tokens[] = new TagTk( 'span',
 			[ new KV( 'typeof', 'mw:Entity' ) ],
-			(object)[ 'src' => $enc, 'srcContent' => $c ]
+			$dp
 		);
 		$tokens[] = $c;
-		$tokens[] = new EndTagTk( 'span', [], new stdClass );
+		$tokens[] = new EndTagTk( 'span', [], new DataParsoid );
 	}
 
 	public function pf_anchorencode( $token, Frame $frame, Params $params ): array {
@@ -848,7 +851,7 @@ class ParserFunctions {
 
 	public function pf_server( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		$dataAttribs = Utils::clone( $token->dataAttribs );
+		$dataAttribs = $token->dataAttribs->clone();
 		return [
 			new TagTk( 'a', [
 					new KV( 'rel', 'nofollow' ),

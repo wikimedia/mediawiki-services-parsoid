@@ -3,13 +3,13 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -22,10 +22,10 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param Node $node
-	 * @param stdClass $dp
+	 * @param DataParsoid $dp
 	 * @return bool
 	 */
-	private function nodeEndsLineInWT( Node $node, stdClass $dp ): bool {
+	private function nodeEndsLineInWT( Node $node, DataParsoid $dp ): bool {
 		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption,
 		// p) or have implicit closing tags that can leak newlines to those that end a
 		// line (th, td)

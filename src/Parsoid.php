@@ -219,9 +219,10 @@ class Parsoid {
 				$contentmodel
 			);
 		} else {
-			return ContentUtils::toXML( $node, [
+			$xml = ContentUtils::toXML( $node, [
 				'innerXML' => $body_only,
 			] );
+			return $xml;
 		}
 	}
 

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Config\WikitextConstants;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -251,36 +252,31 @@ class LanguageVariantHandler extends TokenHandler {
 		// contains only inline content, could contain block content,
 		// or never contains any content.
 
-		$das = [
-			'fl' => $dataAttribs->original, // original "fl"ags
-			'flSp' => $this->compressSpArray( $flagSp ), // spaces around flags
-			'src' => $dataAttribs->src,
-			'tSp' => $this->compressSpArray( $textSp ), // spaces around texts
-			'tsr' => new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) )
-		];
-
-		if ( $das['flSp'] === null ) {
-			unset( $das['flSp'] );
+		$das = new DataParsoid;
+		$das->fl = $dataAttribs->original; // original "fl"ags
+		$flSp = $this->compressSpArray( $flagSp ); // spaces around flags
+		if ( $flSp !== null ) {
+			$das->flSp = $flSp;
 		}
-
-		if ( $das['tSp'] === null ) {
-			unset( $das['tSp'] );
+		$das->src = $dataAttribs->src;
+		$tSp = $this->compressSpArray( $textSp ); // spaces around texts
+		if ( $tSp !== null ) {
+			$das->tSp = $tSp;
 		}
+		$das->tsr = new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ) );
 
 		PHPUtils::sortArray( $dataMWV );
 		$tokens = [
 			new TagTk( $isMeta ? 'meta' : ( $isBlock ? 'div' : 'span' ), [
 					new KV( 'typeof', 'mw:LanguageVariant' ),
 					new KV( 'data-mw-variant', PHPUtils::jsonEncode( $dataMWV ) )
-				], (object)$das
+				], $das
 			)
 		];
 		if ( !$isMeta ) {
-			$tokens[] = new EndTagTk( $isBlock ? 'div' : 'span', [],
-				(object)[
-					'tsr' => new SourceRange( $tsr->end - 2, $tsr->end )
-				]
-			);
+			$metaDP = new DataParsoid;
+			$metaDP->tsr = new SourceRange( $tsr->end - 2, $tsr->end );
+			$tokens[] = new EndTagTk( $isBlock ? 'div' : 'span', [], $metaDP );
 		}
 
 		return new TokenHandlerResult( $tokens );

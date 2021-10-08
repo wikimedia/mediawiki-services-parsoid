@@ -15,6 +15,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -107,7 +108,8 @@ class TokenizerUtils {
 		int $endPos, $content, bool $addEndTag = false ): array
 	{
 		$a = null;
-		$dp = (object)[ 'tsr' => $tsr ];
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
 
 		if ( !$attrInfo ) {
 			$a = [];
@@ -130,7 +132,8 @@ class TokenizerUtils {
 			}
 		}
 
-		$dataAttribs = (object)[ 'tsr' => new SourceRange( $endPos, $endPos ) ];
+		$dataAttribs = new DataParsoid;
+		$dataAttribs->tsr = new SourceRange( $endPos, $endPos );
 		$endTag = null;
 		if ( $addEndTag ) {
 			$endTag = new EndTagTk( $tagName, [], $dataAttribs );
@@ -161,7 +164,9 @@ class TokenizerUtils {
 		bool $selfClose, SourceRange $tsr
 	) {
 		$tok = null;
-		$da = (object)[ 'tsr' => $tsr, 'stx' => 'html' ];
+		$da = new DataParsoid;
+		$da->tsr = $tsr;
+		$da->stx = 'html';
 
 		if ( $name !== $lcName ) {
 			$da->srcTagName = $name;

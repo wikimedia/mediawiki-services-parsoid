@@ -14,6 +14,7 @@ use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -192,10 +193,10 @@ class HTML5TreeBuilder extends PipelineStage {
 	 * Keep this in sync with `DOMDataUtils.setNodeData()`
 	 *
 	 * @param array $attribs
-	 * @param object $dataAttribs
+	 * @param DataParsoid $dataAttribs
 	 * @return array
 	 */
-	private function stashDataAttribs( array $attribs, object $dataAttribs ): array {
+	private function stashDataAttribs( array $attribs, DataParsoid $dataAttribs ): array {
 		$data = new NodeData;
 		$data->parsoid = $dataAttribs;
 		if ( isset( $attribs['data-mw'] ) ) {
@@ -224,7 +225,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		}
 
 		$attribs = isset( $token->attribs ) ? $this->kvArrToAttr( $token->attribs ) : [];
-		$dataAttribs = $token->dataAttribs ?? (object)[ 'tmp' => new stdClass ];
+		$dataAttribs = $token->dataAttribs ?? new DataParsoid;
 
 		if ( !isset( $dataAttribs->tmp ) ) {
 			$dataAttribs->tmp = new stdClass;
@@ -299,7 +300,7 @@ class HTML5TreeBuilder extends PipelineStage {
 				$attrs = $this->stashDataAttribs( [
 					'typeof' => 'mw:StartTag',
 					'data-stag' => "{$tName}:{$dataAttribs->tmp->tagId}"
-				], Utils::clone( $dataAttribs ) );
+				], $dataAttribs->clone() );
 				$this->dispatcher->comment(
 					WTUtils::fosterCommentData( 'mw:shadow', $attrs ),
 					0, 0

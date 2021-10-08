@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\Parsoid\Utils\Utils;
+
 // phpcs:disable MediaWiki.Commenting.PropertyDocumentation.ObjectTypeHintVar
 
 /**
@@ -18,7 +20,7 @@ namespace Wikimedia\Parsoid\NodeData;
  */
 class NodeData {
 	/**
-	 * @var object|null The unserialized data-parsoid attribute
+	 * @var DataParsoid|null The unserialized data-parsoid attribute
 	 */
 	public $parsoid;
 
@@ -26,4 +28,12 @@ class NodeData {
 	 * @var object|null The unserialized data-mw attribute
 	 */
 	public $mw;
+
+	/**
+	 * Deep clone this object
+	 * @return self
+	 */
+	public function clone(): self {
+		return Utils::clone( $this );
+	}
 }

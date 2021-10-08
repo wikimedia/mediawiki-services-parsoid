@@ -539,7 +539,7 @@ class ParsoidExtensionAPI {
 	): void {
 		DOMUtils::migrateChildren( $from, $to );
 		DOMDataUtils::setDataParsoid(
-			$to, Utils::clone( DOMDataUtils::getDataParsoid( $from ) )
+			$to, DOMDataUtils::getDataParsoid( $from )->clone()
 		);
 		DOMDataUtils::setDataMw(
 			$to, Utils::clone( DOMDataUtils::getDataMw( $from ) )

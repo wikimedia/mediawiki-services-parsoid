@@ -227,10 +227,6 @@ class CleanUp {
 		}
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
-		// $dp will be a DataParsoid object once but currently it is an stdClass
-		// with a fake type hint. Unfake it to prevent phan complaining about unset().
-		'@phan-var stdClass $dp';
-
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
 		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&
 			isset( WikitextConstants::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] )
@@ -267,6 +263,7 @@ class CleanUp {
 		}
 
 		// Remove temporary information
+		// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 		unset( $dp->tmp );
 		unset( $dp->extLinkContentOffsets ); // not stored in tmp currently
 

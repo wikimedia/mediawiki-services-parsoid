@@ -301,7 +301,7 @@ class ExtensionHandler extends TokenHandler {
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
-			$dp->tsr = Utils::clone( $extToken->dataAttribs->tsr );
+			$dp->tsr = clone $extToken->dataAttribs->tsr;
 			$dp->src = $extToken->dataAttribs->src;
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}

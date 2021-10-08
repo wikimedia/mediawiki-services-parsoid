@@ -3,11 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
-use stdClass;
-use Wikimedia\Parsoid\Core\DataParsoid;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -54,10 +53,10 @@ class TRHandler extends DOMHandler {
 
 	/**
 	 * @param Element $node
-	 * @param stdClass|DataParsoid $dp
+	 * @param DataParsoid $dp
 	 * @return bool
 	 */
-	private function trWikitextNeeded( Element $node, stdClass $dp ): bool {
+	private function trWikitextNeeded( Element $node, DataParsoid $dp ): bool {
 		// If the token has 'startTagSrc' set, it means that the tr
 		// was present in the source wikitext and we emit it -- if not,
 		// we ignore it.

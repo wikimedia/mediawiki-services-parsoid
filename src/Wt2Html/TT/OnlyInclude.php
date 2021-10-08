@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
@@ -67,7 +68,10 @@ class OnlyInclude extends TokenHandler {
 			new KV( 'typeof', 'mw:Includes/OnlyInclude' .
 				( ( $token instanceof EndTagTk ) ? '/End' : '' ) )
 		];
-		$meta = new SelfclosingTagTk( 'meta', $attribs, (object)[ 'tsr' => $tsr, 'src' => $src ] );
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$dp->src = $src;
+		$meta = new SelfclosingTagTk( 'meta', $attribs, $dp );
 		return new TokenHandlerResult( [ $meta ] );
 	}
 

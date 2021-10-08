@@ -59,11 +59,12 @@ class IncludeOnly extends TokenCollector {
 
 		// Handle self-closing tag case specially!
 		if ( $start instanceof SelfclosingTagTk ) {
+			$tsr = $start->dataAttribs->tsr ?? new SourceRange( null, null );
 			$token = TokenCollector::buildMetaToken(
 				$this->manager,
 				'mw:Includes/IncludeOnly',
 				false,
-				( $start->dataAttribs ?? (object)[ 'tsr' => new SourceRange( null, null ) ] )->tsr,
+				$tsr,
 				null
 			);
 			if ( $start->dataAttribs->src ) {
@@ -103,9 +104,9 @@ class IncludeOnly extends TokenCollector {
 				// stripped token (above) got the entire tsr value, we are artificially
 				// setting the tsr on this node to zero-width to ensure that
 				// DSR computation comes out correct.
-				$tsr = ( $end->dataAttribs ?? (object)[ 'tsr' => new SourceRange( null, null ) ] )->tsr;
+				$endPos = isset( $end->dataAttribs->tsr ) ? $end->dataAttribs->tsr->end : null;
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, $name,
-					true, new SourceRange( $tsr->end, $tsr->end ), '' );
+					true, new SourceRange( $endPos, $endPos ), '' );
 			}
 		}
 

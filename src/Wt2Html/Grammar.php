@@ -12,6 +12,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Config\SiteConfig;
 	use Wikimedia\Parsoid\Config\WikitextConstants;
 	use Wikimedia\Parsoid\Core\DomSourceRange;
+	use Wikimedia\Parsoid\NodeData\DataParsoid;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
 	use Wikimedia\Parsoid\Tokens\EndTagTk;
 	use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -98,13 +99,13 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 	private function tsrOffsets( $flag = 'default' ): SourceRange {
 		switch ( $flag ) {
-            case 'start':
-                return new SourceRange( $this->savedPos, $this->savedPos );
-            case 'end':
-                return new SourceRange( $this->currPos, $this->currPos );
-            default:
-                return new SourceRange( $this->savedPos, $this->currPos );
-        }
+			case 'start':
+				return new SourceRange( $this->savedPos, $this->savedPos );
+			case 'end':
+				return new SourceRange( $this->currPos, $this->currPos );
+			default:
+				return new SourceRange( $this->savedPos, $this->currPos );
+		}
 	}
 
 	/*
@@ -473,14 +474,15 @@ private function a8($sc, $startPos, $b, $p, $ta, $tsEndPos, $s2) {
 			$tsEndPos = $coms['commentStartPos'];
 		}
 
-		$da = (object)[ 'tsr' => new SourceRange( $startPos, $tsEndPos ) ];
+		$dp = new DataParsoid;
+		$dp->tsr = new SourceRange( $startPos, $tsEndPos );
 		if ( $p !== '|' ) {
 			// Variation from default
-			$da->startTagSrc = $b . $p;
+			$dp->startTagSrc = $b . $p;
 		}
 
 		return array_merge( $sc,
-			[ new TagTk( 'table', $ta, $da ) ],
+			[ new TagTk( 'table', $ta, $dp ) ],
 			$coms ? $coms['buf'] : [],
 			$s2 );
 	
@@ -542,15 +544,18 @@ private function a22($p0, $addr, $target, $p1, $sp, $p2, $content, $p3) {
 
 			$tsr1 = new SourceRange( $p0, $p1 );
 			$tsr2 = new SourceRange( $p2, $p3 );
+			$dp = new DataParsoid;
+			$dp->tsr = $this->tsrOffsets();
+			$dp->extLinkContentOffsets = $tsr2;
 			return [
-				new SelfclosingTagTk( 'extlink', [
+				new SelfclosingTagTk(
+					'extlink',
+					[
 						new KV( 'href', TokenizerUtils::flattenString( [ $addr, $target ] ), $tsr1->expandTsrV() ),
 						new KV( 'mw:content', $content ?? '', $tsr2->expandTsrV() ),
 						new KV( 'spaces', $sp )
-					], (object)[
-						'tsr' => $this->tsrOffsets(),
-						'extLinkContentOffsets' => $tsr2,
-					]
+					],
+					$dp
 				)
 			]; 
 }
@@ -587,7 +592,9 @@ private function a26($c) {
 		// WARNING(T279451): This encoding is important for the choice of key
 		// in WTUtils::fosterCommentData
 		$data = WTUtils::encodeComment( $c );
-		return [ new CommentTk( $data, (object)[ 'tsr' => $this->tsrOffsets() ] ) ];
+		$dp = new DataParsoid;
+		$dp->tsr = $this->tsrOffsets();
+		return [ new CommentTk( $data, $dp ) ];
 	
 }
 private function a27($p) {
@@ -628,12 +635,17 @@ private function a31($cc) {
 		if ( mb_strlen( $cc ) > 2 /* decoded entity would be 1-2 codepoints */ ) {
 			return $cc;
 		}
+		$dpStart = new DataParsoid;
+		$dpStart->src = $this->text();
+		$dpStart->srcContent = $cc;
+		$dpStart->tsr = $this->tsrOffsets( 'start' );
+		$dpEnd = new DataParsoid;
+		$dpEnd->tsr = $this->tsrOffsets( 'end' );
 		return [
 			// If this changes, the nowiki extension's toDOM will need to follow suit
-			new TagTk( 'span', [ new KV( 'typeof', 'mw:Entity' ) ],
-				(object)[ 'src' => $this->text(), 'srcContent' => $cc, 'tsr' => $this->tsrOffsets( 'start' ) ] ),
+			new TagTk( 'span', [ new KV( 'typeof', 'mw:Entity' ) ], $dpStart ),
 			$cc,
-			new EndTagTk( 'span', [], (object)[ 'tsr' => $this->tsrOffsets( 'end' ) ] )
+			new EndTagTk( 'span', [], $dpEnd )
 		];
 	
 }
@@ -818,14 +830,14 @@ private function a65($rw, $sp, $c, $wl) {
 			$rw .= $c;
 		}
 		// Build a redirect token
+		$dp = new DataParsoid;
+		$dp->src = $rw;
+		$dp->tsr = $this->tsrOffsets();
+		$dp->linkTk = $link;
 		$redirect = new SelfclosingTagTk( 'mw:redirect',
 			// Put 'href' into attributes so it gets template-expanded
 			[ $link->getAttributeKV( 'href' ) ],
-			(object)[
-				'src' => $rw,
-				'tsr' => $this->tsrOffsets(),
-				'linkTk' => $link
-			]
+			$dp
 		);
 		return $redirect;
 	
@@ -878,10 +890,12 @@ private function a77() {
 private function a78($bs) {
 
 		if ( $this->siteConfig->isMagicWord( $bs ) ) {
+			$dp = new DataParsoid;
+			$dp->tsr = $this->tsrOffsets();
+			$dp->src = $bs;
+			$dp->magicSrc = $bs;
 			return [
-				new SelfclosingTagTk( 'behavior-switch', [ new KV( 'word', $bs ) ],
-					(object)[ 'tsr' => $this->tsrOffsets(), 'src' => $bs, 'magicSrc' => $bs ]
-				)
+				new SelfclosingTagTk( 'behavior-switch', [ new KV( 'word', $bs ) ], $dp )
 			];
 		} else {
 			return [ $bs ];
@@ -905,9 +919,11 @@ private function a79($quotes) {
 		// mw-quote token will be consumed in token transforms
 		$tsr = $this->tsrOffsets();
 		$tsr->start += $plainticks;
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
 		$mwq = new SelfclosingTagTk( 'mw-quote',
 			[ new KV( 'value', substr( $quotes, $plainticks ) ) ],
-			(object)[ 'tsr' => $tsr ] );
+			$dp );
 		if ( strlen( $quotes ) > 2 ) {
 			$mwq->addAttribute( 'isSpace_1', $tsr->start > 0 && substr( $this->input, $tsr->start - 1, 1 ) === ' ');
 			$mwq->addAttribute( 'isSpace_2', $tsr->start > 1 && substr( $this->input, $tsr->start - 2, 1 ) === ' ');
@@ -993,27 +1009,25 @@ private function a86($s, $ce, $endTPos, $spc) {
 				}
 			}
 
-			$tsr = $this->tsrOffsets( 'start' );
-			$tsr->end += $level;
+			$tagDP = new DataParsoid;
+			$tagDP->tsr = $this->tsrOffsets( 'start' );
+			$tagDP->tsr->end += $level;
 			// Match the old parser's behavior by (a) making headingIndex part of tokenizer
 			// state(don't reuse pipeline!) and (b) assigning the index when
 			// ==*== is tokenized, even if we're inside a template argument
 			// or other context which won't end up putting the heading
 			// on the output page.  T213468/T214538
 			$this->headingIndex++;
-			return array_merge(
-				[ new TagTk( 'h' . $level, [], (object)[
-					'tsr' => $tsr,
-					'tmp' => (object)[ 'headingIndex' => $this->headingIndex ]
-				] ) ],
-				$c,
-				[
-					new EndTagTk( 'h' . $level, [], (object)[
-						'tsr' => new SourceRange( $endTPos - $level, $endTPos ),
-					] ),
-					$spc
-				]
-			);
+			$tagDP->tmp = (object)[ 'headingIndex' => $this->headingIndex ];
+			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
+
+			PHPUtils::pushArray( $res, $c );
+
+			$endTagDP = new DataParsoid;
+			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos );
+			$res[] = new EndTagTk( 'h' . $level, [], $endTagDP );
+			$res[] = $spc;
+			return $res;
 		
 }
 private function a87($d) {
@@ -1024,7 +1038,8 @@ private function a88($d) {
 }
 private function a89($d, $lineContent) {
 
-		$dataAttribs = (object)[ 'tsr' => $this->tsrOffsets() ];
+		$dataAttribs = new DataParsoid;
+		$dataAttribs->tsr = $this->tsrOffsets();
 		if ( $lineContent !== null ) {
 			$dataAttribs->lineContent = $lineContent;
 		}
@@ -1084,13 +1099,12 @@ private function a93($sp) {
 }
 private function a94($sp, $p, $c) {
 
+		$dp = new DataParsoid;
+		$dp->tsr = new SourceRange( $p, $this->endOffset() );
+		$dp->tokens = TokenizerUtils::flattenIfArray( $c );
 		return [
 			$sp,
-			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], (object)[
-					'tokens' => TokenizerUtils::flattenIfArray( $c ),
-					'tsr' => new SourceRange( $p, $this->endOffset() ),
-				]
-			)
+			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], $dp )
 		];
 	
 }
@@ -1139,7 +1153,10 @@ private function a101($p, $target, $params) {
 			$kvs[] = new KV( '', TokenizerUtils::flattenIfArray( $o['tokens'] ), $s->expandTsrV() );
 		}
 
-		$obj = new SelfclosingTagTk( 'templatearg', $kvs, (object)[ 'tsr' => $this->tsrOffsets(), 'src' => $this->text() ] );
+		$dp = new DataParsoid;
+		$dp->tsr = $this->tsrOffsets();
+		$dp->src = $this->text();
+		$obj = new SelfclosingTagTk( 'templatearg', $kvs, $dp );
 		return $obj;
 	
 }
@@ -1165,11 +1182,11 @@ private function a106($leadWS, $target, $params, $trailWS) {
 		// generically expanded. The TemplateHandler then needs to shift it out
 		// again.
 		array_unshift( $params, new KV( TokenizerUtils::flattenIfArray( $target['tokens'] ), '', $target['srcOffsets']->expandTsrK() ) );
-		$obj = new SelfclosingTagTk( 'template', $params,
-			(object)[
-				'tsr' => $this->tsrOffsets(), 'src' => $this->text(),
-				'tmp' => (object)[ 'leadWS' => $leadWS, 'trailWS' => $trailWS ]
-			] );
+		$dp = new DataParsoid;
+		$dp->tsr = $this->tsrOffsets();
+		$dp->src = $this->text();
+		$dp->tmp = (object)[ 'leadWS' => $leadWS, 'trailWS' => $trailWS ];
+		$obj = new SelfclosingTagTk( 'template', $params, $dp );
 		return $obj;
 	
 }
@@ -1203,10 +1220,10 @@ private function a108($spos, $target, $tpos, $lcs) {
 		// obj.source = input;
 		$obj->attribs[] = $hrefKV;
 		$obj->attribs = array_merge( $obj->attribs, $lcs );
-		$obj->dataAttribs = (object)[
-			'tsr' => $this->tsrOffsets(),
-			'src' => $this->text()
-		];
+		$dp = new DataParsoid;
+		$dp->tsr = $this->tsrOffsets();
+		$dp->src = $this->text();
+		$obj->dataAttribs = $dp;
 		return [ $obj ];
 	
 }
@@ -1257,7 +1274,9 @@ private function a115($r) {
 private function a116($r) {
 
 		$tsr = $this->tsrOffsets();
-		$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $r, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] ) ];
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $r, $tsr->expandTsrV() ) ], $dp ) ];
 		return $res;
 	
 }
@@ -1268,13 +1287,16 @@ private function a117($ref, $sp, $identifier) {
 			'PMID' => '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
 		];
 		$tsr = $this->tsrOffsets();
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$dp->stx = 'magiclink';
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', sprintf( $base_urls[ $ref ], $identifier ) ),
 					new KV( 'mw:content', TokenizerUtils::flattenString( [ $ref, $sp, $identifier ] ), $tsr->expandTsrV() ),
 					new KV( 'typeof', 'mw:ExtLink/' . $ref )
 				],
-				(object)[ 'stx' => 'magiclink', 'tsr' => $tsr ]
+				$dp
 			)
 		];
 	
@@ -1301,13 +1323,16 @@ private function a119($sp, $isbn, $isbncode) {
 private function a120($sp, $isbn, $isbncode) {
 
 		$tsr = $this->tsrOffsets();
+		$dp = new DataParsoid;
+		$dp->stx = 'magiclink';
+		$dp->tsr = $tsr;
 		return [
 			new SelfclosingTagTk( 'extlink', [
 					new KV( 'href', 'Special:BookSources/' . $isbncode ),
 					new KV( 'mw:content', TokenizerUtils::flattenString( [ 'ISBN', $sp, $isbn ] ), $tsr->expandTsrV() ),
 					new KV( 'typeof', 'mw:WikiLink/ISBN' )
 				],
-				(object)[ 'stx' => 'magiclink', 'tsr' => $tsr ]
+				$dp
 			)
 		];
 	
@@ -1327,13 +1352,17 @@ private function a123($bullets, $c, $cpos, $d) {
 		$tsr->end += $numBullets;
 		$li1Bullets = $bullets;
 		$li1Bullets[] = ';';
-		$li1 = new TagTk( 'listItem', [ new KV( 'bullets', $li1Bullets, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] );
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$li1 = new TagTk( 'listItem', [ new KV( 'bullets', $li1Bullets, $tsr->expandTsrV() ) ], $dp );
 		// TSR: -1 for the intermediate ":"
 		$li2Bullets = $bullets;
 		$li2Bullets[] = ':';
 		$tsr2 = new SourceRange( $cpos - 1, $cpos );
-		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ],
-			(object)[ 'tsr' => $tsr2, 'stx' => 'row' ] );
+		$dp2 = new DataParsoid;
+		$dp2->tsr = $tsr2;
+		$dp2->stx = 'row';
+		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ], $dp2 );
 
 		return array_merge( [ $li1 ], $c ?: [], [ $li2 ], $d ?: [] );
 	
@@ -1343,7 +1372,9 @@ private function a124($bullets, $tbl, $line) {
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
 	$tsr->end += count( $bullets );
-	$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] );
+	$dp = new DataParsoid;
+	$dp->tsr = $tsr;
+	$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], $dp );
 	return TokenizerUtils::flattenIfArray( [ $li, $tbl, $line ?: [] ] );
 
 }
@@ -1352,7 +1383,9 @@ private function a125($bullets, $c) {
 		// Leave bullets as an array -- list handler expects this
 		$tsr = $this->tsrOffsets( 'start' );
 		$tsr->end += count( $bullets );
-		$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], (object)[ 'tsr' => $tsr ] );
+		$dp = new DataParsoid;
+		$dp->tsr = $tsr;
+		$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], $dp );
 		return array_merge( [ $li ], $c ?: [] );
 	
 }
@@ -1367,9 +1400,9 @@ private function a126($spc) {
 }
 private function a127($sc, $startPos, $p, $b) {
 
-		$tblEnd = new EndTagTk( 'table', [], (object)[
-			'tsr' => new SourceRange( $startPos, $this->endOffset() ),
-		] );
+		$dp = new DataParsoid;
+		$dp->tsr = new SourceRange( $startPos, $this->endOffset() );
+		$tblEnd = new EndTagTk( 'table', [], $dp );
 		if ( $p !== '|' ) {
 			// p+"<brace-char>" is triggering some bug in pegJS
 			// I cannot even use that expression in the comment!
@@ -1524,19 +1557,20 @@ private function a148($lv0, $f, $ts, $lv1) {
 		$variants = isset( $f['variants'] ) ? array_keys( $f['variants'] ) : [];
 		sort( $variants );
 
+		$dp = new DataParsoid;
+		$dp->tsr = new SourceRange( $lv0, $lv1 );
+		$dp->src = $lvsrc;
+		$dp->flags = $flags;
+		$dp->variants = $variants;
+		$dp->original = $f['original'];
+		$dp->flagSp = $f['sp'];
+		$dp->texts = $ts;
+
 		return [
 			new SelfclosingTagTk(
 				'language-variant',
 				$attribs,
-				(object)[
-					'tsr' => new SourceRange( $lv0, $lv1 ),
-					'src' => $lvsrc,
-					'flags' => $flags,
-					'variants' => $variants,
-					'original' => $f['original'],
-					'flagSp' => $f['sp'],
-					'texts' => $ts
-				]
+				$dp
 			)
 		];
 	
@@ -1560,10 +1594,9 @@ private function a152($p, $dashes, $a, $tagEndPos, $s2) {
 			$tagEndPos = $coms['commentStartPos'];
 		}
 
-		$da = (object)[
-			'tsr' => new SourceRange( $this->startOffset(), $tagEndPos ),
-			'startTagSrc' => $p . $dashes
-		];
+		$da = new DataParsoid;
+		$da->tsr = new SourceRange( $this->startOffset(), $tagEndPos );
+		$da->startTagSrc = $p . $dashes;
 
 		// We rely on our tree builder to close the row as needed. This is
 		// needed to support building tables from fragment templates with

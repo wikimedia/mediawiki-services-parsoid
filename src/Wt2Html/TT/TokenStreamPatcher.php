@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -273,18 +274,22 @@ class TokenStreamPatcher extends TokenHandler {
 							$i++;
 						}
 
+						$dp = new DataParsoid;
+						$dp->tokens = array_slice( $this->tokenBuf, 0, $i );
 						$toks = [
 							new SelfclosingTagTk( 'meta',
 								[ new KV( 'typeof', 'mw:EmptyLine' ) ],
-								(object)[ 'tokens' => array_slice( $this->tokenBuf, 0, $i ) ]
+								$dp
 							)
 						];
 						if ( $i < $n ) {
 							$toks[] = $this->tokenBuf[$i];
 							if ( $i + 1 < $n ) {
+								$dp = new DataParsoid;
+								$dp->tokens = array_slice( $this->tokenBuf, $i + 1 );
 								$toks[] = new SelfclosingTagTk( 'meta',
 									[ new KV( 'typeof', 'mw:EmptyLine' ) ],
-									(object)[ 'tokens' => array_slice( $this->tokenBuf, $i + 1 ) ]
+									$dp
 								);
 							}
 						}

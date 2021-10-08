@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -270,7 +271,8 @@ class PreHandler extends TokenHandler {
 		if ( count( $this->tokens ) > 0 ) {
 			$da = null;
 			if ( $this->preTSR !== -1 ) {
-				$da = (object)[ 'tsr' => new SourceRange( $this->preTSR, $this->preTSR + 1 ) ];
+				$da = new DataParsoid;
+				$da->tsr = new SourceRange( $this->preTSR, $this->preTSR + 1 );
 			}
 			$ret = array_merge( [ new TagTk( 'pre', [], $da ) ], $this->tokens, [ new EndTagTk( 'pre' ) ] );
 		}

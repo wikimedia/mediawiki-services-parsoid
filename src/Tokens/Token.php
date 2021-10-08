@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Tokens;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -13,7 +14,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
-	/** @var stdClass */
+	/** @var DataParsoid|null */
 	public $dataAttribs;
 
 	/** @var KV[] */
@@ -169,9 +170,7 @@ abstract class Token implements \JsonSerializable {
 			return [
 				"value" => $curVal,
 				// Mark as modified if a new element
-				// NOTE: strict equality will not work in this comparison
-				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
-				"modified" => $this->dataAttribs != new stdClass,
+				"modified" => $this->dataAttribs->isModified(),
 				"fromsrc" => false
 			];
 		} elseif ( $this->dataAttribs->a[$name] !== $curVal ) {
@@ -295,10 +294,11 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * @param iterable|stdClass &$a
+	 * @param iterable|stdClass|DataParsoid &$a
 	 */
 	private static function rebuildNestedTokens( &$a ): void {
 		// objects do not count as iterables in PHP but can be iterated nevertheless
+		// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach
 		foreach ( $a as &$v ) {
 			$v = self::getToken( $v );
 		}
@@ -306,46 +306,54 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * Get a token from some JSON structure
+	 * Get a token from some PHP structure. Used by the PHPUnit tests.
 	 *
-	 * @param array|string|int|float|bool|null $jsTk
+	 * @param KV|Token|array|string|int|float|bool|null $input
 	 * @return Token|string|int|float|bool|null|array<Token|string|int|float|bool|null>
 	 */
-	public static function getToken( $jsTk ) {
-		if ( !$jsTk ) {
-			return $jsTk;
+	public static function getToken( $input ) {
+		if ( !$input ) {
+			return $input;
 		}
 
-		if ( is_array( $jsTk ) && isset( $jsTk['type'] ) ) {
-			$da = isset( $jsTk['dataAttribs'] ) ? (object)$jsTk['dataAttribs'] : null;
-			if ( $da ) {
-				if ( isset( $da->tmp ) ) {
-					$da->tmp = PHPUtils::arrayToObject( $da->tmp );
+		if ( is_array( $input ) && isset( $input['type'] ) ) {
+			if ( isset( $input['dataAttribs'] ) ) {
+				$da = new DataParsoid;
+				foreach ( $input['dataAttribs'] as $key => $value ) {
+					switch ( $key ) {
+						case 'tmp':
+							$da->tmp = PHPUtils::arrayToObject( $value );
+							break;
+						case 'dsr':
+							// dsr is generally for DOM trees, not Tokens.
+							$da->dsr = DomSourceRange::fromArray( $value );
+							break;
+						case 'tsr':
+							$da->tsr = SourceRange::fromArray( $value );
+							break;
+						case 'extTagOffsets':
+							$da->extTagOffsets = DomSourceRange::fromArray( $value );
+							break;
+						case 'extLinkContentOffsets':
+							$da->extLinkContentOffsets =
+								SourceRange::fromArray( $value );
+							break;
+						default:
+							$da->$key = $value;
+					}
 				}
-				if ( isset( $da->dsr ) ) {
-					// dsr is generally for DOM trees, not Tokens.
-					$da->dsr = DomSourceRange::fromArray( $da->dsr );
-				}
-				if ( isset( $da->tsr ) ) {
-					$da->tsr = SourceRange::fromArray( $da->tsr );
-				}
-				if ( isset( $da->extTagOffsets ) ) {
-					$da->extTagOffsets = DomSourceRange::fromArray( $da->extTagOffsets );
-				}
-				if ( isset( $da->extLinkContentOffsets ) ) {
-					$da->extLinkContentOffsets =
-						SourceRange::fromArray( $da->extLinkContentOffsets );
-				}
+			} else {
+				$da = null;
 			}
-			switch ( $jsTk['type'] ) {
+			switch ( $input['type'] ) {
 				case "SelfclosingTagTk":
-					$token = new SelfclosingTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
+					$token = new SelfclosingTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
 					break;
 				case "TagTk":
-					$token = new TagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
+					$token = new TagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
 					break;
 				case "EndTagTk":
-					$token = new EndTagTk( $jsTk['name'], self::kvsFromArray( $jsTk['attribs'] ), $da );
+					$token = new EndTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
 					break;
 				case "NlTk":
 					$token = new NlTk( $da->tsr ?? null, $da );
@@ -354,17 +362,17 @@ abstract class Token implements \JsonSerializable {
 					$token = new EOFTk();
 					break;
 				case "CommentTk":
-					$token = new CommentTk( $jsTk["value"], $da );
+					$token = new CommentTk( $input["value"], $da );
 					break;
 				default:
 					// Looks like data-parsoid can have a 'type' property in some cases
 					// We can change that usage and then throw an exception here
-					$token = &$jsTk;
+					$token = &$input;
 			}
-		} elseif ( is_array( $jsTk ) ) {
-			$token = &$jsTk;
+		} elseif ( is_array( $input ) ) {
+			$token = &$input;
 		} else {
-			$token = $jsTk;
+			$token = $input;
 		}
 
 		if ( is_array( $token ) ) {

@@ -11,11 +11,11 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -96,11 +96,10 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 				'typeof' => 'mw:Transclusion',
 			]
 		);
-		DOMDataUtils::setDataParsoid( $s, (object)[
-				'tsr' => Utils::clone( DOMDataUtils::getDataParsoid( $table )->tsr ),
-				'tmp' => PHPUtils::arrayToObject( [ 'fromFoster' => true ] ),
-			]
-		);
+		$dp = new DataParsoid;
+		$dp->tsr = clone DOMDataUtils::getDataParsoid( $table )->tsr;
+		$dp->tmp = PHPUtils::arrayToObject( [ 'fromFoster' => true ] );
+		DOMDataUtils::setDataParsoid( $s, $dp );
 		$fosterBox->parentNode->insertBefore( $s, $fosterBox );
 
 		$e = self::createNodeWithAttributes( $table->ownerDocument, 'meta', [
@@ -144,10 +143,10 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 	 */
 	private static function getFosterContentHolder( Document $doc, bool $inPTag ): Element {
 		$fosterContentHolder = $doc->createElement( $inPTag ? 'span' : 'p' );
-		DOMDataUtils::setDataParsoid(
-			$fosterContentHolder,
-			(object)[ 'fostered' => true, 'tmp' => new stdClass ]
-		);
+		$dp = new DataParsoid;
+		$dp->fostered = true;
+		$dp->tmp = new stdClass;
+		DOMDataUtils::setDataParsoid( $fosterContentHolder, $dp );
 		return $fosterContentHolder;
 	}
 

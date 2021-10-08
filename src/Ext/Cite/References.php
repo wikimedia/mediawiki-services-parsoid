@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Ext\WTUtils;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class References extends ExtensionTagHandler {
@@ -370,7 +371,7 @@ class References extends ExtensionTagHandler {
 		);
 		DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
 
-		$dataParsoid = new stdClass;
+		$dataParsoid = new DataParsoid;
 		if ( isset( $nodeDp->src ) ) {
 			$dataParsoid->src = $nodeDp->src;
 		}
@@ -507,7 +508,6 @@ class References extends ExtensionTagHandler {
 			} else {
 				unset( $dataMw->body );
 			}
-			// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 			unset( $dp->selfClose );
 		}
 
