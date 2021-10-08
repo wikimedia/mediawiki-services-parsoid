@@ -573,6 +573,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$mean = $total / $count;
 				$this->output( "Mean: $mean ms\n" );
 			}
+			$this->output( sprintf( "Peak memory usage: %.2f MiB\n",
+				memory_get_peak_usage() / 1048576 ) );
 		} else {
 			$this->output( $callback() );
 			if ( self::posix_isatty( STDOUT ) ) {
