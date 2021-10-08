@@ -1,13 +1,14 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Utils;
+namespace Wikimedia\Parsoid\NodeData;
 
 use stdClass;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class DataBag {
 	/**
-	 * @var array A map of node data-object-id ids to data objects.
+	 * @var NodeData[] A map of node data-object-id ids to data objects.
 	 * This map is used during DOM processing to avoid having to repeatedly
 	 * json-parse/json-serialize data-parsoid and data-mw attributes.
 	 * This map is initialized when a DOM is created/parsed/refreshed.
@@ -44,18 +45,18 @@ class DataBag {
 	 * This will return null if a non-existent docId is provided.
 	 *
 	 * @param int $docId
-	 * @return stdClass|null
+	 * @return NodeData|null
 	 */
-	public function getObject( int $docId ): ?stdClass {
+	public function getObject( int $docId ): ?NodeData {
 		return $this->dataObject[$docId] ?? null;
 	}
 
 	/**
 	 * Stash the data and return an id for retrieving it later
-	 * @param stdClass $data
+	 * @param NodeData $data
 	 * @return int
 	 */
-	public function stashObject( stdClass $data ): int {
+	public function stashObject( NodeData $data ): int {
 		$docId = $this->docId++;
 		$this->dataObject[$docId] = $data;
 		return $docId;

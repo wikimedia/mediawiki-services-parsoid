@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Utils;
 
 use Wikimedia\Parsoid\Mocks\MockEnv;
-use Wikimedia\Parsoid\Utils\DataBag;
+use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;

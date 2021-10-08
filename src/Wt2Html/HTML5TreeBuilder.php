@@ -11,10 +11,10 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
 use stdClass;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -196,15 +196,14 @@ class HTML5TreeBuilder extends PipelineStage {
 	 * @return array
 	 */
 	private function stashDataAttribs( array $attribs, object $dataAttribs ): array {
-		$data = [ 'parsoid' => $dataAttribs ];
+		$data = new NodeData;
+		$data->parsoid = $dataAttribs;
 		if ( isset( $attribs['data-mw'] ) ) {
-			// @phan-suppress-next-line PhanImpossibleCondition
-			Assert::invariant( !isset( $data['mw'] ), "data-mw already set." );
-			$data['mw'] = json_decode( $attribs['data-mw'] );
+			$data->mw = json_decode( $attribs['data-mw'] );
 			unset( $attribs['data-mw'] );
 		}
 		// Store in the top level doc since we'll be importing the nodes after treebuilding
-		$docId = DOMDataUtils::stashObjectInDoc( $this->env->topLevelDoc, (object)$data );
+		$docId = DOMDataUtils::stashObjectInDoc( $this->env->topLevelDoc, $data );
 		$attribs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] = (string)$docId;
 		return $attribs;
 	}

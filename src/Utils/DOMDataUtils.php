@@ -12,6 +12,8 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\NodeData\DataBag;
+use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
@@ -48,10 +50,10 @@ class DOMDataUtils {
 	/**
 	 * Stash $obj in $doc and return an id for later retrieval
 	 * @param Document $doc
-	 * @param stdClass $obj
+	 * @param NodeData $obj
 	 * @return int
 	 */
-	public static function stashObjectInDoc( Document $doc, stdClass $obj ): int {
+	public static function stashObjectInDoc( Document $doc, NodeData $obj ): int {
 		return self::getBag( $doc )->stashObject( $obj );
 	}
 
@@ -70,12 +72,12 @@ class DOMDataUtils {
 	 * Get data object from a node.
 	 *
 	 * @param Element $node node
-	 * @return stdClass
+	 * @return NodeData
 	 */
-	public static function getNodeData( Element $node ): stdClass {
+	public static function getNodeData( Element $node ): NodeData {
 		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			// Initialized on first request
-			$dataObject = new stdClass;
+			$dataObject = new NodeData;
 			self::setNodeData( $node, $dataObject );
 			return $dataObject;
 		}
@@ -87,7 +89,6 @@ class DOMDataUtils {
 			$dataObject = null; // Make phan happy
 		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
-		'@phan-var stdClass $dataObject'; // @var stdClass $dataObject
 		if ( isset( $dataObject->storedId ) ) {
 			PHPUtils::unreachable(
 				'Trying to fetch node data without loading!' .
@@ -105,9 +106,9 @@ class DOMDataUtils {
 	 * Set node data.
 	 *
 	 * @param Element $node node
-	 * @param stdClass $data data
+	 * @param NodeData $data data
 	 */
-	public static function setNodeData( Element $node, stdClass $data ): void {
+	public static function setNodeData( Element $node, NodeData $data ): void {
 		$docId = self::stashObjectInDoc( $node->ownerDocument, $data );
 		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$docId );
 	}
@@ -126,7 +127,6 @@ class DOMDataUtils {
 		if ( !isset( $data->parsoid->tmp ) ) {
 			$data->parsoid->tmp = new stdClass;
 		}
-		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 		return $data->parsoid;
 	}
 
@@ -459,7 +459,7 @@ class DOMDataUtils {
 			return;
 		}
 		// Reset the node data object's stored state, since we're reloading it
-		self::setNodeData( $node, new stdClass );
+		self::setNodeData( $node, new NodeData );
 		$dp = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
 		self::massageLoadedDataParsoid( $dp, $options, $node );
 		self::setDataParsoid( $node, $dp );
