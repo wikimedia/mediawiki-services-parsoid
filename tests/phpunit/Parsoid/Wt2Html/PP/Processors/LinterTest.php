@@ -736,7 +736,7 @@ class LinterTest extends TestCase {
 		$desc = "should trigger html5 misnesting for span if there is a nested unclosed span tag";
 		$result = $this->parseWT( "<span>foo<span>boo\n\nbar</span>" );
 		$this->assertCount( 3, $result, $desc );
-		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
+		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( 'html5-misnesting', $result[1]['type'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[2]['type'], $desc );
 	}

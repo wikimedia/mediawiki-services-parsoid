@@ -250,7 +250,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			if ( $c instanceof Element ) {
 				if (
 					DOMCompat::nodeName( $c ) === $name &&
-					empty( DOMDataUtils::getDataParsoid( $c )->autoInsertedInd )
+					empty( DOMDataUtils::getDataParsoid( $c )->autoInsertedEnd )
 				) {
 					return true;
 				}
