@@ -150,9 +150,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Void tags that are not self-closed (Ex: `<br>`)
  * @property bool|null $noClose
  *
- * Used to roundtrip back these kind of tags: `</br>` or `<br/  >` or `<hr/  >`
- * @property string|null $brokenHTMLTag
- *
  * Whether this start HTML tag has no corresponding wikitext and was auto-inserted to generate
  * well-formed html. Usually happens when treebuilder fixes up badly nested HTML.
  * @property bool|null $autoInsertedStart
