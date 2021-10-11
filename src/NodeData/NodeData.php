@@ -34,6 +34,20 @@ class NodeData {
 	 * @return self
 	 */
 	public function clone(): self {
-		return Utils::clone( $this );
+		$cloneableData = get_object_vars( $this );
+		// Don't clone $this->parsoid because it has a custom clone method
+		unset( $cloneableData['parsoid'] );
+		// Don't clone storedId because it doesn't need it
+		unset( $cloneableData['storedId'] );
+		// Deep clone everything else
+		$cloneableData = Utils::clone( $cloneableData );
+		$nd = clone $this;
+		if ( $nd->parsoid ) {
+			$nd->parsoid = $nd->parsoid->clone();
+		}
+		foreach ( $cloneableData as $key => $value ) {
+			$nd->$key = $value;
+		}
+		return $nd;
 	}
 }

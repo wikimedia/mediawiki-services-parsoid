@@ -246,7 +246,34 @@ class DataParsoid {
 	 * @return DataParsoid
 	 */
 	public function clone(): self {
-		return Utils::clone( $this );
+		$dp = clone $this;
+		// Properties that need deep cloning
+		if ( isset( $dp->tmp ) ) {
+			$dp->tmp = Utils::clone( $dp->tmp );
+		}
+		if ( isset( $dp->linkTk ) ) {
+			$dp->linkTk = Utils::clone( $dp->linkTk );
+		}
+		if ( isset( $dp->tokens ) ) {
+			$dp->tokens = Utils::clone( $dp->tokens );
+		}
+
+		// Properties that need shallow cloning
+		if ( isset( $dp->tsr ) ) {
+			$dp->tsr = clone $dp->tsr;
+		}
+		if ( isset( $dp->dsr ) ) {
+			$dp->dsr = clone $dp->dsr;
+		}
+		if ( isset( $dp->extTagOffsets ) ) {
+			$dp->extTagOffsets = clone $dp->extTagOffsets;
+		}
+		if ( isset( $dp->extLinkContentOffsets ) ) {
+			$dp->extLinkContentOffsets = clone $dp->extLinkContentOffsets;
+		}
+
+		// The remaining properties were sufficiently handled by the clone operator
+		return $dp;
 	}
 
 	public function isModified() {
