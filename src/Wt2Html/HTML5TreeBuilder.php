@@ -10,7 +10,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
-use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Node;
@@ -226,18 +225,15 @@ class HTML5TreeBuilder extends PipelineStage {
 
 		$attribs = isset( $token->attribs ) ? $this->kvArrToAttr( $token->attribs ) : [];
 		$dataAttribs = $token->dataAttribs ?? new DataParsoid;
-
-		if ( !isset( $dataAttribs->tmp ) ) {
-			$dataAttribs->tmp = new stdClass;
-		}
+		$tmp = $dataAttribs->getTemp();
 
 		if ( $this->inTransclusion ) {
-			$dataAttribs->tmp->inTransclusion = true;
+			$tmp->inTransclusion = true;
 		}
 
 		// Assign tagId to open/self-closing tags
 		if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
-			$dataAttribs->tmp->tagId = $this->tagId++;
+			$tmp->tagId = $this->tagId++;
 		}
 
 		$attribs = $this->stashDataAttribs( $attribs, $dataAttribs );
@@ -299,7 +295,7 @@ class HTML5TreeBuilder extends PipelineStage {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 				$attrs = $this->stashDataAttribs( [
 					'typeof' => 'mw:StartTag',
-					'data-stag' => "{$tName}:{$dataAttribs->tmp->tagId}"
+					'data-stag' => "{$tName}:{$tmp->tagId}"
 				], $dataAttribs->clone() );
 				$this->dispatcher->comment(
 					WTUtils::fosterCommentData( 'mw:shadow', $attrs ),

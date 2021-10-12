@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -15,7 +14,6 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -98,7 +96,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		);
 		$dp = new DataParsoid;
 		$dp->tsr = clone DOMDataUtils::getDataParsoid( $table )->tsr;
-		$dp->tmp = PHPUtils::arrayToObject( [ 'fromFoster' => true ] );
+		$dp->getTemp()->fromFoster = true;
 		DOMDataUtils::setDataParsoid( $s, $dp );
 		$fosterBox->parentNode->insertBefore( $s, $fosterBox );
 
@@ -145,7 +143,6 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		$fosterContentHolder = $doc->createElement( $inPTag ? 'span' : 'p' );
 		$dp = new DataParsoid;
 		$dp->fostered = true;
-		$dp->tmp = new stdClass;
 		DOMDataUtils::setDataParsoid( $fosterContentHolder, $dp );
 		return $fosterContentHolder;
 	}

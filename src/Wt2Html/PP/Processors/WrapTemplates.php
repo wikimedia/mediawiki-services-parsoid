@@ -302,9 +302,11 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $range->startElem ) );
 				$msg .= "\nend-elem : " . DOMCompat::getOuterHTML( $range->endElem ) . '; DP: ' .
 					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $range->endElem ) );
-				$msg .= "\nstart : [TAG_ID " . $tmp1->tagId . ']: ' . DOMCompat::getOuterHTML( $range->start ) .
+				$msg .= "\nstart : [TAG_ID " . ( $tmp1->tagId ?? '?' ) . ']: ' .
+					DOMCompat::getOuterHTML( $range->start ) .
 					'; DP: ' . PHPUtils::jsonEncode( $dp1 );
-				$msg .= "\nend : [TAG_ID " . $tmp2->tagId . ']: ' . DOMCompat::getOuterHTML( $range->end ) .
+				$msg .= "\nend : [TAG_ID " . ( $tmp2->tagId ?? '?' ) . ']: ' .
+					DOMCompat::getOuterHTML( $range->end ) .
 					'; DP: ' . PHPUtils::jsonEncode( $dp2 );
 				$msg .= "\n----------------------------------------------";
 				$dp1->tmp = $tmp1;
@@ -464,12 +466,13 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 				if ( $n instanceof Element ) {
 					// Initialize tplRanges, if necessary.
 					$dp = DOMDataUtils::getDataParsoid( $n );
-					if ( !isset( $dp->tmp->tplRanges ) ) {
-						$dp->tmp->tplRanges = [];
+					$tmp = $dp->getTemp();
+					if ( !isset( $tmp->tplRanges ) ) {
+						$tmp->tplRanges = [];
 					}
 
 					// Record 'r'
-					$dp->tmp->tplRanges[$r->id] = $r;
+					$tmp->tplRanges[$r->id] = $r;
 
 					// Done
 					if ( $n === $e ) {
@@ -592,7 +595,7 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 			$r = $tplRanges[$l];
 
 			// Extract argInfo
-			$tmp = DOMDataUtils::getDataParsoid( $r->startElem )->tmp;
+			$tmp = DOMDataUtils::getDataParsoid( $r->startElem )->getTemp();
 			$argInfo = $tmp->tplarginfo ?? null;
 			if ( $argInfo ) {
 				/** @var stdClass $argInfo */
@@ -616,9 +619,9 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 					'; DP: ' . PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $r->startElem ) );
 				$msg .= "\nrange " . $r->id . '; r-end-elem: ' . DOMCompat::getOuterHTML( $r->endElem ) .
 					'; DP: ' . PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $r->endElem ) );
-				$msg .= "\nrange " . $r->id . '; r-start: [TAG_ID ' . $tmp1->tagId . ']: ' .
+				$msg .= "\nrange " . $r->id . '; r-start: [TAG_ID ' . ( $tmp1->tagId ?? '?' ) . ']: ' .
 					DOMCompat::getOuterHTML( $r->start ) . '; DP: ' . PHPUtils::jsonEncode( $dp1 );
-				$msg .= "\nrange " . $r->id . '; r-end: [TAG_ID ' . $tmp2->tagId . ']: ' .
+				$msg .= "\nrange " . $r->id . '; r-end: [TAG_ID ' . ( $tmp2->tagId ?? '?' ) . ']: ' .
 					DOMCompat::getOuterHTML( $r->end ) . '; DP: ' . PHPUtils::jsonEncode( $dp2 );
 				$msg .= "\n----------------------------------------------";
 				$dp1->tmp = $tmp1;

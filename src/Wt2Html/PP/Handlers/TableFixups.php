@@ -586,7 +586,7 @@ class TableFixups {
 				// Clear property and retry $cell for other reparses
 				// The DOMTraverser will resume the handler on the
 				// returned $cell.
-				DOMDataUtils::getDataParsoid( $cell )->tmp->failedReparse = true;
+				DOMDataUtils::getDataParsoid( $cell )->getTemp()->failedReparse = true;
 				return $cell;
 			}
 		}
@@ -666,7 +666,7 @@ class TableFixups {
 
 					// Set data-parsoid noAttrs flag
 					$newCellDP = DOMDataUtils::getDataParsoid( $newCell );
-					$newCellDP->tmp->noAttrs = true;
+					$newCellDP->getTemp()->noAttrs = true;
 				}
 			}
 

@@ -496,10 +496,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					$adjNode = $this->getMatchingMisnestedNode( $c, $c );
 					if ( $adjNode ) {
 						$adjDp = DOMDataUtils::getDataParsoid( $adjNode );
-						if ( !isset( $adjDp->tmp ) ) {
-							$adjDp->tmp = new stdClass;
-						}
-						$adjDp->tmp->linted = true;
+						$adjDp->getTemp()->linted = true;
 						$env->recordLint( 'misnested-tag', $lintObj );
 					} elseif ( !$this->endTagOptional( $c ) && empty( $dp->autoInsertedStart ) ) {
 						$lintObj['params']['inTable'] = DOMUtils::hasNameOrHasAncestorOfName( $c, 'table' );
@@ -971,7 +968,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 				// following call, but is fine when it's copied to a local variable.
 				$stupidPhan = $o['node'];
 				if ( $stupidPhan instanceof Element ) {
-					DOMDataUtils::getDataParsoid( $stupidPhan )->tmp->processedTidyWSBug = true;
+					DOMDataUtils::getDataParsoid( $stupidPhan )->getTemp()->processedTidyWSBug = true;
 				}
 			}
 		};

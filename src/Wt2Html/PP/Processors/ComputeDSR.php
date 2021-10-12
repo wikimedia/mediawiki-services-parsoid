@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\DomSourceRange;
@@ -371,10 +370,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							// Record original DSR for the meta tag
 							// since it will now get corrected to zero width
 							// since child acquires its width->
-							if ( !$ndp->tmp ) {
-								$ndp->tmp = new stdClass;
-							}
-							$ndp->tmp->origDSR = new DomSourceRange( $ndp->dsr->start, $ndp->dsr->end, null, null );
+							$ndp->getTemp()->origDSR = new DomSourceRange(
+								$ndp->dsr->start, $ndp->dsr->end, null, null );
 						}
 					}
 				}

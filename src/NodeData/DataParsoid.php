@@ -281,4 +281,16 @@ class DataParsoid {
 		// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 		return $this != new self;
 	}
+
+	/**
+	 * Get a lazy-initialized object to which temporary properties can be written.
+	 * @return stdClass
+	 */
+	public function getTemp(): stdClass {
+		// tmp can be unset despite being declared
+		if ( !isset( $this->tmp ) ) {
+			$this->tmp = new stdClass;
+		}
+		return $this->tmp;
+	}
 }

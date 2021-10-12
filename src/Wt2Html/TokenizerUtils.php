@@ -23,7 +23,6 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
@@ -117,7 +116,7 @@ class TokenizerUtils {
 				// Add a flag that indicates that the tokenizer didn't
 				// encounter a "|...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
-				$dp->tmp = PHPUtils::arrayToObject( [ 'noAttrs' => true ] );
+				$dp->getTemp()->noAttrs = true;
 			}
 		} else {
 			$a = $attrInfo[0];

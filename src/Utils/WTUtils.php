@@ -859,7 +859,7 @@ class WTUtils {
 		$span = $doc->createElement( 'span' );
 		DOMUtils::addTypeOf( $span, 'mw:I18n' );
 		$dp = DOMDataUtils::getDataParsoid( $span );
-		$dp->tmp->i18n = $i18n;
+		$dp->getTemp()->i18n = $i18n;
 		$frag->appendChild( $span );
 		return $frag;
 	}

@@ -758,7 +758,6 @@ class TemplateHandler extends TokenHandler {
 		$dp = new DataParsoid;
 		$dp->tsr = clone $state['token']->dataAttribs->tsr;
 		$dp->src = $state['token']->dataAttribs->src;
-		$dp->tmp = new stdClass;
 
 		$meta = [ new SelfclosingTagTk( 'meta', $attrs, $dp ) ];
 		$chunk = $chunk ? array_merge( $meta, $chunk ) : $meta;
@@ -925,7 +924,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Use a data-attribute to prevent the sanitizer from stripping this
 		// attribute before it reaches the DOM pass where it is needed
-		$toks[0]->dataAttribs->tmp->tplarginfo = PHPUtils::jsonEncode( $argInfo );
+		$toks[0]->dataAttribs->getTemp()->tplarginfo = PHPUtils::jsonEncode( $argInfo );
 
 		$this->env->log( 'debug', 'TemplateHandler.encapTokens', $toks );
 		return $toks;

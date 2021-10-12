@@ -124,9 +124,6 @@ class DOMDataUtils {
 		if ( !isset( $data->parsoid ) ) {
 			$data->parsoid = new DataParsoid;
 		}
-		if ( !isset( $data->parsoid->tmp ) ) {
-			$data->parsoid->tmp = new stdClass;
-		}
 		return $data->parsoid;
 	}
 
@@ -443,8 +440,7 @@ class DOMDataUtils {
 			}
 		}
 		if ( !empty( $options['markNew'] ) ) {
-			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
-			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
+			$dp->getTemp()->isNew = !$node->hasAttribute( 'data-parsoid' );
 		}
 		return $dp;
 	}

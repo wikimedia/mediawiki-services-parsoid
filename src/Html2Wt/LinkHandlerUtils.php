@@ -1146,7 +1146,7 @@ class LinkHandlerUtils {
 			// fragment, however, we need some way of marking this as being
 			// inModifiedContent so that any bare text is assured to be escaped
 			$captionElt = $outerElt->ownerDocument->createElement( 'div' );
-			DOMDataUtils::getDataParsoid( $captionElt )->tmp->isNew = true;
+			DOMDataUtils::getDataParsoid( $captionElt )->getTemp()->isNew = true;
 			DOMUtils::migrateChildren( $fragment, $captionElt );
 			// Needs a parent node in order for WTS to be happy
 			$fragment->appendChild( $captionElt );

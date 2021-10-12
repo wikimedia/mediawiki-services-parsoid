@@ -58,7 +58,6 @@ class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
 			$dp = new DataParsoid;
 			$dp->src = $src;
 			$dp->name = $name;
-			$dp->tmp = new stdClass;
 			DOMDataUtils::setDataParsoid( $placeHolder, $dp );
 
 			// Insert the placeHolder

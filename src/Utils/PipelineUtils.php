@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Attr;
@@ -447,18 +446,12 @@ class PipelineUtils {
 
 		// Pass through setDSR flag
 		if ( !empty( $opts['setDSR'] ) ) {
-			if ( !$firstWrapperToken->dataAttribs->tmp ) {
-				$firstWrapperToken->dataAttribs->tmp = new stdClass;
-			}
-			$firstWrapperToken->dataAttribs->tmp->setDSR = $opts['setDSR'];
+			$firstWrapperToken->dataAttribs->getTemp()->setDSR = $opts['setDSR'];
 		}
 
 		// Pass through fromCache flag
 		if ( !empty( $opts['fromCache'] ) ) {
-			if ( !$firstWrapperToken->dataAttribs->tmp ) {
-				$firstWrapperToken->dataAttribs->tmp = new stdClass;
-			}
-			$firstWrapperToken->dataAttribs->tmp->fromCache = $opts['fromCache'];
+			$firstWrapperToken->dataAttribs->getTemp()->fromCache = $opts['fromCache'];
 		}
 
 		// Transfer the tsr.
@@ -495,7 +488,7 @@ class PipelineUtils {
 			$span->appendChild( $n );
 		}
 		$dp = new DataParsoid;
-		$dp->tmp = PHPUtils::arrayToObject( [ 'wrapper' => true ] );
+		$dp->getTemp()->wrapper = true;
 		DOMDataUtils::setDataParsoid( $span, $dp );
 		$textCommentAccum = [];
 	}

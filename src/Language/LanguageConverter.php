@@ -289,7 +289,7 @@ class LanguageConverter {
 			$dmwv = DOMDataUtils::getJSONAttribute( $span, 'data-mw-variant', null );
 			if ( $dmwv->rt ?? false ) {
 				$dp = DOMDataUtils::getDataParsoid( $span );
-				$dp->tmp->isNew = true;
+				$dp->getTemp()->isNew = true;
 			}
 		}
 

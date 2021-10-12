@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -582,10 +581,7 @@ class AttributeExpander extends TokenHandler {
 				//   { ... "attribs":[{"k":"about","v":"#mwt1"},{"k":"typeof","v":"mw:Transclusion"}] .. }
 				// So, record these in the tmp attribute for the template hander
 				// to retrieve and process.
-				if ( !$token->dataAttribs->tmp ) {
-					$token->dataAttribs->tmp = new stdClass;
-				}
-				$token->dataAttribs->tmp->templatedAttribs = $expAttrs;
+				$token->dataAttribs->getTemp()->templatedAttribs = $expAttrs;
 			} else {
 				// Mark token as having expanded attrs.
 				$token->addAttribute( 'about', $this->env->newAboutId() );

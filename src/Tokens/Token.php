@@ -322,7 +322,10 @@ abstract class Token implements \JsonSerializable {
 				foreach ( $input['dataAttribs'] as $key => $value ) {
 					switch ( $key ) {
 						case 'tmp':
-							$da->tmp = PHPUtils::arrayToObject( $value );
+							$tmp = $da->getTemp();
+							foreach ( $value as $key2 => $value2 ) {
+								$tmp->$key2 = $value2;
+							}
 							break;
 						case 'dsr':
 							// dsr is generally for DOM trees, not Tokens.
