@@ -9369,6 +9369,19 @@ parsoid=wt2html,wt2wt,html2html
 !! end
 
 !! test
+Interwiki link that could be a language link, if not for a local interwiki prefix (T292022)
+!! options
+parsoid=html2wt
+!! html/php
+<p><a href="http://es.wikipedia.org/wiki/Hello" class="extiw" title="es:Hello">local:es:Hello</a>
+</p>
+!! html/parsoid
+<p><a href="./Local:es:Hello" rel="mw:WikiLink">local:es:Hello</a></p>
+!! wikitext
+[[:es:Hello|local:es:Hello]]
+!! end
+
+!! test
 Interwiki link with percent encoded target
 !! wikitext
 [[:es:Nueva Guip%C3%BAzcoa|Nueva Guipúzcoa]]

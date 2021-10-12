@@ -370,10 +370,20 @@ class LinkHandlerUtils {
 					}
 				} else { // Else: preserve old encoding
 					if ( !empty( $rtData->isLocal ) ) {
-						// - interwikiMatch will be ":en", ":de", etc.
+						// - interWikiMatch[0] will be something like ":en" or "w"
 						// - This tests whether the interwiki-like link is actually
 						// a local wikilink.
+
 						$target['value'] = $interWikiMatch[1];
+						// interWikiMatch[1] may start with a language link prefix,
+						// ensure that we generate interwiki link syntax in that case. (T292022)
+						if (
+							preg_match( '/^([^:]+):/', $target['value'], $match ) &&
+							!empty( $iwMap[self::normalizeIWP( $match[1] )]['language'] )
+						) {
+							$target['value'] = ':' . $target['value'];
+						}
+
 						$rtData->isInterwiki = $rtData->isInterwikiLang = false;
 					} else {
 						$target['value'] = implode( ':', $interWikiMatch );
