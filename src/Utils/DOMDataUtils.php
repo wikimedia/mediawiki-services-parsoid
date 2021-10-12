@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
@@ -433,6 +434,14 @@ class DOMDataUtils {
 						$optList[] = (array)$item;
 					}
 					$dp->optList = $optList;
+					break;
+
+				case 'tmp':
+					$tmp = new TempData;
+					foreach ( $value as $key2 => $value2 ) {
+						$tmp->$key2 = $value2;
+					}
+					$dp->tmp = $tmp;
 					break;
 
 				default:

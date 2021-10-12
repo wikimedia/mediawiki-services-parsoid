@@ -248,11 +248,11 @@ class WTUtils {
 	}
 
 	/**
-	 * This tests whether a DOM $node is a new $node added during an edit session
-	 * or an existing $node from parsed wikitext.
+	 * This tests whether a DOM node is a new node added during an edit session
+	 * or an existing node from parsed wikitext.
 	 *
 	 * As written, this function can only be used on non-template/extension content
-	 * or on the top-level $nodes of template/extension content. This test will
+	 * or on the top-level nodes of template/extension content. This test will
 	 * return the wrong results on non-top-level $nodes of template/extension content.
 	 *
 	 * @param Node $node

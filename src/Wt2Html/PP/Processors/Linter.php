@@ -966,9 +966,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 			foreach ( $nowrapNodes as $o ) {
 				// Phan fails at applying the instanceof type restriction to the array member when analyzing the
 				// following call, but is fine when it's copied to a local variable.
-				$stupidPhan = $o['node'];
-				if ( $stupidPhan instanceof Element ) {
-					DOMDataUtils::getDataParsoid( $stupidPhan )->getTemp()->processedTidyWSBug = true;
+				$node = $o['node'];
+				if ( $node instanceof Element ) {
+					DOMDataUtils::getDataParsoid( $node )->getTemp()->processedTidyWSBug = true;
 				}
 			}
 		};
@@ -1007,13 +1007,13 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$n = count( $nowrapNodes ) - 1;
 		foreach ( $nowrapNodes as $i => $o ) {
 			if ( $o['tidybug'] && $i < $n && empty( $nowrapNodes[$i + 1]['hasLeadingWS'] ) ) {
-				$stupidPhan = $o['node']; // (see above)
+				$nowrapNode = $o['node']; // (see above)
 				$lintObj = [
 					'dsr' => $this->findLintDSR(
 						$templateInfo,
 						$tplInfo,
-						$stupidPhan instanceof Element
-							? DOMDataUtils::getDataParsoid( $stupidPhan )->dsr ?? null
+						$nowrapNode instanceof Element
+							? DOMDataUtils::getDataParsoid( $nowrapNode )->dsr ?? null
 							: null
 					),
 					'templateInfo' => $templateInfo,

@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-use stdClass;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -236,7 +235,7 @@ class DataParsoid {
 	/**
 	 * Holds a number of transient properties in the wt->html pipeline to pass information between
 	 * stages. Dropped before serialization.
-	 * @var stdClass|null
+	 * @var TempData|null
 	 */
 	public $tmp;
 
@@ -284,12 +283,12 @@ class DataParsoid {
 
 	/**
 	 * Get a lazy-initialized object to which temporary properties can be written.
-	 * @return stdClass
+	 * @return TempData
 	 */
-	public function getTemp(): stdClass {
+	public function getTemp(): TempData {
 		// tmp can be unset despite being declared
 		if ( !isset( $this->tmp ) ) {
-			$this->tmp = new stdClass;
+			$this->tmp = new TempData;
 		}
 		return $this->tmp;
 	}
