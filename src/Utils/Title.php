@@ -99,7 +99,7 @@ class Title {
 		) ) {
 			$ns = $nsId;
 			$title = $m[2];
-		} elseif ( $pmatch && ( $siteConfig->interwikiMap()[$m[1]] ?? null ) ) {
+		} elseif ( $pmatch && ( $siteConfig->interwikiMapNoNamespaces()[$m[1]] ?? null ) ) {
 			// Zorg!  Core also removes the prefix for interwikis when doing
 			// the rest of validation on the title, so let's just ignore $m[1]
 			$title = $m[2];

@@ -80,7 +80,7 @@ class LinkHandlerUtils {
 		$href = $node->getAttribute( 'href' ) ?? '';
 		if ( ( $href[0] ?? '' ) === '/' && ( $href[1] ?? '' ) !== '/' ) {
 			// protocol-less but absolute.  let's find a base href
-			foreach ( $env->getSiteConfig()->interwikiMap() as $prefix => $interwikiInfo ) {
+			foreach ( $env->getSiteConfig()->interwikiMapNoNamespaces() as $prefix => $interwikiInfo ) {
 				if ( isset( $interwikiInfo['localinterwiki'] ) && isset( $interwikiInfo['url'] ) ) {
 					$base = $interwikiInfo['url'];
 
@@ -317,7 +317,7 @@ class LinkHandlerUtils {
 				$rtData->type = 'mw:WikiLink';
 			}
 			$rtData->isInterwiki = true;
-			$iwMap = $siteConfig->interwikiMap();
+			$iwMap = $siteConfig->interwikiMapNoNamespaces();
 			// could this be confused with a language link?
 			$iwi = $iwMap[self::normalizeIWP( $interWikiMatch[0] )] ?? null;
 			$rtData->isInterwikiLang = $iwi && isset( $iwi['language'] );

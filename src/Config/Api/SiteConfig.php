@@ -164,6 +164,7 @@ class SiteConfig extends ISiteConfig {
 		// Superclass value reset since parsertests reuse SiteConfig objects
 		$this->linkTrailRegex = false;
 		$this->magicWordMap = null;
+		$this->interwikiMapNoNamespaces = null;
 	}
 
 	/**

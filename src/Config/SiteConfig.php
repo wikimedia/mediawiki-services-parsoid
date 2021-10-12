@@ -58,6 +58,14 @@ abstract class SiteConfig {
 	 * FIXME: not private so that ParserTests can reset these variables
 	 * since they reuse site config and other objects between tests for
 	 * efficiency reasons.
+	 * @var array|null
+	 */
+	protected $interwikiMapNoNamespaces;
+
+	/**
+	 * FIXME: not private so that ParserTests can reset these variables
+	 * since they reuse site config and other objects between tests for
+	 * efficiency reasons.
 	 * @var string|null|bool
 	 */
 	protected $linkTrailRegex = false;
@@ -451,6 +459,24 @@ abstract class SiteConfig {
 	abstract public function interwikiMap(): array;
 
 	/**
+	 * Interwiki link data, after removing items that conflict with namespace names.
+	 * (In case of such conflict, namespace wins, interwiki is ignored.)
+	 * @return array[] See interwikiMap()
+	 */
+	public function interwikiMapNoNamespaces(): array {
+		if ( $this->interwikiMapNoNamespaces === null ) {
+			$map = $this->interwikiMap();
+			foreach ( array_keys( $map ) as $key ) {
+				if ( $this->namespaceId( $key ) !== null ) {
+					unset( $map[$key] );
+				}
+			}
+			$this->interwikiMapNoNamespaces = $map;
+		}
+		return $this->interwikiMapNoNamespaces;
+	}
+
+	/**
 	 * Match interwiki URLs
 	 * @param string $href Link to match against
 	 * @return string[]|null Two values [ string $key, string $target ] on success, null on no match.
@@ -459,7 +485,7 @@ abstract class SiteConfig {
 		if ( $this->iwMatcher === null ) {
 			$keys = [ [], [] ];
 			$patterns = [ [], [] ];
-			foreach ( $this->interwikiMap() as $key => $iw ) {
+			foreach ( $this->interwikiMapNoNamespaces() as $key => $iw ) {
 				$lang = (int)( !empty( $iw['language'] ) );
 
 				$url = $iw['url'];

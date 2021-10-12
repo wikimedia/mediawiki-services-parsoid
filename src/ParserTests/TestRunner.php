@@ -47,6 +47,13 @@ class TestRunner {
 			'localinterwiki' => true
 		],
 		[
+			// Local interwiki that matches a namespace name (T228616)
+			'prefix' => 'project',
+			'url' => 'http://example.org/wiki/$1',
+			'local' => true,
+			'localinterwiki' => true
+		],
+		[
 			'prefix' => 'wikipedia',
 			'url' => 'http://en.wikipedia.org/wiki/$1'
 		],

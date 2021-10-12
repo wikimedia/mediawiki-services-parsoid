@@ -132,7 +132,7 @@ class WikiLinkHandler extends TokenHandler {
 			$nsPrefix = $hrefBits['prefix'];
 			$info->prefix = $nsPrefix;
 			$nnn = Utils::normalizeNamespaceName( trim( $nsPrefix ) );
-			$interwikiInfo = $siteConfig->interwikiMap()[$nnn] ?? null;
+			$interwikiInfo = $siteConfig->interwikiMapNoNamespaces()[$nnn] ?? null;
 			// check for interwiki / language links
 			$ns = $siteConfig->namespaceId( $nnn );
 			// also check for url to protect against [[constructor:foo]]

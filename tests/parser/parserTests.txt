@@ -9398,6 +9398,19 @@ parsoid=html2wt
 !! end
 
 !! test
+Internal link with a namespace matching a local interwiki prefix (T228616)
+!! options
+parsoid=html2wt
+!! html/php
+<p><a href="/index.php?title=TestWiki:Hello&amp;action=edit&amp;redlink=1" class="new" title="TestWiki:Hello (page does not exist)">Project:Hello</a>
+</p>
+!! html/parsoid
+<p><a href="./Project:Hello" rel="mw:WikiLink">Project:Hello</a></p>
+!! wikitext
+[[Project:Hello]]
+!! end
+
+!! test
 Interwiki link with percent encoded target
 !! wikitext
 [[:es:Nueva Guip%C3%BAzcoa|Nueva Guipúzcoa]]
