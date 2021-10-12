@@ -42,7 +42,8 @@ class TestRunner {
 		],
 		[
 			'prefix' => 'local',
-			'url' => 'http://doesnt.matter.org/$1',
+			'url' => 'http://example.org/wiki/$1',
+			'local' => true,
 			'localinterwiki' => true
 		],
 		[
@@ -85,7 +86,7 @@ class TestRunner {
 		],
 		[
 			'prefix' => 'mi',
-			'url' => 'http://mi.wikipedia.org/wiki/$1',
+			'url' => 'http://example.org/wiki/$1',
 			// better for testing if one of the
 			// localinterwiki prefixes is also a language
 			'language' => 'Test',

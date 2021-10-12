@@ -376,8 +376,7 @@
         "selser [[3,[3,2,[0,[3],[3]],2,[2,3,1],0,4,0]]]": "{| class=\"wikitable\"<!--f4bpwj-->\n|- style=\"color:red;\"\n| || style=\"color:red;\" |<!--1dncm0k-->\n|-\n|a6iywe\n| style=\"color:red;\" data-foobar=\"vwf3pf\" | <nowiki>second data with |</nowiki>\n<!--hnyomd-->\n|}"
     },
     "Build table with wikilink": {
-        "html2html": "<table class=\"wikitable\" data-parsoid='{\"dsr\":[0,204,20,2]}'>\n<tbody data-parsoid='{\"dsr\":[21,202,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[21,43,0,0]}'><th data-parsoid='{\"dsr\":[21,28,1,0]}'>header</th>\n<th data-parsoid='{\"dsr\":[29,43,1,0]}'>second header</th></tr>\n<tr style=\"color:red;\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[44,140,21,0]}'>\n<td data-parsoid='{\"dsr\":[66,99,1,0]}'>data <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[72,99,17,2]}'>linktext</a></td>\n<td data-parsoid='{\"dsr\":[100,140,1,0]}'>second data <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[113,140,17,2]}'>linktext</a></td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[141,201,2,0]}'>\n<td data-parsoid='{\"dsr\":[144,149,1,0]}'>data</td>\n<td data-parsoid='{\"dsr\":[150,201,1,0]}'>second data <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[163,201,17,2]}'>link|text with pipe</a></td></tr>\n</tbody></table>",
-        "html2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data [[wiki/Main Page|linktext]]\n|second data [[wiki/Main Page|linktext]]\n|-\n|data\n|second data [[wiki/Main Page|link|text with pipe]]\n|}"
+        "html2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data [[Main Page|linktext]]\n|second data [[Main Page|linktext]]\n|-\n|data\n|second data [[Main Page|link|text with pipe]]\n|}"
     },
     "Build table with {{!}}": {
         "wt2wt": "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\"{{!}}second data\n{{!}}}",
@@ -413,10 +412,6 @@
     },
     "Categories and newlines: should behave properly with linkprefix (T87753)": {
         "selser [[3],0,3,0,0]": "\n\n[[تصنيف:Bar]]"
-    },
-    "Character reference normalization in link text (T3938)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,28,17,2]}'>this&amp;that</a></p>\n",
-        "html2wt": "[[wiki/Main Page|this&that]]\n"
     },
     "Check noCommafy in formatNum": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:123456.78\",\"function\":\"formatnum\"},\"params\":{},\"i\":0}}]}'>123456.78</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[24,53,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:123456.78\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"NOSEP\"}},\"i\":0}}]}'>123456.78</span></p>",
@@ -1107,21 +1102,12 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'>[/index.php?title=Something&amp;action=edit&amp;redlink=1 Something'nice]</p>\n",
         "html2wt": "[/index.php?title=Something&action=edit&redlink=1 Something'nice]\n"
     },
-    "Internal link with ca linktrail, surrounded by bold apostrophes (T29473 primary issue)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><b data-parsoid='{\"dsr\":[0,34,3,3]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[3,31,17,2]}'>Main Page</a></b></p>\n",
-        "html2wt": "'''[[wiki/Main Page|Main Page]]'''\n"
-    },
-    "Internal link with ca linktrail, surrounded by italic apostrophes (T29473 primary issue)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><i data-parsoid='{\"dsr\":[0,32,2,2]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[2,30,17,2]}'>Main Page</a></i></p>\n",
-        "html2wt": "''[[wiki/Main Page|Main Page]]''\n"
-    },
     "Internal link with en linktrail: no apostrophes (T29473)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'>[/index.php?title=Something&amp;action=edit&amp;redlink=1 Something]'nice</p>\n",
         "html2wt": "[/index.php?title=Something&action=edit&redlink=1 Something]'nice\n"
     },
     "Internal link with is link trail and link prefix": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,208,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Mótmælendatrú\" title=\"Wiki/Mótmælendatrú\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Mótmælendatrú\"},\"sa\":{\"href\":\"wiki/Mótmælendatrú\"},\"dsr\":[0,31,24,2]}'>xxxar</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Mótmælendatrú\" title=\"Wiki/Mótmælendatrú\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Mótmælendatrú\"},\"sa\":{\"href\":\"wiki/Mótmælendatrú\"},\"dsr\":[32,76,24,2]}'>mótmælendatrúar</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[77,119,18,2]}'>mótmælendasöfnuður</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[120,162,18,2]}'>mótmælendasöfnuðir</a>\n<a rel=\"mw:WikiLink\" href=\"./Wiki/Söfnuður\" title=\"Wiki/Söfnuður\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Söfnuður\"},\"sa\":{\"href\":\"wiki/Söfnuður\"},\"dsr\":[163,208,18,2]}'>mótmælendasöfnuðirxxx</a></p>\n",
-        "html2wt": "[[wiki/Mótmælendatrú|xxxar]]\n[[wiki/Mótmælendatrú|mótmælendatrúar]]\n[[wiki/Söfnuður|mótmælendasöfnuður]]\n[[wiki/Söfnuður|mótmælendasöfnuðir]]\n[[wiki/Söfnuður|mótmælendasöfnuðirxxx]]\n"
+        "html2wt": "[[Mótmælendatrú|xxxar]]\n[[Mótmælendatrú|mótmælendatrúar]]\n[[Söfnuður|mótmælendasöfnuður]]\n[[Söfnuður|mótmælendasöfnuðir]]\n[[Söfnuður|mótmælendasöfnuðirxxx]]\n"
     },
     "Internal link with kaa linktrail with apostrophes (T29473)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'>[/index.php?title=Something&amp;action=edit&amp;redlink=1 Something'nice]</p>\n",
@@ -1196,40 +1182,18 @@
         "html2wt": "''Some [/index.php?title=Link&action=edit&redlink=1 pretty ''italics'' and stuff]!''\n"
     },
     "Link inside a section heading": {
-        "html2html": "<h2 id=\"Section_with_a_link_in_it\" data-parsoid='{\"dsr\":[0,50,2,2,1,1]}'>Section with a <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[18,41,17,2]}'>link</a> in it</h2>\n",
-        "html2wt": "== Section with a [[wiki/Main Page|link]] in it ==\n"
-    },
-    "Link to category": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,72,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Category:MediaWiki_User's_Guide\" title=\"Wiki/Category:MediaWiki User's Guide\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Category:MediaWiki_User&apos;s_Guide\"},\"sa\":{\"href\":\"wiki/Category:MediaWiki User&apos;s Guide\"},\"dsr\":[0,72,39,2]}'>Category:MediaWiki User's Guide</a></p>\n",
-        "html2wt": "[[wiki/Category:MediaWiki User's Guide|Category:MediaWiki User's Guide]]\n"
+        "html2wt": "== Section with a [[Main Page|link]] in it ==\n"
     },
     "Link to namespaces": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,156,0,0]}'>[/index.php?title=Talk:Parser_testing&amp;action=edit&amp;redlink=1 Talk:Parser testing], [/index.php?title=Meta:Disclaimers&amp;action=edit&amp;redlink=1 Meta:Disclaimers]</p>\n",
         "html2wt": "[/index.php?title=Talk:Parser_testing&action=edit&redlink=1 Talk:Parser testing], [/index.php?title=Meta:Disclaimers&action=edit&redlink=1 Meta:Disclaimers]\n"
-    },
-    "Link to numeric-equivalent title": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/00\" title=\"Wiki/00\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/00\"},\"sa\":{\"href\":\"wiki/00\"},\"dsr\":[0,14,10,2]}'>00</a></p>\n",
-        "html2wt": "[[wiki/00|00]]\n"
-    },
-    "Link with 4 brackets": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'>[[<a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[2,30,17,2]}'>Main Page</a>]]</p>\n",
-        "html2wt": "[[[[wiki/Main Page|Main Page]]]]\n"
-    },
-    "Link with multiple pipes": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>The|Main|Page</a></p>\n",
-        "html2wt": "[[wiki/Main Page|The|Main|Page]]\n"
-    },
-    "Link with prefix": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,162,0,0]}'>xxx<a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[3,31,17,2]}'>main Page</a>, xxx<a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[36,64,17,2]}'>Main Page</a>, Xxx<a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[69,97,17,2]}'>main Page</a> XXX<a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[101,129,17,2]}'>main Page</a>, XXX<a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[134,162,17,2]}'>Main Page</a></p>\n",
-        "html2wt": "xxx[[wiki/Main Page|main Page]], xxx[[wiki/Main Page|Main Page]], Xxx[[wiki/Main Page|main Page]] XXX[[wiki/Main Page|main Page]], XXX[[wiki/Main Page|Main Page]]\n"
     },
     "Link with space in namespace": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,76,0,0]}'>[/index.php?title=User_talk:Foo_bar&amp;action=edit&amp;redlink=1 User talk:Foo bar]</p>\n",
         "html2wt": "[/index.php?title=User_talk:Foo_bar&action=edit&redlink=1 User talk:Foo bar]\n"
     },
     "Link with suffix": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,97,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,31,17,2]}'>Main Pagexxx</a>, <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[33,61,17,2]}'>Main Page</a>XXX, <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[66,94,17,2]}'>Main Page</a>!!!</p>\n",
-        "html2wt": "[[wiki/Main Page|Main Pagexxx]], [[wiki/Main Page|Main Page]]XXX, [[wiki/Main Page|Main Page]]!!!\n"
+        "html2wt": "[[Main Page|Main Pagexxx]], [[Main Page]]XXX, [[Main Page]]!!!\n"
     },
     "List interrupted by empty line or heading": {
         "html2wt": "* foo\n\n** bar\n\n== A heading ==\n\n* Another list item"
@@ -1472,10 +1436,6 @@
     "Namespace User {{ns:User}}": {
         "html2wt": "User\n"
     },
-    "Namespace takes precedence over interwiki link (T53680)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/MemoryAlpha:AlphaTest\" title=\"Wiki/MemoryAlpha:AlphaTest\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/MemoryAlpha:AlphaTest\"},\"sa\":{\"href\":\"wiki/MemoryAlpha:AlphaTest\"},\"dsr\":[0,52,29,2]}'>MemoryAlpha:AlphaTest</a></p>\n",
-        "html2wt": "[[wiki/MemoryAlpha:AlphaTest|MemoryAlpha:AlphaTest]]\n"
-    },
     "Nested <noinclude>s": {
         "selser [4,0,[3,0,3,4,0],3,0]": "95w6d2\n\n<noinclude>k1e0sn\nz\n</noinclude>"
     },
@@ -1555,8 +1515,7 @@
         "html2wt": "(My parameter is: param)\n"
     },
     "Non-breaking spaces in title": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,37,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,37,17,2]}'>  Main   Page  </a></p>\n",
-        "html2wt": "[[wiki/Main Page|  Main   Page  ]]\n"
+        "html2wt": "[[  Main   Page  ]]\n"
     },
     "Non-empty attributes in th-cells": {
         "html2wt": "{|\n!Foo\n! style=\"color: red\" |Bar\n|}"
@@ -1705,8 +1664,7 @@
     },
     "Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved": {
         "wt2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,18,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,18,11,2]}'>  bar</a></p>\n\n<p data-parsoid='{\"dsr\":[20,42,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[20,42,11,2]}'>  <i data-parsoid='{\"dsr\":[33,40,2,2]}'>bar</i></a></p>\n\n<p data-parsoid='{\"dsr\":[44,63,0,0]}'><a rel=\"mw:ExtLink\" href=\"http://wp.org\" class=\"external text\" data-parsoid='{\"dsr\":[44,63,15,1]}'>foo</a></p>\n\n<p data-parsoid='{\"dsr\":[65,88,0,0]}'><a rel=\"mw:ExtLink\" href=\"http://wp.org\" class=\"external text\" data-parsoid='{\"dsr\":[65,88,15,1]}'><i data-parsoid='{\"dsr\":[80,87,2,2]}'>foo</i></a></p>\n",
-        "html2wt": "[[wiki/Foo|  bar]]\n\n[[wiki/Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']\n",
+        "html2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']\n",
         "selser [3,2,[[4,2]],3,4,3,2]": "2i1snz\n\n[[Foo|16tbpzj148o92k''bar'']]\n\n223sno\n\n19y3bzn\n\n[http://wp.org   ''foo'']",
         "selser [0,3,1,0,1,0,1]": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org   foo]\n\n[http://wp.org   ''foo'']",
         "selser [[[2]],0,[[2,3]],3,4,4,0]": "[[Foo|vx7uar  bar]]\n\n[[Foo|1s87bt2  ]]\n\n1bax44\n\n17mezoo\n\n[http://wp.org   ''foo'']",
@@ -1744,36 +1702,15 @@
         "selser [[2],2,1]": "13dr04g[[:es:]]\n\ni9nxnb\n\n[[ko:]]",
         "selser [1,4,1]": "[[:es:]]\n\n1v5n13f\n\n[[ko:]]"
     },
-    "Piped link": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>The Main Page</a></p>\n",
-        "html2wt": "[[wiki/Main Page|The Main Page]]\n"
-    },
     "Piped link to namespace": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,73,0,0]}'>[/index.php?title=Meta:Disclaimers&amp;action=edit&amp;redlink=1 The disclaimers]</p>\n",
         "html2wt": "[/index.php?title=Meta:Disclaimers&action=edit&redlink=1 The disclaimers]\n"
     },
     "Piped link with comment in link text": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>The Main Page</a></p>\n",
-        "html2wt": "[[wiki/Main Page|The Main Page]]\n"
-    },
-    "Plain link to page with question mark in title": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/A%3Fb\" title=\"Wiki/A?b\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/A%3Fb\"},\"sa\":{\"href\":\"wiki/A?b\"},\"dsr\":[0,16,11,2]}'>A?b</a></p>\n\n<p data-parsoid='{\"dsr\":[18,34,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/A%3Fb\" title=\"Wiki/A?b\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/A%3Fb\"},\"sa\":{\"href\":\"wiki/A?b\"},\"dsr\":[18,34,11,2]}'>Baz</a></p>\n",
-        "html2wt": "[[wiki/A?b|A?b]]\n\n[[wiki/A?b|Baz]]\n"
-    },
-    "Plain link, capitalized": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,28,17,2]}'>Main Page</a></p>\n",
-        "html2wt": "[[wiki/Main Page|Main Page]]\n"
-    },
-    "Plain link, uncapitalized": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,28,17,2]}'>main Page</a></p>\n",
-        "html2wt": "[[wiki/Main Page|main Page]]\n"
+        "html2wt": "[[Main Page|The Main Page]]\n"
     },
     "Play a bit with r67090 and T5158": {
         "selser [0,2,1,3,0,0,1]": "<div style=\"width:50% !important\">&nbsp;</div>yyzg2g\n<div style=\"width:50%&nbsp;!important\" data-foobar=\"338jos\">&nbsp;</div>\n<div style=\"width:50%&#160;!important\">&nbsp;</div>\n<div style=\"border : solid;\" data-foobar=\"1sol4wa\">&nbsp;</div>"
-    },
-    "Preformatted text": {
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,96,1,0]}'>This is some\nPreformatted text\nWith <i data-parsoid='{\"dsr\":[39,49,2,2]}'>italic</i>\nAnd <b data-parsoid='{\"dsr\":[55,65,3,3]}'>bold</b>\nAnd a <a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[73,96,17,2]}'>link</a></pre>\n",
-        "html2wt": " This is some\n Preformatted text\n With ''italic''\n And '''bold'''\n And a [[wiki/Main Page|link]]\n"
     },
     "Quote balancing context should be restricted to td/th cells on the same wikitext line": {
         "wt2wt": "{|\n!''a''!!''b''\n|''a''||''b''\n|}",
@@ -1875,10 +1812,6 @@
     "Self-closed tag with broken attribute value quoting": {
         "wt2html": "<div title=\"Hello world \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,26,26,0]}'></div><p data-parsoid='{\"dsr\":[26,29,0,0]}'>Foo</p>"
     },
-    "Self-link to section should not be bold": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,44,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page#section\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page#section\"},\"sa\":{\"href\":\"wiki/Main Page#section\"},\"dsr\":[0,44,25,2]}'>Main Page#section</a></p>\n",
-        "html2wt": "[[wiki/Main Page#section|Main Page#section]]\n"
-    },
     "Simple list": {
         "html2wt": "* Item 1\n* Item 2"
     },
@@ -1924,19 +1857,13 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:January 15\",\"function\":\"formatdate\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
         "html2wt": "<span class=\"mw-formatted-date\" title=\"01-15\">January 15</span>\n"
     },
-    "Special page link with fragment": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,54,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Special:Version#anchor\" title=\"Wiki/Special:Version\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Special:Version#anchor\"},\"sa\":{\"href\":\"wiki/Special:Version#anchor\"},\"dsr\":[0,54,30,2]}'>Special:Version#anchor</a></p>\n",
-        "html2wt": "[[wiki/Special:Version#anchor|Special:Version#anchor]]\n"
-    },
     "Special page transclusion": {
         "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,30,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'></span>",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,24,0,0]}'><li data-parsoid='{\"dsr\":[0,24,1,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Xyzzyx\" title=\"Wiki/Xyzzyx\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Xyzzyx\"},\"sa\":{\"href\":\"wiki/Xyzzyx\"},\"dsr\":[2,24,14,2]}'>Xyzzyx</a></li></ul>\n",
-        "html2wt": "* [[wiki/Xyzzyx|Xyzzyx]]\n"
+        "html2wt": "* [[Xyzzyx]]\n"
     },
     "Special page transclusion twice (T7021)": {
         "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,30,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'></span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[31,61,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'></span>",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,24,0,0]}'><li data-parsoid='{\"dsr\":[0,24,1,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Xyzzyx\" title=\"Wiki/Xyzzyx\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Xyzzyx\"},\"sa\":{\"href\":\"wiki/Xyzzyx\"},\"dsr\":[2,24,14,2]}'>Xyzzyx</a></li></ul>\n\n<ul data-parsoid='{\"dsr\":[26,50,0,0]}'><li data-parsoid='{\"dsr\":[26,50,1,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Xyzzyx\" title=\"Wiki/Xyzzyx\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Xyzzyx\"},\"sa\":{\"href\":\"wiki/Xyzzyx\"},\"dsr\":[28,50,14,2]}'>Xyzzyx</a></li></ul>\n",
-        "html2wt": "* [[wiki/Xyzzyx|Xyzzyx]]\n\n* [[wiki/Xyzzyx|Xyzzyx]]\n"
+        "html2wt": "* [[Xyzzyx]]\n\n* [[Xyzzyx]]\n"
     },
     "Special parser function": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:RandomPage\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[24,45,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:BaDtItLe\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[46,65,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Foobar\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
@@ -1944,8 +1871,7 @@
     },
     "Special:Search page linking.": {
         "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,18,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:search\",\"href\":\"./Special:Search\"},\"params\":{},\"i\":0}}]}'></span>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,38,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Special:Search\" title=\"Wiki/Special:Search\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Special:Search\"},\"sa\":{\"href\":\"wiki/Special:Search\"},\"dsr\":[0,38,22,2]}'>Special:Search</a></p>\n",
-        "html2wt": "[[wiki/Special:Search|Special:Search]]\n"
+        "html2wt": "[[Special:Search]]\n"
     },
     "Strip marker in formatNum": {
         "html2wt": "12\n12\n"
@@ -1966,13 +1892,8 @@
     "Strip marker in uc": {
         "html2wt": "XY\n"
     },
-    "Subpage link": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,38,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Subpage_test/subpage\" title=\"Wiki/Subpage test/subpage\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Subpage_test/subpage\"},\"sa\":{\"href\":\"wiki/Subpage test/subpage\"},\"dsr\":[0,38,28,2]}'>/subpage</a></p>\n",
-        "html2wt": "[[wiki/Subpage test/subpage|/subpage]]\n"
-    },
     "Subpage noslash link": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,37,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Subpage_test/subpage\" title=\"Wiki/Subpage test/subpage\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Subpage_test/subpage\"},\"sa\":{\"href\":\"wiki/Subpage test/subpage\"},\"dsr\":[0,37,28,2]}'>subpage</a></p>\n",
-        "html2wt": "[[wiki/Subpage test/subpage|subpage]]\n"
+        "html2wt": "[[Subpage test/subpage|subpage]]\n"
     },
     "T10293: Use of center tag ruins paragraph formatting": {
         "html2wt": "<center>\nfoo\n\n</center>\nbar\n\n baz\n"
@@ -2112,8 +2033,7 @@
     },
     "T33098 Template which includes system messages which includes the template": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Identical\",\"href\":\"./Template:Identical\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.\nParser function implementation for pf_int missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,195,0,0]}'><span class=\"error\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,97,20,7]}'>Template loop detected: <a rel=\"mw:WikiLink\" href=\"./Wiki/Template:Identical\" title=\"Wiki/Template:Identical\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:Identical\"},\"sa\":{\"href\":\"wiki/Template:Identical\"},\"dsr\":[44,90,26,2]}'>Template:Identical</a></span>\n<span class=\"error\" data-parsoid='{\"stx\":\"html\",\"dsr\":[98,195,20,7]}'>Template loop detected: <a rel=\"mw:WikiLink\" href=\"./Wiki/Template:Identical\" title=\"Wiki/Template:Identical\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:Identical\"},\"sa\":{\"href\":\"wiki/Template:Identical\"},\"dsr\":[142,188,26,2]}'>Template:Identical</a></span></p>\n",
-        "html2wt": "<span class=\"error\">Template loop detected: [[wiki/Template:Identical|Template:Identical]]</span>\n<span class=\"error\">Template loop detected: [[wiki/Template:Identical|Template:Identical]]</span>\n"
+        "html2wt": "<span class=\"error\">Template loop detected: [[Template:Identical]]</span>\n<span class=\"error\">Template loop detected: [[Template:Identical]]</span>\n"
     },
     "T33490 Turkish: lcfirst 'BLAH'": {
         "html2wt": "bLAH\n"
@@ -2156,8 +2076,7 @@
         "html2wt": "<div style=\"float: right;\"><script>alert(document.cookie)</script>\">Magic div</div>"
     },
     "T45661: Piped links with identical prefixes": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,55,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Prefixed_article\" title=\"Wiki/Prefixed article\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Prefixed_article\"},\"sa\":{\"href\":\"wiki/Prefixed article\"},\"dsr\":[0,55,24,2]}'>prefixed articles with spaces</a></p>\n\n<p data-parsoid='{\"dsr\":[57,104,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Prefixed_article\" title=\"Wiki/Prefixed article\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Prefixed_article\"},\"sa\":{\"href\":\"wiki/Prefixed article\"},\"dsr\":[57,104,24,2]}'>prefixed articlesaoeu</a></p>\n\n<p data-parsoid='{\"dsr\":[106,139,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[106,139,17,2]}'>Main Page test</a></p>\n",
-        "html2wt": "[[wiki/Prefixed article|prefixed articles with spaces]]\n\n[[wiki/Prefixed article|prefixed articlesaoeu]]\n\n[[wiki/Main Page|Main Page test]]\n"
+        "html2wt": "[[Prefixed article|prefixed articles with spaces]]\n\n[[Prefixed article|prefixed articlesaoeu]]\n\n[[Main Page|Main Page test]]\n"
     },
     "T4702: Mismatched <i>, <b> and <a> tags are invalid": {
         "wt2wt": "''[http://example.com text''<nowiki/>'']''\n[http://example.com '''text''']'''<nowiki/>'''\n''Something [http://example.com in italic''<nowiki/>'']''\n''Something [http://example.com mixed''''', even bold''''']'''\n'''''Now [http://example.com both'''''<nowiki/>''''']'''''",
@@ -2387,8 +2306,7 @@
         "selser [[2,[0,3]]]": "<table><!--5qwxo-->\n<td>foo</td>\n</tr>\n</table>"
     },
     "Template as link source": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,28,17,2]}'>Main Page</a></p>\n\n<p data-parsoid='{\"dsr\":[30,58,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[30,58,17,2]}'>Main Page</a></p>\n\n<p data-parsoid='{\"dsr\":[60,92,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[60,88,17,2]}'>Main Page</a>Page</p>\n",
-        "html2wt": "[[wiki/Main Page|Main Page]]\n\n[[wiki/Main Page|Main Page]]\n\n[[wiki/Main Page|Main Page]]Page\n",
+        "html2wt": "[[Main Page]]\n\n[[Main Page]]\n\n[[Main Page]]Page\n",
         "selser [0,4,[2],0,[1,0]]": "[[{{linktest2}}]]\n\npxk4qe\n\nfgwnub[[{{linktest2}}]]\n\n[[{{linktest2}}]]Page",
         "selser [0,4,1,0,1]": "[[{{linktest2}}]]\n\n1rraqx1\n\n[[{{linktest2}}]]\n\n[[{{linktest2}}]]Page",
         "selser [2,2,[2],0,3]": "e4ict0\n\n[[{{linktest2}}]]\n\n1gd33w0\n\nd5dd2m[[{{linktest2}}]]\n"
@@ -2401,22 +2319,19 @@
     },
     "Template from non-includable namespace": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"uh oh!\"}},\"i\":0}}]}'>uh oh!</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:1x\" title=\"Wiki/Template:1x\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:1x\"},\"sa\":{\"href\":\"wiki/Template:1x\"},\"dsr\":[0,32,19,2]}'>Template:1x</a></p>\n",
-        "html2wt": "[[wiki/Template:1x|Template:1x]]\n"
+        "html2wt": "[[Template:1x]]\n"
     },
     "Template parameter": {
         "html2wt": "This is a test template with parameter foo\n"
     },
     "Template parameter as link source": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,23,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,23,17,2]}'>link</a></p>\n",
-        "html2wt": "[[wiki/Main Page|link]]\n"
+        "html2wt": "[[Main Page|link]]\n"
     },
     "Template passing argument to another template": {
         "html2wt": "including another template, This is a test template with parameter 'hmm'\n"
     },
     "Template unnamed parameter": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Main_Page\" title=\"Wiki/Main Page\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Main_Page\"},\"sa\":{\"href\":\"wiki/Main Page\"},\"dsr\":[0,32,17,2]}'>the main page</a></p>\n",
-        "html2wt": "[[wiki/Main Page|the main page]]\n"
+        "html2wt": "[[Main Page|the main page]]\n"
     },
     "Template with argument in separate line": {
         "wt2wt": "{{templateasargtest  |\n templ = simple }}",
@@ -2426,8 +2341,7 @@
     },
     "Template with complex arguments": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,106,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Complextemplate\" title=\"Template:Complextemplate\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Template:Complextemplate\"},\"sa\":{\"href\":\"Template:complextemplate\"},\"dsr\":[0,106,null,null],\"pi\":[[{\"k\":\"param\",\"named\":true,\"spc\":[\"\\n  \",\" \",\"\",\"\"]},{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"complextemplate\",\"href\":\"./Template:Complextemplate\"},\"params\":{\"param\":{\"wt\":\"{{ templateasargtest  |\\n templ = simple }}\"},\"1\":{\"wt\":\"[[Template:complextemplate|link]]\"}},\"i\":0}}]}'>link</a><span about=\"#mwt1\"> This is a test template with parameter (test)</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,84,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:Complextemplate\" title=\"Wiki/Template:Complextemplate\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:Complextemplate\"},\"sa\":{\"href\":\"wiki/Template:Complextemplate\"},\"dsr\":[0,38,32,2]}'>link</a> This is a test template with parameter (test)</p>\n",
-        "html2wt": "[[wiki/Template:Complextemplate|link]] This is a test template with parameter (test)\n"
+        "html2wt": "[[Template:Complextemplate|link]] This is a test template with parameter (test)\n"
     },
     "Template with complex template as argument": {
         "html2wt": "This is a test template with parameter (test)\n"
@@ -2671,28 +2585,24 @@
         "html2wt": "Foobar\n"
     },
     "Templates: Links: 1. Simple example": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,16,11,2]}'>bar</a></p>\n",
-        "html2wt": "[[wiki/Foo|bar]]\n"
+        "html2wt": "[[Foo|bar]]\n"
     },
     "Templates: Links: 2. Generation of link href": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,16,11,2]}'>bar</a></p>\n",
-        "html2wt": "[[wiki/Foo|bar]]\n"
+        "html2wt": "[[Foo|bar]]\n"
     },
     "Templates: Links: 3. Generation of part of a link href": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,16,11,2]}'>bar</a></p>\n\n<p data-parsoid='{\"dsr\":[18,72,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 Foobar]</p>\n\n<p data-parsoid='{\"dsr\":[74,134,0,0]}'>[/index.php?title=Foobarbaz&amp;action=edit&amp;redlink=1 Foobarbaz]</p>\n\n<p data-parsoid='{\"dsr\":[136,187,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 bar]</p>\n\n<p data-parsoid='{\"dsr\":[189,243,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 Foobar]</p>\n\n<p data-parsoid='{\"dsr\":[245,296,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 bar]</p>\n",
-        "html2wt": "[[wiki/Foo|bar]]\n\n[/index.php?title=Foobar&action=edit&redlink=1 Foobar]\n\n[/index.php?title=Foobarbaz&action=edit&redlink=1 Foobarbaz]\n\n[/index.php?title=Foobar&action=edit&redlink=1 bar]\n\n[/index.php?title=Foobar&action=edit&redlink=1 Foobar]\n\n[/index.php?title=Foobar&action=edit&redlink=1 bar]\n"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,11,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Foo\" title=\"Foo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Foo\"},\"sa\":{\"href\":\"Foo\"},\"dsr\":[0,11,6,2]}'>bar</a></p>\n\n<p data-parsoid='{\"dsr\":[13,67,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 Foobar]</p>\n\n<p data-parsoid='{\"dsr\":[69,129,0,0]}'>[/index.php?title=Foobarbaz&amp;action=edit&amp;redlink=1 Foobarbaz]</p>\n\n<p data-parsoid='{\"dsr\":[131,182,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 bar]</p>\n\n<p data-parsoid='{\"dsr\":[184,238,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 Foobar]</p>\n\n<p data-parsoid='{\"dsr\":[240,291,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 bar]</p>\n",
+        "html2wt": "[[Foo|bar]]\n\n[/index.php?title=Foobar&action=edit&redlink=1 Foobar]\n\n[/index.php?title=Foobarbaz&action=edit&redlink=1 Foobarbaz]\n\n[/index.php?title=Foobar&action=edit&redlink=1 bar]\n\n[/index.php?title=Foobar&action=edit&redlink=1 Foobar]\n\n[/index.php?title=Foobar&action=edit&redlink=1 bar]\n"
     },
     "Templates: Links: 4. Multiple templates generating link href": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,54,0,0]}'>[/index.php?title=Foobar&amp;action=edit&amp;redlink=1 Foobar]</p>\n",
         "html2wt": "[/index.php?title=Foobar&action=edit&redlink=1 Foobar]\n"
     },
     "Templates: Links: 5. Generation of link text": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,16,11,2]}'>bar</a></p>\n",
-        "html2wt": "[[wiki/Foo|bar]]\n"
+        "html2wt": "[[Foo|bar]]\n"
     },
     "Templates: Links: 5. Nested templates (only outermost template should be marked)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[0,16,11,2]}'>bar</a></p>\n",
-        "html2wt": "[[wiki/Foo|bar]]\n"
+        "html2wt": "[[Foo|bar]]\n"
     },
     "Templates: Lists: Multi-line list-items via templates": {
         "wt2html": "<ul data-parsoid='{\"dsr\":[0,67,0,0]}'><li data-parsoid='{\"dsr\":[0,33,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[1,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a {{nonexistent|\\nunused}}\"}},\"i\":0}}]}'>a </span></li>\n<li data-parsoid='{\"dsr\":[34,67,1,0]}'><span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[35,67,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"b {{nonexistent|\\nunused}}\"}},\"i\":0}}]}'>b </span></li></ul>",
@@ -2965,13 +2875,11 @@
         "html2wt": "ולדימיר לנין (ברוסית: <bdi lang=\"ru\">Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי."
     },
     "nowiki inside link inside heading (T20295)": {
-        "html2html": "<h2 id=\"xyz\" data-parsoid='{\"dsr\":[0,22,2,2,1,1]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Foo\" title=\"Wiki/Foo\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Foo\"},\"sa\":{\"href\":\"wiki/Foo\"},\"dsr\":[3,19,11,2]}'>xyz</a></h2>\n",
-        "html2wt": "== [[wiki/Foo|xyz]] ==\n"
+        "html2wt": "== [[Foo|xyz]] ==\n"
     },
     "post-expand include size being exceeded": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,28,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"3x_on_newline\",\"href\":\"./Template:3x_on_newline\"},\"params\":{\"1\":{\"wt\":\"1234567890\"}},\"i\":0}}]}'>1234567890\n1234567890\n1234567890</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,54,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Wiki/Template:3x_on_newline\" title=\"Wiki/Template:3x on newline\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Wiki/Template:3x_on_newline\"},\"sa\":{\"href\":\"wiki/Template:3x on newline\"},\"dsr\":[0,54,30,2]}'>Template:3x on newline</a></p><!-- WARNING: template omitted, post&#x2D;expand include size too large -->\n",
-        "html2wt": "[[wiki/Template:3x on newline|Template:3x on newline]]<!-- WARNING: template omitted, post-expand include size too large -->\n"
+        "html2wt": "[[Template:3x on newline]]<!-- WARNING: template omitted, post-expand include size too large -->\n"
     },
     "span tags with directionality in TOC": {
         "html2wt": "__TOC__\n==<span dir=\"ltr\">C++</span>==\n\n== <span dir=\"rtl\">זבנג!</span> ==\n\n== <span style=\"font-style: italic\">The attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span dir=\"ltr\" style=\"font-style: italic\">Attributes after dir on these span tags must be deleted from the TOC</span> ==\n",
