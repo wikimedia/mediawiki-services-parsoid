@@ -61,10 +61,6 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
  * in an assertion.
  * @property bool|null $fromFoster
  *
- * All elements inserted by HTML5TreeBuilder receive an integer ID. It is used
- * in findAutoInsertedTags() in conjunction with data-stag to identify
- * auto-inserted tags, and for debugging.
- * @property int|null $tagId
  *
  * This is set on h1-h6 tokens to track section numbers.
  * @property int|null $headingIndex
@@ -98,4 +94,11 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
  * @property string|null $tplarginfo
  */
 class TempData {
+	/**
+	 * All elements inserted by HTML5TreeBuilder receive an integer ID. It is used
+	 * in findAutoInsertedTags() in conjunction with data-stag to identify
+	 * auto-inserted tags, and for debugging.
+	 * @var int|null
+	 */
+	public $tagId;
 }
