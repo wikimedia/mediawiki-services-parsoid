@@ -402,45 +402,51 @@ class DOMDataUtils {
 
 	/**
 	 * Massage the data parsoid object loaded from a node attribute
-	 * into expected shape. When we create a first-class object for
-	 * data-parsoid, this will move into the constructor.
+	 * into expected shape.
 	 *
-	 * @param stdClass $dp
+	 * @param stdClass $stdDP
 	 * @param array $options
 	 * @param ?Element $node
+	 * @return DataParsoid
 	 */
 	public static function massageLoadedDataParsoid(
-		stdClass $dp, array $options = [], ?Element $node = null
-	): void {
-		if ( isset( $dp->sa ) ) {
-			$dp->sa = (array)$dp->sa;
-		}
-		if ( isset( $dp->a ) ) {
-			$dp->a = (array)$dp->a;
-		}
-		if ( isset( $dp->dsr ) ) {
-			$dp->dsr = DomSourceRange::fromArray( $dp->dsr );
-		}
-		if ( isset( $dp->tsr ) ) {
-			// tsr is generally for tokens, not DOM trees.
-			$dp->tsr = SourceRange::fromArray( $dp->tsr );
-		}
-		if ( isset( $dp->extTagOffsets ) ) {
-			$dp->extTagOffsets = DomSourceRange::fromArray( $dp->extTagOffsets );
-		}
-		if ( isset( $dp->extLinkContentOffsets ) ) {
-			$dp->extLinkContentOffsets =
-				SourceRange::fromArray( $dp->extLinkContentOffsets );
+		stdClass $stdDP, array $options = [], ?Element $node = null
+	): DataParsoid {
+		$dp = new DataParsoid;
+		foreach ( $stdDP as $key => $value ) {
+			switch ( $key ) {
+				case 'a':
+				case 'sa':
+					$dp->$key = (array)$value;
+					break;
+
+				case 'dsr':
+				case 'extTagOffsets':
+					$dp->$key = DomSourceRange::fromArray( $value );
+					break;
+
+				case 'tsr':
+				case 'extLinkContentOffsets':
+					$dp->$key = SourceRange::fromArray( $value );
+					break;
+
+				case 'optList':
+					$optList = [];
+					foreach ( $value as $item ) {
+						$optList[] = (array)$item;
+					}
+					$dp->optList = $optList;
+					break;
+
+				default:
+					$dp->$key = $value;
+			}
 		}
 		if ( !empty( $options['markNew'] ) ) {
 			$dp->tmp = PHPUtils::arrayToObject( $dp->tmp ?? [] );
 			$dp->tmp->isNew = !$node->hasAttribute( 'data-parsoid' );
 		}
-		if ( isset( $dp->optList ) ) {
-			foreach ( $dp->optList as &$item ) {
-				$item = (array)$item;
-			}
-		}
+		return $dp;
 	}
 
 	/**
@@ -460,12 +466,9 @@ class DOMDataUtils {
 		}
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, new NodeData );
-		$stdDP = self::getJSONAttribute( $node, 'data-parsoid', new stdClass );
-		self::massageLoadedDataParsoid( $stdDP, $options, $node );
-		$dp = new DataParsoid;
-		foreach ( $stdDP as $key => $value ) {
-			$dp->$key = $value;
-		}
+		$dp = self::massageLoadedDataParsoid(
+			self::getJSONAttribute( $node, 'data-parsoid', new stdClass ),
+			$options, $node );
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
 		$dmw = self::getJSONAttribute( $node, 'data-mw', null );
