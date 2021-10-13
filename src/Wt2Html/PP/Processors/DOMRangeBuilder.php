@@ -112,10 +112,10 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * @param stdClass $range
+	 * @param DOMRange $range
 	 * @return DomSourceRange|null
 	 */
-	private static function getRangeEndDSR( stdClass $range ): ?DomSourceRange {
+	private static function getRangeEndDSR( DOMRange $range ): ?DomSourceRange {
 		$endNode = $range->end;
 		if ( $endNode instanceof Element ) {
 			return DOMDataUtils::getDataParsoid( $endNode )->dsr ?? null;
@@ -130,6 +130,7 @@ class DOMRangeBuilder {
 					$offset += strlen( $n->nodeValue );
 				} else {
 					// A comment
+					// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
 					$offset += WTUtils::decodedCommentLength( $n );
 				}
 				$n = $n->previousSibling;
@@ -168,13 +169,11 @@ class DOMRangeBuilder {
 	private function getDOMRange(
 		Element $startElem, Element $endMeta, Element $endElem
 	) {
-		$range = (object)[
-			'startElem' => $startElem,
-			'endElem' => $endMeta,
-			'id' => Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ?? '' ),
-			'startOffset' => DOMDataUtils::getDataParsoid( $startElem )->tsr->start,
-			'flipped' => false
-		];
+		$range = new DOMRange;
+		$range->startElem = $startElem;
+		$range->endElem = $endMeta;
+		$range->id = Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ?? '' );
+		$range->startOffset = DOMDataUtils::getDataParsoid( $startElem )->tsr->start;
 
 		// Find common ancestor of startElem and endElem
 		$startAncestors = DOMUtils::pathToRoot( $startElem );
@@ -380,11 +379,11 @@ class DOMRangeBuilder {
 	/**
 	 * @param array &$compoundTpls
 	 * @param string $compoundTplId
-	 * @param stdClass $tpl
+	 * @param DOMRange $tpl
 	 * @param stdClass $argInfo
 	 */
 	private function recordTemplateInfo(
-		array &$compoundTpls, string $compoundTplId, stdClass $tpl, stdClass $argInfo
+		array &$compoundTpls, string $compoundTplId, DOMRange $tpl, stdClass $argInfo
 	): void {
 		if ( !isset( $compoundTpls[$compoundTplId] ) ) {
 			$compoundTpls[$compoundTplId] = [];
@@ -448,11 +447,11 @@ class DOMRangeBuilder {
 	 * start/end elements for intersecting ranges on the same plane and prev/
 	 * curr are in textual order (which hopefully translates to dom order).
 	 *
-	 * @param stdClass $prev
-	 * @param stdClass $curr
+	 * @param DOMRange $prev
+	 * @param DOMRange $curr
 	 * @return bool
 	 */
-	private static function rangesOverlap( stdClass $prev, stdClass $curr ): bool {
+	private static function rangesOverlap( DOMRange $prev, DOMRange $curr ): bool {
 		$prevEnd = ( !$prev->flipped ) ? $prev->end : $prev->start;
 		$currStart = ( !$curr->flipped ) ? $curr->start : $curr->end;
 		return DOMUtils::inSiblingOrder( $currStart, $prevEnd );
@@ -460,7 +459,7 @@ class DOMRangeBuilder {
 
 	/**
 	 * @param Node $docRoot
-	 * @param array $tplRanges
+	 * @param DOMRange[] $tplRanges
 	 * @return stdClass [ 'ranges' => $newRanges, 'tplArrays' => $compoundTpls ]
 	 */
 	public function findTopLevelNonOverlappingRanges(
@@ -713,10 +712,10 @@ class DOMRangeBuilder {
 	 * implementation; we do a case-insensitive match (by converting the result
 	 * to the "native" case of the DOM implementation) in
 	 * EncapsulatedContentHandler when this value is used.
-	 * @param stdClass $range
+	 * @param DOMRange $range
 	 * @return string|null nodeName with an optional "_$stx" suffix.
 	 */
-	private static function findFirstTemplatedNode( stdClass $range ): ?string {
+	private static function findFirstTemplatedNode( DOMRange $range ): ?string {
 		$firstNode = $range->start;
 
 		// Skip tpl marker meta
@@ -757,9 +756,9 @@ class DOMRangeBuilder {
 	 * Encapsulation requires adding about attributes on the top-level
 	 * nodes of the range. This requires them to all be Elements.
 	 *
-	 * @param stdClass $range
+	 * @param DOMRange $range
 	 */
-	private function ensureElementsInRange( stdClass $range ): void {
+	private function ensureElementsInRange( DOMRange $range ): void {
 		$n = $range->start;
 		$e = $range->end;
 		$about = $range->startElem->getAttribute( 'about' ) ?? '';
@@ -794,10 +793,10 @@ class DOMRangeBuilder {
 	 * Skip past marker metas and non-elements (which will all be IEW
 	 * in fosterable positions in a table).
 	 *
-	 * @param stdClass $range
+	 * @param DOMRange $range
 	 * @return Element
 	 */
-	private static function findEncapTarget( stdClass $range ): Element {
+	private static function findEncapTarget( DOMRange $range ): Element {
 		$encapTgt = $range->start;
 		'@phan-var Node $encapTgt';
 
@@ -822,7 +821,7 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * @param array $tplRanges
+	 * @param DOMRange[] $tplRanges
 	 * @param array $tplArrays
 	 */
 	private function encapsulateTemplates(
@@ -1085,6 +1084,36 @@ class DOMRangeBuilder {
 	}
 
 	/**
+	 * Attach a range to a node.
+	 *
+	 * @param Element $node
+	 * @param DOMRange $range
+	 */
+	private function addNodeRange( Element $node, DOMRange $range ): void {
+		// With the native DOM extension, normally you assume that DOMNode
+		// objects are temporary -- you get a new DOMNode every time you
+		// traverse the DOM. But by retaining a reference in the
+		// SplObjectStorage, we ensure that the DOMNode object stays live while
+		// the pass is active. Then its address can be used as an index.
+		if ( !isset( $this->nodeRanges[$node] ) ) {
+			// We have to use an object as the data because
+			// SplObjectStorage::offsetGet() does not provide an lval.
+			$this->nodeRanges[$node] = new DOMRangeArray;
+		}
+		$this->nodeRanges[$node]->ranges[$range->id] = $range;
+	}
+
+	/**
+	 * Get the ranges attached to this node, indexed by range ID.
+	 *
+	 * @param Element $node
+	 * @return DOMRange[]|null
+	 */
+	private function getNodeRanges( Element $node ): ?array {
+		return $this->nodeRanges[$node]->ranges ?? null;
+	}
+
+	/**
 	 * Recursive worker.
 	 * @param Node $rootNode
 	 * @param array &$tpls
@@ -1225,37 +1254,5 @@ class DOMRangeBuilder {
 			$tplRanges = $this->findTopLevelNonOverlappingRanges( $root, $tplRanges );
 			$this->encapsulateTemplates( $tplRanges->ranges, $tplRanges->tplArrays );
 		}
-	}
-
-	/**
-	 * Attach a range to a node.
-	 *
-	 * @param Element $node
-	 * @param stdClass $range
-	 */
-	private function addNodeRange( Element $node, $range ): void {
-		// With the native DOM extension, normally you assume that DOMNode
-		// objects are temporary -- you get a new DOMNode every time you
-		// traverse the DOM. But by retaining a reference in the
-		// SplObjectStorage, we ensure that the DOMNode object stays live while
-		// the pass is active. Then its address can be used as an index.
-		if ( !isset( $this->nodeRanges[$node] ) ) {
-			// We have to use an object as the data because
-			// SplObjectStorage::offsetGet() does not provide an lval.
-			$this->nodeRanges[$node] = new class {
-				public $ranges;
-			};
-		}
-		$this->nodeRanges[$node]->ranges[$range->id] = $range;
-	}
-
-	/**
-	 * Get the ranges attached to this node, indexed by range ID.
-	 *
-	 * @param Element $node
-	 * @return stdClass[]|null
-	 */
-	private function getNodeRanges( Element $node ): ?array {
-		return $this->nodeRanges[$node]->ranges ?? null;
 	}
 }
