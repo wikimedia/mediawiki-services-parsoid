@@ -420,12 +420,16 @@ class DOMDataUtils {
 
 				case 'dsr':
 				case 'extTagOffsets':
-					$dp->$key = DomSourceRange::fromArray( $value );
+					if ( $value !== null ) {
+						$dp->$key = DomSourceRange::fromArray( $value );
+					}
 					break;
 
 				case 'tsr':
 				case 'extLinkContentOffsets':
-					$dp->$key = SourceRange::fromArray( $value );
+					if ( $value !== null ) {
+						$dp->$key = SourceRange::fromArray( $value );
+					}
 					break;
 
 				case 'optList':
