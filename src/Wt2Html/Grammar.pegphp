@@ -670,7 +670,7 @@ heading =
 			// or other context which won't end up putting the heading
 			// on the output page.  T213468/T214538
 			$this->headingIndex++;
-			$tagDP->tmp = (object)[ 'headingIndex' => $this->headingIndex ];
+			$tagDP->getTemp()->headingIndex = $this->headingIndex;
 			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
 
 			PHPUtils::pushArray( $res, $c );
@@ -1045,7 +1045,9 @@ template_preproc =
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
 		$dp->src = $this->text();
-		$dp->tmp = (object)[ 'leadWS' => $leadWS, 'trailWS' => $trailWS ];
+		$tmp = $dp->getTemp();
+		$tmp->leadWS = $leadWS;
+		$tmp->trailWS = $trailWS;
 		$obj = new SelfclosingTagTk( 'template', $params, $dp );
 		return $obj;
 	}
