@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-use stdClass;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 
 /**
@@ -15,10 +14,6 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
  * Whether a DOM node is a new node added during an edit session. figureHandler()
  * sets this on synthetic div elements.
  * @property bool|null $isNew
- *
- * An array of stdClass objects indexed by about ID. Private to WrapTemplates.
- * FIXME: not cloneable, contains DOM nodes.
- * @property stdClass[]|null $tplRanges
  *
  * The tokenizer sets this on table cells originating in wikitext-style syntax
  * with no attributes set in the input.

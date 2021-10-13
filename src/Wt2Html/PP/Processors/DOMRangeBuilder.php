@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Error;
+use SplObjectStorage;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
@@ -72,6 +73,9 @@ class DOMRangeBuilder {
 	/** @var Env */
 	private $env;
 
+	/** @var SplObjectStorage */
+	private $nodeRanges;
+
 	/**
 	 * @param Document $document
 	 * @param Frame $frame
@@ -82,6 +86,7 @@ class DOMRangeBuilder {
 		$this->document = $document;
 		$this->frame = $frame;
 		$this->env = $frame->getEnv();
+		$this->nodeRanges = new SplObjectStorage;
 	}
 
 	/**
@@ -465,11 +470,6 @@ class DOMRangeBuilder {
 
 		// For each node, assign an attribute that is a record of all
 		// tpl ranges it belongs to at the top-level.
-		//
-		// FIXME: Ideally we would have used a hash-table external to the
-		// DOM, but we have no way of computing a hash-code on a dom-node
-		// right now.  So, this is the next best solution (=hack) to use
-		// node.data as hash-table storage.
 		for ( $i = 0;  $i < $numRanges;  $i++ ) {
 			$r = $tplRanges[$i];
 			$n = !$r->flipped ? $r->start : $r->end;
@@ -477,16 +477,7 @@ class DOMRangeBuilder {
 
 			while ( $n ) {
 				if ( $n instanceof Element ) {
-					// Initialize tplRanges, if necessary.
-					$dp = DOMDataUtils::getDataParsoid( $n );
-					$tmp = $dp->getTemp();
-					if ( !isset( $tmp->tplRanges ) ) {
-						$tmp->tplRanges = [];
-					}
-
-					// Record 'r'
-					$tmp->tplRanges[$r->id] = $r;
-
+					$this->addNodeRange( $n, $r );
 					// Done
 					if ( $n === $e ) {
 						break;
@@ -513,7 +504,7 @@ class DOMRangeBuilder {
 			$n = $r->start;
 
 			while ( $n !== $docRoot ) {
-				$ranges = DOMDataUtils::getDataParsoid( $n )->tmp->tplRanges ?? null;
+				$ranges = $this->getNodeRanges( $n );
 				if ( $ranges ) {
 					if ( $n !== $r->start ) {
 						// console.warn(" -> nested; n_tpls: " + Object.keys(ranges));
@@ -542,7 +533,7 @@ class DOMRangeBuilder {
 						//
 						// The code below does the above check efficiently.
 						$sTpls = $ranges;
-						$eTpls = DOMDataUtils::getDataParsoid( $r->end )->tmp->tplRanges ?? null;
+						$eTpls = $this->getNodeRanges( $r->end );
 						$sKeys = array_keys( $sTpls );
 						$foundNesting = false;
 
@@ -1236,4 +1227,35 @@ class DOMRangeBuilder {
 		}
 	}
 
+	/**
+	 * Attach a range to a node.
+	 *
+	 * @param Element $node
+	 * @param stdClass $range
+	 */
+	private function addNodeRange( Element $node, $range ): void {
+		// With the native DOM extension, normally you assume that DOMNode
+		// objects are temporary -- you get a new DOMNode every time you
+		// traverse the DOM. But by retaining a reference in the
+		// SplObjectStorage, we ensure that the DOMNode object stays live while
+		// the pass is active. Then its address can be used as an index.
+		if ( !isset( $this->nodeRanges[$node] ) ) {
+			// We have to use an object as the data because
+			// SplObjectStorage::offsetGet() does not provide an lval.
+			$this->nodeRanges[$node] = new class {
+				public $ranges;
+			};
+		}
+		$this->nodeRanges[$node]->ranges[$range->id] = $range;
+	}
+
+	/**
+	 * Get the ranges attached to this node, indexed by range ID.
+	 *
+	 * @param Element $node
+	 * @return stdClass[]|null
+	 */
+	private function getNodeRanges( Element $node ): ?array {
+		return $this->nodeRanges[$node]->ranges ?? null;
+	}
 }

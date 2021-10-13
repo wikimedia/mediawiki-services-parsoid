@@ -557,11 +557,7 @@ class DOMDataUtils {
 		}
 		$data = null;
 		if ( !$discardDataParsoid ) {
-			if ( !empty( $options['keepTmp'] ) ) {
-				if ( isset( $dp->tmp->tplRanges ) ) {
-					unset( $dp->tmp->tplRanges );
-				}
-			} else {
+			if ( empty( $options['keepTmp'] ) ) {
 				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 				unset( $dp->tmp );
 			}
