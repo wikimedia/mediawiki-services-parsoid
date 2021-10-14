@@ -40,7 +40,10 @@ class WrapSectionsState {
 	/** @var Document */
 	private $doc;
 
-	/** @var array */
+	/**
+	 * Map of about ID to first element
+	 * @var Element[]
+	 */
 	private $aboutIdMap = [];
 
 	/** @var int */
@@ -49,7 +52,7 @@ class WrapSectionsState {
 	/** @var bool */
 	private $inTemplate = false;
 
-	/** @var array */
+	/** @var WrapSectionsTplInfo[] */
 	private $tplsAndExtsToExamine = [];
 
 	/**
@@ -73,7 +76,6 @@ class WrapSectionsState {
 	 *
 	 * @param Element|DocumentFragment $rootNode
 	 * @param array<Section> &$sectionStack
-	 * @param ?array $tplInfo
 	 * @param ?Section $currSection
 	 * @param Node $node
 	 * @param int $newLevel
@@ -82,7 +84,7 @@ class WrapSectionsState {
 	 */
 	private function createNewSection(
 		Node $rootNode, array &$sectionStack,
-		?array $tplInfo, ?Section $currSection, Node $node, int $newLevel,
+		?Section $currSection, Node $node, int $newLevel,
 		bool $pseudoSection
 	): Section {
 		/* Structure for regular (editable or not) sections
@@ -99,17 +101,20 @@ class WrapSectionsState {
 		 * 1a. Pop stack till we have a higher-level section.
 		 */
 		$stack = &$sectionStack;
-		while ( count( $stack ) > 0 && !( PHPUtils::lastItem( $stack )->hasNestedLevel( $newLevel ) ) ) {
+		$sc = count( $stack );
+		while ( $sc > 0 && !( $stack[$sc - 1]->hasNestedLevel( $newLevel ) ) ) {
 			array_pop( $stack );
+			$sc--;
 		}
 
 		/* 1b. Push current section onto stack if it is a higher-level section */
 		if ( $currSection && $currSection->hasNestedLevel( $newLevel ) ) {
 			$stack[] = $currSection;
+			$sc++;
 		}
 
 		/* Step 2: Add new section where it belongs: a parent section OR body */
-		$parentSection = count( $stack ) > 0 ? PHPUtils::lastItem( $stack ) : null;
+		$parentSection = $sc > 0 ? $stack[$sc - 1] : null;
 		if ( $parentSection ) {
 			$parentSection->addSection( $section );
 		} else {
@@ -191,13 +196,11 @@ class WrapSectionsState {
 				$about = $node->getAttribute( 'about' ) ?? '';
 				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 				$this->inTemplate = true;
-				$tplInfo = [
-					'first' => $node,
-					'about' => $about,
-					'last' => end( $aboutSiblings ),
-					'rtContentNodes' => [] // Rendering-transparent content before a heading
-				];
-				$this->aboutIdMap[$about] = $tplInfo;
+				$tplInfo = new WrapSectionsTplInfo;
+				$tplInfo->first = $node;
+				$tplInfo->about = $about;
+				$tplInfo->last = end( $aboutSiblings );
+				$this->aboutIdMap[$about] = $node;
 
 				// Collect a sequence of rendering transparent nodes starting at $node
 				while ( $node ) {
@@ -207,14 +210,14 @@ class WrapSectionsState {
 							$this->isEmptySpan( $node )
 						)
 					) {
-						$tplInfo['rtContentNodes'][] = $node;
+						$tplInfo->rtContentNodes[] = $node;
 						$node = $node->nextSibling;
 					} else {
 						break;
 					}
 				}
 
-				if ( count( $tplInfo['rtContentNodes'] ) > 0 &&
+				if ( count( $tplInfo->rtContentNodes ) > 0 &&
 					DOMUtils::isHeading( $node ) && !WTUtils::isLiteralHTMLNode( $node )
 				) {
 					// In this scenario, we can expand the section boundary to include these nodes
@@ -224,8 +227,8 @@ class WrapSectionsState {
 					$next = $node->nextSibling;
 				} else {
 					// Reset to normal sectioning behavior!
-					$node = $tplInfo['first'];
-					$tplInfo['rtContentNodes'] = [];
+					$node = $tplInfo->first;
+					$tplInfo->rtContentNodes = [];
 				}
 			}
 
@@ -247,14 +250,13 @@ class WrapSectionsState {
 				}
 				$currSection = $this->createNewSection(
 					$rootNode, $sectionStack,
-					$tplInfo && !$expandSectionBoundary ? $tplInfo : null,
 					$currSection, $node, $level, false
 				);
 				if ( $tplInfo && $expandSectionBoundary ) {
-					foreach ( $tplInfo['rtContentNodes'] as $rtn ) {
+					foreach ( $tplInfo->rtContentNodes as $rtn ) {
 						$currSection->container->insertBefore( $rtn, $node );
 					}
-					$tplInfo['firstSection'] = $currSection;
+					$tplInfo->firstSection = $currSection;
 				}
 				$addedNode = true;
 			} elseif ( $node instanceof Element ) {
@@ -278,7 +280,7 @@ class WrapSectionsState {
 					// The code below implements strategy 1.
 					$currSection->setId( -1 );
 					$currSection = $this->createNewSection(
-						$rootNode, $sectionStack, $tplInfo,
+						$rootNode, $sectionStack,
 						$currSection, $node, $nestedHighestSectionLevel, true
 					);
 					$addedNode = true;
@@ -289,18 +291,18 @@ class WrapSectionsState {
 				$currSection->addNode( $node );
 			}
 
-			if ( $tplInfo && $tplInfo['first'] === $node ) {
-				$tplInfo['firstSection'] = $currSection;
+			if ( $tplInfo && $tplInfo->first === $node ) {
+				$tplInfo->firstSection = $currSection;
 			}
 
 			// Track exit from templated output
-			if ( $tplInfo && $tplInfo['last'] === $node ) {
-				if ( $currSection !== $tplInfo['firstSection'] ) {
+			if ( $tplInfo && $tplInfo->last === $node ) {
+				if ( $currSection !== $tplInfo->firstSection ) {
 					// The opening $node and closing $node of the template
 					// are in different sections! This might require resolution.
 					// While 'firstSection' could be null, if we get here,
 					// 'lastSection' is guaranteed to always be non-null.
-					$tplInfo['lastSection'] = $currSection;
+					$tplInfo->lastSection = $currSection;
 					$this->tplsAndExtsToExamine[] = $tplInfo;
 				}
 
@@ -341,8 +343,7 @@ class WrapSectionsState {
 					'Expected an about id'
 				);
 				$about = $node->getAttribute( 'about' );
-				$tplInfo = $this->aboutIdMap[$about];
-				$dsr = DOMDataUtils::getDataParsoid( $tplInfo['first'] )->dsr;
+				$dsr = DOMDataUtils::getDataParsoid( $this->aboutIdMap[$about] )->dsr;
 			}
 
 			return $start ? $dsr->start : $dsr->end;
@@ -402,7 +403,7 @@ class WrapSectionsState {
 		$prevDp = null;
 		$haveTemplate = false;
 		try {
-			foreach ( $encapWrappers as $i => $encapNode ) {
+			foreach ( $encapWrappers as $encapNode ) {
 				$dp = DOMDataUtils::getDataParsoid( $encapNode );
 
 				// Plug DSR gaps between encapWrappers
@@ -471,11 +472,11 @@ class WrapSectionsState {
 		$secRanges = [];
 		'@phan-var array[] $secRanges';
 		foreach ( $this->tplsAndExtsToExamine as $tplInfo ) {
-			$s1 = $tplInfo['firstSection']->container ??
-				DOMUtils::findAncestorOfName( $tplInfo['first'], 'section' );
+			$s1 = $tplInfo->firstSection->container ??
+				DOMUtils::findAncestorOfName( $tplInfo->first, 'section' );
 
 			// guaranteed to be non-null
-			$s2 = $tplInfo['lastSection']->container;
+			$s2 = $tplInfo->lastSection->container;
 
 			// Find a common ancestor of s1 and s2 (could be s1 or s2)
 			$s2Ancestors = DOMUtils::pathToRoot( $s2 );
@@ -545,7 +546,7 @@ class WrapSectionsState {
 					$secRanges[$about] = [ 'start' => $start, 'end' => $end, 'encapWrappers' => [] ];
 				}
 			}
-			$secRanges[$about]['encapWrappers'][] = $tplInfo['first'];
+			$secRanges[$about]['encapWrappers'][] = $tplInfo->first;
 		}
 
 		// Process recorded ranges into new encapsulation information
