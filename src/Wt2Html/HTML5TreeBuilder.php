@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -228,7 +229,7 @@ class HTML5TreeBuilder extends PipelineStage {
 		$tmp = $dataAttribs->getTemp();
 
 		if ( $this->inTransclusion ) {
-			$tmp->inTransclusion = true;
+			$tmp->setFlag( TempData::IN_TRANSCLUSION );
 		}
 
 		// Assign tagId to open/self-closing tags

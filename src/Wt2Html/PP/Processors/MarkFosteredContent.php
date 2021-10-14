@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -57,7 +58,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			if ( DOMUtils::isMarkerMeta( $node, 'mw:TransclusionShadow' ) ) {
 				$node->parentNode->removeChild( $node );
 				return true;
-			} elseif ( !empty( DOMDataUtils::getDataParsoid( $node )->tmp->inTransclusion ) ) {
+			} elseif ( DOMDataUtils::getDataParsoid( $node )->getTempFlag( TempData::IN_TRANSCLUSION ) ) {
 				$fosteredTransclusions = true;
 			}
 			$node = $node->firstChild;
@@ -96,7 +97,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		);
 		$dp = new DataParsoid;
 		$dp->tsr = clone DOMDataUtils::getDataParsoid( $table )->tsr;
-		$dp->getTemp()->fromFoster = true;
+		$dp->setTempFlag( TempData::FROM_FOSTER );
 		DOMDataUtils::setDataParsoid( $s, $dp );
 		$fosterBox->parentNode->insertBefore( $s, $fosterBox );
 

@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -440,7 +441,7 @@ class TableFixups {
 		//     Ex: |class="foo"{{1x|1={{!}}title="x"{{!}}foo}}
 		//         should parse as <td class="foo">title="x"|foo</td>
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
-		if ( !isset( $cellDp->tmp->noAttrs ) ) {
+		if ( !$cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
 			return false;
 		}
 
@@ -460,7 +461,7 @@ class TableFixups {
 		// We let the more general 'reparseTemplatedAttributes' code handle
 		// this scenario for now.
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
-		if ( !isset( $prevDp->tmp->noAttrs ) ) {
+		if ( !$prevDp->getTempFlag( TempData::NO_ATTRS ) ) {
 			return false;
 		}
 
@@ -506,7 +507,7 @@ class TableFixups {
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $isTd && // only | can separate attributes & content => $cell has to be <td>
 			WTUtils::isFirstEncapsulationWrapperNode( $cell ) && // See long comment below
-			!isset( $dp->tmp->failedReparse ) &&
+			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
 			!isset( $dp->stx ) // has to be first cell of the row
 		) {
 			// Parsoid parses content of templates independent of top-level content.
@@ -586,14 +587,14 @@ class TableFixups {
 				// Clear property and retry $cell for other reparses
 				// The DOMTraverser will resume the handler on the
 				// returned $cell.
-				DOMDataUtils::getDataParsoid( $cell )->getTemp()->failedReparse = true;
+				DOMDataUtils::getDataParsoid( $cell )->setTempFlag( TempData::FAILED_REPARSE );
 				return $cell;
 			}
 		}
 
 		// If the cell didn't have attrs, extract and reparse templated attrs
 		$dp = DOMDataUtils::getDataParsoid( $cell );
-		if ( isset( $dp->tmp->noAttrs ) ) {
+		if ( $dp->getTempFlag( TempData::NO_ATTRS ) ) {
 			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
 			$this->reparseTemplatedAttributes( $frame, $cell, $templateWrapper );
 		}
@@ -666,7 +667,7 @@ class TableFixups {
 
 					// Set data-parsoid noAttrs flag
 					$newCellDP = DOMDataUtils::getDataParsoid( $newCell );
-					$newCellDP->getTemp()->noAttrs = true;
+					$newCellDP->setTempFlag( TempData::NO_ATTRS );
 				}
 			}
 

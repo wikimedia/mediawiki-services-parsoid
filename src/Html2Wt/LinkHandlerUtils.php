@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -1146,7 +1147,7 @@ class LinkHandlerUtils {
 			// fragment, however, we need some way of marking this as being
 			// inModifiedContent so that any bare text is assured to be escaped
 			$captionElt = $outerElt->ownerDocument->createElement( 'div' );
-			DOMDataUtils::getDataParsoid( $captionElt )->getTemp()->isNew = true;
+			DOMDataUtils::getDataParsoid( $captionElt )->setTempFlag( TempData::IS_NEW );
 			DOMUtils::migrateChildren( $fragment, $captionElt );
 			// Needs a parent node in order for WTS to be happy
 			$fragment->appendChild( $captionElt );

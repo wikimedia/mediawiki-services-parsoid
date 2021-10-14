@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\NodeList;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -446,12 +447,14 @@ class PipelineUtils {
 
 		// Pass through setDSR flag
 		if ( !empty( $opts['setDSR'] ) ) {
-			$firstWrapperToken->dataAttribs->getTemp()->setDSR = $opts['setDSR'];
+			$firstWrapperToken->dataAttribs->setTempFlag(
+				TempData::SET_DSR, $opts['setDSR'] );
 		}
 
 		// Pass through fromCache flag
 		if ( !empty( $opts['fromCache'] ) ) {
-			$firstWrapperToken->dataAttribs->getTemp()->fromCache = $opts['fromCache'];
+			$firstWrapperToken->dataAttribs->setTempFlag(
+				TempData::FROM_CACHE, $opts['fromCache'] );
 		}
 
 		// Transfer the tsr.
@@ -488,7 +491,7 @@ class PipelineUtils {
 			$span->appendChild( $n );
 		}
 		$dp = new DataParsoid;
-		$dp->getTemp()->wrapper = true;
+		$dp->setTempFlag( TempData::WRAPPER );
 		DOMDataUtils::setDataParsoid( $span, $dp );
 		$textCommentAccum = [];
 	}

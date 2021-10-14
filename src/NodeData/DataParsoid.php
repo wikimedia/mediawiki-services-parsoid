@@ -292,4 +292,34 @@ class DataParsoid {
 		}
 		return $this->tmp;
 	}
+
+	/**
+	 * Check whether a bit is set in $this->tmp->bits
+	 *
+	 * @param int $flag
+	 * @return bool
+	 */
+	public function getTempFlag( $flag ): bool {
+		return isset( $this->tmp ) && ( $this->tmp->bits & $flag );
+	}
+
+	/**
+	 * Set a bit in $this->tmp->bits
+	 *
+	 * @param int $flag
+	 * @param bool $value
+	 */
+	public function setTempFlag( $flag, $value = true ): void {
+		if ( $value ) {
+			if ( !isset( $this->tmp ) ) {
+				$tmp = new TempData;
+				$tmp->bits = $flag;
+				$this->tmp = $tmp;
+			} else {
+				$this->tmp->bits |= $flag;
+			}
+		} elseif ( isset( $this->tmp ) ) {
+			$this->tmp->bits &= ~$flag;
+		}
+	}
 }

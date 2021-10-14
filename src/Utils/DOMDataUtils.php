@@ -453,7 +453,7 @@ class DOMDataUtils {
 			}
 		}
 		if ( !empty( $options['markNew'] ) ) {
-			$dp->getTemp()->isNew = !$node->hasAttribute( 'data-parsoid' );
+			$dp->setTempFlag( TempData::IS_NEW, !$node->hasAttribute( 'data-parsoid' ) );
 		}
 		return $dp;
 	}
@@ -540,7 +540,7 @@ class DOMDataUtils {
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
 		$dp = self::getDataParsoid( $node );
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
-		if ( !empty( $dp->tmp->isNew ) ) {
+		if ( $dp->getTempFlag( TempData::IS_NEW ) ) {
 			// Only necessary to support the cite extension's getById,
 			// that's already been loaded once.
 			//

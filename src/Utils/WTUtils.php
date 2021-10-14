@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -267,8 +268,7 @@ class WTUtils {
 		// For template/extension content, newness should be
 		// checked on the encapsulation wrapper $node.
 		$node = self::findFirstEncapsulationWrapperNode( $node ) ?? $node;
-		$dp = DOMDataUtils::getDataParsoid( $node );
-		return !empty( $dp->tmp->isNew );
+		return DOMDataUtils::getDataParsoid( $node )->getTempFlag( TempData::IS_NEW );
 	}
 
 	/**

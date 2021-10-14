@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -606,7 +607,7 @@ class DOMRangeBuilder {
 			} else {
 				// An assertion here is probably an indication that we're
 				// mistakenly doing template wrapping in a nested context.
-				Assert::invariant( isset( $tmp->fromFoster ), 'Template range without arginfo.' );
+				Assert::invariant( $tmp->getFlag( TempData::FROM_FOSTER ), 'Template range without arginfo.' );
 			}
 
 			$this->env->log( 'trace/tplwrap/merge', static function () use ( &$DOMDataUtils, &$r ) {

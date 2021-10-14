@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -84,7 +85,7 @@ class UnpackDOMFragments {
 					}
 					$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
 					$dp->misnested = true;
-				} elseif ( !empty( $dp->tmp->wrapper ) ) {
+				} elseif ( $dp->getTempFlag( TempData::WRAPPER ) ) {
 					// Unnecessary wrapper added above -- strip it.
 					$next = $node->firstChild ?: $node->nextSibling;
 					DOMUtils::migrateChildren( $node, $node->parentNode, $node );
@@ -246,8 +247,10 @@ class UnpackDOMFragments {
 		// content etc).
 		// TODO: Make sure that is the only reason for not having a DSR here.
 		$dsr = $dp->dsr ?? null;
-		if ( $dsr &&
-			!( empty( $dp->tmp->setDSR ) && empty( $dp->tmp->fromCache ) && empty( $dp->fostered ) )
+		if ( $dsr && !(
+			!$dp->getTempFlag( TempData::SET_DSR )
+			&& !$dp->getTempFlag( TempData::FROM_CACHE )
+			&& empty( $dp->fostered ) )
 		) {
 			DOMUtils::assertElt( $contentNode );
 			$cnDP = DOMDataUtils::getDataParsoid( $contentNode );
@@ -271,7 +274,7 @@ class UnpackDOMFragments {
 			}
 		}
 
-		if ( !empty( $dp->tmp->fromCache ) ) {
+		if ( $dp->getTempFlag( TempData::FROM_CACHE ) ) {
 			// Replace old about-id with new about-id that is
 			// unique to the global page environment object.
 			//

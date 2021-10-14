@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -400,7 +401,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	): void {
 		// This might have been processed as part of
 		// misnested-tag category identification.
-		if ( !empty( $dp->tmp->linted ) ) {
+		if ( $dp->getTempFlag( TempData::LINTED ) ) {
 			return;
 		}
 
@@ -496,7 +497,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					$adjNode = $this->getMatchingMisnestedNode( $c, $c );
 					if ( $adjNode ) {
 						$adjDp = DOMDataUtils::getDataParsoid( $adjNode );
-						$adjDp->getTemp()->linted = true;
+						$adjDp->setTempFlag( TempData::LINTED );
 						$env->recordLint( 'misnested-tag', $lintObj );
 					} elseif ( !$this->endTagOptional( $c ) && empty( $dp->autoInsertedStart ) ) {
 						$lintObj['params']['inTable'] = DOMUtils::hasNameOrHasAncestorOfName( $c, 'table' );
@@ -882,7 +883,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	): void {
 		// We handle a run of nodes in one shot.
 		// No need to reprocess repeatedly.
-		if ( !empty( $dp->tmp->processedTidyWSBug ) ) {
+		if ( $dp->getTempFlag( TempData::PROCESSED_TIDY_WS_BUG ) ) {
 			return;
 		}
 
@@ -968,7 +969,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 				// following call, but is fine when it's copied to a local variable.
 				$node = $o['node'];
 				if ( $node instanceof Element ) {
-					DOMDataUtils::getDataParsoid( $node )->getTemp()->processedTidyWSBug = true;
+					DOMDataUtils::getDataParsoid( $node )->setTempFlag( TempData::PROCESSED_TIDY_WS_BUG );
 				}
 			}
 		};
