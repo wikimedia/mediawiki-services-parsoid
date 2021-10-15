@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 
-class DOMRange {
+class DOMRangeInfo {
 	/** @var Element */
 	public $startElem;
 

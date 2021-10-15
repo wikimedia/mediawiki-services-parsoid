@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
+use Wikimedia\Parsoid\NodeData\ParamInfo;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 
@@ -449,6 +450,18 @@ class DOMDataUtils {
 						$optList[] = (array)$item;
 					}
 					$dp->optList = $optList;
+					break;
+
+				case 'pi':
+					$pi = [];
+					foreach ( $value as $item ) {
+						$pi2 = [];
+						foreach ( $item as $item2 ) {
+							$pi2[] = ParamInfo::newFromJson( $item2 );
+						}
+						$pi[] = $pi2;
+					}
+					$dp->pi = $pi;
 					break;
 
 				case 'tmp':

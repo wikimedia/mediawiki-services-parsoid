@@ -47,15 +47,9 @@ use Wikimedia\Parsoid\Utils\Utils;
  * - 'magiclink', 'url' - legacy, not used anymore
  * @property string|null $stx
  *
- * Template parameter infos produced by TemplateHandler. An array of associative
- * arrays with the following keys:
- *   - k: (string) The parameter key.
- *   - srcOffsets: (KVSourceRange) The token source range
- *   - named: (bool, optional): Whether the parameter is named
- *   - spc: (string[], optional): An array of four strings: the key whitespace
- *     prefix, the key whitespace suffix, the value whitespace prefix and the
- *     value whitespace suffix.
- * @property array|null $pi
+ * Template parameter infos produced by TemplateHandler. After unserialization,
+ * the objects are not fully populated.
+ * @property ParamInfo[][]|null $pi
  *
  * Expanded template HTML (native preprocessor only).
  * @property string|null $html

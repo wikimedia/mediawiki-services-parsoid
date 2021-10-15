@@ -3,11 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\ParamInfo;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -17,7 +18,6 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -74,22 +74,16 @@ class TemplateEncapsulator {
 	public function encapTokens( array $tokens ): array {
 		$toks = $this->getEncapsulationInfo( $tokens );
 		$toks[] = $this->getEncapsulationInfoEndTag();
-		$argInfo = $this->getArgInfo();
-		$argDict = $argInfo['dict'];
+		$tplInfo = $this->getTemplateInfo();
 
 		if ( $this->env->getSiteConfig()->addHTMLTemplateParameters() ) {
-			// Collect the parameters that need parsing into HTML, that is,
-			// those that are not simple strings.
-			// This optimizes for the common case where all are simple strings,
-			// in which we don't need to go async.
-			$params = [];
-			foreach ( $argInfo['paramInfos'] as $paramInfo ) {
-				$param = $argDict['params']->{$paramInfo['k']};
+			// Parse the parameters that need parsing
+			foreach ( $tplInfo->paramInfos as $paramInfo ) {
 				$paramTokens = null;
-				if ( !empty( $paramInfo['named'] ) ) {
-					$paramTokens = $this->token->getAttribute( $paramInfo['k'] );
+				if ( $paramInfo->named ) {
+					$paramTokens = $this->token->getAttribute( $paramInfo->k );
 				} else {
-					$paramTokens = $this->token->attribs[$paramInfo['k']]->v;
+					$paramTokens = $this->token->attribs[$paramInfo->k]->v;
 				}
 
 				// No need to pass through a whole sub-pipeline to get the
@@ -98,38 +92,27 @@ class TemplateEncapsulator {
 				if ( $paramTokens &&
 					( is_string( $paramTokens ) || self::isSimpleParam( $paramTokens ) )
 				) {
-					$param->html = $param->wt;
-				} elseif ( preg_match( '#^https?://[^[\]{}\s]*$#D', $param->wt ) ) {
+					$paramInfo->html = $paramInfo->valueWt;
+				} elseif (
+					// FIXME: this should not have its own regex parsing separate from the PEG
+					preg_match( '#^https?://[^[\]{}\s]*$#D', $paramInfo->valueWt )
+				) {
 					// If the param is just a simple URL, we can process it to
 					// HTML directly without going through a sub-pipeline.
-					$param->html = "<a rel='mw:ExtLink' href='" .
-						str_replace( "'", '&#39;', $param->wt ) . "'>" . $param->wt . '</a>';
+					$paramInfo->html = "<a rel='mw:ExtLink' href='" .
+						str_replace( "'", '&#39;', $paramInfo->valueWt ) . "'>" .
+						$paramInfo->valueWt . '</a>';
 				} else {
-					// Prepare the data needed to parse to HTML
-					$params[] = [
-						'param' => $param,
-						'info' => $paramInfo,
-						'tokens' => $paramTokens
-					];
-				}
-			}
-
-			if ( count( $params ) ) {
-				foreach ( $params as $paramData ) {
-					$this->getParamHTML( $paramData );
+					$this->getParamHTML( $paramInfo );
 				}
 			}
 		} else {
 			// Don't add the HTML template parameters, just use their wikitext
 		}
 
-		$argInfo['dict'] = $argDict;
+		$toks[0]->dataAttribs->getTemp()->tplarginfo = $tplInfo;
 
-		// Use a data-attribute to prevent the sanitizer from stripping this
-		// attribute before it reaches the DOM pass where it is needed
-		$toks[0]->dataAttribs->getTemp()->tplarginfo = PHPUtils::jsonEncode( $argInfo );
-
-		$this->env->log( 'debug', 'Encapsulator.encapTokens', $toks );
+		$this->env->log( 'debug', 'TemplateEncapsulator.encapTokens', $toks );
 		return $toks;
 	}
 
@@ -137,15 +120,12 @@ class TemplateEncapsulator {
 	 * Get the public data-mw structure that exposes the template name and
 	 * parameters.
 	 *
-	 * @return array
+	 * @return TemplateInfo
 	 */
-	private function getArgInfo(): array {
+	private function getTemplateInfo(): TemplateInfo {
+		$ret = new TemplateInfo;
 		$src = $this->frame->getSrcText();
 		$params = $this->token->attribs;
-		// TODO: `dict` might be a good candidate for a T65370 style cleanup as a
-		// Map, but since it's intended to be stringified almost immediately, we'll
-		// just have to be cautious with it by checking for own properties.
-		$dict = new stdClass;
 		$paramInfos = [];
 		$argIndex = 1;
 
@@ -154,19 +134,20 @@ class TemplateEncapsulator {
 		//
 		// Ignore params[0] -- that is the template name
 		for ( $i = 1,  $n = count( $params );  $i < $n;  $i++ ) {
-			$srcOffsets = $params[$i]->srcOffsets;
+			$param = $params[$i];
+			$srcOffsets = $param->srcOffsets;
 			$kSrc = null;
 			$vSrc = null;
 			if ( $srcOffsets !== null ) {
 				$kSrc = $srcOffsets->key->substr( $src );
 				$vSrc = $srcOffsets->value->substr( $src );
 			} else {
-				$kSrc = $params[$i]->k;
-				$vSrc = $params[$i]->v;
+				$kSrc = $param->k;
+				$vSrc = $param->v;
 			}
 
 			$kWt = trim( $kSrc );
-			$k = TokenUtils::tokensToString( $params[$i]->k, true, [ 'stripEmptyLineMeta' => true ] );
+			$k = TokenUtils::tokensToString( $param->k, true, [ 'stripEmptyLineMeta' => true ] );
 			if ( is_array( $k ) ) {
 				// The PHP parser only removes comments and whitespace to construct
 				// the real parameter name, so if there were other tokens, use the
@@ -176,9 +157,6 @@ class TemplateEncapsulator {
 				$k = trim( $k );
 			}
 			$v = $vSrc;
-
-			// Number positional parameters
-			$isPositional = null;
 
 			// Even if k is empty, we need to check v immediately follows. If not,
 			// it's a blank parameter name (which is valid) and we shouldn't make it
@@ -196,11 +174,8 @@ class TemplateEncapsulator {
 				$v = trim( $v );
 			}
 
-			if ( !isset( $dict->$k ) ) {
-				$paramInfo = [
-					'k' => $k,
-					'srcOffsets' => $srcOffsets
-				];
+			if ( !isset( $paramInfos[$k] ) ) {
+				$paramInfo = new ParamInfo( $k, $srcOffsets );
 
 				Assert::invariant(
 					preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $kSrc, $keySpaceMatch ),
@@ -213,7 +188,7 @@ class TemplateEncapsulator {
 					// positional params and neither will we.
 					$valueSpaceMatch = [ null, '', '' ];
 				} else {
-					$paramInfo['named'] = true;
+					$paramInfo->named = true;
 					if ( $v !== '' ) {
 						Assert::invariant(
 							preg_match( '/^(\s*)(?:.*\S)?(\s*)$/sD', $vSrc, $valueSpaceMatch ),
@@ -228,43 +203,38 @@ class TemplateEncapsulator {
 				// "=" is the default spacing used by the serializer,
 				if ( $keySpaceMatch[1] || $keySpaceMatch[2] || $valueSpaceMatch[1] || $valueSpaceMatch[2] ) {
 					// Remember non-standard spacing
-					$paramInfo['spc'] = [
+					$paramInfo->spc = [
 						$keySpaceMatch[1], $keySpaceMatch[2],
 						$valueSpaceMatch[1], $valueSpaceMatch[2]
 					];
 				}
-
-				$paramInfos[] = $paramInfo;
+			} else {
+				$paramInfo = $paramInfos[$k];
 			}
 
-			$dict->$k = (object)[ 'wt' => $v ];
+			$paramInfo->valueWt = $v;
 			// Only add the original parameter wikitext if named and different from
 			// the actual parameter.
 			if ( !$isPositional && $kWt !== $k ) {
-				$dict->$k->key = (object)[ 'wt' => $kWt ];
+				$paramInfo->keyWt = $kWt;
 			}
+			$paramInfos[$k] = $paramInfo;
 		}
 
-		$ret = [
-			'dict' => [
-				'target' => [],
-				'params' => $dict
-			],
-			'paramInfos' => $paramInfos
-		];
+		$ret->paramInfos = $paramInfos;
 
 		$tgtSrcOffsets = $params[0]->srcOffsets;
 		if ( $tgtSrcOffsets ) {
 			$tplTgtWT = $tgtSrcOffsets->key->substr( $src );
-			$ret['dict']['target']['wt'] = $tplTgtWT;
+			$ret->targetWt = $tplTgtWT;
 		}
 
 		// Add in tpl-target/pf-name info
 		// Only one of these will be set.
 		if ( $this->parserFunctionName !== null ) {
-			$ret['dict']['target']['function'] = $this->parserFunctionName;
+			$ret->func = $this->parserFunctionName;
 		} elseif ( $this->resolvedTemplateTarget !== null ) {
-			$ret['dict']['target']['href'] = $this->resolvedTemplateTarget;
+			$ret->href = $this->resolvedTemplateTarget;
 		}
 
 		return $ret;
@@ -331,20 +301,19 @@ class TemplateEncapsulator {
 	/**
 	 * Add its HTML conversion to a parameter
 	 *
-	 * @param array $paramData
+	 * @param ParamInfo $paramInfo
 	 */
-	private function getParamHTML( array $paramData ): void {
-		$param = $paramData['param'];
-		$srcStart = $paramData['info']['srcOffsets']->value->start;
-		$srcEnd = $paramData['info']['srcOffsets']->value->end;
-		if ( !empty( $paramData['info']['spc'] ) ) {
-			$srcStart += count( $paramData['info']['spc'][2] );
-			$srcEnd -= count( $paramData['info']['spc'][3] );
+	private function getParamHTML( ParamInfo $paramInfo ): void {
+		$srcStart = $paramInfo->srcOffsets->value->start;
+		$srcEnd = $paramInfo->srcOffsets->value->end;
+		if ( !empty( $paramInfo->spc ) ) {
+			$srcStart += strlen( $paramInfo->spc[2] );
+			$srcEnd -= strlen( $paramInfo->spc[3] );
 		}
 
 		$domFragment = PipelineUtils::processContentInPipeline(
 			$this->env, $this->frame,
-			$param->wt,
+			$paramInfo->valueWt,
 			[
 				'pipelineType' => 'text/x-mediawiki/full',
 				'pipelineOpts' => [
@@ -358,7 +327,7 @@ class TemplateEncapsulator {
 			]
 		);
 		// FIXME: We're better off setting a pipeline option above
-		// to skip dsr computation to begin with.  Worth revisitting
+		// to skip dsr computation to begin with.  Worth revisiting
 		// if / when `addHTMLTemplateParameters` is enabled.
 		// Remove DSR from children
 		DOMUtils::visitDOM( $domFragment, static function ( $node ) {
@@ -368,7 +337,7 @@ class TemplateEncapsulator {
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			$dp->dsr = null;
 		} );
-		$param->html = ContentUtils::ppToXML(
+		$paramInfo->html = ContentUtils::ppToXML(
 			$domFragment, [ 'innerXML' => true ]
 		);
 	}

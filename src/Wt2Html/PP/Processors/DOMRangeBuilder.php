@@ -5,15 +5,16 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Error;
 use SplObjectStorage;
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\ElementRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -77,6 +78,9 @@ class DOMRangeBuilder {
 	/** @var SplObjectStorage */
 	private $nodeRanges;
 
+	/** @var array<string|CompoundTemplateInfo>[] */
+	private $compoundTpls = [];
+
 	/**
 	 * @param Document $document
 	 * @param Frame $frame
@@ -113,10 +117,12 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * @param DOMRange $range
+	 * Get the DSR of the end of a DOMRange
+	 *
+	 * @param DOMRangeInfo $range
 	 * @return DomSourceRange|null
 	 */
-	private static function getRangeEndDSR( DOMRange $range ): ?DomSourceRange {
+	private static function getRangeEndDSR( DOMRangeInfo $range ): ?DomSourceRange {
 		$endNode = $range->end;
 		if ( $endNode instanceof Element ) {
 			return DOMDataUtils::getDataParsoid( $endNode )->dsr ?? null;
@@ -162,15 +168,16 @@ class DOMRangeBuilder {
 
 	/**
 	 * Find the common DOM ancestor of two DOM nodes.
+	 *
 	 * @param Element $startElem
 	 * @param Element $endMeta
 	 * @param Element $endElem
-	 * @return object
+	 * @return DOMRangeInfo
 	 */
 	private function getDOMRange(
 		Element $startElem, Element $endMeta, Element $endElem
 	) {
-		$range = new DOMRange;
+		$range = new DOMRangeInfo;
 		$range->startElem = $startElem;
 		$range->endElem = $endMeta;
 		$range->id = Utils::stripParsoidIdPrefix( $startElem->getAttribute( 'about' ) ?? '' );
@@ -378,100 +385,101 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * @param array &$compoundTpls
+	 * Add a template to $this->compoundTpls
+	 *
 	 * @param string $compoundTplId
-	 * @param DOMRange $tpl
-	 * @param stdClass $argInfo
+	 * @param DOMRangeInfo $range
+	 * @param TemplateInfo $templateInfo
 	 */
 	private function recordTemplateInfo(
-		array &$compoundTpls, string $compoundTplId, DOMRange $tpl, stdClass $argInfo
+		string $compoundTplId, DOMRangeInfo $range, TemplateInfo $templateInfo
 	): void {
-		if ( !isset( $compoundTpls[$compoundTplId] ) ) {
-			$compoundTpls[$compoundTplId] = [];
+		if ( !isset( $this->compoundTpls[$compoundTplId] ) ) {
+			$this->compoundTpls[$compoundTplId] = [];
 		}
 
 		// Record template args info along with any intervening wikitext
 		// between templates that are part of the same compound structure.
 		/** @var array $tplArray */
-		$tplArray = &$compoundTpls[$compoundTplId];
-		$dp = DOMDataUtils::getDataParsoid( $tpl->startElem );
+		$tplArray = &$this->compoundTpls[$compoundTplId];
+		$dp = DOMDataUtils::getDataParsoid( $range->startElem );
 		$dsr = $dp->dsr;
 
 		if ( count( $tplArray ) > 0 ) {
 			$prevTplInfo = PHPUtils::lastItem( $tplArray );
 			if ( $prevTplInfo->dsr->end < $dsr->start ) {
 				$width = $dsr->start - $prevTplInfo->dsr->end;
-				$tplArray[] = (object)[
-					'wt' => PHPUtils::safeSubstr( $this->frame->getSrcText(), $prevTplInfo->dsr->end, $width ),
-				];
+				$tplArray[] = PHPUtils::safeSubstr(
+					$this->frame->getSrcText(), $prevTplInfo->dsr->end, $width );
 			}
 		}
 
 		if ( !empty( $dp->unwrappedWT ) ) {
-			$tplArray[] = (object)[ 'wt' => $dp->unwrappedWT ];
+			$tplArray[] = (string)$dp->unwrappedWT;
 		}
 
 		// Get rid of src-offsets since they aren't needed anymore.
-		foreach ( $argInfo->paramInfos as &$pi ) {
-			unset( $pi->srcOffsets );
+		foreach ( $templateInfo->paramInfos as $pi ) {
+			$pi->srcOffsets = null;
 		}
-		$tplArray[] = (object)[
-			'dsr' => $dsr,
-			'args' => $argInfo->dict,
-			'paramInfos' => $argInfo->paramInfos
-		];
+		$tplArray[] = new CompoundTemplateInfo( $dsr, $templateInfo );
 	}
 
 	/**
+	 * Determine whether adding the given range would introduce a cycle in the
+	 * subsumedRanges graph.
+	 *
 	 * Nesting cycles with multiple ranges can show up because of foster
 	 * parenting scenarios if they are not detected and suppressed.
-	 * @param string $start
-	 * @param string $end
-	 * @param array $nestingInfo
+	 *
+	 * @param string $start The ID of the new range
+	 * @param string $end The ID of the other range
+	 * @param string[] $subsumedRanges The subsumed ranges graph, encoded as an
+	 *   array in which each element maps one string range ID to another range ID
 	 * @return bool
 	 */
-	private static function introducesCycle( string $start, string $end, array $nestingInfo ): bool {
+	private static function introducesCycle( string $start, string $end, array $subsumedRanges ): bool {
 		$visited = [ $start => true ];
-		$elt = $nestingInfo[$end] ?? null;
+		$elt = $subsumedRanges[$end] ?? null;
 		while ( $elt ) {
 			if ( !empty( $visited[$elt] ) ) {
 				return true;
 			}
-			$elt = $nestingInfo[$elt] ?? null;
+			$elt = $subsumedRanges[$elt] ?? null;
 		}
 		return false;
 	}
 
 	/**
+	 * Determine whether DOM ranges overlap.
+	 *
 	 * The `inSiblingOrder` check here is sufficient to determine overlaps
 	 * because the algorithm in `findWrappableTemplateRanges` will put the
 	 * start/end elements for intersecting ranges on the same plane and prev/
-	 * curr are in textual order (which hopefully translates to dom order).
+	 * curr are in textual order (which translates to dom order).
 	 *
-	 * @param DOMRange $prev
-	 * @param DOMRange $curr
+	 * @param DOMRangeInfo $prev
+	 * @param DOMRangeInfo $curr
 	 * @return bool
 	 */
-	private static function rangesOverlap( DOMRange $prev, DOMRange $curr ): bool {
+	private static function rangesOverlap( DOMRangeInfo $prev, DOMRangeInfo $curr ): bool {
 		$prevEnd = ( !$prev->flipped ) ? $prev->end : $prev->start;
 		$currStart = ( !$curr->flipped ) ? $curr->start : $curr->end;
 		return DOMUtils::inSiblingOrder( $currStart, $prevEnd );
 	}
 
 	/**
+	 * Identify the elements of $tplRanges that are non-overlapping.
+	 * Record template info in $this->compoundTpls as we go.
+	 *
 	 * @param Node $docRoot
-	 * @param DOMRange[] $tplRanges
-	 * @return stdClass [ 'ranges' => $newRanges, 'tplArrays' => $compoundTpls ]
+	 * @param DOMRangeInfo[] $tplRanges The potentially overlapping ranges
+	 * @return DOMRangeInfo[] The non-overlapping ranges
 	 */
-	public function findTopLevelNonOverlappingRanges(
-		Node $docRoot, array $tplRanges
-	): stdClass {
-		$numRanges = count( $tplRanges );
-
+	public function findTopLevelNonOverlappingRanges( Node $docRoot, array $tplRanges ): array {
 		// For each node, assign an attribute that is a record of all
 		// tpl ranges it belongs to at the top-level.
-		for ( $i = 0;  $i < $numRanges;  $i++ ) {
-			$r = $tplRanges[$i];
+		foreach ( $tplRanges as $r ) {
 			$n = !$r->flipped ? $r->start : $r->end;
 			$e = !$r->flipped ? $r->end : $r->start;
 
@@ -499,16 +507,13 @@ class DOMRangeBuilder {
 		// For each range r:(s, e), walk up from s --> docRoot and if any of
 		// these nodes have tpl-ranges (besides r itself) assigned to them,
 		// then r is nested in those other templates and can be ignored.
-		for ( $k = 0;  $k < $numRanges;  $k++ ) {
-			$r = $tplRanges[$k];
+		foreach ( $tplRanges as $r ) {
 			$n = $r->start;
 
 			while ( $n !== $docRoot ) {
 				$ranges = $this->getNodeRanges( $n );
 				if ( $ranges ) {
 					if ( $n !== $r->start ) {
-						// console.warn(" -> nested; n_tpls: " + Object.keys(ranges));
-
 						// 'r' is nested for sure
 						// Record the outermost range in which 'r' is nested.
 						$outermostId = null;
@@ -532,17 +537,12 @@ class DOMRangeBuilder {
 						// another tpl range besides r itself, we have a winner!
 						//
 						// The code below does the above check efficiently.
-						$sTpls = $ranges;
 						$eTpls = $this->getNodeRanges( $r->end );
-						$sKeys = array_keys( $sTpls );
 						$foundNesting = false;
 
-						$sKeysCount = count( $sKeys );
-						for ( $j = 0;  $j < $sKeysCount;  $j++ ) {
+						foreach ( $ranges as $otherId => $other ) {
 							// - Don't record nesting cycles.
 							// - Record the outermost range in which 'r' is nested in.
-							$otherId = (string)$sKeys[$j];
-							$other = $sTpls[$otherId];
 							if ( $otherId !== $r->id &&
 								!empty( $eTpls[$otherId] ) &&
 								// When we have identical ranges, pick the range with
@@ -551,22 +551,19 @@ class DOMRangeBuilder {
 									$r->end !== $other->end ||
 									$other->startOffset < $r->startOffset
 								) &&
-								!self::introducesCycle( $r->id, $otherId, $subsumedRanges )
+								!self::introducesCycle( $r->id, (string)$otherId, $subsumedRanges )
 							) {
 								$foundNesting = true;
 								if ( !isset( $subsumedRanges[$r->id] ) ||
-									$other->startOffset < $sTpls[$subsumedRanges[$r->id]]->startOffset
+									$other->startOffset < $ranges[$subsumedRanges[$r->id]]->startOffset
 								) {
-									$subsumedRanges[$r->id] = $otherId;
+									$subsumedRanges[$r->id] = (string)$otherId;
 								}
 							}
 						}
 
 						if ( $foundNesting ) {
 							// 'r' is nested
-							// console.warn(" -> nested: sTpls: " + Object.keys(sTpls) +
-							// "; eTpls: " + Object.keys(eTpls) +
-							// "; set to: " + subsumedRanges.get(r.id));
 							break;
 						}
 					}
@@ -590,21 +587,15 @@ class DOMRangeBuilder {
 
 		$newRanges = [];
 		$prev = null;
-		$compoundTpls = [];
 
-		for ( $l = 0;  $l < $numRanges;  $l++ ) {
+		foreach ( $tplRanges as $r ) {
 			$endTagToRemove = null;
 			$startTagToStrip = null;
 
-			$r = $tplRanges[$l];
-
-			// Extract argInfo
+			// Extract tplargInfo
 			$tmp = DOMDataUtils::getDataParsoid( $r->startElem )->getTemp();
-			$argInfo = $tmp->tplarginfo ?? null;
-			if ( $argInfo ) {
-				/** @var stdClass $argInfo */
-				$argInfo = json_decode( $argInfo );
-			} else {
+			$templateInfo = $tmp->tplarginfo ?? null;
+			if ( !$templateInfo ) {
 				// An assertion here is probably an indication that we're
 				// mistakenly doing template wrapping in a nested context.
 				Assert::invariant( $tmp->getFlag( TempData::FROM_FOSTER ), 'Template range without arginfo.' );
@@ -643,10 +634,10 @@ class DOMRangeBuilder {
 				// Nested -- ignore r
 				$startTagToStrip = $r->startElem;
 				$endTagToRemove = $r->endElem;
-				if ( $argInfo ) {
+				if ( $templateInfo ) {
 					// 'r' is nested in 'enclosingRange' at the top-level
 					// So, enclosingRange gets r's argInfo
-					$this->recordTemplateInfo( $compoundTpls, $enclosingRangeId, $r, $argInfo );
+					$this->recordTemplateInfo( $enclosingRangeId, $r, $templateInfo );
 				}
 			} elseif ( $prev && self::rangesOverlap( $prev, $r ) ) {
 				// In the common case, in overlapping scenarios, r.start is
@@ -678,8 +669,8 @@ class DOMRangeBuilder {
 				$prev->endElem = $r->endElem;
 
 				// Update compoundTplInfo
-				if ( $argInfo ) {
-					$this->recordTemplateInfo( $compoundTpls, $prev->id, $r, $argInfo );
+				if ( $templateInfo ) {
+					$this->recordTemplateInfo( $prev->id, $r, $templateInfo );
 				}
 			} else {
 				$this->env->log( 'trace/tplwrap/merge', '--normal--' );
@@ -690,8 +681,8 @@ class DOMRangeBuilder {
 				$prev = $r;
 
 				// Update compoundTpls
-				if ( $argInfo ) {
-					$this->recordTemplateInfo( $compoundTpls, $r->id, $r, $argInfo );
+				if ( $templateInfo ) {
+					$this->recordTemplateInfo( $r->id, $r, $templateInfo );
 				}
 			}
 
@@ -703,7 +694,7 @@ class DOMRangeBuilder {
 			}
 		}
 
-		return (object)[ 'ranges' => $newRanges, 'tplArrays' => $compoundTpls ];
+		return $newRanges;
 	}
 
 	/**
@@ -713,10 +704,10 @@ class DOMRangeBuilder {
 	 * implementation; we do a case-insensitive match (by converting the result
 	 * to the "native" case of the DOM implementation) in
 	 * EncapsulatedContentHandler when this value is used.
-	 * @param DOMRange $range
+	 * @param DOMRangeInfo $range
 	 * @return string|null nodeName with an optional "_$stx" suffix.
 	 */
-	private static function findFirstTemplatedNode( DOMRange $range ): ?string {
+	private static function findFirstTemplatedNode( DOMRangeInfo $range ): ?string {
 		$firstNode = $range->start;
 
 		// Skip tpl marker meta
@@ -757,9 +748,9 @@ class DOMRangeBuilder {
 	 * Encapsulation requires adding about attributes on the top-level
 	 * nodes of the range. This requires them to all be Elements.
 	 *
-	 * @param DOMRange $range
+	 * @param DOMRangeInfo $range
 	 */
-	private function ensureElementsInRange( DOMRange $range ): void {
+	private function ensureElementsInRange( DOMRangeInfo $range ): void {
 		$n = $range->start;
 		$e = $range->end;
 		$about = $range->startElem->getAttribute( 'about' ) ?? '';
@@ -794,10 +785,10 @@ class DOMRangeBuilder {
 	 * Skip past marker metas and non-elements (which will all be IEW
 	 * in fosterable positions in a table).
 	 *
-	 * @param DOMRange $range
+	 * @param DOMRangeInfo $range
 	 * @return Element
 	 */
-	private static function findEncapTarget( DOMRange $range ): Element {
+	private static function findEncapTarget( DOMRangeInfo $range ): Element {
 		$encapTgt = $range->start;
 		'@phan-var Node $encapTgt';
 
@@ -822,15 +813,12 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * @param DOMRange[] $tplRanges
-	 * @param array $tplArrays
+	 * Add markers to the DOM around the non-overlapping ranges.
+	 *
+	 * @param DOMRangeInfo[] $nonOverlappingRanges
 	 */
-	private function encapsulateTemplates(
-		array $tplRanges, array $tplArrays
-	): void {
-		$numRanges = count( $tplRanges );
-		for ( $i = 0;  $i < $numRanges;  $i++ ) {
-			$range = $tplRanges[$i];
+	private function encapsulateTemplates( array $nonOverlappingRanges ): void {
+		foreach ( $nonOverlappingRanges as $i => $range ) {
 
 			// We should never have flipped overlapping ranges, and indeed that's
 			// asserted in `findTopLevelNonOverlappingRanges`.  Flipping results
@@ -872,17 +860,10 @@ class DOMRangeBuilder {
 
 			$this->ensureElementsInRange( $range );
 
-			// Encap. info for the range
-			$encapInfo = (object)[
-				'valid' => false,
-				'target' => null,
-				'tplArray' => $tplArrays[$range->id],
-				'datamw' => null,
-				'dp' => null
-			];
-
-			$encapTgt = $encapInfo->target = self::findEncapTarget( $range );
-			$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapTgt );
+			$tplArray = $this->compoundTpls[$range->id];
+			$encapTgt = self::findEncapTarget( $range );
+			$encapValid = false;
+			$encapDP = DOMDataUtils::getDataParsoid( $encapTgt );
 
 			// Update type-of (always even if tpl-encap below will fail).
 			// This ensures that VE will still "edit-protect" this template
@@ -933,15 +914,15 @@ class DOMRangeBuilder {
 				}
 
 				// encapsulation possible only if dp1.dsr is valid
-				$encapInfo->valid = Utils::isValidDSR( $dp1DSR ) &&
+				$encapValid = Utils::isValidDSR( $dp1DSR ) &&
 					$dp1DSR->end >= $dp1DSR->start;
 			}
 
-			$tplArray = $encapInfo->tplArray;
 			Assert::invariant( (bool)$tplArray, 'No parts for template range!' );
-			if ( $encapInfo->valid ) {
+			if ( $encapValid ) {
 				// Find transclusion info from the array (skip past a wikitext element)
-				$firstTplInfo = !empty( $tplArray[0]->wt ) ? $tplArray[1] : $tplArray[0];
+				/** @var CompoundTemplateInfo $firstTplInfo */
+				$firstTplInfo = is_string( $tplArray[0] ) ? $tplArray[1] : $tplArray[0];
 
 				// Add any leading wikitext
 				if ( $firstTplInfo->dsr->start > $dp1DSR->start ) {
@@ -955,61 +936,49 @@ class DOMRangeBuilder {
 					// this entire block has to be determined relative to this node.
 					$ftn = self::findFirstTemplatedNode( $range );
 					if ( $ftn !== null ) {
-						$encapInfo->dp->firstWikitextNode = $ftn;
+						$encapDP->firstWikitextNode = $ftn;
 					}
 					$width = $firstTplInfo->dsr->start - $dp1DSR->start;
 					array_unshift(
 						$tplArray,
-						(object)[ 'wt' => PHPUtils::safeSubstr( $this->frame->getSrcText(), $dp1DSR->start, $width ) ]
+						PHPUtils::safeSubstr( $this->frame->getSrcText(), $dp1DSR->start, $width )
 					);
 				}
 
 				// Add any trailing wikitext
+				/** @var CompoundTemplateInfo $lastTplInfo */
 				$lastTplInfo = PHPUtils::lastItem( $tplArray );
 				if ( $lastTplInfo->dsr->end < $dp1DSR->end ) {
 					$width = $dp1DSR->end - $lastTplInfo->dsr->end;
-					$tplArray[] = (object)[
-						'wt' => PHPUtils::safeSubstr( $this->frame->getSrcText(), $lastTplInfo->dsr->end, $width ),
-					];
-				}
-
-				// Extract the key orders for the templates
-				$paramInfoArrays = [];
-				foreach ( $tplArray as $a ) {
-					// Empty arrays should be added there, skip undefined and null values
-					if ( ( $a->paramInfos ?? null ) !== null ) {
-						$paramInfoArrays[] = $a->paramInfos;
-					}
+					$tplArray[] = PHPUtils::safeSubstr( $this->frame->getSrcText(), $lastTplInfo->dsr->end, $width );
 				}
 
 				// Map the array of { dsr: .. , args: .. } objects to just the args property
 				$infoIndex = 0;
-				$tplArray = array_map(
-					static function ( $a ) use ( &$infoIndex, $startElem ) {
-						if ( !empty( $a->wt ) ) {
-							return $a->wt;
-						} else {
-							// Remember the position of the transclusion relative
-							// to other transclusions. Should match the index of
-							// the corresponding private metadata in paramInfoArrays
-							// above.
-							if ( !empty( $a->args ) ) {
-								$a->args->i = $infoIndex;
-							}
-							$infoIndex++;
-							return DOMUtils::hasTypeOf( $startElem, 'mw:Param' )
-								? (object)[ 'templatearg' => $a->args ?? null ]
-								: (object)[ 'template' => $a->args ?? null ];
-						}
-					},
-					$tplArray
-				);
+				$parts = [];
+				$pi = [];
+				foreach ( $tplArray as $a ) {
+					if ( is_string( $a ) ) {
+						$parts[] = $a;
+					} elseif ( $a instanceof CompoundTemplateInfo ) {
+						// Remember the position of the transclusion relative
+						// to other transclusions. Should match the index of
+						// the corresponding private metadata in $templateInfos.
+						$args = $a->info->getDataMw( $infoIndex++ );
+						$parts[] = DOMUtils::hasTypeOf( $startElem, 'mw:Param' )
+							? (object)[ 'templatearg' => $args ]
+							: (object)[ 'template' => $args ];
+						// FIXME: we throw away the array keys and rebuild them
+						// again in WikitextSerializer
+						$pi[] = array_values( $a->info->paramInfos );
+					}
+				}
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node
-				$encapInfo->datamw = (object)[ 'parts' => $tplArray ];
+				$encapDataMw = (object)[ 'parts' => $parts ];
 				// FIXME: This is going to clobber any data-mw on $encapTgt, see T214241
-				DOMDataUtils::setDataMw( $encapTgt, $encapInfo->datamw );
-				$encapInfo->dp->pi = $paramInfoArrays;
+				DOMDataUtils::setDataMw( $encapTgt, $encapDataMw );
+				$encapDP->pi = $pi;
 
 				// Special case when mixed-attribute-and-content templates are
 				// involved. This information is reliable and comes from the
@@ -1018,8 +987,8 @@ class DOMRangeBuilder {
 				$firstWikitextNode = DOMDataUtils::getDataParsoid(
 						$range->startElem
 					)->firstWikitextNode ?? null;
-				if ( empty( $encapInfo->dp->firstWikitextNode ) && $firstWikitextNode ) {
-					$encapInfo->dp->firstWikitextNode = $firstWikitextNode;
+				if ( empty( $encapDP->firstWikitextNode ) && $firstWikitextNode ) {
+					$encapDP->firstWikitextNode = $firstWikitextNode;
 				}
 			} else {
 				$errors = [ 'Do not have necessary info. to encapsulate Tpl: ' . $i ];
@@ -1045,30 +1014,26 @@ class DOMRangeBuilder {
 			// 2. In both cases, should we mark these uneditable by adding
 			// mw:Placeholder to the typeof?
 			if ( !empty( $dp1->fostered ) ) {
-				$encapInfo->datamw = DOMDataUtils::getDataMw( $encapTgt );
-				if ( !$encapInfo->datamw ||
-					!$encapInfo->datamw->parts ||
-					count( $encapInfo->datamw->parts ) === 1
+				$encapDataMw = DOMDataUtils::getDataMw( $encapTgt );
+				if ( !$encapDataMw ||
+					!$encapDataMw->parts ||
+					count( $encapDataMw->parts ) === 1
 				) {
 					$dp1DSR->end = $dp1DSR->start;
 				}
 			}
 
 			// Update DSR after fostering-related fixes are done.
-			if ( $encapInfo->valid ) {
-				if ( !$encapInfo->dp ) {
-					// This wouldn't have been initialized if tplArray was null
-					$encapInfo->dp = DOMDataUtils::getDataParsoid( $encapTgt );
-				}
+			if ( $encapValid ) {
 				// encapInfo.dp points to DOMDataUtils.getDataParsoid(encapInfo.target)
 				// and all updates below update properties in that object tree.
-				if ( empty( $encapInfo->dp->dsr ) ) {
-					$encapInfo->dp->dsr = $dp1DSR;
+				if ( empty( $encapDP->dsr ) ) {
+					$encapDP->dsr = $dp1DSR;
 				} else {
-					$encapInfo->dp->dsr->start = $dp1DSR->start;
-					$encapInfo->dp->dsr->end = $dp1DSR->end;
+					$encapDP->dsr->start = $dp1DSR->start;
+					$encapDP->dsr->end = $dp1DSR->end;
 				}
-				$encapInfo->dp->src = $encapInfo->dp->dsr->substr(
+				$encapDP->src = $encapDP->dsr->substr(
 					$this->frame->getSrcText()
 				);
 			}
@@ -1088,9 +1053,9 @@ class DOMRangeBuilder {
 	 * Attach a range to a node.
 	 *
 	 * @param Element $node
-	 * @param DOMRange $range
+	 * @param DOMRangeInfo $range
 	 */
-	private function addNodeRange( Element $node, DOMRange $range ): void {
+	private function addNodeRange( Element $node, DOMRangeInfo $range ): void {
 		// With the native DOM extension, normally you assume that DOMNode
 		// objects are temporary -- you get a new DOMNode every time you
 		// traverse the DOM. But by retaining a reference in the
@@ -1099,7 +1064,7 @@ class DOMRangeBuilder {
 		if ( !isset( $this->nodeRanges[$node] ) ) {
 			// We have to use an object as the data because
 			// SplObjectStorage::offsetGet() does not provide an lval.
-			$this->nodeRanges[$node] = new DOMRangeArray;
+			$this->nodeRanges[$node] = new DOMRangeInfoArray;
 		}
 		$this->nodeRanges[$node]->ranges[$range->id] = $range;
 	}
@@ -1108,25 +1073,37 @@ class DOMRangeBuilder {
 	 * Get the ranges attached to this node, indexed by range ID.
 	 *
 	 * @param Element $node
-	 * @return DOMRange[]|null
+	 * @return DOMRangeInfo[]|null
 	 */
 	private function getNodeRanges( Element $node ): ?array {
 		return $this->nodeRanges[$node]->ranges ?? null;
 	}
 
 	/**
-	 * Recursive worker.
+	 * Recursively walk the DOM tree. Find wrappable template ranges and return them.
+	 *
 	 * @param Node $rootNode
-	 * @param array &$tpls
-	 * @return array
+	 * @return DOMRangeInfo[]
 	 */
-	private function findWrappableTemplateRanges(
-		Node $rootNode, array &$tpls = []
-	): array {
+	private function findWrappableTemplateRanges( Node $rootNode ) {
+		$tpls = [];
 		$tplRanges = [];
+		$this->findWrappableTemplateRangesRecursive( $rootNode, $tpls, $tplRanges );
+		return $tplRanges;
+	}
+
+	/**
+	 * Recursive helper for findWrappableTemplateRanges()
+	 *
+	 * @param Node $rootNode
+	 * @param ElementRange[] &$tpls Template start and end elements by ID
+	 * @param DOMRangeInfo[] &$tplRanges Template range info
+	 * @return void
+	 */
+	private function findWrappableTemplateRangesRecursive(
+		Node $rootNode, array &$tpls, array &$tplRanges
+	): void {
 		$elem = $rootNode->firstChild;
-		$about = null;
-		$aboutRef = null;
 
 		while ( $elem ) {
 			// get the next sibling before doing anything since
@@ -1153,26 +1130,29 @@ class DOMRangeBuilder {
 					)
 				) {
 					$about = $elem->getAttribute( 'about' ) ?? '';
-					$aboutRef = $tpls[$about] ?? null;
+					$tpl = $tpls[$about] ?? null;
 					// Is this a start marker?
 					if ( !str_ends_with( $metaType, '/End' ) ) {
-						if ( $aboutRef ) {
-							$aboutRef->start = $elem;
+						if ( $tpl ) {
+							$tpl->startElem = $elem;
 							// content or end marker existed already
-							if ( !empty( $aboutRef->end ) ) {
+							if ( !empty( $tpl->endElem ) ) {
 								// End marker was foster-parented.
 								// Found actual start tag.
-								$tplRanges[] = $this->getDOMRange( $elem, $aboutRef->end, $aboutRef->end );
+								$tplRanges[] = $this->getDOMRange(
+									$elem, $tpl->endElem, $tpl->endElem );
 							} else {
 								// should not happen!
 								PHPUtils::unreachable( "start found after content for $about." );
 							}
 						} else {
-							$tpls[$about] = (object)[ 'start' => $elem ];
+							$tpl = new ElementRange;
+							$tpl->startElem = $elem;
+							$tpls[$about] = $tpl;
 						}
 					} else {
 						// elem is the end-meta tag
-						if ( $aboutRef ) {
+						if ( $tpl ) {
 							/* ------------------------------------------------------------
 							 * Special case: In some cases, the entire template content can
 							 * get fostered out of a table, not just the start/end marker.
@@ -1203,7 +1183,7 @@ class DOMRangeBuilder {
 							 * If so, we recognize this as a adoption scenario and fix up
 							 * DSR of start-meta-tag's parent to include the table's DSR.
 							 * ------------------------------------------------------------*/
-							$sm = $aboutRef->start;
+							$sm = $tpl->startElem;
 							$em = $elem;
 							$ee = $em;
 							$tbl = $em->parentNode->nextSibling;
@@ -1229,21 +1209,18 @@ class DOMRangeBuilder {
 							}
 							$tplRanges[] = $this->getDOMRange( $sm, $em, $ee );
 						} else {
-							$tpls[$about] = (object)[ 'end' => $elem ];
+							$tpl = new ElementRange;
+							$tpl->endElem = $elem;
+							$tpls[$about] = $tpl;
 						}
 					}
 				} else {
-					PHPUtils::pushArray(
-						$tplRanges,
-						$this->findWrappableTemplateRanges( $elem, $tpls )
-					);
+					$this->findWrappableTemplateRangesRecursive( $elem, $tpls, $tplRanges );
 				}
 			}
 
 			$elem = $nextSibling;
 		}
-
-		return $tplRanges;
 	}
 
 	/**
@@ -1252,8 +1229,8 @@ class DOMRangeBuilder {
 	public function execute( Node $root ): void {
 		$tplRanges = $this->findWrappableTemplateRanges( $root );
 		if ( count( $tplRanges ) > 0 ) {
-			$tplRanges = $this->findTopLevelNonOverlappingRanges( $root, $tplRanges );
-			$this->encapsulateTemplates( $tplRanges->ranges, $tplRanges->tplArrays );
+			$nonOverlappingRanges = $this->findTopLevelNonOverlappingRanges( $root, $tplRanges );
+			$this->encapsulateTemplates( $nonOverlappingRanges );
 		}
 	}
 }

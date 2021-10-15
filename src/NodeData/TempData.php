@@ -25,26 +25,8 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
  * on template tokens. It filters through to data-mw attribs.
  * @property array|null $templatedAttribs
  *
- * JSON-encoded information about template arguments. It starts out as an array
- * but gets decoded as a stdClass. It has the following properties:
- *   - dict
- *      - target
- *        - wt: (string) Wikitext
- *        - function: (string, optional) Parser function name
- *        - href: (string, optional) The URL of the template
- *      - params: An object in which the keys are the template parameter names
- *        and the values are an object:
- *        - wt: (string) The parameter value source
- *        - key: (array/object, optional)
- *          - wt: (string) The original wikitext of the parameter name, if
- *            different from the key in the params array/object
- *   - paramInfos: An array of objects identical to DataParsoid::$pi
- *      - k: (string)
- *      - srcOffsets: KVSourceRange, in array serialized form
- *      - named: (bool, optional)
- *      - spc: (string[])
- * FIXME: Why JSON? Why "dict"? Why so complex?
- * @property string|null $tplarginfo
+ * Information about a template invocation
+ * @property TemplateInfo|null $tplarginfo
  */
 class TempData {
 	/**

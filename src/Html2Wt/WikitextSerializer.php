@@ -739,7 +739,10 @@ class WikitextSerializer {
 		$dpArgInfo = isset( $part->i ) ? ( $dp->pi[$part->i] ?? [] ) : [];
 
 		// Build a key -> arg info map
-		$dpArgInfoMap = array_column( $dpArgInfo, null, 'k' );
+		$dpArgInfoMap = [];
+		foreach ( $dpArgInfo as $info ) {
+			$dpArgInfoMap[$info->k] = $info;
+		}
 
 		// 1. Process all parameters and build a map of
 		//    arg-name -> [serializeAsNamed, name, value]
@@ -918,7 +921,7 @@ class WikitextSerializer {
 	 * Serialize a template from its parts.
 	 * @param SerializerState $state
 	 * @param Element $node
-	 * @param stdClass[] $srcParts PORT-FIXME document
+	 * @param stdClass[] $srcParts Template parts from TemplateInfo::getDataMw()
 	 * @return string
 	 */
 	public function serializeFromParts(
