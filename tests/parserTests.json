@@ -5,6 +5,12 @@
 		"expectedSHA1": "06c6ddb4adfc1af81e7a057be421241f93493edd",
 		"latestCommit": "1fd9493285073de08159118f4c009c76b045285e"
 	},
+	"extraParserTests.txt": {
+		"repo": "/wikimedia/mediawiki/",
+		"path": "tests/parser/extraParserTests.txt",
+		"expectedSHA1": "940dcd0852058eac1cce52b6c58f50400703e5c8",
+		"latestCommit": "3223981217da67950e3ad5cb5a71a27d35ac9d51"
+	},
 	"mediaParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/mediaParserTests.txt",
