@@ -336,7 +336,7 @@ class DataAccess implements IDataAccess {
 			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
 			'jsconfigvars' => $out->getJsConfigVars(),
 			'categories' => $out->getCategories(),
-			'properties' => $out->getProperties()
+			'properties' => $out->getPageProperties()
 		];
 	}
 
