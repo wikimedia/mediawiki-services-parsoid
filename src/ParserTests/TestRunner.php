@@ -256,8 +256,9 @@ class TestRunner {
 
 	/**
 	 * Parser the test file and set up articles and test cases
+	 * @param array $options
 	 */
-	private function buildTests(): void {
+	private function buildTests( array $options ): void {
 		// Startup by loading .txt test file
 		$warnFunc = static function ( string $warnMsg ): void {
 			error_log( $warnMsg );
@@ -276,10 +277,12 @@ class TestRunner {
 			$this->articles[$key] = $art->text;
 			$this->mockApi->addArticle( $key, $art );
 		}
-		if ( $this->knownFailuresPath ) {
-			error_log( 'Loaded known failures from ' . $this->knownFailuresPath );
-		} else {
-			error_log( 'No known failures found.' );
+		if ( !ScriptUtils::booleanOption( $options['quieter'] ?? '' ) ) {
+			if ( $this->knownFailuresPath ) {
+				error_log( 'Loaded known failures from ' . $this->knownFailuresPath );
+			} else {
+				error_log( 'No known failures found.' );
+			}
 		}
 	}
 
@@ -1287,16 +1290,14 @@ class TestRunner {
 		}
 
 		// print out the summary
-		// note: these stats won't necessarily be useful if someone
-		// reimplements the reporting methods, since that's where we
-		// increment the stats.
-		$failures = $options['reportSummary'](
+		$options['reportSummary'](
 			$options['modes'], $this->stats, $this->testFileName,
-			$this->testFilter, $knownFailuresChanged
+			$this->testFilter, $knownFailuresChanged, $options
 		);
 
 		// we're done!
 		// exit status 1 == uncaught exception
+		$failures = $this->stats->allFailures();
 		$exitCode = ( $failures > 0 || $knownFailuresChanged ) ? 2 : 0;
 		if ( ScriptUtils::booleanOption( $options['exit-zero'] ?? null ) ) {
 			$exitCode = 0;
@@ -1450,7 +1451,7 @@ class TestRunner {
 			];
 		}
 
-		$this->buildTests();
+		$this->buildTests( $options );
 
 		if ( isset( $options['maxtests'] ) ) {
 			$n = $options['maxtests'];
@@ -1472,7 +1473,10 @@ class TestRunner {
 		ScriptUtils::setDebuggingFlags( $this->envOptions, $options );
 		ScriptUtils::setTemplatingAndProcessingFlags( $this->envOptions, $options );
 
-		if ( ScriptUtils::booleanOption( $options['quiet'] ?? null ) ) {
+		if (
+			ScriptUtils::booleanOption( $options['quiet'] ?? null )
+			|| ScriptUtils::booleanOption( $options['quieter'] ?? null )
+		) {
 			$this->envOptions['logLevels'] = [ 'fatal', 'error' ];
 		}
 

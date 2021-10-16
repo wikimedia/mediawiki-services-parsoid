@@ -73,7 +73,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$this->processedOptions['reportSummary'](
-			[], $globalStats, null, null, $knownFailuresChanged
+			[], $globalStats, null, null, $knownFailuresChanged, $this->processedOptions
 		);
 
 		return $exitCode === 0;
@@ -154,6 +154,12 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			],
 			'quiet' => [
 				'description' => 'Suppress notification of passed tests (shows only failed tests)',
+				'boolean' => true,
+				'default' => false
+			],
+			'quieter' => [
+				'description' => 'Suppress per-file summary and failed test diffs. ' .
+					'Implies --quick and --quiet.',
 				'boolean' => true,
 				'default' => false
 			],
@@ -345,11 +351,12 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param ?string $file
 	 * @param ?array $testFilter
 	 * @param bool $knownFailuresChanged
-	 * @return int
+	 * @param array $options
 	 */
 	public static function reportSummary(
-		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $knownFailuresChanged
-	): int {
+		array $modesRan, Stats $stats, ?string $file, ?array $testFilter,
+		bool $knownFailuresChanged, array $options
+	): void {
 		$curStr = null;
 		$mode = null;
 		$thisMode = null;
@@ -357,8 +364,16 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$happiness = $stats->passedTestsUnexpected === 0 && $stats->failedTestsUnexpected === 0;
 		$filename = $file === null ? 'ALL TESTS' : $file;
 
-		print "==========================================================\n";
-		print 'SUMMARY:' . TestUtils::colorString( $filename, $happiness ? 'green' : 'red' ) . "\n";
+		$quieter = ScriptUtils::booleanOption( $options['quieter'] ?? '' );
+		if ( $quieter && $file !== null ) {
+			return;
+		}
+
+		if ( !$quieter ) {
+			print "==========================================================\n";
+			print 'SUMMARY:' . TestUtils::colorString( $filename, $happiness ? 'green' : 'red' ) .
+				"\n";
+		}
 		if ( $file !== null ) {
 			print 'Execution time: ' . round( 1000 * ( microtime( true ) - $stats->startTime ), 3 ) . "ms\n";
 		}
@@ -435,8 +450,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				print TestUtils::colorString( '--> ' . $failures . ' UNEXPECTED RESULTS. <--', 'red' ) . "\n";
 			}
 		}
-
-		return $failures;
 	}
 
 	/**
@@ -486,13 +499,16 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param array $actual
 	 * @param array $expected
 	 * @param ?string $expectFail If this test was expected to fail (on knownFailures list), then the expected failure output; otherwise null.
-	 * @param bool $failureOnly Whether we should print only a failure message, or go on to print the diff.
 	 * @return bool true if the failure was expected.
 	 */
 	public static function printFailure(
 		Stats $stats, Test $item, array $options, string $mode, string $title,
-		array $actual, array $expected, ?string $expectFail, bool $failureOnly
+		array $actual, array $expected, ?string $expectFail
 	): bool {
+		$quiet = ScriptUtils::booleanOption( $options['quiet'] ?? null );
+		$quieter = ScriptUtils::booleanOption( $options['quieter'] ?? null );
+		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
+		$failureOnly = $quieter || $quick;
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
 		$knownFailures = false;
@@ -505,7 +521,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			if ( $normalizeAbout( $expectFail ) !== $normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
 				$knownFailures = true;
 			} else {
-				if ( !ScriptUtils::booleanOption( $options['quiet'] ?? '' ) ) {
+				if ( !$quiet && !$quieter ) {
 					print TestUtils::colorString( 'EXPECTED FAIL', 'red' ) . ': ' . TestUtils::colorString( $extTitle, 'yellow' ) . "\n";
 				}
 				return true;
@@ -561,6 +577,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
 	): bool {
 		$quiet = ScriptUtils::booleanOption( $options['quiet'] ?? null );
+		$quieter = ScriptUtils::booleanOption( $options['quieter'] ?? null );
 
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
@@ -569,7 +586,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				TestUtils::colorString( $extTitle, 'yellow' ) . "\n";
 			return false;
 		}
-		if ( !$quiet ) {
+		if ( !$quiet && !$quieter ) {
 			$outStr = 'EXPECTED PASS';
 
 			$outStr = TestUtils::colorString( $outStr, 'green' ) . ': '
@@ -677,8 +694,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	): bool {
 		$title = $item->testName; // Title may be modified here, so pass it on.
 
-		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
-
 		$suffix = '';
 		if ( $mode === 'selser' ) {
 			$suffix = ' ' . ( $item->changes ? json_encode( $item->changes ) : '[manual]' );
@@ -712,7 +727,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( $fail ) {
 			$stats->failedTests++;
 			$stats->modes[$mode]->failedTests++;
-			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail, $quick );
+			$asExpected = $reportFailure( $stats, $item, $options, $mode, $title, $actual, $expected, $expectFail );
 			if ( !$asExpected ) {
 				$stats->failedTestsUnexpected++;
 				$stats->modes[$mode]->failedTestsUnexpected++;
@@ -792,13 +807,12 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @inheritDoc reportSummary
 	 */
 	public static function reportSummaryXML(
-		array $modesRan, Stats $stats, ?string $file, ?array $testFilter, bool $knownFailuresChanged
-	): int {
-		$failures = $stats->allFailures();
-
+		array $modesRan, Stats $stats, ?string $file, ?array $testFilter,
+		bool $knownFailuresChanged, array $options
+	): void {
 		if ( $file === null ) {
 			/* Summary for all tests; not included in XML format output. */
-			return $failures;
+			return;
 		}
 		print '<testsuites file="' . $file . '">';
 		for ( $i = 0;  $i < count( $modesRan );  $i++ ) {
@@ -808,7 +822,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			print '</testsuite>';
 		}
 		print '</testsuites>';
-		return $failures;
 	}
 
 	/**
