@@ -237,8 +237,6 @@ class HTML5TreeBuilder extends PipelineStage {
 			$tmp->tagId = $this->tagId++;
 		}
 
-		$attribs = $this->stashDataAttribs( $attribs, $dataAttribs );
-
 		$this->env->log( 'trace/html', $this->pipelineId, static function () use ( $token ) {
 			return PHPUtils::jsonEncode( $token );
 		} );
@@ -289,8 +287,11 @@ class HTML5TreeBuilder extends PipelineStage {
 						false, 0, 0 );
 				}
 			}
+
 			$this->dispatcher->startTag(
-				$tName, new PlainAttributes( $attribs ), false, 0, 0
+				$tName,
+				new PlainAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
+				false, 0, 0
 			);
 			if ( empty( $dataAttribs->autoInsertedStart ) ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
@@ -337,7 +338,7 @@ class HTML5TreeBuilder extends PipelineStage {
 					$this->dispatcher->comment(
 						WTUtils::fosterCommentData(
 							$token->getAttribute( 'typeof' ) ?? '',
-							$attribs
+							$this->stashDataAttribs( $attribs, $dataAttribs )
 						), 0, 0
 					);
 					$wasInserted = true;
@@ -346,7 +347,9 @@ class HTML5TreeBuilder extends PipelineStage {
 
 			if ( !$wasInserted ) {
 				$this->dispatcher->startTag(
-					$tName, new PlainAttributes( $attribs ), false, 0, 0
+					$tName,
+					new PlainAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
+					false, 0, 0
 				);
 				if ( !Utils::isVoidElement( $tName ) ) {
 					$this->dispatcher->endTag( $tName, 0, 0 );
@@ -363,7 +366,7 @@ class HTML5TreeBuilder extends PipelineStage {
 				$attribs['typeof'] = 'mw:EndTag';
 				$attribs['data-etag'] = $tName;
 				$this->dispatcher->comment(
-					WTUtils::fosterCommentData( 'mw:shadow', $attribs ),
+					WTUtils::fosterCommentData( 'mw:shadow', $this->stashDataAttribs( $attribs, $dataAttribs ) ),
 					0, 0
 				);
 			}
