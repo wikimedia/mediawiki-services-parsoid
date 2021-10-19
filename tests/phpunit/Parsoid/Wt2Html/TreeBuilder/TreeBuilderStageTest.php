@@ -1,24 +1,24 @@
 <?php
 // phpcs:disable Generic.Files.LineLength.TooLong
 
-namespace Test\Parsoid\Wt2Html;
+namespace Test\Parsoid\Wt2Html\TreeBuilder;
 
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Wt2Html\HTML5TreeBuilder;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\TreeBuilderStage;
 
-class HTML5TreeBuilderTest extends \PHPUnit\Framework\TestCase {
+class TreeBuilderStageTest extends \PHPUnit\Framework\TestCase {
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\HTML5TreeBuilder
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TreeBuilder\TreeBuilderStage
 	 * @dataProvider provideTreeBuilder
 	 */
 	public function testTreeBuilder( array $tokens, string $expected ) {
 		$mockEnv = new MockEnv( [] );
-		$tb = new HTML5TreeBuilder( $mockEnv );
+		$tb = new TreeBuilderStage( $mockEnv );
 		$tb->resetState( [ 'toplevel' => true ] );
 		$tb->processChunk( $tokens );
 		$body = $tb->finalizeDOM();

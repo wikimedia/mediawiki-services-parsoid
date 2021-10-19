@@ -108,7 +108,7 @@ class TempData {
 	public const FROM_FOSTER = 1 << 9;
 
 	/**
-	 * All elements inserted by HTML5TreeBuilder receive an integer ID. It is used
+	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used
 	 * in findAutoInsertedTags() in conjunction with data-stag to identify
 	 * auto-inserted tags, and for debugging.
 	 * @var int|null

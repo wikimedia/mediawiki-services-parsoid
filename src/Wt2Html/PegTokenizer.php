@@ -6,7 +6,7 @@ declare( strict_types = 1 );
  * separate PEG grammar file
  * (Grammar.pegphp)
  *
- * Use along with a {@link Wt2Html/HTML5TreeBuilder} and the
+ * Use along with a {@link Wt2Html/TreeBuilder/TreeBuilderStage} and the
  * {@link DOMPostProcessor}(s) for HTML output.
  */
 

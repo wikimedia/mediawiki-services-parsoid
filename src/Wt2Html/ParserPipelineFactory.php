@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\TreeBuilderStage;
 use Wikimedia\Parsoid\Wt2Html\TT\AttributeExpander;
 use Wikimedia\Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\DOMFragmentBuilder;
@@ -89,7 +90,7 @@ class ParserPipelineFactory {
 		],
 		"TreeBuilder" => [
 			// Build a tree out of the fully processed token stream
-			"class" => HTML5TreeBuilder::class,
+			"class" => TreeBuilderStage::class,
 		],
 		"DOMPP" => [
 			// Generic DOM transformer.
