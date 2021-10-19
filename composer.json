@@ -36,7 +36,7 @@
 		"wikimedia/remex-html": "^2.3.2",
 		"wikimedia/scoped-callback": "^3.0.0",
 		"wikimedia/wikipeg": "^2.0.6",
-		"wikimedia/zest-css": "^2.0.1",
+		"wikimedia/zest-css": "^2.0.2",
 		"ext-dom": "*",
 		"ext-json": "*"
 	},
