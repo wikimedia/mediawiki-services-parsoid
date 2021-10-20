@@ -25,9 +25,6 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
  * on template tokens. It filters through to data-mw attribs.
  * @property array|null $templatedAttribs
  *
- * FIXME: never written
- * @property int|null $tsrDelta
- *
  * JSON-encoded information about template arguments. It starts out as an array
  * but gets decoded as a stdClass. It has the following properties:
  *   - dict

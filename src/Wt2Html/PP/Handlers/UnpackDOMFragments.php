@@ -101,40 +101,6 @@ class UnpackDOMFragments {
 	}
 
 	/**
-	 * @param Node $node
-	 * @param int $delta
-	 */
-	public static function addDeltaToDSR( Node $node, int $delta ): void {
-		// Add 'delta' to dsr->start and dsr->end for nodes in the subtree
-		// node's dsr has already been updated
-		$child = $node->firstChild;
-		while ( $child ) {
-			if ( $child instanceof Element ) {
-				$dp = DOMDataUtils::getDataParsoid( $child );
-				if ( !empty( $dp->dsr ) ) {
-					// SSS FIXME: We've exploited partial DSR information
-					// in propagating DSR values across the DOM.  But, worth
-					// revisiting at some point to see if we want to change this
-					// so that either both or no value is present to eliminate these
-					// kind of checks.
-					//
-					// Currently, it can happen that one or the other
-					// value can be null.  So, we should try to udpate
-					// the dsr value in such a scenario.
-					if ( is_int( $dp->dsr->start ) ) {
-						$dp->dsr->start += $delta;
-					}
-					if ( is_int( $dp->dsr->end ) ) {
-						$dp->dsr->end += $delta;
-					}
-				}
-				self::addDeltaToDSR( $child, $delta );
-			}
-			$child = $child->nextSibling;
-		}
-	}
-
-	/**
 	 * @param Env $env
 	 * @param Node $node
 	 * @param array &$aboutIdMap
@@ -265,12 +231,6 @@ class UnpackDOMFragments {
 				$cnDP->dsr = $dsr;
 			} else { // non-transcluded images
 				$cnDP->dsr = new DomSourceRange( $dsr->start, $dsr->end, 2, 2 );
-				// Reused image -- update dsr by tsrDelta on all
-				// descendents of 'firstChild' which is the <figure> tag
-				$tsrDelta = $dp->tmp->tsrDelta ?? 0;
-				if ( $tsrDelta ) {
-					self::addDeltaToDSR( $contentNode, $tsrDelta );
-				}
 			}
 		}
 
