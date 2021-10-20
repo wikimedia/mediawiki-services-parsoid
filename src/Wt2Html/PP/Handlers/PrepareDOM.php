@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -31,8 +32,9 @@ class PrepareDOM {
 			if ( $node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
 				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ?? '';
 				if ( isset( $seenDataIds[$docId] ) ) {
-					$data = DOMDataUtils::getNodeData( $node );
-					DOMDataUtils::setNodeData( $node, $data->clone() );
+					// This used to clone, but now that is the job of Attributes::clone()
+					// TODO: remove
+					throw new InternalException( "Found duplicate data ID $docId" );
 				} else {
 					$seenDataIds[$docId] = true;
 				}

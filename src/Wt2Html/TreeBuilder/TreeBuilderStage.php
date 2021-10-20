@@ -33,7 +33,6 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PipelineStage;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\PrepareDOM;
-use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 
 class TreeBuilderStage extends PipelineStage {
@@ -258,7 +257,7 @@ class TreeBuilderStage extends PipelineStage {
 			// a transclusion.
 			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
 			$this->dispatcher->startTag( 'meta',
-				new PlainAttributes( [ 'typeof' => 'mw:TransclusionShadow' ] ),
+				new Attributes( $this->doc, [ 'typeof' => 'mw:TransclusionShadow' ] ),
 				true, 0, 0 );
 		}
 
@@ -284,14 +283,14 @@ class TreeBuilderStage extends PipelineStage {
 				if ( !$this->inTransclusion ) {
 					$this->env->log( 'debug/html', $this->pipelineId, 'Inserting foster box meta' );
 					$this->dispatcher->startTag( 'table',
-						new PlainAttributes( [ 'typeof' => 'mw:FosterBox' ] ),
+						new Attributes( $this->doc, [ 'typeof' => 'mw:FosterBox' ] ),
 						false, 0, 0 );
 				}
 			}
 
 			$this->dispatcher->startTag(
 				$tName,
-				new PlainAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
+				new Attributes( $this->doc, $this->stashDataAttribs( $attribs, $dataAttribs ) ),
 				false, 0, 0
 			);
 			if ( empty( $dataAttribs->autoInsertedStart ) ) {
@@ -349,7 +348,7 @@ class TreeBuilderStage extends PipelineStage {
 			if ( !$wasInserted ) {
 				$this->dispatcher->startTag(
 					$tName,
-					new PlainAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
+					new Attributes( $this->doc, $this->stashDataAttribs( $attribs, $dataAttribs ) ),
 					false, 0, 0
 				);
 				if ( !Utils::isVoidElement( $tName ) ) {
