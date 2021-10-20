@@ -49,6 +49,17 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * @param Document $topLevelDoc
+	 * @param Document $childDoc
+	 */
+	public static function prepareChildDoc( Document $topLevelDoc, Document $childDoc ) {
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		Assert::invariant( $topLevelDoc->bag instanceof DataBag, 'doc bag not set' );
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		$childDoc->bag = $topLevelDoc->bag;
+	}
+
+	/**
 	 * Stash $obj in $doc and return an id for later retrieval
 	 * @param Document $doc
 	 * @param NodeData $obj

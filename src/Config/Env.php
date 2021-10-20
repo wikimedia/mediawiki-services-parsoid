@@ -761,7 +761,9 @@ class Env {
 			// Shouldn't need a bag since children are migrated to a fragment
 			// of the top level doc immediately after the tree is built and
 			// before data objects are loaded.
-			return $this->createDocumentDispatcher();
+			list( $doc, $dispatcher ) = $this->createDocumentDispatcher();
+			DOMDataUtils::prepareChildDoc( $this->topLevelDoc, $doc );
+			return [ $doc, $dispatcher ];
 		}
 	}
 
