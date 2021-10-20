@@ -758,10 +758,11 @@ class Env {
 		if ( $atTopLevel ) {
 			return [ $this->topLevelDoc, $this->dispatcher ];
 		} else {
-			// Shouldn't need a bag since children are migrated to a fragment
-			// of the top level doc immediately after the tree is built and
-			// before data objects are loaded.
 			list( $doc, $dispatcher ) = $this->createDocumentDispatcher();
+			// Attach the top-level bag to the document, for the convenience
+			// of code that modifies the data within the RemexHtml TreeBuilder
+			// pipeline, prior to the migration of nodes to the top-level
+			// document.
 			DOMDataUtils::prepareChildDoc( $this->topLevelDoc, $doc );
 			return [ $doc, $dispatcher ];
 		}
