@@ -197,18 +197,6 @@ class PegTokenizer extends PipelineStage {
 	}
 
 	/**
-	 * Determine whether a string is a valid URL
-	 *
-	 * @deprecated Use tokenizeURL()
-	 *
-	 * @param string $text
-	 * @return bool
-	 */
-	public function tokenizesAsURL( string $text ): bool {
-		return $this->tokenizeURL( $text ) !== false;
-	}
-
-	/**
 	 * Tokenize a URL.
 	 * @param string $text
 	 * @return array|false Array of tokens/strings or false on error

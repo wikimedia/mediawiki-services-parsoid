@@ -465,7 +465,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				if ( $val === '' ) {
 					// No href if link= was specified
 					$anchor = $doc->createElement( 'span' );
-				} elseif ( $urlParser->tokenizesAsURL( $val ) ) {
+				} elseif ( $urlParser->tokenizeURL( $val ) !== false ) {
 					// an external link!
 					$anchor->setAttribute( 'href', $val );
 				} else {
