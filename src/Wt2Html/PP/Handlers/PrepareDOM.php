@@ -4,11 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Core\InternalException;
-use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class PrepareDOM {
@@ -20,34 +16,11 @@ class PrepareDOM {
 	 * avoid fostering. Piggy-backing the reconversion here to avoid excess
 	 * DOM traversals.
 	 *
-	 * @param array &$seenDataIds
 	 * @param Node $node
 	 * @param Env $env
 	 * @return bool|mixed
 	 */
-	public static function handler( array &$seenDataIds, Node $node, Env $env ) {
-		if ( $node instanceof Element ) {
-			// Deduplicate docIds that come from splitting nodes because of
-			// content model violations when treebuilding.
-			if ( $node->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
-				$docId = $node->getAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ?? '';
-				if ( isset( $seenDataIds[$docId] ) ) {
-					// This used to clone, but now that is the job of Attributes::clone()
-					// TODO: remove
-					throw new InternalException( "Found duplicate data ID $docId" );
-				} else {
-					$seenDataIds[$docId] = true;
-				}
-			}
-			// Set title to display when present (last one wins).
-			if ( DOMCompat::nodeName( $node ) === 'meta'
-				&& $node->getAttribute( 'property' ) === 'mw:PageProp/displaytitle'
-			) {
-				// PORT-FIXME: Meh
-				// $env->getPageConfig()->meta->displayTitle = $node->getAttribute( 'content' ) ?? '';
-			}
-			return true;
-		}
+	public static function handler( Node $node, Env $env ) {
 		$meta = WTUtils::reinsertFosterableContent( $env, $node );
 		return $meta ?? true;
 	}

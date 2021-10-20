@@ -162,15 +162,10 @@ class TreeBuilderStage extends PipelineStage {
 		// so traversing is done here rather than during post-processing.
 		//
 		// Necessary when testing the port, since:
-		// - de-duplicating data-object-ids must be done before we can store
-		// data-attributes to cross language barriers;
 		// - the calls to fosterCommentData below are storing data-object-ids,
-		// which must be reinserted, again before storing ...
-		$seenDataIds = [];
+		// which must be reinserted before storing
 		$t = new DOMTraverser();
-		$t->addHandler( null, static function ( ...$args ) use ( &$seenDataIds ) {
-			return PrepareDOM::handler( $seenDataIds, ...$args );
-		} );
+		$t->addHandler( null, [ PrepareDOM::class, 'handler' ] );
 		$t->traverse( $this->env, $node, [], $this->atTopLevel, null );
 
 		return $node;
