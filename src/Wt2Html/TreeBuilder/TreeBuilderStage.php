@@ -25,14 +25,11 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
-use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PipelineStage;
-use Wikimedia\Parsoid\Wt2Html\PP\Handlers\PrepareDOM;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 
 class TreeBuilderStage extends PipelineStage {
@@ -158,16 +155,6 @@ class TreeBuilderStage extends PipelineStage {
 			);
 		}
 
-		// Preparing the DOM is considered one "unit" with treebuilding,
-		// so traversing is done here rather than during post-processing.
-		//
-		// Necessary when testing the port, since:
-		// - the calls to fosterCommentData below are storing data-object-ids,
-		// which must be reinserted before storing
-		$t = new DOMTraverser();
-		$t->addHandler( null, [ PrepareDOM::class, 'handler' ] );
-		$t->traverse( $this->env, $node, [], $this->atTopLevel, null );
-
 		return $node;
 	}
 
@@ -290,13 +277,11 @@ class TreeBuilderStage extends PipelineStage {
 			);
 			if ( empty( $dataAttribs->autoInsertedStart ) ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
-				$attrs = $this->stashDataAttribs( [
-					'typeof' => 'mw:StartTag',
-					'data-stag' => "{$tName}:{$tmp->tagId}"
-				], $dataAttribs->clone() );
-				$this->dispatcher->comment(
-					WTUtils::fosterCommentData( 'mw:shadow', $attrs ),
-					0, 0
+				$this->dispatchMeta(
+					$this->stashDataAttribs( [
+						'typeof' => 'mw:StartTag',
+						'data-stag' => "{$tName}:{$tmp->tagId}"
+					], $dataAttribs->clone() )
 				);
 			}
 		} elseif ( $token instanceof SelfclosingTagTk ) {
@@ -330,12 +315,8 @@ class TreeBuilderStage extends PipelineStage {
 						// typeof starts with mw:Transclusion
 						$this->inTransclusion = ( $transType === 'mw:Transclusion' );
 					}
-					$this->dispatcher->comment(
-						WTUtils::fosterCommentData(
-							$token->getAttribute( 'typeof' ) ?? '',
-							$this->stashDataAttribs( $attribs, $dataAttribs )
-						), 0, 0
-					);
+					$typeof = $token->getAttribute( 'typeof' );
+					$this->dispatchMeta( $this->stashDataAttribs( $attribs, $dataAttribs ) );
 					$wasInserted = true;
 				}
 			}
@@ -360,10 +341,7 @@ class TreeBuilderStage extends PipelineStage {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 				$attribs['typeof'] = 'mw:EndTag';
 				$attribs['data-etag'] = $tName;
-				$this->dispatcher->comment(
-					WTUtils::fosterCommentData( 'mw:shadow', $this->stashDataAttribs( $attribs, $dataAttribs ) ),
-					0, 0
-				);
+				$this->dispatchMeta( $this->stashDataAttribs( $attribs, $dataAttribs ) );
 			}
 		} elseif ( $token instanceof CommentTk ) {
 			$this->dispatcher->comment( $token->value, 0, 0 );
@@ -377,6 +355,21 @@ class TreeBuilderStage extends PipelineStage {
 			];
 			$this->env->log( 'error', implode( "\n", $errors ) );
 		}
+	}
+
+	/**
+	 * Dispatch a meta tag in such a way that it won't be fostered even if the
+	 * currently open element is a table. This replaces the old comment hack.
+	 *
+	 * @param array $attribs
+	 */
+	private function dispatchMeta( array $attribs ) {
+		$this->dispatcher->flushTableText();
+		$this->dispatcher->inHead->startTag(
+			'meta',
+			new Attributes( $this->doc, $attribs ),
+			false, 0, 0
+		);
 	}
 
 	/**

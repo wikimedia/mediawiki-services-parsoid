@@ -779,63 +779,6 @@ class WTUtils {
 	}
 
 	/**
-	 * Conditional encoding is because, while treebuilding, the value goes
-	 * directly from token to dom node without the comment itself being
-	 * stringified and parsed where the comment encoding would be necessary.
-	 *
-	 * @param string $typeOf
-	 * @param array $attrs
-	 * @return string
-	 */
-	public static function fosterCommentData( string $typeOf, array $attrs ): string {
-		return PHPUtils::jsonEncode( [
-			// WARNING(T279451): The choice of "-type" as the key is because
-			// "-" will be encoded with self::encodeComment when comments come
-			// from source wikitext (see the grammar), so we can be sure when
-			// reinserting that the comments are internal to Parsoid
-			'-type' => $typeOf,
-			'attrs' => $attrs
-		] );
-	}
-
-	/**
-	 * @param Env $env
-	 * @param Node $node
-	 * @return ?Node
-	 */
-	public static function reinsertFosterableContent(
-		Env $env, Node $node
-	): ?Node {
-		if ( $node instanceof Comment && preg_match( '/^\{.+\}$/D', $node->nodeValue ) ) {
-			// Convert serialized meta tags back from comments.
-			// We use this trick because comments won't be fostered,
-			// providing more accurate information about where tags are expected
-			// to be found.
-			$data = json_decode( $node->nodeValue );
-			if ( $data === null ) {
-				// not a valid json attribute, do nothing
-				return null;
-			}
-			$type = $data->{'-type'} ?? '';
-			if ( str_starts_with( $type, 'mw:' ) ) {
-				$meta = $node->ownerDocument->createElement( 'meta' );
-				foreach ( $data->attrs as $key => $value ) {
-					try {
-						$meta->setAttribute( $key, $value );
-					} catch ( \Exception $e ) {
-						$env->log( 'warn', 'prepareDOM: Dropped invalid attribute',
-							$key, '=>', $value
-						);
-					}
-				}
-				$node->parentNode->replaceChild( $meta, $node );
-				return $meta;
-			}
-		}
-		return null;
-	}
-
-	/**
 	 * @param Env $env
 	 * @param Node $node
 	 * @return ?ExtensionTagHandler
