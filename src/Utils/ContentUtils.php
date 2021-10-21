@@ -367,34 +367,57 @@ class ContentUtils {
 	}
 
 	/**
+	 * @param Node $node
+	 * @param array $options
+	 * @return string
+	 */
+	private static function dumpNode( Node $node, array $options ): string {
+		if ( $node instanceof Element ) {
+			// cloneNode doesn't clone data => walk DOM to clone it
+			$clonedNode = $node->cloneNode( true );
+			self::cloneData( $node, $clonedNode, $options );
+			$node = $clonedNode;
+		}
+
+		return self::ppToXML( $node, $options );
+	}
+
+	/**
+	 * @param string[] $buf
+	 * @param Node $rootNode
+	 * @param array &$options
+	 */
+	private static function dumpFragment( array $buf, Node $rootNode, array &$options ): void {
+		if ( $rootNode instanceof DocumentFragment ) {
+			foreach ( $rootNode->childNodes as $child ) {
+				$buf[] = self::dumpNode( $child, $options );
+			}
+		} else {
+			$buf[] = self::dumpNode( $rootNode, $options );
+		}
+
+		self::emit( $buf, $options );
+	}
+
+	/**
 	 * Dump the DOM with attributes.
 	 *
 	 * @param Node $rootNode
 	 * @param string $title
-	 * @param array &$options
+	 * @param array $options
 	 */
 	public static function dumpDOM(
-		Node $rootNode, string $title, array &$options = []
+		Node $rootNode, string $title = '', array $options = []
 	): void {
 		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
-		}
-
-		if ( $rootNode instanceof Element ) {
-			// cloneNode doesn't clone data => walk DOM to clone it
-			$clonedRoot = $rootNode->cloneNode( true );
-			self::cloneData( $rootNode, $clonedRoot, $options );
-		} else {
-			$clonedRoot = $rootNode;
 		}
 
 		$buf = [];
 		if ( empty( $options['quiet'] ) ) {
 			$buf[] = '----- ' . $title . ' -----';
 		}
-
-		$buf[] = self::ppToXML( $clonedRoot, $options );
-		self::emit( $buf, $options );
+		self::dumpFragment( $buf, $rootNode, $options );
 
 		// Dump cached fragments
 		if ( !empty( $options['dumpFragmentMap'] ) ) {
@@ -402,13 +425,9 @@ class ContentUtils {
 				$buf = [];
 				$buf[] = str_repeat( '=', 15 );
 				$buf[] = 'FRAGMENT ' . $k;
-				$buf[] = '';
 				self::emit( $buf, $options );
 
-				$newOpts = $options;
-				$newOpts['dumpFragmentMap'] = false;
-				$newOpts['quiet'] = true;
-				self::dumpDOM( is_array( $fragment ) ? $fragment[0] : $fragment, '', $newOpts );
+				self::dumpFragment( [], is_array( $fragment ) ? $fragment[0] : $fragment, $options );
 			}
 		}
 
