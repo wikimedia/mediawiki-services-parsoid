@@ -50,6 +50,7 @@ class ScriptUtils {
 				'  * pre       : shows actions of the pre handler',
 				'  * p-wrap    : shows actions of the paragraph wrapper',
 				'  * html      : shows tokens that are sent to the HTML tree builder',
+				'  * remex     : shows RemexHtml\'s tree mutation events',
 				'  * dsr       : shows dsr computation on the DOM',
 				'  * tplwrap   : traces template wrapping code (currently only range overlap/nest/merge code)',
 				'  * wts       : trace actions of the regular wikitext serializer',

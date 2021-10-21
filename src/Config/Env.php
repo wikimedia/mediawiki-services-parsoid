@@ -27,6 +27,7 @@ use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
+use Wikimedia\RemexHtml\TreeBuilder\TreeMutationTracer;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -790,7 +791,17 @@ class Env {
 		// The options to DOMBuilder should be kept in sync with its other
 		// uses, so grep for it before changing
 		$domBuilder = new DOMBuilder;
-		$dispatcher = new Dispatcher( new TreeBuilder( $domBuilder ) );
+		if ( $this->hasTraceFlag( 'remex' ) ) {
+			$tracer = new TreeMutationTracer(
+				$domBuilder,
+				function ( $msg ) {
+					$this->log( 'trace/remex', $msg );
+				}
+			);
+		} else {
+			$tracer = $domBuilder;
+		}
+		$dispatcher = new Dispatcher( new TreeBuilder( $tracer ) );
 
 		// PORT-FIXME: Necessary to setEnableCdataCallback
 		$tokenizer = new Tokenizer( $dispatcher, '', [ 'ignoreErrors' => true ] );
