@@ -6,11 +6,11 @@
             "sitename": "Wikipedia",
             "mainpageisdomainroot": false,
             "logo": "//zh.wikipedia.org/static/images/project-logos/zhwiki.png",
-            "generator": "MediaWiki 1.37.0-wmf.9",
-            "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf1",
+            "generator": "MediaWiki 1.38.0-wmf.5",
+            "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf2",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.1.44-MariaDB",
+            "dbversion": "10.4.18-MariaDB-log",
             "imagewhitelistenabled": false,
             "langconversion": true,
             "linkconversion": true,
@@ -23,8 +23,8 @@
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "8b7b7ffdb2fb19d088129177b827fbc281a86c44",
-            "git-branch": "wmf/1.37.0-wmf.9",
+            "git-hash": "42a8fbc6a1d218ecca849d28269580b591c70f85",
+            "git-branch": "wmf/1.38.0-wmf.5",
             "case": "first-letter",
             "lang": "zh",
             "fallback": [
@@ -87,7 +87,7 @@
             "server": "//zh.wikipedia.org",
             "servername": "zh.wikipedia.org",
             "wikiid": "zhwiki",
-            "time": "2021-06-24T13:07:42Z",
+            "time": "2021-10-21T20:57:11Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -152,7 +152,7 @@
             "categorycollation": "uppercase",
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 398365,
+                "wmfEtcdLastModifiedIndex": 419520,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -2656,20 +2656,6 @@
                 "case-sensitive": true
             },
             {
-                "name": "coordinates",
-                "aliases": [
-                    "coordinates"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "primary",
-                "aliases": [
-                    "primary"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "statements",
                 "aliases": [
                     "statements"
@@ -2696,6 +2682,13 @@
                     "commaseparatedlist"
                 ],
                 "case-sensitive": false
+            },
+            {
+                "name": "expectedUnconnectedPage",
+                "aliases": [
+                    "__EXPECTED_UNCONNECTED_PAGE__"
+                ],
+                "case-sensitive": true
             },
             {
                 "name": "calendar",
@@ -2736,6 +2729,20 @@
                 "name": "isin",
                 "aliases": [
                     "isin"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "coordinates",
+                "aliases": [
+                    "coordinates"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "primary",
+                "aliases": [
+                    "primary"
                 ],
                 "case-sensitive": false
             },
@@ -5719,6 +5726,13 @@
                 "protorel": false
             },
             {
+                "prefix": "dag",
+                "local": true,
+                "language": "dagbanli",
+                "url": "https://dag.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "de",
                 "local": true,
                 "language": "Deutsch",
@@ -7056,6 +7070,13 @@
                 "protorel": false
             },
             {
+                "prefix": "shi",
+                "local": true,
+                "language": "Taclḥit",
+                "url": "https://shi.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "shn",
                 "local": true,
                 "language": "ၽႃႇသႃႇတႆး ",
@@ -7997,10 +8018,13 @@
             }
         },
         "defaultoptions": {
-            "monobook-responsive": true,
             "globaluserpage": true,
             "rcenhancedfilters-seen-highlight-button-counter": 0,
+            "advancedsearch-disable": false,
             "usebetatoolbar": 1,
+            "usecodemirror": 0,
+            "popupsreferencepreviews": 0,
+            "popups-reference-previews": 0,
             "visualeditor-autodisable": 0,
             "visualeditor-betatempdisable": 0,
             "visualeditor-editor": "visualeditor",
@@ -8031,18 +8055,21 @@
             "discussiontools-editmode": "",
             "discussiontools-newtopictool": 1,
             "discussiontools-replytool": 1,
-            "discussiontools-sourcemodetoolbar": 0,
+            "discussiontools-sourcemodetoolbar": 1,
             "discussiontools-topicsubscription": 1,
             "discussiontools-abtest": "",
             "usecodeeditor": 1,
-            "gettingstarted-task-toolbar-show-intro": true,
+            "revisionslider-disable": false,
             "eventlogging-display-web": 0,
             "uls-preferences": "",
             "compact-language-links": 1,
             "echo-subscriptions-web-cx": true,
+            "cx": false,
             "cx-enable-entrypoints": true,
             "cx-entrypoint-fd-status": "notshown",
             "cx_campaign_newarticle_shown": false,
+            "rcshowwikidata": 0,
+            "wlshowwikibase": 0,
             "echo-subscriptions-web-oauth-owner": true,
             "echo-subscriptions-email-oauth-owner": true,
             "echo-subscriptions-web-oauth-admin": true,
@@ -8078,7 +8105,6 @@
             "nickname": "",
             "pst-cssjs": 1,
             "norollbackdiff": 0,
-            "numberheadings": 0,
             "previewonfirst": 0,
             "previewontop": 1,
             "rcdays": 7,
@@ -8089,7 +8115,6 @@
             "shownumberswatching": 1,
             "showrollbackconfirmation": 0,
             "skin": "vector",
-            "stubthreshold": 0,
             "thumbsize": 4,
             "underline": 2,
             "uselivepreview": 0,
@@ -8115,7 +8140,7 @@
             "useeditwarning": 1,
             "prefershttps": 1,
             "requireemail": 0,
-            "wlshowwikibase": 0,
+            "skin-responsive": 1,
             "wikilove-enabled": 1,
             "echo-cross-wiki-notifications": 1,
             "centralnotice-display-campaign-type-advocacy": 1,
@@ -8142,28 +8167,108 @@
             "variant": "zh",
             "searchNs0": true,
             "gadget-edit0": 1,
+            "gadget-HotCat": 0,
+            "gadget-Cat-a-lot": 0,
+            "gadget-wikEd": 0,
+            "gadget-ProveIt": 0,
+            "gadget-specialchars": 0,
+            "gadget-PreviewWithVariant": 0,
+            "gadget-PreviewWithVariant2017": 0,
+            "gadget-EditTextboxWrapping": 0,
+            "gadget-CX-Template_Translated_page": 0,
+            "gadget-ToolsRedirect": 0,
+            "gadget-ToolsRedirect-opt-bolds": 0,
+            "gadget-ToolsRedirect-bio-latin-names": 0,
+            "gadget-ToolsRedirect-courtesy-and-art-names": 0,
+            "gadget-Wordcount": 0,
+            "gadget-fixlinkstyle": 0,
+            "gadget-dykc-nomination": 0,
+            "gadget-WikidataDesc": 0,
+            "gadget-link-ts": 0,
+            "gadget-easy-archive": 0,
+            "gadget-edit-count": 0,
+            "gadget-dcparticipant": 1,
+            "gadget-Edittools-vector": 0,
+            "gadget-Edittools-vplus": 0,
+            "gadget-Edittools-vote": 0,
+            "gadget-Edittools-delh": 0,
             "gadget-Edittools-refToolbar": 1,
+            "gadget-Navigation_popups": 0,
+            "gadget-removeAccessKeys": 0,
+            "gadget-UTCLiveClock": 0,
+            "gadget-contribsrange": 0,
+            "gadget-shareTool": 0,
             "gadget-WikiMiniAtlas": 1,
+            "gadget-fullwidth-search-fix": 0,
+            "gadget-ExternalLinkNewWin": 0,
             "gadget-ReferenceTooltips": 1,
             "gadget-UnihanTooltips": 1,
             "gadget-variant-link-fix": 1,
-            "gadget-confirm-logout": 1,
+            "gadget-OSMMap": 0,
+            "gadget-confirm-logout": 0,
             "gadget-shortURL": 1,
             "gadget-Difflink": 1,
             "gadget-pseudonamespace-UI": 1,
             "gadget-SpecialWikitext": 1,
             "gadget-AdvancedSiteNotices": 1,
+            "gadget-RedirectSubTipAtBottom": 0,
+            "gadget-hantsect": 0,
+            "gadget-popupUserLanguage": 0,
+            "gadget-ExternalSearch": 0,
             "gadget-hideConversionTab": 1,
+            "gadget-Blackskin": 0,
+            "gadget-moveEditsectionBack": 0,
+            "gadget-ViewSourceMode": 0,
+            "gadget-ImageAnnotator": 0,
+            "gadget-markblocked": 0,
+            "gadget-disableAnimationCollapse": 0,
+            "gadget-CommentsinLocalTime": 0,
+            "gadget-SimplifyRefNotesTag": 0,
+            "gadget-HideRefLinks": 0,
             "gadget-large-font": 1,
+            "gadget-OldDiff": 0,
+            "gadget-OldIlh": 0,
+            "gadget-internalLinkHelper-redonly": 0,
+            "gadget-internalLinkHelper-redtipsy": 0,
+            "gadget-internalLinkHelper-redplain": 0,
+            "gadget-internalLinkHelper-external": 0,
+            "gadget-internalLinkHelper-suffix": 0,
+            "gadget-internalLinkHelper-cravix": 0,
             "gadget-internalLinkHelper-altcolor": 1,
+            "gadget-internalLinkHelper-ilbluehl": 0,
             "gadget-noteTA": 1,
             "gadget-noteTAvector": 1,
             "gadget-NavFrame": 1,
             "gadget-collapsibleTables": 1,
+            "gadget-BugStatusUpdate": 0,
+            "gadget-RTRC": 0,
+            "gadget-DisambiguationLinks": 0,
+            "gadget-NotifCountTitle": 0,
+            "gadget-MarkRights": 0,
+            "gadget-OnlineAdmins": 0,
+            "gadget-RemoveCustomSigns": 0,
+            "gadget-HideEditSpecialChars": 0,
+            "gadget-HideWarnings": 0,
+            "gadget-ding": 0,
             "gadget-notifyConversion": 1,
             "gadget-CollapsibleSidebar": 1,
             "gadget-scrollUpButton": 1,
+            "gadget-Twinkle": 0,
+            "gadget-morebits": 0,
+            "gadget-Twinkle-pagestyles": 0,
+            "gadget-select2": 0,
+            "gadget-PatrollCount": 0,
+            "gadget-rollback-summary": 0,
             "gadget-CleanDeleteReasons": 1,
+            "gadget-dyktool": 0,
+            "gadget-SettingsUI": 0,
+            "gadget-SettingsManager": 0,
+            "gadget-libJQuery": 0,
+            "gadget-site-lib": 0,
+            "gadget-MoveResizeAbsolute": 0,
+            "gadget-searchFocus": 0,
+            "gadget-mainpage-localtime": 0,
+            "tmh-videojs": false,
             "cirrussearch-pref-completion-profile": "fuzzy",
             "multimediaviewer-enable": 1,
             "popups": "0",
@@ -8171,33 +8276,55 @@
             "echo-email-format": "html",
             "echo-subscriptions-email-system": true,
             "echo-subscriptions-web-system": true,
+            "echo-subscriptions-push-system": true,
             "echo-subscriptions-email-system-noemail": false,
             "echo-subscriptions-web-system-noemail": true,
+            "echo-subscriptions-push-system-noemail": true,
             "echo-subscriptions-email-system-emailonly": false,
             "echo-subscriptions-web-system-emailonly": true,
+            "echo-subscriptions-push-system-emailonly": true,
             "echo-subscriptions-email-user-rights": true,
             "echo-subscriptions-web-user-rights": true,
+            "echo-subscriptions-push-user-rights": true,
             "echo-subscriptions-email-other": false,
             "echo-subscriptions-web-other": true,
+            "echo-subscriptions-push-other": true,
             "echo-subscriptions-email-edit-user-talk": false,
             "echo-subscriptions-web-edit-user-talk": true,
+            "echo-subscriptions-push-edit-user-talk": true,
             "echo-subscriptions-email-reverted": false,
             "echo-subscriptions-web-reverted": true,
+            "echo-subscriptions-push-reverted": true,
             "echo-subscriptions-email-article-linked": false,
             "echo-subscriptions-web-article-linked": false,
+            "echo-subscriptions-push-article-linked": false,
             "echo-subscriptions-email-mention": false,
             "echo-subscriptions-web-mention": true,
+            "echo-subscriptions-push-mention": true,
             "echo-subscriptions-email-mention-failure": false,
             "echo-subscriptions-web-mention-failure": false,
+            "echo-subscriptions-push-mention-failure": false,
             "echo-subscriptions-email-mention-success": false,
             "echo-subscriptions-web-mention-success": false,
+            "echo-subscriptions-push-mention-success": false,
             "echo-subscriptions-email-emailuser": false,
             "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-push-emailuser": true,
             "echo-subscriptions-email-thank-you-edit": false,
             "echo-subscriptions-web-thank-you-edit": true,
+            "echo-subscriptions-push-thank-you-edit": true,
+            "echo-subscriptions-push-login-fail": true,
+            "echo-subscriptions-push-login-success": true,
+            "echo-subscriptions-push-edit-thank": true,
+            "echo-subscriptions-push-flow-discussion": true,
+            "echo-subscriptions-email-dt-subscription": false,
+            "echo-subscriptions-web-dt-subscription": true,
+            "echo-subscriptions-push-dt-subscription": true,
             "echo-subscriptions-email-cx": false,
+            "echo-subscriptions-push-cx": true,
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
+            "echo-subscriptions-push-wikibase-action": true,
             "twocolconflict-enabled": 1
         },
         "specialpagealiases": [
@@ -9718,15 +9845,6 @@
                 ]
             },
             {
-                "realname": "History",
-                "aliases": [
-                    "历史",
-                    "歷史",
-                    "历史",
-                    "History"
-                ]
-            },
-            {
                 "realname": "MobileDiff",
                 "aliases": [
                     "移动版差异",
@@ -9734,6 +9852,15 @@
                     "行動版差異",
                     "移动版差异",
                     "MobileDiff"
+                ]
+            },
+            {
+                "realname": "History",
+                "aliases": [
+                    "历史",
+                    "歷史",
+                    "历史",
+                    "History"
                 ]
             },
             {
@@ -9863,6 +9990,12 @@
                 "aliases": [
                     "链接到消歧义页的页面",
                     "DisambiguationPageLinks"
+                ]
+            },
+            {
+                "realname": "TopicSubscriptions",
+                "aliases": [
+                    "TopicSubscriptions"
                 ]
             },
             {
@@ -10022,24 +10155,13 @@
                 ]
             },
             {
-                "realname": "GlobalRenameRequest",
-                "aliases": [
-                    "全域重命名申请",
-                    "GlobalRenameRequest"
-                ]
-            },
-            {
-                "realname": "GlobalRenameQueue",
-                "aliases": [
-                    "全域重命名队列",
-                    "GlobalRenameQueue"
-                ]
-            },
-            {
                 "realname": "Nearby",
                 "aliases": [
                     "附近",
                     "附近",
+                    "附近",
+                    "附近",
+                    "Nearby",
                     "Nearby"
                 ]
             },
@@ -10053,6 +10175,20 @@
                 "realname": "InvestigateBlock",
                 "aliases": [
                     "InvestigateBlock"
+                ]
+            },
+            {
+                "realname": "GlobalRenameRequest",
+                "aliases": [
+                    "全域重命名申请",
+                    "GlobalRenameRequest"
+                ]
+            },
+            {
+                "realname": "GlobalRenameQueue",
+                "aliases": [
+                    "全域重命名队列",
+                    "GlobalRenameQueue"
                 ]
             }
         ],
@@ -10069,21 +10205,21 @@
             "<source>",
             "<syntaxhighlight>",
             "<poem>",
-            "<categorytree>",
             "<quiz>",
             "<score>",
             "<templatestyles>",
             "<templatedata>",
-            "<math>",
-            "<ce>",
-            "<chem>",
             "<graph>",
             "<maplink>",
             "<mapframe>",
             "<charinsert>",
             "<ref>",
             "<references>",
-            "<section>"
+            "<categorytree>",
+            "<section>",
+            "<math>",
+            "<ce>",
+            "<chem>"
         ],
         "functionhooks": [
             "ns",
@@ -10159,7 +10295,6 @@
             "tag",
             "formatdate",
             "displaytitle",
-            "categorytree",
             "target",
             "babel",
             "coordinates",
@@ -10176,6 +10311,7 @@
             "expr",
             "rel2abs",
             "titleparts",
+            "categorytree",
             "lst",
             "lstx",
             "lsth",
