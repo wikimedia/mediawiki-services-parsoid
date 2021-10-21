@@ -3355,13 +3355,13 @@
                     "url": "https://jv.wikipedia.org",
                     "dbname": "jvwiki",
                     "code": "wiki",
-                    "sitename": "Wikipedia"
+                    "sitename": "Wikipédia"
                 },
                 {
                     "url": "https://jv.wiktionary.org",
                     "dbname": "jvwiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "Wikisastra"
                 },
                 {
                     "url": "https://jv.wikisource.org",
@@ -3730,13 +3730,13 @@
                     "url": "https://ks.wikipedia.org",
                     "dbname": "kswiki",
                     "code": "wiki",
-                    "sitename": "Wikipedia"
+                    "sitename": "وِکیٖپیٖڈیا"
                 },
                 {
                     "url": "https://ks.wiktionary.org",
                     "dbname": "kswiktionary",
                     "code": "wiktionary",
-                    "sitename": "Wiktionary"
+                    "sitename": "وِکیٖلۄغَتھ"
                 },
                 {
                     "url": "https://ks.wikibooks.org",
