@@ -456,7 +456,7 @@ class TestRunner {
 		$body = DOMCompat::getBody( $doc );
 
 		if ( $env->hasDumpFlag( 'dom:post-changes' ) ) {
-			ContentUtils::dumpDOM( $body, 'Original DOM' );
+			$env->writeDump( ContentUtils::dumpDOM( $body, 'Original DOM' ) );
 		}
 
 		if ( $test->changes === [ 5 ] ) {
@@ -470,8 +470,10 @@ class TestRunner {
 		}
 
 		if ( $env->hasDumpFlag( 'dom:post-changes' ) ) {
-			error_log( 'Change tree : ' . json_encode( $test->changes ) . "\n" );
-			ContentUtils::dumpDOM( $body, 'Edited DOM' );
+			$env->writeDump(
+				'Change tree : ' . json_encode( $test->changes ) . "\n" .
+				ContentUtils::dumpDOM( $body, 'Edited DOM' )
+			);
 		}
 	}
 

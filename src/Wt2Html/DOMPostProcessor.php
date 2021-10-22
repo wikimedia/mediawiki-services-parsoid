@@ -874,7 +874,7 @@ class DOMPostProcessor extends PipelineStage {
 
 		if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-builder' ) ) {
 			$opts = [];
-			ContentUtils::dumpDOM( $node, 'DOM: after tree builder', $opts );
+			$env->writeDump( ContentUtils::dumpDOM( $node, 'DOM: after tree builder', $opts ) );
 		}
 
 		$startTime = null;
@@ -926,8 +926,12 @@ class DOMPostProcessor extends PipelineStage {
 					'keepTmp' => true
 				];
 
-				if ( $env->hasDumpFlag( 'dom:pre-' . $pp['shortcut'] ) ) {
-					ContentUtils::dumpDOM( $node, 'DOM: pre-' . $pp['shortcut'], $opts );
+				if ( $env->hasDumpFlag( 'dom:pre-' . $pp['shortcut'] )
+					|| $env->hasDumpFlag( 'dom:pre-*' )
+				) {
+					$env->writeDump(
+						ContentUtils::dumpDOM( $node, 'DOM: pre-' . $pp['shortcut'], $opts )
+					);
 				}
 			}
 
@@ -935,8 +939,12 @@ class DOMPostProcessor extends PipelineStage {
 			// to how $this->frame may be updated.
 			$pp['proc']( $node, [ 'frame' => $this->frame ] + $this->options, $this->atTopLevel );
 
-			if ( $hasDumpFlags && $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] ) ) {
-				ContentUtils::dumpDOM( $node, 'DOM: post-' . $pp['shortcut'], $opts );
+			if ( $hasDumpFlags && ( $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] )
+				|| $env->hasDumpFlag( 'dom:post-*' ) )
+			) {
+				$env->writeDump(
+					ContentUtils::dumpDOM( $node, 'DOM: post-' . $pp['shortcut'], $opts )
+				);
 			}
 
 			if ( $profile ) {

@@ -805,9 +805,8 @@ class DOMNormalizer {
 					$options = [
 						'storeDiffMark' => true,
 						'env' => $this->state->getEnv(),
-						'outBuffer' => []
 					];
-					ContentUtils::dumpDOM( DOMCompat::getBody( $node->ownerDocument ),
+					$dump = ContentUtils::dumpDOM( DOMCompat::getBody( $node->ownerDocument ),
 						'-- DOM triggering nested inserted dom-diff flags --',
 						$options
 					);
@@ -817,7 +816,7 @@ class DOMNormalizer {
 						$node instanceof Element ? ContentUtils::ppToXML( $node ) : $node->textContent,
 						"\nNode's parent:",
 						ContentUtils::ppToXML( $node->parentNode ),
-						$options['outBuffer']
+						$dump
 					);
 				}
 				// FIXME: If this assert is removed, the above dumping code should

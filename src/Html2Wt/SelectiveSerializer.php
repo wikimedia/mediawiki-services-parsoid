@@ -229,8 +229,10 @@ class SelectiveSerializer {
 		} else {
 			if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
 				$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
-				ContentUtils::dumpDOM( $oldBody, 'OLD DOM ', $options );
-				ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options );
+				$this->env->writeDump(
+					ContentUtils::dumpDOM( $oldBody, 'OLD DOM ', $options ) . "\n" .
+					ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options )
+				);
 			}
 
 			// Call the WikitextSerializer to do our bidding

@@ -36,7 +36,6 @@ class ContentUtils {
 	 * @return string
 	 */
 	public static function ppToXML( Node $node, array $options = [] ): string {
-		// We really only want to pass along `$options['keepTmp']`
 		DOMDataUtils::visitAndStoreDataAttribs( $node, $options );
 		return self::toXML( $node, $options );
 	}
@@ -161,21 +160,6 @@ class ContentUtils {
 			self::cloneData( $node, $clone, $options );
 			$node = $node->nextSibling;
 			$clone = $clone->nextSibling;
-		}
-	}
-
-	/**
-	 * @param array $buf
-	 * @param array &$opts
-	 */
-	private static function emit( array $buf, array &$opts ): void {
-		$str = implode( "\n", $buf ) . "\n";
-		if ( isset( $opts['outBuffer'] ) ) {
-			$opts['outBuffer'] .= $str;
-		} elseif ( isset( $opts['outStream'] ) ) {
-			fwrite( $opts['outStream'], $str . "\n" );
-		} else {
-			error_log( $str );
 		}
 	}
 
@@ -383,20 +367,18 @@ class ContentUtils {
 	}
 
 	/**
-	 * @param string[] $buf
+	 * @param string &$buf
 	 * @param Node $rootNode
-	 * @param array &$options
+	 * @param array $options
 	 */
-	private static function dumpFragment( array $buf, Node $rootNode, array &$options ): void {
+	private static function dumpFragment( string &$buf, Node $rootNode, array $options ): void {
 		if ( $rootNode instanceof DocumentFragment ) {
 			foreach ( $rootNode->childNodes as $child ) {
-				$buf[] = self::dumpNode( $child, $options );
+				$buf .= self::dumpNode( $child, $options ) . "\n";
 			}
 		} else {
-			$buf[] = self::dumpNode( $rootNode, $options );
+			$buf .= self::dumpNode( $rootNode, $options ) . "\n";
 		}
-
-		self::emit( $buf, $options );
 	}
 
 	/**
@@ -404,36 +386,51 @@ class ContentUtils {
 	 *
 	 * @param Node $rootNode
 	 * @param string $title
-	 * @param array $options
+	 * @param array $options Associative array of options:
+	 *   - dumpFragmentMap: Dump the fragment map from env
+	 *   - quiet: Suppress separators
+	 *
+	 * storeDataAttribs options:
+	 *   - discardDataParsoid
+	 *   - keepTmp
+	 *   - storeInPageBundle
+	 *   - storeDiffMark
+	 *   - env
+	 *   - idIndex
+	 *
+	 * XMLSerializer options:
+	 *   - smartQuote
+	 *   - innerXML
+	 *   - captureOffsets
+	 *   - addDoctype
+	 * @return string The dump result
 	 */
 	public static function dumpDOM(
 		Node $rootNode, string $title = '', array $options = []
-	): void {
+	): string {
 		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
 
-		$buf = [];
+		$buf = '';
 		if ( empty( $options['quiet'] ) ) {
-			$buf[] = '----- ' . $title . ' -----';
+			$buf .= "----- {$title} -----\n";
 		}
 		self::dumpFragment( $buf, $rootNode, $options );
 
 		// Dump cached fragments
 		if ( !empty( $options['dumpFragmentMap'] ) ) {
 			foreach ( $options['env']->getDOMFragmentMap() as $k => $fragment ) {
-				$buf = [];
-				$buf[] = str_repeat( '=', 15 );
-				$buf[] = 'FRAGMENT ' . $k;
-				self::emit( $buf, $options );
-
-				self::dumpFragment( [], is_array( $fragment ) ? $fragment[0] : $fragment, $options );
+				$buf .= str_repeat( '=', 15 ) . "\n";
+				$buf .= "FRAGMENT {$k}\n";
+				self::dumpFragment( $buf, is_array( $fragment ) ? $fragment[0] : $fragment, $options );
 			}
 		}
 
 		if ( empty( $options['quiet'] ) ) {
-			self::emit( [ str_repeat( '-', mb_strlen( $title ) + 12 ) ], $options );
+			$buf .= str_repeat( '-', mb_strlen( $title ) + 12 ) . "\n";
 		}
+		return $buf;
 	}
 
 }

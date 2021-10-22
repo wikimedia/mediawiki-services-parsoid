@@ -416,6 +416,14 @@ class Env {
 	}
 
 	/**
+	 * Write out a string (because it was requested by dumpFlags)
+	 * @param string $str
+	 */
+	public function writeDump( string $str ) {
+		error_log( $str );
+	}
+
+	/**
 	 * Get the site config
 	 * @return SiteConfig
 	 */

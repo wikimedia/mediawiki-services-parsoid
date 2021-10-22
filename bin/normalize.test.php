@@ -27,5 +27,5 @@ $opts = [ 'env' => $mockEnv,
 	'keepTmp' => true,
 	'storeDiffMark' => true,
 ];
-ContentUtils::dumpDOM( $body, 'DOM post-normalization', $opts );
+print ContentUtils::dumpDOM( $body, 'DOM post-normalization', $opts );
 print "\n";

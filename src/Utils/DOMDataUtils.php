@@ -537,10 +537,18 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * PORT_FIXME This function needs an accurate description
+	 * Copy data attributes from the bag to either JSON-encoded attributes on
+	 * each node, or the page bundle, erasing the data-object-id attributes.
 	 *
 	 * @param Node $node node
 	 * @param ?array $options options
+	 *   - discardDataParsoid: Discard DataParsoid objects instead of storing them
+	 *   - keepTmp: Preserve DataParsoid::$tmp
+	 *   - storeInPageBundle: If true, data will be stored in the page bundle
+	 *     instead of data-parsoid and data-mw.
+	 *   - storeDiffMark: Serialize diffs into data-parsoid-diff
+	 *   - env: The Env object required for various features
+	 *   - idIndex: Array of used ID attributes
 	 */
 	public static function storeDataAttribs( Node $node, ?array $options = null ): void {
 		$options = $options ?? [];
