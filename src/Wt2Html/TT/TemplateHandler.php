@@ -672,7 +672,7 @@ class TemplateHandler extends TokenHandler {
 	private function processTemplateSource(
 		array $state, array $tplArgs, ?string $src
 	): array {
-		if ( !$src ) {
+		if ( $src === null ) {
 			// We have a choice between aborting or keeping going and reporting the
 			// error inline.
 			// TODO: report as special error token and format / remove that just
