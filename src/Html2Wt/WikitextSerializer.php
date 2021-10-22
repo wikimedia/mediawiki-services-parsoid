@@ -715,12 +715,6 @@ class WikitextSerializer {
 		'@phan-var stdClass $tgt';
 		$buf .= $this->formatStringSubst( $formatStart, $tgt->wt, $forceTrim );
 
-		// Account for clients leaving off the params array, presumably when empty.
-		// See T291741
-		if ( !isset( $part->params ) ) {
-			$part->params = new stdClass;
-		}
-
 		// Trim whitespace from data-mw keys to deal with non-compliant
 		// clients. Make sure param info is accessible for the stripped key
 		// since later code will be using the stripped key always.
@@ -933,24 +927,35 @@ class WikitextSerializer {
 		$useTplData = WTUtils::isNewElt( $node ) || DiffUtils::hasDiffMarkers( $node, $this->env );
 		$buf = '';
 		foreach ( $srcParts as $i => $part ) {
-			$prevPart = $srcParts[$i - 1] ?? null;
-			$nextPart = $srcParts[$i + 1] ?? null;
-			$tplArg = $part->templatearg ?? null;
-			if ( $tplArg ) {
-				$buf = $this->serializePart( $state, $buf, $node, 'templatearg',
-					$tplArg, null, $prevPart, $nextPart );
+			if ( is_string( $part ) ) {
+				$buf .= $part;
 				continue;
 			}
 
-			$tpl = $part->template ?? null;
-			if ( !$tpl ) {
-				if ( is_string( $part ) ) {
-					$buf .= $part;
-				} else {
-					// Maybe we should just raise a ClientError
-					$this->env->log( 'error', 'data-mw.parts array is malformed: ',
-						DOMCompat::getOuterHTML( $node ), PHPUtils::jsonEncode( $srcParts ) );
-				}
+			$prevPart = $srcParts[$i - 1] ?? null;
+			$nextPart = $srcParts[$i + 1] ?? null;
+
+			$isTplArg = isset( $part->templatearg );
+			$tpl = $part->templatearg ?? $part->template ?? null;
+
+			if ( !isset( $tpl->target->wt ) ) {
+				// Maybe we should just raise a ClientError
+				$this->env->log( 'error', 'data-mw.parts array is malformed: ',
+					DOMCompat::getOuterHTML( $node ), PHPUtils::jsonEncode( $srcParts ) );
+				continue;
+			}
+
+			// Account for clients leaving off the params array, presumably when empty.
+			// See T291741
+			if ( !isset( $tpl->params ) ) {
+				$tpl->params = new stdClass;
+			}
+
+			if ( $isTplArg ) {
+				$buf = $this->serializePart(
+					$state, $buf, $node, 'templatearg', $tpl, null, $prevPart,
+					$nextPart
+				);
 				continue;
 			}
 
