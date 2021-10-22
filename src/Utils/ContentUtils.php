@@ -140,30 +140,6 @@ class ContentUtils {
 	}
 
 	/**
-	 * @param Node $node
-	 * @param Node $clone
-	 * @param array $options
-	 */
-	private static function cloneData(
-		Node $node, Node $clone, array $options
-	): void {
-		if ( !( $node instanceof Element ) ) {
-			return;
-		}
-		DOMUtils::assertElt( $clone );
-
-		$d = DOMDataUtils::getNodeData( $node );
-		DOMDataUtils::setNodeData( $clone,  $d->clone() );
-		$node = $node->firstChild;
-		$clone = $clone->firstChild;
-		while ( $node ) {
-			self::cloneData( $node, $clone, $options );
-			$node = $node->nextSibling;
-			$clone = $clone->nextSibling;
-		}
-	}
-
-	/**
 	 * Shift the DSR of a DOM fragment.
 	 * @param Env $env
 	 * @param Node $rootNode
@@ -356,29 +332,7 @@ class ContentUtils {
 	 * @return string
 	 */
 	private static function dumpNode( Node $node, array $options ): string {
-		if ( $node instanceof Element ) {
-			// cloneNode doesn't clone data => walk DOM to clone it
-			$clonedNode = $node->cloneNode( true );
-			self::cloneData( $node, $clonedNode, $options );
-			$node = $clonedNode;
-		}
-
-		return self::ppToXML( $node, $options );
-	}
-
-	/**
-	 * @param string &$buf
-	 * @param Node $rootNode
-	 * @param array $options
-	 */
-	private static function dumpFragment( string &$buf, Node $rootNode, array $options ): void {
-		if ( $rootNode instanceof DocumentFragment ) {
-			foreach ( $rootNode->childNodes as $child ) {
-				$buf .= self::dumpNode( $child, $options ) . "\n";
-			}
-		} else {
-			$buf .= self::dumpNode( $rootNode, $options ) . "\n";
-		}
+		return self::toXML( $node, $options + [ 'saveData' => true ] );
 	}
 
 	/**
@@ -416,14 +370,17 @@ class ContentUtils {
 		if ( empty( $options['quiet'] ) ) {
 			$buf .= "----- {$title} -----\n";
 		}
-		self::dumpFragment( $buf, $rootNode, $options );
+		$buf .= self::dumpNode( $rootNode, $options ) . "\n";
 
 		// Dump cached fragments
 		if ( !empty( $options['dumpFragmentMap'] ) ) {
 			foreach ( $options['env']->getDOMFragmentMap() as $k => $fragment ) {
 				$buf .= str_repeat( '=', 15 ) . "\n";
 				$buf .= "FRAGMENT {$k}\n";
-				self::dumpFragment( $buf, is_array( $fragment ) ? $fragment[0] : $fragment, $options );
+				$buf .= self::dumpNode(
+					is_array( $fragment ) ? $fragment[0] : $fragment,
+					$options
+				) . "\n";
 			}
 		}
 
