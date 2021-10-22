@@ -306,13 +306,14 @@ class DOMUtils {
 	 *
 	 * @param Node $node
 	 * @param string $name
-	 * @return ?Node
+	 * @return ?Element
 	 */
-	public static function findAncestorOfName( Node $node, string $name ): ?Node {
+	public static function findAncestorOfName( Node $node, string $name ): ?Element {
 		$node = $node->parentNode;
 		while ( $node && DOMCompat::nodeName( $node ) !== $name ) {
 			$node = $node->parentNode;
 		}
+		'@phan-var Element $node'; // @var Element $node
 		return $node;
 	}
 
