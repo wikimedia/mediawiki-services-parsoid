@@ -46,8 +46,8 @@ class WTSUtils {
 	 */
 	public static function getAttributeKVArray( Element $node ): array {
 		$kvs = [];
-		foreach ( DOMCompat::attributes( $node ) as $attrib ) {
-			$kvs[] = new KV( $attrib->name, $attrib->value );
+		foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
+			$kvs[] = new KV( $name, $value );
 		}
 		return $kvs;
 	}

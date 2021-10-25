@@ -91,14 +91,11 @@ class CleanUp {
 		) {
 			return true;
 		}
-		if ( DOMCompat::hasAttributes( $node ) ) {
-			foreach ( DOMCompat::attributes( $node ) as $a ) {
-				if ( ( $a->name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
-					( !$tplInfo || $a->name !== 'about' || !Utils::isParsoidObjectId( $a->value ) )
-
-				) {
-					return true;
-				}
+		foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
+			if ( ( $name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
+				( !$tplInfo || $name !== 'about' || !Utils::isParsoidObjectId( $value ) )
+			) {
+				return true;
 			}
 		}
 

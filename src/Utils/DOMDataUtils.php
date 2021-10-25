@@ -76,7 +76,11 @@ class DOMDataUtils {
 	 * @return bool
 	 */
 	public static function noAttrs( Element $node ): bool {
-		$numAttrs = count( DOMCompat::attributes( $node ) );
+		// The 'xmlns' attribute is "invisible" T235295
+		if ( $node->hasAttribute( 'xmlns' ) ) {
+			return false;
+		}
+		$numAttrs = count( $node->attributes );
 		return $numAttrs === 0 ||
 			( $numAttrs === 1 && $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) );
 	}

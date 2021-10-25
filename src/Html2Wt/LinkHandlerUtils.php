@@ -909,15 +909,19 @@ class LinkHandlerUtils {
 				);
 			}
 		} else {
-			$safeAttr = array_flip( [
-				'href', 'rel', 'class', 'title', DOMDataUtils::DATA_OBJECT_ATTR_NAME
-			] );
+			$safeAttr = [
+				'href' => true,
+				'rel' => true,
+				'class' => true,
+				'title' => true,
+				DOMDataUtils::DATA_OBJECT_ATTR_NAME => true
+			];
 
 			$isComplexLink = false;
-			foreach ( DOMCompat::attributes( $node ) as $attr ) {
+			foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
 				// XXX: Don't drop rel and class in every case once a tags are
 				// actually supported in the MW default config?
-				if ( $attr->name && !isset( $safeAttr[$attr->name] ) ) {
+				if ( !isset( $safeAttr[$name] ) ) {
 					$isComplexLink = true;
 					break;
 				}

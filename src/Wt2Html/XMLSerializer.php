@@ -87,9 +87,7 @@ class XMLSerializer {
 				$nodeName = DOMCompat::nodeName( $node );
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
-				foreach ( DOMCompat::attributes( $node ) as $attr ) {
-					$an = $attr->name;
-					$av = $attr->value;
+				foreach ( DOMUtils::attributes( $node ) as $an => $av ) {
 					if ( $options['smartQuote']
 						// More double quotes than single quotes in value?
 						&& substr_count( $av, '"' ) > substr_count( $av, "'" )

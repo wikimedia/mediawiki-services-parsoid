@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Attr;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -192,14 +191,14 @@ class PipelineUtils {
 	 * are stored outside the DOM.
 	 *
 	 * @param Element $node
-	 * @param Attr[] $attrs
+	 * @param string[] $attrs
 	 * @return array
 	 */
 	private static function domAttrsToTagAttrs( Element $node, array $attrs ): array {
 		$out = [];
-		foreach ( $attrs as $a ) {
-			if ( $a->name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) {
-				$out[] = new KV( $a->name, $a->value );
+		foreach ( $attrs as $name => $value ) {
+			if ( $name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) {
+				$out[] = new KV( $name, $value );
 			}
 		}
 		if ( DOMDataUtils::validDataMw( $node ) ) {
@@ -218,7 +217,7 @@ class PipelineUtils {
 	private static function convertDOMtoTokens( Node $node, array $tokBuf ): array {
 		if ( $node instanceof Element ) {
 			$nodeName = DOMCompat::nodeName( $node );
-			$attrInfo = self::domAttrsToTagAttrs( $node, DOMCompat::attributes( $node ) );
+			$attrInfo = self::domAttrsToTagAttrs( $node, DOMUtils::attributes( $node ) );
 
 			if ( Utils::isVoidElement( $nodeName ) ) {
 				$tokBuf[] = new SelfclosingTagTk( $nodeName, $attrInfo['attrs'], $attrInfo['dataAttrs'] );
@@ -354,11 +353,10 @@ class PipelineUtils {
 				$workNode = $node->ownerDocument->createElement( $wrapperName );
 
 				// Copy over attributes
-				foreach ( DOMCompat::attributes( $node ) as $attribute ) {
-					'@phan-var Attr $attribute'; // @var Attr $attribute
+				foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
 					// "typeof" is ignored since it'll be removed below.
-					if ( $attribute->name !== 'typeof' ) {
-						$workNode->setAttribute( $attribute->name, $attribute->value );
+					if ( $name !== 'typeof' ) {
+						$workNode->setAttribute( $name, $value );
 					}
 				}
 

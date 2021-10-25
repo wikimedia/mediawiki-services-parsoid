@@ -956,4 +956,28 @@ class DOMUtils {
 	public static function isRawTextElement( Node $node ): bool {
 		return isset( WikitextConstants::$HTML['RawTextElements'][DOMCompat::nodeName( $node )] );
 	}
+
+	/**
+	 * Get an associative array of attributes, suitable for serialization.
+	 *
+	 * Add the xmlns attribute if available, to workaround PHP's surprising
+	 * behavior with the xmlns attribute: HTML is *not* an XML document,
+	 * but various parts of PHP (including our misnamed XMLSerializer) pretend
+	 * that it is, sort of.
+	 *
+	 * @param Element $element
+	 * @return string[]
+	 * @see https://phabricator.wikimedia.org/T235295
+	 */
+	public static function attributes( $element ): array {
+		$result = [];
+		// The 'xmlns' attribute is "invisible" T235295
+		if ( $element->hasAttribute( 'xmlns' ) ) {
+			$result['xmlns'] = $element->getAttribute( 'xmlns' );
+		}
+		foreach ( $element->attributes as $attr ) {
+			$result[$attr->name] = $attr->value;
+		}
+		return $result;
+	}
 }

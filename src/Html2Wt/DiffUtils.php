@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -181,28 +180,26 @@ class DiffUtils {
 	/**
 	 * @param Element $node
 	 * @param array $ignoreableAttribs
-	 * @return stdClass
+	 * @return array
 	 */
-	private static function arrayToHash( Element $node, array $ignoreableAttribs ): stdClass {
-		$h = [];
+	private static function getAttributes( Element $node, array $ignoreableAttribs ): array {
+		$h = DOMUtils::attributes( $node );
 		$count = 0;
-		foreach ( DOMCompat::attributes( $node ) as $a ) {
-			if ( !in_array( $a->name, $ignoreableAttribs, true ) ) {
+		foreach ( $h as $name => $value ) {
+			if ( in_array( $name, $ignoreableAttribs, true ) ) {
 				$count++;
-				$h[$a->name] = $a->value;
+				unset( $h[$name] );
 			}
 		}
 		// If there's no special attribute handler, we want a straight
 		// comparison of these.
 		if ( !in_array( 'data-parsoid', $ignoreableAttribs, true ) ) {
 			$h['data-parsoid'] = DOMDataUtils::getDataParsoid( $node );
-			$count++;
 		}
 		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) && DOMDataUtils::validDataMw( $node ) ) {
 			$h['data-mw'] = DOMDataUtils::getDataMw( $node );
-			$count++;
 		}
-		return (object)[ 'h' => $h, 'count' => $count ];
+		return $h;
 	}
 
 	/**
@@ -217,22 +214,19 @@ class DiffUtils {
 	public static function attribsEquals(
 		Element $nodeA, Element $nodeB, array $ignoreableAttribs, array $specializedAttribHandlers
 	): bool {
-		$xA = self::arrayToHash( $nodeA, $ignoreableAttribs );
-		$xB = self::arrayToHash( $nodeB, $ignoreableAttribs );
+		$hA = self::getAttributes( $nodeA, $ignoreableAttribs );
+		$hB = self::getAttributes( $nodeB, $ignoreableAttribs );
 
-		if ( $xA->count !== $xB->count ) {
+		if ( count( $hA ) !== count( $hB ) ) {
 			return false;
 		}
 
-		$hA = $xA->h;
 		$keysA = array_keys( $hA );
 		sort( $keysA );
-		$hB = $xB->h;
 		$keysB = array_keys( $hB );
 		sort( $keysB );
 
-		for ( $i = 0; $i < $xA->count; $i++ ) {
-			$k = $keysA[$i];
+		foreach ( $keysA as $i => $k ) {
 			if ( $k !== $keysB[$i] ) {
 				return false;
 			}

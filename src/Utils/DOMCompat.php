@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\DOM\Attr;
 use Wikimedia\Parsoid\DOM\CharacterData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -204,46 +203,6 @@ class DOMCompat {
 	public static function setIdAttribute( $element, string $id ): void {
 		$element->setAttribute( 'id', $id );
 		$element->setIdAttribute( 'id', true );// phab:T232390
-	}
-
-	/**
-	 * Workaround bug in PHP's Element::$attributes that fails to enumerate
-	 * attributes named `xmlns`.
-	 *
-	 * @param Element $element
-	 * @return Attr[]
-	 * @see https://phabricator.wikimedia.org/T235295
-	 */
-	public static function attributes( $element ): array {
-		$result = [];
-		// The 'xmlns' attribute is "invisible" T235295
-		if ( $element->hasAttribute( 'xmlns' ) ) {
-			// $element->getAttributeNode actually returns a DOMNameSpaceNode
-			// This is read-only, unlike the other Attr objects
-			$attr = $element->ownerDocument->createAttributeNS(
-				'http://www.w3.org/2000/xmlns/', 'xmlns'
-			);
-			$attr->value = $element->getAttribute( 'xmlns' );
-			$result[] = $attr;
-		}
-		foreach ( $element->attributes as $attr ) {
-			// These are Attr objects
-			$result[] = $attr;
-		}
-		return $result;
-	}
-
-	/**
-	 * Workaround bug in PHP's Element::hasAttributes() that fails to
-	 * enumerate attributes named `xmlns`.
-	 *
-	 * @param Element $element
-	 * @return bool True if the element has any attributes
-	 * @see https://phabricator.wikimedia.org/T235295
-	 */
-	public static function hasAttributes( $element ): bool {
-		// The 'xmlns' attribute is "invisible" T235295
-		return $element->hasAttributes() || $element->hasAttribute( 'xmlns' );
 	}
 
 	/**
