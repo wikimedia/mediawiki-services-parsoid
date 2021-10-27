@@ -310,4 +310,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			unset( $argDict->attrs->caption );
 		}
 	}
+
+	/** @inheritDoc */
+	public function diffHandler(
+		ParsoidExtensionAPI $extApi, callable $domDiff, Element $origNode,
+		Element $editedNode
+	): bool {
+		return call_user_func( $domDiff, $origNode, $editedNode );
+	}
 }
