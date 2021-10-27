@@ -139,7 +139,7 @@ class DOMDiff {
 		Node $nodeA, stdClass $dmwA, Node $nodeB, stdClass $dmwB
 	): bool {
 		return $this->realDataMWEquals( $nodeA, (array)$dmwA, $nodeB, (array)$dmwB, [
-				'isTopLevel' => true,
+				'atJsonRoot' => true,
 				'inDmwBody' => false
 			]
 		);
@@ -245,7 +245,7 @@ class DOMDiff {
 				}
 			} elseif ( is_object( $vA ) || is_array( $vA ) ) {
 				// For 'array' and 'object' attributes, recursively apply _dataMWEquals
-				$inDmwBody = ( $options['isTopLevel'] ?? null ) && $kA === 'body';
+				$inDmwBody = ( $options['atJsonRoot'] ?? null ) && $kA === 'body';
 				if ( !$this->realDataMWEquals(
 					$nodeA,
 					(array)$vA,
