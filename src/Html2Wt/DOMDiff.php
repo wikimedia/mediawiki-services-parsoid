@@ -368,7 +368,6 @@ class DOMDiff {
 		$baseNode = $baseParentNode->firstChild;
 		$newNode = $newParentNode->firstChild;
 		$lookaheadNode = null;
-		$subtreeDiffers = null;
 		$foundDiffOverall = false;
 
 		while ( $baseNode && $newNode ) {
@@ -448,16 +447,7 @@ class DOMDiff {
 						// Mark modified-wrapper, and recurse.
 						$this->debug( '--found diff: modified-wrapper--' );
 						$this->markNode( $savedNewNode, 'modified-wrapper' );
-						if ( !WTUtils::isEncapsulationWrapper( $baseNode ) &&
-							!WTUtils::isEncapsulationWrapper( $savedNewNode )
-						) {
-							// Dont recurse into template-like-content
-							$subtreeDiffers = $this->doDOMDiff( $baseNode, $savedNewNode );
-							if ( $subtreeDiffers ) {
-								$this->debug( '--found diff: subtree-changed--' );
-								$this->markNode( $newNode, 'subtree-changed' );
-							}
-						}
+						$this->subtreeDiffers( $baseNode, $savedNewNode );
 					} else {
 						// We now want to compare current newNode with the next baseNode.
 						$dontAdvanceNewNode = true;
@@ -474,17 +464,8 @@ class DOMDiff {
 				$this->markNode( $newParentNode, 'children-changed' );
 
 				$foundDiffOverall = true;
-			} elseif ( !WTUtils::isEncapsulationWrapper( $baseNode ) &&
-				!WTUtils::isEncapsulationWrapper( $newNode )
-			) {
-				$this->debug( '--shallow equal: recursing--' );
-				// Recursively diff subtrees if not template-like content
-				$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
-				if ( $subtreeDiffers ) {
-					$this->debug( '--found diff: subtree-changed--' );
-					$this->markNode( $newNode, 'subtree-changed' );
-				}
-				$foundDiffOverall = $subtreeDiffers || $foundDiffOverall;
+			} elseif ( $this->subtreeDiffers( $baseNode, $newNode ) ) {
+				$foundDiffOverall = true;
 			}
 
 			// And move on to the next pair (skipping over template HTML)
@@ -529,6 +510,37 @@ class DOMDiff {
 	/* ***************************************************
 	 * Helpers
 	 * ***************************************************/
+
+	/**
+	 * @param Node $baseNode
+	 * @param Node $newNode
+	 * @return bool
+	 */
+	private function subtreeDiffers( Node $baseNode, Node $newNode ): bool {
+		$baseEncapsulated = WTUtils::isEncapsulationWrapper( $baseNode );
+		$newEncapsulated = WTUtils::isEncapsulationWrapper( $newNode );
+
+		if ( !$baseEncapsulated && !$newEncapsulated ) {
+			$this->debug( '--shallow equal: recursing--' );
+			// Recursively diff subtrees if not template-like content
+			$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
+		} elseif ( $baseEncapsulated && $newEncapsulated ) {
+			// For encapsulated content, we don't know about the subtree.
+			// If it conforms to the dataMWEquals conventions (body.id, body.html, etc)
+			// then changes to the content will show up as modified-wrapper.
+			$subtreeDiffers = false;
+		} else {
+			// True?  Should we recurse into $newNode and mark it all as diff
+			// so that modifications aren't lost?
+			$subtreeDiffers = true;
+		}
+
+		if ( $subtreeDiffers ) {
+			$this->debug( '--found diff: subtree-changed--' );
+			$this->markNode( $newNode, 'subtree-changed' );
+		}
+		return $subtreeDiffers;
+	}
 
 	/**
 	 * @param Node $node
