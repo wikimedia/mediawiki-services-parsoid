@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -45,6 +46,9 @@ class DOMDiff {
 	 */
 	public $env;
 
+	/** @var ParsoidExtensionAPI */
+	public $extApi;
+
 	/**
 	 * @var array
 	 */
@@ -73,6 +77,7 @@ class DOMDiff {
 	 */
 	public function __construct( Env $env ) {
 		$this->env = $env;
+		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->specializedAttribHandlers = [
 			'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
 				return $this->dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB );
@@ -525,10 +530,32 @@ class DOMDiff {
 			// Recursively diff subtrees if not template-like content
 			$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
 		} elseif ( $baseEncapsulated && $newEncapsulated ) {
-			// For encapsulated content, we don't know about the subtree.
-			// If it conforms to the dataMWEquals conventions (body.id, body.html, etc)
-			// then changes to the content will show up as modified-wrapper.
-			$subtreeDiffers = false;
+			'@phan-var Element $baseNode';  // @var Element $baseNode
+			'@phan-var Element $newNode';  // @var Element $newNode
+
+			$extType = DOMUtils::matchTypeOf( $baseNode, '!^mw:Extension/!' );
+			$ext = null;
+
+			if ( $extType ) {
+				$dataMw = DOMDataUtils::getDataMw( $baseNode );
+				// FIXME: The EncapsulatedContentHandler tries to get the name from
+				// the typeOf if it isn't in dataMw ...
+				$ext = $this->env->getSiteConfig()->getExtTagImpl( $dataMw->name ?? '' );
+			}
+
+			if (
+				$ext && ( DOMUtils::matchTypeOf( $newNode, '!^mw:Extension/!' ) === $extType )
+			) {
+				$this->debug( '--diffing extension content--' );
+				$subtreeDiffers = $ext->diffHandler(
+					$this->extApi, [ $this, 'doDOMDiff' ], $baseNode, $newNode
+				);
+			} else {
+				// Otherwise, for encapsulated content, we don't know about the subtree.
+				// If it conforms to the dataMWEquals conventions (body.id, body.html, etc)
+				// then changes to the content will show up as modified-wrapper.
+				$subtreeDiffers = false;
+			}
 		} else {
 			// True?  Should we recurse into $newNode and mark it all as diff
 			// so that modifications aren't lost?

@@ -92,4 +92,22 @@ abstract class ExtensionTagHandler {
 	public function modifyArgDict( ParsoidExtensionAPI $extApi, object $argDict ): void {
 		/* do not modify the argument dictionary by default */
 	}
+
+	/**
+	 * XXX: Experimental
+	 *
+	 * Call $domDiff on corresponding substrees of $origNode and $editedNode
+	 *
+	 * @param ParsoidExtensionAPI $extApi
+	 * @param callable $domDiff
+	 * @param Element $origNode
+	 * @param Element $editedNode
+	 * @return bool
+	 */
+	public function diffHandler(
+		ParsoidExtensionAPI $extApi, callable $domDiff, Element $origNode,
+		Element $editedNode
+	): bool {
+		return false;
+	}
 }
