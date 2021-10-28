@@ -11,7 +11,6 @@ namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
@@ -30,7 +29,6 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PipelineStage;
-use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 
 class TreeBuilderStage extends PipelineStage {
 	/** @var int */
@@ -42,11 +40,8 @@ class TreeBuilderStage extends PipelineStage {
 	/** @var int */
 	private $tableDepth;
 
-	/** @var Document */
-	private $doc;
-
-	/** @var Dispatcher */
-	private $dispatcher;
+	/** @var RemexPipeline */
+	private $remexPipeline;
 
 	/** @var string|Token */
 	private $lastToken;
@@ -101,10 +96,7 @@ class TreeBuilderStage extends PipelineStage {
 		// We only need one for every run of strings and newline tokens.
 		$this->needTransclusionShadow = false;
 
-		list(
-			$this->doc,
-			$this->dispatcher,
-		) = $this->env->fetchDocumentDispatcher( $this->atTopLevel );
+		$this->remexPipeline = $this->env->fetchRemexPipeline( $this->atTopLevel );
 	}
 
 	/**
@@ -144,14 +136,14 @@ class TreeBuilderStage extends PipelineStage {
 		}
 
 		if ( $this->atTopLevel ) {
-			$node = DOMCompat::getBody( $this->doc );
+			$node = DOMCompat::getBody( $this->remexPipeline->doc );
 		} else {
 			// This is similar to DOMCompat::setInnerHTML() in that we can
 			// consider it equivalent to the fragment parsing algorithm,
 			// https://html.spec.whatwg.org/#html-fragment-parsing-algorithm
 			$node = $this->env->topLevelDoc->createDocumentFragment();
 			DOMUtils::migrateChildrenBetweenDocs(
-				DOMCompat::getBody( $this->doc ), $node
+				DOMCompat::getBody( $this->remexPipeline->doc ), $node
 			);
 		}
 
@@ -206,6 +198,7 @@ class TreeBuilderStage extends PipelineStage {
 			}
 		}
 
+		$dispatcher = $this->remexPipeline->dispatcher;
 		$attribs = isset( $token->attribs ) ? $this->kvArrToAttr( $token->attribs ) : [];
 		$dataAttribs = $token->dataAttribs ?? new DataParsoid;
 		$tmp = $dataAttribs->getTemp();
@@ -238,14 +231,14 @@ class TreeBuilderStage extends PipelineStage {
 			// text node so that we can detect fostered content that came from
 			// a transclusion.
 			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
-			$this->dispatcher->startTag( 'meta',
-				new Attributes( $this->doc, [ 'typeof' => 'mw:TransclusionShadow' ] ),
+			$dispatcher->startTag( 'meta',
+				$this->remexPipeline->createAttributes( [ 'typeof' => 'mw:TransclusionShadow' ] ),
 				true, 0, 0 );
 		}
 
 		if ( is_string( $token ) || $token instanceof NlTk ) {
 			$data = $token instanceof NlTk ? "\n" : $token;
-			$this->dispatcher->characters( $data, 0, strlen( $data ), 0, 0 );
+			$dispatcher->characters( $data, 0, strlen( $data ), 0, 0 );
 			// NlTks are only fostered when accompanied by non-whitespace.
 			// Safe to ignore.
 			if (
@@ -264,20 +257,20 @@ class TreeBuilderStage extends PipelineStage {
 				// like the navbox
 				if ( !$this->inTransclusion ) {
 					$this->env->log( 'debug/html', $this->pipelineId, 'Inserting foster box meta' );
-					$this->dispatcher->startTag( 'table',
-						new Attributes( $this->doc, [ 'typeof' => 'mw:FosterBox' ] ),
+					$dispatcher->startTag( 'table',
+						$this->remexPipeline->createAttributes( [ 'typeof' => 'mw:FosterBox' ] ),
 						false, 0, 0 );
 				}
 			}
 
-			$this->dispatcher->startTag(
+			$dispatcher->startTag(
 				$tName,
-				new Attributes( $this->doc, $this->stashDataAttribs( $attribs, $dataAttribs ) ),
+				$this->remexPipeline->createAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
 				false, 0, 0
 			);
 			if ( empty( $dataAttribs->autoInsertedStart ) ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
-				$this->dispatchMeta(
+				$this->remexPipeline->insertUnfosteredMeta(
 					$this->stashDataAttribs( [
 						'typeof' => 'mw:StartTag',
 						'data-stag' => "{$tName}:{$tmp->tagId}"
@@ -316,19 +309,20 @@ class TreeBuilderStage extends PipelineStage {
 						$this->inTransclusion = ( $transType === 'mw:Transclusion' );
 					}
 					$typeof = $token->getAttribute( 'typeof' );
-					$this->dispatchMeta( $this->stashDataAttribs( $attribs, $dataAttribs ) );
+					$this->remexPipeline->insertUnfosteredMeta(
+						$this->stashDataAttribs( $attribs, $dataAttribs ) );
 					$wasInserted = true;
 				}
 			}
 
 			if ( !$wasInserted ) {
-				$this->dispatcher->startTag(
+				$dispatcher->startTag(
 					$tName,
-					new Attributes( $this->doc, $this->stashDataAttribs( $attribs, $dataAttribs ) ),
+					$this->remexPipeline->createAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
 					false, 0, 0
 				);
 				if ( !Utils::isVoidElement( $tName ) ) {
-					$this->dispatcher->endTag( $tName, 0, 0 );
+					$dispatcher->endTag( $tName, 0, 0 );
 				}
 			}
 		} elseif ( $token instanceof EndTagTk ) {
@@ -336,17 +330,18 @@ class TreeBuilderStage extends PipelineStage {
 			if ( $tName === 'table' && $this->tableDepth > 0 ) {
 				$this->tableDepth--;
 			}
-			$this->dispatcher->endTag( $tName, 0, 0 );
+			$dispatcher->endTag( $tName, 0, 0 );
 			if ( empty( $dataAttribs->autoInsertedEnd ) ) {
 				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
 				$attribs['typeof'] = 'mw:EndTag';
 				$attribs['data-etag'] = $tName;
-				$this->dispatchMeta( $this->stashDataAttribs( $attribs, $dataAttribs ) );
+				$this->remexPipeline->insertUnfosteredMeta(
+					$this->stashDataAttribs( $attribs, $dataAttribs ) );
 			}
 		} elseif ( $token instanceof CommentTk ) {
-			$this->dispatcher->comment( $token->value, 0, 0 );
+			$dispatcher->comment( $token->value, 0, 0 );
 		} elseif ( $token instanceof EOFTk ) {
-			$this->dispatcher->endDocument( 0 );
+			$dispatcher->endDocument( 0 );
 		} else {
 			$errors = [
 				'-------- Unhandled token ---------',
@@ -355,21 +350,6 @@ class TreeBuilderStage extends PipelineStage {
 			];
 			$this->env->log( 'error', implode( "\n", $errors ) );
 		}
-	}
-
-	/**
-	 * Dispatch a meta tag in such a way that it won't be fostered even if the
-	 * currently open element is a table. This replaces the old comment hack.
-	 *
-	 * @param array $attribs
-	 */
-	private function dispatchMeta( array $attribs ) {
-		$this->dispatcher->flushTableText();
-		$this->dispatcher->inHead->startTag(
-			'meta',
-			new Attributes( $this->doc, $attribs ),
-			false, 0, 0
-		);
 	}
 
 	/**

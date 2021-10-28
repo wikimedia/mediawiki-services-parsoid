@@ -22,12 +22,7 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
-use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
-use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
-use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
-use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
-use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
-use Wikimedia\RemexHtml\TreeBuilder\TreeMutationTracer;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\RemexPipeline;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
 
@@ -226,13 +221,20 @@ class Env {
 	public $extensionCache = [];
 
 	/**
-	 * Prevent GC from collecting the PHP wrapper around the libxml doc
+	 * The current top-level document. During wt2html, this will be the document
+	 * associated with the RemexPipeline. During html2wt, this will be the
+	 * input document, typically passed as a constructor option.
+	 *
 	 * @var Document
 	 */
 	public $topLevelDoc;
 
-	/** @var Dispatcher */
-	private $dispatcher;
+	/**
+	 * The RemexPipeline used during a wt2html operation.
+	 *
+	 * @var RemexPipeline|null
+	 */
+	private $remexPipeline;
 
 	/**
 	 * @param SiteConfig $siteConfig
@@ -742,7 +744,7 @@ class Env {
 
 	/**
 	 * When an environment is constructed, we initialize a document (and
-	 * dispatcher to it) to be used throughout the parse.
+	 * RemexPipeline) to be used throughout the parse.
 	 *
 	 * @param ?Document $topLevelDoc
 	 */
@@ -750,70 +752,28 @@ class Env {
 		if ( $topLevelDoc ) {
 			$this->topLevelDoc = $topLevelDoc;
 		} else {
-			list(
-				$this->topLevelDoc,
-				$this->dispatcher
-			) = $this->createDocumentDispatcher();
+			$this->remexPipeline = new RemexPipeline( $this );
+			$this->topLevelDoc = $this->remexPipeline->doc;
 		}
 		DOMDataUtils::prepareDoc( $this->topLevelDoc );
 	}
 
 	/**
 	 * @param bool $atTopLevel
-	 * @return array
+	 * @return RemexPipeline
 	 */
-	public function fetchDocumentDispatcher( bool $atTopLevel ): array {
+	public function fetchRemexPipeline( bool $atTopLevel ): RemexPipeline {
 		if ( $atTopLevel ) {
-			return [ $this->topLevelDoc, $this->dispatcher ];
+			return $this->remexPipeline;
 		} else {
-			list( $doc, $dispatcher ) = $this->createDocumentDispatcher();
+			$pipeline = new RemexPipeline( $this );
 			// Attach the top-level bag to the document, for the convenience
 			// of code that modifies the data within the RemexHtml TreeBuilder
 			// pipeline, prior to the migration of nodes to the top-level
 			// document.
-			DOMDataUtils::prepareChildDoc( $this->topLevelDoc, $doc );
-			return [ $doc, $dispatcher ];
+			DOMDataUtils::prepareChildDoc( $this->topLevelDoc, $pipeline->doc );
+			return $pipeline;
 		}
-	}
-
-	/**
-	 * Returns a document and dispatcher to it.
-	 *
-	 * The dispatcher tracks the insertion mode and relays token events to
-	 * specific handlers.
-	 *
-	 * Since we do our own tokenizing, the dispatcher is needed as our
-	 * entrypoint to tree building.
-	 *
-	 * @return array
-	 */
-	private function createDocumentDispatcher(): array {
-		// The options to DOMBuilder should be kept in sync with its other
-		// uses, so grep for it before changing
-		$domBuilder = new DOMBuilder;
-		if ( $this->hasTraceFlag( 'remex' ) ) {
-			$tracer = new TreeMutationTracer(
-				$domBuilder,
-				function ( $msg ) {
-					$this->log( 'trace/remex', $msg );
-				}
-			);
-		} else {
-			$tracer = $domBuilder;
-		}
-		$dispatcher = new Dispatcher( new TreeBuilder( $tracer ) );
-
-		// PORT-FIXME: Necessary to setEnableCdataCallback
-		$tokenizer = new Tokenizer( $dispatcher, '', [ 'ignoreErrors' => true ] );
-
-		$dispatcher->startDocument( $tokenizer, null, null );
-		$dispatcher->doctype( 'html', '', '', false, 0, 0 );
-		$dispatcher->startTag( 'body', new PlainAttributes(), false, 0, 0 );
-
-		$doc = $domBuilder->getFragment();
-		'@phan-var Document $doc'; // @var Document $doc
-
-		return [ $doc, $dispatcher ];
 	}
 
 	/**
