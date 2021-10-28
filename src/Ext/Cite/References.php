@@ -792,4 +792,31 @@ class References extends ExtensionTagHandler {
 		// Ignoring for now.
 		return $refs->nextSibling;
 	}
+
+	/** @inheritDoc */
+	public function diffHandler(
+		ParsoidExtensionAPI $extApi, callable $domDiff, Element $origNode,
+		Element $editedNode
+	): bool {
+		$origDataMw = DOMDataUtils::getDataMw( $origNode );
+		$editedDataMw = DOMDataUtils::getDataMw( $editedNode );
+
+		if ( isset( $origDataMw->body->html ) && isset( $editedDataMw->body->html ) ) {
+			$origFragment = $extApi->htmlToDom(
+				$origDataMw->body->html, $origNode->ownerDocument,
+				[ 'markNew' => true ]
+			);
+			$editedFragment = $extApi->htmlToDom(
+				$editedDataMw->body->html, $editedNode->ownerDocument,
+				[ 'markNew' => true ]
+			);
+			return call_user_func( $domDiff, $origFragment, $editedFragment );
+		}
+
+		// FIXME: Similar to DOMDiff::subtreeDiffers, maybe $editNode should
+		// be marked as inserted to avoid losing any edits, at the cost of
+		// more normalization
+
+		return false;
+	}
 }

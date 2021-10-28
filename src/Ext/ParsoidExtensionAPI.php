@@ -552,11 +552,15 @@ class ParsoidExtensionAPI {
 	 * to convert HTML to DOM that will be passed into Parsoid's code processing code.
 	 *
 	 * @param string $html
+	 * @param ?Document $doc XXX You probably don't want to be doing this
+	 * @param ?array $options
 	 * @return DocumentFragment
 	 */
-	public function htmlToDom( string $html ): DocumentFragment {
+	public function htmlToDom(
+		string $html, ?Document $doc = null, ?array $options = []
+	): DocumentFragment {
 		return ContentUtils::createAndLoadDocumentFragment(
-			$this->getTopLevelDoc(), $html
+			$doc ?? $this->getTopLevelDoc(), $html, $options
 		);
 	}
 

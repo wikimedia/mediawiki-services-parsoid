@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -12,7 +11,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -79,8 +77,8 @@ class DOMDiff {
 		$this->env = $env;
 		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->specializedAttribHandlers = [
-			'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
-				return $this->dataMWEquals( $nodeA, $dmwA, $nodeB, $dmwB );
+			'data-mw' => static function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
+				return $dmwA == $dmwB;
 			},
 			'data-parsoid' => static function ( $nodeA, $dpA, $nodeB, $dpB ) {
 				return $dpA == $dpB;
@@ -126,149 +124,6 @@ class DOMDiff {
 		// The root nodes are equal, call recursive differ
 		$foundChange = $this->doDOMDiff( $nodeA, $nodeB );
 		return [ 'isEmpty' => !$foundChange ];
-	}
-
-	/**
-	 * Test if two data-mw objects are identical.
-	 * - independent of order of attributes in data-mw
-	 * - html attributes are parsed to DOM and recursively compared
-	 * - for id attributes, the DOM fragments are fetched and compared.
-	 *
-	 * @param Node $nodeA
-	 * @param stdClass $dmwA
-	 * @param Node $nodeB
-	 * @param stdClass $dmwB
-	 * @return bool
-	 */
-	public function dataMWEquals(
-		Node $nodeA, stdClass $dmwA, Node $nodeB, stdClass $dmwB
-	): bool {
-		return $this->realDataMWEquals( $nodeA, (array)$dmwA, $nodeB, (array)$dmwB, [
-				'atJsonRoot' => true,
-				'inDmwBody' => false
-			]
-		);
-	}
-
-	/**
-	 * According to [[mw:Specs/HTML]], `id` and `html` attributes are acceptable
-	 * formats in `data-mw.body` and in those contexts, they reference DOMs and
-	 * we are going to treat them as such.
-	 *
-	 * @param Node $nodeA
-	 * @param array $dmwA
-	 * @param Node $nodeB
-	 * @param array $dmwB
-	 * @param array $options
-	 * @return bool
-	 */
-	private function realDataMWEquals(
-		Node $nodeA, array $dmwA, Node $nodeB, array $dmwB, array $options
-	): bool {
-		$keysA = array_keys( $dmwA );
-		$keysB = array_keys( $dmwB );
-
-		// Some quick checks
-		if ( count( $keysA ) !== count( $keysB ) ) {
-			return false;
-		} elseif ( count( $keysA ) === 0 ) {
-			return true;
-		}
-
-		// Sort keys so we can traverse array and compare keys
-		sort( $keysA );
-		sort( $keysB );
-		for ( $i = 0; $i < count( $keysA ); $i++ ) {
-			$kA = $keysA[$i];
-			$kB = $keysB[$i];
-
-			if ( $kA !== $kB ) {
-				return false;
-			}
-
-			$vA = $dmwA[$kA];
-			$vB = $dmwB[$kA];
-
-			// Deal with null, undefined (and 0, '')
-			// since they cannot be inspected
-			if ( !$vA || !$vB ) {
-				if ( $vA !== $vB ) {
-					return false;
-				}
-			} elseif ( gettype( $vA ) !== gettype( $vB ) ) {
-				return false;
-			} elseif ( $kA === 'id' && ( $options['inDmwBody'] ?? null ) ) {
-				// So far, this is specified for Cite and relies on the "id"
-				// referring to an element in the top level dom, even though the
-				// <ref> itself may be in embedded content,
-				// https://www.mediawiki.org/wiki/Specs/HTML/Extensions/Cite#Ref_and_References
-				// FIXME: This doesn't work if the <references> section
-				// itself is in embedded content, since we aren't traversing
-				// in there.
-				$htmlA = DOMCompat::getElementById( $nodeA->ownerDocument, $vA );
-				$htmlB = DOMCompat::getElementById( $nodeB->ownerDocument, $vB );
-
-				if ( $htmlA && $htmlB && !$this->treeEquals( $htmlA, $htmlB, true ) ) {
-					return false;
-				} elseif ( !$htmlA || !$htmlB ) {
-					$type = DOMUtils::matchTypeOf( $nodeA, '#^mw:Extension/#' );
-					$extName = $type ? '---' : substr( $type, strlen( 'mw:Extension/' ) );
-					// Log error
-					if ( !$htmlA ) {
-						$this->env->log(
-							'error/domdiff/orig/' . $extName,
-							'extension src id ' . PHPUtils::jsonEncode( $vA ) . ' points to non-existent element for:',
-							DOMUtils::assertElt( $nodeA ) && DOMCompat::getOuterHTML( $nodeA )
-						);
-					}
-					if ( !$htmlB ) {
-						$this->env->log(
-							'error/domdiff/edited/' . $extName,
-							'extension src id ' . PHPUtils::jsonEncode( $vB ) . ' points to non-existent element for:',
-							DOMUtils::assertElt( $nodeB ) && DOMCompat::getOuterHTML( $nodeB )
-						);
-					}
-
-					// Fall back to default comparisons
-					if ( $vA !== $vB ) {
-						return false;
-					}
-				}
-			} elseif ( $kA === 'html' && ( $options['inDmwBody'] ?? null ) ) {
-				// It's important that the fragments are constructed from the
-				// correct node's ownerDocument so that the search by id above
-				// is looking in the right place
-				$fragmentA = ContentUtils::createAndLoadDocumentFragment(
-					$nodeA->ownerDocument, $vA, [ 'markNew' => true ]
-				);
-				$fragmentB = ContentUtils::createAndLoadDocumentFragment(
-					$nodeB->ownerDocument, $vB, [ 'markNew' => true ]
-				);
-				// For 'html' attributes, parse string and recursively compare DOM
-				if ( !$this->treeEquals( $fragmentA, $fragmentB, true ) ) {
-					return false;
-				}
-			} elseif ( is_object( $vA ) || is_array( $vA ) ) {
-				// For 'array' and 'object' attributes, recursively apply _dataMWEquals
-				$inDmwBody = ( $options['atJsonRoot'] ?? null ) && $kA === 'body';
-				if ( !$this->realDataMWEquals(
-					$nodeA,
-					(array)$vA,
-					$nodeB,
-					(array)$vB,
-					[ 'inDmwBody' => $inDmwBody ]
-				) ) {
-					return false;
-				}
-			} elseif ( $vA !== $vB ) {
-				return false;
-			}
-
-			// Phew! survived this key
-		}
-
-		// Phew! survived all checks -- identical objects
-		return true;
 	}
 
 	/**
@@ -552,13 +407,13 @@ class DOMDiff {
 				);
 			} else {
 				// Otherwise, for encapsulated content, we don't know about the subtree.
-				// If it conforms to the dataMWEquals conventions (body.id, body.html, etc)
-				// then changes to the content will show up as modified-wrapper.
 				$subtreeDiffers = false;
 			}
 		} else {
-			// True?  Should we recurse into $newNode and mark it all as diff
-			// so that modifications aren't lost?
+			// FIXME: Maybe $editNode should be marked as inserted to avoid
+			// losing any edits, at the cost of more normalization.
+			// $state->inModifiedContent is only set when we're in inserted
+			// content, so not sure this is currently doing all that much.
 			$subtreeDiffers = true;
 		}
 
