@@ -24,8 +24,8 @@ set -u
 
 umask 0002 # Make sure everyone in wikidev group can write
 cd /srv/parsoid-testing
-git checkout master
-git pull
+git fetch
+git checkout $testid
 git log --oneline -n 1
 sudo systemctl restart php7.2-fpm.service
 EOF
@@ -46,8 +46,8 @@ cd /srv/parsoid-testing
 # It is only needed if rt-testing related code is updated.
 # But, it is simpler to just update it every single time.
 umask 0002 # Make sure everyone in wikidev group can write
-git checkout master
-git pull
+git fetch
+git checkout $testid
 git log --oneline -n 1
 
 echo 'Adding new test id ...'
