@@ -5220,25 +5220,25 @@ http://example.com/url_with_entity&#60;
 <a rel="nofollow" class="external free" href="http://example.com/url_with_entity">http://example.com/url_with_entity</a>&#60;
 </p>
 !! html/parsoid
-<p><a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>,
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>;
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>\
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>.
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>:
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>!
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>?
-<a rel="mw:ExtLink" href="http://example.com" class="external free">http://example.com</a>)
-<a rel="mw:ExtLink" href="http://example.com/url_with_(brackets)" class="external free">http://example.com/url_with_(brackets)</a>
-(<a rel="mw:ExtLink" href="http://example.com/url_without_brackets" class="external free">http://example.com/url_without_brackets</a>)
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;" class="external free">http://example.com/url_with_entity&amp;</a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;" class="external free">http://example.com/url_with_entity&amp;</a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;" class="external free">http://example.com/url_with_entity&amp;</a>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free">http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free">http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free">http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free">http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;lt;","srcContent":"&lt;"}'>&lt;</span>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free">http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x3C;","srcContent":"&lt;"}'>&lt;</span>
-<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free">http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#60;","srcContent":"&lt;"}'>&lt;</span></p>
+<p><a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>,
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>;
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>\
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>.
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>:
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>!
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>?
+<a rel="mw:ExtLink" href="http://example.com" class="external free" data-parsoid='{"stx":"url"}'>http://example.com</a>)
+<a rel="mw:ExtLink" href="http://example.com/url_with_(brackets)" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_(brackets)</a>
+(<a rel="mw:ExtLink" href="http://example.com/url_without_brackets" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_without_brackets</a>)
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/url_with_entity&amp;"},"sa":{"href":"http://example.com/url_with_entity&amp;amp;"}}'>http://example.com/url_with_entity&amp;</a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/url_with_entity&amp;"},"sa":{"href":"http://example.com/url_with_entity&amp;#x26;"}}'>http://example.com/url_with_entity&amp;</a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;" class="external free" data-parsoid='{"stx":"url","a":{"href":"http://example.com/url_with_entity&amp;"},"sa":{"href":"http://example.com/url_with_entity&amp;#038;"}}'>http://example.com/url_with_entity&amp;</a>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#xA0;","srcContent":" "}'> </span>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#160;","srcContent":" "}'> </span>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;lt;","srcContent":"&lt;"}'>&lt;</span>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#x3C;","srcContent":"&lt;"}'>&lt;</span>
+<a rel="mw:ExtLink" href="http://example.com/url_with_entity" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/url_with_entity</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;#60;","srcContent":"&lt;"}'>&lt;</span></p>
 !! end
 
 !! test
@@ -5252,6 +5252,22 @@ http://example.com/url_with_entity&amp;amp;
 </p>
 !! html/parsoid
 <p><a rel="mw:ExtLink" href="http://example.com/url_with_entity&amp;amp" class="external free">http://example.com/url_with_entity&amp;amp</a>;</p>
+!! end
+
+!! test
+External links: html2html with trailing dot (T263203)
+!! wikitext
+test [http://example.com/test. http://example.com/test.] test
+
+test http://example.com/test. test
+!! html/parsoid
+<p>test <a rel="mw:ExtLink" href="http://example.com/test." class="external text">http://example.com/test.</a> test</p>
+
+<p>test <a rel="mw:ExtLink" href="http://example.com/test" class="external free" data-parsoid='{"stx":"url"}'>http://example.com/test</a>. test</p>
+!! html/php
+<p>test <a rel="nofollow" class="external text" href="http://example.com/test.">http://example.com/test.</a> test
+</p><p>test <a rel="nofollow" class="external free" href="http://example.com/test">http://example.com/test</a>. test
+</p>
 !! end
 
 !! test

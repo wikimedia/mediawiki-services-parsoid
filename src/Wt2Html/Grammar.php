@@ -1325,10 +1325,7 @@ private function a116($proto, $addr, $path) {
 			$last = PHPUtils::lastItem( $url );
 			$trim = 0;
 			if ( is_string( $last ) ) {
-				$strip = ',;\.:!?';
-				if ( array_search( '(', $path ) === false ) {
-					$strip .= ')';
-				}
+				$strip = TokenizerUtils::getAutoUrlTerminatingChars( $path );
 				$trim = strspn( strrev( $last ), $strip );
 				$url[ count( $url ) - 1 ] = substr( $last, 0, strlen( $last ) - $trim );
 			}

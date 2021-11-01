@@ -24,6 +24,7 @@ class WikitextConstants {
 	public static $alwaysBlockElems;
 	public static $neverBlockElems;
 	public static $wikitextBlockElems;
+	public static $strippedUrlCharacters;
 
 	public static function init() {
 		/*
@@ -364,6 +365,14 @@ class WikitextConstants {
 
 		# Handle ambiguity in inverse mapping.
 		self::$LCNameMap['add'] = 'A';
+
+		/*
+		 * These characters are not considered to be part of a URL if they are the last
+		 * character of a raw URL when converting it to an HTML link
+		 * Right bracket would also be in that set, but only if there's no left bracket in the URL;
+		 * see TokenizerUtils::getAutoUrlTerminatingChars.
+		 */
+		self::$strippedUrlCharacters = ',;\.:!?';
 	}
 }
 

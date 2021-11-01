@@ -729,9 +729,6 @@
         "selser [[4,0,3]]": "16kyf0l",
         "selser [[[1,2],2,4]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas''hafj2q (1901) en el sitio de ]17q070l1omkplm"
     },
-    "External links: Free with trailing punctuation": {
-        "html2wt": "http://example.com,\nhttp://example.com;\nhttp://example.com\\\nhttp://example.com.\nhttp://example.com:\nhttp://example.com!\nhttp://example.com?\nhttp://example.com)\nhttp://example.com/url_with_(brackets)\n(http://example.com/url_without_brackets)\nhttp://example.com/url_with_entity&\nhttp://example.com/url_with_entity&\nhttp://example.com/url_with_entity&\nhttp://example.com/url_with_entity&nbsp;\nhttp://example.com/url_with_entity&#xA0;\nhttp://example.com/url_with_entity&#160;\nhttp://example.com/url_with_entity&lt;\nhttp://example.com/url_with_entity&#x3C;\nhttp://example.com/url_with_entity&#60;"
-    },
     "External links: [raw ampersand]": {
         "html2wt": "Old &#x26; use: [http://x&y]"
     },

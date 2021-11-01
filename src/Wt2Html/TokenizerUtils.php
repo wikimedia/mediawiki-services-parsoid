@@ -15,6 +15,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -332,6 +333,21 @@ class TokenizerUtils {
 		} else {
 			return null;
 		}
+	}
+
+	/** Get a string containing all the autourl terminating characters (as in legacy parser
+	 * Parser.php::makeFreeExternalLink). This list is slightly context-dependent because the
+	 * inclusion of the right parenthesis depends on whether the provided character array $arr
+	 * contains a left parenthesis.
+	 * @param array $arr
+	 * @return string
+	 */
+	public static function getAutoUrlTerminatingChars( array $arr ): string {
+		$chars = WikitextConstants::$strippedUrlCharacters;
+		if ( array_search( '(', $arr, true ) === false ) {
+			$chars .= ')';
+		}
+		return $chars;
 	}
 
 	public static function enforceParserResourceLimits( Env $env, $token ) {
