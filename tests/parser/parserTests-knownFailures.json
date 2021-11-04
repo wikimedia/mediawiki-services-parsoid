@@ -79,7 +79,7 @@
         "html2wt": "[[''foo''hello]]\n\n[['''foo'''hello]]"
     },
     "2. List embedded in a formatting tag in a misnested way": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>",
         "html2wt": "<small>\n\n* a\n* b</small>"
     },
     "2. Lists with start-of-line-transparent tokens before bullets: Template close": {
@@ -110,7 +110,9 @@
         "selser [[3,0,0]]": "\n<span id=<noinclude>\"v1\"</noinclude><includeonly>\"v2\"</includeonly>>bar</span>"
     },
     "2a. Indent-Pre and tables": {
-        "html2wt": "{|\n!h1\n!h2\n|foo\n|bar\n|}"
+        "html2wt": "{|\n!h1\n!h2\n|foo\n|bar\n|}",
+        "selser [3,[0,[[3,1,0,3,4]]]]": "{|\n |-\n! data-foobar=\"k2njey\" |h1!!h2\n \n!17hm4qs\n|}",
+        "selser [4,[0,[[3,0,3,2,[4]]]]]": "z7h7bw\n{|\n |-\n!h1\n!1cg2a9r\n|foo||myb1u1 \n|}"
     },
     "2b. Indent-Pre and tables": {
         "html2wt": "{|\n|foo\n|}"
@@ -1069,7 +1071,8 @@
         "html2wt": "{|\n <!--hi-->|-\n | there\n|}"
     },
     "Indented table with an empty td": {
-        "html2wt": "{|\n|\n|foo\n|}"
+        "html2wt": "{|\n|\n|foo\n|}",
+        "selser [4,[4,[[0,2,0,[4]]]]]": "1sggg3v\n{|<!--yz5d30-->\n|-\n |ngtvt4\n|\n |1sog12b \n|}"
     },
     "Indented table with blank lines in between (T85627)": {
         "selser [2,[0,[[[0,4]],3]]]": "1yrf6mr \n{|\n |foo\n<nowiki> </nowiki>cyilqp \n|}",
@@ -1078,7 +1081,7 @@
         "selser [2,[0,2]]": "1xis7o8 \n{|\n <!--c7irv8-->|foo\n \n  \n |}"
     },
     "Inline HTML vs wiki block nesting": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"autoInsertedStart\":true,\"dsr\":[17,37,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'>New wiki paragraph</p></b>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p><b data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[17,37,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'>New wiki paragraph</p></b>",
         "html2wt": "'''Bold paragraph'''\n\nNew wiki paragraph\n"
     },
     "Inline wiki vs wiki block nesting": {

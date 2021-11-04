@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
  * A class for temporary node-related data, stored in DataParsoid->tmp
@@ -27,6 +28,9 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
  *
  * Information about a template invocation
  * @property TemplateInfo|null $tplarginfo
+ *
+ * The TSR of the end tag
+ * @property SourceRange|null $endTSR
  */
 class TempData {
 	/**

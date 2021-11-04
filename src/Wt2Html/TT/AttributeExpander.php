@@ -655,7 +655,7 @@ class AttributeExpander extends TokenHandler {
 			// Parsoid generated metas don't need expansion
 			(
 				$name === 'meta' &&
-				preg_match( '/mw:(TSRMarker|Placeholder|Transclusion|Param|Includes)/', $typeOf )
+				preg_match( '/mw:(Placeholder|Transclusion|Param|Includes)/', $typeOf )
 			) ||
 			// FIXME: The TemplateHandler::processTemplateSource() parses to the
 			// end of "TokenTransform2", meaning the tokens it returns have already

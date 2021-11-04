@@ -28,6 +28,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PipelineStage;
 
 class TreeBuilderStage extends PipelineStage {
@@ -231,9 +232,9 @@ class TreeBuilderStage extends PipelineStage {
 			// text node so that we can detect fostered content that came from
 			// a transclusion.
 			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
-			$dispatcher->startTag( 'meta',
-				$this->remexPipeline->createAttributes( [ 'typeof' => 'mw:TransclusionShadow' ] ),
-				true, 0, 0 );
+			$this->remexPipeline->insertExplicitStartTag( 'meta',
+				[ 'typeof' => 'mw:TransclusionShadow' ],
+				true );
 		}
 
 		if ( is_string( $token ) || $token instanceof NlTk ) {
@@ -257,25 +258,20 @@ class TreeBuilderStage extends PipelineStage {
 				// like the navbox
 				if ( !$this->inTransclusion ) {
 					$this->env->log( 'debug/html', $this->pipelineId, 'Inserting foster box meta' );
-					$dispatcher->startTag( 'table',
-						$this->remexPipeline->createAttributes( [ 'typeof' => 'mw:FosterBox' ] ),
-						false, 0, 0 );
+					$this->remexPipeline->insertImplicitStartTag(
+						'table',
+						[ 'typeof' => 'mw:FosterBox' ]
+					);
 				}
 			}
 
-			$dispatcher->startTag(
+			$node = $this->remexPipeline->insertExplicitStartTag(
 				$tName,
-				$this->remexPipeline->createAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
-				false, 0, 0
+				$this->stashDataAttribs( $attribs, $dataAttribs ),
+				false
 			);
-			if ( empty( $dataAttribs->autoInsertedStart ) ) {
-				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
-				$this->remexPipeline->insertUnfosteredMeta(
-					$this->stashDataAttribs( [
-						'typeof' => 'mw:StartTag',
-						'data-stag' => "{$tName}:{$tmp->tagId}"
-					], $dataAttribs->clone() )
-				);
+			if ( !$node ) {
+				$this->handleDeletedStartTag( $tName, $dataAttribs );
 			}
 		} elseif ( $token instanceof SelfclosingTagTk ) {
 			$tName = $token->getName();
@@ -312,7 +308,6 @@ class TreeBuilderStage extends PipelineStage {
 						// typeof starts with mw:Transclusion
 						$this->inTransclusion = ( $transType === 'mw:Transclusion' );
 					}
-					$typeof = $token->getAttribute( 'typeof' );
 					$this->remexPipeline->insertUnfosteredMeta(
 						$this->stashDataAttribs( $attribs, $dataAttribs ) );
 					$wasInserted = true;
@@ -320,13 +315,18 @@ class TreeBuilderStage extends PipelineStage {
 			}
 
 			if ( !$wasInserted ) {
-				$dispatcher->startTag(
+				$node = $this->remexPipeline->insertExplicitStartTag(
 					$tName,
-					$this->remexPipeline->createAttributes( $this->stashDataAttribs( $attribs, $dataAttribs ) ),
-					false, 0, 0
+					$this->stashDataAttribs( $attribs, $dataAttribs ),
+					false
 				);
-				if ( !Utils::isVoidElement( $tName ) ) {
-					$dispatcher->endTag( $tName, 0, 0 );
+				if ( $node ) {
+					if ( !Utils::isVoidElement( $tName ) ) {
+						$this->remexPipeline->insertExplicitEndTag(
+							$tName, ( $dataAttribs->stx ?? '' ) === 'html' );
+					}
+				} else {
+					$this->insertPlaceholderMeta( $tName, $dataAttribs, true );
 				}
 			}
 		} elseif ( $token instanceof EndTagTk ) {
@@ -334,13 +334,28 @@ class TreeBuilderStage extends PipelineStage {
 			if ( $tName === 'table' && $this->tableDepth > 0 ) {
 				$this->tableDepth--;
 			}
-			$dispatcher->endTag( $tName, 0, 0 );
-			if ( empty( $dataAttribs->autoInsertedEnd ) ) {
-				$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow meta for', $tName );
-				$attribs['typeof'] = 'mw:EndTag';
-				$attribs['data-etag'] = $tName;
-				$this->remexPipeline->insertUnfosteredMeta(
-					$this->stashDataAttribs( $attribs, $dataAttribs ) );
+			$node = $this->remexPipeline->insertExplicitEndTag(
+				$tName,
+				( $dataAttribs->stx ?? '' ) === 'html'
+			);
+			if ( $node ) {
+				// Copy data attribs from the end tag to the element
+				$nodeDP = DOMDataUtils::getDataParsoid( $node );
+				if ( !WTUtils::hasLiteralHTMLMarker( $nodeDP )
+					&& isset( $dataAttribs->endTagSrc )
+				) {
+					$nodeDP->endTagSrc = $dataAttribs->endTagSrc;
+				}
+				if ( !empty( $dataAttribs->stx ) ) {
+					// Transfer stx flag
+					$nodeDP->stx = $dataAttribs->stx;
+				}
+				if ( isset( $dataAttribs->tsr ) ) {
+					$nodeDP->getTemp()->endTSR = $dataAttribs->tsr;
+				}
+			} else {
+				// The tag was stripped. Insert an mw:Placeholder for round-tripping
+				$this->insertPlaceholderMeta( $tName, $dataAttribs, false );
 			}
 		} elseif ( $token instanceof CommentTk ) {
 			$dispatcher->comment( $token->value, 0, 0 );
@@ -353,6 +368,91 @@ class TreeBuilderStage extends PipelineStage {
 				'VAL : ' . PHPUtils::jsonEncode( $token )
 			];
 			$this->env->log( 'error', implode( "\n", $errors ) );
+		}
+	}
+
+	/**
+	 * Insert td/tr/th tag source or a placeholder meta
+	 *
+	 * @param string $name
+	 * @param DataParsoid $dp
+	 */
+	private function handleDeletedStartTag( string $name, DataParsoid $dp ): void {
+		if ( ( $dp->stx ?? null ) !== 'html' &&
+			( $name === 'td' || $name === 'tr' || $name === 'th' )
+		) {
+			// A stripped wikitext-syntax table tag outside of a table. Re-insert the original
+			// page source.
+			if ( !empty( $dp->tsr ) &&
+				$dp->tsr->start !== null && $dp->tsr->end !== null
+			) {
+				$origTxt = $dp->tsr->substr( $this->frame->getSrcText() );
+			} else {
+				switch ( $name ) {
+					case 'td':
+						$origTxt = '|';
+						break;
+					case 'tr':
+						$origTxt = '|-';
+						break;
+					case 'th':
+						$origTxt = '!';
+						break;
+					default:
+						$origTxt = '';
+						break;
+				}
+			}
+			if ( $origTxt !== '' ) {
+				$this->remexPipeline->dispatcher->characters( $origTxt, 0, strlen( $origTxt ), 0,
+					0 );
+			}
+		} else {
+			$this->insertPlaceholderMeta( $name, $dp, true );
+		}
+	}
+
+	/**
+	 * Insert a placeholder meta for a deleted start or end tag
+	 *
+	 * @param string $name
+	 * @param DataParsoid $dp
+	 * @param bool $isStart
+	 */
+	private function insertPlaceholderMeta(
+		string $name, DataParsoid $dp, bool $isStart
+	) {
+		// If node is in a position where the placeholder node will get fostered
+		// out, don't bother adding one since the browser and other compliant
+		// clients will move the placeholder out of the table.
+		if ( $this->remexPipeline->isFosterablePosition() ) {
+			return;
+		}
+
+		$src = $dp->src ?? null;
+
+		if ( !$src ) {
+			if ( !empty( $dp->tsr ) ) {
+				$src = $dp->tsr->substr( $this->frame->getSrcText() );
+			} elseif ( WTUtils::hasLiteralHTMLMarker( $dp ) ) {
+				if ( $isStart ) {
+					$src = '<' . $name . '>';
+				} else {
+					$src = '</' . $name . '>';
+				}
+			}
+		}
+
+		if ( $src ) {
+			$metaDP = new DataParsoid;
+			$metaDP->src = $src;
+			$metaDP->name = $name;
+			$this->remexPipeline->insertUnfosteredMeta(
+				$this->stashDataAttribs(
+					[ 'typeof' => 'mw:Placeholder/StrippedTag' ],
+					$metaDP
+				)
+			);
 		}
 	}
 

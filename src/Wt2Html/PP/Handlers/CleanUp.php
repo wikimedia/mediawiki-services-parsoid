@@ -36,7 +36,7 @@ class CleanUp {
 					// only handles a few cases of zero width nodes.
 					!DOMUtils::isNestedInListItem( $node )
 				) ||
-				DOMUtils::matchTypeOf( $node, '#^mw:(StartTag|EndTag|TSRMarker|Transclusion)(/|$)#' )
+				DOMUtils::hasTypeOf( $node, 'mw:Transclusion' )
 			)
 		) {
 			$nextNode = $node->nextSibling;

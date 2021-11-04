@@ -116,7 +116,6 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		while ( $sibling ) {
 			if ( !WTUtils::isTplStartMarkerMeta( $sibling ) &&
 				( WTUtils::hasParsoidAboutId( $sibling ) ||
-					DOMUtils::isMarkerMeta( $sibling, 'mw:EndTag' ) ||
 					DOMUtils::isMarkerMeta( $sibling, 'mw:TransclusionShadow' )
 				)
 			) {
@@ -144,6 +143,9 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		$fosterContentHolder = $doc->createElement( $inPTag ? 'span' : 'p' );
 		$dp = new DataParsoid;
 		$dp->fostered = true;
+		// Set autoInsertedStart for bug-compatibility with the old ProcessTreeBuilderFixups code
+		$dp->autoInsertedStart = true;
+
 		DOMDataUtils::setDataParsoid( $fosterContentHolder, $dp );
 		return $fosterContentHolder;
 	}

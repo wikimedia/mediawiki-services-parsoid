@@ -93,6 +93,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		// clone of this node in the loop below.
 		$ndp = DOMDataUtils::getDataParsoid( $n );
 		$origAIEnd = $ndp->autoInsertedEnd ?? null;
+		$origEndTSR = $ndp->tmp->endTSR ?? null;
 		$i = -1;
 		foreach ( $a as $v ) {
 			if ( $i < 0 ) {
@@ -122,6 +123,9 @@ class PWrap implements Wt2HtmlDOMProcessor {
 				$dp->autoInsertedEnd = true;
 			} else {
 				unset( $dp->autoInsertedEnd );
+				if ( $origEndTSR ) {
+					$dp->getTemp()->endTSR = $origEndTSR;
+				}
 			}
 		}
 
@@ -138,6 +142,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		if ( $this->emitsSolTransparentWT( $n ) ) {
 			// The null stuff here is mainly to support mw:EndTag metas getting in
 			// the way of runs and causing unnecessary wrapping.
+			// FIXME: mw:EndTag metas no longer exist
 			return [ [ 'pwrap' => null, 'node' => $n ] ];
 		} elseif ( $n instanceof Text ) {
 			return [ [ 'pwrap' => true, 'node' => $n ] ];

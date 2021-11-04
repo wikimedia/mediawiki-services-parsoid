@@ -240,6 +240,7 @@ class DOMPostProcessor extends PipelineStage {
 			// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
 			// and mw:EndTag metas would otherwise interfere with the
 			// firstChild/lastChild check that this pass does.
+			// FIXME: those metas no longer exist
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
 				'shortcut' => 'migrate-metas'

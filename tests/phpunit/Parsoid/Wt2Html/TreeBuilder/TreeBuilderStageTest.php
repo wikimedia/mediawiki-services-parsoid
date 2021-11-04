@@ -34,7 +34,7 @@ class TreeBuilderStageTest extends \PHPUnit\Framework\TestCase {
 					new EndTagTk( 'p' ),
 					new EOFTk()
 				],
-				'<p data-object-id="0"><meta typeof="mw:StartTag" data-stag="p:1" data-object-id="1"/>Testing 123</p><meta typeof="mw:EndTag" data-etag="p" data-object-id="2"/>'
+				'<p data-object-id="0">Testing 123</p>'
 			]
 		];
 	}

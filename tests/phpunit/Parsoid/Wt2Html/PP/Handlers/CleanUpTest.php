@@ -250,8 +250,9 @@ class CleanUpTest extends TestCase {
 			[ "{|\n| x|| y  \n|}",    "td:first-child + td", 1, 2 ],
 			[ "{|\n| <!--c-->x\n|}",  "td", 1, 0 ],
 			[ "{|\n| <!--c--> x\n|}", "td", -1, 0 ],
-			[ "{|\n| <!--c-->x<!--c--> \n|}",   "td", 1, 1 ],
-			[ "{|\n| <!--c--> x <!--c--> \n|}", "td", -1, -1 ],
+			// Second comment shifted by MigrateTrailingNLs
+			[ "{|\n| <!--c-->x<!--c--> \n|}",   "td", 1, 0 ],
+			[ "{|\n| <!--c--> x <!--c--> \n|}", "td", -1, 1 ],
 		];
 	}
 }

@@ -94,7 +94,11 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 		return empty( $dp->fostered ) &&
 			( $this->nodeEndsLineInWT( $node, $dp ) ||
 				!empty( $dp->autoInsertedEnd ) ||
-				( !$node->nextSibling && $node->parentNode &&
+				( !$node->nextSibling &&
+					// FIXME: bug compatibility, previously the end meta caused
+					// $node->nextSibling to be true for elements with end tags
+					empty( $dp->tmp->endTSR ) &&
+					$node->parentNode &&
 					$this->canMigrateNLOutOfNode( $node->parentNode ) ) );
 	}
 
@@ -199,24 +203,6 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 			if ( $firstEltToMigrate && $foundNL ) {
 				$eltParent = $elt->parentNode;
 				$insertPosition = $elt->nextSibling;
-
-				// A marker meta-tag for an end-tag carries TSR information for the tag.
-				// It is important not to separate them by inserting content since that
-				// will affect accuracy of DSR computation for the end-tag as follows:
-				// end_tag.dsr->end = marker_meta.tsr->start - inserted_content.length
-				// But, that is incorrect since end_tag.dsr->end should be marker_meta.tsr->start
-				//
-				// So, if the insertPosition is in between an end-tag and
-				// its marker meta-tag, move past that marker meta-tag.
-				if ( $insertPosition &&
-					DOMUtils::isMarkerMeta( $insertPosition, 'mw:EndTag' )
-				) {
-					'@phan-var Element $insertPosition'; // @var Element $insertPosition
-					if ( $insertPosition->getAttribute( 'data-etag' ) === DOMCompat::nodeName( $elt )
-					) {
-						$insertPosition = $insertPosition->nextSibling;
-					}
-				}
 
 				$n = $firstEltToMigrate;
 				while ( $n !== $migrationBarrier ) {

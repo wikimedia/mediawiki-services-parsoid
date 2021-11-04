@@ -25,8 +25,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * For an explanation of what TSR is, see ComputeDSR::computeNodeDSR()
 	 *
 	 * TSR info on all these tags are only valid for the opening tag.
-	 * (closing tags don't have attrs since tree-builder strips them
-	 * and adds meta-tags tracking the corresponding TSR)
 	 *
 	 * On other tags, a, hr, br, meta-marker tags, the tsr spans
 	 * the entire DOM, not just the tag.
@@ -180,7 +178,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		 * 3. [[{{1x|Foo}}|Foo]] <-- tpl-attr mw:WikiLink
 		 *    Don't bother setting tag widths since dp->sa['href'] will be
 		 *    the expanded target and won't correspond to original source.
-		 *    We don't always have access to the meta-tag that has the source.
 		 *
 		 * 4. [http://wp.org foo] <-- mw:ExtLink
 		 *     -> start-tag: "[http://wp.org "
@@ -323,7 +320,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 		$this->trace( $env, "BEG: ", DOMCompat::nodeName( $node ), " with [s, e]=", [ $s, $e ] );
 
-		$savedEndTagWidth = null;
 		/** @var int|null $ce Child end */
 		$ce = $e;
 		// Initialize $cs to $ce to handle the zero-children case properly
@@ -336,10 +332,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		$child = $node->lastChild;
 		while ( $child !== null ) {
 			$prevChild = $child->previousSibling;
-			$isMarkerTag = false;
 			$origCE = $ce;
 			$cType = $child->nodeType;
-			$endTagInfo = null;
 			$fosteredNode = false;
 			$cs = null;
 
@@ -411,6 +405,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				DOMUtils::assertElt( $child );
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				$tsr = $dp->tsr ?? null;
+				$endTSR = $dp->tmp->endTSR ?? null;
 				$oldCE = $tsr ? $tsr->end : null;
 				$propagateRight = false;
 				$stWidth = null;
@@ -440,42 +435,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				}
 
 				if ( DOMCompat::nodeName( $child ) === "meta" ) {
-					// Unless they have been foster-parented,
-					// meta marker tags have valid tsr info->
-					if ( DOMUtils::matchTypeOf( $child, '#^mw:(EndTag|TSRMarker)$#D' ) ) {
-						if ( DOMUtils::hasTypeOf( $child, "mw:EndTag" ) ) {
-							// FIXME: This seems like a different function that is
-							// tacked onto DSR computation, but there is no clean place
-							// to do this one-off thing without doing yet another pass
-							// over the DOM -- maybe we need a 'do-misc-things-pass'.
-							//
-							// Update table-end syntax using info from the meta tag
-							$prev = $child->previousSibling;
-							if ( $prev && DOMCompat::nodeName( $prev ) === "table" ) {
-								DOMUtils::assertElt( $prev );
-								$prevDP = DOMDataUtils::getDataParsoid( $prev );
-								if ( !WTUtils::hasLiteralHTMLMarker( $prevDP ) ) {
-									if ( isset( $dp->endTagSrc ) ) {
-										$prevDP->endTagSrc = $dp->endTagSrc;
-									}
-								}
-							}
-						}
-
-						$isMarkerTag = true;
-						// TSR info will be absent if the tsr-marker came
-						// from a template since template tokens have all
-						// their tsr info-> stripped->
-						if ( $tsr ) {
-							$endTagInfo = [
-								'width' => $tsr->end - $tsr->start,
-								'nodeName' => $child->getAttribute( "data-etag" ),
-							];
-							$cs = $tsr->end;
-							$ce = $tsr->end;
-							$propagateRight = true;
-						}
-					} elseif ( $tsr ) {
+					if ( $tsr ) {
 						if ( WTUtils::isTplMarkerMeta( $child ) ) {
 							// If this is a meta-marker tag (for templates, extensions),
 							// we have a new valid '$cs'. This marker also effectively resets tsr
@@ -508,8 +468,14 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						$cs = $ce - strlen( $dp->src );
 					} else {
 						// Non-meta tags
+						if ( $endTSR ) {
+							$etWidth = $endTSR->length();
+						}
 						if ( $tsr && empty( $dp->autoInsertedStart ) ) {
 							$cs = $tsr->start;
+							if ( $endTSR && $ce === null ) {
+								$ce = $endTSR->end;
+							}
 							if ( $this->tsrSpansTagDOM( $child, $dp ) ) {
 								if ( $tsr->end !== null && $tsr->end > 0 ) {
 									$ce = $tsr->end;
@@ -527,7 +493,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 					// Compute width of opening/closing tags for this dom $node
 					list( $stWidth, $etWidth ) =
-						$this->computeTagWidths( $stWidth, $savedEndTagWidth, $child, $dp );
+						$this->computeTagWidths( $stWidth, $etWidth, $child, $dp );
 
 					if ( !empty( $dp->autoInsertedStart ) ) {
 						$stWidth = 0;
@@ -712,45 +678,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			} else {
 				// $ce for next $child = $cs of current $child
 				$ce = $cs;
-
-				// Save end-tag width from marker meta tag
-				if ( $endTagInfo && $child->previousSibling &&
-					$endTagInfo['nodeName'] === DOMCompat::nodeName( $child->previousSibling ) ) {
-					$savedEndTagWidth = $endTagInfo['width'];
-				} else {
-					$savedEndTagWidth = null;
-				}
-			}
-
-			// No use for this marker tag after this.
-			// Looks like DSR computation assumes that
-			// these meta tags will be removed.
-			if ( $isMarkerTag ) {
-				// Collapse text $nodes to prevent n^2 effect in the LTR propagation pass
-				// Example: enwiki:Colonization?oldid=718468597
-				$nextChild = $child->nextSibling;
-				if ( $prevChild instanceof Text && $nextChild instanceof Text ) {
-					$prevText = $prevChild->nodeValue;
-					$nextText = $nextChild->nodeValue;
-
-					// Process prevText in place
-					if ( $ce !== null ) {
-						// indentPreDSRCorrection is not required here since
-						// we'll never come down this branch (mw:TSRMarker won't exist
-						// in indent-pres, and mw:EndTag markers won't have a text $node
-						// for its previous sibling), but, for sake of maintenance ease,
-						// replicating code from above.
-						$cs = $ce - strlen( $prevText ) - WTUtils::indentPreDSRCorrection( $prevChild );
-						$ce = $cs;
-					}
-
-					// Update DOM
-					$newNode = $node->ownerDocument->createTextNode( $prevText . $nextText );
-					$node->replaceChild( $newNode, $prevChild );
-					$node->removeChild( $nextChild );
-					$prevChild = $newNode->previousSibling;
-				}
-				$node->removeChild( $child );
 			}
 
 			$child = $prevChild;

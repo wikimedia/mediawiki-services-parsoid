@@ -588,11 +588,6 @@ class WikitextEscapeHandlers {
 					continue;
 				}
 
-				// ignore TSR marker metas
-				if ( TokenUtils::hasTypeOf( $t, 'mw:TSRMarker' ) ) {
-					continue;
-				}
-
 				if ( $t->getName() === 'wikilink' ) {
 					if ( $env->isValidLinkTarget( $t->getAttribute( 'href' ) ?? '' ) ) {
 						return true;
@@ -805,7 +800,7 @@ class WikitextEscapeHandlers {
 					break;
 				case 'SelfclosingTagTk':
 					if ( $t->getName() !== 'meta' ||
-						!TokenUtils::matchTypeOf( $t, '/^mw:(TSRMarker|EmptyLine)$/D' )
+						!TokenUtils::hasTypeOf( $t, 'mw:EmptyLine' )
 					) {
 						// Don't bother with marker or empty-line metas
 						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
@@ -1265,10 +1260,6 @@ class WikitextEscapeHandlers {
 					break;
 				case 'SelfclosingTagTk':
 					$da = $t->dataAttribs;
-					if ( TokenUtils::hasTypeOf( $t, 'mw:TSRMarker' ) ) {
-						// Skip this marker tag
-						break;
-					}
 					if ( empty( $da->tsr ) ) {
 						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
 						$errors[] = 'Arg : ' . PHPUtils::jsonEncode( $arg );

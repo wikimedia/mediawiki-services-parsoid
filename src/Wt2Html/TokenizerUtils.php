@@ -20,11 +20,11 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
-use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
@@ -133,11 +133,13 @@ class TokenizerUtils {
 			}
 		}
 
-		$dataAttribs = new DataParsoid;
-		$dataAttribs->tsr = new SourceRange( $endPos, $endPos );
-		$endTag = null;
+		$tokens = [ new TagTk( $tagName, $a, $dp ) ];
+		PHPUtils::pushArray( $tokens, $content );
+
 		if ( $addEndTag ) {
-			$endTag = new EndTagTk( $tagName, [], $dataAttribs );
+			$dataAttribs = new DataParsoid;
+			$dataAttribs->tsr = new SourceRange( $endPos, $endPos );
+			$tokens[] = new EndTagTk( $tagName, [], $dataAttribs );
 		} else {
 			// We rely on our tree builder to close the table cell (td/th) as needed.
 			// We cannot close the cell here because cell content can come from
@@ -145,20 +147,12 @@ class TokenizerUtils {
 			// parsing context in which the td was opened:
 			//   Ex: {{1x|{{!}}foo}}{{1x|bar}} has to output <td>foobar</td>
 			//
-			// But, add a marker meta-tag to capture tsr info.
-			// SSS FIXME: Unsure if this is actually helpful, but adding it in just in case.
-			// Can test later and strip it out if it doesn't make any diff to rting.
-			$endTag = new SelfclosingTagTk( 'meta', [
-					new KV( 'typeof', 'mw:TSRMarker' ),
-					new KV( 'data-etag', $tagName )
-				], $dataAttribs
-			);
+			// Previously a meta marker was added here for DSR computation, but
+			// that's complicated now that marker meta handling has been removed
+			// from ComputeDSR.
 		}
 
-		return array_merge(
-			[ new TagTk( $tagName, $a, $dp ) ],
-			$content,
-			[ $endTag ] );
+		return $tokens;
 	}
 
 	public static function buildXMLTag( string $name, string $lcName, array $attribs, $endTag,

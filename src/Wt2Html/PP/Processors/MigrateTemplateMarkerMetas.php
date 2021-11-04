@@ -66,11 +66,11 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 			$tagWidth = WikitextConstants::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
 			DOMUtils::assertElt( $node );
 			if ( ( $tagWidth && $tagWidth[1] === 0 &&
-				// Except, don't migrate out of a table since the end meta
 				!WTUtils::isLiteralHTMLNode( $node ) ) ||
+				( !empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd ) &&
+				// Except, don't migrate out of a table since the end meta
 				// marker may have been fostered and this is more likely to
 				// result in a flipped range that isn't enclosed.
-				( !empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd ) &&
 				DOMCompat::nodeName( $node ) !== 'table' )
 			) {
 				$sentinel = $lastChild;

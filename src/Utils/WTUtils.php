@@ -450,14 +450,7 @@ class WTUtils {
 				$node instanceof Element &&
 				DOMCompat::nodeName( $node ) === 'meta' &&
 				!self::isMarkerAnnotation( $node ) &&
-				(
-					// (Start|End)Tag metas clone data-parsoid from the tokens
-					// they're shadowing, which trips up on the stx check.
-					// TODO: Maybe that data should be nested in a property?
-					DOMUtils::matchTypeOf( $node, '/^mw:(StartTag|EndTag)$/' ) !== null ||
-					!isset( DOMDataUtils::getDataParsoid( $node )->stx ) ||
-					DOMDataUtils::getDataParsoid( $node )->stx !== 'html'
-				)
+				( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'html'
 			) || self::isFallbackIdSpan( $node );
 	}
 

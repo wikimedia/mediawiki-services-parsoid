@@ -355,12 +355,11 @@ class DOMNormalizer {
 		$autoInserted = isset( $dp->autoInsertedStart ) || isset( $dp->autoInsertedEnd );
 
 		$strippable =
-			DOMUtils::nodeEssentiallyEmpty( $node, false ) &&
+			DOMUtils::nodeEssentiallyEmpty( $node, false );
 			// Ex: "<a..>..</a><b></b>bar"
 			// From [[Foo]]<b/>bar usage found on some dewiki pages.
 			// FIXME: Should we enable this?
-			// @phan-suppress-next-line PhanImpossibleCondition
-			!( false /* used to be rt-test mode */ && ( $dp->stx ?? null ) === 'html' );
+			// !( false /* used to be rt-test mode */ && ( $dp->stx ?? null ) === 'html' );
 
 		if ( $strippable ) {
 			// Update diff markers (before the deletion)

@@ -242,14 +242,7 @@ class TokenStreamPatcher extends TokenHandler {
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataAttribs->stx ?? '' ) !== 'html' ) {
 					$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
-					if ( TokenUtils::hasTypeOf( $token, 'mw:TSRMarker' ) &&
-						$this->lastConvertedTableCellToken !== null &&
-						$this->lastConvertedTableCellToken->getName() === $token->getAttribute( 'data-etag' )
-					) {
-						// Swallow the token and clear the marker
-						$this->lastConvertedTableCellToken = null;
-						return new TokenHandlerResult( [] );
-					} elseif (
+					if (
 						count( $this->tokenBuf ) > 0 &&
 						TokenUtils::hasTypeOf( $token, 'mw:Transclusion' )
 					) {

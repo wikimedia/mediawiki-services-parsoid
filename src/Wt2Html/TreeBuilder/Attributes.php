@@ -24,6 +24,11 @@ class Attributes extends PlainAttributes {
 			$data = DOMDataUtils::getBag( $this->document )->getObject(
 				$this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] );
 			$newData = $data->clone();
+
+			// Clear auto-insert flags since TreeEventStage needs to set them again
+			unset( $newData->parsoid->autoInsertedStart );
+			unset( $newData->parsoid->autoInsertedEnd );
+
 			$newAttrs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] =
 				DOMDataUtils::stashObjectInDoc( $this->document, $newData );
 			return new self( $this->document, $newAttrs );
