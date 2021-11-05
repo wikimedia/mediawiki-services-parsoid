@@ -846,9 +846,11 @@ abstract class ParsoidHandler extends Handler {
 			throw new HttpException( $e->getMessage(), 413 );
 		}
 
-		$total = $timing->end( 'html2wt.total' );
-		$metrics->timing( 'html2wt.size.output', strlen( $wikitext ) );
-		$metrics->timing( 'html2wt.timePerInputKB', $total * 1024 / strlen( $html ) );
+		if ( $html ) {  // Avoid division by zero
+			$total = $timing->end( 'html2wt.total' );
+			$metrics->timing( 'html2wt.size.output', strlen( $wikitext ) );
+			$metrics->timing( 'html2wt.timePerInputKB', $total * 1024 / strlen( $html ) );
+		}
 
 		$response = $this->getResponseFactory()->create();
 		FormatHelper::setContentType( $response, FormatHelper::FORMAT_WIKITEXT );
