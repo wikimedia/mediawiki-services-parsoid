@@ -238,6 +238,11 @@ class SiteConfig extends ISiteConfig {
 		$this->apiFunctionHooks = $data['functionhooks'];
 
 		// Process namespace data from API
+		$this->nsNames = [];
+		$this->nsCase = [];
+		$this->nsIds = [];
+		$this->nsCanon = [];
+		$this->nsWithSubpages = [];
 		foreach ( $data['namespaces'] as $ns ) {
 			$this->addNamespace( $ns );
 		}
@@ -337,6 +342,8 @@ class SiteConfig extends ISiteConfig {
 				break;
 			}
 		}
+		// `$this->nsNames[14]` is set earlier by the calls to `$this->addNamespace( $ns )`
+		// @phan-suppress-next-line PhanCoalescingAlwaysNull
 		$category = $this->quoteTitleRe( $this->nsNames[14] ?? 'Category', '@' );
 		if ( $category !== 'Category' ) {
 			$category = "(?:$category|Category)";
@@ -424,6 +431,10 @@ class SiteConfig extends ISiteConfig {
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
 		$this->loadSiteData();
+		$ns = $this->canonicalNamespaceId( $name );
+		if ( $ns !== null ) {
+			return $ns;
+		}
 		return $this->nsIds[Utils::normalizeNamespaceName( $name )] ?? null;
 	}
 
