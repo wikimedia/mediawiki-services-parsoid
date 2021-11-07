@@ -188,12 +188,17 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			[ '-o', $resultPath ]
 		);
 
-		$this->dashes( "Checking out $commit" );
+		$this->dashes( "Checking out $commit on scandium" );
 		$this->ssh( self::cmd(
 			$cdDir, '&&',
 			'git checkout', [ $commit ], '&&',
 			$restartPHP
 		), 'scandium.eqiad.wmnet' );
+		# Check out on testreduce1001 as well to ensure HTML version changes
+		# don't trip up our test script and we don't have to mess with passing in
+		# the --contentVersion option in most scenarios
+		$this->dashes( "Checking out $commit on testreduce1001" );
+		$this->ssh( self::cmd( $cdDir, '&&', 'git checkout', [ $commit ] ), 'testreduce1001.eqiad.wmnet' );
 
 		$this->dashes( "Running tests" );
 		$this->ssh( self::cmd(
@@ -262,11 +267,20 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->dashes( "Comparing results" );
 		$oracleResults = $this->readResults( $knownGood );
 		$commitResults = $this->readResults( $maybeBad );
+		$numErrorsOracle = 0;
+		$numErrorsCommit = 0;
+		$numTitles = count( $titles );
 
 		$summary = [ 'degraded' => [], 'improved' => [] ];
 		foreach ( $titles as $title ) {
 			$oracleRes = $oracleResults[$title] ?? null;
 			$commitRes = $commitResults[$title] ?? null;
+			if ( $oracleRes['html2wt']['error'] ?? 0 ) {
+				$numErrorsOracle++;
+			}
+			if ( $commitRes['html2wt']['error'] ?? 0 ) {
+				$numErrorsCommit++;
+			}
 			if ( self::deepEquals( $oracleRes, $commitRes ) ) {
 				if ( !$this->hasOption( 'quiet' ) ) {
 					echo( "$title\n" );
@@ -305,6 +319,14 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			echo( implode( "\n", $summary['degraded'] ) );
 		} else {
 			echo( "*** No pages need investigation ***\n" );
+		}
+
+		# Sanity check
+		if ( $numErrorsOracle === $numTitles ) {
+			error_log( "\n***** ALL runs for $knownGood errored! *****" );
+		}
+		if ( $numErrorsCommit === $numTitles ) {
+			error_log( "\n***** ALL runs for $maybeBad errored! *****" );
 		}
 	}
 
