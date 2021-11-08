@@ -439,7 +439,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$this->getOption( 'restURL' ), $matches ) &&
 				 !preg_match(
 				'#^(?:https?://[a-z.]+)?/w/rest.php/([a-z.]+)/v3/page/pagebundle/([^/?]+)(?:/([^/?]+))?#',
-				$this->getOption( 'restURL' ), $matches )
+				$this->getOption( 'restURL' ), $matches ) &&
+				!preg_match(
+					'#^(?:https?://[a-z.]+)?/w/rest\.php/([a-z.]+)/v3/transform/wikitext/to/pagebundle/([^/?]+)#',
+					$this->getOption( 'restURL' ), $matches )
 			) {
 				# XXX we could extend this to process other URLs, but the
 				# above are the most common seen in error logs
