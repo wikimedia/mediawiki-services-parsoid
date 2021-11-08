@@ -114,6 +114,9 @@ class Env {
 	/** @var int used to generate uids as needed during this parse */
 	private $uid = 1;
 
+	/** @var int used to generate annotation uids as needed during this parse */
+	private $annUid = 0;
+
 	/** @var array[] Lints recorded */
 	private $lints = [];
 
@@ -182,6 +185,9 @@ class Env {
 
 	/** @var Document */
 	private $domDiff;
+
+	/** @var bool */
+	public $hasAnnotations;
 
 	/**
 	 * Page properties (module resources primarily) that need to be output
@@ -708,6 +714,22 @@ class Env {
 	 */
 	public function newObjectId(): string {
 		return "mwt" . $this->generateUID();
+	}
+
+	/**
+	 * Generate a new annotation uid
+	 * @return int
+	 */
+	public function generateAnnotationUID(): int {
+		return $this->annUid++;
+	}
+
+	/**
+	 * Generate a new annotation id
+	 * @return string
+	 */
+	public function newAnnotationId(): string {
+		return "mwa" . $this->generateAnnotationUID();
 	}
 
 	/**

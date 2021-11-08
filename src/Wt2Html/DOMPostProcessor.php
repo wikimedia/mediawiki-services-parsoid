@@ -183,7 +183,6 @@ class DOMPostProcessor extends PipelineStage {
 		$seenIds = &$this->seenIds;
 		$usedIdIndex = [];
 		$abouts = [];
-		$annotationId = 0;
 
 		$tableFixer = new TableFixups( $env );
 
@@ -260,25 +259,23 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'tplwrap',
 				'omit' => !empty( $options['inTemplate'] )
 			],
-			// 1. Link prefixes and suffixes
-			// 2. Unpack DOM fragments
 			[
-				'name' => 'HandleLinkNeighbours,UnpackDOMFragments,AddAnnotationIds',
-				'shortcut' => 'dom-unpack',
+				'name' => 'AddAnnotationIds',
+				'shortcut' => 'ann-ids',
 				'isTraverser' => true,
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
-						'action' => static function ( $node ) use ( &$annotationId, &$abouts ) {
+						'action' => static function ( $node, $env ) use ( &$abouts ) {
 							$isStart = false;
 							$t = WTUtils::extractAnnotationType( $node, $isStart );
 							if ( $t !== null ) {
 								$about = null;
 								if ( $isStart ) {
 									// The 'mwa' prefix is specific to annotations;
-									// if other DOM ranges are to use this mecanism, another prefix
+									// if other DOM ranges are to use this mechanism, another prefix
 									// should be used.
-									$about = 'mwa' . $annotationId++;
+									$about = $env->newAnnotationId();
 									if ( !array_key_exists( $t, $abouts ) ) {
 										$abouts[$t] = [];
 									}
@@ -296,7 +293,22 @@ class DOMPostProcessor extends PipelineStage {
 							}
 							return true;
 						}
-					],
+					]
+				],
+				'withAnnotations' => true
+			],
+			[
+				'Processor' => WrapAnnotations::class,
+				'shortcut' => 'annwrap',
+				'withAnnotations' => true
+			],
+			// 1. Link prefixes and suffixes
+			// 2. Unpack DOM fragments
+			[
+				'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
+				'shortcut' => 'dom-unpack',
+				'isTraverser' => true,
+				'handlers' => [
 					[
 						'nodeName' => 'a',
 						'action' => [ HandleLinkNeighbours::class, 'handler' ]
@@ -306,11 +318,6 @@ class DOMPostProcessor extends PipelineStage {
 						'action' => [ UnpackDOMFragments::class, 'handler' ]
 					]
 				]
-			],
-			[
-				'Processor' => WrapAnnotations::class,
-				'shortcut' => 'annwrap',
-				'omit' => !empty( $options['inTemplate'] )
 			]
 		];
 
@@ -941,6 +948,10 @@ class DOMPostProcessor extends PipelineStage {
 		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
 			$pp = $this->processors[$i];
 			if ( !empty( $pp['skipNested'] ) && !$this->atTopLevel ) {
+				continue;
+			}
+
+			if ( !empty( $pp['withAnnotations'] ) && !$this->env->hasAnnotations ) {
 				continue;
 			}
 

@@ -179,6 +179,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
             }
             $dp = new DataParsoid();
             $dp->tsr = $tsr;
+            $this->env->hasAnnotations = true;
             return [ new SelfclosingTagTk ( 'meta',
                 $metaAttrs,
                 $dp
