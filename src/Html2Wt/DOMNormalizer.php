@@ -657,6 +657,7 @@ class DOMNormalizer {
 			return $next;
 		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'p'
 			&& !WTUtils::isLiteralHTMLNode( $node ) ) {
+			$next = DOMUtils::nextNonSepSibling( $node );
 			// Normalization of <p></p>, <p><br/></p>, <p><meta/></p> and the like to avoid
 			// extraneous new lines
 			if ( DOMUtils::hasNChildren( $node, 1 ) &&
@@ -683,7 +684,6 @@ class DOMNormalizer {
 				// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
 				// they serialize to as many newlines as the count of <p></p> nodes.
 				// Also handles <p><meta/></p> case for annotations.
-				$next = DOMUtils::nextNonSepSibling( $node );
 				if ( $next && DOMCompat::nodeName( $next ) === 'p' &&
 					!WTUtils::isLiteralHTMLNode( $next ) ) {
 					// Replace 'node' (<p></p>) with a <br/> and make it the
