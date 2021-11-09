@@ -705,3 +705,20 @@ hello
 some other paragraph
 !!end
 
+!! test
+T295330 - dsr computation should allow proper selser
+!! wikitext
+<translate>
+<!--T:1-->
+'''The quick brown fox jumps over the lazy dog.'''
+</translate>
+
+[[Category:Foo]]
+!! html/parsoid
+<meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
+<!--T:1-->
+<p><b>The quick brown fox jumps over the lazy dog.</b></p>
+<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[74,86]}'/>
+
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
+!! end

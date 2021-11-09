@@ -113,9 +113,9 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				$pDataParsoid = DOMDataUtils::getDataParsoid( $node );
 				$pDataParsoid->dsr->end = $endDataParsoid->dsr->start;
 				$node->parentNode->insertBefore( $node->lastChild, $node->nextSibling );
-				$prevLength = strlen( $node->lastChild->textContent ?? '' );
+				$prevLength = strlen( $node->textContent ?? '' );
 				$this->migrateTrailingNls->doMigrateTrailingNLs( $node, $this->env );
-				$newLength = strlen( $node->lastChild->textContent ?? '' );
+				$newLength = strlen( $node->textContent ?? '' );
 				if ( $prevLength != $newLength ) {
 					$pDataParsoid->dsr->end -= ( $prevLength - $newLength );
 				}
