@@ -744,3 +744,35 @@ c
 <p data-parsoid='{"dsr":[34,35,0,0]}'>c</p>
 <meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[36,48,null,null]}' data-mw='{"wtOffsets":[36,48]}'/>
 !! end
+
+!! test
+Old tvar syntax should not break too hard.
+!! options
+# html2wt and wt2wt are expected to break because we serialize to new syntax.
+# html2html breaks because the wtOffsets break.
+parsoid={
+	"modes": ["wt2html", "selser"]
+}
+!! wikitext
+<translate><tvar|plop>pouet</></translate>
+!! html/parsoid
+<p><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><meta typeof="mw:Annotation/tvar" data-mw='{"attrs":{"name":"plop"},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[11,22]}'/>pouet<meta typeof="mw:Annotation/tvar/End" data-mw='{"wtOffsets":[27,30]}'/><meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[30,42]}'/></p>
+!! end
+
+!! test
+Old tvar syntax should not pull content in cell attributes
+!! options
+# html2wt and wt2wt are expected to break because we serialize to new syntax.
+# html2html breaks because the wtOffsets break.
+parsoid={
+        "modes": ["wt2html", "selser"]
+}
+!! wikitext
+{|
+|<translate>hello <tvar|var>variable</></translate>
+|}
+!! html/parsoid
+<table>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[4,15]}'/>hello <meta typeof="mw:Annotation/tvar" data-mw='{"attrs":{"name":"var"},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[21,31]}'/>variable<meta typeof="mw:Annotation/tvar/End" data-mw='{"wtOffsets":[39,42]}'/><meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[42,54]}'/></td></tr>
+</tbody></table>
+!! end

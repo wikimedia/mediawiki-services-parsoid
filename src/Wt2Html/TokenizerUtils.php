@@ -208,7 +208,7 @@ class TokenizerUtils {
 					) );
 
 			case '|':
-				return !$stops['extTag'] && (
+				return !$stops['annOrExtTag'] && (
 					$stops['templateArg']
 					|| $stops['tableCellArg']
 					|| $stops['linkdesc']

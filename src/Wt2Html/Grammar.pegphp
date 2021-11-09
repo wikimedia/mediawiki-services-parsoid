@@ -155,18 +155,40 @@
 			|| isset( WikitextConstants::$HTML['OlderHTMLTags'][$lName] );
 	}
 
-	private function isExtTag( string $name ): bool {
-		$lName = mb_strtolower( $name );
-		$isInstalledExt = isset( $this->extTags[$lName] );
-		$isIncludeTag = TokenizerUtils::isIncludeTag( $lName );
-		return $isInstalledExt || $isIncludeTag;
+	private function isAnnOrExtTag( string $name ): bool {
+		$tagName = mb_strtolower( $name );
+		$isInstalledExt = isset( $this->extTags[$tagName] );
+		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
+		$isAnnotationTag = $this->siteConfig->isAnnotationTag( $tagName );
+
+		if ( !$isAnnotationTag ) {
+			// avoid crashing on <tvar|name> even if we don't support that syntax explicitly
+			$pipepos = strpos( $tagName, '|' );
+			if ( $pipepos ) {
+				$strBeforePipe = substr( $tagName, 0, $pipepos );
+				$isAnnotationTag = $this->siteConfig->isAnnotationTag( $strBeforePipe );
+			}
+		}
+		return $isInstalledExt || $isIncludeTag || $isAnnotationTag;
 	}
 
 	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
 		$tagName = mb_strtolower( $t->getName() );
 
-		$isAnnotationExt = $this->siteConfig->isAnnotationTag( $tagName );
-		if ( $isAnnotationExt ) {
+		$isAnnotationTag = $this->siteConfig->isAnnotationTag( $tagName );
+		if ( !$isAnnotationTag ) {
+			$pipepos = strpos( $tagName, '|' );
+			if ( $pipepos ) {
+				$strBeforePipe = substr( $tagName, 0, $pipepos );
+				$isAnnotationTag = $this->siteConfig->isAnnotationTag( $strBeforePipe );
+				if ( $isAnnotationTag ) {
+					$attribs = [ new KV( "name", substr( $tagName, $pipepos + 1, strlen( $tagName ) - $pipepos - 1 ) ) ];
+					$tagName = $strBeforePipe;
+				}
+			}
+		}
+
+		if ( $isAnnotationTag ) {
 			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
 			if ( count( $attribs ) > 0 ) {
 				$attrMap = [];
@@ -588,7 +610,7 @@ br =
 inline_breaks =
 	& [=|!{}:;\r\n[\]\-]
 	(
-		extTag: <extTag>
+		annOrExtTag: <annOrExtTag>
 		h: <h>
 		extlink: <extlink>
 		intemplate: <intemplate>
@@ -604,7 +626,7 @@ inline_breaks =
 		th: <th>
 		& {
 			return TokenizerUtils::inlineBreaks( $this->input, $this->endOffset(), [
-				'extTag' => $extTag,
+				'annOrExtTag' => $annOrExtTag,
 				'h' => $h,
 				'extlink' => $extlink,
 				'intemplate' => $intemplate,
@@ -1611,8 +1633,20 @@ quote =
  * Pre and xmlish tags
  ***********************************************************/
 
+// FIXME: Temporary (?) hack to let us not horribly break on old tvar syntax
+// In coordination with language team, get rid of this hack once all old uses
+// are migrated to new syntax (T274881).
+tvar_old_syntax_closing_HACK =
+	"/>" {
+		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
+		$dp = new DataParsoid();
+		$dp->tsr = $this->tsrOffsets();
+		$dp->tsr->start--; // For "<" matched at the start of xmlish_tag rule
+		return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
+	}
+
 extension_annotation_tag =
-	!<extTag>
+	!<annOrExtTag>
 	extToken:xmlish_tag
 	// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
 	&{ return !$extToken || $extToken[0]->getName() === 'extension' ||
@@ -1653,17 +1687,17 @@ tag_name = $[^\t\n\v />\0]+
 space_or_newline_or_solidus = space_or_newline / (s:"/" !">" { return $s; })
 
 xmlish_tag =
-	"<" tag:(xmlish_tag_opened<isBlock=false, extTag> / xmlish_tag_opened<isBlock=false, extTag=false>)
+	"<" tag:(xmlish_tag_opened<isBlock=false, annOrExtTag> / xmlish_tag_opened<isBlock=false, annOrExtTag=false> / tvar_old_syntax_closing_HACK )
 	{ return $tag; }
 
 xmlish_tag_opened =
 	end:"/"?
 	name: tag_name
-	extTag: <extTag>
+	annOrExtTag: <annOrExtTag>
 	isBlock: <isBlock>
 	& {
-		if ( $extTag ) {
-			return $this->isExtTag( $name );
+		if ( $annOrExtTag ) {
+			return $this->isAnnOrExtTag( $name );
 		} else {
 			// Only enforce ascii alpha first char for non-extension tags.
 			// See tag_name above for the details.
@@ -1683,7 +1717,7 @@ xmlish_tag_opened =
 
 		// Extension tags don't necessarily have the same semantics as html tags,
 		// so don't treat them as void elements.
-		$isVoidElt = Utils::isVoidElement( $lcName ) && !$extTag;
+		$isVoidElt = Utils::isVoidElement( $lcName ) && !$annOrExtTag;
 
 		// Support </br>
 		if ( $lcName === 'br' && $end ) {
@@ -1712,7 +1746,7 @@ xmlish_tag_opened =
  * following paragraphs.
  */
 block_tag =
-	"<" tag:(xmlish_tag_opened<isBlock, extTag> / xmlish_tag_opened<isBlock, extTag=false>)
+	"<" tag:(xmlish_tag_opened<isBlock, annOrExtTag> / xmlish_tag_opened<isBlock, annOrExtTag=false>)
 	{ return $tag; }
 
 // A generic attribute that can span multiple lines.
@@ -1775,7 +1809,7 @@ table_attribute =
 // exception, since they're stripped beforehand.
 less_than =
 	$(
-		&<extTag>
+		&<annOrExtTag>
 		"<"
 	)
 
