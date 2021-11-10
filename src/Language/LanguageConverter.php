@@ -33,6 +33,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Language;
 
+use DOMDocument;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Config\Env;
@@ -352,5 +353,63 @@ class LanguageConverter {
 			&& array_key_exists( $htmlVariantLanguageMw, $langconv->getMachine()->getCodes() );
 
 		return $validTarget;
+	}
+
+	/**
+	 * Convert a string in an unknown variant of the page language to all its possible variants.
+	 *
+	 * @param Env $env
+	 * @param DOMDocument $doc
+	 * @param string $text
+	 * @return string[] map of converted variants keyed by variant language
+	 */
+	public static function autoConvertToAllVariants(
+		Env $env,
+		DOMDocument $doc,
+		string $text
+	): array {
+		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
+		if ( $env->getSiteConfig()->variantsFor( $pageLangCode ) === null ) {
+			// Optimize for the common case where the page language has no variants.
+			return [];
+		}
+
+		$languageClass = self::loadLanguage( $env, $pageLangCode );
+		$lang = new $languageClass();
+		$langconv = $lang->getConverter();
+
+		if ( $langconv === null || $langconv->getMachine() === null ) {
+			return [];
+		}
+
+		$machine = $langconv->getMachine();
+		$codes = $machine->getCodes();
+		$textByVariant = [];
+
+		foreach ( $codes as $destCode ) {
+			foreach ( $codes as $invertCode ) {
+				if ( !$machine->isValidCodePair( $destCode, $invertCode ) ) {
+					continue;
+				}
+
+				$fragment = $machine->convert(
+					$doc,
+					$text,
+					$destCode,
+					$invertCode
+				);
+
+				$converted = $fragment->textContent;
+
+				if ( $converted !== $text ) {
+					$textByVariant[$destCode] = $converted;
+					// Move on to the next code once we found a candidate conversion,
+					// to match behavior with the old LanguageConverter.
+					break;
+				}
+			}
+		}
+
+		return $textByVariant;
 	}
 }

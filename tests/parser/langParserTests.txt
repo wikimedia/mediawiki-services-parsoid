@@ -27,6 +27,12 @@ Template:1x
 {{{1}}}
 !! endarticle
 
+!! article
+Parsoid测试
+!! text
+Simplified Chinese article variant
+!! endarticle
+
 ## sr-ec ##
 
 !! test
@@ -230,8 +236,7 @@ wgParserEnableLegacyMediaDOM=false
 ### Language variants related tests
 ###
 
-# Parsoid does not convert links; PHP will do any necessary redirects.
-
+## Parsoid isn't adding selflinks on variants yet
 !! test
 Self-link in language variants
 !! options
@@ -251,7 +256,7 @@ Both [[Dunav]] and [[Дунав]] are names for this river.
 content
 !! endarticle
 
-# T258856: Parsoid doesn't handle redlink processing correctly in this case
+## Parsoid isn't adding selflinks on variants yet
 !! test
 Link to another existing title shouldn't be parsed as self-link even if it's a variant of this title
 !! options
@@ -262,10 +267,10 @@ title=[[Duna]] language=sr
 <p><a href="/wiki/%D0%94%D1%83%D0%BD%D0%B0" title="Дуна">Дуна</a> is not a self-link while <a class="mw-selflink selflink">Duna</a> and <a class="mw-selflink selflink">Dуна</a> are still self-links.
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Дуна" title="Дуна">Дуна</a> is not a self-link while <a rel="mw:WikiLink" href="./Duna" class="mw-selflink selflink">Duna</a> and <a rel="mw:WikiLink" href="./Dуна" class="mw-selflink selflink">Dуна</a> are still self-links.</p>
+<p><a rel="mw:WikiLink" href="./Дуна" title="Дуна" data-parsoid='{"stx":"simple","a":{"href":"./Дуна"},"sa":{"href":"Дуна"}}'>Дуна</a> is not a self-link while <a rel="mw:WikiLink" href="./Дуна" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./Дуна","title":"Дуна"},"sa":{"href":"Duna","title":"Duna"}}'>Duna</a> and <a class="mw-selflink selflink" rel="mw:WikiLink" href="./Дуна" title="Дуна" data-parsoid='{"stx":"simple","a":{"href":"./Дуна","title":"Дуна"},"sa":{"href":"Dуна","title":"Dуна"}}'>Dуна</a> are still self-links.</p>
 !! end
 
-# T258856: Parsoid doesn't handle redlink processing correctly in this case
+## Parsoid isn't adding selflinks on variants yet
 !! test
 Link to a section of a variant of this title shouldn't be parsed as self-link
 !! options
@@ -276,10 +281,9 @@ title=[[Duna]] language=sr
 <p><a class="mw-selflink selflink">Dуна</a> is a self-link while <a href="/wiki/%D0%94%D1%83%D0%BD%D0%B0" title="Дуна">Dunа#Foo</a> and <a href="/wiki/%D0%94%D1%83%D0%BD%D0%B0" title="Дуна">Dуна#Foo</a> are not self-links.
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Dуна" title="Dуна">Dуна</a> is a self-link while <a rel="mw:WikiLink" href="./Dunа#Foo" title="Dunа">Dunа#Foo</a> and <a rel="mw:WikiLink" href="./Dуна#Foo" title="Dуна">Dуна#Foo</a> are not self-links.</p>
+<p><a class="mw-selflink selflink" rel="mw:WikiLink" href="./Дуна" title="Дуна" data-parsoid='{"stx":"simple","a":{"href":"./Дуна","title":"Дуна"},"sa":{"href":"Dуна","title":"Dуна"}}'>Dуна</a> is a self-link while <a rel="mw:WikiLink" href="./Дуна#Foo" title="Дуна" data-parsoid='{"stx":"simple","a":{"href":"./Дуна#Foo","title":"Дуна"},"sa":{"href":"Dunа#Foo","title":"Dunа"}}'>Dunа#Foo</a> and <a rel="mw:WikiLink" href="./Дуна#Foo" title="Дуна" data-parsoid='{"stx":"simple","a":{"href":"./Дуна#Foo","title":"Дуна"},"sa":{"href":"Dуна#Foo","title":"Dуна"}}'>Dуна#Foo</a> are not self-links.</p>
 !! end
 
-# T258856: Parsoid doesn't handle redlink processing correctly in this case
 !! test
 Link to pages in language variants
 !! options
@@ -290,11 +294,9 @@ Main Page can be written as [[Маин Паге]]
 <p>Main Page can be written as <a href="/wiki/Main_Page" title="Main Page">Маин Паге</a>
 </p>
 !! html/parsoid
-<p>Main Page can be written as <a rel="mw:WikiLink" href="./Маин_Паге" title="Маин Паге">Маин Паге</a></p>
+<p>Main Page can be written as <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page","title":"Main Page"},"sa":{"href":"Маин Паге","title":"Маин Паге"}}'>Маин Паге</a></p>
 !! end
 
-
-# T258856: Parsoid doesn't handle redlink processing correctly in this case
 !! test
 Multiple links to pages in language variants
 !! options
@@ -305,7 +307,7 @@ language=sr
 <p><a href="/wiki/Main_Page" title="Main Page">Main Page</a> can be written as <a href="/wiki/Main_Page" title="Main Page">Маин Паге</a> same as <a href="/wiki/Main_Page" title="Main Page">Маин Паге</a>.
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> can be written as <a rel="mw:WikiLink" href="./Маин_Паге" title="Маин Паге">Маин Паге</a> same as <a rel="mw:WikiLink" href="./Маин_Паге" title="Маин Паге">Маин Паге</a>.</p>
+<p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page"},"sa":{"href":"Main Page"}}'>Main Page</a> can be written as <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page","title":"Main Page"},"sa":{"href":"Маин Паге","title":"Маин Паге"}}'>Маин Паге</a> same as <a rel="mw:WikiLink" href="./Main_Page" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page","title":"Main Page"},"sa":{"href":"Маин Паге","title":"Маин Паге"}}'>Маин Паге</a>.</p>
 !! end
 
 !! article
@@ -1675,4 +1677,20 @@ parsoid=html2wt
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[]}'/></p>
 !! wikitext
 -{H|}-
+!! end
+
+## Legacy parser inconsistency in the title attribute
+!! test
+Nonexistent internal link targets should be resolved using variants (T258856)
+!! options
+language=zh variant=zh-hant
+!! wikitext
+[[Parsoid測試]]
+!! html/php
+<p><a href="/wiki/Parsoid%E6%B5%8B%E8%AF%95" title="Parsoid測試">Parsoid測試</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Parsoid测试" title="Parsoid测试" data-parsoid='{"stx":"simple","a":{"href":"./Parsoid测试","title":"Parsoid测试"},"sa":{"href":"Parsoid測試","title":"Parsoid測試"}}'>Parsoid測試</a></p>
+!! html/parsoid+langconv
+<p data-mw-variant-lang="zh-hant"><a rel="mw:WikiLink" href="./Parsoid测试" title="Parsoid测试">Parsoid測試</a></p>
 !! end
