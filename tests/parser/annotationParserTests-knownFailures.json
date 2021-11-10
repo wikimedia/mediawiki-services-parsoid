@@ -121,5 +121,11 @@
         "selser [0,[3],3,0,0]": "<translate>\n\nLet's have some text.</translate>",
         "selser [0,3,0,1,0]": "<translate>\n\nLet's have some text.</translate>",
         "selser [0,0,2,0,0]": "<translate>plop\n\nwf6yip\n\nLet's have some text.</translate>"
+    },
+    "When metas are migrated out of p-tags, template continuity should not be broken": {
+        "selser [0,0,0,0,1,2,0]": "{{1x|<div>a</div> b}}\n<translate>\nc\n\n1j82v5d\n</translate>",
+        "selser [0,0,0,0,1,4,0]": "{{1x|<div>a</div> b}}\n<translate>\nc\n\nlkbj4r\n</translate>",
+        "selser [0,0,0,0,1,3,0]": "{{1x|<div>a</div> b}}\n<translate>\nc\n</translate>",
+        "selser [0,0,0,0,0,3,0]": "{{1x|<div>a</div> b}}\n<translate>\nc\n</translate>"
     }
 }

@@ -35,10 +35,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				while ( DOMUtils::isFosterablePosition( $newStart ) ) {
 					$newStart = $newStart->parentNode;
 				}
-				$aboutNewStart = $newStart->getAttribute( "about" );
-				if ( $aboutNewStart !== null && $aboutNewStart !== "" ) {
-					$range->startElem->setAttribute( "about", $aboutNewStart );
-				}
 				static::moveRangeStart( $range, $newStart );
 			}
 
@@ -46,10 +42,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				$newEnd = $range->end;
 				while ( DOMUtils::isFosterablePosition( $newEnd ) ) {
 					$newEnd = $newEnd->parentNode;
-				}
-				$aboutNewEnd = $newEnd->getAttribute( "about" );
-				if ( $aboutNewEnd !== null && $aboutNewEnd !== "" ) {
-					$range->endElem->setAttribute( "about", $aboutNewEnd );
 				}
 				static::moveRangeEnd( $range, $newEnd );
 			}
@@ -88,6 +80,13 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		}
 		$node = self::getStartConsideringFosteredContent( $node );
 		$node->parentNode->insertBefore( $startMeta, $node );
+		if ( $node instanceof Element ) {
+			// Ensure template continuity is not broken
+			$about = $node->getAttribute( "about" );
+			if ( $about ) {
+				$startMeta->setAttribute( "about", $about );
+			}
+		}
 		$range->start = $startMeta;
 	}
 
@@ -101,18 +100,23 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$endDataParsoid = DOMDataUtils::getDataParsoid( $endMeta );
 
 		if ( $node instanceof Element ) {
-			if (
-				( DOMCompat::nodeName( $node ) === "p" ) &&
-				$node->lastChild === $endMeta
-			) {
-				// If the first child of "p" is the meta, and it gets moved, then it got mistakenly
+			$endMetaWasLastChild = $node->lastChild === $endMeta;
+
+			// Migrate $endMeta and ensure template continuity is not broken
+			$node->parentNode->insertBefore( $endMeta, $node->nextSibling );
+			$about = $node->getAttribute( "about" );
+			if ( $about ) {
+				$endMeta->setAttribute( "about", $about );
+			}
+
+			if ( ( DOMCompat::nodeName( $node ) === "p" ) && $endMetaWasLastChild ) {
+				// If the last child of "p" is the meta, and it gets moved, then it got mistakenly
 				// pulled inside the paragraph, and the paragraph dsr that gets computed includes
 				// it - which may lead to the tag getting duplicated on roundtrip. Hence, we
 				// adjust the dsr of the paragraph in that case. We also don't consider the meta
 				// tag to have been moved in that case.
 				$pDataParsoid = DOMDataUtils::getDataParsoid( $node );
 				$pDataParsoid->dsr->end = $endDataParsoid->dsr->start;
-				$node->parentNode->insertBefore( $node->lastChild, $node->nextSibling );
 				$prevLength = strlen( $node->textContent ?? '' );
 				$this->migrateTrailingNls->doMigrateTrailingNLs( $node, $this->env );
 				$newLength = strlen( $node->textContent ?? '' );
@@ -122,8 +126,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			} else {
 				$endDataParsoid->wasMoved = true;
 				DOMDataUtils::setDataParsoid( $endMeta, $endDataParsoid );
-				$node->parentNode->insertBefore( $endMeta, $node->nextSibling );
-
 			}
 		}
 		$range->end = $endMeta;

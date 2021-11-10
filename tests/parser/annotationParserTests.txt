@@ -722,3 +722,25 @@ T295330 - dsr computation should allow proper selser
 
 <link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>
 !! end
+
+## FIXME: This is currently awkward where only the start of the translate is pulled into the template range.
+## This doesn't affect correctness because the ranges are all marked extended (because of bad nesting).
+## But, the bad nesting is an artefact of how the paragraph wrapper leaves the opening and closing meta
+## tags of the annotation range in different paragraphs, and one of those paragraphs happen to be from
+## a template. If the p-wrapper can be tweaked to be smarter about this, this will get cleaned up better.
+## But, for now, the focus is on not breaking selser.
+!! test
+When metas are migrated out of p-tags, template continuity should not be broken
+!! options
+parsoid=wt2html,selser
+!! wikitext
+{{1x|<div>a</div> b}}
+<translate>
+c
+</translate>
+!! html/parsoid
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","dsr":[0,33,null,null],"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>a&lt;/div> b"}},"i":0}},"\n&lt;translate>"]}'>a</div><meta typeof="mw:Annotation/translate" about="#mwt1" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[22,33]}'/><p about="#mwt1"> b
+</p>
+<p data-parsoid='{"dsr":[34,35,0,0]}'>c</p>
+<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[36,48,null,null]}' data-mw='{"wtOffsets":[36,48]}'/>
+!! end
