@@ -288,8 +288,12 @@ class TreeBuilderStage extends PipelineStage {
 
 			$wasInserted = false;
 
-			// Convert mw metas to comments to avoid fostering.
-			// But <*include*> metas, behavior switch metas
+			// FIXME: This prevents fostering of all metas except those
+			// that are explictly identified for fostering. Instead,
+			// this should foster all metas except those are explicitly
+			// barred from being fostered.
+
+			// <*include*> metas, behavior switch metas
 			// should be fostered since they end up generating
 			// HTML content at the marker site.
 			if ( $tName === 'meta' ) {
