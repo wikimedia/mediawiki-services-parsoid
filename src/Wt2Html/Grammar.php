@@ -113,6 +113,13 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	 * current expression can return an empty list (true).
 	 */
 	private function emitChunk( $tokens ) {
+		// FIXME: We don't expect nulls here, but looks like
+		// hack from I1c695ab6cdd3655e98877c175ddbabdee9dc44b7
+		// introduces them. Work around it for now!
+		if ( !$tokens ) {
+			return [];
+		}
+
 		// Shift tsr of all tokens by the pipeline offset
 		TokenUtils::shiftTokenTSR( $tokens, $this->pipelineOffset );
 		$this->env->log( 'trace/peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
@@ -164,27 +171,32 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
 		$tagName = mb_strtolower( $t->getName() );
 
-        $isAnnotationExt = $this->siteConfig->isAnnotationTag( $tagName );
-        if ( $isAnnotationExt ) {
-            $metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
-            if ( count( $attribs ) > 0 ) {
-                $attrMap = [];
-                foreach ( $attribs as $attr ) {
-                    $attrMap[$attr->k] = $attr->v;
-                }
-                $datamw = [];
-                // Possible follow-up in T295168 for attribute sanitation
-                $datamw['attrs'] = $attrMap;
-                array_push( $metaAttrs, new KV( 'data-mw', PHPUtils::jsonEncode( $datamw ) ) );
-            }
-            $dp = new DataParsoid();
-            $dp->tsr = $tsr;
-            $this->env->hasAnnotations = true;
-            return [ new SelfclosingTagTk ( 'meta',
-                $metaAttrs,
-                $dp
-            ) ];
-        }
+		$isAnnotationExt = $this->siteConfig->isAnnotationTag( $tagName );
+		if ( $isAnnotationExt ) {
+			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
+			if ( count( $attribs ) > 0 ) {
+				$attrMap = [];
+				foreach ( $attribs as $attr ) {
+					$attrMap[$attr->k] = $attr->v;
+				}
+				$datamw = [];
+				// Possible follow-up in T295168 for attribute sanitation
+				$datamw['attrs'] = $attrMap;
+				array_push( $metaAttrs, new KV( 'data-mw', PHPUtils::jsonEncode( $datamw ) ) );
+			}
+			$dp = new DataParsoid();
+			$dp->tsr = $tsr;
+			$this->env->hasAnnotations = true;
+			// FIXME: Suppress annotation meta tokens from template pipelines
+			// since they may not have TSR values and won't get recognized as
+			// annotation ranges. Without TSR, they might end up stuck in
+			// fosterable positions and cause havoc on edits by breaking selser.
+			if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
+				return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
+			} else {
+				return [];
+			}
+		}
 
 		$isInstalledExt = isset( $this->extTags[$tagName] );
 		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
@@ -1113,7 +1125,7 @@ private function a92($end, $name, $extTag, $isBlock, $attribs, $selfclose) {
 		}
 
 		$met = $this->maybeAnnotationOrExtensionTag( $res, $end, $attribs, $tsr );
-		return ( is_array( $met ) ) ? $met : [ $met ];
+		return is_array( $met ) ? $met : [ $met ];
 	
 }
 private function a93($sp) {
@@ -1260,11 +1272,11 @@ private function a110(&$preproc, $a) {
 	
 }
 private function a111($extToken) {
- return $extToken[0]->getName() === 'extension' ||
+ return !$extToken || $extToken[0]->getName() === 'extension' ||
 	    ($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); 
 }
 private function a112($extToken) {
- return $extToken[0]; 
+ return !$extToken ? '' : $extToken[0]; 
 }
 private function a113($proto, $addr, $rhe) {
  return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; 
