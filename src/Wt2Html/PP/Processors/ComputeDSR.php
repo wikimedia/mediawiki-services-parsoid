@@ -633,14 +633,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					}
 
 					$env->log( "trace/dsr", static function () use ( $frame, $child, $cs, $ce, $dp ) {
-						$str = "     UPDATING " . DOMCompat::nodeName( $child ) .
+						return "     UPDATING " . DOMCompat::nodeName( $child ) .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( $child->getAttribute( "typeof" ) ?? '' );
-						// Set up 'dbsrc' so we can debug this
-						if ( $cs !== null && $ce !== null ) {
-							$dp->dbsrc = PHPUtils::safeSubstr( $frame->getSrcText(), $cs, $ce - $cs );
-						}
-						return $str;
 					} );
 				}
 
@@ -682,14 +677,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 							// Update and move right
 							$env->log( "trace/dsr", static function () use ( $frame, $newCE, $sibling, $siblingDP ) {
-								$str = "     CHANGING ce.start of " . DOMCompat::nodeName( $sibling ) .
+								return "     CHANGING ce.start of " . DOMCompat::nodeName( $sibling ) .
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
-								// debug info
-								if ( $siblingDP->dsr->end ) {
-									$siblingDP->dbsrc = PHPUtils::safeSubstr(
-										$frame->getSrcText(), $newCE, $siblingDP->dsr->end - $newCE );
-								}
-								return $str;
 							} );
 
 							$siblingDP->dsr->start = $newCE;

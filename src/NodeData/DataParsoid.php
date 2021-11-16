@@ -102,9 +102,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * On a meta mw:Placeholder/StrippedTag, this is the name of the stripped tag.
  * @property string|null $name
  *
- * Debug source. ComputeDSR sets this for unusual inputs.
- * @property string|null $dbsrc
- *
  * This is set on image containers in which a template expands to multiple
  * image parameters. It is converted to a typeof attribute later in the same
  * function, so it's unclear why it needs to persist in data-parsoid.
