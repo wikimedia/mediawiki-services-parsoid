@@ -82,8 +82,8 @@ class CleanUpTest extends TestCase {
 	 * @param string $test
 	 */
 	public function testCleanUp( string $test ): void {
-		error_log( "Cleanup DOM pass should confirm removal of autoInsertedEnd flag\n" .
-			"for wikitext table tags without closing tag syntax using DOM traversal\n" );
+		// Cleanup DOM pass should confirm removal of autoInsertedEnd flag
+		// for wikitext table tags without closing tag syntax using DOM traversal
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
 		$fragment = $body->firstChild;
@@ -115,8 +115,8 @@ class CleanUpTest extends TestCase {
 	 * @param string $test
 	 */
 	public function testCleanUpWT( string $test ): void {
-		error_log( "Cleanup DOM pass should confirm removal of autoInsertedEnd flag\n" .
-			"for all wikitext tags without closing tags\n" );
+		// Cleanup DOM pass should confirm removal of autoInsertedEnd flag
+		// for all wikitext tags without closing tags
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
 		$table = $body->firstChild;
@@ -161,8 +161,8 @@ class CleanUpTest extends TestCase {
 	 * @param string $test
 	 */
 	public function testCleanUpHTML( string $test ): void {
-		error_log( "Cleanup DOM pass should confirm presence of autoInsertedEnd flag\n" .
-			"for all HTML wikitext tags that can appear without closing tags\n" );
+		// Cleanup DOM pass should confirm presence of autoInsertedEnd flag
+		// for all HTML wikitext tags that can appear without closing tags
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
 		$fragment = $body->firstChild;
