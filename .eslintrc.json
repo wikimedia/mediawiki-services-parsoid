@@ -1,0 +1,108 @@
+{
+	"extends": [
+		"wikimedia/server",
+		"wikimedia/jsdoc"
+	],
+	"parserOptions": {
+		"ecmaVersion": 2017
+	},
+	"rules": {
+		"indent": ["error", "tab", {
+			"SwitchCase": 1,
+			"MemberExpression": "off",
+			"CallExpression": { "arguments": "off" },
+			"flatTernaryExpressions": true
+		}],
+		"one-var": ["error", { "initialized": "never" }],
+
+		"no-restricted-properties": "off",
+		"no-restricted-syntax": "off",
+		"node/no-deprecated-api": "off",
+
+		"array-bracket-spacing": "off",
+		"arrow-parens": "off",
+		"camelcase": "off",
+		"comma-dangle": "off",
+		"comma-spacing": "off",
+		"computed-property-spacing": "off",
+		"key-spacing": "off",
+		"max-statements-per-line": "off",
+		"no-implicit-coercion": "off",
+		"no-misleading-character-class": "off",
+		"no-multi-spaces": "off",
+		"no-multiple-empty-lines": "off",
+		"no-redeclare": "off",
+		"no-underscore-dangle": "off",
+		"no-unused-vars": "off",
+		"no-use-before-define": "off",
+		"operator-linebreak": "off",
+		"prefer-regex-literals": "off",
+		"quote-props": "off",
+		"quotes": "off",
+		"space-before-function-paren": "off",
+		"space-in-parens": "off",
+
+		"consistent-this": "off",
+		"default-case": "off",
+		"eol-last": "off",
+		"func-style": "off",
+		"guard-for-in": "off",
+		"max-len": "off",
+		"multiline-ternary": "off",
+		"new-cap": "off",
+		"object-shorthand": "off",
+		"sort-vars": "off",
+		"strict": "off",
+		"vars-on-top": "off",
+		"wrap-iife": "off",
+
+		"prefer-arrow-callback": "off",
+		"prefer-template": "off",
+
+		"no-console": "off",
+		"no-control-regex": "off",
+		"no-invalid-this": "off",
+		"no-lonely-if": "off",
+		"no-loop-func": "off",
+		"no-nested-ternary": "off",
+		"no-prototype-builtins": "off",
+		"no-tabs": "off",
+		"no-throw-literal": "off",
+		"no-unmodified-loop-condition": "off",
+		"no-useless-concat": "off",
+		"no-useless-escape": "off",
+		"no-var": "off",
+
+		"no-buffer-constructor": "warn",
+
+		"no-process-exit": "off",
+
+		"jsdoc/check-alignment": "off",
+		"jsdoc/check-param-names": "off",
+		"jsdoc/check-tag-names": "off",
+		"jsdoc/check-types": "off",
+		"jsdoc/newline-after-description": "off",
+		"jsdoc/no-undefined-types": "off",
+		"jsdoc/require-param": "off",
+		"jsdoc/require-param-type": "off",
+		"jsdoc/require-returns": "off",
+		"jsdoc/require-returns-check": "off",
+		"no-shadow": "off",
+
+		"node/no-missing-require": "off"
+	},
+	"overrides": [
+		{
+			"files": [
+				"package.json",
+				"baseconfig/**/*.json",
+				"tests/*.json",
+				"tests/parser/*.json"
+			],
+			"rules": {
+				"indent": "off",
+				"comma-spacing": "error"
+			}
+		}
+	]
+}
