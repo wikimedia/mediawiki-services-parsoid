@@ -13,10 +13,11 @@ use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * based on tests/mocha/dsr.js
- * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PP\Processors\ComputeDSR
+ * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\ComputeDSR
  */
 class ComputeDSRTest extends TestCase {
 	/**
@@ -31,19 +32,45 @@ class ComputeDSRTest extends TestCase {
 				ContentUtils::toXML( $doc ) );
 
 		$dp = DOMDataUtils::getDataParsoid( $elts[0] );
+		if ( $spec['dsrContent'] === null ) {
+			$this->assertTrue( empty( $dp->dsr ) );
+			return;
+		}
 		$dsr = $dp->dsr;
 		$this->assertTrue( !empty( $dsr ) );
 		$this->assertInstanceOf( DomSourceRange::class, $dsr );
 
-		$this->assertEquals( $spec['dsrContent'][0], $dsr->substr( $wt ),
-			"dsr all actual mismatch: \n\"" .
-			$dsr->substr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec['dsrContent'][0] . "\"" );
-		$this->assertEquals( $spec['dsrContent'][1], $dsr->openSubstr( $wt ),
-			"dsr open actual mismatch: \n\"" .
-			$dsr->openSubstr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec['dsrContent'][1] . "\"" );
-		$this->assertEquals( $spec['dsrContent'][2], $dsr->closeSubstr( $wt ),
-			"dsr close actual mismatch: \n\"" .
-			$dsr->closeSubstr( $wt ) . "\"\ndoes not match expected:\n\"" . $spec['dsrContent'][2] . "\"" );
+		$this->assertSubstring( $spec['dsrContent'][0], $wt, $dsr->start, $dsr->length(),
+			"all" );
+		if ( $spec['dsrContent'][1] === null ) {
+			$this->assertNull( $dsr->openWidth );
+		} else {
+			$this->assertSubstring( $spec['dsrContent'][1], $wt, $dsr->start, $dsr->openWidth,
+				"open" );
+		}
+		if ( $spec['dsrContent'][2] === null ) {
+			$this->assertNull( $dsr->closeWidth );
+		} else {
+			$this->assertSubstring( $spec['dsrContent'][2], $wt, $dsr->innerEnd(), $dsr->closeWidth,
+				"close" );
+		}
+	}
+
+	private function assertSubstring( $expected, $wt, $start, $length, $type ) {
+		$this->assertIsInt( $start );
+		$this->assertIsInt( $length );
+		$this->assertGreaterThanOrEqual( 0, $start,
+			"DSR $type start was less than zero" );
+		if ( $length > 0 ) {
+			$this->assertLessThan( strlen( $wt ), $start,
+				"DSR $type start was greater than or equal to the input length" );
+		}
+		$this->assertGreaterThanOrEqual( 0, $length,
+			"DSR $type length was less than zero" );
+		$this->assertLessThanOrEqual( strlen( $wt ), $length,
+			"DSR $type length was greater than the input length" );
+		$this->assertSame( $expected, PHPUtils::safeSubstr( $wt, $start, $length ),
+			"DSR $type did not match the expected string" );
 	}
 
 	/**
@@ -54,7 +81,6 @@ class ComputeDSRTest extends TestCase {
 	 *   dsrContent: a 3-element array. The first element is the wikitext corresponding
 	 *               to the wikitext substring between dsr[0]..dsr[1]. The second and
 	 *               third elements are the opening/closing wikitext tag for that node.
-	 * @covers ::computeNodeDSR
 	 * @dataProvider provideComputeDSR
 	 * @param string $wt
 	 * @param array $specs
@@ -121,6 +147,18 @@ class ComputeDSRTest extends TestCase {
 					[ 'selector' => 'body > ul > li:nth-child(2)', 'dsrContent' => [ '*d', '*', '' ] ]
 				]
 			],
+			'list 3' => [
+				// TODO: this test covers computeListEltWidth() but the return value does
+				// not find its way into the DOM, so we're only really testing that it
+				// doesn't throw.
+				'wt' => '{{1x|** foo}}',
+				'specs' => [
+					[
+						'selector' => 'body > ul > li',
+						'dsrContent' => null
+					],
+				]
+			],
 
 			// Headings
 			'heading 1' => [
@@ -162,6 +200,23 @@ class ComputeDSRTest extends TestCase {
 				]
 			],
 
+			'tables 2' => [
+				'wt' => "{|\n<span>A</span>\n|}",
+				'specs' => [
+					[
+						'selector' => 'body > table',
+						'dsrContent' => [ "{|\n<span>A</span>\n|}", '{|', '|}' ]
+					],
+					// FIXME: throws due to negative length
+					/*
+					[
+						'selector' => 'body > p > span',
+						'dsrContent' => [ "<span>A</span>", '<span>', '</span>' ]
+					],
+					*/
+				]
+			],
+
 			// Pre
 			'pre 1' => [
 				'wt' => " Preformatted text ",
@@ -184,6 +239,135 @@ class ComputeDSRTest extends TestCase {
 					]
 				]
 			],
+			'elt 2 misnested' => [
+				'wt' => '<b><i>A</b></i>',
+				'specs' => [
+					[
+						'selector' => 'body > p > b',
+						'dsrContent' => [ '<b><i>A</b></i>', '<b>', '</i>' ]
+					],
+					[
+						'selector' => 'body > p > b > i',
+						'dsrContent' => [ '<i>A', '<i>', '' ]
+					],
+				]
+			],
+			'elt 3 AFE reconstruction' => [
+				'wt' => '<b>a<div>b</div>c</b>',
+				'specs' => [
+					[
+						'selector' => 'body > p:nth-of-type(1) > b',
+						'dsrContent' => [ '<b>a', '<b>', '' ]
+					],
+					[
+						'selector' => 'body > b',
+						'dsrContent' => [ '<div>b</div>', '', '' ]
+					],
+					[
+						'selector' => 'body > p:nth-of-type(2) > b',
+						'dsrContent' => [ 'c</b>', '', '</b>' ]
+					]
+				]
+			],
+
+			// Links
+			'link 1' => [
+				'wt' => 'Foo https://en.wikipedia.org/ bar',
+				'specs' => [
+					[
+						'selector' => 'a',
+						'dsrContent' => [ 'https://en.wikipedia.org/', '', '' ]
+					],
+				]
+			],
+			'link 2' => [
+				'wt' => 'http://example.com/?foo&#61;bar',
+				'specs' => [
+					[
+						'selector' => 'a',
+						'dsrContent' => [ 'http://example.com/?foo&#61;bar', '', '' ]
+					]
+				]
+			],
+			'link 3' => [
+				'wt' => 'RFC  2616',
+				'specs' => [
+					[
+						'selector' => 'a',
+						'dsrContent' => [ 'RFC  2616', '', '' ]
+					]
+				]
+			],
+			'link 4' => [
+				'wt' => '[[Foo]]',
+				'specs' => [
+					[
+						'selector' => 'a',
+						'dsrContent' => [ '[[Foo]]', '[[', ']]' ]
+					]
+				]
+			],
+			'link 5' => [
+				'wt' => '[[Foo|bar]]',
+				'specs' => [
+					[
+						'selector' => 'a',
+						'dsrContent' => [ '[[Foo|bar]]', '[[Foo|', ']]' ]
+					]
+				]
+			],
+			'link 6' => [
+				'wt' => '[https://en.wikipedia.org/ Wikipedia]',
+				'specs' => [
+					[
+						'selector' => 'a',
+						'dsrContent' => [ '[https://en.wikipedia.org/ Wikipedia]', '[https://en.wikipedia.org/ ', ']' ],
+					]
+				]
+			],
+
+			// xmlish extension tags
+			'xmlish 1' => [
+				'wt' => '<poem>Like rain gone wooden</poem>',
+				'specs' => [
+					[
+						'selector' => 'div.poem',
+						'dsrContent' => [ '<poem>Like rain gone wooden</poem>', '<poem>', '</poem>' ]
+					]
+				]
+			],
+
+			// Comments
+			'comment 1' => [
+				'wt' => '* <!--a--> b',
+				'specs' => [
+					[
+						'selector' => 'li',
+						'dsrContent' => [ '* <!--a--> b', '*', '' ]
+					]
+				]
+			],
+			'comment 2' => [
+				// Misnesting is a way to get the comment length to appear in the output
+				'wt' => "<div><b><i>AAA</b><!--BBB--></i></div>",
+				'specs' => [
+					[
+						'selector' => 'body > div',
+						'dsrContent' => [ '<div><b><i>AAA</b><!--BBB--></i></div>', '<div>', '</div>' ]
+					]
+				]
+			],
+
+			// Entities
+			'entity 1' => [
+				'wt' => '&mdash;',
+				'specs' => [
+					[
+						'selector' => 'body > p > span',
+						'dsrContent' => [ '&mdash;', null, null ]
+					],
+				]
+			]
 		];
 	}
 }
