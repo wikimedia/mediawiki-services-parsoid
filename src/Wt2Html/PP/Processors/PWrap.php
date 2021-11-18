@@ -91,7 +91,8 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		$ret = [];
 		// This flag should be transferred to the rightmost
 		// clone of this node in the loop below.
-		$origAIEnd = DOMDataUtils::getDataParsoid( $n )->autoInsertedEnd ?? null;
+		$ndp = DOMDataUtils::getDataParsoid( $n );
+		$origAIEnd = $ndp->autoInsertedEnd ?? null;
 		$i = -1;
 		foreach ( $a as $v ) {
 			if ( $i < 0 ) {
@@ -106,17 +107,24 @@ class PWrap implements Wt2HtmlDOMProcessor {
 				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = true;
 				$cnode = $n->cloneNode();
 				'@phan-var Element $cnode'; // @var Element $cnode
-				$cnode->removeAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME );
+				if ( $n->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
+					DOMDataUtils::setNodeData( $cnode, DOMDataUtils::getNodeData( $n )->clone() );
+				}
 				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $cnode ];
 				$i++;
 				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedStart = true;
 			}
 			$ret[$i]['node']->appendChild( $v['node'] );
 		}
-
-		if ( $i >= 0 && $origAIEnd !== null ) {
-			DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = $origAIEnd;
+		if ( $i >= 0 ) {
+			$dp = DOMDataUtils::getDataParsoid( $ret[$i]['node'] );
+			if ( $origAIEnd ) {
+				$dp->autoInsertedEnd = true;
+			} else {
+				unset( $dp->autoInsertedEnd );
+			}
 		}
+
 		return $ret;
 	}
 
