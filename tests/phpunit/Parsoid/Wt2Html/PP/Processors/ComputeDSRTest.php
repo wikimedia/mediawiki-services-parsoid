@@ -252,7 +252,7 @@ class ComputeDSRTest extends TestCase {
 					],
 				]
 			],
-			'elt 3 AFE reconstruction' => [
+			'elt 3 p-wrap node splitting' => [
 				'wt' => '<b>a<div>b</div>c</b>',
 				'specs' => [
 					[
@@ -267,6 +267,32 @@ class ComputeDSRTest extends TestCase {
 						'selector' => 'body > p:nth-of-type(2) > b',
 						'dsrContent' => [ 'c</b>', '', '</b>' ]
 					]
+				]
+			],
+			'elt 4 AFE reconstruction' => [
+				'wt' => '<div><p><b>a<p>b',
+				'specs' => [
+					[
+						'selector' => 'body > div > p:nth-of-type(1) > b',
+						'dsrContent' => [ '<b>a', '<b>', '' ]
+					],
+					[
+						'selector' => 'body > div > p:nth-of-type(2) > b',
+						'dsrContent' => [ 'b', '', '' ]
+					],
+				]
+			],
+			'elt 5 AAA' => [
+				'wt' => '<div><b>a<div>b</b>c',
+				'specs' => [
+					[
+						'selector' => 'body > div > b',
+						'dsrContent' => [ '<b>a', '<b>', '' ]
+					],
+					[
+						'selector' => 'body > div > div',
+						'dsrContent' => [ '<div>b</b>c', '<div>', '' ]
+					],
 				]
 			],
 
