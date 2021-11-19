@@ -2178,43 +2178,15 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should apply extra normalizations (scrub_wikitext)', function(done) {
+		it('should apply extra normalizations', function(done) {
 			client.req
 			.post(mockDomain + '/v3/transform/html/to/wikitext/')
 			.send({
 				html: '<h2></h2>',
-				scrub_wikitext: true,
 				original: { title: 'Doesnotexist' },
 			})
 			.expect(validWikitextResponse(
 				''
-			))
-			.end(done);
-		});
-
-		it('should apply extra normalizations (scrubWikitext)', function(done) {
-			client.req
-			.post(mockDomain + '/v3/transform/html/to/wikitext/')
-			.send({
-				html: '<h2></h2>',
-				scrubWikitext: true,
-				original: { title: 'Doesnotexist' },
-			})
-			.expect(validWikitextResponse(
-				''
-			))
-			.end(done);
-		});
-
-		it('should suppress extra normalizations', function(done) {
-			client.req
-			.post(mockDomain + '/v3/transform/html/to/wikitext/')
-			.send({
-				html: '<h2></h2>',
-				original: { title: 'Doesnotexist' },
-			})
-			.expect(validWikitextResponse(
-				'==<nowiki/>==\n'
 			))
 			.end(done);
 		});

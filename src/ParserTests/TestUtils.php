@@ -49,14 +49,14 @@ class TestUtils {
 	 * @param array $options
 	 *  - parsoidOnly (bool) Is this test Parsoid Only? Optional. Default: false
 	 *  - preserveIEW (bool) Should inter-element WS be preserved? Optional. Default: false
-	 *  - scrubWikitext (bool) Are we running html2wt in scrubWikitext mode? Optional. Default: false
+	 *  - hackyNormalize (bool) Apply the normalizer to the html. Optional. Default: false
 	 * @return string
 	 */
 	public static function normalizeOut( $domBody, array $options = [] ): string {
 		$parsoidOnly = !empty( $options['parsoidOnly'] );
 		$preserveIEW = !empty( $options['preserveIEW'] );
 
-		if ( !empty( $options['scrubWikitext'] ) ) {
+		if ( !empty( $options['hackyNormalize'] ) ) {
 			// Mock env obj
 			//
 			// FIXME: This is ugly.
@@ -66,7 +66,7 @@ class TestUtils {
 			//     That feels like a carryover of 2013 era code.
 			//     If possible, get rid of it and diff-mark dependency
 			//     on the env object.
-			$mockEnv = new MockEnv( [ 'scrubWikitext' => true ] );
+			$mockEnv = new MockEnv( [] );
 			$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
 			$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 			if ( is_string( $domBody ) ) {

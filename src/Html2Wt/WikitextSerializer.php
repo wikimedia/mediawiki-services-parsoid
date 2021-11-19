@@ -1433,7 +1433,7 @@ class WikitextSerializer {
 			// PORT-FIXME do the different whitespace semantics matter?
 			if ( !$reqd ) {
 				$nowiki = preg_replace( '#^<nowiki>(\s+)</nowiki>#', '$1', $nowiki, 1 );
-			} elseif ( $this->env->shouldScrubWikitext() ) {
+			} else {
 				$solTransparentWikitextNoWsRegexpFragment = PHPUtils::reStrip(
 					$this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '/' );
 				$wsReplacementRE = '/^(' . $solTransparentWikitextNoWsRegexpFragment . ')\s+/';

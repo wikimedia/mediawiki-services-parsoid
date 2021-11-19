@@ -122,17 +122,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			],
 			[
 				"<h2></h2>",
-				"==<nowiki/>==\n",
-				[
-					'scrubWikitext' => false,
-				]
-			],
-			[
-				"<h2></h2>",
-				'',
-				[
-					'scrubWikitext' => true,
-				]
+				''
 			]
 		];
 	}

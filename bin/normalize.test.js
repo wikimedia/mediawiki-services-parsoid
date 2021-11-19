@@ -49,9 +49,7 @@ Promise.async(function *() {
 		return;
 	}
 
-	const env = new MockEnv({
-		scrubWikitext: true,
-	}, null);
+	const env = new MockEnv({}, null);
 
 	var mockState = {
 		env,

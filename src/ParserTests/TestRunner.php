@@ -1049,8 +1049,7 @@ class TestRunner {
 
 		$normOpts = [
 			'parsoidOnly' => $parsoidOnly,
-			'preserveIEW' => isset( $test->options['parsoid']['preserveIEW'] ),
-			'scrubWikitext' => isset( $test->options['parsoid']['scrubWikitext'] )
+			'preserveIEW' => isset( $test->options['parsoid']['preserveIEW'] )
 		];
 
 		$normalizedOut = TestUtils::normalizeOut( $out, $normOpts );
@@ -1422,7 +1421,6 @@ class TestRunner {
 
 			// Process test-specific options
 			$defaults = [
-				'scrubWikitext' => false,
 				'wrapSections' => false
 			]; // override for parser tests
 			foreach ( $defaults as $opt => $defaultVal ) {

@@ -32,9 +32,6 @@ class DOMNormalizerTest extends TestCase {
 	public function testNormalize(
 		string $html, string $expected, ?string $message = null, array $opts = [], bool $stripDiffMarkers = true
 	) {
-		$opts += [
-			'scrubWikitext' => true
-		];
 		$mockEnv = new MockEnv( $opts );
 		$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
 		$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
@@ -83,16 +80,16 @@ class DOMNormalizerTest extends TestCase {
 				'Tag Minimization #5 Both nodes are old unedited nodes',
 
 			],
-			// Headings (with scrubWikitext)
+			// Headings
 			[
 				'<h2>H2<link href="Category:A1" rel="mw:PageProp/Category"/></h2>',
 				'<h2>H2</h2><link href="Category:A1" rel="mw:PageProp/Category"/>',
-				'Headings (with scrubWikitext) #1'
+				'Headings #1'
 			],
 			[
 				'<h2><meta property="mw:PageProp/toc"/> ok</h2>',
 				'<meta property="mw:PageProp/toc"/><h2>ok</h2>',
-				'Headings (with scrubWikitext) #2'
+				'Headings #2'
 			],
 			// Empty tag normalization
 			// These are stripped
@@ -149,61 +146,6 @@ class DOMNormalizerTest extends TestCase {
 				'<table><tbody><tr><td>+</td><td>-</td></tr></tbody></table>',
 				'<table><tbody><tr><td> +</td><td> -</td></tr></tbody></table>',
 				'Escapable prefixes in table cells'
-			],
-			// Without ScrubWikitext
-			// Minimizable tags
-			[
-				"<i>X</i><i>Y</i>",
-				"<i>XY</i>",
-				'Minimizable tags Without ScrubWikitext #1',
-				[ 'scrubWikitext' => false ],
-			],
-			[
-				"<i>X</i><b><i>Y</i></b>",
-				"<i>X<b>Y</b></i>",
-				'Minimizable tags Without ScrubWikitext #2',
-				[ 'scrubWikitext' => false ]
-			],
-			[
-				"<i>A</i><b><i>X</i></b><b><i>Y</i></b><i>Z</i>",
-				"<i>A<b>XY</b>Z</i>",
-				'Minimizable tags Without ScrubWikitext #3',
-				[ 'scrubWikitext' => false ],
-			],
-			// Headings
-			[
-				'<h2>H2<link href="Category:A1" rel="mw:PageProp/Category"/></h2>',
-				'<h2>H2<link href="Category:A1" rel="mw:PageProp/Category"/></h2>',
-				'Headings (without scrubWikitext)',
-				[ 'scrubWikitext' => false ],
-			],
-			// Tables
-			[
-				'<table><tbody><tr><td>+</td><td>-</td></tr></tbody></table>',
-				'<table><tbody><tr><td>+</td><td>-</td></tr></tbody></table>',
-				'Tables (without scrubWikitext)',
-				[ 'scrubWikitext' => false ],
-			],
-			// Links
-			[
-				'<a data-parsoid="{}" href="FootBall">Foot</a><a href="FootBall">Ball</a>',
-				// NOTE: we are stripping data-parsoid before comparing output in our testing.
-				// Hence the difference in output.
-				'<a href="FootBall">Foot</a><a href="FootBall">Ball</a>',
-				'Links (without scrubWikitext) #1',
-				[ 'scrubWikitext' => false ],
-			],
-			[
-				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>',
-				'<a rel="mw:WikiLink" href="./Football"><u><i><b>Football</b></i></u></a>',
-				'Links (without scrubWikitext) #2',
-				[ 'scrubWikitext' => false ],
-			],
-			[
-				'<a rel="mw:WikiLink" href="./Foo">Foo </a>bar',
-				'<a rel="mw:WikiLink" href="./Foo">Foo </a>bar',
-				'Links (without scrubWikitext) #3',
-				[ 'scrubWikitext' => false ],
 			],
 		];
 	}

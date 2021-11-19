@@ -479,9 +479,15 @@ var checkIfSignificant = function(offsets, data) {
 		// the wt-diffs are purely syntactic.
 		//
 		// FIXME: abstract to ensure same opts are used for parsoidPost and normalizeOut
-		const normOpts = { parsoidOnly: true, scrubWikitext: true };
-		const normalizedOld = TestUtils.normalizeOut(oldBody, normOpts);
-		const normalizedNew = TestUtils.normalizeOut(newBody, normOpts);
+		const normalizedOld = TestUtils.normalizeOut(oldBody, {
+			parsoidOnly: true,
+			// We're normalizing the old html to try and eliminate spurious semantic
+			// errors that may arise because of the normalization done to new html
+			// before it got serialized.  For example,
+			//   "== ==" will parse to "<h2><h2>" and then serialize to ""
+			hackyNormalize: true
+		});
+		const normalizedNew = TestUtils.normalizeOut(newBody, { parsoidOnly: true });
 		if (normalizedOld === normalizedNew) {
 			return genSyntacticDiffs(data);
 		} else {
@@ -561,7 +567,6 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		if (options.oldid) {
 			uri += '/' + options.oldid;
 		}
-		httpOptions.body.scrub_wikitext = true;
 		// We want to encode the request but *not* decode the response.
 		httpOptions.body = JSON.stringify(httpOptions.body);
 		httpOptions.headers['Content-Type'] = 'application/json';

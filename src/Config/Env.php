@@ -135,9 +135,6 @@ class Env {
 	/** @var ParsoidLogger */
 	private $parsoidLogger;
 
-	/** @var bool */
-	private $scrubWikitext = false;
-
 	/**
 	 * The default content version that Parsoid assumes it's serializing or
 	 * updating in the pb2pb endpoints
@@ -249,7 +246,6 @@ class Env {
 	 * @param ?array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 *  - pageBundle: (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
-	 *  - scrubWikitext: (bool) Indicates emit "clean" wikitext.
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
 	 *  - debugFlags: (bool[]) Debug flags
@@ -281,9 +277,6 @@ class Env {
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
 		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
-		if ( isset( $options['scrubWikitext'] ) ) {
-			$this->scrubWikitext = !empty( $options['scrubWikitext'] );
-		}
 		if ( isset( $options['wrapSections'] ) ) {
 			$this->wrapSections = !empty( $options['wrapSections'] );
 		}
@@ -1008,14 +1001,6 @@ class Env {
 		return $this->siteConfig->langConverterEnabledForLanguage(
 			$this->pageConfig->getPageLanguage()
 		);
-	}
-
-	/**
-	 * Indicates emit "clean" wikitext compared to what we would if we didn't normalize HTML
-	 * @return bool
-	 */
-	public function shouldScrubWikitext(): bool {
-		return $this->scrubWikitext;
 	}
 
 	/**

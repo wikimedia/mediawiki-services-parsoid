@@ -247,7 +247,6 @@ class Parsoid {
 	 * @param Document $doc Data attributes are expected to have been applied
 	 *   already.  Loading them will happen once the environment is created.
 	 * @param array $options [
-	 *   'scrubWikitext'       => (bool) Indicates emit "clean" wikitext.
 	 *   'inputContentVersion' => (string) The content version of the input.
 	 *     Necessary if it differs from the current default in order to
 	 *     account for any serialization differences.
@@ -272,9 +271,6 @@ class Parsoid {
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
-		}
-		if ( isset( $options['scrubWikitext'] ) ) {
-			$envOptions['scrubWikitext'] = !empty( $options['scrubWikitext'] );
 		}
 		$envOptions['topLevelDoc'] = $doc;
 		$env = new Env(

@@ -127,11 +127,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'Output pagebundle JSON'
 		);
 		$this->addOption(
-			'scrubWikitext',
-			'Apply wikitext scrubbing while serializing.  This is also used ' .
-			'for a mode of normalization (--normalize) applied when parsing.'
-		);
-		$this->addOption(
 			'wrapSections',
 			// Override the default in Env since the wrappers are annoying in dev-mode
 			'Output <section> tags (default false)'
@@ -376,7 +371,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$html = TestUtils::normalizeOut(
 				$html, [
 					'parsoidOnly' => $this->getOption( 'normalize' ) === 'parsoid',
-					'scrubWikitext' => $this->hasOption( 'scrubWikitext' ),
 				]
 			);
 		}
@@ -483,7 +477,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$parsoidOpts += [
-			"scrubWikitext" => $this->hasOption( 'scrubWikitext' ),
 			"body_only" => ScriptUtils::booleanOption( $this->getOption( 'body_only' ) ),
 			"wrapSections" => $this->hasOption( 'wrapSections' ),
 			// This ensures we can run --linting and get lint output.

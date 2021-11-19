@@ -5,7 +5,7 @@
         "selser [[0,0,0,3,0,0,0]]": "This is ''an <translate>artificial'''''example</translate> of''' extension.",
         "selser [2]": "1xytrta\n\nThis is ''an <translate>artificial'' '''example</translate> of''' extension.",
         "selser [1]": "This is ''an <translate>artificial'' '''example</translate> of''' extension.",
-        "selser [[3,0,0,3,[3],0,0]]": "''an <translate>artificial'''''<nowiki/>'''</translate> extension.",
+        "selser [[3,0,0,3,[3],0,0]]": "''an <translate>artificial''</translate> extension.",
         "selser [[3,0,0,0,[2],0,0]]": "''an <translate>artificial'' '''1t0igeeexample of'''</translate> extension.",
         "selser [[0,0,0,4,0,0,2]]": "This is ''an <translate>artificial''1f1vdgi'''example</translate> of'''13bdiw3 extension.",
         "selser [[3,0,0,2,[4],0,3]]": "''an <translate>artificial''1c3h9a7 '''1jr9rm4'''</translate>"
@@ -16,7 +16,7 @@
     "Annotation open tag in fosterable position should expand the range to the entire table": {
         "wt2wt": "<translate>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|translate\n|one line\n|}\n</translate>"
     },
-    "Annotations should not be hoisted out of headers in scrubWikitext mode": {
+    "Annotations should not be hoisted out of headers": {
         "html2html": "<h2 id=\"Organizational_and_Planning_Projects\" data-parsoid='{\"dsr\":[0,77,2,2,1,1]}'><meta typeof=\"mw:Annotation/translate\" data-parsoid='{\"dsr\":[3,14,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[3,14]}'/><!--T:19--> Organizational and Planning Projects<meta typeof=\"mw:Annotation/translate/End\" data-parsoid='{\"dsr\":[62,74,null,null]}' data-mw='{\"wtOffsets\":[62,74]}'/></h2>\n",
         "html2wt": "== <translate><!--T:19--> Organizational and Planning Projects</translate> ==\n"
     },
@@ -58,7 +58,7 @@
         "selser [[2,0,[0,2],0,0,0]]": "19zdddlSome <translate>''stuff and 1and9od'''also some''<nowiki/>''' more stuff'''</translate> than that.",
         "selser [[3,0,0,[4],0,3]]": "''stuff <translate>and '''also some''<nowiki/>'''1h2xbjq'''</translate>",
         "selser [[3,0,1,4,0,2]]": "<translate>''stuff and '''also some''1fr9sqw</translate>1vtroet than that.",
-        "selser [[4,0,1,[3],0,4]]": "1otk6kv<translate>''stuff and '''also some''<nowiki/>'''<nowiki/>'''</translate>1pyrd7o",
+        "selser [[4,0,1,[3],0,4]]": "1otk6kv<translate>''stuff and '''also some''</translate>1pyrd7o",
         "selser [[2,0,1,2,0,4]]": "12yo0zcSome <translate>''stuff and '''also some''1o1iabj''' more stuff'''</translate>12nvpmj",
         "selser [[0,0,2,3,0,0]]": "Some <translate>1tayar2''stuff and '''also some''</translate> than that.",
         "selser [[3,0,[2,2],3,0,3]]": "<translate>''1xeoko5stuff and 1yj6bmy'''also some''</translate>"
@@ -121,16 +121,16 @@
         "selser [0,4,2,0,0]": "<translate>\n11qq6a6\n\n913ta9\n\nLet's have some text.</translate>",
         "selser [0,3,0,0,0]": "<translate>\n\nLet's have some text.</translate>",
         "selser [0,1,4,1,0]": "<translate>plop\n\n1528g2l\n\nLet's have some text.</translate>",
-        "selser [0,[3],2,1,0]": "<translate>\n\nuv0mlq\n\nLet's have some text.</translate>",
+        "selser [0,[3],2,1,0]": "<translate>\n\n\nuv0mlq\n\nLet's have some text.</translate>",
         "selser [0,3,0,[2],0]": "<translate>\n\n1apjvssLet's have some text.</translate>",
         "selser [0,1,3,3,0]": "<translate>plop\n</translate>",
         "selser [0,3,4,1,0]": "<translate>\n12dr1d2\n\nLet's have some text.</translate>",
         "selser [0,[4],4,2,0]": "<translate>\n92ueu\n\n15wcfaf\n\nv8411o\n\nLet's have some text.</translate>",
-        "selser [0,[3],2,0,0]": "<translate>\n\nr0f5w0\n\nLet's have some text.</translate>",
-        "selser [0,[3],0,0,0]": "<translate>\n\nLet's have some text.</translate>",
+        "selser [0,[3],2,0,0]": "<translate>\n\n\nr0f5w0\n\nLet's have some text.</translate>",
+        "selser [0,[3],0,0,0]": "<translate>\n\n\nLet's have some text.</translate>",
         "selser [0,0,0,[3],0]": "<translate>plop\n\n</translate>",
         "selser [0,[4],2,0,0]": "<translate>\nm0zfss\n\n1ixnc6f\n\nLet's have some text.</translate>",
-        "selser [0,[3],3,0,0]": "<translate>\n\nLet's have some text.</translate>",
+        "selser [0,[3],3,0,0]": "<translate>\n\n\nLet's have some text.</translate>",
         "selser [0,3,0,1,0]": "<translate>\n\nLet's have some text.</translate>",
         "selser [0,0,2,0,0]": "<translate>plop\n\nwf6yip\n\nLet's have some text.</translate>"
     },

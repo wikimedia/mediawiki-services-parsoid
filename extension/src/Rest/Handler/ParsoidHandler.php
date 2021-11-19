@@ -214,11 +214,6 @@ abstract class ParsoidHandler extends Handler {
 			'errorEnc' => FormatHelper::ERROR_ENCODING[$opts['format']] ?? 'plain',
 			'iwp' => wfWikiID(), // PORT-FIXME verify
 			'subst' => (bool)( $request->getQueryParams()['subst'] ?? $body['subst'] ?? null ),
-			'scrubWikitext' => (bool)( $body['scrub_wikitext']
-				?? $request->getQueryParams()['scrub_wikitext']
-				?? $body['scrubWikitext']
-				?? $request->getQueryParams()['scrubWikitext']
-				?? false ),
 			'offsetType' => $body['offsetType']
 				?? $request->getQueryParams()['offsetType']
 				// Lint requests should return UCS2 offsets by default
@@ -248,7 +243,6 @@ abstract class ParsoidHandler extends Handler {
 			'prefix' => $attribs['iwp'],
 			'domain' => $request->getPathParam( 'domain' ),
 			'pageName' => $attribs['pageName'],
-			'scrubWikitext' => $attribs['scrubWikitext'],
 			'offsetType' => $attribs['offsetType'],
 			'cookie' => $request->getHeaderLine( 'Cookie' ),
 			'reqId' => $request->getHeaderLine( 'X-Request-Id' ),
@@ -834,7 +828,6 @@ abstract class ParsoidHandler extends Handler {
 
 		try {
 			$wikitext = $parsoid->dom2wikitext( $pageConfig, $doc, [
-				'scrubWikitext' => $envOptions['scrubWikitext'],
 				'inputContentVersion' => $envOptions['inputContentVersion'],
 				'offsetType' => $envOptions['offsetType'],
 				'contentmodel' => $opts['contentmodel'] ?? null,

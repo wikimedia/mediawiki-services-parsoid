@@ -41,7 +41,7 @@ TestUtils.encodeXml = function(string) {
  * @param {Object} options
  * @param {boolean} [options.parsoidOnly=false]
  * @param {boolean} [options.preserveIEW=false]
- * @param {boolean} [options.scrubWikitext=false]
+ * @param {boolean} [options.hackNormalize=false]
  * @return {string}
  */
 TestUtils.normalizeOut = function(domBody, options) {
@@ -51,7 +51,7 @@ TestUtils.normalizeOut = function(domBody, options) {
 	const parsoidOnly = options.parsoidOnly;
 	const preserveIEW = options.preserveIEW;
 
-	if (options.scrubWikitext) {
+	if (options.hackyNormalize) {
 		// Mock env obj
 		//
 		// FIXME: This is ugly.
@@ -61,7 +61,7 @@ TestUtils.normalizeOut = function(domBody, options) {
 		//     That feels like a carryover of 2013 era code.
 		//     If possible, get rid of it and diff-mark dependency
 		//     on the env object.
-		const env = new MockEnv({ scrubWikitext: true }, null);
+		const env = new MockEnv({}, null);
 		if (typeof (domBody) === 'string') {
 			domBody = env.createDocument(domBody).body;
 		}
@@ -72,10 +72,8 @@ TestUtils.normalizeOut = function(domBody, options) {
 		DOMDataUtils.visitAndLoadDataAttribs(domBody, { markNew: true });
 		domBody = (new DOMNormalizer(mockState).normalize(domBody));
 		DOMDataUtils.visitAndStoreDataAttribs(domBody);
-	} else {
-		if (typeof (domBody) === 'string') {
-			domBody = DOMUtils.parseHTML(domBody).body;
-		}
+	} else if (typeof (domBody) === 'string') {
+		domBody = DOMUtils.parseHTML(domBody).body;
 	}
 
 	var stripTypeof = parsoidOnly ?

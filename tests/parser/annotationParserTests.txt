@@ -801,11 +801,7 @@ parsoid={
 !! end
 
 !! test
-Annotations should not be hoisted out of headers in scrubWikitext mode
-!! options
-parsoid = {
-  "scrubWikitext": true
-}
+Annotations should not be hoisted out of headers
 !! wikitext
 ==<translate><!--T:19--> Organizational and Planning Projects</translate>==
 !! html/parsoid

@@ -175,10 +175,7 @@ class DOMNormalizer {
 			// In both cases, we want to transform the DOM.
 
 			return isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $b )] );
-		} elseif ( $this->state->getEnv()->shouldScrubWikitext() &&
-			DOMCompat::nodeName( $a ) === 'a'
-		) {
-			// Link merging is only supported in scrubWikitext mode.
+		} elseif ( DOMCompat::nodeName( $a ) === 'a' ) {
 			// For <a> tags, we require at least one of the two tags
 			// to be a newly created element.
 			return DOMCompat::nodeName( $b ) === 'a' && ( WTUtils::isNewElt( $a ) || WTUtils::isNewElt( $b ) );
@@ -523,7 +520,7 @@ class DOMNormalizer {
 	}
 
 	/**
-	 * scrubWikitext normalizations implemented right now:
+	 * Wikitext normalizations implemented right now:
 	 *
 	 * 1. Tag minimization (I/B tags) in normalizeSiblingPair
 	 * 2. Strip empty headings and style tags
@@ -563,11 +560,6 @@ class DOMNormalizer {
 				// So, we can safely override it here.
 				$dp->stx = $dp->stx_v;
 			}
-		}
-
-		// The following are done only if scrubWikitext flag is enabled
-		if ( !$this->state->getEnv()->shouldScrubWikitext() ) {
-			return $node;
 		}
 
 		$next = null;
