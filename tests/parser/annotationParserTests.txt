@@ -776,3 +776,15 @@ parsoid={
 <tbody><tr data-parsoid='{"autoInsertedStart":true}'><td><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[4,15]}'/>hello <meta typeof="mw:Annotation/tvar" data-mw='{"attrs":{"name":"var"},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[21,31]}'/>variable<meta typeof="mw:Annotation/tvar/End" data-mw='{"wtOffsets":[39,42]}'/><meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[42,54]}'/></td></tr>
 </tbody></table>
 !! end
+
+!! test
+Annotations should not be hoisted out of headers in scrubWikitext mode
+!! options
+parsoid = {
+  "scrubWikitext": true
+}
+!! wikitext
+==<translate><!--T:19--> Organizational and Planning Projects</translate>==
+!! html/parsoid
+<h2 id="Organizational_and_Planning_Projects"><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[2,13]}'/><!--T:19--> Organizational and Planning Projects<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[61,73]}'/></h2>
+!! end

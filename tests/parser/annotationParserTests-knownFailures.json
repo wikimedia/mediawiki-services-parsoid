@@ -1,8 +1,4 @@
 {
-    "1/ Whole content contained in annotation tags": {
-        "selser [0,3,0,0,3,0,0]": "<translate>\nOne paragraph.\n\n\n</translate>",
-        "selser [0,3,2,0,3,0,0]": "<translate>\nh0mg0r\n\nOne paragraph.\n\n\n</translate>"
-    },
     "2/ Extended annotation range": {
         "wt2wt": "This is <translate>''an artificial'' '''example of'''</translate> extension.",
         "selser [[0,0,0,0,[2],0,0]]": "This is ''an <translate>artificial'' '''1qsg6e4example of'''</translate> extension.",
@@ -19,6 +15,10 @@
     },
     "Annotation open tag in fosterable position should expand the range to the entire table": {
         "wt2wt": "<translate>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|translate\n|one line\n|}\n</translate>"
+    },
+    "Annotations should not be hoisted out of headers in scrubWikitext mode": {
+        "html2html": "<h2 id=\"Organizational_and_Planning_Projects\" data-parsoid='{\"dsr\":[0,77,2,2,1,1]}'><meta typeof=\"mw:Annotation/translate\" data-parsoid='{\"dsr\":[3,14,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[3,14]}'/><!--T:19--> Organizational and Planning Projects<meta typeof=\"mw:Annotation/translate/End\" data-parsoid='{\"dsr\":[62,74,null,null]}' data-mw='{\"wtOffsets\":[62,74]}'/></h2>\n",
+        "html2wt": "== <translate><!--T:19--> Organizational and Planning Projects</translate> ==\n"
     },
     "End translate tag at the end of a paragraph and beginning within <i> should extend to the end of <i> but not the whole paragraph": {
         "wt2wt": "This should <translate>''fail miserably'' ... let's fix it</translate>",
@@ -50,9 +50,6 @@
         "selser [[3,2]]": "{|<!--1m2nle5-->\n|<translate>hello <tvar|var>variable</></translate>\n|}",
         "selser [[4,2]]": "{|<!--174dxgt--><!--p8iktb-->\n|<translate>hello <tvar|var>variable</></translate>\n|}"
     },
-    "Selser: add a paragraph at the end of the content should not make the </translate> tag disappear": {
-        "selser [0,0,3,0,[3],0,0]": "<translate>\n\n\n\n</translate>"
-    },
     "Selser: add content at the end of a paragraph with badly nested content with annotation": {
         "selser [2]": "z0khzc\n\nSome ''stuff <translate>and '''also some'' more</translate> stuff''' than that.",
         "selser [[4,0,2,3,0,3]]": "18rh1vh<translate>vh2hxg''stuff and '''also some''</translate>",
@@ -81,18 +78,6 @@
         "selser [[2,2,3,2]]": "q3t941Some fj1ax0''stuff and '''also some''10qo8iy than that.",
         "selser [[2,3,0,3]]": "48stf3Some  more stuff'''"
     },
-    "Selser: add headings after <translate> and </translate> tags should yield the right amount of new lines": {
-        "selser [2,0,[3],0,0,2,1,2,0,0,0]": "1r3uxjm\n\n==title==\n\n\n<translate>\n1inl09g\n\nhello\n\n11r269l\n</translate>\n\nsome other paragraph"
-    },
-    "Selser: add headings before <translate> and </translate> tags should yield the right amount of new lines": {
-        "selser [2,0,3,0,0,3,0,0,0,2,0]": "yp1or3\n\n==title==\n\n\n<translate>\nhello\n</translate>\n\n1cn6bc8\n\nsome other paragraph"
-    },
-    "Selser: add lists after <translate> and </translate> tags should yield the right amount of new lines": {
-        "selser [0,0,3,0,0,4,0,0,0,0,2]": "==title==\n\n\n<translate>\n19zq263\n\nhello\n</translate>\n\n16rnjil\n\nsome other paragraph",
-        "selser [4,0,3,0,0,0,0,0,0,0,0]": "5lesxy\n\n\n<translate>\nhello\n</translate>\n\nsome other paragraph",
-        "selser [2,2,3,0,0,3,0,0,0,0,0]": "131kch2\n\n==title==\n1pa2zg\n\n\n<translate>\nhello\n</translate>\n\nsome other paragraph",
-        "selser [4,0,3,0,0,0,[2],0,0,4,0]": "1jc4i0x\n\n\n<translate>\n7a16xhello\n</translate>\n\njypo24\n\nsome other paragraph"
-    },
     "Start translate tag at the beginning of a paragraph and end within <i> should extend to the end of <i> but not the whole paragraph": {
         "wt2wt": "<translate>This should ''fail miserably''</translate> ... let's fix it",
         "selser [1]": "<translate>This should ''fail</translate> miserably'' ... let's fix it",
@@ -100,9 +85,6 @@
         "selser [[0,0,2,0,3]]": "<translate>This should 1a9y99a''fail</translate> miserably''",
         "selser [[0,4,0,0,0]]": "<translate>y2ohsj''fail</translate> miserably'' ... let's fix it",
         "selser [[0,4,0,0,3]]": "<translate>nzk070''fail</translate> miserably''"
-    },
-    "Template inside a translate tag should not make a difference on its handling": {
-        "selser [0,0,0,0,0,3,0,0]": "<translate>{{1x|\n== Title ==\n}}\n\n\n</translate>"
     },
     "Translate in the middle of fostered content should extend to the whole range, including fostered content": {
         "wt2wt": "<translate>\nfoo\nbar\n{|\n|-\n|baz\n|}\n</translate>",

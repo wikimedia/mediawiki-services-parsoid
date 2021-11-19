@@ -449,6 +449,7 @@ class WTUtils {
 				// Catch-all for everything else.
 				$node instanceof Element &&
 				DOMCompat::nodeName( $node ) === 'meta' &&
+				!self::isMarkerAnnotation( $node ) &&
 				(
 					// (Start|End)Tag metas clone data-parsoid from the tokens
 					// they're shadowing, which trips up on the stx check.
