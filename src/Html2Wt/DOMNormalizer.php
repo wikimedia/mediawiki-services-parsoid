@@ -870,9 +870,8 @@ class DOMNormalizer {
 
 	/**
 	 * @param Element|DocumentFragment $node
-	 * @return Node
 	 */
-	public function normalize( Node $node ): Node {
-		return $this->processNode( $node, true );
+	public function normalize( Node $node ) {
+		$this->processNode( $node, true );
 	}
 }

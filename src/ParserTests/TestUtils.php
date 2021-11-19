@@ -75,7 +75,7 @@ class TestUtils {
 				$domBody = DOMCompat::getBody( $doc );
 			}
 			DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );
-			$domBody = ( new DOMNormalizer( $mockState ) )->normalize( $domBody );
+			( new DOMNormalizer( $mockState ) )->normalize( $domBody );
 			DOMDataUtils::visitAndStoreDataAttribs( $domBody );
 		} elseif ( is_string( $domBody ) ) {
 			$domBody = DOMCompat::getBody( DOMUtils::parseHTML( $domBody ) );
