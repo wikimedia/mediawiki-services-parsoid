@@ -610,8 +610,8 @@ class WikiLinkHandler extends TokenHandler {
 				// content = [part 0, .. part l-1]
 				// offsets = [start(part-0), end(part l-1)]
 				$offsets = isset( $dataAttribs->tsr ) ?
-					new SourceRange( $content[0]->srcOffsets->key->start,
-						$content[$l - 1]->srcOffsets->key->end ) : null;
+					new SourceRange( $content[0]->srcOffsets->value->start,
+						$content[$l - 1]->srcOffsets->value->end ) : null;
 				$content = [ PipelineUtils::getDOMFragmentToken( $out, $offsets,
 					[ 'inlineContext' => true, 'token' => $token ] ) ];
 			} else {

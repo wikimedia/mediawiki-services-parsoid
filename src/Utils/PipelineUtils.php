@@ -55,7 +55,7 @@ class PipelineUtils {
 			new KV( 'contextTok', $token, $token->dataAttribs->tsr->expandTsrV() ),
 			new KV( 'content', $content, $srcOffsets->expandTsrV() ),
 			new KV( 'inlineContext', ( $opts['inlineContext'] ?? false ) ? "1" : "0" ),
-			new KV( 'inPHPBLock', ( $opts['inPHPBLock'] ?? false ) ? "1" : "0" ),
+			new KV( 'inPHPBlock', ( $opts['inPHPBlock'] ?? false ) ? "1" : "0" ),
 		] );
 	}
 
