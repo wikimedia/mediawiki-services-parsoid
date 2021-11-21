@@ -738,7 +738,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						// indentPreDSRCorrection is not required here since
 						// we'll never come down this branch (mw:TSRMarker won't exist
 						// in indent-pres, and mw:EndTag markers won't have a text $node
-						// for its previous sibling), but, for sake of maintenance sanity,
+						// for its previous sibling), but, for sake of maintenance ease,
 						// replicating code from above.
 						$cs = $ce - strlen( $prevText ) - WTUtils::indentPreDSRCorrection( $prevChild );
 						$ce = $cs;

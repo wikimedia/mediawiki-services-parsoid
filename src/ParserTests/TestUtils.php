@@ -129,7 +129,7 @@ class TestUtils {
 			// <meta> tags stripped out, allowing the html2wt test to verify that
 			// the <nowiki> is correctly added during WTS, while still allowing
 			// the html2html and wt2html versions of the test to pass as a
-			// sanity check.  If <meta>s were not stripped, these tests would all
+			// validity check.  If <meta>s were not stripped, these tests would all
 			// have to be modified and split up.  Not worth it at this time.
 			// (see commit 689b22431ad690302420d049b10e689de6b7d426)
 			$out = preg_replace( '#<span typeof="mw:Nowiki"></span>#', '', $out );

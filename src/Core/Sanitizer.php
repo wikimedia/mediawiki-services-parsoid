@@ -978,7 +978,7 @@ class Sanitizer {
 			}
 
 			// RDFa and microdata properties allow URLs, URIs and/or CURIs.
-			// Check them for sanity.
+			// Check them for validity.
 			if ( $k === 'rel' || $k === 'rev'
 				# RDFa
 				|| $k === 'about' || $k === 'property'

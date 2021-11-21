@@ -246,7 +246,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
 				// turn on all modes by default for --updateKnownFailures
 				$options['selser'] = true;
-				// sanity checking (T53448 asks to be able to use --filter here)
+				// double checking options are valid (T53448 asks to be able to use --filter here)
 				if ( isset( $options['filter'] ) || isset( $options['regex'] ) ||
 					isset( $options['maxtests'] ) || $options['exit-unexpected']
 				) {

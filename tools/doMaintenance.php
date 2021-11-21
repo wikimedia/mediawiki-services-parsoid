@@ -41,7 +41,7 @@ if ( !$maintClass || !class_exists( $maintClass ) ) {
 /** @var Maintenance $maintenance */
 $maintenance = new $maintClass();
 
-// Basic sanity checks and such
+// Basic setup checks and such
 $maintenance->setup();
 
 $maintenance->finalSetup();

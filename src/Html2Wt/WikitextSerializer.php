@@ -1137,7 +1137,7 @@ class WikitextSerializer {
 		//    4c. it is misnested content (will have dsr-width 0)
 		//
 		// SSS FIXME: Additionally, we can guard against buggy DSR with
-		// some sanity checks. We can test that non-sep src content
+		// some validity checks. We can test that non-sep src content
 		// leading wikitext markup corresponds to the node type.
 		//
 		// Ex: If node.nodeName is 'UL', then src[0] should be '*'

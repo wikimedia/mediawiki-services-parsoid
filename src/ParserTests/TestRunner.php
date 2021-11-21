@@ -1227,7 +1227,7 @@ class TestRunner {
 	 * @return array
 	 */
 	private function updateKnownFailures( array $options ): array {
-		// Sanity check in case any tests were removed but we didn't update
+		// Check in case any tests were removed but we didn't update
 		// the knownFailures
 		$knownFailuresChanged = false;
 		$allModes = $options['wt2html'] && $options['wt2wt'] &&

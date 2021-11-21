@@ -22,7 +22,7 @@ class LintLoggerTest extends \PHPUnit\Framework\TestCase {
 			$byteDSR[2] > 0 ? substr( $str, $byteDSR[0], $byteDSR[2] ) : "",
 			$byteDSR[3] > 0 ? substr( $str, $byteDSR[1] - $byteDSR[3], $byteDSR[3] ) : ""
 		];
-		$this->assertSame( $testStrs, $byteStrs, "Sanity check" );
+		$this->assertSame( $testStrs, $byteStrs, "Double check" );
 
 		// Now, verify that offset conversion is correct
 		$env = new MockEnv( [ "pageContent" => $str ] );

@@ -268,7 +268,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			[ "//tools.ietf.org/html/rfc1234",        [ 'RFC', '1234' ] ],
 			[ "https://tools.ietf.org/html/rfc1234",  [ 'RFC', '1234' ] ],
 			[ "http://tools.ietf.org/html/rfc1234",   [ 'RFC', '1234' ] ],
-			// FIXME T257629: Strange that our code accepts RFCs with "_" and doesn't have more sanity checking
+			// FIXME T257629: Strange that our code accepts RFCs with "_" and doesn't have more validity checking
 			// but, magic links are on the way out anyway.
 			[ "http://tools.ietf.org/html/rfc_1234",  [ 'RFC', '_1234' ] ],
 			// FIXME T257629: Strange that our code treats "foobar://" as "foobar:" + "//"

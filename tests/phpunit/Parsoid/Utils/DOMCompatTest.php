@@ -394,7 +394,7 @@ HTML;
 			],
 
 			// context
-			'context sanity check' => [
+			'context check' => [
 				'html' => $html1,
 				'selector' => '.xxx',
 				'context' => null,
