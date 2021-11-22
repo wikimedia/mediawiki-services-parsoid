@@ -1637,7 +1637,9 @@ quote =
 // In coordination with language team, get rid of this hack once all old uses
 // are migrated to new syntax (T274881).
 tvar_old_syntax_closing_HACK =
-	"/>" {
+	"/>"
+	& { return $this->siteConfig->isAnnotationTag( 'tvar' ); }
+	{
 		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
 		$dp = new DataParsoid();
 		$dp->tsr = $this->tsrOffsets();
