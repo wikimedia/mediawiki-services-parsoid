@@ -363,7 +363,7 @@ class WikiLinkHandler extends TokenHandler {
 		// First check if the expanded href contains a pipe.
 		if ( str_contains( $hrefTokenStr, '|' ) ) {
 			// It does. This 'href' was templated and also returned other
-			// parameters separated by a pipe. We don't have any sane way to
+			// parameters separated by a pipe. We don't have any sensible way to
 			// handle such a construct currently, so prevent people from editing
 			// it.  See T226523
 			// TODO: add useful debugging info for editors ('if you would like to
@@ -380,7 +380,7 @@ class WikiLinkHandler extends TokenHandler {
 			return new TokenHandlerResult( self::bailTokens( $env, $token, false ) );
 		}
 
-		// Ok, it looks like we have a sane href. Figure out which handler to use.
+		// Ok, it looks like we have a sensible href. Figure out which handler to use.
 		$isRedirect = (bool)$token->getAttribute( 'redirect' );
 		return $this->wikiLinkHandler( $token, $target, $isRedirect );
 	}

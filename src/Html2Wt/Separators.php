@@ -74,7 +74,7 @@ class Separators {
 	private static function precedingSeparatorTextLen( Node $n ): ?int {
 		// Given the CSS white-space property and specifically,
 		// "pre" and "pre-line" values for this property, it seems that any
-		// sane HTML editor would have to preserve IEW in HTML documents
+		// sensible HTML editor would have to preserve IEW in HTML documents
 		// to preserve rendering. One use-case where an editor might change
 		// IEW drastically would be when the user explicitly requests it
 		// (Ex: pretty-printing of raw source code).

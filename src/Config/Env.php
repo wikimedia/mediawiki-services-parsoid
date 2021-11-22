@@ -323,7 +323,7 @@ class Env {
 	}
 
 	/**
-	 * Check to see if the PHP platform is sane
+	 * Check to see if the PHP platform is sensible
 	 */
 	private static function checkPlatform() {
 		static $checked;

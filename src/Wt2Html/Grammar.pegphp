@@ -1850,7 +1850,7 @@ table_attribute_name =
 		t:(
 			$wikilink
 			/ directive
-			// Accept insane tags-inside-attributes as attribute names.
+			// Accept tags-inside-attributes as attribute names.
 			// The sanitizer will strip and shadow them for roundtripping.
 			// Example: <hiddentext>generated with.. </hiddentext>
 			/ &xmlish_tag ill:inlineline { return $ill; }
