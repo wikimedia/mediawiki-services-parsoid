@@ -788,3 +788,31 @@ parsoid = {
 !! html/parsoid
 <h2 id="Organizational_and_Planning_Projects"><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[2,13]}'/><!--T:19--> Organizational and Planning Projects<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[61,73]}'/></h2>
 !! end
+
+# Fixing T296169 in an imperfect way - see AnnotationDOMRangeBuilder.php#removeNestedRanges for details
+# This test purposefully fails on wt2wt, but we want to keep the output as part of the tests results.
+# Selser failures are also due to the wt2wt discrepancy.
+!! test
+T296169: Nested annotations should be dropped in HTML output
+!! options
+parsoid={
+        "modes": ["wt2html", "selser", "wt2wt"]
+}
+!! wikitext
+<translate><translate>t1</translate></translate> <translate>t2</translate> <translate><tvar name="plop">t3</tvar></translate>
+!! html/parsoid
+<p><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>t1<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[36,48]}'/> <meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa2","extendedRange":false,"wtOffsets":[49,60]}'/>t2<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[62,74]}'/> <meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa3","extendedRange":false,"wtOffsets":[75,86]}'/><meta typeof="mw:Annotation/tvar" data-mw='{"attrs":{"name":"plop"},"rangeId":"mwa4","extendedRange":false,"wtOffsets":[86,104]}'/>t3<meta typeof="mw:Annotation/tvar/End" data-mw='{"wtOffsets":[106,113]}'/><meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[113,125]}'/></p>
+!! end
+
+# T296169
+!! test
+T296169: Extended annotations that yield a nested annotation should not nest said annotation
+!! options
+parsoid={
+        "modes": ["wt2html", "selser", "wt2wt"]
+}
+!! wikitext
+a ''<translate>b'' c ''d </translate> e <translate>f</translate>'' g
+!! html/parsoid
+<p>a <meta typeof="mw:Annotation/translate" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[4,15]}'/><i>b</i> c <i>d e f</i><meta typeof="mw:Annotation/translate/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[25,37]}'/> g</p>
+!! end

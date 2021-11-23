@@ -86,6 +86,17 @@
         "selser [[0,4,0,0,0]]": "<translate>y2ohsj''fail</translate> miserably'' ... let's fix it",
         "selser [[0,4,0,0,3]]": "<translate>nzk070''fail</translate> miserably''"
     },
+    "T296169: Extended annotations that yield a nested annotation should not nest said annotation": {
+        "wt2wt": "a <translate>''b'' c ''d  e f''</translate> g",
+        "selser [1]": "a ''<translate>b'' c ''d </translate> e <translate>f</translate>'' g",
+        "selser [2]": "16fysu7\n\na ''<translate>b'' c ''d </translate> e <translate>f</translate>'' g",
+        "selser [[0,0,0,4,0,0,0]]": "a ''<translate>b''xlo8ml''d </translate> e <translate>f</translate>'' g",
+        "selser [[4,0,0,0,[4],0,0]]": "7m3mfk''<translate>b'' c ''138rctg''</translate> g"
+    },
+    "T296169: Nested annotations should be dropped in HTML output": {
+        "wt2wt": "<translate>t1</translate> <translate>t2</translate> <translate><tvar name=\"plop\">t3</tvar></translate>",
+        "selser [2]": "1koe8pj\n\n<translate><translate>t1</translate></translate> <translate>t2</translate> <translate><tvar name=\"plop\">t3</tvar></translate>"
+    },
     "Translate in the middle of fostered content should extend to the whole range, including fostered content": {
         "wt2wt": "<translate>\nfoo\nbar\n{|\n|-\n|baz\n|}\n</translate>",
         "selser [0,0,[0,2],0]": "<translate>\n\n{|\n<!--1twjhrr-->|-\n|baz\n\n|}\n</translate>",

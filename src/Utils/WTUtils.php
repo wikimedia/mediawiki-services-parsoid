@@ -845,6 +845,9 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isAnnotationStartMarkerMeta( Node $node ): bool {
+		if ( !$node instanceof Element || DOMCompat::nodeName( $node ) !== 'meta' ) {
+			return false;
+		}
 		$isStart = false;
 		$t = self::extractAnnotationType( $node, $isStart );
 		return $t !== null && $isStart;
@@ -857,6 +860,9 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isAnnotationEndMarkerMeta( Node $node ): bool {
+		if ( !$node instanceof Element || DOMCompat::nodeName( $node ) !== 'meta' ) {
+			return false;
+		}
 		$isStart = false;
 		$t = self::extractAnnotationType( $node, $isStart );
 		return $t !== null && !$isStart;

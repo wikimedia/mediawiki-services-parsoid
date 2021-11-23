@@ -164,6 +164,42 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	}
 
 	/**
+	 * Removes the inner annotations of nested annotations.
+	 * If an annotation eventually supports nesting, we can revisit this by adding a config flag
+	 * on annotations to indicate whether they can be nested or not, and deal with that
+	 * conditionally in this method.
+	 *
+	 * @param Node $node
+	 * @param array &$openAnnotations
+	 */
+	private function removeNestedRanges( Node $node, array &$openAnnotations ) {
+		$nextSibling = $node->nextSibling;
+		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
+			$type = WTUtils::extractAnnotationType( $node );
+			if ( !array_key_exists( $type, $openAnnotations ) ) {
+				$openAnnotations[$type] = 0;
+			}
+			if ( $openAnnotations[$type] > 0 ) {
+				DOMCompat::getParentElement( $node )->removeChild( $node );
+			}
+			$openAnnotations[$type]++;
+		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
+			$type = WTUtils::extractAnnotationType( $node );
+			if ( $openAnnotations[$type] > 1 ) {
+				DOMCompat::getParentElement( $node )->removeChild( $node );
+			}
+			$openAnnotations[$type]--;
+		}
+
+		if ( $node instanceof Element && $node->hasChildNodes() ) {
+			$this->removeNestedRanges( $node->firstChild, $openAnnotations );
+		}
+		if ( $nextSibling !== null ) {
+			$this->removeNestedRanges( $nextSibling, $openAnnotations );
+		}
+	}
+
+	/**
 	 * Returns the range ID of a node - in the case of annotations, the "rangeId" property
 	 * of its "data-mw" attribute.
 	 * @param Element $node
@@ -185,5 +221,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 */
 	public function execute( Node $root ): void {
 		$this->wrapAnnotationsInTree( $root );
+		$openRanges = [];
+		$this->removeNestedRanges( $root, $openRanges );
 	}
 }
