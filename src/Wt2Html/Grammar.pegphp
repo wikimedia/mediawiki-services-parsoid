@@ -1638,7 +1638,7 @@ quote =
 // are migrated to new syntax (T274881).
 tvar_old_syntax_closing_HACK =
 	"/>"
-	& { return $this->siteConfig->isAnnotationTag( 'tvar' ); }
+	& { return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); }
 	{
 		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
 		$dp = new DataParsoid();

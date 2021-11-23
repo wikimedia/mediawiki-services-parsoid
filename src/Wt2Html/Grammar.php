@@ -1302,7 +1302,7 @@ private function a112($extToken) {
  return !$extToken ? '' : $extToken[0]; 
 }
 private function a113() {
- return $this->siteConfig->isAnnotationTag( 'tvar' ); 
+ return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); 
 }
 private function a114() {
 
