@@ -98,7 +98,7 @@ class DOMRangeBuilder {
 	 * @param Element $target
 	 * @param Element $source
 	 */
-	protected static function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
+	protected function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
 		$srcDP = DOMDataUtils::getDataParsoid( $source );
 		$tgtDP = DOMDataUtils::getDataParsoid( $target );
 
@@ -352,7 +352,7 @@ class DOMRangeBuilder {
 	 * @param Node $node
 	 * @return Node
 	 */
-	protected static function getStartConsideringFosteredContent( Node $node ): Node {
+	protected function getStartConsideringFosteredContent( Node $node ): Node {
 		if ( DOMCompat::nodeName( $node ) === 'table' ) {
 			// If we have any fostered content, include it as well.
 			for ( $previousSibling = $node->previousSibling;

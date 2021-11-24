@@ -28,14 +28,14 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * @param Node $node
 	 */
 	private function wrapAnnotationsInTree( Node $node ): void {
-		$annRanges = self::findWrappableMetaRanges( $node );
+		$annRanges = $this->findWrappableMetaRanges( $node );
 		foreach ( $annRanges as $range ) {
 			if ( DOMUtils::isFosterablePosition( $range->start ) ) {
 				$newStart = $range->start;
 				while ( DOMUtils::isFosterablePosition( $newStart ) ) {
 					$newStart = $newStart->parentNode;
 				}
-				static::moveRangeStart( $range, $newStart );
+				$this->moveRangeStart( $range, $newStart );
 			}
 
 			if ( DOMUtils::isFosterablePosition( $range->end ) ) {
@@ -43,17 +43,17 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				while ( DOMUtils::isFosterablePosition( $newEnd ) ) {
 					$newEnd = $newEnd->parentNode;
 				}
-				static::moveRangeEnd( $range, $newEnd );
+				$this->moveRangeEnd( $range, $newEnd );
 			}
 
 			if ( $range->startElem !== $range->start ) {
-				static::moveRangeStart( $range, $range->start );
+				$this->moveRangeStart( $range, $range->start );
 			}
 			if ( $range->endElem !== $range->end ) {
-				static::moveRangeEnd( $range, $range->end );
+				$this->moveRangeEnd( $range, $range->end );
 			}
 
-			static::setMetaDataMwForRange( $range );
+			$this->setMetaDataMwForRange( $range );
 		}
 	}
 
@@ -78,7 +78,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				$startDataParsoid->wasMoved = true;
 			}
 		}
-		$node = self::getStartConsideringFosteredContent( $node );
+		$node = $this->getStartConsideringFosteredContent( $node );
 		$node->parentNode->insertBefore( $startMeta, $node );
 		if ( $node instanceof Element ) {
 			// Ensure template continuity is not broken
@@ -135,7 +135,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * Sets the data-mw attribute for meta tags of the provided range
 	 * @param DOMRangeInfo $range range whose start and end element needs to be to modified
 	 */
-	private static function setMetaDataMwForRange( DOMRangeInfo $range ): void {
+	private function setMetaDataMwForRange( DOMRangeInfo $range ): void {
 		$startDataMw = DOMDataUtils::getDataMw( $range->startElem );
 		$endDataMw = DOMDataUtils::getDataMw( $range->endElem );
 
@@ -212,7 +212,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	/**
 	 * @inheritDoc
 	 */
-	protected static function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
+	protected function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
 		// nop
 	}
 
