@@ -182,19 +182,24 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$nextSibling = $node->nextSibling;
 		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
 			$type = WTUtils::extractAnnotationType( $node );
-			if ( !array_key_exists( $type, $openAnnotations ) ) {
-				$openAnnotations[$type] = 0;
+			if ( $type ) {
+				if ( !array_key_exists( $type, $openAnnotations ) ) {
+					$openAnnotations[$type] = 0;
+				}
+
+				if ( $openAnnotations[$type] > 0 ) {
+					DOMCompat::getParentElement( $node )->removeChild( $node );
+				}
+				$openAnnotations[$type]++;
 			}
-			if ( $openAnnotations[$type] > 0 ) {
-				DOMCompat::getParentElement( $node )->removeChild( $node );
-			}
-			$openAnnotations[$type]++;
 		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
 			$type = WTUtils::extractAnnotationType( $node );
-			if ( $openAnnotations[$type] > 1 ) {
-				DOMCompat::getParentElement( $node )->removeChild( $node );
+			if ( $type && array_key_exists( $type, $openAnnotations ) ) {
+				if ( $openAnnotations[$type] > 1 ) {
+					DOMCompat::getParentElement( $node )->removeChild( $node );
+				}
+				$openAnnotations[$type]--;
 			}
-			$openAnnotations[$type]--;
 		}
 
 		if ( $node instanceof Element && $node->hasChildNodes() ) {
