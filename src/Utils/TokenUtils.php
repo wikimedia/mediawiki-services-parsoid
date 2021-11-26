@@ -165,7 +165,7 @@ class TokenUtils {
 			return (bool)preg_match( '/^\s*$/D', $token );
 		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
-		} elseif ( $token instanceof CommentTk ) {
+		} elseif ( $token instanceof CommentTk && !self::isTranslationUnitMarker( $env, $token ) ) {
 			return true;
 		} elseif ( self::isBehaviorSwitch( $env, $token ) ) {
 			return true;
@@ -174,6 +174,19 @@ class TokenUtils {
 		} else {  // only metas left
 			return !( isset( $token->dataAttribs->stx ) && $token->dataAttribs->stx === 'html' );
 		}
+	}
+
+	/**
+	 * HACK: Returns true if $token looks like a TU marker (<!--T:XXX-->) and if we could be in a
+	 * translate-annotated page.
+	 * @param Env $env
+	 * @param CommentTk $token
+	 * @return bool
+	 */
+	public static function isTranslationUnitMarker( Env $env, CommentTk $token ): bool {
+		return $env->hasAnnotations &&
+			$env->getSiteConfig()->isAnnotationTag( 'translate' ) &&
+			preg_match( '/^T:/', $token->value ) === 1;
 	}
 
 	/**

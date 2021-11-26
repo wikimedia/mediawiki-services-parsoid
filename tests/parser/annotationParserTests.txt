@@ -816,3 +816,14 @@ a ''<translate>b'' c ''d </translate> e <translate>f</translate>'' g
 !! html/parsoid
 <p>a <meta typeof="mw:Annotation/translate" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[4,15]}'/><i>b</i> c <i>d e f</i><meta typeof="mw:Annotation/translate/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[25,37]}'/> g</p>
 !! end
+
+!! test
+Annotation markers starting lines should neither insert pre nor merge ranges
+!! wikitext
+<translate><!--T:1--> translate 1</translate>
+<translate><!--T:2--> translate 2</translate>
+!! html/parsoid
+<p data-parsoid='{"dsr":[0,91,0,0]}'><meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><!--T:1--> translate 1<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[33,45,null,null]}' data-mw='{"wtOffsets":[33,45]}'/>
+<meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[46,57,null,null]}' data-mw='{"rangeId":"mwa1","extendedRange":false,"wtOffsets":[46,57]}'/><!--T:2--> translate 2<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[79,91,null,null]}' data-mw='{"wtOffsets":[79,91]}'/></p>
+!! end
+
