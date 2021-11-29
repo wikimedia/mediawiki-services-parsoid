@@ -2,9 +2,8 @@
 
 namespace Wikimedia\Parsoid\Tools;
 
-require_once __DIR__ . '/Maintenance.php';
+require_once __DIR__ . '/FetchingTool.php';
 
-use InvalidArgumentException;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\SiteConfig;
 
@@ -15,19 +14,7 @@ use Wikimedia\Parsoid\Config\Api\SiteConfig;
  * README in that directory for more information.
  */
 
-class SyncBaseConfig extends Maintenance {
-
-	/** @var array Mapping between a prefix and its API URL */
-	private $apiUrls = [];
-
-	/** @var array Mapping between a domain and its prefix */
-	private $domainsToPrefix = [];
-
-	public function setup() {
-		parent::setup();
-		$this->loadSiteMatrixForApiConfig();
-	}
-
+class SyncBaseConfig extends FetchingTool {
 	/** Creates supported parameters and description for the syncbaseconfig script and adds the
 	 * generic ones
 	 */
@@ -53,42 +40,12 @@ class SyncBaseConfig extends Maintenance {
 		parent::addDefaultParams();
 	}
 
-	/** Loads ./data/wmf.sitematrix.json to get prefix -> domain and domain -> prefix
-	 * mappings
-	 * TODO: allow for parametrization of that file place
-	 */
-	private function loadSiteMatrixForApiConfig() {
-		$matrixJson =
-			json_decode( file_get_contents( realpath( __DIR__ .
-				'/data/wmf.sitematrix.json' ) ) )->sitematrix;
-
-		foreach ( $matrixJson as $key => $data ) {
-			if ( is_numeric( $key ) ) {
-				foreach ( $data->site as $site ) {
-					$this->addMatrixEntry( $site->url, $site->dbname );
-				}
-			} elseif ( $key === 'specials' ) {
-				foreach ( $data as $site ) {
-					$this->addMatrixEntry( $site->url, $site->dbname );
-				}
-			}
-		}
-	}
-
-	/** Add entries mapping prefix to API URL and domain to prefix
-	 * @param string $url domain of the considered wiki
-	 * @param string $prefix prefix of the considered wiki
-	 */
-	private function addMatrixEntry( string $url, string $prefix ) {
-		$this->apiUrls[$prefix] = $url . "/w/api.php";
-		$domain = parse_url( $url )['host'];
-		$this->domainsToPrefix[$domain] = $prefix;
-	}
-
 	/** Update an individual baseconfig file corresponding to a single format version of a single
 	 * prefix/domain
 	 */
 	public function execute() {
+		$this->maybeHelp();
+
 		$dompref = $this->getDomainAndPrefix();
 		$apiCall = $this->getApiCall( $dompref );
 		$apiHelper = new ApiHelper( $apiCall );
@@ -111,48 +68,6 @@ class SyncBaseConfig extends Maintenance {
 		file_put_contents( $fileName, $resultStr );
 
 		print( "Wrote $fileName\n" );
-	}
-
-	/**
-	 * Gets the domain and prefix from the CLI options
-	 * @return array containing values for 'prefix' and 'domain' keys
-	 */
-	private function getDomainAndPrefix(): array {
-		$prefix = $this->hasOption( 'prefix' ) ? $this->getOption( 'prefix' ) : null;
-		$domain = $this->hasOption( 'domain' ) ? $this->getOption( 'domain' ) : null;
-
-		if ( $this->hasOption( 'apiURL' ) ) {
-			$prefix = 'customwiki';
-			$url = $this->getOption( 'apiURL' );
-			$domain = parse_url( $url )['host'];
-			$this->apiUrls[$prefix] = $url;
-			$this->domainsToPrefix[$domain] = $prefix;
-		} elseif ( !isset( $prefix ) && !isset( $domain ) ) {
-			$domain = 'en.wikipedia.org';
-		}
-
-		return [ 'domain' => $domain, 'prefix' => $prefix ];
-	}
-
-	/** Creates options for the API call depending on the domain and prefix, and filling in the
-	 * API endpoint based on the $apiUrls
-	 * @param array $opts array containing at least one value for the 'prefix' or 'domain' keys
-	 * (the 'domain' key has priority)
-	 * @return array containing the API call parameters
-	 */
-	private function getApiCall( array $opts ): array {
-		$options = $opts ?? [];
-		if ( array_key_exists( 'domain', $options ) && isset( $options['domain'] ) ) {
-			$options['prefix'] = $this->domainsToPrefix[$options['domain']];
-		}
-		if ( !array_key_exists( 'prefix', $options ) ||
-			!array_key_exists( $options['prefix'], $this->apiUrls ) ) {
-			throw new InvalidArgumentException( 'No API URI available for prefix: ' .
-				$options['prefix'] . '; domain: ' . $options['domain'] );
-		}
-		$options['apiEndpoint'] = $this->apiUrls[$options['prefix']];
-
-		return $options;
 	}
 
 	/** Creates parameters for the API call to get the baseconfig file
