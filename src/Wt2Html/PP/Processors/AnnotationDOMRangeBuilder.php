@@ -28,7 +28,13 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * @param Node $node
 	 */
 	private function wrapAnnotationsInTree( Node $node ): void {
-		$annRanges = $this->findWrappableMetaRanges( $node );
+		try {
+			$annRanges = $this->findWrappableMetaRanges( $node );
+		} catch ( RangeBuilderException $e ) {
+			$this->env->log( 'warn', 'The annotation ranges could not be fully detected. ' .
+				' Annotation processing cancelled. ' );
+			return;
+		}
 		foreach ( $annRanges as $range ) {
 			if ( DOMUtils::isFosterablePosition( $range->start ) ) {
 				$newStart = $range->start;

@@ -1203,6 +1203,14 @@ class DOMRangeBuilder {
 							 * DSR of start-meta-tag's parent to include the table's DSR.
 							 * ------------------------------------------------------------*/
 							$sm = $tpl->startElem;
+
+							// TODO: this should only happen in fairly specific cases of the
+							// annotation processing and should eventually be handled properly.
+							// In the meantime, we create and log an exception to have an idea
+							// of the amplitude of the problem.
+							if ( $sm === null ) {
+								throw new RangeBuilderException( 'No start tag found for the range' );
+							}
 							$em = $elem;
 							$ee = $em;
 							$tbl = $em->parentNode->nextSibling;
