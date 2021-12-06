@@ -1,5 +1,24 @@
 !! Version 2
 
+!! test
+Test html2wt support for Parsoid HTML version 2.4.0
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>foo<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[14,26]}'/></p>
+<p>foo<meta typeof="mw:Annotation/translate" /><pre>bar</pre><meta typeof="mw:Annotation/translate/End"/>baz
+foo<pre>bar</pre>baz</p>
+!! wikitext
+<translate>foo</translate>
+
+foo<translate>
+ bar
+</translate>baz
+foo
+ bar
+baz
+!! end
+
 !! article
 Template:1x
 !! text
@@ -14,6 +33,8 @@ Template:1x
 
 !! test
 Whole content between translate tags
+!! options
+disabled
 !! wikitext
 <translate>
 ==Title==
@@ -30,6 +51,8 @@ Let's have some text.
 
 !! test
 Inline translate tags
+!! options
+disabled
 !! wikitext
 Some text <translate>with some translated content</translate> inline.
 !! html/parsoid
@@ -38,6 +61,8 @@ Some text <translate>with some translated content</translate> inline.
 
 !! test
 Template inside a translate tag should not make a difference on its handling
+!! options
+disabled
 !! wikitext
 <translate>{{1x|
 == Title ==
@@ -56,6 +81,8 @@ Let's have some text.
 
 !! test
 Two inline translate tags should have different rangeIds
+!! options
+disabled
 !! wikitext
 Some inline <translate>text</translate> followed by <translate>some more text</translate> inline
 !! html/parsoid
@@ -64,6 +91,8 @@ Some inline <translate>text</translate> followed by <translate>some more text</t
 
 !! test
 Two translate tags on new lines should have different rangeIds
+!! options
+disabled
 !! wikitext
 Some  
 <translate>
@@ -88,6 +117,8 @@ to translate</p>
 
 !! test
 Name attribute in tvar tags should be added to the meta tag
+!! options
+disabled
 !! wikitext
 Some text <translate>with some <tvar name="plop">untranslated</tvar> content</translate> inline.
 !! html/parsoid
@@ -96,6 +127,8 @@ Some text <translate>with some <tvar name="plop">untranslated</tvar> content</tr
 
 !! test
 Annotation wrapping an entire paragraph should be nested inside the paragraph
+!! options
+disabled
 !! wikitext
 foo
 
@@ -112,6 +145,8 @@ foo
 
 !! test
 Two paragraphs between translate tags should roundtrip without duplicating the tags (DSRs are adjusted correctly)
+!! options
+disabled
 !! wikitext
 <translate>plop
 
@@ -125,6 +160,7 @@ Let's have some text.</translate>
 !! test
 Start translate tag at the beginning of a paragraph and end within <i> should extend to the end of <i> but not the whole paragraph
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
@@ -137,6 +173,7 @@ parsoid={
 !! test
 End translate tag at the end of a paragraph and beginning within <i> should extend to the end of <i> but not the whole paragraph
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
@@ -148,6 +185,8 @@ This should ''fail <translate>miserably'' ... let's fix it</translate>
 
 !! test
 Meta merging with annotations/template should not happen
+!! options
+disabled
 !! wikitext
 <translate>{{1x|stuff}}</translate>
 !! html/parsoid
@@ -156,6 +195,8 @@ Meta merging with annotations/template should not happen
 
 !! test
 Meta merging with template/annotation is fine
+!! options
+disabled
 !! wikitext
 {{1x|<translate>stuff</translate>}}
 !! html/parsoid
@@ -164,6 +205,8 @@ Meta merging with template/annotation is fine
 
 !! test
 Translate in a link description
+!! options
+disabled
 !! wikitext
 [[Board elections/2004/Vote interface translation|<translate>Vote interface</translate>]]
 !! html/parsoid
@@ -172,6 +215,8 @@ Translate in a link description
 
 !! test
 Translate with a tvar for links
+!! options
+disabled
 !! wikitext
 <translate>[[<tvar name="1">Special:MyLanguage/Category:Categories</tvar>|See the category of categories]].</translate>
 !! html/parsoid
@@ -180,6 +225,8 @@ Translate with a tvar for links
 
 !! test
 Attributes without value should be transferred to and back from the meta tag
+!! options
+disabled
 !! wikitext
 <translate nowrap>some stuff</translate>
 !! html/parsoid
@@ -189,6 +236,7 @@ Attributes without value should be transferred to and back from the meta tag
 !! test
 Annotation open tag in fosterable position should expand the range to the entire table
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
@@ -222,6 +270,7 @@ parsoid={
 !! test
 Translate in the middle of fostered content should extend to the whole range, including fostered content
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
@@ -241,9 +290,10 @@ bar</p><table>
 </td></tr></tbody></table><meta typeof="mw:Annotation/translate/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[21,33]}'/>
 !!end
 
-!!test
+!! test
 Translate getting roped into a template because of fostering should get the about attribute of the template
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
@@ -269,6 +319,8 @@ parsoid={
 
 !! test
 Translate tags around <pre> area with new lines
+!! options
+disabled
 !! wikitext
 <translate>
  foo
@@ -282,6 +334,7 @@ Translate tags around <pre> area with new lines
 !! test
 Newlines should be inserted between annotation tags and pre
 !!options
+disabled
 parsoid={
   "modes": ["html2wt"]
 }
@@ -299,6 +352,8 @@ baz
 
 !! test
 Translate tags in list items
+!! options
+disabled
 !! wikitext
 *<translate>List item!</translate>
 !! html/parsoid
@@ -309,6 +364,8 @@ Translate tags in list items
 ### Tests from annotation spec
 !! test
 1/ Whole content contained in annotation tags
+!! options
+disabled
 !! wikitext
 <translate>
 One paragraph.
@@ -326,6 +383,7 @@ And another.
 !! test
 2/ Extended annotation range
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
@@ -337,6 +395,8 @@ This is ''an <translate>artificial'' '''example</translate> of''' extension.
 
 !! test
 3/ Two types of annotation, nested; annotation attributes
+!! options
+disabled
 !! wikitext
 <translate>Some text <tvar name="myvar">with a variable</tvar> in the middle</translate>
 !! html/parsoid
@@ -345,6 +405,8 @@ This is ''an <translate>artificial'' '''example</translate> of''' extension.
 
 !! test
 4/ Template (fully enclosed) in annotation range
+!! options
+disabled
 !! wikitext
 aa <translate>bb {{1x|some content}} bb</translate> aa
 !! html/parsoid
@@ -353,6 +415,8 @@ aa <translate>bb {{1x|some content}} bb</translate> aa
 
 !! test
 5/ annotation (fully enclosed) in template
+!! options
+disabled
 !! wikitext
 {{1x|bb <translate>some content</translate> bb}} aa
 !! html/parsoid
@@ -362,6 +426,7 @@ aa <translate>bb {{1x|some content}} bb</translate> aa
 !! test
 7/ attributes in annotations
 !! options
+disabled
 !! wikitext
 {|
 |-
@@ -380,6 +445,7 @@ aa <translate>bb {{1x|some content}} bb</translate> aa
 !! test
 8/ fostered annotation markers
 !! options
+disabled
 parsoid={
   "modes": ["wt2html", "selser", "wt2wt"]
 }
@@ -414,6 +480,7 @@ parsoid={
 !! test
 Selser: add a paragraph at the end of the content should not make the </translate> tag disappear
 !! options
+disabled
 parsoid={
   "modes": ["selser"],
   "changes": [
@@ -439,6 +506,7 @@ plop
 !! test
 Selser: add content at the end of a paragraph with badly nested content with annotation
 !! options
+disabled
 parsoid={
   "modes": ["selser"],
   "changes": [
@@ -453,15 +521,18 @@ Some ''stuff <translate>and '''also some'' more</translate> stuff''' than that.s
 
 !! test
 Selser: add content at the end of a paragraph with badly nested content without annotation
+!! options
+disabled
 !! wikitext
 Some ''stuff and '''also some'' more stuff''' than that.
 !!html/parsoid
 <p>Some <i>stuff and <b>also some</b></i><b> more stuff</b> than that.</p>
 !! end
 
-!!test
+!! test
 Selser: add content in a cell of a table where translate gets fostered out should keep the annotation around the table
 !! options
+disabled
 parsoid={
   "modes": ["selser"],
   "changes": [
@@ -501,6 +572,7 @@ parsoid={
 !! test
 Selser: add content before and after <translate> and </translate> tags should keep paragraphs
 !! options
+disabled
 parsoid={
 	"modes": ["selser"],
 	"changes": [
@@ -529,6 +601,7 @@ plop2
 !! test
 Selser: add content before <translate> and </translate> tags should keep paragraphs
 !! options
+disabled
 parsoid={
         "modes": ["selser"],
         "changes": [
@@ -552,6 +625,7 @@ plop
 !! test
 Selser: add content after <translate> and </translate> tags should keep paragraphs
 !! options
+disabled
 parsoid={
         "modes": ["selser"],
         "changes": [
@@ -572,9 +646,10 @@ hello
 plop2
 !! end
 
-!!test
+!! test
 Selser: add headings after <translate> and </translate> tags should yield the right amount of new lines
 !!options
+disabled
 parsoid={
         "modes": ["selser"],
         "changes": [
@@ -605,9 +680,10 @@ hello
 some other paragraph
 !! end
 
-!!test
+!! test
 Selser: add headings before <translate> and </translate> tags should yield the right amount of new lines
 !!options
+disabled
 parsoid={
         "modes": ["selser","wt2wt"],
         "changes": [
@@ -639,9 +715,10 @@ hello
 some other paragraph
 !! end
 
-!!test
+!! test
 Selser: add lists before <translate> and </translate> tags should yield the right amount of new lines
 !!options
+disabled
 parsoid={
         "modes": ["selser"],
         "changes": [
@@ -672,9 +749,10 @@ hello
 some other paragraph
 !!end
 
-!!test
+!! test
 Selser: add lists after <translate> and </translate> tags should yield the right amount of new lines
-!!options
+!! options
+disabled
 parsoid={
         "modes": ["selser"],
         "changes": [
@@ -707,6 +785,8 @@ some other paragraph
 
 !! test
 T295330 - dsr computation should allow proper selser
+!! options
+disabled
 !! wikitext
 <translate>
 <!--T:1-->
@@ -732,6 +812,7 @@ T295330 - dsr computation should allow proper selser
 !! test
 When metas are migrated out of p-tags, template continuity should not be broken
 !! options
+disabled
 parsoid=wt2html,selser
 !! wikitext
 {{1x|<div>a</div> b}}
@@ -748,6 +829,7 @@ c
 !! test
 Old tvar syntax should not break too hard.
 !! options
+disabled
 # html2wt and wt2wt are expected to break because we serialize to new syntax.
 # html2html breaks because the wtOffsets break.
 parsoid={
@@ -762,6 +844,7 @@ parsoid={
 !! test
 Old tvar syntax should not pull content in cell attributes
 !! options
+disabled
 # html2wt and wt2wt are expected to break because we serialize to new syntax.
 # html2html breaks because the wtOffsets break.
 parsoid={
@@ -780,6 +863,7 @@ parsoid={
 !! test
 Annotations should not be hoisted out of headers in scrubWikitext mode
 !! options
+disabled
 parsoid = {
   "scrubWikitext": true
 }
@@ -795,6 +879,7 @@ parsoid = {
 !! test
 T296169: Nested annotations should be dropped in HTML output
 !! options
+disabled
 parsoid={
         "modes": ["wt2html", "selser", "wt2wt"]
 }
@@ -808,6 +893,7 @@ parsoid={
 !! test
 T296169: Extended annotations that yield a nested annotation should not nest said annotation
 !! options
+disabled
 parsoid={
         "modes": ["wt2html", "selser", "wt2wt"]
 }
@@ -819,6 +905,8 @@ a ''<translate>b'' c ''d </translate> e <translate>f</translate>'' g
 
 !! test
 Annotation markers starting lines should neither insert pre nor merge ranges
+!! options
+disabled
 !! wikitext
 <translate><!--T:1--> translate 1</translate>
 <translate><!--T:2--> translate 2</translate>

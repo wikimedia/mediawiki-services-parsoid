@@ -21,8 +21,16 @@ class Translate extends ExtensionTagHandler implements ExtensionModule {
 	public function getConfig(): array {
 		return [
 			'name' => 'Translate',
-			'annotations' => [ 'translate', 'tvar' ]
+			'tags' => [
+				[
+					'name' => 'translate',
+					'handler' => self::class
+				],
+				[
+					'name' => 'tvar',
+					'handler' => self::class
+				]
+			]
 		];
 	}
-
 }
