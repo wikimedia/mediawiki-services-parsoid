@@ -32,6 +32,29 @@ Template:1x
 #
 
 !! test
+Continue to serialize the old translate 2.3.0 html
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><span typeof="mw:Extension/translate" about="#mwt2" data-mw='{"name":"translate","attrs":{},"body":{"extsrc":"foo"}}'>foo</span></p><p>
+
+foo</p><pre typeof="mw:Extension/translate" about="#mwt4" data-mw='{"name":"translate","attrs":{},"body":{"extsrc":"\n bar\n"}}'>bar
+</pre><p>baz</p>
+<p>foo</p>
+<pre>bar</pre>
+<p>baz</p>
+!! wikitext
+<translate>foo</translate>
+
+foo<translate>
+ bar
+</translate>baz
+foo
+ bar
+baz
+!! end
+
+!! test
 Whole content between translate tags
 !! options
 disabled
@@ -914,4 +937,3 @@ disabled
 <p data-parsoid='{"dsr":[0,91,0,0]}'><meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><!--T:1--> translate 1<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[33,45,null,null]}' data-mw='{"wtOffsets":[33,45]}'/>
 <meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[46,57,null,null]}' data-mw='{"rangeId":"mwa1","extendedRange":false,"wtOffsets":[46,57]}'/><!--T:2--> translate 2<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[79,91,null,null]}' data-mw='{"wtOffsets":[79,91]}'/></p>
 !! end
-
