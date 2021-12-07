@@ -398,12 +398,13 @@ class TokenizerUtils {
 	 * Parser.php::makeFreeExternalLink). This list is slightly context-dependent because the
 	 * inclusion of the right parenthesis depends on whether the provided character array $arr
 	 * contains a left parenthesis.
-	 * @param array $arr
+	 * @param bool $hasLeftParen should be true if the URL in question contains
+	 *   a left parenthesis.
 	 * @return string
 	 */
-	public static function getAutoUrlTerminatingChars( array $arr ): string {
+	public static function getAutoUrlTerminatingChars( bool $hasLeftParen ): string {
 		$chars = Consts::$strippedUrlCharacters;
-		if ( array_search( '(', $arr, true ) === false ) {
+		if ( !$hasLeftParen ) {
 			$chars .= ')';
 		}
 		return $chars;

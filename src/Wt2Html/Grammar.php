@@ -1338,7 +1338,7 @@ private function a118($proto, $addr, $path) {
 			$last = PHPUtils::lastItem( $url );
 			$trim = 0;
 			if ( is_string( $last ) ) {
-				$strip = TokenizerUtils::getAutoUrlTerminatingChars( $path );
+				$strip = TokenizerUtils::getAutoUrlTerminatingChars( array_search( '(', $path, true ) !== false );
 				$trim = strspn( strrev( $last ), $strip );
 				$url[ count( $url ) - 1 ] = substr( $last, 0, strlen( $last ) - $trim );
 			}

@@ -475,8 +475,8 @@ class LinkHandlerUtils {
 	 * @return bool
 	 */
 	private static function hasAutoUrlTerminatingChars( string $url ): bool {
-		$sep = TokenizerUtils::getAutoUrlTerminatingChars( str_split( $url ) );
-		return str_contains( $sep, mb_substr( $url, -1 ) );
+		$sep = TokenizerUtils::getAutoUrlTerminatingChars( strpos( $url, '(' ) !== false );
+		return str_contains( $sep, substr( $url, -1 ) );
 	}
 
 	/**
