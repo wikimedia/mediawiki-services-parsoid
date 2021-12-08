@@ -513,7 +513,13 @@ class LinkHandlerUtils {
 			// stripped when deriving the content string.
 			// Strip ./ prefixes as well since they are relative link prefixes
 			// added to all titles.
-			$strippedTargetValue = preg_replace( '#^(:|\./)#', '', $target['value'], 1 );
+			// The prefix stripping, when it occurs, also includes spaces before the prefix.
+			// Finally, we also remove trailing spaces because these are removed for <a> links
+			// by DOMNormalizer::moveTrailingSpacesOut, and we wouldn't want that to lead to the
+			// link getting piped for only that reason.
+			$strippedTargetValue = rtrim(
+				preg_replace( '#^\s*(:|\./)#', '', $target['value'], 1 )
+			);
 			$decodedTarget = Utils::decodeWtEntities( $strippedTargetValue );
 			// Deal with the protocol-relative link scenario as well
 			$hrefHasProto = preg_match( '#^(\w+:)?//#', $linkData->href );

@@ -97,10 +97,10 @@ class WikiLinkHandler extends TokenHandler {
 			'fromColonEscapedText' => null
 		];
 
-		if ( ( $info->href[0] ?? '' ) === ':' ) {
+		if ( ( ltrim( $info->href )[0] ?? '' ) === ':' ) {
 			$info->fromColonEscapedText = true;
 			// remove the colon escape
-			$info->href = substr( $info->href, 1 );
+			$info->href = substr( ltrim( $info->href ), 1 );
 		}
 		if ( ( $info->href[0] ?? '' ) === ':' ) {
 			if ( $siteConfig->linting() ) {
@@ -797,7 +797,11 @@ class WikiLinkHandler extends TokenHandler {
 
 		// We set an absolute link to the article in the other wiki/language
 		$isLocal = !empty( $target->interwiki['local'] );
-		$title = Sanitizer::sanitizeTitleURI( Utils::decodeURIComponent( $target->href ), !$isLocal );
+		$trimmedHref = trim( $target->href );
+		$title = Sanitizer::sanitizeTitleURI(
+			Utils::decodeURIComponent( $trimmedHref ),
+			!$isLocal
+		);
 		$absHref = str_replace( '$1', $title, $target->interwiki['url'] );
 		if ( isset( $target->interwiki['protorel'] ) ) {
 			$absHref = preg_replace( '/^https?:/', '', $absHref, 1 );
@@ -813,7 +817,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $target->href === '' || $target->href[0] !== '#' ) {
 			$titleAttr = $target->interwiki['prefix'] . ':' .
 				Utils::decodeURIComponent( str_replace( '_', ' ',
-					preg_replace( '/#.*/s', '', $target->href, 1 ) ) );
+					preg_replace( '/#.*/s', '', $trimmedHref, 1 ) ) );
 			$newTk->setAttribute( 'title', $titleAttr );
 		}
 		$tokens[] = $newTk;
