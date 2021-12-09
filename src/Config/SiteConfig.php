@@ -49,7 +49,7 @@ abstract class SiteConfig {
 	private $variables;
 
 	/** @var array|null */
-	private $functionHooks;
+	protected $functionSynonyms;
 
 	/** @var string[] */
 	private $protocolsRegexes = [];
@@ -806,43 +806,44 @@ abstract class SiteConfig {
 	/**
 	 * @return array
 	 */
-	abstract protected function getFunctionHooks(): array;
+	abstract protected function getMagicWords(): array;
 
 	/**
+	 * Does the SiteConfig provide precomputed function synonyms?
+	 * If no, the SiteConfig is expected to provide an implementation
+	 * for updateFunctionSynonym.
+	 * @return bool
+	 */
+	protected function haveComputedFunctionSynonyms(): bool {
+		return true;
+	}
+
+	/**
+	 * Get a list of precomputed function synonyms
 	 * @return array
 	 */
-	abstract protected function getMagicWords(): array;
+	protected function getFunctionSynonyms(): array {
+		return [];
+	}
+
+	/**
+	 * @param string $func
+	 * @param string $magicword
+	 * @param bool $caseSensitive
+	 */
+	protected function updateFunctionSynonym( string $func, string $magicword, bool $caseSensitive ): void {
+		throw new \RuntimeException( "Unexpected code path!" );
+	}
 
 	private function populateMagicWords() {
 		if ( !empty( $this->magicWordMap ) ) {
 			return;
 		}
 
-		// FIXME: This feels broken. This should come from Core / API ?
-		$noHashFunctions = PHPUtils::makeSet( [
-			'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
-			'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
-			'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
-			'numberofpages', 'numberofusers', 'numberofactiveusers',
-			'numberofarticles', 'numberoffiles', 'numberofadmins',
-			'numberingroup', 'numberofedits', 'language',
-			'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
-			'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
-			'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
-			'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
-			'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
-			'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
-			'talkpagename', 'talkpagenamee', 'subjectpagename',
-			'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
-			'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
-			'revisiontimestamp', 'revisionuser', 'cascadingsources',
-			// Special callbacks in core
-			'namespace', 'int', 'displaytitle', 'pagesinnamespace',
-		] );
-
-		$this->magicWordMap = $this->mwAliases = $this->variables = $this->functionHooks = [];
+		$this->magicWordMap = $this->mwAliases = $this->variables = [];
 		$variablesMap = PHPUtils::makeSet( $this->getVariableIDs() );
-		$functionHooksMap = PHPUtils::makeSet( $this->getFunctionHooks() );
+		$this->functionSynonyms = $this->getFunctionSynonyms();
+		$haveSynonyms = $this->haveComputedFunctionSynonyms();
 		foreach ( $this->getMagicWords() as $magicword => $aliases ) {
 			$caseSensitive = array_shift( $aliases );
 			foreach ( $aliases as $alias ) {
@@ -855,15 +856,8 @@ abstract class SiteConfig {
 				if ( isset( $variablesMap[$magicword] ) ) {
 					$this->variables[$alias] = $magicword;
 				}
-				if ( isset( $functionHooksMap[$magicword] ) ) {
-					$falias = $alias;
-					if ( substr( $falias, -1 ) === ':' ) {
-						$falias = substr( $falias, 0, -1 );
-					}
-					if ( !isset( $noHashFunctions[$magicword] ) ) {
-						$falias = '#' . $falias;
-					}
-					$this->functionHooks[$falias] = $magicword;
+				if ( !$haveSynonyms ) {
+					$this->updateFunctionSynonym( $alias, $magicword, (bool)$caseSensitive );
 				}
 			}
 		}
@@ -894,7 +888,17 @@ abstract class SiteConfig {
 	 */
 	public function getMagicWordForFunctionHook( string $str ): ?string {
 		$this->populateMagicWords();
-		return $this->functionHooks[$str] ?? null;
+		if ( isset( $this->functionSynonyms[1][$str] ) ) {
+			return $this->functionSynonyms[1][$str];
+		} else {
+			# Case insensitive functions
+			$str = mb_strtolower( $str );
+			if ( isset( $this->functionSynonyms[0][$str] ) ) {
+				return $this->functionSynonyms[0][$str];
+			} else {
+				return null;
+			}
+		}
 	}
 
 	/**

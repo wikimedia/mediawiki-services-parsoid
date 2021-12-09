@@ -289,13 +289,16 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			"noglobal"      => [ true, "__NOGLOBAL__" ],
 			"defaultsort"   => [ true, "DEFAULTSORT:", "DEFAULTSORTKEY:", "DEFAULTCATEGORYSORT:" ],
 		];
-		$functionhooks = [ "expr", "lcfirst" ];
+		// computed based on magicword array above
+		$functionSyns = [
+			"0" => [ "#expr" => "expr", "lcfirst" => "lcfirst" ],
+		];
 		$vars = [ "numberofwikis" ];
 		$siteConfig = $this->getSiteConfig( [
-			'getMagicWords', 'getFunctionHooks', 'getVariableIDs'
+			'getMagicWords', 'getFunctionSynonyms', 'getVariableIDs'
 		] );
 		$siteConfig->method( 'getMagicWords' )->willReturn( $mws );
-		$siteConfig->method( 'getFunctionHooks' )->willReturn( $functionhooks );
+		$siteConfig->method( 'getFunctionSynonyms' )->willReturn( $functionSyns );
 		$siteConfig->method( 'getVariableIDs' )->willReturn( $vars );
 
 		return $siteConfig;
@@ -347,11 +350,15 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function provideGetMagicWordForFunctionHooks() {
 		return [
+			[ "LCFIRST" , "lcfirst" ],
 			[ "lcfirst" , "lcfirst" ],
 			[ "#expr"   , "expr" ],
+			[ "#EXPR"   , "expr" ],
 			[ "expr"    , null ],
-			[ "#lcfirst", null ],
+			[ "expr:"    , null ],
+			[ "#expr:"    , null ],
 			[ "lcfirst:", null ],
+			[ "#lcfirst", null ],
 		];
 	}
 

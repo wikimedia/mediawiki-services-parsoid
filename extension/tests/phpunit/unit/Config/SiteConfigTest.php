@@ -284,8 +284,9 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 		yield 'getVariableIDs' => [
 			MagicWordFactory::class, 'getVariableIDs', [], [ 'blabla' ], 'getVariableIDs', [ 'blabla' ]
 		];
-		yield 'getFunctionHooks' => [
-			Parser::class, 'getFunctionHooks', [], [ 'blabla' ], 'getFunctionHooks', [ 'blabla' ]
+		yield 'getFunctionSynonyms' => [
+			Parser::class, 'getFunctionSynonyms', [], [ 0 => [ 'blabla' ], 1 => [ 'blabla' ] ],
+			'getFunctionSynonyms', [ 0 => [ 'blabla' ], 1 => [ 'blabla' ] ]
 		];
 		yield 'getMagicWords' => [
 			Language::class, 'getMagicWords', [], [ 'blabla' ], 'getMagicWords', [ 'blabla' ]
@@ -308,7 +309,7 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 	 * @covers \MWParsoid\Config\SiteConfig::rtl
 	 * @covers \MWParsoid\Config\SiteConfig::widthOption
 	 * @covers \MWParsoid\Config\SiteConfig::getVariableIDs
-	 * @covers \MWParsoid\Config\SiteConfig::getFunctionHooks
+	 * @covers \MWParsoid\Config\SiteConfig::getFunctionSynonyms
 	 * @covers \MWParsoid\Config\SiteConfig::getMagicWords
 	 * @covers \MWParsoid\Config\SiteConfig::getNonNativeExtensionTags
 	 * @param string $serviceClass

@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -236,7 +237,7 @@ class SiteConfig extends ISiteConfig {
 		$this->widthOption = $data['general']['thumblimits'][$data['defaultoptions']['thumbsize']];
 		$this->protocols = $data['protocols'];
 		$this->apiVariables = $data['variables'];
-		$this->apiFunctionHooks = $data['functionhooks'];
+		$this->apiFunctionHooks = PHPUtils::makeSet( $data['functionhooks'] );
 
 		// Process namespace data from API
 		$this->nsNames = [];
@@ -593,9 +594,55 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	protected function getFunctionHooks(): array {
-		$this->loadSiteData();
-		return $this->apiFunctionHooks;
+	protected function haveComputedFunctionSynonyms(): bool {
+		return false;
+	}
+
+	private static $noHashFunctions = null;
+
+	/** @inheritDoc */
+	protected function updateFunctionSynonym( string $func, string $magicword, bool $caseSensitive ): void {
+		if ( !$this->apiFunctionHooks ) {
+			$this->loadSiteData();
+		}
+		if ( isset( $this->apiFunctionHooks[$magicword] ) ) {
+			if ( !self::$noHashFunctions ) {
+				// FIXME: This is an approximation only computed in non-integrated mode for
+				// commandline and developer testing. This set is probably not up to date
+				// and also doesn't reflect no-hash functions registered by extensions
+				// via setFunctionHook calls. As such, you might run into GOTCHAs during
+				// debugging of production issues in standalone / API config mode.
+				self::$noHashFunctions = PHPUtils::makeSet( [
+					'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
+					'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
+					'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
+					'numberofpages', 'numberofusers', 'numberofactiveusers',
+					'numberofarticles', 'numberoffiles', 'numberofadmins',
+					'numberingroup', 'numberofedits', 'language',
+					'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
+					'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
+					'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
+					'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
+					'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
+					'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
+					'talkpagename', 'talkpagenamee', 'subjectpagename',
+					'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
+					'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
+					'revisiontimestamp', 'revisionuser', 'cascadingsources',
+					// Special callbacks in core
+					'namespace', 'int', 'displaytitle', 'pagesinnamespace',
+				] );
+			}
+
+			$syn = $func;
+			if ( substr( $syn, -1 ) === ':' ) {
+				$syn = substr( $syn, 0, -1 );
+			}
+			if ( !isset( self::$noHashFunctions[$magicword] ) ) {
+				$syn = '#' . $syn;
+			}
+			$this->functionSynonyms[intval( $caseSensitive )][$syn] = $magicword;
+		}
 	}
 
 	/** @inheritDoc */

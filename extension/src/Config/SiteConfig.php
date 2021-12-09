@@ -588,8 +588,8 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	protected function getFunctionHooks(): array {
-		return $this->parser->getFunctionHooks();
+	protected function getFunctionSynonyms(): array {
+		return $this->parser->getFunctionSynonyms();
 	}
 
 	/** @inheritDoc */

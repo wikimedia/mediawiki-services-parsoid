@@ -270,7 +270,6 @@ class TemplateHandler extends TokenHandler {
 			$prefix = trim( $pieces[0] );
 		}
 
-		$lowerPrefix = mb_strtolower( $prefix );
 		// The check for pieces.length > 1 is required to distinguish between
 		// {{lc:FOO}} and {{lc|FOO}}.  The latter is a template transclusion
 		// even though the target (=lc) matches a registered parser-function name.
@@ -278,9 +277,8 @@ class TemplateHandler extends TokenHandler {
 
 		// Check if we have a parser function
 		$canonicalFunctionName = $siteConfig->getMagicWordForFunctionHook( $prefix ) ??
-			$siteConfig->getMagicWordForFunctionHook( $lowerPrefix ) ??
 			$siteConfig->getMagicWordForVariable( $prefix ) ??
-			$siteConfig->getMagicWordForVariable( $lowerPrefix );
+			$siteConfig->getMagicWordForVariable( mb_strtolower( $prefix ) );
 
 		if ( $canonicalFunctionName !== null ) {
 			// Extract toks that make up pfArg

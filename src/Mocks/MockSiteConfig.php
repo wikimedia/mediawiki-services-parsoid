@@ -262,8 +262,13 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	protected function getFunctionHooks(): array {
-		return []; // None for now
+	protected function haveComputedFunctionSynonyms(): bool {
+		return false;
+	}
+
+	/** @inheritDoc */
+	protected function updateFunctionSynonym( string $func, string $magicword, bool $caseSensitive ): void {
+		/* Nothing for now. Look at src/Config/Api/SiteConfig when mocking is needed. */
 	}
 
 	/** @inheritDoc */
