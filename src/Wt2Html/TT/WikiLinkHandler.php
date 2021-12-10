@@ -1583,6 +1583,8 @@ class WikiLinkHandler extends TokenHandler {
 				);
 				// Use parsed DOM given in `captionDOM`
 				// FIXME: Does this belong in `dataMw.attribs`?
+				// Note that, in T297443, we're trying to lint this away,
+				// unless there's an explicit alt option on the media as well.
 				$dataMw->caption = ContentUtils::ppToXML(
 					$captionDOM, [ 'innerXML' => true ]
 				);

@@ -261,14 +261,14 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter
 	 */
 	public function testBogusImageOptions(): void {
 		$desc = 'should lint Bogus image options correctly';
-		$result = $this->parseWT( '[[file:a.jpg|foo|bar]]' );
+		$result = $this->parseWT( '[[file:a.jpg|thumb|foo|bar]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
-		$this->assertEquals( [ 0, 22, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( [ 0, 28, 2, 2 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertTrue( isset( $result[0]['params']['items'] ), $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
@@ -284,23 +284,23 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should batch lint Bogus image options correctly';
-		$result = $this->parseWT( '[[file:a.jpg|foo|bar|baz]]' );
+		$result = $this->parseWT( '[[file:a.jpg|thumb|foo|bar|baz]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
-		$this->assertEquals( [ 0, 26, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( [ 0, 32, 2, 2 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
 		$this->assertEquals( 'bar', $result[0]['params']['items'][1], $desc );
 
 		$desc = 'should not send any Bogus image options if there are none';
-		$this->expectEmptyResults( $desc, '[[file:a.jpg|foo]]' );
+		$this->expectEmptyResults( $desc, '[[file:a.jpg|alt=foo]]' );
 
 		$desc = 'should flag noplayer, noicon, and disablecontrols as bogus options';
 		$result = $this->parseWT(
-		'[[File:Video.ogv|noplayer|noicon|disablecontrols=ok|These are bogus.]]' );
+		'[[File:Video.ogv|thumb|noplayer|noicon|disablecontrols=ok|These are bogus.]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
-		$this->assertEquals( [ 0, 70, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( [ 0, 76, 2, 2 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'noplayer', $result[0]['params']['items'][0], $desc );
 		$this->assertEquals( 'noicon', $result[0]['params']['items'][1], $desc );
@@ -339,6 +339,21 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 0, 58, 2, 2 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '250px', $result[0]['params']['items'][0], $desc );
+	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter
+	 */
+	public function testInlineMediaCaptions(): void {
+		$result = $this->parseWT( '[[File:Foobar.jpg|alt=Hi ho]]' );
+		$this->assertCount( 0, $result, 'Should not lint inline media with an alt option' );
+		$result = $this->parseWT( '[[File:Foobar.jpg|alt=Hi ho|Hi ho]]' );
+		$this->assertCount( 0, $result, 'Should not lint inline media with a caption and an alt option' );
+		$result = $this->parseWT( '[[File:Foobar.jpg|Hi ho]]' );
+		$desc = 'Should lint inline media with a caption';
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'inline-media-caption', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 25, null, null ], $result[0]['dsr'], $desc );
 	}
 
 	/**
@@ -1071,10 +1086,10 @@ class LinterTest extends TestCase {
 
 		$desc = "should lint figure wikilink in external link correctly";
 		$result = $this->parseWT(
-			"[http://foo.bar/some.link [[File:Foobar.jpg|scale=0.5]] image]" );
+			"[http://foo.bar/some.link [[File:Foobar.jpg|thumb|scale=0.5]] image]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
-		$this->assertEquals( [ 0, 62, 26, 1 ], $result[0]['dsr'], $desc );
+		$this->assertEquals( [ 0, 68, 26, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint image wikilink in external link correctly";
 		$result = $this->parseWT(
