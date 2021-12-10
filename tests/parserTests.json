@@ -40,8 +40,8 @@
 		"path": "--UNUSED--"
 	},
 	"langParserTests.txt": {
-		"repo": "/wikimedia/mediawiki-services-parsoid/",
-		"path": "tests/langParserTests.txt"
+		"repo": "--UNUSED--",
+		"path": "--UNUSED--"
 	},
 	"citeParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Cite/",
