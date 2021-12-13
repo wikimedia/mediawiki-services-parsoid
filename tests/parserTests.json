@@ -2,8 +2,8 @@
 	"parserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "316566d0ee3d4dcebf5c562b1708c8b61ae15357",
-		"latestCommit": "6eda8891a0595e72e350998b6bada19d102a42d9"
+		"expectedSHA1": "15da45ff055859560c2ac25a2d46cc5e22075c40",
+		"latestCommit": "4f60541f49782ed62dd07ef97939c3c27421dab6"
 	},
 	"extraParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
@@ -14,8 +14,8 @@
 	"mediaParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/mediaParserTests.txt",
-		"expectedSHA1": "9e67c6c4c92a4cf6460696b3f105d0e833a490c1",
-		"latestCommit": "2845964ff845a871db2a8968d52669bddb4bd02f"
+		"expectedSHA1": "779e1bd2ebb287a840769d5b416cd601de952091",
+		"latestCommit": "b433f53c4eefa36b8ebbf7263640810c29d5c54a"
 	},
 	"legacyMediaParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
