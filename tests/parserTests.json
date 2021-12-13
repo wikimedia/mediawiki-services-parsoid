@@ -58,8 +58,8 @@
 	"poemParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Poem/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "ffe275baf1e88b174eb90fe4a61ae7f7171821ee",
-		"latestCommit": "5337f7927ace34af6620e7d5c8f733f6cf413667"
+		"expectedSHA1": "3f6a206276e02f12b0395d4489204d29d65b8adf",
+		"latestCommit": "6a12103aa86ecfe07b0d3832b9cce63c890f4b7b"
 	},
 	"imageMapParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-ImageMap/",
