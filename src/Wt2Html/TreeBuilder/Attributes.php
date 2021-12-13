@@ -25,9 +25,24 @@ class Attributes extends PlainAttributes {
 				$this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] );
 			$newData = $data->clone();
 
-			// Clear auto-insert flags since TreeEventStage needs to set them again
-			unset( $newData->parsoid->autoInsertedStart );
-			unset( $newData->parsoid->autoInsertedEnd );
+			// - If autoInserted(Start|End)Token flags are set, set the corresponding
+			//   autoInserted(Start|End) flag. Clear the token flags on the
+			//   already-processed nodes but let them propagate further down
+			//   so that autoInserted(Start|End) flags can be set on all clones.
+			// - If not, clear autoInserted* flags since TreeEventStage needs
+			//   to set them again based on the HTML token stream.
+			if ( isset( $data->parsoid->autoInsertedStartToken ) ) {
+				unset( $data->parsoid->autoInsertedStartToken );
+				$newData->parsoid->autoInsertedStart = true;
+			} else {
+				unset( $newData->parsoid->autoInsertedStart );
+			}
+			if ( isset( $data->parsoid->autoInsertedEndToken ) ) {
+				unset( $data->parsoid->autoInsertedEndToken );
+				$newData->parsoid->autoInsertedEnd = true;
+			} else {
+				unset( $newData->parsoid->autoInsertedEnd );
+			}
 
 			$newAttrs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] =
 				DOMDataUtils::stashObjectInDoc( $this->document, $newData );

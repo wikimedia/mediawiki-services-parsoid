@@ -148,6 +148,14 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Void tags that are not self-closed (Ex: `<br>`)
  * @property bool|null $noClose
  *
+ * Whether this start HTML tag has no corresponding wikitext and was auto-inserted by a token
+ * handler to generate well-formed html. Usually happens when a token handler fixes up misnesting.
+ * @property bool|null $autoInsertedStartToken
+ *
+ * Whether this end HTML tag has no corresponding wikitext and was auto-inserted by a token
+ * handler to generate well-formed html. Usually happens when a token handler fixes up misnesting.
+ * @property bool|null $autoInsertedEndToken
+ *
  * Whether this start HTML tag has no corresponding wikitext and was auto-inserted to generate
  * well-formed html. Usually happens when treebuilder fixes up badly nested HTML.
  * @property bool|null $autoInsertedStart

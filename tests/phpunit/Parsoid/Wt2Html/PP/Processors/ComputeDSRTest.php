@@ -295,6 +295,19 @@ class ComputeDSRTest extends TestCase {
 					],
 				]
 			],
+			'elt 6 misnested' => [
+				'wt' => "<span>''''A</span><span>B</span>",
+				'specs' => [
+					[
+						'selector' => 'body > p > span > b',
+						'dsrContent' => [ "'''A", "'''", '' ]
+					],
+					[
+						'selector' => 'body > p > b',
+						'dsrContent' => [ '<span>B</span>', '', '' ]
+					],
+				]
+			],
 
 			// Links
 			'link 1' => [

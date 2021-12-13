@@ -353,6 +353,14 @@ class TreeBuilderStage extends PipelineStage {
 				if ( isset( $dataAttribs->tsr ) ) {
 					$nodeDP->getTemp()->endTSR = $dataAttribs->tsr;
 				}
+				if ( isset( $nodeDP->autoInsertedStartToken ) ) {
+					$nodeDP->autoInsertedStart = true;
+					unset( $nodeDP->autoInsertedStartToken );
+				}
+				if ( isset( $nodeDP->autoInsertedEndToken ) ) {
+					$nodeDP->autoInsertedEnd = true;
+					unset( $nodeDP->autoInsertedEndToken );
+				}
 			} else {
 				// The tag was stripped. Insert an mw:Placeholder for round-tripping
 				$this->insertPlaceholderMeta( $tName, $dataAttribs, false );

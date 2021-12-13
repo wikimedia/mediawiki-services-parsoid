@@ -407,15 +407,15 @@ class QuoteTransformer extends TokenHandler {
 		}
 		if ( $state === 'b' || $state === 'ib' ) {
 			$this->currentChunk[] = new EndTagTk( 'b' );
-			$this->last["b"]->dataAttribs->autoInsertedEnd = true;
+			$this->last["b"]->dataAttribs->autoInsertedEndToken = true;
 		}
 		if ( $state === 'i' || $state === 'bi' || $state === 'ib' ) {
 			$this->currentChunk[] = new EndTagTk( 'i' );
-			$this->last["i"]->dataAttribs->autoInsertedEnd = true;
+			$this->last["i"]->dataAttribs->autoInsertedEndToken = true;
 		}
 		if ( $state === 'bi' ) {
 			$this->currentChunk[] = new EndTagTk( 'b' );
-			$this->last["b"]->dataAttribs->autoInsertedEnd = true;
+			$this->last["b"]->dataAttribs->autoInsertedEndToken = true;
 		}
 	}
 
@@ -438,9 +438,9 @@ class QuoteTransformer extends TokenHandler {
 		for ( $i = 0; $i < $numTags; $i++ ) {
 			if ( $tsr ) {
 				if ( $i === 0 && $ignoreBogusTwo ) {
-					$this->last[$tags[$i]->getName()]->dataAttribs->autoInsertedEnd = true;
+					$this->last[$tags[$i]->getName()]->dataAttribs->autoInsertedEndToken = true;
 				} elseif ( $i === 2 && $ignoreBogusTwo ) {
-					$tags[$i]->dataAttribs->autoInsertedStart = true;
+					$tags[$i]->dataAttribs->autoInsertedStartToken = true;
 				} elseif ( $tags[$i]->getName() === 'b' ) {
 					$tags[$i]->dataAttribs->tsr = new SourceRange( $startpos, $startpos + 3 );
 					$startpos = $tags[$i]->dataAttribs->tsr->end;
