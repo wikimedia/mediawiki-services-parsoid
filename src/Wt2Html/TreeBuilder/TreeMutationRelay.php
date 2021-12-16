@@ -151,6 +151,7 @@ class TreeMutationRelay extends RelayTreeHandler {
 			if ( !$isMatch ) {
 				// An end tag auto-inserted by TreeBuilder
 				$dp->autoInsertedEnd = true;
+				unset( $dp->tmp->endTSR );
 			} else {
 				// If the node was literal html, the end tag should be as well.
 				// However, the converse isn't true. A node for an
@@ -159,6 +160,7 @@ class TreeMutationRelay extends RelayTreeHandler {
 				$startIsHtml = ( $dp->stx ?? '' ) === 'html';
 				if ( empty( $dp->autoInsertedStart ) && $startIsHtml !== $this->matchEndIsHtml ) {
 					$dp->autoInsertedEnd = true;
+					unset( $dp->tmp->endTSR );
 				}
 			}
 		}
