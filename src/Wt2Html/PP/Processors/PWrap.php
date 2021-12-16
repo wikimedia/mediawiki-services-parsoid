@@ -105,7 +105,9 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			} elseif ( $ret[$i]['pwrap'] !== $v['pwrap'] && $v['pwrap'] !== null ) {
 				// @phan-suppress-previous-line PhanTypeInvalidDimOffset
 				// @phan-suppress-next-line PhanTypeInvalidDimOffset
-				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedEnd = true;
+				$dp = DOMDataUtils::getDataParsoid( $ret[$i]['node'] );
+				$dp->autoInsertedEnd = true;
+				unset( $dp->tmp->endTSR );
 				$cnode = $n->cloneNode();
 				'@phan-var Element $cnode'; // @var Element $cnode
 				if ( $n->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
@@ -121,6 +123,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			$dp = DOMDataUtils::getDataParsoid( $ret[$i]['node'] );
 			if ( $origAIEnd ) {
 				$dp->autoInsertedEnd = true;
+				unset( $dp->tmp->endTSR );
 			} else {
 				unset( $dp->autoInsertedEnd );
 				if ( $origEndTSR ) {

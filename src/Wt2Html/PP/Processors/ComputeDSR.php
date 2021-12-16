@@ -337,12 +337,23 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$fosteredNode = false;
 			$cs = null;
 
+			if ( $child instanceof Element ) {
+				$dp = DOMDataUtils::getDataParsoid( $child );
+				$endTSR = $dp->tmp->endTSR ?? null;
+				if ( $endTSR ) {
+					$ce = $endTSR->end;
+				}
+			} else {
+				$endTSR = null;
+			}
+
 			// StrippedTag marker tags will be removed and won't
 			// be around to fill in the missing gap.  So, absorb its width into
 			// the DSR of its previous sibling.  Currently, this fix is only for
 			// B and I tags where the fix is clear-cut and obvious.
 			$next = $child->nextSibling;
 			if ( $next instanceof Element ) {
+
 				$ndp = DOMDataUtils::getDataParsoid( $next );
 				if (
 					isset( $ndp->src ) &&
@@ -405,7 +416,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				DOMUtils::assertElt( $child );
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				$tsr = $dp->tsr ?? null;
-				$endTSR = $dp->tmp->endTSR ?? null;
 				$oldCE = $tsr ? $tsr->end : null;
 				$propagateRight = false;
 				$stWidth = null;
@@ -473,9 +483,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						}
 						if ( $tsr && empty( $dp->autoInsertedStart ) ) {
 							$cs = $tsr->start;
-							if ( $endTSR && $ce === null ) {
-								$ce = $endTSR->end;
-							}
 							if ( $this->tsrSpansTagDOM( $child, $dp ) ) {
 								if ( $tsr->end !== null && $tsr->end > 0 ) {
 									$ce = $tsr->end;
