@@ -154,11 +154,12 @@ class TreeMutationRelay extends RelayTreeHandler {
 				unset( $dp->tmp->endTSR );
 			} else {
 				// If the node was literal html, the end tag should be as well.
-				// However, the converse isn't true. A node for an
-				// auto-inserted start tag wouldn't have stx=html.
-				// See "Table with missing opening <tr> tag" test as an example.
+				// However, the converse isn't true.
+				// 1. A node for an auto-inserted start tag wouldn't have stx=html.
+				//    See "Table with missing opening <tr> tag" test as an example.
+				// 2. In "{|\n|foo\n</table>" (yes, found on wikis), startTag isn't HTML.
 				$startIsHtml = ( $dp->stx ?? '' ) === 'html';
-				if ( empty( $dp->autoInsertedStart ) && $startIsHtml !== $this->matchEndIsHtml ) {
+				if ( $startIsHtml && $startIsHtml !== $this->matchEndIsHtml ) {
 					$dp->autoInsertedEnd = true;
 					unset( $dp->tmp->endTSR );
 				}

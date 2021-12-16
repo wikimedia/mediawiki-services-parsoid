@@ -217,6 +217,24 @@ class ComputeDSRTest extends TestCase {
 				]
 			],
 
+			'tables 3 mixed stx' => [
+				'wt' => "{|\n|foo\n</table>",
+				'specs' => [
+					[
+						'selector' => 'body > table',
+						'dsrContent' => [ "{|\n|foo\n</table>", '{|', '</table>' ]
+					],
+					[
+						'selector' => 'body > table > tbody',
+						'dsrContent' => [ "|foo\n", '', '' ]
+					],
+					[
+						'selector' => 'tr > td',
+						'dsrContent' => [ "|foo", '|', '' ]
+					]
+				]
+			],
+
 			// Pre
 			'pre 1' => [
 				'wt' => " Preformatted text ",
