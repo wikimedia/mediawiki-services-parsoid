@@ -347,11 +347,6 @@ class TreeBuilderStage extends PipelineStage {
 					$nodeDP->endTagSrc = $dataAttribs->endTagSrc;
 				}
 				if ( !empty( $dataAttribs->stx ) ) {
-					// FIXME: Not sure why we do this. For example,
-					// with "{|\n|x\n</table>", why should the entire table
-					// be marked HTML syntax? This is probably entirely
-					// 2013-era historical stuff. Investigate & fix.
-					//
 					// Transfer stx flag
 					$nodeDP->stx = $dataAttribs->stx;
 				}

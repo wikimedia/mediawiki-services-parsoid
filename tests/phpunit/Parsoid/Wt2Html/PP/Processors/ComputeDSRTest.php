@@ -217,39 +217,11 @@ class ComputeDSRTest extends TestCase {
 				]
 			],
 
-			'tables 3 mixed stx' => [
-				'wt' => "{|\n|foo\n</table>",
-				'specs' => [
-					[
-						'selector' => 'body > table',
-						'dsrContent' => [ "{|\n|foo\n</table>", '{|', '</table>' ]
-					],
-					[
-						'selector' => 'body > table > tbody',
-						'dsrContent' => [ "|foo\n", '', '' ]
-					],
-					[
-						'selector' => 'tr > td',
-						'dsrContent' => [ "|foo", '|', '' ]
-					]
-				]
-			],
-
 			// Pre
 			'pre 1' => [
 				'wt' => " Preformatted text ",
 				'specs' => [
 					[ 'selector' => 'body > pre', 'dsrContent' => [ " Preformatted text ", ' ', '' ] ]
-				]
-			],
-			// Regression test for robust DSR computation when PreHandler has a bug.
-			// PreHandler swallows the category link into <pre> which creates an 1-char
-			// difference in DSR offset by the time the <i> tag is encountered.
-			// The endTSR value on the <i> tag should override the buggy computed value.
-			'pre 2' => [
-				'wt' => " ''a'' b\n[[Category:Foo]]",
-				'specs' => [
-					[ 'selector' => 'body > pre > i', 'dsrContent' => [ "''a''", "''", "''" ] ]
 				]
 			],
 
