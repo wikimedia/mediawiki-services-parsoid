@@ -7510,9 +7510,9 @@ Table-cell after a comment-only-empty-line
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'>a</td>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{}'>a
 <!--c1-->
-<!--c2--><td data-parsoid='{}'>b</td></tr>
+<!--c2--></td><td data-parsoid='{}'>b</td></tr>
 </tbody></table>
 !! end
 
@@ -29882,17 +29882,17 @@ __NOTOC__
 <table>
 <caption><!--c1--><!--c2-->Table Caption<!--c3--><!--c4--></caption>
 <tbody><tr>
-<th><!--c1--><!--c2-->Table Heading 1<!--c3--><!--c4--></th><th>Table Heading 2</th></tr><!--c5-->
+<th><!--c1--><!--c2-->Table Heading 1<!--c3--><!--c4--></th><th>Table Heading 2<!--c5--></th></tr>
 <tr>
-<td><!--c1--><!--c2-->Table Cell 1<!--c3--><!--c4--></td><td>Table Cell 2</td></tr><!--c5-->
+<td><!--c1--><!--c2-->Table Cell 1<!--c3--><!--c4--></td><td>Table Cell 2<!--c5--></td></tr>
 <tr>
-<td>class="foo"</td><td><!--c1--><!--c2-->Table Cell 3<!--c3--></td></tr><!--c4-->
+<td>class="foo"</td><td><!--c1--><!--c2-->Table Cell 3<!--c3--><!--c4--></td></tr>
 <tr>
 <td><!--c1-->testing <a rel="mw:WikiLink" href="./One" title="One" class="new">two</a> <!--c2--> | <!--c3--> some content</td></tr>
 </tbody></table>
 <dl><dd><table>
-  <tbody><tr><td><!--c1--><!--c2-->Table Cell 1<!--c3--><!--c4--></td><td>Table Cell 2</td></tr><!--c5-->
-  </tbody></table> foo<!--c1--></dd></dl>
+  <tbody><tr><td><!--c1--><!--c2-->Table Cell 1<!--c3--><!--c4--></td><td>Table Cell 2 <!--c5-->
+  </td></tr></tbody></table> foo<!--c1--></dd></dl>
 !! end
 
 # Looks like <caption> is not accepted in HTML

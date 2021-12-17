@@ -166,6 +166,8 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 				$n = $n->previousSibling;
 			}
 
+			$isTdTh = DOMCompat::nodeName( $elt ) === 'td' || DOMCompat::nodeName( $elt ) === 'th';
+
 			// Find nodes that need to be migrated out:
 			// - a sequence of comment and newline nodes that is preceded by
 			// a non-migratable node (text node with non-white-space content
@@ -174,11 +176,14 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 			$tsrCorrection = 0;
 			while ( $n instanceof Text || $n instanceof Comment ) {
 				if ( $n instanceof Comment ) {
+					if ( $isTdTh ) {
+						break;
+					}
 					$firstEltToMigrate = $n;
 					// <!--comment-->
 					$tsrCorrection += WTUtils::decodedCommentLength( $n );
 				} else {
-					if ( preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/D', $n->nodeValue ) ) {
+					if ( !$isTdTh && preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/D', $n->nodeValue ) ) {
 						$foundNL = true;
 						$firstEltToMigrate = $n;
 						$partialContent = false;

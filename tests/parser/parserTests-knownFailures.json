@@ -1072,13 +1072,11 @@
     },
     "Indented table with an empty td": {
         "html2wt": "{|\n|\n|foo\n|}",
-        "selser [4,[4,[[0,2,0,[4]]]]]": "1sggg3v\n{|<!--yz5d30-->\n|-\n |ngtvt4\n|\n |1sog12b \n|}"
+        "selser [0,[4,[[0,2,3]]]]": " {|<!--esh6d6-->\n|-\n |fgdn4j\n|\n \n|}"
     },
     "Indented table with blank lines in between (T85627)": {
-        "selser [2,[0,[[[0,4]],3]]]": "1yrf6mr \n{|\n |foo\n<nowiki> </nowiki>cyilqp \n|}",
-        "selser [4,[4,2]]": "1p9rmqy\n{|<!--12uqdsp--><!--1qa1jub-->\n|foo\n \n  \n |}",
-        "selser [0,[0,[0,2]]]": " {|\n |foo\n \n <!--1amzorg-->\n |}",
-        "selser [2,[0,2]]": "1xis7o8 \n{|\n <!--c7irv8-->|foo\n \n  \n |}"
+        "selser [2,[0,[[[0,4,3]]]]]": "53zi99 \n{|\n |foo\n<nowiki> </nowiki>ww3fks \n|}",
+        "selser [0,[0,[[[0,0,2]]]]]": " {|\n |foo\n \n \n1w3cp3e\n |}"
     },
     "Inline HTML vs wiki block nesting": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p><b data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[17,37,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'>New wiki paragraph</p></b>",
@@ -2762,7 +2760,9 @@
         "selser [manual]": "[[http://example.com foo]]"
     },
     "Wikitext table with a lot of comments": {
-        "html2wt": "{|\n|foo\n|-\n|\n|}"
+        "html2wt": "{|\n|foo\n|-\n|\n|}",
+        "selser [[0,4,0,[2,3,1,4]]]": "{|\n<!--iq9oza-->\n<!--1dqmhs4-->|foo\n<!-- c1 -->\n|- data-foobar=\"2v7bzw\"<!-- c2 -->\n<!-- c3 -->\n|<!-- c4 -->\n<!-- c5 --><!--setevm-->\n|}",
+        "selser [[0,0,4,[2,4,[4,0,4,0,[2,2,2]],2]]]": "{|\n<!-- c0 --><!--1o352s1--><!--1ou61s9-->|foo\n<!-- c1 --><!--smmajy-->\n|-\n|tyk0it\n|1cc3s5x\n|1al41b7<!-- c4 -->s4layh\n6j4dys<!-- c5 --><!--1lv2wu5-->\n|}"
     },
     "Wikitext table with html-syntax row": {
         "html2wt": "{|\n|foo\n|}"
