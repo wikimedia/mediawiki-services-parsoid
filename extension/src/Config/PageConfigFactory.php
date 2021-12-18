@@ -31,7 +31,6 @@ use MediaWiki\User\UserIdentity;
 use MWParsoid\Config\PageConfig as MWPageConfig;
 use ParserOptions;
 use Title;
-use User;
 use Wikimedia\Parsoid\Config\Api\PageConfig as ApiPageConfig;
 use Wikimedia\Parsoid\Config\PageConfig;
 use WikitextContent;
@@ -162,8 +161,8 @@ class PageConfigFactory {
 
 		$parserOptions =
 			$user
-			? ParserOptions::newFromUser( User::newFromIdentity( $user ) )
-			: ParserOptions::newCanonical( new User() );
+			? ParserOptions::newFromUser( $user )
+			: ParserOptions::newFromAnon();
 
 		// Turn off some options since Parsoid/JS currently doesn't
 		// do anything with this. As we proceed with closer integration,
