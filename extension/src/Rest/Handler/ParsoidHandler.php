@@ -38,6 +38,7 @@ use MWParsoid\Rest\FormatHelper;
 use RequestContext;
 use Title;
 use UIDGenerator;
+use WikiMap;
 use Wikimedia\Http\HttpAcceptParser;
 use Wikimedia\Message\DataMessageValue;
 use Wikimedia\ParamValidator\ValidationException;
@@ -212,7 +213,7 @@ abstract class ParsoidHandler extends Handler {
 			// We would like to deprecate use of this flag: T181657
 			'body_only' => $request->getQueryParams()['body_only'] ?? $body['body_only'] ?? null,
 			'errorEnc' => FormatHelper::ERROR_ENCODING[$opts['format']] ?? 'plain',
-			'iwp' => wfWikiID(), // PORT-FIXME verify
+			'iwp' => WikiMap::getCurrentWikiId(), // PORT-FIXME verify
 			'subst' => (bool)( $request->getQueryParams()['subst'] ?? $body['subst'] ?? null ),
 			'offsetType' => $body['offsetType']
 				?? $request->getQueryParams()['offsetType']
