@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -362,7 +363,7 @@ class AttributeExpander extends TokenHandler {
 				// and probably use appropriately-named flags to convey type information.
 				if ( is_array( $oldA->k ) ) {
 					if ( !is_array( $expandedK ) ) {
-						PHPUtils::unreachable( "expandedK: expected array. Found: " .
+						throw new UnreachableException( "expandedK: expected array. Found: " .
 							PHPUtils::jsonEncode( $expandedK ) );
 					}
 

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -854,7 +855,7 @@ class DOMNormalizer {
 		}
 
 		// @phan-suppress-next-line PhanPluginUnreachableCode
-		PHPUtils::unreachable( 'Control should never get here!' );
+		throw new UnreachableException( 'Control should never get here!' );
 	}
 
 	/**

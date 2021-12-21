@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Logger;
 
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
@@ -114,7 +114,7 @@ class LintLogger {
 				return in_array( $item['type'], $linting, true );
 			} );
 		} else {
-			PHPUtils::unreachable( 'Why are we here? Linting is disabled.' );
+			throw new UnreachableException( 'Why are we here? Linting is disabled.' );
 		}
 
 		// Convert offsets to ucs2

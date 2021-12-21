@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Exception;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 
 /**
  * This file contains Parsoid-independent PHP helper functions.
@@ -206,7 +207,7 @@ class PHPUtils {
 				$i === -4, 'Bad UTF-8 at end of string (4 byte sequence)'
 			);
 		} else {
-			self::unreachable(
+			throw new UnreachableException(
 				// This shouldn't happen, assuming original string was valid
 				'Bad UTF-8 at end of string'
 			);
@@ -380,14 +381,15 @@ class PHPUtils {
 	 * Indicate that the code which calls this function is intended to be
 	 * unreachable.
 	 *
-	 * This is a workaround for T247093; hopefully we can move this
-	 * function upstream into wikimedia/assert.
+	 * This is a workaround for T247093; this has been moved upstream
+	 * into wikimedia/assert.
 	 *
 	 * @param string $reason
+	 * @return never
+	 * @deprecated Just throw an UnreachableException instead.
 	 */
 	public static function unreachable( string $reason = "should never happen" ) {
-		// @phan-suppress-next-line PhanImpossibleCondition
-		Assert::invariant( false, $reason );
+		throw new UnreachableException( $reason );
 	}
 
 	/**

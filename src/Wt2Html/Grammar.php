@@ -8,6 +8,7 @@
 namespace Wikimedia\Parsoid\Wt2Html;
 
 
+	use Wikimedia\Assert\UnreachableException;
 	use Wikimedia\Parsoid\Config\Env;
 	use Wikimedia\Parsoid\Config\SiteConfig;
 	use Wikimedia\Parsoid\Core\DomSourceRange;
@@ -87,7 +88,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	}
 
 	private function unreachable() {
-		throw new \Exception( "Grammar.pegphp: this should be unreachable" );
+		throw new UnreachableException( "Grammar.pegphp: this should be unreachable" );
 	}
 
 	// Some shorthands for legibility

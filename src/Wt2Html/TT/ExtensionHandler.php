@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
@@ -12,7 +13,6 @@ use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -126,10 +126,12 @@ class ExtensionHandler extends TokenHandler {
 			// WARNING: THIS HAS BEEN UNUSED SINCE 2015, SEE T98995.
 			// THIS CODE WAS WRITTEN BUT APPARENTLY NEVER TESTED.
 			// NO WARRANTY.  MAY HALT AND CATCH ON FIRE.
-			PHPUtils::unreachable( 'Should not be here!' );
+			throw new UnreachableException( 'Should not be here!' );
+			/*
 			$toks = PipelineUtils::encapsulateExpansionHTML(
 				$env, $token, $cachedExpansion, [ 'fromCache' => true ]
 			);
+			*/
 		} else {
 			$start = microtime( true );
 			$ret = $env->getDataAccess()->parseWikitext(

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use stdClass;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -395,8 +396,7 @@ class WTSUtils {
 			} elseif ( is_object( $a[0] ) ) {
 				$txt = $a[0]->txt ?? null;
 			} else {
-				PHPUtils::unreachable( 'Control should never get here!' );
-				break;
+				throw new UnreachableException( 'Control should never get here!' );
 			}
 			if ( $txt === $key ) {
 				$i = $k;

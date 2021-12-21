@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use stdClass;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -263,8 +264,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 				// Ignore it
 				break;
 			default:
-				PHPUtils::unreachable( 'should not be here!' );
-				break;
+				throw new UnreachableException( 'should not be here!' );
 			}
 		}
 		return $content;

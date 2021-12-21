@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -241,7 +242,7 @@ class PipelineUtils {
 			// getWrapperTokens calls convertDOMToTokens with a Element
 			// and children of dom elements are always text/comment/elements
 			// which are all covered above.
-			PHPUtils::unreachable( "Should never get here!" );
+			throw new UnreachableException( "Should never get here!" );
 		}
 
 		return $tokBuf;
@@ -615,7 +616,7 @@ class PipelineUtils {
 					}
 
 					if ( $key ) {
-						PHPUtils::unreachable( 'Callsite was not ported!' );
+						throw new UnreachableException( 'Callsite was not ported!' );
 						// FIXME: makeExpansion return type changed
 						// $expAccum[$key] = self::makeExpansion( $env, $nodes );
 					}

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -234,7 +235,7 @@ class TemplateHandler extends TokenHandler {
 					}
 
 				default:
-					PHPUtils::unreachable( 'Unexpected token type: ' . get_class( $ntt ) );
+					throw new UnreachableException( 'Unexpected token type: ' . get_class( $ntt ) );
 			}
 		}
 

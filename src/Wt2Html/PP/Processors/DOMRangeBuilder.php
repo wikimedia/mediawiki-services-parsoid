@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use Error;
 use SplObjectStorage;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\ElementRange;
@@ -1171,7 +1172,7 @@ class DOMRangeBuilder {
 									$elem, $tpl->endElem, $tpl->endElem );
 							} else {
 								// should not happen!
-								PHPUtils::unreachable( "start found after content for $about." );
+								throw new UnreachableException( "start found after content for $about." );
 							}
 						} else {
 							$tpl = new ElementRange;

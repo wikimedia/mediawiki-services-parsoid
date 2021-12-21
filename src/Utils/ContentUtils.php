@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
@@ -227,7 +228,7 @@ class ContentUtils {
 
 			// DOMFragments will have already been unpacked when DSR shifting is run
 			if ( DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) ) {
-				PHPUtils::unreachable( "Shouldn't encounter these nodes here." );
+				throw new UnreachableException( "Shouldn't encounter these nodes here." );
 			}
 
 			// However, extensions can choose to handle sealed fragments whenever

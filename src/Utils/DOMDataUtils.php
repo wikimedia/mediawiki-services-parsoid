@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Utils;
 use Composer\Semver\Semver;
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
@@ -109,7 +110,7 @@ class DOMDataUtils {
 		}
 		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
 		if ( isset( $dataObject->storedId ) ) {
-			PHPUtils::unreachable(
+			throw new UnreachableException(
 				'Trying to fetch node data without loading!' .
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared

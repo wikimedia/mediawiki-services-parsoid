@@ -58,7 +58,7 @@ class SpanHandler extends DOMHandler {
 					$state->serializeChildren( $node );
 				}
 			} elseif ( DOMUtils::hasTypeOf( $node, 'mw:DisplaySpace' ) ) {
-				// FIXME(T254501): Turn this into an `PHPUtils::unreachable()`
+				// FIXME(T254501): Throw an UnreachableException here instead
 				$state->emitChunk( ' ', $node );
 			} elseif ( DOMUtils::matchTypeOf( $node, '#^mw:Placeholder(/|$)#' ) ) {
 				if ( isset( $dp->src ) ) {
