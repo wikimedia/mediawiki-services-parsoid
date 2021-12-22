@@ -614,12 +614,23 @@ abstract class ParsoidHandler extends Handler {
 		// FIXME: This is slightly misleading since there are fixed costs
 		// for generating output like the <head> section and should be factored in,
 		// but this is good enough for now as a useful first degree of approxmation.
-		$metrics->timing( 'wt2html.timePerKB', $parseTime * 1024 / $outSize );
+		$timePerKB = $parseTime * 1024 / $outSize;
+		$metrics->timing( 'wt2html.timePerKB', $timePerKB );
 
 		if ( $parseTime > 3000 ) {
 			LoggerFactory::getInstance( 'slow-parsoid' )
 				->info( 'Parsing {title} was slow, took {time} seconds', [
 					'time' => number_format( $parseTime / 1000, 2 ),
+					'title' => $pageConfig->getTitle(),
+				] );
+		} elseif ( $timePerKB > 500 ) {
+			// At 100ms/KB, even a 100KB page which isn't that large will take 10s.
+			// So, we probably want to shoot for a threshold under 100ms.
+			// But, let's start with 500ms+ outliers first and see what we uncover.
+			LoggerFactory::getInstance( 'slow-parsoid' )
+				->info( 'Parsing {title} was slow, timePerKB took {timePerKB} ms, total: {time} seconds', [
+					'time' => number_format( $parseTime / 1000, 2 ),
+					'timePerKB' => number_format( $timePerKB, 1 ),
 					'title' => $pageConfig->getTitle(),
 				] );
 		}
