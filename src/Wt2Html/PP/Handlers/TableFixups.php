@@ -473,7 +473,11 @@ class TableFixups {
 
 		// Reparse the attributish prefix
 		$attributeTokens = $this->tokenizer->tokenizeTableCellAttributes( $reparseSrc, false );
-		Assert::invariant( is_array( $attributeTokens ), "Expected successful parse of $reparseSrc" );
+		if ( !is_array( $attributeTokens ) ) {
+			$frame->getEnv()->log( "error/wt2html",
+				"TableFixups: Failed to successfully reparse $reparseSrc as table cell attributes" );
+			return false;
+		}
 
 		// Note that `row_syntax_table_args` (the rule used for tokenizing above)
 		// returns an array consisting of [table_attributes, spaces, pipe]
