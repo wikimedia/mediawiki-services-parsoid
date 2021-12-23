@@ -990,10 +990,9 @@ class TemplateHandler extends TokenHandler {
 	): ?array {
 		$env = $this->env;
 
-		// Special case for {{!}} magic word.  Note that this is only necessary
-		// because of the call from the TokenStreamPatcher.  Otherwise, ! is a
-		// variable like any other and can be dropped from this function.
-		// However, we keep both cases flowing through here for consistency.
+		// Special case for {{!}} magic word.
+		// This is only needed for to support Parsoid's half-baked
+		// "native preprocessor" used in parser tests.
 		if (
 			( $resolvedTgt && $resolvedTgt['magicWordType'] === '!' ) ||
 			$tplToken->attribs[0]->k === '!'
