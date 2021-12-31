@@ -88,6 +88,10 @@ if ( $parsoidMode === 'integrated' ) {
 					'Run parsoid standalone, communicating with a host MediaWiki ' .
 					'using network API (see --domain option)'
 				);
+				$this->addOption(
+					'mock',
+					'Use mock environment instead of api or standalone'
+				);
 			}
 			parent::addDefaultParams();
 		}
@@ -151,6 +155,10 @@ if ( $parsoidMode === 'integrated' ) {
 					'standalone',
 					'Run parsoid standalone, communicating with a host MediaWiki ' .
 					'using network API (see --domain option)'
+				);
+				$this->addOption(
+					'mock',
+					'Use mock environment instead of api or standalone'
 				);
 			}
 			parent::addDefaultParams();

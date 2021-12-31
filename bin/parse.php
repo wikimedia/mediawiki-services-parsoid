@@ -208,10 +208,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->addOption(
-			'mock',
-			'Use mock environment instead of api or standalone'
-		);
-		$this->addOption(
 			'oldid',
 			'Oldid of the given page.',
 			false,
