@@ -73,7 +73,7 @@ class Profile {
 	): void {
 		if ( $profile === $this->timeProfile && $this->recentNestedProfile ) {
 			// Eliminate double-counting
-			$time -= ( $this->recentNestedProfile->endTime - $this->recentNestedProfile->startTime );
+			$time -= ( $this->recentNestedProfile->endTime - $this->recentNestedProfile->startTime ) * 1000;
 			$this->recentNestedProfile = null;
 		}
 
