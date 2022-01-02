@@ -924,8 +924,6 @@ class DOMPostProcessor extends PipelineStage {
 			$env->writeDump( ContentUtils::dumpDOM( $node, 'DOM: after tree builder', $opts ) );
 		}
 
-		$startTime = null;
-		$endTime = null;
 		$prefix = null;
 		$traceLevel = null;
 		$resourceCategory = null;
@@ -942,8 +940,6 @@ class DOMPostProcessor extends PipelineStage {
 				$prefix = '---';
 				$resourceCategory = 'DOMPasses:NESTED';
 			}
-			$startTime = microtime( true );
-			$env->log( 'debug/time/dompp', $prefix . '; start=' . $startTime );
 		}
 
 		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
@@ -966,7 +962,6 @@ class DOMPostProcessor extends PipelineStage {
 					( strlen( $pp['name'] ) < 30 ) ? 30 - strlen( $pp['name'] ) : 0
 				);
 				$ppStart = microtime( true );
-				$env->log( 'debug/time/dompp', $prefix . '; ' . $ppName . ' start' );
 			}
 
 			$opts = null;
@@ -1000,10 +995,6 @@ class DOMPostProcessor extends PipelineStage {
 
 			if ( $profile ) {
 				$ppElapsed = 1000 * ( microtime( true ) - $ppStart );
-				$env->log(
-					'debug/time/dompp',
-					$prefix . '; ' . $ppName . ' end; time = ' . $ppElapsed
-				);
 				if ( $this->atTopLevel ) {
 					$this->timeProfile .= str_pad( $prefix . '; ' . $ppName, 65 ) .
 						' time = ' .
@@ -1011,15 +1002,6 @@ class DOMPostProcessor extends PipelineStage {
 				}
 				$profile->bumpTimeUse( $resourceCategory, $ppElapsed, 'DOM' );
 			}
-		}
-
-		if ( $profile ) {
-			$endTime = microtime( true );
-			$env->log(
-				'debug/time/dompp',
-				$prefix . '; end=' . number_format( $endTime, 2 ) . '; time = ' .
-				number_format( 1000 * ( microtime( true ) - $startTime ), 2 )
-			);
 		}
 
 		// For sub-pipeline documents, we are done.
