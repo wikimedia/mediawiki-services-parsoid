@@ -236,11 +236,11 @@ class TableFixups {
 	 * @param Env $env
 	 * @param Element $cell known to be <td> / <th>
 	 * @param ?Element $templateWrapper
-	 * @return array
+	 * @return ?array
 	 */
 	public function collectAttributishContent(
 		Env $env, Element $cell, ?Element $templateWrapper
-	): array {
+	): ?array {
 		$buf = [];
 		$nowikis = [];
 		$transclusions = $templateWrapper ? [ $templateWrapper ] : [];
@@ -257,7 +257,13 @@ class TableFixups {
 				if ( $child instanceof Comment ) {
 					// Legacy parser strips comments during parsing => drop them.
 				} elseif ( $child instanceof Text ) {
-					$buf[] = $child->nodeValue;
+					$text = $child->nodeValue;
+					$buf[] = $text;
+
+					// Are we done accumulating?
+					if ( preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', $text ) ) {
+						return true;
+					}
 				} else {
 					'@phan-var Element $child';  /** @var Element $child */
 					if ( DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
@@ -292,26 +298,21 @@ class TableFixups {
 					}
 				}
 
-				// Are we done accumulating?
-				if ( count( $buf ) > 0 &&
-					preg_match( '/(?:^|[^|])\|(?:[^|]|$)/D', PHPUtils::lastItem( $buf ) )
-				) {
-					return true;
-				}
-
 				$child = $child->nextSibling;
 			}
 
 			return false;
 		};
 
-		$traverse( $cell->firstChild );
-
-		return [
-			'txt' => implode( '', $buf ),
-			'nowikis' => $nowikis,
-			'transclusions' => $transclusions,
-		];
+		if ( $traverse( $cell->firstChild ) ) {
+			return [
+				'txt' => implode( '', $buf ),
+				'nowikis' => $nowikis,
+				'transclusions' => $transclusions,
+			];
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -348,6 +349,9 @@ class TableFixups {
 		$env = $frame->getEnv();
 		// Collect attribute content and examine it
 		$attributishContent = $this->collectAttributishContent( $env, $cell, $templateWrapper );
+		if ( !$attributishContent ) {
+			return;
+		}
 
 		/**
 		 * FIXME: These checks are insufficient.
@@ -365,18 +369,11 @@ class TableFixups {
 		 * }
 		 */
 
-		$attrText = $attributishContent['txt'] ?? '';
-		// Check for the pipe character in the attributish text.
-		if ( !preg_match( '/^[^|]+\|([^|]|$)/D', $attrText ) ) {
+		$attrText = $attributishContent['txt'];
+		if ( !preg_match( '/(^[^|]+\|)([^|]|$)/D', $attrText, $matches ) ) {
 			return;
 		}
-
-		// Try to re-parse the attributish text content
-		if ( !preg_match( '/^[^|]+\|/', $attrText, $matches ) ) {
-			return;
-		}
-
-		$attributishPrefix = $matches[0];
+		$attributishPrefix = $matches[1];
 
 		// Splice in nowiki content.  We added in <nowiki> markers to prevent the
 		// above regexps from matching on nowiki-protected chars.
