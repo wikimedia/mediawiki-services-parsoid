@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
@@ -720,7 +721,7 @@ class WikitextSerializer {
 		// since later code will be using the stripped key always.
 		$tplKeysFromDataMw = array_map( static function ( $key ) use ( $part ) {
 			// PORT-FIXME do we care about different whitespace semantics for trim?
-			$strippedKey = trim( $key );
+			$strippedKey = trim( (string)$key );
 			if ( $key !== $strippedKey ) {
 				$part->params->{$strippedKey} = $part->params->{$key};
 			}

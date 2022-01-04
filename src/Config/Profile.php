@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config;
 
@@ -138,7 +139,7 @@ class Profile {
 		if ( $v === round( $v ) ) {
 			$v = (string)$v;
 		} else {
-			$v = str_pad( (string)floor( $v * 10000 ) / 10000, 5, ' ', STR_PAD_LEFT );
+			$v = str_pad( (string)( floor( $v * 10000 ) / 10000 ), 5, ' ', STR_PAD_LEFT );
 		}
 		return $buf . str_pad( $v, 10, " ", STR_PAD_LEFT ) . ( $comment ? ' (' . $comment . ')' : '' );
 	}
@@ -186,7 +187,7 @@ class Profile {
 					6, " ", STR_PAD_LEFT );
 				$buf .= str_pad( '; per-instance: ' .
 					str_pad(
-						(string)floor( $v * 10000 / $this->counts[$k] ) / 10000, 5, ' ', STR_PAD_LEFT
+						(string)( floor( $v * 10000 / $this->counts[$k] ) / 10000 ), 5, ' ', STR_PAD_LEFT
 					), 10 );
 			}
 			$lines[] = $buf;

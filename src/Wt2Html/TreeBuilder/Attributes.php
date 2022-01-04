@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
@@ -22,7 +23,7 @@ class Attributes extends PlainAttributes {
 		if ( isset( $this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] ) ) {
 			$newAttrs = $this->data;
 			$data = DOMDataUtils::getBag( $this->document )->getObject(
-				$this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] );
+				(int)$this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] );
 			$newData = $data->clone();
 
 			// - If autoInserted(Start|End)Token flags are set, set the corresponding

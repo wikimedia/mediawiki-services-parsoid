@@ -1,4 +1,6 @@
 <?php
+declare( strict_types = 1 );
+
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\DOM\Document;
