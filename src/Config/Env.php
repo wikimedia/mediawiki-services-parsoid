@@ -24,8 +24,6 @@ use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\RemexPipeline;
 
-// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-
 /**
  * Environment/Envelope class for Parsoid
  *
@@ -482,6 +480,10 @@ class Env {
 		return $this->wrapSections;
 	}
 
+	/**
+	 * Get the pipeline factory.
+	 * @return ParserPipelineFactory
+	 */
 	public function getPipelineFactory(): ParserPipelineFactory {
 		return $this->pipelineFactory;
 	}

@@ -7,8 +7,6 @@ declare( strict_types = 1 );
  * (b) manipulating tokens, individually and as collections.
  */
 
-// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;

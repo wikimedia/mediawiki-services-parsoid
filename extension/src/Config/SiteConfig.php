@@ -19,8 +19,6 @@
 
 namespace MWParsoid\Config;
 
-// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-
 use Config;
 use ExtensionRegistry;
 use Language;
@@ -531,6 +529,7 @@ class SiteConfig extends ISiteConfig {
 		return $this->config->get( 'Server' );
 	}
 
+	/** @inheritDoc */
 	public function getModulesLoadURI(): string {
 		return $this->config->get( 'LoadScript' );
 	}
@@ -598,6 +597,7 @@ class SiteConfig extends ISiteConfig {
 		return $this->contLang->getMagicWords();
 	}
 
+	/** @inheritDoc */
 	public function getMagicWordMatcher( string $id ): string {
 		return $this->magicWordFactory->get( $id )->getRegexStartToEnd();
 	}
@@ -635,6 +635,7 @@ class SiteConfig extends ISiteConfig {
 		return $this->extensionTags;
 	}
 
+	/** @inheritDoc */
 	public function getMaxTemplateDepth(): int {
 		return (int)$this->config->get( 'MaxTemplateDepth' );
 	}
