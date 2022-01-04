@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -1354,9 +1355,22 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
+		// Track time spent linting so we can evaluate benefits
+		// of migrating this code off the critical path to its own
+		// post processor.
+		$metrics = $env->getSiteConfig()->metrics();
+		$timer = null;
+		if ( $metrics ) {
+			$timer = Timing::start( $metrics );
+		}
+
 		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->findLints( $root, $env );
 		$this->postProcessLints( $env->getLints(), $env );
+
+		if ( $metrics ) {
+			$timer->end( "linting" );
+		}
 	}
 
 }
