@@ -129,6 +129,9 @@ class TokenTransformManager extends PipelineStage {
 	}
 
 	/**
+	 * See PipelineStage::process docs as well. This doc block refines
+	 * the generic arg types to be specific to this pipeline stage.
+	 *
 	 * Process a chunk of tokens.
 	 *
 	 * @param array $tokens Array of tokens to process

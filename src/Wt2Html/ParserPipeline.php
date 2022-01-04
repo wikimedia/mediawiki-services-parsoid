@@ -165,6 +165,8 @@ class ParserPipeline {
 	 *
 	 * @param string $input Input wikitext
 	 * @param array $opts
+	 *  - atTopLevel: (bool) Whether we are processing the top-level document
+	 *  - sol: (bool) Whether input should be processed in start-of-line context
 	 * @return Document|array final DOM or array of token chnks
 	 */
 	public function parseChunkily( string $input, array $opts ) {

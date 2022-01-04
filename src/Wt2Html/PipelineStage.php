@@ -123,6 +123,9 @@ abstract class PipelineStage {
 	 *
 	 * @param string|array|Document $input
 	 * @param ?array $options
+	 *  - atTopLevel: (bool) Whether we are processing the top-level document
+	 *  - sol: (bool) Whether input should be processed in start-of-line context
+	 *  - chunky (bool) Whether we are processing the input chunkily.
 	 * @return array|Document
 	 */
 	abstract public function process( $input, ?array $options = null );
@@ -138,6 +141,8 @@ abstract class PipelineStage {
 	 *
 	 * @param string|array|Document $input
 	 * @param ?array $options
+	 *  - atTopLevel: (bool) Whether we are processing the top-level document
+	 *  - sol: (bool) Whether input should be processed in start-of-line context
 	 * @return Generator
 	 */
 	abstract public function processChunkily(

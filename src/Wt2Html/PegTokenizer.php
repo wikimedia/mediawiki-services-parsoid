@@ -10,10 +10,6 @@ declare( strict_types = 1 );
  * {@link DOMPostProcessor}(s) for HTML output.
  */
 
-// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingParamTag
-// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingReturn
-
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
@@ -77,12 +73,14 @@ class PegTokenizer extends PipelineStage {
 	}
 
 	/**
-	 * PORT-FIXME: Update docs
+	 * See PipelineStage::process docs as well. This doc block refines
+	 * the generic arg types to be specific to this pipeline stage.
 	 *
-	 * @param string $input FIXME
-	 * @param ?array $opts FIXME
-	 * - sol: (bool) Whether input should be processed in start-of-line context.
-	 * @return array|bool FIXME
+	 * @param string $input wikitext to tokenize
+	 * @param ?array $opts
+	 * - atTopLevel: (bool) Whether we are processing the top-level document
+	 * - sol: (bool) Whether input should be processed in start-of-line context
+	 * @return array|false The token array, or false for a syntax error
 	 */
 	public function process( $input, ?array $opts = null ) {
 		Assert::invariant( is_string( $input ), "Input should be a string" );
@@ -142,6 +140,8 @@ class PegTokenizer extends PipelineStage {
 	 *
 	 * @param string $text
 	 * @param array $args
+	 * - sol: (bool) Whether input should be processed in start-of-line context.
+	 * - startRule: (string) which tokenizer rule to tokenize with
 	 * @return array|false The token array, or false for a syntax error
 	 */
 	public function tokenizeSync( string $text, array $args = [] ) {

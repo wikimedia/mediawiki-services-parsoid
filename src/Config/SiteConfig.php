@@ -192,12 +192,7 @@ abstract class SiteConfig {
 	/** @var bool */
 	protected $scrubBidiChars = false;
 
-	/**
-	 * PORT-FIXME: This used to mean that the site had the Linter extension
-	 * installed but we've co-opted it to mean linting is enabled.
-	 *
-	 * @var bool
-	 */
+	/** @var bool */
 	protected $linterEnabled = false;
 
 	/** var ?array */

@@ -123,8 +123,6 @@ abstract class Token implements \JsonSerializable {
 		$this->addAttribute( $name, $value );
 	}
 
-	// PORT-FIXME: Need another pair of eyes to verify this
-
 	/**
 	 * Store the original value of an attribute in a token's dataAttribs.
 	 *
@@ -145,8 +143,6 @@ abstract class Token implements \JsonSerializable {
 			$this->dataAttribs->sa[$name] = $origValue;
 		}
 	}
-
-	// PORT-FIXME: Need another pair of eyes to verify this
 
 	/**
 	 * Attribute info accessor for the wikitext serializer. Performs change

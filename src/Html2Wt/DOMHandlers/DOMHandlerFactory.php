@@ -14,8 +14,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Factory for picking the right DOMHandler for a DOM element.
- * Porting note: this class is based on DOMHandlers.js and WikitextSerializer.getDOMHandler
- * PORT-FIXME: memoize handlers, maybe
+ * FIXME: memoize handlers, maybe?
  */
 class DOMHandlerFactory {
 

@@ -76,7 +76,7 @@ class SerializerState {
 	 *     differs from `state.prevNode` in that it only gets
 	 *     updated when a node calls `emitChunk` so that nodes
 	 *     serializing `justChildren` don't mix up `buildSep`.
-	 * PORT-FIXME: could use a dedicated class
+	 * FIXME: could use a dedicated class
 	 * @var stdClass
 	 */
 	public $sep;
@@ -193,7 +193,7 @@ class SerializerState {
 	 * - chunks (ConstrainedText[]): list of chunks comprising the current line
 	 * @var stdClass
 	 * XXX: replace with output buffering per line
-	 * PORT-FIXME: could use a dedicated class
+	 * FIXME: could use a dedicated class
 	 */
 	public $currLine;
 
