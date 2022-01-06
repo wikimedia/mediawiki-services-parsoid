@@ -384,7 +384,9 @@ class WikitextSerializer {
 
 		$out = [];
 		foreach ( $attribs as $kv ) {
-			$k = $kv->k;
+			// Tokens created during html2wt don't have nested tokens for keys.
+			// But, they could be integers but we want strings below.
+			$k = (string)$kv->k;
 			$v = null;
 			$vInfo = null;
 
@@ -492,7 +494,7 @@ class WikitextSerializer {
 			$aKeys = array_keys( $dataAttribs->a );
 			foreach ( $aKeys as $k ) {
 				// Attrib not present -- sanitized away!
-				if ( !KV::lookupKV( $attribs, $k ) ) {
+				if ( !KV::lookupKV( $attribs, (string)$k ) ) {
 					$v = $dataAttribs->sa[$k] ?? null;
 					// PORT-FIXME check type
 					if ( $v !== null && $v !== '' ) {
