@@ -490,10 +490,9 @@ class TemplateHandler extends TokenHandler {
 		$tokens[] = '}}';
 		$tokens[] = new EOFTk();
 
-		// Process exploded token in a new pipeline that takes us through
-		// Stages 2-3.
+		// Process exploded token in a new pipeline that takes us through stage 2.
 		// FIXME: Similar to processTemplateSource, we're returning tokens at
-		// the beginning of Stage 3 that have already been through this stage.
+		// the beginning of stage 2 that have already been through this stage.
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
@@ -698,9 +697,9 @@ class TemplateHandler extends TokenHandler {
 			$tplArgs['name'], $tplArgs['attribs'] );
 
 		// Get a nested transformation pipeline for the wikitext that takes
-		// us through Stages 1-3.
+		// us through stages 1-2.
 		// FIXME: Note, however, that since template handling is itself in
-		// Stage 3, tokens returned here will be run through that stage again,
+		// stage 2, tokens returned here will be run through that stage again,
 		// except not necessarily with the same pipeline options we're setting
 		// below.  The overall effect is mostly harmless, in that the token
 		// types will have already been handled the first time through, but

@@ -116,7 +116,7 @@ class TokenStreamPatcher extends TokenHandler {
 
 	/**
 	 * Fully reprocess the output tokens from the tokenizer through
-	 * all the other handles in stages 1 & 2.
+	 * all the other handlers in stage 2.
 	 *
 	 * @param int $srcOffset
 	 * @param array $toks

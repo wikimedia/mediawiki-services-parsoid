@@ -40,7 +40,6 @@ class ScriptUtils {
 				'- With one or more comma-separated flags, traces those specific phases',
 				'- Supported flags:',
 				'  * peg       : shows tokens emitted by tokenizer',
-				'  * ttm:1     : shows tokens flowing through stage 1 of the parsing pipeline',
 				'  * ttm:2     : shows tokens flowing through stage 2 of the parsing pipeline',
 				'  * ttm:3     : shows tokens flowing through stage 3 of the parsing pipeline',
 				'  * tsp       : shows tokens flowing through the TokenStreamPatcher '

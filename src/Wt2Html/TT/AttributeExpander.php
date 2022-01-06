@@ -660,8 +660,8 @@ class AttributeExpander extends TokenHandler {
 			// FIXME: The TemplateHandler::processTemplateSource() parses to the
 			// end of "TokenTransform2", meaning the tokens it returns have already
 			// been through attribute expansion.  However, those tokens are reinserted
-			// in the stream at the beginning of "TokenTransform2" (since template
-			// handling is the first step of that phase) and pass through here
+			// in the stream near the beginning of "TokenTransform2" (since template
+			// handling is done early in that phase) and pass through here
 			// again.  So, ignore anything that might have already been expanded.
 			str_contains( $typeOf, 'mw:ExpandedAttrs' )
 		) {

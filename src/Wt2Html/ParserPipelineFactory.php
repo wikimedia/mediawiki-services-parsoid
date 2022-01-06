@@ -37,17 +37,13 @@ class ParserPipelineFactory {
 		"Tokenizer" => [
 			"class" => PegTokenizer::class,
 		],
-		"TokenTransform1" => [
+		"TokenTransform2" => [
 			"class" => TokenTransformManager::class,
 			"transformers" => [
 				OnlyInclude::class,
 				IncludeOnly::class,
 				NoInclude::class,
-			],
-		],
-		"TokenTransform2" => [
-			"class" => TokenTransformManager::class,
-			"transformers" => [
+
 				TemplateHandler::class,
 				ExtensionHandler::class,
 
@@ -105,33 +101,33 @@ class ParserPipelineFactory {
 		// This pipeline takes wikitext as input and emits a fully
 		// processed DOM as output. This is the pipeline used for
 		// all top-level documents.
-		// Stages 1-6 of the pipeline
+		// Stages 1-5 of the pipeline
 		"text/x-mediawiki/full" => [
 			"outType" => "DOM",
 			"stages" => [
-				"Tokenizer", "TokenTransform1", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMPP"
+				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMPP"
 			]
 		],
 
 		// This pipeline takes wikitext as input and emits tokens that
 		// have had all templates, extensions, links, images processed
-		// Stages 1-3 of the pipeline
+		// Stages 1-2 of the pipeline
 		"text/x-mediawiki" => [
 			"outType" => "Tokens",
-			"stages" => [ "Tokenizer", "TokenTransform1", "TokenTransform2" ]
+			"stages" => [ "Tokenizer", "TokenTransform2" ]
 		],
 
 		// This pipeline takes tokens from the PEG tokenizer and emits
 		// tokens that have had all templates and extensions processed.
-		// Stages 2-3 of the pipeline
+		// Stage 2 of the pipeline
 		"tokens/x-mediawiki" => [
 			"outType" => "Tokens",
-			"stages" => [ "TokenTransform1", "TokenTransform2" ]
+			"stages" => [ "TokenTransform2" ]
 		],
 
-		// This pipeline takes tokens from stage 3 and emits a fully
+		// This pipeline takes tokens from stage 2 and emits a fully
 		// processed DOM as output.
-		// Stages 4-6 of the pipeline
+		// Stages 3-5 of the pipeline
 		"tokens/x-mediawiki/expanded" => [
 			"outType" => "DOM",
 			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP" ]
