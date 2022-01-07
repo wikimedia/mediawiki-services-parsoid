@@ -3,12 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
-// XXX TO DO:
-// - unify ::setOutputFlags and ::setFlags (somehow)
-//   -- probably make the fallback of setOutputFlags setFlags instead of
-//      setExtensionData ?
-// - Factor out a LinkTarget replacement
-
 /**
  * Interface for collecting the results of a parse.
  *
@@ -130,6 +124,9 @@ interface ContentMetadataCollector {
 	 *   T296123: Takes string|array argument; type should be simplified
 	 *   and documentation needs to be copied over from OutputPage
 	 *   (Probably should be unified with T296345)
+	 *   (See https://phabricator.wikimedia.org/T272942#7605560 for
+	 *   ::addJsConfigVars(), which probably should be deliberately
+	 *   omitted from ContentMetadataCollector)
 	 * ::addExtraCSPDefaultSrc()
 	 * ::addExtraCSPStyleSrc()
 	 * ::addExtraCSPScriptSrc()
