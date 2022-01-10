@@ -75,11 +75,11 @@ class TestFileReader {
 		$testFormat = $parsedTests[0];
 		$this->fileOptions = $parsedTests[1] ?? [];
 		$rawTestItems = $parsedTests[2];
-		if ( $testFormat === null ) {
-			$this->testFormat = 1;
-		} else {
-			$this->testFormat = intval( $testFormat['text'] );
-			$this->fileOptions['version'] = strval( $this->testFormat );
+		if ( $testFormat !== null ) {
+			$this->fileOptions['version'] = $testFormat['text'];
+		}
+		if ( !isset( $this->fileOptions['version'] ) ) {
+			$this->fileOptions['version'] = '1';
 		}
 		$knownFailures = $knownFailuresPath && is_readable( $knownFailuresPath ) ?
 			json_decode( file_get_contents( $knownFailuresPath ), true ) :
