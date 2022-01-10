@@ -66,25 +66,6 @@ class ExtensionHandler extends TokenHandler {
 		$this->env->addOutputProperty( 'modules', $ret['modules'] );
 		$this->env->addOutputProperty( 'modulestyles', $ret['modulestyles'] );
 		$this->env->addOutputProperty( 'jsconfigvars', $ret['jsconfigvars'] );
-
-		/*  - categories: (array) [ Category name => sortkey ] */
-		// Add the categories which were added by extensions directly into the
-		// page and not as in-text links
-		foreach ( $ret['categories'] as $name => $sortkey ) {
-			$link = $domFragment->ownerDocument->createElement( "link" );
-			$link->setAttribute( "rel", "mw:PageProp/Category" );
-			$href = $this->env->getSiteConfig()->relativeLinkPrefix() .
-				"Category:" . PHPUtils::encodeURIComponent( (string)$name );
-			if ( $sortkey ) {
-				$href .= "#" . PHPUtils::encodeURIComponent( $sortkey );
-			}
-			$link->setAttribute( "href", $href );
-
-			$domFragment->appendChild(
-				$domFragment->ownerDocument->createTextNode( "\n" )
-			);
-			$domFragment->appendChild( $link );
-		}
 	}
 
 	/**
