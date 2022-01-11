@@ -4,12 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\ParserTests;
 
 class TestFileReader {
-	/**
-	 * @var int
-	 * @deprecated Use $this->fileOptions['version'] instead.
-	 */
-	public $testFormat;
-
 	/** @var array File-level options and requirements for these parser tests */
 	public $fileOptions = [];
 
@@ -18,12 +12,6 @@ class TestFileReader {
 
 	/** @var Article[] */
 	public $articles = [];
-
-	/**
-	 * @var array
-	 * @deprecated Use $this->fileOptions['requirements'] instead.
-	 */
-	public $requirements = [];
 
 	/**
 	 * @var ?string Path to known failures file, or null if does not exist
@@ -176,10 +164,5 @@ class TestFileReader {
 			}
 			unset( $item );
 		}
-		// Backward compatibility for core
-		if ( isset( $this->fileOptions['version'] ) ) {
-			$this->testFormat = intval( $this->fileOptions['version'] );
-		}
-		$this->requirements = $this->fileOptions['requirements'] ?? [];
 	}
 }
