@@ -17,6 +17,8 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// NO_PRELOAD -- anonymous class in parent
+
 namespace MWParsoid\Config;
 
 use Config;

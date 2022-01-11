@@ -57,7 +57,6 @@
 		"composer/composer": "^2.1.9"
 	},
 	"autoload": {
-		"files": [ "DomImpl.php" ],
 		"psr-4": {
 			"Wikimedia\\Parsoid\\": "src"
 		}

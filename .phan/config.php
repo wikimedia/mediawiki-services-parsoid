@@ -115,6 +115,9 @@ if ( $STANDALONE ) {
 }
 wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );
 
+// Exclude src/DOM in favour of .phan/stubs/DomImpl.php
+wfCollectPhpFiles( 'src/DOM', $cfg['exclude_file_list'] );
+
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';
 
