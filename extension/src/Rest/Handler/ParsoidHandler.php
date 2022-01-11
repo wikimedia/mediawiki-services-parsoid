@@ -604,35 +604,51 @@ abstract class ParsoidHandler extends Handler {
 				$tid = UIDGenerator::newUUIDv1();
 				$response->addHeader( 'Etag', "W/\"{$oldid}/{$tid}\"" );
 			}
-		}
 
-		$parseTime = $parseTiming->end( "wt2html.$mstr.parse" );
-		$timing->end( 'wt2html.total' );
-		$outSize = $response->getBody()->getSize();
-		$metrics->timing( "wt2html.$mstr.size.output", $outSize );
+			// FIXME: For pagebundle requests, this can be somewhat inflated
+			// because of pagebundle json-encoding overheads
+			$outSize = $response->getBody()->getSize();
+			$parseTime = $parseTiming->end( "wt2html.$mstr.parse" );
+			$timing->end( 'wt2html.total' );
+			$metrics->timing( "wt2html.$mstr.size.output", $outSize );
 
-		// FIXME: This is slightly misleading since there are fixed costs
-		// for generating output like the <head> section and should be factored in,
-		// but this is good enough for now as a useful first degree of approxmation.
-		$timePerKB = $parseTime * 1024 / $outSize;
-		$metrics->timing( 'wt2html.timePerKB', $timePerKB );
+			// Ignore slow parse metrics for non-oldid parses
+			if ( $mstr === 'pageWithOldid' ) {
+				if ( $parseTime > 3000 ) {
+					LoggerFactory::getInstance( 'slow-parsoid' )
+						->info( 'Parsing {title} was slow, took {time} seconds', [
+							'time' => number_format( $parseTime / 1000, 2 ),
+							'title' => $pageConfig->getTitle(),
+						] );
+				}
 
-		if ( $parseTime > 3000 ) {
-			LoggerFactory::getInstance( 'slow-parsoid' )
-				->info( 'Parsing {title} was slow, took {time} seconds', [
-					'time' => number_format( $parseTime / 1000, 2 ),
-					'title' => $pageConfig->getTitle(),
-				] );
-		} elseif ( $timePerKB > 500 ) {
-			// At 100ms/KB, even a 100KB page which isn't that large will take 10s.
-			// So, we probably want to shoot for a threshold under 100ms.
-			// But, let's start with 500ms+ outliers first and see what we uncover.
-			LoggerFactory::getInstance( 'slow-parsoid' )
-				->info( 'Parsing {title} was slow, timePerKB took {timePerKB} ms, total: {time} seconds', [
-					'time' => number_format( $parseTime / 1000, 2 ),
-					'timePerKB' => number_format( $timePerKB, 1 ),
-					'title' => $pageConfig->getTitle(),
-				] );
+				if ( $parseTime > 10 && $outSize > 100 ) {
+					// * Don't bother with this metric for really small parse times
+					//   p99 for initialization time is ~7ms according to grafana.
+					//   So, 10ms ensures that startup overheads don't skew the metrics
+					// * For body_only=false requests, <head> section isn't generated
+					//   and if the output is small, per-request overheads can skew
+					//   the timePerKB metrics.
+
+					// FIXME: This is slightly misleading since there are fixed costs
+					// for generating output like the <head> section and should be factored in,
+					// but this is good enough for now as a useful first degree of approxmation.
+					$timePerKB = $parseTime * 1024 / $outSize;
+					$metrics->timing( 'wt2html.timePerKB', $timePerKB );
+
+					if ( $timePerKB > 500 ) {
+						// At 100ms/KB, even a 100KB page which isn't that large will take 10s.
+						// So, we probably want to shoot for a threshold under 100ms.
+						// But, let's start with 500ms+ outliers first and see what we uncover.
+						LoggerFactory::getInstance( 'slow-parsoid' )
+							->info( 'Parsing {title} was slow, timePerKB took {timePerKB} ms, total: {time} seconds', [
+								'time' => number_format( $parseTime / 1000, 2 ),
+								'timePerKB' => number_format( $timePerKB, 1 ),
+								'title' => $pageConfig->getTitle(),
+							] );
+					}
+				}
+			}
 		}
 
 		if ( $wikitext !== null ) {
