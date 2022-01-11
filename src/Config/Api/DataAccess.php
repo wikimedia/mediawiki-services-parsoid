@@ -7,6 +7,7 @@ namespace Wikimedia\Parsoid\Config\Api;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
@@ -281,8 +282,42 @@ class DataAccess extends IDataAccess {
 		return $ret;
 	}
 
+	/**
+	 * Transfer the metadata returned in an API result into our
+	 * ContentMetadataCollector.
+	 * @param array $data
+	 * @param ContentMetadataCollector $metadata
+	 */
+	private function mergeMetadata( array $data, ContentMetadataCollector $metadata ): void {
+		foreach ( ( $data['categories'] ?? [] ) as $c ) {
+			$metadata->addCategory( $c['category'], $c['sortkey'] );
+		}
+		$metadata->addModules( $data['modules'] ?? [] );
+		$metadata->addModuleStyles( $data['modulestyles'] ?? [] );
+		foreach ( ( $data['jsconfigvars'] ?? [] ) as $key => $value ) {
+			if ( is_array( $value ) ) {
+				// XXX strategy key is not exported by API
+				foreach ( $value as $item ) {
+					$metadata->appendJsConfigVar( $key, $item );
+				}
+			} else {
+				$metadata->setJsConfigVar( $key, $value );
+			}
+		}
+		foreach ( ( $data['externallinks'] ?? [] ) as $url ) {
+			$metadata->addExternalLink( $url );
+		}
+		foreach ( ( $data['properties'] ?? [] ) as $name => $value ) {
+			$metadata->setPageProperty( $name, $value );
+		}
+	}
+
 	/** @inheritDoc */
-	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array {
+	public function parseWikitext(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $wikitext
+	): string {
 		$revid = $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'parse', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
 		$data = $this->getCache( $key );
@@ -302,24 +337,16 @@ class DataAccess extends IDataAccess {
 			$data = $this->api->makeRequest( $params )['parse'];
 			$this->setCache( $key, $data );
 		}
-
-		$cats = [];
-		foreach ( $data['categories'] as $c ) {
-			$cats[$c['category']] = $c['sortkey'];
-		}
-
-		$ret = [
-			'html' => $data['text'],
-			'modules' => $data['modules'] ?? [],
-			'modulestyles' => $data['modulestyles'] ?? [],
-			'jsconfigvars' => $data['jsconfigvars'] ?? [],
-			'categories' => $cats,
-		];
-		return $ret;
+		$this->mergeMetadata( $data, $metadata );
+		return $data['text']; # HTML
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array {
+	public function preprocessWikitext(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $wikitext
+	): string {
 		$revid = $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'preprocess', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
 		$data = $this->getCache( $key );
@@ -337,20 +364,9 @@ class DataAccess extends IDataAccess {
 			$this->setCache( $key, $data );
 		}
 
-		$cats = [];
-		foreach ( ( $data['categories'] ?? [] ) as $c ) {
-			$cats[$c['category']] = $c['sortkey'];
-		}
+		$this->mergeMetadata( $data, $metadata );
 
-		$ret = [
-			'wikitext' => $data['wikitext'],
-			'modules' => $data['modules'] ?? [],
-			'modulestyles' => $data['modulestyles'] ?? [],
-			'jsconfigvars' => $data['jsconfigvars'] ?? [],
-			'categories' => $cats,
-			'properties' => $data['properties'] ?? [],
-		];
-		return $ret;
+		return $data['wikitext'];
 	}
 
 	/** @inheritDoc */

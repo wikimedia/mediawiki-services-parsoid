@@ -41,6 +41,7 @@ use MutableConfig;
 use MWException;
 use NamespaceInfo;
 use Parser;
+use ParserOutput;
 use PrefixingStatsdDataFactoryProxy;
 use Psr\Log\LoggerInterface;
 use Title;
@@ -48,6 +49,9 @@ use UnexpectedValueException;
 use WikiMap;
 use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Site-level configuration for Parsoid
@@ -550,8 +554,26 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function getModulesLoadURI(): string {
-		return $this->config->get( 'LoadScript' );
+	public function exportMetadataToHead(
+		Document $document,
+		ContentMetadataCollector $metadata,
+		string $defaultTitle,
+		string $lang
+	): void {
+		'@phan-var ParserOutput $metadata'; // @var ParserOutput $metadata
+		// Look for a displaytitle.
+		$displayTitle = $metadata->getPageProperty( 'displaytitle' ) ?:
+			// Use the default title, properly escaped
+			Utils::escapeHtml( $defaultTitle );
+		$this->exportMetadataHelper(
+			$document,
+			$this->config->get( 'LoadScript' ),
+			$metadata->getModules(),
+			$metadata->getModuleStyles(),
+			$metadata->getJsConfigVars(),
+			$displayTitle,
+			$lang
+		);
 	}
 
 	public function timezoneOffset(): int {

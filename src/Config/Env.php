@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -41,6 +42,9 @@ class Env {
 
 	/** @var DataAccess */
 	private $dataAccess;
+
+	/** @var ContentMetadataCollector */
+	private $metadata;
 
 	/**
 	 * The top-level frame for this conversion.  This largely wraps the
@@ -178,12 +182,6 @@ class Env {
 	public $hasAnnotations;
 
 	/**
-	 * Page properties (module resources primarily) that need to be output
-	 * @var array
-	 */
-	private $outputProps = [];
-
-	/**
 	 * PORT-FIXME: public currently
 	 * Cache of wikitext source for a title
 	 * @var array
@@ -239,6 +237,7 @@ class Env {
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
+	 * @param ContentMetadataCollector $metadata
 	 * @param ?array $options
 	 *  - wrapSections: (bool) Whether `<section>` wrappers should be added.
 	 *  - pageBundle: (bool) Sets ids on nodes and stores data-* attributes in a JSON blob.
@@ -263,7 +262,10 @@ class Env {
 	 *      it gets initialized for parsing.
 	 */
 	public function __construct(
-		SiteConfig $siteConfig, PageConfig $pageConfig, DataAccess $dataAccess,
+		SiteConfig $siteConfig,
+		PageConfig $pageConfig,
+		DataAccess $dataAccess,
+		ContentMetadataCollector $metadata,
 		?array $options = null
 	) {
 		self::checkPlatform();
@@ -271,6 +273,7 @@ class Env {
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
+		$this->metadata = $metadata;
 		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
 		if ( isset( $options['wrapSections'] ) ) {
 			$this->wrapSections = !empty( $options['wrapSections'] );
@@ -442,6 +445,14 @@ class Env {
 	 */
 	public function getDataAccess(): DataAccess {
 		return $this->dataAccess;
+	}
+
+	/**
+	 * Return the ContentMetadataCollector.
+	 * @return ContentMetadataCollector
+	 */
+	public function getMetadata(): ContentMetadataCollector {
+		return $this->metadata;
 	}
 
 	public function nativeTemplateExpansionEnabled(): bool {
@@ -1039,27 +1050,6 @@ class Env {
 	 */
 	public function getWtVariantLanguage(): ?string {
 		return $this->wtVariantLanguage;
-	}
-
-	/**
-	 * Update K=[V1,V2,...] that might need to be output as part of the
-	 * generated HTML.  Ex: module styles, modules scripts, ...
-	 *
-	 * @param string $key
-	 * @param array $value
-	 */
-	public function addOutputProperty( string $key, array $value ): void {
-		if ( !isset( $this->outputProps[$key] ) ) {
-			$this->outputProps[$key] = [];
-		}
-		$this->outputProps[$key] = array_merge( $this->outputProps[$key], $value );
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getOutputProperties(): array {
-		return $this->outputProps;
 	}
 
 	/**

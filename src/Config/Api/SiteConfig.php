@@ -10,6 +10,9 @@ use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
+use Wikimedia\Parsoid\Config\StubMetadataCollector;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -546,15 +549,33 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['server'];
 	}
 
-	/** @inheritDoc */
-	public function getModulesLoadURI(): string {
-		// In JS, you could override the load uri
-		// via conf.parsoid.modulesLoadURI, but custom values aren't
-		// exported via siteinfo.
-		// Parsoid/JS always makes this protocol-relative, so match
+	/**
+	 * @inheritDoc
+	 */
+	public function exportMetadataToHead(
+		Document $document,
+		ContentMetadataCollector $metadata,
+		string $defaultTitle,
+		string $lang
+	): void {
+		'@phan-var StubMetadataCollector $metadata'; // @var StubMetadataCollector $metadata
+		$moduleLoadURI = $this->server() . $this->scriptpath() . '/load.php';
+		// Parsoid/JS always made this protocol-relative, so match
 		// that (for now at least)
-		$path = parent::getModulesLoadURI();
-		return preg_replace( '#^https?://#', '//', $path );
+		$moduleLoadURI = preg_replace( '#^https?://#', '//', $moduleLoadURI );
+		// Look for a displaytitle.
+		$displayTitle = $metadata->getPageProperty( 'displaytitle' ) ??
+			// Use the default title, properly escaped
+			Utils::escapeHtml( $defaultTitle );
+		$this->exportMetadataHelper(
+			$document,
+			$moduleLoadURI,
+			$metadata->getModules(),
+			$metadata->getModuleStyles(),
+			$metadata->getJsConfigVars(),
+			$displayTitle,
+			$lang
+		);
 	}
 
 	public function redirectRegexp(): string {

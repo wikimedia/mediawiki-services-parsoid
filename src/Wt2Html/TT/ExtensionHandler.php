@@ -56,18 +56,6 @@ class ExtensionHandler extends TokenHandler {
 	}
 
 	/**
-	 * Process extension metadata and record it somewhere (Env state or the DOM)
-	 *
-	 * @param DocumentFragment $domFragment
-	 * @param array $ret
-	 */
-	private function processExtMetadata( DocumentFragment $domFragment, array $ret ): void {
-		foreach ( [ 'modules', 'modulestyles', 'jsconfigvars' ] as $prop ) {
-			$this->env->addOutputProperty( $prop, $ret[$prop] ?? [] );
-		}
-	}
-
-	/**
 	 * @param Token $token
 	 * @return TokenHandlerResult
 	 */
@@ -116,6 +104,7 @@ class ExtensionHandler extends TokenHandler {
 			}
 			if ( $domFragment !== false ) {
 				if ( $domFragment !== null ) {
+					// Turn this document fragment into a token
 					$toks = $this->onDocumentFragment(
 						$nativeExt, $token, $domFragment, $errors
 					);
@@ -144,7 +133,7 @@ class ExtensionHandler extends TokenHandler {
 		} else {
 			$start = microtime( true );
 			$ret = $env->getDataAccess()->parseWikitext(
-				$pageConfig, $token->getAttribute( 'source' )
+				$pageConfig, $env->getMetadata(), $token->getAttribute( 'source' )
 			);
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
@@ -155,10 +144,8 @@ class ExtensionHandler extends TokenHandler {
 			$domFragment = DOMUtils::parseHTMLToFragment(
 				$env->topLevelDoc,
 				// Strip a paragraph wrapper, if any, before parsing HTML to DOM
-				preg_replace( '#(^<p>)|(\n</p>(' . Utils::COMMENT_REGEXP_FRAGMENT . '|\s)*$)#D', '', $ret['html'] )
+				preg_replace( '#(^<p>)|(\n</p>(' . Utils::COMMENT_REGEXP_FRAGMENT . '|\s)*$)#D', '', $ret )
 			);
-
-			$this->processExtMetadata( $domFragment, $ret );
 
 			$toks = $this->onDocumentFragment(
 				$nativeExt, $token, $domFragment, []

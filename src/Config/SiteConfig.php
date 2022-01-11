@@ -7,10 +7,13 @@ use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Wikimedia\Assert\Assert;
 use Wikimedia\ObjectFactory\ObjectFactory;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
+use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\Cite\Cite;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -21,6 +24,8 @@ use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
 use Wikimedia\Parsoid\Ext\Poem\Poem;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
@@ -676,16 +681,118 @@ abstract class SiteConfig {
 	abstract public function server(): string;
 
 	/**
-	 * Get the base URL for loading resource modules
-	 * This is the $wgLoadScript config value.
+	 * Export content metadata via meta tags (and via a stylesheet
+	 * for now to aid some clients).
 	 *
-	 * This base class provides the default value.
-	 * Derived classes should override appropriately.
-	 *
-	 * @return string
+	 * @param Document $document
+	 * @param ContentMetadataCollector $metadata
+	 * @param string $defaultTitle The default title to display, as an
+	 *   unescaped string
+	 * @param string $lang
 	 */
-	public function getModulesLoadURI(): string {
-		return $this->server() . $this->scriptpath() . '/load.php';
+	abstract public function exportMetadataToHead(
+		Document $document,
+		ContentMetadataCollector $metadata,
+		string $defaultTitle,
+		string $lang
+	): void;
+
+	/**
+	 * Helper function to create <head> elements from metadata.
+	 * @param Document $document
+	 * @param string $modulesLoadURI
+	 * @param string[] $modules
+	 * @param string[] $moduleStyles
+	 * @param array<string,mixed> $jsConfigVars
+	 * @param string $htmlTitle The display title, as escaped HTML
+	 * @param string $lang
+	 */
+	protected function exportMetadataHelper(
+		Document $document,
+		string $modulesLoadURI,
+		array $modules,
+		array $moduleStyles,
+		array $jsConfigVars,
+		string $htmlTitle,
+		string $lang
+	): void {
+		// Display title
+		$titleElement = DOMCompat::querySelector( $document, 'title' );
+		if ( !$titleElement ) {
+			$titleElement = DOMUtils::appendToHead( $document, 'title' );
+		}
+		DOMCompat::setInnerHTML( $titleElement, $htmlTitle );
+		// JsConfigVars
+		$content = null;
+		try {
+			if ( $jsConfigVars ) {
+				$content = PHPUtils::jsonEncode( $jsConfigVars );
+			}
+		} catch ( \Exception $e ) {
+			// Similar to ResourceLoader::makeConfigSetScript.  See T289358
+			$this->getLogger()->log(
+				LogLevel::WARNING,
+				'JSON serialization of config data failed. ' .
+				'This usually means the config data is not valid UTF-8.'
+			);
+		}
+		if ( $content ) {
+			DOMUtils::appendToHead( $document, 'meta', [
+				'property' => 'mw:jsConfigVars',
+				'content' => $content,
+			] );
+		}
+		// Styles from modules returned from preprocessor / parse requests
+		if ( $modules ) {
+			// mw:generalModules can be processed via JS (and async) and are usually (but
+			// not always) JS scripts.
+			DOMUtils::appendToHead( $document, 'meta', [
+				'property' => 'mw:generalModules',
+				'content' => implode( '|', array_unique( $modules ) )
+			] );
+		}
+		// Styles from modules returned from preprocessor / parse requests
+		if ( $moduleStyles ) {
+			// mw:moduleStyles are CSS modules that are render-blocking.
+			DOMUtils::appendToHead( $document, 'meta', [
+				'property' => 'mw:moduleStyles',
+				'content' => implode( '|', array_unique( $moduleStyles ) )
+			] );
+		}
+		/*
+		* While unnecessary for Wikimedia clients, a stylesheet url in
+		* the <head> is useful for clients like Kiwix and others who
+		* might not want to process the meta tags to construct the
+		* resourceloader url.
+		*
+		* Given that these clients will be consuming Parsoid HTML outside
+		* a MediaWiki skin, the clients are effectively responsible for
+		* their own "skin". But, once again, as a courtesy, we are
+		* hardcoding the vector skin modules for them. But, note that
+		* this may cause page elements to render differently than how
+		* they render on Wikimedia sites with the vector skin since this
+		* is probably missing a number of other modules.
+		*
+		* All that said, note that JS-generated parts of the page will
+		* still require them to have more intimate knowledge of how to
+		* process the JS modules. Except for <graph>s, page content
+		* doesn't require JS modules at this point. So, where these
+		* clients want to invest in the necessary logic to construct a
+		* better resourceloader url, they could simply delete / ignore
+		* this stylesheet.
+		*/
+		$moreStyles = array_merge( $moduleStyles, [
+			'mediawiki.skinning.content.parsoid',
+			// Use the base styles that API output and fallback skin use.
+			'mediawiki.skinning.interface',
+			// Make sure to include contents of user generated styles
+			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
+			'site.styles'
+		] );
+		$styleURI = $modulesLoadURI . '?lang=' . $lang . '&modules=' .
+			PHPUtils::encodeURIComponent( implode( '|', array_unique( $moreStyles ) ) ) .
+			'&only=styles&skin=vector';
+		DOMUtils::appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
 	}
 
 	/**
