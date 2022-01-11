@@ -285,8 +285,8 @@ class DataAccess implements IDataAccess {
 	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array {
 		$revid = $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'parse', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
-		$ret = $this->getCache( $key );
-		if ( $ret === null ) {
+		$data = $this->getCache( $key );
+		if ( $data === null ) {
 			$params = [
 				'action' => 'parse',
 				'title' => $pageConfig->getTitle(),
@@ -300,21 +300,21 @@ class DataAccess implements IDataAccess {
 				$params['revid'] = $revid;
 			}
 			$data = $this->api->makeRequest( $params )['parse'];
-
-			$cats = [];
-			foreach ( $data['categories'] as $c ) {
-				$cats[$c['category']] = $c['sortkey'];
-			}
-
-			$ret = [
-				'html' => $data['text'],
-				'modules' => $data['modules'] ?? [],
-				'modulestyles' => $data['modulestyles'] ?? [],
-				'jsconfigvars' => $data['jsconfigvars'] ?? [],
-				'categories' => $cats,
-			];
-			$this->setCache( $key, $ret );
+			$this->setCache( $key, $data );
 		}
+
+		$cats = [];
+		foreach ( $data['categories'] as $c ) {
+			$cats[$c['category']] = $c['sortkey'];
+		}
+
+		$ret = [
+			'html' => $data['text'],
+			'modules' => $data['modules'] ?? [],
+			'modulestyles' => $data['modulestyles'] ?? [],
+			'jsconfigvars' => $data['jsconfigvars'] ?? [],
+			'categories' => $cats,
+		];
 		return $ret;
 	}
 
@@ -322,8 +322,8 @@ class DataAccess implements IDataAccess {
 	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array {
 		$revid = $pageConfig->getRevisionId();
 		$key = implode( ':', [ 'preprocess', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
-		$ret = $this->getCache( $key );
-		if ( $ret === null ) {
+		$data = $this->getCache( $key );
+		if ( $data === null ) {
 			$params = [
 				'action' => 'expandtemplates',
 				'title' => $pageConfig->getTitle(),
@@ -334,22 +334,22 @@ class DataAccess implements IDataAccess {
 				$params['revid'] = $revid;
 			}
 			$data = $this->api->makeRequest( $params )['expandtemplates'];
-
-			$cats = [];
-			foreach ( ( $data['categories'] ?? [] ) as $c ) {
-				$cats[$c['category']] = $c['sortkey'];
-			}
-
-			$ret = [
-				'wikitext' => $data['wikitext'],
-				'modules' => $data['modules'] ?? [],
-				'modulestyles' => $data['modulestyles'] ?? [],
-				'jsconfigvars' => $data['jsconfigvars'] ?? [],
-				'categories' => $cats,
-				'properties' => $data['properties'] ?? [],
-			];
-			$this->setCache( $key, $ret );
+			$this->setCache( $key, $data );
 		}
+
+		$cats = [];
+		foreach ( ( $data['categories'] ?? [] ) as $c ) {
+			$cats[$c['category']] = $c['sortkey'];
+		}
+
+		$ret = [
+			'wikitext' => $data['wikitext'],
+			'modules' => $data['modules'] ?? [],
+			'modulestyles' => $data['modulestyles'] ?? [],
+			'jsconfigvars' => $data['jsconfigvars'] ?? [],
+			'categories' => $cats,
+			'properties' => $data['properties'] ?? [],
+		];
 		return $ret;
 	}
 
