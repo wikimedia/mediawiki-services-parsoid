@@ -31,9 +31,15 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 	}
 }
 
-testfile = format? testfile_options? lined_chunk+
+testfile =
+	comment_or_blank_line*
+	format?
+	comment_or_blank_line*
+	testfile_options?
+	lined_chunk+
 
-testfile_options = eol* sec:option_section end_section {
+testfile_options =
+	sec:option_section end_section {
 	return $sec['text'];
 }
 
@@ -69,12 +75,18 @@ text = lines:line*
 }
 
 chunk =
-	comment
+	comment_or_blank_line
 	/ article
 	/ test
-	/ l: line { return [ 'type' => 'line', 'text' => $l ]; }
 	/ hooks
 	/ functionhooks
+
+	/* Final fallback production is a catch-all, since some ancient
+	 * parserTest files have garbage text between tests and in the old
+	 * hand-coded parser test parser this was just ignored as a comment.
+	 * We'll go ahead and parse it, then emit a warning in TestFileReader.
+	 */
+	/ l: line { return [ 'type' => 'line', 'text' => $l ]; }
 
 format =
 	"!!" ws? version_keyword ws+ v:$([0-9]+) rest_of_line {
@@ -85,6 +97,10 @@ version_keyword = 'version'i
 
 comment =
 	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }
+
+comment_or_blank_line =
+	comment
+	/ ws? nl:eol { return [ 'type' => 'line', 'text' => $nl ]; }
 
 article =
 	start_article title:line start_text text:text ( end_article / end_section )

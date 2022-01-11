@@ -72,15 +72,36 @@ class TestFileReader {
 	) {
 		$this->knownFailuresPath = $knownFailuresPath;
 		$parsedTests = Grammar::load( $testFilePath );
-		$testFormat = $parsedTests[0];
-		$this->fileOptions = $parsedTests[1] ?? [];
-		$rawTestItems = $parsedTests[2];
+		// Start off with any comments before `!! format`
+		$rawTestItems = $parsedTests[0];
+		$testFormat = $parsedTests[1];
+		if ( $testFormat != null ) {
+			// If `!!format` was present, existing comments applied to the
+			// format declaration, not the first item.
+			$rawTestItems = [];
+		}
+
+		// Add any comments after `!! format`
+		array_splice( $rawTestItems, count( $rawTestItems ), 0, $parsedTests[2] );
+		if ( $parsedTests[3] == null ) {
+			$this->fileOptions = [];
+		} else {
+			$this->fileOptions = $parsedTests[3];
+			// If `!!options` was present, existing comments applied to the
+			// file options, not the first item.
+			$rawTestItems = [];
+		}
+
+		// Add the rest of the comments and items appearing after `!!options`
+		array_splice( $rawTestItems, count( $rawTestItems ), 0, $parsedTests[4] );
+
 		if ( $testFormat !== null ) {
 			$this->fileOptions['version'] = $testFormat['text'];
 		}
 		if ( !isset( $this->fileOptions['version'] ) ) {
 			$this->fileOptions['version'] = '1';
 		}
+
 		$knownFailures = $knownFailuresPath && is_readable( $knownFailuresPath ) ?
 			json_decode( file_get_contents( $knownFailuresPath ), true ) :
 			null;
