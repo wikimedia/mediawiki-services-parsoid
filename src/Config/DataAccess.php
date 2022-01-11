@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config;
 
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+
 /**
  * MediaWiki data access abstract class for Parsoid
  */
@@ -75,15 +77,16 @@ abstract class DataAccess {
 	 *
 	 * @todo Parsoid should be able to do this itself.
 	 * @param PageConfig $pageConfig
+	 * @param ContentMetadataCollector $metadata Will collect metadata about
+	 *   the parsed content.
 	 * @param string $wikitext
-	 * @return array
-	 *  - html: (string) Output HTML.
-	 *  - modules: (string[]) ResourceLoader module names
-	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
-	 *  - jsconfigvars: (array) JS config vars
-	 *  - categories: (array) [ Category name => sortkey ]
+	 * @return string Output HTML
 	 */
-	abstract public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array;
+	abstract public function parseWikitext(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $wikitext
+	): string;
 
 	/**
 	 * Preprocess wikitext
@@ -92,16 +95,16 @@ abstract class DataAccess {
 	 *
 	 * @todo Parsoid should be able to do this itself.
 	 * @param PageConfig $pageConfig
+	 * @param ContentMetadataCollector $metadata Will collect metadata about
+	 *   the preprocessed content.
 	 * @param string $wikitext
-	 * @return array
-	 *  - wikitext: (string) Expanded wikitext
-	 *  - modules: (string[]) ResourceLoader module names
-	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
-	 *  - jsconfigvars: (array) JS config vars
-	 *  - properties: (array) [ name => value ]
-	 *  - categories: (array) [ Category name => sortkey ]
+	 * @return string Expanded wikitext
 	 */
-	abstract public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array;
+	abstract public function preprocessWikitext(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $wikitext
+	): string;
 
 	/**
 	 * Fetch latest revision of article/template content for transclusion.

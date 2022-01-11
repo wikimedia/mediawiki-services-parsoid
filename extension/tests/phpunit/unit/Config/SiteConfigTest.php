@@ -162,11 +162,6 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 			'server',
 			'blabla'
 		];
-		yield 'getModulesLoadURI' => [
-			[ 'LoadScript' => 'blabla' ],
-			'getModulesLoadURI',
-			'blabla'
-		];
 		yield 'timezoneOffset' => [
 			[ 'LocalTZoffset' => 42 ],
 			'timezoneOffset',
@@ -200,7 +195,6 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 	 * @covers \MWParsoid\Config\SiteConfig::script
 	 * @covers \MWParsoid\Config\SiteConfig::scriptpath
 	 * @covers \MWParsoid\Config\SiteConfig::server
-	 * @covers \MWParsoid\Config\SiteConfig::getModulesLoadURI
 	 * @covers \MWParsoid\Config\SiteConfig::timezoneOffset
 	 * @covers \MWParsoid\Config\SiteConfig::getMaxTemplateDepth
 	 * @covers \MWParsoid\Config\SiteConfig::legalTitleChars

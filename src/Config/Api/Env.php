@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config\Api;
 
 use Wikimedia\Parsoid\Config\Env as IEnv;
+use Wikimedia\Parsoid\Config\StubMetadataCollector;
 
 /**
  * An Env accessing MediaWiki via its Action API
@@ -27,7 +28,8 @@ class Env extends IEnv {
 		$pageConfig = new PageConfig( $api, $opts );
 		$siteConfig = new SiteConfig( $api, $opts );
 		$dataAccess = new DataAccess( $api, $siteConfig, $opts );
-		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $opts );
+		$metadata = new StubMetadataCollector( $siteConfig->getLogger() );
+		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $metadata, $opts );
 	}
 
 	// Narrow inherited type; see

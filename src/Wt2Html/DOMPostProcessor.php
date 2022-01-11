@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Closure;
 use DateTime;
-use Exception;
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
@@ -582,114 +581,6 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * While unnecessary for Wikimedia clients, a stylesheet url in the <head>
-	 * is useful for clients like Kiwix and others who might not want to process
-	 * the meta tags to construct the resourceloader url.
-	 *
-	 * Given that these clients will be consuming Parsoid HTML outside a MediaWiki skin,
-	 * the clients are effectively responsible for their own "skin". But, once again,
-	 * as a courtesy, we are hardcoding the vector skin modules for them. But, note
-	 * that this may cause page elements to render differently than how they render
-	 * on Wikimedia sites with the vector skin since this is probably missing a number
-	 * of other modules.
-	 *
-	 * All that said, note that JS-generated parts of the page will still require them
-	 * to have more intimate knowledge of how  to process the JS modules. Except for
-	 * <graph>s, page content doesn't require JS modules at this point. So, where these
-	 * clients want to invest in the necessary logic to construct a better resourceloader
-	 * url, they could simply delete / ignore this stylesheet.
-	 *
-	 * @param Document $document
-	 * @param Env $env
-	 * @param string $lang
-	 * @param array $styleModules
-	 */
-	private function addCourtesyBasicStyleSheet(
-		Document $document, Env $env, string $lang, array $styleModules
-	): void {
-		$styleModules = array_unique( array_merge( $styleModules, [
-			'mediawiki.skinning.content.parsoid',
-			// Use the base styles that API output and fallback skin use.
-			'mediawiki.skinning.interface',
-			// Make sure to include contents of user generated styles
-			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
-			'site.styles'
-		] ) );
-
-		$styleURI = $env->getSiteConfig()->getModulesLoadURI() .
-			'?lang=' . $lang . '&modules=' .
-			PHPUtils::encodeURIComponent( implode( '|', $styleModules ) ) .
-			'&only=styles&skin=vector';
-		DOMUtils::appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
-	}
-
-	/**
-	 * Export used style modules via a meta tag (and via a stylesheet for now to aid some clients)
-	 * @param Document $document
-	 * @param Env $env
-	 * @param string $lang
-	 */
-	private function exportStyleModules( Document $document, Env $env, string $lang ): void {
-		// Styles from modules returned from preprocessor / parse requests
-		$styleModules = $env->getOutputProperties()['modulestyles'] ?? [];
-		if ( $styleModules ) {
-			// FIXME: Maybe think about using an associative array or DS\Set
-			$styleModules = array_unique( $styleModules );
-
-			// mw:styleModules are CSS modules that are render-blocking.
-			DOMUtils::appendToHead( $document, 'meta', [
-				'property' => 'mw:styleModules',
-				'content' => implode( '|', $styleModules )
-			] );
-		}
-
-		$this->addCourtesyBasicStyleSheet( $document, $env, $lang, $styleModules );
-	}
-
-	/**
-	 * Export general modules (usually JS scripts) via a meta tag
-	 * @param Document $document
-	 * @param Env $env
-	 */
-	private function exportGeneralModules( Document $document, Env $env ): void {
-		// Styles from modules returned from preprocessor / parse requests
-		$generalModules = $env->getOutputProperties()['modules'] ?? [];
-		if ( $generalModules ) {
-			// mw:generalModules can be processed via JS (and async) and are usually (but
-			// not always) JS scripts.
-			DOMUtils::appendToHead( $document, 'meta', [
-				'property' => 'mw:generalModules',
-				'content' => implode( '|', array_unique( $generalModules ) )
-			] );
-		}
-	}
-
-	/**
-	 * Export used JS config vars via a meta tag
-	 * @param Document $document
-	 * @param Env $env
-	 */
-	private function exportJSConfigVars( Document $document, Env $env ): void {
-		$vars = $env->getOutputProperties()['jsconfigvars'] ?? [];
-		if ( $vars ) {
-			try {
-				$content = PHPUtils::jsonEncode( $vars );
-			} catch ( Exception $e ) {
-				// Similar to ResourceLoader::makeConfigSetScript.  See T289358
-				$env->log(
-					'warn', 'JSON serialization of config data failed. ' .
-						'This usually means the config data is not valid UTF-8.'
-				);
-				return;
-			}
-			DOMUtils::appendToHead( $document, 'meta', [
-				'property' => 'mw:jsConfigVars',
-				'content' => $content,
-			] );
-		}
-	}
-
-	/**
 	 * @param Element $body
 	 * @param Env $env
 	 */
@@ -841,8 +732,6 @@ class DOMPostProcessor extends PipelineStage {
 			'href' => $env->getSiteConfig()->baseURI() . implode( '/', $expTitle )
 		] );
 
-		DOMCompat::setTitle( $document, $env->getPageConfig()->getTitle() );
-
 		// Add base href pointing to the wiki root
 		DOMUtils::appendToHead( $document, 'base', [
 			'href' => $env->getSiteConfig()->baseURI()
@@ -858,9 +747,10 @@ class DOMPostProcessor extends PipelineStage {
 		$body = DOMCompat::getBody( $document );
 		$body->setAttribute( 'lang', Utils::bcp47n( $lang ) );
 		$this->updateBodyClasslist( $body, $env );
-		$this->exportJSConfigVars( $document, $env );
-		$this->exportGeneralModules( $document, $env );
-		$this->exportStyleModules( $document, $env, $lang );
+		$env->getSiteConfig()->exportMetadataToHead(
+			$document, $env->getMetadata(),
+			$env->getPageConfig()->getTitle(), $lang
+		);
 
 		// Indicate whether LanguageConverter is enabled, so that downstream
 		// caches can split on variant (if necessary)

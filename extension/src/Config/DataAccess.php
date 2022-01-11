@@ -34,6 +34,7 @@ use Title;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 
 class DataAccess extends IDataAccess {
 
@@ -310,24 +311,30 @@ class DataAccess extends IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext( IPageConfig $pageConfig, string $wikitext ): array {
+	public function parseWikitext(
+		IPageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $wikitext
+	): string {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML );
 		$html = $parser->parseExtensionTagAsTopLevelDoc( $wikitext );
+		// XXX: Ideally we will eventually have the legacy parser use our
+		// ContentMetadataCollector instead of having a new ParserOutput
+		// created (implicitly in ::prepareParser()/Parser::resetOutput() )
+		// which we then have to manually merge.
 		$out = $parser->getOutput();
 		$out->setText( $html );
-		return [
-			'html' => $out->getText( [ 'unwrap' => true ] ),
-			'modules' => array_values( array_unique( $out->getModules() ) ),
-			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
-			'jsconfigvars' => $out->getJsConfigVars(),
-			'categories' => $out->getCategories(),
-		];
+		$out->collectMetadata( $metadata ); # merges $out into $metadata
+		return $out->getText( [ 'unwrap' => true ] ); # HTML
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext( IPageConfig $pageConfig, string $wikitext ): array {
+	public function preprocessWikitext(
+		IPageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $wikitext
+	): string {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
-		$out = $parser->getOutput();
 		$this->hookContainer->run(
 			'ParserBeforePreprocess',
 			[ $parser, &$wikitext, $parser->getStripState() ]
@@ -340,14 +347,14 @@ class DataAccess extends IDataAccess {
 		// not wikitext, and where the content might contain wikitext characters, we are now
 		// going to potentially mangle that output.
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
-		return [
-			'wikitext' => $wikitext,
-			'modules' => array_values( array_unique( $out->getModules() ) ),
-			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
-			'jsconfigvars' => $out->getJsConfigVars(),
-			'categories' => $out->getCategories(),
-			'properties' => $out->getPageProperties()
-		];
+
+		// XXX: Ideally we will eventually have the legacy parser use our
+		// ContentMetadataCollector instead of having an new ParserOutput
+		// created (implicitly in ::prepareParser()/Parser::resetOutput() )
+		// which we then have to manually merge.
+		$out = $parser->getOutput();
+		$out->collectMetadata( $metadata ); # merges $out into $metadata
+		return $wikitext;
 	}
 
 	/** @inheritDoc */

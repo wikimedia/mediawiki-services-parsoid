@@ -4,6 +4,7 @@ namespace Test\Parsoid\Config\Api;
 
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 
 /**
@@ -100,27 +101,27 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	public function testParseWikitext() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'parse' );
+		$metadata = new StubMetadataCollector();
 		$ret = $da->parseWikitext(
-			$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 		);
-		$this->assertEquals( [
+		$this->assertEquals(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'html' => "<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">[<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>]</sup> {{subst:unsigned|Example}} ~~~~~\n</p>",
-			'modules' => [],
-			'modulestyles' => [
-				'ext.discussionTools.init.styles',
-			],
-			'jsconfigvars' => [],
-			'categories' => [
-				'Foo' => 'Bar',
-			],
-		], $ret );
+			"<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">[<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>]</sup> {{subst:unsigned|Example}} ~~~~~\n</p>", $ret );
+		$this->assertEquals( [], $metadata->getModules() );
+		$this->assertEquals( [
+			'ext.discussionTools.init.styles',
+		], $metadata->getModuleStyles() );
+		$this->assertEquals( [], $metadata->getJsConfigVars() );
+		$this->assertEquals( [
+			'Foo' => 'Bar',
+		], $metadata->getCategories() );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
 			$ret,
 			$da->parseWikitext(
-				$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+				$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 			)
 		);
 	}
@@ -128,24 +129,25 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	public function testPreprocessWikitext() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'preprocess' );
+		$metadata = new StubMetadataCollector();
 		$ret = $da->preprocessWikitext(
-			$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 		);
-		$this->assertEquals( [
+		$this->assertEquals(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'wikitext' => "Foobar.[[Category:Foo|Bar]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
-			'modules' => [],
-			'modulestyles' => [],
-			'jsconfigvars' => [],
-			'categories' => [],
-			'properties' => [],
-		], $ret );
+			"Foobar.[[Category:Foo|Bar]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
+			$ret
+		);
+		$this->assertEquals( [], $metadata->getModules() );
+		$this->assertEquals( [], $metadata->getModuleStyles() );
+		$this->assertEquals( [], $metadata->getJsConfigVars() );
+		$this->assertEquals( [], $metadata->getCategories() );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
 			$ret,
 			$da->preprocessWikitext(
-				$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+				$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 			)
 		);
 	}

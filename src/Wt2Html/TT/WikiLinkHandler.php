@@ -668,6 +668,8 @@ class WikiLinkHandler extends TokenHandler {
 			$newTk->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 			$newTk->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMW ) );
 		}
+		// @todo Record this category in the metadata
+		// $this->env->getMetadata()->addCategory('title', 'sort');
 		return new TokenHandlerResult( [ $newTk ] );
 	}
 

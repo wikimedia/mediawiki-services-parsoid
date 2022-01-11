@@ -9,14 +9,15 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 
 use Composer\Factory;
 use Composer\IO\NullIO;
-
 use MediaWiki\MediaWikiServices;
 use MWParsoid\ParsoidServices;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Api\SiteConfig;
+use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ClientError;
+use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
@@ -38,6 +39,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 	/** @var PageConfig */
 	private $pageConfig;
+
+	/** @var ContentMetadataCollector */
+	private $metadata;
 
 	/** @var Parsoid */
 	private $parsoid;
@@ -266,6 +270,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$configOpts['revid'] ?? null,
 			$configOpts['pageContent'] ?? null
 		);
+		$this->metadata = new \ParserOutput();
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 
@@ -281,7 +286,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'title' => $siteConfig->mainpage(),
 			'loadData' => true,
 		] );
-
+		$this->metadata = new StubMetadataCollector();
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 
@@ -291,11 +296,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function setupMockConfig( array $configOpts ) {
 		$siteConfig = new MockSiteConfig( $configOpts );
 		$dataAccess = new MockDataAccess( $configOpts );
-		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
-
 		$pageContent = new MockPageContent( [ 'main' =>
 			$configOpts['pageContent'] ?? '' ] );
 		$this->pageConfig = new MockPageConfig( $configOpts, $pageContent );
+		$this->metadata = new StubMetadataCollector();
+		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 
 	/**
@@ -330,7 +335,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		try {
 			return $this->parsoid->wikitext2html(
-				$this->pageConfig, $parsoidOpts
+				$this->pageConfig, $parsoidOpts, $headers, $this->metadata
 			);
 		} catch ( ClientError $e ) {
 			$this->error( $e->getMessage() );
