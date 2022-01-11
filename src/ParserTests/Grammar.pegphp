@@ -33,7 +33,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 
 testfile = format? testfile_options? lined_chunk+
 
-testfile_options = sec:option_section end_section {
+testfile_options = eol* sec:option_section end_section {
 	return $sec['text'];
 }
 
@@ -81,7 +81,7 @@ format =
 		return [ 'type' => 'version', 'text' => $v ];
 	}
 
-version_keyword = [vV] [eE] [rR] [sS] [iI] [oO] [nN]
+version_keyword = 'version'i
 
 comment =
 	"#" text:rest_of_line { return [ 'type' => 'comment', 'text' => $text ]; }
