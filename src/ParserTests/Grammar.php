@@ -37,6 +37,13 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 		return $g->parse( $contents );
 	}
 
+	private function addLines( int $lineStart, array $item ) {
+		$item['filename'] = $this->filename;
+		$item['lineNumStart'] = $lineStart;
+		$item['lineNumEnd'] = $this->lineNum;
+		return $item;
+	}
+
 
 	// cache init
 	
@@ -82,25 +89,22 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	private function a0($nl) {
  return [ 'type' => 'line', 'text' => $nl ]; 
 }
-private function a1($v) {
+private function a1() {
+ return $this->lineNum; 
+}
+private function a2($l, $v) {
 
-		return [ 'type' => 'version', 'text' => $v ];
+		return $this->addLines( $l, [ 'type' => 'version', 'text' => $v ] );
 	
 }
-private function a2($sec) {
+private function a3($l, $sec) {
 
-	return $sec['text'];
+	return $this->addLines( $l, $sec );
 
-}
-private function a3() {
- return $this->lineNum; 
 }
 private function a4($l, $c) {
 
-	$c['filename'] = $this->filename;
-	$c['lineNumStart'] = $l;
-	$c['lineNumEnd'] = $this->lineNum;
-	return $c;
+	return $this->addLines($l, $c);
 
 }
 private function a5($text) {
@@ -123,7 +127,7 @@ private function a8($opts) {
 		}
 	}
 
-	return [ 'name' => 'options', 'text' => $o ];
+	return [ 'type' => 'section', 'name' => 'options', 'text' => $o ];
 
 }
 private function a9($l) {
@@ -358,66 +362,77 @@ private function parseformat($silence) {
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
+  $p5 = $this->currPos;
+  $r4 = '';
+  // l <- $r4
+  if ($r4!==self::$FAILED) {
+    $this->savedPos = $p5;
+    $r4 = $this->a1();
+  } else {
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "!!", $this->currPos, 2, false) === 0) {
-    $r4 = "!!";
+    $r6 = "!!";
     $this->currPos += 2;
   } else {
     if (!$silence) {$this->fail(1);}
-    $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r5 = $this->discardwhitespace($silence);
-  if ($r5===self::$FAILED) {
-    $r5 = null;
-  }
-  $r6 = $this->discardversion_keyword($silence);
-  if ($r6===self::$FAILED) {
+    $r6 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  $r7 = self::$FAILED;
-  for (;;) {
-    $r8 = $this->discardwhitespace($silence);
-    if ($r8!==self::$FAILED) {
-      $r7 = true;
-    } else {
-      break;
-    }
-  }
+  $r7 = $this->discardwhitespace($silence);
   if ($r7===self::$FAILED) {
+    $r7 = null;
+  }
+  $r8 = $this->discardversion_keyword($silence);
+  if ($r8===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  // free $r8
-  $p9 = $this->currPos;
-  $r8 = self::$FAILED;
+  $r9 = self::$FAILED;
   for (;;) {
-    $r10 = $this->input[$this->currPos] ?? '';
-    if (preg_match("/^[0-9]/", $r10)) {
-      $this->currPos++;
-      $r8 = true;
+    $r10 = $this->discardwhitespace($silence);
+    if ($r10!==self::$FAILED) {
+      $r9 = true;
     } else {
-      $r10 = self::$FAILED;
-      if (!$silence) {$this->fail(2);}
       break;
     }
   }
-  // v <- $r8
-  if ($r8!==self::$FAILED) {
-    $r8 = substr($this->input, $p9, $this->currPos - $p9);
-  } else {
-    $r8 = self::$FAILED;
+  if ($r9===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
   // free $r10
-  // free $p9
-  $r10 = $this->discardrest_of_line($silence);
-  if ($r10===self::$FAILED) {
+  $p11 = $this->currPos;
+  $r10 = self::$FAILED;
+  for (;;) {
+    $r12 = $this->input[$this->currPos] ?? '';
+    if (preg_match("/^[0-9]/", $r12)) {
+      $this->currPos++;
+      $r10 = true;
+    } else {
+      $r12 = self::$FAILED;
+      if (!$silence) {$this->fail(2);}
+      break;
+    }
+  }
+  // v <- $r10
+  if ($r10!==self::$FAILED) {
+    $r10 = substr($this->input, $p11, $this->currPos - $p11);
+  } else {
+    $r10 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $r12
+  // free $p11
+  $r12 = $this->discardrest_of_line($silence);
+  if ($r12===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -426,7 +441,7 @@ private function parseformat($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a1($r8);
+    $r1 = $this->a2($r4, $r10);
   }
   // free $p3
   return $r1;
@@ -435,14 +450,25 @@ private function parsetestfile_options($silence) {
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
-  $r4 = $this->parseoption_section($silence);
-  // sec <- $r4
-  if ($r4===self::$FAILED) {
+  $p5 = $this->currPos;
+  $r4 = '';
+  // l <- $r4
+  if ($r4!==self::$FAILED) {
+    $this->savedPos = $p5;
+    $r4 = $this->a1();
+  } else {
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  $r5 = $this->discardend_section($silence);
-  if ($r5===self::$FAILED) {
+  $r6 = $this->parseoption_section($silence);
+  // sec <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r7 = $this->discardend_section($silence);
+  if ($r7===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -451,7 +477,7 @@ private function parsetestfile_options($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a2($r4);
+    $r1 = $this->a3($r4, $r6);
   }
   // free $p3
   return $r1;
@@ -465,7 +491,7 @@ private function parselined_chunk($silence) {
   // l <- $r4
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p5;
-    $r4 = $this->a3();
+    $r4 = $this->a1();
   } else {
     $r1 = self::$FAILED;
     goto seq_1;

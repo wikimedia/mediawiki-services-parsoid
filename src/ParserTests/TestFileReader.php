@@ -74,7 +74,7 @@ class TestFileReader {
 		if ( $parsedTests[3] == null ) {
 			$this->fileOptions = [];
 		} else {
-			$this->fileOptions = $parsedTests[3];
+			$this->fileOptions = $parsedTests[3]['text'];
 			// If `!!options` was present, existing comments applied to the
 			// file options, not the first item.
 			$rawTestItems = [];
@@ -84,7 +84,11 @@ class TestFileReader {
 		array_splice( $rawTestItems, count( $rawTestItems ), 0, $parsedTests[4] );
 
 		if ( $testFormat !== null ) {
-			$this->fileOptions['version'] = $testFormat['text'];
+			if ( isset( $this->fileOptions['version'] ) ) {
+				( new Item( $parsedTests[3] ) )->error( 'Duplicate version specification' );
+			} else {
+				$this->fileOptions['version'] = $testFormat['text'];
+			}
 		}
 		if ( !isset( $this->fileOptions['version'] ) ) {
 			$this->fileOptions['version'] = '1';

@@ -29,6 +29,13 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 		}
 		return $g->parse( $contents );
 	}
+
+	private function addLines( int $lineStart, array $item ) {
+		$item['filename'] = $this->filename;
+		$item['lineNumStart'] = $lineStart;
+		$item['lineNumEnd'] = $this->lineNum;
+		return $item;
+	}
 }
 
 testfile =
@@ -39,8 +46,9 @@ testfile =
 	lined_chunk+
 
 testfile_options =
+	l:("" { return $this->lineNum; })
 	sec:option_section end_section {
-	return $sec['text'];
+	return $this->addLines( $l, $sec );
 }
 
 /* Line number bookkeeping.
@@ -49,10 +57,7 @@ testfile_options =
 eol = nl:"\n" { $this->lineNum++; return $nl; }
 
 lined_chunk = l:("" { return $this->lineNum; }) c:chunk {
-	$c['filename'] = $this->filename;
-	$c['lineNumStart'] = $l;
-	$c['lineNumEnd'] = $this->lineNum;
-	return $c;
+	return $this->addLines($l, $c);
 }
 
 whitespace = [ \t]+
@@ -89,8 +94,9 @@ chunk =
 	/ l: line { return [ 'type' => 'line', 'text' => $l ]; }
 
 format =
+	l:("" { return $this->lineNum; })
 	"!!" ws? version_keyword ws+ v:$([0-9]+) rest_of_line {
-		return [ 'type' => 'version', 'text' => $v ];
+		return $this->addLines( $l, [ 'type' => 'version', 'text' => $v ] );
 	}
 
 version_keyword = 'version'i
@@ -193,7 +199,7 @@ option_section =
 		}
 	}
 
-	return [ 'name' => 'options', 'text' => $o ];
+	return [ 'type' => 'section', 'name' => 'options', 'text' => $o ];
 }
 
 option_list = o:an_option ([ \t] / eol)+ rest:option_list?
