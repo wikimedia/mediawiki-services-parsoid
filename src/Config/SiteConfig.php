@@ -24,7 +24,6 @@ use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
 use Wikimedia\Parsoid\Ext\Poem\Poem;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
-use Wikimedia\Parsoid\Ext\Translate\Translate;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -90,7 +89,6 @@ abstract class SiteConfig {
 		Cite::class,
 		LST::class,
 		Poem::class,
-		Translate::class,
 		ImageMap::class,
 	];
 

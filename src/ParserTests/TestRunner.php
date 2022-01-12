@@ -1442,6 +1442,7 @@ class TestRunner {
 			if ( isset( $test->options['thumbsize'] ) ) {
 				$this->siteConfig->thumbsize = (int)$test->options['thumbsize'];
 			}
+			$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
 		}
 
 		$this->buildTasks( $test, $targetModes, $options );
