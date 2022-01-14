@@ -461,7 +461,7 @@ class WikitextSerializer {
 				// in pegTokenizer.pegjs:generic_newline_attribute
 				$kk = preg_replace( '/^data-x-/i', '', $kk, 1 );
 				// PORT-FIXME: is this type safe? $vv could be a ConstrainedText
-				if ( strlen( $vv ) > 0 ) {
+				if ( $vv !== null && strlen( $vv ) > 0 ) {
 					if ( !$vInfo['fromsrc'] && !$isWt ) {
 						// Escape wikitext entities
 						$vv = str_replace( '>', '&gt;', Utils::escapeWtEntities( $vv ) );
