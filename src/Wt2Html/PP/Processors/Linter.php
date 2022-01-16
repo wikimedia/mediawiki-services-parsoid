@@ -694,22 +694,22 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
-		if ( WTUtils::isInlineMedia( $c ) ) {
-			$dmw = DOMDataUtils::getDataMw( $c );
-			$media = $c->firstChild->firstChild ?? null;
-			if (
-				isset( $dmw->caption ) &&
-				$media instanceof Element &&
-				DOMCompat::nodeName( $media ) === 'img' &&
-				!$media->hasAttribute( 'alt' )
-			) {
-				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
-				$env->recordLint( 'inline-media-caption', [
-					'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ?? null ),
-					'templateInfo' => $templateInfo
-				] );
-			}
-		}
+		// if ( WTUtils::isInlineMedia( $c ) ) {
+		// 	$dmw = DOMDataUtils::getDataMw( $c );
+		// 	$media = $c->firstChild->firstChild ?? null;
+		// 	if (
+		// 		isset( $dmw->caption ) &&
+		// 		$media instanceof Element &&
+		// 		DOMCompat::nodeName( $media ) === 'img' &&
+		// 		!$media->hasAttribute( 'alt' )
+		// 	) {
+		// 		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		// 		$env->recordLint( 'inline-media-caption', [
+		// 			'dsr' => $this->findLintDSR( $templateInfo, $tplInfo, $dp->dsr ?? null ),
+		// 			'templateInfo' => $templateInfo
+		// 		] );
+		// 	}
+		// }
 
 		if ( WTUtils::isGeneratedFigure( $c ) && !empty( $dp->optList ) ) {
 			$items = [];
