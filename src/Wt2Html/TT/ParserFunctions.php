@@ -901,13 +901,5 @@ class ParserFunctions {
 		];
 	}
 
-	public function pf_bar( $token, Frame $frame, Params $params, bool $atTopLevel ): array {
-		if ( $atTopLevel ) {
-			return [ '|' ];
-		} else {
-			return [ new TagTk( 'td' ) ];
-		}
-	}
-
 	// TODO: #titleparts, SUBJECTPAGENAME, BASEPAGENAME. SUBPAGENAME, DEFAULTSORT
 }
