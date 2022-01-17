@@ -1275,9 +1275,9 @@ private function parsesection($silence) {
     $r5 = null;
   }
   $p6 = $this->currPos;
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "end", $this->currPos, 3, false) === 0) {
-    $r7 = "end";
-    $this->currPos += 3;
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "test", $this->currPos, 4, false) === 0) {
+    $r7 = "test";
+    $this->currPos += 4;
   } else {
     $r7 = self::$FAILED;
   }
@@ -1292,9 +1292,9 @@ private function parsesection($silence) {
   }
   // free $p6
   $p6 = $this->currPos;
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "options", $this->currPos, 7, false) === 0) {
-    $r8 = "options";
-    $this->currPos += 7;
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "end", $this->currPos, 3, false) === 0) {
+    $r8 = "end";
+    $this->currPos += 3;
   } else {
     $r8 = self::$FAILED;
   }
@@ -1309,41 +1309,58 @@ private function parsesection($silence) {
   }
   // free $p6
   $p6 = $this->currPos;
-  $r10 = [];
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "options", $this->currPos, 7, false) === 0) {
+    $r9 = "options";
+    $this->currPos += 7;
+  } else {
+    $r9 = self::$FAILED;
+  }
+  if ($r9 === self::$FAILED) {
+    $r9 = false;
+  } else {
+    $r9 = self::$FAILED;
+    $this->currPos = $p6;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p6
+  $p6 = $this->currPos;
+  $r11 = [];
   for (;;) {
     if (strcspn($this->input, " \x09\x0d\x0a", $this->currPos, 1) !== 0) {
-      $r11 = self::consumeChar($this->input, $this->currPos);
-      $r10[] = $r11;
+      $r12 = self::consumeChar($this->input, $this->currPos);
+      $r11[] = $r12;
     } else {
-      $r11 = self::$FAILED;
+      $r12 = self::$FAILED;
       if (!$silence) {$this->fail(14);}
       break;
     }
   }
-  if (count($r10) === 0) {
-    $r10 = self::$FAILED;
+  if (count($r11) === 0) {
+    $r11 = self::$FAILED;
   }
-  // c <- $r10
-  // free $r11
-  $r9 = $r10;
-  // name <- $r9
-  if ($r9!==self::$FAILED) {
+  // c <- $r11
+  // free $r12
+  $r10 = $r11;
+  // name <- $r10
+  if ($r10!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r9 = $this->a18($r10);
+    $r10 = $this->a18($r11);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  $r11 = $this->discardrest_of_line($silence);
-  if ($r11===self::$FAILED) {
+  $r12 = $this->discardrest_of_line($silence);
+  if ($r12===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  $r12 = $this->parsetext($silence);
-  // text <- $r12
-  if ($r12===self::$FAILED) {
+  $r13 = $this->parsetext($silence);
+  // text <- $r13
+  if ($r13===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -1352,7 +1369,7 @@ private function parsesection($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a19($r9, $r12);
+    $r1 = $this->a19($r10, $r13);
   }
   // free $p3
   return $r1;

@@ -182,7 +182,7 @@ test =
 }
 
 section =
-	"!!" ws? (!"end") (!"options") name:(c:[^ \t\r\n]+ { return implode( $c ); }) rest_of_line
+	"!!" ws? (!"test") (!"end") (!"options") name:(c:[^ \t\r\n]+ { return implode( $c ); }) rest_of_line
 	text:text
 {
 	return [ 'name' => $name, 'text' => $text ];

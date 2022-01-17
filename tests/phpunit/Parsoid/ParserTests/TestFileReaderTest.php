@@ -39,4 +39,10 @@ class TestFileReaderTest extends TestCase {
 		$this->expectErrorMessage( 'Duplicate version specification' );
 		TestFileReader::read( __DIR__ . '/data/twoVersionsDecl.txt' );
 	}
+
+	/** @covers ::__construct */
+	public function testNoEndTagInTest() {
+		$this->expectException( 'Wikimedia\WikiPEG\SyntaxError' );
+		TestFileReader::read( __DIR__ . '/data/testNoEndTag.txt' );
+	}
 }
