@@ -990,8 +990,12 @@ class TemplateHandler extends TokenHandler {
 		$env = $this->env;
 
 		// Special case for {{!}} magic word.
-		// This is only needed for to support Parsoid's half-baked
-		// "native preprocessor" used in parser tests.
+		//
+		// If we tokenized as a magic word, we meant for it to expand to a
+		// string.  The tokenizer has handling for this syntax in table
+		// positions.  However, proceeding to go through template expansion
+		// will reparse it as a table cell token.  Hence this special case
+		// handling to avoid that path.
 		if (
 			( $resolvedTgt && $resolvedTgt['magicWordType'] === '!' ) ||
 			$tplToken->attribs[0]->k === '!'
@@ -1000,6 +1004,7 @@ class TemplateHandler extends TokenHandler {
 			// be the case. Either {{!}} was tokenized as a td, or it was tokenized
 			// as template but the recursive call to fetch its content returns a
 			// single | in an ambiguous context which will again be tokenized as td.
+			// In any case, this should only be relevant for parserTests.
 			if ( empty( $atTopLevel ) ) {
 				return [ new TagTk( 'td' ) ];
 			}

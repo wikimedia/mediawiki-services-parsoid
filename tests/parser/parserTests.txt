@@ -19937,6 +19937,23 @@ Special:Search page linking.
 !! end
 
 !! test
+Single {{!}} in table cell
+!! wikitext
+{|
+| colspan="1" |foo {{!}} bar
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td colspan="1">foo | bar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td colspan="1">foo <span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span> bar</td></tr>
+</tbody></table>
+!! end
+
+!! test
 Say the magic word
 !! options
 title=[[Parser test]]
