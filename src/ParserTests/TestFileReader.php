@@ -58,7 +58,8 @@ class TestFileReader {
 		string $testFilePath, ?string $knownFailuresPath,
 		?callable $warnFunc = null, ?callable $normalizeFunc = null
 	) {
-		$this->knownFailuresPath = $knownFailuresPath;
+		$this->knownFailuresPath = $knownFailuresPath && is_readable( $knownFailuresPath ) ?
+			$knownFailuresPath : null;
 		$parsedTests = Grammar::load( $testFilePath );
 		// Start off with any comments before `!! format`
 		$rawTestItems = $parsedTests[0];
@@ -94,7 +95,7 @@ class TestFileReader {
 			$this->fileOptions['version'] = '1';
 		}
 
-		$knownFailures = $knownFailuresPath && is_readable( $knownFailuresPath ) ?
+		$knownFailures = $this->knownFailuresPath !== null ?
 			json_decode( file_get_contents( $knownFailuresPath ), true ) :
 			null;
 
