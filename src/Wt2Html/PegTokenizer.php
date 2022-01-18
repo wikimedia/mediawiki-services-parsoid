@@ -206,16 +206,6 @@ class PegTokenizer extends PipelineStage {
 	}
 
 	/**
-	 * Tokenize an extlink.
-	 * @param string $text
-	 * @param bool $sol
-	 * @return array|false Array of tokens/strings or false on error
-	 */
-	public function tokenizeExtlink( string $text, bool $sol ) {
-		return $this->tokenizeAs( $text, 'extlink', $sol );
-	}
-
-	/**
 	 * Tokenize table cell attributes.
 	 * @param string $text
 	 * @param bool $sol

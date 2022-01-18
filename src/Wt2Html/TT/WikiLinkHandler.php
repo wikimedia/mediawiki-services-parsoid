@@ -334,15 +334,22 @@ class WikiLinkHandler extends TokenHandler {
 		// Don't allow internal links to pages containing PROTO:
 		// See Parser::handleInternalLinks2()
 		if ( $env->getSiteConfig()->hasValidProtocol( $hrefTokenStr ) ) {
-			$src = substr( $token->dataAttribs->tsr->substr(
-				$this->manager->getFrame()->getSrcText()
-			), 1, -1 );
-			$extToks = $this->urlParser->tokenizeExtlink( $src, /* sol */true );
-			if ( $extToks !== false ) {
-				TokenUtils::shiftTokenTSR( $extToks, $token->dataAttribs->tsr->start + 1 );
-			} else {
-				$extToks = [ $src ];
-			}
+			$frame = $this->manager->getFrame();
+			$tsr = $token->dataAttribs->tsr;
+			$src = substr( $tsr->substr( $frame->getSrcText() ), 1, -1 );
+			$startOffset = $tsr->start + 1;
+			$extToks = PipeLineUtils::processContentInPipeline(
+				$env, $frame, $src, [
+					'sol' => false,
+					'pipelineType' => 'text/x-mediawiki',
+					'srcOffsets' => new SourceRange( $startOffset, $startOffset + strlen( $src ) ),
+					'pipelineOpts' => [
+						'inTemplate' => $this->options['inTemplate'],
+						'expandTemplates' => $this->options['expandTemplates'],
+					],
+				]
+			);
+			TokenUtils::stripEOFTkfromTokens( $extToks );
 
 			$tokens = array_merge( [ '[' ], $extToks, [ ']' ] );
 			return new TokenHandlerResult( $tokens );

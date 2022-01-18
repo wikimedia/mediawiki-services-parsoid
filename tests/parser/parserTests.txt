@@ -8662,6 +8662,19 @@ Piped link to URL: [[http://www.example.com|an example URL]]
 !! end
 
 !! test
+Nested wikilink syntax in wikilink syntax that parses as wikilink in extlink
+!! options
+parsoid=wt2html
+!! wikitext
+[[http://example.com|[[Example]]]]
+!! html/php
+<p>[<a rel="nofollow" class="external text" href="http://example.com%7C"></a><a href="/index.php?title=Example&amp;action=edit&amp;redlink=1" class="new" title="Example (page does not exist)">Example</a>]
+</p>
+!! html/parsoid
+<p>[<a rel="mw:ExtLink" href="http://example.com%7C" class="external autonumber"></a><a rel="mw:WikiLink" href="./Example" title="Example" class="new">Example</a>]</p>
+!! end
+
+!! test
 Plain link in template argument
 !! options
 parsoid=wt2html
