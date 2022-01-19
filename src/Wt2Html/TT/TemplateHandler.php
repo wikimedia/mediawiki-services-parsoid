@@ -692,11 +692,11 @@ class TemplateHandler extends TokenHandler {
 		// Get a nested transformation pipeline for the wikitext that takes
 		// us through stages 1-2.
 		// FIXME: Note, however, that since template handling is itself in
-		// stage 2, tokens returned here will be run through that stage again,
-		// except not necessarily with the same pipeline options we're setting
-		// below.  The overall effect is mostly harmless, in that the token
-		// types will have already been handled the first time through, but
-		// it does present chances for confusion, like in attribute expansion.
+		// stage 2, tokens returned here will be run through the rest of that
+		// stage again, except not necessarily with the same pipeline options
+		// we're setting below.  The overall effect is mostly harmless, in that
+		// the token types will have already been handled the first time through,
+		// but it does present chances for confusion, like in attribute expansion.
 		$toks = PipelineUtils::processContentInPipeline(
 			$env,
 			$this->manager->getFrame(),
