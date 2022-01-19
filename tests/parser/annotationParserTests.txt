@@ -845,3 +845,41 @@ Annotation markers starting lines should neither insert pre nor merge ranges
 <p data-parsoid='{"dsr":[0,91,0,0]}'><meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><!--T:1--> translate 1<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[33,45,null,null]}' data-mw='{"wtOffsets":[33,45]}'/>
 <meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[46,57,null,null]}' data-mw='{"rangeId":"mwa1","extendedRange":false,"wtOffsets":[46,57]}'/><!--T:2--> translate 2<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[79,91,null,null]}' data-mw='{"wtOffsets":[79,91]}'/></p>
 !! end
+
+!! test
+# This is not correct yet because the template is not expanded in the HTML - the template is considered as a raw string
+# instead. Follow-up as T299523.
+Annotations with templated annotation attribute shouldn't emit a warning and should round-trip
+!! wikitext
+<translate>
+<tvar {{1x|1="name=hello other=plop nowrap"}}>test</tvar>
+</translate>
+!! html/parsoid
+<meta typeof="mw:Annotation/translate" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
+<p data-parsoid='{"dsr":[12,69,0,0]}'><meta typeof="mw:Annotation/tvar" data-parsoid='{"dsr":[12,58,null,null]}' data-mw='{"attrs":{"{{1x|1=\"name=hello other=plop nowrap\"}}":""},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[12,58]}'/>test<meta typeof="mw:Annotation/tvar/End" data-parsoid='{"dsr":[62,69,null,null]}' data-mw='{"wtOffsets":[62,69]}'/></p>
+<meta typeof="mw:Annotation/translate/End" data-parsoid='{"dsr":[70,82,null,null]}' data-mw='{"wtOffsets":[70,82]}'/>
+!! end
+
+!! test
+Annotations with templated annotation attribute name shouldn't emit a warning and should round-trip
+!! wikitext
+<translate>
+<tvar {{1x|name}}="hello">test</tvar>
+</translate>
+!! html/parsoid
+<meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
+<p><meta typeof="mw:Annotation/tvar" data-mw='{"attrs":{"{{1x|name}}":"hello"},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[12,38]}'/>test<meta typeof="mw:Annotation/tvar/End" data-mw='{"wtOffsets":[42,49]}'/></p>
+<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[50,62]}'/>
+!! end
+
+!! test
+Annotations with templated annotation attribute value shouldn't emit a warning and should round-trip
+!! wikitext
+<translate>
+<tvar name="{{1x|hello}}">test</tvar>
+</translate>
+!! html/parsoid
+<meta typeof="mw:Annotation/translate" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/>
+<p><meta typeof="mw:Annotation/tvar" data-mw='{"attrs":{"name":"{{1x|hello}}"},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[12,38]}'/>test<meta typeof="mw:Annotation/tvar/End" data-mw='{"wtOffsets":[42,49]}'/></p>
+<meta typeof="mw:Annotation/translate/End" data-mw='{"wtOffsets":[50,62]}'/>
+!! end
