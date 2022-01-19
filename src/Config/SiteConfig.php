@@ -4,10 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Wikimedia\Assert\Assert;
-use Wikimedia\ObjectFactory;
+use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ExtensionContentModelHandler;
 use Wikimedia\Parsoid\Core\WikitextContentModelHandler;
@@ -119,9 +121,9 @@ abstract class SiteConfig {
 		$this->getExtensionModules(); // ensure it's initialized w/ core modules
 		if ( is_string( $configOrSpec ) || isset( $configOrSpec['class'] ) || isset( $configOrSpec['factory'] ) ) {
 			// Treat this as an object factory spec for an ExtensionModule
-			// ObjectFactory::getObjectFromSpec accepts an array, not just a callable (phan bug)
+			// ObjectFactory::createObject accepts an array, not just a callable (phan bug)
 			// @phan-suppress-next-line PhanTypeInvalidCallableArraySize
-			$module = ObjectFactory::getObjectFromSpec( $configOrSpec, [
+			$module = $this->getObjectFactory()->createObject( $configOrSpec, [
 				'allowClassName' => true,
 				'assertClass' => ExtensionModule::class,
 			] );
@@ -1182,6 +1184,36 @@ abstract class SiteConfig {
 	abstract protected function getNonNativeExtensionTags(): array;
 
 	/**
+	 * Return an object factory to use when instantiating extensions.
+	 * (This is assumed to be plumbed up to an appropriate service container.)
+	 * @return ObjectFactory The object factory to use for extensions
+	 */
+	public function getObjectFactory(): ObjectFactory {
+		// Default implementation returns an object factory with an
+		// empty service container.
+		return new ObjectFactory( new class() implements ContainerInterface {
+
+			/**
+			 * @param string $id
+			 * @return never
+			 */
+			public function get( $id ) {
+				throw new class( "Empty service container" ) extends \Error
+					implements NotFoundExceptionInterface {
+				};
+			}
+
+			/**
+			 * @param string $id
+			 * @return false
+			 */
+			public function has( $id ): bool {
+				return false;
+			}
+		} );
+	}
+
+	/**
 	 * FIXME: might benefit from T250230 (caching) but see T270307 --
 	 * currently SiteConfig::unregisterExtensionModule() is called
 	 * during testing, which requires invalidating $this->extConfig.
@@ -1260,7 +1292,7 @@ abstract class SiteConfig {
 				// Wrap the handler so we can give it a sanitized
 				// ParsoidExtensionAPI object.
 				$handler = new ExtensionContentModelHandler(
-					ObjectFactory::getObjectFromSpec( $spec, [
+					$this->getObjectFactory()->createObject( $spec, [
 						'allowClassName' => true,
 						'assertClass' => ExtContentModelHandler::class,
 					] )
@@ -1348,7 +1380,7 @@ abstract class SiteConfig {
 	public function getExtTagImpl( string $tagName ): ?ExtensionTagHandler {
 		$tagConfig = $this->getExtTagConfig( $tagName );
 		return isset( $tagConfig['handler'] ) ?
-			ObjectFactory::getObjectFromSpec( $tagConfig['handler'], [
+			$this->getObjectFactory()->createObject( $tagConfig['handler'], [
 				'allowClassName' => true,
 				'assertClass' => ExtensionTagHandler::class,
 			] ) : null;

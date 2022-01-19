@@ -7,7 +7,6 @@ use Closure;
 use DateTime;
 use Exception;
 use Generator;
-use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -161,7 +160,8 @@ class DOMPostProcessor extends PipelineStage {
 					};
 				} else {
 					// Extension post processor, object factory spec given
-					$c = ObjectFactory::getObjectFromSpec( $classNameOrSpec, [
+					$objectFactory = $this->env->getSiteConfig()->getObjectFactory();
+					$c = $objectFactory->createObject( $classNameOrSpec, [
 						'allowClassName' => true,
 						'assertClass' => ExtDOMProcessor::class,
 					] );

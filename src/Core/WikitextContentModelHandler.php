@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
-use Wikimedia\ObjectFactory;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
@@ -122,13 +121,13 @@ class WikitextContentModelHandler extends ContentModelHandler {
 	 * @param Document $doc
 	 */
 	private function preprocessDOM( Env $env, Document $doc ): void {
-		$metrics = $env->getSiteConfig()->metrics();
-		$preprocTiming = Timing::start( $metrics );
+		$siteConfig = $env->getSiteConfig();
+		$preprocTiming = Timing::start( $siteConfig->metrics() );
 
 		// Run any registered DOM preprocessors
-		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
+		foreach ( $siteConfig->getExtDOMProcessors() as $extName => $domProcs ) {
 			foreach ( $domProcs as $i => $classNameOrSpec ) {
-				$c = ObjectFactory::getObjectFromSpec( $classNameOrSpec, [
+				$c = $siteConfig->getObjectFactory()->createObject( $classNameOrSpec, [
 					'allowClassName' => true,
 					'assertClass' => ExtDOMProcessor::class,
 				] );

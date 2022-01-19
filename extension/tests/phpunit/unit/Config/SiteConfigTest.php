@@ -84,6 +84,7 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 				array_replace( self::DEFAULT_CONFIG, $configOverrides )
 			),
 			$parsoidSettings,
+			$this->createSimpleObjectFactory(),
 			$this->createMockOrOverride( Language::class, $serviceOverrides ),
 			new NullStatsdDataFactory(),
 			$this->createMockOrOverride( MagicWordFactory::class, $serviceOverrides ),

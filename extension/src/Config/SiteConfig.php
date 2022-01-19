@@ -45,6 +45,7 @@ use Psr\Log\LoggerInterface;
 use Title;
 use UnexpectedValueException;
 use WikiMap;
+use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 
 /**
@@ -116,6 +117,9 @@ class SiteConfig extends ISiteConfig {
 	/** @var UserOptionsLookup */
 	private $userOptionsLookup;
 
+	/** @var ObjectFactory */
+	private $objectFactory;
+
 	/** @var LanguageFactory */
 	private $languageFactory;
 
@@ -143,6 +147,7 @@ class SiteConfig extends ISiteConfig {
 	/**
 	 * @param ServiceOptions $config MediaWiki main configuration object
 	 * @param array $parsoidSettings Parsoid-specific options array from main configuration.
+	 * @param ObjectFactory $objectFactory
 	 * @param Language $contentLanguage Content language.
 	 * @param StatsdDataFactoryInterface $stats
 	 * @param MagicWordFactory $magicWordFactory
@@ -159,6 +164,7 @@ class SiteConfig extends ISiteConfig {
 	public function __construct(
 		ServiceOptions $config,
 		array $parsoidSettings,
+		ObjectFactory $objectFactory,
 		Language $contentLanguage,
 		StatsdDataFactoryInterface $stats,
 		MagicWordFactory $magicWordFactory,
@@ -181,6 +187,7 @@ class SiteConfig extends ISiteConfig {
 		$this->optionalConfig = $optionalConfig;
 		$this->parsoidSettings = $parsoidSettings;
 
+		$this->objectFactory = $objectFactory;
 		$this->contLang = $contentLanguage;
 		$this->stats = $stats;
 		$this->magicWordFactory = $magicWordFactory;
@@ -213,6 +220,11 @@ class SiteConfig extends ISiteConfig {
 		foreach ( $parsoidModules as $configOrSpec ) {
 			$this->registerExtensionModule( $configOrSpec );
 		}
+	}
+
+	/** @inheritDoc */
+	public function getObjectFactory(): ObjectFactory {
+		return $this->objectFactory;
 	}
 
 	/** @inheritDoc */
