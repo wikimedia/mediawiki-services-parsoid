@@ -31,6 +31,9 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  *
  * The TSR of the end tag
  * @property SourceRange|null $endTSR
+ *
+ * Used to shuttle tokens to the end of a stage in the TTM
+ * @property array|null $shuttleTokens
  */
 class TempData {
 	/**

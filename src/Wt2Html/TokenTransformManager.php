@@ -6,6 +6,8 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\Profile;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\TraceProxy;
 
@@ -37,6 +39,9 @@ class TokenTransformManager extends PipelineStage {
 
 	/** @var Profile|null For TraceProxy */
 	public $profile;
+
+	/** @var bool */
+	private $hasShuttleTokens = false;
 
 	/**
 	 * @param Env $env
@@ -84,6 +89,17 @@ class TokenTransformManager extends PipelineStage {
 	}
 
 	/**
+	 * @param array $toks
+	 * @return array
+	 */
+	public function shuttleTokensToEndOfStage( array $toks ): array {
+		$this->hasShuttleTokens = true;
+		$ttmEnd = new SelfclosingTagTk( 'mw:ttm-end' );
+		$ttmEnd->dataAttribs->getTemp()->shuttleTokens = $toks;
+		return [ $ttmEnd ];
+	}
+
+	/**
 	 * Push the tokens through all the registered transformers.
 	 * @inheritDoc
 	 */
@@ -110,6 +126,24 @@ class TokenTransformManager extends PipelineStage {
 			}
 		}
 
+		// Unpack tokens that were shuttled to the end of the stage.  This happens
+		// when we used a nested pipeline to process tokens to the end of the
+		// current stage but then they need to be reinserted into the stream
+		// and we don't want them to be processed by subsequent handlers again.
+		if ( $this->hasShuttleTokens ) {
+			$this->hasShuttleTokens = false;
+			$accum = [];
+			foreach ( $tokens as $i => $t ) {
+				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'mw:ttm-end' ) {
+					$toks = $t->dataAttribs->getTemp()->shuttleTokens;
+					PHPUtils::pushArray( $accum, $toks );
+				} else {
+					$accum[] = $t;
+				}
+			}
+			$tokens = $accum;
+		}
+
 		if ( $profile ) {
 			$profile->bumpTimeUse( 'TTM',
 				( microtime( true ) - $startTime ) * 1000 - $this->tokenTimes,
@@ -123,6 +157,7 @@ class TokenTransformManager extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function resetState( array $opts ): void {
+		$this->hasShuttleTokens = false;
 		parent::resetState( $opts );
 		foreach ( $this->transformers as $transformer ) {
 			$transformer->resetState( $opts );

@@ -493,9 +493,6 @@ class TemplateHandler extends TokenHandler {
 		$tokens[] = new EOFTk();
 
 		// Process exploded token in a new pipeline that takes us through stage 2.
-		// FIXME: Similar to processTemplateSource, we're returning tokens near
-		// the beginning of stage 2 that have already been through the rest of
-		// this stage.
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
@@ -510,8 +507,11 @@ class TemplateHandler extends TokenHandler {
 				'srcOffsets' => $state['token']->dataAttribs->tsr,
 			]
 		);
-
 		TokenUtils::stripEOFTkfromTokens( $toks );
+
+		// Shuttle tokens to the end of the stage since they've gone through the
+		// rest of the handlers in the current pipeline in the pipeline above.
+		$toks = $this->manager->shuttleTokensToEndOfStage( $toks );
 
 		$hasTemplatedTarget = isset( $state['token']->dataAttribs->tmp->templatedAttribs );
 		if ( $hasTemplatedTarget ) {
@@ -698,13 +698,6 @@ class TemplateHandler extends TokenHandler {
 		// tokenize any templates or include directives so skipping those
 		// handlers should be ok) won't work since the options for the pipeline
 		// we're in probably aren't what we want.
-		//
-		// FIXME: Note, however, that since template handling is itself in
-		// stage 2, tokens returned here will be run through the rest of that
-		// stage again, except not necessarily with the same pipeline options
-		// we're setting below.  The overall effect is mostly harmless, in that
-		// the token types will have already been handled the first time through,
-		// but it does present chances for confusion, like in attribute expansion.
 		$toks = PipelineUtils::processContentInPipeline(
 			$env,
 			$this->manager->getFrame(),
@@ -733,7 +726,11 @@ class TemplateHandler extends TokenHandler {
 			]
 		);
 
-		return $this->processTemplateTokens( $state, $toks );
+		$toks = $this->processTemplateTokens( $state, $toks );
+
+		// Shuttle tokens to the end of the stage since they've gone through the
+		// rest of the handlers in the current pipeline in the pipeline above.
+		return $this->manager->shuttleTokensToEndOfStage( $toks );
 	}
 
 	/**
@@ -1285,6 +1282,10 @@ class TemplateHandler extends TokenHandler {
 
 		$toks = $this->fetchArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
 		$toks = $this->lookupArg( $args, $attribs, $toks );
+
+		// Shuttle tokens to the end of the stage since they've gone through the
+		// rest of the handlers in the current pipeline in the pipeline above.
+		$toks = $this->manager->shuttleTokensToEndOfStage( $toks );
 
 		if ( $this->wrapTemplates && $this->options['expandTemplates'] ) {
 			// This is a bare use of template arg syntax at the top level

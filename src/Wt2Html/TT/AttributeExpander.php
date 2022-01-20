@@ -656,14 +656,7 @@ class AttributeExpander extends TokenHandler {
 			(
 				$name === 'meta' &&
 				preg_match( '/mw:(Placeholder|Transclusion|Param|Includes)/', $typeOf )
-			) ||
-			// FIXME: The TemplateHandler::processTemplateSource() parses to the
-			// end of "TokenTransform2", meaning the tokens it returns have already
-			// been through attribute expansion.  However, those tokens are reinserted
-			// in the stream near the beginning of "TokenTransform2" (since template
-			// handling is done early in that phase) and pass through here
-			// again.  So, ignore anything that might have already been expanded.
-			str_contains( $typeOf, 'mw:ExpandedAttrs' )
+			)
 		) {
 			return null;
 		}
