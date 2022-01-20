@@ -493,8 +493,9 @@ class TemplateHandler extends TokenHandler {
 		$tokens[] = new EOFTk();
 
 		// Process exploded token in a new pipeline that takes us through stage 2.
-		// FIXME: Similar to processTemplateSource, we're returning tokens at
-		// the beginning of stage 2 that have already been through this stage.
+		// FIXME: Similar to processTemplateSource, we're returning tokens near
+		// the beginning of stage 2 that have already been through the rest of
+		// this stage.
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env,
 			$this->manager->getFrame(),
@@ -690,7 +691,14 @@ class TemplateHandler extends TokenHandler {
 			$tplArgs['name'], $tplArgs['attribs'] );
 
 		// Get a nested transformation pipeline for the wikitext that takes
-		// us through stages 1-2.
+		// us through stages 1-2, with the appropriate pipeline options set.
+		//
+		// Simply returning the tokenized source here (which may be correct
+		// when using the legacy preprocessor because we don't expect to
+		// tokenize any templates or include directives so skipping those
+		// handlers should be ok) won't work since the options for the pipeline
+		// we're in probably aren't what we want.
+		//
 		// FIXME: Note, however, that since template handling is itself in
 		// stage 2, tokens returned here will be run through the rest of that
 		// stage again, except not necessarily with the same pipeline options
