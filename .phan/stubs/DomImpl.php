@@ -1,10 +1,8 @@
 <?php
 # For the purpose of phan, we're always using IDLeDOM.  That avoids the
 # type variance/co-variance issues involved in teaching phan about our
-# subclasses, and also keeps us from accessing any private implementation
+# DOM subclasses, and also keeps us from accessing any private implementation
 # details of Dodo.
-#
-# This list should match the one in DomImpl.php in the root.
 
 class_alias( "Wikimedia\\IDLeDOM\\Attr", "Wikimedia\\Parsoid\\DOM\\Attr" );
 class_alias( "Wikimedia\\IDLeDOM\\CharacterData", "Wikimedia\\Parsoid\\DOM\\CharacterData" );

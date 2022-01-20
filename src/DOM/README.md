@@ -1,7 +1,9 @@
 This is a "virtual" namespace, used for the particular DOM implementation
 Parsoid is choosing to use.
 
-The actual DOM implementation is actually in
-`Wikimedia\Dodo` or `Wikimedia\Parsoid\DOM\Compat`, and is
-aliased into this namespace via `DomImpl.php` at the top level
-of this project.
+The default implementation here uses the subclassing mechanism built
+into PHP's \DOMDocument classes.  It is intended that the implementation
+in `Wikimedia\Dodo` (or some other DOM implementation) can also be
+aliased into this namespace.  The overall goal is to provide a measure
+of implementation independence by ensuring that direct references to
+the built-in \DOM* classes don't appear in type hints and phan docs.
