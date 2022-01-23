@@ -61,7 +61,7 @@ class OnlyInclude extends TokenHandler {
 	 */
 	private function onOnlyInclude( Token $token ): TokenHandlerResult {
 		$tsr = $token->dataAttribs->tsr;
-		$src = empty( $this->options['inTemplate'] )
+		$src = !$this->options['inTemplate']
 			? $token->getWTSource( $this->manager->getFrame() )
 			: null;
 		$attribs = [

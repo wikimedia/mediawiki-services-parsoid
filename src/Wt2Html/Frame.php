@@ -129,8 +129,8 @@ class Frame {
 			'pipelineType' => 'tokens/x-mediawiki',
 			'pipelineOpts' => [
 				'isInclude' => $this->depth > 0,
-				'expandTemplates' => !empty( $options['expandTemplates'] ),
-				'inTemplate' => !empty( $options['inTemplate'] )
+				'expandTemplates' => $options['expandTemplates'],
+				'inTemplate' => $options['inTemplate']
 			],
 			'sol' => true,
 			'srcOffsets' => $options['srcOffsets'] ?? null,

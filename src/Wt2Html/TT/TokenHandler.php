@@ -35,10 +35,6 @@ abstract class TokenHandler {
 		$this->env = $manager->getEnv();
 		$this->options = $options;
 
-		// Initialize a few options to simplify checks elsewhere
-		$this->options['inTemplate'] = !empty( $this->options['inTemplate'] );
-		$this->options['expandTemplates'] = !empty( $this->options['expandTemplates'] );
-
 		// This is set if the token handler is disabled for the entire pipeline.
 		$this->disabled = false;
 

@@ -182,6 +182,11 @@ class ParserPipelineFactory {
 	 * @return array
 	 */
 	private function defaultOptions( array $options ): array {
+		// default: not in a template
+		if ( !isset( $options['inTemplate'] ) ) {
+			$options['inTemplate'] = false;
+		}
+
 		// default: not an include context
 		if ( !isset( $options['isInclude'] ) ) {
 			$options['isInclude'] = false;

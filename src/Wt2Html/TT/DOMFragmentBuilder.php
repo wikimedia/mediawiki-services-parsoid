@@ -78,7 +78,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			// mw:dom-fragment-token should always set offsets on content
 			// that comes from the top-level document.
 			Assert::invariant(
-				!empty( $this->options['inTemplate'] ) || (bool)$srcOffsets,
+				$this->options['inTemplate'] || (bool)$srcOffsets,
 				'Processing top-level content without source offsets'
 			);
 

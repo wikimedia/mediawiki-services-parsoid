@@ -228,7 +228,7 @@ class ExternalLinkHandler extends TokenHandler {
 				$token->attribs, false, null, $newAttrs )['attribs'];
 			$aStart = new TagTk( 'a', $newAttrs, $dataAttribs );
 
-			if ( empty( $this->options['inTemplate'] ) ) {
+			if ( !$this->options['inTemplate'] ) {
 				// If we are from a top-level page, add normalized attr info for
 				// accurate roundtripping of original content.
 				//

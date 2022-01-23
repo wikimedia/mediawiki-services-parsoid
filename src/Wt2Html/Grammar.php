@@ -63,6 +63,8 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 		$tokenizer = $this->options['pegTokenizer'];
 		$this->pipelineOpts = $tokenizer->getOptions();
+		// FIXME: inTemplate option may not always be set in
+		// standalone tokenizers user by some pipelines handlers.
 		$this->pipelineOffset = $this->options['pipelineOffset'] ?? 0;
 		$this->extTags = $this->siteConfig->getExtensionTagNameMap();
 

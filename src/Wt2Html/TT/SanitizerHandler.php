@@ -123,7 +123,7 @@ class SanitizerHandler extends TokenHandler {
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		$this->inTemplate = !empty( $options['inTemplate'] );
+		$this->inTemplate = $options['inTemplate'];
 	}
 
 	/**

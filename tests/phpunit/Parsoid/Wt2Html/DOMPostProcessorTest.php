@@ -25,7 +25,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 		// Use 'Test Page' to verify that dc:isVersioOf link in header uses underscores
 		// but the user rendered version in <title> in header uses spaces.
 		$mockEnv = new MockEnv( [ 'title' => 'Test Page' ] );
-		$dpp = new DOMPostProcessor( $mockEnv );
+		$dpp = new DOMPostProcessor( $mockEnv, [ 'inTemplate' => false ] );
 		$dpp->registerProcessors( $processors );
 		$opts = [
 			'toplevel' => $atTopLevel

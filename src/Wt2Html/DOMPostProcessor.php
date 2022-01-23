@@ -253,12 +253,12 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => ComputeDSR::class,
 				'shortcut' => 'dsr',
-				'omit' => !empty( $options['inTemplate'] )
+				'omit' => $options['inTemplate']
 			],
 			[
 				'Processor' => WrapTemplates::class,
 				'shortcut' => 'tplwrap',
-				'omit' => !empty( $options['inTemplate'] )
+				'omit' => $options['inTemplate']
 			],
 			[
 				'name' => 'AddAnnotationIds',

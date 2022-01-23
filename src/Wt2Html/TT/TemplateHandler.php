@@ -64,9 +64,9 @@ class TemplateHandler extends TokenHandler {
 		// which continues to inherit from TemplateHandler.
 		$this->parserFunctions = new ParserFunctions( $this->env );
 		$this->ae = new AttributeExpander( $this->manager, [
-			'standalone' => true, 'expandTemplates' => true
+			'standalone' => true, 'inTemplate' => false, 'expandTemplates' => true
 		] );
-		$this->wrapTemplates = empty( $options['inTemplate'] );
+		$this->wrapTemplates = !$options['inTemplate'];
 
 		// In the legacy parser, the call to replaceVariables from internalParse
 		// returns early if the text is already greater than the $wgMaxArticleSize
@@ -935,6 +935,7 @@ class TemplateHandler extends TokenHandler {
 		} else {
 			return $this->manager->getFrame()->expand( $arg, [
 				'expandTemplates' => false,
+				'inTemplate' => false,
 				'srcOffsets' => $srcOffsets,
 			] );
 		}
