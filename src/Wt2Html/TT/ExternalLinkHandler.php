@@ -254,7 +254,7 @@ class ExternalLinkHandler extends TokenHandler {
 			return new TokenHandlerResult( $tokens );
 		} else {
 			// Not a link, convert href to plain text.
-			return new TokenHandlerResult( WikiLinkHandler::bailTokens( $env, $token, true ) );
+			return new TokenHandlerResult( WikiLinkHandler::bailTokens( $this->manager, $token ) );
 		}
 	}
 
