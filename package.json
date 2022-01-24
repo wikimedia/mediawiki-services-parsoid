@@ -15,7 +15,7 @@
     "prfun": "^2.1.5",
     "request": "^2.87.0",
     "semver": "^6.1.0",
-    "service-runner": "git+https://github.com/wikimedia/service-runner.git#yarg",
+    "service-runner": "git+https://github.com/wikimedia/service-runner.git#19c4087e9229f6bd948353c698297bfcb2bc34de",
     "simplediff": "^0.1.1",
     "wikimedia-langconv": "^0.1.0",
     "wikipeg": "^2.0.6",
