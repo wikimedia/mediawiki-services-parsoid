@@ -8697,7 +8697,7 @@ parsoid=wt2html
 
 <p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[http://www.example.com |123]]"}},"i":0}}]}'>[</span><a about="#mwt2" rel="mw:ExtLink" href="http://www.example.com" class="external text">|123</a><span about="#mwt2">]</span></p>
 
-<p>{{1x|[<a rel="mw:ExtLink" href="http://www.example.com" class="external text" data-parsoid='{"targetOff":114,"contentOffsets":[114,118]}'>|123</a>}}</p>
+<p>{{1x|[<a rel="mw:ExtLink" href="http://www.example.com" class="external text">|123</a>}}</p>
 
 <p><span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[http://www.example.com "},"2":{"wt":"123]]"}},"i":0}}]}'>[</span><a about="#mwt3" rel="mw:ExtLink" href="http://www.example.com" class="external free">http://www.example.com</a><span about="#mwt3"> </span></p>
 !! end
@@ -28155,7 +28155,7 @@ Strip span tags added to mark misnested links
 !! options
 parsoid=html2wt
 !! html/parsoid
-<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://test.com" data-parsoid='{"targetOff":17,"contentOffsets":[17,34]}'></a><a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"simple","a":{"href":"./One"},"sa":{"href":"one"},"misnested":true}'>one</a><span data-parsoid='{"misnested":true}'> two three</span></p>
+<p data-parsoid='{}'><a rel="mw:ExtLink" href="http://test.com"></a><a rel="mw:WikiLink" href="./One" title="One" data-parsoid='{"stx":"simple","a":{"href":"./One"},"sa":{"href":"one"},"misnested":true}'>one</a><span data-parsoid='{"misnested":true}'> two three</span></p>
 !! wikitext
 [http://test.com][[one]] two three
 !! end

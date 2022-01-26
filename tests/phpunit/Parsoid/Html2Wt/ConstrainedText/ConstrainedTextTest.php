@@ -143,7 +143,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 			] ],
 			[ [
 				'name' => 'ExtLinkText',
-				'html' => "<a rel=\"mw:ExtLink\" href=\"https://example.com\" class=\"external autonumber\" data-parsoid='{\"targetOff\":20,\"contentOffsets\":[20,20],\"dsr\":[0,21,20,1]}'></a>",
+				'html' => "<a rel=\"mw:ExtLink\" href=\"https://example.com\" class=\"external autonumber\"></a>",
 				'types' => [
 					ExtLinkText::class,
 				],
