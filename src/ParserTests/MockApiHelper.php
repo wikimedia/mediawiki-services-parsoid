@@ -606,7 +606,8 @@ class MockApiHelper extends ApiHelper {
 			}
 			$thumbBaseUrl = $turl;
 			$page = null;
-			if ( $urlWidth !== $width || $mediatype === 'AUDIO' || $mediatype === 'VIDEO' || $mediatype === 'OFFICE' ) {
+			$lang = null;
+			if ( $urlWidth !== $width || $mediatype === 'AUDIO' || $mediatype === 'VIDEO' || $mediatype === 'OFFICE' || $mediatype === 'DRAWING' ) {
 				$turl .= '/';
 				if ( preg_match( '/^page(\d+)-(\d+)px$/', $extraParam ?? '', $matches ) ) {
 					$turl .= $extraParam;
@@ -614,6 +615,9 @@ class MockApiHelper extends ApiHelper {
 				} elseif ( $mediatype === 'OFFICE' ) {
 					$turl .= 'page1-' . $urlWidth . 'px';
 					$page = 1;
+				} elseif ( preg_match( '/^lang([a-z]+(?:-[a-z]+)*)-(\d+)px$/i', $extraParam ?? '', $matches ) ) {
+					$turl .= $extraParam;
+					$lang = $matches[1];
 				} else {
 					$turl .= $urlWidth . 'px';
 				}
@@ -656,6 +660,9 @@ class MockApiHelper extends ApiHelper {
 					$turl = $thumbBaseUrl . '/';
 					if ( $page !== null ) {
 						$turl .= "page{$page}-";
+					}
+					if ( $lang !== null ) {
+						$turl .= "lang{$lang}-";
 					}
 					$turl .= round( $twidth * $scale ) . 'px-' . $normFileName;
 					if ( $mediatype === 'VIDEO' || $mediatype === 'OFFICE' ) {

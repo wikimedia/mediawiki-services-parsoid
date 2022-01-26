@@ -1149,8 +1149,12 @@ class LinkHandlerUtils {
 		} elseif ( $linkElt && $linkElt->hasAttribute( 'href' ) ) {
 			$link = $state->serializer->serializedImageAttrVal( $outerElt, $linkElt, 'href' );
 			if ( empty( $link['fromsrc'] ) ) {
-				// strip page parameter if present on href
-				$strippedHref = preg_replace( '#[?]page=\d+$#D', '', $linkElt->getAttribute( 'href' ) ?? '' );
+				// strip page or lang parameter if present on href
+				$strippedHref = preg_replace(
+					'#[?]((?:page=\d+)|(?:lang=[a-z]+(?:-[a-z]+)*))$#Di',
+					'',
+					$linkElt->getAttribute( 'href' ) ?? ''
+				);
 				if ( $strippedHref === $elt->getAttribute( 'resource' ) ) {
 					// default link: same place as resource
 					$link = $resource;

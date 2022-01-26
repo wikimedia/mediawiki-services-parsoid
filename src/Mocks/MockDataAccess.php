@@ -422,6 +422,9 @@ class MockDataAccess implements DataAccess {
 				if ( isset( $dims['page'] ) ) {
 					$txopts['page'] = $dims['page'];
 				}
+				if ( isset( $dims['lang'] ) ) {
+					$txopts['lang'] = $dims['lang'];
+				}
 			}
 			if ( isset( $dims['height'] ) && $dims['height'] !== null ) {
 				$txopts['height'] = $dims['height'];

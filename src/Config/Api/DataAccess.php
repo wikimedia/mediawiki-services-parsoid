@@ -183,12 +183,16 @@ class DataAccess implements IDataAccess {
 
 			$imgNS = $sc ? $sc->namespaceName( $sc->canonicalNamespaceId( "File" ) ) : "File";
 			$apiArgs['titles'] = "$imgNS:$name";
-			$needPage = isset( $dims['page'] );
+			$needsWidth = isset( $dims['page'] ) || isset( $dims['lang'] );
 			if ( isset( $dims['width'] ) ) {
 				$apiArgs["${prefix}urlwidth"] = $dims['width'];
-				if ( $needPage ) {
-					$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$dims['width']}px";
-					$needPage = false;
+				if ( $needsWidth ) {
+					if ( isset( $dims['page'] ) ) {  // PDF
+						$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$dims['width']}px";
+					} elseif ( isset( $dims['lang'] ) ) {  // SVG
+						$apiArgs["${prefix}urlparam"] = "lang{$dims['lang']}-{$dims['width']}px";
+					}
+					$needsWidth = false;
 				}
 			}
 			if ( isset( $dims['height'] ) ) {
@@ -207,13 +211,17 @@ class DataAccess implements IDataAccess {
 				// request if necessary.
 				if ( isset( $fileinfo['pagecount'] ) && !isset( $dims['page'] ) ) {
 					$dims['page'] = 1; # also ensures we won't get here again
-					$needPage = true;
+					$needsWidth = true;
 				}
-				if ( $needPage ) {
-					$needPage = false; # ensure we won't get here again
+				if ( $needsWidth ) {
+					$needsWidth = false; # ensure we won't get here again
 					$width = $fileinfo['width'];
 					$apiArgs["${prefix}urlwidth"] = $width;
-					$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$width}px";
+					if ( isset( $dims['page'] ) ) {  // PDF
+						$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$width}px";
+					} elseif ( isset( $dims['lang'] ) ) {  // SVG
+						$apiArgs["${prefix}urlparam"] = "lang{$dims['lang']}-{$width}px";
+					}
 					continue;
 				}
 				break;

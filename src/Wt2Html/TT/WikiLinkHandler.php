@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Language\Language;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -1316,6 +1317,12 @@ class WikiLinkHandler extends TokenHandler {
 					} else {
 						$opt['ck'] = 'bogus';
 					}
+				// Lang is a global attribute and can be applied to all media elements
+				// for editing and roundtripping.  However, not all file handlers will
+				// make use of it.  This param validation is from the SVG handler but
+				// seems generally applicable.
+				} elseif ( $optInfo['ck'] === 'lang' && !Language::isValidCode( $optInfo['v'] ) ) {
+					$opt['ck'] = 'bogus';
 				} else {
 					$opts[$optInfo['ck']] = [
 						'v' => $optInfo['v'],
@@ -1356,7 +1363,7 @@ class WikiLinkHandler extends TokenHandler {
 				}
 
 				// This is a bit of an abuse of the "txt" property since
-				// `optInfo.v` isn't unnecessarily wikitext from source.
+				// `optInfo.v` isn't necessarily wikitext from source.
 				// It's a result of the specialized stringifying above, which
 				// if interpreted as wikitext upon serialization will result
 				// in some (acceptable) normalization.

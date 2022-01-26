@@ -1505,22 +1505,18 @@ wgParserEnableLegacyMediaDOM=false
 
 !! test
 SVG thumbnails with language de
-!! options
-parsoid=wt2html,wt2wt,html2html
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
-[[File:Foobar.svg|thumb|caption|lang=de]]
+[[File:Foobar.svg|lang=de|thumb|caption]]
 !! html/php
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="/index.php?title=File:Foobar.svg&amp;lang=de"><img alt="" resource="/index.php?title=File:Foobar.svg&amp;lang=de" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-180px-Foobar.svg.png" decoding="async" width="180" height="135" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 2x" /></a><figcaption>caption</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" decoding="async" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="135" width="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x"/></a><figcaption>caption</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg?lang=de"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-180px-Foobar.svg.png" decoding="async" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="135" width="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 2x" /></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
 SVG thumbnails with invalid language code
-!! options
-parsoid=wt2html,wt2wt,html2html
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
@@ -1528,7 +1524,7 @@ wgParserEnableLegacyMediaDOM=false
 !! html/php
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="/wiki/File:Foobar.svg"><img alt="" resource="/wiki/File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" decoding="async" width="180" height="135" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x" /></a><figcaption>lang=invalid:language:code</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" decoding="async" data-file-width="240" data-file-height="180" data-file-type="drawing" height="135" width="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x"/></a><figcaption>lang=invalid:language:code</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"caption"},{"ck":"bogus","ak":"lang=invalid:language:code"}]}' data-mw='{"attribs":[["bogus",{"txt":"invalid:language:code"}]]}'><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" decoding="async" data-file-width="240" data-file-height="180" data-file-type="drawing" height="135" width="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x"/></a><figcaption>caption</figcaption></figure>
 !! end
 
 !! test
@@ -2130,13 +2126,20 @@ Parsoid-specific image handling - whitespace caption
 
 !! test
 Parsoid-specific image handling - lang option
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 foo
 [[File:Foobar.svg|lang=de|caption]]
 bar
+!! html/php
+<p>foo
+<span class="mw-default-size" typeof="mw:Image"><a href="/index.php?title=File:Foobar.svg&amp;lang=de" title="caption"><img alt="caption" resource="/index.php?title=File:Foobar.svg&amp;lang=de" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-240px-Foobar.svg.png" decoding="async" width="240" height="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-480px-Foobar.svg.png 2x" /></a></span>
+bar
+</p>
 !! html/parsoid
 <p>foo
-<span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.svg"><img resource="./File:Foobar.svg" src="http://example.com/images/f/ff/Foobar.svg" decoding="async" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="180" width="240"/></a></span>
+<span class="mw-default-size" typeof="mw:Image" data-mw='{"caption":"caption"}'><a href="./File:Foobar.svg?lang=de"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/langde-240px-Foobar.svg.png" decoding="async" lang="de" data-file-width="240" data-file-height="180" data-file-type="drawing" height="180" width="240" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langde-360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langde-480px-Foobar.svg.png 2x" data-parsoid='{"a":{"resource":"./File:Foobar.svg","lang":"de","height":"180","width":"240"},"sa":{"resource":"File:Foobar.svg","lang":"lang=de"}}'/></a></span>
 bar</p>
 !! end
 

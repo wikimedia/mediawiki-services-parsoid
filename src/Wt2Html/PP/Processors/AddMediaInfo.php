@@ -448,11 +448,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param stdClass $dataMw
 	 * @param bool $isImage
 	 * @param int $page
+	 * @param string $lang
 	 * @return Element
 	 */
 	private static function replaceAnchor(
 		Env $env, PegTokenizer $urlParser, Element $oldAnchor, array $attrs,
-		stdClass $dataMw, bool $isImage, int $page
+		stdClass $dataMw, bool $isImage, int $page, string $lang
 	): Element {
 		$doc = $oldAnchor->ownerDocument;
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'link', true );
@@ -484,8 +485,15 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				}
 			} else {
 				$href = $env->makeLink( $attrs['title'] );
+				$qs = [];
 				if ( $page > 0 ) {
-					$href .= "?page=$page";
+					$qs['page'] = $page;
+				}
+				if ( $lang ) {
+					$qs['lang'] = $lang;
+				}
+				if ( $qs ) {
+					$href .= '?' . http_build_query( $qs );
 				}
 				$anchor->setAttribute( 'href', $href );
 			}
@@ -579,6 +587,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$page = WTSUtils::getAttrFromDataMw( $dataMw, 'page', true );
 			if ( $page ) {
 				$dims['page'] = $page[1]->txt;
+			}
+
+			if ( $span->hasAttribute( 'lang' ) ) {
+				$dims['lang'] = $span->getAttribute( 'lang' );
 			}
 
 			// "starttime" should be used if "thumbtime" isn't present,
@@ -714,7 +726,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $anchor, $attrs, $dataMw, $isImage,
-				(int)( $attrs['dims']['page'] ?? 0 )
+				(int)( $attrs['dims']['page'] ?? 0 ),
+				$attrs['dims']['lang'] ?? ''
 			);
 			$anchor->appendChild( $elt );
 
