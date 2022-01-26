@@ -220,16 +220,10 @@ class SiteConfigTest extends MediaWikiUnitTestCase {
 			'nativeGalleryEnabled',
 			true
 		];
-		yield 'widthOption' => [
-			[ 'thumbsize' => 4242 ],
-			'widthOption',
-			4242
-		];
 	}
 
 	/**
 	 * @covers \MWParsoid\Config\SiteConfig::nativeGalleryEnabled()
-	 * @covers \MWParsoid\Config\SiteConfig::widthOption()
 	 * @dataProvider provideParsoidSettingPassed
 	 * @param array $settings
 	 * @param string $method

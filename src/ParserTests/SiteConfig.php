@@ -34,6 +34,9 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public $responsiveReferences;
 
+	/** @var int */
+	public $thumbsize;
+
 	/** @var LoggerInterface */
 	public $suppressLogger;
 
@@ -106,6 +109,7 @@ class SiteConfig extends ApiSiteConfig {
 		$this->disableSubpagesForNS( 0 );
 		$this->unregisterParserTestExtension( new StyleTag() );
 		$this->unregisterParserTestExtension( new RawHTML() );
+		$this->thumbsize = null;
 	}
 
 	/**
@@ -226,6 +230,10 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public function timezoneOffset(): int {
 		return 0;
+	}
+
+	public function widthOption(): int {
+		return $this->thumbsize ?? 180;  // wgThumbLimits setting in core ParserTestRunner
 	}
 
 	/**

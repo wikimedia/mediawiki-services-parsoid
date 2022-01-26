@@ -586,12 +586,8 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	public function widthOption(): int {
-		// Allow override of thumb limit for parser tests (the core parser
-		// test framework does this by setting a per-user option, but parsoid
-		// doesn't support per-user options)
-		if ( isset( $this->parsoidSettings['thumbsize'] ) ) {
-			return $this->parsoidSettings['thumbsize'];
-		}
+		// Even though this looks like Parsoid is supporting per-user thumbsize
+		// options, that is not the case, Parsoid doesn't receive user session state
 		$thumbsize = $this->userOptionsLookup->getDefaultOption( 'thumbsize' );
 		return $this->config->get( 'ThumbLimits' )[$thumbsize];
 	}

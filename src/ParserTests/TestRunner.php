@@ -1438,6 +1438,10 @@ class TestRunner {
 			if ( ( $test->options['wgrawhtml'] ?? null ) === '1' ) {
 				$this->siteConfig->registerParserTestExtension( new RawHTML() );
 			}
+
+			if ( isset( $test->options['thumbsize'] ) ) {
+				$this->siteConfig->thumbsize = (int)$test->options['thumbsize'];
+			}
 		}
 
 		$this->buildTasks( $test, $targetModes, $options );
