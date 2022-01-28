@@ -1539,6 +1539,7 @@ wgParserEnableLegacyMediaDOM=false
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"caption"},{"ck":"bogus","ak":"lang=invalid:language:code"}]}' data-mw='{"attribs":[["bogus",{"txt":"invalid:language:code"}]]}'><a href="./File:Foobar.svg" class="mw-file-description"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" decoding="async" data-file-width="240" data-file-height="180" data-file-type="drawing" height="135" width="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x"/></a><figcaption>caption</figcaption></figure>
 !! end
 
+## FIXME: Parsoid can support this in integrated mode
 !! test
 SVG thumbnails in page language
 !! options
@@ -1552,6 +1553,7 @@ wgParserEnableLegacyMediaDOM=false
 </p>
 !! end
 
+## FIXME: Parsoid can support this in integrated mode
 !! test
 SVG thumbnails in page language not present in the file
 !! options

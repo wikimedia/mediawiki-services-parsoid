@@ -86,11 +86,12 @@ class DataAccess extends IDataAccess {
 	}
 
 	/**
+	 * @param IPageConfig $pageConfig
 	 * @param File $file
 	 * @param array $hp
 	 * @return array
 	 */
-	private function makeTransformOptions( $file, array $hp ): array {
+	private function makeTransformOptions( IPageConfig $pageConfig, $file, array $hp ): array {
 		// Validate the input parameters like Parser::makeImage()
 		$handler = $file->getHandler();
 		if ( !$handler ) {
@@ -119,6 +120,9 @@ class DataAccess extends IDataAccess {
 			// that is done by Parsoid. Parsoid always sets the width parameter
 			// for thumbnails.
 		}
+
+		// Parser::makeImage() always sets this
+		$hp['targetlang'] = $pageConfig->getPageLanguage();
 
 		return $hp;
 	}
@@ -227,7 +231,7 @@ class DataAccess extends IDataAccess {
 				$dims['thumbtime'] = $dims['seek'];
 			}
 
-			$txopts = $this->makeTransformOptions( $file, $dims );
+			$txopts = $this->makeTransformOptions( $pageConfig, $file, $dims );
 			$mto = $file->transform( $txopts );
 			if ( $mto ) {
 				if ( $mto->isError() && $mto instanceof MediaTransformError ) {
