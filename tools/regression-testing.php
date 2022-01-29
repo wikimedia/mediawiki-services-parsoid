@@ -258,6 +258,20 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	}
 
 	/**
+	 * Helper function to dump results
+	 * @param array $res
+	 */
+	private function printResults( array $res ): void {
+		foreach ( $res as $test => $testRes ) {
+			echo( "\t$test\t=> " );
+			foreach ( $testRes as $type => $count ) {
+				echo( "$type: $count; " );
+			}
+			echo( "\n" );
+		}
+	}
+
+	/**
 	 * Compare the results for the given titles.
 	 * @param string[] $titles The titles to compare
 	 * @param string $knownGood the oracle commit
@@ -288,11 +302,12 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 				}
 			} else {
 				// emit these differences even in 'quiet' mode
+				$this->dashes( null, true );
 				echo( "$title\n" );
 				echo( "$knownGood (known good) results:\n" );
-				var_dump( $oracleRes );
+				$this->printResults( $oracleRes );
 				echo( "$maybeBad (maybe bad) results:\n" );
-				var_dump( $commitRes );
+				$this->printResults( $commitRes );
 				$degraded = static function ( $newRes, $oldRes ) {
 					// NOTE: We are conservatively assuming that even if semantic
 					// errors go down but syntactic errors go up, it is a degradation.
@@ -312,11 +327,13 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( count( $summary['improved'] ) > 0 ) {
 			echo( "Pages that seem to have improved (feel free to verify in other ways):\n" );
 			echo( implode( "\n", $summary['improved'] ) );
+			echo( "\n" );
 			$this->dashes( null, true );
 		}
 		if ( count( $summary['degraded'] ) > 0 ) {
 			echo( "Pages needing investigation:\n" );
 			echo( implode( "\n", $summary['degraded'] ) );
+			echo( "\n" );
 		} else {
 			echo( "*** No pages need investigation ***\n" );
 		}
