@@ -125,11 +125,11 @@ class TokenStreamPatcher extends TokenHandler {
 	private function reprocessTokens( int $srcOffset, array $toks ): array {
 		// Update tsr
 		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
-
 		$pipe = $this->env->getPipelineFactory()->getPipeline( "tokens/x-mediawiki" );
 		$pipe->init( [
 			'frame' => $this->manager->getFrame(),
-			'toplevel' => $this->atTopLevel
+			'toplevel' => $this->atTopLevel,
+			// FIXME: What of the inTemplate/expandTemplate options here?
 		] );
 		return (array)$pipe->parse( $toks, [] );
 	}

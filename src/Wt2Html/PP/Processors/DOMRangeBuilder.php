@@ -984,6 +984,11 @@ class DOMRangeBuilder {
 						// to other transclusions. Should match the index of
 						// the corresponding private metadata in $templateInfos.
 						$args = $a->info->getDataMw( $infoIndex++ );
+						// FIXME: This isn't right.  The key to use here doesn't
+						// depend on the $startElem of the overlapping template(arg).
+						// CompoundTemplateInfo needs to be augmented with
+						// the key type of the template(arg) that the info came
+						// from.
 						$parts[] = DOMUtils::hasTypeOf( $startElem, 'mw:Param' )
 							? (object)[ 'templatearg' => $args ]
 							: (object)[ 'template' => $args ];

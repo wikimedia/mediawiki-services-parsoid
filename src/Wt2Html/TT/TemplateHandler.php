@@ -64,7 +64,9 @@ class TemplateHandler extends TokenHandler {
 		// which continues to inherit from TemplateHandler.
 		$this->parserFunctions = new ParserFunctions( $this->env );
 		$this->ae = new AttributeExpander( $this->manager, [
-			'standalone' => true, 'inTemplate' => false, 'expandTemplates' => true
+			'expandTemplates' => $this->options['expandTemplates'],
+			'inTemplate' => $this->options['inTemplate'],
+			'standalone' => true,
 		] );
 		$this->wrapTemplates = !$options['inTemplate'];
 
@@ -466,6 +468,13 @@ class TemplateHandler extends TokenHandler {
 		if ( $leadWS !== '' ) {
 			$attribTokens[] = $leadWS;
 		}
+
+		// FIXME: $attribs may be have been expanded by the use of the attribute
+		// expander in onTemplate, in which case flattening and processing
+		// them in a new pipeline may lead to unexpected consequences.
+		// The comment below in the $hasTemplatedTarget case seems to understand
+		// this and simplifying it all as in WikiLinkHandler::bailTokens seems
+		// astute.
 
 		// Re-join attribute tokens with '=' and '|'
 		foreach ( $attribs as $kv ) {
@@ -1120,6 +1129,9 @@ class TemplateHandler extends TokenHandler {
 	private function onTemplate( Token $token ): TokenHandlerResult {
 		// If the template name is templated, use the attribute transform manager
 		// to process all attributes to tokens, and force reprocessing of the token.
+		// FIXME: Try adding `!$this->options['expandTemplates'] &&` here and
+		// see what the consequences are to resolveTemplateTarget.  We shouldn't
+		// need to do this if we aren't expanding templates.
 		if ( self::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->processComplexAttributes( $token );
 
