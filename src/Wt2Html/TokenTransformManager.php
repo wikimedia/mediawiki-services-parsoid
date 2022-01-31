@@ -78,13 +78,6 @@ class TokenTransformManager extends PipelineStage {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function getOptions(): array {
-		return $this->options;
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	public function addTransformer( TokenHandler $t ): void {
