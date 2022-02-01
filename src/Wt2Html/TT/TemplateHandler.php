@@ -956,15 +956,13 @@ class TemplateHandler extends TokenHandler {
 	 * @param array $toks
 	 * @return array
 	 */
-	private function lookupArg( array $args, $attribs, array $toks ): array {
+	private function lookupArg( array $args, array $attribs, array $toks ): array {
 		$argName = trim( TokenUtils::tokensToString( $toks ) );
 		$res = $args['dict'][$argName] ?? null;
 
 		if ( $res !== null ) {
-			if ( is_string( $res ) ) {
-				$res = [ $res ];
-			}
-			return isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res;
+			$res = isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res;
+			return is_string( $res ) ? [ $res ] : $res;
 		} elseif ( count( $attribs ) > 1 ) {
 			return $this->fetchArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
 		} else {
