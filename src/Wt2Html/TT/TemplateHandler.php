@@ -272,91 +272,13 @@ class TemplateHandler extends TokenHandler {
 			$prefix = trim( $pieces[0] );
 		}
 
-		// The check for pieces.length > 1 is required to distinguish between
-		// {{lc:FOO}} and {{lc|FOO}}.  The latter is a template transclusion
-		// even though the target (=lc) matches a registered parser-function name.
-		$isPF = count( $pieces ) > 1;
-
 		// Check if we have a parser function
 		$canonicalFunctionName = $siteConfig->getMagicWordForFunctionHook( $prefix ) ??
 			$siteConfig->getMagicWordForVariable( $prefix ) ??
 			$siteConfig->getMagicWordForVariable( mb_strtolower( $prefix ) );
 
 		if ( $canonicalFunctionName !== null ) {
-			// Extract toks that make up pfArg
-			$pfArgToks = null;
-
-			// Because of the lenient stringifying above, we need to find the
-			// prefix.  The strings we've seen so far are buffered in case they
-			// combine to our prefix.  FIXME: We need to account for the call
-			// to $this->stripIncludeTokens above and the safesubst replace.
-			$buf = '';
-			$index = -1;
-			$partialPrefix = false;
-			foreach ( $targetToks as $i => $t ) {
-				if ( !is_string( $t ) ) {
-					continue;
-				}
-
-				$buf .= $t;
-				$prefixPos = stripos( $buf, $prefix );
-				if ( $prefixPos !== false ) {
-					// Check if they combined
-					$offset = strlen( $buf ) - strlen( $t ) - $prefixPos;
-					if ( $offset > 0 ) {
-						$partialPrefix = substr( $prefix, $offset );
-					}
-					$index = $i;
-					break;
-				}
-			}
-
-			if ( $index > -1 ) {
-				// Strip parser-func / magic-word prefix
-				$firstTok = $targetToks[$index];
-				if ( $partialPrefix !== false ) {
-					// Remove the partial prefix if it case insensitively
-					// appears at the start of the token
-					if ( substr_compare( $firstTok, $partialPrefix,
-							0, strlen( $partialPrefix ), true ) === 0
-					) {
-						$firstTok = substr( $firstTok, strlen( $partialPrefix ) );
-					}
-				} else {
-					// Remove the first occurrence of the prefix from $firstTok,
-					// case insensitively
-					$prefixPos = stripos( $firstTok, $prefix );
-					if ( $prefixPos !== false ) {
-						$firstTok = substr( $firstTok, $prefixPos + strlen( $prefix ) );
-					}
-				}
-				$targetToks = array_slice( $targetToks, $index + 1 );
-
-				if ( $isPF ) {
-					// Strip ":", again, after accounting for the lenient stringifying
-					while ( count( $targetToks ) > 0 &&
-						( !is_string( $firstTok ) || preg_match( '/^\s*$/D', $firstTok ) )
-					) {
-						$firstTok = $targetToks[0];
-						$targetToks = array_slice( $targetToks, 1 );
-					}
-					Assert::invariant( is_string( $firstTok ) && preg_match( '/^\s*:/', $firstTok ),
-						'Expecting : in parser function definiton'
-					);
-					$pfArgToks = array_merge( [ preg_replace( '/^\s*:/', '', $firstTok, 1 ) ], $targetToks );
-				} else {
-					$pfArgToks = array_merge( [ $firstTok ], $targetToks );
-				}
-			}
-
-			if ( $pfArgToks === null ) {
-				// FIXME: Protect from crashers by using the full token -- this is
-				// still going to generate incorrect output, but it won't crash.
-				$pfArgToks = $targetToks;
-			}
-
 			$state['parserFunctionName'] = $canonicalFunctionName;
-
 			$magicWordType = null;
 			if ( $canonicalFunctionName === '!' ) {
 				$magicWordType = '!';
@@ -365,16 +287,17 @@ class TemplateHandler extends TokenHandler {
 			}
 
 			$pfArg = substr( $target, strlen( $prefix ) + 1 );
-
 			return [
 				'isPF' => true,
 				'prefix' => $canonicalFunctionName,
-				'magicWordType' => $magicWordType,
+				'pfArg' => $pfArg === false ? '' : $pfArg,
 				'target' => 'pf_' . $canonicalFunctionName,
 				'title' => $env->makeTitleFromURLDecodedStr( "Special:ParserFunction/$canonicalFunctionName" ),
-				'pfArg' => $pfArg === false ? '' : $pfArg,
-				'pfArgToks' => $pfArgToks,
 				'srcOffsets' => $srcOffsets,
+				'magicWordType' => $magicWordType,
+				// Is this of the form {{somepf:arg}}? Ex: {{lc:FOO}}
+				'haveArgsAfterColon' => count( $pieces ) > 1,
+				'targetToks' => $targetToks
 			];
 		}
 
@@ -986,6 +909,94 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
+	 * Extract tokens from the $targetToks token array that correspond to
+	 * parser function args.
+	 * FIXME: This method below can probably be dramatically simplified given that
+	 * this is now only processed for magic words.
+	 *
+	 * @param string $prefix
+	 * @param bool $haveArgsAfterColon
+	 * @param array $targetToks
+	 * @return array
+	 */
+	private function extractParserFunctionToks(
+		string $prefix, bool $haveArgsAfterColon, array $targetToks
+	): array {
+		$pfArgToks = null;
+
+		// Because of the lenient stringifying earlier, we need to find the prefix.
+		// The strings we've seen so far are buffered in case they combine to our prefix.
+		// FIXME: We need to account for the call to $this->stripIncludeTokens
+		// and the safesubst replace.
+		$buf = '';
+		$index = -1;
+		$partialPrefix = false;
+		foreach ( $targetToks as $i => $t ) {
+			if ( !is_string( $t ) ) {
+				continue;
+			}
+
+			$buf .= $t;
+			$prefixPos = stripos( $buf, $prefix );
+			if ( $prefixPos !== false ) {
+				// Check if they combined
+				$offset = strlen( $buf ) - strlen( $t ) - $prefixPos;
+				if ( $offset > 0 ) {
+					$partialPrefix = substr( $prefix, $offset );
+				}
+				$index = $i;
+				break;
+			}
+		}
+
+		if ( $index > -1 ) {
+			// Strip parser-func / magic-word prefix
+			$firstTok = $targetToks[$index];
+			if ( $partialPrefix !== false ) {
+				// Remove the partial prefix if it case insensitively
+				// appears at the start of the token
+				if ( substr_compare( $firstTok, $partialPrefix,
+						0, strlen( $partialPrefix ), true ) === 0
+				) {
+					$firstTok = substr( $firstTok, strlen( $partialPrefix ) );
+				}
+			} else {
+				// Remove the first occurrence of the prefix from $firstTok,
+				// case insensitively
+				$prefixPos = stripos( $firstTok, $prefix );
+				if ( $prefixPos !== false ) {
+					$firstTok = substr( $firstTok, $prefixPos + strlen( $prefix ) );
+				}
+			}
+			$targetToks = array_slice( $targetToks, $index + 1 );
+
+			if ( $haveArgsAfterColon ) {
+				// Strip ":", again, after accounting for the lenient stringifying
+				while ( count( $targetToks ) > 0 &&
+					( !is_string( $firstTok ) || preg_match( '/^\s*$/D', $firstTok ) )
+				) {
+					$firstTok = $targetToks[0];
+					$targetToks = array_slice( $targetToks, 1 );
+				}
+				Assert::invariant( is_string( $firstTok ) && preg_match( '/^\s*:/', $firstTok ),
+					'Expecting : in parser function definiton'
+				);
+				$pfArgToks = array_merge( [ preg_replace( '/^\s*:/', '', $firstTok, 1 ) ], $targetToks );
+			} else {
+				$pfArgToks = array_merge( [ $firstTok ], $targetToks );
+			}
+		}
+
+		if ( $pfArgToks === null ) {
+			// FIXME: Protect from crashers by using the full token -- this is
+			// still going to generate incorrect output, but it won't crash.
+			$pfArgToks = $targetToks;
+		}
+
+		return $pfArgToks;
+	}
+
+	/**
 	 * Process the special magic word as specified by `resolvedTgt.magicWordType`.
 	 * ```
 	 * magicWordType === '!'    => {{!}} is the magic word
@@ -994,11 +1005,11 @@ class TemplateHandler extends TokenHandler {
 	 * ```
 	 * @param bool $atTopLevel
 	 * @param Token $tplToken
-	 * @param ?array $resolvedTgt
+	 * @param array $resolvedTgt
 	 * @return ?array
 	 */
 	public function processSpecialMagicWord(
-		bool $atTopLevel, Token $tplToken, ?array $resolvedTgt = null
+		bool $atTopLevel, Token $tplToken, array $resolvedTgt
 	): ?array {
 		$env = $this->env;
 
@@ -1032,7 +1043,7 @@ class TemplateHandler extends TokenHandler {
 				$this->encapTokens( $state, $toks ) : $toks;
 		}
 
-		if ( !$resolvedTgt || $resolvedTgt['magicWordType'] !== 'MASQ' ) {
+		if ( $resolvedTgt['magicWordType'] !== 'MASQ' ) {
 			// Nothing to do
 			// FIXME: This is going to result in a throw
 			return null;
@@ -1051,13 +1062,15 @@ class TemplateHandler extends TokenHandler {
 		);
 
 		if ( isset( $tplToken->dataAttribs->tmp->templatedAttribs ) ) {
+			$pfArgToks = $this->extractParserFunctionToks(
+				$resolvedTgt['prefix'],
+				$resolvedTgt['haveArgsAfterColon'],
+				$resolvedTgt['targetToks']
+			);
 			// No shadowing if templated
 			//
 			// SSS FIXME: post-tpl-expansion, WS won't be trimmed. How do we handle this?
-			$metaToken->addAttribute(
-				'content', $resolvedTgt['pfArgToks'],
-				$resolvedTgt['srcOffsets']->expandTsrV()
-			);
+			$metaToken->addAttribute( 'content', $pfArgToks, $resolvedTgt['srcOffsets']->expandTsrV() );
 			$metaToken->addAttribute( 'about', $env->newAboutId() );
 			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 
@@ -1154,7 +1167,7 @@ class TemplateHandler extends TokenHandler {
 		$tgt = $this->resolveTemplateTarget(
 			$state, $token->attribs[0]->k, $token->attribs[0]->srcOffsets->key
 		);
-		if ( $tgt && $tgt['magicWordType'] ) {
+		if ( isset( $tgt['magicWordType'] ) ) {
 			$toks = $this->processSpecialMagicWord( $this->atTopLevel, $token, $tgt );
 			Assert::invariant( $toks !== null, "Expected non-null tokens array." );
 			return new TokenHandlerResult( $toks );
