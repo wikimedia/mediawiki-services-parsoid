@@ -1125,30 +1125,23 @@ class TemplateHandler extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onTemplate( Token $token ): TokenHandlerResult {
-		// If the template name is templated, use the attribute transform manager
-		// to process all attributes to tokens, and force reprocessing of the token.
+		// Since AttributeExpander runs later in the pipeline than TemplateHandler,
+		// if the template name is templated, use our copy of AttributeExpander
+		// to process all attributes to tokens, and force reprocessing of this
+		// template token since we will then know the actual template target.
+		//
 		// FIXME: Try adding `!$this->options['expandTemplates'] &&` here and
 		// see what the consequences are to resolveTemplateTarget.  We shouldn't
 		// need to do this if we aren't expanding templates.
 		if ( self::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->processComplexAttributes( $token );
 
-			// Note that there's some hacky code in the attribute expander
-			// to try and prevent it from returning templates in the
-			// expanded attribs.  Otherwise, we can find outselves in a loop
-			// here, where `hasTemplateToken` continuously returns true.
-			//
-			// That was happening when a template name depending on a top
-			// level templatearg failed to expand.
-			//
-			// FIXME: ae->processComplexAttributes isn't passing us the right
-			// retry signal. So, we are forced to rely on the hack above as
-			// well as the unconditional retry below. We should fix that code
-			// in AttributeExpander to pass back the retry signal that is
-			// correct when we call it from the TemplateHandler so we can
-			// get rid of that hack and the unconditional retry signal below.
+			// NOTE: AttributeExpander converts unexpanded template tokens in
+			// attributes to strings so that we don't end up in a AE <-> TT loop!
+			// Ex: When a template name depending on a top level templatearg
+			// that couldn't be expanded.
+			// Given that, it is safe to always retry the results.
 			$ret->retry = true;
-
 			return $ret;
 		}
 
