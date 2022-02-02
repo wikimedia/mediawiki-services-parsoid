@@ -607,9 +607,7 @@ class AttributeExpander extends TokenHandler {
 		}
 
 		return new TokenHandlerResult(
-			array_merge( $metaTokens, [ $token ], $postNLToks ),
-			// Retry this pass if we expanded templates in $token's attributes
-			count( $metaTokens ) > 0
+			array_merge( $metaTokens, [ $token ], $postNLToks )
 		);
 	}
 
