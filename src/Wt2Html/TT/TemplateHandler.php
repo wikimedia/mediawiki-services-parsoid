@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
-use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
@@ -377,109 +376,34 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param array $state
-	 * @param array $attribs
+	 * @param Token $token
 	 * @return array
 	 */
-	private function convertAttribsToString(
-		array $state, array $attribs
-	): array {
-		$attribTokens = [];
+	private function convertToString( Token $token ): array {
+		$frame = $this->manager->getFrame();
+		$tsr = $token->dataAttribs->tsr;
+		$src = substr( $token->dataAttribs->src, 1, -1 );
+		$startOffset = $tsr->start + 1;
+		$srcOffsets = new SourceRange( $startOffset, $startOffset + strlen( $src ) );
 
-		// Leading whitespace, if any
-		$leadWS = $state['token']->dataAttribs->tmp->leadWS ?? '';
-		if ( $leadWS !== '' ) {
-			$attribTokens[] = $leadWS;
-		}
-
-		// FIXME: $attribs may be have been expanded by the use of the attribute
-		// expander in onTemplate, in which case flattening and processing
-		// them in a new pipeline may lead to unexpected consequences.
-		// The comment below in the $hasTemplatedTarget case seems to understand
-		// this and simplifying it all as in WikiLinkHandler::bailTokens seems
-		// astute.
-
-		// Re-join attribute tokens with '=' and '|'
-		foreach ( $attribs as $kv ) {
-			if ( $kv->k ) {
-				$attribTokens = $this->flattenAndAppendToks( $attribTokens, null, $kv->k );
-			}
-			if ( $kv->v ) {
-				$attribTokens = $this->flattenAndAppendToks( $attribTokens, $kv->k ? '=' : '', $kv->v );
-			}
-			$attribTokens[] = '|';
-		}
-
-		// pop last pipe separator
-		array_pop( $attribTokens );
-
-		// Trailing whitespace, if any
-		$trailWS = $state['token']->dataAttribs->tmp->trailWS ?? '';
-		if ( $trailWS !== '' ) {
-			$attribTokens[] = $trailWS;
-		}
-
-		$tokens = [ '{{' ];
-		PHPUtils::pushArray( $tokens, $attribTokens );
-		$tokens[] = '}}';
-		$tokens[] = new EOFTk();
-
-		// Process exploded token in a new pipeline that takes us through stage 2.
 		$toks = PipelineUtils::processContentInPipeline(
-			$this->env,
-			$this->manager->getFrame(),
-			$tokens,
-			[
-				'pipelineType' => 'tokens/x-mediawiki',
+			$this->env, $frame, $src, [
+				'pipelineType' => 'text/x-mediawiki',
 				'pipelineOpts' => [
 					'expandTemplates' => $this->options['expandTemplates'],
 					'inTemplate' => $this->options['inTemplate'],
 				],
-				'sol' => true,
-				'srcOffsets' => $state['token']->dataAttribs->tsr,
+				'sol' => false,
+				'srcOffsets' => $srcOffsets,
 			]
 		);
 		TokenUtils::stripEOFTkfromTokens( $toks );
 
+		$toks = array_merge( [ '{' ], $toks, [ '}' ] );
+
 		// Shuttle tokens to the end of the stage since they've gone through the
 		// rest of the handlers in the current pipeline in the pipeline above.
-		$toks = $this->manager->shuttleTokensToEndOfStage( $toks );
-
-		$hasTemplatedTarget = isset( $state['token']->dataAttribs->tmp->templatedAttribs );
-		if ( $hasTemplatedTarget ) {
-			// Since we have a templated target, attributes have gone through
-			// the attribute expander, which processes them to dom, meaning
-			// that any mw:DOMFragment will have been unpacked and unavailable
-			// if returned here.  If we encounter any, let's just do the easiest
-			// thing and return the source for the template.  But note that
-			// that will have the effect of converting any of the parsed
-			// constructs in the tokens above back to untokenized strings.
-			// FIXME: We can do something fancier, like for the href in
-			// WikiLinkHandler::bailTokens, but this is already considered
-			// an edge case not really worth supporting (see below)
-			foreach ( $attribTokens as $t ) {
-				if ( $t instanceof Token && TokenUtils::hasDOMFragmentType( $t ) ) {
-					$toks = [ $state['token']->dataAttribs->src ];
-					break;
-				}
-			}
-
-			if ( $this->wrapTemplates ) {
-				// Add encapsulation if we had a templated target
-				// FIXME: This is a deliberate wrapping of the entire
-				// "broken markup" where one or more templates are nested
-				// inside invalid transclusion markup. The proper way to do
-				// this would be to disentangle everything and identify
-				// transclusions and wrap them individually with meta tags
-				// and data-mw info. But, this is an edge case which can be
-				// more readily fixed by fixing the markup. The goal here is
-				// to ensure that the output renders properly and it roundtrips
-				// without dirty diffs rather then faithful DOMspec representation.
-				$toks = $this->encapTokens( $state, $toks );
-			}
-		}
-
-		return $toks;
+		return $this->manager->shuttleTokensToEndOfStage( $toks );
 	}
 
 	/**
@@ -526,7 +450,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $resolvedTgt === null ) {
 			// Target contains tags, convert template braces and pipes back into text
 			// Re-join attribute tokens with '=' and '|'
-			return $this->convertAttribsToString( $state, $attribs );
+			return $this->convertToString( $state['token'] );
 		}
 
 		// TODO:
@@ -1175,13 +1099,10 @@ class TemplateHandler extends TokenHandler {
 
 		$expandTemplates = $this->options['expandTemplates'];
 
-		// FIXME: Should the tokens returned from convertAttribsToString be
-		// template wrapped in the calls below?
-
 		if ( $expandTemplates && $tgt === null ) {
 			// Target contains tags, convert template braces and pipes back into text
 			// Re-join attribute tokens with '=' and '|'
-			return new TokenHandlerResult( $this->convertAttribsToString( $state, $token->attribs ) );
+			return new TokenHandlerResult( $this->convertToString( $token ) );
 		}
 
 		if ( $this->atMaxArticleSize ) {
@@ -1189,7 +1110,7 @@ class TemplateHandler extends TokenHandler {
 			// we're going to return the tokens without expanding them.
 			// (This case is where the original article as fetched from the DB
 			// or passed to the API exceeded max article size.)
-			return new TokenHandlerResult( $this->convertAttribsToString( $state, $token->attribs ) );
+			return new TokenHandlerResult( $this->convertToString( $token ) );
 		}
 
 		// There's no point in proceeding if we've already hit the maximum inclusion size
@@ -1201,7 +1122,7 @@ class TemplateHandler extends TokenHandler {
 			// over the maximum wikitext size.)
 			// XXX: It could be combined with the previous test, but we might
 			// want to use different error messages in the future.
-			return new TokenHandlerResult( $this->convertAttribsToString( $state, $token->attribs ) );
+			return new TokenHandlerResult( $this->convertToString( $token ) );
 		}
 
 		if ( $env->nativeTemplateExpansionEnabled() ) {
@@ -1278,7 +1199,7 @@ class TemplateHandler extends TokenHandler {
 				// template-like that the PHP parser did not expand. This is
 				// encapsulated already, so just return the plain text.
 				Assert::invariant( TokenUtils::isTemplateToken( $token ), "Expected template token." );
-				return new TokenHandlerResult( $this->convertAttribsToString( $state, $token->attribs ) );
+				return new TokenHandlerResult( $this->convertToString( $token ) );
 			}
 		}
 	}

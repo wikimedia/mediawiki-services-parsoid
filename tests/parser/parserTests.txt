@@ -3132,17 +3132,18 @@ parsoid=wt2html
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1&lt;!--X-->x&lt;!--X-->  \n   &lt;!--X-->   &lt;!--X-->\n\n ","href":"./Template:1x"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
 !! end
 
-## NOTE: Parsoid is punting on this edge case for now and just returning
-## something that will roundtrip.
+## wt2html only, since the bare {{ will get escaped when serializing
 !! test
 Templates: Target with an extension tag
+!! options
+parsoid=wt2html
 !! wikitext
 {{{{1x|1x}}<nowiki>hi</nowiki>|ho}}
 !! html/php
 <p>{{1xhi|ho}}
 </p>
 !! html/parsoid
-<p><span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{1x|1x}}&lt;nowiki>hi&lt;/nowiki>"},"params":{"1":{"wt":"ho"}},"i":0}}]}'>{{{{1x|1x}}&lt;nowiki>hi&lt;/nowiki>|ho}}</span></p>
+<p>{{<span about="#mwt5" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"1x"}},"i":0}}]}'>1x</span><span typeof="mw:Nowiki">hi</span>|ho}}</p>
 !! end
 
 !! test
@@ -12354,18 +12355,24 @@ Templates with templated name
 !! end
 
 ## Regression test; the output here isn't really that interesting.
+## wt2html only, since the bare {{ will get escaped when serializing
+## FIXME: The data-mw has parts duplicating ranges as in a7c1618,
+## needs investigation!
 !! test
 Templates with templated name and top level template args
+!! options
+parsoid=wt2html
 !! wikitext
 {{1{{2{{{3}}}|4=5}}}}
 !! html/parsoid
-<p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1{{2{{{3}}}|4=5}}"},"params":{},"i":0}}]}'>{{1{{2{{{3}}}|4=5}}}}</span></p>
+<p>{{1<span about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"2{{{3}}}","href":"./Template:2"},"params":{"4":{"wt":"5"}},"i":0}},{"templatearg":{"target":{"wt":"3"},"params":{},"i":1}},"|4=5}}"]}'>{{2</span><span about="#mwt4">{{{3}}}</span><span about="#mwt4">|4=5}}</span>}}</p>
 !! end
 
-# Parsoid markup is deliberate "broken". This is an edge case.
-# See long comment in TemplateHandler.js:convertAttribsToString.
+## wt2html only, since the bare {{ will get escaped when serializing
 !! test
 Templates with invalid templated targets
+!! options
+parsoid=wt2html
 !! wikitext
 {{1x
 {{1x|foo}}
@@ -12376,8 +12383,9 @@ foo
 }}
 </p>
 !! html/parsoid
-<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x\n{{1x|foo}}\n"},"params":{},"i":0}}]}'>{{1x
-foo }}</span></p>
+<p>{{1x
+<span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span>
+}}</p>
 !! end
 
 !! article
@@ -22055,13 +22063,18 @@ T7678: Double-parsed template argument
 </p>
 !! end
 
+## wt2html only, since the bare {{ will get escaped when serializing
 !! test
 T7678: Double-parsed template invocation
+!! options
+parsoid=wt2html
 !! wikitext
 {{lc:{{paramtest {{!}} param = hello }} }}
-!! html
+!! html/php
 <p>{{paramtest | param = hello }}
 </p>
+!! html/parsoid
+<p><span about="#mwt4" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"lc:{{paramtest {{!}} param = hello }} ","function":"lc"},"params":{},"i":0}}]}'>{{paramtest  param = hello }}</span></p>
 !! end
 
 !! test
