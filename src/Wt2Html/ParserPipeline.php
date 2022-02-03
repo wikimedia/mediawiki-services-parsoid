@@ -219,10 +219,10 @@ class ParserPipeline {
 			$srcText = $initialState['srcText'] ?? null;
 			if ( isset( $tplArgs['title'] ) ) {
 				$title = $tplArgs['title'];
-				$args = $tplArgs['attribs'];
+				$args = $tplArgs['attribs']; // KV[]
 			} else {
 				$title = $frame->getTitle();
-				$args = $frame->getArgs()->args;
+				$args = $frame->getArgs()->args; // KV[]
 			}
 			$frame = $frame->newChild( $title, $args, $srcText );
 		}

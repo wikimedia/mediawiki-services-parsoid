@@ -76,8 +76,8 @@ class PipelineUtils {
 	 *    - string pipelineType
 	 *    - array  pipelineOpts
 	 *    - array  tplArgs - if set, defines parameters for the child frame
-	 *    - string tplArgs.name
-	 *    - array  tplArgs.attribs
+	 *      - string tplArgs['name']
+	 *      - KV[]   tplArgs['attribs']
 	 *    - string srcText - if set, defines the source text for the expansion
 	 *    - SourceRange  srcOffsets - if set, defines the range within the
 	 *          source text that $content corresponds to

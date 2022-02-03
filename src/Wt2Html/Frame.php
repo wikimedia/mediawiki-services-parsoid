@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -40,7 +41,7 @@ class Frame {
 	/**
 	 * @param Title $title
 	 * @param Env $env
-	 * @param array $args
+	 * @param KV[] $args
 	 * @param string $srcText
 	 * @param ?Frame $parentFrame
 	 */
@@ -93,7 +94,7 @@ class Frame {
 	/**
 	 * Create a new child frame.
 	 * @param Title $title
-	 * @param array $args
+	 * @param KV[] $args
 	 * @param string $srcText
 	 * @return Frame
 	 */

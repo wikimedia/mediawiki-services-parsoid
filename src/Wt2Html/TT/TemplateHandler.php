@@ -1134,7 +1134,7 @@ class TemplateHandler extends TokenHandler {
 				/* If $tgt is not null, target will be present. */
 				$templateName = $tgt['target'];
 				$templateTitle = $tgt['title'];
-				$attribs = [];
+				$attribs = array_slice( $token->attribs, 1 ); // Strip template name
 
 				// We still need to check for limit violations because of the
 				// higher precedence of extension tags, which can result in nested
