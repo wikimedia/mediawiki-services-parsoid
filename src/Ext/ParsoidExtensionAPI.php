@@ -469,7 +469,7 @@ class ParsoidExtensionAPI {
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
 	 */
-	public function processHiddenHTMLInDataAttributes( Element $elt, Closure $proc ): void {
+	public function processHTMLHiddenInDataAttributes( Element $elt, Closure $proc ): void {
 		/* -----------------------------------------------------------------
 		 * FIXME: This works but feels special cased, maybe?
 		 *

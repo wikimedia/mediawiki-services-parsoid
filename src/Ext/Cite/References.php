@@ -627,7 +627,7 @@ class References extends ExtensionTagHandler {
 				} else {
 					$refsData->pushEmbeddedContentFlag();
 					// Look for <ref>s embedded in data attributes
-					$extApi->processHiddenHTMLInDataAttributes( $child,
+					$extApi->processHTMLHiddenInDataAttributes( $child,
 						function ( string $html ) use ( $extApi, $refsData ) {
 							return self::processEmbeddedRefs( $extApi, $refsData, $html );
 						}
@@ -688,7 +688,7 @@ class References extends ExtensionTagHandler {
 				} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Extension/references' ) ) {
 					$processBodyHtml( $child );
 				} else {
-					$extApi->processHiddenHTMLInDataAttributes(
+					$extApi->processHTMLHiddenInDataAttributes(
 						$child, $processEmbeddedErrors
 					);
 				}
