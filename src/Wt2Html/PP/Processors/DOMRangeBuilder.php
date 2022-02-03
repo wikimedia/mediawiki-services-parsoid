@@ -441,7 +441,9 @@ class DOMRangeBuilder {
 		foreach ( $templateInfo->paramInfos as $pi ) {
 			$pi->srcOffsets = null;
 		}
-		$tplArray[] = new CompoundTemplateInfo( $dsr, $templateInfo );
+		$tplArray[] = new CompoundTemplateInfo(
+			$dsr, $templateInfo, DOMUtils::hasTypeOf( $range->startElem, 'mw:Param' )
+		);
 	}
 
 	/**
@@ -984,12 +986,7 @@ class DOMRangeBuilder {
 						// to other transclusions. Should match the index of
 						// the corresponding private metadata in $templateInfos.
 						$args = $a->info->getDataMw( $infoIndex++ );
-						// FIXME: This isn't right.  The key to use here doesn't
-						// depend on the $startElem of the overlapping template(arg).
-						// CompoundTemplateInfo needs to be augmented with
-						// the key type of the template(arg) that the info came
-						// from.
-						$parts[] = DOMUtils::hasTypeOf( $startElem, 'mw:Param' )
+						$parts[] = $a->isParam
 							? (object)[ 'templatearg' => $args ]
 							: (object)[ 'template' => $args ];
 						// FIXME: we throw away the array keys and rebuild them

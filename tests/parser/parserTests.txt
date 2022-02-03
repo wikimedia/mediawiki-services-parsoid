@@ -14613,6 +14613,22 @@ Templates: Param with empty arg in the final position
 <span about="#mwt1" typeof="mw:Param" data-mw='{"parts":[{"templatearg":{"target":{"wt":"hi"},"params":{"1":{"wt":""}},"i":0}}]}'></span>
 !! end
 
+!! test
+Compound transclusion with template and top level templatearg
+!! wikitext
+{{1x|<table>}}
+{{{top|<td>123</td>}}}
+</table>
+!! html/php
+<table>
+<tbody><tr><td>123</td>
+</tr></tbody></table>
+!! html/parsoid
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;table>"}},"i":0}},"\n",{"templatearg":{"target":{"wt":"top"},"params":{"1":{"wt":"&lt;td>123&lt;/td>"}},"i":1}},"\n&lt;/table>"]}'>
+<tbody><tr><td>123</td></tr>
+</tbody></table>
+!! end
+
 !!test
 Parser Functions: 1. Simple example
 !! wikitext

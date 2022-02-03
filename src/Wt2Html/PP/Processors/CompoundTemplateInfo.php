@@ -13,12 +13,17 @@ class CompoundTemplateInfo {
 	/** @var TemplateInfo */
 	public $info;
 
+	/** @var bool */
+	public $isParam;
+
 	/**
 	 * @param DomSourceRange $dsr
 	 * @param TemplateInfo $info
+	 * @param bool $isParam
 	 */
-	public function __construct( DomSourceRange $dsr, TemplateInfo $info ) {
+	public function __construct( DomSourceRange $dsr, TemplateInfo $info, bool $isParam ) {
 		$this->dsr = $dsr;
 		$this->info = $info;
+		$this->isParam = $isParam;
 	}
 }
