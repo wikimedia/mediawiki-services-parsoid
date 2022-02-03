@@ -152,30 +152,11 @@ abstract class TokenHandler {
 				$res = null;
 			}
 
-			// onTag handler might return a retry signal
-			if ( $res && $res->retry ) {
-				if ( $res->tokens !== null ) {
-					array_splice( $tokens, $i, 1, $res->tokens );
-					$n = count( $tokens );
-				}
-				continue;
-			}
-
 			$modified = $res && $this->isModified( $token, $res );
 			if ( $modified ) {
 				$resTokens = $res->tokens;
 			} elseif ( $this->onAnyEnabled && ( !$res || !$res->skipOnAny ) ) {
 				$res = $this->onAny( $token );
-
-				// onAny handler might return a retry signal
-				if ( $res && $res->retry ) {
-					if ( $res->tokens !== null ) {
-						array_splice( $tokens, $i, 1, $res->tokens );
-						$n = count( $tokens );
-					}
-					continue;
-				}
-
 				$modified = $res && $this->isModified( $token, $res );
 				if ( $modified ) {
 					$resTokens = $res->tokens;

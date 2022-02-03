@@ -330,7 +330,7 @@ class ParagraphWrapper extends TokenHandler {
 			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->  ', static function () use( $res ) {
 				return PHPUtils::jsonEncode( $res );
 			} );
-			return new TokenHandlerResult( $res, false, true );
+			return new TokenHandlerResult( $res, true );
 		} else {
 			$this->resetCurrLine();
 			$this->newLineCount++;

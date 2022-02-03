@@ -1135,14 +1135,9 @@ class TemplateHandler extends TokenHandler {
 		// need to do this if we aren't expanding templates.
 		if ( self::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->processComplexAttributes( $token );
-
-			// NOTE: AttributeExpander converts unexpanded template tokens in
-			// attributes to strings so that we don't end up in a AE <-> TT loop!
-			// Ex: When a template name depending on a top level templatearg
-			// that couldn't be expanded.
-			// Given that, it is safe to always retry the results.
-			$ret->retry = true;
-			return $ret;
+			$toks = $ret->tokens ?? null;
+			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
+				"Expected only the input token as the return value." );
 		}
 
 		$toks = null;

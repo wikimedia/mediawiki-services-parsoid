@@ -375,7 +375,7 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return new TokenHandlerResult( $ret, false, true );
+		return new TokenHandlerResult( $ret, true );
 	}
 
 	/**
@@ -419,7 +419,7 @@ class PreHandler extends TokenHandler {
 			}
 		);
 
-		return new TokenHandlerResult( $ret, false, true );
+		return new TokenHandlerResult( $ret, true );
 	}
 
 	/**
