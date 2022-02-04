@@ -434,24 +434,14 @@ class TemplateHandler extends TokenHandler {
 	 * the target were expanded.
 	 *
 	 * @param array $state
+	 * @param array $resolvedTgt
 	 * @param array $attribs
 	 * @return array
 	 */
-	private function expandTemplate( array $state, array $attribs ): array {
+	private function expandTemplate(
+		array $state, array $resolvedTgt, array $attribs
+	): array {
 		$env = $this->env;
-		$target = $attribs[0]->k;
-		if ( !$target ) {
-			$env->log( 'debug', 'No template target! ', $attribs );
-		}
-
-		// Resolve the template target again now that the template token's
-		// attributes have been expanded by the AttributeTransformManager
-		$resolvedTgt = $this->resolveTemplateTarget( $state, $target, $attribs[0]->srcOffsets->key );
-		if ( $resolvedTgt === null ) {
-			// Target contains tags, convert template braces and pipes back into text
-			// Re-join attribute tokens with '=' and '|'
-			return $this->convertToString( $state['token'] );
-		}
 
 		// TODO:
 		// check for 'subst:'
@@ -1131,7 +1121,19 @@ class TemplateHandler extends TokenHandler {
 				[ 'expandTemplates' => false, 'inTemplate' => true ]
 			);
 			$newAttribs = $atm->process( $token->attribs );
-			$tplToks = $this->expandTemplate( $state, $newAttribs );
+			$target = $newAttribs[0]->k;
+			if ( !$target ) {
+				$env->log( 'debug', 'No template target! ', $newAttribs );
+			}
+			// Resolve the template target again now that the template token's
+			// attributes have been expanded by the AttributeTransformManager
+			$resolvedTgt = $this->resolveTemplateTarget( $state, $target, $newAttribs[0]->srcOffsets->key );
+			if ( $resolvedTgt === null ) {
+				// Target contains tags, convert template braces and pipes back into text
+				// Re-join attribute tokens with '=' and '|'
+				return new TokenHandlerResult( $this->convertToString( $token ) );
+			}
+			$tplToks = $this->expandTemplate( $state, $resolvedTgt, $newAttribs );
 			return new TokenHandlerResult(
 				( $expandTemplates && $this->wrapTemplates ) ?
 					$this->encapTokens( $state, $tplToks ) : $tplToks
