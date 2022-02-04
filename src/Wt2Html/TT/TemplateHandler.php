@@ -1056,11 +1056,7 @@ class TemplateHandler extends TokenHandler {
 		// if the template name is templated, use our copy of AttributeExpander
 		// to process all attributes to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
-		//
-		// FIXME: Try adding `!$this->options['expandTemplates'] &&` here and
-		// see what the consequences are to resolveTemplateTarget.  We shouldn't
-		// need to do this if we aren't expanding templates.
-		if ( self::hasTemplateToken( $token->attribs[0]->k ) ) {
+		if ( $this->options['expandTemplates'] && self::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->processComplexAttributes( $token );
 			$toks = $ret->tokens ?? null;
 			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
@@ -1076,8 +1072,6 @@ class TemplateHandler extends TokenHandler {
 			'wrappedObjectId' => $env->newObjectId(),
 		];
 
-		// This template target resolution may be incomplete for
-		// cases where the template's target itself was templated.
 		$tgt = $this->resolveTemplateTarget(
 			$state, $token->attribs[0]->k, $token->attribs[0]->srcOffsets->key
 		);
