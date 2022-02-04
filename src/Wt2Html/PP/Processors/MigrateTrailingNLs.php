@@ -128,7 +128,6 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 */
 	public function doMigrateTrailingNLs( Node $elt, Env $env ) {
-		// Nothing to do for text and comment nodes
 		if (
 			!( $elt instanceof Element ) &&
 			!( $elt instanceof DocumentFragment )
@@ -144,7 +143,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 		// "<table>\n<tr> || ||\n<td> a\n</table>"
 		// when walking backward vs. forward.
 		//
-		// Separately, walking backward also lets us ingore
+		// Separately, walking backward also lets us ignore
 		// newly added children after child (because of
 		// migrated newline nodes from child's DOM tree).
 		$child = $elt->lastChild;
@@ -180,7 +179,6 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 						break;
 					}
 					$firstEltToMigrate = $n;
-					// <!--comment-->
 					$tsrCorrection += WTUtils::decodedCommentLength( $n );
 				} else {
 					if ( !$isTdTh && preg_match( '/^[ \t\r\n]*\n[ \t\r\n]*$/D', $n->nodeValue ) ) {
