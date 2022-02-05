@@ -86,6 +86,7 @@ interface ContentMetadataCollector {
 	 *   Available via ::setOutputFlag() (see T292868)
 	 * ::setCategories()
 	 *   Doesn't seem necessary, we have ::addCategory().
+	 *   (And adding the ability to overwrite categories would be bad.)
 	 * ::addTrackingCategory()
 	 *   This was moved to Parser / the TrackingCategories service, but
 	 *   perhaps it would be helpful if we had a version of this available
@@ -116,17 +117,10 @@ interface ContentMetadataCollector {
 	 * ::setSections()
 	 *   T296025: Should be more structured
 	 * ::setIndicator()
-	 *   Probably should be 'addIndicator' for consistency.  The `content`
+	 *   Probably should be 'appendIndicator' for consistency.  The `content`
 	 *   parameter is a string, but we'd probably want a DOM?  If it's a
 	 *   DOM object we need to be able to JSON serialize and unserialize
-	 *   it for ParserCache.
-	 * ::addModules()/::addModuleStyles()/::addJsConfigVars()
-	 *   T296123: Takes string|array argument; type should be simplified
-	 *   and documentation needs to be copied over from OutputPage
-	 *   (Probably should be unified with T296345)
-	 *   (See https://phabricator.wikimedia.org/T272942#7605560 for
-	 *   ::addJsConfigVars(), which probably should be deliberately
-	 *   omitted from ContentMetadataCollector)
+	 *   it for ParserCache. (T300980)
 	 * ::addExtraCSPDefaultSrc()
 	 * ::addExtraCSPStyleSrc()
 	 * ::addExtraCSPScriptSrc()
@@ -144,7 +138,6 @@ interface ContentMetadataCollector {
 	 * Add a warning to the output for this page.
 	 * @param string $msg The localization message key for the warning
 	 * @param mixed ...$args Optional arguments for the message
-	 * @since 1.38
 	 */
 	public function addWarningMsg( string $msg, ...$args ): void;
 
@@ -162,7 +155,6 @@ interface ContentMetadataCollector {
 	 *
 	 * @param string $name A flag name
 	 * @param bool $val
-	 * @since 1.38
 	 */
 	public function setOutputFlag( string $name, bool $val = true ): void;
 
@@ -221,6 +213,9 @@ interface ContentMetadataCollector {
 	 * as a value. Attempt to use an object or array will
 	 * not work properly with LinksUpdate.
 	 *
+	 * @note As with ::setJsConfigVar(), setting a page property to multiple
+	 * conflicting values during the parse is not supported.
+	 *
 	 * @param string $name
 	 * @param int|float|string|bool|null $value
 	 */
@@ -254,6 +249,9 @@ interface ContentMetadataCollector {
 	 * value. Attempt to set other class instance as a extension data
 	 * will break ParserCache for the page.
 	 *
+	 * @note As with ::setJsConfigVar(), setting a page property to multiple
+	 * conflicting values during the parse is not supported.
+	 *
 	 * @param string $key The key for accessing the data. Extensions
 	 *   should take care to avoid conflicts in naming keys. It is
 	 *   suggested to use the extension's name as a prefix.  Keys
@@ -261,10 +259,73 @@ interface ContentMetadataCollector {
 	 *
 	 * @param mixed $value The value to set.
 	 *   Setting a value to null is equivalent to removing the value.
-	 *
-	 * @since 1.21
 	 */
 	public function setExtensionData( string $key, $value ): void;
+
+	/**
+	 * Appends arbitrary data to this ParserObject. This can be used
+	 * to store some information in the ParserOutput object for later
+	 * use during page output. The data will be cached along with the
+	 * ParserOutput object, but unlike data set using
+	 * setPageProperty(), it is not recorded in the database.
+	 *
+	 * See ::setExtensionData() for more details on rationale and use.
+	 *
+	 * In order to provide for out-of-order/asynchronous/incremental
+	 * parsing, this method appends values to a set.  See
+	 * ::setExtensionData() for the flag-like version of this method.
+	 *
+	 * @note Only values which can be array keys are currently supported
+	 * as values.
+	 *
+	 * @param string $key The key for accessing the data. Extensions should take care to avoid
+	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
+	 *
+	 * @param int|string $value The value to append to the list.
+	 */
+	public function appendExtensionData( string $key, $value ): void;
+
+	/**
+	 * Add a variable to be set in mw.config in JavaScript.
+	 *
+	 * In order to ensure the result is independent of the parse order, the values
+	 * set here must be unique -- that is, you can pass the same $key
+	 * multiple times but ONLY if the $value is identical each time.
+	 * If you want to collect multiple pieces of data under a single key,
+	 * use ::appendJsConfigVar().
+	 *
+	 * @param string $key Key to use under mw.config
+	 * @param mixed|null $value Value of the configuration variable.
+	 */
+	public function setJsConfigVar( string $key, $value ): void;
+
+	/**
+	 * Append a value to a variable to be set in mw.config in JavaScript.
+	 *
+	 * In order to ensure the result is independent of the parse order,
+	 * the value of this key will be an associative array, mapping all of
+	 * the values set under that key to true.  (The array is implicitly
+	 * ordered in PHP, but you should treat it as unordered.)
+	 * If you want a non-array type for the key, and can ensure that only
+	 * a single value will be set, you should use ::setJsConfigVar() instead.
+	 *
+	 * @param string $key Key to use under mw.config
+	 * @param string $value Value to append to the configuration variable.
+	 * @since 1.38
+	 */
+	public function appendJsConfigVar( string $key, string $value ): void;
+
+	/**
+	 * @see OutputPage::addModules
+	 * @param string[] $modules
+	 */
+	public function addModules( array $modules ): void;
+
+	/**
+	 * @see OutputPage::addModuleStyles
+	 * @param string[] $modules
+	 */
+	public function addModuleStyles( array $modules ): void;
 
 	/**
 	 * Sets parser limit report data for a key
