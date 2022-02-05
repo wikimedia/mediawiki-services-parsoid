@@ -1,53 +1,53 @@
 {
-  "name": "parsoid",
-  "description": "A bidirectional runtime wikitext parser. Converts back and forth between wikitext and HTML/XML DOM with RDFa.",
-  "version": "0.11.0",
-  "license": "GPL-2.0+",
-  "dependencies": {
-    "babybird": "0.0.1",
-    "connect-busboy": "^0.0.2",
-    "core-js": "^2.5.6",
-    "domino": "^2.1.0",
-    "entities": "^1.1.1",
-    "express": "^4.16.3",
-    "js-yaml": "^3.13.1",
-    "pn": "^1.1.0",
-    "prfun": "^2.1.5",
-    "request": "^2.87.0",
-    "semver": "^6.1.0",
-    "service-runner": "git+https://github.com/wikimedia/service-runner.git#19c4087e9229f6bd948353c698297bfcb2bc34de",
-    "simplediff": "^0.1.1",
-    "wikimedia-langconv": "^0.1.0",
-    "wikipeg": "^2.0.6",
-    "yargs": "^16.2.0"
-  },
-  "devDependencies": {
-    "api-testing": "^1.2.0",
-    "chai": "^4.1.2",
-    "colors": "^1.2.4",
-    "eslint": "^7.32.0",
-    "eslint-config-wikimedia": "^0.20.0",
-    "mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
-    "nock": "^9.2.5"
-  },
-  "scripts": {
-    "eslint": "eslint --cache --ext .js,.json .",
-    "eslint-fix": "eslint --cache --ext .js,.json --fix .",
-    "regen-php-tokenizer": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php",
-    "regen-php-tokenizer-trace": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --trace",
-    "regen-php-tests-tokenizer": "node_modules/wikipeg/bin/wikipeg --php --class-name Grammar src/ParserTests/Grammar.pegphp src/ParserTests/Grammar.php",
-    "api-testing": "mocha tests/api-testing",
-    "test": "npm run eslint"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wikimedia/parsoid.git"
-  },
-  "deploy": {
-    "target": "debian",
-    "node": "6.9.1",
-    "dependencies": {
-      "_all": []
-    }
-  }
+	"name": "parsoid",
+	"description": "A bidirectional runtime wikitext parser. Converts back and forth between wikitext and HTML/XML DOM with RDFa.",
+	"version": "0.11.0",
+	"license": "GPL-2.0+",
+	"dependencies": {
+		"babybird": "0.0.1",
+		"connect-busboy": "^0.0.2",
+		"core-js": "^2.5.6",
+		"domino": "^2.1.0",
+		"entities": "^1.1.1",
+		"express": "^4.16.3",
+		"js-yaml": "^3.13.1",
+		"pn": "^1.1.0",
+		"prfun": "^2.1.5",
+		"request": "^2.87.0",
+		"semver": "^6.1.0",
+		"service-runner": "git+https://github.com/wikimedia/service-runner.git#19c4087e9229f6bd948353c698297bfcb2bc34de",
+		"simplediff": "^0.1.1",
+		"wikimedia-langconv": "^0.1.0",
+		"wikipeg": "^2.0.6",
+		"yargs": "^16.2.0"
+	},
+	"devDependencies": {
+		"api-testing": "1.5.0",
+		"chai": "^4.1.2",
+		"colors": "^1.2.4",
+		"eslint": "^7.32.0",
+		"eslint-config-wikimedia": "0.21.0",
+		"mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
+		"nock": "^9.2.5"
+	},
+	"scripts": {
+		"eslint": "eslint --cache --ext .js,.json .",
+		"eslint-fix": "eslint --cache --ext .js,.json --fix .",
+		"regen-php-tokenizer": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php",
+		"regen-php-tokenizer-trace": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --trace",
+		"regen-php-tests-tokenizer": "node_modules/wikipeg/bin/wikipeg --php --class-name Grammar src/ParserTests/Grammar.pegphp src/ParserTests/Grammar.php",
+		"api-testing": "mocha tests/api-testing",
+		"test": "npm run eslint"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/wikimedia/parsoid.git"
+	},
+	"deploy": {
+		"target": "debian",
+		"node": "6.9.1",
+		"dependencies": {
+			"_all": []
+		}
+	}
 }

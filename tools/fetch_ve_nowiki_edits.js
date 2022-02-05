@@ -31,7 +31,7 @@ var processRes = Promise.async(function *(fetchArgs, out, body) {
 	var stats = fetchArgs.wiki.stats;
 	Array.from(body.query ? body.query.recentchanges : []).reduce((titles, e) => {
 		// If it is a VE edit, grab it!
-		if (e.tags.indexOf('visualeditor') >= 0) {
+		if (e.tags.includes('visualeditor')) {
 			var date = e.timestamp.replace(/T.*$/, '');
 			if (!stats[date]) {
 				stats[date] = 0;

@@ -42,20 +42,20 @@
 		"ext-json": "*"
 	},
 	"require-dev": {
+		"composer/composer": "^2.1.9",
+		"ext-curl": "*",
+		"mediawiki/mediawiki-codesniffer": "38.0.0",
+		"mediawiki/mediawiki-phan-config": "0.11.1",
+		"mediawiki/minus-x": "1.1.1",
+		"monolog/monolog": "^2.2.0",
+		"ockcyp/covers-validator": "1.4.0",
 		"php-parallel-lint/php-console-highlighter": "0.5.0",
 		"php-parallel-lint/php-parallel-lint": "1.3.1",
-		"monolog/monolog": "^2.2.0",
-		"mediawiki/mediawiki-codesniffer": "38.0.0",
-		"mediawiki/mediawiki-phan-config": "0.11.0",
-		"mediawiki/minus-x": "1.1.1",
 		"phpunit/phpunit": "^8.5",
 		"sebastian/diff": "^3.0.2",
 		"wikimedia/alea": "^0.9.3",
 		"wikimedia/langconv": "^0.4.2",
-		"wikimedia/testing-access-wrapper": "~1.0",
-		"ext-curl": "*",
-		"ockcyp/covers-validator": "1.3.3",
-		"composer/composer": "^2.1.9"
+		"wikimedia/testing-access-wrapper": "~1.0"
 	},
 	"autoload": {
 		"psr-4": {
@@ -96,7 +96,8 @@
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true --offsetType ucs2",
 		"phpunit": "phpunit",
 		"toolcheck": "bin/toolcheck.php.sh",
-		"nodeNameCheck": "bin/nodenamecheck.sh"
+		"nodeNameCheck": "bin/nodenamecheck.sh",
+		"phpcs": "phpcs -sp --cache"
 	},
 	"config": {
 		"process-timeout": 0,

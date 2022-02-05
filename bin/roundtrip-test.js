@@ -28,7 +28,7 @@ var defaultContentVersion = '2.4.0';
 
 function displayDiff(type, count) {
 	var pad = (10 - type.length);  // Be positive!
-	type = type[0].toUpperCase() + type.substr(1);
+	type = type[0].toUpperCase() + type.slice(1);
 	return type + ' differences' + ' '.repeat(pad) + ': ' + count + '\n';
 }
 
@@ -244,7 +244,7 @@ var findMatchingNodes = function(node, range) {
 				// I am going to rip this out.
 
 				console.log("error/diff", "Bad dsr for " + c.nodeName + ": "
-					+ c.outerHTML.substr(0, 50));
+					+ c.outerHTML.slice(0, 50));
 
 				if (dp.dsr && typeof (dsr[1]) === 'number') {
 					// We can cope in this case
@@ -546,7 +546,7 @@ var checkIfSignificant = function(offsets, data) {
 
 				// Don't clog the rt-test server db with humongous diffs
 				if (diff.length > 1000) {
-					diff = diff.substring(0, 1000) + "-- TRUNCATED TO 1000 chars --";
+					diff = diff.slice(0, 1000) + "-- TRUNCATED TO 1000 chars --";
 				}
 				thisResult.htmlDiff = diff;
 			}

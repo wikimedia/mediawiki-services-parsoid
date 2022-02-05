@@ -1,4 +1,5 @@
 {
+	"root": true,
 	"extends": [
 		"wikimedia/server",
 		"wikimedia/jsdoc"
@@ -7,18 +8,27 @@
 		"ecmaVersion": 2017
 	},
 	"rules": {
-		"indent": ["error", "tab", {
-			"SwitchCase": 1,
-			"MemberExpression": "off",
-			"CallExpression": { "arguments": "off" },
-			"flatTernaryExpressions": true
-		}],
-		"one-var": ["error", { "initialized": "never" }],
-
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1,
+				"MemberExpression": "off",
+				"CallExpression": {
+					"arguments": "off"
+				},
+				"flatTernaryExpressions": true
+			}
+		],
+		"one-var": [
+			"error",
+			{
+				"initialized": "never"
+			}
+		],
 		"no-restricted-properties": "off",
 		"no-restricted-syntax": "off",
 		"node/no-deprecated-api": "off",
-
 		"array-bracket-spacing": "off",
 		"arrow-parens": "off",
 		"camelcase": "off",
@@ -41,7 +51,6 @@
 		"quotes": "off",
 		"space-before-function-paren": "off",
 		"space-in-parens": "off",
-
 		"consistent-this": "off",
 		"default-case": "off",
 		"eol-last": "off",
@@ -55,10 +64,8 @@
 		"strict": "off",
 		"vars-on-top": "off",
 		"wrap-iife": "off",
-
 		"prefer-arrow-callback": "off",
 		"prefer-template": "off",
-
 		"no-console": "off",
 		"no-control-regex": "off",
 		"no-invalid-this": "off",
@@ -72,11 +79,8 @@
 		"no-useless-concat": "off",
 		"no-useless-escape": "off",
 		"no-var": "off",
-
 		"no-buffer-constructor": "warn",
-
 		"no-process-exit": "off",
-
 		"jsdoc/check-alignment": "off",
 		"jsdoc/check-param-names": "off",
 		"jsdoc/check-tag-names": "off",
@@ -88,8 +92,9 @@
 		"jsdoc/require-returns": "off",
 		"jsdoc/require-returns-check": "off",
 		"no-shadow": "off",
-
-		"node/no-missing-require": "off"
+		"node/no-missing-require": "off",
+		"jsdoc/require-asterisk-prefix": "warn",
+		"unicorn/prefer-string-slice": "warn"
 	},
 	"overrides": [
 		{
