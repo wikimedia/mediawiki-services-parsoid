@@ -1,0 +1,35 @@
+!! Version 2
+#
+# This file will hold tests for table wikitext tests.
+# For now, we are only adding new edge case tests.
+# Eventually, once the monolithic parser test file is split up,
+# all table tests can move here.
+
+# This is unlikely to ever be used in any production wikipage
+# since it doesn't make any sense embedding tables in links.
+# FIXME: Note that the PHP parser and Parsoid differ on this!
+!! test
+Tables with multiple newlines after individual lines embedded in links
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+[[Test|
+{|
+
+|test
+|}]]
+!! html/php
+<p><a href="/index.php?title=Test&amp;action=edit&amp;redlink=1" class="new" title="Test (page does not exist)">
+</a></p><table>
+
+<tbody><tr>
+<td>test
+</td></tr></tbody></table>
+<p class="mw-empty-elt"></p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Test" title="Test" class="new" data-parsoid='{"stx":"piped","a":{"href":"./Test"},"sa":{"href":"Test"}}'>
+<table>
+
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td>test</td></tr>
+</tbody></table></a></p>
+!! end

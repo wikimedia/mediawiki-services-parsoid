@@ -1926,7 +1926,7 @@ li =
  */
 hacky_dl_uses =
 	bullets:":"+
-	tbl:(table_line (sol table_line)*)
+	tbl:(table_line (sol+ table_line)*)
 	line:inlineline?
 	&comment_space_eolf
 {
@@ -2039,20 +2039,20 @@ full_table_in_link_caption =
 	}
 
 full_table_in_link_caption_parameterized =
-	table_start_tag optionalNewlines
+	table_start_tag
 	// Accept multiple end tags since a nested table may have been
 	// opened in the table content line.
 	(
-		(sol (table_content_line / tplarg_or_template) optionalNewlines)*
-		sol table_end_tag
+		(sol+ (table_content_line / tplarg_or_template))*
+		sol+ table_end_tag
 	)+
 
 // This rule assumes start-of-line position!
 table_line =
 	(! inline_breaks / & '{{!}}' )
 	tl:(
-		table_start_tag optionalNewlines
-		/ table_content_line<table> optionalNewlines
+		table_start_tag
+		/ table_content_line<table>
 		/ table_end_tag
 	) {
 		return $tl;
@@ -2404,18 +2404,6 @@ space_or_nbsp =
 // Used within ISBN magic links
 space_or_nbsp_or_dash =
 	space_or_nbsp / "-"
-
-// Extra newlines followed by at least another newline. Usually used to
-// compress surplus newlines into a meta tag, so that they don't trigger
-// paragraphs.
-optionalNewlines =
-	spc:$([\n\r\t ] &[\n\r])* {
-		if ( strlen( $spc ) ) {
-			return [ $spc ];
-		} else {
-			return [];
-		}
-	}
 
 comment_or_includes = (comment / include_limits<sol_il>)*
 

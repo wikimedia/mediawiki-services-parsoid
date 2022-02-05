@@ -4465,7 +4465,6 @@ This is a discussion thread.
 </tbody></table></dd></dl></dd></dl>
 !! end
 
-
 # The trailing whitespace in this test is to catch a regression in
 # Parsoid after T54473.
 !! test
@@ -4476,6 +4475,30 @@ Definition Lists: Hacky use to indent tables (WS-insensitive)
 |} 
 !! html/php
 <dl><dd><table>
+<tbody><tr>
+<td>a
+</td></tr></tbody></table></dd></dl>
+!! html/parsoid
+<dl><dd><table>
+<tbody><tr><td>a</td></tr>
+</tbody></table></dd></dl>
+!! end
+
+# wt2wt / html2wt will normalize newlines - so disabled those test modes
+!! test
+Definition Lists: Hacky use to indent tables (nl-insensitive)
+!! options
+parsoid=wt2html,html2html
+!! wikitext
+:{|
+
+
+|a
+|}
+!! html/php
+<dl><dd><table>
+
+
 <tbody><tr>
 <td>a
 </td></tr></tbody></table></dd></dl>
@@ -13749,6 +13772,28 @@ y
 y</p>
 !! end
 
+!! test
+P-wrapping should not break after <td>s separated by newlines are converted back to pipes
+!! wikitext
+a
+|b
+
+|c
+d
+!! html/php
+<p>a
+|b
+</p><p>|c
+d
+</p>
+!! html/parsoid
+<p>a
+|b</p>
+
+<p>|c
+d</p>
+!! end
+
 ###
 ### Testing parsing of templates where a template arg
 ### has the same name as the template itself.
@@ -13760,7 +13805,7 @@ Template:quote
 {{{quote|{{{1}}}}}}
 !! endarticle
 
-!!test
+!! test
 Templates: Template Name/Arg clash: 1. Use of positional param
 !! wikitext
 {{quote|foo}}
@@ -13769,9 +13814,9 @@ Templates: Template Name/Arg clash: 1. Use of positional param
 </p>
 !! html/parsoid
 <p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"quote","href":"./Template:Quote"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
-!!end
+!! end
 
-!!test
+!! test
 Templates: Template Name/Arg clash: 2. Use of named param
 !! wikitext
 {{quote|quote=foo}}
@@ -13780,7 +13825,7 @@ Templates: Template Name/Arg clash: 2. Use of named param
 </p>
 !! html/parsoid
 <p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"quote","href":"./Template:Quote"},"params":{"quote":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
-!!end
+!! end
 
 ###
 ### Parsoid-centric tests to stress Parsoid's ability to RT them unchanged
