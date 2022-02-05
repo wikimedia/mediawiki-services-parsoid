@@ -5,16 +5,16 @@
 require('../core-upgrade.js');
 
 /**
-   == USAGE ==
-
-   Script to synchronize parsoid parserTests with parserTests in other repos.
-
-   Basic use:
-     $PARSOID is the path to a checked out git copy of Parsoid
-     $REPO is the path to a checked out git copy of the repo containing
-       the parserTest file. (Check the `repo` key in tests/parserTests.json)
-     $BRANCH is a branch name for the patch to $REPO (ie, 'ptsync-<date>')
-     $TARGET identifies which set of parserTests we're synchronizing.
+   * == USAGE ==
+ *
+   * Script to synchronize parsoid parserTests with parserTests in other repos.
+ *
+   * Basic use:
+     * $PARSOID is the path to a checked out git copy of Parsoid
+     * $REPO is the path to a checked out git copy of the repo containing
+       * the parserTest file. (Check the `repo` key in tests/parserTests.json)
+     * $BRANCH is a branch name for the patch to $REPO (ie, 'ptsync-<date>')
+     * $TARGET identifies which set of parserTests we're synchronizing.
        (This should be one of the top-level keys in tests/parserTests.json)
 
    $ cd $PARSOID

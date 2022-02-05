@@ -117,7 +117,7 @@ function prefixToDomain(prefix) {
 		return prefix.endsWith(p);
 	});
 
-	return project ? `${prefix.substr(0, prefix.length - project.length)}.${project}.org` : null;
+	return project ? `${prefix.slice(0, Math.max(0, prefix.length - project.length))}.${project}.org` : null;
 }
 
 function contentFileName(url) {

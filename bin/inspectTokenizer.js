@@ -164,7 +164,7 @@ function generateCallgraph(opts) {
 
 		rule_ref: function(node) {
 			var edge = "\t" + currentRuleName + " -> " + node.name + ";";
-			if (edges.indexOf(edge) === -1) {
+			if (!edges.includes(edge)) {
 				edges.push(edge);
 			}
 		}

@@ -70,8 +70,8 @@ Promise.async(function *() {
 	const titles = fs.readFileSync(argv.f, 'utf8').trim().split('\n').map(function(l) {
 		const ind = l.indexOf(':');
 		return {
-			prefix: l.substr(0, ind),
-			title: l.substr(ind + 1).replace(/ \|.*$/, ''),
+			prefix: l.slice(0, Math.max(0, ind)),
+			title: l.slice(ind + 1).replace(/ \|.*$/, ''),
 		};
 	});
 
