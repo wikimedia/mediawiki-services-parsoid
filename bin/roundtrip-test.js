@@ -4,7 +4,7 @@
 
 require('../core-upgrade.js');
 require('colors');
-const { htmlDiff } = require('./diff.html.js');
+const { benchmarkReadView } = require('./benchmark.readViewStrip.js');
 
 var entities = require('entities');
 var fs = require('fs');
@@ -820,18 +820,16 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		error = e;
 		exitCode = 1;
 	}
-	var output = formatter(error, prefix, title, data.diffs, profile);
-	// write diffs to $outDir/DOMAIN/TITLE
-	if (options.htmlDiffConfig && Math.random() < (options.htmlDiffConfig.sampleRate || 0)) {
-		const outDir = options.htmlDiffConfig.outDir || "/tmp/htmldiffs";
-		const dir = `${outDir}/${domain}`;
-		if (!fs.existsSync(dir)) {
-			fs.mkdirSync(dir);
-		}
-		const diffs = yield htmlDiff(options.htmlDiffConfig, domain, title);
-		// parsoidOptions.title is uri-encoded
-		fs.writeFileSync(`${dir}/${parsoidOptions.title}`, diffs.join('\n'));
+
+	if (options.readViewStripBenchmark && Math.random() < (options.readViewStripBenchmark.sampleRate || 0)) {
+		const rules = options.readViewStripBenchmark.rules;
+		const diffSizes = yield benchmarkReadView(options.parsoidURL, options.proxyURL, domain, title, rules);
+		profile.benchmarkReadViewOriginalSize = diffSizes.originalSize;
+		profile.benchmarkReadViewStrippedSize = diffSizes.strippedSize;
 	}
+
+	var output = formatter(error, prefix, title, data.diffs, profile);
+
 	return {
 		output: output,
 		exitCode: exitCode

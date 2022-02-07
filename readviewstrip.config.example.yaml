@@ -1,0 +1,11 @@
+sampleRate: 0.05 # 5%
+
+# Rules are defined as a map of an attribute name to a matcher
+# Matchers are either null (strip all)
+# or a regex to strip based on specific values
+rules:
+  data-parsoid: null
+  data-mw: null
+  typeof: null
+  rel:
+    regex: "^mw:.*$"

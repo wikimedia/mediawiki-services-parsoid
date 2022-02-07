@@ -184,4 +184,5 @@ if (require.main === module) {
 	module.exports.htmlDiff = htmlDiff;
 	module.exports.fileDiff = fileDiff;
 	module.exports.displayResult = displayResult;
+	module.exports.fetchHTML = fetchHTML;
 }
