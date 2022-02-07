@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Core\Wikitext;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -544,6 +545,20 @@ class ParsoidExtensionAPI {
 		DOMDataUtils::setDataMw(
 			$to, Utils::clone( DOMDataUtils::getDataMw( $from ) )
 		);
+	}
+
+	/**
+	 * Equivalent of 'preprocessWikitext' from Parser.php in core.
+	 * - expands templates
+	 * - replaces magic variables
+	 * This does not run any hooks however since that would be unexpected.
+	 * This also doesn't support replacing template args from a frame.
+	 *
+	 * @param string $wikitext
+	 * @return string preprocessed wikitext
+	 */
+	public function preprocessWikitext( string $wikitext ): string {
+		return Wikitext::preprocess( $this->env, $wikitext )['src'];
 	}
 
 	/**
