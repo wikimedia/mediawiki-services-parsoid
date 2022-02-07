@@ -80,6 +80,7 @@ interface DataAccess {
 	 *  - html: (string) Output HTML.
 	 *  - modules: (string[]) ResourceLoader module names
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
+	 *  - jsconfigvars: (array) JS config vars
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
 	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array;
@@ -96,6 +97,8 @@ interface DataAccess {
 	 *  - wikitext: (string) Expanded wikitext
 	 *  - modules: (string[]) ResourceLoader module names
 	 *  - modulestyles: (string[]) ResourceLoader module names to load styles-only
+	 *  - jsconfigvars: (array) JS config vars
+	 *  - properties: (array) [ name => value ]
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
 	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array;
