@@ -5,72 +5,72 @@
 require('../core-upgrade.js');
 
 /**
-   * == USAGE ==
+ * == USAGE ==
  *
-   * Script to synchronize parsoid parserTests with parserTests in other repos.
+ * Script to synchronize parsoid parserTests with parserTests in other repos.
  *
-   * Basic use:
-     * $PARSOID is the path to a checked out git copy of Parsoid
-     * $REPO is the path to a checked out git copy of the repo containing
-       * the parserTest file. (Check the `repo` key in tests/parserTests.json)
-     * $BRANCH is a branch name for the patch to $REPO (ie, 'ptsync-<date>')
-     * $TARGET identifies which set of parserTests we're synchronizing.
-       (This should be one of the top-level keys in tests/parserTests.json)
-
-   $ cd $PARSOID
-   $ tools/sync-parserTests.js $REPO $BRANCH $TARGET
-   $ cd $REPO
-   $ git rebase master
-     ... resolve conflicts, sigh ...
-   $ php tests/parser/parserTests.php
-     ... fix any failures by marking tests parsoid-only, etc ...
-   $ git review
-
-     ... time passes, eventually your patch is merged to $REPO ...
-
-   $ cd $PARSOID
-   $ tools/fetch-parserTests.txt.js $TARGET --force
-   $ php bin/parserTests.php --updateKnownFailures
-   $ git add -u
-   $ git commit -m "Sync parserTests with core"
-   $ git review
-
-   Simple, right?
-
-   == WHY ==
-
-   There are two copies of parserTests files.
-
-   Since Parsoid & core are in different repositories and both Parsoid
-   and the legacy parser are still operational, we need a parserTests
-   file in each repository. They are usually in sync but since folks
-   are hacking both wikitext engines simultaneously, the two copies
-   might be modified independently. So, we need to periodically sync
-   them (which is just a multi-repo rebase).
-
-   We detect incompatible divergence of the two copies via CI. We run the
-   legacy parser against Parsoid's copy of the test file and test failures
-   indicate a divergence and necessitates a sync. Core also runs Parsoid
-   against core's copy of the test file in certain circumstances (and
-   this uses the version of Parsoid from mediawiki-vendor, which is
-   "the latest deployed version" not "the latest version").
-
-   This discussion only touched upon tests/parser/parserTests.txt but
-   all of the same considerations apply to the parser test file for
-   extensions since we have a Parsoid-version and a legacy-parser version
-   of many extensions at this time.  When CI runs tests on extension
-   repositories it runs them through both the legacy parser and
-   Parsoid (but only if you opt-in by adding a 'parsoid-compatible'
-   flag to the parser test file).
-   https://codesearch.wmcloud.org/search/?q=parsoid-compatible&i=nope
-
-   == THINKING ==
-
-   The "thinking" part of the sync is to look at the patches created and
-   make sure that whatever change was made upstream (as shown in the diff
-   of the sync patch) doesn't require a corresponding change in Parsoid
-   and file a phab task and regenerate the known-differences list if that
-   happens to be the case.
+ * Basic use:
+ * $PARSOID is the path to a checked out git copy of Parsoid
+ * $REPO is the path to a checked out git copy of the repo containing
+ * the parserTest file. (Check the `repo` key in tests/parserTests.json)
+ * $BRANCH is a branch name for the patch to $REPO (ie, 'ptsync-<date>')
+ * $TARGET identifies which set of parserTests we're synchronizing.
+ * (This should be one of the top-level keys in tests/parserTests.json)
+ *
+ *   $ cd $PARSOID
+ *   $ tools/sync-parserTests.js $REPO $BRANCH $TARGET
+ *   $ cd $REPO
+ *   $ git rebase master
+ *     ... resolve conflicts, sigh ...
+ *   $ php tests/parser/parserTests.php
+ *     ... fix any failures by marking tests parsoid-only, etc ...
+ *   $ git review
+ *
+ *     ... time passes, eventually your patch is merged to $REPO ...
+ *
+ *   $ cd $PARSOID
+ *   $ tools/fetch-parserTests.txt.js $TARGET --force
+ *   $ php bin/parserTests.php --updateKnownFailures
+ *   $ git add -u
+ *   $ git commit -m "Sync parserTests with core"
+ *   $ git review
+ *
+ *   Simple, right?
+ *
+ * == WHY ==
+ *
+ * There are two copies of parserTests files.
+ *
+ * Since Parsoid & core are in different repositories and both Parsoid
+ * and the legacy parser are still operational, we need a parserTests
+ * file in each repository. They are usually in sync but since folks
+ * are hacking both wikitext engines simultaneously, the two copies
+ * might be modified independently. So, we need to periodically sync
+ * them (which is just a multi-repo rebase).
+ *
+ * We detect incompatible divergence of the two copies via CI. We run the
+ * legacy parser against Parsoid's copy of the test file and test failures
+ * indicate a divergence and necessitates a sync. Core also runs Parsoid
+ * against core's copy of the test file in certain circumstances (and
+ * this uses the version of Parsoid from mediawiki-vendor, which is
+ * "the latest deployed version" not "the latest version").
+ *
+ * This discussion only touched upon tests/parser/parserTests.txt but
+ * all of the same considerations apply to the parser test file for
+ * extensions since we have a Parsoid-version and a legacy-parser version
+ * of many extensions at this time.  When CI runs tests on extension
+ * repositories it runs them through both the legacy parser and
+ * Parsoid (but only if you opt-in by adding a 'parsoid-compatible'
+ * flag to the parser test file).
+ * https://codesearch.wmcloud.org/search/?q=parsoid-compatible&i=nope
+ *
+ * == THINKING ==
+ *
+ * The "thinking" part of the sync is to look at the patches created and
+ * make sure that whatever change was made upstream (as shown in the diff
+ * of the sync patch) doesn't require a corresponding change in Parsoid
+ * and file a phab task and regenerate the known-differences list if that
+ * happens to be the case.
  */
 
 var yargs = require('yargs');
