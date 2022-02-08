@@ -582,7 +582,7 @@ class LinkHandlerUtils {
 		$contentParts = null;
 		$contentSrc = '';
 		$isPiped = false;
-		$requiresEscaping = true;
+		$needsEscaping = true;
 		$env = $state->getEnv();
 		$siteConfig = $env->getSiteConfig();
 		$target = $linkData->target;
@@ -729,16 +729,16 @@ class LinkHandlerUtils {
 				$linkData->tail = $contentParts->tail;
 				$dp->prefix = $contentParts->prefix;
 				$linkData->prefix = $contentParts->prefix;
-				$requiresEscaping = false;
+				$needsEscaping = false;
 			} else {
 				$contentSrc = $linkData->content->string ?? '';
-				$requiresEscaping = empty( $linkData->content->fromsrc );
+				$needsEscaping = empty( $linkData->content->fromsrc );
 			}
 
 			if ( $contentSrc === '' && $linkData->type !== 'mw:PageProp/Category' ) {
 				// Protect empty link content from PST pipe trick
 				$contentSrc = '<nowiki/>';
-				$requiresEscaping = false;
+				$needsEscaping = false;
 			}
 
 			$linkTarget = $target['value'];
@@ -799,10 +799,10 @@ class LinkHandlerUtils {
 
 			// For non-piped content, use the original invalid link text
 			$pipedText = $isPiped ? $contentSrc : $linkTarget;
-			$state->escapeText = $requiresEscaping;
+			$state->needsEscaping = $needsEscaping;
 			$state->emitChunk( $linkData->prefix . $pipedText . $linkData->tail, $node );
 		} else {
-			if ( $isPiped && $requiresEscaping ) {
+			if ( $isPiped && $needsEscaping ) {
 				// We are definitely not in sol context since content
 				// will be preceded by "[[" or "[" text in target wikitext.
 				$pipedText = '|' . $state->serializer->wteHandlers

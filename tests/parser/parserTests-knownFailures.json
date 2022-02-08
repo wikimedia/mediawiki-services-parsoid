@@ -632,9 +632,6 @@
         "selser [2]": "12umu83<div>hello world</div/>",
         "selser [[2]]": "<div>1c5s34thello world</div/>"
     },
-    "Element attributes with double ! should not be broken up by <th>": {
-        "selser [[3,[[[0,4,0]],0]]]": "{|\n!hi \n16y32pa\n ho\n|}"
-    },
     "Empty LI (T49673)": {
         "wt2wt": "*a\n*\n*\n*b",
         "html2wt": "* a\n*\n*\n* b",

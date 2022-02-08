@@ -1,0 +1,37 @@
+!! Version 2
+#
+# This file will hold tests for wikitext escaping.
+# We expect to migrate more tests out of parserTests.txt into here.
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! test
+Ensure that when a leading-whitespace-containing string is emitted on a newline, it is correctly escaped
+!! options
+parsoid={
+  "modes": ["selser"],
+  "selser": "noauto",
+  "changes": [
+     [ "div > p", "html", "DEF" ]
+  ]
+}
+!! wikitext
+<div>
+ABC
+{{1x|
+{{{!}}
+{{!}} a
+{{!}}}}} b
+!! wikitext/edited
+<div>
+DEF
+{{1x|
+{{{!}}
+{{!}} a
+{{!}}}}}
+b
+!! end

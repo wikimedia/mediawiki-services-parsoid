@@ -254,10 +254,10 @@ class SerializerState {
 
 	/**
 	 * Should we run the wikitext escaping code on the wikitext chunk
-	 * that will be emitted? True unless we are in HTML <pre>.
+	 * that will be emitted?
 	 * @var bool
 	 */
-	public $escapeText = false;
+	public $needsEscaping = false;
 
 	/**
 	 * Used as fast patch for special protected characters in WikitextEscapeHandlers and
@@ -271,6 +271,9 @@ class SerializerState {
 
 	/** @var Env */
 	private $env;
+
+	/** @var Element */
+	public $currNode;
 
 	/** @var Element */
 	private $prevNode;
@@ -601,8 +604,13 @@ class SerializerState {
 			$this->emitSepForNode( $node );
 		}
 
+		$needsEscaping = $this->needsEscaping;
+		if ( $needsEscaping && $this->currNode instanceof Text ) {
+			$needsEscaping = !$this->inHTMLPre && ( $this->onSOL || !$this->currNodeUnmodified );
+		}
+
 		// Escape 'res' if necessary
-		if ( $this->escapeText ) {
+		if ( $needsEscaping ) {
 			$res = new ConstrainedText( [
 				'text' => $this->serializer->escapeWikitext( $this, $res->text, [
 					'node' => $node,
@@ -612,7 +620,7 @@ class SerializerState {
 				'suffix' => $res->suffix,
 				'node' => $res->node,
 			] );
-			$this->escapeText = false;
+			$this->needsEscaping = false;
 		} else {
 			// If 'res' is coming from selser and the current node is a paragraph tag,
 			// check if 'res' might need some leading chars nowiki-escaped before being output.

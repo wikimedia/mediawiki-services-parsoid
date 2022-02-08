@@ -1050,9 +1050,8 @@ class WikitextSerializer {
 	 * Consolidate separator handling when emitting text.
 	 * @param string $res
 	 * @param Node $node
-	 * @param bool $omitEscaping
 	 */
-	private function serializeText( string $res, Node $node, bool $omitEscaping ): void {
+	private function serializeText( string $res, Node $node ): void {
 		$state = $this->state;
 
 		// Deal with trailing separator-like text (at least 1 newline and other whitespace)
@@ -1067,18 +1066,10 @@ class WikitextSerializer {
 			}
 		}
 
-		if ( $omitEscaping ) {
-			$state->emitChunk( $res, $node );
-		} else {
-			// Always escape entities
+		if ( $state->needsEscaping ) {
 			$res = Utils::escapeWtEntities( $res );
-
-			// If not in pre context, escape wikitext
-			// XXX refactor: Handle this with escape handlers instead!
-			$state->escapeText = ( $state->onSOL || !$state->currNodeUnmodified ) && !$state->inHTMLPre;
-			$state->emitChunk( $res, $node );
-			$state->escapeText = false;
 		}
+		$state->emitChunk( $res, $node );
 
 		// Move trailing newlines into the next separator
 		if ( $newSepMatch ) {
@@ -1096,7 +1087,9 @@ class WikitextSerializer {
 	 * @return Node|null
 	 */
 	private function serializeTextNode( Node $node ): ?Node {
-		$this->serializeText( $node->nodeValue, $node, false );
+		$this->state->needsEscaping = true;
+		$this->serializeText( $node->nodeValue, $node );
+		$this->state->needsEscaping = false;
 		return $node->nextSibling;
 	}
 
@@ -1106,7 +1099,7 @@ class WikitextSerializer {
 	 * @param Node $node
 	 */
 	public function emitWikitext( string $res, Node $node ): void {
-		$this->serializeText( $res, $node, true );
+		$this->serializeText( $res, $node );
 	}
 
 	/**
@@ -1281,6 +1274,7 @@ class WikitextSerializer {
 		$domHandler = $method = null;
 		$domHandlerFactory = new DOMHandlerFactory();
 		$state = $this->state;
+		$state->currNode = $node;
 
 		if ( $state->selserMode ) {
 			$this->trace(
