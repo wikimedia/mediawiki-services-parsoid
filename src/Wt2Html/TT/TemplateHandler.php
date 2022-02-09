@@ -934,10 +934,7 @@ class TemplateHandler extends TokenHandler {
 		// positions.  However, proceeding to go through template expansion
 		// will reparse it as a table cell token.  Hence this special case
 		// handling to avoid that path.
-		if (
-			( $resolvedTgt && $resolvedTgt['magicWordType'] === '!' ) ||
-			$tplToken->attribs[0]->k === '!'
-		) {
+		if ( $resolvedTgt['magicWordType'] === '!' || $tplToken->attribs[0]->k === '!' ) {
 			// If we're not at the top level, return a table cell. This will always
 			// be the case. Either {{!}} was tokenized as a td, or it was tokenized
 			// as template but the recursive call to fetch its content returns a
@@ -1052,41 +1049,18 @@ class TemplateHandler extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onTemplate( Token $token ): TokenHandlerResult {
+		$env = $this->env;
+		$expandTemplates = $this->options['expandTemplates'];
+
 		// Since AttributeExpander runs later in the pipeline than TemplateHandler,
 		// if the template name is templated, use our copy of AttributeExpander
 		// to process all attributes to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
-		if ( $this->options['expandTemplates'] && self::hasTemplateToken( $token->attribs[0]->k ) ) {
+		if ( $expandTemplates && self::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->processComplexAttributes( $token );
 			$toks = $ret->tokens ?? null;
 			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
 				"Expected only the input token as the return value." );
-		}
-
-		$toks = null;
-		$env = $this->env;
-		$text = $token->dataAttribs->src ?? '';
-		$state = [
-			'token' => $token,
-			'wrapperType' => 'mw:Transclusion',
-			'wrappedObjectId' => $env->newObjectId(),
-		];
-
-		$tgt = $this->resolveTemplateTarget(
-			$state, $token->attribs[0]->k, $token->attribs[0]->srcOffsets->key
-		);
-		if ( isset( $tgt['magicWordType'] ) ) {
-			$toks = $this->processSpecialMagicWord( $this->atTopLevel, $token, $tgt );
-			Assert::invariant( $toks !== null, "Expected non-null tokens array." );
-			return new TokenHandlerResult( $toks );
-		}
-
-		$expandTemplates = $this->options['expandTemplates'];
-
-		if ( $expandTemplates && $tgt === null ) {
-			// Target contains tags, convert template braces and pipes back into text
-			// Re-join attribute tokens with '=' and '|'
-			return new TokenHandlerResult( $this->convertToString( $token ) );
 		}
 
 		if ( $this->atMaxArticleSize ) {
@@ -1107,6 +1081,30 @@ class TemplateHandler extends TokenHandler {
 			// XXX: It could be combined with the previous test, but we might
 			// want to use different error messages in the future.
 			return new TokenHandlerResult( $this->convertToString( $token ) );
+		}
+
+		$toks = null;
+		$text = $token->dataAttribs->src ?? '';
+		$state = [
+			'token' => $token,
+			'wrapperType' => 'mw:Transclusion',
+			'wrappedObjectId' => $env->newObjectId(),
+		];
+
+		$tgt = $this->resolveTemplateTarget(
+			$state, $token->attribs[0]->k, $token->attribs[0]->srcOffsets->key
+		);
+
+		if ( $expandTemplates && $tgt === null ) {
+			// Target contains tags, convert template braces and pipes back into text
+			// Re-join attribute tokens with '=' and '|'
+			return new TokenHandlerResult( $this->convertToString( $token ) );
+		}
+
+		if ( isset( $tgt['magicWordType'] ) ) {
+			$toks = $this->processSpecialMagicWord( $this->atTopLevel, $token, $tgt );
+			Assert::invariant( $toks !== null, "Expected non-null tokens array." );
+			return new TokenHandlerResult( $toks );
 		}
 
 		if ( $env->nativeTemplateExpansionEnabled() ) {
