@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\Wikitext;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -692,63 +693,6 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * Fetch the preprocessed wikitext for a template-like construct.
-	 *
-	 * @param string $transclusion
-	 * @return array
-	 */
-	private function fetchExpandedTpl( string $transclusion ): array {
-		$env = $this->env;
-		$pageConfig = $env->getPageConfig();
-		$start = microtime( true );
-		$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
-		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) ) ) {
-			return [
-				'error' => true,
-				'tokens' => [ "wt2html: wikitextSize limit exceeded" ],
-			];
-		}
-		$wikitext = $this->manglePreprocessorResponse( $ret );
-		if ( $env->profiling() ) {
-			$profile = $env->getCurrentProfile();
-			$profile->bumpMWTime( "Template", 1000 * ( microtime( true ) - $start ), "api" );
-			$profile->bumpCount( "Template" );
-		}
-		return [
-			'error' => false,
-			'src' => $wikitext
-		];
-	}
-
-	/**
-	 * This takes properties value of 'expandtemplates' output and computes
-	 * magicword wikitext for those properties.
-	 *
-	 * This is needed for Parsoid/JS compatibility, but may go away in the future.
-	 *
-	 * @param array $ret
-	 * @return string
-	 */
-	public function manglePreprocessorResponse( array $ret ): string {
-		$env = $this->env;
-		$wikitext = $ret['wikitext'];
-
-		foreach ( [ 'modules', 'modulestyles', 'jsconfigvars' ] as $prop ) {
-			$env->addOutputProperty( $prop, $ret[$prop] ?? [] );
-		}
-
-		// FIXME: This seems weirdly special-cased for displaytitle & displaysort
-		// For now, just mimic what Parsoid/JS does, but need to revisit this
-		foreach ( ( $ret['properties'] ?? [] ) as $name => $value ) {
-			if ( $name === 'displaytitle' || $name === 'defaultsort' ) {
-				$wikitext .= "{{" . mb_strtoupper( $name ) . ':' . $value . '}}';
-			}
-		}
-
-		return $wikitext;
-	}
-
-	/**
 	 * @param mixed $arg
 	 * @param SourceRange $srcOffsets
 	 * @return array
@@ -1147,9 +1091,9 @@ class TemplateHandler extends TokenHandler {
 					);
 				} else {
 					// Fetch and process the template expansion
-					$expansion = $this->fetchExpandedTpl( $text );
+					$expansion = Wikitext::preprocess( $env, $text );
 					if ( $expansion['error'] ) {
-						$tplToks = $expansion['tokens'];
+						$tplToks = [ $expansion['src'] ];
 					} else {
 						$tplToks = $this->processTemplateSource(
 							$state,
@@ -1162,8 +1106,7 @@ class TemplateHandler extends TokenHandler {
 						);
 					}
 					return new TokenHandlerResult(
-						$this->wrapTemplates ?
-							$this->encapTokens( $state, $tplToks ) : $tplToks
+						$this->wrapTemplates ? $this->encapTokens( $state, $tplToks ) : $tplToks
 					);
 				}
 			} else {
