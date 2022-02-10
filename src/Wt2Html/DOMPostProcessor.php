@@ -488,7 +488,6 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => AddRedLinks::class,
 				'shortcut' => 'redlinks',
 				'skipNested' => true,
-				'omit' => $env->noDataAccess(),
 			],
 			[
 				'name' => 'DisplaySpace',

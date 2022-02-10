@@ -91,10 +91,6 @@ class LintLogger {
 	public function logLintOutput() {
 		$env = $this->env;
 
-		if ( $env->noDataAccess() ) {
-			return;
-		}
-
 		// We only want to send to the MW API if this was a request to parse
 		// the full page.
 		if ( !$env->logLinterData ) {

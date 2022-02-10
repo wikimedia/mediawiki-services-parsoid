@@ -55,14 +55,6 @@ class Env {
 	// we've removed async parsing.
 
 	/**
-	 * @var bool Are data accesses disabled?
-	 *
-	 * FIXME: This can probably moved to a NoDataAccess instance, rather than
-	 * being an explicit mode of Parsoid.  See T229469
-	 */
-	private $noDataAccess;
-
-	/**
 	 * @var bool Are we using native template expansion?
 	 *
 	 * Parsoid implements native template expansion, which is currently
@@ -247,7 +239,6 @@ class Env {
 	 *  - traceFlags: (array) Flags indicating which components need to be traced
 	 *  - dumpFlags: (bool[]) Dump flags
 	 *  - debugFlags: (bool[]) Debug flags
-	 *  - noDataAccess: boolean
 	 *  - nativeTemplateExpansion: boolean
 	 *  - discardDataParsoid: boolean
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
@@ -293,7 +284,6 @@ class Env {
 		}
 		$this->htmlVariantLanguage = $options['htmlVariantLanguage'] ?? null;
 		$this->wtVariantLanguage = $options['wtVariantLanguage'] ?? null;
-		$this->noDataAccess = !empty( $options['noDataAccess'] );
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
@@ -445,10 +435,6 @@ class Env {
 	 */
 	public function getDataAccess(): DataAccess {
 		return $this->dataAccess;
-	}
-
-	public function noDataAccess(): bool {
-		return $this->noDataAccess;
 	}
 
 	public function nativeTemplateExpansionEnabled(): bool {

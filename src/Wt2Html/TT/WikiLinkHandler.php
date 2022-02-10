@@ -1639,20 +1639,15 @@ class WikiLinkHandler extends TokenHandler {
 	private function renderMedia( Token $token, stdClass $target ): TokenHandlerResult {
 		$env = $this->env;
 		$title = $target->title;
-		$info = null;
 		$errs = [];
-		if ( $env->noDataAccess() ) {
-			$errs[] = [ 'key' => 'apierror-unknownerror', 'message' => 'Fetch of image info disabled.' ];
-		} else {
-			$info = $env->getDataAccess()->getFileInfo(
-				$env->getPageConfig(),
-				[ [ $title->getKey(), [ 'height' => null, 'width' => null ] ] ]
-			)[0];
-			if ( !$info ) {
-				$errs[] = [ 'key' => 'apierror-filedoesnotexist', 'message' => 'This image does not exist.' ];
-			} elseif ( isset( $info['thumberror'] ) ) {
-				$errs[] = [ 'key' => 'apierror-unknownerror', 'message' => $info['thumberror'] ];
-			}
+		$info = $env->getDataAccess()->getFileInfo(
+			$env->getPageConfig(),
+			[ [ $title->getKey(), [ 'height' => null, 'width' => null ] ] ]
+		)[0];
+		if ( !$info ) {
+			$errs[] = [ 'key' => 'apierror-filedoesnotexist', 'message' => 'This image does not exist.' ];
+		} elseif ( isset( $info['thumberror'] ) ) {
+			$errs[] = [ 'key' => 'apierror-unknownerror', 'message' => $info['thumberror'] ];
 		}
 		return $this->linkToMedia( $token, $target, $errs, $info );
 	}

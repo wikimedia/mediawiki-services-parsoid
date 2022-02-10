@@ -142,14 +142,6 @@ class ExtensionHandler extends TokenHandler {
 			$toks = PipelineUtils::encapsulateExpansionHTML(
 				$env, $token, $cachedExpansion, [ 'fromCache' => true ]
 			);
-		} elseif ( $env->noDataAccess() ) {
-			$err = [ 'key' => 'mw-extparse-error' ];
-			$domFragment = WTUtils::createLocalizationFragment(
-				$env->topLevelDoc, $err
-			);
-			$toks = $this->onDocumentFragment(
-				$nativeExt, $token, $domFragment, [ $err ]
-			);
 		} else {
 			$start = microtime( true );
 			$ret = $env->getDataAccess()->parseWikitext(

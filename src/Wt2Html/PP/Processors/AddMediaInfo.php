@@ -569,16 +569,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$dataMw = DOMDataUtils::getDataMw( $container );
 
-			if ( $env->noDataAccess() ) {
-				$errs = [
-					self::makeErr(
-					'apierror-unknownerror',
-					'Fetch of image info disabled.'
-				) ];
-				self::addErrors( $container, $errs, $dataMw );
-				continue;
-			}
-
 			$dims = [
 				'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
 				'height' => (int)$span->getAttribute( 'data-height' ) ?: null,

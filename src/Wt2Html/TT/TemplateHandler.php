@@ -671,10 +671,6 @@ class TemplateHandler extends TokenHandler {
 		$env = $this->env;
 		if ( isset( $env->pageCache[$templateName] ) ) {
 			$tplSrc = $env->pageCache[$templateName];
-		} elseif ( $env->noDataAccess() ) {
-			// This is only useful for offline development mode
-			// FIXME: Consolidate error response format with enforceTemplateConstraints
-			return [ 'tokens' => [ 'Page / template fetching disabled, and no cache for ' . $templateName ] ];
 		} else {
 			$start = microtime( true );
 			$pageContent = $env->getDataAccess()->fetchTemplateSource( $env->getPageConfig(), $templateName );
@@ -703,33 +699,25 @@ class TemplateHandler extends TokenHandler {
 	 */
 	private function fetchExpandedTpl( string $transclusion ): array {
 		$env = $this->env;
-		if ( $env->noDataAccess() ) {
-			// FIXME: Consolidate error response format with enforceTemplateConstraints
+		$pageConfig = $env->getPageConfig();
+		$start = microtime( true );
+		$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
+		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) ) ) {
 			return [
 				'error' => true,
-				'tokens' => [ 'Warning: Page/template fetching disabled cannot expand ' . $transclusion ],
-			];
-		} else {
-			$pageConfig = $env->getPageConfig();
-			$start = microtime( true );
-			$ret = $env->getDataAccess()->preprocessWikitext( $pageConfig, $transclusion );
-			if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) ) ) {
-				return [
-					'error' => true,
-					'tokens' => [ "wt2html: wikitextSize limit exceeded" ],
-				];
-			}
-			$wikitext = $this->manglePreprocessorResponse( $ret );
-			if ( $env->profiling() ) {
-				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "Template", 1000 * ( microtime( true ) - $start ), "api" );
-				$profile->bumpCount( "Template" );
-			}
-			return [
-				'error' => false,
-				'src' => $wikitext
+				'tokens' => [ "wt2html: wikitextSize limit exceeded" ],
 			];
 		}
+		$wikitext = $this->manglePreprocessorResponse( $ret );
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
+			$profile->bumpMWTime( "Template", 1000 * ( microtime( true ) - $start ), "api" );
+			$profile->bumpCount( "Template" );
+		}
+		return [
+			'error' => false,
+			'src' => $wikitext
+		];
 	}
 
 	/**

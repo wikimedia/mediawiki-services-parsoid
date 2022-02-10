@@ -976,7 +976,7 @@ class WikitextSerializer {
 			// Fetch template data for the template
 			$tplData = null;
 			$apiResp = null;
-			if ( $isTpl && $useTplData && !$this->env->noDataAccess() ) {
+			if ( $isTpl && $useTplData ) {
 				$title = PHPUtils::stripPrefix( $tplHref, './' );
 				try {
 					$tplData = $this->env->getDataAccess()->fetchTemplateData( $this->env->getPageConfig(), $title );
