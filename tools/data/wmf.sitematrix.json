@@ -32,7 +32,7 @@
         },
         "1": {
             "code": "ab",
-            "name": "Аҧсшәа",
+            "name": "аԥсшәа",
             "site": [
                 {
                     "url": "https://ab.wikipedia.org",
@@ -1398,7 +1398,7 @@
         },
         "61": {
             "code": "cv",
-            "name": "Чӑвашла",
+            "name": "чӑвашла",
             "site": [
                 {
                     "url": "https://cv.wikipedia.org",
@@ -3125,7 +3125,7 @@
         },
         "126": {
             "code": "inh",
-            "name": "ГӀалгӀай",
+            "name": "гӀалгӀай",
             "site": [
                 {
                     "url": "https://inh.wikipedia.org",
@@ -3449,7 +3449,7 @@
         },
         "138": {
             "code": "kbd",
-            "name": "Адыгэбзэ",
+            "name": "адыгэбзэ",
             "site": [
                 {
                     "url": "https://kbd.wikipedia.org",
@@ -3859,7 +3859,7 @@
         },
         "156": {
             "code": "ky",
-            "name": "Кыргызча",
+            "name": "кыргызча",
             "site": [
                 {
                     "url": "https://ky.wikipedia.org",
@@ -5257,7 +5257,7 @@
         },
         "220": {
             "code": "os",
-            "name": "Ирон",
+            "name": "ирон",
             "site": [
                 {
                     "url": "https://os.wikipedia.org",
@@ -8420,7 +8420,7 @@
                 "private": ""
             },
             {
-                "url": "https://ombudsmen.wikimedia.org",
+                "url": "https://ombuds.wikimedia.org",
                 "dbname": "ombudsmenwiki",
                 "code": "ombudsmen",
                 "lang": "en",
@@ -8659,7 +8659,7 @@
                 "url": "https://vote.wikimedia.org",
                 "dbname": "votewiki",
                 "code": "vote",
-                "lang": "fa",
+                "lang": "en",
                 "sitename": "Wikimedia Vote Wiki",
                 "fishbowl": ""
             },
