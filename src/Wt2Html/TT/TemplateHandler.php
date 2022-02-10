@@ -737,16 +737,6 @@ class TemplateHandler extends TokenHandler {
 			$env->addOutputProperty( $prop, $ret[$prop] ?? [] );
 		}
 
-		// Add the categories which were added by parser functions directly
-		// into the page and not as in-text links.
-		foreach ( ( $ret['categories'] ?? [] ) as $category => $sortkey ) {
-			$wikitext .= "[[Category:" . $category;
-			if ( $sortkey ) {
-				$wikitext .= "|" . $sortkey;
-			}
-			$wikitext .= ']]';
-		}
-
 		// FIXME: This seems weirdly special-cased for displaytitle & displaysort
 		// For now, just mimic what Parsoid/JS does, but need to revisit this
 		foreach ( ( $ret['properties'] ?? [] ) as $name => $value ) {

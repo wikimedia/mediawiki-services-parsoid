@@ -62,10 +62,9 @@ class ExtensionHandler extends TokenHandler {
 	 * @param array $ret
 	 */
 	private function processExtMetadata( DocumentFragment $domFragment, array $ret ): void {
-		// Add the modules to the page data
-		$this->env->addOutputProperty( 'modules', $ret['modules'] );
-		$this->env->addOutputProperty( 'modulestyles', $ret['modulestyles'] );
-		$this->env->addOutputProperty( 'jsconfigvars', $ret['jsconfigvars'] );
+		foreach ( [ 'modules', 'modulestyles', 'jsconfigvars' ] as $prop ) {
+			$this->env->addOutputProperty( $prop, $ret[$prop] ?? [] );
+		}
 	}
 
 	/**
