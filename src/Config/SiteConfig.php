@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Wikimedia\Assert\Assert;
 use Wikimedia\ObjectFactory\ObjectFactory;
+use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Ext\Cite\Cite;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;

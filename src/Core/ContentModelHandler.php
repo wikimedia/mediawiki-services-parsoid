@@ -1,9 +1,8 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Config;
+namespace Wikimedia\Parsoid\Core;
 
-use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 

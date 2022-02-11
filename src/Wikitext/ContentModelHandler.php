@@ -3,8 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wikitext;
 
-use Wikimedia\Parsoid\Config\ContentModelHandler as IContentModelHandler;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\ContentModelHandler as IContentModelHandler;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
