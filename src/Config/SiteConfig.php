@@ -1370,23 +1370,24 @@ abstract class SiteConfig {
 		return $extConfig['parsoidExtTags'][mb_strtolower( $tagName )] ?? null;
 	}
 
+	private $tagHandlerCache = [];
+
 	/**
 	 * @param string $tagName Extension tag name
 	 * @return ExtensionTagHandler|null
 	 *   Returns the implementation of the named extension, if there is one.
 	 */
 	public function getExtTagImpl( string $tagName ): ?ExtensionTagHandler {
-		static $handlerCache = [];
-		if ( !array_key_exists( $tagName, $handlerCache ) ) {
+		if ( !array_key_exists( $tagName, $this->tagHandlerCache ) ) {
 			$tagConfig = $this->getExtTagConfig( $tagName );
-			$handlerCache[$tagName] = isset( $tagConfig['handler'] ) ?
+			$this->tagHandlerCache[$tagName] = isset( $tagConfig['handler'] ) ?
 				$this->getObjectFactory()->createObject( $tagConfig['handler'], [
 					'allowClassName' => true,
 					'assertClass' => ExtensionTagHandler::class,
 				] ) : null;
 		}
 
-		return $handlerCache[$tagName];
+		return $this->tagHandlerCache[$tagName];
 	}
 
 	/**
