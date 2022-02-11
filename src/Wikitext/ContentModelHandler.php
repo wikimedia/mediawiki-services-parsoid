@@ -1,8 +1,10 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Config;
+namespace Wikimedia\Parsoid\Wikitext;
 
+use Wikimedia\Parsoid\Config\ContentModelHandler as IContentModelHandler;
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
@@ -14,7 +16,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 
-class WikitextContentModelHandler extends ContentModelHandler {
+class ContentModelHandler extends IContentModelHandler {
 
 	/** @var Env */
 	private $env;

@@ -8,7 +8,6 @@ use Exception;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -29,6 +28,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 /**
  * Wikitext to HTML serializer.
@@ -426,7 +426,7 @@ class WikitextSerializer {
 
 			// Strip Parsoid-inserted class="mw-empty-elt" attributes
 			if ( $k === 'class'
-				 && isset( WikitextConstants::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] )
+				 && isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] )
 			) {
 				$kv->v = preg_replace( '/\bmw-empty-elt\b/', '', $kv->v, 1 );
 				if ( !$kv->v ) {
@@ -1410,7 +1410,7 @@ class WikitextSerializer {
 				foreach ( $htmlTags[0] as $j => $rawTagName ) {
 					// Strip </, attributes, and > to get the tagname
 					$tagName = preg_replace( '/<\/?|\s.*|>/', '', $rawTagName );
-					if ( !isset( WikitextConstants::$HTML['HTML5Tags'][$tagName] ) ) {
+					if ( !isset( Consts::$HTML['HTML5Tags'][$tagName] ) ) {
 						// If we encounter any tag that is not a html5 tag,
 						// it could be an extension tag. We could do a more complex
 						// regexp or tokenize the string to determine if any block tags

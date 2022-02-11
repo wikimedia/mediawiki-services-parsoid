@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants as Consts;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -17,6 +16,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -29,7 +29,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * On other tags, a, hr, br, meta-marker tags, the tsr spans
 	 * the entire DOM, not just the tag.
 	 *
-	 * This code is not in WikitextConstants.php because this
+	 * This code is not in Wikitext\Consts.php because this
 	 * information is Parsoid-implementation-specific.
 	 */
 	private static $WtTagsWithLimitedTSR = [

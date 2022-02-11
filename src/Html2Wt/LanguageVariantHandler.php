@@ -4,12 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 /**
  * Serializes language variant markup, like `-{ ... }-`.
@@ -183,8 +183,8 @@ class LanguageVariantHandler {
 		}
 
 		foreach ( get_object_vars( $dataMWV ) as $key => $val ) {
-			if ( isset( WikitextConstants::$LCNameMap[$key] ) ) {
-				$flags[WikitextConstants::$LCNameMap[$key]] = true;
+			if ( isset( Consts::$LCNameMap[$key] ) ) {
+				$flags[Consts::$LCNameMap[$key]] = true;
 			}
 		}
 

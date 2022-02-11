@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -13,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class PWrap implements Wt2HtmlDOMProcessor {
@@ -37,7 +37,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	private function emitsSolTransparentWT( Node $n ): bool {
 		return ( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
 			$n instanceof Comment ||
-			isset( WikitextConstants::$HTML['MetaTags'][DOMCompat::nodeName( $n )] );
+			isset( Consts::$HTML['MetaTags'][DOMCompat::nodeName( $n )] );
 	}
 
 	/**

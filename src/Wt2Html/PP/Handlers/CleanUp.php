@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -16,6 +15,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 class CleanUp {
 	/**
@@ -86,7 +86,7 @@ class CleanUp {
 		?stdClass $tplInfo = null
 	) {
 		if ( !( $node instanceof Element ) ||
-			!isset( WikitextConstants::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
+			!isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
 			!self::isEmptyNode( $node )
 		) {
 			return true;
@@ -226,7 +226,7 @@ class CleanUp {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
 		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-			isset( WikitextConstants::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] )
+			isset( Consts::$WTTagsWithNoClosingTags[DOMCompat::nodeName( $node )] )
 		) {
 			unset( $dp->autoInsertedEnd );
 		}
@@ -297,7 +297,7 @@ class CleanUp {
 			// Trim whitespace from some wikitext markup
 			// not involving explicit HTML tags (T157481)
 			if ( !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-				isset( WikitextConstants::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $node )] )
+				isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $node )] )
 			) {
 				self::trimWhiteSpace( $node, $dp->dsr ?? null );
 			}

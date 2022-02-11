@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -12,6 +11,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\RemexHtml\DOM\DOMBuilder;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
@@ -143,10 +143,10 @@ class DOMUtils {
 	 */
 	public static function isRemexBlockNode( ?Node $node ): bool {
 		return $node instanceof Element &&
-			!isset( WikitextConstants::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
+			!isset( Consts::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
 			// From \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
 			// This is a superset but matches `emitsSolTransparentWT` below
-			!isset( WikitextConstants::$HTML['MetaTags'][DOMCompat::nodeName( $node )] );
+			!isset( Consts::$HTML['MetaTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -163,7 +163,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isFormattingElt( ?Node $node ): bool {
-		return $node && isset( WikitextConstants::$HTML['FormattingTags'][DOMCompat::nodeName( $node )] );
+		return $node && isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -172,7 +172,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isQuoteElt( ?Node $node ): bool {
-		return $node && isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $node )] );
+		return $node && isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -459,7 +459,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isFosterablePosition( ?Node $n ): bool {
-		return $n && isset( WikitextConstants::$HTML['FosterablePosition'][DOMCompat::nodeName( $n->parentNode )] );
+		return $n && isset( Consts::$HTML['FosterablePosition'][DOMCompat::nodeName( $n->parentNode )] );
 	}
 
 	/**
@@ -479,7 +479,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isList( ?Node $n ): bool {
-		return $n && isset( WikitextConstants::$HTML['ListTags'][DOMCompat::nodeName( $n )] );
+		return $n && isset( Consts::$HTML['ListTags'][DOMCompat::nodeName( $n )] );
 	}
 
 	/**
@@ -489,7 +489,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isListItem( ?Node $n ): bool {
-		return $n && isset( WikitextConstants::$HTML['ListItemTags'][DOMCompat::nodeName( $n )] );
+		return $n && isset( Consts::$HTML['ListItemTags'][DOMCompat::nodeName( $n )] );
 	}
 
 	/**
@@ -848,7 +848,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isTableTag( Node $node ): bool {
-		return isset( WikitextConstants::$HTML['TableTags'][DOMCompat::nodeName( $node )] );
+		return isset( Consts::$HTML['TableTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
@@ -954,7 +954,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function isRawTextElement( Node $node ): bool {
-		return isset( WikitextConstants::$HTML['RawTextElements'][DOMCompat::nodeName( $node )] );
+		return isset( Consts::$HTML['RawTextElements'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**

@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -20,6 +19,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 class Separators {
 	/*
@@ -244,7 +244,7 @@ class Separators {
 				$sepType === 'parent-child' &&
 				!DOMUtils::isContentNode( DOMUtils::firstNonDeletedChild( $nodeA ) ) &&
 				!(
-					isset( WikitextConstants::$HTML['ChildTableTags'][DOMCompat::nodeName( $nodeB )] ) &&
+					isset( Consts::$HTML['ChildTableTags'][DOMCompat::nodeName( $nodeB )] ) &&
 					!WTUtils::isLiteralHTMLNode( $nodeB )
 				)
 			) {
@@ -541,7 +541,7 @@ class Separators {
 
 			$stripLeadingSpace = ( !empty( $constraintInfo['onSOL'] ) || $forceSOL ) &&
 				$nodeB && !WTUtils::isLiteralHTMLNode( $nodeB ) &&
-				isset( WikitextConstants::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $nodeB )] );
+				isset( Consts::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $nodeB )] );
 			if ( !$isIndentPreSafe || $stripLeadingSpace ) {
 				// Wrap non-nl ws from last line, but preserve comments.
 				// This avoids triggering indent-pres.
@@ -629,7 +629,7 @@ class Separators {
 		}
 
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
-		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
+		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/^[ \t]/', $origNode->nodeValue ) )
 		) {
 			// Don't reintroduce whitespace that's already been captured as a DisplaySpace
@@ -703,7 +703,7 @@ class Separators {
 
 		$sep = null;
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
-		if ( isset( WikitextConstants::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
+		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
 		) {
 			// Don't reintroduce whitespace that's already been captured as a DisplaySpace

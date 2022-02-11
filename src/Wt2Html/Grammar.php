@@ -10,7 +10,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 	use Wikimedia\Parsoid\Config\Env;
 	use Wikimedia\Parsoid\Config\SiteConfig;
-	use Wikimedia\Parsoid\Config\WikitextConstants;
 	use Wikimedia\Parsoid\Core\DomSourceRange;
 	use Wikimedia\Parsoid\NodeData\DataParsoid;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -27,6 +26,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Utils\Utils;
 	use Wikimedia\Parsoid\Utils\PHPUtils;
 	use Wikimedia\Parsoid\Utils\WTUtils;
+	use Wikimedia\Parsoid\Wikitext\Consts;
 
 
 class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
@@ -159,8 +159,8 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 		$lName = mb_strtolower( $name );
 		return $block ?
 			TokenUtils::isWikitextBlockTag( $lName ) :
-			isset( WikitextConstants::$HTML['HTML5Tags'][$lName] )
-			|| isset( WikitextConstants::$HTML['OlderHTMLTags'][$lName] );
+			isset( Consts::$HTML['HTML5Tags'][$lName] )
+			|| isset( Consts::$HTML['OlderHTMLTags'][$lName] );
 	}
 
 	private function isAnnOrExtTag( string $name ): bool {

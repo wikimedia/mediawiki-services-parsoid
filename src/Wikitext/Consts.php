@@ -1,11 +1,11 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Config;
+namespace Wikimedia\Parsoid\Wikitext;
 
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
-class WikitextConstants {
+class Consts {
 	public static $Media;
 	public static $Sanitizer;
 	public static $WikitextTagsWithTrimmableWS;
@@ -376,4 +376,4 @@ class WikitextConstants {
 	}
 }
 
-WikitextConstants::init();
+Consts::init();

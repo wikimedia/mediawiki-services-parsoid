@@ -12,7 +12,6 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -32,6 +31,7 @@ use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
@@ -891,10 +891,10 @@ class WikiLinkHandler extends TokenHandler {
 		$shortCanonicalOption = preg_replace( '/^(img|timedmedia)_/', '', $canonicalOption, 1 );
 		// 'imgOption' is the key we'd put in opts; it names the 'group'
 		// for the option, and doesn't have an img_ prefix.
-		$imgOption = WikitextConstants::$Media['SimpleOptions'][$canonicalOption] ?? null;
+		$imgOption = Consts::$Media['SimpleOptions'][$canonicalOption] ?? null;
 		$bits = $getOption( $oText );
 		$normalizedBit0 = $bits ? mb_strtolower( trim( $bits['k'] ) ) : null;
-		$key = $bits ? ( WikitextConstants::$Media['PrefixOptions'][$normalizedBit0] ?? null ) : null;
+		$key = $bits ? ( Consts::$Media['PrefixOptions'][$normalizedBit0] ?? null ) : null;
 
 		if ( !empty( $imgOption ) && $key === null ) {
 			return [

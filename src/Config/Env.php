@@ -18,6 +18,7 @@ use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TitleNamespace;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Wikitext\ContentModelHandler as WikitextContentModelHandler;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;

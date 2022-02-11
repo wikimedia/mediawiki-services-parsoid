@@ -4,10 +4,10 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
@@ -153,7 +153,7 @@ class RemexPipeline {
 	 */
 	public function isFosterablePosition() {
 		$openElement = $this->treeBuilder->stack->current;
-		return isset( WikitextConstants::$HTML['FosterablePosition'][$openElement->htmlName] );
+		return isset( Consts::$HTML['FosterablePosition'][$openElement->htmlName] );
 	}
 
 }

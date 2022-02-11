@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -15,6 +14,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
@@ -169,9 +169,9 @@ class LanguageVariantHandler extends TokenHandler {
 		} else {
 			$dataMWV = [];
 			foreach ( $flags as $f ) {
-				if ( array_key_exists( $f, WikitextConstants::$LCFlagMap ) ) {
-					if ( WikitextConstants::$LCFlagMap[$f] ) {
-						$dataMWV[WikitextConstants::$LCFlagMap[$f]] = true;
+				if ( array_key_exists( $f, Consts::$LCFlagMap ) ) {
+					if ( Consts::$LCFlagMap[$f] ) {
+						$dataMWV[Consts::$LCFlagMap[$f]] = true;
 						if ( $f === 'A' ) {
 							$sawFlagA = true;
 						}

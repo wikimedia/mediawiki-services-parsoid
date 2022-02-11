@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 
 use stdClass;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -13,6 +12,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 class PHandler extends DOMHandler {
 
@@ -186,7 +186,7 @@ class PHandler extends DOMHandler {
 			} elseif ( $node instanceof Element ) {
 				// These tags will always serialize onto a new line
 				if (
-					isset( WikitextConstants::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $node )] ) &&
+					isset( Consts::$HTMLTagsRequiringSOLContext[DOMCompat::nodeName( $node )] ) &&
 					!WTUtils::isLiteralHTMLNode( $node )
 				) {
 					return false;

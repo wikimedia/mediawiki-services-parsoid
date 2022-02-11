@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -19,6 +18,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
 class WikitextEscapeHandlers {
@@ -557,7 +557,7 @@ class WikitextEscapeHandlers {
 				// result can be confusing for editors. However, doing it here in a
 				// simple way interacts badly with normal link escaping, so it's
 				// left for later.
-				if ( isset( WikitextConstants::$Sanitizer['AllowedLiteralTags'][mb_strtolower( $t->getName() )] ) ) {
+				if ( isset( Consts::$Sanitizer['AllowedLiteralTags'][mb_strtolower( $t->getName() )] ) ) {
 					return true;
 				} else {
 					continue;

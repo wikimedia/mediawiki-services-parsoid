@@ -9,7 +9,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -20,6 +19,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
@@ -389,7 +389,7 @@ class TokenizerUtils {
 	 * @return string
 	 */
 	public static function getAutoUrlTerminatingChars( array $arr ): string {
-		$chars = WikitextConstants::$strippedUrlCharacters;
+		$chars = Consts::$strippedUrlCharacters;
 		if ( array_search( '(', $arr, true ) === false ) {
 			$chars .= ')';
 		}

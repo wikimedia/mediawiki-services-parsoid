@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -15,6 +14,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 /*
  * Tag minimization
@@ -159,7 +159,7 @@ class DOMNormalizer {
 	 * @return bool
 	 */
 	private function rewriteablePair( Node $a, Node $b ): bool {
-		if ( isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $a )] ) ) {
+		if ( isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $a )] ) ) {
 			// For <i>/<b> pair, we need not check whether the node being transformed
 			// are new / edited, etc. since these minimization scenarios can
 			// never show up in HTML that came from parsed wikitext.
@@ -174,7 +174,7 @@ class DOMNormalizer {
 			// didn't originate from wikitext OR the HTML has been subsequently edited.
 			// In both cases, we want to transform the DOM.
 
-			return isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $b )] );
+			return isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $b )] );
 		} elseif ( DOMCompat::nodeName( $a ) === 'a' ) {
 			// For <a> tags, we require at least one of the two tags
 			// to be a newly created element.
@@ -595,7 +595,7 @@ class DOMNormalizer {
 			return $this->stripIfEmpty( $node );
 
 			// Quote tags
-		} elseif ( isset( WikitextConstants::$WTQuoteTags[DOMCompat::nodeName( $node )] ) ) {
+		} elseif ( isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $node )] ) ) {
 			return $this->stripIfEmpty( $node );
 
 			// Anchors

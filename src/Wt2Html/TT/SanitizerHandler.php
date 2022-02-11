@@ -14,7 +14,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
@@ -22,6 +21,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
@@ -53,7 +53,7 @@ class SanitizerHandler extends TokenHandler {
 		$l = null;
 		$kv = null;
 		$attribs = $token->attribs ?? null;
-		$allowedTags = WikitextConstants::$Sanitizer['AllowedLiteralTags'];
+		$allowedTags = Consts::$Sanitizer['AllowedLiteralTags'];
 
 		if ( TokenUtils::isHTMLTag( $token )
 			&& ( empty( $allowedTags[$token->getName()] )

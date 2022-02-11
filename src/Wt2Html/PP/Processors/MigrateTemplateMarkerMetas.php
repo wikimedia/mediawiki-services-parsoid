@@ -4,12 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\WikitextConstants;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
@@ -46,7 +46,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		if ( $firstChild && WTUtils::isTplEndMarkerMeta( $firstChild ) ) {
 			// We can migrate the meta-tag across this node's start-tag barrier only
 			// if that start-tag is zero-width, or auto-inserted.
-			$tagWidth = WikitextConstants::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
+			$tagWidth = Consts::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
 			DOMUtils::assertElt( $node );
 			if ( ( $tagWidth && $tagWidth[0] === 0 && !WTUtils::isLiteralHTMLNode( $node ) ) ||
 				!empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
@@ -63,7 +63,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		if ( $lastChild && WTUtils::isTplStartMarkerMeta( $lastChild ) ) {
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width, or auto-inserted.
-			$tagWidth = WikitextConstants::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
+			$tagWidth = Consts::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
 			DOMUtils::assertElt( $node );
 			if ( ( $tagWidth && $tagWidth[1] === 0 &&
 				!WTUtils::isLiteralHTMLNode( $node ) ) ||

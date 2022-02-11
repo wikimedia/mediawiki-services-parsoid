@@ -22,6 +22,7 @@ use Wikimedia\Parsoid\Ext\Poem\Poem;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
+use Wikimedia\Parsoid\Wikitext\Consts;
 
 /**
  * Site-level configuration interface for Parsoid
@@ -994,7 +995,7 @@ abstract class SiteConfig {
 		// from the SiteConfig.  Further, we probably need a hook here so
 		// Parsoid can handle media options defined in extensions... in
 		// particular timedmedia_* magic words from Extension:TimedMediaHandler
-		$mws = array_keys( WikitextConstants::$Media['PrefixOptions'] );
+		$mws = array_keys( Consts::$Media['PrefixOptions'] );
 		return $this->getParameterizedAliasMatcher( $mws );
 	}
 
