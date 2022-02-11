@@ -1,9 +1,9 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Core;
+namespace Wikimedia\Parsoid\Config;
 
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ContentModelHandler as ExtContentModelHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
