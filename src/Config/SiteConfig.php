@@ -11,7 +11,6 @@ use Psr\Log\NullLogger;
 use Wikimedia\Assert\Assert;
 use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Ext\Cite\Cite;
-use Wikimedia\Parsoid\Ext\ContentModelHandler as ExtContentModelHandler;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
@@ -1226,9 +1225,6 @@ abstract class SiteConfig {
 			'domProcessors'  => [],
 			'contentModels'  => [],
 		];
-		// We always support wikitext
-		$this->extConfig['contentModels']['wikitext'] =
-			new WikitextContentModelHandler();
 
 		// There may be some tags defined by the parent wiki which have no
 		// associated parsoid modules; for now we handle these by invoking
@@ -1284,14 +1280,10 @@ abstract class SiteConfig {
 				if ( isset( $this->extConfig['contentModels'][$cm] ) ) {
 					continue;
 				}
-				// Wrap the handler so we can give it a sanitized
-				// ParsoidExtensionAPI object.
-				$handler = new ExtensionContentModelHandler(
-					$this->getObjectFactory()->createObject( $spec, [
-						'allowClassName' => true,
-						'assertClass' => ExtContentModelHandler::class,
-					] )
-				);
+				$handler = $this->getObjectFactory()->createObject( $spec, [
+					'allowClassName' => true,
+					'assertClass' => ContentModelHandler::class,
+				] );
 				$this->extConfig['contentModels'][$cm] = $handler;
 			}
 		}
@@ -1308,15 +1300,14 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Return a ContentModelHandler for the specified $contentmodel, if one is registered.
+	 * If null is returned, will use the default wikitext content model handler.
+	 *
 	 * @param string $contentmodel
 	 * @return ContentModelHandler|null
 	 */
 	public function getContentModelHandler( string $contentmodel ): ?ContentModelHandler {
-		// For now, fallback to 'wikitext' as the default handler
-		// FIXME: This is bogus, but this is just so suppress noise in our
-		// logs till we get around to handling all these other content models.
-		return ( $this->getExtConfig() )['contentModels'][$contentmodel] ??
-			( $this->getExtConfig() )['contentModels']['wikitext'];
+		return ( $this->getExtConfig() )['contentModels'][$contentmodel] ?? null;
 	}
 
 	/**

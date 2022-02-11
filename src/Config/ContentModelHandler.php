@@ -5,22 +5,23 @@ namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 abstract class ContentModelHandler {
 
 	/**
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @return Document
 	 */
-	abstract public function toDOM( Env $env ): Document;
+	abstract public function toDOM( ParsoidExtensionAPI $extApi ): Document;
 
 	/**
-	 * @param Env $env
+	 * @param ParsoidExtensionAPI $extApi
 	 * @param ?SelserData $selserData
 	 * @return string
 	 */
 	abstract public function fromDOM(
-		Env $env, ?SelserData $selserData = null
+		ParsoidExtensionAPI $extApi, ?SelserData $selserData = null
 	): string;
 
 }

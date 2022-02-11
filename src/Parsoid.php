@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -163,7 +164,8 @@ class Parsoid {
 		}
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
-		return [ $env, $handler->toDOM( $env ), $contentmodel ];
+		$extApi = new ParsoidExtensionAPI( $env );
+		return [ $env, $handler->toDOM( $extApi ), $contentmodel ];
 	}
 
 	/**
@@ -279,7 +281,8 @@ class Parsoid {
 		$env->bumpHtml2WtResourceUse( 'htmlSize', $options['htmlSize'] ?? 0 );
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
-		return $handler->fromDOM( $env, $selserData );
+		$extApi = new ParsoidExtensionAPI( $env );
+		return $handler->fromDOM( $extApi, $selserData );
 	}
 
 	/**

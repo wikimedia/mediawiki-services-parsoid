@@ -229,6 +229,11 @@ class Env {
 	private $remexPipeline;
 
 	/**
+	 * @var WikitextContentModelHandler
+	 */
+	private $wikitextContentModelHandler;
+
+	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
 	 * @param DataAccess $dataAccess
@@ -300,6 +305,7 @@ class Env {
 			$this->profiling = true;
 		}
 		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
+		$this->wikitextContentModelHandler = new WikitextContentModelHandler( $this );
 	}
 
 	/**
@@ -971,12 +977,13 @@ class Env {
 	): ContentModelHandler {
 		$contentmodel = $contentmodel ?? $this->pageConfig->getContentModel();
 		$handler = $this->siteConfig->getContentModelHandler( $contentmodel );
-		if ( !$handler ) {
-			$this->log( 'warn', "Unknown contentmodel $contentmodel" );
-			$contentmodel = 'wikitext';
-			$handler = $this->siteConfig->getContentModelHandler( $contentmodel );
+		if ( !$handler && $contentmodel !== 'wikitext' ) {
+			// For now, fallback to 'wikitext' as the default handler
+			// FIXME: This is bogus, but this is just so suppress noise in our
+			// logs till we get around to handling all these other content models.
+			// $this->log( 'warn', "Unknown contentmodel $contentmodel" );
 		}
-		return $handler;
+		return $handler ?? $this->wikitextContentModelHandler;
 	}
 
 	/**

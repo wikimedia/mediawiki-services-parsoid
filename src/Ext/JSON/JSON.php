@@ -10,10 +10,10 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\JSON;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\ContentModelHandler;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\Ext\ContentModelHandler;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
