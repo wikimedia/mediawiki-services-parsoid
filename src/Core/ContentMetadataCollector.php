@@ -81,6 +81,8 @@ interface ContentMetadataCollector {
 	 *   prefer to pass a single ContentOutputBuilder around to accumulate
 	 *   results.  We're going to wait and see to what extent methods like
 	 *   this are necessary.
+	 *   (ParserOutput will implement a ::mergeTo(ContentMetadataCollector)
+	 *   method, as it has read access to its own contents.)
 	 * ::setNoGallery()/::setEnableOOUI()/::setNewSection()/::setHideNewSection()
 	 * ::setPreventClickjacking()/::setIndexPolicy()/
 	 *   Available via ::setOutputFlag() (see T292868)
@@ -117,7 +119,7 @@ interface ContentMetadataCollector {
 	 * ::setSections()
 	 *   T296025: Should be more structured
 	 * ::setIndicator()
-	 *   Probably should be 'appendIndicator' for consistency.  The `content`
+	 *   Probably should be 'appendIndicator' for consistency? The `content`
 	 *   parameter is a string, but we'd probably want a DOM?  If it's a
 	 *   DOM object we need to be able to JSON serialize and unserialize
 	 *   it for ParserCache. (T300980)
@@ -130,9 +132,9 @@ interface ContentMetadataCollector {
 
 	/**
 	 * @param string $c Category name
-	 * @param string $sort Sort key
+	 * @param string $sort Sort key (pass the empty string to use the default)
 	 */
-	public function addCategory( string $c, string $sort ): void;
+	public function addCategory( string $c, string $sort = '' ): void;
 
 	/**
 	 * Add a warning to the output for this page.
@@ -144,7 +146,7 @@ interface ContentMetadataCollector {
 	/**
 	 * @param string $url External link URL
 	 */
-	public function addExternalLink( string $url );
+	public function addExternalLink( string $url ): void;
 
 	/**
 	 * Provides a uniform interface to various boolean flags stored
@@ -282,8 +284,9 @@ interface ContentMetadataCollector {
 	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
 	 *
 	 * @param int|string $value The value to append to the list.
+	 * @param string $strategy Merge strategy; only 'union' is currently supported
 	 */
-	public function appendExtensionData( string $key, $value ): void;
+	public function appendExtensionData( string $key, $value, string $strategy = 'union' ): void;
 
 	/**
 	 * Add a variable to be set in mw.config in JavaScript.
@@ -311,9 +314,9 @@ interface ContentMetadataCollector {
 	 *
 	 * @param string $key Key to use under mw.config
 	 * @param string $value Value to append to the configuration variable.
-	 * @since 1.38
+	 * @param string $strategy Merge strategy; only 'union' is currently supported
 	 */
-	public function appendJsConfigVar( string $key, string $value ): void;
+	public function appendJsConfigVar( string $key, string $value, string $strategy = 'union' ): void;
 
 	/**
 	 * @see OutputPage::addModules
@@ -342,7 +345,6 @@ interface ContentMetadataCollector {
 	 * encoded with htmlspecialchars() as necessary, but should avoid complex
 	 * HTML for sanity of display in the "NewPP limit report" comment.
 	 *
-	 * @since 1.22
 	 * @param string $key Message key
 	 * @param mixed $value Appropriate for Message::params()
 	 */
