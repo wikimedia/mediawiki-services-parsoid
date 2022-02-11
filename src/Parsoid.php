@@ -18,12 +18,11 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
-use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
+use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
 
@@ -396,11 +395,7 @@ class Parsoid {
 	}
 
 	/**
-	 * To support the 'subst' API parameter, we need to prefix each
-	 * top-level template with 'subst'. To make sure we do this for the
-	 * correct templates, tokenize the starting wikitext and use that to
-	 * detect top-level templates. Then, substitute each starting '{{' with
-	 * '{{subst' using the template token's tsr.
+	 * Perform pre-save transformations with top-level templates subst'd.
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param string $wikitext
@@ -410,21 +405,7 @@ class Parsoid {
 		PageConfig $pageConfig, string $wikitext
 	): string {
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess );
-		$tokenizer = new PegTokenizer( $env );
-		$tokens = $tokenizer->tokenizeSync( $wikitext );
-		$tsrIncr = 0;
-		foreach ( $tokens as $token ) {
-			/** @var Token $token */
-			if ( $token->getName() === 'template' ) {
-				$tsr = $token->dataAttribs->tsr;
-				$wikitext = substr( $wikitext, 0, $tsr->start + $tsrIncr )
-					. '{{subst:' . substr( $wikitext, $tsr->start + $tsrIncr + 2 );
-				$tsrIncr += 6;
-			}
-		}
-		// Now pass it to the MediaWiki API with onlypst set so that it
-		// subst's the templates.
-		return $this->dataAccess->doPst( $pageConfig, $wikitext );
+		return Wikitext::pst( $env, $wikitext, true /* $substTLTemplates */ );
 	}
 
 	/**
