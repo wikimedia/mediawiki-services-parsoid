@@ -1376,12 +1376,17 @@ abstract class SiteConfig {
 	 *   Returns the implementation of the named extension, if there is one.
 	 */
 	public function getExtTagImpl( string $tagName ): ?ExtensionTagHandler {
-		$tagConfig = $this->getExtTagConfig( $tagName );
-		return isset( $tagConfig['handler'] ) ?
-			$this->getObjectFactory()->createObject( $tagConfig['handler'], [
-				'allowClassName' => true,
-				'assertClass' => ExtensionTagHandler::class,
-			] ) : null;
+		static $handlerCache = [];
+		if ( !array_key_exists( $tagName, $handlerCache ) ) {
+			$tagConfig = $this->getExtTagConfig( $tagName );
+			$handlerCache[$tagName] = isset( $tagConfig['handler'] ) ?
+				$this->getObjectFactory()->createObject( $tagConfig['handler'], [
+					'allowClassName' => true,
+					'assertClass' => ExtensionTagHandler::class,
+				] ) : null;
+		}
+
+		return $handlerCache[$tagName];
 	}
 
 	/**
