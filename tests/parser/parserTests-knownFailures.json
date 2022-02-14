@@ -2010,7 +2010,7 @@
         "selser [[[[[[[1]]]]],0]]": "*******Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in parser function result": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",
+        "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar </span></li></ul>",
         "html2wt": "* Foo\n* bar"
     },
     "T2529: Uncovered table already at line-start": {

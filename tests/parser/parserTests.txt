@@ -16227,8 +16227,12 @@ Parsoid: Defaultsort variations (T236846)
 {{DEFAULTSORT}}
 {{DEFAULTSORT:}}
 {{DEFAULTSORT:DOGGIE}}
+!! html/php
+<p><a href="/index.php?title=Template:DEFAULTSORT&amp;action=edit&amp;redlink=1" class="new" title="Template:DEFAULTSORT (page does not exist)">Template:DEFAULTSORT</a>
+</p><p><br />
+</p>
 !! html/parsoid
-<meta property="mw:PageProp/categorydefaultsort" content="" data-parsoid='{"src":"{{DEFAULTSORT}}"}'/>
+<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"DEFAULTSORT","href":"./Template:DEFAULTSORT"},"params":{},"i":0}}]}'></span>
 <meta property="mw:PageProp/categorydefaultsort" content="" data-parsoid='{"src":"{{DEFAULTSORT:}}"}'/>
 <meta property="mw:PageProp/categorydefaultsort" content="DOGGIE" data-parsoid='{"src":"{{DEFAULTSORT:DOGGIE}}"}'/>
 !! end

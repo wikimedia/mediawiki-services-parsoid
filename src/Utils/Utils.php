@@ -401,6 +401,7 @@ class Utils {
 	}
 
 	/**
+	 * FIXME: This feels broken.
 	 * Magic words masquerading as templates.
 	 * @return array
 	 */
