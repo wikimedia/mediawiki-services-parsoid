@@ -578,8 +578,6 @@ class DOMPostProcessor extends PipelineStage {
 	 */
 	public function resetState( array $options ): void {
 		parent::resetState( $options );
-
-		// $this->env->getPageConfig()->meta->displayTitle = null;
 		$this->seenIds = [];
 	}
 
@@ -843,12 +841,7 @@ class DOMPostProcessor extends PipelineStage {
 			'href' => $env->getSiteConfig()->baseURI() . implode( '/', $expTitle )
 		] );
 
-		DOMCompat::setTitle(
-			$document,
-			// PORT-FIXME: There isn't a place anywhere yet for displayTitle
-			/* $env->getPageConfig()->meta->displayTitle || */
-			$env->getPageConfig()->getTitle()
-		);
+		DOMCompat::setTitle( $document, $env->getPageConfig()->getTitle() );
 
 		// Add base href pointing to the wiki root
 		DOMUtils::appendToHead( $document, 'base', [
