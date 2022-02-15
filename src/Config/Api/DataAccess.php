@@ -292,7 +292,7 @@ class DataAccess implements IDataAccess {
 				'title' => $pageConfig->getTitle(),
 				'text' => $wikitext,
 				'contentmodel' => 'wikitext',
-				'prop' => 'text|modules|jsconfigvars|categories',
+				'prop' => 'text|modules|jsconfigvars|categories|properties|externallinks',
 				'disablelimitreport' => 1,
 				'wrapoutputclass' => '',
 			];
@@ -328,7 +328,7 @@ class DataAccess implements IDataAccess {
 				'action' => 'expandtemplates',
 				'title' => $pageConfig->getTitle(),
 				'text' => $wikitext,
-				'prop' => 'properties|wikitext|categories|modules|jsconfigvars',
+				'prop' => 'wikitext|modules|jsconfigvars|categories|properties',
 			];
 			if ( $revid !== null ) {
 				$params['revid'] = $revid;

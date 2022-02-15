@@ -87,45 +87,53 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	public function testDoPst() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'dopst' );
-		$ret = $da->doPst( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
+		$ret = $da->doPst( $pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~' );
 		$this->assertIsString( $ret );
-		$this->assertSame( 'Foobar.{{cn}} <!-- Template:Unsigned -->', substr( $ret, 0, 40 ) );
+		$this->assertSame( 'Foobar.[[Category:Foo|Bar]]{{cn}} <!-- Template:Unsigned -->', substr( $ret, 0, 60 ) );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
-			$ret, $da->doPst( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
+			$ret, $da->doPst( $pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~' )
 		);
 	}
 
 	public function testParseWikitext() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'parse' );
-		$ret = $da->parseWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
+		$ret = $da->parseWikitext(
+			$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+		);
 		$this->assertEquals( [
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'html' => "<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~\n</p>",
+			'html' => "<p>Foobar.<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">[<i><a href=\"/wiki/Wikipedia:Citation_needed\" title=\"Wikipedia:Citation needed\"><span title=\"This claim needs references to reliable sources.\">citation needed</span></a></i>]</sup> {{subst:unsigned|Example}} ~~~~~\n</p>",
 			'modules' => [],
-			'modulestyles' => [],
+			'modulestyles' => [
+				'ext.discussionTools.init.styles',
+			],
 			'jsconfigvars' => [],
 			'categories' => [
-				'All_articles_with_unsourced_statements' => '',
-				'Articles_with_unsourced_statements' => '',
+				'Foo' => 'Bar',
 			],
 		], $ret );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
-			$ret, $da->parseWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
+			$ret,
+			$da->parseWikitext(
+				$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+			)
 		);
 	}
 
 	public function testPreprocessWikitext() {
 		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'preprocess' );
-		$ret = $da->preprocessWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' );
+		$ret = $da->preprocessWikitext(
+			$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+		);
 		$this->assertEquals( [
 			// phpcs:ignore Generic.Files.LineLength.TooLong
-			'wikitext' => "Foobar.[[Category:All articles with unsourced statements]][[Category:Articles with unsourced statements ]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
+			'wikitext' => "Foobar.[[Category:Foo|Bar]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
 			'modules' => [],
 			'modulestyles' => [],
 			'jsconfigvars' => [],
@@ -135,7 +143,10 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
-			$ret, $da->preprocessWikitext( $pageConfig, 'Foobar.{{cn}} {{subst:unsigned|Example}} ~~~~~' )
+			$ret,
+			$da->preprocessWikitext(
+				$pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
+			)
 		);
 	}
 
