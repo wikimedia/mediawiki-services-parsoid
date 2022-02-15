@@ -386,11 +386,11 @@ class DOMDataUtils {
 	 */
 	public static function injectPageBundle( Document $doc, stdClass $obj ): void {
 		$pb = PHPUtils::jsonEncode( $obj );
-		$script = $doc->createElement( 'script' );
-		DOMCompat::setIdAttribute( $script, 'mw-pagebundle' );
-		$script->setAttribute( 'type', 'application/x-mw-pagebundle' );
+		$script = DOMUtils::appendToHead( $doc, 'script', [
+			'id' => 'mw-pagebundle',
+			'type' => 'application/x-mw-pagebundle',
+		] );
 		$script->appendChild( $doc->createTextNode( $pb ) );
-		DOMCompat::getHead( $doc )->appendChild( $script );
 	}
 
 	/**

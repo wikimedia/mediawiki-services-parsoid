@@ -343,19 +343,14 @@ class Parsoid {
 				$env, $doc, $options['variant']['target'],
 				$options['variant']['source'] ?? null
 			);
-			// Ensure there's a <head>
-			if ( !DOMCompat::getHead( $doc ) ) {
-				$doc->documentElement->insertBefore(
-					$doc->createElement( 'head' ), DOMCompat::getBody( $doc )
-				);
-			}
 			// Update content-language and vary headers.
+			// This also ensures there is a <head> element.
 			$ensureHeader = static function ( string $h ) use ( $doc ) {
 				$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$h}\"i]" );
 				if ( !$el ) {
-					$el = $doc->createElement( 'meta' );
-					$el->setAttribute( 'http-equiv', $h );
-					( DOMCompat::getHead( $doc ) )->appendChild( $el );
+					$el = DOMUtils::appendToHead( $doc, 'meta', [
+						'http-equiv' => $h,
+					] );
 				}
 				return $el;
 			};

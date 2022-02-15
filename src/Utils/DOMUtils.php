@@ -906,6 +906,29 @@ class DOMUtils {
 	}
 
 	/**
+	 * Create an element in the document head with the given attrs.
+	 * Creates the head element in the document if needed.
+	 *
+	 * @param Document $document
+	 * @param string $tagName
+	 * @param array $attrs
+	 * @return Element The newly-appended Element
+	 */
+	public static function appendToHead( Document $document, string $tagName, array $attrs = [] ): Element {
+		$elt = $document->createElement( $tagName );
+		self::addAttributes( $elt, $attrs );
+		$head = DOMCompat::getHead( $document );
+		if ( !$head ) {
+			$head = $document->createElement( 'head' );
+			$document->documentElement->insertBefore(
+				$head, DOMCompat::getBody( $document )
+			);
+		}
+		$head->appendChild( $elt );
+		return $elt;
+	}
+
+	/**
 	 * innerHTML and outerHTML are not defined on DocumentFragment.
 	 *
 	 * Defined similarly to DOMCompat::getInnerHTML()

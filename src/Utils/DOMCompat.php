@@ -140,8 +140,7 @@ class DOMCompat {
 		if ( !$titleElement ) {
 			$headElement = self::getHead( $document );
 			if ( $headElement ) {
-				$titleElement = $document->createElement( 'title' );
-				$headElement->appendChild( $titleElement );
+				$titleElement = DOMUtils::appendToHead( $document, 'title' );
 			}
 		}
 		if ( $titleElement ) {

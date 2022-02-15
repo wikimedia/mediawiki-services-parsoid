@@ -584,19 +584,6 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	/**
-	 * Create an element in the document.head with the given attrs.
-	 *
-	 * @param Document $document
-	 * @param string $tagName
-	 * @param array $attrs
-	 */
-	private function appendToHead( Document $document, string $tagName, array $attrs = [] ): void {
-		$elt = $document->createElement( $tagName );
-		DOMUtils::addAttributes( $elt, $attrs );
-		( DOMCompat::getHead( $document ) )->appendChild( $elt );
-	}
-
-	/**
 	 * While unnecessary for Wikimedia clients, a stylesheet url in the <head>
 	 * is useful for clients like Kiwix and others who might not want to process
 	 * the meta tags to construct the resourceloader url.
@@ -635,7 +622,7 @@ class DOMPostProcessor extends PipelineStage {
 			'?lang=' . $lang . '&modules=' .
 			PHPUtils::encodeURIComponent( implode( '|', $styleModules ) ) .
 			'&only=styles&skin=vector';
-		$this->appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
+		DOMUtils::appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
 	}
 
 	/**
@@ -652,7 +639,7 @@ class DOMPostProcessor extends PipelineStage {
 			$styleModules = array_unique( $styleModules );
 
 			// mw:styleModules are CSS modules that are render-blocking.
-			$this->appendToHead( $document, 'meta', [
+			DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'mw:styleModules',
 				'content' => implode( '|', $styleModules )
 			] );
@@ -672,7 +659,7 @@ class DOMPostProcessor extends PipelineStage {
 		if ( $generalModules ) {
 			// mw:generalModules can be processed via JS (and async) and are usually (but
 			// not always) JS scripts.
-			$this->appendToHead( $document, 'meta', [
+			DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'mw:generalModules',
 				'content' => implode( '|', array_unique( $generalModules ) )
 			] );
@@ -697,7 +684,7 @@ class DOMPostProcessor extends PipelineStage {
 				);
 				return;
 			}
-			$this->appendToHead( $document, 'meta', [
+			DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'mw:jsConfigVars',
 				'content' => $content,
 			] );
@@ -741,13 +728,9 @@ class DOMPostProcessor extends PipelineStage {
 	 * @param Document $document
 	 */
 	public function addMetaData( Env $env, Document $document ): void {
-		// add <head> element if it was missing
-		if ( !( DOMCompat::getHead( $document ) instanceof Element ) ) {
-			$document->documentElement->insertBefore(
-				$document->createElement( 'head' ),
-				DOMCompat::getBody( $document )
-			);
-		}
+		// Set the charset in the <head> first.
+		// This also adds the <head> element if it was missing.
+		DOMUtils::appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
 
 		// add mw: and mwr: RDFa prefixes
 		$prefixes = [
@@ -774,12 +757,9 @@ class DOMPostProcessor extends PipelineStage {
 
 		// add <head> content based on page meta data:
 
-		// Set the charset first.
-		$this->appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
-
 		// Add page / revision metadata to the <head>
 		// PORT-FIXME: We will need to do some refactoring to eliminate
-		// this hardcoding. Probably even merge thi sinto metadataMap
+		// this hardcoding. Probably even merge this into metadataMap
 		$pageConfig = $env->getPageConfig();
 		$revProps = [
 			'id' => $pageConfig->getPageId(),
@@ -813,7 +793,7 @@ class DOMPostProcessor extends PipelineStage {
 			}
 
 			// <link> is used if there's a resource or href attribute.
-			$this->appendToHead( $document,
+			DOMUtils::appendToHead( $document,
 				isset( $attrs['resource'] ) || isset( $attrs['href'] ) ? 'link' : 'meta',
 				$attrs
 			);
@@ -830,7 +810,7 @@ class DOMPostProcessor extends PipelineStage {
 			str_replace( '_', ' ', $env->getSiteConfig()->mainpage() ) ===
 			str_replace( '_', ' ', $env->getPageConfig()->getTitle() )
 		) {
-			$this->appendToHead( $document, 'meta', [
+			DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'isMainPage',
 				'content' => 'true' /* HTML attribute values should be strings */
 			] );
@@ -838,7 +818,7 @@ class DOMPostProcessor extends PipelineStage {
 
 		// Set the parsoid content-type strings
 		// FIXME: Should we be using http-equiv for this?
-		$this->appendToHead( $document, 'meta', [
+		DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'mw:htmlVersion',
 				'content' => $env->getOutputContentVersion()
 			]
@@ -846,7 +826,7 @@ class DOMPostProcessor extends PipelineStage {
 		// Temporary backward compatibility for clients
 		// This could be skipped if we support a version downgrade path
 		// with a major version bump.
-		$this->appendToHead( $document, 'meta', [
+		DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'mw:html:version',
 				'content' => $env->getOutputContentVersion()
 			]
@@ -858,7 +838,7 @@ class DOMPostProcessor extends PipelineStage {
 			return PHPUtils::encodeURIComponent( $comp );
 		}, $expTitle );
 
-		$this->appendToHead( $document, 'link', [
+		DOMUtils::appendToHead( $document, 'link', [
 			'rel' => 'dc:isVersionOf',
 			'href' => $env->getSiteConfig()->baseURI() . implode( '/', $expTitle )
 		] );
@@ -871,7 +851,7 @@ class DOMPostProcessor extends PipelineStage {
 		);
 
 		// Add base href pointing to the wiki root
-		$this->appendToHead( $document, 'base', [
+		DOMUtils::appendToHead( $document, 'base', [
 			'href' => $env->getSiteConfig()->baseURI()
 		] );
 
@@ -891,12 +871,12 @@ class DOMPostProcessor extends PipelineStage {
 
 		// Indicate whether LanguageConverter is enabled, so that downstream
 		// caches can split on variant (if necessary)
-		$this->appendToHead( $document, 'meta', [
+		DOMUtils::appendToHead( $document, 'meta', [
 				'http-equiv' => 'content-language',
 				'content' => $env->htmlContentLanguage()
 			]
 		);
-		$this->appendToHead( $document, 'meta', [
+		DOMUtils::appendToHead( $document, 'meta', [
 				'http-equiv' => 'vary',
 				'content' => $env->htmlVary()
 			]
