@@ -693,43 +693,6 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param mixed $arg
-	 * @param SourceRange $srcOffsets
-	 * @return array
-	 */
-	private function fetchArg( $arg, SourceRange $srcOffsets ): array {
-		if ( is_string( $arg ) ) {
-			return [ $arg ];
-		} else {
-			return $this->manager->getFrame()->expand( $arg, [
-				'expandTemplates' => false,
-				'inTemplate' => false,
-				'srcOffsets' => $srcOffsets,
-			] );
-		}
-	}
-
-	/**
-	 * @param array $args
-	 * @param KV[] $attribs
-	 * @param array $toks
-	 * @return array
-	 */
-	private function lookupArg( array $args, array $attribs, array $toks ): array {
-		$argName = trim( TokenUtils::tokensToString( $toks ) );
-		$res = $args['dict'][$argName] ?? null;
-
-		if ( $res !== null ) {
-			$res = isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res;
-			return is_string( $res ) ? [ $res ] : $res;
-		} elseif ( count( $attribs ) > 1 ) {
-			return $this->fetchArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
-		} else {
-			return [ '{{{' . $argName . '}}}' ];
-		}
-	}
-
-	/**
 	 * @param mixed $tokens
 	 * @return bool
 	 */
@@ -1130,11 +1093,7 @@ class TemplateHandler extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onTemplateArg( Token $token ): TokenHandlerResult {
-		$args = $this->manager->getFrame()->getArgs()->named();
-		$attribs = $token->attribs;
-
-		$toks = $this->fetchArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
-		$toks = $this->lookupArg( $args, $attribs, $toks );
+		$toks = $this->manager->getFrame()->expandTemplateArg( $token );
 
 		// Shuttle tokens to the end of the stage since they've gone through the
 		// rest of the handlers in the current pipeline in the pipeline above.
