@@ -1619,25 +1619,25 @@
         "selser [[[3],3],2,1]": "\nlhdwhe\n\n[[../../|L1]]l"
     },
     "Parser Function: {{PAGESIZE:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,25,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,25,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESIZE:{{PAGENAME}}\",\"function\":\"pagesize\"},\"params\":{},\"i\":0}}]}'>100</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,25,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,25,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESIZE:{{PAGENAME}}\",\"function\":\"pagesize\"},\"params\":{},\"i\":0}}]}'>100</span></p>"
     },
     "Parser Function: {{REVISIONDAY:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,28,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY:{{PAGENAME}}\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,28,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY:{{PAGENAME}}\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</span></p>"
     },
     "Parser Function: {{REVISIONID:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
     },
     "Parser Function: {{REVISIONID:{{PAGENAME}}}} on non-saved revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
     },
     "Parser Function: {{REVISIONMONTH:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH:{{PAGENAME}}\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH:{{PAGENAME}}\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</span></p>"
     },
     "Parser Function: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
     },
     "Parser Function: {{REVISIONYEAR:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR:{{PAGENAME}}\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</span></p>"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR:{{PAGENAME}}\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</span></p>"
     },
     "Parser Functions: 1. Simple example": {
         "html2wt": "FOO\n"
@@ -2010,7 +2010,7 @@
         "selser [[[[[[[1]]]]],0]]": "*******Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in parser function result": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar </span></li></ul>",
+        "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar </span></li></ul>",
         "html2wt": "* Foo\n* bar"
     },
     "T2529: Uncovered table already at line-start": {
@@ -2410,7 +2410,7 @@
         "wt2html": "<table data-parsoid='{\"dsr\":[0,128,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,126,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,36,2,0]}'>\n<td data-parsoid='{\"dsr\":[6,18,1,0]}'>class=\"foo\"</td><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[18,36,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true,\"spc\":[\"\",\"\",\" \",\"\"]}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[37,75,2,0]}'>\n<td about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[40,75,1,0],\"firstWikitextNode\":\"TD\",\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;nbsp;{{!}}bar\"}},\"i\":0}}]}'>class=\"foo\"<span typeof=\"mw:Entity\"> </span></td><td about=\"#mwt3\">bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[76,125,2,0]}'>\n<td data-parsoid='{\"dsr\":[79,91,1,0]}'>class=\"foo\"</td><td about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[91,125,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>title=\"fail\"</td><td about=\"#mwt5\">bar</td></tr>\n</tbody></table>"
     },
     "Templates with templated name": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,39,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"{{1x|1x}}\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>\n{<span about=\"#mwt3\" typeof=\"mw:Param\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[19,38,null,null]}' data-mw='{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"1x\"},\"params\":{\"1\":{\"wt\":\"inner list\"}},\"i\":0}}]}'>inner list</span>}</p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,39,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"{{1x|1x}}\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>\n{<span about=\"#mwt3\" typeof=\"mw:Param\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[19,38,null,null]}' data-mw='{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"1x\"},\"params\":{\"1\":{\"wt\":\"inner list\"}},\"i\":0}}]}'>inner list</span>}</p>",
         "html2wt": "{{{{1x|1x}}|foo}}\n{{{{1x|inner list}}}}"
     },
     "Templates: 1. Simple use": {
