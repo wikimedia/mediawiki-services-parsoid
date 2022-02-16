@@ -162,19 +162,22 @@ class TableFixups {
 
 			// Assimilate $tpl's data-mw and data-parsoid pi info
 			$dmw = DOMDataUtils::getDataMw( $tpl );
-			foreach ( $dmw->parts as $tplInfo ) {
-				// Template index is relative  to other transclusions.
+			foreach ( $dmw->parts ?? [] as $part ) {
+				// Template index is relative to other transclusions.
 				// This index is used to extract whitespace information from
 				// data-parsoid and that array only includes info for templates.
 				// So skip over strings here.
-				if ( !is_string( $tplInfo ) ) {
-					if ( isset( $tplInfo->template ) ) {
-						$tplInfo->template->i = $index++;
+				if ( !is_string( $part ) ) {
+					// Cloning is strictly not needed here, but mimicing
+					// code in WrapSectionsState.php
+					$part = clone $part;
+					if ( isset( $part->template ) ) {
+						$part->template->i = $index++;
 					} else {
-						$tplInfo->templatearg->i = $index++;
+						$part->templatearg->i = $index++;
 					}
 				}
-				$parts[] = $tplInfo;
+				$parts[] = $part;
 			}
 			PHPUtils::pushArray( $pi, $tplDp->pi ?? [ [] ] );
 			DOMDataUtils::setDataMw( $tpl, null );

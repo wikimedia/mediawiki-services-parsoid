@@ -444,10 +444,12 @@ class WrapSectionsState {
 					// Assimilate $encapNode's data-mw and data-parsoid pi info
 					$dmw = DOMDataUtils::getDataMw( $encapNode );
 					foreach ( $dmw->parts ?? [] as $part ) {
+						// Template index is relative to other transclusions.
+						// This index is used to extract whitespace information from
+						// data-parsoid and that array only includes info for templates.
+						// So skip over strings here.
 						if ( !is_string( $part ) ) {
 							$part = clone $part;
-							// This index in the template object is expected to be
-							// relative to other template objects.
 							if ( isset( $part->template ) ) {
 								$part->template->i = $index++;
 							} else {
