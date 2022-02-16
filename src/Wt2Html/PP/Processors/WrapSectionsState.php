@@ -448,7 +448,11 @@ class WrapSectionsState {
 							$part = clone $part;
 							// This index in the template object is expected to be
 							// relative to other template objects.
-							$part->template->i = $index++;
+							if ( isset( $part->template ) ) {
+								$part->template->i = $index++;
+							} else {
+								$part->templatearg->i = $index++;
+							}
 						}
 						$parts[] = $part;
 					}

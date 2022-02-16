@@ -229,6 +229,7 @@ b
 ===1.1.1===
 d
 }}
+{{{BOOO}}} <!--needed to exercise templatearg code path in collapseWrappers-->
 =2=
 e
 !! html/php
@@ -241,6 +242,7 @@ e
 </p>
 <h3><span class="mw-headline" id="1.1.1">1.1.1</span></h3>
 <p>d
+{{{BOOO}}} 
 </p>
 <h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p>e
@@ -249,10 +251,11 @@ e
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h1 id="1">1</h1>
 <p>a</p>
 
-<section data-mw-section-id="-1" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}},"\n"]}'><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}}]}'>1.1</h2><span about="#mwt1">
+<section data-mw-section-id="-1" about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}],[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}},"\n",{"templatearg":{"target":{"wt":"BOOO"},"params":{},"i":1}}," &lt;!--needed to exercise templatearg code path in collapseWrappers-->\n"]}'><h2 about="#mwt1" typeof="mw:Transclusion" id="1.1" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}],[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"==1.1==\nb\n===1.1.1===\nd"}},"i":0}},"\n",{"templatearg":{"target":{"wt":"BOOO"},"params":{},"i":1}}]}'>1.1</h2><span about="#mwt1">
 </span><p about="#mwt1">b</p><span about="#mwt1">
 </span><section data-mw-section-id="-1" about="#mwt1"><h3 about="#mwt1" id="1.1.1">1.1.1</h3><span about="#mwt1">
-</span><p about="#mwt1">d</p>
+</span><p about="#mwt1">d
+{{{BOOO}}}</p> <!--needed to exercise templatearg code path in collapseWrappers-->
 </section></section></section><section data-mw-section-id="4" data-parsoid="{}"><h1 id="2">2</h1>
 <p>e</p></section>
 !! end

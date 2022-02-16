@@ -168,7 +168,11 @@ class TableFixups {
 				// data-parsoid and that array only includes info for templates.
 				// So skip over strings here.
 				if ( !is_string( $tplInfo ) ) {
-					$tplInfo->template->i = $index++;
+					if ( isset( $tplInfo->template ) ) {
+						$tplInfo->template->i = $index++;
+					} else {
+						$tplInfo->templatearg->i = $index++;
+					}
 				}
 				$parts[] = $tplInfo;
 			}
