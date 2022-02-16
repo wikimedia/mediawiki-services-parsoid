@@ -1447,6 +1447,8 @@ class TestRunner {
 			}
 			$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
 		}
+		// Ensure this is always registered!
+		$this->siteConfig->registerParserTestExtension( new ParserHook() );
 
 		$this->buildTasks( $test, $targetModes, $options );
 	}
@@ -1482,9 +1484,6 @@ class TestRunner {
 				$this->testCases = array_slice( $this->testCases, 0, $n );
 			}
 		}
-
-		// Register parser tests parser hook
-		$this->siteConfig->registerParserTestExtension( new ParserHook() );
 
 		$this->envOptions = [
 			'wrapSections' => false,

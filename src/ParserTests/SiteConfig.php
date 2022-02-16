@@ -52,7 +52,6 @@ class SiteConfig extends ApiSiteConfig {
 
 		$opts['logger'] = $logger;
 		parent::__construct( $api, $opts );
-		$this->registerParserTestExtension( new ParserHook() );
 
 		// Needed for bidi-char-scrubbing html2wt tests.
 		$this->scrubBidiChars = true;
@@ -109,6 +108,8 @@ class SiteConfig extends ApiSiteConfig {
 		$this->disableSubpagesForNS( 0 );
 		$this->unregisterParserTestExtension( new StyleTag() );
 		$this->unregisterParserTestExtension( new RawHTML() );
+		$this->unregisterParserTestExtension( new ParserHook() );
+		$this->unregisterParserTestExtension( new DummyAnnotation() );
 		$this->thumbsize = null;
 	}
 
