@@ -131,6 +131,18 @@ interface ContentMetadataCollector {
 	 */
 
 	/**
+	 * Merge strategy to use for ContentMetadataCollector
+	 * accumulators: "union" means that values are strings, stored as
+	 * a set, and exposed as a PHP associative array mapping from
+	 * values to `true`.
+	 *
+	 * This constant should be treated as @internal until we expose
+	 * alternative merge strategies for external use.
+	 * @internal
+	 */
+	public const MERGE_STRATEGY_UNION = 'union';
+
+	/**
 	 * Add a category, with the given sort key.
 	 * @note Note that titles frequently get stored as array keys, and when
 	 * that happens in PHP, array_keys() will recover strings like '0' as
@@ -294,9 +306,15 @@ interface ContentMetadataCollector {
 	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
 	 *
 	 * @param int|string $value The value to append to the list.
-	 * @param string $strategy Merge strategy; only 'union' is currently supported
+	 * @param string $strategy Merge strategy:
+	 *  only MW_MERGE_STRATEGY_UNION is currently supported and external callers
+	 *  should treat this parameter as @internal at this time and omit it.
 	 */
-	public function appendExtensionData( string $key, $value, string $strategy = 'union' ): void;
+	public function appendExtensionData(
+		string $key,
+		$value,
+		string $strategy = self::MERGE_STRATEGY_UNION
+	): void;
 
 	/**
 	 * Add a variable to be set in mw.config in JavaScript.
@@ -329,9 +347,15 @@ interface ContentMetadataCollector {
 	 *
 	 * @param string $key Key to use under mw.config
 	 * @param string $value Value to append to the configuration variable.
-	 * @param string $strategy Merge strategy; only 'union' is currently supported
+	 * @param string $strategy Merge strategy:
+	 *  only MW_MERGE_STRATEGY_UNION is currently supported and external callers
+	 *  should treat this parameter as @internal at this time and omit it.
 	 */
-	public function appendJsConfigVar( string $key, string $value, string $strategy = 'union' ): void;
+	public function appendJsConfigVar(
+		string $key,
+		string $value,
+		string $strategy = self::MERGE_STRATEGY_UNION
+	): void;
 
 	/**
 	 * @see OutputPage::addModules
