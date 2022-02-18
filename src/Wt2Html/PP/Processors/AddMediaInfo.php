@@ -474,6 +474,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					$href .= '?' . http_build_query( $qs );
 				}
 				$anchor->setAttribute( 'href', $href );
+				$anchor->setAttribute( 'class', 'mw-file-description' );
 			};
 			if ( $attr !== null ) {
 				$discard = true;
