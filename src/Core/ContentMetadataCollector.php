@@ -131,10 +131,18 @@ interface ContentMetadataCollector {
 	 */
 
 	/**
-	 * @param string $c Category name
-	 * @param string $sort Sort key (pass the empty string to use the default)
+	 * Add a category, with the given sort key.
+	 * @note Note that titles frequently get stored as array keys, and when
+	 * that happens in PHP, array_keys() will recover strings like '0' as
+	 * integers (instead of strings).  To avoid corner case bugs, we allow
+	 * both integers and strings as titles (and sort keys).
+	 * @note In the future, we might consider accepting a LinkTarget (or
+	 * similar proxy) for $c instead of a string.
+	 *
+	 * @param string|int $c Category name
+	 * @param string|int $sort Sort key (pass the empty string to use the default)
 	 */
-	public function addCategory( string $c, string $sort = '' ): void;
+	public function addCategory( $c, $sort = '' ): void;
 
 	/**
 	 * Add a warning to the output for this page.
@@ -278,7 +286,9 @@ interface ContentMetadataCollector {
 	 * ::setExtensionData() for the flag-like version of this method.
 	 *
 	 * @note Only values which can be array keys are currently supported
-	 * as values.
+	 * as values.  Be aware that array keys which 'look like' numbers are
+	 * converted to ints by PHP, and so if you put in `"0"` as a value you
+	 * will get `[0=>true]` out.
 	 *
 	 * @param string $key The key for accessing the data. Extensions should take care to avoid
 	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
@@ -311,6 +321,11 @@ interface ContentMetadataCollector {
 	 * ordered in PHP, but you should treat it as unordered.)
 	 * If you want a non-array type for the key, and can ensure that only
 	 * a single value will be set, you should use ::setJsConfigVar() instead.
+	 *
+	 * @note Only values which can be array keys are currently supported
+	 * as values.  Be aware that array keys which 'look like' numbers are
+	 * converted to ints by PHP, and so if you put in `"0"` as a value you
+	 * will get `[0=>true]` out.
 	 *
 	 * @param string $key Key to use under mw.config
 	 * @param string $value Value to append to the configuration variable.
