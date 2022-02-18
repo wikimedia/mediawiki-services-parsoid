@@ -467,14 +467,16 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					// No href if link= was specified
 					$anchor = $doc->createElement( 'span' );
 				} elseif ( $urlParser->tokenizeURL( $val ) !== false ) {
-					// an external link!
-					$anchor->setAttribute( 'href', $val );
+					// An external link!
+					$href = Sanitizer::cleanUrl( $env->getSiteConfig(), $val, 'external' );
+					$anchor->setAttribute( 'href', $href );
 				} else {
 					$link = $env->makeTitleFromText( $val, null, true );
 					if ( $link !== null ) {
 						$anchor->setAttribute( 'href', $env->makeLink( $link ) );
 					} else {
 						// Treat same as if link weren't present
+						// FIXME: This is missing the querystring stuff below
 						$anchor->setAttribute( 'href', $env->makeLink( $attrs['title'] ) );
 						// but preserve for roundtripping
 						$discard = false;
@@ -499,13 +501,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			}
 		} else {
 			$anchor = $doc->createElement( 'span' );
-		}
-
-		if ( DOMCompat::nodeName( $anchor ) === 'a' ) {
-			$href = Sanitizer::cleanUrl(
-				$env->getSiteConfig(), $anchor->getAttribute( 'href' ) ?? '', 'external'
-			);
-			$anchor->setAttribute( 'href', $href );
 		}
 
 		$oldAnchor->parentNode->replaceChild( $anchor, $oldAnchor );
