@@ -3723,11 +3723,29 @@ Image: Invalid title as link
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Foobar.jpg|link=<]]
+[[File:Foobar.jpg|link=<|thumb]]
 !! html/php
 <p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg" title="link=&lt;"><img alt="link=&lt;" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>
 </p>
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="/wiki/File:Foobar.jpg"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a><figcaption>link=&lt;</figcaption></figure>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"link","ak":"link=&lt;"}]}' data-mw='{"attribs":[["link",{"txt":"&lt;"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"link","ak":"link=&lt;"},{"ck":"thumbnail","ak":"thumb"}]}' data-mw='{"attribs":[["link",{"txt":"&lt;"}]]}'><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></a><figcaption></figcaption></figure>
+!! end
+
+!! test
+Image with page parameter and invalid link
+!! options
+djvu
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:LoremIpsum.djvu|link=<|page=2]]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:Image"><a href="/index.php?title=File:LoremIpsum.djvu&amp;page=2" title="link=&lt;"><img alt="link=&lt;" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x" /></a></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-parsoid='{"optList":[{"ck":"link","ak":"link=&lt;"},{"ck":"page","ak":"page=2"}]}' data-mw='{"attribs":[["link",{"txt":"&lt;"}],["page",{"txt":"2"}]]}'><a href="./File:LoremIpsum.djvu?page=2"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" data-file-width="2480" data-file-height="3508" data-file-type="office" height="3508" width="2480" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x"/></a></span></p>
 !! end
 
 !! test

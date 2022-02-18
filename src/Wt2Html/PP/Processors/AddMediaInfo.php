@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
@@ -460,6 +461,20 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		$anchor = $doc->createElement( 'a' );
 		if ( $isImage ) {
+			$addDescriptionLink = static function ( Title $title ) use ( $env, $anchor, $page, $lang ) {
+				$href = $env->makeLink( $title );
+				$qs = [];
+				if ( $page > 0 ) {
+					$qs['page'] = $page;
+				}
+				if ( $lang ) {
+					$qs['lang'] = $lang;
+				}
+				if ( $qs ) {
+					$href .= '?' . http_build_query( $qs );
+				}
+				$anchor->setAttribute( 'href', $href );
+			};
 			if ( $attr !== null ) {
 				$discard = true;
 				$val = $attr[1]->txt;
@@ -476,8 +491,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 						$anchor->setAttribute( 'href', $env->makeLink( $link ) );
 					} else {
 						// Treat same as if link weren't present
-						// FIXME: This is missing the querystring stuff below
-						$anchor->setAttribute( 'href', $env->makeLink( $attrs['title'] ) );
+						$addDescriptionLink( $attrs['title'] );
 						// but preserve for roundtripping
 						$discard = false;
 					}
@@ -486,18 +500,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					WTSUtils::getAttrFromDataMw( $dataMw, 'link', /* keep */false );
 				}
 			} else {
-				$href = $env->makeLink( $attrs['title'] );
-				$qs = [];
-				if ( $page > 0 ) {
-					$qs['page'] = $page;
-				}
-				if ( $lang ) {
-					$qs['lang'] = $lang;
-				}
-				if ( $qs ) {
-					$href .= '?' . http_build_query( $qs );
-				}
-				$anchor->setAttribute( 'href', $href );
+				$addDescriptionLink( $attrs['title'] );
 			}
 		} else {
 			$anchor = $doc->createElement( 'span' );
