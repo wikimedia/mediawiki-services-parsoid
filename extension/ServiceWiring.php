@@ -27,6 +27,12 @@ use Wikimedia\Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\SiteConfig;
 
+// Compatibility: we're going to move this code to core eventually; this
+// ensures we yield gracefully to core's implementation when it exists.
+if ( class_exists( '\MediaWiki\Parser\Parsoid\ParsoidServices' ) ) {
+	return [];
+}
+
 return [
 
 	'ParsoidSiteConfig' => static function ( MediaWikiServices $services ): SiteConfig {
