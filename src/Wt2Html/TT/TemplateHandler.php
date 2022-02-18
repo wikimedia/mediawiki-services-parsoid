@@ -1068,7 +1068,12 @@ class TemplateHandler extends TokenHandler {
 				/* If $tgt is not null, target will be present. */
 				$templateName = $tgt['target'];
 				$templateTitle = $tgt['title'];
-				$attribs = array_slice( $token->attribs, 1 ); // Strip template name
+
+				// FIXME: This is a source of a lot of issues since templateargs
+				// get looked up from the Frame and yield these tokens which then enter
+				// the token stream. See T301948 and others from wmf.22
+				// $attribs = array_slice( $token->attribs, 1 ); // Strip template name
+				$attribs = [];
 
 				// We still need to check for limit violations because of the
 				// higher precedence of extension tags, which can result in nested
