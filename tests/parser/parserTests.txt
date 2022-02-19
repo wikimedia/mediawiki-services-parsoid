@@ -6,39 +6,50 @@
 # The syntax should be fairly self-explanatory.
 #
 # Currently supported test options:
-# One of the following three:
+# One of the following modes:
 #
 #  (default)  generate HTML output
 #  pst        apply pre-save transform
 #  msg        apply message transform
+#  comment    run through Linker::formatComment() instead of main parser
 #
-# Plus any combination of these:
+# Options for adding metadata to the output:
 #
 # cat           add category links
 #               (ignored by Parsoid, since it emits <link>s)
 # ill           add inter-language links
 #               (ignored by Parsoid, since it emits <link>s)
+# property=XXX  add the value of the page property with the given name.
+#               This can also be a comma-separated list.
+# extension=XXX add the JSON-encoded value of the given extension data.
+#               This can also be a comma-separated list.
+# showtitle     make the first line the title
+# showindicators make the first lines the page status indicators
+#
+# Parser parameters:
+#
 # subpage       enable subpages (disabled by default)
 # title=[[XXX]] run test using article title XXX
 # language=XXX  set content language to XXX for this test
 # variant=XXX   set the variant of language for this test (eg zh-tw)
+# notoc         disable table of contents
+# thumbsize=NNN set the default thumb size to NNNpx for this test
+# wrap          include the normal wrapper <div class="mw-parser-output"> (since 1.30)
+# local         format section links in edit comment text as local links
+#
+# Configuration globals:
+#
+#  wgEnableUploads, wgAllowExternalImages, wgMaxTocLevel,
+#  wgLinkHolderBatchSize, wgRawHtml, wgInterwikiMagic,
+#  wgEnableMagicLinks
+#
+# Test execution options:
+#
 # disabled      do not run test
 # parsoid       parsoid-specific options (not run by PHP parser unless
 #                 the test includes an html/php section)
 # php           php-only test (not run by the parsoid parser unless
 #                 the test includes an html/parsoid section)
-# showtitle     make the first line the title
-# showindicators make the first lines the page status indicators
-# comment       run through Linker::formatComment() instead of main parser
-# local         format section links in edit comment text as local links
-# notoc         disable table of contents
-# thumbsize=NNN set the default thumb size to NNNpx for this test
-# wrap          include the normal wrapper <div class="mw-parser-output"> (since 1.30)
-#
-# You can also set the following parser properties via test options:
-#  wgEnableUploads, wgAllowExternalImages, wgMaxTocLevel,
-#  wgLinkHolderBatchSize, wgRawHtml, wgInterwikiMagic,
-#  wgEnableMagicLinks
 #
 # For testing purposes, temporary articles can created:
 # !!article / NAMESPACE:TITLE / !!text / ARTICLE TEXT / !!endarticle
@@ -17435,7 +17446,7 @@ wgParserEnableLegacyMediaDOM=false
 [[Media:Foobar.jpg|[[File:Foobar.jpg]]]]
 !! html/php
 <p>[[Media:Foobar.jpg|<a href="/index.php?title=Test&amp;action=edit&amp;redlink=1" class="new" title="Test (page does not exist)">Test</a>]]
-[[Media:Foobar.jpg|<span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" resource="/wiki/File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>]]
+[[Media:Foobar.jpg|<span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>]]
 </p>
 !! html/parsoid
 <p>[[Media:Foobar.jpg|<a rel="mw:WikiLink" href="./Test" title="Test" class="new">Test</a>]]
@@ -18422,7 +18433,7 @@ wgParserEnableLegacyMediaDOM=false
 [[File:Foobar.jpg|alt=-{}-foAjrjvi-{}-]]
 !! html/php
 <p class="mw-empty-elt">
-</p><p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/%D0%94%D0%B0%D1%82%D0%BE%D1%82%D0%B5%D0%BA%D0%B0:Foobar.jpg"><img alt="&quot; onload=&quot;alert(1)&quot; data-foo=&quot;" resource="/wiki/%D0%94%D0%B0%D1%82%D0%BE%D1%82%D0%B5%D0%BA%D0%B0:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>
+</p><p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/%D0%94%D0%B0%D1%82%D0%BE%D1%82%D0%B5%D0%BA%D0%B0:Foobar.jpg"><img alt="&quot; onload=&quot;alert(1)&quot; data-foo=&quot;" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>
 </p>
 !! html/parsoid
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"oneway":[{"f":"foAjrjvi","l":"sr-el","t":"\" onload=\"alert(1)\" data-foo=\""}]}'/></p>
@@ -22984,8 +22995,8 @@ paragraphs</indicator>
 !! html/php
 01=hello world
 02=<a href="/wiki/Main_Page" title="Main Page">Main Page</a>
-03=<span typeof="mw:Image"><span><img alt="Foobar.jpg" resource="/wiki/File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/25px-Foobar.jpg" decoding="async" width="25" height="3" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/38px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg 2x" /></span></span>
-04=<span typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" resource="/wiki/File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/25px-Foobar.jpg" decoding="async" width="25" height="3" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/38px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg 2x" /></a></span>
+03=<span typeof="mw:Image"><span><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/25px-Foobar.jpg" decoding="async" width="25" height="3" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/38px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg 2x" /></span></span>
+04=<span typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/25px-Foobar.jpg" decoding="async" width="25" height="3" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/38px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/50px-Foobar.jpg 2x" /></a></span>
 05=<ul><li>foo</li>
 <li>bar</li></ul>
 06=foo
@@ -23330,7 +23341,7 @@ __TOC__
 </ul>
 </div>
 
-<h2><span class="mw-headline" id="Image">Image <span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" resource="/wiki/File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Image">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="Image">Image <span class="mw-default-size" typeof="mw:Image"><a href="/wiki/File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span></span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Main_Page&amp;action=edit&amp;section=1" title="Edit section: Image">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 !! html/parsoid
 <meta property="mw:PageProp/toc" data-parsoid='{}'/>
 <h2 id="Image" data-parsoid='{}'>Image <span class="mw-default-size" typeof="mw:Image"><a href="./File:Foobar.jpg"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"Image:foobar.jpg"}}'/></a></span></h2>

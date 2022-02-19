@@ -7,6 +7,21 @@ extension:TimedMediaHandler
 
 !! test
 Simple video element
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Video.ogv]]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:Video"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Video"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
+!! end
+
+!! test
+Simple video element (legacy)
+!! config
+wgParserEnableLegacyMediaDOM=true
 !! wikitext
 [[File:Video.ogv]]
 !! html/php
@@ -18,6 +33,20 @@ Simple video element
 
 !! test
 Simple thumbed video
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Video.ogv|thumb]]
+!! html/php
+<figure class="mw-default-size" typeof="mw:Video/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" width="180" height="135" data-durationhint="4.3666666666667" data-startoffset="0" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span><figcaption></figcaption></figure>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Video/Thumb"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" height="135" width="180" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span><figcaption></figcaption></figure>
+!! end
+
+!! test
+Simple thumbed video (legacy)
+!! config
+wgParserEnableLegacyMediaDOM=true
 !! wikitext
 [[File:Video.ogv|thumb]]
 !! html/php
@@ -112,12 +141,13 @@ Video with unsupported link
 <p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
+## FIXME: Parsoid is ignoring the manualthumb
 !! test
 Video with different thumb image
 !! wikitext
 [[File:Video.ogv|thumbnail=Foobar.jpg]]
 !! html/php
-<div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Video.ogv" class="internal" title="Enlarge"></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Video.ogv" class="internal" title="Enlarge"></a></div></div></div></div>
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Video/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Foobar.jpg"}]]}'><span><video poster="http://example.com/images/3/3a/Foobar.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span><figcaption></figcaption></figure>
 !! end

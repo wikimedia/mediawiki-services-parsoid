@@ -2,8 +2,8 @@
 	"parserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "b00da1a62cb13cab3f58644a14128c11960ea8bb",
-		"latestCommit": "5254ddea2dc8aad890fdd65685b7da87307e61b5"
+		"expectedSHA1": "f26442a6237184b3168dec278f76d99a6418f9f5",
+		"latestCommit": "30ae2b3a3b8654142a599da2fedc1a910abe10da"
 	},
 	"extraParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
@@ -14,14 +14,14 @@
 	"mediaParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/mediaParserTests.txt",
-		"expectedSHA1": "27e132357b20c132dc30bd666ef1a177fb8a416c",
-		"latestCommit": "7d62f16f77b6d7fc33ad3b5f497a4356e7b6b98c"
+		"expectedSHA1": "3dada392520fbaac9757237c91eae1742acc951c",
+		"latestCommit": "30ae2b3a3b8654142a599da2fedc1a910abe10da"
 	},
 	"legacyMediaParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/legacyMediaParserTests.txt",
-		"expectedSHA1": "4d720b93b15f5378d8e51d5059dcd037a862c86a",
-		"latestCommit": "354a366f315ba643286352953960d95911a632b0"
+		"expectedSHA1": "db688fb9d23bb14384d9162e5e93b35ef5ee0e25",
+		"latestCommit": "30ae2b3a3b8654142a599da2fedc1a910abe10da"
 	},
 	"sectionWrappingParserTests.txt": {
 		"repo": "--UNUSED--",
@@ -60,8 +60,8 @@
 	"timedMediaHandlerParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "1ce0c3f3bc5df93125b0ef3f3e528363a6b5b0e7",
-		"latestCommit": "62677fcd14639a250c589036233f35158c4dfeef"
+		"expectedSHA1": "9528ea9bdf5df37242f9fbfaa3d69b194a17d6d0",
+		"latestCommit": "f6cbd5201368e59dfbe542ed54cbe3851a94deb5"
 	},
 	"poemParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Poem/",
@@ -72,8 +72,8 @@
 	"imageMapParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-ImageMap/",
 		"path": "tests/parser/imageMapParserTests.txt",
-		"expectedSHA1": "c39899dcc408cee36ca115891519aaaf63314f06",
-		"latestCommit": "8c9dfdf91f758f452d48a5b7faea3abbebfcdfe2"
+		"expectedSHA1": "6d00df1ad0a84febbdd5ae10ed79739fdd88cc7e",
+		"latestCommit": "6b15f9b4b4f11c5b87772ece8b737d789b6c04c5"
 	},
 	"annotationParserTests.txt": {
 		"path": "tests/parser/annotationParserTests.txt"
