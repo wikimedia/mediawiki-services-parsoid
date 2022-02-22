@@ -204,7 +204,7 @@ class DataAccess implements IDataAccess {
 
 			do {
 				$data = $this->api->makeRequest( $apiArgs );
-				 // Expect exactly 1 row
+				// Expect exactly 1 row
 				$fileinfo = $data['query']['pages'][0][$propName][0];
 				// Corner case: if page is set, the core ImageInfo API doesn't
 				// respect it *unless* width is set as well.  So repeat the
@@ -213,7 +213,7 @@ class DataAccess implements IDataAccess {
 					$dims['page'] = 1; # also ensures we won't get here again
 					$needsWidth = true;
 				}
-				if ( $needsWidth ) {
+				if ( $needsWidth && !isset( $fileinfo['filemissing'] ) ) {
 					$needsWidth = false; # ensure we won't get here again
 					$width = $fileinfo['width'];
 					$apiArgs["${prefix}urlwidth"] = $width;
