@@ -12953,6 +12953,26 @@ Unbalanced includeonly and noinclude tags
 </td></tr></tbody></table>
 !!end
 
+# We're more interested in the generation of <h2> when reading than in round-tripping these - the RT without the newline
+# wouldn't be acceptable if "real" text were in the include tags, for instance.
+!! test
+includeonly / noinclude / onlyinclude and headers
+!! options
+parsoid = wt2html
+!! wikitext
+<includeonly><!--hello1 --></includeonly>== test 1 == <includeonly><!--hello2 --></includeonly>
+<noinclude><!--hello3 --></noinclude>== test 2 == <noinclude><!--hello4 --></noinclude>
+<onlyinclude><!--hello5 --></onlyinclude>== test 3 == <onlyinclude><!--hello6 --></onlyinclude>
+!! html/parsoid
+<meta typeof="mw:Includes/IncludeOnly" data-mw='{"src":"&lt;includeonly>&lt;!--hello1 -->&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/><h2 id="test_1">test 1</h2> <meta typeof="mw:Includes/IncludeOnly" data-mw='{"src":"&lt;includeonly>&lt;!--hello2 -->&lt;/includeonly>"}'/><meta typeof="mw:Includes/IncludeOnly/End" data-parsoid='{"src":""}'/>
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><!--hello3 --><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/><h2 id="test_2">test 2</h2> <meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><!--hello4 --><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
+<meta typeof="mw:Includes/OnlyInclude" data-parsoid='{"src":"&lt;onlyinclude>"}'/><!--hello5 --><meta typeof="mw:Includes/OnlyInclude/End" data-parsoid='{"src":"&lt;/onlyinclude>"}'/><h2 id="test_3">test 3</h2> <meta typeof="mw:Includes/OnlyInclude" data-parsoid='{"src":"&lt;onlyinclude>"}'/><!--hello6 --><meta typeof="mw:Includes/OnlyInclude/End" data-parsoid='{"src":"&lt;/onlyinclude>"}'/>
+!! html/php
+<h2><span class="mw-headline" id="test_1">test 1</span></h2>
+<h2><span class="mw-headline" id="test_2">test 2</span></h2>
+<h2><span class="mw-headline" id="test_3">test 3</span></h2>
+!! end
+
 !! article
 Template:Includeonly section
 !! text

@@ -888,3 +888,13 @@ annotations=1
 <p><meta typeof="mw:Annotation/ann2" data-mw='{"attrs":{"name":"{{1x|hello}}"},"rangeId":"mwa1","extendedRange":false,"wtOffsets":[12,38]}'/>test<meta typeof="mw:Annotation/ann2/End" data-mw='{"wtOffsets":[42,49]}'/></p>
 <meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[50,62]}'/>
 !! end
+
+!! test
+Annotation around a heading should not break the heading
+!! options
+annotations=1
+!! wikitext
+<dummyanno>==plop==</dummyanno>
+!! html/parsoid
+<meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><h2 id="plop" data-parsoid='{"dsr":[11,19,2,2]}'>plop</h2><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[19,31,null,null]}' data-mw='{"wtOffsets":[19,31]}'/>
+!! end

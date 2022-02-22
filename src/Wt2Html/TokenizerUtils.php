@@ -23,6 +23,7 @@ use Wikimedia\Parsoid\Wikitext\Consts;
 
 class TokenizerUtils {
 	private static $protectAttrsRegExp;
+	private static $inclAnnRegExp;
 
 	/**
 	 * @param mixed $e
@@ -230,10 +231,11 @@ class TokenizerUtils {
 	 * @param string $input
 	 * @param int $pos
 	 * @param array $stops
+	 * @param Env $env
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function inlineBreaks( string $input, int $pos, array $stops ): bool {
+	public static function inlineBreaks( string $input, int $pos, array $stops, Env $env ): bool {
 		$c = $input[$pos];
 		$c2 = $input[$pos + 1] ?? '';
 
@@ -242,13 +244,24 @@ class TokenizerUtils {
 				if ( $stops['arrow'] && $c2 === '>' ) {
 					return true;
 				}
-				return $stops['equal']
-					|| $stops['h']
-					&& ( $pos === strlen( $input ) - 1
-					// possibly more equals followed by spaces or comments
-					|| preg_match( '/^=*(?:[ \t]|<\!--(?:(?!-->).)*-->)*(?:[\r\n]|$)/sD',
-						substr( $input, $pos + 1 )
-					) );
+				if ( $stops['equal'] ) {
+					return true;
+				}
+				if ( $stops['h'] ) {
+					if ( self::$inclAnnRegExp === null ) {
+						$tags = array_merge(
+							[ 'noinclude', 'includeonly', 'onlyinclude' ],
+							$env->getSiteConfig()->getAnnotationTags()
+						);
+						self::$inclAnnRegExp = '|<\/?(?:' . implode( '|', $tags ) . ')>';
+					}
+					return ( $pos === strlen( $input ) - 1
+						// possibly more equals followed by spaces or comments
+						|| preg_match( '/^=*(?:[ \t]|<\!--(?:(?!-->).)*-->'
+								. self::$inclAnnRegExp . ')*(?:[\r\n]|$)/sD',
+							substr( $input, $pos + 1 ) ) );
+				}
+				return false;
 
 			case '|':
 				return !$stops['annOrExtTag'] && (
@@ -449,5 +462,12 @@ class TokenizerUtils {
 	 */
 	public static function isIncludeTag( string $name ): bool {
 		return $name === 'includeonly' || $name === 'noinclude' || $name === 'onlyinclude';
+	}
+
+	/**
+	 * Resets $inclAnnRegExp to null to avoid test environment side effects
+	 */
+	public static function resetAnnotationIncludeRegex(): void {
+		self::$inclAnnRegExp = null;
 	}
 }

@@ -13,6 +13,15 @@
     "8/ fostered annotation markers": {
         "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>"
     },
+    "Annotation around a heading should not break the heading": {
+        "wt2wt": "<dummyanno>\n==plop==\n</dummyanno>",
+        "html2html": "<meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[0,11,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[0,11]}'/>\n<h2 id=\"plop\" data-parsoid='{\"dsr\":[12,20,2,2]}'>plop</h2>\n<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[21,33,null,null]}' data-mw='{\"wtOffsets\":[21,33]}'/>",
+        "html2wt": "<dummyanno>\n==plop==\n</dummyanno>",
+        "selser [0,[2],0]": "<dummyanno>==1k8ainxplop==</dummyanno>",
+        "selser [0,1,0]": "<dummyanno>==plop==</dummyanno>",
+        "selser [0,[4],0]": "<dummyanno>==1hd5cqy==</dummyanno>",
+        "selser [0,2,0]": "<dummyanno>\n119tbl0\n\n==plop==</dummyanno>"
+    },
     "Annotation open tag in fosterable position should expand the range to the entire table": {
         "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>"
     },

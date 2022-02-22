@@ -229,4 +229,12 @@ class PegTokenizer extends PipelineStage {
 			return false;
 		}
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function resetState( array $opts ): void {
+		TokenizerUtils::resetAnnotationIncludeRegex();
+		parent::resetState( $opts );
+	}
 }

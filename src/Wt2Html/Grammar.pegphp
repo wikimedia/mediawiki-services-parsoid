@@ -509,7 +509,7 @@ tlb "tlb" =
  */
 block =
 	// has to be first alternative; otherwise gets parsed as a <ol>
-	&sof r:redirect cil:comment_or_includes bl:block_line? {
+	&sof r:redirect cil:comment_include_annotation* bl:block_line? {
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	}
 	/ block_lines
@@ -646,7 +646,7 @@ inline_breaks =
 				'linkdesc' => $linkdesc,
 				'colon' => $colon,
 				'th' => $th
-			] );
+			], $this->env );
 		}
 	)
 
@@ -686,7 +686,7 @@ heading =
 		)?
 		& { return $ce || strlen( $s ) > 2; }
 		endTPos:("" { return $this->endOffset(); })
-		spc:(spaces / comment)*
+		spc:( space / comment_include_annotation )*
 		&eolf
 		{
 			$c = null;
@@ -1650,6 +1650,15 @@ tvar_old_syntax_closing_HACK =
 		return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
 	}
 
+annotation_tag =
+    annToken:extension_annotation_tag
+    &{
+        if ( $annToken->getName() !== 'extension' ) {
+            return true;
+        }
+    }
+    { return $annToken; }
+
 extension_annotation_tag =
 	!<annOrExtTag>
 	extToken:xmlish_tag
@@ -2405,9 +2414,10 @@ space_or_nbsp =
 space_or_nbsp_or_dash =
 	space_or_nbsp / "-"
 
-comment_or_includes = (comment / include_limits<sol_il>)*
+// Elements that do not break beginning or end of line for blocks (headers for instance)
+comment_include_annotation = comment / include_limits<sol_il> / annotation_tag
 
-sol = (empty_line_with_comments / sol_prefix) comment_or_includes
+sol = (empty_line_with_comments / sol_prefix) comment_include_annotation*
 
 sol_prefix =
 	newlineToken
