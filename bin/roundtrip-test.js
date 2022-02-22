@@ -823,7 +823,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 
 	if (options.readViewStripBenchmark && Math.random() < (options.readViewStripBenchmark.sampleRate || 0)) {
 		const rules = options.readViewStripBenchmark.rules;
-		const diffSizes = yield benchmarkReadView(options.parsoidURL, options.proxyURL, domain, title, rules);
+		const diffSizes = yield benchmarkReadView(domain, title, data.oldHTML.body, rules);
 		profile.benchmarkReadViewOriginalSize = diffSizes.originalSize;
 		profile.benchmarkReadViewStrippedSize = diffSizes.strippedSize;
 	}

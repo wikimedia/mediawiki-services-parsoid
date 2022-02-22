@@ -2,7 +2,6 @@ const zlib = require("zlib");
 const XMLSerializer = require("../lib/wt2html/XMLSerializer.js");
 const { DOMTraverser } = require("../lib/utils/DOMTraverser.js");
 const { DOMUtils } = require("../lib/utils/DOMUtils.js");
-const { fetchHTML } = require("./diff.html.js");
 
 function stripReadView(root, rules) {
 	const traverser = new DOMTraverser();
@@ -35,8 +34,8 @@ function stripReadView(root, rules) {
 	return root;
 }
 
-function diffSize(res, rules) {
-	const body = DOMUtils.parseHTML(res).body;
+function diffSize(html, rules) {
+	const body = DOMUtils.parseHTML(html).body;
 	const deflatedOriginalSize = zlib.deflateSync(
         XMLSerializer.serialize(body).html
 	).byteLength;
@@ -52,10 +51,9 @@ function diffSize(res, rules) {
 	};
 }
 
-function benchmarkReadView(endpoint, proxy, domain, title, rules) {
-	return fetchHTML(endpoint, proxy, domain, title).then((res) => {
-		return diffSize(res, rules);
-	});
+function benchmarkReadView(domain, title, parsoidHTML, rules) {
+	// We may later fetch core parser HTML here based on domain & title
+	return diffSize(parsoidHTML, rules);
 }
 
 module.exports.benchmarkReadView = benchmarkReadView;
