@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  *
  * Note this is intended for testing, not performance.
  */
-class DataAccess implements IDataAccess {
+class DataAccess extends IDataAccess {
 
 	/** @var ApiHelper */
 	private $api;

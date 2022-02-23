@@ -5,7 +5,7 @@ namespace Wikimedia\Parsoid\Mocks;
 
 use Wikimedia\Parsoid\Config\PageContent;
 
-class MockPageContent implements PageContent {
+class MockPageContent extends PageContent {
 
 	/**
 	 * Alas, this is public because parserTests is reaching in and altering

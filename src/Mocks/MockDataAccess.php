@@ -14,7 +14,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  * provides. While originally implemented to support ParserTests, this is no longer used
  * by parser tests.
  */
-class MockDataAccess implements DataAccess {
+class MockDataAccess extends DataAccess {
 	private static $PAGE_DATA = [
 		"Main_Page" => [
 			"title" => "Main Page",

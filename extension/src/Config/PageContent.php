@@ -30,7 +30,7 @@ use Wikimedia\Parsoid\Config\PageContent as IPageContent;
  * @todo This belongs in MediaWiki, not Parsoid. We'll move it there when we
  *  get to the point of integrating the two.
  */
-class PageContent implements IPageContent {
+class PageContent extends IPageContent {
 
 	/** @var RevisionRecord */
 	private $rev;

@@ -8,20 +8,20 @@ use InvalidArgumentException;
 /**
  * Page content data object
  */
-interface PageContent {
+abstract class PageContent {
 
 	/**
 	 * Return the roles available in this page
 	 * @return string[]
 	 */
-	public function getRoles(): array;
+	abstract public function getRoles(): array;
 
 	/**
 	 * Determine whether the page contains a role
 	 * @param string $role
 	 * @return bool
 	 */
-	public function hasRole( string $role ): bool;
+	abstract public function hasRole( string $role ): bool;
 
 	/**
 	 * Fetch the content model for a role
@@ -29,7 +29,7 @@ interface PageContent {
 	 * @return string
 	 * @throws InvalidArgumentException if the role doesn't exist
 	 */
-	public function getModel( string $role ): string;
+	abstract public function getModel( string $role ): string;
 
 	/**
 	 * Fetch the content format for a role
@@ -37,7 +37,7 @@ interface PageContent {
 	 * @return string
 	 * @throws InvalidArgumentException if the role doesn't exist
 	 */
-	public function getFormat( string $role ): string;
+	abstract public function getFormat( string $role ): string;
 
 	/**
 	 * Fetch the content for a role
@@ -45,13 +45,13 @@ interface PageContent {
 	 * @return string
 	 * @throws InvalidArgumentException if the role doesn't exist
 	 */
-	public function getContent( string $role ): string;
+	abstract public function getContent( string $role ): string;
 
 	/**
 	 * If the PageContent represents a redirect, return the target
 	 * of that redirect as a title string. Otherwise return null.
 	 * @return string|null
 	 */
-	public function getRedirectTarget(): ?string;
+	abstract public function getRedirectTarget(): ?string;
 
 }

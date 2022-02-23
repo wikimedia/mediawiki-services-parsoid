@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 /**
- * MediaWiki data access interface for Parsoid
+ * MediaWiki data access abstract class for Parsoid
  */
-interface DataAccess {
+abstract class DataAccess {
 
 	/**
 	 * Return target data for formatting links.
@@ -24,7 +24,7 @@ interface DataAccess {
 	 *  - linkclasses: (string[]) Extensible "link color" information; see
 	 *      ApiQueryInfo::getLinkClasses() in MediaWiki core
 	 */
-	public function getPageInfo( PageConfig $pageConfig, array $titles ): array;
+	abstract public function getPageInfo( PageConfig $pageConfig, array $titles ): array;
 
 	/**
 	 * Return information about files (images)
@@ -54,7 +54,7 @@ interface DataAccess {
 	 *  - thumbwidth: (int, optional) Thumbnail width
 	 *  - thumbheight: (int, optional) Thumbnail height
 	 */
-	public function getFileInfo( PageConfig $pageConfig, array $files ): array;
+	abstract public function getFileInfo( PageConfig $pageConfig, array $files ): array;
 
 	/**
 	 * Perform a pre-save transform on wikitext
@@ -66,7 +66,7 @@ interface DataAccess {
 	 * @param string $wikitext
 	 * @return string Processed wikitext
 	 */
-	public function doPst( PageConfig $pageConfig, string $wikitext ): string;
+	abstract public function doPst( PageConfig $pageConfig, string $wikitext ): string;
 
 	/**
 	 * Perform a parse on wikitext
@@ -83,7 +83,7 @@ interface DataAccess {
 	 *  - jsconfigvars: (array) JS config vars
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
-	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array;
+	abstract public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array;
 
 	/**
 	 * Preprocess wikitext
@@ -101,7 +101,7 @@ interface DataAccess {
 	 *  - properties: (array) [ name => value ]
 	 *  - categories: (array) [ Category name => sortkey ]
 	 */
-	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array;
+	abstract public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array;
 
 	/**
 	 * Fetch latest revision of article/template content for transclusion.
@@ -120,7 +120,7 @@ interface DataAccess {
 	 * @param string $title Title of the page to fetch
 	 * @return PageContent|null
 	 */
-	public function fetchTemplateSource(
+	abstract public function fetchTemplateSource(
 		PageConfig $pageConfig, string $title
 	): ?PageContent;
 
@@ -133,7 +133,7 @@ interface DataAccess {
 	 * @param string $title
 	 * @return array|null
 	 */
-	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array;
+	abstract public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array;
 
 	/**
 	 * Log linter data.
@@ -141,5 +141,5 @@ interface DataAccess {
 	 * @param PageConfig $pageConfig
 	 * @param array $lints
 	 */
-	public function logLinterData( PageConfig $pageConfig, array $lints ): void;
+	abstract public function logLinterData( PageConfig $pageConfig, array $lints ): void;
 }

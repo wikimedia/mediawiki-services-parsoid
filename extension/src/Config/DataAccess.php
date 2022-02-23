@@ -35,7 +35,7 @@ use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
 
-class DataAccess implements IDataAccess {
+class DataAccess extends IDataAccess {
 
 	/** @var RepoGroup */
 	private $repoGroup;
