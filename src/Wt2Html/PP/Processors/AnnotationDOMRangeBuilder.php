@@ -191,6 +191,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 
 				if ( $openAnnotations[$type] > 0 ) {
 					DOMCompat::getParentElement( $node )->removeChild( $node );
+					$this->env->log( 'warn/wt2html', 'Nested annotation start tag removed' );
 				}
 				$openAnnotations[$type]++;
 			}
@@ -199,6 +200,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			if ( $type && array_key_exists( $type, $openAnnotations ) ) {
 				if ( $openAnnotations[$type] > 1 ) {
 					DOMCompat::getParentElement( $node )->removeChild( $node );
+					$this->env->log( 'warn/wt2html', 'Nested annotation end tag removed' );
 				}
 				$openAnnotations[$type]--;
 			}
