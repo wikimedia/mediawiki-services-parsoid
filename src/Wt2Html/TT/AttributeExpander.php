@@ -420,16 +420,12 @@ class AttributeExpander extends TokenHandler {
 								$kv->k = self::tplToksToString( $kv->k );
 								$kv->v = self::tplToksToString( $kv->v );
 
-								// These `kv`s come from tokenizing the string we produced above,
-								// and will therefore have offset starting at zero.
-								// Shift them by the old amount if available.
-								// FIXME: This is bogus! These are KVSourceRange, not arrays anymor
-								if ( is_array( $expandedA->srcOffsets ) && is_array( $kv->srcOffsets ) ) {
-									$offset = $expandedA->srcOffsets[0];
-									foreach ( $kv->srcOffsets as $j => $_ ) {
-										$kv->srcOffsets[$j] += $offset;
-									}
-								}
+								// $kStr is based on running tokensToString on $expandedK.
+								// So, $kStr might have dropped HTML tags, etc. Given that,
+								// we can no longer reliably compute offsets for these
+								// new key/value pairs. We could try to be more smart here,
+								// but it is not worth the complexity.
+								$kv->srcOffsets = null;
 							}
 							// SSS FIXME: Collect all keys here, not just the first key
 							// i.e. in a string like {{1x|1=id='v1' title='foo' style='..'}}
