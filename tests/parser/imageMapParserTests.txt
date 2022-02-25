@@ -130,6 +130,19 @@ File:Nopenopenope.jpg
 !! end
 
 !! test
+Empty description type
+!! wikitext
+<imagemap>
+Image:Foobar.jpg
+desc
+</imagemap>
+!! html/php
+<p class="error">Error: Invalid desc specification, must be one of: <code>top-right, bottom-right, bottom-left, top-left, none</code>.</p>
+!! html/parsoid
+<p><span typeof="mw:Extension/imagemap mw:Error" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nImage:Foobar.jpg\ndesc\n"},"errors":[{"key":"imagemap_invalid_desc","params":["top-right, bottom-right, bottom-left, top-left, none"]}]}'>Error: imagemap_invalid_desc</span></p>
+!! end
+
+!! test
 Invalid description type
 !! wikitext
 <imagemap>
