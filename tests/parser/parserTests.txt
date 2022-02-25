@@ -13817,6 +13817,29 @@ d
 d</p>
 !! end
 
+!! test
+Orphaned table row wikitext with templated table for an attribute should not duplicate table
+!! wikitext
+|-{{1x|
+{{{!}}
+{{!}}foo
+{{!}}}
+}}
+!! html/php
+<p>|-
+</p>
+<table>
+<tbody><tr>
+<td>foo
+</td></tr></tbody></table>
+!! html/parsoid
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]],"firstWikitextNode":"TR"}' data-mw='{"parts":["|-",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}foo\n{{!}}}\n"}},"i":0}}]}'>|-</p><span about="#mwt1">
+</span><table about="#mwt1">
+<tbody><tr><td>foo</td></tr>
+</tbody></table><span about="#mwt1">
+</span>
+!! end
+
 ###
 ### Testing parsing of templates where a template arg
 ### has the same name as the template itself.
