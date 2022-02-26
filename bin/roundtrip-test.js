@@ -603,10 +603,10 @@ var parsoidPost = Promise.async(function *(profile, options) {
 		}
 		var str;
 		if (options.html2wt) {
-			pre += 'html:';
+			pre += 'wt:';
 			str = body;
 		} else {
-			pre += 'wt:';
+			pre += 'html:';
 			str = body.html.body;
 		}
 		profile.size[pre + 'raw'] = str.length;
