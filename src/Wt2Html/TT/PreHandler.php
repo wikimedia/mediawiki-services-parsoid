@@ -97,7 +97,7 @@ class PreHandler extends TokenHandler {
 	private $preTSR;
 	/** @var array<Token> */
 	private $tokens;
-	/** @var array<Token> */
+	/** @var array<Token|string> */
 	private $preCollectCurrentLine;
 	/** @var Token|string|null */
 	private $preWSToken;
@@ -446,6 +446,17 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
+	 * Collect a token when in a known-pre state
+	 * @param Token|string $str
+	 */
+	private function collectTokenInPreState( $str ): void {
+		$this->preCollectCurrentLine = $this->solTransparentTokens;
+		$this->preCollectCurrentLine[] = $str;
+		$this->solTransparentTokens = [];
+		$this->state = self::STATE_PRE_COLLECT;
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
@@ -475,10 +486,9 @@ class PreHandler extends TokenHandler {
 					$this->preWSToken = $token[0];
 					$this->state = self::STATE_PRE;
 					if ( strlen( $token ) > 1 ) {
-						// Treat everything after the first space
-						// as a new token
+						// Collect the rest of the string and continue
 						// (`substr` not `mb_substr` since we know space is ASCII)
-						$this->onAny( substr( $token, 1 ) );
+						$this->collectTokenInPreState( substr( $token, 1 ) );
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
 					// continue watching ...
@@ -500,10 +510,7 @@ class PreHandler extends TokenHandler {
 					$ret = $this->getResultAndReset( $token );
 					$this->moveToIgnoreState();
 				} else {
-					$this->preCollectCurrentLine = $this->solTransparentTokens;
-					$this->preCollectCurrentLine[] = $token;
-					$this->solTransparentTokens = [];
-					$this->state = self::STATE_PRE_COLLECT;
+					$this->collectTokenInPreState( $token );
 				}
 				break;
 
@@ -532,7 +539,8 @@ class PreHandler extends TokenHandler {
 					if ( strlen( $token ) > 1 ) {
 						// Treat everything after the first space as a new token
 						// (`substr` not `mb_substr` since we know space is ASCII)
-						$this->onAny( substr( $token, 1 ) );
+						// Collect the rest of the string and continue.
+						$this->preCollectCurrentLine[] = substr( $token, 1 );
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
 					$this->solTransparentTokens[] = $token;
