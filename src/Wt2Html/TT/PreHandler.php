@@ -318,6 +318,7 @@ class PreHandler extends TokenHandler {
 		$env = $this->env;
 
 		$env->log( 'trace/pre', $this->pipelineId, 'NL    |',
+			$this->state, ':',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -383,6 +384,7 @@ class PreHandler extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
 		$this->env->log( 'trace/pre', $this->pipelineId, 'eof   |',
+			$this->state, ':',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
@@ -449,7 +451,8 @@ class PreHandler extends TokenHandler {
 	public function onAny( $token ): ?TokenHandlerResult {
 		$env = $this->env;
 
-		$env->log( 'trace/pre', $this->pipelineId, 'any   |', $this->state, ':',
+		$env->log( 'trace/pre', $this->pipelineId, 'any   |',
+			$this->state, ':',
 			self::stateStr()[$this->state], '|',
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );
