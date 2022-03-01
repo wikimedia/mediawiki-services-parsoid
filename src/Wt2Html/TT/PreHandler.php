@@ -168,11 +168,11 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Pops the last new line from the $ret array
+	 * Pushes the last new line onto the $ret array
 	 *
 	 * @param array &$ret
 	 */
-	private function popLastNL( array &$ret ): void {
+	private function pushLastNL( array &$ret ): void {
 		if ( $this->lastNlTk ) {
 			$ret[] = $this->lastNlTk;
 			$this->lastNlTk = null;
@@ -240,7 +240,7 @@ class PreHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function getResultAndReset( $token ): array {
-		$this->popLastNL( $this->tokens );
+		$this->pushLastNL( $this->tokens );
 
 		$ret = $this->tokens;
 		if ( $this->preWSToken ) {
@@ -282,7 +282,7 @@ class PreHandler extends TokenHandler {
 			$ret[] = $this->multiLinePreWSToken;
 			$this->multiLinePreWSToken = null;
 		}
-		$this->popLastNL( $ret );
+		$this->pushLastNL( $ret );
 
 		// sol-transparent toks
 		PHPUtils::pushArray( $ret, $this->solTransparentTokens );
@@ -526,7 +526,7 @@ class PreHandler extends TokenHandler {
 
 			case self::STATE_MULTILINE_PRE:
 				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
-					$this->popLastNL( $this->tokens );
+					$this->pushLastNL( $this->tokens );
 					$this->state = self::STATE_PRE_COLLECT;
 					$this->preWSToken = null;
 
