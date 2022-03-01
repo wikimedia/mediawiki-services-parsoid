@@ -447,13 +447,17 @@ class PreHandler extends TokenHandler {
 
 	/**
 	 * Collect a token when in a known-pre state
-	 * @param Token|string $str
+	 * @param Token|string $token
 	 */
-	private function collectTokenInPreState( $str ): void {
-		$this->preCollectCurrentLine = $this->solTransparentTokens;
-		$this->preCollectCurrentLine[] = $str;
-		$this->solTransparentTokens = [];
-		$this->state = self::STATE_PRE_COLLECT;
+	private function collectTokenInPreState( $token ): void {
+		if ( TokenUtils::isSolTransparent( $this->env, $token ) ) { // continue watching
+			$this->solTransparentTokens[] = $token;
+		} else {
+			$this->preCollectCurrentLine = $this->solTransparentTokens;
+			$this->preCollectCurrentLine[] = $token;
+			$this->solTransparentTokens = [];
+			$this->state = self::STATE_PRE_COLLECT;
+		}
 	}
 
 	/**
@@ -540,6 +544,9 @@ class PreHandler extends TokenHandler {
 						// Treat everything after the first space as a new token
 						// (`substr` not `mb_substr` since we know space is ASCII)
 						// Collect the rest of the string and continue.
+						//
+						// This is inlined handling of 'case self::STATE_PRE_COLLECT'
+						// scenario for a string.
 						$this->preCollectCurrentLine[] = substr( $token, 1 );
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching

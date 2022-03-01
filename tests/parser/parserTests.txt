@@ -3950,6 +3950,18 @@ Indent pre with leading colon
 <pre>:foo</pre>
 !! end
 
+## DO NOT DELETE trailing whitespace in the wikitext below!
+!! test
+Indent-Pre regression test: Trailing whitespace after sol-transparent content
+!! wikitext
+[[Category:Foo]]   
+[[Category:Bar]]
+!! html/php
+!! html/parsoid
+<link rel="mw:PageProp/Category" href="./Category:Foo" data-parsoid='{"stx":"simple","a":{"href":"./Category:Foo"},"sa":{"href":"Category:Foo"}}'/>   
+<link rel="mw:PageProp/Category" href="./Category:Bar" data-parsoid='{"stx":"simple","a":{"href":"./Category:Bar"},"sa":{"href":"Category:Bar"}}'/>
+!! end
+
 !! test
 Preserving leading whitespace in indent-pre suppressing contexts
 !! wikitext
