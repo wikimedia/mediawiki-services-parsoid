@@ -218,7 +218,9 @@ class Ref extends ExtensionTagHandler {
 				}
 				if ( !$editedHtml ) {
 					$extApi->log(
-						'error/domdiff/edited/ref',
+						// use info level to avoid logspam for CX edits where translated
+						// docs might reference nodes not copied over from orig doc.
+						'info/domdiff/edited/ref',
 						"extension src id {$editedId} points to non-existent element for:",
 						DOMCompat::getOuterHTML( $editedNode )
 					);
