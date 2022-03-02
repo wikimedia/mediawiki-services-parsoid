@@ -266,15 +266,6 @@ class SiteConfig extends ApiSiteConfig {
 		}
 
 		/*
-		 * FIXME: Leaving styles behind for now since they are harmless
-		 * and we cannot unset styles without resetting all styles across
-		 * all registered extensions.
-		 *
-		 * If unregistering extensions becomes a broader use case beyond
-		 * parser tests, we might want to handle this by tracking styles separately.
-		 */
-
-		/*
 		 * FIXME: Unsetting contentmodels is also tricky with the current
 		 * state tracked during registration. We will have to reprocess all
 		 * extensions or maintain a linked list of applicable extensions
