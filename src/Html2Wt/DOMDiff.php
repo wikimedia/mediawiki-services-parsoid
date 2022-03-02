@@ -430,6 +430,7 @@ class DOMDiff {
 	 * @param bool $blockNodeDeleted
 	 */
 	private function markNode( Node $node, string $mark, bool $blockNodeDeleted = false ): void {
+		static $ignoreableNodeTypes = [ XML_DOCUMENT_NODE, XML_DOCUMENT_TYPE_NODE, XML_DOCUMENT_FRAG_NODE ];
 		$meta = null;
 		if ( $mark === 'deleted' ) {
 			// insert a meta tag marking the place where content used to be
@@ -444,9 +445,7 @@ class DOMDiff {
 					);
 				}
 				$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-			} elseif ( $node->nodeType !== XML_DOCUMENT_NODE &&
-				$node->nodeType !== XML_DOCUMENT_TYPE_NODE
-			) {
+			} elseif ( array_search( $node->nodeType, $ignoreableNodeTypes, true ) === false ) {
 				$this->env->log( 'error/domdiff', 'Unhandled node type', $node->nodeType, 'in markNode!' );
 			}
 		}
