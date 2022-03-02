@@ -36,12 +36,12 @@ function stripReadView(root, rules) {
 
 function diffSize(html, rules) {
 	const body = DOMUtils.parseHTML(html).body;
-	const deflatedOriginalSize = zlib.deflateSync(
+	const deflatedOriginalSize = zlib.gzipSync(
         XMLSerializer.serialize(body).html
 	).byteLength;
 
 	const stripped = stripReadView(body, rules);
-	const deflatedStrippedSize = zlib.deflateSync(
+	const deflatedStrippedSize = zlib.gzipSync(
         XMLSerializer.serialize(stripped).html
 	).byteLength;
 
