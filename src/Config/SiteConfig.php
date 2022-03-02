@@ -1251,15 +1251,13 @@ abstract class SiteConfig {
 		);
 		$name = $extConfig['name'];
 
-		if ( isset( $extConfig['tags'] ) ) {
-			// These are extension tag handlers.  They have
-			// wt2html (sourceToDom), html2wt (domToWikitext), and
-			// linter functionality.
-			foreach ( $extConfig['tags'] as $tagConfig ) {
-				$lowerTagName = mb_strtolower( $tagConfig['name'] );
-				$this->extConfig['allTags'][$lowerTagName] = true;
-				$this->extConfig['parsoidExtTags'][$lowerTagName] = $tagConfig;
-			}
+		// These are extension tag handlers.  They have
+		// wt2html (sourceToDom), html2wt (domToWikitext), and
+		// linter functionality.
+		foreach ( $extConfig['tags'] ?? [] as $tagConfig ) {
+			$lowerTagName = mb_strtolower( $tagConfig['name'] );
+			$this->extConfig['allTags'][$lowerTagName] = true;
+			$this->extConfig['parsoidExtTags'][$lowerTagName] = $tagConfig;
 		}
 
 		foreach ( $extConfig['annotations'] ?? [] as $aTag ) {
@@ -1275,19 +1273,17 @@ abstract class SiteConfig {
 			$this->extConfig['domProcessors'][$name] = $extConfig['domProcessors'];
 		}
 
-		if ( isset( $extConfig['contentModels'] ) ) {
-			foreach ( $extConfig['contentModels'] as $cm => $spec ) {
-				// For compatibility with mediawiki core, the first
-				// registered extension wins.
-				if ( isset( $this->extConfig['contentModels'][$cm] ) ) {
-					continue;
-				}
-				$handler = $this->getObjectFactory()->createObject( $spec, [
-					'allowClassName' => true,
-					'assertClass' => ContentModelHandler::class,
-				] );
-				$this->extConfig['contentModels'][$cm] = $handler;
+		foreach ( $extConfig['contentModels'] ?? [] as $cm => $spec ) {
+			// For compatibility with mediawiki core, the first
+			// registered extension wins.
+			if ( isset( $this->extConfig['contentModels'][$cm] ) ) {
+				continue;
 			}
+			$handler = $this->getObjectFactory()->createObject( $spec, [
+				'allowClassName' => true,
+				'assertClass' => ContentModelHandler::class,
+			] );
+			$this->extConfig['contentModels'][$cm] = $handler;
 		}
 	}
 
