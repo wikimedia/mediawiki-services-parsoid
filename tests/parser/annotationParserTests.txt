@@ -12,6 +12,7 @@ Template:1x
 Continue to serialize the old annotated 2.3.0 html
 !! options
 parsoid=html2wt
+annotations=1
 !! html/parsoid
 <p><span typeof="mw:Extension/dummyanno" about="#mwt2" data-mw='{"name":"dummyanno","attrs":{},"body":{"extsrc":"foo"}}'>foo</span></p><p>
 
@@ -33,6 +34,8 @@ baz
 
 !! test
 Whole content between dummyanno tags
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
 ==Title==
@@ -49,6 +52,8 @@ Let's have some text.
 
 !! test
 Inline dummyanno tags
+!! options
+annotations=1
 !! wikitext
 Some text <dummyanno>with some annotated content</dummyanno> inline.
 !! html/parsoid
@@ -57,6 +62,8 @@ Some text <dummyanno>with some annotated content</dummyanno> inline.
 
 !! test
 Template inside a dummyanno tag should not make a difference on its handling
+!! options
+annotations=1
 !! wikitext
 <dummyanno>{{1x|
 == Title ==
@@ -75,6 +82,8 @@ Let's have some text.
 
 !! test
 Two inline dummyanno tags should have different rangeIds
+!! options
+annotations=1
 !! wikitext
 Some inline <dummyanno>text</dummyanno> followed by <dummyanno>some more text</dummyanno> inline
 !! html/parsoid
@@ -83,6 +92,8 @@ Some inline <dummyanno>text</dummyanno> followed by <dummyanno>some more text</d
 
 !! test
 Two dummyanno tags on new lines should have different rangeIds
+!! options
+annotations=1
 !! wikitext
 Some  
 <dummyanno>
@@ -107,6 +118,8 @@ to dummyanno</p>
 
 !! test
 Name attribute in ann2 tags should be added to the meta tag
+!! options
+annotations=1
 !! wikitext
 Some text <dummyanno>with some <ann2 name="plop">undummyannod</ann2> content</dummyanno> inline.
 !! html/parsoid
@@ -115,6 +128,8 @@ Some text <dummyanno>with some <ann2 name="plop">undummyannod</ann2> content</du
 
 !! test
 Annotation wrapping an entire paragraph should be nested inside the paragraph
+!! options
+annotations=1
 !! wikitext
 foo
 
@@ -131,6 +146,8 @@ foo
 
 !! test
 Two paragraphs between dummyanno tags should roundtrip without duplicating the tags (DSRs are adjusted correctly)
+!! options
+annotations=1
 !! wikitext
 <dummyanno>plop
 
@@ -147,6 +164,7 @@ Start dummyanno tag at the beginning of a paragraph and end within <i> should ex
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
+annotations=1
 !! wikitext
 <dummyanno>This should ''fail</dummyanno> miserably'' ... let's fix it
 !! html/parsoid here
@@ -159,6 +177,7 @@ End dummyanno tag at the end of a paragraph and beginning within <i> should exte
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
+annotations=1
 !! wikitext
 This should ''fail <dummyanno>miserably'' ... let's fix it</dummyanno>
 !! html/parsoid here
@@ -167,6 +186,8 @@ This should ''fail <dummyanno>miserably'' ... let's fix it</dummyanno>
 
 !! test
 Meta merging with annotations/template should not happen
+!! options
+annotations=1
 !! wikitext
 <dummyanno>{{1x|stuff}}</dummyanno>
 !! html/parsoid
@@ -175,6 +196,8 @@ Meta merging with annotations/template should not happen
 
 !! test
 Meta merging with template/annotation is fine
+!! options
+annotations=1
 !! wikitext
 {{1x|<dummyanno>stuff</dummyanno>}}
 !! html/parsoid
@@ -183,6 +206,8 @@ Meta merging with template/annotation is fine
 
 !! test
 Attributes without value should be transferred to and back from the meta tag
+!! options
+annotations=1
 !! wikitext
 <dummyanno nowrap>some stuff</dummyanno>
 !! html/parsoid
@@ -195,6 +220,7 @@ Annotation open tag in fosterable position should expand the range to the entire
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
+annotations=1
 !! wikitext
 {|
 |table
@@ -228,6 +254,7 @@ dummyanno in the middle of fostered content should extend to the whole range, in
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
+annotations=1
 !! wikitext
 {|
 foo
@@ -250,6 +277,7 @@ dummyanno getting roped into a template because of fostering should get the abou
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
+annotations=1
 !! wikitext
 {{1x|Some text!
 <table>
@@ -272,6 +300,8 @@ parsoid={
 
 !! test
 dummyanno tags around <pre> area with new lines
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
  foo
@@ -284,10 +314,11 @@ dummyanno tags around <pre> area with new lines
 
 !! test
 Newlines should be inserted between annotation tags and pre
-!!options
+!! options
 parsoid={
   "modes": ["html2wt"]
 }
+annotations=1
 !! html/parsoid
 foo<meta typeof="mw:Annotation/dummyanno" /><pre>bar</pre><meta typeof="mw:Annotation/dummyanno/End"/>baz
 foo<pre>bar</pre>baz
@@ -302,6 +333,8 @@ baz
 
 !! test
 dummyanno tags in list items
+!! options
+annotations=1
 !! wikitext
 *<dummyanno>List item!</dummyanno>
 !! html/parsoid
@@ -312,6 +345,8 @@ dummyanno tags in list items
 ### Tests from annotation spec
 !! test
 1/ Whole content contained in annotation tags
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
 One paragraph.
@@ -332,6 +367,7 @@ And another.
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
 }
+annotations=1
 !! wikitext
 This is ''an <dummyanno>artificial'' '''example</dummyanno> of''' extension.
 !! html/parsoid
@@ -340,6 +376,8 @@ This is ''an <dummyanno>artificial'' '''example</dummyanno> of''' extension.
 
 !! test
 3/ Two types of annotation, nested; annotation attributes
+!! options
+annotations=1
 !! wikitext
 <dummyanno>Some text <ann2 name="myvar">with a variable</ann2> in the middle</dummyanno>
 !! html/parsoid
@@ -348,6 +386,8 @@ This is ''an <dummyanno>artificial'' '''example</dummyanno> of''' extension.
 
 !! test
 4/ Template (fully enclosed) in annotation range
+!! options
+annotations=1
 !! wikitext
 aa <dummyanno>bb {{1x|some content}} bb</dummyanno> aa
 !! html/parsoid
@@ -356,6 +396,8 @@ aa <dummyanno>bb {{1x|some content}} bb</dummyanno> aa
 
 !! test
 5/ annotation (fully enclosed) in template
+!! options
+annotations=1
 !! wikitext
 {{1x|bb <dummyanno>some content</dummyanno> bb}} aa
 !! html/parsoid
@@ -365,6 +407,7 @@ aa <dummyanno>bb {{1x|some content}} bb</dummyanno> aa
 !! test
 7/ attributes in annotations
 !! options
+annotations=1
 !! wikitext
 {|
 |-
@@ -386,6 +429,7 @@ aa <dummyanno>bb {{1x|some content}} bb</dummyanno> aa
 parsoid={
   "modes": ["wt2html", "selser", "wt2wt"]
 }
+annotations=1
 !! wikitext
 {|
 |table
@@ -423,6 +467,7 @@ parsoid={
     ["p", "after", "<p>plop</p>"]
   ]
 }
+annotations=1
 !! wikitext
 <dummyanno>
 ==plop==
@@ -448,7 +493,8 @@ parsoid={
     ["p", "append", "something"]
   ]
 }
-!!wikitext
+annotations=1
+!! wikitext
 Some ''stuff <dummyanno>and '''also some'' more</dummyanno> stuff''' than that.
 !! wikitext/edited
 Some ''stuff <dummyanno>and '''also some'' more</dummyanno> stuff''' than that.something
@@ -456,13 +502,15 @@ Some ''stuff <dummyanno>and '''also some'' more</dummyanno> stuff''' than that.s
 
 !! test
 Selser: add content at the end of a paragraph with badly nested content without annotation
+!! options
+annotations=1
 !! wikitext
 Some ''stuff and '''also some'' more stuff''' than that.
-!!html/parsoid
+!! html/parsoid
 <p>Some <i>stuff and <b>also some</b></i><b> more stuff</b> than that.</p>
 !! end
 
-!!test
+!! test
 Selser: add content in a cell of a table where dummyanno gets fostered out should keep the annotation around the table
 !! options
 parsoid={
@@ -471,7 +519,8 @@ parsoid={
     ["tr > td:first-child", "text", "plop"]
   ]
 }
-!!wikitext
+annotations=1
+!! wikitext
 {|
 |-
 |a
@@ -511,7 +560,8 @@ parsoid={
 		["meta", "after", "<p>plop2</p>"]
 	]
 }
-!!wikitext
+annotations=1
+!! wikitext
 <dummyanno>
 hello
 </dummyanno>
@@ -538,7 +588,8 @@ parsoid={
                 ["meta", "before", "<p>plop</p>"]
         ]
 }
-!!wikitext
+annotations=1
+!! wikitext
 <dummyanno>
 hello
 </dummyanno>
@@ -561,7 +612,8 @@ parsoid={
                 ["meta", "after", "<p>plop2</p>"]
         ]
 }
-!!wikitext
+annotations=1
+!! wikitext
 <dummyanno>
 hello
 </dummyanno>
@@ -575,7 +627,7 @@ hello
 plop2
 !! end
 
-!!test
+!! test
 Selser: add headings after <dummyanno> and </dummyanno> tags should yield the right amount of new lines
 !!options
 parsoid={
@@ -584,8 +636,8 @@ parsoid={
                 ["meta", "after", "<h2>plop</h2>"]
         ]
 }
-
-!!wikitext
+annotations=1
+!! wikitext
 ==title==
 some paragraph
 
@@ -594,7 +646,7 @@ hello
 </dummyanno>
 
 some other paragraph
-!!wikitext/edited
+!! wikitext/edited
 ==title==
 some paragraph
 
@@ -608,7 +660,7 @@ hello
 some other paragraph
 !! end
 
-!!test
+!! test
 Selser: add headings before <dummyanno> and </dummyanno> tags should yield the right amount of new lines
 !!options
 parsoid={
@@ -617,7 +669,7 @@ parsoid={
                 ["meta", "before", "<h2>plop</h2>"]
         ]
 }
-
+annotations=1
 !!wikitext
 ==title==
 some paragraph
@@ -642,16 +694,17 @@ hello
 some other paragraph
 !! end
 
-!!test
+!! test
 Selser: add lists before <dummyanno> and </dummyanno> tags should yield the right amount of new lines
-!!options
+!! options
 parsoid={
         "modes": ["selser"],
         "changes": [
                 ["meta", "before", "<ul><li>plop</li></ul>"]
         ]
 }
-!!wikitext
+annotations=1
+!! wikitext
 ==title==
 some paragraph
 
@@ -673,9 +726,9 @@ hello
 </dummyanno>
 
 some other paragraph
-!!end
+!! end
 
-!!test
+!! test
 Selser: add lists after <dummyanno> and </dummyanno> tags should yield the right amount of new lines
 !!options
 parsoid={
@@ -684,7 +737,8 @@ parsoid={
                 ["meta", "after", "<ul><li>plop</li></ul>"]
         ]
 }
-!!wikitext
+annotations=1
+!! wikitext
 ==title==
 some paragraph
 
@@ -706,10 +760,12 @@ hello
 * plop
 
 some other paragraph
-!!end
+!! end
 
 !! test
 T295330 - dsr computation should allow proper selser
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
 <!--T:1-->
@@ -736,6 +792,7 @@ T295330 - dsr computation should allow proper selser
 When metas are migrated out of p-tags, template continuity should not be broken
 !! options
 parsoid=wt2html,selser
+annotations=1
 !! wikitext
 {{1x|<div>a</div> b}}
 <dummyanno>
@@ -752,6 +809,8 @@ c
 Annotations should not be hoisted out of headers
 !! wikitext
 ==<dummyanno><!--T:19--> Organizational and Planning Projects</dummyanno>==
+!! options
+annotations=1
 !! html/parsoid
 <h2 id="Organizational_and_Planning_Projects"><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[2,13]}'/><!--T:19--> Organizational and Planning Projects<meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[61,73]}'/></h2>
 !! end
@@ -765,6 +824,7 @@ T296169: Nested annotations should be dropped in HTML output
 parsoid={
         "modes": ["wt2html", "selser", "wt2wt"]
 }
+annotations=1
 !! wikitext
 <dummyanno><dummyanno>t1</dummyanno></dummyanno> <dummyanno>t2</dummyanno> <dummyanno><ann2 name="plop">t3</ann2></dummyanno>
 !! html/parsoid
@@ -778,6 +838,7 @@ T296169: Extended annotations that yield a nested annotation should not nest sai
 parsoid={
         "modes": ["wt2html", "selser", "wt2wt"]
 }
+annotations=1
 !! wikitext
 a ''<dummyanno>b'' c ''d </dummyanno> e <dummyanno>f</dummyanno>'' g
 !! html/parsoid
@@ -788,6 +849,8 @@ a ''<dummyanno>b'' c ''d </dummyanno> e <dummyanno>f</dummyanno>'' g
 # This is not correct yet because the template is not expanded in the HTML - the template is considered as a raw string
 # instead. Follow-up as T299523.
 Annotations with templated annotation attribute shouldn't emit a warning and should round-trip
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
 <ann2 {{1x|1="name=hello other=plop nowrap"}}>test</ann2>
@@ -800,6 +863,8 @@ Annotations with templated annotation attribute shouldn't emit a warning and sho
 
 !! test
 Annotations with templated annotation attribute name shouldn't emit a warning and should round-trip
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
 <ann2 {{1x|name}}="hello">test</ann2>
@@ -812,6 +877,8 @@ Annotations with templated annotation attribute name shouldn't emit a warning an
 
 !! test
 Annotations with templated annotation attribute value shouldn't emit a warning and should round-trip
+!! options
+annotations=1
 !! wikitext
 <dummyanno>
 <ann2 name="{{1x|hello}}">test</ann2>

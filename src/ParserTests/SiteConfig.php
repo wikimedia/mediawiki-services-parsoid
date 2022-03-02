@@ -261,6 +261,12 @@ class SiteConfig extends ApiSiteConfig {
 			unset( $this->extConfig['parsoidExtTags'][$lowerTagName] );
 		}
 
+		foreach ( ( $extConfig['annotations'] ?? [] ) as $annotationTag ) {
+			$lowerTagName = mb_strtolower( $annotationTag );
+			unset( $this->extConfig['allTags'][$lowerTagName] );
+			unset( $this->extConfig['annotationTags'][$lowerTagName] );
+		}
+
 		if ( isset( $extConfig['domProcessors'] ) ) {
 			unset( $this->extConfig['domProcessors'][$name] );
 		}

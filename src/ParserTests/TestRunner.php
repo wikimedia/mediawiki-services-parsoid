@@ -1445,7 +1445,9 @@ class TestRunner {
 			if ( isset( $test->options['thumbsize'] ) ) {
 				$this->siteConfig->thumbsize = (int)$test->options['thumbsize'];
 			}
-			$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
+			if ( isset( $test->options['annotations'] ) ) {
+				$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
+			}
 		}
 		// Ensure this is always registered!
 		$this->siteConfig->registerParserTestExtension( new ParserHook() );
