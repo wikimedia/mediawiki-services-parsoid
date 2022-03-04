@@ -1028,9 +1028,7 @@ private function a82($il, $sol_il) {
 }
 private function a83($annToken) {
 
-        if ( $annToken->getName() !== 'extension' ) {
-            return true;
-        }
+        return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
     
 }
 private function a84($annToken) {
