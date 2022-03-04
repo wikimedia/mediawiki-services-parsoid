@@ -418,7 +418,37 @@ class References extends ExtensionTagHandler {
 		$refLink->appendChild( $refLinkSpan );
 		$linkBack->appendChild( $refLink );
 
-		$node->parentNode->replaceChild( $linkBack, $node );
+		// Checking if the <ref> is nested in a link
+		$aParent = DOMUtils::findAncestorOfName( $node, 'a' );
+		if ( $aParent !== null ) {
+			// If we find a parent link, we hoist the reference up, just after the link
+			// But if there's multiple references in a single link, we want to insert in order -
+			// so we look for other misnested references before inserting
+			$insertionPoint = $aParent->nextSibling;
+			while ( $insertionPoint instanceof Element &&
+				DOMCompat::nodeName( $insertionPoint ) === 'sup' &&
+				!empty( DOMDataUtils::getDataParsoid( $insertionPoint )->misnested )
+			) {
+				$insertionPoint = $insertionPoint->nextSibling;
+			}
+			$aParent->parentNode->insertBefore( $linkBack, $insertionPoint );
+			// set misnested to true and DSR to zero-sized to avoid round-tripping issues
+			$dsrOffset = DOMDataUtils::getDataParsoid( $aParent )->dsr->end ?? null;
+			// we created that node hierarchy above, so we know that it only contains these nodes,
+			// hence there's no need for a visitor
+			self::setMisnested( $linkBack, $dsrOffset );
+			self::setMisnested( $refLink, $dsrOffset );
+			self::setMisnested( $refLinkSpan, $dsrOffset );
+			if ( $aParent->hasAttribute( 'about' ) ) {
+				DOMUtils::addAttributes( $linkBack,
+					[ 'about' => $aParent->getAttribute( 'about' ) ]
+				);
+			}
+			$node->parentNode->removeChild( $node );
+		} else {
+			// if not, we insert it where we planned in the first place
+			$node->parentNode->replaceChild( $linkBack, $node );
+		}
 
 		// Keep the first content to compare multiple <ref>s with the same name.
 		if ( $ref->contentId === null && !$missingContent ) {
@@ -428,6 +458,18 @@ class References extends ExtensionTagHandler {
 			DOMCompat::remove( $c );
 			$extApi->clearContentDOM( $contentId );
 		}
+	}
+
+	/**
+	 * Sets a node as misnested and its DSR as zero-width.
+	 * @param Element $node
+	 * @param int|null $offset
+	 * @return void
+	 */
+	private static function setMisnested( Element $node, ?int $offset ) {
+		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
+		$dataParsoid->misnested = true;
+		$dataParsoid->dsr = new DomSourceRange( $offset, $offset, null, null );
 	}
 
 	/**

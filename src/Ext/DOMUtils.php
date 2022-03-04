@@ -129,4 +129,14 @@ class DOMUtils {
 		return DU::firstNonSepChild( $node );
 	}
 
+	/**
+	 * Find an ancestor of $node with nodeName $name.
+	 *
+	 * @param Node $node
+	 * @param string $name
+	 * @return ?Element
+	 */
+	public static function findAncestorOfName( Node $node, string $name ): ?Element {
+		return DU::findAncestorOfName( $node, $name );
+	}
 }
