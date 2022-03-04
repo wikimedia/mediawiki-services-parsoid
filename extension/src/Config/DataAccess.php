@@ -328,6 +328,10 @@ class DataAccess extends IDataAccess {
 	public function preprocessWikitext( IPageConfig $pageConfig, string $wikitext ): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
 		$out = $parser->getOutput();
+		$this->hookContainer->run(
+			'ParserBeforePreprocess',
+			[ $parser, &$wikitext, $parser->getStripState() ]
+		);
 		$wikitext = $parser->replaceVariables( $wikitext, $this->ppFrame );
 		// FIXME (T289545): StripState markers protect content that need to be protected from further
 		// "wikitext processing". So, where the result has strip state markers, we actually
