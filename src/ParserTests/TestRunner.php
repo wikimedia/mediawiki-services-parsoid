@@ -10,7 +10,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -222,9 +221,7 @@ class TestRunner {
 			// Unused; needed to satisfy Env signature requirements
 			new MockPageConfig( [], new MockPageContent( [ 'main' => '' ] ) ),
 			// Unused; needed to satisfy Env signature requirements
-			$this->dataAccess,
-			// Unused; needed to satisfy Env signature requirements
-			new StubMetadataCollector( $this->siteConfig->getLogger() )
+			$this->dataAccess
 		);
 
 		// Init interwiki map to parser tests info.
@@ -256,7 +253,6 @@ class TestRunner {
 			$this->siteConfig,
 			$pageConfig,
 			$this->dataAccess,
-			new StubMetadataCollector( $this->siteConfig->getLogger() ),
 			$this->envOptions
 		);
 

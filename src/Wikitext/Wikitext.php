@@ -40,15 +40,19 @@ class Wikitext {
 	 */
 	public static function preprocess( Env $env, string $wt ): array {
 		$start = microtime( true );
-		$ret = $env->getDataAccess()->preprocessWikitext( $env->getPageConfig(), $env->getMetadata(), $wt );
+		$ret = $env->getDataAccess()->preprocessWikitext( $env->getPageConfig(), $wt );
 
-		// FIXME: Should this bump be len($ret) - len($wt)?
+		// FIXME: Should this bump be len($ret['wikitext']) - len($wt)?
 		// I could argue both ways.
-		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret ) ) ) {
+		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret['wikitext'] ) ) ) {
 			return [
 				'error' => true,
 				'src' => "wt2html: wikitextSize limit exceeded",
 			];
+		}
+
+		foreach ( [ 'modules', 'modulestyles', 'jsconfigvars' ] as $prop ) {
+			$env->addOutputProperty( $prop, $ret[$prop] ?? [] );
 		}
 
 		if ( $env->profiling() ) {
@@ -59,7 +63,7 @@ class Wikitext {
 
 		return [
 			'error' => false,
-			'src' => $ret,
+			'src' => $ret['wikitext'],
 		];
 	}
 

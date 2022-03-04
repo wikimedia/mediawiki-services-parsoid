@@ -35,7 +35,6 @@ use MobileContext;
 use MWParsoid\Config\PageConfigFactory;
 use MWParsoid\ParsoidServices;
 use MWParsoid\Rest\FormatHelper;
-use ParserOutput;
 use RequestContext;
 use Title;
 use UIDGenerator;
@@ -580,10 +579,9 @@ abstract class ParsoidHandler extends Handler {
 			}
 			$response = $this->getResponseFactory()->createJson( $lints );
 		} else {
-			$parserOutput = new ParserOutput();
 			try {
 				$out = $parsoid->wikitext2html(
-					$pageConfig, $reqOpts, $headers, $parserOutput
+					$pageConfig, $reqOpts, $headers
 				);
 			} catch ( ClientError $e ) {
 				throw new HttpException( $e->getMessage(), 400 );

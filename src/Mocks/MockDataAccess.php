@@ -7,7 +7,6 @@ use Error;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
@@ -530,11 +529,7 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
-		PageConfig $pageConfig,
-		ContentMetadataCollector $metadata,
-		string $wikitext
-	): string {
+	public function parseWikitext( PageConfig $pageConfig, string $wikitext ): array {
 		// Render to html the contents of known extension tags
 		preg_match( '#<([A-Za-z][^\t\n\v />\0]*)#', $wikitext, $match );
 		switch ( $match[1] ) {
@@ -557,31 +552,40 @@ class MockDataAccess extends DataAccess {
 				throw new Error( 'Unhandled extension type encountered in: ' . $wikitext );
 		}
 
-		return $html;
+		return [
+			'html' => $html,
+			'modules' => [],
+			'modulestyles' => [],
+			'jsconfigvars' => [],
+			'categories' => [],
+		];
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext(
-		PageConfig $pageConfig,
-		ContentMetadataCollector $metadata,
-		string $wikitext
-	): string {
+	public function preprocessWikitext( PageConfig $pageConfig, string $wikitext ): array {
 		$revid = $pageConfig->getRevisionId();
+		$ret = [
+			'modules' => [],
+			'modulestyles' => [],
+			'jsconfigvars' => [],
+			'categories' => [],
+			'properties' => [],
+		];
 
 		$expanded = str_replace( '{{!}}', '|', $wikitext );
 		preg_match( '/{{1x\|(.*?)}}/s', $expanded, $match );
 
 		if ( $match ) {
-			$ret = $match[1];
+			$ret['wikitext'] = $match[1];
 		} elseif ( $wikitext === '{{colours of the rainbow}}' ) {
-			$ret = 'purple';
+			$ret['wikitext'] = 'purple';
 		} elseif ( $wikitext === '{{REVISIONID}}' ) {
-			$ret = (string)$revid;
+			$ret['wikitext'] = (string)$revid;
 		} elseif ( $wikitext === '{{mangle}}' ) {
-			$ret = 'hi';
-			$metadata->addCategory( 'Mangle', 'ho' );
+			$ret['wikitext'] = 'hi';
+			$ret['categories']['Mangle'] = 'ho';
 		} else {
-			$ret = '';
+			$ret['wikitext'] = '';
 		}
 
 		return $ret;

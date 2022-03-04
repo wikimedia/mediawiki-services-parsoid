@@ -11,8 +11,6 @@ use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Config\StubMetadataCollector;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelserData;
@@ -133,14 +131,11 @@ class Parsoid {
 	 * Parsing code shared between the next two methods.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param ContentMetadataCollector $metadata
 	 * @param array $options See wikitext2html.
 	 * @return array
 	 */
 	private function parseWikitext(
-		PageConfig $pageConfig,
-		ContentMetadataCollector $metadata,
-		array $options = []
+		PageConfig $pageConfig, array $options = []
 	): array {
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['outputContentVersion'] ) ) {
@@ -157,7 +152,7 @@ class Parsoid {
 			$envOptions['logLinterData'] = !empty( $options['logLinterData'] );
 		}
 		$env = new Env(
-			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
+			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		if ( !$env->compareWt2HtmlLimit(
 			'wikitextSize', strlen( $pageConfig->getPageMainContent() )
@@ -196,18 +191,12 @@ class Parsoid {
 	 *   'logLevels'            => (string[]) Levels to log
 	 * ]
 	 * @param ?array &$headers
-	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
-	 *  collect and retrieve metadata about the parse.
 	 * @return PageBundle|string
 	 */
 	public function wikitext2html(
-		PageConfig $pageConfig, array $options = [], ?array &$headers = null,
-		?ContentMetadataCollector $metadata = null
+		PageConfig $pageConfig, array $options = [], ?array &$headers = null
 	) {
-		if ( $metadata === null ) {
-			$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
-		}
-		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options );
+		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $options );
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
 		// is covered as well?  It probably depends on expectations of the
 		// Rest API.  If callers of /page/lint/ assume that will update the
@@ -248,8 +237,7 @@ class Parsoid {
 	public function wikitext2lint(
 		PageConfig $pageConfig, array $options = []
 	): array {
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
-		[ $env, ] = $this->parseWikitext( $pageConfig, $metadata, $options );
+		[ $env, ] = $this->parseWikitext( $pageConfig, $options );
 		return $env->getLints();
 	}
 
@@ -286,9 +274,8 @@ class Parsoid {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
 		}
 		$envOptions['topLevelDoc'] = $doc;
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		$env = new Env(
-			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
+			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		$env->bumpHtml2WtResourceUse( 'htmlSize', $options['htmlSize'] ?? 0 );
 		$contentmodel = $options['contentmodel'] ?? null;
@@ -336,9 +323,8 @@ class Parsoid {
 			'pageBundle' => true,
 			'topLevelDoc' => DOMUtils::parseHTML( $pb->toHtml(), true ),
 		];
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		$env = new Env(
-			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
+			$this->siteConfig, $pageConfig, $this->dataAccess, $envOptions
 		);
 		$doc = $env->topLevelDoc;
 		DOMDataUtils::visitAndLoadDataAttribs(
@@ -413,8 +399,7 @@ class Parsoid {
 	public function substTopLevelTemplates(
 		PageConfig $pageConfig, string $wikitext
 	): string {
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
-		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
+		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess );
 		return Wikitext::pst( $env, $wikitext, true /* $substTLTemplates */ );
 	}
 

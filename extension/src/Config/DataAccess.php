@@ -34,7 +34,6 @@ use Title;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent as IPageContent;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 
 class DataAccess extends IDataAccess {
 
@@ -311,30 +310,24 @@ class DataAccess extends IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function parseWikitext(
-		IPageConfig $pageConfig,
-		ContentMetadataCollector $metadata,
-		string $wikitext
-	): string {
+	public function parseWikitext( IPageConfig $pageConfig, string $wikitext ): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_HTML );
 		$html = $parser->parseExtensionTagAsTopLevelDoc( $wikitext );
-		// XXX: Ideally we will eventually have the legacy parser use our
-		// ContentMetadataCollector instead of having a new ParserOutput
-		// created (implicitly in ::prepareParser()/Parser::resetOutput() )
-		// which we then have to manually merge.
 		$out = $parser->getOutput();
 		$out->setText( $html );
-		$out->collectMetadata( $metadata ); # merges $out into $metadata
-		return $out->getText( [ 'unwrap' => true ] ); # HTML
+		return [
+			'html' => $out->getText( [ 'unwrap' => true ] ),
+			'modules' => array_values( array_unique( $out->getModules() ) ),
+			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
+			'jsconfigvars' => $out->getJsConfigVars(),
+			'categories' => $out->getCategories(),
+		];
 	}
 
 	/** @inheritDoc */
-	public function preprocessWikitext(
-		IPageConfig $pageConfig,
-		ContentMetadataCollector $metadata,
-		string $wikitext
-	): string {
+	public function preprocessWikitext( IPageConfig $pageConfig, string $wikitext ): array {
 		$parser = $this->prepareParser( $pageConfig, Parser::OT_PREPROCESS );
+		$out = $parser->getOutput();
 		$wikitext = $parser->replaceVariables( $wikitext, $this->ppFrame );
 		// FIXME (T289545): StripState markers protect content that need to be protected from further
 		// "wikitext processing". So, where the result has strip state markers, we actually
@@ -343,14 +336,14 @@ class DataAccess extends IDataAccess {
 		// not wikitext, and where the content might contain wikitext characters, we are now
 		// going to potentially mangle that output.
 		$wikitext = $parser->getStripState()->unstripBoth( $wikitext );
-
-		// XXX: Ideally we will eventually have the legacy parser use our
-		// ContentMetadataCollector instead of having an new ParserOutput
-		// created (implicitly in ::prepareParser()/Parser::resetOutput() )
-		// which we then have to manually merge.
-		$out = $parser->getOutput();
-		$out->collectMetadata( $metadata ); # merges $out into $metadata
-		return $wikitext;
+		return [
+			'wikitext' => $wikitext,
+			'modules' => array_values( array_unique( $out->getModules() ) ),
+			'modulestyles' => array_values( array_unique( $out->getModuleStyles() ) ),
+			'jsconfigvars' => $out->getJsConfigVars(),
+			'categories' => $out->getCategories(),
+			'properties' => $out->getPageProperties()
+		];
 	}
 
 	/** @inheritDoc */

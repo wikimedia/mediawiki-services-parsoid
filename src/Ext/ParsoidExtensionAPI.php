@@ -7,7 +7,6 @@ use Closure;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
-use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Document;
@@ -167,17 +166,6 @@ class ParsoidExtensionAPI {
 	 */
 	public function getPageConfig(): PageConfig {
 		return $this->env->getPageConfig();
-	}
-
-	/**
-	 * Get the ContentMetadataCollector corresponding to the top-level page.
-	 * In Parsoid integrated mode this will typically be an instance of
-	 * core's `ParserOutput` class.
-	 *
-	 * @return ContentMetadataCollector
-	 */
-	public function getMetadata(): ContentMetadataCollector {
-		return $this->env->getMetadata();
 	}
 
 	/**
@@ -885,18 +873,16 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * @param array $modules
-	 * @deprecated Use ::getMetadata()->addModules() instead.
 	 */
 	public function addModules( array $modules ) {
-		$this->getMetadata()->addModules( $modules );
+		$this->env->addOutputProperty( 'modules', $modules );
 	}
 
 	/**
 	 * @param array $modulestyles
-	 * @deprecated Use ::getMetadata()->addModuleStyles() instead.
 	 */
 	public function addModuleStyles( array $modulestyles ) {
-		$this->getMetadata()->addModuleStyles( $modulestyles );
+		$this->env->addOutputProperty( 'modulestyles', $modulestyles );
 	}
 
 }
