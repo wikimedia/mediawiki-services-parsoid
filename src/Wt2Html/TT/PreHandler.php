@@ -31,7 +31,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  *                  (if we enter the PRE_COLLECT state)
  * PRE_COLLECT   -- we will need to generate a pre-block and are collecting
  *                  content for it.
- * MULTILINE_PRE -- we might need to extend the pre-block to multiple lines.
+ * SOL_AFTER_PRE -- we might need to extend the pre-block to multiple lines.
  *                  (depending on whether we see a white-space tok or not)
  * IGNORE        -- nothing to do for the rest of the line.
  * ```
@@ -58,17 +58,17 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  * | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
  * | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
  * + --------------+-----------------+---------------+--------------------------+
- * | PRE_COLLECT   | --- nl      --> | MULTILINE_PRE | save nl token            |
+ * | PRE_COLLECT   | --- nl      --> | SOL_AFTER_PRE | save nl token            |
  * | PRE_COLLECT   | --- eof     --> | SOL           | gen-pre                  |
  * | PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-prepurge (#)         |
  * | PRE_COLLECT   | --- any     --> | PRE_COLLECT   | TOKS << tok              |
  * + --------------+-----------------+---------------+--------------------------+
- * | MULTILINE_PRE | --- nl      --> | SOL           | gen-pre                  |
- * | MULTILINE_PRE | --- eof     --> | SOL           | gen-pre                  |
- * | MULTILINE_PRE | --- ws      --> | PRE_COLLECT   | pop saved nl token (##)  |
+ * | SOL_AFTER_PRE | --- nl      --> | SOL           | gen-pre                  |
+ * | SOL_AFTER_PRE | --- eof     --> | SOL           | gen-pre                  |
+ * | SOL_AFTER_PRE | --- ws      --> | PRE_COLLECT   | pop saved nl token (##)  |
  * |               |                 |               | TOKS = SOL-TR-TOKS + tok |
- * | MULTILINE_PRE | --- sol-tr  --> | MULTILINE_PRE | SOL-TR-TOKS << tok       |
- * | MULTILINE_PRE | --- any     --> | IGNORE        | gen-pre                  |
+ * | SOL_AFTER_PRE | --- sol-tr  --> | SOL_AFTER_PRE | SOL-TR-TOKS << tok       |
+ * | SOL_AFTER_PRE | --- any     --> | IGNORE        | gen-pre                  |
  * + --------------+-----------------+---------------+--------------------------+
  * | IGNORE        | --- nl      --> | SOL           | purge                    |
  * | IGNORE        | --- eof     --> | SOL           | purge                    |
@@ -86,7 +86,7 @@ class PreHandler extends TokenHandler {
 	private const STATE_SOL = 1;
 	private const STATE_PRE = 2;
 	private const STATE_PRE_COLLECT = 3;
-	private const STATE_MULTILINE_PRE = 4;
+	private const STATE_SOL_AFTER_PRE = 4;
 	private const STATE_IGNORE = 5;
 
 	/** @var int */
@@ -112,11 +112,11 @@ class PreHandler extends TokenHandler {
 	 */
 	private static function stateStr(): array {
 		return [
-			1 => 'sol        ',
-			2 => 'pre        ',
-			3 => 'pre_collect',
-			4 => 'multiline  ',
-			5 => 'ignore     '
+			1 => 'sol          ',
+			2 => 'pre          ',
+			3 => 'pre_collect  ',
+			4 => 'sol_after_pre',
+			5 => 'ignore       '
 		];
 	}
 
@@ -347,10 +347,10 @@ class PreHandler extends TokenHandler {
 				$ret = [];
 				$this->resetPreCollectCurrentLine();
 				$this->lastNlTk = $token;
-				$this->state = self::STATE_MULTILINE_PRE;
+				$this->state = self::STATE_SOL_AFTER_PRE;
 				break;
 
-			case self::STATE_MULTILINE_PRE:
+			case self::STATE_SOL_AFTER_PRE:
 				$this->preWSToken = null;
 				$this->multiLinePreWSToken = null;
 				$ret = $this->processPre( $token );
@@ -398,7 +398,7 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_PRE_COLLECT:
-			case self::STATE_MULTILINE_PRE:
+			case self::STATE_SOL_AFTER_PRE:
 				$this->preWSToken = null;
 				$this->multiLinePreWSToken = null;
 				$this->resetPreCollectCurrentLine();
@@ -528,7 +528,7 @@ class PreHandler extends TokenHandler {
 				}
 				break;
 
-			case self::STATE_MULTILINE_PRE:
+			case self::STATE_SOL_AFTER_PRE:
 				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
 					$this->pushLastNL( $this->tokens );
 					$this->state = self::STATE_PRE_COLLECT;
