@@ -335,9 +335,6 @@ class ParagraphWrapper extends TokenHandler {
 			$this->resetCurrLine();
 			$this->newLineCount++;
 			$this->nlWsTokens[] = $token;
-			if ( $this->undoIndentPre ) {
-				$this->nlWsTokens[] = ' ';
-			}
 			return new TokenHandlerResult( [] );
 		}
 	}
@@ -417,9 +414,8 @@ class ParagraphWrapper extends TokenHandler {
 			if ( $this->inBlockElem || $this->inBlockquote ) {
 				$this->undoIndentPre = true;
 				if ( $this->newLineCount === 0 ) {
-					return new TokenHandlerResult( $this->flushBuffers( ' ' ) );
+					return new TokenHandlerResult( $this->flushBuffers( '' ) );
 				} else {
-					$this->nlWsTokens[] = ' ';
 					return new TokenHandlerResult( [] );
 				}
 			} else {
@@ -481,7 +477,10 @@ class ParagraphWrapper extends TokenHandler {
 			// a new paragraph by itself.
 			( TokenUtils::isSolTransparent( $this->env, $token ) || $token->getName() === 'style' )
 		) {
-			if ( $this->newLineCount === 0 ) {
+			if ( $this->undoIndentPre && PreHandler::isIndentPreWS( $token ) ) {
+				$this->nlWsTokens[] = ' ';
+				return new TokenHandlerResult( [] );
+			} elseif ( $this->newLineCount === 0 ) {
 				// Since we have no pending newlines to trip us up,
 				// no need to buffer -- just flush everything
 				return new TokenHandlerResult( $this->flushBuffers( $token ) );

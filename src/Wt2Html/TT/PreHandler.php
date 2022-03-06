@@ -3,83 +3,94 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
- * PRE handling.
- *
- * PRE-handling relies on the following 5-state FSM.
+ * PRE-handling relies on the following 6-state FSM.
  *
  * States
  * ------
  * ```
  * SOL           -- start-of-line
  *                  (white-space, comments, meta-tags are all SOL transparent)
+ *                  The FSM always starts in this state.
  * PRE           -- we might need a pre-block
  *                  (if we enter the PRE_COLLECT state)
  * PRE_COLLECT   -- we will need to generate a pre-block and are collecting
  *                  content for it.
  * SOL_AFTER_PRE -- we might need to extend the pre-block to multiple lines.
  *                  (depending on whether we see a white-space tok or not)
+ * MULTILINE_PRE -- We will wrap one or more previous lines with <pre>
+ *                  This line could be part of that pre if we enter PRE_COLLECT state
  * IGNORE        -- nothing to do for the rest of the line.
  * ```
+ *
+ * Action helpers
+ * --------------
+ *
+ * genPre             : return merge("<pre>$TOKS</pre>" while skipping sol-tr toks, sol-tr toks)
+ * processCurrLine    : $TOKS += $PRE_TOKS; $PRE_TOKS = [];
+ * purgeBuffers       : convert meta token to ' '; processCurrLine; RET = $TOKS; $TOKS = []; return RET
+ * discardCurrLinePre : return merge(genPre, purgeBuffers)
  *
  * Transitions
  * -----------
  *
- * In the transition table below, purge is just a shortcut for:
- * "pass on collected tokens to the callback and reset (getResultAndReset)"
  * ```
- * + --------------+-----------------+---------------+--------------------------+
- * | Start state   |     Token       | End state     |  Action                  |
- * + --------------+-----------------+---------------+--------------------------+
- * | SOL           | --- nl      --> | SOL           | purge                    |
- * | SOL           | --- eof     --> | SOL           | purge                    |
- * | SOL           | --- ws      --> | PRE           | save whitespace token(##)|
- * | SOL           | --- sol-tr  --> | SOL           | TOKS << tok              |
- * | SOL           | --- other   --> | IGNORE        | purge                    |
- * + --------------+-----------------+---------------+--------------------------+
- * | PRE           | --- nl      --> | SOL           | purge                    |
- * | PRE           |  html-blk tag   | IGNORE        | purge                    |
- * |               |  wt-table tag   |               |                          |
- * | PRE           | --- eof     --> | SOL           | purge                    |
- * | PRE           | --- sol-tr  --> | PRE           | SOL-TR-TOKS << tok       |
- * | PRE           | --- other   --> | PRE_COLLECT   | TOKS = SOL-TR-TOKS + tok |
- * + --------------+-----------------+---------------+--------------------------+
- * | PRE_COLLECT   | --- nl      --> | SOL_AFTER_PRE | save nl token            |
- * | PRE_COLLECT   | --- eof     --> | SOL           | gen-pre                  |
- * | PRE_COLLECT   | --- blk tag --> | IGNORE        | gen-prepurge (#)         |
- * | PRE_COLLECT   | --- any     --> | PRE_COLLECT   | TOKS << tok              |
- * + --------------+-----------------+---------------+--------------------------+
- * | SOL_AFTER_PRE | --- nl      --> | SOL           | gen-pre                  |
- * | SOL_AFTER_PRE | --- eof     --> | SOL           | gen-pre                  |
- * | SOL_AFTER_PRE | --- ws      --> | PRE_COLLECT   | pop saved nl token (##)  |
- * |               |                 |               | TOKS = SOL-TR-TOKS + tok |
- * | SOL_AFTER_PRE | --- sol-tr  --> | SOL_AFTER_PRE | SOL-TR-TOKS << tok       |
- * | SOL_AFTER_PRE | --- any     --> | IGNORE        | gen-pre                  |
- * + --------------+-----------------+---------------+--------------------------+
- * | IGNORE        | --- nl      --> | SOL           | purge                    |
- * | IGNORE        | --- eof     --> | SOL           | purge                    |
- * + --------------+-----------------+---------------+--------------------------+
+ * + --------------+-----------------+---------------+-------------------------+
+ * | Start state   |     Token       | End state     |  Action                 |
+ * + --------------+-----------------+---------------+-------------------------+
+ * | SOL           | --- nl      --> | SOL           | purgeBuffers            |
+ * | SOL           | --- eof     --> | ---           | purgeBuffers            |
+ * | SOL           | --- sol-tr  --> | SOL           | TOKS << tok             |
+ * | SOL           | --- ws      --> | PRE           | PRE_TOKS = [ wsTok(#) ] |
+ * | SOL           | --- other   --> | IGNORE        | purgeBuffers            |
+ * + --------------+-----------------+---------------+-------------------------+
+ * | PRE           | --- nl      --> | SOL           | purgeBuffers            |
+ * | PRE           | --- eof     --> | ---           | purgeBuffers            |
+ * | PRE           | --- sol-tr  --> | PRE           | PRE_TOKS << tok         |
+ * | PRE           | --- blk tag --> | IGNORE        | purgeBuffers            |
+ * | PRE           | --- other   --> | PRE_COLLECT   | PRE_TOKS << tok         |
+ * + --------------+-----------------+---------------+-------------------------+
+ * | PRE_COLLECT   | --- nl      --> | SOL_AFTER_PRE | processCurrLine         |
+ * | PRE_COLLECT   | --- eof     --> | ---           | processCurrLine; genPre |
+ * | PRE_COLLECT   | --- blk tag --> | IGNORE        | discardCurrLinePre      |
+ * | PRE_COLLECT   | --- other   --> | PRE_COLLECT   | PRE_TOKS << tok         |
+ * + --------------+-----------------+---------------+-------------------------+
+ * | SOL_AFTER_PRE | --- nl      --> | SOL           | discardCurrLinePre      |
+ * | SOL_AFTER_PRE | --- eof     --> | ---           | discardCurrLinePre      |
+ * | SOL_AFTER_PRE | --- sol-tr  --> | SOL_AFTER_PRE | PRE_TOKS << tok         |
+ * | SOL_AFTER_PRE | --- ws      --> | MULTILINE_PRE | PRE_TOKS << wsTok(#)    |
+ * | SOL_AFTER_PRE | --- other   --> | IGNORE        | discardCurrLinePre      |
+ * + --------------+-----------------+---------------+-------------------------+
+ * | MULTILINE_PRE | --- nl      --> | SOL_AFTER_PRE | processCurrLine         |
+ * | MULTILINE_PRE | --- eof     --> | ---           | discardCurrLinePre      |
+ * | MULTILINE_PRE | --- sol-tr  --> | SOL_AFTER_PRE | PRE_TOKS << tok         |
+ * | MULTILINE_PRE | --- blk tag --> | IGNORE        | discardCurrLinePre      |
+ * | MULTILINE_PRE | --- other   --> | PRE_COLLECT   | PRE_TOKS << tok         |
+ * + --------------+-----------------+---------------+-------------------------+
+ * | IGNORE        | --- eof     --> | ---           | purgeBuffers            |
+ * | IGNORE        | --- nl      --> | SOL           | purgeBuffers            |
+ * + --------------+-----------------+---------------+-------------------------+
  *
- * # If we've collected any tokens from previous lines, generate a pre. This
- * line gets purged.
- *
- * ## In these states, check if the whitespace token is a single space or has
- * additional chars (white-space or non-whitespace) -- if yes, slice it off
- * and pass it through the FSM.
+ * # In these states, we assume that the whitespace char is split off from the
+ *   the rest of the string.
+ * ```
  */
 class PreHandler extends TokenHandler {
 	// FSM states
@@ -87,24 +98,19 @@ class PreHandler extends TokenHandler {
 	private const STATE_PRE = 2;
 	private const STATE_PRE_COLLECT = 3;
 	private const STATE_SOL_AFTER_PRE = 4;
-	private const STATE_IGNORE = 5;
+	private const STATE_MULTILINE_PRE = 5;
+	private const STATE_IGNORE = 6;
 
 	/** @var int */
 	private $state;
-	/** @var ?NlTk */
-	private $lastNlTk;
 	/** @var int */
 	private $preTSR;
 	/** @var array<Token> */
 	private $tokens;
 	/** @var array<Token|string> */
-	private $preCollectCurrentLine;
-	/** @var Token|string|null */
-	private $preWSToken;
-	/** @var Token|string|null */
-	private $multiLinePreWSToken;
-	/** @var array<Token> */
-	private $solTransparentTokens;
+	private $currLinePreToks;
+	/** @var int index of the whitespace token in $currLinePreToks */
+	private $wsTkIndex;
 
 	/**
 	 * debug string output of FSM states
@@ -116,8 +122,57 @@ class PreHandler extends TokenHandler {
 			2 => 'pre          ',
 			3 => 'pre_collect  ',
 			4 => 'sol_after_pre',
-			5 => 'ignore       '
+			5 => 'multiline_pre',
+			6 => 'ignore       '
 		];
+	}
+
+	/**
+	 * Create a token to represent the indent-pre whitespace character.
+	 *
+	 * Notes about choice of token representation
+	 * -------------------------------------------
+	 * This token will not make it to the final output and is only present to ensure
+	 * DSR computation can account for this whitespace character. This meta tag will
+	 * be removed in CleanUp::stripMarkerMetas().
+	 *
+	 * Given that this token is purely an internal bookkeeping placeholder,
+	 * it really does not matter how we represent it as long as
+	 * (a) it doesn't impede code comprehension
+	 * (b) it is more or less consistent with how other instances of this token behave
+	 * (c) it doesn't introduce a lot of special-case handling and checks to deal with it.
+	 *
+	 * Based on that consideration, we settle for a meta tag because meta tags are transparent
+	 * to most token and DOM handlers.
+	 *
+	 * Notes about DSR computation
+	 * ---------------------------
+	 * Once we are done with all DOM processing, we expect indent-pre <pre> tags to have
+	 * DSR that looks like [ _, _, 1, 0 ], i.e. it has an opening tag width of 1 char and
+	 * closing tag width of 0 char. But, since we are now explicitly representing the ws char
+	 * as a meta-tag, we <pre> tag will not get a 1-char width during DSR computation since
+	 * this meta-tag will consume that width. Accordingly, once we strip this meta-tag in the
+	 * cleanup pass, we will reassign its width to the opening tag width of the <pre> tag.
+	 *
+	 * @return Token
+	 */
+	public static function newIndentPreWS(): Token {
+		return new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:IndentPreWS' ) ] );
+	}
+
+	/**
+	 * Does this token or node represent an indent-pre whitespace character?
+	 * @param Token|Node|string $tokenOrNode
+	 * @return bool
+	 */
+	public static function isIndentPreWS( $tokenOrNode ): bool {
+		if ( $tokenOrNode instanceof Token ) {
+			return TokenUtils::hasTypeOf( $tokenOrNode, 'mw:IndentPreWS' );
+		} elseif ( $tokenOrNode instanceof Node ) {
+			return DOMUtils::hasTypeOf( $tokenOrNode, 'mw:IndentPreWS' );
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -146,16 +201,13 @@ class PreHandler extends TokenHandler {
 	 */
 	private function reset(): void {
 		$this->state = self::STATE_SOL;
-		$this->lastNlTk = null;
 		// Initialize to zero to deal with indent-pre
 		// on the very first line where there is no
 		// preceding newline to initialize this.
 		$this->preTSR = 0;
 		$this->tokens = [];
-		$this->preCollectCurrentLine = [];
-		$this->preWSToken = null;
-		$this->multiLinePreWSToken = null;
-		$this->solTransparentTokens = [];
+		$this->currLinePreToks = [];
+		$this->wsTkIndex = -1;
 		$this->onAnyEnabled = true;
 	}
 
@@ -168,69 +220,74 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Pushes the last new line onto the $ret array
+	 * Wrap buffered tokens with <pre>..</pre>
 	 *
-	 * @param array &$ret
-	 */
-	private function pushLastNL( array &$ret ): void {
-		if ( $this->lastNlTk ) {
-			$ret[] = $this->lastNlTk;
-			$this->lastNlTk = null;
-		}
-	}
-
-	/**
-	 * Removes multiline-pre-ws token when multi-line pre has been specified
-	 */
-	private function resetPreCollectCurrentLine(): void {
-		if ( count( $this->preCollectCurrentLine ) > 0 ) {
-			PHPUtils::pushArray( $this->tokens, $this->preCollectCurrentLine );
-			$this->preCollectCurrentLine = [];
-			// Since the multi-line pre materialized, the multiline-pre-ws token
-			// should be discarded so that it is not emitted after <pre>..</pre>
-			// is generated (see processPre).
-			$this->multiLinePreWSToken = null;
-		}
-	}
-
-	/**
-	 * If a blocking token sequence is encountered with collecting, cleanup state
-	 *
-	 * @param Token $token
 	 * @return array
 	 */
-	private function encounteredBlockWhileCollecting( Token $token ): array {
-		$env = $this->env;
+	private function genPre(): array {
 		$ret = [];
-		$mlp = null;
 
-		// we remove any possible multiline ws token here and save it because
-		// otherwise the propressPre below would add it in the wrong place
-		if ( $this->multiLinePreWSToken ) {
-			$mlp = $this->multiLinePreWSToken;
-			$this->multiLinePreWSToken = null;
-		}
+		// pre only if we have tokens to enclose
+		$n = $i = count( $this->tokens );
+		if ( $n > 0 ) {
+			$env = $this->env;
 
-		$i = count( $this->tokens );
-		if ( $i > 0 ) {
+			// Don't wrap sol-transparent toks.
+			// Find index for last token to wrap.
 			$i--;
-			while ( $i > 0 && TokenUtils::isSolTransparent( $env, $this->tokens[$i] ) ) {
+			while ( $i > 0 ) {
+				$t = $this->tokens[$i];
+				if ( !( $t instanceof NlTk ) && !TokenUtils::isSolTransparent( $env, $t ) ) {
+					break;
+				}
+				if ( $t instanceof Token && TokenUtils::matchTypeOf( $t, '#^mw:Transclusion/End#' ) ) {
+					break;
+				}
 				$i--;
 			}
-			$solToks = array_splice( $this->tokens, $i );
-			$this->lastNlTk = array_shift( $solToks );
-			// assert( $this->lastNlTk && get_class( $this->lastNlTk ) === NlTk::class );
-			$ret = array_merge( $this->processPre( null ), $solToks );
-		}
 
-		if ( $this->preWSToken || $mlp ) {
-			$ret[] = $this->preWSToken ?? $mlp;
-			$this->preWSToken = null;
+			// Add pre wrapper around the selected tokens
+			$da = null;
+			if ( $this->preTSR !== -1 ) {
+				$da = new DataParsoid;
+				$da->tsr = new SourceRange( $this->preTSR, $this->preTSR );
+			}
+			$ret = [ new TagTk( 'pre', [], $da ) ];
+			for ( $j = 0; $j < $i + 1; $j++ ) {
+				$ret[] = $this->tokens[$j];
+			}
+			$ret[] = new EndTagTk( 'pre' );
+			for ( $j = $i + 1; $j < $n; $j++ ) {
+				$t = $this->tokens[$j];
+				if ( self::isIndentPreWS( $t ) ) {
+					$t = ' ';
+				}
+				$ret[] = $t;
+			}
+			$this->tokens = [];
 		}
-
-		$this->resetPreCollectCurrentLine();
-		PHPUtils::pushArray( $ret, $this->getResultAndReset( $token ) );
 		return $ret;
+	}
+
+	/**
+	 * @param Token|string|null $token
+	 * @param bool $metaToWS
+	 * - if true, convert the IndentPreWS meta token to ' '.
+	 * - if false, leave the meta token as is (it will later be stripped
+	 *   by CleanUp::stripMarkerMetas() and the DSR updated)
+	 */
+	private function processCurrLine( $token = null, bool $metaToWS = false ): void {
+		if ( count( $this->currLinePreToks ) > 0 ) {
+			if ( $metaToWS && $this->wsTkIndex !== -1 ) {
+				$this->currLinePreToks[$this->wsTkIndex] = ' '; // replace meta token with ' '
+			}
+			PHPUtils::pushArray( $this->tokens, $this->currLinePreToks );
+			$this->currLinePreToks = [];
+			$this->wsTkIndex = -1;
+		}
+		if ( $token !== null ) {
+			$this->tokens[] = $token;
+		}
 	}
 
 	/**
@@ -239,63 +296,23 @@ class PreHandler extends TokenHandler {
 	 * @param Token|string $token
 	 * @return array
 	 */
-	private function getResultAndReset( $token ): array {
-		$this->pushLastNL( $this->tokens );
-
+	private function purgeBuffers( $token ): array {
+		$this->processCurrLine( $token, true );
 		$ret = $this->tokens;
-		if ( $this->preWSToken ) {
-			$ret[] = $this->preWSToken;
-			$this->preWSToken = null;
-		}
-		if ( count( $this->solTransparentTokens ) > 0 ) {
-			PHPUtils::pushArray( $ret, $this->solTransparentTokens );
-			$this->solTransparentTokens = [];
-		}
-		$ret[] = $token;
 		$this->tokens = [];
-		$this->multiLinePreWSToken = null;
 
 		return $ret;
 	}
 
 	/**
-	 * Process a pre
+	 * Discard pre on this line. Generate pre formatting for previous lines, if any.
 	 *
-	 * @param Token|string|null $token
+	 * @param Token|string $token
 	 * @return array
 	 */
-	private function processPre( $token ): array {
-		$ret = [];
-
-		// pre only if we have tokens to enclose
-		if ( count( $this->tokens ) > 0 ) {
-			$da = null;
-			if ( $this->preTSR !== -1 ) {
-				$da = new DataParsoid;
-				$da->tsr = new SourceRange( $this->preTSR, $this->preTSR + 1 );
-			}
-			$ret = array_merge( [ new TagTk( 'pre', [], $da ) ], $this->tokens, [ new EndTagTk( 'pre' ) ] );
-		}
-
-		// emit multiline-pre WS token
-		if ( $this->multiLinePreWSToken ) {
-			$ret[] = $this->multiLinePreWSToken;
-			$this->multiLinePreWSToken = null;
-		}
-		$this->pushLastNL( $ret );
-
-		// sol-transparent toks
-		PHPUtils::pushArray( $ret, $this->solTransparentTokens );
-
-		// push the current token
-		if ( $token !== null ) {
-			$ret[] = $token;
-		}
-
-		// reset!
-		$this->solTransparentTokens = [];
-		$this->tokens = [];
-
+	private function discardCurrLinePre( $token ): array {
+		$ret = $this->genPre();
+		PHPUtils::pushArray( $ret, $this->purgeBuffers( $token ) );
 		return $ret;
 	}
 
@@ -326,40 +343,32 @@ class PreHandler extends TokenHandler {
 		);
 
 		// Whenever we move into SOL-state, init preTSR to
-		// the newline's tsr->end.  This will later be  used
+		// the newline's tsr->end.  This will later be used
 		// to assign 'tsr' values to the <pre> token.
 
-		// See TokenHandler's documentation for the onAny handler
-		// for what this flag is about.
 		switch ( $this->state ) {
 			case self::STATE_SOL:
-				$ret = $this->getResultAndReset( $token );
-				$this->preTSR = self::initPreTSR( $token );
-				break;
-
 			case self::STATE_PRE:
-				$ret = $this->getResultAndReset( $token );
+				$ret = $this->purgeBuffers( $token );
 				$this->preTSR = self::initPreTSR( $token );
 				$this->state = self::STATE_SOL;
 				break;
 
+			case self::STATE_MULTILINE_PRE:
 			case self::STATE_PRE_COLLECT:
+				$this->processCurrLine( $token );
 				$ret = [];
-				$this->resetPreCollectCurrentLine();
-				$this->lastNlTk = $token;
 				$this->state = self::STATE_SOL_AFTER_PRE;
 				break;
 
 			case self::STATE_SOL_AFTER_PRE:
-				$this->preWSToken = null;
-				$this->multiLinePreWSToken = null;
-				$ret = $this->processPre( $token );
-				$this->preTSR = self::initPreTSR( $token );
+				$ret = $this->discardCurrLinePre( $token );
 				$this->state = self::STATE_SOL;
+				$this->preTSR = self::initPreTSR( $token );
 				break;
 
 			case self::STATE_IGNORE:
-				$ret = null;
+				$ret = null; // Signals unmodified token
 				$this->reset();
 				$this->preTSR = self::initPreTSR( $token );
 				break;
@@ -394,15 +403,18 @@ class PreHandler extends TokenHandler {
 		switch ( $this->state ) {
 			case self::STATE_SOL:
 			case self::STATE_PRE:
-				$ret = $this->getResultAndReset( $token );
+				$ret = $this->purgeBuffers( $token );
+				break;
+
+			case self::STATE_SOL_AFTER_PRE:
+			case self::STATE_MULTILINE_PRE:
+				$ret = $this->discardCurrLinePre( $token );
 				break;
 
 			case self::STATE_PRE_COLLECT:
-			case self::STATE_SOL_AFTER_PRE:
-				$this->preWSToken = null;
-				$this->multiLinePreWSToken = null;
-				$this->resetPreCollectCurrentLine();
-				$ret = $this->processPre( $token );
+				$this->processCurrLine();
+				$ret = $this->genPre();
+				$ret[] = $token;
 				break;
 
 			case self::STATE_IGNORE:
@@ -446,21 +458,6 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * Collect a token when in a known-pre state
-	 * @param Token|string $token
-	 */
-	private function collectTokenInPreState( $token ): void {
-		if ( TokenUtils::isSolTransparent( $this->env, $token ) ) { // continue watching
-			$this->solTransparentTokens[] = $token;
-		} else {
-			$this->preCollectCurrentLine = $this->solTransparentTokens;
-			$this->preCollectCurrentLine[] = $token;
-			$this->solTransparentTokens = [];
-			$this->state = self::STATE_PRE_COLLECT;
-		}
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
@@ -487,12 +484,19 @@ class PreHandler extends TokenHandler {
 				if ( is_string( $token ) && ( $token[0] ?? '' ) === ' ' ) {
 					$ret = $this->tokens;
 					$this->tokens = [];
-					$this->preWSToken = $token[0];
+					$this->wsTkIndex = 0;
+					$this->currLinePreToks = [ self::newIndentPreWS() ];
 					$this->state = self::STATE_PRE;
 					if ( strlen( $token ) > 1 ) {
-						// Collect the rest of the string and continue
+						// Treat everything after the first space as a new token
 						// (`substr` not `mb_substr` since we know space is ASCII)
-						$this->collectTokenInPreState( substr( $token, 1 ) );
+						// This is inlined handling of 'case self::PRE'
+						// scenario for a string.
+						$token = substr( $token, 1 );
+						$this->currLinePreToks[] = $token;
+						if ( !TokenUtils::isSolTransparent( $this->env, $token ) ) {
+							$this->state = self::STATE_PRE_COLLECT;
+						}
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) {
 					// continue watching ...
@@ -500,59 +504,65 @@ class PreHandler extends TokenHandler {
 					$this->preTSR = $this->getUpdatedPreTSR( $this->preTSR, $token );
 					$this->tokens[] = $token;
 				} else {
-					$ret = $this->getResultAndReset( $token );
+					$ret = $this->purgeBuffers( $token );
 					$this->moveToIgnoreState();
 				}
 				break;
 
 			case self::STATE_PRE:
-				if ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
-					$this->solTransparentTokens[] = $token;
-				} elseif ( TokenUtils::isTableTag( $token ) ||
-					( TokenUtils::isHTMLTag( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) )
-				) {
-					$ret = $this->getResultAndReset( $token );
+				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
+					$ret = $this->purgeBuffers( $token );
 					$this->moveToIgnoreState();
 				} else {
-					$this->collectTokenInPreState( $token );
+					$this->currLinePreToks[] = $token;
+					if ( !TokenUtils::isSolTransparent( $this->env, $token ) ) {
+						$this->state = self::STATE_PRE_COLLECT;
+					}
 				}
 				break;
 
 			case self::STATE_PRE_COLLECT:
 				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
-					$ret = $this->encounteredBlockWhileCollecting( $token );
+					$ret = $this->discardCurrLinePre( $token );
 					$this->moveToIgnoreState();
 				} else {
 					// nothing to do .. keep collecting!
-					$this->preCollectCurrentLine[] = $token;
+					$this->currLinePreToks[] = $token;
+				}
+				break;
+
+			case self::STATE_MULTILINE_PRE:
+				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
+					$ret = $this->discardCurrLinePre( $token );
+					$this->moveToIgnoreState();
+				} else {
+					$this->currLinePreToks[] = $token;
+					if ( !TokenUtils::isSolTransparent( $this->env, $token ) ) {
+						$this->state = self::STATE_PRE_COLLECT;
+					}
 				}
 				break;
 
 			case self::STATE_SOL_AFTER_PRE:
-				if ( is_string( $token ) && preg_match( '/^ /', $token ) ) {
-					$this->pushLastNL( $this->tokens );
-					$this->state = self::STATE_PRE_COLLECT;
-					$this->preWSToken = null;
-
-					// Pop buffered sol-transparent tokens
-					PHPUtils::pushArray( $this->tokens, $this->solTransparentTokens );
-					$this->solTransparentTokens = [];
-
-					// check if token is single-space or more
-					$this->multiLinePreWSToken = $token[0];
+				if ( is_string( $token ) && ( $token[0] ?? '' ) === ' ' ) {
+					$this->wsTkIndex = count( $this->currLinePreToks );
+					$this->currLinePreToks[] = self::newIndentPreWS();
+					$this->state = self::STATE_MULTILINE_PRE;
 					if ( strlen( $token ) > 1 ) {
 						// Treat everything after the first space as a new token
 						// (`substr` not `mb_substr` since we know space is ASCII)
-						// Collect the rest of the string and continue.
-						//
-						// This is inlined handling of 'case self::STATE_PRE_COLLECT'
+						// This is inlined handling of 'case self::MULTILINE_PRE'
 						// scenario for a string.
-						$this->preCollectCurrentLine[] = substr( $token, 1 );
+						$token = substr( $token, 1 );
+						$this->currLinePreToks[] = $token;
+						if ( !TokenUtils::isSolTransparent( $this->env, $token ) ) {
+							$this->state = self::STATE_PRE_COLLECT;
+						}
 					}
 				} elseif ( TokenUtils::isSolTransparent( $env, $token ) ) { // continue watching
-					$this->solTransparentTokens[] = $token;
+					$this->currLinePreToks[] = $token;
 				} else {
-					$ret = $this->processPre( $token );
+					$ret = $this->discardCurrLinePre( $token );
 					$this->moveToIgnoreState();
 				}
 				break;

@@ -11,6 +11,10 @@
 		"expectedSHA1": "940dcd0852058eac1cce52b6c58f50400703e5c8",
 		"latestCommit": "3223981217da67950e3ad5cb5a71a27d35ac9d51"
 	},
+	"indentPreTests.txt": {
+		"repo": "--UNUSED--",
+		"path": "--UNUSED--"
+	},
 	"mediaParserTests.txt": {
 		"repo": "/wikimedia/mediawiki/",
 		"path": "tests/parser/mediaParserTests.txt",

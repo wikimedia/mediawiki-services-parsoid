@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
+use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
 
 class CleanUp {
 	/**
@@ -24,11 +25,15 @@ class CleanUp {
 	 * @return bool|Element
 	 */
 	public static function stripMarkerMetas( Element $node, Env $env ) {
-		if (
+		// This meta tag can never have data-mw associated with it.
+		// If it were produced by a template, it would always have a <pre>
+		// wrapper around which carries any relevant data-mw & typeof properties.
+		$isIndentPreSpace = PreHandler::isIndentPreWS( $node );
+		if ( $isIndentPreSpace ||
 			// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 			// element attached to it. So, check if the node has data-mw,
 			// in which case we also have to keep it.
-			!DOMDataUtils::validDataMw( $node ) && (
+			( !DOMDataUtils::validDataMw( $node ) && (
 				(
 					DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' ) &&
 					// NOTE: In ComputeDSR, we don't zero out the width of these
@@ -37,10 +42,19 @@ class CleanUp {
 					!DOMUtils::isNestedInListItem( $node )
 				) ||
 				DOMUtils::hasTypeOf( $node, 'mw:Transclusion' )
-			)
+			) )
 		) {
 			$nextNode = $node->nextSibling;
-			$node->parentNode->removeChild( $node );
+			$parent = $node->parentNode;
+			$parent->removeChild( $node );
+			if ( $isIndentPreSpace ) {
+				$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
+				if ( $dsr ) {
+					// @see explanation in PreHandler::newIndentPreWS()
+					$dsr->openWidth = 1;
+				}
+			}
+
 			// stop the traversal, since this node is no longer in the DOM.
 			return $nextNode;
 		} else {

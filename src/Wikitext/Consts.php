@@ -278,7 +278,8 @@ class Consts {
 			"head" => [ 0, 0 ],
 			"p" => [ 0, 0 ],
 			"meta" => [ 0, 0 ],
-			"pre" => [ 1, 0 ],
+			// @see PreHandler::newIndentPreWS() for why opening width is 0, not 1
+			"pre" => [ 0, 0 ],
 			"ol" => [ 0, 0 ],
 			"ul" => [ 0, 0 ],
 			"dl" => [ 0, 0 ],
@@ -351,7 +352,11 @@ class Consts {
 			# They may no longer be necessary -- to be investigated in another patch.
 			if ( $tag !== 'html' && $tag !== 'head' && $tag !== 'body' ) {
 				if ( $widths[0] === 0 && $widths[1] === 0 ) {
-					self::$ZeroWidthWikitextTags[$tag] = true;
+					// @see explanation in PreHandler::newIndentPreWS()
+					// to understand this special case
+					if ( $tag !== 'pre' ) {
+						self::$ZeroWidthWikitextTags[$tag] = true;
+					}
 				}
 			}
 		}

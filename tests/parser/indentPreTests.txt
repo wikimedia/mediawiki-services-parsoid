@@ -1,0 +1,35 @@
+!! Version 2
+
+# This file will hold tests for indent-pre usages. For now, we are only
+# adding tests that really don't need to be tested with the legacy parser.
+#
+# Eventually, once the monolithic parser test file is split up, all
+# indent-pre test will move here.
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+
+!! test
+Off-by-1 DSR values: Regression test for indent-pre usages
+!! options
+parsoid=wt2html,selser
+!! wikitext
+ {{1x|
+}} ''{{1x|
+}} X'' {{1x|<span></span>
+}} Y
+!! html/parsoid
+ <span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'>
+</span><pre><i data-parsoid='{"autoInsertedEnd":true}'></i><span about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n"}},"i":0}}]}'>
+</span>X<i about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"firstWikitextNode":"I","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&apos;&apos; ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;span>&lt;/span>\n"}},"i":0}}]}'> <span></span></i><span about="#mwt3">
+</span>Y</pre>
+!! html/php
+<pre><i></i>
+X<i> <span></span></i>
+Y
+</pre>
+!! end

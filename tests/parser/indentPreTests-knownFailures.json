@@ -1,0 +1,19 @@
+{
+    "Off-by-1 DSR values: Regression test for indent-pre usages": {
+        "selser [4,0,[0,0,0,0,0,2]]": "102xtxf{{1x|\n}} ''{{1x|\n }}X'' {{1x|<span></span>\n }}1x282zjY",
+        "selser [4,0,2]": "ilxbbg{{1x|\n}}hnyiv2\n ''{{1x|\n}} X'' {{1x|<span></span>\n}} Y",
+        "selser [4,0,[3,0,2,0,0,3]]": "19q4k7p{{1x|\n}} {{1x|\n }}6y6nw1X'' {{1x|<span></span>\n }}",
+        "selser [0,0,[3,0,0,0,0,2]]": " {{1x|\n}} {{1x|\n }}X'' {{1x|<span></span>\n }}1b3dalhY",
+        "selser [4,0,[3,0,2,0,0,0]]": "18nk9lj{{1x|\n}} {{1x|\n }}txy63mX'' {{1x|<span></span>\n }}Y",
+        "selser [0,0,[0,0,2,0,0,0]]": " {{1x|\n}} ''{{1x|\n }}1ehlcvgX'' {{1x|<span></span>\n }}Y",
+        "selser [4,0,[0,0,2,0,0,0]]": "dpcew1{{1x|\n}} ''{{1x|\n }}7mn201X'' {{1x|<span></span>\n }}Y",
+        "selser [2,0,0]": "pr2b0q {{1x|\n}} ''{{1x|\n}} X'' {{1x|<span></span>\n}} Y",
+        "selser [3,0,[1,0,3,0,0,0]]": "{{1x|\n}} {{1x|\n }}'' {{1x|<span></span>\n }}Y",
+        "selser [0,0,[4,0,0,0,0,3]]": " {{1x|\n}} 1q6coin{{1x|\n }}X'' {{1x|<span></span>\n }}",
+        "selser [3,0,2]": "{{1x|\n}}15fxy4e\n ''{{1x|\n}} X'' {{1x|<span></span>\n}} Y",
+        "selser [0,0,1]": " {{1x|\n}} ''{{1x|\n }}X'' {{1x|<span></span>\n }}Y",
+        "selser [2,0,1]": "2ji41v {{1x|\n}} ''{{1x|\n }}X'' {{1x|<span></span>\n }}Y",
+        "selser [4,0,[0,0,2,0,0,3]]": "tsgi8g{{1x|\n}} ''{{1x|\n }}q8tfdaX'' {{1x|<span></span>\n }}",
+        "selser [0,0,[3,0,3,0,0,0]]": " {{1x|\n}} {{1x|\n }}'' {{1x|<span></span>\n }}Y"
+    }
+}
