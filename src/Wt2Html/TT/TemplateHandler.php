@@ -418,9 +418,9 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * @param Token $token
-	 * @return array
+	 * @return TemplateExpansionResult
 	 */
-	private function convertToString( Token $token ): array {
+	private function convertToString( Token $token ): TemplateExpansionResult {
 		$frame = $this->manager->getFrame();
 		$tsr = $token->dataAttribs->tsr;
 		$src = substr( $token->dataAttribs->src, 1, -1 );
@@ -439,7 +439,7 @@ class TemplateHandler extends TokenHandler {
 			]
 		);
 		TokenUtils::stripEOFTkfromTokens( $toks );
-		return [ 'toks' => array_merge( [ '{' ], $toks, [ '}' ] ), 'shuttle' => true ];
+		return new TemplateExpansionResult( array_merge( [ '{' ], $toks, [ '}' ] ), true );
 	}
 
 	/**
@@ -472,11 +472,11 @@ class TemplateHandler extends TokenHandler {
 	 * @param TemplateEncapsulator $state
 	 * @param array $resolvedTgt
 	 * @param array $attribs
-	 * @return array
+	 * @return TemplateExpansionResult
 	 */
 	private function expandTemplateNatively(
 		TemplateEncapsulator $state, array $resolvedTgt, array $attribs
-	): array {
+	): TemplateExpansionResult {
 		$env = $this->env;
 		$encap = $this->options['expandTemplates'] && $this->wrapTemplates;
 
@@ -498,7 +498,7 @@ class TemplateHandler extends TokenHandler {
 			if ( !is_callable( [ $this->parserFunctions, $target ] ) ) {
 				// FIXME: Consolidate error response format with enforceTemplateConstraints
 				$err = 'Parser function implementation for ' . $target . ' missing in Parsoid.';
-				return [ 'toks' => [ $err ], 'encap' => $encap ];
+				return new TemplateExpansionResult( [ $err ], false, $encap );
 			}
 
 			$pfAttribs = new Params( $attribs );
@@ -513,13 +513,15 @@ class TemplateHandler extends TokenHandler {
 			if ( $this->wrapTemplates ) {
 				$res = $this->parserFunctionsWrapper( $res );
 			}
-			return [ 'toks' => $res, 'encap' => $encap ];
+			return new TemplateExpansionResult( $res, false, $encap );
 		}
 
 		// Loop detection needs to be enabled since we're doing our own template expansion
 		$error = $this->enforceTemplateConstraints( $target, $resolvedTgt['title'], false );
 		if ( $error ) {
-			return [ 'toks' => $error, 'encap' => $encap ];
+			// FIXME: Should we be encapsulating here?
+			// Inconsistent with the other place constrainsts are enforced.
+			return new TemplateExpansionResult( $error, false, $encap );
 		}
 
 		// XXX: notes from brion's mediawiki.parser.environment
@@ -537,7 +539,7 @@ class TemplateHandler extends TokenHandler {
 			],
 			$this->fetchTemplateAndTitle( $target, $attribs )
 		);
-		return [ 'toks' => $toks, 'shuttle' => true, 'encap' => $encap ];
+		return new TemplateExpansionResult( $toks, true, $encap );
 	}
 
 	/**
@@ -806,11 +808,11 @@ class TemplateHandler extends TokenHandler {
 	 * @param bool $atTopLevel
 	 * @param TemplateEncapsulator $state
 	 * @param array $resolvedTgt
-	 * @return array
+	 * @return TemplateExpansionResult
 	 */
 	public function processSpecialMagicWord(
 		bool $atTopLevel, TemplateEncapsulator $state, array $resolvedTgt
-	): array {
+	): TemplateExpansionResult {
 		$env = $this->env;
 		$tplToken = $state->token;
 
@@ -828,17 +830,19 @@ class TemplateHandler extends TokenHandler {
 			// single | in an ambiguous context which will again be tokenized as td.
 			// In any case, this should only be relevant for parserTests.
 			if ( empty( $atTopLevel ) ) {
-				return [ 'toks' => [ new TagTk( 'td' ) ] ];
+				return new TemplateExpansionResult( [ new TagTk( 'td' ) ] );
 			}
+			// FIXME: Why is it necessary to resolve the target again here?
 			$this->resolveTemplateTarget( $state, '!', $tplToken->attribs[0]->srcOffsets->key );
-			return [ 'toks' => [ '|' ], 'encap' => $this->wrapTemplates ];
+			return new TemplateExpansionResult(
+				[ '|' ], false, (bool)$this->wrapTemplates
+			);
 		}
 
-		if ( $resolvedTgt['magicWordType'] !== 'MASQ' ) {
-			// Nothing to do
-			// FIXME: This is going to result in a throw
-			return [ 'toks' => null ];
-		}
+		Assert::invariant(
+			$resolvedTgt['magicWordType'] === 'MASQ',
+			'Unexpected magicWordType type: ' . $resolvedTgt['magicWordType']
+		);
 
 		$magicWord = mb_strtolower( $resolvedTgt['name'] );
 		$pageProp = 'mw:PageProp/';
@@ -920,14 +924,14 @@ class TemplateHandler extends TokenHandler {
 			}
 		}
 
-		return [ 'toks' => [ $metaToken ] ];
+		return new TemplateExpansionResult( [ $metaToken ] );
 	}
 
 	/**
 	 * @param TemplateEncapsulator $state
-	 * @return array of expanded tokens
+	 * @return TemplateExpansionResult
 	 */
-	private function expandTemplate( TemplateEncapsulator $state ): array {
+	private function expandTemplate( TemplateEncapsulator $state ): TemplateExpansionResult {
 		$env = $this->env;
 		$token = $state->token;
 		$expandTemplates = $this->options['expandTemplates'];
@@ -977,9 +981,7 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		if ( isset( $tgt['magicWordType'] ) ) {
-			$res = $this->processSpecialMagicWord( $this->atTopLevel, $state, $tgt );
-			Assert::invariant( $res['toks'] !== null, "Expected non-null tokens array." );
-			return $res;
+			return $this->processSpecialMagicWord( $this->atTopLevel, $state, $tgt );
 		}
 
 		$frame = $this->manager->getFrame();
@@ -1030,7 +1032,9 @@ class TemplateHandler extends TokenHandler {
 			// templates even while using the php preprocessor for expansion.
 			$error = $this->enforceTemplateConstraints( $templateName, $templateTitle, true );
 			if ( $error ) {
-				return [ 'toks' => $error ];
+				// FIXME: Should we be encapsulating here?
+				// Inconsistent with the other place constrainsts are enforced.
+				return new TemplateExpansionResult( $error );
 			}
 
 			// Check if we have an expansion for this template in the cache already
@@ -1039,20 +1043,18 @@ class TemplateHandler extends TokenHandler {
 				// cache hit: reuse the expansion DOM
 				// FIXME(SSS): How does this work again for
 				// templates like {{start table}} and {[end table}}??
-				return [
-					'toks' =>
-						PipelineUtils::encapsulateExpansionHTML(
-							$env, $token, $cachedTransclusion, [ 'fromCache' => true ]
-						)
-				];
+				return new TemplateExpansionResult(
+					PipelineUtils::encapsulateExpansionHTML(
+						$env, $token, $cachedTransclusion, [ 'fromCache' => true ]
+					)
+				);
 			} else {
 				// Fetch and process the template expansion
 				$expansion = Wikitext::preprocess( $env, $text );
 				if ( $expansion['error'] ) {
-					return [
-						'toks' => [ $expansion['src'] ],
-						'encap' => $this->wrapTemplates,
-					];
+					return new TemplateExpansionResult(
+						[ $expansion['src'] ], false, $this->wrapTemplates
+					);
 				} else {
 					$tplToks = $this->processTemplateSource(
 						$token,
@@ -1063,11 +1065,9 @@ class TemplateHandler extends TokenHandler {
 						],
 						$expansion['src']
 					);
-					return [
-						'toks' => $tplToks,
-						'shuttle' => true,
-						'encap' => $this->wrapTemplates,
-					];
+					return new TemplateExpansionResult(
+						$tplToks, true, $this->wrapTemplates
+					);
 				}
 			}
 		} else {
@@ -1094,16 +1094,15 @@ class TemplateHandler extends TokenHandler {
 			$this->env, $this->manager->getFrame(), $token, 'mw:Transclusion'
 		);
 		$res = $this->expandTemplate( $state );
-		$toks = $res['toks'];
-		if ( !empty( $res['encap'] ) ) {
+		$toks = $res->tokens;
+		if ( $res->encap ) {
 			$toks = $this->encapTokens( $state, $toks );
 		}
-		if ( !empty( $res['shuttle'] ) ) {
+		if ( $res->shuttle ) {
 			// Shuttle tokens to the end of the stage since they've gone through the
 			// rest of the handlers in the current pipeline in the pipeline above.
 			$toks = $this->manager->shuttleTokensToEndOfStage( $toks );
 		}
-
 		return new TokenHandlerResult( $toks );
 	}
 
