@@ -181,7 +181,7 @@ class Frame {
 	 * @param SourceRange $srcOffsets
 	 * @return array
 	 */
-	private function fetchArg( $arg, SourceRange $srcOffsets ): array {
+	private function expandArg( $arg, SourceRange $srcOffsets ): array {
 		if ( is_string( $arg ) ) {
 			return [ $arg ];
 		} else {
@@ -207,7 +207,7 @@ class Frame {
 			$res = isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res;
 			return is_string( $res ) ? [ $res ] : $res;
 		} elseif ( count( $attribs ) > 1 ) {
-			return $this->fetchArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
+			return $this->expandArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
 		} else {
 			return [ '{{{' . $argName . '}}}' ];
 		}
@@ -219,7 +219,7 @@ class Frame {
 	 */
 	public function expandTemplateArg( Token $tplArgToken ): array {
 		$attribs = $tplArgToken->attribs;
-		$toks = $this->fetchArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
+		$toks = $this->expandArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
 		return $this->lookupArg( $this->args->named(), $attribs, $toks );
 	}
 }
