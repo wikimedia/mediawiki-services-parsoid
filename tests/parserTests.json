@@ -60,8 +60,8 @@
 	"timedMediaHandlerParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
 		"path": "tests/parser/parserTests.txt",
-		"expectedSHA1": "9528ea9bdf5df37242f9fbfaa3d69b194a17d6d0",
-		"latestCommit": "f6cbd5201368e59dfbe542ed54cbe3851a94deb5"
+		"expectedSHA1": "66b3043e0d898aee33117f9f0653e4bf0161fd63",
+		"latestCommit": "11615886dbba1cf9fc5b0409aaf0a4032ab74952"
 	},
 	"poemParserTests.txt": {
 		"repo": "/wikimedia/mediawiki-extensions-Poem/",
