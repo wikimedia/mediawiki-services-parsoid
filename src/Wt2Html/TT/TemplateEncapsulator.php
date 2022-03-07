@@ -31,37 +31,33 @@ class TemplateEncapsulator {
 	private $env;
 	/** @var Frame */
 	private $frame;
-	/** @var Token */
-	private $token;
 	/** @var string */
 	private $wrapperType;
 	/** @var string */
 	private $wrappedObjectId;
+	/** @var Token */
+	public $token;
 	/** @var string|null */
-	private $parserFunctionName;
+	public $variableName;
 	/** @var string|null */
-	private $resolvedTemplateTarget;
+	public $parserFunctionName;
+	/** @var string|null */
+	public $resolvedTemplateTarget;
 
 	/**
 	 * @param Env $env
 	 * @param Frame $frame
 	 * @param Token $token
 	 * @param string $wrapperType
-	 * @param string $wrappedObjectId
-	 * @param string|null $parserFunctionName
-	 * @param string|null $resolvedTemplateTarget
 	 */
-	public function __construct( Env $env, Frame $frame,
-		Token $token, string $wrapperType, string $wrappedObjectId,
-		?string $parserFunctionName, ?string $resolvedTemplateTarget
+	public function __construct(
+		Env $env, Frame $frame, Token $token, string $wrapperType
 	) {
 		$this->env = $env;
 		$this->frame = $frame;
 		$this->token = $token;
 		$this->wrapperType = $wrapperType;
-		$this->wrappedObjectId = $wrappedObjectId;
-		$this->parserFunctionName = $parserFunctionName;
-		$this->resolvedTemplateTarget = $resolvedTemplateTarget;
+		$this->wrappedObjectId = $env->newObjectId();
 	}
 
 	/**
@@ -231,7 +227,9 @@ class TemplateEncapsulator {
 
 		// Add in tpl-target/pf-name info
 		// Only one of these will be set.
-		if ( $this->parserFunctionName !== null ) {
+		if ( $this->variableName !== null ) {
+			$ret->func = $this->variableName;
+		} elseif ( $this->parserFunctionName !== null ) {
 			$ret->func = $this->parserFunctionName;
 		} elseif ( $this->resolvedTemplateTarget !== null ) {
 			$ret->href = $this->resolvedTemplateTarget;

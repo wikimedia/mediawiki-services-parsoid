@@ -253,12 +253,14 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param array &$state
+	 * @param TemplateEncapsulator $state
 	 * @param string|Token|array $targetToks
 	 * @param SourceRange $srcOffsets
 	 * @return array|null
 	 */
-	private function resolveTemplateTarget( array &$state, $targetToks, $srcOffsets ): ?array {
+	private function resolveTemplateTarget(
+		TemplateEncapsulator $state, $targetToks, $srcOffsets
+	): ?array {
 		$additionalToks = null;
 		if ( is_string( $targetToks ) ) {
 			$target = $targetToks;
@@ -306,7 +308,7 @@ class TemplateHandler extends TokenHandler {
 		$magicWordVar = $siteConfig->getMagicWordForVariable( $prefix ) ??
 			$siteConfig->getMagicWordForVariable( mb_strtolower( $prefix ) );
 		if ( $magicWordVar ) {
-			$state['variableName'] = $magicWordVar;
+			$state->variableName = $magicWordVar;
 			return [
 				'isVariable' => true,
 				'magicWordType' => $magicWordVar === '!' ? '!' : null,
@@ -324,7 +326,7 @@ class TemplateHandler extends TokenHandler {
 
 		$canonicalFunctionName = $haveColon ? $siteConfig->getMagicWordForFunctionHook( $prefix ) : null;
 		if ( $canonicalFunctionName !== null ) {
-			$state['parserFunctionName'] = $canonicalFunctionName;
+			$state->parserFunctionName = $canonicalFunctionName;
 			return [
 				'name' => $canonicalFunctionName,
 				'pfArg' => $pfArg,
@@ -369,7 +371,7 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		// data-mw.target.href should be a url
-		$state['resolvedTemplateTarget'] = $env->makeLink( $title );
+		$state->resolvedTemplateTarget = $env->makeLink( $title );
 
 		return [
 			'magicWordType' => null,
@@ -467,13 +469,13 @@ class TemplateHandler extends TokenHandler {
 	 * Fetch, tokenize and token-transform a template after all arguments and
 	 * the target were expanded.
 	 *
-	 * @param array $state
+	 * @param TemplateEncapsulator $state
 	 * @param array $resolvedTgt
 	 * @param array $attribs
 	 * @return array
 	 */
 	private function expandTemplateNatively(
-		array $state, array $resolvedTgt, array $attribs
+		TemplateEncapsulator $state, array $resolvedTgt, array $attribs
 	): array {
 		$env = $this->env;
 		$encap = $this->options['expandTemplates'] && $this->wrapTemplates;
@@ -505,9 +507,9 @@ class TemplateHandler extends TokenHandler {
 				TokenUtils::tokensToString( $resolvedTgt['pfArg'] ), [],
 				$resolvedTgt['srcOffsets']->expandTsrK()
 			);
-			$env->log( 'debug', 'entering prefix', $target, $state['token'] );
+			$env->log( 'debug', 'entering prefix', $target, $state->token );
 			$res = call_user_func( [ $this->parserFunctions, $target ],
-				$state['token'], $this->manager->getFrame(), $pfAttribs );
+				$state->token, $this->manager->getFrame(), $pfAttribs );
 			if ( $this->wrapTemplates ) {
 				$res = $this->parserFunctionsWrapper( $res );
 			}
@@ -527,7 +529,7 @@ class TemplateHandler extends TokenHandler {
 
 		// Fetch template source and expand it
 		$toks = $this->processTemplateSource(
-			$state['token'],
+			$state->token,
 			[
 				'name' => $target,
 				'title' => $resolvedTgt['title'],
@@ -607,11 +609,11 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Process the main template element, including the arguments.
 	 *
-	 * @param array $state
+	 * @param TemplateEncapsulator $state
 	 * @param array $tokens
 	 * @return array
 	 */
-	private function encapTokens( array $state, array $tokens ): array {
+	private function encapTokens( TemplateEncapsulator $state, array $tokens ): array {
 		// Template encapsulation normally wouldn't happen in nested context,
 		// since they should have already been expanded, and indeed we set
 		// expandTemplates === false in processTemplateSource.  However,
@@ -628,17 +630,7 @@ class TemplateHandler extends TokenHandler {
 		Assert::invariant(
 			$this->wrapTemplates, 'Encapsulating tokens when not wrapping!'
 		);
-
-		$encap = new TemplateEncapsulator(
-			$this->env,
-			$this->manager->getFrame(),
-			$state['token'],
-			$state['wrapperType'],
-			$state['wrappedObjectId'],
-			$state['parserFunctionName'] ?? $state['variableName'] ?? null,
-			$state['resolvedTemplateTarget'] ?? null
-		);
-		return $encap->encapTokens( $tokens );
+		return $state->encapTokens( $tokens );
 	}
 
 	/**
@@ -812,14 +804,15 @@ class TemplateHandler extends TokenHandler {
 	 *                             (See Util::magicMasqs())
 	 * ```
 	 * @param bool $atTopLevel
-	 * @param Token $tplToken
+	 * @param TemplateEncapsulator $state
 	 * @param array $resolvedTgt
 	 * @return array
 	 */
 	public function processSpecialMagicWord(
-		bool $atTopLevel, Token $tplToken, array $resolvedTgt
+		bool $atTopLevel, TemplateEncapsulator $state, array $resolvedTgt
 	): array {
 		$env = $this->env;
+		$tplToken = $state->token;
 
 		// Special case for {{!}} magic word.
 		//
@@ -837,11 +830,6 @@ class TemplateHandler extends TokenHandler {
 			if ( empty( $atTopLevel ) ) {
 				return [ 'toks' => [ new TagTk( 'td' ) ] ];
 			}
-			$state = [
-				'token' => $tplToken,
-				'wrapperType' => 'mw:Transclusion',
-				'wrappedObjectId' => $env->newObjectId()
-			];
 			$this->resolveTemplateTarget( $state, '!', $tplToken->attribs[0]->srcOffsets->key );
 			return [ 'toks' => [ '|' ], 'encap' => $this->wrapTemplates ];
 		}
@@ -936,12 +924,12 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param Token $token
-	 * @param array &$state
+	 * @param TemplateEncapsulator $state
 	 * @return array of expanded tokens
 	 */
-	private function expandTemplate( Token $token, array &$state ): array {
+	private function expandTemplate( TemplateEncapsulator $state ): array {
 		$env = $this->env;
+		$token = $state->token;
 		$expandTemplates = $this->options['expandTemplates'];
 
 		// Since AttributeExpander runs later in the pipeline than TemplateHandler,
@@ -989,7 +977,7 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		if ( isset( $tgt['magicWordType'] ) ) {
-			$res = $this->processSpecialMagicWord( $this->atTopLevel, $token, $tgt );
+			$res = $this->processSpecialMagicWord( $this->atTopLevel, $state, $tgt );
 			Assert::invariant( $res['toks'] !== null, "Expected non-null tokens array." );
 			return $res;
 		}
@@ -1102,12 +1090,10 @@ class TemplateHandler extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onTemplate( Token $token ): TokenHandlerResult {
-		$state = [
-			'token' => $token,
-			'wrapperType' => 'mw:Transclusion',
-			'wrappedObjectId' => $this->env->newObjectId(),
-		];
-		$res = $this->expandTemplate( $token, $state );
+		$state = new TemplateEncapsulator(
+			$this->env, $this->manager->getFrame(), $token, 'mw:Transclusion'
+		);
+		$res = $this->expandTemplate( $state );
 		$toks = $res['toks'];
 		if ( !empty( $res['encap'] ) ) {
 			$toks = $this->encapTokens( $state, $toks );
@@ -1133,11 +1119,9 @@ class TemplateHandler extends TokenHandler {
 			// This is a bare use of template arg syntax at the top level
 			// outside any template use context.  Wrap this use with RDF attrs.
 			// so that this chunk can be RT-ed en-masse.
-			$state = [
-				'token' => $token,
-				'wrapperType' => 'mw:Param',
-				'wrappedObjectId' => $this->env->newObjectId()
-			];
+			$state = new TemplateEncapsulator(
+				$this->env, $this->manager->getFrame(), $token, 'mw:Param'
+			);
 			$toks = $this->encapTokens( $state, $toks );
 		}
 
