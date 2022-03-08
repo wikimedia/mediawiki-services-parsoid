@@ -830,13 +830,11 @@ class TemplateHandler extends TokenHandler {
 			// single | in an ambiguous context which will again be tokenized as td.
 			// In any case, this should only be relevant for parserTests.
 			if ( empty( $atTopLevel ) ) {
-				return new TemplateExpansionResult( [ new TagTk( 'td' ) ] );
+				$toks = [ new TagTk( 'td' ) ];
+			} else {
+				$toks = [ '|' ];
 			}
-			// FIXME: Why is it necessary to resolve the target again here?
-			$this->resolveTemplateTarget( $state, '!', $tplToken->attribs[0]->srcOffsets->key );
-			return new TemplateExpansionResult(
-				[ '|' ], false, (bool)$this->wrapTemplates
-			);
+			return new TemplateExpansionResult( $toks, false, (bool)$this->wrapTemplates );
 		}
 
 		Assert::invariant(
