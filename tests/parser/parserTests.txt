@@ -29073,13 +29073,17 @@ parsoid={
 !! end
 
 !! test
-Escape nowiki DOM elements
+Escape DOM elements
 !! options
 parsoid=html2wt
 !! html/parsoid
 <nowiki><i>foo</i></nowiki>
+<noinclude><i>foo</i></noinclude>
+<includeonly><i>foo</i></includeonly>
 !! wikitext
 &lt;nowiki&gt;''foo''&lt;/nowiki&gt;
+&lt;noinclude&gt;''foo''&lt;/noinclude&gt;
+&lt;includeonly&gt;''foo''&lt;/includeonly&gt;
 !! end
 
 !! test

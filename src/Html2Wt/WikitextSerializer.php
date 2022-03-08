@@ -288,6 +288,28 @@ class WikitextSerializer {
 	}
 
 	/**
+	 * Check if token needs escaping
+	 *
+	 * @param string $name
+	 * @return bool
+	 */
+	public function tagNeedsEscaping( string $name ): bool {
+		return WTUtils::isAnnOrExtTag( $this->env, $name );
+	}
+
+	/**
+	 * @param string $tokenName
+	 * @param string $inner
+	 * @return string
+	 */
+	public function wrapAngleBracket( $tokenName, $inner ) {
+		if ( $this->tagNeedsEscaping( $tokenName ) ) {
+			return "&lt;{$inner}&gt;";
+		}
+		return "<$inner>";
+	}
+
+	/**
 	 * @param Element $node
 	 * @param bool $wrapperUnmodified
 	 * @return string
@@ -330,13 +352,8 @@ class WikitextSerializer {
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
 		$tokenName = $da->srcTagName ?? $token->getName();
-		$ret = "<{$tokenName}{$sAttribs}{$close}>";
-
-		if ( strtolower( $tokenName ) === 'nowiki' ) {
-			$ret = WTUtils::escapeNowikiTags( $ret );
-		}
-
-		return $ret;
+		$inner = "{$tokenName}{$sAttribs}{$close}";
+		return $this->wrapAngleBracket( $tokenName, $inner );
 	}
 
 	/**
@@ -363,11 +380,7 @@ class WikitextSerializer {
 			&& !Utils::isVoidElement( $token->getName() )
 			&& empty( $token->dataAttribs->selfClose )
 		) {
-			$ret = "</{$tokenName}>";
-		}
-
-		if ( strtolower( $tokenName ) === 'nowiki' ) {
-			$ret = WTUtils::escapeNowikiTags( $ret );
+			$ret = $this->wrapAngleBracket( $tokenName, "/{$tokenName}" );
 		}
 
 		return $ret;

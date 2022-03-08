@@ -163,23 +163,6 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 			|| isset( Consts::$HTML['OlderHTMLTags'][$lName] );
 	}
 
-	private function isAnnOrExtTag( string $name ): bool {
-		$tagName = mb_strtolower( $name );
-		$isInstalledExt = isset( $this->extTags[$tagName] );
-		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
-		$isAnnotationTag = $this->siteConfig->isAnnotationTag( $tagName );
-
-		if ( !$isAnnotationTag ) {
-			// avoid crashing on <tvar|name> even if we don't support that syntax explicitly
-			$pipepos = strpos( $tagName, '|' );
-			if ( $pipepos ) {
-				$strBeforePipe = substr( $tagName, 0, $pipepos );
-				$isAnnotationTag = $this->siteConfig->isAnnotationTag( $strBeforePipe );
-			}
-		}
-		return $isInstalledExt || $isIncludeTag || $isAnnotationTag;
-	}
-
 	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
 		$tagName = mb_strtolower( $t->getName() );
 
@@ -227,7 +210,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 		}
 
 		$isInstalledExt = isset( $this->extTags[$tagName] );
-		$isIncludeTag = TokenizerUtils::isIncludeTag( $tagName );
+		$isIncludeTag = WTUtils::isIncludeTag( $tagName );
 
 		// Extensions have higher precedence when they shadow html tags.
 		if ( !( $isInstalledExt || $isIncludeTag ) ) {
@@ -1003,7 +986,7 @@ private function a81($il, $sol_il) {
 
 		$il = $il[0];
 		$lname = mb_strtolower( $il->getName() );
-		if ( !TokenizerUtils::isIncludeTag( $lname ) ) { return false;  }
+		if ( !WTUtils::isIncludeTag( $lname ) ) { return false;  }
 		// Preserve SOL where necessary (for onlyinclude and noinclude)
 		// Note that this only works because we encounter <*include*> tags in
 		// the toplevel content and we rely on the php preprocessor to expand
@@ -1127,7 +1110,7 @@ private function a92($tl) {
 private function a93($end, $name, $annOrExtTag, $isBlock) {
 
 		if ( $annOrExtTag ) {
-			return $this->isAnnOrExtTag( $name );
+			return WTUtils::isAnnOrExtTag( $this->env, $name );
 		} else {
 			// Only enforce ascii alpha first char for non-extension tags.
 			// See tag_name above for the details.

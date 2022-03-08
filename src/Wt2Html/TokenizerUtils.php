@@ -457,18 +457,10 @@ class TokenizerUtils {
 	}
 
 	/**
-	 * Is this an include directive?
-	 * @param string $name
-	 * @return bool
-	 */
-	public static function isIncludeTag( string $name ): bool {
-		return $name === 'includeonly' || $name === 'noinclude' || $name === 'onlyinclude';
-	}
-
-	/**
 	 * Resets $inclAnnRegExp to null to avoid test environment side effects
 	 */
 	public static function resetAnnotationIncludeRegex(): void {
 		self::$inclAnnRegExp = null;
 	}
+
 }
