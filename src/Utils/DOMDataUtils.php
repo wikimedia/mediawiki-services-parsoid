@@ -566,7 +566,6 @@ class DOMDataUtils {
 	 *   - keepTmp: Preserve DataParsoid::$tmp
 	 *   - storeInPageBundle: If true, data will be stored in the page bundle
 	 *     instead of data-parsoid and data-mw.
-	 *   - storeDiffMark: Serialize diffs into data-parsoid-diff
 	 *   - env: The Env object required for various features
 	 *   - idIndex: Array of used ID attributes
 	 */
@@ -607,14 +606,7 @@ class DOMDataUtils {
 				self::setJSONAttribute( $node, 'data-parsoid', $dp );
 			}
 		}
-		// We need to serialize diffs only under special circumstances.
-		// So, do it on demand.
-		if ( !empty( $options['storeDiffMark'] ) ) {
-			$dpDiff = self::getDataParsoidDiff( $node );
-			if ( $dpDiff ) {
-				self::setJSONAttribute( $node, 'data-parsoid-diff', $dpDiff );
-			}
-		}
+
 		// Strip invalid data-mw attributes
 		if ( self::validDataMw( $node ) ) {
 			if (

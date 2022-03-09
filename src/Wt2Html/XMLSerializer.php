@@ -70,17 +70,25 @@ class XMLSerializer {
 
 	/**
 	 * Modify the attribute array, replacing data-object-id with JSON
-	 * encoded data.
+	 * encoded data.  This is just a debugging hack, not to be confused with
+	 * DOMDataUtils::storeDataAttribs()
 	 *
 	 * @param Element $node
 	 * @param array &$attrs
 	 * @param bool $keepTmp
+	 * @param bool $storeDiffMark
 	 */
-	private static function dumpDataAttribs( Element $node, array &$attrs, bool $keepTmp ) {
+	private static function dumpDataAttribs(
+		Element $node, array &$attrs, bool $keepTmp, bool $storeDiffMark
+	) {
 		if ( !isset( $attrs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] ) ) {
 			return;
 		}
 		$nd = DOMDataUtils::getNodeData( $node );
+		$pd = $nd->parsoid_diff ?? null;
+		if ( $pd && $storeDiffMark ) {
+			$attrs['data-parsoid-diff'] = PHPUtils::jsonEncode( $pd );
+		}
 		$dp = $nd->parsoid;
 		if ( $dp ) {
 			if ( !$keepTmp ) {
@@ -120,7 +128,7 @@ class XMLSerializer {
 				$accum( '<' . $localName, $node );
 				$attrs = DOMUtils::attributes( $node );
 				if ( $saveData ) {
-					self::dumpDataAttribs( $node, $attrs, $options['keepTmp'] );
+					self::dumpDataAttribs( $node, $attrs, $options['keepTmp'], $options['storeDiffMark'] );
 				}
 				foreach ( $attrs as $an => $av ) {
 					if ( $smartQuote
@@ -303,7 +311,8 @@ class XMLSerializer {
 			'captureOffsets' => false,
 			'addDoctype' => true,
 			'saveData' => false,
-			'keepTmp' => false
+			'keepTmp' => false,
+			'storeDiffMark' => false,
 		];
 		if ( $node instanceof Document ) {
 			$node = $node->documentElement;
