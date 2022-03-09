@@ -24,7 +24,6 @@ $domDiff = new DOMDiff( $mockEnv );
 $domDiff->diff( $body1, $body2 );
 
 $opts = [
-	'env' => $mockEnv,
 	'keepTmp' => true,
 	'storeDiffMark' => true,
 	'quiet' => true

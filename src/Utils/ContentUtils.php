@@ -362,7 +362,7 @@ class ContentUtils {
 	public static function dumpDOM(
 		Node $rootNode, string $title = '', array $options = []
 	): string {
-		if ( !empty( $options['storeDiffMark'] ) || !empty( $options['dumpFragmentMap'] ) ) {
+		if ( !empty( $options['dumpFragmentMap'] ) ) {
 			Assert::invariant( isset( $options['env'] ), "env should be set" );
 		}
 

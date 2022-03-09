@@ -23,7 +23,7 @@ $body = DOMCompat::getBody( $doc );
 $norm = new DOMNormalizer( $mockState );
 $norm->normalize( $body );
 
-$opts = [ 'env' => $mockEnv,
+$opts = [
 	'keepTmp' => true,
 	'storeDiffMark' => true,
 ];

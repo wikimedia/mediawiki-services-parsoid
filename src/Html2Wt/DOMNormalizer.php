@@ -812,11 +812,9 @@ class DOMNormalizer {
 			if ( $insertedSubtree ) {
 				if ( $this->inInsertedContent ) {
 					// Dump debugging info
-					$options = [
-						'storeDiffMark' => true,
-						'env' => $this->state->getEnv(),
-					];
-					$dump = ContentUtils::dumpDOM( DOMCompat::getBody( $node->ownerDocument ),
+					$options = [ 'storeDiffMark' => true ];
+					$dump = ContentUtils::dumpDOM(
+						DOMCompat::getBody( $node->ownerDocument ),
 						'-- DOM triggering nested inserted dom-diff flags --',
 						$options
 					);

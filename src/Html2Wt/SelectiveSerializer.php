@@ -228,7 +228,7 @@ class SelectiveSerializer {
 			$r = $this->selserData->oldText;
 		} else {
 			if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
-				$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
+				$options = [ 'storeDiffMark' => true ];
 				$this->env->writeDump(
 					ContentUtils::dumpDOM( $oldBody, 'OLD DOM ', $options ) . "\n" .
 					ContentUtils::dumpDOM( $body, 'DOM after running DOMDiff', $options )

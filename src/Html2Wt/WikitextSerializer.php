@@ -1613,7 +1613,7 @@ class WikitextSerializer {
 		$domNormalizer->normalize( $node );
 
 		if ( $this->env->hasDumpFlag( 'dom:post-normal' ) ) {
-			$options = [ 'storeDiffMark' => true, 'env' => $this->env ];
+			$options = [ 'storeDiffMark' => true ];
 			$this->env->writeDump( ContentUtils::dumpDOM( $node, 'DOM: post-normal', $options ) );
 		}
 
