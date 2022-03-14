@@ -417,10 +417,13 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
+	 * By default, don't attempt to expand any templates in the wikitext that will be reprocessed.
+	 *
 	 * @param Token $token
+	 * @param bool $expandTemplates
 	 * @return TemplateExpansionResult
 	 */
-	private function convertToString( Token $token ): TemplateExpansionResult {
+	private function convertToString( Token $token, bool $expandTemplates = false ): TemplateExpansionResult {
 		$frame = $this->manager->getFrame();
 		$tsr = $token->dataAttribs->tsr;
 		$src = substr( $token->dataAttribs->src, 1, -1 );
@@ -431,8 +434,8 @@ class TemplateHandler extends TokenHandler {
 			$this->env, $frame, $src, [
 				'pipelineType' => 'text/x-mediawiki',
 				'pipelineOpts' => [
-					'expandTemplates' => $this->options['expandTemplates'],
 					'inTemplate' => $this->options['inTemplate'],
+					'expandTemplates' => $expandTemplates && $this->options['expandTemplates'],
 				],
 				'sol' => false,
 				'srcOffsets' => $srcOffsets,
@@ -975,7 +978,7 @@ class TemplateHandler extends TokenHandler {
 		if ( $expandTemplates && $tgt === null ) {
 			// Target contains tags, convert template braces and pipes back into text
 			// Re-join attribute tokens with '=' and '|'
-			return $this->convertToString( $token );
+			return $this->convertToString( $token, true );
 		}
 
 		if ( isset( $tgt['magicWordType'] ) ) {
@@ -1000,7 +1003,7 @@ class TemplateHandler extends TokenHandler {
 			if ( $resolvedTgt === null ) {
 				// Target contains tags, convert template braces and pipes back into text
 				// Re-join attribute tokens with '=' and '|'
-				return $this->convertToString( $token );
+				return $this->convertToString( $token, true );
 			} else {
 				return $this->expandTemplateNatively( $state, $resolvedTgt, $newAttribs );
 			}
