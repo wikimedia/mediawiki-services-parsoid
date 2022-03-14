@@ -37,9 +37,6 @@ use WikitextContent;
 
 class PageConfigFactory extends \Wikimedia\Parsoid\Config\PageConfigFactory {
 
-	public const PAGE_UNAVAILABLE = RevisionRecord::DELETED_TEXT | RevisionRecord::DELETED_USER |
-	RevisionRecord::DELETED_RESTRICTED;
-
 	/** @var RevisionStore */
 	private $revisionStore;
 
@@ -136,8 +133,13 @@ class PageConfigFactory extends \Wikimedia\Parsoid\Config\PageConfigFactory {
 		}
 
 		// If we have a revision record, check that we are allowed to see it.
-		if ( $revisionRecord != null
-			&& ( ( self::PAGE_UNAVAILABLE & $revisionRecord->getVisibility() ) != 0 ) ) {
+		// Mirrors the check from RevisionRecord::getContent
+		if (
+			$revisionRecord !== null &&
+			!$revisionRecord->audienceCan(
+				RevisionRecord::DELETED_TEXT, RevisionRecord::FOR_PUBLIC
+			)
+		) {
 			throw new RevisionAccessException( 'Not an available content version.' );
 		}
 
