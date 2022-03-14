@@ -510,30 +510,11 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_PRE:
-				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
-					$ret = $this->purgeBuffers( $token );
-					$this->moveToIgnoreState();
-				} else {
-					$this->currLinePreToks[] = $token;
-					if ( !TokenUtils::isSolTransparent( $this->env, $token ) ) {
-						$this->state = self::STATE_PRE_COLLECT;
-					}
-				}
-				break;
-
 			case self::STATE_PRE_COLLECT:
-				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
-					$ret = $this->discardCurrLinePre( $token );
-					$this->moveToIgnoreState();
-				} else {
-					// nothing to do .. keep collecting!
-					$this->currLinePreToks[] = $token;
-				}
-				break;
-
 			case self::STATE_MULTILINE_PRE:
 				if ( !is_string( $token ) && TokenUtils::isWikitextBlockTag( $token->getName() ) ) {
-					$ret = $this->discardCurrLinePre( $token );
+					$ret = $this->state === self::STATE_PRE ?
+						$this->purgeBuffers( $token ) : $this->discardCurrLinePre( $token );
 					$this->moveToIgnoreState();
 				} else {
 					$this->currLinePreToks[] = $token;
