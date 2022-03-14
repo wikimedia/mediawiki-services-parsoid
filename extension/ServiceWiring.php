@@ -25,6 +25,7 @@ use MWParsoid\Config\SiteConfig as MWSiteConfig;
 use Wikimedia\Parsoid\Config\Api\DataAccess as ApiDataAccess;
 use Wikimedia\Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
 use Wikimedia\Parsoid\Config\DataAccess;
+use Wikimedia\Parsoid\Config\PageConfigFactory;
 use Wikimedia\Parsoid\Config\SiteConfig;
 
 // Compatibility: we're going to move this code to core eventually; this
@@ -63,7 +64,7 @@ return [
 		);
 	},
 
-	'ParsoidPageConfigFactory' => static function ( MediaWikiServices $services ): MWPageConfigFactory {
+	'ParsoidPageConfigFactory' => static function ( MediaWikiServices $services ): PageConfigFactory {
 		return new MWPageConfigFactory( $services->getRevisionStore(),
 			$services->getSlotRoleRegistry() );
 	},

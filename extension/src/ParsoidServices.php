@@ -21,8 +21,8 @@ declare( strict_types = 1 );
 namespace MWParsoid;
 
 use MediaWiki\MediaWikiServices;
-use MWParsoid\Config\PageConfigFactory;
 use Wikimedia\Parsoid\Config\DataAccess;
+use Wikimedia\Parsoid\Config\PageConfigFactory;
 use Wikimedia\Parsoid\Config\SiteConfig;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic

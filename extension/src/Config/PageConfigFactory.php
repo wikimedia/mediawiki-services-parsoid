@@ -35,7 +35,7 @@ use Wikimedia\Parsoid\Config\Api\PageConfig as ApiPageConfig;
 use Wikimedia\Parsoid\Config\PageConfig;
 use WikitextContent;
 
-class PageConfigFactory {
+class PageConfigFactory extends \Wikimedia\Parsoid\Config\PageConfigFactory {
 
 	public const PAGE_UNAVAILABLE = RevisionRecord::DELETED_TEXT | RevisionRecord::DELETED_USER |
 	RevisionRecord::DELETED_RESTRICTED;
