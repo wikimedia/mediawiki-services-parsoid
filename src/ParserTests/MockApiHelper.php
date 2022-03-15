@@ -398,6 +398,8 @@ class MockApiHelper extends ApiHelper {
 		"Датотека:Foobar.jpg" => 'Foobar.jpg',
 		'Image:Foobar.svg' => 'Foobar.svg',
 		'File:Foobar.svg' => 'Foobar.svg',
+		'Файл:Foobar.svg' => 'Foobar.svg',
+		'Datei:Foobar.svg' => 'Foobar.svg',
 		'Image:Thumb.png' => 'Thumb.png',
 		'File:Thumb.png' => 'Thumb.png',
 		'File:LoremIpsum.djvu' => 'LoremIpsum.djvu',
@@ -409,6 +411,17 @@ class MockApiHelper extends ApiHelper {
 		'Image:Foobar.jpg' => 'File:Foobar.jpg',
 		'Image:Foobar.svg' => 'File:Foobar.svg',
 		'Image:Thumb.png' => 'File:Thumb.png'
+	];
+
+	// FIXME: Get this info from pagelanguage of a revision for these pages
+	private const PAGELANGS = [
+		'Rupage' => 'ru',
+		'Depage' => 'de',
+	];
+
+	// File is present in these langs
+	private const FILELANGS = [
+		'Foobar.svg' => [ 'en', 'ru' ],
 	];
 
 	// This templatedata description only provides a subset of fields
@@ -529,10 +542,12 @@ class MockApiHelper extends ApiHelper {
 	 * @param ?int $twidth
 	 * @param ?int $theight
 	 * @param ?string $extraParam optional iiurlparam, used for video/pdf/etc
+	 * @param ?string $contexttitle optional iibadfilecontexttitle
 	 * @return ?array
 	 */
 	private function imageInfo(
-		string $filename, ?int $twidth, ?int $theight, ?string $extraParam
+		string $filename, ?int $twidth, ?int $theight, ?string $extraParam,
+		?string $contexttitle
 	): ?array {
 		$normPageName = self::PNAMES[$filename] ?? $filename;
 		$normFileName = self::FNAMES[$filename] ?? $filename;
@@ -574,6 +589,25 @@ class MockApiHelper extends ApiHelper {
 			$theight = $height;
 		}
 
+		preg_match( '/^lang([a-z]+(?:-[a-z]+)*)-(\d+)px$/i', $extraParam ?? '', $matches );
+		$lang = $matches[1] ?? null;
+		$pagelang = self::PAGELANGS[$contexttitle] ?? 'en';
+		$filelangs = self::FILELANGS[$normFileName] ?? [ 'en' ];
+
+		// Set $lang based on the targetlang, if the file is present in that lang
+		if (
+			$lang === null &&
+			$mediatype === 'DRAWING' &&
+			$pagelang !== 'en' &&
+			in_array( $pagelang, $filelangs, true )
+		) {
+			$lang = $pagelang;
+			if ( $twidth === null ) {
+				$twidth = $width;
+			}
+			$extraParam = "lang{$lang}-{$twidth}px";
+		}
+
 		if ( $theight || $twidth ) {
 			if ( $theight === null ) {
 				// File::scaleHeight in PHP
@@ -606,7 +640,6 @@ class MockApiHelper extends ApiHelper {
 			}
 			$thumbBaseUrl = $turl;
 			$page = null;
-			$lang = null;
 			if ( $urlWidth !== $width || $mediatype === 'AUDIO' || $mediatype === 'VIDEO' || $mediatype === 'OFFICE' || $mediatype === 'DRAWING' ) {
 				$turl .= '/';
 				if ( preg_match( '/^page(\d+)-(\d+)px$/', $extraParam ?? '', $matches ) ) {
@@ -615,9 +648,14 @@ class MockApiHelper extends ApiHelper {
 				} elseif ( $mediatype === 'OFFICE' ) {
 					$turl .= 'page1-' . $urlWidth . 'px';
 					$page = 1;
-				} elseif ( preg_match( '/^lang([a-z]+(?:-[a-z]+)*)-(\d+)px$/i', $extraParam ?? '', $matches ) ) {
-					$turl .= $extraParam;
-					$lang = $matches[1];
+				} elseif ( $lang !== null ) {
+					// Explicit English just gets the default path
+					if ( $lang === 'en' ) {
+						$turl .= $urlWidth . 'px';
+						$lang = null;
+					} else {
+						$turl .= $extraParam;
+					}
 				} else {
 					$turl .= $urlWidth . 'px';
 				}
@@ -790,7 +828,8 @@ class MockApiHelper extends ApiHelper {
 				$filename,
 				isset( $params['iiurlwidth'] ) ? $tonum( $params['iiurlwidth'] ) : null,
 				isset( $params['iiurlheight'] ) ? $tonum( $params['iiurlheight'] ) : null,
-				$params['iiurlparam'] ?? null
+				$params['iiurlparam'] ?? null,
+				$params['iibadfilecontexttitle'] ?? null
 			);
 			if ( $ii === null ) {
 				$p = [

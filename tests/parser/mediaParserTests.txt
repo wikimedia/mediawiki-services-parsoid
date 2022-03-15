@@ -1539,32 +1539,36 @@ wgParserEnableLegacyMediaDOM=false
 <figure class="mw-default-size" typeof="mw:Image/Thumb" data-parsoid='{"optList":[{"ck":"thumbnail","ak":"thumb"},{"ck":"caption","ak":"caption"},{"ck":"bogus","ak":"lang=invalid:language:code"}]}' data-mw='{"attribs":[["bogus",{"txt":"invalid:language:code"}]]}'><a href="./File:Foobar.svg" class="mw-file-description"><img resource="./File:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/180px-Foobar.svg.png" decoding="async" data-file-width="240" data-file-height="180" data-file-type="drawing" height="135" width="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/270px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 2x"/></a><figcaption>caption</figcaption></figure>
 !! end
 
-## FIXME: Parsoid can support this in integrated mode
 !! test
 SVG thumbnails in page language
 !! options
+title=Rupage
 language=ru
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
-[[File:Foobar.svg]] [[File:Foobar.svg|lang=en]]
+[[Файл:Foobar.svg]] [[Файл:Foobar.svg|lang=en]]
 !! html/php
 <p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/%D0%A4%D0%B0%D0%B9%D0%BB:Foobar.svg" class="mw-file-description"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/langru-240px-Foobar.svg.png" decoding="async" width="240" height="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langru-360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langru-480px-Foobar.svg.png 2x" /></a></span> <span class="mw-default-size" typeof="mw:Image"><a href="/index.php?title=%D0%A4%D0%B0%D0%B9%D0%BB:Foobar.svg&amp;lang=en" class="mw-file-description"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" decoding="async" width="240" height="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/480px-Foobar.svg.png 2x" /></a></span>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./Файл:Foobar.svg" class="mw-file-description"><img resource="./Файл:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/langru-240px-Foobar.svg.png" decoding="async" data-file-width="240" data-file-height="180" data-file-type="drawing" height="180" width="240" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langru-360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langru-480px-Foobar.svg.png 2x"/></a></span> <span class="mw-default-size" typeof="mw:Image"><a href="./Файл:Foobar.svg?lang=en" class="mw-file-description"><img resource="./Файл:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" decoding="async" lang="en" data-file-width="240" data-file-height="180" data-file-type="drawing" height="180" width="240" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/480px-Foobar.svg.png 2x"/></a></span></p>
 !! end
 
-## FIXME: Parsoid can support this in integrated mode
 !! test
 SVG thumbnails in page language not present in the file
 !! options
+title=Depage
 language=de
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
-[[File:Foobar.svg]] [[File:Foobar.svg|lang=ru]]
+[[Datei:Foobar.svg]] [[Datei:Foobar.svg|sprache=ru]]
 !! html/php
 <p><span class="mw-default-size" typeof="mw:Image"><a href="/wiki/Datei:Foobar.svg" class="mw-file-description"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/240px-Foobar.svg.png" decoding="async" width="240" height="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/480px-Foobar.svg.png 2x" /></a></span> <span class="mw-default-size" typeof="mw:Image"><a href="/index.php?title=Datei:Foobar.svg&amp;lang=ru" class="mw-file-description"><img alt="Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/langru-240px-Foobar.svg.png" decoding="async" width="240" height="180" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langru-360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langru-480px-Foobar.svg.png 2x" /></a></span>
 </p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image"><a href="./Datei:Foobar.svg" class="mw-file-description"><img resource="./Datei:Foobar.svg" src="http://example.com/images/f/ff/Foobar.svg" decoding="async" data-file-width="240" data-file-height="180" data-file-type="drawing" height="180" width="240"/></a></span> <span class="mw-default-size" typeof="mw:Image"><a href="./Datei:Foobar.svg?lang=ru" class="mw-file-description"><img resource="./Datei:Foobar.svg" src="http://example.com/images/thumb/f/ff/Foobar.svg/langru-240px-Foobar.svg.png" decoding="async" lang="ru" data-file-width="240" data-file-height="180" data-file-type="drawing" height="180" width="240" srcset="http://example.com/images/thumb/f/ff/Foobar.svg/langru-360px-Foobar.svg.png 1.5x, http://example.com/images/thumb/f/ff/Foobar.svg/langru-480px-Foobar.svg.png 2x"/></a></span></p>
 !! end
 
 !! test
