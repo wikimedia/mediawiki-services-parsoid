@@ -584,7 +584,7 @@ class MockApiHelper extends ApiHelper {
 			$info['pagecount'] = $props['pagecount'];
 		}
 
-		if ( $mediatype === 'VIDEO' && !$twidth && !$theight ) {
+		if ( ( $mediatype === 'VIDEO' || $mediatype === 'DRAWING' ) && !$twidth && !$theight ) {
 			$twidth = $width;
 			$theight = $height;
 		}
@@ -602,9 +602,6 @@ class MockApiHelper extends ApiHelper {
 			in_array( $pagelang, $filelangs, true )
 		) {
 			$lang = $pagelang;
-			if ( $twidth === null ) {
-				$twidth = $width;
-			}
 			$extraParam = "lang{$lang}-{$twidth}px";
 		}
 
