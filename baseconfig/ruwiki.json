@@ -1,21 +1,21 @@
 {
     "query": {
         "general": {
-            "mainpage": "Wikipedia:Hauptseite",
-            "base": "https://de.wikipedia.org/wiki/Wikipedia:Hauptseite",
-            "sitename": "Wikipedia",
-            "logo": "//de.wikipedia.org/static/images/project-logos/dewiki.png",
+            "mainpage": "Заглавная страница",
+            "base": "https://ru.wikipedia.org/wiki/%D0%97%D0%B0%D0%B3%D0%BB%D0%B0%D0%B2%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D1%80%D0%B0%D0%BD%D0%B8%D1%86%D0%B0",
+            "sitename": "Википедия",
+            "logo": "//ru.wikipedia.org/static/images/project-logos/ruwiki.png",
             "generator": "MediaWiki 1.38.0-wmf.25",
             "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.4.24-MariaDB-log",
+            "dbversion": "10.4.22-MariaDB-log",
             "langconversion": "",
             "linkconversion": "",
             "titleconversion": "",
             "linkprefixcharset": "",
             "linkprefix": "",
-            "linktrail": "/^([äöüßa-z]+)(.*)$/sDu",
+            "linktrail": "/^([a-zабвгдеёжзийклмнопрстуфхцчшщъыьэюя]+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
             "invalidusernamechars": "@:",
             "fixarabicunicode": "",
@@ -23,25 +23,25 @@
             "git-hash": "2b818a673c023b166b17bbf49216a03460a0751a",
             "git-branch": "wmf/1.38.0-wmf.25",
             "case": "first-letter",
-            "lang": "de",
+            "lang": "ru",
             "fallback": [
                 {
                     "code": "en"
                 }
             ],
-            "fallback8bitEncoding": "windows-1252",
+            "fallback8bitEncoding": "windows-1251",
             "writeapi": "",
             "maxarticlesize": 2097152,
-            "timezone": "Europe/Berlin",
-            "timeoffset": 60,
+            "timezone": "UTC",
+            "timeoffset": 0,
             "articlepath": "/wiki/$1",
             "scriptpath": "/w",
             "script": "/w/index.php",
             "variantarticlepath": false,
-            "server": "//de.wikipedia.org",
-            "servername": "de.wikipedia.org",
-            "wikiid": "dewiki",
-            "time": "2022-03-15T18:31:36Z",
+            "server": "//ru.wikipedia.org",
+            "servername": "ru.wikipedia.org",
+            "wikiid": "ruwiki",
+            "time": "2022-03-15T18:31:43Z",
             "misermode": "",
             "uploadsenabled": "",
             "maxuploadsize": 4294967296,
@@ -91,7 +91,7 @@
                     "height": 2048
                 }
             ],
-            "favicon": "https://de.wikipedia.org/static/favicon/wikipedia.ico",
+            "favicon": "https://ru.wikipedia.org/static/favicon/wikipedia.ico",
             "centralidlookupprovider": "CentralAuth",
             "allcentralidlookupproviders": [
                 "CentralAuth",
@@ -103,7 +103,7 @@
                 "PMID": "",
                 "RFC": ""
             },
-            "categorycollation": "uppercase",
+            "categorycollation": "uca-ru-u-kn",
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
                 "wmfEtcdLastModifiedIndex": 457619,
@@ -136,7 +136,7 @@
                     "stripped-tag"
                 ]
             },
-            "mobileserver": "https://de.m.wikipedia.org",
+            "mobileserver": "https://ru.m.wikipedia.org",
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": ""
@@ -190,13 +190,13 @@
                 "id": -2,
                 "case": "first-letter",
                 "canonical": "Media",
-                "*": "Medium"
+                "*": "Медиа"
             },
             "-1": {
                 "id": -1,
                 "case": "first-letter",
                 "canonical": "Special",
-                "*": "Spezial"
+                "*": "Служебная"
             },
             "0": {
                 "id": 0,
@@ -209,52 +209,53 @@
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Talk",
-                "*": "Diskussion"
+                "*": "Обсуждение"
             },
             "2": {
                 "id": 2,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "User",
-                "*": "Benutzer"
+                "*": "Участник"
             },
             "3": {
                 "id": 3,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "User talk",
-                "*": "Benutzer Diskussion"
+                "*": "Обсуждение участника"
             },
             "4": {
                 "id": 4,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Project",
-                "*": "Wikipedia"
+                "*": "Википедия"
             },
             "5": {
                 "id": 5,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Project talk",
-                "*": "Wikipedia Diskussion"
+                "*": "Обсуждение Википедии"
             },
             "6": {
                 "id": 6,
                 "case": "first-letter",
                 "canonical": "File",
-                "*": "Datei"
+                "*": "Файл"
             },
             "7": {
                 "id": 7,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "File talk",
-                "*": "Datei Diskussion"
+                "*": "Обсуждение файла"
             },
             "8": {
                 "id": 8,
                 "case": "first-letter",
+                "subpages": "",
                 "canonical": "MediaWiki",
                 "namespaceprotection": "editinterface",
                 "*": "MediaWiki"
@@ -264,90 +265,132 @@
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "MediaWiki talk",
-                "*": "MediaWiki Diskussion"
+                "*": "Обсуждение MediaWiki"
             },
             "10": {
                 "id": 10,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Template",
-                "*": "Vorlage"
+                "*": "Шаблон"
             },
             "11": {
                 "id": 11,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Template talk",
-                "*": "Vorlage Diskussion"
+                "*": "Обсуждение шаблона"
             },
             "12": {
                 "id": 12,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Help",
-                "*": "Hilfe"
+                "*": "Справка"
             },
             "13": {
                 "id": 13,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Help talk",
-                "*": "Hilfe Diskussion"
+                "*": "Обсуждение справки"
             },
             "14": {
                 "id": 14,
                 "case": "first-letter",
-                "subpages": "",
                 "canonical": "Category",
-                "*": "Kategorie"
+                "*": "Категория"
             },
             "15": {
                 "id": 15,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Category talk",
-                "*": "Kategorie Diskussion"
+                "*": "Обсуждение категории"
             },
             "100": {
                 "id": 100,
                 "case": "first-letter",
                 "subpages": "",
-                "canonical": "Portal",
-                "*": "Portal"
+                "canonical": "Портал",
+                "*": "Портал"
             },
             "101": {
                 "id": 101,
                 "case": "first-letter",
                 "subpages": "",
-                "canonical": "Portal Diskussion",
-                "*": "Portal Diskussion"
+                "canonical": "Обсуждение портала",
+                "*": "Обсуждение портала"
+            },
+            "102": {
+                "id": 102,
+                "case": "first-letter",
+                "subpages": "",
+                "canonical": "Инкубатор",
+                "*": "Инкубатор"
+            },
+            "103": {
+                "id": 103,
+                "case": "first-letter",
+                "subpages": "",
+                "canonical": "Обсуждение Инкубатора",
+                "*": "Обсуждение Инкубатора"
+            },
+            "104": {
+                "id": 104,
+                "case": "first-letter",
+                "subpages": "",
+                "canonical": "Проект",
+                "*": "Проект"
+            },
+            "105": {
+                "id": 105,
+                "case": "first-letter",
+                "subpages": "",
+                "canonical": "Обсуждение проекта",
+                "*": "Обсуждение проекта"
+            },
+            "106": {
+                "id": 106,
+                "case": "first-letter",
+                "subpages": "",
+                "canonical": "Арбитраж",
+                "namespaceprotection": "autoconfirmed",
+                "*": "Арбитраж"
+            },
+            "107": {
+                "id": 107,
+                "case": "first-letter",
+                "subpages": "",
+                "canonical": "Обсуждение арбитража",
+                "*": "Обсуждение арбитража"
             },
             "828": {
                 "id": 828,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Module",
-                "*": "Modul"
+                "*": "Модуль"
             },
             "829": {
                 "id": 829,
                 "case": "first-letter",
                 "subpages": "",
                 "canonical": "Module talk",
-                "*": "Modul Diskussion"
+                "*": "Обсуждение модуля"
             },
             "2300": {
                 "id": 2300,
                 "case": "first-letter",
                 "canonical": "Gadget",
                 "namespaceprotection": "gadgets-edit",
-                "*": "Gadget"
+                "*": "Гаджет"
             },
             "2301": {
                 "id": 2301,
                 "case": "first-letter",
                 "canonical": "Gadget talk",
-                "*": "Gadget Diskussion"
+                "*": "Обсуждение гаджета"
             },
             "2302": {
                 "id": 2302,
@@ -355,35 +398,51 @@
                 "canonical": "Gadget definition",
                 "namespaceprotection": "gadgets-definition-edit",
                 "defaultcontentmodel": "GadgetDefinition",
-                "*": "Gadget-Definition"
+                "*": "Определение гаджета"
             },
             "2303": {
                 "id": 2303,
                 "case": "case-sensitive",
                 "canonical": "Gadget definition talk",
-                "*": "Gadget-Definition Diskussion"
+                "*": "Обсуждение определения гаджета"
             }
         },
         "namespacealiases": [
             {
                 "id": 2,
-                "*": "Benutzerin"
+                "*": "U"
+            },
+            {
+                "id": 2,
+                "*": "У"
+            },
+            {
+                "id": 2,
+                "*": "Участница"
             },
             {
                 "id": 3,
-                "*": "BD"
+                "*": "UT"
             },
             {
                 "id": 3,
-                "*": "Benutzerin Diskussion"
+                "*": "ОУ"
+            },
+            {
+                "id": 3,
+                "*": "Обсуждение участницы"
             },
             {
                 "id": 4,
                 "*": "WP"
             },
             {
-                "id": 5,
-                "*": "WD"
+                "id": 4,
+                "*": "Wikipedia"
+            },
+            {
+                "id": 4,
+                "*": "ВП"
             },
             {
                 "id": 5,
@@ -391,173 +450,212 @@
             },
             {
                 "id": 6,
-                "*": "Bild"
-            },
-            {
-                "id": 6,
                 "*": "Image"
             },
             {
-                "id": 7,
-                "*": "Bild Diskussion"
+                "id": 6,
+                "*": "Изображение"
             },
             {
                 "id": 7,
                 "*": "Image talk"
             },
             {
-                "id": 12,
-                "*": "H"
+                "id": 7,
+                "*": "Обсуждение изображения"
             },
             {
-                "id": 13,
-                "*": "HD"
+                "id": 10,
+                "*": "T"
             },
             {
-                "id": 100,
-                "*": "P"
+                "id": 10,
+                "*": "Ш"
             },
             {
-                "id": 101,
-                "*": "PD"
+                "id": 14,
+                "*": "К"
+            },
+            {
+                "id": 102,
+                "*": "И"
+            },
+            {
+                "id": 104,
+                "*": "ПРО"
+            },
+            {
+                "id": 105,
+                "*": "ОПРО"
+            },
+            {
+                "id": 106,
+                "*": "Arbcom"
+            },
+            {
+                "id": 106,
+                "*": "АК"
             }
         ],
         "magicwords": [
             {
+                "name": "if",
+                "aliases": [
+                    "если",
+                    "if"
+                ]
+            },
+            {
+                "name": "iferror",
+                "aliases": [
+                    "еслиошибка",
+                    "iferror"
+                ]
+            },
+            {
                 "name": "switch",
                 "aliases": [
-                    "wechsle",
+                    "переключатель",
                     "switch"
                 ]
             },
             {
                 "name": "default",
                 "aliases": [
-                    "#standard",
+                    "#умолчание",
                     "#default"
                 ]
             },
             {
-                "name": "count",
+                "name": "time",
                 "aliases": [
-                    "zähle",
-                    "count"
+                    "время",
+                    "time"
+                ]
+            },
+            {
+                "name": "timel",
+                "aliases": [
+                    "мвремя",
+                    "timel"
                 ]
             },
             {
                 "name": "replace",
                 "aliases": [
-                    "ersetze",
+                    "замена",
                     "replace"
-                ]
-            },
-            {
-                "name": "urldecode",
-                "aliases": [
-                    "URLDEKODIERT:",
-                    "urldecode"
                 ]
             },
             {
                 "name": "categorytree",
                 "aliases": [
-                    "kategorienbaum",
-                    "kategoriebaum",
+                    "деревокатегорий",
                     "categorytree"
                 ]
             },
             {
-                "name": "lst",
+                "name": "timedmedia_noplayer",
                 "aliases": [
-                    "lst",
-                    "section",
-                    "Abschnitt"
+                    "нетпроигрывателя",
+                    "noplayer"
                 ]
             },
             {
-                "name": "lstx",
+                "name": "timedmedia_noicon",
                 "aliases": [
-                    "lstx",
-                    "section-x",
-                    "Abschnitt-x"
+                    "нетзначка",
+                    "noicon"
                 ]
             },
             {
-                "name": "target",
+                "name": "timedmedia_thumbtime",
                 "aliases": [
-                    "ziel",
-                    "target"
+                    "времямини=$1",
+                    "thumbtime=$1"
                 ]
             },
             {
-                "name": "disambiguation",
+                "name": "timedmedia_starttime",
                 "aliases": [
-                    "__DISAMBIG__"
-                ],
-                "case-sensitive": ""
+                    "начало=$1",
+                    "start=$1"
+                ]
+            },
+            {
+                "name": "timedmedia_endtime",
+                "aliases": [
+                    "окончание=$1",
+                    "end=$1"
+                ]
+            },
+            {
+                "name": "timedmedia_disablecontrols",
+                "aliases": [
+                    "выклкнопки=$1",
+                    "disablecontrols=$1"
+                ]
+            },
+            {
+                "name": "babel",
+                "aliases": [
+                    "вавилон",
+                    "babel"
+                ]
             },
             {
                 "name": "invoke",
                 "aliases": [
-                    "aufrufen",
+                    "вызвать",
                     "invoke"
-                ]
-            },
-            {
-                "name": "noexternallanglinks",
-                "aliases": [
-                    "keineexternensprachlinks",
-                    "keine_externen_sprachlinks",
-                    "noexternallanglinks"
                 ]
             },
             {
                 "name": "property",
                 "aliases": [
-                    "eigenschaft",
+                    "свойство",
                     "property"
                 ]
             },
             {
-                "name": "wbreponame",
+                "name": "mentor",
                 "aliases": [
-                    "wbrepositoriumsname",
-                    "wbreponame"
+                    "наставник",
+                    "mentor"
                 ]
             },
             {
                 "name": "useliquidthreads",
                 "aliases": [
-                    "themenverwenden",
+                    "ИспользоватьLiquidThreads",
                     "UseLiquidThreads"
                 ]
             },
             {
                 "name": "lqtpagelimit",
                 "aliases": [
-                    "lqtseitenbegrenzung",
+                    "ограничение_страниц_lqt",
                     "lqtpagelimit"
                 ]
             },
             {
                 "name": "anchorencode",
                 "aliases": [
-                    "ANKERENKODIERT:",
-                    "SPRUNGMARKEENKODIERT:",
+                    "КОДИРОВАТЬ_МЕТКУ",
                     "ANCHORENCODE"
                 ]
             },
             {
                 "name": "articlepath",
                 "aliases": [
-                    "ARTIKELPFAD",
+                    "ПУТЬ_К_СТАТЬЕ",
                     "ARTICLEPATH"
                 ]
             },
             {
                 "name": "basepagename",
                 "aliases": [
-                    "OBERSEITE",
+                    "ОСНОВА_НАЗВАНИЯ_СТРАНИЦЫ",
                     "BASEPAGENAME"
                 ],
                 "case-sensitive": ""
@@ -565,37 +663,15 @@
             {
                 "name": "basepagenamee",
                 "aliases": [
-                    "OBERSEITE_URL",
+                    "ОСНОВА_НАЗВАНИЯ_СТРАНИЦЫ_2",
                     "BASEPAGENAMEE"
-                ],
-                "case-sensitive": ""
-            },
-            {
-                "name": "canonicalurl",
-                "aliases": [
-                    "KANONISCHE_URL:",
-                    "CANONICALURL:"
-                ]
-            },
-            {
-                "name": "canonicalurle",
-                "aliases": [
-                    "KANONISCHE_URL_C:",
-                    "CANONICALURLE:"
-                ]
-            },
-            {
-                "name": "cascadingsources",
-                "aliases": [
-                    "KASKADENQUELLEN",
-                    "CASCADINGSOURCES"
                 ],
                 "case-sensitive": ""
             },
             {
                 "name": "contentlanguage",
                 "aliases": [
-                    "INHALTSSPRACHE",
+                    "ЯЗЫК_СОДЕРЖАНИЯ",
                     "CONTENTLANGUAGE",
                     "CONTENTLANG"
                 ],
@@ -604,8 +680,7 @@
             {
                 "name": "currentday",
                 "aliases": [
-                    "JETZIGER_KALENDERTAG",
-                    "JETZIGER_TAG",
+                    "ТЕКУЩИЙ_ДЕНЬ",
                     "CURRENTDAY"
                 ],
                 "case-sensitive": ""
@@ -613,8 +688,7 @@
             {
                 "name": "currentday2",
                 "aliases": [
-                    "JETZIGER_KALENDERTAG_2",
-                    "JETZIGER_TAG_2",
+                    "ТЕКУЩИЙ_ДЕНЬ_2",
                     "CURRENTDAY2"
                 ],
                 "case-sensitive": ""
@@ -622,7 +696,7 @@
             {
                 "name": "currentdayname",
                 "aliases": [
-                    "JETZIGER_WOCHENTAG",
+                    "НАЗВАНИЕ_ТЕКУЩЕГО_ДНЯ",
                     "CURRENTDAYNAME"
                 ],
                 "case-sensitive": ""
@@ -630,7 +704,7 @@
             {
                 "name": "currentdow",
                 "aliases": [
-                    "JETZIGER_WOCHENTAG_ZAHL",
+                    "ТЕКУЩИЙ_ДЕНЬ_НЕДЕЛИ",
                     "CURRENTDOW"
                 ],
                 "case-sensitive": ""
@@ -638,7 +712,7 @@
             {
                 "name": "currenthour",
                 "aliases": [
-                    "JETZIGE_STUNDE",
+                    "ТЕКУЩИЙ_ЧАС",
                     "CURRENTHOUR"
                 ],
                 "case-sensitive": ""
@@ -646,8 +720,8 @@
             {
                 "name": "currentmonth",
                 "aliases": [
-                    "JETZIGER_MONAT",
-                    "JETZIGER_MONAT_2",
+                    "ТЕКУЩИЙ_МЕСЯЦ",
+                    "ТЕКУЩИЙ_МЕСЯЦ_2",
                     "CURRENTMONTH",
                     "CURRENTMONTH2"
                 ],
@@ -656,7 +730,7 @@
             {
                 "name": "currentmonth1",
                 "aliases": [
-                    "JETZIGER_MONAT_1",
+                    "ТЕКУЩИЙ_МЕСЯЦ_1",
                     "CURRENTMONTH1"
                 ],
                 "case-sensitive": ""
@@ -664,7 +738,7 @@
             {
                 "name": "currentmonthabbrev",
                 "aliases": [
-                    "JETZIGER_MONATSNAME_KURZ",
+                    "НАЗВАНИЕ_ТЕКУЩЕГО_МЕСЯЦА_АБР",
                     "CURRENTMONTHABBREV"
                 ],
                 "case-sensitive": ""
@@ -672,7 +746,7 @@
             {
                 "name": "currentmonthname",
                 "aliases": [
-                    "JETZIGER_MONATSNAME",
+                    "НАЗВАНИЕ_ТЕКУЩЕГО_МЕСЯЦА",
                     "CURRENTMONTHNAME"
                 ],
                 "case-sensitive": ""
@@ -680,8 +754,7 @@
             {
                 "name": "currentmonthnamegen",
                 "aliases": [
-                    "JETZIGER_MONATSNAME_GENITIV",
-                    "JETZIGER_MONATSNAME_GEN",
+                    "НАЗВАНИЕ_ТЕКУЩЕГО_МЕСЯЦА_РОД",
                     "CURRENTMONTHNAMEGEN"
                 ],
                 "case-sensitive": ""
@@ -689,7 +762,7 @@
             {
                 "name": "currenttime",
                 "aliases": [
-                    "JETZIGE_UHRZEIT",
+                    "ТЕКУЩЕЕ_ВРЕМЯ",
                     "CURRENTTIME"
                 ],
                 "case-sensitive": ""
@@ -697,7 +770,7 @@
             {
                 "name": "currenttimestamp",
                 "aliases": [
-                    "JETZIGER_ZEITSTEMPEL",
+                    "ОТМЕТКА_ТЕКУЩЕГО_ВРЕМЕНИ",
                     "CURRENTTIMESTAMP"
                 ],
                 "case-sensitive": ""
@@ -705,7 +778,7 @@
             {
                 "name": "currentversion",
                 "aliases": [
-                    "JETZIGE_VERSION",
+                    "ТЕКУЩАЯ_ВЕРСИЯ",
                     "CURRENTVERSION"
                 ],
                 "case-sensitive": ""
@@ -713,8 +786,7 @@
             {
                 "name": "currentweek",
                 "aliases": [
-                    "JETZIGE_KALENDERWOCHE",
-                    "JETZIGE_WOCHE",
+                    "ТЕКУЩАЯ_НЕДЕЛЯ",
                     "CURRENTWEEK"
                 ],
                 "case-sensitive": ""
@@ -722,7 +794,7 @@
             {
                 "name": "currentyear",
                 "aliases": [
-                    "JETZIGES_JAHR",
+                    "ТЕКУЩИЙ_ГОД",
                     "CURRENTYEAR"
                 ],
                 "case-sensitive": ""
@@ -730,7 +802,8 @@
             {
                 "name": "defaultsort",
                 "aliases": [
-                    "SORTIERUNG:",
+                    "СОРТИРОВКА_ПО_УМОЛЧАНИЮ",
+                    "КЛЮЧ_СОРТИРОВКИ",
                     "DEFAULTSORT:",
                     "DEFAULTSORTKEY:",
                     "DEFAULTCATEGORYSORT:"
@@ -738,23 +811,9 @@
                 "case-sensitive": ""
             },
             {
-                "name": "defaultsort_noerror",
-                "aliases": [
-                    "keinfehler",
-                    "noerror"
-                ]
-            },
-            {
-                "name": "defaultsort_noreplace",
-                "aliases": [
-                    "keineersetzung",
-                    "noreplace"
-                ]
-            },
-            {
                 "name": "directionmark",
                 "aliases": [
-                    "TEXTAUSRICHTUNG",
+                    "НАПРАВЛЕНИЕ_ПИСЬМА",
                     "DIRECTIONMARK",
                     "DIRMARK"
                 ],
@@ -763,43 +822,30 @@
             {
                 "name": "displaytitle",
                 "aliases": [
-                    "SEITENTITEL",
+                    "ПОКАЗАТЬ_ЗАГОЛОВОК",
                     "DISPLAYTITLE"
                 ],
                 "case-sensitive": ""
             },
             {
-                "name": "displaytitle_noerror",
-                "aliases": [
-                    "keinfehler",
-                    "noerror"
-                ]
-            },
-            {
-                "name": "displaytitle_noreplace",
-                "aliases": [
-                    "keineersetzung",
-                    "noreplace"
-                ]
-            },
-            {
                 "name": "filepath",
                 "aliases": [
-                    "DATEIPFAD:",
+                    "ПУТЬ_К_ФАЙЛУ:",
                     "FILEPATH:"
                 ]
             },
             {
                 "name": "forcetoc",
                 "aliases": [
-                    "__INHALTSVERZEICHNIS_ERZWINGEN__",
+                    "__ОБЯЗАТЕЛЬНОЕ_ОГЛАВЛЕНИЕ__",
+                    "__ОБЯЗ_ОГЛ__",
                     "__FORCETOC__"
                 ]
             },
             {
                 "name": "formatdate",
                 "aliases": [
-                    "DATUMSFORMAT",
+                    "форматдаты",
                     "formatdate",
                     "dateformat"
                 ]
@@ -807,14 +853,14 @@
             {
                 "name": "formatnum",
                 "aliases": [
-                    "ZAHLENFORMAT",
+                    "ФОРМАТИРОВАТЬ_ЧИСЛО",
                     "FORMATNUM"
                 ]
             },
             {
                 "name": "fullpagename",
                 "aliases": [
-                    "VOLLER_SEITENNAME",
+                    "ПОЛНОЕ_НАЗВАНИЕ_СТРАНИЦЫ",
                     "FULLPAGENAME"
                 ],
                 "case-sensitive": ""
@@ -822,7 +868,7 @@
             {
                 "name": "fullpagenamee",
                 "aliases": [
-                    "VOLLER_SEITENNAME_URL",
+                    "ПОЛНОЕ_НАЗВАНИЕ_СТРАНИЦЫ_2",
                     "FULLPAGENAMEE"
                 ],
                 "case-sensitive": ""
@@ -830,36 +876,35 @@
             {
                 "name": "fullurl",
                 "aliases": [
-                    "VOLLSTÄNDIGE_URL:",
+                    "ПОЛНЫЙ_АДРЕС:",
                     "FULLURL:"
                 ]
             },
             {
                 "name": "fullurle",
                 "aliases": [
-                    "VOLLSTÄNDIGE_URL_C:",
+                    "ПОЛНЫЙ_АДРЕС_2:",
                     "FULLURLE:"
                 ]
             },
             {
                 "name": "gender",
                 "aliases": [
-                    "GESCHLECHT:",
+                    "ПОЛ:",
                     "GENDER:"
                 ]
             },
             {
                 "name": "grammar",
                 "aliases": [
-                    "GRAMMATIK:",
+                    "ПАДЕЖ:",
                     "GRAMMAR:"
                 ]
             },
             {
                 "name": "hiddencat",
                 "aliases": [
-                    "__VERSTECKTE_KATEGORIE__",
-                    "__WARTUNGSKATEGORIE__",
+                    "__СКРЫТАЯ_КАТЕГОРИЯ__",
                     "__HIDDENCAT__"
                 ],
                 "case-sensitive": ""
@@ -867,7 +912,7 @@
             {
                 "name": "img_alt",
                 "aliases": [
-                    "alternativtext=$1",
+                    "альт=$1",
                     "alt=$1"
                 ],
                 "case-sensitive": ""
@@ -875,7 +920,7 @@
             {
                 "name": "img_baseline",
                 "aliases": [
-                    "grundlinie",
+                    "основание",
                     "baseline"
                 ],
                 "case-sensitive": ""
@@ -883,7 +928,7 @@
             {
                 "name": "img_border",
                 "aliases": [
-                    "rand",
+                    "граница",
                     "border"
                 ],
                 "case-sensitive": ""
@@ -891,7 +936,7 @@
             {
                 "name": "img_bottom",
                 "aliases": [
-                    "unten",
+                    "снизу",
                     "bottom"
                 ],
                 "case-sensitive": ""
@@ -899,24 +944,16 @@
             {
                 "name": "img_center",
                 "aliases": [
-                    "zentriert",
+                    "центр",
                     "center",
                     "centre"
                 ],
                 "case-sensitive": ""
             },
             {
-                "name": "img_class",
-                "aliases": [
-                    "klasse=$1",
-                    "class=$1"
-                ],
-                "case-sensitive": ""
-            },
-            {
                 "name": "img_framed",
                 "aliases": [
-                    "gerahmt",
+                    "обрамить",
                     "frame",
                     "framed",
                     "enframed"
@@ -926,23 +963,15 @@
             {
                 "name": "img_frameless",
                 "aliases": [
-                    "rahmenlos",
+                    "безрамки",
                     "frameless"
-                ],
-                "case-sensitive": ""
-            },
-            {
-                "name": "img_lang",
-                "aliases": [
-                    "sprache=$1",
-                    "lang=$1"
                 ],
                 "case-sensitive": ""
             },
             {
                 "name": "img_left",
                 "aliases": [
-                    "links",
+                    "слева",
                     "left"
                 ],
                 "case-sensitive": ""
@@ -950,7 +979,7 @@
             {
                 "name": "img_link",
                 "aliases": [
-                    "verweis=$1",
+                    "ссылка=$1",
                     "link=$1"
                 ],
                 "case-sensitive": ""
@@ -958,8 +987,8 @@
             {
                 "name": "img_manualthumb",
                 "aliases": [
-                    "mini=$1",
-                    "miniatur=$1",
+                    "мини=$1",
+                    "миниатюра=$1",
                     "thumbnail=$1",
                     "thumb=$1"
                 ],
@@ -968,7 +997,7 @@
             {
                 "name": "img_middle",
                 "aliases": [
-                    "mitte",
+                    "посередине",
                     "middle"
                 ],
                 "case-sensitive": ""
@@ -976,7 +1005,7 @@
             {
                 "name": "img_none",
                 "aliases": [
-                    "ohne",
+                    "без",
                     "none"
                 ],
                 "case-sensitive": ""
@@ -984,9 +1013,8 @@
             {
                 "name": "img_page",
                 "aliases": [
-                    "seite=$1",
-                    "seite $1",
-                    "seite_$1",
+                    "страница=$1",
+                    "страница $1",
                     "page=$1",
                     "page $1"
                 ],
@@ -995,7 +1023,7 @@
             {
                 "name": "img_right",
                 "aliases": [
-                    "rechts",
+                    "справа",
                     "right"
                 ],
                 "case-sensitive": ""
@@ -1003,8 +1031,7 @@
             {
                 "name": "img_sub",
                 "aliases": [
-                    "tief",
-                    "tiefgestellt",
+                    "под",
                     "sub"
                 ],
                 "case-sensitive": ""
@@ -1012,8 +1039,7 @@
             {
                 "name": "img_super",
                 "aliases": [
-                    "hoch",
-                    "hochgestellt",
+                    "над",
                     "super",
                     "sup"
                 ],
@@ -1022,7 +1048,7 @@
             {
                 "name": "img_text_bottom",
                 "aliases": [
-                    "text-unten",
+                    "текст-снизу",
                     "text-bottom"
                 ],
                 "case-sensitive": ""
@@ -1030,7 +1056,7 @@
             {
                 "name": "img_text_top",
                 "aliases": [
-                    "text-oben",
+                    "текст-сверху",
                     "text-top"
                 ],
                 "case-sensitive": ""
@@ -1038,8 +1064,8 @@
             {
                 "name": "img_thumbnail",
                 "aliases": [
-                    "mini",
-                    "miniatur",
+                    "мини",
+                    "миниатюра",
                     "thumb",
                     "thumbnail"
                 ],
@@ -1048,7 +1074,7 @@
             {
                 "name": "img_top",
                 "aliases": [
-                    "oben",
+                    "сверху",
                     "top"
                 ],
                 "case-sensitive": ""
@@ -1056,10 +1082,9 @@
             {
                 "name": "img_upright",
                 "aliases": [
-                    "hochkant",
-                    "hochkant=$1",
-                    "hochkant $1",
-                    "hochkant_$1",
+                    "сверхусправа",
+                    "сверхусправа=$1",
+                    "сверхусправа $1",
                     "upright",
                     "upright=$1",
                     "upright $1"
@@ -1067,10 +1092,17 @@
                 "case-sensitive": ""
             },
             {
+                "name": "img_width",
+                "aliases": [
+                    "$1пкс",
+                    "$1px"
+                ],
+                "case-sensitive": ""
+            },
+            {
                 "name": "index",
                 "aliases": [
-                    "__INDEXIEREN__",
-                    "__INDIZIEREN__",
+                    "__ИНДЕКС__",
                     "__INDEX__"
                 ],
                 "case-sensitive": ""
@@ -1078,36 +1110,35 @@
             {
                 "name": "int",
                 "aliases": [
-                    "NACHRICHT:",
+                    "ВНУТР:",
                     "INT:"
                 ]
             },
             {
                 "name": "language",
                 "aliases": [
-                    "#SPRACHE:",
+                    "#ЯЗЫК:",
                     "#LANGUAGE:"
                 ]
             },
             {
                 "name": "lc",
                 "aliases": [
-                    "KLEIN:",
+                    "МАЛЕНЬКИМИ_БУКВАМИ:",
                     "LC:"
                 ]
             },
             {
                 "name": "lcfirst",
                 "aliases": [
-                    "INITIAL_KLEIN:",
+                    "ПЕРВАЯ_БУКВА_МАЛЕНЬКАЯ:",
                     "LCFIRST:"
                 ]
             },
             {
                 "name": "localday",
                 "aliases": [
-                    "LOKALER_KALENDERTAG",
-                    "LOKALER_TAG",
+                    "МЕСТНЫЙ_ДЕНЬ",
                     "LOCALDAY"
                 ],
                 "case-sensitive": ""
@@ -1115,8 +1146,7 @@
             {
                 "name": "localday2",
                 "aliases": [
-                    "LOKALER_KALENDERTAG_2",
-                    "LOKALER_TAG_2",
+                    "МЕСТНЫЙ_ДЕНЬ_2",
                     "LOCALDAY2"
                 ],
                 "case-sensitive": ""
@@ -1124,7 +1154,7 @@
             {
                 "name": "localdayname",
                 "aliases": [
-                    "LOKALER_WOCHENTAG",
+                    "НАЗВАНИЕ_МЕСТНОГО_ДНЯ",
                     "LOCALDAYNAME"
                 ],
                 "case-sensitive": ""
@@ -1132,7 +1162,7 @@
             {
                 "name": "localdow",
                 "aliases": [
-                    "LOKALER_WOCHENTAG_ZAHL",
+                    "МЕСТНЫЙ_ДЕНЬ_НЕДЕЛИ",
                     "LOCALDOW"
                 ],
                 "case-sensitive": ""
@@ -1140,7 +1170,7 @@
             {
                 "name": "localhour",
                 "aliases": [
-                    "LOKALE_STUNDE",
+                    "МЕСТНЫЙ_ЧАС",
                     "LOCALHOUR"
                 ],
                 "case-sensitive": ""
@@ -1148,8 +1178,8 @@
             {
                 "name": "localmonth",
                 "aliases": [
-                    "LOKALER_MONAT",
-                    "LOKALER_MONAT_2",
+                    "МЕСТНЫЙ_МЕСЯЦ",
+                    "МЕСТНЫЙ_МЕСЯЦ_2",
                     "LOCALMONTH",
                     "LOCALMONTH2"
                 ],
@@ -1158,7 +1188,7 @@
             {
                 "name": "localmonth1",
                 "aliases": [
-                    "LOKALER_MONAT_1",
+                    "МЕСТНЫЙ_МЕСЯЦ_1",
                     "LOCALMONTH1"
                 ],
                 "case-sensitive": ""
@@ -1166,7 +1196,7 @@
             {
                 "name": "localmonthabbrev",
                 "aliases": [
-                    "LOKALER_MONATSNAME_KURZ",
+                    "НАЗВАНИЕ_МЕСТНОГО_МЕСЯЦА_АБР",
                     "LOCALMONTHABBREV"
                 ],
                 "case-sensitive": ""
@@ -1174,7 +1204,7 @@
             {
                 "name": "localmonthname",
                 "aliases": [
-                    "LOKALER_MONATSNAME",
+                    "НАЗВАНИЕ_МЕСТНОГО_МЕСЯЦА",
                     "LOCALMONTHNAME"
                 ],
                 "case-sensitive": ""
@@ -1182,8 +1212,7 @@
             {
                 "name": "localmonthnamegen",
                 "aliases": [
-                    "LOKALER_MONATSNAME_GENITIV",
-                    "LOKALER_MONATSNAME_GEN",
+                    "НАЗВАНИЕ_МЕСТНОГО_МЕСЯЦА_РОД",
                     "LOCALMONTHNAMEGEN"
                 ],
                 "case-sensitive": ""
@@ -1191,7 +1220,7 @@
             {
                 "name": "localtime",
                 "aliases": [
-                    "LOKALE_UHRZEIT",
+                    "МЕСТНОЕ_ВРЕМЯ",
                     "LOCALTIME"
                 ],
                 "case-sensitive": ""
@@ -1199,7 +1228,7 @@
             {
                 "name": "localtimestamp",
                 "aliases": [
-                    "LOKALER_ZEITSTEMPEL",
+                    "ОТМЕТКА_МЕСТНОГО_ВРЕМЕНИ",
                     "LOCALTIMESTAMP"
                 ],
                 "case-sensitive": ""
@@ -1207,22 +1236,21 @@
             {
                 "name": "localurl",
                 "aliases": [
-                    "LOKALE_URL:",
+                    "ЛОКАЛЬНЫЙ_АДРЕС:",
                     "LOCALURL:"
                 ]
             },
             {
                 "name": "localurle",
                 "aliases": [
-                    "LOKALE_URL_C:",
+                    "ЛОКАЛЬНЫЙ_АДРЕС_2:",
                     "LOCALURLE:"
                 ]
             },
             {
                 "name": "localweek",
                 "aliases": [
-                    "LOKALE_KALENDERWOCHE",
-                    "LOKALE_WOCHE",
+                    "МЕСТНАЯ_НЕДЕЛЯ",
                     "LOCALWEEK"
                 ],
                 "case-sensitive": ""
@@ -1230,15 +1258,30 @@
             {
                 "name": "localyear",
                 "aliases": [
-                    "LOKALES_JAHR",
+                    "МЕСТНЫЙ_ГОД",
                     "LOCALYEAR"
                 ],
                 "case-sensitive": ""
             },
             {
+                "name": "msg",
+                "aliases": [
+                    "СООБЩЕНИЕ:",
+                    "СООБЩ:",
+                    "MSG:"
+                ]
+            },
+            {
+                "name": "msgnw",
+                "aliases": [
+                    "СООБЩ_БЕЗ_ВИКИ:",
+                    "MSGNW:"
+                ]
+            },
+            {
                 "name": "namespace",
                 "aliases": [
-                    "NAMENSRAUM",
+                    "ПРОСТРАНСТВО_ИМЁН",
                     "NAMESPACE"
                 ],
                 "case-sensitive": ""
@@ -1246,7 +1289,7 @@
             {
                 "name": "namespacee",
                 "aliases": [
-                    "NAMENSRAUM_URL",
+                    "ПРОСТРАНСТВО_ИМЁН_2",
                     "NAMESPACEE"
                 ],
                 "case-sensitive": ""
@@ -1254,7 +1297,7 @@
             {
                 "name": "namespacenumber",
                 "aliases": [
-                    "NAMENSRAUMNUMMER",
+                    "НОМЕР_ПРОСТРАНСТВА_ИМЁН",
                     "NAMESPACENUMBER"
                 ],
                 "case-sensitive": ""
@@ -1262,8 +1305,7 @@
             {
                 "name": "newsectionlink",
                 "aliases": [
-                    "__NEUER_ABSCHNITTSLINK__",
-                    "__PLUS_LINK__",
+                    "__ССЫЛКА_НА_НОВЫЙ_РАЗДЕЛ__",
                     "__NEWSECTIONLINK__"
                 ],
                 "case-sensitive": ""
@@ -1271,7 +1313,7 @@
             {
                 "name": "nocontentconvert",
                 "aliases": [
-                    "__KEINE_INHALTSKONVERTIERUNG__",
+                    "__БЕЗ_ПРЕОБРАЗОВАНИЯ_ТЕКСТА__",
                     "__NOCONTENTCONVERT__",
                     "__NOCC__"
                 ]
@@ -1279,24 +1321,21 @@
             {
                 "name": "noeditsection",
                 "aliases": [
-                    "__ABSCHNITTE_NICHT_BEARBEITEN__",
+                    "__БЕЗ_РЕДАКТИРОВАНИЯ_РАЗДЕЛА__",
                     "__NOEDITSECTION__"
                 ]
             },
             {
                 "name": "nogallery",
                 "aliases": [
-                    "__KEINE_GALERIE__",
-                    "__KEINEGALERIE__",
+                    "__БЕЗ_ГАЛЕРЕИ__",
                     "__NOGALLERY__"
                 ]
             },
             {
                 "name": "noindex",
                 "aliases": [
-                    "__NICHT_INDEXIEREN__",
-                    "__KEIN_INDEX__",
-                    "__NICHT_INDIZIEREN__",
+                    "__БЕЗ_ИНДЕКСА__",
                     "__NOINDEX__"
                 ],
                 "case-sensitive": ""
@@ -1304,8 +1343,7 @@
             {
                 "name": "nonewsectionlink",
                 "aliases": [
-                    "__KEIN_NEUER_ABSCHNITTSLINK__",
-                    "__KEIN_PLUS_LINK__",
+                    "__БЕЗ_ССЫЛКИ_НА_НОВЫЙ_РАЗДЕЛ__",
                     "__NONEWSECTIONLINK__"
                 ],
                 "case-sensitive": ""
@@ -1313,7 +1351,7 @@
             {
                 "name": "notitleconvert",
                 "aliases": [
-                    "__KEINE_TITELKONVERTIERUNG__",
+                    "__БЕЗ_ПРЕОБРАЗОВАНИЯ_ЗАГОЛОВКА__",
                     "__NOTITLECONVERT__",
                     "__NOTC__"
                 ]
@@ -1321,29 +1359,29 @@
             {
                 "name": "notoc",
                 "aliases": [
-                    "__KEIN_INHALTSVERZEICHNIS__",
-                    "__KEININHALTSVERZEICHNIS__",
+                    "__БЕЗ_ОГЛАВЛЕНИЯ__",
+                    "__БЕЗ_ОГЛ__",
                     "__NOTOC__"
                 ]
             },
             {
                 "name": "ns",
                 "aliases": [
-                    "NR:",
+                    "ПИ:",
                     "NS:"
                 ]
             },
             {
                 "name": "nse",
                 "aliases": [
-                    "NR_URL:",
+                    "ПИК:",
                     "NSE:"
                 ]
             },
             {
                 "name": "numberingroup",
                 "aliases": [
-                    "BENUTZER_IN_GRUPPE",
+                    "ЧИСЛО_В_ГРУППЕ",
                     "NUMBERINGROUP",
                     "NUMINGROUP"
                 ],
@@ -1352,7 +1390,7 @@
             {
                 "name": "numberofactiveusers",
                 "aliases": [
-                    "AKTIVE_BENUTZER",
+                    "КОЛИЧЕСТВО_АКТИВНЫХ_УЧАСТНИКОВ",
                     "NUMBEROFACTIVEUSERS"
                 ],
                 "case-sensitive": ""
@@ -1360,7 +1398,7 @@
             {
                 "name": "numberofadmins",
                 "aliases": [
-                    "ADMINANZAHL",
+                    "КОЛИЧЕСТВО_АДМИНИСТРАТОРОВ",
                     "NUMBEROFADMINS"
                 ],
                 "case-sensitive": ""
@@ -1368,7 +1406,7 @@
             {
                 "name": "numberofarticles",
                 "aliases": [
-                    "ARTIKELANZAHL",
+                    "КОЛИЧЕСТВО_СТАТЕЙ",
                     "NUMBEROFARTICLES"
                 ],
                 "case-sensitive": ""
@@ -1376,7 +1414,7 @@
             {
                 "name": "numberofedits",
                 "aliases": [
-                    "BEARBEITUNGSANZAHL",
+                    "КОЛИЧЕСТВО_ПРАВОК",
                     "NUMBEROFEDITS"
                 ],
                 "case-sensitive": ""
@@ -1384,7 +1422,7 @@
             {
                 "name": "numberoffiles",
                 "aliases": [
-                    "DATEIANZAHL",
+                    "КОЛИЧЕСТВО_ФАЙЛОВ",
                     "NUMBEROFFILES"
                 ],
                 "case-sensitive": ""
@@ -1392,7 +1430,7 @@
             {
                 "name": "numberofpages",
                 "aliases": [
-                    "SEITENANZAHL",
+                    "КОЛИЧЕСТВО_СТРАНИЦ",
                     "NUMBEROFPAGES"
                 ],
                 "case-sensitive": ""
@@ -1400,7 +1438,7 @@
             {
                 "name": "numberofusers",
                 "aliases": [
-                    "BENUTZERANZAHL",
+                    "КОЛИЧЕСТВО_УЧАСТНИКОВ",
                     "NUMBEROFUSERS"
                 ],
                 "case-sensitive": ""
@@ -1408,29 +1446,28 @@
             {
                 "name": "padleft",
                 "aliases": [
-                    "FÜLLENLINKS",
+                    "ЗАПОЛНИТЬ_СЛЕВА",
                     "PADLEFT"
                 ]
             },
             {
                 "name": "padright",
                 "aliases": [
-                    "FÜLLENRECHTS",
+                    "ЗАПОЛНИТЬ_СПРАВА",
                     "PADRIGHT"
                 ]
             },
             {
                 "name": "pageid",
                 "aliases": [
-                    "SEITENID",
-                    "SEITENKENNUNG",
+                    "ИДЕНТИФИКАТОР_СТРАНИЦЫ",
                     "PAGEID"
                 ]
             },
             {
                 "name": "pagename",
                 "aliases": [
-                    "SEITENNAME",
+                    "НАЗВАНИЕ_СТРАНИЦЫ",
                     "PAGENAME"
                 ],
                 "case-sensitive": ""
@@ -1438,7 +1475,7 @@
             {
                 "name": "pagenamee",
                 "aliases": [
-                    "SEITENNAME_URL",
+                    "НАЗВАНИЕ_СТРАНИЦЫ_2",
                     "PAGENAMEE"
                 ],
                 "case-sensitive": ""
@@ -1446,9 +1483,7 @@
             {
                 "name": "pagesincategory",
                 "aliases": [
-                    "SEITEN_IN_KATEGORIE",
-                    "SEITEN_KAT",
-                    "SEITENINKAT",
+                    "СТРАНИЦ_В_КАТЕГОРИИ",
                     "PAGESINCATEGORY",
                     "PAGESINCAT"
                 ],
@@ -1457,38 +1492,35 @@
             {
                 "name": "pagesincategory_all",
                 "aliases": [
-                    "alle",
+                    "все",
                     "all"
                 ]
             },
             {
                 "name": "pagesincategory_files",
                 "aliases": [
-                    "dateien",
+                    "файлы",
                     "files"
                 ]
             },
             {
                 "name": "pagesincategory_pages",
                 "aliases": [
-                    "seiten",
+                    "страницы",
                     "pages"
                 ]
             },
             {
                 "name": "pagesincategory_subcats",
                 "aliases": [
-                    "unterkategorien",
-                    "unterkats",
+                    "подкатегории",
                     "subcats"
                 ]
             },
             {
                 "name": "pagesinnamespace",
                 "aliases": [
-                    "SEITEN_IM_NAMENSRAUM:",
-                    "SEITEN_IN_NR:",
-                    "SEITEN_NR:",
+                    "СТРАНИЦ_В_ПРОСТРАНСТВЕ_ИМЁН:",
                     "PAGESINNAMESPACE:",
                     "PAGESINNS:"
                 ],
@@ -1497,15 +1529,22 @@
             {
                 "name": "pagesize",
                 "aliases": [
-                    "SEITENGRÖSSE",
+                    "РАЗМЕР_СТРАНИЦЫ",
                     "PAGESIZE"
                 ],
                 "case-sensitive": ""
             },
             {
+                "name": "plural",
+                "aliases": [
+                    "МНОЖЕСТВЕННОЕ_ЧИСЛО:",
+                    "PLURAL:"
+                ]
+            },
+            {
                 "name": "protectionlevel",
                 "aliases": [
-                    "SCHUTZSTATUS",
+                    "УРОВЕНЬ_ЗАЩИТЫ",
                     "PROTECTIONLEVEL"
                 ],
                 "case-sensitive": ""
@@ -1513,22 +1552,30 @@
             {
                 "name": "raw",
                 "aliases": [
-                    "ROH:",
+                    "НЕОБРАБ:",
                     "RAW:"
                 ]
             },
             {
+                "name": "rawsuffix",
+                "aliases": [
+                    "Н",
+                    "R"
+                ],
+                "case-sensitive": ""
+            },
+            {
                 "name": "redirect",
                 "aliases": [
-                    "#WEITERLEITUNG",
+                    "#перенаправление",
+                    "#перенапр",
                     "#REDIRECT"
                 ]
             },
             {
                 "name": "revisionday",
                 "aliases": [
-                    "REVISIONSTAG",
-                    "VERSIONSTAG",
+                    "ДЕНЬ_ВЕРСИИ",
                     "REVISIONDAY"
                 ],
                 "case-sensitive": ""
@@ -1536,8 +1583,7 @@
             {
                 "name": "revisionday2",
                 "aliases": [
-                    "REVISIONSTAG2",
-                    "VERSIONSTAG2",
+                    "ДЕНЬ_ВЕРСИИ_2",
                     "REVISIONDAY2"
                 ],
                 "case-sensitive": ""
@@ -1545,8 +1591,7 @@
             {
                 "name": "revisionid",
                 "aliases": [
-                    "REVISIONSID",
-                    "VERSIONSID",
+                    "ИД_ВЕРСИИ",
                     "REVISIONID"
                 ],
                 "case-sensitive": ""
@@ -1554,8 +1599,7 @@
             {
                 "name": "revisionmonth",
                 "aliases": [
-                    "REVISIONSMONAT",
-                    "VERSIONSMONAT",
+                    "МЕСЯЦ_ВЕРСИИ",
                     "REVISIONMONTH"
                 ],
                 "case-sensitive": ""
@@ -1563,25 +1607,15 @@
             {
                 "name": "revisionmonth1",
                 "aliases": [
-                    "REVISIONSMONAT1",
-                    "VERSIONSMONAT1",
+                    "МЕСЯЦ_ВЕРСИИ_1",
                     "REVISIONMONTH1"
-                ],
-                "case-sensitive": ""
-            },
-            {
-                "name": "revisionsize",
-                "aliases": [
-                    "VERSIONSGRÖSSE",
-                    "REVISIONSIZE"
                 ],
                 "case-sensitive": ""
             },
             {
                 "name": "revisiontimestamp",
                 "aliases": [
-                    "REVISIONSZEITSTEMPEL",
-                    "VERSIONSZEITSTEMPEL",
+                    "ОТМЕТКА_ВРЕМЕНИ_ВЕРСИИ",
                     "REVISIONTIMESTAMP"
                 ],
                 "case-sensitive": ""
@@ -1589,8 +1623,7 @@
             {
                 "name": "revisionuser",
                 "aliases": [
-                    "REVISIONSBENUTZER",
-                    "VERSIONSBENUTZER",
+                    "ВЕРСИЯ_УЧАСТНИКА",
                     "REVISIONUSER"
                 ],
                 "case-sensitive": ""
@@ -1598,47 +1631,43 @@
             {
                 "name": "revisionyear",
                 "aliases": [
-                    "REVISIONSJAHR",
-                    "VERSIONSJAHR",
+                    "ГОД_ВЕРСИИ",
                     "REVISIONYEAR"
-                ],
-                "case-sensitive": ""
-            },
-            {
-                "name": "rootpagename",
-                "aliases": [
-                    "STAMMSEITE",
-                    "ROOTPAGENAME"
-                ],
-                "case-sensitive": ""
-            },
-            {
-                "name": "rootpagenamee",
-                "aliases": [
-                    "STAMMSEITE_URL",
-                    "ROOTPAGENAMEE"
                 ],
                 "case-sensitive": ""
             },
             {
                 "name": "safesubst",
                 "aliases": [
-                    "SICHER_ERS:",
-                    "SICHERERS:",
+                    "ЗАЩПОДСТ:",
                     "SAFESUBST:"
                 ]
             },
             {
                 "name": "scriptpath",
                 "aliases": [
-                    "SKRIPTPFAD",
+                    "ПУТЬ_К_СКРИПТУ",
                     "SCRIPTPATH"
+                ]
+            },
+            {
+                "name": "server",
+                "aliases": [
+                    "СЕРВЕР",
+                    "SERVER"
+                ]
+            },
+            {
+                "name": "servername",
+                "aliases": [
+                    "НАЗВАНИЕ_СЕРВЕРА",
+                    "SERVERNAME"
                 ]
             },
             {
                 "name": "sitename",
                 "aliases": [
-                    "PROJEKTNAME",
+                    "НАЗВАНИЕ_САЙТА",
                     "SITENAME"
                 ],
                 "case-sensitive": ""
@@ -1646,21 +1675,14 @@
             {
                 "name": "special",
                 "aliases": [
-                    "spezial",
+                    "служебная",
                     "special"
-                ]
-            },
-            {
-                "name": "speciale",
-                "aliases": [
-                    "speziale",
-                    "speciale"
                 ]
             },
             {
                 "name": "staticredirect",
                 "aliases": [
-                    "__PERMANENTE_WEITERLEITUNG__",
+                    "__СТАТИЧЕСКОЕ_ПЕРЕНАПРАВЛЕНИЕ__",
                     "__STATICREDIRECT__"
                 ],
                 "case-sensitive": ""
@@ -1668,17 +1690,14 @@
             {
                 "name": "stylepath",
                 "aliases": [
-                    "STILPFAD",
-                    "STYLEPFAD",
+                    "ПУТЬ_К_СТИЛЮ",
                     "STYLEPATH"
                 ]
             },
             {
                 "name": "subjectpagename",
                 "aliases": [
-                    "HAUPTSEITENNAME",
-                    "VORDERSEITE",
-                    "HAUPTSEITE",
+                    "НАЗВАНИЕ_СТРАНИЦЫ_СТАТЬИ",
                     "SUBJECTPAGENAME",
                     "ARTICLEPAGENAME"
                 ],
@@ -1687,9 +1706,7 @@
             {
                 "name": "subjectpagenamee",
                 "aliases": [
-                    "HAUPTSEITENNAME_URL",
-                    "VORDERSEITE_URL",
-                    "HAUPTSEITE_URL",
+                    "НАЗВАНИЕ_СТРАНИЦЫ_СТАТЬИ_2",
                     "SUBJECTPAGENAMEE",
                     "ARTICLEPAGENAMEE"
                 ],
@@ -1698,7 +1715,7 @@
             {
                 "name": "subjectspace",
                 "aliases": [
-                    "HAUPTNAMENSRAUM",
+                    "ПРОСТРАНСТВО_СТАТЕЙ",
                     "SUBJECTSPACE",
                     "ARTICLESPACE"
                 ],
@@ -1707,7 +1724,7 @@
             {
                 "name": "subjectspacee",
                 "aliases": [
-                    "HAUPTNAMENSRAUM_URL",
+                    "ПРОСТРАНСТВО_СТАТЕЙ_2",
                     "SUBJECTSPACEE",
                     "ARTICLESPACEE"
                 ],
@@ -1716,7 +1733,7 @@
             {
                 "name": "subpagename",
                 "aliases": [
-                    "UNTERSEITE",
+                    "НАЗВАНИЕ_ПОДСТРАНИЦЫ",
                     "SUBPAGENAME"
                 ],
                 "case-sensitive": ""
@@ -1724,7 +1741,7 @@
             {
                 "name": "subpagenamee",
                 "aliases": [
-                    "UNTERSEITE_URL",
+                    "НАЗВАНИЕ_ПОДСТРАНИЦЫ_2",
                     "SUBPAGENAMEE"
                 ],
                 "case-sensitive": ""
@@ -1732,22 +1749,24 @@
             {
                 "name": "subst",
                 "aliases": [
-                    "ERS:",
+                    "ПОДСТАНОВКА:",
+                    "ПОДСТ:",
                     "SUBST:"
                 ]
             },
             {
                 "name": "tag",
                 "aliases": [
-                    "erweiterung",
+                    "метка",
+                    "тег",
+                    "тэг",
                     "tag"
                 ]
             },
             {
                 "name": "talkpagename",
                 "aliases": [
-                    "DISKUSSIONSSEITE",
-                    "DISK",
+                    "НАЗВАНИЕ_СТРАНИЦЫ_ОБСУЖДЕНИЯ",
                     "TALKPAGENAME"
                 ],
                 "case-sensitive": ""
@@ -1755,8 +1774,7 @@
             {
                 "name": "talkpagenamee",
                 "aliases": [
-                    "DISKUSSIONSSEITE_URL",
-                    "DISK_URL",
+                    "НАЗВАНИЕ_СТРАНИЦЫ_ОБСУЖДЕНИЯ_2",
                     "TALKPAGENAMEE"
                 ],
                 "case-sensitive": ""
@@ -1764,8 +1782,7 @@
             {
                 "name": "talkspace",
                 "aliases": [
-                    "DISKUSSIONSNAMENSRAUM",
-                    "DISK_NR",
+                    "ПРОСТРАНСТВО_ОБСУЖДЕНИЙ",
                     "TALKSPACE"
                 ],
                 "case-sensitive": ""
@@ -1773,8 +1790,7 @@
             {
                 "name": "talkspacee",
                 "aliases": [
-                    "DISKUSSIONSNAMENSRAUM_URL",
-                    "DISK_NR_URL",
+                    "ПРОСТРАНСТВО_ОБСУЖДЕНИЙ_2",
                     "TALKSPACEE"
                 ],
                 "case-sensitive": ""
@@ -1782,43 +1798,51 @@
             {
                 "name": "toc",
                 "aliases": [
-                    "__INHALTSVERZEICHNIS__",
+                    "__ОГЛАВЛЕНИЕ__",
+                    "__ОГЛ__",
                     "__TOC__"
                 ]
             },
             {
                 "name": "uc",
                 "aliases": [
-                    "GROSS:",
+                    "БОЛЬШИМИ_БУКВАМИ:",
                     "UC:"
                 ]
             },
             {
                 "name": "ucfirst",
                 "aliases": [
-                    "INITIAL_GROSS:",
+                    "ПЕРВАЯ_БУКВА_БОЛЬШАЯ:",
                     "UCFIRST:"
                 ]
             },
             {
                 "name": "urlencode",
                 "aliases": [
-                    "URLENKODIERT:",
+                    "ЗАКОДИРОВАННЫЙ_АДРЕС:",
                     "URLENCODE:"
                 ]
             },
             {
                 "name": "url_path",
                 "aliases": [
-                    "PFAD",
+                    "ПУТЬ",
                     "PATH"
                 ]
             },
             {
                 "name": "url_query",
                 "aliases": [
-                    "ABFRAGE",
+                    "ЗАПРОС",
                     "QUERY"
+                ]
+            },
+            {
+                "name": "url_wiki",
+                "aliases": [
+                    "ВИКИ",
+                    "WIKI"
                 ]
             },
             {
@@ -1841,12 +1865,6 @@
                 ]
             },
             {
-                "name": "if",
-                "aliases": [
-                    "if"
-                ]
-            },
-            {
                 "name": "ifeq",
                 "aliases": [
                     "ifeq"
@@ -1859,27 +1877,9 @@
                 ]
             },
             {
-                "name": "iferror",
-                "aliases": [
-                    "iferror"
-                ]
-            },
-            {
                 "name": "ifexist",
                 "aliases": [
                     "ifexist"
-                ]
-            },
-            {
-                "name": "time",
-                "aliases": [
-                    "time"
-                ]
-            },
-            {
-                "name": "timel",
-                "aliases": [
-                    "timel"
                 ]
             },
             {
@@ -1919,9 +1919,35 @@
                 ]
             },
             {
+                "name": "count",
+                "aliases": [
+                    "count"
+                ]
+            },
+            {
                 "name": "explode",
                 "aliases": [
                     "explode"
+                ]
+            },
+            {
+                "name": "urldecode",
+                "aliases": [
+                    "urldecode"
+                ]
+            },
+            {
+                "name": "lst",
+                "aliases": [
+                    "lst",
+                    "section"
+                ]
+            },
+            {
+                "name": "lstx",
+                "aliases": [
+                    "lstx",
+                    "section-x"
                 ]
             },
             {
@@ -1932,42 +1958,6 @@
                 ]
             },
             {
-                "name": "timedmedia_noplayer",
-                "aliases": [
-                    "noplayer"
-                ]
-            },
-            {
-                "name": "timedmedia_noicon",
-                "aliases": [
-                    "noicon"
-                ]
-            },
-            {
-                "name": "timedmedia_thumbtime",
-                "aliases": [
-                    "thumbtime=$1"
-                ]
-            },
-            {
-                "name": "timedmedia_starttime",
-                "aliases": [
-                    "start=$1"
-                ]
-            },
-            {
-                "name": "timedmedia_endtime",
-                "aliases": [
-                    "end=$1"
-                ]
-            },
-            {
-                "name": "timedmedia_disablecontrols",
-                "aliases": [
-                    "disablecontrols=$1"
-                ]
-            },
-            {
                 "name": "noglobal",
                 "aliases": [
                     "__NOGLOBAL__"
@@ -1975,9 +1965,9 @@
                 "case-sensitive": ""
             },
             {
-                "name": "babel",
+                "name": "target",
                 "aliases": [
-                    "babel"
+                    "target"
                 ]
             },
             {
@@ -1993,15 +1983,34 @@
                 ]
             },
             {
+                "name": "disambiguation",
+                "aliases": [
+                    "__DISAMBIG__"
+                ],
+                "case-sensitive": ""
+            },
+            {
                 "name": "related",
                 "aliases": [
                     "related"
                 ]
             },
             {
+                "name": "noexternallanglinks",
+                "aliases": [
+                    "noexternallanglinks"
+                ]
+            },
+            {
                 "name": "statements",
                 "aliases": [
                     "statements"
+                ]
+            },
+            {
+                "name": "wbreponame",
+                "aliases": [
+                    "wbreponame"
                 ]
             },
             {
@@ -2064,12 +2073,6 @@
                 "name": "isin",
                 "aliases": [
                     "isin"
-                ]
-            },
-            {
-                "name": "mentor",
-                "aliases": [
-                    "mentor"
                 ]
             },
             {
@@ -2188,6 +2191,49 @@
                 ]
             },
             {
+                "name": "canonicalurl",
+                "aliases": [
+                    "CANONICALURL:"
+                ]
+            },
+            {
+                "name": "canonicalurle",
+                "aliases": [
+                    "CANONICALURLE:"
+                ]
+            },
+            {
+                "name": "cascadingsources",
+                "aliases": [
+                    "CASCADINGSOURCES"
+                ],
+                "case-sensitive": ""
+            },
+            {
+                "name": "defaultsort_noerror",
+                "aliases": [
+                    "noerror"
+                ]
+            },
+            {
+                "name": "defaultsort_noreplace",
+                "aliases": [
+                    "noreplace"
+                ]
+            },
+            {
+                "name": "displaytitle_noerror",
+                "aliases": [
+                    "noerror"
+                ]
+            },
+            {
+                "name": "displaytitle_noreplace",
+                "aliases": [
+                    "noreplace"
+                ]
+            },
+            {
                 "name": "expectunusedcategory",
                 "aliases": [
                     "__EXPECTUNUSEDCATEGORY__"
@@ -2195,23 +2241,18 @@
                 "case-sensitive": ""
             },
             {
-                "name": "img_width",
+                "name": "img_class",
                 "aliases": [
-                    "$1px"
+                    "class=$1"
                 ],
                 "case-sensitive": ""
             },
             {
-                "name": "msg",
+                "name": "img_lang",
                 "aliases": [
-                    "MSG:"
-                ]
-            },
-            {
-                "name": "msgnw",
-                "aliases": [
-                    "MSGNW:"
-                ]
+                    "lang=$1"
+                ],
+                "case-sensitive": ""
             },
             {
                 "name": "nocommafysuffix",
@@ -2227,12 +2268,6 @@
                 "case-sensitive": ""
             },
             {
-                "name": "plural",
-                "aliases": [
-                    "PLURAL:"
-                ]
-            },
-            {
                 "name": "protectionexpiry",
                 "aliases": [
                     "PROTECTIONEXPIRY"
@@ -2240,28 +2275,30 @@
                 "case-sensitive": ""
             },
             {
-                "name": "rawsuffix",
+                "name": "revisionsize",
                 "aliases": [
-                    "R"
+                    "REVISIONSIZE"
                 ],
                 "case-sensitive": ""
             },
             {
-                "name": "server",
+                "name": "rootpagename",
                 "aliases": [
-                    "SERVER"
-                ]
+                    "ROOTPAGENAME"
+                ],
+                "case-sensitive": ""
             },
             {
-                "name": "servername",
+                "name": "rootpagenamee",
                 "aliases": [
-                    "SERVERNAME"
-                ]
+                    "ROOTPAGENAMEE"
+                ],
+                "case-sensitive": ""
             },
             {
-                "name": "url_wiki",
+                "name": "speciale",
                 "aliases": [
-                    "WIKI"
+                    "speciale"
                 ]
             }
         ],
@@ -4622,7 +4659,6 @@
                 "prefix": "de",
                 "local": "",
                 "language": "Deutsch",
-                "localinterwiki": "",
                 "url": "https://de.wikipedia.org/wiki/$1"
             },
             {
@@ -5697,6 +5733,7 @@
                 "prefix": "ru",
                 "local": "",
                 "language": "русский",
+                "localinterwiki": "",
                 "url": "https://ru.wikipedia.org/wiki/$1"
             },
             {
@@ -6311,42 +6348,42 @@
             {
                 "prefix": "wikt",
                 "local": "",
-                "url": "https://de.wiktionary.org/wiki/$1"
+                "url": "https://ru.wiktionary.org/wiki/$1"
             },
             {
                 "prefix": "q",
                 "local": "",
-                "url": "https://de.wikiquote.org/wiki/$1"
+                "url": "https://ru.wikiquote.org/wiki/$1"
             },
             {
                 "prefix": "b",
                 "local": "",
-                "url": "https://de.wikibooks.org/wiki/$1"
+                "url": "https://ru.wikibooks.org/wiki/$1"
             },
             {
                 "prefix": "n",
                 "local": "",
-                "url": "https://de.wikinews.org/wiki/$1"
+                "url": "https://ru.wikinews.org/wiki/$1"
             },
             {
                 "prefix": "s",
                 "local": "",
-                "url": "https://de.wikisource.org/wiki/$1"
+                "url": "https://ru.wikisource.org/wiki/$1"
             },
             {
                 "prefix": "chapter",
                 "local": "",
-                "url": "https://de.wikimedia.org/wiki/$1"
+                "url": "https://ru.wikimedia.org/wiki/$1"
             },
             {
                 "prefix": "v",
                 "local": "",
-                "url": "https://de.wikiversity.org/wiki/$1"
+                "url": "https://ru.wikiversity.org/wiki/$1"
             },
             {
                 "prefix": "voy",
                 "local": "",
-                "url": "https://de.wikivoyage.org/wiki/$1"
+                "url": "https://ru.wikivoyage.org/wiki/$1"
             }
         ],
         "languagevariants": {
@@ -6630,7 +6667,7 @@
             "usecodemirror": 0,
             "betafeatures-auto-enroll": false,
             "popupsreferencepreviews": 0,
-            "popups-reference-previews": "1",
+            "popups-reference-previews": 0,
             "visualeditor-autodisable": 0,
             "visualeditor-betatempdisable": 0,
             "visualeditor-editor": "visualeditor",
@@ -6678,6 +6715,12 @@
             "echo-subscriptions-email-oauth-owner": true,
             "echo-subscriptions-web-oauth-admin": true,
             "echo-subscriptions-email-oauth-admin": true,
+            "ores-damaging-flag-rc": false,
+            "oresDamagingPref": "soft",
+            "rcOresDamagingPref": "soft",
+            "oresHighlight": false,
+            "oresRCHideNonDamaging": false,
+            "oresWatchlistHideNonDamaging": false,
             "twl-notified": null,
             "ccmeonemails": 0,
             "date": "default",
@@ -6713,7 +6756,7 @@
             "search-special-page": "Search",
             "showhiddencats": false,
             "shownumberswatching": 1,
-            "showrollbackconfirmation": 1,
+            "showrollbackconfirmation": 0,
             "skin": "vector",
             "thumbsize": 4,
             "underline": 2,
@@ -6751,9 +6794,9 @@
             "centralnotice-display-campaign-type-governance": 1,
             "centralnotice-display-campaign-type-maintenance": 1,
             "centralnotice-display-campaign-type-special": 1,
-            "timecorrection": "System|60",
-            "language": "de",
-            "variant": "de",
+            "timecorrection": "System|0",
+            "language": "ru",
+            "variant": "ru",
             "variant-ban": "ban",
             "variant-en": "en",
             "variant-crh": "crh",
@@ -6784,48 +6827,92 @@
             "searchNs15": 0,
             "searchNs100": 0,
             "searchNs101": 0,
+            "searchNs102": 0,
+            "searchNs103": 0,
+            "searchNs104": 0,
+            "searchNs105": 0,
+            "searchNs106": 0,
+            "searchNs107": 0,
             "searchNs828": 0,
             "searchNs829": 0,
             "searchNs2300": 0,
             "searchNs2301": 0,
             "searchNs2302": 0,
             "searchNs2303": 0,
-            "gadget-toolserver-integration": 0,
-            "gadget-Vorlagenmeister": 0,
-            "gadget-wikEd": 0,
+            "gadget-BKL": 1,
+            "gadget-collapserefs": 1,
+            "gadget-directLinkToCommons": 1,
+            "gadget-referenceTooltips": 1,
+            "gadget-logo": 1,
+            "gadget-edittop": 1,
+            "gadget-blpEditNotice": 1,
+            "gadget-sidebarRelated": 1,
+            "gadget-navboxNavigation": 1,
+            "gadget-preview": 0,
+            "gadget-urldecoder": 0,
             "gadget-HotCat": 0,
-            "gadget-Einleitung-bearbeiten": 0,
-            "gadget-Rechtschreibpruefung": 0,
-            "gadget-bkl-check": 0,
-            "gadget-contribsrange": 0,
-            "gadget-editMenus": 1,
-            "gadget-LegacyToolbar2006": 0,
-            "gadget-Extra-Editbuttons": 0,
-            "gadget-navigation-popups": 0,
-            "gadget-Suchfokus-Hauptseite": 0,
-            "gadget-Pfeil-hoch": 0,
-            "gadget-editsection-align-end": 0,
-            "gadget-revisionjumper": 0,
-            "gadget-PermaPageLink": 0,
-            "gadget-Erweiterte-Navigationsleiste-Quicklinks": 0,
-            "gadget-Personendaten": 0,
-            "gadget-WikiMiniAtlas": 1,
-            "gadget-OpenStreetMap": 1,
-            "gadget-rightsfilter": 0,
-            "gadget-PrettyLog": 0,
-            "gadget-PB": 0,
-            "gadget-revisionCounter": 0,
-            "gadget-markAdmins": 0,
-            "gadget-old-movepage": 1,
-            "gadget-CommonsDirekt": 1,
-            "gadget-VectorClassic": 0,
-            "gadget-Screenreader-Optimierung": 0,
-            "gadget-Rot-Gruen-Sehschwaeche": 0,
-            "gadget-old-diff-style": 0,
-            "gadget-Doppel-s-Schreibung": 0,
-            "gadget-Zeitzonenkonverter": 0,
-            "gadget-ReferenceTooltips": 0,
-            "gadget-importUtility": 0,
+            "gadget-refToolbar": 0,
+            "gadget-ProveIt": 0,
+            "gadget-Wikilinker": 0,
+            "gadget-DotsSyntaxHighlighter": 0,
+            "gadget-convenientDiscussions": 0,
+            "gadget-HighlightRedirects": 0,
+            "gadget-HighlightUnpatrolledLinks": 0,
+            "gadget-popups": 0,
+            "gadget-addThisArticles": 0,
+            "gadget-HideWikimediaNavigation": 0,
+            "gadget-HideExternalLinks": 0,
+            "gadget-OpaqueInfoboxReferences": 0,
+            "gadget-shiftrefs": 0,
+            "gadget-wdRedLinks": 0,
+            "gadget-markadmins": 0,
+            "gadget-markblocked": 0,
+            "gadget-watchlist": 0,
+            "gadget-disableUpdatedMarker": 0,
+            "gadget-OldDiff": 0,
+            "gadget-HideFlaggedRevs": 0,
+            "gadget-UTCLiveClock": 0,
+            "gadget-roundCorners": 0,
+            "gadget-dropdown-menus": 0,
+            "gadget-ajaxQuickDelete": 0,
+            "gadget-addThisMain": 0,
+            "gadget-DelKeepVis": 0,
+            "gadget-hideSandboxLinkFromPersonalToolbar": 0,
+            "gadget-osm": 0,
+            "gadget-search-extraTooltips": 0,
+            "gadget-wfTypos": 0,
+            "gadget-wfIsbnLite": 0,
+            "gadget-toReasonator": 0,
+            "gadget-useWD": 0,
+            "gadget-wikidataInfoboxExport": 0,
+            "gadget-wefcore": 0,
+            "gadget-wikidataHeaderLink": 0,
+            "gadget-iwhints": 0,
+            "gadget-iwlocalnames": 0,
+            "gadget-relatedIcons": 0,
+            "gadget-iwen": 0,
+            "gadget-iwde": 0,
+            "gadget-iwfr": 0,
+            "gadget-iwpl": 0,
+            "gadget-iwit": 0,
+            "gadget-iwes": 0,
+            "gadget-iwpt": 0,
+            "gadget-iwnl": 0,
+            "gadget-iwhe": 0,
+            "gadget-iwja": 0,
+            "gadget-iwzh": 0,
+            "gadget-iwuk": 0,
+            "gadget-iwbe": 0,
+            "gadget-iwrussia": 0,
+            "gadget-qualityArticles": 0,
+            "gadget-DYK": 0,
+            "gadget-articleStats": 0,
+            "gadget-iwrm": 0,
+            "gadget-navboxFeaturedArticles": 0,
+            "gadget-mobile-sidebar": 0,
+            "gadget-yandex-tts": 0,
+            "gadget-yandex-speechrecognition": 0,
+            "gadget-GeoBox": 0,
             "tmh-videojs": false,
             "multimediaviewer-enable": 1,
             "mf_amc_optin": "0",
@@ -6905,43 +6992,41 @@
             {
                 "realname": "BrokenRedirects",
                 "aliases": [
-                    "Defekte_Weiterleitungen",
-                    "Kaputte_Weiterleitungen",
+                    "Разорванные_перенаправления",
                     "BrokenRedirects"
                 ]
             },
             {
                 "realname": "Deadendpages",
                 "aliases": [
-                    "Sackgassenseiten",
+                    "Тупиковые_страницы",
                     "DeadendPages"
                 ]
             },
             {
                 "realname": "DoubleRedirects",
                 "aliases": [
-                    "Doppelte_Weiterleitungen",
+                    "Двойные_перенаправления",
                     "DoubleRedirects"
                 ]
             },
             {
                 "realname": "Longpages",
                 "aliases": [
-                    "Längste_Seiten",
+                    "Длинные_страницы",
                     "LongPages"
                 ]
             },
             {
                 "realname": "Ancientpages",
                 "aliases": [
-                    "Älteste_Seiten",
                     "AncientPages"
                 ]
             },
             {
                 "realname": "Lonelypages",
                 "aliases": [
-                    "Verwaiste_Seiten",
+                    "Изолированные_страницы",
                     "LonelyPages",
                     "OrphanedPages"
                 ]
@@ -6949,50 +7034,49 @@
             {
                 "realname": "Fewestrevisions",
                 "aliases": [
-                    "Wenigstbearbeitete_Seiten",
+                    "Редко_редактируемые",
                     "FewestRevisions"
                 ]
             },
             {
                 "realname": "Withoutinterwiki",
                 "aliases": [
-                    "Fehlende_Interwikis",
+                    "Без_интервики",
                     "WithoutInterwiki"
                 ]
             },
             {
                 "realname": "Protectedpages",
                 "aliases": [
-                    "Geschützte_Seiten",
+                    "Защищённые_страницы",
                     "ProtectedPages"
                 ]
             },
             {
                 "realname": "Protectedtitles",
                 "aliases": [
-                    "Geschützte_Titel",
-                    "Gesperrte_Titel",
+                    "Защищённые_названия",
                     "ProtectedTitles"
                 ]
             },
             {
                 "realname": "Shortpages",
                 "aliases": [
-                    "Kürzeste_Seiten",
+                    "Короткие_страницы",
                     "ShortPages"
                 ]
             },
             {
                 "realname": "Uncategorizedcategories",
                 "aliases": [
-                    "Nicht_kategorisierte_Kategorien",
+                    "Некатегоризованные_категории",
                     "UncategorizedCategories"
                 ]
             },
             {
                 "realname": "Uncategorizedimages",
                 "aliases": [
-                    "Nicht_kategorisierte_Dateien",
+                    "Некатегоризованные_файлы",
                     "UncategorizedFiles",
                     "UncategorizedImages"
                 ]
@@ -7000,28 +7084,28 @@
             {
                 "realname": "Uncategorizedpages",
                 "aliases": [
-                    "Nicht_kategorisierte_Seiten",
+                    "Некатегоризованные_страницы",
                     "UncategorizedPages"
                 ]
             },
             {
                 "realname": "Uncategorizedtemplates",
                 "aliases": [
-                    "Nicht_kategorisierte_Vorlagen",
+                    "Некатегоризованные_шаблоны",
                     "UncategorizedTemplates"
                 ]
             },
             {
                 "realname": "Unusedcategories",
                 "aliases": [
-                    "Unbenutzte_Kategorien",
+                    "Неиспользуемые_категории",
                     "UnusedCategories"
                 ]
             },
             {
                 "realname": "Unusedimages",
                 "aliases": [
-                    "Unbenutzte_Dateien",
+                    "Неиспользуемые_файлы",
                     "UnusedFiles",
                     "UnusedImages"
                 ]
@@ -7029,37 +7113,34 @@
             {
                 "realname": "Unusedtemplates",
                 "aliases": [
-                    "Unbenutzte_Vorlagen",
+                    "Неиспользуемые_шаблоны",
                     "UnusedTemplates"
                 ]
             },
             {
                 "realname": "Unwatchedpages",
                 "aliases": [
-                    "Ignorierte_Seiten",
-                    "Unbeobachtete_Seiten",
                     "UnwatchedPages"
                 ]
             },
             {
                 "realname": "Wantedcategories",
                 "aliases": [
-                    "Gewünschte_Kategorien",
+                    "Требуемые_категории",
                     "WantedCategories"
                 ]
             },
             {
                 "realname": "Wantedfiles",
                 "aliases": [
-                    "Gewünschte_Dateien",
-                    "Fehlende_Dateien",
+                    "Требуемые_файлы",
                     "WantedFiles"
                 ]
             },
             {
                 "realname": "Wantedpages",
                 "aliases": [
-                    "Gewünschte_Seiten",
+                    "Требуемые_страницы",
                     "WantedPages",
                     "BrokenLinks"
                 ]
@@ -7067,43 +7148,41 @@
             {
                 "realname": "Wantedtemplates",
                 "aliases": [
-                    "Gewünschte_Vorlagen",
-                    "Fehlende_Vorlagen",
+                    "Требуемые_шаблоны",
                     "WantedTemplates"
                 ]
             },
             {
                 "realname": "Allpages",
                 "aliases": [
-                    "Alle_Seiten",
+                    "Все_страницы",
                     "AllPages"
                 ]
             },
             {
                 "realname": "Prefixindex",
                 "aliases": [
-                    "Präfixindex",
+                    "Указатель_по_началу_названия",
                     "PrefixIndex"
                 ]
             },
             {
                 "realname": "Categories",
                 "aliases": [
-                    "Kategorien",
+                    "Категории",
                     "Categories"
                 ]
             },
             {
                 "realname": "Listredirects",
                 "aliases": [
-                    "Weiterleitungen",
+                    "Список_перенаправлений",
                     "ListRedirects"
                 ]
             },
             {
                 "realname": "PagesWithProp",
                 "aliases": [
-                    "Seiten_mit_Eigenschaften",
                     "PagesWithProp",
                     "Pageswithprop",
                     "PagesByProp",
@@ -7113,14 +7192,13 @@
             {
                 "realname": "TrackingCategories",
                 "aliases": [
-                    "Tracking-Kategorien",
                     "TrackingCategories"
                 ]
             },
             {
                 "realname": "Userlogin",
                 "aliases": [
-                    "Anmelden",
+                    "Вход",
                     "UserLogin",
                     "Login"
                 ]
@@ -7128,7 +7206,8 @@
             {
                 "realname": "Userlogout",
                 "aliases": [
-                    "Abmelden",
+                    "Завершение_сеанса",
+                    "Выход",
                     "UserLogout",
                     "Logout"
                 ]
@@ -7136,7 +7215,9 @@
             {
                 "realname": "CreateAccount",
                 "aliases": [
-                    "Benutzerkonto_anlegen",
+                    "Создать_учётную_запись",
+                    "Создать_пользователя",
+                    "Зарегистрироваться",
                     "CreateAccount"
                 ]
             },
@@ -7167,14 +7248,14 @@
             {
                 "realname": "Activeusers",
                 "aliases": [
-                    "Aktive_Benutzer",
+                    "Активные_участники",
                     "ActiveUsers"
                 ]
             },
             {
                 "realname": "Block",
                 "aliases": [
-                    "Sperren",
+                    "Заблокировать",
                     "Block",
                     "BlockIP",
                     "BlockUser"
@@ -7183,17 +7264,15 @@
             {
                 "realname": "Unblock",
                 "aliases": [
-                    "Freigeben",
+                    "Разблокировка",
                     "Unblock"
                 ]
             },
             {
                 "realname": "BlockList",
                 "aliases": [
-                    "Liste_der_Sperren",
-                    "Gesperrte_IP-Adressen",
-                    "Gesperrte_IPs",
-                    "Sperrliste",
+                    "Список_блокировок",
+                    "Блокировки",
                     "BlockList",
                     "ListBlocks",
                     "IPBlockList"
@@ -7209,8 +7288,7 @@
             {
                 "realname": "ChangePassword",
                 "aliases": [
-                    "Passwort_ändern",
-                    "Passwort_zurücksetzen",
+                    "Сменить_пароль",
                     "ChangePassword",
                     "ResetPass",
                     "ResetPassword"
@@ -7225,35 +7303,34 @@
             {
                 "realname": "PasswordReset",
                 "aliases": [
-                    "Passwort_neu_vergeben",
+                    "Сброс_пароля",
                     "PasswordReset"
                 ]
             },
             {
                 "realname": "DeletedContributions",
                 "aliases": [
-                    "Gelöschte_Beiträge",
+                    "Удалённый_вклад",
                     "DeletedContributions"
                 ]
             },
             {
                 "realname": "Preferences",
                 "aliases": [
-                    "Einstellungen",
+                    "Настройки",
                     "Preferences"
                 ]
             },
             {
                 "realname": "ResetTokens",
                 "aliases": [
-                    "Tokens_zurücksetzen",
                     "ResetTokens"
                 ]
             },
             {
                 "realname": "Contributions",
                 "aliases": [
-                    "Beiträge",
+                    "Вклад",
                     "Contributions",
                     "Contribs"
                 ]
@@ -7261,7 +7338,8 @@
             {
                 "realname": "Listgrouprights",
                 "aliases": [
-                    "Gruppenrechte",
+                    "Права_групп_участников",
+                    "Список_прав_групп",
                     "ListGroupRights",
                     "UserGroupRights"
                 ]
@@ -7275,8 +7353,7 @@
             {
                 "realname": "Listusers",
                 "aliases": [
-                    "Benutzer",
-                    "Benutzerliste",
+                    "Список_участников",
                     "ListUsers",
                     "UserList",
                     "Users"
@@ -7285,21 +7362,21 @@
             {
                 "realname": "Listadmins",
                 "aliases": [
-                    "Administratoren",
+                    "Список_администраторов",
                     "ListAdmins"
                 ]
             },
             {
                 "realname": "Listbots",
                 "aliases": [
-                    "Bots",
+                    "Список_ботов",
                     "ListBots"
                 ]
             },
             {
                 "realname": "Userrights",
                 "aliases": [
-                    "Benutzerrechte",
+                    "Управление_правами",
                     "UserRights",
                     "MakeSysop",
                     "MakeBot"
@@ -7308,7 +7385,7 @@
             {
                 "realname": "EditWatchlist",
                 "aliases": [
-                    "Beobachtungsliste_bearbeiten",
+                    "Править_список_наблюдения",
                     "EditWatchlist"
                 ]
             },
@@ -7321,7 +7398,7 @@
             {
                 "realname": "Newimages",
                 "aliases": [
-                    "Neue_Dateien",
+                    "Новые_файлы",
                     "NewFiles",
                     "NewImages"
                 ]
@@ -7329,7 +7406,8 @@
             {
                 "realname": "Log",
                 "aliases": [
-                    "Logbuch",
+                    "Журналы",
+                    "Журнал",
                     "Log",
                     "Logs"
                 ]
@@ -7337,28 +7415,28 @@
             {
                 "realname": "Watchlist",
                 "aliases": [
-                    "Beobachtungsliste",
+                    "Список_наблюдения",
                     "Watchlist"
                 ]
             },
             {
                 "realname": "Newpages",
                 "aliases": [
-                    "Neue_Seiten",
+                    "Новые_страницы",
                     "NewPages"
                 ]
             },
             {
                 "realname": "Recentchanges",
                 "aliases": [
-                    "Letzte_Änderungen",
+                    "Свежие_правки",
                     "RecentChanges"
                 ]
             },
             {
                 "realname": "Recentchangeslinked",
                 "aliases": [
-                    "Änderungen_an_verlinkten_Seiten",
+                    "Связанные_правки",
                     "RecentChangesLinked",
                     "RelatedChanges"
                 ]
@@ -7366,15 +7444,15 @@
             {
                 "realname": "Tags",
                 "aliases": [
-                    "Markierungen",
+                    "Метки",
                     "Tags"
                 ]
             },
             {
                 "realname": "Listfiles",
                 "aliases": [
-                    "Dateien",
-                    "Dateiliste",
+                    "Список_файлов",
+                    "Список_изображений",
                     "ListFiles",
                     "FileList",
                     "ImageList"
@@ -7383,50 +7461,48 @@
             {
                 "realname": "Filepath",
                 "aliases": [
-                    "Dateipfad",
+                    "Путь_к_файлу",
                     "FilePath"
                 ]
             },
             {
                 "realname": "MediaStatistics",
                 "aliases": [
-                    "Medienstatistiken",
                     "MediaStatistics"
                 ]
             },
             {
                 "realname": "MIMEsearch",
                 "aliases": [
-                    "MIME-Typ-Suche",
+                    "Поиск_по_MIME",
                     "MIMESearch"
                 ]
             },
             {
                 "realname": "FileDuplicateSearch",
                 "aliases": [
-                    "Dateiduplikatsuche",
-                    "Datei-Duplikat-Suche",
+                    "Поиск_дубликатов_файлов",
                     "FileDuplicateSearch"
                 ]
             },
             {
                 "realname": "Upload",
                 "aliases": [
-                    "Hochladen",
+                    "Загрузка",
                     "Upload"
                 ]
             },
             {
                 "realname": "UploadStash",
                 "aliases": [
-                    "Hochladespeicher",
+                    "Скрытная_загрузка",
                     "UploadStash"
                 ]
             },
             {
                 "realname": "ListDuplicatedFiles",
                 "aliases": [
-                    "Dateiduplikate",
+                    "Список_файлов-дубликатов",
                     "ListDuplicatedFiles",
                     "ListFileDuplicates"
                 ]
@@ -7440,7 +7516,7 @@
             {
                 "realname": "Statistics",
                 "aliases": [
-                    "Statistik",
+                    "Статистика",
                     "Statistics",
                     "Stats"
                 ]
@@ -7448,43 +7524,44 @@
             {
                 "realname": "Allmessages",
                 "aliases": [
-                    "MediaWiki-Systemnachrichten",
-                    "Systemnachrichten",
+                    "Системные_сообщения",
                     "AllMessages"
                 ]
             },
             {
                 "realname": "Version",
                 "aliases": [
+                    "Версия",
                     "Version"
                 ]
             },
             {
                 "realname": "Lockdb",
                 "aliases": [
-                    "Datenbank_sperren",
+                    "Заблокировать_БД",
+                    "Заблокировать_базу_данных",
                     "LockDB"
                 ]
             },
             {
                 "realname": "Unlockdb",
                 "aliases": [
-                    "Datenbank_entsperren",
+                    "Разблокировка_БД",
                     "UnlockDB"
                 ]
             },
             {
                 "realname": "LinkSearch",
                 "aliases": [
-                    "Weblinksuche",
-                    "Weblink-Suche",
+                    "Поиск_ссылок",
                     "LinkSearch"
                 ]
             },
             {
                 "realname": "Randompage",
                 "aliases": [
-                    "Zufällige_Seite",
+                    "Случайная_страница",
+                    "Случайная",
                     "Random",
                     "RandomPage"
                 ]
@@ -7492,21 +7569,19 @@
             {
                 "realname": "RandomInCategory",
                 "aliases": [
-                    "Zufällig_in_Kategorie",
                     "RandomInCategory"
                 ]
             },
             {
                 "realname": "Randomredirect",
                 "aliases": [
-                    "Zufällige_Weiterleitung",
+                    "Случайное_перенаправление",
                     "RandomRedirect"
                 ]
             },
             {
                 "realname": "Randomrootpage",
                 "aliases": [
-                    "Zufällige_Stammseite",
                     "RandomRootpage"
                 ]
             },
@@ -7519,7 +7594,7 @@
             {
                 "realname": "Mostlinkedcategories",
                 "aliases": [
-                    "Meistbenutzte_Kategorien",
+                    "Самые_используемые_категории",
                     "MostLinkedCategories",
                     "MostUsedCategories"
                 ]
@@ -7527,7 +7602,7 @@
             {
                 "realname": "Mostimages",
                 "aliases": [
-                    "Meistbenutzte_Dateien",
+                    "Самые_используемые_файлы",
                     "MostLinkedFiles",
                     "MostFiles",
                     "MostImages"
@@ -7536,14 +7611,14 @@
             {
                 "realname": "Mostinterwikis",
                 "aliases": [
-                    "Meiste_Interwikilinks",
+                    "Наибольшее_количество_интервики-ссылок",
                     "MostInterwikis"
                 ]
             },
             {
                 "realname": "Mostlinked",
                 "aliases": [
-                    "Meistverlinkte_Seiten",
+                    "Самые_используемые_страницы",
                     "MostLinkedPages",
                     "MostLinked"
                 ]
@@ -7551,7 +7626,7 @@
             {
                 "realname": "Mostlinkedtemplates",
                 "aliases": [
-                    "Meistbenutzte_Vorlagen",
+                    "Самые_используемые_шаблоны",
                     "MostTranscludedPages",
                     "MostLinkedTemplates",
                     "MostUsedTemplates"
@@ -7560,64 +7635,65 @@
             {
                 "realname": "Mostcategories",
                 "aliases": [
-                    "Meistkategorisierte_Seiten",
+                    "Самые_категоризованные",
                     "MostCategories"
                 ]
             },
             {
                 "realname": "Mostrevisions",
                 "aliases": [
-                    "Meistbearbeitete_Seiten",
+                    "Наибольшее_количество_версий",
                     "MostRevisions"
                 ]
             },
             {
                 "realname": "ComparePages",
                 "aliases": [
-                    "Seiten_vergleichen",
+                    "Сравнение_страниц",
                     "ComparePages"
                 ]
             },
             {
                 "realname": "Export",
                 "aliases": [
-                    "Exportieren",
+                    "Экспорт",
+                    "Выгрузка",
                     "Export"
                 ]
             },
             {
                 "realname": "Import",
                 "aliases": [
-                    "Importieren",
+                    "Импорт",
                     "Import"
                 ]
             },
             {
                 "realname": "Undelete",
                 "aliases": [
-                    "Wiederherstellen",
+                    "Восстановить",
+                    "Восстановление",
                     "Undelete"
                 ]
             },
             {
                 "realname": "Whatlinkshere",
                 "aliases": [
-                    "Linkliste",
-                    "Verweisliste",
+                    "Ссылки_сюда",
                     "WhatLinksHere"
                 ]
             },
             {
                 "realname": "MergeHistory",
                 "aliases": [
-                    "Versionsgeschichten_vereinen",
+                    "Объединение_историй",
                     "MergeHistory"
                 ]
             },
             {
                 "realname": "ExpandTemplates",
                 "aliases": [
-                    "Vorlagen_expandieren",
+                    "Развёртка_шаблонов",
                     "ExpandTemplates"
                 ]
             },
@@ -7630,22 +7706,20 @@
             {
                 "realname": "Booksources",
                 "aliases": [
-                    "ISBN-Suche",
+                    "Источники_книг",
                     "BookSources"
                 ]
             },
             {
                 "realname": "ApiHelp",
                 "aliases": [
-                    "API-Hilfe",
                     "ApiHelp"
                 ]
             },
             {
                 "realname": "Blankpage",
                 "aliases": [
-                    "Leerseite",
-                    "Leere_Seite",
+                    "Пустая_страница",
                     "BlankPage"
                 ]
             },
@@ -7659,9 +7733,7 @@
             {
                 "realname": "Diff",
                 "aliases": [
-                    "Diff",
-                    "Differenz",
-                    "Unterschied",
+                    "Изменения",
                     "Diff"
                 ]
             },
@@ -7681,9 +7753,8 @@
             {
                 "realname": "Emailuser",
                 "aliases": [
-                    "E-Mail_senden",
-                    "Mailen",
-                    "E-Mail",
+                    "Письмо_участнику",
+                    "Отправить_письмо",
                     "EmailUser",
                     "Email"
                 ]
@@ -7691,35 +7762,37 @@
             {
                 "realname": "Movepage",
                 "aliases": [
-                    "Verschieben",
+                    "Переименовать_страницу",
+                    "Переименование",
+                    "Переименовать",
                     "MovePage"
                 ]
             },
             {
                 "realname": "Mycontributions",
                 "aliases": [
-                    "Meine_Beiträge",
+                    "Мой_вклад",
                     "MyContributions"
                 ]
             },
             {
                 "realname": "MyLanguage",
                 "aliases": [
-                    "Meine_Sprache",
+                    "Мой_язык",
                     "MyLanguage"
                 ]
             },
             {
                 "realname": "Mypage",
                 "aliases": [
-                    "Meine_Benutzerseite",
+                    "Моя_страница",
                     "MyPage"
                 ]
             },
             {
                 "realname": "Mytalk",
                 "aliases": [
-                    "Meine_Diskussionsseite",
+                    "Моё_обсуждение",
                     "MyTalk"
                 ]
             },
@@ -7753,7 +7826,7 @@
             {
                 "realname": "Myuploads",
                 "aliases": [
-                    "Meine_hochgeladenen_Dateien",
+                    "Мои_загрузки",
                     "MyUploads",
                     "MyFiles"
                 ]
@@ -7761,7 +7834,7 @@
             {
                 "realname": "AllMyUploads",
                 "aliases": [
-                    "Alle_meine_Dateien",
+                    "Все_мои_файлы",
                     "AllMyUploads",
                     "AllMyFiles"
                 ]
@@ -7769,7 +7842,6 @@
             {
                 "realname": "NewSection",
                 "aliases": [
-                    "Neuer_Abschnitt",
                     "NewSection",
                     "Newsection"
                 ]
@@ -7777,8 +7849,7 @@
             {
                 "realname": "PermanentLink",
                 "aliases": [
-                    "Permanenter_Link",
-                    "Permalink",
+                    "Постоянная_ссылка",
                     "PermanentLink",
                     "PermaLink"
                 ]
@@ -7786,28 +7857,26 @@
             {
                 "realname": "Redirect",
                 "aliases": [
-                    "Weiterleitung",
                     "Redirect"
                 ]
             },
             {
                 "realname": "Revisiondelete",
                 "aliases": [
-                    "Versionslöschung",
+                    "Удаление_правки",
                     "RevisionDelete"
                 ]
             },
             {
                 "realname": "RunJobs",
                 "aliases": [
-                    "Aufträge_ausführen",
                     "RunJobs"
                 ]
             },
             {
                 "realname": "Specialpages",
                 "aliases": [
-                    "Spezialseiten",
+                    "Спецстраницы",
                     "SpecialPages"
                 ]
             },
@@ -7820,30 +7889,30 @@
             {
                 "realname": "Search",
                 "aliases": [
-                    "Suche",
+                    "Поиск",
                     "Search"
                 ]
             },
             {
                 "realname": "Confirmemail",
                 "aliases": [
-                    "E-Mail_bestätigen",
-                    "E-Mail_bestaetigen",
+                    "Подтвердить_e-mail",
+                    "Подтвердить_почту",
                     "ConfirmEmail"
                 ]
             },
             {
                 "realname": "Invalidateemail",
                 "aliases": [
-                    "E-Mail_nicht_bestätigen",
-                    "E-Mail_nicht_bestaetigen",
+                    "Отменить_подтверждение_адреса",
                     "InvalidateEmail"
                 ]
             },
             {
                 "realname": "ChangeEmail",
                 "aliases": [
-                    "E-Mail-Adresse_ändern",
+                    "Сменить_e-mail",
+                    "Сменить_почту",
                     "ChangeEmail"
                 ]
             },
@@ -7856,14 +7925,15 @@
             {
                 "realname": "Hieroglyphs",
                 "aliases": [
-                    "Hieroglyphen",
+                    "Иероглифы",
                     "Hieroglyphs"
                 ]
             },
             {
                 "realname": "SiteMatrix",
                 "aliases": [
-                    "Liste_der_Wikimedia-Wikis",
+                    "Матрица_сайта",
+                    "Вики_Викимедиа",
                     "SiteMatrix",
                     "WikimediaWikis"
                 ]
@@ -7871,8 +7941,7 @@
             {
                 "realname": "CiteThisPage",
                 "aliases": [
-                    "Zitierhilfe",
-                    "Zitieren",
+                    "Цитата",
                     "CiteThisPage",
                     "Cite"
                 ]
@@ -7880,35 +7949,33 @@
             {
                 "realname": "CategoryTree",
                 "aliases": [
-                    "Kategorienbaum",
-                    "Kategoriebaum",
+                    "Дерево_категорий",
                     "CategoryTree"
                 ]
             },
             {
                 "realname": "Gadgets",
                 "aliases": [
-                    "Helferlein",
+                    "Гаджеты",
                     "Gadgets"
                 ]
             },
             {
                 "realname": "GadgetUsage",
                 "aliases": [
+                    "Использование_гаджетов",
                     "GadgetUsage"
                 ]
             },
             {
                 "realname": "OrphanedTimedText",
                 "aliases": [
-                    "Verwaister_TimedText",
                     "OrphanedTimedText"
                 ]
             },
             {
                 "realname": "TranscodeStatistics",
                 "aliases": [
-                    "TimedMedia-Steuerungsprogramm",
                     "Transcode_statistics",
                     "Transcode_Statistics",
                     "TimedMediaHandler"
@@ -7917,7 +7984,6 @@
             {
                 "realname": "UrlShortener",
                 "aliases": [
-                    "URL-Kürzung",
                     "UrlShortener"
                 ]
             },
@@ -7936,21 +8002,21 @@
             {
                 "realname": "GlobalBlock",
                 "aliases": [
-                    "Globale_Sperre",
+                    "Глобальная_блокировка",
                     "GlobalBlock"
                 ]
             },
             {
                 "realname": "GlobalBlockList",
                 "aliases": [
-                    "Liste_globaler_Sperren",
+                    "Список_глобальных_блокировок",
+                    "Глобальные_блокировки",
                     "GlobalBlockList"
                 ]
             },
             {
                 "realname": "GlobalBlockStatus",
                 "aliases": [
-                    "Ausnahme_von_globaler_Sperre",
                     "GlobalBlockWhitelist",
                     "GlobalBlockStatus",
                     "DisableGlobalBlock"
@@ -7959,7 +8025,7 @@
             {
                 "realname": "RemoveGlobalBlock",
                 "aliases": [
-                    "Globale_Sperre_aufheben",
+                    "Глобальная_разблокировка",
                     "GlobalUnblock",
                     "RemoveGlobalBlock"
                 ]
@@ -7967,21 +8033,21 @@
             {
                 "realname": "SecurePoll",
                 "aliases": [
-                    "Sichere_Abstimmung",
+                    "Защищённое_голосование",
                     "SecurePoll"
                 ]
             },
             {
                 "realname": "Renameuser",
                 "aliases": [
-                    "Benutzer_umbenennen",
+                    "Переименовать_участника",
                     "RenameUser"
                 ]
             },
             {
                 "realname": "Nuke",
                 "aliases": [
-                    "Massenlöschung",
+                    "Множественное_удаление",
                     "Nuke"
                 ]
             },
@@ -7994,7 +8060,6 @@
             {
                 "realname": "CentralAuth",
                 "aliases": [
-                    "Verwaltung_Benutzerkonten-Zusammenführung",
                     "CentralAuth",
                     "GlobalAccount"
                 ]
@@ -8020,14 +8085,15 @@
             {
                 "realname": "MergeAccount",
                 "aliases": [
-                    "Benutzerkonten_zusammenführen",
+                    "Объединение_учётных_записей",
                     "MergeAccount"
                 ]
             },
             {
                 "realname": "GlobalGroupMembership",
                 "aliases": [
-                    "Globale_Benutzerzugehörigkeit",
+                    "Глобальные_права_участника",
+                    "Глобальное_членство",
                     "GlobalUserRights",
                     "GlobalGroupMembership"
                 ]
@@ -8035,16 +8101,14 @@
             {
                 "realname": "GlobalGroupPermissions",
                 "aliases": [
-                    "Globale_Gruppenrechte",
+                    "Права_глобальных_групп",
                     "GlobalGroupPermissions"
                 ]
             },
             {
                 "realname": "WikiSets",
                 "aliases": [
-                    "Wikigruppen",
-                    "Wikigruppen_bearbeiten",
-                    "Wikisets_bearbeiten",
+                    "Наборы_вики",
                     "WikiSets",
                     "EditWikiSets"
                 ]
@@ -8052,71 +8116,63 @@
             {
                 "realname": "GlobalUsers",
                 "aliases": [
-                    "Globale_Benutzerliste",
+                    "Глобальные_участники",
                     "GlobalUsers"
                 ]
             },
             {
                 "realname": "MultiLock",
                 "aliases": [
-                    "Mehrfachsperre",
                     "MultiLock"
                 ]
             },
             {
                 "realname": "GlobalRenameUser",
                 "aliases": [
-                    "Globale_Benutzerumbenennung",
                     "GlobalRenameUser"
                 ]
             },
             {
                 "realname": "GlobalRenameProgress",
                 "aliases": [
-                    "Globaler_Umbenennungsfortschritt",
                     "GlobalRenameProgress"
                 ]
             },
             {
                 "realname": "ApiFeatureUsage",
                 "aliases": [
-                    "API-Funktionsverwendung",
                     "ApiFeatureUsage"
                 ]
             },
             {
                 "realname": "BannerLoader",
                 "aliases": [
-                    "Vorlage_laden",
                     "BannerLoader"
                 ]
             },
             {
                 "realname": "BannerRandom",
                 "aliases": [
-                    "Zufällige_Vorlage",
                     "BannerRandom"
                 ]
             },
             {
                 "realname": "RecordImpression",
                 "aliases": [
-                    "Zugriffe_zählen",
                     "RecordImpression"
                 ]
             },
             {
                 "realname": "HideBanners",
                 "aliases": [
-                    "Vorlagen_ausblenden",
                     "HideBanners"
                 ]
             },
             {
                 "realname": "Book",
                 "aliases": [
-                    "Buch",
-                    "Sammlung",
+                    "Коллекция_книг",
+                    "Книга",
                     "Book",
                     "Collection"
                 ]
@@ -8137,28 +8193,26 @@
             {
                 "realname": "AbuseLog",
                 "aliases": [
-                    "Missbrauchsfilter-Logbuch",
+                    "Журнал_злоупотреблений",
                     "AbuseLog"
                 ]
             },
             {
                 "realname": "AbuseFilter",
                 "aliases": [
-                    "Missbrauchsfilter",
+                    "Фильтр_злоупотреблений",
                     "AbuseFilter"
                 ]
             },
             {
                 "realname": "MostGloballyLinkedFiles",
                 "aliases": [
-                    "Am_meisten_global_verlinkte_Dateien",
                     "MostGloballyLinkedFiles"
                 ]
             },
             {
                 "realname": "GloballyWantedFiles",
                 "aliases": [
-                    "Global_gewünschte_Dateien",
                     "GloballyWantedFiles"
                 ]
             },
@@ -8171,36 +8225,31 @@
             {
                 "realname": "GlobalUsage",
                 "aliases": [
-                    "Globale_Benutzung",
-                    "Globale_Verwendung",
+                    "Глобальное_использование",
                     "GlobalUsage"
                 ]
             },
             {
                 "realname": "MassMessage",
                 "aliases": [
-                    "Massennachrichten",
                     "MassMessage"
                 ]
             },
             {
                 "realname": "CreateMassMessageList",
                 "aliases": [
-                    "Massennachrichtenliste_erstellen",
                     "CreateMassMessageList"
                 ]
             },
             {
                 "realname": "EditMassMessageList",
                 "aliases": [
-                    "Massennachrichtenliste_bearbeiten",
                     "EditMassMessageList"
                 ]
             },
             {
                 "realname": "BetaFeatures",
                 "aliases": [
-                    "Beta-Funktionen",
                     "BetaFeatures"
                 ]
             },
@@ -8220,35 +8269,33 @@
             {
                 "realname": "MobileDiff",
                 "aliases": [
-                    "Mobiler_Unterschied",
+                    "Сравнение_версий",
                     "MobileDiff"
                 ]
             },
             {
                 "realname": "History",
                 "aliases": [
-                    "Versionsgeschichte",
                     "History"
                 ]
             },
             {
                 "realname": "MobileOptions",
                 "aliases": [
-                    "Mobile_Optionen",
+                    "Настройки_мобильной_версии",
                     "MobileOptions"
                 ]
             },
             {
                 "realname": "MobileLanguages",
                 "aliases": [
-                    "Mobile_Sprachen",
                     "MobileLanguages"
                 ]
             },
             {
                 "realname": "Uploads",
                 "aliases": [
-                    "Hochgeladene_Dateien",
+                    "Загрузки",
                     "Uploads"
                 ]
             },
@@ -8273,29 +8320,26 @@
             {
                 "realname": "VipsTest",
                 "aliases": [
-                    "Vips-Test",
                     "VipsTest"
                 ]
             },
             {
                 "realname": "FeedItem",
                 "aliases": [
-                    "Feedobjekt",
                     "FeedItem"
                 ]
             },
             {
                 "realname": "Interwiki",
                 "aliases": [
-                    "Interwikitabelle",
-                    "Interwiki-Tabelle",
+                    "Интервики",
                     "Interwiki"
                 ]
             },
             {
                 "realname": "Notifications",
                 "aliases": [
-                    "Benachrichtigungen",
+                    "Уведомления",
                     "Notifications"
                 ]
             },
@@ -8314,21 +8358,18 @@
             {
                 "realname": "Thanks",
                 "aliases": [
-                    "Danke",
                     "Thanks"
                 ]
             },
             {
                 "realname": "DisambiguationPages",
                 "aliases": [
-                    "Begriffsklärungsseiten",
                     "DisambiguationPages"
                 ]
             },
             {
                 "realname": "DisambiguationPageLinks",
                 "aliases": [
-                    "Begriffsklärungslinks",
                     "DisambiguationPageLinks"
                 ]
             },
@@ -8347,7 +8388,6 @@
             {
                 "realname": "ContentTranslation",
                 "aliases": [
-                    "Inhaltsübersetzung",
                     "ContentTranslation",
                     "CX"
                 ]
@@ -8355,7 +8395,6 @@
             {
                 "realname": "ContentTranslationStats",
                 "aliases": [
-                    "Statistiken_zu_Inhaltsübersetzungen",
                     "ContentTranslationStats",
                     "CXStats"
                 ]
@@ -8369,7 +8408,6 @@
             {
                 "realname": "UnconnectedPages",
                 "aliases": [
-                    "Nicht_verbundene_Seiten",
                     "UnconnectedPages",
                     "WithoutConnection",
                     "WithoutSitelinks"
@@ -8392,7 +8430,7 @@
             {
                 "realname": "TemplateSandbox",
                 "aliases": [
-                    "Vorlagenspielwiese",
+                    "Песочница_для_шаблонов",
                     "TemplateSandbox"
                 ]
             },
@@ -8412,7 +8450,6 @@
             {
                 "realname": "OAuthManageMyGrants",
                 "aliases": [
-                    "Meine_Berechtigungen_verwalten",
                     "OAuthManageMyGrants",
                     "OAuthGrants"
                 ]
@@ -8420,7 +8457,6 @@
             {
                 "realname": "OAuthListConsumers",
                 "aliases": [
-                    "Verbraucher_auflisten",
                     "OAuthListConsumers"
                 ]
             },
@@ -8448,16 +8484,22 @@
                 ]
             },
             {
+                "realname": "ORESModels",
+                "aliases": [
+                    "ORESModels"
+                ]
+            },
+            {
                 "realname": "CheckUser",
                 "aliases": [
-                    "Checkuser",
+                    "Проверить_участника",
                     "CheckUser"
                 ]
             },
             {
                 "realname": "CheckUserLog",
                 "aliases": [
-                    "Checkuser-Logbuch",
+                    "Журнал_проверок_участников",
                     "CheckUserLog"
                 ]
             },
@@ -8470,7 +8512,6 @@
             {
                 "realname": "GlobalPreferences",
                 "aliases": [
-                    "Globale_Einstellungen",
                     "GlobalPreferences"
                 ]
             },
@@ -8495,14 +8536,15 @@
             {
                 "realname": "RevisionReview",
                 "aliases": [
-                    "Versionsprüfung",
+                    "Проверка_версий",
                     "RevisionReview"
                 ]
             },
             {
                 "realname": "PendingChanges",
                 "aliases": [
-                    "Seiten_mit_ungesichteten_Versionen",
+                    "Ожидающие_проверки_изменения",
+                    "Устаревшие_проверенные_страницы",
                     "PendingChanges",
                     "OldReviewedPages"
                 ]
@@ -8510,8 +8552,7 @@
             {
                 "realname": "QualityOversight",
                 "aliases": [
-                    "Erweitertes_Sichtungslogbuch",
-                    "Markierungsübersicht",
+                    "Расширенный_журнал_проверок_версий",
                     "AdvancedReviewLog",
                     "QualityOversight"
                 ]
@@ -8519,30 +8560,28 @@
             {
                 "realname": "ValidationStatistics",
                 "aliases": [
-                    "Sichtungsstatistik",
-                    "Markierungsstatistik",
+                    "Статистика_проверок",
                     "ValidationStatistics"
                 ]
             },
             {
                 "realname": "ConfiguredPages",
                 "aliases": [
-                    "Konfigurierte_Seiten",
+                    "Настроенные_страницы",
                     "ConfiguredPages"
                 ]
             },
             {
                 "realname": "UnreviewedPages",
                 "aliases": [
-                    "Ungesichtete_Seiten",
+                    "Непроверенные_страницы",
                     "UnreviewedPages"
                 ]
             },
             {
                 "realname": "Stabilization",
                 "aliases": [
-                    "Seitenkonfiguration",
-                    "Stabilisierung",
+                    "Стабилизация",
                     "Stabilization",
                     "Stabilisation"
                 ]
@@ -8550,8 +8589,8 @@
             {
                 "realname": "Nearby",
                 "aliases": [
-                    "In_der_Nähe",
-                    "In_der_Nähe",
+                    "Поблизости",
+                    "Поблизости",
                     "Nearby",
                     "Nearby"
                 ]
@@ -8571,42 +8610,41 @@
             {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
-                    "Globale_Umbenennungsanfrage",
+                    "Запрос_на_глобальное_переименование",
                     "GlobalRenameRequest"
                 ]
             },
             {
                 "realname": "GlobalRenameQueue",
                 "aliases": [
-                    "Globale_Umbenennungs-Warteschlange",
                     "GlobalRenameQueue"
                 ]
             },
             {
                 "realname": "WelcomeSurvey",
                 "aliases": [
-                    "WillkommensFragebogen",
+                    "Приветственный_опрос",
                     "WelcomeSurvey"
                 ]
             },
             {
                 "realname": "Homepage",
                 "aliases": [
-                    "Meine_Startseite",
+                    "Домашняя_страница",
                     "Homepage"
                 ]
             },
             {
                 "realname": "Impact",
                 "aliases": [
-                    "Mein_Einfluss",
+                    "Влияние",
                     "Impact"
                 ]
             },
             {
                 "realname": "ClaimMentee",
                 "aliases": [
-                    "Neulingsübernahme",
+                    "Утвердить_подопечного",
                     "ClaimMentee"
                 ]
             },
@@ -8639,11 +8677,11 @@
             "<inputbox>",
             "<categorytree>",
             "<section>",
-            "<abschnitt>",
             "<math>",
             "<ce>",
             "<chem>",
-            "<maplink>"
+            "<maplink>",
+            "<mapframe>"
         ],
         "functionhooks": [
             "ns",
