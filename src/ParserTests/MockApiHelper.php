@@ -832,7 +832,6 @@ class MockApiHelper extends ApiHelper {
 				$p = [
 					'ns' => 6,
 					'title' => $filename,
-					'missing' => true,
 					'imagerepository' => true,
 					'imageinfo' => [ [
 						'size' => 0,

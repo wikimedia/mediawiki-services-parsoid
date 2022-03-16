@@ -231,6 +231,7 @@ class DataAccess extends IDataAccess {
 			if ( isset( $fileinfo['filemissing'] ) ) {
 				$fileinfo = null;
 			} else {
+				$fileinfo['badFile'] = $data['query']['pages'][0]['badfile'];
 				$this->stripProto( $fileinfo, 'url' );
 				$this->stripProto( $fileinfo, 'thumburl' );
 				$this->stripProto( $fileinfo, 'descriptionurl' );

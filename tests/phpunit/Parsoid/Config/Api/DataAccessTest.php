@@ -75,6 +75,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 				"descriptionshorturl" => "//commons.wikimedia.org/w/index.php?curid=937952",
 				'mime' => 'image/svg+xml',
 				'mediatype' => 'DRAWING',
+				'badFile' => false
 			],
 			'DoesNotExist.png' => null,
 		];
