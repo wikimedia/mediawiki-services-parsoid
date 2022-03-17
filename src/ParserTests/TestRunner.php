@@ -268,7 +268,7 @@ class TestRunner {
 	}
 
 	/**
-	 * Parser the test file and set up articles and test cases
+	 * Parse the test file and set up articles and test cases
 	 * @param array $options
 	 */
 	private function buildTests( array $options ): void {
@@ -841,25 +841,20 @@ class TestRunner {
 	 *
 	 * @param Env $env
 	 * @param Test $test
-	 * @param array $options
 	 * @param string $mode
 	 * @param Document $doc
 	 * @return string
 	 */
-	private function convertHtml2Wt(
-		Env $env, Test $test, array $options, string $mode, Document $doc
-	): string {
-		$selserData = null;
+	private function convertHtml2Wt( Env $env, Test $test, string $mode, Document $doc ): string {
 		$startsAtWikitext = $mode === 'wt2wt' || $mode === 'wt2html' || $mode === 'selser';
 		if ( $mode === 'selser' ) {
-			if ( $startsAtWikitext ) {
-				$selserData = new SelserData( $test->wikitext, $test->cachedBODYstr );
-			}
+			$selserData = new SelserData( $test->wikitext, $test->cachedBODYstr );
+		} else {
+			$selserData = null;
 		}
-		$handler = $env->getContentHandler();
 		$env->topLevelDoc = $doc;
 		$extApi = new ParsoidExtensionAPI( $env );
-		return $handler->fromDOM( $extApi, $selserData );
+		return $env->getContentHandler()->fromDOM( $extApi, $selserData );
 	}
 
 	/**
@@ -870,15 +865,16 @@ class TestRunner {
 	 */
 	private function runTest( Test $test, string $mode, array $options ): void {
 		$test->time = [];
+		$testOpts = $test->options;
 
 		// These changes are for environment options that change between runs of
 		// different modes. See `processTest` for changes per test.
-		if ( $test->options ) {
+		if ( $testOpts ) {
 			// Page language matches "wiki language" (which is set by
 			// the item 'language' option).
-			if ( isset( $test->options['langconv'] ) ) {
-				$this->envOptions['wtVariantLanguage'] = $test->options['sourceVariant'] ?? null;
-				$this->envOptions['htmlVariantLanguage'] = $test->options['variant'] ?? null;
+			if ( isset( $testOpts['langconv'] ) ) {
+				$this->envOptions['wtVariantLanguage'] = $testOpts['sourceVariant'] ?? null;
+				$this->envOptions['htmlVariantLanguage'] = $testOpts['variant'] ?? null;
 			} else {
 				// variant conversion is disabled by default
 				$this->envOptions['wtVariantLanguage'] = null;
@@ -893,9 +889,10 @@ class TestRunner {
 		$endsAtWikitext = $mode === 'wt2wt' || $mode === 'selser' || $mode === 'html2wt';
 		$endsAtHtml = $mode === 'wt2html' || $mode === 'html2html';
 
-		$parsoidOnly = isset( $test->sections['html/parsoid'] ) ||
-			( !empty( $test->options['parsoid'] ) &&
-			!isset( $test->options['parsoid']['normalizePhp'] ) );
+		$parsoidOnly = isset( $test->sections['html/parsoid'] ) || (
+			!empty( $testOpts['parsoid'] ) &&
+			!isset( $testOpts['parsoid']['normalizePhp'] )
+		);
 		$test->time['start'] = microtime( true );
 		$doc = null;
 		$wt = null;
@@ -910,13 +907,11 @@ class TestRunner {
 				$html = TestUtils::normalizePhpOutput( $html );
 			}
 			$doc = ContentUtils::createDocument( $html );
-			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $doc );
+			$wt = $this->convertHtml2Wt( $env, $test, $mode, $doc );
 		} else { // startsAtWikitext
 			// Always serialize DOM to string and reparse before passing to wt2wt
 			if ( $test->cachedBODYstr === null ) {
 				$doc = $this->convertWt2Html( $env, $test, $mode, $test->wikitext );
-				// Caching stage 1 - save the result of the first two stages
-				// so we can maybe skip them later
 
 				// Cache parsed HTML
 				$test->cachedBODYstr = ContentUtils::toXML( DOMCompat::getBody( $doc ) );
@@ -937,14 +932,15 @@ class TestRunner {
 		}
 
 		// Generate and make changes for the selser test mode
+		$testManualChanges = $testOpts['parsoid']['changes'] ?? null;
 		if ( $mode === 'selser' ) {
-			if ( ( $options['selser'] === 'noauto' || $test->changetree === [ 'manual' ] ) &&
-				isset( $test->options['parsoid']['changes'] )
+			if ( $testManualChanges &&
+				( $options['selser'] === 'noauto' || $test->changetree === [ 'manual' ] )
 			) {
 				// Ensure that we have this set here in case it hasn't been
 				// set in buildTasks because the 'selser=noauto' option was passed.
 				$test->changetree = [ 'manual' ];
-				$this->applyManualChanges( $doc, $test->options['parsoid']['changes'] );
+				$this->applyManualChanges( $doc, $testManualChanges );
 			} else {
 				$changetree = isset( $options['changetree'] ) ?
 					json_decode( $options['changetree'] ) : $test->changetree;
@@ -953,20 +949,20 @@ class TestRunner {
 				}
 				$this->applyChanges( $env, $test, $doc, $changetree );
 			}
-			// Save the modified DOM so we can re-test it later
-			// Always serialize to string and reparse before passing to selser/wt2wt
+			// Save the modified DOM so we can re-test it later.
+			// Always serialize to string and reparse before passing to selser/wt2wt.
 			$test->changedHTMLStr = ContentUtils::toXML( DOMCompat::getBody( $doc ) );
 			$doc = ContentUtils::createDocument( $test->changedHTMLStr );
 		} elseif ( $mode === 'wt2wt' ) {
-			// handle a 'changes' option if present.
-			if ( isset( $test->options['parsoid']['changes'] ) ) {
-				$this->applyManualChanges( $doc, $test->options['parsoid']['changes'] );
+			// Handle a 'changes' option if present.
+			if ( $testManualChanges ) {
+				$this->applyManualChanges( $doc, $testManualChanges );
 			}
 		}
 
 		// Roundtrip stage
 		if ( $mode === 'wt2wt' || $mode === 'selser' ) {
-			$wt = $this->convertHtml2Wt( $env, $test, $options, $mode, $doc );
+			$wt = $this->convertHtml2Wt( $env, $test, $mode, $doc );
 		} elseif ( $mode === 'html2html' ) {
 			$doc = $this->convertWt2Html( $env, $test, $mode, $wt );
 		}
@@ -980,8 +976,8 @@ class TestRunner {
 	}
 
 	/**
-	 * Check the given HTML result against the expected result, and throw an
-	 * exception if necessary.
+	 * Check the given HTML result against the expected result,
+	 * and throw an exception if necessary.
 	 *
 	 * @param Test $test
 	 * @param array $options
@@ -992,10 +988,7 @@ class TestRunner {
 		Test $test, array $options, string $mode, Document $doc
 	): void {
 		$test->time['end'] = microtime( true );
-		// Check the result vs. the expected result.
-		$checkPassed = $this->checkHTML(
-			$test, DOMCompat::getBody( $doc ), $options, $mode
-		);
+		$checkPassed = $this->checkHTML( $test, DOMCompat::getBody( $doc ), $options, $mode );
 
 		// Only throw an error if --exit-unexpected was set and there was an error
 		// Otherwise, continue running tests
@@ -1005,8 +998,8 @@ class TestRunner {
 	}
 
 	/**
-	 * Check the given wikitext result against the expected result, and throw an
-	 * exception if necessary.
+	 * Check the given wikitext result against the expected result,
+	 * and throw an exception if necessary.
 	 *
 	 * @param Env $env
 	 * @param Test $test
@@ -1024,11 +1017,10 @@ class TestRunner {
 				$test->resultWT = $test->wikitext;
 			} else {
 				$doc = ContentUtils::createDocument( $test->changedHTMLStr );
-				$test->resultWT = $this->convertHtml2Wt( $env, $test, $options, 'wt2wt', $doc );
+				$test->resultWT = $this->convertHtml2Wt( $env, $test, 'wt2wt', $doc );
 			}
 		}
 
-		// Check the result vs. the expected result.
 		$checkPassed = $this->checkWikitext( $test, $wikitext, $options, $mode );
 
 		// Only throw an error if --exit-unexpected was set and there was an error
@@ -1098,9 +1090,8 @@ class TestRunner {
 			$test->changes !== [ 5 ] && $test->changetree !== [ 'manual' ]
 		) {
 			$testWikitext = $test->resultWT;
-		} elseif ( ( $mode === 'wt2wt' ||
-				( $mode === 'selser' && $test->changetree === [ 'manual' ] )
-			) && isset( $test->options['parsoid']['changes'] )
+		} elseif ( isset( $test->options['parsoid']['changes'] ) &&
+			( $mode === 'wt2wt' || ( $mode === 'selser' && $test->changetree === [ 'manual' ] ) )
 		) {
 			$testWikitext = $test->sections['wikitext/edited'];
 		}
@@ -1111,7 +1102,7 @@ class TestRunner {
 			rtrim( $testWikitext, "\n" ) : $testWikitext;
 
 		// FIXME: normalization not in place yet
-		$normalizedOut = ( $toWikiText ) ? rtrim( $out, "\n" ) : $out;
+		$normalizedOut = $toWikiText ? rtrim( $out, "\n" ) : $out;
 
 		$input = $mode === 'selser' ? $test->changedHTMLStr :
 			( $mode === 'html2wt' ? $test->parsoidHtml : $testWikitext );
@@ -1124,8 +1115,8 @@ class TestRunner {
 
 	/**
 	 * FIXME: clean up this mess!
-	 * - generate all changes at once (generateChanges should return a tree
-	 *   really) rather than going to all these lengths of interleaving change
+	 * - generate all changes at once (generateChanges should return a tree really)
+	 *   rather than going to all these lengths of interleaving change
 	 *   generation with tests
 	 * - set up the changes in item directly rather than juggling around with
 	 *   indexes etc
@@ -1151,7 +1142,7 @@ class TestRunner {
 				// Prepend manual changes, if present, but not if 'selser' isn't
 				// in the explicit modes option.
 				if ( isset( $test->options['parsoid']['changes'] ) ) {
-					$newitem = Utils::clone( $test );
+					$testClone = Utils::clone( $test );
 					// Mutating the item here is necessary to output 'manual' in
 					// the test's title and to differentiate it for knownFailures.
 					// It can only get here in two cases:
@@ -1165,11 +1156,11 @@ class TestRunner {
 					//   value here as no other items will be processed.
 					// Still, protect against changing a different copy of the item.
 					Assert::invariant(
-						$newitem->changetree === [ 'manual' ] || $newitem->changetree === null,
+						$testClone->changetree === [ 'manual' ] || $testClone->changetree === null,
 						'Expecting manual changetree OR no changetree'
 					);
-					$newitem->changetree = [ 'manual' ];
-					$this->runTest( $newitem, 'selser', $options );
+					$testClone->changetree = [ 'manual' ];
+					$this->runTest( $testClone, 'selser', $options );
 				}
 				// And if that's all we want, next one.
 				if ( ( $test->options['parsoid']['selser'] ?? '' ) === 'noauto' ) {
@@ -1179,22 +1170,22 @@ class TestRunner {
 				$test->selserChangeTrees = [];
 
 				// Prepend a selser test that appends a comment to the root node
-				$newitem = Utils::clone( $test );
-				$newitem->changetree = [ 5 ];
-				$this->runTest( $newitem, 'selser', $options );
+				$testClone = Utils::clone( $test );
+				$testClone->changetree = [ 5 ];
+				$this->runTest( $testClone, 'selser', $options );
 
 				for ( $j = 0; $j < $options['numchanges']; $j++ ) {
-					$newitem = Utils::clone( $test );
+					$testClone = Utils::clone( $test );
 					// Make sure we aren't reusing the one from manual changes
-					Assert::invariant( $newitem->changetree === null, "Expected changetree to be null" );
-					$newitem->seed = $j . '';
-					$this->runTest( $newitem, $targetMode, $options );
-					if ( $this->isDuplicateChangeTree( $test->selserChangeTrees, $newitem->changes ) ) {
+					Assert::invariant( $testClone->changetree === null, "Expected changetree to be null" );
+					$testClone->seed = $j . '';
+					$this->runTest( $testClone, $targetMode, $options );
+					if ( $this->isDuplicateChangeTree( $test->selserChangeTrees, $testClone->changes ) ) {
 						// Once we get a duplicate change tree, we can no longer
 						// generate and run new tests.  So, be done now!
 						break;
 					} else {
-						$test->selserChangeTrees[$j] = $newitem->changes;
+						$test->selserChangeTrees[$j] = $testClone->changes;
 					}
 				}
 			} else {
@@ -1210,18 +1201,20 @@ class TestRunner {
 						continue;
 					}
 				} else {
-					// The order here is important, in that cloning `item` should
-					// happen before `item` is used in `runTest()`, since
-					// we cache some properties (`cachedBODYstr`,
-					// `cachedNormalizedHTML`) that should be cleared before use
-					// in `newitem`.
+					// FIXME: This comment looks like it is stale! If they need to be
+					// cleared, it should be done after cloning!
+					//
+					// The order here is important, in that cloning `$this` should happen
+					// before it is used in `runTest()`, since we cache some properties
+					// (`cachedBODYstr`, `cachedNormalizedHTML`) that should be cleared
+					// before use in `testClone`.
 					if ( $targetMode === 'wt2html' &&
 						isset( $test->sections['html/parsoid+langconv'] )
 					) {
-						$newitem = Utils::clone( $test );
-						$newitem->options['langconv'] = true;
-						$newitem->parsoidHtml = $test->sections['html/parsoid+langconv'];
-						$this->runTest( $newitem, $targetMode, $options );
+						$testClone = Utils::clone( $test );
+						$testClone->options['langconv'] = true;
+						$testClone->parsoidHtml = $test->sections['html/parsoid+langconv'];
+						$this->runTest( $testClone, $targetMode, $options );
 						if ( $test->parsoidHtml === null ) {
 							// Don't run the same test in non-langconv mode
 							// unless we have a non-langconv section
@@ -1245,13 +1238,17 @@ class TestRunner {
 		$knownFailuresChanged = false;
 		$allModes = $options['wt2html'] && $options['wt2wt'] &&
 			$options['html2wt'] && $options['html2html'] &&
-			isset( $options['selser'] ) &&
-			!( isset( $options['filter'] ) || isset( $options['regex'] ) ||
-				isset( $options['maxtests'] ) );
+			isset( $options['selser'] ) && !(
+				isset( $options['filter'] ) ||
+				isset( $options['regex'] ) ||
+				isset( $options['maxtests'] )
+			);
 		$offsetType = $options['offsetType'] ?? 'byte';
 
-		// update the knownFailures, if requested
-		if ( $allModes || ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
+		// Update knownFailures, if requested
+		if ( $allModes ||
+			ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null )
+		) {
 			if ( $this->knownFailuresPath !== null ) {
 				$old = file_get_contents( $this->knownFailuresPath );
 			} else {
@@ -1333,6 +1330,8 @@ class TestRunner {
 	}
 
 	/**
+	 * Run the test in all requested modes.
+	 *
 	 * @param Test $test
 	 * @param array $options
 	 */
@@ -1341,31 +1340,30 @@ class TestRunner {
 			$test->options = [];
 		}
 
+		$testOpts = $test->options;
+
 		// ensure that test is not skipped if it has a wikitext/edited or
 		// html/parsoid+langconv section (but not a parsoid html section)
 		$haveHtml = ( $test->parsoidHtml !== null ) ||
 			isset( $test->sections['wikitext/edited'] ) ||
 			isset( $test->sections['html/parsoid+langconv'] );
 
-		// Reset the cached results for the new case.
-		// All test modes happen in a single run of processCase.
-		$test->cachedBODYstr = null;
-		$test->cachedNormalizedHTML = null;
-
 		$targetModes = $options['modes'];
-		if ( $test->wikitext === null || !$haveHtml
-			|| ( isset( $test->options['disabled'] ) && !$this->runDisabled )
-			|| ( isset( $test->options['php'] )
-				&& !( isset( $test->sections['html/parsoid'] ) || $this->runPHP ) )
-			|| !$test->matchesFilter( $this->testFilter )
+
+		// Skip test whose title does not match --filter
+		// or which is disabled or php-only
+		if ( $test->wikitext === null ||
+			!$haveHtml ||
+			( isset( $testOpts['disabled'] ) && !$this->runDisabled ) ||
+			( isset( $testOpts['php'] ) && !(
+				isset( $test->sections['html/parsoid'] ) || $this->runPHP )
+			) ||
+			!$test->matchesFilter( $this->testFilter )
 		) {
-			// Skip test whose title does not match --filter
-			// or which is disabled or php-only
 			return;
 		}
 
-		// Set logger
-		$suppressErrors = !empty( $test->options['parsoid']['suppressErrors'] );
+		$suppressErrors = !empty( $testOpts['parsoid']['suppressErrors'] );
 		$this->siteConfig->setLogger( $suppressErrors ?
 			$this->siteConfig->suppressLogger : $this->defaultLogger );
 
@@ -1385,12 +1383,11 @@ class TestRunner {
 		}
 
 		if ( !count( $targetModes ) ) {
-			// No matching target modes
 			return;
 		}
 
-		// Honor language option in parserTests.txt
-		$prefix = $test->options['language'] ?? 'enwiki';
+		// Honor language option
+		$prefix = $testOpts['language'] ?? 'enwiki';
 		if ( !str_contains( $prefix, 'wiki' ) ) {
 			// Convert to our enwiki.. format
 			$prefix .= 'wiki';
@@ -1402,58 +1399,53 @@ class TestRunner {
 
 		// Update $wgInterwikiMagic flag
 		// default (undefined) setting is true
-		$iwmVal = $test->options['wginterwikimagic'] ?? null;
-		if ( !$iwmVal ) {
-			$this->siteConfig->setInterwikiMagic( true );
-		} else {
-			$this->siteConfig->setInterwikiMagic( $iwmVal === 1 || $iwmVal === true );
-		}
+		$iwmVal = $testOpts['wginterwikimagic'] ?? null;
+		$this->siteConfig->setInterwikiMagic( $iwmVal === null || $iwmVal === true || $iwmVal === 1 );
 
-		if ( $test->options ) {
-			Assert::invariant( !isset( $test->options['extensions'] ),
+		if ( $testOpts ) {
+			Assert::invariant( !isset( $testOpts['extensions'] ),
 				'Cannot configure extensions in tests' );
 
 			$this->siteConfig->disableSubpagesForNS( 0 );
-			if ( isset( $test->options['subpage'] ) ) {
+			if ( isset( $testOpts['subpage'] ) ) {
 				$this->siteConfig->enableSubpagesForNS( 0 );
 			}
 
 			$allowedPrefixes = [ '' ]; // all allowed
-			if ( isset( $test->options['wgallowexternalimages'] ) &&
-				!preg_match( '/^(1|true|)$/D', $test->options['wgallowexternalimages'] )
+			if ( isset( $testOpts['wgallowexternalimages'] ) &&
+				!preg_match( '/^(1|true|)$/D', $testOpts['wgallowexternalimages'] )
 			) {
 				$allowedPrefixes = [];
 			}
 			$this->siteConfig->allowedExternalImagePrefixes = $allowedPrefixes;
 
 			// Process test-specific options
-			$defaults = [
-				'wrapSections' => false
-			]; // override for parser tests
+			$defaults = [ 'wrapSections' => false ]; // override for parser tests
 			foreach ( $defaults as $opt => $defaultVal ) {
-				$this->envOptions[$opt] = $test->options['parsoid'][$opt] ?? $defaultVal;
+				$this->envOptions[$opt] = $testOpts['parsoid'][$opt] ?? $defaultVal;
 			}
 
 			$this->siteConfig->responsiveReferences =
-				$test->options['parsoid']['responsiveReferences'] ?? $this->siteConfig->responsiveReferences;
+				$testOpts['parsoid']['responsiveReferences'] ?? $this->siteConfig->responsiveReferences;
 
 			// Emulate PHP parser's tag hook to tunnel content past the sanitizer
-			if ( isset( $test->options['styletag'] ) ) {
+			if ( isset( $testOpts['styletag'] ) ) {
 				$this->siteConfig->registerParserTestExtension( new StyleTag() );
 			}
 
-			if ( ( $test->options['wgrawhtml'] ?? null ) === '1' ) {
+			if ( ( $testOpts['wgrawhtml'] ?? null ) === '1' ) {
 				$this->siteConfig->registerParserTestExtension( new RawHTML() );
 			}
 
-			if ( isset( $test->options['thumbsize'] ) ) {
-				$this->siteConfig->thumbsize = (int)$test->options['thumbsize'];
+			if ( isset( $testOpts['thumbsize'] ) ) {
+				$this->siteConfig->thumbsize = (int)$testOpts['thumbsize'];
 			}
-			if ( isset( $test->options['annotations'] ) ) {
+			if ( isset( $testOpts['annotations'] ) ) {
 				$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
 			}
 		}
-		// Ensure this is always registered!
+
+		// Ensure ParserHook is always registered!
 		$this->siteConfig->registerParserTestExtension( new ParserHook() );
 
 		$this->buildTasks( $test, $targetModes, $options );
@@ -1482,11 +1474,10 @@ class TestRunner {
 
 		$this->buildTests( $options );
 
+		// Trim test cases to the desired amount
 		if ( isset( $options['maxtests'] ) ) {
 			$n = $options['maxtests'];
-			error_log( 'maxtests:' . $n );
 			if ( $n > 0 ) {
-				// Trim test cases to the desired amount
 				$this->testCases = array_slice( $this->testCases, 0, $n );
 			}
 		}
@@ -1500,15 +1491,14 @@ class TestRunner {
 		ScriptUtils::setTemplatingAndProcessingFlags( $this->envOptions, $options );
 
 		if (
-			ScriptUtils::booleanOption( $options['quiet'] ?? null )
-			|| ScriptUtils::booleanOption( $options['quieter'] ?? null )
+			ScriptUtils::booleanOption( $options['quiet'] ?? null ) ||
+			ScriptUtils::booleanOption( $options['quieter'] ?? null )
 		) {
 			$this->envOptions['logLevels'] = [ 'fatal', 'error' ];
 		}
 
 		// Save default logger so we can be reset it after temporarily
-		// switching to the suppressLogger to suppress expected error
-		// messages.
+		// switching to the suppressLogger to suppress expected error messages.
 		$this->defaultLogger = $this->siteConfig->getLogger();
 
 		/**
