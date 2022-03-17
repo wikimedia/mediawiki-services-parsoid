@@ -21,6 +21,12 @@ use Wikimedia\Parsoid\Utils\WTUtils;
  * Represents a parser test
  */
 class Test extends Item {
+
+	// 'testAllModes' and 'TestRunner::runTest' assume that test modes are added
+	// in this order for caching to work properly (and even when test objects are cloned).
+	// This ordering is enforced in computeTestModes.
+	public const ALL_TEST_MODES = [ 'wt2html', 'wt2wt', 'html2html', 'html2wt', 'selser' ];
+
 	/* --- These are test properties from the test file --- */
 
 	/** @var ?string This is the test name, not page title for the test */
@@ -236,6 +242,11 @@ class Test extends Item {
 	 * @return array
 	 */
 	public function computeTestModes( array $testRunnerModes ): array {
+		// Ensure we compute valid modes in the order specificed in ALL_TEST_MODES since
+		// caching in the presence of test cloning rely on tests running in this order.
+		$validModes = array_intersect( self::ALL_TEST_MODES, $testRunnerModes );
+
+		// Filter for modes the test has opted in for
 		$testModes = $this->options['parsoid']['modes'] ?? null;
 		if ( $testModes ) {
 			$selserEnabled = in_array( 'selser', $testRunnerModes, true );
@@ -247,10 +258,7 @@ class Test extends Item {
 				$testModes[] = 'selser';
 			}
 
-			$validModes = array_intersect( $testRunnerModes, $testModes );
-		} else {
-			// Unless explicitly specified, all modes are enabled by default for a test
-			$validModes = $testRunnerModes;
+			$validModes = array_intersect( $validModes, $testModes );
 		}
 
 		return $validModes;
@@ -779,94 +787,78 @@ class Test extends Item {
 		}
 
 		foreach ( $targetModes as $targetMode ) {
-			if ( $targetMode === 'selser' && $runnerOpts['numchanges'] &&
-				$runnerOpts['selser'] !== 'noauto' && !isset( $runnerOpts['changetree'] )
+			if ( $targetMode === 'selser' &&
+				$runnerOpts['selser'] !== 'noauto' &&
+				!isset( $runnerOpts['changetree'] )
 			) {
-				// Prepend manual changes, if present, but not if 'selser' isn't
-				// in the explicit modes option.
+				// Run selser tests in the following order:
+				// 1. Manual changes (if provided)
+				// 2. changetree 5 (oracle exists for verifying output)
+				// 3. All other change trees (no oracle exists for verifying output)
+
 				if ( isset( $this->options['parsoid']['changes'] ) ) {
 					$testClone = Utils::clone( $this );
 					// Mutating the item here is necessary to output 'manual' in
 					// the test's title and to differentiate it for knownFailures.
-					// It can only get here in two cases:
-					// * When there's no changetree specified in the command line,
-					//   testAllModes creates the items by cloning the original one,
-					//   so there should be no problem setting it.
-					//   In fact, it will override the existing 'manual' value
-					//   (lines 1765 and 1767).
-					// * When a changetree is specified in the command line and
-					//   it's 'manual', there shouldn't be a problem setting the
-					//   value here as no other items will be processed.
-					// Still, protect against changing a different copy of the item.
-					Assert::invariant(
-						$testClone->changetree === [ 'manual' ] || $testClone->changetree === null,
-						'Expecting manual changetree OR no changetree'
-					);
 					$testClone->changetree = [ 'manual' ];
 					$runTest( $testClone, 'selser', $runnerOpts );
 				}
-				// And if that's all we want, next one.
+
+				// Skip the rest if the test doesn't want changetrees
 				if ( ( $this->options['parsoid']['selser'] ?? '' ) === 'noauto' ) {
 					continue;
 				}
 
-				$this->selserChangeTrees = [];
-
-				// Prepend a selser test that appends a comment to the root node
+				// Changetree 5 (append a comment to the root node)
 				$testClone = Utils::clone( $this );
 				$testClone->changetree = [ 5 ];
 				$runTest( $testClone, 'selser', $runnerOpts );
 
+				// Automatically generated changed trees
+				$this->selserChangeTrees = [];
 				for ( $j = 0; $j < $runnerOpts['numchanges']; $j++ ) {
 					$testClone = Utils::clone( $this );
-					// Make sure we aren't reusing the one from manual changes
-					Assert::invariant( $testClone->changetree === null, "Expected changetree to be null" );
 					$testClone->seed = $j . '';
-					$runTest( $testClone, $targetMode, $runnerOpts );
+					$runTest( $testClone, 'selser', $runnerOpts );
 					if ( $this->isDuplicateChangeTree( $testClone->changes ) ) {
 						// Once we get a duplicate change tree, we can no longer
-						// generate and run new tests.  So, be done now!
+						// generate and run new tests. So, be done now!
 						break;
 					} else {
 						$this->selserChangeTrees[$j] = $testClone->changes;
 					}
 				}
+			} elseif ( $targetMode === 'selser' && $runnerOpts['selser'] === 'noauto' ) {
+				// Manual changes were requested on the command line,
+				// check that the item does have them.
+				// Clone the item so that previous results don't clobber this one. (??)
+				if ( isset( $this->options['parsoid']['changes'] ) ) {
+					$runTest( Utils::clone( $this ), 'selser', $runnerOpts );
+				}
+				continue;
 			} else {
-				if ( $targetMode === 'selser' && $runnerOpts['selser'] === 'noauto' ) {
-					// Manual changes were requested on the command line,
-					// check that the item does have them.
-					if ( isset( $this->options['parsoid']['changes'] ) ) {
-						// If it does, we need to clone the item so that previous
-						// results don't clobber this one.
-						$runTest( Utils::clone( $this ), $targetMode, $runnerOpts );
-					} else {
-						// If it doesn't have manual changes, just skip it.
+				if ( $targetMode === 'wt2html' &&
+					isset( $this->sections['html/parsoid+langconv'] )
+				) {
+					$testClone = Utils::clone( $this );
+					$testClone->options['langconv'] = true;
+					$testClone->parsoidHtml = $this->sections['html/parsoid+langconv'];
+					$runTest( $testClone, $targetMode, $runnerOpts );
+					if ( $this->parsoidHtml === null ) {
+						// Don't run the same test in non-langconv mode
+						// unless we have a non-langconv section
 						continue;
 					}
-				} else {
-					// FIXME: This comment looks like it is stale! If they need to be
-					// cleared, it should be done after cloning!
-					//
-					// The order here is important, in that cloning `$this` should happen
-					// before it is used in `runTest()`, since we cache some properties
-					// (`cachedBODYstr`, `cachedNormalizedHTML`) that should be cleared
-					// before use in `testClone`.
-					if ( $targetMode === 'wt2html' &&
-						isset( $this->sections['html/parsoid+langconv'] )
-					) {
-						$testClone = Utils::clone( $this );
-						$testClone->options['langconv'] = true;
-						$testClone->parsoidHtml = $this->sections['html/parsoid+langconv'];
-						$runTest( $testClone, $targetMode, $runnerOpts );
-						if ( $this->parsoidHtml === null ) {
-							// Don't run the same test in non-langconv mode
-							// unless we have a non-langconv section
-							continue;
-						}
-					}
-					// A non-selser task, we can reuse the item.
-					$runTest( $this, $targetMode, $runnerOpts );
 				}
+
+				// Non-selser OR a single selser change on the commandline.
+				// So, no need to clone the item.
+				Assert::invariant(
+					$targetMode !== 'selser' ||
+					( $runnerOpts['selser'] !== 'noauto' && isset( $runnerOpts['changetree'] ) ),
+					"Unexpected target mode $targetMode" );
+
+				$runTest( $this, $targetMode, $runnerOpts );
 			}
 		}
 	}

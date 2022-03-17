@@ -310,21 +310,12 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$options['modes'] = [];
-
-		if ( $options['wt2html'] ) {
-			$options['modes'][] = 'wt2html';
-		}
-		if ( $options['wt2wt'] ) {
-			$options['modes'][] = 'wt2wt';
-		}
-		if ( $options['html2html'] ) {
-			$options['modes'][] = 'html2html';
-		}
-		if ( $options['html2wt'] ) {
-			$options['modes'][] = 'html2wt';
-		}
-		if ( isset( $options['selser'] ) ) {
-			$options['modes'][] = 'selser';
+		foreach ( Test::ALL_TEST_MODES as $m ) {
+			if ( ( $m !== 'selser' && $options[$m] ) ||
+				( $m === 'selser' && isset( $options[$m] ) )
+			) {
+				$options['modes'][] = $m;
+			}
 		}
 
 		return $options;
