@@ -1474,7 +1474,7 @@ class WikiLinkHandler extends TokenHandler {
 			$container->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 		}
 
-		$span = new TagTk( 'span', [] );
+		$span = new TagTk( 'span', [ new KV( 'class', 'mw-broken-media' ) ] );
 
 		// "resource" and "lang" are allowed attributes on spans
 		$span->addNormalizedAttribute( 'resource', $opts['title']['v'], $opts['title']['src'] );
