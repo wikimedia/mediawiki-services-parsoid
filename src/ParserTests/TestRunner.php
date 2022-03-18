@@ -374,7 +374,6 @@ class TestRunner {
 
 		// Some useful booleans
 		$startsAtHtml = $mode === 'html2html' || $mode === 'html2wt';
-		$endsAtWikitext = $mode === 'wt2wt' || $mode === 'selser' || $mode === 'html2wt';
 		$endsAtHtml = $mode === 'wt2html' || $mode === 'html2html';
 
 		$parsoidOnly = isset( $test->sections['html/parsoid'] ) || (
@@ -422,12 +421,7 @@ class TestRunner {
 		// Generate and make changes for the selser test mode
 		$testManualChanges = $testOpts['parsoid']['changes'] ?? null;
 		if ( $mode === 'selser' ) {
-			if ( $testManualChanges &&
-				( $options['selser'] === 'noauto' || $test->changetree === [ 'manual' ] )
-			) {
-				// Ensure that we have this set here in case it hasn't been
-				// set in testAllModes because the 'selser=noauto' option was passed.
-				$test->changetree = [ 'manual' ];
+			if ( $testManualChanges && $test->changetree === [ 'manual' ] ) {
 				$test->applyManualChanges( $doc );
 			} else {
 				$changetree = isset( $options['changetree'] ) ?
@@ -455,11 +449,11 @@ class TestRunner {
 			$doc = $this->convertWt2Html( $env, $test, $mode, $wt );
 		}
 
-		// Processing stage
-		if ( $endsAtWikitext ) {
-			$this->processSerializedWT( $env, $test, $options, $mode, $wt );
-		} elseif ( $endsAtHtml ) {
+		// Result verification stage
+		if ( $endsAtHtml ) {
 			$this->processParsedHTML( $test, $options, $mode, $doc );
+		} else {
+			$this->processSerializedWT( $env, $test, $options, $mode, $wt );
 		}
 	}
 
@@ -572,28 +566,36 @@ class TestRunner {
 	private function checkWikitext(
 		Test $test, string $out, array $options, string $mode
 	): bool {
-		$testWikitext = $test->wikitext;
-		$out = preg_replace( '/<!--' . Test::STATIC_RANDOM_STRING . '-->/', '', $out );
-		if ( $mode === 'selser' && $test->resultWT !== null &&
-			$test->changes !== [ 5 ] && $test->changetree !== [ 'manual' ]
-		) {
-			$testWikitext = $test->resultWT;
-		} elseif ( isset( $test->options['parsoid']['changes'] ) &&
-			( $mode === 'wt2wt' || ( $mode === 'selser' && $test->changetree === [ 'manual' ] ) )
-		) {
-			$testWikitext = $test->sections['wikitext/edited'];
+		if ( $mode === 'html2wt' ) {
+			$input = $test->parsoidHtml;
+			$testWikitext = $test->wikitext;
+		} elseif ( $mode === 'wt2wt' ) {
+			if ( isset( $test->options['parsoid']['changes'] ) ) {
+				$input = $test->wikitext;
+				$testWikitext = $test->sections['wikitext/edited'];
+			} else {
+				$input = $testWikitext = $test->wikitext;
+			}
+		} else { /* selser */
+			if ( $test->changes === [ 5 ] ) { /* selser with oracle */
+				$input = $test->changedHTMLStr;
+				$testWikitext = $test->wikitext;
+				$out = preg_replace( '/<!--' . Test::STATIC_RANDOM_STRING . '-->/', '', $out );
+			} elseif ( $test->changetree === [ 'manual' ] &&
+				isset( $test->options['parsoid']['changes'] )
+			) { /* manual changes */
+				$input = $test->wikitext;
+				$testWikitext = $test->sections['wikitext/edited'];
+			} else { /* automated selser changes, no oracle */
+				$input = $test->changedHTMLStr;
+				$testWikitext = $test->resultWT;
+			}
 		}
 
-		$toWikiText = $mode === 'html2wt' || $mode === 'wt2wt' || $mode === 'selser';
 		// FIXME: normalization not in place yet
-		$normalizedExpected = $toWikiText ?
-			rtrim( $testWikitext, "\n" ) : $testWikitext;
+		$normalizedExpected = rtrim( $testWikitext, "\n" );
+		$normalizedOut = rtrim( $out, "\n" );
 
-		// FIXME: normalization not in place yet
-		$normalizedOut = $toWikiText ? rtrim( $out, "\n" ) : $out;
-
-		$input = $mode === 'selser' ? $test->changedHTMLStr :
-			( $mode === 'html2wt' ? $test->parsoidHtml : $testWikitext );
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $testWikitext ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 

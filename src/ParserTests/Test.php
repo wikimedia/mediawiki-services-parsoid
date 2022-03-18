@@ -833,7 +833,9 @@ class Test extends Item {
 				// check that the item does have them.
 				// Clone the item so that previous results don't clobber this one. (??)
 				if ( isset( $this->options['parsoid']['changes'] ) ) {
-					$runTest( Utils::clone( $this ), 'selser', $runnerOpts );
+					$testClone = Utils::clone( $this );
+					$testClone->changetree = [ 'manual' ];
+					$runTest( $testClone, 'selser', $runnerOpts );
 				}
 				continue;
 			} else {
