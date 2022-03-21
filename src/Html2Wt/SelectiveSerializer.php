@@ -33,7 +33,6 @@ class SelectiveSerializer {
 
 	private $wts;
 	private $trace;
-	private $metrics;
 
 	/** @var SelserData */
 	private $selserData;
@@ -48,9 +47,6 @@ class SelectiveSerializer {
 
 		// Debug options
 		$this->trace = $this->env->hasTraceFlag( 'selser' );
-
-		// Performance Timing option
-		$this->metrics = $this->env->getSiteConfig()->metrics();
 	}
 
 	/**
@@ -203,8 +199,6 @@ class SelectiveSerializer {
 		$domDiffStart = null;
 		$r = null;
 
-		$timing = Timing::start( $this->metrics );
-
 		$body = DOMCompat::getBody( $doc );
 		$oldBody = DOMCompat::getBody( $this->selserData->oldDOM );
 
@@ -218,7 +212,7 @@ class SelectiveSerializer {
 			$diff = [ 'isEmpty' => false ];
 			$body = DOMCompat::getBody( $this->env->getDOMDiff() );
 		} else {
-			$domDiffTiming = Timing::start( $this->metrics );
+			$domDiffTiming = Timing::start( $this->env->getSiteConfig()->metrics() );
 			$diff = ( new DOMDiff( $this->env ) )->diff( $oldBody, $body );
 			$domDiffTiming->end( 'html2wt.selser.domDiff' );
 		}
@@ -238,8 +232,6 @@ class SelectiveSerializer {
 			// Call the WikitextSerializer to do our bidding
 			$r = $this->wts->serializeDOM( $doc, true );
 		}
-
-		$timing->end( 'html2wt.selser.serialize' );
 
 		return $r;
 	}
