@@ -149,16 +149,18 @@ class MetaHandler extends DOMHandler {
 				$nextContentSibling = DOMCompat::getNextElementSibling( $nextContentSibling );
 			}
 
-			// When the content from which the meta tag comes gets
-			// deleted or modified, we emit _now_ so that we don't risk losing it. The range
-			// stays extended in the round-tripped version of the wikitext.
-			$nextdiffdata = DOMDataUtils::getDataParsoidDiff( $nextContentSibling );
-			if ( DOMUtils::isDiffMarker( $nextContentSibling ) ||
-				( $nextdiffdata->diff ?? null )
-			) {
-				return true;
+			if ( $nextContentSibling !== null ) {
+				// When the content from which the meta tag comes gets
+				// deleted or modified, we emit _now_ so that we don't risk losing it. The range
+				// stays extended in the round-tripped version of the wikitext.
+				$nextdiffdata = DOMDataUtils::getDataParsoidDiff( $nextContentSibling );
+				if ( DOMUtils::isDiffMarker( $nextContentSibling ) ||
+					( $nextdiffdata->diff ?? null ) ) {
+					return true;
+				}
+
+				return !WTSUtils::origSrcValidInEditedContext( $state, $nextContentSibling );
 			}
-			return !WTSUtils::origSrcValidInEditedContext( $state, $nextContentSibling );
 		}
 		return true;
 	}

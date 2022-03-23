@@ -212,5 +212,4 @@ class Test extends Item {
 
 		return $this->pageName;
 	}
-
 }

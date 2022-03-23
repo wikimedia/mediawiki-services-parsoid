@@ -980,6 +980,27 @@ class DOMUtils {
 	}
 
 	/**
+	 * Is 'n' a block tag, or does the subtree rooted at 'n' have a block tag
+	 * in it?
+	 *
+	 * @param Node $n
+	 * @return bool
+	 */
+	public static function hasBlockTag( Node $n ): bool {
+		if ( self::isRemexBlockNode( $n ) ) {
+			return true;
+		}
+		$c = $n->firstChild;
+		while ( $c ) {
+			if ( self::hasBlockTag( $c ) ) {
+				return true;
+			}
+			$c = $c->nextSibling;
+		}
+		return false;
+	}
+
+	/**
 	 * Get an associative array of attributes, suitable for serialization.
 	 *
 	 * Add the xmlns attribute if available, to workaround PHP's surprising
