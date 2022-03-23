@@ -794,11 +794,10 @@ class Test extends Item {
 				// 3. All other change trees (no oracle exists for verifying output)
 
 				if ( isset( $this->options['parsoid']['changes'] ) ) {
-					$testClone = Utils::clone( $this );
 					// Mutating the item here is necessary to output 'manual' in
 					// the test's title and to differentiate it for knownFailures.
-					$testClone->changetree = [ 'manual' ];
-					$runTest( $testClone, 'selser', $runnerOpts );
+					$this->changetree = [ 'manual' ];
+					$runTest( $this, 'selser', $runnerOpts );
 				}
 
 				// Skip the rest if the test doesn't want changetrees
@@ -807,38 +806,35 @@ class Test extends Item {
 				}
 
 				// Changetree 5 (append a comment to the root node)
-				$testClone = Utils::clone( $this );
-				$testClone->changetree = [ 5 ];
-				$runTest( $testClone, 'selser', $runnerOpts );
+				$this->changetree = [ 5 ];
+				$runTest( $this, 'selser', $runnerOpts );
 
 				// Automatically generated changed trees
 				$this->selserChangeTrees = [];
 				for ( $j = 0; $j < $runnerOpts['numchanges']; $j++ ) {
-					$testClone = Utils::clone( $this );
-					$testClone->seed = $j . '';
-					$runTest( $testClone, 'selser', $runnerOpts );
-					if ( $this->isDuplicateChangeTree( $testClone->changetree ) ) {
+					// Set changetree to null to ensure we don't assume [ 5 ] in $runTest
+					$this->changetree = null;
+					$this->seed = $j . '';
+					$runTest( $this, 'selser', $runnerOpts );
+					if ( $this->isDuplicateChangeTree( $this->changetree ) ) {
 						// Once we get a duplicate change tree, we can no longer
 						// generate and run new tests. So, be done now!
 						break;
 					} else {
-						$this->selserChangeTrees[$j] = $testClone->changetree;
+						$this->selserChangeTrees[$j] = $this->changetree;
 					}
 				}
 			} elseif ( $targetMode === 'selser' && $runnerOpts['selser'] === 'noauto' ) {
 				// Manual changes were requested on the command line,
 				// check that the item does have them.
-				// Clone the item so that previous results don't clobber this one. (??)
 				if ( isset( $this->options['parsoid']['changes'] ) ) {
-					$testClone = Utils::clone( $this );
-					$testClone->changetree = [ 'manual' ];
-					$runTest( $testClone, 'selser', $runnerOpts );
+					$this->changetree = [ 'manual' ];
+					$runTest( $this, 'selser', $runnerOpts );
 				}
 				continue;
 			} else {
-				if ( $targetMode === 'wt2html' &&
-					isset( $this->sections['html/parsoid+langconv'] )
-				) {
+				if ( $targetMode === 'wt2html' && isset( $this->sections['html/parsoid+langconv'] ) ) {
+					// Since we are clobbering options and parsoidHtml, clone the test object
 					$testClone = Utils::clone( $this );
 					$testClone->options['langconv'] = true;
 					$testClone->parsoidHtml = $this->sections['html/parsoid+langconv'];
@@ -850,8 +846,6 @@ class Test extends Item {
 					}
 				}
 
-				// Non-selser OR a single selser change on the commandline.
-				// So, no need to clone the item.
 				Assert::invariant(
 					$targetMode !== 'selser' ||
 					( $runnerOpts['selser'] !== 'noauto' && isset( $runnerOpts['changetree'] ) ),
