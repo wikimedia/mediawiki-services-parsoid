@@ -111,21 +111,22 @@ class ContentUtils {
 	}
 
 	/**
-	 * Strip Parsoid-inserted section wrappers and fallback id spans with
+	 * Strip Parsoid-inserted section, annotation wrappers, and fallback id spans with
 	 * HTML4 ids for headings from the DOM.
 	 *
 	 * @param Element $node
 	 */
-	public static function stripSectionTagsAndFallbackIds( Element $node ): void {
+	public static function stripUnnecessaryWrappersAndFallbackIds( Element $node ): void {
 		$n = $node->firstChild;
 		while ( $n ) {
 			$next = $n->nextSibling;
 			if ( $n instanceof Element ) {
 				// Recurse into subtree before stripping this
-				self::stripSectionTagsAndFallbackIds( $n );
+				self::stripUnnecessaryWrappersAndFallbackIds( $n );
 
-				// Strip <section> tags
-				if ( WTUtils::isParsoidSectionTag( $n ) ) {
+				// Strip <section> tags and synthetic extended-annotation-region wrappers
+				if ( WTUtils::isParsoidSectionTag( $n ) ||
+					WTUtils::isExtendedAnnotationWrapperTag( $n ) ) {
 					DOMUtils::migrateChildren( $n, $n->parentNode, $n );
 					$n->parentNode->removeChild( $n );
 				}

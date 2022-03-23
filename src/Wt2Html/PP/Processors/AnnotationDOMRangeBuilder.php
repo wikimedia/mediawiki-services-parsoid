@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -39,12 +40,20 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			return;
 		}
 		foreach ( $annRanges as $range ) {
+			if ( ( DOMDataUtils::getDataParsoid( $range->startElem )->misnested ?? false ) ||
+				( DOMDataUtils::getDataParsoid( $range->endElem )->misnested ?? false ) ) {
+				continue;
+			}
+
+			$actualRangeStart = DOMDataUtils::getDataParsoid( $range->start )->dsr->start;
+			$actualRangeEnd = DOMDataUtils::getDataParsoid( $range->end )->dsr->end;
+
 			if ( DOMUtils::isFosterablePosition( $range->start ) ) {
 				$newStart = $range->start;
 				while ( DOMUtils::isFosterablePosition( $newStart ) ) {
 					$newStart = $newStart->parentNode;
 				}
-				$this->moveRangeStart( $range, $newStart );
+				$range->start = $newStart;
 			}
 
 			if ( DOMUtils::isFosterablePosition( $range->end ) ) {
@@ -52,19 +61,21 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				while ( DOMUtils::isFosterablePosition( $newEnd ) ) {
 					$newEnd = $newEnd->parentNode;
 				}
-				$this->moveRangeEnd( $range, $newEnd );
+				$range->end = $newEnd;
 			}
 
 			if ( $range->startElem !== $range->start ) {
+				$actualRangeStart = DOMDataUtils::getDataParsoid( $range->start )->dsr->start;
 				$this->moveRangeStart( $range, $range->start );
 			}
 			if ( $range->endElem !== $range->end ) {
+				$actualRangeEnd = DOMDataUtils::getDataParsoid( $range->end )->dsr->end;
 				$this->moveRangeEnd( $range, $range->end );
 			}
 
 			$isExtended = $this->isExtended( $range );
 			if ( $isExtended ) {
-				$this->makeUneditable( $range );
+				$this->makeUneditable( $range, $actualRangeStart, $actualRangeEnd );
 			}
 			$this->setMetaDataMwForRange( $range, $isExtended );
 		}
@@ -75,8 +86,10 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * it into a <div> (for block ranges) or <span> (for inline ranges) with the mw:ExtendedAnnRange
 	 * type.
 	 * @param DOMRangeInfo $range
+	 * @param int|null $actualRangeStart
+	 * @param int|null $actualRangeEnd
 	 */
-	private function makeUneditable( DOMRangeInfo $range ) {
+	private function makeUneditable( DOMRangeInfo $range, ?int $actualRangeStart, ?int $actualRangeEnd ) {
 		$parent = $range->startElem->parentNode;
 
 		$node = $range->startElem;
@@ -110,7 +123,10 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$dp = new DataParsoid();
 		$dp->autoInsertedStart = true;
 		$dp->autoInsertedEnd = true;
+		$dp->dsr = new DomSourceRange( $actualRangeStart, $actualRangeEnd, 0, 0 );
 		DOMDataUtils::setDataParsoid( $wrap, $dp );
+		$openRanges = [];
+		$this->removeNestedRanges( $wrap, $openRanges );
 	}
 
 	/**
@@ -238,6 +254,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	private function removeNestedRanges( Node $node, array &$openAnnotations ) {
 		$nextSibling = $node->nextSibling;
 		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
+			'@phan-var Element $node'; /** @var Element $node */
 			$type = WTUtils::extractAnnotationType( $node );
 			if ( $type ) {
 				if ( !array_key_exists( $type, $openAnnotations ) ) {
@@ -245,15 +262,18 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				}
 
 				if ( $openAnnotations[$type] > 0 ) {
+					DOMDataUtils::getDataParsoid( $node )->misnested = true;
 					DOMCompat::getParentElement( $node )->removeChild( $node );
 					$this->env->log( 'warn/wt2html', 'Nested annotation start tag removed' );
 				}
 				$openAnnotations[$type]++;
 			}
 		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
+			'@phan-var Element $node'; /** @var Element $node */
 			$type = WTUtils::extractAnnotationType( $node );
 			if ( $type && array_key_exists( $type, $openAnnotations ) ) {
 				if ( $openAnnotations[$type] > 1 ) {
+					DOMDataUtils::getDataParsoid( $node )->misnested = true;
 					DOMCompat::getParentElement( $node )->removeChild( $node );
 					$this->env->log( 'warn/wt2html', 'Nested annotation end tag removed' );
 				}

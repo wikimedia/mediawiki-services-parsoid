@@ -539,6 +539,16 @@ class WTUtils {
 			$node->hasAttribute( 'data-mw-section-id' );
 	}
 
+	/** Is $node a Parsoid-generated extended annotation wrapper
+	 * @param Node $node
+	 * @return bool
+	 */
+	public static function isExtendedAnnotationWrapperTag( Node $node ): bool {
+		return $node instanceof Element &&
+			$node->hasAttribute( 'typeof' ) &&
+			$node->getAttribute( 'typeof' ) === 'mw:ExtendedAnnRange';
+	}
+
 	/**
 	 * Is the $node from extension content?
 	 * @param Node $node

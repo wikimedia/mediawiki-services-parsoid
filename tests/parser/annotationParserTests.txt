@@ -905,39 +905,20 @@ New lines around table-spanning annotation range extension should be maintained 
 annotations=1
 parsoid=wt2html,wt2wt,selser
 !! wikitext
-plop
+txt1
 {|
 |-
-<dummyanno>plop</dummyanno>
-| hello
+<dummyanno>txt2</dummyanno>
+|text3
 |}
-plop
-
-plop
-
-{|
-|-
-<dummyanno>plop</dummyanno>
-| hello
-|}
-
-plop
+txt4
 !! html/parsoid
-<p>plop</p>
-<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[11,22]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>plop</p><table>
+<p>txt1</p>
+<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[11,22]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>txt2</p><table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
 
-<td>hello
+<td>text3
 </td></tr></tbody></table><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[26,38]}'/></div>
-<p>plop</p>
-
-<p>plop</p>
-
-<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[68,79]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>plop</p><table>
-<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
-
-<td>hello
-</td></tr></tbody></table><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[83,95]}'/></div>
-
-<p>plop</p>
+<p>txt4</p>
 !! end
+
