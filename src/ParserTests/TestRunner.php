@@ -577,7 +577,7 @@ class TestRunner {
 				$input = $testWikitext = $test->wikitext;
 			}
 		} else { /* selser */
-			if ( $test->changes === [ 5 ] ) { /* selser with oracle */
+			if ( $test->changetree === [ 5 ] ) { /* selser with oracle */
 				$input = $test->changedHTMLStr;
 				$testWikitext = $test->wikitext;
 				$out = preg_replace( '/<!--' . Test::STATIC_RANDOM_STRING . '-->/', '', $out );

@@ -65,9 +65,6 @@ class Test extends Item {
 	private $pageNs;
 
 	/** @var array */
-	public $changes = [];
-
-	/** @var array */
 	public $selserChangeTrees = [];
 
 	/** @var array */
@@ -455,7 +452,7 @@ class Test extends Item {
 
 		// Keep the changes in the test object
 		// to check for duplicates while building tasks
-		$this->changes = $changelist;
+		$this->changetree = $changelist;
 
 		// Helper function for getting a random string
 		$randomString = static function () use ( &$alea ): string {
@@ -591,19 +588,19 @@ class Test extends Item {
 			$env->writeDump( ContentUtils::dumpDOM( $body, 'Original DOM' ) );
 		}
 
-		if ( $this->changes === [ 5 ] ) {
+		if ( $this->changetree === [ 5 ] ) {
 			// Hack so that we can work on the parent node rather than just the
 			// children: Append a comment with known content. This is later
 			// stripped from the output, and the result is compared to the
 			// original wikitext rather than the non-selser wt2wt result.
 			$body->appendChild( $doc->createComment( self::STATIC_RANDOM_STRING ) );
-		} elseif ( $this->changes !== [] ) {
-			$applyChangesInternal( $body, $this->changes );
+		} elseif ( $this->changetree !== [] ) {
+			$applyChangesInternal( $body, $this->changetree );
 		}
 
 		if ( $env->hasDumpFlag( 'dom:post-changes' ) ) {
 			$env->writeDump(
-				'Change tree : ' . json_encode( $this->changes ) . "\n" .
+				'Change tree : ' . json_encode( $this->changetree ) . "\n" .
 				ContentUtils::dumpDOM( $body, 'Edited DOM' )
 			);
 		}
@@ -820,12 +817,12 @@ class Test extends Item {
 					$testClone = Utils::clone( $this );
 					$testClone->seed = $j . '';
 					$runTest( $testClone, 'selser', $runnerOpts );
-					if ( $this->isDuplicateChangeTree( $testClone->changes ) ) {
+					if ( $this->isDuplicateChangeTree( $testClone->changetree ) ) {
 						// Once we get a duplicate change tree, we can no longer
 						// generate and run new tests. So, be done now!
 						break;
 					} else {
-						$this->selserChangeTrees[$j] = $testClone->changes;
+						$this->selserChangeTrees[$j] = $testClone->changetree;
 					}
 				}
 			} elseif ( $targetMode === 'selser' && $runnerOpts['selser'] === 'noauto' ) {
