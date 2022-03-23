@@ -47,10 +47,11 @@ class ContentModelHandler extends IContentModelHandler {
 			$env, $doc, $env->getRequestOffsetType(), 'byte'
 		);
 
-		// Strip <section> and mw:FallbackId <span> tags, if present.
+		// Strip <section> and mw:FallbackId <span> tags, if present,
+		// as well as extended annotation wrappers.
 		// This ensures that we can accept HTML from CX / VE
 		// and other clients that might have stripped them.
-		ContentUtils::stripSectionTagsAndFallbackIds( $body );
+		ContentUtils::stripUnnecessaryWrappersAndFallbackIds( $body );
 	}
 
 	/**
