@@ -645,7 +645,9 @@ class Test extends Item {
 				( !WTUtils::isEncapsulationWrapper( $node ) &&
 					// These wrappers can only be edited in restricted ways.
 					// Simpler to just block all editing on them.
-					!DOMUtils::matchTypeOf( $node, '#^mw:(Entity|Placeholder|DisplaySpace|Annotation)(/|$)#' ) &&
+					!DOMUtils::matchTypeOf( $node,
+						'#^mw:(Entity|Placeholder|DisplaySpace|Annotation|ExtendedAnnRange)(/|$)#'
+					) &&
 					// Deleting these wrappers is tantamount to removing the
 					// references-tag encapsulation wrappers, which results in errors.
 					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? ''
@@ -675,7 +677,9 @@ class Test extends Item {
 			//   is an uneditable image elt.
 			// - Entity spans are uneditable as well
 			// - Placeholder is defined to be uneditable in the spec
-			return DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio|Entity|Placeholder|DisplaySpace)(/|$)#' ) || (
+			// - ExtendedAnnRange is an "unknown" type in the spec, and hence uneditable
+			return DOMUtils::matchTypeOf( $node,
+					'#^mw:(Image|Video|Audio|Entity|Placeholder|DisplaySpace|ExtendedAnnRange)(/|$)#' ) || (
 				DOMCompat::nodeName( $node ) !== 'figcaption' &&
 				$node->parentNode &&
 				DOMCompat::nodeName( $node->parentNode ) !== 'body' &&

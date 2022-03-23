@@ -69,27 +69,6 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Is 'n' a block tag, or does the subtree rooted at 'n' have a block tag
-	 * in it?
-	 *
-	 * @param Node $n
-	 * @return bool
-	 */
-	private function hasBlockTag( Node $n ): bool {
-		if ( DOMUtils::isRemexBlockNode( $n ) ) {
-			return true;
-		}
-		$c = $n->firstChild;
-		while ( $c ) {
-			if ( $this->hasBlockTag( $c ) ) {
-				return true;
-			}
-			$c = $c->nextSibling;
-		}
-		return false;
-	}
-
-	/**
 	 * Merge a contiguous run of split subtrees that have identical pwrap properties
 	 *
 	 * @param Element $n
@@ -166,7 +145,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		} elseif ( !$this->isSplittableTag( $n ) || count( $n->childNodes ) === 0 ) {
 			// block tag OR non-splittable inline tag
 			return [
-				[ 'pwrap' => !$this->hasBlockTag( $n ), 'node' => $n ]
+				[ 'pwrap' => !DOMUtils::hasBlockTag( $n ), 'node' => $n ]
 			];
 		} else {
 			DOMUtils::assertElt( $n );

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -61,8 +62,55 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				$this->moveRangeEnd( $range, $range->end );
 			}
 
-			$this->setMetaDataMwForRange( $range );
+			$isExtended = $this->isExtended( $range );
+			if ( $isExtended ) {
+				$this->makeUneditable( $range );
+			}
+			$this->setMetaDataMwForRange( $range, $isExtended );
 		}
+	}
+
+	/**
+	 * Makes the DOM range between $range->startElem and $range->endElem uneditable by wrapping
+	 * it into a <div> (for block ranges) or <span> (for inline ranges) with the mw:ExtendedAnnRange
+	 * type.
+	 * @param DOMRangeInfo $range
+	 */
+	private function makeUneditable( DOMRangeInfo $range ) {
+		$parent = $range->startElem->parentNode;
+
+		$node = $range->startElem;
+		$inline = true;
+		while ( $node !== $range->endElem ) {
+			$node = $node->nextSibling;
+			if ( $node instanceof Element && DOMUtils::hasBlockTag( $node ) ) {
+				$inline = false;
+				break;
+			}
+		}
+
+		$wrap = $parent->ownerDocument->createElement( $inline ? 'span' : 'div' );
+		$parent->insertBefore( $wrap, $range->startElem );
+
+		$toMove = $range->startElem;
+		while ( $toMove !== $range->endElem ) {
+			$nextToMove = $toMove->nextSibling;
+			$wrap->appendChild( $toMove );
+			$toMove = $nextToMove;
+		}
+		$wrap->appendChild( $toMove );
+
+		$wrap->setAttribute( "typeof", "mw:ExtendedAnnRange" );
+
+		// Ensure template continuity is not broken
+		$about = $range->startElem->getAttribute( "about" );
+		if ( $about ) {
+			$wrap->setAttribute( "about", $about );
+		}
+		$dp = new DataParsoid();
+		$dp->autoInsertedStart = true;
+		$dp->autoInsertedEnd = true;
+		DOMDataUtils::setDataParsoid( $wrap, $dp );
 	}
 
 	/**
@@ -140,24 +188,31 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	}
 
 	/**
-	 * Sets the data-mw attribute for meta tags of the provided range
-	 * @param DOMRangeInfo $range range whose start and end element needs to be to modified
+	 * Returns whether one of the ends of the range has been moved, which corresponds to an extended
+	 * range.
+	 * @param DOMRangeInfo $range
+	 * @return bool
 	 */
-	private function setMetaDataMwForRange( DOMRangeInfo $range ): void {
-		$startDataMw = DOMDataUtils::getDataMw( $range->startElem );
-		$endDataMw = DOMDataUtils::getDataMw( $range->endElem );
-
+	private function isExtended( DOMRangeInfo $range ): bool {
 		$startDataParsoid = DOMDataUtils::getDataParsoid( $range->startElem );
 		$endDataParsoid = DOMDataUtils::getDataParsoid( $range->endElem );
 
-		$startDataMw->extendedRange = ( ( $startDataParsoid->wasMoved ?? false ) ||
-			( $endDataParsoid->wasMoved ?? false ) );
-		$startDataMw->wtOffsets = $startDataParsoid->tsr;
-		DOMDataUtils::setDataMw( $range->startElem, $startDataMw );
+		return ( $startDataParsoid->wasMoved ?? false ) || ( $endDataParsoid->wasMoved ?? false );
+	}
 
-		$endDataMw->wtOffsets = $endDataParsoid->tsr;
+	/**
+	 * Sets the data-mw attribute for meta tags of the provided range
+	 * @param DOMRangeInfo $range range whose start and end element needs to be to modified
+	 * @param bool $isExtended whether the range got extended
+	 */
+	private function setMetaDataMwForRange( DOMRangeInfo $range, bool $isExtended ): void {
+		$startDataMw = DOMDataUtils::getDataMw( $range->startElem );
+		$endDataMw = DOMDataUtils::getDataMw( $range->endElem );
+
+		$startDataMw->extendedRange = $isExtended;
+		$startDataMw->wtOffsets = DOMDataUtils::getDataParsoid( $range->startElem )->tsr;
+		$endDataMw->wtOffsets = DOMDataUtils::getDataParsoid( $range->endElem )->tsr;
 		unset( $endDataMw->rangeId );
-		DOMDataUtils::setDataMw( $range->endElem, $endDataMw );
 	}
 
 	/**
