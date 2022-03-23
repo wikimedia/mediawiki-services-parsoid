@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Mocks;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -77,14 +76,6 @@ class MockSiteConfig extends SiteConfig {
 		$handler->setFormatter( new LineFormatter( '%message%' ) );
 		$logger->pushHandler( $handler );
 		$this->setLogger( $logger );
-	}
-
-	/**
-	 * Set the log channel, for debuggings
-	 * @param ?LoggerInterface $logger
-	 */
-	public function setLogger( ?LoggerInterface $logger ): void {
-		$this->logger = $logger;
 	}
 
 	public function tidyWhitespaceBugMaxLength(): int {

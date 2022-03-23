@@ -255,6 +255,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$services = MediaWikiServices::getInstance();
 		$parsoidServices = new ParsoidServices( $services );
 		$siteConfig = $parsoidServices->getParsoidSiteConfig();
+		// Overwriting logger so that it logs to console
+		$siteConfig->setLogger( SiteConfig::createConsoleLogger() );
+
 		if ( isset( $configOpts['maxDepth'] ) ) {
 			$siteConfig->setMaxTemplateDepth( $configOpts['maxDepth'] );
 		}

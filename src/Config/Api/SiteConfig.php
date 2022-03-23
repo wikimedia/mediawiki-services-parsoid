@@ -8,7 +8,6 @@ use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
-use Psr\Log\LoggerInterface;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -140,13 +139,7 @@ class SiteConfig extends ISiteConfig {
 		if ( isset( $opts['logger'] ) ) {
 			$this->setLogger( $opts['logger'] );
 		} else {
-			// Use Monolog's PHP console handler
-			$logger = new Logger( "Parsoid CLI" );
-			$handler = new ErrorLogHandler();
-			// Don't suppress inline newlines
-			$handler->setFormatter( new LineFormatter( '%message%', null, true ) );
-			$logger->pushHandler( $handler );
-			$this->setLogger( $logger );
+			$this->setLogger( $this::createConsoleLogger() );
 		}
 
 		if ( isset( $opts['wt2htmlLimits'] ) ) {
@@ -159,6 +152,16 @@ class SiteConfig extends ISiteConfig {
 				$this->html2wtLimits, $opts['html2wtLimits']
 			);
 		}
+	}
+
+	public static function createConsoleLogger(): Logger {
+		// Use Monolog's PHP console handler
+		$logger = new Logger( "Parsoid CLI" );
+		$handler = new ErrorLogHandler();
+		// Don't suppress inline newlines
+		$handler->setFormatter( new LineFormatter( '%message%', null, true ) );
+		$logger->pushHandler( $handler );
+		return $logger;
 	}
 
 	protected function reset() {
@@ -357,14 +360,6 @@ class SiteConfig extends ISiteConfig {
 		$this->savedCategoryRegexp = "@{$category}@";
 		$this->savedRedirectRegexp = "@{$redirect}@";
 		$this->savedBswRegexp = "@{$bswRegexp}@";
-	}
-
-	/**
-	 * Set the log channel, for debugging
-	 * @param ?LoggerInterface $logger
-	 */
-	public function setLogger( ?LoggerInterface $logger ): void {
-		$this->logger = $logger;
 	}
 
 	public function galleryOptions(): array {
