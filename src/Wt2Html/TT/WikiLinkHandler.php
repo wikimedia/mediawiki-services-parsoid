@@ -247,7 +247,17 @@ class WikiLinkHandler extends TokenHandler {
 	public static function bailTokens( TokenTransformManager $manager, Token $token ): array {
 		$frame = $manager->getFrame();
 		$tsr = $token->dataAttribs->tsr;
-		$src = substr( $tsr->substr( $frame->getSrcText() ), 1, -1 );
+		$frameSrc = $frame->getSrcText();
+		$linkSrc = $tsr->substr( $frameSrc );
+		$src = substr( $linkSrc, 1, -1 );
+		if ( $src === false ) {
+			$manager->getEnv()->log(
+				'error', 'Unable to determine link source.',
+				"frame: $frameSrc", 'tsr: ', $tsr,
+				"link: $linkSrc"
+			);
+			return [ $linkSrc ];  // Forget about trying to tokenize this
+		}
 		$startOffset = $tsr->start + 1;
 		$toks = PipeLineUtils::processContentInPipeline(
 			$manager->getEnv(), $frame, $src, [
