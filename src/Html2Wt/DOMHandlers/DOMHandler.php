@@ -407,4 +407,15 @@ class DOMHandler {
 		}
 	}
 
+	/** Returns true if the annotation meta tag wasn't emitted when it was encountered
+	 * @param Node $node
+	 * @return bool
+	 */
+	protected function wasAnnotationMetaRemoved( Node $node ) {
+		if ( !$node instanceof Element || !WTUtils::isMarkerAnnotation( $node ) ) {
+			return false;
+		}
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		return ( $dp->skippedMeta ?? false );
+	}
 }

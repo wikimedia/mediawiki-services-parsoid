@@ -898,3 +898,46 @@ annotations=1
 !! html/parsoid
 <meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[0,11,null,null]}' data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><h2 id="plop" data-parsoid='{"dsr":[11,19,2,2]}'>plop</h2><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[19,31,null,null]}' data-mw='{"wtOffsets":[19,31]}'/>
 !! end
+
+!! test
+New lines around table-spanning annotation range extension should be maintained in selser
+!! options
+annotations=1
+parsoid=wt2html,wt2wt,selser
+!! wikitext
+plop
+{|
+|-
+<dummyanno>plop</dummyanno>
+| hello
+|}
+plop
+
+plop
+
+{|
+|-
+<dummyanno>plop</dummyanno>
+| hello
+|}
+
+plop
+!! html/parsoid
+<p>plop</p>
+<meta typeof="mw:Annotation/dummyanno" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[11,22]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>plop</p><table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+
+<td>hello
+</td></tr></tbody></table><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[26,38]}'/>
+<p>plop</p>
+
+<p>plop</p>
+
+<meta typeof="mw:Annotation/dummyanno" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[68,79]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>plop</p><table>
+<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+
+<td>hello
+</td></tr></tbody></table><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[83,95]}'/>
+
+<p>plop</p>
+!! end

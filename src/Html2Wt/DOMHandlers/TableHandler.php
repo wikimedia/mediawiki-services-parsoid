@@ -57,7 +57,10 @@ class TableHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		// Handle special table indentation case!
-		if ( $node->parentNode === $otherNode && DOMCompat::nodeName( $otherNode ) === 'dd' ) {
+		if (
+			( $node->parentNode === $otherNode && DOMCompat::nodeName( $otherNode ) === 'dd' )
+				|| $this->wasAnnotationMetaRemoved( $otherNode )
+		) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} else {
 			return [ 'min' => 1, 'max' => 2 ];
@@ -68,6 +71,7 @@ class TableHandler extends DOMHandler {
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( ( WTUtils::isNewElt( $node ) || WTUtils::isNewElt( $otherNode ) )
 			&& !DOMUtils::atTheTop( $otherNode )
+			&& !$this->isSkippedEndMetaTag( $state, $otherNode )
 		) {
 			return [ 'min' => 1, 'max' => 2 ];
 		} else {
@@ -83,6 +87,20 @@ class TableHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function lastChild( Node $node, Node $otherNode, SerializerState $state ): array {
 		return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
+	}
+
+	/**
+	 * @param SerializerState $state
+	 * @param Node $element
+	 * @return bool
+	 */
+	private function isSkippedEndMetaTag( SerializerState $state, Node $element ) {
+		// phan complains on next line otherwise
+		if ( !$element instanceof Element ) {
+			return false;
+		}
+		return WTUtils::isAnnotationEndMarkerMeta( $element ) &&
+			MetaHandler::needToWriteEndMeta( $state, $element );
 	}
 
 }

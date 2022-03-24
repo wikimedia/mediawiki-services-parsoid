@@ -140,6 +140,11 @@ use Wikimedia\Parsoid\Utils\Utils;
  * forest.
  * @property bool|null $wasMoved
  *
+ * This is used on an annotation meta tag to indicate that it hasn't been
+ * emitted when serializing to wikitext. This is then used to avoid adding
+ * extraneous separators in case the next element is a block.
+ * @property bool|null $skippedMeta
+ *
  * == HTML tags ==
  *
  * Are void tags self-closed? (Ex: `<br>` vs `<br />`)
