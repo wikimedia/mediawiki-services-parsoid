@@ -445,7 +445,7 @@ class DOMDiff {
 					);
 				}
 				$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-			} elseif ( array_search( $node->nodeType, $ignoreableNodeTypes, true ) === false ) {
+			} elseif ( !in_array( $node->nodeType, $ignoreableNodeTypes, true ) ) {
 				$this->env->log( 'error/domdiff', 'Unhandled node type', $node->nodeType, 'in markNode!' );
 			}
 		}

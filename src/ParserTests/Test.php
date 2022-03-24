@@ -249,8 +249,8 @@ class Test extends Item {
 			$selserEnabled = in_array( 'selser', $testRunnerModes, true );
 			// Avoid filtering out the selser test
 			if ( $selserEnabled &&
-				array_search( 'selser', $testModes, true ) === false &&
-				array_search( 'wt2wt', $testModes, true ) !== false
+				!in_array( 'selser', $testModes, true ) &&
+				in_array( 'wt2wt', $testModes, true )
 			) {
 				$testModes[] = 'selser';
 			}

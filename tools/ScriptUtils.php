@@ -19,9 +19,7 @@ class ScriptUtils {
 	 */
 	private static function fetchFlagsMap( string $origFlag ): array {
 		$objFlags = explode( ',', $origFlag );
-		if ( array_search( 'selser', $objFlags ) !== false &&
-			array_search( 'wts', $objFlags ) === false
-		) {
+		if ( in_array( 'selser', $objFlags ) && !in_array( 'wts', $objFlags ) ) {
 			$objFlags[] = 'wts';
 		}
 		return array_fill_keys( $objFlags, true );

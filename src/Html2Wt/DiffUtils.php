@@ -54,7 +54,7 @@ class DiffUtils {
 			return DOMUtils::isDiffMarker( $node->previousSibling, $mark );
 		} else {
 			$diffMark = self::getDiffMark( $node, $env );
-			return $diffMark && array_search( $mark, $diffMark->diff, true ) !== false;
+			return $diffMark && in_array( $mark, $diffMark->diff, true );
 		}
 	}
 
@@ -149,7 +149,7 @@ class DiffUtils {
 		$dpd = self::getDiffMark( $node, $env );
 		if ( $dpd ) {
 			// Diff is up to date, append this change if it doesn't already exist
-			if ( array_search( $change, $dpd->diff, true ) === false ) {
+			if ( !in_array( $change, $dpd->diff, true ) ) {
 				$dpd->diff[] = $change;
 			}
 		} else {

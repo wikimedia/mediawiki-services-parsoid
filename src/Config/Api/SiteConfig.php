@@ -220,7 +220,7 @@ class SiteConfig extends ISiteConfig {
 			$this->featureDetectionDone = true;
 			$data = $this->api->makeRequest( [ 'action' => 'paraminfo', 'modules' => 'query' ] );
 			$props = $data["paraminfo"]["modules"][0]["parameters"]["0"]["type"] ?? [];
-			$this->hasVideoInfo = array_search( 'videoinfo', $props, true ) !== false;
+			$this->hasVideoInfo = in_array( 'videoinfo', $props, true );
 		}
 	}
 

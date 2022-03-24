@@ -291,7 +291,7 @@ class ParserFunctions {
 	public function pf_iferror( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		if ( array_search( 'class="error"', $target, true ) !== false ) {
+		if ( in_array( 'class="error"', $target, true ) ) {
 			return $this->expandKV( $args[1], $frame );
 		} else {
 			return $this->expandKV( $args[1], $frame, $target );
