@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -138,6 +139,12 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	/**
 	 * Implements the split operation described in the algorithm below.
 	 *
+	 * The values of 'pwrap' here bear out in pWrapDOM below.
+	 *
+	 *  true: opens a paragaph or continues adding to a paragraph
+	 *  false: closes a paragraph
+	 *  null: agnostic, doesn't open or close a paragraph
+	 *
 	 * @param Node $n
 	 * @return array
 	 */
@@ -167,7 +174,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Wrap children of '$root' with paragraph tags while
+	 * Wrap children of '$root' with paragraph tags
 	 * so that the final output has the following properties:
 	 *
 	 * 1. A paragraph will have at least one non-whitespace text
@@ -219,18 +226,20 @@ class PWrap implements Wt2HtmlDOMProcessor {
 					if ( $v['pwrap'] === false ) {
 						$p = null;
 						$root->insertBefore( $n, $next );
-					} elseif ( $this->emitsSolTransparentWT( $n ) ) {
+					} elseif ( $v['pwrap'] === null ) {
 						if ( $p ) {
 							$p->appendChild( $n );
 						} else {
 							$root->insertBefore( $n, $next );
 						}
-					} else {
+					} elseif ( $v['pwrap'] === true ) {
 						if ( !$p ) {
 							$p = $root->ownerDocument->createElement( 'p' );
 							$root->insertBefore( $p, $next );
 						}
 						$p->appendChild( $n );
+					} else {
+						PHPUtils::unreachable( 'Unexpected value for pwrap.' );
 					}
 				}
 			}
