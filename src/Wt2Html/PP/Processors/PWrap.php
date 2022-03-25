@@ -143,9 +143,8 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 */
 	private function split( Node $n ): array {
 		if ( $this->emitsSolTransparentWT( $n ) ) {
-			// The null stuff here is mainly to support mw:EndTag metas getting in
-			// the way of runs and causing unnecessary wrapping.
-			// FIXME: mw:EndTag metas no longer exist
+			// Don't let sol-transparent tags interrupt runs.
+			// Setting 'pwrap' to null lets the algo skip over these.
 			return [ [ 'pwrap' => null, 'node' => $n ] ];
 		} elseif ( $n instanceof Text ) {
 			return [ [ 'pwrap' => true, 'node' => $n ] ];
