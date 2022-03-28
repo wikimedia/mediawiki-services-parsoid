@@ -13950,6 +13950,9 @@ Templates: P-wrapping: 1c. Templates on consecutive lines
 <p>Foo
 </p><p>
 bar </p><div>baz</div>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Foo"}},"i":0}}]}'>Foo</span></p>
+<p about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"bar"}},"i":0}}]}'>bar</p> <div data-parsoid='{"stx":"html"}'>baz</div>
 !! end
 
 !! test

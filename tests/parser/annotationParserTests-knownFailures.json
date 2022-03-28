@@ -87,6 +87,17 @@
         "wt2wt": "<dummyanno>t1</dummyanno> <dummyanno>t2</dummyanno> <dummyanno><ann2 name=\"plop\">t3</ann2></dummyanno>",
         "selser [2]": "1koe8pj\n\n<dummyanno><dummyanno>t1</dummyanno></dummyanno> <dummyanno>t2</dummyanno> <dummyanno><ann2 name=\"plop\">t3</ann2></dummyanno>"
     },
+    "Top-level metas should not be migrated into paragraphs, nor pulled in the template": {
+        "selser [0,0,0,0,0,0,2,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\nc\n\n8he46j\n</dummyanno>",
+        "selser [0,0,0,0,4,0,0,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\n11rk5d9\n\nc\n</dummyanno>",
+        "selser [0,0,0,0,0,3,0,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\n\n</dummyanno>",
+        "selser [0,0,0,0,2,4,0,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\n1qif9g3\n\ndu9ze2\n</dummyanno>",
+        "selser [0,0,0,0,2,0,0,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\nu3xux6\n\nc\n</dummyanno>",
+        "selser [0,0,0,0,0,2,0,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\n1n8o3g6\n\nc\n</dummyanno>",
+        "selser [0,0,0,0,2,1,0,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\njyuivv\n\nc\n</dummyanno>",
+        "selser [0,0,0,0,4,3,2,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\n1wt4c8m\n\n26w82i\n</dummyanno>",
+        "selser [0,0,0,0,4,1,2,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\n2hh2o1\n\nc\n\n1gvm7vf\n</dummyanno>"
+    },
     "Two paragraphs between dummyanno tags should roundtrip without duplicating the tags (DSRs are adjusted correctly)": {
         "wt2wt": "<dummyanno>\nplop\n\nLet's have some text.\n</dummyanno>",
         "html2html": "<meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[0,11,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[0,11]}'/>\n<p data-parsoid='{\"dsr\":[12,16,0,0]}'>plop</p>\n\n<p data-parsoid='{\"dsr\":[18,39,0,0]}'>Let's have some text.</p>\n<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[40,52,null,null]}' data-mw='{\"wtOffsets\":[40,52]}'/>",
@@ -104,12 +115,6 @@
         "selser [0,1,0,[2],0]": "<dummyanno>plop\n\n19wl0n7Let's have some text.</dummyanno>",
         "selser [0,4,0,2,0]": "<dummyanno>\n13xtyfj\n\nlj67ed\n\nLet's have some text.</dummyanno>",
         "selser [0,3,4,0,0]": "<dummyanno>\nmom1vp\n\nLet's have some text.</dummyanno>"
-    },
-    "When metas are migrated out of p-tags, template continuity should not be broken": {
-        "selser [0,0,0,0,1,2,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\nc\n\n1j82v5d\n</dummyanno>",
-        "selser [0,0,0,0,1,4,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\nc\n\nlkbj4r\n</dummyanno>",
-        "selser [0,0,0,0,1,3,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\nc\n</dummyanno>",
-        "selser [0,0,0,0,0,3,0]": "{{1x|<div>a</div> b}}\n<dummyanno>\nc\n</dummyanno>"
     },
     "dummyanno in the middle of fostered content should extend to the whole range, including fostered content": {
         "wt2wt": "<dummyanno>\nfoo\nbar\n{|\n|-\n|baz\n|}\n</dummyanno>",

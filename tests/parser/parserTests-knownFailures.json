@@ -2629,8 +2629,8 @@
         "html2wt": "Foo\n\nbar\nbaz\n"
     },
     "Templates: P-wrapping: 1c. Templates on consecutive lines": {
-        "html2wt": "Foo\n\nbar <div>baz</div>",
-        "selser [1,0,0,2]": "{{1x|Foo}}\n{{1x|bar}} \n\nsblien<div>baz</div>"
+        "selser [0,0,0,4,2]": "{{1x|Foo}}\n{{1x|bar}}\n\ny6i2wq\n\nwhdbxd<div>baz</div>",
+        "selser [1,0,0,2,1]": "{{1x|Foo}}\n{{1x|bar}}\n\n1gf1ef7 <div data-foobar=\"lzr5vy\">baz</div>"
     },
     "Templates: Strip leading and trailing whitespace from named-param values": {
         "html2wt": "a\n\nb\n\nc\n\n* d"

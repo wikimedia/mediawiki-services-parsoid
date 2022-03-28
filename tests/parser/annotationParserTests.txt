@@ -789,7 +789,7 @@ annotations=1
 ## a template. If the p-wrapper can be tweaked to be smarter about this, this will get cleaned up better.
 ## But, for now, the focus is on not breaking selser.
 !! test
-When metas are migrated out of p-tags, template continuity should not be broken
+Top-level metas should not be migrated into paragraphs, nor pulled in the template
 !! options
 parsoid=wt2html,selser
 annotations=1
@@ -799,10 +799,10 @@ annotations=1
 c
 </dummyanno>
 !! html/parsoid
-<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","dsr":[0,33,null,null],"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>a&lt;/div> b"}},"i":0}},"\n&lt;dummyanno>"]}'>a</div><meta typeof="mw:Annotation/dummyanno" about="#mwt1" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[22,33]}'/><p about="#mwt1"> b
-</p>
-<p data-parsoid='{"dsr":[34,35,0,0]}'>c</p>
-<meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"dsr":[36,48,null,null]}' data-mw='{"wtOffsets":[36,48]}'/>
+<div about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div>a&lt;/div> b"}},"i":0}}]}'>a</div><p about="#mwt1"> b</p>
+<meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[22,33]}'/>
+<p>c</p>
+<meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[36,48]}'/>
 !! end
 
 !! test

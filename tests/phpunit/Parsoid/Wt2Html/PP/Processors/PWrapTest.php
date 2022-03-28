@@ -9,6 +9,8 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap;
 
+// phpcs:disable Generic.Files.LineLength.TooLong
+
 /**
  * based on tests/mocha/pwrap.js
  * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap
@@ -122,6 +124,28 @@ class PWrapTest extends TestCase {
 			[
 				'<i><b><font><div>x</div></font></b><div>y</div><b><font><div>z</div></font></b></i>',
 				'<i><b><font><div>x</div></font></b><div>y</div><b><font><div>z</div></font></b></i>',
+			],
+			[
+				// Wikitext: "<div>foo</div> {{1x|a}} <div>bar</div>"
+				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/>a<meta typeof="mw:Transclusion/End" about="#mwt1"/> <div>bar</div>',
+				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/><p>a</p><meta typeof="mw:Transclusion/End" about="#mwt1"/> <div>bar</div>',
+			],
+			[
+				// Wikitext: "<div>foo</div> a {{1x|b}} <div>bar</div>
+				'<div>foo</div> a <meta typeof="mw:Transclusion" about="#mwt2"/>b<meta typeof="mw:Transclusion/End" about="#mwt2"/> <div>bar</div>',
+				'<div>foo</div><p> a <meta typeof="mw:Transclusion" about="#mwt2"/>b<meta typeof="mw:Transclusion/End" about="#mwt2"/></p> <div>bar</div>',
+			],
+			[
+				// This is an example where ideally the opening meta tag will be pushed into the <p> tag
+				// but the algorithm isn't smart enough for doing that.
+				// Wikitext: "<div>foo</div> {{1x|a}} b <div>bar</div>"
+				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/>a<meta typeof="mw:Transclusion/End" about="#mwt1"/> b <div>bar</div>',
+				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/><p>a<meta typeof="mw:Transclusion/End" about="#mwt1"/> b </p><div>bar</div>',
+			],
+			[
+				// Wikitext: "<div>foo</div> a {{1x|b}} {{1x|<div>bar</div>}}"
+				'<div>foo</div> a <meta typeof="mw:Transclusion" about="#mwt1"/>b<meta typeof="mw:Transclusion/End" about="#mwt1"/> <meta typeof="mw:Transclusion" about="#mwt2"/><div>bar</div><meta typeof="mw:Transclusion/End" about="#mwt2"/>',
+				'<div>foo</div><p> a <meta typeof="mw:Transclusion" about="#mwt1"/>b<meta typeof="mw:Transclusion/End" about="#mwt1"/></p> <meta typeof="mw:Transclusion" about="#mwt2"/><div>bar</div><meta typeof="mw:Transclusion/End" about="#mwt2"/>',
 			],
 		];
 	}
