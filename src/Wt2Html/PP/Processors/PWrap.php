@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class PWrap implements Wt2HtmlDOMProcessor {
-	private const RANGE_TYPE_RE = '!^mw:(Transclusion(/|$)|Param(/|$)|Annotation/)!';
 
 	/**
 	 * Flattens an array with other arrays for elements into
@@ -44,7 +43,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @param Node $n
 	 * @return bool
 	 */
-	private function pWrapOptional( Node $n ): bool {
+	public static function pWrapOptional( Node $n ): bool {
 		return ( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
 			$n instanceof Comment ||
 			isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $n )] );
@@ -183,41 +182,6 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Unwrap a run of trailing nodes that don't need p-wrapping.
-	 * This only matters for meta tags representing transclusions
-	 * and annotations. Unwrapping can prevent unnecessary expansion
-	 * of template/annotation ranges.
-	 *
-	 * @param ?Element $p
-	 * @param array $seenTypes
-	 *   Maps typeof+about attribute composite string to a node position.
-	 *   This map/cache eliminates the need to look up matching types repeatedly.
-	 */
-	private function unwrapTrailingPWrapOptionalNodes( ?Element $p, array $seenTypes ) {
-		if ( $p && count( $seenTypes ) > 0 ) {
-			// We have potential hoistable meta tags
-			$lastChild = $p->lastChild;
-			while ( $this->pWrapOptional( $lastChild ) ) {
-				$t = DOMUtils::matchNameAndTypeOf( $lastChild, 'meta', self::RANGE_TYPE_RE );
-				if ( $t && str_ends_with( $t, '/End' ) ) {
-					'@phan-var Element $lastChild';  // @var Element $lastChild
-					// Check if one of its prior siblings has a matching opening tag.
-					// If so, we are done with unwrapping here since we don't want to
-					// hoist this closing tag by itself.
-					$aboutId = $lastChild->getAttribute( 'about' );
-					$endPosn = $seenTypes[$t . $aboutId]; // guaranteed to exist
-					$openPosn = $seenTypes[substr( $t, 0, -4 ) . $aboutId] ?? null;
-					if ( $openPosn !== null && $openPosn < $endPosn ) {
-						return;
-					}
-				}
-				$p->parentNode->insertBefore( $lastChild, $p->nextSibling );
-				$lastChild = $p->lastChild;
-			}
-		}
-	}
-
-	/**
 	 * Wrap children of '$root' with paragraph tags
 	 * so that the final output has the following properties:
 	 *
@@ -258,41 +222,32 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @param Element|DocumentFragment $root
 	 */
 	private function pWrapDOM( Node $root ) {
-		$posn = 0;
-		$p = null;
-		$seenTypes = [];
+		$state = new PWrapState();
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( DOMUtils::isRemexBlockNode( $c ) ) {
-				$this->unwrapTrailingPWrapOptionalNodes( $p, $seenTypes );
-				$p = null;
-				$seenTypes = [];
+				$state->reset();
 			} else {
 				$vs = $this->split( $c );
 				foreach ( $vs as $v ) {
 					$n = $v['node'];
 					if ( $v['pwrap'] === false ) {
-						$this->unwrapTrailingPWrapOptionalNodes( $p, $seenTypes );
-						$p = null;
-						$seenTypes = [];
+						$state->reset();
 						$root->insertBefore( $n, $next );
 					} elseif ( $v['pwrap'] === null ) {
-						if ( $p ) {
-							$p->appendChild( $n );
-							$t = DOMUtils::matchNameAndTypeOf( $n, 'meta', self::RANGE_TYPE_RE );
-							if ( $t ) {
-								$seenTypes[$t . $n->getAttribute( 'about' )] = $posn++;
-							}
+						if ( $state->p ) {
+							$state->p->appendChild( $n );
+							$state->processOptionalNode( $n );
 						} else {
 							$root->insertBefore( $n, $next );
 						}
 					} elseif ( $v['pwrap'] === true ) {
-						if ( !$p ) {
-							$p = $root->ownerDocument->createElement( 'p' );
-							$root->insertBefore( $p, $next );
+						if ( !$state->p ) {
+							$state->p = $root->ownerDocument->createElement( 'p' );
+							$root->insertBefore( $state->p, $next );
 						}
-						$p->appendChild( $n );
+						$state->p->appendChild( $n );
 					} else {
 						PHPUtils::unreachable( 'Unexpected value for pwrap.' );
 					}
@@ -300,7 +255,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			}
 			$c = $next;
 		}
-		$this->unwrapTrailingPWrapOptionalNodes( $p, $seenTypes );
+		$state->reset();
 	}
 
 	/**
