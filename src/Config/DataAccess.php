@@ -9,6 +9,14 @@ use Wikimedia\Parsoid\Core\ContentMetadataCollector;
  * MediaWiki data access abstract class for Parsoid
  */
 abstract class DataAccess {
+	/**
+	 * Base constructor.
+	 *
+	 * This constructor is public because it is used to create mock objects
+	 * in our test suite.
+	 */
+	public function __construct() {
+	}
 
 	/**
 	 * Return target data for formatting links.

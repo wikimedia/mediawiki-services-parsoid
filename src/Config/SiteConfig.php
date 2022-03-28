@@ -201,6 +201,12 @@ abstract class SiteConfig {
 	/** var ?array */
 	protected $extConfig = null;
 
+	/**
+	 * Base constructor.
+	 *
+	 * This constructor is public because it is used to create mock objects
+	 * in our test suite.
+	 */
 	public function __construct() {
 	}
 

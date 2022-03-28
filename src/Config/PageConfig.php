@@ -16,6 +16,15 @@ abstract class PageConfig {
 	private $htmlVariant = null;
 
 	/**
+	 * Base constructor.
+	 *
+	 * This constructor is public because it is used to create mock objects
+	 * in our test suite.
+	 */
+	public function __construct() {
+	}
+
+	/**
 	 * Get content model
 	 * @return string
 	 */
