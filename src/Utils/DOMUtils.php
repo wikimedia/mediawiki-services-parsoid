@@ -144,9 +144,8 @@ class DOMUtils {
 	public static function isRemexBlockNode( ?Node $node ): bool {
 		return $node instanceof Element &&
 			!isset( Consts::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
-			// From \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
-			// This is a superset but matches `emitsSolTransparentWT` below
-			!isset( Consts::$HTML['MetaTags'][DOMCompat::nodeName( $node )] );
+			// This is a superset of \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
+			!isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $node )] );
 	}
 
 	/**
