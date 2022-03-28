@@ -186,7 +186,7 @@ class Consts {
 			 * https://html.spec.whatwg.org/multipage/dom.html#metadata-content-2
 			 * @type {Set}
 			 */
-			'MetaTags' => PHPUtils::makeSet( [
+			'MetaDataTags' => PHPUtils::makeSet( [
 				"base", "link", "meta", "noscript", "script", "style", "template", "title"
 			] ),
 
