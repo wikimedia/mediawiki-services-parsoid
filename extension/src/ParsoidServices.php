@@ -21,30 +21,14 @@ declare( strict_types = 1 );
 namespace MWParsoid;
 
 use MediaWiki\MediaWikiServices;
-use Wikimedia\Parsoid\Config\DataAccess;
-use Wikimedia\Parsoid\Config\PageConfigFactory;
-use Wikimedia\Parsoid\Config\SiteConfig;
 
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-class ParsoidServices {
-
-	/** @var MediaWikiServices */
-	private $services;
+/**
+ * @deprecated since 1.39. Use MediaWikiServices instead.
+ */
+class ParsoidServices extends \MediaWiki\Parser\Parsoid\ParsoidServices {
 
 	public function __construct( MediaWikiServices $services ) {
-		$this->services = $services;
+		parent::__construct( $services );
 	}
-
-	public function getParsoidSiteConfig(): SiteConfig {
-		return $this->services->get( 'ParsoidSiteConfig' );
-	}
-
-	public function getParsoidPageConfigFactory(): PageConfigFactory {
-		return $this->services->get( 'ParsoidPageConfigFactory' );
-	}
-
-	public function getParsoidDataAccess(): DataAccess {
-		return $this->services->get( 'ParsoidDataAccess' );
-	}
-
 }
