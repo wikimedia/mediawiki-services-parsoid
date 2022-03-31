@@ -126,6 +126,12 @@ class PWrapTest extends TestCase {
 				'<i><b><font><div>x</div></font></b><div>y</div><b><font><div>z</div></font></b></i>',
 			],
 			[
+				// Wikitext: "<div>foo</div> {{1x|a}}</span>"
+				// NOTE: Simplified the strippedTag meta tag by removing data-parsoid since that is immaterial to the test
+				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/>a<meta typeof="mw:Transclusion/End" about="#mwt1"/><meta typeof="mw:Placeholder/StrippedTag"/>',
+				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/><p>a</p><meta typeof="mw:Transclusion/End" about="#mwt1"/><meta typeof="mw:Placeholder/StrippedTag"/>',
+			],
+			[
 				// Wikitext: "<div>foo</div> {{1x|a}} <div>bar</div>"
 				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/>a<meta typeof="mw:Transclusion/End" about="#mwt1"/> <div>bar</div>',
 				'<div>foo</div> <meta typeof="mw:Transclusion" about="#mwt1"/><p>a</p><meta typeof="mw:Transclusion/End" about="#mwt1"/> <div>bar</div>',
