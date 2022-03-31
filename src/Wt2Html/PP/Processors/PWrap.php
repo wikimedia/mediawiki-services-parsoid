@@ -300,6 +300,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			}
 			$c = $next;
 		}
+		$this->unwrapTrailingPWrapOptionalNodes( $p, $seenTypes );
 	}
 
 	/**
