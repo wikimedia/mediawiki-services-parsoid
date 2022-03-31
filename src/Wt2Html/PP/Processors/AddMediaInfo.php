@@ -245,14 +245,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
-	 * @param ?array $manualinfo
 	 * @param stdClass $dataMw
 	 * @param Element $container
 	 * @return array
 	 */
 	private static function handleAudio(
-		Env $env, Element $span, array $attrs, array $info, ?array $manualinfo,
-		stdClass $dataMw, Element $container
+		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
+		Element $container
 	): array {
 		$doc = $span->ownerDocument;
 		$audio = $doc->createElement( 'audio' );
@@ -277,7 +276,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		self::addSources( $audio, $info, $dataMw, false );
 		self::addTracks( $audio, $info );
 
-		return [ 'rdfaType' => 'mw:Audio', 'elt' => $audio ];
+		return [ 'mw:Audio', $audio ];
 	}
 
 	/**
@@ -285,19 +284,19 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
-	 * @param ?array $manualinfo
 	 * @param stdClass $dataMw
+	 * @param Element $container
 	 * @return array
 	 */
 	private static function handleVideo(
-		Env $env, Element $span, array $attrs, array $info, ?array $manualinfo,
-		stdClass $dataMw
+		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
+		Element $container
 	): array {
 		$doc = $span->ownerDocument;
 		$video = $doc->createElement( 'video' );
 
-		if ( $manualinfo || !empty( $info['thumburl'] ) ) {
-			$video->setAttribute( 'poster', self::getPath( $manualinfo ?: $info ) );
+		if ( !empty( $info['thumburl'] ) ) {
+			$video->setAttribute( 'poster', self::getPath( $info ) );
 		}
 
 		$video->setAttribute( 'controls', '' );
@@ -316,7 +315,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		self::addSources( $video, $info, $dataMw, true );
 		self::addTracks( $video, $info );
 
-		return [ 'rdfaType' => 'mw:Video', 'elt' => $video ];
+		return [ 'mw:Video', $video ];
 	}
 
 	/**
@@ -326,22 +325,18 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
-	 * @param ?array $manualinfo
 	 * @param stdClass $dataMw
+	 * @param Element $container
 	 * @return array
 	 */
 	private static function handleImage(
-		Env $env, Element $span, array $attrs, array $info, ?array $manualinfo,
-		stdClass $dataMw
+		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
+		Element $container
 	): array {
 		$doc = $span->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
 		self::addAttributeFromDataMw( $img, $dataMw, 'alt' );
-
-		if ( $manualinfo ) {
-			$info = $manualinfo;
-		}
 
 		self::copyOverAttribute( $img, $span, 'resource' );
 
@@ -372,7 +367,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			}
 		}
 
-		return [ 'rdfaType' => 'mw:Image', 'elt' => $img ];
+		return [ 'mw:Image', $img ];
 	}
 
 	/**
@@ -674,13 +669,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$errs[] = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
 			}
 
-			$manualinfo = null;
 			if ( $c['manualKey'] !== null ) {
 				$manualinfo = $files[$c['manualKey']];
 				if ( !$manualinfo ) {
 					$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
 				} elseif ( isset( $manualinfo['thumberror'] ) ) {
 					$errs[] = self::makeErr( 'apierror-unknownerror', $manualinfo['thumberror'] );
+				} else {
+					$info = $manualinfo;
 				}
 			}
 
@@ -690,28 +686,30 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 
+			// Info relates to the thumb, not necessarily the file.
+			// The distinction matters for manualthumb, in which case only
+			// the "resource" copied over from the span relates to the file.
 			'@phan-var array $info';  // @var array $info
-
-			// T110692: The batching API seems to return these as strings.
-			// Till that is fixed, let us make sure these are numbers.
-			// (This was fixed in Sep 2015, FWIW.)
-			$info['height'] = (int)$info['height'];
-			$info['width'] = (int)$info['width'];
 
 			$isImage = false;
 			switch ( $info['mediatype'] ) {
 				case 'AUDIO':
-					$o = self::handleAudio( $env, $span, $attrs, $info, $manualinfo, $dataMw, $container );
+					$handler = 'handleAudio';
 					break;
 				case 'VIDEO':
-					$o = self::handleVideo( $env, $span, $attrs, $info, $manualinfo, $dataMw );
+					$handler = 'handleVideo';
 					break;
 				default:
+					$handler = 'handleImage';
 					$isImage = true;
-					$o = self::handleImage( $env, $span, $attrs, $info, $manualinfo, $dataMw );
 			}
-			$rdfaType = $o['rdfaType'];
-			$elt = $o['elt'];
+
+			// The rdfa type comes from the $info (which might be $manualinfo
+			// from the thumbnail) because it should follow what's actually
+			// embedded on the page and not the ultimate type of the file.
+			[ $rdfaType, $elt ] = self::$handler(
+				$env, $span, $attrs, $info, $dataMw, $container
+			);
 
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $anchor, $attrs, $dataMw, $isImage,

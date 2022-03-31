@@ -141,15 +141,42 @@ Video with unsupported link
 <p><span class="mw-default-size" typeof="mw:Video" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
-## FIXME: Parsoid is ignoring the manualthumb
+## FIXME(T302114): php section has the wrong rdfa type
 !! test
 Video with different thumb image
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Video.ogv|thumbnail=Foobar.jpg]]
+!! html/php
+<figure class="mw-default-size" typeof="mw:Video/Thumb"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a><figcaption></figcaption></figure>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Foobar.jpg"}]]}'><a href="./File:Video.ogv" class="mw-file-description"><img resource="./File:Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Video.ogv","height":"220","width":"1941"},"sa":{"resource":"File:Video.ogv"}}'/></a><figcaption></figcaption></figure>
+!! end
+
+!! test
+Video with different thumb image (legacy)
+!! config
+wgParserEnableLegacyMediaDOM=true
 !! wikitext
 [[File:Video.ogv|thumbnail=Foobar.jpg]]
 !! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:1943px;"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Video.ogv" class="internal" title="Enlarge"></a></div></div></div></div>
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Video/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Foobar.jpg"}]]}'><span><video poster="http://example.com/images/3/3a/Foobar.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span><figcaption></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Foobar.jpg"}]]}'><a href="./File:Video.ogv" class="mw-file-description"><img resource="./File:Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Video.ogv","height":"220","width":"1941"},"sa":{"resource":"File:Video.ogv"}}'/></a><figcaption></figcaption></figure>
+!! end
+
+## FIXME(T302114): php section has the wrong rdfa type
+!! test
+Image with video thumb
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Foobar.jpg|thumbnail=Video.ogv]]
+!! html/php
+<figure class="mw-default-size" typeof="mw:Image/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span><figcaption></figcaption></figure>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Video/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Video.ogv"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Foobar.jpg"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span><figcaption></figcaption></figure>
 !! end
 
 !! test
