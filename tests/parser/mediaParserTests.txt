@@ -3216,17 +3216,35 @@ wgParserEnableLegacyMediaDOM=false
 !! end
 
 !! test
+Image with page parameter and link
+!! options
+djvu
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:LoremIpsum.djvu|link=https://google.com|page=2]]
+[[File:LoremIpsum.djvu|link=https://google.com?page=4|page=2]]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:Image"><a href="https://google.com" rel="nofollow"><img alt="LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x" /></a></span>
+<span class="mw-default-size" typeof="mw:Image"><a href="https://google.com?page=4" rel="nofollow"><img alt="LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" width="2480" height="3508" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x" /></a></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Image" data-mw='{"attribs":[["page",{"txt":"2"}]]}'><a href="https://google.com"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" data-file-width="2480" data-file-height="3508" data-file-type="office" height="3508" width="2480" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x"/></a></span>
+<span class="mw-default-size" typeof="mw:Image" data-mw='{"attribs":[["page",{"txt":"2"}]]}'><a href="https://google.com?page=4"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-2480px-LoremIpsum.djvu.jpg" decoding="async" data-file-width="2480" data-file-height="3508" data-file-type="office" height="3508" width="2480" srcset="http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-3720px-LoremIpsum.djvu.jpg 1.5x, http://example.com/images/thumb/5/5f/LoremIpsum.djvu/page2-4960px-LoremIpsum.djvu.jpg 2x"/></a></span></p>
+!! end
+
+!! test
 Image with page parameter and manualthumb
 !! options
 djvu
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
-[[File:LoremIpsum.djvu|page=2|thumbnail=Thumb.png]]
+[[File:LoremIpsum.djvu|thumbnail=Thumb.png|page=2]]
 !! html/php
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="/index.php?title=File:LoremIpsum.djvu&amp;page=2" title="File:LoremIpsum.djvu"><img alt="LoremIpsum.djvu" src="http://example.com/images/e/ea/Thumb.png" decoding="async" width="135" height="135" /></a><figcaption></figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"attribs":[["page",{"txt":"2"}],["manualthumb",{"txt":"Thumb.png"}]]}'><a href="./File:LoremIpsum.djvu?page=2" class="mw-file-description"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Thumb.png"}],["page",{"txt":"2"}]]}'><a href="./File:LoremIpsum.djvu?page=2" class="mw-file-description"><img resource="./File:LoremIpsum.djvu" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -3245,7 +3263,7 @@ wgParserEnableLegacyMediaDOM=false
 !! end
 
 !! test
-Image with modified page parameter; serialize href query not data-mw
+Image with modified page parameter; serialize data-mw not href query
 !! options
 djvu
 parsoid={
@@ -3259,22 +3277,19 @@ parsoid={
 
 [[File:LoremIpsum.djvu|page {{1x|2}}]]
 !! wikitext/edited
-[[File:LoremIpsum.djvu|page 3]]
+[[File:LoremIpsum.djvu|page 2]]
 
-[[File:LoremIpsum.djvu|page 3]]
+[[File:LoremIpsum.djvu|page {{1x|2}}]]
 !! end
 
-# This tests for RESTBase content backward-compatibility;
-# the output should change when T259931 has been resolved (the page
-# parameter should be removed in the wikitext/edited section)
 !! test
-Image with modified page parameter; serialize href query not data-mw (2)
+Image with modified page parameter; serialize data-mw not href query (2)
 !! options
 djvu
 parsoid={
   "modes": ["wt2wt", "selser"],
   "changes": [
-    ["a[href]", "attr", "href", "./File:LoremIpsum.djvu"]
+    ["span", "attr", "data-mw", "{}"]
   ]
 }
 !! wikitext
@@ -3282,9 +3297,9 @@ parsoid={
 
 [[File:LoremIpsum.djvu|page {{1x|2}}]]
 !! wikitext/edited
-[[File:LoremIpsum.djvu|page 2]]
+[[File:LoremIpsum.djvu]]
 
-[[File:LoremIpsum.djvu|page {{1x|2}}]]
+[[File:LoremIpsum.djvu]]
 !! end
 
 # Images with the "|" character in external URLs in comment tags; Eats half the comment, leaves unmatched "</a>" tag.

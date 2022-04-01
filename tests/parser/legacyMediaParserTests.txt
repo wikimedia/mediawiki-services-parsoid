@@ -2942,7 +2942,7 @@ djvu
 !! end
 
 !! test
-Image with modified page parameter; serialize href query not data-mw
+Image with modified page parameter; serialize data-mw not href query
 !! options
 djvu
 parsoid={
@@ -2956,22 +2956,19 @@ parsoid={
 
 [[File:LoremIpsum.djvu|page {{1x|2}}]]
 !! wikitext/edited
-[[File:LoremIpsum.djvu|page 3]]
+[[File:LoremIpsum.djvu|page 2]]
 
-[[File:LoremIpsum.djvu|page 3]]
+[[File:LoremIpsum.djvu|page {{1x|2}}]]
 !! end
 
-# This tests for RESTBase content backward-compatibility;
-# the output should change when T259931 has been resolved (the page
-# parameter should be removed in the wikitext/edited section)
 !! test
-Image with modified page parameter; serialize href query not data-mw (2)
+Image with modified page parameter; serialize data-mw not href query (2)
 !! options
 djvu
 parsoid={
   "modes": ["wt2wt", "selser"],
   "changes": [
-    ["a[href]", "attr", "href", "./File:LoremIpsum.djvu"]
+    ["span", "attr", "data-mw", "{}"]
   ]
 }
 !! wikitext
@@ -2979,9 +2976,9 @@ parsoid={
 
 [[File:LoremIpsum.djvu|page {{1x|2}}]]
 !! wikitext/edited
-[[File:LoremIpsum.djvu|page 2]]
+[[File:LoremIpsum.djvu]]
 
-[[File:LoremIpsum.djvu|page {{1x|2}}]]
+[[File:LoremIpsum.djvu]]
 !! end
 
 # Images with the "|" character in external URLs in comment tags; Eats half the comment, leaves unmatched "</a>" tag.

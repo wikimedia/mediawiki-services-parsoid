@@ -1089,47 +1089,6 @@ class LinkHandlerUtils {
 			return $null;
 		};
 
-		// Identify a page # to use.
-		$page = null;
-		$pageFromHref = preg_match(
-			'#[?]page=(\d+)$#D',
-			( $linkElt ? $linkElt->getAttribute( 'href' ) : null ) ?? '',
-			$matches ) ? $matches[1] : null;
-		$pageFromDataMw = WTSUtils::getAttrFromDataMw( $outerDMW, 'page', true );
-		if ( $pageFromDataMw !== null ) {
-			// FIXME: if $pageFromHref is null but $pageFromDataMw is
-			// set, then we go ahead and serialize the page parameter
-			// as unmodified.  This helps transition old RESTBase
-			// content where the ?page suffix on the URL was missing,
-			// but eventually $restBaseMigrationHack should be left
-			// false always. (T259931)
-			$restBaseMigrationHack =
-				( $pageFromHref === null && $pageFromDataMw[1]->txt );
-
-			if (
-				trim( $pageFromDataMw[1]->txt ) === $pageFromHref ||
-				$restBaseMigrationHack
-			) {
-				$page = $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'page' );
-				if ( !$page ) {
-					$page = [
-						'value' => $pageFromDataMw[1]->txt,
-						'modified' => false,
-						'fromsrc' => false,
-						'fromDataMW' => true,
-					];
-				}
-			}
-		}
-		if ( !$page && $pageFromHref !== null ) {
-			$page = [
-				'value' => $pageFromHref,
-				'modified' => true,
-				'fromsrc' => false,
-				'fromDataMW' => false,
-			];
-		}
-
 		// Try to identify the local title to use for the link.
 		$link = null;
 
@@ -1234,15 +1193,14 @@ class LinkHandlerUtils {
 		// and $value is the Parsoid "shadow info" for the attribute.
 		// $cond tells us whether we need to explicitly output this option;
 		// if it is false we are using an implicit default.
-		// `lang` and `alt` are fairly straightforward.  `link` and `page`
-		// are a little trickier, since we need to massage/fake the shadow
-		// info because they don't come *directly* from the attribute.
+		// `lang` and `alt` are fairly straightforward.  `link`
+		// is a little trickier, since we need to massage/fake the shadow
+		// info because it doesn't come *directly* from the attribute.
 		// link comes from the combination of a[href], img[src], and
-		// img[resource], etc; page comes from the query part of a[href] etc.
+		// img[resource], etc;
 		foreach ( [
 			[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond ],
 			[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond ],
-			[ 'name' => 'page', 'value' => $page, 'cond' => isset( $page['value'] ) ],
 			[ 'name' => 'lang', 'value' => $lang, 'cond' => isset( $lang['value'] ) ]
 		] as $o ) {
 			if ( !$o['cond'] ) {
@@ -1339,6 +1297,7 @@ class LinkHandlerUtils {
 		// thumbnail implementation to the editor so we don't do that.)
 		$mwParams = [
 			[ 'prop' => 'thumb', 'ck' => 'manualthumb', 'alias' => 'img_manualthumb' ],
+			[ 'prop' => 'page', 'ck' => 'page', 'alias' => 'img_page' ],
 			// mw:Video specific
 			[ 'prop' => 'starttime', 'ck' => 'starttime', 'alias' => 'timedmedia_starttime' ],
 			[ 'prop' => 'endtime', 'ck' => 'endtime', 'alias' => 'timedmedia_endtime' ],
@@ -1357,8 +1316,22 @@ class LinkHandlerUtils {
 			$v = $outerDMW->{$o['prop']} ?? null;
 			if ( $v === null ) {
 				$a = WTSUtils::getAttrFromDataMw( $outerDMW, $o['ck'], true );
-				if ( $a !== null && !isset( $a[1]->html ) ) {
-					$v = $a[1]->txt;
+				if ( $a !== null ) {
+					if ( isset( $a[1]->html ) ) {
+						// FIXME: Apply this to more that just page?
+						if ( $o['prop'] === 'page' ) {
+							$page = $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'page' );
+							if ( isset( $page['value'] ) ) {
+								$nopts[] = [
+									'ck' => $o['prop'],
+									'ak' => [ $page['value'] ],
+								];
+								continue;
+							}
+						}
+					} else {
+						$v = $a[1]->txt;
+					}
 				}
 			}
 			if ( $v !== null ) {
