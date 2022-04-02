@@ -522,34 +522,13 @@ class TestRunner {
 	private function checkHTML(
 		Test $test, Element $out, array $options, string $mode
 	): bool {
-		$normalizedOut = null;
-		$normalizedExpected = null;
-		$parsoidOnly = isset( $test->sections['html/parsoid'] ) ||
-			( isset( $test->sections['html/parsoid+langconv'] ) ) ||
-			( isset( $test->options['parsoid'] ) && !isset( $test->options['parsoid']['normalizePhp'] ) );
-
-		$normOpts = [
-			'parsoidOnly' => $parsoidOnly,
-			'preserveIEW' => isset( $test->options['parsoid']['preserveIEW'] )
+		list( $normOut, $normExpected ) = $test->normalizeHTML( $out, $test->cachedNormalizedHTML );
+		$expected = [ 'normal' => $normExpected, 'raw' => $test->parsoidHtml ];
+		$actual = [
+			'normal' => $normOut,
+			'raw' => ContentUtils::toXML( $out, [ 'innerXML' => true ] ),
+			'input' => ( $mode === 'html2html' ) ? $test->parsoidHtml : $test->wikitext
 		];
-
-		$normalizedOut = TestUtils::normalizeOut( $out, $normOpts );
-		$out = ContentUtils::toXML( $out, [ 'innerXML' => true ] );
-
-		if ( $test->cachedNormalizedHTML === null ) {
-			if ( $parsoidOnly ) {
-				$normalizedExpected = TestUtils::normalizeOut( $test->parsoidHtml, $normOpts );
-			} else {
-				$normalizedExpected = TestUtils::normalizeHTML( $test->parsoidHtml );
-			}
-			$test->cachedNormalizedHTML = $normalizedExpected;
-		} else {
-			$normalizedExpected = $test->cachedNormalizedHTML;
-		}
-
-		$input = ( $mode === 'html2html' ) ? $test->parsoidHtml : $test->wikitext;
-		$expected = [ 'normal' => $normalizedExpected, 'raw' => $test->parsoidHtml ];
-		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
 
 		return $options['reportResult'](
 			$this->stats, $test, $options, $mode, $expected, $actual

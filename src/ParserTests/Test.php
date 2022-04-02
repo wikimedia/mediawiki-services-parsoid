@@ -859,4 +859,43 @@ class Test extends Item {
 			}
 		}
 	}
+
+	/**
+	 * Normalize expected and actual HTML to suppress irrelevant differences.
+	 * The normalization is determined by the HTML sections present in the test
+	 * as well as other Parsoid-specific test options.
+	 *
+	 * @param Element|string $actual
+	 * @param ?string $normExpected
+	 * @param bool $standalone
+	 * @return array
+	 */
+	public function normalizeHTML( $actual, ?string $normExpected, bool $standalone = true ): array {
+		$opts = $this->options;
+		$haveIntegratedHTML = !$standalone && isset( $this->sections['html/parsoid+integrated'] );
+		$parsoidOnly = isset( $this->sections['html/parsoid'] ) ||
+			$haveIntegratedHTML ||
+			isset( $this->sections['html/parsoid+langconv'] ) ||
+			( isset( $opts['parsoid'] ) && !isset( $opts['parsoid']['normalizePhp'] ) );
+		$normOpts = [
+			'parsoidOnly' => $parsoidOnly,
+			'preserveIEW' => isset( $opts['parsoid']['preserveIEW'] )
+		];
+
+		if ( !$normExpected ) {
+			if ( $haveIntegratedHTML ) {
+				$parsoidHTML = $this->sections['html/parsoid+integrated'];
+			} else {
+				$parsoidHTML = $this->parsoidHtml;
+			}
+			if ( $parsoidOnly ) {
+				$normExpected = TestUtils::normalizeOut( $parsoidHTML, $normOpts );
+			} else {
+				$normExpected = TestUtils::normalizeHTML( $parsoidHTML );
+			}
+			$this->cachedNormalizedHTML = $normExpected;
+		}
+
+		return [ TestUtils::normalizeOut( $actual, $normOpts ), $normExpected ];
+	}
 }
