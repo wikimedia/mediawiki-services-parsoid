@@ -22865,8 +22865,6 @@ comment
 <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">ABC3D% ++</a> <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">+%20</a>
 !! end
 
-# Parsoid doesn't support this yet: see T75581
-# but it *should* omit the 'src' attribute if the image is bad.
 # PHP side of tests was disabled in
 # mediawiki/core:6bd31e7d95161a6e88fa86df60871051da997c3c
 # because of issues in the PHP parserTests infrastructure
@@ -22877,7 +22875,7 @@ Bad images - basic functionality
 [[File:Bad.jpg]]
 !! html/php+disabled
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span></p>
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span></p>
 !! end
 
 !! test
@@ -22892,7 +22890,7 @@ Bar foo
 </p>
 !! html/parsoid
 <p>Foo bar
-<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span>
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span>
 Bar foo</p>
 !! end
 

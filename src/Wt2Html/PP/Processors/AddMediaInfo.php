@@ -669,6 +669,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$errs[] = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
 			}
 
+			// FIXME: Should we fallback to $info if there are errors with $manualinfo?
+			// What does the legacy parser do?
 			if ( $c['manualKey'] !== null ) {
 				$manualinfo = $files[$c['manualKey']];
 				if ( !$manualinfo ) {
@@ -678,6 +680,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				} else {
 					$info = $manualinfo;
 				}
+			}
+
+			if ( $info['badFile'] ?? false ) {
+				$errs[] = self::makeErr( 'apierror-badfile', 'This image is on the bad file list.' );
 			}
 
 			// Add mw:Error to the RDFa type.

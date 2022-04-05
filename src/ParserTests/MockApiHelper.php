@@ -58,6 +58,13 @@ class MockApiHelper extends ApiHelper {
 			'bits' => 24,
 			'mime' => 'image/svg+xml'
 		],
+		'Bad.jpg' => [
+			'size' => 12345,
+			'width' => 320,
+			'height' => 240,
+			'bits' => 24,
+			'mime' => 'image/jpeg',
+		],
 		'LoremIpsum.djvu' => [
 			'size' => 3249,
 			'width' => 2480,
@@ -404,7 +411,8 @@ class MockApiHelper extends ApiHelper {
 		'File:Thumb.png' => 'Thumb.png',
 		'File:LoremIpsum.djvu' => 'LoremIpsum.djvu',
 		'File:Video.ogv' => 'Video.ogv',
-		'File:Audio.oga' => 'Audio.oga'
+		'File:Audio.oga' => 'Audio.oga',
+		'File:Bad.jpg' => 'Bad.jpg',
 	];
 
 	private const PNAMES = [
@@ -856,7 +864,7 @@ class MockApiHelper extends ApiHelper {
 					'title' => $ii['normPageName'],
 					'imageinfo' => [ $ii['result'] ]
 				];
-				$p['badfile'] = false;
+				$p['badfile'] = ( $filename === 'File:Bad.jpg' );
 			}
 			$response['query']['pages'] = [ $p ];
 
