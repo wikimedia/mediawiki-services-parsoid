@@ -84,9 +84,6 @@ class MetaHandler extends DOMHandler {
 				// Follow-up on attributes sanitation to happen in T295168
 				$state->emitChunk( '<' . $annType . $attrs . '>', $node );
 				$state->openAnnotationRange( $annType, $datamw->extendedRange ?? false );
-			} else {
-				$dp = DOMDataUtils::getDataParsoid( $node );
-				$dp->skippedMeta = true;
 			}
 		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
 			if ( $this->needToWriteEndMeta( $state, $node ) ) {
@@ -174,7 +171,7 @@ class MetaHandler extends DOMHandler {
 	 * @param Element $node
 	 * @return bool
 	 */
-	public static function needToWriteEndMeta( SerializerState $state, Element $node ): bool {
+	private function needToWriteEndMeta( SerializerState $state, Element $node ): bool {
 		if ( !$state->selserMode ) {
 			return true;
 		}
@@ -225,17 +222,17 @@ class MetaHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
-			if ( $this->needNewLineSepBeforeMeta( $node, $otherNode ) &&
-				self::needToWriteStartMeta( $state, $node ) ) {
+			if ( $this->needNewLineSepBeforeMeta( $node, $otherNode ) ) {
 				return [ 'min' => 2 ];
 			} else {
 				return [];
 			}
 		}
 		if ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
-			if ( $this->needNewLineSepBeforeMeta( $node, $otherNode ) &&
-				self::needToWriteEndMeta( $state, $node ) ) {
-				return [ 'min' => 1 ];
+			if ( $this->needNewLineSepBeforeMeta( $node, $otherNode ) ) {
+				return [
+					'min' => 1
+				];
 			} else {
 				return [];
 			}
@@ -267,7 +264,7 @@ class MetaHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		if ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
-			if ( $otherNode !== $node->parentNode &&
+			if ( $otherNode !== $node->parentNode && $otherNode instanceof Element &&
 				DOMUtils::isWikitextBlockNode( $otherNode ) ) {
 				return [ 'min' => 2 ];
 			} else {
@@ -275,9 +272,8 @@ class MetaHandler extends DOMHandler {
 			}
 		}
 		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
-			if ( $otherNode !== $node->parentNode &&
-				DOMUtils::isWikitextBlockNode( $otherNode ) &&
-				!$this->wasAnnotationMetaRemoved( $node ) ) {
+			if ( $otherNode !== $node->parentNode && $otherNode instanceof Element &&
+				DOMUtils::isWikitextBlockNode( $otherNode ) ) {
 				return [ 'min' => 1 ];
 			} else {
 				return [];

@@ -20,7 +20,8 @@
         "selser [[3,0,3]]": "''an <dummyanno>artificial'' '''example</dummyanno> of'''"
     },
     "8/ fostered annotation markers": {
-        "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>"
+        "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>",
+        "selser [5]": "\n{|\n|table\n|with\n|-\n<dummyanno>\n|some\n|content\n</dummyanno>\n|-\n|dummyanno\n|one line\n|}\n"
     },
     "Annotation around a heading should not break the heading": {
         "wt2wt": "<dummyanno>\n==plop==\n</dummyanno>",
@@ -32,7 +33,8 @@
         "selser [0,2,0]": "<dummyanno>\n119tbl0\n\n==plop==</dummyanno>"
     },
     "Annotation open tag in fosterable position should expand the range to the entire table": {
-        "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>"
+        "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>",
+        "selser [5]": "\n{|\n|table\n|with\n|-\n<dummyanno>\n|some\n|content</dummyanno>\n|-\n|dummyanno\n|one line\n|}\n"
     },
     "Annotations should not be hoisted out of headers": {
         "html2html": "<h2 id=\"Organizational_and_Planning_Projects\" data-parsoid='{\"dsr\":[0,77,2,2,1,1]}'><meta typeof=\"mw:Annotation/dummyanno\" data-parsoid='{\"dsr\":[3,14,null,null]}' data-mw='{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[3,14]}'/><!--T:19--> Organizational and Planning Projects<meta typeof=\"mw:Annotation/dummyanno/End\" data-parsoid='{\"dsr\":[62,74,null,null]}' data-mw='{\"wtOffsets\":[62,74]}'/></h2>\n",
@@ -48,26 +50,27 @@
     },
     "New lines around table-spanning annotation range extension should be maintained in selser": {
         "wt2wt": "plop\n<dummyanno>\nplop\n{|\n|-\n\n|hello\n|}\n</dummyanno>\nplop\n\nplop\n\n<dummyanno>\nplop\n{|\n|-\n\n|hello\n|}\n</dummyanno>\n\nplop",
-        "selser [[2],0,0,0,[4],0,0,2,0,0,[3]]": "v7pljnplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n1f6z4zn\n\nplop\n\n8s5ld3\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n",
-        "selser [0,0,0,0,2,0,2,0,0,0,0]": "plop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nxv2uh1\n\nplop\n\n19zp3za\n\nplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop",
-        "selser [1,0,0,4,[3],0,0,2,0,0,0]": "plop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}d54t7m\n\nplop\n\neh4rhx\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop",
-        "selser [[3],0,0,2,0,0,3,4,0,4,[4]]": "\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}s70q6c\nplop\n\n1r1kcbf{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}rii68r\n\n7sln12",
-        "selser [2,0,0,0,[4],4,4,4,0,2,1]": "w4xta1\n\nplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n1hy17hq\n\n1o3k24h\n\n106ewzu\n\nowvcau{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}1mwtxia\n\nplop",
-        "selser [4,0,0,0,0,3,3,3,0,0,[4]]": "kzvkau\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nplop{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n1mcepaj",
-        "selser [4,3,0,0,0,0,[4],0,0,0,1]": "ylmzi2{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nplop\n\nc1lg79\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop",
-        "selser [0,0,0,4,0,0,1,2,0,3,[4]]": "plop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}1s0zw93\n\nplop\n\nplop\n\n83z8jk\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}lf4fsa",
-        "selser [3,4,0,2,2,0,0,2,0,3,1]": "1slmnsx{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}n98f96\n1qjcxu0\n\nplop\n\nplop\n\n1uvaml9\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}plop",
-        "selser [3,0,0,3,[3],2,1,0,0,2,0]": "\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n18pzpce\n\nplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}1pf1rqj\n\nplop",
-        "selser [2,0,0,0,[3],0,4,0,0,0,1]": "182e94k\n\nplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nujpa0j\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop",
-        "selser [3,3,0,0,[3],3,[2],3,0,2,1]": "{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n1yi4h8aplop{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}4zyxgh\n\nplop",
-        "selser [4,0,0,0,[3],2,0,3,0,0,0]": "eetgv5\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n1j87my8\n\nplop{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop",
-        "selser [0,0,0,0,[2],0,3,0,0,0,2]": "plop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nsvxqcpplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n8m7dc4\n\nplop",
-        "selser [4,4,0,0,[3],0,2,2,0,0,2]": "130wwi8\n\ngj1ld6{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nl031uy\n\nplop\n\nantq9t\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n1kbpr9a\n\nplop",
-        "selser [2,2,0,3,2,0,0,0,0,3,1]": "47nhd0\n\nplop\n\n1mb42mm\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}m5p9zs\n\nplop\n\nplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}plop",
-        "selser [[3],4,0,0,3,0,2,3,0,3,[2]]": "\n\n1jerevm{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nq79fmy\n\nplop{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}1owf9ycplop",
-        "selser [4,4,0,0,1,4,2,0,0,3,0]": "1clem9f\n\n1tqtjt4{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nplop\n\n1mdfg6\n\ne9iaco\n\nplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}plop",
-        "selser [[3],4,0,0,3,0,0,3,0,0,2]": "\n\n1kcccvw{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n1u0sn8x\n\nplop",
-        "selser [2,4,0,0,4,3,[4],0,0,0,[2]]": "yz8epp\n\nplop\n\n16ltx8r{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n56xq7k\n\n6qlcag\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nwlhonvplop"
+        "selser [5]": "plop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop\n\nplop\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop",
+        "selser [[2],0,0,0,[4],0,0,2,0,0,[3]]": "v7pljnplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n1f6z4zn\n\nplop\n\n8s5ld3\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n",
+        "selser [0,0,0,0,2,0,2,0,0,0,0]": "plop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nxv2uh1\n\nplop\n\n19zp3za\n\nplop\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop",
+        "selser [1,0,0,4,[3],0,0,2,0,0,0]": "plop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nd54t7m\n\nplop\n\neh4rhx\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop",
+        "selser [[3],0,0,2,0,0,3,4,0,4,[4]]": "\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\ns70q6c\nplop\n\n1r1kcbf\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nrii68r\n\n7sln12",
+        "selser [2,0,0,0,[4],4,4,4,0,2,1]": "w4xta1\n\nplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n1hy17hq\n\n1o3k24h\n\n106ewzu\n\nowvcau\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n1mwtxia\n\nplop",
+        "selser [4,0,0,0,0,3,3,3,0,0,[4]]": "kzvkau\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n1mcepaj",
+        "selser [4,3,0,0,0,0,[4],0,0,0,1]": "ylmzi2\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop\n\nc1lg79\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop",
+        "selser [0,0,0,4,0,0,1,2,0,3,[4]]": "plop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n1s0zw93\n\nplop\n\nplop\n\n83z8jk\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nlf4fsa",
+        "selser [3,4,0,2,2,0,0,2,0,3,1]": "1slmnsx\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nn98f96\n1qjcxu0\n\nplop\n\nplop\n\n1uvaml9\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nplop",
+        "selser [3,0,0,3,[3],2,1,0,0,2,0]": "\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n\n18pzpce\n\nplop\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n1pf1rqj\n\nplop",
+        "selser [2,0,0,0,[3],0,4,0,0,0,1]": "182e94k\n\nplop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n\nujpa0j\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop",
+        "selser [3,3,0,0,[3],3,[2],3,0,2,1]": "\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n\n1yi4h8aplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n4zyxgh\n\nplop",
+        "selser [4,0,0,0,[3],2,0,3,0,0,0]": "eetgv5\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n\n1j87my8\n\nplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop",
+        "selser [0,0,0,0,[2],0,3,0,0,0,2]": "plop\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nsvxqcpplop\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n8m7dc4\n\nplop",
+        "selser [4,4,0,0,[3],0,2,2,0,0,2]": "130wwi8\n\ngj1ld6\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n\nl031uy\n\nplop\n\nantq9t\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n1kbpr9a\n\nplop",
+        "selser [2,2,0,3,2,0,0,0,0,3,1]": "47nhd0\n\nplop\n\n1mb42mm\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nm5p9zs\n\nplop\n\nplop\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nplop",
+        "selser [[3],4,0,0,3,0,2,3,0,3,[2]]": "\n\n1jerevm\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nq79fmy\n\nplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n1owf9ycplop",
+        "selser [4,4,0,0,1,4,2,0,0,3,0]": "1clem9f\n\n1tqtjt4\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\nplop\n\n1mdfg6\n\ne9iaco\n\nplop\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\nplop",
+        "selser [[3],4,0,0,3,0,0,3,0,0,2]": "\n\n1kcccvw\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nplop\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\n1u0sn8x\n\nplop",
+        "selser [2,4,0,0,4,3,[4],0,0,0,[2]]": "yz8epp\n\nplop\n\n16ltx8r\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n56xq7k\n\n6qlcag\n\n\n{|\n|-\n<dummyanno>plop</dummyanno>\n| hello\n|}\n\n\nwlhonvplop"
     },
     "Newlines should be inserted between annotation tags and pre": {
         "html2wt": "foo\n\n<dummyanno>\n bar\n</dummyanno>baz\nfoo\n bar\nbaz"
@@ -105,6 +108,9 @@
         "selser [[0,3,0,0]]": "Some  more stuff''' than that.",
         "selser [[2,2,3,2]]": "q3t941Some fj1ax0''stuff and '''also some''10qo8iy than that.",
         "selser [[2,3,0,3]]": "48stf3Some  more stuff'''"
+    },
+    "Selser: add content in a cell of a table where dummyanno gets fostered out should keep the annotation around the table": {
+        "selser [5]": "\n{|\n|-\n|a\n|b\n|-\n<dummyanno>\n|c\n|d</dummyanno>\n|-\n|e\n|f\n|}\n"
     },
     "Start dummyanno tag at the beginning of a paragraph and end within <i> should extend to the end of <i> but not the whole paragraph": {
         "wt2wt": "<dummyanno>This should ''fail miserably''</dummyanno> ... let's fix it",
@@ -169,6 +175,7 @@
         "selser [0,3,4,0,0]": "<dummyanno>\nmom1vp\n\nLet's have some text.</dummyanno>"
     },
     "dummyanno in the middle of fostered content should extend to the whole range, including fostered content": {
-        "wt2wt": "<dummyanno>\nfoo\nbar\n{|\n|-\n|baz\n|}\n</dummyanno>"
+        "wt2wt": "<dummyanno>\nfoo\nbar\n{|\n|-\n|baz\n|}\n</dummyanno>",
+        "selser [5]": "\n{|\nfoo\n<dummyanno>bar</dummyanno>\n|-\n|baz\n|}\n"
     }
 }
