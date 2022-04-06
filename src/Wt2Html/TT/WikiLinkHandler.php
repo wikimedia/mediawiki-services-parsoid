@@ -1335,6 +1335,11 @@ class WikiLinkHandler extends TokenHandler {
 				// seems generally applicable.
 				} elseif ( $optInfo['ck'] === 'lang' && !Language::isValidCode( $optInfo['v'] ) ) {
 					$opt['ck'] = 'bogus';
+				} elseif (
+					$optInfo['ck'] === 'upright' &&
+					( !is_numeric( $optInfo['v'] ) || $optInfo['v'] <= 0 )
+				) {
+					$opt['ck'] = 'bogus';
 				} else {
 					$opts[$optInfo['ck']] = [
 						'v' => $optInfo['v'],
@@ -1422,11 +1427,10 @@ class WikiLinkHandler extends TokenHandler {
 			if ( !$opts['size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
 				if ( isset( $opts['upright'] ) ) {
-					// FIXME: If non-numeric, should this option be treated as a caption?
-					if ( is_numeric( $opts['upright']['v'] ) && $opts['upright']['v'] > 0 ) {
-						$defaultWidth *= $opts['upright']['v'];
-					} else {
+					if ( $opts['upright']['v'] === 'upright' ) {  // Simple option
 						$defaultWidth *= 0.75;
+					} else {
+						$defaultWidth *= $opts['upright']['v'];
 					}
 					// round to nearest 10 pixels
 					$defaultWidth = 10 * round( $defaultWidth / 10 );

@@ -339,6 +339,32 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 0, 58, 2, 2 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '250px', $result[0]['params']['items'][0], $desc );
+
+		$desc = "should lint Bogus image with invalid upright value";
+		$result = $this->parseWT(
+			'[[File:Foobar.jpg|thumb|upright=0.7px|Caption]]' .
+			'[[File:Foobar.jpg|thumb|upright=1.5"|Caption]]' .
+			'[[File:Foobar.jpg|thumb|upright=0|Caption]]' .
+			'[[File:Foobar.jpg|thumb|upright=-1|Caption]]' .
+			'[[File:Foobar.jpg|thumb|upright=1.5|Caption]]'
+		);
+		$this->assertCount( 4, $result, $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 47, 2, 2 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( 'upright=0.7px', $result[0]['params']['items'][0], $desc );
+		$this->assertEquals( 'bogus-image-options', $result[1]['type'], $desc );
+		$this->assertEquals( [ 47, 93, 2, 2 ], $result[1]['dsr'], $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( 'upright=1.5"', $result[1]['params']['items'][0], $desc );
+		$this->assertEquals( 'bogus-image-options', $result[2]['type'], $desc );
+		$this->assertEquals( [ 93, 136, 2, 2 ], $result[2]['dsr'], $desc );
+		$this->assertTrue( isset( $result[2]['params'] ), $desc );
+		$this->assertEquals( 'upright=0', $result[2]['params']['items'][0], $desc );
+		$this->assertEquals( 'bogus-image-options', $result[3]['type'], $desc );
+		$this->assertEquals( [ 136, 180, 2, 2 ], $result[3]['dsr'], $desc );
+		$this->assertTrue( isset( $result[3]['params'] ), $desc );
+		$this->assertEquals( 'upright=-1', $result[3]['params']['items'][0], $desc );
 	}
 
 	// /**
