@@ -168,7 +168,7 @@ Down to a sunless sea.
 </p>
 </div>
 !! html/parsoid
-<div class="poem" style="border: 2px solid #d6d2c5; background-color: #f9f4e6; padding: 1em;" typeof="mw:Extension/poem" about="#mwt3" data-mw='{"name":"poem","attrs":{"style":"border: 2px solid #d6d2c5; background-color: #f9f4e6; padding: 1em;"},"body":{"extsrc":"\nA stately pleasure-dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\nDown to a sunless sea.\n"}}'><p>A stately pleasure-dome decree:<br/>
+<div style="border: 2px solid #d6d2c5; background-color: #f9f4e6; padding: 1em;" class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw='{"name":"poem","attrs":{"style":"border: 2px solid #d6d2c5; background-color: #f9f4e6; padding: 1em;"},"body":{"extsrc":"\nA stately pleasure-dome decree:\nWhere Alph, the sacred river, ran\nThrough caverns measureless to man\nDown to a sunless sea.\n"}}'><p>A stately pleasure-dome decree:<br/>
 Where Alph, the sacred river, ran<br/>
 Through caverns measureless to man<br/>
 Down to a sunless sea.</p></div>

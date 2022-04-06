@@ -121,8 +121,7 @@ class TestUtils {
 		// unnecessary attributes, we don't need to check these.
 		$unnecessaryAttribs = 'data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content';
 		if ( $parsoidOnly ) {
-			// add style because we should only check classes.
-			$unnecessaryAttribs = "/ ($unnecessaryAttribs|style)=";
+			$unnecessaryAttribs = "/ ($unnecessaryAttribs)=";
 			$out = preg_replace( $unnecessaryAttribs . '\\\\?"[^\"]*\\\\?"/u', '', $out );
 			$out = preg_replace( $unnecessaryAttribs . "\\\\?'[^\']*\\\\?'/u", '', $out ); // single-quoted variant
 			$out = preg_replace( $unnecessaryAttribs . '&apos;.*?&apos;/u', '', $out ); // apos variant

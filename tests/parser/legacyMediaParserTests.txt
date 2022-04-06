@@ -811,8 +811,8 @@ File:Foobar.jpg|link=Foo &amp; bar
 
 <!-- consistency with gallery extension -->
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=Foo &amp;amp; bar\n"}}'>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="./Foo_&amp;_bar"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="./Foo_&amp;_bar"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></span></div>
 <div class="gallerytext"></div>
 </li>
 </ul>
@@ -842,8 +842,8 @@ File:Foobar.jpg|link=Foo_&_bar
 
 <!-- consistency with gallery extension -->
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="./Foo_&amp;_bar"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="./Foo_&amp;_bar"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
 <div class="gallerytext"></div>
 </li>
 </ul>
@@ -897,12 +897,12 @@ File:Foobar.jpg|link=''Main Page''|caption2
 
 <!-- consistency with gallery extension -->
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="./Foos_bars"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="./Foos_bars"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
 <div class="gallerytext">caption1</div>
 </li>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="./Main_Page"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="./Main_Page"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
 <div class="gallerytext">caption2</div>
 </li>
 </ul>
@@ -938,8 +938,8 @@ File:Foobar.jpg|link=Foo<nowiki>''</nowiki>s_bar<nowiki>''</nowiki>s|caption
 
 <!-- consistency with gallery extension -->
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=Foo&lt;nowiki>&apos;&apos;&lt;/nowiki>s_bar&lt;nowiki>&apos;&apos;&lt;/nowiki>s|caption\n"}}'>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="./Foo''s_bar''s"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="./Foo''s_bar''s"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120"/></a></span></div>
 <div class="gallerytext">caption</div>
 </li>
 </ul>
@@ -971,8 +971,8 @@ File:Foobar.jpg|link=Foo<nowiki>''s_bar''</nowiki>s|caption
 
 <!-- consistency with gallery extension -->
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="./Foo''s_bar''s"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="./Foo''s_bar''s"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
 <div class="gallerytext">caption</div>
 </li>
 </ul>
@@ -1002,8 +1002,8 @@ File:Foobar.jpg|link=https://example.com?foo&params=bar
 
 <!-- consistency with gallery extension -->
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox">
-<div class="thumb"><span typeof="mw:Image"><a href="https://example.com?foo&amp;params=bar"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
+<li class="gallerybox" style="width: 155px;">
+<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Image"><a href="https://example.com?foo&amp;params=bar"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div>
 <div class="gallerytext"></div>
 </li>
 </ul>
@@ -2207,7 +2207,7 @@ image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
 		</div></li>
 </ul>
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" style="max-width: 226px;" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"widths":"70px","heights":"40px","perrow":"2"},"body":{}}'>
+<ul class="gallery mw-gallery-traditional" style="max-width: 226px; _width: 226px;" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"widths":"70px","heights":"40px","perrow":"2"},"body":{}}'>
 <li class="gallerycaption">Foo <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></li>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent.jpg"><span class="mw-broken-media" resource="./File:Nonexistent.jpg" data-width="70" data-height="40">File:Nonexistent.jpg</span></a></span></div><div class="gallerytext">caption</div></li>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent.jpg"><span class="mw-broken-media" resource="./File:Nonexistent.jpg" data-width="70" data-height="40">File:Nonexistent.jpg</span></a></span></div><div class="gallerytext"></div></li>
@@ -2777,7 +2777,7 @@ File:Foobar.jpg
 </ul>
 !! html/parsoid
 <ul class="gallery mw-gallery-packed" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"mode":"packed"},"body":{}}'>
-<li class="gallerybox" style="width: 1061.3333333333333px;"><div class="thumb" style="width: 1059.3333333333333px;"><span typeof="mw:Image"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x"/></a></span></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 1061.3333333333px;"><div class="thumb" style="width: 1059.3333333333px;"><span typeof="mw:Image"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x"/></a></span></div><div class="gallerytext"></div></li>
 </ul>
 !! end
 
@@ -2801,7 +2801,7 @@ File:Foobar.jpg|foo
 !! html/parsoid
 <ul class="gallery mw-gallery-packed-overlay" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"mode":"packed-overlay","showfilenames":"yes"},"body":{}}'>
 <li class="gallerycaption">Packed Overlay!</li>
-<li class="gallerybox" style="width: 1061.3333333333333px;"><div class="thumb" style="width: 1059.3333333333333px;"><span typeof="mw:Image"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x"/></a></span></div><div class="gallerytextwrapper" style="width: 1040px;"><div class="gallerytext">foo</div></div></li>
+<li class="gallerybox" style="width: 1061.3333333333px;"><div class="thumb" style="width: 1059.3333333333px;"><span typeof="mw:Image"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x"/></a></span></div><div class="gallerytextwrapper" style="width: 1040px;"><div class="gallerytext">foo</div></div></li>
 </ul>
 !! end
 
@@ -2825,7 +2825,7 @@ File:Foobar.jpg|foo
 !! html/parsoid
 <ul class="gallery mw-gallery-packed-hover" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"mode":"packed-hover","showfilenames":"yes"},"body":{}}'>
 <li class="gallerycaption">Packed Hover!</li>
-<li class="gallerybox" style="width: 1061.3333333333333px;"><div class="thumb" style="width: 1059.3333333333333px;"><span typeof="mw:Image"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x"/></a></span></div><div class="gallerytextwrapper" style="width: 1040px;"><div class="gallerytext">foo</div></div></li>
+<li class="gallerybox" style="width: 1061.3333333333px;"><div class="thumb" style="width: 1059.3333333333px;"><span typeof="mw:Image"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/1589px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="120" width="1060" srcset="http://example.com/images/3/3a/Foobar.jpg 1.5x, http://example.com/images/3/3a/Foobar.jpg 2x"/></a></span></div><div class="gallerytextwrapper" style="width: 1040px;"><div class="gallerytext">foo</div></div></li>
 </ul>
 !! end
 
