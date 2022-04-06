@@ -427,7 +427,7 @@ class TestRunner {
 				$changetree = isset( $options['changetree'] ) ?
 					json_decode( $options['changetree'] ) : $test->changetree;
 				if ( !$changetree ) {
-					$changetree = $test->generateChanges( $options, $doc );
+					$changetree = $test->generateChanges( $doc );
 				}
 				$dumpOpts = [
 					'dom:post-changes' => $env->hasDumpFlag( 'dom:post-changes' ),

@@ -631,11 +631,10 @@ class Test extends Item {
 	/**
 	 * Generate a change object for a document, so we can apply it during a selser test.
 	 *
-	 * @param array $options
 	 * @param Document $doc
 	 * @return array The list of changes.
 	 */
-	public function generateChanges( array $options, Document $doc ): array {
+	public function generateChanges( Document $doc ): array {
 		$alea = new Alea( ( $this->seed ?? '' ) . ( $this->testName ?? '' ) );
 
 		/**

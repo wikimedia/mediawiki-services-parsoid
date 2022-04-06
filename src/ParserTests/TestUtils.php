@@ -30,10 +30,19 @@ class TestUtils {
 	 * @param string $str
 	 * @return string
 	 */
-	public static function encodeXml( string $str ) {
+	public static function encodeXml( string $str ): string {
 		// PORT-FIXME: Find replacement
 		// return entities::encodeXML( $str );
 		return $str;
+	}
+
+	/**
+	 * Strip the actual about id from the string
+	 * @param string $str
+	 * @return string
+	 */
+	public static function normalizeAbout( string $str ): string {
+		return preg_replace( "/(about=\\\\?[\"']#mwt)\d+/", '$1', $str );
 	}
 
 	/**
@@ -109,20 +118,14 @@ class TestUtils {
 		// maplink extension
 		$out = preg_replace( '/\s?data-overlays=\'[^\']*\'/u', '', $out );
 
+		// unnecessary attributes, we don't need to check these.
+		$unnecessaryAttribs = 'data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content';
 		if ( $parsoidOnly ) {
-			// unnecessary attributes, we don't need to check these
-			// style is in there because we should only check classes.
-			$out = preg_replace(
-				'/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\\\?"[^\"]*\\\\?"/u',
-				'', $out );
-			// single-quoted variant
-			$out = preg_replace(
-				"/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\\\?'[^\']*\\\\?'/u",
-				'', $out );
-			// apos variant
-			$out = preg_replace(
-				'/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/u',
-				'', $out );
+			// add style because we should only check classes.
+			$unnecessaryAttribs = "/ ($unnecessaryAttribs|style)=";
+			$out = preg_replace( $unnecessaryAttribs . '\\\\?"[^\"]*\\\\?"/u', '', $out );
+			$out = preg_replace( $unnecessaryAttribs . "\\\\?'[^\']*\\\\?'/u", '', $out ); // single-quoted variant
+			$out = preg_replace( $unnecessaryAttribs . '&apos;.*?&apos;/u', '', $out ); // apos variant
 
 			// strip self-closed <nowiki /> because we frequently test WTS
 			// <nowiki> insertion by providing an html/parsoid section with the
@@ -146,21 +149,11 @@ class TestUtils {
 			'#</?(?:meta|link)(?: [^\0-\cZ\s"\'>/=]+(?:=(?:"[^"]*"|\'[^\']*\'))?)*/?>#u',
 			'', $out );
 		// Ignore troublesome attributes.
-		// Strip JSON attributes like data-mw and data-parsoid early so that
-		// comment stripping in normalizeNewlines does not match unbalanced
-		// comments in wikitext source.
-		$attribTrouble = [
-			'data-mw', 'data-parsoid', 'resource', 'rel', 'prefix', 'about',
-			'rev', 'datatype', 'inlist', 'property', 'usemap', 'vocab',
-			'content', 'class'
-		];
-		$out = preg_replace(
-			'/ (' . implode( '|', $attribTrouble ) . ')=\\\\?"[^"]*\\\\?"/u',
-			'', $out );
-		// single-quoted variant
-		$out = preg_replace(
-			'/ (' . implode( '|', $attribTrouble ) . ")=\\\\?'[^']*\\\\?'/u",
-			'', $out );
+		// In addition to attributes listed above, strip other Parsoid-inserted attributes
+		// since these won't be present in legacay parser output.
+		$attribTroubleRE = "/ ($unnecessaryAttribs|data-mw|resource|rel|property|class)=\\\\?";
+		$out = preg_replace( $attribTroubleRE . '"[^"]*\\\\?"/u', '', $out );
+		$out = preg_replace( $attribTroubleRE . "'[^']*\\\\?'/u", '', $out ); // single-quoted variant
 		// strip typeof last
 		$out = preg_replace( '/ typeof="[^\"]*"/u', '', $out );
 		// replace mwt ids
