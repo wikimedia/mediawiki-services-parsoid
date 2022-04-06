@@ -429,7 +429,11 @@ class TestRunner {
 				if ( !$changetree ) {
 					$changetree = $test->generateChanges( $options, $doc );
 				}
-				$test->applyChanges( $env, $doc, $changetree );
+				$dumpOpts = [
+					'dom:post-changes' => $env->hasDumpFlag( 'dom:post-changes' ),
+					'logger' => $env->getSiteConfig()->getLogger()
+				];
+				$test->applyChanges( $dumpOpts, $doc, $changetree );
 			}
 			// Save the modified DOM so we can re-test it later.
 			// Always serialize to string and reparse before passing to selser/wt2wt.

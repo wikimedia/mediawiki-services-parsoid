@@ -4,9 +4,9 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\ParserTests;
 
 use Error;
+use Psr\Log\LogLevel;
 use Wikimedia\Alea\Alea;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -442,11 +442,12 @@ class Test extends Item {
 	/**
 	 * Make changes to a DOM in order to run a selser test on it.
 	 *
-	 * @param Env $env
+	 * @param array $dumpOpts
 	 * @param Document $doc
 	 * @param array $changelist
 	 */
-	public function applyChanges( Env $env, Document $doc, array $changelist ) {
+	public function applyChanges( array $dumpOpts, Document $doc, array $changelist ) {
+		$logger = $dumpOpts['logger'] ?? null;
 		// Seed the random-number generator based on the item title and changelist
 		$alea = new Alea( ( json_encode( $changelist ) ) . ( $this->testName ?? '' ) );
 
@@ -525,8 +526,8 @@ class Test extends Item {
 		};
 
 		$applyChangesInternal = static function ( Node $node, array $changes ) use (
-			&$env, &$applyChangesInternal, $removeNode, $insertNewNode,
-			$randomString
+			&$applyChangesInternal, $removeNode, $insertNewNode,
+			$randomString, $logger
 		): void {
 			if ( count( $node->childNodes ) < count( $changes ) ) {
 				throw new Error( "Error: more changes than nodes to apply them to!" );
@@ -554,10 +555,12 @@ class Test extends Item {
 						case 1:
 							if ( $child instanceof Element ) {
 								$child->setAttribute( 'data-foobar', $randomString() );
-							} else {
-								$env->log( 'error',
+							} elseif ( $logger ) {
+								$logger->log(
+									LogLevel::ERROR,
 									'Buggy changetree. changetype 1 (modify attribute)' .
-									' cannot be applied on text/comment nodes.' );
+									' cannot be applied on text/comment nodes.'
+								);
 							}
 							break;
 
@@ -584,8 +587,9 @@ class Test extends Item {
 
 		$body = DOMCompat::getBody( $doc );
 
-		if ( $env->hasDumpFlag( 'dom:post-changes' ) ) {
-			$env->writeDump( ContentUtils::dumpDOM( $body, 'Original DOM' ) );
+		if ( $logger && ( $dumpOpts['dom:post-changes'] ?? false ) ) {
+			$logger->log( LogLevel::ERROR, "----- Original DOM -----" );
+			$logger->log( LogLevel::ERROR, ContentUtils::dumpDOM( $body, '', [ 'quiet' => true ] ) );
 		}
 
 		if ( $this->changetree === [ 5 ] ) {
@@ -598,11 +602,11 @@ class Test extends Item {
 			$applyChangesInternal( $body, $this->changetree );
 		}
 
-		if ( $env->hasDumpFlag( 'dom:post-changes' ) ) {
-			$env->writeDump(
-				'Change tree : ' . json_encode( $this->changetree ) . "\n" .
-				ContentUtils::dumpDOM( $body, 'Edited DOM' )
-			);
+		if ( $logger && ( $dumpOpts['dom:post-changes'] ?? false ) ) {
+			$logger->log( LogLevel::ERROR, "----- Change Tree -----" );
+			$logger->log( LogLevel::ERROR, json_encode( $this->changetree ) );
+			$logger->log( LogLevel::ERROR, "----- Edited DOM -----" );
+			$logger->log( LogLevel::ERROR, ContentUtils::dumpDOM( $body, '', [ 'quiet' => true ] ) );
 		}
 	}
 
@@ -614,7 +618,7 @@ class Test extends Item {
 	 * @param array $change Candidate change.
 	 * @return bool
 	 */
-	private function isDuplicateChangeTree( array $change ): bool {
+	public function isDuplicateChangeTree( array $change ): bool {
 		$allChanges = $this->selserChangeTrees;
 		foreach ( $allChanges as $c ) {
 			if ( $c == $change ) {
