@@ -33,3 +33,19 @@ X<i> <span></span></i>
 Y
 </pre>
 !! end
+
+!! test
+Ensure DSR values for mw:DisplaySpace spans are computed correctly
+!! options
+parsoid=wt2html,selser
+!! wikitext
+ x
+ y :)
+!! html/parsoid
+<pre>x
+y<span typeof="mw:DisplaySpace"> </span>:)</pre>
+!! html/php
+<pre>x
+y&#160;:)
+</pre>
+!! end

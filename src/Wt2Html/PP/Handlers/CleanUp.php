@@ -46,17 +46,20 @@ class CleanUp {
 		) {
 			$nextNode = $node->nextSibling;
 			$parent = $node->parentNode;
-			$parent->removeChild( $node );
 			if ( $isIndentPreSpace ) {
 				$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
 				if ( $dsr ) {
 					// @see explanation in PreHandler::newIndentPreWS()
 					$dsr->openWidth = 1;
 				}
+				// Strip this in the cleanupAndSaveDataParsoid handler since
+				// DOM passes till the end may need DSR info from this tag.
+				return true;
+			} else {
+				$parent->removeChild( $node );
+				// stop the traversal, since this node is no longer in the DOM.
+				return $nextNode;
 			}
-
-			// stop the traversal, since this node is no longer in the DOM.
-			return $nextNode;
 		} else {
 			return true;
 		}
@@ -306,6 +309,13 @@ class CleanUp {
 				$next = $node->nextSibling;
 				$node->parentNode->removeChild( $node );
 				return $next;
+			}
+
+			// Strip IndentPre marker metas
+			if ( PreHandler::isIndentPreWS( $node ) ) {
+				$nextNode = $node->nextSibling;
+				$node->parentNode->removeChild( $node );
+				return $nextNode;
 			}
 
 			// Trim whitespace from some wikitext markup
