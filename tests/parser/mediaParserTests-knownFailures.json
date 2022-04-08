@@ -76,7 +76,8 @@
         "html2html": "<ul class=\"gallery mw-gallery-traditional\" typeof=\"mw:Extension/gallery\" about=\"#mwt3\" data-parsoid='{\"dsr\":[0,36,9,10]}' data-mw='{\"name\":\"gallery\",\"attrs\":{},\"body\":{}}'>\n<li class=\"gallerybox\" style=\"width: 155px;\" data-parsoid=\"{}\"><div class=\"thumb\" style=\"width: 150px; height: 150px;\" data-parsoid=\"{}\"><span typeof=\"mw:Image\" data-parsoid='{\"optList\":[{\"ck\":\"width\",\"ak\":\"120x120px\"}]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"14\" width=\"120\" srcset=\"http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"14\",\"width\":\"120\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a></span></div><div class=\"gallerytext\" data-parsoid=\"{}\"></div></li>\n</ul>"
     },
     "Image with 'frame' first.": {
-        "selser [0,4,[0,1],3,0]": "[[File:Foobar.jpg|frame|caption]]acklrh[[File:Foobar.jpg|frame|frameless|caption]]\n[[File:Foobar.jpg|frame|thumb|caption]]"
+        "selser [[0,3],2,[0,3],3,[0,2],3,0]": "[[File:Foobar.jpg|frame]]1xp0okt\n[[File:Foobar.jpg|frame|frameless]][[File:Foobar.jpg|frame|thumb|caption]]\n[[File:Foobar.jpg|frame|thumbnail=Thumb.png|caption]]",
+        "selser [0,4,[0,1],3,0,0,[0,3]]": "[[File:Foobar.jpg|frame|caption]]neb4jv[[File:Foobar.jpg|frame|frameless|caption]]\n[[File:Foobar.jpg|frame|thumb|caption]]\n[[File:Foobar.jpg|frame|thumbnail=Thumb.png]]"
     },
     "Image with heading and horizontal rule in caption": {
         "html2wt": "[[File:Foobar.jpg|thumb|\n=== Testing ===\n123\n--------------\n]]"
