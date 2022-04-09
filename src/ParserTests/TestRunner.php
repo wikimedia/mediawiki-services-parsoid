@@ -571,9 +571,7 @@ class TestRunner {
 			}
 		}
 
-		// FIXME: normalization not in place yet
-		$normalizedExpected = rtrim( $testWikitext, "\n" );
-		$normalizedOut = rtrim( $out, "\n" );
+		list( $normalizedOut, $normalizedExpected ) = $test->normalizeWT( $out, $testWikitext );
 
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $testWikitext ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];

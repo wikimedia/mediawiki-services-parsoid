@@ -898,4 +898,26 @@ class Test extends Item {
 
 		return [ TestUtils::normalizeOut( $actual, $normOpts ), $normExpected ];
 	}
+
+	/**
+	 * Normalize expected and actual wikitext to suppress irrelevant differences.
+	 *
+	 * Because of selser as well as manual edit trees, expected wikitext isn't always
+	 * found in the same section for all tests ending in WT (unlike normalizeHTML).
+	 * Hence,
+	 * (a) this code has a different structure than normalizeHTML
+	 * (b) we cannot cache normalized wikitext
+	 *
+	 * @param string $actual
+	 * @param string $expected
+	 * @param bool $standalone
+	 * @return array
+	 */
+	public function normalizeWT( string $actual, string $expected, bool $standalone = true ): array {
+		// No other normalizations at this time
+		$normalizedActual = rtrim( $actual, "\n" );
+		$normalizedExpected = rtrim( $expected, "\n" );
+
+		return [ $normalizedActual, $normalizedExpected ];
+	}
 }
