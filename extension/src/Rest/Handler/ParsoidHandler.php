@@ -32,7 +32,6 @@ use MediaWiki\Rest\Response;
 use MediaWiki\Rest\ResponseException;
 use MediaWiki\Revision\RevisionAccessException;
 use MobileContext;
-use MWParsoid\ParsoidServices;
 use MWParsoid\Rest\FormatHelper;
 use ParserOutput;
 use RequestContext;
@@ -91,13 +90,12 @@ abstract class ParsoidHandler extends Handler {
 	 */
 	public static function factory(): ParsoidHandler {
 		$services = MediaWikiServices::getInstance();
-		$parsoidServices = new ParsoidServices( $services );
 		// @phan-suppress-next-line PhanTypeInstantiateAbstractStatic
 		return new static(
 			$services->getMainConfig()->get( 'ParsoidSettings' ),
-			$parsoidServices->getParsoidSiteConfig(),
-			$parsoidServices->getParsoidPageConfigFactory(),
-			$parsoidServices->getParsoidDataAccess()
+			$services->getParsoidSiteConfig(),
+			$services->getParsoidPageConfigFactory(),
+			$services->getParsoidDataAccess()
 		);
 	}
 

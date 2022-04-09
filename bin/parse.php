@@ -10,7 +10,6 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 use Composer\Factory;
 use Composer\IO\NullIO;
 use MediaWiki\MediaWikiServices;
-use MWParsoid\ParsoidServices;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
@@ -253,16 +252,15 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function setupMwConfig( array $configOpts ) {
 		$services = MediaWikiServices::getInstance();
-		$parsoidServices = new ParsoidServices( $services );
-		$siteConfig = $parsoidServices->getParsoidSiteConfig();
+		$siteConfig = $services->getParsoidSiteConfig();
 		// Overwriting logger so that it logs to console
 		$siteConfig->setLogger( SiteConfig::createConsoleLogger() );
 
 		if ( isset( $configOpts['maxDepth'] ) ) {
 			$siteConfig->setMaxTemplateDepth( $configOpts['maxDepth'] );
 		}
-		$dataAccess = $parsoidServices->getParsoidDataAccess();
-		$pcFactory = $parsoidServices->getParsoidPageConfigFactory();
+		$dataAccess = $services->getParsoidDataAccess();
+		$pcFactory = $services->getParsoidPageConfigFactory();
 		// XXX we're ignoring 'pageLanguage' & 'pageLanguageDir' in $configOpts
 		$title = \Title::newFromText(
 			$configOpts['title'] ?? $siteConfig->mainpage()
