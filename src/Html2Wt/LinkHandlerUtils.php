@@ -1312,6 +1312,7 @@ class LinkHandlerUtils {
 			$mwParams[] = [ 'prop' => 'alt', 'ck' => 'alt', 'alias' => 'img_alt' ];
 		}
 
+		$hasManualthumb = false;
 		foreach ( $mwParams as $o ) {
 			$v = $outerDMW->{$o['prop']} ?? null;
 			if ( $v === null ) {
@@ -1345,6 +1346,7 @@ class LinkHandlerUtils {
 				];
 				// Piggyback this here ...
 				if ( $o['prop'] === 'thumb' ) {
+					$hasManualthumb = true;
 					$format = '';
 				}
 			}
@@ -1412,7 +1414,10 @@ class LinkHandlerUtils {
 			];
 		}
 
-		if ( !( DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
+		if (
+			!DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) &&
+			$format !== 'Frame' && !$hasManualthumb
+		) {
 			$size = $getLastOpt( 'width' );
 			$sizeString = (string)( $size['ak'] ?? '' );
 			if ( $sizeString === '' && !empty( $ww['fromDataMW'] ) ) {

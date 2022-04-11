@@ -786,7 +786,11 @@ class WikiLinkHandler extends TokenHandler {
 		$classes = [];
 		$halign = $format === 'framed' ? 'right' : null;
 
-		if ( !isset( $opts['size']['src'] ) ) {
+		if (
+			!isset( $opts['size']['src'] ) &&
+			// Framed and manualthumb images aren't scaled
+			!in_array( $format, [ 'manualthumb', 'framed' ], true )
+		) {
 			$classes[] = 'mw-default-size';
 		}
 
@@ -1430,6 +1434,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $format === 'framed' || $format === 'manualthumb' ) {
 			// width and height is ignored for framed and manualthumb images
 			// https://phabricator.wikimedia.org/T64258
+			// FIXME: Should we lint if these are set?
 			$opts['size']['v'] = [ 'width' => null, 'height' => null ];
 		} elseif ( $format ) {
 			if ( !$opts['size']['v']['height'] && !$opts['size']['v']['width'] ) {
