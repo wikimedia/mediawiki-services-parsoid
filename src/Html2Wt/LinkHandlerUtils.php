@@ -1408,9 +1408,9 @@ class LinkHandlerUtils {
 			// preserve upright option
 			$nopts[] = [
 				'ck' => $upright['ck'],
-				'ak' => [ $upright['ak'] ],
+				'ak' => [ $upright['ak'] ],  // FIXME: don't use ak here!
 			];
-		}// FIXME: don't use ak here!
+		}
 
 		if ( !( DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) ) ) {
 			$size = $getLastOpt( 'width' );
@@ -1422,10 +1422,10 @@ class LinkHandlerUtils {
 				// preserve original width/height string if not touched
 				$nopts[] = [
 					'ck' => 'width',
-					'v' => $sizeString, // original size string
-					'ak' => [ '$1' ]
+					'v' => $sizeString,  // original size string
+					'ak' => [ '$1' ],  // don't add px or the like
 				];
-			} else { // don't add px or the like
+			} else {
 				$bbox = null;
 				// Serialize to a square bounding box
 				if ( isset( $ww['value'] ) && preg_match( '/^\d+/', $ww['value'] ) ) {
@@ -1455,11 +1455,11 @@ class LinkHandlerUtils {
 						// box explicitly square (100x100px). The 'px' is
 						// added by the alias though, and can be localized.
 						'v' => $bbox . 'x' . $bbox,
-						'ak' => $mwAliases['img_width'],
+						'ak' => $mwAliases['img_width'],  // adds the 'px' suffix
 					];
 				}
 			}
-		}// adds the 'px' suffix
+		}
 
 		$opts = $outerDP->optList ?? []; // original wikitext options
 
