@@ -1199,7 +1199,8 @@ parsoid=wt2html,wt2wt,html2html
 # Foobar has actual size of 1941x220
 # 1. Thumbs & frameless always reduce, can't be enlarged unless it's
 #    a scalable format.
-# 2. Framed images always ignore size options; always render at default size.
+# 2. Framed & manual images always ignore size options; always
+#    render at original size.
 # 3. "Unspecified format" and border are the only types which can be
 #    enlarged.
 # 4. The srcset attribute doesn't occur if image is being enlarged
@@ -1318,6 +1319,33 @@ parsoid=wt2html,wt2wt,html2html
 <figure typeof="mw:Image/Frame"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption></figcaption></figure>
 <figure typeof="mw:Image/Frame"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption></figcaption></figure>
 <figure typeof="mw:Image/Frame"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a><figcaption></figcaption></figure>
+!! end
+
+!! test
+Image: manualthumb images are always unscaled.
+!! options
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+[[File:Foobar.jpg|thumbnail=Thumb.png]]
+
+[[File:Foobar.jpg|thumbnail=Thumb.png|50px]]
+
+[[File:Foobar.jpg|thumbnail=Thumb.png|50x50px]]
+
+[[File:Foobar.jpg|thumbnail=Thumb.png|2000px]]
+!! html/php
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/File:Foobar.jpg" title="File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/File:Foobar.jpg" title="File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/File:Foobar.jpg" title="File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div></div></div></div>
+<div class="thumb tright"><div class="thumbinner" style="width:137px;"><a href="/wiki/File:Foobar.jpg" title="File:Foobar.jpg"><img alt="Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" width="135" height="135" class="thumbimage" /></a>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Foobar.jpg" class="internal" title="Enlarge"></a></div></div></div></div>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Thumb.png"}]]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
+
+<figure typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Thumb.png"}]]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
+
+<figure typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Thumb.png"}]]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
+
+<figure typeof="mw:Image/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Thumb.png"}]]}'><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/e/ea/Thumb.png" decoding="async" data-file-width="135" data-file-height="135" data-file-type="bitmap" height="135" width="135"/></a><figcaption></figcaption></figure>
 !! end
 
 !! test

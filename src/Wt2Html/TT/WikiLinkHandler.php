@@ -1427,11 +1427,11 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Handle image default sizes and upright option after extracting all
 		// options
-		if ( $format === 'framed' ) {
-			// width and height is ignored for framed images
+		if ( $format === 'framed' || $format === 'manualthumb' ) {
+			// width and height is ignored for framed and manualthumb images
 			// https://phabricator.wikimedia.org/T64258
 			$opts['size']['v'] = [ 'width' => null, 'height' => null ];
-		} elseif ( $format && $format !== 'manualthumb' ) {
+		} elseif ( $format ) {
 			if ( !$opts['size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();
 				if ( isset( $opts['upright'] ) ) {
