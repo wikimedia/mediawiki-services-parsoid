@@ -1434,8 +1434,13 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $format === 'framed' || $format === 'manualthumb' ) {
 			// width and height is ignored for framed and manualthumb images
 			// https://phabricator.wikimedia.org/T64258
-			// FIXME: Should we lint if these are set?
 			$opts['size']['v'] = [ 'width' => null, 'height' => null ];
+			// Mark any definitions as bogus
+			foreach ( $dataAttribs->optList as &$value ) {
+				if ( $value['ck'] === 'width' ) {
+					$value['ck'] = 'bogus';
+				}
+			}
 		} elseif ( $format ) {
 			if ( !$opts['size']['v']['height'] && !$opts['size']['v']['width'] ) {
 				$defaultWidth = $env->getSiteConfig()->widthOption();

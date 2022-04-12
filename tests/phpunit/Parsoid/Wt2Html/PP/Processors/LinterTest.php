@@ -385,6 +385,21 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 70, 115, 2, 2 ], $result[2]['dsr'], $desc );
 		$this->assertTrue( isset( $result[2]['params'] ), $desc );
 		$this->assertEquals( 'thumb', $result[2]['params']['items'][0], $desc );
+
+		$desc = "should lint defined with for framed or manualthumb formats";
+		$result = $this->parseWT(
+			'[[File:Foobar.jpg|frame|200px]]' .
+			'[[File:Foobar.jpg|thumbnail=Thumb.png|400px]]'
+		);
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 31, 2, 2 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( '200px', $result[0]['params']['items'][0], $desc );
+		$this->assertEquals( 'bogus-image-options', $result[1]['type'], $desc );
+		$this->assertEquals( [ 31, 76, 2, 2 ], $result[1]['dsr'], $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( '400px', $result[1]['params']['items'][0], $desc );
 	}
 
 	// /**
