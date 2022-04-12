@@ -365,6 +365,26 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 136, 180, 2, 2 ], $result[3]['dsr'], $desc );
 		$this->assertTrue( isset( $result[3]['params'] ), $desc );
 		$this->assertEquals( 'upright=-1', $result[3]['params']['items'][0], $desc );
+
+		$desc = "should lint multiple media formats, first one wins";
+		$result = $this->parseWT(
+			'[[File:Foobar.jpg|frame|frameless]]' .
+			'[[File:Foobar.jpg|frameless|frame]]' .
+			'[[File:Foobar.jpg|thumbnail=Thumb.png|thumb]]'
+		);
+		$this->assertCount( 3, $result, $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 35, 2, 2 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( 'frameless', $result[0]['params']['items'][0], $desc );
+		$this->assertEquals( 'bogus-image-options', $result[1]['type'], $desc );
+		$this->assertEquals( [ 35, 70, null, null ], $result[1]['dsr'], $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( 'frame', $result[1]['params']['items'][0], $desc );
+		$this->assertEquals( 'bogus-image-options', $result[2]['type'], $desc );
+		$this->assertEquals( [ 70, 115, 2, 2 ], $result[2]['dsr'], $desc );
+		$this->assertTrue( isset( $result[2]['params'] ), $desc );
+		$this->assertEquals( 'thumb', $result[2]['params']['items'][0], $desc );
 	}
 
 	// /**

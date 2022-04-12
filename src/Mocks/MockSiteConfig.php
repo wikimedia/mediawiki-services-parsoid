@@ -294,10 +294,13 @@ class MockSiteConfig extends SiteConfig {
 	/** @inheritDoc */
 	protected function getMagicWords(): array {
 		return [
-			'toc'           => [ 0, '__TOC__' ],
-			'img_thumbnail' => [ 1, 'thumb' ],
-			'img_none'      => [ 1, 'none' ],
-			'notoc'         => [ 0, '__NOTOC__' ]
+			'toc'             => [ 0, '__TOC__' ],
+			'img_thumbnail'   => [ 1, 'thumb' ],
+			'img_framed'      => [ 1, 'frame', 'framed' ],
+			'img_frameless'   => [ 1, 'frameless' ],
+			'img_manualthumb' => [ 1, 'thumbnail=$1', 'thumb=$1' ],
+			'img_none'        => [ 1, 'none' ],
+			'notoc'           => [ 0, '__NOTOC__' ],
 		];
 	}
 
