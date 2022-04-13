@@ -9,10 +9,10 @@ $wgReadOnly = "Scandium access is read-only for Parsoid testing. " .
 // Override autoloader to ensure all of Parsoid is running from the
 // same place as this file (since there will also be another copy of
 // Parsoid included from the vendor/wikimedia/parsoid directory)
-AutoLoader::$psr4Namespaces += [
+AutoLoader::registerNamespaces( [
 	// Keep this in sync with the "autoload" clause in /composer.json!
 	'Wikimedia\\Parsoid\\' => __DIR__ . "/../src"
-];
+] );
 
 // When Parsoid is enabled in production context, this will
 // have already been configured.
