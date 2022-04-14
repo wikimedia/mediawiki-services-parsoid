@@ -514,6 +514,9 @@ class References extends ExtensionTagHandler {
 		// Deal with responsive wrapper
 		if ( DOMCompat::getClassList( $refsNode )->contains( 'mw-references-wrap' ) ) {
 			$rrOpts = $extApi->getSiteConfig()->responsiveReferences();
+			// NOTE: The default Cite implementation hardcodes this threshold to 10.
+			// We use a configurable parameter here primarily for test coverage purposes.
+			// See citeParserTests.txt where we set a threshold of 1 or 2.
 			if ( $refGroup && count( $refGroup->refs ) > $rrOpts['threshold'] ) {
 				DOMCompat::getClassList( $refsNode )->add( 'mw-references-columns' );
 			}
