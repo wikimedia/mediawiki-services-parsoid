@@ -28,6 +28,15 @@ require('../core-upgrade.js');
  *
  *     ... time passes, eventually your patch is merged to $REPO ...
  *
+ *   You might be tempted to skip the following step where there is
+ *   nothing to pull from core. But, that would be a mistake because
+ *   we will skip updating the sync point in parserTests.json via the
+ *   fetch-parserTests.txt.js script. Since the hash in the json file
+ *   is checked out and rebased, without this update, the next sync
+ *   from Parsoid will start from an older baseline and introduce
+ *   pointless merge conflicts to resolve (because two historical
+ *   versions of the test file as it existed in the Parsoid repo).
+ *
  *   $ cd $PARSOID
  *   $ tools/fetch-parserTests.txt.js $TARGET --force
  *   $ php bin/parserTests.php --updateKnownFailures
