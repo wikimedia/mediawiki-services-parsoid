@@ -1490,6 +1490,10 @@
     "Nested lists 8 (multiple nesting transitions)": {
         "html2wt": "* foo\n*** bar\n** baz\n* boo"
     },
+    "Nested lists 9 (extension interaction)": {
+        "html2html": "<ul data-parsoid='{\"dsr\":[0,1,0,0]}'><li class=\"mw-empty-elt\" data-parsoid='{\"dsr\":[0,1,1,0]}'></li></ul>\n<div class=\"mw-references-wrap\" typeof=\"mw:Extension/references\" about=\"#mwt3\" data-parsoid='{\"dsr\":[2,16,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><ol class=\"mw-references references\" data-parsoid=\"{}\"></ol></div>\n",
+        "html2wt": "*\n<references />\n"
+    },
     "Nested table": {
         "wt2wt": "{| border=\"1\"\n|&alpha;\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n|nested\n|-\n|table\n|}\n|the original table again\n|}",
         "html2wt": "{| border=\"1\"\n|α\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n|nested\n|-\n|table\n|}\n|the original table again\n|}",

@@ -104,7 +104,7 @@ class SiteConfig extends ApiSiteConfig {
 		}
 
 		// Reset other values to defaults
-		$this->responsiveReferences = [ 'enabled' => false, 'threshold' => 10 ];
+		$this->responsiveReferences = [ 'enabled' => true, 'threshold' => 10 ];
 		$this->disableSubpagesForNS( 0 );
 		$this->unregisterParserTestExtension( new StyleTag() );
 		$this->unregisterParserTestExtension( new RawHTML() );
