@@ -1,17 +1,27 @@
 {
+	"root": true,
 	"extends": "wikimedia/server",
 	"rules": {
-		"indent": ["error", "tab", {
-			"SwitchCase": 1,
-			"MemberExpression": "off",
-			"CallExpression": { "arguments": "off" },
-			"flatTernaryExpressions": true
-		}],
-		"one-var": ["error", { "initialized": "never" }],
-
+		"indent": [
+			"error",
+			"tab",
+			{
+				"SwitchCase": 1,
+				"MemberExpression": "off",
+				"CallExpression": {
+					"arguments": "off"
+				},
+				"flatTernaryExpressions": true
+			}
+		],
+		"one-var": [
+			"error",
+			{
+				"initialized": "never"
+			}
+		],
 		"no-restricted-syntax": "off",
 		"no-restricted-properties": "off",
-
 		"array-bracket-spacing": "off",
 		"arrow-parens": "off",
 		"camelcase": "off",
@@ -34,7 +44,6 @@
 		"quotes": "off",
 		"space-before-function-paren": "off",
 		"space-in-parens": "off",
-
 		"max-len": "off",
 		"vars-on-top": "off",
 		"wrap-iife": "off",
@@ -45,10 +54,8 @@
 		"default-case": "off",
 		"consistent-this": "off",
 		"guard-for-in": "off",
-
 		"prefer-arrow-callback": "off",
 		"prefer-template": "off",
-
 		"no-tabs": "off",
 		"no-var": "off",
 		"no-console": "off",
@@ -62,9 +69,7 @@
 		"no-lonely-if": "off",
 		"no-nested-ternary": "off",
 		"no-unmodified-loop-condition": "off",
-
 		"no-buffer-constructor": "warn",
-
 		"valid-jsdoc": "off"
 	}
 }
