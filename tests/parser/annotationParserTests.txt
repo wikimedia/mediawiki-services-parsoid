@@ -922,3 +922,33 @@ txt4
 <p>txt4</p>
 !! end
 
+!! test
+Extended ranges should not result in bad nesting (T306186)
+!! options
+annotations=1
+parsoid=wt2html,selser
+!! wikitext
+<dummyanno>
+text</dummyanno> <dummyanno>
+by someone
+
+Highway of Montenegro.</dummyanno> <dummyanno>
+by Albin Olsson, CC BY-SA 4.0.
+
+Greta Salóme, singing for Iceland.</dummyanno> <dummyanno>
+by Albin Olsson, CC BY-SA 4.0.
+
+Nina Kraljić, representing Croatia.</dummyanno>
+!! html/parsoid
+<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[0,11]}'/>
+<p>text
+by someone</p>
+
+<p>Highway of Montenegro.
+by Albin Olsson, CC BY-SA 4.0.</p>
+
+<p>Greta Salóme, singing for Iceland.
+by Albin Olsson, CC BY-SA 4.0.</p>
+
+<p>Nina Kraljić, representing Croatia.</p><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[260,272]}'/></div>
+!! end

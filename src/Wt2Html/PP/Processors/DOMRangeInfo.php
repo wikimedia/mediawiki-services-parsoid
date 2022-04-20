@@ -27,4 +27,7 @@ class DOMRangeInfo {
 
 	/** @var bool */
 	public $flipped = false;
+
+	/** @var bool */
+	public $extendedByOverlapMerge = false;
 }

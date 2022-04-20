@@ -76,7 +76,7 @@ class DOMRangeBuilder {
 	protected $env;
 
 	/** @var SplObjectStorage */
-	private $nodeRanges;
+	protected $nodeRanges;
 
 	/** @var array<string|CompoundTemplateInfo>[] */
 	private $compoundTpls = [];
@@ -617,7 +617,7 @@ class DOMRangeBuilder {
 			// Extract tplargInfo
 			$tmp = DOMDataUtils::getDataParsoid( $r->startElem )->getTemp();
 			$templateInfo = $tmp->tplarginfo ?? null;
-			if ( !$templateInfo ) {
+			if ( WTUtils::matchTplType( $r->startElem ) && !$templateInfo ) {
 				// An assertion here is probably an indication that we're
 				// mistakenly doing template wrapping in a nested context.
 				Assert::invariant( $tmp->getFlag( TempData::FROM_FOSTER ), 'Template range without arginfo.' );
@@ -689,6 +689,11 @@ class DOMRangeBuilder {
 
 				$prev->end = $r->end;
 				$prev->endElem = $r->endElem;
+				if ( WTUtils::isMarkerAnnotation( $r->endElem ) ) {
+					$endDataMw = DOMDataUtils::getDataMw( $r->endElem );
+					$endDataMw->rangeId = $r->id;
+					$prev->extendedByOverlapMerge = true;
+				}
 
 				// Update compoundTplInfo
 				if ( $templateInfo ) {

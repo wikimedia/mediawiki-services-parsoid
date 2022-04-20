@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use SplObjectStorage;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -29,25 +30,10 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	}
 
 	/**
-	 * @param Node $node
+	 * @param array $annRanges
 	 */
-	private function wrapAnnotationsInTree( Node $node ): void {
-		try {
-			$annRanges = $this->findWrappableMetaRanges( $node );
-		} catch ( RangeBuilderException $e ) {
-			$this->env->log( 'warn', 'The annotation ranges could not be fully detected. ' .
-				' Annotation processing cancelled. ' );
-			return;
-		}
+	private function wrapAnnotationsInTree( array $annRanges ): void {
 		foreach ( $annRanges as $range ) {
-			if ( ( DOMDataUtils::getDataParsoid( $range->startElem )->misnested ?? false ) ||
-				( DOMDataUtils::getDataParsoid( $range->endElem )->misnested ?? false ) ) {
-				continue;
-			}
-
-			$actualRangeStart = DOMDataUtils::getDataParsoid( $range->start )->dsr->start;
-			$actualRangeEnd = DOMDataUtils::getDataParsoid( $range->end )->dsr->end;
-
 			if ( DOMUtils::isFosterablePosition( $range->start ) ) {
 				$newStart = $range->start;
 				while ( DOMUtils::isFosterablePosition( $newStart ) ) {
@@ -63,21 +49,12 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 				}
 				$range->end = $newEnd;
 			}
-
 			if ( $range->startElem !== $range->start ) {
-				$actualRangeStart = DOMDataUtils::getDataParsoid( $range->start )->dsr->start;
 				$this->moveRangeStart( $range, $range->start );
 			}
 			if ( $range->endElem !== $range->end ) {
-				$actualRangeEnd = DOMDataUtils::getDataParsoid( $range->end )->dsr->end;
 				$this->moveRangeEnd( $range, $range->end );
 			}
-
-			$isExtended = $this->isExtended( $range );
-			if ( $isExtended ) {
-				$this->makeUneditable( $range, $actualRangeStart, $actualRangeEnd );
-			}
-			$this->setMetaDataMwForRange( $range, $isExtended );
 		}
 	}
 
@@ -126,7 +103,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$dp->dsr = new DomSourceRange( $actualRangeStart, $actualRangeEnd, 0, 0 );
 		DOMDataUtils::setDataParsoid( $wrap, $dp );
 		$openRanges = [];
-		$this->removeNestedRanges( $wrap, $openRanges );
 	}
 
 	/**
@@ -210,6 +186,10 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * @return bool
 	 */
 	private function isExtended( DOMRangeInfo $range ): bool {
+		if ( $range->extendedByOverlapMerge ) {
+			return true;
+		}
+
 		$startDataParsoid = DOMDataUtils::getDataParsoid( $range->startElem );
 		$endDataParsoid = DOMDataUtils::getDataParsoid( $range->endElem );
 
@@ -243,53 +223,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	}
 
 	/**
-	 * Removes the inner annotations of nested annotations.
-	 * If an annotation eventually supports nesting, we can revisit this by adding a config flag
-	 * on annotations to indicate whether they can be nested or not, and deal with that
-	 * conditionally in this method.
-	 *
-	 * @param Node $node
-	 * @param array &$openAnnotations
-	 */
-	private function removeNestedRanges( Node $node, array &$openAnnotations ) {
-		$nextSibling = $node->nextSibling;
-		if ( WTUtils::isAnnotationStartMarkerMeta( $node ) ) {
-			'@phan-var Element $node'; /** @var Element $node */
-			$type = WTUtils::extractAnnotationType( $node );
-			if ( $type ) {
-				if ( !array_key_exists( $type, $openAnnotations ) ) {
-					$openAnnotations[$type] = 0;
-				}
-
-				if ( $openAnnotations[$type] > 0 ) {
-					DOMDataUtils::getDataParsoid( $node )->misnested = true;
-					DOMCompat::getParentElement( $node )->removeChild( $node );
-					$this->env->log( 'warn/wt2html', 'Nested annotation start tag removed' );
-				}
-				$openAnnotations[$type]++;
-			}
-		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $node ) ) {
-			'@phan-var Element $node'; /** @var Element $node */
-			$type = WTUtils::extractAnnotationType( $node );
-			if ( $type && array_key_exists( $type, $openAnnotations ) ) {
-				if ( $openAnnotations[$type] > 1 ) {
-					DOMDataUtils::getDataParsoid( $node )->misnested = true;
-					DOMCompat::getParentElement( $node )->removeChild( $node );
-					$this->env->log( 'warn/wt2html', 'Nested annotation end tag removed' );
-				}
-				$openAnnotations[$type]--;
-			}
-		}
-
-		if ( $node instanceof Element && $node->hasChildNodes() ) {
-			$this->removeNestedRanges( $node->firstChild, $openAnnotations );
-		}
-		if ( $nextSibling !== null ) {
-			$this->removeNestedRanges( $nextSibling, $openAnnotations );
-		}
-	}
-
-	/**
 	 * Returns the range ID of a node - in the case of annotations, the "rangeId" property
 	 * of its "data-mw" attribute.
 	 * @param Element $node
@@ -310,8 +243,36 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * @param Node $root
 	 */
 	public function execute( Node $root ): void {
-		$this->wrapAnnotationsInTree( $root );
-		$openRanges = [];
-		$this->removeNestedRanges( $root, $openRanges );
+		try {
+			$annRanges = $this->findWrappableMetaRanges( $root );
+		} catch ( RangeBuilderException $e ) {
+			$this->env->log( 'warn', 'The annotation ranges could not be fully detected. ' .
+				' Annotation processing cancelled. ' );
+			return;
+		}
+
+		$rangesByType = [];
+		foreach ( $annRanges as $range ) {
+			$annType = WTUtils::extractAnnotationType( $range->startElem );
+			if ( !isset( $rangesByType[$annType] ) ) {
+				$rangesByType[$annType] = [];
+			}
+			$rangesByType[$annType][] = $range;
+		}
+
+		foreach ( $rangesByType as $singleTypeRange ) {
+			$this->nodeRanges = new SplObjectStorage;
+			$topRanges = $this->findTopLevelNonOverlappingRanges( $root, $singleTypeRange );
+			$this->wrapAnnotationsInTree( $topRanges );
+			foreach ( $topRanges as $range ) {
+				$actualRangeStart = DOMDataUtils::getDataParsoid( $range->start )->dsr->start;
+				$actualRangeEnd = DOMDataUtils::getDataParsoid( $range->end )->dsr->end;
+				$isExtended = $this->isExtended( $range );
+				if ( $isExtended ) {
+					$this->makeUneditable( $range, $actualRangeStart, $actualRangeEnd );
+				}
+				$this->setMetaDataMwForRange( $range, $isExtended );
+			}
+		}
 	}
 }
