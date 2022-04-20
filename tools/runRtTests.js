@@ -7,7 +7,6 @@ const fs = require('pn/fs');
 const yargs = require('yargs');
 
 const Promise = require('../lib/utils/promise.js');
-const serviceWrapper = require('../tests/serviceWrapper.js');
 const rtTest = require('../bin/roundtrip-test.js');
 
 const usage = 'Usage: $0 --parsoidURL <url> -f <file>';
