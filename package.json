@@ -5,11 +5,9 @@
 	"license": "GPL-2.0+",
 	"dependencies": {
 		"babybird": "0.0.1",
-		"connect-busboy": "^0.0.2",
 		"core-js": "^2.5.6",
 		"domino": "^2.1.0",
 		"entities": "^1.1.1",
-		"express": "^4.16.3",
 		"js-yaml": "^3.13.1",
 		"pn": "^1.1.0",
 		"prfun": "^2.1.5",
