@@ -539,25 +539,12 @@ if (require.main === module) {
 		}
 		const title = String(argv._[0]);
 		const lang = String(argv._[1]);
-		let ret = null;
 		if (argv.record || argv.replay) {
 			// Don't fork a separate server if record/replay
 			argv.useServer = false;
 		}
 		if (argv.useServer && !argv.parsoidURL) {
-			// Start our own Parsoid server
-			const serviceWrapper = require('../tests/serviceWrapper.js');
-			const serverOpts = {
-				logging: { level: 'info' },
-			};
-			if (argv.apiURL) {
-				serverOpts.mockURL = argv.apiURL;
-				argv.domain = 'customwiki';
-			} else {
-				serverOpts.skipMock = true;
-			}
-			ret = yield serviceWrapper.runServices(serverOpts);
-			argv.parsoidURL = ret.parsoidURL;
+			throw new Error('No parsoidURL provided!');
 		}
 		const formatter =
 			ScriptUtils.booleanOption(argv.silent) ? silentFormat :
@@ -605,9 +592,6 @@ if (require.main === module) {
 					break; /* done! */
 				}
 			}
-		}
-		if (ret !== null) {
-			yield ret.runner.stop();
 		}
 		if (argv.check || exitCode > 1) {
 			process.exit(exitCode);
