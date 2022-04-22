@@ -213,8 +213,9 @@ class References extends ExtensionTagHandler {
 						$refContent = $extApi->getContentDOM( $ref->contentId )->firstChild;
 						$ref->cachedHtml = $extApi->domToHtml( $refContent, true, false );
 					}
-					// FIXME: Strip the mw:Cite/Follow wrappers
 					// See the test, "Forward-referenced ref with magical follow edge case"
+					// Ideally, we should strip the mw:Cite/Follow wrappers before comparing
+					// But, we are going to ignore this edge case as not worth the complexity.
 					$html = $extApi->domToHtml( $c, true, false );
 					$contentDiffers = ( $html !== $ref->cachedHtml );
 				}
