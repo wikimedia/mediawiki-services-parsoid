@@ -22869,7 +22869,7 @@ comment
 Bad images - basic functionality
 !! wikitext
 [[File:Bad.jpg]]
-!! html/php+disabled
+!! html/php
 <p><a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">File:Bad.jpg</a>
 </p>
 !! html/parsoid
@@ -22882,7 +22882,7 @@ Bad images - T18039: text after bad image disappears
 Foo bar
 [[File:Bad.jpg]]
 Bar foo
-!! html/php+disabled
+!! html/php
 <p>Foo bar
 <a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">File:Bad.jpg</a>
 Bar foo
