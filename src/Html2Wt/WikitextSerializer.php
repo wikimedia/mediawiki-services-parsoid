@@ -584,9 +584,10 @@ class WikitextSerializer {
 		array $dpArgInfo, ?array $tplData, array $dataMwKeys
 	): Closure {
 		// Record order of parameters in new data-mw
-		$newOrder = array_map( static function ( $key, $i ) {
-			return [ $key, [ 'order' => $i ] ];
-		}, $dataMwKeys, array_keys( $dataMwKeys ) );
+		$newOrder = [];
+		foreach ( $dataMwKeys as $i => $key ) {
+			$newOrder[$key] = [ 'order' => $i ];
+		}
 		// Record order of parameters in templatedata (if present)
 		$tplDataOrder = [];
 		$aliasMap = [];

@@ -102,6 +102,7 @@ class TemplateDataTest extends TestCase {
 					'edited' => "{{InlineTplNoParamOrder|f1=BAR|f2=foo}}"
 				]
 			],
+
 			// 5. block-tpl (but written in inline format originally); no param order
 			[
 				'name' => 'Enforce block format',
@@ -399,6 +400,40 @@ class TemplateDataTest extends TestCase {
 					'edited' => "x{{BlockTplNoParamOrder}}y" // normalized
 				]
 			],
+
+			// 23. Sort arguments as in data-mw - T304730
+			[
+				'name' => 'Sort arguments as in data-mw',
+				'html' => '<span about="#mwt1" typeof="mw:Transclusion" data-mw=\'' .
+					'{"parts":[{"template":{"target":{"wt":"Meh", "href":"./Template:Meh"},"params":{' .
+						'"f1":{"wt":"foo"},' .
+						'"f2":{"wt":"foo"},' .
+						'"f3":{"wt":"foo"},' .
+						'"f4":{"wt":"foo"},' .
+						'"f5":{"wt":"foo"},' .
+						'"f6":{"wt":"foo"},' .
+						'"f7":{"wt":"foo"},' .
+						'"f8":{"wt":"foo"},' .
+						'"f9":{"wt":"foo"},' .
+						'"f10":{"wt":"foo"},' .
+						'"f11":{"wt":"foo"},' .
+						'"f12":{"wt":"foo"},' .
+						'"f13":{"wt":"foo"},' .
+						'"f14":{"wt":"foo"},' .
+						'"f15":{"wt":"foo"},' .
+						'"f16":{"wt":"foo"},' .
+						'"f17":{"wt":"foo"}' .
+					'},"i":0}}]}' . "'" . '>foo</span>',
+				'wt' => [
+					'no_selser' => "{{Meh|f1=foo|f2=foo|f3=foo|f4=foo|f5=foo|f6=foo|f7=foo|f8=foo|" .
+						"f9=foo|f10=foo|f11=foo|f12=foo|f13=foo|f14=foo|f15=foo|f16=foo|f17=foo}}",
+					'new_content' => "{{Meh|f1=foo|f2=foo|f3=foo|f4=foo|f5=foo|f6=foo|f7=foo|f8=foo|" .
+						"f9=foo|f10=foo|f11=foo|f12=foo|f13=foo|f14=foo|f15=foo|f16=foo|f17=foo}}",
+					'edited' => "{{Meh|f1=BAR|f2=foo|f3=foo|f4=foo|f5=foo|f6=foo|f7=foo|f8=foo|" .
+						"f9=foo|f10=foo|f11=foo|f12=foo|f13=foo|f14=foo|f15=foo|f16=foo|f17=foo}}"
+				]
+			],
+
 		];
 	}
 
