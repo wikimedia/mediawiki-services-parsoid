@@ -732,7 +732,7 @@ class WikitextEscapeHandlers {
 			$t = $tokens[$i];
 			if ( is_string( $t ) ) {
 				if ( strlen( $t ) > 0 ) {
-					$t = WTUtils::escapeNowikiTags( $t );
+					$t = WTSUtils::escapeNowikiTags( $t );
 					if ( !$inNowiki && ( ( $sol && $t[0] === ' ' ) || str_contains( $t, "\n " ) ) ) {
 						$x = preg_split( '/(^|\n) /', $t, -1, PREG_SPLIT_DELIM_CAPTURE );
 						$buf .= $x[0];
@@ -772,7 +772,7 @@ class WikitextEscapeHandlers {
 			}
 
 			// Now put back the escaping we removed above
-			$tSrc = WTUtils::escapeNowikiTags( $tsr->substr( $text ) );
+			$tSrc = WTSUtils::escapeNowikiTags( $tsr->substr( $text ) );
 			switch ( TokenUtils::getTokenType( $t ) ) {
 				case 'NlTk':
 					$buf .= $tSrc;
@@ -999,7 +999,7 @@ class WikitextEscapeHandlers {
 		}
 
 		// escape nowiki tags
-		$text = WTUtils::escapeNowikiTags( $text );
+		$text = WTSUtils::escapeNowikiTags( $text );
 
 		// Use the tokenizer to see if we have any wikitext tokens
 		//

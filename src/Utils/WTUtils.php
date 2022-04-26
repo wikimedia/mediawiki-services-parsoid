@@ -778,16 +778,6 @@ class WTUtils {
 	}
 
 	/**
-	 * Escape `<nowiki>` tags.
-	 *
-	 * @param string $text
-	 * @return string
-	 */
-	public static function escapeNowikiTags( string $text ): string {
-		return preg_replace( '#<(/?nowiki\s*/?\s*)>#i', '&lt;$1&gt;', $text );
-	}
-
-	/**
 	 * @param Env $env
 	 * @param Node $node
 	 * @return ?ExtensionTagHandler

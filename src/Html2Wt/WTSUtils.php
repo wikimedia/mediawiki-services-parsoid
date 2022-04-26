@@ -426,4 +426,15 @@ class WTSUtils {
 		}
 		return $ret;
 	}
+
+	/**
+	 * Escape `<nowiki>` tags.
+	 *
+	 * @param string $text
+	 * @return string
+	 */
+	public static function escapeNowikiTags( string $text ): string {
+		return preg_replace( '#<(/?nowiki\s*/?\s*)>#i', '&lt;$1&gt;', $text );
+	}
+
 }
