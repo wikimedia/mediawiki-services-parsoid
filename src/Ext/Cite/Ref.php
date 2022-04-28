@@ -69,13 +69,13 @@ class Ref extends ExtensionTagHandler {
 		if ( DOMUtils::hasTypeOf( $ref, 'mw:Error' ) ) {
 			return $ref->nextSibling;
 		}
-		$refFirstChild = $ref->firstChild;
-		DOMUtils::assertElt( $refFirstChild );
-		$linkBackId = preg_replace( '/[^#]*#/', '', $refFirstChild->getAttribute( 'href' ) ?? '', 1 );
-		$refNode = $ref->ownerDocument->getElementById( $linkBackId );
-		if ( $refNode ) {
-			// Ex: Buggy input wikitext without ref content
-			$defaultHandler( $refNode->lastChild );
+		$dataMw = DOMDataUtils::getDataMw( $ref );
+		// TODO(T214994): Look in $dataMw->body->html first
+		if ( is_string( $dataMw->body->id ?? null ) ) {
+			$refNode = DOMCompat::getElementById( $extApi->getTopLevelDoc(), $dataMw->body->id );
+			if ( $refNode ) {
+				$defaultHandler( $refNode );
+			}
 		}
 		return $ref->nextSibling;
 	}

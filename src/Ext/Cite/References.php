@@ -781,16 +781,7 @@ class References extends ExtensionTagHandler {
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, Element $refs, callable $defaultHandler
 	): ?Node {
-		// Nothing to do
-		//
-		// FIXME: Not entirely true for scenarios where the <ref> tags
-		// are defined in the references section that is itself templated.
-		//
-		// {{1x|<references>\n<ref name='x'><b>foo</ref>\n</references>}}
-		//
-		// In this example, the references tag has the right tplInfo and
-		// when the <ref> tag is processed in the body of the article where
-		// it is accessed, there is no relevant template or dsr info available.
+		// FIXME(T214994): Look in $dataMw->body->html
 		//
 		// Ignoring for now.
 		return $refs->nextSibling;
