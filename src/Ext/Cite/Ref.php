@@ -191,7 +191,17 @@ class Ref extends ExtensionTagHandler {
 		$origDataMw = DOMDataUtils::getDataMw( $origNode );
 		$editedDataMw = DOMDataUtils::getDataMw( $editedNode );
 
-		if ( isset( $origDataMw->body->id ) && isset( $editedDataMw->body->id ) ) {
+		if ( isset( $origDataMw->body->html ) && isset( $editedDataMw->body->html ) ) {
+			$origFragment = $extApi->htmlToDom(
+				$origDataMw->body->html, $origNode->ownerDocument,
+				[ 'markNew' => true ]
+			);
+			$editedFragment = $extApi->htmlToDom(
+				$editedDataMw->body->html, $editedNode->ownerDocument,
+				[ 'markNew' => true ]
+			);
+			return call_user_func( $domDiff, $origFragment, $editedFragment );
+		} elseif ( isset( $origDataMw->body->id ) && isset( $editedDataMw->body->id ) ) {
 			$origId = $origDataMw->body->id;
 			$editedId = $editedDataMw->body->id;
 
@@ -226,16 +236,6 @@ class Ref extends ExtensionTagHandler {
 					);
 				}
 			}
-		} elseif ( isset( $origDataMw->body->html ) && isset( $editedDataMw->body->html ) ) {
-			$origFragment = $extApi->htmlToDom(
-				$origDataMw->body->html, $origNode->ownerDocument,
-				[ 'markNew' => true ]
-			);
-			$editedFragment = $extApi->htmlToDom(
-				$editedDataMw->body->html, $editedNode->ownerDocument,
-				[ 'markNew' => true ]
-			);
-			return call_user_func( $domDiff, $origFragment, $editedFragment );
 		}
 
 		// FIXME: Similar to DOMDiff::subtreeDiffers, maybe $editNode should
