@@ -65,13 +65,11 @@ class Ref extends ExtensionTagHandler {
 		if ( WTUtils::fromExtensionContent( $ref, 'references' ) ) {
 			return $ref->nextSibling;
 		}
-		// Ignore content from reference errors
-		if ( DOMUtils::hasTypeOf( $ref, 'mw:Error' ) ) {
-			return $ref->nextSibling;
-		}
 		$dataMw = DOMDataUtils::getDataMw( $ref );
-		// TODO(T214994): Look in $dataMw->body->html first
-		if ( is_string( $dataMw->body->id ?? null ) ) {
+		if ( is_string( $dataMw->body->html ?? null ) ) {
+			$fragment = $extApi->htmlToDom( $dataMw->body->html );
+			$defaultHandler( $fragment );
+		} elseif ( is_string( $dataMw->body->id ?? null ) ) {
 			$refNode = DOMCompat::getElementById( $extApi->getTopLevelDoc(), $dataMw->body->id );
 			if ( $refNode ) {
 				$defaultHandler( $refNode );

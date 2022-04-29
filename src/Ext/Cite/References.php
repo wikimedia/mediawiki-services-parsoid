@@ -781,9 +781,11 @@ class References extends ExtensionTagHandler {
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, Element $refs, callable $defaultHandler
 	): ?Node {
-		// FIXME(T214994): Look in $dataMw->body->html
-		//
-		// Ignoring for now.
+		$dataMw = DOMDataUtils::getDataMw( $refs );
+		if ( is_string( $dataMw->body->html ?? null ) ) {
+			$fragment = $extApi->htmlToDom( $dataMw->body->html );
+			$defaultHandler( $fragment );
+		}
 		return $refs->nextSibling;
 	}
 
