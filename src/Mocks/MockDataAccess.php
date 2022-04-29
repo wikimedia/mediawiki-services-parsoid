@@ -578,10 +578,13 @@ class MockDataAccess extends DataAccess {
 		$revid = $pageConfig->getRevisionId();
 
 		$expanded = str_replace( '{{!}}', '|', $wikitext );
-		preg_match( '/{{1x\|(.*?)}}/s', $expanded, $match );
+		preg_match( '/{{1x\|(.*?)}}/s', $expanded, $match1 );
+		preg_match( '/{{#tag:ref\|(.*?)\|(.*?)}}/s', $expanded, $match2 );
 
-		if ( $match ) {
-			$ret = $match[1];
+		if ( $match1 ) {
+			$ret = $match1[1];
+		} elseif ( $match2 ) {
+			$ret = "<ref {$match2[2]}>{$match2[1]}</ref>";
 		} elseif ( $wikitext === '{{colours of the rainbow}}' ) {
 			$ret = 'purple';
 		} elseif ( $wikitext === '{{REVISIONID}}' ) {

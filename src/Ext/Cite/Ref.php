@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -60,11 +59,6 @@ class Ref extends ExtensionTagHandler {
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, Element $ref, callable $defaultHandler
 	): ?Node {
-		// Don't lint the content of ref in ref, since it can lead to cycles
-		// using named refs
-		if ( WTUtils::fromExtensionContent( $ref, 'references' ) ) {
-			return $ref->nextSibling;
-		}
 		$dataMw = DOMDataUtils::getDataMw( $ref );
 		if ( is_string( $dataMw->body->html ?? null ) ) {
 			$fragment = $extApi->htmlToDom( $dataMw->body->html );

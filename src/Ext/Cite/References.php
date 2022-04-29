@@ -281,6 +281,11 @@ class References extends ExtensionTagHandler {
 				// This will be set below with `$ref->contentId = $contentId;`
 			}
 		} else {
+			// If we have !$ref, one might have been added in the call to
+			// processRefs, ie. a self-referential ref.  We could try to look
+			// it up again, but Parsoid is choosing not to support that.
+			// Even worse would be if it tried to redefine itself!
+
 			if ( !$ref ) {
 				$ref = $refsData->add( $extApi, $groupName, $refName );
 			}

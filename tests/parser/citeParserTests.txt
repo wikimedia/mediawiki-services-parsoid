@@ -2170,6 +2170,20 @@ test {{#tag:ref|456<ref>123</ref>}}
 </ol></div>
 !! end
 
+## Parsoid is choosing not to support this.
+!! test
+Ref in ref: self-referential
+!! wikitext
+{{#tag:ref|<ref name="x" />|name=x}}
+!! html/php
+<p><sup id="cite_ref-x_1-1" class="reference"><a href="#cite_note-x-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-x-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-x_1-0">1.0</a></sup> <sup><a href="#cite_ref-x_1-1">1.1</a></sup></span> <span class="reference-text"><sup id="cite_ref-x_1-0" class="reference"><a href="#cite_note-x-1">&#91;1&#93;</a></sup></span>
+</li>
+</ol></div>
+!! end
+
 ## Bleh! Only to be used in the below.  See above where the legacy parser
 ## wouldn't stand for this nonsense.
 !! article

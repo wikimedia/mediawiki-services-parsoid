@@ -1069,13 +1069,11 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 's', $result[0]['params']['name'], $desc );
 
-// PORT-FIXME this code is not yet supported
-//		$desc = "should not get into a cycle trying to lint ref in ref";
-//		return parseWT(
-//          "{{#tag:ref|<ref name='y' />|name='x'}}{{#tag:ref|" .
-//              "<ref name='x' />|name='y'}}<ref name='x' />" );
-//			.then(function() {
-//					return parseWT("{{#tag:ref|<ref name='x' />|name=x}}");
+		$desc = "should not get into a cycle trying to lint ref in ref";
+		$result = $this->parseWT(
+			"{{#tag:ref|<ref name='y' />|name='x'}}{{#tag:ref|<ref name='x' />|name='y'}}<ref name='x' />"
+		);
+		$this->parseWT( "<ref name='x' />{{#tag:ref|<ref name='x' />|name=x}}" );
 	}
 
 	/**
