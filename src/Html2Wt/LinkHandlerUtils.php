@@ -779,8 +779,8 @@ class LinkHandlerUtils {
 			// Buffer redirect text if it is not in start of file position
 			if ( !preg_match( self::$REDIRECT_TEST_RE, $state->out . $state->currLine->text ) ) {
 				$state->redirectText = $linkData->prefix . '[[' . $linkTarget . ']]';
-				$state->emitChunk( '', $node ); // Flush seperators for this node
-				// Flush seperators for this node
+				$state->emitChunk( '', $node ); // Flush separators for this node
+				// Flush separators for this node
 				return;
 			}
 

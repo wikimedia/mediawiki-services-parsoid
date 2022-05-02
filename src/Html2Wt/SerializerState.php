@@ -333,7 +333,7 @@ class SerializerState {
 	}
 
 	/**
-	 * Appends the seperator source to the separator src buffer.
+	 * Appends the separator source to the separator src buffer.
 	 * Don't update $state->onSOL since this string hasn't been emitted yet.
 	 * If content handlers change behavior based on whether this newline will
 	 * be emitted or not, they should peek into this buffer (ex: see TDHandler
@@ -451,7 +451,7 @@ class SerializerState {
 	}
 
 	/**
-	 * Pushes the seperator to the current line and resets the separator state.
+	 * Pushes the separator to the current line and resets the separator state.
 	 * @param string $sep
 	 * @param Node $node
 	 * @param string $debugPrefix
@@ -473,7 +473,7 @@ class SerializerState {
 	}
 
 	/**
-	 * Determines if we can use the original seperator for this node or if we
+	 * Determines if we can use the original separator for this node or if we
 	 * need to build one based on its constraints, and then emits it.
 	 *
 	 * @param Node $node
