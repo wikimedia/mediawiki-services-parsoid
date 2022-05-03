@@ -298,12 +298,25 @@ class WikitextSerializer {
 	}
 
 	/**
-	 * @param string $tokenName
+	 * @param Token $token
 	 * @param string $inner
 	 * @return string
 	 */
-	public function wrapAngleBracket( $tokenName, $inner ) {
-		if ( $this->tagNeedsEscaping( $tokenName ) ) {
+	public function wrapAngleBracket( Token $token, string $inner ): string {
+		if (
+			$this->tagNeedsEscaping( $token->getName() ) &&
+			!(
+				// Allow for html tags that shadow extension tags found in source
+				// to roundtrip.  They only parse as html tags if they are unclosed,
+				// since extension tags bail on parsing without closing tags.
+				//
+				// This only applies when wrapAngleBracket() is being called for
+				// start tags, but we wouldn't be here if it was autoInsertedEnd
+				// anyways.
+				Consts::$Sanitizer['AllowedLiteralTags'][$token->getName()] &&
+				!empty( $token->dataAttribs->autoInsertedEnd )
+			)
+		) {
 			return "&lt;{$inner}&gt;";
 		}
 		return "<$inner>";
@@ -353,7 +366,7 @@ class WikitextSerializer {
 		// srcTagName cannot be '' so, it is okay to use ?? operator
 		$tokenName = $da->srcTagName ?? $token->getName();
 		$inner = "{$tokenName}{$sAttribs}{$close}";
-		return $this->wrapAngleBracket( $tokenName, $inner );
+		return $this->wrapAngleBracket( $token, $inner );
 	}
 
 	/**
@@ -380,7 +393,7 @@ class WikitextSerializer {
 			&& !Utils::isVoidElement( $token->getName() )
 			&& empty( $token->dataAttribs->selfClose )
 		) {
-			$ret = $this->wrapAngleBracket( $tokenName, "/{$tokenName}" );
+			$ret = $this->wrapAngleBracket( $token, "/{$tokenName}" );
 		}
 
 		return $ret;

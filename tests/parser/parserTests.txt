@@ -29087,6 +29087,19 @@ parsoid=html2wt
 !! end
 
 !! test
+Don't escape pre elements that fail to parse as extension tags
+!! wikitext
+<pre>closed is extension tag, so everything is <span>text</span></pre>
+<pre>unclosed is not, so these are <span>tags</span>
+!! html/php
+<pre>closed is extension tag, so everything is &lt;span&gt;text&lt;/span&gt;</pre>
+<pre>unclosed is not, so these are <span>tags</span></pre>
+!! html/parsoid
+<pre typeof="mw:Extension/pre" about="#mwt3" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"closed is extension tag, so everything is &lt;span>text&lt;/span>"}}'>closed is extension tag, so everything is &lt;span>text&lt;/span></pre>
+<pre data-parsoid='{"stx":"html","autoInsertedEnd":true}'>unclosed is not, so these are <span>tags</span></pre>
+!! end
+
+!! test
 New list is serialized on newlines
 !! options
 parsoid=html2wt
