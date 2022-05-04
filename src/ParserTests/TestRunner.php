@@ -745,10 +745,37 @@ class TestRunner {
 		$this->mockApi->setApiPrefix( $prefix );
 		$this->siteConfig->reset();
 
+		$config = [];
+		if ( $test->config ) {
+			// T307720: This should be replaced with a proper parser
+			foreach ( explode( "\n", $test->config ) as $line ) {
+				$kv = explode( "=", $line, 2 );
+				$val = false;
+				if ( count( $kv ) === 1 || $kv[1] === 'true' ) {
+					$val = true;
+				} elseif ( is_numeric( $kv[1] ) ) {
+					$val = 0 + $kv[1];
+				}
+				$config[$kv[0]] = $val;
+			}
+		}
+		// We don't do any sanity checking or type casting on $config values
+		// here: if you set a bogus value in a parser test it *should*
+		// blow things up, so that you fix your test case.
+
 		// Update $wgInterwikiMagic flag
 		// default (undefined) setting is true
-		$iwmVal = $testOpts['wginterwikimagic'] ?? null;
-		$this->siteConfig->setInterwikiMagic( $iwmVal === null || $iwmVal === true || $iwmVal === 1 );
+		$this->siteConfig->setInterwikiMagic(
+			$config['wgInterwikiMagic'] ?? true
+		);
+
+		// FIXME: Cite-specific hack
+		$this->siteConfig->responsiveReferences = [
+			'enabled' => $config['wgCiteResponsiveReferences'] ??
+				$this->siteConfig->responsiveReferences['enabled'],
+			'threshold' => $config['wgCiteResponsiveReferencesThreshold'] ??
+				$this->siteConfig->responsiveReferences['threshold'],
+		];
 
 		if ( $testOpts ) {
 			Assert::invariant( !isset( $testOpts['extensions'] ),
@@ -772,9 +799,6 @@ class TestRunner {
 			foreach ( $defaults as $opt => $defaultVal ) {
 				$this->envOptions[$opt] = $testOpts['parsoid'][$opt] ?? $defaultVal;
 			}
-
-			$this->siteConfig->responsiveReferences =
-				$testOpts['parsoid']['responsiveReferences'] ?? $this->siteConfig->responsiveReferences;
 
 			// Emulate PHP parser's tag hook to tunnel content past the sanitizer
 			if ( isset( $testOpts['styletag'] ) ) {

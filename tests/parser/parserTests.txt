@@ -42,6 +42,7 @@
 #  wgEnableUploads, wgAllowExternalImages, wgMaxTocLevel,
 #  wgLinkHolderBatchSize, wgRawHtml, wgInterwikiMagic,
 #  wgEnableMagicLinks
+#  wgCiteResponsiveReferences, wgCiteResponsiveReferencesThreshold
 #
 # Test execution options:
 #
@@ -9671,8 +9672,9 @@ Blah blah blah
 !! test
 Language links render as inline links if $wgInterwikiMagic=false
 !! options
-wgInterwikiMagic=false
 parsoid=wt2html,wt2wt,html2html
+!! config
+wgInterwikiMagic=false
 !! wikitext
 Blah blah blah
 [[zh:Chinese]]
