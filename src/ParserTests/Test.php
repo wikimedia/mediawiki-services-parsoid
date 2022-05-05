@@ -35,8 +35,8 @@ class Test extends Item {
 	/** @var array */
 	public $options = [];
 
-	/** @var ?string */
-	public $config = null;
+	/** @var array */
+	public $config = [];
 
 	/** @var array */
 	public $sections = [];

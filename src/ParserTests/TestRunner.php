@@ -745,35 +745,21 @@ class TestRunner {
 		$this->mockApi->setApiPrefix( $prefix );
 		$this->siteConfig->reset();
 
-		$config = [];
-		if ( $test->config ) {
-			// T307720: This should be replaced with a proper parser
-			foreach ( explode( "\n", $test->config ) as $line ) {
-				$kv = explode( "=", $line, 2 );
-				$val = false;
-				if ( count( $kv ) === 1 || $kv[1] === 'true' ) {
-					$val = true;
-				} elseif ( is_numeric( $kv[1] ) ) {
-					$val = 0 + $kv[1];
-				}
-				$config[$kv[0]] = $val;
-			}
-		}
-		// We don't do any sanity checking or type casting on $config values
-		// here: if you set a bogus value in a parser test it *should*
+		// We don't do any sanity checking or type casting on $test->config
+		// values here: if you set a bogus value in a parser test it *should*
 		// blow things up, so that you fix your test case.
 
 		// Update $wgInterwikiMagic flag
 		// default (undefined) setting is true
 		$this->siteConfig->setInterwikiMagic(
-			$config['wgInterwikiMagic'] ?? true
+			$test->config['wgInterwikiMagic'] ?? true
 		);
 
 		// FIXME: Cite-specific hack
 		$this->siteConfig->responsiveReferences = [
-			'enabled' => $config['wgCiteResponsiveReferences'] ??
+			'enabled' => $test->config['wgCiteResponsiveReferences'] ??
 				$this->siteConfig->responsiveReferences['enabled'],
-			'threshold' => $config['wgCiteResponsiveReferencesThreshold'] ??
+			'threshold' => $test->config['wgCiteResponsiveReferencesThreshold'] ??
 				$this->siteConfig->responsiveReferences['threshold'],
 		];
 

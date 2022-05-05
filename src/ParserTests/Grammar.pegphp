@@ -143,7 +143,7 @@ end_functionhooks =
 test =
 	start_test
 	testName:text
-	sections:(section / option_section)*
+	sections:(section / config_section / option_section)*
 	end_section
 {
 	$test = [
@@ -182,10 +182,24 @@ test =
 }
 
 section =
-	"!!" ws? (!"test") (!"end") (!"options") name:(c:[^ \t\r\n]+ { return implode( $c ); }) rest_of_line
+	"!!" ws? (!"test") (!"end") (!"options") (!"config") name:(c:[^ \t\r\n]+ { return implode( $c ); }) rest_of_line
 	text:text
 {
 	return [ 'name' => $name, 'text' => $text ];
+}
+
+config_section =
+	"!!" ws? "config" ws? eol
+        items:config_list?
+{
+	$c = [];
+	if ( $items && count($items) > 0 ) {
+		foreach ( $items as $item ) {
+			$c[$item['k']] = $item['v'];
+		}
+	}
+
+	return [ 'type' => 'section', 'name' => 'config', 'text' => $c ];
 }
 
 option_section =
@@ -202,6 +216,15 @@ option_section =
 	return [ 'type' => 'section', 'name' => 'options', 'text' => $o ];
 }
 
+config_list = c:a_config_line eol+ rest:config_list?
+{
+	$result = [ $c ];
+	if ( $rest && count( $rest ) > 0 ) {
+		$result = array_merge( $result, $rest );
+	}
+	return $result;
+}
+
 option_list = o:an_option ([ \t] / eol)+ rest:option_list?
 {
 	$result = [ $o ];
@@ -209,6 +232,25 @@ option_list = o:an_option ([ \t] / eol)+ rest:option_list?
 		$result = array_merge( $result, $rest );
 	}
 	return $result;
+}
+
+a_config_line = k:option_name v:config_value
+{
+	return [ 'k' => $k, 'v' => $v ];
+}
+
+config_value = ws? "=" ws? v:valid_json_value { return $v; }
+
+valid_json_value = v:$(quoted_value / plain_value / array_value / json_value) &{
+  // validate this as acceptable JSON
+  // (this ensures that wikipeg throws a syntax error if
+  // the JSON is invalid; note that PHP 7.3 would allow us
+  // to use JSON_THROW_ON_ERROR instead of json_last_error()...)
+  $ignore = json_decode($v, true, 100);
+  return (json_last_error() === JSON_ERROR_NONE);
+} {
+  // The value is valid JSON; return the decoded value.
+  return json_decode($v, true);
 }
 
 // from PHP parser in tests/parser/parserTest.inc:parseOptions()
@@ -267,6 +309,11 @@ quoted_value = [\"] v:( [^\\\"\n] / ("\\" c:[^\n] { return "\\" . $c; } ) )* [\"
 plain_value = v:[^ \t\n\"\'\[\]=,!\{]+
 {
 	return implode( $v );
+}
+
+array_value = "[" v:( [^\"\[\]\n] / quoted_value / array_value / eol )* "]"
+{
+	return "[" . implode( $v ) . "]";
 }
 
 json_value = "{" v:( [^\"\{\}\n] / quoted_value / json_value / eol )* "}"
