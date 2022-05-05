@@ -1218,7 +1218,7 @@ Multiple definition (inside {{#tag:references}})
 !! test
 T29694 - [] in reference names in HTML5 fragment mode
 !! config
-wgFragmentMode=[ 'html5' ]
+wgFragmentMode=[ "html5" ]
 !! options
 parsoid=wt2html
 !! wikitext
@@ -1238,7 +1238,7 @@ parsoid=wt2html
 !! test
 T29694 - [] in reference names in HTML5 fragment mode (tidied)
 !! config
-wgFragmentMode=[ 'html5' ]
+wgFragmentMode=[ "html5" ]
 !! wikitext
 <ref name="[#foo] {bar} <baz&gt;">[bar]</ref>
 <references />
@@ -1551,7 +1551,7 @@ Ref: 17. Generate valid HTML5 id/about attributes
 !! test
 Ref: 18. T58916: Extension attributes should be parsed as plain text
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 <ref name="{{1x|a}}">foo</ref>
 
@@ -1577,7 +1577,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 Ref: 19. ref-tags with identical name encodings should get identical indexes
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -2042,7 +2042,7 @@ aDifferentNameGROUP <sup about="#mwt14" class="mw-ref reference" id="cite_ref-an
 !! test
 Entities in ref name
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -2548,7 +2548,7 @@ Similarly named refs with identical bodies
 !! test
 T220196 - Reference names with high-bit characters, html5 mode
 !! config
-wgFragmentMode=['html5']
+wgFragmentMode=[ "html5" ]
 !! wikitext
 <ref name="füllen">[bar]</ref>
 <references />
@@ -2567,7 +2567,7 @@ wgFragmentMode=['html5']
 !! test
 T220196 - Reference names with high-bit characters, legacy mode
 !! config
-wgFragmentMode=['legacy']
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 <ref name="füllen">[bar]</ref>
 <references />
@@ -2758,7 +2758,7 @@ Report bad attributes in reference tags
 !! test
 Check Cite handing of different types of whitespace in reference names
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 test space<ref name="a b">testSpaceRef</ref>
 blah space<ref name="a b" />

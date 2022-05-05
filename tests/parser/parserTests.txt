@@ -672,7 +672,7 @@ Heading with line break in nowiki
 !! options
 parsoid=wt2html
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 ==A <nowiki>B
 C</nowiki>==
@@ -689,7 +689,7 @@ Heading with nonbreaking space in prefix/suffix (T235684)
 !! options
 parsoid=wt2html,html2html
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 == &nbsp; A &nbsp; B &nbsp; ==
 !! html/php
@@ -8335,7 +8335,7 @@ Link with multiple pipes
 !! test
 Anchor containing a #. (T65430)
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 [[Main Page#And#Link]]
 !! html/php
@@ -8463,7 +8463,7 @@ Link containing "#<" and "#>" % as a hex sequences- these are valid section anch
 !! options
 title=[[Main Page]]
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 [[%23%3c]][[%23%3e]]
 !! html/php
@@ -8477,7 +8477,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 Link containing "#<" and "#>" % as a hex sequences- these are valid section anchors (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 [[%23%3c]][[%23%3e]]
 !! html/php
@@ -9198,7 +9198,7 @@ Parsoid: Scoped parsing should handle mixed transclusions and plain text
 !! test
 Link with angle bracket after anchor
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 [[Foo#<bar>]]
 !! html/php
@@ -9211,7 +9211,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 Link with angle bracket after anchor (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 [[Foo#<bar>]]
 !! html/php
@@ -9294,7 +9294,7 @@ Link scenarios with escaped fragments
 !! options
 title=[[Main Page]]
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 [[#Is this great?]]
 [[Foo#Is this great?]]
@@ -9313,7 +9313,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 Link scenarios with escaped fragments (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 [[#Is this great?]]
 [[Foo#Is this great?]]
@@ -13610,7 +13610,7 @@ Preprocessor precedence 14: broken language converter in comment
 !! test
 Preprocessor precedence 15: broken brace markup in headings
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 parsoid=wt2html
 !! wikitext
@@ -17176,7 +17176,7 @@ parsoid=wt2html,html2html
 !! test
 div with multiple empty attribute values
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -18422,7 +18422,7 @@ Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id=
 !! options
 title=[[Main Page]]
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 <span id="æ: v">byte</span>[[#æ: v|backlink]]
 !! html/php
@@ -18435,7 +18435,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 Sanitizer: Escaping of spaces, multibyte characters, colons & other stuff in id="" (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 <span id="æ: v">byte</span>[[#æ: v|backlink]]
 !! html/php
@@ -20809,7 +20809,7 @@ ISBN 1 234 56789 0 - 2006
 !! test
 anchorencode
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 {{anchorencode:foo bar©#%n}}
 !! html/php
@@ -20822,7 +20822,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 anchorencode (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 {{anchorencode:foo bar©#%n}}
 !! html/php
@@ -20833,7 +20833,7 @@ wgFragmentMode=[ 'legacy' ]
 !! test
 anchorencode trims spaces
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 {{anchorencode: __pretty__please__}}
 !! html/php
@@ -20846,7 +20846,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 anchorencode deals with links
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 {{anchorencode: [[hello|world]] [[hi]]}}
 !! html/php
@@ -20859,7 +20859,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 anchorencode deals with templates
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 {{anchorencode: {{Foo}} x}}
 !! html/php
@@ -20872,7 +20872,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 anchorencode encodes like the TOC generator: (T20431)
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 ===_ +:.3A%3A _ &&amp;]] x===
 {{anchorencode: _ +:.3A%3A _ &&amp;]] x}}
@@ -20892,7 +20892,7 @@ __NOEDITSECTION__
 !! test
 anchorencode encodes like the TOC generator: (T20431) (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 ===_ +:.3A%3A&&amp;]]===
 {{anchorencode: _ +:.3A%3A&&amp;]] }}
@@ -21175,7 +21175,7 @@ language=sr variant=sr-ec
 !! test
 -{}- tags within headlines (within html for parserConvert())
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 language=sr variant=sr-ec
 !! wikitext
@@ -23504,7 +23504,7 @@ __TOC__
 !! test
 Unclosed tags in TOC
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 title=[[Main Page]]
 !! wikitext
@@ -24602,7 +24602,7 @@ a
 !! test
 Headings: Used as horizontal rule
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! options
 parsoid=wt2html
 !! wikitext
@@ -29541,7 +29541,7 @@ wgRawHtml=1
 !! test
 Decoding of HTML entities in headings and links for IDs and link fragments (T103714)
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 ==A&B&amp;C&amp;amp;D&amp;amp;amp;E==
 [[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]
@@ -29557,7 +29557,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 Decoding of HTML entities in headings and links for IDs and link fragments (T103714) (legacy)
 !! config
-wgFragmentMode=[ 'legacy' ]
+wgFragmentMode=[ "legacy" ]
 !! wikitext
 ==A&B&amp;C&amp;amp;D&amp;amp;amp;E==
 [[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]
@@ -29609,7 +29609,7 @@ showindicators
 !! test
 HTML5 ids: fallback to legacy
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 ==Foo bar==
 
@@ -29675,7 +29675,7 @@ wgFragmentMode=[ 'html5', 'legacy' ]
 !! test
 HTML5 ids: legacy with a fallback to modern
 !! config
-wgFragmentMode=[ 'legacy', 'html5' ]
+wgFragmentMode=[ "legacy", "html5" ]
 !! wikitext
 ==Foo bar==
 
@@ -29723,7 +29723,7 @@ wgFragmentMode=[ 'legacy', 'html5' ]
 !! test
 HTML5 ids: no legacy
 !! config
-wgFragmentMode=[ 'html5' ]
+wgFragmentMode=[ "html5" ]
 !! wikitext
 ==Foo bar==
 
@@ -29770,7 +29770,7 @@ wgFragmentMode=[ 'html5' ]
 !! test
 T90902: Normalize weird characters in section IDs
 !! config
-wgFragmentMode=[ 'html5', 'legacy' ]
+wgFragmentMode=[ "html5", "legacy" ]
 !! wikitext
 ==Foo&nbsp;bar==
 [[#Foo&nbsp;bar]]
@@ -29831,7 +29831,7 @@ parsoid={
 !! test
 T199926: Hash only interwiki link
 !! config
-wgFragmentMode=[ 'html5' ]
+wgFragmentMode=[ "html5" ]
 !! wikitext
 [[meatball:Test#1/2]]
 [[gerrit:#/q/project:mediawiki/services/parsoid|Gerrit]]
@@ -29847,7 +29847,7 @@ wgFragmentMode=[ 'html5' ]
 !! test
 T179544: {{anchorencode:}} output should be always usable in links
 !! config
-wgFragmentMode=[ 'html5' ]
+wgFragmentMode=[ "html5" ]
 !! wikitext
 <span id="{{anchorencode:[foo]}}"></span>[[#{{anchorencode:[foo]}}]]
 !! html/php
