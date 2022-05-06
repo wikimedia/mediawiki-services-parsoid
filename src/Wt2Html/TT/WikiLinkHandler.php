@@ -784,7 +784,6 @@ class WikiLinkHandler extends TokenHandler {
 		$format = self::getFormat( $opts );
 		$isInline = !in_array( $format, [ 'thumbnail', 'manualthumb', 'framed' ], true );
 		$classes = [];
-		$halign = $format === 'framed' ? 'right' : null;
 
 		if (
 			!isset( $opts['size']['src'] ) &&
@@ -801,16 +800,12 @@ class WikiLinkHandler extends TokenHandler {
 			$classes[] = 'mw-image-border';
 		}
 
-		if ( isset( $opts['halign'] ) ) {
-			$halign = $opts['halign']['v'];
-		}
-
-		$halignOpt = $opts['halign']['v'] ?? null;
+		$halign = $opts['halign']['v'] ?? null;
 		switch ( $halign ) {
 			case 'none':
 				// PHP parser wraps in <div class="floatnone">
 				$isInline = false;
-				if ( $halignOpt === 'none' ) {
+				if ( $halign === 'none' ) {
 					$classes[] = 'mw-halign-none';
 				}
 				break;
@@ -818,7 +813,7 @@ class WikiLinkHandler extends TokenHandler {
 			case 'center':
 				// PHP parser wraps in <div class="center"><div class="floatnone">
 				$isInline = false;
-				if ( $halignOpt === 'center' ) {
+				if ( $halign === 'center' ) {
 					$classes[] = 'mw-halign-center';
 				}
 				break;
@@ -826,7 +821,7 @@ class WikiLinkHandler extends TokenHandler {
 			case 'left':
 				// PHP parser wraps in <div class="floatleft">
 				$isInline = false;
-				if ( $halignOpt === 'left' ) {
+				if ( $halign === 'left' ) {
 					$classes[] = 'mw-halign-left';
 				}
 				break;
@@ -834,7 +829,7 @@ class WikiLinkHandler extends TokenHandler {
 			case 'right':
 				// PHP parser wraps in <div class="floatright">
 				$isInline = false;
-				if ( $halignOpt === 'right' ) {
+				if ( $halign === 'right' ) {
 					$classes[] = 'mw-halign-right';
 				}
 				break;
