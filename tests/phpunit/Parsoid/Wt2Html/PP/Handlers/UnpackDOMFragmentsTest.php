@@ -44,12 +44,22 @@ class UnpackDOMFragmentsTest extends TestCase {
 		foreach ( $links as $link ) {
 			$dp = DOMDataUtils::getDataParsoid( $link );
 			if ( $dp->misnested ?? false ) {
-				$outerLink = $link->previousSibling;
+				$hoistedNode = $link;
+				$hoistedNodeDSR = $dp->dsr ?? null;
+				$outerLink = $hoistedNode->previousSibling;
+				while ( !$outerLink ) {
+					$this->assertTrue( $dp->misnested );
+					$this->assertNotNull( $hoistedNodeDSR );
+
+					$hoistedNode = $hoistedNode->parentNode;
+					$dp = DOMDataUtils::getDataParsoid( $hoistedNode );
+					$hoistedNodeDSR = $dp->dsr ?? null;
+					$outerLink = $hoistedNode->previousSibling;
+				}
+				$this->assertSame( DOMCompat::nodeName( $outerLink ), 'a' );
 				$outerLinkDSR = DOMDataUtils::getDataParsoid( $outerLink )->dsr ?? null;
-				$linkDSR = $dp->dsr ?? null;
-				$this->assertNotNull( $linkDSR );
 				$this->assertNotNull( $outerLinkDSR );
-				$this->assertSame( $outerLinkDSR->end, $linkDSR->start );
+				$this->assertSame( $outerLinkDSR->end, $hoistedNodeDSR->start );
 			}
 		}
 	}
@@ -73,7 +83,8 @@ class UnpackDOMFragmentsTest extends TestCase {
 		return [
 			[ "[http://example.org Link with [[wikilink]] link in the label]" ],
 			[ "[http://example.org <span>[[wikilink]]</span> link in the label]" ],
-			[ "[http://example.org <div>[[wikilink]]</div> link in the label]" ]
+			[ "[http://example.org <div>[[wikilink]]</div> link in the label]" ],
+			[ "[http://example.org <b>''[[wikilink]]''</b> link in the label]" ]
 		];
 	}
 

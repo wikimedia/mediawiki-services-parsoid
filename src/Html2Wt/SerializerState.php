@@ -395,7 +395,9 @@ class SerializerState {
 			$start <= $end &&
 			// FIXME: Having a $start greater than the source length is
 			// probably a canary for corruption.  Maybe we should be throwing
-			// here instead.  See T240053
+			// here instead.  See T240053.
+			// But, see comment in UnpackDOMFragments where we very very rarely
+			// can deliberately set DSR to point outside page source.
 			$start <= strlen( $this->selserData->oldText )
 		) {
 			return substr( $this->selserData->oldText, $start, $end - $start );

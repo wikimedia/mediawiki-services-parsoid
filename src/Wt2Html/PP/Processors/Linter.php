@@ -1162,28 +1162,19 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logWikilinksInExtlinks(
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
 	) {
-		if ( DOMCompat::nodeName( $c ) === 'a' && $c->getAttribute( 'rel' ) === 'mw:ExtLink' ) {
-			$lintError = false;
-			$element = $c->nextSibling;
-			while ( $element instanceof Element ) {
-				if (
-					DOMCompat::nodeName( $element ) === 'a' &&
-					( DOMDataUtils::getDataParsoid( $element )->misnested ?? false ) &&
-					(
-						$element->getAttribute( 'rel' ) === 'mw:WikiLink' ||
-						// Media structure gets blown apart when nested in an
-						// external link so testing by typeof is not very
-						// useful.  We'll just have to assume the img tag here
-						// came from media syntax.
-						( $element->firstChild instanceof Element &&
-							DOMCompat::nodeName( $element->firstChild ) === 'img' )
-					)
-				) {
-					$lintError = true;
-					break;
-				}
-				$element = $element->firstChild;
-			}
+		if ( DOMCompat::nodeName( $c ) === 'a' &&
+			$c->getAttribute( 'rel' ) === 'mw:ExtLink' &&
+			// Images in extlinks will end up with broken up extlinks inside the
+			// <figure> DOM. Those have 'misnested' flag set on them. Ignore those.
+			empty( DOMDataUtils::getDataParsoid( $c )->misnested )
+		) {
+			$next = $c->nextSibling;
+			$lintError = $next instanceof Element &&
+				!empty( DOMDataUtils::getDataParsoid( $next )->misnested ) &&
+				// This check may not be necessary but ensures that we are
+				// really in a link-in-link misnested scenario.
+				DOMUtils::treeHasElement( $next, 'a', true );
+
 			// Media as opposed to most instances of img (barring the link= trick), don't result
 			// in misnesting according the html5 spec since we're actively suppressing links in
 			// their structure. However, since timed media is inherently clickable, being nested

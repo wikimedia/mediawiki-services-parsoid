@@ -499,9 +499,14 @@ class PipelineUtils {
 	 * top-level nodes are elements.
 	 *
 	 * @param NodeList $nodes List of DOM nodes to wrap, mix of node types.
-	 * @param ?Node $startAfter
+	 * @param ?Node $startAt
+	 * @param ?Node $stopAt
 	 */
-	public static function addSpanWrappers( $nodes, ?Node $startAfter = null ): void {
+	public static function addSpanWrappers(
+		$nodes,
+		?Node $startAt = null,
+		?Node $stopAt = null
+	): void {
 		$textCommentAccum = [];
 		$doc = $nodes->item( 0 )->ownerDocument;
 
@@ -515,18 +520,21 @@ class PipelineUtils {
 			$nodeBuf[] = $node;
 		}
 
-		$start = ( $startAfter === null );
+		$start = ( $startAt === null );
 		foreach ( $nodeBuf as $node ) {
 			if ( !$start ) {
-				if ( $startAfter === $node ) {
-					$start = true;
+				if ( $startAt !== $node ) {
+					continue;
 				}
-				continue;
+				$start = true;
 			}
 			if ( $node instanceof Text || $node instanceof Comment ) {
 				$textCommentAccum[] = $node;
 			} elseif ( count( $textCommentAccum ) ) {
 				self::wrapAccum( $doc, $textCommentAccum );
+			}
+			if ( $node === $stopAt ) {
+				break;
 			}
 		}
 

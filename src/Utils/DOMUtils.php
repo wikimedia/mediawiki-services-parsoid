@@ -821,17 +821,22 @@ class DOMUtils {
 
 	/**
 	 * Check if the dom-subtree rooted at node has an element with tag name 'tagName'
-	 * The root node is not checked.
+	 * By default, the root node is not checked.
 	 *
-	 * @param Node $node
-	 * @param string $tagName
+	 * @param Node $node The DOM node whose tree should be checked
+	 * @param string $tagName Tag name to look for
+	 * @param bool $checkRoot Should the root be checked?
 	 * @return bool
 	 */
-	public static function treeHasElement( Node $node, string $tagName ): bool {
+	public static function treeHasElement( Node $node, string $tagName, bool $checkRoot = false ): bool {
+		if ( $checkRoot && DOMCompat::nodeName( $node ) === $tagName ) {
+			return true;
+		}
+
 		$node = $node->firstChild;
 		while ( $node ) {
 			if ( $node instanceof Element ) {
-				if ( DOMCompat::nodeName( $node ) === $tagName || self::treeHasElement( $node, $tagName ) ) {
+				if ( self::treeHasElement( $node, $tagName, true ) ) {
 					return true;
 				}
 			}

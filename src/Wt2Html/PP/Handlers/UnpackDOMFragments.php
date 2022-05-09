@@ -49,68 +49,7 @@ class UnpackDOMFragments {
 		// when we unpack ext-Y's dom fragment, the simple check below would
 		// miss the misnesting.
 		return DOMCompat::nodeName( $targetNode ) === 'a' &&
-			DOMUtils::treeHasElement( $fragment, DOMCompat::nodeName( $targetNode ) );
-	}
-
-	/**
-	 * @param Element $targetNode
-	 * @param DocumentFragment $fragment
-	 * @param Env $env
-	 */
-	public static function fixUpMisnestedTagDSR(
-		Element $targetNode, DocumentFragment $fragment, Env $env
-	): void {
-		// Currently, this only deals with A-tags
-		if ( DOMCompat::nodeName( $targetNode ) !== 'a' ) {
-			return;
-		}
-
-		// Walk the fragment till you find an 'A' tag and
-		// zero out DSR width for all tags from that point on.
-		// This also requires adding span wrappers around
-		// bare text from that point on.
-
-		// QUICK FIX: Add wrappers unconditionally and strip unneeded ones
-		// Since this scenario should be rare in practice, I am going to
-		// go with this simple solution.
-		PipelineUtils::addSpanWrappers( $fragment->childNodes );
-
-		$resetDSR = false;
-		$dsrFixer = new DOMTraverser();
-		$newOffset = DOMDataUtils::getDataParsoid( $targetNode )->dsr->end ?? null;
-		$fixHandler = static function ( Node $node ) use ( &$resetDSR, &$newOffset ) {
-			if ( $node instanceof Element ) {
-				$dp = DOMDataUtils::getDataParsoid( $node );
-				if ( !$resetDSR && DOMCompat::nodeName( $node ) === 'a' ) {
-					$resetDSR = true;
-					// Wrap next siblings to the 'A', since they can end up bare
-					// after the misnesting
-					PipelineUtils::addSpanWrappers( $node->parentNode->childNodes, $node );
-					return $node;
-				}
-				if ( $resetDSR ) {
-					if ( $newOffset === null ) {
-						// We end up here when $targetNode is part of encapsulated content.
-						// Till we add logic to prevent that from happening, we need this fallback.
-						if ( isset( $dp->dsr->start ) ) {
-							$newOffset = $dp->dsr->start;
-						}
-					}
-					$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
-					$dp->misnested = true;
-				} elseif ( $dp->getTempFlag( TempData::WRAPPER ) ) {
-					// Unnecessary wrapper added above -- strip it.
-					$next = $node->firstChild ?: $node->nextSibling;
-					DOMUtils::migrateChildren( $node, $node->parentNode, $node );
-					$node->parentNode->removeChild( $node );
-					return $next;
-				}
-			}
-			return true;
-		};
-		$dsrFixer->addHandler( null, $fixHandler );
-		$dsrFixer->traverse( $env, $fragment->firstChild );
-		$fixHandler( $fragment );
+			DOMUtils::treeHasElement( $fragment, 'a' );
 	}
 
 	/**
@@ -278,7 +217,8 @@ class UnpackDOMFragments {
 		$nextNode = $placeholder->nextSibling;
 
 		if ( self::hasBadNesting( $placeholderParent, $fragmentDOM ) ) {
-			DOMUtils::assertElt( $placeholderParent );
+			$nodeName = DOMCompat::nodeName( $placeholderParent );
+			Assert::invariant( $nodeName === 'a', "Unsupported Bad Nesting scenario for $nodeName" );
 			/* -----------------------------------------------------------------------
 			 * If placeholderParent is an A element and fragmentDOM contains another
 			 * A element, we have an invalid nesting of A elements and needs fixing up.
@@ -297,8 +237,13 @@ class UnpackDOMFragments {
 			 *
 			 * 4. Replace $placeholderParent (in $doc1) with $doc2->body->childNodes
 			 * ----------------------------------------------------------------------- */
-			$timestamp = (string)time();
-			$placeholderParent->replaceChild( $placeholder->ownerDocument->createTextNode( $timestamp ), $placeholder );
+			// FIXME: This is not the most robust hashcode function to use here.
+			// With a granularity of a second, if replacements aren't done right away,
+			// you can get hash conflicts. It is also conceivable that there is a use
+			// of a parser function that returns the value of time and that may lead to
+			// hashcode conflicts as well.
+			$hashCode = (string)time();
+			$placeholderParent->replaceChild( $placeholder->ownerDocument->createTextNode( $hashCode ), $placeholder );
 
 			// If placeholderParent has an about, it presumably is nested inside a template
 			// Post fixup, its children will surface to the encapsulation wrapper level.
@@ -309,15 +254,11 @@ class UnpackDOMFragments {
 			// In this example, the <a> corresponding to Foo is placeholderParent and has an about.
 			// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup
 			// "[[bad]], very bad" are at encapsulation level and need about ids.
+			DOMUtils::assertElt( $placeholderParent ); // satisfy phan
 			$about = $placeholderParent->getAttribute( 'about' ) ?? '';
 			if ( $about !== '' ) {
 				self::makeChildrenEncapWrappers( $fragmentDOM, $about );
 			}
-
-			// Set zero-dsr width on all elements that will get split
-			// in $placeholder's tree to prevent selser-based corruption
-			// on edits to a page that contains badly nested tags.
-			self::fixUpMisnestedTagDSR( $placeholderParent, $fragmentDOM, $env );
 
 			$fragmentHTML = ContentUtils::ppToXML( $fragmentDOM, [
 					'innerXML' => true,
@@ -328,15 +269,11 @@ class UnpackDOMFragments {
 				]
 			);
 
-			// Empty the fragment since we've serialized its children and
-			// removing it asserts everything has been migrated out
-			DOMCompat::replaceChildren( $fragmentDOM );
-
 			$markerNode = $placeholderParent->previousSibling;
 
 			// We rely on HTML5 parser to fixup the bad nesting (see big comment above)
 			$placeholderParentHTML = ContentUtils::ppToXML( $placeholderParent );
-			$unpackedMisnestedHTML = str_replace( $timestamp, $fragmentHTML, $placeholderParentHTML );
+			$unpackedMisnestedHTML = str_replace( $hashCode, $fragmentHTML, $placeholderParentHTML );
 			$unpackedFragment = DOMUtils::parseHTMLToFragment(
 				$placeholderParent->ownerDocument, $unpackedMisnestedHTML
 			);
@@ -345,15 +282,55 @@ class UnpackDOMFragments {
 				$unpackedFragment, $placeholderParent->parentNode, $placeholderParent
 			);
 
-			// Load data-attribs for all newly inserted nodes
-			if ( !$markerNode ) {
-				$newNode = $placeholderParent->parentNode->firstChild;
+			// Identify the new link node. All following siblings till placeholderParent
+			// are nodes that have been hoisted out of the link.
+			// - Add span wrappers where necessary
+			// - Load data-attribs
+			// - Zero-out DSR
+
+			if ( $markerNode ) {
+				$linkNode = $markerNode->nextSibling;
 			} else {
-				$newNode = $markerNode->nextSibling;
+				$linkNode = $placeholderParent->parentNode->firstChild;
 			}
-			while ( $newNode !== $placeholderParent ) {
-				DOMDataUtils::visitAndLoadDataAttribs( $newNode );
-				$newNode = $newNode->nextSibling;
+			PipelineUtils::addSpanWrappers(
+				$linkNode->parentNode->childNodes, $linkNode->nextSibling, $placeholderParent );
+
+			$newOffset = null;
+			$node = $linkNode;
+			while ( $node !== $placeholderParent ) {
+				DOMDataUtils::visitAndLoadDataAttribs( $node );
+
+				if ( $node === $linkNode ) {
+					$newOffset = DOMDataUtils::getDataParsoid( $linkNode )->dsr->end ?? null;
+				} else {
+					$dsrFixer = new DOMTraverser();
+					$dsrFixer->addHandler( null, static function ( Node $n ) use( $env, &$newOffset ) {
+						if ( $n instanceof Element ) {
+							$dp = DOMDataUtils::getDataParsoid( $n );
+							if ( $newOffset === null ) {
+								// We end up here when $placeholderParent is part of encapsulated content.
+								// Till we add logic to prevent that from happening, we need this fallback.
+								if ( isset( $dp->dsr->start ) ) {
+									$newOffset = $dp->dsr->start;
+								}
+
+								// If still null, set to some dummy value that is larger
+								// than page size to avoid pointing to something in source.
+								// Trying to fetch outside page source returns "".
+								if ( $newOffset === null ) {
+									$newOffset = strlen( $env->topFrame->getSrcText() ) + 1;
+								}
+							}
+							$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
+							$dp->misnested = true;
+						}
+						return true;
+					} );
+					$dsrFixer->traverse( $env, $node );
+				}
+
+				$node = $node->nextSibling;
 			}
 
 			// Set nextNode to the previous-sibling of former placeholderParent (which will get deleted)
@@ -368,6 +345,8 @@ class UnpackDOMFragments {
 			$placeholderParent->removeChild( $placeholder );
 		}
 
+		// Empty out $fragmentDOM since the call below asserts it
+		DOMCompat::replaceChildren( $fragmentDOM );
 		$env->removeDOMFragment( $placeholderDP->html );
 
 		return $nextNode;
