@@ -485,6 +485,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					$link = $env->makeTitleFromText( $val, null, true );
 					if ( $link !== null ) {
 						$anchor->setAttribute( 'href', $env->makeLink( $link ) );
+						$anchor->setAttribute( 'title', $link->getPrefixedText() );
 					} else {
 						// Treat same as if link weren't present
 						$addDescriptionLink( $attrs['title'] );
