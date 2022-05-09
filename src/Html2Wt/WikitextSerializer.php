@@ -313,7 +313,7 @@ class WikitextSerializer {
 				// This only applies when wrapAngleBracket() is being called for
 				// start tags, but we wouldn't be here if it was autoInsertedEnd
 				// anyways.
-				Consts::$Sanitizer['AllowedLiteralTags'][$token->getName()] &&
+				isset( Consts::$Sanitizer['AllowedLiteralTags'][$token->getName()] ) &&
 				!empty( $token->dataAttribs->autoInsertedEnd )
 			)
 		) {
