@@ -104,12 +104,6 @@ Template:=
 <nowiki>=</nowiki>
 !! endarticle
 
-!!article
-MediaWiki:bad image list
-!!text
-* [[File:Bad.jpg]] except [[Nasty page]]
-!!endarticle
-
 !! article
 Template:inner list
 !! text
@@ -21514,6 +21508,90 @@ China
 !! end
 
 !! test
+Title with HTML
+!! options
+language=zh variant=zh showtitle
+!! wikitext
+-{T|zh:Title <i style="color:red">with</i> HTML&amp;Entities}-
+Should be stripped!
+!! html/php
+Title <i style="color:red">with</i> HTML&amp;Entities
+<p>
+Should be stripped!
+</p>
+!! end
+
+!! test
+Title with Wiki syntax
+!! options
+language=zh variant=zh showtitle
+!! wikitext
+-{T|zh:Title ''with'' Wiki's s&uuml;ntax&copy}-
+Should be stripped!
+!! html/php
+Title <i>with</i> Wiki's süntax&amp;copy
+<p>
+Should be stripped!
+</p>
+!! end
+
+!! test
+Title with JavaScript injection
+!! options
+language=zh variant=zh showtitle
+!! wikitext
+-{T|zh:Title <i onclick="alert(42)">click me</i> <script>alert(43)</script>}-
+Should be stripped!
+!! html/php
+Title <i>click me</i> &lt;script&gt;alert(43)&lt;/script&gt;
+<p>
+Should be stripped!
+</p>
+!! end
+
+!! test
+Test 1 from T298401/T67747
+!! options
+language=zh variant=zh showtitle
+!! wikitext
+-{T|zh:Title <script>a</script>&amp;<i>b</i>}-
+Should be stripped!
+!! html/php
+Title &lt;script&gt;a&lt;/script&gt;&amp;<i>b</i>
+<p>
+Should be stripped!
+</p>
+!! end
+
+!! test
+Test 2 from T298401/T67747
+!! options
+language=zh variant=zh showtitle
+!! wikitext
+-{T|zh:Title <code style="display:none">}-
+Should be stripped!
+!! html/php
+Title <code style="display:none"></code>
+<p>
+Should be stripped!
+</p>
+!! end
+
+!! test
+Test 3 from T298401/T67747
+!! options
+language=zh variant=zh showtitle
+!! wikitext
+-{T|zh:Title <b>Foo bar<b>}-
+Should be stripped!
+!! html/php
+Title <b>Foo bar<b></b></b>
+<p>
+Should be stripped!
+</p>
+!! end
+
+!! test
 Recursive conversion of alt and title attrs shouldn't clear converter state
 !! options
 language=zh variant=zh-cn
@@ -22865,34 +22943,6 @@ comment
 [[ABC%33D% ++]] [[ABC%33D% ++|+%20]]
 !! html/php
 <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">ABC3D% ++</a> <a href="/index.php?title=ABC3D%25_%2B%2B&amp;action=edit&amp;redlink=1" class="new" title="ABC3D% ++ (page does not exist)">+%20</a>
-!! end
-
-!! test
-Bad images - basic functionality
-!! wikitext
-[[File:Bad.jpg]]
-!! html/php
-<p><a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">File:Bad.jpg</a>
-</p>
-!! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span></p>
-!! end
-
-!! test
-Bad images - T18039: text after bad image disappears
-!! wikitext
-Foo bar
-[[File:Bad.jpg]]
-Bar foo
-!! html/php
-<p>Foo bar
-<a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">File:Bad.jpg</a>
-Bar foo
-</p>
-!! html/parsoid
-<p>Foo bar
-<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span>
-Bar foo</p>
 !! end
 
 !! test

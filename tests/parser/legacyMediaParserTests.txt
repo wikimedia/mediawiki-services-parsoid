@@ -37,6 +37,12 @@ Template:test
 This is a test template
 !! endarticle
 
+!! article
+MediaWiki:bad image list
+!! text
+* [[File:Bad.jpg]] except [[Nasty page]]
+!! endarticle
+
 ###
 ### Images
 ###
@@ -138,6 +144,54 @@ Image caption with pipe entity
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></a><figcaption>one <span typeof="mw:Entity">|</span> two</figcaption></figure>
 <figure class="mw-default-size" typeof="mw:Image/Thumb"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></a><figcaption>one <i>two</i> <span typeof="mw:Entity">|</span> three</figcaption></figure>
+!! end
+
+!! test
+Bad images - basic functionality
+!! wikitext
+[[File:Bad.jpg]]
+!! html/php
+<p><a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">File:Bad.jpg</a>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span></p>
+!! end
+
+!! test
+Bad images - T18039: text after bad image disappears
+!! wikitext
+Foo bar
+[[File:Bad.jpg]]
+Bar foo
+!! html/php
+<p>Foo bar
+<a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">File:Bad.jpg</a>
+Bar foo
+</p>
+!! html/parsoid
+<p>Foo bar
+<span class="mw-default-size" typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg">File:Bad.jpg</span></a></span>
+Bar foo</p>
+!! end
+
+!! test
+Bad images - in gallery
+!! wikitext
+<gallery>
+File:Bad.jpg
+</gallery>
+!! html/php
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
+			<div class="thumb" style="height: 150px;"><a href="/wiki/File:Bad.jpg" title="File:Bad.jpg">Bad.jpg</a></div>
+			<div class="gallerytext">
+			</div>
+		</div></li>
+</ul>
+!! html/parsoid
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Error mw:Image" data-mw='{"errors":[{"key":"apierror-badfile","message":"This image is on the bad file list."}]}'><a href="./Special:FilePath/Bad.jpg"><span class="mw-broken-media" resource="./File:Bad.jpg" data-width="120" data-height="120">File:Bad.jpg</span></a></span></div><div class="gallerytext"></div></li>
+</ul>
 !! end
 
 !! test
@@ -801,7 +855,7 @@ File:Foobar.jpg|link=Foo &amp; bar
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo_%26_bar"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo_%26_bar" title="Foo &amp; bar"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
@@ -832,7 +886,7 @@ File:Foobar.jpg|link=Foo_&_bar
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo_%26_bar"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo_%26_bar" title="Foo &amp; bar"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
@@ -873,14 +927,14 @@ File:Foobar.jpg|link=''Main Page''|caption2
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foos_bars"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foos_bars" title="Foos bars"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 <p>caption1
 </p>
 			</div>
 		</div></li>
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page" title="Main Page"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 <p>caption2
 </p>
@@ -926,7 +980,7 @@ File:Foobar.jpg|link=Foo<nowiki>''</nowiki>s_bar<nowiki>''</nowiki>s|caption
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo%27%27s_bar%27%27s"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo%27%27s_bar%27%27s" title="Foo&#39;&#39;s bar&#39;&#39;s"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 <p>caption
 </p>
@@ -959,7 +1013,7 @@ File:Foobar.jpg|link=Foo<nowiki>''s_bar''</nowiki>s|caption
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo%27%27s_bar%27%27s"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Foo%27%27s_bar%27%27s" title="Foo&#39;&#39;s bar&#39;&#39;s"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 <p>caption
 </p>
@@ -992,7 +1046,7 @@ File:Foobar.jpg|link=https://example.com?foo&params=bar
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="https://example.com?foo&amp;params=bar"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="https://example.com?foo&amp;params=bar" rel="nofollow"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
@@ -2392,17 +2446,17 @@ image:foobar.jpg|link=Main Page#section|caption
 !! html/php
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page" title="Main Page"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page#section"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page#section" title="Main Page"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page#section"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Main_Page#section" title="Main Page"><img alt="" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 <p>caption
 </p>
@@ -2634,7 +2688,7 @@ File:Foobar.jpg|alt=galleryalt|link=Wikilink
 !! html/php
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Wikilink"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Wikilink" title="Wikilink"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
@@ -2654,7 +2708,7 @@ File:Foobar.jpg|alt=galleryalt|link=http://www.example.org
 !! html/php
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="http://www.example.org"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="http://www.example.org" rel="nofollow"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
@@ -2679,7 +2733,7 @@ File:foobar.jpg|caption|alt=galleryalt|link=http://www.example.org
 !! html/php
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="http://www.example.org"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="http://www.example.org" rel="nofollow"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 <p>caption
 </p>
@@ -2705,7 +2759,7 @@ File:Foobar.jpg|alt=galleryalt|link=" onclick="alert('malicious javascript code!
 !! html/php
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/%22_onclick%3D%22alert(%27malicious_javascript_code!%27);"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/%22_onclick%3D%22alert(%27malicious_javascript_code!%27);" title="&quot; onclick=&quot;alert(&#39;malicious javascript code!&#39;);"><img alt="galleryalt" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
@@ -3487,12 +3541,12 @@ File:Foobar.jpg|link=[[Test%22123]]
 </p>
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Test%22123"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Test%22123" title="Test&quot;123"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
 		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Test%22123"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
+			<div class="thumb" style="width: 150px;"><div style="margin:68px auto;"><a href="/wiki/Test%22123" title="Test&quot;123"><img alt="Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></div></div>
 			<div class="gallerytext">
 			</div>
 		</div></li>
