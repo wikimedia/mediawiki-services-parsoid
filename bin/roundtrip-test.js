@@ -827,6 +827,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		profile.readViewSizes = {
 			'original': diffSizes.originalSize,
 			'stripped': diffSizes.strippedSize,
+			'mwParser': diffSizes.mwParserSize
 		};
 	}
 

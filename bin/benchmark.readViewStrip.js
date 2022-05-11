@@ -2,6 +2,8 @@ const zlib = require("zlib");
 const XMLSerializer = require("../lib/wt2html/XMLSerializer.js");
 const { DOMTraverser } = require("../lib/utils/DOMTraverser.js");
 const { DOMUtils } = require("../lib/utils/DOMUtils.js");
+const { ScriptUtils } = require('../tools/ScriptUtils.js');
+
 
 function stripReadView(root, rules) {
 	const traverser = new DOMTraverser();
@@ -34,6 +36,19 @@ function stripReadView(root, rules) {
 	return root;
 }
 
+function mwAPIParserOutput(domain, title) {
+	const mwAPIUrl = `https://${domain}/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json`;
+	const httpOptions = {
+		method: 'GET',
+		headers: {
+			'User-Agent': 'Parsoid-Test'
+		},
+		uri: mwAPIUrl,
+		json: true
+	};
+	return ScriptUtils.retryingHTTPRequest(2, httpOptions);
+}
+
 function diffSize(html, rules) {
 	const body = DOMUtils.parseHTML(html).body;
 	const deflatedOriginalSize = zlib.gzipSync(
@@ -51,9 +66,11 @@ function diffSize(html, rules) {
 	};
 }
 
-function benchmarkReadView(domain, title, parsoidHTML, rules) {
-	// We may later fetch core parser HTML here based on domain & title
-	return diffSize(parsoidHTML, rules);
+async function benchmarkReadView(domain, title, parsoidHTML, rules) {
+	const mwParserOutputBody = await mwAPIParserOutput(domain, title);
+	const result = diffSize(parsoidHTML, rules);
+	result.mwParserSize = zlib.gzipSync(mwParserOutputBody[1].parse.text['*']).byteLength;
+	return result;
 }
 
 module.exports.benchmarkReadView = benchmarkReadView;
