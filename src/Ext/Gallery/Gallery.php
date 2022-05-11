@@ -100,11 +100,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		// Detach figcaption as well
 		$figcaption = DOMCompat::querySelector( $thumb, 'figcaption' );
-		if ( !$figcaption ) {
-			$figcaption = $doc->createElement( 'figcaption' );
-		} else {
-			DOMCompat::remove( $figcaption );
-		}
+		DOMCompat::remove( $figcaption );
 
 		if ( $opts->showfilename ) {
 			// No need for error checking on this call since it was already

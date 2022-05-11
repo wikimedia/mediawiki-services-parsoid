@@ -792,6 +792,7 @@ class ParsoidExtensionAPI {
 			// a caption.  And since it's first wins, it shouldn't interfere
 			// with another horizontal alignment defined in $imageOpts.
 			// We just have to remember to strip the class below.
+			// NOTE: This will have to be adjusted with T305628
 			$pieces[] = '|none';
 		}
 
