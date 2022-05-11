@@ -488,6 +488,9 @@ wgParserEnableLegacyMediaDOM=false
 <p><a href="/wiki/Main_Page#section" title="Main Page">Main Page#section</a>
 <span class="mw-default-size" typeof="mw:Image"><a href="/wiki/Main_Page#section" title="Main Page"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a></span>
 </p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Main_Page#section" title="Main Page">Main Page#section</a>
+<span class="mw-default-size" typeof="mw:Image"><a href="./Main_Page#section" title="Main Page"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></a></span></p>
 !! end
 
 # parsoid T51293 (part 1)
