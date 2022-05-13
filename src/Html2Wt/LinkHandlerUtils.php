@@ -1028,7 +1028,7 @@ class LinkHandlerUtils {
 		$elt = $ms->mediaElt;
 		$captionElt = $ms->captionElt;
 
-		$format = WTSUtils::getMediaFormat( $outerElt );
+		$format = WTUtils::getMediaFormat( $outerElt );
 
 		// Try to identify the local title to use for this image.
 		$resource = $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'resource' );

@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\WTUtils as WTU;
 
@@ -20,6 +21,14 @@ class WTUtils {
 	 */
 	public static function isSealedFragmentOfType( Node $node, string $name ): bool {
 		return WTU::isSealedFragmentOfType( $node, $name );
+	}
+
+	/**
+	 * @param Element $node
+	 * @return bool
+	 */
+	public static function hasVisibleCaption( Element $node ): bool {
+		return WTU::hasVisibleCaption( $node );
 	}
 
 }

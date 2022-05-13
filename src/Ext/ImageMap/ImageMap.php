@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -308,6 +309,14 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 		}
 		$defaultAnchor->appendChild( $imageNode );
 		$thumb->replaceChild( $defaultAnchor, $anchor );
+
+		if ( !WTUtils::hasVisibleCaption( $thumb ) ) {
+			$caption = DOMCompat::querySelector( $thumb, 'figcaption' );
+			$captionText = trim( $caption->textContent );
+			if ( $captionText ) {
+				$defaultAnchor->setAttribute( 'title', $captionText );
+			}
+		}
 
 		// For T22030
 		DOMCompat::getClassList( $thumb )->add( 'noresize' );

@@ -1554,6 +1554,7 @@ class WikiLinkHandler extends TokenHandler {
 						'sol' => true
 					]
 				);
+
 				// Use parsed DOM given in `captionDOM`
 				// FIXME: Does this belong in `dataMw.attribs`?
 				$dataMw->caption = ContentUtils::ppToXML(

@@ -920,4 +920,27 @@ class WTUtils {
 		return $n !== null && self::matchAnnotationMeta( $n ) !== null;
 	}
 
+	/**
+	 * Extracts the media format from attribute string
+	 *
+	 * @param Element $node
+	 * @return string
+	 */
+	public static function getMediaFormat( Element $node ): string {
+		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/|$)#' );
+		$parts = explode( '/', $mediaType ?? '' );
+		return $parts[1] ?? '';
+	}
+
+	/**
+	 * @param Element $node
+	 * @return bool
+	 */
+	public static function hasVisibleCaption( Element $node ): bool {
+		$format = self::getMediaFormat( $node );
+		return in_array(
+			$format, [ 'Thumb', /* 'Manualthumb', FIXME(T305759) */ 'Frame' ], true
+		);
+	}
+
 }

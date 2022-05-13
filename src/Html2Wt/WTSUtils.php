@@ -376,18 +376,6 @@ class WTSUtils {
 	}
 
 	/**
-	 * Extracts the media format from attribute string
-	 *
-	 * @param Element $node
-	 * @return string
-	 */
-	public static function getMediaFormat( Element $node ): string {
-		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(Image|Video|Audio)(/|$)#' );
-		$parts = explode( '/', $mediaType ?? '' );
-		return $parts[1] ?? '';
-	}
-
-	/**
 	 * FIXME: This method should probably be moved to DOMDataUtils class since
 	 * it is used by both html2wt and wt2html code
 	 *

@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -439,6 +440,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param Env $env
 	 * @param PegTokenizer $urlParser
+	 * @param Element $container
 	 * @param Element $oldAnchor
 	 * @param array $attrs
 	 * @param stdClass $dataMw
@@ -448,8 +450,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @return Element
 	 */
 	private static function replaceAnchor(
-		Env $env, PegTokenizer $urlParser, Element $oldAnchor, array $attrs,
-		stdClass $dataMw, bool $isImage, int $page, string $lang
+		Env $env, PegTokenizer $urlParser, Element $container,
+		Element $oldAnchor, array $attrs, stdClass $dataMw, bool $isImage,
+		int $page, string $lang
 	): Element {
 		$doc = $oldAnchor->ownerDocument;
 		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'link', true );
@@ -504,6 +507,29 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		}
 
 		$oldAnchor->parentNode->replaceChild( $anchor, $oldAnchor );
+
+		if ( !WTUtils::hasVisibleCaption( $container ) ) {
+			if ( WTUtils::isInlineMedia( $container ) ) {
+				$caption = ContentUtils::createAndLoadDocumentFragment(
+					$container->ownerDocument, $dataMw->caption ?? ''
+				);
+			} else {
+				$caption = DOMCompat::querySelector( $container, 'figcaption' );
+				// If the caption had tokens, it was placed in a DOMFragment
+				// and we haven't unpacked yet
+				if (
+					$caption->firstChild &&
+					DOMUtils::hasTypeOf( $caption->firstChild, 'mw:DOMFragment' )
+				) {
+					$id = DOMDataUtils::getDataParsoid( $caption->firstChild )->html;
+					$caption = $env->getDOMFragment( $id );
+				}
+			}
+			$captionText = trim( $caption->textContent );
+			if ( $captionText ) {
+				$anchor->setAttribute( 'title', $captionText );
+			}
+		}
 
 		return $anchor;
 	}
@@ -596,7 +622,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$attrs = [
 				'dims' => $dims,
-				'format' => WTSUtils::getMediaFormat( $container ),
+				'format' => WTUtils::getMediaFormat( $container ),
 				'title' => $env->makeTitleFromText( $span->textContent ),
 			];
 
@@ -719,7 +745,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			);
 
 			$anchor = self::replaceAnchor(
-				$env, $urlParser, $anchor, $attrs, $dataMw, $isImage,
+				$env, $urlParser, $container, $anchor, $attrs, $dataMw, $isImage,
 				(int)( $attrs['dims']['page'] ?? 0 ),
 				$attrs['dims']['lang'] ?? ''
 			);

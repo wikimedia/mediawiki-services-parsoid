@@ -224,7 +224,7 @@ File:Foobar.jpg|link=|Hi ho
 !! html/php
 <figure class="mw-default-size noresize" typeof="mw:Image"><span title="Hi ho"><img alt="Hi ho" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></span><figcaption>Hi ho</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:Image mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:Image mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
 !! end
 
 !! test
@@ -238,5 +238,5 @@ File:Foobar.jpg|link=|Hi ho
 !! html/php
 <div class="noresize" style="height: 220px; width: 1941px; "><img alt="Hi ho" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" title="Hi ho" width="1941" height="220" /><div style="margin-left: 1921px; margin-top: -20px; text-align: left;"><a href="/wiki/File:Foobar.jpg" title="About this image"><img alt="About this image" src="/extensions/ImageMap/resources/desc-20.png?15600" style="border: none;" /></a></div></div>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:Image mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:Image mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
 !! end
