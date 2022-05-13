@@ -37,7 +37,7 @@ function stripReadView(root, rules) {
 }
 
 function mwAPIParserOutput(domain, title) {
-	const mwAPIUrl = `https://${domain}/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json`;
+	const mwAPIUrl = `https://${domain}/w/api.php?action=parse&page=${encodeURIComponent(title)}&format=json&disablelimitreport=true`;
 	const httpOptions = {
 		method: 'GET',
 		headers: {
