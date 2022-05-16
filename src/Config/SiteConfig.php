@@ -147,6 +147,8 @@ abstract class SiteConfig {
 		}
 		$extId = $this->extModuleNextId++;
 		$this->extModules[$extId] = $module;
+		// remove cached extConfig to ensure this registration is picked up
+		$this->extConfig = null;
 		return $extId;
 	}
 
