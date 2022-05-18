@@ -97,10 +97,6 @@ TestUtils.normalizeOut = function(domBody, options) {
 	// Normalize COINS ids -- they aren't stable
 	out = out.replace(/\s?id=['"]coins_\d+['"]/ig, '');
 
-	// Eliminate transience from priority hints (T216499)
-	out = out.replace(/\s?importance="high"/g, '');
-	out = out.replace(/\s?elementtiming="thumbnail-(high|top)"/g, '');
-
 	// maplink extension
 	out = out.replace(/\s?data-overlays='[^']*'/ig, '');
 

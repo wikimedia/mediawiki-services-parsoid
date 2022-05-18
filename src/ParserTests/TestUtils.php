@@ -111,10 +111,6 @@ class TestUtils {
 		// Normalize COINS ids -- they aren't stable
 		$out = preg_replace( '/\s?id=[\'"]coins_\d+[\'"]/iu', '', $out );
 
-		// Eliminate transience from priority hints (T216499)
-		$out = preg_replace( '/\s?importance="high"/u', '', $out );
-		$out = preg_replace( '/\s?elementtiming="thumbnail-(high|top)"/u', '', $out );
-
 		// maplink extension
 		$out = preg_replace( '/\s?data-overlays=\'[^\']*\'/u', '', $out );
 
