@@ -155,10 +155,10 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			$this->collect( $which, $key, $value, $strategy );
 			return;
 		}
-		if ( $this->storage[$which][$key][$value] ?? false ) {
-			return; // already exists with the desired value
-		}
 		if ( $strategy === self::MERGE_STRATEGY_WRITE_ONCE ) {
+			if ( ( $this->storage[$which][$key]['value'] ?? null ) === $value ) {
+				return; // already exists with the desired value
+			}
 			$this->logger->log(
 				LogLevel::WARNING,
 				"Multiple writes to a write-once: $which $key"
