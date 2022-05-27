@@ -95,6 +95,9 @@ class Test extends Item {
 	public $cachedBODYstr = null;
 
 	/** @var string */
+	public $cachedWTstr = null;
+
+	/** @var string */
 	public $cachedNormalizedHTML = null;
 
 	/** @var array */
