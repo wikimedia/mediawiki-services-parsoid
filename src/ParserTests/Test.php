@@ -67,7 +67,7 @@ class Test extends Item {
 	/** @var array */
 	public $selserChangeTrees = [];
 
-	/** @var array */
+	/** @var ?array */
 	public $changetree = null;
 
 	/** @var bool */
