@@ -565,19 +565,18 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// We expect this structure to be predictable based on how it's
 			// emitted in the TT/WikiLinkHandler but treebuilding may have
 			// messed that up for us.
-			$anchor = $container->firstChild;
-			$anchorNodeName = DOMCompat::nodeName( $anchor );
-			if (
-				$anchor instanceof Element && $anchorNodeName !== 'a' &&
-				isset( Consts::$HTML['FormattingTags'][$anchorNodeName] )
-			) {
+			$anchor = $container;
+			do {
 				// An active formatting element may have been reopened inside
 				// the wrapper if a content model violation was encountered
 				// during treebuiling.  Try to be a little lenient about that
 				// instead of bailing out
 				$anchor = $anchor->firstChild;
 				$anchorNodeName = DOMCompat::nodeName( $anchor );
-			}
+			} while (
+				$anchor instanceof Element && $anchorNodeName !== 'a' &&
+				isset( Consts::$HTML['FormattingTags'][$anchorNodeName] )
+			);
 			if ( !( $anchor instanceof Element && $anchorNodeName === 'a' ) ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;

@@ -132,15 +132,15 @@ class MediaStructure {
 			return null;
 		}
 		'@phan-var Element $node';  // @var Element $node
-		$linkElt = DOMUtils::firstNonSepChild( $node );
-		if (
-			$linkElt instanceof Element && DOMCompat::nodeName( $linkElt ) !== 'a' &&
-			isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $linkElt )] )
-		) {
+		$linkElt = $node;
+		do {
 			// Try being lenient, maybe there was a content model violation when
 			// parsing and an active formatting element was reopened in the wrapper
 			$linkElt = DOMUtils::firstNonSepChild( $linkElt );
-		}
+		} while (
+			$linkElt instanceof Element && DOMCompat::nodeName( $linkElt ) !== 'a' &&
+			isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $linkElt )] )
+		);
 		if (
 			!( $linkElt instanceof Element &&
 				in_array( DOMCompat::nodeName( $linkElt ), [ 'a', 'span' ], true ) )
