@@ -275,20 +275,21 @@ class TemplateHandler extends TokenHandler {
 		$untrimmedPrefix = $pieces[0];
 		$prefix = trim( $pieces[0] );
 
+		// String found after the colon will be the parser function arg
+		$haveColon = count( $pieces ) > 1;
+
 		// safesubst found in content should be treated as if no modifier were
 		// present. See https://en.wikipedia.org/wiki/Help:Substitution#The_safesubst:_modifier
-		if ( $this->isSafeSubst( $prefix ) ) {
+		if ( $haveColon && $this->isSafeSubst( $prefix ) ) {
 			$target = substr( $target, strlen( $untrimmedPrefix ) + 1 );
 			array_shift( $pieces );
 			$untrimmedPrefix = $pieces[0];
 			$prefix = trim( $pieces[0] );
+			$haveColon = count( $pieces ) > 1;
 		}
 
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
-
-		// String found after the colon will be the parser function arg
-		$haveColon = count( $pieces ) > 1;
 
 		// Additional tokens are only justifiable in parser functions scenario
 		if ( !$haveColon && $additionalToks ) {

@@ -14988,6 +14988,12 @@ Template:SafeSubstSelfTest
 {{safesubst:SafeSubstSelfTest}}
 !! endarticle
 
+!! article
+Template:safesubst
+!! text
+{{{1}}}
+!! endarticle
+
 !! test
 T24297: safesubst: works during PST
 !! options
@@ -15024,6 +15030,17 @@ pst title=[[Template:SafeSubstSelfTest]]
 {{SafeSubstSelfTest}}
 !! html/php
 {{SafeSubstSelfTest}}
+!! end
+
+!! test
+Template named safesubst - T309405
+!! wikitext
+{{safesubst|123}}
+!! html/php
+<p>123
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"safesubst","href":"./Template:Safesubst"},"params":{"1":{"wt":"123"}},"i":0}}]}'>123</span></p>
 !! end
 
 !! test
