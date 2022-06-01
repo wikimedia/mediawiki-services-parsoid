@@ -50,7 +50,7 @@ abstract class Token implements \JsonSerializable {
 	 *    Always a string when used this way.
 	 *    The more complex form (where the key is a non-string) are found when
 	 *    KV objects are constructed in the tokenizer.
-	 * @param string|Token|Token[] $value
+	 * @param string|Token|array<Token|string> $value
 	 * @param ?KVSourceRange $srcOffsets
 	 */
 	public function addAttribute(

@@ -722,87 +722,6 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * Extract tokens from the $targetToks token array that correspond to
-	 * parser function args.
-	 * FIXME: This method below can probably be dramatically simplified given that
-	 * this is now only processed for magic words.
-	 *
-	 * @param string $prefix
-	 * @param array $targetToks
-	 * @return array
-	 */
-	private function extractParserFunctionToks( string $prefix, array $targetToks ): array {
-		$pfArgToks = null;
-
-		// Because of the lenient stringifying earlier, we need to find the prefix.
-		// The strings we've seen so far are buffered in case they combine to our prefix.
-		// FIXME: We need to account for the call to $this->stripIncludeTokens
-		// and the safesubst replace.
-		$buf = '';
-		$index = -1;
-		$partialPrefix = false;
-		foreach ( $targetToks as $i => $t ) {
-			if ( !is_string( $t ) ) {
-				continue;
-			}
-
-			$buf .= $t;
-			$prefixPos = stripos( $buf, $prefix );
-			if ( $prefixPos !== false ) {
-				// Check if they combined
-				$offset = strlen( $buf ) - strlen( $t ) - $prefixPos;
-				if ( $offset > 0 ) {
-					$partialPrefix = substr( $prefix, $offset );
-				}
-				$index = $i;
-				break;
-			}
-		}
-
-		if ( $index > -1 ) {
-			// Strip parser-func / magic-word prefix
-			$firstTok = $targetToks[$index];
-			if ( $partialPrefix !== false ) {
-				// Remove the partial prefix if it case insensitively
-				// appears at the start of the token
-				if ( substr_compare( $firstTok, $partialPrefix,
-						0, strlen( $partialPrefix ), true ) === 0
-				) {
-					$firstTok = substr( $firstTok, strlen( $partialPrefix ) );
-				}
-			} else {
-				// Remove the first occurrence of the prefix from $firstTok,
-				// case insensitively
-				$prefixPos = stripos( $firstTok, $prefix );
-				if ( $prefixPos !== false ) {
-					$firstTok = substr( $firstTok, $prefixPos + strlen( $prefix ) );
-				}
-			}
-			$targetToks = array_slice( $targetToks, $index + 1 );
-
-			// Strip ":", again, after accounting for the lenient stringifying
-			while ( count( $targetToks ) > 0 &&
-				( !is_string( $firstTok ) || preg_match( '/^\s*$/D', $firstTok ) )
-			) {
-				$firstTok = $targetToks[0];
-				$targetToks = array_slice( $targetToks, 1 );
-			}
-			Assert::invariant( is_string( $firstTok ) && preg_match( '/^\s*:/', $firstTok ),
-				'Expecting : in parser function definiton'
-			);
-			$pfArgToks = array_merge( [ preg_replace( '/^\s*:/', '', $firstTok, 1 ) ], $targetToks );
-		}
-
-		if ( $pfArgToks === null ) {
-			// FIXME: Protect from crashers by using the full token -- this is
-			// still going to generate incorrect output, but it won't crash.
-			$pfArgToks = $targetToks;
-		}
-
-		return $pfArgToks;
-	}
-
-	/**
 	 * Process the special magic word as specified by $resolvedTgt['magicWordType'].
 	 * ```
 	 * magicWordType === '!'    => {{!}} is the magic word
@@ -859,17 +778,6 @@ class TemplateHandler extends TokenHandler {
 		);
 
 		if ( isset( $tplToken->dataAttribs->tmp->templatedAttribs ) ) {
-			$pfArgToks = $this->extractParserFunctionToks(
-				$resolvedTgt['name'],
-				$resolvedTgt['targetToks']
-			);
-			// No shadowing if templated
-			//
-			// SSS FIXME: post-tpl-expansion, WS won't be trimmed. How do we handle this?
-			$metaToken->addAttribute( 'content', $pfArgToks, $resolvedTgt['srcOffsets']->expandTsrV() );
-			$metaToken->addAttribute( 'about', $env->newAboutId() );
-			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
-
 			// See [[mw:Specs/HTML#Generated_attributes_of_HTML_tags]]
 			//
 			// For every attribute that has a templated name and/or value,
@@ -894,15 +802,18 @@ class TemplateHandler extends TokenHandler {
 			// depending on which part is templated.
 			//
 			// FIXME: Is there a simpler / better repn. for templated attrs?
-			// FIXME: the content still contains the parser function prefix
-			//  (eg, the html is 'DISPLAYTITLE:Foo' even though the stripped
-			//   content attribute is 'Foo')
 			$ta = $tplToken->dataAttribs->tmp->templatedAttribs;
 			$ta[0] = [
 				[ 'txt' => 'content' ],         // Magic-word attribute name
 				[ 'html' => $ta[0][0]['html'] ] // HTML repn. of the attribute value
 			];
 			$metaToken->addAttribute( 'data-mw', PHPUtils::jsonEncode( [ 'attribs' => $ta ] ) );
+			// Sanitizer:;sanitizeTagAttrs will replace the value of 'content' with
+			// the text version of $ta[0][0]['html'] as long as it is an array.
+			$metaToken->addAttribute( 'content', [ 'UNUSED' ], $resolvedTgt['srcOffsets']->expandTsrV() );
+			$metaToken->addAttribute( 'about', $env->newAboutId() );
+			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
+
 		} else {
 			// Leading/trailing WS should be stripped
 			//
