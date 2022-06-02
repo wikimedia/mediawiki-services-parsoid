@@ -77,8 +77,6 @@ class WikitextSerializer {
 		'typeof' => '/(^|\s)mw:[^\s]+/',
 	];
 
-	// PORT-FIXME do different whitespace semantics matter?
-
 	/** @var string Regexp */
 	private const TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP
 		= '/\n(\s|' . Utils::COMMENT_REGEXP_FRAGMENT . ')*$/D';
@@ -137,7 +135,6 @@ class WikitextSerializer {
 	 * Main link handler.
 	 * @param Element $node
 	 * Used in multiple tag handlers (<a> and <link>), and hence added as top-level method
-	 * PORT-TODO: rename to something like handleLink()?
 	 */
 	public function linkHandler( Element $node ): void {
 		LinkHandlerUtils::linkHandler( $this->state, $node );
@@ -591,7 +588,6 @@ class WikitextSerializer {
 	 * @param ?array $tplData
 	 * @param array $dataMwKeys
 	 * @return Closure
-	 * PORT-FIXME: there's probably a better way to do this
 	 */
 	private function createParamComparator(
 		array $dpArgInfo, ?array $tplData, array $dataMwKeys
@@ -697,8 +693,8 @@ class WikitextSerializer {
 	 *   in serializeFromParts() for format.
 	 * @param ?array $tplData Templatedata, see
 	 *   https://github.com/wikimedia/mediawiki-extensions-TemplateData/blob/master/Specification.md
-	 * @param mixed $prevPart Previous part. See $srcParts in serializeFromParts(). PORT-FIXME type?
-	 * @param mixed $nextPart Next part. See $srcParts in serializeFromParts(). PORT-FIXME type?
+	 * @param mixed $prevPart Previous part. See $srcParts in serializeFromParts().
+	 * @param mixed $nextPart Next part. See $srcParts in serializeFromParts().
 	 * @return string
 	 */
 	private function serializePart(
@@ -749,7 +745,6 @@ class WikitextSerializer {
 		// clients. Make sure param info is accessible for the stripped key
 		// since later code will be using the stripped key always.
 		$tplKeysFromDataMw = array_map( static function ( $key ) use ( $part ) {
-			// PORT-FIXME do we care about different whitespace semantics for trim?
 			$strippedKey = trim( (string)$key );
 			if ( $key !== $strippedKey ) {
 				$part->params->{$strippedKey} = $part->params->{$key};
@@ -802,7 +797,7 @@ class WikitextSerializer {
 			$serializeAsNamed = !empty( $argInfo->named );
 
 			// The name is usually equal to the parameter key, but
-			// if there's a key.wt attribute, use that.
+			// if there's a key->wt attribute, use that.
 			$name = null;
 			if ( isset( $param->key->wt ) ) {
 				$name = $param->key->wt;
@@ -848,7 +843,6 @@ class WikitextSerializer {
 			] );
 			if ( $escapedValue['serializeAsNamed'] ) {
 				// WS trimming for values of named args
-				// PORT-FIXME check different whitespace trimming semantics
 				$argBuf[] = [ 'dpKey' => $param, 'name' => $kv['name'], 'value' => trim( $escapedValue['v'] ) ];
 			} else {
 				$numericIndex++;
@@ -1417,7 +1411,6 @@ class WikitextSerializer {
 	private function stripUnnecessaryIndentPreNowikis(): void {
 		// FIXME: The solTransparentWikitextRegexp includes redirects, which really
 		// only belong at the SOF and should be unique. See the "New redirect" test.
-		// PORT-FIXME do the different whitespace semantics matter?
 		$noWikiRegexp = '@^'
 			. PHPUtils::reStrip( $this->env->getSiteConfig()->solTransparentWikitextNoWsRegexp(), '@' )
 			. '((?i:<nowiki>\s+</nowiki>))([^\n]*(?:\n|$))' . '@Dm';
@@ -1454,7 +1447,6 @@ class WikitextSerializer {
 				}
 			}
 
-			// PORT-FIXME do the different whitespace semantics matter?
 			if ( !$reqd ) {
 				$nowiki = preg_replace( '#^<nowiki>(\s+)</nowiki>#', '$1', $nowiki, 1 );
 			} else {
