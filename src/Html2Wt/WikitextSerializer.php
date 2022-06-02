@@ -741,6 +741,15 @@ class WikitextSerializer {
 		'@phan-var stdClass $tgt';
 		$buf .= $this->formatStringSubst( $formatStart, $tgt->wt, $forceTrim );
 
+		// Short-circuit transclusions without params
+		$paramKeys = array_keys( get_object_vars( $part->params ) );
+		if ( !$paramKeys ) {
+			if ( substr( $formatEnd, 0, 1 ) === "\n" ) {
+				$formatEnd = substr( $formatEnd, 1 );
+			}
+			return $buf . $formatEnd;
+		}
+
 		// Trim whitespace from data-mw keys to deal with non-compliant
 		// clients. Make sure param info is accessible for the stripped key
 		// since later code will be using the stripped key always.
@@ -750,13 +759,7 @@ class WikitextSerializer {
 				$part->params->{$strippedKey} = $part->params->{$key};
 			}
 			return $strippedKey;
-		}, array_keys( get_object_vars( $part->params ) ) );
-		if ( !$tplKeysFromDataMw ) {
-			if ( substr( $formatEnd, 0, 1 ) === "\n" ) {
-				$formatEnd = substr( $formatEnd, 1 );
-			}
-			return $buf . $formatEnd;
-		}
+		}, $paramKeys );
 
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
@@ -801,8 +804,7 @@ class WikitextSerializer {
 			$name = null;
 			if ( isset( $param->key->wt ) ) {
 				$name = $param->key->wt;
-				// And make it appear even if there wasn't
-				// data-parsoid information.
+				// And make it appear even if there wasn't any data-parsoid information.
 				$serializeAsNamed = true;
 			} else {
 				$name = $key;
