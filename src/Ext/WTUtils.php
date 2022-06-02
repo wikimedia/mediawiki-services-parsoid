@@ -31,4 +31,12 @@ class WTUtils {
 		return WTU::hasVisibleCaption( $node );
 	}
 
+	/**
+	 * @param Node $node
+	 * @return string
+	 */
+	public static function textContentFromCaption( Node $node ): string {
+		return WTU::textContentFromCaption( $node );
+	}
+
 }

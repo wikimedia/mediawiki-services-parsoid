@@ -947,4 +947,30 @@ class WTUtils {
 		);
 	}
 
+	/**
+	 * Ref dom post-processing happens after adding media info, so the
+	 * linkbacks aren't available in the textContent added to the alt.
+	 * However, when serializing, they are in the caption elements.  So, this
+	 * special handler drops the linkbacks for the purpose of comparison.
+	 *
+	 * @param Node $node
+	 * @return string
+	 */
+	public static function textContentFromCaption( Node $node ): string {
+		$content = '';
+		$c = $node->firstChild;
+		while ( $c ) {
+			if ( $c instanceof Text ) {
+				$content .= $c->nodeValue;
+			} elseif (
+				$c instanceof Element &&
+				!DOMUtils::hasTypeOf( $c, "mw:Extension/ref" )
+			) {
+				$content .= self::textContentFromCaption( $c );
+			}
+			$c = $c->nextSibling;
+		}
+		return $content;
+	}
+
 }

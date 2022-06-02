@@ -1163,6 +1163,17 @@ class LinkHandlerUtils {
 			$caption = $state->serializeCaptionChildrenToString(
 				$captionElt, [ $state->serializer->wteHandlers, 'mediaOptionHandler' ]
 			);
+
+			// Alt stuff
+			if ( !WTUtils::hasVisibleCaption( $outerElt ) && $elt->hasAttribute( 'alt' ) ) {
+				$altOnElt = trim( $elt->getAttribute( 'alt' ) );
+				$altFromCaption = trim( WTUtils::textContentFromCaption( $captionElt ) );
+				// The first condition is to support an empty \alt=\ option
+				// when no caption is present
+				if ( $altOnElt && ( $altOnElt === $altFromCaption ) ) {
+					$elt->removeAttribute( 'alt' );
+				}
+			}
 		}
 
 		// Fetch the alt (if any)
