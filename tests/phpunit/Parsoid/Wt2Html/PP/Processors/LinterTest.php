@@ -295,16 +295,14 @@ class LinterTest extends TestCase {
 		$desc = 'should not send any Bogus image options if there are none';
 		$this->expectEmptyResults( $desc, '[[file:a.jpg|foo]]' );
 
-		$desc = 'should flag noplayer, noicon, and disablecontrols as bogus options';
+		$desc = 'should flag disablecontrols as bogus options';
 		$result = $this->parseWT(
-		'[[File:Video.ogv|noplayer|noicon|disablecontrols=ok|These are bogus.]]' );
+		'[[File:Video.ogv|disablecontrols=ok|These are bogus.]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
-		$this->assertEquals( [ 0, 70, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( [ 0, 54, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
-		$this->assertEquals( 'noplayer', $result[0]['params']['items'][0], $desc );
-		$this->assertEquals( 'noicon', $result[0]['params']['items'][1], $desc );
-		$this->assertEquals( 'disablecontrols=ok', $result[0]['params']['items'][2], $desc );
+		$this->assertEquals( 'disablecontrols=ok', $result[0]['params']['items'][0], $desc );
 
 		$desc = 'should not crash on gallery images';
 		$this->expectEmptyResults( $desc, "<gallery>\nfile:a.jpg\n</gallery>" );

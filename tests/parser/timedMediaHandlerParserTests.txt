@@ -200,14 +200,14 @@ parsoid=html2wt
 !! end
 
 !! test
-Flag noplayer, noicon, and disablecontrols as bogus options in Parsoid
+Flag disablecontrols as bogus options in Parsoid
 !! wikitext
-[[File:Video.ogv|noplayer|noicon|disablecontrols=ok|These are bogus.]]
+[[File:Video.ogv|disablecontrols=ok|These are bogus.]]
 !! html/php
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:Video" data-parsoid='{"optList":[{"ck":"bogus","ak":"noplayer"},{"ck":"bogus","ak":"noicon"},{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:Video" data-parsoid='{"optList":[{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
 !! end
 
 !! test

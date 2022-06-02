@@ -78,9 +78,6 @@ class Consts {
 
 				# Ha! Upright can be either one! Try parsing THAT!
 				'img_upright' => 'upright',
-
-				'timedmedia_noplayer' => 'noplayer',  # See T134880
-				'timedmedia_noicon' => 'noicon'  # See T134880
 			]
 		];
 

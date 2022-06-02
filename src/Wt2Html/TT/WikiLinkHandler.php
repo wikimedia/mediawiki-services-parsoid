@@ -1255,7 +1255,7 @@ class WikiLinkHandler extends TokenHandler {
 			// "Image with multiple captions" parserTest.
 			if ( !is_string( $oText ) || $optInfo === null ||
 				// Deprecated options
-				in_array( $optInfo['ck'], [ 'noicon', 'noplayer', 'disablecontrols' ], true )
+				in_array( $optInfo['ck'], [ 'disablecontrols' ], true )
 			) {
 				// No valid option found!?
 				// Record for RT-ing
