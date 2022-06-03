@@ -855,7 +855,15 @@ class ParsoidExtensionAPI {
 		);
 
 		$thumb = $domFragment->firstChild;
-		if ( !in_array( DOMCompat::nodeName( $thumb ), [ 'figure', 'span' ], true ) ) {
+		$validWrappers = [ 'figure' ];
+		// Downstream code expects a figcaption if we're forcing a block so we
+		// validate that we did indeed parse a figure.  It might not have
+		// happened because $imageOpts has an unbalanced `]]` which closes
+		// the wikilink syntax before we get in our `|none`.
+		if ( !$forceBlock ) {
+			$validWrappers[] = 'span';
+		}
+		if ( !in_array( DOMCompat::nodeName( $thumb ), $validWrappers, true ) ) {
 			$error = "{$extTagName}_invalid_image";
 			return null;
 		}
