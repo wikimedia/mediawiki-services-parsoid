@@ -97,14 +97,21 @@ class Title {
 			( $nsId = $siteConfig->canonicalNamespaceId( $m[1] ) ) !== null ||
 			( $nsId = $siteConfig->namespaceId( $m[1] ) ) !== null
 		) ) {
+			$title = $m[2];
 			$ns = $nsId;
-			$title = $m[2];
-		} elseif ( $pmatch && ( $siteConfig->interwikiMapNoNamespaces()[$m[1]] ?? null ) ) {
-			// Zorg!  Core also removes the prefix for interwikis when doing
-			// the rest of validation on the title, so let's just ignore $m[1]
-			$title = $m[2];
-			$ns = $defaultNs;
 		} else {
+			if ( $pmatch && ( $siteConfig->interwikiMapNoNamespaces()[$m[1]] ?? null ) ) {
+				// Zorg!  Core also removes the prefix for interwikis when doing
+				// the rest of validation on the title, so let's just ignore $m[1]
+				$title = $m[2];
+
+				// If there's an initial colon after the interwiki, that also
+				// resets the default namespace
+				if ( $title !== '' && $title[0] === ':' ) {
+					$title = ltrim( substr( $title, 1 ), '_' );
+					$defaultNs = 0;
+				}
+			}
 			$ns = $defaultNs;
 		}
 

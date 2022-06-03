@@ -100,7 +100,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		if ( ( ltrim( $info->href )[0] ?? '' ) === ':' ) {
 			$info->fromColonEscapedText = true;
-			// remove the colon escape
+			// Remove the colon escape
 			$info->href = substr( ltrim( $info->href ), 1 );
 		}
 		if ( ( $info->href[0] ?? '' ) === ':' ) {
@@ -162,6 +162,10 @@ class WikiLinkHandler extends TokenHandler {
 				) {
 					// An interwiki link.
 					$info->interwiki = $interwikiInfo;
+					// Remove the colon escape after an interwiki prefix
+					if ( ( ltrim( $info->href )[0] ?? '' ) === ':' ) {
+						$info->href = substr( ltrim( $info->href ), 1 );
+					}
 				} else {
 					// A language link.
 					$info->language = $interwikiInfo;
