@@ -103,11 +103,11 @@ TestUtils.normalizeOut = function(domBody, options) {
 	if (parsoidOnly) {
 		// unnecessary attributes, we don't need to check these
 		// style is in there because we should only check classes.
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\?"[^\"]*\\?"/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=\\?"[^\"]*\\?"/g, '');
 		// single-quoted variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=\\?'[^\']*\\?'/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=\\?'[^\']*\\?'/g, '');
 		// apos variant
-		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|content|style)=&apos;.*?&apos;/g, '');
+		out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab)=&apos;.*?&apos;/g, '');
 
 		// strip self-closed <nowiki /> because we frequently test WTS
 		// <nowiki> insertion by providing an html/parsoid section with the
@@ -135,9 +135,9 @@ TestUtils.normalizeOut = function(domBody, options) {
 	// Strip JSON attributes like data-mw and data-parsoid early so that
 	// comment stripping in normalizeNewlines does not match unbalanced
 	// comments in wikitext source.
-	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)=\\?"[^\"]*\\?"/g, '');
+	out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|data-mw|resource|rel|property|class)=\\?"[^\"]*\\?"/g, '');
 	// single-quoted variant
-	out = out.replace(/ (data-mw|data-parsoid|resource|rel|prefix|about|rev|datatype|inlist|property|usemap|vocab|content|class)=\\?'[^\']*\\?'/g, '');
+	out = out.replace(/ (data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|data-mw|resource|rel|property|class)=\\?'[^\']*\\?'/g, '');
 	// strip typeof last
 	out = out.replace(/ typeof="[^\"]*"/g, '');
 
