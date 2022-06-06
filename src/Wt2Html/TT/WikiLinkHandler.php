@@ -569,9 +569,6 @@ class WikiLinkHandler extends TokenHandler {
 			$newTk->dataAttribs->stx = 'simple';
 			$morecontent = Utils::decodeURIComponent( $target->href );
 
-			// Strip leading colon
-			$morecontent = PHPUtils::stripPrefix( $morecontent, ':' );
-
 			// Try to match labeling in core
 			if ( $env->getSiteConfig()->namespaceHasSubpages( $env->getPageConfig()->getNs() ) ) {
 				// subpage links with a trailing slash get the trailing slashes stripped.
