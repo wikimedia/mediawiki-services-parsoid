@@ -14,9 +14,6 @@
     "1. Nested mixed wikitext and html list": {
         "html2wt": "* hi\n* <ul><li>ho</li></ul>\n* hi\n** ho\n"
     },
-    "1. SOL-sensitive wikitext tokens as template-args": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"*a\"}},\"i\":0}}]}'>*a</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[10,19,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#a\"}},\"i\":0}}]}'>#a</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[20,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\":a\"}},\"i\":0}}]}'>:a</span></p>"
-    },
     "1. Table tag in SOL posn. should get reparsed correctly with valid TSR": {
         "wt2wt": "{{1x|}}\n{| width=\"100%\"\n|foo\n|}",
         "selser [0,[0,3]]": "{{1x|}}{| width = '100%'\n|}",
@@ -719,9 +716,6 @@
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
     },
-    "Expansion of multi-line templates in attribute values (T8255)": {
-        "html2wt": "<div style=\"background: #00FF00\">-</div>"
-    },
     "External link containing double-single-quotes with no space separating the url from text in italics": {
         "wt2wt": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas'' (1901) en el sitio de] [[Museo Picasso (París)|Museo Picasso]].",
         "html2html": "<p data-parsoid='{\"dsr\":[0,161,0,0]}'><a rel=\"mw:ExtLink\" href=\"http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm\" class=\"external text\" data-parsoid='{\"dsr\":[0,106,57,1]}'><i data-parsoid='{\"dsr\":[57,83,2,2]}'>La muerte de Casagemas</i> (1901) en el sitio de</a> <a rel=\"mw:WikiLink\" href=\"./Museo_Picasso_(París)\" title=\"Museo Picasso (París)\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Museo_Picasso_(París)\"},\"sa\":{\"href\":\"Museo Picasso (París)\"},\"dsr\":[107,147,25,2]}'>Museo Picasso</a><span data-parsoid='{\"stx\":\"html\",\"dsr\":[147,161,6,7]}'>.</span></p>",
@@ -1051,10 +1045,6 @@
         "selser [[4,2]]": "{|<!--1whfqxl--><!--zxj2in-->\n|quux\n|- id=foo | style='color: red'\n|bar\n|}",
         "selser [[3,2]]": "{|<!--19fpekv-->\n|quux\n|- id=foo | style='color: red'\n|bar\n|}"
     },
-    "Implicit newline insertion/sol when expanding templates (T241150/T14974/T2529)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,22,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,11,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,22,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,11,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#foo\"}},\"i\":0}}]}'>#foo</span></p>"
-    },
     "Inclusion of !userCanEdit() content": {
         "html2wt": "== header ==\n"
     },
@@ -1210,7 +1200,7 @@
         "html2wt": "* <pre>foo</pre>\n* <pre>bar</pre>\n* zar"
     },
     "List items from template": {
-        "html2wt": "* item 1\n* item 2\n\n* item 0\n* item 1\n* item 2\n\n* item 0\n* notSOL\n* item 1\n* item 2"
+        "html2wt": "{{inner list}}\n*item 2\n\n* item 0\n{{inner list}}\n* item 2\n\n* item 0\n* notSOL{{inner list}}\n* item 2"
     },
     "Lists: 4. No escapes needed": {
         "html2wt": "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n"
@@ -2007,37 +1997,32 @@
     "T2523: Template shouldn't eat newline (or add an extra one before table)": {
         "html2wt": "foo\n\n{|\n|1\n|2\n|-\n|3\n|4\n|}"
     },
-    "T2529: Template with table, not included at beginning of line": {
-        "html2wt": "foo \n\n{|\n|1\n|2\n|-\n|3\n|4\n|}"
-    },
     "T2529: Uncovered bullet": {
-        "wt2wt": "*Foo{{bullet}}",
-        "html2wt": "* Foo\n* Bar",
+        "wt2wt": "*Foo{{bullet}}\n",
+        "html2wt": "* Foo{{bullet}}\n",
         "selser [2]": "xpt49k\n*Foo {{bullet}}",
-        "selser [[2,0]]": "* 12na0t\n*Foo {{bullet}}",
+        "selser [[2,0,0]]": "* b9vx2l\n*Foo {{bullet}}",
         "selser [1]": "*Foo {{bullet}}",
-        "selser [[1,0]]": "*Foo {{bullet}}"
+        "selser [[1,0,0]]": "*Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list": {
-        "wt2wt": "*******Foo\n{{bullet}}",
-        "html2wt": "******* Foo\n* Bar",
-        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo {{bullet}}",
-        "selser [[[[2]],0]]": "** hfccqc\n*******Foo {{bullet}}",
-        "selser [[2,0]]": "* 173c0q7\n*******Foo {{bullet}}",
+        "wt2wt": "*******Foo\n{{bullet}}\n",
+        "html2html": "<ul data-parsoid='{\"dsr\":[0,22,0,0]}'><li data-parsoid='{\"dsr\":[0,11,1,0]}'><ul data-parsoid='{\"dsr\":[1,11,0,0]}'><li data-parsoid='{\"dsr\":[1,11,1,0]}'><ul data-parsoid='{\"dsr\":[2,11,0,0]}'><li data-parsoid='{\"dsr\":[2,11,1,0]}'><ul data-parsoid='{\"dsr\":[3,11,0,0]}'><li data-parsoid='{\"dsr\":[3,11,1,0]}'><ul data-parsoid='{\"dsr\":[4,11,0,0]}'><li data-parsoid='{\"dsr\":[4,11,1,0]}'><ul data-parsoid='{\"dsr\":[5,11,0,0]}'><li data-parsoid='{\"dsr\":[5,11,1,0]}'><ul data-parsoid='{\"dsr\":[6,11,0,0]}'><li data-parsoid='{\"dsr\":[6,11,1,0,1,0]}'>Foo</li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></li>\n<li about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[12,22,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"bullet\",\"href\":\"./Template:Bullet\"},\"params\":{},\"i\":0}}]}'>Bar</li></ul>\n",
+        "html2wt": "******* Foo\n{{bullet}}\n",
+        "selser [[[[[2]]],0,0]]": "**1pu16hr\n*******Foo {{bullet}}",
+        "selser [[[[2]],0,0]]": "** vaurd6\n*******Foo {{bullet}}",
+        "selser [[2,0,0]]": "* oag6qw\n*******Foo {{bullet}}",
         "selser [1]": "*******Foo {{bullet}}",
-        "selser [[[1],0]]": "*******Foo {{bullet}}",
+        "selser [[[1],0,0]]": "*******Foo {{bullet}}",
         "selser [2]": "113swo7\n*******Foo {{bullet}}",
-        "selser [[[[1]],0]]": "*******Foo {{bullet}}",
-        "selser [[[2],0]]": "*qr9mgy\n*******Foo {{bullet}}",
-        "selser [[1,0]]": "*******Foo {{bullet}}",
-        "selser [[[[[[[1]]]]],0]]": "*******Foo {{bullet}}"
+        "selser [[[[1]],0,0]]": "*******Foo {{bullet}}",
+        "selser [[[2],0,0]]": "*lrgux8\n*******Foo {{bullet}}",
+        "selser [[1,0,0]]": "*******Foo {{bullet}}",
+        "selser [[[[[[[1]]]]],0,0]]": "*******Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in parser function result": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0]}'>Foo <span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}} \",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar </span></li></ul>",
-        "html2wt": "* Foo\n* bar"
-    },
-    "T2529: Uncovered table already at line-start": {
-        "html2wt": "x\n\n{|\n|1\n|2\n|-\n|3\n|4\n|}\ny\n"
+        "html2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0,1,0]}'>Foo <span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[6,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}}\",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",
+        "html2wt": "* Foo {{lc:{{bullet}}}}"
     },
     "T2553: link with two variables in a piped link": {
         "wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}",
@@ -2447,7 +2432,7 @@
         "html2wt": "<div>Foo</div><div>bar</div>"
     },
     "Templates: Don't strip whitespace from positional-param values": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a \"}},\"i\":0}}]}'>a </span></p>\n\n<p data-parsoid='{\"dsr\":[11,27,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </span></p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[29,40,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[42,59,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[61,71,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[73,83,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'>\n</span><ul about=\"#mwt8\"><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[85,95,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a \"}},\"i\":0}}]}'>a </span></p>\n\n<p data-parsoid='{\"dsr\":[11,27,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </span></p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[29,40,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[42,59,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[61,71,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<ul about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[73,83,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[85,95,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>",
         "html2wt": "a \n\nb \n\n c \n\n\n d\n\n\n e\n\n\n* f\n\n\n g\n"
     },
     "Templates: HTML Tables: 1. Generating start of a HTML table": {
@@ -2680,6 +2665,8 @@
         "html2wt": "{|\n|foo\n|}"
     },
     "Templates: Wiki Tables: 8. Fosterable meta-tags should get fostered": {
+        "html2html": "<meta typeof=\"mw:Transclusion mw:Includes/OnlyInclude\" about=\"#mwt1\" data-parsoid='{\"dsr\":[0,64,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"UnclosedTableEndsWithTR\",\"href\":\"./Template:UnclosedTableEndsWithTR\"},\"params\":{},\"i\":0}},\"\\n&lt;onlyinclude>\\n|foo\\n&lt;/onlyinclude>\\n|}\"]}'/><table about=\"#mwt1\">\n<tbody><tr>\n\n<td>foo\n<meta typeof=\"mw:Includes/OnlyInclude/End\"/></td></tr>\n</tbody></table>\n<table data-parsoid='{\"dsr\":[65,90,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[68,88,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[68,87,0,0]}'><td data-parsoid='{\"dsr\":[68,87,1,0]}'>foo\n<meta typeof=\"mw:Includes/OnlyInclude/End\" data-parsoid='{\"src\":\"&lt;/onlyinclude>\",\"dsr\":[73,87,null,null]}'/></td></tr>\n</tbody></table>\n\n<meta typeof=\"mw:Includes/NoInclude\" data-parsoid='{\"src\":\"&lt;noinclude>\",\"dsr\":[92,103,null,null]}'/>\n<meta typeof=\"mw:Transclusion mw:Includes/NoInclude/End\" about=\"#mwt2\" data-parsoid='{\"dsr\":[104,152,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"UnclosedTableEndsWithTR\",\"href\":\"./Template:UnclosedTableEndsWithTR\"},\"params\":{},\"i\":0}},\"\\n&lt;/noinclude>\\n|foo\\n|}\"]}'/><table about=\"#mwt2\">\n<tbody><tr>\n\n<td>foo</td></tr>\n</tbody></table> \n<table data-parsoid='{\"dsr\":[154,164,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[157,162,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[157,161,0,0]}'><td data-parsoid='{\"dsr\":[157,161,1,0]}'>foo</td></tr>\n</tbody></table>",
+        "html2wt": "{{UnclosedTableEndsWithTR}}\n<onlyinclude>\n|foo\n</onlyinclude>\n|}\n{|\n|foo\n</onlyinclude>\n|}\n\n<noinclude>\n{{UnclosedTableEndsWithTR}}\n</noinclude>\n|foo\n|} \n{|\n|foo\n|}",
         "selser [0,0,2,3,0,0,0]": "{{UnclosedTableEndsWithTR}}\n<onlyinclude>\n|foo\n</onlyinclude>\n|}\nl010k6\n\n\n{{UnclosedTableEndsWithTR}}\n</noinclude>\n|foo\n|}"
     },
     "Test the li-hack (a hack from Tidy days, but doesn't work as advertised with Remex)": {

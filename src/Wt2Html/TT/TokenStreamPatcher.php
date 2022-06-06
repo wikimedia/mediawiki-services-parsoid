@@ -45,6 +45,12 @@ class TokenStreamPatcher extends TokenHandler {
 	/** @var Token|null */
 	private $lastConvertedTableCellToken;
 
+	/** @var SelfclosingTagTk|null */
+	private $tplStartToken = null;
+
+	/** @var NlTk|null */
+	private $discardableNlTk = null;
+
 	/**
 	 * @var TemplateHandler
 	 * A local instance needed to process magic words
@@ -91,8 +97,20 @@ class TokenStreamPatcher extends TokenHandler {
 			}
 		);
 		$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
-		$this->sol = true;
+		if ( $this->sol && $this->tplStartToken ) {
+			// When using core preprocessor, start-of-line start is forced by
+			// inserting a newline in certain cases (the "T2529 hack").  In the
+			// legacy parser the T2529 hack is never applied if the template was
+			// already at the start of the line (the `!$piece['lineStart']`
+			// check in Parser::braceSubstitution where T2529 is handled), but
+			// that context (`$this->sol`) isn't passed through when Parsoid
+			// invokes the core preprocessor.  Thus when $this->sol prepare to
+			// (if the following tokens warrant) remove an unnecessary T2529
+			// newline added by the legacy preprocessor.
+			$this->discardableNlTk = $token;
+		}
 		$this->tokenBuf[] = $token;
+		$this->sol = true;
 		return new TokenHandlerResult( [] );
 	}
 
@@ -177,9 +195,77 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
+		try {
+			return $this->onAnyInternal( $token );
+		} finally {
+			// Ensure we always clean up discardableNlTk and tplStartToken even
+			// in the presence of exceptions.
+			$this->discardableNlTk = null;
+			if ( $this->tplStartToken !== $token ) {
+				$this->tplStartToken = null;
+			}
+		}
+	}
+
+	/**
+	 * The legacy parser's "T2529 hack" attempts to ensure templates are
+	 * always evaluated in start-of-line context by prepending a newline
+	 * if necessary.  However, it is inconsistent: in particular it
+	 * only treats }| : ; # * as SOL-sensitive tokens, neglecting ==
+	 * (headings) and ! | |} (in table context).
+	 *
+	 * If we're using the core preprocessor for template expansion:
+	 *  - The core preprocessor as invoked by Parsoid will always insert the
+	 *    newline in the "T2529 cases" (even though it's not necessary; Parsoid
+	 *    is already in SOL mode) *HOWEVER*
+	 *  - As described in ::onNewline() above, the newline insertion is
+	 *    /supposed/ to be suppressed if the template was *already*
+	 *    at the start of the line.  So we need to strip the unnecessarily
+	 *    added NlTk to avoid "extra" whitespace in Parsoid's expansion.
+	 *     Ex: "{{my-tpl}}" in sol-context which will get expanded to "\n*foo"
+	 *     but the "\n" wasn't necessary
+	 *
+	 * If we're in native preprocessor mode:
+	 *  - If we are in SOL state, we don't need to add a newline.
+	 *  - If we are not in SOL state, we need to insert a newline in 'T2529' cases.
+	 *    Ex: "{{my-tpl}}" in sol-context which expands to "*foo" but in
+	 *    non-sol context expands to "\n*foo"
+	 *
+	 * @param string $tokenName
+	 */
+	private function handleT2529Hack( string $tokenName ): void {
+		// Core's
+		if ( $tokenName === 'table' || $tokenName === 'listItem' ) {
+			// We're in a context when the core preprocessor would apply
+			// the "T2529 hack" to ensure start-of-line context.
+			if ( $this->discardableNlTk ) {
+				// We're using core preprocessor and were already at
+				// the start of the line, so the core preprocessor wouldn't
+				// actually have inserted a newline here.  Swallow up ours.
+				array_pop( $this->tokenBuf );
+			} elseif ( !$this->sol &&
+				$this->tplStartToken &&
+				$this->env->nativeTemplateExpansionEnabled()
+			) {
+				// Native preprocessor; add a newline in "T2529 cases"
+				// for correct whitespace. (Remember that this only happens
+				// if we weren't already at the start of the line.)
+				// Add a newline & force SOL
+				$this->tokenBuf[] = new NlTk( null );
+				$this->sol = true;
+			}
+		}
+	}
+
+	/**
+	 * @param mixed $token
+	 * @return ?TokenHandlerResult
+	 */
+	public function onAnyInternal( $token ): ?TokenHandlerResult {
+		$sol = $this->sol;
 		$this->env->log( 'trace/tsp', $this->pipelineId,
-			static function () use ( $token ) {
-				return PHPUtils::jsonEncode( $token );
+			static function () use ( $sol, $token ) {
+				return "(sol=" . ( $sol ? "yes" : "no" ) . ") " . PHPUtils::jsonEncode( $token );
 			} );
 
 		$tokens = [ $token ];
@@ -194,17 +280,38 @@ class TokenStreamPatcher extends TokenHandler {
 					return new TokenHandlerResult( [] );
 				}
 
-				// TRICK #1:
-				// Attempt to match "{|" after a newline and convert
-				// it to a table token.
+				// This is only applicable where we use Parsoid's (broken) native preprocessor.
+				// This supports scenarios like "{{1x|*bar}}". When "{{{1}}}" is tokenized
+				// "*bar" isn't available and so won't become a list.
+				// FIXME: {{1x|1===foo==}} will still be broken. So, this fix below is somewhat
+				// independent of T2529 for our broken preprocessor but we are restricting the
+				// fix to T2529.
+				$T2529hack = false;
+				if ( $this->env->nativeTemplateExpansionEnabled() &&
+					$this->tplStartToken &&
+					preg_match( '/^(?:{\\||[:;#*])/', $token )
+				) {
+					// Add a newline & force SOL
+					$T2529hack = true;
+					// Remove newline insertion in the core preprocessor
+					// only occurs if we weren't already at the start of
+					// the line (see discussion in ::onNewline() above).
+					if ( !$this->sol ) {
+						$this->tokenBuf[] = new NlTk( null );
+						$this->sol = true;
+					}
+				}
+
 				if ( $this->sol ) {
+					// Attempt to match "{|" after a newline and convert
+					// it to a table token.
 					if ( $this->atTopLevel && str_starts_with( $token, '{|' ) ) {
 						// Reparse string with the 'table_start_tag' rule
 						// and fully reprocess them.
 						$retoks = $this->tokenizer->tokenizeAs( $token, 'table_start_tag', /* sol */true );
 						if ( $retoks === false ) {
 							// XXX: The string begins with table start syntax,
-							// we really shouldn't be here.  Anything else on the
+							// we really shouldn't be here. Anything else on the
 							// line would get swallowed up as attributes.
 							$this->env->log( 'error', 'Failed to tokenize table start tag.' );
 							$this->clearSOL();
@@ -212,6 +319,14 @@ class TokenStreamPatcher extends TokenHandler {
 							$tokens = $this->reprocessTokens( $this->srcOffset, $retoks );
 							$this->wikiTableNesting++;
 							$this->lastConvertedTableCellToken = null;
+						}
+					} elseif ( $this->atTopLevel && $T2529hack ) { // {| has been handled above
+						$retoks = $this->tokenizer->tokenizeAs( $token, 'list_item', /* sol */true );
+						if ( $retoks === false ) {
+							$this->env->log( 'error', 'Failed to tokenize list item.' );
+							$this->clearSOL();
+						} else {
+							$tokens = $this->reprocessTokens( $this->srcOffset, $retoks );
 						}
 					} elseif ( preg_match( '/^\s*$/D', $token ) ) {
 						// White-space doesn't change SOL state
@@ -233,9 +348,13 @@ class TokenStreamPatcher extends TokenHandler {
 
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataAttribs->stx ?? '' ) !== 'html' ) {
+					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) &&
+						$token->dataAttribs->tmp->tplarginfo->func === null // Not a parser-func
+					) {
+						$this->tplStartToken = $token;
+					}
 					$this->srcOffset = $token->dataAttribs->tsr->end ?? null;
-					if (
-						count( $this->tokenBuf ) > 0 &&
+					if ( count( $this->tokenBuf ) > 0 &&
 						TokenUtils::hasTypeOf( $token, 'mw:Transclusion' )
 					) {
 						// If we have buffered newlines, we might very well encounter
@@ -289,7 +408,9 @@ class TokenStreamPatcher extends TokenHandler {
 
 			case 'TagTk':
 				if ( $this->atTopLevel && !TokenUtils::isHTMLTag( $token ) ) {
-					if ( $token->getName() === 'table' ) {
+					$tokenName = $token->getName();
+					$this->handleT2529Hack( $tokenName );
+					if ( $tokenName === 'table' ) {
 						$this->lastConvertedTableCellToken = null;
 						$this->wikiTableNesting++;
 					} elseif (
