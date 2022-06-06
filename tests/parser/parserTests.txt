@@ -11748,7 +11748,7 @@ wgRestrictDisplayTitle=false
 
 # NOTE: mw:ExpandedAttrs is not the best typeof here. mw:Transclusion is better.
 # But, this is a limitation of our representation and is documented in
-# TemplateHandler.js in processSpecialMagicWord
+# TemplateHandler.php in processSpecialMagicWord
 !! test
 Parsoid: Template-generated DISPLAYTITLE
 !! wikitext
@@ -16330,12 +16330,8 @@ parsoid=html2wt
 !! end
 
 # NOTE: mw:ExpandedAttrs is not the best typeof here. mw:Transclusion is better.
-# This is a limitation of our representation right now. But, templated magicword
-# handling code depends on the presence of 'mw:ExpandedAttrs' by deferring the
-# update of the content attribute to the Sanitizer. So, if in future, we decide
-# to clean this up, you may need to reintroduce processing of the content property value
-# in the pipeline. See PS1 of Idf163813c8d3e73ef5d2e9e70d0898e8c4b2f3ea for some
-# sample code.
+# But, this is a limitation of our representation and is documented in
+# TemplateHandler.php in processSpecialMagicWord
 !! test
 Parsoid: Defaultsort (template-generated)
 !! wikitext

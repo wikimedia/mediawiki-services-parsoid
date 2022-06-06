@@ -12,6 +12,8 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -803,17 +805,26 @@ class TemplateHandler extends TokenHandler {
 			//
 			// FIXME: Is there a simpler / better repn. for templated attrs?
 			$ta = $tplToken->dataAttribs->tmp->templatedAttribs;
+			$html = $ta[0][0]['html'];
 			$ta[0] = [
-				[ 'txt' => 'content' ],         // Magic-word attribute name
-				[ 'html' => $ta[0][0]['html'] ] // HTML repn. of the attribute value
+				[ 'txt' => 'content' ],  // Magic-word attribute name
+				// FIXME: the content still contains the parser function prefix
+				//  (eg, the html is 'DISPLAYTITLE:Foo' even though the stripped
+				//   content attribute is 'Foo')
+				[ 'html' => $html ],     // HTML repn. of the attribute value
 			];
 			$metaToken->addAttribute( 'data-mw', PHPUtils::jsonEncode( [ 'attribs' => $ta ] ) );
-			// Sanitizer:;sanitizeTagAttrs will replace the value of 'content' with
-			// the text version of $ta[0][0]['html'] as long as it is an array.
-			$metaToken->addAttribute( 'content', [ 'UNUSED' ], $resolvedTgt['srcOffsets']->expandTsrV() );
+
+			// Use the textContent of the expanded attribute, similar to how
+			// Sanitizer::sanitizeTagAttr does it.  However, here we have the
+			// opportunity to strip the parser function prefix.
+			$dom = DOMUtils::parseHTML( $html );
+			$content = DOMCompat::getBody( $dom )->textContent;
+			$content = preg_replace( '#^\w+:#', '', $content, 1 );
+			$metaToken->addAttribute( 'content', $content, $resolvedTgt['srcOffsets']->expandTsrV() );
+
 			$metaToken->addAttribute( 'about', $env->newAboutId() );
 			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
-
 		} else {
 			// Leading/trailing WS should be stripped
 			//
