@@ -379,7 +379,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $target->language ) {
 			$ns = $this->env->getPageConfig()->getNs();
 			$noLanguageLinks = $this->env->getSiteConfig()->namespaceIsTalk( $ns ) ||
-				!$this->env->getSiteConfig()->interwikimagic();
+				!$this->env->getSiteConfig()->interwikiMagic();
 			if ( $noLanguageLinks ) {
 				$target->interwiki = $target->language;
 				return $this->renderInterwikiLink( $token, $target );
