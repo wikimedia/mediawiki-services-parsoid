@@ -792,11 +792,12 @@ class Test extends Item {
 		if ( !$this->testName ) {
 			throw new Error( 'Missing title from test case.' );
 		}
+		$selserNoAuto = ( ( $runnerOpts['selser'] ?? false ) === 'noauto' );
 
 		foreach ( $targetModes as $targetMode ) {
-			if ( $targetMode === 'selser' &&
-				$runnerOpts['selser'] !== 'noauto' &&
-				!isset( $runnerOpts['changetree'] )
+			if (
+				$targetMode === 'selser' &&
+				!( $selserNoAuto || isset( $runnerOpts['changetree'] ) )
 			) {
 				// Run selser tests in the following order:
 				// 1. Manual changes (if provided)
@@ -834,7 +835,7 @@ class Test extends Item {
 						$this->selserChangeTrees[$j] = $this->changetree;
 					}
 				}
-			} elseif ( $targetMode === 'selser' && $runnerOpts['selser'] === 'noauto' ) {
+			} elseif ( $targetMode === 'selser' && $selserNoAuto ) {
 				// Manual changes were requested on the command line,
 				// check that the item does have them.
 				if ( isset( $this->options['parsoid']['changes'] ) ) {
@@ -858,7 +859,7 @@ class Test extends Item {
 
 				Assert::invariant(
 					$targetMode !== 'selser' ||
-					( $runnerOpts['selser'] !== 'noauto' && isset( $runnerOpts['changetree'] ) ),
+					( isset( $runnerOpts['changetree'] ) && !$selserNoAuto ),
 					"Unexpected target mode $targetMode" );
 
 				$runTest( $this, $targetMode, $runnerOpts );
