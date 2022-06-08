@@ -104,6 +104,31 @@ class UnpackDOMFragments {
 	}
 
 	/**
+	 * @param Env $env
+	 * @param Element $n
+	 * @param int|null &$newOffset
+	 */
+	private static function markMisnested( Env $env, Element $n, ?int &$newOffset ): void {
+		$dp = DOMDataUtils::getDataParsoid( $n );
+		if ( $newOffset === null ) {
+			// We end up here when $placeholderParent is part of encapsulated content.
+			// Till we add logic to prevent that from happening, we need this fallback.
+			if ( isset( $dp->dsr->start ) ) {
+				$newOffset = $dp->dsr->start;
+			}
+
+			// If still null, set to some dummy value that is larger
+			// than page size to avoid pointing to something in source.
+			// Trying to fetch outside page source returns "".
+			if ( $newOffset === null ) {
+				$newOffset = strlen( $env->topFrame->getSrcText() ) + 1;
+			}
+		}
+		$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
+		$dp->misnested = true;
+	}
+
+	/**
 	 * DOMTraverser handler that unpacks DOM fragments which were injected in the
 	 * token pipeline.
 	 * @param Node $placeholder
@@ -307,27 +332,12 @@ class UnpackDOMFragments {
 					$dsrFixer = new DOMTraverser();
 					$dsrFixer->addHandler( null, static function ( Node $n ) use( $env, &$newOffset ) {
 						if ( $n instanceof Element ) {
-							$dp = DOMDataUtils::getDataParsoid( $n );
-							if ( $newOffset === null ) {
-								// We end up here when $placeholderParent is part of encapsulated content.
-								// Till we add logic to prevent that from happening, we need this fallback.
-								if ( isset( $dp->dsr->start ) ) {
-									$newOffset = $dp->dsr->start;
-								}
-
-								// If still null, set to some dummy value that is larger
-								// than page size to avoid pointing to something in source.
-								// Trying to fetch outside page source returns "".
-								if ( $newOffset === null ) {
-									$newOffset = strlen( $env->topFrame->getSrcText() ) + 1;
-								}
-							}
-							$dp->dsr = new DomSourceRange( $newOffset, $newOffset, null, null );
-							$dp->misnested = true;
+							self::markMisnested( $env, $n, $newOffset );
 						}
 						return true;
 					} );
-					$dsrFixer->traverse( $env, $node );
+					self::markMisnested( $env, $node, $newOffset );
+					$dsrFixer->traverse( $env, $node->firstChild );
 				}
 
 				$node = $node->nextSibling;

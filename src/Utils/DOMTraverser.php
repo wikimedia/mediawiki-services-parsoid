@@ -104,7 +104,15 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 * - `true`: continues regular processing on current node.
 	 *
 	 * @param Env $env
-	 * @param Node $workNode The root node for the traversal.
+	 * @param Node $workNode The starting node for the traversal.
+	 *   The traversal could beyond the subtree rooted at $workNode either because
+	 *   (a) the handlers called during traversal don't return an explicit next node
+	 *       and the traversal code moves to $workNode's nextSibling till it hits null.
+	 *       In this scenario, all sibling dom subtrees at this level are traversed.
+	 *   (b) the handlers called during traversal return an arbitrary node elsewhere
+	 *       in the DOM in which case the traversal scope can be pretty much the whole
+	 *       DOM that $workNode is present in. This behavior would be confusing but
+	 *       there is nothing in the traversal code to prevent that.
 	 * @param array $options
 	 * @param bool $atTopLevel
 	 * @param ?stdClass $tplInfo Template information. When set, it must have all of these fields:
