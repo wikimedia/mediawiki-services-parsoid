@@ -536,16 +536,25 @@ class TemplateHandler extends TokenHandler {
 		// load template w/ variant names (language variants)
 
 		// Fetch template source and expand it
-		$toks = $this->processTemplateSource(
-			$state->token,
-			[
-				'name' => $target,
-				'title' => $resolvedTgt['title'],
-				'attribs' => array_slice( $attribs, 1 ), // strip template target
-			],
-			$this->fetchTemplateAndTitle( $target, $attribs )
-		);
-		return new TemplateExpansionResult( $toks, true, $encap );
+		$src = $this->fetchTemplateAndTitle( $target, $attribs );
+		if ( $src !== null ) {
+			$toks = $this->processTemplateSource(
+				$state->token,
+				[
+					'name' => $target,
+					'title' => $resolvedTgt['title'],
+					'attribs' => array_slice( $attribs, 1 ), // strip template target
+				],
+				$src
+			);
+			return new TemplateExpansionResult( $toks, true, $encap );
+		} else {
+			// Convert to a wikilink (which will become a redlink after the redlinks pass).
+			$toks = [ new SelfclosingTagTk( 'wikilink' ) ];
+			$hrefSrc = $resolvedTgt['name'];
+			$toks[0]->attribs[] = new KV( 'href', $hrefSrc, null, null, $hrefSrc );
+			return new TemplateExpansionResult( $toks, false, $encap );
+		}
 	}
 
 	/**
@@ -784,9 +793,9 @@ class TemplateHandler extends TokenHandler {
 	 *
 	 * @param string $templateName
 	 * @param array $attribs
-	 * @return string
+	 * @return ?string
 	 */
-	private function fetchTemplateAndTitle( string $templateName, array $attribs ): string {
+	private function fetchTemplateAndTitle( string $templateName, array $attribs ): ?string {
 		$env = $this->env;
 		if ( isset( $env->pageCache[$templateName] ) ) {
 			return $env->pageCache[$templateName];
@@ -801,9 +810,8 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		// FIXME:
-		// 1. This should probably be a redlink for a missing page.
-		// 2. Hard-coded 'main' role
-		return !$pageContent ? '' : $pageContent->getContent( 'main' );
+		// 1. Hard-coded 'main' role
+		return $pageContent ? $pageContent->getContent( 'main' ) : null;
 	}
 
 	/**

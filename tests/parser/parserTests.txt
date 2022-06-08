@@ -16294,6 +16294,22 @@ parsoid=html2wt
 [[Category:Toxine bactérienne]]
 !! end
 
+!! article
+Template:emptytemplate
+!! text
+!! endarticle
+
+!! test
+Empty templates should be handled properly without being redlinked
+!! options
+parsoid=wt2html
+!! wikitext
+{{emptytemplate}}
+!! html/php
+!! html/parsoid
+<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"emptytemplate","href":"./Template:Emptytemplate"},"params":{},"i":0}}]}'></span>
+!! end
+
 !! test
 Parsoid: Defaultsort
 !! wikitext
@@ -16306,6 +16322,7 @@ Parsoid: Defaultsort
 Parsoid: Defaultsort variations (T236846)
 !! wikitext
 {{DEFAULTSORT}}
+
 {{DEFAULTSORT:}}
 {{DEFAULTSORT:DOGGIE}}
 !! html/php
@@ -16313,7 +16330,7 @@ Parsoid: Defaultsort variations (T236846)
 </p><p><br />
 </p>
 !! html/parsoid
-<span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"DEFAULTSORT","href":"./Template:DEFAULTSORT"},"params":{},"i":0}}]}'></span>
+<p><a rel="mw:WikiLink" href="./Template:DEFAULTSORT" title="Template:DEFAULTSORT" typeof="mw:Transclusion" about="#mwt1" class="new" data-mw='{"parts":[{"template":{"target":{"wt":"DEFAULTSORT","href":"./Template:DEFAULTSORT"},"params":{},"i":0}}]}'>Template:DEFAULTSORT</a></p>
 <meta property="mw:PageProp/categorydefaultsort" content="" data-parsoid='{"src":"{{DEFAULTSORT:}}"}'/>
 <meta property="mw:PageProp/categorydefaultsort" content="DOGGIE" data-parsoid='{"src":"{{DEFAULTSORT:DOGGIE}}"}'/>
 !! end
