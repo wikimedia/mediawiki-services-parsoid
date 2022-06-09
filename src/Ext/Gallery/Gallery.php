@@ -99,6 +99,9 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$doc = $thumb->ownerDocument;
 		$rdfaType = $thumb->getAttribute( 'typeof' ) ?? '';
 
+		// T214601: Account for a format being set in $imageOptStr
+		$rdfaType = preg_replace( '#mw:File(/\w+)?\b#', 'mw:File', $rdfaType, 1 );
+
 		// Detach figcaption as well
 		$figcaption = DOMCompat::querySelector( $thumb, 'figcaption' );
 		DOMCompat::remove( $figcaption );

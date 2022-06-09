@@ -4254,3 +4254,19 @@ File:Foobar.jpg|alt=123|123
 File:Foobar.jpg|alt=123|456
 </gallery>
 !! end
+
+!! test
+Format option in gallery - T214601
+!! options
+parsoid=wt2html
+!! wikitext
+<gallery>
+File:Foobar.jpg|thumb|123
+File:Doesnotexist.jpg|thumb|456 - has an error noted in the rdfa
+</gallery>
+!! html/parsoid
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x"/></a></span></div><div class="gallerytext">123</div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:Error mw:File" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Doesnotexist.jpg"><span class="mw-broken-media" resource="./File:Doesnotexist.jpg" data-width="120" data-height="120">File:Doesnotexist.jpg</span></a></span></div><div class="gallerytext">456 - has an error noted in the rdfa</div></li>
+</ul>
+!! end
