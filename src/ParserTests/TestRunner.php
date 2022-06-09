@@ -26,7 +26,13 @@ use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
  */
 class TestRunner {
 	// Hard-code some interwiki prefixes, as is done
-	// in parserTest.inc:setupInterwikis()
+	// in ParserTestRunner::appendInterwikiSetup() in core
+	// Note that ApiQuerySiteInfo will always expand the URL to include a
+	// protocol, but will set 'protorel' to indicate whether its internal
+	// form included a protocol or not.  So in this file 'url' will always
+	// have a protocol and we'll include an explicit 'protorel' field; but
+	// in core there is no 'protorel' field and 'url' will not always have
+	// a protocol.
 	private const PARSER_TESTS_IWPS = [
 		[
 			'prefix' => 'wikinvest',
@@ -104,7 +110,8 @@ class TestRunner {
 			'sitename' => 'WikiSource',
 			'local' => true
 		],
-		// not in PHP setupInterwikis(), but needed
+		// added to core's ParserTestRunner::appendInterwikiSetup() to support
+		// Parsoid tests [T254181]
 		[
 			'prefix' => 'en',
 			'url' => 'http://en.wikipedia.org/wiki/$1',
