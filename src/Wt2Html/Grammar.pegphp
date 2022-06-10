@@ -178,11 +178,11 @@
 			if ( count( $attribs ) > 0 ) {
 				$attrMap = [];
 				foreach ( $attribs as $attr ) {
-				    // If the key or the value is not a string, we replace it by the thing that generated it and
-				    // consider that wikitext as a raw string instead.
-				    $k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
-				    $v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
-				    $attrMap[$k] = $v;
+					// If the key or the value is not a string, we replace it by the thing that generated it and
+					// consider that wikitext as a raw string instead.
+					$k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
+					$v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
+					$attrMap[$k] = $v;
 				}
 				$datamw = [];
 				// Possible follow-up in T295168 for attribute sanitation
@@ -1634,18 +1634,18 @@ tvar_old_syntax_closing_HACK =
 	}
 
 annotation_tag =
-    annToken:extension_annotation_tag
-    &{
-        return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
-    }
-    { return $annToken; }
+	annToken:extension_annotation_tag
+	&{
+		return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
+	}
+	{ return $annToken; }
 
 extension_annotation_tag =
 	!<annOrExtTag>
 	extToken:xmlish_tag
 	// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
 	&{ return !$extToken || $extToken[0]->getName() === 'extension' ||
-	    ($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); }
+		($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); }
 	{ return !$extToken ? '' : $extToken[0]; }
 
 nowiki =

@@ -184,11 +184,11 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 			if ( count( $attribs ) > 0 ) {
 				$attrMap = [];
 				foreach ( $attribs as $attr ) {
-				    // If the key or the value is not a string, we replace it by the thing that generated it and
-				    // consider that wikitext as a raw string instead.
-				    $k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
-				    $v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
-				    $attrMap[$k] = $v;
+					// If the key or the value is not a string, we replace it by the thing that generated it and
+					// consider that wikitext as a raw string instead.
+					$k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
+					$v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
+					$attrMap[$k] = $v;
 				}
 				$datamw = [];
 				// Possible follow-up in T295168 for attribute sanitation
@@ -1011,8 +1011,8 @@ private function a82($il, $sol_il) {
 }
 private function a83($annToken) {
 
-        return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
-    
+		return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
+	
 }
 private function a84($annToken) {
  return $annToken; 
@@ -1292,7 +1292,7 @@ private function a112(&$preproc, $a) {
 }
 private function a113($extToken) {
  return !$extToken || $extToken[0]->getName() === 'extension' ||
-	    ($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); 
+		($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); 
 }
 private function a114($extToken) {
  return !$extToken ? '' : $extToken[0]; 
