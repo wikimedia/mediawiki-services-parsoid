@@ -3,7 +3,7 @@
 
 'use strict';
 
-const { action, REST } = require( 'api-testing' );
+const { action, assert, REST, utils } = require( 'api-testing' );
 
 var domino = require('domino');
 var should = require('chai').should();
@@ -47,19 +47,9 @@ function validateDoc(doc, nodeName, emptyLead) {
 	nonEmptySection.firstChild.nodeName.should.equal(nodeName);
 }
 
-before(async function() {
-	this.timeout(10000);
-
-	const alice = await action.alice();
-
-	// Create pages
-	let edit = await alice.edit('Lint Page', { text: '{|\nhi\n|ho\n|}' });
-	edit.result.should.equal('Success');
-	edit = await alice.edit('JSON Page', {
-		text: '[1]', contentmodel: 'json'
-	});
-	edit.result.should.equal('Success');
-});
+function status200( res ) {
+	assert.strictEqual( res.status, 200, res.text );
+}
 
 describe('Parsoid API', function() {
 	const client = new REST();
@@ -67,94 +57,29 @@ describe('Parsoid API', function() {
 	const PARSOID_URL = parsedUrl.href;
 	const hostname = parsedUrl.hostname;
 	const mockDomain = client.pathPrefix = `rest.php/${hostname}`;
+	const page = utils.title( 'Lint Page ' );
+	const pageEncoded = encodeURIComponent( page );
+	let revid;
 
-	describe('formats', function() {
+	before(async function() {
+		this.timeout(30000);
 
-		it('should accept application/x-www-form-urlencoded', function(done) {
-			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.type('form')
-			.send({
-				wikitext: '== h2 ==',
-			})
-			.expect(200)
-			.expect(function(res) {
-				validateDoc(domino.createDocument(res.text), 'H2', true);
-			})
-			.end(done);
+		const alice = await action.alice();
+
+		// Create pages
+		let edit = await alice.edit(page, { text: '{|\nhi\n|ho\n|}' });
+		edit.result.should.equal('Success');
+		revid = edit.newrevid;
+
+		edit = await alice.edit('JSON Page', {
+			text: '[1]', contentmodel: 'json'
 		});
+		edit.result.should.equal('Success');
+	});
 
-		it('should accept application/json', function(done) {
-			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.type('json')
-			.send({
-				wikitext: '== h2 ==',
-			})
-			.expect(200)
-			.expect(function(res) {
-				validateDoc(domino.createDocument(res.text), 'H2', true);
-			})
-			.end(done);
-		});
-
-		it('should accept multipart/form-data', function(done) {
-			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.field('wikitext', '== h2 ==')
-			.expect(200)
-			.expect(function(res) {
-				validateDoc(domino.createDocument(res.text), 'H2', true);
-			})
-			.end(done);
-		});
-
-		// Skipped because all errors are returned as JSON in Parsoid/PHP
-		it.skip('should return a plaintext error', function(done) {
-			client.req
-			.get(mockDomain + '/v3/page/wikitext/Doesnotexist')
-			.expect(404)
-			.expect(function(res) {
-				res.headers['content-type'].should.equal(
-					'text/plain; charset=utf-8'
-				);
-				res.text.should.equal('Did not find page revisions for Doesnotexist');
-			})
-			.end(done);
-		});
-
-		it('should return a json error', function(done) {
-			client.req
-			.get(mockDomain + '/v3/page/pagebundle/Doesnotexist')
-			.expect(404)
-			.expect(function(res) {
-				res.headers['content-type'].should.equal(
-					'application/json'
-				);
-				res.body.message.should.equal('The specified revision does not exist.');
-			})
-			.end(done);
-		});
-
-		// Skipped because all errors are returned as JSON in Parsoid/PHP
-		it.skip('should return an html error', function(done) {
-			client.req
-			.get('<img src=x onerror="javascript:alert(\'hi\')">/v3/page/html/XSS')
-			.expect(404)
-			.expect(function(res) {
-				res.headers['content-type'].should.equal(
-					'text/html; charset=utf-8'
-				);
-				res.text.should.equal('Invalid domain: &lt;img src=x onerror=&quot;javascript:alert(&apos;hi&apos;)&quot;&gt;');
-			})
-			.end(done);
-		});
-
-	});  // formats
-
-	var acceptableHtmlResponse = function(contentVersion, expectFunc) {
+	const acceptableHtmlResponse = function(contentVersion, expectFunc) {
 		return function(res) {
-			res.statusCode.should.equal(200);
+			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
 			res.headers['content-type'].should.equal(
 				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
@@ -166,9 +91,9 @@ describe('Parsoid API', function() {
 		};
 	};
 
-	var acceptablePageBundleResponse = function(contentVersion, expectFunc) {
+	const acceptablePageBundleResponse = function(contentVersion, expectFunc) {
 		return function(res) {
-			res.statusCode.should.equal(200);
+			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
 			res.headers['content-type'].should.equal(
 				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"'
@@ -201,6 +126,90 @@ describe('Parsoid API', function() {
 			}
 		};
 	};
+
+	describe('formats', function() {
+
+		it('should accept application/x-www-form-urlencoded', function(done) {
+			client.req
+				.post(mockDomain + '/v3/transform/wikitext/to/html/')
+				.type('form')
+				.send({
+					wikitext: '== h2 ==',
+				})
+				.expect(status200)
+				.expect(function(res) {
+					validateDoc(domino.createDocument(res.text), 'H2', true);
+				})
+				.end(done);
+		});
+
+		it('should accept application/json', function(done) {
+			client.req
+				.post(mockDomain + '/v3/transform/wikitext/to/html/')
+				.type('json')
+				.send({
+					wikitext: '== h2 ==',
+				})
+				.expect(status200)
+				.expect(function(res) {
+					validateDoc(domino.createDocument(res.text), 'H2', true);
+				})
+				.end(done);
+		});
+
+		it('should accept multipart/form-data', function(done) {
+			client.req
+				.post(mockDomain + '/v3/transform/wikitext/to/html/')
+				.field('wikitext', '== h2 ==')
+				.expect(status200)
+				.expect(function(res) {
+					validateDoc(domino.createDocument(res.text), 'H2', true);
+				})
+				.end(done);
+		});
+
+		// Skipped because all errors are returned as JSON in Parsoid/PHP
+		it.skip('should return a plaintext error', function(done) {
+			client.req
+				.get(mockDomain + '/v3/page/wikitext/Doesnotexist')
+				.expect(404)
+				.expect(function(res) {
+					res.headers['content-type'].should.equal(
+						'text/plain; charset=utf-8'
+					);
+					res.text.should.equal('Did not find page revisions for Doesnotexist');
+				})
+				.end(done);
+		});
+
+		it('should return a json error', function(done) {
+			client.req
+				.get(mockDomain + '/v3/page/pagebundle/Doesnotexist')
+				.expect(404)
+				.expect(function(res) {
+					res.headers['content-type'].should.equal(
+						'application/json'
+					);
+					res.body.message.should.equal('The specified revision does not exist.');
+				})
+				.end(done);
+		});
+
+		// Skipped because all errors are returned as JSON in Parsoid/PHP
+		it.skip('should return an html error', function(done) {
+			client.req
+				.get('<img src=x onerror="javascript:alert(\'hi\')">/v3/page/html/XSS')
+				.expect(404)
+				.expect(function(res) {
+					res.headers['content-type'].should.equal(
+						'text/html; charset=utf-8'
+					);
+					res.text.should.equal('Invalid domain: &lt;img src=x onerror=&quot;javascript:alert(&apos;hi&apos;)&quot;&gt;');
+				})
+				.end(done);
+		});
+
+	});  // formats
 
 	describe('accepts', function() {
 
@@ -256,7 +265,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', '*/*')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptableHtmlResponse(defaultContentVersion))
 			.end(done);
 		});
@@ -266,7 +275,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', '*/*')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(defaultContentVersion))
 			.end(done);
 		});
@@ -279,7 +288,7 @@ describe('Parsoid API', function() {
 				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.4.0"; q=0.5,' +
 				'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/999.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
 		});
@@ -292,7 +301,7 @@ describe('Parsoid API', function() {
 				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.4.0"; q=0.5,' +
 				'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/999.0.0"; q=0.8')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(contentVersion))
 			.end(done);
 		});
@@ -301,7 +310,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptableHtmlResponse(defaultContentVersion))
 			.end(done);
 		});
@@ -310,7 +319,7 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.send({ wikitext: '== h2 ==' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(defaultContentVersion))
 			.end(done);
 		});
@@ -321,7 +330,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
 			.send({ wikitext: '{{1x|hi}}' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
 		});
@@ -332,7 +341,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
 			.send({ wikitext: '{{1x|hi}}' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
@@ -348,7 +357,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/2.0.0"')  // Keep this on the older version
 			.send({ wikitext: '{{1x|hi}}' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
 		});
@@ -359,7 +368,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/2.0.0"')  // Keep this on the older version
 			.send({ wikitext: '{{1x|hi}}' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
@@ -374,7 +383,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
 			.send({ wikitext: '[[File:Audio.oga]]' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				var doc = domino.createDocument(html);
 				doc.querySelectorAll('audio').length.should.equal(1);
@@ -389,7 +398,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.set('Accept', 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"')
 			.send({ wikitext: '{{1x|hi}}' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptableHtmlResponse(contentVersion))
 			.end(done);
 		});
@@ -400,7 +409,7 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.set('Accept', 'application/json; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"')
 			.send({ wikitext: '{{1x|hi}}' })
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In 999.x, data-mw is in the pagebundle.
 				html.should.not.match(/\s+data-mw\s*=\s*['"]/);
@@ -410,9 +419,9 @@ describe('Parsoid API', function() {
 
 	});  // accepts
 
-	var validWikitextResponse = function(expected) {
+	const validWikitextResponse = function(expected) {
 		return function(res) {
-			res.statusCode.should.equal(200);
+			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
 			res.headers['content-type'].should.equal(
 				// note that express does some reordering
@@ -426,9 +435,9 @@ describe('Parsoid API', function() {
 		};
 	};
 
-	var validHtmlResponse = function(expectFunc) {
+	const validHtmlResponse = function(expectFunc) {
 		return function(res) {
-			res.statusCode.should.equal(200);
+			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
 			res.headers['content-type'].should.equal(
 				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"'
@@ -442,9 +451,9 @@ describe('Parsoid API', function() {
 		};
 	};
 
-	var validPageBundleResponse = function(expectFunc) {
+	const validPageBundleResponse = function(expectFunc) {
 		return function(res) {
-			res.statusCode.should.equal(200);
+			res.statusCode.should.equal(200, res.text);
 			res.body.should.have.property('html');
 			res.body.html.should.have.property('headers');
 			res.body.html.headers.should.have.property('content-type');
@@ -473,8 +482,8 @@ describe('Parsoid API', function() {
 		it('should lint the given page', function(done) {
 			if (skipForNow) { return this.skip(); }  // Enable linting config
 			client.req
-			.get(mockDomain + '/v3/page/lint/Lint_Page/102')
-			.expect(200)
+			.get(mockDomain + '/v3/page/lint/' + page + '/' + revid )
+			.expect(status200)
 			.expect(function(res) {
 				res.body.should.be.instanceof(Array);
 				res.body.length.should.equal(1);
@@ -495,7 +504,7 @@ describe('Parsoid API', function() {
 					body: "{|\nhi\n|ho\n|}",
 				},
 			})
-			.expect(200)
+			.expect(status200)
 			.expect(function(res) {
 				res.body.should.be.instanceof(Array);
 				res.body.length.should.equal(1);
@@ -507,9 +516,9 @@ describe('Parsoid API', function() {
 		it('should lint the given page, transform', function(done) {
 			if (skipForNow) { return this.skip(); }  // Enable linting config
 			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/lint/Lint_Page/102')
+			.post(mockDomain + '/v3/transform/wikitext/to/lint/' + page + '/' + revid)
 			.send({})
-			.expect(200)
+			.expect(status200)
 			.expect(function(res) {
 				res.body.should.be.instanceof(Array);
 				res.body.length.should.equal(1);
@@ -519,12 +528,11 @@ describe('Parsoid API', function() {
 		});
 
 		it('should redirect title to latest revision (lint)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Enable linting config
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/lint/')
 			.send({
 				original: {
-					title: 'Lint_Page',
+					title: page,
 				},
 			})
 			.expect(307)  // no revid or wikitext source provided
@@ -532,7 +540,7 @@ describe('Parsoid API', function() {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
 					PARSOID_URL + mockDomain +
-					'/v3/transform/wikitext/to/lint/Lint%20Page/102'
+					'/v3/transform/wikitext/to/lint/' + pageEncoded + '/' +  revid
 				);
 			})
 			.end(done);
@@ -544,12 +552,12 @@ describe('Parsoid API', function() {
 
 		it('should redirect title to latest revision (html)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/html/Main_Page')
+			.get(mockDomain + `/v3/page/html/${page}`)
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/page/html/Main%20Page/1'
+					PARSOID_URL + mockDomain + `/v3/page/html/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -557,12 +565,12 @@ describe('Parsoid API', function() {
 
 		it('should redirect title to latest revision (pagebundle)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/pagebundle/Main_Page')
+			.get(mockDomain + `/v3/page/pagebundle/${page}`)
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/page/pagebundle/Main%20Page/1'
+					PARSOID_URL + mockDomain + `/v3/page/pagebundle/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -570,12 +578,12 @@ describe('Parsoid API', function() {
 
 		it('should redirect title to latest revision (wikitext)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/wikitext/Main_Page')
+			.get(mockDomain + `/v3/page/wikitext/${page}`)
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/page/wikitext/Main%20Page/1'
+					PARSOID_URL + mockDomain + `/v3/page/wikitext/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -583,12 +591,12 @@ describe('Parsoid API', function() {
 
 		it("should preserve querystring params while redirecting", function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/html/Main_Page?test=123')
+			.get(mockDomain + `/v3/page/html/${page}?test=123`)
 			.expect(302)
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/page/html/Main%20Page/1?test=123'
+					PARSOID_URL + mockDomain + `/v3/page/html/${pageEncoded}/${revid}?test=123`
 				);
 			})
 			.end(done);
@@ -596,10 +604,10 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and revision (html)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/html/Main_Page/1')
+			.get(mockDomain + `/v3/page/html/${page}/${revid}`)
 			.expect(validHtmlResponse(function(doc) {
 				// SECTION -> P
-				doc.body.firstChild.firstChild.textContent.should.equal('MediaWiki has been installed.');
+				doc.body.firstChild.firstChild.textContent.should.contains('hi');
 			}))
 			.end(done);
 		});
@@ -627,7 +635,7 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and revision (pagebundle)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
+			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
 			.expect(validPageBundleResponse())
 			.end(done);
 		});
@@ -644,29 +652,31 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and revision (wikitext)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/wikitext/Main_Page/1')
+			.get(mockDomain + `/v3/page/wikitext/${page}/${revid}`)
 			.expect(validWikitextResponse())
 			.end(done);
 		});
 
 		it('should set a custom etag for get requests (html)', function(done) {
+			const etagPrefixExp = new RegExp( '^W/"' + revid + '/' );
 			client.req
-			.get(mockDomain + '/v3/page/html/Main_Page/1')
+			.get(mockDomain + `/v3/page/html/${page}/${revid}`)
 			.expect(validHtmlResponse())
 			.expect((res) => {
 				res.headers.should.have.property('etag');
-				res.headers.etag.should.match(/^W\/"1\//);
+				res.headers.etag.should.match( etagPrefixExp );
 			})
 			.end(done);
 		});
 
 		it('should set a custom etag for get requests (pagebundle)', function(done) {
+			const etagPrefixExp = new RegExp( '^W/"' + revid + '/' );
 			client.req
-			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
+			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
 			.expect(validPageBundleResponse())
 			.expect((res) => {
 				res.headers.should.have.property('etag');
-				res.headers.etag.should.match(/^W\/"1\//);
+				res.headers.etag.should.match( etagPrefixExp );
 			})
 			.end(done);
 		});
@@ -790,14 +800,14 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
 				original: {
-					title: 'Main_Page',
+					title: page,
 				},
 			})
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/Main%20Page/1'
+					PARSOID_URL + mockDomain + `/v3/transform/wikitext/to/html/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -808,14 +818,14 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.send({
 				original: {
-					title: 'Main_Page',
+					title: page,
 				},
 			})
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/pagebundle/Main%20Page/1'
+					PARSOID_URL + mockDomain + `/v3/transform/wikitext/to/pagebundle/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -826,14 +836,14 @@ describe('Parsoid API', function() {
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
 				original: {
-					title: 'Lint Page',
+					title: page,
 				},
 			})
 			.expect(307)  // no revid or wikitext source provided
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.match(
-					new RegExp( '^' + JSUtils.escapeRegExp(PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/Lint%20Page/') )
+					new RegExp( '^' + JSUtils.escapeRegExp(PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/' + pageEncoded + '/') )
 				);
 			})
 			.end(done);
@@ -889,7 +899,7 @@ describe('Parsoid API', function() {
 
 		it('should accept the wikitext source as original data', function(done) {
 			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
+			.post(mockDomain + `/v3/transform/wikitext/to/html/${page}/${revid}`)
 			.send({
 				original: {
 					wikitext: {
@@ -909,7 +919,7 @@ describe('Parsoid API', function() {
 		it('should use the proper source text', function(done) {
 			if (skipForNow) { return this.skip(); }  // Missing template 1x
 			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/Main_Page/1')
+			.post(mockDomain + `/v3/transform/wikitext/to/html/${page}/${revid}`)
 			.send({
 				original: {
 					wikitext: {
@@ -987,7 +997,7 @@ describe('Parsoid API', function() {
 
 		it('should not include captured offsets', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
+			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
 			.expect(validPageBundleResponse(function(doc, dp) {
 				dp.should.not.have.property('sectionOffsets');
 			}))
@@ -1143,7 +1153,7 @@ describe('Parsoid API', function() {
 
 			it('should not perform unnecessary variant conversion for get of en page (html)', function(done) {
 				client.req
-				.get(mockDomain + '/v3/page/html/Main_Page/1')
+				.get(mockDomain + `/v3/page/html/${page}/${revid}`)
 				.set('Accept-Language', 'sr-el')
 				.expect(validHtmlResponse())
 				.expect('Content-Language', 'en')
@@ -1156,7 +1166,7 @@ describe('Parsoid API', function() {
 
 			it('should not perform unnecessary variant conversion for get of en page (pagebundle)', function(done) {
 				client.req
-				.get(mockDomain + '/v3/page/pagebundle/Main_Page/1')
+				.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
 				.set('Accept-Language', 'sr-el')
 				.expect(validPageBundleResponse())
 				.expect((res) => {
@@ -1484,7 +1494,7 @@ describe('Parsoid API', function() {
 
 		it('should error when revision not found (transform, html2wt)', function(done) {
 			client.req
-			.post(mockDomain + '/v3/transform/html/to/wikitext/Doesnotexist/2020')
+			.post(mockDomain + '/v3/transform/html/to/wikitext/Doesnotexist/1122334455')
 			.send({
 				html: '<pre>hi ho</pre>'
 			})
@@ -1563,7 +1573,7 @@ describe('Parsoid API', function() {
 
 		it('should allow a revision id in the url', function(done) {
 			client.req
-			.post(mockDomain + '/v3/transform/html/to/wikitext/Main_Page/1')
+			.post(mockDomain + `/v3/transform/html/to/wikitext/${page}/${revid}`)
 			.send({
 				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 			})
@@ -1577,7 +1587,7 @@ describe('Parsoid API', function() {
 			.send({
 				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 				original: {
-					revid: 1,
+					revid,
 				},
 			})
 			.expect(validWikitextResponse())
@@ -2338,7 +2348,7 @@ describe('Parsoid API', function() {
 					},
 				},
 			})
-			.expect(200)
+			.expect(status200)
 			.expect(acceptablePageBundleResponse(contentVersion, function(html) {
 				// In < 999.x, data-mw is still inline.
 				html.should.match(/\s+data-mw\s*=\s*['"]/);
@@ -2389,7 +2399,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		(skipForNow ? describe.skip : describe)('Variant conversion', function() {
+		describe('Variant conversion', function() {
 
 			it('should refuse variant conversion on en page', function(done) {
 				client.req
@@ -2399,7 +2409,7 @@ describe('Parsoid API', function() {
 						variant: { target: 'sr-el' },
 					},
 					original: {
-						revid: 1,
+						revid,
 						html: {
 							headers: {
 								'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
@@ -2413,6 +2423,7 @@ describe('Parsoid API', function() {
 			});
 
 			it('should accept the original and do variant conversion (given oldid)', function(done) {
+				if (skipForNow) { return this.skip(); } // Enabled language conversion
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.send({
@@ -2429,7 +2440,7 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
+				.expect(status200)
 				.expect((res) => {
 					// We don't actually require the result to have data-parsoid
 					// if the input didn't have data-parsoid; hack the result
@@ -2450,6 +2461,7 @@ describe('Parsoid API', function() {
 			});
 
 			it('should accept the original and do variant conversion (given pagelanguage)', function(done) {
+				if (skipForNow) { return this.skip(); } // Enabled language conversion
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.set('Content-Language', 'sr')
@@ -2467,7 +2479,7 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
+				.expect(status200)
 				.expect((res) => {
 					// We don't actually require the result to have data-parsoid
 					// if the input didn't have data-parsoid; hack the result
@@ -2505,7 +2517,7 @@ describe('Parsoid API', function() {
 						},
 					},
 				})
-				.expect(200)
+				.expect(status200)
 				.expect((res) => {
 					// We don't actually require the result to have data-parsoid
 					// if the input didn't have data-parsoid; hack the result
