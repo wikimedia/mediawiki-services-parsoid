@@ -5,7 +5,7 @@ const { DOMUtils } = require("../lib/utils/DOMUtils.js");
 const { ScriptUtils } = require('../tools/ScriptUtils.js');
 
 
-function stripReadView(root, rules) {
+function stripReadView(root, rules, ruleNames) {
 	const traverser = new DOMTraverser();
 
 	traverser.addHandler(null, (node) => {
@@ -18,14 +18,14 @@ function stripReadView(root, rules) {
 			return true;
 		}
 
-		Object.entries(rules).forEach(([attribute, rule]) => {
+		ruleNames.forEach(ruleName => {
+			const rule = rules[ruleName];
 			const value =
-                DOMUtils.isElt(node) &&
-                node.hasAttribute(attribute) &&
-                node.getAttribute(attribute);
-
-			if (value && matcher(rule, value)) {
-				node.removeAttribute(attribute);
+				DOMUtils.isElt(node) &&
+				node.hasAttribute(rule.attribute) &&
+				node.getAttribute(rule.attribute);
+			if (value && matcher(rule.attribute, rule.value)) {
+				node.removeAttribute(rule.attribute);
 			}
 		});
 
@@ -49,28 +49,36 @@ function mwAPIParserOutput(domain, title) {
 	return ScriptUtils.retryingHTTPRequest(2, httpOptions);
 }
 
-function diffSize(html, rules) {
-	const body = DOMUtils.parseHTML(html).body;
-	const deflatedOriginalSize = zlib.gzipSync(
-        XMLSerializer.serialize(body).html
+function strippedSize(body, rules, ruleNames) {
+	const stripped = stripReadView(body, rules, ruleNames);
+	return zlib.gzipSync(
+		XMLSerializer.serialize(stripped).html
 	).byteLength;
-
-	const stripped = stripReadView(body, rules);
-	const deflatedStrippedSize = zlib.gzipSync(
-        XMLSerializer.serialize(stripped).html
-	).byteLength;
-
-	return {
-		originalSize: deflatedOriginalSize,
-		strippedSize: deflatedStrippedSize,
-	};
 }
 
 async function benchmarkReadView(domain, title, parsoidHTML, rules) {
 	const mwParserOutputBody = await mwAPIParserOutput(domain, title);
-	const result = diffSize(parsoidHTML, rules);
-	result.mwParserSize = zlib.gzipSync(mwParserOutputBody[1].parse.text['*']).byteLength;
-	return result;
+	const mwParserSize = zlib.gzipSync(mwParserOutputBody[1].parse.text['*']).byteLength;
+
+	const body = DOMUtils.parseHTML(parsoidHTML).body;
+	const deflatedOriginalSize = zlib.gzipSync(
+		XMLSerializer.serialize(body).html
+	).byteLength;
+
+	const results = {
+		mwParser: mwParserSize,
+		original: deflatedOriginalSize
+	};
+
+	// Metrics per stripped attribute
+	Object.keys(rules).forEach(ruleName => {
+		results[ruleName] = strippedSize(body, rules, [ruleName]);
+	});
+
+	// Metrics for all stripped attributes
+	results.stripped = strippedSize(body, rules, Object.keys(rules));
+
+	return results;
 }
 
 module.exports.benchmarkReadView = benchmarkReadView;
