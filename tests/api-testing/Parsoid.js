@@ -51,6 +51,31 @@ function status200( res ) {
 	assert.strictEqual( res.status, 200, res.text );
 }
 
+// Return a matcher function that checks whether a content type matches the given parameters.
+function contentTypeMatcher( expectedMime, expectedSpec, expectedVersion ) {
+	const pattern = /^([-\w]+\/[-\w]+); charset=utf-8; profile="https:\/\/www.mediawiki.org\/wiki\/Specs\/([-\w]+)\/(\d+\.\d+\.\d+)"$/;
+
+	return ( actual ) => {
+		const parts = pattern.exec( actual );
+		if ( !parts ) {
+			return false;
+		}
+
+		const [ , mime, spec, version ] = parts;
+
+		// match version using caret semantics
+		if ( !semver.satisfies( version, `^${expectedVersion || defaultContentVersion}` ) ) {
+			return false;
+		}
+
+		if ( mime !== expectedMime || spec !== expectedSpec ) {
+			return false;
+		}
+
+		return true;
+	};
+}
+
 describe('Parsoid API', function() {
 	const client = new REST();
 	const parsedUrl = new url.URL(client.req.app);
@@ -95,30 +120,22 @@ describe('Parsoid API', function() {
 		return function(res) {
 			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
-			res.headers['content-type'].should.equal(
-				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/pagebundle/' + contentVersion + '"'
-			);
+			res.headers['content-type'].should.satisfy( contentTypeMatcher( 'application/json', 'pagebundle', contentVersion ) );
 			res.body.should.have.property('html');
 			res.body.html.should.have.property('headers');
 			res.body.html.headers.should.have.property('content-type');
-			res.body.html.headers['content-type'].should.equal(
-				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + contentVersion + '"'
-			);
+			res.body.html.headers['content-type'].should.satisfy( contentTypeMatcher( 'text/html', 'HTML', contentVersion ) );
 			res.body.html.should.have.property('body');
 			res.body.should.have.property('data-parsoid');
 			res.body['data-parsoid'].should.have.property('headers');
 			res.body['data-parsoid'].headers.should.have.property('content-type');
-			res.body['data-parsoid'].headers['content-type'].should.equal(
-				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + contentVersion + '"'
-			);
+			res.body['data-parsoid'].headers['content-type'].should.satisfy( contentTypeMatcher( 'application/json', 'data-parsoid', contentVersion ) );
 			res.body['data-parsoid'].should.have.property('body');
 			if (semver.gte(contentVersion, '999.0.0')) {
 				res.body.should.have.property('data-mw');
 				res.body['data-mw'].should.have.property('headers');
 				res.body['data-mw'].headers.should.have.property('content-type');
-				res.body['data-mw'].headers['content-type'].should.equal(
-					'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-mw/' + contentVersion + '"'
-				);
+				res.body['data-mw'].headers['content-type'].should.satisfy( contentTypeMatcher( 'application/json', 'data-mw', contentVersion ) );
 				res.body['data-mw'].should.have.property('body');
 			}
 			if (expectFunc) {
@@ -423,10 +440,7 @@ describe('Parsoid API', function() {
 		return function(res) {
 			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
-			res.headers['content-type'].should.equal(
-				// note that express does some reordering
-				'text/plain; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/wikitext/1.0.0"'
-			);
+			res.headers['content-type'].should.satisfy( contentTypeMatcher( 'text/plain', 'wikitext', '1.0.0' ) );
 			if (expected !== undefined) {
 				res.text.should.equal(expected);
 			} else {
@@ -439,9 +453,7 @@ describe('Parsoid API', function() {
 		return function(res) {
 			res.statusCode.should.equal(200, res.text);
 			res.headers.should.have.property('content-type');
-			res.headers['content-type'].should.equal(
-				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"'
-			);
+			res.headers['content-type'].should.satisfy( contentTypeMatcher( 'text/html', 'HTML' ) );
 			var doc = domino.createDocument(res.text);
 			if (expectFunc) {
 				return expectFunc(doc);
@@ -457,16 +469,12 @@ describe('Parsoid API', function() {
 			res.body.should.have.property('html');
 			res.body.html.should.have.property('headers');
 			res.body.html.headers.should.have.property('content-type');
-			res.body.html.headers['content-type'].should.equal(
-				'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"'
-			);
+			res.body.html.headers['content-type'].should.satisfy( contentTypeMatcher( 'text/html', 'HTML' ) );
 			res.body.html.should.have.property('body');
 			res.body.should.have.property('data-parsoid');
 			res.body['data-parsoid'].should.have.property('headers');
 			res.body['data-parsoid'].headers.should.have.property('content-type');
-			res.body['data-parsoid'].headers['content-type'].should.equal(
-				'application/json; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/' + defaultContentVersion + '"'
-			);
+			res.body['data-parsoid'].headers['content-type'].should.satisfy( contentTypeMatcher( 'application/json', 'data-parsoid' ) );
 			res.body['data-parsoid'].should.have.property('body');
 			// TODO: Check data-mw when 999.x is the default.
 			console.assert(!semver.gte(defaultContentVersion, '999.0.0'));
