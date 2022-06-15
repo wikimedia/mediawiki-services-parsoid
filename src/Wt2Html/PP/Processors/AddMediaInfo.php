@@ -661,6 +661,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			];
 		}
 
+		if ( !$validContainers ) {
+			return;
+		}
+
 		$start = microtime( true );
 
 		$infos = $env->getDataAccess()->getFileInfo(
