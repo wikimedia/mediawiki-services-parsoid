@@ -559,7 +559,7 @@ class MockDataAccess extends DataAccess {
 
 			case 'indicator':
 			case 'section':
-				$html = "\n";
+				$html = "";
 				break;
 
 			default:

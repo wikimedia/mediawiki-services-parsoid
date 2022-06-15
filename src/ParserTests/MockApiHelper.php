@@ -905,7 +905,7 @@ class MockApiHelper extends ApiHelper {
 
 			case 'indicator':
 			case 'section':
-				$res = "\n";
+				$res = "";
 				break;
 
 			default:
