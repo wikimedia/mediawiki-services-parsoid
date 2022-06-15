@@ -557,10 +557,6 @@ class TemplateHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function processTemplateSource( Token $token, array $tplArgs, string $src ): array {
-		if ( !$src ) {
-			return [];
-		}
-
 		$env = $this->env;
 		$frame = $this->manager->getFrame();
 		if ( $env->hasDumpFlag( 'tplsrc' ) ) {
@@ -570,6 +566,10 @@ class TemplateHandler extends TokenHandler {
 			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
 			$env->log( 'dump/tplsrc', $src );
 			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
+		}
+
+		if ( $src === '' ) {
+			return [];
 		}
 
 		$env->log( 'debug', 'TemplateHandler.processTemplateSource',
