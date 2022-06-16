@@ -98,7 +98,6 @@ class SanitizerHandler extends TokenHandler {
 				// and unacceptable attributes in the interest of safety/security and the
 				// resultant dirty diffs should be acceptable.  But, this is something to do
 				// in the future once we have passed the initial tests of parsoid acceptance.
-				// Object::keys( $newAttrs )->forEach( function ( $j ) use ( &$newAttrs, &$token ) {
 				foreach ( $newAttrs as $k => $v ) {
 					// explicit check against null to prevent discarding empty strings
 					if ( $v[0] !== null ) {
