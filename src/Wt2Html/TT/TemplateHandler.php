@@ -607,6 +607,112 @@ class TemplateHandler extends TokenHandler {
 				'srcText' => $src,
 				'srcOffsets' => new SourceRange( 0, strlen( $src ) ),
 				'tplArgs' => $tplArgs,
+				// HEADS UP: You might be wondering why we are forcing "sol" => true without
+				// using information about whether the transclusion is used in a SOL context.
+				//
+				// Ex: "foo {{1x|*bar}}"  Here, "*bar" is not in SOL context relative to the
+				// top-level page and so, should it be actually be parsed as a list item?
+				//
+				// So, there is a use-case where one could argue that the sol value here
+				// should be conditioned on the page-level context where "{{1x|*bar}}" showed
+				// up. So, in this example "foo {{1x|*bar}}, sol would be false and in this
+				// example "foo\n{{1x|*bar}}", sol would be true. That is effectively how
+				// the legacy parser behaves. (Ignore T2529 for the moment.)
+				//
+				// But, Parsoid is a different beast. Since the Parsoid/JS days, templates
+				// have been processed asynchronously. So, {{1x|*bar}} would be expanded and
+				// tokenized before even its preceding context might have been processed.
+				// From the start, Parsoid has aimed to decouple the processing of fragment
+				// generators (be it templates, extensions, or something else) from the
+				// processing of the page they are embedded in. This has been the
+				// starting point of many a wikitext 2.0 proposal on mediawiki.org;
+				// see also [[mw:Parsing/Notes/Wikitext_2.0#Implications_of_this_model]].
+				//
+				// The main performance implication is that you can process a transclusion
+				// concurrently *and* cache the output of {{1x|*bar}} since its output is
+				// the same no matter where on the page it appears. Without this decoupled
+				// model, if you got "{{mystery-template-that-takes-30-secs}}{{1x|*bar}}"
+				// you have to wait 30 secs before you get to expand {{1x|*bar}}
+				// because you have to wait and see whether the mystery template will
+				// leave you in SOL state or non-SOL state.
+				//
+				// In a stroke of good luck, wikitext editors seem to have agreed
+				// that it is better for all templates to be expanded in a
+				// consistent SOL state and not be dependent on their context;
+				// turn now to phab task T2529 which (via a fragile hack) tried
+				// to ensure that every template which started with
+				// start-of-line-sensitive markup was evaluated in a
+				// start-of-line context (by hackily inserting a newline).  Not
+				// everyone was satisfied with this hack (see T14974), but it's
+				// been the way things work for over a decade now (as evidenced
+				// by T14974 never having been "fixed").
+				//
+				// So, while we've established we would prefer *not* to use page
+				// context to set the initial SOL value for tokenizing the
+				// template, what *should* the initial SOL value be?
+				//
+				// * Treat every transclusion as a fresh document starting in SOL
+				//   state, ie set "sol" => true always.  This is supported by
+				//   most current wiki use, and is the intent behind the original
+				//   T2529 hack (although that hack left a number of edge cases,
+				//   described below).
+				//
+				// * Use `"sol" => false` for templates -- this was the solution
+				//   rejected by the original T2529 as being contrary to editor
+				//   expectations.
+				//
+				// * In the future, one might allow the template itself to
+				//   specify that its initial SOL state should be, using a
+				//   mechanism similar to what might be necessary for typed
+				//   templates.  This could also address T14974.  This is not
+				//   excluded by Parsoid at this point; but it would probably be
+				//   signaled by a template "return type" which is *not* DOM
+				//   therefore the template wouldn't get parsed "as wikitext"
+				//   (ie, T14974 wants an "attribute-value" return type which is
+				//   a plain string, and some of the wikitext 2.0 proposals
+				//   anticipate a "attribute name/value" dictionary as a possible
+				//   return type).
+				//
+				// In support of using sol=>true as the default initial state,
+				// let's examine the sol-sensitive wikitext constructs, and
+				// implicitly the corner cases left open by the T2529 hack.  (For
+				// non-sol-sensitive constructs, the initial SOL state is
+				// irrelevant.)
+				//
+				//   - SOL-sensitive contructs include lists, headings, indent-pre,
+				//     and table syntax.
+				//   - Of these, only lists, headings, and table syntax are actually handled in
+				//     the PEG tokenizer and are impacted by SOL state.
+				//   - Indent-Pre has its own handler that operates in a full page token context
+				//     and isn't impacted.
+				//   - T2529 effectively means for *#:; (lists) and {| (table start), newlines
+				//     are added which means no matter what value we set here, they will get
+				//     processed in sol state.
+				//   - This leaves us with headings (=), table heading (!), table row (|), and
+				//     table close (|}) syntax that would be impacted by what we set here.
+				//   - Given that table row/heading/close templates are very very common on wikis
+				//     and used for constructing complex tables, sol => true will let us handle
+				//     those without hacks. We aren't fully off the hook there -- see the code
+				//     in TokenStreamPatcher, AttributeExpander, TableFixups that all exist to
+				//     to work around the fact that decoupled processing isn't the wikitext
+				//     default. But, without sol => true, we'll likely be in deeper trouble.
+				//   - But, this can cause some occasional bad parses where "=|!" aren't meant
+				//     to be processed as a sol-wikitext construct.
+				//   - Note also that the workaround for T14974 (ie, the T2529 hack applying
+				//     where sol=false is actually desired) has traditionally been to add an
+				//     initial <nowiki/> which ensures that the "T2529 characters" are not
+				//     initial.  There are a number of alternative mechanisms to accomplish
+				//     this (ie, HTML-encode the first character).
+				//
+				// To honor the spirit of T2529 it seems plausible to try to lint
+				// away the remaining corner cases where T2529 does *not* result
+				// in start-of-line state for template expansion, and to use the
+				// various workarounds for compatibility in the meantime.
+				//
+				// We should also pick *one* of the workarounds for T14974
+				// (probably `<nowiki/>` at the first position in the template),
+				// support that (until a better mechanism exists), and (if
+				// possible) lint away any others.
 				'sol' => true
 			]
 		);
