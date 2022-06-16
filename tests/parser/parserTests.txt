@@ -1454,7 +1454,10 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tåg" data-mw='{"name":"tåg","attrs":{},"body":{"extsrc":"tåg"}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tåg" about="#mwt3" data-mw='{"name":"tåg","attrs":{},"body":{"extsrc":"tåg"}}'>'tåg'
+array (
+)
+</pre>
 !! end
 
 !! test
@@ -3761,7 +3764,10 @@ array (
 )
 </pre>
 !! html/parsoid
-<p> a </p><pre typeof="mw:Extension/tag" about="#mwt2" data-mw='{"name":"tag","attrs":{}}'></pre>
+<p> a </p><pre typeof="mw:Extension/tag" about="#mwt2" data-mw='{"name":"tag","attrs":{}}'>NULL
+array (
+)
+</pre>
 !! end
 
 !! test
@@ -13562,17 +13568,23 @@ array (
 </pre>
 !! html/parsoid
 <p>This form breaks the template, which is unfortunate:</p>
-<ul>
-<li>{{1x|foo-{bar}bat}}</li>
-</ul>
-<p>But if the broken language converter markup is inside an extension tag, nothing bad happens:</p>
-<ul>
-<li><span typeof="mw:Nowiki">foo-{bar}bat</span></li>
-<li><span typeof="mw:Nowiki mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;nowiki>foo-{bar}bat&lt;/nowiki>"}},"i":0}}]}'>foo-{bar}bat</span></li>
-<li><pre typeof="mw:Extension/pre" data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo-{bar}bat"}}'>foo-{bar}bat</pre></li>
-<li><pre typeof="mw:Extension/pre mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;pre>foo-{bar}bat&lt;/pre>"}},"i":0}}]}'>foo-{bar}bat</pre></li>
-</ul>
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"foo-{bar}bat"}}'></pre> <pre typeof="mw:Extension/tag mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tag>foo-{bar}bat&lt;/tag>"}},"i":0}}]}'></pre>
+<ul><li>{{1x|foo-{bar}bat}}</li></ul>
+
+<p>But if the broken language converter markup is inside an extension
+tag, nothing bad happens:</p>
+<ul><li><span typeof="mw:Nowiki">foo-{bar}bat</span></li>
+<li><span typeof="mw:Nowiki mw:Transclusion" about="#mwt9" data-parsoid='{"pi":[[{"k":"1"}]],}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;nowiki>foo-{bar}bat&lt;/nowiki>"}},"i":0}}]}'>foo-{bar}bat</span></li>
+<li><pre typeof="mw:Extension/pre" about="#mwt11" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{},"body":{"extsrc":"foo-{bar}bat"}}'>foo-{bar}bat</pre></li>
+<li><pre typeof="mw:Extension/pre mw:Transclusion" about="#mwt12" data-parsoid='{"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;pre>foo-{bar}bat&lt;/pre>"}},"i":0}}]}'>foo-{bar}bat</pre></li></ul>
+
+<pre typeof="mw:Extension/tag" about="#mwt16" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"foo-{bar}bat"}}'>'foo-{bar}bat'
+array (
+)
+</pre>
+<pre typeof="mw:Extension/tag mw:Transclusion" about="#mwt17" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tag>foo-{bar}bat&lt;/tag>"}},"i":0}}]}'>'foo-{bar}bat'
+array (
+)
+</pre>
 !! end
 
 !! test
@@ -18126,7 +18138,9 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":""}}' about="#mwt2">''
+array (
+)</pre>
 !! end
 
 ## Don't expect parsoid to rt this form.
@@ -18142,7 +18156,10 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{}}'>NULL
+array (
+)
+</pre>
 !! end
 
 !! test
@@ -18155,7 +18172,10 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{}}'>NULL
+array (
+)
+</pre>
 !! end
 
 !! test
@@ -18168,7 +18188,9 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' about="#mwt2">'input'
+array (
+)</pre>
 !! end
 
 ## Don't expect parsoid to rt this form.
@@ -18184,7 +18206,10 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}'>'input'
+array (
+)
+</pre>
 !! end
 
 ## Don't expect parsoid to rt this form.
@@ -18200,7 +18225,10 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"input"}}'>'input'
+array (
+)
+</pre>
 !! end
 
 !! test
@@ -18215,7 +18243,10 @@ array (
 )
 </tag></pre><p>&lt;/tag&gt;</p>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" about="#mwt2" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"&lt;tag>"}}'></pre><p>&lt;/tag></p>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{},"body":{"extsrc":"&lt;tag>"}}'>'<tag>'
+array (
+)
+</tag></pre><p>&lt;/tag></p>
 !! end
 
 !! test
@@ -18232,7 +18263,14 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""},"body":{"extsrc":""}}'>''
+array (
+  'width' => '200',
+  'height' => '100',
+  'depth' => '50',
+  'square' => '',
+)
+</pre>
 !! end
 
 ## Don't expect parsoid to rt this form.
@@ -18252,7 +18290,14 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""},"body":{"extsrc":""}}'>''
+array (
+  'width' => '200',
+  'height' => '100',
+  'depth' => '50',
+  'square' => '',
+)
+</pre>
 !! end
 
 !! test
@@ -18266,7 +18311,11 @@ array (
 )
 </pre>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"filename":"/tmp/bla"},"body":{"extsrc":""}}' data-parsoid='{}' about="#mwt2"></pre>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{"filename":"/tmp/bla"},"body":{"extsrc":""}}'>''
+array (
+  'filename' => '/tmp/bla',
+)
+</pre>
 !! end
 
 ## Don't expect parsoid to rt this form.
@@ -18283,7 +18332,11 @@ array (
 )
 </pre><p>text</p>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" about="#mwt2" data-mw='{"name":"tag","attrs":{"foo":"bar"}}'></pre><p>text</p>
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{"foo":"bar"}}'>NULL
+array (
+  'foo' => 'bar',
+)
+</pre><p>text</p>
 !! end
 
 ## </tag> should be output literally since there is no matching tag that begins it
@@ -18309,7 +18362,15 @@ array (
 &lt;/tag&gt;
 </p>
 !! html/parsoid
-<pre typeof="mw:Extension/tag" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""}}' about="#mwt2"></pre><p>other stuff
+<pre typeof="mw:Extension/tag" about="#mwt3" data-mw='{"name":"tag","attrs":{"width":"200","height":"100","depth":"50","square":""}}'>NULL
+array (
+  'width' => '200',
+  'height' => '100',
+  'depth' => '50',
+  'square' => '',
+)
+</pre>
+<p>other stuff
 &lt;/tag></p>
 !! end
 

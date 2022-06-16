@@ -19,10 +19,18 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DocumentFragment {
 		$extName = $extApi->extTag->getName();
+		if ( $extApi->extTag->isSelfClosed() ) {
+			$content = null;
+		}
 		switch ( $extName ) {
 			case 'tag':
 			case 'tåg':
-				return $extApi->htmlToDom( '<pre />' );
+				return $extApi->htmlToDom(
+					"<pre>\n" .
+						var_export( $content, true ) . "\n" .
+						var_export( $extApi->extArgsToArray( $args ), true ) . "\n" .
+					"</pre>"
+				);
 
 			case 'statictag':
 				// FIXME: Choose a better DOM representation that doesn't mess with
