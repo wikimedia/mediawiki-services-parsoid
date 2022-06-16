@@ -336,10 +336,7 @@ class UnpackDOMFragments {
 						}
 						return true;
 					} );
-					self::markMisnested( $env, $node, $newOffset );
-					if ( $node->firstChild ) {
-						$dsrFixer->traverse( $env, $node->firstChild );
-					}
+					$dsrFixer->traverse( $env, $node );
 				}
 
 				$node = $node->nextSibling;

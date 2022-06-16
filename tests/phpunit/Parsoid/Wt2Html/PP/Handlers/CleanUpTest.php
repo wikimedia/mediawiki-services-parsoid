@@ -86,13 +86,12 @@ class CleanUpTest extends TestCase {
 		// for wikitext table tags without closing tag syntax using DOM traversal
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
-		$fragment = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'tr', 'td', ];
 		$this->addHandlers( $domVisitor, $tags, false );
 
-		$domVisitor->traverse( $mockEnv, $fragment );
+		$domVisitor->traverse( $mockEnv, $body );
 	}
 
 	/**
@@ -119,13 +118,12 @@ class CleanUpTest extends TestCase {
 		// for all wikitext tags without closing tags
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
-		$table = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
 		$this->addHandlers( $domVisitor, $tags, false );
 
-		$domVisitor->traverse( $mockEnv, $table );
+		$domVisitor->traverse( $mockEnv, $body );
 	}
 
 	/**
@@ -165,13 +163,12 @@ class CleanUpTest extends TestCase {
 		// for all HTML wikitext tags that can appear without closing tags
 		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
-		$fragment = $body->firstChild;
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
 		$this->addHandlers( $domVisitor, $tags, true );
 
-		$domVisitor->traverse( $mockEnv, $fragment );
+		$domVisitor->traverse( $mockEnv, $body );
 	}
 
 	/**

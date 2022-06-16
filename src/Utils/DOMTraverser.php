@@ -105,25 +105,35 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param Env $env
 	 * @param Node $workNode The starting node for the traversal.
-	 *   The traversal could beyond the subtree rooted at $workNode either because
-	 *   (a) the handlers called during traversal don't return an explicit next node
-	 *       and the traversal code moves to $workNode's nextSibling till it hits null.
-	 *       In this scenario, all sibling dom subtrees at this level are traversed.
-	 *   (b) the handlers called during traversal return an arbitrary node elsewhere
-	 *       in the DOM in which case the traversal scope can be pretty much the whole
-	 *       DOM that $workNode is present in. This behavior would be confusing but
-	 *       there is nothing in the traversal code to prevent that.
+	 *   The traversal could go beyond the subtree rooted at $workNode if
+	 *   the handlers called during traversal return an arbitrary node elsewhere
+	 *   in the DOM in which case the traversal scope can be pretty much the whole
+	 *   DOM that $workNode is present in. This behavior would be confusing but
+	 *   there is nothing in the traversal code to prevent that.
 	 * @param array $options
 	 * @param bool $atTopLevel
+	 */
+	public function traverse(
+		Env $env, Node $workNode, array $options = [], bool $atTopLevel = false
+	) {
+		$this->traverseInternal( true, null, $env, $workNode, $options, $atTopLevel );
+	}
+
+	/**
+	 * @param bool $isRootNode
 	 * @param ?stdClass $tplInfo Template information. When set, it must have all of these fields:
 	 *   - first: (Node) first sibling
 	 *   - last: (Node) last sibling
 	 *   - dsr: field from Pasoid ino
 	 *   - clear: when set, the template will not be passed along for further processing
+	 * @param Env $env
+	 * @param Node $workNode
+	 * @param array $options
+	 * @param bool $atTopLevel
 	 */
-	public function traverse(
-		Env $env, Node $workNode, array $options = [],
-		bool $atTopLevel = false, ?stdClass $tplInfo = null
+	private function traverseInternal(
+		bool $isRootNode, ?stdClass $tplInfo,
+		Env $env, Node $workNode, array $options, bool $atTopLevel
 	) {
 		while ( $workNode !== null ) {
 			if ( $workNode instanceof Element ) {
@@ -163,6 +173,8 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 
 			// We may have walked passed the last about sibling or want to
 			// ignore the template info in future processing.
+			// In any case, it's up to the handler returning a possible next
+			// to figure out.
 			if ( $tplInfo && $tplInfo->clear ) {
 				$tplInfo = null;
 			}
@@ -170,12 +182,20 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 			if ( $possibleNext === true ) {
 				// the 'continue processing' case
 				if ( $workNode->hasChildNodes() ) {
-					$this->traverse(
-						$env, $workNode->firstChild, $options, $atTopLevel,
-						$tplInfo
+					$this->traverseInternal(
+						false, $tplInfo, $env, $workNode->firstChild, $options,
+						$atTopLevel
 					);
 				}
-				$possibleNext = $workNode->nextSibling;
+				if ( $isRootNode ) {
+					// Confine the traverse to the tree rooted as the root node.
+					// `$workNode->nextSibling` would take us outside that.
+					$possibleNext = null;
+				} else {
+					$possibleNext = $workNode->nextSibling;
+				}
+			} elseif ( $isRootNode && $possibleNext !== $workNode ) {
+				$isRootNode = false;
 			}
 
 			// Clear the template info after reaching the last about sibling.
