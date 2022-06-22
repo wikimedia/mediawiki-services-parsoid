@@ -870,7 +870,7 @@ parsoid={
 y
 !! html/php
 <h1><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
-<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar1&amp;action=edit&amp;section=T-1" title="Edit section: ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar1&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <p>baz
 y
 </p>
@@ -898,7 +898,7 @@ y
 <h1><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
 <p><br />
 </p>
-<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar2&amp;action=edit&amp;section=T-1" title="Edit section: ">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar2&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
 <p>baz
 y
 </p>
