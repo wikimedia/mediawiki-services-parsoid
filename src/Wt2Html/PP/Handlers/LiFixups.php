@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -13,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class LiFixups {
@@ -96,17 +96,14 @@ class LiFixups {
 	 * followed by a list of categories for the page).
 	 * @param Element $li
 	 * @param Env $env
-	 * @param array $options
-	 * @param bool $atTopLevel
-	 * @param ?stdClass $tplInfo
+	 * @param DTState $state
 	 * @return bool
 	 */
 	public static function migrateTrailingCategories(
-		Element $li, Env $env, array $options, bool $atTopLevel = false,
-		?stdClass $tplInfo = null
+		Element $li, Env $env, DTState $state
 	): bool {
 		// * Don't bother fixing up template content when processing the full page
-		if ( $tplInfo ) {
+		if ( $state->tplInfo ?? null ) {
 			return true;
 		}
 

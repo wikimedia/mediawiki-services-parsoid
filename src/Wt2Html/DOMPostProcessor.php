@@ -141,13 +141,12 @@ class DOMPostProcessor extends PipelineStage {
 				$p['shortcut'] = $p['name'];
 			}
 			if ( !empty( $p['isTraverser'] ) ) {
-				$t = new DOMTraverser();
+				$t = new DOMTraverser( $p['tplInfo'] ?? false );
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
 				$p['proc'] = function ( ...$args ) use ( $t ) {
-					$args[] = null;
-					return $t->traverse( $this->env, ...$args );
+					return $t->run( $this->env, ...$args );
 				};
 			} else {
 				$classNameOrSpec = $p['Processor'];
@@ -267,6 +266,7 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => 'meta',
 						'action' => static function ( $node, $env ) use ( &$abouts ) {
+							// TODO: $abouts can be part of DTState
 							$isStart = false;
 							$t = WTUtils::extractAnnotationType( $node, $isStart );
 							if ( $t !== null ) {
@@ -396,6 +396,7 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'fixups',
 				'isTraverser' => true,
 				'skipNested' => true,
+				'tplInfo' => true,
 				'handlers' => [
 					// Move trailing categories in <li>s out of the list
 					[
@@ -413,19 +414,19 @@ class DOMPostProcessor extends PipelineStage {
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
 							return $tableFixer->stripDoubleTDs( $node, $this->frame );
 						}
 					],
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
 							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
 						}
 					],
 					[
 						'nodeName' => 'th',
-						'action' => function ( $node, $env, $options ) use ( &$tableFixer ) {
+						'action' => function ( $node, $env ) use ( &$tableFixer ) {
 							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
 						}
 					],
@@ -451,6 +452,7 @@ class DOMPostProcessor extends PipelineStage {
 					[
 						'nodeName' => null,
 						'action' => static function ( $node, $env ) use ( &$seenIds ) {
+							// TODO: $seenIds can be part of DTState
 							return Headings::dedupeHeadingIds( $seenIds, $node );
 						}
 					]
@@ -535,6 +537,7 @@ class DOMPostProcessor extends PipelineStage {
 				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanupAndSaveDataParsoid',
 				'shortcut' => 'cleanup',
 				'isTraverser' => true,
+				'tplInfo' => true,
 				'handlers' => [
 					// Strip empty elements from template content
 					[
@@ -546,15 +549,13 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => static function (
-							$node, $env, $options, $atTopLevel, $tplInfo
-						) use ( &$usedIdIndex ) {
-							if ( $atTopLevel && DOMUtils::isBody( $node ) ) {
+						'action' => static function ( $node, $env, $state ) use ( &$usedIdIndex ) {
+							// TODO: $usedIdIndex can be part of DTState
+							if ( $state->atTopLevel && DOMUtils::isBody( $node ) ) {
 								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 							}
 							return CleanUp::cleanupAndSaveDataParsoid(
-								$usedIdIndex, $node, $env, $atTopLevel,
-								$tplInfo
+								$usedIdIndex, $node, $env, $state
 							);
 						}
 					]

@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -13,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
@@ -93,14 +93,11 @@ class CleanUp {
 	/**
 	 * @param Node $node
 	 * @param Env $env
-	 * @param array $options
-	 * @param bool $atTopLevel
-	 * @param ?stdClass $tplInfo
+	 * @param DTState $state
 	 * @return bool|Node
 	 */
 	public static function handleEmptyElements(
-		Node $node, Env $env, array $options, bool $atTopLevel = false,
-		?stdClass $tplInfo = null
+		Node $node, Env $env, DTState $state
 	) {
 		if ( !( $node instanceof Element ) ||
 			!isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
@@ -110,7 +107,7 @@ class CleanUp {
 		}
 		foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
 			if ( ( $name !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
-				( !$tplInfo || $name !== 'about' || !Utils::isParsoidObjectId( $value ) )
+				( !( $state->tplInfo ?? null ) || $name !== 'about' || !Utils::isParsoidObjectId( $value ) )
 			) {
 				return true;
 			}
@@ -124,7 +121,7 @@ class CleanUp {
 		 * - If not, we add the mw-empty-elt class so that wikis
 		 *   can decide what to do with them.
 		 */
-		if ( $tplInfo ) {
+		if ( $state->tplInfo ?? null ) {
 			$nextNode = $node->nextSibling;
 			$node->parentNode->removeChild( $node );
 			return $nextNode;
@@ -228,13 +225,11 @@ class CleanUp {
 	 * @param array $usedIdIndex
 	 * @param Node $node
 	 * @param Env $env
-	 * @param bool $atTopLevel
-	 * @param ?stdClass $tplInfo
+	 * @param DTState $state
 	 * @return bool|Node The next node or true to continue with $node->nextSibling
 	 */
 	public static function cleanupAndSaveDataParsoid(
-		array $usedIdIndex, Node $node, Env $env,
-		bool $atTopLevel = false, ?stdClass $tplInfo = null
+		array $usedIdIndex, Node $node, Env $env, DTState $state
 	) {
 		if ( !( $node instanceof Element ) ) {
 			return true;
@@ -248,7 +243,7 @@ class CleanUp {
 			unset( $dp->autoInsertedEnd );
 		}
 
-		$isFirstEncapsulationWrapperNode = ( $tplInfo->first ?? null ) === $node ||
+		$isFirstEncapsulationWrapperNode = ( $state->tplInfo->first ?? null ) === $node ||
 			// Traversal isn't done with tplInfo for section tags, but we should
 			// still clean them up as if they are the head of encapsulation.
 			WTUtils::isParsoidSectionTag( $node );
@@ -265,7 +260,7 @@ class CleanUp {
 			str_starts_with( $node->getAttribute( 'property' ) ?? '', 'mw:PageProp/' );
 		if ( $validDSR && !$isPageProp ) {
 			unset( $dp->src );
-		} elseif ( $isFirstEncapsulationWrapperNode && ( !$atTopLevel || empty( $dp->tsr ) ) ) {
+		} elseif ( $isFirstEncapsulationWrapperNode && ( !$state->atTopLevel || empty( $dp->tsr ) ) ) {
 			// Transcluded nodes will not have dp.tsr set
 			// and don't need dp.src either.
 			unset( $dp->src );
@@ -296,13 +291,13 @@ class CleanUp {
 			$dp->dsr->start = $dp->dsr->end;
 		}
 
-		if ( $atTopLevel ) {
+		if ( $state->atTopLevel ) {
 			// Strip nowiki spans from encapsulated content but leave behind
 			// wrappers on root nodes since they have valid about ids and we
 			// don't want to break the about-chain by stripping the wrapper
 			// and associated ids (we cannot add an about id on the nowiki-ed
 			// content since that would be a text node).
-			if ( $tplInfo && !WTUtils::hasParsoidAboutId( $node ) &&
+			if ( ( $state->tplInfo ?? null ) && !WTUtils::hasParsoidAboutId( $node ) &&
 				 DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
 			) {
 				DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
@@ -329,7 +324,7 @@ class CleanUp {
 			$discardDataParsoid = $env->discardDataParsoid;
 
 			// Strip data-parsoid from templated content, where unnecessary.
-			if ( $tplInfo &&
+			if ( ( $state->tplInfo ?? null ) &&
 				// Always keep info for the first node
 				!$isFirstEncapsulationWrapperNode &&
 				// We can't remove data-parsoid from inside <references> text,
@@ -343,7 +338,7 @@ class CleanUp {
 				// identical html but serialize to different wikitext.
 				//
 				// This is only needed for the last top-level node .
-				( empty( $dp->stx ) || ( $tplInfo->last ?? null ) !== $node )
+				( empty( $dp->stx ) || ( $state->tplInfo->last ?? null ) !== $node )
 			) {
 				$discardDataParsoid = true;
 			}
