@@ -497,7 +497,27 @@ class TableFixups {
 			$cellDSR->start -= strlen( $prevCellSrc );
 		}
 
-		$prev->parentNode->removeChild( $prev );
+		$parent = $cell->parentNode;
+		// If $prev is not a <td> (has to be a <th>), the merged cell has
+		// to be a <th> as well. Since $cell is filtered to be a <td> in
+		// getReparseType(..), we create a $newCell as a <th>, transfer
+		// $cell's attributes over, and remove $cell.
+		//
+		// This is an edge case.
+		//
+		// Doing it this way is simpler than trying to fix the logic above
+		// since we'll have to deal with $cell's existing attrs & content.
+		if ( DOMCompat::nodeName( $prev ) === 'th' ) {
+			$newCell = $cell->ownerDocument->createElement( 'th' );
+			foreach ( DOMUtils::attributes( $cell ) as $k => $v ) {
+				$newCell->setAttribute( $k, $v );
+			}
+			DOMUtils::migrateChildren( $cell, $newCell );
+			$parent->insertBefore( $newCell, $cell );
+			$parent->removeChild( $cell );
+		}
+
+		$parent->removeChild( $prev );
 
 		return true;
 	}
