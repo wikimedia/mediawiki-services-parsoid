@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use DOMException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -12,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Wikitext\Consts;
@@ -818,20 +820,87 @@ class WTUtils {
 	}
 
 	/**
+	 * Creates a DocumentFragment containing a single span with type "mw:I18n". The created span
+	 * should be filled in with setDataNodeI18n to be valid.
 	 * @param Document $doc
-	 * @param array $i18n With "key" and "params" for wfMessage
 	 * @return DocumentFragment
+	 * @throws DOMException
 	 */
-	public static function createLocalizationFragment(
-		Document $doc, array $i18n
-	): DocumentFragment {
+	public static function createEmptyLocalizationFragment( Document $doc ): DocumentFragment {
 		$frag = $doc->createDocumentFragment();
 		$span = $doc->createElement( 'span' );
 		DOMUtils::addTypeOf( $span, 'mw:I18n' );
-		$dp = DOMDataUtils::getDataParsoid( $span );
-		$dp->getTemp()->i18n = $i18n;
 		$frag->appendChild( $span );
 		return $frag;
+	}
+
+	/**
+	 * Creates an internationalization (i18n) message that will be localized into the page content
+	 * language. The returned DocumentFragment contains, as a single child, a span
+	 * element with the appropriate information for later localization.
+	 * @param Document $doc
+	 * @param string $key message key for the message to be localized
+	 * @param ?array $params parameters for localization
+	 * @return DocumentFragment
+	 * @throws DOMException
+	 */
+	public static function createPageContentI18nFragment(
+		Document $doc, string $key, ?array $params = null
+	): DocumentFragment {
+		$frag = self::createEmptyLocalizationFragment( $doc );
+		$i18n = I18nInfo::createPageContentI18n( $key, $params );
+		DOMDataUtils::setDataNodeI18n( $frag->firstChild, $i18n );
+		return $frag;
+	}
+
+	/**
+	 * Creates an internationalization (i18n) message that will be localized into the user
+	 * interface language. The returned DocumentFragment contains, as a single child, a span
+	 * element with the appropriate information for later localization.
+	 * @param Document $doc
+	 * @param string $key message key for the message to be localized
+	 * @param ?array $params parameters for localization
+	 * @return DocumentFragment
+	 * @throws DOMException
+	 */
+	public static function createInterfaceI18nFragment(
+		Document $doc, string $key, ?array $params = null
+	): DocumentFragment {
+		$frag = self::createEmptyLocalizationFragment( $doc );
+		$i18n = I18nInfo::createInterfaceI18n( $key, $params );
+		DOMDataUtils::setDataNodeI18n( $frag->firstChild, $i18n );
+		return $frag;
+	}
+
+	/**
+	 * Adds to $element the internationalization information needed for the attribute $name to be
+	 * localized in a later pass into the page content language.
+	 * @param Element $element element on which to add internationalization information
+	 * @param string $name name of the attribute whose value will be localized
+	 * @param string $key message key used for the attribute value localization
+	 * @param ?array $params parameters for localization
+	 */
+	public static function addPageContentI18nAttribute(
+		Element $element, string $name, string $key, ?array $params = null
+	) {
+		$i18n = I18nInfo::createPageContentI18n( $key, $params );
+		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
+		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );
+	}
+
+	/** Adds to $element the internationalization information needed for the attribute $name to be
+	 * localized in a later pass into the user interface language.
+	 * @param Element $element element on which to add internationalization information
+	 * @param string $name name of the attribute whose value will be localized
+	 * @param string $key message key used for the attribute value localization
+	 * @param ?array $params parameters for localization
+	 */
+	public static function addInterfaceI18nAttribute(
+		Element $element, string $name, string $key, ?array $params = null
+	) {
+		$i18n = I18nInfo::createInterfaceI18n( $key, $params );
+		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
+		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );
 	}
 
 	/** Check whether a node is an annotation meta; if yes, returns its type

@@ -81,5 +81,8 @@
 	},
 	"annotationParserTests.txt": {
 		"path": "tests/parser/annotationParserTests.txt"
+	},
+	"i18nParserTests.txt": {
+		"path": "tests/parser/i18nParserTests.txt"
 	}
 }

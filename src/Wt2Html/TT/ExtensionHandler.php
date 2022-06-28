@@ -95,8 +95,8 @@ class ExtensionHandler extends TokenHandler {
 				);
 				$errors = $extApi->getErrors();
 			} catch ( ExtensionError $e ) {
-				$domFragment = WTUtils::createLocalizationFragment(
-					$env->topLevelDoc, $e->err
+				$domFragment = WTUtils::createInterfaceI18nFragment(
+					$env->topLevelDoc, $e->err['key'], $e->err['params'] ?? null
 				);
 				$errors = [ $e->err ];
 				// FIXME: Should we include any errors collected

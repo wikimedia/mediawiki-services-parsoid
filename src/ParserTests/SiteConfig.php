@@ -102,6 +102,7 @@ class SiteConfig extends ApiSiteConfig {
 		$this->unregisterParserTestExtension( new RawHTML() );
 		$this->unregisterParserTestExtension( new ParserHook() );
 		$this->unregisterParserTestExtension( new DummyAnnotation() );
+		$this->unregisterParserTestExtension( new I18nTag() );
 		$this->thumbsize = null;
 	}
 

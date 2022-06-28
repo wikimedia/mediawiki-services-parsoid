@@ -12,7 +12,9 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
+use Wikimedia\Parsoid\NodeData\DataI18n;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\NodeData\ParamInfo;
 use Wikimedia\Parsoid\NodeData\TempData;
@@ -156,6 +158,90 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Returns the i18n information of a node. This is in private access because it shouldn't
+	 * typically be used directly; instead getDataNodeI18n and getDataAttrI18n should be used.
+	 * @param Element $node
+	 * @return DataI18n|null
+	 */
+	private static function getDataI18n( Element $node ): ?DataI18n {
+		$data = self::getNodeData( $node );
+		// We won't set a default value for this property
+		return $data->i18n ?? null;
+	}
+
+	/**
+	 * Sets the i18n information of a node. This is in private access because it shouldn't
+	 * typically be used directly; instead setDataNodeI18n and setDataAttrI18n should be used.
+	 * @param Element $node
+	 * @param DataI18n $i18n
+	 * @return void
+	 */
+	private static function setDataI18n( Element $node, DataI18n $i18n ) {
+		$data = self::getNodeData( $node );
+		$data->i18n = $i18n;
+	}
+
+	/**
+	 * Retrieves internationalization (i18n) information of a node (typically for localization)
+	 * @param Element $node
+	 * @return ?I18nInfo
+	 */
+	public static function getDataNodeI18n( Element $node ): ?I18nInfo {
+		$data = self::getNodeData( $node );
+		// We won't set a default value for this property
+		if ( !isset( $data->i18n ) ) {
+			return null;
+		}
+		return $data->i18n->getSpanInfo();
+	}
+
+	/**
+	 * Sets internationalization (i18n) information of a node, used for later localization
+	 * @param Element $node
+	 * @param I18nInfo $i18n
+	 * @return void
+	 */
+	public static function setDataNodeI18n( Element $node, I18nInfo $i18n ) {
+		$data = self::getNodeData( $node );
+		if ( !isset( $data->i18n ) ) {
+			$data->i18n = new DataI18n();
+		}
+		$data->i18n->setSpanInfo( $i18n );
+	}
+
+	/**
+	 * Retrieves internationalization (i18n) information of an attribute value (typically for
+	 * localization)
+	 * @param Element $node
+	 * @param string $name
+	 * @return ?I18nInfo
+	 */
+	public static function getDataAttrI18n( Element $node, string $name ): ?I18nInfo {
+		$data = self::getNodeData( $node );
+		// We won't set a default value for this property
+		if ( !isset( $data->i18n ) ) {
+			return null;
+		}
+		return $data->i18n->getAttributeInfo( $name );
+	}
+
+	/**
+	 * Sets internationalization (i18n) information of a attribute value, used for later
+	 * localization
+	 * @param Element $node
+	 * @param string $name
+	 * @param I18nInfo $i18n
+	 * @return void
+	 */
+	public static function setDataAttrI18n( Element $node, string $name, I18nInfo $i18n ) {
+		$data = self::getNodeData( $node );
+		if ( !isset( $data->i18n ) ) {
+			$data->i18n = new DataI18n();
+		}
+		$data->i18n->setAttributeInfo( $name, $i18n );
+	}
+
+	/**
 	 * Get data diff info from a node.
 	 *
 	 * @param Element $node node
@@ -211,6 +297,15 @@ class DOMDataUtils {
 	 */
 	public static function validDataMw( Element $node ): bool {
 		return (array)self::getDataMw( $node ) !== [];
+	}
+
+	/**
+	 * Check if there is i18n info on a node (for the node or its attributes)
+	 * @param Element $node
+	 * @return bool
+	 */
+	public static function validDataI18n( Element $node ): bool {
+		return self::getDataI18n( $node ) !== null;
 	}
 
 	/**
@@ -517,6 +612,12 @@ class DOMDataUtils {
 		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
 		self::setDataParsoidDiff( $node, $dpd );
 		$node->removeAttribute( 'data-parsoid-diff' );
+		if ( $node->hasAttribute( 'data-mw-i18n' ) ) {
+			$dataI18n = $node->getAttribute( 'data-mw-i18n' );
+			$i18n = DataI18n::fromJson( PHPUtils::jsonDecode( $dataI18n, true ) );
+			self::setDataI18n( $node, $i18n );
+			$node->removeAttribute( 'data-mw-i18n' );
+		}
 	}
 
 	/**
@@ -620,6 +721,11 @@ class DOMDataUtils {
 				self::setJSONAttribute( $node, 'data-mw', self::getDataMw( $node ) );
 			}
 		}
+
+		if ( self::validDataI18n( $node ) ) {
+			self::setJSONAttribute( $node, 'data-mw-i18n', self::getDataI18n( $node ) );
+		}
+
 		// Store pagebundle
 		if ( $data !== null ) {
 			self::storeInPageBundle( $node, $options['env'], $data, $options['idIndex'] );

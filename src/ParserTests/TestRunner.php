@@ -809,6 +809,9 @@ class TestRunner {
 			if ( isset( $testOpts['annotations'] ) ) {
 				$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
 			}
+			if ( isset( $testOpts['i18next'] ) ) {
+				$this->siteConfig->registerParserTestExtension( new I18nTag() );
+			}
 		}
 
 		// Ensure ParserHook is always registered!

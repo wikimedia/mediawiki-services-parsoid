@@ -118,7 +118,59 @@ class ParsoidExtensionAPI {
 			$err['params'] = $params;
 		}
 		$this->errors[] = $err;
-		return WTUtils::createLocalizationFragment( $this->getTopLevelDoc(), $err );
+		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $key, $params );
+	}
+
+	/**
+	 * Creates an internationalization (i18n) message that will be localized into the user
+	 * interface language. The returned DocumentFragment contains, as a single child, a span
+	 * element with the appropriate information for later localization.
+	 * @param string $key message key for the message to be localized
+	 * @param ?array $params parameters for localization
+	 * @return DocumentFragment
+	 */
+	public function createInterfaceI18nFragment( string $key, ?array $params ): DocumentFragment {
+		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $key, $params );
+	}
+
+	/**
+	 * Creates an internationalization (i18n) message that will be localized into the page content
+	 * language. The returned DocumentFragment contains, as a single child, a span
+	 * element with the appropriate information for later localization.
+	 * @param string $key message key for the message to be localized
+	 * @param ?array $params parameters for localization
+	 * @return DocumentFragment
+	 */
+	public function createPageContentI18nFragment( string $key, ?array $params ): DocumentFragment {
+		return WTUtils::createPageContentI18nFragment( $this->getTopLevelDoc(), $key, $params );
+	}
+
+	/**
+	 * Adds to $element the internationalization information needed for the attribute $name to be
+	 * localized in a later pass into the user interface language.
+	 * @param Element $element element on which to add internationalization information
+	 * @param string $name name of the attribute whose value will be localized
+	 * @param string $key message key used for the attribute value localization
+	 * @param ?array $params parameters for localization
+	 */
+	public function addInterfaceI18nAttribute(
+		Element $element, string $name, string $key, ?array $params
+	) {
+		WTUtils::addInterfaceI18nAttribute( $element, $name, $key, $params );
+	}
+
+	/**
+	 * Adds to $element the internationalization information needed for the attribute $name to be
+	 * localized in a later pass into the page content language.
+	 * @param Element $element element on which to add internationalization information
+	 * @param string $name name of the attribute whose value will be localized
+	 * @param string $key message key used for the attribute value localization
+	 * @param array $params parameters for localization
+	 */
+	public function addPageContentI18nAttribute(
+		Element $element, string $name, string $key, array $params
+	) {
+		WTUtils::addPageContentI18nAttribute( $element, $name, $key, $params );
 	}
 
 	/**
