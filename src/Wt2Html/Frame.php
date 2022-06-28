@@ -186,8 +186,8 @@ class Frame {
 			return [ $arg ];
 		} else {
 			return $this->expand( $arg, [
-				'expandTemplates' => false,
-				'inTemplate' => false,
+				'expandTemplates' => true,
+				'inTemplate' => true,
 				'srcOffsets' => $srcOffsets,
 			] );
 		}
