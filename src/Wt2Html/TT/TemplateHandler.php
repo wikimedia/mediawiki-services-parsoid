@@ -601,8 +601,16 @@ class TemplateHandler extends TokenHandler {
 				'pipelineOpts' => [
 					'inTemplate' => true,
 					'isInclude' => true,
+					// FIXME: In reality, this is broken for parser tests where
+					// we expand templates natively. We do want all nested templates
+					// to be expanded. But, setting this to !usePHPPreProcessor seems
+					// to break a number of tests. Not pursuing this line of enquiry
+					// for now since this parserTests vs production distinction will
+					// disappear with parser integration. We'll just bear the stench
+					// till that time.
+					//
 					// NOTE: No expansion required for nested templates.
-					'expandTemplates' => !$env->nativeTemplateExpansionEnabled(),
+					'expandTemplates' => false,
 					'extTag' => $this->options['extTag'] ?? null
 				],
 				'srcText' => $src,
