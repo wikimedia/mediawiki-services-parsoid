@@ -495,11 +495,11 @@ class DOMPostProcessor extends PipelineStage {
 				'isTraverser' => true,
 				'handlers' => [
 					[
-						'nodeName' => '#text',
+						'nodeName' => null,
 						'action' => [ DisplaySpace::class, 'leftHandler' ]
 					],
 					[
-						'nodeName' => '#text',
+						'nodeName' => null,
 						'action' => [ DisplaySpace::class, 'rightHandler' ]
 					],
 				]

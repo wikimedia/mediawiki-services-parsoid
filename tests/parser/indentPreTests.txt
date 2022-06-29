@@ -43,7 +43,7 @@ parsoid=wt2html,selser
  y :)
 !! html/parsoid
 <pre>x
-y<span typeof="mw:DisplaySpace"> </span>:)</pre>
+y :)</pre>
 !! html/php
 <pre>x
 y&#160;:)

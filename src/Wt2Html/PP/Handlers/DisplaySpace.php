@@ -8,8 +8,10 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -89,16 +91,42 @@ class DisplaySpace {
 	}
 
 	/**
+	 * Omit handling node
+	 *
+	 * @param Node $node
+	 * @return bool|Node
+	 */
+	private static function omitNode( Node $node ) {
+		$nodeName = DOMCompat::nodeName( $node );
+
+		// Go to next sibling if we encounter pre or raw text elements
+		if ( $nodeName === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
+			return $node->nextSibling;
+		}
+
+		// Run handlers only on text nodes
+		if ( !( $node instanceof Text ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * French spaces, Guillemet-left
 	 *
-	 * @param Text $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @return bool|Element
 	 */
-	public static function leftHandler( Text $node, Env $env ) {
-		if ( DOMUtils::isRawTextElement( $node->parentNode ) ) {
-			return true;
+	public static function leftHandler( Node $node, Env $env ) {
+		$omit = self::omitNode( $node );
+		if ( $omit !== false ) {
+			return $omit;
 		}
+
+		'@phan-var Text $node'; // @var Text $node
+
 		$key = array_keys( array_slice( Sanitizer::FIXTAGS, 0, 1 ) )[0];
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[0][1];
@@ -111,14 +139,18 @@ class DisplaySpace {
 	/**
 	 * French spaces, Guillemet-right
 	 *
-	 * @param Text $node
+	 * @param Node $node
 	 * @param Env $env
 	 * @return bool|Element
 	 */
-	public static function rightHandler( Text $node, Env $env ) {
-		if ( DOMUtils::isRawTextElement( $node->parentNode ) ) {
-			return true;
+	public static function rightHandler( Node $node, Env $env ) {
+		$omit = self::omitNode( $node );
+		if ( $omit !== false ) {
+			return $omit;
 		}
+
+		'@phan-var Text $node'; // @var Text $node
+
 		$key = array_keys( array_slice( Sanitizer::FIXTAGS, 1, 1 ) )[0];
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[1][1] + strlen( $matches[1][0] );
