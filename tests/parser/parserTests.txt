@@ -20279,6 +20279,60 @@ Single {{!}} in table cell
 </tbody></table>
 !! end
 
+!! article
+Template:T290526
+!! text
+Main Page{{!}}Something else
+!! endarticle
+
+!! test
+Using {{!}} in wikilinks (T290526)
+!! wikitext
+[[Main Page{{!}}Something else]]
+
+[[{{T290526}}]]
+!! html
+<p><a href="/wiki/Main_Page" title="Main Page">Something else</a>
+</p><p><a href="/wiki/Main_Page" title="Main Page">Something else</a>
+</p>
+!! end
+
+!! test
+Using {{!}} in template arguments (T290526)
+!! wikitext
+{{1x|Main Page{{!}}Something else}}
+
+{{1x|{{T290526}}}}
+!! html/php
+<p>Main Page|Something else
+</p><p>Main Page|Something else
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Main Page{{!}}Something else"}},"i":0}}]}'>Main Page|Something else</span></p>
+
+<p><span about="#mwt3" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{T290526}}"}},"i":0}}]}'>Main Page|Something else</span></p>
+!! end
+
+# wt2wt,html2wt,html2html modes will add <nowiki> around the {{ }} in
+# the last line
+!! test
+Using {{!}} in template arguments, part 2 (T290526)
+!! options
+parsoid=wt2html
+!! wikitext
+{{ Main Page|Something else }}
+
+{{ {{T290526}} }}
+!! html/php
+<p><a href="/index.php?title=Template:Main_Page&amp;action=edit&amp;redlink=1" class="new" title="Template:Main Page (page does not exist)">Template:Main Page</a>
+</p><p>{{ Main Page|Something else }}
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./Template:Main_Page" title="Template:Main Page" about="#mwt1" typeof="mw:Transclusion" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Template:Main_Page"},"sa":{"href":"Template:Main_Page"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Main Page","href":"./Template:Main_Page"},"params":{"1":{"wt":"Something else "}},"i":0}}]}'>Template:Main_Page</a></p>
+
+<p>{{ <span about="#mwt9" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"T290526","href":"./Template:T290526"},"params":{},"i":0}}]}'>Main Page|Something else</span> }}</p>
+!! end
+
 !! test
 Say the magic word
 !! options
