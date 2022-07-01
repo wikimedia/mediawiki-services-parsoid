@@ -20,8 +20,9 @@ declare( strict_types = 1 );
 
 namespace MWParsoid\Rest\Handler;
 
-use MediaWiki\Rest\Handler\ParsoidFormatHelper;
-use MediaWiki\Rest\Handler\TransformHandler as CoreTransformHandler;
+use MediaWiki\Rest\HttpException;
+use MediaWiki\Rest\Response;
+use MWParsoid\Rest\FormatHelper;
 use Wikimedia\ParamValidator\ParamValidator;
 
 /**
@@ -31,63 +32,108 @@ use Wikimedia\ParamValidator\ParamValidator;
  * - /{domain}/v3/transform/{from}/to/{format}/{title}/{revision}
  * @see https://www.mediawiki.org/wiki/Parsoid/API#POST
  */
-class TransformHandler extends CoreTransformHandler {
-
-	/** @inheritDoc */
-	public function checkPreconditions() {
-		// Execute this since this sets up state needed for other functionality.
-		parent::checkPreconditions();
-		// Disable precondition checks by ignoring the return value above.
-		// This works around the problem that Visual Editor will send an
-		// If-Match header with the ETag it got when loading HTML, but
-		// but since TransformHandler doesn't implement ETags, the If-Match
-		// conditional will never match.
-		return null;
-	}
+class TransformHandler extends ParsoidHandler {
 
 	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
-			// We need to verify that the correct domain is given, to avoid cache pollution.
 			'domain' => [
 				self::PARAM_SOURCE => 'path',
 				ParamValidator::PARAM_TYPE => 'string',
 				ParamValidator::PARAM_REQUIRED => true,
-			]
-		] + parent::getParamSettings();
+			],
+			'from' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'format' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => true,
+			],
+			'title' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => false,
+			],
+			'revision' => [
+				self::PARAM_SOURCE => 'path',
+				ParamValidator::PARAM_TYPE => 'string',
+				ParamValidator::PARAM_REQUIRED => false,
+			],
+		];
 	}
 
 	/**
-	 * Override the transform endpoint path.
-	 *
-	 * @param string $format The format the endpoint is expected to return.
-	 *
-	 * @return string
+	 * Transform content given in the request from or to wikitext.
+	 * @return Response
+	 * @throws HttpException
 	 */
-	protected function getTransformEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
-		return '/{domain}/v3/transform/{from}/to/{format}/{title}/{revision}';
-	}
+	public function execute(): Response {
+		$request = $this->getRequest();
+		$from = $request->getPathParam( 'from' );
+		$format = $request->getPathParam( 'format' );
 
-	/**
-	 * Override the page content endpoint path.
-	 *
-	 * @param string $format The format the endpoint is expected to return.
-	 *
-	 * @return string
-	 */
-	protected function getPageContentEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
-		return '/{domain}/v3/page/{format}/{title}';
-	}
+		if (
+			!isset( FormatHelper::VALID_TRANSFORM[$from] ) ||
+			!in_array( $format, FormatHelper::VALID_TRANSFORM[$from], true )
+		) {
+			throw new HttpException(
+				"Invalid transform: ${from}/to/${format}", 404
+			);
+		}
 
-	/**
-	 * Override the revision content endpoint path.
-	 *
-	 * @param string $format The format the endpoint is expected to return.
-	 *
-	 * @return string
-	 */
-	protected function getRevisionContentEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
-		return '/{domain}/v3/page/{format}/{title}/{revision}';
+		$attribs = &$this->getRequestAttributes();
+
+		if ( !$this->acceptable( $attribs ) ) { // mutates $attribs
+			throw new HttpException( 'Not acceptable', 406 );
+		}
+
+		if ( $from === FormatHelper::FORMAT_WIKITEXT ) {
+			// Accept wikitext as a string or object{body,headers}
+			$wikitext = $attribs['opts']['wikitext'] ?? null;
+			if ( is_array( $wikitext ) ) {
+				$wikitext = $wikitext['body'];
+				// We've been given a pagelanguage for this page.
+				if ( isset( $attribs['opts']['wikitext']['headers']['content-language'] ) ) {
+					$attribs['pagelanguage'] = $attribs['opts']['wikitext']['headers']['content-language'];
+				}
+			}
+			// We've been given source for this page
+			if ( $wikitext === null && isset( $attribs['opts']['original']['wikitext'] ) ) {
+				$wikitext = $attribs['opts']['original']['wikitext']['body'];
+				// We've been given a pagelanguage for this page.
+				if ( isset( $attribs['opts']['original']['wikitext']['headers']['content-language'] ) ) {
+					$attribs['pagelanguage']
+						= $attribs['opts']['original']['wikitext']['headers']['content-language'];
+				}
+			}
+			// Abort if no wikitext or title.
+			if ( $wikitext === null && $attribs['titleMissing'] ) {
+				throw new HttpException(
+					'No title or wikitext was provided.', 400
+				);
+			}
+			$pageConfig = $this->tryToCreatePageConfig( $attribs, $wikitext );
+			return $this->wt2html( $pageConfig, $attribs, $wikitext );
+		} elseif ( $format === FormatHelper::FORMAT_WIKITEXT ) {
+			$html = $attribs['opts']['html'] ?? null;
+			// Accept html as a string or object{body,headers}
+			if ( is_array( $html ) ) {
+				$html = $html['body'];
+			}
+			if ( $html === null ) {
+				throw new HttpException(
+					'No html was supplied.', 400
+				);
+			}
+			$wikitext = $attribs['opts']['original']['wikitext']['body'] ?? null;
+			$pageConfig = $this->tryToCreatePageConfig( $attribs, $wikitext, true );
+			return $this->html2wt( $pageConfig, $attribs, $html );
+		} else {
+			return $this->pb2pb( $attribs );
+		}
 	}
 
 }

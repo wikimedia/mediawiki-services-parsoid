@@ -144,31 +144,6 @@ describe('Parsoid API', function() {
 		};
 	};
 
-	describe('domain check', function() {
-		it('should apply to /v3/transform endpoint', function(done) {
-			client.req
-				.get('rest.php/the.wrong.domain/v3/page/wikitext/' + pageEncoded )
-				.expect(function(res) {
-					res.status.should.equal(400, res.text);
-					res.body.error.should.equal('parameter-validation-failed');
-					res.body.failureCode.should.equal('invalid-domain');
-				})
-				.end(done);
-		});
-
-		it('should apply to /v3/transform endpoint', function(done) {
-			client.req
-				.post('rest.php/the.wrong.domain/v3/transform/wikitext/to/html/')
-				.send({ wikitext: '== h2 ==' })
-				.expect(function(res) {
-					res.status.should.equal(400, res.text);
-					res.body.error.should.equal('parameter-validation-failed');
-					res.body.failureCode.should.equal('invalid-domain');
-				})
-				.end(done);
-		});
-	});
-
 	describe('formats', function() {
 
 		it('should accept application/x-www-form-urlencoded', function(done) {
@@ -691,7 +666,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should set a custom etag for get requests (html)', function(done) {
-			const etagPrefixExp = new RegExp( '^"' + revid + '/' );
+			const etagPrefixExp = new RegExp( '^W/"' + revid + '/' );
 			client.req
 			.get(mockDomain + `/v3/page/html/${page}/${revid}`)
 			.expect(validHtmlResponse())
@@ -703,7 +678,7 @@ describe('Parsoid API', function() {
 		});
 
 		it('should set a custom etag for get requests (pagebundle)', function(done) {
-			const etagPrefixExp = new RegExp( '^"' + revid + '/' );
+			const etagPrefixExp = new RegExp( '^W/"' + revid + '/' );
 			client.req
 			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
 			.expect(validPageBundleResponse())
