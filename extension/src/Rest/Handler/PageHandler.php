@@ -20,10 +20,11 @@ declare( strict_types = 1 );
 
 namespace MWParsoid\Rest\Handler;
 
+use MediaWiki\Rest\Handler\ParsoidFormatHelper;
+use MediaWiki\Rest\Handler\ParsoidHandler as CoreParsoidHandler;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\Response;
 use MediaWiki\Revision\SlotRecord;
-use MWParsoid\Rest\FormatHelper;
 use Wikimedia\ParamValidator\ParamValidator;
 use Wikimedia\Parsoid\Config\PageConfig;
 
@@ -33,7 +34,7 @@ use Wikimedia\Parsoid\Config\PageConfig;
  * - /{domain}/v3/page/{format}/{title}/{revision}
  * @see https://www.mediawiki.org/wiki/Parsoid/API#GET
  */
-class PageHandler extends ParsoidHandler {
+class PageHandler extends CoreParsoidHandler {
 
 	/** @inheritDoc */
 	public function getParamSettings() {
@@ -61,12 +62,53 @@ class PageHandler extends ParsoidHandler {
 		];
 	}
 
+	/**
+	 * Override the transform endpoint path.
+	 *
+	 * @param string $format The format the endpoint is expected to return.
+	 *
+	 * @return string
+	 */
+	protected function getTransformEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
+		return '/{domain}/v3/transform/{from}/to/{format}/{title}/{revision}';
+	}
+
+	/**
+	 * Override the page content endpoint path.
+	 *
+	 * @param string $format The format the endpoint is expected to return.
+	 *
+	 * @return string
+	 */
+	protected function getPageContentEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
+		return '/{domain}/v3/page/{format}/{title}';
+	}
+
+	/**
+	 * Override the revision content endpoint path.
+	 *
+	 * @param string $format The format the endpoint is expected to return.
+	 *
+	 * @return string
+	 */
+	protected function getRevisionContentEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
+		return '/{domain}/v3/page/{format}/{title}/{revision}';
+	}
+
+	/**
+	 * Whether to use the private URL prefix for redirects.
+	 * @return bool
+	 */
+	protected function usePrivateParsoidEndpoints() {
+		return true;
+	}
+
 	/** @inheritDoc */
 	public function execute(): Response {
 		$request = $this->getRequest();
 		$format = $request->getPathParam( 'format' );
 
-		if ( !in_array( $format, FormatHelper::VALID_PAGE, true ) ) {
+		if ( !in_array( $format, ParsoidFormatHelper::VALID_PAGE, true ) ) {
 			throw new HttpException(
 				"Invalid page format: ${format}", 404
 			);
@@ -82,7 +124,7 @@ class PageHandler extends ParsoidHandler {
 
 		$pageConfig = $this->tryToCreatePageConfig( $attribs );
 
-		if ( $format === FormatHelper::FORMAT_WIKITEXT ) {
+		if ( $format === ParsoidFormatHelper::FORMAT_WIKITEXT ) {
 			return $this->getPageContentResponse( $pageConfig, $attribs );
 		} else {
 			return $this->wt2html( $pageConfig, $attribs );
@@ -110,8 +152,8 @@ class PageHandler extends ParsoidHandler {
 		$response = $this->getResponseFactory()->create();
 		$response->setStatus( 200 );
 		$response->setHeader( 'X-ContentModel', $content->getModel( SlotRecord::MAIN ) );
-		FormatHelper::setContentType(
-			$response, FormatHelper::FORMAT_WIKITEXT,
+		ParsoidFormatHelper::setContentType(
+			$response, ParsoidFormatHelper::FORMAT_WIKITEXT,
 			$attribs['envOptions']['outputContentVersion']
 		);
 		$response->getBody()->write( $content->getContent( SlotRecord::MAIN ) );
