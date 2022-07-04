@@ -97,7 +97,7 @@ class TokenList implements Iterator {
 	/**
 	 * @return string
 	 */
-	public function current() {
+	public function current(): string {
 		$this->lazyLoadClassList();
 		return current( $this->classList );
 	}
@@ -105,7 +105,7 @@ class TokenList implements Iterator {
 	/**
 	 * @return void
 	 */
-	public function next() {
+	public function next(): void {
 		$this->lazyLoadClassList();
 		next( $this->classList );
 	}
@@ -113,7 +113,7 @@ class TokenList implements Iterator {
 	/**
 	 * @return int|null
 	 */
-	public function key() {
+	public function key(): ?int {
 		$this->lazyLoadClassList();
 		return key( $this->classList );
 	}
@@ -121,7 +121,7 @@ class TokenList implements Iterator {
 	/**
 	 * @return bool
 	 */
-	public function valid() {
+	public function valid(): bool {
 		$this->lazyLoadClassList();
 		return key( $this->classList ) !== null;
 	}
@@ -129,7 +129,7 @@ class TokenList implements Iterator {
 	/**
 	 * @return void
 	 */
-	public function rewind() {
+	public function rewind(): void {
 		$this->lazyLoadClassList();
 		reset( $this->classList );
 	}
