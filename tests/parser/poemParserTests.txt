@@ -233,18 +233,21 @@ Multi-line poems with indentation use spans and breaks correctly (T235709)
 ''CONGREGATI''
 :'''EX TOTO ORBE'''
 ::'''''MATHEMATICI'''''
+:<span>foo</span>
 </poem>
 !! html/php
 <div class="poem">
 <p><i>CONGREGATI</i><br />
 <span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 1em;"><b>EX TOTO ORBE</b></span><br />
-<span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 2em;"><i><b>MATHEMATICI</b></i></span>
+<span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 2em;"><i><b>MATHEMATICI</b></i></span><br />
+<span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 1em;"><span>foo</span></span>
 </p>
 </div>
 !! html/parsoid
-<div class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw="{&quot;name&quot;:&quot;poem&quot;,&quot;attrs&quot;:{},&quot;body&quot;:{&quot;extsrc&quot;:&quot;\n''CONGREGATI''\n:'''EX TOTO ORBE'''\n::'''''MATHEMATICI'''''\n&quot;}}"><p data-parsoid="{}"><i data-parsoid="{}">CONGREGATI</i><br data-parsoid='{"stx":"html","selfClose":true}'/>
+<div class="poem" typeof="mw:Extension/poem" about="#mwt3" data-mw="{&quot;name&quot;:&quot;poem&quot;,&quot;attrs&quot;:{},&quot;body&quot;:{&quot;extsrc&quot;:&quot;\n''CONGREGATI''\n:'''EX TOTO ORBE'''\n::'''''MATHEMATICI'''''\n:&lt;span>foo&lt;/span>\n&quot;}}"><p data-parsoid="{}"><i data-parsoid="{}">CONGREGATI</i><br data-parsoid='{"stx":"html","selfClose":true}'/>
 <span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 1em;" data-parsoid='{"stx":"html"}'><b data-parsoid="{}">EX TOTO ORBE</b></span><br data-parsoid='{"stx":"html","selfClose":true}'/>
-<span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 2em;" data-parsoid='{"stx":"html"}'><i data-parsoid="{}"><b data-parsoid="{}">MATHEMATICI</b></i></span></p></div>
+<span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 2em;" data-parsoid='{"stx":"html"}'><i data-parsoid="{}"><b data-parsoid="{}">MATHEMATICI</b></i></span><br data-parsoid='{"stx":"html","selfClose":true}'/>
+<span class="mw-poem-indented" style="display: inline-block; margin-inline-start: 1em;" data-parsoid='{"stx":"html"}'><span data-parsoid='{"stx":"html"}'>foo</span></span></p></div>
 !! end
 
 !! test

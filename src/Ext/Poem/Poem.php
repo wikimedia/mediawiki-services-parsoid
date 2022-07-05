@@ -70,8 +70,9 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'class', 'mw-poem-indented' );
 					$span->setAttribute( 'style', 'display: inline-block; margin-inline-start: ' . $i . 'em;' );
-					$span->appendChild( $doc->createTextNode( ltrim( $line, ':' ) ) );
-					return DOMCompat::getOuterHTML( $span );
+					// $line isn't an HTML text node, it's wikitext that will be passed to extTagToDOM
+					return substr( DOMCompat::getOuterHTML( $span ), 0, -7 ) .
+						ltrim( $line, ':' ) . '</span>';
 				} else {
 					return $line;
 				}
