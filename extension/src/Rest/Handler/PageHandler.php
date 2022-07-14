@@ -36,6 +36,9 @@ use Wikimedia\Parsoid\Config\PageConfig;
  */
 class PageHandler extends CoreParsoidHandler {
 
+	// NOTE: this controls redirects by overriding methods!
+	use EndpointRedirectTrait;
+
 	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
@@ -60,47 +63,6 @@ class PageHandler extends CoreParsoidHandler {
 				ParamValidator::PARAM_REQUIRED => false,
 			],
 		];
-	}
-
-	/**
-	 * Override the transform endpoint path.
-	 *
-	 * @param string $format The format the endpoint is expected to return.
-	 *
-	 * @return string
-	 */
-	protected function getTransformEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
-		return '/{domain}/v3/transform/{from}/to/{format}/{title}/{revision}';
-	}
-
-	/**
-	 * Override the page content endpoint path.
-	 *
-	 * @param string $format The format the endpoint is expected to return.
-	 *
-	 * @return string
-	 */
-	protected function getPageContentEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
-		return '/{domain}/v3/page/{format}/{title}';
-	}
-
-	/**
-	 * Override the revision content endpoint path.
-	 *
-	 * @param string $format The format the endpoint is expected to return.
-	 *
-	 * @return string
-	 */
-	protected function getRevisionContentEndpoint( string $format = ParsoidFormatHelper::FORMAT_HTML ): string {
-		return '/{domain}/v3/page/{format}/{title}/{revision}';
-	}
-
-	/**
-	 * Whether to use the private URL prefix for redirects.
-	 * @return bool
-	 */
-	protected function usePrivateParsoidEndpoints() {
-		return true;
 	}
 
 	/** @inheritDoc */
