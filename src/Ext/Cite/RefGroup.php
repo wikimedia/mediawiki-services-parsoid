@@ -109,12 +109,12 @@ class RefGroup {
 
 		if ( count( $ref->linkbacks ) === 1 ) {
 			$linkback = self::createLinkback( $extApi, $ref->id, $refGroup, "↑", $ownerDoc );
-			$linkback->setAttribute( 'rel', 'mw:referencedBy' );
+			DOMUtils::addRel( $linkback, 'mw:referencedBy' );
 			$li->insertBefore( $linkback, $reftextSpan );
 		} else {
 			// 'mw:referencedBy' span wrapper
 			$span = $ownerDoc->createElement( 'span' );
-			$span->setAttribute( 'rel', 'mw:referencedBy' );
+			DOMUtils::addRel( $span, 'mw:referencedBy' );
 			$li->insertBefore( $span, $reftextSpan );
 
 			foreach ( $ref->linkbacks as $i => $lb ) {

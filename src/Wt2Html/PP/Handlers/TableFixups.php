@@ -293,7 +293,7 @@ class TableFixups {
 						// Save the content and add in a marker to splice out later.
 						$nowikis[] = $child->textContent;
 						$buf[] = '<nowiki-marker>';
-					} elseif ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
+					} elseif ( DOMUtils::hasRel( $child, 'mw:WikiLink' ) ||
 						WTUtils::isGeneratedFigure( $child )
 					) {
 						// Wikilinks/images abort attribute parsing
@@ -571,7 +571,7 @@ class TableFixups {
 				$child = WTUtils::skipOverEncapsulatedContent( $child );
 			} else {
 				if ( $child instanceof Element ) {
-					if ( $child->getAttribute( "rel" ) === "mw:WikiLink" ||
+					if ( DOMUtils::hasRel( $child, 'mw:WikiLink' ) ||
 						WTUtils::isGeneratedFigure( $child )
 					) {
 						// Wikilinks/images abort attribute parsing

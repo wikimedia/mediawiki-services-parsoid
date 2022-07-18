@@ -54,6 +54,29 @@ class DOMUtils {
 	}
 
 	/**
+	 * Determine whether the node matches the given rel attribute value.
+	 *
+	 * @param Node $n
+	 * @param string $rel Expected value of "rel" attribute, as a literal string.
+	 * @return ?string The match if there is one, null otherwise
+	 */
+	public static function matchRel( Node $n, string $rel ): ?string {
+		return DU::matchRel( $n, $rel );
+	}
+
+	/**
+	 * Add a type to the rel attribute.  This method should almost always
+	 * be used instead of `setAttribute`, to ensure we don't overwrite existing
+	 * rel information.
+	 *
+	 * @param Element $node node
+	 * @param string $rel type
+	 */
+	public static function addRel( Element $node, string $rel ): void {
+		DU::addRel( $node, $rel );
+	}
+
+	/**
 	 * Assert that this is a DOM element node.
 	 * This is primarily to help phan analyze variable types.
 	 * @phan-assert Element $node

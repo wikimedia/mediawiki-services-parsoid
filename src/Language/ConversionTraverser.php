@@ -136,8 +136,7 @@ class ConversionTraverser extends DOMTraverser {
 	 */
 	private function aHandler( Element $el, Env $env ) {
 		// Is this a wikilink?  If so, extract title & convert it
-		$rel = $el->getAttribute( 'rel' ) ?? '';
-		if ( $rel === 'mw:WikiLink' ) {
+		if ( DOMUtils::hasRel( $el, 'mw:WikiLink' ) ) {
 			$href = preg_replace( '#^(\.\.?/)+#', '', $el->getAttribute( 'href' ) ?? '', 1 );
 			$fromPage = Utils::decodeURI( $href );
 			$toPageFrag = $this->machine->convert(
@@ -154,10 +153,10 @@ class ConversionTraverser extends DOMTraverser {
 				$el->setAttribute( 'title', str_replace( '_', ' ', $toPage ) );
 			}
 			$el->setAttribute( 'href', "./{$toPage}" );
-		} elseif ( $rel === 'mw:WikiLink/Interwiki' ) {
+		} elseif ( DOMUtils::hasRel( $el, 'mw:WikiLink/Interwiki' ) ) {
 			// Don't convert title or children of interwiki links
 			return $el->nextSibling;
-		} elseif ( $rel === 'mw:ExtLink' ) {
+		} elseif ( DOMUtils::hasRel( $el, 'mw:ExtLink' ) ) {
 			// WTUtils.usesURLLinkSyntax uses data-parsoid, so don't use it,
 			// but syntactic free links should also have class="external free"
 			if ( DOMCompat::getClassList( $el )->contains( 'free' ) ) {
@@ -197,7 +196,7 @@ class ConversionTraverser extends DOMTraverser {
 			if ( !$node->hasAttribute( $attr ) ) {
 				continue;
 			}
-			if ( $attr === 'title' && $node->getAttribute( 'rel' ) === 'mw:WikiLink' ) {
+			if ( $attr === 'title' && DOMUtils::hasRel( $node, 'mw:WikiLink' ) ) {
 				// We've already converted the title in aHandler above.
 				continue;
 			}

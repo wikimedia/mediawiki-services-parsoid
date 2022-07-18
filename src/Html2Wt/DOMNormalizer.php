@@ -606,7 +606,7 @@ class DOMNormalizer {
 			// the case of links without any annotations,
 			// the positive test is semantically safer than the
 			// negative test.
-			if ( $node->getAttribute( 'rel' ) === 'mw:WikiLink' &&
+			if ( DOMUtils::hasRel( $node, 'mw:WikiLink' ) &&
 				$this->stripIfEmpty( $node ) !== $node
 			) {
 				return $next;

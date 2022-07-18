@@ -100,7 +100,7 @@ class WTUtils {
 
 		// SSS FIXME: This requires to be made more robust
 		// for when dp->stx value is not present
-		return $node->getAttribute( "rel" ) === "mw:WikiLink" ||
+		return DOMUtils::hasRel( $node, 'mw:WikiLink' ) ||
 			( isset( $dp->stx ) && $dp->stx !== "url" && $dp->stx !== "magiclink" );
 	}
 
@@ -124,7 +124,7 @@ class WTUtils {
 
 		// SSS FIXME: This requires to be made more robust
 		// for when $dp->stx value is not present
-		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
+		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			( !isset( $dp->stx ) || ( $dp->stx !== "url" && $dp->stx !== "magiclink" ) );
 	}
 
@@ -148,7 +148,7 @@ class WTUtils {
 
 		// SSS FIXME: This requires to be made more robust
 		// for when $dp->stx value is not present
-		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
+		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			isset( $dp->stx ) && $dp->stx === "url";
 	}
 
@@ -170,8 +170,8 @@ class WTUtils {
 
 		// SSS FIXME: This requires to be made more robust
 		// for when $dp->stx value is not present
-		return $node->getAttribute( "rel" ) === "mw:ExtLink" &&
-			isset( $dp->stx ) && $dp->stx === "magiclink";
+		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
+			isset( $dp->stx ) && $dp->stx === 'magiclink';
 	}
 
 	/**
@@ -365,7 +365,7 @@ class WTUtils {
 	public static function isRedirectLink( Node $node ): bool {
 		return $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'link' &&
-			preg_match( '#\bmw:PageProp/redirect\b#', $node->getAttribute( 'rel' ) ?? '' );
+			DOMUtils::matchRel( $node, '#\bmw:PageProp/redirect\b#' ) !== null;
 	}
 
 	/**
@@ -377,7 +377,7 @@ class WTUtils {
 	public static function isCategoryLink( ?Node $node ): bool {
 		return $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'link' &&
-			preg_match( '#\bmw:PageProp/Category\b#', $node->getAttribute( 'rel' ) ?? '' );
+			DOMUtils::matchRel( $node, '#\bmw:PageProp/Category\b#' ) !== null;
 	}
 
 	/**
@@ -389,7 +389,7 @@ class WTUtils {
 	public static function isSolTransparentLink( Node $node ): bool {
 		return $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'link' &&
-			preg_match( TokenUtils::SOL_TRANSPARENT_LINK_REGEX, $node->getAttribute( 'rel' ) ?? '' );
+			DOMUtils::matchRel( $node, TokenUtils::SOL_TRANSPARENT_LINK_REGEX ) !== null;
 	}
 
 	/**

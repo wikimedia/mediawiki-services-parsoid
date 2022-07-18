@@ -367,10 +367,37 @@ class DOMUtils {
 	 *   no match.
 	 */
 	public static function matchTypeOf( Node $n, string $typeRe ): ?string {
+		return self::matchMultivalAttr( $n, 'typeof', $typeRe );
+	}
+
+	/**
+	 * Determine whether the node matches the given `rel` attribute value.
+	 *
+	 * @param Node $n The node to test
+	 * @param string $relRe Regular expression matching the expected value of
+	 *   the `rel` attribute.
+	 * @return ?string The matching `rel` value, or `null` if there is
+	 *   no match.
+	 */
+	public static function matchRel( Node $n, string $relRe ): ?string {
+		return self::matchMultivalAttr( $n, 'rel', $relRe );
+	}
+
+	/**
+	 * Determine whether the node matches the given multivalue attribute value.
+	 *
+	 * @param Node $n The node to test
+	 * @param string $attrName the attribute to test (typically 'rel' or 'typeof')
+	 * @param string $valueRe Regular expression matching the expected value of
+	 *   the attribute.
+	 * @return ?string The matching attribute value, or `null` if there is
+	 *   no match.
+	 */
+	public static function matchMultivalAttr( Node $n, string $attrName, string $valueRe ): ?string {
 		if ( !( $n instanceof Element ) ) {
 			return null;
 		}
-		$attrValue = $n->getAttribute( 'typeof' );
+		$attrValue = $n->getAttribute( $attrName );
 		if ( $attrValue === '' ) {
 			return null;
 		}
@@ -378,7 +405,7 @@ class DOMUtils {
 			if ( $ty === '' ) {
 				continue;
 			}
-			$count = preg_match( $typeRe, $ty );
+			$count = preg_match( $valueRe, $ty );
 			Assert::invariant( $count !== false, "Bad regexp" );
 			if ( $count ) {
 				return $ty;
@@ -396,19 +423,41 @@ class DOMUtils {
 	 * @return bool True if the node matches.
 	 */
 	public static function hasTypeOf( Node $n, string $type ) {
+		return self::hasValueInMultivalAttr( $n, 'typeof', $type );
+	}
+
+	/**
+	 * Determine whether the node matches the given rel attribute value.
+	 *
+	 * @param Node $n
+	 * @param string $rel Expected value of "rel" attribute, as a literal string.
+	 * @return bool True if the node matches.
+	 */
+	public static function hasRel( Node $n, string $rel ) {
+		return self::hasValueInMultivalAttr( $n, 'rel', $rel );
+	}
+
+	/**
+	 * Determine whether the node matches the given attribute value for a multivalued attribute
+	 * @param Node $n
+	 * @param string $attrName name of the attribute to check (typically 'typeof', 'rel')
+	 * @param string $value Expected value of $attrName" attribute, as a literal string.
+	 * @return bool True if the node matches
+	 */
+	public static function hasValueInMultivalAttr( Node $n, string $attrName, string $value ) {
 		// fast path
 		if ( !( $n instanceof Element ) ) {
 			return false;
 		}
-		$attrValue = $n->getAttribute( 'typeof' );
+		$attrValue = $n->getAttribute( $attrName );
 		if ( $attrValue === '' ) {
 			return false;
 		}
-		if ( $attrValue === $type ) {
+		if ( $attrValue === $value ) {
 			return true;
 		}
 		// fallback
-		return in_array( $type, explode( ' ', $attrValue ), true );
+		return in_array( $value, explode( ' ', $attrValue ), true );
 	}
 
 	/**
@@ -420,16 +469,43 @@ class DOMUtils {
 	 * @param string $type type
 	 */
 	public static function addTypeOf( Element $node, string $type ): void {
-		$oldValue = $node->getAttribute( 'typeof' ) ?? '';
+		self::addValueToMultivalAttr( $node, 'typeof', $type );
+	}
+
+	/**
+	 * Add a type to the rel attribute.  This method should almost always
+	 * be used instead of `setAttribute`, to ensure we don't overwrite existing
+	 * rel information.
+	 *
+	 * @param Element $node node
+	 * @param string $rel type
+	 */
+	public static function addRel( Element $node, string $rel ): void {
+		self::addValueToMultivalAttr( $node, 'rel', $rel );
+	}
+
+	/**
+	 * Add an element to a multivalue attribute (typeof, rel).  This method should almost always
+	 * be used instead of `setAttribute`, to ensure we don't overwrite existing
+	 * multivalue information.
+	 *
+	 * @param Element $node
+	 * @param string $attr
+	 * @param string $value
+	 */
+	public static function addValueToMultivalAttr(
+		Element $node, string $attr, string $value
+	): void {
+		$oldValue = $node->getAttribute( $attr ) ?? '';
 		if ( $oldValue !== '' ) {
-			$types = explode( ' ', $oldValue );
-			if ( !in_array( $type, $types, true ) ) {
+			$values = explode( ' ', $oldValue );
+			if ( !in_array( $value, $values, true ) ) {
 				// not in type set yet, so add it.
-				$types[] = $type;
+				$values[] = $value;
 			}
-			$node->setAttribute( 'typeof', implode( ' ', $types ) );
+			$node->setAttribute( $attr, implode( ' ', $values ) );
 		} else {
-			$node->setAttribute( 'typeof', $type );
+			$node->setAttribute( $attr, $value );
 		}
 	}
 

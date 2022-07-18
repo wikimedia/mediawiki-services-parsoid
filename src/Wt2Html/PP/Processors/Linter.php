@@ -1163,7 +1163,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
 	) {
 		if ( DOMCompat::nodeName( $c ) === 'a' &&
-			$c->getAttribute( 'rel' ) === 'mw:ExtLink' &&
+			DOMUtils::hasRel( $c, "mw:ExtLink" ) &&
 			// Images in extlinks will end up with broken up extlinks inside the
 			// <figure> DOM. Those have 'misnested' flag set on them. Ignore those.
 			empty( DOMDataUtils::getDataParsoid( $c )->misnested )

@@ -32,7 +32,7 @@ class DedupeStyles {
 		if ( !DOMUtils::isFosterablePosition( $node ) ) {
 			// Dupe - replace with a placeholder <link> reference
 			$link = $node->ownerDocument->createElement( 'link' );
-			$link->setAttribute( 'rel', 'mw-deduplicated-inline-style' );
+			DOMUtils::addRel( $link, 'mw-deduplicated-inline-style' );
 			$link->setAttribute( 'href', 'mw-data:' . $key );
 			$link->setAttribute( 'about', $node->getAttribute( 'about' ) ?? '' );
 			$link->setAttribute( 'typeof', $node->getAttribute( 'typeof' ) ?? '' );

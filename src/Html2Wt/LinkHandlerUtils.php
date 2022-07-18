@@ -192,6 +192,9 @@ class LinkHandlerUtils {
 			// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
 			// Everything else defaults to ExtLink during serialization (unless it is
 			// serializable to a wikilink)
+			// We're keeping the preg_match here instead of going through DOMUtils::matchRel
+			// because we have \b guards to handle the multivalue, and we're keeping the matches,
+			// which matchRel doesn't do.
 			if ( preg_match( '/\b(mw:(WikiLink|ExtLink|MediaLink|PageProp)[^\s]*)\b/', $rel, $typeMatch ) ) {
 				$rtData->type = $typeMatch[1];
 				// Strip link subtype info
@@ -677,7 +680,7 @@ class LinkHandlerUtils {
 						$nextNode = $node->nextSibling;
 						if ( !(
 							$nextNode instanceof Element && DOMCompat::nodeName( $nextNode ) === 'link' &&
-							$nextNode->getAttribute( 'rel' ) === 'mw:PageProp/Category' &&
+							DOMUtils::hasRel( $nextNode, 'mw:PageProp/Category' ) &&
 							$nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
 						) ) {
 							$linkTarget = ':' . $linkTarget;
