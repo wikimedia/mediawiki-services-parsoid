@@ -49,7 +49,7 @@ class DataI18n implements \JsonSerializable {
 		$this->i18nInfo[$name] = $info;
 	}
 
-	public function jsonSerialize() {
+	public function jsonSerialize(): array {
 		return $this->i18nInfo;
 	}
 

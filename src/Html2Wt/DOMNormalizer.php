@@ -602,10 +602,20 @@ class DOMNormalizer {
 			// the case of links without any annotations,
 			// the positive test is semantically safer than the
 			// negative test.
-			if ( DOMUtils::hasRel( $node, 'mw:WikiLink' ) &&
-				$this->stripIfEmpty( $node ) !== $node
-			) {
-				return $next;
+			if ( DOMUtils::hasRel( $node, 'mw:WikiLink' ) ) {
+				if ( $this->stripIfEmpty( $node ) !== $node ) {
+					return $next;
+				}
+				$href = $node->getAttribute( 'href' );
+				$qmPos = strpos( $href, '?' );
+
+				if ( $qmPos !== false ) {
+					$node->setAttribute(
+						'href',
+						str_replace( [ '&action=edit&redlink=1', '?action=edit&redlink=1' ],
+							[ './', '' ], $href )
+					);
+				}
 			}
 			$this->moveTrailingSpacesOut( $node );
 

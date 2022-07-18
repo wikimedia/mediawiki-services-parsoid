@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class AddRedLinks implements Wt2HtmlDOMProcessor {
@@ -69,6 +70,25 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				$a->removeAttribute( 'class' ); // Clear all
 				if ( !empty( $data['missing'] ) && empty( $data['known'] ) ) {
 					DOMCompat::getClassList( $a )->add( 'new' );
+					WTUtils::addPageContentI18nAttribute( $a, 'title', 'red-link-title', [ $k ] );
+					$href = $a->getAttribute( 'href' );
+					$qmIndex = strpos( $href, '?' );
+					if ( $qmIndex !== false ) {
+						$urlParams = substr( $href, $qmIndex );
+						// We check that it hadn't been added yet so that this pass is idempotent
+						// This is particularly relevant for the pb2pb usecase - if the checks are
+						// not in, calling pb2pb on HTML that already has redlinks (or calling
+						// pb2pb repeatedly) will add multiple redlink markers here.
+						if ( !str_contains( $urlParams, 'action=edit' ) ) {
+							$href .= '&action=edit';
+						}
+						if ( !str_contains( $urlParams, 'redlink=1' ) ) {
+							$href .= '&redlink=1';
+						}
+					} else {
+						$href .= '?action=edit&redlink=1';
+					}
+					$a->setAttribute( 'href', $href );
 				}
 				if ( !empty( $data['redirect'] ) ) {
 					DOMCompat::getClassList( $a )->add( 'mw-redirect' );
