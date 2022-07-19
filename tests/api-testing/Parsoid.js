@@ -690,7 +690,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should set a custom etag for get requests (html)', function(done) {
+		it.skip('should set a custom etag for get requests (html)', function(done) {
 			const etagPrefixExp = new RegExp( '^"' + revid + '/' );
 			client.req
 			.get(mockDomain + `/v3/page/html/${page}/${revid}`)
@@ -702,7 +702,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should set a custom etag for get requests (pagebundle)', function(done) {
+		it.skip('should set a custom etag for get requests (pagebundle)', function(done) {
 			const etagPrefixExp = new RegExp( '^"' + revid + '/' );
 			client.req
 			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
@@ -2574,4 +2574,37 @@ describe('Parsoid API', function() {
 
 	});  // end pb2pb
 
+
+	describe( 'ETags', function () {
+
+		it( '/transform/html must accept the ETag in the If-Match header, if one is returned by /page/html (T238849)', async () => {
+			const { statusCode: status1, headers: headers1, text: text1 } = await client.req
+				.get( mockDomain + `/v3/page/html/${page}/${revid}` )
+				.query( { stash: 'yes' } );
+
+			assert.deepEqual( status1, 200, text1 );
+
+			if ( !headers1.etag ) {
+				// This is a structure test that is asserting one of two acceptable situations:
+				// Either, the page endpoint doesn't return an ETag. This implies that the
+				// HTML wasn't stored anywhere, so it can't be re-used.
+				// Or the transform endpoint accepts the ETag returned by the page endpoint.
+				// This ensures that clients can loop through any ETags they receive.
+				return;
+			}
+
+			// The request above should have stashed a rendering associated with the ETag it
+			// returned. Pass the ETag in the If-Match header.
+			const { statusCode: status2, text: text2 } = await client.req
+				.post( mockDomain + `/v3/transform/html/to/wikitext/${page}/${revid}` )
+				.set( 'If-Match', headers1.etag )
+				.send( {
+					html: text1
+				} );
+
+			// Just check we got a 200. The returned wikitext may or may not be "dirty".
+			assert.deepEqual( status2, 200, text2 );
+		} );
+
+	} );
 });
