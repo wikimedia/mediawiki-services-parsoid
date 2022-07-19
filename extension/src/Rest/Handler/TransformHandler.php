@@ -36,18 +36,6 @@ class TransformHandler extends CoreTransformHandler {
 	use EndpointRedirectTrait;
 
 	/** @inheritDoc */
-	public function checkPreconditions() {
-		// Execute this since this sets up state needed for other functionality.
-		parent::checkPreconditions();
-		// Disable precondition checks by ignoring the return value above.
-		// This works around the problem that Visual Editor will send an
-		// If-Match header with the ETag it got when loading HTML, but
-		// but since TransformHandler doesn't implement ETags, the If-Match
-		// conditional will never match.
-		return null;
-	}
-
-	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
 			// We need to verify that the correct domain is given, to avoid cache pollution.

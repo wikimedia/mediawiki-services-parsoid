@@ -1535,6 +1535,17 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
+		it('should error when if-match doesn\'t match', function(done) {
+			client.req
+				.post(mockDomain + '/v3/transform/html/to/wikitext/')
+				.set( 'if-match', '"xyzzy"' )
+				.send({
+					html: '<pre>hi ho</pre>'
+				})
+				.expect(412)
+				.end(done);
+		});
+
 		it('should not error when oldid not supplied (transform, html2wt)', function(done) {
 			client.req
 			.post(mockDomain + '/v3/transform/html/to/wikitext/Doesnotexist')
