@@ -126,7 +126,7 @@ class ContentUtils {
 
 				// Strip <section> tags and synthetic extended-annotation-region wrappers
 				if ( WTUtils::isParsoidSectionTag( $n ) ||
-					WTUtils::isExtendedAnnotationWrapperTag( $n ) ) {
+					DOMUtils::hasTypeOf( $n, 'mw:ExtendedAnnRange' ) ) {
 					DOMUtils::migrateChildren( $n, $n->parentNode, $n );
 					$n->parentNode->removeChild( $n );
 				}
