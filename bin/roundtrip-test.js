@@ -290,6 +290,46 @@ var findMatchingNodes = function(node, range) {
 	return elts;
 };
 
+function stripTranscludedWhitespaceSpans(node) {
+	while (node) {
+		if (DOMUtils.isElt(node)) {
+			const about = node.getAttribute('about');
+			const nTypeOf = node.getAttribute('typeof') || '';
+			const sibling = node.nextSibling;
+			// remove whitespace spans that are first nodes of a transclusion,
+			// have whitespace content, and transfer attributes to their sibling.
+			if (node.nodeName === 'SPAN' &&
+				/^\s*$/.test(node.textContent) &&
+				/mw:Transclusion/.test(nTypeOf) &&
+				DOMUtils.isElt(sibling) &&
+				sibling.getAttribute('about') === about
+			) {
+				var sTypeOf = sibling.getAttribute('typeof') || '';
+				if (sTypeOf) {
+					sTypeOf = sTypeOf + ' ' + nTypeOf;
+				} else {
+					sTypeOf = nTypeOf;
+				}
+				sibling.setAttribute('typeof', sTypeOf);
+				sibling.setAttribute('data-mw', node.getAttribute('data-mw'));
+				sibling.setAttribute('data-parsoid', node.getAttribute('data-parsoid'));
+				node.parentNode.removeChild(node);
+
+				// Skip transclusion nodes
+				node = sibling;
+				while (node && DOMUtils.isElt(node) && node.getAttribute('about') === about) {
+					node = node.nextSibling;
+				}
+			} else if (/mw:Transclusion/.test(nTypeOf)) {
+				node = WTUtils.skipOverEncapsulatedContent(node);
+			} else if (node.firstChild) {
+				stripTranscludedWhitespaceSpans(node.firstChild);
+			}
+		}
+		node = node ? node.nextSibling : null;
+	}
+}
+
 var getMatchingHTML = function(body, offsetRange, nlDiffs) {
 	// If the diff context straddles a template boundary (*) and if
 	// the HTML context includes the template content in only one
@@ -437,6 +477,20 @@ function genSyntacticDiffs(data) {
 	return results;
 }
 
+function normalizeDocumentHTML(body) {
+	// Strip whitspace spans that are first elements of a transclusion
+	stripTranscludedWhitespaceSpans(body);
+
+	// Strip 'mw..' ids from the DOMs. This matters for 2 scenarios:
+	// * reduces noise in visual diffs
+	// * all other things being equal after normalization, we don't
+	//   assume DOMs are different simply because ids are different
+	stripElementIds(body);
+
+	// Strip section tags from the DOMs
+	ContentUtils.stripUnnecessaryWrappersAndFallbackIds(body);
+}
+
 var checkIfSignificant = function(offsets, data) {
 	var oldWt = data.oldWt;
 	var newWt = data.newWt;
@@ -456,16 +510,8 @@ var checkIfSignificant = function(offsets, data) {
 		mw: data.newMw && data.newMw.body,
 	});
 
-	// Strip 'mw..' ids from the DOMs. This matters for 2 scenarios:
-	// * reduces noise in visual diffs
-	// * all other things being equal after normalization, we don't
-	//   assume DOMs are different simply because ids are different
-	stripElementIds(oldBody.ownerDocument.body);
-	stripElementIds(newBody.ownerDocument.body);
-
-	// Strip section tags from the DOMs
-	ContentUtils.stripUnnecessaryWrappersAndFallbackIds(oldBody.ownerDocument.body);
-	ContentUtils.stripUnnecessaryWrappersAndFallbackIds(newBody.ownerDocument.body);
+	normalizeDocumentHTML(oldBody.ownerDocument.body);
+	normalizeDocumentHTML(newBody.ownerDocument.body);
 
 	var i, offset;
 	var results = [];
@@ -539,7 +585,6 @@ var checkIfSignificant = function(offsets, data) {
 			var wt1 = normalizeWikitext(oldWt.substring(offset[0].start, offset[0].end), { newlines: true, postDiff: true });
 			var wt2 = normalizeWikitext(newWt.substring(offset[1].start, offset[1].end), { newlines: true, postDiff: true });
 			if (wt1 !== wt2) {
-
 				// Syntatic diff + provide context for semantic diffs
 				thisResult.type = 'fail';
 				thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 25);
