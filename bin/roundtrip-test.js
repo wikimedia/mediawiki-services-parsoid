@@ -292,10 +292,11 @@ var findMatchingNodes = function(node, range) {
 
 function stripTranscludedWhitespaceSpans(node) {
 	while (node) {
+		const sibling = node.nextSibling;
 		if (DOMUtils.isElt(node)) {
 			const about = node.getAttribute('about');
 			const nTypeOf = node.getAttribute('typeof') || '';
-			const sibling = node.nextSibling;
+
 			// remove whitespace spans that are first nodes of a transclusion,
 			// have whitespace content, and transfer attributes to their sibling.
 			if (node.nodeName === 'SPAN' &&
@@ -313,7 +314,9 @@ function stripTranscludedWhitespaceSpans(node) {
 				sibling.setAttribute('typeof', sTypeOf);
 				sibling.setAttribute('data-mw', node.getAttribute('data-mw'));
 				sibling.setAttribute('data-parsoid', node.getAttribute('data-parsoid'));
-				node.parentNode.removeChild(node);
+
+				const whitespace = node.ownerDocument.createTextNode(node.textContent);
+				node.parentNode.replaceChild(whitespace, node);
 
 				// Skip transclusion nodes
 				node = sibling;
@@ -322,11 +325,16 @@ function stripTranscludedWhitespaceSpans(node) {
 				}
 			} else if (/mw:Transclusion/.test(nTypeOf)) {
 				node = WTUtils.skipOverEncapsulatedContent(node);
+				// No skipping to nextSibling here!
 			} else if (node.firstChild) {
 				stripTranscludedWhitespaceSpans(node.firstChild);
+				node = sibling;
+			} else {
+				node = sibling;
 			}
+		} else {
+			node = sibling;
 		}
-		node = node ? node.nextSibling : null;
 	}
 }
 
@@ -551,6 +559,11 @@ var checkIfSignificant = function(offsets, data) {
 			// console.log(Diff.diffLines(normalizedOld, normalizedNew));
 		}
 	}
+
+	/*
+	console.log("---------OLD DOC HTML---------\n" + oldBody.ownerDocument.body.innerHTML);
+	console.log("---------NEW DOC HTML---------\n" + newBody.ownerDocument.body.innerHTML);
+	*/
 
 	// FIXME: In this code path below, the returned diffs might
 	// underreport syntactic diffs since these are based on
