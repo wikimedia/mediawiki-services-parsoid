@@ -498,6 +498,9 @@ class TemplateHandler extends TokenHandler {
 			// Parsoid core parser function versions have "token" versions
 			// which are incompatible with implementation in FunctionHookHandler
 			// and FunctionArgs. So, we continue down this hacky path for now.
+			if ( $target === '=' ) {
+				$target = 'equal';  // '=' is not a valid character in function names
+			}
 			$target = 'pf_' . $target;
 			// FIXME: Parsoid may not have implemented the parser function natively
 			// Emit an error message, but encapsulate it so it roundtrips back.

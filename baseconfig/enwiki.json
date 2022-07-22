@@ -5,11 +5,11 @@
             "base": "https://en.wikipedia.org/wiki/Main_Page",
             "sitename": "Wikipedia",
             "logo": "//en.wikipedia.org/static/images/project-logos/enwiki.png",
-            "generator": "MediaWiki 1.38.0-wmf.25",
+            "generator": "MediaWiki 1.39.0-wmf.21",
             "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.4.21-MariaDB-log",
+            "dbversion": "10.4.25-MariaDB-log",
             "langconversion": "",
             "linkconversion": "",
             "titleconversion": "",
@@ -17,11 +17,11 @@
             "linkprefix": "",
             "linktrail": "/^([a-z]+)(.*)$/sD",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
-            "invalidusernamechars": "@:",
+            "invalidusernamechars": "@:>",
             "fixarabicunicode": "",
             "fixmalayalamunicode": "",
-            "git-hash": "2b818a673c023b166b17bbf49216a03460a0751a",
-            "git-branch": "wmf/1.38.0-wmf.25",
+            "git-hash": "0950074d9f6be2a94b0448dee849064f5e7b5f23",
+            "git-branch": "wmf/1.39.0-wmf.21",
             "case": "first-letter",
             "lang": "en",
             "fallback": [],
@@ -37,7 +37,7 @@
             "server": "//en.wikipedia.org",
             "servername": "en.wikipedia.org",
             "wikiid": "enwiki",
-            "time": "2022-03-15T18:31:37Z",
+            "time": "2022-07-22T16:24:11Z",
             "misermode": "",
             "uploadsenabled": "",
             "maxuploadsize": 4294967296,
@@ -96,9 +96,28 @@
             "interwikimagic": "",
             "magiclinks": [],
             "categorycollation": "uca-default-u-kn",
+            "nofollowlinks": "",
+            "nofollownsexceptions": [],
+            "nofollowdomainexceptions": [
+                "mediawiki.org",
+                "wikibooks.org",
+                "wikimedia.com",
+                "wikimedia.org",
+                "wikinews.org",
+                "wikipedia.org",
+                "wikiquote.org",
+                "wikisource.org",
+                "wikiversity.org",
+                "wiktionary.org",
+                "wikivoyage.org",
+                "wikidata.org",
+                "tools.wmflabs.org",
+                "toolforge.org",
+                "etherpad.wmflabs.org"
+            ],
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 457619,
+                "wmfEtcdLastModifiedIndex": 760743,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -563,18 +582,6 @@
                 ]
             },
             {
-                "name": "timedmedia_noplayer",
-                "aliases": [
-                    "noplayer"
-                ]
-            },
-            {
-                "name": "timedmedia_noicon",
-                "aliases": [
-                    "noicon"
-                ]
-            },
-            {
                 "name": "timedmedia_thumbtime",
                 "aliases": [
                     "thumbtime=$1"
@@ -599,6 +606,18 @@
                 ]
             },
             {
+                "name": "timedmedia_loop",
+                "aliases": [
+                    "loop"
+                ]
+            },
+            {
+                "name": "timedmedia_muted",
+                "aliases": [
+                    "muted"
+                ]
+            },
+            {
                 "name": "noglobal",
                 "aliases": [
                     "__NOGLOBAL__"
@@ -618,18 +637,6 @@
                 ]
             },
             {
-                "name": "coordinates",
-                "aliases": [
-                    "coordinates"
-                ]
-            },
-            {
-                "name": "primary",
-                "aliases": [
-                    "primary"
-                ]
-            },
-            {
                 "name": "disambiguation",
                 "aliases": [
                     "__DISAMBIG__"
@@ -640,12 +647,6 @@
                 "name": "invoke",
                 "aliases": [
                     "invoke"
-                ]
-            },
-            {
-                "name": "related",
-                "aliases": [
-                    "related"
                 ]
             },
             {
@@ -732,6 +733,18 @@
                 "name": "isin",
                 "aliases": [
                     "isin"
+                ]
+            },
+            {
+                "name": "coordinates",
+                "aliases": [
+                    "coordinates"
+                ]
+            },
+            {
+                "name": "primary",
+                "aliases": [
+                    "primary"
                 ]
             },
             {
@@ -825,6 +838,12 @@
                 ]
             },
             {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ]
+            },
+            {
                 "name": "translation",
                 "aliases": [
                     "translation"
@@ -858,6 +877,13 @@
                 "name": "!",
                 "aliases": [
                     "!"
+                ],
+                "case-sensitive": ""
+            },
+            {
+                "name": "=",
+                "aliases": [
+                    "="
                 ],
                 "case-sensitive": ""
             },
@@ -2458,6 +2484,11 @@
                 "url": "https://gerrit.wikimedia.org/g/$1"
             },
             {
+                "prefix": "gitlab",
+                "local": "",
+                "url": "https://gitlab.wikimedia.org/$1"
+            },
+            {
                 "prefix": "globalcontribs",
                 "url": "https://guc.toolforge.org/?user=$1"
             },
@@ -3328,7 +3359,7 @@
             },
             {
                 "prefix": "utrs",
-                "url": "https://utrs.wmflabs.org/appeal.php?id=$1"
+                "url": "https://utrs-beta.wmflabs.org/appeal/$1"
             },
             {
                 "prefix": "vikidia",
@@ -4204,6 +4235,12 @@
                 "url": "https://bjn.wikipedia.org/wiki/$1"
             },
             {
+                "prefix": "blk",
+                "local": "",
+                "language": "ပအိုဝ်ႏဘာႏသာႏ",
+                "url": "https://blk.wikipedia.org/wiki/$1"
+            },
+            {
                 "prefix": "bm",
                 "local": "",
                 "language": "bamanankan",
@@ -4607,6 +4644,12 @@
                 "url": "https://gu.wikipedia.org/wiki/$1"
             },
             {
+                "prefix": "guw",
+                "local": "",
+                "language": "gungbe",
+                "url": "https://guw.wikipedia.org/wiki/$1"
+            },
+            {
                 "prefix": "gv",
                 "local": "",
                 "language": "Gaelg",
@@ -4823,6 +4866,12 @@
                 "url": "https://kbp.wikipedia.org/wiki/$1"
             },
             {
+                "prefix": "kcg",
+                "local": "",
+                "language": "Tyap",
+                "url": "https://kcg.wikipedia.org/wiki/$1"
+            },
+            {
                 "prefix": "kg",
                 "local": "",
                 "language": "Kongo",
@@ -4879,7 +4928,7 @@
             {
                 "prefix": "kr",
                 "local": "",
-                "language": "Kanuri",
+                "language": "kanuri",
                 "url": "https://kr.wikipedia.org/wiki/$1"
             },
             {
@@ -6381,6 +6430,7 @@
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "advancedsearch-disable": false,
             "usebetatoolbar": 1,
+            "wikieditor-realtimepreview": 0,
             "usecodemirror": 0,
             "betafeatures-auto-enroll": false,
             "popupsreferencepreviews": 0,
@@ -6411,11 +6461,12 @@
             "discussiontools-betaenable": 0,
             "discussiontools-editmode": "",
             "discussiontools-newtopictool": 1,
+            "discussiontools-newtopictool-createpage": 1,
             "discussiontools-replytool": 1,
             "discussiontools-sourcemodetoolbar": 1,
             "discussiontools-topicsubscription": 1,
             "discussiontools-autotopicsub": 0,
-            "discussiontools-abtest2": "",
+            "discussiontools-visualenhancements": 1,
             "usecodeeditor": 1,
             "revisionslider-disable": false,
             "twocolconflict-enabled": 1,
@@ -6440,6 +6491,8 @@
             "oresHighlight": false,
             "oresRCHideNonDamaging": false,
             "oresWatchlistHideNonDamaging": false,
+            "ipinfo-enable": 0,
+            "ipinfo-use-agreement": 0,
             "twl-notified": null,
             "ccmeonemails": 0,
             "date": "default",
@@ -6473,6 +6526,7 @@
             "rclimit": 50,
             "search-match-redirect": true,
             "search-special-page": "Search",
+            "searchlimit": 20,
             "showhiddencats": false,
             "shownumberswatching": 1,
             "showrollbackconfirmation": 0,
@@ -6506,6 +6560,7 @@
             "wikilove-enabled": 1,
             "echo-cross-wiki-notifications": 1,
             "growthexperiments-addimage-desktop": 1,
+            "timecorrection": "System|0",
             "centralnotice-display-campaign-type-advocacy": 1,
             "centralnotice-display-campaign-type-article-writing": 1,
             "centralnotice-display-campaign-type-photography": 1,
@@ -6514,7 +6569,6 @@
             "centralnotice-display-campaign-type-governance": 1,
             "centralnotice-display-campaign-type-maintenance": 1,
             "centralnotice-display-campaign-type-special": 1,
-            "timecorrection": "System|0",
             "language": "en",
             "variant": "en",
             "variant-ban": "ban",
@@ -6557,93 +6611,6 @@
             "searchNs2301": 0,
             "searchNs2302": 0,
             "searchNs2303": 0,
-            "gadget-modrollback": 0,
-            "gadget-confirmationRollback-mobile": 1,
-            "gadget-removeAccessKeys": 0,
-            "gadget-searchFocus": 0,
-            "gadget-GoogleTrans": 0,
-            "gadget-ImageAnnotator": 0,
-            "gadget-imagelinks": 0,
-            "gadget-Navigation_popups": 0,
-            "gadget-exlinks": 0,
-            "gadget-search-new-tab": 0,
-            "gadget-PrintOptions": 0,
-            "gadget-revisionjumper": 0,
-            "gadget-Twinkle": 0,
-            "gadget-HideCentralNotice": 0,
-            "gadget-ReferenceTooltips": 1,
-            "gadget-formWizard": 1,
-            "gadget-Prosesize": 0,
-            "gadget-find-archived-section": 0,
-            "gadget-geonotice": 1,
-            "gadget-watchlist-notice": 1,
-            "gadget-WatchlistBase": 1,
-            "gadget-WatchlistGreenIndicators": 1,
-            "gadget-WatchlistGreenIndicatorsMono": 1,
-            "gadget-WatchlistChangesBold": 0,
-            "gadget-SubtleUpdatemarker": 1,
-            "gadget-defaultsummaries": 0,
-            "gadget-citations": 0,
-            "gadget-DotsSyntaxHighlighter": 0,
-            "gadget-HotCat": 0,
-            "gadget-wikEdDiff": 0,
-            "gadget-ProveIt": 0,
-            "gadget-ProveIt-classic": 0,
-            "gadget-Shortdesc-helper": 0,
-            "gadget-wikEd": 0,
-            "gadget-afchelper": 0,
-            "gadget-charinsert": 1,
-            "gadget-legacyToolbar": 0,
-            "gadget-extra-toolbar-buttons": 1,
-            "gadget-refToolbar": 1,
-            "gadget-edittop": 0,
-            "gadget-UTCLiveClock": 0,
-            "gadget-purgetab": 0,
-            "gadget-ExternalSearch": 0,
-            "gadget-CollapsibleNav": 0,
-            "gadget-MenuTabsToggle": 0,
-            "gadget-dropdown-menus": 0,
-            "gadget-CategoryAboveAll": 0,
-            "gadget-addsection-plus": 0,
-            "gadget-CommentsInLocalTime": 0,
-            "gadget-OldDiff": 0,
-            "gadget-NoAnimations": 0,
-            "gadget-disablesuggestions": 0,
-            "gadget-NoSmallFonts": 0,
-            "gadget-topalert": 0,
-            "gadget-metadata": 0,
-            "gadget-JustifyParagraphs": 0,
-            "gadget-righteditlinks": 0,
-            "gadget-PrettyLog": 0,
-            "gadget-switcher": 1,
-            "gadget-SidebarTranslate": 0,
-            "gadget-Blackskin": 0,
-            "gadget-dark-mode-toggle": 0,
-            "gadget-VectorClassic": 0,
-            "gadget-widensearch": 0,
-            "gadget-DisambiguationLinks": 0,
-            "gadget-markblocked": 0,
-            "gadget-responsiveContent": 0,
-            "gadget-responsiveContentTimeless": 1,
-            "gadget-HideInterwikiSearchResults": 0,
-            "gadget-XTools-ArticleInfo": 0,
-            "gadget-ShowMessageNames": 0,
-            "gadget-DebugMode": 0,
-            "gadget-contribsrange": 0,
-            "gadget-BugStatusUpdate": 0,
-            "gadget-RTRC": 0,
-            "gadget-script-installer": 0,
-            "gadget-XFDcloser": 0,
-            "gadget-mobile-sidebar": 0,
-            "gadget-addMe": 0,
-            "gadget-NewImageThumb": 0,
-            "gadget-StickyTableHeaders": 0,
-            "gadget-MobileMaps": 0,
-            "gadget-ShowJavascriptErrors": 0,
-            "gadget-PageDescriptions": 0,
-            "gadget-autonum": 0,
-            "gadget-dark-mode": 0,
-            "tmh-videojs": false,
             "multimediaviewer-enable": 1,
             "mf_amc_optin": "0",
             "echo-email-format": "html",
@@ -6701,11 +6668,100 @@
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
             "echo-subscriptions-push-wikibase-action": true,
+            "gadget-modrollback": 0,
+            "gadget-confirmationRollback-mobile": 1,
+            "gadget-removeAccessKeys": 0,
+            "gadget-searchFocus": 0,
+            "gadget-GoogleTrans": 0,
+            "gadget-ImageAnnotator": 0,
+            "gadget-imagelinks": 0,
+            "gadget-Navigation_popups": 0,
+            "gadget-exlinks": 0,
+            "gadget-search-new-tab": 0,
+            "gadget-PrintOptions": 0,
+            "gadget-revisionjumper": 0,
+            "gadget-Twinkle": 0,
+            "gadget-HideCentralNotice": 0,
+            "gadget-ReferenceTooltips": 1,
+            "gadget-formWizard": 1,
+            "gadget-Prosesize": 0,
+            "gadget-find-archived-section": 0,
+            "gadget-geonotice": 1,
+            "gadget-watchlist-notice": 1,
+            "gadget-WatchlistBase": 1,
+            "gadget-WatchlistGreenIndicators": 1,
+            "gadget-WatchlistGreenIndicatorsMono": 1,
+            "gadget-WatchlistChangesBold": 0,
+            "gadget-SubtleUpdatemarker": 1,
+            "gadget-defaultsummaries": 0,
+            "gadget-citations": 0,
+            "gadget-DotsSyntaxHighlighter": 0,
+            "gadget-HotCat": 0,
+            "gadget-wikEdDiff": 0,
+            "gadget-ProveIt": 0,
+            "gadget-ProveIt-classic": 0,
+            "gadget-Shortdesc-helper": 0,
+            "gadget-wikEd": 0,
+            "gadget-afchelper": 0,
+            "gadget-charinsert": 1,
+            "gadget-legacyToolbar": 0,
+            "gadget-extra-toolbar-buttons": 1,
+            "gadget-refToolbar": 1,
+            "gadget-EditNoticesOnMobile": 1,
+            "gadget-edittop": 0,
+            "gadget-UTCLiveClock": 0,
+            "gadget-purgetab": 0,
+            "gadget-ExternalSearch": 0,
+            "gadget-CollapsibleNav": 0,
+            "gadget-MenuTabsToggle": 0,
+            "gadget-dropdown-menus": 0,
+            "gadget-CategoryAboveAll": 0,
+            "gadget-addsection-plus": 0,
+            "gadget-CommentsInLocalTime": 0,
+            "gadget-OldDiff": 0,
+            "gadget-NoAnimations": 0,
+            "gadget-disablesuggestions": 0,
+            "gadget-NoSmallFonts": 0,
+            "gadget-topalert": 0,
+            "gadget-metadata": 0,
+            "gadget-JustifyParagraphs": 0,
+            "gadget-righteditlinks": 0,
+            "gadget-PrettyLog": 0,
+            "gadget-switcher": 1,
+            "gadget-SidebarTranslate": 0,
+            "gadget-Blackskin": 0,
+            "gadget-dark-mode-toggle": 0,
+            "gadget-VectorClassic": 0,
+            "gadget-widensearch": 0,
+            "gadget-DisambiguationLinks": 0,
+            "gadget-markblocked": 0,
+            "gadget-responsiveContent": 0,
+            "gadget-responsiveContentTimeless": 1,
+            "gadget-HideInterwikiSearchResults": 0,
+            "gadget-XTools-ArticleInfo": 0,
+            "gadget-ShowMessageNames": 0,
+            "gadget-DebugMode": 0,
+            "gadget-contribsrange": 0,
+            "gadget-BugStatusUpdate": 0,
+            "gadget-RTRC": 0,
+            "gadget-script-installer": 0,
+            "gadget-XFDcloser": 0,
+            "gadget-mobile-sidebar": 0,
+            "gadget-addMe": 0,
+            "gadget-NewImageThumb": 0,
+            "gadget-StickyTableHeaders": 0,
+            "gadget-MobileMaps": 0,
+            "gadget-ShowJavascriptErrors": 0,
+            "gadget-PageDescriptions": 0,
+            "gadget-autonum": 0,
+            "gadget-wide-vector-2022": 0,
+            "gadget-dark-mode": 0,
             "cirrussearch-pref-completion-profile": "fuzzy",
             "popups": "0",
             "growthexperiments-help-panel-tog-help-panel": false,
             "homepage_mobile_discovery_notice_seen": true,
             "growthexperiments-homepage-suggestededits-guidance-blue-dot": "{\"vector\":{\"link-recommendation\":true,\"image-recommendation\":true},\"minerva\":{\"link-recommendation\":true,\"image-recommendation\":true}}",
+            "growthexperiments-homepage-se-topic-filters-mode": "OR",
             "growthexperiments-homepage-enable": false,
             "growthexperiments-homepage-pt-link": false,
             "growthexperiments-tour-help-panel": true,
@@ -6715,7 +6771,7 @@
             "growthexperiments-starred-mentees": "",
             "growthexperiments-mentor-dashboard-seen": 0,
             "growthexperiments-mentor-dashboard-last-update": null,
-            "growthexperiments-mentee-overview-filters": "{\"minedits\":1,\"maxedits\":500}",
+            "growthexperiments-mentee-overview-presets": "{\"usersToShow\":10,\"filters\":{\"minedits\":1,\"maxedits\":500}}",
             "growthexperiments-homepage-mentorship-enabled": 1,
             "growthexperiments-mentorship-weight": 2
         },
@@ -7665,7 +7721,8 @@
                 "realname": "CentralAuth",
                 "aliases": [
                     "CentralAuth",
-                    "GlobalAccount"
+                    "GlobalAccount",
+                    "CA"
                 ]
             },
             {
@@ -8119,12 +8176,6 @@
                 ]
             },
             {
-                "realname": "QuitMentorship",
-                "aliases": [
-                    "QuitMentorship"
-                ]
-            },
-            {
                 "realname": "EditGrowthConfig",
                 "aliases": [
                     "EditGrowthConfig"
@@ -8141,13 +8192,6 @@
                 "aliases": [
                     "PendingChanges",
                     "OldReviewedPages"
-                ]
-            },
-            {
-                "realname": "QualityOversight",
-                "aliases": [
-                    "AdvancedReviewLog",
-                    "QualityOversight"
                 ]
             },
             {
@@ -8221,6 +8265,12 @@
                 "realname": "NewcomerTasksInfo",
                 "aliases": [
                     "NewcomerTasksInfo"
+                ]
+            },
+            {
+                "realname": "QuitMentorship",
+                "aliases": [
+                    "QuitMentorship"
                 ]
             }
         ],
@@ -8357,6 +8407,7 @@
         ],
         "variables": [
             "!",
+            "=",
             "currentmonth",
             "currentmonth1",
             "currentmonthname",

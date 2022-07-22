@@ -14279,7 +14279,7 @@ Table cell with attribute before expanded attribute
 !! html/php
 <div style="background:#f9f9f9;">foo</div>
 !! html/parsoid
-<div style="background:#f9f9f9;" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html"}' data-mw='{"attribs":[[{"txt":"style","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"style{{=}}\\\"background:&amp;amp;#35;f9f9f9;\\\"\"}},\"i\":0}}]}&#39;>style&lt;/span>&lt;span typeof=\"mw:Nowiki\" about=\"#mwt1\" data-parsoid=\"{}\">=&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">\"background:&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt1\" data-parsoid=&#39;{\"src\":\"&amp;amp;#35;\",\"srcContent\":\"#\"}&#39;>#&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">f9f9f9;\"&lt;/span>"},{"html":""}]]}'>foo</div>
+<div style="background:#f9f9f9;" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html"}' data-mw='{"attribs":[[{"txt":"style","html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[5,47,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"style{{=}}\\\"background:&amp;amp;#35;f9f9f9;\\\"\"}},\"i\":0}}]}&apos;>style=\"background:&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"src\":\"&amp;amp;#35;\",\"srcContent\":\"#\"}&apos;>#&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">f9f9f9;\"&lt;/span>"},{"html":""}]]}'>foo</div>
 !! end
 
 !! test
@@ -24306,9 +24306,11 @@ x<langconvert from="crh-latn" to="crh-cyrl"/>x
 Using {{=}} when it expands to "=" should not create a tracking category
 !! wikitext
 This uses {{=}} and {{Template:=}}.
-!! html
+!! html/php
 <p>This uses = and =.
 </p>
+!! html/parsoid
+<p>This uses <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"=","function":"="},"params":{},"i":0}}]}'>=</span> and <span typeof="mw:Nowiki mw:Transclusion" about="#mwt2" data-mw='{"parts":[{"template":{"target":{"wt":"Template:=","href":"./Template:="},"params":{},"i":0}}]}'>=</span>.</p>
 !! end
 
 # Repeat the test, looking at categories.  Note: none should be emitted!

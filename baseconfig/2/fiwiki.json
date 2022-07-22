@@ -6,11 +6,11 @@
             "sitename": "Wikipedia",
             "mainpageisdomainroot": false,
             "logo": "//fi.wikipedia.org/static/images/project-logos/fiwiki.png",
-            "generator": "MediaWiki 1.38.0-wmf.25",
+            "generator": "MediaWiki 1.39.0-wmf.21",
             "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.4.22-MariaDB-log",
+            "dbversion": "10.4.25-MariaDB-log",
             "imagewhitelistenabled": false,
             "langconversion": true,
             "linkconversion": true,
@@ -19,12 +19,12 @@
             "linkprefix": "",
             "linktrail": "/^([a-zäö]+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
-            "invalidusernamechars": "@:",
+            "invalidusernamechars": "@:>",
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "2b818a673c023b166b17bbf49216a03460a0751a",
-            "git-branch": "wmf/1.38.0-wmf.25",
+            "git-hash": "0950074d9f6be2a94b0448dee849064f5e7b5f23",
+            "git-branch": "wmf/1.39.0-wmf.21",
             "case": "first-letter",
             "lang": "fi",
             "fallback": [
@@ -38,7 +38,7 @@
             "writeapi": true,
             "maxarticlesize": 2097152,
             "timezone": "Europe/Helsinki",
-            "timeoffset": 120,
+            "timeoffset": 180,
             "articlepath": "/wiki/$1",
             "scriptpath": "/w",
             "script": "/w/index.php",
@@ -46,7 +46,7 @@
             "server": "//fi.wikipedia.org",
             "servername": "fi.wikipedia.org",
             "wikiid": "fiwiki",
-            "time": "2022-03-15T18:31:39Z",
+            "time": "2022-07-22T16:24:14Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -109,9 +109,29 @@
                 "RFC": true
             },
             "categorycollation": "uca-fi",
+            "nofollowlinks": true,
+            "nofollownsexceptions": [],
+            "nofollowdomainexceptions": [
+                "mediawiki.org",
+                "wikibooks.org",
+                "wikimedia.com",
+                "wikimedia.org",
+                "wikinews.org",
+                "wikipedia.org",
+                "wikiquote.org",
+                "wikisource.org",
+                "wikiversity.org",
+                "wiktionary.org",
+                "wikivoyage.org",
+                "wikidata.org",
+                "tools.wmflabs.org",
+                "toolforge.org",
+                "etherpad.wmflabs.org"
+            ],
+            "externallinktarget": false,
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 457619,
+                "wmfEtcdLastModifiedIndex": 760743,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -425,6 +445,24 @@
                 "name": "Keskustelu wikiprojektista",
                 "subpages": true,
                 "canonical": "Keskustelu wikiprojektista",
+                "content": false,
+                "nonincludable": false
+            },
+            "710": {
+                "id": 710,
+                "case": "first-letter",
+                "name": "TimedText",
+                "subpages": false,
+                "canonical": "TimedText",
+                "content": false,
+                "nonincludable": false
+            },
+            "711": {
+                "id": 711,
+                "case": "first-letter",
+                "name": "TimedText talk",
+                "subpages": false,
+                "canonical": "TimedText talk",
                 "content": false,
                 "nonincludable": false
             },
@@ -1568,20 +1606,6 @@
                 "case-sensitive": false
             },
             {
-                "name": "timedmedia_noplayer",
-                "aliases": [
-                    "noplayer"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "timedmedia_noicon",
-                "aliases": [
-                    "noicon"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "timedmedia_thumbtime",
                 "aliases": [
                     "thumbtime=$1"
@@ -1610,6 +1634,20 @@
                 "case-sensitive": false
             },
             {
+                "name": "timedmedia_loop",
+                "aliases": [
+                    "loop"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "timedmedia_muted",
+                "aliases": [
+                    "muted"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "noglobal",
                 "aliases": [
                     "__NOGLOBAL__"
@@ -1631,20 +1669,6 @@
                 "case-sensitive": false
             },
             {
-                "name": "coordinates",
-                "aliases": [
-                    "coordinates"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "primary",
-                "aliases": [
-                    "primary"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "disambiguation",
                 "aliases": [
                     "__DISAMBIG__"
@@ -1655,13 +1679,6 @@
                 "name": "invoke",
                 "aliases": [
                     "invoke"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "related",
-                "aliases": [
-                    "related"
                 ],
                 "case-sensitive": false
             },
@@ -1753,6 +1770,20 @@
                 "name": "isin",
                 "aliases": [
                     "isin"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "coordinates",
+                "aliases": [
+                    "coordinates"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "primary",
+                "aliases": [
+                    "primary"
                 ],
                 "case-sensitive": false
             },
@@ -1862,6 +1893,13 @@
                 "case-sensitive": false
             },
             {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "translation",
                 "aliases": [
                     "translation"
@@ -1900,6 +1938,13 @@
                 "name": "!",
                 "aliases": [
                     "!"
+                ],
+                "case-sensitive": true
+            },
+            {
+                "name": "=",
+                "aliases": [
+                    "="
                 ],
                 "case-sensitive": true
             },
@@ -2915,6 +2960,12 @@
                 "prefix": "git",
                 "local": true,
                 "url": "https://gerrit.wikimedia.org/g/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "gitlab",
+                "local": true,
+                "url": "https://gitlab.wikimedia.org/$1",
                 "protorel": false
             },
             {
@@ -3967,7 +4018,7 @@
             },
             {
                 "prefix": "utrs",
-                "url": "https://utrs.wmflabs.org/appeal.php?id=$1",
+                "url": "https://utrs-beta.wmflabs.org/appeal/$1",
                 "protorel": false
             },
             {
@@ -5016,6 +5067,13 @@
                 "protorel": false
             },
             {
+                "prefix": "blk",
+                "local": true,
+                "language": "ပအိုဝ်ႏဘာႏသာႏ",
+                "url": "https://blk.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "bm",
                 "local": true,
                 "language": "bamanankan",
@@ -5486,6 +5544,13 @@
                 "protorel": false
             },
             {
+                "prefix": "guw",
+                "local": true,
+                "language": "gungbe",
+                "url": "https://guw.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "gv",
                 "local": true,
                 "language": "Gaelg",
@@ -5738,6 +5803,13 @@
                 "protorel": false
             },
             {
+                "prefix": "kcg",
+                "local": true,
+                "language": "Tyap",
+                "url": "https://kcg.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "kg",
                 "local": true,
                 "language": "Kongo",
@@ -5803,7 +5875,7 @@
             {
                 "prefix": "kr",
                 "local": true,
-                "language": "Kanuri",
+                "language": "kanuri",
                 "url": "https://kr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7511,6 +7583,7 @@
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "advancedsearch-disable": false,
             "usebetatoolbar": 1,
+            "wikieditor-realtimepreview": 0,
             "usecodemirror": 0,
             "betafeatures-auto-enroll": false,
             "popupsreferencepreviews": 0,
@@ -7545,11 +7618,12 @@
             "discussiontools-betaenable": 0,
             "discussiontools-editmode": "",
             "discussiontools-newtopictool": 1,
+            "discussiontools-newtopictool-createpage": 1,
             "discussiontools-replytool": 1,
             "discussiontools-sourcemodetoolbar": 1,
             "discussiontools-topicsubscription": 1,
             "discussiontools-autotopicsub": 0,
-            "discussiontools-abtest2": "",
+            "discussiontools-visualenhancements": 1,
             "usecodeeditor": 1,
             "revisionslider-disable": false,
             "twocolconflict-enabled": 1,
@@ -7574,6 +7648,8 @@
             "oresHighlight": false,
             "oresRCHideNonDamaging": false,
             "oresWatchlistHideNonDamaging": false,
+            "ipinfo-enable": 0,
+            "ipinfo-use-agreement": 0,
             "twl-notified": null,
             "ccmeonemails": 0,
             "date": "default",
@@ -7607,6 +7683,7 @@
             "rclimit": 50,
             "search-match-redirect": true,
             "search-special-page": "Search",
+            "searchlimit": 20,
             "showhiddencats": false,
             "shownumberswatching": 1,
             "showrollbackconfirmation": 0,
@@ -7639,6 +7716,7 @@
             "skin-responsive": 1,
             "echo-cross-wiki-notifications": 1,
             "growthexperiments-addimage-desktop": 1,
+            "timecorrection": "System|180",
             "centralnotice-display-campaign-type-advocacy": 1,
             "centralnotice-display-campaign-type-article-writing": 1,
             "centralnotice-display-campaign-type-photography": 1,
@@ -7647,7 +7725,6 @@
             "centralnotice-display-campaign-type-governance": 1,
             "centralnotice-display-campaign-type-maintenance": 1,
             "centralnotice-display-campaign-type-special": 1,
-            "timecorrection": "System|120",
             "language": "fi",
             "variant": "fi",
             "variant-ban": "ban",
@@ -7686,6 +7763,8 @@
             "searchNs105": 0,
             "searchNs106": 0,
             "searchNs107": 0,
+            "searchNs710": 0,
+            "searchNs711": 0,
             "searchNs828": 0,
             "searchNs829": 0,
             "searchNs2300": 0,
@@ -7693,58 +7772,6 @@
             "searchNs2302": 0,
             "searchNs2303": 0,
             "searchNs2600": 0,
-            "gadget-Externaltools": 0,
-            "gadget-LocalLiveClock": 0,
-            "gadget-purge": 0,
-            "gadget-Typografiamuutos_20140403_fix": 0,
-            "gadget-HideCentralNotice": 0,
-            "gadget-FullWidthVector": 0,
-            "gadget-FullWidthVectorOnCSS": 0,
-            "gadget-HideWikipediaTopLeftLogo": 0,
-            "gadget-HotCat": 0,
-            "gadget-HiddenCat": 0,
-            "gadget-wikEd": 0,
-            "gadget-wikEdDiff": 0,
-            "gadget-segregate-refs": 0,
-            "gadget-Prosesize": 0,
-            "gadget-ProveIt": 0,
-            "gadget-Tineye": 0,
-            "gadget-GoogleImages": 0,
-            "gadget-HideFundraisingNotice": 0,
-            "gadget-popups": 0,
-            "gadget-socialMedia": 0,
-            "gadget-MerkitytVersiot3": 0,
-            "gadget-poistavarit": 0,
-            "gadget-hideUsersButton2": 0,
-            "gadget-pendingChangesLink": 0,
-            "gadget-showPatrollerMarks": 0,
-            "gadget-oresRcLink": 0,
-            "gadget-WE-Framework": 0,
-            "gadget-wikidatafix": 0,
-            "gadget-TietolaatikkoWD": 0,
-            "gadget-ViikonKilpailu": 1,
-            "gadget-WikiLovesMonunmets": 1,
-            "gadget-Linkclassifier": 0,
-            "gadget-historydiff": 0,
-            "gadget-ReferenceTooltips": 0,
-            "gadget-YWL": 0,
-            "gadget-OhjaustenLuokat": 0,
-            "gadget-MuokkaaJohdantoa": 0,
-            "gadget-summarycheck": 0,
-            "gadget-RTRC": 0,
-            "gadget-LiveRC": 0,
-            "gadget-rvvStats": 0,
-            "gadget-rvvReject": 0,
-            "gadget-personalSandbox": 0,
-            "gadget-hidePersonalSandboxEdits": 1,
-            "gadget-Viite-overflow": 0,
-            "gadget-fiwiki_flaggedrevs_css_rcfix": 1,
-            "gadget-Slideshow": 0,
-            "gadget-refToolbar": 0,
-            "gadget-linkeddata": 1,
-            "gadget-cssmargincomments": 0,
-            "gadget-cmsearchcursor": 0,
-            "tmh-videojs": false,
             "multimediaviewer-enable": 1,
             "mf_amc_optin": "0",
             "echo-email-format": "html",
@@ -7802,11 +7829,63 @@
             "echo-subscriptions-email-wikibase-action": false,
             "echo-subscriptions-web-wikibase-action": true,
             "echo-subscriptions-push-wikibase-action": true,
+            "gadget-Externaltools": 0,
+            "gadget-LocalLiveClock": 0,
+            "gadget-purge": 0,
+            "gadget-Typografiamuutos_20140403_fix": 0,
+            "gadget-HideCentralNotice": 0,
+            "gadget-FullWidthVector": 0,
+            "gadget-FullWidthVectorOnCSS": 0,
+            "gadget-HideWikipediaTopLeftLogo": 0,
+            "gadget-HotCat": 0,
+            "gadget-HiddenCat": 0,
+            "gadget-wikEd": 0,
+            "gadget-wikEdDiff": 0,
+            "gadget-segregate-refs": 0,
+            "gadget-Prosesize": 0,
+            "gadget-ProveIt": 0,
+            "gadget-Tineye": 0,
+            "gadget-GoogleImages": 0,
+            "gadget-HideFundraisingNotice": 0,
+            "gadget-popups": 0,
+            "gadget-socialMedia": 0,
+            "gadget-MerkitytVersiot3": 0,
+            "gadget-poistavarit": 0,
+            "gadget-hideUsersButton2": 0,
+            "gadget-pendingChangesLink": 0,
+            "gadget-showPatrollerMarks": 0,
+            "gadget-oresRcLink": 0,
+            "gadget-WE-Framework": 0,
+            "gadget-wikidatafix": 0,
+            "gadget-TietolaatikkoWD": 0,
+            "gadget-ViikonKilpailu": 1,
+            "gadget-WikiLovesMonunmets": 1,
+            "gadget-Linkclassifier": 0,
+            "gadget-historydiff": 0,
+            "gadget-ReferenceTooltips": 0,
+            "gadget-YWL": 0,
+            "gadget-OhjaustenLuokat": 0,
+            "gadget-MuokkaaJohdantoa": 0,
+            "gadget-summarycheck": 0,
+            "gadget-RTRC": 0,
+            "gadget-LiveRC": 0,
+            "gadget-rvvStats": 0,
+            "gadget-rvvReject": 0,
+            "gadget-personalSandbox": 0,
+            "gadget-hidePersonalSandboxEdits": 1,
+            "gadget-Viite-overflow": 0,
+            "gadget-fiwiki_flaggedrevs_css_rcfix": 1,
+            "gadget-Slideshow": 0,
+            "gadget-refToolbar": 0,
+            "gadget-linkeddata": 1,
+            "gadget-cssmargincomments": 0,
+            "gadget-cmsearchcursor": 0,
             "cirrussearch-pref-completion-profile": "fuzzy",
             "popups": "0",
             "growthexperiments-help-panel-tog-help-panel": false,
             "homepage_mobile_discovery_notice_seen": true,
             "growthexperiments-homepage-suggestededits-guidance-blue-dot": "{\"vector\":{\"link-recommendation\":true,\"image-recommendation\":true},\"minerva\":{\"link-recommendation\":true,\"image-recommendation\":true}}",
+            "growthexperiments-homepage-se-topic-filters-mode": "OR",
             "growthexperiments-homepage-enable": false,
             "growthexperiments-homepage-pt-link": false,
             "growthexperiments-tour-help-panel": true,
@@ -7816,7 +7895,7 @@
             "growthexperiments-starred-mentees": "",
             "growthexperiments-mentor-dashboard-seen": 0,
             "growthexperiments-mentor-dashboard-last-update": null,
-            "growthexperiments-mentee-overview-filters": "{\"minedits\":1,\"maxedits\":500}",
+            "growthexperiments-mentee-overview-presets": "{\"usersToShow\":10,\"filters\":{\"minedits\":1,\"maxedits\":500}}",
             "growthexperiments-homepage-mentorship-enabled": 1,
             "growthexperiments-mentorship-weight": 2
         },
@@ -8897,7 +8976,8 @@
                 "aliases": [
                     "Keskitetty_varmennus",
                     "CentralAuth",
-                    "GlobalAccount"
+                    "GlobalAccount",
+                    "CA"
                 ]
             },
             {
@@ -9368,12 +9448,6 @@
                 ]
             },
             {
-                "realname": "QuitMentorship",
-                "aliases": [
-                    "QuitMentorship"
-                ]
-            },
-            {
                 "realname": "EditGrowthConfig",
                 "aliases": [
                     "EditGrowthConfig"
@@ -9391,13 +9465,6 @@
                     "Odottavat_muutokset",
                     "PendingChanges",
                     "OldReviewedPages"
-                ]
-            },
-            {
-                "realname": "QualityOversight",
-                "aliases": [
-                    "AdvancedReviewLog",
-                    "QualityOversight"
                 ]
             },
             {
@@ -9487,6 +9554,12 @@
                 "realname": "NewcomerTasksInfo",
                 "aliases": [
                     "NewcomerTasksInfo"
+                ]
+            },
+            {
+                "realname": "QuitMentorship",
+                "aliases": [
+                    "QuitMentorship"
                 ]
             }
         ],
@@ -9620,6 +9693,7 @@
         ],
         "variables": [
             "!",
+            "=",
             "currentmonth",
             "currentmonth1",
             "currentmonthname",

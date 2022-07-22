@@ -5,11 +5,11 @@
             "base": "https://fr.wikipedia.org/wiki/Wikip%C3%A9dia:Accueil_principal",
             "sitename": "Wikipédia",
             "logo": "//fr.wikipedia.org/static/images/project-logos/frwiki.png",
-            "generator": "MediaWiki 1.38.0-wmf.25",
+            "generator": "MediaWiki 1.39.0-wmf.21",
             "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.4.22-MariaDB-log",
+            "dbversion": "10.4.25-MariaDB-log",
             "langconversion": "",
             "linkconversion": "",
             "titleconversion": "",
@@ -17,11 +17,11 @@
             "linkprefix": "",
             "linktrail": "/^([a-zàâçéèêîôûäëïöüùÇÉÂÊÎÔÛÄËÏÖÜÀÈÙ]+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
-            "invalidusernamechars": "@:",
+            "invalidusernamechars": "@:>",
             "fixarabicunicode": "",
             "fixmalayalamunicode": "",
-            "git-hash": "2b818a673c023b166b17bbf49216a03460a0751a",
-            "git-branch": "wmf/1.38.0-wmf.25",
+            "git-hash": "0950074d9f6be2a94b0448dee849064f5e7b5f23",
+            "git-branch": "wmf/1.39.0-wmf.21",
             "case": "first-letter",
             "lang": "fr",
             "fallback": [
@@ -33,7 +33,7 @@
             "writeapi": "",
             "maxarticlesize": 2097152,
             "timezone": "Europe/Paris",
-            "timeoffset": 60,
+            "timeoffset": 120,
             "articlepath": "/wiki/$1",
             "scriptpath": "/w",
             "script": "/w/index.php",
@@ -41,7 +41,7 @@
             "server": "//fr.wikipedia.org",
             "servername": "fr.wikipedia.org",
             "wikiid": "frwiki",
-            "time": "2022-03-15T18:31:40Z",
+            "time": "2022-07-22T16:24:15Z",
             "misermode": "",
             "uploadsenabled": "",
             "maxuploadsize": 4294967296,
@@ -104,9 +104,28 @@
                 "RFC": ""
             },
             "categorycollation": "uca-fr-u-kn",
+            "nofollowlinks": "",
+            "nofollownsexceptions": [],
+            "nofollowdomainexceptions": [
+                "mediawiki.org",
+                "wikibooks.org",
+                "wikimedia.com",
+                "wikimedia.org",
+                "wikinews.org",
+                "wikipedia.org",
+                "wikiquote.org",
+                "wikisource.org",
+                "wikiversity.org",
+                "wiktionary.org",
+                "wikivoyage.org",
+                "wikidata.org",
+                "tools.wmflabs.org",
+                "toolforge.org",
+                "etherpad.wmflabs.org"
+            ],
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 457619,
+                "wmfEtcdLastModifiedIndex": 760743,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -350,6 +369,18 @@
                 "subpages": "",
                 "canonical": "Discussion Référence",
                 "*": "Discussion Référence"
+            },
+            "710": {
+                "id": 710,
+                "case": "first-letter",
+                "canonical": "TimedText",
+                "*": "TimedText"
+            },
+            "711": {
+                "id": 711,
+                "case": "first-letter",
+                "canonical": "TimedText talk",
+                "*": "TimedText talk"
             },
             "828": {
                 "id": 828,
@@ -1912,18 +1943,6 @@
                 ]
             },
             {
-                "name": "timedmedia_noplayer",
-                "aliases": [
-                    "noplayer"
-                ]
-            },
-            {
-                "name": "timedmedia_noicon",
-                "aliases": [
-                    "noicon"
-                ]
-            },
-            {
                 "name": "timedmedia_thumbtime",
                 "aliases": [
                     "thumbtime=$1"
@@ -1948,6 +1967,18 @@
                 ]
             },
             {
+                "name": "timedmedia_loop",
+                "aliases": [
+                    "loop"
+                ]
+            },
+            {
+                "name": "timedmedia_muted",
+                "aliases": [
+                    "muted"
+                ]
+            },
+            {
                 "name": "noglobal",
                 "aliases": [
                     "__NOGLOBAL__"
@@ -1958,24 +1989,6 @@
                 "name": "target",
                 "aliases": [
                     "target"
-                ]
-            },
-            {
-                "name": "coordinates",
-                "aliases": [
-                    "coordinates"
-                ]
-            },
-            {
-                "name": "primary",
-                "aliases": [
-                    "primary"
-                ]
-            },
-            {
-                "name": "related",
-                "aliases": [
-                    "related"
                 ]
             },
             {
@@ -2050,6 +2063,18 @@
                 "name": "isin",
                 "aliases": [
                     "isin"
+                ]
+            },
+            {
+                "name": "coordinates",
+                "aliases": [
+                    "coordinates"
+                ]
+            },
+            {
+                "name": "primary",
+                "aliases": [
+                    "primary"
                 ]
             },
             {
@@ -2131,6 +2156,12 @@
                 ]
             },
             {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ]
+            },
+            {
                 "name": "translation",
                 "aliases": [
                     "translation"
@@ -2164,6 +2195,13 @@
                 "name": "!",
                 "aliases": [
                     "!"
+                ],
+                "case-sensitive": ""
+            },
+            {
+                "name": "=",
+                "aliases": [
+                    "="
                 ],
                 "case-sensitive": ""
             },
@@ -2737,6 +2775,11 @@
                 "prefix": "git",
                 "local": "",
                 "url": "https://gerrit.wikimedia.org/g/$1"
+            },
+            {
+                "prefix": "gitlab",
+                "local": "",
+                "url": "https://gitlab.wikimedia.org/$1"
             },
             {
                 "prefix": "globalcontribs",
@@ -3609,7 +3652,7 @@
             },
             {
                 "prefix": "utrs",
-                "url": "https://utrs.wmflabs.org/appeal.php?id=$1"
+                "url": "https://utrs-beta.wmflabs.org/appeal/$1"
             },
             {
                 "prefix": "vikidia",
@@ -4485,6 +4528,12 @@
                 "url": "https://bjn.wikipedia.org/wiki/$1"
             },
             {
+                "prefix": "blk",
+                "local": "",
+                "language": "ပအိုဝ်ႏဘာႏသာႏ",
+                "url": "https://blk.wikipedia.org/wiki/$1"
+            },
+            {
                 "prefix": "bm",
                 "local": "",
                 "language": "bamanankan",
@@ -4888,6 +4937,12 @@
                 "url": "https://gu.wikipedia.org/wiki/$1"
             },
             {
+                "prefix": "guw",
+                "local": "",
+                "language": "gungbe",
+                "url": "https://guw.wikipedia.org/wiki/$1"
+            },
+            {
                 "prefix": "gv",
                 "local": "",
                 "language": "Gaelg",
@@ -5104,6 +5159,12 @@
                 "url": "https://kbp.wikipedia.org/wiki/$1"
             },
             {
+                "prefix": "kcg",
+                "local": "",
+                "language": "Tyap",
+                "url": "https://kcg.wikipedia.org/wiki/$1"
+            },
+            {
                 "prefix": "kg",
                 "local": "",
                 "language": "Kongo",
@@ -5160,7 +5221,7 @@
             {
                 "prefix": "kr",
                 "local": "",
-                "language": "Kanuri",
+                "language": "kanuri",
                 "url": "https://kr.wikipedia.org/wiki/$1"
             },
             {
@@ -6656,6 +6717,7 @@
             "rcenhancedfilters-seen-highlight-button-counter": 0,
             "advancedsearch-disable": false,
             "usebetatoolbar": 1,
+            "wikieditor-realtimepreview": 0,
             "usecodemirror": 0,
             "betafeatures-auto-enroll": false,
             "popupsreferencepreviews": 0,
@@ -6690,11 +6752,12 @@
             "discussiontools-betaenable": 0,
             "discussiontools-editmode": "",
             "discussiontools-newtopictool": 1,
+            "discussiontools-newtopictool-createpage": 1,
             "discussiontools-replytool": 1,
             "discussiontools-sourcemodetoolbar": 1,
             "discussiontools-topicsubscription": 1,
             "discussiontools-autotopicsub": 0,
-            "discussiontools-abtest2": "",
+            "discussiontools-visualenhancements": 1,
             "usecodeeditor": 1,
             "revisionslider-disable": false,
             "twocolconflict-enabled": 1,
@@ -6719,6 +6782,8 @@
             "oresHighlight": false,
             "oresRCHideNonDamaging": false,
             "oresWatchlistHideNonDamaging": false,
+            "ipinfo-enable": 0,
+            "ipinfo-use-agreement": 0,
             "twl-notified": null,
             "ccmeonemails": 0,
             "date": "default",
@@ -6752,6 +6817,7 @@
             "rclimit": 50,
             "search-match-redirect": true,
             "search-special-page": "Search",
+            "searchlimit": 20,
             "showhiddencats": false,
             "shownumberswatching": 1,
             "showrollbackconfirmation": 0,
@@ -6784,6 +6850,7 @@
             "skin-responsive": 1,
             "echo-cross-wiki-notifications": 1,
             "growthexperiments-addimage-desktop": 1,
+            "timecorrection": "System|120",
             "centralnotice-display-campaign-type-advocacy": 1,
             "centralnotice-display-campaign-type-article-writing": 1,
             "centralnotice-display-campaign-type-photography": 1,
@@ -6792,7 +6859,6 @@
             "centralnotice-display-campaign-type-governance": 1,
             "centralnotice-display-campaign-type-maintenance": 1,
             "centralnotice-display-campaign-type-special": 1,
-            "timecorrection": "System|60",
             "language": "fr",
             "variant": "fr",
             "variant-ban": "ban",
@@ -6829,6 +6895,8 @@
             "searchNs103": 0,
             "searchNs104": 0,
             "searchNs105": 0,
+            "searchNs710": 0,
+            "searchNs711": 0,
             "searchNs828": 0,
             "searchNs829": 0,
             "searchNs2300": 0,
@@ -6836,6 +6904,63 @@
             "searchNs2302": 0,
             "searchNs2303": 0,
             "searchNs2600": 0,
+            "multimediaviewer-enable": 1,
+            "mf_amc_optin": "0",
+            "echo-email-format": "html",
+            "echo-subscriptions-email-system": true,
+            "echo-subscriptions-web-system": true,
+            "echo-subscriptions-push-system": true,
+            "echo-subscriptions-email-system-noemail": false,
+            "echo-subscriptions-web-system-noemail": true,
+            "echo-subscriptions-push-system-noemail": true,
+            "echo-subscriptions-email-system-emailonly": false,
+            "echo-subscriptions-web-system-emailonly": true,
+            "echo-subscriptions-push-system-emailonly": true,
+            "echo-subscriptions-email-user-rights": true,
+            "echo-subscriptions-web-user-rights": true,
+            "echo-subscriptions-push-user-rights": true,
+            "echo-subscriptions-email-other": false,
+            "echo-subscriptions-web-other": true,
+            "echo-subscriptions-push-other": true,
+            "echo-subscriptions-email-edit-user-talk": false,
+            "echo-subscriptions-web-edit-user-talk": true,
+            "echo-subscriptions-push-edit-user-talk": true,
+            "echo-subscriptions-email-reverted": false,
+            "echo-subscriptions-web-reverted": true,
+            "echo-subscriptions-push-reverted": true,
+            "echo-subscriptions-email-article-linked": false,
+            "echo-subscriptions-web-article-linked": false,
+            "echo-subscriptions-push-article-linked": false,
+            "echo-subscriptions-email-mention": false,
+            "echo-subscriptions-web-mention": true,
+            "echo-subscriptions-push-mention": true,
+            "echo-subscriptions-email-mention-failure": false,
+            "echo-subscriptions-web-mention-failure": false,
+            "echo-subscriptions-push-mention-failure": false,
+            "echo-subscriptions-email-mention-success": false,
+            "echo-subscriptions-web-mention-success": false,
+            "echo-subscriptions-push-mention-success": false,
+            "echo-subscriptions-email-emailuser": false,
+            "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-push-emailuser": true,
+            "echo-subscriptions-email-thank-you-edit": false,
+            "echo-subscriptions-web-thank-you-edit": true,
+            "echo-subscriptions-push-thank-you-edit": true,
+            "echo-subscriptions-push-login-fail": true,
+            "echo-subscriptions-push-login-success": true,
+            "echo-subscriptions-push-edit-thank": true,
+            "echo-subscriptions-push-flow-discussion": true,
+            "echo-subscriptions-email-dt-subscription": false,
+            "echo-subscriptions-web-dt-subscription": true,
+            "echo-subscriptions-push-dt-subscription": true,
+            "echo-subscriptions-email-cx": false,
+            "echo-subscriptions-push-cx": true,
+            "echo-subscriptions-email-ge-mentorship": false,
+            "echo-subscriptions-web-ge-mentorship": true,
+            "echo-subscriptions-push-ge-mentorship": true,
+            "echo-subscriptions-email-wikibase-action": false,
+            "echo-subscriptions-web-wikibase-action": true,
+            "echo-subscriptions-push-wikibase-action": true,
             "gadget-AffMasLiens": 0,
             "gadget-AncreTitres": 0,
             "gadget-dictionaryLookupHover": 0,
@@ -6917,69 +7042,12 @@
             "gadget-CatRename": 0,
             "gadget-BlockMessage": 0,
             "gadget-SuppressionDeluxe": 0,
-            "tmh-videojs": false,
-            "multimediaviewer-enable": 1,
-            "mf_amc_optin": "0",
-            "echo-email-format": "html",
-            "echo-subscriptions-email-system": true,
-            "echo-subscriptions-web-system": true,
-            "echo-subscriptions-push-system": true,
-            "echo-subscriptions-email-system-noemail": false,
-            "echo-subscriptions-web-system-noemail": true,
-            "echo-subscriptions-push-system-noemail": true,
-            "echo-subscriptions-email-system-emailonly": false,
-            "echo-subscriptions-web-system-emailonly": true,
-            "echo-subscriptions-push-system-emailonly": true,
-            "echo-subscriptions-email-user-rights": true,
-            "echo-subscriptions-web-user-rights": true,
-            "echo-subscriptions-push-user-rights": true,
-            "echo-subscriptions-email-other": false,
-            "echo-subscriptions-web-other": true,
-            "echo-subscriptions-push-other": true,
-            "echo-subscriptions-email-edit-user-talk": false,
-            "echo-subscriptions-web-edit-user-talk": true,
-            "echo-subscriptions-push-edit-user-talk": true,
-            "echo-subscriptions-email-reverted": false,
-            "echo-subscriptions-web-reverted": true,
-            "echo-subscriptions-push-reverted": true,
-            "echo-subscriptions-email-article-linked": false,
-            "echo-subscriptions-web-article-linked": false,
-            "echo-subscriptions-push-article-linked": false,
-            "echo-subscriptions-email-mention": false,
-            "echo-subscriptions-web-mention": true,
-            "echo-subscriptions-push-mention": true,
-            "echo-subscriptions-email-mention-failure": false,
-            "echo-subscriptions-web-mention-failure": false,
-            "echo-subscriptions-push-mention-failure": false,
-            "echo-subscriptions-email-mention-success": false,
-            "echo-subscriptions-web-mention-success": false,
-            "echo-subscriptions-push-mention-success": false,
-            "echo-subscriptions-email-emailuser": false,
-            "echo-subscriptions-web-emailuser": true,
-            "echo-subscriptions-push-emailuser": true,
-            "echo-subscriptions-email-thank-you-edit": false,
-            "echo-subscriptions-web-thank-you-edit": true,
-            "echo-subscriptions-push-thank-you-edit": true,
-            "echo-subscriptions-push-login-fail": true,
-            "echo-subscriptions-push-login-success": true,
-            "echo-subscriptions-push-edit-thank": true,
-            "echo-subscriptions-push-flow-discussion": true,
-            "echo-subscriptions-email-dt-subscription": false,
-            "echo-subscriptions-web-dt-subscription": true,
-            "echo-subscriptions-push-dt-subscription": true,
-            "echo-subscriptions-email-cx": false,
-            "echo-subscriptions-push-cx": true,
-            "echo-subscriptions-email-ge-mentorship": false,
-            "echo-subscriptions-web-ge-mentorship": true,
-            "echo-subscriptions-push-ge-mentorship": true,
-            "echo-subscriptions-email-wikibase-action": false,
-            "echo-subscriptions-web-wikibase-action": true,
-            "echo-subscriptions-push-wikibase-action": true,
             "cirrussearch-pref-completion-profile": "fuzzy",
             "popups": "0",
             "growthexperiments-help-panel-tog-help-panel": false,
             "homepage_mobile_discovery_notice_seen": true,
             "growthexperiments-homepage-suggestededits-guidance-blue-dot": "{\"vector\":{\"link-recommendation\":true,\"image-recommendation\":true},\"minerva\":{\"link-recommendation\":true,\"image-recommendation\":true}}",
+            "growthexperiments-homepage-se-topic-filters-mode": "OR",
             "growthexperiments-homepage-enable": false,
             "growthexperiments-homepage-pt-link": false,
             "growthexperiments-tour-help-panel": true,
@@ -6989,7 +7057,7 @@
             "growthexperiments-starred-mentees": "",
             "growthexperiments-mentor-dashboard-seen": 0,
             "growthexperiments-mentor-dashboard-last-update": null,
-            "growthexperiments-mentee-overview-filters": "{\"minedits\":1,\"maxedits\":500}",
+            "growthexperiments-mentee-overview-presets": "{\"usersToShow\":10,\"filters\":{\"minedits\":1,\"maxedits\":500}}",
             "growthexperiments-homepage-mentorship-enabled": 1,
             "growthexperiments-mentorship-weight": 2
         },
@@ -8365,7 +8433,8 @@
                 "realname": "CentralAuth",
                 "aliases": [
                     "CentralAuth",
-                    "GlobalAccount"
+                    "GlobalAccount",
+                    "CA"
                 ]
             },
             {
@@ -8856,12 +8925,6 @@
                 ]
             },
             {
-                "realname": "QuitMentorship",
-                "aliases": [
-                    "QuitMentorship"
-                ]
-            },
-            {
                 "realname": "EditGrowthConfig",
                 "aliases": [
                     "EditGrowthConfig"
@@ -8930,6 +8993,12 @@
                 "realname": "NewcomerTasksInfo",
                 "aliases": [
                     "NewcomerTasksInfo"
+                ]
+            },
+            {
+                "realname": "QuitMentorship",
+                "aliases": [
+                    "QuitMentorship"
                 ]
             }
         ],
@@ -9064,6 +9133,7 @@
         ],
         "variables": [
             "!",
+            "=",
             "currentmonth",
             "currentmonth1",
             "currentmonthname",
