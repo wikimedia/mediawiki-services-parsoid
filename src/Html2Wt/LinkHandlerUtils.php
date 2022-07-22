@@ -1183,6 +1183,10 @@ class LinkHandlerUtils {
 		$alt = $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'alt' );
 		// Fetch the lang (if any)
 		$lang = $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'lang' );
+		// Fetch the muted (if any)
+		$muted = $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'muted' );
+		// Fetch the loop (if any)
+		$loop = $state->serializer->serializedImageAttrVal( $outerElt, $elt, 'loop' );
 
 		// Ok, start assembling options, beginning with link & alt & lang
 		// Other media don't have links in output.
@@ -1220,9 +1224,11 @@ class LinkHandlerUtils {
 		// link comes from the combination of a[href], img[src], and
 		// img[resource], etc;
 		foreach ( [
-			[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond ],
-			[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond ],
-			[ 'name' => 'lang', 'value' => $lang, 'cond' => isset( $lang['value'] ) ]
+			[ 'name' => 'link', 'value' => $link, 'cond' => $linkCond, 'alias' => 'img_link' ],
+			[ 'name' => 'alt', 'value' => $alt, 'cond' => $altCond, 'alias' => 'img_alt' ],
+			[ 'name' => 'lang', 'value' => $lang, 'cond' => isset( $lang['value'] ), 'alias' => 'img_lang' ],
+			[ 'name' => 'muted', 'value' => $muted, 'cond' => isset( $muted['value'] ), 'alias' => 'timedmedia_muted' ],
+			[ 'name' => 'loop', 'value' => $loop, 'cond' => isset( $loop['value'] ), 'alias' => 'timedmedia_loop' ],
 		] as $o ) {
 			if ( !$o['cond'] ) {
 				continue;
@@ -1245,7 +1251,7 @@ class LinkHandlerUtils {
 				$nopts[] = [
 					'ck' => $o['name'],
 					'v' => $value,
-					'ak' => $mwAliases['img_' . $o['name']],
+					'ak' => $mwAliases[$o['alias']],
 				];
 			}
 		}

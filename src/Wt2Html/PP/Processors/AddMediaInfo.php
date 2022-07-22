@@ -261,6 +261,15 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$audio->setAttribute( 'controls', '' );
 		$audio->setAttribute( 'preload', 'none' );
 
+		$muted = WTSUtils::getAttrFromDataMw( $dataMw, 'muted', false );
+		if ( $muted ) {
+			$audio->setAttribute( 'muted', '' );
+		}
+		$loop = WTSUtils::getAttrFromDataMw( $dataMw, 'loop', false );
+		if ( $loop ) {
+			$audio->setAttribute( 'loop', '' );
+		}
+
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'height', (string)$size['height'], null, true );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'width', (string)$size['width'], null, true );
@@ -304,6 +313,15 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		$video->setAttribute( 'controls', '' );
 		$video->setAttribute( 'preload', 'none' );
+
+		$muted = WTSUtils::getAttrFromDataMw( $dataMw, 'muted', false );
+		if ( $muted ) {
+			$video->setAttribute( 'muted', '' );
+		}
+		$loop = WTSUtils::getAttrFromDataMw( $dataMw, 'loop', false );
+		if ( $loop ) {
+			$video->setAttribute( 'loop', '' );
+		}
 
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $video, 'height', (string)$size['height'], null, true );
