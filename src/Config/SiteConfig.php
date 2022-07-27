@@ -204,8 +204,36 @@ abstract class SiteConfig {
 	/** @var bool */
 	protected $linterEnabled = false;
 
-	/** var ?array */
+	/** @var ?array */
 	protected $extConfig = null;
+
+	/**
+	 * Tag handlers for some extensions currently explicit call unstripNowiki
+	 * first thing in their handlers. They do this to strip <nowiki>..</nowiki>
+	 * wrappers around args when encountered in the {{#tag:...}} parser function.
+	 * However, this strategy won't work for Parsoid which calls the preprocessor
+	 * to get expanded wikitext. In this mode, <nowiki> wrappers won't be stripped
+	 * and this leads to functional differences in parsing and output.
+	 *
+	 * See T203293 and T299103 for more details.
+	 *
+	 * To get around this, T299103 proposes that extensions that require this support
+	 * set a config flag in their Parsoid extension config. On the Parsoid end, we
+	 * then let the legacy parser know of these tags. When such extension tags are
+	 * encountered in the {{#tag:...}} parser function handler (see tagObj function
+	 * in CoreParserFunctions.php), that handler can than automatically strip these
+	 * nowiki wrappers on behalf of the extension.
+	 *
+	 * This serves two purposes. For one, it lets Parsoid support these extensions
+	 * in this nowiki use edge case. For another, extensions that register handlers
+	 * with Parsoid can get rid of explicit calls to unstripNowiki() in the
+	 * tag handlers for the legacy parser.
+	 *
+	 * This property maintains an array of tags that need this support.
+	 *
+	 * @var array an associative array of tag names
+	 */
+	private $t299103Tags = [];
 
 	/**
 	 * Base constructor.
@@ -1366,6 +1394,14 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * @param string $lowerTagName
+	 * @return bool
+	 */
+	public function tagNeedsNowikiStrippedInTagPF( string $lowerTagName ): bool {
+		return isset( $this->t299103Tags[$lowerTagName] );
+	}
+
+	/**
 	 * Register a Parsoid-compatible extension
 	 * @param ExtensionModule $ext
 	 */
@@ -1385,6 +1421,12 @@ abstract class SiteConfig {
 			$lowerTagName = mb_strtolower( $tagConfig['name'] );
 			$this->extConfig['allTags'][$lowerTagName] = true;
 			$this->extConfig['parsoidExtTags'][$lowerTagName] = $tagConfig;
+			// Deal with b/c nowiki stripping support needed by some extensions.
+			// This register this tag with the legacy parser for
+			// implicit nowiki stripping in {{#tag:..}} args for this tag.
+			if ( isset( $tagConfig['options']['stripNowiki'] ) ) {
+				$this->t299103Tags[$lowerTagName] = true;
+			}
 		}
 
 		foreach ( $extConfig['annotations'] ?? [] as $aTag ) {
