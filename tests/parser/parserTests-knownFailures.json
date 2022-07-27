@@ -2400,9 +2400,6 @@
     "Template with just whitespace in it, T70421": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'>{{1x|{{ }<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[9,27,8,9]}'>}</span>}}</p>"
     },
-    "Template with sections, __NOTOC__": {
-        "html2wt": "== Section 0 ==\n\n=== Section 1 ===\n\n== Section 2 ==\n\n== Section 4 ==\n"
-    },
     "Template with template name as argument": {
         "html2wt": "(test)\n"
     },
