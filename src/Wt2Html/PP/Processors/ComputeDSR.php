@@ -144,9 +144,21 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		// count nest listing depth and assign
 		// that to the opening tag width.
 		$depth = 0;
-		while ( DOMCompat::nodeName( $li ) === 'li' || DOMCompat::nodeName( $li ) === 'dd' ) {
-			$depth++;
-			$li = $li->parentNode->parentNode;
+
+		// This is the crux of the algorithm in DOMHandler::getListBullets()
+		while ( !DOMUtils::atTheTop( $li ) ) {
+			$dp = DOMDataUtils::getDataParsoid( $li );
+			if ( DOMUtils::isListOrListItem( $li ) ) {
+				if ( DOMUtils::isListItem( $li ) ) {
+					$depth++;
+				}
+			} elseif (
+				!WTUtils::isLiteralHTMLNode( $li ) ||
+				empty( $dp->autoInsertedStart ) || empty( $dp->autoInsertedEnd )
+			) {
+				break;
+			}
+			$li = $li->parentNode;
 		}
 
 		return $depth;
