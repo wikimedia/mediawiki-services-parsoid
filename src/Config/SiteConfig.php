@@ -4,6 +4,10 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use Monolog\Formatter\LineFormatter;
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -1551,4 +1555,29 @@ abstract class SiteConfig {
 		return $this->html2wtLimits;
 	}
 
+	/**
+	 * @param ?string $filePath File to log to (if null, logs to console)
+	 * @return Logger
+	 */
+	public static function createLogger( ?string $filePath = null ): Logger {
+		// Use Monolog's PHP console handler
+		$logger = new Logger( "Parsoid CLI" );
+		$format = '%message%';
+		if ( $filePath ) {
+			$handler = new StreamHandler( $filePath );
+			$format .= "\n";
+		} else {
+			$handler = new ErrorLogHandler();
+		}
+		// Don't suppress inline newlines
+		$handler->setFormatter( new LineFormatter( $format, null, true ) );
+		$logger->pushHandler( $handler );
+
+		if ( $filePath ) {
+			// Separator between logs since StreamHandler appends
+			$logger->log( Logger::INFO, "-------------- starting fresh log --------------" );
+		}
+
+		return $logger;
+	}
 }

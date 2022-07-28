@@ -5,9 +5,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config\Api;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\ErrorLogHandler;
-use Monolog\Logger;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -139,7 +136,7 @@ class SiteConfig extends ISiteConfig {
 		if ( isset( $opts['logger'] ) ) {
 			$this->setLogger( $opts['logger'] );
 		} else {
-			$this->setLogger( $this::createConsoleLogger() );
+			$this->setLogger( self::createLogger() );
 		}
 
 		if ( isset( $opts['wt2htmlLimits'] ) ) {
@@ -152,16 +149,6 @@ class SiteConfig extends ISiteConfig {
 				$this->html2wtLimits, $opts['html2wtLimits']
 			);
 		}
-	}
-
-	public static function createConsoleLogger(): Logger {
-		// Use Monolog's PHP console handler
-		$logger = new Logger( "Parsoid CLI" );
-		$handler = new ErrorLogHandler();
-		// Don't suppress inline newlines
-		$handler->setFormatter( new LineFormatter( '%message%', null, true ) );
-		$logger->pushHandler( $handler );
-		return $logger;
 	}
 
 	protected function reset() {

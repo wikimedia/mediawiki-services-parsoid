@@ -3,8 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-use Monolog\Formatter\LineFormatter;
-use Monolog\Handler\ErrorLogHandler;
 use Monolog\Handler\FilterHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
@@ -42,14 +40,7 @@ class SiteConfig extends ApiSiteConfig {
 
 	/** @inheritDoc */
 	public function __construct( ApiHelper $api, array $opts ) {
-		// Use Monolog's PHP console handler
-		$errorLogHandler = new ErrorLogHandler();
-		$errorLogHandler->setFormatter( new LineFormatter( '%message%' ) );
-
-		// Default logger
-		$logger = new Logger( "ParserTests" );
-		$logger->pushHandler( $errorLogHandler );
-
+		$logger = self::createLogger();
 		$opts['logger'] = $logger;
 		parent::__construct( $api, $opts );
 
@@ -58,6 +49,7 @@ class SiteConfig extends ApiSiteConfig {
 
 		// Logger to suppress all logs but fatals (critical errors)
 		$this->suppressLogger = new Logger( "ParserTests" );
+		$errorLogHandler = $logger->getHandlers()[0];
 		$filterHandler = new FilterHandler( $errorLogHandler, Logger::CRITICAL );
 		$this->suppressLogger->pushHandler( $filterHandler );
 	}

@@ -91,6 +91,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 						 'File containing the old HTML for a selective-serialization (see --selser)',
 						 false, true );
 		$this->addOption( 'inputfile', 'File containing input as an alternative to stdin', false, true );
+		$this->addOption( 'logFile', 'File to log trace/dumps to', false, true );
 		$this->addOption(
 			'pbin',
 			'Input pagebundle JSON',
@@ -253,8 +254,12 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function setupMwConfig( array $configOpts ) {
 		$services = MediaWikiServices::getInstance();
 		$siteConfig = $services->getParsoidSiteConfig();
-		// Overwriting logger so that it logs to console
-		$siteConfig->setLogger( SiteConfig::createConsoleLogger() );
+		// Overwriting logger so that it logs to console/file
+		$logFilePath = null;
+		if ( $this->hasOption( 'logFile' ) ) {
+			$logFilePath = $this->getOption( 'logFile' );
+		}
+		$siteConfig->setLogger( SiteConfig::createLogger( $logFilePath ) );
 
 		if ( isset( $configOpts['maxDepth'] ) ) {
 			$siteConfig->setMaxTemplateDepth( $configOpts['maxDepth'] );
@@ -282,6 +287,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$api = new ApiHelper( $configOpts );
 
 		$siteConfig = new SiteConfig( $api, $configOpts );
+		if ( $this->hasOption( 'logFile' ) ) {
+			// Overwrite logger so that it logs to file
+			$siteConfig->setLogger( SiteConfig::createLogger( $this->getOption( 'logFile' ) ) );
+		}
 		$dataAccess = new DataAccess( $api, $siteConfig, $configOpts );
 		$this->pageConfig = new PageConfig( $api, $configOpts + [
 			'title' => $siteConfig->mainpage(),
