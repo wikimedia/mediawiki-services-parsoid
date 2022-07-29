@@ -572,12 +572,14 @@ class TemplateHandler extends TokenHandler {
 		$env = $this->env;
 		$frame = $this->manager->getFrame();
 		if ( $env->hasDumpFlag( 'tplsrc' ) ) {
-			$env->log( 'dump/tplsrc', str_repeat( '=', 80 ) );
-			$env->log( 'dump/tplsrc', 'TEMPLATE:', $tplArgs['name'], '; TRANSCLUSION:',
-				PHPUtils::jsonEncode( $token->dataAttribs->src ) );
-			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
-			$env->log( 'dump/tplsrc', $src );
-			$env->log( 'dump/tplsrc', str_repeat( '-', 80 ) );
+			$dump = str_repeat( '=', 28 ) . " template source " .
+				str_repeat( '=', 28 ) . "\n";
+			$dump .= 'TEMPLATE:' . $tplArgs['name'] . 'TRANSCLUSION:' .
+				PHPUtils::jsonEncode( $token->dataAttribs->src ) . "\n";
+			$dump .= str_repeat( '-', 80 ) . "\n";
+			$dump .= $src . "\n";
+			$dump .= str_repeat( '-', 80 ) . "\n";
+			$env->writeDump( $dump );
 		}
 
 		if ( $src === '' ) {

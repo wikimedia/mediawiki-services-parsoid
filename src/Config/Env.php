@@ -420,7 +420,7 @@ class Env {
 	 * @param string $str
 	 */
 	public function writeDump( string $str ) {
-		error_log( $str );
+		$this->log( 'dump', $str );
 	}
 
 	/**
