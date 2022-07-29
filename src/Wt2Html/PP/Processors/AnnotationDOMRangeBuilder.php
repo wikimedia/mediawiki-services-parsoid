@@ -28,6 +28,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 */
 	public function __construct( Document $document, Frame $frame ) {
 		parent::__construct( $document, $frame );
+		$this->traceType = "annwrap";
 		$this->migrateTrailingNls = new MigrateTrailingNLs();
 	}
 
