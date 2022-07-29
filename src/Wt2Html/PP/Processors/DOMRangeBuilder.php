@@ -617,11 +617,8 @@ class DOMRangeBuilder {
 			// Extract tplargInfo
 			$tmp = DOMDataUtils::getDataParsoid( $r->startElem )->getTemp();
 			$templateInfo = $tmp->tplarginfo ?? null;
-			if ( WTUtils::matchTplType( $r->startElem ) && !$templateInfo ) {
-				// An assertion here is probably an indication that we're
-				// mistakenly doing template wrapping in a nested context.
-				Assert::invariant( $tmp->getFlag( TempData::FROM_FOSTER ), 'Template range without arginfo.' );
-			}
+
+			$this->verifyTplInfoExpectation( $templateInfo, $tmp );
 
 			$this->env->log( 'trace/tplwrap/merge', static function () use ( &$DOMDataUtils, &$r ) {
 				$msg = '';
@@ -1273,6 +1270,18 @@ class DOMRangeBuilder {
 	protected function matchMetaType( Element $elem ): ?string {
 		// for this class we're interested in the template type
 		return WTUtils::matchTplType( $elem );
+	}
+
+	/**
+	 * @param ?TemplateInfo $templateInfo
+	 * @param TempData $tmp
+	 */
+	protected function verifyTplInfoExpectation( ?TemplateInfo $templateInfo, TempData $tmp ): void {
+		if ( !$templateInfo ) {
+			// An assertion here is probably an indication that we're
+			// mistakenly doing template wrapping in a nested context.
+			Assert::invariant( $tmp->getFlag( TempData::FROM_FOSTER ), 'Template range without arginfo.' );
+		}
 	}
 
 	/**

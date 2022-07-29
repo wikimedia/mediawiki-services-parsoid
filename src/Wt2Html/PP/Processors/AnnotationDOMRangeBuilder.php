@@ -9,6 +9,8 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -220,6 +222,11 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	protected function matchMetaType( Element $elem ): ?string {
 		// for this class we're interested in the annotation type
 		return WTUtils::matchAnnotationMeta( $elem );
+	}
+
+	/** @inheritDoc */
+	protected function verifyTplInfoExpectation( ?TemplateInfo $templateInfo, TempData $tmp ): void {
+		// Annotations aren't templates. Nothing to do.
 	}
 
 	/**
