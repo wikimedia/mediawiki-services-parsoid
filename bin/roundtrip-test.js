@@ -829,7 +829,6 @@ var runTests = Promise.async(function *(title, options, formatter) {
 				original: {
 					'data-parsoid': data.oldDp,
 					'data-mw': data.oldMw,
-					wikitext: { body: data.oldWt },
 				},
 			},
 		}, parsoidOptions);
