@@ -422,6 +422,39 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Set temporary data into the DOM node that will be discarded
+	 * when DOM is serialized
+	 *
+	 * Use the tag name as the key for TempData management
+	 *
+	 * @param Element $node
+	 * @param mixed $data
+	 * @return void
+	 */
+	public function setTempNodeData( Element $node, $data ): void {
+		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
+		$tmpData = $dataParsoid->getTemp();
+		$key = $this->extTag->getName();
+		$tmpData->setTagData( $key, $data );
+	}
+
+	/**
+	 * Get temporary data into the DOM node that will be discarded
+	 * when DOM is serialized.
+	 *
+	 * Use the tag name as the key for TempData management
+	 *
+	 * @param Element $node
+	 * @return mixed
+	 */
+	public function getTempNodeData( Element $node ) {
+		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
+		$tmpData = $dataParsoid->getTemp();
+		$key = $this->extTag->getName();
+		return $tmpData->getTagData( $key );
+	}
+
+	/**
 	 * Process a specific extension arg as wikitext and return its DOM equivalent.
 	 * By default, this method processes the argument value in inline context and normalizes
 	 * every whitespace character to a single space.
