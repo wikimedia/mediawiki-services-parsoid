@@ -11818,6 +11818,34 @@ Aoeu
 </p>
 !! end
 
+!! test
+Parsoid: unknown parser function (T314524)
+!! wikitext
+{{#tag:b|This is a known parser function}}
+
+Now show the unknown parser functions for comparison.
+
+{{#foo}}
+
+{{#foo:bar|bat}}
+!! html/php
+<p><b>This is a known parser function</b>
+</p><p>Now show the unknown parser functions for comparison.
+</p><p>{{#foo}}
+</p><p>{{#foo:bar|bat}}
+</p>
+!! html/parsoid+standalone
+<p><b typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#tag:b","function":"tag"},"params":{"1":{"wt":"This is a known parser function"}},"i":0}}]}'>This is a known parser function</b></p>
+<p>Now show the unknown parser functions for comparison.</p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#foo","function":"foo"},"params":{},"i":0}}]}'>Parser function implementation for pf_foo missing in Parsoid.</span></p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#foo:bar","function":"foo"},"params":{"1":{"wt":"bat"}},"i":0}}]}'>Parser function implementation for pf_foo missing in Parsoid.</span></p>
+!! html/parsoid+integrated
+<p><b typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#tag:b","function":"tag"},"params":{"1":{"wt":"This is a known parser function"}},"i":0}}]}'>This is a known parser function</b></p>
+<p>Now show the unknown parser functions for comparison.</p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#foo","function":"foo"},"params":{},"i":0}}]}'>{{#foo}}</span></p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#foo:bar","function":"foo"},"params":{"1":{"wt":"bat"}},"i":0}}]}'>{{#foo:bar|bat}}</span></p>
+!! end
+
 # From plwiki:PLOS_ONE
 !! test
 Parsoid: Page property magic word with magic word contents

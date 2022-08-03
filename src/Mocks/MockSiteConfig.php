@@ -168,8 +168,7 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function specialPageLocalName( string $alias ): ?string {
-		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
-		throw new \BadMethodCallException( 'Not implemented' );
+		return null;
 	}
 
 	/**

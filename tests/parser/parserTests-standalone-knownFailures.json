@@ -1729,6 +1729,9 @@
         "selser [[2],2,1]": "13dr04g[[:es:]]\n\ni9nxnb\n\n[[ko:]]",
         "selser [1,4,1]": "[[:es:]]\n\n1v5n13f\n\n[[ko:]]"
     },
+    "Parsoid: unknown parser function (T314524)": {
+        "selser [0,0,[3],0,2,0,3]": "{{#tag:b|This is a known parser function}}\nNow show the unknown parser functions for comparison.\n\nto6td\n\n{{#foo}}\n"
+    },
     "Piped link to namespace": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,73,0,0]}'>[/index.php?title=Meta:Disclaimers&amp;action=edit&amp;redlink=1 The disclaimers]</p>\n",
         "html2wt": "[/index.php?title=Meta:Disclaimers&action=edit&redlink=1 The disclaimers]\n"
