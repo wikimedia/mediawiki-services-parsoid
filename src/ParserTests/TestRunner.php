@@ -714,6 +714,7 @@ class TestRunner {
 		// html/parsoid+langconv section (but not a parsoid html section)
 		$haveHtml = ( $test->parsoidHtml !== null ) ||
 			isset( $test->sections['wikitext/edited'] ) ||
+			isset( $test->sections['html/parsoid+standalone'] ) ||
 			isset( $test->sections['html/parsoid+langconv'] );
 		$hasHtmlParsoid =
 			isset( $test->sections['html/parsoid'] ) ||
