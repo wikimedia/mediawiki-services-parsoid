@@ -1284,13 +1284,31 @@
     "Magic Word: {{REVISIONID}} on non-latest revision": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
     },
+    "Magic Word: {{REVISIONTIMESTAMP:...}}} on non-existing non-current page": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,46,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:This page does not exist\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
+    },
+    "Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on not-yet-existing current page": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
+    },
     "Magic Word: {{REVISIONTIMESTAMP}} on latest revision": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
     },
-    "Magic Word: {{REVISIONTIMESTAMP}} on non-existing page": {
+    "Magic Word: {{REVISIONTIMESTAMP}} on not-yet-existing current page": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
     },
+    "Magic Word: {{REVISIONUSER:...}} on non-existing non-current page": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,41,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,41,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER:This page does not exist\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
+    },
+    "Magic Word: {{REVISIONUSER:{{PAGENAME}}}} on not-yet-existing current page": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER:{{PAGENAME}}\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
+    },
     "Magic Word: {{REVISIONUSER}} on latest revision": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
+    },
+    "Magic Word: {{REVISIONUSER}} on non-latest revision": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
+    },
+    "Magic Word: {{REVISIONUSER}} on not-yet-existing current page": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
     },
     "Magic Word: {{ROOTPAGENAMEE}}": {

@@ -389,7 +389,7 @@ class TestUtils {
 				"#/index.php\\?title=([^']+?)&amp;action=edit&amp;redlink=1#", '/wiki/$1', $html );
 			// strip red link title info
 			$html = preg_replace(
-				"/ \\((?:page does not exist|encara no existeix|bet ele jaratılmag'an|lonkásá  ezalí tɛ̂)\\)/",
+				"/ \\((?:page does not exist|encara no existeix|bet ele jaratılmaǵan|lonkásá  ezalí tɛ̂)\\)/",
 				'', $html );
 			// the expected html has some extra space in tags, strip it
 			$html = preg_replace( '/<a +href/', '<a href', $html );
