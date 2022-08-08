@@ -20,22 +20,21 @@ require('../core-upgrade.js');
  *   $ cd $PARSOID
  *   $ tools/sync-parserTests.js $REPO $BRANCH $TARGET
  *   $ cd $REPO
- *   $ git rebase master
+ *   $ git rebase --keep-empty master origin/master
  *     ... resolve conflicts, sigh ...
  *   $ php tests/parser/parserTests.php
  *     ... fix any failures by marking tests parsoid-only, etc ...
- *   $ git review
+ *   $ git review  (only if the patch is not empty, see below)
  *
  *     ... time passes, eventually your patch is merged to $REPO ...
  *
- *   You might be tempted to skip the following step where there is
- *   nothing to pull from core. But, that would be a mistake because
- *   we will skip updating the sync point in parserTests.json via the
- *   fetch-parserTests.txt.js script. Since the hash in the json file
- *   is checked out and rebased, without this update, the next sync
- *   from Parsoid will start from an older baseline and introduce
- *   pointless merge conflicts to resolve (because two historical
- *   versions of the test file as it existed in the Parsoid repo).
+ *   (You might be tempted to skip the following step if the previous
+ *   patch was empty, or the merged parser tests file is now identical
+ *   to Parsoid's copy and you think "there is nothing to pull from
+ *   core/the extension".  But don't; see "Empty Patches" below. On
+ *   the other hand, if you need to sync core and multiple extensions,
+ *   it's fine to do the steps above for them all and get them all
+ *   merged before continuing.)
  *
  *   $ cd $PARSOID
  *   $ tools/fetch-parserTests.txt.js $TARGET --force
@@ -80,6 +79,31 @@ require('../core-upgrade.js');
  * of the sync patch) doesn't require a corresponding change in Parsoid
  * and file a phab task and regenerate the known-differences list if that
  * happens to be the case.
+ *
+ * == EMPTY PATCHES ==
+ *
+ * If the patch to core (or to the extension) is empty, it's not
+ * necessary to push it to Gerrit. (We use `--keep-empty` in the
+ * suggested commands so that the process doesn't seem to "crash" in
+ * this case, and because it's possible you still need to tweak tests
+ * in order to make core happy after the sync.) Don't stop there,
+ * though: you obviously don't need to wait for "time passes,
+ * eventually your patch is merged to $REPO", but that means you can
+ * and should just continue immediately to do the Parsoid side of the
+ * sync. Just because core/the extension already had all Parsoid's
+ * changes doesn't mean Parsoid has all of core's/the extension's, and
+ * you'll need to update the commit hashes in Parsoid as well.
+ *
+ * In the other direction (when you pushed some Parsoid changes to
+ * core/an extension, but the result is then identical to Parsoid's
+ * copy of the parser tests), don't be tempted to skip the second half
+ * of the sync either, because the Parsoid commit won't actually be
+ * empty: it updates the commit hashes and effectively changes the
+ * rebase source for the next sync.  The sync point is recorded in
+ * parserTests.json via the fetch-parserTests.txt.js script. Since the
+ * hash in the json file is checked out and rebased, without this
+ * update, the next sync from Parsoid will start from an older
+ * baseline and introduce pointless merge conflicts to resolve.
  */
 
 var yargs = require('yargs');
