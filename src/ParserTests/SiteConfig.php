@@ -38,6 +38,9 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var LoggerInterface */
 	public $suppressLogger;
 
+	/** @var string|false */
+	private $externalLinkTarget = false;
+
 	/** @inheritDoc */
 	public function __construct( ApiHelper $api, array $opts ) {
 		$logger = self::createLogger();
@@ -104,6 +107,7 @@ class SiteConfig extends ApiSiteConfig {
 		$this->unregisterParserTestExtension( new DummyAnnotation() );
 		$this->unregisterParserTestExtension( new I18nTag() );
 		$this->thumbsize = null;
+		$this->externalLinkTarget = false;
 	}
 
 	/**
@@ -270,5 +274,20 @@ class SiteConfig extends ApiSiteConfig {
 		 * extensions or maintain a linked list of applicable extensions
 		 * for every content model
 		 */
+	}
+
+	/**
+	 * @param string|false $value
+	 * @return void
+	 */
+	public function setExternalLinkTarget( $value ): void {
+		$this->externalLinkTarget = $value;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getExternalLinkTarget() {
+		return $this->externalLinkTarget;
 	}
 }

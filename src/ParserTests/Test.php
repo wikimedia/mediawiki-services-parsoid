@@ -888,7 +888,8 @@ class Test extends Item {
 			( isset( $opts['parsoid'] ) && !isset( $opts['parsoid']['normalizePhp'] ) );
 		$normOpts = [
 			'parsoidOnly' => $parsoidOnly,
-			'preserveIEW' => isset( $opts['parsoid']['preserveIEW'] )
+			'preserveIEW' => isset( $opts['parsoid']['preserveIEW'] ),
+			'check-referrer' => $opts['check-referrer'] ?? false,
 		];
 
 		if ( !$normExpected ) {

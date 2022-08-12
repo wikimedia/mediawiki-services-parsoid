@@ -817,6 +817,9 @@ class TestRunner {
 			if ( isset( $testOpts['i18next'] ) ) {
 				$this->siteConfig->registerParserTestExtension( new I18nTag() );
 			}
+			if ( isset( $testOpts['check-referrer'] ) ) {
+				$this->siteConfig->setExternalLinkTarget( $testOpts['check-referrer'] );
+			}
 		}
 
 		// Ensure ParserHook is always registered!

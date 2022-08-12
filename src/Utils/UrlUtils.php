@@ -240,4 +240,24 @@ class UrlUtils {
 		return self::assembleUrl( $t );
 	}
 
+	/**
+	 * Check whether a given URL has a domain that occurs in a given set of domains
+	 *
+	 * @param string $url
+	 * @param array $domains Array of domains (strings)
+	 * @return bool True if the host part of $url ends in one of the strings in $domains
+	 */
+	public static function matchesDomainList( string $url, array $domains ): bool {
+		$bits = self::parseUrl( $url );
+		if ( isset( $bits['authority'] ) ) {
+			$host = '.' . $bits['authority'];
+			foreach ( $domains as $domain ) {
+				$domain = '.' . $domain;
+				if ( substr( $host, -strlen( $domain ) ) === $domain ) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }

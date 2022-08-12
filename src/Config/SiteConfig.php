@@ -1622,4 +1622,12 @@ abstract class SiteConfig {
 
 		return $logger;
 	}
+
+	/**
+	 * @return array
+	 */
+	abstract public function getNoFollowConfig(): array;
+
+	/** @return string|false */
+	abstract public function getExternalLinkTarget();
 }

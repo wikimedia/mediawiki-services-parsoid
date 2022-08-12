@@ -771,4 +771,19 @@ class SiteConfig extends ISiteConfig {
 		return $metrics;
 	}
 
+	/** @inheritDoc */
+	public function getNoFollowConfig(): array {
+		$this->loadSiteData();
+		return [
+			'nofollow' => $this->siteData['nofollowlinks'] ?? true,
+			'nsexceptions' => $this->siteData['nofollownsexceptions'] ?? [],
+			'domainexceptions' => $this->siteData['nofollowdomainexceptions'] ?? [ 'mediawiki.org' ]
+		];
+	}
+
+	/** @inheritDoc */
+	public function getExternalLinkTarget() {
+		$this->loadSiteData();
+		return $this->siteData['externallinktarget'] ?? false;
+	}
 }

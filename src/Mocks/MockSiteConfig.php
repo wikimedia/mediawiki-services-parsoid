@@ -54,6 +54,9 @@ class MockSiteConfig extends SiteConfig {
 	/** @var string|null */
 	private $linkPrefixRegex = null;
 
+	/** @var string|bool */
+	private $externalLinkTarget;
+
 	/**
 	 * @param array $opts
 	 */
@@ -69,6 +72,7 @@ class MockSiteConfig extends SiteConfig {
 		$this->tidyWhitespaceBugMaxLength = $opts['tidyWhitespaceBugMaxLength'] ?? null;
 		$this->linkPrefixRegex = $opts['linkPrefixRegex'] ?? null;
 		$this->linkTrailRegex = $opts['linkTrailRegex'] ?? '/^([a-z]+)/sD'; // enwiki default
+		$this->externalLinkTarget = $opts['externallinktarget'] ?? false;
 
 		// Use Monolog's PHP console handler
 		$logger = new Logger( "Parsoid CLI" );
@@ -425,5 +429,19 @@ class MockSiteConfig extends SiteConfig {
 
 	public function scrubBidiChars(): bool {
 		return true;
+	}
+
+	/** @inheritDoc */
+	public function getNoFollowConfig(): array {
+		return [
+			'nofollow' => true,
+			'nsexceptions' => [ 1 ],
+			'domainexceptions' => [ 'www.example.com' ]
+		];
+	}
+
+	/** @inheritDoc */
+	public function getExternalLinkTarget() {
+		return $this->externalLinkTarget;
 	}
 }
