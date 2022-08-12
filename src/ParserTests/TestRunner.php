@@ -147,6 +147,9 @@ class TestRunner {
 	private $testFilePath;
 
 	/** @var string */
+	private $knownFailuresInfix;
+
+	/** @var string */
 	private $knownFailuresPath;
 
 	/** @var array */
@@ -197,10 +200,12 @@ class TestRunner {
 
 	/**
 	 * @param string $testFilePath
+	 * @param ?string $knownFailuresInfix
 	 * @param string[] $modes
 	 */
-	public function __construct( string $testFilePath, array $modes ) {
+	public function __construct( string $testFilePath, ?string $knownFailuresInfix, array $modes ) {
 		$this->testFilePath = $testFilePath;
+		$this->knownFailuresInfix = $knownFailuresInfix;
 
 		$testFilePathInfo = pathinfo( $testFilePath );
 		$this->testFileName = $testFilePathInfo['basename'];
@@ -281,7 +286,7 @@ class TestRunner {
 			return $this->dummyEnv->normalizedTitleKey( $title, false, true );
 		};
 		$testReader = TestFileReader::read(
-			$this->testFilePath, $warnFunc, $normFunc
+			$this->testFilePath, $warnFunc, $normFunc, $this->knownFailuresInfix
 		);
 		$this->knownFailuresPath = $testReader->knownFailuresPath;
 		$this->testCases = $testReader->testCases;

@@ -61,7 +61,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			throw new \MWException( "Not yet implemented" );
 		} else {
 			foreach ( $testFilePaths as $testFile ) {
-				$testRunner = new TestRunner( $testFile, $this->processedOptions['modes'] );
+				$testRunner = new TestRunner( $testFile, 'standalone', $this->processedOptions['modes'] );
 				$result = $testRunner->run( $this->processedOptions );
 				$globalStats->accum( $result['stats'] ); // Sum all stats
 				$knownFailuresChanged = $knownFailuresChanged || $result['knownFailuresChanged'];

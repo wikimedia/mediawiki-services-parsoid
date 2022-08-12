@@ -26,15 +26,20 @@ class TestFileReader {
 	 *   report the use of deprecated test section names
 	 * @param ?callable(string):string $normalizeFunc An optional function
 	 *   to use to normalize article titles for uniqueness testing
+	 * @param ?string $knownFailuresInfix qualifier for the known failures file
+	 *   (usually "standalone" to distinguish from the failures from the default
+	 *    integrated test run)
 	 * @return TestFileReader
 	 */
 	public static function read(
 		string $testFilePath,
 		?callable $warnFunc = null,
-		?callable $normalizeFunc = null
+		?callable $normalizeFunc = null,
+		?string $knownFailuresInfix = null
 	): TestFileReader {
 		$info = pathinfo( $testFilePath );
 		$knownFailuresPath = $info['dirname'] . '/' . $info['filename'] .
+			( $knownFailuresInfix ? "-$knownFailuresInfix" : '' ) .
 			'-knownFailures.json';
 		$reader = new self(
 			$testFilePath,
