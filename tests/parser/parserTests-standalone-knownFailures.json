@@ -8,6 +8,10 @@
     "0. includeonly around the entire attribute": {
         "html2wt": "<span id=\"v2\">bar</span>\n"
     },
+    "1. Entities and nowikis inside templated attributes should be handled correctly": {
+        "wt2html": "<div style=\"background:#f9f9f9;\" about=\"#mwt3\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,57,48,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\",\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[5,47,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"style{{=}}\\\\\\\"background:&amp;amp;#35;f9f9f9;\\\\\\\"\\\"}},\\\"i\\\":0}}]}&apos;>style=\\\"background:&lt;/span>&lt;span typeof=\\\"mw:Entity\\\" about=\\\"#mwt1\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;amp;#35;\\\",\\\"srcContent\\\":\\\"#\\\"}&apos;>#&lt;/span>&lt;span about=\\\"#mwt1\\\" data-parsoid=\\\"{}\\\">f9f9f9;\\\"&lt;/span>\"},{\"html\":\"\"}]]}'>foo</div>",
+        "html2html": "<div style=\"background:#f9f9f9;\" about=\"#mwt3\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,57,48,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\",\"html\":\"&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[5,47,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"style{{=}}\\\\\\\"background:&amp;amp;#35;f9f9f9;\\\\\\\"\\\"}},\\\"i\\\":0}}]}&apos;>style=\\\"background:&lt;/span>&lt;span typeof=\\\"mw:Entity\\\" about=\\\"#mwt1\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;amp;#35;\\\",\\\"srcContent\\\":\\\"#\\\"}&apos;>#&lt;/span>&lt;span about=\\\"#mwt1\\\" data-parsoid=\\\"{}\\\">f9f9f9;\\\"&lt;/span>\"},{\"html\":\"\"}]]}'>foo</div>"
+    },
     "1. Lists with start-of-line-transparent tokens before bullets: Comments": {
         "html2wt": "* foo\n* <!--cmt-->bar\n<!--cmt-->* baz"
     },
@@ -421,10 +425,6 @@
     "Categories and newlines: should behave properly with linkprefix (T87753)": {
         "selser [[3],0,3,0,0]": "\n\n[[تصنيف:Bar]]"
     },
-    "Check noCommafy in formatNum": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:123456.78\",\"function\":\"formatnum\"},\"params\":{},\"i\":0}}]}'>123456.78</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[24,53,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:123456.78\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"NOSEP\"}},\"i\":0}}]}'>123456.78</span></p>",
-        "html2wt": "123 456,78\n123456.78\n"
-    },
     "Comment in template title": {
         "html2wt": "FOO\n"
     },
@@ -715,6 +715,11 @@
     },
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
+    },
+    "Expansion of multi-line templates in attribute values (T8255)": {
+        "wt2html": "<div style=\"background: \n#00FF00\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: \\n#00FF00\"},\"sa\":{\"style\":\"background: {{1x|#00FF00}}\"},\"dsr\":[0,47,40,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[24,38,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>\\n#00FF00&lt;/span>\"}]]}'>-</div>",
+        "html2html": "<div style=\"background: Template:Identity\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: Template:Identity\"},\"sa\":{\"style\":\"background: {{identity|#00FF00}}\"},\"dsr\":[0,53,46,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Template:Identity\\\" title=\\\"Template:Identity\\\" about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Template:Identity\\\"},\\\"sa\\\":{\\\"href\\\":\\\"Template:Identity\\\"},\\\"dsr\\\":[24,44,null,null],\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"identity\\\",\\\"href\\\":\\\"./Template:Identity\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>Template:Identity&lt;/a>\"}]]}'>-</div>",
+        "html2wt": "<div style=\"background: {{identity|#00FF00}}\">-</div>"
     },
     "External link containing double-single-quotes with no space separating the url from text in italics": {
         "wt2wt": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas'' (1901) en el sitio de] [[Museo Picasso (París)|Museo Picasso]].",
@@ -1159,10 +1164,6 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,423,0,0]}'>The first monolingual dictionary written in a Romance language was <i data-parsoid='{\"dsr\":[67,94,2,2]}'>Sebastián Covarrubias'</i> <i data-parsoid='{\"dsr\":[95,141,2,2]}'>Tesoro de la lengua castellana o española</i>, published in 1611 in Madrid. In 1612 the first edition of the <i data-parsoid='{\"dsr\":[205,312,2,2]}'>Vocabolario dell'[/index.php?title=Accademia_della_Crusca&amp;action=edit&amp;redlink=1 Accademia della Crusca]</i>, for Italian, was published. In 1690 in Rotterdam was published, posthumously, the <i data-parsoid='{\"dsr\":[396,422,2,2]}'>Dictionnaire Universel</i>.</p>\n",
         "html2wt": "The first monolingual dictionary written in a Romance language was ''Sebastián Covarrubias''' ''Tesoro de la lengua castellana o española'', published in 1611 in Madrid. In 1612 the first edition of the ''Vocabolario dell'[/index.php?title=Accademia_della_Crusca&action=edit&redlink=1 Accademia della Crusca]'', for Italian, was published. In 1690 in Rotterdam was published, posthumously, the ''Dictionnaire Universel''.\n"
     },
-    "Language parser function": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#language:ar\",\"function\":\"language\"},\"params\":{},\"i\":0}}]}'>ar</span></p>",
-        "html2wt": "العربية\n"
-    },
     "Less than in attribute position": {
         "selser [0,2,[2]]": "<pre <pre>123</pre>6njtnz\n\n\n\n<div <div>zghs00123</div>"
     },
@@ -1204,170 +1205,6 @@
     },
     "Lists: 4. No escapes needed": {
         "html2wt": "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n"
-    },
-    "Magic Word: {{BASEPAGENAMEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"BASEPAGENAMEE\",\"function\":\"basepagenamee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_basepagenamee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{BASEPAGENAME}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"BASEPAGENAME\",\"function\":\"basepagename\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_basepagename missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{CURRENTDAY2}}": {
-        "html2wt": "01\n"
-    },
-    "Magic Word: {{CURRENTDAYNAME}}": {
-        "html2wt": "Thursday\n"
-    },
-    "Magic Word: {{CURRENTDAY}}": {
-        "html2wt": "1\n"
-    },
-    "Magic Word: {{CURRENTDOW}}": {
-        "html2wt": "4\n"
-    },
-    "Magic Word: {{CURRENTHOUR}}": {
-        "html2wt": "00\n"
-    },
-    "Magic Word: {{CURRENTMONTH1}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"CURRENTMONTH1\",\"function\":\"currentmonth1\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_currentmonth1 missing in Parsoid.</span></p>",
-        "html2wt": "1\n"
-    },
-    "Magic Word: {{CURRENTMONTHABBREV}}": {
-        "html2wt": "Jan\n"
-    },
-    "Magic Word: {{CURRENTMONTHNAMEGEN}}": {
-        "html2wt": "January\n"
-    },
-    "Magic Word: {{CURRENTMONTHNAME}}": {
-        "html2wt": "January\n"
-    },
-    "Magic Word: {{CURRENTMONTH}}": {
-        "html2wt": "01\n"
-    },
-    "Magic Word: {{CURRENTTIMESTAMP}}": {
-        "html2wt": "19700101000203\n"
-    },
-    "Magic Word: {{CURRENTTIME}}": {
-        "html2wt": "00:02\n"
-    },
-    "Magic Word: {{CURRENTWEEK}} (T6594)": {
-        "html2wt": "1\n"
-    },
-    "Magic Word: {{CURRENTYEAR}}": {
-        "html2wt": "1970\n"
-    },
-    "Magic Word: {{FULLPAGENAMEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"FULLPAGENAMEE\",\"function\":\"fullpagenamee\"},\"params\":{},\"i\":0}}]}'>User:Ævar Arnfjörð Bjarmason</span></p>"
-    },
-    "Magic Word: {{NAMESPACEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"NAMESPACEE\",\"function\":\"namespacee\"},\"params\":{},\"i\":0}}]}'>Main</span></p>"
-    },
-    "Magic Word: {{NAMESPACENUMBER}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,19,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,19,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"NAMESPACENUMBER\",\"function\":\"namespacenumber\"},\"params\":{},\"i\":0}}]}'>0</span></p>"
-    },
-    "Magic Word: {{NAMESPACE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"NAMESPACE\",\"function\":\"namespace\"},\"params\":{},\"i\":0}}]}'>Main</span></p>"
-    },
-    "Magic Word: {{NUMBEROFFILES}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"NUMBEROFFILES\",\"function\":\"numberoffiles\"},\"params\":{},\"i\":0}}]}'>2</span></p>"
-    },
-    "Magic Word: {{PAGENAMEE}}": {
-        "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAMEE\",\"function\":\"pagenamee\"},\"params\":{},\"i\":0}}]}'></span>"
-    },
-    "Magic Word: {{PAGENAMEE}} with metacharacters (T28781)": {
-        "wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAMEE\",\"function\":\"pagenamee\"},\"params\":{},\"i\":0}}]}'></span>"
-    },
-    "Magic Word: {{PAGENAME}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,12,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,12,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}'>User:Ævar Arnfjörð Bjarmason</span></p>"
-    },
-    "Magic Word: {{REVISIONID}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONID}} on non-latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONTIMESTAMP:...}}} on non-existing non-current page": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,46,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:This page does not exist\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on not-yet-existing current page": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONTIMESTAMP}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONTIMESTAMP}} on not-yet-existing current page": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONUSER:...}} on non-existing non-current page": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,41,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,41,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER:This page does not exist\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONUSER:{{PAGENAME}}}} on not-yet-existing current page": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER:{{PAGENAME}}\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONUSER}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONUSER}} on non-latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{REVISIONUSER}} on not-yet-existing current page": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONUSER\",\"function\":\"revisionuser\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionuser missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{ROOTPAGENAMEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ROOTPAGENAMEE\",\"function\":\"rootpagenamee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_rootpagenamee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{ROOTPAGENAME}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ROOTPAGENAME\",\"function\":\"rootpagename\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_rootpagename missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{SCRIPTPATH}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SCRIPTPATH\",\"function\":\"scriptpath\"},\"params\":{},\"i\":0}}]}'>/</span></p>"
-    },
-    "Magic Word: {{STYLEPATH}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"STYLEPATH\",\"function\":\"stylepath\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_stylepath missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{SUBJECTPAGENAMEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,20,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,20,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBJECTPAGENAMEE\",\"function\":\"subjectpagenamee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_subjectpagenamee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{SUBJECTPAGENAME}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,19,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,19,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBJECTPAGENAME\",\"function\":\"subjectpagename\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_subjectpagename missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{SUBJECTSPACEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBJECTSPACEE\",\"function\":\"subjectspacee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_subjectspacee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{SUBJECTSPACE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBJECTSPACE\",\"function\":\"subjectspace\"},\"params\":{},\"i\":0}}]}'>Main</span></p>"
-    },
-    "Magic Word: {{SUBJECTSPACE}}, main namespace": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBJECTSPACE\",\"function\":\"subjectspace\"},\"params\":{},\"i\":0}}]}'>Main</span></p>"
-    },
-    "Magic Word: {{SUBJECTSPACE}}, same namespace": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBJECTSPACE\",\"function\":\"subjectspace\"},\"params\":{},\"i\":0}}]}'>Main</span></p>"
-    },
-    "Magic Word: {{SUBPAGENAMEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBPAGENAMEE\",\"function\":\"subpagenamee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_subpagenamee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{SUBPAGENAME}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,15,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,15,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SUBPAGENAME\",\"function\":\"subpagename\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_subpagename missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{TALKPAGENAMEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"TALKPAGENAMEE\",\"function\":\"talkpagenamee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_talkpagenamee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{TALKPAGENAME}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"TALKPAGENAME\",\"function\":\"talkpagename\"},\"params\":{},\"i\":0}}]}'>User:Ævar Arnfjörð Bjarmason</span></p>"
-    },
-    "Magic Word: {{TALKSPACEE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"TALKSPACEE\",\"function\":\"talkspacee\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_talkspacee missing in Parsoid.</span></p>"
-    },
-    "Magic Word: {{TALKSPACE}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"TALKSPACE\",\"function\":\"talkspace\"},\"params\":{},\"i\":0}}]}'>Talk</span></p>"
-    },
-    "Magic Word: {{TALKSPACE}}, same namespace": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"TALKSPACE\",\"function\":\"talkspace\"},\"params\":{},\"i\":0}}]}'>Talk</span></p>"
-    },
-    "Magic Words LOCAL (UTC)": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,238,0,0]}'><li data-parsoid='{\"dsr\":[0,15,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[1,15,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALMONTH\",\"function\":\"localmonth\"},\"params\":{},\"i\":0}}]}'>01</span></li>\n<li data-parsoid='{\"dsr\":[16,32,1,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[17,32,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALMONTH1\",\"function\":\"localmonth1\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_localmonth1 missing in Parsoid.</span></li>\n<li data-parsoid='{\"dsr\":[33,52,1,0]}'><span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[34,52,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALMONTHNAME\",\"function\":\"localmonthname\"},\"params\":{},\"i\":0}}]}'>January</span></li>\n<li data-parsoid='{\"dsr\":[53,75,1,0]}'><span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[54,75,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALMONTHNAMEGEN\",\"function\":\"localmonthnamegen\"},\"params\":{},\"i\":0}}]}'>January</span></li>\n<li data-parsoid='{\"dsr\":[76,97,1,0]}'><span about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[77,97,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALMONTHABBREV\",\"function\":\"localmonthabbrev\"},\"params\":{},\"i\":0}}]}'>Jan</span></li>\n<li data-parsoid='{\"dsr\":[98,111,1,0]}'><span about=\"#mwt6\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[99,111,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALDAY\",\"function\":\"localday\"},\"params\":{},\"i\":0}}]}'>1</span></li>\n<li data-parsoid='{\"dsr\":[112,126,1,0]}'><span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[113,126,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALDAY2\",\"function\":\"localday2\"},\"params\":{},\"i\":0}}]}'>01</span></li>\n<li data-parsoid='{\"dsr\":[127,144,1,0]}'><span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[128,144,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALDAYNAME\",\"function\":\"localdayname\"},\"params\":{},\"i\":0}}]}'>Thursday</span></li>\n<li data-parsoid='{\"dsr\":[145,159,1,0]}'><span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[146,159,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALYEAR\",\"function\":\"localyear\"},\"params\":{},\"i\":0}}]}'>1970</span></li>\n<li data-parsoid='{\"dsr\":[160,174,1,0]}'><span about=\"#mwt10\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[161,174,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALTIME\",\"function\":\"localtime\"},\"params\":{},\"i\":0}}]}'>00:02</span></li>\n<li data-parsoid='{\"dsr\":[175,189,1,0]}'><span about=\"#mwt11\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[176,189,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALHOUR\",\"function\":\"localhour\"},\"params\":{},\"i\":0}}]}'>00</span></li>\n<li data-parsoid='{\"dsr\":[190,204,1,0]}'><span about=\"#mwt12\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[191,204,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALWEEK\",\"function\":\"localweek\"},\"params\":{},\"i\":0}}]}'>1</span></li>\n<li data-parsoid='{\"dsr\":[205,218,1,0]}'><span about=\"#mwt13\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[206,218,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALDOW\",\"function\":\"localdow\"},\"params\":{},\"i\":0}}]}'>4</span></li>\n<li data-parsoid='{\"dsr\":[219,238,1,0]}'><span about=\"#mwt14\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[220,238,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"LOCALTIMESTAMP\",\"function\":\"localtimestamp\"},\"params\":{},\"i\":0}}]}'>19700101000203</span></li></ul>",
-        "html2wt": "* 01\n* 1\n* January\n* January\n* Jan\n* 1\n* 01\n* Thursday\n* 1970\n* 00:02\n* 00\n* 1\n* 4\n* 19700101000203"
     },
     "Magic variable as template parameter": {
         "html2wt": "This is a test template with parameter MediaWiki\n"
@@ -1419,25 +1256,9 @@
     "Namespace (lang=de) Benutzer {{ns:User}}": {
         "html2wt": "Benutzer\n"
     },
-    "Namespace -1 {{ns:-1}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:-1\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>-1</span></p>",
-        "html2wt": "Special\n"
-    },
     "Namespace 0 {{ns:00}} (T6783)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:00\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>00</span></p>",
         "html2wt": ""
-    },
-    "Namespace 0 {{ns:0}} (T6783)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:0\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>0</span></p>",
-        "html2wt": ""
-    },
-    "Namespace 1 {{ns:01}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:01\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>01</span></p>",
-        "html2wt": "Talk\n"
-    },
-    "Namespace 1 {{ns:1}}": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:1\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>1</span></p>",
-        "html2wt": "Talk\n"
     },
     "Namespace File {{ns:File}}": {
         "html2wt": "File\n"
@@ -1639,33 +1460,6 @@
     "Parents of subpages, two levels up": {
         "selser [[[3],3],2,1]": "\nlhdwhe\n\n[[../../|L1]]l"
     },
-    "Parser Function: {{PAGESIZE:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,25,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,25,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESIZE:{{PAGENAME}}\",\"function\":\"pagesize\"},\"params\":{},\"i\":0}}]}'>100</span></p>"
-    },
-    "Parser Function: {{REVISIONDAY:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,28,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY:{{PAGENAME}}\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONDAY}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,15,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,15,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONID:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONID:{{PAGENAME}}}} on non-saved revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONMONTH:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH:{{PAGENAME}}\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONMONTH}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONYEAR:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR:{{PAGENAME}}\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</span></p>"
-    },
-    "Parser Function: {{REVISIONYEAR}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</span></p>"
-    },
     "Parser Functions: 1. Simple example": {
         "html2wt": "FOO\n"
     },
@@ -1762,11 +1556,6 @@
         "selser [[4,[[[3],4,0,0,[3]],3]]]": "{|<!--ci9nun-->\n!\n!zfilpo\n|''a||\n|}",
         "selser [[4,1]]": "{|<!--110f59d-->\n!''a!!''b\n|''a||''b\n|}",
         "selser [[0,1]]": "{|\n!''a!!''b\n|''a||''b\n|}"
-    },
-    "RAW magic word": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:RAW:QUERTY\" title=\"Template:RAW:QUERTY\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:RAW:QUERTY\"},\"sa\":{\"href\":\"Template:RAW:QUERTY\"},\"dsr\":[0,14,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"RAW:QUERTY\",\"href\":\"./Template:RAW:QUERTY\"},\"params\":{},\"i\":0}}]}'>Template:RAW:QUERTY</a></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,72,0,0]}'>[/index.php?title=Template:QUERTY&amp;action=edit&amp;redlink=1 Template:QUERTY]</p>\n",
-        "html2wt": "[/index.php?title=Template:QUERTY&action=edit&redlink=1 Template:QUERTY]\n"
     },
     "Redirect followed by multiple newlines": {
         "selser [0,2,0]": "#REDIRECT [[Main Page]]\n1kgt7nw\n\n\n\nA newline"
@@ -1901,10 +1690,6 @@
         "selser [[0,0,2]]": "=== hi <span id=\"x\">hi</span>1w2au0v hi ho ===",
         "selser [[4,[3],0]]": "=== 64yg7h<span id=\"x\"></span> hi ho ==="
     },
-    "Spacing of numbers in formatted dates": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:January 15\",\"function\":\"formatdate\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"01-15\">January 15</span>\n"
-    },
     "Special page transclusion": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Special:PrefixIndex/Xyzzyx\" title=\"Special:PrefixIndex/Xyzzyx\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"sa\":{\"href\":\"Special:PrefixIndex/Xyzzyx\"},\"dsr\":[0,30,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'>Special:PrefixIndex/Xyzzyx</a></p>",
         "html2wt": "* [[Xyzzyx]]\n"
@@ -1916,29 +1701,21 @@
     },
     "Special parser function": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:RandomPage\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[24,45,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:BaDtItLe\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[46,65,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Foobar\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
-        "html2wt": "Special:Random\nSpecial:Badtitle\nSpecial:Foobar\n"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:RandomPage\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[24,45,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:BaDtItLe\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[46,65,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Foobar\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>"
     },
     "Special:Search page linking.": {
         "html2wt": "[[Special:Search]]\n"
     },
     "Strip marker in formatNum": {
-        "html2wt": "12\n12\n"
-    },
-    "Strip marker in grammar": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,35,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,35,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"grammar:elative\",\"function\":\"grammar\"},\"params\":{\"1\":{\"wt\":\"foo&lt;nowiki/>bar\"}},\"i\":0}}]}'>Parser function implementation for pf_grammar missing in Parsoid.</span></p>",
-        "html2wt": "foobarista\n"
-    },
-    "Strip marker in lc": {
-        "html2wt": "xy\n"
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,25,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1&lt;nowiki/>2\",\"function\":\"formatnum\"},\"params\":{},\"i\":0}}]}'>12</span>\n<span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[26,53,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1&lt;nowiki/>2\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"R\"}},\"i\":0}}]}'>12</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,25,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1&lt;nowiki/>2\",\"function\":\"formatnum\"},\"params\":{},\"i\":0}}]}'>12</span> <span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[26,53,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1&lt;nowiki/>2\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"R\"}},\"i\":0}}]}'>12</span></p>",
+        "html2wt": "{{formatnum:1<nowiki/>2}} {{formatnum:1<nowiki/>2|R}}"
     },
     "Strip marker in padleft": {
         "html2wt": "xy\n"
     },
     "Strip marker in padright": {
         "html2wt": "xy\n"
-    },
-    "Strip marker in uc": {
-        "html2wt": "XY\n"
     },
     "Subpage noslash link": {
         "html2wt": "[[Subpage test/subpage|subpage]]\n"
@@ -2073,10 +1850,6 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,66,0,0]}'>[/index.php?title=Page/Subpage&amp;action=edit&amp;redlink=1 Page/Subpage]</p>\n",
         "html2wt": "[/index.php?title=Page/Subpage&action=edit&redlink=1 Page/Subpage]\n"
     },
-    "T33098 Template which includes system messages which includes the template": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Identical\",\"href\":\"./Template:Identical\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.\nParser function implementation for pf_int missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"error\">Template loop detected: [[Template:Identical]]</span>\n<span class=\"error\">Template loop detected: [[Template:Identical]]</span>\n"
-    },
     "T33490 Turkish: lcfirst 'BLAH'": {
         "html2wt": "bLAH\n"
     },
@@ -2096,10 +1869,6 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,90,0,0]}'>[/index.php?title=Template:Ucf%C4%B1rst:blah&amp;action=edit&amp;redlink=1 Template:Ucfırst:blah]</p>\n",
         "html2wt": "[/index.php?title=Template:Ucf%C4%B1rst:blah&action=edit&redlink=1 Template:Ucfırst:blah]\n"
     },
-    "T34057: Title needed when expanding <h> nodes.": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"int:T34057\",\"function\":\"int\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.</span></p>",
-        "html2wt": "== OK ==\n"
-    },
     "T4095: link with pipe and three closing brackets, version 2": {
         "wt2wt": "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]",
         "html2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[0,52,12,2]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[12,50,8,9]}'>[http://example.com/]</span></a></p>",
@@ -2107,14 +1876,6 @@
         "selser [1]": "[[Main Page|[http://example.com/]]]",
         "selser [2]": "fzyteq\n\n[[Main Page|[http://example.com/]]]",
         "selser [[2]]": "v7jqm7[[Main Page|[http://example.com/]]]"
-    },
-    "T4304: HTML attribute safety (unsafe breakout parameter 2; 2309)": {
-        "wt2html": "<div style='float: right; \" >alert(document.cookie)' about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"float: right; \\\" >alert(document.cookie)\"},\"sa\":{\"style\":\"float: right; {{{1}}}\"},\"dsr\":[0,56,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"div style\",\"href\":\"./Template:Div_style\"},\"params\":{\"1\":{\"wt\":\"\\\" >&lt;script>alert(document.cookie)&lt;/script>\"}},\"i\":0}}]}'>Magic div</div>",
-        "html2wt": "<div style=\"float: right;\"><script>alert(document.cookie)</script>\">Magic div</div>"
-    },
-    "T4304: HTML attribute safety (unsafe breakout parameter; 2309)": {
-        "wt2html": "<div style='float: right; \">alert(document.cookie)' about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"float: right; \\\">alert(document.cookie)\"},\"sa\":{\"style\":\"float: right; {{{1}}}\"},\"dsr\":[0,55,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"div style\",\"href\":\"./Template:Div_style\"},\"params\":{\"1\":{\"wt\":\"\\\">&lt;script>alert(document.cookie)&lt;/script>\"}},\"i\":0}}]}'>Magic div</div>",
-        "html2wt": "<div style=\"float: right;\"><script>alert(document.cookie)</script>\">Magic div</div>"
     },
     "T45661: Piped links with identical prefixes": {
         "html2wt": "[[Prefixed article|prefixed articles with spaces]]\n\n[[Prefixed article|prefixed articlesaoeu]]\n\n[[Main Page|Main Page test]]\n",
@@ -2439,8 +2200,11 @@
     "Template with template name as unnamed argument": {
         "html2wt": "(test)\n"
     },
-    "Templated table cell with untemplated attributes: Unsupported Scenarios": {
-        "wt2html": "<table data-parsoid='{\"dsr\":[0,128,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,126,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,36,2,0]}'>\n<td data-parsoid='{\"dsr\":[6,18,1,0]}'>class=\"foo\"</td><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[18,36,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true,\"spc\":[\"\",\"\",\" \",\"\"]}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[37,75,2,0]}'>\n<td about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[40,75,1,0],\"firstWikitextNode\":\"TD\",\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;nbsp;{{!}}bar\"}},\"i\":0}}]}'>class=\"foo\"<span typeof=\"mw:Entity\"> </span></td><td about=\"#mwt3\">bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[76,125,2,0]}'>\n<td data-parsoid='{\"dsr\":[79,91,1,0]}'>class=\"foo\"</td><td about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[91,125,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>title=\"fail\"</td><td about=\"#mwt5\">bar</td></tr>\n</tbody></table>"
+    "Templated table cell with untemplated attributes: Unsupported (standalone mode) Scenarios": {
+        "wt2html": "<table data-parsoid='{\"dsr\":[0,78,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,76,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,36,2,0]}'>\n<td data-parsoid='{\"dsr\":[6,18,1,0]}'>class=\"foo\"</td><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[18,36,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true,\"spc\":[\"\",\"\",\" \",\"\"]}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[37,75,2,0]}'>\n<td about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[40,75,1,0],\"firstWikitextNode\":\"TD\",\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;nbsp;{{!}}bar\"}},\"i\":0}}]}'>class=\"foo\"<span typeof=\"mw:Entity\"> </span></td><td about=\"#mwt3\">bar</td></tr>\n</tbody></table>"
+    },
+    "Templated table cell with untemplated attributes: Unsupported Scenario": {
+        "wt2html": "<table data-parsoid='{\"dsr\":[0,55,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,53,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,52,2,0]}'>\n<td data-parsoid='{\"dsr\":[6,18,1,0]}'>class=\"foo\"</td><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[18,52,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>title=\"fail\"</td><td about=\"#mwt1\">bar</td></tr>\n</tbody></table>"
     },
     "Templates with templated name": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,39,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"{{1x|1x}}\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span>\n{<span about=\"#mwt3\" typeof=\"mw:Param\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[19,38,null,null]}' data-mw='{\"parts\":[{\"templatearg\":{\"target\":{\"wt\":\"1x\"},\"params\":{\"1\":{\"wt\":\"inner list\"}},\"i\":0}}]}'>inner list</span>}</p>",
@@ -2459,8 +2223,8 @@
         "html2wt": "<div>Foo</div><div>bar</div>"
     },
     "Templates: Don't strip whitespace from positional-param values": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a \"}},\"i\":0}}]}'>a </span></p>\n\n<p data-parsoid='{\"dsr\":[11,27,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </span></p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[29,40,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[42,59,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[61,71,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<ul about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[73,83,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[85,95,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>",
-        "html2wt": "a \n\nb \n\n c \n\n\n d\n\n\n e\n\n\n* f\n\n\n g\n"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span></p>\n\n<p data-parsoid='{\"dsr\":[10,26,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[10,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </span></p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[28,39,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[41,58,1,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[60,70,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<ul about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[72,82,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[84,94,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>\n",
+        "html2wt": "{{1x|a}}\n\n{{1x|{{1x|b}} }}\n\n{{1x| c \n}}\n\n{{1x| {{1x|d}}\n}}\n\n{{1x|\n e}}\n\n{{1x|\n*f}}\n\n{{1x|\n }}g\n"
     },
     "Templates: HTML Tables: 1. Generating start of a HTML table": {
         "html2wt": "{|\n|foo\n|}"
@@ -2650,10 +2414,6 @@
         "html2html": "<ul data-parsoid='{\"dsr\":[0,173,0,0]}'><li data-parsoid='{\"dsr\":[0,86,1,0,1,0]}'>a [/index.php?title=Template:Nonexistent&amp;action=edit&amp;redlink=1 Template:Nonexistent]</li>\n<li data-parsoid='{\"dsr\":[87,173,1,0,1,0]}'>b [/index.php?title=Template:Nonexistent&amp;action=edit&amp;redlink=1 Template:Nonexistent]</li></ul>",
         "html2wt": "* a [/index.php?title=Template:Nonexistent&action=edit&redlink=1 Template:Nonexistent]\n* b [/index.php?title=Template:Nonexistent&action=edit&redlink=1 Template:Nonexistent]"
     },
-    "Templates: Other wikitext in parameter names (T69657)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"&apos;&apos;1&apos;&apos;\",\"named\":true}]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"&apos;&apos;1&apos;&apos;\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"&apos;&apos;1&apos;&apos;\",\"named\":true}]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"&apos;&apos;1&apos;&apos;\":{\"wt\":\"foo\"}},\"i\":0}}]}'>foo</span></p>"
-    },
     "Templates: P-wrapping: 1a. Templates on consecutive lines": {
         "html2wt": "Foo\nbar\n"
     },
@@ -2723,23 +2483,11 @@
         "selser [2,0,3]": "16x02uj\n{|\n|<small>foo\nbar\n|}\n",
         "selser [2,0,[2,[2,0]]]": "520cu8\n{|\n|<small>foo\nbar\n|}\n\n{|<!--1wcfyae-->\n<!--hzgi8f-->|<small>foo<small>\n|}"
     },
-    "Transclusion of MediaWiki message with space": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><a rel=\"mw:WikiLink\" href=\"./MediaWiki:History_short\" title=\"MediaWiki:History short\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./MediaWiki:History_short\"},\"sa\":{\"href\":\"MediaWiki:History_short\"},\"dsr\":[0,27,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:history short\",\"href\":\"./MediaWiki:History_short\"},\"params\":{},\"i\":0}}]}'>MediaWiki:History_short</a></p>",
-        "html2wt": "History\n"
-    },
-    "Transclusion of MediaWiki message with underscore": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><a rel=\"mw:WikiLink\" href=\"./MediaWiki:History_short\" title=\"MediaWiki:History short\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./MediaWiki:History_short\"},\"sa\":{\"href\":\"MediaWiki:History_short\"},\"dsr\":[0,27,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:history_short\",\"href\":\"./MediaWiki:History_short\"},\"params\":{},\"i\":0}}]}'>MediaWiki:History_short</a></p>",
-        "html2wt": "History\n"
-    },
     "Transclusion of a child page": {
         "html2wt": "Sibling article\n"
     },
     "Transclusion of a sibling page (one level up)": {
         "html2wt": "Sibling article\n"
-    },
-    "Transclusion of default MediaWiki message": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,22,0,0]}'><a rel=\"mw:WikiLink\" href=\"./MediaWiki:Mainpage\" title=\"MediaWiki:Mainpage\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./MediaWiki:Mainpage\"},\"sa\":{\"href\":\"MediaWiki:Mainpage\"},\"dsr\":[0,22,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:Mainpage\",\"href\":\"./MediaWiki:Mainpage\"},\"params\":{},\"i\":0}}]}'>MediaWiki:Mainpage</a></p>",
-        "html2wt": "Main Page\n"
     },
     "Transclusion of nonexistent MediaWiki message": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,84,0,0]}'>[/index.php?title=MediaWiki:Mainpagexxx&amp;action=edit&amp;redlink=1 MediaWiki:Mainpagexxx]</p>\n",
@@ -2813,10 +2561,6 @@
     "Wikitext table with html-syntax row": {
         "html2wt": "{|\n|foo\n|}"
     },
-    "Wrong option for formatNum (T58199)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,126,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1,234.56\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"Random\"}},\"i\":0}}]}'>1,234.56</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[30,63,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1,234.56\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"EVERYTHING\"}},\"i\":0}}]}'>1,234.56</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[64,126,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"formatnum:1234.56\",\"function\":\"formatnum\"},\"params\":{\"1\":{\"wt\":\"any argument that has the string &apos;NOSEP&apos;\"}},\"i\":0}}]}'>1234.56</span></p>",
-        "html2wt": "1,234.56\n1,234.56\n1,234.56\n"
-    },
     "__NOEDITSECTION__ keyword": {
         "html2wt": "== Section 1 ==\n\n== Section 2 ==\n"
     },
@@ -2848,56 +2592,6 @@
         "selser [[3]]": "<div id=rock></div>",
         "selser [[2]]": "<div id=rock>1n6014eHTML rocks</div>"
     },
-    "formatdate parser function": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:2009-03-24\",\"function\":\"formatdate\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"2009-03-24\">2009-03-24</span>\n"
-    },
-    "formatdate parser function, with default format": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:2009-03-24\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"mdy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"2009-03-24\">March 24, 2009</span>\n"
-    },
-    "formatdate parser function, with default format and on a page of which the content language is always English and different from the wiki content language": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:2009-03-24\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"2009-03-24\">24 March 2009</span>\n"
-    },
-    "formatdate uses correct capitalisation in English": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:june 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"06-03\">3 June</span>\n"
-    },
-    "formatdate uses correct capitalisation in French": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:Juin 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"06-03\">3 juin</span>\n"
-    },
-    "formatdate with invalid month": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:2019-22-22\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "2019-22-22\n"
-    },
-    "formatdate: dots in month name do not match any char (T220563)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:jun. 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[27,53,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#formatdate:junx 3\",\"function\":\"formatdate\"},\"params\":{\"1\":{\"wt\":\"dmy\"}},\"i\":0}}]}'>Parser function implementation for pf_formatdate missing in Parsoid.</span></p>",
-        "html2wt": "<span class=\"mw-formatted-date\" title=\"06-03\">3 Juni</span>\njunx 3\n"
-    },
-    "int keyword": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,45,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[0,45,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"int:youhavenewmessages\",\"function\":\"int\"},\"params\":{\"1\":{\"wt\":\"lots of money\"},\"2\":{\"wt\":\"not!\"}},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.</span></p>",
-        "html2wt": "You have lots of money (not!).\n"
-    },
-    "int keyword - non-existing message": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,11,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,11,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"int:var\",\"function\":\"int\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_int missing in Parsoid.</span></p>",
-        "html2wt": "⧼var⧽\n"
-    },
-    "max template depth being reached": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x with depth\",\"href\":\"./Template:1x_with_depth\"},\"params\":{\"1\":{\"wt\":\"too deep!\"}},\"i\":0}}]}'>too deep!</span></p>",
-        "html2wt": "<span class=\"error\">Template recursion depth limit exceeded (1)</span>\n"
-    },
-    "message transform: <noinclude> in transcluded template (T6926)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,12,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,12,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Includes\",\"href\":\"./Template:Includes\"},\"params\":{},\"i\":0}}]}'>Foobar</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,6,0,0]}'>Foobar</p>",
-        "html2wt": "Foobar"
-    },
-    "message transform: <onlyinclude> in transcluded template (T6926)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><meta typeof=\"mw:Transclusion mw:Includes/OnlyInclude\" about=\"#mwt1\" data-parsoid='{\"dsr\":[0,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Includes2\",\"href\":\"./Template:Includes2\"},\"params\":{},\"i\":0}}]}'/><span about=\"#mwt1\">Foo</span><meta typeof=\"mw:Includes/OnlyInclude/End\" about=\"#mwt1\"/></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,3,0,0]}'>Foo</p>",
-        "html2wt": "Foo"
-    },
     "message transform: magic variables": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,12,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,12,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SITENAME\",\"function\":\"sitename\"},\"params\":{},\"i\":0}}]}'>MediaWiki</span></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'>MediaWiki</p>",
@@ -2907,10 +2601,6 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><i data-parsoid='{\"dsr\":[0,8,2,2]}'>test</i></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,25,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,25,8,9]}'>''test''</span></p>",
         "html2wt": "<nowiki>''test''</nowiki>"
-    },
-    "multiple templates that are redirects": {
-        "wt2html": "<link rel=\"mw:PageProp/redirect\" href=\"./Template:Foo\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"a\":{\"href\":\"./Template:Foo\"},\"sa\":{\"href\":\"Template:Foo\"},\"dsr\":[0,19,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"redirect to foo\",\"href\":\"./Template:Redirect_to_foo\"},\"params\":{},\"i\":0}}]}'/>\n<link rel=\"mw:PageProp/redirect\" href=\"./Template:Foo\" about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"a\":{\"href\":\"./Template:Foo\"},\"sa\":{\"href\":\"Template:Foo\"},\"dsr\":[20,39,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"redirect to foo\",\"href\":\"./Template:Redirect_to_foo\"},\"params\":{},\"i\":0}}]}'/>",
-        "html2wt": "FOO\nFOO\n"
     },
     "mw:ExtLink linking to a interwiki URL can be round-tripped losslessly (T94723)": {
         "selser [[[4]]]": "[[:en:European_Robin|1g3q1dd]]",
@@ -2927,10 +2617,6 @@
         "selser [[0,0,0,0,[3],2,[4],4,2,4,3,3,4,4,3,4,[[[4]]],2,0,0,4]]": "[[User:+%]] [[Page+title%]]\ng6ebew [[%+|102p4ly]]<nowiki/>x43yh1kpwnbz[[%+ ]]1iz2d212bu4rt1hl6hdav5u0kv[[File:%+abc%39|foo|[[bar]]]]164yade\n[[%33%45]] mdq65u",
         "selser [[4,2,[4],2,[3],0,2,0,0,4,0,3,[4],2,1,0,0,4,0,0,2]]": "145pa6l129ts4i [[Page+title%|1wirx1k]]1gqpjm3\n40e2zd[[%+|%20]] [[%+ ]]15mcys[[%+r]][[%|1bzm99r]]11b6xgc [[+]] [[File:%+abc%39|foo|[[bar]]]]jk1r4l[[%33%45]] 1qjrzva[[%33%45+]]"
     },
-    "post-expand include size being exceeded": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,28,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"3x_on_newline\",\"href\":\"./Template:3x_on_newline\"},\"params\":{\"1\":{\"wt\":\"1234567890\"}},\"i\":0}}]}'>1234567890\n1234567890\n1234567890</span></p>",
-        "html2wt": "[[Template:3x on newline]]<!-- WARNING: template omitted, post-expand include size too large -->\n"
-    },
     "span tags with directionality in TOC": {
         "html2wt": "__TOC__\n==<span dir=\"ltr\">C++</span>==\n\n== <span dir=\"rtl\">זבנג!</span> ==\n\n== <span style=\"font-style: italic\">The attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span dir=\"ltr\" style=\"font-style: italic\">Attributes after dir on these span tags must be deleted from the TOC</span> ==\n",
         "selser [0,3,4,2,[0,[3]],0,[[3]],3,0,3,3]": "__TOC__\n\n1jvuudn\n\n1scw8a8\n\n==<span dir=\"rtl\"></span>==\n\n==<span style=\"font-style: italic\"></span>==\n\n==<span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span>==\n"
@@ -2942,34 +2628,8 @@
     "text with character entity: eacute": {
         "html2wt": "I always thought é was a cute letter.\n"
     },
-    "{{#special:}} page name with subpage, known": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,32,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges/param\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'>Special:RecentChanges/param</p>",
-        "html2wt": "Special:RecentChanges/param"
-    },
     "{{#special:}} page name, known": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'>Special:RecentChanges</p>",
-        "html2wt": "Special:RecentChanges"
-    },
-    "{{#special:}} page name, unknown": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,31,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,31,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:foobar nonexistent\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'>Special:Foobar nonexistent</p>",
-        "html2wt": "Special:Foobar nonexistent"
-    },
-    "{{#speciale:}} page name with subpage, known": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,33,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#speciale:Recentchanges/param\",\"function\":\"speciale\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_speciale missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'>Special:RecentChanges/param</p>",
-        "html2wt": "Special:RecentChanges/param"
-    },
-    "{{#speciale:}} page name, known": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#speciale:Recentchanges\",\"function\":\"speciale\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_speciale missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'>Special:RecentChanges</p>",
-        "html2wt": "Special:RecentChanges"
-    },
-    "{{#speciale:}} page name, unknown": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,32,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#speciale:foobar nonexistent\",\"function\":\"speciale\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_speciale missing in Parsoid.</span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'>Special:Foobar_nonexistent</p>",
-        "html2wt": "Special:Foobar_nonexistent"
+        "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>"
     }
 }
