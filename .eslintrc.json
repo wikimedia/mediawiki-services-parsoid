@@ -1,5 +1,8 @@
 {
 	"root": true,
+	"env": {
+		"mocha": true
+	},
 	"extends": [
 		"wikimedia/server",
 		"wikimedia/jsdoc"

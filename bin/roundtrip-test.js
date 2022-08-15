@@ -25,6 +25,8 @@ var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
 var defaultContentVersion = '2.6.0';
 
+var MAX_RETRIES = 10;
+
 function displayDiff(type, count) {
 	var pad = (10 - type.length);  // Be positive!
 	type = type[0].toUpperCase() + type.slice(1);
@@ -648,7 +650,7 @@ var parsoidPost = Promise.async(function *(profile, options) {
 	httpOptions.uri = uri;
 	httpOptions.proxy = options.proxy;
 
-	var result = yield ScriptUtils.retryingHTTPRequest(10, httpOptions);
+	var result = yield issueRequest(httpOptions);
 	var body = result[1];
 
 	// FIXME: Parse time was removed from profiling when we stopped
@@ -716,6 +718,17 @@ var roundTripDiff = Promise.async(function *(profile, parsoidOptions, data) {
 	return checkIfSignificant(offsets, data);
 });
 
+// Custom httpClient global variable that can be set by ci tests
+var httpClient;
+
+var issueRequest = function(httpOptions) {
+	if (httpClient) {
+		return httpClient.request(httpOptions);
+	} else {
+		return ScriptUtils.retryingHTTPRequest(MAX_RETRIES, httpOptions);
+	}
+};
+
 // Returns a Promise for a object containing a formatted string and an
 // exitCode.
 var runTests = Promise.async(function *(title, options, formatter) {
@@ -726,6 +739,10 @@ var runTests = Promise.async(function *(title, options, formatter) {
 
 	var domain = options.domain;
 	var prefix = options.prefix;
+
+	if (options.httpClient) {
+		httpClient = options.httpClient;
+	}
 
 	// Preserve the default, but only if neither was provided.
 	if (!prefix && !domain) { domain = 'en.wikipedia.org'; }
@@ -784,7 +801,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	var exitCode;
 	try {
 		var opts;
-		var req = yield ScriptUtils.retryingHTTPRequest(10, {
+		var req = yield issueRequest({
 			method: 'GET',
 			uri: uri2,
 			proxy: proxy,
@@ -972,7 +989,6 @@ if (require.main === module) {
 	})().done();
 } else if (typeof module === 'object') {
 	module.exports.runTests = runTests;
-
 	module.exports.jsonFormat = jsonFormat;
 	module.exports.plainFormat = plainFormat;
 	module.exports.xmlFormat = xmlFormat;
