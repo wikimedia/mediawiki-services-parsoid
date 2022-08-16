@@ -70,10 +70,6 @@
 		"no-nested-ternary": "off",
 		"no-unmodified-loop-condition": "off",
 		"no-buffer-constructor": "warn",
-		"valid-jsdoc": "off",
-		"jsdoc/newline-after-description": [
-			0,
-			"never"
-		]
+		"valid-jsdoc": "off"
 	}
 }

@@ -10,7 +10,6 @@ var yargs = require('yargs');
 var childProcess = require('pn/child_process');
 
 var Promise = require('../lib/utils/promise.js');
-var serviceWrapper = require('../tests/serviceWrapper.js');
 var rtTest = require('../bin/roundtrip-test.js');
 
 var usage = 'Usage: $0 -f <file> -o <sha> -c <sha>';
@@ -89,7 +88,7 @@ Promise.async(function *() {
 		if (argv.parsoidURL) {
 			obj = { parsoidURL: argv.parsoidURL };
 		} else {
-			obj = yield serviceWrapper.runServices({ skipMock: true });
+			throw new Error('No parsoidURL provided!');
 		}
 		// Do this serially for now.
 		yield Promise.reduce(titles, function(_, t) {
