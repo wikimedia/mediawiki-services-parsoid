@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property object|null $parsoid_diff
  * @property object|null $mw_variant
  * @property int|null $storedId
- * @property DataI18n|null $i18n
+ * @property DataMwI18n|null $i18n
  */
 #[\AllowDynamicProperties]
 class NodeData {

@@ -14,8 +14,8 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
-use Wikimedia\Parsoid\NodeData\DataI18n;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwI18n;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\NodeData\NodeData;
@@ -164,9 +164,9 @@ class DOMDataUtils {
 	 * Returns the i18n information of a node. This is in private access because it shouldn't
 	 * typically be used directly; instead getDataNodeI18n and getDataAttrI18n should be used.
 	 * @param Element $node
-	 * @return DataI18n|null
+	 * @return DataMwI18n|null
 	 */
-	private static function getDataI18n( Element $node ): ?DataI18n {
+	private static function getDataMwI18n( Element $node ): ?DataMwI18n {
 		$data = self::getNodeData( $node );
 		// We won't set a default value for this property
 		return $data->i18n ?? null;
@@ -176,10 +176,10 @@ class DOMDataUtils {
 	 * Sets the i18n information of a node. This is in private access because it shouldn't
 	 * typically be used directly; instead setDataNodeI18n and setDataAttrI18n should be used.
 	 * @param Element $node
-	 * @param DataI18n $i18n
+	 * @param DataMwI18n $i18n
 	 * @return void
 	 */
-	private static function setDataI18n( Element $node, DataI18n $i18n ) {
+	private static function setDataMwI18n( Element $node, DataMwI18n $i18n ) {
 		$data = self::getNodeData( $node );
 		$data->i18n = $i18n;
 	}
@@ -207,7 +207,7 @@ class DOMDataUtils {
 	public static function setDataNodeI18n( Element $node, I18nInfo $i18n ) {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->i18n ) ) {
-			$data->i18n = new DataI18n();
+			$data->i18n = new DataMwI18n();
 		}
 		$data->i18n->setSpanInfo( $i18n );
 	}
@@ -239,7 +239,7 @@ class DOMDataUtils {
 	public static function setDataAttrI18n( Element $node, string $name, I18nInfo $i18n ) {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->i18n ) ) {
-			$data->i18n = new DataI18n();
+			$data->i18n = new DataMwI18n();
 		}
 		$data->i18n->setAttributeInfo( $name, $i18n );
 	}
@@ -320,8 +320,8 @@ class DOMDataUtils {
 	 * @param Element $node
 	 * @return bool
 	 */
-	public static function validDataI18n( Element $node ): bool {
-		return self::getDataI18n( $node ) !== null;
+	public static function validDataMwI18n( Element $node ): bool {
+		return self::getDataMwI18n( $node ) !== null;
 	}
 
 	/**
@@ -637,8 +637,8 @@ class DOMDataUtils {
 		$node->removeAttribute( 'data-parsoid-diff' );
 		if ( $node->hasAttribute( 'data-mw-i18n' ) ) {
 			$dataI18n = $node->getAttribute( 'data-mw-i18n' );
-			$i18n = DataI18n::fromJson( PHPUtils::jsonDecode( $dataI18n, true ) );
-			self::setDataI18n( $node, $i18n );
+			$i18n = DataMwI18n::fromJson( PHPUtils::jsonDecode( $dataI18n, true ) );
+			self::setDataMwI18n( $node, $i18n );
 			$node->removeAttribute( 'data-mw-i18n' );
 		}
 	}
@@ -745,8 +745,8 @@ class DOMDataUtils {
 			}
 		}
 
-		if ( self::validDataI18n( $node ) ) {
-			self::setJSONAttribute( $node, 'data-mw-i18n', self::getDataI18n( $node ) );
+		if ( self::validDataMwI18n( $node ) ) {
+			self::setJSONAttribute( $node, 'data-mw-i18n', self::getDataMwI18n( $node ) );
 		}
 
 		// Store pagebundle

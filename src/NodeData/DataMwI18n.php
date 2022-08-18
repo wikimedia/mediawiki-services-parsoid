@@ -7,7 +7,7 @@ namespace Wikimedia\Parsoid\NodeData;
  * data-mw-i18n information, used for internationalization. This data is used to represent the
  * information necessary for later localization of messages (in spans) or element attributes values.
  */
-class DataI18n implements \JsonSerializable {
+class DataMwI18n implements \JsonSerializable {
 
 	/** @var array */
 	private $i18nInfo = [];
@@ -70,10 +70,10 @@ class DataI18n implements \JsonSerializable {
 
 	/**
 	 * @param array $json
-	 * @return DataI18n
+	 * @return DataMwI18n
 	 */
-	public static function fromJson( array $json ): DataI18n {
-		$i18n = new DataI18n();
+	public static function fromJson( array $json ): DataMwI18n {
+		$i18n = new DataMwI18n();
 		foreach ( $json as $k => $v ) {
 			$i18n->i18nInfo[$k] = new I18nInfo( $v['lang'], $v['key'], $v['params'] );
 		}
