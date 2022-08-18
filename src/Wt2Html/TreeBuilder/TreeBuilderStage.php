@@ -179,6 +179,12 @@ class TreeBuilderStage extends PipelineStage {
 		if ( $dataMw !== null ) {
 			$data->mw = $dataMw;
 		}
+		if ( isset( $dataParsoid->tmp->variantData ) ) {
+			DOMDataUtils::setAttributeObjectNodeData(
+				$data, 'data-mw-variant', $dataParsoid->tmp->variantData
+			);
+			unset( $dataParsoid->tmp->variantData );
+		}
 		// Store in the top level doc since we'll be importing the nodes after treebuilding
 		$nodeId = DOMDataUtils::stashObjectInDoc( $this->env->getTopLevelDoc(), $data );
 		$attribs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] = (string)$nodeId;

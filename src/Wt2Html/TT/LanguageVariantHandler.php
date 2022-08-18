@@ -3,15 +3,20 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\NodeData\DataMwVariant;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\VariantFilter;
+use Wikimedia\Parsoid\NodeData\VariantOneWay;
+use Wikimedia\Parsoid\NodeData\VariantTwoWay;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\VariantOption;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -35,7 +40,7 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 	 * @param string $t
 	 * @param array $attribs
 	 *
-	 * @return array{xmlstr: string, isBlock: bool}
+	 * @return array{frag: DocumentFragment, isBlock: bool}
 	 */
 	private function convertOne( TokenHandlerPipeline $manager, array $options, string $t,
 		array $attribs ): array {
@@ -58,11 +63,14 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 			]
 		);
 		return [
-			'xmlstr' => ContentUtils::ppToXML(
-				$domFragment, [ 'innerXML' => true, 'fragment' => true, ]
-			),
+			'frag' => $domFragment,
 			'isBlock' => DOMUtils::hasBlockElementDescendant( $domFragment ),
 		];
+	}
+
+	private function emptyFrag(): DocumentFragment {
+		$doc = $this->env->getTopLevelDoc();
+		return $doc->createDocumentFragment();
 	}
 
 	/**
@@ -106,36 +114,38 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		$attribs = $token->attribs;
 		$dataParsoid = $token->dataParsoid;
 		$tsr = $dataParsoid->tsr;
-		$flags = $dataParsoid->flags;
-		$flagSp = $dataParsoid->flagSp;
+		$variantInfo = $dataParsoid->getTemp()->variantInfo;
+		$flags = $variantInfo->flags;
+		$flagSp = $variantInfo->flagSp;
+		$variantTexts = $variantInfo->texts;
 		$sawFlagA = false;
 
 		// remove trailing semicolon marker, if present
 		$trailingSemi = false;
-		if ( count( $dataParsoid->texts ) &&
-			( $dataParsoid->texts[count( $dataParsoid->texts ) - 1]['semi'] ?? null )
+		if ( count( $variantTexts ) &&
+			( $variantTexts[count( $variantTexts ) - 1]->semi )
 		) {
-			$trailingSemi = array_pop( $dataParsoid->texts )['sp'] ?? null;
+			$trailingSemi = array_pop( $variantTexts )->sp[0];
 		}
 		// convert all variant texts to DOM
 		$isBlock = false;
-		$texts = array_map( function ( array $t ) use ( $manager, $options, $attribs, &$isBlock ) {
-			if ( isset( $t['twoway'] ) ) {
-				$text = $this->convertOne( $manager, $options, $t['text'], $attribs );
+		$texts = array_map( function ( VariantOption $t ) use ( $manager, $options, $attribs, &$isBlock ) {
+			if ( $t->twoway ) {
+				$text = $this->convertOne( $manager, $options, $t->text, $attribs );
 				$isBlock = $isBlock || !empty( $text['isBlock'] );
-				return [ 'lang' => $t['lang'], 'text' => $text['xmlstr'], 'twoway' => true, 'sp' => $t['sp'] ];
-			} elseif ( isset( $t['lang'] ) ) {
-				$from = $this->convertOne( $manager, $options, $t['from'], $attribs );
-				$to = $this->convertOne( $manager, $options, $t['to'], $attribs );
+				return [ 'lang' => $t->lang, 'text' => $text['frag'], 'twoway' => true, 'sp' => $t->sp ];
+			} elseif ( $t->lang !== null ) {
+				$from = $this->convertOne( $manager, $options, $t->from, $attribs );
+				$to = $this->convertOne( $manager, $options, $t->to, $attribs );
 				$isBlock = $isBlock || !empty( $from['isBlock'] ) || !empty( $to['isBlock'] );
-				return [ 'lang' => $t['lang'], 'from' => $from['xmlstr'], 'to' => $to['xmlstr'],
-					'sp' => $t['sp'] ];
+				return [ 'lang' => $t->lang, 'from' => $from['frag'], 'to' => $to['frag'],
+					'sp' => $t->sp ];
 			} else {
-				$text = $this->convertOne( $manager, $options, $t['text'], $attribs );
+				$text = $this->convertOne( $manager, $options, $t->text, $attribs );
 				$isBlock = $isBlock || !empty( $text['isBlock'] );
-				return [ 'text' => $text['xmlstr'], 'sp' => [] ];
+				return [ 'text' => $text['frag'], 'sp' => [] ];
 			}
-		}, $dataParsoid->texts );
+		}, $variantTexts );
 		// collect two-way/one-way conversion rules
 		$oneway = [];
 		$twoway = [];
@@ -146,90 +156,90 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		$onewaySp = [];
 		foreach ( $texts as $t ) {
 			if ( isset( $t['twoway'] ) ) {
-				$twoway[] = [ 'l' => $t['lang'], 't' => $t['text'] ];
+				$twoway[] = new VariantTwoWay( $t['lang'], $t['text'] );
 				array_push( $twowaySp, $t['sp'][0], $t['sp'][1], $t['sp'][2] );
 				$sawTwoway = true;
 			} elseif ( isset( $t['lang'] ) ) {
-				$oneway[] = [ 'l' => $t['lang'], 'f' => $t['from'], 't' => $t['to'] ];
+				$oneway[] = new VariantOneWay( $t['lang'], $t['from'], $t['to'] );
 				array_push( $onewaySp, $t['sp'][0], $t['sp'][1], $t['sp'][2], $t['sp'][3] );
 				$sawOneway = true;
 			}
 		}
 
-		// To avoid too much data-mw bloat, only the top level keys in
-		// data-mw-variant are "human readable".  Nested keys are single-letter:
-		// `l` for `language`, `t` for `text` or `to`, `f` for `from`.
-		if ( count( $flags ) === 0 && count( $dataParsoid->variants ) > 0 ) {
+		$dataMWV = new DataMwVariant;
+		$sawDisabled = false;
+		$sawName = false;
+		if ( count( $flags ) === 0 && count( $variantInfo->variants ) > 0 ) {
 			// "Restrict possible variants to a limited set"
-			$dataMWV = [
-				'filter' => [ 'l' => $dataParsoid->variants, 't' => $texts[0]['text'] ],
-				'show' => true
-			];
+			$dataMWV->filter = new VariantFilter( $variantInfo->variants, $texts[0]['text'] );
+			$dataMWV->show = true;
 		} else {
-			$dataMWV = [];
 			foreach ( $flags as $f ) {
-				if ( array_key_exists( $f, Consts::$LCFlagMap ) ) {
-					if ( Consts::$LCFlagMap[$f] ) {
-						$dataMWV[Consts::$LCFlagMap[$f]] = true;
-						if ( $f === 'A' ) {
-							$sawFlagA = true;
-						}
+				$flagName = Consts::$LCFlagMap[$f] ?? null;
+				if ( $flagName === null ) {
+					$dataMWV->error = true;
+				} elseif ( $flagName === 'disabled' ) {
+					$sawDisabled = true;
+				} elseif ( $flagName === 'name' ) {
+					$sawName = true;
+				} elseif ( $flagName ) {
+					$dataMWV->$flagName = true;
+					if ( $f === 'A' ) {
+						$sawFlagA = true;
 					}
-				} else {
-					$dataMWV['error'] = true;
 				}
 			}
 			// (this test is done at the top of ConverterRule::getRuleConvertedStr)
 			// (also partially in ConverterRule::parse)
 			if ( count( $texts ) === 1 &&
-				!isset( $texts[0]['lang'] ) && !isset( $dataMWV['name'] )
+				!isset( $texts[0]['lang'] ) && !$sawName
 			) {
-				if ( isset( $dataMWV['add'] ) || isset( $dataMWV['remove'] ) ) {
+				if ( $dataMWV->add || $dataMWV->remove ) {
 					$variants = [ '*' ];
-					$twoway = array_map( static function ( string $code ) use ( $texts ) {
-						return [ 'l' => $code, 't' => $texts[0]['text'] ];
+					$twoway = array_map( static function ( string $code ) use ( $texts, &$sawTwoway ) {
+						$sawTwoway = true;
+						return new VariantTwoWay( $code, $texts[0]['text'] );
 					}, $variants );
-					$sawTwoway = true;
 				} else {
-					$dataMWV['disabled'] = true;
-					unset( $dataMWV['describe'] );
+					$sawDisabled = true;
+					$dataMWV->describe = false;
 				}
 			}
-			if ( isset( $dataMWV['describe'] ) ) {
+			if ( $dataMWV->describe ) {
 				if ( !$sawFlagA ) {
-					$dataMWV['show'] = true;
+					$dataMWV->show = true;
 				}
 			}
-			if ( isset( $dataMWV['disabled'] ) || isset( $dataMWV['name'] ) ) {
-				if ( isset( $dataMWV['disabled'] ) ) {
-					$dataMWV['disabled'] = [ 't' => $texts[0]['text'] ?? '' ];
+			if ( $sawDisabled || $sawName ) {
+				if ( $sawDisabled ) {
+					$dataMWV->disabled = $texts[0]['text'] ?? $this->emptyFrag();
 				} else {
-					$dataMWV['name'] = [ 't' => $texts[0]['text'] ?? '' ];
+					$dataMWV->name = $texts[0]['text'] ?? $this->emptyFrag();
 				}
-				if ( isset( $dataMWV['title'] ) || isset( $dataMWV['add'] ) ) {
-					unset( $dataMWV['show'] );
+				if ( $dataMWV->title || $dataMWV->add ) {
+					$dataMWV->show = false;
 				} else {
-					$dataMWV['show'] = true;
+					$dataMWV->show = true;
 				}
 			} elseif ( $sawTwoway ) {
-				$dataMWV['twoway'] = $twoway;
+				$dataMWV->twoway = $twoway;
 				$textSp = $twowaySp;
 				if ( $sawOneway ) {
-					$dataMWV['error'] = true;
+					$dataMWV->error = true;
 				}
 			} else {
-				$dataMWV['oneway'] = $oneway;
+				$dataMWV->oneway = $oneway;
 				$textSp = $onewaySp;
 				if ( !$sawOneway ) {
-					$dataMWV['error'] = true;
+					$dataMWV->error = true;
 				}
 			}
 		}
 		// Use meta/not meta instead of explicit 'show' flag.
-		$isMeta = !isset( $dataMWV['show'] );
-		unset( $dataMWV['show'] );
+		$isMeta = !$dataMWV->show;
+		$dataMWV->show = false;
 		// Trim some data from data-parsoid if it matches the defaults
-		if ( count( $flagSp ) === 2 * count( $dataParsoid->original ) ) {
+		if ( count( $flagSp ) === 2 * count( $variantInfo->original ) ) {
 			$result = true;
 			foreach ( $flagSp as $s ) {
 				if ( $s !== '' ) {
@@ -252,7 +262,7 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		// or never contains any content.
 
 		$das = new DataParsoid;
-		$das->fl = $dataParsoid->original; // original "fl"ags
+		$das->fl = $variantInfo->original; // original "fl"ags
 		$flSp = $this->compressSpArray( $flagSp ); // spaces around flags
 		if ( $flSp !== null ) {
 			$das->flSp = $flSp;
@@ -263,13 +273,13 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 			$das->tSp = $tSp;
 		}
 		$das->tsr = new SourceRange( $tsr->start, $isMeta ? $tsr->end : ( $tsr->end - 2 ), $tsr->source );
+		// Tunnel DataMwVariant through the token inside the DataParsoid
+		$das->getTemp()->variantData = $dataMWV;
 
-		PHPUtils::sortArray( $dataMWV );
 		$tokens = [
 			new TagTk( $isMeta ? 'meta' : ( $isBlock ? 'div' : 'span' ), [
 					new KV( 'typeof', 'mw:LanguageVariant' ),
-					new KV( 'data-mw-variant', PHPUtils::jsonEncode( $dataMWV ) )
-				], $das
+			], $das
 			)
 		];
 		if ( !$isMeta ) {

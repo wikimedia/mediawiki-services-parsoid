@@ -305,7 +305,7 @@ class LanguageConverter {
 		foreach ( DOMCompat::querySelectorAll(
 			$rootNode, 'span[typeof="mw:LanguageVariant"][data-mw-variant]'
 		) as $span ) {
-			$dmwv = DOMDataUtils::getJSONAttribute( $span, 'data-mw-variant', null );
+			$dmwv = DOMDataUtils::getDataMwVariant( $span );
 			if ( $dmwv->rt ?? false ) {
 				$dp = DOMDataUtils::getDataParsoid( $span );
 				$dp->setTempFlag( TempData::IS_NEW );

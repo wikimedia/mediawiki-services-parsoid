@@ -36,6 +36,8 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Tokens\SourceRange;
 	use Wikimedia\Parsoid\Tokens\TagTk;
 	use Wikimedia\Parsoid\Tokens\Token;
+	use Wikimedia\Parsoid\Tokens\VariantInfo;
+	use Wikimedia\Parsoid\Tokens\VariantOption;
 	use Wikimedia\Parsoid\Utils\DOMDataUtils;
 	use Wikimedia\Parsoid\Utils\PHPUtils;
 	use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -2077,7 +2079,9 @@ private function a169($lv0, $f) {
  return $f['raw']; 
 }
 private function a170($lv0, $f, $lv) {
- return [ [ 'text' => $lv ] ]; 
+
+			return [ new VariantOption( textTokens: $lv ) ];
+		
 }
 private function a171($lv0, $f) {
  return !$f['raw']; 
@@ -2085,23 +2089,25 @@ private function a171($lv0, $f) {
 private function a172($lv0, $f, $ts, $lv1) {
 
 		if ( !$this->env->langConverterEnabled() ) {
-			return [ '-{', $ts[0]['text']['tokens'], '}-' ];
+			return [ '-{', $ts[0]->textTokens['tokens'], '}-' ];
 		}
 		$lvsrc = substr( $this->input, $lv0, $lv1 - $lv0 );
 		$attribs = [];
 
-		foreach ( $ts as &$t ) {
+		foreach ( $ts as $t ) {
 			// move token strings into KV attributes so that they are
 			// properly expanded by early stages of the token pipeline
 			foreach ( [ 'text', 'from', 'to' ] as $fld ) {
-				if ( !isset( $t[$fld] ) ) {
+				$prop = $fld . "Tokens";
+				if ( $t->$prop === null ) {
 					continue;
 				}
 				$name = 'mw:lv' . count( $attribs );
 				// Note that AttributeExpander will expect the tokens array to be
 				// flattened.  We do that in lang_variant_text / lang_variant_nowiki
-				$attribs[] = new KV( $name, $t[$fld]['tokens'], $t[$fld]['srcOffsets']->expandTsrV() );
-				$t[$fld] = $name;
+				$attribs[] = new KV( $name, $t->$prop['tokens'], $t->$prop['srcOffsets']->expandTsrV() );
+				$t->$prop = null;
+				$t->$fld = $name;
 			}
 		}
 		unset( $t );
@@ -2114,11 +2120,13 @@ private function a172($lv0, $f, $ts, $lv1) {
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $lv0, $lv1, $this->source );
 		$dp->src = $lvsrc;
-		$dp->flags = $flags;
-		$dp->variants = $variants;
-		$dp->original = $f['original'];
-		$dp->flagSp = $f['sp'];
-		$dp->texts = $ts;
+		$dp->getTemp()->variantInfo = new VariantInfo(
+			flags: $flags,
+			variants: $variants,
+			original: $f['original'],
+			flagSp: $f['sp'],
+			texts: $ts,
+		);
 
 		return [
 			new SelfclosingTagTk(
@@ -2288,14 +2296,19 @@ private function a179($o, $rest, $tr) {
 		if ( count($tr) > 0 ) {
 			$last = $tr[count($tr)-1];
 			if (preg_match('/^\s*$/Du', $last[1])) {
-				$rest[] = [ 'semi' => true, 'sp' => $last[1] ];
+				$rest[] = new VariantOption(
+					semi: true,
+					sp: [ $last[1] ],
+				);
 			}
 		}
 		return $rest;
 	
 }
 private function a180($lvtext) {
- return [ [ 'text' => $lvtext ] ]; 
+
+		return [ new VariantOption( textTokens: $lvtext ) ];
+	
 }
 private function a181($p, $startPos, $lt) {
 
@@ -2364,23 +2377,23 @@ private function a187($sp) {
 }
 private function a188($sp1, $lang, $sp2, $sp3, $lvtext) {
 
-		return [
-			'twoway' => true,
-			'lang' => $lang,
-			'text' => $lvtext,
-			'sp' => [ $sp1, $sp2, $sp3 ]
-		];
+		return new VariantOption(
+			twoway: true,
+			lang: $lang,
+			textTokens: $lvtext,
+			sp: [ $sp1, $sp2, $sp3 ]
+		);
 	
 }
 private function a189($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 
-		return [
-			'oneway' => true,
-			'from' => $from,
-			'lang' => $lang,
-			'to' => $to,
-			'sp' => [ $sp1, $sp2, $sp3, $sp4 ]
-		];
+		return new VariantOption(
+			oneway: true,
+			fromTokens: $from,
+			lang: $lang,
+			toTokens: $to,
+			sp: [ $sp1, $sp2, $sp3, $sp4 ]
+		);
 	
 }
 private function a190($arg, $tagEndPos, $th) {

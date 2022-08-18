@@ -24,6 +24,7 @@ use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
 use Wikimedia\Parsoid\NodeData\DataMwI18n;
+use Wikimedia\Parsoid\NodeData\DataMwVariant;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\DataParsoidDiff;
 use Wikimedia\Parsoid\NodeData\I18nInfo;
@@ -315,6 +316,16 @@ class DOMDataUtils {
 	public static function setDataParsoid( Element $node, DataParsoid $dp ): void {
 		$data = self::getNodeData( $node );
 		$data->parsoid = $dp;
+	}
+
+	/**
+	 * Returns the language variant information of a node.
+	 * @param Element $node
+	 * @return ?DataMwVariant
+	 */
+	public static function getDataMwVariant( Element $node ): ?DataMwVariant {
+		// No default value; returns null if not present.
+		return self::getAttributeObject( $node, 'data-mw-variant', DataMwVariant::hint() );
 	}
 
 	/**
@@ -1155,6 +1166,19 @@ class DOMDataUtils {
 		// serialization.
 		self::removeAttributeObject( $node, $name );
 		$nodeData = self::getNodeData( $node );
+		self::setAttributeObjectNodeData( $nodeData, $name, $value, $classHint );
+	}
+
+	/**
+	 * @internal For use by TreeBuilderStage only
+	 * @param NodeData $nodeData
+	 * @param string $name The name of the attribute.
+	 * @param object $value The new (object) value for the attribute
+	 * @param class-string|Hint|null $classHint Optional serialization hint
+	 */
+	public static function setAttributeObjectNodeData(
+		NodeData $nodeData, string $name, object $value, $classHint = null
+	): void {
 		$propName = self::RICH_ATTR_DATA_PREFIX . $name;
 		$nodeData->$propName = $value;
 		if ( $classHint === null && is_a( $value, RichCodecable::class ) ) {

@@ -3,15 +3,14 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-use Psr\Container\ContainerInterface;
 use Wikimedia\JsonCodec\Hint;
-use Wikimedia\JsonCodec\JsonClassCodec;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecInterface;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\JsonCodecableWithCodecTrait;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -45,6 +44,14 @@ use Wikimedia\Parsoid\Utils\Utils;
  */
 #[\AllowDynamicProperties]
 class DataMw implements JsonCodecable {
+	/*
+	 * Because the 'caption' and 'html' fields have embedded DocumentFragments
+	 * that /don't/ use the standard encoding, we need to use a custom
+	 * "WithCodec" trait which allows us to manually encode
+	 * the DocumentFragment (by passing the codec itself to the
+	 * serialization/deserialization methods).
+	 */
+	use JsonCodecableWithCodecTrait;
 
 	public function __construct( array $initialVals = [] ) {
 		foreach ( $initialVals as $k => $v ) {
@@ -252,41 +259,5 @@ class DataMw implements JsonCodecable {
 		}
 		uksort( $json, static fn ( $a, $b )=>( $order[$a] ?? -1 ) - ( $order[$b] ?? -1 ) );
 		return new DataMw( $json );
-	}
-
-	/**
-	 * Custom JsonClassCodec for DataMw.
-	 *
-	 * Because the 'caption' and 'html' fields have embedded DocumentFragments
-	 * that /don't/ use the standard encoding, we need to use a custom
-	 * class codec which allows us to manually encode
-	 * the DocumentFragment (by passing the codec itself to the
-	 * serialization/deserialization methods).
-	 */
-	public static function jsonClassCodec(
-		JsonCodecInterface $codec, ContainerInterface $serviceContainer
-	): JsonClassCodec {
-		return new class( $codec ) implements JsonClassCodec {
-			private JsonCodecInterface $codec;
-
-			public function __construct( JsonCodecInterface $codec ) {
-				$this->codec = $codec;
-			}
-
-			/** @inheritDoc */
-			public function toJsonArray( $obj ): array {
-				return $obj->toJsonArray( $this->codec );
-			}
-
-			/** @inheritDoc */
-			public function newFromJsonArray( string $className, array $json ) {
-				return $className::newFromJsonArray( $this->codec, $json );
-			}
-
-			/** @inheritDoc */
-			public function jsonClassHintFor( string $className, string $keyName ) {
-				return $className::jsonClassHintFor( $keyName );
-			}
-		};
 	}
 }

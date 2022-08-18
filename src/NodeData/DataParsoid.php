@@ -201,31 +201,12 @@ use Wikimedia\Parsoid\Utils\Utils;
  * 'row' for td/th cells that show up on the same line, null otherwise
  * @property string|null $stx_v
  *
- * == Language variant token properties ==
- *
- * @property array|null $flags Flags with their human-readable names
- * @property array|null $variants The variant names
- * @property array|null $original Original flags
- * @property array|null $flagSp Spaces around flags, uncompressed
- *
- * An array of associative arrays describing the parts of the variant rule.
- *   - text: (string) The text
- *   - semi: (bool) A semicolon marker
- *   - sp: (array|string) An array of strings containing spaces
- *   - oneway: (bool) A one-way rule definition
- *   - twoway: (bool) A two-way rule definition
- *   - from: (array) An associative array:
- *     - tokens: (array) A token array
- *     - srcOffsets: SourceRange
- *   - to: (array) An associative array same as "from"
- *   - lang: (string)
- * @property array|null $texts
- *
  * == Language variant data-parsoid properties ==
  *
  * @property array|null $flSp Spaces around flags, compressed with compressSpArray().
  * @property array|null $tSp Spaces around texts, compressed with compressSpArray().
- * @property array|null $fl Original flags, copied from $this->original on the token.
+ * @property array|null $fl Original flags, copied from VariantInfo::$original
+ *  on the token.
  */
 #[\AllowDynamicProperties]
 class DataParsoid implements JsonCodecable {
@@ -251,7 +232,7 @@ class DataParsoid implements JsonCodecable {
 		}
 
 		// 2. Properties which are cloneable objects
-		foreach ( [ 'tmp', 'linkTk', 'tsr', 'dsr', 'extTagOffsets' ] as $prop ) {
+		foreach ( [ 'tmp', 'linkTk', 'tsr', 'dsr', 'extTagOffsets', 'dmv' ] as $prop ) {
 			if ( isset( $this->$prop ) ) {
 				$this->$prop = clone $this->$prop;
 			}
@@ -337,6 +318,7 @@ class DataParsoid implements JsonCodecable {
 				'pi' => Hint::build( ParamInfo::class, Hint::LIST, Hint::LIST ),
 				'linkTk' => Token::class,
 				'html' => DocumentFragment::class,
+				'dmv' => DataMwVariant::hint(),
 			];
 		}
 		return $hints[$keyname] ?? null;

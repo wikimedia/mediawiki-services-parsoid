@@ -272,7 +272,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'mw' => null,
 				],
 				[
-					'html' => '<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}],"rt":true}\'>abcd</span> x</p>',
+					'html' => '<p data-mw-variant-lang="sr-ec">abvg <span typeof="mw:LanguageVariant" data-mw-variant=\'{"rt":true,"twoway":[{"l":"sr-ec","t":"abcd"},{"l":"sr-el","t":"abcd"}]}\'>abcd</span> x</p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'version' => self::$defaultContentVersion,
@@ -294,7 +294,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'mw' => null,
 				],
 				[
-					'html' => '<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}],"rt":true}\'>абвг</span> абцд x</p>',
+					'html' => '<p data-mw-variant-lang="sr-el"><span typeof="mw:LanguageVariant" data-mw-variant=\'{"rt":true,"twoway":[{"l":"sr-el","t":"абвг"},{"l":"sr-ec","t":"абвг"}]}\'>абвг</span> абцд x</p>',
 					'parsoid' => '{"counter":-1,"ids":[],"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'version' => self::$defaultContentVersion,

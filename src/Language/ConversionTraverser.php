@@ -233,21 +233,23 @@ class ConversionTraverser extends DOMTraverser {
 		if ( !DOMUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
 			return true; /* not language converter markup */
 		}
-		$dmv = DOMDataUtils::getJSONAttribute( $el, 'data-mw-variant', [] );
-		if ( isset( $dmv->disabled ) ) {
-			DOMCompat::setInnerHTML( $el, $dmv->disabled->t );
-			// XXX check handling of embedded data-parsoid
-			// XXX check handling of nested constructs
+		$dmv = DOMDataUtils::getDataMwVariant( $el );
+		if ( $dmv->disabled ?? false ) {
+			$df = DOMDataUtils::cloneDocumentFragment( $dmv->disabled );
+			while ( $el->firstChild !== null ) {
+				DOMCompat::remove( $el->firstChild );
+			}
+			$el->appendChild( $df );
 			return $el->nextSibling;
-		} elseif ( isset( $dmv->twoway ) ) {
+		} elseif ( $dmv->twoway ?? false ) {
 			// FIXME
-		} elseif ( isset( $dmv->oneway ) ) {
+		} elseif ( $dmv->oneway ?? false ) {
 			// FIXME
-		} elseif ( isset( $dmv->name ) ) {
+		} elseif ( $dmv->name ?? false ) {
 			// FIXME
-		} elseif ( isset( $dmv->filter ) ) {
+		} elseif ( $dmv->filter ?? false ) {
 			// FIXME
-		} elseif ( isset( $dmv->describe ) ) {
+		} elseif ( $dmv->describe ?? false ) {
 			// FIXME
 		}
 		return true;

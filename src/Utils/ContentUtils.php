@@ -175,6 +175,33 @@ class ContentUtils {
 		};
 		self::processAttributeEmbeddedHTMLInternal( $siteConfig, $elt, $str2df2str );
 
+		// Language variant markup
+		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
+			$dmwv = DOMDataUtils::getDataMwVariant( $elt );
+			if ( $dmwv !== null ) {
+				if ( $dmwv->disabled instanceof DocumentFragment ) {
+					$proc( $dmwv->disabled );
+				}
+				if ( $dmwv->name instanceof DocumentFragment ) {
+					$proc( $dmwv->name );
+				}
+				if ( $dmwv->twoway !== null ) {
+					foreach ( $dmwv->twoway as $l ) {
+						$proc( $l->text );
+					}
+				}
+				if ( $dmwv->oneway !== null ) {
+					foreach ( $dmwv->oneway as $l ) {
+						$proc( $l->from );
+						$proc( $l->to );
+					}
+				}
+				if ( $dmwv->filter !== null ) {
+					$proc( $dmwv->filter->text );
+				}
+			}
+		}
+
 		if ( WTUtils::isInlineMedia( $elt ) ) {
 			$caption = DOMDataUtils::getDataMw( $elt )->caption ?? null;
 			if ( $caption !== null ) {
@@ -222,31 +249,6 @@ class ContentUtils {
 						}
 					}
 				}
-			}
-		}
-
-		// Language variant markup
-		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
-			$dmwv = DOMDataUtils::getJSONAttribute( $elt, 'data-mw-variant', null );
-			if ( $dmwv ) {
-				if ( isset( $dmwv->disabled ) ) {
-					$dmwv->disabled->t = $proc( $dmwv->disabled->t );
-				}
-				if ( isset( $dmwv->twoway ) ) {
-					foreach ( $dmwv->twoway as $l ) {
-						$l->t = $proc( $l->t );
-					}
-				}
-				if ( isset( $dmwv->oneway ) ) {
-					foreach ( $dmwv->oneway as $l ) {
-						$l->f = $proc( $l->f );
-						$l->t = $proc( $l->t );
-					}
-				}
-				if ( isset( $dmwv->filter ) ) {
-					$dmwv->filter->t = $proc( $dmwv->filter->t );
-				}
-				DOMDataUtils::setJSONAttribute( $elt, 'data-mw-variant', $dmwv );
 			}
 		}
 

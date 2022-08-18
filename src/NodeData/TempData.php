@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\VariantInfo;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -30,6 +31,13 @@ use Wikimedia\Parsoid\Utils\Utils;
  *
  * Used to shuttle tokens to the end of a stage in the TokenHandlerPipeline
  * @property array|null $shuttleTokens
+ *
+ * Unparsed components of a language variant rule token.
+ * @property ?VariantInfo $variantInfo
+ *
+ * Used to shuttle DataMwVariant through the Token so it can be set on
+ * the element rich attribute during tree building.
+ * @property ?DataMwVariant $variantData
  *
  * Section data associated with a heading
  * @property ?array{line:string,linkAnchor:string} $section

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\LanguageVariantText;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -39,17 +40,17 @@ class LanguageVariantHandler {
 	/**
 	 * Helper function: serialize a DOM string
 	 * @param SerializerState $state
-	 * @param string $t
+	 * @param DocumentFragment $df
 	 * @param ?array $opts
 	 * @return string
 	 */
-	private static function ser( SerializerState $state, string $t, ?array $opts ) {
+	private static function ser( SerializerState $state, DocumentFragment $df, ?array $opts ) {
 		$options =
 			( $opts ?? [] ) + [
 				'env' => $state->getEnv(),
 				'onSOL' => false
 			];
-			return $state->serializer->htmlToWikitext( $options, $t );
+			return $state->serializer->domToWikitext( $options, $df );
 	}
 
 	/**
@@ -149,7 +150,7 @@ class LanguageVariantHandler {
 	 * LanguageVariantHandler
 	 */
 	public static function handleLanguageVariant( SerializerState $state, Element $node ): void {
-		$dataMWV = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', [] );
+		$dataMWV = DOMDataUtils::getDataMwVariant( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$flSp = self::expandSpArray( $dp->flSp ?? [] );
 		$textSp = self::expandSpArray( $dp->tSp ?? [] );
@@ -166,19 +167,9 @@ class LanguageVariantHandler {
 
 		$result = '$E|'; // "error" flag
 
-		// Backwards-compatibility: `bidir` => `twoway` ; `unidir` => `oneway`
-		if ( isset( $dataMWV->bidir ) ) {
-			$dataMWV->twoway = $dataMWV->bidir;
-			unset( $dataMWV->bidir );
-		}
-		if ( isset( $dataMWV->unidir ) ) {
-			$dataMWV->oneway = $dataMWV->undir;
-			unset( $dataMWV->unidir );
-		}
-
-		foreach ( get_object_vars( $dataMWV ) as $key => $_val ) {
-			if ( isset( Consts::$LCNameMap[$key] ) ) {
-				$flags[Consts::$LCNameMap[$key]] = true;
+		foreach ( Consts::$LCNameMap as $name => $f ) {
+			if ( $dataMWV->$name ?? false ) {
+				$flags[$f] = true;
 			}
 		}
 
@@ -186,7 +177,7 @@ class LanguageVariantHandler {
 		if ( DOMUtils::nodeName( $node ) !== 'meta' ) {
 			$flags['$S'] = true;
 		}
-		if ( !isset( $flags['$S'] ) && !isset( $flags['T'] ) && !isset( $dataMWV->filter ) ) {
+		if ( !isset( $flags['$S'] ) && !isset( $flags['T'] ) && $dataMWV->filter === null ) {
 			$flags['H'] = true;
 		}
 		if ( count( $flags ) === 1 && isset( $flags['$S'] ) ) {
@@ -219,21 +210,22 @@ class LanguageVariantHandler {
 			self::maybeDeleteFlag( $originalFlags, $flags, 'H' );
 		}
 
-		if ( isset( $dataMWV->filter ) && $dataMWV->filter->l ) {
+		if ( $dataMWV?->filter?->langs !== null ) {
 			// "Restrict possible variants to a limited set"
-			$text = self::ser( $state, $dataMWV->filter->t, [ 'protect' => '/\}-/' ] );
+			$text = self::ser( $state, $dataMWV->filter->text, [ 'protect' => '/\}-/' ] );
 			Assert::invariant( count( $flags ) === 0, 'Error in language variant flags' );
 			$result = self::combine(
 				self::sortedFlags(
-					$originalFlags, $flSp, $dataMWV->filter->l, true,
+					$originalFlags, $flSp, $dataMWV->filter->langs, true,
 					'protectLang'
 				),
 				$text, false
 			);
 		} else { /* no trailing semi */
-			if ( isset( $dataMWV->disabled ) || isset( $dataMWV->name ) ) {
+			if ( $dataMWV->disabled instanceof DocumentFragment ||
+				 $dataMWV->name instanceof DocumentFragment ) {
 				// "Raw" / protect contents from language converter
-				$text = self::ser( $state, ( $dataMWV->disabled ?? $dataMWV->name )->t,
+				$text = self::ser( $state, $dataMWV->disabled ?? $dataMWV->name,
 					[ 'protect' => '/\}-/' ] );
 				if ( !preg_match( '/[:;|]/', $text ) ) {
 					self::maybeDeleteFlag( $originalFlags, $flags, 'R' );
@@ -244,19 +236,19 @@ class LanguageVariantHandler {
 					),
 					$text, false
 				);
-			} elseif ( isset( $dataMWV->twoway ) ) {
+			} elseif ( $dataMWV->twoway !== null ) {
 				// Two-way rules (most common)
 				if ( count( $textSp ) % 3 === 1 ) {
 					$trailingSemi = $textSp[count( $textSp ) - 1];
 				}
-				$b = isset( $dataMWV->twoway[0] ) && $dataMWV->twoway[0]->l === '*' ?
+				$b = isset( $dataMWV->twoway[0] ) && $dataMWV->twoway[0]->lang === '*' ?
 					array_slice( $dataMWV->twoway, 0, 1 ) :
 					$dataMWV->twoway ?? [];
 				$text = implode( ';',
 					array_map(
 						function ( $rule, $idx ) use ( $state, $textSp, &$trailingSemi ) {
-							$text = self::ser( $state, $rule->t, [ 'protect' => '/;|\}-/' ] );
-							if ( $rule->l === '*' ) {
+							$text = self::ser( $state, $rule->text, [ 'protect' => '/;|\}-/' ] );
+							if ( $rule->lang === '*' ) {
 								$trailingSemi = false;
 								return $text;
 							}
@@ -264,7 +256,7 @@ class LanguageVariantHandler {
 							$ws = ( 3 * $idx + 2 < count( $textSp ) ) ?
 							array_slice( $textSp, 3 * $idx, $length ) :
 								[ ( $idx > 0 ) ? ' ' : '', '', '' ];
-							return $ws[0] . self::protectLang( $rule->l ) . $ws[1] . ':' . $ws[2] . $text;
+							return $ws[0] . self::protectLang( $rule->lang ) . $ws[1] . ':' . $ws[2] . $text;
 						},
 						$b,
 						array_keys( $b )
@@ -278,20 +270,20 @@ class LanguageVariantHandler {
 					),
 					$text, $trailingSemi
 				);
-			} elseif ( isset( $dataMWV->oneway ) ) {
+			} elseif ( $dataMWV->oneway !== null ) {
 				// One-way rules (uncommon)
 				if ( count( $textSp ) % 4 === 1 ) {
 					$trailingSemi = $textSp[count( $textSp ) - 1];
 				}
 				$text = implode( ';',
 					array_map( function ( $rule, $idx ) use ( $state, $textSp ) {
-							$from = self::ser( $state, $rule->f, [ 'protect' => '/:|;|=>|\}-/' ] );
-							$to = self::ser( $state, $rule->t, [ 'protect' => '/;|\}-/' ] );
+							$from = self::ser( $state, $rule->from, [ 'protect' => '/:|;|=>|\}-/' ] );
+							$to = self::ser( $state, $rule->to, [ 'protect' => '/;|\}-/' ] );
 							$length = ( 4 * ( $idx + 1 ) ) - ( 4 * $idx );
 							$ws = ( 4 * $idx + 3 < count( $textSp ) ) ?
 								array_slice( $textSp, 4 * $idx, $length ) :
 								[ '', '', '', '' ];
-							return $ws[0] . $from . '=>' . $ws[1] . self::protectLang( $rule->l ) .
+							return $ws[0] . $from . '=>' . $ws[1] . self::protectLang( $rule->lang ) .
 								$ws[2] . ':' . $ws[3] . $to;
 					}, $dataMWV->oneway, range( 0, count( $dataMWV->oneway ) - 1 )
 					)
