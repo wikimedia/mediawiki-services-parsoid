@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -793,6 +794,9 @@ class DOMRangeBuilder {
 				if ( !DOMUtils::isFosterablePosition( $n ) ) {
 					$span = $this->document->createElement( 'span' );
 					$span->setAttribute( 'about', $about );
+					$dp = new DataParsoid;
+					$dp->setTempFlag( TempData::WRAPPER );
+					DOMDataUtils::setDataParsoid( $span, $dp );
 					$n->parentNode->replaceChild( $span, $n );
 					$span->appendChild( $n );
 					$n = $span;

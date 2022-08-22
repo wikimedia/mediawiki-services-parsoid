@@ -41,6 +41,9 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				// T278565
 				return $extApi->htmlToDom( '<aside>Some aside content</aside>' );
 
+			case 'pwraptest':
+				return $extApi->htmlToDom( '<!--CMT--><style>p{}</style>' );
+
 			default:
 				throw new Error( "Unexpected tag name: $extName in ParserHook" );
 		}
@@ -55,6 +58,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				[ 'name' => 'tåg', 'handler' => self::class ],
 				[ 'name' => 'statictag', 'handler' => self::class ],
 				[ 'name' => 'asidetag', 'handler' => self::class ],
+				[ 'name' => 'pwraptest', 'handler' => self::class ],
 			],
 			'domProcessors' => [
 				ParserHookProcessor::class

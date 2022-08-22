@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -30,6 +31,19 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * @param Element $elt
+	 * @return bool
+	 */
+	private static function pWrapOptionalChildren( Element $elt ): bool {
+		foreach ( $elt->childNodes as $c ) {
+			if ( !self::pWrapOptional( $c ) ) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * Is a P-wrapper optional for this node?
 	 *
 	 * The following nodes do not need p wrappers of their own:
@@ -39,6 +53,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *   and these metatags don't need p-wrappers of their own. Both Remex and Parsoid
 	 *   have identical p-wrapping behavior on these tags. This is a superset of
 	 *   \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements.
+	 * - parsoid-added span wrappers around pwrap-optional nodes
 	 *
 	 * @param Node $n
 	 * @return bool
@@ -46,7 +61,12 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	public static function pWrapOptional( Node $n ): bool {
 		return ( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
 			$n instanceof Comment ||
-			isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $n )] );
+			isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $n )] ) ||
+			(
+				$n instanceof Element &&
+				DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER ) &&
+				self::pWrapOptionalChildren( $n )
+			);
 	}
 
 	/**

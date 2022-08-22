@@ -45,14 +45,25 @@ class PWrapTest extends TestCase {
 	}
 
 	public function provideNoPWrapper() {
+		// NOTE: verifyPWrap doesn't store data attribs. Hence no data-parsoid in output.
 		return [
 			[ '', '' ],
 			[ ' ', ' ' ],
 			[ ' <!--c--> ', ' <!--c--> ' ],
+			[
+				// "empty" span gets no p-wrapper
+				'<span about="#mwt1" data-parsoid=\'{"tmp":{"tagId":null,"bits":8}}\'><!--x--></span>',
+				'<span about="#mwt1"><!--x--></span>'
+			],
+			[
+				// "empty" span gets no p-wrapper
+				'<style>p{}</style><span about="#mwt1" data-parsoid=\'{"tmp":{"tagId":null,"bits":8}}\'><!--x--></span>',
+				'<style>p{}</style><span about="#mwt1"><!--x--></span>'
+			],
 			[ '<div>a</div>', '<div>a</div>' ],
 			[ '<div>a</div> <div>b</div>', '<div>a</div> <div>b</div>' ],
 			[ '<i><div>a</div></i>', '<i><div>a</div></i>' ],
-			// <span> is not a spittable tag
+			// <span> is not a splittable tag
 			[ '<span>x<div>a</div>y</span>', '<span>x<div>a</div>y</span>' ],
 			[ '<span>x<div></div>y</span>', '<span>x<div></div>y</span>' ],
 		];

@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -66,19 +67,27 @@ class CleanUp {
 	}
 
 	/**
+	 * The following are considered "empty node"s:
+	 * - Comments, sol-transparent links, nowiki spans without content
+	 *   are all stripped  by the core parser.
+	 * - Text nodes with whitespace don't count either.
+	 * - Parsoid-added span wrappers around other "empty node"s.
+	 *
 	 * @param Node $node
 	 * @return bool
 	 */
 	private static function isEmptyNode( Node $node ): bool {
 		$n = $node->firstChild;
 		while ( $n ) {
-			// Comments, sol-transparent links, nowiki spans without content
-			// are all stripped  by the core parser.
-			// Text nodes with whitespace don't count either.
 			if ( $n instanceof Comment ||
 				WTUtils::isSolTransparentLink( $n ) ||
 				( $n instanceof Text && preg_match( '/^[ \t]*$/D',  $n->nodeValue ) ) ||
-				( DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) && self::isEmptyNode( $n ) )
+				( DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) && self::isEmptyNode( $n ) ) ||
+				(
+					$n instanceof Element &&
+					DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER ) &&
+					self::isEmptyNode( $n )
+				)
 			) {
 				$n = $n->nextSibling;
 				continue;

@@ -84,5 +84,9 @@
 	},
 	"i18nParserTests.txt": {
 		"path": "tests/parser/i18nParserTests.txt"
+	},
+	"encapParserTests.txt": {
+		"repo": "--UNUSED--",
+		"path": "--UNUSED--"
 	}
 }
