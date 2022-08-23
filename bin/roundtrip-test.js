@@ -441,17 +441,17 @@ function normalizeWikitext(wt, opts) {
 	return wt;
 }
 
-// Get diff substrings from offsets
+// Get diff slices from offsets
 var formatDiff = function(oldWt, newWt, offset, context) {
 	return [
 		'------',
-		oldWt.substring(offset[0].start - context, offset[0].start).blue +
-		oldWt.substring(offset[0].start, offset[0].end).green +
-		oldWt.substring(offset[0].end, offset[0].end + context).blue,
+		oldWt.slice(offset[0].start - context, offset[0].start).blue +
+		oldWt.slice(offset[0].start, offset[0].end).green +
+		oldWt.slice(offset[0].end, offset[0].end + context).blue,
 		'++++++',
-		newWt.substring(offset[1].start - context, offset[1].start).blue +
-		newWt.substring(offset[1].start, offset[1].end).red +
-		newWt.substring(offset[1].end, offset[1].end + context).blue,
+		newWt.slice(offset[1].start - context, offset[1].start).blue +
+		newWt.slice(offset[1].start, offset[1].end).red +
+		newWt.slice(offset[1].end, offset[1].end + context).blue,
 	].join('\n');
 };
 
@@ -584,8 +584,8 @@ var checkIfSignificant = function(offsets, data) {
 		thisResult.wtDiff = formatDiff(oldWt, newWt, offset, 0);
 
 		// Is this a newline separator diff?
-		var oldStr = oldWt.substring(offset[0].start, offset[0].end);
-		var newStr = newWt.substring(offset[1].start, offset[1].end);
+		var oldStr = oldWt.slice(offset[0].start, offset[0].end);
+		var newStr = newWt.slice(offset[1].start, offset[1].end);
 		var nlDiffs = /^\s*$/.test(oldStr) && /^\s*$/.test(newStr)
 			&& (/\n/.test(oldStr) || /\n/.test(newStr));
 
@@ -595,8 +595,8 @@ var checkIfSignificant = function(offsets, data) {
 		var diff = Diff.patchDiff(oldHTML, newHTML);
 		if (diff !== null) {
 			// Normalize wts to check if we really have a semantic diff
-			var wt1 = normalizeWikitext(oldWt.substring(offset[0].start, offset[0].end), { newlines: true, postDiff: true });
-			var wt2 = normalizeWikitext(newWt.substring(offset[1].start, offset[1].end), { newlines: true, postDiff: true });
+			var wt1 = normalizeWikitext(oldWt.slice(offset[0].start, offset[0].end), { newlines: true, postDiff: true });
+			var wt2 = normalizeWikitext(newWt.slice(offset[1].start, offset[1].end), { newlines: true, postDiff: true });
 			if (wt1 !== wt2) {
 				// Syntatic diff + provide context for semantic diffs
 				thisResult.type = 'fail';

@@ -109,17 +109,17 @@ const fetchAllHTML = Promise.async(function *(domain, title) {
 	};
 });
 
-// Get diff substrings from offsets
+// Get diff slices from offsets
 function formatDiff(str1, str2, offset, context) {
 	return [
 		`----- JS:[${offset[0].start}, ${offset[0].end}] -----`,
-		str1.substring(offset[0].start - context, offset[0].start).blue +
-		str1.substring(offset[0].start, offset[0].end).green +
-		str1.substring(offset[0].end, offset[0].end + context).blue,
+		str1.slice(offset[0].start - context, offset[0].start).blue +
+		str1.slice(offset[0].start, offset[0].end).green +
+		str1.slice(offset[0].end, offset[0].end + context).blue,
 		`+++++ PHP:[${offset[1].start}, ${offset[1].end}] +++++`,
-		str2.substring(offset[1].start - context, offset[1].start).blue +
-		str2.substring(offset[1].start, offset[1].end).red +
-		str2.substring(offset[1].end, offset[1].end + context).blue,
+		str2.slice(offset[1].start - context, offset[1].start).blue +
+		str2.slice(offset[1].start, offset[1].end).red +
+		str2.slice(offset[1].end, offset[1].end + context).blue,
 	].join('\n');
 }
 
