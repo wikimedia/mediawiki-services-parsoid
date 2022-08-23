@@ -931,7 +931,7 @@ T242437 - Nested references edge case, inner tag function with LDR
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-foo-1"><span class="mw-cite-backlink"><a href="#cite_ref-foo_1-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>foo</code></span></li>
 </ol></div>
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "foo" has no content.</span><br />
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "foo" defined in <code>&lt;references&gt;</code> group "2" has no content.</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "unused" defined in <code>&lt;references&gt;</code> is not used in prior text.</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag in <code>&lt;references&gt;</code> has conflicting group attribute "1".</span><br />
 <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag in <code>&lt;references&gt;</code> has conflicting group attribute "1".</span><br />
@@ -996,9 +996,9 @@ Error conditions on non-visible content
 <li id="cite_note-b-2"><span class="mw-cite-backlink"><a href="#cite_ref-b_2-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>b</code></span></li>
 <li id="cite_note-c-3"><span class="mw-cite-backlink"><a href="#cite_ref-c_3-0">↑</a></span> <span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; no text was provided for refs named <code>c</code></span></li>
 </ol></div>
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "a" has no content.</span><br />
-<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "b" has no content.</span><br />
-<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> with name "c" has no content.</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "a" defined in <code>&lt;references&gt;</code> group "" has no content.</span><br />
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "b" defined in <code>&lt;references&gt;</code> group "" has no content.</span><br />
+<span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "c" defined in <code>&lt;references&gt;</code> group "" has no content.</span>
 </p>
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
@@ -2665,7 +2665,7 @@ Confusing error
 <ref name="foo">foo</ref>
 </references>
 !! html/php
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag defined in <code>&lt;references&gt;</code> has group attribute "" which does not appear in prior text.</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: <code>&lt;ref&gt;</code> tag with name "foo" defined in <code>&lt;references&gt;</code> has group attribute "" which does not appear in prior text.</span>
 </p>
 !! html/parsoid
 <div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt4" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt3\" class=\"mw-ref reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"foo\"},\"body\":{\"id\":\"mw-reference-text-cite_note-foo-1\"},\"errors\":[{\"key\":\"cite_error_references_missing_key\",\"params\":[\"foo\"]}]}&apos;>&lt;a href=\"./Parser_test#cite_note-foo-1\" style=\"counter-reset: mw-Ref 1;\">&lt;span class=\"mw-reflink-text\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><ol class="mw-references references"><li about="#cite_note-foo-1" id="cite_note-foo-1"><span rel="mw:referencedBy"></span> <span id="mw-reference-text-cite_note-foo-1" class="mw-reference-text">foo</span></li></ol></div>
