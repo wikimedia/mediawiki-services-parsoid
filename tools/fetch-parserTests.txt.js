@@ -18,6 +18,7 @@ var fs = require('pn/fs');
 var path = require('path');
 var https = require('https');
 var crypto = require('crypto');
+var Buffer = require('buffer').Buffer;
 
 var Promise = require('../lib/utils/promise.js');
 
@@ -39,12 +40,12 @@ var computeSHA1 = Promise.async(function *(targetName) {
 
 var fetch = function(targetName, gitCommit, skipCheck) {
 	var file = testFiles[targetName];
-	var filePath = file.repo + (gitCommit || file.latestCommit) + '/' + file.path;
+	var filePath = '/r/plugins/gitiles' + file.repo + '+/' + (gitCommit || file.latestCommit) + '/' + file.path + '?format=TEXT';
 
 	console.log('Fetching ' + targetName + ' history from ' + filePath);
 
 	var url = {
-		host: 'raw.githubusercontent.com',
+		host: 'gerrit.wikimedia.org',
 		path: filePath,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
@@ -52,10 +53,13 @@ var fetch = function(targetName, gitCommit, skipCheck) {
 		https.get(url, function(result) {
 			var targetPath = path.join(testDir, targetName);
 			var out = fs.createWriteStream(targetPath);
+			var rs = [];
 			result.on('data', function(data) {
-				out.write(data);
+				rs.push(data);
 			});
 			result.on('end', function() {
+				// Gitiles raw files are base64 encoded
+				out.write(Buffer.from(rs.join(''), 'base64'));
 				out.end();
 				out.destroySoon();
 			});
@@ -90,13 +94,12 @@ var checkAndUpdate = Promise.async(function *(targetName) {
 
 var forceUpdate = Promise.async(function *(targetName) {
 	var file = testFiles[targetName];
-	var filePath = '/repos' + file.repo + 'commits?path=' + file.path;
-
+	var filePath = '/r/plugins/gitiles' + file.repo + '+log/refs/heads/master/' + file.path + '?format=JSON';
 	console.log('Fetching ' + targetName + ' history from ' + filePath);
 
 	// fetch the history page
 	var url = {
-		host: 'api.github.com',
+		host: 'gerrit.wikimedia.org',
 		path: filePath,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
@@ -105,12 +108,14 @@ var forceUpdate = Promise.async(function *(targetName) {
 			var res = '';
 			result.setEncoding('utf8');
 			result.on('data', function(data) { res += data; });
-			result.on('end', function() { resolve(res); });
+			// The slice on the result is because gitiles is returning
+			// JSON starting with extraneous characters, ")]}'\n"
+			result.on('end', function() { resolve(res.slice(5)); });
 		}).on('error', function(err) {
 			console.error(err);
 			reject(err);
 		});
-	}))[0].sha;
+	})).log[0].commit;
 
 	// download latest file
 	yield fetch(targetName, gitCommit, true);

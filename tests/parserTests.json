@@ -1,12 +1,12 @@
 {
 	"parserTests.txt": {
-		"repo": "/wikimedia/mediawiki/",
+		"repo": "/mediawiki/core/",
 		"path": "tests/parser/parserTests.txt",
 		"expectedSHA1": "476712bda18bcaf1d7d8ac8da4bf7ea74ab866f8",
 		"latestCommit": "00b4244b2063c9a8ed94018d645a1861c489a18d"
 	},
 	"extraParserTests.txt": {
-		"repo": "/wikimedia/mediawiki/",
+		"repo": "/mediawiki/core/",
 		"path": "tests/parser/extraParserTests.txt",
 		"expectedSHA1": "940dcd0852058eac1cce52b6c58f50400703e5c8",
 		"latestCommit": "3223981217da67950e3ad5cb5a71a27d35ac9d51"
@@ -16,13 +16,13 @@
 		"path": "--UNUSED--"
 	},
 	"mediaParserTests.txt": {
-		"repo": "/wikimedia/mediawiki/",
+		"repo": "/mediawiki/core/",
 		"path": "tests/parser/mediaParserTests.txt",
 		"expectedSHA1": "983e8d21bbc1748c14abfabf89e61b7626d92a91",
 		"latestCommit": "add3488ae14b73573804fd61ccc9ac9174bf0bec"
 	},
 	"legacyMediaParserTests.txt": {
-		"repo": "/wikimedia/mediawiki/",
+		"repo": "/mediawiki/core/",
 		"path": "tests/parser/legacyMediaParserTests.txt",
 		"expectedSHA1": "f28d2e545bb3053779d31b278392910c7147323e",
 		"latestCommit": "0a82cbf30168fd13a655e7b61aa4d4494eb5a02c"
@@ -56,25 +56,25 @@
 		"path": "--UNUSED--"
 	},
 	"citeParserTests.txt": {
-		"repo": "/wikimedia/mediawiki-extensions-Cite/",
+		"repo": "/mediawiki/extensions/Cite/",
 		"path": "tests/parser/citeParserTests.txt",
 		"expectedSHA1": "828839a4971bfd85463f1f5f6f87261a68b828d7",
 		"latestCommit": "0060e2b43d526fbbe188eb1f72775b410bfaaa83"
 	},
 	"timedMediaHandlerParserTests.txt": {
-		"repo": "/wikimedia/mediawiki-extensions-TimedMediaHandler/",
+		"repo": "/mediawiki/extensions/TimedMediaHandler/",
 		"path": "tests/parser/parserTests.txt",
 		"expectedSHA1": "ceb6911c2f6c22c67e81c806f8ddbc489a7da776",
 		"latestCommit": "0919e0d6223525cf8a7dca5c48fb7ec1606104d4"
 	},
 	"poemParserTests.txt": {
-		"repo": "/wikimedia/mediawiki-extensions-Poem/",
+		"repo": "/mediawiki/extensions/Poem/",
 		"path": "tests/parser/parserTests.txt",
 		"expectedSHA1": "3f6a206276e02f12b0395d4489204d29d65b8adf",
 		"latestCommit": "6a12103aa86ecfe07b0d3832b9cce63c890f4b7b"
 	},
 	"imageMapParserTests.txt": {
-		"repo": "/wikimedia/mediawiki-extensions-ImageMap/",
+		"repo": "/mediawiki/extensions/ImageMap/",
 		"path": "tests/parser/imageMapParserTests.txt",
 		"expectedSHA1": "aa1d41d33a0de6b956a42993779c621011bdb09f",
 		"latestCommit": "bc5f7f7f3f33eb2fef96ce06bd7d07ae1cebc8ec"
