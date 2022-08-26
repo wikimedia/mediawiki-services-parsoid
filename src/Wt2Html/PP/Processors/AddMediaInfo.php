@@ -555,7 +555,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			// emitted in the TT/WikiLinkHandler but treebuilding may have
 			// messed that up for us.
 			$anchor = $container;
-			$reopenedAFE = 0;
+			$reopenedAFE = [];
 			do {
 				// An active formatting element may have been reopened inside
 				// the wrapper if a content model violation was encountered
@@ -563,12 +563,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				// instead of bailing out
 				$anchor = $anchor->firstChild;
 				$anchorNodeName = DOMCompat::nodeName( $anchor );
-				$reopenedAFE++;
+				if ( $anchorNodeName !== 'a' ) {
+					$reopenedAFE[] = $anchor;
+				}
 			} while (
-				$anchor instanceof Element && $anchorNodeName !== 'a' &&
+				$anchorNodeName !== 'a' &&
 				isset( Consts::$HTML['FormattingTags'][$anchorNodeName] )
 			);
-			if ( !( $anchor instanceof Element && $anchorNodeName === 'a' ) ) {
+			if ( $anchorNodeName !== 'a' ) {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
 			}
@@ -577,16 +579,36 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$env->log( 'error', 'Unexpected structure when adding media info.' );
 				continue;
 			}
+			$caption = $anchor->nextSibling;
+			$isInlineMedia = WTUtils::isInlineMedia( $container );
+			if ( !$isInlineMedia && DOMCompat::nodeName( $caption ) !== 'figcaption' ) {
+				$env->log( 'error', 'Unexpected structure when adding media info.' );
+				continue;
+			}
 
-			// For T314059
-			if ( $reopenedAFE > 1 ) {
-				$src = '';
-				$tsr = DOMDataUtils::getDataParsoid( $container )->tsr ?? null;
-				if ( $tsr ) {
-					$frame = $options['frame'] ?? $env->topFrame;
-					$src = $tsr->substr( $frame->getSrcText() );
+			// For T314059.  Migrate any active formatting tags we found open
+			// inside the container to the ficaption to conform to the spec.
+			// This should simplify selectors for clients and styling.
+			// TODO: Consider exposing these as lints
+			if ( $reopenedAFE ) {
+				$firstAFE = $reopenedAFE[0];
+				$lastAFE = $reopenedAFE[count( $reopenedAFE ) - 1];
+				DOMUtils::migrateChildren( $lastAFE, $container );
+				if ( $isInlineMedia ) {
+					// Remove the formatting elements, they are of no use
+					// We could migrate them into the caption in data-mw,
+					// but that doesn't seem worthwhile
+					$firstAFE->parentNode->removeChild( $firstAFE );
+				} else {
+					// Move the formatting elements into the figcaption
+					DOMUtils::migrateChildren( $caption, $lastAFE );
+					$caption->appendChild( $firstAFE );
+					// Unconditionally clear tsr out of an abundance of caution
+					// These tags should already be annotated as autoinserted anyways
+					foreach ( $reopenedAFE as $afe ) {
+						DOMDataUtils::getDataParsoid( $afe )->tsr = null;
+					}
 				}
-				$env->log( 'warn', "Active formatting element reopened in figure: {$src}" );
 			}
 
 			$dataMw = DOMDataUtils::getDataMw( $container );
