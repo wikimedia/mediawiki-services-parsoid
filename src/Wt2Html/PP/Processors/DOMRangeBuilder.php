@@ -331,7 +331,7 @@ class DOMRangeBuilder {
 				$dp1->tmp = null;
 				$dp2->tmp = null;
 				$msg .= "\n----------------------------------------------";
-				$msg .= "\nFound range : " . $range->id . '; flipped? ' . $range->flipped .
+				$msg .= "\nFound range : " . $range->id . '; flipped? ' . ( (string)$range->flipped ) .
 					'; offset: ' . $range->startOffset;
 				$msg .= "\nstart-elem : " . DOMCompat::getOuterHTML( $range->startElem ) . '; DP: ' .
 					PHPUtils::jsonEncode( DOMDataUtils::getDataParsoid( $range->startElem ) );

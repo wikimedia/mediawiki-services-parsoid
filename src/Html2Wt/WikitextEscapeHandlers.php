@@ -1023,7 +1023,7 @@ class WikitextEscapeHandlers {
 			// - text comes from the last child
 			preg_match( '/^h(\d)/', DOMCompat::nodeName( $state->currLine->firstNode ), $headingMatch );
 			if ( $headingMatch ) {
-				$n = $headingMatch[1];
+				$n = intval( $headingMatch[1] );
 				if ( ( $state->currLine->text . $text )[$n] === '=' ) {
 					// The first character after the heading wikitext is/will be a '='.
 					// So, the trailing '=' can change semantics if it is not nowikied.

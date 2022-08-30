@@ -137,6 +137,7 @@ class LanguageConverter {
 		} catch ( \Error $e ) {
 			/* fall through */
 		}
+		$fallback = (string)$fallback;
 		$env->log( 'info', "Couldn't load language: {$lang} fallback={$fallback}" );
 		return new Language();
 	}

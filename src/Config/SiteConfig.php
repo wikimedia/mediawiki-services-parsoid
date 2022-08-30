@@ -1280,7 +1280,8 @@ abstract class SiteConfig {
 	 * @param bool $excludeProtRel Whether to exclude protocol-relative URLs
 	 * @return string
 	 */
-	public function getProtocolsRegex( $excludeProtRel = false ) {
+	public function getProtocolsRegex( bool $excludeProtRel = false ) {
+		$excludeProtRel = (int)$excludeProtRel;
 		if ( !isset( $this->protocolsRegexes[$excludeProtRel] ) ) {
 			$parts = [];
 			foreach ( $this->getProtocols() as $protocol ) {

@@ -474,10 +474,10 @@ class Sanitizer {
 	}
 
 	/**
-	 * @param int $codepoint
+	 * @param string $codepoint
 	 * @return null|string
 	 */
-	private static function decCharReference( $codepoint ) {
+	private static function decCharReference( string $codepoint ): ?string {
 		$point = intval( $codepoint );
 		if ( self::validateCodepoint( $point ) ) {
 			return sprintf( '&#%d;', $point );
@@ -487,10 +487,10 @@ class Sanitizer {
 	}
 
 	/**
-	 * @param int $codepoint
+	 * @param string $codepoint
 	 * @return null|string
 	 */
-	private static function hexCharReference( $codepoint ) {
+	private static function hexCharReference( string $codepoint ): ?string {
 		$point = hexdec( $codepoint );
 		if ( self::validateCodepoint( $point ) ) {
 			return sprintf( '&#x%x;', $point );

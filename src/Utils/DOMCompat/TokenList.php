@@ -18,7 +18,7 @@ class TokenList implements Iterator {
 	/** @var Element The node whose classes are listed. */
 	protected $node;
 
-	/** @var string Copy of the attribute text, used for change detection. */
+	/** @var string|bool Copy of the attribute text, used for change detection. */
 	private $attribute = false;
 
 	// Testing element existence with a list is less painful than returning numeric keys

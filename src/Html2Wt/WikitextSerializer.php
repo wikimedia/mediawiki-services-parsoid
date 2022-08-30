@@ -8,6 +8,7 @@ use Exception;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -1362,7 +1363,7 @@ class WikitextSerializer {
 				$state->appendSep( WTSUtils::commentWT( $node->nodeValue ) );
 				return $node->nextSibling;
 			default:
-				Assert::invariant( 'Unhandled node type: ', $node->nodeType );
+				throw new InternalException( 'Unhandled node type: ' . $node->nodeType );
 		}
 
 		$prev = DOMUtils::previousNonSepSibling( $node ) ?: $node->parentNode;

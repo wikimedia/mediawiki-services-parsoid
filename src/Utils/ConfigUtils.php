@@ -35,6 +35,9 @@ class ConfigUtils {
 			// Just append the placeholder at the end.
 			// This makes sure that the interwikiMatcher adds one match
 			// group per URI, and that interwiki links work as expected.
+
+			// Not sure why Phan thinks $iwEntry['url'] is a bool
+			// @phan-suppress-next-line PhanTypeMismatchArgumentInternal
 			if ( strpos( $iwEntry['url'], '$1' ) === false ) {
 				$iwEntry['url'] .= '$1';
 			}

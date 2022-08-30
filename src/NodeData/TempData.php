@@ -125,8 +125,8 @@ class TempData {
 	 * @param int $flag
 	 * @return bool
 	 */
-	public function getFlag( $flag ) {
-		return $this->bits & $flag;
+	public function getFlag( int $flag ): bool {
+		return (bool)( $this->bits & $flag );
 	}
 
 	/**
@@ -135,7 +135,7 @@ class TempData {
 	 * @param int $flag
 	 * @param bool $value
 	 */
-	public function setFlag( $flag, $value = true ) {
+	public function setFlag( int $flag, bool $value = true ): void {
 		if ( $value ) {
 			$this->bits |= $flag;
 		} else {

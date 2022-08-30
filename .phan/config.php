@@ -129,9 +129,8 @@ $cfg['exclude_file_list'][] = "src/ParserTests/Grammar.php";
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';
 $cfg['suppress_issue_types'][] = 'PhanTypePossiblyInvalidDimOffset';
 
-// These are too spammy for now. TODO enable
+// This is too spammy for now. TODO enable
 $cfg['null_casts_as_any_type'] = true;
-$cfg['scalar_implicit_cast'] = true;
 
 // Bundled plugins, generated from,
 // `ls -p1 vendor/phan/phan/.phan/plugins/ |grep -Ev "(/|README)" |sed -e s/\.php// |xargs printf "\t\'%s\',\n"`

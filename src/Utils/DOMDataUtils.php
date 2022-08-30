@@ -736,7 +736,8 @@ class DOMDataUtils {
 		// to access it after the fact we're aware and remove the attribute
 		// since it's no longer needed.
 		$nd = self::getNodeData( $node );
-		$nd->storedId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
+		$id = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
+		$nd->storedId = $id !== null ? intval( $id ) : null; // FIXME: Is this guaranteed not-null?
 		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}
 }
