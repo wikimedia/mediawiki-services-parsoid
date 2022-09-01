@@ -18,14 +18,14 @@
 	"mediaParserTests.txt": {
 		"repo": "/mediawiki/core/",
 		"path": "tests/parser/mediaParserTests.txt",
-		"expectedSHA1": "983e8d21bbc1748c14abfabf89e61b7626d92a91",
-		"latestCommit": "add3488ae14b73573804fd61ccc9ac9174bf0bec"
+		"expectedSHA1": "7b2ab7514c6d5210bc8889ed09d8ced6193d51cc",
+		"latestCommit": "5007edfbeab367ac31f84d8e259602b7dad55cf7"
 	},
 	"legacyMediaParserTests.txt": {
 		"repo": "/mediawiki/core/",
 		"path": "tests/parser/legacyMediaParserTests.txt",
-		"expectedSHA1": "f28d2e545bb3053779d31b278392910c7147323e",
-		"latestCommit": "0a82cbf30168fd13a655e7b61aa4d4494eb5a02c"
+		"expectedSHA1": "14a3349a9088f7c6b0a04a105d0fb89293294e55",
+		"latestCommit": "5007edfbeab367ac31f84d8e259602b7dad55cf7"
 	},
 	"sectionWrappingParserTests.txt": {
 		"repo": "--UNUSED--",
