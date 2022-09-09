@@ -27,6 +27,13 @@ class WTUtils {
 		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#D';
 
 	/**
+	 * Regex corresponding to FIRST_ENCAP_REGEXP, but excluding extensions. If FIRST_ENCAP_REGEXP is
+	 * updated, this one should be as well.
+	 */
+	private const NON_EXTENSION_ENCAP_REGEXP =
+		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|(/[^\s]+)))(?=$|\s)#D';
+
+	/**
 	 * Regexp for checking marker metas typeofs representing
 	 * transclusion markup or template param markup.
 	 */
@@ -488,6 +495,24 @@ class WTUtils {
 	 */
 	public static function isFirstEncapsulationWrapperNode( Node $node ): bool {
 		return DOMUtils::matchTypeOf( $node, self::FIRST_ENCAP_REGEXP ) !== null;
+	}
+
+	/**
+	 * Checks whether a first encapsulation wrapper node is encapsulating an extension
+	 * that outputs Mediawiki Core DOM Spec HTML (https://www.mediawiki.org/wiki/Specs/HTML)
+	 * @param Node $node
+	 * @param Env $env
+	 * @return bool
+	 */
+	public static function isExtensionOutputingCoreMwDomSpec( Node $node, Env $env ): bool {
+		if ( DOMUtils::matchTypeOf( $node, self::NON_EXTENSION_ENCAP_REGEXP ) !== null ) {
+			return false;
+		}
+		$match = DOMUtils::matchTypeOf( $node, '#^mw:Extension/(.+?)$#D' );
+		$extTagName = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
+		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extTagName );
+		$htmlType = $extConfig['options']['outputHasCoreMwDomSpecMarkup'] ?? null;
+		return $htmlType === true;
 	}
 
 	/**

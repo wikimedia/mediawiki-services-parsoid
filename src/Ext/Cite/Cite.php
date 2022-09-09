@@ -22,14 +22,16 @@ class Cite implements ExtensionModule {
 					'name' => 'ref',
 					'handler' => Ref::class,
 					'options' => [
-						'wt2html' => [ 'unpackOutput' => false ]
+						'wt2html' => [ 'unpackOutput' => false ],
+						'outputHasCoreMwDomSpecMarkup' => true
 					],
 				],
 				[
 					'name' => 'references',
 					'handler' => References::class,
 					'options' => [
-						'html2wt' => [ 'format' => 'block' ]
+						'html2wt' => [ 'format' => 'block' ],
+						'outputHasCoreMwDomSpecMarkup' => true
 					],
 				]
 			],
