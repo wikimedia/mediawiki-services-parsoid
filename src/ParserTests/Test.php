@@ -889,7 +889,7 @@ class Test extends Item {
 		$normOpts = [
 			'parsoidOnly' => $parsoidOnly,
 			'preserveIEW' => isset( $opts['parsoid']['preserveIEW'] ),
-			'check-referrer' => $opts['check-referrer'] ?? false,
+			'externallinktarget' => $opts['externallinktarget'] ?? false,
 		];
 
 		if ( !$normExpected ) {

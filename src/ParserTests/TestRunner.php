@@ -817,8 +817,8 @@ class TestRunner {
 			if ( isset( $testOpts['i18next'] ) ) {
 				$this->siteConfig->registerParserTestExtension( new I18nTag() );
 			}
-			if ( isset( $testOpts['check-referrer'] ) ) {
-				$this->siteConfig->setExternalLinkTarget( $testOpts['check-referrer'] );
+			if ( isset( $testOpts['externallinktarget'] ) ) {
+				$this->siteConfig->setExternalLinkTarget( $testOpts['externallinktarget'] );
 			}
 		}
 
@@ -827,6 +827,12 @@ class TestRunner {
 
 		$runner = $this;
 		$test->testAllModes( $targetModes, $options, Closure::fromCallable( [ $this, 'runTest' ] ) );
+
+		// clean-up
+		// if/when we remove the "reset()" before every test, this will become necessary
+		if ( isset( $testOpts['externallinktarget'] ) ) {
+			$this->siteConfig->setExternalLinkTarget( false );
+		}
 	}
 
 	/**

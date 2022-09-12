@@ -121,7 +121,7 @@ class TestUtils {
 			$out = preg_replace( $unnecessaryAttribs . '\\\\?"[^\"]*\\\\?"/u', '', $out );
 			$out = preg_replace( $unnecessaryAttribs . "\\\\?'[^\']*\\\\?'/u", '', $out ); // single-quoted variant
 			$out = preg_replace( $unnecessaryAttribs . '&apos;.*?&apos;/u', '', $out ); // apos variant
-			if ( !$options['check-referrer'] ) {
+			if ( !$options['externallinktarget'] ) {
 				$out = preg_replace( '/ nofollow/', '', $out );
 				$out = preg_replace( '/ noreferrer noopener/', '', $out );
 			}

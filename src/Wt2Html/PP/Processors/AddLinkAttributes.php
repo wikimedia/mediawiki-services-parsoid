@@ -27,9 +27,7 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 		// to keep tests stable.
 		$extLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:ExtLink"]' );
 		foreach ( $extLinks as $a ) {
-			$classInfoText = 'external autonumber';
 			if ( $a->firstChild ) {
-				$classInfoText = 'external text';
 				// The "external free" class is reserved for links which
 				// are syntactically unbracketed; see commit
 				// 65fcb7a94528ea56d461b3c7b9cb4d4fe4e99211 in core.
@@ -40,7 +38,11 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 					// which is an internal link, not an mw:ExtLink), but we'll
 					// keep it simple since magic links are deprecated.
 					$classInfoText = 'external mw-magiclink';
+				} else {
+					$classInfoText = 'external text';
 				}
+			} else {
+				$classInfoText = 'external autonumber';
 			}
 			$a->setAttribute( 'class', $classInfoText );
 			$ns = $env->getPageConfig()->getNs();

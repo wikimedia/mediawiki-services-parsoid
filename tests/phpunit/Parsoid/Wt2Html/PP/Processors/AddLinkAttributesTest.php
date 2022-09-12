@@ -85,16 +85,16 @@ class AddLinkAttributesTest extends TestCase {
 				' class="external text" target="_blank">example.com</a>'
 			],
 			[
-				'<a href="http://www.example.org/plop" rel="mw:ExtLink">example.org</a>',
+				'<a href="http://www.somethingelse.org/plop" rel="mw:ExtLink">somethingelse.org</a>',
 				"_self",
-				'<a href="http://www.example.org/plop" rel="mw:ExtLink nofollow"' .
-				' class="external text" target="_self">example.org</a>'
+				'<a href="http://www.somethingelse.org/plop" rel="mw:ExtLink nofollow"' .
+				' class="external text" target="_self">somethingelse.org</a>'
 			],
 			[
-				'<a href="http://www.example.org/plop" rel="mw:ExtLink">example.org</a>',
+				'<a href="http://www.somethingelse.org/plop" rel="mw:ExtLink">somethingelse.org</a>',
 				false,
-				'<a href="http://www.example.org/plop" rel="mw:ExtLink nofollow"' .
-				' class="external text">example.org</a>'
+				'<a href="http://www.somethingelse.org/plop" rel="mw:ExtLink nofollow"' .
+				' class="external text">somethingelse.org</a>'
 			],
 		];
 	}
