@@ -6,7 +6,7 @@
             "sitename": "Википедия",
             "mainpageisdomainroot": false,
             "logo": "//ru.wikipedia.org/static/images/project-logos/ruwiki.png",
-            "generator": "MediaWiki 1.39.0-wmf.21",
+            "generator": "MediaWiki 1.40.0-wmf.1",
             "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
@@ -23,8 +23,8 @@
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "0950074d9f6be2a94b0448dee849064f5e7b5f23",
-            "git-branch": "wmf/1.39.0-wmf.21",
+            "git-hash": "2fc21db59813e5e92fa0921d5e00d73317479b98",
+            "git-branch": "wmf/1.40.0-wmf.1",
             "case": "first-letter",
             "lang": "ru",
             "fallback": [
@@ -46,7 +46,7 @@
             "server": "//ru.wikipedia.org",
             "servername": "ru.wikipedia.org",
             "wikiid": "ruwiki",
-            "time": "2022-07-22T16:24:19Z",
+            "time": "2022-09-19T21:43:10Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -131,7 +131,7 @@
             "externallinktarget": false,
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 760743,
+                "wmfEtcdLastModifiedIndex": 1048958,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -162,6 +162,12 @@
                 ]
             },
             "mobileserver": "https://ru.m.wikipedia.org",
+            "readinglists-config": {
+                "maxListsPerUser": 100,
+                "maxEntriesPerList": 5000,
+                "deletedRetentionDays": 30
+            },
+            "citeresponsivereferences": false,
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -175,13 +181,7 @@
                     "pageviews": true,
                     "uniques": false
                 }
-            },
-            "readinglists-config": {
-                "maxListsPerUser": 100,
-                "maxEntriesPerList": 5000,
-                "deletedRetentionDays": 30
-            },
-            "citeresponsivereferences": false
+            }
         },
         "protocols": [
             "bitcoin:",
@@ -487,7 +487,7 @@
             },
             "2300": {
                 "id": 2300,
-                "case": "first-letter",
+                "case": "case-sensitive",
                 "name": "Гаджет",
                 "subpages": false,
                 "canonical": "Gadget",
@@ -497,7 +497,7 @@
             },
             "2301": {
                 "id": 2301,
-                "case": "first-letter",
+                "case": "case-sensitive",
                 "name": "Обсуждение гаджета",
                 "subpages": false,
                 "canonical": "Gadget talk",
@@ -2175,11 +2175,32 @@
                 "case-sensitive": false
             },
             {
+                "name": "coordinates",
+                "aliases": [
+                    "coordinates"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "primary",
+                "aliases": [
+                    "primary"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "disambiguation",
                 "aliases": [
                     "__DISAMBIG__"
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "related",
+                "aliases": [
+                    "related"
+                ],
+                "case-sensitive": false
             },
             {
                 "name": "noexternallanglinks",
@@ -2273,20 +2294,6 @@
                 "case-sensitive": false
             },
             {
-                "name": "coordinates",
-                "aliases": [
-                    "coordinates"
-                ],
-                "case-sensitive": false
-            },
-            {
-                "name": "primary",
-                "aliases": [
-                    "primary"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "insider",
                 "aliases": [
                     "insider"
@@ -2371,9 +2378,9 @@
                 "case-sensitive": false
             },
             {
-                "name": "related",
+                "name": "phonos",
                 "aliases": [
-                    "related"
+                    "phonos"
                 ],
                 "case-sensitive": false
             },
@@ -5812,7 +5819,7 @@
             {
                 "prefix": "ik",
                 "local": true,
-                "language": "Iñupiak",
+                "language": "Iñupiatun",
                 "url": "https://ik.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6528,6 +6535,13 @@
                 "local": true,
                 "language": "Picard",
                 "url": "https://pcd.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "pcm",
+                "local": true,
+                "language": "Naijá",
+                "url": "https://pcm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -7562,6 +7576,7 @@
             "shi": {
                 "shi": {
                     "fallbacks": [
+                        "shi-latn",
                         "shi-tfng"
                     ]
                 },
@@ -7933,6 +7948,9 @@
             "echo-subscriptions-email-dt-subscription": false,
             "echo-subscriptions-web-dt-subscription": true,
             "echo-subscriptions-push-dt-subscription": true,
+            "echo-subscriptions-email-dt-subscription-archiving": false,
+            "echo-subscriptions-web-dt-subscription-archiving": true,
+            "echo-subscriptions-push-dt-subscription-archiving": true,
             "echo-subscriptions-email-cx": false,
             "echo-subscriptions-push-cx": true,
             "echo-subscriptions-email-ge-mentorship": false,
@@ -7979,6 +7997,7 @@
             "gadget-UTCLiveClock": 0,
             "gadget-roundCorners": 0,
             "gadget-dropdown-menus": 0,
+            "gadget-dark-mode-toggle": 0,
             "gadget-ajaxQuickDelete": 0,
             "gadget-addThisMain": 0,
             "gadget-DelKeepVis": 0,
@@ -8015,6 +8034,7 @@
             "gadget-iwrm": 0,
             "gadget-navboxFeaturedArticles": 0,
             "gadget-mobile-sidebar": 0,
+            "gadget-dark-mode": 0,
             "gadget-yandex-tts": 0,
             "gadget-yandex-speechrecognition": 0,
             "gadget-GeoBox": 0,
@@ -8821,7 +8841,8 @@
                 "realname": "Mycontributions",
                 "aliases": [
                     "Мой_вклад",
-                    "MyContributions"
+                    "MyContributions",
+                    "MyContribs"
                 ]
             },
             {
@@ -9430,6 +9451,18 @@
                 ]
             },
             {
+                "realname": "FindComment",
+                "aliases": [
+                    "FindComment"
+                ]
+            },
+            {
+                "realname": "GoToComment",
+                "aliases": [
+                    "GoToComment"
+                ]
+            },
+            {
                 "realname": "TwoColConflictProvideSubmittedText",
                 "aliases": [
                     "ProvideSubmittedText"
@@ -9632,18 +9665,6 @@
                 ]
             },
             {
-                "realname": "Investigate",
-                "aliases": [
-                    "Investigate"
-                ]
-            },
-            {
-                "realname": "InvestigateBlock",
-                "aliases": [
-                    "InvestigateBlock"
-                ]
-            },
-            {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
                     "Запрос_на_глобальное_переименование",
@@ -9654,6 +9675,18 @@
                 "realname": "GlobalRenameQueue",
                 "aliases": [
                     "GlobalRenameQueue"
+                ]
+            },
+            {
+                "realname": "Investigate",
+                "aliases": [
+                    "Investigate"
+                ]
+            },
+            {
+                "realname": "InvestigateBlock",
+                "aliases": [
+                    "InvestigateBlock"
                 ]
             },
             {
@@ -9705,10 +9738,8 @@
             "<langconvert>",
             "<timeline>",
             "<hiero>",
-            "<imagemap>",
             "<source>",
             "<syntaxhighlight>",
-            "<poem>",
             "<score>",
             "<templatestyles>",
             "<templatedata>",
@@ -9717,6 +9748,8 @@
             "<ref>",
             "<references>",
             "<inputbox>",
+            "<imagemap>",
+            "<poem>",
             "<categorytree>",
             "<section>",
             "<math>",
@@ -9762,6 +9795,7 @@
             "pagesize",
             "protectionlevel",
             "protectionexpiry",
+            "namespace",
             "namespacee",
             "namespacenumber",
             "talkspace",
@@ -9792,7 +9826,6 @@
             "revisiontimestamp",
             "revisionuser",
             "cascadingsources",
-            "namespace",
             "int",
             "special",
             "speciale",

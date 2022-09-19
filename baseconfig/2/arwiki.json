@@ -6,8 +6,8 @@
             "sitename": "ويكيبيديا",
             "mainpageisdomainroot": false,
             "logo": "//ar.wikipedia.org/static/images/project-logos/arwiki.png",
-            "generator": "MediaWiki 1.39.0-wmf.19",
-            "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
+            "generator": "MediaWiki 1.40.0-wmf.1",
+            "phpversion": "7.4.30",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
             "dbversion": "10.4.25-MariaDB-log",
@@ -23,8 +23,8 @@
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "7718e09729371fbbf9f8a67a5ef1dbcdbddeb412",
-            "git-branch": "wmf/1.39.0-wmf.19",
+            "git-hash": "2fc21db59813e5e92fa0921d5e00d73317479b98",
+            "git-branch": "wmf/1.40.0-wmf.1",
             "case": "first-letter",
             "lang": "ar",
             "fallback": [
@@ -46,7 +46,7 @@
             "server": "//ar.wikipedia.org",
             "servername": "ar.wikipedia.org",
             "wikiid": "arwiki",
-            "time": "2022-07-22T16:24:07Z",
+            "time": "2022-09-19T21:42:51Z",
             "misermode": true,
             "uploadsenabled": true,
             "maxuploadsize": 4294967296,
@@ -131,7 +131,7 @@
             "externallinktarget": false,
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 760743,
+                "wmfEtcdLastModifiedIndex": 1048958,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -162,6 +162,12 @@
                 ]
             },
             "mobileserver": "https://ar.m.wikipedia.org",
+            "readinglists-config": {
+                "maxListsPerUser": 100,
+                "maxEntriesPerList": 5000,
+                "deletedRetentionDays": 30
+            },
+            "citeresponsivereferences": false,
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -175,13 +181,7 @@
                     "pageviews": true,
                     "uniques": false
                 }
-            },
-            "readinglists-config": {
-                "maxListsPerUser": 100,
-                "maxEntriesPerList": 5000,
-                "deletedRetentionDays": 30
-            },
-            "citeresponsivereferences": false
+            }
         },
         "protocols": [
             "bitcoin:",
@@ -432,7 +432,7 @@
             },
             "2300": {
                 "id": 2300,
-                "case": "first-letter",
+                "case": "case-sensitive",
                 "name": "إضافة",
                 "subpages": false,
                 "canonical": "Gadget",
@@ -442,7 +442,7 @@
             },
             "2301": {
                 "id": 2301,
-                "case": "first-letter",
+                "case": "case-sensitive",
                 "name": "نقاش الإضافة",
                 "subpages": false,
                 "canonical": "Gadget talk",
@@ -2464,6 +2464,13 @@
                 "name": "assessment",
                 "aliases": [
                     "assessment"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "phonos",
+                "aliases": [
+                    "phonos"
                 ],
                 "case-sensitive": false
             },
@@ -5777,7 +5784,7 @@
             {
                 "prefix": "ik",
                 "local": true,
-                "language": "Iñupiak",
+                "language": "Iñupiatun",
                 "url": "https://ik.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6493,6 +6500,13 @@
                 "local": true,
                 "language": "Picard",
                 "url": "https://pcd.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "pcm",
+                "local": true,
+                "language": "Naijá",
+                "url": "https://pcm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -7526,6 +7540,7 @@
             "shi": {
                 "shi": {
                     "fallbacks": [
+                        "shi-latn",
                         "shi-tfng"
                     ]
                 },
@@ -7801,6 +7816,7 @@
             "wikilove-enabled": 1,
             "echo-cross-wiki-notifications": 1,
             "growthexperiments-addimage-desktop": 1,
+            "timecorrection": "System|0",
             "centralnotice-display-campaign-type-advocacy": 1,
             "centralnotice-display-campaign-type-article-writing": 1,
             "centralnotice-display-campaign-type-photography": 1,
@@ -7809,7 +7825,6 @@
             "centralnotice-display-campaign-type-governance": 1,
             "centralnotice-display-campaign-type-maintenance": 1,
             "centralnotice-display-campaign-type-special": 1,
-            "timecorrection": "System|0",
             "language": "ar",
             "variant": "ar",
             "variant-ban": "ban",
@@ -7900,6 +7915,9 @@
             "echo-subscriptions-email-dt-subscription": false,
             "echo-subscriptions-web-dt-subscription": true,
             "echo-subscriptions-push-dt-subscription": true,
+            "echo-subscriptions-email-dt-subscription-archiving": false,
+            "echo-subscriptions-web-dt-subscription-archiving": true,
+            "echo-subscriptions-push-dt-subscription-archiving": true,
             "echo-subscriptions-email-cx": false,
             "echo-subscriptions-push-cx": true,
             "echo-subscriptions-email-ge-mentorship": false,
@@ -7944,7 +7962,6 @@
             "gadget-HistoryCount": 0,
             "gadget-hidebotedits": 0,
             "gadget-FlecheHaut": 0,
-            "gadget-CiteTooltip": 1,
             "gadget-NoRefCopy": 1,
             "gadget-shiftrefs": 0,
             "gadget-RefToolbarNoDialogs": 0,
@@ -8019,6 +8036,7 @@
             "gadget-Shortdesc-helper": 0,
             "gadget-massDesc": 0,
             "gadget-scribe": 0,
+            "gadget-ReferenceTooltips": 1,
             "gadget-AncreTitres": 0,
             "gadget-ArabicItalic": 0,
             "gadget-aref": 0,
@@ -8878,7 +8896,8 @@
                 "realname": "Mycontributions",
                 "aliases": [
                     "مساهماتي",
-                    "MyContributions"
+                    "MyContributions",
+                    "MyContribs"
                 ]
             },
             {
@@ -9549,6 +9568,18 @@
                 ]
             },
             {
+                "realname": "FindComment",
+                "aliases": [
+                    "FindComment"
+                ]
+            },
+            {
+                "realname": "GoToComment",
+                "aliases": [
+                    "GoToComment"
+                ]
+            },
+            {
                 "realname": "TwoColConflictProvideSubmittedText",
                 "aliases": [
                     "ProvideSubmittedText"
@@ -9771,20 +9802,6 @@
                 ]
             },
             {
-                "realname": "Investigate",
-                "aliases": [
-                    "تحقيق",
-                    "Investigate"
-                ]
-            },
-            {
-                "realname": "InvestigateBlock",
-                "aliases": [
-                    "منع_التحقيق",
-                    "InvestigateBlock"
-                ]
-            },
-            {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
                     "طلب_إعادة_تسمية_عام",
@@ -9796,6 +9813,20 @@
                 "aliases": [
                     "طابور|_إعادة_تسمية_عام",
                     "GlobalRenameQueue"
+                ]
+            },
+            {
+                "realname": "Investigate",
+                "aliases": [
+                    "تحقيق",
+                    "Investigate"
+                ]
+            },
+            {
+                "realname": "InvestigateBlock",
+                "aliases": [
+                    "منع_التحقيق",
+                    "InvestigateBlock"
                 ]
             },
             {
@@ -9849,10 +9880,8 @@
             "<langconvert>",
             "<timeline>",
             "<hiero>",
-            "<imagemap>",
             "<source>",
             "<syntaxhighlight>",
-            "<poem>",
             "<score>",
             "<templatestyles>",
             "<templatedata>",
@@ -9861,6 +9890,8 @@
             "<ref>",
             "<references>",
             "<inputbox>",
+            "<imagemap>",
+            "<poem>",
             "<categorytree>",
             "<section>",
             "<math>",
@@ -9906,6 +9937,7 @@
             "pagesize",
             "protectionlevel",
             "protectionexpiry",
+            "namespace",
             "namespacee",
             "namespacenumber",
             "talkspace",
@@ -9936,7 +9968,6 @@
             "revisiontimestamp",
             "revisionuser",
             "cascadingsources",
-            "namespace",
             "int",
             "special",
             "speciale",

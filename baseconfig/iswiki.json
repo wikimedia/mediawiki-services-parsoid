@@ -5,7 +5,7 @@
             "base": "https://is.wikipedia.org/wiki/Fors%C3%AD%C3%B0a",
             "sitename": "Wikipedia",
             "logo": "//is.wikipedia.org/static/images/project-logos/iswiki.png",
-            "generator": "MediaWiki 1.39.0-wmf.21",
+            "generator": "MediaWiki 1.40.0-wmf.1",
             "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
@@ -20,8 +20,8 @@
             "invalidusernamechars": "@:>",
             "fixarabicunicode": "",
             "fixmalayalamunicode": "",
-            "git-hash": "0950074d9f6be2a94b0448dee849064f5e7b5f23",
-            "git-branch": "wmf/1.39.0-wmf.21",
+            "git-hash": "2fc21db59813e5e92fa0921d5e00d73317479b98",
+            "git-branch": "wmf/1.40.0-wmf.1",
             "case": "first-letter",
             "lang": "is",
             "fallback": [
@@ -41,7 +41,7 @@
             "server": "//is.wikipedia.org",
             "servername": "is.wikipedia.org",
             "wikiid": "iswiki",
-            "time": "2022-07-22T16:24:16Z",
+            "time": "2022-09-19T21:43:04Z",
             "misermode": "",
             "uploadsenabled": "",
             "maxuploadsize": 4294967296,
@@ -125,7 +125,7 @@
             ],
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 760743,
+                "wmfEtcdLastModifiedIndex": 1048958,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
@@ -156,6 +156,11 @@
                 ]
             },
             "mobileserver": "https://is.m.wikipedia.org",
+            "readinglists-config": {
+                "maxListsPerUser": 100,
+                "maxEntriesPerList": 5000,
+                "deletedRetentionDays": 30
+            },
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": ""
@@ -167,11 +172,6 @@
                 "mostviewed": {
                     "pageviews": ""
                 }
-            },
-            "readinglists-config": {
-                "maxListsPerUser": 100,
-                "maxEntriesPerList": 5000,
-                "deletedRetentionDays": 30
             }
         },
         "protocols": [
@@ -369,14 +369,14 @@
             },
             "2300": {
                 "id": 2300,
-                "case": "first-letter",
+                "case": "case-sensitive",
                 "canonical": "Gadget",
                 "namespaceprotection": "gadgets-edit",
                 "*": "Smától"
             },
             "2301": {
                 "id": 2301,
-                "case": "first-letter",
+                "case": "case-sensitive",
                 "canonical": "Gadget talk",
                 "*": "Smátólaspjall"
             },
@@ -1009,6 +1009,18 @@
                 ]
             },
             {
+                "name": "coordinates",
+                "aliases": [
+                    "coordinates"
+                ]
+            },
+            {
+                "name": "primary",
+                "aliases": [
+                    "primary"
+                ]
+            },
+            {
                 "name": "disambiguation",
                 "aliases": [
                     "__DISAMBIG__"
@@ -1019,6 +1031,12 @@
                 "name": "invoke",
                 "aliases": [
                     "invoke"
+                ]
+            },
+            {
+                "name": "related",
+                "aliases": [
+                    "related"
                 ]
             },
             {
@@ -1105,18 +1123,6 @@
                 "name": "isin",
                 "aliases": [
                     "isin"
-                ]
-            },
-            {
-                "name": "coordinates",
-                "aliases": [
-                    "coordinates"
-                ]
-            },
-            {
-                "name": "primary",
-                "aliases": [
-                    "primary"
                 ]
             },
             {
@@ -1210,9 +1216,9 @@
                 ]
             },
             {
-                "name": "related",
+                "name": "phonos",
                 "aliases": [
-                    "related"
+                    "phonos"
                 ]
             },
             {
@@ -4813,7 +4819,7 @@
             {
                 "prefix": "ik",
                 "local": "",
-                "language": "Iñupiak",
+                "language": "Iñupiatun",
                 "url": "https://ik.wikipedia.org/wiki/$1"
             },
             {
@@ -5428,6 +5434,12 @@
                 "local": "",
                 "language": "Picard",
                 "url": "https://pcd.wikipedia.org/wiki/$1"
+            },
+            {
+                "prefix": "pcm",
+                "local": "",
+                "language": "Naijá",
+                "url": "https://pcm.wikipedia.org/wiki/$1"
             },
             {
                 "prefix": "pdc",
@@ -6330,6 +6342,7 @@
             "shi": {
                 "shi": {
                     "fallbacks": [
+                        "shi-latn",
                         "shi-tfng"
                     ]
                 },
@@ -6685,6 +6698,9 @@
             "echo-subscriptions-email-dt-subscription": false,
             "echo-subscriptions-web-dt-subscription": true,
             "echo-subscriptions-push-dt-subscription": true,
+            "echo-subscriptions-email-dt-subscription-archiving": false,
+            "echo-subscriptions-web-dt-subscription-archiving": true,
+            "echo-subscriptions-push-dt-subscription-archiving": true,
             "echo-subscriptions-email-cx": false,
             "echo-subscriptions-push-cx": true,
             "echo-subscriptions-email-ge-mentorship": false,
@@ -6697,6 +6713,8 @@
             "gadget-DisambiguationLinks": 0,
             "gadget-HideCentralNotice": 0,
             "gadget-InterwikiOrder": 0,
+            "gadget-dark-mode-toggle": 0,
+            "gadget-dark-mode": 0,
             "gadget-defaultsummaries": 0,
             "gadget-hidden-cats": 0,
             "gadget-HotCat": 0,
@@ -7498,7 +7516,8 @@
                 "realname": "Mycontributions",
                 "aliases": [
                     "Framlög_mín",
-                    "MyContributions"
+                    "MyContributions",
+                    "MyContribs"
                 ]
             },
             {
@@ -8075,6 +8094,18 @@
                 ]
             },
             {
+                "realname": "FindComment",
+                "aliases": [
+                    "FindComment"
+                ]
+            },
+            {
+                "realname": "GoToComment",
+                "aliases": [
+                    "GoToComment"
+                ]
+            },
+            {
                 "realname": "TwoColConflictProvideSubmittedText",
                 "aliases": [
                     "ProvideSubmittedText"
@@ -8221,18 +8252,6 @@
                 ]
             },
             {
-                "realname": "Investigate",
-                "aliases": [
-                    "Investigate"
-                ]
-            },
-            {
-                "realname": "InvestigateBlock",
-                "aliases": [
-                    "InvestigateBlock"
-                ]
-            },
-            {
                 "realname": "GlobalRenameRequest",
                 "aliases": [
                     "GlobalRenameRequest"
@@ -8242,6 +8261,18 @@
                 "realname": "GlobalRenameQueue",
                 "aliases": [
                     "GlobalRenameQueue"
+                ]
+            },
+            {
+                "realname": "Investigate",
+                "aliases": [
+                    "Investigate"
+                ]
+            },
+            {
+                "realname": "InvestigateBlock",
+                "aliases": [
+                    "InvestigateBlock"
                 ]
             },
             {
@@ -8289,10 +8320,8 @@
             "<langconvert>",
             "<timeline>",
             "<hiero>",
-            "<imagemap>",
             "<source>",
             "<syntaxhighlight>",
-            "<poem>",
             "<score>",
             "<templatestyles>",
             "<templatedata>",
@@ -8301,6 +8330,8 @@
             "<ref>",
             "<references>",
             "<inputbox>",
+            "<imagemap>",
+            "<poem>",
             "<categorytree>",
             "<section>",
             "<math>",
@@ -8346,6 +8377,7 @@
             "pagesize",
             "protectionlevel",
             "protectionexpiry",
+            "namespace",
             "namespacee",
             "namespacenumber",
             "talkspace",
@@ -8376,7 +8408,6 @@
             "revisiontimestamp",
             "revisionuser",
             "cascadingsources",
-            "namespace",
             "int",
             "special",
             "speciale",
