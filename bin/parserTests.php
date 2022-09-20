@@ -194,12 +194,19 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				'boolean' => true
 			],
 			'update-tests' => [
-				'description' => 'Update parserTests.txt with results from wt2html fails.'
+				'description' => 'Update parserTests.txt with results from wt2html fails.',
+				'default' => false,
+				'boolean' => true
 			],
 			'update-unexpected' => [
 				'description' => 'Update parserTests.txt with results from wt2html unexpected fails.',
 				'default' => false,
 				'boolean' => true
+			],
+			'update-format' => [
+				'description' => 'format with which to update tests; only useful in conjunction ' .
+					'with update-tests or update-unexpected. Values: raw, noDsr, actualNormalized.',
+				'default' => 'noDsr',
 			]
 		], [
 			// override defaults for standard options

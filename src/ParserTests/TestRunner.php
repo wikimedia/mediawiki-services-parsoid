@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Tools\ScriptUtils;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 
 /**
@@ -557,6 +558,40 @@ class TestRunner {
 	}
 
 	/**
+	 * Removes DSR from data-parsoid for test normalization of a complet document. If
+	 * data-parsoid gets subsequently empty, removes it too.
+	 * @param string $raw
+	 * @return string
+	 */
+	private function filterDsr( string $raw ): string {
+		$doc = ContentUtils::createAndLoadDocument( $raw );
+		foreach ( $doc->childNodes as $child ) {
+			if ( $child instanceof Element ) {
+				$this->filterNodeDsr( $child );
+			}
+		}
+		DOMDataUtils::visitAndStoreDataAttribs( $doc );
+		$ret = ContentUtils::toXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
+		$ret = preg_replace( '/\sdata-parsoid="{}"/', '', $ret );
+		return $ret;
+	}
+
+	/**
+	 * Removes DSR from data-parsoid for test normalization of an element.
+	 * @param Element $el
+	 * @return void
+	 */
+	private function filterNodeDsr( Element $el ) {
+		$dp = DOMDataUtils::getDataParsoid( $el );
+		unset( $dp->dsr );
+		foreach ( $el->childNodes as $child ) {
+			if ( $child instanceof Element ) {
+				$this->filterNodeDsr( $child );
+			}
+		}
+	}
+
+	/**
 	 * @param Test $test
 	 * @param string $out
 	 * @param array $options
@@ -654,20 +689,26 @@ class TestRunner {
 				$knownFailuresChanged = $contents !== $old;
 			}
 		}
-
 		// Write updated tests from failed ones
-		if ( isset( $options['update-tests'] ) ||
+		if ( ScriptUtils::booleanOption( $options['update-tests'] ?? null ) ||
 			 ScriptUtils::booleanOption( $options['update-unexpected'] ?? null )
 		) {
-			$updateFormat = $options['update-tests'] === 'raw' ? 'raw' : 'actualNormalized';
+			$updateFormat = $options['update-format'];
+			if ( $updateFormat !== 'raw' && $updateFormat !== 'actualNormalized' ) {
+				$updateFormat = 'noDsr';
+			}
+
 			$fileContent = file_get_contents( $this->testFilePath );
 			foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
-				if ( isset( $options['update-tests'] ) || $fail['unexpected'] ) {
+				if ( $options['update-tests'] || $fail['unexpected'] ) {
 					$exp = '/(!!\s*test\s*' .
 						 preg_quote( $fail['testName'], '/' ) .
 						 '(?:(?!!!\s*end)[\s\S])*' .
 						 ')(' . preg_quote( $fail['expected'], '/' ) .
 						 ')/m';
+					if ( $updateFormat === 'noDsr' ) {
+						$fail['noDsr'] = $this->filterDsr( $fail['raw'] );
+					}
 					$fileContent = preg_replace_callback(
 						$exp,
 						static function ( array $matches ) use ( $fail, $updateFormat ) {
