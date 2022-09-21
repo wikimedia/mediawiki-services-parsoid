@@ -7,11 +7,11 @@ const path = require('path');
 const rtTest = require('../../bin/roundtrip-test.js');
 const yaml = require('js-yaml');
 
-// If we've started a Parsoid server, cache the URL so that subsequent calls
-// don't need to start their own.
-let parsoidURLOpts = null;
-
 let readViewStripBenchmark = null;
+const configFile = path.resolve(__dirname, './readviewstrip.config.yaml');
+if (fs.existsSync(configFile)) {
+	readViewStripBenchmark = yaml.load(fs.readFileSync(configFile, 'utf8'));
+}
 
 // Read ids from a file and return the first line of the file
 function getTestRunId(opts) {
@@ -19,26 +19,14 @@ function getTestRunId(opts) {
 	return fs.readFileSync(testRunIdFile, 'utf-8').split('\n')[0];
 }
 
-function _run(test) {
+function runRoundTripTest(config, test) {
 	return rtTest.runTests(test.title, {
 		prefix: test.prefix,
-		parsoidURLOpts: parsoidURLOpts,
+		parsoidURLOpts: config.parsoidPHP,
 		readViewStripBenchmark: readViewStripBenchmark
 	}, rtTest.xmlFormat).then(function(result) {
 		return result.output;
 	});
-}
-
-function runRoundTripTest(config, test) {
-	if (!parsoidURLOpts) {
-		parsoidURLOpts = config.parsoidPHP;
-
-		const configFile = path.resolve(__dirname, './readviewstrip.config.yaml');
-		if (fs.existsSync(configFile)) {
-			readViewStripBenchmark = yaml.load(fs.readFileSync(configFile, 'utf8'));
-		}
-	}
-	return _run(test);
 }
 
 if (typeof module === 'object') {
