@@ -4,7 +4,6 @@
 
 require('../core-upgrade.js');
 require('colors');
-const { benchmarkReadView } = require('./benchmark.readViewStrip.js');
 
 var entities = require('entities');
 var fs = require('fs');
@@ -876,11 +875,6 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	} catch (e) {
 		error = e;
 		exitCode = 1;
-	}
-
-	if (options.readViewStripBenchmark && Math.random() < (options.readViewStripBenchmark.sampleRate || 0)) {
-		const rules = options.readViewStripBenchmark.rules;
-		profile.readViewSizes = yield benchmarkReadView(domain, title, data.oldHTML.body, rules);
 	}
 
 	var output = formatter(error, prefix, title, data.diffs, profile);
