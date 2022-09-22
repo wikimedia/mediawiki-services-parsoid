@@ -488,6 +488,19 @@ describe('Parsoid API', function() {
 		};
 	};
 
+	const validJsonResponse = function(expected) {
+		return function(res) {
+			res.statusCode.should.equal(200, res.text);
+			res.headers.should.have.property('content-type');
+			res.headers['content-type'].should.equal( 'application/json' );
+			if (expected !== undefined) {
+				res.text.should.equal(expected);
+			} else {
+				res.text.should.not.equal('');
+			}
+		};
+	};
+
 	const validPageBundleResponse = function(expectFunc) {
 		return function(res) {
 			res.statusCode.should.equal(200, res.text);
@@ -1573,7 +1586,7 @@ describe('Parsoid API', function() {
 				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/"><head prefix="mwr: http://en.wikipedia.org/wiki/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:articleNamespace" content="0"/><link rel="dc:isVersionOf" href="//en.wikipedia.org/wiki/Main_Page"/><title></title><base href="//en.wikipedia.org/wiki/"/><link rel="stylesheet" href="//en.wikipedia.org/w/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid|ext.cite.style&amp;only=styles&amp;skin=vector"/></head><body lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><table class="mw-json mw-json-object"><tbody><tr><th>a</th><td class="value mw-json-number">4</td></tr><tr><th>b</th><td class="value mw-json-number">3</td></tr></tbody></table></body></html>',
 				contentmodel: 'json',
 			})
-			.expect(validWikitextResponse('{"a":4,"b":3}'))
+			.expect(validJsonResponse('{"a":4,"b":3}'))
 			.end(done);
 		});
 
