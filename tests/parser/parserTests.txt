@@ -11539,6 +11539,20 @@ flags=
 !! end
 
 !! test
+Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONTIMESTAMP:{{PAGENAME}}}}
+!! html/*
+<p>19700101000203
+</p>
+flags=
+!! end
+
+!! test
 Magic Word: {{REVISIONTIMESTAMP}} on not-yet-existing current page
 !! options
 title=[[This page does not exist]]
@@ -11547,7 +11561,7 @@ showflags
 !! wikitext
 {{REVISIONTIMESTAMP}}
 !! html/*
-<p>123
+<p>19700101000203
 </p>
 flags=vary-revision-timestamp
 !! end
@@ -11561,7 +11575,8 @@ showflags
 !! wikitext
 {{REVISIONTIMESTAMP:{{PAGENAME}}}}
 !! html/*
-
+<p>19700101000203
+</p>
 flags=vary-revision-timestamp
 !! end
 
@@ -11668,17 +11683,17 @@ flags=vary-revision-id
 !! end
 
 !! test
-Parser Function: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision
+Parser Function: {{REVISIONDAY}} on latest revision
 !! options
 lastsavedrevision
 parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 showflags
 !! wikitext
-{{REVISIONTIMESTAMP:{{PAGENAME}}}}
+{{REVISIONDAY}}
 !! html/*
-<p>19700101000203
+<p>1
 </p>
-flags=vary-revision-timestamp
+flags=
 !! end
 
 !! test
@@ -11692,7 +11707,21 @@ showflags
 !! html/*
 <p>1
 </p>
-flags=vary-revision-timestamp
+flags=
+!! end
+
+!! test
+Parser Function: {{REVISIONMONTH}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONMONTH}}
+!! html/*
+<p>01
+</p>
+flags=
 !! end
 
 !! test
@@ -11706,7 +11735,21 @@ showflags
 !! html/*
 <p>01
 </p>
-flags=vary-revision-timestamp
+flags=
+!! end
+
+!! test
+Parser Function: {{REVISIONYEAR}} on latest revision
+!! options
+lastsavedrevision
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
+showflags
+!! wikitext
+{{REVISIONYEAR}}
+!! html/*
+<p>1970
+</p>
+flags=
 !! end
 
 !! test
@@ -11720,7 +11763,7 @@ showflags
 !! html/*
 <p>1970
 </p>
-flags=vary-revision-timestamp
+flags=
 !! end
 
 !! test

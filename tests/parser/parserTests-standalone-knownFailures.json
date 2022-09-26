@@ -1287,6 +1287,9 @@
     "Magic Word: {{REVISIONTIMESTAMP:...}}} on non-existing non-current page": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,46,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:This page does not exist\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
     },
+    "Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
+    },
     "Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on not-yet-existing current page": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
     },
@@ -1642,6 +1645,9 @@
     "Parser Function: {{REVISIONDAY:{{PAGENAME}}}} on latest revision": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,28,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,28,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY:{{PAGENAME}}\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</span></p>"
     },
+    "Parser Function: {{REVISIONDAY}} on latest revision": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,15,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,15,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONDAY\",\"function\":\"revisionday\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionday missing in Parsoid.</span></p>"
+    },
     "Parser Function: {{REVISIONID:{{PAGENAME}}}} on latest revision": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONID:{{PAGENAME}}\",\"function\":\"revisionid\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionid missing in Parsoid.</span></p>"
     },
@@ -1651,11 +1657,14 @@
     "Parser Function: {{REVISIONMONTH:{{PAGENAME}}}} on latest revision": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH:{{PAGENAME}}\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</span></p>"
     },
-    "Parser Function: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,34,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,34,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONTIMESTAMP:{{PAGENAME}}\",\"function\":\"revisiontimestamp\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisiontimestamp missing in Parsoid.</span></p>"
+    "Parser Function: {{REVISIONMONTH}} on latest revision": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,17,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONMONTH\",\"function\":\"revisionmonth\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionmonth missing in Parsoid.</span></p>"
     },
     "Parser Function: {{REVISIONYEAR:{{PAGENAME}}}} on latest revision": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR:{{PAGENAME}}\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</span></p>"
+    },
+    "Parser Function: {{REVISIONYEAR}} on latest revision": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,16,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,16,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"REVISIONYEAR\",\"function\":\"revisionyear\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_revisionyear missing in Parsoid.</span></p>"
     },
     "Parser Functions: 1. Simple example": {
         "html2wt": "FOO\n"
