@@ -3,8 +3,6 @@
         "html2wt": "example.org\naOEU\nAoeu\nhttp://example.org\n"
     },
     "Case-sensitive magic words, when cased differently, should just be template transclusions": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,331,0,0]}'>[/index.php?title=Template:CurrentMonth&amp;action=edit&amp;redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&amp;action=edit&amp;redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&amp;action=edit&amp;redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&amp;action=edit&amp;redlink=1 Template:CurrentHour]</p>\n",
-        "html2wt": "[/index.php?title=Template:CurrentMonth&action=edit&redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&action=edit&redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&action=edit&redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&action=edit&redlink=1 Template:CurrentHour]\n",
         "selser [[0,4,0,2,0,0,0]]": "{{CurrentMonth}}1hfy2kw{{currentday}}<nowiki/>y1fjfy\n{{cURreNTweEK}}\n{{currentHour}}",
         "selser [[0,0,0,0,0,2,0]]": "{{CurrentMonth}}\n{{currentday}}\n{{cURreNTweEK}}<nowiki/>gtu1i1\n{{currentHour}}",
         "selser [[0,4,0,0,0,3,0]]": "{{CurrentMonth}}<nowiki/>pdv9x9{{currentday}}\n{{cURreNTweEK}}{{currentHour}}",

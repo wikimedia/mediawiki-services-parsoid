@@ -68,7 +68,10 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				}
 				$data = $titleMap[$k];
 				$a->removeAttribute( 'class' ); // Clear all
-				if ( !empty( $data['missing'] ) && empty( $data['known'] ) ) {
+				if (
+					!empty( $data['missing'] ) && empty( $data['known'] ) &&
+					$k !== $env->getPageConfig()->getTitle()
+				) {
 					DOMCompat::getClassList( $a )->add( 'new' );
 					WTUtils::addPageContentI18nAttribute( $a, 'title', 'red-link-title', [ $k ] );
 					$href = $a->getAttribute( 'href' );

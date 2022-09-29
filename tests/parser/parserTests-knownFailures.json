@@ -162,9 +162,6 @@
 	"T2553: link with two variables in a piped link": {
 		"wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}"
 	},
-	"T33490 Turkish: ucfırst (with a dotless i)": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Şablon:Ucfırst:blah?action=edit&amp;redlink=1\" title=\"Şablon:Ucfırst:blah\" about=\"#mwt1\" typeof=\"mw:Transclusion mw:LocalizedAttrs\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Şablon:Ucfırst:blah\"},\"sa\":{\"href\":\":Şablon:Ucfırst:blah\"},\"dsr\":[0,17,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ucfırst:blah\",\"href\":\"./Şablon:Ucfırst:blah\"},\"params\":{},\"i\":0}}]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Şablon:Ucfırst:blah\"]}}'>Şablon:Ucfırst:blah</a></p>"
-	},
 	"T4095: link with pipe and three closing brackets, version 2": {
 		"wt2wt": "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]"
 	},

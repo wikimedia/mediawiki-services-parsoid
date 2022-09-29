@@ -103,8 +103,7 @@
         "html2wt": "; name\n: Definition"
     },
     "Definition list with wikilink containing colon": {
-        "html2html": "<dl data-parsoid='{\"dsr\":[0,95,0,0]}'><dt data-parsoid='{\"dsr\":[0,24,1,0,1,0]}'>[/index.php?title=Help</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[24,60,1,0]}'>FAQ&amp;action=edit&amp;redlink=1 Help:FAQ]</dd>\n<dd data-parsoid='{\"dsr\":[61,95,1,0,1,0]}'>The least-read page on Wikipedia</dd></dl>",
-        "html2wt": "; [/index.php?title=Help:FAQ&action=edit&redlink=1 Help:FAQ]\n: The least-read page on Wikipedia"
+        "html2wt": "; [[Help:FAQ]]:The least-read page on Wikipedia"
     },
     "Definition lists: colon in HTML attribute": {
         "html2html": "<dl data-parsoid='{\"dsr\":[0,12,0,0]}'><dt data-parsoid='{\"dsr\":[0,12,1,0,1,0]}'><b data-parsoid='{\"dsr\":[2,12,3,3]}'>bold</b></dt></dl>",

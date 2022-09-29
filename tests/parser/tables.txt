@@ -91,6 +91,12 @@ Template:table_cell_content_with_leading_spc
  | foo
 !! endarticle
 
+!! article
+Test
+!! text
+foo
+!! end
+
 ###
 ### Parsoid edge case regression tests
 ###
@@ -109,7 +115,7 @@ parsoid=wt2html,wt2wt
 |test
 |}]]
 !! html/php
-<p><a href="/index.php?title=Test&amp;action=edit&amp;redlink=1" class="new" title="Test (page does not exist)">
+<p><a href="/wiki/Test" title="Test">
 </a></p><table>
 
 <tbody><tr>
@@ -117,7 +123,7 @@ parsoid=wt2html,wt2wt
 </td></tr></tbody></table>
 <p class="mw-empty-elt"></p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Test" title="Test" class="new" data-parsoid='{"stx":"piped","a":{"href":"./Test"},"sa":{"href":"Test"}}'>
+<p><a rel="mw:WikiLink" href="./Test" title="Test">
 <table>
 
 <tbody><tr data-parsoid='{"autoInsertedStart":true}'><td>test</td></tr>

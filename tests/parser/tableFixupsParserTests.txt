@@ -36,6 +36,12 @@ class="foo" | foobar
   baz 
 !! endarticle
 
+!! article
+No Merging Here
+!! text
+Dummy article to suppress redlinks in tests
+!! end
+
 !! test
 Unsupported scenario: Cell combining with captions
 !! options
@@ -152,18 +158,17 @@ Table cell attribute merging edge cases
 <td class="foo">foobar baz
 </td></tr>
 <tr>
-<td><a href="/index.php?title=No_Merging_Here&amp;action=edit&amp;redlink=1" class="new" title="No Merging Here (page does not exist)">No Merging Here</a> class="foo" | foobar baz
+<td><a href="/wiki/No_Merging_Here" title="No Merging Here">No Merging Here</a> class="foo" | foobar baz
 </td></tr>
 <tr>
 <td><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg">File:Foo.jpg</a> class="foo" | foobar baz
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr>
-<td class="foo" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"&lt;div>foo&lt;/div> class=\"foo\""}},"i":0}}," baz"]}'>foobar baz</td></tr>
-<tr>
-<td><a rel="mw:WikiLink" href="./No_Merging_Here" title="No Merging Here" about="#mwt2" typeof="mw:Transclusion" class="new" data-parsoid='{"stx":"simple","a":{"href":"./No_Merging_Here"},"sa":{"href":"No Merging Here"},"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[No Merging Here]] class=\"foo\""}},"i":0}}]}'>No Merging Here</a><span about="#mwt2"> class="foo" | foobar</span> baz</td></tr>
-<tr>
+<tbody><tr data-parsoid='{"autoInsertedStart":true}'><td class="foo" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"&lt;div>foo&lt;/div> class=\"foo\""}},"i":0}}," baz"]}'>foobar baz</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
+<td><a rel="mw:WikiLink" href="./No_Merging_Here" title="No Merging Here" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./No_Merging_Here"},"sa":{"href":"No Merging Here"},"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[No Merging Here]] class=\"foo\""}},"i":0}}]}'>No Merging Here</a><span about="#mwt2"> class="foo" | foobar</span> baz</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
 <td><span class="mw-default-size" typeof="mw:Transclusion mw:Error mw:File" about="#mwt3" data-parsoid='{"optList":[],"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[File:Foo.jpg]] class=\"foo\""}},"i":0}}]}'><a href="./Special:FilePath/Foo.jpg"><span class="mw-broken-media" resource="./File:Foo.jpg">File:Foo.jpg</span></a></span><span about="#mwt3"> class="foo" | foobar</span> baz</td></tr>
 </tbody></table>
 !! end

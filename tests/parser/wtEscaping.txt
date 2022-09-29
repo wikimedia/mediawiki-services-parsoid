@@ -1382,8 +1382,8 @@ language=ar
 <a href="/index.php?title=Pusup%C3%BAsu&amp;action=edit&amp;redlink=1" class="new" title="Pusupúsu (الصفحة غير موجودة)">Pusupúsu</a>&#160;·
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Likalo" title="Likalo" data-parsoid='{"stx":"simple","a":{"href":"./Likalo"},"sa":{"href":"Likalo"}}' class="new">Likalo</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>·
-<a rel="mw:WikiLink" href="./Pusupúsu" title="Pusupúsu" data-parsoid='{"stx":"simple","a":{"href":"./Pusupúsu"},"sa":{"href":"Pusupúsu"}}' class="new">Pusupúsu</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>·</p>
+<p><a rel="mw:WikiLink" href="./Likalo?action=edit&amp;redlink=1" title="Likalo" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Likalo"},"sa":{"href":"Likalo"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Likalo"]}}'>Likalo</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>·
+<a rel="mw:WikiLink" href="./Pusupúsu?action=edit&amp;redlink=1" title="Pusupúsu" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Pusupúsu"},"sa":{"href":"Pusupúsu"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Pusupúsu"]}}'>Pusupúsu</a><span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>·</p>
 !! end
 
 #### --------------- Quotes ---------------
