@@ -672,7 +672,7 @@ class DOMDataUtils {
 	 *   - idIndex: Array of used ID attributes
 	 */
 	public static function storeDataAttribs( Node $node, ?array $options = null ): void {
-		$options = $options ?? [];
+		$options ??= [];
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}

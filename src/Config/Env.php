@@ -269,7 +269,7 @@ class Env {
 		?array $options = null
 	) {
 		self::checkPlatform();
-		$options = $options ?? [];
+		$options ??= [];
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
@@ -988,7 +988,7 @@ class Env {
 	public function getContentHandler(
 		?string &$contentmodel = null
 	): ContentModelHandler {
-		$contentmodel = $contentmodel ?? $this->pageConfig->getContentModel();
+		$contentmodel ??= $this->pageConfig->getContentModel();
 		$handler = $this->siteConfig->getContentModelHandler( $contentmodel );
 		if ( !$handler && $contentmodel !== 'wikitext' ) {
 			// For now, fallback to 'wikitext' as the default handler

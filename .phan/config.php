@@ -8,13 +8,14 @@ $STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
 
 $cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
 
-$cfg['target_php_version'] = '7.2';
+$cfg['minimum_target_php_version'] = '7.4';
 $cfg['enable_class_alias_support'] = true; // should be on by default: T224704
 
 $root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
 $hasLangConv = is_dir( "{$root}/vendor/wikimedia/langconv" );
 
 if ( $STANDALONE ) {
+	$cfg['target_php_version'] = '8.1';
 	$cfg['directory_list'] = [
 		# not the extension directory, it requires MW (ie, "not standalone")
 		'src',
