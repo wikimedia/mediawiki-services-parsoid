@@ -4,9 +4,9 @@
 	"url": "https://www.mediawiki.org/wiki/Parsoid/PHP",
 	"license-name": "GPL-2.0-or-later",
 	"requires": {
-		"MediaWiki": ">= 1.39",
+		"MediaWiki": ">= 1.40",
 		"platform": {
-			"php": ">= 7.2"
+			"php": ">= 7.4"
 		}
 	},
 	"AutoloadNamespaces": {
