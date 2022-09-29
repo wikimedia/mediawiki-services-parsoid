@@ -46,6 +46,9 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 				[
 					'name' => 'imagemap',
 					'handler' => self::class,
+					'options' => [
+						'outputHasCoreMwDomSpecMarkup' => true
+					],
 				]
 			]
 		];

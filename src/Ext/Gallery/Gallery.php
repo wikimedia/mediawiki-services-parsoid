@@ -41,6 +41,9 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 				[
 					'name' => 'gallery',
 					'handler' => self::class,
+					'options' => [
+						'outputHasCoreMwDomSpecMarkup' => true
+					],
 				]
 			],
 		];

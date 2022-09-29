@@ -23,6 +23,9 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 				[
 					'name' => 'poem',
 					'handler' => self::class,
+					'options' => [
+						'outputHasCoreMwDomSpecMarkup' => true
+					],
 				]
 			]
 		];
