@@ -18,19 +18,17 @@ namespace Wikimedia\Parsoid\Core;
  */
 class SectionMetaData implements \JsonSerializable {
 	/**
-	 * Is this a H1, H2, H3, ... ?
-	 * @var string
+	 * The heading tag level: a 1 here means an <H1> tag was used, a
+	 * 2 means an <H2> tag was used, etc.
 	 */
-	public $hLevel;
+	public int $hLevel;
 
 	/**
 	 * This is a zero-indexed TOC level and the nesting level.
 	 * So, if a page has a H2-H4-H6, then, those levels 2,4,6
 	 * correspond to TOC-levels 0,1,2.
-	 *
-	 * @var int
 	 */
-	public $tocLevel;
+	public int $tocLevel;
 
 	/**
 	 * HTML heading of the section. Only a narrow set of HTML tags are allowed here.
@@ -49,49 +47,36 @@ class SectionMetaData implements \JsonSerializable {
 	 *   . <q> (T251672)
 	 *   We strip any parameter from accepted tags, except dir="rtl|ltr" from <span>,
 	 *   to allow setting directionality in toc items.
-	 *
-	 * @var string
 	 */
-	public $line;
+	public string $line;
 
 	/**
 	 * TOC number string (3.1.3, 4.5.2, etc.)
-	 * @var string
 	 */
-	public $number;
+	public string $number;
 
 	/**
-	 * Section id (assigned in depth first traversal order)
-	 * Template generated sectionss get a "T-" prefix.
-	 *
-	 * @var string
+	 * Section id (integer, assigned in depth first traversal order)
+	 * Template generated sections get a "T-" prefix.
 	 */
-	public $index;
+	public string $index;
 
 	/**
 	 * The title of the page that generated this heading.
 	 * For template-generated sections, this will be the template title.
-	 * @var string
 	 */
-	public $fromTitle;
+	public string $fromTitle;
 
 	/**
-	 * Byte offset where the section shows up in wikitext
-	 * @var ?int
+	 * Byte offset where the section shows up in wikitext; this is null
+	 * if this section comes from a template, if it comes from a literal
+	 * HTML <h_> tag, or otherwise doesn't correspond to a "preprocessor
+	 * section".
 	 */
-	public $byteOffset;
+	public ?int $byteOffset;
 
 	/**
 	 * Anchor attribute.
-	 *
-	 * This does a bunch of extra processing of $line above to
-	 * - strip all HTML tags,
-	 * - normalizes section name
-	 * - normalizes section name ws
-	 * - decodes char references
-	 * - makes it a valid HTML id attribute value
-	 *   (HTML5 / HTML4 based on $wgFragmentMode property)
-	 * - dedupes (case-insensitively) identical anchors by adding "_$n" suffixes
 	 *
 	 * This property is the "true" value of the ID attribute, and should be
 	 * used when looking up a heading or setting an attribute, for example
@@ -103,20 +88,28 @@ class SectionMetaData implements \JsonSerializable {
 	 *
 	 * This value is *not* URL-escaped either; instead use the `linkAnchor`
 	 * property if you are constructing a URL to target this section.
-	 * @var string
+	 *
+	 * The anchor attribute is based on the $line property, but does extra
+	 * processing to turn it into a valid attribute:
+	 * - strip all HTML tags,
+	 * - normalizes section name
+	 * - normalizes section name whitespace
+	 * - decodes char references
+	 * - makes it a valid HTML id attribute value
+	 *   (HTML5 / HTML4 based on $wgFragmentMode property)
+	 * - dedupes (case-insensitively) identical anchors by adding "_$n" suffixes
 	 */
-	public $anchor;
+	public string $anchor;
 
 	/**
 	 * Anchor URL fragment.
 	 *
-	 * This is very similar to $anchor, but is appropriately
+	 * This is very similar to the $anchor property, but is appropriately
 	 * URL-escaped to make it appropriate to use in constructing a URL
 	 * fragment link.  You should almost always prepend a `#` symbol
 	 * to `linkAnchor` if you are using it correctly.
-	 * @var string
 	 */
-	public $linkAnchor;
+	public string $linkAnchor;
 
 	/**
 	 * @param array $data Associate array with section metadata
@@ -124,7 +117,7 @@ class SectionMetaData implements \JsonSerializable {
 	public function __construct( array $data ) {
 		$this->tocLevel = $data['toclevel'];
 		$this->line = $data['line'];
-		$this->hLevel = $data['level'];
+		$this->hLevel = (int)$data['level'];
 		$this->number = $data['number'];
 		$this->index = $data['index'];
 		$this->fromTitle = $data['fromtitle'] ?? '';
@@ -139,21 +132,18 @@ class SectionMetaData implements \JsonSerializable {
 	 * @return array
 	 */
 	public function toArray(): array {
-		$ret = [
-			'anchor' => $this->anchor,
-			'linkAnchor' => $this->linkAnchor,
-			'fromtitle' => $this->fromTitle,
-			'index' => $this->index,
-			'level' => $this->hLevel,
+		return [
+			'toclevel' => $this->tocLevel,
+			// cast $level to string in order to keep b/c for the parse api
+			'level' => (string)$this->hLevel,
 			'line' => $this->line,
 			'number' => $this->number,
-			'toclevel' => $this->tocLevel
+			'index' => $this->index,
+			'fromtitle' => $this->fromTitle,
+			'byteoffset' => $this->byteOffset,
+			'anchor' => $this->anchor,
+			'linkAnchor' => $this->linkAnchor,
 		];
-
-		if ( $this->byteOffset !== null ) {
-			$ret['byteoffset'] = $this->byteOffset;
-		}
-		return $ret;
 	}
 
 	/**
