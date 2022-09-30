@@ -1552,8 +1552,8 @@
         "selser [[[[[[[1]]]]],0,0]]": "*******Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in parser function result": {
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,23,0,0]}'><li data-parsoid='{\"dsr\":[0,23,1,0,1,0]}'>Foo <span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[6,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}}\",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",
-        "html2wt": "* Foo {{lc:{{bullet}}}}"
+        "html2html": "<ul data-parsoid='{\"dsr\":[0,22,0,0]}'><li data-parsoid='{\"dsr\":[0,22,1,0,1,0]}'>Foo<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}}\",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",
+        "html2wt": "* Foo{{lc:{{bullet}}}}"
     },
     "T2553: link with two variables in a piped link": {
         "wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}",

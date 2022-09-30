@@ -2,7 +2,7 @@
 # parser tests in integrated mode with Parsoid. This option is ignored
 # when this test file is run with Parsoid in standalone mode.
 !! options
-parsoid-compatible=wt2html
+parsoid-compatible=wt2html,wt2wt
 version=2
 !! end
 
@@ -18202,12 +18202,12 @@ y
 !! test
 T2529: Uncovered bullet in parser function result
 !! wikitext
-*Foo {{lc:{{bullet}} }}
+*Foo{{lc:{{bullet}} }}
 !! html/php
 <ul><li>Foo</li>
 <li>bar</li></ul>
 !! html/parsoid
-<ul><li>Foo <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"lc:{{bullet}} ","function":"lc"},"params":{},"i":0}}]}'>bar </span></li></ul>
+<ul><li>Foo<span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"lc:{{bullet}} ","function":"lc"},"params":{},"i":0}}]}'>bar </span></li></ul>
 !! html/parsoid+integrated
 <ul><li>Foo</li><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"lc:{{bullet}} ","function":"lc"},"params":{},"i":0}}]}'>
 </span><li about="#mwt1">bar</li></ul>
