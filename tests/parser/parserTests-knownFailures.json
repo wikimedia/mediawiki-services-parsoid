@@ -41,6 +41,9 @@
 	"Interlanguage link with spacing": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\"},\"sa\":{\"href\":\"   zh  :    Chinese     \"},\"dsr\":[15,43,null,null]}'/>"
 	},
+	"Media link redirect": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:MediaLink\" href=\"http://example.com/images/3/3a/Foobar.jpg\" resource=\"./Media:Redirect_to_foobar.jpg\" title=\"Foobar.jpg\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"resource\":\"./Media:Redirect_to_foobar.jpg\"},\"sa\":{\"resource\":\"Media:Redirect to foobar.jpg\"},\"dsr\":[0,32,2,2]}'>Media:Redirect to foobar.jpg</a></p>"
+	},
 	"Out-of-order TOC heading levels": {
 		"wt2html": "<h2 id=\"2\" data-parsoid='{\"dsr\":[0,5,2,2]}'>2</h2>\n<h6 id=\"6\" data-parsoid='{\"dsr\":[6,19,6,6]}'>6</h6>\n<h3 id=\"3\" data-parsoid='{\"dsr\":[20,27,3,3]}'>3</h3>\n<h1 id=\"1\" data-parsoid='{\"dsr\":[28,31,1,1]}'>1</h1>\n<h5 id=\"5\" data-parsoid='{\"dsr\":[32,43,5,5]}'>5</h5>\n<h2 id=\"2_2\" data-parsoid='{\"dsr\":[44,49,2,2]}'>2</h2>"
 	},

@@ -353,6 +353,12 @@ Template:Template with pagename
 This is {{PAGENAME}}.
 !! endarticle
 
+!! article
+File:Redirect to foobar.jpg
+!! text
+#REDIRECT[[File:Foobar.jpg]]
+!! endarticle
+
 ###
 ### Basic tests
 ###
@@ -18182,6 +18188,19 @@ Media link with text
 </p>
 !! html/parsoid
 <p><a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
+!! end
+
+# This won't pass in standalone mode because we don't have redirect handling in our mock data access.
+# Not sure if it is worth dealing with it.
+!! test
+Media link redirect
+!! wikitext
+[[Media:Redirect to foobar.jpg]]
+!! html/php
+<p><a href="http://example.com/images/3/3a/Foobar.jpg" class="internal" title="Foobar.jpg">Media:Redirect to foobar.jpg</a>
+</p>
+!! html/parsoid+integrated
+<p><a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg" resource="./Media:Foobar.jpg" title="Foobar.jpg">Media:Redirect to foobar.jpg</a></p>
 !! end
 
 !! test
