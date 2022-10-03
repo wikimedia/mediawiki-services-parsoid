@@ -72,10 +72,10 @@ class References extends ExtensionTagHandler {
 		DOMUtils::migrateChildren( $domFragment, $ol );
 
 		// Support the `responsive` parameter
-		$rrOpts = $extApi->getSiteConfig()->responsiveReferences();
-		$responsiveWrap = !empty( $rrOpts['enabled'] );
 		if ( $refsOpts['responsive'] !== null ) {
 			$responsiveWrap = $refsOpts['responsive'] !== '0';
+		} else {
+			$responsiveWrap = (bool)$extApi->getSiteConfig()->getMWConfigValue( 'CiteResponsiveReferences' );
 		}
 
 		if ( $responsiveWrap ) {
@@ -561,11 +561,11 @@ class References extends ExtensionTagHandler {
 
 		// Deal with responsive wrapper
 		if ( DOMCompat::getClassList( $refsNode )->contains( 'mw-references-wrap' ) ) {
-			$rrOpts = $extApi->getSiteConfig()->responsiveReferences();
 			// NOTE: The default Cite implementation hardcodes this threshold to 10.
 			// We use a configurable parameter here primarily for test coverage purposes.
 			// See citeParserTests.txt where we set a threshold of 1 or 2.
-			if ( $refGroup && count( $refGroup->refs ) > $rrOpts['threshold'] ) {
+			$rrThreshold = $extApi->getSiteConfig()->getMWConfigValue( 'CiteResponsiveReferencesThreshold' ) ?? 10;
+			if ( $refGroup && count( $refGroup->refs ) > $rrThreshold ) {
 				DOMCompat::getClassList( $refsNode )->add( 'mw-references-columns' );
 			}
 			$refsNode = $refsNode->firstChild;

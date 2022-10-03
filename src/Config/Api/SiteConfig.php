@@ -505,6 +505,24 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['mainpage'];
 	}
 
+	/** @inheritDoc */
+	public function getMWConfigValue( string $key ) {
+		$this->loadSiteData();
+		switch ( $key ) {
+			// Hardcoded values for these 2 keys
+			case 'CiteResponsiveReferences':
+				return $this->siteData['citeresponsivereferences'] ?? false;
+
+			case 'CiteResponsiveReferencesThreshold':
+				return 10;
+
+			// We can add more hardcoded keys based on testing needs
+			// but null is the default for keys unsupported in this mode.
+			default:
+				return null;
+		}
+	}
+
 	public function responsiveReferences(): array {
 		$this->loadSiteData();
 		return [

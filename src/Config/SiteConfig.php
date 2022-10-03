@@ -687,6 +687,16 @@ abstract class SiteConfig {
 	abstract public function mainpage(): string;
 
 	/**
+	 * Lookup config
+	 * @param string $key
+	 * @return mixed|null config value for $key, if present or null, if not.
+	 */
+	abstract public function getMWConfigValue( string $key );
+
+	/**
+	 * This will be removed without deprecation once we transition over
+	 * the Cite code to use getMWConfigValue method above.
+	 *
 	 * Responsive references configuration
 	 * @return array With two keys:
 	 *  - enabled: (bool) Whether it's enabled

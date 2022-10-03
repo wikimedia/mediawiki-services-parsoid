@@ -221,6 +221,18 @@ class MockSiteConfig extends SiteConfig {
 		return 'Main Page';
 	}
 
+	/** @inheritDoc */
+	public function getMWConfigValue( string $key ) {
+		switch ( $key ) {
+			case 'CiteResponsiveReferences':
+				return true;
+			case 'CiteResponsiveReferencesThreshold':
+				return 10;
+			default:
+				return null;
+		}
+	}
+
 	public function responsiveReferences(): array {
 		return [
 			'enabled' => true,
