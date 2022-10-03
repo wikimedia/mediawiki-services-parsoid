@@ -546,6 +546,54 @@ class MockApiHelper extends ApiHelper {
 	}
 
 	/**
+	 * Image scaling computation helper.
+	 *
+	 * Linker.php in core calls File::transform(...) for each dimension (1x,
+	 * 1.5x, 2x) which then scales the image dimensions, using round/ceil/floor
+	 * as appropriate to yield integer dimensions.  Note that the results
+	 * may be unintuitive due to the conversion to integer: eg, a 442px width
+	 * image may become 883px in 2x mode.  Resist the temptation to "optimize"
+	 * this by computing the transformed size once and then scaling that;
+	 * always scale the input dimensions instead.
+	 * @see ImageHandler::normaliseParams, MediaHandler::fitBoxWidth,
+	 * File::scaleHeight, etc, in core.
+	 *
+	 * Either $twidth or $theight or both will be set when called; both
+	 * will be set when this function returns.
+	 *
+	 * @param int $width Original image width
+	 * @param int $height Original image height
+	 * @param int|float|null &$twidth Thumbnail width (inout parameter)
+	 * @param int|float|null &$theight Thumbnail height (inout parameter)
+	 */
+	public static function transformHelper( $width, $height, &$twidth, &$theight ) {
+			if ( $theight === null ) {
+				// File::scaleHeight in PHP
+				$theight = round( $height * $twidth / $width );
+			} elseif (
+				$twidth === null ||
+				// Match checks in ImageHandler.php::normaliseParams in core
+				( $twidth * $height > $theight * $width )
+			) {
+				// MediaHandler::fitBoxWidth in PHP
+				// This is crazy!
+				$idealWidth = $width * $theight / $height;
+				$roundedUp = ceil( $idealWidth );
+				if ( round( $roundedUp * $height / $width ) > $theight ) {
+					$twidth = floor( $idealWidth );
+				} else {
+					$twidth = $roundedUp;
+				}
+			} else {
+				if ( round( $height * $twidth / $width ) > $theight ) {
+					$twidth = ceil( $width * $theight / $height );
+				} else {
+					$theight = round( $height * $twidth / $width );
+				}
+			}
+	}
+
+	/**
 	 * @param string $filename
 	 * @param ?int $twidth
 	 * @param ?int $theight
@@ -614,26 +662,13 @@ class MockApiHelper extends ApiHelper {
 		}
 
 		if ( $theight || $twidth ) {
-			if ( $theight === null ) {
-				// File::scaleHeight in PHP
-				$theight = round( $height * $twidth / $width );
-			} elseif ( $twidth === null ) {
-				// MediaHandler::fitBoxWidth in PHP
-				// This is crazy!
-				$idealWidth = $width * $theight / $height;
-				$roundedUp = ceil( $idealWidth );
-				if ( round( $roundedUp * $height / $width ) > $theight ) {
-					$twidth = floor( $idealWidth );
-				} else {
-					$twidth = $roundedUp;
-				}
-			} else {
-				if ( round( $height * $twidth / $width ) > $theight ) {
-					$twidth = ceil( $width * $theight / $height );
-				} else {
-					$theight = round( $height * $twidth / $width );
-				}
-			}
+
+			// Save $twidth and $theight
+			$origThumbHeight = $theight;
+			$origThumbWidth = $twidth;
+
+			// Set $twidth and $theight
+			self::transformHelper( $width, $height, $twidth, $theight );
 
 			$urlWidth = $twidth;
 			if ( $twidth > $width ) {
@@ -693,10 +728,19 @@ class MockApiHelper extends ApiHelper {
 			$info['thumbheight'] = $theight;
 			$info['thumburl'] = $turl;
 			// src set info; added to core API result as part of T226683
+			// See Linker.php::processResponsiveImages() in core
 			foreach ( [ 1.5, 2 ] as $scale ) {
+				$stwidth = $stheight = null;
+				if ( $origThumbWidth !== null ) {
+					$stwidth = round( $origThumbWidth * $scale );
+				}
+				if ( $origThumbHeight !== null ) {
+					$stheight = round( $origThumbHeight * $scale );
+				}
+				self::transformHelper( $width, $height, $stwidth, $stheight );
 				$turl = $baseurl;
 				if (
-					round( $twidth * $scale ) < $width ||
+					$stwidth < $width ||
 					$mediatype === 'DRAWING' ||
 					$mediatype === 'OFFICE'
 				) {
@@ -707,7 +751,7 @@ class MockApiHelper extends ApiHelper {
 					if ( $lang !== null ) {
 						$turl .= "lang{$lang}-";
 					}
-					$turl .= round( $twidth * $scale ) . 'px-' . $normFileName;
+					$turl .= $stwidth . 'px-' . $normFileName;
 					if ( $mediatype === 'VIDEO' || $mediatype === 'OFFICE' ) {
 						$turl .= '.jpg';
 					} elseif ( $mediatype === 'DRAWING' ) {

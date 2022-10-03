@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
@@ -450,26 +451,11 @@ class MockDataAccess extends DataAccess {
 			}
 
 			if ( !empty( $txopts['height'] ) || !empty( $txopts['width'] ) ) {
-				if ( $txopts['height'] === null ) {
-					// File::scaleHeight in PHP
-					$txopts['height'] = round( $height * $txopts['width'] / $width );
-				} elseif ( $txopts['width'] === null ) {
-					// MediaHandler::fitBoxWidth in PHP
-					// This is crazy!
-					$idealWidth = $width * $txopts['height'] / $height;
-					$roundedUp = ceil( $idealWidth );
-					if ( round( $roundedUp * $height / $width ) > $txopts['height'] ) {
-						$txopts['width'] = floor( $idealWidth );
-					} else {
-						$txopts['width'] = $roundedUp;
-					}
-				} else {
-					if ( round( $height * $txopts['width'] / $width ) > $txopts['height'] ) {
-						$txopts['width'] = ceil( $width * $txopts['height'] / $height );
-					} else {
-						$txopts['height'] = round( $height * $txopts['width'] / $width );
-					}
-				}
+
+				// Set $txopts['width'] and $txopts['height']
+				$rtwidth = &$txopts['width'];
+				$rtheight = &$txopts['height'];
+				MockApiHelper::transformHelper( $width, $height, $rtwidth, $rtheight );
 
 				$urlWidth = $txopts['width'];
 				if ( $txopts['width'] > $width ) {
