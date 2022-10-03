@@ -48,4 +48,26 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$el = $doc->getElementById( $id );
 		$this->assertEquals( $p, $el );
 	}
+
+	/**
+	 * @return void
+	 * @throws \Wikimedia\Parsoid\Core\ClientError
+	 * @covers ::extractPageBundle
+	 */
+	public function testExtractPageBundle() {
+		$html = <<<'EOF'
+<html>
+  <head>
+    <script id="mw-pagebundle" type="application/x-mw-pagebundle">
+      {"parsoid":
+      {"counter":1,"ids":{"mwAA":{"dsr":[0,13,0,0]},
+      "mwAQ":{"dsr":[0,12,0,0]}},"offsetType":"byte"},"mw":{"ids":[]}}
+    </script>
+  </head>
+  <body><p id="mwAQ">Hello, world</p>
+EOF;
+		$doc = DOMUtils::parseHTML( $html );
+		$pb = DOMDataUtils::extractPageBundle( $doc );
+		self::assertTrue( is_array( $pb->parsoid['ids'] ) );
+	}
 }

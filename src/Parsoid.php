@@ -224,8 +224,7 @@ class Parsoid {
 			] );
 			return new PageBundle(
 				$out['html'],
-				get_object_vars( $out['pb']->parsoid ),
-				isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
+				$out['pb']->parsoid, $out['pb']->mw ?? null,
 				$env->getOutputContentVersion(),
 				$headers,
 				$contentmodel
@@ -393,8 +392,7 @@ class Parsoid {
 		] );
 		return new PageBundle(
 			$out['html'],
-			get_object_vars( $out['pb']->parsoid ),
-			isset( $out['pb']->mw ) ? get_object_vars( $out['pb']->mw ) : null,
+			$out['pb']->parsoid, $out['pb']->mw ?? null,
 			// Prefer the passed in version, since this was just a transformation
 			$pb->version ?? $env->getOutputContentVersion(),
 			DOMUtils::findHttpEquivHeaders( $doc ),

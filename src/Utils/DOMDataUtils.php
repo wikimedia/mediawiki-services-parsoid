@@ -498,7 +498,9 @@ class DOMDataUtils {
 		$dpScriptElt = DOMCompat::getElementById( $doc, 'mw-pagebundle' );
 		if ( $dpScriptElt ) {
 			$dpScriptElt->parentNode->removeChild( $dpScriptElt );
-			$pb = PHPUtils::jsonDecode( $dpScriptElt->textContent, false );
+			// we actually want arrays in the page bundle rather than stdClasses; but we still
+			// want to access the object properties
+			$pb = (object)PHPUtils::jsonDecode( $dpScriptElt->textContent );
 		}
 		return $pb;
 	}
