@@ -106,32 +106,32 @@ require('../core-upgrade.js');
  * baseline and introduce pointless merge conflicts to resolve.
  */
 
-var yargs = require('yargs');
-var childProcess = require('pn/child_process');
-var path = require('path');
-var fs = require('pn/fs');
+const yargs = require('yargs');
+const childProcess = require('pn/child_process');
+const path = require('path');
+const fs = require('pn/fs');
 
-var Promise = require('../lib/utils/promise.js');
+const Promise = require('../lib/utils/promise.js');
 
-var testDir = path.join(__dirname, '../tests/');
-var testFilesPath = path.join(testDir, 'parserTests.json');
-var testFiles = require(testFilesPath);
+const testDir = path.join(__dirname, '../tests/');
+const testFilesPath = path.join(testDir, 'parserTests.json');
+const testFiles = require(testFilesPath);
 
-var DEFAULT_TARGET = 'parserTests.txt';
+const DEFAULT_TARGET = 'parserTests.txt';
 
-var strip = function(s) {
+const strip = function(s) {
 	return s.replace(/(^\s+)|(\s+$)/g, '');
 };
 
 Promise.async(function *() {
 	// Option parsing and helpful messages.
-	var usage = 'Usage: $0 <repo path> <branch name> <target>';
-	var opts = yargs
+	const usage = 'Usage: $0 <repo path> <branch name> <target>';
+	const opts = yargs
 	.usage(usage)
 	.options({
 		'help': { description: 'Show this message' },
 	});
-	var argv = opts.argv;
+	const argv = opts.argv;
 	if (argv.help || argv._.length < 2 || argv._.length > 3) {
 		opts.showHelp();
 		var morehelp = yield fs.readFile(__filename, 'utf8');
@@ -141,19 +141,19 @@ Promise.async(function *() {
 	}
 
 	// Ok, let's do this thing!
-	var mwpath = path.resolve(argv._[0]);
-	var branch = argv._[1];
-	var targetName = argv._[2] || DEFAULT_TARGET;
+	const mwpath = path.resolve(argv._[0]);
+	const branch = argv._[1];
+	const targetName = argv._[2] || DEFAULT_TARGET;
 
 	if (!testFiles.hasOwnProperty(targetName)) {
 		console.warn(targetName + ' not defined in parserTests.json');
 		return;
 	}
 
-	var file = testFiles[targetName];
-	var oldhash = file.latestCommit;
+	const file = testFiles[targetName];
+	const oldhash = file.latestCommit;
 
-	var mwexec = function(cmd) {
+	const mwexec = function(cmd) {
 		// Execute `cmd` in the mwpath directory.
 		return new Promise(function(resolve, reject) {
 			console.log('>>>', cmd.join(' '));
@@ -171,16 +171,16 @@ Promise.async(function *() {
 		});
 	};
 
-	var pPARSERTESTS = path.join(__dirname, '..', 'tests', 'parser', targetName);
-	var mwPARSERTESTS = path.join(mwpath, file.path);
+	const pPARSERTESTS = path.join(__dirname, '..', 'tests', 'parser', targetName);
+	const mwPARSERTESTS = path.join(mwpath, file.path);
 
 	// Fetch current Parsoid git hash.
-	var result = yield childProcess.execFile(
+	const result = yield childProcess.execFile(
 		'git', ['log', '--max-count=1', '--pretty=format:%H'], {
 			cwd: __dirname,
 			env: process.env,
 		}).promise;
-	var phash = strip(result.stdout);
+	const phash = strip(result.stdout);
 
 	// A bit of user-friendly logging.
 	console.log('Parsoid git HEAD is', phash);
@@ -193,7 +193,7 @@ Promise.async(function *() {
 	// Copy our locally-modified parser tests over to mediawiki/core.
 	// cp __dirname/tests/parser/parserTests.txt $mwpath/tests/parser
 	try {
-		var data = yield fs.readFile(pPARSERTESTS);
+		const data = yield fs.readFile(pPARSERTESTS);
 		console.log('>>>', 'cp', pPARSERTESTS, mwPARSERTESTS);
 		yield fs.writeFile(mwPARSERTESTS, data);
 	} catch (e) {

@@ -14,46 +14,46 @@ require('../core-upgrade.js');
 //     parserTests and update these hashes automatically.
 //
 
-var fs = require('pn/fs');
-var path = require('path');
-var https = require('https');
-var crypto = require('crypto');
-var Buffer = require('buffer').Buffer;
+const fs = require('pn/fs');
+const path = require('path');
+const https = require('https');
+const crypto = require('crypto');
+const Buffer = require('buffer').Buffer;
 
-var Promise = require('../lib/utils/promise.js');
+const Promise = require('../lib/utils/promise.js');
 
-var testDir = path.join(__dirname, '../tests/parser/');
-var testFilesPath = path.join(testDir, '../parserTests.json');
-var testFiles = require(testFilesPath);
+const testDir = path.join(__dirname, '../tests/parser/');
+const testFilesPath = path.join(testDir, '../parserTests.json');
+const testFiles = require(testFilesPath);
 
-var DEFAULT_TARGET = 'parserTests.txt';
+const DEFAULT_TARGET = 'parserTests.txt';
 
-var computeSHA1 = Promise.async(function *(targetName) {
-	var targetPath = path.join(testDir, targetName);
+const computeSHA1 = Promise.async(function *(targetName) {
+	const targetPath = path.join(testDir, targetName);
 	if (!(yield fs.exists(targetPath))) {
 		return "<file not present>";
 	}
-	var contents = yield fs.readFile(targetPath);
+	const contents = yield fs.readFile(targetPath);
 	return crypto.createHash('sha1').update(contents).digest('hex')
 		.toLowerCase();
 });
 
-var fetch = function(targetName, gitCommit, skipCheck) {
-	var file = testFiles[targetName];
-	var filePath = '/r/plugins/gitiles' + file.repo + '+/' + (gitCommit || file.latestCommit) + '/' + file.path + '?format=TEXT';
+const fetch = function(targetName, gitCommit, skipCheck) {
+	const file = testFiles[targetName];
+	const filePath = '/r/plugins/gitiles' + file.repo + '+/' + (gitCommit || file.latestCommit) + '/' + file.path + '?format=TEXT';
 
 	console.log('Fetching ' + targetName + ' history from ' + filePath);
 
-	var url = {
+	const url = {
 		host: 'gerrit.wikimedia.org',
 		path: filePath,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
 	return new Promise(function(resolve, reject) {
 		https.get(url, function(result) {
-			var targetPath = path.join(testDir, targetName);
-			var out = fs.createWriteStream(targetPath);
-			var rs = [];
+			const targetPath = path.join(testDir, targetName);
+			const out = fs.createWriteStream(targetPath);
+			const rs = [];
 			result.on('data', function(data) {
 				rs.push(data);
 			});
@@ -70,7 +70,7 @@ var fetch = function(targetName, gitCommit, skipCheck) {
 		});
 	}).then(Promise.async(function *() {
 		if (!skipCheck) {
-			var sha1 = yield computeSHA1(targetName);
+			const sha1 = yield computeSHA1(targetName);
 			if (file.expectedSHA1 !== sha1) {
 				console.warn(
 					'Parsoid expected sha1sum', file.expectedSHA1,
@@ -81,29 +81,29 @@ var fetch = function(targetName, gitCommit, skipCheck) {
 	}));
 };
 
-var isUpToDate = Promise.async(function *(targetName) {
-	var expectedSHA1 = testFiles[targetName].expectedSHA1;
+const isUpToDate = Promise.async(function *(targetName) {
+	const expectedSHA1 = testFiles[targetName].expectedSHA1;
 	return (expectedSHA1 === (yield computeSHA1(targetName)));
 });
 
-var checkAndUpdate = Promise.async(function *(targetName) {
+const checkAndUpdate = Promise.async(function *(targetName) {
 	if (!(yield isUpToDate(targetName))) {
 		yield fetch(targetName);
 	}
 });
 
-var forceUpdate = Promise.async(function *(targetName) {
-	var file = testFiles[targetName];
-	var filePath = '/r/plugins/gitiles' + file.repo + '+log/refs/heads/master/' + file.path + '?format=JSON';
+const forceUpdate = Promise.async(function *(targetName) {
+	const file = testFiles[targetName];
+	const filePath = '/r/plugins/gitiles' + file.repo + '+log/refs/heads/master/' + file.path + '?format=JSON';
 	console.log('Fetching ' + targetName + ' history from ' + filePath);
 
 	// fetch the history page
-	var url = {
+	const url = {
 		host: 'gerrit.wikimedia.org',
 		path: filePath,
 		headers: { 'user-agent': 'wikimedia-parsoid' },
 	};
-	var gitCommit = JSON.parse(yield new Promise(function(resolve, reject) {
+	const gitCommit = JSON.parse(yield new Promise(function(resolve, reject) {
 		https.get(url, function(result) {
 			var res = '';
 			result.setEncoding('utf8');
@@ -119,7 +119,7 @@ var forceUpdate = Promise.async(function *(targetName) {
 
 	// download latest file
 	yield fetch(targetName, gitCommit, true);
-	var fileHash = yield computeSHA1(targetName);
+	const fileHash = yield computeSHA1(targetName);
 
 	// now rewrite this file!
 	file.expectedSHA1 = fileHash;
@@ -129,8 +129,8 @@ var forceUpdate = Promise.async(function *(targetName) {
 });
 
 Promise.async(function *() {
-	var argv = require('yargs').argv;
-	var targetName = argv._.length ? argv._[0] : DEFAULT_TARGET;
+	const argv = require('yargs').argv;
+	const targetName = argv._.length ? argv._[0] : DEFAULT_TARGET;
 
 	if (!testFiles.hasOwnProperty(targetName)) {
 		console.warn(targetName + ' not defined in parserTests.json');
