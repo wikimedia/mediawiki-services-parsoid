@@ -440,8 +440,8 @@ class TemplateHandler extends TokenHandler {
 	 */
 	private function convertToString( Token $token, bool $expandTemplates = false ): TemplateExpansionResult {
 		$frame = $this->manager->getFrame();
-		$tsr = $token->dataAttribs->tsr;
-		$src = substr( $token->dataAttribs->src, 1, -1 );
+		$tsr = $token->dataParsoid->tsr;
+		$src = substr( $token->dataParsoid->src, 1, -1 );
 		$startOffset = $tsr->start + 1;
 		$srcOffsets = new SourceRange( $startOffset, $startOffset + strlen( $src ) );
 
@@ -587,7 +587,7 @@ class TemplateHandler extends TokenHandler {
 			$dump = str_repeat( '=', 28 ) . " template source " .
 				str_repeat( '=', 28 ) . "\n";
 			$dump .= 'TEMPLATE:' . $tplArgs['name'] . 'TRANSCLUSION:' .
-				PHPUtils::jsonEncode( $token->dataAttribs->src ) . "\n";
+				PHPUtils::jsonEncode( $token->dataParsoid->src ) . "\n";
 			$dump .= str_repeat( '-', 80 ) . "\n";
 			$dump .= $src . "\n";
 			$dump .= str_repeat( '-', 80 ) . "\n";
@@ -783,8 +783,8 @@ class TemplateHandler extends TokenHandler {
 		TokenUtils::stripEOFTkfromTokens( $chunk );
 
 		foreach ( $chunk as $i => $t ) {
-			if ( $t && isset( $t->dataAttribs->tsr ) ) {
-				unset( $t->dataAttribs->tsr );
+			if ( $t && isset( $t->dataParsoid->tsr ) ) {
+				unset( $t->dataParsoid->tsr );
 			}
 			if ( $t instanceof SelfclosingTagTk &&
 				strtolower( $t->getName() ) === 'meta' &&
@@ -907,10 +907,10 @@ class TemplateHandler extends TokenHandler {
 
 		$metaToken = new SelfclosingTagTk( 'meta',
 			[ new KV( 'property', $pageProp ) ],
-			$tplToken->dataAttribs->clone()
+			$tplToken->dataParsoid->clone()
 		);
 
-		if ( isset( $tplToken->dataAttribs->tmp->templatedAttribs ) ) {
+		if ( isset( $tplToken->dataParsoid->tmp->templatedAttribs ) ) {
 			// See [[mw:Specs/HTML#Generated_attributes_of_HTML_tags]]
 			//
 			// For every attribute that has a templated name and/or value,
@@ -935,7 +935,7 @@ class TemplateHandler extends TokenHandler {
 			// depending on which part is templated.
 			//
 			// FIXME: Is there a simpler / better repn. for templated attrs?
-			$ta = $tplToken->dataAttribs->tmp->templatedAttribs;
+			$ta = $tplToken->dataParsoid->tmp->templatedAttribs;
 			$html = $ta[0][0]['html'];
 			$ta[0] = [
 				[ 'txt' => 'content' ],  // Magic-word attribute name
@@ -966,7 +966,7 @@ class TemplateHandler extends TokenHandler {
 			// Ex: {{DISPLAYTITLE:User:<span style="text-transform: lowercase;">MC</span><span style="font-size: 80%;">10</span>/Welcome}}
 			$key = trim( TokenUtils::tokensToString( $resolvedTgt['pfArg'] ) );
 
-			$src = $tplToken->dataAttribs->src ?? '';
+			$src = $tplToken->dataParsoid->src ?? '';
 			if ( $src ) {
 				// If the token has original wikitext, shadow the sort-key
 				$origKey = PHPUtils::stripSuffix( preg_replace( '/[^:]+:?/', '', $src, 1 ), '}}' );
@@ -1023,7 +1023,7 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		$toks = null;
-		$text = $token->dataAttribs->src ?? '';
+		$text = $token->dataParsoid->src ?? '';
 
 		$tgt = $this->resolveTemplateTarget(
 			$state, $token->attribs[0]->k, $token->attribs[0]->srcOffsets->key

@@ -32,7 +32,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	// initializer
-	
+
 	/** @var Env */
 	private $env;
 
@@ -218,7 +218,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 			return $t;
 		}
 
-		$dp = $t->dataAttribs;
+		$dp = $t->dataParsoid;
 		$skipPos = $this->currPos;
 
 		switch ( get_class( $t ) ) {
@@ -466,7 +466,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 					$this->startTime = microtime( true );
 				}
 				return true;
-			
+
 }
 private function a1($t) {
 
@@ -476,10 +476,10 @@ private function a1($t) {
 						'PEG', 1000 * ( microtime( true ) - $this->startTime ), 'PEG' );
 				}
 				return true;
-			
+
 }
 private function a2($t) {
- return $t; 
+ return $t;
 }
 private function a3() {
 
@@ -488,7 +488,7 @@ private function a3() {
 			// get here on eof. So, safe to unconditionally terminate the
 			// generator loop here.
 			return false;
-		
+
 }
 private function a4($t, $n) {
 
@@ -502,16 +502,16 @@ private function a4($t, $n) {
 		}
 		$ret[] = new EOFTk();
 		return $ret;
-	
+
 }
 private function a5($sc) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a6($sc, $startPos, $b, $p) {
- $this->unreachable(); 
+ $this->unreachable();
 }
 private function a7($sc, $startPos, $b, $p, $ta) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a8($sc, $startPos, $b, $p, $ta, $tsEndPos, $s2) {
 
@@ -531,41 +531,41 @@ private function a8($sc, $startPos, $b, $p, $ta, $tsEndPos, $s2) {
 			[ new TagTk( 'table', $ta, $dp ) ],
 			$coms ? $coms['buf'] : [],
 			$s2 );
-	
+
 }
 private function a9($proto, $addr, $he) {
- return $he; 
+ return $he;
 }
 private function a10($proto, $addr, $r) {
- return $r; 
+ return $r;
 }
 private function a11($proto, $addr, $c) {
- return $c; 
+ return $c;
 }
 private function a12($proto, $addr, $path) {
- return $addr !== '' || count( $path ) > 0; 
+ return $addr !== '' || count( $path ) > 0;
 }
 private function a13($proto, $addr, $path) {
 
 		return TokenizerUtils::flattenString( array_merge( [ $proto, $addr ], $path ) );
-	
+
 }
 private function a14($as, $s, $p) {
 
 		return [ $as, $s, $p ];
-	
+
 }
 private function a15($b) {
- return $b; 
+ return $b;
 }
 private function a16($r) {
- return TokenizerUtils::flattenIfArray( $r ); 
+ return TokenizerUtils::flattenIfArray( $r );
 }
 private function a17() {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a18($p0, $addr, $target) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a19($p0, $addr, $target, $p1) {
 
@@ -578,13 +578,13 @@ private function a19($p0, $addr, $target, $p1) {
 				return count( $flat ) > 0;
 			}
 			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
-		
+
 }
 private function a20($p0, $addr, $target, $p1, $sp) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a21($p0, $addr, $target, $p1, $sp, $p2, $content) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a22($p0, $addr, $target, $p1, $sp, $p2, $content, $p3) {
 
@@ -603,10 +603,10 @@ private function a22($p0, $addr, $target, $p1, $sp, $p2, $content, $p3) {
 					],
 					$dp
 				)
-			]; 
+			];
 }
 private function a23($r) {
- return $r; 
+ return $r;
 }
 private function a24($b) {
 
@@ -628,10 +628,10 @@ private function a24($b) {
 
 		// Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
 		return $this->emitChunk( $tokens );
-	
+
 }
 private function a25() {
- return [ new NlTk( $this->tsrOffsets() ) ]; 
+ return [ new NlTk( $this->tsrOffsets() ) ];
 }
 private function a26($c) {
 
@@ -641,13 +641,13 @@ private function a26($c) {
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
 		return [ new CommentTk( $data, $dp ) ];
-	
+
 }
 private function a27($p) {
- return Utils::isProtocolValid( $p, $this->env ); 
+ return Utils::isProtocolValid( $p, $this->env );
 }
 private function a28($p) {
- return $p; 
+ return $p;
 }
 private function a29($annOrExtTag, $h, $extlink, $intemplate, &$preproc, $equal, $table, $templateArg, $tableCellArg, $semicolon, $arrow, $linkdesc, $colon, &$th) {
 
@@ -667,12 +667,12 @@ private function a29($annOrExtTag, $h, $extlink, $intemplate, &$preproc, $equal,
 				'colon' => $colon,
 				'th' => $th
 			], $this->env );
-		
+
 }
 private function a30($t) {
 
 		return $t;
-	
+
 }
 private function a31($cc) {
 
@@ -693,16 +693,16 @@ private function a31($cc) {
 			$cc,
 			new EndTagTk( 'span', [], $dpEnd )
 		];
-	
+
 }
 private function a32($s) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a33($s, $namePos0, $name) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a34($s, $namePos0, $name, $namePos, $v) {
- return $v; 
+ return $v;
 }
 private function a35($s, $namePos0, $name, $namePos, $vd) {
 
@@ -732,16 +732,16 @@ private function a36($s) {
 		} else {
 			return [];
 		}
-	
+
 }
 private function a37($c) {
- return new KV( $c, '' ); 
+ return new KV( $c, '' );
 }
 private function a38($namePos0, $name) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a39($namePos0, $name, $namePos, $v) {
- return $v; 
+ return $v;
 }
 private function a40($namePos0, $name, $namePos, $vd) {
 
@@ -765,18 +765,18 @@ private function a40($namePos0, $name, $namePos, $vd) {
 
 }
 private function a41($s) {
- return $s; 
+ return $s;
 }
 private function a42($c) {
 
 		return TokenizerUtils::flattenStringlist( $c );
-	
+
 }
 private function a43($lc) {
- return $lc; 
+ return $lc;
 }
 private function a44($bullets, $c) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a45($bullets, $c, $cpos, $d) {
 
@@ -800,7 +800,7 @@ private function a45($bullets, $c, $cpos, $d) {
 		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ], $dp2 );
 
 		return array_merge( [ $li1 ], $c ?: [], [ $li2 ], $d ?: [] );
-	
+
 }
 private function a46($bullets, $tbl, $line) {
 
@@ -822,62 +822,62 @@ private function a47($bullets, $c) {
 		$dp->tsr = $tsr;
 		$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], $dp );
 		return array_merge( [ $li ], $c ?: [] );
-	
+
 }
 private function a48() {
- return $this->endOffset() === $this->inputLength; 
+ return $this->endOffset() === $this->inputLength;
 }
 private function a49($r, $cil, $bl) {
 
 		return array_merge( [ $r ], $cil, $bl ?: [] );
-	
+
 }
 private function a50($c) {
- return $c; 
+ return $c;
 }
 private function a51($rs) {
- return $rs; 
+ return $rs;
 }
 private function a52($a) {
- return $a; 
+ return $a;
 }
 private function a53($a, $b) {
- return [ $a, $b ]; 
+ return [ $a, $b ];
 }
 private function a54($m) {
 
 		return Utils::decodeWtEntities( $m );
-	
+
 }
 private function a55($q, $ill) {
- return $ill; 
+ return $ill;
 }
 private function a56($q, $t) {
- return $t; 
+ return $t;
 }
 private function a57($q, $r) {
- return count( $r ) > 0 || $q !== ''; 
+ return count( $r ) > 0 || $q !== '';
 }
 private function a58($q, $r) {
 
 		array_unshift( $r, $q );
 		return TokenizerUtils::flattenString( $r );
-	
+
 }
 private function a59($s, $t, $q) {
 
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ) );
-	
+
 }
 private function a60($s, $t) {
 
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() );
-	
+
 }
 private function a61($r) {
 
 		return TokenizerUtils::flattenString( $r );
-	
+
 }
 private function a62() {
 
@@ -890,38 +890,38 @@ private function a62() {
 				$this->urltextFoundAutolink = false;
 				return false;
 			}
-		
+
 }
 private function a63() {
 
 			$this->currPos += strlen( $this->urltextPlainSegment );
 			return $this->urltextPlainSegment;
-		
+
 }
 private function a64() {
- return $this->urltextFoundAutolink; 
+ return $this->urltextFoundAutolink;
 }
 private function a65($al) {
- return $al; 
+ return $al;
 }
 private function a66($he) {
- return $he; 
+ return $he;
 }
 private function a67($bs) {
- return $bs; 
+ return $bs;
 }
 private function a68($tl) {
 
 		return $tl;
-	
+
 }
 private function a69() {
- return $this->endOffset() === 0 && !$this->pipelineOffset; 
+ return $this->endOffset() === 0 && !$this->pipelineOffset;
 }
 private function a70($rw, $sp, $c, $wl) {
 
 		return count( $wl ) === 1 && $wl[0] instanceof Token;
-	
+
 }
 private function a71($rw, $sp, $c, $wl) {
 
@@ -943,52 +943,52 @@ private function a71($rw, $sp, $c, $wl) {
 			$dp
 		);
 		return $redirect;
-	
+
 }
 private function a72($st, $tl) {
- return $tl; 
+ return $tl;
 }
 private function a73($st, $bt, $stl) {
- return array_merge( $bt, $stl ); 
+ return array_merge( $bt, $stl );
 }
 private function a74($st, $bts) {
- return $bts; 
+ return $bts;
 }
 private function a75($st, $r) {
 
 		return array_merge( $st, $r );
-	
+
 }
 private function a76($s, $os, $so) {
- return array_merge( $os, $so ); 
+ return array_merge( $os, $so );
 }
 private function a77($s, $s2, $bl) {
 
 		return array_merge( $s, $s2 ?: [], is_array( $bl ) ? $bl : [ $bl ] );
-	
+
 }
 private function a78($tag) {
- return $tag; 
+ return $tag;
 }
 private function a79($s1, $s2, $c) {
 
 		return array_merge( $s1, $s2, $c );
-	
+
 }
 private function a80(&$preproc, $t) {
 
 		$preproc = null;
 		return $t;
-	
+
 }
 private function a81($v) {
- return $v; 
+ return $v;
 }
 private function a82($e) {
- return $e; 
+ return $e;
 }
 private function a83() {
- return Utils::isUniWord(Utils::lastUniChar( $this->input, $this->endOffset() ) ); 
+ return Utils::isUniWord(Utils::lastUniChar( $this->input, $this->endOffset() ) );
 }
 private function a84($bs) {
 
@@ -1003,7 +1003,7 @@ private function a84($bs) {
 		} else {
 			return [ $bs ];
 		}
-	
+
 }
 private function a85($quotes) {
 
@@ -1033,7 +1033,7 @@ private function a85($quotes) {
 		}
 		$result[] = $mwq;
 		return $result;
-	
+
 }
 private function a86($sc, $startPos, $p, $b) {
 
@@ -1043,14 +1043,14 @@ private function a86($sc, $startPos, $p, $b) {
 		if ( $p !== '|' ) {
 			// p+"<brace-char>" is triggering some bug in pegJS
 			// I cannot even use that expression in the comment!
-			$tblEnd->dataAttribs->endTagSrc = $p . $b;
+			$tblEnd->dataParsoid->endTagSrc = $p . $b;
 		}
 		array_push( $sc, $tblEnd );
 		return $sc;
-	
+
 }
 private function a87($sp) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a88($sp, $p, $c) {
 
@@ -1061,7 +1061,7 @@ private function a88($sp, $p, $c) {
 			$sp,
 			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], $dp )
 		];
-	
+
 }
 private function a89() {
 
@@ -1069,17 +1069,17 @@ private function a89() {
 		// Flag should always be an actual boolean (not falsy or undefined)
 		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
 		return $this->endOffset() === 0 && $this->options['sol'];
-	
+
 }
 private function a90() {
 
 		return [];
-	
+
 }
 private function a91($rw) {
 
 			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
-		
+
 }
 private function a92($il, $sol_il) {
 
@@ -1092,7 +1092,7 @@ private function a92($il, $sol_il) {
 		// templates, so we shouldn't ever be tokenizing inInclude.
 		// Last line should be empty (except for comments)
 		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
-			$dp = $il->dataAttribs;
+			$dp = $il->dataParsoid;
 			$inclContent = $dp->extTagOffsets->stripTags( $dp->src );
 			$nlpos = strrpos( $inclContent, "\n" );
 			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
@@ -1101,29 +1101,29 @@ private function a92($il, $sol_il) {
 			}
 		}
 		return true;
-	
+
 }
 private function a93($il, $sol_il) {
 
 		return $il;
-	
+
 }
 private function a94($annToken) {
 
 		return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
-	
+
 }
 private function a95($annToken) {
- return $annToken; 
+ return $annToken;
 }
 private function a96($s, $ill) {
- return $ill ?: []; 
+ return $ill ?: [];
 }
 private function a97($s, $ce) {
- return $ce || strlen( $s ) > 2; 
+ return $ce || strlen( $s ) > 2;
 }
 private function a98($s, $ce) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a99($s, $ce, $endTPos, $spc) {
 
@@ -1180,26 +1180,26 @@ private function a99($s, $ce, $endTPos, $spc) {
 			$res[] = new EndTagTk( 'h' . $level, [], $endTagDP );
 			$res[] = $spc;
 			return $res;
-		
+
 }
 private function a100($d) {
- return null; 
+ return null;
 }
 private function a101($d) {
- return true; 
+ return true;
 }
 private function a102($d, $lineContent) {
 
-		$dataAttribs = new DataParsoid;
-		$dataAttribs->tsr = $this->tsrOffsets();
+		$dataParsoid = new DataParsoid;
+		$dataParsoid->tsr = $this->tsrOffsets();
 		if ( $lineContent !== null ) {
-			$dataAttribs->lineContent = $lineContent;
+			$dataParsoid->lineContent = $lineContent;
 		}
 		if ( strlen( $d ) > 0 ) {
-			$dataAttribs->extra_dashes = strlen( $d );
+			$dataParsoid->extra_dashes = strlen( $d );
 		}
-		return new SelfclosingTagTk( 'hr', [], $dataAttribs );
-	
+		return new SelfclosingTagTk( 'hr', [], $dataParsoid );
+
 }
 private function a103($end, $name, $annOrExtTag, $isBlock) {
 
@@ -1211,7 +1211,7 @@ private function a103($end, $name, $annOrExtTag, $isBlock) {
 			return preg_match( '/^[A-Za-z]/', $name ) &&
 				$this->isXMLTag( $name, $isBlock );
 		}
-	
+
 }
 private function a104($end, $name, $annOrExtTag, $isBlock, $attribs, $selfclose) {
 
@@ -1233,28 +1233,28 @@ private function a104($end, $name, $annOrExtTag, $isBlock, $attribs, $selfclose)
 		// change up data-attribs in one scenario
 		// void-elts that aren't self-closed ==> useful for accurate RT-ing
 		if ( !$selfclose && $isVoidElt ) {
-			unset( $res->dataAttribs->selfClose );
-			$res->dataAttribs->noClose = true;
+			unset( $res->dataParsoid->selfClose );
+			$res->dataParsoid->noClose = true;
 		}
 
 		$met = $this->maybeAnnotationOrExtensionTag( $res, $end, $attribs, $tsr );
 		return is_array( $met ) ? $met : [ $met ];
-	
+
 }
 private function a105($p, $target) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a106($p, $target, $p0, $v) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a107($p, $target, $p0, $v, $p1) {
 
 				// empty argument
 				return [ 'tokens' => $v, 'srcOffsets' => new SourceRange( $p0, $p1 ) ];
-			
+
 }
 private function a108($p, $target, $r) {
- return $r; 
+ return $r;
 }
 private function a109($p, $target, $params) {
 
@@ -1278,23 +1278,23 @@ private function a109($p, $target, $params) {
 		$dp->src = $this->text();
 		$obj = new SelfclosingTagTk( 'templatearg', $kvs, $dp );
 		return $obj;
-	
+
 }
 private function a110($leadWS, $target) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a111($leadWS, $target, $p0, $v) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a112($leadWS, $target, $p0, $v, $p) {
 
 				// empty argument
 				$tsr0 = new SourceRange( $p0, $p );
 				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
-			
+
 }
 private function a113($leadWS, $target, $r) {
- return $r; 
+ return $r;
 }
 private function a114($leadWS, $target, $params, $trailWS) {
 
@@ -1310,10 +1310,10 @@ private function a114($leadWS, $target, $params, $trailWS) {
 		$tmp->trailWS = $trailWS;
 		$obj = new SelfclosingTagTk( 'template', $params, $dp );
 		return $obj;
-	
+
 }
 private function a115($spos, $target) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a116($spos, $target, $tpos, $lcs) {
 
@@ -1345,27 +1345,27 @@ private function a116($spos, $target, $tpos, $lcs) {
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
 		$dp->src = $this->text();
-		$obj->dataAttribs = $dp;
+		$obj->dataParsoid = $dp;
 		return [ $obj ];
-	
+
 }
 private function a117(&$preproc) {
- $preproc =  null; return true; 
+ $preproc =  null; return true;
 }
 private function a118(&$preproc, $a) {
 
 		return $a;
-	
+
 }
 private function a119($extToken) {
  return !$extToken || $extToken[0]->getName() === 'extension' ||
-		($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0); 
+		($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ) > 0);
 }
 private function a120($extToken) {
- return !$extToken ? '' : $extToken[0]; 
+ return !$extToken ? '' : $extToken[0];
 }
 private function a121() {
- return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); 
+ return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' );
 }
 private function a122() {
 
@@ -1379,10 +1379,10 @@ private function a122() {
             // suppress meta tags from pipeline output
 			return [];
         }
-	
+
 }
 private function a123($proto, $addr, $rhe) {
- return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; 
+ return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}";
 }
 private function a124($proto, $addr, $path) {
 
@@ -1403,10 +1403,10 @@ private function a124($proto, $addr, $path) {
 			}
 			$this->currPos -= $trim;
 			return $url;
-		
+
 }
 private function a125($r) {
- return $r !== null; 
+ return $r !== null;
 }
 private function a126($r) {
 
@@ -1415,7 +1415,7 @@ private function a126($r) {
 		$dp->tsr = $tsr;
 		$res = [ new SelfclosingTagTk( 'urllink', [ new KV( 'href', $r, $tsr->expandTsrV() ) ], $dp ) ];
 		return $res;
-	
+
 }
 private function a127($ref, $sp, $identifier) {
 
@@ -1436,7 +1436,7 @@ private function a127($ref, $sp, $identifier) {
 				$dp
 			)
 		];
-	
+
 }
 private function a128($sp, $isbn) {
 
@@ -1448,14 +1448,14 @@ private function a128($sp, $isbn) {
 				}
 			}
 			return strtoupper( preg_replace( '/[^\dX]/i', '', $stripped ) );
-		
+
 }
 private function a129($sp, $isbn, $isbncode) {
 
 		// ISBNs can only be 10 or 13 digits long (with a specific format)
 		return strlen( $isbncode ) === 10
 			|| ( strlen( $isbncode ) === 13 && preg_match( '/^97[89]/', $isbncode ) );
-	
+
 }
 private function a130($sp, $isbn, $isbncode) {
 
@@ -1472,13 +1472,13 @@ private function a130($sp, $isbn, $isbncode) {
 				$dp
 			)
 		];
-	
+
 }
 private function a131($p, $dashes) {
- $this->unreachable(); 
+ $this->unreachable();
 }
 private function a132($p, $dashes, $a) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a133($p, $dashes, $a, $tagEndPos, $s2) {
 
@@ -1497,16 +1497,16 @@ private function a133($p, $dashes, $a, $tagEndPos, $s2) {
 		$trToken = new TagTk( 'tr', $a, $da );
 
 		return array_merge( [ $trToken ], $coms ? $coms['buf'] : [], $s2 );
-	
+
 }
 private function a134($p, $td) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a135($p, $td, $tagEndPos, $tds) {
 
 		// Avoid modifying a cached result
 		$td[0] = clone $td[0];
-		$da = $td[0]->dataAttribs = clone $td[0]->dataAttribs;
+		$da = $td[0]->dataParsoid = clone $td[0]->dataParsoid;
 		$da->tsr = clone $da->tsr;
 
 		$da->tsr->start -= strlen( $p ); // include "|"
@@ -1515,28 +1515,28 @@ private function a135($p, $td, $tagEndPos, $tds) {
 			$da->startTagSrc = $p;
 		}
 		return array_merge( $td, $tds );
-	
+
 }
 private function a136($p, $args) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a137($p, $args, $tagEndPos, $c) {
 
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
 			'caption', '|+', $args, $tsr, $this->endOffset(), $c, true );
-	
+
 }
 private function a138($tpt) {
 
 		return [ 'tokens' => $tpt, 'srcOffsets' => $this->tsrOffsets() ];
-	
+
 }
 private function a139($name) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a140($name, $kEndPos) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a141($name, $kEndPos, $vStartPos, $optSp, $tpv) {
 
@@ -1545,7 +1545,7 @@ private function a141($name, $kEndPos, $vStartPos, $optSp, $tpv) {
 				'vStartPos' => $vStartPos,
 				'value' => TokenizerUtils::flattenString( [ $optSp, $tpv['tokens'] ?? [] ] ),
 			];
-		
+
 }
 private function a142($name, $val) {
 
@@ -1575,21 +1575,21 @@ private function a142($name, $val) {
 				$so->expandTsrV()
 			);
 		}
-	
+
 }
 private function a143() {
 
 		$so = new SourceRange( $this->startOffset(), $this->endOffset() );
 		return new KV( '', '', $so->expandTsrV() );
-	
+
 }
 private function a144($t, $wr) {
- return $wr; 
+ return $wr;
 }
 private function a145($r) {
 
 		return TokenizerUtils::flattenStringlist( $r );
-	
+
 }
 private function a146($startPos, $lt) {
 
@@ -1597,16 +1597,16 @@ private function a146($startPos, $lt) {
 			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
 			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
 			return $maybeContent;
-		
+
 }
 private function a147($he) {
- return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
+ return is_array( $he ) && $he[ 1 ] === "\u{A0}";
 }
 private function a148() {
- return $this->startOffset(); 
+ return $this->startOffset();
 }
 private function a149($lv0) {
- return $this->env->langConverterEnabled(); 
+ return $this->env->langConverterEnabled();
 }
 private function a150($lv0, $ff) {
 
@@ -1617,31 +1617,31 @@ private function a150($lv0, $ff) {
 				$ff['raw'] = true;
 			}
 			return $ff;
-		
+
 }
 private function a151($lv0) {
- return !$this->env->langConverterEnabled(); 
+ return !$this->env->langConverterEnabled();
 }
 private function a152($lv0) {
 
 			// if language converter not enabled, don't try to parse inside.
 			return [ 'raw' => true ];
-		
+
 }
 private function a153($lv0, $f) {
- return $f['raw']; 
+ return $f['raw'];
 }
 private function a154($lv0, $f, $lv) {
- return [ [ 'text' => $lv ] ]; 
+ return [ [ 'text' => $lv ] ];
 }
 private function a155($lv0, $f) {
- return !$f['raw']; 
+ return !$f['raw'];
 }
 private function a156($lv0, $f, $lv) {
- return $lv; 
+ return $lv;
 }
 private function a157($lv0, $f, $ts) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a158($lv0, $f, $ts, $lv1) {
 
@@ -1688,19 +1688,19 @@ private function a158($lv0, $f, $ts, $lv1) {
 				$dp
 			)
 		];
-	
+
 }
 private function a159($r, &$preproc) {
 
 		$preproc = null;
 		return $r;
-	
+
 }
 private function a160($thTag, $pp, $tht) {
 
 			// Avoid modifying a cached result
 			$tht[0] = clone $tht[0];
-			$da = $tht[0]->dataAttribs = clone $tht[0]->dataAttribs;
+			$da = $tht[0]->dataParsoid = clone $tht[0]->dataParsoid;
 			$da->tsr = clone $da->tsr;
 
 			$da->stx = 'row';
@@ -1711,33 +1711,33 @@ private function a160($thTag, $pp, $tht) {
 				$da->startTagSrc = $pp . ( isset( $da->startTagSrc ) ? substr( $da->startTagSrc, 1 ) : '' );
 			}
 			return $tht;
-		
+
 }
 private function a161($thTag, $thTags) {
 
 		$thTag[0] = clone $thTag[0];
-		$da = $thTag[0]->dataAttribs = clone $thTag[0]->dataAttribs;
+		$da = $thTag[0]->dataParsoid = clone $thTag[0]->dataParsoid;
 		$da->tsr = clone $da->tsr;
 		$da->tsr->start--; // include "!"
 		array_unshift( $thTags, $thTag );
 		return $thTags;
-	
+
 }
 private function a162($arg) {
- return $this->endOffset(); 
+ return $this->endOffset();
 }
 private function a163($arg, $tagEndPos, $td) {
 
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens( 'td', '|', $arg,
 			$tsr, $this->endOffset(), $td );
-	
+
 }
 private function a164($pp, $tdt) {
 
-			// Avoid modifying cached dataAttribs object
+			// Avoid modifying cached dataParsoid object
 			$tdt[0] = clone $tdt[0];
-			$da = $tdt[0]->dataAttribs = clone $tdt[0]->dataAttribs;
+			$da = $tdt[0]->dataParsoid = clone $tdt[0]->dataParsoid;
 			$da->tsr = clone $da->tsr;
 
 			$da->stx = 'row';
@@ -1747,12 +1747,12 @@ private function a164($pp, $tdt) {
 				$da->startTagSrc = $pp . ( isset( $da->startTagSrc ) ? substr( $da->startTagSrc, 1 ) : '' );
 			}
 			return $tdt;
-		
+
 }
 private function a165($b) {
 
 		return $b;
-	
+
 }
 private function a166($il) {
 
@@ -1763,13 +1763,13 @@ private function a166($il) {
 			$r = $r[0];
 		}
 		return $r;
-	
+
 }
 private function a167() {
- return ''; 
+ return '';
 }
 private function a168($ff) {
- return $ff; 
+ return $ff;
 }
 private function a169($f) {
 
@@ -1839,7 +1839,7 @@ private function a169($f) {
 		} else {
 			return [ 'flags' => $flags, 'original' => $flagList, 'sp' => $flagSpace ];
 		}
-	
+
 }
 private function a170($tokens) {
 
@@ -1847,10 +1847,10 @@ private function a170($tokens) {
 			'tokens' => TokenizerUtils::flattenStringlist( $tokens ),
 			'srcOffsets' => $this->tsrOffsets(),
 		];
-	
+
 }
 private function a171($o, $oo) {
- return $oo; 
+ return $oo;
 }
 private function a172($o, $rest, $tr) {
 
@@ -1864,10 +1864,10 @@ private function a172($o, $rest, $tr) {
 			}
 		}
 		return $rest;
-	
+
 }
 private function a173($lvtext) {
- return [ [ 'text' => $lvtext ] ]; 
+ return [ [ 'text' => $lvtext ] ];
 }
 private function a174($arg, $tagEndPos, &$th, $d) {
 
@@ -1877,14 +1877,14 @@ private function a174($arg, $tagEndPos, &$th, $d) {
 				$th = false;
 			}
 			return $d;
-		
+
 }
 private function a175($arg, $tagEndPos, $c) {
 
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens( 'th', '!', $arg,
 			$tsr, $this->endOffset(), $c );
-	
+
 }
 private function a176($sp1, $f, $sp2, $more) {
 
@@ -1895,12 +1895,12 @@ private function a176($sp1, $f, $sp2, $more) {
 		$r['sp'][] = $sp1;
 		$r['flags'][] = $f;
 		return $r;
-	
+
 }
 private function a177($sp) {
 
 		return [ 'sp' => [ $sp ], 'flags' => [] ];
-	
+
 }
 private function a178($sp1, $lang, $sp2, $sp3, $lvtext) {
 
@@ -1910,7 +1910,7 @@ private function a178($sp1, $lang, $sp2, $sp3, $lvtext) {
 			'text' => $lvtext,
 			'sp' => [ $sp1, $sp2, $sp3 ]
 		];
-	
+
 }
 private function a179($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 
@@ -1921,18 +1921,18 @@ private function a179($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 			'to' => $to,
 			'sp' => [ $sp1, $sp2, $sp3, $sp4 ]
 		];
-	
+
 }
 private function a180($r) {
 
 		return $r;
-	
+
 }
 private function a181($f) {
- return [ 'flag' => $f ]; 
+ return [ 'flag' => $f ];
 }
 private function a182($v) {
- return [ 'variant' => $v ]; 
+ return [ 'variant' => $v ];
 }
 private function a183($b) {
  return [ 'bogus' => $b ]; /* bad flag */
@@ -1945,19 +1945,19 @@ private function a184($n, $sp) {
 			'tokens' => [ $n ],
 			'srcOffsets' => $tsr,
 		];
-	
+
 }
 private function a185($extToken) {
- return $extToken->getAttribute( 'name' ) === 'nowiki'; 
+ return $extToken->getAttribute( 'name' ) === 'nowiki';
 }
 private function a186($extToken) {
- return $extToken; 
+ return $extToken;
 }
 private function a187($extToken) {
 
 		$txt = Utils::extractExtBody( $extToken );
 		return Utils::decodeWtEntities( $txt );
-	
+
 }
 
 	// generated

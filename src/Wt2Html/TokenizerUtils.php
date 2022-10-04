@@ -169,9 +169,9 @@ class TokenizerUtils {
 		PHPUtils::pushArray( $tokens, $content );
 
 		if ( $addEndTag ) {
-			$dataAttribs = new DataParsoid;
-			$dataAttribs->tsr = new SourceRange( $endPos, $endPos );
-			$tokens[] = new EndTagTk( $tagName, [], $dataAttribs );
+			$dataParsoid = new DataParsoid;
+			$dataParsoid->tsr = new SourceRange( $endPos, $endPos );
+			$tokens[] = new EndTagTk( $tagName, [], $dataParsoid );
 		} else {
 			// We rely on our tree builder to close the table cell (td/th) as needed.
 			// We cannot close the cell here because cell content can come from
@@ -388,7 +388,7 @@ class TokenizerUtils {
 		}
 		if ( count( $buf ) ) {
 			array_splice( $attrs, -count( $buf ), count( $buf ) );
-			return [ 'buf' => $buf, 'commentStartPos' => $buf[0]->dataAttribs->tsr->start ];
+			return [ 'buf' => $buf, 'commentStartPos' => $buf[0]->dataParsoid->tsr->start ];
 		} else {
 			return null;
 		}

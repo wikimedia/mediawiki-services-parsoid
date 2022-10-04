@@ -90,8 +90,8 @@ class TokenUtils {
 			( $token instanceof TagTk ||
 			$token instanceof EndTagTk ||
 			$token instanceof SelfClosingTagTk ) &&
-			isset( $token->dataAttribs->stx ) &&
-			$token->dataAttribs->stx === 'html';
+			isset( $token->dataParsoid->stx ) &&
+			$token->dataParsoid->stx === 'html';
 	}
 
 	/**
@@ -171,7 +171,7 @@ class TokenUtils {
 		} elseif ( !$token instanceof SelfclosingTagTk || $token->getName() !== 'meta' ) {
 			return false;
 		} else {  // only metas left
-			return !( isset( $token->dataAttribs->stx ) && $token->dataAttribs->stx === 'html' );
+			return !( isset( $token->dataParsoid->stx ) && $token->dataParsoid->stx === 'html' );
 		}
 	}
 
@@ -272,7 +272,7 @@ class TokenUtils {
 				case NlTk::class:
 				case CommentTk::class:
 				case EndTagTk::class:
-					$da = $t->dataAttribs;
+					$da = $t->dataParsoid;
 					$tsr = $da->tsr;
 					if ( $tsr ) {
 						if ( $offset ) {
@@ -523,17 +523,17 @@ class TokenUtils {
 				self::collectOffsets( $input->srcOffsets, $offsetFunc );
 			}
 		} elseif ( $input instanceof Token ) {
-			if ( isset( $input->dataAttribs->tsr ) ) {
-				self::collectOffsets( $input->dataAttribs->tsr, $offsetFunc );
+			if ( isset( $input->dataParsoid->tsr ) ) {
+				self::collectOffsets( $input->dataParsoid->tsr, $offsetFunc );
 			}
-			if ( isset( $input->dataAttribs->extLinkContentOffsets ) ) {
-				self::collectOffsets( $input->dataAttribs->extLinkContentOffsets, $offsetFunc );
+			if ( isset( $input->dataParsoid->extLinkContentOffsets ) ) {
+				self::collectOffsets( $input->dataParsoid->extLinkContentOffsets, $offsetFunc );
 			}
-			if ( isset( $input->dataAttribs->tokens ) ) {
-				self::collectOffsets( $input->dataAttribs->tokens, $offsetFunc );
+			if ( isset( $input->dataParsoid->tokens ) ) {
+				self::collectOffsets( $input->dataParsoid->tokens, $offsetFunc );
 			}
-			if ( isset( $input->dataAttribs->extTagOffsets ) ) {
-				self::collectOffsets( $input->dataAttribs->extTagOffsets, $offsetFunc );
+			if ( isset( $input->dataParsoid->extTagOffsets ) ) {
+				self::collectOffsets( $input->dataParsoid->extTagOffsets, $offsetFunc );
 			}
 			self::collectOffsets( $input->attribs, $offsetFunc );
 		} elseif ( $input instanceof KVSourceRange ) {
@@ -623,7 +623,7 @@ class TokenUtils {
 			} elseif ( !empty( $opts['stripEmptyLineMeta'] ) && self::isEmptyLineMetaToken( $token ) ) {
 				// If requested, strip empty line meta tokens too.
 			} elseif ( !empty( $opts['includeEntities'] ) && self::isEntitySpanToken( $token ) ) {
-				$out .= $token->dataAttribs->src;
+				$out .= $token->dataParsoid->src;
 				$i += 2; // Skip child and end tag.
 			} elseif ( $strict ) {
 				// If strict, return accumulated string on encountering first non-text token
@@ -637,7 +637,7 @@ class TokenUtils {
 			) {
 				// Handle dom fragments
 				$domFragment = $opts['env']->getDOMFragment(
-					$token->dataAttribs->html
+					$token->dataParsoid->html
 				);
 				// Calling `env->removeDOMFragment()` here is case dependent
 				// but should be rare enough when permissible that it can be

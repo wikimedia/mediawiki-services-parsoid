@@ -60,7 +60,7 @@ class OnlyInclude extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onOnlyInclude( Token $token ): TokenHandlerResult {
-		$tsr = $token->dataAttribs->tsr;
+		$tsr = $token->dataParsoid->tsr;
 		$src = !$this->options['inTemplate']
 			? $token->getWTSource( $this->manager->getFrame() )
 			: null;
@@ -120,11 +120,11 @@ class OnlyInclude extends TokenHandler {
 				$this->inOnlyInclude = true;
 				// wrap collected tokens into meta tag for round-tripping
 				$meta = TokenCollector::buildMetaToken( $this->manager, $tagName,
-					$tc === 'EndTagTk', $token->dataAttribs->tsr ?? null, '' );
+					$tc === 'EndTagTk', $token->dataParsoid->tsr ?? null, '' );
 			} else {
 				$this->inOnlyInclude = false;
 				$meta = TokenCollector::buildMetaToken( $this->manager, $tagName,
-					$tc === 'EndTagTk', $token->dataAttribs->tsr ?? null, '' );
+					$tc === 'EndTagTk', $token->dataParsoid->tsr ?? null, '' );
 			}
 			return new TokenHandlerResult( [ $meta ] );
 		} else {

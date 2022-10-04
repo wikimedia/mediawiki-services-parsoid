@@ -204,7 +204,7 @@ class QuoteTransformer extends TokenHandler {
 
 		if (
 			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
-			( $token->dataAttribs->stx ?? '' ) === 'html'
+			( $token->dataParsoid->stx ?? '' ) === 'html'
 		) {
 			return null;
 		}
@@ -307,7 +307,7 @@ class QuoteTransformer extends TokenHandler {
 		// we're going to convert it to a single plain text ' plus an italic tag
 		$this->chunks[$i - 1][] = "'";
 		$oldbold = $this->chunks[$i][0];
-		$tsr = $oldbold->dataAttribs->tsr ?? null;
+		$tsr = $oldbold->dataParsoid->tsr ?? null;
 		if ( $tsr ) {
 			$tsr = new SourceRange( $tsr->start + 1, $tsr->end );
 		}
@@ -407,15 +407,15 @@ class QuoteTransformer extends TokenHandler {
 		}
 		if ( $state === 'b' || $state === 'ib' ) {
 			$this->currentChunk[] = new EndTagTk( 'b' );
-			$this->last["b"]->dataAttribs->autoInsertedEndToken = true;
+			$this->last["b"]->dataParsoid->autoInsertedEndToken = true;
 		}
 		if ( $state === 'i' || $state === 'bi' || $state === 'ib' ) {
 			$this->currentChunk[] = new EndTagTk( 'i' );
-			$this->last["i"]->dataAttribs->autoInsertedEndToken = true;
+			$this->last["i"]->dataParsoid->autoInsertedEndToken = true;
 		}
 		if ( $state === 'bi' ) {
 			$this->currentChunk[] = new EndTagTk( 'b' );
-			$this->last["b"]->dataAttribs->autoInsertedEndToken = true;
+			$this->last["b"]->dataParsoid->autoInsertedEndToken = true;
 		}
 	}
 
@@ -431,22 +431,22 @@ class QuoteTransformer extends TokenHandler {
 		$result = [];
 		$oldtag = $this->chunks[$chunk][0];
 		// make tsr
-		$tsr = $oldtag->dataAttribs->tsr ?? null;
+		$tsr = $oldtag->dataParsoid->tsr ?? null;
 		$startpos = $tsr ? $tsr->start : null;
 		$endpos = $tsr ? $tsr->end : null;
 		$numTags = count( $tags );
 		for ( $i = 0; $i < $numTags; $i++ ) {
 			if ( $tsr ) {
 				if ( $i === 0 && $ignoreBogusTwo ) {
-					$this->last[$tags[$i]->getName()]->dataAttribs->autoInsertedEndToken = true;
+					$this->last[$tags[$i]->getName()]->dataParsoid->autoInsertedEndToken = true;
 				} elseif ( $i === 2 && $ignoreBogusTwo ) {
-					$tags[$i]->dataAttribs->autoInsertedStartToken = true;
+					$tags[$i]->dataParsoid->autoInsertedStartToken = true;
 				} elseif ( $tags[$i]->getName() === 'b' ) {
-					$tags[$i]->dataAttribs->tsr = new SourceRange( $startpos, $startpos + 3 );
-					$startpos = $tags[$i]->dataAttribs->tsr->end;
+					$tags[$i]->dataParsoid->tsr = new SourceRange( $startpos, $startpos + 3 );
+					$startpos = $tags[$i]->dataParsoid->tsr->end;
 				} elseif ( $tags[$i]->getName() === 'i' ) {
-					$tags[$i]->dataAttribs->tsr = new SourceRange( $startpos, $startpos + 2 );
-					$startpos = $tags[$i]->dataAttribs->tsr->end;
+					$tags[$i]->dataParsoid->tsr = new SourceRange( $startpos, $startpos + 2 );
+					$startpos = $tags[$i]->dataParsoid->tsr->end;
 				}
 			}
 			$this->last[$tags[$i]->getName()] = ( $tags[$i]->getType() === "EndTagTk" ) ? null : $tags[$i];

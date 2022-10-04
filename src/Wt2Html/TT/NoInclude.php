@@ -60,7 +60,7 @@ class NoInclude extends TokenCollector {
 		// A stray end tag.
 		if ( $sc === 'EndTagTk' ) {
 			$meta = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
-				true, ( $start->dataAttribs->tsr ?? null ), null );
+				true, ( $start->dataParsoid->tsr ?? null ), null );
 			return new TokenHandlerResult( [ $meta ] );
 		}
 
@@ -73,7 +73,7 @@ class NoInclude extends TokenCollector {
 						$this->manager,
 						'mw:Includes/NoInclude',
 						false,
-						( $start->dataAttribs->tsr ?? null ),
+						( $start->dataParsoid->tsr ?? null ),
 						null )
 				] );
 		}
@@ -85,8 +85,8 @@ class NoInclude extends TokenCollector {
 		if ( empty( $this->options['isInclude'] ) ) {
 			// Content is preserved
 			// Add meta tags for open and close
-			$startTSR = $start->dataAttribs->tsr ?? null;
-			$endTSR = $end->dataAttribs->tsr ?? null;
+			$startTSR = $start->dataParsoid->tsr ?? null;
+			$endTSR = $end->dataParsoid->tsr ?? null;
 			$tokens[] = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
 				false, $startTSR, null );
 

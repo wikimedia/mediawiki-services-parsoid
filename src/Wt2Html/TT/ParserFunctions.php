@@ -851,14 +851,14 @@ class ParserFunctions {
 
 	public function pf_server( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		$dataAttribs = $token->dataAttribs->clone();
+		$dataParsoid = $token->dataParsoid->clone();
 		return [
 			new TagTk( 'a', [
 					new KV( 'rel', 'nofollow' ),
 					new KV( 'class', 'external free' ),
 					new KV( 'href', $this->env->getSiteConfig()->server() ),
 					new KV( 'typeof', 'mw:ExtLink/URL' )
-				], $dataAttribs
+				], $dataParsoid
 			),
 			$this->env->getSiteConfig()->server(),
 			new EndTagTk( 'a' )

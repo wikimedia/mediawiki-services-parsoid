@@ -34,7 +34,7 @@ class ExtensionTag {
 	 * @return DomSourceRange|null
 	 */
 	public function getOffsets(): ?DomSourceRange {
-		return $this->extToken->dataAttribs->extTagOffsets ?? null;
+		return $this->extToken->dataParsoid->extTagOffsets ?? null;
 	}
 
 	/**
@@ -54,7 +54,7 @@ class ExtensionTag {
 	 * @return bool
 	 */
 	public function isSelfClosed(): bool {
-		return !empty( $this->extToken->dataAttribs->selfClose );
+		return !empty( $this->extToken->dataParsoid->selfClose );
 	}
 
 }

@@ -917,7 +917,7 @@ class LinkHandlerUtils {
 	 * @param Element $node
 	 */
 	public static function linkHandler( SerializerState $state, Element $node ): void {
-		// TODO: handle internal/external links etc using RDFa and dataAttribs
+		// TODO: handle internal/external links etc using RDFa and dataParsoid
 		// Also convert unannotated html links without advanced attributes to
 		// external wiki links for html import. Might want to consider converting
 		// relative links without path component and file extension to wiki links.

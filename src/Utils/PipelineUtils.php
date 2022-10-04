@@ -53,7 +53,7 @@ class PipelineUtils {
 	): SelfclosingTagTk {
 		$token = $opts['token'];
 		return new SelfclosingTagTk( 'mw:dom-fragment-token', [
-			new KV( 'contextTok', $token, $token->dataAttribs->tsr->expandTsrV() ),
+			new KV( 'contextTok', $token, $token->dataParsoid->tsr->expandTsrV() ),
 			new KV( 'content', $content, $srcOffsets->expandTsrV() ),
 			new KV( 'inlineContext', ( $opts['inlineContext'] ?? false ) ? "1" : "0" ),
 			new KV( 'inPHPBlock', ( $opts['inPHPBlock'] ?? false ) ? "1" : "0" ),
@@ -230,7 +230,7 @@ class PipelineUtils {
 				$endTag = new EndTagTk( $nodeName );
 				// Keep stx parity
 				if ( WTUtils::isLiteralHTMLNode( $node ) ) {
-					$endTag->dataAttribs->stx = 'html';
+					$endTag->dataParsoid->stx = 'html';
 				}
 				$tokBuf[] = $endTag;
 			}
@@ -442,33 +442,33 @@ class PipelineUtils {
 		$firstWrapperToken->setAttribute( 'typeof', $fragmentType );
 
 		// Assign the HTML fragment to the data-parsoid.html on the first wrapper token.
-		$firstWrapperToken->dataAttribs->html = $expansion['html'];
+		$firstWrapperToken->dataParsoid->html = $expansion['html'];
 
 		// Pass through setDSR flag
 		if ( !empty( $opts['setDSR'] ) ) {
-			$firstWrapperToken->dataAttribs->setTempFlag(
+			$firstWrapperToken->dataParsoid->setTempFlag(
 				TempData::SET_DSR, $opts['setDSR'] );
 		}
 
 		// Pass through fromCache flag
 		if ( !empty( $opts['fromCache'] ) ) {
-			$firstWrapperToken->dataAttribs->setTempFlag(
+			$firstWrapperToken->dataParsoid->setTempFlag(
 				TempData::FROM_CACHE, $opts['fromCache'] );
 		}
 
 		// Transfer the tsr.
 		// The first token gets the full width, the following tokens zero width.
-		$tokenTsr = $opts['tsr'] ?? $token->dataAttribs->tsr ?? null;
+		$tokenTsr = $opts['tsr'] ?? $token->dataParsoid->tsr ?? null;
 		if ( $tokenTsr ) {
-			$firstWrapperToken->dataAttribs->tsr = $tokenTsr;
-			$firstWrapperToken->dataAttribs->extTagOffsets = $token->dataAttribs->extTagOffsets ?? null;
+			$firstWrapperToken->dataParsoid->tsr = $tokenTsr;
+			$firstWrapperToken->dataParsoid->extTagOffsets = $token->dataParsoid->extTagOffsets ?? null;
 			// XXX to investigate: if $tokenTsr->end is null, then we're losing
 			// the 'hint' we'd like to provide here that this is a zero-width
 			// source range.
 			// ->end can be set to null by WikiLinkHandler::bailTokens()
 			$endTsr = new SourceRange( $tokenTsr->end, $tokenTsr->end );
 			for ( $i = 1;  $i < count( $toks );  $i++ ) {
-				$toks[$i]->dataAttribs->tsr = clone $endTsr;
+				$toks[$i]->dataParsoid->tsr = clone $endTsr;
 			}
 		}
 

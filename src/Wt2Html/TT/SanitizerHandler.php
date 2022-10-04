@@ -37,7 +37,7 @@ class SanitizerHandler extends TokenHandler {
 	 * If the token is unmodified, return null.
 	 *
 	 * XXX: Make attribute sanitation reversible by storing round-trip info in
-	 * token.dataAttribs object (which is serialized as JSON in a data-parsoid
+	 * $token->dataParsoid object (which is serialized as JSON in a data-parsoid
 	 * attribute in the DOM).
 	 *
 	 * @param SiteConfig $siteConfig
@@ -60,7 +60,7 @@ class SanitizerHandler extends TokenHandler {
 				|| ( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) )
 			)
 		) { // unknown tag -- convert to plain text
-			if ( !$inTemplate && !empty( $token->dataAttribs->tsr ) ) {
+			if ( !$inTemplate && !empty( $token->dataParsoid->tsr ) ) {
 				// Just get the original token source, so that we can avoid
 				// whitespace differences.
 				$token = $token->getWTSource( $frame );

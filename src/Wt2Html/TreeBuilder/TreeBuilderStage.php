@@ -168,12 +168,12 @@ class TreeBuilderStage extends PipelineStage {
 	 * Keep this in sync with `DOMDataUtils.setNodeData()`
 	 *
 	 * @param array $attribs
-	 * @param DataParsoid $dataAttribs
+	 * @param DataParsoid $dataParsoid
 	 * @return array
 	 */
-	private function stashDataAttribs( array $attribs, DataParsoid $dataAttribs ): array {
+	private function stashDataAttribs( array $attribs, DataParsoid $dataParsoid ): array {
 		$data = new NodeData;
-		$data->parsoid = $dataAttribs;
+		$data->parsoid = $dataParsoid;
 		if ( isset( $attribs['data-mw'] ) ) {
 			$data->mw = json_decode( $attribs['data-mw'] );
 			unset( $attribs['data-mw'] );
@@ -201,8 +201,8 @@ class TreeBuilderStage extends PipelineStage {
 
 		$dispatcher = $this->remexPipeline->dispatcher;
 		$attribs = isset( $token->attribs ) ? $this->kvArrToAttr( $token->attribs ) : [];
-		$dataAttribs = $token->dataAttribs ?? new DataParsoid;
-		$tmp = $dataAttribs->getTemp();
+		$dataParsoid = $token->dataParsoid ?? new DataParsoid;
+		$tmp = $dataParsoid->getTemp();
 
 		if ( $this->inTransclusion ) {
 			$tmp->setFlag( TempData::IN_TRANSCLUSION );
@@ -267,18 +267,18 @@ class TreeBuilderStage extends PipelineStage {
 
 			$node = $this->remexPipeline->insertExplicitStartTag(
 				$tName,
-				$this->stashDataAttribs( $attribs, $dataAttribs ),
+				$this->stashDataAttribs( $attribs, $dataParsoid ),
 				false
 			);
 			if ( !$node ) {
-				$this->handleDeletedStartTag( $tName, $dataAttribs );
+				$this->handleDeletedStartTag( $tName, $dataParsoid );
 			}
 		} elseif ( $token instanceof SelfclosingTagTk ) {
 			$tName = $token->getName();
 
 			// Re-expand an empty-line meta-token into its constituent comment + WS tokens
 			if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-				$this->processChunk( $dataAttribs->tokens );
+				$this->processChunk( $dataParsoid->tokens );
 				return;
 			}
 
@@ -309,7 +309,7 @@ class TreeBuilderStage extends PipelineStage {
 						$this->inTransclusion = ( $transType === 'mw:Transclusion' );
 					}
 					$this->remexPipeline->insertUnfosteredMeta(
-						$this->stashDataAttribs( $attribs, $dataAttribs ) );
+						$this->stashDataAttribs( $attribs, $dataParsoid ) );
 					$wasInserted = true;
 				}
 			}
@@ -317,16 +317,16 @@ class TreeBuilderStage extends PipelineStage {
 			if ( !$wasInserted ) {
 				$node = $this->remexPipeline->insertExplicitStartTag(
 					$tName,
-					$this->stashDataAttribs( $attribs, $dataAttribs ),
+					$this->stashDataAttribs( $attribs, $dataParsoid ),
 					false
 				);
 				if ( $node ) {
 					if ( !Utils::isVoidElement( $tName ) ) {
 						$this->remexPipeline->insertExplicitEndTag(
-							$tName, ( $dataAttribs->stx ?? '' ) === 'html' );
+							$tName, ( $dataParsoid->stx ?? '' ) === 'html' );
 					}
 				} else {
-					$this->insertPlaceholderMeta( $tName, $dataAttribs, true );
+					$this->insertPlaceholderMeta( $tName, $dataParsoid, true );
 				}
 			}
 		} elseif ( $token instanceof EndTagTk ) {
@@ -336,27 +336,27 @@ class TreeBuilderStage extends PipelineStage {
 			}
 			$node = $this->remexPipeline->insertExplicitEndTag(
 				$tName,
-				( $dataAttribs->stx ?? '' ) === 'html'
+				( $dataParsoid->stx ?? '' ) === 'html'
 			);
 			if ( $node ) {
 				// Copy data attribs from the end tag to the element
 				$nodeDP = DOMDataUtils::getDataParsoid( $node );
 				if ( !WTUtils::hasLiteralHTMLMarker( $nodeDP )
-					&& isset( $dataAttribs->endTagSrc )
+					&& isset( $dataParsoid->endTagSrc )
 				) {
-					$nodeDP->endTagSrc = $dataAttribs->endTagSrc;
+					$nodeDP->endTagSrc = $dataParsoid->endTagSrc;
 				}
-				if ( !empty( $dataAttribs->stx ) ) {
+				if ( !empty( $dataParsoid->stx ) ) {
 					// FIXME: Not sure why we do this. For example,
 					// with "{|\n|x\n</table>", why should the entire table
 					// be marked HTML syntax? This is probably entirely
 					// 2013-era historical stuff. Investigate & fix.
 					//
 					// Transfer stx flag
-					$nodeDP->stx = $dataAttribs->stx;
+					$nodeDP->stx = $dataParsoid->stx;
 				}
-				if ( isset( $dataAttribs->tsr ) ) {
-					$nodeDP->getTemp()->endTSR = $dataAttribs->tsr;
+				if ( isset( $dataParsoid->tsr ) ) {
+					$nodeDP->getTemp()->endTSR = $dataParsoid->tsr;
 				}
 				if ( isset( $nodeDP->autoInsertedStartToken ) ) {
 					$nodeDP->autoInsertedStart = true;
@@ -368,7 +368,7 @@ class TreeBuilderStage extends PipelineStage {
 				}
 			} else {
 				// The tag was stripped. Insert an mw:Placeholder for round-tripping
-				$this->insertPlaceholderMeta( $tName, $dataAttribs, false );
+				$this->insertPlaceholderMeta( $tName, $dataParsoid, false );
 			}
 		} elseif ( $token instanceof CommentTk ) {
 			$dispatcher->comment( $token->value, 0, 0 );

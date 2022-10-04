@@ -74,7 +74,7 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
-		$cachedExpansion = $env->extensionCache[$token->dataAttribs->src] ?? null;
+		$cachedExpansion = $env->extensionCache[$token->dataParsoid->src] ?? null;
 
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
@@ -187,7 +187,7 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		$argDict = Utils::getExtArgInfo( $extToken )->dict;
-		$extTagOffsets = $extToken->dataAttribs->extTagOffsets;
+		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
 		if ( $extTagOffsets->closeWidth === 0 ) {
 			unset( $argDict->body ); // Serialize to self-closing.
 		}
@@ -262,8 +262,8 @@ class ExtensionHandler extends TokenHandler {
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
-			$dp->tsr = clone $extToken->dataAttribs->tsr;
-			$dp->src = $extToken->dataAttribs->src;
+			$dp->tsr = clone $extToken->dataParsoid->tsr;
+			$dp->src = $extToken->dataParsoid->src;
 			DOMDataUtils::setDataParsoid( $firstNode, $dp );
 		}
 

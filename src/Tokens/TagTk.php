@@ -15,14 +15,14 @@ class TagTk extends Token {
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs
-	 * @param ?DataParsoid $dataAttribs data-parsoid object
+	 * @param ?DataParsoid $dataParsoid data-parsoid object
 	 */
 	public function __construct(
-		string $name, array $attribs = [], ?DataParsoid $dataAttribs = null
+		string $name, array $attribs = [], ?DataParsoid $dataParsoid = null
 	) {
 		$this->name = $name;
 		$this->attribs = $attribs;
-		$this->dataAttribs = $dataAttribs ?? new DataParsoid;
+		$this->dataParsoid = $dataParsoid ?? new DataParsoid;
 	}
 
 	/**
@@ -40,7 +40,7 @@ class TagTk extends Token {
 			'type' => $this->getType(),
 			'name' => $this->name,
 			'attribs' => $this->attribs,
-			'dataAttribs' => $this->dataAttribs
+			'dataParsoid' => $this->dataParsoid
 		];
 	}
 }

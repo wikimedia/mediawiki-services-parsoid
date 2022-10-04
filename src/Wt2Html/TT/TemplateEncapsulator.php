@@ -106,7 +106,7 @@ class TemplateEncapsulator {
 			// Don't add the HTML template parameters, just use their wikitext
 		}
 
-		$toks[0]->dataAttribs->getTemp()->tplarginfo = $tplInfo;
+		$toks[0]->dataParsoid->getTemp()->tplarginfo = $tplInfo;
 
 		$this->env->log( 'debug', 'TemplateEncapsulator.encapTokens', $toks );
 		return $toks;
@@ -254,8 +254,8 @@ class TemplateEncapsulator {
 			new KV( 'about', '#' . $this->wrappedObjectId )
 		];
 		$dp = new DataParsoid;
-		$dp->tsr = clone $this->token->dataAttribs->tsr;
-		$dp->src = $this->token->dataAttribs->src;
+		$dp->tsr = clone $this->token->dataParsoid->tsr;
+		$dp->src = $this->token->dataParsoid->src;
 
 		$meta = [ new SelfclosingTagTk( 'meta', $attrs, $dp ) ];
 		$chunk = $chunk ? array_merge( $meta, $chunk ) : $meta;
@@ -266,7 +266,7 @@ class TemplateEncapsulator {
 	 * @return Token
 	 */
 	private function getEncapsulationInfoEndTag(): Token {
-		$tsr = $this->token->dataAttribs->tsr ?? null;
+		$tsr = $this->token->dataParsoid->tsr ?? null;
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( null, $tsr ? $tsr->end : null );
 		return new SelfclosingTagTk( 'meta',

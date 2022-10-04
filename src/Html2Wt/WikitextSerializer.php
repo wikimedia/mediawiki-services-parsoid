@@ -312,7 +312,7 @@ class WikitextSerializer {
 				// start tags, but we wouldn't be here if it was autoInsertedEnd
 				// anyways.
 				isset( Consts::$Sanitizer['AllowedLiteralTags'][$token->getName()] ) &&
-				!empty( $token->dataAttribs->autoInsertedEnd )
+				!empty( $token->dataParsoid->autoInsertedEnd )
 			)
 		) {
 			return "&lt;{$inner}&gt;";
@@ -344,7 +344,7 @@ class WikitextSerializer {
 			return $this->state->getOrigSrc( $dsr->start, $dsr->innerStart() ) ?? '';
 		}
 
-		$da = $token->dataAttribs;
+		$da = $token->dataParsoid;
 		if ( !empty( $da->autoInsertedStart ) ) {
 			return '';
 		}
@@ -384,12 +384,12 @@ class WikitextSerializer {
 		}
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
-		$tokenName = $token->dataAttribs->srcTagName ?? $token->getName();
+		$tokenName = $token->dataParsoid->srcTagName ?? $token->getName();
 		$ret = '';
 
-		if ( empty( $token->dataAttribs->autoInsertedEnd )
+		if ( empty( $token->dataParsoid->autoInsertedEnd )
 			&& !Utils::isVoidElement( $token->getName() )
-			&& empty( $token->dataAttribs->selfClose )
+			&& empty( $token->dataParsoid->selfClose )
 		) {
 			$ret = $this->wrapAngleBracket( $token, "/{$tokenName}" );
 		}
@@ -513,13 +513,13 @@ class WikitextSerializer {
 		//
 		// 'a' data attribs -- look for attributes that were removed
 		// as part of sanitization and add them back
-		$dataAttribs = $token->dataAttribs;
-		if ( isset( $dataAttribs->a ) && isset( $dataAttribs->sa ) ) {
-			$aKeys = array_keys( $dataAttribs->a );
+		$dataParsoid = $token->dataParsoid;
+		if ( isset( $dataParsoid->a ) && isset( $dataParsoid->sa ) ) {
+			$aKeys = array_keys( $dataParsoid->a );
 			foreach ( $aKeys as $k ) {
 				// Attrib not present -- sanitized away!
 				if ( !KV::lookupKV( $attribs, (string)$k ) ) {
-					$v = $dataAttribs->sa[$k] ?? null;
+					$v = $dataParsoid->sa[$k] ?? null;
 					// PORT-FIXME check type
 					if ( $v !== null && $v !== '' ) {
 						$out[] = $k . '="' . str_replace( '"', '&quot;', $v ) . '"';
@@ -1030,7 +1030,7 @@ class WikitextSerializer {
 
 		// Serialize extension attributes in normalized form as:
 		// key='value'
-		// FIXME: with no dataAttribs, shadow info will mark it as new
+		// FIXME: with no dataParsoid, shadow info will mark it as new
 		$attrs = (array)( $dataMw->attrs ?? [] );
 		$extTok = new TagTk( $extName, array_map( static function ( $key ) use ( $attrs ) {
 			return new KV( $key, $attrs[$key] );

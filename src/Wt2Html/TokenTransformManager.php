@@ -102,7 +102,7 @@ class TokenTransformManager extends PipelineStage {
 	public function shuttleTokensToEndOfStage( array $toks ): array {
 		$this->hasShuttleTokens = true;
 		$ttmEnd = new SelfclosingTagTk( 'mw:ttm-end' );
-		$ttmEnd->dataAttribs->getTemp()->shuttleTokens = $toks;
+		$ttmEnd->dataParsoid->getTemp()->shuttleTokens = $toks;
 		return [ $ttmEnd ];
 	}
 
@@ -142,7 +142,7 @@ class TokenTransformManager extends PipelineStage {
 			$accum = [];
 			foreach ( $tokens as $i => $t ) {
 				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'mw:ttm-end' ) {
-					$toks = $t->dataAttribs->getTemp()->shuttleTokens;
+					$toks = $t->dataParsoid->getTemp()->shuttleTokens;
 					PHPUtils::pushArray( $accum, $toks );
 				} else {
 					$accum[] = $t;

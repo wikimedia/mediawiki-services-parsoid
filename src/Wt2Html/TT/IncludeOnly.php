@@ -59,7 +59,7 @@ class IncludeOnly extends TokenCollector {
 
 		// Handle self-closing tag case specially!
 		if ( $start instanceof SelfclosingTagTk ) {
-			$tsr = $start->dataAttribs->tsr ?? new SourceRange( null, null );
+			$tsr = $start->dataParsoid->tsr ?? new SourceRange( null, null );
 			$token = TokenCollector::buildMetaToken(
 				$this->manager,
 				'mw:Includes/IncludeOnly',
@@ -67,8 +67,8 @@ class IncludeOnly extends TokenCollector {
 				$tsr,
 				null
 			);
-			if ( $start->dataAttribs->src ) {
-				$datamw = PHPUtils::jsonEncode( [ 'src' => $start->dataAttribs->src ] );
+			if ( $start->dataParsoid->src ) {
+				$datamw = PHPUtils::jsonEncode( [ 'src' => $start->dataParsoid->src ] );
 				$token->addAttribute( 'data-mw', $datamw );
 			}
 			return ( $this->options['isInclude'] ) ?
@@ -94,8 +94,8 @@ class IncludeOnly extends TokenCollector {
 			$tokens[] = TokenCollector::buildStrippedMetaToken( $this->manager, $name,
 				$start, $eof ? null : $end );
 
-			if ( $start->dataAttribs->src ) {
-				$dataMw = PHPUtils::jsonEncode( [ 'src' => $start->dataAttribs->src ] );
+			if ( $start->dataParsoid->src ) {
+				$dataMw = PHPUtils::jsonEncode( [ 'src' => $start->dataParsoid->src ] );
 				$tokens[0]->addAttribute( 'data-mw', $dataMw );
 			}
 
@@ -104,7 +104,7 @@ class IncludeOnly extends TokenCollector {
 				// stripped token (above) got the entire tsr value, we are artificially
 				// setting the tsr on this node to zero-width to ensure that
 				// DSR computation comes out correct.
-				$endPos = isset( $end->dataAttribs->tsr ) ? $end->dataAttribs->tsr->end : null;
+				$endPos = isset( $end->dataParsoid->tsr ) ? $end->dataParsoid->tsr->end : null;
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, $name,
 					true, new SourceRange( $endPos, $endPos ), '' );
 			}

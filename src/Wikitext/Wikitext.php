@@ -83,7 +83,7 @@ class Wikitext {
 			foreach ( $tokens as $token ) {
 				/** @var Token $token */
 				if ( $token->getName() === 'template' ) {
-					$tsr = $token->dataAttribs->tsr;
+					$tsr = $token->dataParsoid->tsr;
 					$wt = substr( $wt, 0, $tsr->start + $tsrIncr )
 						. '{{subst:' . substr( $wt, $tsr->start + $tsrIncr + 2 );
 					$tsrIncr += 6;

@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  */
 abstract class Token implements \JsonSerializable {
 	/** @var DataParsoid|null */
-	public $dataAttribs;
+	public $dataParsoid;
 
 	/** @var KV[] */
 	public $attribs;
@@ -125,7 +125,7 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * Store the original value of an attribute in a token's dataAttribs.
+	 * Store the original value of an attribute in a token's dataParsoid.
 	 *
 	 * @param string $name
 	 * @param mixed $value
@@ -134,14 +134,14 @@ abstract class Token implements \JsonSerializable {
 	public function setShadowInfo( string $name, $value, $origValue ): void {
 		// Don't shadow if value is the same or the orig is null
 		if ( $value !== $origValue && $origValue !== null ) {
-			if ( !isset( $this->dataAttribs->a ) ) {
-				$this->dataAttribs->a = [];
+			if ( !isset( $this->dataParsoid->a ) ) {
+				$this->dataParsoid->a = [];
 			}
-			$this->dataAttribs->a[$name] = $value;
-			if ( !isset( $this->dataAttribs->sa ) ) {
-				$this->dataAttribs->sa = [];
+			$this->dataParsoid->a[$name] = $value;
+			if ( !isset( $this->dataParsoid->sa ) ) {
+				$this->dataParsoid->sa = [];
 			}
-			$this->dataAttribs->sa[$name] = $origValue;
+			$this->dataParsoid->sa[$name] = $origValue;
 		}
 	}
 
@@ -161,23 +161,23 @@ abstract class Token implements \JsonSerializable {
 		$curVal = $this->getAttribute( $name );
 
 		// Not the case, continue regular round-trip information.
-		if ( !property_exists( $this->dataAttribs, 'a' ) ||
-			!array_key_exists( $name, $this->dataAttribs->a )
+		if ( !property_exists( $this->dataParsoid, 'a' ) ||
+			!array_key_exists( $name, $this->dataParsoid->a )
 		) {
 			return [
 				"value" => $curVal,
 				// Mark as modified if a new element
-				"modified" => $this->dataAttribs->isModified(),
+				"modified" => $this->dataParsoid->isModified(),
 				"fromsrc" => false
 			];
-		} elseif ( $this->dataAttribs->a[$name] !== $curVal ) {
+		} elseif ( $this->dataParsoid->a[$name] !== $curVal ) {
 			return [
 				"value" => $curVal,
 				"modified" => true,
 				"fromsrc" => false
 			];
-		} elseif ( !property_exists( $this->dataAttribs, 'sa' ) ||
-			!array_key_exists( $name, $this->dataAttribs->sa )
+		} elseif ( !property_exists( $this->dataParsoid, 'sa' ) ||
+			!array_key_exists( $name, $this->dataParsoid->sa )
 		) {
 			return [
 				"value" => $curVal,
@@ -186,7 +186,7 @@ abstract class Token implements \JsonSerializable {
 			];
 		} else {
 			return [
-				"value" => $this->dataAttribs->sa[$name],
+				"value" => $this->dataParsoid->sa[$name],
 				"modified" => false,
 				"fromsrc" => true
 			];
@@ -243,7 +243,7 @@ abstract class Token implements \JsonSerializable {
 	 * @return string
 	 */
 	public function getWTSource( Frame $frame ): string {
-		$tsr = $this->dataAttribs->tsr ?? null;
+		$tsr = $this->dataParsoid->tsr ?? null;
 		if ( !( $tsr instanceof SourceRange ) ) {
 			throw new InvalidTokenException( 'Expected token to have tsr info.' );
 		}
@@ -314,9 +314,9 @@ abstract class Token implements \JsonSerializable {
 		}
 
 		if ( is_array( $input ) && isset( $input['type'] ) ) {
-			if ( isset( $input['dataAttribs'] ) ) {
+			if ( isset( $input['dataParsoid'] ) ) {
 				$da = new DataParsoid;
-				foreach ( $input['dataAttribs'] as $key => $value ) {
+				foreach ( $input['dataParsoid'] as $key => $value ) {
 					switch ( $key ) {
 						case 'tmp':
 							$tmp = $da->getTemp();
@@ -381,8 +381,8 @@ abstract class Token implements \JsonSerializable {
 			if ( !empty( $token->attribs ) ) {
 				self::rebuildNestedTokens( $token->attribs );
 			}
-			if ( !empty( $token->dataAttribs ) ) {
-				self::rebuildNestedTokens( $token->dataAttribs );
+			if ( !empty( $token->dataParsoid ) ) {
+				self::rebuildNestedTokens( $token->dataParsoid );
 			}
 		}
 

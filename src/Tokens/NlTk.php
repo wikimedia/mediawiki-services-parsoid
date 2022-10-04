@@ -14,16 +14,16 @@ class NlTk extends Token {
 	 *    TSR ("tag source range") represents the (start, end) wikitext
 	 *    byte offsets for a token (in this case, the newline) in the
 	 *    UTF8-encoded source string
-	 * @param ?DataParsoid $dataAttribs
+	 * @param ?DataParsoid $dataParsoid
 	 */
 	public function __construct(
-		?SourceRange $tsr, ?DataParsoid $dataAttribs = null
+		?SourceRange $tsr, ?DataParsoid $dataParsoid = null
 	) {
-		if ( $dataAttribs ) {
-			$this->dataAttribs = $dataAttribs;
+		if ( $dataParsoid ) {
+			$this->dataParsoid = $dataParsoid;
 		} elseif ( $tsr ) {
-			$this->dataAttribs = new DataParsoid;
-			$this->dataAttribs->tsr = $tsr;
+			$this->dataParsoid = new DataParsoid;
+			$this->dataParsoid->tsr = $tsr;
 		}
 	}
 
@@ -33,7 +33,7 @@ class NlTk extends Token {
 	public function jsonSerialize(): array {
 		return [
 			'type' => $this->getType(),
-			'dataAttribs' => $this->dataAttribs
+			'dataParsoid' => $this->dataParsoid
 		];
 	}
 }

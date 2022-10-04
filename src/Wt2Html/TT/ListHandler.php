@@ -363,7 +363,7 @@ class ListHandler extends TokenHandler {
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
-		$dp = $token->dataAttribs;
+		$dp = $token->dataParsoid;
 
 		$makeDP = static function ( $k, $j ) use ( $dp ) {
 			$newDP = $dp->clone();

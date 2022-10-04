@@ -100,19 +100,19 @@ class LanguageVariantHandler extends TokenHandler {
 		$manager = $this->manager;
 		$options = $this->options;
 		$attribs = $token->attribs;
-		$dataAttribs = $token->dataAttribs;
-		$tsr = $dataAttribs->tsr;
-		$flags = $dataAttribs->flags;
-		$flagSp = $dataAttribs->flagSp;
+		$dataParsoid = $token->dataParsoid;
+		$tsr = $dataParsoid->tsr;
+		$flags = $dataParsoid->flags;
+		$flagSp = $dataParsoid->flagSp;
 		$isMeta = false;
 		$sawFlagA = false;
 
 		// remove trailing semicolon marker, if present
 		$trailingSemi = false;
-		if ( count( $dataAttribs->texts ) &&
-			( $dataAttribs->texts[count( $dataAttribs->texts ) - 1]['semi'] ?? null )
+		if ( count( $dataParsoid->texts ) &&
+			( $dataParsoid->texts[count( $dataParsoid->texts ) - 1]['semi'] ?? null )
 		) {
-			$trailingSemi = array_pop( $dataAttribs->texts )['sp'] ?? null;
+			$trailingSemi = array_pop( $dataParsoid->texts )['sp'] ?? null;
 		}
 		// convert all variant texts to DOM
 		$isBlock = false;
@@ -135,7 +135,7 @@ class LanguageVariantHandler extends TokenHandler {
 				$isBlock = $isBlock || !empty( $text['isBlock'] );
 				return [ 'text' => $text['xmlstr'], 'sp' => [] ];
 			}
-		}, $dataAttribs->texts );
+		}, $dataParsoid->texts );
 		// collect two-way/one-way conversion rules
 		$oneway = [];
 		$twoway = [];
@@ -160,10 +160,10 @@ class LanguageVariantHandler extends TokenHandler {
 		// data-mw-variant are "human readable".  Nested keys are single-letter:
 		// `l` for `language`, `t` for `text` or `to`, `f` for `from`.
 		$dataMWV = null;
-		if ( count( $flags ) === 0 && count( $dataAttribs->variants ) > 0 ) {
+		if ( count( $flags ) === 0 && count( $dataParsoid->variants ) > 0 ) {
 			// "Restrict possible variants to a limited set"
 			$dataMWV = [
-				'filter' => [ 'l' => $dataAttribs->variants, 't' => $texts[0]['text'] ],
+				'filter' => [ 'l' => $dataParsoid->variants, 't' => $texts[0]['text'] ],
 				'show' => true
 			];
 		} else {
@@ -230,7 +230,7 @@ class LanguageVariantHandler extends TokenHandler {
 		$isMeta = !isset( $dataMWV['show'] );
 		unset( $dataMWV['show'] );
 		// Trim some data from data-parsoid if it matches the defaults
-		if ( count( $flagSp ) === 2 * count( $dataAttribs->original ) ) {
+		if ( count( $flagSp ) === 2 * count( $dataParsoid->original ) ) {
 			$result = true;
 			foreach ( $flagSp as $s ) {
 				if ( $s !== '' ) {
@@ -253,12 +253,12 @@ class LanguageVariantHandler extends TokenHandler {
 		// or never contains any content.
 
 		$das = new DataParsoid;
-		$das->fl = $dataAttribs->original; // original "fl"ags
+		$das->fl = $dataParsoid->original; // original "fl"ags
 		$flSp = $this->compressSpArray( $flagSp ); // spaces around flags
 		if ( $flSp !== null ) {
 			$das->flSp = $flSp;
 		}
-		$das->src = $dataAttribs->src;
+		$das->src = $dataParsoid->src;
 		$tSp = $this->compressSpArray( $textSp ); // spaces around texts
 		if ( $tSp !== null ) {
 			$das->tSp = $tSp;

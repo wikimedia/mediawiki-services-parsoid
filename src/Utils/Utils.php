@@ -177,7 +177,7 @@ class Utils {
 	 */
 	public static function extractExtBody( Token $token ): string {
 		$src = $token->getAttribute( 'source' );
-		$extTagOffsets = $token->dataAttribs->extTagOffsets;
+		$extTagOffsets = $token->dataParsoid->extTagOffsets;
 		'@phan-var \Wikimedia\Parsoid\Core\DomSourceRange $extTagOffsets';
 		return $extTagOffsets->stripTags( $src );
 	}
