@@ -11,22 +11,25 @@ require('../core-upgrade.js');
  *
  * Basic use:
  * $PARSOID is the path to a checked out git copy of Parsoid
- * $REPO is the path to a checked out git copy of the repo containing
- * the parserTest file. (Check the `repo` key in tests/parserTests.json)
- * $BRANCH is a branch name for the patch to $REPO (ie, 'ptsync-<date>')
- * $TARGET identifies which set of parserTests we're synchronizing.
- * (This should be one of the top-level keys in tests/parserTests.json)
+ * $TARGET_REPO identifies which set of parserTests we're synchronizing.
+ *   This should be one of the top-level keys in tests/parserTests.json,
+ *   like 'core' or 'Cite'.
+ *   The `path` key under that gives the gerrit project name for the repo; see
+ *       https://gerrit.wikimedia.org/r/admin/repos/$project
+ * $REPO_PATH is the path to a checked out git copy of the repo containing
+ *   the parserTest file on your local machine.
+ * $BRANCH is a branch name for the patch to $TARGET_REPO (ie, 'ptsync-<date>')
  *
  *   $ cd $PARSOID
- *   $ tools/sync-parserTests.js $REPO $BRANCH $TARGET
- *   $ cd $REPO
+ *   $ tools/sync-parserTests.js $TARGET_REPO $REPO_PATH $BRANCH
+ *   $ cd $REPO_PATH
  *   $ git rebase --keep-empty master origin/master
  *     ... resolve conflicts, sigh ...
  *   $ php tests/parser/parserTests.php
  *     ... fix any failures by marking tests parsoid-only, etc ...
  *   $ git review  (only if the patch is not empty, see below)
  *
- *     ... time passes, eventually your patch is merged to $REPO ...
+ *     ... time passes, eventually your patch is merged to $TARGET_REPO ...
  *
  *   (You might be tempted to skip the following step if the previous
  *   patch was empty, or the merged parser tests file is now identical
@@ -37,7 +40,7 @@ require('../core-upgrade.js');
  *   merged before continuing.)
  *
  *   $ cd $PARSOID
- *   $ tools/fetch-parserTests.txt.js $TARGET --force
+ *   $ tools/fetch-parserTests.txt.js $TARGET_REPO
  *   $ php bin/parserTests.php --updateKnownFailures
  *   $ git add -u
  *   $ git commit -m "Sync parserTests with core"
@@ -88,7 +91,7 @@ require('../core-upgrade.js');
  * this case, and because it's possible you still need to tweak tests
  * in order to make core happy after the sync.) Don't stop there,
  * though: you obviously don't need to wait for "time passes,
- * eventually your patch is merged to $REPO", but that means you can
+ * eventually your patch is merged to $REPO_PATH", but that means you can
  * and should just continue immediately to do the Parsoid side of the
  * sync. Just because core/the extension already had all Parsoid's
  * changes doesn't mean Parsoid has all of core's/the extension's, and
@@ -99,7 +102,7 @@ require('../core-upgrade.js');
  * copy of the parser tests), don't be tempted to skip the second half
  * of the sync either, because the Parsoid commit won't actually be
  * empty: it updates the commit hashes and effectively changes the
- * rebase source for the next sync.  The sync point is recorded in
+ * rebase source for the next sync. The sync point is recorded in
  * parserTests.json via the fetch-parserTests.txt.js script. Since the
  * hash in the json file is checked out and rebased, without this
  * update, the next sync from Parsoid will start from an older
@@ -110,14 +113,10 @@ const yargs = require('yargs');
 const childProcess = require('pn/child_process');
 const path = require('path');
 const fs = require('pn/fs');
-
 const Promise = require('../lib/utils/promise.js');
-
 const testDir = path.join(__dirname, '../tests/');
 const testFilesPath = path.join(testDir, 'parserTests.json');
 const testFiles = require(testFilesPath);
-
-const DEFAULT_TARGET = 'parserTests.txt';
 
 const strip = function(s) {
 	return s.replace(/(^\s+)|(\s+$)/g, '');
@@ -125,33 +124,33 @@ const strip = function(s) {
 
 Promise.async(function *() {
 	// Option parsing and helpful messages.
-	const usage = 'Usage: $0 <repo path> <branch name> <target>';
+	const usage = 'Usage: $0  <target-repo-key> <repo-path> <branch>';
 	const opts = yargs
 	.usage(usage)
+	.help(false)
 	.options({
 		'help': { description: 'Show this message' },
 	});
 	const argv = opts.argv;
-	if (argv.help || argv._.length < 2 || argv._.length > 3) {
+	if (argv.help || argv._.length !== 3) {
 		opts.showHelp();
-		var morehelp = yield fs.readFile(__filename, 'utf8');
+		let morehelp = yield fs.readFile(__filename, 'utf8');
 		morehelp = strip(morehelp.split(/== [A-Z]* ==/, 2)[1]);
 		console.log(morehelp.replace(/^ {3}/mg, ''));
 		return;
 	}
 
 	// Ok, let's do this thing!
-	const mwpath = path.resolve(argv._[0]);
-	const branch = argv._[1];
-	const targetName = argv._[2] || DEFAULT_TARGET;
-
-	if (!testFiles.hasOwnProperty(targetName)) {
-		console.warn(targetName + ' not defined in parserTests.json');
+	const targetRepo = argv._[0];
+	if (!testFiles.hasOwnProperty(targetRepo)) {
+		console.warn(targetRepo + ' not defined in parserTests.json');
 		return;
 	}
 
-	const file = testFiles[targetName];
-	const oldhash = file.latestCommit;
+	if (targetRepo === 'parsoid') {
+		console.warn('Nothing to sync for Parsoid-only files.');
+		return;
+	}
 
 	const mwexec = function(cmd) {
 		// Execute `cmd` in the mwpath directory.
@@ -171,44 +170,58 @@ Promise.async(function *() {
 		});
 	};
 
-	const pPARSERTESTS = path.join(__dirname, '..', 'tests', 'parser', targetName);
-	const mwPARSERTESTS = path.join(mwpath, file.path);
+	let phash = null;
+	let firstTarget = true;
+	const mwpath = path.resolve(argv._[1]);
+	const repoInfo = testFiles[targetRepo];
+	const oldCommitHash = repoInfo.latestCommit;
+	const targets = repoInfo.targets;
+	const branch = argv._[2];
+	const changedFiles = [];
+	for (const targetName in targets) {
+		console.log("Processing " + targetName);
 
-	// Fetch current Parsoid git hash.
-	const result = yield childProcess.execFile(
-		'git', ['log', '--max-count=1', '--pretty=format:%H'], {
-			cwd: __dirname,
-			env: process.env,
-		}).promise;
-	const phash = strip(result.stdout);
+		// A bit of user-friendly logging.
+		if (firstTarget) {
+			// Fetch current Parsoid git hash.
+			const result = yield childProcess.execFile(
+				'git', ['log', '--max-count=1', '--pretty=format:%H'], {
+					cwd: __dirname,
+					env: process.env,
+				}).promise;
+			phash = strip(result.stdout);
+			console.log('Parsoid git HEAD is', phash);
+			console.log('>>> cd', mwpath);
+			yield mwexec('git fetch origin'.split(' '));
 
-	// A bit of user-friendly logging.
-	console.log('Parsoid git HEAD is', phash);
-	console.log('>>> cd', mwpath);
+			// Create/checkout a branch, based on the previous sync point.
+			yield mwexec(['git', 'checkout', '-b', branch, oldCommitHash]);
+		}
 
-	// Create a new mediawiki/core branch, based on the previous sync point.
-	yield mwexec('git fetch origin'.split(' '));
-	yield mwexec(['git', 'checkout', '-b', branch, oldhash]);
-
-	// Copy our locally-modified parser tests over to mediawiki/core.
-	// cp __dirname/tests/parser/parserTests.txt $mwpath/tests/parser
-	try {
-		const data = yield fs.readFile(pPARSERTESTS);
-		console.log('>>>', 'cp', pPARSERTESTS, mwPARSERTESTS);
-		yield fs.writeFile(mwPARSERTESTS, data);
-	} catch (e) {
-		// cleanup
-		yield mwexec('git checkout master'.split(' '));
-		yield mwexec(['git', 'branch', '-d', branch]);
-		throw e;
+		// Copy our locally-modified parser tests over to the target repo
+		const targetInfo = targets[targetName];
+		const parsoidFile = path.join(__dirname, '..', 'tests', 'parser', targetName);
+		const targetFile = path.join(mwpath, targetInfo.path);
+		try {
+			const data = yield fs.readFile(parsoidFile);
+			console.log('>>>', 'cp', parsoidFile, targetFile);
+			yield fs.writeFile(targetFile, data);
+			changedFiles.push(targetFile);
+			firstTarget = false;
+		} catch (e) {
+			// cleanup
+			yield mwexec('git checkout master'.split(' '));
+			yield mwexec(['git', 'branch', '-d', branch]);
+			throw e;
+		}
 	}
 
-	// Make a new mediawiki/core commit with an appropriate message.
-	var commitmsg = 'Sync up with Parsoid ' + targetName;
+	// Make a new commit with an appropriate message.
+	let commitmsg = 'Sync up ' + targetRepo + ' repo with Parsoid';
 	commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
 	// Note the --allow-empty, because sometimes there are no parsoid-side
 	// changes to merge. (We just need to get changes from upstream.)
-	yield mwexec(['git', 'commit', '-m', commitmsg, '--allow-empty', mwPARSERTESTS]);
+	yield mwexec(['git', 'commit', '-m', commitmsg, '--allow-empty'].concat(changedFiles));
 
 	// ok, we were successful at making the commit.  Give further instructions.
 	console.log();

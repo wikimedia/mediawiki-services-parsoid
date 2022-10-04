@@ -41,9 +41,11 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$testFilePaths = [ realpath( $testFile ) ];
 		} else {
 			$testFilePaths = [];
-			$testFiles = json_decode( file_get_contents( __DIR__ . '/../tests/parserTests.json' ), true );
-			foreach ( $testFiles as $f => $info ) {
-				$testFilePaths[] = realpath( __DIR__ . '/../tests/parser/' . $f );
+			$repos = json_decode( file_get_contents( __DIR__ . '/../tests/parserTests.json' ), true );
+			foreach ( $repos as $repo => $repoInfo ) {
+				foreach ( $repoInfo["targets"] as $f => $info ) {
+					$testFilePaths[] = realpath( __DIR__ . '/../tests/parser/' . $f );
+				}
 			}
 		}
 
