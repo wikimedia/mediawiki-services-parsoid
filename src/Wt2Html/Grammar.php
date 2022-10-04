@@ -1373,7 +1373,12 @@ private function a122() {
 		$dp = new DataParsoid();
 		$dp->tsr = $this->tsrOffsets();
 		$dp->tsr->start--; // For "<" matched at the start of xmlish_tag rule
-		return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
+		if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
+			return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
+        } else {
+            // suppress meta tags from pipeline output
+			return [];
+        }
 	
 }
 private function a123($proto, $addr, $rhe) {
