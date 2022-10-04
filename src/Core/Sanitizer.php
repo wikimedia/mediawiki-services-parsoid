@@ -850,11 +850,11 @@ class Sanitizer {
 		// unconditionally discard the entire attribute or process it further.
 		// That further processing will catch and discard any dangerous
 		// strings in the rest of the attribute
-		return in_array( $k, [ 'typeof', 'property', 'rel' ], true )
-			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', $v )
-			|| $k === 'about' && preg_match( '/^#mwt\d+$/D', $v )
-			|| $k === 'content'
-			&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', KV::lookup( $attrs, 'property' ) ?? '' );
+		return ( in_array( $k, [ 'typeof', 'property', 'rel' ], true )
+				&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', $v ) )
+			|| ( $k === 'about' && preg_match( '/^#mwt\d+$/D', $v ) )
+			|| ( $k === 'content'
+				&& preg_match( '/(?:^|\s)mw:.+?(?=$|\s)/D', KV::lookup( $attrs, 'property' ) ?? '' ) );
 	}
 
 	/**
@@ -949,8 +949,7 @@ class Sanitizer {
 				# * Disallow data attributes used by MediaWiki code
 				# * Ensure that the attribute is not namespaced by banning
 				#   colons.
-				if ( ( !preg_match( '/^data-[^:]*$/iD', $k )
-					 && !isset( $list[$k] ) )
+				if ( ( !preg_match( '/^data-[^:]*$/iD', $k ) && !isset( $list[$k] ) )
 					 || self::isReservedDataAttribute( $k )
 				) {
 					$newAttrs[$k] = [ null, $origV, $origK ];
