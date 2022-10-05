@@ -45,18 +45,6 @@
     "1. includeonly in html attr key": {
         "html2wt": "<span id=\"foo\">bar</span>\n"
     },
-    "1a. Indent-Pre and Comments": {
-        "html2wt": " a\n\nc\n"
-    },
-    "1b. Indent-Pre and Comments": {
-        "html2wt": " a\n\nc\n"
-    },
-    "1c. Indent-Pre and Comments": {
-        "html2wt": "  a\n\n  a\n"
-    },
-    "1d. Indent-Pre and Comments\n(Pre-handler currently cannot distinguish between comment/ws order and normalizes them to [comment,ws] order)": {
-        "html2wt": " a\n\n b\n"
-    },
     "2. Ensure fostered text content is wrapped in element nodes (traps regressions around fostered marker on the element getting lost)": {
         "wt2wt": "<nowiki>||</nowiki> <nowiki>||</nowiki>\n<table>\n<tr><td> a\n</table>",
         "selser [0,3]": "",
@@ -110,23 +98,6 @@
         "selser [1]": "<span id=\"<noinclude>v1</noinclude><includeonly>v2</includeonly>\">bar</span>\n<span id=<noinclude>\"v1\"</noinclude><includeonly>\"v2\"</includeonly>>bar</span>",
         "selser [[3,0,0]]": "\n<span id=<noinclude>\"v1\"</noinclude><includeonly>\"v2\"</includeonly>>bar</span>"
     },
-    "2a. Indent-Pre and tables": {
-        "html2wt": "{|\n!h1\n!h2\n|foo\n|bar\n|}",
-        "selser [3,[0,[[3,1,0,3,4]]]]": "{|\n |-\n! data-foobar=\"k2njey\" |h1!!h2\n \n!17hm4qs\n|}",
-        "selser [4,[0,[[3,0,3,2,[4]]]]]": "z7h7bw\n{|\n |-\n!h1\n!1cg2a9r\n|foo||myb1u1 \n|}"
-    },
-    "2b. Indent-Pre and tables": {
-        "html2wt": "{|\n|foo\n|}"
-    },
-    "2c. Indent-Pre and tables (T44252)": {
-        "html2wt": "{|\n|+foo\n!bar\n|}"
-    },
-    "2d. Indent-Pre and tables": {
-        "html2wt": " a\n {|\n | b\n |}"
-    },
-    "2g. Indented table markup mixed with indented pre content (proposed in T8200)": {
-        "html2wt": " {| \n |\n Text that should be rendered preformatted  \n |}"
-    },
     "3. Categories and newlines: newline suppression for last list item should RT properly": {
         "html2wt": "* a\n* b\n   \n[[Category:Foo]]\n   \n[[Category:Bar]]\n[[Category:Baz]]\n\n: c\n\n[[Category:C]]\n\n; d\n\n[[Category:D]]",
         "selser [2,3,4,2,2,0,3,2,[3],3,0,0,[1],0,4]": "q620vp\n*a\n*b\nhhfaih\n\nv4npyx\n   \n1o3h9yi\n[[Category:Bar]]\n1ybvf0r\n\n\n\n[[Category:C]]\n\n;d\n\n17avyym",
@@ -141,17 +112,6 @@
     "3. includeonly in part of an attr value": {
         "html2wt": "<span style=\"color:red;\">bar</span>\n"
     },
-    "3a. Indent-Pre and block tags (single-line html)": {
-        "selser [[4],2,2,0,[2],1,2,[2]]": "gy1eyd\n\n17ucfxh<p> foo </p>1yvhwvw\n\n\n b <div> foo </div>k2aost\n c <blockquote data-foobar=\"1q7dlus\"> foo </blockquote>567v5t\n 114soep<span> foo </span>",
-        "selser [0,[3],2,3,3,0,2,4]": " a <p></p>1fx5dab\n\n\n b <blockquote> foo </blockquote>1g9n7co\nf09a97",
-        "selser [0,3,1,3,[3],4,0,[4]]": " a \n \nb \n\n\n1qc5zjc\n 1la0n9t",
-        "selser [4,[4],0,[3],2,3,0,[4]]": "1xnnljk<p>1v33w05</p>\n b <div></div>1bu36yk\n\n\n c \n 16w8b21",
-        "selser [[2],0,2,4,0,3,0,2]": "9hfp91 a <p> foo </p>ydl7lg\n\n\n b \n\n5zlgwx\n\n\n c \n\nej88n9\n <span> foo </span>",
-        "selser [[4],[2],0,3,4,[[3]],0,1]": "tevs9u<p>vts2qz foo </p>\n b \n\nw3u448<blockquote></blockquote>\n <span> foo </span>",
-        "selser [0,0,0,4,0,2,0,1]": " a <p> foo </p>\n b \n\n145shfl\n\n\n c \n\n1eq7qr5<blockquote> foo </blockquote>\n <span> foo </span>",
-        "selser [[3],2,4,[2],2,[3],0,0]": "\n\nzjgma8<p> foo </p>gzui7m<div>1afaazv foo </div>1rjyhk\n\n\n c <blockquote></blockquote>\n <span> foo </span>",
-        "selser [[2],0,[4],0,[3],2,4,0]": "1jrp9v5 a <p> foo </p>nk1h2b<div> foo </div>\n c \n\n1b6klzm<blockquote> foo </blockquote>amck86\n <span> foo </span>"
-    },
     "3a. Table cells without escapable prefixes after edits": {
         "selser [manual]": "{|\n| id=\"x\" | -\n|}"
     },
@@ -159,17 +119,9 @@
         "html2wt": "* a\n**** b\n\n[[Category:Foo]]",
         "selser [[[0,3]],0,0]": "*a\n\n\n[[Category:Foo]]"
     },
-    "4. Multiple spaces at start-of-line": {
-        "html2wt": "foo \n    foo\n\n{|\n|foo\n|}"
-    },
     "4. includeonly in table attributes": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,77,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,75,0,0]}'><tr about=\"#mwt1\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\"&lt;noinclude>\\n|-\\n|a\\n&lt;/noinclude>\":null},\"sa\":{\"&lt;noinclude>\\n|-\\n|a\\n&lt;/noinclude>\":\"\"},\"dsr\":[3,36,33,0]}' data-mw='{\"attribs\":[[{\"txt\":\"a\",\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[6,17,null,null]}&apos;/>\\n|-\\n|a\\n&lt;meta typeof=\\\"mw:Includes/NoInclude/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;/noinclude>\\\",\\\"dsr\\\":[24,36,null,null]}&apos;/>\"},{\"html\":\"\"}]]}'></tr>\n<tr about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\"&lt;includeonly>\\n|-\\n|b\\n&lt;/includeonly>\":null},\"sa\":{\"&lt;includeonly>\\n|-\\n|b\\n&lt;/includeonly>\":\"\"},\"dsr\":[37,74,37,0]}' data-mw='{\"attribs\":[[{\"txt\":\"\",\"html\":\"&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[40,74,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>\\\\n|-\\\\n|b\\\\n&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[74,74,null,null]}&apos;/>\"},{\"html\":\"\"}]]}'></tr>\n</tbody></table>",
         "html2wt": "{|\n|a\n|}"
-    },
-    "6. Pre-blocks should extend across lines with leading WS even when there is no wrappable content": {
-        "wt2html": "<pre data-parsoid='{\"dsr\":[0,26,1,0]}'>a\n\n <!-- continue -->\nb</pre>\n\n<pre data-parsoid='{\"dsr\":[28,30,1,0]}'>c</pre>\n \n<p data-parsoid='{\"dsr\":[33,34,0,0]}'>d</p>",
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,7,1,0]}'>a\n\nb</pre>\n\n<pre data-parsoid='{\"dsr\":[9,11,1,0]}'>c</pre>\n <p data-parsoid='{\"dsr\":[13,16,0,0]}'>\n<br data-parsoid='{\"dsr\":[14,14,0,0]}'/>\nd</p>\n",
-        "html2wt": " a\n \n b\n\n c\n \n\nd\n"
     },
     "7. Categories and newlines: migrateTrailingCategories dom pass should leave template content alone": {
         "html2wt": "* {{1x|a\n[[Category:Foo]]}}"
@@ -186,10 +138,6 @@
     },
     "<includeonly> and <noinclude> being included": {
         "html2wt": "Foobar\n"
-    },
-    "<nowiki> inside <pre> (T15238)": {
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,15,1,0]}'><span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;lt;\",\"srcContent\":\"&lt;\",\"dsr\":[1,5,null,null]}'>&lt;</span>nowiki<span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;gt;\",\"srcContent\":\">\",\"dsr\":[11,15,null,null]}'>></span></pre>\n<p data-parsoid='{\"dsr\":[16,18,0,0]}'>\n <br data-parsoid='{\"dsr\":[18,18,0,0]}'/></p>\n\n<pre data-parsoid='{\"dsr\":[20,53,1,0]}'><span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;lt;\",\"srcContent\":\"&lt;\",\"dsr\":[21,25,null,null]}'>&lt;</span>nowiki<span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;gt;\",\"srcContent\":\">\",\"dsr\":[31,35,null,null]}'>></span>Foo<span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;lt;\",\"srcContent\":\"&lt;\",\"dsr\":[38,42,null,null]}'>&lt;</span>/nowiki<span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;gt;\",\"srcContent\":\">\",\"dsr\":[49,53,null,null]}'>></span></pre>\n",
-        "html2wt": " &lt;nowiki&gt;\n\n \n\n &lt;nowiki&gt;Foo&lt;/nowiki&gt;\n"
     },
     "<onlyinclude> on a page": {
         "html2wt": "Foobar\n"
@@ -210,25 +158,6 @@
         "selser [[3],0,[0,2],0,4]": "<pre> Page</pre>]] 1ecrp36[[Main Page|the main page <pre>[it's not very good]</pre>]]<pre>[it's not very good]</pre>1ewp809",
         "selser [4,0,2,0,0]": "c95k3k<pre> Page</pre>m0cfjh\n\n]] [[Main Page|the main page <pre>[it's not very good]</pre>]]<pre>[it's not very good]</pre>",
         "selser [2,0,0,0,3]": "1cto0y\n\n[[Main<pre> Page</pre>]] [[Main Page|the main page <pre>[it's not very good]</pre>]]<pre>[it's not very good]</pre>"
-    },
-    "<pre> with <nowiki> inside (compatibility with 1.6 and earlier)": {
-        "html2wt": " <nowiki><b></nowiki>\n <nowiki><cite></nowiki>\n <nowiki><em></nowiki>\n"
-    },
-    "<pre> with attributes (T5202)": {
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,24,1,0]}'>Bluescreen of WikiDeath</pre>\n",
-        "html2wt": " Bluescreen of WikiDeath\n"
-    },
-    "<pre> with forbidden attribute (T5202)": {
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,22,1,0]}'>Narrow screen goodies</pre>\n",
-        "html2wt": " Narrow screen goodies\n"
-    },
-    "<pre> with forbidden attribute values (T5202)": {
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,22,1,0]}'>Narrow screen goodies</pre>\n",
-        "html2wt": " Narrow screen goodies\n"
-    },
-    "<pre> with width attribute (T5202)": {
-        "html2html": "<pre data-parsoid='{\"dsr\":[0,22,1,0]}'>Narrow screen goodies</pre>\n",
-        "html2wt": " Narrow screen goodies\n"
     },
     "<wbr> is valid wikitext (T54468)": {
         "html2wt": "<wbr />\n"
@@ -324,40 +253,11 @@
         "selser [[[3]]]": "<font color=#x></font>",
         "selser [[[4]]]": "<font color=#x>1wi04hg</font>"
     },
-    "Avoid expanding multiline sol transparent template ranges unnecessarily": {
-        "selser [[2],0,[0,0,2,0,0],0,0]": "jv7k6ehi\n\n12kmtcn\n{{1x|<br/>\n}}\n\n[[Category:Ho]]",
-        "selser [4,0,1,0,0]": "rk3tr7\n\n\n\n{{1x|<br/>\n}}\n\n[[Category:Ho]]",
-        "selser [[2],0,[3,0,0,0,0],0,3]": "11zstwqhi\n\n\n\n{{1x|<br/>\n}}\n",
-        "selser [3,4,1,0,4]": "uo9c1i\n\n\n\n{{1x|<br/>\n}}\n\n1be6gyh"
-    },
     "Bare pipe character from a template (T54363)": {
         "html2wt": "|\n"
     },
     "Basic section headings": {
         "html2wt": "== Headline 1 ==\nSome text\n\n== Headline 2 ==\nMore\n\n=== Smaller headline ===\nBlah blah\n"
-    },
-    "Block tag on both lines (<blockquote>)": {
-        "html2wt": "a <blockquote>foo</blockquote>\nb <blockquote>foo</blockquote>",
-        "selser [4,3,0,[4]]": "10vo7hk\n\n\n\nb <blockquote>106sti0</blockquote>",
-        "selser [3,[[3]],2,4]": "<blockquote></blockquote>10b02r4\n\n\n\nb \n\n1e2aryh",
-        "selser [3,[4],2,[[4]]]": "<blockquote>h72sym</blockquote>3nayvy\n\n\n\nb <blockquote>1arnp7b</blockquote>"
-    },
-    "Block tag on both lines (<div>)": {
-        "html2wt": "a <div>foo</div>\nb <div>foo</div>",
-        "selser [[2],0,2,[4]]": "h6qyj8a <div>foo</div>1mjtzj4\n\n\n\nb <div>679wm4</div>",
-        "selser [0,0,2,[4]]": "a <div>foo</div>7xgr0j\n\n\n\nb <div>7y1qwv</div>",
-        "selser [4,3,0,1]": "1aa1ei4\n\n\n\nb <div data-foobar=\"1a5r177\">foo</div>",
-        "selser [1,3,0,4]": "a \n\n\n\nb \n\npok8a4",
-        "selser [0,3,2,4]": "a \n\n184736w\n\n\n\nb \n\n1gd1ps1"
-    },
-    "Block tag on one line (<blockquote>)": {
-        "html2wt": "a <blockquote>foo</blockquote>\nb\n"
-    },
-    "Block tag on one line (<div>)": {
-        "html2wt": "a <div>foo</div>\nb\n"
-    },
-    "Bracketed external links with template-generated invalid target": {
-        "html2wt": "[http:/example.com title]\n"
     },
     "Broken link": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,72,0,0]}'>[/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1 Zigzagzogzagzig]</p>\n",
@@ -405,57 +305,11 @@
     "Case insensitivity of parser functions for non-ASCII characters (T10143)": {
         "html2wt": "Ěščř\nĚščř\něščř\něščř\něščř\něščř\nĚŠČŘ\nĚŠČŘ\n"
     },
-    "Case-insensitive magic words should still work with weird casing.": {
-        "html2wt": "example.org\naOEU\nAoeu\nhttp://example.org\n"
-    },
-    "Case-sensitive magic words, when cased differently, should just be template transclusions": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,331,0,0]}'>[/index.php?title=Template:CurrentMonth&amp;action=edit&amp;redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&amp;action=edit&amp;redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&amp;action=edit&amp;redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&amp;action=edit&amp;redlink=1 Template:CurrentHour]</p>\n",
-        "html2wt": "[/index.php?title=Template:CurrentMonth&action=edit&redlink=1 Template:CurrentMonth]\n[/index.php?title=Template:Currentday&action=edit&redlink=1 Template:Currentday]\n[/index.php?title=Template:CURreNTweEK&action=edit&redlink=1 Template:CURreNTweEK]\n[/index.php?title=Template:CurrentHour&action=edit&redlink=1 Template:CurrentHour]\n",
-        "selser [[0,4,0,2,0,0,0]]": "{{CurrentMonth}}1hfy2kw{{currentday}}<nowiki/>y1fjfy\n{{cURreNTweEK}}\n{{currentHour}}",
-        "selser [[0,0,0,0,0,2,0]]": "{{CurrentMonth}}\n{{currentday}}\n{{cURreNTweEK}}<nowiki/>gtu1i1\n{{currentHour}}",
-        "selser [[0,4,0,0,0,3,0]]": "{{CurrentMonth}}<nowiki/>pdv9x9{{currentday}}\n{{cURreNTweEK}}{{currentHour}}",
-        "selser [[0,3,0,4,0,4,0]]": "{{CurrentMonth}}{{currentday}}1bhxeiy{{cURreNTweEK}}<nowiki/>h2zlv4{{currentHour}}",
-        "selser [[0,0,0,4,0,2,0]]": "{{CurrentMonth}}\n{{currentday}}1eukxsc{{cURreNTweEK}}<nowiki/>os3c1q\n{{currentHour}}",
-        "selser [[0,0,0,3,0,4,0]]": "{{CurrentMonth}}\n{{currentday}}{{cURreNTweEK}}<nowiki/>kge8hn{{currentHour}}",
-        "selser [[0,4,0,2,0,4,0]]": "{{CurrentMonth}}<nowiki/>qgj35{{currentday}}1evx2fs\n{{cURreNTweEK}}1n8fl4q{{currentHour}}"
-    },
     "Categories and newlines: migrateTrailingCategories dom pass should not get tripped by comments and whitespace": {
         "html2wt": "* a\n\n[[Category:Bar]]<!--boo1--> <!--boo2-->\n[[Category:Baz]]<!--boo3--> <!--boo4-->"
     },
     "Categories and newlines: should behave properly with linkprefix (T87753)": {
         "selser [[3],0,3,0,0]": "\n\n[[تصنيف:Bar]]"
-    },
-    "Comment in template title": {
-        "html2wt": "FOO\n"
-    },
-    "Comment on its own line post-expand": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,20,0,0]}'>a\n<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[2,11,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"blank\",\"href\":\"./Template:Blank\"},\"params\":{},\"i\":0}}]}'></span><!---->\nb</p>",
-        "html2wt": "a\n\nb\n"
-    },
-    "Comment on its own line post-expand with non-significant whitespace": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,23,0,0]}'>a\n <span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[3,12,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"blank\",\"href\":\"./Template:Blank\"},\"params\":{},\"i\":0}}]}'></span> <!----> \nb</p>",
-        "html2wt": "a\n\nb\n"
-    },
-    "Comment spacing": {
-        "html2wt": "a\n\n  b \n\nc\n"
-    },
-    "Comment test 2a": {
-        "html2wt": "asdf\njkl\n"
-    },
-    "Comment test 2b": {
-        "html2wt": "asdf\n\njkl\n"
-    },
-    "Comment test 3": {
-        "html2wt": "asdf\njkl\n"
-    },
-    "Comment test 4": {
-        "html2wt": "asdfjkl\n"
-    },
-    "Comment whitespace": {
-        "html2wt": ""
-    },
-    "Comments and Indent-Pre": {
-        "html2wt": " asdf\n\n asdf\n\n asdf\n\nxyz\n\n asdf\n xyz\n"
     },
     "Common list": {
         "html2wt": "* Common list\n* item 2\n* item 3"
@@ -688,24 +542,9 @@
         "selser [[[3]]]": "<font color=''></font>",
         "selser [[[2]]]": "<font color=''>1ug2z4vfoo</font>"
     },
-    "Empty lines between lines with block tags": {
-        "selser [0,0,3,3,2,1,4,4,0,2,[3],0,4,2,3,2,3,2]": "<div></div>\n5ljqv4<div></div>a\n\n1kwaewo\n\nvc7ikq\n2sa0kd<div>a</div>\n\n\nh89q5o\n\n1pgwihf\n\nd\n\nxtebyq\n\n\n\n\n1ltzq70<div>e</div>",
-        "selser [0,0,0,4,0,4,0,4,2,4,2,0,0,3,3,0,0,4]": "<div></div>\n\n\n\n1jpril6<div></div>xn9qqh\n\n1ombqme\n\nbc7siw\n\n1r6iigc\n\neypr47\n\nb\n\n<div>b</div>\n\nubdax7",
-        "selser [0,2,[4,3],4,0,0,2,0,2,2,2,0,2,0,4,2,0,0]": "<div></div>1kpya9l\n1ouij7q\n\n1miwcy5<div></div>a\n\n1nv81lx\n\nb\n\nnzbek7\n5s3lig<div>a</div>6rrndx\n\nb\n\ntoz1kb<div>b</div>d\n\nln6v0u\n\n1exl926\n\n\n\n<div>e</div>",
-        "selser [4,3,3,2,3,1,3,0,0,4,0,0,4,[3],3,2,0,0]": "uohm1p\n\n14sb56t\n\na\n\nb\n\nvxz60\n\nb\n\n1jdp7c1\n\n\nyqfz66\n\n\n\n<div>e</div>",
-        "selser [2,0,2,0,0,3,2,3,2,[2],2,2,2,[3],4,[2,1],0,[4]]": "123dr<div></div>\n1r6po0y\n\n\n\n<div></div>1lbl4sb\n\n12syxb3\n<div>1mjcbqna</div>n4sswh\n\nb\n\nom75dj\n\n1p44chb<div>b</div>\n\n\n1d59d6r\n\n1nnnid\n\n<div>4zm78z</div>",
-        "selser [1,0,2,3,3,0,2,0,0,0,[4],3,1,[2],4,1,3,[4]]": "<div data-foobar=\"x82a6z\"></div>\n6bfj5l\n\n\n\n\na\n\n1t4os9b\n\nb\n<div>a</div>1pcdx3r<div data-foobar=\"1qvy4yt\">b</div>175v5igd\n\n1usby5n\n\n\n<div>1jg9v4n</div>",
-        "selser [0,4,2,2,0,4,0,[2],0,[4],3,0,0,0,0,2,3,0]": "<div></div>6yb806\n\n17pz4w3\n\n\n\n\n718fyy\n<div></div>hstzbx\n\n1aiaxm8b\n<div>1irr0d</div>\n\n<div>b</div>d\ntao8t9\n\n\n<div>e</div>",
-        "selser [4,0,3,0,4,2,0,2,3,0,[3],0,2,2,0,[4,2],4,0]": "1by5oa7\n\nyzual9\n\n1lozg7z\n\na\n\n10u3a08\n\nb<div>a</div>b\n\n\nprb276<div>b</div>h0kc9k\n\nd\nvitoz9193xqnf\n\ng9m784<div>e</div>",
-        "selser [2,0,[0,1],3,2,0,0,4,2,2,1,3,[4],2,0,1,4,0]": "1avukl<div></div>\n\n\n\n197iitj<div></div>a\n\ngmjhkt\n\n1i1l8aj\n10czl5r<div>a</div>b<div>dhzroh</div>8t09ip\n\nd\n\n\n\n\n\n1ebnfmz<div>e</div>",
-        "selser [0,4,2,2,0,0,0,[3],4,3,0,0,0,2,2,1,4,2]": "<div></div>1ofrbjc\n\n1q06thu\n\n\n\n\n1hgtqn3\n<div></div>a\n\n\nvum19r\n\nb\n\n<div>b</div>1ptcp79\n\nd\n\ndmvgry\n\n\n\n1e22ig8\n\n1jvy72n<div>e</div>"
-    },
     "Empty table rows go away": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,37,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,35,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,16,0,0]}'><td data-parsoid='{\"dsr\":[3,9,1,0]}'>Hello</td>\n<td data-parsoid='{\"dsr\":[10,16,1,0]}'>there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[17,31,14,0]}'></tr>\n<tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[32,34,2,0]}'></tr>\n</tbody></table>",
         "html2wt": "{|\n|Hello\n|there\n|}"
-    },
-    "Entities inside <pre>": {
-        "html2wt": " <\n"
     },
     "Escaping of interlanguage links (T129218, T156308)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,60,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" class=\"extiw\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://zh.wikipedia.org/wiki/Chinese\" title=\"zh:Chinese\" class=\"extiw\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/Chinese\"},\"sa\":{\"href\":\":zh:Chinese\"},\"isIW\":true,\"dsr\":[31,60,14,2]}'> zh<span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[48,49,0,0]}'> </span>: Chinese</a></p>",
@@ -720,45 +559,6 @@
         "wt2html": "<div style=\"background: \n#00FF00\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: \\n#00FF00\"},\"sa\":{\"style\":\"background: {{1x|#00FF00}}\"},\"dsr\":[0,47,40,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[24,38,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>\\n#00FF00&lt;/span>\"}]]}'>-</div>",
         "html2html": "<div style=\"background: Template:Identity\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: Template:Identity\"},\"sa\":{\"style\":\"background: {{identity|#00FF00}}\"},\"dsr\":[0,53,46,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Template:Identity\\\" title=\\\"Template:Identity\\\" about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Template:Identity\\\"},\\\"sa\\\":{\\\"href\\\":\\\"Template:Identity\\\"},\\\"dsr\\\":[24,44,null,null],\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"identity\\\",\\\"href\\\":\\\"./Template:Identity\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>Template:Identity&lt;/a>\"}]]}'>-</div>",
         "html2wt": "<div style=\"background: {{identity|#00FF00}}\">-</div>"
-    },
-    "External link containing double-single-quotes with no space separating the url from text in italics": {
-        "wt2wt": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas'' (1901) en el sitio de] [[Museo Picasso (París)|Museo Picasso]].",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,161,0,0]}'><a rel=\"mw:ExtLink nofollow\" href=\"http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm\" class=\"external text\" data-parsoid='{\"dsr\":[0,106,57,1]}'><i data-parsoid='{\"dsr\":[57,83,2,2]}'>La muerte de Casagemas</i> (1901) en el sitio de</a> <a rel=\"mw:WikiLink\" href=\"./Museo_Picasso_(París)\" title=\"Museo Picasso (París)\" class=\"new\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Museo_Picasso_(París)\"},\"sa\":{\"href\":\"Museo Picasso (París)\"},\"dsr\":[107,147,25,2]}'>Museo Picasso</a><span data-parsoid='{\"stx\":\"html\",\"dsr\":[147,161,6,7]}'>.</span></p>",
-        "html2wt": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas'' (1901) en el sitio de] [[Museo Picasso (París)|Museo Picasso]]<span>.</span>",
-        "selser [[0,1,1]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].][[Museo Picasso (París)|Museo Picasso]]<span data-foobar=\"1lmpany\">.</span>",
-        "selser [2]": "1r4naju\n\n[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]",
-        "selser [1]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]",
-        "selser [[2,0,[2]]]": "1ofv5xv[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]1kmhj1g.",
-        "selser [[[[4],4],2,0]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''1jcrszm''1f1q429]1oy44hz",
-        "selser [[2,[3],[3]]]": "8vjz4m[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]",
-        "selser [[0,0,4]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]1stqxbk",
-        "selser [[[4,0],0,2]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm 19o0ktc (1901) en el sitio de] <nowiki/>c90ms9",
-        "selser [[[3,3],[4],0]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm][[Museo Picasso (París)|1gixqgf]]",
-        "selser [[[[2],0],2,0]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''1vrlmbyLa muerte de Casagemas'' (1901) en el sitio de] 137cpyv",
-        "selser [[0,[3],2]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm''La muerte de Casagemas'' (1901) en el sitio de [[Museo Picasso (París)|Museo Picasso]].]j78yhf",
-        "selser [[3,[3],2]]": "1760zbb",
-        "selser [[1,3,0]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas'' (1901) en el sitio de] ",
-        "selser [[4,0,3]]": "16kyf0l",
-        "selser [[[1,2],2,4]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas''hafj2q (1901) en el sitio de] 17q070l1omkplm"
-    },
-    "External links: [raw ampersand]": {
-        "html2wt": "Old &#x26; use: [http://x&y]"
-    },
-    "External links: encoded ampersand": {
-        "html2wt": "Old &#x26; use: http://x&y"
-    },
-    "External links: encoded equals (T8102)": {
-        "html2wt": "http://example.com/?foo=bar"
-    },
-    "External links: multiple legal whitespace is fine, Magnus. Don't break it please. (T7081)": {
-        "wt2wt": "[http://www.example.com test]",
-        "html2wt": "[http://www.example.com test]\n",
-        "selser [2]": "1qcijn9\n\n[http://www.example.com  test]",
-        "selser [[2]]": "7sl362[http://www.example.com  test]",
-        "selser [1]": "[http://www.example.com  test]"
-    },
-    "External links: raw ampersand": {
-        "html2wt": "Old & use: http://x&y\n"
     },
     "Extra new lines before and after lists are preserved": {
         "html2wt": "a\n\n\n* b\n\n\nc",
@@ -912,14 +712,8 @@
         "html2html": "<ol data-parsoid='{\"dsr\":[0,5,0,0]}'><li data-parsoid='{\"dsr\":[0,5,1,0,1,0]}'>One</li></ol>\n",
         "html2wt": "# One\n"
     },
-    "HTML pre followed by indent-pre": {
-        "html2wt": " foo\n\n bar\n"
-    },
     "HTML tag with 'unnecessary' entity encoding in attributes": {
         "html2wt": "<span title=\"&\">foo</span>\n"
-    },
-    "HTML-pre: 2: indented text": {
-        "html2wt": "  foo\n"
     },
     "HTML5 ids: fallback to legacy": {
         "html2wt": "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]",
@@ -1027,12 +821,6 @@
     },
     "Horizontal ruler -- eats additional dashes on the same line": {
         "html2wt": "----"
-    },
-    "IPv6 urls, autolink format (T23261)": {
-        "html2wt": "http://[2404:130:0:1000::187:2]/index.php\n\nExamples from RFC 2373, section 2.2:\n\n* http://[1080::8:800:200C:417A]/unicast\n* http://[FF01::101]/multicast\n* http://[::1]/loopback\n* http://[::]/unspecified\n* http://[::13.1.68.3]/ipv4compat\n* http://[::FFFF:129.144.52.38]/ipv4compat\n\nExamples from RFC 2732, section 2:\n\n* http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html\n* http://[1080:0:0:0:8:800:200C:417A]/index.html\n* http://[3ffe:2a00:100:7031::1]\n* http://[1080::8:800:200C:417A]/foo\n* http://[::192.9.5.5]/ipng\n* http://[::FFFF:129.144.52.38]:80/index.html\n* http://[2010:836B:4179::836B:4179]"
-    },
-    "IPv6 urls, bracketed format (T23261)": {
-        "html2wt": "[http://[2404:130:0:1000::187:2]/index.php test]\n\nExamples from RFC 2373, section 2.2:\n\n* [http://[1080::8:800:200C:417A] unicast]\n* [http://[FF01::101] multicast]\n* [http://[::1]/ loopback]\n* [http://[::] unspecified]\n* [http://[::13.1.68.3] ipv4compat]\n* [http://[::FFFF:129.144.52.38] ipv4compat]\n\nExamples from RFC 2732, section 2:\n\n* [http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html 1]\n* [http://[1080:0:0:0:8:800:200C:417A]/index.html 2]\n* [http://[3ffe:2a00:100:7031::1] 3]\n* [http://[1080::8:800:200C:417A]/foo 4]\n* [http://[::192.9.5.5]/ipng 5]\n* [http://[::FFFF:129.144.52.38]:80/index.html 6]\n* [http://[2010:836B:4179::836B:4179] 7]"
     },
     "ISBN code coverage": {
         "html2wt": "ISBN 978-0-1234-56&#x20;789"
@@ -1150,23 +938,6 @@
         "selser [[3,4]]": "{| <span>boo</span> style='border:1px solid black'<!--1j084gj-->\n|}",
         "selser [[0,[[3,0,0],0]]]": "{| <span>boo</span> style='border:1px solid black'\n\n|<span>boo</span> style='color:blue'| 2\n|}"
     },
-    "Italics and bold": {
-        "html2wt": "* plain\n* plain''italic''plain\n* plain''italic''plain''italic''plain\n* plain'''bold'''plain\n* plain'''bold'''plain'''bold'''plain\n* plain''italic''plain'''bold'''plain\n* plain'''bold'''plain''italic''plain\n* plain''italic'''bold-italic'''italic''plain\n* plain'''bold''bold-italic''bold'''plain\n* plain'''''bold-italic'''italic''plain\n* plain'''''bold-italic''bold'''plain\n* plain''italic'''bold-italic'''''plain\n* plain'''bold''bold-italic'''''plain\n* plain l'''italic''plain\n* plain l''''bold''' plain"
-    },
-    "Italics and bold: 5-quote opening sequence: (5,6)": {
-        "selser [[[2]]]": "''191lsv9'''foo''''''"
-    },
-    "Italics and possessives (1)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,115,0,0]}'>obtained by <i data-parsoid='{\"dsr\":[12,91,2,2]}'>[/index.php?title=Lunar_Prospector&amp;action=edit&amp;redlink=1 Lunar Prospector]'</i>s gamma-ray spectrometer</p>\n",
-        "html2wt": "obtained by ''[/index.php?title=Lunar_Prospector&action=edit&redlink=1 Lunar Prospector]'''s gamma-ray spectrometer\n"
-    },
-    "Italics and possessives (3)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,423,0,0]}'>The first monolingual dictionary written in a Romance language was <i data-parsoid='{\"dsr\":[67,94,2,2]}'>Sebastián Covarrubias'</i> <i data-parsoid='{\"dsr\":[95,141,2,2]}'>Tesoro de la lengua castellana o española</i>, published in 1611 in Madrid. In 1612 the first edition of the <i data-parsoid='{\"dsr\":[205,312,2,2]}'>Vocabolario dell'[/index.php?title=Accademia_della_Crusca&amp;action=edit&amp;redlink=1 Accademia della Crusca]</i>, for Italian, was published. In 1690 in Rotterdam was published, posthumously, the <i data-parsoid='{\"dsr\":[396,422,2,2]}'>Dictionnaire Universel</i>.</p>\n",
-        "html2wt": "The first monolingual dictionary written in a Romance language was ''Sebastián Covarrubias''' ''Tesoro de la lengua castellana o española'', published in 1611 in Madrid. In 1612 the first edition of the ''Vocabolario dell'[/index.php?title=Accademia_della_Crusca&action=edit&redlink=1 Accademia della Crusca]'', for Italian, was published. In 1690 in Rotterdam was published, posthumously, the ''Dictionnaire Universel''.\n"
-    },
-    "Less than in attribute position": {
-        "selser [0,2,[2]]": "<pre <pre>123</pre>6njtnz\n\n\n\n<div <div>zghs00123</div>"
-    },
     "Link containing an ampersand": {
         "selser [1,4,1,0,[3,0,0]]": "[[Foo & bar]]\n\n10hs1hv\n\n[[Foo & bar]]\n\n&amp;amp; bar]]",
         "selser [4,4,1,0,4]": "1t90bln\n\nin61qw\n\n[[Foo & bar]]\n\n18k6kii",
@@ -1226,14 +997,6 @@
     },
     "Morwen/13: Unclosed link followed by heading": {
         "html2wt": "[[link\n\n== heading ==\n"
-    },
-    "Multiple lines without block tags": {
-        "selser [4,1,0,[3,0,0],0,1,4,0]": "tkn1w8\n\na\n\n<!--foo-->e\n\nx \n\n1p28uxd\n\n z",
-        "selser [2,0,2,1,3,3,0,2]": "1j5shwn<div>foo</div> a\n\njrdv3n\nb\nc\nd<!--foo--> e<div>foo</div>4z3kz2\n\n z",
-        "selser [0,2,0,3,3,2,2,[3]]": "<div>foo</div>d5cyrn\n\n a\n2zkdzg\n\nx \n\n1tl6yau<div>foo</div>",
-        "selser [3,0,0,[0,0,2],4,3,[3],2]": " a\n\nb\nc\nd<!--foo-->13obem9 e\n\nrlzmk<div></div>d4mp6l\n\n z",
-        "selser [3,[4],3,3,0,2,3,0]": "1gnvq3r\n\n2whicw\n\nx \n\n z",
-        "selser [4,0,0,4,4,2,[3],[2]]": "h7hf32\n\n a\n\npawik2\n\ndvitc2\n\n18ltr5v\n\nx <div></div>1917jrw z"
     },
     "Multiple newlines after tables are converted to p-br-p tags": {
         "selser [2,0,[2,2],0,2,2,3]": "1vlvcem\n{|\n|x\n|}\nh7tgjz\ngwxfxn\n1rr9v1k\n\n\n\n\nf2i27b\n",
@@ -1545,23 +1308,8 @@
     "Play a bit with r67090 and T5158": {
         "selser [0,2,1,3,0,0,1]": "<div style=\"width:50% !important\">&nbsp;</div>yyzg2g\n<div style=\"width:50%&nbsp;!important\" data-foobar=\"338jos\">&nbsp;</div>\n<div style=\"width:50%&#160;!important\">&nbsp;</div>\n<div style=\"border : solid;\" data-foobar=\"1sol4wa\">&nbsp;</div>"
     },
-    "Quote balancing context should be restricted to td/th cells on the same wikitext line": {
-        "wt2wt": "{|\n!''a''!!''b''\n|''a''||''b''\n|}",
-        "selser [1]": "{| data-foobar=\"yen5m2\"\n!''a!!''b\n|''a||''b\n|}",
-        "selser [2]": "q2n44z\n{|\n!''a!!''b\n|''a||''b\n|}",
-        "selser [[0,[2,0]]]": "{|\n<!--ace8th-->!''a!!''b\n|''a||''b\n|}",
-        "selser [[0,[[3,[2],3,[2],1],3]]]": "{|\n!nuy6u8''b\n|ykcg1o''a|| data-foobar=\"zcw9jx\" |''b\n|}",
-        "selser [[4,[[[3],1,0,[[2]],0],0]]]": "{|<!--1lklyic-->\n! !! data-foobar=\"1jleimz\" |''b\n|''1rjer2a''||''b\n|}",
-        "selser [[0,[[1,0,0,4,1],0]]]": "{|\n! data-foobar=\"v7nyy1\" |''a!!''b\n!1b17k5o\n| data-foobar=\"75hlhq\" |''b''\n|}",
-        "selser [[4,[[[3],4,0,0,[3]],3]]]": "{|<!--ci9nun-->\n!\n!zfilpo\n|''a||\n|}",
-        "selser [[4,1]]": "{|<!--110f59d-->\n!''a!!''b\n|''a||''b\n|}",
-        "selser [[0,1]]": "{|\n!''a!!''b\n|''a||''b\n|}"
-    },
     "Redirect followed by multiple newlines": {
         "selser [0,2,0]": "#REDIRECT [[Main Page]]\n1kgt7nw\n\n\n\nA newline"
-    },
-    "Regression with preformatted in <center>": {
-        "html2wt": "<center>\n Blah\n\n</center>"
     },
     "Remove a list item but do not insert newline above list": {
         "selser [manual]": "header\n*foo\n\nfooter"
@@ -1577,9 +1325,6 @@
         "selser [0,3,[3,0,0,0,3,0,3,0,0,0,4,0,4,0,4,0,3,0,3,0,0,0,0]]": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}{{1x|foo/..}}{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}1369k38{{1x|foo././bar}}1s2pdje{{1x|foo{bar}}kc7br8{{1x|foo}bar}}{{1x|foo[bar}}{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]",
         "selser [2,2,2]": "1p7ag6r\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\nzgbtfl\n\n1s6qnfr\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]",
         "selser [2,0,[0,0,4,0,4,0,0,0,4,0,2,0,2,0,0,0,2,0,0,0,0,0,0]]": "1ys83ti\n\n[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n[[foo~~~bar]]\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}3vtcxh{{1x|foo/.}}17795w{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}nbklz1{{1x|foo>bar}}1jbv0hg]]\n[[{{1x|foo././bar}}zoqgl4]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}nhq2qs]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
-    },
-    "Render paragraphs when indent-pre is suppressed in blocklevels": {
-        "html2wt": "<blockquote>\n foo\n\n bar\n\n</blockquote>"
     },
     "Replacing whitespace with tabs still doesn't break the list (gerrit 78327)": {
         "html2wt": "* a\n* b\n* c\n* d"
@@ -1774,27 +1519,6 @@
         "selser [[2]]": "k7rfsq[http://www.example.org/　ideograms]",
         "selser [1]": "[http://www.example.org/　ideograms]"
     },
-    "T2289: \">\"-token in bracketed URL": {
-        "wt2wt": "[http://www.example.com/ <hello> stuff]",
-        "html2wt": "[http://www.example.com/ <hello> stuff]\n",
-        "selser [1]": "[http://www.example.com/<hello> stuff]",
-        "selser [2]": "19ih7dw\n\n[http://www.example.com/<hello> stuff]",
-        "selser [[2]]": "eoq4sv[http://www.example.com/<hello> stuff]"
-    },
-    "T2289: literal \">\"-token in bracketed URL": {
-        "wt2wt": "[http://www.example.com/ <b>html</b> stuff]",
-        "html2wt": "[http://www.example.com/ '''html''' stuff]\n",
-        "selser [1]": "[http://www.example.com/<b>html</b> stuff]",
-        "selser [2]": "qyoqs5\n\n[http://www.example.com/<b>html</b> stuff]",
-        "selser [[2]]": "ls4uur[http://www.example.com/<b>html</b> stuff]"
-    },
-    "T2289: literal double quote in bracketed URL": {
-        "wt2wt": "[http://www.example.com/ \"hello\" stuff]",
-        "html2wt": "[http://www.example.com/ \"hello\" stuff]\n",
-        "selser [2]": "yc0ilp\n\n[http://www.example.com/\"hello\" stuff]",
-        "selser [1]": "[http://www.example.com/\"hello\" stuff]",
-        "selser [[2]]": "1yr3lpy[http://www.example.com/\"hello\" stuff]"
-    },
     "T2337: Escaped self-links should be bold": {
         "html2wt": "[[Bug462]] [[Bug462]]"
     },
@@ -1905,9 +1629,6 @@
     },
     "T53086: Double newlines in blockquotes should be turned into paragraphs": {
         "html2wt": "<blockquote>\nFoo\n\nBar\n\n</blockquote>"
-    },
-    "T54763: Preformatted in <blockquote>": {
-        "html2wt": "<blockquote>\n Blah\n\n{|\n|\n indented cell (no pre-wrapping!)\n|}\n</blockquote>"
     },
     "T73074: More fostering fun": {
         "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->[[Category:Two]]",
@@ -2348,38 +2069,6 @@
         "selser [2,3,0,2,0,0,0,0,0]": "1p7jro6\n\n{{1x\n<!-- should be ignored -->\n|foo}}\n\n{{1x\n<!-- should be ignored and spaces on next line should not trip us up (T147742) -->\n  |foo}}\n\n1sfbaik\n\n{{1x<!-- should be ignored -->\n|foo}}\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}",
         "selser [0,0,4,0,0,2,0,0,0]": "{{1x\n<!-- should be ignored -->\n|foo}}\n\n10zfktk\n\n{{1x<!-- should be ignored -->\n|foo}}\n\nahtv70\n\n{{1x<!-- should be ignored -->|foo}}\n\n{{<!-- should be ignored -->1x|foo}}"
     },
-    "Templates: Indent-Pre: 1a. Templates that break a line should suppress <pre>": {
-        "html2wt": ""
-    },
-    "Templates: Indent-Pre: 1b. Templates that break a line should suppress <pre>": {
-        "html2wt": "foo\n"
-    },
-    "Templates: Indent-Pre: 1c: Wrapping should be based on expanded content": {
-        "html2wt": " a\n\nb\n"
-    },
-    "Templates: Indent-Pre: 1d: Wrapping should be based on expanded content": {
-        "html2wt": " a\n\nb\nc\n\n d\n\ne\n"
-    },
-    "Templates: Indent-Pre: 1e. Wrapping should be based on expanded content": {
-        "html2wt": " foo\n\n foo bar\n\n foo\n bar\n\n foo\n\n foo\n\n bar\n"
-    },
-    "Templates: Indent-Pre: 1f: Wrapping should be based on expanded content": {
-        "wt2html": "<pre about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[0,9,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" \"}},\"i\":0}},\"a\"]}'>a</pre>\n\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[11,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"a\"]}'>\n</span><pre about=\"#mwt2\">a</pre>\n\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[23,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n b\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt3\">b</pre>\n\n<p about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[35,46,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\\n \"}},\"i\":0}},\"b\"]}'>a</p><span about=\"#mwt4\">\n</span><pre about=\"#mwt4\">b</pre>\n\n<p about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[48,57,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\\n\"}},\"i\":0}}]}'>a</p><span about=\"#mwt5\">\n</span><pre data-parsoid='{\"dsr\":[57,59,1,0]}'>b</pre>",
-        "wt2wt": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n\n{{1x|a\n}}\n b\n",
-        "html2wt": " a\n\n\n a\n\n\n b\n\na\n\n b\n\na\n\n b\n",
-        "selser [0,4,0,0,0,0,0,3,0,0,0,4,0,0,[3]]": "{{1x| }}a60me7p{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n1845xzp{{1x|a\n}} ",
-        "selser [0,4,0,0,0,0,0,4,0,0,0,0,0,0,0]": "{{1x| }}aj90d3l{{1x|\n }}a\n\n{{1x|\n b}}\nzgdomz{{1x|a\n }}b\n\n{{1x|a\n}} b",
-        "selser [0,3,0,0,0,0,0,4,0,0,0,0,0,0,[4]]": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n14v9z5u{{1x|a\n }}b\n\n{{1x|a\n}} 99dktd",
-        "selser [0,4,0,0,0,0,0,0,0,0,0,2,0,0,[3]]": "{{1x| }}adm7tcc{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\nvw42dq\n\n{{1x|a\n}} ",
-        "selser [0,3,0,0,0,0,0,0,0,0,0,2,0,0,[3]]": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n9taely\n\n{{1x|a\n}} ",
-        "selser [0,3,0,0,0,0,0,3,0,0,0,4,0,0,0]": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n1izgzim{{1x|a\n}} b",
-        "selser [0,3,0,0,0,0,0,3,0,0,0,3,0,0,0]": "{{1x| }}a{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n{{1x|a\n}} b",
-        "selser [0,0,0,0,0,0,0,2,0,0,0,0,0,0,1]": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\noj610q\n\n{{1x|a\n }}b\n\n{{1x|a\n}} b",
-        "selser [0,2,0,0,0,0,0,3,0,0,0,0,0,0,1]": "{{1x| }}a1442ymz\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n{{1x|a\n }}b\n\n{{1x|a\n}} b",
-        "selser [0,0,0,0,0,0,0,0,0,0,0,4,0,0,0]": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n3cw4yv{{1x|a\n}} b",
-        "selser [0,0,0,0,4,0,0,0,0,0,0,0,0,0,[2]]": "{{1x| }}a\n\n{{1x|\n }}a\nzfyath{{1x|\n b}}\n\n{{1x|a\n }}b\n\n{{1x|a\n}} 12ev5ibb",
-        "selser [0,0,0,0,0,0,0,0,0,0,0,0,0,0,[4]]": "{{1x| }}a\n\n{{1x|\n }}a\n\n{{1x|\n b}}\n\n{{1x|a\n }}b\n\n{{1x|a\n}} gcrjt0"
-    },
     "Templates: Inline Text: 1. Multiple template uses": {
         "html2wt": "Foobarbaz\n"
     },
@@ -2493,12 +2182,6 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,84,0,0]}'>[/index.php?title=MediaWiki:Mainpagexxx&amp;action=edit&amp;redlink=1 MediaWiki:Mainpagexxx]</p>\n",
         "html2wt": "[/index.php?title=MediaWiki:Mainpagexxx&action=edit&redlink=1 MediaWiki:Mainpagexxx]\n"
     },
-    "URL-encoding in URL functions (multiple parameters)": {
-        "html2wt": "/index.php?title=Some_page&q=?&amp=&\n"
-    },
-    "URL-encoding in URL functions (single parameter)": {
-        "html2wt": "/index.php?title=Some_page&amp=&\n"
-    },
     "Un-closed <onlyinclude>": {
         "html2wt": ""
     },
@@ -2510,30 +2193,6 @@
     },
     "Unbalanced includeonly and noinclude tags": {
         "html2wt": "{|\n|a\n|b\n|c</includeonly>\n|d</includeonly></includeonly>\n|}"
-    },
-    "Unclosed and unmatched quotes": {
-        "wt2wt": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n'''Bold text..'''\n\n..spanning two paragraphs (should not work).\n\n'''Bold tag left open'''\n\n''Italic tag left open''\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->\n'''This year'<nowiki/>'''s election ''should'' beat '''last year''''s.\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\nPlain ''italic'''s plain",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,66,0,0]}'><i data-parsoid='{\"dsr\":[0,66,2,2]}'><b data-parsoid='{\"dsr\":[2,25,3,3]}'>Bold italic text </b>with bold deactivated<b data-parsoid='{\"dsr\":[46,64,3,3]}'> in between.</b></i></p>\n\n<p data-parsoid='{\"dsr\":[68,134,0,0]}'><b data-parsoid='{\"dsr\":[68,134,3,3]}'><i data-parsoid='{\"dsr\":[71,92,2,2]}'>Bold italic text </i>with italic deactivated<i data-parsoid='{\"dsr\":[115,131,2,2]}'> in between.</i></b></p>\n\n<p data-parsoid='{\"dsr\":[136,153,0,0]}'><b data-parsoid='{\"dsr\":[136,153,3,3]}'>Bold text..</b></p>\n\n<p data-parsoid='{\"dsr\":[155,199,0,0]}'>..spanning two paragraphs (should not work).</p>\n\n<p data-parsoid='{\"dsr\":[201,225,0,0]}'><b data-parsoid='{\"dsr\":[201,225,3,3]}'>Bold tag left open</b></p>\n\n<p data-parsoid='{\"dsr\":[227,251,0,0]}'><i data-parsoid='{\"dsr\":[227,251,2,2]}'>Italic tag left open</i></p>\n\n<p data-parsoid='{\"dsr\":[253,265,0,0]}'>Normal text.</p>\n\n<!-- Unmatching number of opening, closing tags: -->\n<p data-parsoid='{\"dsr\":[320,390,0,0]}'><b data-parsoid='{\"dsr\":[320,345,3,3]}'>This year'<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[333,342,9,0]}'></span></b>s election <i data-parsoid='{\"dsr\":[356,366,2,2]}'>should</i> beat <b data-parsoid='{\"dsr\":[372,388,3,3]}'>last year'</b>s.</p>\n\n<p data-parsoid='{\"dsr\":[392,448,0,0]}'><i data-parsoid='{\"dsr\":[392,426,2,2]}'>Tom<b data-parsoid='{\"dsr\":[397,424,3,3]}'>s car is bigger than </b></i><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[426,435,9,0]}'></span><b data-parsoid='{\"dsr\":[435,446,3,3]}'>Susan</b>s.</p>\n\n<p data-parsoid='{\"dsr\":[450,474,0,0]}'>Plain <i data-parsoid='{\"dsr\":[456,467,2,2]}'>italic'</i>s plain</p>\n",
-        "html2wt": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n'''Bold text..'''\n\n..spanning two paragraphs (should not work).\n\n'''Bold tag left open'''\n\n''Italic tag left open''\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->\n'''This year'<nowiki/>'''s election ''should'' beat '''last year''''s.\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\nPlain ''italic'''s plain\n",
-        "selser [[[0,0,4]],2,3,3,[1],0,4,0,1,2,[[2]],3,3,3,2,0,3,4,1,2,2]": "'''''Bold italic text '''with bold deactivated4kqer0''\n\n96dktu\n\n'''Bold text..'''\n\n1yaoe3f\n\n'''Bold tag left open\n\ncg2yjt\n\n''1stjapzItalic tag left open''\n\n1e5dhrb<!-- Unmatching number of opening, closing tags: -->\n\nrbyo83\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\n1flz0vt\n\ns1jkqx\n\nPlain ''italic'''s plain",
-        "selser [[1],0,[1],0,[3],0,[2,2],0,4,0,4,2,4,0,3,0,4,0,[[0,[4]],0,3],0,4]": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n\n1q6bdp9..spanning two paragraphs (should not work).1yjracp'''\n\n1g8bmfw\n\nmxcb4a\n\nuza8ko\n\n1t8kp1j\n\na5a4ir\n\n''Tom'''8gjlrs'''''<nowiki/>'''Susan'''\n\n14egc25",
-        "selser [[[3,0,[3]]],0,[1],0,2,2,3,0,[4],4,[4],0,0,3,0,4,[2,3,3,4,3,0],0,4,2,[0,3,4]]": "''with bold deactivated''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n1113d81\n\n'''Bold text..\n\n17oi27f\n\n1d1t91o\n\nia2xa5\n\n1fpkx6i\n\nNormal text.<!-- Unmatching number of opening, closing tags: -->\n\nj1ibp\n\n62g913'''This year''''1j5avags.\n\n1doife6\n\nz4u1uw\n\nPlain 11sk72u",
-        "selser [4,0,3,0,2,0,0,2,4,0,[4],2,[4],2,4,0,[0,0,2,0,0,0],4,1,0,[0,2,0]]": "12bpmy6\n\n1cu9qet\n\n'''Bold text..\n\n..spanning two paragraphs (should not work).'''\n\n1moos9l\n\n1ntijl8\n\n1hqw6z8\n\n1kaqv8h\n\n1f3h6jp\n\n197cr1s\n\n1iqz776\n\n'''This year'<nowiki/>'''s election ycvf7u''should'' beat '''last year''''s.\n\nqtsa2z\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\nPlain 1evt8y4''italic'''s plain",
-        "selser [[1],4,[2],3,3,3,1,2,2,0,2,0,2,3,4,2,[[2],3,3,0,[4],2],0,3,3,[0,4,0]]": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\nh74ndf\n\nkkggcz'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n..spanning two paragraphs (should not work).'''\n\ny67p3g\n\n1wo3dqp\n\n'''Bold tag left open\n\ns1byel\n\n''Italic tag left open\n\n1mihtak\n\nNormal text.\n\nnu7jvv\n\nu58yyj\n\n'''14ywvmeThis year'''' beat '''3dpun8'''iax3gys.\n\nPlain u8hv4es plain",
-        "selser [4,2,2,2,4,4,[0,1],0,1,2,2,0,3,0,0,0,[1,0,1,0,3,3],3,3,4,4]": "atjprc\n\n1x4synw\n\npfbs3l\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n1tqjxs7\n\n5mslzl\n\np4gqzw\n\n..spanning two paragraphs (should not work).\n\n'''Bold tag left open'''\n\n16xzkkr\n\n1j70y3e\n\n''Italic tag left open\n\n<!-- Unmatching number of opening, closing tags: -->\n'''This year''''s election ''should'' beat \n\n1vw7dc\n\nr6e2sl",
-        "selser [[[0,4,[2]]],4,[[3,0,1]],0,3,2,0,0,[[3]],3,3,3,0,0,0,0,3,0,[3,[4],0],0,2]": "'''''Bold italic text '''177zi8c'''etc4u6 in between.'''''\n\n1jpdodq\n\n'''with italic deactivated'' in between.'''''\n\nfad3r2\n\n..spanning two paragraphs (should not work).'''\n\nNormal text.\n<!-- Unmatching number of opening, closing tags: -->\n\n'''1ewo2rj'''s.\n\n1n9df0n\n\nPlain ''italic'''s plain",
-        "selser [[[[4],0,0]],0,1,0,2,4,[0,1],0,2,4,4,2,0,0,0,0,[[3],3,0,0,[3],3],0,2,2,3]": "'''''1lr57dm'''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\ndg1g8a\n\n'''Bold text..\n\n1to2zjq\n\n..spanning two paragraphs (should not work).\n\n1y2hs3o\n\n'''Bold tag left open\n\n1f3qfsj\n\nftgco\n\n1vjezwg\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->\n''should'' beat \n\n1lmhmj2\n\n''Tom'''s car is bigger than ''Susan'''s.\n\n1j4lnnp\n",
-        "selser [[1],2,3,3,0,0,2,0,[[2]],0,[3],0,3,3,0,0,1,0,[3,0,4],4,3]": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n1gzr79l\n\n'''Bold text..\n\n1ilsd86\n\n..spanning two paragraphs (should not work).'''\n\n'''1aj4znfBold tag left open'''\n\n\n<!-- Unmatching number of opening, closing tags: -->\n'''This year''''s election ''should'' beat '''last year''''s.\n\nSusan'''1g83zsv\n\n1325xry",
-        "selser [2,0,[[2,2,[3]]],3,1,3,3,0,3,4,[[4]],2,4,4,2,0,3,0,1,2,[3,4,3]]": "d3tpl5\n\n'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''kq6n3q''Bold italic text ''1qa5mr1with italic deactivated'''\n\n'''Bold text..\n\n1mh8kfg\n\n''15d0sf2''\n\n18hz9jy\n\n10zz75j\n\n1oszw7p\n\n1fya1ev<!-- Unmatching number of opening, closing tags: -->\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\n1pkzcvj\n\ngn8stg",
-        "selser [2,0,[1],0,[2],0,[3,0],0,0,2,3,4,[2],2,0,3,[2,3,4,0,[4],0],0,3,3,[3,1,0]]": "lnznpa\n\n'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n1vlc9pq'''Bold text..\n\n'''\n\n'''Bold tag left open\n\n723fwo\n\nq0661c\n\nz0l23zNormal text.\n\nofd1f9\n\n<!-- Unmatching number of opening, closing tags: -->c7fw42'''This year''''ylr908 beat '''58r6eq'''s.\n\n''italic'''s plain",
-        "selser [[2],0,4,3,[2],3,3,4,[[2]],0,0,2,3,4,0,0,4,2,[[3,[4]],2,0],3,2]": "5zm9nc'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n1hrgoy\n\n130qy8p'''Bold text..\n\nlqovu6\n\n'''qg3h5rBold tag left open'''\n\n''Italic tag left open\n\n1t4sfxj\n\neok9g2<!-- Unmatching number of opening, closing tags: -->\n\n11udhhe\n\n1en5xaa\n\n'''''3i8fcb'''''im19fu'''Susan'''s.\n\ne33ewq\n\nPlain ''italic'''s plain",
-        "selser [[[4,4,3]],3,2,4,[[3]],2,[0,2],2,[2],0,[[3]],0,4,0,2,3,3,3,[2,0,2],4,2]": "''gjtqu0t91mcu''\n\n1hx6l9d\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\nvdjo5s\n\nhcmsq1\n\n..spanning two paragraphs (should not work).1c5npxh\n\n141xib\n\n1cu8ajx'''Bold tag left open'''\n\nn42xwl\n\n18xr6qs<!-- Unmatching number of opening, closing tags: -->\n\n1v71r9''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''6om711s.\n\n1d4foh1\n\n621vp8\n\nPlain ''italic'''s plain",
-        "selser [[[0,4,[4]]],4,[[[3],0,0]],3,4,2,[0,3],0,2,4,1,3,0,3,0,2,[3,2,[4],0,2,0],0,3,0,2]": "'''''Bold italic text '''s06jp1'''xda5m8'''''\n\n1kr52xu\n\n'''with italic deactivated'' in between.'''''\n\n142a6ay\n\n160iehx\n\n..spanning two paragraphs (should not work).\n\ngumuch\n\n'''Bold tag left open\n\n149fp1c\n\n''Italic tag left open''\n\nNormal text.<!-- Unmatching number of opening, closing tags: -->\n\nj4reai\n\n1jephw0s election ''6wxgg'' beat el8x97'''last year''''s.\n\n17qx10p\n\nPlain ''italic'''s plain",
-        "selser [[[1,0,1]],3,[4],2,2,0,0,2,0,0,3,2,0,2,0,0,[[2],0,[3],3,0,4],0,[1,0,0],0,4]": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\nnxjugm\n\n1c0vrj0\n\nswl7p\n\n'''Bold text..\n\n..spanning two paragraphs (should not work).'''\n\nkbvl5k\n\n'''Bold tag left open\n\nifyn6e\n\nNormal text.\n\n172pzin\n\n<!-- Unmatching number of opening, closing tags: -->\n'''6hiklfThis year'<nowiki/>'''s election '''last year''''198j65z\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\n1ivj2in",
-        "selser [[3],0,[1],0,3,2,1,4,4,4,4,3,[2],0,0,0,3,0,3,2,[4,3,3]]": "\n\n'''''Bold italic text ''with italic deactivated'' in between.'''''\n\nuhdjcl\n\n..spanning two paragraphs (should not work).'''\n\n5frquw\n\n19k6ov1\n\n1o0y2at\n\nryxd8e\n\niwtfi9Normal text.\n<!-- Unmatching number of opening, closing tags: -->\n\n9e99t4\n\n1qhd2t",
-        "selser [3,0,[2],0,[[2]],3,[3,0],0,4,4,0,0,3,2,0,3,[[4],2,4,0,3,0],2,3,3,[3,3,0]]": "\nsghwuk'''''Bold italic text ''with italic deactivated'' in between.'''''\n\n'''13i7bvqBold text..'''\n\n'''\n\n1ui2y0x\n\nlpnm0d\n\n''Italic tag left open\n\n12gp2zl\n\n<!-- Unmatching number of opening, closing tags: -->'''1mzcrn1'''m9vkvrs election 6cfxy9 beat s.\n\nsfmqoa\n\ns plain",
-        "selser [2,4,3,0,2,0,1,0,[3],0,[2],0,2,0,0,2,[2,2,4,0,1,0],2,4,3,4]": "1n8istl\n\n'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n12d31bp\n\nx5l5oh\n\n'''Bold text..\n\n..spanning two paragraphs (should not work).'''\n\n\nin7y9g''Italic tag left open\n\n1lselvv\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->m5ct7x\n\n1sjjpk5'''This year'<nowiki/>'''12gxn62s election uti2ye beat '''last year''''s.\n\n16ejn0z\n\n11lx057\n\n1n5is1f",
-        "selser [[1],2,4,0,[4],0,[4,0],0,[[2]],3,2,0,2,0,0,2,[0,2,2,0,1,0],0,1,0,2]": "'''''Bold italic text '''with bold deactivated''' in between.'''''\n\n1cn27kg\n\n10dnr9\n\nkuvhny\n\n26hv6l\n\n'''ic15fxBold tag left open'''\n\nldzxcv\n\n''Italic tag left open\n\n11ofp2j\n\nNormal text.\n\n<!-- Unmatching number of opening, closing tags: -->1fx6om2\n\n'''This year'<nowiki/>'''zpmbius election 1c8m37r''should'' beat '''last year''''s.\n\n''Tom'''s car is bigger than '''''<nowiki/>'''Susan'''s.\n\ncfphse\n\nPlain ''italic'''s plain"
     },
     "Using {{!}} in wikilinks (T290526)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a typeof=\"mw:ExpandedAttrs\" about=\"#mwt2\" rel=\"mw:WikiLink\" href=\"./Main_PageSomething_else\" title=\"Main PageSomething else\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_PageSomething_else\"},\"sa\":{\"href\":\"Main Page{{!}}Something else\"},\"dsr\":[0,32,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Main Page&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[]],\\\"dsr\\\":[11,16,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"!\\\",\\\"function\\\":\\\"!\\\"},\\\"params\\\":{},\\\"i\\\":0}}]}&apos;>|&lt;/span>Something else\"}]]}'>Main PageSomething else</a></p>\n\n<p data-parsoid='{\"dsr\":[34,49,0,0]}'><a typeof=\"mw:ExpandedAttrs\" about=\"#mwt5\" rel=\"mw:WikiLink\" href=\"./Main_PageSomething_else\" title=\"Main PageSomething else\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_PageSomething_else\"},\"sa\":{\"href\":\"{{T290526}}\"},\"dsr\":[34,49,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"&lt;span about=\\\"#mwt3\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[]],\\\"dsr\\\":[36,47,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"T290526\\\",\\\"href\\\":\\\"./Template:T290526\\\"},\\\"params\\\":{},\\\"i\\\":0}}]}&apos;>Main Page|Something else&lt;/span>\"}]]}'>Main PageSomething else</a></p>",
@@ -2601,10 +2260,6 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><i data-parsoid='{\"dsr\":[0,8,2,2]}'>test</i></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,25,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,25,8,9]}'>''test''</span></p>",
         "html2wt": "<nowiki>''test''</nowiki>"
-    },
-    "mw:ExtLink linking to a interwiki URL can be round-tripped losslessly (T94723)": {
-        "selser [[[4]]]": "[[:en:European_Robin|1g3q1dd]]",
-        "selser [[[2]]]": "[[:en:European_Robin|8u2ng6European Robin]]"
     },
     "new support for bdi element (T33817)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,193,0,0]}'>ולדימיר לנין (ברוסית: <bdi lang=\"ru\" data-parsoid='{\"stx\":\"html\",\"dsr\":[39,87,15,6]}'>Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי.</p>",

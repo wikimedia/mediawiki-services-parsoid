@@ -5,7 +5,6 @@
 			"annotationParserTests.txt": {},
 			"encapParserTests.txt": {},
 			"i18nParserTests.txt": {},
-			"indentPreTests.txt": {},
 			"langParserTests.txt": {},
 			"sectionWrappingParserTests.txt": {},
 			"selserWrappingParserTests.txt": {},
@@ -19,21 +18,56 @@
 		"project": "mediawiki/core",
 		"latestCommit": "4705964fd6877ab284931c10cb6588e50c15f2e7",
 		"targets": {
-			"extraParserTests.txt": {
-				"path": "tests/parser/extraParserTests.txt",
+			"comments.txt": {
+				"path": "tests/parser/comments.txt",
+				"expectedSHA1": ""
+			},
+			"badCharacters.txt": {
+				"path": "tests/parser/badCharacters.txt",
+				"oldPath": "tests/parser/extraParserTests.txt",
 				"expectedSHA1": "940dcd0852058eac1cce52b6c58f50400703e5c8"
 			},
-			"legacyMediaParserTests.txt": {
-				"path": "tests/parser/legacyMediaParserTests.txt",
+			"extLinks.txt": {
+				"path": "tests/parser/extLinks.txt",
+				"expectedSHA1": ""
+			},
+			"indentPre.txt": {
+				"path": "tests/parser/indentPre.txt",
+				"oldPath": "tests/parser/indentPreTests.txt",
+				"expectedSHA1": ""
+			},
+			"legacyMedia.txt": {
+				"path": "tests/parser/legacyMedia.txt",
+				"oldPath": "tests/parser/legacyMediaParserTests.txt",
 				"expectedSHA1": "2561a5ce1a9c4c6f2a173164975e174ef7869b70"
+			},
+			"magicLinks.txt": {
+				"path": "tests/parser/magicLinks.txt",
+				"expectedSHA1": ""
+			},
+			"magicWords.txt": {
+				"path": "tests/parser/magicWords.txt",
+				"expectedSHA1": ""
+			},
+			"media.txt": {
+				"path": "tests/parser/media.txt",
+				"expectedSHA1": "5a5ae678e46233fd8ffe2f58237cf9f87ac31f9b"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
 				"expectedSHA1": "16b2fe88f83771b06c9104f05efa9e65bc1eddc0"
 			},
-			"mediaParserTests.txt": {
-				"path": "tests/parser/mediaParserTests.txt",
-				"expectedSHA1": "5a5ae678e46233fd8ffe2f58237cf9f87ac31f9b"
+			"preTags.txt": {
+				"path": "tests/parser/preTags.txt",
+				"expectedSHA1": ""
+			},
+			"pWrapping.txt": {
+				"path": "tests/parser/pWrapping.txt",
+				"expectedSHA1": ""
+			},
+			"quotes.txt": {
+				"path": "tests/parser/quotes.txt",
+				"expectedSHA1": ""
 			}
 		}
 	},
