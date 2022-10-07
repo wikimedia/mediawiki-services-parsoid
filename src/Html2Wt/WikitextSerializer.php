@@ -791,8 +791,16 @@ class WikitextSerializer {
 			// that's still considered a valid parameter.
 			if ( property_exists( $param, 'wt' ) ) {
 				$value = $param->wt;
-			} else {
+			} elseif ( property_exists( $param, 'html' ) ) {
 				$value = $this->htmlToWikitext( [ 'env' => $this->env ], $param->html );
+			} else {
+				$this->env->log(
+					'error',
+					"params in data-mw part is missing wt/html for $key. " .
+						"Serializing as empty string.",
+					"data-mw part: " . json_encode( $part )
+				);
+				$value = "";
 			}
 
 			Assert::invariant( is_string( $value ), "For param: $key, wt property should be a string '
