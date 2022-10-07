@@ -10,7 +10,6 @@
 			"selserWrappingParserTests.txt": {},
 			"separatorTests.txt": {},
 			"tableFixupsParserTests.txt": {},
-			"tableTests.txt": {},
 			"wtEscapeTests.txt": {}
 		}
 	},
@@ -25,6 +24,10 @@
 			"badCharacters.txt": {
 				"path": "tests/parser/badCharacters.txt",
 				"expectedSHA1": "940dcd0852058eac1cce52b6c58f50400703e5c8"
+			},
+			"definitionLists.txt": {
+				"path": "tests/parser/definitionLists.txt",
+				"expectedSHA1": ""
 			},
 			"extLinks.txt": {
 				"path": "tests/parser/extLinks.txt",
@@ -62,9 +65,17 @@
 				"path": "tests/parser/pWrapping.txt",
 				"expectedSHA1": "a34b0151cb1961cc049ba11d407c465b754bc224"
 			},
+			"preprocessor.txt": {
+				"path": "tests/parser/preprocessor.txt",
+				"expectedSHA1": ""
+			},
 			"quotes.txt": {
 				"path": "tests/parser/quotes.txt",
 				"expectedSHA1": "9ef0f709c7a3c876609d6426e2bbaf77512a6892"
+			},
+			"tables.txt": {
+				"path": "tests/parser/tables.txt",
+				"expectedSHA1": ""
 			}
 		}
 	},

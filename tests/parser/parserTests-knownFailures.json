@@ -24,39 +24,14 @@
 	"<pre> inside a link": {
 		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"
 	},
-	"A table with captions with non-default spaced attributes and a table row": {
-		"wt2wt": "{|\n|+ style=\"color: red;\" |caption2\n|+ style=\"color: red;\" |caption3\n|-\n|foo\n|}"
-	},
 	"Abort table cell attribute parsing on wikilink": {
 		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
-	},
-	"Accept \"| !\" at start of line in tables (ignore !-attribute)": {
-		"wt2wt": "{|\n|-\n| !style=\"color:red\" |bar\n|}"
-	},
-	"Allow +/- in 2nd and later cells in a row, in 1st cell when td-attrs are present, or in 1st cell when there is a space between \"|\" and +/- ": {
-		"wt2wt": "{|\n|-\n| style=\"color:red;\" | +1\n| style=\"color:blue;\" | -1\n|-\n|1||2||3\n|1||+2||-3\n|-\n| +1\n| -1\n|}"
 	},
 	"Attribute test: unquoted but illegal value (hash)": {
 		"wt2wt": "<font color=\"#x\">foo</font>"
 	},
-	"Build table with pipe as data": {
-		"wt2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>|| style=\"color:red;\" |second data with |\n|-\n||<nowiki>data with |</nowiki>|||second data with |\n|}"
-	},
-	"Build table with {{!}}": {
-		"wt2wt": "{{{!}} class=\"wikitable\"\n!header\n!second header\n{{!}}- style=\"color:red;\"\n{{!}}data{{!}}{{!}} style=\"color:red;\"{{!}}second data\n{{!}}}"
-	},
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
-	},
-	"Definition Lists: Hacky use to indent tables (WS-insensitive)": {
-		"wt2wt": ":{|\n|a\n|}"
-	},
-	"Definition Lists: Mixed Lists: Test 13": {
-		"wt2html": "<ul data-parsoid='{\"dsr\":[0,32,0,0]}'><li data-parsoid='{\"dsr\":[0,32,1,0]}'><ol data-parsoid='{\"dsr\":[1,32,0,0]}'><li data-parsoid='{\"dsr\":[1,32,1,0]}'><ul data-parsoid='{\"dsr\":[2,32,0,0]}'><li data-parsoid='{\"dsr\":[2,32,1,0]}'><ol data-parsoid='{\"dsr\":[3,32,0,0]}'><li data-parsoid='{\"dsr\":[3,32,1,0]}'><dl data-parsoid='{\"dsr\":[4,32,0,0]}'><dt data-parsoid='{\"dsr\":[4,18,1,0]}'><ul data-parsoid='{\"dsr\":[5,17,0,0]}'><li data-parsoid='{\"dsr\":[5,17,1,0]}'><dl data-parsoid='{\"dsr\":[6,17,0,0]}'><dt data-parsoid='{\"dsr\":[6,17,1,0]}'><dl data-parsoid='{\"dsr\":[7,17,0,0]}'><dt data-parsoid='{\"dsr\":[7,12,1,0,0,1]}'>foo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[12,17,1,0,1,0]}'>bar</dd></dl></dt></dl></li></ul>\n</dt><dt data-parsoid='{\"dsr\":[18,27,5,0,0,1]}'>boo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[27,32,1,0,1,0]}'>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>"
-	},
-	"Definition lists: ignore colons inside tags": {
-		"wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[11,12,0,0]}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
-		"wt2wt": ";one <b>two : tag <i>fun:</i>:</b><nowiki>:def</nowiki>"
 	},
 	"Don't abort table cell attribute parsing if wikilink is found in template arg": {
 		"wt2wt": "{|\n|Test {{#tag:ref|One two \"[[three]]\" four}}\n|}\n<references />"
@@ -124,9 +99,6 @@
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\"},\"sa\":{\"href\":\"   zh  :    Chinese     \"},\"dsr\":[15,43,null,null]}'/>",
 		"wt2wt": "Blah blah blah\n[[   zh  :    Chinese     |   zh  :    Chinese     ]]"
 	},
-	"Invalid attributes in table cell (T3830)": {
-		"wt2wt": "{|\n| Cell: |broken\n|}"
-	},
 	"Media link redirect": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:MediaLink\" href=\"http://example.com/images/3/3a/Foobar.jpg\" resource=\"./Media:Redirect_to_foobar.jpg\" title=\"Foobar.jpg\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"resource\":\"./Media:Redirect_to_foobar.jpg\"},\"sa\":{\"resource\":\"Media:Redirect to foobar.jpg\"},\"dsr\":[0,32,2,2]}'>Media:Redirect to foobar.jpg</a></p>"
 	},
@@ -139,9 +111,6 @@
 	"Nested lists 6 (both elements empty)": {
 		"wt2wt": "\n**\n"
 	},
-	"Nested table": {
-		"wt2wt": "{| border=\"1\"\n|&alpha;\n|\n{| bgcolor=\"#ABCDEF\" border=\"2\"\n|nested\n|-\n|table\n|}\n|the original table again\n|}"
-	},
 	"Non-word characters don't terminate tag names (T19663, T42670, T54022)": {
 		"wt2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>"
 	},
@@ -153,12 +122,6 @@
 	},
 	"Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved": {
 		"wt2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']"
-	},
-	"Parsoid: Row-syntax table headings followed by comment & table cells": {
-		"wt2wt": "{|\n!foo||bar\n<!-- foo -->||baz||quux\n|}"
-	},
-	"Preprocessor precedence 12: broken language converter closed by brace.": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'>This form breaks the template, which is unfortunate:</p>\n<ul data-parsoid='{\"dsr\":[53,73,0,0]}'><li data-parsoid='{\"dsr\":[53,73,1,0]}'>{{1x|foo-{bar}bat}}</li></ul>\n\n<p data-parsoid='{\"dsr\":[75,167,0,0]}'>But if the broken language converter markup is inside an extension\ntag, nothing bad happens:</p>\n<ul data-parsoid='{\"dsr\":[168,293,0,0]}'><li data-parsoid='{\"dsr\":[168,198,1,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[169,198,8,9]}'>foo-{bar}bat</span></li>\n<li data-parsoid='{\"dsr\":[199,236,1,0]}'><span typeof=\"mw:Nowiki mw:Transclusion\" about=\"#mwt9\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[200,236,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;nowiki>foo-{bar}bat&lt;/nowiki>\"}},\"i\":0}}]}'>foo-{bar}bat</span></li>\n<li data-parsoid='{\"dsr\":[237,261,1,0]}'><pre typeof=\"mw:Extension/pre\" about=\"#mwt13\" data-parsoid='{\"stx\":\"html\",\"dsr\":[238,261,5,6]}' data-mw='{\"name\":\"pre\",\"attrs\":{},\"body\":{\"extsrc\":\"foo-{bar}bat\"}}'>foo-{bar}bat</pre></li>\n<li data-parsoid='{\"dsr\":[262,293,1,0]}'><pre typeof=\"mw:Extension/pre mw:Transclusion\" about=\"#mwt14\" data-parsoid='{\"stx\":\"html\",\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[263,293,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;pre>foo-{bar}bat&lt;/pre>\"}},\"i\":0}}]}'>foo-{bar}bat</pre></li></ul>\n\n<pre typeof=\"mw:Extension/tag\" about=\"#mwt20\" data-parsoid='{\"dsr\":[295,318,5,6]}' data-mw='{\"name\":\"tag\",\"attrs\":{},\"body\":{\"extsrc\":\"foo-{bar}bat\"}}'>'foo-{bar}bat'\narray (\n)\n</pre>\n<p about=\"#mwt21\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[319,349,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tag>foo-{bar}bat&lt;/tag>\"}},\"i\":0}}]}'>{{1x|</p><pre typeof=\"mw:Extension/tag\" about=\"#mwt21\" data-parsoid='{\"src\":\"&lt;tag>foo-{bar}bat&lt;/tag>\"}' data-mw='{\"name\":\"tag\",\"attrs\":{},\"body\":{\"extsrc\":\"foo-{bar}bat\"}}'>'foo-{bar}bat'\narray (\n)\n</pre><p about=\"#mwt21\">}}</p>\n"
 	},
 	"Render invalid page names as plain text (T53090)": {
 		"wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
@@ -251,17 +214,8 @@
 	"Table attribute safety": {
 		"wt2wt": "{|\n! style=\"<nowiki>border-width:expression(0+alert(document.cookie))</nowiki>\" + |status\n|}"
 	},
-	"Table cell attributes: Pipes protected by nowikis should be treated as a plain character": {
-		"wt2wt": "{|\n| title=\"foo\" |bar\n| title=\"foo<nowiki>|</nowiki>\" |bar\n|title=\"foo<nowiki>|</nowiki>\" bar\n|}"
-	},
 	"Table multiple attributes correction": {
 		"wt2wt": "{|\n! class=\"awesome\" + |status\n|}"
-	},
-	"Table rowspan": {
-		"wt2wt": "{| border=\"1\"\n|Cell 1, row 1\n| rowspan=\"2\" |Cell 2, row 1 (and 2)\n|Cell 3, row 1\n|-\n|Cell 1, row 2\n|Cell 3, row 2\n|}"
-	},
-	"Table td-cell syntax variations": {
-		"wt2wt": "{|\n| foo bar |baz\n|foo bar foo||baz\n| style=\"color:red;\" |baz\n|style='color:red;'||baz\n|}"
 	},
 	"Template with argument in separate line": {
 		"wt2wt": "{{templateasargtest  |\n templ = simple }}"
@@ -275,9 +229,6 @@
 	"Template with invalid target containing wikilink": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'>{{<a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[2,15,2,2]}'>Main Page</a>}}</p>",
 		"wt2wt": "<nowiki>{{</nowiki>[[Main Page]]<nowiki>}}</nowiki>"
-	},
-	"Templated table cell with untemplated attributes: Unsupported Scenario": {
-		"wt2html": "<table data-parsoid='{\"dsr\":[0,55,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,53,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,52,2,0]}'>\n<td data-parsoid='{\"dsr\":[6,18,1,0]}'>class=\"foo\"</td><td title=\"fail\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[18,52,null,null],\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n</tbody></table>"
 	},
 	"Templates: HTML Tables: 5. Proper fostering of categories from inside": {
 		"wt2wt": "[[Category:foo1]]\n<table><tr><td>foo</td></tr></table>\n<!--Two categories (T52330)-->\n[[Category:bar1]]\n[[Category:bar2]]\n<table><tr><td>foo</td></tr></table>"
