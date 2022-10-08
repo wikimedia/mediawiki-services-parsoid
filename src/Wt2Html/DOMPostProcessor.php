@@ -235,10 +235,8 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media'
 			],
-			// Run this after 'ProcessTreeBuilderFixups' because the mw:StartTag
-			// and mw:EndTag metas would otherwise interfere with the
-			// firstChild/lastChild check that this pass does.
-			// FIXME: those metas no longer exist
+			// Run this after 'ProcessTreeBuilderFixups' because this pass
+			// needs autoInsertedStart / autoInsertedEnd information.
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
 				'shortcut' => 'migrate-metas'
@@ -810,6 +808,8 @@ class DOMPostProcessor extends PipelineStage {
 			if ( !empty( $pp['skipNested'] ) && !$this->atTopLevel ) {
 				continue;
 			}
+
+			// error_log("RUNNING " . ($pp['shortcut'] ?? $pp['name']));
 
 			if ( !empty( $pp['withAnnotations'] ) && !$this->env->hasAnnotations ) {
 				continue;

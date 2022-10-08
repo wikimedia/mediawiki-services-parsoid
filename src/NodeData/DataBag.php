@@ -23,6 +23,14 @@ class DataBag {
 	 */
 	private $pageBundle;
 
+	/**
+	 * FIXME: Figure out a decent interface for updating these depths
+	 * without needing to import the various util files.
+	 *
+	 * Map of start/end meta tag tree depths keyed by about id
+	 */
+	public array $transclusionMetaTagDepthMap = [];
+
 	public function __construct() {
 		$this->dataObject = [];
 		$this->docId = 0;

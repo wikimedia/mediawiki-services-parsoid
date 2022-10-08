@@ -16412,7 +16412,7 @@ T115289: Don't migrate newlines out of tables with fostered content
 !! wikitext
 <table><td></td>{{1x|<tr>[[Category:One]]}}<!--c-->[[Category:Two]]
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:One" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:One"},"sa":{"href":"Category:One"},"fostered":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>&lt;td>&lt;/td>",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>[[Category:One]]"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'/><link rel="mw:PageProp/Category" href="./Category:Two" about="#mwt2"/><table about="#mwt2" data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr><td></td></tr></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:One" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Category:One"},"sa":{"href":"Category:One"},"fostered":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>&lt;td>&lt;/td>",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>[[Category:One]]"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'/><link rel="mw:PageProp/Category" href="./Category:Two" about="#mwt2"/><table about="#mwt2" data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr><td></td></tr><!--c--></tbody></table>
 !! end
 
 !! test
@@ -16420,7 +16420,7 @@ T73074: More fostering fun
 !! wikitext
 <table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:Two" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"fostered":true}'/><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{"stx":"html"}'></td></tr><tr about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>"}},"i":0}},"&lt;!--c-->[[Category:Two]]"]}'><!--c--></tr></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:Two" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"fostered":true}'/><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{"stx":"html"}'></td></tr><tr about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>"}},"i":0}}]}'></tr><!--c--></tbody></table>
 !! end
 
 !!test

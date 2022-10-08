@@ -49,7 +49,7 @@
 		"wt2html": "<table data-parsoid='{\"dsr\":[0,37,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,35,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,16,0,0]}'><td data-parsoid='{\"dsr\":[3,9,1,0]}'>Hello</td>\n<td data-parsoid='{\"dsr\":[10,16,1,0]}'>there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[17,31,14,0]}'></tr>\n<tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[32,34,2,0]}'></tr>\n</tbody></table>"
 	},
 	"Expansion of multi-line templates in attribute values (T8255)": {
-		"wt2html": "<div style=\"background: \n00FF00\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: \\n00FF00\"},\"sa\":{\"style\":\"background: {{1x|#00FF00}}\"},\"dsr\":[0,47,40,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[24,38,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>\\n&lt;/span>&lt;ol about=\\\"#mwt1\\\" data-parsoid=&apos;{\\\"dsr\\\":[null,38,0,0]}&apos;>&lt;li data-parsoid=&apos;{\\\"dsr\\\":[null,38,1,0]}&apos;>00FF00&lt;/li>&lt;/ol>\"}]]}'>-</div>",
+		"wt2html": "<div style=\"background: \n00FF00\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: \\n00FF00\"},\"sa\":{\"style\":\"background: {{1x|#00FF00}}\"},\"dsr\":[0,47,40,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[24,38,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>\\n&lt;/span>&lt;ol about=\\\"#mwt1\\\" data-parsoid=\\\"{}\\\">&lt;li data-parsoid=\\\"{}\\\">00FF00&lt;/li>&lt;/ol>\"}]]}'>-</div>",
 		"wt2wt": "<div style=\"background: {{1x|#00FF00}}\n\">-</div>"
 	},
 	"Fuzz testing: Parser13": {
@@ -175,7 +175,7 @@
 		"wt2wt": "''[http://example.com text]''\n[http://example.com '''text''']\n''Something [http://example.com in italic]''\n''Something [http://example.com mixed''''', even bold''''']'''\n'''''Now [http://example.com both]'''''"
 	},
 	"T73074: More fostering fun": {
-		"wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->[[Category:Two]]"
+		"wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->"
 	},
 	"T8563: Section extraction for section shown by <includeonly>": {
 		"wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_T-2\" data-parsoid='{\"dsr\":[53,68,2,2]}'>Section T-2</h2>"

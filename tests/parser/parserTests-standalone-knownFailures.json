@@ -284,7 +284,7 @@
         "selser [[4,1]]": "{|<!--95fu82-->\n|-\n|\n|{{1x|style='color:red'}}|foo\n|}"
     },
     "Empty TR followed by a template-generated TR": {
-        "html2html": "<table data-parsoid='{\"dsr\":[0,34,2,2]}'>\n<tbody about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[3,32,0,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>&lt;td>foo&lt;/td>&lt;/tr>\"}},\"i\":0}},\"\\n\"]}'><tr><td>foo</td></tr>\n</tbody></table>",
+        "html2html": "<table data-parsoid='{\"dsr\":[0,34,2,2]}'>\n<tbody about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[3,31,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>&lt;td>foo&lt;/td>&lt;/tr>\"}},\"i\":0}}]}'><tr><td>foo</td></tr></tbody>\n</table>",
         "html2wt": "{|\n{{1x|<tr><td>foo</td></tr>}}\n|}"
     },
     "Empty TR followed by mixed-ws-comment line should RT correctly": {
@@ -1245,24 +1245,23 @@
         "html2wt": "<blockquote>\nFoo\n\nBar\n\n</blockquote>"
     },
     "T73074: More fostering fun": {
-        "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "html2html": "<link rel=\"mw:PageProp/Category\" href=\"./Category:Two\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Two\"},\"sa\":{\"href\":\"Category:Two\"},\"dsr\":[0,16,null,null]}'/>\n<link rel=\"mw:PageProp/Category\" href=\"./Category:Two\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Category:Two\"},\"sa\":{\"href\":\"Category:Two\"},\"fostered\":true,\"dsr\":[17,17,null,null]}'/><table data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[17,73,7,0]}'><tbody data-parsoid='{\"dsr\":[24,73,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"stx\":\"html\",\"dsr\":[24,38,0,5]}'><td data-parsoid='{\"stx\":\"html\",\"dsr\":[24,33,4,5]}'></td></tr><tr about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[38,73,null,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tr>\"}},\"i\":0}},\"&lt;!--c-->[[Category:Two]]\"]}'><!--c--></tr></tbody></table>",
-        "html2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->[[Category:Two]]",
+        "wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->",
+        "html2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->",
         "selser [0,4]": "\nlomg0q",
         "selser [0,1]": "<table data-foobar=\"9cf581\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [2,[[[3],0]]]": "scse7n\n<table>{{1x|<tr>}}<!--c-->[[Category:Two]]",
+        "selser [2,[[[3],0,0]]]": "61fo7n\n<table>{{1x|<tr>}}<!--c-->",
         "selser [3,1]": "<table data-foobar=\"nvceso\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
         "selser [2,[4]]": "lmrcpt\n<table><!--tdercx-->",
         "selser [2,4]": "qee0jt\n\nw6btke",
         "selser [1,[2]]": "[[Category:Two]]<table><!--r9jimg--><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [0,[1]]": "<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
+        "selser [0,[1]]": "<table><td></td>{{1x|<tr>}}<!--c-->",
         "selser [0,2]": "\n11oow1i<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [3,[1]]": "<table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
+        "selser [3,[1]]": "<table><td></td>{{1x|<tr>}}<!--c-->",
         "selser [0,3]": "",
         "selser [2,1]": "1mv3j75\n<table data-foobar=\"xgfqp4\"><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [0,[[[4],0]]]": "<table><td>1na3y5x</td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [3,[[[2],0]]]": "<table><td>gaip59</td><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]",
-        "selser [0,[[[3],0]]]": "<table>{{1x|<tr>}}<!--c-->[[Category:Two]]"
+        "selser [0,[[[4],0,0]]]": "<table><td>1yx3do</td>{{1x|<tr>}}<!--c-->",
+        "selser [3,[[[2],0,0]]]": "<table><td>bu3ntq</td><td></td>{{1x|<tr>}}<!--c-->",
+        "selser [0,[[[3],0,0]]]": "<table>{{1x|<tr>}}<!--c-->"
     },
     "T7678: Double-parsed template argument": {
         "html2wt": "<nowiki>{{{1}}}</nowiki>\n"

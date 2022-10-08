@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Wikimedia\Parsoid\DOM\Element as DOMElement;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\RemexHtml\TreeBuilder\Element;
 use Wikimedia\RemexHtml\TreeBuilder\RelayTreeHandler;
 
@@ -119,6 +120,22 @@ class TreeMutationRelay extends RelayTreeHandler {
 
 		$this->nextHandler->insertElement( $preposition, $ref, $element, $void,
 			$sourceStart, $sourceLength );
+
+		// Compute nesting depth of mw:Transclusion meta tags
+		if ( WTUtils::isTplMarkerMeta( $element->userData ) ) {
+			$meta = $element->userData;
+			$n = 0;
+			$par = $meta->parentNode;
+			while ( $par ) {
+				$n++;
+				$par = $par->parentNode;
+			}
+
+			$about = $meta->getAttribute( 'about' );
+			$isEnd = WTUtils::isTplEndMarkerMeta( $meta );
+			$docDataBag = DOMDataUtils::getBag( $meta->ownerDocument );
+			$docDataBag->transclusionMetaTagDepthMap[$about][$isEnd ? 'end' : 'start'] = $n;
+		}
 
 		if ( $element->attrs === $this->matchAttribs ) {
 			$this->matchedElement = $element->userData;
