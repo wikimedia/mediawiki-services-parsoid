@@ -15,7 +15,7 @@ class ConstantLanguageGuesser extends LanguageGuesser {
 	private $langCode;
 
 	/**
-	 * @param string $langCode
+	 * @param string $langCode a MediaWiki-internal language code
 	 */
 	public function __construct( string $langCode ) {
 		$this->langCode = $langCode;

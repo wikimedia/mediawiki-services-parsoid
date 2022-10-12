@@ -21,7 +21,7 @@ class MachineLanguageGuesser extends LanguageGuesser {
 	 * MachineLanguageGuesser constructor.
 	 * @param FstReplacementMachine $machine
 	 * @param Node $root
-	 * @param string $destCode
+	 * @param string $destCode a MediaWiki-internal language code
 	 */
 	public function __construct( FstReplacementMachine $machine, Node $root, $destCode ) {
 		$codes = [];

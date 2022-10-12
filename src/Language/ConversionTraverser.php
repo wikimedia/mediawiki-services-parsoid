@@ -18,10 +18,10 @@ use Wikimedia\Parsoid\Utils\Utils;
 
 class ConversionTraverser extends DOMTraverser {
 
-	/** @var string */
+	/** @var string a MediaWiki-internal language code */
 	private $toLang;
 
-	/** @var string */
+	/** @var string a MediaWiki-internal language code */
 	private $fromLang;
 
 	/** @var LanguageGuesser */
@@ -32,6 +32,7 @@ class ConversionTraverser extends DOMTraverser {
 
 	/**
 	 * @param string $toLang target language for conversion
+	 *    (MediaWiki-internal language code)
 	 * @param LanguageGuesser $guesser oracle to determine "original language" for round-tripping
 	 * @param ReplacementMachine $machine machine to do actual conversion
 	 */

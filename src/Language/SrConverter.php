@@ -25,7 +25,7 @@ class SrConverter extends LanguageConverter {
 	/**
 	 * Variant based on the ReplacementMachine's bracketing abilities
 	 * @param string $text
-	 * @param string $variant
+	 * @param string $variant a MediaWiki-internal language code
 	 * @return bool
 	 */
 	public function guessVariant( $text, $variant ) {

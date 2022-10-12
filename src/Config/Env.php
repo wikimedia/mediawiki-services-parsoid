@@ -250,10 +250,12 @@ class Env {
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
 	 *  - htmlVariantLanguage: string|null
-	 *      If non-null, the language variant used for Parsoid HTML;
+	 *      If non-null, the language variant used for Parsoid HTML as
+	 *      a MediaWiki-internal language code;
 	 *      we convert to this if wt2html, or from this if html2wt.
 	 *  - wtVariantLanguage: string|null
-	 *      If non-null, the language variant to be used for wikitext.
+	 *      If non-null, the language variant to be used for wikitext as
+	 *      a MediaWiki-internal language code;
 	 *      If null, heuristics will be used to identify the original
 	 *      wikitext variant in wt2html mode, and in html2wt mode new
 	 *      or edited HTML will be left unconverted.
@@ -1034,7 +1036,7 @@ class Env {
 	 * If non-null, the language variant used for Parsoid HTML; we convert
 	 * to this if wt2html, or from this (if html2wt).
 	 *
-	 * @return string|null
+	 * @return string|null a MediaWiki-internal language code
 	 */
 	public function getHtmlVariantLanguage(): ?string {
 		return $this->htmlVariantLanguage;
@@ -1046,7 +1048,7 @@ class Env {
 	 * in wt2html mode, and in html2wt mode new or edited HTML will be left
 	 * unconverted.
 	 *
-	 * @return string|null
+	 * @return string|null a MediaWiki-internal language code
 	 */
 	public function getWtVariantLanguage(): ?string {
 		return $this->wtVariantLanguage;
@@ -1068,7 +1070,7 @@ class Env {
 
 	/**
 	 * Determine an appropriate content-language for the HTML form of this page.
-	 * @return string
+	 * @return string a MediaWiki-internal language code
 	 */
 	public function htmlContentLanguage(): string {
 		// PageConfig::htmlVariant is set iff we do variant conversion on the

@@ -55,7 +55,9 @@ abstract class PageConfig {
 	abstract public function getPageId(): int;
 
 	/**
-	 * The page's language code
+	 * The page's language code.
+	 *
+	 * This is a *mediawiki-internal* language code, not a BCP-47 code.
 	 * @return string
 	 */
 	abstract public function getPageLanguage(): string;
@@ -116,6 +118,7 @@ abstract class PageConfig {
 
 	/**
 	 * Get the page's language variant
+	 * This is a *mediawiki-internal* language code, not a BCP-47 code.
 	 * @return string|null
 	 */
 	public function getVariant(): ?string {
@@ -125,6 +128,7 @@ abstract class PageConfig {
 	/**
 	 * Set the page's language variant.  (Records the fact that
 	 * conversion has been done in the parser pipeline.)
+	 * This is a *mediawiki-internal* language code, not a BCP-47 code.
 	 * @param string $htmlVariant
 	 */
 	public function setVariant( $htmlVariant ): void {

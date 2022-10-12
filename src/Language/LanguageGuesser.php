@@ -12,7 +12,7 @@ abstract class LanguageGuesser {
 
 	/**
 	 * @param Element $node
-	 * @return string predicted source language
+	 * @return string predicted source language, as a MediaWiki-internal code
 	 */
 	abstract public function guessLang( Element $node ): string;
 

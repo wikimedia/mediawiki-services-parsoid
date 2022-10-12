@@ -188,7 +188,9 @@ class Parsoid {
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
 	 *   'htmlVariantLanguage'  => (string) If non-null, the language variant used for Parsoid HTML.
+	 *                             A MediaWiki-internal language code.
 	 *   'wtVariantLanguage'    => (string) If non-null, the language variant used for wikitext.
+	 *                             A MediaWiki-internal language code.
 	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
@@ -266,7 +268,9 @@ class Parsoid {
 	 *                                     what kind of source offsets are present in the HTML?
 	 *   'contentmodel'        => (string|null) The content model of the input.
 	 *   'htmlVariantLanguage' => (string) If non-null, the language variant used for Parsoid HTML.
+	 *                            A MediaWiki-internal language code.
 	 *   'wtVariantLanguage'   => (string) If non-null, the language variant used for wikitext.
+	 *                            A MediaWiki-internal language code.
 	 *   'traceFlags'          => (array) associative array with tracing options
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options

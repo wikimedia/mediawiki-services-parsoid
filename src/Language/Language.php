@@ -27,7 +27,7 @@ class Language {
 	/**
 	 * Returns true if a language code string is of a valid form, whether or not it exists.
 	 * This includes codes which are used solely for customisation via the MediaWiki namespace.
-	 * @param string $code
+	 * @param string $code a MediaWiki-internal language code
 	 * @return bool
 	 */
 	public static function isValidCode( string $code ): bool {

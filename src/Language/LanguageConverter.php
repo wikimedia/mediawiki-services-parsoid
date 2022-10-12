@@ -160,7 +160,7 @@ class LanguageConverter {
 
 	/**
 	 * @param string $text
-	 * @param string $variant
+	 * @param string $variant a MediaWiki-internal language code
 	 * @return bool
 	 */
 	public function guessVariant( $text, $variant ) {
@@ -182,8 +182,10 @@ class LanguageConverter {
 	 * @param Env $env
 	 * @param Document $doc The input document.
 	 * @param ?string $targetVariant The desired output variant.
+	 *    MediaWiki-internal code.
 	 * @param ?string $sourceVariant The variant used by convention when
 	 *   authoring pages, if there is one; otherwise left null.
+	 *    MediaWiki-internal code.
 	 */
 	public static function maybeConvert(
 		Env $env, Document $doc, ?string $targetVariant,
@@ -227,8 +229,10 @@ class LanguageConverter {
 	 * @param Env $env
 	 * @param Node $rootNode The root node of a fragment to convert.
 	 * @param string $targetVariant The variant to be used for the output DOM.
+	 *  This is a MediaWiki-internal code.
 	 * @param ?string $sourceVariant An optional variant assumed for the
 	 *  input DOM in order to create roundtrip metadata.
+	 *  This is a MediaWiki-internal code.
 	 */
 	public static function baseToVariant(
 		Env $env, Node $rootNode, string $targetVariant,

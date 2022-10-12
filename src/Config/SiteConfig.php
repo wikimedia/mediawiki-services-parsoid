@@ -660,7 +660,7 @@ abstract class SiteConfig {
 
 	/**
 	 * Wiki language code.
-	 * @return string
+	 * @return string Mediawiki-internal language code
 	 */
 	abstract public function lang(): string;
 
@@ -686,7 +686,7 @@ abstract class SiteConfig {
 
 	/**
 	 * Whether language converter is enabled for the specified language
-	 * @param string $lang Language code
+	 * @param string $lang Language code Mediawiki-internal language code
 	 * @return bool
 	 */
 	abstract public function langConverterEnabled( string $lang ): bool;
@@ -694,7 +694,7 @@ abstract class SiteConfig {
 	/**
 	 * Is the language converter enabled for this language?
 	 *
-	 * @param string $lang
+	 * @param string $lang Mediawiki-internal language code
 	 * @return bool
 	 */
 	public function langConverterEnabledForLanguage( string $lang ): bool {
