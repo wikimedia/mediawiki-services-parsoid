@@ -741,10 +741,13 @@ heading =
 // for further details.
 
 comment =
-	'<!--' c:$(!"-->" .)* ('-->' / eof) {
+	'<!--' c:$(!"-->" .)* cEnd:$('-->' / eof) {
 		$data = WTUtils::encodeComment( $c );
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
+		if ( $cEnd !== '-->' ) {
+			$dp->unclosedComment = true;
+		}
 		return [ new CommentTk( $data, $dp ) ];
 	}
 

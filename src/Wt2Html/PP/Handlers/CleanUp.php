@@ -31,6 +31,7 @@ class CleanUp {
 		// wrapper around which carries any relevant data-mw & typeof properties.
 		$isIndentPreSpace = PreHandler::isIndentPreWS( $node );
 		if ( $isIndentPreSpace ||
+			DOMUtils::hasTypeOf( $node, "mw:Placeholder/UnclosedComment" ) ||
 			// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 			// element attached to it. So, check if the node has data-mw,
 			// in which case we also have to keep it.

@@ -633,11 +633,14 @@ private function a24($b) {
 private function a25() {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a26($c) {
+private function a26($c, $cEnd) {
 
 		$data = WTUtils::encodeComment( $c );
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
+		if ( $cEnd !== '-->' ) {
+			$dp->unclosedComment = true;
+		}
 		return [ new CommentTk( $data, $dp ) ];
 	
 }
@@ -3023,6 +3026,7 @@ private function parsecomment($silence) {
     goto seq_1;
   }
   // free $p6
+  $p6 = $this->currPos;
   // start choice_1
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-->", $this->currPos, 3, false) === 0) {
     $r7 = "-->";
@@ -3034,16 +3038,21 @@ private function parsecomment($silence) {
   }
   $r7 = $this->discardeof($silence);
   choice_1:
-  if ($r7===self::$FAILED) {
+  // cEnd <- $r7
+  if ($r7!==self::$FAILED) {
+    $r7 = substr($this->input, $p6, $this->currPos - $p6);
+  } else {
+    $r7 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
+  // free $p6
   $r1 = true;
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a26($r5);
+    $r1 = $this->a26($r5, $r7);
   }
   // free $p3
   $cached = ['nextPos' => $this->currPos, 'result' => $r1];
@@ -8941,6 +8950,7 @@ private function discardcomment($silence) {
     goto seq_1;
   }
   // free $p6
+  $p6 = $this->currPos;
   // start choice_1
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-->", $this->currPos, 3, false) === 0) {
     $r7 = "-->";
@@ -8952,16 +8962,21 @@ private function discardcomment($silence) {
   }
   $r7 = $this->discardeof($silence);
   choice_1:
-  if ($r7===self::$FAILED) {
+  // cEnd <- $r7
+  if ($r7!==self::$FAILED) {
+    $r7 = substr($this->input, $p6, $this->currPos - $p6);
+  } else {
+    $r7 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
+  // free $p6
   $r1 = true;
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a26($r5);
+    $r1 = $this->a26($r5, $r7);
   }
   // free $p3
   $cached = ['nextPos' => $this->currPos, 'result' => $r1];

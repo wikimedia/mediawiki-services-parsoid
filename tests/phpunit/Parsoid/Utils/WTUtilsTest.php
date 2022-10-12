@@ -131,4 +131,22 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		self::assertNull( $attrI18n->params );
 		self::assertEquals( 'key1', $attrI18n->key );
 	}
+
+	/**
+	 * @covers ::decodedCommentLength
+	 * @return void
+	 */
+	public function testDecodedCommentLength() {
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( "<html><body><div>" .
+			"<p><!--c1--></p>" .
+			"a <meta typeof='mw:Placeholder/UnclosedComment'/><!--c2\n-->" .
+			"</body></html>" );
+		$body = DOMCompat::getBody( $doc );
+		$body->setAttribute( 'hasUnclosedComment', "1" );
+		$div = $body->firstChild;
+		$p = $div->firstChild;
+		self::assertEquals( 7, WTUtils::decodedCommentLength( $div->lastChild ) );
+		self::assertEquals( 9, WTUtils::decodedCommentLength( $p->lastChild ) );
+	}
 }

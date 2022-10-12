@@ -416,11 +416,20 @@ class ComputeDSRTest extends TestCase {
 			],
 			'comment 2' => [
 				// Misnesting is a way to get the comment length to appear in the output
-				'wt' => "<div><b><i>AAA</b><!--BBB--></i></div>",
+				'wt' => '<div><b><i>AAA</b><!--BBB--></i></div>',
 				'specs' => [
 					[
 						'selector' => 'body > div',
 						'dsrContent' => [ '<div><b><i>AAA</b><!--BBB--></i></div>', '<div>', '</div>' ]
+					]
+				]
+			],
+			'unclosed comment' => [
+				'wt' => '{{1x|<div>a}}\n\nb\n<!--\nx',
+				'specs' => [
+					[
+						'selector' => 'body > div',
+						'dsrContent' => [ '{{1x|<div>a}}\n\nb\n<!--\nx', null, '' ]
 					]
 				]
 			],

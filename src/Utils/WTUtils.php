@@ -784,14 +784,25 @@ class WTUtils {
 	 */
 	public static function decodedCommentLength( $node ): int {
 		// Add 7 for the "<!--" and "-->" delimiters in wikitext.
+		$syntaxLen = 7;
 		if ( $node instanceof Comment ) {
 			$value = $node->nodeValue;
+			if ( $node->previousSibling &&
+				DOMUtils::hasTypeOf( $node->previousSibling, "mw:Placeholder/UnclosedComment" )
+			) {
+				$syntaxLen = 4;
+			}
 		} elseif ( $node instanceof CommentTk ) {
+			// @phan-suppress-next-line PhanUndeclaredProperty
+			if ( isset( $node->dataParsoid->unclosedComment ) ) {
+				$syntaxLen = 4;
+			}
 			$value = $node->value;
 		} else {
+			/* FIXME: What in the world is this for */
 			$value = $node;
 		}
-		return strlen( self::decodeComment( $value ) ) + 7;
+		return strlen( self::decodeComment( $value ) ) + $syntaxLen;
 	}
 
 	/**

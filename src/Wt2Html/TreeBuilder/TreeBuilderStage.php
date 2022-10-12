@@ -371,6 +371,14 @@ class TreeBuilderStage extends PipelineStage {
 				$this->insertPlaceholderMeta( $tName, $dataParsoid, false );
 			}
 		} elseif ( $token instanceof CommentTk ) {
+			$dp = $token->dataParsoid;
+			// @phan-suppress-next-line PhanUndeclaredProperty
+			if ( isset( $dp->unclosedComment ) ) {
+				// Add a marker meta tag to aid accurate DSR computation
+				$attribs = [ 'typeof' => 'mw:Placeholder/UnclosedComment' ];
+				$this->remexPipeline->insertUnfosteredMeta(
+					$this->stashDataAttribs( $attribs, $dp ) );
+			}
 			$dispatcher->comment( $token->value, 0, 0 );
 		} elseif ( $token instanceof EOFTk ) {
 			$dispatcher->endDocument( 0 );
