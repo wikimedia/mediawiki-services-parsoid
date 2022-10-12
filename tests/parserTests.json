@@ -16,38 +16,35 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "4705964fd6877ab284931c10cb6588e50c15f2e7",
+		"latestCommit": "e6be4e55d5f6af02d6a0f0e605c44efc7c336810",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "209c01e401be50befa5f465b4167256ab63874f0"
 			},
 			"badCharacters.txt": {
 				"path": "tests/parser/badCharacters.txt",
-				"oldPath": "tests/parser/extraParserTests.txt",
 				"expectedSHA1": "940dcd0852058eac1cce52b6c58f50400703e5c8"
 			},
 			"extLinks.txt": {
 				"path": "tests/parser/extLinks.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "b37c685a5a9d64c411074a3120e82d3766c05648"
 			},
 			"indentPre.txt": {
 				"path": "tests/parser/indentPre.txt",
-				"oldPath": "tests/parser/indentPreTests.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "15e93ceee6d8ea62d6d2d07d405dd2e9280bbbe8"
 			},
 			"legacyMedia.txt": {
 				"path": "tests/parser/legacyMedia.txt",
-				"oldPath": "tests/parser/legacyMediaParserTests.txt",
 				"expectedSHA1": "2561a5ce1a9c4c6f2a173164975e174ef7869b70"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "e5612d61629aae0979ca4d456b4f81a7e047755a"
 			},
 			"magicWords.txt": {
 				"path": "tests/parser/magicWords.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "4a097d8f2370194c1bff97e4146e7d4920258f57"
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
@@ -55,19 +52,19 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "16b2fe88f83771b06c9104f05efa9e65bc1eddc0"
+				"expectedSHA1": "f3b53f80dd51e64e00c7891328ad34b83ac3013e"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "8f249373f628165ef00deedb6a1156119130d188"
 			},
 			"pWrapping.txt": {
 				"path": "tests/parser/pWrapping.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "a34b0151cb1961cc049ba11d407c465b754bc224"
 			},
 			"quotes.txt": {
 				"path": "tests/parser/quotes.txt",
-				"expectedSHA1": ""
+				"expectedSHA1": "9ef0f709c7a3c876609d6426e2bbaf77512a6892"
 			}
 		}
 	},
