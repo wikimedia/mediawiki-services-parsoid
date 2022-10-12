@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 /**
- * Fetch new parserTests.txt from upstream mediawiki/core.
+ * Fetch new sync'ed parserTests from upstream repositories.
  */
 
 'use strict';
 
 require('../core-upgrade.js');
 
-// UPDATE THESE when upstream mediawiki/core includes new parsoid-relevant tests
+// UPDATE THESE when upstream repository includes new parsoid-relevant tests
 // This ensures that our knownFailures list is in sync.
 //
-// ==> Use "./fetch-parserTests.txt.js <target> --force" to download latest
+// ==> Use "./fetch-parserTests.js <target>" to download latest
 //     parserTests and update these hashes automatically.
+// ==> Use "./fetch-parserTests.js --all" to download all the latest
+//     parserTests and update all the hashes.
 //
 
 const fs = require('pn/fs');
@@ -145,26 +147,28 @@ Promise.async(function *() {
 		'help': { description: 'Show this message' },
 	});
 	const argv = opts.argv;
-	if (argv.help || argv._.length !== 1) {
+	const enoughArgs = (argv.all || argv._.length >= 1);
+	if (argv.help || !enoughArgs) {
 		opts.showHelp();
 		return;
 	}
-	const targetRepo = argv._[0];
-	if (!testFiles.hasOwnProperty(targetRepo)) {
-		console.warn(targetRepo + ' not defined in parserTests.json');
-		return;
-	}
-	if (targetRepo === 'parsoid') {
-		console.warn('Nothing to sync for parsoid files');
-		return;
-	}
-	if (yield isUpToDate(targetRepo)) {
-		console.warn("Files not locally modified.");
-	}
-
 	if (argv.force) {
 		// Allow this for back-compat, but we don't need this argument
 		// any more.
 	}
-	yield forceUpdate(targetRepo);
+	const targetRepos = argv.all ? Object.keys(testFiles) : [ argv._[0] ];
+	for (const targetRepo of targetRepos) {
+		if (!testFiles.hasOwnProperty(targetRepo)) {
+			console.warn(targetRepo + ' not defined in parserTests.json');
+			continue;
+		}
+		if (targetRepo === 'parsoid') {
+			console.warn('Nothing to sync for parsoid files');
+			continue;
+		}
+		if (yield isUpToDate(targetRepo)) {
+			console.warn("Files not locally modified.");
+		}
+		yield forceUpdate(targetRepo);
+	}
 })().done();

@@ -40,7 +40,7 @@ require('../core-upgrade.js');
  *   merged before continuing.)
  *
  *   $ cd $PARSOID
- *   $ tools/fetch-parserTests.txt.js $TARGET_REPO
+ *   $ tools/fetch-parserTests.js $TARGET_REPO
  *   $ php bin/parserTests.php --updateKnownFailures
  *   $ git add -u
  *   $ git commit -m "Sync parserTests with core"
@@ -103,7 +103,7 @@ require('../core-upgrade.js');
  * of the sync either, because the Parsoid commit won't actually be
  * empty: it updates the commit hashes and effectively changes the
  * rebase source for the next sync. The sync point is recorded in
- * parserTests.json via the fetch-parserTests.txt.js script. Since the
+ * parserTests.json via the fetch-parserTests.js script. Since the
  * hash in the json file is checked out and rebased, without this
  * update, the next sync from Parsoid will start from an older
  * baseline and introduce pointless merge conflicts to resolve.
