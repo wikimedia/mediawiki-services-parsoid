@@ -202,11 +202,20 @@ Promise.async(function *() {
 		const targetInfo = targets[targetName];
 		const parsoidFile = path.join(__dirname, '..', 'tests', 'parser', targetName);
 		const targetFile = path.join(mwpath, targetInfo.path);
+		// Support file renaming!
+		if (targetInfo.oldPath) {
+			const targetOldFile = path.join(mwpath, targetInfo.oldPath);
+			// If this exists, do a git-mv to the new path before copying
+			// the Parsoid file over.
+			if (yield fs.exists(targetOldFile)) {
+				yield mwexec(['git', 'mv', targetInfo.oldPath, targetInfo.path]);
+			}
+		}
 		try {
 			const data = yield fs.readFile(parsoidFile);
 			console.log('>>>', 'cp', parsoidFile, targetFile);
 			yield fs.writeFile(targetFile, data);
-			changedFiles.push(targetFile);
+			changedFiles.push(targetInfo.path);
 			firstTarget = false;
 		} catch (e) {
 			// cleanup
@@ -221,7 +230,8 @@ Promise.async(function *() {
 	commitmsg += '\n\nThis now aligns with Parsoid commit ' + phash;
 	// Note the --allow-empty, because sometimes there are no parsoid-side
 	// changes to merge. (We just need to get changes from upstream.)
-	yield mwexec(['git', 'commit', '-m', commitmsg, '--allow-empty'].concat(changedFiles));
+	yield mwexec(['git', 'add'].concat(changedFiles));
+	yield mwexec(['git', 'commit', '-m', commitmsg, '--allow-empty']);
 
 	// ok, we were successful at making the commit.  Give further instructions.
 	console.log();
