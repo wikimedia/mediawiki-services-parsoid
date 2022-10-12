@@ -17,7 +17,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "ead3f8b4c3954de76999832425bc14f64e400e3c",
+		"latestCommit": "4705964fd6877ab284931c10cb6588e50c15f2e7",
 		"targets": {
 			"extraParserTests.txt": {
 				"path": "tests/parser/extraParserTests.txt",
@@ -25,21 +25,21 @@
 			},
 			"legacyMediaParserTests.txt": {
 				"path": "tests/parser/legacyMediaParserTests.txt",
-				"expectedSHA1": "14a3349a9088f7c6b0a04a105d0fb89293294e55"
+				"expectedSHA1": "2561a5ce1a9c4c6f2a173164975e174ef7869b70"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "642170bebe1e234e6738ba9fa40491f77f9ba9fe"
+				"expectedSHA1": "16b2fe88f83771b06c9104f05efa9e65bc1eddc0"
 			},
 			"mediaParserTests.txt": {
 				"path": "tests/parser/mediaParserTests.txt",
-				"expectedSHA1": "7b2ab7514c6d5210bc8889ed09d8ced6193d51cc"
+				"expectedSHA1": "5a5ae678e46233fd8ffe2f58237cf9f87ac31f9b"
 			}
 		}
 	},
 	"Cite": {
 		"project": "mediawiki/extensions/Cite",
-		"latestCommit": "0060e2b43d526fbbe188eb1f72775b410bfaaa83",
+		"latestCommit": "acca9487bec2909e5553e5eafdbc6b580ed2e1d4",
 		"targets": {
 			"citeParserTests.txt": {
 				"path": "tests/parser/citeParserTests.txt",
@@ -49,32 +49,32 @@
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "0919e0d6223525cf8a7dca5c48fb7ec1606104d4",
+		"latestCommit": "8d8252555b2c6f2d9b6176b60bfb7ab9a03fed32",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "ceb6911c2f6c22c67e81c806f8ddbc489a7da776"
+				"expectedSHA1": "8b3c371bd694b4b2251be96f3cda1dcb31175e12"
 			}
 		}
 	},
 	"Poem": {
 		"project": "mediawiki/extensions/Poem",
-		"latestCommit": "6a12103aa86ecfe07b0d3832b9cce63c890f4b7b",
+		"latestCommit": "44caab4c88b339aa0aed6f6761b89d4713330012",
 		"targets": {
 			"poemParserTests.txt": {
 				"repo": "Poem",
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "3f6a206276e02f12b0395d4489204d29d65b8adf"
+				"expectedSHA1": "763b07ff73c231eb0399756ce0776c7a6244e3ed"
 			}
 		}
 	},
 	"ImageMap": {
 		"project": "mediawiki/extensions/ImageMap",
-		"latestCommit": "bc5f7f7f3f33eb2fef96ce06bd7d07ae1cebc8ec",
+		"latestCommit": "8890a38c966f4ef2aa2a3eb8d3b8c72d28ec5979",
 		"targets": {
 			"imageMapParserTests.txt": {
 				"path": "tests/parser/imageMapParserTests.txt",
-				"expectedSHA1": "aa1d41d33a0de6b956a42993779c621011bdb09f"
+				"expectedSHA1": "4c9b4ca615822d8c951b2c0750cfd425992aefcb"
 			}
 		}
 	}
