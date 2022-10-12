@@ -161,7 +161,7 @@ if ( $parsoidMode === 'integrated' ) {
 				$this->fatalError( 'This script must be run from the command line' );
 			}
 			# Make sure we can handle script parameters
-			if ( !defined( 'PHP_VERSION' ) && !ini_get( 'register_argc_argv' ) ) {
+			if ( !ini_get( 'register_argc_argv' ) ) {
 				$this->fatalError( 'Cannot get command line arguments, register_argc_argv is set to false' );
 			}
 
