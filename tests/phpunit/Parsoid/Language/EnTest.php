@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Language;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
@@ -40,7 +41,10 @@ class EnTest extends TestCase {
 	private static $machine;
 
 	public static function setUpBeforeClass(): void {
-		$lang = LanguageConverter::loadLanguage( new MockEnv( [] ), 'en' );
+		$lang = LanguageConverter::loadLanguage(
+			new MockEnv( [] ),
+			new Bcp47CodeValue( 'en' )
+		);
 		self::$machine = $lang->getConverter()->getMachine();
 	}
 

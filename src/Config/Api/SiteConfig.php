@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config\Api;
 
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -70,10 +71,10 @@ class SiteConfig extends ISiteConfig {
 	/** @var array|null */
 	private $interwikiMap;
 
-	/** @var array|null */
+	/** @var array<string,array>|null Keys are stored as lowercased BCP-47 code strings */
 	private $variants;
 
-	/** @var array|null */
+	/** @var array<string,bool>|null Keys are stored as lowercased BCP-47 code strings */
 	private $langConverterEnabled;
 
 	/** @var array|null */
@@ -284,15 +285,22 @@ class SiteConfig extends ISiteConfig {
 		$this->interwikiMap = ConfigUtils::computeInterwikiMap( $data['interwikimap'] );
 
 		// Parse variant data from the API
+		# T320662: API should return these in BCP-47 forms
 		$this->langConverterEnabled = [];
 		$this->variants = [];
 		foreach ( $data['languagevariants'] as $base => $variants ) {
+			$baseBcp47 = Utils::mwCodeToBcp47( $base );
 			if ( $this->siteData['langconversion'] ) {
-				$this->langConverterEnabled[$base] = true;
+				$baseKey = strtolower( $baseBcp47->toBcp47Code() );
+				$this->langConverterEnabled[$baseKey] = true;
 				foreach ( $variants as $code => $vdata ) {
-					$this->variants[$code] = [
-						'base' => $base,
-						'fallbacks' => $vdata['fallbacks'],
+					$variantKey = strtolower( Utils::mwCodeToBcp47( $code )->toBcp47Code() );
+					$this->variants[$variantKey] = [
+						'base' => $baseBcp47,
+						'fallbacks' => array_map(
+							[ Utils::class, 'mwCodeToBcp47' ],
+							$vdata['fallbacks']
+						),
 					];
 				}
 			}
@@ -511,9 +519,9 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function langConverterEnabled( string $lang ): bool {
+	public function langConverterEnabledBcp47( Bcp47Code $lang ): bool {
 		$this->loadSiteData();
-		return $this->langConverterEnabled[$lang] ?? false;
+		return $this->langConverterEnabled[strtolower( $lang->toBcp47Code() )] ?? false;
 	}
 
 	public function script(): string {
@@ -534,11 +542,11 @@ class SiteConfig extends ISiteConfig {
 	/**
 	 * @inheritDoc
 	 */
-	public function exportMetadataToHead(
+	public function exportMetadataToHeadBcp47(
 		Document $document,
 		ContentMetadataCollector $metadata,
 		string $defaultTitle,
-		string $lang
+		Bcp47Code $lang
 	): void {
 		'@phan-var StubMetadataCollector $metadata'; // @var StubMetadataCollector $metadata
 		$moduleLoadURI = $this->server() . $this->scriptpath() . '/load.php';
@@ -580,9 +588,23 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['timeoffset'];
 	}
 
+	/** @inheritDoc */
 	public function variants(): array {
 		$this->loadSiteData();
-		return $this->variants;
+		$result = [];
+		foreach ( $this->variants as $variantKey => $tuple ) {
+			$result[Utils::bcp47ToMwCode( $variantKey )] = [
+				'base' => Utils::bcp47ToMwCode( $tuple['base'] ),
+				'fallbacks' => array_map( [ Utils::class, 'bcp47ToMwCode' ], $tuple['fallbacks'] ),
+			];
+		}
+		return $result;
+	}
+
+	/** @inheritDoc */
+	public function variantsFor( Bcp47Code $lang ): array {
+		$this->loadSiteData();
+		return $this->variants[strtolower( $lang->toBcp47Code() )];
 	}
 
 	public function widthOption(): int {

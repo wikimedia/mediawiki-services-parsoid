@@ -27,10 +27,10 @@ class Language {
 	/**
 	 * Returns true if a language code string is of a valid form, whether or not it exists.
 	 * This includes codes which are used solely for customisation via the MediaWiki namespace.
-	 * @param string $code a MediaWiki-internal language code
+	 * @param string $code a MediaWiki-internal code
 	 * @return bool
 	 */
-	public static function isValidCode( string $code ): bool {
+	public static function isValidInternalCode( string $code ): bool {
 		static $validityCache = [];
 		if ( !isset( $validityCache[$code] ) ) {
 			// XXX PHP version also checks against
@@ -49,6 +49,7 @@ class Language {
 	 *   * `mw` only if the language is defined in MediaWiki or `wgExtraLanguageNames` (default)
 	 *   * `mwfile` only if the language is in `mw` *and* has a message file
 	 * @return array
+	 * @deprecated Appears to be unused
 	 */
 	public function fetchLanguageNames( string $inLanguage, string $include ): array {
 		return [];

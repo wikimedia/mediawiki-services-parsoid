@@ -253,7 +253,7 @@ class TestRunner {
 			'title' => $test->pageName(),
 			'pagens' => $pageNs,
 			'pageContent' => $wikitext,
-			'pageLanguage' => $this->siteConfig->lang(),
+			'pageLanguage' => $this->siteConfig->langBcp47(),
 			'pageLanguagedir' => $this->siteConfig->rtl() ? 'rtl' : 'ltr'
 		];
 

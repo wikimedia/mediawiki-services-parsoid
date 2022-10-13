@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
@@ -464,7 +465,7 @@ abstract class SiteConfig {
 			return $str;
 		} elseif ( $o < 128 ) {
 			if ( $str[0] === 'i' &&
-				in_array( $this->lang(), [ 'az', 'tr', 'kaa', 'kk' ], true )
+				 in_array( $this->langBcp47()->toBcp47Code(), [ 'az', 'tr', 'kaa', 'kk' ], true )
 			) {
 				return 'İ' . mb_substr( $str, 1 );
 			}
@@ -658,11 +659,26 @@ abstract class SiteConfig {
 		return $this->linkTrailRegex;
 	}
 
+	// Implementors are expected to override *one of*
+	// ::lang() or ::langBcp47()
+
 	/**
 	 * Wiki language code.
 	 * @return string Mediawiki-internal language code
+	 * @deprecated Use ::langBcp47() (T320662)
 	 */
-	abstract public function lang(): string;
+	public function lang(): string {
+		return Utils::bcp47ToMwCode( $this->langBcp47() );
+	}
+
+	/**
+	 * Wiki language code.
+	 * @return Bcp47Code BCP-47 language code
+	 */
+	public function langBcp47(): Bcp47Code {
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		return Utils::mwCodeToBcp47( $this->lang() );
+	}
 
 	/**
 	 * Main page title
@@ -684,27 +700,40 @@ abstract class SiteConfig {
 	 */
 	abstract public function rtl(): bool;
 
+	// Implementors are expected to override *one of*
+	// ::langConverterEnabled() or ::langConverterEnabledBcp47()
+
 	/**
 	 * Whether language converter is enabled for the specified language
-	 * @param string $lang Language code Mediawiki-internal language code
+	 * @param string $lang Mediawiki-internal language code
+	 * @return bool
+	 * @deprecated Use ::langConverterEnabledBcp47() (T320662)
+	 */
+	public function langConverterEnabled( string $lang ): bool {
+		return $this->langConverterEnabledBcp47( Utils::mwCodeToBcp47( $lang ) ); # T320662
+	}
+
+	/**
+	 * Whether language converter is enabled for the specified language
+	 * @param Bcp47Code $lang
 	 * @return bool
 	 */
-	abstract public function langConverterEnabled( string $lang ): bool;
+	public function langConverterEnabledBcp47( Bcp47Code $lang ): bool {
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		return $this->langConverterEnabled( Utils::bcp47ToMwCode( $lang ) );
+	}
 
 	/**
 	 * Is the language converter enabled for this language?
 	 *
 	 * @param string $lang Mediawiki-internal language code
 	 * @return bool
+	 * @deprecated Use ::langConverterEnabledBcp47() (this method is redundant)
 	 */
 	public function langConverterEnabledForLanguage( string $lang ): bool {
-		if ( !$lang ) {
-			$lang = $this->lang();
-		}
-		if ( !$lang ) {
-			$lang = 'en';
-		}
-		return $this->langConverterEnabled( $lang );
+		return $this->langConverterEnabledBcp47(
+			Utils::mwCodeToBcp47( $lang )
+		);
 	}
 
 	/**
@@ -728,6 +757,9 @@ abstract class SiteConfig {
 	 */
 	abstract public function server(): string;
 
+	// Implementors are expected to override *one of*
+	// ::exportMetadataToHead() or ::exportMetadataToHeadBcp47()
+
 	/**
 	 * Export content metadata via meta tags (and via a stylesheet
 	 * for now to aid some clients).
@@ -736,14 +768,43 @@ abstract class SiteConfig {
 	 * @param ContentMetadataCollector $metadata
 	 * @param string $defaultTitle The default title to display, as an
 	 *   unescaped string
-	 * @param string $lang
+	 * @param string $lang a MediaWiki-internal language code
+	 * @deprecated Use ::exportMetadataToHeadBcp47() (T320662)
 	 */
-	abstract public function exportMetadataToHead(
+	public function exportMetadataToHead(
 		Document $document,
 		ContentMetadataCollector $metadata,
 		string $defaultTitle,
 		string $lang
-	): void;
+	): void {
+		$this->exportMetadataToHeadBcp47(
+			$document, $metadata, $defaultTitle,
+			Utils::mwCodeToBcp47( $lang )
+		);
+	}
+
+	/**
+	 * Export content metadata via meta tags (and via a stylesheet
+	 * for now to aid some clients).
+	 *
+	 * @param Document $document
+	 * @param ContentMetadataCollector $metadata
+	 * @param string $defaultTitle The default title to display, as an
+	 *   unescaped string
+	 * @param Bcp47Code $lang a BCP-47 language code
+	 */
+	public function exportMetadataToHeadBcp47(
+		Document $document,
+		ContentMetadataCollector $metadata,
+		string $defaultTitle,
+		Bcp47Code $lang
+	): void {
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		$this->exportMetadataToHead(
+			$document, $metadata, $defaultTitle,
+			Utils::bcp47ToMwCode( $lang )
+		);
+	}
 
 	/**
 	 * Helper function to create <head> elements from metadata.
@@ -753,7 +814,8 @@ abstract class SiteConfig {
 	 * @param string[] $moduleStyles
 	 * @param array<string,mixed> $jsConfigVars
 	 * @param string $htmlTitle The display title, as escaped HTML
-	 * @param string $lang
+	 * @param string|Bcp47Code $lang a MediaWiki-internal language code string,
+	 *   or a Bcp47Code object (latter is preferred)
 	 */
 	protected function exportMetadataHelper(
 		Document $document,
@@ -762,8 +824,9 @@ abstract class SiteConfig {
 		array $moduleStyles,
 		array $jsConfigVars,
 		string $htmlTitle,
-		string $lang
+		$lang
 	): void {
+		$lang = Utils::mwCodeToBcp47( $lang );
 		// Display title
 		$titleElement = DOMCompat::querySelector( $document, 'title' );
 		if ( !$titleElement ) {
@@ -837,7 +900,10 @@ abstract class SiteConfig {
 			// e.g. MediaWiki:Common.css / MediaWiki:Mobile.css
 			'site.styles'
 		] );
-		$styleURI = $modulesLoadURI . '?lang=' . $lang . '&modules=' .
+		# need to use MW-internal language code for constructing resource
+		# loader path.
+		$langMw = Utils::bcp47ToMwCode( $lang );
+		$styleURI = $modulesLoadURI . '?lang=' . $langMw . '&modules=' .
 			PHPUtils::encodeURIComponent( implode( '|', array_unique( $moreStyles ) ) ) .
 			'&only=styles&skin=vector';
 		DOMUtils::appendToHead( $document, 'link', [ 'rel' => 'stylesheet', 'href' => $styleURI ] );
@@ -937,13 +1003,47 @@ abstract class SiteConfig {
 	 */
 	abstract public function timezoneOffset(): int;
 
+	// Implementors are expected to override either ::variants() or
+	// *both* ::variants() and ::variantsFor().  The ::variants() form
+	// is no longer used in Parsoid and will be deprecated and removed.
+
 	/**
 	 * Language variant information
-	 * @return array Keys are variant codes (e.g. "zh-cn"), values are arrays with two fields:
-	 *   - base: (string) Base language code (e.g. "zh")
-	 *   - fallbacks: (string[]) Fallback variants
+	 * @return array<string,array> Keys are MediaWiki-internal variant codes (e.g. "zh-cn"),
+	 * values are arrays with two fields:
+	 *   - base: (string) Base language code (e.g. "zh") (MediaWiki-internal)
+	 *   - fallbacks: (string[]) Fallback variants (MediaWiki-internal codes)
+	 * @deprecated Use ::variantsFor() (T320662)
 	 */
-	abstract public function variants(): array;
+	public function variants(): array {
+		// We can't provide a transition function here based on variantsFor()
+		// without a way to enumerate all variants.  So during the transition
+		// clients should implement *both* ::variants() and ::variantsFor()
+		// if there are 3rd-party users of SiteConfig::variants()
+		return [];
+	}
+
+	/**
+	 * Language variant information for the given language (or null if
+	 * unknown).
+	 * @param Bcp47Code $lang The language for which you want variant information
+	 * @return ?array{base:Bcp47Code,fallbacks:Bcp47Code[]} an array with
+	 * two fields:
+	 *   - base: (Bcp47Code) Base BCP-47 language code (e.g. "zh")
+	 *   - fallbacks: (Bcp47Code[]) Fallback variants, as BCP-47 codes
+	 */
+	public function variantsFor( Bcp47Code $lang ): ?array {
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		$v = $this->variants();
+		$tuple = $v[Utils::bcp47ToMwCode( $lang )] ?? null;
+		if ( $tuple == null ) {
+			return null;
+		}
+		return [
+			'base' => Utils::mwCodeToBcp47( $tuple['base'] ),
+			'fallbacks' => array_map( [ Utils::class, 'mwCodeToBcp47' ], $tuple['fallbacks'] ),
+		];
+	}
 
 	/**
 	 * Default thumbnail width

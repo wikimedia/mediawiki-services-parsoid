@@ -4,12 +4,14 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Language;
 
 use stdClass;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\LangConv\FstReplacementMachine;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMPostOrder;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Use a {@Link ReplacementMachine} to predict the best "source language" for every node in a DOM.
@@ -21,9 +23,12 @@ class MachineLanguageGuesser extends LanguageGuesser {
 	 * MachineLanguageGuesser constructor.
 	 * @param FstReplacementMachine $machine
 	 * @param Node $root
-	 * @param string $destCode a MediaWiki-internal language code
+	 * @param Bcp47Code $destCode a language code
 	 */
 	public function __construct( FstReplacementMachine $machine, Node $root, $destCode ) {
+		# T320662 This code uses MW-internal codes internally
+		$destCode = Utils::bcp47ToMwCode( $destCode );
+
 		$codes = [];
 		foreach ( $machine->getCodes() as $invertCode => $ignore ) {
 			if ( $machine->isValidCodePair( $destCode, $invertCode ) ) {
@@ -104,7 +109,7 @@ class MachineLanguageGuesser extends LanguageGuesser {
 	}
 
 	/** @inheritDoc */
-	public function guessLang( Element $node ): string {
-		return self::getNodeData( $node )->guessLang;
+	public function guessLang( Element $node ): Bcp47Code {
+		return Utils::mwCodeToBcp47( self::getNodeData( $node )->guessLang );
 	}
 }

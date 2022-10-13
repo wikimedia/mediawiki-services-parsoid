@@ -31,6 +31,7 @@
 
 namespace Wikimedia\Parsoid\Language;
 
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ClientError;
@@ -41,6 +42,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Base class for language variant conversion.
@@ -124,13 +126,15 @@ class LanguageConverter {
 
 	/**
 	 * @param Env $env
-	 * @param string $lang
+	 * @param Bcp47Code $lang a language code
 	 * @param bool $fallback
 	 * @return Language
 	 */
-	public static function loadLanguage( Env $env, string $lang, bool $fallback = false ): Language {
+	public static function loadLanguage( Env $env, Bcp47Code $lang, bool $fallback = false ): Language {
+		// Our internal language classes still use MW-internal names.
+		$lang = Utils::bcp47ToMwCode( $lang );
 		try {
-			if ( Language::isValidCode( $lang ) ) {
+			if ( Language::isValidInternalCode( $lang ) ) {
 				$languageClass = self::classFromCode( $lang, $fallback );
 				return new $languageClass();
 			}
@@ -160,8 +164,9 @@ class LanguageConverter {
 
 	/**
 	 * @param string $text
-	 * @param string $variant a MediaWiki-internal language code
+	 * @param Bcp47Code $variant a language code
 	 * @return bool
+	 * @deprecated Appears to be unused
 	 */
 	public function guessVariant( $text, $variant ) {
 		return false;
@@ -181,36 +186,44 @@ class LanguageConverter {
 	 *
 	 * @param Env $env
 	 * @param Document $doc The input document.
-	 * @param ?string $targetVariant The desired output variant.
-	 *    MediaWiki-internal code.
-	 * @param ?string $sourceVariant The variant used by convention when
+	 * @param string|Bcp47Code|null $targetVariant The desired output variant.
+	 *   MediaWiki-internal code string (deprecated), or a BCP 47 language object, or null.
+	 * @param string|Bcp47Code|null $sourceVariant The variant used by convention when
 	 *   authoring pages, if there is one; otherwise left null.
-	 *    MediaWiki-internal code.
+	 *   MediaWiki-internal code string (deprecated), or a BCP 47 language object, or null.
 	 */
 	public static function maybeConvert(
-		Env $env, Document $doc, ?string $targetVariant,
-		?string $sourceVariant
+		Env $env, Document $doc, $targetVariant, $sourceVariant
 	): void {
+		// Back-compat w/ old string-passing parameter convention
+		if ( is_string( $targetVariant ) ) {
+			$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+		}
+		if ( is_string( $sourceVariant ) ) {
+			$sourceVariant = Utils::mwCodeToBcp47( $sourceVariant );
+		}
 		// language converter must be enabled for the pagelanguage
 		if ( !$env->langConverterEnabled() ) {
 			return;
 		}
-		$variants = $env->getSiteConfig()->variants();
-
 		// targetVariant must be specified, and a language-with-variants
-		if ( !( $targetVariant && array_key_exists( $targetVariant, $variants ) ) ) {
+		if ( $targetVariant === null ) {
+			return;
+		}
+		$variants = $env->getSiteConfig()->variantsFor( $targetVariant );
+		if ( $variants === null ) {
 			return;
 		}
 
 		// targetVariant must not be a base language code
-		if ( $variants[$targetVariant]['base'] === $targetVariant ) {
+		if ( Utils::isBcp47CodeEqual( $targetVariant, $variants['base'] ) ) {
 			// XXX in the future we probably want to go ahead and expand
 			// empty <span>s left by -{...}- constructs, etc.
 			return;
 		}
 
 		// Record the fact that we've done conversion to targetVariant
-		$env->getPageConfig()->setVariant( $targetVariant );
+		$env->getPageConfig()->setVariantBcp47( $targetVariant );
 
 		// But don't actually do the conversion if __NOCONTENTCONVERT__
 		if ( DOMCompat::querySelector( $doc, 'meta[property="mw:PageProp/nocontentconvert"]' ) ) {
@@ -228,18 +241,26 @@ class LanguageConverter {
 	 * for each DOM subtree of wikitext.
 	 * @param Env $env
 	 * @param Node $rootNode The root node of a fragment to convert.
-	 * @param string $targetVariant The variant to be used for the output DOM.
-	 *  This is a MediaWiki-internal code.
-	 * @param ?string $sourceVariant An optional variant assumed for the
+	 * @param string|Bcp47Code $targetVariant The variant to be used for the output DOM.
+	 *  This is a mediawiki-internal language code string (T320662, deprecated),
+	 *  or a BCP 47 language object (preferred).
+	 * @param string|Bcp47Code|null $sourceVariant An optional variant assumed for the
 	 *  input DOM in order to create roundtrip metadata.
-	 *  This is a MediaWiki-internal code.
+	 *  This is a mediawiki-internal language code (T320662, deprecated),
+	 *  or a BCP 47 language object (preferred), or null.
 	 */
 	public static function baseToVariant(
-		Env $env, Node $rootNode, string $targetVariant,
-		?string $sourceVariant
+		Env $env, Node $rootNode, $targetVariant, $sourceVariant
 	): void {
+		// Back-compat w/ old string-passing parameter convention
+		if ( is_string( $targetVariant ) ) {
+			$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+		}
+		if ( is_string( $sourceVariant ) ) {
+			$sourceVariant = Utils::mwCodeToBcp47( $sourceVariant );
+		}
 		// PageConfig guarantees getPageLanguage() never returns null.
-		$pageLangCode = $env->getPageConfig()->getPageLanguage();
+		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
 		$guesser = null;
 
 		$metrics = $env->getSiteConfig()->metrics();
@@ -247,29 +268,32 @@ class LanguageConverter {
 		$languageClass = self::loadLanguage( $env, $pageLangCode );
 		$lang = new $languageClass();
 		$langconv = $lang->getConverter();
+		$targetVariantMw = Utils::bcp47ToMwCode( $targetVariant );
 		// XXX we might want to lazily-load conversion tables here.
-		$loadTiming->end( "langconv.{$targetVariant}.init" );
+		$loadTiming->end( "langconv.{$targetVariantMw}.init" );
 		$loadTiming->end( 'langconv.init' );
 
 		// Check the target variant is valid (and implemented!)
 		$validTarget = $langconv !== null && $langconv->getMachine() !== null
-			&& array_key_exists( $targetVariant, $langconv->getMachine()->getCodes() );
+			&& array_key_exists( $targetVariantMw, $langconv->getMachine()->getCodes() );
 		if ( !$validTarget ) {
 			// XXX create a warning header? (T197949)
-			$env->log( 'info', "Unimplemented variant: {$targetVariant}" );
+			$env->log( 'info', "Unimplemented variant: {$targetVariantMw}" );
 			return; /* no conversion */
 		}
 		// Check that the source variant is valid.
+		$sourceVariantMw = $sourceVariant ?
+			Utils::bcp47ToMwCode( $sourceVariant ) : null;
 		$validSource = $sourceVariant === null ||
-			array_key_exists( $sourceVariant, $langconv->getMachine()->getCodes() );
+			array_key_exists( $sourceVariantMw, $langconv->getMachine()->getCodes() );
 		if ( !$validSource ) {
-			throw new ClientError( "Invalid source variant: $sourceVariant for target $targetVariant" );
+			throw new ClientError( "Invalid source variant: $sourceVariantMw for target $targetVariantMw" );
 		}
 
 		$timing = Timing::start( $metrics );
 		if ( $metrics ) {
 			$metrics->increment( 'langconv.count' );
-			$metrics->increment( "langconv.{$targetVariant}.count" );
+			$metrics->increment( "langconv." . $targetVariantMw . ".count" );
 		}
 
 		// XXX Eventually we'll want to consult some wiki configuration to
@@ -300,7 +324,7 @@ class LanguageConverter {
 		}
 
 		$timing->end( 'langconv.total' );
-		$timing->end( "langconv.{$targetVariant}.total" );
+		$timing->end( "langconv.{$targetVariantMw}.total" );
 		$loadTiming->end( 'langconv.totalWithInit' );
 	}
 }

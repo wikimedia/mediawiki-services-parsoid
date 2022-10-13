@@ -755,11 +755,11 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		// PageConfig guarantees language will always be non-null.
-		$lang = $env->getPageConfig()->getPageLanguage();
+		$lang = $env->getPageConfig()->getPageLanguageBcp47();
 		$body = DOMCompat::getBody( $document );
-		$body->setAttribute( 'lang', Utils::mwCodeToBcp47( $lang )->toBcp47Code() );
+		$body->setAttribute( 'lang', $lang->toBcp47Code() );
 		$this->updateBodyClasslist( $body, $env );
-		$env->getSiteConfig()->exportMetadataToHead(
+		$env->getSiteConfig()->exportMetadataToHeadBcp47(
 			$document, $env->getMetadata(),
 			$env->getPageConfig()->getTitle(), $lang
 		);
@@ -768,7 +768,7 @@ class DOMPostProcessor extends PipelineStage {
 		// caches can split on variant (if necessary)
 		DOMUtils::appendToHead( $document, 'meta', [
 				'http-equiv' => 'content-language',
-				'content' => $env->htmlContentLanguage()
+				'content' => $env->htmlContentLanguageBcp47()->toBcp47Code(),
 			]
 		);
 		DOMUtils::appendToHead( $document, 'meta', [

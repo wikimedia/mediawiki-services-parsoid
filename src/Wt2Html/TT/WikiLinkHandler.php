@@ -1338,7 +1338,7 @@ class WikiLinkHandler extends TokenHandler {
 				// for editing and roundtripping.  However, not all file handlers will
 				// make use of it.  This param validation is from the SVG handler but
 				// seems generally applicable.
-				} elseif ( $optInfo['ck'] === 'lang' && !Language::isValidCode( $optInfo['v'] ) ) {
+				} elseif ( $optInfo['ck'] === 'lang' && !Language::isValidInternalCode( $optInfo['v'] ) ) {
 					$opt['ck'] = 'bogus';
 				} elseif (
 					$optInfo['ck'] === 'upright' &&

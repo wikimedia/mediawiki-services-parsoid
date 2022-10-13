@@ -2,6 +2,7 @@
 
 namespace Wikimedia\Parsoid\Language;
 
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\DOM\Element;
 
 /**
@@ -12,8 +13,8 @@ abstract class LanguageGuesser {
 
 	/**
 	 * @param Element $node
-	 * @return string predicted source language, as a MediaWiki-internal code
+	 * @return Bcp47Code predicted source language
 	 */
-	abstract public function guessLang( Element $node ): string;
+	abstract public function guessLang( Element $node ): Bcp47Code;
 
 }

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Mocks;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -97,11 +98,11 @@ class MockSiteConfig extends SiteConfig {
 	/**
 	 * @inheritDoc
 	 */
-	public function exportMetadataToHead(
+	public function exportMetadataToHeadBcp47(
 		Document $document,
 		ContentMetadataCollector $metadata,
 		string $defaultTitle,
-		string $lang
+		Bcp47Code $lang
 	): void {
 		'@phan-var StubMetadataCollector $metadata'; // @var StubMetadataCollector $metadata
 		$moduleLoadURI = $this->server() . $this->scriptpath() . '/load.php';

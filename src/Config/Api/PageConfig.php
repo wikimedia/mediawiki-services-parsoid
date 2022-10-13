@@ -5,9 +5,11 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config\Api;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * PageConfig via MediaWiki's Action API
@@ -34,7 +36,7 @@ class PageConfig extends IPageConfig {
 	/** @var PageContent|null */
 	private $content;
 
-	/** @var string|null */
+	/** @var ?Bcp47Code */
 	private $pagelanguage;
 
 	/** @var string|null */
@@ -52,7 +54,9 @@ class PageConfig extends IPageConfig {
 		}
 		$this->title = $opts['title'];
 		$this->revid = $opts['revid'] ?? null;
-		$this->pagelanguage = $opts['pageLanguage'] ?? null;
+		# pageLanguage can/should be passed as a Bcp47Code object
+		$this->pagelanguage = !empty( $opts['pageLanguage'] ) ?
+			Utils::mwCodeToBcp47( $opts['pageLanguage'] ) : null;
 		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 
 		// This option is primarily used to mock the page content.
@@ -160,9 +164,13 @@ class PageConfig extends IPageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getPageLanguage(): string {
+	public function getPageLanguageBcp47(): Bcp47Code {
 		$this->loadData();
-		return $this->pagelanguage ?? $this->page['pagelanguage'] ?? 'en';
+		# Note that 'en' is a last-resort fail-safe fallback; it shouldn't
+		# ever be reached in practice.
+		return $this->pagelanguage ??
+			# T320662: core should provide an API to get the BCP-47 form directly
+			Utils::mwCodeToBcp47( $this->page['pagelanguage'] ?? 'en' );
 	}
 
 	/** @inheritDoc */

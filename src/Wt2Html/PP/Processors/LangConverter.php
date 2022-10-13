@@ -20,8 +20,8 @@ class LangConverter implements Wt2HtmlDOMProcessor {
 		LanguageConverter::maybeConvert(
 			$env,
 			$root->ownerDocument,
-			$env->getHtmlVariantLanguage(),
-			$env->getWtVariantLanguage()
+			$env->getHtmlVariantLanguageBcp47(),
+			$env->getWtVariantLanguageBcp47()
 		);
 	}
 }

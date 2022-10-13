@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Language;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
@@ -127,7 +128,10 @@ class ZhTest extends TestCase {
 	private static $machine;
 
 	public static function setUpBeforeClass(): void {
-		$lang = LanguageConverter::loadLanguage( new MockEnv( [] ), 'zh' );
+		$lang = LanguageConverter::loadLanguage(
+			new MockEnv( [] ),
+			new Bcp47CodeValue( 'zh' )
+		);
 		self::$machine = $lang->getConverter()->getMachine();
 	}
 

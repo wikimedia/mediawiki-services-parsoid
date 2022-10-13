@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Language;
 
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\DOM\Element;
 
 /**
@@ -11,18 +12,18 @@ use Wikimedia\Parsoid\DOM\Element;
  */
 class ConstantLanguageGuesser extends LanguageGuesser {
 
-	/** @var string */
+	/** @var Bcp47Code */
 	private $langCode;
 
 	/**
-	 * @param string $langCode a MediaWiki-internal language code
+	 * @param Bcp47Code $langCode a language code
 	 */
-	public function __construct( string $langCode ) {
+	public function __construct( Bcp47Code $langCode ) {
 		$this->langCode = $langCode;
 	}
 
 	/** @inheritDoc */
-	public function guessLang( Element $node ): string {
+	public function guessLang( Element $node ): Bcp47Code {
 		return $this->langCode;
 	}
 
