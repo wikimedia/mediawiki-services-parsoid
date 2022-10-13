@@ -757,7 +757,7 @@ class DOMPostProcessor extends PipelineStage {
 		// PageConfig guarantees language will always be non-null.
 		$lang = $env->getPageConfig()->getPageLanguage();
 		$body = DOMCompat::getBody( $document );
-		$body->setAttribute( 'lang', Utils::bcp47n( $lang ) );
+		$body->setAttribute( 'lang', Utils::mwCodeToBcp47( $lang )->toBcp47Code() );
 		$this->updateBodyClasslist( $body, $env );
 		$env->getSiteConfig()->exportMetadataToHead(
 			$document, $env->getMetadata(),

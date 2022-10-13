@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use Wikimedia\Bcp47Code\Bcp47Code;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -438,14 +440,119 @@ class Utils {
 	}
 
 	/**
-	 * Convert mediawiki-format language code to a BCP47-compliant language
-	 * code suitable for including in HTML.  See
-	 * `GlobalFunctions.php::wfBCP47()` in mediawiki sources.
+	 * Convert BCP-47-compliant language code to MediaWiki-internal code.
 	 *
-	 * @param string $code Mediawiki language code.
-	 * @return string BCP47 language code.
+	 * This is a temporary back-compatibility hack; Parsoid should be
+	 * using BCP 47 strings or Bcp47Code objects in all its external APIs.
+	 * Try to avoid using it, though: there's no guarantee
+	 * that this mapping will remain in sync with upstream.
+	 *
+	 * @param string|Bcp47Code $code BCP-47 language code
+	 * @return string Mediawiki-internal language code
 	 */
-	public static function bcp47n( $code ) {
+	public static function bcp47ToMwCode( $code ): string {
+		// This map is dumped from
+		// LanguageCode::NON_STANDARD_LANGUAGE_CODE_MAPPING in core, but
+		// with keys and values swapped and BCP-47 codes lowercased:
+		//
+		//   array_flip(array_map(strtolower,
+		//       LanguageCode::NON_STANDARD_LANGUAGE_CODE_MAPPING))
+		//
+		// Hopefully we will be able to deprecate and remove this from
+		// Parsoid quickly enough that keeping it in sync with upstream
+		// is not an issue.
+		static $MAP = [
+			"cbk" => "cbk-zam",
+			"de-x-formal" => "de-formal",
+			"egl" => "eml",
+			"en-x-rtl" => "en-rtl",
+			"es-x-formal" => "es-formal",
+			"hu-x-formal" => "hu-formal",
+			"jv-x-bms" => "map-bms",
+			"ro-cyrl-md" => "mo",
+			"nrf" => "nrm",
+			"nl-x-informal" => "nl-informal",
+			"nap-x-tara" => "roa-tara",
+			"en-simple" => "simple",
+			"sr-cyrl" => "sr-ec",
+			"sr-latn" => "sr-el",
+			"zh-hans-cn" => "zh-cn",
+			"zh-hans-sg" => "zh-sg",
+			"zh-hans-my" => "zh-my",
+			"zh-hant-tw" => "zh-tw",
+			"zh-hant-hk" => "zh-hk",
+			"zh-hant-mo" => "zh-mo",
+		];
+		if ( $code instanceof Bcp47Code ) {
+			$code = $code->toBcp47Code();
+		}
+		$code = strtolower( $code ); // All MW-internal codes are lowercase
+		return $MAP[$code] ?? $code;
+	}
+
+	/**
+	 * Convert MediaWiki-internal language code to a BCP-47-compliant
+	 * language code suitable for including in HTML.
+	 *
+	 * This is a temporary back-compatibility hack, needed for compatibility
+	 * when running in standalone mode with MediaWiki Action APIs which expose
+	 * internal language codes.  These APIs should eventually be improved
+	 * so that they also expose BCP-47 compliant codes, which can then be
+	 * used directly by Parsoid without conversion.  But until that day
+	 * comes, this function will paper over the differences.
+	 *
+	 * Note that MediaWiki-internal Language objects implement Bcp47Code,
+	 * so we can transition interfaces which currently take a string code
+	 * to pass a Language object instead; that will make this method
+	 * effectively a no-op and avoid the issue of upstream sync of the
+	 * mapping table.
+	 *
+	 * @param string|Bcp47Code $code Mediawiki-internal language code or object
+	 * @return Bcp47Code BCP-47 language code.
+	 * @see LanguageCode::bcp47()
+	 */
+	public static function mwCodeToBcp47( $code ): Bcp47Code {
+		if ( $code instanceof Bcp47Code ) {
+			return $code;
+		}
+		// This map is dumped from
+		// LanguageCode::getNonstandardLanguageCodeMapping() in core.
+		// Hopefully we will be able to deprecate and remove this method
+		// from Parsoid quickly enough that keeping it in sync with upstream
+		// will not be an issue.
+		static $MAP = [
+			"als" => "gsw",
+			"bat-smg" => "sgs",
+			"be-x-old" => "be-tarask",
+			"fiu-vro" => "vro",
+			"roa-rup" => "rup",
+			"zh-classical" => "lzh",
+			"zh-min-nan" => "nan",
+			"zh-yue" => "yue",
+			"cbk-zam" => "cbk",
+			"de-formal" => "de-x-formal",
+			"eml" => "egl",
+			"en-rtl" => "en-x-rtl",
+			"es-formal" => "es-x-formal",
+			"hu-formal" => "hu-x-formal",
+			"map-bms" => "jv-x-bms",
+			"mo" => "ro-Cyrl-MD",
+			"nrm" => "nrf",
+			"nl-informal" => "nl-x-informal",
+			"roa-tara" => "nap-x-tara",
+			"simple" => "en-simple",
+			"sr-ec" => "sr-Cyrl",
+			"sr-el" => "sr-Latn",
+			"zh-cn" => "zh-Hans-CN",
+			"zh-sg" => "zh-Hans-SG",
+			"zh-my" => "zh-Hans-MY",
+			"zh-tw" => "zh-Hant-TW",
+			"zh-hk" => "zh-Hant-HK",
+			"zh-mo" => "zh-Hant-MO",
+		];
+		$code = $MAP[$code] ?? $code;
+		// The rest of this code is copied verbatim from LanguageCode::bcp47()
+		// in core.
 		$codeSegment = explode( '-', $code );
 		$codeBCP = [];
 		foreach ( $codeSegment as $segNo => $seg ) {
@@ -463,6 +570,17 @@ class Utils {
 				$codeBCP[$segNo] = strtolower( $seg );
 			}
 		}
-		return implode( '-', $codeBCP );
+		return new Bcp47CodeValue( implode( '-', $codeBCP ) );
+	}
+
+	/**
+	 * BCP 47 codes are case-insensitive, so this helper does a "proper"
+	 * comparison of Bcp47Code objects.
+	 * @param Bcp47Code $a
+	 * @param Bcp47Code $b
+	 * @return bool true iff $a and $b represent the same language
+	 */
+	public static function isBcp47CodeEqual( Bcp47Code $a, Bcp47Code $b ): bool {
+		return strcasecmp( $a->toBcp47Code(), $b->toBcp47Code() ) === 0;
 	}
 }
