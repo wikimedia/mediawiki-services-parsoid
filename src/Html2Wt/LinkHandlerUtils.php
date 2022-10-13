@@ -437,7 +437,10 @@ class LinkHandlerUtils {
 		Env $env, string $linkTarget, stdClass $linkData
 	): string {
 		$linkTitle = $env->makeTitleFromText( $linkTarget );
-		if ( ( $linkTitle->getNamespace()->isCategory() || $linkTitle->getNamespace()->isFile() ) &&
+		$categoryNs = $env->getSiteConfig()->canonicalNamespaceId( 'category' );
+		$fileNs = $env->getSiteConfig()->canonicalNamespaceId( 'file' );
+
+		if ( ( $linkTitle->getNamespaceId() === $categoryNs || $linkTitle->getNamespaceId() === $fileNs ) &&
 			$linkData->type === 'mw:WikiLink' &&
 			$linkTarget[0] !== ':' ) {
 			// Escape category and file links

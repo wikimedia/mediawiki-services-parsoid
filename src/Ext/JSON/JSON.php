@@ -160,6 +160,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @return Document
 	 */
 	public function toDOM( ParsoidExtensionAPI $extApi ): Document {
+		// @phan-suppress-next-line PhanDeprecatedFunction not ready for this yet
 		$jsonText = $extApi->getPageConfig()->getPageMainContent();
 		$document = $extApi->getTopLevelDoc();
 		$body = DOMCompat::getBody( $document );

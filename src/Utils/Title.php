@@ -38,6 +38,7 @@ class Title {
 			$this->namespace = $ns;
 		} else {
 			$this->namespaceId = (int)$ns;
+			// @phan-suppress-next-line PhanDeprecatedClass transitional
 			$this->namespace = new TitleNamespace( $this->namespaceId, $siteConfig );
 		}
 		$this->namespaceName = $siteConfig->namespaceName( $this->namespaceId );

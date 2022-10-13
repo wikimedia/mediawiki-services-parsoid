@@ -30,7 +30,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 	public function onBehaviorSwitch( Token $token ): TokenHandlerResult {
 		$env = $this->env;
 		$magicWord = $env->getSiteConfig()->magicWordCanonicalName( $token->attribs[0]->v );
-		$env->setVariable( $magicWord, true );
+		$env->setBehaviorSwitch( $magicWord, true );
 		$metaToken = new SelfclosingTagTk(
 			'meta',
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],

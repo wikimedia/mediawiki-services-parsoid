@@ -113,7 +113,7 @@ class References extends ExtensionTagHandler {
 			$modifyDp( $dp );
 		}
 
-		$extApi->addModuleStyles( self::getModuleStyles() );
+		$extApi->getMetadata()->addModuleStyles( self::getModuleStyles() );
 
 		return $frag;
 	}

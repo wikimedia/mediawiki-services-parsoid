@@ -1666,7 +1666,6 @@ class WikitextSerializer {
 	/**
 	 * @note Porting note: this replaces the pattern $serializer->env->log( $serializer->logType, ... )
 	 * @param mixed ...$args
-	 * @deprecated Use PSR-3 logging instead
 	 */
 	public function trace( ...$args ) {
 		$this->env->log( $this->logType, ...$args );

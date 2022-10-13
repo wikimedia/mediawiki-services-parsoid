@@ -79,7 +79,7 @@ class TemplateHandler extends TokenHandler {
 		// return" below.
 		$this->atMaxArticleSize = !$this->env->compareWt2HtmlLimit(
 			'wikitextSize',
-			strlen( $this->env->getPageConfig()->getPageMainContent() )
+			strlen( $this->env->topFrame->getSrcText() )
 		);
 	}
 

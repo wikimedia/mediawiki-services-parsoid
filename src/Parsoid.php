@@ -160,7 +160,7 @@ class Parsoid {
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
 		if ( !$env->compareWt2HtmlLimit(
-			'wikitextSize', strlen( $pageConfig->getPageMainContent() )
+			'wikitextSize', strlen( $env->topFrame->getSrcText() )
 		) ) {
 			throw new ResourceLimitExceededException(
 				"wt2html: wikitextSize limit exceeded"

@@ -115,6 +115,12 @@ wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_f
 wfCollectPhpFiles( 'src/DOM', $cfg['exclude_file_list'] );
 
 // By default mediawiki-phan-config ignores the 'use of deprecated <foo>' errors.
+// Re-enable these errors.
+$cfg['suppress_issue_types'] = array_filter( $cfg['suppress_issue_types'], static function ( $issue ) {
+	return !str_starts_with( $issue, 'PhanDeprecated' );
+} );
+
+// Add your own customizations here if needed.
 // $cfg['suppress_issue_types'][] = '<some phan issue>';
 
 // Exclude peg-generated output
