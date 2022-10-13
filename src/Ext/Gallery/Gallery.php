@@ -175,8 +175,8 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		} );
 
 		$mode = Mode::byName( $opts->mode );
-		$extApi->addModules( $mode->getModules() );
-		$extApi->addModuleStyles( $mode->getModuleStyles() );
+		$extApi->getMetadata()->addModules( $mode->getModules() );
+		$extApi->getMetadata()->addModuleStyles( $mode->getModuleStyles() );
 		return $mode->render( $extApi, $opts, $caption, $lines );
 	}
 

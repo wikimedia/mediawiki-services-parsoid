@@ -120,6 +120,7 @@ class ContentModelHandler extends IContentModelHandler {
 	 */
 	public function toDOM( ParsoidExtensionAPI $extApi ): Document {
 		return $this->env->getPipelineFactory()->parse(
+			// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
 			$this->env->getPageConfig()->getPageMainContent()
 		);
 	}
