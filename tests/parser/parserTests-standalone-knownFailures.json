@@ -1,7 +1,4 @@
 {
-    "(confirming safety of fix for subst T3936)": {
-        "html2wt": "@<span>Oh no</span>\n"
-    },
     "-{}- tags within headlines (within html for parserConvert())": {
         "html2wt": "== -{Naslov}- ==\n\nNote that even an unprotected headline ID is not affected by language\nconversion:\n\n== Latinski ==\n"
     },
@@ -61,9 +58,6 @@
         "selser [[4],[4,2]]": "695dyy<table><!--a592r9--><!--tunxvk--><tr> || ||\n<td> a\n</table>",
         "selser [[2],[0,[[[2]]]]]": "rsud82 || ||\n<table>\n<tr><td> 1a3cvg2 a\n</table>"
     },
-    "2. Link fragments separated by <i> and <b> tags": {
-        "html2wt": "[[''foo''hello]]\n\n[['''foo'''hello]]"
-    },
     "2. List embedded in a formatting tag in a misnested way": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,7,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,7,7,0]}'></small></p>\n\n<ul data-parsoid='{\"dsr\":[9,24,0,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[9,12,0,0]}'><li data-parsoid='{\"dsr\":[9,12,1,0,1,0]}'>a</li></small>\n<li data-parsoid='{\"dsr\":[13,24,1,0]}'><small data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"dsr\":[14,24,0,8]}'> b</small></li></ul>",
         "html2wt": "<small>\n\n* a\n* b</small>"
@@ -99,12 +93,6 @@
         "html2wt": "* a\n* b\n   \n[[Category:Foo]]\n   \n[[Category:Bar]]\n[[Category:Baz]]\n\n: c\n\n[[Category:C]]\n\n; d\n\n[[Category:D]]",
         "selser [2,3,4,2,2,0,3,2,[3],3,0,0,[1],0,4]": "q620vp\n*a\n*b\nhhfaih\n\nv4npyx\n   \n1o3h9yi\n[[Category:Bar]]\n1ybvf0r\n\n\n\n[[Category:C]]\n\n;d\n\n17avyym",
         "selser [[1,0,1],2,3,0,0,0,0,3,[4],0,0,2,[[3]],4,0]": "*a\n*b\n114edt3\n   \n\n   \n[[Category:Bar]]\n[[Category:Baz]]\n: k8gefx\n\n[[Category:C]]\n1j9166e\n\n;\nxa181l\n[[Category:D]]"
-    },
-    "3. Leading whitespace in indent-pre suppressing contexts should not be escaped": {
-        "html2wt": "<blockquote>\n\n a\n <span>b</span>\n c\n</blockquote>"
-    },
-    "3. Link fragments inside <i> and <b>": {
-        "html2wt": "''[[foo'']]\n\n'''[[foo''']]"
     },
     "3. includeonly in part of an attr value": {
         "html2wt": "<span style=\"color:red;\">bar</span>\n"
@@ -246,13 +234,6 @@
         "selser [1,2,[2]]": "==A&B&amp;C&amp;amp;D&amp;amp;amp;E==\nrtkcgi\njn1m2m[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
         "selser [[0,2,0,3,0,0,0,0],4,[1]]": "==ngxj3gA&B&amp;&amp;amp;D&amp;amp;amp;E==\n45ozgq\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]"
     },
-    "Different interwiki prefixes mapping to the same URL": {
-        "selser [[1],0,4,0,1,0,3,0,[1],0,[3],0,[1]]": "[[:en:Foo]]\n\n1lh6hpz\n\n[[wikipedia:Foo]]\n\n[[:wikipedia:en:Foo]]\n\n\n[[:  wikiPEdia :Foo]]",
-        "selser [4,0,[[3]],0,1,0,[[4]],2,0,0,[1],4,1]": "5yg824\n\n[:en:Foo]\n\n[[wikipedia:Foo]]\n\n[[:wikipedia:Foo|lcl9tx]]\n\neldsl\n\n[[wikipedia:en:Foo]]\n\n[[:wikipedia:en:Foo]]\n\n15my8b5\n\n[[:  wikiPEdia :Foo]]",
-        "selser [2,0,[[4]],3,3,0,[[3]],0,1,3,0,3,[2]]": "1r74r6y\n\n[[:en:Foo]]\n\n[[:en:Foo|13jznjb]]\n\n[:wikipedia:Foo]\n\n[[:wikipedia:en:Foo]]\n\n[[:wikipedia:en:Foo]]\n\n19pl9j1[[  wikiPEdia :Foo]]",
-        "selser [[2],4,1,2,[3],0,0,4,[4],4,2,3,1]": "1bxp22k[[:en:Foo]]\n\nu6gdy4\n\n[[:en:Foo|Foo]]\n\n1w016t1\n\n[[:wikipedia:Foo|Foo]]\n\n1gayzjl\n\n8fr6sa\n\nics71h\n\n1eyxsvq\n\n[[:wikipedia:en:Foo]]\n\n[[  wikiPEdia :Foo]]",
-        "selser [4,3,[[2]],2,[2],0,4,4,[[4]],4,[[2]],3,[4]]": "18ayqs5\n\n[[:en:Foo|7mtfabFoo]]\n\n1nw2ava\n\n72z1us[[:wikipedia:Foo]]\n\n69ha0t\n\n157xnqa\n\n[[wikipedia:en:Foo|13nh3np]]\n\n18fyiiz\n\n[[:wikipedia:en:Foo|1r10lc1wikipedia:en:Foo]]\n\nt5touf"
-    },
     "Disable TOC": {
         "html2wt": "Lead\n\n== Section 1 ==\n\n== Section 2 ==\n\n== Section 3 ==\n\n== Section 4 ==\n\n== Section 5 ==\n"
     },
@@ -323,12 +304,6 @@
     "Empty table rows go away": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,37,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,35,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,16,0,0]}'><td data-parsoid='{\"dsr\":[3,9,1,0]}'>Hello</td>\n<td data-parsoid='{\"dsr\":[10,16,1,0]}'>there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[17,31,14,0]}'></tr>\n<tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[32,34,2,0]}'></tr>\n</tbody></table>",
         "html2wt": "{|\n|Hello\n|there\n|}"
-    },
-    "Escaping of interlanguage links (T129218, T156308)": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,60,0,0]}'>Blah blah blah\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://es.wikipedia.org/wiki/Spanish\" title=\"es:Spanish\" class=\"extiw\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Spanish\"},\"sa\":{\"href\":\":es:Spanish\"},\"isIW\":true,\"dsr\":[15,30,2,2]}'>es:Spanish</a>\n<a rel=\"mw:WikiLink/Interwiki\" href=\"http://zh.wikipedia.org/wiki/Chinese\" title=\"zh:Chinese\" class=\"extiw\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/Chinese\"},\"sa\":{\"href\":\":zh:Chinese\"},\"isIW\":true,\"dsr\":[31,60,14,2]}'> zh<span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[48,49,0,0]}'> </span>: Chinese</a></p>",
-        "html2wt": "Blah blah blah\n[[:es:Spanish]]\n[[:zh:Chinese| zh : Chinese]]",
-        "selser [[4,4,0,1]]": "1e95x3n1nj8xix\n[[: zh : Chinese]]",
-        "selser [[4,3,4,1]]": "rg2aoi7eel2y[[: zh : Chinese]]"
     },
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
@@ -448,9 +423,6 @@
         "selser [0,3,[4]]": "{{foo|\n==10wxo3x==",
         "selser [0,0,3]": "{{foo|\n",
         "selser [0,0,[4]]": "{{foo|\n==54w4zy=="
-    },
-    "HRs: 1. Single line": {
-        "html2wt": "--------\n----=foo=\n----*foo"
     },
     "HTML bullet list, closed tags (T7497)": {
         "selser [[4,[3],3,0,3]]": "<ul><li>1a9n41r</li><li></li>\n<li>Two</li></ul>",
@@ -637,20 +609,6 @@
         "selser [[2],4,2]": "19nmwq1'''Bold paragraph\n\ndh4zbb\n\nbwvwda\n\nNew wiki paragraph",
         "selser [0,0,2]": "'''Bold paragraph\n\n10pnlgs\n\nNew wiki paragraph"
     },
-    "Interlanguage link with spacing": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\"},\"sa\":{\"href\":\"   zh  :    Chinese     \"},\"dsr\":[15,43,null,null]}'/>",
-        "wt2wt": "Blah blah blah\n[[   zh  :    Chinese     |   zh  :    Chinese     ]]",
-        "selser [4,0,0]": "n4e8qv\n[[   zh  :    Chinese     ]]",
-        "selser [[4],3,2]": "1vmb5kd\n\ng6dx29\n[[   zh  :    Chinese     ]]",
-        "selser [4,3,0]": "1h6g0ly\n[[   zh  :    Chinese     ]]",
-        "selser [[3],3,0]": "[[   zh  :    Chinese     ]]",
-        "selser [3,2,0]": "1nn3tw5\n[[   zh  :    Chinese     ]]",
-        "selser [0,4,0]": "Blah blah blah\n\na27k8x\n[[   zh  :    Chinese     ]]",
-        "selser [1,2,0]": "Blah blah blah\n\n109qmw8\n[[   zh  :    Chinese     ]]",
-        "selser [[4],2,0]": "168ye40\n\n1p4mde5\n[[   zh  :    Chinese     ]]",
-        "selser [4,0,2]": "1rvhrh5\n\nkayncs\n[[   zh  :    Chinese     ]]",
-        "selser [3,0,0]": "\n[[   zh  :    Chinese     ]]"
-    },
     "Internal link with ca linktrail with apostrophes (T29473)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'>[/index.php?title=Something&amp;action=edit&amp;redlink=1 Something'nice]</p>\n",
         "html2wt": "[/index.php?title=Something&action=edit&redlink=1 Something'nice]\n"
@@ -665,12 +623,6 @@
     "Internal link with kaa linktrail with apostrophes (T29473)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'>[/index.php?title=Something&amp;action=edit&amp;redlink=1 Something'nice]</p>\n",
         "html2wt": "[/index.php?title=Something&action=edit&redlink=1 Something'nice]\n"
-    },
-    "Interwiki link encoding conversion (T3636)": {
-        "selser [[[3],2,[2]]]": "*\n* 1nv21zw\n*rzaibg[[:Wikipedia:ro:Olteniţa]]"
-    },
-    "Interwiki link with fragment (T4130)": {
-        "html2wt": "[[meatball:SoftSecurity#foo|MeatBall:SoftSecurity#foo]]\n"
     },
     "Link containing an ampersand": {
         "selser [1,4,1,0,[3,0,0]]": "[[Foo & bar]]\n\n10hs1hv\n\n[[Foo & bar]]\n\n&amp;amp; bar]]",
@@ -707,9 +659,6 @@
     },
     "List items from template": {
         "html2wt": "{{inner list}}\n*item 2\n\n* item 0\n{{inner list}}\n* item 2\n\n* item 0\n* notSOL{{inner list}}\n* item 2"
-    },
-    "Lists: 4. No escapes needed": {
-        "html2wt": "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n"
     },
     "Magic variable as template parameter": {
         "html2wt": "This is a test template with parameter MediaWiki\n"
@@ -979,11 +928,6 @@
     "Parsoid: Make sure nested lists are serialized on their own line even if HTML contains no newlines": {
         "html2wt": "# foo\n## bar\n\n* foo\n** bar\n\n: foo\n:: bar\n"
     },
-    "Parsoid: recognize interwiki links without a target page": {
-        "selser [2,2,1]": "y5402j\n\n[[:es:]]\n\nb54ct7\n\n[[ko:]]",
-        "selser [[2],2,1]": "13dr04g[[:es:]]\n\ni9nxnb\n\n[[ko:]]",
-        "selser [1,4,1]": "[[:es:]]\n\n1v5n13f\n\n[[ko:]]"
-    },
     "Parsoid: unknown parser function (T314524)": {
         "selser [0,0,[3],0,2,0,3]": "{{#tag:b|This is a known parser function}}\nNow show the unknown parser functions for comparison.\n\nto6td\n\n{{#foo}}\n"
     },
@@ -996,9 +940,6 @@
     },
     "Play a bit with r67090 and T5158": {
         "selser [0,2,1,3,0,0,1]": "<div style=\"width:50% !important\">&nbsp;</div>yyzg2g\n<div style=\"width:50%&nbsp;!important\" data-foobar=\"338jos\">&nbsp;</div>\n<div style=\"width:50%&#160;!important\">&nbsp;</div>\n<div style=\"border : solid;\" data-foobar=\"1sol4wa\">&nbsp;</div>"
-    },
-    "Redirect followed by multiple newlines": {
-        "selser [0,2,0]": "#REDIRECT [[Main Page]]\n1kgt7nw\n\n\n\nA newline"
     },
     "Remove a list item but do not insert newline above list": {
         "selser [manual]": "header\n*foo\n\nfooter"
@@ -1094,9 +1035,6 @@
     },
     "Single-line or multiline-comments can follow headings": {
         "selser [2,4,3,1,0,4,[2],3]": "1is6xi5\n\n==foo==\n1c6vh2i\n\n==bar==<!--c1-->\nvp2olc\n\n==xmkpambaz==<!--\nc2\nc3-->"
-    },
-    "Space and question mark encoding in interlanguage links (T95473)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://es.wikipedia.org/wiki/Foo%20bar%3F\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Foo%20bar%3F\"},\"sa\":{\"href\":\"es:Foo bar?\"},\"dsr\":[15,30,null,null]}'/>"
     },
     "Spaced heading with element": {
         "selser [[3,4,0]]": "=== 1z3xsf hi ho ===",
@@ -1200,9 +1138,6 @@
     },
     "T2337: Escaped self-links should be bold": {
         "html2wt": "[[Bug462]] [[Bug462]]"
-    },
-    "T24297: safesubst: works during normal parse": {
-        "html2wt": "Foobar\n"
     },
     "T2523: Template shouldn't eat newline (or add an extra one before table)": {
         "html2wt": "foo\n\n{|\n|1\n|2\n|-\n|3\n|4\n|}"
@@ -1443,9 +1378,6 @@
         "selser [[4,1]]": "{|<!--1p4ogrq-->\n!+ class=\"error\" class=\"awesome\"|status\n|}",
         "selser [[3,2]]": "{|<!--1uwfdeu-->\n!+ class=\"error\" class=\"awesome\"|status\n|}",
         "selser [[0,[2,0]]]": "{|\n<!--1hgrgiu-->!+ class=\"error\" class=\"awesome\"|status\n|}"
-    },
-    "Tables: 4d. No escaping needed": {
-        "html2wt": "{|\n|[[Foo]]-bar\n|| +1\n|| -2\n|}"
     },
     "Template as link source": {
         "html2wt": "[[Main Page]]\n\n[[Main Page]]\n\n[[Main Page]]Page\n",
@@ -1877,10 +1809,6 @@
     "span tags with directionality in TOC": {
         "html2wt": "__TOC__\n==<span dir=\"ltr\">C++</span>==\n\n== <span dir=\"rtl\">זבנג!</span> ==\n\n== <span style=\"font-style: italic\">The attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span dir=\"ltr\" style=\"font-style: italic\">Attributes after dir on these span tags must be deleted from the TOC</span> ==\n",
         "selser [0,3,4,2,[0,[3]],0,[[3]],3,0,3,3]": "__TOC__\n\n1jvuudn\n\n1scw8a8\n\n==<span dir=\"rtl\"></span>==\n\n==<span style=\"font-style: italic\"></span>==\n\n==<span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span>==\n"
-    },
-    "subst: does not work during normal parse": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Subst:Includes\" title=\"Template:Subst:Includes\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:Subst:Includes\"},\"sa\":{\"href\":\"Template:Subst:Includes\"},\"dsr\":[0,13,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SubstTest\",\"href\":\"./Template:SubstTest\"},\"params\":{},\"i\":0}}]}'>Template:Subst:Includes</a></p>",
-        "html2wt": "<nowiki>{{subst:Includes}}</nowiki>\n"
     },
     "text with character entity: eacute": {
         "html2wt": "I always thought é was a cute letter.\n"
