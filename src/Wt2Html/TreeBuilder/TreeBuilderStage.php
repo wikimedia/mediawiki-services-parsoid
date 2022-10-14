@@ -352,6 +352,8 @@ class TreeBuilderStage extends PipelineStage {
 					// be marked HTML syntax? This is probably entirely
 					// 2013-era historical stuff. Investigate & fix.
 					//
+					// Same behavior with '''foo</b>
+					//
 					// Transfer stx flag
 					$nodeDP->stx = $dataParsoid->stx;
 				}

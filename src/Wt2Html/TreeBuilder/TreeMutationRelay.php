@@ -165,14 +165,26 @@ class TreeMutationRelay extends RelayTreeHandler {
 				// An end tag auto-inserted by TreeBuilder
 				$dp->autoInsertedEnd = true;
 				unset( $dp->tmp->endTSR );
+			} elseif ( $this->matchEndIsHtml ) {
+				// We found a matching HTML end-tag - unset any AI flags.
+				// This can happen because of wikitext like this:
+				// '''X</b> where the quote-transformer inserts a
+				// new autoInsertedEnd tag because it doesn't track
+				// HTML quote tags.
+				unset( $dp->autoInsertedEndToken );
+				unset( $dp->autoInsertedEnd );
 			} else {
-				// If the node was literal html, the end tag should be as well.
+				// If the node (start tag) was literal html, the end tag will be as well.
 				// However, the converse isn't true.
+				//
 				// 1. A node for an auto-inserted start tag wouldn't have stx=html.
 				//    See "Table with missing opening <tr> tag" test as an example.
-				// 2. In "{|\n|foo\n</table>" (yes, found on wikis), startTag isn't HTML.
+				// 2. In "{|\n|foo\n</table>" (yes, found on wikis), start tag isn't HTML.
+				//
+				// We get to this branch if matched tag is not a html end-tag.
+				// Check if start tag is html. If so, mark autoInsertedEnd.
 				$startIsHtml = ( $dp->stx ?? '' ) === 'html';
-				if ( $startIsHtml && $startIsHtml !== $this->matchEndIsHtml ) {
+				if ( $startIsHtml ) {
 					$dp->autoInsertedEnd = true;
 					unset( $dp->tmp->endTSR );
 				}

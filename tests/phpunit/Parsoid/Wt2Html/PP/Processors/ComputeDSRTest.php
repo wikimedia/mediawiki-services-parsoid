@@ -337,6 +337,17 @@ class ComputeDSRTest extends TestCase {
 				]
 			],
 
+			// Mixed HTML and native-wikitext tags
+			'html quote end tag' => [
+				'wt' => "'''x</b>",
+				'specs' => [
+					[
+						'selector' => 'body > p > b',
+						'dsrContent' => [ "'''x</b>", "'''", '</b>' ]
+					]
+				],
+			],
+
 			// Links
 			'link 1' => [
 				'wt' => 'Foo https://en.wikipedia.org/ bar',
