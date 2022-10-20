@@ -486,11 +486,6 @@ class DOMNormalizer {
 		}
 
 		if ( !$node->hasAttribute( 'href' ) ) {
-			$this->state->getEnv()->log(
-				'error/normalize',
-				'href is missing from a tag',
-				DOMCompat::getOuterHTML( $node )
-			);
 			return $node;
 		}
 		$nodeHref = $node->getAttribute( 'href' );
