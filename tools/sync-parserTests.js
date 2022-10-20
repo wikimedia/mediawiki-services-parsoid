@@ -27,6 +27,12 @@ require('../core-upgrade.js');
  *     ... resolve conflicts, sigh ...
  *   $ php tests/parser/parserTests.php
  *     ... fix any failures by marking tests parsoid-only, etc ...
+ *
+ *   For extension repos, for every file with parsoid-compatible
+ *   flags set, you may need to adjust tests appropriately in some cases
+ *   and/or update known failures as below:
+ *   $ php tests/parser/parserTests.php <all-enabled-parsoid-mode-flags> --updateKnownFailures --dir <TEST_DIR>
+ *
  *   $ git review  (only if the patch is not empty, see below)
  *
  *     ... time passes, eventually your patch is merged to $TARGET_REPO ...
@@ -42,6 +48,11 @@ require('../core-upgrade.js');
  *   $ cd $PARSOID
  *   $ tools/fetch-parserTests.js $TARGET_REPO
  *   $ php bin/parserTests.php --updateKnownFailures
+ *
+ *   For the core repo, you also need to update integrated mode failures
+ *   $ cd $TARGET_REPO
+ *   $ php tests/parser/parserTests.php --wt2html --wt2wt --updateKnownFailures --dir <TEST_DIR>
+ *
  *   $ git add -u
  *   $ git commit -m "Sync parserTests with core"
  *   $ git review
