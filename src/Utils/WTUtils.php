@@ -752,8 +752,6 @@ class WTUtils {
 		// Now encode '-', '>' and '&' in the "true value" as HTML entities,
 		// so that they can be safely embedded in an HTML comment.
 		// This part doesn't have to map strings 1-to-1.
-		// WARNING(T279451): This is actually the part which protects the
-		// "-type" key in self::fosterCommentData
 		return preg_replace_callback( '/[->&]/', static function ( $m ) {
 			return Utils::entityEncodeAll( $m[0] );
 		}, $trueValue );

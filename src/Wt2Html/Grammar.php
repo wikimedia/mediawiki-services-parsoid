@@ -635,8 +635,6 @@ private function a25() {
 }
 private function a26($c) {
 
-		// WARNING(T279451): This encoding is important for the choice of key
-		// in WTUtils::fosterCommentData
 		$data = WTUtils::encodeComment( $c );
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
