@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use DOMException;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -778,7 +779,7 @@ class WTUtils {
 	 * Utility function: we often need to know the wikitext DSR length for
 	 * an HTML DOM comment value.
 	 *
-	 * @param Comment|CommentTk|string $node A comment node containing a DOM-escaped comment.
+	 * @param Comment|CommentTk $node A comment node containing a DOM-escaped comment.
 	 * @return int The wikitext length in UTF-8 bytes necessary to encode this
 	 *   comment, including 7 characters for the `<!--` and `-->` delimiters.
 	 */
@@ -799,8 +800,7 @@ class WTUtils {
 			}
 			$value = $node->value;
 		} else {
-			/* FIXME: What in the world is this for */
-			$value = $node;
+			throw new UnreachableException( 'Should not be here!' );
 		}
 		return strlen( self::decodeComment( $value ) ) + $syntaxLen;
 	}
