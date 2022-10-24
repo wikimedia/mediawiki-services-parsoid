@@ -219,6 +219,12 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => Normalize::class
 			],
+			// Run this after 'ProcessTreeBuilderFixups' because this pass
+			// needs autoInsertedStart / autoInsertedEnd information.
+			[
+				'Processor' => MigrateTemplateMarkerMetas::class,
+				'shortcut' => 'migrate-metas'
+			],
 			[
 				'Processor' => PWrap::class,
 				'shortcut' => 'pwrap',
@@ -234,12 +240,6 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media'
-			],
-			// Run this after 'ProcessTreeBuilderFixups' because this pass
-			// needs autoInsertedStart / autoInsertedEnd information.
-			[
-				'Processor' => MigrateTemplateMarkerMetas::class,
-				'shortcut' => 'migrate-metas'
 			],
 			[
 				'Processor' => MigrateTrailingNLs::class,
