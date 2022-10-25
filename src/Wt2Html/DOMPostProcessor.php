@@ -223,7 +223,8 @@ class DOMPostProcessor extends PipelineStage {
 			// needs autoInsertedStart / autoInsertedEnd information.
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
-				'shortcut' => 'migrate-metas'
+				'shortcut' => 'migrate-metas',
+				'omit' => $options['inTemplate']
 			],
 			[
 				'Processor' => PWrap::class,

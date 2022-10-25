@@ -85,6 +85,12 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 	): void {
 		$aboutId = $env->newAboutId();
 
+		// Ensure we have depth entries for 'aboutId'.
+		$docDataBag = DOMDataUtils::getBag( $table->ownerDocument );
+		$docDataBag->transclusionMetaTagDepthMap[$aboutId]['start'] =
+			$docDataBag->transclusionMetaTagDepthMap[$aboutId]['end'] =
+			DOMUtils::nodeDepth( $table );
+
 		// You might be asking yourself, why is $table->dataParsoid->tsr->end always
 		// present? The earlier implementation searched the table's siblings for
 		// their tsr->start. However, encapsulation doesn't happen when the foster box,

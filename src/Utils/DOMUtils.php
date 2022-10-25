@@ -251,6 +251,16 @@ class DOMUtils {
 	}
 
 	/**
+	 * Compute length of path from $node to the root.
+	 * Root document is at depth 0, <html> at 1, <body> at 2.
+	 * @param Node $node
+	 * @return int
+	 */
+	public static function nodeDepth( Node $node ): int {
+		return count( self::pathToAncestor( $node ) ) - 1;
+	}
+
+	/**
 	 * Build path from a node to its passed-in sibling.
 	 * Return will not include the passed-in sibling.
 	 *
