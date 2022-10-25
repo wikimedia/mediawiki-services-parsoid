@@ -24,7 +24,7 @@ class Attributes extends PlainAttributes {
 			$newAttrs = $this->data;
 			$data = DOMDataUtils::getBag( $this->document )->getObject(
 				(int)$this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] );
-			$newData = $data->clone();
+			$newData = $data->cloneNodeData( ( $newAttrs['typeof'] ?? null ) === 'mw:ExpandedAttrs' );
 
 			// - If autoInserted(Start|End)Token flags are set, set the corresponding
 			//   autoInserted(Start|End) flag. Clear the token flags on the

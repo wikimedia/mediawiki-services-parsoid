@@ -3051,3 +3051,54 @@ Red links in templated references
 
 <div class="mw-references-wrap" typeof="mw:Extension/references mw:Transclusion" about="#mwt5" data-parsoid='{"selfClose":true,"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;references />"}},"i":0}}]}'><ol class="mw-references references"><li about="#cite_note-1" id="cite_note-1"><a href="./Parser_test#cite_ref-1" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-1" class="mw-reference-text"><a rel="mw:WikiLink" href="./Not_existing_article?action=edit&amp;redlink=1" title="Not existing article" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Not_existing_article"},"sa":{"href":"Not_existing_article"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Not existing article"]}}'>Not_existing_article</a></span></li></ol></div>
 !! end
+
+
+# ->wt direction fails on this one because the first paragraph/i swallows the second one,
+# and the ref is lost
+!! test
+Broken wikitext making a ref as extended attribute and a duplicated fragment
+!! options
+parsoid={
+    "modes": ["wt2html"]
+}
+!! wikitext
+<i <ref>y</ref>>
+
+z
+<references />
+!! html/php
+<p><i id="cite_ref-1" class="reference">
+</i></p><p><i id="cite_ref-1" class="reference">z
+</i></p><i id="cite_ref-1" class="reference"><div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">y</span>
+</li>
+</ol></div></i>
+!! html/parsoid
+<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;ref>y&lt;/ref>":null},"sa":{"&lt;ref>y&lt;/ref>":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'></i></p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;ref>y&lt;/ref>":null},"sa":{"&lt;ref>y&lt;/ref>":""},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":"&lt;sup about=\"#mwt2\" class=\"mw-ref reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[3,15,5,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>"},{"html":""}]]}'>
+
+<p>z</p>
+<div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt6" data-mw='{"name":"references","attrs":{}}'><ol class="mw-references references"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">y</span></li></ol></div></i>
+!! end
+
+!! test
+Broken wikitext making a ref as extended attribute and a duplicated fragment (with 2wt tests)
+!! wikitext
+<i title="<ref>y</ref>">a
+
+z
+<references />
+!! html/php
+<p><i title="&lt;sup id=" class="reference">a
+</i></p><p><i title="&lt;sup id=" class="reference">z
+</i></p><i title="&lt;sup id=" class="reference"><div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-1"><span class="mw-cite-backlink"><a href="#cite_ref-1">↑</a></span> <span class="reference-text">y</span>
+</li>
+</ol></div></i>
+!! html/parsoid
+<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;ref>y&lt;/ref>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>a</i></p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;ref>y&lt;/ref>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;sup about=\"#mwt2\" class=\"mw-ref reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref\" data-parsoid=&apos;{\"dsr\":[10,22,5,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{},\"body\":{\"id\":\"mw-reference-text-cite_note-1\"}}&apos;>&lt;a href=\"./Parser_test#cite_note-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>"}]]}'>
+
+<p>z</p>
+<div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt5" data-mw='{"name":"references","attrs":{}}'><ol class="mw-references references"><li about="#cite_note-1" id="cite_note-1"><span rel="mw:referencedBy"></span> <span id="mw-reference-text-cite_note-1" class="mw-reference-text">y</span></li></ol></div></i>
+!! end
+
+

@@ -776,7 +776,7 @@ class DOMDataUtils {
 	 */
 	private static function fixClonedData( Element $elt ) {
 		if ( $elt->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			self::setNodeData( $elt, self::getNodeData( $elt )->clone() );
+			self::setNodeData( $elt, self::getNodeData( $elt )->cloneNodeData() );
 		}
 		foreach ( $elt->childNodes as $child ) {
 			if ( $child instanceof Element ) {

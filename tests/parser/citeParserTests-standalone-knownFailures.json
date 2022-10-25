@@ -49,6 +49,25 @@
     "Blank ref followed by ref with content": {
         "selser [0,4,1,3,0]": "<ref name=\"blank\" />\n\n14bnq08\n\n<ref name=\"blank\">content</ref>\n\n<references />"
     },
+    "Broken wikitext making a ref as extended attribute and a duplicated fragment (with 2wt tests)": {
+        "wt2wt": "<i title=\"\">a\n\nz\n<references />",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><i title=\"\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,13,12,0]}'>a</i></p><i title=\"\" data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[13,31,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[15,16,0,0]}'>z</p>\n<div class=\"mw-references-wrap\" typeof=\"mw:Extension/references\" about=\"#mwt2\" data-parsoid='{\"dsr\":[17,31,14,0]}' data-mw='{\"name\":\"references\",\"attrs\":{}}'><ol class=\"mw-references references\" data-parsoid=\"{}\"></ol></div></i>\n",
+        "html2wt": "<i title=\"\">a\n\nz\n<references />\n",
+        "selser [[[4]],1]": "<i title=\"<ref>y</ref>\">1dl6sme\n\nz\n<references />",
+        "selser [[[2]],[0,3,3,0]]": "<i title=\"<ref>y</ref>\">18cax6qa\n\n<references />",
+        "selser [0,[3,[4],3,0]]": "<i title=\"<ref>y</ref>\">a1uodljn<references />",
+        "selser [2,[0,1,3,0]]": "uw3pw3\n\n<i title=\"<ref>y</ref>\">a\n\nz<references />",
+        "selser [1,3]": "<i title=\"<ref>y</ref>\">a",
+        "selser [2,[3,[3],3,0]]": "16vxc88\n\n<i title=\"<ref>y</ref>\">a<references />",
+        "selser [[2],[2,[3],2,0]]": "qbsx98<i title=\"<ref>y</ref>\">a1s60c8h\n\n1i22hw5\n<references />",
+        "selser [1,[0,[3],0,0]]": "<i title=\"<ref>y</ref>\">a\n\n<references />",
+        "selser [1,1]": "<i title=\"<ref>y</ref>\">a\n\nz\n<references />",
+        "selser [0,2]": "<i title=\"<ref>y</ref>\">a\n\n17l6dw5\n\nz\n<references />",
+        "selser [1,[0,0,3,0]]": "<i title=\"<ref>y</ref>\">a\n\nz<references />",
+        "selser [2,4]": "12v64zm\n\n<i title=\"<ref>y</ref>\">a\n\n1l0xtce",
+        "selser [[2],2]": "gjptau<i title=\"<ref>y</ref>\">a\n\n1gk7mu0\n\nz\n<references />",
+        "selser [2,[0,2,2,0]]": "n2dq48\n\n<i title=\"<ref>y</ref>\">a\n\nx7vz6o\n\nz\n1pk1656\n<references />"
+    },
     "Bug 13073 regression check: wrapped <references>": {
         "html2wt": "<ref>\nfoo\n</ref>\n<div>\n<references />\n</div>",
         "selser [0,3,3]": "<ref>\nfoo\n</ref>",
