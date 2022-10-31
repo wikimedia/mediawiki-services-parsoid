@@ -31,7 +31,7 @@
 		"psr/log": "^1.1.4",
 		"symfony/polyfill-php80": "^1.23.1",
 		"wikimedia/assert": "^0.5.1",
-		"wikimedia/dodo": "0.4.0",
+		"wikimedia/idle-dom": "0.10.0",
 		"wikimedia/ip-utils": "^4.0.0",
 		"wikimedia/object-factory": "^4.0.0",
 		"wikimedia/remex-html": "^3.0.0",
