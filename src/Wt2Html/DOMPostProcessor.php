@@ -235,8 +235,20 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media'
 			],
-			// Run this after 'ProcessTreeBuilderFixups' because this pass
-			// needs autoInsertedStart / autoInsertedEnd information.
+			// Run this after:
+			// * ProcessTreeBuilderFixups because this pass needs
+			//   autoInsertedStart / autoInsertedEnd information.
+			// * PWrap because PWrap can add additional opportunities
+			//   for meta migration which we will miss if we run this
+			//   before p-wrapping.
+			//
+			// We could potentially move this just before WrapTemplates
+			// by seeing this as a preprocessing pass for that. But, we
+			// will have to update the pass to update DSR properties
+			// where required.
+			//
+			// In summary, this can at most be moved before AddMediaInfo or
+			// after MigrateTrailingNLs without needing any other changes.
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
 				'shortcut' => 'migrate-metas',
