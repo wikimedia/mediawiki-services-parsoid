@@ -1,7 +1,4 @@
 {
-    "-{}- tags within headlines (within html for parserConvert())": {
-        "html2wt": "== -{Naslov}- ==\n\nNote that even an unprotected headline ID is not affected by language\nconversion:\n\n== Latinski ==\n"
-    },
     "0. includeonly around the entire attribute": {
         "html2wt": "<span id=\"v2\">bar</span>\n"
     },
@@ -1088,18 +1085,6 @@
     },
     "T10293: Use of center tag ruins paragraph formatting": {
         "html2wt": "<center>\nfoo\n\n</center>\nbar\n\n baz\n"
-    },
-    "T153140: Don't break table handling if language converter markup is in the cell.": {
-        "wt2wt": "{|\n|-\n|<nowiki/>-{R|B}-\n|}",
-        "selser [2]": "a5ione\n{|\n|-\n| -{R|B}-\n|}",
-        "selser [[0,[1,0]]]": "{|\n|- data-foobar=\"1gyt116\"\n| -{R|B}-\n|}",
-        "selser [[3,1]]": "{|\n|-\n| -{R|B}-\n|}",
-        "selser [1]": "{| data-foobar=\"6y5vda\"\n|-\n| -{R|B}-\n|}",
-        "selser [[2,1]]": "{|<!--m84v5d-->\n|-\n| -{R|B}-\n|}",
-        "selser [[4,2]]": "{|<!--1868jd--><!--1d0w5t2-->\n|-\n| -{R|B}-\n|}",
-        "selser [[0,[1,2]]]": "{|\n|- data-foobar=\"1i6qbai\"\n| -{R|B}-<!--17qpaqz-->\n|}",
-        "selser [[0,[[0,2],4]]]": "{|\n|-\n|1owe1ce\n| -{R|B}-<!--a2zy4x-->\n|}",
-        "selser [[4,1]]": "{|<!--1i1athc-->\n|-\n| -{R|B}-\n|}"
     },
     "T17491: <ins>/<del> in blockquote": {
         "html2wt": "<blockquote>\nFoo <del>bar</del> <ins>baz</ins> quux\n\n</blockquote>"
