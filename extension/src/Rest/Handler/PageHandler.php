@@ -72,7 +72,7 @@ class PageHandler extends CoreParsoidHandler {
 
 		if ( !in_array( $format, ParsoidFormatHelper::VALID_PAGE, true ) ) {
 			throw new HttpException(
-				"Invalid page format: ${format}", 404
+				"Invalid page format: {$format}", 404
 			);
 		}
 
