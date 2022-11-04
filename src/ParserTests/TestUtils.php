@@ -114,12 +114,8 @@ class TestUtils {
 		// maplink extension
 		$out = preg_replace( '/\s?data-overlays=\'[^\']*\'/u', '', $out );
 
-		$out = preg_replace( '/\s?typeof=[\'"]mw:LocalizedAttrs[\'"]/', '', $out );
-		$out = preg_replace( '/\smw:LocalizedAttrs/', '', $out );
-		$out = str_replace( '?action=edit&amp;redlink=1', '', $out );
-		$out = str_replace( '&amp;action=edit&amp;redlink=1', '', $out );
 		// unnecessary attributes, we don't need to check these.
-		$unnecessaryAttribs = 'data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab|data-mw-i18n';
+		$unnecessaryAttribs = 'data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab';
 		if ( $parsoidOnly ) {
 			$unnecessaryAttribs = "/ ($unnecessaryAttribs)=";
 			$out = preg_replace( $unnecessaryAttribs . '\\\\?"[^\"]*\\\\?"/u', '', $out );
@@ -395,7 +391,6 @@ class TestUtils {
 			// strip red link markup, we do not check if a page exists yet
 			$html = preg_replace(
 				"#/index.php\\?title=([^']+?)&amp;action=edit&amp;redlink=1#", '/wiki/$1', $html );
-			$html = str_replace( '?action=edit&amp;redlink=1', '', $html );
 			// strip red link title info
 			$html = preg_replace(
 				"/ \\((?:page does not exist|encara no existeix|bet ele jaratılmaǵan|lonkásá  ezalí tɛ̂)\\)/",
