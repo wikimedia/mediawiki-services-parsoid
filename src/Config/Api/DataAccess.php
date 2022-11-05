@@ -168,8 +168,8 @@ class DataAccess extends IDataAccess {
 			'formatversion' => 2,
 			'rawcontinue' => 1,
 			'prop' => $propName,
-			"${prefix}badfilecontexttitle" => $pageConfig->getTitle(),
-			"${prefix}prop" => implode( '|', [
+			"{$prefix}badfilecontexttitle" => $pageConfig->getTitle(),
+			"{$prefix}prop" => implode( '|', [
 				'mediatype', 'mime', 'size', 'url', 'badfile'
 			] )
 		];
@@ -186,21 +186,21 @@ class DataAccess extends IDataAccess {
 			$apiArgs['titles'] = "$imgNS:$name";
 			$needsWidth = isset( $dims['page'] ) || isset( $dims['lang'] );
 			if ( isset( $dims['width'] ) ) {
-				$apiArgs["${prefix}urlwidth"] = $dims['width'];
+				$apiArgs["{$prefix}urlwidth"] = $dims['width'];
 				if ( $needsWidth ) {
 					if ( isset( $dims['page'] ) ) {  // PDF
-						$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$dims['width']}px";
+						$apiArgs["{$prefix}urlparam"] = "page{$dims['page']}-{$dims['width']}px";
 					} elseif ( isset( $dims['lang'] ) ) {  // SVG
-						$apiArgs["${prefix}urlparam"] = "lang{$dims['lang']}-{$dims['width']}px";
+						$apiArgs["{$prefix}urlparam"] = "lang{$dims['lang']}-{$dims['width']}px";
 					}
 					$needsWidth = false;
 				}
 			}
 			if ( isset( $dims['height'] ) ) {
-				$apiArgs["${prefix}urlheight"] = $dims['height'];
+				$apiArgs["{$prefix}urlheight"] = $dims['height'];
 			}
 			if ( isset( $dims['seek'] ) ) {
-				$apiArgs["${prefix}urlparam"] = "seek={$dims['seek']}";
+				$apiArgs["{$prefix}urlparam"] = "seek={$dims['seek']}";
 			}
 
 			do {
@@ -217,11 +217,11 @@ class DataAccess extends IDataAccess {
 				if ( $needsWidth && !isset( $fileinfo['filemissing'] ) ) {
 					$needsWidth = false; # ensure we won't get here again
 					$width = $fileinfo['width'];
-					$apiArgs["${prefix}urlwidth"] = $width;
+					$apiArgs["{$prefix}urlwidth"] = $width;
 					if ( isset( $dims['page'] ) ) {  // PDF
-						$apiArgs["${prefix}urlparam"] = "page{$dims['page']}-{$width}px";
+						$apiArgs["{$prefix}urlparam"] = "page{$dims['page']}-{$width}px";
 					} elseif ( isset( $dims['lang'] ) ) {  // SVG
-						$apiArgs["${prefix}urlparam"] = "lang{$dims['lang']}-{$width}px";
+						$apiArgs["{$prefix}urlparam"] = "lang{$dims['lang']}-{$width}px";
 					}
 					continue;
 				}
