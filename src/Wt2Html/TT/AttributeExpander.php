@@ -103,12 +103,13 @@ class AttributeExpander extends TokenHandler {
 	private static function splitTokens(
 		Frame $frame, Token $token, int $nlTkPos, array $tokens, bool $wrapTemplates
 	): array {
-		$buf = [];
+		$preNLBuf = [];
 		$postNLBuf = null;
 		$startMeta = null;
 		$metaTokens = null;
 
 		// Split the token array around the first newline token.
+		$startMetaIndex = null;
 		foreach ( $tokens as $i => $t ) {
 			if ( $i === $nlTkPos ) {
 				// split here!
@@ -117,20 +118,26 @@ class AttributeExpander extends TokenHandler {
 			} else {
 				if ( $wrapTemplates && $t instanceof SelfclosingTagTk ) {
 					$type = $t->getAttribute( 'typeof' );
-					// Don't trip on transclusion end tags
+					// We are interested in the last start meta tag.
+					// Everything before it is assumed to be closed.
 					$typeMatch = [];
 					if ( $type &&
 						preg_match( self::META_TYPE_MATCHER, $type, $typeMatch ) &&
 						!str_ends_with( $typeMatch[1], '/End' )
 					) {
 						$startMeta = $t;
+						$startMetaIndex = $i;
 					}
 				}
 
-				if ( $t !== $startMeta ) {
-					$buf[] = $t;
-				}
+				// Use $i to make code robust if $tokens were not continugous
+				$preNLBuf[$i] = $t;
 			}
+		}
+
+		// Clear $startMeta from $preNLBuf - setting to '' is sufficient.
+		if ( $startMeta ) {
+			$preNLBuf[$startMetaIndex] = '';
 		}
 
 		// We split the token into pieces.
@@ -138,7 +145,7 @@ class AttributeExpander extends TokenHandler {
 		// set tsr->end to null
 		$token->dataParsoid->tsr->end = null;
 
-		if ( $wrapTemplates && $startMeta ) {
+		if ( $startMeta ) {
 			// Support template wrapping with the following steps:
 			// - Hoist the transclusion start-meta from the first line
 			//   to before the token.
@@ -171,7 +178,7 @@ class AttributeExpander extends TokenHandler {
 			$dp->tsr->start = $token->dataParsoid->tsr->start;
 			$metaTokens = [ $startMeta ];
 
-			return [ 'metaTokens' => $metaTokens, 'preNLBuf' => $buf, 'postNLBuf' => $postNLBuf ];
+			return [ 'metaTokens' => $metaTokens, 'preNLBuf' => $preNLBuf, 'postNLBuf' => $postNLBuf ];
 		} else {
 			return [ 'metaTokens' => [], 'preNLBuf' => $tokens, 'postNLBuf' => [] ];
 		}

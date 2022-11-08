@@ -3,6 +3,7 @@
 		"project": "mediawiki/services/parsoid",
 		"targets": {
 			"annotationParserTests.txt": {},
+			"attributeExpanderTests.txt": {},
 			"domNormalizerTests.txt": {},
 			"encapParserTests.txt": {},
 			"i18nParserTests.txt": {},
