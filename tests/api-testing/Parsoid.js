@@ -1095,7 +1095,7 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should not allow subst with pagebundle', function(done) {
+		it.skip('should not allow subst with pagebundle', function(done) {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.send({ wikitext: "{{1x|foo}}", subst: 'true' })
@@ -2458,7 +2458,7 @@ describe('Parsoid API', function() {
 
 		describe('Variant conversion', function() {
 
-			it('should refuse variant conversion on en page', function(done) {
+			it.skip('should refuse variant conversion on en page', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.send({
