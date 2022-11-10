@@ -1050,59 +1050,6 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it("should implement subst - simple", function(done) {
-			if (skipForNow) { return this.skip(); }  // Missing template 1x
-			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.send({ wikitext: "{{1x|foo}}", subst: 'true' })
-			.expect(validHtmlResponse(function(doc) {
-				var body = doc.body;
-				// <body> should have one child, <section>, the lead section
-				body.childElementCount.should.equal(1);
-				var p = body.firstChild.firstChild;
-				p.nodeName.should.equal('P');
-				p.innerHTML.should.equal('foo');
-				// The <p> shouldn't be a template expansion, just a plain ol' one
-				p.hasAttribute('typeof').should.equal(false);
-				// and it shouldn't have any data-parsoid in it
-				p.hasAttribute('data-parsoid').should.equal(false);
-			}))
-			.end(done);
-		});
-
-		it("should implement subst - internal tranclusion", function(done) {
-			if (skipForNow) { return this.skip(); }  // Missing template 1x
-			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/html/')
-			.send({ wikitext: "{{1x|foo {{1x|bar}} baz}}", subst: 'true' })
-			.expect(validHtmlResponse(function(doc) {
-				var body = doc.body;
-				// <body> should have one child, <section>, the lead section
-				body.childElementCount.should.equal(1);
-				var p = body.firstChild.firstChild;
-				p.nodeName.should.equal('P');
-				// The <p> shouldn't be a template expansion, just a plain ol' one
-				p.hasAttribute('typeof').should.equal(false);
-				// and it shouldn't have any data-parsoid in it
-				p.hasAttribute('data-parsoid').should.equal(false);
-				// The internal tranclusion should be presented as such
-				var tplp = p.firstChild.nextSibling;
-				tplp.nodeName.should.equal('SPAN');
-				tplp.getAttribute('typeof').should.equal('mw:Transclusion');
-				// And not have data-parsoid, so it's used as new content
-				tplp.hasAttribute('data-parsoid').should.equal(false);
-			}))
-			.end(done);
-		});
-
-		it.skip('should not allow subst with pagebundle', function(done) {
-			client.req
-			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-			.send({ wikitext: "{{1x|foo}}", subst: 'true' })
-			.expect(501)
-			.end(done);
-		});
-
 		it('should return a request too large error (post wt)', function(done) {
 			if (skipForNow) { return this.skip(); }  // Set limits in config
 			client.req
@@ -2458,9 +2405,9 @@ describe('Parsoid API', function() {
 
 		describe('Variant conversion', function() {
 
-			it.skip('should refuse variant conversion on en page', function(done) {
+			it('should refuse sr variant conversion on nl page', function(done) {
 				client.req
-				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
+				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/MediaWiki:ok%2Fnl')
 				.send({
 					updates: {
 						variant: { target: 'sr-el' },
