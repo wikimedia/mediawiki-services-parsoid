@@ -311,4 +311,32 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		];
 		// phpcs:enable Generic.Files.LineLength.TooLong
 	}
+
+	/**
+	 * @covers ::implementsLanguageConversion
+	 * @dataProvider provideImplementsLanguageConversion
+	 */
+	public function testImplementsLanguageConversion( string $targetVariantCode, $expected ) {
+		$opts = [];
+
+		$siteConfig = new MockSiteConfig( $opts );
+		$dataAccess = new MockDataAccess( $opts );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$pageContent = new MockPageContent( [ 'main' => '' ] );
+		$pageConfig = new MockPageConfig( $opts, $pageContent );
+
+		$actual = $parsoid->implementsLanguageConversion( $pageConfig, $targetVariantCode );
+		$this->assertEquals( $expected, $actual );
+	}
+
+	public function provideImplementsLanguageConversion() {
+		yield 'Variant conversion is implemented for en-x-piglatin' => [
+			'en-x-piglatin', true
+		];
+
+		yield 'Variant conversion is not implemented for kk-latn' => [
+			'kk-latn', false
+		];
+	}
 }

@@ -485,6 +485,21 @@ class Parsoid {
 	}
 
 	/**
+	 * Check if language variant conversion is implemented for a language
+	 *
+	 * @internal FIXME: Remove once Parsoid's language variant work is completed
+	 * @param PageConfig $pageConfig
+	 * @param string $targetVariantCode Variant code to check
+	 * @return bool
+	 */
+	public function implementsLanguageConversion( PageConfig $pageConfig, string $targetVariantCode ): bool {
+		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
+
+		return LanguageConverter::implementsLanguageConversion( $env, $targetVariantCode );
+	}
+
+	/**
 	 * Downgrade the given document and pagebundle from 999.x to 2.x.
 	 *
 	 * @param PageBundle $pageBundle

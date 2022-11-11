@@ -327,4 +327,26 @@ class LanguageConverter {
 		$timing->end( "langconv.{$targetVariantMw}.total" );
 		$loadTiming->end( 'langconv.totalWithInit' );
 	}
+
+	/**
+	 * Check if support for target variant conversion is implemented
+	 * @internal FIXME: Remove once Parsoid's language variant work is completed
+	 * @param Env $env
+	 * @param string $targetVariant The variant to be checked for implementation
+	 * @return bool
+	 */
+	public static function implementsLanguageConversion( Env $env, string $targetVariant ): bool {
+		$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+		$targetVariantMw = Utils::bcp47ToMwCode( $targetVariant );
+		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
+		$languageClass = self::loadLanguage( $env, $pageLangCode );
+
+		$lang = new $languageClass();
+		$langconv = $lang->getConverter();
+
+		$validTarget = $langconv !== null && $langconv->getMachine() !== null
+			&& array_key_exists( $targetVariantMw, $langconv->getMachine()->getCodes() );
+
+		return $validTarget;
+	}
 }
