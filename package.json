@@ -33,7 +33,7 @@
 		"regen-php-tokenizer": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php",
 		"regen-php-tokenizer-trace": "bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --trace",
 		"regen-php-tests-tokenizer": "node_modules/wikipeg/bin/wikipeg --php --class-name Grammar src/ParserTests/Grammar.pegphp src/ParserTests/Grammar.php",
-		"api-testing": "mocha tests/api-testing",
+		"api-testing": "mocha --timeout 0 tests/api-testing",
 		"test": "npm run eslint"
 	},
 	"repository": {
