@@ -1,23 +1,13 @@
-<phpunit
-	beStrictAboutOutputDuringTests="true"
-	beStrictAboutTestsThatDoNotTestAnything="true"
-	bootstrap="./vendor/autoload.php"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	verbose="true"
->
-
-	<testsuites>
-		<testsuite name="Parsoid Tests">
-			<directory>./tests</directory>
-		</testsuite>
-	</testsuites>
-	<filter>
-		<whitelist addUncoveredFilesFromWhitelist="true">
-			<directory suffix=".php">./src</directory>
-		</whitelist>
-	</filter>
-
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" beStrictAboutOutputDuringTests="true" beStrictAboutTestsThatDoNotTestAnything="true" bootstrap="./vendor/autoload.php" colors="true" convertErrorsToExceptions="true" convertNoticesToExceptions="true" convertWarningsToExceptions="true" verbose="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage includeUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="Parsoid Tests">
+      <directory>./tests</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>
