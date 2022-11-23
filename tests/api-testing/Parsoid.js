@@ -53,7 +53,7 @@ function status200( res ) {
 
 // Return a matcher function that checks whether a content type matches the given parameters.
 function contentTypeMatcher( expectedMime, expectedSpec, expectedVersion ) {
-	const pattern = /^([-\w]+\/[-\w]+); charset=utf-8; profile="https:\/\/www.mediawiki.org\/wiki\/Specs\/([-\w]+)\/(\d+\.\d+\.\d+)"$/;
+	const pattern = /^([-\w]+\/[-\w]+);(?: charset=utf-8;)? profile="https:\/\/www.mediawiki.org\/wiki\/Specs\/([-\w]+)\/(\d+\.\d+\.\d+)"$/;
 
 	return ( actual ) => {
 		const parts = pattern.exec( actual );
@@ -2416,12 +2416,7 @@ describe('Parsoid API', function() {
 						revid,
 						html: {
 							headers: {
-								// FIXME: Unlike other input pagebundles in other tests,
-								// since core is returning the input pagebundle if there isn't
-								// a converter, we'll fail tests. So, we need to fix core OR
-								// clarify the interface docs if we expect the content-type
-								// to include charset for all input pagebundles.
-								'content-type': 'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
+								'content-type': 'text/html; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
 							},
 							body: '<p>абвг abcd</p>',
 						},
