@@ -2405,7 +2405,7 @@ describe('Parsoid API', function() {
 
 		describe('Variant conversion', function() {
 
-			it('should refuse sr variant conversion on nl page', function(done) {
+			it('should return unconverted nl page if sr variant conversion is requested on nl page', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/MediaWiki:ok%2Fnl')
 				.send({
@@ -2416,13 +2416,21 @@ describe('Parsoid API', function() {
 						revid,
 						html: {
 							headers: {
-								'content-type': 'text/html;profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
+								// FIXME: Unlike other input pagebundles in other tests,
+								// since core is returning the input pagebundle if there isn't
+								// a converter, we'll fail tests. So, we need to fix core OR
+								// clarify the interface docs if we expect the content-type
+								// to include charset for all input pagebundles.
+								'content-type': 'text/html; charset=utf-8; profile="https://www.mediawiki.org/wiki/Specs/HTML/' + defaultContentVersion + '"',
 							},
 							body: '<p>абвг abcd</p>',
 						},
 					},
 				})
-				.expect(400)
+				.expect(status200)
+				.expect(validPageBundleResponse(function(doc) {
+					doc.body.textContent.should.equal('абвг abcd');
+				}))
 				.end(done);
 			});
 
