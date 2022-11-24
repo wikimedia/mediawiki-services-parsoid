@@ -348,16 +348,12 @@ class TestUtils {
 	 * @return string
 	 */
 	public static function normalizePhpOutput( string $html ): string {
-		$html = preg_replace(
+		return preg_replace(
 			// do not expect section editing for now
 			'/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> '
 			. '*(<span class="mw-editsection"><span class="mw-editsection-bracket">'
 			. '\[<\/span>.*?<span class="mw-editsection-bracket">\]<\/span><\/span>)?/u',
 			'$1',
-			$html
-		);
-		return preg_replace(
-			'#<a[^>]+class="mw-headline-anchor"[^>]*>§</a>#', '',
 			$html
 		);
 	}
