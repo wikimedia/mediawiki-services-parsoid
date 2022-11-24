@@ -116,11 +116,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 				$dp = DOMDataUtils::getDataParsoid( $ret[$i]['node'] );
 				$dp->autoInsertedEnd = true;
 				unset( $dp->tmp->endTSR );
-				$cnode = $n->cloneNode();
-				'@phan-var Element $cnode'; // @var Element $cnode
-				if ( $n->hasAttribute( DOMDataUtils::DATA_OBJECT_ATTR_NAME ) ) {
-					DOMDataUtils::setNodeData( $cnode, DOMDataUtils::getNodeData( $n )->clone() );
-				}
+				$cnode = DOMDataUtils::cloneNode( $n, false );
 				$ret[] = [ 'pwrap' => $v['pwrap'], 'node' => $cnode ];
 				$i++;
 				DOMDataUtils::getDataParsoid( $ret[$i]['node'] )->autoInsertedStart = true;

@@ -86,4 +86,14 @@ class DOMDataUtils {
 	public static function noAttrs( Element $elt ): bool {
 		return DDU::noAttrs( $elt );
 	}
+
+	/**
+	 * Clones a node and its data bag
+	 * @param Element $elt
+	 * @param bool $deep
+	 * @return Element
+	 */
+	public static function cloneNode( Element $elt, bool $deep ): Element {
+		return DDU::cloneNode( $elt, $deep );
+	}
 }

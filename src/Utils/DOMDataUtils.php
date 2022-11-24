@@ -742,4 +742,35 @@ class DOMDataUtils {
 		$nd->storedId = $id !== null ? intval( $id ) : null; // FIXME: Is this guaranteed not-null?
 		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}
+
+	/**
+	 * Clones a node and its data bag
+	 * @param Element $elt
+	 * @param bool $deep
+	 * @return Element
+	 */
+	public static function cloneNode( Element $elt, bool $deep ): Element {
+		$clone = $elt->cloneNode( $deep );
+		'@phan-var Element $clone'; // @var Element $clone
+		// We do not need to worry about $deep because a shallow clone does not have child nodes,
+		// so it's always cloning data on the cloned tree (which may be empty).
+		self::fixClonedData( $clone );
+		return $clone;
+	}
+
+	/**
+	 * Recursively fixes cloned data from $elt: to avoid conflicts of element IDs, we clone the
+	 * data and set it in the node with a new element ID (which setNodeData does).
+	 * @param Element $elt
+	 */
+	private static function fixClonedData( Element $elt ) {
+		if ( $elt->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+			self::setNodeData( $elt, self::getNodeData( $elt )->clone() );
+		}
+		foreach ( $elt->childNodes as $child ) {
+			if ( $child instanceof Element ) {
+				self::fixClonedData( $child );
+			}
+		}
+	}
 }
