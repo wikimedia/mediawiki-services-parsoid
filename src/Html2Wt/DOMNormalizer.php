@@ -602,20 +602,10 @@ class DOMNormalizer {
 			// the case of links without any annotations,
 			// the positive test is semantically safer than the
 			// negative test.
-			if ( DOMUtils::hasRel( $node, 'mw:WikiLink' ) ) {
-				if ( $this->stripIfEmpty( $node ) !== $node ) {
-					return $next;
-				}
-				$href = $node->getAttribute( 'href' );
-				$qmPos = strpos( $href, '?' );
-
-				if ( $qmPos !== false ) {
-					$node->setAttribute(
-						'href',
-						str_replace( [ '&action=edit&redlink=1', '?action=edit&redlink=1' ],
-							[ './', '' ], $href )
-					);
-				}
+			if ( DOMUtils::hasRel( $node, 'mw:WikiLink' ) &&
+				$this->stripIfEmpty( $node ) !== $node
+			) {
+				return $next;
 			}
 			$this->moveTrailingSpacesOut( $node );
 
@@ -806,11 +796,7 @@ class DOMNormalizer {
 		while ( true ) {
 			// Skip templated content
 			while ( $node && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-				if ( !WTUtils::isExtensionOutputingCoreMwDomSpec( $node, $this->state->getEnv() ) ) {
-					$node = WTUtils::skipOverEncapsulatedContent( $node );
-				} else {
-					break;
-				}
+				$node = WTUtils::skipOverEncapsulatedContent( $node );
 			}
 
 			if ( !$node ) {
