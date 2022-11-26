@@ -1495,7 +1495,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should error when if-match doesn\'t match', function(done) {
+		// TODO: restore this test once core's TransformHandler properly handles ETags (T310464).
+		it.skip('should error when if-match doesn\'t match', function(done) {
 			client.req
 				.post(mockDomain + '/v3/transform/html/to/wikitext/')
 				.set( 'if-match', '"xyzzy"' )
