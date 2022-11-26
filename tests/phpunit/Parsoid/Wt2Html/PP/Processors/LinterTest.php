@@ -43,7 +43,7 @@ class LinterTest extends TestCase {
 	 */
 	private function expectEmptyResults( string $description, string $wt, array $opts = [] ): void {
 		$result = $this->parseWT( $wt, $opts );
-		$this->assertTrue( empty( $result ), $description );
+		$this->assertSame( [], $result, $description );
 	}
 
 	/**
