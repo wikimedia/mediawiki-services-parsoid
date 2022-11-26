@@ -36,14 +36,6 @@ class TransformHandler extends CoreTransformHandler {
 	use EndpointRedirectTrait;
 
 	/** @inheritDoc */
-	public function checkPreconditions() {
-		// NOTE: disable all precondition checks.
-		// If-(not)-Modified-Since is not supported by the /transform/ handler.
-		// If-None-Match is not supported by the /transform/ handler.
-		// TODO: remove this when the parent class starts handling ETags per T322672
-	}
-
-	/** @inheritDoc */
 	public function getParamSettings() {
 		return [
 			// We need to verify that the correct domain is given, to avoid cache pollution.
