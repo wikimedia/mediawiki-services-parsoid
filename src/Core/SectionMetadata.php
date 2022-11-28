@@ -152,11 +152,35 @@ class SectionMetadata implements \JsonSerializable {
 	}
 
 	/**
-	 * Create a new SectionMetadata object from an array.
-	 * @param array $data Associative array with section metadata
+	 * Alias for :toLegacy(), for b/c compatibility only.
+	 * @deprecated
+	 * @return array
+	 */
+	public function toArray(): array {
+		return $this->toLegacy();
+	}
+
+	/**
+	 * Alias for :fromLegacy(), for b/c compatibility only.
+	 * @deprecated
+	 * @param array $data
 	 * @return SectionMetadata
 	 */
 	public static function fromArray( array $data ): SectionMetadata {
+		return self::fromLegacy( $data );
+	}
+
+	/**
+	 * Create a new SectionMetadata object from an array in the legacy
+	 * format returned by the action API.
+	 *
+	 * This is useful for backward-compatibility, but is expected to
+	 * be replaced by conversion to/from JSON in the future.
+	 *
+	 * @param array $data Associative array with section metadata
+	 * @return SectionMetadata
+	 */
+	public static function fromLegacy( array $data ): SectionMetadata {
 		return new SectionMetadata(
 			$data['toclevel'] ?? 0,
 			(int)( $data['level'] ?? -1 ),
@@ -171,11 +195,13 @@ class SectionMetadata implements \JsonSerializable {
 	}
 
 	/**
-	 * Return as associative array.
+	 * Return as associative array, in the format returned by the
+	 * action API (including the order of fields and the value types).
+	 *
 	 * This is helpful as b/c support while we transition to objects.
 	 * @return array
 	 */
-	public function toArray(): array {
+	public function toLegacy(): array {
 		return [
 			'toclevel' => $this->tocLevel,
 			// cast $level to string in order to keep b/c for the parse api
@@ -194,6 +220,6 @@ class SectionMetadata implements \JsonSerializable {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {
-		return $this->toArray();
+		return $this->toLegacy();
 	}
 }
