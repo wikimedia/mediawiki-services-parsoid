@@ -1246,18 +1246,7 @@ class WikiLinkHandler extends TokenHandler {
 				}
 			}
 
-			// For the values of the caption and options, see
-			// getOptionInfo's documentation above.
-			//
-			// If there are multiple captions, this code always
-			// picks the last entry. This is the spec; see
-			// "Image with multiple captions" parserTest.
-			if ( !is_string( $oText ) || $optInfo === null ||
-				// Deprecated options
-				in_array( $optInfo['ck'], [ 'disablecontrols' ], true )
-			) {
-				// No valid option found!?
-				// Record for RT-ing
+			$recordCaption = static function () use ( $oContent, $oText, $dataParsoid, &$opts ) {
 				$optsCaption = [
 					'v' => $oContent->v,
 					'src' => $oContent->vsrc ?? $oText,
@@ -1278,6 +1267,21 @@ class WikiLinkHandler extends TokenHandler {
 					$optsCaption['pos']++;
 				}
 				$opts['caption'] = $optsCaption;
+			};
+
+			// For the values of the caption and options, see
+			// getOptionInfo's documentation above.
+			//
+			// If there are multiple captions, this code always
+			// picks the last entry. This is the spec; see
+			// "Image with multiple captions" parserTest.
+			if ( !is_string( $oText ) || $optInfo === null ||
+				// Deprecated options
+				in_array( $optInfo['ck'], [ 'disablecontrols' ], true )
+			) {
+				// No valid option found!?
+				// Record for RT-ing
+				$recordCaption();
 				continue;
 			}
 
@@ -1332,7 +1336,8 @@ class WikiLinkHandler extends TokenHandler {
 							}
 						}
 					} else {
-						$opt['ck'] = 'bogus';
+						$recordCaption();
+						continue;
 					}
 				// Lang is a global attribute and can be applied to all media elements
 				// for editing and roundtripping.  However, not all file handlers will
@@ -1412,7 +1417,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		// Add the last caption in the right position if there is one
-		if ( $opts['caption'] ) {
+		if ( isset( $opts['caption'] ) ) {
 			// Wrap the caption opt in an array since the option itself is an array!
 			// Without the wrapping, the splicing will flatten the value.
 			array_splice( $dataParsoid->optList, $opts['caption']['pos'], 0, [ [

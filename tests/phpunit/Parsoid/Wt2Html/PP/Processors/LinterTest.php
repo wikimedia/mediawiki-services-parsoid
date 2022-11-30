@@ -338,6 +338,10 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '250px', $result[0]['params']['items'][0], $desc );
 
+		$desc = 'should not lint image with caption masquerading as width option';
+		$result = $this->parseWT( '[[File:Foobar.jpg|thumb|Foo px]]' );
+		$this->assertCount( 0, $result, $desc );
+
 		$desc = "should lint Bogus image with invalid upright value";
 		$result = $this->parseWT(
 			'[[File:Foobar.jpg|thumb|upright=0.7px|Caption]]' .
