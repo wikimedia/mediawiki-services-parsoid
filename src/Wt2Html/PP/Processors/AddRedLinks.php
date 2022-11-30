@@ -74,24 +74,21 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				) {
 					DOMCompat::getClassList( $a )->add( 'new' );
 					WTUtils::addPageContentI18nAttribute( $a, 'title', 'red-link-title', [ $k ] );
+
 					$href = $a->getAttribute( 'href' );
-					$qmIndex = strpos( $href, '?' );
-					if ( $qmIndex !== false ) {
-						$urlParams = substr( $href, $qmIndex );
-						// We check that it hadn't been added yet so that this pass is idempotent
-						// This is particularly relevant for the pb2pb usecase - if the checks are
-						// not in, calling pb2pb on HTML that already has redlinks (or calling
-						// pb2pb repeatedly) will add multiple redlink markers here.
-						if ( !str_contains( $urlParams, 'action=edit' ) ) {
-							$href .= '&action=edit';
-						}
-						if ( !str_contains( $urlParams, 'redlink=1' ) ) {
-							$href .= '&redlink=1';
-						}
-					} else {
-						$href .= '?action=edit&redlink=1';
+					$parsedURL = parse_url( $href );
+					$newHref = $parsedURL['path'];
+					$queryElts = [];
+					if ( isset( $parsedURL['query'] ) ) {
+						parse_str( $parsedURL['query'], $queryElts );
 					}
-					$a->setAttribute( 'href', $href );
+					$queryElts['action'] = 'edit';
+					$queryElts['redlink'] = '1';
+					$newHref .= '?' . http_build_query( $queryElts );
+					if ( isset( $parsedURL['fragment'] ) && $parsedURL['fragment'] !== '' ) {
+						$newHref .= '#' . $parsedURL['fragment'];
+					}
+					$a->setAttribute( 'href', $newHref );
 				}
 				if ( !empty( $data['redirect'] ) ) {
 					DOMCompat::getClassList( $a )->add( 'mw-redirect' );

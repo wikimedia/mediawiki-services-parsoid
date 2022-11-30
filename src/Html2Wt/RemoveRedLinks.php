@@ -21,15 +21,16 @@ class RemoveRedLinks {
 			$qmPos = strpos( $href, '?' );
 			if ( $qmPos !== false ) {
 				$queryParams = parse_url( $href, PHP_URL_QUERY );
-				// TODO this mitigates a bug in the AddRedLinks pass, which puts the query
-				// parameters AFTER a fragment; the parse_url then interprets these query parameters
-				// as part of the fragment. T227693 is somewhat related; let's deal with that as a
-				// separate issue.
 				if ( $queryParams === null ) {
+					// TODO this mitigates a bug in the AddRedLinks pass, which puts the query
+					// parameters AFTER a fragment; the parse_url then interprets these query parameters
+					// as part of the fragment.
+					// 2022-12-01: That issue is solved in the "wt2html" direction, but some
+					// RESTBase-stored content may still exist, so we'll have to remove this later.
 					$href = str_replace(
 						[ '?action=edit&redlink=1', '?action=edit&amp;redlink=1',
 							'&action=edit&redlink=1', '&amp;action=edit&amp;redlink=1' ],
-						[ '','','','' ],
+						[ '', '', '', '' ],
 						$href
 					);
 				} else {
@@ -42,8 +43,10 @@ class RemoveRedLinks {
 						unset( $args['redlink'] );
 					}
 
-					// NOTE: This might modify the order of the arguments in the query; if URL
-					// are compared with a string equality comparison, it might break.
+					// My understanding of this method and of PHP array handling makes me
+					// believe that the order of the parameters should not be modified here.
+					// There is however no guarantee whatsoever in the documentation or spec
+					// of these methods.
 					$newQueryParams = http_build_query( $args );
 
 					// I actually want http_build_url, but I *probably* don't want to add a

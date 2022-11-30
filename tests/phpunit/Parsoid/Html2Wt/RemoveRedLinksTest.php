@@ -68,12 +68,27 @@ class RemoveRedLinksTest extends TestCase {
 				'Two redlinks'
 			],
 			[
-				// The code that allows for the creation of such an URL should be fixed; in the
-				// meantime we still want to avoid breaking links.
+				'<a href="./Hello?action=edit&redlink=1#fragment" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello#fragment" rel="mw:WikiLink">Hello</a>',
+				'Redlink with fragment'
+			],
+			[
+				'<a href="./Hello?action=edit&redlink=1#fragment?" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello#fragment?" rel="mw:WikiLink">Hello</a>',
+				'Redlink with fragment with a question mark'
+			],
+			[
+				'<a href="./Hello#fragment?" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello#fragment?" rel="mw:WikiLink">Hello</a>',
+				'Not a redlink, with fragment with a question mark'
+			],
+			// The code that allows for the creation of such an URL should be fixed; in the
+			// meantime we still want to avoid breaking links that may still cached.
+			[
 				'<a href="./Hello#fragment?action=edit&redlink=1" rel="mw:WikiLink">Hello</a>',
 				'<a href="./Hello#fragment" rel="mw:WikiLink">Hello</a>',
 				'Redlink with buggy fragment'
-			],
+			]
 		];
 	}
 }

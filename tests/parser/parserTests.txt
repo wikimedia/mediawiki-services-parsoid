@@ -1951,7 +1951,7 @@ Broken link with fragment
 <p><a href="/index.php?title=Zigzagzogzagzig&amp;action=edit&amp;redlink=1" class="new" title="Zigzagzogzagzig (page does not exist)">Zigzagzogzagzig#zug</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Zigzagzogzagzig#zug?action=edit&amp;redlink=1" title="Zigzagzogzagzig" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Zigzagzogzagzig#zug"},"sa":{"href":"Zigzagzogzagzig#zug"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Zigzagzogzagzig"]}}'>Zigzagzogzagzig#zug</a></p>
+<p><a rel="mw:WikiLink" href="./Zigzagzogzagzig?action=edit&amp;redlink=1#zug" title="Zigzagzogzagzig" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Zigzagzogzagzig#zug"},"sa":{"href":"Zigzagzogzagzig#zug"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Zigzagzogzagzig"]}}'>Zigzagzogzagzig#zug</a></p>
 !! end
 
 !! test
@@ -1972,7 +1972,7 @@ Nonexistent special page link with fragment
 <p><a href="/wiki/Special:ThisNameWillHopefullyNeverBeUsed" class="new" title="Special:ThisNameWillHopefullyNeverBeUsed (page does not exist)">Special:ThisNameWillHopefullyNeverBeUsed#anchor</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Special:ThisNameWillHopefullyNeverBeUsed#anchor?action=edit&amp;redlink=1" title="Special:ThisNameWillHopefullyNeverBeUsed" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Special:ThisNameWillHopefullyNeverBeUsed#anchor"},"sa":{"href":"Special:ThisNameWillHopefullyNeverBeUsed#anchor"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Special:ThisNameWillHopefullyNeverBeUsed"]}}'>Special:ThisNameWillHopefullyNeverBeUsed#anchor</a></p>
+<p><a rel="mw:WikiLink" href="./Special:ThisNameWillHopefullyNeverBeUsed?action=edit&amp;redlink=1#anchor" title="Special:ThisNameWillHopefullyNeverBeUsed" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./Special:ThisNameWillHopefullyNeverBeUsed#anchor"},"sa":{"href":"Special:ThisNameWillHopefullyNeverBeUsed#anchor"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Special:ThisNameWillHopefullyNeverBeUsed"]}}'>Special:ThisNameWillHopefullyNeverBeUsed#anchor</a></p>
 !! end
 
 !! test
