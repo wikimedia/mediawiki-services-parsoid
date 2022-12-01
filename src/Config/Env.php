@@ -927,10 +927,11 @@ class Env {
 	}
 
 	/**
+	 * @param string $prefix
 	 * @param mixed ...$args
 	 */
-	public function log( ...$args ): void {
-		$this->parsoidLogger->log( ...$args );
+	public function log( string $prefix, ...$args ): void {
+		$this->parsoidLogger->log( $prefix, ...$args );
 	}
 
 	/**

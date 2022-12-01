@@ -49,34 +49,34 @@ class ConversionTraverser extends DOMTraverser {
 		// XXX: <cite> ought to probably be handled more generically
 		// as extension output, not special-cased as a HTML tag.
 		foreach ( [ 'code', 'script', 'pre', 'cite' ] as $el ) {
-			$this->addHandler( $el, function ( ...$args ) {
-				return $this->noConvertHandler( ...$args );
+			$this->addHandler( $el, function ( Element $el, Env $env ) {
+				return $this->noConvertHandler( $el, $env );
 			} );
 		}
 		// Setting/saving the language context
-		$this->addHandler( null, function ( ...$args ) {
-			return $this->anyHandler( ...$args );
+		$this->addHandler( null, function ( Node $node, Env $env ) {
+			return $this->anyHandler( $node, $env );
 		} );
-		$this->addHandler( 'p', function ( ...$args ) {
-			return $this->langContextHandler( ...$args );
+		$this->addHandler( 'p', function ( Element $el, Env $env ) {
+			return $this->langContextHandler( $el, $env );
 		} );
-		$this->addHandler( 'body', function ( ...$args ) {
-			return $this->langContextHandler( ...$args );
+		$this->addHandler( 'body', function ( Element $el, Env $env ) {
+			return $this->langContextHandler( $el, $env );
 		} );
 		// Converting #text, <a> nodes, and title/alt attributes
-		$this->addHandler( '#text', function ( ...$args ) {
-			return $this->textHandler( ...$args );
+		$this->addHandler( '#text', function ( Node $node, Env $env ) {
+			return $this->textHandler( $node, $env );
 		} );
-		$this->addHandler( 'a', function ( ...$args ) {
-			return $this->aHandler( ...$args );
+		$this->addHandler( 'a', function ( Element $el, Env $env ) {
+			return $this->aHandler( $el, $env );
 		} );
-		$this->addHandler( null, function ( ...$args ) {
-			return $this->attrHandler( ...$args );
+		$this->addHandler( null, function ( Node $node, Env $env ) {
+			return $this->attrHandler( $node, $env );
 		} );
 		// LanguageConverter markup
 		foreach ( [ 'meta', 'div', 'span' ] as $el ) {
-			$this->addHandler( $el, function ( ...$args ) {
-				return $this->lcHandler( ...$args );
+			$this->addHandler( $el, function ( Element $el, Env $env ) {
+				return $this->lcHandler( $el, $env );
 			} );
 		}
 	}

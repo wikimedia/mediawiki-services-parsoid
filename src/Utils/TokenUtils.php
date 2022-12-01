@@ -497,7 +497,6 @@ class TokenUtils {
 			if ( $sr instanceof DomSourceRange ) {
 				// Adjust widths back from being character offsets
 				if ( $sr->openWidth !== null ) {
-					// @phan-suppress-next-line PhanPluginDuplicateExpressionAssignmentOperation; consistency
 					$sr->openWidth = $sr->openWidth - $sr->start;
 				}
 				if ( $sr->closeWidth !== null ) {

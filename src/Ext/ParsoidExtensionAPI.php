@@ -551,10 +551,11 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * Forwards the logging request to the underlying logger
+	 * @param string $prefix
 	 * @param mixed ...$args
 	 */
-	public function log( ...$args ): void {
-		$this->env->log( ...$args );
+	public function log( string $prefix, ...$args ): void {
+		$this->env->log( $prefix, ...$args );
 	}
 
 	/**
