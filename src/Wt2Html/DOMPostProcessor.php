@@ -145,16 +145,16 @@ class DOMPostProcessor extends PipelineStage {
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
-				$p['proc'] = function ( ...$args ) use ( $t ) {
-					return $t->run( $this->env, ...$args );
+				$p['proc'] = function ( Node $workNode, array $options, bool $atTopLevel ) use ( $t ) {
+					return $t->run( $this->env, $workNode, $options, $atTopLevel );
 				};
 			} else {
 				$classNameOrSpec = $p['Processor'];
 				if ( empty( $p['isExtPP'] ) ) {
 					// Internal processor w/ ::run() method, class name given
 					$c = new $classNameOrSpec();
-					$p['proc'] = function ( ...$args ) use ( $c ) {
-						return $c->run( $this->env, ...$args );
+					$p['proc'] = function ( Node $workNode, array $options, bool $atTopLevel ) use ( $c ) {
+						return $c->run( $this->env, $workNode, $options, $atTopLevel );
 					};
 				} else {
 					// Extension post processor, object factory spec given
@@ -163,8 +163,8 @@ class DOMPostProcessor extends PipelineStage {
 						'allowClassName' => true,
 						'assertClass' => ExtDOMProcessor::class,
 					] );
-					$p['proc'] = function ( ...$args ) use ( $c ) {
-						return $c->wtPostprocess( $this->extApi, ...$args );
+					$p['proc'] = function ( Node $workNode, array $options, bool $atTopLevel ) use ( $c ) {
+						return $c->wtPostprocess( $this->extApi, $workNode, $options, $atTopLevel );
 					};
 				}
 			}
