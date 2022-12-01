@@ -23,7 +23,7 @@ var Diff = require('../lib/utils/Diff.js').Diff;
 var JSUtils = require('../lib/utils/jsutils.js').JSUtils;
 var MockEnv = require('../tests/MockEnv.js').MockEnv;
 
-var defaultContentVersion = '2.6.0';
+var defaultContentVersion = '2.7.0';
 
 var MAX_RETRIES = 10;
 
