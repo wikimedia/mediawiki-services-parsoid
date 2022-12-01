@@ -452,7 +452,7 @@ class Parsoid {
 	): void {
 		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ) ) {
 			if ( $dg['from'] === $dgFrom && $dg['to'] === $dgTo ) {
-				call_user_func( [ 'self', $dgFunc ], $pageBundle );
+				call_user_func( [ self::class, $dgFunc ], $pageBundle );
 
 				// FIXME: Maybe this resolve should just be part of the $dg
 				$pageBundle->version = self::resolveContentVersion( $dg['to'] );
