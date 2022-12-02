@@ -8,9 +8,7 @@ use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
-
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
-
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\Normalize;
 
 class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {

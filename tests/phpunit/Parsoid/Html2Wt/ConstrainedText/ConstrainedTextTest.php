@@ -40,7 +40,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 
 		// Test ConstrainedText.fromSelSer
 		$ct = ConstrainedText::fromSelSer( $t->text, $node, $dataParsoid, $env );
-		$this->assertTrue( is_array( $ct ) );
+		$this->assertIsArray( $ct );
 		$this->assertSameSize( $t->types, $ct );
 		$actualNames = array_map( static function ( $x ) {
 			return get_class( $x );

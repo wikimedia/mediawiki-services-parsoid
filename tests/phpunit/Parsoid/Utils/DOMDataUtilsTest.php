@@ -68,6 +68,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 EOF;
 		$doc = DOMUtils::parseHTML( $html );
 		$pb = DOMDataUtils::extractPageBundle( $doc );
-		self::assertTrue( is_array( $pb->parsoid['ids'] ) );
+		self::assertIsArray( $pb->parsoid['ids'] );
 	}
 }

@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use Wikimedia\Parsoid\DOM\DocumentFragment;
-
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 abstract class Mode {
