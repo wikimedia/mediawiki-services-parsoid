@@ -9,6 +9,7 @@ var domino = require('domino');
 var should = require('chai').should();
 var semver = require('semver');
 var url = require('url');
+const { DOMUtils } = require( "../../lib/utils/DOMUtils" );
 
 var Util = require('../../lib/utils/Util.js').Util;
 var JSUtils = require('../../lib/utils/jsutils').JSUtils;
@@ -2549,6 +2550,69 @@ describe('Parsoid API', function() {
 
 	});  // end pb2pb
 
+	describe( 'roundtrip-test', function () {
+		// This mirrors the behavior of the runTests function in roundtrip-test.js
+
+		const transformOptions = {
+			// For compatibility with Parsoid/PHP service, per roundtrip-test.js
+			offsetType: 'ucs2'
+		};
+
+		it( 'Roundtrip should convert wikitext to HTML and back, with selser working', async () => {
+			// get the wikitext of the page
+			const { text: oldWt } = await client.req
+				.get( mockDomain + `/v3/page/wikitext/${pageEncoded}` );
+
+			// First, fetch the HTML for the requested page's wikitext
+			const wt2html = await client.req
+				.post( mockDomain + `/v3/transform/wikitext/to/pagebundle/${pageEncoded}` )
+				.send( Object.assign( {
+					wikitext: oldWt,
+				}, transformOptions ) );
+
+			assert.equal( 200, wt2html.statusCode, wt2html.text );
+
+			// Now, request the wikitext for the obtained HTML, without providing the original HTML
+			const pb2wt1 = await client.req
+				.post( mockDomain + `/v3/transform/pagebundle/to/wikitext/${pageEncoded}` )
+				.send( Object.assign( {
+					html: wt2html.body.html,
+				}, transformOptions ) );
+
+			assert.equal( 200, pb2wt1.statusCode, pb2wt1.text );
+
+			// This might fail, since we are not applying selser.
+			// We are trusting that the conversion back to wikitext will be clean.
+			assert.equal( pb2wt1.text, oldWt );
+
+			// Now, request the wikitext for the obtained HTML, with Selser
+			var newDocument = DOMUtils.parseHTML( wt2html.body.html.body );
+			var newNode = newDocument.createComment('rtSelserEditTestComment');
+			newDocument.body.appendChild(newNode);
+
+			const pb2wt2 = await client.req
+				.post( mockDomain + `/v3/transform/pagebundle/to/wikitext/${pageEncoded}` )
+				.send( {
+					html: newDocument.outerHTML,
+					oldid: revid,
+					original: {
+						'data-parsoid': wt2html.body['data-parsoid'],
+						'data-mw': wt2html.body['data-mw'],
+						wikitext: { body: oldWt },
+						html: wt2html.body.html,
+					},
+					...transformOptions
+				} );
+
+			assert.equal( 200, pb2wt2.statusCode, pb2wt2.text );
+
+			// Remove the selser trigger comment
+			const actual2 = pb2wt2.text.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
+
+			assert.equal( actual2, oldWt );
+		} );
+
+	} );
 
 	describe( 'ETags', function () {
 

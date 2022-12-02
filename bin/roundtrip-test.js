@@ -661,6 +661,12 @@ var parsoidPost = Promise.async(function *(profile, options) {
 			pre += options.profilePrefix + ':';
 		}
 		var str;
+
+		// Detect standard error response
+		if ( typeof body === 'object' && body.httpCode >= 400 ) {
+			throw new Error('Received error: ' + body.reason);
+		}
+
 		if (options.html2wt) {
 			pre += 'wt:';
 			str = body;
@@ -668,6 +674,7 @@ var parsoidPost = Promise.async(function *(profile, options) {
 			pre += 'html:';
 			str = body.html.body;
 		}
+
 		profile.size[pre + 'raw'] = str.length;
 		// Compress to record the gzipped size
 		var gzippedbuf = yield zlib.gzip(str);
