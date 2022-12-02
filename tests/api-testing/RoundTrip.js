@@ -56,7 +56,7 @@ describe( 'Parsoid round-trip e2e testing with MW REST endpoints', function () {
 				baseUrl: '',
 			}
 		}, rt.jsonFormat);
-		assert.strictEqual(result.exitCode, 0);
-		assert.strictEqual(result.output.error, undefined);
+		assert.strictEqual(result.output.error, undefined, result.output.error);
+		assert.strictEqual(result.exitCode, 0, result.output.error);
 	} );
 } );
