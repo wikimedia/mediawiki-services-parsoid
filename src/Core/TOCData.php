@@ -17,11 +17,41 @@ class TOCData implements \JsonSerializable {
 	private array $sections;
 
 	/**
+	 * --------------------------------------------------
+	 * These next 4 properties are temporary state needed
+	 * to construct section metadata objects used in TOC.
+	 * These state properties are not useful once that is
+	 * done and will not be exported or serialized.
+	 * --------------------------------------------------
+	 */
+
+	/** @var int Temporary TOC State */
+	private $tocLevel = 0;
+
+	/** @var int Temporary TOC State */
+	private $prevLevel = 0;
+
+	/** @var array<int> Temporary TOC State */
+	private $levelCount = [];
+
+	/** @var array<int> Temporary TOC State */
+	private $subLevelCount = [];
+
+	/**
 	 * Create a new empty TOCData object.
 	 * @param SectionMetadata ...$sections
 	 */
 	public function __construct( ...$sections ) {
 		$this->sections = $sections;
+	}
+
+	/**
+	 * Return current TOC level while headings are being
+	 * processed and section metadat is being constructed.
+	 * @return int
+	 */
+	public function getCurrentTOCLevel(): int {
+		return $this->tocLevel;
 	}
 
 	/**
@@ -76,6 +106,59 @@ class TOCData implements \JsonSerializable {
 			$data
 		);
 		return new TOCData( ...$sections );
+	}
+
+	/**
+	 * @param int $oldLevel level of the heading (H1/H2, etc.)
+	 * @param int $level level of the heading (H1/H2, etc.)
+	 * @param SectionMetadata $metadata This metadata will be updated
+	 * This logic is copied from Parser.php::finalizeHeadings
+	 */
+	public function processHeading( int $oldLevel, int $level, SectionMetadata $metadata ): void {
+		if ( $this->tocLevel ) {
+			$this->prevLevel = $oldLevel;
+		}
+
+		if ( $level > $this->prevLevel ) {
+			# increase TOC level
+			$this->tocLevel++;
+			$this->subLevelCount[$this->tocLevel] = 0;
+		} elseif ( $level < $this->prevLevel && $this->tocLevel > 1 ) {
+			# Decrease TOC level, find level to jump to
+			for ( $i = $this->tocLevel; $i > 0; $i-- ) {
+				if ( $this->levelCount[$i] === $level ) {
+					# Found last matching level
+					$this->tocLevel = $i;
+					break;
+				} elseif ( $this->levelCount[$i] < $level ) {
+					# Found first matching level below current level
+					$this->tocLevel = $i + 1;
+					break;
+				}
+			}
+			if ( $i === 0 ) {
+				$this->tocLevel = 1;
+			}
+		}
+
+		$this->levelCount[$this->tocLevel] = $level;
+
+		# count number of headlines for each level
+		$this->subLevelCount[$this->tocLevel]++;
+		$numbering = '';
+		$dot = false;
+		for ( $i = 1; $i <= $this->tocLevel; $i++ ) {
+			if ( !empty( $this->subLevelCount[$i] ) ) {
+				if ( $dot ) {
+					$numbering .= '.';
+				}
+				$numbering .= $this->subLevelCount[$i];
+				$dot = true;
+			}
+		}
+
+		$metadata->tocLevel = $this->tocLevel;
+		$metadata->number = $numbering;
 	}
 
 	/**
