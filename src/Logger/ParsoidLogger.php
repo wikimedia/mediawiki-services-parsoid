@@ -32,6 +32,7 @@ class ParsoidLogger {
 		'trace/list' => '[LIST]',
 		'trace/quote' => '[QUOTE]',
 		'trace/wts' => '[WTS]',
+		'debug/wts' => '---[WTS-DBG]---',
 		'debug/wts/sep' => '[SEP]',
 		'trace/selser' => '[SELSER]',
 		'trace/domdiff' => '[DOM-DIFF]',

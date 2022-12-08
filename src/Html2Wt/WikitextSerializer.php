@@ -1303,6 +1303,7 @@ class WikitextSerializer {
 	 * @return ?Node
 	 */
 	public function serializeNode( Node $node ): ?Node {
+		$nodeName = DOMCompat::nodeName( $node );
 		$domHandler = $method = null;
 		$domHandlerFactory = new DOMHandlerFactory();
 		$state = $this->state;
@@ -1375,14 +1376,17 @@ class WikitextSerializer {
 		}
 
 		$prev = DOMUtils::previousNonSepSibling( $node ) ?: $node->parentNode;
+		$this->env->log( 'debug/wts', 'Before constraints for ' . $nodeName );
 		$state->separators->updateSeparatorConstraints(
 			$prev, $domHandlerFactory->getDOMHandler( $prev ),
 			$node, $domHandler
 		);
 
+		$this->env->log( 'debug/wts', 'Calling serialization handler for ' . $nodeName );
 		$nextNode = call_user_func( $method, $node, $domHandler );
 
 		$next = DOMUtils::nextNonSepSibling( $node ) ?: $node->parentNode;
+		$this->env->log( 'debug/wts', 'After constraints for ' . $nodeName );
 		$state->separators->updateSeparatorConstraints(
 			$node, $domHandler,
 			$next, $domHandlerFactory->getDOMHandler( $next )
