@@ -26,7 +26,8 @@ class RemoveRedLinks {
 					// parameters AFTER a fragment; the parse_url then interprets these query parameters
 					// as part of the fragment.
 					// 2022-12-01: That issue is solved in the "wt2html" direction, but some
-					// RESTBase-stored content may still exist, so we'll have to remove this later.
+					// RESTBase-stored content may still exist, so we'll have to remove this when
+					// 2.7.0 is not longer being stored.
 					$href = str_replace(
 						[ '?action=edit&redlink=1', '?action=edit&amp;redlink=1',
 							'&action=edit&redlink=1', '&amp;action=edit&amp;redlink=1' ],

@@ -47,17 +47,17 @@ class AddRedLinksTest extends TestCase {
 				'Redlink with parameter and no fragment'
 			],
 			[
-				'<a href="./Hello#frag" title="Hello#frag" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?action=edit&amp;redlink=1#frag" title="Hello#frag" rel="mw:WikiLink" ' .
+				'<a href="./Hello#frag" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?action=edit&amp;redlink=1#frag" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#frag"]}}\'>Hello</a>',
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'Redlink with fragment and no query string'
 			],
 			[
-				'<a href="./Hello?param=p#frag" title="Hello#frag" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1#frag" title="Hello#frag" rel="mw:WikiLink" ' .
+				'<a href="./Hello?param=p#frag" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1#frag" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#frag"]}}\'>Hello</a>',
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'Redlink with parameter and fragment'
 			],
 			[
@@ -68,48 +68,50 @@ class AddRedLinksTest extends TestCase {
 				'Redlink with empty query string and no fragment'
 			],
 			[
-				'<a href="./Hello#" title="Hello#" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?action=edit&amp;redlink=1" title="Hello#" rel="mw:WikiLink" ' .
+				// An empty fragment coming from wikitext ("[[Hello#]]") would not generate an empty
+				// fragment in the link, but let's still have this in the coverage
+				'<a href="./Hello#" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?action=edit&amp;redlink=1" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#"]}}\'>Hello</a>',
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'Redlink with empty fragment and no query string'
 			],
 			[
-				'<a href="./Hello?#anchor" title="Hello#anchor" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?action=edit&amp;redlink=1#anchor" title="Hello#anchor" rel="mw:WikiLink" ' .
+				'<a href="./Hello?#anchor" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?action=edit&amp;redlink=1#anchor" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#anchor"]}}\'>' .
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>' .
 				'Hello</a>',
 				'Redlink with empty query string and fragment'
 			],
 			[
-				'<a href="./Hello?param=p#" title="Hello#" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1" title="Hello#" rel="mw:WikiLink" ' .
+				'<a href="./Hello?param=p#" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#"]}}\'>Hello</a>',
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'Redlink with query string and empty fragment'
 			],
 			[
-				'<a href="./Hello#anchor?" title="Hello#anchor?" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?action=edit&amp;redlink=1#anchor?" title="Hello#anchor?" rel="mw:WikiLink" ' .
+				'<a href="./Hello#anchor?" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?action=edit&amp;redlink=1#anchor?" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#anchor?"]}}\'>' .
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>' .
 				'Hello</a>',
 				'Redlink with no query string and anchor containing a question mark'
 			],
 			[
-				'<a href="./Hello?param=p#anchor?" title="Hello#anchor?" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1#anchor?" title="Hello#anchor?" ' .
+				'<a href="./Hello?param=p#anchor?" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1#anchor?" title="Hello" ' .
 				'rel="mw:WikiLink" class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#anchor?"]}}\'>' .
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>' .
 				'Hello</a>',
 				'Redlink with query string and anchor containing a question mark'
 			],
 			[
-				'<a href="./Hello?#anchor?" title="Hello#anchor?" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?action=edit&amp;redlink=1#anchor?" title="Hello#anchor?" rel="mw:WikiLink" ' .
+				'<a href="./Hello?#anchor?" title="Hello" rel="mw:WikiLink">Hello</a>',
+				'<a href="./Hello?action=edit&amp;redlink=1#anchor?" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
-				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello#anchor?"]}}\'>' .
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>' .
 				'Hello</a>',
 				'Redlink with empty query string and anchor containing a question mark'
 			],
