@@ -85,7 +85,7 @@ describe('Parsoid API', function() {
 	const mockDomain = client.pathPrefix = `rest.php/${hostname}`;
 	const page = utils.title( 'Lint Page ' );
 	const pageEncoded = encodeURIComponent( page );
-	let revid;
+	let revid, oldrevid;
 
 	before(async function() {
 		this.timeout(30000);
@@ -93,6 +93,10 @@ describe('Parsoid API', function() {
 		const alice = await action.alice();
 
 		// Create pages
+		const oldEdit = await alice.edit(page, { text: 'First Revision Content' });
+		oldEdit.result.should.equal('Success');
+		oldrevid = oldEdit.newrevid;
+
 		let edit = await alice.edit(page, { text: '{|\nhi\n|ho\n|}' });
 		edit.result.should.equal('Success');
 		revid = edit.newrevid;
@@ -649,28 +653,27 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should get from a title and revision (html)', function(done) {
+		it('should get from a title and old revision (html)', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/html/${page}/${revid}`)
+			.get(mockDomain + `/v3/page/html/${page}/${oldrevid}`)
+			.redirects( 0 )
 			.expect(validHtmlResponse(function(doc) {
-				// SECTION -> P
-				doc.body.firstChild.firstChild.textContent.should.contains('hi');
+				doc.body.firstChild.firstChild.textContent.should.contain('First Revision Content');
 			}))
 			.end(done);
 		});
 
-		// Parsoid/PHP isn't really expected to work on old MediaWiki versions
-		it.skip('should get from a title and revision (html, pre-mcr)', function(done) {
+		it('should get from a title and current revision (html)', function(done) {
 			client.req
-			.get(mockDomain + '/v3/page/html/Old_Response/999')
+			.get(mockDomain + `/v3/page/html/${page}`)
+			.redirects( 1 )
 			.expect(validHtmlResponse(function(doc) {
-				// SECTION -> P
-				doc.body.firstChild.firstChild.textContent.should.equal('MediaWiki was successfully installed.');
+				doc.body.firstChild.firstChild.textContent.should.contain('hi');
 			}))
 			.end(done);
 		});
 
-		it('should get from a title and revision (html, json content)', function(done) {
+		it('should get from a title and current revision (html, json content)', function(done) {
 			client.req
 			.get(mockDomain + '/v3/page/html/JSON_Page')
 			.redirects(1)
@@ -683,6 +686,7 @@ describe('Parsoid API', function() {
 		it('should get from a title and revision (pagebundle)', function(done) {
 			client.req
 			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
+			.redirects( 0 )
 			.expect(validPageBundleResponse())
 			.end(done);
 		});
@@ -699,8 +703,9 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and revision (wikitext)', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/wikitext/${page}/${revid}`)
-			.expect(validWikitextResponse())
+			.get(mockDomain + `/v3/page/wikitext/${page}/${oldrevid}`)
+			.redirects( 0 )
+			.expect(validWikitextResponse('First Revision Content'))
 			.end(done);
 		});
 
