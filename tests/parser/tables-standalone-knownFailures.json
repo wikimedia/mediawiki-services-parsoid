@@ -60,7 +60,7 @@
         "selser [[2,[[0,4,0,[4]],0,1,2,[0,2,4,[2]],0]]]": "{|<!--1lja5uq-->\n|-\n|ec6y93\n| style=\"color:blue;\" |9hainn\n|- data-foobar=\"1lzq62c\"\n|1||2||3\n|1||+2||-3<!--1xh3c79-->\n|-\n|uyg1u2\n| +1\n|1yrrlwq\n| x4a8hu-1\n|}",
         "selser [[0,2]]": "{|\n<!--vxd1a4-->|-\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n|1||2||3\n|1||+2||-3\n|-\n| +1\n| -1\n|}",
         "selser [[3,[[3,1,0,[4]],3,4,2,[0,4,0,0],4]]]": "{|\n|-\n| style=\"color:red;\" data-foobar=\"1ursn9e\" | +1\n|style='color:blue;'|1tgbq69<!--mjcp0y--><!--10gnjb4-->\n|-\n|12kuf2l\n| -1<!--p4ts4n-->\n|}",
-        "selser [[0,[[3,2,0,0],0,[2,0,1,[2],0,0,0,2],0,[0,[4],0,0],0]]]": "{|\n|-\n|1dbxbmw\n|style='color:red;'|+1\n|style='color:blue;'|-1\n|-\n|1ialk7b\n|1|| data-foobar=\"18yr9kc\" |2||fgg5mn3\n|1||+2\n|uh4o4t||-3\n|-\n| vcgszp\n| -1\n|}"
+        "selser [[0,[[3,2,0,0],0,[2,0,1,[2],0,0,0,2],0,[0,[4],0,0],0]]]": "{|\n|-\n|1dbxbmw\n| style=\"color:red;\" | +1\n|style='color:blue;'|-1\n|-\n|1ialk7b\n|1|| data-foobar=\"18yr9kc\" |2||fgg5mn3\n|1||+2\n|uh4o4t||-3\n|-\n| vcgszp\n| -1\n|}"
     },
     "Build table with pipe as data": {
         "wt2wt": "{| class=\"wikitable\"\n!header\n!second header\n|- style=\"color:red;\"\n|data|| style=\"color:red;\" |second data\n|-\n| style=\"color:red;\" |<nowiki>data with |</nowiki>|| style=\"color:red;\" |second data with |\n|-\n||<nowiki>data with |</nowiki>|||second data with |\n|}",
@@ -194,7 +194,6 @@
         "selser [[0,2]]": "{|\n<!--1l8szay-->|title=\"foo\" |bar\n|title=\"foo<nowiki>|</nowiki>\" |bar\n|title=\"foo<nowiki>|</nowiki>\" bar\n|}",
         "selser [[0,1]]": "{|\n|title=\"foo\" |bar\n|title=\"foo<nowiki>|</nowiki>\" |bar\n|title=\"foo<nowiki>|</nowiki>\" bar\n|}",
         "selser [[4,[[1,0,0,0,2],4]]]": "{|<!--19gn4sx-->\n| title=\"foo\" data-foobar=\"17ulhkg\" |bar\n|title=\"foo<nowiki>|</nowiki>\" |bar\n|r1ztbh\n|title=\"foo<nowiki>|</nowiki>\" bar<!--1yk0khk-->\n|}",
-        "selser [[3,[[1,0,2,4,[0,0,4]],4]]]": "{|\n| title=\"foo\" data-foobar=\"t7u4mj\" |bar\n|pvpgb5\n|title=\"foo<nowiki>|</nowiki>\" |bar\n|rpfjdf\n|title=\"foo<nowiki>|</nowiki>2i5lk4<!--10njgu1-->\n|}",
         "selser [[0,[[4,0,[2],3,2],0]]]": "{|\n|14qpfk\n|title=\"foo<nowiki>|</nowiki>\" |nqw0j5bar\n|12wx0lb\n|title=\"foo<nowiki>|</nowiki>\" bar\n|}",
         "selser [[3,[[[2],4,[3],3,1],0]]]": "{|\n|title=\"foo\" |1ww0lmubar\n|15aa2r6\n| title=\"foo<nowiki>|</nowiki>\" |\n| data-foobar=\"kim9v8\" |title=\"foo<nowiki>|</nowiki>\" bar\n|}"
     },
@@ -230,10 +229,8 @@
         "selser [[4,[1,4]]]": "{|<!--zvd4dx-->\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz<!--j8ngqd-->\n|}",
         "selser [1]": "{| data-foobar=\"ce1h0j\"\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz\n|}",
         "selser [[3,[2,0]]]": "{|<!--f8mryi-->\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz\n|}",
-        "selser [[4,[[2,0,2,[3],4,0,3,[3],1],2]]]": "{|<!--1dvckmr-->\n|1q4f323\n|foo bar foo|baz\n|1xxpvyf\n|foo bar foo||\n|93pn2u\n|style='color:red;'|baz\n| || data-foobar=\"1397sh5\" |baz<!--lypzwq-->\n|}",
         "selser [[0,[[4,0,0,1,0,0,0,4,4],0]]]": "{|\n|wmksp5\n|foo bar foo|| data-foobar=\"1veeazb\" |baz\n|style='color:red;'|baz\n|1d18155\n|esix57\n|}",
         "selser [[0,[1,4]]]": "{|\n|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz<!--bg13zw-->\n|}",
-        "selser [[0,[[1,4,0,2,2,0,4,0,0],3]]]": "{|\n| data-foobar=\"qs9lls\" foo bar |baz\n|1a6b5im\n|foo bar foo\n|i0zem6||baz\n|kypy6s\n|style='color:red;'|baz\n|1xt8wkm\n|style='color:red;'||baz\n|}",
         "selser [[0,2]]": "{|\n<!--1x3flov-->|foo bar foo|baz\n|foo bar foo||baz\n|style='color:red;'|baz\n|style='color:red;'||baz\n|}"
     },
     "Table with missing opening <tr> tag": {

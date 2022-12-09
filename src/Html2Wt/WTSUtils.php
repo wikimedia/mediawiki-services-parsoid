@@ -273,9 +273,13 @@ class WTSUtils {
 				return true;
 			}
 
+			if ( DiffUtils::hasInsertedDiffMark( $prev, $env ) ||
+				DiffUtils::hasInsertedDiffMark( $node, $env ) ) {
+				return false;
+			}
+
 			// If previous sibling is unmodified, nothing to worry about.
 			if ( !DOMUtils::isDiffMarker( $prev ) &&
-				!DiffUtils::hasInsertedDiffMark( $prev, $env ) &&
 				!DiffUtils::directChildrenChanged( $prev, $env )
 			) {
 				return true;

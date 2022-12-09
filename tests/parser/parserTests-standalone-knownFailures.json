@@ -150,12 +150,11 @@
         "html2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}",
         "selser [1]": "{| data-foobar=\"66fol0\"\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
         "selser [[0,1]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[0,[[[2,0,0],1,0,2,[2],4,[0,2,0],4],0]]]": "{|\n|jmvhm1testing [[one|two]] |three|| data-foobar=\"1shr01n\" |four\n|tby7d\n|testing one two |three||18pbj54four\n|1c3ad6u\n|testing=\"18gycam[[one|two]]<nowiki>\" |three</nowiki>\n|fsdzo0\n|}",
+        "selser [[0,[[[2,0,0],1,0,2,[2],4,[0,2,0],4],0]]]": "{|\n|jmvhm1testing [[one|two]] |three|| data-foobar=\"1shr01n\" |four\n|tby7d\n| testing one two |three||18pbj54four\n|1c3ad6u\n|testing=\"18gycam[[one|two]]<nowiki>\" |three</nowiki>\n|fsdzo0\n|}",
         "selser [2]": "1wu4vn\n{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
         "selser [[0,[[4,[4],3,[3],3,2,3,3],3]]]": "{|\n|1kxbby7||f19k30\n|testing one two |\n|1pq73j5\n|}",
         "selser [[4,[2,3]]]": "{|<!--1vbv47r--><!--1q0o4rr-->\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
         "selser [[3,1]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[4,[[4,4,3,0,2,2,[0,2,0],0],4]]]": "{|<!--k0h0xy-->\n|nf9yah\n|17cjmp0\n|testing one two |three\n|14xsn3l||four\n|3ay3mz\n|testing=\"1henp9m[[one|two]]<nowiki>\" |three</nowiki>||four<!--dnx1dw-->\n|}",
         "selser [[0,2]]": "{|\n<!--160e6cw-->|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
         "selser [[4,[[2,[2],4,3,2,4,[3,4,4],1],0]]]": "{|<!--3nev4g-->\n|1jw4mk0\n|testing [[one|two]] |three||4ybyuufour\n|1cx5oih\n|1orkt2r||four\n|uabrr0\n|157h2ct6x6cj5|| data-foobar=\"1ey4pzz\" |four\n|}"
     },
@@ -208,7 +207,7 @@
     "Correct handling of <td>, <tr> (T8171)": {
         "html2wt": "{|  \n    | Some tabular data\n    | More tabular data ...\n    | And yet som tabular data  \n|}",
         "selser [[0,[[0,0,0,[4],4,0,3],0]]]": "<table>\n  <tr>\n    <td> Some tabular data</td>\n    <td> pa70ih</td><td>ewy9pe</td><td> And yet som tabular data</td></tr>\n</table>",
-        "selser [[4,[[4,1,0,[2],0,[4],3],2]]]": "<table><!--1c9p8ag--><tr><td>8f9cr6</td><td data-foobar=\"trdzwz\"> Some tabular data</td>\n    <td> 10bfmus More tabular data ...</td>\n    <td> brkgdj</td>\n  </tr><!--1s1b0su-->\n</table>",
+        "selser [[4,[[4,1,0,[2],0,[4],3],2]]]": "<table><!--1c9p8ag--><tr><td>8f9cr6</td><td data-foobar=\"trdzwz\"> Some tabular data</td>\n    <td> 10bfmus More tabular data ...</td>\n    <td> brkgdj</td></tr><!--1s1b0su-->\n</table>",
         "selser [[2,[[3,[2],4,[3],3,[4],0],3]]]": "<table><!--kic9hg-->\n  <tr><td> 5jp55q Some tabular data</td><td>zxz05u</td><td></td><td> 1l2mrts</td>\n  </tr>\n</table>"
     },
     "DIV IN UPPERCASE": {
@@ -575,8 +574,7 @@
         "html2wt": "{|\n <!--hi-->|-\n | there\n|}"
     },
     "Indented table with an empty td": {
-        "html2wt": "{|\n|\n|foo\n|}",
-        "selser [0,[4,[[0,2,3]]]]": " {|<!--esh6d6-->\n|-\n |fgdn4j\n|\n \n|}"
+        "html2wt": "{|\n|\n|foo\n|}"
     },
     "Indented table with blank lines in between (T85627)": {
         "selser [2,[0,[[[0,4,3]]]]]": "53zi99 \n{|\n |foo\nww3fks \n|}",
