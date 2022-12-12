@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -12,8 +13,9 @@ class RemoveRedLinks {
 	/**
 	 * Remove redlinks from a document
 	 * @param Element $root
+	 * @param Env $env
 	 */
-	public function run( Node $root ): void {
+	public function run( Node $root, Env $env ): void {
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
 		$wikilinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' );
 		foreach ( $wikilinks as $a ) {
@@ -35,6 +37,11 @@ class RemoveRedLinks {
 						$href
 					);
 				} else {
+					if ( $queryParams === false ) {
+						$env->log( 'error/html2wt/link', 'Unhandled URL',
+							$href, 'in red link removal' );
+						$queryParams = '';
+					}
 					$args = [];
 					parse_str( $queryParams, $args );
 					if ( isset( $args['action'] ) && $args['action'] === 'edit' ) {

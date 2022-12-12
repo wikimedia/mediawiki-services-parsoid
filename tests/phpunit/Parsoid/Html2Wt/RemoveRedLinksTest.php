@@ -3,6 +3,7 @@
 namespace Wikimedia\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
@@ -23,7 +24,8 @@ class RemoveRedLinksTest extends TestCase {
 		$removeRedLinks = new RemoveRedLinks();
 		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );
 		$body = DOMCompat::getBody( $doc );
-		$removeRedLinks->run( $body );
+		$env = new MockEnv( [] );
+		$removeRedLinks->run( $body, $env );
 		$actual = ContentUtils::ppToXML( $body, [ 'discardDataParsoid' => true, 'innerXML' => true ] );
 		$this->assertEquals( $expected, $actual, $message );
 	}

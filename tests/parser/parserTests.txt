@@ -3085,6 +3085,22 @@ He&amp;nbsp;llo He&amp;nbsp;llo
 </p>
 !! end
 
+!! article
+16:30
+!! text
+Dummy article to suppress redlinks in tests
+!! end
+
+!! test
+Wikilinks with : should roundtrip correctly, with and without redlinks
+!! wikitext
+[[16:30]]
+[[18:30]]
+!! html/parsoid
+<p><a rel="mw:WikiLink" href="./16:30" title="16:30" data-parsoid='{"stx":"simple","a":{"href":"./16:30"},"sa":{"href":"16:30"}}'>16:30</a>
+<a rel="mw:WikiLink" href="./18:30?action=edit&amp;redlink=1" title="18:30" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./18:30"},"sa":{"href":"18:30"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["18:30"]}}'>18:30</a></p>
+!! end
+
 # html2wt will fail because of title normalization without data-parsoid
 !! test
 Parsoid: handle constructor well

@@ -77,7 +77,9 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 					$href = $a->getAttribute( 'href' );
 					$parsedURL = parse_url( $href );
-					$newHref = $parsedURL['path'];
+					// the [host] part avoids issues when there's a ':' followed by a number in the
+					// URL (which then gets interpreted as a port number).
+					$newHref = ( $parsedURL['host'] ?? '' ) . $parsedURL['path'];
 					$queryElts = [];
 					if ( isset( $parsedURL['query'] ) ) {
 						parse_str( $parsedURL['query'], $queryElts );

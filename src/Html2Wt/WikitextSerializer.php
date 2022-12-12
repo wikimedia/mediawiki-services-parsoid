@@ -1647,7 +1647,7 @@ class WikitextSerializer {
 		$domNormalizer->normalize( $node );
 
 		$redLinkRemover = new RemoveRedLinks();
-		$redLinkRemover->run( $node );
+		$redLinkRemover->run( $node, $this->env );
 
 		if ( $this->env->hasDumpFlag( 'dom:post-normal' ) ) {
 			$options = [ 'storeDiffMark' => true ];
