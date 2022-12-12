@@ -555,6 +555,10 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			}
 			print TestUtils::colorString( 'INPUT', 'cyan' ) . ':' . "\n";
 			print $actual['input'] . "\n";
+			if ( $knownFailures ) {
+				print "\n" . TestUtils::colorString( 'KNOWN FAILURE OUTPUT', 'cyan' ) . ":\n";
+				print $expectFail . "\n";
+			}
 			print $options['getActualExpected']( $actual, $expected, $options['getDiff'] ) . "\n";
 		}
 
@@ -567,20 +571,30 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param array $options
 	 * @param string $mode
 	 * @param string $title
+	 * @param string $raw
 	 * @param bool $expectSuccess Whether this success was expected (or was it a known failure).
 	 * @return bool true if the success was expected.
 	 */
 	public static function printSuccess(
-		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
+		Stats $stats, Test $item, array $options, string $mode, string $title, string $raw, bool $expectSuccess
 	): bool {
 		$quiet = ScriptUtils::booleanOption( $options['quiet'] ?? null );
 		$quieter = ScriptUtils::booleanOption( $options['quieter'] ?? null );
+		$quick = ScriptUtils::booleanOption( $options['quick'] ?? null );
+		$failureOnly = $quieter || $quick;
 
 		$extTitle = str_replace( "\n", ' ', "$title ($mode)" );
 
 		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && !$expectSuccess ) {
+			if ( !$failureOnly ) {
+				print "=====================================================\n";
+			}
 			print TestUtils::colorString( 'UNEXPECTED PASS', 'green', true ) . ': ' .
 				TestUtils::colorString( $extTitle, 'yellow' ) . "\n";
+			if ( !$failureOnly ) {
+				print TestUtils::colorString( 'RAW RENDERED', 'cyan' ) . ":\n";
+				print $raw . "\n";
+			}
 			return false;
 		}
 		if ( !$quiet && !$quieter ) {
@@ -742,7 +756,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		} else {
 			$stats->passedTests++;
 			$stats->modes[$mode]->passedTests++;
-			$asExpected = $reportSuccess( $stats, $item, $options, $mode, $title, $expectFail === null );
+			$asExpected = $reportSuccess( $stats, $item, $options, $mode, $title, $actual['raw'], $expectFail === null );
 			if ( !$asExpected ) {
 				$stats->passedTestsUnexpected++;
 				$stats->modes[$mode]->passedTestsUnexpected++;
@@ -854,7 +868,8 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @inheritDoc printSuccess
 	 */
 	public static function reportSuccessXML(
-		Stats $stats, Test $item, array $options, string $mode, string $title, bool $expectSuccess
+		Stats $stats, Test $item, array $options, string $mode, string $title, string $raw,
+		bool $expectSuccess
 	): bool {
 		return ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && !$expectSuccess;
 	}
