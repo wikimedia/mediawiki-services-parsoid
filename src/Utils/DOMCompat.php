@@ -76,16 +76,16 @@ class DOMCompat {
 	 * @see https://html.spec.whatwg.org/multipage/dom.html#dom-document-body
 	 */
 	public static function getBody( $document ) {
-		// Use an undeclared dynamic property as a cache.
 		// WARNING: this will not be updated if (for some reason) the
 		// document body changes.
-		if ( isset( $document->body ) ) {
+		if ( $document->body !== null ) {
 			return $document->body;
 		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var Element $element */
 			if ( self::nodeName( $element ) === 'body' || self::nodeName( $element ) === 'frameset' ) {
-				$document->body = $element; // Caching!
+				// Caching!
+				$document->body = $element;
 				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
 				return $element;
 			}

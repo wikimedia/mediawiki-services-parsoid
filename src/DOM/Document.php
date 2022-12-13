@@ -5,6 +5,14 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\DOM;
 
 class Document extends \DOMDocument implements Node {
+
+	/**
+	 * Inprocess cache used in DOMCompat::getBody()
+	 *
+	 * @var Element|null
+	 */
+	public ?Element $body = null;
+
 	public function __construct() {
 		parent::__construct();
 		# Register our alias classes. Notes:
