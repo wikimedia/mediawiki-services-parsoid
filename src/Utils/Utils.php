@@ -377,14 +377,16 @@ class Utils {
 	 *
 	 * @param string $str media dimension string to parse
 	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
-	 * @return ?array{x:int,y?:int}
+	 * @return ?array{x:int,y?:int,bogusPx:bool}
 	 */
 	public static function parseMediaDimensions(
 		string $str, bool $onlyOne = false
 	): ?array {
 		$dimensions = null;
-		if ( preg_match( '/^(\d*)(?:x(\d+))?\s*(?:px\s*)?$/D', $str, $match ) ) {
-			$dimensions = [ 'x' => null, 'y' => null ];
+		// We support a trailing 'px' here for historical reasons
+		// (T15500, T53628, T207032)
+		if ( preg_match( '/^(\d*)(?:x(\d+))?\s*(px\s*)?$/D', $str, $match ) ) {
+			$dimensions = [ 'x' => null, 'y' => null, 'bogusPx' => false ];
 			if ( !empty( $match[1] ) ) {
 				$dimensions['x'] = intval( $match[1], 10 );
 			}
@@ -393,6 +395,9 @@ class Utils {
 					return null;
 				}
 				$dimensions['y'] = intval( $match[2], 10 );
+			}
+			if ( !empty( $match[3] ) ) {
+				$dimensions['bogusPx'] = true;
 			}
 		}
 		return $dimensions;

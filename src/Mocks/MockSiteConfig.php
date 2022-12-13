@@ -304,6 +304,8 @@ class MockSiteConfig extends SiteConfig {
 			'img_frameless'   => [ 1, 'frameless' ],
 			'img_manualthumb' => [ 1, 'thumbnail=$1', 'thumb=$1' ],
 			'img_none'        => [ 1, 'none' ],
+			'img_left'        => [ 1, 'left' ],
+			'img_right'       => [ 1, 'right' ],
 			'notoc'           => [ 0, '__NOTOC__' ],
 			'timedmedia_loop' => [ 0, 'loop' ],
 			'timedmedia_muted' => [ 0, 'muted' ],

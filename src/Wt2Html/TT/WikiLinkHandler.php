@@ -1318,9 +1318,13 @@ class WikiLinkHandler extends TokenHandler {
 				// Unlike other options, use last-specified width.
 				if ( $optInfo['ck'] === 'width' ) {
 					// We support a trailing 'px' here for historical reasons
-					// (T15500, T53628)
+					// (T15500, T53628, T207032)
 					$maybeDim = Utils::parseMediaDimensions( $optInfo['v'] );
 					if ( $maybeDim !== null ) {
+						if ( $maybeDim['bogusPx'] ) {
+							// Lint away redundant unit (T207032)
+							$dataParsoid->getTemp()->bogusPx = true;
+						}
 						$opts['size']['v'] = [
 							'width' => Utils::validateMediaParam( $maybeDim['x'] ) ? $maybeDim['x'] : null,
 							'height' => array_key_exists( 'y', $maybeDim ) &&

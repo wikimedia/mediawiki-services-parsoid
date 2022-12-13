@@ -337,10 +337,21 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 0, 58, 2, 2 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '250px', $result[0]['params']['items'][0], $desc );
+		// The second '|thumb' should be linted away
+		$this->assertEquals( 'thumb', $result[0]['params']['items'][1], $desc );
 
 		$desc = 'should not lint image with caption masquerading as width option';
 		$result = $this->parseWT( '[[File:Foobar.jpg|thumb|Foo px]]' );
 		$this->assertCount( 0, $result, $desc );
+
+		$desc = "should lint image with width option with redundant units";
+		$result = $this->parseWT(
+			"[[File:Foobar.jpg|thumb|250pxpx|right|Caption]]" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 47, 2, 2 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( '250pxpx', $result[0]['params']['items'][0], $desc );
 
 		$desc = "should lint Bogus image with invalid upright value";
 		$result = $this->parseWT(
