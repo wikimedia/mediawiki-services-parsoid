@@ -238,6 +238,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property array|null $tSp Spaces around texts, compressed with compressSpArray().
  * @property array|null $fl Original flags, copied from $this->original on the token.
  */
+#[\AllowDynamicProperties]
 class DataParsoid {
 	/**
 	 * Holds a number of transient properties in the wt->html pipeline to pass information between

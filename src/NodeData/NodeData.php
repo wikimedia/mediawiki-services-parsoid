@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property int|null $storedId
  * @property DataI18n|null $i18n
  */
+#[\AllowDynamicProperties]
 class NodeData {
 	/**
 	 * @var DataParsoid|null The unserialized data-parsoid attribute
