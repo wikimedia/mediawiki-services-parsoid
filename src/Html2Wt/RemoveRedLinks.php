@@ -10,14 +10,23 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class RemoveRedLinks {
 
+	/** @var Env */
+	private Env $env;
+
+	/**
+	 * @param Env $env
+	 */
+	public function __construct( Env $env ) {
+		$this->env = $env;
+	}
+
 	/**
 	 * Remove redlinks from a document
 	 * @param Element $root
-	 * @param Env $env
 	 */
-	public function run( Node $root, Env $env ): void {
+	public function run( Node $root ): void {
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
-		$wikilinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' );
+		$wikilinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"].new' );
 		foreach ( $wikilinks as $a ) {
 			$href = $a->getAttribute( 'href' );
 			$qmPos = strpos( $href, '?' );
@@ -38,7 +47,7 @@ class RemoveRedLinks {
 					);
 				} else {
 					if ( $queryParams === false ) {
-						$env->log( 'error/html2wt/link', 'Unhandled URL',
+						$this->env->log( 'error/html2wt/link', 'Unhandled URL',
 							$href, 'in red link removal' );
 						$queryParams = '';
 					}
@@ -60,11 +69,12 @@ class RemoveRedLinks {
 					// I actually want http_build_url, but I *probably* don't want to add a
 					// dependency to pecl_http.
 					if ( $queryParams !== $newQueryParams ) {
-						if ( $newQueryParams !== '' ) {
-							$href = str_replace( $queryParams, $newQueryParams, $href );
-						} else {
-							$href = str_replace( '?' . $queryParams, '', $href );
+						if ( $newQueryParams === '' ) {
+							$queryParams = '?' . $queryParams;
 						}
+						$queryParams = preg_quote( $queryParams, '#' );
+						$href = preg_replace( '#' . $queryParams . '#', $newQueryParams,
+							$href, 1 );
 					}
 				}
 				$a->setAttribute( 'href', $href );
