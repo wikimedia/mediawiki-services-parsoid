@@ -38,6 +38,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * Used to indicate that media dimensions have redundant units
  * @property bool|null $bogusPx
  */
+#[\AllowDynamicProperties]
 class TempData {
 	/**
 	 * Whether a DOM node is a new node added during an edit session. figureHandler()
