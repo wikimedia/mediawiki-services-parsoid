@@ -157,6 +157,7 @@ class TOCData implements \JsonSerializable {
 			}
 		}
 
+		$metadata->hLevel = $level;
 		$metadata->tocLevel = $this->tocLevel;
 		$metadata->number = $numbering;
 	}
