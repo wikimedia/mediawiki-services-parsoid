@@ -243,6 +243,19 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * @param Element $node
+	 * @return array
+	 */
+	public static function getDataAttrI18nNames( Element $node ): array {
+		$data = self::getNodeData( $node );
+		// We won't set a default value for this property
+		if ( !isset( $data->i18n ) ) {
+			return [];
+		}
+		return $data->i18n->getAttributeNames();
+	}
+
+	/**
 	 * Get data diff info from a node.
 	 *
 	 * @param Element $node node

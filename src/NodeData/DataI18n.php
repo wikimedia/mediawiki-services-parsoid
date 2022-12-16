@@ -31,6 +31,20 @@ class DataI18n implements \JsonSerializable {
 	}
 
 	/**
+	 * Get the name of the localized attributes or an empty array if no localized attributes
+	 * @return array
+	 */
+	public function getAttributeNames(): array {
+		$res = [];
+		foreach ( $this->i18nInfo as $k => $v ) {
+			if ( $k !== '/' ) {
+				$res[] = $k;
+			}
+		}
+		return $res;
+	}
+
+	/**
 	 * Defines the internationalization parameters of a string contained in a span.
 	 * @param I18nInfo $info
 	 * @return void
