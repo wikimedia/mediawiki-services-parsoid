@@ -71,7 +71,7 @@ class AddRedLinksTest extends TestCase {
 				// An empty fragment coming from wikitext ("[[Hello#]]") would not generate an empty
 				// fragment in the link, but let's still have this in the coverage
 				'<a href="./Hello#" title="Hello" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?action=edit&amp;redlink=1" title="Hello" rel="mw:WikiLink" ' .
+				'<a href="./Hello?action=edit&amp;redlink=1#" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
 				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'Redlink with empty fragment and no query string'
@@ -86,7 +86,7 @@ class AddRedLinksTest extends TestCase {
 			],
 			[
 				'<a href="./Hello?param=p#" title="Hello" rel="mw:WikiLink">Hello</a>',
-				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1" title="Hello" rel="mw:WikiLink" ' .
+				'<a href="./Hello?param=p&amp;action=edit&amp;redlink=1#" title="Hello" rel="mw:WikiLink" ' .
 				'class="new" typeof="mw:LocalizedAttrs" ' .
 				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'Redlink with query string and empty fragment'

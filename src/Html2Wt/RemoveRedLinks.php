@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\UrlUtils;
 
 class RemoveRedLinks {
 
@@ -31,8 +32,8 @@ class RemoveRedLinks {
 			$href = $a->getAttribute( 'href' );
 			$qmPos = strpos( $href, '?' );
 			if ( $qmPos !== false ) {
-				$queryParams = parse_url( $href, PHP_URL_QUERY );
-				if ( $queryParams === null ) {
+				$parsedURL = UrlUtils::parseUrl( $href );
+				if ( !isset( $parsedURL['query'] ) ) {
 					// TODO this mitigates a bug in the AddRedLinks pass, which puts the query
 					// parameters AFTER a fragment; the parse_url then interprets these query parameters
 					// as part of the fragment.
@@ -46,36 +47,29 @@ class RemoveRedLinks {
 						$href
 					);
 				} else {
-					if ( $queryParams === false ) {
-						$this->env->log( 'error/html2wt/link', 'Unhandled URL',
-							$href, 'in red link removal' );
-						$queryParams = '';
+					$queryParams = $parsedURL['query'];
+					$queryElts = [];
+					parse_str( $queryParams, $queryElts );
+					if ( isset( $queryElts['action'] ) && $queryElts['action'] === 'edit' ) {
+						unset( $queryElts['action'] );
 					}
-					$args = [];
-					parse_str( $queryParams, $args );
-					if ( isset( $args['action'] ) && $args['action'] === 'edit' ) {
-						unset( $args['action'] );
-					}
-					if ( isset( $args['redlink'] ) && $args['redlink'] === '1' ) {
-						unset( $args['redlink'] );
+					if ( isset( $queryElts['redlink'] ) && $queryElts['redlink'] === '1' ) {
+						unset( $queryElts['redlink'] );
 					}
 
 					// My understanding of this method and of PHP array handling makes me
 					// believe that the order of the parameters should not be modified here.
 					// There is however no guarantee whatsoever in the documentation or spec
 					// of these methods.
-					$newQueryParams = http_build_query( $args );
+					$newQueryParams = http_build_query( $queryElts );
 
-					// I actually want http_build_url, but I *probably* don't want to add a
-					// dependency to pecl_http.
-					if ( $queryParams !== $newQueryParams ) {
-						if ( $newQueryParams === '' ) {
-							$queryParams = '?' . $queryParams;
-						}
-						$queryParams = preg_quote( $queryParams, '#' );
-						$href = preg_replace( '#' . $queryParams . '#', $newQueryParams,
-							$href, 1 );
+					if ( count( $queryElts ) === 0 ) {
+						// avoids the insertion of ? on empty query string
+						$parsedURL['query'] = null;
+					} else {
+						$parsedURL['query'] = http_build_query( $queryElts );
 					}
+					$href = UrlUtils::assembleUrl( $parsedURL );
 				}
 				$a->setAttribute( 'href', $href );
 			}

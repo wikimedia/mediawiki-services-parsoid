@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -67,36 +68,46 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 					continue;
 				}
 				$data = $titleMap[$k];
-				$a->removeAttribute( 'class' ); // Clear all
+				$a->removeAttribute( 'class' ); // Clear all, if we're doing a pb2pb refresh
+
+				$href = $a->getAttribute( 'href' );
+				$parsedURL = UrlUtils::parseUrl( $href );
+
+				$queryElts = [];
+				if ( isset( $parsedURL['query'] ) ) {
+					parse_str( $parsedURL['query'], $queryElts );
+				}
+
 				if (
 					!empty( $data['missing'] ) && empty( $data['known'] ) &&
 					$k !== $env->getPageConfig()->getTitle()
 				) {
 					DOMCompat::getClassList( $a )->add( 'new' );
 					WTUtils::addPageContentI18nAttribute( $a, 'title', 'red-link-title', [ $k ] );
-
-					$href = $a->getAttribute( 'href' );
-					$parsedURL = parse_url( $href );
-					// the [host] part avoids issues when there's a ':' followed by a number in the
-					// URL (which then gets interpreted as a port number).
-					// If things go really badly (example: [[./User:12345]]), we do not even parse
-					// the URL and parse_url return false; in that case, we fall back to the
-					// initial $href.
-					$newHref = $parsedURL === false ?
-						$href :
-						( ( $parsedURL['host'] ?? '' ) . $parsedURL['path'] );
-					$queryElts = [];
-					if ( isset( $parsedURL['query'] ) ) {
-						parse_str( $parsedURL['query'], $queryElts );
-					}
 					$queryElts['action'] = 'edit';
 					$queryElts['redlink'] = '1';
-					$newHref .= '?' . http_build_query( $queryElts );
-					if ( isset( $parsedURL['fragment'] ) && $parsedURL['fragment'] !== '' ) {
-						$newHref .= '#' . $parsedURL['fragment'];
+				} else {
+					// Clear a potential redlink, if we're doing a pb2pb refresh
+					// This is similar to what's happening in Html2Wt/RemoveRedLinks
+					// and maybe that pass should just run before this one.
+					if ( isset( $queryElts['action'] ) && $queryElts['action'] === 'edit' ) {
+						unset( $queryElts['action'] );
 					}
-					$a->setAttribute( 'href', $newHref );
+					if ( isset( $queryElts['redlink'] ) && $queryElts['redlink'] === '1' ) {
+						unset( $queryElts['redlink'] );
+					}
 				}
+
+				if ( count( $queryElts ) === 0 ) {
+					// avoids the insertion of ? on empty query string
+					$parsedURL['query'] = null;
+				} else {
+					$parsedURL['query'] = http_build_query( $queryElts );
+				}
+				$newHref = UrlUtils::assembleUrl( $parsedURL );
+
+				$a->setAttribute( 'href', $newHref );
+
 				if ( !empty( $data['redirect'] ) ) {
 					DOMCompat::getClassList( $a )->add( 'mw-redirect' );
 				}
