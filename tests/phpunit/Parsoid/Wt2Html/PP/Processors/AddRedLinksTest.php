@@ -128,6 +128,22 @@ class AddRedLinksTest extends TestCase {
 				'class="new" typeof="mw:LocalizedAttrs" ' .
 				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title","params":["Hello"]}}\'>Hello</a>',
 				'No ampersand encodings in source url'
+			],
+			[
+			'<a href="./User:89119" title="User:89119" rel="mw:WikiLink">User:89119</a>',
+				'<a href="./User:89119?action=edit&amp;redlink=1" title="User:89119" rel="mw:WikiLink" ' .
+				'class="new" typeof="mw:LocalizedAttrs" ' .
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title",' .
+				'"params":["User:89119"]}}\'>User:89119</a>',
+				'Inexistent user with a number as username'
+			],
+			[
+				'<a href="./User:89119#frag" title="User:89119" rel="mw:WikiLink">User:89119</a>',
+				'<a href="./User:89119?action=edit&amp;redlink=1#frag" title="User:89119" rel="mw:WikiLink" ' .
+				'class="new" typeof="mw:LocalizedAttrs" ' .
+				'data-mw-i18n=\'{"title":{"lang":"x-page","key":"red-link-title",' .
+				'"params":["User:89119"]}}\'>User:89119</a>',
+				'Inexistent user with a number as username and a fragment'
 			]
 		];
 	}
