@@ -1129,11 +1129,11 @@ class Sanitizer {
 	 * @return string
 	 */
 	public static function sanitizeTitleURI( string $title, bool $isInterwiki = false ): string {
-		$bits = explode( '#', $title );
+		$idx = strpos( $title, '#' );
 		$anchor = null;
-		if ( count( $bits ) > 1 ) { // split at first '#'
-			$anchor = substr( $title, strlen( $bits[0] ) + 1 );
-			$title = $bits[0];
+		if ( $idx !== false ) { // split at first '#'
+			$anchor = substr( $title, $idx + 1 );
+			$title = substr( $title, 0, $idx );
 		}
 		$title = preg_replace_callback(
 			'/[%? \[\]#|<>]/', static function ( $matches ) {
