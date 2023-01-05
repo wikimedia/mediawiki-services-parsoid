@@ -112,8 +112,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		 */
 		if ( $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'a' && (
-				WTUtils::usesURLLinkSyntax( $node, null ) ||
-				WTUtils::usesMagicLinkSyntax( $node, null )
+				WTUtils::aTagUsesURLLinkSyntax( $node, null ) ||
+				WTUtils::aTagUsesMagicLinkSyntax( $node, null )
 			)
 		) {
 			return true;
@@ -200,7 +200,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		if ( !$dp ) {
 			return null;
 		} else {
-			if ( WTUtils::usesWikiLinkSyntax( $node, $dp ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
+			if ( WTUtils::aTagUsesWikiLinkSyntax( $node, $dp ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
 				if ( isset( $dp->stx ) && $dp->stx === "piped" ) {
 					// this seems like some kind of a phan bug
 					$href = $dp->sa['href'] ?? null;
@@ -212,10 +212,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				} else {
 					return [ 2, 2 ];
 				}
-			} elseif ( isset( $dp->tsr ) && WTUtils::usesExtLinkSyntax( $node, $dp ) ) {
+			} elseif ( isset( $dp->tsr ) && WTUtils::aTagUsesExtLinkSyntax( $node, $dp ) ) {
 				return [ $dp->extLinkContentOffsets->start - $dp->tsr->start, 1 ];
-			} elseif ( WTUtils::usesURLLinkSyntax( $node, $dp ) ||
-				WTUtils::usesMagicLinkSyntax( $node, $dp )
+			} elseif ( WTUtils::aTagUsesURLLinkSyntax( $node, $dp ) ||
+				WTUtils::aTagUsesMagicLinkSyntax( $node, $dp )
 			) {
 				return [ 0, 0 ];
 			} else {
@@ -547,7 +547,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						$newDsr = [ $ccs, $cce ];
 					} elseif ( DOMCompat::nodeName( $child ) === 'a'
 						&& DOMUtils::assertElt( $child )
-						&& WTUtils::usesWikiLinkSyntax( $child, $dp )
+						&& WTUtils::aTagUsesWikiLinkSyntax( $child, $dp )
 						&& ( !isset( $dp->stx ) || $dp->stx !== "piped" ) ) {
 						/* -------------------------------------------------------------
 						 * This check here eliminates artificial DSR mismatches on content
