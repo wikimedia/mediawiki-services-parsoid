@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\DOM;
 
+#[\AllowDynamicProperties]
 class Document extends \DOMDocument implements Node {
 
 	/**
