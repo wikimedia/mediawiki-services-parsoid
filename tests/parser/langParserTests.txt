@@ -1671,3 +1671,14 @@ x<langconvert from="crh-latn" to="crh-cyrl"/>x
 <p>xx
 </p>
 !! end
+
+!! test
+T302678: Serialize empty twoway
+!! options
+language=zh
+parsoid=html2wt
+!! html/parsoid
+<p><meta typeof="mw:LanguageVariant" data-mw-variant='{"twoway":[]}'/></p>
+!! wikitext
+-{H|}-
+!! end

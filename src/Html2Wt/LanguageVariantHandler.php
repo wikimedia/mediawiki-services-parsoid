@@ -257,7 +257,7 @@ class LanguageVariantHandler {
 				}
 				$b = isset( $dataMWV->twoway[0] ) && $dataMWV->twoway[0]->l === '*' ?
 					array_slice( $dataMWV->twoway, 0, 1 ) :
-					$dataMWV->twoway ?? false;
+					$dataMWV->twoway ?? [];
 				$text = implode( ';',
 					array_map( function ( $rule, $idx ) use ( $state, $textSp ) {
 							$text = self::ser( $state, $rule->t, [ 'protect' => '/;|\}-/' ] );
@@ -270,8 +270,7 @@ class LanguageVariantHandler {
 							array_slice( $textSp, 3 * $idx, $length ) :
 								[ ( $idx > 0 ) ? ' ' : '', '', '' ];
 							return $ws[0] . self::protectLang( $rule->l ) . $ws[1] . ':' . $ws[2] . $text;
-					}, $b, range( 0, count( $b ) - 1 )
-					)
+					}, $b, array_keys( $b ) )
 				);
 				// suppress output of default flag ('S')
 				self::maybeDeleteFlag( $originalFlags, $flags, '$S' );
