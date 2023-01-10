@@ -115,6 +115,20 @@ class SectionMetadata implements \JsonSerializable {
 	public string $linkAnchor;
 
 	/**
+	 * Arbitrary data attached to this section by extensions.  This
+	 * data will be stored and cached in the ParserOutput object along
+	 * with the rest of the section data, and made available to external
+	 * clients via the action API.
+	 *
+	 * This method is provided to overcome the unsafe practice of attaching
+	 * extra information to a section by directly assigning member variables.
+	 *
+	 * See ParserOutput::setExtensionData() for more information on typical
+	 * use.
+	 */
+	private array $extensionData;
+
+	/**
 	 * @param int $tocLevel Zero-indexed TOC level and the nesting level
 	 * @param int $hLevel The heading tag level
 	 * @param string $line Stripped headline text
@@ -127,6 +141,7 @@ class SectionMetadata implements \JsonSerializable {
 	 * @param string $anchor "True" value of the ID attribute
 	 * @param string $linkAnchor URL-escaped value of the anchor, for use in
 	 *   constructing a URL fragment link
+	 * @param ?array $extensionData Extension data passed in as an associative array
 	 */
 	public function __construct(
 		// This is a great candidate for named arguments in PHP 8.0+
@@ -138,7 +153,8 @@ class SectionMetadata implements \JsonSerializable {
 		?string $fromTitle,
 		?int $byteOffset,
 		string $anchor,
-		string $linkAnchor
+		string $linkAnchor,
+		?array $extensionData = null
 	) {
 		$this->tocLevel = $tocLevel;
 		$this->line = $line;
@@ -149,6 +165,75 @@ class SectionMetadata implements \JsonSerializable {
 		$this->byteOffset = $byteOffset;
 		$this->anchor = $anchor;
 		$this->linkAnchor = $linkAnchor;
+		$this->extensionData = $extensionData ?? [];
+	}
+
+	/**
+	 * Attaches arbitrary data to this SectionMetadata object. This
+	 * can be used to store some information about this section in the
+	 * ParserOutput object for later use during page output. The data
+	 * will be cached along with the ParserOutput object.
+	 *
+	 * This method is provided to overcome the unsafe practice of
+	 * attaching extra information to a section by directly assigning
+	 * member variables.
+	 *
+	 * See ParserOutput::setExtensionData() in core for further information
+	 * about typical usage in hooks.
+	 *
+	 * Setting conflicting values for the same key is not allowed.
+	 * If you call ::setExtensionData() multiple times with the same key
+	 * on a SectionMetadata, is is expected that the value will be identical
+	 * each time.  If you want to collect multiple pieces of data under a
+	 * single key, use ::appendExtensionData().
+	 *
+	 * @note Only scalar values (numbers, strings, or arrays) are
+	 * supported as a value.  (A future revision will allow anything
+	 * that core's JsonCodec can handle.)  Attempts to set other types
+	 * as extension data values will break ParserCache for the page.
+	 *
+	 * @param string $key The key for accessing the data. Extensions
+	 *   should take care to avoid conflicts in naming keys. It is
+	 *   suggested to use the extension's name as a prefix.  Using
+	 *   the prefix `mw:` is reserved for core.
+	 *
+	 * @param mixed $value The value to set.
+	 *   Setting a value to null is equivalent to removing the value.
+	 */
+	public function setExtensionData( string $key, $value ): void {
+		if (
+			array_key_exists( $key, $this->extensionData ) &&
+			$this->extensionData[$key] !== $value
+		) {
+			throw new \InvalidArgumentException( "Conflicting data for $key" );
+		}
+		if ( $value === null ) {
+			unset( $this->extensionData[$key] );
+		} else {
+			$this->extensionData[$key] = $value;
+		}
+	}
+
+	/**
+	 * Appends arbitrary data to this SectionMetadata. This can be used
+	 * to store some information about the section in the ParserOutput object for later
+	 * use during page output.
+	 *
+	 * See ::setExtensionData() for more details on rationale and use.
+	 *
+	 * @param string $key The key for accessing the data. Extensions should take care to avoid
+	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
+	 *
+	 * @param int|string $value The value to append to the list.
+	 * @return never This method is not yet implemented.
+	 */
+	public function appendExtensionData( string $key, $value ): void {
+		// This implementation would mirror that of
+		// ParserOutput::appendExtensionData, but let's defer implementing
+		// this until we're sure we need it.  In particular, we might need
+		// to figure out how a merge on section data is expected to work
+		// before we can determine the right semantics for this.
+		throw new \InvalidArgumentException( "Not yet implemented" );
 	}
 
 	/**
@@ -190,7 +275,8 @@ class SectionMetadata implements \JsonSerializable {
 			( $data['fromtitle'] ?? false ) ?: null,
 			$data['byteoffset'] ?? null,
 			$data['anchor'] ?? '',
-			$data['linkAnchor'] ?? $data['anchor'] ?? ''
+			$data['linkAnchor'] ?? $data['anchor'] ?? '',
+			$data['extensionData'] ?? null
 		);
 	}
 
@@ -202,7 +288,7 @@ class SectionMetadata implements \JsonSerializable {
 	 * @return array
 	 */
 	public function toLegacy(): array {
-		return [
+		$ret = [
 			'toclevel' => $this->tocLevel,
 			// cast $level to string in order to keep b/c for the parse api
 			'level' => (string)$this->hLevel,
@@ -214,6 +300,11 @@ class SectionMetadata implements \JsonSerializable {
 			'anchor' => $this->anchor,
 			'linkAnchor' => $this->linkAnchor,
 		];
+		// Micro-opt: Output 'extensionData' conditionally to avoid bloat
+		if ( $this->extensionData ) {
+			$ret['extensionData'] = $this->extensionData;
+		}
+		return $ret;
 	}
 
 	/**
