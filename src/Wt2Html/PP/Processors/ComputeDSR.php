@@ -110,12 +110,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		 *
 		 * 3. Other scenarios .. to be added
 		 */
-		if ( $node instanceof Element &&
-			DOMCompat::nodeName( $node ) === 'a' && (
-				WTUtils::aTagUsesURLLinkSyntax( $node, null ) ||
-				WTUtils::aTagUsesMagicLinkSyntax( $node, null )
-			)
-		) {
+		if ( $node instanceof Element && (
+				WTUtils::isATagFromURLLinkSyntax( $node ) ||
+				WTUtils::isATagFromMagicLinkSyntax( $node )
+		) ) {
 			return true;
 		} elseif ( isset( $opts['attrExpansion'] ) && DOMUtils::atTheTop( $node ) ) {
 			return true;
@@ -200,7 +198,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		if ( !$dp ) {
 			return null;
 		} else {
-			if ( WTUtils::aTagUsesWikiLinkSyntax( $node, $dp ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
+			if ( WTUtils::isATagFromWikiLinkSyntax( $node ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
 				if ( isset( $dp->stx ) && $dp->stx === "piped" ) {
 					// this seems like some kind of a phan bug
 					$href = $dp->sa['href'] ?? null;
@@ -212,10 +210,10 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				} else {
 					return [ 2, 2 ];
 				}
-			} elseif ( isset( $dp->tsr ) && WTUtils::aTagUsesExtLinkSyntax( $node, $dp ) ) {
+			} elseif ( isset( $dp->tsr ) && WTUtils::isATagFromExtLinkSyntax( $node ) ) {
 				return [ $dp->extLinkContentOffsets->start - $dp->tsr->start, 1 ];
-			} elseif ( WTUtils::aTagUsesURLLinkSyntax( $node, $dp ) ||
-				WTUtils::aTagUsesMagicLinkSyntax( $node, $dp )
+			} elseif ( WTUtils::isATagFromURLLinkSyntax( $node ) ||
+				WTUtils::isATagFromMagicLinkSyntax( $node )
 			) {
 				return [ 0, 0 ];
 			} else {
@@ -545,9 +543,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						// just a wrapper token with the right DSR but without any
 						// nested subtree that could account for the DSR span.
 						$newDsr = [ $ccs, $cce ];
-					} elseif ( DOMCompat::nodeName( $child ) === 'a'
-						&& DOMUtils::assertElt( $child )
-						&& WTUtils::aTagUsesWikiLinkSyntax( $child, $dp )
+					} elseif ( $child instanceof Element
+						&& WTUtils::isATagFromWikiLinkSyntax( $child )
 						&& ( !isset( $dp->stx ) || $dp->stx !== "piped" ) ) {
 						/* -------------------------------------------------------------
 						 * This check here eliminates artificial DSR mismatches on content

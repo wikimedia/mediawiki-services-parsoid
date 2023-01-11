@@ -96,21 +96,14 @@ class WTUtils {
 	 * anymore since mw:ExtLink is used for all the three link syntaxes.
 	 *
 	 * @param Element $node
-	 * @param ?DataParsoid $dp
 	 * @return bool
 	 */
-	public static function aTagUsesWikiLinkSyntax(
-		Element $node, ?DataParsoid $dp
-	): bool {
-		// FIXME:
-		// 1. Assumes $node is an A-tag. Will fail mysteriously if this isn't true
-		// 2. Optimization from ComputeDSR to avoid refetching this property
-		//    Is it worth the unnecessary code here?
-		// 3. Assumes $dp->stx is present
-		if ( !$dp ) {
-			$dp = DOMDataUtils::getDataParsoid( $node );
+	public static function isATagFromWikiLinkSyntax( Element $node ): bool {
+		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
+			return false;
 		}
 
+		$dp = DOMDataUtils::getDataParsoid( $node );
 		return DOMUtils::hasRel( $node, 'mw:WikiLink' ) ||
 			( isset( $dp->stx ) && $dp->stx !== "url" && $dp->stx !== "magiclink" );
 	}
@@ -121,21 +114,14 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param Element $node
-	 * @param ?DataParsoid $dp
 	 * @return bool
 	 */
-	public static function aTagUsesExtLinkSyntax(
-		Element $node, ?DataParsoid $dp
-	): bool {
-		// FIXME:
-		// 1. Assumes $node is an A-tag. Will fail mysteriously if this isn't true
-		// 2. Optimization from ComputeDSR to avoid refetching this property
-		//    Is it worth the unnecessary code here?
-		// 3. Assumes $dp->stx is present
-		if ( !$dp ) {
-			$dp = DOMDataUtils::getDataParsoid( $node );
+	public static function isATagFromExtLinkSyntax( Element $node ): bool {
+		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
+			return false;
 		}
 
+		$dp = DOMDataUtils::getDataParsoid( $node );
 		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			( !isset( $dp->stx ) || ( $dp->stx !== "url" && $dp->stx !== "magiclink" ) );
 	}
@@ -146,21 +132,14 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param Element $node
-	 * @param ?DataParsoid $dp
 	 * @return bool
 	 */
-	public static function aTagUsesURLLinkSyntax(
-		Element $node, ?DataParsoid $dp = null
-	): bool {
-		// FIXME:
-		// 1. Assumes $node is an A-tag. Will fail mysteriously if this isn't true
-		// 2. Optimization from ComputeDSR to avoid refetching this property
-		//    Is it worth the unnecessary code here?
-		// 3. Assumes $dp->stx is present
-		if ( !$dp ) {
-			$dp = DOMDataUtils::getDataParsoid( $node );
+	public static function isATagFromURLLinkSyntax( Element $node ): bool {
+		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
+			return false;
 		}
 
+		$dp = DOMDataUtils::getDataParsoid( $node );
 		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			isset( $dp->stx ) && $dp->stx === "url";
 	}
@@ -171,21 +150,14 @@ class WTUtils {
 	 * multiple link types
 	 *
 	 * @param Element $node
-	 * @param ?DataParsoid $dp
 	 * @return bool
 	 */
-	public static function aTagUsesMagicLinkSyntax(
-		Element $node, ?DataParsoid $dp = null
-	): bool {
-		// FIXME:
-		// 1. Assumes $node is an A-tag. Will fail mysteriously if this isn't true
-		// 2. Optimization from ComputeDSR to avoid refetching this property
-		//    Is it worth the unnecessary code here?
-		// 3. Assumes $dp->stx is present
-		if ( !$dp ) {
-			$dp = DOMDataUtils::getDataParsoid( $node );
+	public static function isATagFromMagicLinkSyntax( Element $node ): bool {
+		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
+			return false;
 		}
 
+		$dp = DOMDataUtils::getDataParsoid( $node );
 		return DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			isset( $dp->stx ) && $dp->stx === 'magiclink';
 	}

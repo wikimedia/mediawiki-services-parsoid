@@ -31,9 +31,9 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 				// The "external free" class is reserved for links which
 				// are syntactically unbracketed; see commit
 				// 65fcb7a94528ea56d461b3c7b9cb4d4fe4e99211 in core.
-				if ( WTUtils::aTagUsesURLLinkSyntax( $a ) ) {
+				if ( WTUtils::isATagFromURLLinkSyntax( $a ) ) {
 					$classInfoText = 'external free';
-				} elseif ( WTUtils::aTagUsesMagicLinkSyntax( $a ) ) {
+				} elseif ( WTUtils::isATagFromMagicLinkSyntax( $a ) ) {
 					// PHP uses specific suffixes for RFC/PMID/ISBN (the last of
 					// which is an internal link, not an mw:ExtLink), but we'll
 					// keep it simple since magic links are deprecated.
