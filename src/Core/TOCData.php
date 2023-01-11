@@ -172,8 +172,16 @@ class TOCData implements \JsonSerializable {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {
+		# T312589 explicitly calling jsonSerialize() on the elements of
+		# $this->sections will be unnecessary in the future.
+		$sections = array_map(
+			static function ( SectionMetadata $s ) {
+				return $s->jsonSerialize();
+			},
+			$this->sections
+		);
 		return [
-			'sections' => $this->sections,
+			'sections' => $sections,
 		];
 	}
 }
