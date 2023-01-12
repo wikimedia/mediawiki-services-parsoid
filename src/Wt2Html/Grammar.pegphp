@@ -267,8 +267,8 @@
 				$extEndTagWidth = strlen( $tagContent[1] );
 
 				if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
-					// Support 1-level of nesting in extensions tags while
-					// tokenizing in templates to support the #tag parser function.
+					// Support nesting in extensions tags while tokenizing in templates
+					// to support the #tag parser function.
 					//
 					// It's necessary to permit this broadly in templates because
 					// there's no way to distinguish whether the nesting happened
@@ -290,15 +290,20 @@
 					//
 					// Expand `extSrc` as long as there is a <tagName> found in the
 					// extension source body.
-					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '([^/>]|/(?!>))*>~i';
+					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '(?:[^/>]|/(?!>))*>~i';
 					$s = substr( $extSrc, $dp->tsr->end - $dp->tsr->start );
-					while ( strlen( $s ) ) {
-						if ( !preg_match( $startTagRE, $s ) ) {
+					$openTags = 0;
+					while ( true ) {
+						if ( preg_match_all( $startTagRE, $s, $matches ) ) {
+							$openTags += count( $matches[0] );
+						}
+						if ( !$openTags ) {
 							break;
 						}
 						if ( !preg_match( $endTagRE, $this->input, $tagContent, 0, $extEndOffset ) ) {
 							break;
 						}
+						$openTags -= 1;
 						$s = $tagContent[0];
 						$extEndOffset += strlen( $s );
 						$extEndTagWidth = strlen( $tagContent[1] );
