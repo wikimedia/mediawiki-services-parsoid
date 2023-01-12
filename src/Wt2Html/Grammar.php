@@ -1376,10 +1376,10 @@ private function a122() {
 		$dp->tsr->start--; // For "<" matched at the start of xmlish_tag rule
 		if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
 			return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
-        } else {
-            // suppress meta tags from pipeline output
+		} else {
+			// suppress meta tags from pipeline output
 			return [];
-        }
+		}
 	
 }
 private function a123($proto, $addr, $rhe) {

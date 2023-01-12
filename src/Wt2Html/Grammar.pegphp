@@ -1634,10 +1634,10 @@ tvar_old_syntax_closing_HACK =
 		$dp->tsr->start--; // For "<" matched at the start of xmlish_tag rule
 		if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
 			return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
-        } else {
-            // suppress meta tags from pipeline output
+		} else {
+			// suppress meta tags from pipeline output
 			return [];
-        }
+		}
 	}
 
 annotation_tag =
