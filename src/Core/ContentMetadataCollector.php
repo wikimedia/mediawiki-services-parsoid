@@ -388,4 +388,14 @@ interface ContentMetadataCollector {
 	 * @param mixed $value Appropriate for Message::params()
 	 */
 	public function setLimitReportData( string $key, $value ): void;
+
+	/**
+	 * Sets Table of Contents data for this page.
+	 *
+	 * Note that merging of TOCData is not supported; exactly one fragment
+	 * should set TOCData.
+	 *
+	 * @param TOCData $tocData
+	 */
+	public function setTOCData( TOCData $tocData ): void;
 }

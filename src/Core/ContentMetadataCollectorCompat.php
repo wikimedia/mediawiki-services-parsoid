@@ -50,4 +50,16 @@ namespace Wikimedia\Parsoid\Core;
  */
 trait ContentMetadataCollectorCompat {
 	/* This trait is empty, in an ideal world. */
+
+	/**
+	 * Retrofit new method into existing (legacy) interface
+	 * till implementations support this on their own.
+	 * For now, nothing to do here.
+	 *
+	 * @param TOCData $tocData
+	 */
+	public function setTOCData( TOCData $tocData ): void {
+		/* Nothing to do here; in theory we'd call ParserOutput::setSections()
+		 * but that interface was never added to ContentMetadataCollector. */
+	}
 }
