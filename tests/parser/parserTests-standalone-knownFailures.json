@@ -969,11 +969,6 @@
     "Self-closed tag with broken attribute value quoting": {
         "wt2html": "<div title=\"Hello world \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,26,26,0]}'></div><p data-parsoid='{\"dsr\":[26,29,0,0]}'>Foo</p>"
     },
-    "Self-link to section should not be bold": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,21,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Main_Page#section\" title=\"Main Page\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_Page#section\"},\"sa\":{\"href\":\"Main Page#section\"},\"dsr\":[0,21,2,2]}'>Main Page#section</a></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Main_Page#section\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page#section\"},\"sa\":{\"href\":\"#section\"},\"dsr\":[0,30,11,2]}'>Main Page#section</a></p>\n",
-        "html2wt": "[[#section|Main Page#section]]\n"
-    },
     "Simple list": {
         "html2wt": "* Item 1\n* Item 2"
     },
