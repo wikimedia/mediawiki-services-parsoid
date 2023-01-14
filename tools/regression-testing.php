@@ -180,6 +180,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->dashes( "Checking out $commit on scandium" );
 		$this->ssh( self::cmd(
 			$cdDir, '&&',
+			"git fetch", '&&',
 			'git checkout', [ $commit ], '&&',
 			$restartPHP
 		), 'scandium.eqiad.wmnet' );
@@ -187,7 +188,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		# don't trip up our test script and we don't have to mess with passing in
 		# the --contentVersion option in most scenarios
 		$this->dashes( "Checking out $commit on testreduce1001" );
-		$this->ssh( self::cmd( $cdDir, '&&', 'git checkout', [ $commit ] ), 'testreduce1001.eqiad.wmnet' );
+		$this->ssh( self::cmd(
+			$cdDir, '&&',
+			"git fetch", '&&',
+			'git checkout', [ $commit ] ), 'testreduce1001.eqiad.wmnet' );
 
 		$this->dashes( "Running tests" );
 		$this->ssh( self::cmd(
