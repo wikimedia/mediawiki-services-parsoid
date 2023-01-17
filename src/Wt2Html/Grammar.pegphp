@@ -493,7 +493,7 @@ tlb "tlb" =
  */
 block =
 	// has to be first alternative; otherwise gets parsed as a <ol>
-	&sof r:redirect cil:comment_include_annotation* bl:block_line? {
+	&sof r:redirect cil:sol_transparent* bl:block_line? {
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	}
 	/ block_lines
@@ -670,7 +670,7 @@ heading =
 		)?
 		& { return $ce || strlen( $s ) > 2; }
 		endTPos:("" { return $this->endOffset(); })
-		spc:( space / comment_include_annotation )*
+		spc:( space / sol_transparent )*
 		&eolf
 		{
 			$c = null;
@@ -2403,9 +2403,9 @@ space_or_nbsp_or_dash =
 	space_or_nbsp / "-"
 
 // Elements that do not break beginning or end of line for blocks (headers for instance)
-comment_include_annotation = comment / include_limits<sol_il> / annotation_tag
+sol_transparent = comment / include_limits<sol_il> / annotation_tag / behavior_switch
 
-sol = (empty_line_with_comments / sol_prefix) comment_include_annotation*
+sol = (empty_line_with_comments / sol_prefix) sol_transparent*
 
 sol_prefix =
 	newlineToken

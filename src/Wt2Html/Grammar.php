@@ -4277,7 +4277,7 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   }
   $r7 = [];
   for (;;) {
-    $r8 = $this->parsecomment_include_annotation($silence, $boolParams, $param_preproc, $param_th);
+    $r8 = $this->parsesol_transparent($silence, $boolParams, $param_preproc, $param_th);
     if ($r8!==self::$FAILED) {
       $r7[] = $r8;
     } else {
@@ -6527,7 +6527,7 @@ private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
   }
   $r4 = [];
   for (;;) {
-    $r5 = $this->parsecomment_include_annotation($silence, $boolParams, $param_preproc, $param_th);
+    $r5 = $this->parsesol_transparent($silence, $boolParams, $param_preproc, $param_th);
     if ($r5!==self::$FAILED) {
       $r4[] = $r5;
     } else {
@@ -6725,7 +6725,7 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
   $this->cache[$bucket][$key] = $cached;
   return $r1;
 }
-private function parsecomment_include_annotation($silence, $boolParams, &$param_preproc, &$param_th) {
+private function parsesol_transparent($silence, $boolParams, &$param_preproc, &$param_th) {
   $key = json_encode([518, $boolParams & 0x775f, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
@@ -6747,6 +6747,10 @@ private function parsecomment_include_annotation($silence, $boolParams, &$param_
     goto choice_1;
   }
   $r1 = $this->parseannotation_tag($silence, $boolParams, $param_preproc, $param_th);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->parsebehavior_switch($silence);
   choice_1:
   $cached = ['nextPos' => $this->currPos, 'result' => $r1];
     if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
@@ -9372,7 +9376,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
     if ($r19!==self::$FAILED) {
       goto choice_1;
     }
-    $r19 = $this->parsecomment_include_annotation($silence, $boolParams, $param_preproc, $param_th);
+    $r19 = $this->parsesol_transparent($silence, $boolParams, $param_preproc, $param_th);
     choice_1:
     if ($r19!==self::$FAILED) {
       $r18[] = $r19;
@@ -11712,7 +11716,7 @@ private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) 
     goto seq_1;
   }
   for (;;) {
-    $r5 = $this->discardcomment_include_annotation($silence, $boolParams, $param_preproc, $param_th);
+    $r5 = $this->discardsol_transparent($silence, $boolParams, $param_preproc, $param_th);
     if ($r5===self::$FAILED) {
       break;
     }
@@ -12983,7 +12987,7 @@ private function discardsol_prefix($silence) {
   $this->cache[$bucket][$key] = $cached;
   return $r1;
 }
-private function discardcomment_include_annotation($silence, $boolParams, &$param_preproc, &$param_th) {
+private function discardsol_transparent($silence, $boolParams, &$param_preproc, &$param_th) {
   $key = json_encode([519, $boolParams & 0x775f, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
@@ -13005,6 +13009,10 @@ private function discardcomment_include_annotation($silence, $boolParams, &$para
     goto choice_1;
   }
   $r1 = $this->discardannotation_tag($silence, $boolParams, $param_preproc, $param_th);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->discardbehavior_switch($silence);
   choice_1:
   $cached = ['nextPos' => $this->currPos, 'result' => $r1];
     if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
@@ -13763,6 +13771,65 @@ private function discardannotation_tag($silence, $boolParams, &$param_preproc, &
   $cached = ['nextPos' => $this->currPos, 'result' => $r1];
     if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
     if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
+  $this->cache[$bucket][$key] = $cached;
+  return $r1;
+}
+private function discardbehavior_switch($silence) {
+  $key = 325;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached['nextPos'];
+
+    return $cached['result'];
+  }
+
+  $p2 = $this->currPos;
+  $p4 = $this->currPos;
+  // start seq_1
+  $p5 = $this->currPos;
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "__", $this->currPos, 2, false) === 0) {
+    $r6 = "__";
+    $this->currPos += 2;
+  } else {
+    if (!$silence) {$this->fail(53);}
+    $r6 = self::$FAILED;
+    $r3 = self::$FAILED;
+    goto seq_1;
+  }
+  $r7 = $this->discardbehavior_text($silence);
+  if ($r7===self::$FAILED) {
+    $this->currPos = $p5;
+    $r3 = self::$FAILED;
+    goto seq_1;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "__", $this->currPos, 2, false) === 0) {
+    $r8 = "__";
+    $this->currPos += 2;
+  } else {
+    if (!$silence) {$this->fail(53);}
+    $r8 = self::$FAILED;
+    $this->currPos = $p5;
+    $r3 = self::$FAILED;
+    goto seq_1;
+  }
+  $r3 = true;
+  seq_1:
+  // bs <- $r3
+  if ($r3!==self::$FAILED) {
+    $r3 = substr($this->input, $p4, $this->currPos - $p4);
+  } else {
+    $r3 = self::$FAILED;
+  }
+  // free $p5
+  // free $p4
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a84($r3);
+  }
+  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
+
   $this->cache[$bucket][$key] = $cached;
   return $r1;
 }
