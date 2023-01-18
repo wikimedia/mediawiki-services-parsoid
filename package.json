@@ -22,7 +22,7 @@
 		"api-testing": "1.5.1",
 		"chai": "^4.1.2",
 		"colors": "^1.2.4",
-		"eslint": "8.9.0",
+		"eslint": "8.31.0",
 		"eslint-config-wikimedia": "0.22.1",
 		"mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
 		"nock": "^9.2.5"
