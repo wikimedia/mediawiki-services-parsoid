@@ -476,15 +476,22 @@ class ParsoidExtensionAPI {
 	 * Get temporary data into the DOM node that will be discarded
 	 * when DOM is serialized.
 	 *
-	 * Use the tag name as the key for TempData management
+	 * This should only be used when the ExtensionTag is not available; otherwise access the newly created data
+	 * directly.
 	 *
 	 * @param Element $node
+	 * @param string $key to access TmpData
 	 * @return mixed
+	 * @unstable
 	 */
-	public function getTempNodeData( Element $node ) {
+	public function getTempNodeData( Element $node, string $key ) {
+		if ( $this->extTag ) {
+			throw new \RuntimeException(
+				'ExtensionTag is available. Data should be available directly through the DOM.'
+			);
+		}
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
 		$tmpData = $dataParsoid->getTemp();
-		$key = $this->extTag->getName();
 		return $tmpData->getTagData( $key );
 	}
 
