@@ -7,7 +7,7 @@ declare( strict_types = 1 );
  * lib/ directory.
  */
 
-namespace Wikimedia\Parsoid\Tools;
+namespace Wikimedia\Parsoid\Utils;
 
 class ScriptUtils {
 	/**
@@ -19,7 +19,7 @@ class ScriptUtils {
 	 */
 	private static function fetchFlagsMap( string $origFlag ): array {
 		$objFlags = explode( ',', $origFlag );
-		if ( in_array( 'selser', $objFlags ) && !in_array( 'wts', $objFlags ) ) {
+		if ( in_array( 'selser', $objFlags, true ) && !in_array( 'wts', $objFlags, true ) ) {
 			$objFlags[] = 'wts';
 		}
 		return array_fill_keys( $objFlags, true );
@@ -284,6 +284,7 @@ class ScriptUtils {
 	 *  - string|boolean options.color
 	 *    Whether to use color.
 	 *    Passing 'auto' will enable color only if stdout is a TTY device.
+	 * @suppress PhanEmptyPublicMethod
 	 */
 	public static function setColorFlags( array $options ): void {
 		/**

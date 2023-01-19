@@ -7,7 +7,7 @@ use Wikimedia\Parsoid\ParserTests\Stats;
 use Wikimedia\Parsoid\ParserTests\Test;
 use Wikimedia\Parsoid\ParserTests\TestRunner;
 use Wikimedia\Parsoid\ParserTests\TestUtils;
-use Wikimedia\Parsoid\Tools\ScriptUtils;
+use Wikimedia\Parsoid\Utils\ScriptUtils;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
