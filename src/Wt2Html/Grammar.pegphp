@@ -150,12 +150,10 @@
 	 * closing outer templates.
 	 * --------------------------------------------------------------------- */
 
-	private function isXMLTag( string $name, bool $block ): bool {
+	private function isXMLTag( string $name ): bool {
 		$lName = mb_strtolower( $name );
-		return $block ?
-			TokenUtils::isWikitextBlockTag( $lName ) :
-			isset( Consts::$HTML['HTML5Tags'][$lName] )
-			|| isset( Consts::$HTML['OlderHTMLTags'][$lName] );
+		return isset( Consts::$HTML['HTML5Tags'][$lName] ) ||
+			isset( Consts::$HTML['OlderHTMLTags'][$lName] );
 	}
 
 	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
@@ -497,11 +495,6 @@ block =
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	}
 	/ block_lines
-	/ & '<' rs:(
-		c:comment &eolf { return $c; }
-		// avoid a paragraph if we know that the line starts with a block tag
-		/ bt:block_tag
-	) { return $rs; }
 	// Inlineline includes generic tags; wrapped into paragraphs in token
 	// transform and DOM postprocessor
 	/ inlineline
@@ -567,14 +560,8 @@ block_line =
 	heading
 	/ list_item
 	/ hr
-	/ st:optionalSpaceToken
-	r:(
-		& [ <{}|!] tl:table_line { return $tl; }
-		// tag-only lines should not trigger pre either
-		/ bts:(bt:block_tag stl:optionalSpaceToken { return array_merge( $bt, $stl ); })+
-		&eolf { return $bts; }
-	) {
-		return array_merge( $st, $r );
+	/ st:optionalSpaceToken &[ <{}|!] tl:table_line {
+		return array_merge( $st, $tl );
 	}
 
 br =
@@ -633,7 +620,7 @@ inlineline =
 	}
 
 inline_xmlish_tag =
-	"<" tag:(xmlish_tag<isBlock=false, annOrExtTag> / xmlish_tag<isBlock=false, annOrExtTag=false> / tvar_old_syntax_closing_HACK )
+	"<" tag:(xmlish_tag<annOrExtTag> / xmlish_tag<annOrExtTag=false> / tvar_old_syntax_closing_HACK )
 	{ return $tag; }
 
 inline_element =
@@ -1611,7 +1598,7 @@ quote =
 
 
 /***********************************************************
- * Pre and xmlish tags
+ * Xmlish tags
  ***********************************************************/
 
 // FIXME: Temporary (?) hack to let us not horribly break on old tvar syntax
@@ -1643,7 +1630,7 @@ annotation_tag =
 extension_annotation_tag =
 	!<annOrExtTag>
 	"<" tag:(
-		extToken:xmlish_tag<isBlock=false, annOrExtTag>
+		extToken:xmlish_tag<annOrExtTag>
 		// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
 		&{ return !$extToken || $extToken[0]->getName() === 'extension' ||
 			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ?? '' ) > 0); }
@@ -1694,15 +1681,13 @@ xmlish_tag =
 	end:"/"?
 	name: tag_name
 	annOrExtTag: <annOrExtTag>
-	isBlock: <isBlock>
 	& {
 		if ( $annOrExtTag ) {
 			return WTUtils::isAnnOrExtTag( $this->env, $name );
 		} else {
 			// Only enforce ascii alpha first char for non-extension tags.
 			// See tag_name above for the details.
-			return preg_match( '/^[A-Za-z]/', $name ) &&
-				$this->isXMLTag( $name, $isBlock );
+			return preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name );
 		}
 	}
 	// By the time we get to `doTableStuff` in the old parser, we've already
@@ -1738,16 +1723,6 @@ xmlish_tag =
 		$met = $this->maybeAnnotationOrExtensionTag( $res, $end, $attribs, $tsr );
 		return is_array( $met ) ? $met : [ $met ];
 	}
-
-/*
- * A variant of inline_xmlish_tag, but also checks if the tag name is a block-level
- * tag as defined in
- * http://www.w3.org/TR/html5/syntax.html#tag-open-state and
- * following paragraphs.
- */
-block_tag =
-	"<" tag:(xmlish_tag<isBlock, annOrExtTag> / xmlish_tag<isBlock, annOrExtTag=false> / tvar_old_syntax_closing_HACK)
-	{ return $tag; }
 
 // A generic attribute that can span multiple lines.
 generic_newline_attribute =
@@ -2448,7 +2423,7 @@ nl_comment_space = newlineToken / comment_space
 
 include_limits =
 	& ("<" "/"? ( "includeonly"i / "noinclude"i / "onlyinclude"i ) )
-	"<" il:xmlish_tag<isBlock=false, annOrExtTag>
+	"<" il:xmlish_tag<annOrExtTag>
 	sol_il: <sol_il>
 	& {
 		$il = $il[0];
