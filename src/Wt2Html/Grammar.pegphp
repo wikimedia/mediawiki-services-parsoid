@@ -1649,15 +1649,15 @@ annotation_tag =
 
 extension_annotation_tag =
 	!<annOrExtTag>
-	extToken:xmlish_tag
+	"<" extToken:xmlish_tag_opened<isBlock=false, annOrExtTag>
 	// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
 	&{ return !$extToken || $extToken[0]->getName() === 'extension' ||
 		($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ?? '' ) > 0); }
 	{ return !$extToken ? '' : $extToken[0]; }
 
 nowiki =
+	& ("<" "/"? "nowiki"i )
 	extToken:extension_annotation_tag
-	&{ return $extToken->getAttribute( 'name' ) === 'nowiki'; }
 	{ return $extToken; }
 
 // Used by lang_variant productions to protect special language names or
@@ -1748,7 +1748,7 @@ xmlish_tag_opened =
  * following paragraphs.
  */
 block_tag =
-	"<" tag:(xmlish_tag_opened<isBlock, annOrExtTag> / xmlish_tag_opened<isBlock, annOrExtTag=false>)
+	"<" tag:(xmlish_tag_opened<isBlock, annOrExtTag> / xmlish_tag_opened<isBlock, annOrExtTag=false> / tvar_old_syntax_closing_HACK)
 	{ return $tag; }
 
 // A generic attribute that can span multiple lines.
@@ -1855,7 +1855,7 @@ table_attribute_name =
 			// Accept tags-inside-attributes as attribute names.
 			// The sanitizer will strip and shadow them for roundtripping.
 			// Example: <hiddentext>generated with.. </hiddentext>
-			/ &xmlish_tag ill:inlineline { return $ill; }
+			/ x:xmlish_tag ill:inlineline? { return array_merge( $x, $ill ?: [] ); }
 			/ $( !( space_or_newline / [\0/=>] ) . )
 		) { return $t; }
 	)*
@@ -2449,8 +2449,8 @@ nl_comment_space = newlineToken / comment_space
  */
 
 include_limits =
-	& ("<" "/"? n:("includeonly"i / "noinclude"i / "onlyinclude"i ) )
-	il:xmlish_tag
+	& ("<" "/"? ( "includeonly"i / "noinclude"i / "onlyinclude"i ) )
+	"<" il:xmlish_tag_opened<isBlock=false, annOrExtTag>
 	sol_il: <sol_il>
 	& {
 		$il = $il[0];
