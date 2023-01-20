@@ -502,7 +502,6 @@ block =
 		// avoid a paragraph if we know that the line starts with a block tag
 		/ bt:block_tag
 	) { return $rs; }
-	/ paragraph
 	// Inlineline includes generic tags; wrapped into paragraphs in token
 	// transform and DOM postprocessor
 	/ inlineline
@@ -576,16 +575,6 @@ block_line =
 		&eolf { return $bts; }
 	) {
 		return array_merge( $st, $r );
-	}
-
-/*
- * A paragraph. We don't emit 'p' tokens to avoid issues with template
- * transclusions, <p> tags in the source and the like. Instead, we perform
- * some paragraph wrapping on the token stream and the DOM.
- */
-paragraph =
-	s1:sol s2:sol c:inlineline {
-		return array_merge( $s1, $s2, $c );
 	}
 
 br =
