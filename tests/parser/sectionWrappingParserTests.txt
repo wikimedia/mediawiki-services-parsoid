@@ -621,7 +621,7 @@ g
 !! end
 
 !! test
-HTML header tags should not be wrapped in section tags
+HTML header tags should also be wrapped in section tags (with section ids set to -1)
 !! options
 notoc
 parsoid={
@@ -648,11 +648,11 @@ foo
 !! html/parsoid
 <section data-mw-section-id="0"><p>foo</p>
 
-<h1 id="a" data-parsoid='{"stx":"html"}'>a</h1>
+</section><section data-mw-section-id="-1"><h1 id="a" data-parsoid='{"stx":"html"}'>a</h1>
 
 </section><section data-mw-section-id="1"><h1 id="b" data-parsoid="{}">b</h1>
 
-<h1 id="c" data-parsoid='{"stx":"html"}'>c</h1>
+</section><section data-mw-section-id="-1"><h1 id="c" data-parsoid='{"stx":"html"}'>c</h1>
 
 </section><section data-mw-section-id="2"><h1 id="d" data-parsoid="{}">d</h1></section>
 !! end

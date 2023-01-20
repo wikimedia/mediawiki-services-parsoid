@@ -217,9 +217,7 @@ class WrapSectionsState {
 					}
 				}
 
-				if ( count( $tplInfo->rtContentNodes ) > 0 &&
-					DOMUtils::isHeading( $node ) && !WTUtils::isLiteralHTMLNode( $node )
-				) {
+				if ( count( $tplInfo->rtContentNodes ) > 0 && DOMUtils::isHeading( $node ) ) {
 					// In this scenario, we can expand the section boundary to include these nodes
 					// rather than start with the heading. This eliminates unnecessary conflicts
 					// between section & template boundaries.
@@ -232,17 +230,20 @@ class WrapSectionsState {
 				}
 			}
 
-			// HTML <h*> tags don't get section numbers!
-			if ( DOMUtils::isHeading( $node ) && !WTUtils::isLiteralHTMLNode( $node ) ) {
+			if ( DOMUtils::isHeading( $node ) ) {
 				DOMUtils::assertElt( $node ); // headings are elements
 				$level = (int)DOMCompat::nodeName( $node )[1];
 
-				// This could be just `$this->sectionNumber++` without the
-				// complicated if-guard if T214538 were fixed in core;
-				// see T213468 where this more-complicated behavior was
-				// added to match core's eccentricities.
 				$dp = DOMDataUtils::getDataParsoid( $node );
-				if ( isset( $dp->tmp->headingIndex ) ) {
+				if ( WTUtils::isLiteralHTMLNode( $node ) ) {
+					// HTML <h*> tags get section wrappers, but the sections are uneditable
+					// via the section editing API.
+					$this->sectionNumber = -1;
+				} elseif ( isset( $dp->tmp->headingIndex ) ) {
+					// This could be just `$this->sectionNumber++` without the
+					// complicated if-guard if T214538 were fixed in core;
+					// see T213468 where this more-complicated behavior was
+					// added to match core's eccentricities.
 					$this->sectionNumber = $dp->tmp->headingIndex;
 				}
 				if ( $level < $highestSectionLevel ) {
