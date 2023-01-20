@@ -1377,7 +1377,7 @@ private function a120(&$preproc, $a) {
 }
 private function a121($extToken) {
  return !$extToken || $extToken[0]->getName() === 'extension' ||
-		($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ?? '' ) > 0); 
+			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ?? '' ) > 0); 
 }
 private function a122($extToken) {
  return !$extToken ? '' : $extToken[0]; 
@@ -10492,19 +10492,38 @@ private function parseextension_annotation_tag($silence, $boolParams, &$param_pr
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  $r6 = $this->parsexmlish_tag_opened($silence, ($boolParams & ~0x800) | 0x1000, $param_preproc, $param_th);
-  // extToken <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
+  // start choice_1
+  $p7 = $this->currPos;
+  // start seq_2
+  $p8 = $this->currPos;
+  $r9 = $this->parsexmlish_tag_opened($silence, ($boolParams & ~0x800) | 0x1000, $param_preproc, $param_th);
+  // extToken <- $r9
+  if ($r9===self::$FAILED) {
+    $r6 = self::$FAILED;
+    goto seq_2;
   }
   $this->savedPos = $this->currPos;
-  $r7 = $this->a121($r6);
-  if ($r7) {
-    $r7 = false;
+  $r10 = $this->a121($r9);
+  if ($r10) {
+    $r10 = false;
   } else {
-    $r7 = self::$FAILED;
+    $r10 = self::$FAILED;
+    $this->currPos = $p8;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  $r6 = true;
+  seq_2:
+  if ($r6!==self::$FAILED) {
+    $this->savedPos = $p7;
+    $r6 = $this->a122($r9);
+    goto choice_1;
+  }
+  // free $p8
+  $r6 = $this->parsetvar_old_syntax_closing_HACK($silence);
+  choice_1:
+  // tag <- $r6
+  if ($r6===self::$FAILED) {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -10513,7 +10532,7 @@ private function parseextension_annotation_tag($silence, $boolParams, &$param_pr
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a122($r6);
+    $r1 = $this->a78($r6);
   }
   // free $p3
   $cached = ['nextPos' => $this->currPos, 'result' => $r1];
