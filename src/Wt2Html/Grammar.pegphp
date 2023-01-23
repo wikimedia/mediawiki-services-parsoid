@@ -361,9 +361,22 @@
 	}
 }
 
-/*********************************************************
- * The top-level rule
- *********************************************************/
+/* ********************************************************
+ * "start" is the top-level start rule
+ *
+ * Other allowed start rules:
+ * -  table_start_tag
+ * -  url
+ * -  row_syntax_table_args
+ * -  table_attributes
+ * -  generic_newline_attributes
+ * -  tplarg_or_template_or_bust
+ * -  extlink
+ * -  list_item
+ *
+ * These start rules are listed in lib/wt2html/tokenizer.js
+ * and is used during PEG grammar compilation.
+ * ******************************************************** */
 
 start "start" =
 	t:tlb* n:newlineToken* {
@@ -379,55 +392,10 @@ start "start" =
 		return $ret;
 	}
 
-/*
- * Redirects can only occur as the first thing in a document.  See
- * WikitextContent::getRedirectTarget()
- */
-redirect =
-	rw:redirect_word
-	sp:$space_or_newline*
-	c:$(":" space_or_newline*)?
-	wl:wikilink
-	& {
-		return count( $wl ) === 1 && $wl[0] instanceof Token;
-	}
-	{
-		$link = $wl[0];
-		if ( $sp ) {
-			$rw .= $sp;
-		}
-		if ( $c ) {
-			$rw .= $c;
-		}
-		// Build a redirect token
-		$dp = new DataParsoid;
-		$dp->src = $rw;
-		$dp->tsr = $this->tsrOffsets();
-		$dp->linkTk = $link;
-		$redirect = new SelfclosingTagTk( 'mw:redirect',
-			// Put 'href' into attributes so it gets template-expanded
-			[ $link->getAttributeKV( 'href' ) ],
-			$dp
-		);
-		return $redirect;
-	}
-
-// These rules are exposed as start rules.
 generic_newline_attributes "generic_newline_attributes" = generic_newline_attribute*
+
 table_attributes "table_attributes" =
 	(table_attribute / optionalSpaceToken b:broken_table_attribute_name_char { return $b; })*
-
-/* The 'redirect' magic word.
- * The leading whitespace allowed is due to the PHP trim() function.
- */
-redirect_word =
-	$(
-		[ \t\n\r\0\x0b]*
-		rw:$(!space_or_newline ![:\[] .)+
-		& {
-			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
-		}
-	)
 
 /*
  * This rule exists to support tokenizing the document in chunks.
@@ -490,6 +458,51 @@ tlb "tlb" =
 		// Emit tokens for this toplevelblock. This feeds a chunk to the parser pipeline.
 		return $this->emitChunk( $tokens );
 	}
+
+/*
+ * Redirects can only occur as the first thing in a document.  See
+ * WikitextContent::getRedirectTarget()
+ */
+redirect =
+	rw:redirect_word
+	sp:$space_or_newline*
+	c:$(":" space_or_newline*)?
+	wl:wikilink
+	& {
+		return count( $wl ) === 1 && $wl[0] instanceof Token;
+	}
+	{
+		$link = $wl[0];
+		if ( $sp ) {
+			$rw .= $sp;
+		}
+		if ( $c ) {
+			$rw .= $c;
+		}
+		// Build a redirect token
+		$dp = new DataParsoid;
+		$dp->src = $rw;
+		$dp->tsr = $this->tsrOffsets();
+		$dp->linkTk = $link;
+		$redirect = new SelfclosingTagTk( 'mw:redirect',
+			// Put 'href' into attributes so it gets template-expanded
+			[ $link->getAttributeKV( 'href' ) ],
+			$dp
+		);
+		return $redirect;
+	}
+
+/* The 'redirect' magic word.
+ * The leading whitespace allowed is due to the PHP trim() function.
+ */
+redirect_word =
+	$(
+		[ \t\n\r\0\x0b]*
+		rw:$(!space_or_newline ![:\[] .)+
+		& {
+			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
+		}
+	)
 
 /*
  * The actual contents of each block.
@@ -714,27 +727,6 @@ heading =
 		}
 	) { return $r; }
 
-
-/* Comments */
-
-// The old parser does a straight str.replace(/<!--((?!-->).)*-->/g, "")
-// but, as always, things around here are a little more complicated.
-//
-// We accept the same comments, but because we emit them as HTML comments
-// instead of deleting them, we have to encode the data to ensure that
-// we always emit a valid HTML5 comment.  See the encodeComment helper
-// for further details.
-
-comment =
-	'<!--' c:$(!"-->" .)* cEnd:$('-->' / eof) {
-		$data = WTUtils::encodeComment( $c );
-		$dp = new DataParsoid;
-		$dp->tsr = $this->tsrOffsets();
-		if ( $cEnd !== '-->' ) {
-			$dp->unclosedComment = true;
-		}
-		return [ new CommentTk( $data, $dp ) ];
-	}
 
 
 // Behavior switches. See:
@@ -1903,7 +1895,7 @@ hacky_dl_uses =
 	bullets:":"+
 	tbl:(table_line (sol+ table_line)*)
 	line:inlineline?
-	&comment_space_eolf
+	&((space / comment)* eolf)
 {
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
@@ -2330,87 +2322,6 @@ htmlentity =
 		];
 	}
 
-spaces =
-	$[ \t]+
-
-optional_spaces =
-	$[ \t]*
-
-space = [ \t]
-
-optionalSpaceToken =
-	s:optional_spaces {
-		if ( $s !== '' ) {
-			return [ $s ];
-		} else {
-			return [];
-		}
-	}
-
-/* This rule corresponds to \s in the PHP preg_* functions,
- * which is used frequently in the old parser.  The inclusion of
- * form feed (but not other whitespace, like vertical tab) is a quirk
- * of Perl, which PHP inherited via the PCRE (Perl-Compatible Regular
- * Expressions) library.
- */
-space_or_newline =
-	[ \t\n\r\x0c]
-
-/* This rule corresponds to \b in the PHP preg_* functions,
- * after a word character.  That is, it's a zero-width lookahead that
- * the next character is not a word character.
- */
-end_of_word =
-	eof / ![A-Za-z0-9_]
-
-// Unicode "separator, space" category.  It covers the \u0020 space as well
-// as \u3000 IDEOGRAPHIC SPACE (see bug 19052).  In PHP this is \p{Zs}.
-// Keep this up-to-date with the characters tagged ;Zs; in
-// http://www.unicode.org/Public/UNIDATA/UnicodeData.txt
-unispace = [ \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
-
-// Non-newline whitespace, including non-breaking spaces.  Used for magic links.
-space_or_nbsp =
-	space // includes \t
-	/ unispace
-	/ & "&" he:htmlentity &{ return is_array( $he ) && $he[ 1 ] === "\u{A0}"; }
-	{ return $he; }
-
-// Used within ISBN magic links
-space_or_nbsp_or_dash =
-	space_or_nbsp / "-"
-
-// Elements that do not break beginning or end of line for blocks (headers for instance)
-sol_transparent = comment / include_limits<sol_il> / annotation_tag / behavior_switch
-
-sol = (empty_line_with_comments / sol_prefix) sol_transparent*
-
-sol_prefix =
-	newlineToken
-	/ & {
-		// Use the sol flag only at the start of the input
-		// Flag should always be an actual boolean (not falsy or undefined)
-		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
-		return $this->endOffset() === 0 && $this->options['sol'];
-	} {
-		return [];
-	}
-
-empty_line_with_comments =
-	sp:sol_prefix p:("" { return $this->endOffset(); }) c:(space* comment (space / comment)* newline)+ {
-		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $p, $this->endOffset() );
-		$dp->tokens = TokenizerUtils::flattenIfArray( $c );
-		return [
-			$sp,
-			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], $dp )
-		];
-	}
-
-comment_space = comment / space
-
-nl_comment_space = newlineToken / comment_space
-
 /**
  * noinclude / includeonly / onlyinclude rules. These are normally
  * handled by the xmlish_tag rule, except where generic tags are not
@@ -2453,20 +2364,6 @@ include_limits =
 	{
 		return $il;
 	}
-
-// Start of file
-sof = & { return $this->endOffset() === 0 && !$this->pipelineOffset; }
-
-// End of file
-eof = & { return $this->endOffset() === $this->inputLength; }
-
-newline = '\n' / '\r\n'
-
-newlineToken = newline { return [ new NlTk( $this->tsrOffsets() ) ]; }
-
-eolf = newline / eof
-
-comment_space_eolf = (space+ / comment)* eolf
 
 // 'Preprocessor' directive- higher-level things that can occur in otherwise
 // plain-text content.
@@ -2583,3 +2480,107 @@ pipe = "|" / "{{!}}"
 
 // SSS FIXME: what about |{{!}} and {{!}}|
 pipe_pipe = "||" / "{{!}}{{!}}"
+
+space = [ \t]
+
+optional_spaces = $[ \t]*
+
+// Start of file
+sof = & { return $this->endOffset() === 0 && !$this->pipelineOffset; }
+
+// End of file
+eof = & { return $this->endOffset() === $this->inputLength; }
+
+newline = '\n' / '\r\n'
+
+newlineToken = newline { return [ new NlTk( $this->tsrOffsets() ) ]; }
+
+eolf = newline / eof
+
+// The old parser does a straight str.replace(/<!--((?!-->).)*-->/g, "")
+// but, as always, things around here are a little more complicated.
+//
+// We accept the same comments, but because we emit them as HTML comments
+// instead of deleting them, we have to encode the data to ensure that
+// we always emit a valid HTML5 comment.  See the encodeComment helper
+// for further details.
+comment =
+	'<!--' c:$(!"-->" .)* cEnd:$('-->' / eof) {
+		$data = WTUtils::encodeComment( $c );
+		$dp = new DataParsoid;
+		$dp->tsr = $this->tsrOffsets();
+		if ( $cEnd !== '-->' ) {
+			$dp->unclosedComment = true;
+		}
+		return [ new CommentTk( $data, $dp ) ];
+	}
+
+nl_comment_space = newlineToken / space / comment
+
+optionalSpaceToken =
+	s:optional_spaces {
+		if ( $s !== '' ) {
+			return [ $s ];
+		} else {
+			return [];
+		}
+	}
+
+/* This rule corresponds to \s in the PHP preg_* functions,
+ * which is used frequently in the old parser.  The inclusion of
+ * form feed (but not other whitespace, like vertical tab) is a quirk
+ * of Perl, which PHP inherited via the PCRE (Perl-Compatible Regular
+ * Expressions) library.
+ */
+space_or_newline = [ \t\n\r\x0c]
+
+/* This rule corresponds to \b in the PHP preg_* functions,
+ * after a word character.  That is, it's a zero-width lookahead that
+ * the next character is not a word character.
+ */
+end_of_word = eof / ![A-Za-z0-9_]
+
+// Unicode "separator, space" category.  It covers the \u0020 space as well
+// as \u3000 IDEOGRAPHIC SPACE (see bug 19052).  In PHP this is \p{Zs}.
+// Keep this up-to-date with the characters tagged ;Zs; in
+// http://www.unicode.org/Public/UNIDATA/UnicodeData.txt
+unispace = [ \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
+
+// Non-newline whitespace, including non-breaking spaces.  Used for magic links.
+space_or_nbsp =
+	space // includes \t
+	/ unispace
+	/ & "&" he:htmlentity &{ return is_array( $he ) && $he[ 1 ] === "\u{A0}"; }
+	{ return $he; }
+
+// Used within ISBN magic links
+space_or_nbsp_or_dash =
+	space_or_nbsp / "-"
+
+// Elements that do not break beginning or end of line for blocks (headers for instance)
+sol_transparent = comment / include_limits<sol_il> / annotation_tag / behavior_switch
+
+sol = (empty_line_with_comments / sol_prefix) sol_transparent*
+
+sol_prefix =
+	newlineToken
+	/ & {
+		// Use the sol flag only at the start of the input
+		// Flag should always be an actual boolean (not falsy or undefined)
+		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
+		return $this->endOffset() === 0 && $this->options['sol'];
+	} {
+		return [];
+	}
+
+// This rule requires at least one comment to be matched
+empty_line_with_comments =
+	sp:sol_prefix p:("" { return $this->endOffset(); }) c:(space* comment (space / comment)* newline)+ {
+		$dp = new DataParsoid;
+		$dp->tsr = new SourceRange( $p, $this->endOffset() );
+		$dp->tokens = TokenizerUtils::flattenIfArray( $c );
+		return [
+			$sp,
+			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], $dp )
+		];
+	}
