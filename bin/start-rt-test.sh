@@ -27,7 +27,7 @@ cd /srv/parsoid-testing
 git fetch
 git checkout $testid
 git log --oneline -n 1
-sudo systemctl restart php7.2-fpm.service
+sudo systemctl restart php7.4-fpm.service
 EOF
 
 echo "---- Starting test run $testid on testreduce1001 ----"
