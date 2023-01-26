@@ -6,16 +6,9 @@ namespace Wikimedia\Parsoid\Core;
 /**
  * Table of Contents data, including an array of section metadata.
  *
- * This is simply an array of SectionMetadata objects for now, but may
- * include additional ToC properties in the future.
- *
- * Note that there is no ::setExtensionData() method on the top-level
- * TOCData.  If an extension wants to set additional top-level
- * properties, it is assumed they can use the page-level
- * ::setExtensionData() on the ParserOutput/ContentMetadataCollector
- * instead.  If this decision is revisited, the ::setExtensionData()
- * method on TOCData should match the ones on SectionMetadata and
- * ContentMetadataCollector.
+ * This is simply an array of SectionMetadata objects for now along
+ * with extension data, but may include additional ToC properties in
+ * the future.
  */
 class TOCData implements \JsonSerializable {
 	/**
@@ -23,6 +16,19 @@ class TOCData implements \JsonSerializable {
 	 * @var SectionMetadata[]
 	 */
 	private array $sections;
+
+	/**
+	 * Arbitrary data attached to this Table of Contents by
+	 * extensions.  This data will be stored and cached in the
+	 * ParserOutput object along with the rest of the table of
+	 * contents data, and made available to external clients via the
+	 * action API.
+	 *
+	 * See ParserOutput::setExtensionData() for more information on typical
+	 * use, and SectionMetadata::setExtensionData() for a method appropriate
+	 * for attaching information to a specific section of the ToC.
+	 */
+	private array $extensionData;
 
 	/**
 	 * --------------------------------------------------
@@ -46,11 +52,13 @@ class TOCData implements \JsonSerializable {
 	private $subLevelCount = [];
 
 	/**
-	 * Create a new empty TOCData object.
+	 * Create a new TOCData object with the given sections and no
+	 * extension data.
 	 * @param SectionMetadata ...$sections
 	 */
 	public function __construct( ...$sections ) {
 		$this->sections = $sections;
+		$this->extensionData = [];
 	}
 
 	/**
@@ -76,6 +84,72 @@ class TOCData implements \JsonSerializable {
 	 */
 	public function getSections() {
 		return $this->sections;
+	}
+
+	/**
+	 * Attaches arbitrary data to this TOCData object. This can be
+	 * used to store some information about the table of contents in
+	 * the ParserOutput object for later use during page output. The
+	 * data will be cached along with the ParserOutput object.
+	 *
+	 * See ParserOutput::setExtensionData() in core for further information
+	 * about typical usage in hooks, and SectionMetadata::setExtensionData()
+	 * for a similar method appropriate for information about a specific
+	 * section of the ToC.
+	 *
+	 * Setting conflicting values for the same key is not allowed.
+	 * If you call ::setExtensionData() multiple times with the same key
+	 * on a TOCData, is is expected that the value will be identical
+	 * each time.  If you want to collect multiple pieces of data under a
+	 * single key, use ::appendExtensionData().
+	 *
+	 * @note Only scalar values (numbers, strings, or arrays) are
+	 * supported as a value.  (A future revision will allow anything
+	 * that core's JsonCodec can handle.)  Attempts to set other types
+	 * as extension data values will break ParserCache for the page.
+	 *
+	 * @param string $key The key for accessing the data. Extensions
+	 *   should take care to avoid conflicts in naming keys. It is
+	 *   suggested to use the extension's name as a prefix.  Using
+	 *   the prefix `mw:` is reserved for core.
+	 *
+	 * @param mixed $value The value to set.
+	 *   Setting a value to null is equivalent to removing the value.
+	 */
+	public function setExtensionData( string $key, $value ): void {
+		if (
+			array_key_exists( $key, $this->extensionData ) &&
+			$this->extensionData[$key] !== $value
+		) {
+			throw new \InvalidArgumentException( "Conflicting data for $key" );
+		}
+		if ( $value === null ) {
+			unset( $this->extensionData[$key] );
+		} else {
+			$this->extensionData[$key] = $value;
+		}
+	}
+
+	/**
+	 * Appends arbitrary data to this TOCData. This can be used to
+	 * store some information about the table of contents in the
+	 * ParserOutput object for later use during page output.
+	 *
+	 * See ::setExtensionData() for more details on rationale and use.
+	 *
+	 * @param string $key The key for accessing the data. Extensions should take care to avoid
+	 *   conflicts in naming keys. It is suggested to use the extension's name as a prefix.
+	 *
+	 * @param int|string $value The value to append to the list.
+	 * @return never This method is not yet implemented.
+	 */
+	public function appendExtensionData( string $key, $value ): void {
+		// This implementation would mirror that of
+		// ParserOutput::appendExtensionData, but let's defer implementing
+		// this until we're sure we need it.  In particular, we might need
+		// to figure out how a merge on section data is expected to work
+		// before we can determine the right semantics for this.
+		throw new \InvalidArgumentException( "Not yet implemented" );
 	}
 
 	/**
@@ -107,6 +181,7 @@ class TOCData implements \JsonSerializable {
 	 * @return TOCData
 	 */
 	public static function fromLegacy( array $data ): TOCData {
+		// The legacy format has no way to represent extension data.
 		$sections = array_map(
 			static function ( $d ) {
 				return SectionMetadata::fromLegacy( $d );
@@ -190,6 +265,7 @@ class TOCData implements \JsonSerializable {
 		);
 		return [
 			'sections' => $sections,
+			'extensionData' => $this->extensionData,
 		];
 	}
 }
