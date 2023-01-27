@@ -332,16 +332,13 @@ class LanguageConverter {
 	 * Check if support for target variant conversion is implemented
 	 * @internal FIXME: Remove once Parsoid's language variant work is completed
 	 * @param Env $env
-	 * @param string $targetVariant The variant to be checked for implementation
+	 * @param Bcp47Code $targetVariant The variant to be checked for implementation
 	 * @return bool
 	 */
-	public static function implementsLanguageConversion( Env $env, string $targetVariant ): bool {
-		$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+	public static function implementsLanguageConversion( Env $env, Bcp47Code $targetVariant ): bool {
 		$targetVariantMw = Utils::bcp47ToMwCode( $targetVariant );
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
-		$languageClass = self::loadLanguage( $env, $pageLangCode );
-
-		$lang = new $languageClass();
+		$lang = self::loadLanguage( $env, $pageLangCode );
 		$langconv = $lang->getConverter();
 
 		$validTarget = $langconv !== null && $langconv->getMachine() !== null

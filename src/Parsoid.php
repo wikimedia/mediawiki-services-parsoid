@@ -7,6 +7,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use InvalidArgumentException;
 use LogicException;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
@@ -491,12 +492,28 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param string $targetVariantCode Variant code to check
 	 * @return bool
+	 * @deprecated Use ::implementsLanguageConversionBcp47()
 	 */
 	public function implementsLanguageConversion( PageConfig $pageConfig, string $targetVariantCode ): bool {
+		// argh, another interface that doesn't use Bcp47Code :(
+		return $this->implementsLanguageConversionBcp47(
+			$pageConfig, Utils::mwCodeToBcp47( $targetVariantCode )
+		);
+	}
+
+	/**
+	 * Check if language variant conversion is implemented for a language
+	 *
+	 * @internal FIXME: Remove once Parsoid's language variant work is completed
+	 * @param PageConfig $pageConfig
+	 * @param Bcp47Code $targetVariant Variant language to check
+	 * @return bool
+	 */
+	public function implementsLanguageConversionBcp47( PageConfig $pageConfig, Bcp47Code $targetVariant ): bool {
 		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
 
-		return LanguageConverter::implementsLanguageConversion( $env, $targetVariantCode );
+		return LanguageConverter::implementsLanguageConversion( $env, $targetVariant );
 	}
 
 	/**
