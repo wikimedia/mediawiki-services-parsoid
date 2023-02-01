@@ -241,6 +241,19 @@ class SectionMetadata implements \JsonSerializable {
 	}
 
 	/**
+	 * Gets extension data previously attached to this SectionMetadata.
+	 *
+	 * @param string $key The key to look up
+	 * @return mixed|null The value(s) previously set for the given key using
+	 *   ::setExtensionData() or ::appendExtensionData(), or null if no
+	 *  value was set for this key.
+	 */
+	public function getExtensionData( $key ) {
+		$value = $this->extensionData[$key] ?? null;
+		return $value;
+	}
+
+	/**
 	 * Alias for :toLegacy(), for b/c compatibility only.
 	 * @deprecated
 	 * @return array

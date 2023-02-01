@@ -153,6 +153,19 @@ class TOCData implements \JsonSerializable {
 	}
 
 	/**
+	 * Gets extension data previously attached to this TOCData.
+	 *
+	 * @param string $key The key to look up
+	 * @return mixed|null The value(s) previously set for the given key using
+	 *   ::setExtensionData() or ::appendExtensionData(), or null if no
+	 *  value was set for this key.
+	 */
+	public function getExtensionData( $key ) {
+		$value = $this->extensionData[$key] ?? null;
+		return $value;
+	}
+
+	/**
 	 * Return as associative array, in the legacy format returned by the
 	 * action API.
 	 *
