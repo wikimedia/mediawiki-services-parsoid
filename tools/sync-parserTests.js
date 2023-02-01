@@ -31,7 +31,7 @@ require('../core-upgrade.js');
  *   For extension repos, for every file with parsoid-compatible
  *   flags set, you may need to adjust tests appropriately in some cases
  *   and/or update known failures as below:
- *   $ php tests/parser/parserTests.php <all-enabled-parsoid-mode-flags> --updateKnownFailures --dir <TEST_DIR>
+ *   $ php tests/parser/parserTests.php <all-enabled-parsoid-mode-flags> --updateKnownFailures --dir $PARSOID/tests/parser
  *
  *   $ git review  (only if the patch is not empty, see below)
  *
@@ -51,7 +51,7 @@ require('../core-upgrade.js');
  *
  *   For the core repo, you also need to update integrated mode failures
  *   $ cd $TARGET_REPO
- *   $ php tests/parser/parserTests.php --wt2html --wt2wt --updateKnownFailures --dir <TEST_DIR>
+ *   $ php tests/parser/parserTests.php --wt2html --wt2wt --updateKnownFailures --dir $PARSOID/tests/parser
  *
  *   $ git add -u
  *   $ git commit -m "Sync parserTests with core"
