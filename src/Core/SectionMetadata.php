@@ -377,27 +377,4 @@ class SectionMetadata implements \JsonSerializable {
 
 		return $buf;
 	}
-
-	// T319141: Temporary backward compatibility for former 'byteOffset'
-	// property name.
-
-	/**
-	 * @param string $name
-	 * @return ?int
-	 */
-	public function &__get( $name ) {
-		if ( $name === 'byteOffset' ) {
-			return $this->codepointOffset;
-		}
-	}
-
-	/**
-	 * @param string $name
-	 * @param ?int $value
-	 */
-	public function __set( $name, $value ) {
-		if ( $name === 'byteOffset' ) {
-			$this->codepointOffset = $value;
-		}
-	}
 }
