@@ -473,26 +473,68 @@ class TestRunner {
 
 		// Result verification stage
 		if ( $endsAtHtml ) {
-			$this->processParsedHTML( $test, $options, $mode, $doc );
+			$this->processParsedHTML( $env, $test, $options, $mode, $doc );
 		} else {
 			$this->processSerializedWT( $env, $test, $options, $mode, $wt );
 		}
 	}
 
 	/**
+	 * Process test options that impact output.
+	 * These are almost always only pertinent in wt2html test modes.
+	 * Returns:
+	 * - null if there are no applicable output options.
+	 * - true if the output matches expected output for the requested option(s).
+	 * - false otherwise
+	 *
+	 * @param Env $env
+	 * @param Test $test
+	 * @param array $options
+	 * @param string $mode
+	 * @param Document $doc
+	 * @return ?bool
+	 */
+	private function processTestOutputOptions(
+		Env $env, Test $test, array $options, string $mode, Document $doc
+	): ?bool {
+		$metadata = $env->getMetadata();
+		'@phan-var StubMetadataCollector $metadata';  // @var StubMetadataCollector $metadata
+		if ( isset( $test->options['showtocdata'] ) ) {
+			$tocOutput = [];
+			foreach ( $metadata->getTOCData()->getSections() as $section ) {
+				// This format is temporary.
+				$tocOutput[] = json_encode( $section->toLegacy() );
+			}
+			$tocOutput = implode( "\n", $tocOutput );
+			$expected = [ 'normal' => $test->parsoidHtml, 'raw' => $test->parsoidHtml ];
+			$actual = [ 'normal' => $tocOutput, 'raw' => $tocOutput, 'input' => $test->wikitext ];
+			return $options['reportResult'](
+				$this->stats, $test, $options, $mode, $expected, $actual
+			);
+		}
+		// TODO: handle showtitle/showindicators/cat/ill/property/extension
+		// options.
+		return null;
+	}
+
+	/**
 	 * Check the given HTML result against the expected result,
 	 * and throw an exception if necessary.
 	 *
+	 * @param Env $env
 	 * @param Test $test
 	 * @param array $options
 	 * @param string $mode
 	 * @param Document $doc
 	 */
 	private function processParsedHTML(
-		Test $test, array $options, string $mode, Document $doc
+		Env $env, Test $test, array $options, string $mode, Document $doc
 	): void {
 		$test->time['end'] = microtime( true );
-		$checkPassed = $this->checkHTML( $test, DOMCompat::getBody( $doc ), $options, $mode );
+		$checkPassed = $this->processTestOutputOptions( $env, $test, $options, $mode, $doc );
+		if ( $checkPassed === null ) {
+			$checkPassed = $this->checkHTML( $test, DOMCompat::getBody( $doc ), $options, $mode );
+		}
 
 		// Only throw an error if --exit-unexpected was set and there was an error
 		// Otherwise, continue running tests

@@ -1,0 +1,297 @@
+# This file has tests to verify TOC section metadata output for wikitext snippets
+
+!! options
+version=2
+!! end
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! article
+Template:Test
+!! text
+==th2==
+===th2.1===
+!! endarticle
+
+!! test
+Basic test
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==h1==
+===h1.1===
+==h2==
+===h2.1===
+====h2.1.1====
+===h2.2===
+====h2.2.1====
+====h2.2.2====
+==h3==
+!! html
+{"toclevel":1,"level":"2","line":"h1","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"h1","linkAnchor":"h1"}
+{"toclevel":2,"level":"3","line":"h1.1","number":"1.1","index":"2","fromtitle":"Parser_test","byteoffset":7,"anchor":"h1.1","linkAnchor":"h1.1"}
+{"toclevel":1,"level":"2","line":"h2","number":"2","index":"3","fromtitle":"Parser_test","byteoffset":18,"anchor":"h2","linkAnchor":"h2"}
+{"toclevel":2,"level":"3","line":"h2.1","number":"2.1","index":"4","fromtitle":"Parser_test","byteoffset":25,"anchor":"h2.1","linkAnchor":"h2.1"}
+{"toclevel":3,"level":"4","line":"h2.1.1","number":"2.1.1","index":"5","fromtitle":"Parser_test","byteoffset":36,"anchor":"h2.1.1","linkAnchor":"h2.1.1"}
+{"toclevel":2,"level":"3","line":"h2.2","number":"2.2","index":"6","fromtitle":"Parser_test","byteoffset":51,"anchor":"h2.2","linkAnchor":"h2.2"}
+{"toclevel":3,"level":"4","line":"h2.2.1","number":"2.2.1","index":"7","fromtitle":"Parser_test","byteoffset":62,"anchor":"h2.2.1","linkAnchor":"h2.2.1"}
+{"toclevel":3,"level":"4","line":"h2.2.2","number":"2.2.2","index":"8","fromtitle":"Parser_test","byteoffset":77,"anchor":"h2.2.2","linkAnchor":"h2.2.2"}
+{"toclevel":1,"level":"2","line":"h3","number":"3","index":"9","fromtitle":"Parser_test","byteoffset":92,"anchor":"h3","linkAnchor":"h3"}
+!! end
+
+!! test
+HTML headings should get TOC entries with some empty properties
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==a==
+<h2>b</h2>
+<h3>c</h3>
+===d===
+<h2>e</h2>
+!! html
+{"toclevel":1,"level":"2","line":"a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"b","number":"2","index":"","fromtitle":false,"byteoffset":null,"anchor":"b","linkAnchor":"b"}
+{"toclevel":2,"level":"3","line":"c","number":"2.1","index":"","fromtitle":false,"byteoffset":null,"anchor":"c","linkAnchor":"c"}
+{"toclevel":2,"level":"3","line":"d","number":"2.2","index":"2","fromtitle":"Parser_test","byteoffset":28,"anchor":"d","linkAnchor":"d"}
+{"toclevel":1,"level":"2","line":"e","number":"3","index":"","fromtitle":false,"byteoffset":null,"anchor":"e","linkAnchor":"e"}
+!! end
+
+!! test
+Duplicate headings should get unique anchors
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==a==
+==a==
+==b==
+!! html
+{"toclevel":1,"level":"2","line":"a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"a","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":6,"anchor":"a_2","linkAnchor":"a_2"}
+{"toclevel":1,"level":"2","line":"b","number":"3","index":"3","fromtitle":"Parser_test","byteoffset":12,"anchor":"b","linkAnchor":"b"}
+!! end
+
+!! test
+Templated sections (heading from template content)
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==a==
+{{Test}}
+!! html
+{"toclevel":1,"level":"2","line":"a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"th2","number":"2","index":"T-1","fromtitle":"Template:Test","byteoffset":null,"anchor":"th2","linkAnchor":"th2"}
+{"toclevel":2,"level":"3","line":"th2.1","number":"2.1","index":"T-2","fromtitle":"Template:Test","byteoffset":null,"anchor":"th2.1","linkAnchor":"th2.1"}
+!! end
+
+!! test
+Ensure headings with html tags get the right anchors
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==<span>x</span>==
+==<strike>y</strike>==
+!! html
+{"toclevel":1,"level":"2","line":"<span>x<\/span>","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"x","linkAnchor":"x"}
+{"toclevel":1,"level":"2","line":"<strike>y<\/strike>","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":19,"anchor":"y","linkAnchor":"y"}
+!! end
+
+!! test
+Ensure unallowed tag wrappers in headings get stripped
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==<div>b</div>==
+==<font>c</font>==
+!! html
+{"toclevel":1,"level":"2","line":"b","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"b","linkAnchor":"b"}
+{"toclevel":1,"level":"2","line":"c","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":17,"anchor":"c","linkAnchor":"c"}
+!! end
+
+!! test
+Ensure disallowed attributes are stripped, but dir attribute in a span is left behind
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==<span dir='ltr' title='x'>a</span>==
+==<span dir='rtl' title='x'>b</span>==
+==<i dir='rtl' title='ha'>c</i>==
+!! html
+{"toclevel":1,"level":"2","line":"<span dir=\"ltr\">a<\/span>","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"<span dir=\"rtl\">b<\/span>","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":39,"anchor":"b","linkAnchor":"b"}
+{"toclevel":1,"level":"2","line":"<i>c<\/i>","number":"3","index":"3","fromtitle":"Parser_test","byteoffset":78,"anchor":"c","linkAnchor":"c"}
+!! end
+
+# Legacy parser behavior is broken. Parsoid's output is correct.
+!! test
+Ensure empty tags are stripped
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==<span><div></div></span>x==
+==<span dir='ltr'><i dir='ltr'></i></span>y==
+!! html/php
+{"toclevel":1,"level":"2","line":"x","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"x","linkAnchor":"x"}
+{"toclevel":1,"level":"2","line":"<span dir=\"ltr\"><i><\/i><\/span>y","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":30,"anchor":"y","linkAnchor":"y"}
+!! html/parsoid
+{"toclevel":1,"level":"2","line":"x","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"x","linkAnchor":"x"}
+{"toclevel":1,"level":"2","line":"y","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":30,"anchor":"y","linkAnchor":"y"}
+!! end
+
+!! test
+Handle links in heading content
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==[[Cat]]==
+==[[Dog]]s==
+==[[Cat|I love my ''cat'']]==
+!! html
+{"toclevel":1,"level":"2","line":"Cat","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"Cat","linkAnchor":"Cat"}
+{"toclevel":1,"level":"2","line":"Dogs","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":12,"anchor":"Dogs","linkAnchor":"Dogs"}
+{"toclevel":1,"level":"2","line":"I love my <i>cat<\/i>","number":"3","index":"3","fromtitle":"Parser_test","byteoffset":25,"anchor":"I_love_my_cat","linkAnchor":"I_love_my_cat"}
+!! end
+
+# Parsoid uses HTML5 semantics for anchors as the default.
+# Legacy parser tests require wgFragmentMode=[ "html5" ] for the same
+# behavior, which isn't (yet) the default in ParserTestRunner
+!! test
+Ensure headings with special chars get the right anchors
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! config
+wgFragmentMode=[ "html5", "legacy" ]
+!! wikitext
+===a=
+=''x''=
+!! html
+{"toclevel":1,"level":"1","line":"==a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"==a","linkAnchor":"==a"}
+{"toclevel":1,"level":"1","line":"<i>x<\/i>","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":6,"anchor":"x","linkAnchor":"x"}
+!! end
+
+# For heading that come from template args, core, Parsoid-standalone, and
+# Parsoid-integrate different in ther "index" output.
+#
+# - For templated sections, Parsoid and core differ in some of the metadata.
+#   Parsoid doesn't distinguish between sections that come from template args
+#   and from templated content - it treats them all as template-generated headings.
+#   But core does not consider headings from template-args as "inTemplate", but
+#   'fromtitle' is set to false even so.
+#
+# - Parsoid's behavior is more consistent wrt templates. But, this is potentially
+#   a breaking change for users of TOC data. The index for templated
+#   content is used to generate section edit links for content coming
+#   from a template, and in updating the appropriate article when that
+#   section is saved.  So this is potentially a breaking change when
+#   Parsoid starts to generate section edit links, and possible one
+#   which could cause db corruption.
+#
+# - Additionally, heading-index is reset in integrated mode because templates are
+#   processed by core preprocessor whereas in native preprocessing mode (used by
+#   parsertests), the heading index is not reset.
+# - See also T222419.
+!! test
+Templated sections (heading from template arg)
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==a==
+{{1x|1=
+==b==
+}}
+!! html/php
+{"toclevel":1,"level":"2","line":"a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"b","number":"2","index":"","fromtitle":false,"byteoffset":null,"anchor":"b","linkAnchor":"b"}
+!! html/parsoid
+{"toclevel":1,"level":"2","line":"a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"b","number":"2","index":"T-2","fromtitle":"Template:1x","byteoffset":null,"anchor":"b","linkAnchor":"b"}
+!! html/parsoid+integrated
+{"toclevel":1,"level":"2","line":"a","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"a","linkAnchor":"a"}
+{"toclevel":1,"level":"2","line":"b","number":"2","index":"T-1","fromtitle":"Template:1x","byteoffset":null,"anchor":"b","linkAnchor":"b"}
+!! end
+
+# FIXME:
+# 1. This potentially exposes a subtle issue in the interaction between TOC, Cite, and
+#    localization. Parsoid doesn't localize numers in Cite (at all!) since it relies on CSS.
+#    But, with the legacy parser, a wiki with localized numbers will have an anchor
+#    based off a localized number if a <ref> is used in a heading. Parsoid won't!.
+# 2. We probably should be a bit smarter about what to strip for tags when that output
+#    comes from extensions. Below, we have stripped all extension typeofs and info.
+#    But, depends on who uses this 'line' property and how.
+!! test
+Handle extension content in section headers properly
+!! config
+wgFragmentMode=[ "html5", "legacy" ]
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+==c<ref>d</ref>==
+!! html
+{"toclevel":1,"level":"2","line":"c<sup>&#91;1&#93;<\/sup>","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"c[1]","linkAnchor":"c[1]"}
+!! html/parsoid
+{"toclevel":1,"level":"2","line":"c<sup><span>[1]<\/span><\/sup>","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"c[1]","linkAnchor":"c[1]"}
+!! end

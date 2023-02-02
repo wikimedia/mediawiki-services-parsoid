@@ -94,6 +94,10 @@
 				"path": "tests/parser/tables.txt",
 				"expectedSHA1": "327683b9fb2cf8adf3ce1b15f5060d3530ef38fe"
 			},
+			"toc.txt": {
+				"path": "tests/parser/toc.txt",
+				"expectedSHA1": "3810890c2c63cbae3060e7c314dfdea8644cae09"
+			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
 				"expectedSHA1": "fe987026757b7ba520a58fd69c5ed52fb015ee6f"

@@ -7,6 +7,8 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
+use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Core\SectionMetaData;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -18,6 +20,8 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -49,11 +53,32 @@ class WrapSectionsState {
 	/** @var int */
 	private $sectionNumber = 0;
 
-	/** @var bool */
-	private $inTemplate = false;
+	/** @var WrapSectionsTplInfo */
+	private $tplInfo = null;
 
 	/** @var WrapSectionsTplInfo[] */
 	private $tplsAndExtsToExamine = [];
+
+	/** @var int */
+	private $oldLevel = 0;
+
+	/** @var array<string,bool> Set of section anchors */
+	private $processedAnchors = [];
+
+	/**
+	 * See the safe-heading transform code in Parser::finalizeHeadings in core
+	 *
+	 * Allowed HTML tags are:
+	 * - <sup> and <sub> (T10393)
+	 * - <i> (T28375)
+	 * - <b> (r105284)
+	 * - <bdi> (T74884)
+	 * - <span dir="rtl"> and <span dir="ltr"> (T37167)
+	 *   (handled separately in code below)
+	 * - <s> and <strike> (T35715)
+	 * - <q> (T251672)
+	 */
+	private static $ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
 
 	/**
 	 * @param Env $env
@@ -72,19 +97,155 @@ class WrapSectionsState {
 	}
 
 	/**
+	 * This method implements the equivalent of the regexp-based safe-headline
+	 * transform in Parser::finalizeHeadings in core.
+	 *
+	 * @param Node $node
+	 */
+	private function processHeadingContent( Node $node ): void {
+		$c = $node->firstChild;
+		while ( $c ) {
+			$next = $c->nextSibling;
+			if ( $c instanceof Element ) {
+				if ( WTUtils::isATagFromWikiLinkSyntax( $c ) ) {
+					$dp = DOMDataUtils::getDataParsoid( $c );
+					DOMUtils::migrateChildren( $c, $node, $next );
+					$next = $c->nextSibling;
+					$node->removeChild( $c );
+				} else {
+					$cName = DOMCompat::nodeName( $c );
+					if ( in_array( $cName, [ 'style', 'script' ], true ) ) {
+						# Remove any <style> or <script> tags (T198618)
+						$node->removeChild( $c );
+					} else {
+						$this->processHeadingContent( $c );
+						if ( !$c->firstChild ) {
+							// Empty now - strip it!
+							$node->removeChild( $c );
+						} elseif ( !in_array( $cName, self::$ALLOWED_NODES_IN_ANCHOR, true ) ) {
+							# Strip all unallowed tag wrappers
+							DOMUtils::migrateChildren( $c, $node, $next );
+							$next = $c->nextSibling;
+							$node->removeChild( $c );
+						} else {
+							# We strip any parameter from accepted tags except dir="rtl|ltr" from <span>,
+							# to allow setting directionality in toc items.
+							foreach ( DOMUtils::attributes( $c ) as $key => $val ) {
+								if ( $cName === 'span' ) {
+									if ( $key !== 'dir' || ( $val !== 'ltr' && $val !== 'rtl' ) ) {
+										$c->removeAttribute( $key );
+									}
+								} else {
+									$c->removeAttribute( $key );
+								}
+							}
+						}
+					}
+				}
+			} elseif ( !( $c instanceof Text ) ) {
+				// Strip everying else but text nodes
+				$node->removeChild( $c );
+			}
+
+			$c = $next;
+		}
+	}
+
+	/**
+	 * Update section metadata needed to generate TOC.
+	 *
+	 * @param SectionMetadata $metadata
+	 * @param Element $heading
+	 * @param int $newLevel
+	 */
+	private function computeSectionMetadata(
+		SectionMetadata $metadata, Element $heading, int $newLevel
+	): void {
+		$tocData = $this->env->getTOCData();
+		$tocData->addSection( $metadata );
+		$tocData->processHeading( $this->oldLevel, $newLevel, $metadata );
+		$this->oldLevel = $newLevel;
+
+		if ( $this->tplInfo !== null ) {
+			$dmw = DOMDataUtils::getDataMw( $this->tplInfo->first );
+			if ( is_string( $dmw->parts[0] ) ) {
+				// Multi-part content -- cannot pick a title
+				$metadata->fromTitle = null;
+			} else {
+				// Pick template title, but strip leading "./" prefix
+				$metadata->fromTitle = preg_replace(
+					"#^./#", "", $dmw->parts[0]->template->target->href );
+			}
+			$metadata->index = 'T-' . $this->sectionNumber; // core sets this to ''
+			$metadata->byteOffset = null;
+		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
+			// PageConfig returns titles with a space, so strtr it
+			$metadata->fromTitle = strtr( $this->env->getPageConfig()->getTitle(), ' ', '_' );
+			$metadata->index = (string)$this->sectionNumber;
+			$metadata->byteOffset = DOMDataUtils::getDataParsoid( $heading )->dsr->start ?? -1;
+		} else {
+			$metadata->fromTitle = null;
+			$metadata->index = '';
+			$metadata->byteOffset = null;
+		}
+
+		// Deep clone the heading to mutate it to trip unwanted tags and attributes.
+		$clone = DOMDataUtils::cloneNode( $heading, true );
+		'@phan-var Element $clone'; // @var Element $clone
+		DOMDataUtils::visitAndStoreDataAttribs( $clone, [
+			'discardDataParsoid' => true
+		] );
+
+		$this->processHeadingContent( $clone );
+		$buf = DOMCompat::getInnerHTML( $clone );
+		$metadata->line = trim( $buf );
+
+		// Additional processing for $anchor
+		$anchor = $clone->textContent; // strip all tags
+		$anchor = Sanitizer::normalizeSectionNameWhitespace( $anchor );
+		$anchor = Sanitizer::decodeCharReferences( $anchor );
+		try {
+			// Equivalent to calling self::normalizeSectionName( $anchor) in Parser.php
+			$anchor = Title::newFromText( "Foo#$anchor", $this->env->getSiteConfig() )->getFragment();
+		} catch ( TitleException $ex ) {
+		}
+
+		$linkAnchor = $anchor;
+
+		# NOTE: Parsoid defaults to html5 mode. So, if we want to replicate
+		# legacy output, we should handle that explicitly.
+		$anchor = Sanitizer::escapeIdForAttribute( $anchor );
+		$linkAnchor = Sanitizer::escapeIdForLink( $linkAnchor );
+
+		// Dedupe anchors - they have to be case-insensitively unique
+		$arrayKey = strtolower( $anchor );
+		if ( isset( $this->processedAnchors[$arrayKey] ) ) {
+			for ( $i = 2; isset( $this->processedAnchors["{$arrayKey}_$i"] ); ++$i );
+			$anchor .= "_$i";
+			$linkAnchor .= "_$i";
+			$this->processedAnchors["{$arrayKey}_$i"] = true;
+		} else {
+			$this->processedAnchors[$arrayKey] = true;
+		}
+
+		$metadata->anchor = $anchor;
+		$metadata->linkAnchor = $linkAnchor;
+	}
+
+	/**
 	 * Create a new section element
 	 *
 	 * @param Element|DocumentFragment $rootNode
 	 * @param array<Section> &$sectionStack
 	 * @param ?Section $currSection
-	 * @param Node $node
+	 * @param Element $heading the heading node
 	 * @param int $newLevel
 	 * @param bool $pseudoSection
 	 * @return Section
 	 */
 	private function createNewSection(
 		Node $rootNode, array &$sectionStack,
-		?Section $currSection, Node $node, int $newLevel,
+		?Section $currSection, Element $heading, int $newLevel,
 		bool $pseudoSection
 	): Section {
 		/* Structure for regular (editable or not) sections
@@ -118,11 +279,11 @@ class WrapSectionsState {
 		if ( $parentSection ) {
 			$parentSection->addSection( $section );
 		} else {
-			$rootNode->insertBefore( $section->container, $node );
+			$rootNode->insertBefore( $section->container, $heading );
 		}
 
 		/* Step 3: Add <h*> to the <section> */
-		$section->addNode( $node );
+		$section->addNode( $heading );
 
 		/* Step 4: Assign data-mw-section-id attribute
 		 *
@@ -142,10 +303,14 @@ class WrapSectionsState {
 		 */
 		if ( $pseudoSection ) {
 			$section->setId( -2 );
-		} elseif ( $this->inTemplate ) {
+		} elseif ( $this->tplInfo !== null ) {
 			$section->setId( -1 );
 		} else {
 			$section->setId( $this->sectionNumber );
+		}
+
+		if ( !$pseudoSection ) {
+			$this->computeSectionMetadata( $section->metadata, $heading, $newLevel );
 		}
 
 		return $section;
@@ -191,12 +356,11 @@ class WrapSectionsState {
 			$expandSectionBoundary = false;
 
 			// Track entry into templated output
-			if ( !$this->inTemplate && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+			if ( !$this->tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 				DOMUtils::assertElt( $node );
 				$about = $node->getAttribute( 'about' ) ?? '';
 				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
-				$this->inTemplate = true;
-				$tplInfo = new WrapSectionsTplInfo;
+				$this->tplInfo = $tplInfo = new WrapSectionsTplInfo;
 				$tplInfo->first = $node;
 				$tplInfo->about = $about;
 				$tplInfo->last = end( $aboutSiblings );
@@ -307,8 +471,7 @@ class WrapSectionsState {
 					$this->tplsAndExtsToExamine[] = $tplInfo;
 				}
 
-				$tplInfo = null;
-				$this->inTemplate = false;
+				$this->tplInfo = $tplInfo = null;
 			}
 
 			$node = $next;

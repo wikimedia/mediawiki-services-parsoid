@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
+use Wikimedia\Parsoid\Core\SectionMetadata;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -20,6 +21,9 @@ class Section {
 	/** @var Element */
 	public $container;
 
+	/** @var SectionMetadata */
+	public $metadata;
+
 	/**
 	 * @param int $level
 	 * @param int $debugId
@@ -29,6 +33,11 @@ class Section {
 		$this->level = $level;
 		$this->debugId = $debugId;
 		$this->container = $ownerDoc->createElement( 'section' );
+		// Use named arguments here in PHP 8.0+
+		$this->metadata = new SectionMetadata(
+			-1 /* tocLevel */,
+			$level /* hLevel */
+		);
 	}
 
 	/**

@@ -63,7 +63,7 @@ class TOCData implements \JsonSerializable {
 
 	/**
 	 * Return current TOC level while headings are being
-	 * processed and section metadat is being constructed.
+	 * processed and section metadata is being constructed.
 	 * @return int
 	 */
 	public function getCurrentTOCLevel(): int {

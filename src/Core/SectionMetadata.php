@@ -27,9 +27,9 @@ class SectionMetadata implements \JsonSerializable {
 	public int $hLevel;
 
 	/**
-	 * This is a zero-indexed TOC level and the nesting level.
+	 * This is a one-indexed TOC level and the nesting level.
 	 * So, if a page has a H2-H4-H6, then, those levels 2,4,6
-	 * correspond to TOC-levels 0,1,2.
+	 * correspond to TOC-levels 1,2,3.
 	 */
 	public int $tocLevel;
 
@@ -133,7 +133,7 @@ class SectionMetadata implements \JsonSerializable {
 	private array $extensionData;
 
 	/**
-	 * @param int $tocLevel Zero-indexed TOC level and the nesting level
+	 * @param int $tocLevel One-indexed TOC level and the nesting level
 	 * @param int $hLevel The heading tag level
 	 * @param string $line Stripped headline text
 	 * @param string $number TOC number string (3.1.3, 4.5.2, etc)
@@ -149,15 +149,15 @@ class SectionMetadata implements \JsonSerializable {
 	 */
 	public function __construct(
 		// This is a great candidate for named arguments in PHP 8.0+
-		int $tocLevel,
-		int $hLevel,
-		string $line,
-		string $number,
-		string $index,
-		?string $fromTitle,
-		?int $byteOffset,
-		string $anchor,
-		string $linkAnchor,
+		int $tocLevel = 0,
+		int $hLevel = -1,
+		string $line = '',
+		string $number = '',
+		string $index = '',
+		?string $fromTitle = null,
+		?int $byteOffset = null,
+		string $anchor = '',
+		string $linkAnchor = '',
 		?array $extensionData = null
 	) {
 		$this->tocLevel = $tocLevel;

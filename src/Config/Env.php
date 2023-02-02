@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Core\TOCData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
@@ -46,6 +47,9 @@ class Env {
 
 	/** @var ContentMetadataCollector */
 	private $metadata;
+
+	/** @var TOCData Table of Contents metadata for the article */
+	private $tocData;
 
 	/**
 	 * The top-level frame for this conversion.  This largely wraps the
@@ -277,6 +281,7 @@ class Env {
 		$this->pageConfig = $pageConfig;
 		$this->dataAccess = $dataAccess;
 		$this->metadata = $metadata;
+		$this->tocData = new TOCData();
 		$this->topFrame = new PageConfigFrame( $this, $pageConfig, $siteConfig );
 		if ( isset( $options['wrapSections'] ) ) {
 			$this->wrapSections = !empty( $options['wrapSections'] );
@@ -315,6 +320,21 @@ class Env {
 			$this->profiling = true;
 		}
 		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
+		// NOTE:
+		// Don't try to do this in setupTopLevelDoc since it is called on existing Env objects
+		// in a couple of places. That then leads to a multiple-write to tocdata property on
+		// the metadata object.
+		//
+		// setupTopLevelDoc is called outside Env in these couple cases:
+		// 1. html2wt in ContentModelHandler for dealing with
+		//    missing original HTML.
+		// 2. ParserTestRunner's html2html tests
+		//
+		// That is done to either reuse an existing Env object (as in 1.)
+		// OR to refresh the attached DOC (html2html as in 2.).
+		// Constructing a new Env in both cases could eliminate this issue.
+		$this->metadata->setTOCData( $this->tocData );
+
 		$this->wikitextContentModelHandler = new WikitextContentModelHandler( $this );
 	}
 
@@ -458,6 +478,14 @@ class Env {
 	 */
 	public function getMetadata(): ContentMetadataCollector {
 		return $this->metadata;
+	}
+
+	/**
+	 * Return the Table of Contents information for the article.
+	 * @return TOCData
+	 */
+	public function getTOCData(): TOCData {
+		return $this->tocData;
 	}
 
 	public function nativeTemplateExpansionEnabled(): bool {
