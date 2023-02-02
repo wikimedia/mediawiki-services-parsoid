@@ -85,7 +85,7 @@ class Sanitizer {
 	 *
 	 * @since 1.30
 	 */
-	private const ID_PRIMARY = 0;
+	public const ID_PRIMARY = 0;
 
 	/**
 	 * Tells escapeUrlForHtml() to encode the ID using the fallback encoding, or return false
@@ -1311,10 +1311,14 @@ class Sanitizer {
 	}
 
 	/**
-	 * @param string $id
+	 * Normalizes whitespace in a section name, such as might be returned
+	 * by Parser::stripSectionName(), for use in the ids that are used for
+	 * section links.
+	 *
+	 * @param string $section
 	 * @return string
 	 */
-	public static function normalizeSectionIdWhiteSpace( string $id ): string {
-		return trim( preg_replace( '/[ _]+/', ' ', $id ) );
+	public static function normalizeSectionNameWhiteSpace( string $section ): string {
+		return trim( preg_replace( '/[ _]+/', ' ', $section ) );
 	}
 }

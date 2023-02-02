@@ -44,7 +44,7 @@ class Headings {
 			return true;
 		}
 
-		$anchorText = Sanitizer::normalizeSectionIdWhiteSpace( self::textContentOf( $node ) );
+		$anchorText = Sanitizer::normalizeSectionNameWhiteSpace( self::textContentOf( $node ) );
 		$anchorText = self::normalizeSectionName( $anchorText, $env );
 
 		// Create an anchor with a sanitized id
