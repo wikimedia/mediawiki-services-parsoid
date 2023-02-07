@@ -248,12 +248,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param stdClass $dataMw
 	 * @param Element $container
-	 * @param string|null $captionText Unused, but matches the signature of handlers
+	 * @param string|null $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleAudio(
 		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
-		Element $container, ?string $captionText
+		Element $container, ?string $alt
 	): Element {
 		$doc = $span->ownerDocument;
 		$audio = $doc->createElement( 'audio' );
@@ -297,12 +297,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param stdClass $dataMw
 	 * @param Element $container
-	 * @param string|null $captionText Unused, but matches the signature of handlers
+	 * @param string|null $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleVideo(
 		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
-		Element $container, ?string $captionText
+		Element $container, ?string $alt
 	): Element {
 		$doc = $span->ownerDocument;
 		$video = $doc->createElement( 'video' );
@@ -348,21 +348,18 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param array $info
 	 * @param stdClass $dataMw
 	 * @param Element $container
-	 * @param string|null $captionText
+	 * @param string|null $alt
 	 * @return Element
 	 */
 	private static function handleImage(
 		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
-		Element $container, ?string $captionText
+		Element $container, ?string $alt
 	): Element {
 		$doc = $span->ownerDocument;
 		$img = $doc->createElement( 'img' );
 
-		$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'alt', false );
-		if ( $attr !== null ) {
-			$img->setAttribute( 'alt', $attr[1]->txt );
-		} elseif ( $captionText ) {
-			$img->setAttribute( 'alt', $captionText );
+		if ( $alt !== null ) {
+			$img->setAttribute( 'alt', $alt );
 		}
 
 		self::copyOverAttribute( $img, $span, 'resource' );
@@ -416,10 +413,15 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param Element $container
+	 * @param Element $span
 	 * @param array $errs
 	 * @param stdClass $dataMw
+	 * @param string|null $alt
 	 */
-	private static function addErrors( Element $container, array $errs, stdClass $dataMw ): void {
+	private static function handleErrors(
+		Element $container, Element $span, array $errs, stdClass $dataMw,
+		?string $alt
+	): void {
 		if ( !DOMUtils::hasTypeOf( $container, 'mw:Error' ) ) {
 			$typeOf = $container->getAttribute( 'typeof' ) ?? '';
 			$typeOf = 'mw:Error' . ( $typeOf ? ' ' . $typeOf : '' );
@@ -429,6 +431,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$errs = array_merge( $dataMw->errors, $errs );
 		}
 		$dataMw->errors = $errs;
+		if ( $alt !== null ) {
+			DOMCompat::replaceChildren( $span, $span->ownerDocument->createTextNode( $alt ) );
+		}
 	}
 
 	/**
@@ -652,6 +657,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$file = [ $attrs['title']->getKey(), $dims ];
 			$infoKey = md5( json_encode( $file ) );
 			$files[$infoKey] = $file;
+			$errs = [];
 
 			$manualKey = null;
 			$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
@@ -659,15 +665,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$val = $manualthumb[1]->txt;
 				$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespaceId(), true );
 				if ( $title === null ) {
-					$errs = [
-						self::makeErr(
-							'apierror-invalidtitle',
-							'Invalid thumbnail title.',
-							[ 'name' => $val ]
-						)
-					];
-					self::addErrors( $container, $errs, $dataMw );
-					continue;
+					$errs[] = self::makeErr(
+						'apierror-invalidtitle',
+						'Invalid thumbnail title.',
+						[ 'name' => $val ]
+					);
 				} else {
 					$file = [ $title->getKey(), $dims ];
 					$manualKey = md5( json_encode( $file ) );
@@ -682,6 +684,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				'anchor' => $anchor,
 				'infoKey' => $infoKey,
 				'manualKey' => $manualKey,
+				'errs' => $errs,
 			];
 		}
 
@@ -713,8 +716,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$span = $anchor->firstChild;
 			$attrs = $c['attrs'];
 			$dataMw = DOMDataUtils::getDataMw( $container );
-
-			$errs = [];
+			$errs = $c['errs'];
 
 			$info = $files[$c['infoKey']];
 			if ( !$info ) {
@@ -738,32 +740,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			if ( $info['badFile'] ?? false ) {
 				$errs[] = self::makeErr( 'apierror-badfile', 'This image is on the bad file list.' );
-			}
-
-			// Add mw:Error to the RDFa type.
-			if ( $errs ) {
-				self::addErrors( $container, $errs, $dataMw );
-				continue;
-			}
-
-			// Info relates to the thumb, not necessarily the file.
-			// The distinction matters for manualthumb, in which case only
-			// the "resource" copied over from the span relates to the file.
-			'@phan-var array $info';  // @var array $info
-
-			switch ( $info['mediatype'] ) {
-				case 'AUDIO':
-					$handler = 'handleAudio';
-					$isImage = false;
-					break;
-				case 'VIDEO':
-					$handler = 'handleVideo';
-					$isImage = false;
-					break;
-				default:
-					$handler = 'handleImage';
-					$isImage = true;
-					break;
 			}
 
 			if ( WTUtils::hasVisibleCaption( $container ) ) {
@@ -799,7 +775,41 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				// $captionText = $sanitizedArgs['alt'][0];
 			}
 
-			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $captionText );
+			// Info relates to the thumb, not necessarily the file.
+			// The distinction matters for manualthumb, in which case only
+			// the "resource" copied over from the span relates to the file.
+
+			switch ( $info['mediatype'] ?? '' ) {
+				case 'AUDIO':
+					$handler = 'handleAudio';
+					$isImage = false;
+					break;
+				case 'VIDEO':
+					$handler = 'handleVideo';
+					$isImage = false;
+					break;
+				default:
+					$handler = 'handleImage';
+					$isImage = true;
+					break;
+			}
+
+			$alt = null;
+			$keepAltInDataMw = !$isImage || $errs;
+			$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'alt', $keepAltInDataMw );
+			if ( $attr !== null ) {
+				$alt = $attr[1]->txt;
+			} elseif ( $captionText ) {
+				$alt = $captionText;
+			}
+
+			// Add mw:Error to the RDFa type.
+			if ( $errs ) {
+				self::handleErrors( $container, $span, $errs, $dataMw, $alt );
+				continue;
+			}
+
+			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $alt );
 
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $container, $anchor, $attrs, $dataMw, $isImage, $captionText,

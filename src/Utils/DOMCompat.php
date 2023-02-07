@@ -469,7 +469,7 @@ class DOMCompat {
 	 * https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/replaceChildren
 	 *
 	 * @param Document|DocumentFragment|Element $parentNode
-	 * @param array<string|Node> ...$nodes
+	 * @param string|Node ...$nodes
 	 */
 	public static function replaceChildren(
 		$parentNode, ...$nodes
