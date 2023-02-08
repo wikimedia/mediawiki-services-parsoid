@@ -141,17 +141,51 @@ function wfProcessMessages( string $file, ?array &$wikiInfo ): void {
 }
 
 function wfDetectCounterType( string $msg ): ?string {
-	$counterTypeMaps = [
-		"0-9" => "decimal",
-		"a-z" => "lower-alpha",
-		"A-Z" => "upper-alpha",
+/*
+ * Extracted from https://www.w3.org/TR/predefined-counter-styles/
+ * Intersected with https://www.w3.org/International/i18n-tests/results/predefined-counter-styles
+ * where all major browsers have support with a green cell.
+ */
+	$w3cCounterTypeMaps = [
+		/* numeric - no suffixes or prefixes */
+		"0123456789" => "decimal",
 		"٠١٢٣٤٥٦٧٨٩" => "arabic-indic",
 		"০১২৩৪৫৬৭৮৯" => "bengali",
-		"0123456789" => "decimal",
+		"០១២៣៤៥៦៧៨៩" => "cambodian",
 		"०१२३४५६७८९" => "devanagari",
+		"૦૧૨૩૪૫૬૭૮૯" => "gujarati",
+		"੦੧੨੩੪੫੬੭੮੯" => "gurmukhi",
 		"೦೧೨೩೪೫೬೭೮೯" => "kannada",
-		"၀၁၂၃၄၅၆၇၈၉" => "myanmar",
+		"០១២៣៤៥៦៧៨៩" => "khmer",
+		"໐໑໒໓໔໕໖໗໘໙" => "lao",
+		"᱀᱁᱂᱃᱄᱅᱆᱇᱈᱉" => "lepcha",
+		"൦൧൨൩൪൫൬൭൮൯" => "malayalam",
+		"၀၁၂၃၄၅၆၇၈၉" => "myanmar", /* w3c page says suffix, but testing shows no suffix! */
+		"᠐᠑᠒᠓᠔᠕᠖᠗᠘᠙" => "mongolian",
+		"୦୧୨୩୪୫୬୭୮୯" => "oriya",
 		"۰۱۲۳۴۵۶۷۸۹" => "persian",
+		"௦௧௨௩௪௫௬௭௮௯" => "tamil",
+		"౦౧౨౩౪౫౬౭౮౯" => "telugu",
+		"๐๑๒๓๔๕๖๗๘๙" => "thai",
+
+		/* alphabetic - no suffixes or prefixes */
+		"a-z" => "lower-alpha",
+		"A-Z" => "upper-alpha",
+		"αβγδεζηθικλμνξοπρστυφχψω" => "lower-greek",
+		"abcdefghijklmnopqrstuvwxyz" => "lower-alpha",
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ" => "upper-alpha",
+
+/* ---- Not sure we can use these as is ----
+		// alphabetic - WITH suffixes and/or prefixes.
+
+		"子丑寅卯辰巳午未申酉戌亥"=>"cjk-earthly-branch",
+		"甲乙丙丁戊己庚辛壬癸"=>"cjk-heavenly-stem",
+		"㊀㊁㊂㊃㊄㊅㊆㊇㊈㊉"=>"circled-ideograph",
+		"あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわゐゑをん"=>"hiragana",
+		"いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせす"=>"hiragana-iroha",
+		"アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン"=>"katakana",
+		"イロハニホヘトチリヌルヲワカヨタレソツネナラムウヰノオクヤマケフコエテアサキユメミシヱヒモセス"=>"katakana-iroha",
+*/
 	];
 
 	/* Hacky heuristic that should work */
@@ -162,7 +196,7 @@ function wfDetectCounterType( string $msg ): ?string {
 	} elseif ( preg_match( '/^([IVXLCDM]*( |$))*$/u', $msg ) ) {
 		return "upper-roman";
 	} else {
-		foreach ( $counterTypeMaps as $digits => $type ) {
+		foreach ( $w3cCounterTypeMaps as $digits => $type ) {
 			if ( preg_match( "/^([$digits]*( |$))*$/u", $msg ) ) {
 				return $type;
 			}
