@@ -82,7 +82,7 @@ function wfProcessRow( array $row, array &$wikiInfo ): void {
 	$wikiInfo[$wiki][$msgKey] = $content;
 }
 
-function wfAddCSSForIBTagsAndProcessMsg( array &$cssRules, string &$msg ) {
+function wfAddCSSForIBTagsAndProcessMsg( array &$cssRules, string &$msg ): void {
 	if ( preg_match( "/<b>/", $msg ) ) {
 		$cssRules[] = "font-weight: bold;";
 	}
@@ -92,11 +92,40 @@ function wfAddCSSForIBTagsAndProcessMsg( array &$cssRules, string &$msg ) {
 	$msg = preg_replace( "/<\/?(i|b)>/", "", $msg );
 }
 
-function wfGetCSS( string $selector, array $rules ) {
+function wfCheckIfAlphabetic( array $symbols ): array {
+	$base = [];
+	$prefix = "";
+	$i = -1;
+	foreach ( $symbols as $s ) {
+		if ( mb_strlen( $s ) === 1 ) {
+			$base[] = $s;
+		} else {
+			if ( $i === count( $base ) ) {
+				return $base;
+			}
+
+			if ( $prefix === "" ) {
+				$i = 0;
+				$prefix = mb_substr( $s, 0, 1 );
+				if ( !$base || mb_substr( $s, 1 ) !== $base[$i] ) {
+					$base[] = $s;
+					$prefix = "";
+					continue;
+				}
+			} elseif ( $prefix !== mb_substr( $s, 0, 1 ) || mb_substr( $s, 1 ) !== $base[$i] ) {
+				return [];
+			}
+			$i++;
+		}
+	}
+	return $prefix !== "" ? $base : [];
+}
+
+function wfGetCSS( string $selector, array $rules ): string {
 	return "$selector {\n\t" . implode( "\n\t", $rules ) . "\n}";
 }
 
-function wfEmitCSS( string $selector, array $rules ) {
+function wfEmitCSS( string $selector, array $rules ): void {
 	print wfGetCSS( $selector, $rules ) . "\n";
 }
 
@@ -126,9 +155,7 @@ function wfDetectCounterType( string $msg ): ?string {
 	];
 
 	/* Hacky heuristic that should work */
-	if ( $msg === "first second last!" ) {
-		return "error-test";
-	} elseif ( preg_match( '/^([αβγδεζηθικλμνξοπρστυφχψω]*( |$))*$/u', $msg ) ) {
+	if ( preg_match( '/^([αβγδεζηθικλμνξοπρστυφχψω]*( |$))*$/u', $msg ) ) {
 		return "lower-greek";
 	} elseif ( preg_match( '/^([ivxlcdm]*( |$))*$/u', $msg ) ) {
 		return "lower-roman";
@@ -144,18 +171,7 @@ function wfDetectCounterType( string $msg ): ?string {
 	}
 }
 
-// ext.cite.style.css defines data-mw-group=... CSS rules for these groups
-$defaultGroupCounterTypes = [
-	'decimal',
-	'lower-alpha',
-	'upper-alpha',
-	'lower-roman',
-	'upper-roman',
-	'error-test',
-	'lower-greek'
-];
-
-function wfBackfill( string $citeI18nDir, string $lang, array &$messages ) {
+function wfBackfill( string $citeI18nDir, string $lang, array &$messages ): void {
 	$jsonMsgKeys = [
 		"cite_reference_link",
 		"cite_references_link_one",
@@ -304,8 +320,15 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				$groupCounterType = "custom-group-label-$group";
 				$cssSel = "@counter-style $groupCounterType";
 				$cssRules = [];
-				$cssRules[] = "system: fixed;";
-				$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", $msg ) . ";";
+				$symbols = preg_split( "/\s+/", $msg );
+				$alphabeticBase = wfCheckIfAlphabetic( $symbols );
+				if ( $alphabeticBase ) {
+					$cssRules[] = "system: alphabetic;";
+					$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", implode( " ", $alphabeticBase ) ) . ";";
+				} else {
+					$cssRules[] = "system: fixed;";
+					$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", $msg ) . ";";
+				}
 				wfEmitCSS( $cssSel, $cssRules );
 			}
 			$groupLabels[$group] = $groupCounterType;
@@ -315,8 +338,15 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				$linkbackCounterType = "custom-backlink";
 				$cssSel = "@counter-style custom-backlink";
 				$cssRules = [];
-				$cssRules[] = "system: fixed;";
-				$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", $msg ) . ";";
+				$symbols = preg_split( "/\s+/", $msg );
+				$alphabeticBase = wfCheckIfAlphabetic( $symbols );
+				if ( $alphabeticBase ) {
+					$cssRules[] = "system: alphabetic;";
+					$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", implode( " ", $alphabeticBase ) ) . ";";
+				} else {
+					$cssRules[] = "system: fixed;";
+					$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", $msg ) . ";";
+				}
 				wfEmitCSS( $cssSel, $cssRules );
 
 				/* Ensure counter-reset is at zero if $langCounterType is not decimal! */
@@ -377,15 +407,11 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 							[ "content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, decimal ) ']';" ]
 						);
 					}
-					// Add CSS rules for those not present in ext.cite.style.css in Cite extension
+					// Add CSS rules for ref-groups
 					foreach ( $groupLabels as $group => $groupCounterType ) {
-						if ( $groupCounterType !== $group ||
-							!array_search( $group, $defaultGroupCounterTypes, true )
-						) {
-							$cssSel = ".mw-ref > a[data-mw-group=$group]:after";
-							$rule = "content: '[' counter( mw-Ref, $groupCounterType ) ']';";
-							wfEmitCSS( $cssSel, [ $rule ] );
-						}
+						$cssSel = ".mw-ref > a[data-mw-group=$group]:after";
+						$rule = "content: '[' counter( mw-Ref, $groupCounterType ) ']';";
+						wfEmitCSS( $cssSel, [ $rule ] );
 					}
 				}
 				break;

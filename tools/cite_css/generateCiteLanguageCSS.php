@@ -71,15 +71,7 @@ foreach ( $allLangs as $lang ) {
 	} else {
 		$str = implode( $digits );
 		$counterType = $counterMaps[$str] ?? null;
-		if ( $counterType ) {
-			if ( $counterType !== 'decimal' ) {
-				// ensure counting starts at zero
-				$out[] = wfGetCSS(
-					"span[ rel~='mw:referencedBy' ]",
-					[ "counter-reset: mw-ref-linkback -1;" ]
-				);
-			}
-		} else {
+		if ( !$counterType ) {
 			$counterType = "$lang-counter";
 			$cssSel = "@counter-style $counterType";
 			$cssRules = [];
@@ -104,10 +96,12 @@ foreach ( $allLangs as $lang ) {
 	}
 
 	$separator = $localizedSeps[$lang] ?? '.';
-	$out[] = wfGetCSS(
-		"span[ rel='mw:referencedBy' ] > a:before",
-		[ "content: counter( mw-references, $counterType )" .
-			" '$separator' counter( mw-ref-linkback, $counterType );" ]
-	);
+	if ( $counterType !== 'decimal' || $separator !== '.' ) {
+		$out[] = wfGetCSS(
+			"span[ rel='mw:referencedBy' ] > a:before",
+			[ "content: counter( mw-references, $counterType )" .
+				" '$separator' counter( mw-ref-linkback, $counterType );" ]
+		);
+	}
 	file_put_contents( "./tools/cite_css/ext.cite.style.$lang.css", implode( $out, "\n" ) );
 }
