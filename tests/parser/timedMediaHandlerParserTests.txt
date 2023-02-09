@@ -148,7 +148,7 @@ wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|thumbnail=Foobar.jpg]]
 !! html/php
-<figure typeof="mw:File/Thumb"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img alt="Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a><figcaption></figcaption></figure>
+<figure typeof="mw:File/Thumb"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a><figcaption></figcaption></figure>
 !! html/parsoid
 <figure typeof="mw:File/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Foobar.jpg"}]]}'><a href="./File:Video.ogv" class="mw-file-description"><img resource="./File:Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Video.ogv","height":"220","width":"1941"},"sa":{"resource":"File:Video.ogv"}}'/></a><figcaption></figcaption></figure>
 !! end

@@ -13,7 +13,7 @@ wgParserEnableLegacyMediaDOM=false
 Image:Foobar.jpg
 </imagemap>
 !! html/php
-<figure class="mw-default-size noresize" typeof="mw:File"><span><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></span><figcaption></figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File"><span><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></span><figcaption></figcaption></figure>
 !! html/parsoid
 <figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nImage:Foobar.jpg\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption></figcaption></figure>
 !! end
@@ -43,7 +43,7 @@ File:Foobar.jpg
 poly 10.1 10.9 10 30 -30 15 [[Main Page]]
 </imagemap>
 !! html/php
-<figure class="mw-default-size noresize" typeof="mw:File"><span><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" usemap="#ImageMap_79ccc6c89d422b0c" /></span><map name="ImageMap_79ccc6c89d422b0c"><area href="/wiki/Main_Page" shape="poly" coords="10,11,10,30,-30,15" alt="Main Page" title="Main Page" /></map><figcaption></figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File"><span><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" usemap="#ImageMap_79ccc6c89d422b0c" /></span><map name="ImageMap_79ccc6c89d422b0c"><area href="/wiki/Main_Page" shape="poly" coords="10,11,10,30,-30,15" alt="Main Page" title="Main Page" /></map><figcaption></figcaption></figure>
 !! html/parsoid
 <figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg\n\npoly 10.1 10.9 10 30 -30 15 [[Main Page]]\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" usemap="#ImageMap_02c94d3ca4bfc187"/></span><map name="ImageMap_02c94d3ca4bfc187"><area href="./Main_Page" shape="poly" coords="10,11,10,30,-30,15"/></map><figcaption></figcaption></figure>
 !! end

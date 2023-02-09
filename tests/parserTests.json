@@ -16,7 +16,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "f47561d0a68693cf93419c9cf31f19f314a5a3c8",
+		"latestCommit": "69e40f7be61a8bf051db2571116a872a1ee476f3",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -48,7 +48,7 @@
 			},
 			"legacyMedia.txt": {
 				"path": "tests/parser/legacyMedia.txt",
-				"expectedSHA1": "e5cc4bd1fae40199975e94acb58d05a63491a17d"
+				"expectedSHA1": "0eb8b414aa2364d32c245faf904af9eaae4f9455"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
@@ -60,11 +60,11 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "ee0c8c7fda86e467110d08795f1db66efac80155"
+				"expectedSHA1": "1e8eba05774276b7f377e5eb6130be7606bf071a"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "077e987c27640b631173dc3fb4c0efd760533b1f"
+				"expectedSHA1": "a8723900765a084960ceb004667275780d199029"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -102,21 +102,21 @@
 	},
 	"Cite": {
 		"project": "mediawiki/extensions/Cite",
-		"latestCommit": "acca9487bec2909e5553e5eafdbc6b580ed2e1d4",
+		"latestCommit": "1dd994a28a73cf56d5879531227cfe10b341125f",
 		"targets": {
 			"citeParserTests.txt": {
 				"path": "tests/parser/citeParserTests.txt",
-				"expectedSHA1": "828839a4971bfd85463f1f5f6f87261a68b828d7"
+				"expectedSHA1": "ae628b33cac32933789d0f13e3411084429bd93b"
 			}
 		}
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "8d8252555b2c6f2d9b6176b60bfb7ab9a03fed32",
+		"latestCommit": "f179ac52c5e44dd615b1affd32ab418d16084a8a",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "8b3c371bd694b4b2251be96f3cda1dcb31175e12"
+				"expectedSHA1": "404a9789f075c9559a7172862a33c1fdab7edc01"
 			}
 		}
 	},
@@ -133,11 +133,11 @@
 	},
 	"ImageMap": {
 		"project": "mediawiki/extensions/ImageMap",
-		"latestCommit": "015a318a0517879b1529310793c0bb9764a0d36b",
+		"latestCommit": "08b48fd551d8b0a0f96a3baf62b0257618f813d8",
 		"targets": {
 			"imageMapParserTests.txt": {
 				"path": "tests/parser/imageMapParserTests.txt",
-				"expectedSHA1": "4a660f6de500f1320998e15756ef932cb386e0e4"
+				"expectedSHA1": "b7a0c60795f607e5938967c9122f429b4b506544"
 			}
 		}
 	}
