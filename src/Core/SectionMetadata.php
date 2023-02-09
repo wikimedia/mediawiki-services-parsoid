@@ -75,12 +75,16 @@ class SectionMetadata implements \JsonSerializable {
 	public ?string $fromTitle;
 
 	/**
-	 * Byte offset where the section shows up in wikitext; this is null
+	 * Codepoint offset where the section shows up in wikitext; this is null
 	 * if this section comes from a template, if it comes from a literal
 	 * HTML <h_> tag, or otherwise doesn't correspond to a "preprocessor
 	 * section".
+	 * @note This is measured in codepoints, not bytes; you should use
+	 * appropriate multi-byte aware string functions, *not* substr().
+	 * Similarly, in JavaScript, be careful not to confuse JavaScript
+	 * UCS-2 "characters" with codepoints.
 	 */
-	public ?int $byteOffset;
+	public ?int $codepointOffset;
 
 	/**
 	 * Anchor attribute.
@@ -140,8 +144,11 @@ class SectionMetadata implements \JsonSerializable {
 	 * @param string $index Section id
 	 * @param ?string $fromTitle The title of the page or template that
 	 *   generated this heading, or null.
-	 * @param ?int $byteOffset Byte offset where the section shows up in
-	 *   wikitext, or null if this doesn't correspond to a "preprocesor section"
+	 * @param ?int $codepointOffset Codepoint offset (# of characters) where the
+	 *   section shows up in wikitext, or null if this doesn't correspond to
+	 *   a "preprocesor section".  (Be careful if using JavaScript, as
+	 *   JavaScript "characters" are UCS-2 encoded and don't correspond
+	 *   directly to code points.)
 	 * @param string $anchor "True" value of the ID attribute
 	 * @param string $linkAnchor URL-escaped value of the anchor, for use in
 	 *   constructing a URL fragment link
@@ -155,7 +162,7 @@ class SectionMetadata implements \JsonSerializable {
 		string $number = '',
 		string $index = '',
 		?string $fromTitle = null,
-		?int $byteOffset = null,
+		?int $codepointOffset = null,
 		string $anchor = '',
 		string $linkAnchor = '',
 		?array $extensionData = null
@@ -166,7 +173,7 @@ class SectionMetadata implements \JsonSerializable {
 		$this->number = $number;
 		$this->index = $index;
 		$this->fromTitle = $fromTitle;
-		$this->byteOffset = $byteOffset;
+		$this->codepointOffset = $codepointOffset;
 		$this->anchor = $anchor;
 		$this->linkAnchor = $linkAnchor;
 		$this->extensionData = $extensionData ?? [];
@@ -290,7 +297,7 @@ class SectionMetadata implements \JsonSerializable {
 			$data['number'] ?? '',
 			$data['index'] ?? '',
 			( $data['fromtitle'] ?? false ) ?: null,
-			$data['byteoffset'] ?? null,
+			$data['byteoffset'] ?? null, // T319141: actually "codepoint offset"
 			$data['anchor'] ?? '',
 			$data['linkAnchor'] ?? $data['anchor'] ?? '',
 			$data['extensionData'] ?? null
@@ -313,7 +320,8 @@ class SectionMetadata implements \JsonSerializable {
 			'number' => $this->number,
 			'index' => $this->index,
 			'fromtitle' => $this->fromTitle ?? false,
-			'byteoffset' => $this->byteOffset,
+			 // T319141: legacy 'byteoffset' is actually "codepoint offset"
+			'byteoffset' => $this->codepointOffset,
 			'anchor' => $this->anchor,
 			'linkAnchor' => $this->linkAnchor,
 		];
@@ -350,8 +358,8 @@ class SectionMetadata implements \JsonSerializable {
 		if ( $this->fromTitle !== null ) {
 			$buf .= " title={$this->fromTitle}";
 		}
-		if ( $this->byteOffset !== null ) {
-			$buf .= " off={$this->byteOffset}";
+		if ( $this->codepointOffset !== null ) {
+			$buf .= " off={$this->codepointOffset}";
 		}
 		if ( $this->extensionData ) {
 			# This should go through a JsonCodec, as it might have
@@ -360,5 +368,28 @@ class SectionMetadata implements \JsonSerializable {
 		}
 		$buf .= "]";
 		return $buf;
+	}
+
+	// T319141: Temporary backward compatibility for former 'byteOffset'
+	// property name.
+
+	/**
+	 * @param string $name
+	 * @return ?int
+	 */
+	public function &__get( $name ) {
+		if ( $name === 'byteOffset' ) {
+			return $this->codepointOffset;
+		}
+	}
+
+	/**
+	 * @param string $name
+	 * @param ?int $value
+	 */
+	public function __set( $name, $value ) {
+		if ( $name === 'byteOffset' ) {
+			$this->codepointOffset = $value;
+		}
 	}
 }
