@@ -113,6 +113,8 @@ interface ContentMetadataCollector {
 	 * ::setLanguageLinks() / ::addLanguageLink()
 	 *   T296019: This *should* accept an array of LinkTargets; see above re:
 	 *   Title-related types.
+	 *   See also includes/deferred/LinksUpdate/LangLinksTable.php, which
+	 *   has its own ideas about the ParserOuput format for language links
 	 * ::setTitleText()
 	 *   T293514: This contains the title in HTML and is redundant with
 	 *   ::setDisplayTitle()

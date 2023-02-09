@@ -694,6 +694,24 @@ class WikiLinkHandler extends TokenHandler {
 	private function renderLanguageLink( Token $token, stdClass $target ): TokenHandlerResult {
 		// The prefix is listed in the interwiki map
 
+		// TODO: If $target->language['deprecated'] is set and
+		// $target->language['extralanglink'] is *not* set, then we
+		// should use the normalized language name/prefix (from
+		// 'deprecated') when calling
+		// ContentMetadataCollector::addLanguageLink() here (which
+		// we should eventualy be doing)
+
+		// TODO: might also want to add the language *code* here,
+		// which would be the language['bcp47'] property (added in
+		// change I82465261bc66f0b0cd30d361c299f08066494762) for an
+		// extralanglink, or the interwiki prefix otherwise; the
+		// latter is mediawiki-internal and maybe not BCP-47 compliant.
+		// This is for clients of the MediaWiki DOM spec HTML: the
+		// WMF domain prefix, the MediaWiki internal language code,
+		// and the actual *language* (ie bcp-47 code) can all differ
+		// from each other, due to various historical infelicities.
+		// Perhaps a `lang` attribute on the `link` would be appropriate.
+
 		$newTk = new SelfclosingTagTk( 'link', [], $token->dataParsoid );
 		try {
 			$this->addLinkAttributesAndGetContent( $newTk, $token, $target );
@@ -703,9 +721,18 @@ class WikiLinkHandler extends TokenHandler {
 
 		// add title attribute giving the presentation name of the
 		// "extra language link"
+		// T329303: the 'linktext' comes from the system message
+		// `interlanguage-link-$prefix` and should be set in integrated mode
+		// using the localization features; the integrated-mode SiteConfig
+		// currently never sets the `linktext` property in
+		// SiteConfig::interwikiMap().
+		// I52d50e2f75942a849908c6be7fc5169f00a5983a has some partial work
+		// on this.
 		if ( isset( $target->language['extralanglink'] ) &&
 			!empty( $target->language['linktext'] )
 		) {
+			// XXX in standalone mode, this is user-interface-language text,
+			// not "content language" text.
 			$newTk->addNormalizedAttribute( 'title', $target->language['linktext'], null );
 		}
 
