@@ -240,3 +240,31 @@ File:Foobar.jpg|link=|Hi ho
 !! html/parsoid
 <figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img alt="Hi ho" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
 !! end
+
+!! test
+File with <br> in caption (T113791)
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+<imagemap>
+File:Foobar.jpg|thumb|a<br>b
+</imagemap>
+!! html/php
+<figure class="mw-default-size noresize" typeof="mw:File/Thumb"><span title="ab"><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></span><figcaption>a<br />b</figcaption></figure>
+!! html/parsoid
+<figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br>b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></span><figcaption>a<br/>b</figcaption></figure>
+!! end
+
+!! test
+File with <br /> in caption (T113791)
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+<imagemap>
+File:Foobar.jpg|thumb|a<br />b
+</imagemap>
+!! html/php
+<figure class="mw-default-size noresize" typeof="mw:File/Thumb"><span title="ab"><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></span><figcaption>a<br />b</figcaption></figure>
+!! html/parsoid
+<figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br />b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></span><figcaption>a<br/>b</figcaption></figure>
+!! end

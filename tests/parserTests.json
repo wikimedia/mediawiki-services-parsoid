@@ -16,7 +16,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "ba3d74ad491261eae40b53cd5dc88376e24f17bc",
+		"latestCommit": "f47561d0a68693cf93419c9cf31f19f314a5a3c8",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -48,7 +48,7 @@
 			},
 			"legacyMedia.txt": {
 				"path": "tests/parser/legacyMedia.txt",
-				"expectedSHA1": "05760a631c122afede8aa062bd89ed1cfa4f113c"
+				"expectedSHA1": "e5cc4bd1fae40199975e94acb58d05a63491a17d"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
@@ -60,11 +60,11 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "33197cd2fb048979d6b29360d8e3dbfd59556f8b"
+				"expectedSHA1": "ee0c8c7fda86e467110d08795f1db66efac80155"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "b02780c0ccc403a0b4a3017f26674a44c7100537"
+				"expectedSHA1": "077e987c27640b631173dc3fb4c0efd760533b1f"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -133,11 +133,11 @@
 	},
 	"ImageMap": {
 		"project": "mediawiki/extensions/ImageMap",
-		"latestCommit": "8890a38c966f4ef2aa2a3eb8d3b8c72d28ec5979",
+		"latestCommit": "015a318a0517879b1529310793c0bb9764a0d36b",
 		"targets": {
 			"imageMapParserTests.txt": {
 				"path": "tests/parser/imageMapParserTests.txt",
-				"expectedSHA1": "4c9b4ca615822d8c951b2c0750cfd425992aefcb"
+				"expectedSHA1": "4a660f6de500f1320998e15756ef932cb386e0e4"
 			}
 		}
 	}
