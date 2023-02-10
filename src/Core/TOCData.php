@@ -281,4 +281,23 @@ class TOCData implements \JsonSerializable {
 			'extensionData' => $this->extensionData,
 		];
 	}
+
+	/**
+	 * For use in parser tests and wherever else humans might appreciate
+	 * some formatting in the JSON encoded output.
+	 * @return string
+	 */
+	public function prettyPrint(): string {
+		$out = [ "Sections:" ];
+		foreach ( $this->sections as $s ) {
+			$out[] = $s->prettyPrint();
+		}
+		if ( $this->extensionData ) {
+			$out[] = "Extension Data:";
+			// XXX: This should use a codec; extension data might
+			// require special serialization.
+			$out[] = json_encode( $this->extensionData );
+		}
+		return implode( "\n", $out );
+	}
 }
