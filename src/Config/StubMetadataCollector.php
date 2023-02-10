@@ -248,10 +248,30 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 * @return ?string
 	 */
 	public function getPageProperty( string $name ): ?string {
-		// Note that core returns `false` (instead of null) for a
-		// missing key, which is something we should probably fix
-		// before 1.38 is released.
 		return $this->get( 'properties', $name, self::MERGE_STRATEGY_WRITE_ONCE );
+	}
+
+	/**
+	 * Return the collected extension data under the given key.
+	 * @param string $key
+	 * @return mixed|null
+	 */
+	public function getExtensionData( string $key ) {
+		return $this->get( 'extensiondata', $key, self::MERGE_STRATEGY_WRITE_ONCE );
+	}
+
+	/**
+	 * Return the active output flags.
+	 * @return string[]
+	 */
+	public function getOutputFlags() {
+		$result = [];
+		foreach ( $this->get( 'outputflags', null ) as $key => $value ) {
+			if ( $value ) {
+				$result[] = $key;
+			}
+		}
+		return $result;
 	}
 
 	/**

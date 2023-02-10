@@ -212,6 +212,7 @@ class TestRunner {
 		$this->testFileName = $testFilePathInfo['basename'];
 
 		$newModes = [];
+		$modes[] = 'metadata';
 		foreach ( $modes as $mode ) {
 			$newModes[$mode] = new Stats();
 			$newModes[$mode]->failList = [];
@@ -404,7 +405,7 @@ class TestRunner {
 
 		// Source preparation
 		if ( $startsAtHtml ) {
-			$html = $test->parsoidHtml;
+			$html = $test->parsoidHtml ?? '';
 			if ( !$parsoidOnly ) {
 				// Strip some php output that has no wikitext representation
 				// (like .mw-editsection) and won't html2html roundtrip and
@@ -492,29 +493,92 @@ class TestRunner {
 	 * @param array $options
 	 * @param string $mode
 	 * @param Document $doc
-	 * @return ?bool
+	 * @param ?string $metadataExpected A metadata section from the test,
+	 *   or null if none present.  If a metadata section is not present,
+	 *   the metadata output is added to $doc, otherwise it is returned
+	 *   in $metadataActual
+	 * @param ?string &$metadataActual The "actual" metadata output for
+	 *   this test.
 	 */
-	private function processTestOutputOptions(
-		Env $env, Test $test, array $options, string $mode, Document $doc
-	): ?bool {
-		$metadata = $env->getMetadata();
-		'@phan-var StubMetadataCollector $metadata';  // @var StubMetadataCollector $metadata
-		if ( isset( $test->options['showtocdata'] ) ) {
-			$tocOutput = [];
-			foreach ( $metadata->getTOCData()->getSections() as $section ) {
-				// This format is temporary.
-				$tocOutput[] = json_encode( $section->toLegacy() );
+	private function addParserOutputInfo(
+		Env $env, Test $test, array $options, string $mode, Document $doc,
+		?string $metadataExpected, ?string &$metadataActual
+	): void {
+		$output = $env->getMetadata();
+		$opts = $test->options;
+		'@phan-var StubMetadataCollector $output';  // @var StubMetadataCollector $metadata
+		// See ParserTestRunner::addParserOutputInfo() in core.
+		$before = [];
+		$after = [];
+
+		// 'showtitle' not yet supported
+		// 'showindicators' not yet supported.
+		// 'ill' not yet supported
+
+		if ( isset( $opts['cat'] ) ) {
+			foreach ( $output->getCategories() as $name => $sortkey ) {
+				$after[] = "cat=$name sort=$sortkey";
 			}
-			$tocOutput = implode( "\n", $tocOutput );
-			$expected = [ 'normal' => $test->parsoidHtml, 'raw' => $test->parsoidHtml ];
-			$actual = [ 'normal' => $tocOutput, 'raw' => $tocOutput, 'input' => $test->wikitext ];
-			return $options['reportResult'](
-				$this->stats, $test, $options, $mode, $expected, $actual
-			);
 		}
-		// TODO: handle showtitle/showindicators/cat/ill/property/extension
-		// options.
-		return null;
+		if ( isset( $opts['extension'] ) ) {
+			foreach ( explode( ',', $opts['extension'] ) as $ext ) {
+				$after[] = "extension[$ext]=" .
+					// XXX should use JsonCodec
+					json_encode(
+						$output->getExtensionData( $ext ),
+						JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT
+					);
+			}
+		}
+		if ( isset( $opts['property'] ) ) {
+			foreach ( explode( ',', $opts['property'] ) as $prop ) {
+				$after[] = "property[$prop]=" .
+					( $output->getPageProperty( $prop ) ?? '' );
+			}
+		}
+		if ( isset( $opts['showflags'] ) ) {
+			$actualFlags = $output->getOutputFlags();
+			sort( $actualFlags );
+			$after[] = "flags=" . implode( ', ', $actualFlags );
+		}
+		if ( isset( $opts['showtocdata'] ) ) {
+			$tocData = $output->getTOCData();
+			if ( $tocData !== null ) {
+				$after[] = $tocData->prettyPrint();
+			}
+		}
+		if ( $metadataExpected === null ) {
+			// legacy format, add $before and $after to $doc
+			$body = DOMCompat::getBody( $doc );
+			if ( count( $before ) ) {
+				$before = $doc->createTextNode( implode( "\n", $before ) );
+				$body->insertBefore( $before, $body->firstChild );
+			}
+			if ( count( $after ) ) {
+				$after = $doc->createTextNode( implode( "\n", $after ) );
+				$body->appendChild( $after );
+			}
+		} else {
+			$metadataActual = implode( "\n", array_merge( $before, $after ) );
+		}
+	}
+
+	/**
+	 * Return the appropriate metadata section for this test, given that
+	 * we are running in parsoid "standalone" mode, or 'null' if none is
+	 * present.
+	 * @param Test $test
+	 * @return ?string The expected metadata for this test
+	 */
+	public static function getStandaloneMetadataSection( Test $test ): ?string {
+		return // specific results for parsoid standalone mode
+			$test->sections['metadata/parsoid+standalone'] ??
+			// specific results for parsoid
+			$test->sections['metadata/parsoid'] ??
+			// generic for all parsers (even standalone)
+			$test->sections['metadata'] ??
+			// missing (== use legacy combined output format)
+			null;
 	}
 
 	/**
@@ -530,10 +594,30 @@ class TestRunner {
 	private function processParsedHTML(
 		Env $env, Test $test, array $options, string $mode, Document $doc
 	): void {
+		$modeObj = new TestMode( $mode );
 		$test->time['end'] = microtime( true );
-		$checkPassed = $this->processTestOutputOptions( $env, $test, $options, $mode, $doc );
-		if ( $checkPassed === null ) {
+		$metadataExpected = self::getStandaloneMetadataSection( $test );
+		$metadataActual = null;
+		if ( isset( $test->options['nohtml'] ) ) {
+			$body = DOMCompat::getBody( $doc );
+			while ( $body->hasChildNodes() ) {
+				$body->removeChild( $body->firstChild );
+			}
+		}
+		$this->addParserOutputInfo(
+			$env, $test, $options, $mode, $doc,
+			$metadataExpected, $metadataActual
+		);
+		if ( $test->parsoidHtml ) {
 			$checkPassed = $this->checkHTML( $test, DOMCompat::getBody( $doc ), $options, $mode );
+		} else {
+			// Running the test for metadata, presumably.
+			$checkPassed = true;
+		}
+
+		if ( $metadataExpected !== null && !$modeObj->isCachingMode() ) {
+			$metadataResult = $this->checkMetadata( $test, $metadataExpected, $metadataActual ?? '', $options );
+			$checkPassed = $checkPassed && $metadataResult;
 		}
 
 		// Only throw an error if --exit-unexpected was set and there was an error
@@ -593,6 +677,29 @@ class TestRunner {
 			'raw' => ContentUtils::toXML( $out, [ 'innerXML' => true ] ),
 			'input' => ( $mode === 'html2html' ) ? $test->parsoidHtml : $test->wikitext
 		];
+
+		return $options['reportResult'](
+			$this->stats, $test, $options, $mode, $expected, $actual
+		);
+	}
+
+	/**
+	 * @param Test $test
+	 * @param string $metadataExpected
+	 * @param string $metadataActual
+	 * @param array $options
+	 * @return bool
+	 */
+	private function checkMetadata(
+		Test $test, string $metadataExpected, string $metadataActual, array $options
+	): bool {
+		$expected = [ 'normal' => $metadataExpected, 'raw' => $metadataExpected ];
+		$actual = [
+			'normal' => $metadataActual,
+			'raw' => $metadataActual,
+			'input' => $test->wikitext,
+		];
+		$mode = 'metadata';
 
 		return $options['reportResult'](
 			$this->stats, $test, $options, $mode, $expected, $actual
@@ -708,7 +815,8 @@ class TestRunner {
 				$old = '{}';
 			}
 			$testKnownFailures = [];
-			foreach ( $options['modes'] as $mode ) {
+			$kfModes = array_merge( $options['modes'], [ 'metadata' ] );
+			foreach ( $kfModes as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
 					if ( !isset( $testKnownFailures[$fail['testName']] ) ) {
 						$testKnownFailures[$fail['testName']] = [];
@@ -741,23 +849,26 @@ class TestRunner {
 			}
 
 			$fileContent = file_get_contents( $this->testFilePath );
-			foreach ( $this->stats->modes['wt2html']->failList as $fail ) {
-				if ( $options['update-tests'] || $fail['unexpected'] ) {
-					$exp = '/(!!\s*test\s*' .
-						 preg_quote( $fail['testName'], '/' ) .
-						 '(?:(?!!!\s*end)[\s\S])*' .
-						 ')(' . preg_quote( $fail['expected'], '/' ) .
-						 ')/m';
-					if ( $updateFormat === 'noDsr' ) {
-						$fail['noDsr'] = $this->filterDsr( $fail['raw'] );
+			foreach ( [ 'wt2html','metadata' ] as $mode ) {
+				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
+					if ( $options['update-tests'] || $fail['unexpected'] ) {
+						$exp = '/(!!\s*test\s*' .
+							 preg_quote( $fail['testName'], '/' ) .
+							 '(?:(?!!!\s*end)[\s\S])*' .
+							 ')(' . preg_quote( $fail['expected'], '/' ) .
+							 ')/m';
+						$fail['noDsr'] = $fail['raw'];
+						if ( $updateFormat === 'noDsr' && $mode !== 'metadata' ) {
+							$fail['noDsr'] = $this->filterDsr( $fail['noDsr'] );
+						}
+						$fileContent = preg_replace_callback(
+							$exp,
+							static function ( array $matches ) use ( $fail, $updateFormat ) {
+								return $matches[1] . $fail[$updateFormat];
+							},
+							$fileContent
+						);
 					}
-					$fileContent = preg_replace_callback(
-						$exp,
-						static function ( array $matches ) use ( $fail, $updateFormat ) {
-							return $matches[1] . $fail[$updateFormat];
-						},
-						$fileContent
-					);
 				}
 			}
 			file_put_contents( $this->testFilePath, $fileContent );
@@ -803,7 +914,8 @@ class TestRunner {
 		$haveHtml = ( $test->parsoidHtml !== null ) ||
 			isset( $test->sections['wikitext/edited'] ) ||
 			isset( $test->sections['html/parsoid+standalone'] ) ||
-			isset( $test->sections['html/parsoid+langconv'] );
+			isset( $test->sections['html/parsoid+langconv'] ) ||
+			self::getStandaloneMetadataSection( $test ) !== null;
 		$hasHtmlParsoid =
 			isset( $test->sections['html/parsoid'] ) ||
 			isset( $test->sections['html/parsoid+standalone'] );
@@ -826,6 +938,14 @@ class TestRunner {
 			$this->siteConfig->suppressLogger : $this->defaultLogger );
 
 		$targetModes = $test->computeTestModes( $options['modes'] );
+
+		// Filter out html2* tests if we don't have an HTML section
+		// (Most likely there's either a metadata section or a html/php
+		// section but not html/parsoid section.)
+		if ( $test->parsoidHtml === null && !isset( $test->sections['html/parsoid+standalone'] ) ) {
+			$targetModes = array_diff( $targetModes, [ 'html2wt','html2html' ] );
+		}
+
 		if ( !count( $targetModes ) ) {
 			return;
 		}

@@ -2,6 +2,11 @@
     "(confirming safety of fix for subst T3936)": {
         "html2wt": "@<span>Oh no</span>\n"
     },
+    "ParserOutput flags from signature expansion (T84843)": {
+        "wt2wt": "<nowiki>~~~~</nowiki>",
+        "selser [2]": "1hn7rnr\n\n~~~~",
+        "metadata": "flags="
+    },
     "T24297: safesubst: works during normal parse": {
         "html2wt": "Foobar\n"
     },

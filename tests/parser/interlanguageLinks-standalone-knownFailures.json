@@ -19,6 +19,9 @@
         "selser [4,0,2]": "1rvhrh5\n\nkayncs\n[[   zh  :    Chinese     ]]",
         "selser [3,0,0]": "\n[[   zh  :    Chinese     ]]"
     },
+    "Parsoid: recognize interlanguage links without a target page": {
+        "metadata": ""
+    },
     "Parsoid: recognize interwiki links without a target page": {
         "selser [2,2,1]": "y5402j\n\n[[:es:]]\n\nb54ct7\n\n[[ko:]]",
         "selser [[2],2,1]": "13dr04g[[:es:]]\n\ni9nxnb\n\n[[ko:]]",

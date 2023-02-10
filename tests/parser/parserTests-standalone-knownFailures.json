@@ -226,6 +226,12 @@
         "selser [1,2,[2]]": "==A&B&amp;C&amp;amp;D&amp;amp;amp;E==\nrtkcgi\njn1m2m[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
         "selser [[0,2,0,3,0,0,0,0],4,[1]]": "==ngxj3gA&B&amp;&amp;amp;D&amp;amp;amp;E==\n45ozgq\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]"
     },
+    "Decoding of HTML entities in indicator names for IDs (T104196)": {
+        "metadata": ""
+    },
+    "Decoding of HTML entities in indicator names for IDs (unambiguous) (T104196)": {
+        "metadata": ""
+    },
     "Disable TOC": {
         "html2wt": "Lead\n\n== Section 1 ==\n\n== Section 2 ==\n\n== Section 3 ==\n\n== Section 4 ==\n\n== Section 5 ==\n"
     },
@@ -659,7 +665,6 @@
         "html2wt": "Benutzer\n"
     },
     "Namespace 0 {{ns:00}} (T6783)": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,9,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,9,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ns:00\",\"function\":\"ns\"},\"params\":{},\"i\":0}}]}'>00</span></p>",
         "html2wt": ""
     },
     "Namespace File {{ns:File}}": {
@@ -778,13 +783,14 @@
         "html2wt": "0\n"
     },
     "Page status indicators: Torture test": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,516,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,44,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"01\"},\"body\":{\"extsrc\":\"hello world\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[45,91,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"02\"},\"body\":{\"extsrc\":\"[[Main Page]]\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt6\" data-parsoid='{\"dsr\":[92,155,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"03\"},\"body\":{\"extsrc\":\"[[File:Foobar.jpg|25px|link=]]\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt8\" data-parsoid='{\"dsr\":[156,213,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"04\"},\"body\":{\"extsrc\":\"[[File:Foobar.jpg|25px]]\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt10\" data-parsoid='{\"dsr\":[214,256,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"05\"},\"body\":{\"extsrc\":\"*foo\\n*bar\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt12\" data-parsoid='{\"dsr\":[257,310,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"06\"},\"body\":{\"extsrc\":\"&lt;nowiki>foo&lt;/nowiki>\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt14\" data-parsoid='{\"dsr\":[311,357,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"07\"},\"body\":{\"extsrc\":\" Preformatted\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt16\" data-parsoid='{\"dsr\":[358,406,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"08\"},\"body\":{\"extsrc\":\"&lt;div>Broken tag\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt18\" data-parsoid='{\"dsr\":[407,467,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"09\"},\"body\":{\"extsrc\":\"{| class=wikitable\\n|cell\\n|}\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt20\" data-parsoid='{\"dsr\":[468,516,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"10\"},\"body\":{\"extsrc\":\"Two\\n\\nparagraphs\"}}'/></p>",
-        "html2wt": ""
+        "html2wt": "",
+        "metadata": ""
     },
     "Page status indicators: Weird syntaxes that are okay": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,62,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,26,26,0]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"empty\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[27,62,23,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"name\"},\"body\":{\"extsrc\":\"\"}}'/></p>",
         "html2html": "\n\n",
-        "html2wt": "\n\n"
+        "html2wt": "\n\n",
+        "metadata": ""
     },
     "Paragraphs inside blockquotes/divs (extra line break on close)": {
         "html2wt": "<blockquote><div>Line one\nLine two\n\n</div></blockquote>"
@@ -888,6 +894,12 @@
     "Parsoid: Make sure nested lists are serialized on their own line even if HTML contains no newlines": {
         "html2wt": "# foo\n## bar\n\n* foo\n** bar\n\n: foo\n:: bar\n"
     },
+    "Parsoid: Page property magic word with magic word contents": {
+        "metadata": ""
+    },
+    "Parsoid: Template-generated DISPLAYTITLE": {
+        "metadata": ""
+    },
     "Parsoid: unknown parser function (T314524)": {
         "selser [0,0,[3],0,2,0,3]": "{{#tag:b|This is a known parser function}}\nNow show the unknown parser functions for comparison.\n\nto6td\n\n{{#foo}}\n"
     },
@@ -965,6 +977,9 @@
         "wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[15,34,3,3]}'>Subheadline 1</h3>\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[35,49,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[50,59,0,0]}'>Some text</p>\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[60,82,3,3]}'>Another headline</h3>\n<meta property=\"mw:PageProp/nocontentconvert\" data-parsoid='{\"src\":\"__NOCONTENTCONVERT__\",\"magicSrc\":\"__NOCONTENTCONVERT__\",\"dsr\":[83,103,null,null]}'/>",
         "html2html": "<div id=\"toc\" class=\"toc\" role=\"navigation\" aria-labelledby=\"mw-toc-heading\" data-parsoid='{\"stx\":\"html\",\"dsr\":[0,757,77,6]}'>&lt;input type=\"checkbox\" role=\"button\" id=\"toctogglecheckbox\" class=\"toctogglecheckbox\" style=\"display:none\" /><div class=\"toctitle\" lang=\"en-x-piglatin\" dir=\"ltr\" data-parsoid='{\"stx\":\"html\",\"dsr\":[186,360,53,6]}'>\n<h2 id=\"Ontentscay\" data-parsoid='{\"dsr\":[240,256,2,2,1,1]}'>Ontentscay</h2>\n<span class=\"toctogglespan\" data-parsoid='{\"stx\":\"html\",\"dsr\":[257,354,28,7]}'>&lt;label class=\"toctogglelabel\" for=\"toctogglecheckbox\">&lt;/label></span></div>\n\n<ul data-parsoid='{\"dsr\":[362,749,0,0]}'><li data-parsoid='{\"dsr\":[362,552,1,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#Headline_1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#Headline_1\"},\"sa\":{\"href\":\"#Headline_1\"},\"dsr\":[364,452,14,2]}'><span class=\"tocnumber\" data-parsoid='{\"stx\":\"html\",\"dsr\":[378,410,24,7]}'>1</span> <span class=\"toctext\" data-parsoid='{\"stx\":\"html\",\"dsr\":[411,450,22,7]}'>Headline 1</span></a>\n<ul data-parsoid='{\"dsr\":[453,552,0,0]}'><li data-parsoid='{\"dsr\":[453,552,2,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#Subheadline_1\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#Subheadline_1\"},\"sa\":{\"href\":\"#Subheadline_1\"},\"dsr\":[456,552,17,2]}'><span class=\"tocnumber\" data-parsoid='{\"stx\":\"html\",\"dsr\":[473,507,24,7]}'>1.1</span> <span class=\"toctext\" data-parsoid='{\"stx\":\"html\",\"dsr\":[508,550,22,7]}'>Subheadline 1</span></a></li></ul></li>\n<li data-parsoid='{\"dsr\":[553,749,1,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#Headline_2\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#Headline_2\"},\"sa\":{\"href\":\"#Headline_2\"},\"dsr\":[555,643,14,2]}'><span class=\"tocnumber\" data-parsoid='{\"stx\":\"html\",\"dsr\":[569,601,24,7]}'>2</span> <span class=\"toctext\" data-parsoid='{\"stx\":\"html\",\"dsr\":[602,641,22,7]}'>Headline 2</span></a>\n<ul data-parsoid='{\"dsr\":[644,749,0,0]}'><li data-parsoid='{\"dsr\":[644,749,2,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Parser_test#Another_headline\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Parser_test#Another_headline\"},\"sa\":{\"href\":\"#Another_headline\"},\"dsr\":[647,749,20,2]}'><span class=\"tocnumber\" data-parsoid='{\"stx\":\"html\",\"dsr\":[667,701,24,7]}'>2.1</span> <span class=\"toctext\" data-parsoid='{\"stx\":\"html\",\"dsr\":[702,747,22,7]}'>Another headline</span></a></li></ul></li></ul>\n\n</div>\n\n<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[759,775,2,2,1,1]}'>Headline 1</h2>\n\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[777,798,3,3,1,1]}'>Subheadline 1</h3>\n\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[800,816,2,2,1,1]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[817,826,0,0]}'>Some text</p>\n\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[828,852,3,3,1,1]}'>Another headline</h3>\n",
         "html2wt": "<div id=\"toc\" class=\"toc\" role=\"navigation\" aria-labelledby=\"mw-toc-heading\"><input type=\"checkbox\" role=\"button\" id=\"toctogglecheckbox\" class=\"toctogglecheckbox\" style=\"display:none\" /><div class=\"toctitle\" lang=\"en-x-piglatin\" dir=\"ltr\">\n== Ontentscay ==\n<span class=\"toctogglespan\"><label class=\"toctogglelabel\" for=\"toctogglecheckbox\"></label></span></div>\n\n* [[#Headline_1|<span class=\"tocnumber\">1</span> <span class=\"toctext\">Headline 1</span>]]\n** [[#Subheadline_1|<span class=\"tocnumber\">1.1</span> <span class=\"toctext\">Subheadline 1</span>]]\n* [[#Headline_2|<span class=\"tocnumber\">2</span> <span class=\"toctext\">Headline 2</span>]]\n** [[#Another_headline|<span class=\"tocnumber\">2.1</span> <span class=\"toctext\">Another headline</span>]]\n\n</div>\n\n== Headline 1 ==\n\n=== Subheadline 1 ===\n\n== Headline 2 ==\nSome text\n\n=== Another headline ===\n"
+    },
+    "Section headings with TOC, language conversion rules, and displaytitle\n(T306862, T331316, T26072)": {
+        "metadata": "Sections:\n h2 index:1 toclevel:1 number:1 title:Parser_test off:192 anchor/linkAnchor:Foo line:Foo\n h2 index:2 toclevel:1 number:2 title:Parser_test off:209 anchor/linkAnchor:Bar line:Bar\n h2 index:3 toclevel:1 number:3 title:Parser_test off:226 anchor/linkAnchor:-{Foo_Bar}- line:-{Foo Bar}-"
     },
     "Self closed html pairs (T7487)": {
         "wt2html": "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>",
@@ -1136,7 +1151,8 @@
         "selser [4,0,0,0,0,4,[2]]": "a6vdk0\n\n=== Two ===\n== Three ==\n1746fyz\n\n=== 1poz04Four ===",
         "selser [0,4,4,0,[4],0,4]": "== One ==\nnylvpw\n\n1l5k5h8\n\n== zfc0uy ==\nyy5iu7",
         "selser [1,2,[3],0,4,3,3]": "== One ==\n1ectzfe\n\n1hf8uyu",
-        "selser [4,4,0,0,[4],0,3]": "xcv9yc\n\ny5d2gh\n\n=== Two ===\n== 1edhywf ==\n"
+        "selser [4,4,0,0,[4],0,3]": "xcv9yc\n\ny5d2gh\n\n=== Two ===\n== 1edhywf ==\n",
+        "metadata": "flags="
     },
     "T307691: show-toc flag: \"enough\" sections and __FORCETOC__": {
         "wt2wt": "__FORCETOC__\n==One==\n===Two===\n==Three==\n===Four===\n",
@@ -1159,7 +1175,8 @@
         "selser [3,0,0,3,0,0,4,0,3]": "\n== One ==\n=== Two ===\nslznql\n",
         "selser [0,3,2,2,3,3,0,4,4]": "__FORCETOC__\n\n3tl3q4\n\n== One ==\nkzbn54\n\n== Three ==\n152lr8f\n\nihjbtx",
         "selser [0,4,0,0,[4],0,[4],0,0]": "__FORCETOC__\n\n15oiwfy\n\n== One ==\n=== 1vj8nv0 ===\n== wtxvw9 ==\n=== Four ===",
-        "selser [2,3,[3],0,3,0,2,0,3]": "jal8i1\n\n__FORCETOC__\n\n1gm6r3r\n\n== Three ==\n"
+        "selser [2,3,[3],0,3,0,2,0,3]": "jal8i1\n\n__FORCETOC__\n\n1gm6r3r\n\n== Three ==\n",
+        "metadata": "flags="
     },
     "T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
         "wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n",
@@ -1220,7 +1237,8 @@
         "selser [3,3,0]": "== One ==",
         "selser [0,4,[4]]": "__FORCETOC__\n\n1xellyr\n\n== 1qofnpo ==",
         "selser [2,0,0]": "79m4qv\n\n__FORCETOC__\n== One ==",
-        "selser [4,3,0]": "1xzmnxk\n\n== One =="
+        "selser [4,3,0]": "1xzmnxk\n\n== One ==",
+        "metadata": "flags="
     },
     "T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
         "wt2wt": "==One==\n__TOC__",
@@ -1236,7 +1254,8 @@
         "selser [2,4,3]": "1s9n47u\n\n== One ==\nj1utzu",
         "selser [[2],0,4]": "== rxq5cdOne ==\n1vo48e6",
         "selser [0,2,0]": "== One ==\nv6u4wg\n__TOC__",
-        "selser [[4],4,4]": "== 1xorc7r ==\nng3fix\n\n1jlmmik"
+        "selser [[4],4,4]": "== 1xorc7r ==\nng3fix\n\n1jlmmik",
+        "metadata": "flags="
     },
     "T33490 Turkish: lcfirst 'BLAH'": {
         "html2wt": "bLAH\n"
@@ -1775,14 +1794,50 @@
         "selser [2,0,0]": "xc3i5a\n\nthis is not the title\n{{DISPLAYTITLE:art&copy}}",
         "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:art&copy}}",
         "selser [[2],0,0]": "15zu02pthis is not the title\n{{DISPLAYTITLE:art&copy}}",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:art&copy}}"
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:art&copy}}",
+        "metadata": ""
+    },
+    "Verify that displaytitle encodes &amp; to &amp; (T291985)": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:art&amp;copy}}",
+        "selser [2,0,0]": "16iez1i\n\nthis is not the title\n{{DISPLAYTITLE:art&amp;copy}}",
+        "selser [[4],0,0]": "6z6g2y\n{{DISPLAYTITLE:art&amp;copy}}",
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:art&amp;copy}}",
+        "selser [[2],0,0]": "10581jzthis is not the title\n{{DISPLAYTITLE:art&amp;copy}}",
+        "metadata": ""
+    },
+    "Verify that displaytitle handles inline CSS styles (T28547) - accepted value": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
+        "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
+        "selser [2,0,0]": "4sx267\n\nthis is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
+        "selser [[2],0,0]": "1yrt0qothis is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
+        "metadata": ""
+    },
+    "Verify that displaytitle handles inline CSS styles (T28547) - rejected value": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
+        "selser [[2],0,0]": "hmtpllthis is not the title\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
+        "selser [[2],0,1]": "1667ozwthis is not the title\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
+        "selser [2,0,0]": "7tgszd\n\nthis is not the title\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
+        "metadata": ""
+    },
+    "Verify that displaytitle works (T24501) AllowDisplayTitle=false": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}",
+        "selser [2,0,0]": "15vy777\n\nthis is not the title\n{{DISPLAYTITLE:screen}}",
+        "selser [[4],0,0]": "1ihdxpp\n{{DISPLAYTITLE:screen}}",
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:screen}}",
+        "selser [1,0,1]": "this is not the title\n{{DISPLAYTITLE:screen}}",
+        "metadata": ""
+    },
+    "Verify that displaytitle works (T24501) AllowDisplayTitle=false no DISPLAYTITLE": {
+        "metadata": ""
     },
     "Verify that displaytitle works (T24501) RestrictDisplayTitle=false": {
         "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}",
         "html2wt": "this is not the title\n",
         "selser [[4],0,0]": "1o2ok5q\n{{DISPLAYTITLE:whatever}}",
         "selser [[2],0,0]": "1jzcbxfthis is not the title\n{{DISPLAYTITLE:whatever}}",
-        "selser [1,0,1]": "this is not the title\n{{DISPLAYTITLE:whatever}}"
+        "selser [1,0,1]": "this is not the title\n{{DISPLAYTITLE:whatever}}",
+        "metadata": ""
     },
     "Verify that displaytitle works (T24501) RestrictDisplayTitle=true matching": {
         "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}",
@@ -1791,13 +1846,21 @@
         "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:screen}}",
         "selser [2,0,0]": "a15zmg\n\nthis is not the title\n{{DISPLAYTITLE:screen}}",
         "selser [[2],0,1]": "br9ox7this is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [[4],0,1]": "1w9rs36\n{{DISPLAYTITLE:screen}}"
+        "selser [[4],0,1]": "1w9rs36\n{{DISPLAYTITLE:screen}}",
+        "metadata": ""
     },
     "Verify that displaytitle works (T24501) RestrictDisplayTitle=true mismatch": {
         "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}",
         "html2wt": "this is not the title\n",
         "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:whatever}}",
-        "selser [[2],0,1]": "6d31agthis is not the title\n{{DISPLAYTITLE:whatever}}"
+        "selser [[2],0,1]": "6d31agthis is not the title\n{{DISPLAYTITLE:whatever}}",
+        "metadata": ""
+    },
+    "Verify that displaytitle works (T24501) no displaytitle": {
+        "metadata": ""
+    },
+    "Verify that without displaytitle the title encodes & to &amp; (T291985)": {
+        "metadata": ""
     },
     "WTS of an autolink surrounded by square brackets (T220018)": {
         "html2wt": "[http://example.com<nowiki>]</nowiki>"
@@ -1812,6 +1875,9 @@
     "WTS of edited external link surrounded by square brackets (T220018)": {
         "wt2wt": "[[http://example.com foo]]",
         "selser [manual]": "[[http://example.com foo]]"
+    },
+    "__FORCETOC__ override": {
+        "metadata": "flags="
     },
     "__NOEDITSECTION__ keyword": {
         "html2wt": "== Section 1 ==\n\n== Section 2 ==\n"
