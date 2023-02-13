@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use DOMException;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -885,6 +886,30 @@ class WTUtils {
 	}
 
 	/**
+	 * Creates an internationalization (i18n) message that will be localized into an arbitrary
+	 * language. The returned DocumentFragment contains, as a single child, a span
+	 * element with the appropriate information for later localization.
+	 * The use of this method is discouraged; use ::createPageContentI18nFragment(...) and
+	 * ::createInterfaceI18nFragment(...) where possible rather than, respectively,
+	 * ::createLangI18nFragment(..., $wgContLang, ...) and
+	 * ::createLangI18nFragment(..., $wgLang,...).
+	 * @param Document $doc
+	 * @param Bcp47Code $lang language for the localization
+	 * @param string $key message key for the message to be localized
+	 * @param ?array $params parameters for localization
+	 * @return DocumentFragment
+	 * @throws DOMException
+	 */
+	public static function createLangI18nFragment(
+		Document $doc, Bcp47Code $lang, string $key, ?array $params = null
+	): DocumentFragment {
+		$frag = self::createEmptyLocalizationFragment( $doc );
+		$i18n = I18nInfo::createLangI18n( $lang, $key, $params );
+		DOMDataUtils::setDataNodeI18n( $frag->firstChild, $i18n );
+		return $frag;
+	}
+
+	/**
 	 * Adds to $element the internationalization information needed for the attribute $name to be
 	 * localized in a later pass into the page content language.
 	 * @param Element $element element on which to add internationalization information
@@ -911,6 +936,26 @@ class WTUtils {
 		Element $element, string $name, string $key, ?array $params = null
 	) {
 		$i18n = I18nInfo::createInterfaceI18n( $key, $params );
+		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
+		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );
+	}
+
+	/**
+	 * Adds to $element the internationalization information needed for the attribute $name to be
+	 * localized in a later pass into the provided language.
+	 * The use of this method is discouraged; ; use ::addPageContentI18nAttribute(...) and
+	 * ::addInterfaceI18nAttribute(...) where possible rather than, respectively,
+	 * ::addLangI18nAttribute(..., $wgContLang, ...) and ::addLangI18nAttribute(..., $wgLang, ...).
+	 * @param Element $element element on which to add internationalization information
+	 * @param Bcp47Code $lang language in which the message will be localized
+	 * @param string $name name of the attribute whose value will be localized
+	 * @param string $key message key used for the attribute value localization
+	 * @param ?array $params parameters for localization
+	 */
+	public static function addLangI18nAttribute(
+		Element $element, Bcp47Code $lang, string $name, string $key, ?array $params = null
+	) {
+		$i18n = I18nInfo::createLangI18n( $lang, $key, $params );
 		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
 		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );
 	}

@@ -2,13 +2,15 @@
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\Bcp47Code\Bcp47Code;
+
 class I18nInfo {
 	public const USER_LANG = "x-user";
 	public const PAGE_LANG = "x-page";
 
 	/**
 	 * Value for the "lang" parameter. Can be one of USER_LANG or PAGE_LANG, or a fixed language
-	 * code (discouraged).
+	 * code (discouraged when USER_LANG or PAGE_LANG could be used instead).
 	 * @var string
 	 */
 	public $lang;
@@ -56,5 +58,20 @@ class I18nInfo {
 	 */
 	public static function createPageContentI18n( string $key, ?array $params ): I18nInfo {
 		return new I18nInfo( self::PAGE_LANG, $key, $params );
+	}
+
+	/**
+	 * Creates internationalization information for a string or attribute value in an arbitrary
+	 * language.
+	 * The use of this method is discouraged; use ::createPageContentI18n(...) and
+	 * ::createInterfaceI18n(...) where possible rather than, respectively,
+	 * ::createLangI18n($wgContLang, ...) and ::createLangI18n($wgLang, ...).
+	 * @param Bcp47Code $lang
+	 * @param string $key
+	 * @param array|null $params
+	 * @return I18nInfo
+	 */
+	public static function createLangI18n( Bcp47Code $lang, string $key, ?array $params ): I18nInfo {
+		return new I18nInfo( $lang->toBcp47Code(), $key, $params );
 	}
 }

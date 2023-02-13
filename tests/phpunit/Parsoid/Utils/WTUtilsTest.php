@@ -2,6 +2,7 @@
 
 namespace Test\Parsoid\Utils;
 
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -79,8 +80,27 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * @covers ::createLangI18nFragment
+	 * @return void
+	 * @throws \DOMException
+	 */
+	public function testCreateLangI18nFragment() {
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( "<html><body></body></html>" );
+		DOMDataUtils::prepareDoc( $doc );
+		$lang = new Bcp47CodeValue( 'fr' );
+		$fragment = WTUtils::createLangI18nFragment( $doc, $lang, 'key.of.message' );
+		DOMDataUtils::visitAndStoreDataAttribs( $fragment, [ 'discardDataParsoid' => true ] );
+		$actualHtml = DOMUtils::getFragmentInnerHTML( $fragment );
+		$expectedHtml = '<span typeof="mw:I18n" ' .
+			'data-mw-i18n=\'{"/":{"lang":"fr","key":"key.of.message","params":null}}\'></span>';
+		self::assertEquals( $expectedHtml, $actualHtml );
+	}
+
+	/**
 	 * @covers ::addInterfaceI18nAttribute
 	 * @covers ::addPageContentI18nAttribute
+	 * @covers ::addLangI18nAttribute
 	 * @return void
 	 */
 	public function testAddI18nAttributes() {
@@ -90,11 +110,14 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$span = DOMCompat::getBody( $doc )->firstChild;
 		WTUtils::addPageContentI18nAttribute( $span, 'param1', 'key1' );
 		WTUtils::addInterfaceI18nAttribute( $span, 'param2', 'key2', [ 'Foo' ] );
+		$lang = new Bcp47CodeValue( 'fr' );
+		WTUtils::addLangI18nAttribute( $span, $lang, 'param3', 'key3' );
 		DOMDataUtils::visitAndStoreDataAttribs( $doc, [ 'discardDataParsoid' => true ] );
 		$actualHtml = DOMCompat::getInnerHTML( DOMCompat::getBody( $doc ) );
 		$expectedHtml = '<span typeof="mw:LocalizedAttrs" ' .
 			'data-mw-i18n=\'{"param1":{"lang":"x-page","key":"key1","params":null},' .
-			'"param2":{"lang":"x-user","key":"key2","params":["Foo"]}}\'>hello</span>';
+			'"param2":{"lang":"x-user","key":"key2","params":["Foo"]},' .
+			'"param3":{"lang":"fr","key":"key3","params":null}}\'>hello</span>';
 		self::assertEquals( $expectedHtml, $actualHtml );
 	}
 
