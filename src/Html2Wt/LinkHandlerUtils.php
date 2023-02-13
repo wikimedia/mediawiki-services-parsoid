@@ -896,7 +896,7 @@ class LinkHandlerUtils {
 				$state->emitChunk( new MagicLinkText( $serialized, $node ), $node );
 			}
 			return;
-		} else { // There is an interwiki for RFCs, but strangely none for PMIDs.
+		} else {
 			// serialize as auto-numbered external link
 			// [http://example.com]
 			$linktext = null;
