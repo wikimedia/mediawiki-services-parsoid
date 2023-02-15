@@ -169,15 +169,27 @@ class WrapSectionsState {
 
 		if ( $this->tplInfo !== null ) {
 			$dmw = DOMDataUtils::getDataMw( $this->tplInfo->first );
-			if ( is_string( $dmw->parts[0] ) ) {
+			if ( !isset( $dmw->parts ) ) {
+				// Extension, etc.
+				// Need to determine what the output should be here
+				$metadata->fromTitle = null;
+			} elseif ( count( $dmw->parts ) > 1 ) {
 				// Multi-part content -- cannot pick a title
 				$metadata->fromTitle = null;
-			} else {
+			} elseif ( !empty( $dmw->parts[0]->template->target->href ) ) {
 				// Pick template title, but strip leading "./" prefix
 				$metadata->fromTitle = preg_replace(
 					"#^./#", "", $dmw->parts[0]->template->target->href );
+			} else {
+				// Parser function - use "#pf:" prefix to flag it
+				// This is Parsoid-specific output.
+				$metadata->fromTitle = "#pf:" . $dmw->parts[0]->template->target->function;
 			}
-			$metadata->index = 'T-' . $this->sectionNumber; // core sets this to ''
+			if ( $this->sectionNumber < 0 ) {
+				$metadata->index = '';
+			} else {
+				$metadata->index = 'T-' . $this->sectionNumber; // core sets this to ''
+			}
 			$metadata->codepointOffset = null;
 		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
 			// PageConfig returns titles with a space, so strtr it

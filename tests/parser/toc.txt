@@ -342,3 +342,51 @@ nohtml
 {"toclevel":1,"level":"2","line":"Two \ud83d\udca9","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":10,"anchor":"Two_\ud83d\udca9","linkAnchor":"Two_\ud83d\udca9"}
 {"toclevel":1,"level":"2","line":"Three \ud83d\udca9","number":"3","index":"3","fromtitle":"Parser_test","byteoffset":20,"anchor":"Three_\ud83d\udca9","linkAnchor":"Three_\ud83d\udca9"}
 !! end
+
+!! test
+Handle multi-part content transclusion blocks
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+<div>
+{{1x|1=
+==foo==
+</div>
+}}
+==bar==
+!! metadata/php
+{"toclevel":1,"level":"2","line":"foo","number":"1","index":"","fromtitle":false,"byteoffset":null,"anchor":"foo","linkAnchor":"foo"}
+{"toclevel":1,"level":"2","line":"bar","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":32,"anchor":"bar","linkAnchor":"bar"}
+!! metadata/parsoid
+{"toclevel":1,"level":"2","line":"foo","number":"1","index":"T-1","fromtitle":false,"byteoffset":null,"anchor":"foo","linkAnchor":"foo"}
+{"toclevel":1,"level":"2","line":"bar","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":32,"anchor":"bar","linkAnchor":"bar"}
+!! end
+
+# Parsoid's parser function implementation used for standalone testing
+# is incomplete and only used in parser tests.
+# So, use HTML h-tags instead of wikitext h-tags in the parser function
+# to let us run this test in both standalone and integrated modes.
+!! test
+Handle parser functions generating sections
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+{{#if:1|<h2>foo</h2>|unused}}
+==bar==
+!! metadata/php
+{"toclevel":1,"level":"2","line":"foo","number":"1","index":"","fromtitle":false,"byteoffset":null,"anchor":"foo","linkAnchor":"foo"}
+{"toclevel":1,"level":"2","line":"bar","number":"2","index":"1","fromtitle":"Parser_test","byteoffset":30,"anchor":"bar","linkAnchor":"bar"}
+!! metadata/parsoid
+{"toclevel":1,"level":"2","line":"foo","number":"1","index":"","fromtitle":"#pf:if","byteoffset":null,"anchor":"foo","linkAnchor":"foo"}
+{"toclevel":1,"level":"2","line":"bar","number":"2","index":"1","fromtitle":"Parser_test","byteoffset":30,"anchor":"bar","linkAnchor":"bar"}
+!! end
