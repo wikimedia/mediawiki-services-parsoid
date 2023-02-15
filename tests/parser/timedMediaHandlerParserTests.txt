@@ -57,10 +57,12 @@ wgParserEnableLegacyMediaDOM=true
 
 !! test
 Simple video with border
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|border]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" class="thumbborder" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size mw-image-border" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size mw-image-border" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -68,17 +70,19 @@ Simple video with border
 
 !! test
 Video in a <gallery>
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 <gallery>
 File:Video.ogv
 </gallery>
 !! html/php
 <ul class="gallery mw-gallery-traditional">
-		<li class="gallerybox" style="width: 155px"><div style="width: 155px">
-			<div class="thumb" style="width: 150px;"><div style="margin:30px auto;"><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" width="120" height="90" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></div></div>
+		<li class="gallerybox" style="width: 155px">
+			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" width="120" height="90" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span></div>
 			<div class="gallerytext">
 			</div>
-		</div></li>
+		</li>
 </ul>
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
@@ -88,10 +92,12 @@ File:Video.ogv
 
 !! test
 Video with thumbtime=1:25
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|thumbtime=1:25]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.367-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.367-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["thumbtime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -99,10 +105,12 @@ Video with thumbtime=1:25
 
 !! test
 Video with starttime offset
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|start=1:25]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.367-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:03.367" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.367-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:03.367" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["starttime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv#t=3.3666666666667" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -110,10 +118,12 @@ Video with starttime offset
 
 !! test
 Video with starttime and endtime offsets
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|start=0:1.2|end=00:00:2.3]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:01.200,00:00:02.300" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:01.200,00:00:02.300" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["starttime",{"txt":"0:1.2"}],["endtime",{"txt":"00:00:2.3"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv#t=1.2,2.3" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -121,10 +131,12 @@ Video with starttime and endtime offsets
 
 !! test
 Video with unsupported alt
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|alt=Test]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["alt",{"txt":"Test"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -132,10 +144,12 @@ Video with unsupported alt
 
 !! test
 Video with unsupported link
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|link=Example]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -179,10 +193,12 @@ wgParserEnableLegacyMediaDOM=false
 
 !! test
 Simple audio element
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Audio.oga]]
 !! html/php
-<p><audio id="mwe_player_1" controls="" preload="none" width="180" style="width:180px;" data-durationhint="1" data-mwtitle="Audio.oga" data-mwprovider="local"><source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source" data-width="0" data-height="0" data-bandwidth="41107" /></audio>
+<p><span class="mw-default-size" typeof="mw:File"><span><audio id="mwe_player_1" controls="" preload="none" width="180" style="width:180px;" data-durationhint="1" data-mwtitle="Audio.oga" data-mwprovider="local"><source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source" data-width="0" data-height="0" data-bandwidth="41107" /></audio></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size mw-default-audio-height" typeof="mw:File"><span><audio controls="" preload="none" height="32" width="180" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"' data-title="Original Ogg file (41 kbps)" data-shorttitle="Ogg source"/></audio></span></span></p>
@@ -201,10 +217,12 @@ parsoid=html2wt
 
 !! test
 Flag disablecontrols as bogus options in Parsoid
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|disablecontrols=ok|These are bogus.]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-parsoid='{"optList":[{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
@@ -212,10 +230,12 @@ Flag disablecontrols as bogus options in Parsoid
 
 !! test
 Video with flag muted and loop
+!! config
+wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|muted|loop|These are bogus.]]
 !! html/php
-<p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" muted="" loop="" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video>
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" muted="" loop="" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span></span>
 </p>
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" muted="" loop="" height="240" width="320" resource="./File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span></span></p>
