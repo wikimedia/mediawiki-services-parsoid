@@ -399,7 +399,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 			case "reference_link":
 				// "[$3]" is the effective default Parsoid CSS output
 				if ( $msg !== "[$3]" ) {
-					$cssSel = '.mw-ref > a:after';
+					$cssSel = '.mw-ref > a::after';
 					$parts = preg_split( "/\\$3/", $msg );
 					$rule = "content: ";
 					if ( $parts[0] !== "" ) {
@@ -415,7 +415,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					wfEmitCSS( $cssSel, [ $rule ] );
 
 					if ( $resetRefCounterTypes ) {
-						$cssSel = ".mw-ref > a[ data-mw-group ]:after";
+						$cssSel = ".mw-ref > a[ data-mw-group ]::after";
 						// NOP since $refCountertype is known to to be 'decimal'
 						// but make code clearer and more robust
 						$rule = preg_replace( "/$refCounterType/", "decimal", $baseRule );
@@ -425,25 +425,25 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					// Add CSS rules for all groups
 					$baseRule = $rule;
 					foreach ( $groupLabels as $group => $groupCounterType ) {
-						$cssSel = ".mw-ref > a[data-mw-group=$group]:after";
+						$cssSel = ".mw-ref > a[data-mw-group=$group]::after";
 						$rule = preg_replace( "/$refCounterType/", "$groupCounterType", $baseRule );
 						wfEmitCSS( $cssSel, [ $rule ] );
 					}
 				} else {
 					if ( $resetRefCounterTypes ) {
 						wfEmitCSS(
-							".mw-ref > a:after",
+							".mw-ref > a::after",
 							[ "content: '[' counter( mw-Ref, decimal ) ']';" ]
 						);
 
 						wfEmitCSS(
-							".mw-ref > a[ data-mw-group ]:after",
+							".mw-ref > a[ data-mw-group ]::after",
 							[ "content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, decimal ) ']';" ]
 						);
 					}
 					// Add CSS rules for ref-groups
 					foreach ( $groupLabels as $group => $groupCounterType ) {
-						$cssSel = ".mw-ref > a[data-mw-group=$group]:after";
+						$cssSel = ".mw-ref > a[data-mw-group=$group]::after";
 						$rule = "content: '[' counter( mw-Ref, $groupCounterType ) ']';";
 						wfEmitCSS( $cssSel, [ $rule ] );
 					}
@@ -454,7 +454,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				// "↑ " is the effective default Parsoid CSS output
 				$msg = rtrim( $msg );
 				if ( $msg !== "↑" ) {
-					$cssSel = 'a[ rel="mw:referencedBy" ]:before';
+					$cssSel = 'a[ rel="mw:referencedBy" ]::before';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
 					$cssRules[] = 'content: "' . $msg . '";';
@@ -464,11 +464,11 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 
 			case "references_link_many":
 				if ( preg_match( "/<sup>/", $msg ) ) {
-					$cssSel = 'span[ rel="mw:referencedBy" ] > a:after';
+					$cssSel = 'span[ rel="mw:referencedBy" ] > a::after';
 					$cssRules = [ 'font-size: smaller;' ];
 					wfEmitCSS( $cssSel, $cssRules );
 
-					$cssSel = 'span[ rel="mw:referencedBy" ] > a:nth-last-child(2):after';
+					$cssSel = 'span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after';
 					$cssRules = [ "vertical-align: super;" ];
 					wfEmitCSS( $cssSel, $cssRules );
 				}
@@ -477,7 +477,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				$msg = preg_replace( "/\\$2 \\$3/", "", $msg );
 
 				if ( $msg !== "↑ " ) { // "↑ " is the default
-					$cssSel = 'span[ rel="mw:referencedBy" ]:before';
+					$cssSel = 'span[ rel="mw:referencedBy" ]::before';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
 					$cssRules[] = 'content: "' . $msg . '";';
@@ -489,7 +489,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				// "$2" is the effective default Parsoid CSS output
 				// with decimal as the counter type and "." as the separator.
 				if ( $msg !== "$2" || ( $langCounterType !== "decimal" && $langSep !== "." ) ) {
-					$cssSel = 'span[ rel="mw:referencedBy" ] > a:before';
+					$cssSel = 'span[ rel="mw:referencedBy" ] > a::before';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
 
@@ -519,7 +519,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					$cssRules[] = $rule;
 					wfEmitCSS( $cssSel, $cssRules );
 				} elseif ( $resetRefCounterTypes ) {
-					$cssSel = 'span[ rel="mw:referencedBy" ] > a:before';
+					$cssSel = 'span[ rel="mw:referencedBy" ] > a::before';
 					$linkbackRule =
 						"counter( mw-references, $linkbackCounterType )" . " '$langSep' " .
 						"counter( mw-ref-linkback, $linkbackCounterType )";
@@ -529,7 +529,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 
 			case "references_link_many_and":
 				if ( $msg !== ' ' ) { // ' ' is the default
-					$cssSel = 'span[ rel="mw:referencedBy" ] > a:nth-last-child(2):after';
+					$cssSel = 'span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
 					$cssRules[] = 'content: "' . $msg . '";';
@@ -539,7 +539,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 
 			case "references_link_many_sep":
 				if ( $msg !== ' ' ) { // ' ' is the default
-					$cssSel = 'span[ rel="mw:referencedBy" ] > a:after';
+					$cssSel = 'span[ rel="mw:referencedBy" ] > a::after';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
 					$cssRules[] = 'content: "' . $msg . '";';

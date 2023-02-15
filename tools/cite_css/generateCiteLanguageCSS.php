@@ -105,11 +105,11 @@ foreach ( $allLangs as $lang ) {
 			$out[] = wfGetCSS( $cssSel, $cssRules );
 		}
 		$out[] = wfGetCSS(
-			".mw-ref > a:after",
+			".mw-ref > a::after",
 			[ "content: '[' counter( mw-Ref, $counterType ) ']';" ]
 		);
 		$out[] = wfGetCSS(
-			".mw-ref > a[ data-mw-group ]:after",
+			".mw-ref > a[ data-mw-group ]::after",
 			[ "content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, $counterType ) ']';" ]
 		);
 	}
@@ -117,7 +117,7 @@ foreach ( $allLangs as $lang ) {
 	$separator = $localizedSeps[$lang] ?? '.';
 	if ( $counterType !== 'decimal' || $separator !== '.' ) {
 		$out[] = wfGetCSS(
-			"span[ rel='mw:referencedBy' ] > a:before",
+			"span[ rel='mw:referencedBy' ] > a::before",
 			[ "content: counter( mw-references, $counterType )" .
 				" '$separator' counter( mw-ref-linkback, $counterType );" ]
 		);
