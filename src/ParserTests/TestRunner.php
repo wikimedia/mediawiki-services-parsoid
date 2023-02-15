@@ -705,7 +705,7 @@ class TestRunner {
 				// If file doesn't exist, use the JSON representation of an
 				// empty array, so it compares equal in the case that we
 				// end up with an empty array of known failures below.
-				$old = '[]';
+				$old = '{}';
 			}
 			$testKnownFailures = [];
 			foreach ( $options['modes'] as $mode ) {
