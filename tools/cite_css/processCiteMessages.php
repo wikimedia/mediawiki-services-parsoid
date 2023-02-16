@@ -345,6 +345,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 
 	$keys = array_keys( $messages );
 	$groupLabels = [];
+	$initCustomLinkbackCounter = '';
 	foreach ( $messages as $key => $msg ) {
 		if ( preg_match( '/^link_label_group-/', $key ) ) {
 			$group = substr( $key, 17 /* strlen( "link_label_group-" ) */ );
@@ -381,14 +382,16 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					$cssRules[] = "system: fixed;";
 					$cssRules[] = "symbols: " . preg_replace( "/([^\s]+)/", "'$1'", $msg ) . ";";
 				}
-				wfEmitCSS( $cssSel, $cssRules );
 
-				/* Ensure counter-reset is at zero if $langCounterType is not decimal! */
-				if ( $langCounterType !== 'decimal' ) {
-					$cssSel = 'span[ rel="mw:referencedBy" ]';
-					$cssRules = [ 'counter-reset: mw-ref-linkback 0;' ];
-					wfEmitCSS( $cssSel, $cssRules );
-				}
+				// Some wikis may define custom messages for backlinks
+				// but not actually use them in references_link_many_format
+				// by using default messages! So, we cannot init them here!
+				$initCustomLinkbackCounter =
+					wfGetCSS( $cssSel, $cssRules ) . "\n" .
+					wfGetCSS(
+						'span[ rel="mw:referencedBy" ]',
+						[ 'counter-reset: mw-ref-linkback 0;' ]
+					);
 			}
 		}
 	}
@@ -414,14 +417,6 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					$rule .= ";";
 					wfEmitCSS( $cssSel, [ $rule ] );
 
-					if ( $resetRefCounterTypes ) {
-						$cssSel = ".mw-ref > a[ data-mw-group ]::after";
-						// NOP since $refCountertype is known to to be 'decimal'
-						// but make code clearer and more robust
-						$rule = preg_replace( "/$refCounterType/", "decimal", $baseRule );
-						wfEmitCSS( $cssSel, [ $rule ] );
-					}
-
 					// Add CSS rules for all groups
 					$baseRule = $rule;
 					foreach ( $groupLabels as $group => $groupCounterType ) {
@@ -429,6 +424,16 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 						$rule = preg_replace( "/$refCounterType/", "$groupCounterType", $baseRule );
 						wfEmitCSS( $cssSel, [ $rule ] );
 					}
+
+					/**
+					 * // This won't execute because $refCountertype is known to be 'decimal'
+					 * // but leaving behind as documentation
+					 * if ( $resetRefCounterTypes ) {
+					 * 	$cssSel = ".mw-ref > a[ data-mw-group ]::after";
+					 * 	$rule = preg_replace( "/$refCounterType/", "decimal", $baseRule );
+					 * 	wfEmitCSS( $cssSel, [ $rule ] );
+					 * }
+					 */
 				} else {
 					if ( $resetRefCounterTypes ) {
 						wfEmitCSS(
@@ -489,6 +494,11 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				// "$2" is the effective default Parsoid CSS output
 				// with decimal as the counter type and "." as the separator.
 				if ( $msg !== "$2" || ( $langCounterType !== "decimal" && $langSep !== "." ) ) {
+					// Init custom counter types
+					if ( $initCustomLinkbackCounter ) {
+						print $initCustomLinkbackCounter . "\n";
+					}
+
 					$cssSel = 'span[ rel="mw:referencedBy" ] > a::before';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
@@ -519,6 +529,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					$cssRules[] = $rule;
 					wfEmitCSS( $cssSel, $cssRules );
 				} elseif ( $resetRefCounterTypes ) {
+					// FIXME: Some incomplete code here!!
 					$cssSel = 'span[ rel="mw:referencedBy" ] > a::before';
 					$linkbackRule =
 						"counter( mw-references, $linkbackCounterType )" . " '$langSep' " .
