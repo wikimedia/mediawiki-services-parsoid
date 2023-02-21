@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu -o pipefail
+
 if [ $# -lt 2 ]
 then
 	echo "USAGE: start-rt-test.sh <uid> <rt-test-id>"
@@ -19,8 +21,7 @@ testid=$(echo -n "$testid" | head -c 8)
 echo "---- Updating code on scandium ----"
 ssh $uid@scandium.eqiad.wmnet <<EOF
 # No unset vars + early exit on error
-set -e
-set -u
+set -eu -o pipefail
 
 umask 0002 # Make sure everyone in wikidev group can write
 cd /srv/parsoid-testing
@@ -33,8 +34,7 @@ EOF
 echo "---- Starting test run $testid on testreduce1001 ----"
 ssh $uid@testreduce1001.eqiad.wmnet <<EOF
 # No unset vars + early exit on error
-set -e
-set -u
+set -eu -o pipefail
 
 echo 'Stopping parsoid-rt clients ...'
 sudo service parsoid-rt-client stop
