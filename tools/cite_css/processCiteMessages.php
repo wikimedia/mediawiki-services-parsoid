@@ -121,6 +121,81 @@ function wfCheckIfAlphabetic( array $symbols ): array {
 	return $prefix !== "" ? $base : [];
 }
 
+/*
+ * Next 2 arrays are extracted from https://www.w3.org/TR/predefined-counter-styles/
+ * Intersected with https://www.w3.org/International/i18n-tests/results/predefined-counter-styles
+ * where all major browsers have support with a green cell.
+ */
+$wgW3cDecimalCounters = [
+	"decimal",
+	"arabic-indic",
+	"bengali",
+	"cambodian",
+	"devanagari",
+	"gujarati",
+	"gurmukhi",
+	"kannada",
+	"khmer",
+	"lao",
+	"lepcha",
+	"malayalam",
+	"myanmar", /* w3c page says suffix, but testing shows no suffix! */
+	"mongolian",
+	"oriya",
+	"persian",
+	"tamil",
+	"telugu",
+	"thai",
+];
+
+$wgW3cCounterTypeMaps = [
+	/* numeric - no suffixes or prefixes */
+	"0123456789" => "decimal",
+	"٠١٢٣٤٥٦٧٨٩" => "arabic-indic",
+	"০১২৩৪৫৬৭৮৯" => "bengali",
+	"០១២៣៤៥៦៧៨៩" => "cambodian",
+	"०१२३४५६७८९" => "devanagari",
+	"૦૧૨૩૪૫૬૭૮૯" => "gujarati",
+	"੦੧੨੩੪੫੬੭੮੯" => "gurmukhi",
+	"೦೧೨೩೪೫೬೭೮೯" => "kannada",
+	"០១២៣៤៥៦៧៨៩" => "khmer",
+	"໐໑໒໓໔໕໖໗໘໙" => "lao",
+	"᱀᱁᱂᱃᱄᱅᱆᱇᱈᱉" => "lepcha",
+	"൦൧൨൩൪൫൬൭൮൯" => "malayalam",
+	"၀၁၂၃၄၅၆၇၈၉" => "myanmar", /* w3c page says suffix, but testing shows no suffix! */
+	"᠐᠑᠒᠓᠔᠕᠖᠗᠘᠙" => "mongolian",
+	"୦୧୨୩୪୫୬୭୮୯" => "oriya",
+	"۰۱۲۳۴۵۶۷۸۹" => "persian",
+	"௦௧௨௩௪௫௬௭௮௯" => "tamil",
+	"౦౧౨౩౪౫౬౭౮౯" => "telugu",
+	"๐๑๒๓๔๕๖๗๘๙" => "thai",
+
+	/* alphabetic - no suffixes or prefixes */
+	"a-z" => "lower-alpha",
+	"A-Z" => "upper-alpha",
+	"αβγδεζηθικλμνξοπρστυφχψω" => "lower-greek",
+	"abcdefghijklmnopqrstuvwxyz" => "lower-alpha",
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ" => "upper-alpha",
+
+/* ---- Not sure we can use these as is ----
+	// alphabetic - WITH suffixes and/or prefixes.
+
+	"子丑寅卯辰巳午未申酉戌亥"=>"cjk-earthly-branch",
+	"甲乙丙丁戊己庚辛壬癸"=>"cjk-heavenly-stem",
+	"㊀㊁㊂㊃㊄㊅㊆㊇㊈㊉"=>"circled-ideograph",
+	"あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわゐゑをん"=>"hiragana",
+	"いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせす"=>"hiragana-iroha",
+	"アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン"=>"katakana",
+	"イロハニホヘトチリヌルヲワカヨタレソツネナラムウヰノオクヤマケフコエテアサキユメミシヱヒモセス"=>"katakana-iroha",
+*/
+];
+
+function wfIsNonDecimalCounter( string $counterName ): bool {
+	global $wgW3cDecimalCounters;
+
+	return array_search( $counterName, $wgW3cDecimalCounters, false ) === false;
+}
+
 function wfGetCSS( string $selector, array $rules ): string {
 	return "$selector {\n\t" . implode( "\n\t", $rules ) . "\n}";
 }
@@ -141,52 +216,7 @@ function wfProcessMessages( string $file, ?array &$wikiInfo ): void {
 }
 
 function wfDetectCounterType( string $msg ): ?string {
-/*
- * Extracted from https://www.w3.org/TR/predefined-counter-styles/
- * Intersected with https://www.w3.org/International/i18n-tests/results/predefined-counter-styles
- * where all major browsers have support with a green cell.
- */
-	$w3cCounterTypeMaps = [
-		/* numeric - no suffixes or prefixes */
-		"0123456789" => "decimal",
-		"٠١٢٣٤٥٦٧٨٩" => "arabic-indic",
-		"০১২৩৪৫৬৭৮৯" => "bengali",
-		"០១២៣៤៥៦៧៨៩" => "cambodian",
-		"०१२३४५६७८९" => "devanagari",
-		"૦૧૨૩૪૫૬૭૮૯" => "gujarati",
-		"੦੧੨੩੪੫੬੭੮੯" => "gurmukhi",
-		"೦೧೨೩೪೫೬೭೮೯" => "kannada",
-		"០១២៣៤៥៦៧៨៩" => "khmer",
-		"໐໑໒໓໔໕໖໗໘໙" => "lao",
-		"᱀᱁᱂᱃᱄᱅᱆᱇᱈᱉" => "lepcha",
-		"൦൧൨൩൪൫൬൭൮൯" => "malayalam",
-		"၀၁၂၃၄၅၆၇၈၉" => "myanmar", /* w3c page says suffix, but testing shows no suffix! */
-		"᠐᠑᠒᠓᠔᠕᠖᠗᠘᠙" => "mongolian",
-		"୦୧୨୩୪୫୬୭୮୯" => "oriya",
-		"۰۱۲۳۴۵۶۷۸۹" => "persian",
-		"௦௧௨௩௪௫௬௭௮௯" => "tamil",
-		"౦౧౨౩౪౫౬౭౮౯" => "telugu",
-		"๐๑๒๓๔๕๖๗๘๙" => "thai",
-
-		/* alphabetic - no suffixes or prefixes */
-		"a-z" => "lower-alpha",
-		"A-Z" => "upper-alpha",
-		"αβγδεζηθικλμνξοπρστυφχψω" => "lower-greek",
-		"abcdefghijklmnopqrstuvwxyz" => "lower-alpha",
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ" => "upper-alpha",
-
-/* ---- Not sure we can use these as is ----
-		// alphabetic - WITH suffixes and/or prefixes.
-
-		"子丑寅卯辰巳午未申酉戌亥"=>"cjk-earthly-branch",
-		"甲乙丙丁戊己庚辛壬癸"=>"cjk-heavenly-stem",
-		"㊀㊁㊂㊃㊄㊅㊆㊇㊈㊉"=>"circled-ideograph",
-		"あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわゐゑをん"=>"hiragana",
-		"いろはにほへとちりぬるをわかよたれそつねならむうゐのおくやまけふこえてあさきゆめみしゑひもせす"=>"hiragana-iroha",
-		"アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヰヱヲン"=>"katakana",
-		"イロハニホヘトチリヌルヲワカヨタレソツネナラムウヰノオクヤマケフコエテアサキユメミシヱヒモセス"=>"katakana-iroha",
-*/
-	];
+	global $wgW3cCounterTypeMaps;
 
 	/* Hacky heuristic that should work */
 	if ( preg_match( '/^([αβγδεζηθικλμνξοπρστυφχψω]*( |$))*$/u', $msg ) ) {
@@ -196,7 +226,7 @@ function wfDetectCounterType( string $msg ): ?string {
 	} elseif ( preg_match( '/^([IVXLCDM]*( |$))*$/u', $msg ) ) {
 		return "upper-roman";
 	} else {
-		foreach ( $w3cCounterTypeMaps as $digits => $type ) {
+		foreach ( $wgW3cCounterTypeMaps as $digits => $type ) {
 			if ( preg_match( "/^([$digits]*( |$))*$/u", $msg ) ) {
 				return $type;
 			}
@@ -391,12 +421,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				// Some wikis may define custom messages for backlinks
 				// but not actually use them in references_link_many_format
 				// by using default messages! So, we cannot init them here!
-				$initCustomLinkbackCounter =
-					wfGetCSS( $cssSel, $cssRules ) . "\n" .
-					wfGetCSS(
-						'span[ rel="mw:referencedBy" ]',
-						[ 'counter-reset: mw-ref-linkback 0;' ]
-					);
+				$initCustomLinkbackCounter = wfGetCSS( $cssSel, $cssRules );
 			}
 		}
 	}
@@ -499,11 +524,6 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				// "$2" is the effective default Parsoid CSS output
 				// with decimal as the counter type and "." as the separator.
 				if ( $msg !== "$2" || ( $langCounterType !== "decimal" && $langSep !== "." ) ) {
-					// Init custom counter types
-					if ( $initCustomLinkbackCounter ) {
-						print $initCustomLinkbackCounter . "\n";
-					}
-
 					$cssSel = 'span[ rel="mw:referencedBy" ] > a::before';
 					$cssRules = [];
 					wfAddCSSForIBTagsAndProcessMsg( $cssRules, $msg );
@@ -523,6 +543,16 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 							"counter( mw-references, $counter )" . " '$langSep' " .
 							"counter( mw-ref-linkback, $counter )";
 					} else { // implicilty assumed to be "\\$3"
+						// Init custom counter types
+						if ( $initCustomLinkbackCounter ) {
+							print $initCustomLinkbackCounter . "\n";
+						}
+						if ( wfIsNonDecimalCounter( $linkbackCounterType ) ) {
+							wfEmitCSS(
+								'span[ rel="mw:referencedBy" ]',
+								[ 'counter-reset: mw-ref-linkback 0;' ]
+							);
+						}
 						$linkbackRule = "counter( mw-ref-linkback, $linkbackCounterType )";
 					}
 

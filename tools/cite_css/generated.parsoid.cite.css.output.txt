@@ -1,4 +1,7 @@
 --- EMITTING CSS for ace.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -17,6 +20,9 @@ span[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, lower-alpha ) ']';
 }
 --- EMITTING CSS for af.wikiquote ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -52,6 +58,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 --- EMITTING CSS for ary.wikipedia ---
 span[ rel="mw:referencedBy" ]::before {
 	content: "^ ";
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -219,6 +228,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-alpha ) ']';
 }
 --- EMITTING CSS for bjn.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -298,6 +310,9 @@ a[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
 	content: "^";
 }
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -372,10 +387,16 @@ a[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, custom-group-label-kurdish-alpha ) ']';
 }
 --- EMITTING CSS for cs.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for cs.wikisource ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -403,6 +424,9 @@ span[ rel="mw:referencedBy" ] > a::after {
 	content: ", ";
 }
 --- EMITTING CSS for da.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -431,10 +455,16 @@ span[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, upper-roman ) ']';
 }
 --- EMITTING CSS for de.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for de.wikisource ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -444,12 +474,18 @@ a[ rel="mw:referencedBy" ]::before {
 	content: "↑";
 }
 --- EMITTING CSS for en.wikibooks ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for en.wikiquote ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -498,6 +534,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content:  counter( mw-Ref, decimal );
 }
 --- EMITTING CSS for eu.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	content: counter( mw-ref-linkback, lower-alpha );
@@ -531,17 +570,13 @@ span[ rel="mw:referencedBy" ] > a::before {
 .mw-ref > a[data-mw-group=lower-alpha]::after {
 	content: '[' counter( mw-Ref, lower-alpha ) ']';
 }
-@counter-style custom-backlink {
-	system: fixed;
-	symbols: 'آ' 'ب' 'پ' 'ت' 'ث' 'ج' 'چ' 'ح' 'خ' 'د' 'ذ' 'ر' 'ز' 'ژ' 'س' 'ش' 'ص' 'ض' 'ط' 'ظ' 'ع' 'ق' 'ف' 'ق' 'ک' 'گ' 'ل' 'م' 'ن' 'و' 'ه' 'ی';
-}
-span[ rel="mw:referencedBy" ] {
-	counter-reset: mw-ref-linkback 0;
-}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-references, persian ) '٫' counter( mw-ref-linkback, persian );
 }
 --- EMITTING CSS for fi.wikisource ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-style: italic;
 	content: counter( mw-ref-linkback, lower-alpha );
@@ -713,6 +748,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-alpha ) ']';
 }
 --- EMITTING CSS for hr.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -725,6 +763,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 --- EMITTING CSS for hr.wikisource ---
 --- EMITTING CSS for hr.wiktionary ---
 --- EMITTING CSS for id.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -756,6 +797,9 @@ a[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, lower-greek ) ']';
 }
 --- EMITTING CSS for ilo.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -787,6 +831,9 @@ a[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, upper-roman ) ']';
 }
 --- EMITTING CSS for it.wikiquote ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -806,6 +853,9 @@ a[ rel="mw:referencedBy" ]::before {
 	content: "^";
 }
 --- EMITTING CSS for jv.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -844,6 +894,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 --- EMITTING CSS for ka.wikibooks ---
 --- EMITTING CSS for ka.wikiquote ---
 --- EMITTING CSS for kk.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -870,20 +923,32 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, upper-alpha ) ']';
 }
 --- EMITTING CSS for ku.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for ku.wiktionary ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for kv.wikipedia ---
 --- EMITTING CSS for lad.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for ln.wikipedia ---
 --- EMITTING CSS for min.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -893,6 +958,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 a[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
 	content: "^";
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -921,6 +989,9 @@ span[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, lower-alpha ) ']';
 }
 --- EMITTING CSS for ms.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -960,6 +1031,9 @@ a[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
 	content: "^";
 }
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -969,10 +1043,16 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, custom-group-label-lower-alpha ) ']';
 }
 --- EMITTING CSS for nds.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for no.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -1020,6 +1100,9 @@ span[ rel="mw:referencedBy" ]::before {
 --- EMITTING CSS for oc.wikipedia ---
 --- EMITTING CSS for oc.wiktionary ---
 --- EMITTING CSS for pag.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1044,6 +1127,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-roman ) ']';
 }
 --- EMITTING CSS for ro.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1120,6 +1206,9 @@ a[ rel="mw:referencedBy" ]::before {
 }
 --- EMITTING CSS for scn.wikipedia ---
 --- EMITTING CSS for sco.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1136,6 +1225,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 }
 --- EMITTING CSS for sh.wikipedia ---
 --- EMITTING CSS for sk.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -1157,6 +1249,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 }
 --- EMITTING CSS for sl.wikibooks ---
 --- EMITTING CSS for sq.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -1172,6 +1267,9 @@ span[ rel="mw:referencedBy" ]::before {
 --- EMITTING CSS for sq.wikiquote ---
 span[ rel="mw:referencedBy" ]::before {
 	content: "^ ";
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
@@ -1207,6 +1305,9 @@ a[ rel="mw:referencedBy" ]::before {
 @counter-style custom-group-label-lower-alpha/sr {
 	system: alphabetic;
 	symbols: 'а' 'б' 'в' 'г' 'д' 'ђ' 'е' 'ж' 'з' 'и' 'ј' 'к' 'л' 'љ' 'м' 'н' 'њ' 'о' 'п' 'р' 'с' 'т' 'ћ' 'у' 'ф' 'х' 'ц' 'ч' 'џ' 'ш';
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -1245,6 +1346,9 @@ a[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, custom-group-label-lower-alpha/sr ) ']';
 }
 --- EMITTING CSS for su.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -1258,6 +1362,9 @@ span[ rel="mw:referencedBy" ]::before {
 a[ rel="mw:referencedBy" ]::before {
 	content: "^";
 }
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: '<small>' counter( mw-ref-linkback, lower-alpha ) '</small>';
 }
@@ -1269,6 +1376,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 }
 span[ rel="mw:referencedBy" ]::before {
 	content: "^ ";
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -1283,6 +1393,9 @@ a[ rel="mw:referencedBy" ]::before {
 }
 --- EMITTING CSS for tg.wikipedia ---
 --- EMITTING CSS for ti.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1292,6 +1405,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 span[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
 	content: "^ ";
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -1315,12 +1431,18 @@ a[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, upper-roman ) ']';
 }
 --- EMITTING CSS for tr.wiktionary ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for ua.wikimedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1388,13 +1510,6 @@ a[ rel="mw:referencedBy" ]::before {
 span[ rel="mw:referencedBy" ]::before {
 	content: "▲ ";
 }
-@counter-style custom-backlink {
-	system: alphabetic;
-	symbols: 'a' 'ă' 'â' 'b' 'c' 'd' 'đ' 'e' 'ê' 'g' 'h' 'i' 'k' 'l' 'm' 'n' 'o' 'ô' 'ơ' 'p' 'q' 'r' 's' 't' 'u' 'ư' 'v' 'x' 'y';
-}
-span[ rel="mw:referencedBy" ] {
-	counter-reset: mw-ref-linkback 0;
-}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1434,13 +1549,6 @@ a[ rel="mw:referencedBy" ]::before {
 span[ rel="mw:referencedBy" ]::before {
 	content: "▲ ";
 }
-@counter-style custom-backlink {
-	system: alphabetic;
-	symbols: 'a' 'ă' 'â' 'b' 'c' 'd' 'đ' 'e' 'ê' 'g' 'h' 'i' 'k' 'l' 'm' 'n' 'o' 'ô' 'ơ' 'p' 'q' 'r' 's' 't' 'u' 'ư' 'v' 'x' 'y';
-}
-span[ rel="mw:referencedBy" ] {
-	counter-reset: mw-ref-linkback 0;
-}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1450,6 +1558,9 @@ a[ rel="mw:referencedBy" ]::before {
 	content: "▲";
 }
 --- EMITTING CSS for yi.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -1547,6 +1658,9 @@ a[ rel="mw:referencedBy" ]::before {
 	content: '[' counter( mw-Ref, upper-roman ) ']';
 }
 --- EMITTING CSS for fi.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-style: italic;
 	content: counter( mw-ref-linkback, lower-alpha );
@@ -1570,6 +1684,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, upper-alpha ) ']';
 }
 --- EMITTING CSS for hu.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1591,6 +1708,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-roman ) ']';
 }
 --- EMITTING CSS for it.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-style: italic;
 	content: counter( mw-ref-linkback, lower-alpha );
@@ -1613,6 +1733,9 @@ span[ rel="mw:referencedBy" ]::before {
 a[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
 	content: "^";
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -1638,6 +1761,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-alpha ) ']';
 }
 --- EMITTING CSS for nl.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1659,6 +1785,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-roman ) ']';
 }
 --- EMITTING CSS for pl.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
@@ -1692,6 +1821,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 }
 .mw-ref > a[data-mw-group=lower-roman]::after {
 	content: '[' counter( mw-Ref, lower-roman ) ']';
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
@@ -1755,6 +1887,9 @@ a[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
 	content: "^";
 }
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1779,12 +1914,18 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, lower-greek ) ']';
 }
 --- EMITTING CSS for meta.wikimedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for commons.wikimedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1809,6 +1950,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: '[' counter( mw-Ref, decimal ) ']';
 }
 --- EMITTING CSS for en.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
