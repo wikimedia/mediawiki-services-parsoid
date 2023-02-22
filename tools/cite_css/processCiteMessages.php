@@ -276,15 +276,24 @@ $localizedDigits = wfLoadJson( __DIR__ . "/localized.digits.json" ); // Extracte
 $localizedSeps = wfLoadJson( __DIR__ . "/localized.separators.json" ); // Extracted from languages/messages/Message$lang.php
 $digitLocalizationEnabled = wfLoadJson( __DIR__ . "/digits.localization.config.json" ); // Extracted from wmf-config/$wgTranslateNumerals
 
+// Wiki language exceptions
+$wikiLangExceptions = wfLoadJson( __DIR__ . "/wikilang.exceptions.json" );
+foreach ( $wikiLangExceptions as $wiki => $lang ) {
+	if ( !isset( $wikiInfo[$wiki] ) ) {
+		$wikiInfo[$wiki] = []; // init
+	}
+}
+
 // Backfill from lang-specific i18n file
 $citeI18nDir = $citeRepo . "/i18n/";
 foreach ( $wikiInfo as $wiki => &$messages ) {
-	$lang = preg_replace( "/\..*$/", "", $wiki );
+	$lang = $wikiLangExceptions[$wiki] ?? preg_replace( "/\..*$/", "", $wiki );
 	wfBackfill( $citeI18nDir, $lang, $messages );
 }
 
 // Backfill from language fallback chains
 foreach ( $wikiInfo as $wiki => &$messages ) {
+	$lang = $wikiLangExceptions[$wiki] ?? preg_replace( "/\..*$/", "", $wiki );
 	if ( $lang !== 'en' ) {
 		// last fallback is 'en'
 		$len = count( $langFallbacks[$lang] ?? [] );
@@ -353,7 +362,7 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 	print "--- EMITTING CSS for $wiki ---\n";
 
 	// Generate any required custom counters first
-	$lang = preg_replace( "/\..*$/", "", $wiki );
+	$lang = $wikiLangExceptions[$wiki] ?? preg_replace( "/\..*$/", "", $wiki );
 	$digits = $localizedDigits[$lang] ?? null;
 	if ( $digits === null ) {
 		$langCounterType = "decimal"; // default

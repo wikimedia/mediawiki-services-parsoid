@@ -150,6 +150,9 @@ span[ rel="mw:referencedBy" ]::before {
 .mw-ref > a[data-mw-group=upper-roman]::after {
 	content: '[' counter( mw-Ref, upper-roman ) ']';
 }
+span[ rel="mw:referencedBy" ] > a::before {
+	content: counter( mw-references, persian ) '٫' counter( mw-ref-linkback, persian );
+}
 --- EMITTING CSS for az.wikipedia ---
 span[ rel="mw:referencedBy" ] > a::before {
 	font-style: italic;
@@ -945,6 +948,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for ln.wikipedia ---
+span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after {
+	content: " et ";
+}
 --- EMITTING CSS for min.wikipedia ---
 span[ rel="mw:referencedBy" ] {
 	counter-reset: mw-ref-linkback 0;
@@ -1050,11 +1056,15 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for no.wikipedia ---
+@counter-style custom-backlink {
+	system: alphabetic;
+	symbols: 'a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o' 'p' 'q' 'r' 's' 't' 'u' 'v' 'w' 'x' 'y' 'z' 'æ' 'ø' 'å';
+}
 span[ rel="mw:referencedBy" ] {
 	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
-	content: counter( mw-ref-linkback, lower-alpha );
+	content: counter( mw-ref-linkback, custom-backlink );
 }
 span[ rel="mw:referencedBy" ]::before {
 	font-weight: bold;
@@ -1098,7 +1108,13 @@ span[ rel="mw:referencedBy" ]::before {
 	content: "^ ";
 }
 --- EMITTING CSS for oc.wikipedia ---
+span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after {
+	content: " et ";
+}
 --- EMITTING CSS for oc.wiktionary ---
+span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after {
+	content: " et ";
+}
 --- EMITTING CSS for pag.wikipedia ---
 span[ rel="mw:referencedBy" ] {
 	counter-reset: mw-ref-linkback 0;
@@ -1306,13 +1322,17 @@ a[ rel="mw:referencedBy" ]::before {
 	system: alphabetic;
 	symbols: 'а' 'б' 'в' 'г' 'д' 'ђ' 'е' 'ж' 'з' 'и' 'ј' 'к' 'л' 'љ' 'м' 'н' 'њ' 'о' 'п' 'р' 'с' 'т' 'ћ' 'у' 'ф' 'х' 'ц' 'ч' 'џ' 'ш';
 }
+@counter-style custom-backlink {
+	system: alphabetic;
+	symbols: 'а' 'б' 'в' 'г' 'д' 'ђ' 'е' 'ж' 'з' 'и' 'ј' 'к' 'л' 'љ' 'м' 'н' 'њ' 'о' 'п' 'р' 'с' 'т' 'ћ' 'у' 'ф' 'х' 'ц' 'ч' 'џ' 'ш';
+}
 span[ rel="mw:referencedBy" ] {
 	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
-	content: counter( mw-ref-linkback, lower-alpha );
+	content: counter( mw-ref-linkback, custom-backlink );
 }
 span[ rel="mw:referencedBy" ]::before {
 	content: "^ ";
@@ -1440,13 +1460,17 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for ua.wikimedia ---
+@counter-style custom-backlink {
+	system: alphabetic;
+	symbols: 'а' 'б' 'в' 'г' 'д' 'е' 'ж' 'и' 'к' 'л' 'м' 'н' 'п' 'р' 'с' 'т' 'у' 'ф' 'х' 'ц' 'ш' 'щ' 'ю' 'я';
+}
 span[ rel="mw:referencedBy" ] {
 	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
-	content: counter( mw-ref-linkback, lower-alpha );
+	content: counter( mw-ref-linkback, custom-backlink );
 }
 --- EMITTING CSS for uk.wikinews ---
 @counter-style custom-backlink {
@@ -2324,3 +2348,108 @@ span[ rel="mw:referencedBy" ]::before {
 .mw-ref > a[data-mw-group=upper-alpha]::after {
 	content: '[' counter( mw-Ref, upper-alpha ) ']';
 }
+--- EMITTING CSS for be_x_old.wikipedia ---
+--- EMITTING CSS for no.wiktionary ---
+--- EMITTING CSS for no.wikiquote ---
+--- EMITTING CSS for no.wikinews ---
+--- EMITTING CSS for no.wikisource ---
+--- EMITTING CSS for shy.wiktionary ---
+span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after {
+	content: " et ";
+}
+--- EMITTING CSS for simple.wikibooks ---
+--- EMITTING CSS for simple.wikiquote ---
+--- EMITTING CSS for simple.wiktionary ---
+--- EMITTING CSS for test2.wikipedia ---
+--- EMITTING CSS for als.wikipedia ---
+--- EMITTING CSS for bat_smg.wikipedia ---
+--- EMITTING CSS for bh.wikipedia ---
+.mw-ref > a::after {
+	content: '[' counter( mw-Ref, decimal ) ']';
+}
+.mw-ref > a[ data-mw-group ]::after {
+	content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, decimal ) ']';
+}
+--- EMITTING CSS for bh.wiktionary ---
+--- EMITTING CSS for cbk_zam.wikipedia ---
+--- EMITTING CSS for fiu_vro.wikipedia ---
+--- EMITTING CSS for roa_rup.wikipedia ---
+--- EMITTING CSS for roa_rup.wiktionary ---
+--- EMITTING CSS for zh_classical.wikipedia ---
+span[ rel="mw:referencedBy" ] > a::before {
+	content: counter( mw-references, lzh-counter ) '點' counter( mw-ref-linkback, lzh-counter );
+}
+--- EMITTING CSS for zh_min_nan.wikipedia ---
+--- EMITTING CSS for zh_min_nan.wiktionary ---
+--- EMITTING CSS for zh_min_nan.wikibooks ---
+--- EMITTING CSS for zh_min_nan.wikiquote ---
+--- EMITTING CSS for zh_min_nan.wikisource ---
+--- EMITTING CSS for zh_yue.wikipedia ---
+--- EMITTING CSS for am.wikimedia ---
+--- EMITTING CSS for ar.wikimedia ---
+--- EMITTING CSS for bd.wikimedia ---
+--- EMITTING CSS for be.wikimedia ---
+--- EMITTING CSS for br.wikimedia ---
+--- EMITTING CSS for ca.wikimedia ---
+--- EMITTING CSS for co.wikimedia ---
+--- EMITTING CSS for dk.wikimedia ---
+--- EMITTING CSS for ec.wikimedia ---
+--- EMITTING CSS for id.wikimedia ---
+--- EMITTING CSS for id_internal.wikimedia ---
+--- EMITTING CSS for il.wikimedia ---
+--- EMITTING CSS for mk.wikimedia ---
+--- EMITTING CSS for mx.wikimedia ---
+--- EMITTING CSS for ng.wikimedia ---
+--- EMITTING CSS for no.wikimedia ---
+--- EMITTING CSS for noboard_chapters.wikimedia ---
+--- EMITTING CSS for nyc.wikimedia ---
+--- EMITTING CSS for nz.wikimedia ---
+--- EMITTING CSS for pa_us.wikimedia ---
+--- EMITTING CSS for rs.wikimedia ---
+--- EMITTING CSS for se.wikimedia ---
+--- EMITTING CSS for cn.wikimedia ---
+--- EMITTING CSS for ge.wikimedia ---
+--- EMITTING CSS for gr.wikimedia ---
+--- EMITTING CSS for hi.wikimedia ---
+--- EMITTING CSS for punjabi.wikimedia ---
+--- EMITTING CSS for romd.wikimedia ---
+--- EMITTING CSS for wb.wikimedia ---
+--- EMITTING CSS for special ---
+--- EMITTING CSS for advisory.wikimedia ---
+--- EMITTING CSS for apiportal.wikimedia ---
+--- EMITTING CSS for arbcom_cs.wikimedia ---
+--- EMITTING CSS for arbcom_de.wikimedia ---
+--- EMITTING CSS for arbcom_en.wikimedia ---
+--- EMITTING CSS for arbcom_fi.wikimedia ---
+--- EMITTING CSS for arbcom_nl.wikimedia ---
+--- EMITTING CSS for arbcom_ru.wikimedia ---
+--- EMITTING CSS for auditcom.wikimedia ---
+--- EMITTING CSS for beta.wikiversity ---
+--- EMITTING CSS for chair.wikimedia ---
+--- EMITTING CSS for chapcom.wikimedia ---
+--- EMITTING CSS for checkuser.wikimedia ---
+--- EMITTING CSS for collab.wikimedia ---
+--- EMITTING CSS for donate.wikimedia ---
+--- EMITTING CSS for exec.wikimedia ---
+--- EMITTING CSS for fdc.wikimedia ---
+--- EMITTING CSS for grants.wikimedia ---
+--- EMITTING CSS for iegcom.wikimedia ---
+--- EMITTING CSS for incubator.wikimedia ---
+--- EMITTING CSS for legalteam.wikimedia ---
+--- EMITTING CSS for office.wikimedia ---
+--- EMITTING CSS for ombudsmen.wikimedia ---
+--- EMITTING CSS for otrs_.wiki.wikimedia ---
+--- EMITTING CSS for projectcom.wikimedia ---
+--- EMITTING CSS for quality.wikimedia ---
+--- EMITTING CSS for searchcom.wikimedia ---
+--- EMITTING CSS for steward.wikimedia ---
+--- EMITTING CSS for strategy.wikimedia ---
+--- EMITTING CSS for sysop_it.wikimedia ---
+--- EMITTING CSS for ten.wikimedia ---
+--- EMITTING CSS for thankyou.wikimedia ---
+--- EMITTING CSS for transitionteam.wikimedia ---
+--- EMITTING CSS for usability.wikimedia ---
+--- EMITTING CSS for vote.wikimedia ---
+--- EMITTING CSS for wg_en.wikimedia ---
+--- EMITTING CSS for wikimania.wikimedia ---
+--- EMITTING CSS for wikimaniateam.wikikedia ---
