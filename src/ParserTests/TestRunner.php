@@ -500,7 +500,6 @@ class TestRunner {
 		$metadata = $env->getMetadata();
 		'@phan-var StubMetadataCollector $metadata';  // @var StubMetadataCollector $metadata
 		if ( isset( $test->options['showtocdata'] ) ) {
-			/*
 			$tocOutput = [];
 			foreach ( $metadata->getTOCData()->getSections() as $section ) {
 				// This format is temporary.
@@ -512,8 +511,6 @@ class TestRunner {
 			return $options['reportResult'](
 				$this->stats, $test, $options, $mode, $expected, $actual
 			);
-			*/
-			return true; // T329740
 		}
 		// TODO: handle showtitle/showindicators/cat/ill/property/extension
 		// options.

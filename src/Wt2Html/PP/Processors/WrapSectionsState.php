@@ -325,11 +325,9 @@ class WrapSectionsState {
 			$section->setId( $this->sectionNumber );
 		}
 
-		/* T329740: temporarily suppress section metadata
 		if ( !$pseudoSection ) {
 			$this->computeSectionMetadata( $section->metadata, $heading, $newLevel );
 		}
-		*/
 
 		return $section;
 	}
