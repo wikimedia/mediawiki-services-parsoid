@@ -22,6 +22,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -177,16 +178,19 @@ class WrapSectionsState {
 					"#^./#", "", $dmw->parts[0]->template->target->href );
 			}
 			$metadata->index = 'T-' . $this->sectionNumber; // core sets this to ''
-			$metadata->byteOffset = null;
+			$metadata->codepointOffset = null;
 		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
 			// PageConfig returns titles with a space, so strtr it
 			$metadata->fromTitle = strtr( $this->env->getPageConfig()->getTitle(), ' ', '_' );
 			$metadata->index = (string)$this->sectionNumber;
-			$metadata->byteOffset = DOMDataUtils::getDataParsoid( $heading )->dsr->start ?? -1;
+			// Note that our DSR counts *are* byte counts, while this core
+			// interface expects *codepoint* counts.  We are going to convert
+			// these in a batch (for efficiency) in ::convertTOCOffsets() below
+			$metadata->codepointOffset = DOMDataUtils::getDataParsoid( $heading )->dsr->start ?? -1;
 		} else {
 			$metadata->fromTitle = null;
 			$metadata->index = '';
-			$metadata->byteOffset = null;
+			$metadata->codepointOffset = null;
 		}
 
 		// Deep clone the heading to mutate it to trip unwanted tags and attributes.
@@ -769,6 +773,22 @@ class WrapSectionsState {
 		}
 	}
 
+	private function convertTOCOffsets() {
+		// Create reference array from all the codepointOffsets
+		$offsets = [];
+		foreach ( $this->env->getTOCData()->getSections() as $section ) {
+			if ( $section->codepointOffset !== null ) {
+				$offsets[] = &$section->codepointOffset;
+			}
+		}
+		TokenUtils::convertOffsets(
+			$this->env->topFrame->getSrcText(),
+			$this->env->getCurrentOffsetType(),
+			'char',
+			$offsets
+		);
+	}
+
 	/**
 	 * DOM Postprocessor entry function to walk DOM rooted at $root
 	 * and add <section> wrappers as necessary.
@@ -788,5 +808,9 @@ class WrapSectionsState {
 
 		// Resolve template conflicts after all sections have been added to the DOM
 		$this->resolveTplExtSectionConflicts();
+
+		// Convert byte offsets to codepoint offsets in TOCData
+		// (done in a batch to avoid O(N^2) string traversals)
+		$this->convertTOCOffsets();
 	}
 }

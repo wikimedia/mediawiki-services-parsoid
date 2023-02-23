@@ -319,3 +319,26 @@ parsoid={
 !! metadata/parsoid
 {"toclevel":1,"level":"2","line":"c'd'\narray (\n)","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"c'd'_array_(_)","linkAnchor":"c'd'_array_(_)"}
 !! end
+
+# This is confusing when using the legacy 'byteoffset' name in the
+# JSON (T319141)
+!! test
+Offsets in toc metadata should be unicode codepoints, not bytes or UCS-2
+!! config
+wgFragmentMode=[ "html5", "legacy" ]
+!! options
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+showtocdata
+nohtml
+!! wikitext
+==One 💩==
+==Two 💩==
+==Three 💩==
+!! html
+{"toclevel":1,"level":"2","line":"One \ud83d\udca9","number":"1","index":"1","fromtitle":"Parser_test","byteoffset":0,"anchor":"One_\ud83d\udca9","linkAnchor":"One_\ud83d\udca9"}
+{"toclevel":1,"level":"2","line":"Two \ud83d\udca9","number":"2","index":"2","fromtitle":"Parser_test","byteoffset":10,"anchor":"Two_\ud83d\udca9","linkAnchor":"Two_\ud83d\udca9"}
+{"toclevel":1,"level":"2","line":"Three \ud83d\udca9","number":"3","index":"3","fromtitle":"Parser_test","byteoffset":20,"anchor":"Three_\ud83d\udca9","linkAnchor":"Three_\ud83d\udca9"}
+!! end
