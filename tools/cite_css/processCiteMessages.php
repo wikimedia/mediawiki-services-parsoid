@@ -62,7 +62,7 @@ function wfFetchRevisionContent( string $wiki, string $title ): string {
 function wfProcessRow( array $row, array &$wikiInfo ): void {
 	$wiki = $row['wiki'];
 # Debug
-#	if ( $wiki !== "hi.wikipedia" ) {
+#	if ( $wiki !== "vec.wikisource" ) {
 #		return;
 #	}
 	$msgKey = $row['title'];
@@ -78,7 +78,7 @@ function wfProcessRow( array $row, array &$wikiInfo ): void {
 			preg_replace( "#^<span[^>]*>([\s\S]*)</span>$#", "$1", html_entity_decode( $content ) )
 		)
 	);
-	# error_log("wiki:$wiki; msg: $msgKey; content: $content");
+#	error_log("wiki:$wiki; msg: $msgKey; content: $content");
 	$wikiInfo[$wiki][$msgKey] = $content;
 }
 
@@ -443,9 +443,9 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 				if ( $msg !== "[$3]" ) {
 					$cssSel = '.mw-ref > a::after';
 					$parts = preg_split( "/\\$3/", $msg );
-					$rule = "content: ";
+					$rule = "content:";
 					if ( $parts[0] !== "" ) {
-						$rule .= "'" . $parts[0] . "'";
+						$rule .= " '" . $parts[0] . "'";
 					}
 					// FIXME: the counter is language-specific
 					// but editors can fix this or we can edit it manually
@@ -456,12 +456,18 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					$rule .= ";";
 					wfEmitCSS( $cssSel, [ $rule ] );
 
-					// Add CSS rules for all groups
+					// Add default CSS rule for groups
+					$cssSel = ".mw-ref > a[data-mw-group]::after";
+					$baseRule = $rule;
+					$newRule = preg_replace( "/counter\(/", "attr(data-mw-group) ' ' counter(", $baseRule );
+					wfEmitCSS( $cssSel, [ $newRule ] );
+
+					// Add CSS rules for groups with custom counters
 					$baseRule = $rule;
 					foreach ( $groupLabels as $group => $groupCounterType ) {
 						$cssSel = ".mw-ref > a[data-mw-group=$group]::after";
-						$rule = preg_replace( "/$refCounterType/", "$groupCounterType", $baseRule );
-						wfEmitCSS( $cssSel, [ $rule ] );
+						$newRule = preg_replace( "/$refCounterType/", "$groupCounterType", $baseRule );
+						wfEmitCSS( $cssSel, [ $newRule ] );
 					}
 
 					/**

@@ -522,6 +522,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 .mw-ref > a::after {
 	content: '[' counter( mw-Ref, decimal ) ']​';
 }
+.mw-ref > a[data-mw-group]::after {
+	content: '[' attr(data-mw-group) ' ' counter( mw-Ref, decimal ) ']​';
+}
 .mw-ref > a[data-mw-group=lower-greek]::after {
 	content: '[' counter( mw-Ref, lower-greek ) ']​';
 }
@@ -543,7 +546,10 @@ span[ rel="mw:referencedBy" ] > a::before {
 --- EMITTING CSS for es.wikiquote ---
 --- EMITTING CSS for es.wiktionary ---
 .mw-ref > a::after {
-	content:  counter( mw-Ref, decimal );
+	content: counter( mw-Ref, decimal );
+}
+.mw-ref > a[data-mw-group]::after {
+	content: attr(data-mw-group) ' ' counter( mw-Ref, decimal );
 }
 --- EMITTING CSS for eu.wikipedia ---
 span[ rel="mw:referencedBy" ] {
@@ -854,10 +860,13 @@ span[ rel="mw:referencedBy" ] > a::before {
 }
 --- EMITTING CSS for it.wikisource ---
 .mw-ref > a::after {
-	content:  counter( mw-Ref, decimal );
+	content: counter( mw-Ref, decimal );
+}
+.mw-ref > a[data-mw-group]::after {
+	content: attr(data-mw-group) ' ' counter( mw-Ref, decimal );
 }
 .mw-ref > a[data-mw-group=lower-alpha]::after {
-	content:  counter( mw-Ref, lower-alpha );
+	content: counter( mw-Ref, lower-alpha );
 }
 --- EMITTING CSS for iu.wikipedia ---
 --- EMITTING CSS for ja.wikibooks ---
@@ -1540,7 +1549,10 @@ span[ rel="mw:referencedBy" ]::before {
 }
 --- EMITTING CSS for vec.wikisource ---
 .mw-ref > a::after {
-	content:  counter( mw-Ref, decimal );
+	content: counter( mw-Ref, decimal );
+}
+.mw-ref > a[data-mw-group]::after {
+	content: attr(data-mw-group) ' ' counter( mw-Ref, decimal );
 }
 --- EMITTING CSS for vi.wikibooks ---
 a[ rel="mw:referencedBy" ]::before {
