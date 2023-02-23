@@ -392,6 +392,8 @@ parsoid=wt2html
 !! wikitext
 [[A]][[Category:分类]]
 !! html/php
+<p><a href="/wiki/A" title="A">A</a>
+</p>
 cat=分类 sort=
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./A" title="A">A</a></p>
