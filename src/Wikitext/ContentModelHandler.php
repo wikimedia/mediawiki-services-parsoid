@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Html2Wt\RemoveRedLinks;
 use Wikimedia\Parsoid\Html2Wt\SelectiveSerializer;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -52,6 +53,9 @@ class ContentModelHandler extends IContentModelHandler {
 		// This ensures that we can accept HTML from CX / VE
 		// and other clients that might have stripped them.
 		ContentUtils::stripUnnecessaryWrappersAndFallbackIds( $body );
+
+		$redLinkRemover = new RemoveRedLinks( $this->env );
+		$redLinkRemover->run( $body );
 	}
 
 	/**
