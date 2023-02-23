@@ -154,6 +154,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-references, persian ) '٫' counter( mw-ref-linkback, persian );
 }
 --- EMITTING CSS for az.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-style: italic;
 	content: counter( mw-ref-linkback, decimal );
@@ -341,6 +344,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 }
 --- EMITTING CSS for bs.wiktionary ---
 --- EMITTING CSS for ce.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, decimal );
 }
@@ -406,6 +412,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for cv.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -681,6 +690,9 @@ span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after {
 @counter-style custom-group-label-hebrew {
 	system: fixed;
 	symbols: 'א' 'ב' 'ג' 'ד' 'ה' 'ו' 'ז' 'ח' 'ט' 'י' 'י"א' 'י"ב' 'י"ג' 'י"ד' 'ט"ו' 'ט"ז' 'י"ז' 'י"ח' 'י"ט' 'כ' 'כ"א' 'כ"ב' 'כ"ג' 'כ"ד' 'כ"ה' 'כ"ו' 'כ"ז' 'כ"ח' 'כ"ט' 'ל' 'ל"א' 'ל"ב' 'ל"ג' 'ל"ד' 'ל"ה' 'ל"ו' 'ל"ז' 'ל"ח' 'ל"ט' 'מ' 'מ"א' 'מ"ב' 'מ"ג' 'מ"ד' 'מ"ה' 'מ"ו' 'מ"ז' 'מ"ח' 'מ"ט' 'נ' 'נ"א' 'נ"ב' 'נ"ג' 'נ"ד' 'נ"ה' 'נ"ו' 'נ"ז' 'נ"ח' 'נ"ט' 'ס' 'ס"א' 'ס"ב' 'ס"ג' 'ס"ד' 'ס"ה' 'ס"ו' 'ס"ז' 'ס"ח' 'ס"ט' 'ע' 'ע"א' 'ע"ב' 'ע"ג' 'ע"ד' 'ע"ה' 'ע"ו' 'ע"ז' 'ע"ח' 'ע"ט' 'פ' 'פ"א' 'פ"ב' 'פ"ג' 'פ"ד' 'פ"ה' 'פ"ו' 'פ"ז' 'פ"ח' 'פ"ט' 'צ' 'צ"א' 'צ"ב' 'צ"ג' 'צ"ד' 'צ"ה' 'צ"ו' 'צ"ז' 'צ"ח' 'צ"ט' 'ק' 'ק"א' 'ק"ב' 'ק"ג' 'ק"ד' 'ק"ה' 'ק"ו' 'ק"ז' 'ק"ח' 'ק"ט' 'ק"י' 'קי"א' 'קי"ב' 'קי"ג' 'קי"ד' 'קט"ו' 'קט"ז' 'קי"ז' 'קי"ח' 'קי"ט' 'ק"כ' 'קכ"א' 'קכ"ב' 'קכ"ג' 'קכ"ד' 'קכ"ה' 'קכ"ו' 'קכ"ז' 'קכ"ח' 'קכ"ט' 'ק"ל' 'קל"א' 'קל"ב' 'קל"ג' 'קל"ד' 'קל"ה' 'קל"ו' 'קל"ז' 'קל"ח' 'קל"ט' 'ק"מ' 'קמ"א' 'קמ"ב' 'קמ"ג' 'קמ"ד' 'קמ"ה' 'קמ"ו' 'קמ"ז' 'קמ"ח' 'קמ"ט' 'ק"נ' 'קנ"א' 'קנ"ב' 'קנ"ג' 'קנ"ד' 'קנ"ה' 'קנ"ו' 'קנ"ז' 'קנ"ח' 'קנ"ט' 'ק"ס' 'קס"א' 'קס"ב' 'קס"ג' 'קס"ד' 'קס"ה' 'קס"ו' 'קס"ז' 'קס"ח' 'קס"ט' 'ק"ע' 'קע"א' 'קע"ב' 'קע"ג' 'קע"ד' 'קע"ה' 'קע"ו' 'קע"ז' 'קע"ח' 'קע"ט' 'ק"פ' 'קפ"א' 'קפ"ב' 'קפ"ג' 'קפ"ד' 'קפ"ה' 'קפ"ו' 'קפ"ז' 'קפ"ח' 'קפ"ט' 'ק"צ' 'קצ"א' 'קצ"ב' 'קצ"ג' 'קצ"ד' 'קצ"ה' 'קצ"ו' 'קצ"ז' 'קצ"ח' 'קצ"ט' 'ר' 'ר"א' 'ר"ב' 'ר"ג' 'ר"ד' 'ר"ה' 'ר"ו' 'ר"ז' 'ר"ח' 'ר"ט' 'ר"י' 'רי"א' 'רי"ב' 'רי"ג' 'רי"ד' 'רט"ו' 'רט"ז' 'רי"ז' 'רי"ח' 'רי"ט' 'ר"כ' 'רכ"א' 'רכ"ב' 'רכ"ג' 'רכ"ד' 'רכ"ה' 'רכ"ו' 'רכ"ז' 'רכ"ח' 'רכ"ט' 'ר"ל' 'רל"א' 'רל"ב' 'רל"ג' 'רל"ד' 'רל"ה' 'רל"ו' 'רל"ז' 'רל"ח' 'רל"ט' 'ר"מ' 'רמ"א' 'רמ"ב' 'רמ"ג' 'רמ"ד' 'רמ"ה' 'רמ"ו' 'רמ"ז' 'רמ"ח' 'רמ"ט' 'ר"נ' 'רנ"א' 'רנ"ב' 'רנ"ג' 'רנ"ד' 'רנ"ה' 'רנ"ו' 'רנ"ז' 'רנ"ח' 'רנ"ט' 'ר"ס' 'רס"א' 'רס"ב' 'רס"ג' 'רס"ד' 'רס"ה' 'רס"ו' 'רס"ז' 'רס"ח' 'רס"ט' 'ר"ע' 'רע"א' 'רע"ב' 'רע"ג' 'רע"ד' 'רע"ה' 'רע"ו' 'רע"ז' 'רע"ח' 'רע"ט' 'ר"פ' 'רפ"א' 'רפ"ב' 'רפ"ג' 'רפ"ד' 'רפ"ה' 'רפ"ו' 'רפ"ז' 'רפ"ח' 'רפ"ט' 'ר"צ' 'רצ"א' 'רצ"ב' 'רצ"ג' 'רצ"ד' 'רצ"ה' 'רצ"ו' 'רצ"ז' 'רצ"ח' 'רצ"ט' 'ש';
+}
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
 }
 span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, decimal );
@@ -1195,6 +1207,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, custom-backlink );
 }
 --- EMITTING CSS for ru.wikiquote ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;
@@ -1855,6 +1870,9 @@ span[ rel="mw:referencedBy" ] > a::before {
 	content: counter( mw-ref-linkback, lower-alpha );
 }
 --- EMITTING CSS for ru.wikipedia ---
+span[ rel="mw:referencedBy" ] {
+	counter-reset: mw-ref-linkback 0;
+}
 span[ rel="mw:referencedBy" ] > a::before {
 	font-weight: bold;
 	font-style: italic;

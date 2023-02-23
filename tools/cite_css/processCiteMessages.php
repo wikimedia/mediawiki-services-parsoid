@@ -556,12 +556,13 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 						if ( $initCustomLinkbackCounter ) {
 							print $initCustomLinkbackCounter . "\n";
 						}
-						if ( wfIsNonDecimalCounter( $linkbackCounterType ) ) {
-							wfEmitCSS(
-								'span[ rel="mw:referencedBy" ]',
-								[ 'counter-reset: mw-ref-linkback 0;' ]
-							);
-						}
+						// These aren't 2.0, 2.1 ... etc. style counters
+						// but more like 1,2,3 style counters so we need
+						// to override counter-reset to 0.
+						wfEmitCSS(
+							'span[ rel="mw:referencedBy" ]',
+							[ 'counter-reset: mw-ref-linkback 0;' ]
+						);
 						$linkbackRule = "counter( mw-ref-linkback, $linkbackCounterType )";
 					}
 
