@@ -347,8 +347,13 @@ class SectionMetadata implements \JsonSerializable {
 	 */
 	public function prettyPrint( int $indent = 0 ): string {
 		$buf = str_repeat( ' ', $indent + $this->tocLevel );
+		$line = $this->line;
+		if ( str_contains( $line, "\n" ) ) {
+			// Handle cases where $line has "funny" characters
+			$line = json_encode( $line );
+		}
 		$buf .=
-			"h{$this->hLevel} ({$this->index}) {$this->number}: {$this->line}";
+			"h{$this->hLevel} ({$this->index}) {$this->number}: {$line}";
 		# add anchors
 		$buf .= " [id={$this->anchor}";
 		if ( $this->anchor !== $this->linkAnchor ) {
