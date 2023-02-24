@@ -285,14 +285,15 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$dataMw->attrs ??= new stdClass;
+		$nativeGalleryEnabled = $extApi->getSiteConfig()->nativeGalleryEnabled();
 		// Handle the "gallerycaption" first
 		$galcaption = DOMCompat::querySelector( $node, 'li.gallerycaption' );
 		if (
-			$galcaption &&
-			// FIXME: VE should signal to use the HTML by removing the
-			// `caption` from data-mw.
-			!is_string( $dataMw->attrs->caption ?? null )
-		) {
+			$galcaption && ( $nativeGalleryEnabled ||
+				// FIXME: VE should signal to use the HTML by removing the
+				// `caption` from data-mw.
+				!is_string( $dataMw->attrs->caption ?? null )
+		) ) {
 			$dataMw->attrs->caption = $extApi->domChildrenToWikitext(
 				$galcaption, $extApi::IN_IMG_CAPTION | $extApi::IN_OPTION
 			);
@@ -304,7 +305,10 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		} else {
 			// FIXME: VE should signal to use the HTML by removing the
 			// `extsrc` from the data-mw.
-			if ( is_string( $dataMw->body->extsrc ?? null ) ) {
+			if (
+				!$nativeGalleryEnabled &&
+				is_string( $dataMw->body->extsrc ?? null )
+			) {
 				$content = $dataMw->body->extsrc;
 			} else {
 				$content = $this->contentHandler( $extApi, $node );
