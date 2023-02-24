@@ -14,9 +14,10 @@ use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\WTSUtils;
+use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
  * Implements the php parser's `renderImageGallery` natively.
@@ -216,7 +217,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					// FIXME: Dry all this out with T252246 / T262833
 					if ( $ms->hasResource() ) {
 						$resource = $ms->getResource();
-						$content .= PHPUtils::stripPrefix( $resource, './' );
+						$rs = WTSUtils::getShadowInfo( $ms->mediaElt, 'resource', $resource );
+						if ( $rs['fromsrc'] ) {
+							$content .= $rs['value'];
+						} else {
+							$content .= PHPUtils::stripPrefix( $resource, './' );
+						}
 						// FIXME: Serializing of these attributes should
 						// match the link handler so that values stashed in
 						// data-mw aren't ignored.

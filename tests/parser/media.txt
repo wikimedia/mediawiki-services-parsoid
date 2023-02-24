@@ -2630,10 +2630,6 @@ wgParserEnableLegacyMediaDOM=false
 
 !! test
 Gallery (with options, html)
-!! options
-parsoid={
-  "modes": ["wt2html", "html2html"]
-}
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
@@ -2642,7 +2638,7 @@ File:Nonexistent.jpg|caption
 File:Nonexistent.jpg
 image:foobar.jpg|some '''caption''' [[Main Page]]
 image:foobar.jpg
-image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
+image:foobar.jpg|alt=This is a foo-bar.|blabla.
 </gallery>
 !! html/php
 <ul class="gallery mw-gallery-traditional" style="max-width: 226px;">
@@ -2680,13 +2676,13 @@ image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
 		</li>
 </ul>
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" style="max-width: 226px;" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"widths":"70px","heights":"40px","perrow":"2"},"body":{}}'>
+<ul class="gallery mw-gallery-traditional" style="max-width: 226px;" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"widths":"70px","heights":"40px","perrow":"2"},"body":{}}'>
 <li class="gallerycaption">Foo <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></li>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:Error mw:File" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent.jpg"><span class="mw-broken-media" resource="./File:Nonexistent.jpg" data-width="70" data-height="40">caption</span></a></span></div><div class="gallerytext">caption</div></li>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:Error mw:File" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent.jpg"><span class="mw-broken-media" resource="./File:Nonexistent.jpg" data-width="70" data-height="40">File:Nonexistent.jpg</span></a></span></div><div class="gallerytext"></div></li>
-<li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="some caption Main Page"><img alt="some caption Main Page" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x"/></a></span></div><div class="gallerytext">some <b>caption</b> <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></div></li>
-<li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x"/></a></span></div><div class="gallerytext"></div></li>
-<li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="blabla."><img alt="This is a foo-bar." resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x"/></a></span></div><div class="gallerytext">blabla.</div></li>
+<li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="some caption Main Page"><img alt="some caption Main Page" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"8","width":"70"},"sa":{"resource":"image:foobar.jpg"}}'/></a></span></div><div class="gallerytext">some <b>caption</b> <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></div></li>
+<li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"8","width":"70"},"sa":{"resource":"image:foobar.jpg"}}'/></a></span></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="blabla."><img alt="This is a foo-bar." resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/70px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="8" width="70" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/105px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/140px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"8","width":"70"},"sa":{"resource":"image:foobar.jpg"}}'/></a></span></div><div class="gallerytext">blabla.</div></li>
 </ul>
 !! end
 
@@ -2704,7 +2700,7 @@ File:Nonexistent.jpg|caption
 File:Nonexistent.jpg
 image:foobar.jpg|some '''caption''' [[Main Page]]
 image:foobar.jpg
-image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
+image:foobar.jpg|alt=This is a foo-bar.|blabla.
 </gallery>
 !! html/php
 <ul class="gallery mw-gallery-traditional" style="max-width: 226px;">
@@ -2742,7 +2738,7 @@ image:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.
 		</li>
 </ul>
 !! html/parsoid
-<ul class="gallery mw-gallery-traditional" style="max-width: 226px;" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"widths":"70px","heights":"40px","perrow":"2","caption":"Foo [[Main Page]]"},"body":{"extsrc":"\nFile:Nonexistent.jpg|caption\nFile:Nonexistent.jpg\nimage:foobar.jpg|some &apos;&apos;&apos;caption&apos;&apos;&apos; [[Main Page]]\nimage:foobar.jpg\nimage:foobar.jpg|Blabla|alt=This is a foo-bar.|blabla.\n"}}'>
+<ul class="gallery mw-gallery-traditional" style="max-width: 226px;" typeof="mw:Extension/gallery" about="#mwt3" data-mw='{"name":"gallery","attrs":{"widths":"70px","heights":"40px","perrow":"2","caption":"Foo [[Main Page]]"},"body":{"extsrc":"\nFile:Nonexistent.jpg|caption\nFile:Nonexistent.jpg\nimage:foobar.jpg|some &apos;&apos;&apos;caption&apos;&apos;&apos; [[Main Page]]\nimage:foobar.jpg\nimage:foobar.jpg|alt=This is a foo-bar.|blabla.\n"}}'>
 <li class="gallerycaption">Foo <a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a></li>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:Error mw:File" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent.jpg"><span class="mw-broken-media" resource="./File:Nonexistent.jpg" data-width="70" data-height="40">File:Nonexistent.jpg</span></a></span></div><div class="gallerytext">caption</div></li>
 <li class="gallerybox" style="width: 105px;"><div class="thumb" style="width: 100px; height: 70px;"><span typeof="mw:Error mw:File" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Nonexistent.jpg"><span class="mw-broken-media" resource="./File:Nonexistent.jpg" data-width="70" data-height="40">File:Nonexistent.jpg</span></a></span></div><div class="gallerytext"></div></li>

@@ -1008,6 +1008,32 @@ class ParsoidExtensionAPI {
 			}
 		}
 
+		// Above we add $file to $pieces, instead of $titleStr, so the shadowed
+		// attribute for the resource isn't what we want.  $file is used
+		// because we want to take advantage of $fileNs to give us the right
+		// namespace, since, in galleries, the explicit prefix isn't necessary
+		// but for the wikilink syntax it is.  Ex,
+		//
+		// <gallery>
+		// Test.png
+		// </gallery>
+		//
+		// vs [[File:Test.png]], here the File: prefix is necessary
+		//
+		// We can maybe just move the following hack into the gallery extension
+		// and detect when $titleStr is missing the prefix in there since
+		// it's unclear that ImageMap or any other extension calling this
+		// method wants the assumed namespace.
+		//
+		// Fiddling with the shadow attribute below, rather than using
+		// DOMDataUtils::setShadowInfoIfModified, since WikiLinkHandler::renderFile
+		// always sets a shadow (at minimum for the relative './') and that
+		// method preserves the original source from the first time it's called,
+		// though there's a FIXME to remove that behaviour.
+		$media = $thumb->firstChild->firstChild;
+		$dp = DOMDataUtils::getDataParsoid( $media );
+		$dp->sa['resource'] = $titleStr;
+
 		return $thumb;
 	}
 
