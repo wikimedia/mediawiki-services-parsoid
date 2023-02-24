@@ -69,7 +69,6 @@ class TraditionalMode extends Mode {
 			$total = $opts->imageWidth + $padding->thumb + $padding->box + $padding->border;
 			$total *= $opts->imagesPerRow;
 			$this->appendAttr( $ul, 'style', 'max-width: ' . $total . 'px;' );
-			$this->appendAttr( $ul, 'style', '_width: ' . $total . 'px;' );
 		}
 	}
 
