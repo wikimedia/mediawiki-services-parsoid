@@ -126,7 +126,7 @@
 	"Section headings with TOC": {
 		"wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[15,34,3,3]}'>Subheadline 1</h3>\n<h5 id=\"Skipping_a_level\" data-parsoid='{\"dsr\":[35,61,5,5]}'>Skipping a level</h5>\n<h6 id=\"Skipping_a_level_2\" data-parsoid='{\"dsr\":[62,90,6,6]}'>Skipping a level</h6>\n\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[92,106,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[107,116,0,0]}'>Some text</p>\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[117,139,3,3]}'>Another headline</h3>"
 	},
-	"Section headings with TOC and language conversion (T295187)": {
+	"Section headings with TOC and language conversion (T295187, T306862)": {
 		"wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[15,34,3,3]}'>Subheadline 1</h3>\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[35,49,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[50,59,0,0]}'>Some text</p>\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[60,82,3,3]}'>Another headline</h3>"
 	},
 	"Section headings with TOC and language conversion disabled (T295187)": {
