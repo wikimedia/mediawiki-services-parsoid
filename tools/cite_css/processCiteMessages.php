@@ -580,12 +580,12 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 					$cssRules[] = $rule;
 					wfEmitCSS( $cssSel, $cssRules );
 				} elseif ( $resetRefCounterTypes ) {
-					// FIXME: Some incomplete code here!!
 					$cssSel = 'span[ rel="mw:referencedBy" ] > a::before';
-					$linkbackRule =
-						"counter( mw-references, $linkbackCounterType )" . " '$langSep' " .
-						"counter( mw-ref-linkback, $linkbackCounterType )";
-					$cssRules = [];
+					$linkbackRule = 'content: ' .
+						"counter( mw-references, decimal )" . " '$langSep' " .
+						"counter( mw-ref-linkback, decimal )";
+					$cssRules = [ $linkbackRule ];
+					wfEmitCSS( $cssSel, $cssRules );
 				}
 				break;
 

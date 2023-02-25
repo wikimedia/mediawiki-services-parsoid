@@ -2400,6 +2400,9 @@ span[ rel="mw:referencedBy" ] > a:nth-last-child(2)::after {
 .mw-ref > a[ data-mw-group ]::after {
 	content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, decimal ) ']';
 }
+span[ rel="mw:referencedBy" ] > a::before {
+	content: counter( mw-references, decimal ) '.' counter( mw-ref-linkback, decimal )
+}
 --- EMITTING CSS for bh.wiktionary ---
 --- EMITTING CSS for cbk_zam.wikipedia ---
 --- EMITTING CSS for fiu_vro.wikipedia ---
