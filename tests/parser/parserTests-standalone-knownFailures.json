@@ -777,6 +777,15 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESINCATEGORY:&lt;bogus>\",\"function\":\"pagesincategory\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_pagesincategory missing in Parsoid.</span></p>",
         "html2wt": "0\n"
     },
+    "Page status indicators: Torture test": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,516,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,44,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"01\"},\"body\":{\"extsrc\":\"hello world\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[45,91,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"02\"},\"body\":{\"extsrc\":\"[[Main Page]]\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt6\" data-parsoid='{\"dsr\":[92,155,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"03\"},\"body\":{\"extsrc\":\"[[File:Foobar.jpg|25px|link=]]\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt8\" data-parsoid='{\"dsr\":[156,213,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"04\"},\"body\":{\"extsrc\":\"[[File:Foobar.jpg|25px]]\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt10\" data-parsoid='{\"dsr\":[214,256,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"05\"},\"body\":{\"extsrc\":\"*foo\\n*bar\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt12\" data-parsoid='{\"dsr\":[257,310,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"06\"},\"body\":{\"extsrc\":\"&lt;nowiki>foo&lt;/nowiki>\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt14\" data-parsoid='{\"dsr\":[311,357,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"07\"},\"body\":{\"extsrc\":\" Preformatted\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt16\" data-parsoid='{\"dsr\":[358,406,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"08\"},\"body\":{\"extsrc\":\"&lt;div>Broken tag\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt18\" data-parsoid='{\"dsr\":[407,467,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"09\"},\"body\":{\"extsrc\":\"{| class=wikitable\\n|cell\\n|}\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt20\" data-parsoid='{\"dsr\":[468,516,21,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"10\"},\"body\":{\"extsrc\":\"Two\\n\\nparagraphs\"}}'/></p>",
+        "html2wt": ""
+    },
+    "Page status indicators: Weird syntaxes that are okay": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,62,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,26,26,0]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"empty\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[27,62,23,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"name\"},\"body\":{\"extsrc\":\"\"}}'/></p>",
+        "html2html": "\n\n",
+        "html2wt": "\n\n"
+    },
     "Paragraphs inside blockquotes/divs (extra line break on close)": {
         "html2wt": "<blockquote><div>Line one\nLine two\n\n</div></blockquote>"
     },
@@ -1104,6 +1113,130 @@
         "selser [[0,[1,0]]]": "{|\n|[[{{{1}}}|{{{2}}}]]\n|}",
         "selser [[3,1]]": "{|\n|[[{{{1}}}|{{{2}}}]]\n|}",
         "selser [[4,1]]": "{|<!--1t4r17j-->\n|[[{{{1}}}|{{{2}}}]]\n|}"
+    },
+    "T307691: show-toc flag: \"enough\" sections": {
+        "wt2wt": "==One==\n===Two===\n==Three==\n===Four===\n",
+        "html2wt": "== One ==\n\n=== Two ===\n\n== Three ==\n\n=== Four ===\n",
+        "selser [2,0,0,0,4,0,0]": "5vom91\n\n== One ==\n=== Two ===\nol52s0\n\n=== Four ===",
+        "selser [4,0,0,4,2,2,0]": "ejaamj\n\n=== Two ===\n12zxjwa\n\neizrgb\n\n== Three ==\n1g6p5kx\n\n=== Four ===",
+        "selser [2,3,[4],3,0,2,[4]]": "1nmszl\n\n== One ==\n=== d1trb2 ===\n== Three ==\n149fx90\n\n=== o6gfp7 ===",
+        "selser [3,2,0,0,0,4,[4]]": "88e03p\n\n=== Two ===\n== Three ==\ny7e9yp\n\n=== fcdjvh ===",
+        "selser [0,0,[4],0,[2],2,[2]]": "== One ==\n=== 11ln2hw ===\n== 1vephgvThree ==\nibq8cn\n\n=== l0idmrFour ===",
+        "selser [[3],2,0,2,[3],4,1]": "10czgn3\n\n=== Two ===\n19o7e17\nu31rjc\n\n=== Four ===",
+        "selser [3,0,[3],0,2,0,0]": "\nxaa6al\n\n== Three ==\n=== Four ===",
+        "selser [[3],3,2,0,4,4,2]": "14ez10z\n\n=== Two ===\nskaii\n\n1yupyqj\n\n1ruvq7l\n\n=== Four ===",
+        "selser [3,3,[2],0,0,2,1]": "=== 1df3fvwTwo ===\n== Three ==\n1d9cjup\n\n=== Four ===",
+        "selser [3,0,0,0,4,0,2]": "\n=== Two ===\n1lbwvxo\n\n1hj9rlt\n\n=== Four ===",
+        "selser [3,0,2,2,1,3,1]": "\n15w2p8g\n\n=== Two ===\n1xa1imd\n\n== Three ==\n=== Four ===",
+        "selser [0,0,0,0,[4],0,1]": "== One ==\n=== Two ===\n== j5lon7 ==\n=== Four ===",
+        "selser [3,3,[3],2,1,4,2]": "q8wu7e\n\n== Three ==\n1wummoo\n\n1uaur9b\n\n=== Four ===",
+        "selser [[2],0,[2],2,1,0,[3]]": "== 19mz290One ==\n=== 1laqxy4Two ===\nzkrp1q\n\n== Three ==\n",
+        "selser [0,3,2,4,2,0,0]": "== One ==\n1j43wp5\n\n=== Two ===\noglf3d\n\n1vip3km\n\n== Three ==\n=== Four ===",
+        "selser [1,3,2,3,4,4,0]": "== One ==\n180639t\n\n=== Two ===\nr4x09w\n\n2t9fvb\n\n=== Four ===",
+        "selser [4,0,0,0,0,4,[2]]": "a6vdk0\n\n=== Two ===\n== Three ==\n1746fyz\n\n=== 1poz04Four ===",
+        "selser [0,4,4,0,[4],0,4]": "== One ==\nnylvpw\n\n1l5k5h8\n\n== zfc0uy ==\nyy5iu7",
+        "selser [1,2,[3],0,4,3,3]": "== One ==\n1ectzfe\n\n1hf8uyu",
+        "selser [4,4,0,0,[4],0,3]": "xcv9yc\n\ny5d2gh\n\n=== Two ===\n== 1edhywf ==\n"
+    },
+    "T307691: show-toc flag: \"enough\" sections and __FORCETOC__": {
+        "wt2wt": "__FORCETOC__\n==One==\n===Two===\n==Three==\n===Four===\n",
+        "html2wt": "__FORCETOC__\n\n== One ==\n\n=== Two ===\n\n== Three ==\n\n=== Four ===\n",
+        "selser [2,3,3,3,1,3,2,3,2]": "86g9ex\n\n__FORCETOC__\n=== Two ===\n18nh7jg\n\n== Three ==\nrd5jma\n\n=== Four ===",
+        "selser [0,2,4,4,1,4,0,0,2]": "__FORCETOC__\n\n2ul6t4\n\n1edv2xg\n\nkxe604\n\n=== Two ===\n7cobdi\n\n== Three ==\n15ju2lc\n\n=== Four ===",
+        "selser [1,2,3,0,[3],4,0,3,3]": "__FORCETOC__\n\n12d09zc\n\n6zpfkh\n\n== Three ==\n",
+        "selser [0,2,4,3,1,3,[3],0,1]": "__FORCETOC__\n\n1dwt5dn\n\ns021q8\n\n=== Two ===\n=== Four ===",
+        "selser [4,4,1,2,4,3,0,3,4]": "eeru9j\n\nzxsn0g\n\n== One ==\n12xgyvj\n1e9jllg\n\n== Three ==\n1v1obr8",
+        "selser [1,4,[2],4,0,0,0,0,0]": "__FORCETOC__\n\n1x97k80\n\n== wgqju5One ==\n7di704\n\n=== Two ===\n== Three ==\n=== Four ===",
+        "selser [3,0,1,3,4,0,0,4,2]": "\n== One ==\n1gd2hms\n\n== Three ==\n1b5mjan\n\nouvmnb\n\n=== Four ===",
+        "selser [0,0,4,3,2,0,[3],2,0]": "__FORCETOC__\n\n1n86w4v\n\nlqvgt2\n\n=== Two ===\n1r5ho29\n\n=== Four ===",
+        "selser [4,3,4,0,[2],4,4,0,[4]]": "zxy09y\n\ngq1jkx\n\n=== 19ugt23Two ===\n1cqx0y9\n\nvyfdz1\n\n=== 1m5okz5 ===",
+        "selser [1,0,[2],2,0,0,3,4,4]": "__FORCETOC__\n== 1dgqwg8One ==\n1idu0mz\n\n=== Two ===\n8dfu6d\n\napf6vm",
+        "selser [0,0,[4],0,0,3,[4],0,[2]]": "__FORCETOC__\n== 1a2hb5g ==\n=== Two ===\n== 1u1c671 ==\n=== 3bnkivFour ===",
+        "selser [2,2,[2],0,1,0,2,0,3]": "18gz5c5\n\n__FORCETOC__\n\n1aeqqz0\n\n== 1v29xs6One ==\n=== Two ===\n6wrlz5\n\n== Three ==\n",
+        "selser [0,0,[3],0,3,0,2,4,0]": "__FORCETOC__\n\nanf88q\n\n== Three ==\n1ei59qu\n\n=== Four ===",
+        "selser [3,3,[3],0,[2],3,[4],0,[4]]": "\n=== agk8neTwo ===\n== 1j2fgq6 ==\n=== l5517k ===",
+        "selser [0,0,2,2,2,0,4,4,3]": "__FORCETOC__\n\npeg53t\n\n== One ==\nempa8i\n1g0vdhg\n\n=== Two ===\ny01rbd\n\nfdkw1g",
+        "selser [3,0,0,3,0,0,4,0,3]": "\n== One ==\n=== Two ===\nslznql\n",
+        "selser [0,3,2,2,3,3,0,4,4]": "__FORCETOC__\n\n3tl3q4\n\n== One ==\nkzbn54\n\n== Three ==\n152lr8f\n\nihjbtx",
+        "selser [0,4,0,0,[4],0,[4],0,0]": "__FORCETOC__\n\n15oiwfy\n\n== One ==\n=== 1vj8nv0 ===\n== wtxvw9 ==\n=== Four ===",
+        "selser [2,3,[3],0,3,0,2,0,3]": "jal8i1\n\n__FORCETOC__\n\n1gm6r3r\n\n== Three ==\n"
+    },
+    "T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
+        "wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n",
+        "html2wt": "__NOTOC__\n\n== One ==\n\n=== Two ===\n\n== Three ==\n\n=== Four ===\n",
+        "selser [3,2,[3],0,0,4,0,0,0]": "r353il\n\n=== Two ===\n179veeb\n\n== Three ==\n=== Four ===",
+        "selser [0,4,0,4,4,3,2,3,0]": "__NOTOC__\n\n1hxxl37\n\n== One ==\n1e7o80n\n\n1tqd7a1\n\n3auy5q\n\n== Three ==\n=== Four ===",
+        "selser [0,3,[3],4,0,4,0,3,0]": "__NOTOC__\n\n3azs5o\n\n=== Two ===\n1l2dc9o\n\n== Three ==\n=== Four ===",
+        "selser [0,0,1,0,2,3,2,2,3]": "__NOTOC__\n== One ==\n19i85mp\n\n=== Two ===\nre5483\n\n== Three ==\na86490\n",
+        "selser [0,0,[4],0,0,0,4,0,1]": "__NOTOC__\n== ekx8aw ==\n=== Two ===\n17zzzx2\n\n=== Four ===",
+        "selser [4,0,4,3,[4],0,0,3,2]": "nvtx0y\n\n1vydxv0\n\n=== 1wx3nrx ===\n== Three ==\nct1mew\n\n=== Four ===",
+        "selser [0,4,0,0,[3],2,[4],4,2]": "__NOTOC__\n\n1p9334h\n\n== One ==\n1as256o\n\n== bmliyw ==\n1rqs7yh\n\n16nq3u3\n\n=== Four ===",
+        "selser [1,0,3,4,[3],0,0,0,0]": "__NOTOC__\n\n183vu9z\n\n== Three ==\n=== Four ===",
+        "selser [1,2,[2],0,0,0,[3],4,1]": "__NOTOC__\n\nt858jh\n\n== mq08eyOne ==\n=== Two ===\n54fo88\n\n=== Four ===",
+        "selser [0,0,0,2,0,3,1,4,1]": "__NOTOC__\n== One ==\n1nicffj\n\n=== Two ===\n== Three ==\neytdl3\n\n=== Four ===",
+        "selser [4,0,3,0,[2],0,1,0,1]": "1jokzn9\n\n=== z4wddsTwo ===\n== Three ==\n=== Four ===",
+        "selser [0,0,4,0,4,2,2,2,4]": "__NOTOC__\n\n1yd4dd9\n\nthkw7c\n\n1p8mabu\n\n1uatty6\n\n== Three ==\n1t7gzuu\ncvqfo9",
+        "selser [4,4,1,2,4,3,0,4,4]": "1ya6mlj\n\npi7yx9\n\n== One ==\nkxdu3x\n1ch1p13\n\n== Three ==\nzfjnux\n\n5iybzb",
+        "selser [4,0,2,0,[2],0,[4],0,0]": "hqzx5l\n\nf6ep8k\n\n== One ==\n=== kizuy1Two ===\n== uhpltw ==\n=== Four ===",
+        "selser [0,0,[3],4,4,3,[4],0,2]": "__NOTOC__\n\n18i9t3r\n\nk2zebk\n\n== 16e481z ==\nk64hus\n\n=== Four ===",
+        "selser [2,2,4,0,0,0,3,0,[2]]": "19sex6l\n\n__NOTOC__\n\n167b4ze\n\n1ra57rd\n\n=== Two ===\n\n=== 2y4rihFour ===",
+        "selser [2,3,[3],0,4,4,0,0,4]": "2fkspx\n\n__NOTOC__\n\n1djj5rd\n\n3kwmml\n\n== Three ==\n1p7o5vk",
+        "selser [3,0,0,4,4,0,0,3,0]": "\n== One ==\n1imwt29\n\n1o1yu69\n\n== Three ==\n=== Four ===",
+        "selser [0,0,3,2,0,4,1,4,[2]]": "__NOTOC__\n\nbf2cay\n\n=== Two ===\n15zh2po\n\n== Three ==\nyrq998\n\n=== f7qrgyFour ===",
+        "selser [2,4,[4],0,2,0,[2],0,0]": "iehmnc\n\n__NOTOC__\n\ne5zwux\n\n== 34f26i ==\n50dlsg\n\n=== Two ===\n== gniq93Three ==\n=== Four ==="
+    },
+    "T307691: show-toc flag: not \"enough\" sections": {
+        "wt2wt": "==One==\n",
+        "selser [[2]]": "== ylch3cOne ==",
+        "selser [[4]]": "== 1t9ebtc ==",
+        "selser [1]": "== One ==",
+        "selser [2]": "1h3jyh3\n\n== One =="
+    },
+    "T307691: show-toc flag: not \"enough\" sections, and __NOTOC__": {
+        "wt2wt": "__NOTOC__\n==One==\n",
+        "html2wt": "__NOTOC__\n\n== One ==\n",
+        "selser [0,4,[4]]": "__NOTOC__\n\n8itm3v\n\n== 1h2befa ==",
+        "selser [1,2,0]": "__NOTOC__\n\nptyyji\n\n== One ==",
+        "selser [3,0,2]": "\nvo3ast\n\n== One ==",
+        "selser [0,4,0]": "__NOTOC__\n\ncxh6lh\n\n== One ==",
+        "selser [0,3,[4]]": "__NOTOC__\n== 3wcay7 ==",
+        "selser [3,0,[4]]": "\n== a47uh1 ==",
+        "selser [0,3,0]": "__NOTOC__\n== One ==",
+        "selser [1,4,0]": "__NOTOC__\n\n11odhte\n\n== One ==",
+        "selser [3,3,0]": "== One ==",
+        "selser [0,0,[4]]": "__NOTOC__\n== 5uvfml ==",
+        "selser [3,0,1]": "\n== One ==",
+        "selser [1,0,0]": "__NOTOC__\n== One ==",
+        "selser [0,2,[2]]": "__NOTOC__\n\nv12ddb\n\n== 1cn3k99One ==",
+        "selser [0,0,[2]]": "__NOTOC__\n== 92ajviOne ==",
+        "selser [2,0,0]": "8scxmr\n\n__NOTOC__\n== One =="
+    },
+    "T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
+        "wt2wt": "__FORCETOC__\n==One==\n",
+        "html2wt": "__FORCETOC__\n\n== One ==\n",
+        "selser [2,2,[2]]": "15jk68p\n\n__FORCETOC__\n\n1t98zkc\n\n== zf33ekOne ==",
+        "selser [0,2,1]": "__FORCETOC__\n\n1pckeoj\n\n== One ==",
+        "selser [2,4,[4]]": "150qhq8\n\n__FORCETOC__\n\nfeouap\n\n== 1w1q012 ==",
+        "selser [3,3,0]": "== One ==",
+        "selser [0,4,[4]]": "__FORCETOC__\n\n1xellyr\n\n== 1qofnpo ==",
+        "selser [2,0,0]": "79m4qv\n\n__FORCETOC__\n== One ==",
+        "selser [4,3,0]": "1xzmnxk\n\n== One =="
+    },
+    "T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
+        "wt2wt": "==One==\n__TOC__",
+        "selser [0,0,4]": "== One ==\n7l8haf",
+        "selser [[2],2,0]": "== 1djhbd0One ==\ny6x4js\n__TOC__",
+        "selser [0,2,1]": "== One ==\nb67ojm\n__TOC__",
+        "selser [[2],4,0]": "== zyou9gOne ==\n9749cj\n__TOC__",
+        "selser [2,0,0]": "80hd0x\n\n== One ==\n__TOC__",
+        "selser [0,0,1]": "== One ==\n__TOC__",
+        "selser [0,3,3]": "== One ==\n",
+        "selser [0,4,4]": "== One ==\n1n5wdow\n\n2es4tm",
+        "selser [[4],4,0]": "== snghg0 ==\n1887a41\n__TOC__",
+        "selser [2,4,3]": "1s9n47u\n\n== One ==\nj1utzu",
+        "selser [[2],0,4]": "== rxq5cdOne ==\n1vo48e6",
+        "selser [0,2,0]": "== One ==\nv6u4wg\n__TOC__",
+        "selser [[4],4,4]": "== 1xorc7r ==\nng3fix\n\n1jlmmik"
     },
     "T33490 Turkish: lcfirst 'BLAH'": {
         "html2wt": "bLAH\n"
@@ -1635,6 +1768,36 @@
     "Using {{!}} in wikilinks (T290526)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a typeof=\"mw:ExpandedAttrs mw:LocalizedAttrs\" about=\"#mwt2\" rel=\"mw:WikiLink\" href=\"./Main_PageSomething_else?action=edit&amp;redlink=1\" title=\"Main PageSomething else\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_PageSomething_else\"},\"sa\":{\"href\":\"Main Page{{!}}Something else\"},\"dsr\":[0,32,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Main Page&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[]],\\\"dsr\\\":[11,16,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"!\\\",\\\"function\\\":\\\"!\\\"},\\\"params\\\":{},\\\"i\\\":0}}]}&apos;>|&lt;/span>Something else\"}]]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Main PageSomething else\"]}}'>Main PageSomething else</a></p>\n\n<p data-parsoid='{\"dsr\":[34,49,0,0]}'><a typeof=\"mw:ExpandedAttrs mw:LocalizedAttrs\" about=\"#mwt5\" rel=\"mw:WikiLink\" href=\"./Main_PageSomething_else?action=edit&amp;redlink=1\" title=\"Main PageSomething else\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_PageSomething_else\"},\"sa\":{\"href\":\"{{T290526}}\"},\"dsr\":[34,49,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"&lt;span about=\\\"#mwt3\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[]],\\\"dsr\\\":[36,47,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"T290526\\\",\\\"href\\\":\\\"./Template:T290526\\\"},\\\"params\\\":{},\\\"i\\\":0}}]}&apos;>Main Page|Something else&lt;/span>\"}]]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Main PageSomething else\"]}}'>Main PageSomething else</a></p>",
         "html2wt": "[[Main Page|Something else]]\n\n[[Main Page|Something else]]\n"
+    },
+    "Verify that displaytitle encodes & to &amp; (T291985)": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:art&copy}}",
+        "html2wt": "this is not the title\n",
+        "selser [2,0,0]": "xc3i5a\n\nthis is not the title\n{{DISPLAYTITLE:art&copy}}",
+        "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:art&copy}}",
+        "selser [[2],0,0]": "15zu02pthis is not the title\n{{DISPLAYTITLE:art&copy}}",
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:art&copy}}"
+    },
+    "Verify that displaytitle works (T24501) RestrictDisplayTitle=false": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}",
+        "html2wt": "this is not the title\n",
+        "selser [[4],0,0]": "1o2ok5q\n{{DISPLAYTITLE:whatever}}",
+        "selser [[2],0,0]": "1jzcbxfthis is not the title\n{{DISPLAYTITLE:whatever}}",
+        "selser [1,0,1]": "this is not the title\n{{DISPLAYTITLE:whatever}}"
+    },
+    "Verify that displaytitle works (T24501) RestrictDisplayTitle=true matching": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}",
+        "html2wt": "this is not the title\n",
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:screen}}",
+        "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:screen}}",
+        "selser [2,0,0]": "a15zmg\n\nthis is not the title\n{{DISPLAYTITLE:screen}}",
+        "selser [[2],0,1]": "br9ox7this is not the title\n{{DISPLAYTITLE:screen}}",
+        "selser [[4],0,1]": "1w9rs36\n{{DISPLAYTITLE:screen}}"
+    },
+    "Verify that displaytitle works (T24501) RestrictDisplayTitle=true mismatch": {
+        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}",
+        "html2wt": "this is not the title\n",
+        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:whatever}}",
+        "selser [[2],0,1]": "6d31agthis is not the title\n{{DISPLAYTITLE:whatever}}"
     },
     "WTS of an autolink surrounded by square brackets (T220018)": {
         "html2wt": "[http://example.com<nowiki>]</nowiki>"
