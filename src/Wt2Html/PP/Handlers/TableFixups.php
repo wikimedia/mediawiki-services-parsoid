@@ -286,7 +286,9 @@ class TableFixups {
 						$child = WTUtils::skipOverEncapsulatedContent( $child );
 						continue;
 					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
-						$buf[] = $child->textContent;
+						// Get entity's wikitext source, not rendered content.
+						// "&#10;" is "\n" which breaks attribute parsing!
+						$buf[] = DOMDataUtils::getDataParsoid( $child )->src ?? $child->textContent;
 					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Nowiki' ) ) {
 						// Nowiki span were added to protect otherwise
 						// meaningful wikitext chars used in attributes.

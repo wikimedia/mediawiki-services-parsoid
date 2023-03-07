@@ -263,3 +263,21 @@ Table cell attributes and nested transclusions
 <tbody><tr><td style="border:1px solid blue;" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["| &apos;&apos;&apos;",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"style=&apos;border:1px solid blue;&apos;"}},"i":0}},"&apos;&apos;&apos;"]}'>foobar</td></tr>
 </tbody></table>
 !! end
+
+!! test
+T331486: Newline entities should be properly handled while fixing up table cells
+!! wikitext
+{|
+|{{td_attrs_and_content|1=title="a&#10;b" class="xyz"}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td title="a&#10;b" class="xyz">foobar
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td title="a
+b" class="xyz" typeof="mw:Transclusion" about="#mwt1" data-mw='{"parts":["|",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"title=\"a&amp;#10;b\" class=\"xyz\""}},"i":0}}]}'>foobar</td></tr>
+</tbody></table>
+!! end
