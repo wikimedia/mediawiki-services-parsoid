@@ -233,13 +233,6 @@ class MockSiteConfig extends SiteConfig {
 		}
 	}
 
-	public function responsiveReferences(): array {
-		return [
-			'enabled' => true,
-			'threshold' => 10,
-		];
-	}
-
 	public function rtl(): bool {
 		return false;
 	}

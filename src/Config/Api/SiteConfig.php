@@ -523,14 +523,6 @@ class SiteConfig extends ISiteConfig {
 		}
 	}
 
-	public function responsiveReferences(): array {
-		$this->loadSiteData();
-		return [
-			'enabled' => $this->siteData['citeresponsivereferences'] ?? false,
-			'threshold' => 10,
-		];
-	}
-
 	public function rtl(): bool {
 		$this->loadSiteData();
 		return $this->siteData['rtl'];

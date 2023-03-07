@@ -694,17 +694,6 @@ abstract class SiteConfig {
 	abstract public function getMWConfigValue( string $key );
 
 	/**
-	 * This will be removed without deprecation once we transition over
-	 * the Cite code to use getMWConfigValue method above.
-	 *
-	 * Responsive references configuration
-	 * @return array With two keys:
-	 *  - enabled: (bool) Whether it's enabled
-	 *  - threshold: (int) Threshold
-	 */
-	abstract public function responsiveReferences(): array;
-
-	/**
 	 * Whether the wiki language is right-to-left
 	 * @return bool
 	 */

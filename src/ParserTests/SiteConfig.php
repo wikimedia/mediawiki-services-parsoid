@@ -216,10 +216,6 @@ class SiteConfig extends ApiSiteConfig {
 		}
 	}
 
-	public function responsiveReferences(): array {
-		return $this->responsiveReferences;
-	}
-
 	/**
 	 * @param bool $val
 	 */
