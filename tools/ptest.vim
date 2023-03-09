@@ -21,6 +21,7 @@ syn match config /!!\s*\(options\|config\)/
 syn match edited_wt /!!\s*wikitext\/edited/
 syn match php_html /!!\s*html\/php/
 syn match parsoid_html /!!\s*html\/parsoid\([+a-z]*\)/
+syn match metadata /!!\s*metadata\(\/\([\/+a-z]\+\)\)\?/
 
 hi default link comment Comment
 hi default link article PreProc
@@ -30,6 +31,7 @@ hi default link sections Statement
 hi default link edited_wt Type
 hi default link php_html Type
 hi default link parsoid_html Type
+hi default link metadata Type
 
 " README:
 " If you want to override styles for any specific parser test syntax element,
