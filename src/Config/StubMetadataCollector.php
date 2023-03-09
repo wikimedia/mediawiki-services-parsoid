@@ -54,7 +54,8 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @inheritDoc */
 	public function addCategory( $c, $sort = '' ): void {
-		$this->collect( 'categories', $c, $sort, self::MERGE_STRATEGY_WRITE_ONCE );
+		// Numeric strings often become an `int` when passed to addCategory()
+		$this->collect( 'categories', (string)$c, $sort, self::MERGE_STRATEGY_WRITE_ONCE );
 	}
 
 	/** @inheritDoc */
