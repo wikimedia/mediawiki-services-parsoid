@@ -79,7 +79,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			return null;
 		}
 
-		$titleStr = $matches[1];
+		$oTitleStr = $matches[1];
 		$imageOptStr = $matches[2] ?? '';
 
 		// TODO: % indicates rawurldecode.
@@ -88,8 +88,38 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		$imageOpts = [
 			"|{$mode->dimensions( $opts )}",
-			[ $imageOptStr, $lineStartOffset + strlen( $titleStr ) ],
+			[ $imageOptStr, $lineStartOffset + strlen( $oTitleStr ) ],
 		];
+
+		$fileNs = $extApi->getSiteConfig()->canonicalNamespaceId( 'file' );
+
+		$noPrefix = false;
+		$title = $extApi->makeTitle( $oTitleStr, 0 );
+		if ( $title === null || $title->getNamespaceId() !== $fileNs ) {
+			// Try again, this time with a default namespace
+			$title = $extApi->makeTitle( $oTitleStr, $fileNs );
+			$noPrefix = true;
+		}
+		if ( $title === null || $title->getNamespaceId() !== $fileNs ) {
+			return null;
+		}
+
+		if ( $noPrefix ) {
+			// Take advantage of $fileNs to give us the right namespace, since,
+			// the explicit prefix isn't necessary in galleries but for the
+			// wikilink syntax it is.  Ex,
+			//
+			// <gallery>
+			// Test.png
+			// </gallery>
+			//
+			// vs [[File:Test.png]], here the File: prefix is necessary
+			//
+			// Note, this is no longer from source now
+			$titleStr = $title->getPrefixedDBKey();
+		} else {
+			$titleStr = $oTitleStr;
+		}
 
 		$thumb = $extApi->renderMedia(
 			$titleStr, $imageOpts, $error,
@@ -99,6 +129,17 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		);
 		if ( !$thumb || DOMCompat::nodeName( $thumb ) !== 'figure' ) {
 			return null;
+		}
+
+		if ( $noPrefix ) {
+			// Fiddling with the shadow attribute below, rather than using
+			// DOMDataUtils::setShadowInfoIfModified, since WikiLinkHandler::renderFile
+			// always sets a shadow (at minimum for the relative './') and that
+			// method preserves the original source from the first time it's called,
+			// though there's a FIXME to remove that behaviour.
+			$media = $thumb->firstChild->firstChild;
+			$dp = DOMDataUtils::getDataParsoid( $media );
+			$dp->sa['resource'] = $oTitleStr;
 		}
 
 		$doc = $thumb->ownerDocument;
@@ -112,12 +153,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		DOMCompat::remove( $figcaption );
 
 		if ( $opts->showfilename ) {
-			// No need for error checking on this call since it was already
-			// done in $extApi->renderMedia() above
-			$title = $extApi->makeTitle(
-				$titleStr,
-				$extApi->getSiteConfig()->canonicalNamespaceId( 'file' )
-			);
 			$file = $title->getPrefixedDBKey();
 			$galleryfilename = $doc->createElement( 'a' );
 			$galleryfilename->setAttribute( 'href', $extApi->getTitleUri( $title ) );
@@ -128,9 +163,11 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		$gallerytext = null;
-		for ( $capChild = $figcaption->firstChild;
-			 $capChild !== null;
-			 $capChild = $capChild->nextSibling ) {
+		for (
+			$capChild = $figcaption->firstChild;
+			$capChild !== null;
+			$capChild = $capChild->nextSibling
+		) {
 			if (
 				$capChild instanceof Text &&
 				preg_match( '/^\s*$/D', $capChild->nodeValue )

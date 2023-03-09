@@ -268,3 +268,18 @@ File:Foobar.jpg|thumb|a<br />b
 !! html/parsoid
 <figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br />b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></span><figcaption>a<br/>b</figcaption></figure>
 !! end
+
+## In contrast with galleries
+!! test
+Imagemap without file namespace
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+<imagemap>
+Foobar.jpg
+</imagemap>
+!! html/php
+<p class="error">Error: Must specify an image in the first line.</p>
+!! html/parsoid
+<p><span typeof="mw:Extension/imagemap mw:Error" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFoobar.jpg\n"},"errors":[{"key":"imagemap_no_image"}]}' data-mw-i18n='{"/":{"lang":"x-user","key":"imagemap_no_image","params":null}}'>Error: imagemap_no_image</span></p>
+!! end

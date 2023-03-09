@@ -870,6 +870,9 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Produce the HTML rendering of a title string and media options as the
+	 * wikitext parser would for a wikilink in the file namespace
+	 *
 	 * @param string $titleStr Image title string
 	 * @param array $imageOpts Array of a mix of strings or arrays,
 	 *   the latter of which can signify that the value came from source.
@@ -885,24 +888,20 @@ class ParsoidExtensionAPI {
 		?bool $forceBlock = false
 	): ?Element {
 		$extTagName = $this->extTag->getName();
-
 		$fileNs = $this->getSiteConfig()->canonicalNamespaceId( 'file' );
 
-		$title = $this->makeTitle( $titleStr, $fileNs );
+		$title = $this->makeTitle( $titleStr, 0 );
 		if ( $title === null || $title->getNamespaceId() !== $fileNs ) {
 			$error = "{$extTagName}_no_image";
 			return null;
 		}
 
-		// FIXME: Try to confirm `file` isn't going to break WikiLink syntax.
-		// See the check for 'figure' below.
-		$file = $title->getPrefixedDBKey();
-
 		$pieces = [ '[[' ];
 		// Since the above two chars aren't from source, the resulting figure
 		// won't have any dsr info, so we can omit an offset for the title as
-		// well
-		$pieces[] = $file;
+		// well.  In any case, $titleStr may not necessarily be from source,
+		// see the special case in the gallery extension.
+		$pieces[] = $titleStr;
 		$pieces = array_merge( $pieces, $imageOpts );
 
 		if ( $forceBlock ) {
@@ -1007,32 +1006,6 @@ class ParsoidExtensionAPI {
 				DOMCompat::getClassList( $thumb )->remove( 'mw-halign-none' );
 			}
 		}
-
-		// Above we add $file to $pieces, instead of $titleStr, so the shadowed
-		// attribute for the resource isn't what we want.  $file is used
-		// because we want to take advantage of $fileNs to give us the right
-		// namespace, since, in galleries, the explicit prefix isn't necessary
-		// but for the wikilink syntax it is.  Ex,
-		//
-		// <gallery>
-		// Test.png
-		// </gallery>
-		//
-		// vs [[File:Test.png]], here the File: prefix is necessary
-		//
-		// We can maybe just move the following hack into the gallery extension
-		// and detect when $titleStr is missing the prefix in there since
-		// it's unclear that ImageMap or any other extension calling this
-		// method wants the assumed namespace.
-		//
-		// Fiddling with the shadow attribute below, rather than using
-		// DOMDataUtils::setShadowInfoIfModified, since WikiLinkHandler::renderFile
-		// always sets a shadow (at minimum for the relative './') and that
-		// method preserves the original source from the first time it's called,
-		// though there's a FIXME to remove that behaviour.
-		$media = $thumb->firstChild->firstChild;
-		$dp = DOMDataUtils::getDataParsoid( $media );
-		$dp->sa['resource'] = $titleStr;
 
 		return $thumb;
 	}
