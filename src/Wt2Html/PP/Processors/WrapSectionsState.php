@@ -169,6 +169,7 @@ class WrapSectionsState {
 
 		if ( $this->tplInfo !== null ) {
 			$dmw = DOMDataUtils::getDataMw( $this->tplInfo->first );
+			$metadata->index = ''; // Match legacy parser
 			if ( !isset( $dmw->parts ) ) {
 				// Extension or language-variant
 				// Need to determine what the output should be here
@@ -186,15 +187,14 @@ class WrapSectionsState {
 				// Pick template title, but strip leading "./" prefix
 				$metadata->fromTitle = preg_replace(
 					"#^./#", "", $dmw->parts[0]->template->target->href );
+				if ( $this->sectionNumber >= 0 ) {
+					// Legacy parser sets this to '' in some cases
+					// See "Templated sections (heading from template arg)" parser test
+					$metadata->index = 'T-' . $this->sectionNumber;
+				}
 			} else {
-				// Parser function - use "#pf:" prefix to flag it
-				// This is Parsoid-specific output.
-				$metadata->fromTitle = "#pf:" . $dmw->parts[0]->template->target->function;
-			}
-			if ( $this->sectionNumber < 0 ) {
-				$metadata->index = '';
-			} else {
-				$metadata->index = 'T-' . $this->sectionNumber; // core sets this to ''
+				// Legacy parser return null here
+				$metadata->fromTitle = null;
 			}
 			$metadata->codepointOffset = null;
 		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
