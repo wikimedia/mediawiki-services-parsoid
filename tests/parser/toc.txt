@@ -390,3 +390,22 @@ parsoid={
 {"toclevel":1,"level":"2","line":"foo","number":"1","index":"","fromtitle":"#pf:if","byteoffset":null,"anchor":"foo","linkAnchor":"foo"}
 {"toclevel":1,"level":"2","line":"bar","number":"2","index":"1","fromtitle":"Parser_test","byteoffset":30,"anchor":"bar","linkAnchor":"bar"}
 !! end
+
+!! test
+Handle top-level template args generating sections
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+{{{foo|
+==tplarg==
+|abcd}}}
+!! metadata/php
+{"toclevel":1,"level":"2","line":"tplarg","number":"1","index":"","fromtitle":false,"byteoffset":null,"anchor":"tplarg","linkAnchor":"tplarg"}
+!! metadata/parsoid
+{"toclevel":1,"level":"2","line":"tplarg","number":"1","index":"T-1","fromtitle":false,"byteoffset":null,"anchor":"tplarg","linkAnchor":"tplarg"}
+!! end

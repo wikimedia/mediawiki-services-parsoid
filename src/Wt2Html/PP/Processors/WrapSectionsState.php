@@ -170,11 +170,17 @@ class WrapSectionsState {
 		if ( $this->tplInfo !== null ) {
 			$dmw = DOMDataUtils::getDataMw( $this->tplInfo->first );
 			if ( !isset( $dmw->parts ) ) {
-				// Extension, etc.
+				// Extension or language-variant
 				// Need to determine what the output should be here
 				$metadata->fromTitle = null;
 			} elseif ( count( $dmw->parts ) > 1 ) {
 				// Multi-part content -- cannot pick a title
+				$metadata->fromTitle = null;
+			} elseif ( !empty( $dmw->parts[0]->templatearg ) ) {
+				// Since we currently don't process templates in Parsoid,
+				// this has to be a top-level {{{...}}} and so the content
+				// comes from the current page. But, legacy parser returns 'false'
+				// for this, so we'll return null as well instead of current title.
 				$metadata->fromTitle = null;
 			} elseif ( !empty( $dmw->parts[0]->template->target->href ) ) {
 				// Pick template title, but strip leading "./" prefix
