@@ -110,6 +110,25 @@ class DiffUtils {
 	}
 
 	/**
+	 * @param Element $node
+	 * @return bool
+	 */
+	public static function subtreeUnchanged( Element $node ): bool {
+		$dmark = self::getDiffMark( $node );
+		if ( !$dmark ) {
+			return true;
+		}
+
+		foreach ( $dmark->diff as $mark ) {
+			if ( $mark !== DiffMarkers::MODIFIED_WRAPPER ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * @param Node $node
 	 * @param Env $env
 	 * @param string $mark

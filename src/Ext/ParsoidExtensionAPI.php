@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Html2wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -799,6 +799,38 @@ class ParsoidExtensionAPI {
 		$state = $this->serializerState;
 		$opts['env'] = $this->env;
 		return $state->serializer->htmlToWikitext( $opts, $html );
+	}
+
+	/**
+	 * Get the original source for an element.
+	 *
+	 * The callable, $checkIfOrigSrcReusable, is used to determine if the $elt
+	 * is unedited and therefore valid to reuse source.  This is assumed to be
+	 * pretty specific to the callsite so no default is provided.
+	 *
+	 * @param Element $elt
+	 * @param bool $inner
+	 * @param callable $checkIfOrigSrcReusable
+	 * @return string|null
+	 */
+	public function getOrigSrc(
+		Element $elt, bool $inner, callable $checkIfOrigSrcReusable
+	): ?string {
+		$state = $this->serializerState;
+		if ( !$state->selserMode ) {
+			return null;
+		}
+		$dsr = DOMDataUtils::getDataParsoid( $elt )->dsr ?? null;
+		if ( !Utils::isValidDSR( $dsr, $inner ) ) {
+			return null;
+		}
+		if ( $checkIfOrigSrcReusable( $elt ) ) {
+			$start = $inner ? $dsr->innerStart() : $dsr->start;
+			$end = $inner ? $dsr->innerEnd() : $dsr->end;
+			return $state->getOrigSrc( $start, $end );
+		} else {
+			return null;
+		}
 	}
 
 	/**
