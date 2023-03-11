@@ -25,8 +25,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		// Note that we use the 'native' getElementById, not
 		// DOMCompat::getElementById, in order to test T232390
 		$el = $doc->getElementById( 'mw-pagebundle' );
-		$this->assertNotEquals( $el, null );
-		$this->assertEquals( DOMCompat::nodeName( $el ), 'script' );
+		$this->assertNotEquals( null, $el );
+		$this->assertEquals( 'script', DOMCompat::nodeName( $el ) );
 	}
 
 	/**
