@@ -26,11 +26,19 @@ class ScriptUtils {
 	}
 
 	/**
+	 * @return-taint none
+	 */
+	private static function getScriptName(): string {
+		return basename( $_SERVER["SCRIPT_FILENAME"] );
+	}
+
+	/**
 	 * Returns a help message for the tracing flags.
 	 *
 	 * @return string
 	 */
 	public static function traceUsageHelp(): string {
+		$script = self::getScriptName();
 		return implode(
 			"\n", [
 				'Tracing',
@@ -60,8 +68,8 @@ class ScriptUtils {
 				'--debug enables tracing of all the above phases except Token Transform Managers',
 				'',
 				'Examples:',
-				'$ php parse.php --trace pre,p-wrap,html < foo',
-				'$ php parse.php --trace ttm:3,dsr < foo',
+				"$ php $script --trace pre,p-wrap,html < foo",
+				"$ php $script --trace ttm:3,dsr < foo",
 				''
 			]
 		);
@@ -73,6 +81,7 @@ class ScriptUtils {
 	 * @return string
 	 */
 	public static function dumpUsageHelp(): string {
+		$script = self::getScriptName();
 		return implode(
 			"\n", [
 				'Dumping state',
@@ -106,8 +115,8 @@ class ScriptUtils {
 				"  * wt2html:limits    : dumps used resources (along with configured limits)\n",
 				"--debug dumps state at these different stages\n",
 				'Examples:',
-				'$ php parse.php --dump dom:pre-dsr,dom:pre-tplwrap < foo',
-				'$ php parse.php --trace html --dump dom:pre-tplwrap < foo',
+				"$ php $script --dump dom:pre-dsr,dom:pre-tplwrap < foo",
+				"$ php $script --trace html --dump dom:pre-tplwrap < foo",
 				"\n"
 			]
 		);
