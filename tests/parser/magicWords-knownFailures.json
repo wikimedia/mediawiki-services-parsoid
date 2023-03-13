@@ -1,1 +1,62 @@
-{}
+{
+	"Magic Word: {{REVISIONID}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-id"
+	},
+	"Magic Word: {{REVISIONID}} on non-latest revision": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-id"
+	},
+	"Magic Word: {{REVISIONTIMESTAMP:...}}} on non-existing non-current page": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Magic Word: {{REVISIONTIMESTAMP:{{PAGENAME}}}} on not-yet-existing current page": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-timestamp"
+	},
+	"Magic Word: {{REVISIONTIMESTAMP}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Magic Word: {{REVISIONTIMESTAMP}} on not-yet-existing current page": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-timestamp"
+	},
+	"Magic Word: {{REVISIONUSER:...}} on non-existing non-current page": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Magic Word: {{REVISIONUSER:{{PAGENAME}}}} on not-yet-existing current page": {
+		"metadata": "flags=!no-toc-conversion, vary-user"
+	},
+	"Magic Word: {{REVISIONUSER}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion, vary-user"
+	},
+	"Magic Word: {{REVISIONUSER}} on non-latest revision": {
+		"metadata": "flags=!no-toc-conversion, vary-user"
+	},
+	"Magic Word: {{REVISIONUSER}} on not-yet-existing current page": {
+		"metadata": "flags=!no-toc-conversion, vary-user"
+	},
+	"Parser Function: {{PAGESIZE:{{PAGENAME}}}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-sha1"
+	},
+	"Parser Function: {{REVISIONDAY:{{PAGENAME}}}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Parser Function: {{REVISIONDAY}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Parser Function: {{REVISIONID:{{PAGENAME}}}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-id"
+	},
+	"Parser Function: {{REVISIONID:{{PAGENAME}}}} on non-saved revision": {
+		"metadata": "flags=!no-toc-conversion, vary-revision-id"
+	},
+	"Parser Function: {{REVISIONMONTH:{{PAGENAME}}}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Parser Function: {{REVISIONMONTH}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"Parser Function: {{REVISIONYEAR:{{PAGENAME}}}} on latest revision": {
+		"metadata": "flags=!no-toc-conversion"
+	}
+}

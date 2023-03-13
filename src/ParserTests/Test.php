@@ -892,7 +892,7 @@ class Test extends Item {
 			'externallinktarget' => $opts['externallinktarget'] ?? false,
 		];
 
-		if ( !$normExpected ) {
+		if ( $normExpected === null ) {
 			if ( $haveIntegratedHTML ) {
 				$parsoidHTML = $this->sections['html/parsoid+integrated'];
 			} elseif ( $haveStandaloneHTML ) {

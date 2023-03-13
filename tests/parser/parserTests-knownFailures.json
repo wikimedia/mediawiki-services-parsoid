@@ -30,6 +30,12 @@
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
+	"Decoding of HTML entities in indicator names for IDs (T104196)": {
+		"metadata": ""
+	},
+	"Decoding of HTML entities in indicator names for IDs (unambiguous) (T104196)": {
+		"metadata": ""
+	},
 	"Don't abort table cell attribute parsing if wikilink is found in template arg": {
 		"wt2wt": "{|\n|Test {{#tag:ref|One two \"[[three]]\" four}}\n|}\n<references />"
 	},
@@ -110,11 +116,25 @@
 	"Out-of-order TOC heading levels": {
 		"wt2html": "<h2 id=\"2\" data-parsoid='{\"dsr\":[0,5,2,2]}'>2</h2>\n<h6 id=\"6\" data-parsoid='{\"dsr\":[6,19,6,6]}'>6</h6>\n<h3 id=\"3\" data-parsoid='{\"dsr\":[20,27,3,3]}'>3</h3>\n<h1 id=\"1\" data-parsoid='{\"dsr\":[28,31,1,1]}'>1</h1>\n<h5 id=\"5\" data-parsoid='{\"dsr\":[32,43,5,5]}'>5</h5>\n<h2 id=\"2_2\" data-parsoid='{\"dsr\":[44,49,2,2]}'>2</h2>"
 	},
+	"Page status indicators: Torture test": {
+		"metadata": "",
+		"wt2wt": ""
+	},
+	"Page status indicators: Weird syntaxes that are okay": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,62,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,26,26,0]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"empty\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[27,62,23,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"name\"},\"body\":{\"extsrc\":\"\"}}'/></p>",
+		"metadata": ""
+	},
 	"Parsing of overlapping (improperly nested) inline html tags": {
 		"wt2wt": "<span><s>x</span>"
 	},
 	"Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved": {
 		"wt2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']"
+	},
+	"Parsoid: Page property magic word with magic word contents": {
+		"metadata": "Parser test"
+	},
+	"Parsoid: Template-generated DISPLAYTITLE": {
+		"metadata": "Parser test"
 	},
 	"Render invalid page names as plain text (T53090)": {
 		"wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
@@ -161,6 +181,46 @@
 	},
 	"T2553: link with two variables in a piped link": {
 		"wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}"
+	},
+	"T307691: show-toc flag: \"enough\" sections": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: \"enough\" sections and __FORCETOC__": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "__FORCETOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: no sections": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"T307691: show-toc flag: no sections, and __NOTOC__": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"T307691: show-toc flag: no sections, but __FORCETOC__": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"T307691: show-toc flag: no sections, but __TOC__": {
+		"metadata": "flags=!no-toc-conversion"
+	},
+	"T307691: show-toc flag: not \"enough\" sections": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "==One==\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections, and __NOTOC__": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "__NOTOC__\n==One==\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "__FORCETOC__\n==One==\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
+		"metadata": "flags=!no-toc-conversion",
+		"wt2wt": "==One==\n__TOC__"
 	},
 	"T4095: link with pipe and three closing brackets, version 2": {
 		"wt2wt": "[[Main Page|<nowiki>[http://example.com/]</nowiki>]]"
@@ -245,6 +305,34 @@
 	},
 	"Using {{!}} in wikilinks (T290526)": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a typeof=\"mw:ExpandedAttrs mw:LocalizedAttrs\" about=\"#mwt2\" rel=\"mw:WikiLink\" href=\"./Main_PageSomething_else?action=edit&amp;redlink=1\" title=\"Main PageSomething else\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_PageSomething_else\"},\"sa\":{\"href\":\"Main Page{{!}}Something else\"},\"dsr\":[0,32,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Main Page&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[]],\\\"dsr\\\":[11,16,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"!\\\",\\\"function\\\":\\\"!\\\"},\\\"params\\\":{},\\\"i\\\":0}}]}&apos;>|&lt;/span>Something else\"}]]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Main PageSomething else\"]}}'>Main PageSomething else</a></p>\n\n<p data-parsoid='{\"dsr\":[34,49,0,0]}'>[[<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[36,47,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span>]]</p>"
+	},
+	"Verify that displaytitle encodes & to &amp; (T291985)": {
+		"metadata": "Art&copy",
+		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:art&copy}}"
+	},
+	"Verify that displaytitle works (T24501) AllowDisplayTitle=false no DISPLAYTITLE": {
+		"metadata": "Screen"
+	},
+	"Verify that displaytitle works (T24501) RestrictDisplayTitle=false": {
+		"metadata": "Screen",
+		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}"
+	},
+	"Verify that displaytitle works (T24501) RestrictDisplayTitle=true matching": {
+		"metadata": "Screen",
+		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}"
+	},
+	"Verify that displaytitle works (T24501) RestrictDisplayTitle=true mismatch": {
+		"metadata": "Screen",
+		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}"
+	},
+	"Verify that displaytitle works (T24501) no displaytitle": {
+		"metadata": "Parser test"
+	},
+	"Verify that without displaytitle the title encodes & to &amp; (T291985)": {
+		"metadata": "Art&copy"
+	},
+	"__FORCETOC__ override": {
+		"metadata": "flags=!no-toc-conversion"
 	},
 	"div with illegal double attributes": {
 		"wt2wt": "<div id=\"b\">HTML rocks</div>"
