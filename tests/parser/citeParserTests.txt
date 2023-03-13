@@ -1,4 +1,7 @@
-!! version 2
+!! options
+version=2
+parsoid-compatible=wt2html
+!! end
 
 # Force the test runner to ensure the extension is loaded
 !! hooks
@@ -1268,6 +1271,30 @@ Multiple definition (mixed outside/inside)
 <div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt9" data-mw='{"name":"references","attrs":{},"body":{"html":"\n&lt;sup about=\"#mwt7\" class=\"mw-ref reference\" rel=\"dc:references\" typeof=\"mw:Extension/ref mw:Error\" data-parsoid=&apos;{\"dsr\":[37,60,14,6]}&apos; data-mw=&apos;{\"name\":\"ref\",\"attrs\":{\"name\":\"a\"},\"body\":{\"html\":\"def\"},\"errors\":[{\"key\":\"cite_error_references_duplicate_key\",\"params\":[\"a\"]}]}&apos;>&lt;a href=\"./Parser_test#cite_note-a-1\" style=\"counter-reset: mw-Ref 1;\" data-parsoid=\"{}\">&lt;span class=\"mw-reflink-text\" data-parsoid=\"{}\">[1]&lt;/span>&lt;/a>&lt;/sup>\n"}}'><ol class="mw-references references"><li about="#cite_note-a-1" id="cite_note-a-1"><a href="./Parser_test#cite_ref-a_1-0" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li></ol></div>
 !! end
 
+!! test
+T202593: Conflicting dir attributes are currently not reported as an error
+!! wikitext
+<ref name="a" dir="ltr" />
+<ref name="a" dir="rtl">abc</ref>
+<references />
+!! html/php
+<p><sup id="cite_ref-a_1-0" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
+<sup id="cite_ref-a_1-1" class="reference"><a href="#cite_note-a-1">&#91;1&#93;</a></sup>
+</p>
+<div class="mw-references-wrap"><ol class="references">
+<li id="cite_note-a-1" class="mw-cite-dir-rtl"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_1-0">1.0</a></sup> <sup><a href="#cite_ref-a_1-1">1.1</a></sup></span> <span class="reference-text">abc</span>
+</li>
+</ol></div>
+!! html/parsoid
+<p><sup class="mw-ref reference" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a","dir":"ltr"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
+<sup class="mw-ref reference" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a","dir":"rtl"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<div class="mw-references-wrap" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
+<ol class="mw-references references">
+<li id="cite_note-a-1" class="mw-cite-dir-rtl"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-a_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-a_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li>
+</ol>
+</div>
+!! end
+
 # T307741: Parsoid fails this test in both standalone and integrated modes.
 !! test
 Multiple definition (inside {{#tag:references}})
@@ -2029,26 +2056,26 @@ A <ref>foo</ref>
 !! test
 Grouped references with follow rendered in mixed order
 !! wikitext
-AA <ref group="a" name="name_a">group_a_name_a</ref>
-BA <ref group="b" name="name_a">group_b_name_a</ref>
-CA <ref group="c" name="name_a">group_c_name_a</ref>
-BB <ref group="b" name="name_b">group_b_name_b</ref>
-FBA <ref group="b" follow="name_a">group_b_follow_a</ref>
-FAA <ref group="a" follow="name_a">group_a_follow_a</ref>
-FBB <ref group="b" follow="name_b">group_b_follow_b</ref>
-FCA <ref group="c" follow="name_a">group_c_follow_a</ref>
+AA<ref group="a" name="name_a">group_a_name_a</ref>
+BA<ref group="b" name="name_a">group_b_name_a</ref>
+CA<ref group="c" name="name_a">group_c_name_a</ref>
+BB<ref group="b" name="name_b">group_b_name_b</ref>
+FBA<ref group="b" follow="name_a">group_b_follow_a</ref>
+FAA<ref group="a" follow="name_a">group_a_follow_a</ref>
+FBB<ref group="b" follow="name_b">group_b_follow_b</ref>
+FCA<ref group="c" follow="name_a">group_c_follow_a</ref>
 <references group="b" />
 <references group="c" />
 <references group="a" />
 !! html/php
-<p>AA <sup id="cite_ref-name_a_1-0" class="reference"><a href="#cite_note-name_a-1">&#91;a 1&#93;</a></sup>
-BA <sup id="cite_ref-name_a_2-0" class="reference"><a href="#cite_note-name_a-2">&#91;b 1&#93;</a></sup>
-CA <sup id="cite_ref-name_a_3-0" class="reference"><a href="#cite_note-name_a-3">&#91;c 1&#93;</a></sup>
-BB <sup id="cite_ref-name_b_4-0" class="reference"><a href="#cite_note-name_b-4">&#91;b 2&#93;</a></sup>
-FBA 
-FAA 
-FBB 
-FCA 
+<p>AA<sup id="cite_ref-name_a_1-0" class="reference"><a href="#cite_note-name_a-1">&#91;a 1&#93;</a></sup>
+BA<sup id="cite_ref-name_a_2-0" class="reference"><a href="#cite_note-name_a-2">&#91;b 1&#93;</a></sup>
+CA<sup id="cite_ref-name_a_3-0" class="reference"><a href="#cite_note-name_a-3">&#91;c 1&#93;</a></sup>
+BB<sup id="cite_ref-name_b_4-0" class="reference"><a href="#cite_note-name_b-4">&#91;b 2&#93;</a></sup>
+FBA
+FAA
+FBB
+FCA
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-name_a-2"><span class="mw-cite-backlink"><a href="#cite_ref-name_a_2-0">↑</a></span> <span class="reference-text">group_b_name_a group_b_follow_a</span>
@@ -2065,14 +2092,14 @@ FCA
 </li>
 </ol></div>
 !! html/parsoid
-<p>AA <sup about="#mwt2" class="mw-ref reference" id="cite_ref-name_a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"a","name":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-1"}}'><a href="./Parser_test#cite_note-name_a-1" style="counter-reset: mw-Ref 1;" data-mw-group="a"><span class="mw-reflink-text">[a 1]</span></a></sup>
-BA <sup about="#mwt4" class="mw-ref reference" id="cite_ref-name_a_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","name":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-2"}}'><a href="./Parser_test#cite_note-name_a-2" style="counter-reset: mw-Ref 1;" data-mw-group="b"><span class="mw-reflink-text">[b 1]</span></a></sup>
-CA <sup about="#mwt6" class="mw-ref reference" id="cite_ref-name_a_3-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"c","name":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-3"}}'><a href="./Parser_test#cite_note-name_a-3" style="counter-reset: mw-Ref 1;" data-mw-group="c"><span class="mw-reflink-text">[c 1]</span></a></sup>
-BB <sup about="#mwt8" class="mw-ref reference" id="cite_ref-name_b_4-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","name":"name_b"},"body":{"id":"mw-reference-text-cite_note-name_b-4"}}'><a href="./Parser_test#cite_note-name_b-4" style="counter-reset: mw-Ref 2;" data-mw-group="b"><span class="mw-reflink-text">[b 2]</span></a></sup>
-FBA <sup about="#mwt10" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","follow":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-2"}}'><a href="./Parser_test#cite_note-name_a-2" style="counter-reset: mw-Ref 1;" data-mw-group="b"><span class="mw-reflink-text">[b 1]</span></a></sup>
-FAA <sup about="#mwt12" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"a","follow":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-1"}}'><a href="./Parser_test#cite_note-name_a-1" style="counter-reset: mw-Ref 1;" data-mw-group="a"><span class="mw-reflink-text">[a 1]</span></a></sup>
-FBB <sup about="#mwt14" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","follow":"name_b"},"body":{"id":"mw-reference-text-cite_note-name_b-4"}}'><a href="./Parser_test#cite_note-name_b-4" style="counter-reset: mw-Ref 2;" data-mw-group="b"><span class="mw-reflink-text">[b 2]</span></a></sup>
-FCA <sup about="#mwt16" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"c","follow":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-3"}}'><a href="./Parser_test#cite_note-name_a-3" style="counter-reset: mw-Ref 1;" data-mw-group="c"><span class="mw-reflink-text">[c 1]</span></a></sup></p>
+<p>AA<sup about="#mwt2" class="mw-ref reference" id="cite_ref-name_a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"a","name":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-1"}}'><a href="./Parser_test#cite_note-name_a-1" style="counter-reset: mw-Ref 1;" data-mw-group="a"><span class="mw-reflink-text">[a 1]</span></a></sup>
+BA<sup about="#mwt4" class="mw-ref reference" id="cite_ref-name_a_2-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","name":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-2"}}'><a href="./Parser_test#cite_note-name_a-2" style="counter-reset: mw-Ref 1;" data-mw-group="b"><span class="mw-reflink-text">[b 1]</span></a></sup>
+CA<sup about="#mwt6" class="mw-ref reference" id="cite_ref-name_a_3-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"c","name":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-3"}}'><a href="./Parser_test#cite_note-name_a-3" style="counter-reset: mw-Ref 1;" data-mw-group="c"><span class="mw-reflink-text">[c 1]</span></a></sup>
+BB<sup about="#mwt8" class="mw-ref reference" id="cite_ref-name_b_4-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","name":"name_b"},"body":{"id":"mw-reference-text-cite_note-name_b-4"}}'><a href="./Parser_test#cite_note-name_b-4" style="counter-reset: mw-Ref 2;" data-mw-group="b"><span class="mw-reflink-text">[b 2]</span></a></sup>
+FBA<sup about="#mwt10" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","follow":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-2"}}'><a href="./Parser_test#cite_note-name_a-2" style="counter-reset: mw-Ref 1;" data-mw-group="b"><span class="mw-reflink-text">[b 1]</span></a></sup>
+FAA<sup about="#mwt12" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"a","follow":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-1"}}'><a href="./Parser_test#cite_note-name_a-1" style="counter-reset: mw-Ref 1;" data-mw-group="a"><span class="mw-reflink-text">[a 1]</span></a></sup>
+FBB<sup about="#mwt14" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"b","follow":"name_b"},"body":{"id":"mw-reference-text-cite_note-name_b-4"}}'><a href="./Parser_test#cite_note-name_b-4" style="counter-reset: mw-Ref 2;" data-mw-group="b"><span class="mw-reflink-text">[b 2]</span></a></sup>
+FCA<sup about="#mwt16" class="mw-ref reference mw-ref-follow" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"group":"c","follow":"name_a"},"body":{"id":"mw-reference-text-cite_note-name_a-3"}}'><a href="./Parser_test#cite_note-name_a-3" style="counter-reset: mw-Ref 1;" data-mw-group="c"><span class="mw-reflink-text">[c 1]</span></a></sup></p>
 <div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt18" data-mw='{"name":"references","attrs":{"group":"b"}}'><ol class="mw-references references" data-mw-group="b"><li about="#cite_note-name_a-2" id="cite_note-name_a-2"><a href="./Parser_test#cite_ref-name_a_2-0" data-mw-group="b" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-name_a-2" class="mw-reference-text">group_b_name_a<span typeof="mw:Cite/Follow" about="#mwt10"> group_b_follow_a</span></span></li><li about="#cite_note-name_b-4" id="cite_note-name_b-4"><a href="./Parser_test#cite_ref-name_b_4-0" data-mw-group="b" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-name_b-4" class="mw-reference-text">group_b_name_b<span typeof="mw:Cite/Follow" about="#mwt14"> group_b_follow_b</span></span></li></ol></div>
 <div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt20" data-mw='{"name":"references","attrs":{"group":"c"}}'><ol class="mw-references references" data-mw-group="c"><li about="#cite_note-name_a-3" id="cite_note-name_a-3"><a href="./Parser_test#cite_ref-name_a_3-0" data-mw-group="c" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-name_a-3" class="mw-reference-text">group_c_name_a<span typeof="mw:Cite/Follow" about="#mwt16"> group_c_follow_a</span></span></li></ol></div>
 <div class="mw-references-wrap" typeof="mw:Extension/references" about="#mwt22" data-mw='{"name":"references","attrs":{"group":"a"}}'><ol class="mw-references references" data-mw-group="a"><li about="#cite_note-name_a-1" id="cite_note-name_a-1"><a href="./Parser_test#cite_ref-name_a_1-0" data-mw-group="a" rel="mw:referencedBy"><span class="mw-linkback-text">↑ </span></a> <span id="mw-reference-text-cite_note-name_a-1" class="mw-reference-text">group_a_name_a<span typeof="mw:Cite/Follow" about="#mwt12"> group_a_follow_a</span></span></li></ol></div>

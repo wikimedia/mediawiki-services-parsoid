@@ -16,7 +16,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "dcd31ad56ce892819ee19157ea4317469417a672",
+		"latestCommit": "4e2d0f1fe50b0d2b2d02b7eabe4b5e620d251b88",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -96,7 +96,7 @@
 			},
 			"toc.txt": {
 				"path": "tests/parser/toc.txt",
-				"expectedSHA1": "21e920435528181cb3053ffa370e18d31694750d"
+				"expectedSHA1": "b526f90e5a5c31af04976a2c7a9b9e6310475d88"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
@@ -106,17 +106,17 @@
 	},
 	"Cite": {
 		"project": "mediawiki/extensions/Cite",
-		"latestCommit": "1dd994a28a73cf56d5879531227cfe10b341125f",
+		"latestCommit": "b30d10bc6097bdbfbf6b4a348366a682f973f1ca",
 		"targets": {
 			"citeParserTests.txt": {
 				"path": "tests/parser/citeParserTests.txt",
-				"expectedSHA1": "ae628b33cac32933789d0f13e3411084429bd93b"
+				"expectedSHA1": "38eea67de43ed7bd879e10542761e128e4177e47"
 			}
 		}
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "c1355058883c41644058604bc0ef4ee6b449b096",
+		"latestCommit": "ba78bb0eadbcf2e82ca3a2c25404ff2e5fe555ff",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
@@ -126,7 +126,7 @@
 	},
 	"Poem": {
 		"project": "mediawiki/extensions/Poem",
-		"latestCommit": "44caab4c88b339aa0aed6f6761b89d4713330012",
+		"latestCommit": "9347a82b7a6fbe1ae4eeee49d5144b837a3aaed0",
 		"targets": {
 			"poemParserTests.txt": {
 				"repo": "Poem",
@@ -137,11 +137,11 @@
 	},
 	"ImageMap": {
 		"project": "mediawiki/extensions/ImageMap",
-		"latestCommit": "08b48fd551d8b0a0f96a3baf62b0257618f813d8",
+		"latestCommit": "a4d5daa43f9498fe90f72ae22bdaeef9ac8ee7e6",
 		"targets": {
 			"imageMapParserTests.txt": {
 				"path": "tests/parser/imageMapParserTests.txt",
-				"expectedSHA1": "b7a0c60795f607e5938967c9122f429b4b506544"
+				"expectedSHA1": "34b92f5e795d81156b87cdb6bda4d9ee935fbe34"
 			}
 		}
 	}
