@@ -4,6 +4,7 @@ namespace spec\Parsoid\Utils;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\Html2Wt\DiffMarkers;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -31,12 +32,12 @@ class DOMUtilsTest extends TestCase {
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:first-child' ),
-			[ 'children-changed', 'subtree-changed' ]
+			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:first-child > meta:first-child' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 	}
 
@@ -49,11 +50,11 @@ class DOMUtilsTest extends TestCase {
 
 		$body = $this->parseAndDiff( $orig, $edit );
 
-		$this->checkMarkers( $body, [ 'children-changed' ] );
+		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p + meta' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 	}
 
@@ -68,22 +69,22 @@ class DOMUtilsTest extends TestCase {
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
-			[ 'children-changed', 'subtree-changed' ]
+			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(1) > meta' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(2)' ),
-			[ 'children-changed', 'subtree-changed' ]
+			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(2) > meta' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 	}
 
@@ -96,26 +97,26 @@ class DOMUtilsTest extends TestCase {
 
 		$body = $this->parseAndDiff( $orig, $edit );
 
-		$this->checkMarkers( $body, [ 'children-changed' ] );
+		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
-			[ 'children-changed', 'subtree-changed' ]
+			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(1) > meta' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(2)' ),
-			[ 'inserted' ]
+			[ DiffMarkers::INSERTED ]
 		);
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(3)' ),
-			[ 'inserted' ]
+			[ DiffMarkers::INSERTED ]
 		);
 	}
 
@@ -128,21 +129,21 @@ class DOMUtilsTest extends TestCase {
 
 		$body = $this->parseAndDiff( $orig, $edit );
 
-		$this->checkMarkers( $body, [ 'children-changed' ] );
+		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
-			[ 'children-changed', 'subtree-changed' ]
+			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(1) > meta' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 
 		$this->assertTrue( DOMUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > meta:nth-child(3)' ),
-			'deleted'
+			DiffMarkers::DELETED
 		) );
 	}
 
@@ -155,11 +156,11 @@ class DOMUtilsTest extends TestCase {
 
 		$body = $this->parseAndDiff( $orig, $edit );
 
-		$this->checkMarkers( $body, [ 'children-changed' ] );
+		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
-			[ 'modified-wrapper' ]
+			[ DiffMarkers::MODIFIED_WRAPPER ]
 		);
 
 		$this->expectNotToPerformAssertions();
@@ -176,11 +177,11 @@ class DOMUtilsTest extends TestCase {
 
 		$body = $this->parseAndDiff( $orig, $edit );
 
-		$this->checkMarkers( $body, [ 'children-changed' ] );
+		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
-			[ 'modified-wrapper' ]
+			[ DiffMarkers::MODIFIED_WRAPPER ]
 		);
 
 		$this->expectNotToPerformAssertions();
@@ -201,11 +202,11 @@ class DOMUtilsTest extends TestCase {
 
 		$body = $this->parseAndDiff( $orig, $edit );
 
-		$this->checkMarkers( $body, [ 'children-changed' ] );
+		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
 		$this->checkMarkers(
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
-			[ 'modified-wrapper' ]
+			[ DiffMarkers::MODIFIED_WRAPPER ]
 		);
 
 		$this->expectNotToPerformAssertions();

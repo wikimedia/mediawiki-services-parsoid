@@ -255,7 +255,7 @@ class DOMDiff {
 							$markNode = $newNode;
 							while ( $markNode !== $lookaheadNode ) {
 								$this->debug( '--found diff: inserted--' );
-								$this->markNode( $markNode, 'inserted' );
+								$this->markNode( $markNode, DiffMarkers::INSERTED );
 								$markNode = $markNode->nextSibling;
 							}
 							$foundDiff = true;
@@ -278,7 +278,7 @@ class DOMDiff {
 						) {
 							$this->debug( '--found diff: deleted--' );
 							// mark skipped-over nodes as deleted
-							$this->markNode( $newNode, 'deleted', $isBlockNode );
+							$this->markNode( $newNode, DiffMarkers::DELETED, $isBlockNode );
 							$baseNode = $lookaheadNode;
 							$foundDiff = true;
 							break;
@@ -297,7 +297,10 @@ class DOMDiff {
 				if ( !$foundDiff ) {
 					if ( !( $savedNewNode instanceof Element ) ) {
 						$this->debug( '--found diff: modified text/comment--' );
-						$this->markNode( $savedNewNode, 'deleted', WTUtils::isBlockNodeWithVisibleWT( $baseNode ) );
+						$this->markNode(
+							$savedNewNode, DiffMarkers::DELETED,
+							WTUtils::isBlockNodeWithVisibleWT( $baseNode )
+						);
 					} elseif ( $baseNode instanceof Element &&
 						DOMCompat::nodeName( $savedNewNode ) === DOMCompat::nodeName( $baseNode ) &&
 						( DOMDataUtils::getDataParsoid( $savedNewNode )->stx ?? null ) ===
@@ -306,7 +309,7 @@ class DOMDiff {
 						// Identical wrapper-type, but modified.
 						// Mark modified-wrapper, and recurse.
 						$this->debug( '--found diff: modified-wrapper--' );
-						$this->markNode( $savedNewNode, 'modified-wrapper' );
+						$this->markNode( $savedNewNode, DiffMarkers::MODIFIED_WRAPPER );
 						$this->subtreeDiffers( $baseNode, $savedNewNode );
 					} else {
 						// We now want to compare current newNode with the next baseNode.
@@ -315,13 +318,16 @@ class DOMDiff {
 						// Since we are advancing in an old DOM without advancing
 						// in the new DOM, there were deletions. Add a deletion marker
 						// since this is important for accurate separator handling in selser.
-						$this->markNode( $savedNewNode, 'deleted', WTUtils::isBlockNodeWithVisibleWT( $baseNode ) );
+						$this->markNode(
+							$savedNewNode, DiffMarkers::DELETED,
+							WTUtils::isBlockNodeWithVisibleWT( $baseNode )
+						);
 					}
 				}
 
 				// Record the fact that direct children changed in the parent node
 				$this->debug( '--found diff: children-changed--' );
-				$this->markNode( $newParentNode, 'children-changed' );
+				$this->markNode( $newParentNode, DiffMarkers::CHILDREN_CHANGED );
 
 				$foundDiffOverall = true;
 			} elseif ( $this->subtreeDiffers( $baseNode, $newNode ) ) {
@@ -340,7 +346,7 @@ class DOMDiff {
 		// mark extra new nodes as inserted
 		while ( $newNode ) {
 			$this->debug( '--found trailing new node: inserted--' );
-			$this->markNode( $newNode, 'inserted' );
+			$this->markNode( $newNode, DiffMarkers::INSERTED );
 			$foundDiffOverall = true;
 			$newNode = self::nextNonTemplateSibling( $newNode );
 		}
@@ -349,7 +355,7 @@ class DOMDiff {
 		// having lost children for now.
 		if ( $baseNode ) {
 			$this->debug( '--found trailing base nodes: deleted--' );
-			$this->markNode( $newParentNode, 'children-changed' );
+			$this->markNode( $newParentNode, DiffMarkers::CHILDREN_CHANGED );
 			// SSS FIXME: WTS checks for zero children in a few places
 			// That code would have to be upgraded if we emit mw:DiffMarker
 			// in this scenario. So, bailing out in this one case for now.
@@ -419,7 +425,7 @@ class DOMDiff {
 
 		if ( $subtreeDiffers ) {
 			$this->debug( '--found diff: subtree-changed--' );
-			$this->markNode( $newNode, 'subtree-changed' );
+			$this->markNode( $newNode, DiffMarkers::SUBTREE_CHANGED );
 		}
 		return $subtreeDiffers;
 	}
@@ -432,14 +438,14 @@ class DOMDiff {
 	private function markNode( Node $node, string $mark, bool $blockNodeDeleted = false ): void {
 		static $ignoreableNodeTypes = [ XML_DOCUMENT_NODE, XML_DOCUMENT_TYPE_NODE, XML_DOCUMENT_FRAG_NODE ];
 		$meta = null;
-		if ( $mark === 'deleted' ) {
+		if ( $mark === DiffMarkers::DELETED ) {
 			// insert a meta tag marking the place where content used to be
 			$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} else {
 			if ( $node instanceof Element ) {
 				DiffUtils::setDiffMark( $node, $this->env, $mark );
 			} elseif ( $node instanceof Text || $node instanceof Comment ) {
-				if ( $mark !== 'inserted' ) {
+				if ( $mark !== DiffMarkers::INSERTED ) {
 					$this->env->log( 'error/domdiff',
 						'BUG! CHANGE-marker for ' . $node->nodeType . ' node is: ' . $mark
 					);
@@ -454,8 +460,8 @@ class DOMDiff {
 			$meta->setAttribute( 'data-is-block', 'true' );
 		}
 
-		if ( $mark === 'deleted' || $mark === 'inserted' ) {
-			$this->markNode( $node->parentNode, 'children-changed' );
+		if ( $mark === DiffMarkers::DELETED || $mark === DiffMarkers::INSERTED ) {
+			$this->markNode( $node->parentNode, DiffMarkers::CHILDREN_CHANGED );
 		}
 
 		// Clear out speculatively computed DSR values for data-mw-selser-wrapper nodes

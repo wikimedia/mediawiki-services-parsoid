@@ -196,15 +196,15 @@ class DOMNormalizer {
 		}
 
 		// Don't introduce nested inserted markers
-		if ( $this->inInsertedContent && $mark === 'inserted' ) {
+		if ( $this->inInsertedContent && $mark === DiffMarkers::INSERTED ) {
 			return;
 		}
 
 		// Newly added elements don't need diff marks
 		if ( !WTUtils::isNewElt( $node ) ) {
 			DiffUtils::addDiffMark( $node, $env, $mark );
-			if ( $mark === 'inserted' || $mark === 'deleted' ) {
-				DiffUtils::addDiffMark( $node->parentNode, $env, 'children-changed' );
+			if ( $mark === DiffMarkers::INSERTED || $mark === DiffMarkers::DELETED ) {
+				DiffUtils::addDiffMark( $node->parentNode, $env, DiffMarkers::CHILDREN_CHANGED );
 			}
 		}
 
@@ -215,11 +215,11 @@ class DOMNormalizer {
 		// Walk up the subtree and add 'subtree-changed' markers
 		$node = $node->parentNode;
 		while ( $node instanceof Element && !DOMUtils::atTheTop( $node ) ) {
-			if ( DiffUtils::hasDiffMark( $node, $env, 'subtree-changed' ) ) {
+			if ( DiffUtils::hasDiffMark( $node, $env, DiffMarkers::SUBTREE_CHANGED ) ) {
 				return;
 			}
 			if ( !WTUtils::isNewElt( $node ) ) {
-				DiffUtils::setDiffMark( $node, $env, 'subtree-changed' );
+				DiffUtils::setDiffMark( $node, $env, DiffMarkers::SUBTREE_CHANGED );
 			}
 			$node = $node->parentNode;
 		}
@@ -249,21 +249,21 @@ class DOMNormalizer {
 		DOMCompat::normalize( $a );
 
 		// Update diff markers
-		$this->addDiffMarks( $a->parentNode, 'children-changed' ); // $b was removed
-		$this->addDiffMarks( $a, 'children-changed' ); // $a got more children
+		$this->addDiffMarks( $a->parentNode, DiffMarkers::CHILDREN_CHANGED ); // $b was removed
+		$this->addDiffMarks( $a, DiffMarkers::CHILDREN_CHANGED ); // $a got more children
 		if ( !DOMUtils::isRemoved( $sentinel ) ) {
 			// Nodes starting at 'sentinal' were inserted into 'a'
 			// b, which was a's sibling was deleted
 			// Only addDiffMarks to sentinel, if it is still part of the dom
 			// (and hasn't been deleted by the call to a.normalize() )
 			if ( $sentinel->parentNode ) {
-				$this->addDiffMarks( $sentinel, 'moved', true );
+				$this->addDiffMarks( $sentinel, DiffMarkers::MOVED, true );
 			}
 		}
 		if ( $a->nextSibling ) {
 			// FIXME: Hmm .. there is an API hole here
 			// about ability to add markers after last child
-			$this->addDiffMarks( $a->nextSibling, 'moved', true );
+			$this->addDiffMarks( $a->nextSibling, DiffMarkers::MOVED, true );
 		}
 
 		return $a;
@@ -282,13 +282,13 @@ class DOMNormalizer {
 
 		// Mark a's subtree, a, and b as all having moved
 		if ( $a->firstChild !== null ) {
-			$this->addDiffMarks( $a->firstChild, 'moved', true );
+			$this->addDiffMarks( $a->firstChild, DiffMarkers::MOVED, true );
 		}
-		$this->addDiffMarks( $a, 'moved', true );
-		$this->addDiffMarks( $b, 'moved', true );
-		$this->addDiffMarks( $a, 'children-changed', true );
-		$this->addDiffMarks( $b, 'children-changed', true );
-		$this->addDiffMarks( $b->parentNode, 'children-changed' );
+		$this->addDiffMarks( $a, DiffMarkers::MOVED, true );
+		$this->addDiffMarks( $b, DiffMarkers::MOVED, true );
+		$this->addDiffMarks( $a, DiffMarkers::CHILDREN_CHANGED, true );
+		$this->addDiffMarks( $b, DiffMarkers::CHILDREN_CHANGED, true );
+		$this->addDiffMarks( $b->parentNode, DiffMarkers::CHILDREN_CHANGED );
 
 		return $b;
 	}
@@ -334,12 +334,12 @@ class DOMNormalizer {
 			}
 
 			// Update diff markers
-			$this->addDiffMarks( $firstNode, 'moved', true );
+			$this->addDiffMarks( $firstNode, DiffMarkers::MOVED, true );
 			if ( $sibling ) {
-				$this->addDiffMarks( $sibling, 'moved', true );
+				$this->addDiffMarks( $sibling, DiffMarkers::MOVED, true );
 			}
-			$this->addDiffMarks( $node, 'children-changed', true );
-			$this->addDiffMarks( $node->parentNode, 'children-changed' );
+			$this->addDiffMarks( $node, DiffMarkers::CHILDREN_CHANGED, true );
+			$this->addDiffMarks( $node->parentNode, DiffMarkers::CHILDREN_CHANGED );
 		}
 	}
 
@@ -361,7 +361,7 @@ class DOMNormalizer {
 
 		if ( $strippable ) {
 			// Update diff markers (before the deletion)
-			$this->addDiffMarks( $node, 'deleted', true );
+			$this->addDiffMarks( $node, DiffMarkers::DELETED, true );
 			$node->parentNode->removeChild( $node );
 			return $next;
 		} else {
@@ -390,10 +390,10 @@ class DOMNormalizer {
 				}
 				$next->nodeValue = $trailing . $next->nodeValue;
 				// next (a text node) is new / had new content added to it
-				$this->addDiffMarks( $next, 'inserted', true );
+				$this->addDiffMarks( $next, DiffMarkers::INSERTED, true );
 			}
-			$this->addDiffMarks( $last, 'inserted', true );
-			$this->addDiffMarks( $node->parentNode, 'children-changed' );
+			$this->addDiffMarks( $last, DiffMarkers::INSERTED, true );
+			$this->addDiffMarks( $node->parentNode, DiffMarkers::CHILDREN_CHANGED );
 		}
 	}
 
@@ -452,12 +452,12 @@ class DOMNormalizer {
 				// Remove empty text nodes to keep DOM in normalized form
 				$ret = DOMUtils::nextNonDeletedSibling( $node );
 				$node->parentNode->removeChild( $node );
-				$this->addDiffMarks( $node, 'deleted' );
+				$this->addDiffMarks( $node, DiffMarkers::DELETED );
 				return $ret;
 			}
 
 			// Treat modified node as having been newly inserted
-			$this->addDiffMarks( $node, 'inserted' );
+			$this->addDiffMarks( $node, DiffMarkers::INSERTED );
 		}
 		return $node;
 	}
@@ -630,7 +630,7 @@ class DOMNormalizer {
 			// This is preferable to serializing with a nowiki.
 			if ( $first instanceof Text && strspn( $first->nodeValue, '-+}', 0, 1 ) ) {
 				$first->nodeValue = ' ' . $first->nodeValue;
-				$this->addDiffMarks( $first, 'inserted', true );
+				$this->addDiffMarks( $first, DiffMarkers::INSERTED, true );
 			}
 
 			return $node;
@@ -682,11 +682,11 @@ class DOMNormalizer {
 
 					// Avoid nested insertion markers
 					if ( !$this->isInsertedContent( $next ) ) {
-						$this->addDiffMarks( $br, 'inserted' );
+						$this->addDiffMarks( $br, DiffMarkers::INSERTED );
 					}
 
 					// Delete node
-					$this->addDiffMarks( $node->parentNode, 'deleted' );
+					$this->addDiffMarks( $node->parentNode, DiffMarkers::DELETED );
 					$node->parentNode->removeChild( $node );
 				}
 			} else {

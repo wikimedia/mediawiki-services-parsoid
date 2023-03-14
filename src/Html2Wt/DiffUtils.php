@@ -50,7 +50,7 @@ class DiffUtils {
 	public static function hasDiffMark( Node $node, Env $env, string $mark ): bool {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
-		if ( $mark === 'deleted' || ( $mark === 'inserted' && !( $node instanceof Element ) ) ) {
+		if ( $mark === DiffMarkers::DELETED || ( $mark === DiffMarkers::INSERTED && !( $node instanceof Element ) ) ) {
 			return DOMUtils::isDiffMarker( $node->previousSibling, $mark );
 		} else {
 			$diffMark = self::getDiffMark( $node, $env );
@@ -64,7 +64,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function hasInsertedDiffMark( Node $node, Env $env ): bool {
-		return self::hasDiffMark( $node, $env, 'inserted' );
+		return self::hasDiffMark( $node, $env, DiffMarkers::INSERTED );
 	}
 
 	/**
@@ -72,7 +72,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function maybeDeletedNode( ?Node $node ): bool {
-		return $node instanceof Element && DOMUtils::isDiffMarker( $node, 'deleted' );
+		return $node instanceof Element && DOMUtils::isDiffMarker( $node, DiffMarkers::DELETED );
 	}
 
 	/**
@@ -93,7 +93,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function directChildrenChanged( Node $node, Env $env ): bool {
-		return self::hasDiffMark( $node, $env, 'children-changed' );
+		return self::hasDiffMark( $node, $env, DiffMarkers::CHILDREN_CHANGED );
 	}
 
 	/**
@@ -108,7 +108,7 @@ class DiffUtils {
 		}
 
 		foreach ( $dmark->diff as $mark ) {
-			if ( $mark !== 'subtree-changed' && $mark !== 'children-changed' ) {
+			if ( $mark !== DiffMarkers::SUBTREE_CHANGED && $mark !== DiffMarkers::CHILDREN_CHANGED ) {
 				return false;
 			}
 		}
@@ -122,10 +122,10 @@ class DiffUtils {
 	 * @param string $mark
 	 */
 	public static function addDiffMark( Node $node, Env $env, string $mark ): void {
-		if ( $mark === 'deleted' || $mark === 'moved' ) {
+		if ( $mark === DiffMarkers::DELETED || $mark === DiffMarkers::MOVED ) {
 			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} elseif ( $node instanceof Text || $node instanceof Comment ) {
-			if ( $mark !== 'inserted' ) {
+			if ( $mark !== DiffMarkers::INSERTED ) {
 				$env->log( 'error', 'BUG! CHANGE-marker for ', $node->nodeType, ' node is: ', $mark );
 			}
 			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
