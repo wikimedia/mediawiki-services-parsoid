@@ -120,18 +120,25 @@ class DiffUtils {
 	 * @param Node $node
 	 * @param Env $env
 	 * @param string $mark
+	 * @return ?Element
 	 */
-	public static function addDiffMark( Node $node, Env $env, string $mark ): void {
+	public static function addDiffMark( Node $node, Env $env, string $mark ): ?Element {
+		static $ignoreableNodeTypes = [ XML_DOCUMENT_NODE, XML_DOCUMENT_TYPE_NODE, XML_DOCUMENT_FRAG_NODE ];
+
 		if ( $mark === DiffMarkers::DELETED || $mark === DiffMarkers::MOVED ) {
-			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
+			return self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} elseif ( $node instanceof Text || $node instanceof Comment ) {
 			if ( $mark !== DiffMarkers::INSERTED ) {
 				$env->log( 'error', 'BUG! CHANGE-marker for ', $node->nodeType, ' node is: ', $mark );
 			}
-			self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-		} else {
+			return self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
+		} elseif ( $node instanceof Element ) {
 			self::setDiffMark( $node, $env, $mark );
+		} elseif ( !in_array( $node->nodeType, $ignoreableNodeTypes, true ) ) {
+			$env->log( 'error', 'Unhandled node type', $node->nodeType, 'in addDiffMark!' );
 		}
+
+		return null;
 	}
 
 	/**
@@ -141,7 +148,7 @@ class DiffUtils {
 	 * @param Env $env
 	 * @param string $change
 	 */
-	public static function setDiffMark( Node $node, Env $env, string $change ): void {
+	private static function setDiffMark( Node $node, Env $env, string $change ): void {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
@@ -170,7 +177,7 @@ class DiffUtils {
 	 * @param string $type
 	 * @return Element
 	 */
-	public static function prependTypedMeta( Node $node, string $type ): Element {
+	private static function prependTypedMeta( Node $node, string $type ): Element {
 		$meta = $node->ownerDocument->createElement( 'meta' );
 		DOMUtils::addTypeOf( $meta, $type );
 		$node->parentNode->insertBefore( $meta, $node );

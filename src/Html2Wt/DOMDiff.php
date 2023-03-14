@@ -436,25 +436,7 @@ class DOMDiff {
 	 * @param bool $blockNodeDeleted
 	 */
 	private function markNode( Node $node, string $mark, bool $blockNodeDeleted = false ): void {
-		static $ignoreableNodeTypes = [ XML_DOCUMENT_NODE, XML_DOCUMENT_TYPE_NODE, XML_DOCUMENT_FRAG_NODE ];
-		$meta = null;
-		if ( $mark === DiffMarkers::DELETED ) {
-			// insert a meta tag marking the place where content used to be
-			$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-		} else {
-			if ( $node instanceof Element ) {
-				DiffUtils::setDiffMark( $node, $this->env, $mark );
-			} elseif ( $node instanceof Text || $node instanceof Comment ) {
-				if ( $mark !== DiffMarkers::INSERTED ) {
-					$this->env->log( 'error/domdiff',
-						'BUG! CHANGE-marker for ' . $node->nodeType . ' node is: ' . $mark
-					);
-				}
-				$meta = DiffUtils::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
-			} elseif ( !in_array( $node->nodeType, $ignoreableNodeTypes, true ) ) {
-				$this->env->log( 'error/domdiff', 'Unhandled node type', $node->nodeType, 'in markNode!' );
-			}
-		}
+		$meta = DiffUtils::addDiffMark( $node, $this->env, $mark );
 
 		if ( $meta && $blockNodeDeleted ) {
 			$meta->setAttribute( 'data-is-block', 'true' );

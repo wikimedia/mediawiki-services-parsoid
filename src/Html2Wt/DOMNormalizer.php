@@ -219,7 +219,7 @@ class DOMNormalizer {
 				return;
 			}
 			if ( !WTUtils::isNewElt( $node ) ) {
-				DiffUtils::setDiffMark( $node, $env, DiffMarkers::SUBTREE_CHANGED );
+				DiffUtils::addDiffMark( $node, $env, DiffMarkers::SUBTREE_CHANGED );
 			}
 			$node = $node->parentNode;
 		}
