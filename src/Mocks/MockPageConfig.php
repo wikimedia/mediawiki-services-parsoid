@@ -3,8 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Mocks;
 
+use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Utils\Utils;
 
 class MockPageConfig extends PageConfig {
 
@@ -65,8 +67,8 @@ class MockPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getPageLanguage(): string {
-		return $this->pagelanguage ?? 'en';
+	public function getPageLanguageBcp47(): Bcp47Code {
+		return Utils::mwCodeToBcp47( $this->pagelanguage ?? 'en' );
 	}
 
 	/** @inheritDoc */

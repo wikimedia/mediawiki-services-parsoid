@@ -210,12 +210,8 @@ class Parsoid {
 	 *   'discardDataParsoid'   => (bool) Drop all data-parsoid annotations.
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
-	 *   'htmlVariantLanguage'  => (string|Bcp47Code) If non-null, the language variant used for Parsoid HTML.
-	 *                             A MediaWiki-internal language code string (deprecated),
-	 *                             or a Bcp47Code object.
-	 *   'wtVariantLanguage'    => (string|Bcp47Code) If non-null, the language variant used for wikitext.
-	 *                             A MediaWiki-internal language code string (deprecated),
-	 *                             or a Bcp47Code object.
+	 *   'htmlVariantLanguage'  => (Bcp47Code) If non-null, the language variant used for Parsoid HTML.
+	 *   'wtVariantLanguage'    => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
@@ -292,12 +288,8 @@ class Parsoid {
 	 *   'offsetType'          => (string) ucs2, char, byte are valid values
 	 *                                     what kind of source offsets are present in the HTML?
 	 *   'contentmodel'        => (string|null) The content model of the input.
-	 *   'htmlVariantLanguage' => (string|Bcp47Code) If non-null, the language variant used for Parsoid HTML.
-	 *                            A MediaWiki-internal language code string (deprecated),
-	 *                            or a Bcp47Code object.
-	 *   'wtVariantLanguage'   => (string|Bcp47Code) If non-null, the language variant used for wikitext.
-	 *                            A MediaWiki-internal language code string (deprecated),
-	 *                            or a Bcp47Code object.
+	 *   'htmlVariantLanguage' => (Bcp47Code) If non-null, the language variant used for Parsoid HTML.
+	 *   'wtVariantLanguage'   => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'traceFlags'          => (array) associative array with tracing options
 	 *   'dumpFlags'           => (array) associative array with dump options
 	 *   'debugFlags'          => (array) associative array with debug options
@@ -385,9 +377,17 @@ class Parsoid {
 			// is a base language code or otherwise invalid.
 			LanguageConverter::maybeConvert(
 				$env, $doc,
-				Utils::mwCodeToBcp47( $options['variant']['target'] ),
+				Utils::mwCodeToBcp47(
+					$options['variant']['target'],
+					// Be strict in what we accept.
+					true, $this->siteConfig->getLogger()
+				),
 				$options['variant']['source'] ?
-				Utils::mwCodeToBcp47( $options['variant']['source'] ) : null
+				Utils::mwCodeToBcp47(
+					$options['variant']['source'],
+					// Be strict in what we accept.
+					true, $this->siteConfig->getLogger()
+				) : null
 			);
 			// Update content-language and vary headers.
 			// This also ensures there is a <head> element.
@@ -511,22 +511,6 @@ class Parsoid {
 	 *
 	 * @internal FIXME: Remove once Parsoid's language variant work is completed
 	 * @param PageConfig $pageConfig
-	 * @param string $targetVariantCode Variant code to check
-	 * @return bool
-	 * @deprecated Use ::implementsLanguageConversionBcp47()
-	 */
-	public function implementsLanguageConversion( PageConfig $pageConfig, string $targetVariantCode ): bool {
-		// argh, another interface that doesn't use Bcp47Code :(
-		return $this->implementsLanguageConversionBcp47(
-			$pageConfig, Utils::mwCodeToBcp47( $targetVariantCode )
-		);
-	}
-
-	/**
-	 * Check if language variant conversion is implemented for a language
-	 *
-	 * @internal FIXME: Remove once Parsoid's language variant work is completed
-	 * @param PageConfig $pageConfig
 	 * @param Bcp47Code $targetVariant Variant language to check
 	 * @return bool
 	 */
@@ -534,7 +518,7 @@ class Parsoid {
 		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
 
-		return LanguageConverter::implementsLanguageConversion( $env, $targetVariant );
+		return LanguageConverter::implementsLanguageConversionBcp47( $env, $targetVariant );
 	}
 
 	/**

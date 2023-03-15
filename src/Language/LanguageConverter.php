@@ -335,7 +335,7 @@ class LanguageConverter {
 	 * @param Bcp47Code $targetVariant The variant to be checked for implementation
 	 * @return bool
 	 */
-	public static function implementsLanguageConversion( Env $env, Bcp47Code $targetVariant ): bool {
+	public static function implementsLanguageConversionBcp47( Env $env, Bcp47Code $targetVariant ): bool {
 		$targetVariantMw = Utils::bcp47ToMwCode( $targetVariant );
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
 		$lang = self::loadLanguage( $env, $pageLangCode );

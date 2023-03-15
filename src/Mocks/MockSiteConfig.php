@@ -7,6 +7,7 @@ use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 use Wikimedia\Bcp47Code\Bcp47Code;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -213,8 +214,8 @@ class MockSiteConfig extends SiteConfig {
 		return $this->linkTrailRegex;
 	}
 
-	public function lang(): string {
-		return 'en';
+	public function langBcp47(): Bcp47Code {
+		return new Bcp47CodeValue( 'en' );
 	}
 
 	public function mainpage(): string {
@@ -238,8 +239,8 @@ class MockSiteConfig extends SiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function langConverterEnabled( string $lang ): bool {
-		return $lang === 'sr';
+	public function langConverterEnabledBcp47( Bcp47Code $lang ): bool {
+		return $lang->toBcp47Code() === 'sr';
 	}
 
 	public function script(): string {
@@ -258,27 +259,33 @@ class MockSiteConfig extends SiteConfig {
 		return $this->timezoneOffset;
 	}
 
-	public function variants(): array {
-		return [
-			'sr' => [
-				'base' => 'sr',
+	/** @inheritDoc */
+	public function variantsFor( Bcp47Code $lang ): ?array {
+		switch ( $lang->toBcp47Code() ) {
+		case 'sr':
+			return [
+				'base' => new Bcp47CodeValue( 'sr' ),
 				'fallbacks' => [
-					'sr-ec'
+					new Bcp47CodeValue( 'sr-Cyrl' )
 				]
-			],
-			'sr-ec' => [
-				'base' => 'sr',
+			];
+		case 'sr-Cyrl':
+			return [
+				'base' => new Bcp47CodeValue( 'sr' ),
 				'fallbacks' => [
-					'sr'
+					new Bcp47CodeValue( 'sr' )
 				]
-			],
-			'sr-el' => [
-				'base' => 'sr',
+			];
+		case 'sr-Latn':
+			return [
+				'base' => new Bcp47CodeValue( 'sr' ),
 				'fallbacks' => [
-					'sr'
+					new Bcp47CodeValue( 'sr' )
 				]
-			]
-		];
+			];
+		default:
+			return null;
+		}
 	}
 
 	public function widthOption(): int {

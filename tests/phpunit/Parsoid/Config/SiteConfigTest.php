@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Config;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\TestingAccessWrapper;
 
@@ -33,8 +34,8 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testUcfirst() {
-		$siteConfig = $this->getSiteConfig( [ 'lang' ] );
-		$siteConfig->method( 'lang' )->willReturn( 'en' );
+		$siteConfig = $this->getSiteConfig( [ 'langBcp47' ] );
+		$siteConfig->method( 'langBcp47' )->willReturn( new Bcp47CodeValue( 'en' ) );
 
 		$this->assertSame( 'Foo', $siteConfig->ucfirst( 'Foo' ) );
 		$this->assertSame( 'Foo', $siteConfig->ucfirst( 'foo' ) );
@@ -42,8 +43,8 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( 'Iii', $siteConfig->ucfirst( 'iii' ) );
 
 		foreach ( [ 'tr', 'kaa', 'kk', 'az' ] as $lang ) {
-			$siteConfig = $this->getSiteConfig( [ 'lang' ] );
-			$siteConfig->method( 'lang' )->willReturn( $lang );
+			$siteConfig = $this->getSiteConfig( [ 'langBcp47' ] );
+			$siteConfig->method( 'langBcp47' )->willReturn( new Bcp47CodeValue( $lang ) );
 			$this->assertSame( 'İii', $siteConfig->ucfirst( 'iii' ), "Special logic for $lang" );
 		}
 	}

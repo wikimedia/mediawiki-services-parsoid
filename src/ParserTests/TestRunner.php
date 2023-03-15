@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 
 /**
@@ -371,15 +372,22 @@ class TestRunner {
 
 		// These changes are for environment options that change between runs of
 		// different modes. See `processTest` for changes per test.
+
 		// Page language matches "wiki language" (which is set by
 		// the item 'language' option).
+
+		// Variant conversion is disabled by default
+		$this->envOptions['wtVariantLanguage'] = null;
+		$this->envOptions['htmlVariantLanguage'] = null;
+		// The test can explicitly opt-in to variant conversion with the
+		// 'langconv' option.
 		if ( $testOpts['langconv'] ?? null ) {
-			$this->envOptions['wtVariantLanguage'] = $testOpts['sourceVariant'] ?? null;
-			$this->envOptions['htmlVariantLanguage'] = $testOpts['variant'] ?? null;
-		} else {
-			// variant conversion is disabled by default
-			$this->envOptions['wtVariantLanguage'] = null;
-			$this->envOptions['htmlVariantLanguage'] = null;
+			if ( $testOpts['sourceVariant'] ?? false ) {
+				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['sourceVariant'] );
+			}
+			if ( $testOpts['variant'] ?? false ) {
+				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['variant'] );
+			}
 		}
 
 		$env = $this->newEnv( $test, $test->wikitext ?? '' );

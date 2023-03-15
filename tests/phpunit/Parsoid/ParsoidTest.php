@@ -2,6 +2,7 @@
 
 namespace Test\Parsoid;
 
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
@@ -233,10 +234,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				],
 				[
 					'body_only' => true,
-					'pageLanguage' => 'sr',
+					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => 'sr-ec',
-						'target' => 'sr-el',
+						'source' => new Bcp47CodeValue( 'sr-Cyrl' ),
+						'target' => new Bcp47CodeValue( 'sr-Latn' ),
 					]
 				]
 			],
@@ -255,10 +256,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				],
 				[
 					'body_only' => true,
-					'pageLanguage' => 'sr',
+					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => 'sr-el',
-						'target' => 'sr-ec',
+						'source' => new Bcp47CodeValue( 'sr-Latn' ),
+						'target' => new Bcp47CodeValue( 'sr-Cyrl' ),
 					]
 				]
 			],
@@ -277,10 +278,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				],
 				[
 					'body_only' => true,
-					'pageLanguage' => 'sr',
+					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => 'sr-el',
-						'target' => 'sr-ec',
+						'source' => new Bcp47CodeValue( 'sr-Latn' ),
+						'target' => new Bcp47CodeValue( 'sr-Cyrl' ),
 					]
 				]
 			],
@@ -301,10 +302,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				],
 				[
 					'body_only' => true,
-					'pageLanguage' => 'sr',
+					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => 'sr-el',
-						'target' => 'sr-ec',
+						'source' => new Bcp47CodeValue( 'sr-Latn' ),
+						'target' => new Bcp47CodeValue( 'sr-Cyrl' ),
 					]
 				]
 			],
@@ -313,10 +314,10 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @covers ::implementsLanguageConversion
-	 * @dataProvider provideImplementsLanguageConversion
+	 * @covers ::implementsLanguageConversionBcp47
+	 * @dataProvider provideImplementsLanguageConversionBcp47
 	 */
-	public function testImplementsLanguageConversion( string $targetVariantCode, $expected ) {
+	public function testImplementsLanguageConversionBcp47( string $targetVariantCode, $expected ) {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
@@ -326,11 +327,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
 		$pageConfig = new MockPageConfig( $opts, $pageContent );
 
-		$actual = $parsoid->implementsLanguageConversion( $pageConfig, $targetVariantCode );
+		$actual = $parsoid->implementsLanguageConversionBcp47( $pageConfig, new Bcp47CodeValue( $targetVariantCode ) );
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideImplementsLanguageConversion() {
+	public function provideImplementsLanguageConversionBcp47() {
 		yield 'Variant conversion is implemented for en-x-piglatin' => [
 			'en-x-piglatin', true
 		];

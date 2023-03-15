@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Utils;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
@@ -65,12 +66,12 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	private function getMockSiteConfig( string $lang = 'en' ) {
 		$siteConfig = $this->getMockBuilder( MockSiteConfig::class )
 			->setConstructorArgs( [ [] ] )
-			->onlyMethods( [ 'lang', 'namespaceCase', 'specialPageLocalName', 'interwikiMap' ] )
+			->onlyMethods( [ 'langBcp47', 'namespaceCase', 'specialPageLocalName', 'interwikiMap' ] )
 			->getMock();
 		$siteConfig->method( 'namespaceCase' )->willReturnCallback( static function ( $ns ) {
 			return $ns === 15 ? 'case-sensitive' : 'first-letter';
 		} );
-		$siteConfig->method( 'lang' )->willReturn( $lang );
+		$siteConfig->method( 'langBcp47' )->willReturn( new Bcp47CodeValue( $lang ) );
 		$siteConfig->method( 'specialPageLocalName' )->willReturnCallback( static function ( $alias ) {
 			if ( $alias === 'DoesNotExist' ) {
 				return null;

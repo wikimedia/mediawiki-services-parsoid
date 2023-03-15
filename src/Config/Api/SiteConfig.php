@@ -495,9 +495,9 @@ class SiteConfig extends ISiteConfig {
 		return $this->siteData['linktrail'];
 	}
 
-	public function lang(): string {
+	public function langBcp47(): Bcp47Code {
 		$this->loadSiteData();
-		return $this->siteData['lang'];
+		return Utils::mwCodeToBcp47( $this->siteData['lang'] );
 	}
 
 	public function mainpage(): string {
@@ -599,22 +599,9 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/** @inheritDoc */
-	public function variants(): array {
+	public function variantsFor( Bcp47Code $lang ): ?array {
 		$this->loadSiteData();
-		$result = [];
-		foreach ( $this->variants as $variantKey => $tuple ) {
-			$result[Utils::bcp47ToMwCode( $variantKey )] = [
-				'base' => Utils::bcp47ToMwCode( $tuple['base'] ),
-				'fallbacks' => array_map( [ Utils::class, 'bcp47ToMwCode' ], $tuple['fallbacks'] ),
-			];
-		}
-		return $result;
-	}
-
-	/** @inheritDoc */
-	public function variantsFor( Bcp47Code $lang ): array {
-		$this->loadSiteData();
-		return $this->variants[strtolower( $lang->toBcp47Code() )];
+		return $this->variants[strtolower( $lang->toBcp47Code() )] ?? null;
 	}
 
 	public function widthOption(): int {

@@ -645,26 +645,11 @@ abstract class SiteConfig {
 		return $this->linkTrailRegex;
 	}
 
-	// Implementors are expected to override *one of*
-	// ::lang() or ::langBcp47()
-
-	/**
-	 * Wiki language code.
-	 * @return string Mediawiki-internal language code
-	 * @deprecated Use ::langBcp47() (T320662)
-	 */
-	public function lang(): string {
-		return Utils::bcp47ToMwCode( $this->langBcp47() );
-	}
-
 	/**
 	 * Wiki language code.
 	 * @return Bcp47Code BCP-47 language code
 	 */
-	public function langBcp47(): Bcp47Code {
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		return Utils::mwCodeToBcp47( $this->lang() );
-	}
+	abstract public function langBcp47(): Bcp47Code;
 
 	/**
 	 * Main page title
@@ -685,41 +670,12 @@ abstract class SiteConfig {
 	 */
 	abstract public function rtl(): bool;
 
-	// Implementors are expected to override *one of*
-	// ::langConverterEnabled() or ::langConverterEnabledBcp47()
-
-	/**
-	 * Whether language converter is enabled for the specified language
-	 * @param string $lang Mediawiki-internal language code
-	 * @return bool
-	 * @deprecated Use ::langConverterEnabledBcp47() (T320662)
-	 */
-	public function langConverterEnabled( string $lang ): bool {
-		return $this->langConverterEnabledBcp47( Utils::mwCodeToBcp47( $lang ) ); # T320662
-	}
-
 	/**
 	 * Whether language converter is enabled for the specified language
 	 * @param Bcp47Code $lang
 	 * @return bool
 	 */
-	public function langConverterEnabledBcp47( Bcp47Code $lang ): bool {
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		return $this->langConverterEnabled( Utils::bcp47ToMwCode( $lang ) );
-	}
-
-	/**
-	 * Is the language converter enabled for this language?
-	 *
-	 * @param string $lang Mediawiki-internal language code
-	 * @return bool
-	 * @deprecated Use ::langConverterEnabledBcp47() (this method is redundant)
-	 */
-	public function langConverterEnabledForLanguage( string $lang ): bool {
-		return $this->langConverterEnabledBcp47(
-			Utils::mwCodeToBcp47( $lang )
-		);
-	}
+	abstract public function langConverterEnabledBcp47( Bcp47Code $lang ): bool;
 
 	/**
 	 * The URL path to index.php.
@@ -742,32 +698,6 @@ abstract class SiteConfig {
 	 */
 	abstract public function server(): string;
 
-	// Implementors are expected to override *one of*
-	// ::exportMetadataToHead() or ::exportMetadataToHeadBcp47()
-
-	/**
-	 * Export content metadata via meta tags (and via a stylesheet
-	 * for now to aid some clients).
-	 *
-	 * @param Document $document
-	 * @param ContentMetadataCollector $metadata
-	 * @param string $defaultTitle The default title to display, as an
-	 *   unescaped string
-	 * @param string $lang a MediaWiki-internal language code
-	 * @deprecated Use ::exportMetadataToHeadBcp47() (T320662)
-	 */
-	public function exportMetadataToHead(
-		Document $document,
-		ContentMetadataCollector $metadata,
-		string $defaultTitle,
-		string $lang
-	): void {
-		$this->exportMetadataToHeadBcp47(
-			$document, $metadata, $defaultTitle,
-			Utils::mwCodeToBcp47( $lang )
-		);
-	}
-
 	/**
 	 * Export content metadata via meta tags (and via a stylesheet
 	 * for now to aid some clients).
@@ -778,18 +708,12 @@ abstract class SiteConfig {
 	 *   unescaped string
 	 * @param Bcp47Code $lang a BCP-47 language code
 	 */
-	public function exportMetadataToHeadBcp47(
+	abstract public function exportMetadataToHeadBcp47(
 		Document $document,
 		ContentMetadataCollector $metadata,
 		string $defaultTitle,
 		Bcp47Code $lang
-	): void {
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		$this->exportMetadataToHead(
-			$document, $metadata, $defaultTitle,
-			Utils::bcp47ToMwCode( $lang )
-		);
-	}
+	): void;
 
 	/**
 	 * Helper function to create <head> elements from metadata.
@@ -988,26 +912,6 @@ abstract class SiteConfig {
 	 */
 	abstract public function timezoneOffset(): int;
 
-	// Implementors are expected to override either ::variants() or
-	// *both* ::variants() and ::variantsFor().  The ::variants() form
-	// is no longer used in Parsoid and will be deprecated and removed.
-
-	/**
-	 * Language variant information
-	 * @return array<string,array> Keys are MediaWiki-internal variant codes (e.g. "zh-cn"),
-	 * values are arrays with two fields:
-	 *   - base: (string) Base language code (e.g. "zh") (MediaWiki-internal)
-	 *   - fallbacks: (string[]) Fallback variants (MediaWiki-internal codes)
-	 * @deprecated Use ::variantsFor() (T320662)
-	 */
-	public function variants(): array {
-		// We can't provide a transition function here based on variantsFor()
-		// without a way to enumerate all variants.  So during the transition
-		// clients should implement *both* ::variants() and ::variantsFor()
-		// if there are 3rd-party users of SiteConfig::variants()
-		return [];
-	}
-
 	/**
 	 * Language variant information for the given language (or null if
 	 * unknown).
@@ -1017,18 +921,7 @@ abstract class SiteConfig {
 	 *   - base: (Bcp47Code) Base BCP-47 language code (e.g. "zh")
 	 *   - fallbacks: (Bcp47Code[]) Fallback variants, as BCP-47 codes
 	 */
-	public function variantsFor( Bcp47Code $lang ): ?array {
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		$v = $this->variants();
-		$tuple = $v[Utils::bcp47ToMwCode( $lang )] ?? null;
-		if ( $tuple == null ) {
-			return null;
-		}
-		return [
-			'base' => Utils::mwCodeToBcp47( $tuple['base'] ),
-			'fallbacks' => array_map( [ Utils::class, 'mwCodeToBcp47' ], $tuple['fallbacks'] ),
-		];
-	}
+	abstract public function variantsFor( Bcp47Code $lang ): ?array;
 
 	/**
 	 * Default thumbnail width
