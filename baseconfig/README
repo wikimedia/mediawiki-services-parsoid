@@ -8,5 +8,4 @@ To generate/regenerate:
 
  $ for lang in ar ban be-tarask ca cs de en es fa fi fr is kaa ln nl ru sr tr zh ; do \
      php tools/SyncBaseConfig.php --domain=${lang}.wikipedia.org ; \
-     php tools/SyncBaseConfig.php --domain=${lang}.wikipedia.org --formatversion=2; \
    done

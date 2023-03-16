@@ -52,7 +52,7 @@ class SyncBaseConfig extends FetchingTool {
 
 		// API JSON response format version: see https://www.mediawiki.org/wiki/API:JSON_version_2
 		$formatVersion =
-			$this->hasOption( 'formatversion' ) ? $this->getOption( 'formatversion' ) : "1";
+			$this->hasOption( 'formatversion' ) ? $this->getOption( 'formatversion' ) : "2";
 
 		$apiReqParameters = $this->getApiReqParameters( $formatVersion );
 		$response = $apiHelper->makeRequest( $apiReqParameters );
@@ -96,7 +96,7 @@ class SyncBaseConfig extends FetchingTool {
 
 		$configDir = realpath( __DIR__ . "/.." );
 
-		return $configDir . '/baseconfig/' . ( ( $formatVersion === "2" ) ? '2/' : '' ) . $wikiId .
+		return $configDir . '/baseconfig/' . ( ( $formatVersion !== "2" ) ? "$formatVersion/" : '' ) . $wikiId .
 			'.json';
 	}
 }

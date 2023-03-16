@@ -795,7 +795,7 @@ class MockApiHelper extends ApiHelper {
 		if ( ( $params['meta'] ?? null ) === 'siteinfo' ) {
 			if ( !isset( $this->cachedConfigs[$this->prefix] ) ) {
 				$this->cachedConfigs[$this->prefix] = json_decode(
-					file_get_contents( __DIR__ . "/../../baseconfig/2/$this->prefix.json" ), true );
+					file_get_contents( __DIR__ . "/../../baseconfig/$this->prefix.json" ), true );
 			}
 			return $this->cachedConfigs[$this->prefix];
 		}
