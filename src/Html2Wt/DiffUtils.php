@@ -17,54 +17,48 @@ class DiffUtils {
 	 * Get a node's diff marker.
 	 *
 	 * @param Node $node
-	 * @param Env $env
 	 * @return stdClass|null
 	 */
-	public static function getDiffMark( Node $node, Env $env ): ?stdClass {
+	public static function getDiffMark( Node $node ): ?stdClass {
 		if ( !( $node instanceof Element ) ) {
 			return null;
 		}
-
 		$data = DOMDataUtils::getNodeData( $node );
-		$dpd = $data->parsoid_diff ?? null;
-		return ( $dpd && $dpd->id === $env->getPageConfig()->getPageId() ) ? $dpd : null;
+		return $data->parsoid_diff ?? null;
 	}
 
 	/**
-	 * Check that the diff markers on the node exist and are recent.
+	 * Check that the diff markers on the node exist.
 	 *
 	 * @param Node $node
-	 * @param Env $env
 	 * @return bool
 	 */
-	public static function hasDiffMarkers( Node $node, Env $env ): bool {
-		return self::getDiffMark( $node, $env ) !== null || DOMUtils::isDiffMarker( $node );
+	public static function hasDiffMarkers( Node $node ): bool {
+		return self::getDiffMark( $node ) !== null || DOMUtils::isDiffMarker( $node );
 	}
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @param string $mark
 	 * @return bool
 	 */
-	public static function hasDiffMark( Node $node, Env $env, string $mark ): bool {
+	public static function hasDiffMark( Node $node, string $mark ): bool {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
 		if ( $mark === DiffMarkers::DELETED || ( $mark === DiffMarkers::INSERTED && !( $node instanceof Element ) ) ) {
 			return DOMUtils::isDiffMarker( $node->previousSibling, $mark );
 		} else {
-			$diffMark = self::getDiffMark( $node, $env );
+			$diffMark = self::getDiffMark( $node );
 			return $diffMark && in_array( $mark, $diffMark->diff, true );
 		}
 	}
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @return bool
 	 */
-	public static function hasInsertedDiffMark( Node $node, Env $env ): bool {
-		return self::hasDiffMark( $node, $env, DiffMarkers::INSERTED );
+	public static function hasInsertedDiffMark( Node $node ): bool {
+		return self::hasDiffMark( $node, DiffMarkers::INSERTED );
 	}
 
 	/**
@@ -89,20 +83,18 @@ class DiffUtils {
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @return bool
 	 */
-	public static function directChildrenChanged( Node $node, Env $env ): bool {
-		return self::hasDiffMark( $node, $env, DiffMarkers::CHILDREN_CHANGED );
+	public static function directChildrenChanged( Node $node ): bool {
+		return self::hasDiffMark( $node, DiffMarkers::CHILDREN_CHANGED );
 	}
 
 	/**
 	 * @param Element $node
-	 * @param Env $env
 	 * @return bool
 	 */
-	public static function onlySubtreeChanged( Element $node, Env $env ): bool {
-		$dmark = self::getDiffMark( $node, $env );
+	public static function onlySubtreeChanged( Element $node ): bool {
+		$dmark = self::getDiffMark( $node );
 		if ( !$dmark ) {
 			return false;
 		}
@@ -133,7 +125,7 @@ class DiffUtils {
 			}
 			return self::prependTypedMeta( $node, 'mw:DiffMarker/' . $mark );
 		} elseif ( $node instanceof Element ) {
-			self::setDiffMark( $node, $env, $mark );
+			self::setDiffMark( $node, $mark );
 		} elseif ( !in_array( $node->nodeType, $ignoreableNodeTypes, true ) ) {
 			$env->log( 'error', 'Unhandled node type', $node->nodeType, 'in addDiffMark!' );
 		}
@@ -145,27 +137,19 @@ class DiffUtils {
 	 * Set a diff marker on a node.
 	 *
 	 * @param Node $node
-	 * @param Env $env
 	 * @param string $change
 	 */
-	private static function setDiffMark( Node $node, Env $env, string $change ): void {
+	private static function setDiffMark( Node $node, string $change ): void {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
-
-		$dpd = self::getDiffMark( $node, $env );
-		if ( $dpd ) {
-			// Diff is up to date, append this change if it doesn't already exist
-			if ( !in_array( $change, $dpd->diff, true ) ) {
-				$dpd->diff[] = $change;
-			}
-		} else {
-			// Was an old diff entry or no diff at all, reset
+		$dpd = self::getDiffMark( $node );
+		if ( !$dpd ) {
 			$dpd = (object)[ // FIXME object or array?
-				// The base page revision this change happened on
-				'id' => $env->getPageConfig()->getPageId(),
 				'diff' => [ $change ]
 			];
+		} elseif ( !in_array( $change, $dpd->diff, true ) ) {
+			$dpd->diff[] = $change;
 		}
 		DOMDataUtils::getNodeData( $node )->parsoid_diff = $dpd;
 	}
@@ -191,10 +175,8 @@ class DiffUtils {
 	 */
 	private static function getAttributes( Element $node, array $ignoreableAttribs ): array {
 		$h = DOMUtils::attributes( $node );
-		$count = 0;
 		foreach ( $h as $name => $value ) {
 			if ( in_array( $name, $ignoreableAttribs, true ) ) {
-				$count++;
 				unset( $h[$name] );
 			}
 		}

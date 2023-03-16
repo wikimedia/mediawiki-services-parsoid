@@ -4,11 +4,11 @@ namespace Test\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Html2Wt\DiffMarkers;
+use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
@@ -50,12 +50,7 @@ class DOMDiffTest extends TestCase {
 			if ( isset( $spec['diff'] ) ) {
 				$this->assertTrue( DOMUtils::isDiffMarker( $node, $spec['diff'] ) );
 			} elseif ( isset( $spec['markers'] ) ) {
-				// NOTE: Not using DiffUtils.getDiffMark because that
-				// tests for page id and we may not be mocking that
-				// precisely here. And, we need to revisit whether that
-				// page id comparison is still needed / useful.
-				$data = DOMDataUtils::getNodeData( $node );
-				$markers = $data->parsoid_diff->diff ?? [];
+				$markers = DiffUtils::getDiffMark( $node )->diff ?? [];
 
 				$this->assertCount( count( $spec['markers'] ), $markers,
 					'number of markers does not match' );

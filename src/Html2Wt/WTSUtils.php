@@ -273,14 +273,17 @@ class WTSUtils {
 				return true;
 			}
 
-			if ( DiffUtils::hasInsertedDiffMark( $prev, $env ) ||
-				DiffUtils::hasInsertedDiffMark( $node, $env ) ) {
+			if (
+				DiffUtils::hasInsertedDiffMark( $prev ) ||
+				DiffUtils::hasInsertedDiffMark( $node )
+			) {
 				return false;
 			}
 
 			// If previous sibling is unmodified, nothing to worry about.
-			if ( !DOMUtils::isDiffMarker( $prev ) &&
-				!DiffUtils::directChildrenChanged( $prev, $env )
+			if (
+				!DOMUtils::isDiffMarker( $prev ) &&
+				!DiffUtils::directChildrenChanged( $prev )
 			) {
 				return true;
 			}
@@ -336,7 +339,7 @@ class WTSUtils {
 			// If a previous sibling was modified, we can't reuse the start dsr.
 			$prev = $node->previousSibling;
 			while ( $prev ) {
-				if ( DOMUtils::isDiffMarker( $prev ) || DiffUtils::hasInsertedDiffMark( $prev, $env ) ) {
+				if ( DOMUtils::isDiffMarker( $prev ) || DiffUtils::hasInsertedDiffMark( $prev ) ) {
 					return false;
 				}
 				$prev = $prev->previousSibling;

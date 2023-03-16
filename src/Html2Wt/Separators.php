@@ -815,7 +815,7 @@ class Separators {
 					// Can we extrapolate DSR from $prevNode->previousSibling?
 					// Yes, if $prevNode->parentNode didn't have its children edited.
 					$prevNode->previousSibling instanceof Element &&
-					!DiffUtils::directChildrenChanged( $prevNode->parentNode, $this->env )
+					!DiffUtils::directChildrenChanged( $prevNode->parentNode )
 				) {
 					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr->end ?? null;
 					$correction = null;
@@ -929,7 +929,7 @@ class Separators {
 					$sep = null;
 				}
 			}
-		} elseif ( $origSepNeeded && !DiffUtils::hasDiffMarkers( $prevNode, $this->env ) ) {
+		} elseif ( $origSepNeeded && !DiffUtils::hasDiffMarkers( $prevNode ) ) {
 			// Given the following conditions:
 			// - $prevNode has no diff markers. (checked above)
 			// - $prevNode's next non-sep sibling ($next) was inserted.
@@ -943,7 +943,7 @@ class Separators {
 			// This minimizes dirty-diffs to that separator text from
 			// the insertion of $next after $prevNode.
 			$next = DOMUtils::nextNonSepSibling( $prevNode );
-			$origSepUsable = $next && DiffUtils::hasInsertedDiffMark( $next, $this->env );
+			$origSepUsable = $next && DiffUtils::hasInsertedDiffMark( $next );
 
 			// Check that $next is an ancestor of $node and all nodes
 			// on that path have zero-width wikitext
@@ -972,7 +972,7 @@ class Separators {
 						$o2 = $dsr2 ? $dsr2->innerEnd() : null;
 						$sep = $o2 !== null ? $state->getOrigSrc( $o1, $o2 ) : null;
 					}
-				} elseif ( !DiffUtils::hasDiffMarkers( $origNext, $this->env ) ) {
+				} elseif ( !DiffUtils::hasDiffMarkers( $origNext ) ) {
 					// We could work harder for text/comments and extrapolate, but skipping that here
 					// FIXME: If we had a generic DSR extrapolation utility, that would be useful
 					$o1 = $prevNode instanceof Element ?

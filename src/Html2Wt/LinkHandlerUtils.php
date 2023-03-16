@@ -230,8 +230,9 @@ class LinkHandlerUtils {
 
 		// Check if the link content has been modified or is newly inserted content.
 		// FIXME: This will only work with selser of course. Hard to test without selser.
-		if ( $state->inModifiedContent ||
-			DiffUtils::hasDiffMark( $node, $env, DiffMarkers::SUBTREE_CHANGED )
+		if (
+			$state->inModifiedContent ||
+			DiffUtils::hasDiffMark( $node, DiffMarkers::SUBTREE_CHANGED )
 		) {
 			$rtData->contentModified = true;
 		}

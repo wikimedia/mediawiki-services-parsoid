@@ -47,7 +47,7 @@ class DDHandler extends DOMHandler {
 		//   every nested <li> node which makes for lotsa dirty diffs. ]
 		$lastChild = DOMUtils::lastNonSepChild( $node );
 		if ( $lastChild && !DOMUtils::isList( $lastChild ) &&
-			!DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() ) &&
+			!DiffUtils::hasDiffMarkers( $lastChild ) &&
 			!( $lastChild instanceof Element && $lastChild->hasAttribute( 'data-mw-selser-wrapper' ) )
 		) {
 			$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );

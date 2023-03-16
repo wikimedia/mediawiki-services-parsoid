@@ -144,7 +144,7 @@ class DOMNormalizer {
 	 */
 	private function isInsertedContent( Node $node ): bool {
 		while ( true ) {
-			if ( DiffUtils::hasInsertedDiffMark( $node, $this->state->getEnv() ) ) {
+			if ( DiffUtils::hasInsertedDiffMark( $node ) ) {
 				return true;
 			}
 			if ( DOMUtils::atTheTop( $node ) ) {
@@ -190,8 +190,7 @@ class DOMNormalizer {
 	 * @param bool $dontRecurse
 	 */
 	public function addDiffMarks( Node $node, string $mark, bool $dontRecurse = false ): void {
-		$env = $this->state->getEnv();
-		if ( !$this->state->selserMode || DiffUtils::hasDiffMark( $node, $env, $mark ) ) {
+		if ( !$this->state->selserMode || DiffUtils::hasDiffMark( $node, $mark ) ) {
 			return;
 		}
 
@@ -199,6 +198,8 @@ class DOMNormalizer {
 		if ( $this->inInsertedContent && $mark === DiffMarkers::INSERTED ) {
 			return;
 		}
+
+		$env = $this->state->getEnv();
 
 		// Newly added elements don't need diff marks
 		if ( !WTUtils::isNewElt( $node ) ) {
@@ -215,7 +216,7 @@ class DOMNormalizer {
 		// Walk up the subtree and add 'subtree-changed' markers
 		$node = $node->parentNode;
 		while ( $node instanceof Element && !DOMUtils::atTheTop( $node ) ) {
-			if ( DiffUtils::hasDiffMark( $node, $env, DiffMarkers::SUBTREE_CHANGED ) ) {
+			if ( DiffUtils::hasDiffMark( $node, DiffMarkers::SUBTREE_CHANGED ) ) {
 				return;
 			}
 			if ( !WTUtils::isNewElt( $node ) ) {
@@ -573,7 +574,7 @@ class DOMNormalizer {
 		// Skip unmodified content
 		if ( $this->state->selserMode && !DOMUtils::atTheTop( $node ) &&
 			!$this->inInsertedContent &&
-			!DiffUtils::hasDiffMarkers( $node, $this->state->getEnv() ) &&
+			!DiffUtils::hasDiffMarkers( $node ) &&
 			// If orig-src is not valid, this in effect becomes
 			// an edited node and needs normalizations applied to it.
 			WTSUtils::origSrcValidInEditedContext( $this->state, $node )
@@ -804,7 +805,7 @@ class DOMNormalizer {
 			}
 
 			// Set insertion marker
-			$insertedSubtree = DiffUtils::hasInsertedDiffMark( $node, $this->state->getEnv() );
+			$insertedSubtree = DiffUtils::hasInsertedDiffMark( $node );
 			if ( $insertedSubtree ) {
 				if ( $this->inInsertedContent ) {
 					// Dump debugging info

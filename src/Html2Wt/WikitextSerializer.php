@@ -962,7 +962,7 @@ class WikitextSerializer {
 	public function serializeFromParts(
 		SerializerState $state, Element $node, array $srcParts
 	): string {
-		$useTplData = WTUtils::isNewElt( $node ) || DiffUtils::hasDiffMarkers( $node, $this->env );
+		$useTplData = WTUtils::isNewElt( $node ) || DiffUtils::hasDiffMarkers( $node );
 		$buf = '';
 		foreach ( $srcParts as $i => $part ) {
 			if ( is_string( $part ) ) {
@@ -1198,7 +1198,7 @@ class WikitextSerializer {
 				|| !empty( $dp->misnested )
 			)
 		) {
-			if ( !DiffUtils::hasDiffMarkers( $node, $this->env ) ) {
+			if ( !DiffUtils::hasDiffMarkers( $node ) ) {
 				// If this HTML node will disappear in wikitext because of
 				// zero width, then the separator constraints will carry over
 				// to the node's children.
@@ -1273,7 +1273,7 @@ class WikitextSerializer {
 				}
 			}
 
-			$wrapperUnmodified = DiffUtils::onlySubtreeChanged( $node, $this->env ) &&
+			$wrapperUnmodified = DiffUtils::onlySubtreeChanged( $node ) &&
 				WTSUtils::hasValidTagWidths( $dp->dsr ?? null );
 		}
 
@@ -1281,7 +1281,7 @@ class WikitextSerializer {
 
 		$currentModifiedState = $state->inModifiedContent;
 
-		$inModifiedContent = $state->selserMode && DiffUtils::hasInsertedDiffMark( $node, $this->env );
+		$inModifiedContent = $state->selserMode && DiffUtils::hasInsertedDiffMark( $node );
 
 		if ( $inModifiedContent ) {
 			$state->inModifiedContent = true;

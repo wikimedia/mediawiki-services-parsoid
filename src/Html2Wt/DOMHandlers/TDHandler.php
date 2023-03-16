@@ -73,7 +73,7 @@ class TDHandler extends DOMHandler {
 			// Recover any trimmed whitespace only on unmodified nodes
 			if ( !$trailingSpace ) {
 				$lastChild = DOMUtils::lastNonSepChild( $node );
-				if ( $lastChild && !DiffUtils::hasDiffMarkers( $lastChild, $state->getEnv() ) ) {
+				if ( $lastChild && !DiffUtils::hasDiffMarkers( $lastChild ) ) {
 					$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
 				}
 			}

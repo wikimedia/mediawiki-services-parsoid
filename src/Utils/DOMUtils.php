@@ -625,7 +625,7 @@ class DOMUtils {
 		return self::hasNameAndTypeOf( $n, 'meta', $type );
 	}
 
-	// FIXME: This would ideally belong in DiffUtils.js
+	// FIXME: This would ideally belong in DiffUtils.php
 	// but that would introduce circular dependencies.
 
 	/**
@@ -1101,7 +1101,7 @@ class DOMUtils {
 	 * that it is, sort of.
 	 *
 	 * @param Element $element
-	 * @return string[]
+	 * @return array<string,string>
 	 * @see https://phabricator.wikimedia.org/T235295
 	 */
 	public static function attributes( $element ): array {
