@@ -13,7 +13,6 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
@@ -963,8 +962,8 @@ class TemplateHandler extends TokenHandler {
 			// Use the textContent of the expanded attribute, similar to how
 			// Sanitizer::sanitizeTagAttr does it.  However, here we have the
 			// opportunity to strip the parser function prefix.
-			$dom = DOMUtils::parseHTML( $html );
-			$content = DOMCompat::getBody( $dom )->textContent;
+			$domFragment = DOMUtils::parseHTMLToFragment( $env->topLevelDoc, $html );
+			$content = $domFragment->textContent;
 			$content = preg_replace( '#^\w+:#', '', $content, 1 );
 			$metaToken->addAttribute( 'content', $content, $resolvedTgt['srcOffsets']->expandTsrV() );
 
