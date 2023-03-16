@@ -1050,13 +1050,14 @@ class DOMUtils {
 	}
 
 	/**
-	 * @param Document $doc
+	 * @param ?Document $doc
 	 * @param string $html
 	 * @return DocumentFragment
 	 */
 	public static function parseHTMLToFragment(
-		Document $doc, string $html
+		?Document $doc, string $html
 	): DocumentFragment {
+		$doc = $doc ?? DOMCompat::newDocument( true );
 		$frag = $doc->createDocumentFragment();
 		self::setFragmentInnerHTML( $frag, $html );
 		return $frag;
