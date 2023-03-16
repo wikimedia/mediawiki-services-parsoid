@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -24,7 +25,7 @@ class TableHandler extends DOMHandler {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$wt = $dp->startTagSrc ?? '{|';
 		$indentTable = DOMCompat::nodeName( $node->parentNode ) === 'dd'
-			&& DOMUtils::previousNonSepSibling( $node ) === null;
+			&& DiffDOMUtils::previousNonSepSibling( $node ) === null;
 		if ( $indentTable ) {
 			$state->singleLineContext->disable();
 		}

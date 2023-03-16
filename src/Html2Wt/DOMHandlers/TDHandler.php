@@ -7,9 +7,9 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class TDHandler extends DOMHandler {
 
@@ -52,13 +52,13 @@ class TDHandler extends DOMHandler {
 			return $state->serializer->wteHandlers->tdHandler( $node, $inWideTD, $state, $text, $opts );
 		};
 
-		$nextTd = DOMUtils::nextNonSepSibling( $node );
+		$nextTd = DiffDOMUtils::nextNonSepSibling( $node );
 		$nextUsesRowSyntax = $nextTd instanceof Element
 			&& ( DOMDataUtils::getDataParsoid( $nextTd )->stx ?? null ) === 'row';
 
 		// For empty cells, emit a single whitespace to make wikitext
 		// more readable as well as to eliminate potential misparses.
-		if ( $nextUsesRowSyntax && !DOMUtils::firstNonDeletedChild( $node ) ) {
+		if ( $nextUsesRowSyntax && !DiffDOMUtils::firstNonDeletedChild( $node ) ) {
 			$state->serializer->emitWikitext( ' ', $node );
 			return $node->nextSibling;
 		}
@@ -72,7 +72,7 @@ class TDHandler extends DOMHandler {
 			}
 			// Recover any trimmed whitespace only on unmodified nodes
 			if ( !$trailingSpace ) {
-				$lastChild = DOMUtils::lastNonSepChild( $node );
+				$lastChild = DiffDOMUtils::lastNonSepChild( $node );
 				if ( $lastChild && !DiffUtils::hasDiffMarkers( $lastChild ) ) {
 					$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
 				}

@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -243,12 +244,12 @@ class DOMDiff {
 				// in the DOM.
 
 				// look-ahead in *new* DOM to detect insertions
-				if ( DOMUtils::isContentNode( $baseNode ) ) {
+				if ( DiffDOMUtils::isContentNode( $baseNode ) ) {
 					$this->debug( '--lookahead in new dom--' );
 					$lookaheadNode = $newNode->nextSibling;
 					while ( $lookaheadNode ) {
 						$this->debugOut( $baseNode, $lookaheadNode, 'new' );
-						if ( DOMUtils::isContentNode( $lookaheadNode ) &&
+						if ( DiffDOMUtils::isContentNode( $lookaheadNode ) &&
 							$this->treeEquals( $baseNode, $lookaheadNode, true )
 						) {
 							// mark skipped-over nodes as inserted
@@ -267,13 +268,13 @@ class DOMDiff {
 				}
 
 				// look-ahead in *base* DOM to detect deletions
-				if ( !$foundDiff && DOMUtils::isContentNode( $newNode ) ) {
+				if ( !$foundDiff && DiffDOMUtils::isContentNode( $newNode ) ) {
 					$isBlockNode = WTUtils::isBlockNodeWithVisibleWT( $baseNode );
 					$this->debug( '--lookahead in old dom--' );
 					$lookaheadNode = $baseNode->nextSibling;
 					while ( $lookaheadNode ) {
 						$this->debugOut( $lookaheadNode, $newNode, 'old' );
-						if ( DOMUtils::isContentNode( $lookaheadNode ) &&
+						if ( DiffDOMUtils::isContentNode( $lookaheadNode ) &&
 							$this->treeEquals( $lookaheadNode, $newNode, true )
 						) {
 							$this->debug( '--found diff: deleted--' );

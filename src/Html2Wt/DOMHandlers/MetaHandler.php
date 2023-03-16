@@ -6,8 +6,10 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -154,7 +156,7 @@ class MetaHandler extends DOMHandler {
 				// deleted or modified, we emit _now_ so that we don't risk losing it. The range
 				// stays extended in the round-tripped version of the wikitext.
 				$nextdiffdata = DOMDataUtils::getDataParsoidDiff( $nextContentSibling );
-				if ( DOMUtils::isDiffMarker( $nextContentSibling ) ||
+				if ( DiffUtils::isDiffMarker( $nextContentSibling ) ||
 					( $nextdiffdata->diff ?? null ) ) {
 					return true;
 				}
@@ -186,7 +188,7 @@ class MetaHandler extends DOMHandler {
 				$prevdiffdata = DOMDataUtils::getDataParsoidDiff( $prevElementSibling );
 
 				if (
-					DOMUtils::isDiffMarker( $prevElementSibling ) ||
+					DiffUtils::isDiffMarker( $prevElementSibling ) ||
 					$prevdiffdata !== null && $prevdiffdata->diff !== null
 				) {
 					return true;
@@ -214,7 +216,7 @@ class MetaHandler extends DOMHandler {
 			&& ( $otherNode instanceof Element &&
 				DOMUtils::isWikitextBlockNode( $otherNode ) ||
 				( $otherNode instanceof Text &&
-					DOMUtils::isWikitextBlockNode( DOMUtils::nextNonSepSibling( $meta ) )
+					DOMUtils::isWikitextBlockNode( DiffDOMUtils::nextNonSepSibling( $meta ) )
 				)
 			) );
 	}

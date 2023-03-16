@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -179,7 +180,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$bullets = '';
 		if ( DOMUtils::isListOrListItem( $node )
 			&& !$this->parentBulletsHaveBeenEmitted( $node )
-			&& !DOMUtils::previousNonSepSibling( $node ) // Maybe consider parentNode.
+			&& !DiffDOMUtils::previousNonSepSibling( $node ) // Maybe consider parentNode.
 			&& $this->isTplListWithoutSharedPrefix( $node )
 			// Nothing to do for definition list rows,
 			// since we're emitting for the parent node.

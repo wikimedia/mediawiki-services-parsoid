@@ -6,9 +6,9 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class BRHandler extends DOMHandler {
 
@@ -64,7 +64,7 @@ class BRHandler extends DOMHandler {
 		// semantics only in a parser-generated <p><br/>.. HTML.
 
 		if ( $state->singleLineContext->enforced()
-			 || !PHandler::isPPTransition( DOMUtils::nextNonSepSibling( $node->parentNode ) )
+			 || !PHandler::isPPTransition( DiffDOMUtils::nextNonSepSibling( $node->parentNode ) )
 		) {
 			return [];
 		}
@@ -96,7 +96,7 @@ class BRHandler extends DOMHandler {
 	private function isPbr( Element $br ): bool {
 		return ( DOMDataUtils::getDataParsoid( $br )->stx ?? null ) !== 'html'
 			&& DOMCompat::nodeName( $br->parentNode ) === 'p'
-			&& DOMUtils::firstNonSepChild( $br->parentNode ) === $br;
+			&& DiffDOMUtils::firstNonSepChild( $br->parentNode ) === $br;
 	}
 
 	/**
@@ -104,7 +104,7 @@ class BRHandler extends DOMHandler {
 	 * @return bool
 	 */
 	private function isPbrP( Element $br ): bool {
-		return $this->isPbr( $br ) && DOMUtils::nextNonSepSibling( $br ) === null;
+		return $this->isPbr( $br ) && DiffDOMUtils::nextNonSepSibling( $br ) === null;
 	}
 
 }

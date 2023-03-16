@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Html2Wt\DOMDiff;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Test DOM Diff, the tests used for validating DOMNDiff class port from JS
@@ -48,7 +47,7 @@ class DOMDiffTest extends TestCase {
 				$node = $nodes[0];
 			}
 			if ( isset( $spec['diff'] ) ) {
-				$this->assertTrue( DOMUtils::isDiffMarker( $node, $spec['diff'] ) );
+				$this->assertTrue( DiffUtils::isDiffMarker( $node, $spec['diff'] ) );
 			} elseif ( isset( $spec['markers'] ) ) {
 				$markers = DiffUtils::getDiffMark( $node )->diff ?? [];
 

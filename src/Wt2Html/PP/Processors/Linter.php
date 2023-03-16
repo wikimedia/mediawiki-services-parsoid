@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -165,8 +166,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return null;
 		}
 
-		if ( DOMUtils::nextNonSepSibling( $node ) ) {
-			return $this->leftMostMisnestedDescendent( DOMUtils::nextNonSepSibling( $node ), $match );
+		if ( DiffDOMUtils::nextNonSepSibling( $node ) ) {
+			return $this->leftMostMisnestedDescendent( DiffDOMUtils::nextNonSepSibling( $node ), $match );
 		}
 
 		return $this->getMatchingMisnestedNode( $node->parentNode, $match );
@@ -281,14 +282,14 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return false;
 		}
 
-		$next = DOMUtils::nextNonSepSibling( $node );
+		$next = DiffDOMUtils::nextNonSepSibling( $node );
 		if ( !$next ) {
 			return $this->hasMisnestableContent( $node->parentNode, $name );
 		}
 
 		$contentNode = null;
 		if ( DOMCompat::nodeName( $next ) === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
-			$contentNode = DOMUtils::firstNonSepChild( $next );
+			$contentNode = DiffDOMUtils::firstNonSepChild( $next );
 		} else {
 			$contentNode = $next;
 		}
@@ -738,7 +739,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		Env $env, Node $c, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if ( DOMCompat::nodeName( $c ) === 'table' ) {
-			$prev = DOMUtils::previousNonSepSibling( $c );
+			$prev = DiffDOMUtils::previousNonSepSibling( $c );
 			if ( $prev instanceof Element && DOMCompat::nodeName( $prev ) === 'table' &&
 				!empty( DOMDataUtils::getDataParsoid( $prev )->autoInsertedEnd )
 			) {
@@ -855,7 +856,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
-		$fc = DOMUtils::firstNonSepChild( $node );
+		$fc = DiffDOMUtils::firstNonSepChild( $node );
 		if ( !$fc instanceof Element || DOMCompat::nodeName( $fc ) !== 'div' ) {
 			return;
 		}

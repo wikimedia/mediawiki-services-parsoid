@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -31,13 +32,13 @@ class ListHandler extends DOMHandler {
 		// suppressed between nested list elements.
 		$state->singleLineContext->disable();
 
-		$firstChildElt = DOMUtils::firstNonSepChild( $node );
+		$firstChildElt = DiffDOMUtils::firstNonSepChild( $node );
 
 		// Skip builder-inserted wrappers
 		// Ex: <ul><s auto-inserted-start-and-end-><li>..</li><li>..</li></s>...</ul>
 		// output from: <s>\n*a\n*b\n*c</s>
 		while ( $firstChildElt && $this->isBuilderInsertedElt( $firstChildElt ) ) {
-			$firstChildElt = DOMUtils::firstNonSepChild( $firstChildElt );
+			$firstChildElt = DiffDOMUtils::firstNonSepChild( $firstChildElt );
 		}
 
 		if ( !$firstChildElt || !in_array( DOMCompat::nodeName( $firstChildElt ), $this->firstChildNames, true )
@@ -70,7 +71,7 @@ class ListHandler extends DOMHandler {
 		// if it is the first non-separator child (ex: <div><ul>...</div>)
 		if (
 			DOMUtils::isWikitextBlockNode( $node->parentNode ) &&
-			DOMUtils::firstNonSepChild( $node->parentNode ) === $node
+			DiffDOMUtils::firstNonSepChild( $node->parentNode ) === $node
 		) {
 			return [ 'min' => 1, 'max' => 2 ];
 		} elseif ( DOMUtils::isFormattingElt( $otherNode ) ) {

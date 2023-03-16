@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -21,7 +22,7 @@ class DTHandler extends DOMHandler {
 	public function handle(
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
-		$firstChildElement = DOMUtils::firstNonSepChild( $node );
+		$firstChildElement = DiffDOMUtils::firstNonSepChild( $node );
 		if ( !DOMUtils::isList( $firstChildElement )
 			 || WTUtils::isLiteralHTMLNode( $firstChildElement )
 		) {

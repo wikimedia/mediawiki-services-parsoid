@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -64,7 +65,7 @@ class TableFixups {
 			$nextNode instanceof Element &&
 			DOMCompat::nodeName( $nextNode ) === 'td' &&
 			!WTUtils::isLiteralHTMLNode( $nextNode ) &&
-			DOMUtils::nodeEssentiallyEmpty( $node ) && (
+			DiffDOMUtils::nodeEssentiallyEmpty( $node ) && (
 				// FIXME: will not be set for nested templates
 				DOMUtils::hasTypeOf( $nextNode, 'mw:Transclusion' ) ||
 				// Hacky work-around for nested templates

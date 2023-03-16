@@ -5,18 +5,18 @@ use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\DiffMarkers;
+use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * Based on tests/mocha/domdiff.js
- * @coversDefaultClass \Wikimedia\Parsoid\Utils\DOMUtils
+ * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\DiffUtils
  */
-class DOMUtilsTest extends TestCase {
+class DiffUtilsTest extends TestCase {
 
 	/** @var Document[] */
 	private $liveDocs = [];
@@ -35,7 +35,7 @@ class DOMUtilsTest extends TestCase {
 			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:first-child > meta:first-child' ),
 			DiffMarkers::DELETED
 		) );
@@ -52,7 +52,7 @@ class DOMUtilsTest extends TestCase {
 
 		$this->checkMarkers( $body, [ DiffMarkers::CHILDREN_CHANGED ] );
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p + meta' ),
 			DiffMarkers::DELETED
 		) );
@@ -72,7 +72,7 @@ class DOMUtilsTest extends TestCase {
 			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(1) > meta' ),
 			DiffMarkers::DELETED
 		) );
@@ -82,7 +82,7 @@ class DOMUtilsTest extends TestCase {
 			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(2) > meta' ),
 			DiffMarkers::DELETED
 		) );
@@ -104,7 +104,7 @@ class DOMUtilsTest extends TestCase {
 			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(1) > meta' ),
 			DiffMarkers::DELETED
 		) );
@@ -136,12 +136,12 @@ class DOMUtilsTest extends TestCase {
 			[ DiffMarkers::CHILDREN_CHANGED, DiffMarkers::SUBTREE_CHANGED ]
 		);
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > p:nth-child(1) > meta' ),
 			DiffMarkers::DELETED
 		) );
 
-		$this->assertTrue( DOMUtils::isDiffMarker(
+		$this->assertTrue( DiffUtils::isDiffMarker(
 			$this->selectNode( $body, 'body > meta:nth-child(3)' ),
 			DiffMarkers::DELETED
 		) );

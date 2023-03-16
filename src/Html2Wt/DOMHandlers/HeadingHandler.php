@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class HeadingHandler extends DOMHandler {
@@ -33,7 +33,7 @@ class HeadingHandler extends DOMHandler {
 		$state->singleLineContext->enforce();
 
 		if ( $node->hasChildNodes() ) {
-			$state->serializeChildren( $node, null, DOMUtils::firstNonDeletedChild( $node ) );
+			$state->serializeChildren( $node, null, DiffDOMUtils::firstNonDeletedChild( $node ) );
 		} else {
 			// Deal with empty headings
 			$state->emitChunk( '<nowiki/>', $node );
@@ -49,13 +49,13 @@ class HeadingHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( WTUtils::isNewElt( $node ) && DOMUtils::previousNonSepSibling( $node ) &&
+		if ( WTUtils::isNewElt( $node ) && DiffDOMUtils::previousNonSepSibling( $node ) &&
 			!WTUtils::isAnnotationStartMarkerMeta( $otherNode )
 		) {
 			// Default to two preceding newlines for new content
 			return [ 'min' => 2, 'max' => 2 ];
 		} elseif ( WTUtils::isNewElt( $otherNode )
-			&& DOMUtils::previousNonSepSibling( $node ) === $otherNode
+			&& DiffDOMUtils::previousNonSepSibling( $node ) === $otherNode
 		) {
 			// T72791: The previous node was newly inserted, separate
 			// them for readability, except if it's an annotation tag

@@ -5,8 +5,8 @@ namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -136,7 +136,7 @@ class MediaStructure {
 		do {
 			// Try being lenient, maybe there was a content model violation when
 			// parsing and an active formatting element was reopened in the wrapper
-			$linkElt = DOMUtils::firstNonSepChild( $linkElt );
+			$linkElt = DiffDOMUtils::firstNonSepChild( $linkElt );
 		} while (
 			$linkElt instanceof Element && DOMCompat::nodeName( $linkElt ) !== 'a' &&
 			isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $linkElt )] )
@@ -154,7 +154,7 @@ class MediaStructure {
 				return null;
 			}
 		} else {
-			$mediaElt = DOMUtils::firstNonSepChild( $linkElt );
+			$mediaElt = DiffDOMUtils::firstNonSepChild( $linkElt );
 		}
 		if (
 			!( $mediaElt instanceof Element &&

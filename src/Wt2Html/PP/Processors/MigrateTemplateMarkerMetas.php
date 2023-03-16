@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -120,7 +121,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
-		$firstChild = DOMUtils::firstNonSepChild( $node );
+		$firstChild = DiffDOMUtils::firstNonSepChild( $node );
 		if ( $firstChild && $this->migrateFirstChild( $firstChild ) ) {
 			// We can migrate the meta-tag across this node's start-tag barrier only
 			// if that start-tag is zero-width, or auto-inserted.
@@ -139,7 +140,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 			}
 		}
 
-		$lastChild = DOMUtils::lastNonSepChild( $node );
+		$lastChild = DiffDOMUtils::lastNonSepChild( $node );
 		if ( $lastChild && $this->migrateLastChild( $lastChild ) ) {
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width, or auto-inserted.

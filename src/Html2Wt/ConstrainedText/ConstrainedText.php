@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -254,8 +255,8 @@ class ConstrainedText {
 		// look at leftmost and rightmost children, it may be that we need
 		// to turn these into ConstrainedText chunks in order to preserve
 		// the proper escape conditions on the prefix/suffix text.
-		$firstChild = DOMUtils::firstNonDeletedChild( $node );
-		$lastChild = DOMUtils::lastNonDeletedChild( $node );
+		$firstChild = DiffDOMUtils::firstNonDeletedChild( $node );
+		$lastChild = DiffDOMUtils::lastNonDeletedChild( $node );
 		$firstChildDp = $firstChild instanceof Element ?
 			DOMDataUtils::getDataParsoid( $firstChild ) : null;
 		$lastChildDp = $lastChild instanceof Element ?

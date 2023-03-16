@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -109,7 +110,7 @@ class WikitextEscapeHandlers {
 		// if the string begins with one or more newlines before a leading quote.
 		$origText = $node->textContent;
 		if ( substr( $origText, 0, 1 ) === "'" ) {
-			$prev = DOMUtils::previousNonDeletedSibling( $node );
+			$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
 			if ( !$prev ) {
 				$prev = $node->parentNode;
 			}
@@ -136,7 +137,7 @@ class WikitextEscapeHandlers {
 		// if the string ends with a trailing quote and then one or more newlines.
 		$origText = $node->textContent;
 		if ( substr( $origText, -1 ) === "'" ) {
-			$next = DOMUtils::nextNonDeletedSibling( $node );
+			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			if ( !$next ) {
 				$next = $node->parentNode;
 			}
@@ -202,7 +203,7 @@ class WikitextEscapeHandlers {
 	 */
 	public function isFirstContentNode( Node $node ): bool {
 		// Skip deleted-node markers
-		return DOMUtils::previousNonDeletedSibling( $node ) === null;
+		return DiffDOMUtils::previousNonDeletedSibling( $node ) === null;
 	}
 
 	/**
@@ -445,7 +446,7 @@ class WikitextEscapeHandlers {
 					}
 				} else {
 					while ( $node ) {
-						$node = DOMUtils::previousNonSepSibling( $node );
+						$node = DiffDOMUtils::previousNonSepSibling( $node );
 						if ( $node && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 							// FIXME: This is not entirely correct.
 							// Assumes that extlink content doesn't have templates.

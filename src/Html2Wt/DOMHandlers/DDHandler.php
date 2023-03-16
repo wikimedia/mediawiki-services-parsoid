@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
@@ -27,7 +28,7 @@ class DDHandler extends DOMHandler {
 	public function handle(
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
-		$firstChildElement = DOMUtils::firstNonSepChild( $node );
+		$firstChildElement = DiffDOMUtils::firstNonSepChild( $node );
 		$chunk = ( $this->stx === 'row' ) ? ':' : $this->getListBullets( $state, $node );
 		if ( !DOMUtils::isList( $firstChildElement )
 			 || WTUtils::isLiteralHTMLNode( $firstChildElement )
@@ -45,7 +46,7 @@ class DDHandler extends DOMHandler {
 		// it makes sense to recover this only for the innermost <dd> node.
 		// [ Given current DSR offsets, without this check, we'll recover one space for
 		//   every nested <li> node which makes for lotsa dirty diffs. ]
-		$lastChild = DOMUtils::lastNonSepChild( $node );
+		$lastChild = DiffDOMUtils::lastNonSepChild( $node );
 		if ( $lastChild && !DOMUtils::isList( $lastChild ) &&
 			!DiffUtils::hasDiffMarkers( $lastChild ) &&
 			!( $lastChild instanceof Element && $lastChild->hasAttribute( 'data-mw-selser-wrapper' ) )

@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Ext\DiffDOMUtils;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -249,7 +250,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 						DOMCompat::remove( $showfilename ); // Destructive to the DOM!
 					}
 				}
-				$ms = MediaStructure::parse( DOMUtils::firstNonSepChild( $thumb ) );
+				$ms = MediaStructure::parse( DiffDOMUtils::firstNonSepChild( $thumb ) );
 				if ( $ms ) {
 					// FIXME: Dry all this out with T252246 / T262833
 					if ( $ms->hasResource() ) {

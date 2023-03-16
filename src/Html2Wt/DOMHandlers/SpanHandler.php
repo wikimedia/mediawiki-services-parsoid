@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Tokens\KV;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -42,7 +43,7 @@ class SpanHandler extends DOMHandler {
 				);
 			} elseif (
 				DOMUtils::hasTypeOf( $node, 'mw:Entity' ) &&
-				DOMUtils::hasNChildren( $node, 1 )
+				DiffDOMUtils::hasNChildren( $node, 1 )
 			) {
 				$contentSrc = ( $node->textContent != '' ) ? $node->textContent
 					: DOMCompat::getInnerHTML( $node );

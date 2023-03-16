@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -321,7 +322,7 @@ class RegressionSpecsTest extends TestCase {
 		$node = DOMCompat::nodeName( $docBody->firstChild );
 		$this->assertEquals( "p",  $node, $description );
 
-		$node = DOMCompat::nodeName( DOMUtils::nextNonSepSibling( $docBody->firstChild ) );
+		$node = DOMCompat::nodeName( DiffDOMUtils::nextNonSepSibling( $docBody->firstChild ) );
 		$this->assertEquals( "figure",  $node, $description );
 	}
 

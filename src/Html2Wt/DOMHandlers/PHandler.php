@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -45,21 +46,21 @@ class PHandler extends DOMHandler {
 			} else {
 				return [ 'min' => 0, 'max' => 0 ];
 			}
-		} elseif ( ( $otherNode === DOMUtils::previousNonDeletedSibling( $node )
+		} elseif ( ( $otherNode === DiffDOMUtils::previousNonDeletedSibling( $node )
 				// p-p transition
 				&& $otherNode instanceof Element // for static analyzers
 				&& $otherNodeName === 'p'
 				&& ( DOMDataUtils::getDataParsoid( $otherNode )->stx ?? null ) !== 'html' )
 			|| ( self::treatAsPPTransition( $otherNode )
-				&& $otherNode === DOMUtils::previousNonSepSibling( $node )
+				&& $otherNode === DiffDOMUtils::previousNonSepSibling( $node )
 				// A new wikitext line could start at this P-tag. We have to figure out
 				// if 'node' needs a separation of 2 newlines from that P-tag. Examine
 				// previous siblings of 'node' to see if we emitted a block tag
 				// there => we can make do with 1 newline separator instead of 2
 				// before the P-tag.
 				&& !$this->currWikitextLineHasBlockNode( $state->currLine, $otherNode ) )
-			|| ( WTUtils::isMarkerAnnotation( DOMUtils::nextNonSepSibling( $otherNode ) )
-				&& DOMUtils::nextNonSepSibling( DOMUtils::nextNonSepSibling( $otherNode ) ) === $node )
+			|| ( WTUtils::isMarkerAnnotation( DiffDOMUtils::nextNonSepSibling( $otherNode ) )
+				&& DiffDOMUtils::nextNonSepSibling( DiffDOMUtils::nextNonSepSibling( $otherNode ) ) === $node )
 		) {
 			return [ 'min' => 2, 'max' => 2 ];
 		} elseif ( self::treatAsPPTransition( $otherNode )
@@ -140,7 +141,7 @@ class PHandler extends DOMHandler {
 				return false;
 			}
 		}
-		$node = DOMUtils::previousNonDeletedSibling( $node );
+		$node = DiffDOMUtils::previousNonDeletedSibling( $node );
 		while ( !$node || !DOMUtils::atTheTop( $node ) ) {
 			while ( $node ) {
 				// If we hit a block node that will render on the same line, we are done!
@@ -155,7 +156,7 @@ class PHandler extends DOMHandler {
 					return false;
 				}
 
-				$node = DOMUtils::previousNonDeletedSibling( $node );
+				$node = DiffDOMUtils::previousNonDeletedSibling( $node );
 
 				// Don't go past the current line in any case.
 				if ( !empty( $line->firstNode ) && $node &&
@@ -176,7 +177,7 @@ class PHandler extends DOMHandler {
 	 * @return bool
 	 */
 	private function newWikitextLineMightHaveBlockNode( Node $node ): bool {
-		$node = DOMUtils::nextNonDeletedSibling( $node );
+		$node = DiffDOMUtils::nextNonDeletedSibling( $node );
 		while ( $node ) {
 			if ( $node instanceof Text ) {
 				// If this node will break this wikitext line, we are done!
@@ -201,7 +202,7 @@ class PHandler extends DOMHandler {
 				return false;
 			}
 
-			$node = DOMUtils::nextNonDeletedSibling( $node );
+			$node = DiffDOMUtils::nextNonDeletedSibling( $node );
 		}
 		return false;
 	}

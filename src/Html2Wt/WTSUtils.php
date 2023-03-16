@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -236,7 +237,7 @@ class WTSUtils {
 	public static function traceNodeName( Node $node ): string {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				return ( DOMUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . DOMCompat::nodeName( $node );
+				return ( DiffUtils::isDiffMarker( $node ) ) ? 'DIFF_MARK' : 'NODE: ' . DOMCompat::nodeName( $node );
 			case XML_TEXT_NODE:
 				return 'TEXT: ' . PHPUtils::jsonEncode( $node->nodeValue );
 			case XML_COMMENT_NODE:
@@ -282,7 +283,7 @@ class WTSUtils {
 
 			// If previous sibling is unmodified, nothing to worry about.
 			if (
-				!DOMUtils::isDiffMarker( $prev ) &&
+				!DiffUtils::isDiffMarker( $prev ) &&
 				!DiffUtils::directChildrenChanged( $prev )
 			) {
 				return true;
@@ -301,7 +302,7 @@ class WTSUtils {
 			// it continues to be the first row of the table.  If not, since we need to
 			// insert a "|-" to separate it from the newly added row (in an edit),
 			// we cannot simply reuse orig. wikitext for this <tr>.
-			return !DOMUtils::previousNonSepSibling( $node );
+			return !DiffDOMUtils::previousNonSepSibling( $node );
 		} elseif ( DOMUtils::isNestedListOrListItem( $node ) ) {
 			if ( DOMUtils::isList( $node ) ) {
 				// Lists never get bullets assigned to them. So, unless they
@@ -339,7 +340,7 @@ class WTSUtils {
 			// If a previous sibling was modified, we can't reuse the start dsr.
 			$prev = $node->previousSibling;
 			while ( $prev ) {
-				if ( DOMUtils::isDiffMarker( $prev ) || DiffUtils::hasInsertedDiffMark( $prev ) ) {
+				if ( DiffUtils::isDiffMarker( $prev ) || DiffUtils::hasInsertedDiffMark( $prev ) ) {
 					return false;
 				}
 				$prev = $prev->previousSibling;

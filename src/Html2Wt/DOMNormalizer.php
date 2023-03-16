@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -82,8 +83,8 @@ class DOMNormalizer {
 	 */
 	private static function similar( Node $a, Node $b ): bool {
 		if ( DOMCompat::nodeName( $a ) === 'a' ) {
-			// FIXME: Similar to 1ce6a98, DOMUtils.nextNonDeletedSibling is being
-			// used in this file where maybe DOMUtils.nextNonSepSibling belongs.
+			// FIXME: Similar to 1ce6a98, DiffDOMUtils::nextNonDeletedSibling is being
+			// used in this file where maybe DiffDOMUtils::nextNonSepSibling belongs.
 			return $a instanceof Element && $b instanceof Element &&
 				DiffUtils::attribsEquals( $a, $b, self::IGNORABLE_ATTRS, self::$specializedAttribHandlers );
 		} else {
@@ -124,9 +125,9 @@ class DOMNormalizer {
 	 * @return bool
 	 */
 	private static function swappable( Node $a, Node $b ): bool {
-		return DOMUtils::numNonDeletedChildNodes( $a ) === 1
-			&& self::similar( $a, DOMUtils::firstNonDeletedChild( $a ) )
-			&& self::mergable( DOMUtils::firstNonDeletedChild( $a ), $b );
+		return DiffDOMUtils::numNonDeletedChildNodes( $a ) === 1
+			&& self::similar( $a, DiffDOMUtils::firstNonDeletedChild( $a ) )
+			&& self::mergable( DiffDOMUtils::firstNonDeletedChild( $a ), $b );
 	}
 
 	/**
@@ -135,7 +136,7 @@ class DOMNormalizer {
 	 * @return Node|null
 	 */
 	private static function firstChild( Node $node, bool $rtl ): ?Node {
-		return $rtl ? DOMUtils::lastNonDeletedChild( $node ) : DOMUtils::firstNonDeletedChild( $node );
+		return $rtl ? DiffDOMUtils::lastNonDeletedChild( $node ) : DiffDOMUtils::firstNonDeletedChild( $node );
 	}
 
 	/**
@@ -304,9 +305,9 @@ class DOMNormalizer {
 
 		while ( $sibling ) {
 			$next = $rtl
-				? DOMUtils::previousNonDeletedSibling( $sibling )
-				: DOMUtils::nextNonDeletedSibling( $sibling );
-			if ( !DOMUtils::isContentNode( $sibling ) ) {
+				? DiffDOMUtils::previousNonDeletedSibling( $sibling )
+				: DiffDOMUtils::nextNonDeletedSibling( $sibling );
+			if ( !DiffDOMUtils::isContentNode( $sibling ) ) {
 				// Nothing to do, continue.
 			} elseif ( !WTUtils::isRenderingTransparentNode( $sibling ) ||
 				WTUtils::isEncapsulationWrapper( $sibling )
@@ -324,7 +325,7 @@ class DOMNormalizer {
 			$move = self::firstChild( $node, $rtl );
 			$firstNode = $move;
 			while ( $move !== $sibling ) {
-				$refnode = $rtl ? DOMUtils::nextNonDeletedSibling( $node ) : $node;
+				$refnode = $rtl ? DiffDOMUtils::nextNonDeletedSibling( $node ) : $node;
 				$node->parentNode->insertBefore( $move, $refnode );
 				$move = self::firstChild( $node, $rtl );
 			}
@@ -349,12 +350,12 @@ class DOMNormalizer {
 	 * @return Node|null
 	 */
 	public function stripIfEmpty( Element $node ): ?Node {
-		$next = DOMUtils::nextNonDeletedSibling( $node );
+		$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$autoInserted = isset( $dp->autoInsertedStart ) || isset( $dp->autoInsertedEnd );
 
 		$strippable =
-			DOMUtils::nodeEssentiallyEmpty( $node, false );
+			DiffDOMUtils::nodeEssentiallyEmpty( $node, false );
 			// Ex: "<a..>..</a><b></b>bar"
 			// From [[Foo]]<b/>bar usage found on some dewiki pages.
 			// FIXME: Should we enable this?
@@ -374,8 +375,8 @@ class DOMNormalizer {
 	 * @param Node $node
 	 */
 	public function moveTrailingSpacesOut( Node $node ): void {
-		$next = DOMUtils::nextNonDeletedSibling( $node );
-		$last = DOMUtils::lastNonDeletedChild( $node );
+		$next = DiffDOMUtils::nextNonDeletedSibling( $node );
+		$last = DiffDOMUtils::lastNonDeletedChild( $node );
 		$matches = null;
 		if ( $last instanceof Text &&
 			preg_match( '/\s+$/D', $last->nodeValue, $matches ) > 0
@@ -451,7 +452,7 @@ class DOMNormalizer {
 
 			if ( $newLength === 0 ) {
 				// Remove empty text nodes to keep DOM in normalized form
-				$ret = DOMUtils::nextNonDeletedSibling( $node );
+				$ret = DiffDOMUtils::nextNonDeletedSibling( $node );
 				$node->parentNode->removeChild( $node );
 				$this->addDiffMarks( $node, DiffMarkers::DELETED );
 				return $ret;
@@ -475,15 +476,15 @@ class DOMNormalizer {
 		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
 			return $node;
 		}
-		$sibling = DOMUtils::nextNonDeletedSibling( $node );
+		$sibling = DiffDOMUtils::nextNonDeletedSibling( $node );
 		if ( $sibling ) {
 			$this->normalizeSiblingPair( $node, $sibling );
 		}
 
-		$firstChild = DOMUtils::firstNonDeletedChild( $node );
+		$firstChild = DiffDOMUtils::firstNonDeletedChild( $node );
 		$fcNextSibling = null;
 		if ( $firstChild ) {
-			$fcNextSibling = DOMUtils::nextNonDeletedSibling( $firstChild );
+			$fcNextSibling = DiffDOMUtils::nextNonDeletedSibling( $firstChild );
 		}
 
 		if ( !$node->hasAttribute( 'href' ) ) {
@@ -503,9 +504,10 @@ class DOMNormalizer {
 			// possible simple-wiki-link scenarios that isSimpleWikiLink in link handler tackles
 			$node->textContent === PHPUtils::stripPrefix( $nodeHref, './' )
 		) {
-			for ( $child = DOMUtils::firstNonDeletedChild( $node );
-				 DOMUtils::isFormattingElt( $child );
-				 $child = DOMUtils::firstNonDeletedChild( $node )
+			for (
+				$child = DiffDOMUtils::firstNonDeletedChild( $node );
+				DOMUtils::isFormattingElt( $child );
+				$child = DiffDOMUtils::firstNonDeletedChild( $node )
 			) {
 				'@phan-var Element $child'; // @var Element $child
 				$this->swap( $node, $child );
@@ -598,7 +600,7 @@ class DOMNormalizer {
 			// Anchors
 		} elseif ( DOMCompat::nodeName( $node ) === 'a' ) {
 			'@phan-var Element $node'; // @var Element $node
-			$next = DOMUtils::nextNonDeletedSibling( $node );
+			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			// We could have checked for !mw:ExtLink but in
 			// the case of links without any annotations,
 			// the positive test is semantically safer than the
@@ -622,11 +624,11 @@ class DOMNormalizer {
 			// won't have escapable prefixes.
 			$stx = $dp->stx ?? null;
 			if ( $stx === 'html' ||
-				( DOMUtils::firstNonSepChild( $node->parentNode ) !== $node && $stx === 'row' ) ) {
+				( DiffDOMUtils::firstNonSepChild( $node->parentNode ) !== $node && $stx === 'row' ) ) {
 				return $node;
 			}
 
-			$first = DOMUtils::firstNonDeletedChild( $node );
+			$first = DiffDOMUtils::firstNonDeletedChild( $node );
 			// Emit a space before escapable prefix
 			// This is preferable to serializing with a nowiki.
 			if ( $first instanceof Text && strspn( $first->nodeValue, '-+}', 0, 1 ) ) {
@@ -638,17 +640,17 @@ class DOMNormalizer {
 
 			// Font tags without any attributes
 		} elseif ( DOMCompat::nodeName( $node ) === 'font' && DOMDataUtils::noAttrs( $node ) ) {
-			$next = DOMUtils::nextNonDeletedSibling( $node );
+			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 			$node->parentNode->removeChild( $node );
 
 			return $next;
 		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'p'
 			&& !WTUtils::isLiteralHTMLNode( $node ) ) {
-			$next = DOMUtils::nextNonSepSibling( $node );
+			$next = DiffDOMUtils::nextNonSepSibling( $node );
 			// Normalization of <p></p>, <p><br/></p>, <p><meta/></p> and the like to avoid
 			// extraneous new lines
-			if ( DOMUtils::hasNChildren( $node, 1 ) &&
+			if ( DiffDOMUtils::hasNChildren( $node, 1 ) &&
 				WTUtils::isMarkerAnnotation( $node->firstChild )
 			) {
 				// Converts <p><meta /></p> (where meta is an annotation tag) to <meta /> without
@@ -663,10 +665,10 @@ class DOMNormalizer {
 				// were generated through deletions or other normalizations.
 				// FIXME: This trick fails for non-selser mode since
 				// diff markers are only added in selser mode.
-				DOMUtils::hasNChildren( $node, 0, true ) &&
+				DiffDOMUtils::hasNChildren( $node, 0, true ) &&
 				// FIXME: Also, skip if this is the only child.
 				// Eliminates spurious test failures in non-selser mode.
-				!DOMUtils::hasNChildren( $node->parentNode, 1 )
+				!DiffDOMUtils::hasNChildren( $node->parentNode, 1 )
 			) {
 				// T184755: Convert sequences of <p></p> nodes to sequences of
 				// <br/>, <p><br/>..other content..</p>, <p><br/><p/> to ensure
@@ -725,7 +727,7 @@ class DOMNormalizer {
 		if ( self::swappable( $a, $b ) ) {
 			'@phan-var Element $a'; // @var Element $a
 			'@phan-var Element $b'; // @var Element $b
-			$firstNonDeletedChild = DOMUtils::firstNonDeletedChild( $a );
+			$firstNonDeletedChild = DiffDOMUtils::firstNonDeletedChild( $a );
 			'@phan-var Element $firstNonDeletedChild'; // @var Element $firstNonDeletedChild
 			$a = $this->merge( $this->swap( $a, $firstNonDeletedChild ), $b );
 			// Again, a has new children, but the grandkids have already
@@ -737,7 +739,7 @@ class DOMNormalizer {
 		if ( self::swappable( $b, $a ) ) {
 			'@phan-var Element $a'; // @var Element $a
 			'@phan-var Element $b'; // @var Element $b
-			$firstNonDeletedChild = DOMUtils::firstNonDeletedChild( $b );
+			$firstNonDeletedChild = DiffDOMUtils::firstNonDeletedChild( $b );
 			'@phan-var Element $firstNonDeletedChild'; // @var Element $firstNonDeletedChild
 			$a = $this->merge( $a, $this->swap( $b, $firstNonDeletedChild ) );
 			// Again, a has new children, but the grandkids have already
@@ -755,7 +757,7 @@ class DOMNormalizer {
 	 */
 	public function processSubtree( Node $node, bool $recurse ): void {
 		// Process the first child outside the loop.
-		$a = DOMUtils::firstNonDeletedChild( $node );
+		$a = DiffDOMUtils::firstNonDeletedChild( $node );
 		if ( !$a ) {
 			return;
 		}
@@ -763,7 +765,7 @@ class DOMNormalizer {
 		$a = $this->processNode( $a, $recurse );
 		while ( $a ) {
 			// We need a pair of adjacent siblings for tag minimization.
-			$b = DOMUtils::nextNonDeletedSibling( $a );
+			$b = DiffDOMUtils::nextNonDeletedSibling( $a );
 			if ( !$b ) {
 				return;
 			}
@@ -773,7 +775,7 @@ class DOMNormalizer {
 
 			// If we skipped over a bunch of nodes in the middle,
 			// we no longer have a pair of adjacent siblings.
-			if ( $b && DOMUtils::previousNonDeletedSibling( $b ) === $a ) {
+			if ( $b && DiffDOMUtils::previousNonDeletedSibling( $b ) === $a ) {
 				// Process the pair.
 				$a = $this->normalizeSiblingPair( $a, $b );
 			} else {

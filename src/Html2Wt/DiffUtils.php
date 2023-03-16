@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
@@ -34,7 +35,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function hasDiffMarkers( Node $node ): bool {
-		return self::getDiffMark( $node ) !== null || DOMUtils::isDiffMarker( $node );
+		return self::getDiffMark( $node ) !== null || self::isDiffMarker( $node );
 	}
 
 	/**
@@ -46,7 +47,7 @@ class DiffUtils {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
 		if ( $mark === DiffMarkers::DELETED || ( $mark === DiffMarkers::INSERTED && !( $node instanceof Element ) ) ) {
-			return DOMUtils::isDiffMarker( $node->previousSibling, $mark );
+			return self::isDiffMarker( $node->previousSibling, $mark );
 		} else {
 			$diffMark = self::getDiffMark( $node );
 			return $diffMark && in_array( $mark, $diffMark->diff, true );
@@ -66,7 +67,7 @@ class DiffUtils {
 	 * @return bool
 	 */
 	public static function maybeDeletedNode( ?Node $node ): bool {
-		return $node instanceof Element && DOMUtils::isDiffMarker( $node, DiffMarkers::DELETED );
+		return $node instanceof Element && self::isDiffMarker( $node, DiffMarkers::DELETED );
 	}
 
 	/**
@@ -232,5 +233,27 @@ class DiffUtils {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check a node to see whether it's a diff marker.
+	 *
+	 * @param ?Node $node
+	 * @param ?string $mark
+	 * @return bool
+	 */
+	public static function isDiffMarker(
+		?Node $node, ?string $mark = null
+	): bool {
+		if ( !$node ) {
+			return false;
+		}
+
+		if ( $mark ) {
+			return DOMUtils::isMarkerMeta( $node, 'mw:DiffMarker/' . $mark );
+		} else {
+			return DOMCompat::nodeName( $node ) === 'meta' &&
+				DOMUtils::matchTypeOf( $node, '#^mw:DiffMarker/#' );
+		}
 	}
 }

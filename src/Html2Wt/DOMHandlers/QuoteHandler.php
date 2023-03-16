@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class QuoteHandler extends DOMHandler {
@@ -65,10 +66,10 @@ class QuoteHandler extends DOMHandler {
 		//
 		// For DOMs from existing wikitext, this can only happen
 		// because of auto-inserted end/start tags. (Ex: ''a''' b ''c''')
-		$prev = DOMUtils::previousNonDeletedSibling( $node );
+		$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
 		return $prev && DOMUtils::isQuoteElt( $prev )
-			&& ( DOMUtils::isQuoteElt( DOMUtils::lastNonDeletedChild( $prev ) )
-				|| DOMUtils::isQuoteElt( DOMUtils::firstNonDeletedChild( $node ) ) );
+			&& ( DOMUtils::isQuoteElt( DiffDOMUtils::lastNonDeletedChild( $prev ) )
+				|| DOMUtils::isQuoteElt( DiffDOMUtils::firstNonDeletedChild( $node ) ) );
 	}
 
 }

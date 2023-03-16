@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -242,7 +243,7 @@ class Separators {
 			$nodeB = $constraintInfo['nodeB'] ?? null;
 			if (
 				$sepType === 'parent-child' &&
-				!DOMUtils::isContentNode( DOMUtils::firstNonDeletedChild( $nodeA ) ) &&
+				!DiffDOMUtils::isContentNode( DiffDOMUtils::firstNonDeletedChild( $nodeA ) ) &&
 				!(
 					isset( Consts::$HTML['ChildTableTags'][DOMCompat::nodeName( $nodeB )] ) &&
 					!WTUtils::isLiteralHTMLNode( $nodeB )
@@ -501,7 +502,7 @@ class Separators {
 				// Walk past sol-transparent nodes in the right-sibling chain
 				// of 'nodeB' till we establish indent-pre safety.
 				while ( $nodeB &&
-					( DOMUtils::isDiffMarker( $nodeB ) || WTUtils::emitsSolTransparentSingleLineWT( $nodeB ) )
+					( DiffUtils::isDiffMarker( $nodeB ) || WTUtils::emitsSolTransparentSingleLineWT( $nodeB ) )
 				) {
 					$nodeB = $nodeB->nextSibling;
 				}
@@ -624,7 +625,7 @@ class Separators {
 
 		// Leading trimmed whitespace only makes sense for first child.
 		// Ignore comments (which are part of separators) + deletion markers.
-		if ( DOMUtils::previousNonSepSibling( $node ) ) {
+		if ( DiffDOMUtils::previousNonSepSibling( $node ) ) {
 			return null;
 		}
 
@@ -697,7 +698,7 @@ class Separators {
 
 		// Trailing trimmed whitespace only makes sense for last child.
 		// Ignore comments (which are part of separators) + deletion markers.
-		if ( DOMUtils::nextNonSepSibling( $node ) ) {
+		if ( DiffDOMUtils::nextNonSepSibling( $node ) ) {
 			return null;
 		}
 
@@ -755,7 +756,7 @@ class Separators {
 			if ( $leading ) {
 				return $this->fetchLeadingTrimmedSpace( $node );
 			} else {
-				$lastChild = DOMUtils::lastNonDeletedChild( $node );
+				$lastChild = DiffDOMUtils::lastNonDeletedChild( $node );
 				return $lastChild ? $this->fetchTrailingTrimmedSpace( $lastChild ) : null;
 			}
 		}
@@ -942,7 +943,7 @@ class Separators {
 			//
 			// This minimizes dirty-diffs to that separator text from
 			// the insertion of $next after $prevNode.
-			$next = DOMUtils::nextNonSepSibling( $prevNode );
+			$next = DiffDOMUtils::nextNonSepSibling( $prevNode );
 			$origSepUsable = $next && DiffUtils::hasInsertedDiffMark( $next );
 
 			// Check that $next is an ancestor of $node and all nodes
@@ -961,7 +962,7 @@ class Separators {
 
 			// Extract separator from original source if possible
 			if ( $origSepUsable ) {
-				$origNext = DOMUtils::nextNonSepSibling( $next );
+				$origNext = DiffDOMUtils::nextNonSepSibling( $next );
 				if ( !$origNext ) { // $prevNode was last non-sep child of its parent
 					// We could work harder for text/comments and extrapolate, but skipping that here
 					// FIXME: If we had a generic DSR extrapolation utility, that would be useful

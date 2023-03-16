@@ -154,7 +154,7 @@ class LinkHandlerUtils {
 				$contentString .= $child->nodeValue;
 			} elseif ( DOMUtils::hasTypeOf( $child, 'mw:DisplaySpace' ) ) {
 				$contentString .= ' ';
-			} elseif ( DOMUtils::isDiffMarker( $child ) ) {
+			} elseif ( DiffUtils::isDiffMarker( $child ) ) {
 			} else {
 				return null;
 			}

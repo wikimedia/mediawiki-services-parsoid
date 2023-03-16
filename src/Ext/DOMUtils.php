@@ -88,37 +88,6 @@ class DOMUtils {
 	}
 
 	/**
-	 * Check a node to see whether it's a diff marker.
-	 *
-	 * @param ?Node $node
-	 * @param ?string $mark
-	 * @return bool
-	 */
-	public static function isDiffMarker(
-		?Node $node, ?string $mark = null
-	): bool {
-		return DU::isDiffMarker( $node, $mark );
-	}
-
-	/**
-	 * Test the number of children this node has without using
-	 * `DOMNode::$childNodes->count()`.  This walks the sibling list and so
-	 * takes O(`nchildren`) time -- so `nchildren` is expected to be small
-	 * (say: 0, 1, or 2).
-	 *
-	 * Skips all diff markers by default.
-	 * @param Node $node
-	 * @param int $nchildren
-	 * @param bool $countDiffMarkers
-	 * @return bool
-	 */
-	public static function hasNChildren(
-		Node $node, int $nchildren, bool $countDiffMarkers = false
-	): bool {
-		return DU::hasNChildren( $node, $nchildren, $countDiffMarkers );
-	}
-
-	/**
 	 * Move 'from'.childNodes to 'to' adding them before 'beforeNode'
 	 * If 'beforeNode' is null, the nodes are appended at the end.
 	 * @param Node $from Source node. Children will be removed.
@@ -139,17 +108,6 @@ class DOMUtils {
 	 */
 	public static function addAttributes( Element $elt, array $attrs ): void {
 		DU::addAttributes( $elt, $attrs );
-	}
-
-	/**
-	 * Get the first child element or non-IEW text node, ignoring
-	 * whitespace-only text nodes, comments, and deleted nodes.
-	 *
-	 * @param Node $node
-	 * @return Node|null
-	 */
-	public static function firstNonSepChild( Node $node ): ?Node {
-		return DU::firstNonSepChild( $node );
 	}
 
 	/**

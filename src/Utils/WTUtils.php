@@ -232,7 +232,7 @@ class WTUtils {
 		$prev = $node;
 		do {
 			$node = $prev;
-			$prev = DOMUtils::previousNonDeletedSibling( $node );
+			$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
 		} while (
 			$prev instanceof Element &&
 			$prev->getAttribute( 'about' ) === $about

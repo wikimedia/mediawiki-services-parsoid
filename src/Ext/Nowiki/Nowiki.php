@@ -8,6 +8,8 @@ use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Ext\DiffDOMUtils;
+use Wikimedia\Parsoid\Ext\DiffUtils;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -82,11 +84,11 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 		for ( $child = $node->firstChild;  $child;  $child = $child->nextSibling ) {
 			$out = null;
 			if ( $child instanceof Element ) {
-				if ( DOMUtils::isDiffMarker( $child ) ) {
+				if ( DiffUtils::isDiffMarker( $child ) ) {
 					/* ignore */
 				} elseif ( DOMCompat::nodeName( $child ) === 'span' &&
 					DOMUtils::hasTypeOf( $child, 'mw:Entity' ) &&
-					DOMUtils::hasNChildren( $child, 1 )
+					DiffDOMUtils::hasNChildren( $child, 1 )
 				) {
 					$dp = DOMDataUtils::getDataParsoid( $child );
 					if ( isset( $dp->src ) && $dp->srcContent === $child->textContent ) {
@@ -103,7 +105,7 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 				} elseif (
 					DOMCompat::nodeName( $child ) === 'span' &&
 					DOMUtils::hasTypeOf( $child, 'mw:DisplaySpace' ) &&
-					DOMUtils::hasNChildren( $child, 1 )
+					DiffDOMUtils::hasNChildren( $child, 1 )
 				) {
 					$out = ' ';
 				} else {
