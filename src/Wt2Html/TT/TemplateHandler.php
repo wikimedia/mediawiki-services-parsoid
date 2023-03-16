@@ -342,6 +342,20 @@ class TemplateHandler extends TokenHandler {
 		}
 		if ( $canonicalFunctionName !== null ) {
 			$state->parserFunctionName = $canonicalFunctionName;
+			// XXX this is made up.
+			$syntheticTitle = $env->makeTitleFromURLDecodedStr(
+				"Special:ParserFunction/$canonicalFunctionName",
+				$env->getSiteConfig()->canonicalNamespaceId( 'Special' ),
+				true // No exceptions
+			);
+			// Note that parserFunctionName/$canonicalFunctionName is not
+			// necessarily a valid title!  Parsing rules are pretty generous
+			// w/r/t valid parser function names.
+			if ( $syntheticTitle === null ) {
+				$syntheticTitle = $env->makeTitleFromText(
+					'Special:ParserFunction/unknown'
+				);
+			}
 			return [
 				'name' => $canonicalFunctionName,
 				'pfArg' => $pfArg,
@@ -350,7 +364,7 @@ class TemplateHandler extends TokenHandler {
 					$srcOffsets->end ),
 				'isPF' => true,
 					// FIXME: Some made up synthetic title
-				'title' => $env->makeTitleFromURLDecodedStr( "Special:ParserFunction/$canonicalFunctionName" ),
+				'title' => $syntheticTitle,
 				'magicWordType' => isset( Utils::magicMasqs()[$canonicalFunctionName] ) ? 'MASQ' : null,
 				'targetToks' => !is_array( $targetToks ) ? [ $targetToks ] : $targetToks,
 			];
