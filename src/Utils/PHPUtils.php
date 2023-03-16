@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Exception;
+use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 
@@ -329,9 +330,9 @@ class PHPUtils {
 	 * variables are typically unshared.
 	 *
 	 * @param array $array
-	 * @return \stdClass
+	 * @return stdClass
 	 */
-	public static function arrayToObject( $array ) {
+	public static function arrayToObject( $array ): stdClass {
 		// FIXME: remove this workaround (T254519)
 		return (object)array_combine( array_keys( $array ), array_values( $array ) );
 	}

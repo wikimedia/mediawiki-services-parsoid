@@ -14,10 +14,10 @@ use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Ext\WTSUtils;
 use Wikimedia\Parsoid\Ext\WTUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Implements the php parser's `renderImageGallery` natively.
