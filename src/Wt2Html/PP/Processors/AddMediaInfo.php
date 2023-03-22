@@ -810,6 +810,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			}
 
 			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $alt );
+			DOMCompat::getClassList( $elt )->add( 'mw-file-element' );
 
 			$anchor = self::replaceAnchor(
 				$env, $urlParser, $container, $anchor, $attrs, $dataMw, $isImage, $captionText,

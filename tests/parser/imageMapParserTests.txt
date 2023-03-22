@@ -15,7 +15,7 @@ Image:Foobar.jpg
 !! html/php
 <figure class="mw-default-size noresize" typeof="mw:File"><span><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></span><figcaption></figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nImage:Foobar.jpg\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption></figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nImage:Foobar.jpg\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></span><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -29,7 +29,7 @@ Image:Foobar.jpg
 !! html/php
 <div class="noresize" style="height: 220px; width: 1941px; "><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /><div style="margin-left: 1921px; margin-top: -20px; text-align: left;"><a href="/wiki/File:Foobar.jpg" title="About this image"><img alt="About this image" src="/extensions/ImageMap/resources/desc-20.png?15600" style="border: none;" /></a></div></div>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nImage:Foobar.jpg\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption></figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nImage:Foobar.jpg\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></span><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -45,7 +45,7 @@ poly 10.1 10.9 10 30 -30 15 [[Main Page]]
 !! html/php
 <figure class="mw-default-size noresize" typeof="mw:File"><span><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" usemap="#ImageMap_79ccc6c89d422b0c" /></span><map name="ImageMap_79ccc6c89d422b0c"><area href="/wiki/Main_Page" shape="poly" coords="10,11,10,30,-30,15" alt="Main Page" title="Main Page" /></map><figcaption></figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg\n\npoly 10.1 10.9 10 30 -30 15 [[Main Page]]\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" usemap="#ImageMap_02c94d3ca4bfc187"/></span><map name="ImageMap_02c94d3ca4bfc187"><area href="./Main_Page" shape="poly" coords="10,11,10,30,-30,15"/></map><figcaption></figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg\n\npoly 10.1 10.9 10 30 -30 15 [[Main Page]]\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element" usemap="#ImageMap_02c94d3ca4bfc187"/></span><map name="ImageMap_02c94d3ca4bfc187"><area href="./Main_Page" shape="poly" coords="10,11,10,30,-30,15"/></map><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -61,7 +61,7 @@ poly 10.1 10.9 10 30 -30 15 [[Main Page]]
 !! html/php
 <div class="noresize" style="height: 220px; width: 1941px; "><map name="ImageMap_79ccc6c89d422b0c"><area href="/wiki/Main_Page" shape="poly" coords="10,11,10,30,-30,15" alt="Main Page" title="Main Page" /></map><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" usemap="#ImageMap_79ccc6c89d422b0c" /><div style="margin-left: 1921px; margin-top: -20px; text-align: left;"><a href="/wiki/File:Foobar.jpg" title="About this image"><img alt="About this image" src="/extensions/ImageMap/resources/desc-20.png?15600" style="border: none;" /></a></div></div>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg\n\npoly 10.1 10.9 10 30 -30 15 [[Main Page]]\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" usemap="#ImageMap_02c94d3ca4bfc187"/></span><map name="ImageMap_02c94d3ca4bfc187"><area href="./Main_Page" shape="poly" coords="10,11,10,30,-30,15"/></map><figcaption></figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg\n\npoly 10.1 10.9 10 30 -30 15 [[Main Page]]\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element" usemap="#ImageMap_02c94d3ca4bfc187"/></span><map name="ImageMap_02c94d3ca4bfc187"><area href="./Main_Page" shape="poly" coords="10,11,10,30,-30,15"/></map><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -76,7 +76,7 @@ default [[Main Page|Go to main page]]
 !! html/php
 <figure class="noresize" typeof="mw:File"><a href="/wiki/Main_Page" title="Go to main page"><img alt="Alt text" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" width="150" height="17" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" /></a><figcaption></figcaption></figure>
 !! html/parsoid
-<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to main page]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x"/></a><figcaption></figcaption></figure>
+<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to main page]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -91,7 +91,7 @@ default [[Main Page|Go to main page]]
 !! html/php
 <div class="noresize" style="height: 17px; width: 150px; "><a href="/wiki/Main_Page" title="Go to main page"><img alt="Alt text" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" width="150" height="17" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" /></a><div style="margin-left: 130px; margin-top: -20px; text-align: left;"><a href="/wiki/File:Foobar.jpg" title="About this image"><img alt="About this image" src="/extensions/ImageMap/resources/desc-20.png?15600" style="border: none;" /></a></div></div>
 !! html/parsoid
-<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to main page]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x"/></a><figcaption></figcaption></figure>
+<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to main page]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -194,7 +194,7 @@ default [[Main Page|Go to ''main page'']]
 !! html/php
 <figure class="noresize" typeof="mw:File"><a href="/wiki/Main_Page" title="Go to ''main page''"><img alt="Alt text" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" width="150" height="17" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" /></a><figcaption></figcaption></figure>
 !! html/parsoid
-<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to &apos;&apos;main page&apos;&apos;]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x"/></a><figcaption></figcaption></figure>
+<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to &apos;&apos;main page&apos;&apos;]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption></figcaption></figure>
 !! end
 
 ## FIXME: Note the difference in the link alt
@@ -210,7 +210,7 @@ default [[Main Page|Go to ''main page'']]
 !! html/php
 <div class="noresize" style="height: 17px; width: 150px; "><a href="/wiki/Main_Page" title="Go to ''main page''"><img alt="Alt text" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" width="150" height="17" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" /></a><div style="margin-left: 130px; margin-top: -20px; text-align: left;"><a href="/wiki/File:Foobar.jpg" title="About this image"><img alt="About this image" src="/extensions/ImageMap/resources/desc-20.png?15600" style="border: none;" /></a></div></div>
 !! html/parsoid
-<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to &apos;&apos;main page&apos;&apos;]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x"/></a><figcaption></figcaption></figure>
+<figure typeof="mw:File mw:Extension/imagemap" class="noresize" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|150px|alt=Alt text\ndefault [[Main Page|Go to &apos;&apos;main page&apos;&apos;]]\n"}}'><a href="./Main_Page" title="Go to main page"><img alt="Alt text" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="17" width="150" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/225px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/300px-Foobar.jpg 2x" class="mw-file-element"/></a><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -224,7 +224,7 @@ File:Foobar.jpg|link=|Hi ho
 !! html/php
 <figure class="mw-default-size noresize" typeof="mw:File"><span title="Hi ho"><img alt="Hi ho" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></span><figcaption>Hi ho</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img alt="Hi ho" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img alt="Hi ho" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></span><figcaption>Hi ho</figcaption></figure>
 !! end
 
 !! test
@@ -238,7 +238,7 @@ File:Foobar.jpg|link=|Hi ho
 !! html/php
 <div class="noresize" style="height: 220px; width: 1941px; "><img alt="Hi ho" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" title="Hi ho" width="1941" height="220" /><div style="margin-left: 1921px; margin-top: -20px; text-align: left;"><a href="/wiki/File:Foobar.jpg" title="About this image"><img alt="About this image" src="/extensions/ImageMap/resources/desc-20.png?15600" style="border: none;" /></a></div></div>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img alt="Hi ho" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941"/></span><figcaption>Hi ho</figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File mw:Extension/imagemap" about="#mwt2" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|link=|Hi ho\n"}}'><span title="Hi ho"><img alt="Hi ho" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></span><figcaption>Hi ho</figcaption></figure>
 !! end
 
 !! test
@@ -252,7 +252,7 @@ File:Foobar.jpg|thumb|a<br>b
 !! html/php
 <figure class="mw-default-size noresize" typeof="mw:File/Thumb"><span><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></span><figcaption>a<br />b</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br>b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></span><figcaption>a<br/>b</figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br>b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element"/></span><figcaption>a<br/>b</figcaption></figure>
 !! end
 
 !! test
@@ -266,7 +266,7 @@ File:Foobar.jpg|thumb|a<br />b
 !! html/php
 <figure class="mw-default-size noresize" typeof="mw:File/Thumb"><span><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></span><figcaption>a<br />b</figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br />b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x"/></span><figcaption>a<br/>b</figcaption></figure>
+<figure class="mw-default-size noresize" typeof="mw:File/Thumb mw:Extension/imagemap" data-mw='{"name":"imagemap","attrs":{},"body":{"extsrc":"\nFile:Foobar.jpg|thumb|a&lt;br />b\n"}}'><span><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" class="mw-file-element"/></span><figcaption>a<br/>b</figcaption></figure>
 !! end
 
 ## In contrast with galleries
