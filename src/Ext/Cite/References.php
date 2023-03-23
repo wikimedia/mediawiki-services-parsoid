@@ -757,7 +757,6 @@ class References extends ExtensionTagHandler {
 	): DocumentFragment {
 		$domFragment = $extApi->extTagToDOM(
 			$extArgs,
-			'',
 			$txt,
 			[
 				'wrapperTag' => 'div',

@@ -115,7 +115,7 @@ class Poem extends ExtensionTagHandler implements ExtensionModule {
 			$extApi->addNewArg( $extArgs, 'class', 'poem' );
 		}
 
-		return $extApi->extTagToDOM( $extArgs, '', $content, [
+		return $extApi->extTagToDOM( $extArgs, $content, [
 				'wrapperTag' => 'div',
 				'parseOpts' => [ 'extTag' => 'poem' ],
 				// Create new frame, because $content doesn't literally appear in

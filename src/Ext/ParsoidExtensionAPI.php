@@ -409,7 +409,6 @@ class ParsoidExtensionAPI {
 	 * the arguments of the extension args and sets some content flags on the wrapper.
 	 *
 	 * @param array $extArgs
-	 * @param string $leadingWS
 	 * @param string $wikitext
 	 * @param array $opts
 	 * - srcOffsets
@@ -422,12 +421,12 @@ class ParsoidExtensionAPI {
 	 * @return DocumentFragment
 	 */
 	public function extTagToDOM(
-		array $extArgs, string $leadingWS, string $wikitext, array $opts
+		array $extArgs, string $wikitext, array $opts
 	): DocumentFragment {
 		$extTagOffsets = $this->extTag->getOffsets();
 		if ( !isset( $opts['srcOffsets'] ) ) {
 			$opts['srcOffsets'] = new SourceRange(
-				$extTagOffsets->innerStart() + strlen( $leadingWS ),
+				$extTagOffsets->innerStart(),
 				$extTagOffsets->innerEnd()
 			);
 		}

@@ -36,7 +36,6 @@ class Ref extends ExtensionTagHandler {
 
 		return $extApi->extTagToDOM(
 			$extArgs,
-			'',
 			$txt,
 			[
 				// NOTE: sup's content model requires it only contain phrasing
