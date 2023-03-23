@@ -65,7 +65,7 @@ class Title {
 		}
 
 		// Strip Unicode bidi override characters.
-		$title = preg_replace( '/[\x{200E}\x{200F}\x{202A}-\x{202E}]/u', '', $title );
+		$title = preg_replace( '/[\x{200E}\x{200F}\x{202A}-\x{202E}]+/u', '', $title );
 		// Clean up whitespace
 		$title = preg_replace(
 			'/[ _\x{00A0}\x{1680}\x{180E}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}]+/u',
