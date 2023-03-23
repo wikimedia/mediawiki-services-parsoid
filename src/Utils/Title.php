@@ -78,7 +78,7 @@ class Title {
 		// Trim _ from beginning and end
 		$title = trim( $title, '_' );
 
-		if ( strpos( $title, \UtfNormal\Constants::UTF8_REPLACEMENT ) !== false ) {
+		if ( str_contains( $title, \UtfNormal\Constants::UTF8_REPLACEMENT ) ) {
 			throw new TitleException( "Bad UTF-8 in title \"$title\"", 'title-invalid-utf8', $title );
 		}
 
@@ -152,14 +152,14 @@ class Title {
 		// Pages with "/./" or "/../" appearing in the URLs will often be
 		// unreachable due to the way web browsers deal with 'relative' URLs.
 		// Also, they conflict with subpage syntax. Forbid them explicitly.
-		if ( strpos( $title, '.' ) !== false && (
+		if ( str_contains( $title, '.' ) && (
 			$title === '.' || $title === '..' ||
-			strpos( $title, './' ) === 0 ||
-			strpos( $title, '../' ) === 0 ||
-			strpos( $title, '/./' ) !== false ||
-			strpos( $title, '/../' ) !== false ||
-			substr( $title, -2 ) === '/.' ||
-			substr( $title, -3 ) === '/..'
+			str_starts_with( $title, './' ) ||
+			str_starts_with( $title, '../' ) ||
+			str_contains( $title, '/./' ) ||
+			str_contains( $title, '/../' ) ||
+			str_ends_with( $title, '/.' ) ||
+			str_ends_with( $title, '/..' )
 		) ) {
 			throw new TitleException(
 				"Title \"$origTitle\" contains relative path components", 'title-invalid-relative', $title
@@ -167,7 +167,7 @@ class Title {
 		}
 
 		// Magic tilde sequences? Nu-uh!
-		if ( strpos( $title, '~~~' ) !== false ) {
+		if ( str_contains( $title, '~~~' ) ) {
 			throw new TitleException(
 				"Title \"$origTitle\" contains ~~~", 'title-invalid-magic-tilde', $title
 			);
