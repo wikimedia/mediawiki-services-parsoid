@@ -96,38 +96,58 @@ class Title {
 		if ( $defaultNs instanceof TitleNamespace ) {
 			$defaultNs = $defaultNs->getId();
 		}
+		$ns = $defaultNs;
+		$interwiki = null;
 
-		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
-		if ( ( $pmatch = preg_match( '/^(.+?)_*:_*(.*)$/D', $title, $m ) ) && (
-			( $nsId = $siteConfig->canonicalNamespaceId( $m[1] ) ) !== null ||
-			( $nsId = $siteConfig->namespaceId( $m[1] ) ) !== null
-		) ) {
-			$title = $m[2];
-			$ns = $nsId;
-		} else {
-			if ( $pmatch && ( $siteConfig->interwikiMapNoNamespaces()[$m[1]] ?? null ) ) {
-				// Zorg!  Core also removes the prefix for interwikis when doing
-				// the rest of validation on the title, so let's just ignore $m[1]
+		# Namespace or interwiki prefix
+		$prefixRegexp = "/^(.+?)_*:_*(.*)$/S";
+		// MediaWikiTitleCodec::splitTitleString wraps a loop around the
+		// next section, to allow it to repeat this prefix processing if
+		// an interwiki prefix is found which points at the local wiki.
+		$m = [];
+		if ( preg_match( $prefixRegexp, $title, $m ) ) {
+			$p = $m[1];
+			$nsId = $siteConfig->canonicalNamespaceId( $p ) ??
+				  $siteConfig->namespaceId( $p );
+			if ( $nsId !== null ) {
 				$title = $m[2];
+				$ns = $nsId;
+				# For Talk:X pages, check if X has a "namespace" prefix
+				if (
+					$nsId === $siteConfig->canonicalNamespaceId( 'talk' ) &&
+					preg_match( $prefixRegexp, $title, $x )
+				) {
+					if ( $siteConfig->namespaceId( $x[1] ) ) {
+						// Disallow Talk:File:x type titles.
+						throw new TitleException(
+							"Invalid Talk namespace title \"$origTitle\"", 'title-invalid-talk-namespace', $title
+						);
+					} elseif ( $siteConfig->interwikiMapNoNamespaces()[$x[1]] ?? null ) {
+						// Disallow Talk:Interwiki:x type titles.
+						throw new TitleException(
+							"Invalid Talk namespace title \"$origTitle\"", 'title-invalid-talk-namespace', $title
+						);
+					}
+				}
+			} elseif ( $siteConfig->interwikiMapNoNamespaces()[$p] ?? null ) {
+				# Interwiki link
+				$title = $m[2];
+				$interwiki = strtolower( $p );
+
+				# We don't check for a redundant interwiki prefix to the
+				# local wiki, like core does here in
+				# MediaWikiTitleCodec::splitTitleString;
+				# core then does a `continue` to repeat the processing
 
 				// If there's an initial colon after the interwiki, that also
 				// resets the default namespace
 				if ( $title !== '' && $title[0] === ':' ) {
-					$title = ltrim( substr( $title, 1 ), '_' );
-					$defaultNs = 0;
+					$title = trim( substr( $title, 1 ), '_' );
+					$ns = 0;
 				}
 			}
-			$ns = $defaultNs;
-		}
-
-		// Disallow Talk:File:x type titles.
-		if ( $ns === $siteConfig->canonicalNamespaceId( 'talk' ) &&
-			preg_match( '/^(.+?)_*:_*(.*)$/D', $title, $m ) &&
-			$siteConfig->namespaceId( $m[1] ) !== null
-		) {
-			throw new TitleException(
-				"Invalid Talk namespace title \"$origTitle\"", 'title-invalid-talk-namespace', $title
-			);
+			# If there's no recognized interwiki or namespace,
+			# then let the colon expression be part of the title
 		}
 
 		$fragment = null;
@@ -180,13 +200,13 @@ class Title {
 			);
 		}
 
-		if ( $siteConfig->namespaceCase( $ns ) === 'first-letter' ) {
+		if ( $interwiki === null && $siteConfig->namespaceCase( $ns ) === 'first-letter' ) {
 			$title = $siteConfig->ucfirst( $title );
 		}
 
-		// Allow "#foo" as a title, which comes in as namespace 0.
-		// TODO: But should this exclude "_#foo" and the like?
-		if ( $title === '' && $ns !== $siteConfig->canonicalNamespaceId( '' ) ) {
+		# Can't make a link to a namespace alone... "empty" local links can only be
+		# self-links with a fragment identifier.
+		if ( $title === '' && $interwiki === null && $ns !== $siteConfig->canonicalNamespaceId( '' ) ) {
 			throw new TitleException( 'Empty title', 'title-invalid-empty', $title );
 		}
 
@@ -209,6 +229,12 @@ class Title {
 		// mediawiki-title's newFromText.
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'special' ) ) {
 			$title = self::fixSpecialName( $siteConfig, $title );
+		}
+
+		// This is not in core's splitTitleString but matches parsoid's
+		// convention.
+		if ( $interwiki !== null ) {
+			$title = "$interwiki:$title";
 		}
 
 		return new self( $title, $ns, $siteConfig, $fragment );
