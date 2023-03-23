@@ -190,9 +190,11 @@ class Title {
 			throw new TitleException( 'Empty title', 'title-invalid-empty', $title );
 		}
 
-		if ( $ns === $siteConfig->canonicalNamespaceId( 'user' ) ||
+		// This is from MediaWikiTitleCodec::splitTitleString() in core
+		if ( $title !== '' && ( # T329690
+			$ns === $siteConfig->canonicalNamespaceId( 'user' ) ||
 			$ns === $siteConfig->canonicalNamespaceId( 'user_talk' )
-		) {
+		) ) {
 			$title = IPUtils::sanitizeIP( $title );
 		}
 
