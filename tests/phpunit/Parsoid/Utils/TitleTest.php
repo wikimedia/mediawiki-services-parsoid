@@ -279,8 +279,6 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 			// Note: Commented out because they are not marked invalid by the PHP test as
 			// Title::newFromText runs Sanitizer::decodeCharReferencesAndNormalize first.
 			// 'A &eacute; B',
-			// 'A &#233; B',
-			// 'A &#x00E9; B',
 			// Subject of NS_TALK does not roundtrip to NS_MAIN
 			[ 'Talk:File:Example.svg', 'title-invalid-talk-namespace' ],
 			// Directory navigation

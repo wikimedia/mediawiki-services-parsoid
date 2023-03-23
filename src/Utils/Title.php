@@ -138,9 +138,7 @@ class Title {
 			// to round-trip titles -- you can't link to them consistently.
 			. '|%[0-9A-Fa-f]{2}'
 			// XML/HTML character references produce similar issues.
-			. '|&[A-Za-z0-9\x80-\xff]+;'
-			. '|&#[0-9]+;'
-			. '|&#x[0-9A-Fa-f]+;/';
+			. '|&[A-Za-z0-9\x80-\xff]+;/S';
 		if ( preg_match( $illegalCharsRe, $title ) ) {
 			throw new TitleException(
 				"Invalid characters in title \"$origTitle\"", 'title-invalid-characters', $title
