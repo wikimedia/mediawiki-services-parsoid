@@ -36,6 +36,9 @@ ssh $uid@testreduce1001.eqiad.wmnet <<EOF
 # No unset vars + early exit on error
 set -eu -o pipefail
 
+# Check if we need to free disk space
+df /srv/data --output=pcent | tail -n 1 | awk '0+\$1 > 90 {print; print "Free disk space to continue!\nSee https://wikitech.wikimedia.org/wiki/Parsoid/Common_Tasks#Freeing_disk_space"; exit 1}'
+
 echo 'Stopping parsoid-rt clients ...'
 sudo service parsoid-rt-client stop
 
