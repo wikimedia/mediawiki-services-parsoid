@@ -183,43 +183,28 @@
 		"wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}"
 	},
 	"T307691: show-toc flag: \"enough\" sections": {
-		"metadata": "flags=!no-toc-conversion",
+		"metadata": "flags=",
 		"wt2wt": "==One==\n===Two===\n==Three==\n===Four===\n"
 	},
 	"T307691: show-toc flag: \"enough\" sections and __FORCETOC__": {
-		"metadata": "flags=!no-toc-conversion",
+		"metadata": "flags=",
 		"wt2wt": "__FORCETOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
 	},
 	"T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
-		"metadata": "flags=!no-toc-conversion",
 		"wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
 	},
-	"T307691: show-toc flag: no sections": {
-		"metadata": "flags=!no-toc-conversion"
-	},
-	"T307691: show-toc flag: no sections, and __NOTOC__": {
-		"metadata": "flags=!no-toc-conversion"
-	},
-	"T307691: show-toc flag: no sections, but __FORCETOC__": {
-		"metadata": "flags=!no-toc-conversion"
-	},
-	"T307691: show-toc flag: no sections, but __TOC__": {
-		"metadata": "flags=!no-toc-conversion"
-	},
 	"T307691: show-toc flag: not \"enough\" sections": {
-		"metadata": "flags=!no-toc-conversion",
 		"wt2wt": "==One==\n"
 	},
 	"T307691: show-toc flag: not \"enough\" sections, and __NOTOC__": {
-		"metadata": "flags=!no-toc-conversion",
 		"wt2wt": "__NOTOC__\n==One==\n"
 	},
 	"T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
-		"metadata": "flags=!no-toc-conversion",
+		"metadata": "flags=",
 		"wt2wt": "__FORCETOC__\n==One==\n"
 	},
 	"T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
-		"metadata": "flags=!no-toc-conversion",
+		"metadata": "flags=",
 		"wt2wt": "==One==\n__TOC__"
 	},
 	"T4095: link with pipe and three closing brackets, version 2": {
@@ -332,7 +317,7 @@
 		"metadata": "Art&copy"
 	},
 	"__FORCETOC__ override": {
-		"metadata": "flags=!no-toc-conversion"
+		"metadata": "flags="
 	},
 	"div with illegal double attributes": {
 		"wt2wt": "<div id=\"b\">HTML rocks</div>"
