@@ -52,7 +52,7 @@ class ContentModelHandler extends IContentModelHandler {
 		// as well as extended annotation wrappers.
 		// This ensures that we can accept HTML from CX / VE
 		// and other clients that might have stripped them.
-		ContentUtils::stripUnnecessaryWrappersAndFallbackIds( $body );
+		ContentUtils::stripUnnecessaryWrappersAndSyntheticNodes( $body );
 
 		$redLinkRemover = new RemoveRedLinks( $this->env );
 		$redLinkRemover->run( $body );
