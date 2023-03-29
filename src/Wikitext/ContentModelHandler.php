@@ -103,6 +103,8 @@ class ContentModelHandler extends IContentModelHandler {
 		//
 		// So, we're forced to trade off the correctness for usability.
 		if ( $selserData->oldHTML === null ) {
+			$env->log( "warn/html2wt", "Missing selserData->oldHTML. Regenerating." );
+
 			// FIXME(T266838): Create a new Env for this parse?  Something is
 			// needed to avoid this rigmarole.
 			$topLevelDoc = $env->topLevelDoc;
@@ -143,7 +145,7 @@ class ContentModelHandler extends IContentModelHandler {
 	 * @param Env $env
 	 * @param Document $doc
 	 */
-	private function preprocessDOM( Env $env, Document $doc ): void {
+	private function preprocessEditedDOM( Env $env, Document $doc ): void {
 		$siteConfig = $env->getSiteConfig();
 
 		// Run any registered DOM preprocessors
@@ -186,7 +188,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$setupTiming->end( 'html2wt.setup' );
 
 		$preprocTiming = Timing::start( $metrics );
-		$this->preprocessDOM( $env, $env->topLevelDoc );
+		$this->preprocessEditedDOM( $env, $env->topLevelDoc );
 		$preprocTiming->end( 'html2wt.preprocess' );
 
 		$serializeTiming = Timing::start( $metrics );

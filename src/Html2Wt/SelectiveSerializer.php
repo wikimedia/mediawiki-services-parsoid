@@ -178,7 +178,7 @@ class SelectiveSerializer {
 	/**
 	 * @param Element $body
 	 */
-	private function preprocessDOM( Element $body ): void {
+	private function preprocessDOMForSelser( Element $body ): void {
 		if ( Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.2' ) ) {
 			// Wrap text node children of <li> elements in dummy spans
 			$this->wrapTextChildrenOfNode( $body, 'li' );
@@ -202,9 +202,9 @@ class SelectiveSerializer {
 		$body = DOMCompat::getBody( $doc );
 		$oldBody = DOMCompat::getBody( $this->selserData->oldDOM );
 
-		// Preprocess DOMs
-		$this->preprocessDOM( $oldBody );
-		$this->preprocessDOM( $body );
+		// Preprocess DOMs - this is specific to selser
+		$this->preprocessDOMForSelser( $oldBody );
+		$this->preprocessDOMForSelser( $body );
 
 		// Use provided diff-marked DOM (used during testing)
 		// or generate one (used in production)
