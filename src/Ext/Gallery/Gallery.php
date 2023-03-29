@@ -333,15 +333,9 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$dataMw->attrs ??= new stdClass;
-		$nativeGalleryEnabled = $extApi->getSiteConfig()->nativeGalleryEnabled();
 		// Handle the "gallerycaption" first
 		$galcaption = DOMCompat::querySelector( $node, 'li.gallerycaption' );
-		if (
-			$galcaption && ( $nativeGalleryEnabled ||
-				// FIXME: VE should signal to use the HTML by removing the
-				// `caption` from data-mw.
-				!is_string( $dataMw->attrs->caption ?? null )
-		) ) {
+		if ( $galcaption ) {
 			$dataMw->attrs->caption = $extApi->domChildrenToWikitext(
 				$galcaption, $extApi::IN_IMG_CAPTION | $extApi::IN_OPTION
 			);
@@ -351,35 +345,26 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		if ( !isset( $dataMw->body ) ) {
 			return $startTagSrc; // We self-closed this already.
 		} else {
-			// FIXME: VE should signal to use the HTML by removing the
-			// `extsrc` from the data-mw.
-			if (
-				!$nativeGalleryEnabled &&
-				is_string( $dataMw->body->extsrc ?? null )
-			) {
-				$content = $dataMw->body->extsrc;
-			} else {
-				$content = $extApi->getOrigSrc(
-					$node, true,
-					// The gallerycaption is nested as a list item but shouldn't
-					// be considered when deciding if the body can be reused.
-					// Hopefully this won't be necessary after T268250
-					static function ( Element $elt ): bool {
-						for ( $child = $elt->firstChild; $child; $child = $child->nextSibling ) {
-							if (
-								DiffUtils::hasDiffMarkers( $child ) &&
-								!( $child instanceof Element &&
-									DOMCompat::getClassList( $child )->contains( 'gallerycaption' ) )
-							) {
-								return false;
-							}
+			$content = $extApi->getOrigSrc(
+				$node, true,
+				// The gallerycaption is nested as a list item but shouldn't
+				// be considered when deciding if the body can be reused.
+				// Hopefully this won't be necessary after T268250
+				static function ( Element $elt ): bool {
+					for ( $child = $elt->firstChild; $child; $child = $child->nextSibling ) {
+						if (
+							DiffUtils::hasDiffMarkers( $child ) &&
+							!( $child instanceof Element &&
+								DOMCompat::getClassList( $child )->contains( 'gallerycaption' ) )
+						) {
+							return false;
 						}
-						return true;
 					}
-				);
-				if ( $content === null ) {
-					$content = $this->contentHandler( $extApi, $node );
+					return true;
 				}
+			);
+			if ( $content === null ) {
+				$content = $this->contentHandler( $extApi, $node );
 			}
 			return $startTagSrc . $content . '</' . $dataMw->name . '>';
 		}
@@ -389,15 +374,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 	public function modifyArgDict(
 		ParsoidExtensionAPI $extApi, object $argDict
 	): void {
-		// FIXME: Only remove after VE switches to editing HTML.
-		if ( $extApi->getSiteConfig()->nativeGalleryEnabled() ) {
-			// Remove extsrc from native extensions
-			unset( $argDict->body->extsrc );
+		// Remove extsrc from native extensions
+		unset( $argDict->body->extsrc );
 
-			// Remove the caption since it's redundant with the HTML
-			// and we prefer editing it there.
-			unset( $argDict->attrs->caption );
-		}
+		// Remove the caption since it's redundant with the HTML
+		// and we prefer editing it there.
+		unset( $argDict->attrs->caption );
 	}
 
 	/** @inheritDoc */
