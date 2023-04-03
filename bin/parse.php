@@ -10,6 +10,8 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 use Composer\Factory;
 use Composer\IO\NullIO;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Revision\MutableRevisionRecord;
+use MediaWiki\Revision\SlotRecord;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
@@ -270,11 +272,30 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$title = \Title::newFromText(
 			$configOpts['title'] ?? $siteConfig->mainpage()
 		);
+
+		$wikitextOverride = $configOpts['pageContent'] ?? null;
+		$revision = $configOpts['revid'] ?? null;
+		if ( $wikitextOverride === null ) {
+			$revisionRecord = null;
+		} else {
+			// Create a mutable revision record point to the same revision
+			// and set to the desired wikitext.
+			$revisionRecord = new MutableRevisionRecord( $title );
+			if ( $revision !== null ) {
+				$revisionRecord->setId( $revision );
+			}
+			$revisionRecord->setSlot(
+				SlotRecord::newUnsaved(
+					SlotRecord::MAIN,
+					new WikitextContent( $wikitextOverride )
+				)
+			);
+		}
+
 		$this->pageConfig = $pcFactory->create(
 			$title,
 			null, // UserIdentity
-			$configOpts['revid'] ?? null,
-			$configOpts['pageContent'] ?? null
+			$revisionRecord ?? $revision
 		);
 		$this->metadata = new \ParserOutput();
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
