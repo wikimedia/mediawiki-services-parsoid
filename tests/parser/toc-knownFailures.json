@@ -1,1 +1,54 @@
-{}
+{
+	"Out-of-order TOC heading levels": {
+		"wt2html": "<h2 id=\"2\" data-parsoid='{\"dsr\":[0,5,2,2]}'>2</h2>\n<h6 id=\"6\" data-parsoid='{\"dsr\":[6,19,6,6]}'>6</h6>\n<h3 id=\"3\" data-parsoid='{\"dsr\":[20,27,3,3]}'>3</h3>\n<h1 id=\"1\" data-parsoid='{\"dsr\":[28,31,1,1]}'>1</h1>\n<h5 id=\"5\" data-parsoid='{\"dsr\":[32,43,5,5]}'>5</h5>\n<h2 id=\"2_2\" data-parsoid='{\"dsr\":[44,49,2,2]}'>2</h2>"
+	},
+	"Section headings with TOC": {
+		"wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[15,34,3,3]}'>Subheadline 1</h3>\n<h5 id=\"Skipping_a_level\" data-parsoid='{\"dsr\":[35,61,5,5]}'>Skipping a level</h5>\n<h6 id=\"Skipping_a_level_2\" data-parsoid='{\"dsr\":[62,90,6,6]}'>Skipping a level</h6>\n\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[92,106,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[107,116,0,0]}'>Some text</p>\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[117,139,3,3]}'>Another headline</h3>"
+	},
+	"Section headings with TOC and language conversion (T295187, T306862)": {
+		"wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[15,34,3,3]}'>Subheadline 1</h3>\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[35,49,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[50,59,0,0]}'>Some text</p>\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[60,82,3,3]}'>Another headline</h3>"
+	},
+	"Section headings with TOC and language conversion disabled (T295187)": {
+		"wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<h3 id=\"Subheadline_1\" data-parsoid='{\"dsr\":[15,34,3,3]}'>Subheadline 1</h3>\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[35,49,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[50,59,0,0]}'>Some text</p>\n<h3 id=\"Another_headline\" data-parsoid='{\"dsr\":[60,82,3,3]}'>Another headline</h3>\n<meta property=\"mw:PageProp/nocontentconvert\" data-parsoid='{\"src\":\"__NOCONTENTCONVERT__\",\"magicSrc\":\"__NOCONTENTCONVERT__\",\"dsr\":[83,103,null,null]}'/>"
+	},
+	"T307691: show-toc flag: \"enough\" sections": {
+		"metadata": "flags=",
+		"wt2wt": "==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: \"enough\" sections and __FORCETOC__": {
+		"metadata": "flags=",
+		"wt2wt": "__FORCETOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
+		"wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections": {
+		"wt2wt": "==One==\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections, and __NOTOC__": {
+		"wt2wt": "__NOTOC__\n==One==\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
+		"metadata": "flags=",
+		"wt2wt": "__FORCETOC__\n==One==\n"
+	},
+	"T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
+		"metadata": "flags=",
+		"wt2wt": "==One==\n__TOC__"
+	},
+	"TOC regression (T11764)": {
+		"wt2html": "<h2 id=\"title_1\" data-parsoid='{\"dsr\":[0,11,2,2]}'>title 1</h2>\n<h3 id=\"title_1.1\" data-parsoid='{\"dsr\":[12,27,3,3]}'>title 1.1</h3>\n<h4 id=\"title_1.1.1\" data-parsoid='{\"dsr\":[28,47,4,4]}'>title 1.1.1</h4>\n<h3 id=\"title_1.2\" data-parsoid='{\"dsr\":[48,63,3,3]}'>title 1.2</h3>\n<h2 id=\"title_2\" data-parsoid='{\"dsr\":[64,75,2,2]}'>title 2</h2>\n<h3 id=\"title_2.1\" data-parsoid='{\"dsr\":[76,91,3,3]}'>title 2.1</h3>"
+	},
+	"TOC regression (T14077)": {
+		"wt2html": "<meta property=\"mw:PageProp/toc\" data-parsoid='{\"src\":\"__TOC__\",\"magicSrc\":\"__TOC__\",\"dsr\":[0,7,null,null]}'/>\n<h2 id=\"title_1\" data-parsoid='{\"dsr\":[8,19,2,2]}'>title 1</h2>\n<h3 id=\"title_1.1\" data-parsoid='{\"dsr\":[20,35,3,3]}'>title 1.1</h3>\n<h2 id=\"title_2\" data-parsoid='{\"dsr\":[36,47,2,2]}'>title 2</h2>"
+	},
+	"TOC with wgMaxTocLevel=3 (T8204)": {
+		"wt2html": "<h2 id=\"title_1\" data-parsoid='{\"dsr\":[0,11,2,2]}'>title 1</h2>\n<h3 id=\"title_1.1\" data-parsoid='{\"dsr\":[12,27,3,3]}'>title 1.1</h3>\n<h4 id=\"title_1.1.1\" data-parsoid='{\"dsr\":[28,47,4,4]}'>title 1.1.1</h4>\n<h3 id=\"title_1.2\" data-parsoid='{\"dsr\":[48,63,3,3]}'>title 1.2</h3>\n<h2 id=\"title_2\" data-parsoid='{\"dsr\":[64,75,2,2]}'>title 2</h2>\n<h3 id=\"title_2.1\" data-parsoid='{\"dsr\":[76,91,3,3]}'>title 2.1</h3>"
+	},
+	"TOC with wgMaxTocLevel=3 and two level four headings (T8204)": {
+		"wt2html": "<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[0,13,2,2]}'>Section 1</h2>\n<h3 id=\"Section_1.1\" data-parsoid='{\"dsr\":[14,31,3,3]}'>Section 1.1</h3>\n<h4 id=\"Section_1.1.1\" data-parsoid='{\"dsr\":[32,53,4,4]}'>Section 1.1.1</h4>\n<h4 id=\"Section_1.1.1.1\" data-parsoid='{\"dsr\":[54,77,4,4]}'>Section 1.1.1.1</h4>\n<h2 id=\"Section_2\" data-parsoid='{\"dsr\":[78,91,2,2]}'>Section 2</h2>"
+	},
+	"__FORCETOC__ override": {
+		"metadata": "flags="
+	}
+}
