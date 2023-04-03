@@ -216,12 +216,6 @@
 	"T73074: More fostering fun": {
 		"wt2wt": "[[Category:Two]]\n<table><td></td></tr>{{1x|<tr>}}<!--c-->"
 	},
-	"T8563: Section extraction for section shown by <includeonly>": {
-		"wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_T-2\" data-parsoid='{\"dsr\":[53,68,2,2]}'>Section T-2</h2>"
-	},
-	"T8563: Section extraction for section suppressed by <includeonly>": {
-		"wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[53,66,2,2]}'>Section 1</h2>"
-	},
 	"T88318: p-wrapped dash in table.": {
 		"wt2wt": "{|\n!-\n!-\n|-\n|<nowiki>-</nowiki>\n|<nowiki>- </nowiki>\n|-\n|<small>-</small>\n|<br />\n-\n|<br />-\n|}"
 	},
@@ -327,11 +321,5 @@
 	},
 	"div with unquoted attribute": {
 		"wt2wt": "<div id=\"rock\">HTML rocks</div>"
-	},
-	"message transform: magic variables": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,12,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,12,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SITENAME\",\"function\":\"sitename\"},\"params\":{},\"i\":0}}]}'>MediaWiki</span></p>"
-	},
-	"message transform: should not transform wiki markup": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><i data-parsoid='{\"dsr\":[0,8,2,2]}'>test</i></p>"
 	}
 }
