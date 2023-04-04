@@ -371,17 +371,15 @@ class TestRunner {
 
 		// These changes are for environment options that change between runs of
 		// different modes. See `processTest` for changes per test.
-		if ( $testOpts ) {
-			// Page language matches "wiki language" (which is set by
-			// the item 'language' option).
-			if ( isset( $testOpts['langconv'] ) ) {
-				$this->envOptions['wtVariantLanguage'] = $testOpts['sourceVariant'] ?? null;
-				$this->envOptions['htmlVariantLanguage'] = $testOpts['variant'] ?? null;
-			} else {
-				// variant conversion is disabled by default
-				$this->envOptions['wtVariantLanguage'] = null;
-				$this->envOptions['htmlVariantLanguage'] = null;
-			}
+		// Page language matches "wiki language" (which is set by
+		// the item 'language' option).
+		if ( $testOpts['langconv'] ?? null ) {
+			$this->envOptions['wtVariantLanguage'] = $testOpts['sourceVariant'] ?? null;
+			$this->envOptions['htmlVariantLanguage'] = $testOpts['variant'] ?? null;
+		} else {
+			// variant conversion is disabled by default
+			$this->envOptions['wtVariantLanguage'] = null;
+			$this->envOptions['htmlVariantLanguage'] = null;
 		}
 
 		$env = $this->newEnv( $test, $test->wikitext ?? '' );
@@ -979,9 +977,17 @@ class TestRunner {
 				$this->siteConfig->responsiveReferences['threshold'],
 		];
 
+		// Process test-specific options
 		if ( $testOpts ) {
 			Assert::invariant( !isset( $testOpts['extensions'] ),
 				'Cannot configure extensions in tests' );
+
+			$availableParsoidTestOpts = [ 'wrapSections' ];
+			foreach ( $availableParsoidTestOpts as $opt ) {
+				if ( isset( $testOpts['parsoid'][$opt] ) ) {
+					$this->envOptions[$opt] = $testOpts['parsoid'][$opt];
+				}
+			}
 
 			$this->siteConfig->disableSubpagesForNS( 0 );
 			if ( isset( $testOpts['subpage'] ) ) {
@@ -995,12 +1001,6 @@ class TestRunner {
 				$allowedPrefixes = [];
 			}
 			$this->siteConfig->allowedExternalImagePrefixes = $allowedPrefixes;
-
-			// Process test-specific options
-			$defaults = [ 'wrapSections' => false ]; // override for parser tests
-			foreach ( $defaults as $opt => $defaultVal ) {
-				$this->envOptions[$opt] = $testOpts['parsoid'][$opt] ?? $defaultVal;
-			}
 
 			// Emulate PHP parser's tag hook to tunnel content past the sanitizer
 			if ( isset( $testOpts['styletag'] ) ) {
@@ -1069,19 +1069,19 @@ class TestRunner {
 			}
 		}
 
-		$this->envOptions = [
+		$defaultOpts = [
 			'wrapSections' => false,
 			'nativeTemplateExpansion' => true,
 			'offsetType' => $this->offsetType,
 		];
-		ScriptUtils::setDebuggingFlags( $this->envOptions, $options );
-		ScriptUtils::setTemplatingAndProcessingFlags( $this->envOptions, $options );
+		ScriptUtils::setDebuggingFlags( $defaultOpts, $options );
+		ScriptUtils::setTemplatingAndProcessingFlags( $defaultOpts, $options );
 
 		if (
 			ScriptUtils::booleanOption( $options['quiet'] ?? null ) ||
 			ScriptUtils::booleanOption( $options['quieter'] ?? null )
 		) {
-			$this->envOptions['logLevels'] = [ 'fatal', 'error' ];
+			$defaultOpts['logLevels'] = [ 'fatal', 'error' ];
 		}
 
 		// Save default logger so we can be reset it after temporarily
@@ -1116,6 +1116,7 @@ class TestRunner {
 		// Run tests
 		foreach ( $this->testCases as $test ) {
 			try {
+				$this->envOptions = $defaultOpts;
 				$this->processTest( $test, $options );
 			} catch ( UnexpectedException $e ) {
 				// Exit unexpected
