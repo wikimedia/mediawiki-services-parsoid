@@ -385,7 +385,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		array $configOpts, array $parsoidOpts, string $html,
 		?SelserData $selserData = null
 	): string {
-		$configOpts["pageContent"] = ''; // FIXME: T234549
+		$configOpts["pageContent"] = $selserData->oldText ?? ''; // FIXME: T234549
 		$this->setupConfig( $configOpts );
 
 		try {
