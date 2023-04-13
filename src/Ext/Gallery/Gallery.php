@@ -339,7 +339,21 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			$dataMw->attrs->caption = $extApi->domChildrenToWikitext(
 				$galcaption, $extApi::IN_IMG_CAPTION | $extApi::IN_OPTION
 			);
+			// Destructive to the DOM!
+			// However, removing it simplifies some of the logic below.
+			// Hopefully this won't be necessary after T268250
+			DOMCompat::remove( $galcaption );
 		}
+
+		// Not having a body is a signal that the extension tag was parsed
+		// as self-closed but, when serializing, we should make sure that
+		// no content was added, otherwise it's uneditable.
+		//
+		// This relies on the caption having been removed above
+		if ( DiffDOMUtils::firstNonSepChild( $node ) !== null ) {
+			$dataMw->body ??= new stdClass;
+		}
+
 		$startTagSrc = $extApi->extStartTagToWikitext( $node );
 
 		if ( !isset( $dataMw->body ) ) {
@@ -350,13 +364,13 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 				// The gallerycaption is nested as a list item but shouldn't
 				// be considered when deciding if the body can be reused.
 				// Hopefully this won't be necessary after T268250
+				//
+				// Even though we've removed the caption from the DOM above,
+				// it was present during DOM diff'ing, so a call to
+				// DiffUtils::subtreeUnchanged is insufficient.
 				static function ( Element $elt ): bool {
 					for ( $child = $elt->firstChild; $child; $child = $child->nextSibling ) {
-						if (
-							DiffUtils::hasDiffMarkers( $child ) &&
-							!( $child instanceof Element &&
-								DOMCompat::getClassList( $child )->contains( 'gallerycaption' ) )
-						) {
+						if ( DiffUtils::hasDiffMarkers( $child ) ) {
 							return false;
 						}
 					}
@@ -375,7 +389,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		ParsoidExtensionAPI $extApi, object $argDict
 	): void {
 		// Remove extsrc from native extensions
-		unset( $argDict->body->extsrc );
+		if (
+			// Self-closed tags don't have a body but unsetting on it induces one
+			isset( $argDict->body )
+		) {
+			unset( $argDict->body->extsrc );
+		}
 
 		// Remove the caption since it's redundant with the HTML
 		// and we prefer editing it there.

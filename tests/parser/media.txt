@@ -4304,3 +4304,20 @@ Foobar.jpg
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description"><img resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"14","width":"120"},"sa":{"resource":"Foobar.jpg"}}'/></a></span></div><div class="gallerytext"></div></li>
 </ul>
 !! end
+
+!! test
+Lines added to a self-closed gallery should not be dropped
+!! options
+parsoid= {
+  "modes": ["wt2wt"],
+  "changes": [
+    ["ul", "append", "<li class=\"gallerybox\"><div class=\"thumb\"><span typeof=\"mw:File\"><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\"><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg\" height=\"14\" width=\"120\"/></a></span></div><div class=\"gallerytext\"></div></li>"]
+  ]
+}
+!! wikitext
+<gallery caption="123" />
+!! wikitext/edited
+<gallery caption="123">
+File:Foobar.jpg
+</gallery>
+!! end

@@ -868,7 +868,7 @@ Self-closed tag hooks
 </ul>
 !! html/parsoid
 <pre typeof="mw:Extension/pre" about="#mwt2" data-parsoid='{"stx":"html"}' data-mw='{"name":"pre","attrs":{}}'></pre>
-<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt5" data-mw='{"name":"gallery","attrs":{},"body":null}'>
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt5" data-mw='{"name":"gallery","attrs":{}}'>
 </ul>
 <p><link typeof="mw:Extension/indicator" about="#mwt7" data-mw='{"name":"indicator","attrs":{"name":"something"}}' /></p>
 !! end
