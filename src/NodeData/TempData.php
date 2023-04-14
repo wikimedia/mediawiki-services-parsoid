@@ -121,7 +121,7 @@ class TempData {
 	 *
 	 * @var array|null
 	 */
-	private $tagData;
+	private ?array $tagData;
 
 	/**
 	 * Check whether a bit is set in $this->bits
@@ -155,6 +155,9 @@ class TempData {
 	 * @return void
 	 */
 	public function setTagData( string $key, $data ) {
+		if ( !isset( $this->tagData ) ) {
+			$this->tagData = [];
+		}
 		$this->tagData[$key] = $data;
 	}
 
@@ -165,6 +168,6 @@ class TempData {
 	 * @return mixed
 	 */
 	public function getTagData( string $key ) {
-		return $this->tagData[$key];
+		return $this->tagData[$key] ?? null;
 	}
 }
