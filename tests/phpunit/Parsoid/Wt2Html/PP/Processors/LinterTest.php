@@ -692,9 +692,11 @@ class LinterTest extends TestCase {
 		$desc = 'should lint links prefixed with multiple colons';
 		$result = $this->parseWT( "[[None]]\n[[:One]]\n[[::Two]]\n[[:::Three]]" );
 		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'multi-colon-escape', $result[0]['type'], $desc );
 		$this->assertEquals( [ 18, 27, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( '::Two', $result[0]['params']['href'], $desc );
+		$this->assertEquals( 'multi-colon-escape', $result[1]['type'], $desc );
 		$this->assertEquals( [ 28, 40, null, null ], $result[1]['dsr'], $desc );
 		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( ':::Three', $result[1]['params']['href'], $desc );

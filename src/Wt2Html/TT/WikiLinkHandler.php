@@ -121,7 +121,7 @@ class WikiLinkHandler extends TokenHandler {
 					// TODO(arlolra): Pass tsr info to the frame
 					$lint['dsr'] = new DomSourceRange( 0, 0, null, null );
 				}
-				$env->recordLint( 'lint/multi-colon-escape', $lint );
+				$env->recordLint( 'multi-colon-escape', $lint );
 			}
 			// This will get caught by the caller, and mark the target as invalid
 			throw new InternalException( 'Multiple colons prefixing href.' );
