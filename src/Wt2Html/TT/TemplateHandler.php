@@ -13,13 +13,11 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\Params;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -354,15 +352,14 @@ class TemplateHandler extends TokenHandler {
 				);
 			}
 			return [
+				'isPF' => true,
+				'magicWordType' => null,
 				'name' => $canonicalFunctionName,
+				'title' => $syntheticTitle, // FIXME: Some made up synthetic title
 				'pfArg' => $pfArg,
 				'srcOffsets' => new SourceRange(
 					$srcOffsets->start + strlen( $untrimmedPrefix ) + 1,
 					$srcOffsets->end ),
-				'isPF' => true,
-					// FIXME: Some made up synthetic title
-				'title' => $syntheticTitle,
-				'magicWordType' => isset( Utils::magicMasqs()[$canonicalFunctionName] ) ? 'MASQ' : null,
 			];
 		}
 
@@ -867,9 +864,7 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Process the special magic word as specified by $resolvedTgt['magicWordType'].
 	 * ```
-	 * magicWordType === '!'    => {{!}} is the magic word
-	 * magicWordtype === 'MASQ' => DEFAULTSORT, DISPLAYTITLE are the magic words
-	 *                             (See Util::magicMasqs())
+	 * magicWordType === '!' => {{!}} is the magic word
 	 * ```
 	 * @param bool $atTopLevel
 	 * @param TemplateEncapsulator $state
@@ -903,93 +898,9 @@ class TemplateHandler extends TokenHandler {
 			return new TemplateExpansionResult( $toks, false, (bool)$this->wrapTemplates );
 		}
 
-		Assert::invariant(
-			$resolvedTgt['magicWordType'] === 'MASQ',
-			'Unexpected magicWordType type: ' . $resolvedTgt['magicWordType']
+		throw new UnreachableException(
+			'Unsupported magic word type: ' . ( $resolvedTgt['magicWordType'] ?? 'null' )
 		);
-
-		$magicWord = mb_strtolower( $resolvedTgt['name'] );
-		$pageProp = 'mw:PageProp/';
-		if ( $magicWord === 'defaultsort' ) {
-			$pageProp .= 'category';
-		}
-		$pageProp .= $magicWord;
-
-		$metaToken = new SelfclosingTagTk( 'meta',
-			[ new KV( 'property', $pageProp ) ],
-			$tplToken->dataParsoid->clone()
-		);
-
-		if ( isset( $tplToken->dataParsoid->tmp->templatedAttribs ) ) {
-			// See [[mw:Specs/HTML#Generated_attributes_of_HTML_tags]]
-			//
-			// For every attribute that has a templated name and/or value,
-			// AttributeExpander creates a 2-item array for that attribute.
-			// [ {txt: '..', html: '..'}, { html: '..'} ]
-			// 'txt' is the plain-text name/value
-			// 'html' is the HTML-version of the name/value
-			//
-			// Massage the templated magic-word info into a similar format.
-			// In this case, the attribute name is 'content' (implicit) and
-			// since it is implicit, the name itself cannot be attribute.
-			// Hence 'html' property is empty.
-			//
-			// The attribute value has been templated and is encoded there.
-			//
-			// NOTE: If any part of the 'MAGIC_WORD:value' string is templated,
-			// we consider the magic word as having expanded attributes, rather
-			// than only when the 'value' part of it. This is because of the
-			// limitation of our token representation for templates. This is
-			// an edge case that it is not worth a refactoring right now to
-			// handle this properly and choose mw:Transclusion or mw:ExpandedAttrs
-			// depending on which part is templated.
-			//
-			// FIXME: Is there a simpler / better repn. for templated attrs?
-			$ta = $tplToken->dataParsoid->tmp->templatedAttribs;
-			$html = $ta[0][0]['html'];
-			$ta[0] = [
-				[ 'txt' => 'content' ],  // Magic-word attribute name
-				// FIXME: the content still contains the parser function prefix
-				//  (eg, the html is 'DISPLAYTITLE:Foo' even though the stripped
-				//   content attribute is 'Foo')
-				[ 'html' => $html ],     // HTML repn. of the attribute value
-			];
-			$metaToken->addAttribute( 'data-mw', PHPUtils::jsonEncode( [ 'attribs' => $ta ] ) );
-
-			// Use the textContent of the expanded attribute, similar to how
-			// Sanitizer::sanitizeTagAttr does it.  However, here we have the
-			// opportunity to strip the parser function prefix.
-			$domFragment = DOMUtils::parseHTMLToFragment( $env->topLevelDoc, $html );
-			$content = $domFragment->textContent;
-			$content = preg_replace( '#^\w+:#', '', $content, 1 );
-			$metaToken->addAttribute( 'content', $content, $resolvedTgt['srcOffsets']->expandTsrV() );
-
-			$metaToken->addAttribute( 'about', $env->newAboutId() );
-			$metaToken->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
-		} else {
-			// Leading/trailing WS should be stripped
-			//
-			// This is bogus, but preserves existing functionality
-			// Clearly we don't have an adequate representation for existing uses
-			// of the DISPLAYTITLE: magic word.
-			// phpcs:ignore Generic.Files.LineLength.TooLong
-			// Ex: {{DISPLAYTITLE:User:<span style="text-transform: lowercase;">MC</span><span style="font-size: 80%;">10</span>/Welcome}}
-			$key = trim( TokenUtils::tokensToString( $resolvedTgt['pfArg'] ) );
-
-			$src = $tplToken->dataParsoid->src ?? '';
-			if ( $src ) {
-				// If the token has original wikitext, shadow the sort-key
-				$origKey = PHPUtils::stripSuffix( preg_replace( '/[^:]+:?/', '', $src, 1 ), '}}' );
-				$metaToken->addNormalizedAttribute( 'content', $key, $origKey );
-			} else {
-				// If not, this token came from an extension/template
-				// in which case, dont bother with shadowing since the token
-				// will never be edited directly.
-				$metaToken->addAttribute( 'content', $key );
-			}
-		}
-
-		return new TemplateExpansionResult( [ $metaToken ] );
 	}
 
 	/**

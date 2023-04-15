@@ -127,12 +127,6 @@
 	"Parsoid-centric test: Whitespace in ext- and wiki-links should be preserved": {
 		"wt2wt": "[[Foo|  bar]]\n\n[[Foo|  ''bar'']]\n\n[http://wp.org foo]\n\n[http://wp.org ''foo'']"
 	},
-	"Parsoid: Page property magic word with magic word contents": {
-		"metadata": "Parser test"
-	},
-	"Parsoid: Template-generated DISPLAYTITLE": {
-		"metadata": "Parser test"
-	},
 	"Render invalid page names as plain text (T53090)": {
 		"wt2wt": "[[./../foo|bar]]\n[[foo�|bar]]\n[[foo/.|bar]]\n[[foo/..|bar]]\n<nowiki>[[foo~~~bar]]</nowiki>\n[[foo>bar]]\n[[foo[bar]]\n[[.]]\n[[..]]\n[[foo././bar]]\n[[foo[http://example.com]xyz]]\n\n[[{{1x|./../foo}}|bar]]\n[[{{1x|foo/.}}|bar]]\n[[{{1x|foo/..}}|bar]]\n[[{{1x|foo~~~~bar}}]]\n[[{{1x|foo>bar}}]]\n[[{{1x|foo././bar}}]]\n[[{{1x|foo{bar}}]]\n[[{{1x|foo}bar}}]]\n[[{{1x|foo[bar}}]]\n[[{{1x|foo]bar}}]]\n[[{{1x|foo<bar}}]]"
 	},
@@ -236,24 +230,14 @@
 	"Using {{!}} in wikilinks (T290526)": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a typeof=\"mw:ExpandedAttrs mw:LocalizedAttrs\" about=\"#mwt2\" rel=\"mw:WikiLink\" href=\"./Main_PageSomething_else?action=edit&amp;redlink=1\" title=\"Main PageSomething else\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Main_PageSomething_else\"},\"sa\":{\"href\":\"Main Page{{!}}Something else\"},\"dsr\":[0,32,null,null]}' data-mw='{\"attribs\":[[{\"txt\":\"href\"},{\"html\":\"Main Page&lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[]],\\\"dsr\\\":[11,16,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"!\\\",\\\"function\\\":\\\"!\\\"},\\\"params\\\":{},\\\"i\\\":0}}]}&apos;>|&lt;/span>Something else\"}]]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Main PageSomething else\"]}}'>Main PageSomething else</a></p>\n\n<p data-parsoid='{\"dsr\":[34,49,0,0]}'>[[<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[36,47,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span>]]</p>"
 	},
-	"Verify that displaytitle encodes & to &amp; (T291985)": {
-		"metadata": "Art&copy",
-		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:art&copy}}"
+	"Verify that displaytitle works (T24501) AllowDisplayTitle=false": {
+		"metadata": "Screen"
 	},
 	"Verify that displaytitle works (T24501) AllowDisplayTitle=false no DISPLAYTITLE": {
 		"metadata": "Screen"
 	},
-	"Verify that displaytitle works (T24501) RestrictDisplayTitle=false": {
-		"metadata": "Screen",
-		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}"
-	},
-	"Verify that displaytitle works (T24501) RestrictDisplayTitle=true matching": {
-		"metadata": "Screen",
-		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}"
-	},
 	"Verify that displaytitle works (T24501) RestrictDisplayTitle=true mismatch": {
-		"metadata": "Screen",
-		"wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}"
+		"metadata": "Screen"
 	},
 	"Verify that displaytitle works (T24501) no displaytitle": {
 		"metadata": "Parser test"

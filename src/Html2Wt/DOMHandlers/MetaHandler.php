@@ -13,7 +13,6 @@ use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class MetaHandler extends DOMHandler {
@@ -45,7 +44,12 @@ class MetaHandler extends DOMHandler {
 			if ( $switchType ) {
 				$out = $switchType[1];
 				$cat = preg_match( '/^(?:category)?(.*)/', $out, $catMatch );
-				if ( $cat && isset( Utils::magicMasqs()[$catMatch[1]] ) ) {
+				if ( $cat && (
+					// Need this b/c support while RESTBase has Parsoid HTML
+					// in storage with meta tags for these.
+					// Can be removed as part of T335843
+					$catMatch[1] === 'defaultsort' || $catMatch[1] === 'displaytitle'
+				) ) {
 					$contentInfo = $state->serializer->serializedAttrVal( $node, 'content' );
 					if ( WTUtils::hasExpandedAttrsType( $node ) ) {
 						$out = '{{' . $contentInfo['value'] . '}}';

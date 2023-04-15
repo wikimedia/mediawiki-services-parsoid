@@ -856,9 +856,6 @@
         "selser [0,2,1,3,[[4]],3,0]": "[[Foo|  bar]]\n\n17tedga\n\n[[Foo|  ''bar'']]\n\n[http://wp.org 1r1ldpn]\n\n[http://wp.org   ''foo'']",
         "selser [3,4,4,2,2,4,0]": "qu9hey\n\nmxpnzr\n\nkk5on7\n\n15tt3s3\n\n[http://wp.org   foo]\n\n19vr3au\n\n[http://wp.org   ''foo'']"
     },
-    "Parsoid: Defaultsort variations (T236846)": {
-        "selser [2,0,3,0,0]": "fz1m6v\n\n{{DEFAULTSORT}}\n\n\n{{DEFAULTSORT:DOGGIE}}"
-    },
     "Parsoid: Make sure nested lists are serialized on their own line even if HTML contains no newlines": {
         "html2wt": "# foo\n## bar\n\n* foo\n** bar\n\n: foo\n:: bar\n"
     },
@@ -1585,71 +1582,30 @@
         "html2wt": "[[Main Page|Something else]]\n\n[[Main Page|Something else]]\n"
     },
     "Verify that displaytitle encodes & to &amp; (T291985)": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:art&copy}}",
-        "html2wt": "this is not the title\n",
-        "selser [2,0,0]": "xc3i5a\n\nthis is not the title\n{{DISPLAYTITLE:art&copy}}",
-        "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:art&copy}}",
-        "selser [[2],0,0]": "15zu02pthis is not the title\n{{DISPLAYTITLE:art&copy}}",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:art&copy}}",
         "metadata": ""
     },
     "Verify that displaytitle encodes &amp; to &amp; (T291985)": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:art&amp;copy}}",
-        "selser [2,0,0]": "16iez1i\n\nthis is not the title\n{{DISPLAYTITLE:art&amp;copy}}",
-        "selser [[4],0,0]": "6z6g2y\n{{DISPLAYTITLE:art&amp;copy}}",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:art&amp;copy}}",
-        "selser [[2],0,0]": "10581jzthis is not the title\n{{DISPLAYTITLE:art&amp;copy}}",
         "metadata": ""
     },
     "Verify that displaytitle handles inline CSS styles (T28547) - accepted value": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
-        "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
-        "selser [2,0,0]": "4sx267\n\nthis is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
-        "selser [[2],0,0]": "1yrt0qothis is not the title\n{{DISPLAYTITLE:<span style=\"color: red;\">s</span>creen}}",
         "metadata": ""
     },
     "Verify that displaytitle handles inline CSS styles (T28547) - rejected value": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
-        "selser [[2],0,0]": "hmtpllthis is not the title\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
-        "selser [[2],0,1]": "1667ozwthis is not the title\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
-        "selser [2,0,0]": "7tgszd\n\nthis is not the title\n{{DISPLAYTITLE:<span style=\"display: none;\">s</span>creen}}",
         "metadata": ""
     },
     "Verify that displaytitle works (T24501) AllowDisplayTitle=false": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}",
-        "selser [2,0,0]": "15vy777\n\nthis is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [[4],0,0]": "1ihdxpp\n{{DISPLAYTITLE:screen}}",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [1,0,1]": "this is not the title\n{{DISPLAYTITLE:screen}}",
         "metadata": ""
     },
     "Verify that displaytitle works (T24501) AllowDisplayTitle=false no DISPLAYTITLE": {
         "metadata": ""
     },
     "Verify that displaytitle works (T24501) RestrictDisplayTitle=false": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}",
-        "html2wt": "this is not the title\n",
-        "selser [[4],0,0]": "1o2ok5q\n{{DISPLAYTITLE:whatever}}",
-        "selser [[2],0,0]": "1jzcbxfthis is not the title\n{{DISPLAYTITLE:whatever}}",
-        "selser [1,0,1]": "this is not the title\n{{DISPLAYTITLE:whatever}}",
         "metadata": ""
     },
     "Verify that displaytitle works (T24501) RestrictDisplayTitle=true matching": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:screen}}",
-        "html2wt": "this is not the title\n",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [0,0,1]": "this is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [2,0,0]": "a15zmg\n\nthis is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [[2],0,1]": "br9ox7this is not the title\n{{DISPLAYTITLE:screen}}",
-        "selser [[4],0,1]": "1w9rs36\n{{DISPLAYTITLE:screen}}",
         "metadata": ""
     },
     "Verify that displaytitle works (T24501) RestrictDisplayTitle=true mismatch": {
-        "wt2wt": "this is not the title\n\n{{DISPLAYTITLE:whatever}}",
-        "html2wt": "this is not the title\n",
-        "selser [1,0,0]": "this is not the title\n{{DISPLAYTITLE:whatever}}",
-        "selser [[2],0,1]": "6d31agthis is not the title\n{{DISPLAYTITLE:whatever}}",
         "metadata": ""
     },
     "Verify that displaytitle works (T24501) no displaytitle": {
