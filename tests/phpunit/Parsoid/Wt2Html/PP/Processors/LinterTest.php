@@ -413,6 +413,29 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 31, 76, 2, 2 ], $result[1]['dsr'], $desc );
 		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( '400px', $result[1]['params']['items'][0], $desc );
+
+		$desc = "should lint format option used in gallery";
+		$result = $this->parseWT(
+			'<gallery>\n' .
+			'File:Foobar.jpg|thumb|lalala\n' .
+			'</gallery>\n' .
+			'{{1x|<gallery>\n' .
+			'File:Foobar.jpg|frame|hihi\n' .
+			'</gallery>}}\n'
+		);
+		$this->assertCount( 2, $result, $desc );
+
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 51, 9, 10 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( 'thumb', $result[0]['params']['items'][0], $desc );
+
+		$this->assertEquals( 'bogus-image-options', $result[1]['type'], $desc );
+		$this->assertEquals( [ 53, 109, null, null ], $result[1]['dsr'], $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( 'frame', $result[1]['params']['items'][0], $desc );
+		$this->assertTrue( isset( $result[1]['templateInfo'] ), $desc );
+		$this->assertEquals( '1x', $result[1]['templateInfo']['name'], $desc );
 	}
 
 	/**

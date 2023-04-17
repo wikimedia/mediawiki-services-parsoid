@@ -917,15 +917,20 @@ class ParsoidExtensionAPI {
 	 *   Where,
 	 *     [0] is the fully-constructed image option
 	 *     [1] is the full wikitext source offset for it
-	 * @param ?string &$error
-	 * @param ?bool $forceBlock
+	 * @param ?string &$error Error string is set when the return is null.
+	 * @param ?bool $forceBlock Forces the media to be rendered in a figure as
+	 *   opposed to a span.
+	 * @param ?bool $suppressMediaFormats If any media format is present in
+	 *   $imageOpts, it won't be applied and will result in a linting error.
 	 * @return ?Element
 	 */
 	public function renderMedia(
 		string $titleStr, array $imageOpts, ?string &$error = null,
-		?bool $forceBlock = false
+		?bool $forceBlock = false, ?bool $suppressMediaFormats = false
 	): ?Element {
 		$extTagName = $this->extTag->getName();
+		$extTagOpts = [ 'suppressMediaFormats' => $suppressMediaFormats ];
+
 		$fileNs = $this->getSiteConfig()->canonicalNamespaceId( 'file' );
 
 		$title = $this->makeTitle( $titleStr, 0 );
@@ -984,6 +989,7 @@ class ParsoidExtensionAPI {
 			[
 				'parseOpts' => [
 					'extTag' => $extTagName,
+					'extTagOpts' => $extTagOpts,
 					'context' => 'inline',
 				],
 				// Create new frame, because $pieces doesn't literally appear
@@ -993,13 +999,13 @@ class ParsoidExtensionAPI {
 				// for bits which aren't the caption or file, since they
 				// don't refer to actual source wikitext
 				'shiftDSRFn' => static function ( DomSourceRange $dsr ) use ( $shiftOffset ) {
-					$start = $dsr->start === null ? null :
-						   $shiftOffset( $dsr->start );
-					$end = $dsr->end === null ? null :
-						 $shiftOffset( $dsr->end );
+					$start = $dsr->start === null ? null : $shiftOffset( $dsr->start );
+					$end = $dsr->end === null ? null : $shiftOffset( $dsr->end );
 					// If either offset is newly-invalid, remove entire DSR
-					if ( ( $dsr->start !== null && $start === null ) ||
-						 ( $dsr->end !== null && $end === null ) ) {
+					if (
+						( $dsr->start !== null && $start === null ) ||
+						( $dsr->end !== null && $end === null )
+					) {
 						return null;
 					}
 					return new DomSourceRange(

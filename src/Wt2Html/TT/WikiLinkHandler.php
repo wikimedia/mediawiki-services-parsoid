@@ -1314,13 +1314,14 @@ class WikiLinkHandler extends TokenHandler {
 
 			// First option wins, the rest are 'bogus'
 			// FIXME: For now, see T305628
-			if (
-				isset( $opts[$optInfo['ck']] ) ||
+			if ( isset( $opts[$optInfo['ck']] ) || (
 				// All the formats are simple options with the key "format"
 				// except for "manualthumb", so check if the format has been set
-				( in_array( $optInfo['ck'], [ 'format', 'manualthumb' ], true ) &&
-					self::getFormat( $opts ) )
-			) {
+				in_array( $optInfo['ck'], [ 'format', 'manualthumb' ], true ) && (
+					self::getFormat( $opts ) ||
+					( $this->options['extTagOpts']['suppressMediaFormats'] ?? false )
+				)
+			) ) {
 				$dataParsoid->optList[] = [
 					'ck' => 'bogus',
 					'ak' => $optInfo['ak']
