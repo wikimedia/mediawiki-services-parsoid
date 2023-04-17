@@ -6,16 +6,13 @@
 # is set in your environment and points to an up-to-date copy of mediawiki-core
 $STANDALONE = isset( $GLOBALS['ParsoidPhanStandalone'] );
 
-$cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
-
-$cfg['minimum_target_php_version'] = '7.4';
-$cfg['enable_class_alias_support'] = true; // should be on by default: T224704
-
 $root = realpath( __DIR__ . DIRECTORY_SEPARATOR . '..' );
 $hasLangConv = is_dir( "{$root}/vendor/wikimedia/langconv" );
 
 if ( $STANDALONE ) {
+	$cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config-library.php';
 	$cfg['target_php_version'] = '8.1';
+
 	$cfg['directory_list'] = [
 		# not the extension directory, it requires MW (ie, "not standalone")
 		'src',
@@ -24,7 +21,10 @@ if ( $STANDALONE ) {
 		'vendor',
 		'.phan/stubs',
 	];
+	$cfg['suppress_issue_types'][] = 'PhanAccessMethodInternal';
 } else {
+	$cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config.php';
+
 	$cfg['directory_list'] = array_merge( $cfg['directory_list'], [
 		# 'src' and '.phan/stubs' are already included by default
 		'extension',
@@ -55,11 +55,15 @@ if ( $STANDALONE ) {
 	}
 }
 
+$cfg['minimum_target_php_version'] = '7.4';
+
 // If the optional wikimedia/langconv package isn't installed, ignore files
 // which require it.
 if ( !$hasLangConv ) {
 	$cfg['exclude_analysis_directory_list'][] = 'src/Language/';
 }
+
+$cfg['enable_class_alias_support'] = true; // should be on by default: T224704
 
 /**
  * Quick implementation of a recursive directory list.
