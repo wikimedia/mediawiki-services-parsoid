@@ -365,7 +365,6 @@ class TemplateHandler extends TokenHandler {
 					// FIXME: Some made up synthetic title
 				'title' => $syntheticTitle,
 				'magicWordType' => isset( Utils::magicMasqs()[$canonicalFunctionName] ) ? 'MASQ' : null,
-				'targetToks' => !is_array( $targetToks ) ? [ $targetToks ] : $targetToks,
 			];
 		}
 
@@ -879,7 +878,7 @@ class TemplateHandler extends TokenHandler {
 	 * @param array $resolvedTgt
 	 * @return TemplateExpansionResult
 	 */
-	public function processSpecialMagicWord(
+	private function processSpecialMagicWord(
 		bool $atTopLevel, TemplateEncapsulator $state, array $resolvedTgt
 	): TemplateExpansionResult {
 		$env = $this->env;
