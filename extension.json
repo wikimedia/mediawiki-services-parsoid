@@ -4,7 +4,7 @@
 	"url": "https://www.mediawiki.org/wiki/Parsoid/PHP",
 	"license-name": "GPL-2.0-or-later",
 	"requires": {
-		"MediaWiki": ">= 1.40",
+		"MediaWiki": ">= 1.41.0",
 		"platform": {
 			"php": ">= 7.4"
 		}
@@ -13,15 +13,21 @@
 		"MWParsoid\\": "extension/src"
 	},
 	"config": {
+		"ParsoidEnableQueryString": {
+			"value": false,
+			"description": "Whether to enable the ?useparsoid=1 query string for article views"
+		},
 		"ParsoidEnableREST": {
 			"value": true,
 			"description": "Whether to enable Parsoid REST API"
 		}
 	},
 	"Hooks": {
+		"ArticleParserOptions": "ArticleParserOptionsHandler",
 		"UnitTestsList": "UnitTestsListHandler"
 	},
 	"HookHandlers": {
+		"ArticleParserOptionsHandler": { "class": "\\MWParsoid\\ArticleParserOptionsHandler" },
 		"UnitTestsListHandler": { "class": "\\MWParsoid\\UnitTestsListHandler" }
 	},
 	"callback": "\\MWParsoid\\RegistrationHookHandler::onRegistration",
