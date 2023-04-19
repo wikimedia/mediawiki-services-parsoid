@@ -90,8 +90,10 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$mode = Mode::byName( $opts->mode );
 
 		$imageOpts = [
-			"|{$mode->dimensions( $opts )}",
 			[ $imageOptStr, $lineStartOffset + strlen( $oTitleStr ) ],
+			// T305628: Dimensions are last one wins so ensure this takes
+			// precedence over anything in $imageOptStr
+			"|{$mode->dimensions( $opts )}",
 		];
 
 		$fileNs = $extApi->getSiteConfig()->canonicalNamespaceId( 'file' );
