@@ -13,10 +13,10 @@ class Params {
 	/** @phan-var KV[] */
 	public $args;
 
-	/** @var array */
+	/** @var ?array */
 	public $argDict;
 
-	/** @var array */
+	/** @var ?array */
 	public $namedArgsDict;
 
 	/**

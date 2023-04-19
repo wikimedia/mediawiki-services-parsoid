@@ -14,7 +14,7 @@ class SelserData {
 	/** @var string */
 	public $oldText;
 
-	/** @var string */
+	/** @var ?string */
 	public $oldHTML;
 
 	/**

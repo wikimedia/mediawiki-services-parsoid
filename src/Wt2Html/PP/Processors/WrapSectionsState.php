@@ -54,7 +54,7 @@ class WrapSectionsState {
 	/** @var int */
 	private $sectionNumber = 0;
 
-	/** @var WrapSectionsTplInfo */
+	/** @var ?WrapSectionsTplInfo */
 	private $tplInfo = null;
 
 	/** @var WrapSectionsTplInfo[] */

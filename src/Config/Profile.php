@@ -34,7 +34,7 @@ class Profile {
 
 	/**
 	 * This is the most recently pushed nested profile from a nested pipeline.
-	 * @var Profile
+	 * @var ?Profile
 	 */
 	private $recentNestedProfile;
 

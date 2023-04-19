@@ -73,31 +73,31 @@ class Test extends Item {
 	/** @var bool */
 	public $duplicateChange = false;
 
-	/** @var string */
+	/** @var ?string */
 	public $seed = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $resultWT = null;
 
-	/** @var bool */
+	/** @var ?bool */
 	public $wt2wtPassed = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $wt2wtResult = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $selser = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $changedHTMLStr = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $cachedBODYstr = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $cachedWTstr = null;
 
-	/** @var string */
+	/** @var ?string */
 	public $cachedNormalizedHTML = null;
 
 	/** @var array */

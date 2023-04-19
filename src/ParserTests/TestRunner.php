@@ -147,7 +147,7 @@ class TestRunner {
 	/** @var string */
 	private $testFilePath;
 
-	/** @var string */
+	/** @var ?string */
 	private $knownFailuresInfix;
 
 	/** @var string */
@@ -164,7 +164,7 @@ class TestRunner {
 	 * - $testFilter['raw'] is the value of the filter
 	 * - if $testFilter['regex'] is true, $testFilter['raw'] is used as a regex filter.
 	 * - If $testFilter['string'] is true, $testFilter['raw'] is used as a plain string filter.
-	 * @var array
+	 * @var ?array
 	 */
 	private $testFilter;
 

@@ -86,13 +86,13 @@ class ConstrainedText {
 	/**
 	 * The prefix string to add if the start of the chunk doesn't match its
 	 * constraints.
-	 * @var string
+	 * @var ?string
 	 */
 	public $prefix;
 	/**
 	 * The suffix string to add if the end of the chunk doesn't match its
 	 * constraints.
-	 * @var string
+	 * @var ?string
 	 */
 	public $suffix;
 	/**

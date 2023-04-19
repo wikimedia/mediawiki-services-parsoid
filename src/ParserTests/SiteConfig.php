@@ -32,7 +32,7 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public $responsiveReferences;
 
-	/** @var int */
+	/** @var ?int */
 	public $thumbsize;
 
 	/** @var LoggerInterface */

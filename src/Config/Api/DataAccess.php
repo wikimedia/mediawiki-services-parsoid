@@ -47,7 +47,7 @@ class DataAccess extends IDataAccess {
 	private $cache = [];
 
 	/**
-	 * @var SiteConfig
+	 * @var ?SiteConfig
 	 */
 	private $siteConfig = null;
 

@@ -18,7 +18,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  */
 class PageConfig extends IPageConfig {
 
-	/** @var ApiHelper */
+	/** @var ?ApiHelper */
 	private $api;
 
 	/** @var string */

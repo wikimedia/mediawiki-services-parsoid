@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Utils\Utils;
 
 class MockSiteConfig extends SiteConfig {
 
-	/** @var int Unix timestamp */
+	/** @var ?int Unix timestamp */
 	private $fakeTimestamp = 946782245; // 2000-01-02T03:04:05Z
 
 	/** @var int */
