@@ -62,8 +62,6 @@ class TemplateHandler extends TokenHandler {
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		// Set this here so that it's available in the TokenStreamPatcher,
-		// which continues to inherit from TemplateHandler.
 		$this->parserFunctions = new ParserFunctions( $this->env );
 		$this->ae = new AttributeExpander( $this->manager, [
 			'expandTemplates' => $this->options['expandTemplates'],

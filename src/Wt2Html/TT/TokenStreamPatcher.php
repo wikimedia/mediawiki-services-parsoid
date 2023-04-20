@@ -52,12 +52,6 @@ class TokenStreamPatcher extends TokenHandler {
 	private $discardableNlTk = null;
 
 	/**
-	 * @var TemplateHandler
-	 * A local instance needed to process magic words
-	 */
-	private $templateHandler;
-
-	/**
 	 * @param TokenTransformManager $manager
 	 * @param array $options
 	 */
@@ -65,7 +59,6 @@ class TokenStreamPatcher extends TokenHandler {
 		$newOptions = [ 'tsp' => true ] + $options;
 		parent::__construct( $manager, $newOptions );
 		$this->tokenizer = new PegTokenizer( $this->env );
-		$this->templateHandler = new TemplateHandler( $manager, $options );
 		$this->reset();
 	}
 
