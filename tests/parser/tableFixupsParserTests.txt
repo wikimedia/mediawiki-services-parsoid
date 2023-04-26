@@ -163,7 +163,7 @@ wgParserEnableLegacyMediaDOM=false
 <td><a href="/wiki/No_Merging_Here" title="No Merging Here">No Merging Here</a> class="foo" | foobar baz
 </td></tr>
 <tr>
-<td><span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg"><span class="mw-broken-media">File:Foo.jpg</span></a></span> class="foo" | foobar baz
+<td><span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg"><span class="mw-file-element mw-broken-media">File:Foo.jpg</span></a></span> class="foo" | foobar baz
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
