@@ -137,11 +137,11 @@
 	},
 	"ImageMap": {
 		"project": "mediawiki/extensions/ImageMap",
-		"latestCommit": "5f132d85a8b03932f95e277e5e2e15a91c8484e6",
+		"latestCommit": "6d83c5bc21368f80af7d9dc3f454ebd93b69b8d9",
 		"targets": {
 			"imageMapParserTests.txt": {
 				"path": "tests/parser/imageMapParserTests.txt",
-				"expectedSHA1": "7df82184a48f7aba50b32e8531c4d2d8e624cf44"
+				"expectedSHA1": "43875ab2379c438471764f92c169df9e446a6196"
 			}
 		}
 	}
