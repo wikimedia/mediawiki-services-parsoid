@@ -4420,3 +4420,16 @@ wgParserEnableLegacyMediaDOM=false
 !! html/parsoid
 <figure typeof="mw:Error mw:File/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Barfoo.jpg"}]],"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Foobar.jpg"><span class="mw-file-element mw-broken-media" resource="./File:Foobar.jpg">File:Foobar.jpg</span></a><figcaption>123</figcaption></figure>
 !! end
+
+!! test
+Media with caption that would stringify to a valid media option
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Foobar.jpg|'''thumb''']]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="thumb"><img alt="thumb" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"&lt;b data-parsoid=&apos;{\"dsr\":[18,29,3,3]}&apos;>thumb&lt;/b>"}'><a href="./File:Foobar.jpg" class="mw-file-description" title="thumb"><img alt="thumb" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span></p>
+!! end

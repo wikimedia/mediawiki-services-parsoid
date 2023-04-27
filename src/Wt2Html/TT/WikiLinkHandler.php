@@ -980,7 +980,7 @@ class WikiLinkHandler extends TokenHandler {
 	): bool {
 		// link and alt options are allowed to contain arbitrary
 		// wikitext (even though only strings are supported in reality)
-		// SSS FIXME: Is this actually true of all options rather than
+		// FIXME(SSS): Is this actually true of all options rather than
 		// just link and alt?
 		if ( $optInfo === null ) {
 			$optInfo = self::getOptionInfo( $prefix . $resultStr, $env );
@@ -1062,6 +1062,7 @@ class WikiLinkHandler extends TokenHandler {
 						$optInfo = null; // might change the nature of opt
 						continue;
 					}
+					return null;
 				}
 				// Similar to TokenUtils.tokensToString()'s includeEntities
 				if ( TokenUtils::isEntitySpanToken( $currentToken ) ) {
@@ -1075,7 +1076,6 @@ class WikiLinkHandler extends TokenHandler {
 						if ( $optInfo === null ) {
 							// An <a> tag before a valid option?
 							// This is most likely a caption.
-							$optInfo = null;
 							return null;
 						}
 					}
