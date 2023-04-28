@@ -40,6 +40,16 @@ abstract class PageConfig {
 	abstract public function hasLintableContentModel(): bool;
 
 	/**
+	 * Whether to suppress the Table of Contents for this page
+	 * (a function of content model).
+	 * @return bool
+	 */
+	public function getSuppressTOC(): bool {
+		// This will eventually be abstract; for now default to 'false'
+		return false;
+	}
+
+	/**
 	 * The page's title, as a string.
 	 * @return string With namespace, spaces not underscores
 	 */

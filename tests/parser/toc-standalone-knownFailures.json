@@ -98,12 +98,10 @@
         "selser [2,2,[2,0,4]]": "1la3dj6\n\n__NOTOC__\n\n1op2aro\n\n== One ==\n=== Two ===\nugbqgt\n\n== Three ==\n1rco633",
         "selser [3,[0,4,4],[0,3,[[3]]]]": "== One ==\ndhvu7u1u8vdwr\n== Three ==\n",
         "selser [[0,4],1,[[4],2,4]]": "__NOTOC__1369osp\n== One ==\n=== Two ===\n== 749s6w ==\n101lrnd\n1gi7px4",
-        "selser [2,3,[4,0,2]]": "120vsh1\n\n__NOTOC__\n\nxyb6x1\n\nrx4dsw\n=== Four ===",
-        "metadata": "flags="
+        "selser [2,3,[4,0,2]]": "120vsh1\n\n__NOTOC__\n\nxyb6x1\n\nrx4dsw\n=== Four ==="
     },
     "T307691: show-toc flag: no sections, and __NOTOC__": {
-        "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/notoc\" data-parsoid='{\"src\":\"__NOTOC__\",\"magicSrc\":\"__NOTOC__\",\"dsr\":[0,9,null,null]}'/>\n</section>",
-        "metadata": "flags="
+        "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/notoc\" data-parsoid='{\"src\":\"__NOTOC__\",\"magicSrc\":\"__NOTOC__\",\"dsr\":[0,9,null,null]}'/>\n</section>"
     },
     "T307691: show-toc flag: no sections, but __FORCETOC__": {
         "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/forcetoc\" data-parsoid='{\"src\":\"__FORCETOC__\",\"magicSrc\":\"__FORCETOC__\",\"dsr\":[0,12,null,null]}'/>\n</section>"
@@ -140,8 +138,7 @@
         "selser [[1,0],1]": "__NOTOC__\n== One ==",
         "selser [0,1]": "__NOTOC__\n== One ==",
         "selser [[0,4],2]": "__NOTOC__396jxo\n\n4rrvzh\n\n== One ==",
-        "selser [2,0]": "1gy051r\n\n__NOTOC__\n== One ==",
-        "metadata": "flags="
+        "selser [2,0]": "1gy051r\n\n__NOTOC__\n== One =="
     },
     "T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
         "wt2wt": "__FORCETOC__\n==One==\n",
@@ -169,9 +166,6 @@
         "selser [3,1]": "== One ==\n__TOC__",
         "selser [0,[0,2,0]]": "== One ==\nru8a5j\n__TOC__",
         "selser [0,[0,0,4]]": "== One ==\n1sy42xn"
-    },
-    "Template with sections, __NOTOC__": {
-        "metadata": "flags="
     },
     "__FORCETOC__ override": {
         "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/newsectionlink\" data-parsoid='{\"src\":\"__NEWSECTIONLINK__\",\"magicSrc\":\"__NEWSECTIONLINK__\",\"dsr\":[0,18,null,null]}'/>\n<meta property=\"mw:PageProp/forcetoc\" data-parsoid='{\"src\":\"__FORCETOC__\",\"magicSrc\":\"__FORCETOC__\",\"dsr\":[19,31,null,null]}'/>\n</section>",
