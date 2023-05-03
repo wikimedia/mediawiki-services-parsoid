@@ -9,12 +9,17 @@
 		"wt2wt": "__FORCETOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
 	},
 	"T307691: show-toc flag: \"enough\" sections and __NOTOC__": {
+		"metadata": "flags=",
 		"wt2wt": "__NOTOC__\n==One==\n===Two===\n==Three==\n===Four===\n"
+	},
+	"T307691: show-toc flag: no sections, and __NOTOC__": {
+		"metadata": "flags="
 	},
 	"T307691: show-toc flag: not \"enough\" sections": {
 		"wt2wt": "==One==\n"
 	},
 	"T307691: show-toc flag: not \"enough\" sections, and __NOTOC__": {
+		"metadata": "flags=",
 		"wt2wt": "__NOTOC__\n==One==\n"
 	},
 	"T307691: show-toc flag: not \"enough\" sections, but __FORCETOC__": {
@@ -22,6 +27,9 @@
 	},
 	"T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
 		"wt2wt": "==One==\n__TOC__"
+	},
+	"Template with sections, __NOTOC__": {
+		"metadata": "flags="
 	},
 	"__FORCETOC__ override": {
 		"metadata": "flags="
