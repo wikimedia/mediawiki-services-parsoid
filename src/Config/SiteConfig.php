@@ -1313,6 +1313,19 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Get the maximum columns in a table
+	 *
+	 * central value control for the static value
+	 * so we would have the option to edit it
+	 * while not allowing different sizes across sites
+	 *
+	 * @return int
+	 */
+	public function getMaxTableColumnLintHeuristic(): int {
+		return 5;
+	}
+
+	/**
 	 * Serialize ISBN/RFC/PMID URL patterns
 	 *
 	 * @param string[] $match As returned by the getExtResourceURLPatternMatcher() matcher

@@ -1208,6 +1208,47 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Log large tables
+	 *
+	 * we need to identify the articles having such tables
+	 * to help editors optimize their articles
+	 *
+	 * @param Env $env
+	 * @param Element $node
+	 * @param DataParsoid $dp
+	 * @param ?stdClass $tplInfo
+	 */
+	private function logLargeTables( Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo ) {
+		if ( DOMCompat::nodeName( $node ) !== 'table' ) {
+			return;
+		}
+		$columnsMax = $env->getSiteConfig()->getMaxTableColumnLintHeuristic();
+		$tableRows = $node->getElementsByTagName( 'tr' );
+		foreach ( $tableRows as $row ) {
+			$columns = max( $row->getElementsByTagName( 'th' )->length,
+				$row->getElementsByTagName( 'td' )->length );
+			if ( $columns > $columnsMax ) {
+				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+				$dsr = $this->findLintDSR(
+					$templateInfo,
+					$tplInfo,
+					DOMDataUtils::getDataParsoid( $node )->dsr ?? null
+				);
+				$lintObj = [
+					'dsr' => $dsr,
+					'templateInfo' => $templateInfo,
+					'params' => [
+						'columns' => $columns,
+						'columnsMax' => $columnsMax,
+					],
+				];
+				$env->recordLint( 'large-tables', $lintObj );
+				break;
+			}
+		}
+	}
+
+	/**
 	 * Log wikitext fixups
 	 * @param Element $node
 	 * @param Env $env
@@ -1226,6 +1267,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->logBogusMediaOptions( $env, $node, $dp, $tplInfo );
 		$this->logTidyWhitespaceBug( $env, $node, $dp, $tplInfo );
 		$this->logTidyDivSpanFlip( $env, $node, $dp, $tplInfo );
+		// For T334528
+		$this->logLargeTables( $env, $node, $dp, $tplInfo );
 
 		// When an HTML table is nested inside a list and if any part of the table
 		// is on a new line, the PHP parser misnests the list and the table.

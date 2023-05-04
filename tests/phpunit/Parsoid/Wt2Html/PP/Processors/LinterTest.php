@@ -1256,4 +1256,273 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 65, 27, 1 ], $result[0]['dsr'], $desc );
 	}
+
+	/**
+	 * Provide test cases for large tables
+	 * @return array[]
+	 */
+	public function provideLargeTablesTests(): array {
+		return [
+			'6 header columns' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"! Header 1 !! Header 2 !! Header 3 !! Header 4 !! Header 5 !! Header 6",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 111, 2, 2 ]
+			],
+			'3 header columns and 6 row columns' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"! Header 1 !! Header 2 !! Header 3",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5 || Cell 6",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 105, 2, 2 ]
+			],
+			'3 header columns and 3 row columns and 6 row columns' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"! Header 1 !! Header 2 !! Header 3",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5 || Cell 6",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 137, 2, 2 ]
+			],
+			'3 row columns and 6 row columns' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5 || Cell 6",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 99, 2, 2 ]
+			],
+			'detect and exit on the first lint result' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5 || Cell 6",
+					"|-",
+					"| Cell 1 ",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5 || Cell 6 || Cell 7 || Cell 8",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 162, 2, 2 ]
+			],
+			'3 and 4 headers intermixed with table rows and but 8 row columns ' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"| Cell 1 || Cell 2",
+					"|-",
+					"! Header 1 !! Header 2 !! Header 3",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3",
+					"|-",
+					"! Header 1 !! Header 2 !! Header 3 !! Header 4",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5 || Cell 6 || Cell 7 || Cell 8",
+					"|}"
+				],
+				'columnCount' => 8,
+				'dsr' => [ 0, 229, 2, 2 ]
+			],
+			'acceptable table size' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"| Cell 1 || Cell 2",
+					"|-",
+					"! Header 1 !! Header 2 !! Header 3",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5",
+					"|-",
+					"! Header 1 !! Header 2",
+					"|-",
+					"| Cell 1 || Cell 2 || Cell 3 || Cell 4 || Cell 5",
+					"|}"
+				],
+				'columnCount' => 5
+			],
+			'acceptable table size, rows on multiple wikitext lines' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"! Header 1 !! Header 2 ",
+					"!! Header 3 !! Header 4",
+					"|-",
+					"| Cell 1 || Cell 2",
+					"|| Cell 3 || Cell 4",
+					"|}"
+				],
+				'columnCount' => 4
+			],
+			'6 header columns and 6 row columns, rows on multiple wikitext lines' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"! Header 1 !! Header 2 ",
+					"!! Header 3 !! Header 4",
+					"!! Header 5 !! Header 6",
+					"|-",
+					"| Cell 1 || Cell 2",
+					"|| Cell 3 || Cell 4",
+					"|| Cell 5 || Cell 6",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 142, 2, 2 ]
+			],
+			'Edge Case' => [
+				'wikiTextLines' => [
+					"{|",
+					"|-",
+					"|a",
+					"|-",
+					"|b",
+					"|-",
+					"|c",
+					"|-",
+					"|d",
+					"|-",
+					"|e",
+					"|-",
+					"|f",
+					"|-",
+					"| a || b || c || d || e ||f",
+					"|}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 72, 2, 2 ]
+			],
+			'transclusions 5 header columns and 6 row columns' => [
+				'wikiTextLines' => [
+					"{{1x|",
+					"<table>",
+					"<tr>",
+					"<th>Header 1</th>",
+					"<th>Header 2</th>",
+					"<th>Header 3</th>",
+					"<th>Header 4</th>",
+					"<th>Header 5</th>",
+					"</tr>",
+					"<tr>",
+					"<td>Cell 1</td>",
+					"<td>Cell 2</td>",
+					"<td>Cell 3</td>",
+					"<td>Cell 4</td>",
+					"<td>Cell 5</td>",
+					"<td>Cell 6</td>",
+					"</tr>",
+					"</table>",
+					"}}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 233, null, null ],
+				'templateName' => '1x'
+			],
+			'transclusions 6 header columns and 5 row columns' => [
+				'wikiTextLines' => [
+					"{{1x|",
+					"<table>",
+					"<tr>",
+					"<th>Header 1</th>",
+					"<th>Header 2</th>",
+					"<th>Header 3</th>",
+					"<th>Header 4</th>",
+					"<th>Header 5</th>",
+					"<th>Header 6</th>",
+					"</tr>",
+					"<tr>",
+					"<td>Cell 1</td>",
+					"<td>Cell 2</td>",
+					"<td>Cell 3</td>",
+					"<td>Cell 4</td>",
+					"<td>Cell 5</td>",
+					"</tr>",
+					"</table>",
+					"}}"
+				],
+				'columnCount' => 6,
+				'dsr' => [ 0, 235, null, null ],
+				'templateName' => '1x'
+			],
+			'transclusions 5 header columns and 5 row columns' => [
+				'wikiTextLines' => [
+					"{{1x|",
+					"<table>",
+					"<tr>",
+					"<th>Header 1</th>",
+					"<th>Header 2</th>",
+					"<th>Header 3</th>",
+					"<th>Header 4</th>",
+					"<th>Header 5</th>",
+					"</tr>",
+					"<tr>",
+					"<td>Cell 1</td>",
+					"<td>Cell 2</td>",
+					"<td>Cell 3</td>",
+					"<td>Cell 4</td>",
+					"<td>Cell 5</td>",
+					"</tr>",
+					"</table>",
+					"}}"
+				],
+				'columnCount' => 5,
+				'dsr' => [],
+				'templateName' => '1x'
+			]
+		];
+	}
+
+	/**
+	 * @covers       \Wikimedia\Parsoid\Wt2Html\ParserPipeline
+	 *
+	 * @param string[] $wikiTextLines
+	 * @param int $columnCount
+	 * @param array $dsr
+	 * @param string|null $templateName
+	 *
+	 * @dataProvider provideLargeTablesTests
+	 */
+	public function testLargeTables( $wikiTextLines, $columnCount, $dsr = [], $templateName = null ): void {
+		$opts = [];
+		$siteConfig = new MockSiteConfig( $opts );
+		$columnsMax = $siteConfig->getMaxTableColumnLintHeuristic();
+
+		$desc = 'should identify large width table for T334528';
+		$result = $this->parseWT( implode( "\n", $wikiTextLines ) );
+		$expectedCount = count( $dsr ) < 1 ? 0 : 1;
+		$this->assertCount( $expectedCount, $result, $desc );
+		if ( $expectedCount < 1 ) {
+			return;
+		}
+		$this->assertEquals( 'large-tables', $result[0]['type'], $desc );
+		$this->assertTrue( isset( $result[0]['params'] ), $desc );
+		$this->assertEquals( $columnCount, $result[0]['params']['columns'], $desc );
+		$this->assertEquals( $columnsMax, $result[0]['params']['columnsMax'], $desc );
+		$this->assertEquals( $dsr, $result[0]['dsr'], $desc );
+		if ( $templateName ) {
+			$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
+			$this->assertEquals( $templateName, $result[0]['templateInfo']['name'], $desc );
+		}
+	}
 }
