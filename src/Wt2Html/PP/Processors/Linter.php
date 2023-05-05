@@ -339,7 +339,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @return Node|null
 	 */
 	private function getHeadingAncestor( Node $node ): ?Node {
-		while ( $node && !preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) ) {
+		while ( $node && !DOMUtils::isHeading( $node ) ) {
 			$node = $node->parentNode;
 		}
 		return $node;

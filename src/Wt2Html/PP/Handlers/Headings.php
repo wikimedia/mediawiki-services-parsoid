@@ -26,7 +26,7 @@ class Headings {
 	 * @return bool
 	 */
 	public static function genAnchors( Node $node, Env $env ): bool {
-		if ( !preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) ) {
+		if ( !DOMUtils::isHeading( $node ) ) {
 			return true;
 		}
 		'@phan-var Element $node';  /** @var Element $node */

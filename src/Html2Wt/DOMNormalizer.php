@@ -585,7 +585,7 @@ class DOMNormalizer {
 		}
 
 		// Headings
-		if ( preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) ) {
+		if ( DOMUtils::isHeading( $node ) ) {
 			'@phan-var Element $node'; // @var Element $node
 			$this->hoistLinks( $node, false );
 			$this->hoistLinks( $node, true );

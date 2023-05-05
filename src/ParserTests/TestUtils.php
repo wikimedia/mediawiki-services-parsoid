@@ -277,9 +277,7 @@ class TestUtils {
 		$child = $node->firstChild;
 		// Skip over the empty mw:FallbackId <span> and strip leading WS
 		// on the other side of it.
-		if ( preg_match( '/^h[1-6]$/D', DOMCompat::nodeName( $node ) ) &&
-			$child && WTUtils::isFallbackIdSpan( $child )
-		) {
+		if ( $child && DOMUtils::isHeading( $node ) && WTUtils::isFallbackIdSpan( $child ) ) {
 			$child = $child->nextSibling;
 		}
 		for ( ; $child; $child = $next ) {
