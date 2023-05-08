@@ -8,7 +8,7 @@
 	"homepage": "https://www.mediawiki.org/wiki/Parsoid",
 	"authors": [
 		{
-			"name": "Wikimedia Parsing Team and the broader MediaWiki community",
+			"name": "Wikimedia Content Transform Team and the broader MediaWiki community",
 			"homepage": "https://www.mediawiki.org/wiki/Parsoid"
 		}
 	],
