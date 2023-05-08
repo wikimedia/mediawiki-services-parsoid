@@ -800,7 +800,7 @@ class LinterTest extends TestCase {
 		$desc = "should not trigger html5 misnesting when unclosed tag is inside a td/th/heading tags";
 		$result = $this->parseWT( "=<span id=\"1\">x=\n{|\n!<span id=\"2\">z\n|-\n|<span>id=\"3\"\n|}" );
 		$this->assertCount( 3, $result, $desc );
-		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
+		$this->assertEquals( 'missing-end-tag-in-heading', $result[0]['type'], $desc );
 		$this->assertEquals( 'missing-end-tag', $result[1]['type'], $desc );
 		$this->assertEquals( 'missing-end-tag', $result[2]['type'], $desc );
 
@@ -979,11 +979,11 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'h2', $result[0]['params']['ancestorName'], $desc );
 
-		$desc = "should not detect unclosed HTML i/b tags in headings";
+		$desc = "should detect unclosed HTML i/b tags in headings as missing-end-tag-in-heading";
 		$result = $this->parseWT( "==foo<span><i>a</span>==\nx\n==foo<span><b>a</span>==\ny" );
 		$this->assertCount( 2, $result, $desc );
-		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
-		$this->assertEquals( 'missing-end-tag', $result[1]['type'], $desc );
+		$this->assertEquals( 'missing-end-tag-in-heading', $result[0]['type'], $desc );
+		$this->assertEquals( 'missing-end-tag-in-heading', $result[1]['type'], $desc );
 	}
 
 	/**

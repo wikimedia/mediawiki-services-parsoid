@@ -503,7 +503,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 						$env->recordLint( 'misnested-tag', $lintObj );
 					} elseif ( !$this->endTagOptional( $c ) && empty( $dp->autoInsertedStart ) ) {
 						$lintObj['params']['inTable'] = DOMUtils::hasNameOrHasAncestorOfName( $c, 'table' );
-						$env->recordLint( 'missing-end-tag', $lintObj );
+						$category = $this->getHeadingAncestor( $c ) ?
+							'missing-end-tag-in-heading' : 'missing-end-tag';
+						$env->recordLint( $category, $lintObj );
 						if ( isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $c )] ) &&
 							$this->matchedOpenTagPairExists( $c, $dp )
 						) {
