@@ -3,12 +3,12 @@
 'use strict';
 
 require('../core-upgrade.js');
-var fs = require('pn/fs');
+const fs = require('pn/fs');
 
-var Promise = require('../lib/utils/promise.js');
-var ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
+const Promise = require('../lib/utils/promise.js');
+const ScriptUtils = require('./ScriptUtils.js').ScriptUtils;
 
-var wikis = [
+const wikis = [
 	{ prefix: 'enwiki', nowiki: 'nowiki added' },
 	{ prefix: 'frwiki', nowiki: 'nowiki' },
 	{ prefix: 'itwiki', nowiki: 'nowiki' },
@@ -23,16 +23,16 @@ var wikis = [
 	// { prefix: 'dewiki', nowiki: 'nowiki' },
 ];
 
-var fetchAll;
+let fetchAll = null;
 
-var processRes = Promise.async(function *(fetchArgs, out, body) {
+const processRes = Promise.async(function *(fetchArgs, out, body) {
 	// Accum titles
 	body = JSON.parse(body);
-	var stats = fetchArgs.wiki.stats;
+	const stats = fetchArgs.wiki.stats;
 	Array.from(body.query ? body.query.recentchanges : []).reduce((titles, e) => {
 		// If it is a VE edit, grab it!
 		if (e.tags.includes('visualeditor')) {
-			var date = e.timestamp.replace(/T.*$/, '');
+			const date = e.timestamp.replace(/T.*$/, '');
 			if (!stats[date]) {
 				stats[date] = 0;
 			}
@@ -51,15 +51,15 @@ var processRes = Promise.async(function *(fetchArgs, out, body) {
 		out);
 
 	// More to fetch?
-	var resContinue = body.continue;
+	const resContinue = body.continue;
 	if (resContinue) {
 		fetchArgs.opts.continue = resContinue.continue;
 		fetchArgs.opts.rccontinue = resContinue.rccontinue;
 		yield fetchAll(fetchArgs, out);
 	} else {
-		var fileName = './' + fetchArgs.prefix + '.rc_nowiki.txt';
+		const fileName = './' + fetchArgs.prefix + '.rc_nowiki.txt';
 		console.warn('Got ' + out.length + ' titles from ' + fetchArgs.prefix + '; writing to ' + fileName);
-		for (var k in stats) {
+		for (const k in stats) {
 			console.warn(fetchArgs.prefix + " date: " + k + " had " + stats[k] + " nowikied edits");
 		}
 		yield fs.writeFile(fileName, out.join('\n') + '\n');
@@ -67,7 +67,7 @@ var processRes = Promise.async(function *(fetchArgs, out, body) {
 });
 
 fetchAll = Promise.async(function *(fetchArgs, out) {
-	var requestOpts = {
+	const requestOpts = {
 		method: 'GET',
 		followRedirect: true,
 		uri: fetchArgs.apiURI,
@@ -75,14 +75,14 @@ fetchAll = Promise.async(function *(fetchArgs, out) {
 	};
 
 	// console.log('Fetching ' + fetchArgs.opts.rclimit + ' results from ' + fetchArgs.prefix + "; URI: " + fetchArgs.apiURI + "; opts: " + JSON.stringify(fetchArgs.opts));
-	var resp = yield ScriptUtils.retryingHTTPRequest(2, requestOpts);
+	const resp = yield ScriptUtils.retryingHTTPRequest(2, requestOpts);
 	yield processRes(fetchArgs, out, resp[1]);
 });
 
 Promise.all(wikis.map(function(obj) {
-	var prefix = obj.prefix;
-	var domain = prefix.replace(/wiki/, '.wikipedia.org');
-	var opts = {
+	const prefix = obj.prefix;
+	const domain = prefix.replace(/wiki/, '.wikipedia.org');
+	const opts = {
 		action: 'query',
 		list: 'recentchanges',
 		format: 'json',
@@ -105,7 +105,7 @@ Promise.all(wikis.map(function(obj) {
 	obj.stats = {};
 
 	console.log('Processing: ' + prefix);
-	var fetchArgs = {
+	const fetchArgs = {
 		wiki: obj,
 		prefix: prefix,
 		apiURI: 'http://' + domain + '/w/api.php',
