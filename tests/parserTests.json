@@ -106,11 +106,11 @@
 	},
 	"Cite": {
 		"project": "mediawiki/extensions/Cite",
-		"latestCommit": "78f02e22e3601b9d61f34a7c51e1929efa021e6f",
+		"latestCommit": "b9d5ce77305a275935be9c7c402037541db4d4d0",
 		"targets": {
 			"citeParserTests.txt": {
 				"path": "tests/parser/citeParserTests.txt",
-				"expectedSHA1": "638bdb027671464b0378919ca11e78b6942414c0"
+				"expectedSHA1": "96cb5380e24346f67b323cf203f4bfcbe7b38c5f"
 			}
 		}
 	},
