@@ -579,7 +579,7 @@ class Env {
 		// Resolve lonely fragments (important if the current page is a subpage,
 		// otherwise the relative link will be wrong)
 		if ( $str !== '' && $str[0] === '#' ) {
-			$str = $pageConfig->getTitle() . $str;
+			return $pageConfig->getTitle() . $str;
 		}
 
 		// Default return value

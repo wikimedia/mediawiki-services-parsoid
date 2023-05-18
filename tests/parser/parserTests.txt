@@ -6838,6 +6838,18 @@ subpage title=[[Subpage test/1/2/3/4]]
 </p>
 !! end
 
+!! test
+T335847: Resolve forward slash title
+!! options
+subpage title=[[/]]
+!! wikitext
+===123===
+!! html/php
+<h3><span class="mw-headline" id="123">123</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=/&amp;action=edit&amp;section=1" title="Edit section: 123">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+!! html/parsoid
+<h3 id="123" data-parsoid="{}">123</h3>
+!! end
+
 ###
 ### Categories
 ###
