@@ -590,6 +590,10 @@ class Env {
 			if ( preg_match( '!^(?:\.\./)+!', $str, $relUp ) ) {
 				$levels = strlen( $relUp[0] ) / 3;  // Levels are indicated by '../'.
 				$titleBits = explode( '/', $pageConfig->getTitle() );
+				if ( $titleBits[0] === '' ) {
+					// FIXME: Punt on subpages of titles starting with "/" for now
+					return $origName;
+				}
 				if ( count( $titleBits ) <= $levels ) {
 					// Too many levels -- invalid relative link
 					return $origName;

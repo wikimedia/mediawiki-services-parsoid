@@ -6904,6 +6904,35 @@ subpage title=[[/]]
 <h3 id="123" data-parsoid="{}">123</h3>
 !! end
 
+## The next two tests capture an inconsistency between relative link parsing on
+## the "/" page in the legacy parser.  Parsoid's output seems preferable.
+
+!! test
+T335847: Resolve subpage of control title
+!! options
+subpage title=[[Asdf]]
+!! wikitext
+[[../Hi]]
+!! html/php
+<p>[[../Hi]]
+</p>
+!! html/parsoid
+<p>[[../Hi]]</p>
+!! end
+
+!! test
+T335847: Resolve subpage of forward slash title
+!! options
+subpage title=[[/]]
+!! wikitext
+[[../Hi]]
+!! html/php
+<p><a href="/index.php?title=/Hi&amp;action=edit&amp;redlink=1" class="new" title="/Hi (page does not exist)">/Hi</a>
+</p>
+!! html/parsoid
+<p>[[../Hi]]</p>
+!! end
+
 ###
 ### Categories
 ###
