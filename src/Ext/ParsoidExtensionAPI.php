@@ -307,6 +307,16 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Are we parsing for a preview?
+	 * FIXME: Right now, we never do; when we do, this needs to be modified to reflect reality
+	 * @unstable
+	 * @return bool
+	 */
+	public function isPreview(): bool {
+		return false;
+	}
+
+	/**
 	 * FIXME: Is this something that can come from the frame?
 	 * If we are parsing in the context of a parent extension tag,
 	 * return the name of that extension tag
