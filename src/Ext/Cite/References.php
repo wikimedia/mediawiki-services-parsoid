@@ -719,7 +719,7 @@ class References extends ExtensionTagHandler {
 		};
 		$processBodyHtml = static function ( Element $n ) use ( $processEmbeddedErrors ) {
 			$dataMw = DOMDataUtils::getDataMw( $n );
-			if ( is_string( $dataMw->body->html ?? null ) ) {
+			if ( isset( $dataMw->body->html ) ) {
 				$dataMw->body->html = $processEmbeddedErrors(
 					$dataMw->body->html
 				);
@@ -813,7 +813,7 @@ class References extends ExtensionTagHandler {
 			if ( empty( $dataMw->body ) ) {
 				return $startTagSrc; // We self-closed this already.
 			} else {
-				if ( is_string( $dataMw->body->html ) ) {
+				if ( isset( $dataMw->body->html ) ) {
 					$src = $extApi->htmlToWikitext(
 						[ 'extName' => $dataMw->name ],
 						$dataMw->body->html
@@ -834,7 +834,7 @@ class References extends ExtensionTagHandler {
 		ParsoidExtensionAPI $extApi, Element $refs, callable $defaultHandler
 	): ?Node {
 		$dataMw = DOMDataUtils::getDataMw( $refs );
-		if ( is_string( $dataMw->body->html ?? null ) ) {
+		if ( isset( $dataMw->body->html ) ) {
 			$fragment = $extApi->htmlToDom( $dataMw->body->html );
 			$defaultHandler( $fragment );
 		}
