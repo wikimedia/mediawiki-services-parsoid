@@ -24,10 +24,6 @@
 	"Abort table cell attribute parsing on wikilink": {
 		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
 	},
-	"Allow aria attributes": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,175,0,0]}'><span aria-describedby=\"id1\" aria-flowto=\"id2\" aria-hidden=\"true\" aria-label=\"id3\" aria-labelledby=\"id4\" aria-owns=\"id5\" data-parsoid='{\"stx\":\"html\",\"a\":{\"aria-level\":null},\"sa\":{\"aria-level\":\"3\"},\"dsr\":[0,138,128,7]}'>foo</span>\n<span data-parsoid='{\"stx\":\"html\",\"a\":{\"aria-bogus\":null},\"sa\":{\"aria-bogus\":\"stripped\"},\"dsr\":[139,175,26,7]}'>bar</span></p>",
-		"wt2wt": "<span aria-describedby=\"id1\" aria-flowto=\"id2\" aria-hidden=\"true\" aria-label=\"id3\" aria-labelledby=\"id4\" aria-owns=\"id5\" aria-level=\"3\">foo</span>\n<span aria-bogus=\"stripped\">bar</span>"
-	},
 	"Attribute test: unquoted but illegal value (hash)": {
 		"wt2wt": "<font color=\"#x\">foo</font>"
 	},
