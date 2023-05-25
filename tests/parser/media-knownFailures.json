@@ -17,6 +17,15 @@
 	"Image: upright option is ignored on inline and frame images (parsoid)": {
 		"wt2wt": "[[File:Foobar.jpg|500x500px|caption]]"
 	},
+	"SVG thumbnails in page language": {
+		"wt2wt": "[[Файл:Foobar.svg]] [[Файл:Foobar.svg|lang=en]]\n\n<gallery>\nФайл:Foobar.svg\nФайл:Foobar.svg|link=Файл:Foobar.svg?lang=en\n</gallery>"
+	},
+	"SVG thumbnails in page language not present in the file": {
+		"wt2wt": "[[Datei:Foobar.svg]] [[Datei:Foobar.svg|sprache=ru]]\n\n<gallery>\nDatei:Foobar.svg\nDatei:Foobar.svg|link=Datei:Foobar.svg?lang=ru\n</gallery>"
+	},
+	"SVG thumbnails with language de": {
+		"wt2wt": "[[File:Foobar.svg|lang=de|thumb|caption]]\n\n<gallery>\nFile:Foobar.svg|link=File:Foobar.svg?lang=de|caption\n</gallery>"
+	},
 	"Simple image redirect": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[],\"dsr\":[0,32,null,null]}'><a href=\"./File:Redirect_to_foobar.jpg\" class=\"mw-file-description\" data-parsoid=\"{}\"><img resource=\"./File:Redirect_to_foobar.jpg\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Redirect_to_foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"Image:Redirect to foobar.jpg\"}}'/></a></span></p>"
 	},

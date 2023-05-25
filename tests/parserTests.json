@@ -16,7 +16,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "85a3cc74c4d3743d3547eb68265a42a36c5a3027",
+		"latestCommit": "a4cb5e65199275b3c222393131fcc3a6a6bea0e1",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -48,7 +48,7 @@
 			},
 			"legacyMedia.txt": {
 				"path": "tests/parser/legacyMedia.txt",
-				"expectedSHA1": "ce69b4407404c89d8a15fec0e2f0784b55207906"
+				"expectedSHA1": "40a855365f5b44a7fb46897c95ee93fd31c5b136"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
@@ -60,11 +60,11 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "7be542493b19ef66ce0714cae67eb2a622ec62ef"
+				"expectedSHA1": "2436a85454cb7b3568a98f84bae2fda1bc4fa91e"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "7a1e2ae75d90da88150ecf38222dadae277f53c0"
+				"expectedSHA1": "16a4a61b787bf9e81c6341a72782996a15390e47"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -96,7 +96,7 @@
 			},
 			"toc.txt": {
 				"path": "tests/parser/toc.txt",
-				"expectedSHA1": "6156db6e83178b9443f221048ef17dab2d988d01"
+				"expectedSHA1": "698f88214db25645bd203a9a8f9fb30875931d07"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
@@ -116,11 +116,11 @@
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "728422d6cdfe48b2d0d7f38712246dc40c78b21b",
+		"latestCommit": "a65047d4e607bde988db952acdc191df339aad3c",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "8d680e8415cd66dffa16c477fc9c0a7c0e6ce921"
+				"expectedSHA1": "eab2627d18940df99dff5bf0096037a364394a31"
 			}
 		}
 	},
@@ -137,11 +137,11 @@
 	},
 	"ImageMap": {
 		"project": "mediawiki/extensions/ImageMap",
-		"latestCommit": "6d83c5bc21368f80af7d9dc3f454ebd93b69b8d9",
+		"latestCommit": "1a8f86e41b046f9588420df4b38e0f9ad2ef3a13",
 		"targets": {
 			"imageMapParserTests.txt": {
 				"path": "tests/parser/imageMapParserTests.txt",
-				"expectedSHA1": "43875ab2379c438471764f92c169df9e446a6196"
+				"expectedSHA1": "6d9b45e238b4053aada8a2455d7eb4c6af6974d2"
 			}
 		}
 	}

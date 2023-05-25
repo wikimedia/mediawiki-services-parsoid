@@ -164,6 +164,29 @@
     "Accept empty td cell attribute": {
         "html2wt": "{|\n| align=\"center\" |foo\n|\n|}"
     },
+    "Allow aria attributes": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,175,0,0]}'><span aria-describedby=\"id1\" aria-flowto=\"id2\" aria-hidden=\"true\" aria-label=\"id3\" aria-labelledby=\"id4\" aria-owns=\"id5\" data-parsoid='{\"stx\":\"html\",\"a\":{\"aria-level\":null},\"sa\":{\"aria-level\":\"3\"},\"dsr\":[0,138,128,7]}'>foo</span>\n<span data-parsoid='{\"stx\":\"html\",\"a\":{\"aria-bogus\":null},\"sa\":{\"aria-bogus\":\"stripped\"},\"dsr\":[139,175,26,7]}'>bar</span></p>",
+        "wt2wt": "<span aria-describedby=\"id1\" aria-flowto=\"id2\" aria-hidden=\"true\" aria-label=\"id3\" aria-labelledby=\"id4\" aria-owns=\"id5\" aria-level=\"3\">foo</span>\n<span aria-bogus=\"stripped\">bar</span>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,163,0,0]}'><span aria-describedby=\"id1\" aria-flowto=\"id2\" aria-hidden=\"true\" aria-label=\"id3\" aria-labelledby=\"id4\" aria-owns=\"id5\" data-parsoid='{\"stx\":\"html\",\"a\":{\"aria-level\":null},\"sa\":{\"aria-level\":\"3\"},\"dsr\":[0,146,136,7]}'>foo</span>\n<span data-parsoid='{\"stx\":\"html\",\"dsr\":[147,163,6,7]}'>bar</span></p>\n",
+        "html2wt": "<span aria-describedby=\"id1\" aria-flowto=\"id2\" aria-hidden=\"true\" aria-label=\"id3\" aria-labelledby=\"id4\" aria-level=\"3\" aria-owns=\"id5\">foo</span>\n<span>bar</span>\n",
+        "selser [2]": "yassew\n\n<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>\n<span aria-bogus=stripped>bar</span>",
+        "selser [1]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>\n<span aria-bogus=stripped>bar</span>",
+        "selser [[0,0,4]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>\nbk6zdr",
+        "selser [[[4],2,0]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>64k7z2</span>mrkpkf\n<span aria-bogus=stripped>bar</span>",
+        "selser [[2,4,4]]": "1dnnc6z<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>id5epg16b2i4g",
+        "selser [[3,4,2]]": "tvutit1novkmh<span aria-bogus=stripped>bar</span>",
+        "selser [[4,4,[4]]]": "1wtdq7qllo2xt<span aria-bogus=stripped>1amlyfz</span>",
+        "selser [[0,4,[4]]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>1pkgf6i<span aria-bogus=stripped>b00s2w</span>",
+        "selser [[0,4,0]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>r9nsrl<span aria-bogus=stripped>bar</span>",
+        "selser [[0,3,1]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span><span data-foobar=\"16g802l\" aria-bogus=\"stripped\">bar</span>",
+        "selser [[4,0,[4]]]": "4g1iwu\n<span aria-bogus=stripped>6b1bm6</span>",
+        "selser [[2,2,0]]": "1uth68c<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>1q3vzi7\n<span aria-bogus=stripped>bar</span>",
+        "selser [[2,2,2]]": "pswrgd<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>foo</span>nepi00\nkft4f9<span aria-bogus=stripped>bar</span>",
+        "selser [[[4],2,2]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>rribjx</span>11uqlrh\ne6km9n<span aria-bogus=stripped>bar</span>",
+        "selser [[[2],3,3]]": "<span aria-describedby=id1 aria-flowto=id2 aria-hidden=true\n      aria-label=id3 aria-labelledby=id4 aria-level=3 aria-owns=id5>dr857efoo</span>",
+        "selser [[3,0,0]]": "\n<span aria-bogus=stripped>bar</span>",
+        "selser [[3,0,[3]]]": "\n<span aria-bogus=stripped></span>"
+    },
     "Attribute test: unquoted but illegal value (hash)": {
         "wt2wt": "<font color=\"#x\">foo</font>",
         "html2wt": "<font color=\"#x\">foo</font>\n",

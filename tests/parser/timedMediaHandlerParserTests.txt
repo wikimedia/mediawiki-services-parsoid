@@ -38,7 +38,7 @@ wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|thumb]]
 !! html/php
-<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" class="mw-file-element" width="180" height="135" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span><figcaption></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" class="mw-file-element" width="180" height="135" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local" resource="/wiki/File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span><figcaption></figcaption></figure>
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" height="135" width="180" resource="./File:Video.ogv" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span><figcaption></figcaption></figure>
 !! end
@@ -162,7 +162,7 @@ wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Video.ogv|thumbnail=Foobar.jpg]]
 !! html/php
-<figure typeof="mw:File/Thumb"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a><figcaption></figcaption></figure>
+<figure typeof="mw:File/Thumb"><a href="/wiki/File:Video.ogv" title="File:Video.ogv"><img resource="/wiki/File:Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a><figcaption></figcaption></figure>
 !! html/parsoid
 <figure typeof="mw:File/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Foobar.jpg"}]]}'><a href="./File:Video.ogv" class="mw-file-description"><img resource="./File:Video.ogv" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" data-parsoid='{"a":{"resource":"./File:Video.ogv","height":"220","width":"1941"},"sa":{"resource":"File:Video.ogv"}}' class="mw-file-element"/></a><figcaption></figcaption></figure>
 !! end
@@ -186,7 +186,7 @@ wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Foobar.jpg|thumbnail=Video.ogv]]
 !! html/php
-<figure typeof="mw:File/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span><figcaption></figcaption></figure>
+<figure typeof="mw:File/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local" resource="/wiki/File:Foobar.jpg"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source" data-width="320" data-height="240" data-bandwidth="590013" data-framerate="30" /></video></span><figcaption></figcaption></figure>
 !! html/parsoid
 <figure typeof="mw:File/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Video.ogv"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Foobar.jpg" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240" data-title="Original Ogg file, 320 × 240 (590 kbps)" data-shorttitle="Ogg source"/></video></span><figcaption></figcaption></figure>
 !! end
