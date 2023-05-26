@@ -38,6 +38,10 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 	private const TOP_LEFT = 3;
 	private const NONE = 4;
 
+	private const DESC_TYPE_MAP = [
+		'top-right', 'bottom-right', 'bottom-left', 'top-left'
+	];
+
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
@@ -299,8 +303,21 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 			$thumb->insertBefore( $mapHTML, $imageNode->parentNode->nextSibling );
 		}
 
+		// For T22030
+		DOMCompat::getClassList( $thumb )->add( 'noresize' );
+
 		// Determine whether a "magnify" link is present
-		// FIXME: Find a css way to achieving this
+		$typeOf = $thumb->getAttribute( 'typeof' ) ?? '';
+		if ( !preg_match( '#\bmw:File/Thumb\b#', $typeOf ) && $descType !== self::NONE ) {
+			// The following classes are used here:
+			// * mw-ext-imagemap-desc-top-right
+			// * mw-ext-imagemap-desc-bottom-right
+			// * mw-ext-imagemap-desc-bottom-left
+			// * mw-ext-imagemap-desc-top-left
+			DOMCompat::getClassList( $thumb )->add(
+				'mw-ext-imagemap-desc-' . self::DESC_TYPE_MAP[$descType]
+			);
+		}
 
 		if ( $defaultLinkAttribs ) {
 			$defaultAnchor = $domFragment->ownerDocument->createElement( 'a' );
@@ -321,8 +338,8 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 			}
 		}
 
-		// For T22030
-		DOMCompat::getClassList( $thumb )->add( 'noresize' );
+		$extApi->getMetadata()->addModules( $this->getModules() );
+		$extApi->getMetadata()->addModuleStyles( $this->getModuleStyles() );
 
 		$domFragment->appendChild( $thumb );
 		return $domFragment;
@@ -352,6 +369,20 @@ class ImageMap extends ExtensionTagHandler implements ExtensionModule {
 			throw new ExtensionError( 'imagemap_missing_coord', $lineNum );
 		}
 		return $coords;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getModules(): array {
+		return [ 'ext.imagemap' ];
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getModuleStyles(): array {
+		return [ 'ext.imagemap.styles' ];
 	}
 
 }
