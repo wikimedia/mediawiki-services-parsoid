@@ -74,24 +74,33 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 
 		$node = $range->startElem;
 		$inline = true;
-		while ( $node !== $range->endElem ) {
-			$node = $node->nextSibling;
-			if ( $node instanceof Element && DOMUtils::hasBlockTag( $node ) ) {
+		while ( $node !== $range->endElem && $node !== null ) {
+			if ( DOMUtils::hasBlockTag( $node ) ) {
 				$inline = false;
 				break;
 			}
+			$node = $node->nextSibling;
+		}
+		if ( $inline && $node !== null && DOMUtils::hasBlockTag( $node ) ) {
+			$inline = false;
 		}
 
 		$wrap = $parent->ownerDocument->createElement( $inline ? 'span' : 'div' );
 		$parent->insertBefore( $wrap, $range->startElem );
 
 		$toMove = $range->startElem;
-		while ( $toMove !== $range->endElem ) {
+		while ( $toMove !== $range->endElem && $toMove !== null ) {
 			$nextToMove = $toMove->nextSibling;
 			$wrap->appendChild( $toMove );
 			$toMove = $nextToMove;
 		}
-		$wrap->appendChild( $toMove );
+
+		if ( $toMove !== null ) {
+			$wrap->appendChild( $toMove );
+		} else {
+			$this->env->log( 'warn', "End of annotation range [$actualRangeStart, $actualRangeEnd] not found. " .
+				"Document marked uneditable until its end." );
+		}
 
 		$wrap->setAttribute( "typeof", "mw:ExtendedAnnRange" );
 

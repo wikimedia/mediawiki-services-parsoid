@@ -967,3 +967,14 @@ parsoid=wt2html
 !! html/parsoid
 <meta typeof="mw:Param mw:Annotation/dummyanno" about="#mwt1" data-mw='{"parts":[{"templatearg":{"target":{"wt":"1"},"params":{"1":{"wt":"&lt;dummyanno>&lt;!--T:2--> Purge&lt;/dummyanno>"}},"i":0}}],"rangeId":"mwa0","extendedRange":false,"wtOffsets":[5,16]}'/><span about="#mwt1"><!--T:2--></span><pre about="#mwt1">Purge</pre><meta typeof="mw:Annotation/dummyanno/End" about="#mwt1" data-mw='{"wtOffsets":[32,44]}'/>
 !! end
+
+!! test
+Should not crash or infiniloop - T325575
+!! options
+annotations=1
+parsoid=wt2html
+!! wikitext
+<dummyanno><ann2><code>hello</ann2></dummyanno></code>
+!! html/parsoid
+<p><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[0,11]}'/><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/ann2" data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[11,17]}'/><code data-parsoid='{"stx":"html"}'>hello</code><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[35,47]}'/><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[28,35]}'/></span></span></p>
+!! end
