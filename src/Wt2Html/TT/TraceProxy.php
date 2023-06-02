@@ -102,6 +102,8 @@ class TraceProxy extends TokenHandler {
 	 */
 	public function resetState( array $options ): void {
 		$this->handler->resetState( $options );
+		// Copy onAnyEnabled for TraceProxy::process() to read
+		$this->onAnyEnabled = $this->handler->onAnyEnabled;
 	}
 
 	/**
