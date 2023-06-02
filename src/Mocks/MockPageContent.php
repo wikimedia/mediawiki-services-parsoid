@@ -70,9 +70,4 @@ class MockPageContent extends PageContent {
 		return $this->data[$role]['content'];
 	}
 
-	/** @inheritDoc */
-	public function getRedirectTarget(): ?string {
-		return $this->data['main']['redirect'] ?? null;
-	}
-
 }
