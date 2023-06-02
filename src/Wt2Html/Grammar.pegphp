@@ -508,7 +508,9 @@ redirect_word =
  * The actual contents of each block.
  */
 block =
-	// has to be first alternative; otherwise gets parsed as a <ol>
+	// Redirect has to be the first alternative; otherwise it gets parsed as a <ol>
+	// In practice, WikiContent::getRedirectTargetAndText() in MediaWiki strips
+	// the redirect from the source so it never sees it.
 	&sof r:redirect cil:sol_transparent* bl:block_line? {
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	}
