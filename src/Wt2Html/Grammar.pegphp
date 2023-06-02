@@ -552,7 +552,7 @@ block_lines =
 	// eat an empty line before the block
 	s2:(os:optionalSpaceToken so:sol { return array_merge( $os, $so ); })?
 	bl:block_line {
-		return array_merge( $s, $s2 ?: [], is_array( $bl ) ? $bl : [ $bl ] );
+		return array_merge( $s, $s2 ?: [], $bl );
 	}
 
 // Horizontal rules
@@ -568,7 +568,7 @@ hr =
 		if ( strlen( $d ) > 0 ) {
 			$dataParsoid->extra_dashes = strlen( $d );
 		}
-		return new SelfclosingTagTk( 'hr', [], $dataParsoid );
+		return [new SelfclosingTagTk( 'hr', [], $dataParsoid )];
 	}
 
 /*

@@ -218,6 +218,8 @@ Redirect followed by block on the same line
 parsoid=wt2html
 !! wikitext
 #REDIRECT [[Main Page]]<!-- haha -->==hi==
+!! html/php
+<ol><li>REDIRECT <a href="/wiki/Main_Page" title="Main Page">Main Page</a>==hi==</li></ol>
 !! html/parsoid
 <link rel="mw:PageProp/redirect" href="./Main_Page"/><!-- haha --><h2 id="hi">hi</h2>
 !! end
@@ -280,4 +282,16 @@ Broken redirect shouldn't crash parsoid (T332242)
 !! html/parsoid+standalone
 <!-- Not a valid redirect nor a valid parser function -->
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#REDIRECT [[]]","function":"REDIRECT [[]]"},"params":{},"i":0}}]}'>Parser function implementation for pf_REDIRECT [[]] missing in Parsoid.</span></p>
+!! end
+
+!! test
+Redirect followed by horizontal rule
+!! options
+parsoid=wt2html
+!! wikitext
+#REDIRECT [[Main Page]]----
+!! html/php
+<ol><li>REDIRECT <a href="/wiki/Main_Page" title="Main Page">Main Page</a>----</li></ol>
+!! html/parsoid
+<link rel="mw:PageProp/redirect" href="./Main_Page"/><hr/>
 !! end

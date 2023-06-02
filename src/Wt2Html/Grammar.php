@@ -953,7 +953,7 @@ private function a71($s, $os, $so) {
 }
 private function a72($s, $s2, $bl) {
 
-		return array_merge( $s, $s2 ?: [], is_array( $bl ) ? $bl : [ $bl ] );
+		return array_merge( $s, $s2 ?: [], $bl );
 	
 }
 private function a73(&$preproc, $t) {
@@ -1182,7 +1182,7 @@ private function a96($d, $lineContent) {
 		if ( strlen( $d ) > 0 ) {
 			$dataParsoid->extra_dashes = strlen( $d );
 		}
-		return new SelfclosingTagTk( 'hr', [], $dataParsoid );
+		return [new SelfclosingTagTk( 'hr', [], $dataParsoid )];
 	
 }
 private function a97($p, $target) {
