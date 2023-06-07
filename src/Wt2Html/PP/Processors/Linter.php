@@ -1329,6 +1329,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 			// Let native extensions lint their content
 			$nativeExt = WTUtils::getNativeExt( $env, $node );
 			if ( $nativeExt ) {
+				if ( !$this->extApi ) {
+					$this->extApi = new ParsoidExtensionAPI( $env );
+				}
 				$nextNode = $nativeExt->lintHandler(
 					$this->extApi,
 					$node,
@@ -1383,7 +1386,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$timer = Timing::start( $metrics );
 		}
 
-		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->findLints( $root, $env );
 		$this->postProcessLints( $env->getLints(), $env );
 
