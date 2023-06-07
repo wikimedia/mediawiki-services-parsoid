@@ -60,7 +60,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			// See Ifaf53862b96e9127d8f375ad8dd0cc362cba9f5b in gerrit;
 			// this should use the \ParserTestRunner::runParsoidTest()
 			// method from core.
-			throw new \MWException( "Not yet implemented" );
+			throw new \RuntimeException( "Not yet implemented" );
 		} else {
 			foreach ( $testFilePaths as $testFile ) {
 				$testRunner = new TestRunner( $testFile, 'standalone', $this->processedOptions['modes'] );
