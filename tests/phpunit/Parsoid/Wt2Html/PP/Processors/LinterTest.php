@@ -190,6 +190,19 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 8, 17, 6, 0 ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
+
+		$desc = 'should lint stripped tags in nested pipelines (T338325)';
+		$result = $this->parseWT(
+			"[[Special:Contributions/Yellow Evan|Hurricane</font>]]\n\n" .
+			"[[File:Foobar.jpg|thumb|[[Normande Cattle|Normande cow]]</center>]]\n\n" .
+			"<gallery>\n" .
+			"File:Foobar.jpg|... a [[black-collared barbet]], waiting to be fed</center>\n" .
+			"</gallery>"
+		);
+		$this->assertCount( 3, $result, $desc );
+		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
+		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
+		$this->assertEquals( 'stripped-tag', $result[2]['type'], $desc );
 	}
 
 	/**
