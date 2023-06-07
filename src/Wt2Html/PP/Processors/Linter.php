@@ -1333,8 +1333,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 					$this->extApi,
 					$node,
 					function ( $extRootNode ) use ( $env, $tplInfo ) {
-						return $this->findLints( $extRootNode, $env,
-							empty( $tplInfo->isTemplated ) ? null : $tplInfo );
+						$this->findLints(
+							$extRootNode, $env,
+							empty( $tplInfo->isTemplated ) ? null : $tplInfo
+						);
 					}
 				);
 			}
