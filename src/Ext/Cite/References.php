@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Cite;
 
+use Closure;
 use stdClass;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -793,6 +794,16 @@ class References extends ExtensionTagHandler {
 		);
 		$domFragment->appendChild( $frag );
 		return $domFragment;
+	}
+
+	/** @inheritDoc */
+	public function processAttributeEmbeddedHTML(
+		ParsoidExtensionAPI $extApi, Element $elt, Closure $proc
+	): void {
+		$dataMw = DOMDataUtils::getDataMw( $elt );
+		if ( isset( $dataMw->body->html ) ) {
+			$dataMw->body->html = $proc( $dataMw->body->html );
+		}
 	}
 
 	/** @inheritDoc */

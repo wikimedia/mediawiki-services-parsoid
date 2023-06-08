@@ -618,6 +618,9 @@ class ParsoidExtensionAPI {
 	 *
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
+	 *        Signature: (string) -> string
+	 *        This processor will be provided the HTML string as input
+	 *        and is expected to return a possibly modified string.
 	 */
 	public function processAttributeEmbeddedHTML( Element $elt, Closure $proc ): void {
 		/* -----------------------------------------------------------------
@@ -675,6 +678,17 @@ class ParsoidExtensionAPI {
 				$dmw->caption = $proc( $caption );
 			}
 		}
+
+		// Process extension-specific embedded HTML
+		$typeOf = $elt->getAttribute( 'typeof' );
+		if ( $typeOf && preg_match( '#^mw:Extension/(.+?)$#D', $typeOf, $match ) ) {
+			$tagName = $match[1];
+			$extConfig = $this->getSiteConfig()->getExtTagConfig( $tagName );
+			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
+				$tagHandler = $this->getSiteConfig()->getExtTagImpl( $tagName );
+				$tagHandler->processAttributeEmbeddedHTML( $this, $elt, $proc );
+			}
+		}
 	}
 
 	/**
@@ -713,7 +727,7 @@ class ParsoidExtensionAPI {
 	/**
 	 * Parse input string into DOM.
 	 * NOTE: This leaves the DOM in Parsoid-canonical state and is the preferred method
-	 * to convert HTML to DOM that will be passed into Parsoid's code processing code.
+	 * to convert HTML to DOM that will be passed into Parsoid's processing code.
 	 *
 	 * @param string $html
 	 * @param ?Document $doc XXX You probably don't want to be doing this

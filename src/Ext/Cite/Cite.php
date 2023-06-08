@@ -22,7 +22,10 @@ class Cite implements ExtensionModule {
 					'name' => 'ref',
 					'handler' => Ref::class,
 					'options' => [
-						'wt2html' => [ 'unpackOutput' => false ],
+						'wt2html' => [
+							'unpackOutput' => false,
+							'embedsHTMLInAttributes' => true
+						],
 						'outputHasCoreMwDomSpecMarkup' => true
 					],
 				],
@@ -30,6 +33,9 @@ class Cite implements ExtensionModule {
 					'name' => 'references',
 					'handler' => References::class,
 					'options' => [
+						'wt2html' => [
+							'embedsHTMLInAttributes' => true
+						],
 						'html2wt' => [ 'format' => 'block' ],
 						'outputHasCoreMwDomSpecMarkup' => true
 					],
