@@ -610,7 +610,7 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Extensions might be interested in examining their content embedded
+	 * Extensions might be interested in examining (their) content embedded
 	 * in data-mw attributes that don't otherwise show up in the DOM.
 	 *
 	 * Ex: inline media captions that aren't rendered, language variant markup,
@@ -619,7 +619,7 @@ class ParsoidExtensionAPI {
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
 	 */
-	public function processHTMLHiddenInDataAttributes( Element $elt, Closure $proc ): void {
+	public function processAttributeEmbeddedHTML( Element $elt, Closure $proc ): void {
 		/* -----------------------------------------------------------------
 		 * FIXME: This works but feels special cased, maybe?
 		 *
