@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use Closure;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
@@ -11,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
@@ -18,6 +20,8 @@ use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
  * by parsing source input (ex: wikitext)
  */
 class ContentUtils {
+	private static ?ParsoidExtensionAPI $extAPI = null; // FIXME: UGH!
+
 	/**
 	 * XML Serializer.
 	 *
@@ -148,6 +152,91 @@ class ContentUtils {
 	}
 
 	/**
+	 * Extensions might be interested in examining their content embedded
+	 * in data-mw attributes that don't otherwise show up in the DOM.
+	 *
+	 * Ex: inline media captions that aren't rendered, language variant markup,
+	 *     attributes that are transcluded. More scenarios might be added later.
+	 *
+	 * @param ParsoidExtensionAPI $extAPI
+	 * @param Element $elt The node whose data attributes need to be examined
+	 * @param Closure $proc The processor that will process the embedded HTML
+	 *        Signature: (string) -> string
+	 *        This processor will be provided the HTML string as input
+	 *        and is expected to return a possibly modified string.
+	 */
+	public static function processAttributeEmbeddedHTML(
+		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
+	): void {
+		/* -----------------------------------------------------------------
+		 * FIXME: This works but feels special cased, maybe?
+		 *
+		 * We should also be running DOM cleanup passes on embedded HTML
+		 * in data-mw and other attributes.
+		 *
+		 * See T214994
+		 * ----------------------------------------------------------------- */
+		// Expanded attributes
+		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
+			$dmw = DOMDataUtils::getDataMw( $elt );
+			if ( $dmw->attribs ?? null ) {
+				foreach ( $dmw->attribs as &$a ) {
+					foreach ( $a as $kOrV ) {
+						if ( gettype( $kOrV ) !== 'string' && isset( $kOrV->html ) ) {
+							$kOrV->html = $proc( $kOrV->html );
+						}
+					}
+				}
+			}
+		}
+
+		// Language variant markup
+		if ( DOMUtils::matchTypeOf( $elt, '/^mw:LanguageVariant$/' ) ) {
+			$dmwv = DOMDataUtils::getJSONAttribute( $elt, 'data-mw-variant', null );
+			if ( $dmwv ) {
+				if ( isset( $dmwv->disabled ) ) {
+					$dmwv->disabled->t = $proc( $dmwv->disabled->t );
+				}
+				if ( isset( $dmwv->twoway ) ) {
+					foreach ( $dmwv->twoway as $l ) {
+						$l->t = $proc( $l->t );
+					}
+				}
+				if ( isset( $dmwv->oneway ) ) {
+					foreach ( $dmwv->oneway as $l ) {
+						$l->f = $proc( $l->f );
+						$l->t = $proc( $l->t );
+					}
+				}
+				if ( isset( $dmwv->filter ) ) {
+					$dmwv->filter->t = $proc( $dmwv->filter->t );
+				}
+				DOMDataUtils::setJSONAttribute( $elt, 'data-mw-variant', $dmwv );
+			}
+		}
+
+		// Inline media -- look inside the data-mw attribute
+		if ( WTUtils::isInlineMedia( $elt ) ) {
+			$dmw = DOMDataUtils::getDataMw( $elt );
+			$caption = $dmw->caption ?? null;
+			if ( $caption ) {
+				$dmw->caption = $proc( $caption );
+			}
+		}
+
+		// Process extension-specific embedded HTML
+		$typeOf = $elt->getAttribute( 'typeof' );
+		if ( $typeOf && preg_match( '#^mw:Extension/(.+?)$#D', $typeOf, $match ) ) {
+			$tagName = $match[1];
+			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $tagName );
+			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
+				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $tagName );
+				$tagHandler->processAttributeEmbeddedHTML( $extAPI, $elt, $proc );
+			}
+		}
+	}
+
+	/**
 	 * Shift the DSR of a DOM fragment.
 	 * @param Env $env
 	 * @param Node $rootNode
@@ -182,55 +271,11 @@ class ContentUtils {
 				$dp->extTagOffsets = $dsrFunc( clone $dp->extTagOffsets );
 			}
 
-			// Handle embedded HTML in Language Variant markup
-			$dmwv = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', null );
-			if ( $dmwv ) {
-				if ( isset( $dmwv->disabled ) ) {
-					$dmwv->disabled->t = $convertString( $dmwv->disabled->t );
-				}
-				if ( isset( $dmwv->twoway ) ) {
-					foreach ( $dmwv->twoway as $l ) {
-						$l->t = $convertString( $l->t );
-					}
-				}
-				if ( isset( $dmwv->oneway ) ) {
-					foreach ( $dmwv->oneway as $l ) {
-						$l->f = $convertString( $l->f );
-						$l->t = $convertString( $l->t );
-					}
-				}
-				if ( isset( $dmwv->filter ) ) {
-					$dmwv->filter->t = $convertString( $dmwv->filter->t );
-				}
-				DOMDataUtils::setJSONAttribute( $node, 'data-mw-variant', $dmwv );
+			// Handle embedded HTML in attributes
+			if ( self::$extAPI === null ) {
+				self::$extAPI = new ParsoidExtensionAPI( $env );
 			}
-
-			if (
-				DOMUtils::matchTypeOf( $node, '#^mw:Extension/(.+?)$#D' ) ||
-				WTUtils::hasExpandedAttrsType( $node ) ||
-				WTUtils::isInlineMedia( $node )
-			) {
-				$dmw = DOMDataUtils::getDataMw( $node );
-				// Handle embedded HTML in template-affected attributes
-				if ( $dmw->attribs ?? null ) {
-					foreach ( $dmw->attribs as &$a ) {
-						foreach ( $a as $kOrV ) {
-							if ( gettype( $kOrV ) !== 'string' && isset( $kOrV->html ) ) {
-								$kOrV->html = $convertString( $kOrV->html );
-							}
-						}
-					}
-				}
-				// Handle embedded HTML in inline media captions
-				if ( $dmw->caption ?? null ) {
-					$dmw->caption = $convertString( $dmw->caption );
-				}
-				// FIXME: Cite-specific handling here maybe?
-				if ( $dmw->body->html ?? null ) {
-					$dmw->body->html = $convertString( $dmw->body->html );
-				}
-				DOMDataUtils::setDataMw( $node, $dmw );
-			}
+			self::processAttributeEmbeddedHTML( self::$extAPI, $node, $convertString );
 
 			// DOMFragments will have already been unpacked when DSR shifting is run
 			if ( DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) ) {
