@@ -20,7 +20,6 @@ use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
  * by parsing source input (ex: wikitext)
  */
 class ContentUtils {
-	private static ?ParsoidExtensionAPI $extAPI = null; // FIXME: UGH!
 
 	/**
 	 * XML Serializer.
@@ -241,9 +240,12 @@ class ContentUtils {
 	 * @param Env $env
 	 * @param Node $rootNode
 	 * @param callable $dsrFunc
+	 * @param ParsoidExtensionAPI $extAPI
 	 * @return Node Returns the $rootNode passed in to allow chaining.
 	 */
-	public static function shiftDSR( Env $env, Node $rootNode, callable $dsrFunc ): Node {
+	public static function shiftDSR(
+		Env $env, Node $rootNode, callable $dsrFunc, ParsoidExtensionAPI $extAPI
+	): Node {
 		$doc = $rootNode->ownerDocument;
 		$convertString = static function ( $str ) {
 			// Stub $convertString out to allow definition of a pair of
@@ -251,7 +253,7 @@ class ContentUtils {
 			return $str;
 		};
 		$convertNode = static function ( Node $node ) use (
-			$env, $dsrFunc, &$convertString, &$convertNode
+			$env, $extAPI, $dsrFunc, &$convertString, &$convertNode
 		) {
 			if ( !( $node instanceof Element ) ) {
 				return;
@@ -272,10 +274,7 @@ class ContentUtils {
 			}
 
 			// Handle embedded HTML in attributes
-			if ( self::$extAPI === null ) {
-				self::$extAPI = new ParsoidExtensionAPI( $env );
-			}
-			self::processAttributeEmbeddedHTML( self::$extAPI, $node, $convertString );
+			self::processAttributeEmbeddedHTML( $extAPI, $node, $convertString );
 
 			// DOMFragments will have already been unpacked when DSR shifting is run
 			if ( DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) ) {
@@ -350,7 +349,8 @@ class ContentUtils {
 			return $dsr;
 		};
 		$body = DOMCompat::getBody( $doc );
-		self::shiftDSR( $env, $body, $collectDSR );
+		$extAPI = new ParsoidExtensionAPI( $env );
+		self::shiftDSR( $env, $body, $collectDSR, $extAPI );
 		if ( count( $offsets ) === 0 ) {
 			return; /* nothing to do (shouldn't really happen) */
 		}
@@ -376,7 +376,7 @@ class ContentUtils {
 				$start, $end, $openWidth, $closeWidth
 			);
 		};
-		self::shiftDSR( $env, $body, $applyDSR );
+		self::shiftDSR( $env, $body, $applyDSR, $extAPI );
 	}
 
 	/**

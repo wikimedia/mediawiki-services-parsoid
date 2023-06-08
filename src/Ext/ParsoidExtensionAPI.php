@@ -407,7 +407,7 @@ class ParsoidExtensionAPI {
 			}
 
 			if ( $dsrFn ) {
-				ContentUtils::shiftDSR( $this->env, $domFragment, $dsrFn );
+				ContentUtils::shiftDSR( $this->env, $domFragment, $dsrFn, $this );
 			}
 		}
 		return $domFragment;
