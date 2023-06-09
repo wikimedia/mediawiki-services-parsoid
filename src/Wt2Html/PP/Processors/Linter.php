@@ -1269,8 +1269,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->logBogusMediaOptions( $env, $node, $dp, $tplInfo );
 		$this->logTidyWhitespaceBug( $env, $node, $dp, $tplInfo );
 		$this->logTidyDivSpanFlip( $env, $node, $dp, $tplInfo );
-		// For T334528
-		$this->logLargeTables( $env, $node, $dp, $tplInfo );
 
 		// When an HTML table is nested inside a list and if any part of the table
 		// is on a new line, the PHP parser misnests the list and the table.

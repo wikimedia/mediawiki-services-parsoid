@@ -1502,8 +1502,10 @@ class LinterTest extends TestCase {
 	 * @param string|null $templateName
 	 *
 	 * @dataProvider provideLargeTablesTests
+	 * @
 	 */
 	public function testLargeTables( $wikiTextLines, $columnCount, $dsr = [], $templateName = null ): void {
+		$this->markTestSkipped( 'Skipped test for T334528 - large tables are not enabled lint rule' );
 		$opts = [];
 		$siteConfig = new MockSiteConfig( $opts );
 		$columnsMax = $siteConfig->getMaxTableColumnLintHeuristic();
