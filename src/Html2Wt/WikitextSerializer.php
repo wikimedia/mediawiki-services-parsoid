@@ -1066,15 +1066,24 @@ class WikitextSerializer {
 	 * @return string
 	 */
 	public function defaultExtensionHandler( Element $node, SerializerState $state ): string {
+		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$src = $this->serializeExtensionStartTag( $node, $state );
 		if ( !isset( $dataMw->body ) ) {
 			return $src; // We self-closed this already.
 		} elseif ( is_string( $dataMw->body->extsrc ?? null ) ) {
 			$src .= $dataMw->body->extsrc;
+		} elseif ( isset( $dp->src ) ) {
+			$this->env->log(
+				'error/html2wt/ext',
+				'Extension data-mw missing for: ' . DOMCompat::getOuterHTML( $node )
+			);
+			return $dp->src;
 		} else {
-			$this->env->log( 'error/html2wt/ext', 'Extension src unavailable for: '
-				. DOMCompat::getOuterHTML( $node ) );
+			$this->env->log(
+				'error/html2wt/ext',
+				'Extension src unavailable for: ' . DOMCompat::getOuterHTML( $node )
+			);
 		}
 		return $src . '</' . $dataMw->name . '>';
 	}

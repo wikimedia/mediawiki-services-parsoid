@@ -42,7 +42,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$src = null;
 		$transclusionType = DOMUtils::matchTypeOf( $node, '/^mw:(Transclusion|Param)$/' );
-		$extType = DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' );
+		$extName = WTUtils::getExtName( $node );
 		if ( $transclusionType ) {
 			if ( is_array( $dataMw->parts ?? null ) ) {
 				$src = $serializer->serializeFromParts( $state, $node, $dataMw->parts );
@@ -55,33 +55,18 @@ class EncapsulatedContentHandler extends DOMHandler {
 					"Cannot serialize $transclusionType without data-mw.parts or data-parsoid.src"
 				);
 			}
-		} elseif ( $extType ) {
-			if ( ( $dataMw->name ?? null ) == '' && !isset( $dp->src ) ) {
-				// If there was no typeOf name, and no dp.src, try getting
-				// the name out of the mw:Extension type. This will
-				// generate an empty extension tag, but it's better than
-				// just an error.
-				$extGivenName = substr( $extType, strlen( 'mw:Extension/' ) );
-				if ( $extGivenName ) {
-					$env->log( 'error', 'no data-mw name for extension in: ', DOMCompat::getOuterHTML( $node ) );
-					$dataMw->name = $extGivenName;
-				}
+		} elseif ( $extName ) {
+			// Set name since downstream code assumes it
+			if ( ( $dataMw->name ?? '' ) === '' ) {
+				$dataMw->name = $extName;
 			}
-			if ( ( $dataMw->name ?? null ) != '' ) {
-				$ext = $env->getSiteConfig()->getExtTagImpl( $dataMw->name );
-				if ( $ext ) {
-					$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
-					if ( $src === false ) {
-						$src = $serializer->defaultExtensionHandler( $node, $state );
-					}
-				} else {
-					$src = $serializer->defaultExtensionHandler( $node, $state );
-				}
-			} elseif ( isset( $dp->src ) ) {
-				$env->log( 'error', 'data-mw missing in: ' . DOMCompat::getOuterHTML( $node ) );
-				$src = $dp->src;
-			} else {
-				throw new ClientError( 'Cannot serialize extension without data-mw.name or data-parsoid.src.' );
+			$src = false;
+			$ext = $env->getSiteConfig()->getExtTagImpl( $extName );
+			if ( $ext ) {
+				$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
+			}
+			if ( $src === false ) {
+				$src = $serializer->defaultExtensionHandler( $node, $state );
 			}
 		} elseif ( DOMUtils::hasTypeOf( $node, 'mw:LanguageVariant' ) ) {
 			$state->serializer->languageVariantHandler( $node );
@@ -106,28 +91,22 @@ class EncapsulatedContentHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		$env = $state->getEnv();
-		$dataMw = DOMDataUtils::getDataMw( $node );
-		$dp = DOMDataUtils::getDataParsoid( $node );
-
-		// Handle native extension constraints.
-		if ( DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' )
-			// Only apply to plain extension tags.
-			 && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' )
-		) {
-			if ( isset( $dataMw->name ) ) {
-				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
-				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
-					WTUtils::isNewElt( $node )
-				) {
-					return [ 'min' => 1, 'max' => 2 ];
-				}
+		// Handle native extension constraints.  Only apply to plain extension tags.
+		$extName = WTUtils::getExtName( $node );
+		if ( $extName && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
+			$extConfig = $state->getEnv()->getSiteConfig()->getExtTagConfig( $extName );
+			if (
+				( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
+				WTUtils::isNewElt( $node )
+			) {
+				return [ 'min' => 1, 'max' => 2 ];
 			}
 		}
 
 		// If this content came from a multi-part-template-block
 		// use the first node in that block for determining
 		// newline constraints.
+		$dp = DOMDataUtils::getDataParsoid( $node );
 		if ( isset( $dp->firstWikitextNode ) ) {
 			// Note: this should match the case returned by DOMCompat::nodeName
 			// so that this is effectively a case-insensitive comparison here.
@@ -149,21 +128,15 @@ class EncapsulatedContentHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
-		$env = $state->getEnv();
-		$dataMw = DOMDataUtils::getDataMw( $node );
-
-		// Handle native extension constraints.
-		if ( DOMUtils::matchTypeOf( $node, '!^mw:Extension/!' )
-			// Only apply to plain extension tags.
-			 && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' )
-		) {
-			if ( isset( $dataMw->name ) ) {
-				$extConfig = $env->getSiteConfig()->getExtTagConfig( $dataMw->name );
-				if ( ( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
-					WTUtils::isNewElt( $node ) && !DOMUtils::atTheTop( $otherNode )
-				) {
-					return [ 'min' => 1, 'max' => 2 ];
-				}
+		// Handle native extension constraints.  Only apply to plain extension tags.
+		$extName = WTUtils::getExtName( $node );
+		if ( $extName && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
+			$extConfig = $state->getEnv()->getSiteConfig()->getExtTagConfig( $extName );
+			if (
+				( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
+				WTUtils::isNewElt( $node ) && !DOMUtils::atTheTop( $otherNode )
+			) {
+				return [ 'min' => 1, 'max' => 2 ];
 			}
 		}
 

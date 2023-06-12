@@ -224,12 +224,11 @@ class ContentUtils {
 		}
 
 		// Process extension-specific embedded HTML
-		$typeOf = $elt->getAttribute( 'typeof' );
-		if ( $typeOf && preg_match( '#^mw:Extension/(.+?)$#D', $typeOf, $match ) ) {
-			$tagName = $match[1];
-			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $tagName );
+		$extName = WTUtils::getExtName( $elt );
+		if ( $extName ) {
+			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $extName );
 			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
-				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $tagName );
+				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $extName );
 				$tagHandler->processAttributeEmbeddedHTML( $extAPI, $elt, $proc );
 			}
 		}
