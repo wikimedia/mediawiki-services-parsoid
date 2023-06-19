@@ -420,8 +420,8 @@ class ParsoidExtensionAPI {
 	 * this method wraps the contents in a custom wrapper element (ex: <div>), sanitizes
 	 * the arguments of the extension args and sets some content flags on the wrapper.
 	 *
-	 * @param array $extArgs
-	 * @param string $wikitext
+	 * @param array $extArgs Args sanitized and applied to wrapper
+	 * @param string $wikitext Wikitext content of the tag
 	 * @param array $opts
 	 * - srcOffsets
 	 * - frame

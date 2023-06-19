@@ -223,12 +223,6 @@
         "selser [1,2,[2]]": "==A&B&amp;C&amp;amp;D&amp;amp;amp;E==\nrtkcgi\njn1m2m[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
         "selser [[0,2,0,3,0,0,0,0],4,[1]]": "==ngxj3gA&B&amp;&amp;amp;D&amp;amp;amp;E==\n45ozgq\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]"
     },
-    "Decoding of HTML entities in indicator names for IDs (T104196)": {
-        "metadata": ""
-    },
-    "Decoding of HTML entities in indicator names for IDs (unambiguous) (T104196)": {
-        "metadata": ""
-    },
     "Don't fall for the self-closing div": {
         "wt2wt": "<div>hello world</div>",
         "html2wt": "<div>hello world</div>",
@@ -749,16 +743,6 @@
     "PAGESINCATEGORY invalid title fatal (r33546 fix)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,27,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,27,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGESINCATEGORY:&lt;bogus>\",\"function\":\"pagesincategory\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_pagesincategory missing in Parsoid.</span></p>",
         "html2wt": "0\n"
-    },
-    "Page status indicators: Torture test": {
-        "html2wt": "",
-        "metadata": ""
-    },
-    "Page status indicators: Weird syntaxes that are okay": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,62,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,26,26,0]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"empty\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[27,62,23,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"name\"},\"body\":{\"extsrc\":\"\"}}'/></p>",
-        "html2html": "\n\n",
-        "html2wt": "\n\n",
-        "metadata": ""
     },
     "Paragraphs inside blockquotes/divs (extra line break on close)": {
         "html2wt": "<blockquote><div>Line one\nLine two\n\n</div></blockquote>"

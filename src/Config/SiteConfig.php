@@ -24,6 +24,7 @@ use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
 use Wikimedia\Parsoid\Ext\ImageMap\ImageMap;
+use Wikimedia\Parsoid\Ext\Indicator\Indicator;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
@@ -92,12 +93,13 @@ abstract class SiteConfig {
 		Nowiki::class,
 		Pre::class,
 		Gallery::class,
+		Indicator::class,
 		// The following implementations will move to their own repositories
 		// soon, but for now are implemented in the Parsoid repo.
 		Cite::class,
 		LST::class,
 		Poem::class,
-		ImageMap::class,
+		ImageMap::class
 	];
 
 	/**

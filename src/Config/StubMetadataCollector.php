@@ -206,7 +206,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 		}
 		$result = [];
 		foreach ( ( $this->storage[$which] ?? [] ) as $key => $ignore ) {
-			$result[$key] = $this->get( $which, $key );
+			$result[$key] = $this->get( $which, (string)$key );
 		}
 		return $result;
 	}
@@ -280,5 +280,22 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 */
 	public function getTOCData(): ?TOCData {
 		return $this->get( 'tocdata', '', self::MERGE_STRATEGY_WRITE_ONCE );
+	}
+
+	/**
+	 * Set the content for an indicator.
+	 * @param string $name
+	 * @param string $content
+	 */
+	public function setIndicator( $name, $content ): void {
+		$this->collect( 'indicators', $name, $content, self::MERGE_STRATEGY_WRITE_ONCE );
+	}
+
+	/**
+	 * Return a "name" => "content-id" mapping of recorded indicators
+	 * @return array
+	 */
+	public function getIndicators(): array {
+		return $this->get( 'indicators' );
 	}
 }

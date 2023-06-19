@@ -510,7 +510,6 @@ class TestRunner {
 		$after = [];
 
 		// 'showtitle' not yet supported
-		// 'showindicators' not yet supported.
 		// 'ill' not yet supported
 
 		if ( isset( $opts['cat'] ) ) {
@@ -543,6 +542,11 @@ class TestRunner {
 			$tocData = $output->getTOCData();
 			if ( $tocData !== null ) {
 				$after[] = $tocData->prettyPrint();
+			}
+		}
+		if ( isset( $opts['showindicators'] ) ) {
+			foreach ( $output->getIndicators() as $name => $content ) {
+				$after[] = "$name=$content";
 			}
 		}
 		if ( $metadataExpected === null ) {

@@ -120,11 +120,6 @@ interface ContentMetadataCollector {
 	 *   ::setDisplayTitle()
 	 * ::setSections()
 	 *   T296025: Should be more structured
-	 * ::setIndicator()
-	 *   Probably should be 'appendIndicator' for consistency? The `content`
-	 *   parameter is a string, but we'd probably want a DOM?  If it's a
-	 *   DOM object we need to be able to JSON serialize and unserialize
-	 *   it for ParserCache. (T300980)
 	 * ::addExtraCSPDefaultSrc()
 	 * ::addExtraCSPStyleSrc()
 	 * ::addExtraCSPScriptSrc()
@@ -400,4 +395,17 @@ interface ContentMetadataCollector {
 	 * @param TOCData $tocData
 	 */
 	public function setTOCData( TOCData $tocData ): void;
+
+	/**
+	 * Set the content for an indicator.
+	 *
+	 * @param string $name
+	 * @param string $content
+	 */
+	public function setIndicator( $name, $content ): void;
+
+	/**
+	 * @return array
+	 */
+	public function getIndicators(): array;
 }

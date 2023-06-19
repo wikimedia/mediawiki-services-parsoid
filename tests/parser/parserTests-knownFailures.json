@@ -30,12 +30,6 @@
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
-	"Decoding of HTML entities in indicator names for IDs (T104196)": {
-		"metadata": ""
-	},
-	"Decoding of HTML entities in indicator names for IDs (unambiguous) (T104196)": {
-		"metadata": ""
-	},
 	"Don't abort table cell attribute parsing if wikilink is found in template arg": {
 		"wt2wt": "{|\n|Test {{#tag:ref|One two \"[[three]]\" four}}\n|}\n<references />"
 	},
@@ -112,14 +106,6 @@
 	},
 	"Non-word characters don't terminate tag names (T19663, T42670, T54022)": {
 		"wt2wt": "<blockquote|>a\n\n<b→> doesn't terminate </b→>\n\n<bä> doesn't terminate </bä>\n\n<boo> doesn't terminate </boo>\n\n<s.foo> doesn't terminate </s.foo>\n\n<sub-ID#1>"
-	},
-	"Page status indicators: Torture test": {
-		"metadata": "",
-		"wt2wt": ""
-	},
-	"Page status indicators: Weird syntaxes that are okay": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,62,0,0]}'><link typeof=\"mw:Extension/indicator\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,26,26,0]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"empty\"}}'/>\n<link typeof=\"mw:Extension/indicator\" about=\"#mwt4\" data-parsoid='{\"dsr\":[27,62,23,12]}' data-mw='{\"name\":\"indicator\",\"attrs\":{\"name\":\"name\"},\"body\":{\"extsrc\":\"\"}}'/></p>",
-		"metadata": ""
 	},
 	"Parsing of overlapping (improperly nested) inline html tags": {
 		"wt2wt": "<span><s>x</span>"
