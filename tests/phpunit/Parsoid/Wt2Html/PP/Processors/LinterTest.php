@@ -14,6 +14,8 @@ use Wikimedia\Parsoid\Parsoid;
 
 class LinterTest extends TestCase {
 	/**
+	 * TODO: The name of this method needs an update to be wtToLint
+	 *
 	 * @param string $wt
 	 * @param array $options
 	 * @return array
@@ -1275,6 +1277,21 @@ class LinterTest extends TestCase {
 	 * @return array[]
 	 */
 	public function provideLargeTablesTests(): array {
+		$noLongRowsTable = [
+			"{|",
+			"|-",
+			"! Header 1 !! Header 2 !! Header 3",
+		];
+		for ( $i = 0; $i < 30; $i++ ) {
+			$noLongRowsTable[] = "|-";
+			$noLongRowsTable[] = "| Cell 1 || Cell 2 || Cell 3";
+		}
+		// Make the last row "large" by adding 3 more columns
+		$nonUniformLongRowTable = $noLongRowsTable;
+		$nonUniformLongRowTable[] = "|| Cell 4 || Cell 5 || Cell 6";
+
+		$noLongRowsTable[] = "|}";
+		$nonUniformLongRowTable[] = "|}";
 		return [
 			'6 header columns' => [
 				'wikiTextLines' => [
@@ -1387,6 +1404,7 @@ class LinterTest extends TestCase {
 					"|}"
 				],
 				'columnCount' => 4
+				// No dsr => no lints fund
 			],
 			'6 header columns and 6 row columns, rows on multiple wikitext lines' => [
 				'wikiTextLines' => [
@@ -1500,9 +1518,107 @@ class LinterTest extends TestCase {
 					"}}"
 				],
 				'columnCount' => 5,
-				'dsr' => [],
+				'dsr' => [], // empty dsr => no lints fund
 				'templateName' => '1x'
-			]
+			],
+			'long rows 30' => [
+				'wikiTextLines' => $noLongRowsTable,
+				'columnCount' => 3,
+				'dsr' => [] // empty dsr => no lints fund
+			],
+			// An exhaustive table search heuristic will flag a lint here.
+			// But, a more performant search that only looks at the first
+			// N (=10 right now) rows will not find a lint here
+			'non-uniform table with a long row beyond the first 10' => [
+				'wikiTextLines' => $nonUniformLongRowTable,
+				'columnCount' => 3,
+				'dsr' => [] // empty dsr => no lints fund
+			],
+			'Nested Table 1' => [
+				'wikiTextLines' => [
+					"{|",
+					"|+",
+					"!Header 1",
+					"!Header 2",
+					"!Header 3",
+					"|-",
+					"|Cell 1",
+					"|Cell 2",
+					"|Cell 3",
+					"|-",
+					"|",
+					"{|",
+					"|+",
+					"!Header 4",
+					"!Header 5",
+					"!Header 6",
+					"|-",
+					"|Cell 4",
+					"|Cell 5",
+					"|Cell 6",
+					"|}",
+					"|",
+					"|",
+					"|",
+					"{|",
+					"|+",
+					"!Header 7",
+					"!Header 8",
+					"!Header 9",
+					"|-",
+					"|Cell 7",
+					"|Cell 8",
+					"|Cell 9",
+					"|}",
+					"|}",
+				],
+				'columnCount' => 1,
+				'dsr' => [] // empty dsr => no lints fund
+			],
+			'Nested Table 2' => [
+				'wikiTextLines' => [
+					"{|",
+					"|+",
+					"!Header 1",
+					"!Header 2",
+					"!Header 3",
+					"|-",
+					"|Cell 1",
+					"|Cell 2",
+					"|Cell 3",
+					"|-",
+					"|",
+					"{|",
+					"|+",
+					"!Header 4",
+					"!Header 5",
+					"!Header 6",
+					"|-",
+					"|Cell 4",
+					"|Cell 5",
+					"|Cell 6",
+					"|}",
+					"|",
+					"|",
+					"|",
+					"{|",
+					"|+",
+					"!Header 7",
+					"!Header 8",
+					"!Header 9",
+					"|-",
+					"|Cell 7",
+					"|Cell 8",
+					"|Cell 9",
+					"|Cell 10",
+					"|Cell 11",
+					"|Cell 12",
+					"|}",
+					"|}",
+				],
+				'columnCount' => 6,
+				'dsr' => [ 140, 232, 2, 2 ]
+			],
 		];
 	}
 
@@ -1518,7 +1634,6 @@ class LinterTest extends TestCase {
 	 * @
 	 */
 	public function testLargeTables( $wikiTextLines, $columnCount, $dsr = [], $templateName = null ): void {
-		$this->markTestSkipped( 'Skipped test for T334528 - large tables are not enabled lint rule' );
 		$opts = [];
 		$siteConfig = new MockSiteConfig( $opts );
 		$columnsMax = $siteConfig->getMaxTableColumnLintHeuristic();

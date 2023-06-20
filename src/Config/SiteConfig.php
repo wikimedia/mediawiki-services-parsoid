@@ -1315,16 +1315,29 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Get the maximum columns in a table
+	 * Get the maximum columns in a table before the table is considered large.
 	 *
-	 * central value control for the static value
-	 * so we would have the option to edit it
-	 * while not allowing different sizes across sites
+	 * This lint heuristic value is hardcoded here and centrally determined without
+	 * an option to set it per-wiki.
 	 *
 	 * @return int
 	 */
 	public function getMaxTableColumnLintHeuristic(): int {
 		return 5;
+	}
+
+	/**
+	 * Get the maximum rows (header or data) to be checked for the large table lint
+	 * - If we consider the first N rows to be representative of the table, and the table
+	 *   is well-formed and uniform, it is sufficent to check the first N rows to check
+	 *   if the table is "large".
+	 * - This heuristic is used together with the getMaxTableColumnLintHeuristic to
+	 *   identify "large tables".
+	 *
+	 * @return int
+	 */
+	public function getMaxTableRowsToCheckLintHeuristic(): int {
+		return 10;
 	}
 
 	/**

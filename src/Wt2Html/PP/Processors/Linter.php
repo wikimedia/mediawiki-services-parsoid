@@ -1218,6 +1218,45 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * @param Env $env
+	 * @param stdClass|null $tplInfo
+	 * @param Element $node
+	 * @param int $numColumns
+	 * @param int $columnsMax
+	 * @return void
+	 */
+	private function logLargeTableEntry(
+		Env $env, ?stdClass $tplInfo, Element $node, int $numColumns, int $columnsMax ) {
+		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		$lintObj = [
+			'dsr' => $this->findLintDSR(
+				$templateInfo, $tplInfo, DOMDataUtils::getDataParsoid( $node )->dsr ?? null
+			),
+			'templateInfo' => $templateInfo,
+			'params' => [
+				'name' => 'table',
+				'columns' => $numColumns,
+				'columnsMax' => $columnsMax,
+			],
+		];
+		$env->recordLint( 'large-tables', $lintObj );
+	}
+
+	/**
+	 * TODO: In the future, this may merit being moved to DOMUtils
+	 * along with its "previous" variant.
+	 *
+	 * @param ?Node $n
+	 * @return ?Element
+	 */
+	private function skipNonElementNodes( ?Node $n ): ?Element {
+		while ( $n && !( $n instanceof Element ) ) {
+			$n = $n->nextSibling;
+		}
+		return $n;
+	}
+
+	/**
 	 * Log large tables
 	 *
 	 * we need to identify the articles having such tables
@@ -1232,29 +1271,36 @@ class Linter implements Wt2HtmlDOMProcessor {
 		if ( DOMCompat::nodeName( $node ) !== 'table' ) {
 			return;
 		}
-		$columnsMax = $env->getSiteConfig()->getMaxTableColumnLintHeuristic();
-		$tableRows = $node->getElementsByTagName( 'tr' );
-		foreach ( $tableRows as $row ) {
-			$columns = max( $row->getElementsByTagName( 'th' )->length,
-				$row->getElementsByTagName( 'td' )->length );
-			if ( $columns > $columnsMax ) {
-				$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
-				$dsr = $this->findLintDSR(
-					$templateInfo,
-					$tplInfo,
-					DOMDataUtils::getDataParsoid( $node )->dsr ?? null
-				);
-				$lintObj = [
-					'dsr' => $dsr,
-					'templateInfo' => $templateInfo,
-					'params' => [
-						'columns' => $columns,
-						'columnsMax' => $columnsMax,
-					],
-				];
-				$env->recordLint( 'large-tables', $lintObj );
-				break;
+
+		// Skip tables that have nested tables in them as they are likely
+		// to be used for layout and not for data representation.
+		// We may check nested tables in the next iteration of this lint.
+		$nestedTables = $node->getElementsByTagName( 'table' );
+		if ( $nestedTables->length > 0 ) {
+			return;
+		}
+
+		$maxColumns = $env->getSiteConfig()->getMaxTableColumnLintHeuristic();
+		$maxRowsToCheck = $env->getSiteConfig()->getMaxTableRowsToCheckLintHeuristic();
+
+		$trCount = 0;
+		$tbody = DOMCompat::querySelector( $node, 'tbody' );
+		$tr = self::skipNonElementNodes( $tbody->firstChild );
+		while ( $tr && $trCount < $maxRowsToCheck ) {
+			$numTh = $tr->getElementsByTagName( 'th' )->length;
+			if ( $numTh > $maxColumns ) {
+				$this->logLargeTableEntry( $env, $tplInfo, $node, $numTh, $maxColumns );
+				return;
 			}
+
+			$numTd = $tr->getElementsByTagName( 'td' )->length;
+			if ( $numTd > $maxColumns ) {
+				$this->logLargeTableEntry( $env, $tplInfo, $node, $numTd, $maxColumns );
+				return;
+			}
+
+			$tr = self::skipNonElementNodes( $tr->nextSibling );
+			$trCount++;
 		}
 	}
 
@@ -1284,6 +1330,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// HTML5 parser fix it another way (list expands to rest of the page!)
 		$this->logPHPParserBug( $env, $node, $dp, $tplInfo );
 		$this->logWikilinksInExtlinks( $env, $node, $dp, $tplInfo );
+		$this->logLargeTables( $env, $node, $dp, $tplInfo );
 
 		// Log fostered content, but skip rendering-transparent nodes
 		if ( !empty( $dp->fostered ) && !WTUtils::isRenderingTransparentNode( $node ) ) {
