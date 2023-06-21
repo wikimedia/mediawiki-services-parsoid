@@ -167,14 +167,10 @@ class ContentUtils {
 	public static function processAttributeEmbeddedHTML(
 		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
 	): void {
-		/* -----------------------------------------------------------------
-		 * FIXME: This works but feels special cased, maybe?
-		 *
-		 * We should also be running DOM cleanup passes on embedded HTML
-		 * in data-mw and other attributes.
-		 *
-		 * See T214994
-		 * ----------------------------------------------------------------- */
+		if ( !$elt->hasAttribute( 'typeof' ) ) {
+			return;
+		}
+
 		// Expanded attributes
 		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
 			$dmw = DOMDataUtils::getDataMw( $elt );
