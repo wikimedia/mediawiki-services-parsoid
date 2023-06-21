@@ -788,7 +788,7 @@ class WTUtils {
 	 * @param Node $node
 	 * @return ?string
 	 */
-	public static function getExtName( Node $node ): ?string {
+	public static function getExtTagName( Node $node ): ?string {
 		$match = DOMUtils::matchTypeOf( $node, '#^mw:Extension/(.+?)$#D' );
 		return $match ? mb_strtolower( substr( $match, strlen( 'mw:Extension/' ) ) ) : null;
 	}
@@ -799,8 +799,8 @@ class WTUtils {
 	 * @return ?ExtensionTagHandler
 	 */
 	public static function getNativeExt( Env $env, Node $node ): ?ExtensionTagHandler {
-		$extName = self::getExtName( $node );
-		return $extName ? $env->getSiteConfig()->getExtTagImpl( $extName ) : null;
+		$extTagName = self::getExtTagName( $node );
+		return $extTagName ? $env->getSiteConfig()->getExtTagImpl( $extTagName ) : null;
 	}
 
 	/**

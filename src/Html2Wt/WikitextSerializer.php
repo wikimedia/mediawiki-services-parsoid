@@ -1035,13 +1035,13 @@ class WikitextSerializer {
 	 */
 	public function serializeExtensionStartTag( Element $node, SerializerState $state ): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		$extName = $dataMw->name;
+		$extTagName = $dataMw->name;
 
 		// Serialize extension attributes in normalized form as:
 		// key='value'
 		// FIXME: with no dataParsoid, shadow info will mark it as new
 		$attrs = (array)( $dataMw->attrs ?? [] );
-		$extTok = new TagTk( $extName, array_map( static function ( $key ) use ( $attrs ) {
+		$extTok = new TagTk( $extTagName, array_map( static function ( $key ) use ( $attrs ) {
 			return new KV( $key, $attrs[$key] );
 		}, array_keys( $attrs ) ) );
 
@@ -1053,7 +1053,7 @@ class WikitextSerializer {
 		}
 
 		$attrStr = $this->serializeAttributes( $node, $extTok );
-		$src = '<' . $extName;
+		$src = '<' . $extTagName;
 		if ( $attrStr ) {
 			$src .= ' ' . $attrStr;
 		}

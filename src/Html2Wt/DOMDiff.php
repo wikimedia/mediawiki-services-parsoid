@@ -397,12 +397,12 @@ class DOMDiff {
 
 			$ext = null;
 
-			$baseExtName = WTUtils::getExtName( $baseNode );
-			if ( $baseExtName ) {
-				$ext = $this->env->getSiteConfig()->getExtTagImpl( $baseExtName );
+			$baseExtTagName = WTUtils::getExtTagName( $baseNode );
+			if ( $baseExtTagName ) {
+				$ext = $this->env->getSiteConfig()->getExtTagImpl( $baseExtTagName );
 			}
 
-			if ( $ext && ( $baseExtName === WTUtils::getExtName( $newNode ) ) ) {
+			if ( $ext && ( $baseExtTagName === WTUtils::getExtTagName( $newNode ) ) ) {
 				$this->debug( '--diffing extension content--' );
 				$subtreeDiffers = $ext->diffHandler(
 					$this->extApi, [ $this, 'doDOMDiff' ], $baseNode, $newNode

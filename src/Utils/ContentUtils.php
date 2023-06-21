@@ -220,11 +220,11 @@ class ContentUtils {
 		}
 
 		// Process extension-specific embedded HTML
-		$extName = WTUtils::getExtName( $elt );
-		if ( $extName ) {
-			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $extName );
+		$extTagName = WTUtils::getExtTagName( $elt );
+		if ( $extTagName ) {
+			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $extTagName );
 			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
-				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $extName );
+				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $extTagName );
 				$tagHandler->processAttributeEmbeddedHTML( $extAPI, $elt, $proc );
 			}
 		}

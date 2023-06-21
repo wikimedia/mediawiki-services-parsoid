@@ -42,7 +42,7 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$src = null;
 		$transclusionType = DOMUtils::matchTypeOf( $node, '/^mw:(Transclusion|Param)$/' );
-		$extName = WTUtils::getExtName( $node );
+		$extTagName = WTUtils::getExtTagName( $node );
 		if ( $transclusionType ) {
 			if ( is_array( $dataMw->parts ?? null ) ) {
 				$src = $serializer->serializeFromParts( $state, $node, $dataMw->parts );
@@ -55,13 +55,13 @@ class EncapsulatedContentHandler extends DOMHandler {
 					"Cannot serialize $transclusionType without data-mw.parts or data-parsoid.src"
 				);
 			}
-		} elseif ( $extName ) {
+		} elseif ( $extTagName ) {
 			// Set name since downstream code assumes it
 			if ( ( $dataMw->name ?? '' ) === '' ) {
-				$dataMw->name = $extName;
+				$dataMw->name = $extTagName;
 			}
 			$src = false;
-			$ext = $env->getSiteConfig()->getExtTagImpl( $extName );
+			$ext = $env->getSiteConfig()->getExtTagImpl( $extTagName );
 			if ( $ext ) {
 				$src = $ext->domToWikitext( $state->extApi, $node, $wrapperUnmodified );
 			}
@@ -92,9 +92,9 @@ class EncapsulatedContentHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
 		// Handle native extension constraints.  Only apply to plain extension tags.
-		$extName = WTUtils::getExtName( $node );
-		if ( $extName && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
-			$extConfig = $state->getEnv()->getSiteConfig()->getExtTagConfig( $extName );
+		$extTagName = WTUtils::getExtTagName( $node );
+		if ( $extTagName && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
+			$extConfig = $state->getEnv()->getSiteConfig()->getExtTagConfig( $extTagName );
 			if (
 				( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
 				WTUtils::isNewElt( $node )
@@ -129,9 +129,9 @@ class EncapsulatedContentHandler extends DOMHandler {
 	/** @inheritDoc */
 	public function after( Element $node, Node $otherNode, SerializerState $state ): array {
 		// Handle native extension constraints.  Only apply to plain extension tags.
-		$extName = WTUtils::getExtName( $node );
-		if ( $extName && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
-			$extConfig = $state->getEnv()->getSiteConfig()->getExtTagConfig( $extName );
+		$extTagName = WTUtils::getExtTagName( $node );
+		if ( $extTagName && !DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
+			$extConfig = $state->getEnv()->getSiteConfig()->getExtTagConfig( $extTagName );
 			if (
 				( $extConfig['options']['html2wt']['format'] ?? '' ) === 'block' &&
 				WTUtils::isNewElt( $node ) && !DOMUtils::atTheTop( $otherNode )
