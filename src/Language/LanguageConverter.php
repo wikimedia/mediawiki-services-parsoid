@@ -308,7 +308,7 @@ class LanguageConverter {
 		}
 
 		$ct = new ConversionTraverser( $targetVariant, $guesser, $langconv->getMachine() );
-		$ct->traverse( $env, $rootNode );
+		$ct->traverse( $env, null, $rootNode );
 
 		// HACK: to avoid data-parsoid="{}" in the output, set the isNew flag
 		// on synthetic spans

@@ -91,7 +91,7 @@ class CleanUpTest extends TestCase {
 		$tags = [ 'tr', 'td', ];
 		$this->addHandlers( $domVisitor, $tags, false );
 
-		$domVisitor->traverse( $mockEnv, $body );
+		$domVisitor->traverse( $mockEnv, null, $body );
 	}
 
 	/**
@@ -123,7 +123,7 @@ class CleanUpTest extends TestCase {
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
 		$this->addHandlers( $domVisitor, $tags, false );
 
-		$domVisitor->traverse( $mockEnv, $body );
+		$domVisitor->traverse( $mockEnv, null, $body );
 	}
 
 	/**
@@ -168,7 +168,7 @@ class CleanUpTest extends TestCase {
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
 		$this->addHandlers( $domVisitor, $tags, true );
 
-		$domVisitor->traverse( $mockEnv, $body );
+		$domVisitor->traverse( $mockEnv, null, $body );
 	}
 
 	/**

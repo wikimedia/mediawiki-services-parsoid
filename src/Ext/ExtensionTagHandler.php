@@ -51,6 +51,9 @@ abstract class ExtensionTagHandler {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
+	 *        Signature: (string) -> string
+	 *        This processor will be provided the HTML string as input
+	 *        and is expected to return a possibly modified string.
 	 */
 	public function processAttributeEmbeddedHTML(
 		ParsoidExtensionAPI $extApi, Element $elt, Closure $proc

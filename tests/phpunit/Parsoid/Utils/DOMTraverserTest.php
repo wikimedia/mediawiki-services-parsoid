@@ -5,7 +5,9 @@ namespace Test\Parsoid\Utils;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DTState;
@@ -13,13 +15,14 @@ use Wikimedia\Parsoid\Utils\DTState;
 class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 
 	/**
+	 * @phpcs:disable Generic.Files.LineLength.TooLong
 	 * @dataProvider provideTraverse
 	 * @covers \Wikimedia\Parsoid\Utils\DOMTraverser::addHandler
 	 * @covers \Wikimedia\Parsoid\Utils\DOMTraverser::traverse
 	 */
 	public function testTraverse(
 		callable $callback, ?string $nodeName, Env $env, array $expectedTrace,
-		bool $withTplInfo = false
+		bool $withTplInfo = false, bool $processAttrEmbeddedHTML = false
 	) {
 		$html = <<<'HTML'
 <html><body>
@@ -34,24 +37,31 @@ class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
 	<div id="x2">
 		<div id="x2_1"></div>
 	</div>
+	<!--dummy expanded attrs representation to exercise embedded html code-->
+	<!--no id on this div so we don't have to update all tests, but add id on the embedded span-->
+	<div typeof='mw:ExpandedAttrs' data-mw='{"attribs": [[{"txt": "foo"},{"html": "<span id=\"e_span\">x</span>"}]]}'>x</div>
 </body></html>
 HTML;
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		if ( $withTplInfo || $processAttrEmbeddedHTML ) {
+			$doc = ContentUtils::createAndLoadDocument( $html );
+		} else {
+			$doc = DOMCompat::newDocument( true );
+			$doc->loadHTML( $html );
+		}
 
 		$state = new DTState( [], true );
-		$state->trace = [];
+		$trace = [];
 
-		$traverser = new DOMTraverser( $withTplInfo );
+		$traverser = new DOMTraverser( $withTplInfo, $processAttrEmbeddedHTML );
 		$traverser->addHandler( $nodeName, $callback );
-		$traverser->addHandler( null, static function ( Node $node, Env $env, DTState $state ) {
+		$traverser->addHandler( null, static function ( Node $node, Env $env, DTState $state ) use ( &$trace ) {
 			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {
-				$state->trace[] = $node->getAttribute( 'id' );
+				$trace[] = $node->getAttribute( 'id' );
 			}
 			return true;
 		} );
-		$traverser->traverse( $env, $doc->documentElement, $state );
-		$this->assertSame( $expectedTrace, $state->trace );
+		$traverser->traverse( $env, new ParsoidExtensionAPI( $env ), $doc->documentElement, $state );
+		$this->assertSame( $expectedTrace, $trace );
 	}
 
 	public function provideTraverse() {
@@ -197,7 +207,21 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 				'withTplInfo' => true,
 			],
+			'not traversing with tplinfo, with embedded html' => [
+				'callback' => function (
+					Node $node, Env $env, DTState $state
+				) {
+					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
+						$this->assertTrue( $state->tplInfo === null );
+					}
+					return true;
+				},
+				'nodeName' => null,
+				'env' => $basicEnv,
+				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1', 'e_span' ],
+				false,
+				true /* process attribute embedded html */
+			],
 		];
 	}
-
 }
