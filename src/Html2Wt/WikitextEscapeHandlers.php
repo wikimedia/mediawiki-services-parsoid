@@ -25,10 +25,11 @@ class WikitextEscapeHandlers {
 
 	private const LINKS_ESCAPE_RE = '/(\[\[)|(\]\])|(-\{)|(^[^\[]*\]$)/D';
 
-	/**
-	 * @var array
-	 */
-	private $options;
+	/** @var Env */
+	private $env;
+
+	/** @var ?string */
+	private $extName;
 
 	/**
 	 * @var PegTokenizer
@@ -36,11 +37,13 @@ class WikitextEscapeHandlers {
 	private $tokenizer;
 
 	/**
-	 * @param array $options [ 'env' => Env, 'extName' => ?string ]
+	 * @param Env $env
+	 * @param ?string $extName
 	 */
-	public function __construct( array $options ) {
-		$this->tokenizer = new PegTokenizer( $options['env'] );
-		$this->options = $options;
+	public function __construct( Env $env, ?string $extName ) {
+		$this->env = $env;
+		$this->extName = $extName;
+		$this->tokenizer = new PegTokenizer( $env );
 	}
 
 	/**
@@ -487,12 +490,11 @@ class WikitextEscapeHandlers {
 	/**
 	 * @param SerializerState $state
 	 * @param bool $onNewline
-	 * @param array $options
 	 * @param string $text
 	 * @return bool
 	 */
-	public function hasWikitextTokens(
-		SerializerState $state, bool $onNewline, array $options, string $text
+	private function hasWikitextTokens(
+		SerializerState $state, bool $onNewline, string $text
 	): bool {
 		$env = $state->getEnv();
 		$env->log(
@@ -531,8 +533,9 @@ class WikitextEscapeHandlers {
 
 			// Ignore html tags that aren't allowed as literals in wikitext
 			if ( TokenUtils::isHTMLTag( $t ) ) {
-				if ( TokenUtils::matchTypeOf( $t, '#^mw:Extension(/|$)#' ) &&
-					( $options['extName'] ?? null ) !== $t->getAttribute( 'name' )
+				if (
+					TokenUtils::matchTypeOf( $t, '#^mw:Extension(/|$)#' ) &&
+					( $this->extName !== $t->getAttribute( 'name' ) )
 				) {
 					return true;
 				}
@@ -898,7 +901,7 @@ class WikitextEscapeHandlers {
 			if ( $fullCheckNeeded ||
 				$indentPreUnsafe ||
 				( $hasNonQuoteEscapableChars &&
-					$this->hasWikitextTokens( $state, $sol, $this->options, $text )
+					$this->hasWikitextTokens( $state, $sol, $text )
 				)
 			) {
 				$env->log( 'trace/wt-escape', '---quotes: escaping text---' );
@@ -947,7 +950,7 @@ class WikitextEscapeHandlers {
 
 			// If nothing changed, check if the original multiline string has
 			// any wikitext tokens (ex: multi-line html tags <div\n>foo</div\n>).
-			if ( $ret === $text	&& $this->hasWikitextTokens( $state, $sol, $this->options, $text ) ) {
+			if ( $ret === $text && $this->hasWikitextTokens( $state, $sol, $text ) ) {
 				$env->log( 'trace/wt-escape', '---Found multi-line wt tokens---' );
 				$ret = $this->escapedText( $state, $sol, $text );
 			}
@@ -1007,7 +1010,7 @@ class WikitextEscapeHandlers {
 		if ( $hasTildes ) {
 			$env->log( 'trace/wt-escape', '---Found tildes---' );
 			return $this->escapedText( $state, $sol, $text );
-		} elseif ( $this->hasWikitextTokens( $state, $sol, $this->options, $text ) ) {
+		} elseif ( $this->hasWikitextTokens( $state, $sol, $text ) ) {
 			$env->log( 'trace/wt-escape', '---Found WT tokens---' );
 			return $this->escapedText( $state, $sol, $text );
 		} elseif ( preg_match( '/[^\[]*\]/', $text ) &&
@@ -1166,8 +1169,7 @@ class WikitextEscapeHandlers {
 	 * @return array
 	 */
 	public function escapeTplArgWT( string $arg, array $opts ): array {
-		/** @var Env $env */
-		$env = $this->options['env'];
+		$env = $this->env;
 		$serializeAsNamed = $opts['serializeAsNamed'];
 		$buf = '';
 		$openNowiki = false;

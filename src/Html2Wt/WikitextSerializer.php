@@ -108,27 +108,20 @@ class WikitextSerializer {
 	/** @var SerializerState */
 	private $state;
 
-	/**
-	 * @var array
-	 *   - env: (Env)
-	 *   - logType: (string)
-	 */
-	private $options;
-
 	/** @var string Log type for trace() */
 	private $logType;
 
 	/**
+	 * @param Env $env
 	 * @param array $options List of options for serialization:
-	 *   - env: (Env) (required)
 	 *   - logType: (string)
+	 *   - extName: (string)
 	 */
-	public function __construct( $options ) {
-		$this->logType = $options['logType'] = 'trace/wts';
-		$this->options = $options;
-		$this->env = $options['env'];
-		$this->state = new SerializerState( $this, $this->options );
-		$this->wteHandlers = new WikitextEscapeHandlers( $this->options );
+	public function __construct( Env $env, $options ) {
+		$this->env = $env;
+		$this->logType = $options['logType'] ?? 'trace/wts';
+		$this->state = new SerializerState( $this, $options );
+		$this->wteHandlers = new WikitextEscapeHandlers( $env, $options['extName'] ?? null );
 	}
 
 	/**
@@ -173,7 +166,7 @@ class WikitextSerializer {
 		array $opts, DocumentFragment $node
 	): string {
 		$opts['logType'] = $this->logType;
-		$serializer = new WikitextSerializer( $opts );
+		$serializer = new WikitextSerializer( $this->env, $opts );
 		return $serializer->serializeDOM( $node );
 	}
 

@@ -167,14 +167,14 @@ class ContentModelHandler extends IContentModelHandler {
 
 		$this->canonicalizeDOM( $env, $env->topLevelDoc );
 
-		$serializerOpts = [ 'env' => $env, 'selserData' => $selserData ];
+		$serializerOpts = [ 'selserData' => $selserData ];
 		if ( $selserData && $selserData->oldText !== null ) {
-			$serializer = new SelectiveSerializer( $serializerOpts );
+			$serializer = new SelectiveSerializer( $env, $serializerOpts );
 			$this->setupSelser( $extApi, $selserData );
 			$wtsType = 'selser';
 		} else {
 			// Fallback
-			$serializer = new WikitextSerializer( $serializerOpts );
+			$serializer = new WikitextSerializer( $env, $serializerOpts );
 			$wtsType = 'noselser';
 		}
 
