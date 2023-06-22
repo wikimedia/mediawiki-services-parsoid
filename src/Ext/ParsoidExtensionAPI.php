@@ -856,7 +856,7 @@ class ParsoidExtensionAPI {
 	 */
 	public function postProcessDOM( Document $doc ): void {
 		$env = $this->env;
-		// From CleanUp::cleanupAndSaveDataParsoid
+		// From CleanUp::saveDataParsoid
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
 			'storeInPageBundle' => $env->pageBundle,
 			'env' => $env

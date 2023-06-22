@@ -545,7 +545,7 @@ class DOMPostProcessor extends PipelineStage {
 				'skipNested' => false,
 			],
 			[
-				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanupAndSaveDataParsoid',
+				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
 				'shortcut' => 'cleanup',
 				'isTraverser' => true,
 				'tplInfo' => true,
@@ -555,6 +555,20 @@ class DOMPostProcessor extends PipelineStage {
 						'nodeName' => null,
 						'action' => [ CleanUp::class, 'handleEmptyElements' ]
 					],
+					// Additional cleanup
+					[
+						'nodeName' => null,
+						'action' => [ CleanUp::class, 'finalCleanup' ]
+					]
+				]
+			],
+			[
+				'name' => 'CleanUp-saveDataParsoid',
+				'shortcut' => 'saveDP',
+				'skipNested' => true,
+				'isTraverser' => true,
+				'tplInfo' => true,
+				'handlers' => [
 					// Save data.parsoid into data-parsoid html attribute.
 					// Make this its own thing so that any changes to the DOM
 					// don't affect other handlers that run alongside it.
@@ -565,9 +579,7 @@ class DOMPostProcessor extends PipelineStage {
 							if ( $state->atTopLevel && DOMUtils::isBody( $node ) ) {
 								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 							}
-							return CleanUp::cleanupAndSaveDataParsoid(
-								$usedIdIndex, $node, $env, $state
-							);
+							return CleanUp::saveDataParsoid( $usedIdIndex, $node, $env, $state );
 						}
 					]
 				]
