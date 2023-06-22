@@ -179,8 +179,8 @@ class TreeBuilderStage extends PipelineStage {
 			unset( $attribs['data-mw'] );
 		}
 		// Store in the top level doc since we'll be importing the nodes after treebuilding
-		$docId = DOMDataUtils::stashObjectInDoc( $this->env->topLevelDoc, $data );
-		$attribs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] = (string)$docId;
+		$nodeId = DOMDataUtils::stashObjectInDoc( $this->env->topLevelDoc, $data );
+		$attribs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] = (string)$nodeId;
 		return $attribs;
 	}
 

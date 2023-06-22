@@ -16,7 +16,7 @@ class DataBag {
 	private $dataObject;
 
 	/** @var int An id counter for this document used for the dataObject map */
-	private $docId;
+	private $nodeId;
 
 	/** @var stdClass the page bundle object into which all data-parsoid and data-mw
 	 * attributes will be extracted to for pagebundle API requests.
@@ -33,7 +33,7 @@ class DataBag {
 
 	public function __construct() {
 		$this->dataObject = [];
-		$this->docId = 0;
+		$this->nodeId = 0;
 		$this->pageBundle = (object)[
 			"parsoid" => PHPUtils::arrayToObject( [ "counter" => -1, "ids" => [] ] ),
 			"mw" => PHPUtils::arrayToObject( [ "ids" => [] ] )
@@ -49,14 +49,14 @@ class DataBag {
 	}
 
 	/**
-	 * Get the data object for the node with data-object-id 'docId'.
-	 * This will return null if a non-existent docId is provided.
+	 * Get the data object for the node with data-object-id 'nodeId'.
+	 * This will return null if a non-existent nodeId is provided.
 	 *
-	 * @param int $docId
+	 * @param int $nodeId
 	 * @return NodeData|null
 	 */
-	public function getObject( int $docId ): ?NodeData {
-		return $this->dataObject[$docId] ?? null;
+	public function getObject( int $nodeId ): ?NodeData {
+		return $this->dataObject[$nodeId] ?? null;
 	}
 
 	/**
@@ -65,8 +65,8 @@ class DataBag {
 	 * @return int
 	 */
 	public function stashObject( NodeData $data ): int {
-		$docId = $this->docId++;
-		$this->dataObject[$docId] = $data;
-		return $docId;
+		$nodeId = $this->nodeId++;
+		$this->dataObject[$nodeId] = $data;
+		return $nodeId;
 	}
 }

@@ -102,13 +102,13 @@ class DOMDataUtils {
 			return $dataObject;
 		}
 
-		$docId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
-		if ( $docId !== '' ) {
-			$dataObject = self::getBag( $node->ownerDocument )->getObject( (int)$docId );
+		$nodeId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
+		if ( $nodeId !== '' ) {
+			$dataObject = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
 		} else {
 			$dataObject = null; // Make phan happy
 		}
-		Assert::invariant( isset( $dataObject ), 'Bogus docId given!' );
+		Assert::invariant( isset( $dataObject ), 'Bogus nodeId given!' );
 		if ( isset( $dataObject->storedId ) ) {
 			throw new UnreachableException(
 				'Trying to fetch node data without loading!' .
@@ -129,8 +129,8 @@ class DOMDataUtils {
 	 * @param NodeData $data data
 	 */
 	public static function setNodeData( Element $node, NodeData $data ): void {
-		$docId = self::stashObjectInDoc( $node->ownerDocument, $data );
-		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$docId );
+		$nodeId = self::stashObjectInDoc( $node->ownerDocument, $data );
+		$node->setAttribute( self::DATA_OBJECT_ATTR_NAME, (string)$nodeId );
 	}
 
 	/**
