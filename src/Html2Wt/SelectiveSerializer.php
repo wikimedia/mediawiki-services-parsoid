@@ -38,11 +38,12 @@ class SelectiveSerializer {
 	private $selserData;
 
 	/**
+	 * @param Env $env
 	 * @param array $options
 	 */
-	public function __construct( $options ) {
-		$this->env = $options['env'];
-		$this->wts = new WikitextSerializer( $options );
+	public function __construct( Env $env, array $options ) {
+		$this->env = $env;
+		$this->wts = new WikitextSerializer( $env, $options );
 		$this->selserData = $options['selserData'];
 
 		// Debug options
