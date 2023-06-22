@@ -34,7 +34,7 @@ class DOMNormalizerTest extends TestCase {
 		string $html, string $expected, ?string $message = null, array $opts = [], bool $stripDiffMarkers = true
 	) {
 		$mockEnv = new MockEnv( $opts );
-		$mockSerializer = new WikitextSerializer( [ 'env' => $mockEnv ] );
+		$mockSerializer = new WikitextSerializer( $mockEnv, [] );
 		$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 		/** @var DOMNormalizer $DOMNormalizer */
 		$DOMNormalizer = TestingAccessWrapper::newFromObject( new DOMNormalizer( $mockState ) );

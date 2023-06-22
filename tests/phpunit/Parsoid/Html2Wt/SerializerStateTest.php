@@ -39,7 +39,7 @@ class SerializerStateTest extends TestCase {
 			$env = new MockEnv( [] );
 		}
 		if ( !$serializer ) {
-			$serializer = new WikitextSerializer( [ 'env' => $env ] );
+			$serializer = new WikitextSerializer( $env, [] );
 		}
 		return new SerializerState( $serializer, $options );
 	}

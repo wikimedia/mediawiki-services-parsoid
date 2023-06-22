@@ -292,18 +292,22 @@ class SerializerState {
 
 	/**
 	 * @param WikitextSerializer $serializer
-	 * @param array $options
+	 * @param array $options List of options for serialization:
+	 *   - onSOL: (bool)
+	 *   - inPHPBlock: (bool)
+	 *   - inAttribute: (bool)
+	 *   - protect: (string)
+	 *   - selserData: (SelserData)
 	 */
 	public function __construct( WikitextSerializer $serializer, array $options = [] ) {
 		$this->env = $serializer->env;
 		$this->serializer = $serializer;
 		$this->extApi = new ParsoidExtensionAPI( $this->env, [ 'html2wt' => [ 'state' => $this ] ] );
-		foreach ( $options as $name => $option ) {
-			// PORT-FIXME validate
-			if ( !( $option instanceof Env ) ) {
-				$this->$name = Utils::clone( $option );
-			}
-		}
+		$this->onSOL = $options['onSOL'] ?? $this->onSOL;
+		$this->inPHPBlock = $options['inPHPBlock'] ?? $this->inPHPBlock;
+		$this->inAttribute = $options['inAttribute'] ?? $this->inAttribute;
+		$this->protect = $options['protect'] ?? null;
+		$this->selserData = $options['selserData'] ?? null;
 		$this->resetCurrLine( null );
 		$this->singleLineContext = new SingleLineContext();
 		$this->resetSep();
