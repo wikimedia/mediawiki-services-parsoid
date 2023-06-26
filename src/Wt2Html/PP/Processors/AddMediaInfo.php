@@ -161,7 +161,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$doc = $elt->ownerDocument;
 		$frag = self::parseFrag( $info, $dataMw );
 
-		$dataFromTMH = true;
 		if ( is_array( $info['thumbdata']['derivatives'] ?? null ) ) {
 			// BatchAPI's `getAPIData`
 			$derivatives = $info['thumbdata']['derivatives'];
@@ -177,21 +176,16 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					'height' => (string)$info['height'],
 				],
 			];
-			$dataFromTMH = false;
 		}
 
 		foreach ( $derivatives as $o ) {
 			$source = $doc->createElement( 'source' );
 			$source->setAttribute( 'src', $o['src'] . $frag );
-			$source->setAttribute( 'type', $o['type'] );
+			$source->setAttribute( 'type', $o['type'] );  // T339375
 			$fromFile = isset( $o['transcodekey'] ) ? '' : '-file';
 			if ( $hasDimension ) {
 				$source->setAttribute( 'data' . $fromFile . '-width', (string)$o['width'] );
 				$source->setAttribute( 'data' . $fromFile . '-height', (string)$o['height'] );
-			}
-			if ( $dataFromTMH ) {
-				$source->setAttribute( 'data-title', $o['title'] );
-				$source->setAttribute( 'data-shorttitle', $o['shorttitle'] );
 			}
 			$elt->appendChild( $source );
 		}
