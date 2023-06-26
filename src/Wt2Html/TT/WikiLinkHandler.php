@@ -253,7 +253,7 @@ class WikiLinkHandler extends TokenHandler {
 		$tsr = $token->dataParsoid->tsr;
 		$frameSrc = $frame->getSrcText();
 		$linkSrc = $tsr->substr( $frameSrc );
-		$src = substr( $linkSrc, 1, -1 );
+		$src = substr( $linkSrc, 1 );
 		if ( $src === false ) {
 			$manager->getEnv()->log(
 				'error', 'Unable to determine link source.',
@@ -275,7 +275,7 @@ class WikiLinkHandler extends TokenHandler {
 			]
 		);
 		TokenUtils::stripEOFTkfromTokens( $toks );
-		return array_merge( [ '[' ], $toks, [ ']' ] );
+		return array_merge( [ '[' ], $toks );
 	}
 
 	/**
