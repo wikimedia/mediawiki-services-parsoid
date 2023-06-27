@@ -583,11 +583,14 @@ class DOMDataUtils {
 					break;
 
 				case 'tmp':
-					$tmp = new TempData;
-					foreach ( $value as $key2 => $value2 ) {
-						$tmp->$key2 = $value2;
+					// $tmp in DataParsoid.php is lazy-initialized and can be empty
+					if ( $value ) {
+						$tmp = new TempData;
+						foreach ( $value as $key2 => $value2 ) {
+							$tmp->$key2 = $value2;
+						}
+						$dp->tmp = $tmp;
 					}
-					$dp->tmp = $tmp;
 					break;
 
 				default:

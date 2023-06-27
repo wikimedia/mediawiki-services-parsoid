@@ -141,7 +141,10 @@ class DOMPostProcessor extends PipelineStage {
 				$p['shortcut'] = $p['name'];
 			}
 			if ( !empty( $p['isTraverser'] ) ) {
-				$t = new DOMTraverser( $p['tplInfo'] ?? false );
+				$t = new DOMTraverser(
+					$p['tplInfo'] ?? false,
+					$p['applyToAttributeEmbeddedHTML'] ?? false
+				);
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
@@ -405,8 +408,9 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'name' => 'MigrateTrailingCategories,TableFixups,DedupeStyles',
 				'shortcut' => 'fixups',
-				'isTraverser' => true,
 				'skipNested' => true,
+				'isTraverser' => true,
+				'applyToAttributeEmbeddedHTML' => true,
 				'tplInfo' => true,
 				'handlers' => [
 					// Move trailing categories in <li>s out of the list
@@ -453,8 +457,10 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'name' => 'Headings-genAnchors',
 				'shortcut' => 'heading-ids',
-				'isTraverser' => true,
 				'skipNested' => true,
+				'isTraverser' => true,
+				// No need to generate heading ids for HTML embedded in attributes
+				'applyToAttributeEmbeddedHTML' => false,
 				'handlers' => [
 					[
 						'nodeName' => null,
@@ -479,7 +485,9 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'name' => 'CleanUp-stripMarkerMetas',
 				'shortcut' => 'strip-metas',
+				'skipNested' => true,
 				'isTraverser' => true,
+				'applyToAttributeEmbeddedHTML' => true,
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
@@ -547,7 +555,9 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
 				'shortcut' => 'cleanup',
+				'skipNested' => true,
 				'isTraverser' => true,
+				'applyToAttributeEmbeddedHTML' => true,
 				'tplInfo' => true,
 				'handlers' => [
 					// Strip empty elements from template content
@@ -567,6 +577,13 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'saveDP',
 				'skipNested' => true,
 				'isTraverser' => true,
+				// FIXME This means the data-* from embedded HTML fragments won't end up
+				// in the pagebundle. But, if we try to call this on those fragments,
+				// we get multiple calls to store embedded docs. So, we may need to
+				// write a custom traverser if we want these embedded data* objects
+				// in the pagebundle (this is not a regression since they weren't part
+				// of the pagebundle all this while anyway.)
+				'applyToAttributeEmbeddedHTML' => false,
 				'tplInfo' => true,
 				'handlers' => [
 					// Save data.parsoid into data-parsoid html attribute.

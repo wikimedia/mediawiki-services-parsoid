@@ -298,35 +298,33 @@ class CleanUp {
 			$dp->dsr->start = $dp->dsr->end;
 		}
 
-		if ( $state->atTopLevel ) {
-			// Strip nowiki spans from encapsulated content but leave behind
-			// wrappers on root nodes since they have valid about ids and we
-			// don't want to break the about-chain by stripping the wrapper
-			// and associated ids (we cannot add an about id on the nowiki-ed
-			// content since that would be a text node).
-			if ( ( $state->tplInfo ?? null ) && !WTUtils::hasParsoidAboutId( $node ) &&
-				 DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
-			) {
-				DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
-				$next = $node->nextSibling;
-				$node->parentNode->removeChild( $node );
-				return $next;
-			}
+		// Strip nowiki spans from encapsulated content but leave behind
+		// wrappers on root nodes since they have valid about ids and we
+		// don't want to break the about-chain by stripping the wrapper
+		// and associated ids (we cannot add an about id on the nowiki-ed
+		// content since that would be a text node).
+		if ( ( $state->tplInfo ?? null ) && !WTUtils::hasParsoidAboutId( $node ) &&
+			 DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
+		) {
+			DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );
+			$next = $node->nextSibling;
+			$node->parentNode->removeChild( $node );
+			return $next;
+		}
 
-			// Strip IndentPre marker metas
-			if ( PreHandler::isIndentPreWS( $node ) ) {
-				$nextNode = $node->nextSibling;
-				$node->parentNode->removeChild( $node );
-				return $nextNode;
-			}
+		// Strip IndentPre marker metas
+		if ( PreHandler::isIndentPreWS( $node ) ) {
+			$nextNode = $node->nextSibling;
+			$node->parentNode->removeChild( $node );
+			return $nextNode;
+		}
 
-			// Trim whitespace from some wikitext markup
-			// not involving explicit HTML tags (T157481)
-			if ( !WTUtils::hasLiteralHTMLMarker( $dp ) &&
-				isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $node )] )
-			) {
-				self::trimWhiteSpace( $node, $dp->dsr ?? null );
-			}
+		// Trim whitespace from some wikitext markup
+		// not involving explicit HTML tags (T157481)
+		if ( !WTUtils::hasLiteralHTMLMarker( $dp ) &&
+			isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $node )] )
+		) {
+			self::trimWhiteSpace( $node, $dp->dsr ?? null );
 		}
 
 		return true;

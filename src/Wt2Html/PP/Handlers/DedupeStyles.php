@@ -8,15 +8,24 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 
 class DedupeStyles {
 
 	/**
 	 * @param Element $node
 	 * @param Env $env
+	 * @param DTState $state
 	 * @return bool|Element
 	 */
-	public static function dedupe( Element $node, Env $env ) {
+	public static function dedupe( Element $node, Env $env, DTState $state ) {
+		// Don't run on embedded docs for now since we don't want the
+		// canonical styles to be introduced in embedded HTML which means
+		// they will get lost wrt the top level document.
+		if ( !$state->atTopLevel ) {
+			return true;
+		}
+
 		if ( !$node->hasAttribute( 'data-mw-deduplicate' ) ) {
 			// Not a templatestyles <style> tag
 			return true;
