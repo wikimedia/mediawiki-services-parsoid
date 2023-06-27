@@ -774,20 +774,22 @@ extlink "extlink" =
 	r:(
 		"["
 		p0:( "" { return $this->endOffset(); })
-		addr:(url_protocol ipv6urladdr / "")
-		target:(extlink_nonipv6url<extlink> / "")
-		p1:( "" { return $this->endOffset(); })
+		flat:(
+			addr:(url_protocol ipv6urladdr / "")
+			target:(extlink_nonipv6url<extlink> / "")
+			{ return TokenizerUtils::flattenString( [ $addr, $target ] ); }
+		)
 		& {
 			// Protocol must be valid and there ought to be at least one
 			// post-protocol character.  So strip last char off target
 			// before testing protocol.
-			$flat = TokenizerUtils::flattenString( [ $addr, $target ] );
 			if ( is_array( $flat ) ) {
 				// There are templates present, alas.
 				return count( $flat ) > 0;
 			}
 			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
 		}
+		p1:( "" { return $this->endOffset(); })
 		sp:$( space / unispace )*
 		p2:( "" { return $this->endOffset(); })
 		content:inlineline<extlink>?
@@ -802,7 +804,7 @@ extlink "extlink" =
 				new SelfclosingTagTk(
 					'extlink',
 					[
-						new KV( 'href', TokenizerUtils::flattenString( [ $addr, $target ] ), $tsr1->expandTsrV() ),
+						new KV( 'href', $flat, $tsr1->expandTsrV() ),
 						new KV( 'mw:content', $content ?? '', $tsr2->expandTsrV() ),
 						new KV( 'spaces', $sp )
 					],
