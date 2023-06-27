@@ -85,13 +85,12 @@ class TokenizerUtils {
 
 	/**
 	 * FIXME: document
-	 * @param mixed $c
-	 * @return mixed
+	 * @param array $c
+	 * @return array
 	 */
-	public static function flattenStringlist( $c ) {
+	public static function flattenStringlist( array $c ): array {
 		$out = [];
 		$text = '';
-		// c will always be an array
 		$c = self::flattenIfArray( $c );
 		for ( $i = 0,  $l = count( $c );  $i < $l;  $i++ ) {
 			$ci = $c[$i];
