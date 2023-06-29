@@ -29,7 +29,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	/**
 	 * Should the handlers be called on attribute-embedded-HTML strings?
 	 */
-	private bool $processAttributeEmbeddedHTML;
+	private bool $applyToAttributeEmbeddedHTML;
 
 	/**
 	 * @var bool
@@ -39,9 +39,9 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param bool $traverseWithTplInfo
 	 */
-	public function __construct( bool $traverseWithTplInfo = false, bool $processAttributeEmbeddedHTML = false ) {
+	public function __construct( bool $traverseWithTplInfo = false, bool $applyToAttributeEmbeddedHTML = false ) {
 		$this->traverseWithTplInfo = $traverseWithTplInfo;
-		$this->processAttributeEmbeddedHTML = $processAttributeEmbeddedHTML;
+		$this->applyToAttributeEmbeddedHTML = $applyToAttributeEmbeddedHTML;
 	}
 
 	/**
@@ -80,7 +80,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 		// Process embedded HTML first since the handlers below might
 		// return a different node which aborts processing. By processing
 		// attributes first, we ensure attribute are always processed.
-		if ( $node instanceof Element && $this->processAttributeEmbeddedHTML ) {
+		if ( $node instanceof Element && $this->applyToAttributeEmbeddedHTML ) {
 			$self = $this;
 			ContentUtils::processAttributeEmbeddedHTML(
 				$extAPI,
