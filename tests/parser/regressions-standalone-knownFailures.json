@@ -1,0 +1,13 @@
+{
+    "Testing": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,24,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Bar\" title=\"Bar\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Bar\"},\"sa\":{\"href\":\"Bar\"},\"dsr\":[0,24,6,2],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"RegressionTest\",\"href\":\"./Template:RegressionTest\"},\"params\":{},\"i\":0}},\"\\n\\nBar\"]}'><span>bar</span></a></p>\n\n<p data-parsoid='{\"dsr\":[26,26,0,0]}'>Bar</p>",
+        "wt2wt": "{{RegressionTest}}\n\nBar\n\nBar",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,24,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Bar\" title=\"Bar\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Bar\"},\"sa\":{\"href\":\"Bar\"},\"dsr\":[0,24,6,2],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"RegressionTest\",\"href\":\"./Template:RegressionTest\"},\"params\":{},\"i\":0}},\"\\n\\nBar\"]}'><span>bar</span></a></p>\n\n<p data-parsoid='{\"dsr\":[26,26,0,0]}'>Bar</p>",
+        "selser [4,3,0]": "ntspy9\n\n",
+        "selser [3,0,2]": "\n7j3x3r\n\n",
+        "selser [0,0,2]": "{{RegressionTest}}\n\nBar\n\ne1k0a7\n\n",
+        "selser [0,2,2]": "{{RegressionTest}}\n\nBar\n\nkm3lrq\n\n124ia89\n\n",
+        "selser [4,4,2]": "x24vo\n\n11oouwp\n\nscyx4u\n\n",
+        "selser [2,0,0]": "773ep4\n\n{{RegressionTest}}\n\nBar\n\n"
+    }
+}

@@ -1,0 +1,34 @@
+# We don't need to run these tests in integrated mode as well.
+!! options
+version=2
+!! end
+
+!!article
+Bar
+!!text
+abcd
+!!endarticle
+
+# We need the span in the wikilink so that the link text is
+# processed as a DOMFragment which then triggers the regression
+# we are testing in this file
+!!article
+Template:RegressionTest
+!!text
+[[Bar|<span>bar</span>]]
+!!endarticle
+
+# Regression test -- ensure that nested pipeline TSR information
+# doesn't leak onto the top-level pipeline during DSR computation.
+# We verify this indirectly via passing selser tests.
+!!test
+Regression Test: Ensure nested pipeline TSR doesn't impact top-level DSR values
+!!wikitext
+{{RegressionTest}}
+
+Bar
+!!html/parsoid
+<p><a rel="mw:WikiLink" href="./Bar" title="Bar" about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"RegressionTest","href":"./Template:RegressionTest"},"params":{},"i":0}}]}'><span>bar</span></a></p>
+
+<p>Bar</p>
+!!end
