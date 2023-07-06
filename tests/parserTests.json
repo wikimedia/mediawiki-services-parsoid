@@ -9,6 +9,7 @@
 			"i18nParserTests.txt": {},
 			"langParserTests.txt": {},
 			"sectionWrappingParserTests.txt": {},
+			"regressions.txt": {},
 			"selserWrappingParserTests.txt": {},
 			"separatorTests.txt": {},
 			"tableFixupsParserTests.txt": {}
