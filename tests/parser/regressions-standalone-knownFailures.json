@@ -1,18 +1,1 @@
-{
-    "Regression Test: Ensure nested pipeline TSR doesn't impact top-level DSR values": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,24,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Bar\" title=\"Bar\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Bar\"},\"sa\":{\"href\":\"Bar\"},\"dsr\":[0,24,6,2],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"RegressionTest\",\"href\":\"./Template:RegressionTest\"},\"params\":{},\"i\":0}},\"\\n\\nBar\"]}'><span>bar</span></a></p>\n\n<p data-parsoid='{\"dsr\":[26,26,0,0]}'>Bar</p>",
-        "wt2wt": "{{RegressionTest}}\n\nBar\n\nBar",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,24,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Bar\" title=\"Bar\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Bar\"},\"sa\":{\"href\":\"Bar\"},\"dsr\":[0,24,6,2],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"RegressionTest\",\"href\":\"./Template:RegressionTest\"},\"params\":{},\"i\":0}},\"\\n\\nBar\"]}'><span>bar</span></a></p>\n\n<p data-parsoid='{\"dsr\":[26,26,0,0]}'>Bar</p>",
-        "selser [0,0,2]": "{{RegressionTest}}\n\nBar\n\n11vw05n\n\n",
-        "selser [0,3,0]": "{{RegressionTest}}\n\nBar\n\n",
-        "selser [1,0,0]": "{{RegressionTest}}\n\nBar\n\n",
-        "selser [3,4,0]": "5mtwct\n\n",
-        "selser [0,4,0]": "{{RegressionTest}}\n\nBar\n\n1f2rzvc\n\n",
-        "selser [0,3,2]": "{{RegressionTest}}\n\nBar\n\nnptbpo\n\n",
-        "selser [3,2,0]": "1tvs3ro\n\n",
-        "selser [3,0,0]": "\n",
-        "selser [0,2,0]": "{{RegressionTest}}\n\nBar\n\n20j0l9\n\n",
-        "selser [4,0,2]": "eeha06\n\n15ulkbs\n\n",
-        "selser [2,0,0]": "a2pr6p\n\n{{RegressionTest}}\n\nBar\n\n"
-    }
-}
+{}

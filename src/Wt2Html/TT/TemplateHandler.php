@@ -790,9 +790,15 @@ class TemplateHandler extends TokenHandler {
 		TokenUtils::stripEOFTkfromTokens( $chunk );
 
 		foreach ( $chunk as $i => $t ) {
-			if ( $t && isset( $t->dataParsoid->tsr ) ) {
+			if ( !$t ) {
+				continue;
+			}
+
+			if ( isset( $t->dataParsoid->tsr ) ) {
 				unset( $t->dataParsoid->tsr );
 			}
+			Assert::invariant( !isset( $t->dataParsoid->tmp->endTSR ),
+				"Expected endTSR to not be set on templated content." );
 			if ( $t instanceof SelfclosingTagTk &&
 				strtolower( $t->getName() ) === 'meta' &&
 				TokenUtils::hasTypeOf( $t, 'mw:Placeholder' )

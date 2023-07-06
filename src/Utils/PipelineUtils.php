@@ -368,12 +368,16 @@ class PipelineUtils {
 				// Shallow clone since we don't want to convert the whole tree to tokens.
 				$workNode = $node->cloneNode( false );
 
-				// Reset 'tsr' since it isn't applicable.
+				// Reset 'tsr' since it isn't applicable. Neither is
+				// any auxiliary info like 'endTSR'.
 				// FIXME: The above comment is only true if we are reusing
 				// DOM fragments from cache from previous revisions in
 				// incremental parsing scenarios.  See T98992
 				if ( isset( $nodeData->parsoid->tsr ) ) {
 					$nodeData->parsoid->tsr = null;
+				}
+				if ( isset( $nodeData->parsoid->tmp->endTSR ) ) {
+					unset( $nodeData->parsoid->tmp->endTSR );
 				}
 			}
 
