@@ -414,8 +414,10 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Parse extension tag to DOM. Beyond parsing the contents of the extension tag,
-	 * this wraps the contents in a custom wrapper element (ex: <div>), sanitizes
+	 * Parse extension tag to DOM.
+	 *
+	 * If a wrapper tag is requested, beyond parsing the contents of the extension tag,
+	 * this method wraps the contents in a custom wrapper element (ex: <div>), sanitizes
 	 * the arguments of the extension args and sets some content flags on the wrapper.
 	 *
 	 * @param array $extArgs
@@ -423,7 +425,7 @@ class ParsoidExtensionAPI {
 	 * @param array $opts
 	 * - srcOffsets
 	 * - frame
-	 * - wrapperTag
+	 * - wrapperTag (skip OR pass null to not add any wrapper tag)
 	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
@@ -442,24 +444,25 @@ class ParsoidExtensionAPI {
 		}
 
 		$domFragment = $this->wikitextToDOM( $wikitext, $opts, true /* sol */ );
+		if ( !empty( $opts['wrapperTag'] ) ) {
+			// Create a wrapper and migrate content into the wrapper
+			$wrapper = $domFragment->ownerDocument->createElement(
+				$opts['wrapperTag']
+			);
+			DOMUtils::migrateChildren( $domFragment, $wrapper );
+			$domFragment->appendChild( $wrapper );
 
-		// Create a wrapper and migrate content into the wrapper
-		$wrapper = $domFragment->ownerDocument->createElement(
-			$opts['wrapperTag']
-		);
-		DOMUtils::migrateChildren( $domFragment, $wrapper );
-		$domFragment->appendChild( $wrapper );
+			// Sanitize args and set on the wrapper
+			Sanitizer::applySanitizedArgs( $this->env->getSiteConfig(), $wrapper, $extArgs );
 
-		// Sanitize args and set on the wrapper
-		Sanitizer::applySanitizedArgs( $this->env->getSiteConfig(), $wrapper, $extArgs );
+			// Mark empty content DOMs
+			if ( $wikitext === '' ) {
+				DOMDataUtils::getDataParsoid( $wrapper )->empty = true;
+			}
 
-		// Mark empty content DOMs
-		if ( $wikitext === '' ) {
-			DOMDataUtils::getDataParsoid( $wrapper )->empty = true;
-		}
-
-		if ( !empty( $this->extTag->isSelfClosed() ) ) {
-			DOMDataUtils::getDataParsoid( $wrapper )->selfClose = true;
+			if ( !empty( $this->extTag->isSelfClosed() ) ) {
+				DOMDataUtils::getDataParsoid( $wrapper )->selfClose = true;
+			}
 		}
 
 		return $domFragment;
