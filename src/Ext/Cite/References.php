@@ -760,7 +760,6 @@ class References extends ExtensionTagHandler {
 			$extArgs,
 			$txt,
 			[
-				'wrapperTag' => 'div',
 				'parseOpts' => [ 'extTag' => 'references' ],
 			]
 		);
