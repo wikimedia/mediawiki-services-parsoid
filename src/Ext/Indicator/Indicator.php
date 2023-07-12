@@ -17,12 +17,6 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
  * Implements the php parser's `indicator` hook natively.
  */
 class Indicator extends ExtensionTagHandler implements ExtensionModule {
-	/**
-	 * Temporary storage for use in modifyArgDict.
-	 * This also assumes we won't be processing multiple indicators concurrently.
-	 */
-	private ?string $html;
-
 	/** @inheritDoc */
 	public function getConfig(): array {
 		return [
@@ -33,24 +27,14 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 					'handler' => self::class,
 					'options' => [
 						'wt2html' => [
-							'embedsHTMLInAttributes' => true
+							'embedsHTMLInAttributes' => true,
+							'customizesDataMw' => true,
 						],
 						'outputHasCoreMwDomSpecMarkup' => true
 					],
 				]
 			],
 		];
-	}
-
-	/** @inheritDoc */
-	public function modifyArgDict(
-		ParsoidExtensionAPI $extApi, object $argDict
-	): void {
-		if ( isset( $this->html ) ) {
-			/* HACK: $html is not part of the indicator's arg dictionary.
-			 * So, this is a hack to get $html where it needs to go. */
-			$argDict->html = $this->html;
-		}
 	}
 
 	/** @inheritDoc */
@@ -67,10 +51,13 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DocumentFragment {
+		$dataMw = $extApi->extTag->getDefaultDataMw();
 		$kvArgs = $extApi->extArgsToArray( $args );
 		$name = $kvArgs['name'] ?? '';
 		if ( trim( $name ) === '' ) {
-			return $extApi->pushError( 'invalid-indicator-name' );
+			$out = $extApi->pushError( 'invalid-indicator-name' );
+			DOMDataUtils::setDataMw( $out->firstChild, $dataMw );
+			return $out;
 		}
 
 		// Convert indicator wikitext to DOM
@@ -91,7 +78,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		// Save HTML and remove content from the fragment
-		$this->html = $extApi->domToHtml( $domFragment, true );
+		$dataMw->html = $extApi->domToHtml( $domFragment, true );
 
 		$c = $domFragment->firstChild;
 		while ( $c ) {
@@ -103,6 +90,8 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 		// NOTE: Till T214994 is resolved, this HTML will not get processed
 		// by all the top-level DOM passes that may need to process this (ex: linting)
 		$meta = $domFragment->ownerDocument->createElement( 'meta' );
+
+		DOMDataUtils::setDataMw( $meta, $dataMw );
 
 		// Append meta
 		$domFragment->appendChild( $meta );

@@ -107,16 +107,6 @@ abstract class ExtensionTagHandler {
 	}
 
 	/**
-	 * Some extensions require the ability to modify the argument
-	 * dictionary.
-	 * @param ParsoidExtensionAPI $extApi
-	 * @param object $argDict
-	 */
-	public function modifyArgDict( ParsoidExtensionAPI $extApi, object $argDict ): void {
-		/* do not modify the argument dictionary by default */
-	}
-
-	/**
 	 * XXX: Experimental
 	 *
 	 * Call $domDiff on corresponding substrees of $origNode and $editedNode

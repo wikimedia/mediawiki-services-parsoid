@@ -362,7 +362,7 @@ class Utils {
 	public static function getExtArgInfo( Token $extToken ): \stdClass {
 		$name = $extToken->getAttribute( 'name' );
 		$options = $extToken->getAttribute( 'options' );
-		return (object)[
+		$info = (object)[
 			'dict' => (object)[
 				'name' => $name,
 				'attrs' => PHPUtils::arrayToObject( TokenUtils::kvToHash( $options ) ),
@@ -371,6 +371,11 @@ class Utils {
 				],
 			],
 		];
+		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
+		if ( $extTagOffsets->closeWidth === 0 ) {
+			unset( $info->dict->body ); // Serialize to self-closing.
+		}
+		return $info;
 	}
 
 	/**

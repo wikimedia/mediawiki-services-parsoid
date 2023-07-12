@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Wrapper so that the internal token isn't exposed
@@ -57,4 +58,10 @@ class ExtensionTag {
 		return !empty( $this->extToken->dataParsoid->selfClose );
 	}
 
+	/**
+	 * @return \stdClass
+	 */
+	public function getDefaultDataMw(): \stdClass {
+		return Utils::getExtArgInfo( $this->extToken )->dict;
+	}
 }

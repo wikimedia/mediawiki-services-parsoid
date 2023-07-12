@@ -46,6 +46,9 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 					'name' => 'gallery',
 					'handler' => self::class,
 					'options' => [
+						'wt2html' => [
+							'customizesDataMw' => true,
+						],
 						'outputHasCoreMwDomSpecMarkup' => true
 					],
 				]
@@ -221,7 +224,25 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$mode = Mode::byName( $opts->mode );
 		$extApi->getMetadata()->addModules( $mode->getModules() );
 		$extApi->getMetadata()->addModuleStyles( $mode->getModuleStyles() );
-		return $mode->render( $extApi, $opts, $caption, $lines );
+		$domFragment = $mode->render( $extApi, $opts, $caption, $lines );
+
+		$dataMw = $extApi->extTag->getDefaultDataMw();
+
+		// Remove extsrc from native extensions
+		if (
+			// Self-closed tags don't have a body but unsetting on it induces one
+			isset( $dataMw->body )
+		) {
+			unset( $dataMw->body->extsrc );
+		}
+
+		// Remove the caption since it's redundant with the HTML
+		// and we prefer editing it there.
+		unset( $dataMw->attrs->caption );
+
+		DOMDataUtils::setDataMw( $domFragment->firstChild, $dataMw );
+
+		return $domFragment;
 	}
 
 	/**
@@ -384,23 +405,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			}
 			return $startTagSrc . $content . '</' . $dataMw->name . '>';
 		}
-	}
-
-	/** @inheritDoc */
-	public function modifyArgDict(
-		ParsoidExtensionAPI $extApi, object $argDict
-	): void {
-		// Remove extsrc from native extensions
-		if (
-			// Self-closed tags don't have a body but unsetting on it induces one
-			isset( $argDict->body )
-		) {
-			unset( $argDict->body->extsrc );
-		}
-
-		// Remove the caption since it's redundant with the HTML
-		// and we prefer editing it there.
-		unset( $argDict->attrs->caption );
 	}
 
 	/** @inheritDoc */

@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
-use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -64,6 +64,7 @@ class ExtensionHandler extends TokenHandler {
 		$siteConfig = $env->getSiteConfig();
 		$pageConfig = $env->getPageConfig();
 		$extensionName = $token->getAttribute( 'name' );
+		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extensionName );
 
 		// Track uses of extensions in the talk namespace
 		if ( $siteConfig->namespaceIsTalk( $pageConfig->getNS() ) ) {
@@ -79,8 +80,10 @@ class ExtensionHandler extends TokenHandler {
 		$options = $token->getAttribute( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
 
+		// Call after normalizing extension options, since that can affect the result
+		$dataMw = Utils::getExtArgInfo( $token )->dict;
+
 		if ( $nativeExt !== null ) {
-			$extContent = Utils::extractExtBody( $token );
 			$extArgs = $token->getAttribute( 'options' );
 			$extApi = new ParsoidExtensionAPI( $env, [
 				'wt2html' => [
@@ -91,22 +94,28 @@ class ExtensionHandler extends TokenHandler {
 			] );
 			try {
 				$domFragment = $nativeExt->sourceToDom(
-					$extApi, $extContent, $extArgs
+					$extApi, $dataMw->body->extsrc ?? '', $extArgs
 				);
 				$errors = $extApi->getErrors();
+				if ( $extConfig['options']['wt2html']['customizesDataMw'] ?? false ) {
+					$firstNode = $domFragment->firstChild;
+					DOMUtils::assertElt( $firstNode );
+					$dataMw = DOMDataUtils::getDataMw( $firstNode );
+				}
 			} catch ( ExtensionError $e ) {
 				$domFragment = WTUtils::createInterfaceI18nFragment(
 					$env->topLevelDoc, $e->err['key'], $e->err['params'] ?? null
 				);
 				$errors = [ $e->err ];
 				// FIXME: Should we include any errors collected
-				// from $extApi->getErrors() here?
+				// from $extApi->getErrors() here?  Also, what's the correct $dataMw
+				// to apply in this case?
 			}
 			if ( $domFragment !== false ) {
 				if ( $domFragment !== null ) {
 					// Turn this document fragment into a token
 					$toks = $this->onDocumentFragment(
-						$nativeExt, $token, $domFragment, $errors
+						$token, $domFragment, $dataMw, $errors
 					);
 					return new TokenHandlerResult( $toks );
 				} else {
@@ -150,7 +159,7 @@ class ExtensionHandler extends TokenHandler {
 			);
 
 			$toks = $this->onDocumentFragment(
-				$nativeExt, $token, $domFragment, []
+				$token, $domFragment, $dataMw, []
 			);
 		}
 		return new TokenHandlerResult( $toks );
@@ -159,15 +168,15 @@ class ExtensionHandler extends TokenHandler {
 	/**
 	 * DOMFragment-based encapsulation
 	 *
-	 * @param ?ExtensionTagHandler $nativeExt
 	 * @param Token $extToken
 	 * @param DocumentFragment $domFragment
+	 * @param stdClass $dataMw
 	 * @param array $errors
 	 * @return array
 	 */
 	private function onDocumentFragment(
-		?ExtensionTagHandler $nativeExt, Token $extToken,
-		DocumentFragment $domFragment, array $errors
+		Token $extToken, DocumentFragment $domFragment, stdClass $dataMw,
+		array $errors
 	): array {
 		$env = $this->env;
 		$extensionName = $extToken->getAttribute( 'name' );
@@ -184,18 +193,6 @@ class ExtensionHandler extends TokenHandler {
 				DOMUtils::getFragmentInnerHTML( $domFragment )
 			);
 			$logger->warning( str_repeat( '-', 80 ) );
-		}
-
-		$argDict = Utils::getExtArgInfo( $extToken )->dict;
-		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
-		if ( $extTagOffsets->closeWidth === 0 ) {
-			unset( $argDict->body ); // Serialize to self-closing.
-		}
-
-		// Give native extensions a chance to manipulate the argDict
-		if ( $nativeExt ) {
-			$extApi = new ParsoidExtensionAPI( $env );
-			$nativeExt->modifyArgDict( $extApi, $argDict );
 		}
 
 		$opts = [
@@ -245,8 +242,13 @@ class ExtensionHandler extends TokenHandler {
 
 			if ( count( $errors ) > 0 ) {
 				DOMUtils::addTypeOf( $firstNode, 'mw:Error' );
-				$argDict->errors = $errors;
+				$dataMw->errors = is_array( $dataMw->errors ?? null ) ?
+					array_merge( $dataMw->errors, $errors ) : $errors;
 			}
+
+			// Set data-mw
+			// FIXME: Similar to T214241, we're clobbering $firstNode
+			DOMDataUtils::setDataMw( $firstNode, $dataMw );
 
 			// Add about to all wrapper tokens.
 			$about = $env->newAboutId();
@@ -255,10 +257,6 @@ class ExtensionHandler extends TokenHandler {
 				$n->setAttribute( 'about', $about );
 				$n = $n->nextSibling;
 			}
-
-			// Set data-mw
-			// FIXME: Similar to T214241, we're clobbering $firstNode
-			DOMDataUtils::setDataMw( $firstNode, $argDict );
 
 			// Update data-parsoid
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
