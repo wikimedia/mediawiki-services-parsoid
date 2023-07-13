@@ -39,19 +39,6 @@ class References extends ExtensionTagHandler {
 	}
 
 	/**
-	 * It should be sufficient to only include styles when we're rendering
-	 * a references tag.
-	 *
-	 * @return array
-	 */
-	private static function getModuleStyles(): array {
-		return [
-			'ext.cite.style',
-			'ext.cite.styles'
-		];
-	}
-
-	/**
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param DocumentFragment $domFragment
 	 * @param array $refsOpts
@@ -113,7 +100,11 @@ class References extends ExtensionTagHandler {
 			$modifyDp( $dp );
 		}
 
-		$extApi->getMetadata()->addModuleStyles( self::getModuleStyles() );
+		// These module namess are copied from Cite extension.
+		// They are hardcoded there as well.
+		$metadata = $extApi->getMetadata();
+		$metadata->addModules( [ 'ext.cite.ux-enhancements' ] );
+		$metadata->addModuleStyles( [ 'ext.cite.style', 'ext.cite.styles' ] );
 
 		return $frag;
 	}
