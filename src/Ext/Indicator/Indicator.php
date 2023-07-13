@@ -21,7 +21,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 	 * Temporary storage for use in modifyArgDict.
 	 * This also assumes we won't be processing multiple indicators concurrently.
 	 */
-	private string $html;
+	private ?string $html;
 
 	/** @inheritDoc */
 	public function getConfig(): array {
@@ -46,9 +46,11 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 	public function modifyArgDict(
 		ParsoidExtensionAPI $extApi, object $argDict
 	): void {
-		/* HACK: $html is not part of the indicator's arg dictionary.
-		 * So, this is a hack to get $html where it needs to go. */
-		$argDict->html = $this->html;
+		if ( isset( $this->html ) ) {
+			/* HACK: $html is not part of the indicator's arg dictionary.
+			 * So, this is a hack to get $html where it needs to go. */
+			$argDict->html = $this->html;
+		}
 	}
 
 	/** @inheritDoc */

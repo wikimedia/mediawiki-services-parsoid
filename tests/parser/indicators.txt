@@ -14,6 +14,7 @@ blah blah
 Page status indicators: Empty name is invalid
 !! options
 showindicators
+parsoid=wt2html
 !! wikitext
 <indicator name=" "></indicator>
 <indicator></indicator>
@@ -21,6 +22,9 @@ showindicators
 <p><span class="error"><strong>Error:</strong> Page status indicators' <code>name</code> attribute must not be empty.</span>
 <span class="error"><strong>Error:</strong> Page status indicators' <code>name</code> attribute must not be empty.</span>
 </p>
+!! html/parsoid
+<p><span typeof="mw:Extension/indicator mw:Error" data-mw='{"name":"indicator","attrs":{"name":""},"body":{"extsrc":""},"errors":[{"key":"invalid-indicator-name"}]}' data-mw-i18n='{"/":{"lang":"x-user","key":"invalid-indicator-name","params":[]}}'>invalid-indicator-name</span>
+<span typeof="mw:Extension/indicator mw:Error" data-mw='{"name":"indicator","attrs":{},"body":{"extsrc":""},"errors":[{"key":"invalid-indicator-name"}]}' data-mw-i18n='{"/":{"lang":"x-user","key":"invalid-indicator-name","params":[]}}'>invalid-indicator-name</span></p>
 !! end
 
 !! test
@@ -143,4 +147,105 @@ showindicators
 !! html/php
 !! html/parsoid
 <meta typeof="mw:Extension/indicator" about="#mwt2" data-mw='{"name":"indicator","attrs":{"name":"1&amp;2&amp;3&amp;amp;4&amp;amp;amp;5"},"body":{"extsrc":"Indicator"},"html":"Indicator"}'/>
+!! end
+
+!! test
+Indicators with duplicate names: Last one wins
+!! options
+showindicators
+!! wikitext
+<indicator name="x">foo</indicator>
+<indicator name="x">bar</indicator>
+!! metadata
+x=bar
+!! html/php
+<p><br />
+</p>
+!! html/parsoid
+<meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"foo"},"html":"foo"}'/>
+<meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"bar"},"html":"bar"}'/>
+!! end
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! test
+Templates where an indicator is the leading content (1)
+!! options
+showindicators
+parsoid=wt2html,wt2wt
+!! metadata
+x=foo
+!! wikitext
+abcd
+{{1x|<indicator name="x">foo</indicator>}}
+!! html/php
+<p>abcd
+</p>
+!! html/parsoid
+<p>abcd</p>
+<meta typeof="mw:Extension/indicator mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;indicator name=\"x\">foo&lt;/indicator>"}},"i":0}}]}'/>
+!! end
+
+!! test
+Templates where an indicator is the leading content (2)
+!! options
+showindicators
+parsoid=wt2html,wt2wt
+!! metadata
+x=foo
+!! wikitext
+abcd
+<indicator name="x">bar</indicator>
+{{1x|<indicator name="x">foo</indicator>}}
+!! html/php
+<p>abcd
+</p><p><br />
+</p>
+!! html/parsoid
+<p>abcd
+<meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"bar"},"html":"bar"}'/></p>
+<meta typeof="mw:Extension/indicator mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;indicator name=\"x\">foo&lt;/indicator>"}},"i":0}}]}'/>
+!! end
+
+!! test
+Templates where an indicator is not the leading content (1)
+!! options
+showindicators
+parsoid=wt2html,wt2wt
+!! metadata
+x=foo
+!! wikitext
+abcd
+{{1x|efgh<indicator name="x">foo</indicator>}}
+!! html/php
+<p>abcd
+efgh
+</p>
+!! html/parsoid
+<p>abcd
+<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"efgh&lt;indicator name=\"x\">foo&lt;/indicator>"}},"i":0}}]}'>efgh</span><meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"foo"},"html":"foo"}'/></p>
+!! end
+
+!! test
+Templates where an indicator is not the leading content (2)
+!! options
+showindicators
+parsoid=wt2html,wt2wt
+!! metadata
+x=foo
+!! wikitext
+abcd
+<indicator name="x">bar</indicator>
+{{1x|efgh<indicator name="x">foo</indicator>}}
+!! html/php
+<p>abcd
+</p><p>efgh
+</p>
+!! html/parsoid
+<p>abcd
+<meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"bar"},"html":"bar"}'/> <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"efgh&lt;indicator name=\"x\">foo&lt;/indicator>"}},"i":0}}]}'>efgh</span><meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"foo"},"html":"foo"}'/></p>
 !! end
