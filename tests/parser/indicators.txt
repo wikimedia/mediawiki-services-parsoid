@@ -249,3 +249,21 @@ abcd
 <p>abcd
 <meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"bar"},"html":"bar"}'/> <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"efgh&lt;indicator name=\"x\">foo&lt;/indicator>"}},"i":0}}]}'>efgh</span><meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"foo"},"html":"foo"}'/></p>
 !! end
+
+# Note wt2wt will dirty this output and hence all selser tests
+# will be recorded as failing because selser is more accurate
+!! test
+Indicator in fosterable position should not dirty-diff in selser mode
+!! options
+parsoid=wt2html,selser
+!! wikitext
+{|
+<indicator name='x'>foo</indicator>
+|x
+|}
+!! html/parsoid
+<meta typeof="mw:Extension/indicator" about="#mwt2" data-parsoid='{"fostered":true}' data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"foo"},"html":"foo"}'/><table>
+
+<tbody><tr><td>x
+</td></tr></tbody></table>
+!! end

@@ -289,14 +289,24 @@ class TreeBuilderStage extends PipelineStage {
 			// this should foster all metas except those are explicitly
 			// barred from being fostered.
 
-			// <*include*> metas, behavior switch metas
-			// should be fostered since they end up generating
-			// HTML content at the marker site.
+			// DOMFragment metas (usually means an extension generated a meta),
+			// <*include*> metas, behavior switch metas should be fostered
+			// since they end up generating HTML content at the marker site.
 			if ( $tName === 'meta' ) {
 				$shouldFoster = TokenUtils::matchTypeOf(
 					$token,
-					'#^mw:Includes/(OnlyInclude|IncludeOnly|NoInclude)(/|$)#'
+					'#^mw:(DOMFragment$)|(Includes/(OnlyInclude|IncludeOnly|NoInclude)(/|$))#'
 				);
+				if ( $shouldFoster === 'mw:DOMFragment' ) {
+					// FIXME: Hardcoded check for indicator for now to fix indicator breakage
+					// but, maybe we can do this unconditionally. We will investigate that
+					// separately in a later patch along with revisiting the default for
+					// fostering of meta tags.
+					$dmw = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ) ?? "" );
+					if ( !isset( $dmw['name'] ) || $dmw['name'] !== 'indicator' ) {
+						$shouldFoster = false;
+					}
+				}
 				if ( !$shouldFoster ) {
 					$prop = $token->getAttribute( 'property' ) ?? '';
 					$shouldFoster = preg_match( '/^(mw:PageProp\/[a-zA-Z]*)\b/', $prop );
