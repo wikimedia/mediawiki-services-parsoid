@@ -7,7 +7,6 @@
 			"domNormalizerTests.txt": {},
 			"encapParserTests.txt": {},
 			"i18nParserTests.txt": {},
-			"indicators.txt": {},
 			"langParserTests.txt": {},
 			"sectionWrappingParserTests.txt": {},
 			"regressions.txt": {},
@@ -39,6 +38,10 @@
 			"indentPre.txt": {
 				"path": "tests/parser/indentPre.txt",
 				"expectedSHA1": "352a1f95bd465d4a3e490cacc18c2012e069958b"
+			},
+			"indicators.txt": {
+				"path": "tests/parser/indicators.txt",
+				"expectedSHA1": "90468470854a6c5b93d147b9505387d3228dd88a"
 			},
 			"interlanguageLinks.txt": {
 				"path": "tests/parser/interlanguageLinks.txt",
