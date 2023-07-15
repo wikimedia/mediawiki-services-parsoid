@@ -284,34 +284,16 @@ class TreeBuilderStage extends PipelineStage {
 
 			$wasInserted = false;
 
-			// FIXME: This prevents fostering of all metas except those
-			// that are explictly identified for fostering. Instead,
-			// this should foster all metas except those are explicitly
-			// barred from being fostered.
-
-			// DOMFragment metas (usually means an extension generated a meta),
-			// <*include*> metas, behavior switch metas should be fostered
-			// since they end up generating HTML content at the marker site.
+			// Transclusion metas are placeholders and are eliminated after template-wrapping.
+			// Fostering them unnecessarily expands template ranges. Same for mw:Param metas.
+			// Annotations are not fostered because the AnnotationBuilder handles its own
+			// range expansion for metas that end up in fosterable positions.
 			if ( $tName === 'meta' ) {
-				$shouldFoster = TokenUtils::matchTypeOf(
+				$shouldNotFoster = TokenUtils::matchTypeOf(
 					$token,
-					'#^mw:(DOMFragment$)|(Includes/(OnlyInclude|IncludeOnly|NoInclude)(/|$))#'
+					'#^mw:(Transclusion|Annotation|Param)(/|$)#'
 				);
-				if ( $shouldFoster === 'mw:DOMFragment' ) {
-					// FIXME: Hardcoded check for indicator for now to fix indicator breakage
-					// but, maybe we can do this unconditionally. We will investigate that
-					// separately in a later patch along with revisiting the default for
-					// fostering of meta tags.
-					$dmw = PHPUtils::jsonDecode( $token->getAttribute( 'data-mw' ) ?? "" );
-					if ( !isset( $dmw['name'] ) || $dmw['name'] !== 'indicator' ) {
-						$shouldFoster = false;
-					}
-				}
-				if ( !$shouldFoster ) {
-					$prop = $token->getAttribute( 'property' ) ?? '';
-					$shouldFoster = preg_match( '/^(mw:PageProp\/[a-zA-Z]*)\b/', $prop );
-				}
-				if ( !$shouldFoster ) {
+				if ( $shouldNotFoster ) {
 					// transclusions state
 					$transType = TokenUtils::matchTypeOf( $token, '#^mw:Transclusion#' );
 					if ( $transType ) {
