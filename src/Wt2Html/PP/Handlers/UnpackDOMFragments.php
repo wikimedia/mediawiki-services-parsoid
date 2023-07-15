@@ -349,21 +349,22 @@ class UnpackDOMFragments {
 			// placeholderParent itself is useless now
 			$placeholderParent->parentNode->removeChild( $placeholderParent );
 		} else {
+			// Preserve fostered flag from DOM fragment
+			if ( $fragmentContent instanceof Element ) {
+				if ( !empty( $placeholderDP->fostered ) ) {
+					$n = $fragmentContent;
+					while ( $n ) {
+						$dp = DOMDataUtils::getDataParsoid( $n );
+						$dp->fostered = true;
+						$n = $n->nextSibling;
+					}
+				}
+			}
+
 			// Move the content nodes over and delete the placeholder node
 			DOMUtils::migrateChildren( $fragmentDOM, $placeholderParent, $placeholder );
 			$placeholderParent->removeChild( $placeholder );
 
-			if ( $fragmentContent instanceof Element ) {
-				// FIXME: We probably need to examine all top-level nodes of fragmentDOM
-				// and mark them fostered? We will fix this as part of the fostering
-				// overhaul in a follow up patch.
-				//
-				// Preserve fostered flag from DOM fragment
-				$fragmentDP = DOMDataUtils::getDataParsoid( $fragmentContent );
-				if ( !empty( $placeholderDP->fostered ) ) {
-					$fragmentDP->fostered = true;
-				}
-			}
 		}
 
 		// Empty out $fragmentDOM since the call below asserts it
