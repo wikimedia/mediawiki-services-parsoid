@@ -279,7 +279,7 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
-						'action' => static function ( $node, $env ) use ( &$abouts ) {
+						'action' => static function ( $node ) use ( &$abouts, $env ) {
 							// TODO: $abouts can be part of DTState
 							$isStart = false;
 							$t = WTUtils::extractAnnotationType( $node, $isStart );
@@ -325,13 +325,15 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'a',
-						'action' => static function ( $node, $env ) {
+						'action' => static function ( $node ) use ( $env ) {
 							return HandleLinkNeighbours::handler( $node, $env );
 						}
 					],
 					[
 						'nodeName' => null,
-						'action' => [ UnpackDOMFragments::class, 'handler' ]
+						'action' => static function ( $node ) use ( $env ) {
+							return UnpackDOMFragments::handler( $node, $env );
+						}
 					]
 				]
 			]
@@ -431,19 +433,19 @@ class DOMPostProcessor extends PipelineStage {
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+						'action' => function ( $node ) use ( &$tableFixer ) {
 							return $tableFixer->stripDoubleTDs( $node, $this->frame );
 						}
 					],
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+						'action' => function ( $node ) use ( &$tableFixer ) {
 							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
 						}
 					],
 					[
 						'nodeName' => 'th',
-						'action' => function ( $node, $env ) use ( &$tableFixer ) {
+						'action' => function ( $node ) use ( &$tableFixer ) {
 							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
 						}
 					],
@@ -451,7 +453,9 @@ class DOMPostProcessor extends PipelineStage {
 					// (should run after dom-fragment expansion + after extension post-processors)
 					[
 						'nodeName' => 'style',
-						'action' => [ DedupeStyles::class, 'dedupe' ]
+						'action' => static function ( $node, $dtState ) use ( $env ) {
+							return DedupeStyles::dedupe( $node, $env, $dtState );
+						}
 					]
 				]
 			],
@@ -466,11 +470,13 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => [ Headings::class, 'genAnchors' ]
+						'action' => static function ( $node ) use ( $env ) {
+							return Headings::genAnchors( $node, $env );
+						}
 					],
 					[
 						'nodeName' => null,
-						'action' => static function ( $node, $env ) use ( &$seenIds ) {
+						'action' => static function ( $node ) use ( &$seenIds ) {
 							// TODO: $seenIds can be part of DTState
 							return Headings::dedupeHeadingIds( $seenIds, $node );
 						}
@@ -593,7 +599,7 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => static function ( $node, $env, $state ) use ( &$usedIdIndex ) {
+						'action' => static function ( $node, $state ) use ( $env, &$usedIdIndex ) {
 							// TODO: $usedIdIndex can be part of DTState
 							if ( $state->atTopLevel && DOMUtils::isBody( $node ) ) {
 								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );

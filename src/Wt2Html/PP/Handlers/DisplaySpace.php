@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Handlers;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -116,10 +115,9 @@ class DisplaySpace {
 	 * French spaces, Guillemet-left
 	 *
 	 * @param Node $node
-	 * @param Env $env
 	 * @return bool|Element
 	 */
-	public static function leftHandler( Node $node, Env $env ) {
+	public static function leftHandler( Node $node ) {
 		$omit = self::omitNode( $node );
 		if ( $omit !== false ) {
 			return $omit;
@@ -140,10 +138,9 @@ class DisplaySpace {
 	 * French spaces, Guillemet-right
 	 *
 	 * @param Node $node
-	 * @param Env $env
 	 * @return bool|Element
 	 */
-	public static function rightHandler( Node $node, Env $env ) {
+	public static function rightHandler( Node $node ) {
 		$omit = self::omitNode( $node );
 		if ( $omit !== false ) {
 			return $omit;

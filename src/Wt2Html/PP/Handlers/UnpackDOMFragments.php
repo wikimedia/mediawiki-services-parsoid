@@ -336,7 +336,7 @@ class UnpackDOMFragments {
 						}
 						return true;
 					} );
-					$dsrFixer->traverse( $env, null, $node );
+					$dsrFixer->traverse( null, $node );
 				}
 
 				$node = $node->nextSibling;

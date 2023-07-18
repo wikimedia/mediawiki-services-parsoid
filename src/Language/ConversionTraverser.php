@@ -32,12 +32,13 @@ class ConversionTraverser extends DOMTraverser {
 	private $machine;
 
 	/**
+	 * @param Env $env
 	 * @param Bcp47Code $toLang target language for conversion
 	 * @param LanguageGuesser $guesser oracle to determine "original language" for round-tripping
 	 * @param ReplacementMachine $machine machine to do actual conversion
 	 */
 	public function __construct(
-		Bcp47Code $toLang, LanguageGuesser $guesser, ReplacementMachine $machine
+		Env $env, Bcp47Code $toLang, LanguageGuesser $guesser, ReplacementMachine $machine
 	) {
 		parent::__construct();
 		$this->toLang = $toLang;
@@ -49,54 +50,52 @@ class ConversionTraverser extends DOMTraverser {
 		// XXX: <cite> ought to probably be handled more generically
 		// as extension output, not special-cased as a HTML tag.
 		foreach ( [ 'code', 'script', 'pre', 'cite' ] as $el ) {
-			$this->addHandler( $el, function ( Element $el, Env $env ) {
-				return $this->noConvertHandler( $el, $env );
+			$this->addHandler( $el, function ( Element $el ) {
+				return $this->noConvertHandler( $el );
 			} );
 		}
 		// Setting/saving the language context
-		$this->addHandler( null, function ( Node $node, Env $env ) {
-			return $this->anyHandler( $node, $env );
+		$this->addHandler( null, function ( Node $node ) {
+			return $this->anyHandler( $node );
 		} );
-		$this->addHandler( 'p', function ( Element $el, Env $env ) {
-			return $this->langContextHandler( $el, $env );
+		$this->addHandler( 'p', function ( Element $el ) {
+			return $this->langContextHandler( $el );
 		} );
-		$this->addHandler( 'body', function ( Element $el, Env $env ) {
-			return $this->langContextHandler( $el, $env );
+		$this->addHandler( 'body', function ( Element $el ) {
+			return $this->langContextHandler( $el );
 		} );
 		// Converting #text, <a> nodes, and title/alt attributes
-		$this->addHandler( '#text', function ( Node $node, Env $env ) {
-			return $this->textHandler( $node, $env );
+		$this->addHandler( '#text', function ( Node $node ) {
+			return $this->textHandler( $node );
 		} );
-		$this->addHandler( 'a', function ( Element $el, Env $env ) {
+		$this->addHandler( 'a', function ( Element $el ) use ( $env ){
 			return $this->aHandler( $el, $env );
 		} );
-		$this->addHandler( null, function ( Node $node, Env $env ) {
-			return $this->attrHandler( $node, $env );
+		$this->addHandler( null, function ( Node $node ) {
+			return $this->attrHandler( $node );
 		} );
 		// LanguageConverter markup
 		foreach ( [ 'meta', 'div', 'span' ] as $el ) {
-			$this->addHandler( $el, function ( Element $el, Env $env ) {
-				return $this->lcHandler( $el, $env );
+			$this->addHandler( $el, function ( Element $el ) {
+				return $this->lcHandler( $el );
 			} );
 		}
 	}
 
 	/**
 	 * @param Element $el
-	 * @param Env $env
 	 * @return ?Node|bool
 	 */
-	private function noConvertHandler( Element $el, Env $env ) {
+	private function noConvertHandler( Element $el ) {
 		// Don't touch the inside of this node!
 		return $el->nextSibling;
 	}
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @return ?Node|bool
 	 */
-	private function anyHandler( Node $node, Env $env ) {
+	private function anyHandler( Node $node ) {
 		/* Look for `lang` attributes */
 		if ( $node instanceof Element ) {
 			if ( $node->hasAttribute( 'lang' ) ) {
@@ -110,10 +109,9 @@ class ConversionTraverser extends DOMTraverser {
 
 	/**
 	 * @param Element $el
-	 * @param Env $env
 	 * @return ?Node|bool
 	 */
-	private function langContextHandler( Element $el, Env $env ) {
+	private function langContextHandler( Element $el ) {
 		$this->fromLang = $this->guesser->guessLang( $el );
 		// T320662: use internal MW language names for now :(
 		$fromLangMw = Utils::bcp47ToMwCode( $this->fromLang );
@@ -123,10 +121,9 @@ class ConversionTraverser extends DOMTraverser {
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @return ?Node|bool
 	 */
-	private function textHandler( Node $node, Env $env ) {
+	private function textHandler( Node $node ) {
 		Assert::invariant( $this->fromLang !== null, 'Text w/o a context' );
 		$toLangMw = Utils::bcp47ToMwCode( $this->toLang );
 		$fromLangMw = Utils::bcp47ToMwCode( $this->fromLang );
@@ -189,10 +186,9 @@ class ConversionTraverser extends DOMTraverser {
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @return ?Node|bool
 	 */
-	private function attrHandler( Node $node, Env $env ) {
+	private function attrHandler( Node $node ) {
 		// Convert `alt` and `title` attributes on elements
 		// (Called before aHandler, so the `title` might get overwritten there)
 		if ( !( $node instanceof Element ) ) {
@@ -232,10 +228,9 @@ class ConversionTraverser extends DOMTraverser {
 	 * Handler for LanguageConverter markup
 	 *
 	 * @param Element $el
-	 * @param Env $env
 	 * @return ?Node|bool
 	 */
-	private function lcHandler( Element $el, Env $env ) {
+	private function lcHandler( Element $el ) {
 		if ( !DOMUtils::hasTypeOf( $el, 'mw:LanguageVariant' ) ) {
 			return true; /* not language converter markup */
 		}

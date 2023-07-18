@@ -440,6 +440,7 @@ class TableFixups {
 	 * @return bool
 	 */
 	private function combineWithPreviousCell( Frame $frame, Element $cell ): bool {
+		$env = $frame->getEnv();
 		// UNSUPPORTED SCENARIO 1:
 		// While in the general case, we should look for combinability no matter
 		// whether $cell has attributes or not,  we are currently restricting
@@ -482,7 +483,7 @@ class TableFixups {
 		// Reparse the attributish prefix
 		$attributeTokens = $this->tokenizer->tokenizeTableCellAttributes( $reparseSrc, false );
 		if ( !is_array( $attributeTokens ) ) {
-			$frame->getEnv()->log( "error/wt2html",
+			$env->log( "error/wt2html",
 				"TableFixups: Failed to successfully reparse $reparseSrc as table cell attributes" );
 			return false;
 		}
@@ -491,7 +492,7 @@ class TableFixups {
 		// returns an array consisting of [table_attributes, spaces, pipe]
 		$attrs = $attributeTokens[0];
 
-		Sanitizer::applySanitizedArgs( $frame->getEnv()->getSiteConfig(), $cell, $attrs );
+		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
 
 		// Update data-mw, DSR
 		$dataMW = DOMDataUtils::getDataMw( $cell );
@@ -600,9 +601,7 @@ class TableFixups {
 	 * @param Frame $frame
 	 * @return mixed
 	 */
-	public function handleTableCellTemplates(
-		Element $cell, Frame $frame
-	) {
+	public function handleTableCellTemplates( Element $cell, Frame $frame ) {
 		if ( WTUtils::isLiteralHTMLNode( $cell ) ) {
 			return true;
 		}

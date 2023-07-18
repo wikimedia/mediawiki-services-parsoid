@@ -54,13 +54,13 @@ HTML;
 
 		$traverser = new DOMTraverser( $withTplInfo, $processAttrEmbeddedHTML );
 		$traverser->addHandler( $nodeName, $callback );
-		$traverser->addHandler( null, static function ( Node $node, Env $env, DTState $state ) use ( &$trace ) {
+		$traverser->addHandler( null, static function ( Node $node, DTState $state ) use ( &$trace ) {
 			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {
 				$trace[] = $node->getAttribute( 'id' );
 			}
 			return true;
 		} );
-		$traverser->traverse( $env, new ParsoidExtensionAPI( $env ), $doc->documentElement, $state );
+		$traverser->traverse( new ParsoidExtensionAPI( $env ), $doc->documentElement, $state );
 		$this->assertSame( $expectedTrace, $trace );
 	}
 
@@ -85,10 +85,7 @@ HTML;
 
 		return [
 			'basic' => [
-				'callback' => function (
-					Node $node, Env $env, ?DTState $state
-				) use ( $basicEnv ) {
-					$this->assertSame( $basicEnv, $env );
+				'callback' => function ( Node $node, ?DTState $state ) use ( $basicEnv ) {
 					$this->assertTrue( $state->atTopLevel );
 					return true;
 				},
@@ -97,7 +94,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return true' => [
-				'callback' => static function ( Node $node, Env $env ) {
+				'callback' => static function ( Node $node ) {
 					return true;
 				},
 				'nodeName' => null,
@@ -105,9 +102,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return first child' => [
-				'callback' => static function (
-					Node $node, Env $env
-				) {
+				'callback' => static function ( Node $node ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return $node->firstChild;
 					}
@@ -118,9 +113,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2_1', 'x1_2_2', 'x2', 'x2_1' ],
 			],
 			'return next sibling' => [
-				'callback' => static function (
-					Node $node, Env $env
-				) {
+				'callback' => static function ( Node $node ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return $node->nextSibling;
 					}
@@ -131,9 +124,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'return null' => [
-				'callback' => static function (
-					Node $node, Env $env
-				) {
+				'callback' => static function ( Node $node ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return null;
 					}
@@ -144,9 +135,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x2', 'x2_1' ],
 			],
 			'return another node' => [
-				'callback' => static function (
-					Node $node, Env $env
-				) {
+				'callback' => static function ( Node $node ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						$newNode = $node->ownerDocument->createElement( 'div' );
 						$newNode->setAttribute( 'id', 'new' );
@@ -159,9 +148,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'new', 'x2', 'x2_1' ],
 			],
 			'name filter' => [
-				'callback' => static function (
-					Node $node, Env $env
-				) {
+				'callback' => static function ( Node $node ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
 						return null;
 					}
@@ -172,9 +159,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'not traversing with tplinfo' => [
-				'callback' => function (
-					Node $node, Env $env, DTState $state
-				) {
+				'callback' => function ( Node $node, DTState $state ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
 						$this->assertTrue( $state->tplInfo === null );
 					}
@@ -185,9 +170,7 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'traversing with tplinfo' => [
-				'callback' => function (
-					Node $node, Env $env, DTState $state
-				) {
+				'callback' => function ( Node $node, DTState $state ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
 						$this->assertTrue( $state->tplInfo->first === $node );
 					}
@@ -208,9 +191,7 @@ HTML;
 				'withTplInfo' => true,
 			],
 			'not traversing with tplinfo, with embedded html' => [
-				'callback' => function (
-					Node $node, Env $env, DTState $state
-				) {
+				'callback' => function ( Node $node, DTState $state ) {
 					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
 						$this->assertTrue( $state->tplInfo === null );
 					}

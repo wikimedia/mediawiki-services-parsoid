@@ -84,14 +84,13 @@ class CleanUpTest extends TestCase {
 	public function testfinalCleanUp( string $test ): void {
 		// Cleanup DOM pass should confirm removal of autoInsertedEnd flag
 		// for wikitext table tags without closing tag syntax using DOM traversal
-		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'tr', 'td', ];
 		$this->addHandlers( $domVisitor, $tags, false );
 
-		$domVisitor->traverse( $mockEnv, null, $body );
+		$domVisitor->traverse( null, $body );
 	}
 
 	/**
@@ -116,14 +115,13 @@ class CleanUpTest extends TestCase {
 	public function testCleanUpWT( string $test ): void {
 		// Cleanup DOM pass should confirm removal of autoInsertedEnd flag
 		// for all wikitext tags without closing tags
-		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
 		$this->addHandlers( $domVisitor, $tags, false );
 
-		$domVisitor->traverse( $mockEnv, null, $body );
+		$domVisitor->traverse( null, $body );
 	}
 
 	/**
@@ -161,14 +159,13 @@ class CleanUpTest extends TestCase {
 	public function testCleanUpHTML( string $test ): void {
 		// Cleanup DOM pass should confirm presence of autoInsertedEnd flag
 		// for all HTML wikitext tags that can appear without closing tags
-		$mockEnv = new MockEnv( [] );
 		$body = $this->parseWT( $test );
 
 		$domVisitor = new DOMTraverser();
 		$tags = [ 'pre', 'li', 'dt', 'dd', 'hr', 'tr', 'td', 'th', 'caption' ];
 		$this->addHandlers( $domVisitor, $tags, true );
 
-		$domVisitor->traverse( $mockEnv, null, $body );
+		$domVisitor->traverse( null, $body );
 	}
 
 	/**

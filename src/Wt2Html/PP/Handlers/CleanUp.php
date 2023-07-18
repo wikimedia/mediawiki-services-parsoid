@@ -22,10 +22,9 @@ use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
 class CleanUp {
 	/**
 	 * @param Element $node
-	 * @param Env $env
 	 * @return bool|Element
 	 */
-	public static function stripMarkerMetas( Element $node, Env $env ) {
+	public static function stripMarkerMetas( Element $node ) {
 		// This meta tag can never have data-mw associated with it.
 		// If it were produced by a template, it would always have a <pre>
 		// wrapper around which carries any relevant data-mw & typeof properties.
@@ -102,13 +101,10 @@ class CleanUp {
 
 	/**
 	 * @param Node $node
-	 * @param Env $env
 	 * @param DTState $state
 	 * @return bool|Node
 	 */
-	public static function handleEmptyElements(
-		Node $node, Env $env, DTState $state
-	) {
+	public static function handleEmptyElements( Node $node, DTState $state ) {
 		if ( !( $node instanceof Element ) ||
 			!isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
 			!self::isEmptyNode( $node )
@@ -233,11 +229,10 @@ class CleanUp {
 	 * Perform some final cleanup
 	 *
 	 * @param Node $node
-	 * @param Env $env
 	 * @param DTState $state
 	 * @return bool|Node The next node or true to continue with $node->nextSibling
 	 */
-	public static function finalCleanup( Node $node, Env $env, DTState $state ) {
+	public static function finalCleanup( Node $node, DTState $state ) {
 		if ( !( $node instanceof Element ) ) {
 			return true;
 		}
