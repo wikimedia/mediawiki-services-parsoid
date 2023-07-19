@@ -105,7 +105,7 @@ class References extends ExtensionTagHandler {
 		// They are hardcoded there as well.
 		$metadata = $extApi->getMetadata();
 		$metadata->addModules( [ 'ext.cite.ux-enhancements' ] );
-		$metadata->addModuleStyles( [ 'ext.cite.style', 'ext.cite.styles' ] );
+		$metadata->addModuleStyles( [ 'ext.cite.parsoid.styles', 'ext.cite.styles' ] );
 
 		return $frag;
 	}
