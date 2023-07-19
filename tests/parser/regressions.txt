@@ -9,6 +9,12 @@ Bar
 abcd
 !!endarticle
 
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
 # We need the span in the wikilink so that the link text is
 # processed as a DOMFragment which then triggers the regression
 # we are testing in this file
@@ -32,3 +38,34 @@ Bar
 
 <p>Bar</p>
 !!end
+
+# As seen in T334957#9026561
+!! test
+Ensure proper DSR offsets are computed
+!! options
+parsoid=wt2html,selser
+!! wikitext
+{|
+|-
+
+é
+
+''x''
+
+* {{1x|
+{{{!}}
+{{!}}-
+}}
+!! html/parsoid
+<p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>
+
+é
+
+<i>x</i></p><ul data-parsoid='{"fostered":true}'><li class="mw-empty-elt"></li></ul><table about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n{{{!}}\n{{!}}-\n"}},"i":0}},"{|\n|-\n\né\n\n&apos;&apos;x&apos;&apos;\n\n* {{1x|\n{{{!}}\n{{!}}-\n}}"]}'>
+<tbody><tr>
+
+
+</tr></tbody></table><table about="#mwt1">
+<tbody>
+</tbody></table>
+!! end

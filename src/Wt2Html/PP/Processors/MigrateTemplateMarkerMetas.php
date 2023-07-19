@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
@@ -103,7 +104,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 	 *   wt2wt corruption implications if done incorrectly. So, we
 	 *   aren't considering this possibility right now.
 	 *
-	 * @param Node $node
+	 * @param Element|DocumentFragment $node
 	 * @param Env $env
 	 */
 	private function doMigrate( Node $node, Env $env ): void {
@@ -111,6 +112,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		while ( $c ) {
 			$sibling = $c->nextSibling;
 			if ( $c->hasChildNodes() ) {
+				'@phan-var Element $c';  // @var Element $c
 				$this->doMigrate( $c, $env );
 			}
 			$c = $sibling;
@@ -120,6 +122,9 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		if ( DOMUtils::atTheTop( $node ) ) {
 			return;
 		}
+
+		// Check if $node is a fostered node
+		$fostered = !empty( DOMDataUtils::getDataParsoid( $node )->fostered );
 
 		$firstChild = DiffDOMUtils::firstNonSepChild( $node );
 		if ( $firstChild && $this->migrateFirstChild( $firstChild ) ) {
@@ -134,6 +139,11 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 				do {
 					$firstChild = $node->firstChild;
 					$node->parentNode->insertBefore( $firstChild, $node );
+					if ( $fostered && $firstChild instanceof Element ) {
+						// $firstChild is being migrated out of a fostered node
+						// So, mark $lastChild itself fostered!
+						DOMDataUtils::getDataParsoid( $firstChild )->fostered = true;
+					}
 				} while ( $sentinel !== $firstChild );
 
 				$this->updateDepths( $firstChild );
@@ -158,6 +168,11 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 				do {
 					$lastChild = $node->lastChild;
 					$node->parentNode->insertBefore( $lastChild, $node->nextSibling );
+					if ( $fostered && $lastChild instanceof Element ) {
+						// $lastChild is being migrated out of a fostered node
+						// So, mark $lastChild itself fostered!
+						DOMDataUtils::getDataParsoid( $lastChild )->fostered = true;
+					}
 				} while ( $sentinel !== $lastChild );
 
 				$this->updateDepths( $lastChild );
@@ -171,6 +186,8 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
-		$this->doMigrate( $root, $env );
+		if ( $root instanceof Element || $root instanceof DocumentFragment ) {
+			$this->doMigrate( $root, $env );
+		}
 	}
 }
