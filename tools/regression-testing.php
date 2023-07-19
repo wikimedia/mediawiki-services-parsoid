@@ -60,6 +60,10 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"nSyn",
 			"Number of syntactic errors to check, -1 means 'all of them'",
 			25 /* default */, 'm' );
+		$this->addOptionWithDefault(
+			"updateTestreduce",
+			"Should testreduce1001 also be updated? (default true)",
+			true );
 		$this->setAllowUnregisteredOptions( true );
 	}
 
@@ -184,14 +188,16 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'git checkout', [ $commit ], '&&',
 			$restartPHP
 		), 'scandium.eqiad.wmnet' );
-		# Check out on testreduce1001 as well to ensure HTML version changes
-		# don't trip up our test script and we don't have to mess with passing in
-		# the --contentVersion option in most scenarios
-		$this->dashes( "Checking out $commit on testreduce1001" );
-		$this->ssh( self::cmd(
-			$cdDir, '&&',
-			"git fetch", '&&',
-			'git checkout', [ $commit ] ), 'testreduce1001.eqiad.wmnet' );
+		if ( $this->getOption( 'updateTestreduce' ) ) {
+			# Check out on testreduce1001 as well to ensure HTML version changes
+			# don't trip up our test script and we don't have to mess with passing in
+			# the --contentVersion option in most scenarios
+			$this->dashes( "Checking out $commit on testreduce1001" );
+			$this->ssh( self::cmd(
+				$cdDir, '&&',
+				"git fetch", '&&',
+				'git checkout', [ $commit ] ), 'testreduce1001.eqiad.wmnet' );
+		}
 
 		$this->dashes( "Running tests" );
 		$this->ssh( self::cmd(
