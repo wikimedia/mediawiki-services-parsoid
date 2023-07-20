@@ -16,7 +16,6 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -141,7 +140,7 @@ class DOMPostProcessor extends PipelineStage {
 				$p['shortcut'] = $p['name'];
 			}
 			if ( !empty( $p['isTraverser'] ) ) {
-				$t = new DOMTraverser(
+				$t = new DOMPPTraverser(
 					$p['tplInfo'] ?? false,
 					$p['applyToAttributeEmbeddedHTML'] ?? false
 				);

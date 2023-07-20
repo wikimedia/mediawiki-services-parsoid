@@ -3,12 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * Class for helping us traverse the DOM.
@@ -16,7 +14,7 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
  * This class currently does a pre-order depth-first traversal.
  * See {@link DOMPostOrder} for post-order traversal.
  */
-class DOMTraverser implements Wt2HtmlDOMProcessor {
+class DOMTraverser {
 	/**
 	 * List of handlers to call on each node. Each handler is an array with the following fields:
 	 * - action: a callable to call
@@ -38,6 +36,7 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * @param bool $traverseWithTplInfo
+	 * @param bool $applyToAttributeEmbeddedHTML
 	 */
 	public function __construct( bool $traverseWithTplInfo = false, bool $applyToAttributeEmbeddedHTML = false ) {
 		$this->traverseWithTplInfo = $traverseWithTplInfo;
@@ -226,15 +225,5 @@ class DOMTraverser implements Wt2HtmlDOMProcessor {
 
 			$workNode = $possibleNext;
 		}
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function run(
-		Env $env, Node $workNode, array $options = [], bool $atTopLevel = false
-	): void {
-		$state = new DTState( $options, $atTopLevel );
-		$this->traverse( new ParsoidExtensionAPI( $env ), $workNode, $state );
 	}
 }
