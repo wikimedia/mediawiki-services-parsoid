@@ -325,7 +325,9 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'a',
-						'action' => [ HandleLinkNeighbours::class, 'handler' ]
+						'action' => static function ( $node, $env ) {
+							return HandleLinkNeighbours::handler( $node, $env );
+						}
 					],
 					[
 						'nodeName' => null,

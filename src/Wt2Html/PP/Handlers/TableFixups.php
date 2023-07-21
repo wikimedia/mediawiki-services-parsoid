@@ -164,6 +164,7 @@ class TableFixups {
 			// Assimilate $tpl's data-mw and data-parsoid pi info
 			$dmw = DOMDataUtils::getDataMw( $tpl );
 			foreach ( $dmw->parts ?? [] as $part ) {
+				'@phan-var string|\stdClass $part';
 				// Template index is relative to other transclusions.
 				// This index is used to extract whitespace information from
 				// data-parsoid and that array only includes info for templates.

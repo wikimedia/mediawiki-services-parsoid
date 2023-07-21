@@ -957,7 +957,7 @@ class WikitextSerializer {
 	 * Serialize a template from its parts.
 	 * @param SerializerState $state
 	 * @param Element $node
-	 * @param stdClass[] $srcParts Template parts from TemplateInfo::getDataMw()
+	 * @param list<stdClass|string> $srcParts Template parts from TemplateInfo::getDataMw()
 	 * @return string
 	 */
 	public function serializeFromParts(

@@ -177,24 +177,29 @@ class WrapSectionsState {
 			} elseif ( count( $dmw->parts ) > 1 ) {
 				// Multi-part content -- cannot pick a title
 				$metadata->fromTitle = null;
-			} elseif ( !empty( $dmw->parts[0]->templatearg ) ) {
-				// Since we currently don't process templates in Parsoid,
-				// this has to be a top-level {{{...}}} and so the content
-				// comes from the current page. But, legacy parser returns 'false'
-				// for this, so we'll return null as well instead of current title.
-				$metadata->fromTitle = null;
-			} elseif ( !empty( $dmw->parts[0]->template->target->href ) ) {
-				// Pick template title, but strip leading "./" prefix
-				$metadata->fromTitle = preg_replace(
-					"#^./#", "", $dmw->parts[0]->template->target->href );
-				if ( $this->sectionNumber >= 0 ) {
-					// Legacy parser sets this to '' in some cases
-					// See "Templated sections (heading from template arg)" parser test
-					$metadata->index = 'T-' . $this->sectionNumber;
-				}
 			} else {
-				// Legacy parser return null here
-				$metadata->fromTitle = null;
+				$p0 = $dmw->parts[0];
+				// If just a single part (guaranteed with count above), it will be stdclass
+				'@phan-var \stdClass $p0';
+				if ( !empty( $p0->templatearg ) ) {
+					// Since we currently don't process templates in Parsoid,
+					// this has to be a top-level {{{...}}} and so the content
+					// comes from the current page. But, legacy parser returns 'false'
+					// for this, so we'll return null as well instead of current title.
+					$metadata->fromTitle = null;
+				} elseif ( !empty( $p0->template->target->href ) ) {
+					// Pick template title, but strip leading "./" prefix
+					$metadata->fromTitle = preg_replace(
+						"#^./#", "", $p0->template->target->href );
+					if ( $this->sectionNumber >= 0 ) {
+						// Legacy parser sets this to '' in some cases
+						// See "Templated sections (heading from template arg)" parser test
+						$metadata->index = 'T-' . $this->sectionNumber;
+					}
+				} else {
+					// Legacy parser return null here
+					$metadata->fromTitle = null;
+				}
 			}
 			$metadata->codepointOffset = null;
 		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
@@ -630,6 +635,7 @@ class WrapSectionsState {
 					// Assimilate $encapNode's data-mw and data-parsoid pi info
 					$dmw = DOMDataUtils::getDataMw( $encapNode );
 					foreach ( $dmw->parts ?? [] as $part ) {
+						'@phan-var string|\stdClass $part';
 						// Template index is relative to other transclusions.
 						// This index is used to extract whitespace information from
 						// data-parsoid and that array only includes info for templates.

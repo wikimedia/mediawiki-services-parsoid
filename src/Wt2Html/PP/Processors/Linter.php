@@ -200,8 +200,16 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return null;
 		}
 		$dmw = DOMDataUtils::getDataMw( $tplInfo->first );
+		// This count check is conservative in that link suffixes and prefixes
+		// could artifically add an extra element to the parts array but we
+		// don't have a good way of distinguishing that right now. It will require
+		// a non-string representation for them and a change in spec along with
+		// a version bump and all that song and dance. If linting accuracy in these
+		// scenarios become a problem, we can revisit this.
 		if ( !empty( $dmw->parts ) && count( $dmw->parts ) === 1 ) {
 			$p0 = $dmw->parts[0];
+			// If just a single part (guaranteed with count above), it will be stdclass
+			'@phan-var \stdClass $p0';
 			$name = null;
 			if ( !empty( $p0->template->target->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
