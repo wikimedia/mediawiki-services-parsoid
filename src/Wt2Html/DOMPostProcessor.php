@@ -226,13 +226,10 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'pwrap',
 				'skipNested' => true
 			],
-			// This is run at all levels since, for now, we don't have a generic
-			// solution to running top level passes on HTML stashed in data-mw.
-			// See T214994 for that.
-			//
-			// Also, the gallery extension's "packed" mode would otherwise need a
-			// post-processing pass to scale media after it has been fetched.  That
-			// introduces an ordering dependency that may or may not complicate things.
+			// This is run at all levels for now - gallery extension's "packed" mode
+			// would otherwise need a post-processing pass to scale media after it
+			// has been fetched. That introduces an ordering dependency that may
+			// or may not complicate things.
 			[
 				'Processor' => AddMediaInfo::class,
 				'shortcut' => 'media'
@@ -243,6 +240,7 @@ class DOMPostProcessor extends PipelineStage {
 			// * PWrap because PWrap can add additional opportunities
 			//   for meta migration which we will miss if we run this
 			//   before p-wrapping.
+			//   FIXME: But, pwrapping doesn't run on nested pipelines!
 			//
 			// We could potentially move this just before WrapTemplates
 			// by seeing this as a preprocessing pass for that. But, we
@@ -317,6 +315,9 @@ class DOMPostProcessor extends PipelineStage {
 			],
 			// 1. Link prefixes and suffixes
 			// 2. Unpack DOM fragments
+			//    Always run this on nested pipelines so that
+			//    when we get to the top level pipeline, all
+			//    embedded fragments have been expanded!
 			[
 				'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
 				'shortcut' => 'dom-unpack',
