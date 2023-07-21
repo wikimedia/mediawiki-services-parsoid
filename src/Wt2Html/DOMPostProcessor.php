@@ -167,7 +167,7 @@ class DOMPostProcessor extends PipelineStage {
 						'assertClass' => ExtDOMProcessor::class,
 					] );
 					$p['proc'] = function ( Node $workNode, array $options, bool $atTopLevel ) use ( $c ) {
-						return $c->wtPostprocess( $this->extApi, $workNode, $options, $atTopLevel );
+						return $c->wtPostprocess( $this->extApi, $workNode, $options );
 					};
 				}
 			}
@@ -412,7 +412,9 @@ class DOMPostProcessor extends PipelineStage {
 					'isExtPP' => true, // This is an extension DOM post processor
 					'name' => "pp:$extName:$i",
 					'Processor' => $domProcSpec,
-					'skipNested' => false
+					// This should be documented in the spec that an extension's
+					// wtDOMProcess handler is run once on the top level document.
+					'skipNested' => true
 				];
 			}
 		}

@@ -17,15 +17,13 @@ class RefProcessor extends DOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, Node $node, array $options, bool $atTopLevel
+		ParsoidExtensionAPI $extApi, Node $node, array $options
 	): void {
-		if ( $atTopLevel ) {
-			$refsData = new ReferencesData();
-			References::processRefs( $extApi, $refsData, $node );
-			References::insertMissingReferencesIntoDOM( $extApi, $refsData, $node );
-			if ( count( $refsData->embeddedErrors ) > 0 ) {
-				References::addEmbeddedErrors( $extApi, $refsData, $node );
-			}
+		$refsData = new ReferencesData();
+		References::processRefs( $extApi, $refsData, $node );
+		References::insertMissingReferencesIntoDOM( $extApi, $refsData, $node );
+		if ( count( $refsData->embeddedErrors ) > 0 ) {
+			References::addEmbeddedErrors( $extApi, $refsData, $node );
 		}
 	}
 

@@ -16,12 +16,8 @@ class PoemProcessor extends DOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, Node $node, array $options, bool $atTopLevel
+		ParsoidExtensionAPI $extApi, Node $node, array $options
 	): void {
-		if ( !$atTopLevel ) {
-			return;
-		}
-
 		$c = $node->firstChild;
 		while ( $c ) {
 			if ( $c instanceof Element ) {
@@ -29,7 +25,7 @@ class PoemProcessor extends DOMProcessor {
 					// Replace newlines found in <nowiki> fragment with <br/>s
 					self::processNowikis( $c );
 				} else {
-					$this->wtPostprocess( $extApi, $c, $options, $atTopLevel );
+					$this->wtPostprocess( $extApi, $c, $options );
 				}
 			}
 			$c = $c->nextSibling;

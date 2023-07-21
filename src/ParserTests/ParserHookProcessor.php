@@ -41,15 +41,12 @@ class ParserHookProcessor extends ExtDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function wtPostprocess(
-		ParsoidExtensionAPI $extApi, Node $node, array $options,
-		bool $atTopLevel
+		ParsoidExtensionAPI $extApi, Node $node, array $options
 	): void {
-		if ( $atTopLevel ) {
-			// Pass an object since we want the data to be carried around across
-			// nodes in the DOM. Passing an array won't work since visitDOM doesn't
-			// use a reference on its end. Maybe we could fix that separately.
-			DOMUtils::visitDOM( $node, [ $this, 'staticTagPostProcessor' ],
-				PHPUtils::arrayToObject( [ 'buf' => '' ] ) );
-		}
+		// Pass an object since we want the data to be carried around across
+		// nodes in the DOM. Passing an array won't work since visitDOM doesn't
+		// use a reference on its end. Maybe we could fix that separately.
+		DOMUtils::visitDOM( $node, [ $this, 'staticTagPostProcessor' ],
+			PHPUtils::arrayToObject( [ 'buf' => '' ] ) );
 	}
 }
