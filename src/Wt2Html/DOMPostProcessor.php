@@ -324,15 +324,11 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'a',
-						'action' => static function ( $node ) use ( $env ) {
-							return HandleLinkNeighbours::handler( $node, $env );
-						}
+						'action' => static fn ( $node ) => HandleLinkNeighbours::handler( $node, $env )
 					],
 					[
 						'nodeName' => null,
-						'action' => static function ( $node ) use ( $env ) {
-							return UnpackDOMFragments::handler( $node, $env );
-						}
+						'action' => static fn ( $node ) => UnpackDOMFragments::handler( $node, $env )
 					]
 				]
 			]
@@ -419,42 +415,34 @@ class DOMPostProcessor extends PipelineStage {
 					// Move trailing categories in <li>s out of the list
 					[
 						'nodeName' => 'li',
-						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
+						'action' => static fn ( $node, $state ) => LiFixups::migrateTrailingCategories( $node, $state )
 					],
 					[
 						'nodeName' => 'dt',
-						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
+						'action' => static fn ( $node, $state ) => LiFixups::migrateTrailingCategories( $node, $state )
 					],
 					[
 						'nodeName' => 'dd',
-						'action' => [ LiFixups::class, 'migrateTrailingCategories' ]
+						'action' => static fn ( $node, $state ) => LiFixups::migrateTrailingCategories( $node, $state )
 					],
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node ) use ( &$tableFixer ) {
-							return $tableFixer->stripDoubleTDs( $node, $this->frame );
-						}
+						'action' => fn ( $node ) => $tableFixer->stripDoubleTDs( $node, $this->frame )
 					],
 					[
 						'nodeName' => 'td',
-						'action' => function ( $node ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
-						}
+						'action' => fn ( $node ) => $tableFixer->handleTableCellTemplates( $node, $this->frame )
 					],
 					[
 						'nodeName' => 'th',
-						'action' => function ( $node ) use ( &$tableFixer ) {
-							return $tableFixer->handleTableCellTemplates( $node, $this->frame );
-						}
+						'action' => fn ( $node ) => $tableFixer->handleTableCellTemplates( $node, $this->frame )
 					],
 					// 3. Deduplicate template styles
 					// (should run after dom-fragment expansion + after extension post-processors)
 					[
 						'nodeName' => 'style',
-						'action' => static function ( $node, $dtState ) use ( $env ) {
-							return DedupeStyles::dedupe( $node, $env, $dtState );
-						}
+						'action' => static fn ( $node, $dtState ) => DedupeStyles::dedupe( $node, $env, $dtState )
 					]
 				]
 			],
@@ -469,9 +457,7 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => static function ( $node ) use ( $env ) {
-							return Headings::genAnchors( $node, $env );
-						}
+						'action' => static fn ( $node ) => Headings::genAnchors( $node, $env )
 					],
 					[
 						'nodeName' => null,
@@ -498,7 +484,7 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
-						'action' => [ CleanUp::class, 'stripMarkerMetas' ]
+						'action' => static fn( $node ) => CleanUp::stripMarkerMetas( $node ),
 					]
 				]
 			],
@@ -524,11 +510,11 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => [ DisplaySpace::class, 'leftHandler' ]
+						'action' => static fn( $node ) => DisplaySpace::leftHandler( $node )
 					],
 					[
 						'nodeName' => null,
-						'action' => [ DisplaySpace::class, 'rightHandler' ]
+						'action' => static fn( $node ) => DisplaySpace::rightHandler( $node )
 					],
 				]
 			],
@@ -570,12 +556,12 @@ class DOMPostProcessor extends PipelineStage {
 					// Strip empty elements from template content
 					[
 						'nodeName' => null,
-						'action' => [ CleanUp::class, 'handleEmptyElements' ]
+						'action' => static fn( $node, $state ) => CleanUp::handleEmptyElements( $node, $state )
 					],
 					// Additional cleanup
 					[
 						'nodeName' => null,
-						'action' => [ CleanUp::class, 'finalCleanup' ]
+						'action' => static fn( $node, $state ) => CleanUp::finalCleanup( $node, $state )
 					]
 				]
 			],
