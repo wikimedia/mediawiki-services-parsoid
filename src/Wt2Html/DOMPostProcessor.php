@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Closure;
 use DateTime;
 use Generator;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -212,14 +213,17 @@ class DOMPostProcessor extends PipelineStage {
 			// Common post processing
 			[
 				'Processor' => MarkFosteredContent::class,
-				'shortcut' => 'fostered'
+				'shortcut' => 'fostered',
+				'skipNested' => false
 			],
 			[
 				'Processor' => ProcessTreeBuilderFixups::class,
-				'shortcut' => 'process-fixups'
+				'shortcut' => 'process-fixups',
+				'skipNested' => false
 			],
 			[
-				'Processor' => Normalize::class
+				'Processor' => Normalize::class,
+				'skipNested' => false
 			],
 			[
 				'Processor' => PWrap::class,
@@ -232,7 +236,8 @@ class DOMPostProcessor extends PipelineStage {
 			// or may not complicate things.
 			[
 				'Processor' => AddMediaInfo::class,
-				'shortcut' => 'media'
+				'shortcut' => 'media',
+				'skipNested' => false
 			],
 			// Run this after:
 			// * ProcessTreeBuilderFixups because this pass needs
@@ -252,26 +257,31 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
 				'shortcut' => 'migrate-metas',
-				'omit' => $options['inTemplate']
+				'omit' => $options['inTemplate'],
+				'skipNested' => false
 			],
 			[
 				'Processor' => MigrateTrailingNLs::class,
-				'shortcut' => 'migrate-nls'
+				'shortcut' => 'migrate-nls',
+				'skipNested' => false
 			],
 			// dsr computation and tpl encap are only relevant for top-level content
 			[
 				'Processor' => ComputeDSR::class,
 				'shortcut' => 'dsr',
-				'omit' => $options['inTemplate']
+				'omit' => $options['inTemplate'],
+				'skipNested' => false
 			],
 			[
 				'Processor' => WrapTemplates::class,
 				'shortcut' => 'tplwrap',
-				'omit' => $options['inTemplate']
+				'omit' => $options['inTemplate'],
+				'skipNested' => false
 			],
 			[
 				'name' => 'AddAnnotationIds',
 				'shortcut' => 'ann-ids',
+				'skipNested' => false,
 				'isTraverser' => true,
 				'handlers' => [
 					[
@@ -311,6 +321,7 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => WrapAnnotations::class,
 				'shortcut' => 'annwrap',
+				'skipNested' => false,
 				'withAnnotations' => true
 			],
 			// 1. Link prefixes and suffixes
@@ -321,6 +332,7 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
 				'shortcut' => 'dom-unpack',
+				'skipNested' => false,
 				'isTraverser' => true,
 				'handlers' => [
 					[
@@ -400,6 +412,7 @@ class DOMPostProcessor extends PipelineStage {
 					'isExtPP' => true, // This is an extension DOM post processor
 					'name' => "pp:$extName:$i",
 					'Processor' => $domProcSpec,
+					'skipNested' => false
 				];
 			}
 		}
@@ -847,7 +860,9 @@ class DOMPostProcessor extends PipelineStage {
 
 		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
 			$pp = $this->processors[$i];
-			if ( !empty( $pp['skipNested'] ) && !$this->atTopLevel ) {
+			Assert::invariant( isset( $pp['skipNested'] ),
+				"skipNested property missing for " . $pp['name'] . " processor." );
+			if ( $pp['skipNested'] && !$this->atTopLevel ) {
 				continue;
 			}
 

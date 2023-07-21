@@ -53,7 +53,8 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 				false,
 				[
 					[
-						'Processor' => Normalize::class
+						'Processor' => Normalize::class,
+						'skipNested' => false
 					]
 				],
 				"<p>hi</p><p></p><p>ho</p>",
@@ -65,6 +66,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 					[
 						'name' => 'CleanUp-handleEmptyElts',
 						'shortcut' => 'cleanup',
+						'skipNested' => false,
 						'isTraverser' => true,
 						'handlers' => [
 							[
