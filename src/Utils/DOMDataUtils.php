@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\NodeData\DataI18n;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\NodeData\NodeData;
@@ -283,12 +284,12 @@ class DOMDataUtils {
 	 * Get data meta wiki info from a node.
 	 *
 	 * @param Element $node node
-	 * @return stdClass
+	 * @return DataMw
 	 */
-	public static function getDataMw( Element $node ): stdClass {
+	public static function getDataMw( Element $node ): DataMw {
 		$data = self::getNodeData( $node );
 		if ( !isset( $data->mw ) ) {
-			$data->mw = new stdClass;
+			$data->mw = new DataMw;
 		}
 		return $data->mw;
 	}
@@ -297,9 +298,9 @@ class DOMDataUtils {
 	 * Set data meta wiki info from a node.
 	 *
 	 * @param Element $node node
-	 * @param ?stdClass $dmw data-mw
+	 * @param ?DataMw $dmw data-mw
 	 */
-	public static function setDataMw( Element $node, ?stdClass $dmw ): void {
+	public static function setDataMw( Element $node, ?DataMw $dmw ): void {
 		$data = self::getNodeData( $node );
 		$data->mw = $dmw;
 	}
@@ -540,7 +541,7 @@ class DOMDataUtils {
 	 * @param ?Element $node
 	 * @return DataParsoid
 	 */
-	public static function massageLoadedDataParsoid(
+	private static function massageLoadedDataParsoid(
 		stdClass $stdDP, array $options = [], ?Element $node = null
 	): DataParsoid {
 		$dp = new DataParsoid;
@@ -629,7 +630,7 @@ class DOMDataUtils {
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
 		$dmw = self::getJSONAttribute( $node, 'data-mw', null );
-		self::setDataMw( $node, $dmw );
+		self::setDataMw( $node, $dmw !== null ? new DataMw( (array)$dmw ) : null );
 		$node->removeAttribute( 'data-mw' );
 		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
 		self::setDataParsoidDiff( $node, $dpd );

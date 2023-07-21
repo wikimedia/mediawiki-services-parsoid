@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use stdClass;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -388,13 +388,13 @@ class WTSUtils {
 	 * FIXME: This method should probably be moved to DOMDataUtils class since
 	 * it is used by both html2wt and wt2html code
 	 *
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param string $key
 	 * @param bool $keep
 	 * @return array|null
 	 */
 	public static function getAttrFromDataMw(
-		stdClass $dataMw, string $key, bool $keep
+		DataMw $dataMw, string $key, bool $keep
 	): ?array {
 		$arr = $dataMw->attribs ?? [];
 		$i = false;

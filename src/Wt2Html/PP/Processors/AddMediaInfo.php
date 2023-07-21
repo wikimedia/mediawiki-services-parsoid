@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -11,6 +10,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -124,10 +124,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * https://www.w3.org/TR/media-frags/
 	 *
 	 * @param array $info
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @return string
 	 */
-	private static function parseFrag( array $info, stdClass $dataMw ): string {
+	private static function parseFrag( array $info, DataMw $dataMw ): string {
 		$frag = '';
 		$starttime = WTSUtils::getAttrFromDataMw( $dataMw, 'starttime', true );
 		$endtime = WTSUtils::getAttrFromDataMw( $dataMw, 'endtime', true );
@@ -152,11 +152,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	/**
 	 * @param Element $elt
 	 * @param array $info
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param bool $hasDimension
 	 */
 	private static function addSources(
-		Element $elt, array $info, stdClass $dataMw, bool $hasDimension
+		Element $elt, array $info, DataMw $dataMw, bool $hasDimension
 	): void {
 		$doc = $elt->ownerDocument;
 		$frag = self::parseFrag( $info, $dataMw );
@@ -240,13 +240,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param Element $container
 	 * @param string|null $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleAudio(
-		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
+		Env $env, Element $span, array $attrs, array $info, DataMw $dataMw,
 		Element $container, ?string $alt
 	): Element {
 		$doc = $span->ownerDocument;
@@ -293,13 +293,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param Element $container
 	 * @param string|null $alt Unused, but matches the signature of handlers
 	 * @return Element
 	 */
 	private static function handleVideo(
-		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
+		Env $env, Element $span, array $attrs, array $info, DataMw $dataMw,
 		Element $container, ?string $alt
 	): Element {
 		$doc = $span->ownerDocument;
@@ -348,13 +348,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $span
 	 * @param array $attrs
 	 * @param array $info
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param Element $container
 	 * @param string|null $alt
 	 * @return Element
 	 */
 	private static function handleImage(
-		Env $env, Element $span, array $attrs, array $info, stdClass $dataMw,
+		Env $env, Element $span, array $attrs, array $info, DataMw $dataMw,
 		Element $container, ?string $alt
 	): Element {
 		$doc = $span->ownerDocument;
@@ -417,11 +417,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $container
 	 * @param Element $span
 	 * @param array $errs
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param string|null $alt
 	 */
 	private static function handleErrors(
-		Element $container, Element $span, array $errs, stdClass $dataMw,
+		Element $container, Element $span, array $errs, DataMw $dataMw,
 		?string $alt
 	): void {
 		if ( !DOMUtils::hasTypeOf( $container, 'mw:Error' ) ) {
@@ -460,7 +460,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 * @param Element $container
 	 * @param Element $oldAnchor
 	 * @param array $attrs
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param bool $isImage
 	 * @param string|null $captionText
 	 * @param int $page
@@ -469,7 +469,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 	 */
 	private static function replaceAnchor(
 		Env $env, PegTokenizer $urlParser, Element $container,
-		Element $oldAnchor, array $attrs, stdClass $dataMw, bool $isImage,
+		Element $oldAnchor, array $attrs, DataMw $dataMw, bool $isImage,
 		?string $captionText, int $page, string $lang
 	): Element {
 		$doc = $oldAnchor->ownerDocument;

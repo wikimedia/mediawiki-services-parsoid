@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -59,9 +60,9 @@ class ExtensionTag {
 	}
 
 	/**
-	 * @return \stdClass
+	 * @return DataMw
 	 */
-	public function getDefaultDataMw(): \stdClass {
-		return Utils::getExtArgInfo( $this->extToken )->dict;
+	public function getDefaultDataMw(): DataMw {
+		return Utils::getExtArgInfo( $this->extToken );
 	}
 }

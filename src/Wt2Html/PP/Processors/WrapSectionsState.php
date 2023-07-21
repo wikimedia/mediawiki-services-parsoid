@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -672,7 +673,7 @@ class WrapSectionsState {
 			DOMUtils::addTypeOf( $wrapper, "mw:Transclusion" );
 			$wrapperDp->pi = $pi;
 			$this->fillDSRGap( $parts, $prevDp->dsr->end, $wrapperDp->dsr->end );
-			DOMDataUtils::setDataMw( $wrapper, (object)[ 'parts' => $parts ] );
+			DOMDataUtils::setDataMw( $wrapper, new DataMw( [ 'parts' => $parts ] ) );
 		} catch ( InternalException $e ) {
 			// We don't have accurate template wrapping information.
 			// Set typeof to 'mw:Placeholder' since 'mw:Transclusion'

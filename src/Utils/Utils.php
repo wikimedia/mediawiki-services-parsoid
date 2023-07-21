@@ -9,6 +9,7 @@ use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -357,25 +358,23 @@ class Utils {
 	 * Get argument information for an extension tag token.
 	 *
 	 * @param Token $extToken
-	 * @return \stdClass
+	 * @return DataMw
 	 */
-	public static function getExtArgInfo( Token $extToken ): \stdClass {
+	public static function getExtArgInfo( Token $extToken ): DataMw {
 		$name = $extToken->getAttribute( 'name' );
 		$options = $extToken->getAttribute( 'options' );
-		$info = (object)[
-			'dict' => (object)[
-				'name' => $name,
-				'attrs' => PHPUtils::arrayToObject( TokenUtils::kvToHash( $options ) ),
-				'body' => (object)[
-					'extsrc' => self::extractExtBody( $extToken )
-				],
-			],
-		];
+		$defaultDataMw = new DataMw( [
+			'name' => $name,
+			'attrs' => PHPUtils::arrayToObject( TokenUtils::kvToHash( $options ) ),
+		] );
 		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
-		if ( $extTagOffsets->closeWidth === 0 ) {
-			unset( $info->dict->body ); // Serialize to self-closing.
+		if ( $extTagOffsets->closeWidth !== 0 ) {
+			// If not self-closing...
+			$defaultDataMw->body = (object)[
+				'extsrc' => self::extractExtBody( $extToken ),
+			];
 		}
-		return $info;
+		return $defaultDataMw;
 	}
 
 	/**

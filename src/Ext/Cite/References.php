@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\PHPUtils;
 use Wikimedia\Parsoid\Ext\WTUtils;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
@@ -81,10 +82,10 @@ class References extends ExtensionTagHandler {
 				'typeof' => 'mw:Extension/references',
 				'about' => $extApi->newAboutId()
 			] );
-			$dataMw = (object)[
+			$dataMw = new DataMw( [
 				'name' => 'references',
 				'attrs' => new stdClass
-			];
+			] );
 			// Dont emit empty keys
 			if ( $refsOpts['group'] ) {
 				$dataMw->attrs->group = $refsOpts['group'];

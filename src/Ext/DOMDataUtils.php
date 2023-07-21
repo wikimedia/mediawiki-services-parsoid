@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext;
 
 use stdClass;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMDataUtils as DDU;
 
@@ -34,9 +35,9 @@ class DOMDataUtils {
 	/**
 	 * Get data meta wiki info from a DOM element
 	 * @param Element $elt
-	 * @return ?stdClass
+	 * @return ?DataMw
 	 */
-	public static function getDataMw( Element $elt ): ?stdClass {
+	public static function getDataMw( Element $elt ): ?DataMw {
 		return DDU::getDataMw( $elt );
 	}
 
@@ -52,9 +53,9 @@ class DOMDataUtils {
 	/**
 	 * Set data meta wiki info from a DOM element
 	 * @param Element $elt
-	 * @param ?stdClass $dmw data-mw
+	 * @param ?DataMw $dmw data-mw
 	 */
-	public static function setDataMw( Element $elt, ?stdClass $dmw ): void {
+	public static function setDataMw( Element $elt, ?DataMw $dmw ): void {
 		DDU::setDataMw( $elt, $dmw );
 	}
 

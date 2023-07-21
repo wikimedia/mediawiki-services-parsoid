@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\SiteConfig;
@@ -11,6 +10,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -82,7 +82,7 @@ class ExtensionHandler extends TokenHandler {
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
 
 		// Call after normalizing extension options, since that can affect the result
-		$dataMw = Utils::getExtArgInfo( $token )->dict;
+		$dataMw = Utils::getExtArgInfo( $token );
 
 		if ( $nativeExt !== null ) {
 			$extArgs = $token->getAttribute( 'options' );
@@ -175,12 +175,12 @@ class ExtensionHandler extends TokenHandler {
 	 *
 	 * @param Token $extToken
 	 * @param DocumentFragment $domFragment
-	 * @param stdClass $dataMw
+	 * @param DataMw $dataMw
 	 * @param array $errors
 	 * @return array
 	 */
 	private function onDocumentFragment(
-		Token $extToken, DocumentFragment $domFragment, stdClass $dataMw,
+		Token $extToken, DocumentFragment $domFragment, DataMw $dataMw,
 		array $errors
 	): array {
 		$env = $this->env;
