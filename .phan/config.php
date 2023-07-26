@@ -114,6 +114,7 @@ if ( $STANDALONE ) {
 		wfCollectPhpFiles( "{$VP}/vendor/wikimedia/langconv", $cfg['exclude_file_list'] );
 	}
 }
+wfCollectPhpFiles( "vendor/composer/composer", $cfg['exclude_file_list'] );
 wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );
 
 // Exclude src/DOM in favour of .phan/stubs/DomImpl.php

@@ -7,8 +7,6 @@
 
 require_once __DIR__ . '/../tools/Maintenance.php';
 
-use Composer\Factory;
-use Composer\IO\NullIO;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
@@ -415,12 +413,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 	private function maybeVersion() {
 		if ( $this->hasOption( 'version' ) ) {
-			# XXX: This doesn't work on production machines or in integrated
-			# mode, since Composer\Factory isn't in the production `vendor`
-			# deploy.
-			$composer = Factory::create( new NullIO(), './composer.json', false );
-			$root = $composer->getPackage();
-			$this->output( $root->getFullPrettyVersion() . "\n" );
+			$this->output( Parsoid::version() . "\n" );
 			die( 0 );
 		}
 	}

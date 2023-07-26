@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid;
 
+use Composer\InstalledVersions;
 use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use InvalidArgumentException;
@@ -58,6 +59,26 @@ class Parsoid {
 	) {
 		$this->siteConfig = $siteConfig;
 		$this->dataAccess = $dataAccess;
+	}
+
+	/**
+	 * Returns the currently-installed version of Parsoid.
+	 * @return string
+	 */
+	public static function version(): string {
+		try {
+			// See https://getcomposer.org/doc/07-runtime.md#knowing-the-version-of-package-x
+			return InstalledVersions::getVersion( 'wikimedia/parsoid' ) ??
+				// From the composer runtime API docs:
+				// "It is nonetheless a good idea to make sure you
+				// handle the null return value as gracefully as
+				// possible for safety."
+				'null';
+		} catch ( \Throwable $t ) {
+			// Belt-and-suspenders protection against parts of the composer
+			// runtime API being absent in production.
+			return 'error';
+		}
 	}
 
 	/**
