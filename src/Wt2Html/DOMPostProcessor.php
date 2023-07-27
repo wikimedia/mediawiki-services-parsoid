@@ -131,9 +131,6 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		foreach ( $processors as $p ) {
-			if ( !empty( $p['omit'] ) ) {
-				continue;
-			}
 			if ( empty( $p['name'] ) ) {
 				$p['name'] = Utils::stripNamespace( $p['Processor'] );
 			}
@@ -265,7 +262,11 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'migrate-nls',
 				'skipNested' => false
 			],
-			// dsr computation and tpl encap are only relevant for top-level content
+			// - DSR computation and template wrapping are only relevant for top-level
+			//   content and hence are omitted. But, they cannot be skipped for
+			//   top-level content even if they are part of nested level pipelines,
+			//   because such content might be embedded in attributes and they may
+			//   need to be processed independently.
 			[
 				'Processor' => ComputeDSR::class,
 				'shortcut' => 'dsr',
@@ -862,6 +863,13 @@ class DOMPostProcessor extends PipelineStage {
 
 		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
 			$pp = $this->processors[$i];
+			// - Nested pipelines are used for both top-level and non-top-level content.
+			// - Omit is currently set only for templated content pipelines.
+			// - But, skipNested can be set for both templated content as well as
+			//   top-level content.
+			if ( !empty( $pp['omit'] ) ) {
+				continue;
+			}
 			Assert::invariant( isset( $pp['skipNested'] ),
 				"skipNested property missing for " . $pp['name'] . " processor." );
 			if ( $pp['skipNested'] && !$this->atTopLevel ) {
