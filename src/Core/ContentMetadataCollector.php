@@ -178,6 +178,18 @@ interface ContentMetadataCollector {
 	public function setOutputFlag( string $name, bool $val = true ): void;
 
 	/**
+	 * Provides a uniform interface to various appendable lists of strings
+	 * stored in the content metadata. Strings internal to MediaWiki core should
+	 * have names which are constants in ParserOutputStrings.  Extensions
+	 * should use ::setExtensionData() rather than creating new keys here
+	 * in order to prevent namespace conflicts.
+	 *
+	 * @param string $name A string name
+	 * @param string[] $value
+	 */
+	public function appendOutputStrings( string $name, array $value ): void;
+
+	/**
 	 * Set a property to be stored in the page_props database table.
 	 *
 	 * page_props is a key value store indexed by the page ID. This allows
