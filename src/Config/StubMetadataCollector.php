@@ -74,13 +74,6 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	}
 
 	/** @inheritDoc */
-	public function appendOutputString( string $name, array $value ): void {
-		foreach ( $value as $v ) {
-			$this->collect( 'outputstrings', $name, $v );
-		}
-	}
-
-	/** @inheritDoc */
 	public function setPageProperty( string $name, $value ): void {
 		$this->collect( 'properties', $name, $value, self::MERGE_STRATEGY_WRITE_ONCE );
 	}
