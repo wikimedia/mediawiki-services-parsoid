@@ -52,14 +52,12 @@ trait ContentMetadataCollectorCompat {
 	/* This trait is empty, in an ideal world. */
 
 	/**
-	 * Retrofit new method into existing (legacy) interface
-	 * till implementations support this on their own.
-	 * For now, nothing to do here.
-	 *
-	 * @param TOCData $tocData
+	 * No-op implementation to handle RT testing (where "old" core
+	 * doesn't (yet) contain an implementation of this method.
+	 * @param string $name A string name
+	 * @param string[] $value
 	 */
-	public function setTOCData( TOCData $tocData ): void {
-		/* Nothing to do here; in theory we'd call ParserOutput::setSections()
-		 * but that interface was never added to ContentMetadataCollector. */
+	public function appendOutputStrings( string $name, array $value ): void {
+		/* Nothing to do here, we're just going to discard this metadata */
 	}
 }
