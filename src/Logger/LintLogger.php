@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Logger;
 
-use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -96,18 +95,10 @@ class LintLogger {
 			return;
 		}
 
-		$linting = $env->getSiteConfig()->linting();
-		$enabledBuffer = null;
-
-		if ( $linting === true ) {
-			$enabledBuffer = $env->getLints(); // Everything is enabled
-		} elseif ( is_array( $linting ) ) {
-			$enabledBuffer = array_filter( $env->getLints(), static function ( $item ) use ( &$linting ) {
-				return in_array( $item['type'], $linting, true );
-			} );
-		} else {
-			throw new UnreachableException( 'Why are we here? Linting is disabled.' );
-		}
+		// Filter only enabled linting types
+		$enabledBuffer = array_filter( $env->getLints(), static function ( $item ) use ( $env ) {
+			return $env->getSiteConfig()->linting( $item['type'] );
+		} );
 
 		// Convert offsets to ucs2
 		$offsetType = $env->getCurrentOffsetType();

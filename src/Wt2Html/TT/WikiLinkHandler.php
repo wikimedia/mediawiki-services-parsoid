@@ -104,7 +104,7 @@ class WikiLinkHandler extends TokenHandler {
 			$info->href = substr( ltrim( $info->href ), 1 );
 		}
 		if ( ( $info->href[0] ?? '' ) === ':' ) {
-			if ( $siteConfig->linting() ) {
+			if ( $siteConfig->linting( 'multi-colon-escape' ) ) {
 				$lint = [
 					'dsr' => DomSourceRange::fromTsr( $token->dataParsoid->tsr ),
 					'params' => [ 'href' => ':' . $info->href ],

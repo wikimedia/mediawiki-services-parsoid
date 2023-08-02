@@ -301,11 +301,38 @@ abstract class SiteConfig {
 
 	/**
 	 * Whether to enable linter Backend.
-	 * @return bool|string[] Boolean to enable/disable all linting, or an array
-	 *  of enabled linting types.
+	 * Consults the allow list and block list from ::getLinterConfig().
+	 *
+	 * @param null $type If $type is null or omitted, returns true if *any* linting
+	 *   type is enabled; otherwise returns true only if the specified
+	 *   linting type is enabled.
+	 * @return bool If $type is null or omitted, returns true if *any* linting
+	 *   type is enabled; otherwise returns true only if the specified
+	 *   linting type is enabled.
 	 */
-	public function linting() {
-		return $this->linterEnabled;
+	final public function linting( ?string $type = null ) {
+		if ( !$this->linterEnabled ) {
+			return false;
+		}
+		$lintConfig = $this->getLinterConfig();
+		// Allow list
+		$allowList = $lintConfig['enabled'] ?? null;
+		if ( is_array( $allowList ) ) {
+			if ( $type === null ) {
+				return count( $allowList ) > 0;
+			}
+			return $allowList[$type] ?? false;
+		}
+		// Block list
+		if ( $type === null ) {
+			return true;
+		}
+		$blockList = $lintConfig['disabled'] ?? null;
+		if ( is_array( $blockList ) ) {
+			return !( $blockList[$type] ?? false );
+		}
+		// No specific configuration
+		return true;
 	}
 
 	/**
@@ -1229,15 +1256,46 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Return the desired linter configuration.  These are heuristic values
+	 * which have hardcoded defaults but could be overridden on a per-wiki
+	 * basis.
+	 * @return array{enabled?:string[],disabled?:string[],maxTableColumnHeuristic?:int,maxTableRowsToCheck?:int}
+	 */
+	public function getLinterConfig(): array {
+		return [
+			// Allow list for specific lint types.
+			// Takes precedence over block list.
+			'enabled' => null,
+			// Block list for specific lint types.
+			// Not used if an allow list is set.
+			'disabled' => null,
+			// The maximum columns in a table before the table is considered
+			// large
+			'maxTableColumnHeuristic' => 5,
+			// The maximum rows (header or data) to be checked for the large
+			// table lint
+			// - If we consider the first N rows to be representative of the
+			//   table, and the table is well-formed and uniform, it is
+			//   sufficent to check the first N rows to check if the table is
+			//   "large".
+			// - This heuristic is used together with the
+			//   'maxTableColumnHeuristic' to identify "large tables".
+			'maxTableRowsToCheck' => 10,
+		];
+	}
+
+	/**
 	 * Get the maximum columns in a table before the table is considered large.
 	 *
 	 * This lint heuristic value is hardcoded here and centrally determined without
 	 * an option to set it per-wiki.
 	 *
 	 * @return int
+	 * @deprecated Use ::getLinterConfig()
 	 */
 	public function getMaxTableColumnLintHeuristic(): int {
-		return 5;
+		$lintConfig = $this->getLinterConfig();
+		return $lintConfig['maxTableColumnHeuristic'] ?? 0;
 	}
 
 	/**
@@ -1249,9 +1307,11 @@ abstract class SiteConfig {
 	 *   identify "large tables".
 	 *
 	 * @return int
+	 * @deprecated Use ::getLinterConfig()
 	 */
 	public function getMaxTableRowsToCheckLintHeuristic(): int {
-		return 10;
+		$lintConfig = $this->getLinterConfig();
+		return $lintConfig['maxTableRowsToCheck'] ?? 0;
 	}
 
 	/**
