@@ -14,13 +14,11 @@ use Wikimedia\Parsoid\Parsoid;
 
 class LinterTest extends TestCase {
 	/**
-	 * TODO: The name of this method needs an update to be wtToLint
-	 *
 	 * @param string $wt
 	 * @param array $options
 	 * @return array
 	 */
-	private function parseWT( string $wt, array $options = [] ): array {
+	private function wtToLint( string $wt, array $options = [] ): array {
 		$opts = [
 			'prefix' => $options['prefix'] ?? 'enwiki',
 			'pageName' => $options['pageName'] ?? 'main',
@@ -44,7 +42,7 @@ class LinterTest extends TestCase {
 	 * @param array $opts
 	 */
 	private function expectEmptyResults( string $description, string $wt, array $opts = [] ): void {
-		$result = $this->parseWT( $wt, $opts );
+		$result = $this->wtToLint( $wt, $opts );
 		$this->assertSame( [], $result, $description );
 	}
 
@@ -57,7 +55,7 @@ class LinterTest extends TestCase {
 	private function expectLinterCategoryToBeAbsent( string $description, string $wt, string $cat,
 		array $opts = []
 	): void {
-		$result = $this->parseWT( $wt, $opts );
+		$result = $this->wtToLint( $wt, $opts );
 		foreach ( $result as $r ) {
 			if ( isset( $r['type'] ) ) {
 				$this->assertNotEquals( $cat, $r['type'], $description );
@@ -87,7 +85,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testMissingEndTags(): void {
 		$desc = 'should lint missing end tags correctly';
-		$result = $this->parseWT( '<div>foo' );
+		$result = $this->wtToLint( '<div>foo' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 8, 5, 0 ], $result[0]['dsr'], $desc );
@@ -95,7 +93,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'div', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint missing end tags for quotes correctly';
-		$result = $this->parseWT( "'''foo" );
+		$result = $this->wtToLint( "'''foo" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 6, 3, 0 ], $result[0]['dsr'], $desc );
@@ -103,7 +101,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint missing end tags found in transclusions correctly';
-		$result = $this->parseWT( '{{1x|<div>foo<p>bar</div>}}' );
+		$result = $this->wtToLint( '{{1x|<div>foo<p>bar</div>}}' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 27, null, null ], $result[0]['dsr'], $desc );
@@ -122,7 +120,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testStrippedTags(): void {
 		$desc = 'should lint stripped tags correctly';
-		$result = $this->parseWT( 'foo</div>' );
+		$result = $this->wtToLint( 'foo</div>' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -130,7 +128,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( [ 3, 9, null, null ], $result[0]['dsr'], $desc );
 
 		$desc = 'should lint stripped tags found in transclusions correctly';
-		$result = $this->parseWT( '{{1x|<div>foo</div></div>}}' );
+		$result = $this->wtToLint( '{{1x|<div>foo</div></div>}}' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -140,7 +138,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations (</i> is stripped)';
-		$result = $this->parseWT( '<b><i>X</b></i>' );
+		$result = $this->wtToLint( '<b><i>X</b></i>' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 3, 7, 3, 0 ], $result[0]['dsr'], $desc );
@@ -149,7 +147,7 @@ class LinterTest extends TestCase {
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
 			'from template (</i> is stripped)';
-		$result = $this->parseWT( '{{1x|<b><i>X</b></i>}}' );
+		$result = $this->wtToLint( '{{1x|<b><i>X</b></i>}}' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 22, null, null ], $result[0]['dsr'], $desc );
@@ -159,7 +157,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations (<i> is auto-inserted)';
-		$result = $this->parseWT( '<b><i>X</b>Y</i>' );
+		$result = $this->wtToLint( '<b><i>X</b>Y</i>' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 3, 7, 3, 0 ], $result[0]['dsr'], $desc );
@@ -168,7 +166,7 @@ class LinterTest extends TestCase {
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
 			'(skip over empty autoinserted <small></small>)';
-		$result = $this->parseWT( "*a<small>b\n*c</small>d" );
+		$result = $this->wtToLint( "*a<small>b\n*c</small>d" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 2, 10, 7, 0 ], $result[0]['dsr'], $desc );
@@ -177,7 +175,7 @@ class LinterTest extends TestCase {
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
 			'(formatting tags around lists, but ok for div)';
-		$result = $this->parseWT( "<small>a\n*b\n*c\nd</small>\n<div>a\n*b\n*c\nd</div>" );
+		$result = $this->wtToLint( "<small>a\n*b\n*c\nd</small>\n<div>a\n*b\n*c\nd</div>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 8, 7, 0 ], $result[0]['dsr'], $desc );
@@ -186,7 +184,7 @@ class LinterTest extends TestCase {
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations ' .
 			'(T221989 regression test case)';
-		$result = $this->parseWT( "<div>\n* <span>foo\n\n</div>\n</span>y" );
+		$result = $this->wtToLint( "<div>\n* <span>foo\n\n</div>\n</span>y" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 8, 17, 6, 0 ], $result[0]['dsr'], $desc );
@@ -194,7 +192,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = 'should lint stripped tags in nested pipelines (T338325)';
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[[Special:Contributions/Yellow Evan|Hurricane</font>]]\n\n" .
 			"[[File:Foobar.jpg|thumb|[[Normande Cattle|Normande cow]]</center>]]\n\n" .
 			"<gallery>\n" .
@@ -212,7 +210,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testObsoleteTags(): void {
 		$desc = 'should lint obsolete tags correctly';
-		$result = $this->parseWT( '<tt>foo</tt>bar' );
+		$result = $this->wtToLint( '<tt>foo</tt>bar' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 12, 4, 5 ], $result[0]['dsr'], $desc );
@@ -223,7 +221,7 @@ class LinterTest extends TestCase {
 		$this->expectEmptyResults( $desc, '<big>foo</big>bar' );
 
 		$desc = 'should lint obsolete tags found in transclusions correctly';
-		$result = $this->parseWT( '{{1x|<div><tt>foo</tt></div>}}foo' );
+		$result = $this->wtToLint( '{{1x|<div><tt>foo</tt></div>}}foo' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 30, null, null ], $result[0]['dsr'], $desc );
@@ -233,7 +231,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should not lint auto-inserted obsolete tags';
-		$result = $this->parseWT( "<tt>foo\n\n\nbar" );
+		$result = $this->wtToLint( "<tt>foo\n\n\nbar" );
 		// obsolete-tag and missing-end-tag
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
@@ -243,7 +241,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'tt', $result[1]['params']['name'], $desc );
 
 		$desc = 'should not have template info for extension tags';
-		$result = $this->parseWT( "<gallery>\nFile:Test.jpg|<tt>foo</tt>\n</gallery>" );
+		$result = $this->wtToLint( "<gallery>\nFile:Test.jpg|<tt>foo</tt>\n</gallery>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'obsolete-tag', $result[0]['type'], $desc );
 		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
@@ -255,7 +253,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testFosteredContent(): void {
 		$desc = 'should lint fostered content correctly';
-		$result = $this->parseWT( "{|\nfoo\n|-\n| bar\n|}" );
+		$result = $this->wtToLint( "{|\nfoo\n|-\n| bar\n|}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 18, 2, 2 ], $result[0]['dsr'], $desc );
@@ -270,7 +268,7 @@ class LinterTest extends TestCase {
 		$this->expectEmptyResults( $desc, "{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}" );
 
 		$desc = 'should lint fostered include directives that has fostered content';
-		$result = $this->parseWT( "{|\n<noinclude>boo</noinclude>\n|-\n| bar\n|}" );
+		$result = $this->wtToLint( "{|\n<noinclude>boo</noinclude>\n|-\n| bar\n|}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
 	}
@@ -280,7 +278,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testBogusImageOptions(): void {
 		$desc = 'should lint Bogus image options correctly';
-		$result = $this->parseWT( '[[file:a.jpg|foo|bar]]' );
+		$result = $this->wtToLint( '[[file:a.jpg|foo|bar]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 22, null, null ], $result[0]['dsr'], $desc );
@@ -289,7 +287,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
 
 		$desc = 'should lint Bogus image options found in transclusions correctly';
-		$result = $this->parseWT( '{{1x|[[file:a.jpg|foo|bar]]}}' );
+		$result = $this->wtToLint( '{{1x|[[file:a.jpg|foo|bar]]}}' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 29, null, null ], $result[0]['dsr'], $desc );
@@ -299,7 +297,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should batch lint Bogus image options correctly';
-		$result = $this->parseWT( '[[file:a.jpg|foo|bar|baz]]' );
+		$result = $this->wtToLint( '[[file:a.jpg|foo|bar|baz]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 26, null, null ], $result[0]['dsr'], $desc );
@@ -311,7 +309,7 @@ class LinterTest extends TestCase {
 		$this->expectEmptyResults( $desc, '[[file:a.jpg|foo]]' );
 
 		$desc = 'should flag disablecontrols as bogus options';
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 		'[[File:Video.ogv|disablecontrols=ok|These are bogus.]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
@@ -323,20 +321,20 @@ class LinterTest extends TestCase {
 		$this->expectEmptyResults( $desc, "<gallery>\nfile:a.jpg\n</gallery>" );
 
 		$desc = 'should lint Bogus image width options correctly';
-		$result = $this->parseWT( '[[File:Foobar.jpg|thumb|left150px|Caption]]' );
+		$result = $this->wtToLint( '[[File:Foobar.jpg|thumb|left150px|Caption]]' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 43, 2, 2 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint Bogus image with bogus width definition correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|300px300px|Caption]]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 44, 2, 2 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint Bogus image with duplicate width options correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|300px|250px|Caption]]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
@@ -345,7 +343,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '300px', $result[0]['params']['items'][0], $desc );
 
 		$desc = "should lint Bogus image with separated duplicate widths options correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|250px|right|thumb|x216px|Caption]]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
@@ -356,11 +354,11 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'thumb', $result[0]['params']['items'][1], $desc );
 
 		$desc = 'should not lint image with caption masquerading as width option';
-		$result = $this->parseWT( '[[File:Foobar.jpg|thumb|Foo px]]' );
+		$result = $this->wtToLint( '[[File:Foobar.jpg|thumb|Foo px]]' );
 		$this->assertCount( 0, $result, $desc );
 
 		$desc = "should lint image with width option with redundant units";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|250pxpx|right|Caption]]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
@@ -369,7 +367,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '250pxpx', $result[0]['params']['items'][0], $desc );
 
 		$desc = "should lint Bogus image with invalid upright value";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			'[[File:Foobar.jpg|thumb|upright=0.7px|Caption]]' .
 			'[[File:Foobar.jpg|thumb|upright=1.5"|Caption]]' .
 			'[[File:Foobar.jpg|thumb|upright=0|Caption]]' .
@@ -395,7 +393,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'upright=-1', $result[3]['params']['items'][0], $desc );
 
 		$desc = "should lint multiple media formats, first one wins";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			'[[File:Foobar.jpg|frame|frameless]]' .
 			'[[File:Foobar.jpg|frameless|frame]]' .
 			'[[File:Foobar.jpg|thumbnail=Thumb.png|thumb]]'
@@ -415,7 +413,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'thumb', $result[2]['params']['items'][0], $desc );
 
 		$desc = "should lint defined with for framed or manualthumb formats";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			'[[File:Foobar.jpg|frame|200px]]' .
 			'[[File:Foobar.jpg|thumbnail=Thumb.png|400px]]'
 		);
@@ -430,7 +428,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '400px', $result[1]['params']['items'][0], $desc );
 
 		$desc = "should lint format option used in gallery";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			'<gallery>\n' .
 			'File:Foobar.jpg|thumb|lalala\n' .
 			'</gallery>\n' .
@@ -453,7 +451,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[1]['templateInfo']['name'], $desc );
 
 		$desc = "should lint size option used in gallery";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			'<gallery>\n' .
 			'File:Foobar.jpg|500px|lalala\n' .
 			'</gallery>'
@@ -470,7 +468,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testSelfClosingTags(): void {
 		$desc = 'should lint self-closing tags corrrectly';
-		$result = $this->parseWT( "foo<b />bar<span />baz<hr />boo<br /> <ref name='boo' />" );
+		$result = $this->wtToLint( "foo<b />bar<span />baz<hr />boo<br /> <ref name='boo' />" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'self-closed-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 3, 8, 5, 0 ], $result[0]['dsr'], $desc );
@@ -482,7 +480,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'span', $result[1]['params']['name'], $desc );
 
 		$desc = 'should lint self-closing tags in a template correctly';
-		$result = $this->parseWT( "{{1x|<b /> <ref name='boo' />}}" );
+		$result = $this->wtToLint( "{{1x|<b /> <ref name='boo' />}}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'self-closed-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 31, null, null ], $result[0]['dsr'], $desc );
@@ -507,7 +505,7 @@ class LinterTest extends TestCase {
 			"|}",
 			"|}"
 		] );
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -525,7 +523,7 @@ class LinterTest extends TestCase {
 			"|c",
 			"|}"
 		] );
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -543,7 +541,7 @@ class LinterTest extends TestCase {
 			"{{!}}}",
 			"}}"
 		] );
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
@@ -561,7 +559,7 @@ class LinterTest extends TestCase {
 			"|c",
 			"|}"
 		] );
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
 		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
@@ -581,7 +579,7 @@ class LinterTest extends TestCase {
 			"</span>",
 			"</div>"
 		] );
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'pwrap-bug-workaround', $result[1]['type'], $desc );
 		$this->assertFalse( isset( $result[1]['templateInfo'] ), $desc );
@@ -643,7 +641,7 @@ class LinterTest extends TestCase {
 		] );
 
 		$desc = 'should detect problematic whitespace hoisting';
-		$result = $this->parseWT( $wt1, [ 'tidyWhitespaceBugMaxLength' => 0 ] );
+		$result = $this->wtToLint( $wt1, [ 'tidyWhitespaceBugMaxLength' => 0 ] );
 		$this->assertCount( 5, $result, $desc );
 		foreach ( $result as $r ) {
 			$this->assertEquals( 'tidy-whitespace-bug', $r['type'], $desc );
@@ -672,7 +670,7 @@ class LinterTest extends TestCase {
 
 		$desc = 'should flag tidy whitespace bug on a run of affected content';
 		// The run length is 11 chars in the example above
-		$result = $this->parseWT( $wt2, [ 'tidyWhitespaceBugMaxLength' => 5 ] );
+		$result = $this->wtToLint( $wt2, [ 'tidyWhitespaceBugMaxLength' => 5 ] );
 		$this->assertCount( 3, $result, $desc );
 		foreach ( $result as $r ) {
 			$this->assertEquals( 'tidy-whitespace-bug', $r['type'], $desc );
@@ -691,7 +689,7 @@ class LinterTest extends TestCase {
 		$desc = 'should account for preceding text content';
 		// Run length changes to 16 chars because of preceding text
 		$wt2 = str_replace( 'some unaffected text here ', 'some unaffected text HERE-', $wt2 );
-		$result = $this->parseWT( $wt2, [ 'tidyWhitespaceBugMaxLength' => 12 ] );
+		$result = $this->wtToLint( $wt2, [ 'tidyWhitespaceBugMaxLength' => 12 ] );
 		$this->assertCount( 3, $result, $desc );
 		foreach ( $result as $r ) {
 			$this->assertEquals( 'tidy-whitespace-bug', $r['type'], $desc );
@@ -740,7 +738,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testMultipleColonEscape(): void {
 		$desc = 'should lint links prefixed with multiple colons';
-		$result = $this->parseWT( "[[None]]\n[[:One]]\n[[::Two]]\n[[:::Three]]" );
+		$result = $this->wtToLint( "[[None]]\n[[:One]]\n[[::Two]]\n[[:::Three]]" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'multi-colon-escape', $result[0]['type'], $desc );
 		$this->assertEquals( [ 18, 27, null, null ], $result[0]['dsr'], $desc );
@@ -752,7 +750,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( ':::Three', $result[1]['params']['href'], $desc );
 
 		$desc = 'should lint links prefixed with multiple colons from templates';
-		$result = $this->parseWT( "{{1x|[[:One]]}}\n{{1x|[[::Two]]}}" );
+		$result = $this->wtToLint( "{{1x|[[:One]]}}\n{{1x|[[::Two]]}}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
@@ -767,14 +765,14 @@ class LinterTest extends TestCase {
 	 */
 	public function testHtml5MisnestedTags(): void {
 		$desc = "should not trigger html5 misnesting if there is no following content";
-		$result = $this->parseWT( "<del>foo\nbar" );
+		$result = $this->wtToLint( "<del>foo\nbar" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'del', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting correctly";
-		$result = $this->parseWT( "<del>foo\n\nbar" );
+		$result = $this->wtToLint( "<del>foo\n\nbar" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 8, 5, 0 ], $result[0]['dsr'], $desc );
@@ -782,7 +780,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'del', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting for span (1)";
-		$result = $this->parseWT( "<span>foo\n\nbar" );
+		$result = $this->wtToLint( "<span>foo\n\nbar" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 9, 6, 0 ], $result[0]['dsr'], $desc );
@@ -790,7 +788,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting for span (2)";
-		$result = $this->parseWT( "<span>foo\n\n<div>bar</div>" );
+		$result = $this->wtToLint( "<span>foo\n\n<div>bar</div>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 9, 6, 0 ], $result[0]['dsr'], $desc );
@@ -798,7 +796,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should trigger html5 misnesting for span (3)";
-		$result = $this->parseWT( "<span>foo\n\n{|\n|x\n|}\nboo" );
+		$result = $this->wtToLint( "<span>foo\n\n{|\n|x\n|}\nboo" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 9, 6, 0 ], $result[0]['dsr'], $desc );
@@ -806,14 +804,14 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should not trigger html5 misnesting when there is no misnested content";
-		$result = $this->parseWT( "<span>foo\n\n</span>y" );
+		$result = $this->wtToLint( "<span>foo\n\n</span>y" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misnested-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'span', $result[0]['params']['name'], $desc );
 
 		$desc = "should not trigger html5 misnesting when unclosed tag is inside a td/th/heading tags";
-		$result = $this->parseWT( "=<span id=\"1\">x=\n{|\n!<span id=\"2\">z\n|-\n|<span>id=\"3\"\n|}" );
+		$result = $this->wtToLint( "=<span id=\"1\">x=\n{|\n!<span id=\"2\">z\n|-\n|<span>id=\"3\"\n|}" );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'missing-end-tag-in-heading', $result[0]['type'], $desc );
 		$this->assertEquals( 'missing-end-tag', $result[1]['type'], $desc );
@@ -821,7 +819,7 @@ class LinterTest extends TestCase {
 
 		$desc = "should not trigger html5 misnesting when misnested content is " .
 			"outside an a-tag (without link-trails)";
-		$result = $this->parseWT( "[[Foo|<span>foo]]Bar</span>" );
+		$result = $this->wtToLint( "[[Foo|<span>foo]]Bar</span>" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -831,7 +829,7 @@ class LinterTest extends TestCase {
 		// Note that this is a false positive because of T177086 and fixing that will fix this.
 		// We expect this to be an edge case.
 		$desc = "should trigger html5 misnesting when linktrails brings content inside an a-tag";
-		$result = $this->parseWT( "[[Foo|<span>foo]]bar</span>" );
+		$result = $this->wtToLint( "[[Foo|<span>foo]]bar</span>" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -839,20 +837,20 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 
 		$desc = "should not trigger html5 misnesting for formatting tags";
-		$result = $this->parseWT( "<small>foo\n\nbar" );
+		$result = $this->wtToLint( "<small>foo\n\nbar" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'small', $result[0]['params']['name'], $desc );
 
 		$desc = "should not trigger html5 misnesting for span if there is a nested span tag";
-		$result = $this->parseWT( "<span>foo<span>boo</span>\n\nbar</span>" );
+		$result = $this->wtToLint( "<span>foo<span>boo</span>\n\nbar</span>" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 
 		$desc = "should trigger html5 misnesting for span if there is a nested non-span tag";
-		$result = $this->parseWT( "<span>foo<del>boo</del>\n\nbar</span>" );
+		$result = $this->wtToLint( "<span>foo<del>boo</del>\n\nbar</span>" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -860,7 +858,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
 
 		$desc = "should trigger html5 misnesting for span if there is a nested unclosed span tag";
-		$result = $this->parseWT( "<span>foo<span>boo\n\nbar</span>" );
+		$result = $this->wtToLint( "<span>foo<span>boo\n\nbar</span>" );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'html5-misnesting', $result[0]['type'], $desc );
 		$this->assertEquals( 'html5-misnesting', $result[1]['type'], $desc );
@@ -884,7 +882,7 @@ class LinterTest extends TestCase {
 			"<font color='green'>{{1x|[[Foo]]}}</font>"
 		];
 		$n = count( $wtLines );
-		$result = $this->parseWT( implode( "\n", $wtLines ) );
+		$result = $this->wtToLint( implode( "\n", $wtLines ) );
 		$this->assertCount( 2 * $n, $result, $desc );
 		for ( $i = 0; $i < 2 * $n; $i += 2 ) {
 			$this->assertEquals( 'obsolete-tag', $result[$i]['type'], $desc );
@@ -894,7 +892,7 @@ class LinterTest extends TestCase {
 		$desc = "should not flag Tidy font fixups when color attribute is absent";
 		$wtLinesReplaced = str_replace( " color='green'", '', $wtLines );
 		$n = count( $wtLinesReplaced );
-		$result = $this->parseWT( implode( "\n", $wtLinesReplaced ) );
+		$result = $this->wtToLint( implode( "\n", $wtLinesReplaced ) );
 		$this->assertCount( $n, $wtLinesReplaced, $desc );
 		foreach ( $result as $r ) {
 			$this->assertEquals( 'obsolete-tag', $r['type'], $desc );
@@ -912,7 +910,7 @@ class LinterTest extends TestCase {
 			"<font color='green'><div>[[Foo|bar]]</div></font>"
 		];
 		$n = count( $wtLines2 );
-		$result = $this->parseWT( implode( "\n", $wtLines2 ) );
+		$result = $this->wtToLint( implode( "\n", $wtLines2 ) );
 		$this->assertCount( $n, $result, $desc );
 		foreach ( $result as $r ) {
 			$this->assertEquals( 'obsolete-tag', $r['type'], $desc );
@@ -924,19 +922,19 @@ class LinterTest extends TestCase {
 	 */
 	public function testMultipleUnclosedFormatTags(): void {
 		$desc = 'should detect multiple unclosed small tags';
-		$result = $this->parseWT( '<div><small>x</div><div><small>y</div>' );
+		$result = $this->wtToLint( '<div><small>x</div><div><small>y</div>' );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'multiple-unclosed-formatting-tags', $result[2]['type'], $desc );
 		$this->assertEquals( 'small', $result[2]['params']['name'], $desc );
 
 		$desc = 'should detect multiple unclosed big tags';
-		$result = $this->parseWT( '<div><big>x</div><div><big>y</div>' );
+		$result = $this->wtToLint( '<div><big>x</div><div><big>y</div>' );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'multiple-unclosed-formatting-tags', $result[2]['type'], $desc );
 		$this->assertEquals( 'big', $result[2]['params']['name'], $desc );
 
 		$desc = 'should detect multiple unclosed big tags';
-		$result = $this->parseWT( '<div><small><big><small><big>y</div>' );
+		$result = $this->wtToLint( '<div><small><big><small><big>y</div>' );
 		$this->assertCount( 5, $result, $desc );
 		$this->assertEquals( 'multiple-unclosed-formatting-tags', $result[4]['type'], $desc );
 		$this->assertEquals( 'small', $result[4]['params']['name'], $desc );
@@ -946,7 +944,7 @@ class LinterTest extends TestCase {
 			'multiple-unclosed-formatting-tags' );
 
 		$desc = 'should ignore unclosed small tags in tables but detect those outside it';
-		$result = $this->parseWT( "<small>x\n{|\n|<small>a\n|<small>b\n|}\n<small>y" );
+		$result = $this->wtToLint( "<small>x\n{|\n|<small>a\n|<small>b\n|}\n<small>y" );
 		$this->assertCount( 5, $result, $desc );
 		$this->assertEquals( 'multiple-unclosed-formatting-tags', $result[4]['type'], $desc );
 		$this->assertEquals( 'small', $result[4]['params']['name'], $desc );
@@ -957,7 +955,7 @@ class LinterTest extends TestCase {
 			'multiple-unclosed-formatting-tags' );
 
 		$desc = "should detect Tidy's smart auto-fixup of paired unclosed formatting tags";
-		$result = $this->parseWT( '<b>foo<b>\n<code>foo <span>x</span> bar<code>' );
+		$result = $this->wtToLint( '<b>foo<b>\n<code>foo <span>x</span> bar<code>' );
 		$this->assertCount( 6, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( 'multiple-unclosed-formatting-tags', $result[1]['type'], $desc );
@@ -981,21 +979,21 @@ class LinterTest extends TestCase {
 	 */
 	public function testUnclosedIBTagsInHeadings(): void {
 		$desc = "should detect unclosed wikitext i tags in headings";
-		$result = $this->parseWT( "==foo<span>''a</span>==\nx" );
+		$result = $this->wtToLint( "==foo<span>''a</span>==\nx" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'unclosed-quotes-in-heading', $result[0]['type'], $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'h2', $result[0]['params']['ancestorName'], $desc );
 
 		$desc = "should detect unclosed wikitext b tags in headings";
-		$result = $this->parseWT( "==foo<span>'''a</span>==\nx" );
+		$result = $this->wtToLint( "==foo<span>'''a</span>==\nx" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'unclosed-quotes-in-heading', $result[0]['type'], $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'h2', $result[0]['params']['ancestorName'], $desc );
 
 		$desc = "should detect unclosed HTML i/b tags in headings as missing-end-tag-in-heading";
-		$result = $this->parseWT( "==foo<span><i>a</span>==\nx\n==foo<span><b>a</span>==\ny" );
+		$result = $this->wtToLint( "==foo<span><i>a</span>==\nx\n==foo<span><b>a</span>==\ny" );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'missing-end-tag-in-heading', $result[0]['type'], $desc );
 		$this->assertEquals( 'missing-end-tag-in-heading', $result[1]['type'], $desc );
@@ -1006,28 +1004,28 @@ class LinterTest extends TestCase {
 	 */
 	public function testMultilineHtmlTablesInLists(): void {
 		$desc = "should detect multiline HTML tables in lists (li)";
-		$result = $this->parseWT( "* <table><tr><td>x</td></tr>\n</table>" );
+		$result = $this->wtToLint( "* <table><tr><td>x</td></tr>\n</table>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'multiline-html-table-in-list', $result[0]['type'], $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'li', $result[0]['params']['ancestorName'], $desc );
 
 		$desc = "should detect multiline HTML tables in lists (table in div)";
-		$result = $this->parseWT( "* <div><table><tr><td>x</td></tr>\n</table></div>" );
+		$result = $this->wtToLint( "* <div><table><tr><td>x</td></tr>\n</table></div>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'multiline-html-table-in-list', $result[0]['type'], $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'li', $result[0]['params']['ancestorName'], $desc );
 
 		$desc = "should detect multiline HTML tables in lists (dt)";
-		$result = $this->parseWT( "; <table><tr><td>x</td></tr>\n</table>" );
+		$result = $this->wtToLint( "; <table><tr><td>x</td></tr>\n</table>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'multiline-html-table-in-list', $result[0]['type'], $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
 		$this->assertEquals( 'dt', $result[0]['params']['ancestorName'], $desc );
 
 		$desc = "should detect multiline HTML tables in lists (dd)";
-		$result = $this->parseWT( ": <table><tr><td>x</td></tr>\n</table>" );
+		$result = $this->wtToLint( ": <table><tr><td>x</td></tr>\n</table>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'multiline-html-table-in-list', $result[0]['type'], $desc );
 		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
@@ -1049,7 +1047,7 @@ class LinterTest extends TestCase {
 	 */
 	public function testLintIssueInRefTags(): void {
 		$desc = "should attribute linter issues to the ref tag";
-		$result = $this->parseWT( "a <ref><b>x</ref> <references/>" );
+		$result = $this->wtToLint( "a <ref><b>x</ref> <references/>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
@@ -1057,7 +1055,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'b', $result[0]['params']['name'], $desc );
 
 		$desc = "should attribute linter issues to the ref tag even if references is templated";
-		$result = $this->parseWT( "a <ref><b>x</ref> {{1x|<references/>}}" );
+		$result = $this->wtToLint( "a <ref><b>x</ref> {{1x|<references/>}}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
@@ -1068,7 +1066,7 @@ class LinterTest extends TestCase {
 			"ref and references are both templated";
 		$wt = "a <ref><b>x</ref> b <ref>{{1x|<b>x}}</ref> " .
 			"{{1x|c <ref><b>y</ref>}} {{1x|<references/>}}";
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 7, 11, 3, 0 ], $result[0]['dsr'], $desc );
@@ -1093,7 +1091,7 @@ class LinterTest extends TestCase {
 			"tags are in non-templated references tag";
 		$wt = "a <ref><s>x</ref> b <ref name='x' /> <references> " .
 			"<ref name='x'>{{1x|<b>boo}}</ref> </references>";
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 2, $result, $desc );
 
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
@@ -1112,7 +1110,7 @@ class LinterTest extends TestCase {
 		$wt = "<ref name=\"test\">123</ref>\n" .
 			"<ref name=\"test\"><s>345</ref>\n" .
 			"</references>";
-		$result = $this->parseWT( $wt );
+		$result = $this->wtToLint( $wt );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 44, 50, 3, 0 ], $result[0]['dsr'], $desc );
@@ -1120,10 +1118,10 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 's', $result[0]['params']['name'], $desc );
 
 		$desc = "should not get into a cycle trying to lint ref in ref";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"{{#tag:ref|<ref name='y' />|name='x'}}{{#tag:ref|<ref name='x' />|name='y'}}<ref name='x' />"
 		);
-		$this->parseWT( "<ref name='x' />{{#tag:ref|<ref name='x' />|name=x}}" );
+		$this->wtToLint( "<ref name='x' />{{#tag:ref|<ref name='x' />|name=x}}" );
 	}
 
 	/**
@@ -1134,25 +1132,25 @@ class LinterTest extends TestCase {
 		$this->expectEmptyResults( $desc, "<span><div>x</div></span>" );
 
 		$desc = "should trigger this lint when there is a style or class attribute (1)";
-		$result = $this->parseWT( "<span class='x'><div>x</div></span>" );
+		$result = $this->wtToLint( "<span class='x'><div>x</div></span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misc-tidy-replacement-issues', $result[0]['type'], $desc );
 		$this->assertEquals( 'div-span-flip', $result[0]['params']['subtype'], $desc );
 
 		$desc = "should trigger this lint when there is a style or class attribute (2)";
-		$result = $this->parseWT( "<span style='x'><div>x</div></span>" );
+		$result = $this->wtToLint( "<span style='x'><div>x</div></span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misc-tidy-replacement-issues', $result[0]['type'], $desc );
 		$this->assertEquals( 'div-span-flip', $result[0]['params']['subtype'], $desc );
 
 		$desc = "should trigger this lint when there is a style or class attribute (3)";
-		$result = $this->parseWT( "<span><div class='x'>x</div></span>" );
+		$result = $this->wtToLint( "<span><div class='x'>x</div></span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misc-tidy-replacement-issues', $result[0]['type'], $desc );
 		$this->assertEquals( 'div-span-flip', $result[0]['params']['subtype'], $desc );
 
 		$desc = "should trigger this lint when there is a style or class attribute (4)";
-		$result = $this->parseWT( "<span><div style='x'>x</div></span>" );
+		$result = $this->wtToLint( "<span><div style='x'>x</div></span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'misc-tidy-replacement-issues', $result[0]['type'], $desc );
 		$this->assertEquals( 'div-span-flip', $result[0]['params']['subtype'], $desc );
@@ -1163,20 +1161,20 @@ class LinterTest extends TestCase {
 	 */
 	public function testWikilinkInExternalLink(): void {
 		$desc = "should lint wikilink in external link correctly";
-		$result = $this->parseWT( "[http://google.com This is [[Google]]'s search page]" );
+		$result = $this->wtToLint( "[http://google.com This is [[Google]]'s search page]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 52, 19, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint wikilink in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://stackexchange.com is the official website for [[Stack Exchange]]]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 73, 26, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint wikilink in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"{{1x|foo <div> and [http://google.com [[Google]] bar] baz </div>}}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
@@ -1185,87 +1183,87 @@ class LinterTest extends TestCase {
 		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = "should lint wikilink set in italics in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://stackexchange.com is the official website for ''[[Stack Exchange]]'']" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 77, 26, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint wikilink set in bold in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://stackexchange.com is the official website for '''[[Stack Exchange]]''']" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 79, 26, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint wikilink set in italics and bold in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://stackexchange.com is the official website for '''''[[Stack Exchange]]''''']" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 83, 26, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint figure wikilink in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/some.link [[File:Foobar.jpg|scale=0.5]] image]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 62, 26, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint image wikilink in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Foobar.jpg|thumb]] image]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 59, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint image wikilink in external link with |link= correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Foobar.jpg|link=]] image]" );
 		$this->assertCount( 0, $result, $desc );
 
 		$desc = "should not generate lint error for image wikilink following external link";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link testing123][[File:Foobar.jpg]]" );
 		$this->assertCount( 0, $result, $desc );
 
 		$desc = "should lint audio wikilink in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Audio.oga]] audio]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 52, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint video wikilink in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Video.ogv]] video]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 52, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint audio wikilink with preceding text in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link first_child [[File:Audio.oga]] audio]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 64, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint video wikilink with prededing bold text in external link correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link '''first_child''' [[File:Video.ogv]] video]" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 70, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint audio wikilink in extlink followed by span correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Audio.oga]] audio]<span>this is an Element</span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 52, 27, 1 ], $result[0]['dsr'], $desc );
 
 		$desc = "should lint audio wikilink in extlink with preceding text followed by span correctly";
-		$result = $this->parseWT(
+		$result = $this->wtToLint(
 			"[http://foo.bar/other.link text content [[File:Audio.oga]] audio]<span>this is an Element</span>" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
@@ -1639,7 +1637,7 @@ class LinterTest extends TestCase {
 		$columnsMax = $siteConfig->getMaxTableColumnLintHeuristic();
 
 		$desc = 'should identify large width table for T334528';
-		$result = $this->parseWT( implode( "\n", $wikiTextLines ) );
+		$result = $this->wtToLint( implode( "\n", $wikiTextLines ) );
 		$expectedCount = count( $dsr ) < 1 ? 0 : 1;
 		$this->assertCount( $expectedCount, $result, $desc );
 		if ( $expectedCount < 1 ) {
