@@ -1285,6 +1285,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 		$trCount = 0;
 		$tbody = DOMCompat::querySelector( $node, 'tbody' );
+		// empty table
+		if ( !$tbody ) {
+			return;
+		}
 		$tr = self::skipNonElementNodes( $tbody->firstChild );
 		while ( $tr && $trCount < $maxRowsToCheck ) {
 			$numTh = $tr->getElementsByTagName( 'th' )->length;

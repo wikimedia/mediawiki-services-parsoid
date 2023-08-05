@@ -1291,6 +1291,14 @@ class LinterTest extends TestCase {
 		$noLongRowsTable[] = "|}";
 		$nonUniformLongRowTable[] = "|}";
 		return [
+			'empty table should not cause crashers' => [
+				'wikiTextLines' => [
+					"{|",
+					"|}"
+				],
+				'columnCount' => 4
+				// No dsr => no lints found
+			],
 			'6 header columns' => [
 				'wikiTextLines' => [
 					"{|",
@@ -1402,7 +1410,7 @@ class LinterTest extends TestCase {
 					"|}"
 				],
 				'columnCount' => 4
-				// No dsr => no lints fund
+				// No dsr => no lints found
 			],
 			'6 header columns and 6 row columns, rows on multiple wikitext lines' => [
 				'wikiTextLines' => [
@@ -1516,13 +1524,13 @@ class LinterTest extends TestCase {
 					"}}"
 				],
 				'columnCount' => 5,
-				'dsr' => [], // empty dsr => no lints fund
+				'dsr' => [], // empty dsr => no lints found
 				'templateName' => '1x'
 			],
 			'long rows 30' => [
 				'wikiTextLines' => $noLongRowsTable,
 				'columnCount' => 3,
-				'dsr' => [] // empty dsr => no lints fund
+				'dsr' => [] // empty dsr => no lints found
 			],
 			// An exhaustive table search heuristic will flag a lint here.
 			// But, a more performant search that only looks at the first
@@ -1530,7 +1538,7 @@ class LinterTest extends TestCase {
 			'non-uniform table with a long row beyond the first 10' => [
 				'wikiTextLines' => $nonUniformLongRowTable,
 				'columnCount' => 3,
-				'dsr' => [] // empty dsr => no lints fund
+				'dsr' => [] // empty dsr => no lints found
 			],
 			'Nested Table 1' => [
 				'wikiTextLines' => [
@@ -1571,7 +1579,7 @@ class LinterTest extends TestCase {
 					"|}",
 				],
 				'columnCount' => 1,
-				'dsr' => [] // empty dsr => no lints fund
+				'dsr' => [] // empty dsr => no lints found
 			],
 			'Nested Table 2' => [
 				'wikiTextLines' => [
