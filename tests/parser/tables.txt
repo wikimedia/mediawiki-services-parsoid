@@ -1377,6 +1377,26 @@ Templated table cell with untemplated attributes: Common use cases
 </tbody></table>
 !! end
 
+# The failure in T343874 is only exercised in integrated mode
+!! test
+T343874: Templated table that has a templated cell with untemplated attributes
+!! options
+parsoid=wt2html
+!! wikitext
+{{tbl-start}}
+|class="test"{{table_cell_content}}
+{{tbl-end}}
+!! html/php
+<table>
+<tbody><tr>
+<td class="test">foo
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"tbl-start","href":"./Template:Tbl-start"},"params":{},"i":0}},"\n|class=\"test\"",{"template":{"target":{"wt":"table_cell_content","href":"./Template:Table_cell_content"},"params":{},"i":1}},"\n",{"template":{"target":{"wt":"tbl-end","href":"./Template:Tbl-end"},"params":{},"i":2}}]}'>
+<tbody><tr><td class="test">foo</td></tr>
+</tbody></table>
+!! end
+
 !! test
 Templated table cell with untemplated attributes: Regression tests
 !! wikitext

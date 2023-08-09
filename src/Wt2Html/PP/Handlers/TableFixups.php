@@ -456,6 +456,8 @@ class TableFixups {
 			return false;
 		}
 
+		$cellIsTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $cell );
+
 		$prev = $cell->previousSibling;
 		DOMUtils::assertElt( $prev );
 
@@ -473,6 +475,12 @@ class TableFixups {
 		// this scenario for now.
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
 		if ( !$prevDp->getTempFlag( TempData::NO_ATTRS ) ) {
+			return false;
+		}
+
+		// Eliminates scenarios where prevDp comes from a template
+		// and hence couldn't possibly be a candidate for combining.
+		if ( !isset( $prevDp->dsr ) ) {
 			return false;
 		}
 
@@ -497,12 +505,14 @@ class TableFixups {
 		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
 		$cellDp->setTempFlag( TempData::NO_ATTRS, false );
 
-		// Update data-mw, DSR
-		$dataMW = DOMDataUtils::getDataMw( $cell );
-		array_unshift( $dataMW->parts, $prevCellSrc );
-		$cellDSR = $cellDp->dsr ?? null;
-		if ( $cellDSR && $cellDSR->start ) {
-			$cellDSR->start -= strlen( $prevCellSrc );
+		// Update data-mw, DSR if $cell is an encapsulation wrapper
+		if ( $cellIsTplWrapper ) {
+			$dataMW = DOMDataUtils::getDataMw( $cell );
+			array_unshift( $dataMW->parts, $prevCellSrc );
+			$cellDSR = $cellDp->dsr ?? null;
+			if ( $cellDSR && $cellDSR->start ) {
+				$cellDSR->start -= strlen( $prevCellSrc );
+			}
 		}
 
 		$parent = $cell->parentNode;
@@ -542,7 +552,7 @@ class TableFixups {
 		$isTd = DOMCompat::nodeName( $cell ) === 'td';
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $isTd && // only | can separate attributes & content => $cell has to be <td>
-			WTUtils::isFirstEncapsulationWrapperNode( $cell ) && // See long comment below
+			WTUtils::fromEncapsulatedContent( $cell ) && // See long comment below
 			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
 			!isset( $dp->stx ) // has to be first cell of the row
 		) {
