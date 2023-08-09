@@ -168,6 +168,7 @@ class DOMCompat {
 	 * Return the descendant with the specified ID.
 	 * Workaround for https://bugs.php.net/bug.php?id=77686 and other issues related to
 	 * inconsistent indexing behavior.
+	 * XXX: 77686 is fixed in php 8.1.21
 	 * @param Document|DocumentFragment $node
 	 * @param string $id
 	 * @return Element|null
