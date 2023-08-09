@@ -394,4 +394,28 @@ EOT;
 		$this->assertEquals( "Ha ha <ref follow=\"123\">hi ho</ref>\n\n", $editedWt );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Ext\Gallery\Gallery::domToWikitext
+	 */
+	public function testGalleryLineWithTemplatestyleInCaption(): void {
+		$description = "Deduplicated templatestyles shouldn't lead to differing alt and caption text.";
+		$wt = <<<EOT
+The first instance ensures the one in the caption is deduped <templatestyles src="Template:Quote/styles.css" />
+<gallery>
+File:Foobar.jpg|caption with <templatestyles src="Template:Quote/styles.css" />
+</gallery>
+EOT;
+		$docBody = $this->parseWT( $wt );
+
+		$siteConfig = new MockSiteConfig( [] );
+		$dataAccess = new MockDataAccess( [] );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+		$content = new MockPageContent( [ 'main' => $wt ] );
+		$pageConfig = new MockPageConfig( [], $content );
+
+		$editedWt = $parsoid->html2wikitext( $pageConfig, DOMCompat::getOuterHTML( $docBody ), [], null );
+
+		$this->assertEquals( $wt, $editedWt );
+	}
+
 }

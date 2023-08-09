@@ -765,7 +765,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 				// The sanitizer isn't going to do anything with a string value
 				// for alt/title and since we're going to use dom element setters,
-				// quote escaping should be fine.  Note that if santization does
+				// quote escaping should be fine.  Note that if sanitization does
 				// happen here, it should also be done to $altFromCaption so that
 				// string comparison matches, where necessary.
 				//

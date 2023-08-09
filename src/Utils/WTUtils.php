@@ -1087,6 +1087,7 @@ class WTUtils {
 				$content .= $c->nodeValue;
 			} elseif (
 				$c instanceof Element &&
+				!isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $c )] ) &&
 				!DOMUtils::hasTypeOf( $c, "mw:Extension/ref" )
 			) {
 				$content .= self::textContentFromCaption( $c );
