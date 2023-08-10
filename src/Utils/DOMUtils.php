@@ -145,7 +145,7 @@ class DOMUtils {
 		return $node instanceof Element &&
 			!isset( Consts::$HTML['OnlyInlineElements'][DOMCompat::nodeName( $node )] ) &&
 			// This is a superset of \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements
-			!isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $node )] );
+			!self::isMetaDataTag( $node );
 	}
 
 	/**
@@ -877,7 +877,7 @@ class DOMUtils {
 	 * @return array<string,string>
 	 * @see https://phabricator.wikimedia.org/T235295
 	 */
-	public static function attributes( $element ): array {
+	public static function attributes( Element $element ): array {
 		$result = [];
 		// The 'xmlns' attribute is "invisible" T235295
 		if ( $element->hasAttribute( 'xmlns' ) ) {
@@ -888,4 +888,13 @@ class DOMUtils {
 		}
 		return $result;
 	}
+
+	/**
+	 * @param Element $node
+	 * @return bool
+	 */
+	public static function isMetaDataTag( Element $node ): bool {
+		return isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $node )] );
+	}
+
 }

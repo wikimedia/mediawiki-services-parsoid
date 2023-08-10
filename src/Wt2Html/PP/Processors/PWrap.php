@@ -14,7 +14,6 @@ use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class PWrap implements Wt2HtmlDOMProcessor {
@@ -59,13 +58,14 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	public static function pWrapOptional( Node $n ): bool {
-		return ( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
-			$n instanceof Comment ||
-			isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $n )] ) ||
+		return $n instanceof Comment ||
+			( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
 			(
 				$n instanceof Element &&
-				DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER ) &&
-				self::pWrapOptionalChildren( $n )
+				( DOMUtils::isMetaDataTag( $n ) || (
+					DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER ) &&
+					self::pWrapOptionalChildren( $n )
+				) )
 			);
 	}
 
