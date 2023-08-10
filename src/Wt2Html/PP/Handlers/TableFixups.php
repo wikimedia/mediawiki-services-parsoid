@@ -418,6 +418,8 @@ class TableFixups {
 
 		// Sanitize attrs and transfer them to the td node
 		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
+		$cellDp = DOMDataUtils::getDataParsoid( $cell );
+		$cellDp->setTempFlag( TempData::NO_ATTRS, false );
 
 		// If the transclusion node was embedded within the td node,
 		// lift up the about group to the td node.
@@ -493,6 +495,7 @@ class TableFixups {
 		$attrs = $attributeTokens[0];
 
 		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
+		$cellDp->setTempFlag( TempData::NO_ATTRS, false );
 
 		// Update data-mw, DSR
 		$dataMW = DOMDataUtils::getDataMw( $cell );
@@ -554,8 +557,10 @@ class TableFixups {
 			// with other templated cells.  So, previous sibling cannot be templated.
 
 			$prev = $cell->previousSibling;
-			if ( $prev instanceof Element &&
-				!WTUtils::hasLiteralHTMLMarker( DOMDataUtils::getDataParsoid( $prev ) ) &&
+			$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
+			if ( $prevDp &&
+				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
+				$prevDp->getTempFlag( TempData::NO_ATTRS ) &&
 				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
 				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
 			) {
