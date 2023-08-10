@@ -26,7 +26,7 @@ class HandleLinkNeighbours {
 			return null;
 		}
 
-		$baseAbout = WTUtils::hasParsoidAboutId( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
+		$baseAbout = WTUtils::isEncapsulatedDOMForestRoot( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
 		return self::findAndHandleNeighbour( $env, false, $regex, $aNode, $baseAbout );
 	}
 
@@ -43,7 +43,7 @@ class HandleLinkNeighbours {
 			return null;
 		}
 
-		$baseAbout = WTUtils::hasParsoidAboutId( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
+		$baseAbout = WTUtils::isEncapsulatedDOMForestRoot( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
 		return self::findAndHandleNeighbour( $env, true, $regex, $aNode, $baseAbout );
 	}
 
@@ -64,7 +64,7 @@ class HandleLinkNeighbours {
 		$node = $goForward ? $aNode->nextSibling : $aNode->previousSibling;
 		while ( $node !== null ) {
 			$nextSibling = $goForward ? $node->nextSibling : $node->previousSibling;
-			$fromTpl = WTUtils::hasParsoidAboutId( $node );
+			$fromTpl = WTUtils::isEncapsulatedDOMForestRoot( $node );
 			$unwrappedSpan = null;
 			if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'span' &&
 				!WTUtils::isLiteralHTMLNode( $node ) &&

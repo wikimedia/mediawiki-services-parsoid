@@ -298,7 +298,7 @@ class CleanUp {
 		// don't want to break the about-chain by stripping the wrapper
 		// and associated ids (we cannot add an about id on the nowiki-ed
 		// content since that would be a text node).
-		if ( ( $state->tplInfo ?? null ) && !WTUtils::hasParsoidAboutId( $node ) &&
+		if ( ( $state->tplInfo ?? null ) && !WTUtils::isEncapsulatedDOMForestRoot( $node ) &&
 			 DOMUtils::hasTypeOf( $node, 'mw:Nowiki' )
 		) {
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node->nextSibling );

@@ -121,7 +121,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		// between so keep track of that, and backtrack when necessary.
 		while ( $sibling ) {
 			if ( !WTUtils::isTplStartMarkerMeta( $sibling ) &&
-				( WTUtils::hasParsoidAboutId( $sibling ) ||
+				( WTUtils::isEncapsulatedDOMForestRoot( $sibling ) ||
 					DOMUtils::isMarkerMeta( $sibling, 'mw:TransclusionShadow' )
 				)
 			) {

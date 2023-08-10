@@ -568,7 +568,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// other errors downstream. So, walk back to that first node
 		// and ignore this fostered content error. The new node will
 		// trigger fostered content lint error.
-		if ( !$tplInfo && WTUtils::hasParsoidAboutId( $maybeTable ) &&
+		if ( !$tplInfo && WTUtils::isEncapsulatedDOMForestRoot( $maybeTable ) &&
 			!WTUtils::isFirstEncapsulationWrapperNode( $maybeTable )
 		) {
 			$tplNode = WTUtils::findFirstEncapsulationWrapperNode( $maybeTable );

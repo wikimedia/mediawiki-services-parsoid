@@ -222,7 +222,7 @@ class WTUtils {
 	 * @return Element|null
 	 */
 	public static function findFirstEncapsulationWrapperNode( Node $node ): ?Element {
-		if ( !self::hasParsoidAboutId( $node ) ) {
+		if ( !self::isEncapsulatedDOMForestRoot( $node ) ) {
 			return null;
 		}
 		/** @var Element $node */
@@ -321,25 +321,15 @@ class WTUtils {
 	}
 
 	/**
-	 * Check if $node is an ELEMENT $node belongs to a template/extension.
-	 *
-	 * NOTE: Use with caution. This technique works reliably for the
-	 * root level elements of tpl-content DOM subtrees since only they
-	 * are guaranteed to be  marked and nested content might not
-	 * necessarily be marked.
+	 * Check if $node is a root in an encapsulated DOM forest.
 	 *
 	 * @param Node $node
 	 * @return bool
 	 */
-	public static function hasParsoidAboutId( Node $node ): bool {
-		if (
-			$node instanceof Element &&
-			$node->hasAttribute( 'about' )
-		) {
-			$about = $node->getAttribute( 'about' );
-			// SSS FIXME: Verify that our DOM spec clarifies this
-			// expectation on about-ids and that our clients respect this.
-			return $about && Utils::isParsoidObjectId( $about );
+	public static function isEncapsulatedDOMForestRoot( Node $node ): bool {
+		if ( $node instanceof Element && $node->hasAttribute( 'about' ) ) {
+			// FIXME: Ensure that our DOM spec clarifies this expectation
+			return Utils::isParsoidObjectId( $node->getAttribute( 'about' ) );
 		} else {
 			return false;
 		}
