@@ -480,7 +480,7 @@ class TableFixups {
 
 		// Eliminates scenarios where prevDp comes from a template
 		// and hence couldn't possibly be a candidate for combining.
-		if ( !isset( $prevDp->dsr ) ) {
+		if ( !Utils::isValidDSR( $prevDp->dsr ?? null ) ) {
 			return false;
 		}
 
