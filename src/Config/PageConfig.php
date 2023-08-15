@@ -33,12 +33,6 @@ abstract class PageConfig {
 	abstract public function getContentModel(): string;
 
 	/**
-	 * Whether the page has a lintable content model
-	 * @return bool
-	 */
-	abstract public function hasLintableContentModel(): bool;
-
-	/**
 	 * Whether to suppress the Table of Contents for this page
 	 * (a function of content model).
 	 * @return bool

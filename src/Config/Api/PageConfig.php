@@ -139,12 +139,6 @@ class PageConfig extends IPageConfig {
 		return $this->rev['slots']['main']['contentmodel'] ?? 'wikitext';
 	}
 
-	public function hasLintableContentModel(): bool {
-		$contentmodel = $this->getContentModel();
-		return $contentmodel === 'wikitext' ||
-			$contentmodel === 'proofread-page';
-	}
-
 	/** @inheritDoc */
 	public function getTitle(): string {
 		$this->loadData();

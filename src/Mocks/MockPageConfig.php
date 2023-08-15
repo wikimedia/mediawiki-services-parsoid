@@ -47,10 +47,6 @@ class MockPageConfig extends PageConfig {
 		return 'wikitext';
 	}
 
-	public function hasLintableContentModel(): bool {
-		return true;
-	}
-
 	/** @inheritDoc */
 	public function getTitle(): string {
 		return $this->title;

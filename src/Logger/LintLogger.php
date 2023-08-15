@@ -96,13 +96,6 @@ class LintLogger {
 			return;
 		}
 
-		$pageConfig = $env->getPageConfig();
-
-		// Skip linting if we cannot lint it
-		if ( !$pageConfig->hasLintableContentModel() ) {
-			return;
-		}
-
 		$linting = $env->getSiteConfig()->linting();
 		$enabledBuffer = null;
 
@@ -122,7 +115,7 @@ class LintLogger {
 			self::convertDSROffsets( $env, $enabledBuffer, $offsetType, 'ucs2' );
 		}
 
-		$env->getDataAccess()->logLinterData( $pageConfig, $enabledBuffer );
+		$env->getDataAccess()->logLinterData( $env->getPageConfig(), $enabledBuffer );
 	}
 
 }
