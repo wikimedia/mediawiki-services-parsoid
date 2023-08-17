@@ -13083,6 +13083,31 @@ LST Sections: Newfangled approach
 <p>&lt;section begin="2011-05-16" /> &lt;section end="2014-04-10 (MW 1.23wmf22)" /></p>
 !! end
 
+!! test
+LST Sections: Fostering
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+<section name="testing"/>
+| 123
+|}
+!! html/parsoid
+<link typeof="mw:Extension/section" about="#mwt2" data-parsoid='{"fostered":true}' data-mw='{"name":"section","attrs":{"name":"testing"}}'/><table>
+
+<tbody><tr><td>123
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<p>&lt;section name="testing"/></p>
+<table>
+<tbody>
+<tr>
+<td>123</td>
+</tr>
+</tbody>
+</table>
+!! end
+
 #--------- Test stripping of empty nodes in template content ----------
 
 !! test
