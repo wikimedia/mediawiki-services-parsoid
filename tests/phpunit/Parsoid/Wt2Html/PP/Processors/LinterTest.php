@@ -271,6 +271,9 @@ class LinterTest extends TestCase {
 		$result = $this->wtToLint( "{|\n<noinclude>boo</noinclude>\n|-\n| bar\n|}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
+
+		$desc = 'should not lint fostered section tags';
+		$this->expectEmptyResults( $desc, "{|\n<section name='123'/>\n|-\n| bar\n|}" );
 	}
 
 	/**
