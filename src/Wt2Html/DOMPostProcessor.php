@@ -876,6 +876,13 @@ class DOMPostProcessor extends PipelineStage {
 				continue;
 			}
 
+			// avoids wondering why the pass doesn't run on attributes when setting to true on a non-traverser pass
+			if ( $pp['applyToAttributeEmbeddedHTML'] ?? false ) {
+				Assert::invariant( ( $pp['isTraverser'] ?? false ) === true,
+					'applyToAttributeEmbeddedHTML can only be executed for DOM traverser passes, and ' . $pp['name'] .
+					'is not such a pass' );
+			}
+
 			// error_log("RUNNING " . ($pp['shortcut'] ?? $pp['name']));
 
 			if ( !empty( $pp['withAnnotations'] ) && !$this->env->hasAnnotations ) {
