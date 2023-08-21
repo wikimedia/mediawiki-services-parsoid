@@ -226,6 +226,7 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => PWrap::class,
 				'shortcut' => 'pwrap',
 				'skipNested' => true
+				// Don't need to process HTML in embedded attributes
 			],
 			// This is run at all levels for now - gallery extension's "packed" mode
 			// would otherwise need a post-processing pass to scale media after it
@@ -489,6 +490,7 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => Linter::class,
 				'omit' => !$env->getSiteConfig()->linting(),
 				'skipNested' => true
+				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
 			// Strip marker metas -- removes left over marker metas (ex: metas
 			// nested in expanded tpl/extension output).
@@ -513,16 +515,20 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => LangConverter::class,
 				'shortcut' => 'lang-converter',
 				'skipNested' => true
+				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
 			[
 				'Processor' => AddRedLinks::class,
 				'shortcut' => 'redlinks',
 				'skipNested' => true,
+				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
 			[
 				'name' => 'DisplaySpace',
 				'shortcut' => 'displayspace',
 				'skipNested' => true,
+				// Don't need to process HTML in embedded attributes
+				'applyToAttributeEmbeddedHTML' => false,
 				'isTraverser' => true,
 				'handlers' => [
 					[
@@ -538,7 +544,9 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => AddLinkAttributes::class,
 				'shortcut' => 'linkclasses',
-				// Note that embedded content doesn't get these classes
+				// FIXME: T214994: Might be beneficial to process HTML in embedded attributes
+				// since some (not yet known) use cases might benefit from this information
+				// on these hidden links.
 				'skipNested' => true
 			],
 			// Add <section> wrappers around sections
@@ -546,11 +554,13 @@ class DOMPostProcessor extends PipelineStage {
 				'Processor' => WrapSections::class,
 				'shortcut' => 'sections',
 				'skipNested' => true
+				// Don't need to process HTML in embedded attributes
 			],
 			[
 				'Processor' => ConvertOffsets::class,
 				'shortcut' => 'convertoffsets',
 				'skipNested' => true,
+				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
 			[
 				'Processor' => I18n::class,
