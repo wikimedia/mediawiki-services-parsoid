@@ -81,6 +81,6 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 
 		return $noFollowConfig['nofollow']
 			&& !in_array( $ns, $noFollowConfig['nsexceptions'], true )
-			&& !URLUtils::matchesDomainList( $url, $noFollowConfig['domainexceptions'] );
+			&& !UrlUtils::matchesDomainList( $url, $noFollowConfig['domainexceptions'] );
 	}
 }
