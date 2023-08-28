@@ -287,10 +287,11 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	public function testMagicWords() {
-		$ret = $this->getSiteConfig()->magicWords();
-		$this->assertIsArray( $ret );
-		$this->assertSame( [ 1, 'disambiguation' ], $ret['__DISAMBIG__'] ?? null );
+	public function testGetMagicWordForBehaviorSwitch() {
+		$this->assertSame(
+			'disambiguation',
+			$this->getSiteConfig()->getMagicWordForBehaviorSwitch( '__DISAMBIG__' )
+		);
 	}
 
 	public function testMwAliases() {
@@ -306,16 +307,16 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	public function testMagicWordCanonicalName() {
+	public function testGetMagicWordForMediaOption() {
 		$this->assertSame(
 			'img_width',
-			$this->getSiteConfig()->magicWordCanonicalName( '$1px' )
+			$this->getSiteConfig()->getMagicWordForMediaOption( '$1px' )
 		);
 	}
 
-	public function testIsMagicWord() {
-		$this->assertTrue( $this->getSiteConfig()->isMagicWord( '$1px' ) );
-		$this->assertSame( false, $this->getSiteConfig()->isMagicWord( 'img_width' ) );
+	public function testIsBehaviorSwitch() {
+		$this->assertTrue( $this->getSiteConfig()->isBehaviorSwitch( '__TOC__' ) );
+		$this->assertSame( false, $this->getSiteConfig()->isBehaviorSwitch( 'img_width' ) );
 	}
 
 	public function testGetMagicWordMatcher() {

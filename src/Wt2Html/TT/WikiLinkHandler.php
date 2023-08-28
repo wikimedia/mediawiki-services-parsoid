@@ -925,7 +925,7 @@ class WikiLinkHandler extends TokenHandler {
 		// English and contain an '(img|timedmedia)_' prefix.  We drop the
 		// prefix before stuffing them in data-parsoid in order to
 		// save space (that's shortCanonicalOption)
-		$canonicalOption = $siteConfig->magicWordCanonicalName( $oText ) ?? '';
+		$canonicalOption = $siteConfig->getMagicWordForMediaOption( $oText ) ?? '';
 		$shortCanonicalOption = preg_replace( '/^(img|timedmedia)_/', '', $canonicalOption, 1 );
 		// 'imgOption' is the key we'd put in opts; it names the 'group'
 		// for the option, and doesn't have an img_ prefix.

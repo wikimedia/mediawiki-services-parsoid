@@ -319,6 +319,9 @@ class MockSiteConfig extends SiteConfig {
 			'img_none'        => [ 1, 'none' ],
 			'img_left'        => [ 1, 'left' ],
 			'img_right'       => [ 1, 'right' ],
+			// T345026: 'sub' should follow 'img_sub' to match dewikivoyage
+			'img_sub'         => [ 1, 'sub' ],
+			'sub'             => [ 0, 'sub' ],
 			'notoc'           => [ 0, '__NOTOC__' ],
 			'timedmedia_loop' => [ 0, 'loop' ],
 			'timedmedia_muted' => [ 0, 'muted' ],

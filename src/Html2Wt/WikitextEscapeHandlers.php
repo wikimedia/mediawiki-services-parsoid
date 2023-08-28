@@ -569,7 +569,6 @@ class WikitextEscapeHandlers {
 			}
 
 			if ( $tc === 'SelfclosingTagTk' ) {
-
 				// * Ignore RFC/ISBN/PMID tokens when those are encountered in the
 				// context of another link's content -- those are not parsed to
 				// ext-links in that context. (T109371)
@@ -582,13 +581,6 @@ class WikitextEscapeHandlers {
 				// Ignore url links in attributes (href, mostly)
 				// since they are not in danger of being autolink-ified there.
 				if ( $t->getName() === 'urllink' && ( $state->inAttribute || $state->inLink ) ) {
-					continue;
-				}
-
-				// Ignore invalid behavior-switch tokens
-				if ( $t->getName() === 'behavior-switch' &&
-					!$env->getSiteConfig()->isMagicWord( $t->attribs[0]->v )
-				) {
 					continue;
 				}
 

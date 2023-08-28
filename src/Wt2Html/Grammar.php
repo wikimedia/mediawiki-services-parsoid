@@ -978,7 +978,7 @@ private function a78() {
 }
 private function a79($bs) {
 
-		if ( $this->siteConfig->isMagicWord( $bs ) ) {
+		if ( $this->siteConfig->isBehaviorSwitch( $bs ) ) {
 			$dp = new DataParsoid;
 			$dp->tsr = $this->tsrOffsets();
 			$dp->src = $bs;

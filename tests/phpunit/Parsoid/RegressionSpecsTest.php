@@ -418,4 +418,17 @@ EOT;
 		$this->assertEquals( $wt, $editedWt );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Config\SiteConfig::getMagicWordForMediaOption
+	 */
+	public function testSub(): void {
+		$wt = <<<EOT
+[[File:Foobar.jpg|sub|caption]]
+EOT;
+		$docBody = $this->parseWT( $wt );
+		$figure = DOMCompat::querySelector( $docBody, 'span[typeof~="mw:File"]' );
+		$this->assertInstanceOf( Element::class, $figure );
+		$this->assertTrue( DOMCompat::getClassList( $figure )->contains( 'mw-valign-sub' ) );
+	}
+
 }

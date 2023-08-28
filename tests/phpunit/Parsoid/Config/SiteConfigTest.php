@@ -305,25 +305,6 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		return $siteConfig;
 	}
 
-	public function testMagicWords() {
-		// FIXME: Given that Parsoid proxies {{..}} wikitext to core for expansion,
-		// some of these tests don't mean a while lot right now. There are known
-		// bugs in SiteConfig right now.
-		$siteConfig = $this->setupMagicWordTestConfig();
-		// Expected results
-		$mwMap = [
-			'lossy=$1'             => [ true, 'img_lossy' ],
-			'numberofwikis'        => [ false, 'numberofwikis' ],
-			'lcfirst:'             => [ false, 'lcfirst' ],
-			'expr'                 => [ false, 'expr' ],
-			'__NOGLOBAL__'         => [ true, 'noglobal' ],
-			'DEFAULTSORT:'         => [ true, 'defaultsort' ],
-			'DEFAULTSORTKEY:'      => [ true, 'defaultsort' ],
-			'DEFAULTCATEGORYSORT:' => [ true, 'defaultsort' ]
-		];
-		$this->assertSame( $mwMap, $siteConfig->magicWords() );
-	}
-
 	public function testMwAliases() {
 		// FIXME: Given that Parsoid proxies {{..}} wikitext to core for expansion,
 		// some of these tests don't mean a while lot right now. There are known

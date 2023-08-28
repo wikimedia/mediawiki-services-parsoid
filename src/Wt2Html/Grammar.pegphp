@@ -735,7 +735,7 @@ heading =
 // https://www.mediawiki.org/wiki/Help:Magic_words#Behavior_switches
 behavior_switch =
 	bs:$('__' behavior_text '__') {
-		if ( $this->siteConfig->isMagicWord( $bs ) ) {
+		if ( $this->siteConfig->isBehaviorSwitch( $bs ) ) {
 			$dp = new DataParsoid;
 			$dp->tsr = $this->tsrOffsets();
 			$dp->src = $bs;
