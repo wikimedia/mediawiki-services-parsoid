@@ -437,12 +437,31 @@ class TableFixups {
 	}
 
 	/**
+	 * Possibilities:
+	 * - $cell and $prev are both <td>s (or both <th>s)
+	 *   - Common case
+	 *   - Ex: "|align=left {{tpl returning | foobar}}"
+	 *     So, "|align=left |foobar" is the combined string
+	 *   - Combined cell is a <td> (will be <th> if both were <th>s)
+	 *   - We assign new attributes to $cell and drop $prev
+	 * - $cell is <td> and $prev is <th>
+	 *   - Ex: "!align=left {{tpl returning | foobar}}"
+	 *     So, "!align=left |foobar" is the combined string
+	 *   - The combined cell will be a <th> with attributes "align=left"
+	 *     and content "foobar"
+	 * - $cell is <th> and $prev is <td>
+	 *    - Ex: "|align=left {{tpl returning !scope=row | foobar}}"
+	 *      So "|align=left !scope=row | foobar" is the combined string
+	 *      and we need to drop the th-attributes entirely after combining
+	 *   - The combined cell will be a <td>
+	 *   - $cell's attribute is dropped
+	 *   - $prev's content is dropped
+	 *
 	 * @param Frame $frame
 	 * @param Element $cell
 	 * @return bool
 	 */
 	private function combineWithPreviousCell( Frame $frame, Element $cell ): bool {
-		$env = $frame->getEnv();
 		// UNSUPPORTED SCENARIO 1:
 		// While in the general case, we should look for combinability no matter
 		// whether $cell has attributes or not,  we are currently restricting
@@ -451,28 +470,27 @@ class TableFixups {
 		//
 		//     Ex: |class="foo"{{1x|1={{!}}title="x"{{!}}foo}}
 		//         should parse as <td class="foo">title="x"|foo</td>
+		$cellIsTd = DOMCompat::nodeName( $cell ) === 'td';
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
-		if ( !$cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
+		if ( $cellIsTd && !$cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
 			return false;
 		}
 
-		$cellIsTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $cell );
-
-		$prev = $cell->previousSibling;
-		DOMUtils::assertElt( $prev );
-
 		// UNSUPPORTED SCENARIO 2:
-		// If the previous cell had attributes, the attributes/content of $cell
-		// would end up as the content of the combined cell.
-		//
+		// In this cell-combining scenario, $prev can have attributes only if it
+		// also had content. See example below:
 		//     Ex: |class="foo"|bar{{1x|1={{!}}foo}}
 		//         should parse as <td class="foo">bar|foo</td>
+		// In this case, the attributes/content of $cell would end up as the
+		// content of the combined cell.
 		//
 		// UNSUPPORTED SCENARIO 3:
 		// The template produced attributes as well as maybe a new cell.
 		//     Ex: |class="foo"{{1x| foo}} and |class="foo"{{1x|&nbsp;foo}}
 		// We let the more general 'reparseTemplatedAttributes' code handle
 		// this scenario for now.
+		$prev = $cell->previousSibling;
+		DOMUtils::assertElt( $prev );
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
 		if ( !$prevDp->getTempFlag( TempData::NO_ATTRS ) ) {
 			return false;
@@ -491,6 +509,7 @@ class TableFixups {
 		$reparseSrc = $cellAttrSrc . "|"; // "|" or "!", but doesn't matter since we discard that anyway
 
 		// Reparse the attributish prefix
+		$env = $frame->getEnv();
 		$attributeTokens = $this->tokenizer->tokenizeTableCellAttributes( $reparseSrc, false );
 		if ( !is_array( $attributeTokens ) ) {
 			$env->log( "error/wt2html",
@@ -498,14 +517,9 @@ class TableFixups {
 			return false;
 		}
 
-		// Note that `row_syntax_table_args` (the rule used for tokenizing above)
-		// returns an array consisting of [table_attributes, spaces, pipe]
-		$attrs = $attributeTokens[0];
-
-		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
-		$cellDp->setTempFlag( TempData::NO_ATTRS, false );
-
 		// Update data-mw, DSR if $cell is an encapsulation wrapper
+		$dataMW = null;
+		$cellIsTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $cell );
 		if ( $cellIsTplWrapper ) {
 			$dataMW = DOMDataUtils::getDataMw( $cell );
 			array_unshift( $dataMW->parts, $prevCellSrc );
@@ -516,26 +530,35 @@ class TableFixups {
 		}
 
 		$parent = $cell->parentNode;
-		// If $prev is not a <td> (has to be a <th>), the merged cell has
-		// to be a <th> as well. Since $cell is filtered to be a <td> in
-		// getReparseType(..), we create a $newCell as a <th>, transfer
-		// $cell's attributes over, and remove $cell.
-		//
-		// This is an edge case.
-		//
-		// Doing it this way is simpler than trying to fix the logic above
-		// since we'll have to deal with $cell's existing attrs & content.
-		if ( DOMCompat::nodeName( $prev ) === 'th' ) {
-			$newCell = $cell->ownerDocument->createElement( 'th' );
-			foreach ( DOMUtils::attributes( $cell ) as $k => $v ) {
-				$newCell->setAttribute( $k, $v );
+		if ( DOMCompat::nodeName( $cell ) === DOMCompat::nodeName( $prev ) ) {
+			// Matching cell types
+			$combinedCell = $cell;
+			$combinedCellDp = $cellDp;
+			$parent->removeChild( $prev );
+		} else {
+			// Different cell types
+			$combinedCell = $prev;
+
+			// Remove all content on $prev which will
+			// become the new combined cell
+			while ( $prev->firstChild ) {
+				$prev->removeChild( $prev->firstChild );
 			}
-			DOMUtils::migrateChildren( $cell, $newCell );
-			$parent->insertBefore( $newCell, $cell );
+			// Note that this implicitly migrates data-mw and data-parsoid
+			foreach ( DOMUtils::attributes( $cell ) as $k => $v ) {
+				$combinedCell->setAttribute( $k, $v );
+			}
+			DOMUtils::migrateChildren( $cell, $combinedCell );
 			$parent->removeChild( $cell );
+
+			$combinedCellDp = DOMDataUtils::getDataParsoid( $combinedCell );
 		}
 
-		$parent->removeChild( $prev );
+		// Note that `row_syntax_table_args` (the rule used for tokenizing above)
+		// returns an array consisting of [table_attributes, spaces, pipe]
+		$attrs = $attributeTokens[0];
+		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $combinedCell, $attrs );
+		$combinedCellDp->setTempFlag( TempData::NO_ATTRS, false );
 
 		return true;
 	}
@@ -549,10 +572,9 @@ class TableFixups {
 	 * @return int
 	 */
 	private function getReparseType( Element $cell ): int {
-		$isTd = DOMCompat::nodeName( $cell ) === 'td';
+		$prev = $cell->previousSibling;
 		$dp = DOMDataUtils::getDataParsoid( $cell );
-		if ( $isTd && // only | can separate attributes & content => $cell has to be <td>
-			WTUtils::fromEncapsulatedContent( $cell ) && // See long comment below
+		if ( WTUtils::fromEncapsulatedContent( $cell ) && // See long comment below
 			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
 			!isset( $dp->stx ) // has to be first cell of the row
 		) {
@@ -566,7 +588,6 @@ class TableFixups {
 			// a templated cell. But, we don't support combining templated cells
 			// with other templated cells.  So, previous sibling cannot be templated.
 
-			$prev = $cell->previousSibling;
 			$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
 			if ( $prevDp &&
 				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
@@ -578,7 +599,8 @@ class TableFixups {
 			}
 		}
 
-		$testRE = $isTd ? '/[|]/' : '/[!|]/';
+		$cellIsTd = DOMCompat::nodeName( $cell ) === 'td';
+		$testRE = $cellIsTd ? '/[|]/' : '/[!|]/';
 		$child = $cell->firstChild;
 		while ( $child ) {
 			if ( $child instanceof Text && preg_match( $testRE, $child->textContent ) ) {
