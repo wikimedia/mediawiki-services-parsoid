@@ -399,7 +399,7 @@ class ParsoidExtensionAPI {
 			);
 
 			if ( !empty( $opts['clearDSROffsets'] ) ) {
-				$dsrFn = static function ( DOMSourceRange $dsr ) {
+				$dsrFn = static function ( DomSourceRange $dsr ) {
 					return null;
 				};
 			} else {
