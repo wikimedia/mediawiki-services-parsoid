@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Language;
 
@@ -35,7 +36,7 @@ class Language {
 		if ( !isset( $validityCache[$code] ) ) {
 			// XXX PHP version also checks against
 			// MediaWikiTitleCodex::getTitleInvalidRegex()
-			$validityCache[$code] = preg_match( '/^[^:\\/\\\\\\000&<>\'"]+$/D', $code );
+			$validityCache[$code] = ( preg_match( '/^[^:\\/\\\\\\000&<>\'"]+$/D', $code ) === 1 );
 		}
 		return $validityCache[$code];
 	}

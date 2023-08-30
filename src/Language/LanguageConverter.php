@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 /**
  * A bidirectional Language Converter, capable of round-tripping variant
