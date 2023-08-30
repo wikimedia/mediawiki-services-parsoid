@@ -916,7 +916,7 @@ class WTUtils {
 	 */
 	public static function addPageContentI18nAttribute(
 		Element $element, string $name, string $key, ?array $params = null
-	) {
+	): void {
 		$i18n = I18nInfo::createPageContentI18n( $key, $params );
 		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
 		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );
@@ -931,7 +931,7 @@ class WTUtils {
 	 */
 	public static function addInterfaceI18nAttribute(
 		Element $element, string $name, string $key, ?array $params = null
-	) {
+	): void {
 		$i18n = I18nInfo::createInterfaceI18n( $key, $params );
 		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
 		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );
@@ -951,7 +951,7 @@ class WTUtils {
 	 */
 	public static function addLangI18nAttribute(
 		Element $element, Bcp47Code $lang, string $name, string $key, ?array $params = null
-	) {
+	): void {
 		$i18n = I18nInfo::createLangI18n( $lang, $key, $params );
 		DOMUtils::addTypeOf( $element, 'mw:LocalizedAttrs' );
 		DOMDataUtils::setDataAttrI18n( $element, $name, $i18n );

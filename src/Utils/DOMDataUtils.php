@@ -42,7 +42,7 @@ class DOMDataUtils {
 	/**
 	 * @param Document $doc
 	 */
-	public static function prepareDoc( Document $doc ) {
+	public static function prepareDoc( Document $doc ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		$doc->bag = new DataBag();

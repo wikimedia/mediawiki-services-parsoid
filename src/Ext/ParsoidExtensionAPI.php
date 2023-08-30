@@ -172,7 +172,7 @@ class ParsoidExtensionAPI {
 	 */
 	public function addInterfaceI18nAttribute(
 		Element $element, string $name, string $key, ?array $params
-	) {
+	): void {
 		WTUtils::addInterfaceI18nAttribute( $element, $name, $key, $params );
 	}
 
@@ -186,7 +186,7 @@ class ParsoidExtensionAPI {
 	 */
 	public function addPageContentI18nAttribute(
 		Element $element, string $name, string $key, array $params
-	) {
+	): void {
 		WTUtils::addPageContentI18nAttribute( $element, $name, $key, $params );
 	}
 
@@ -348,7 +348,7 @@ class ParsoidExtensionAPI {
 	/**
 	 * @param string $contentId
 	 */
-	public function clearContentDOM( string $contentId ) {
+	public function clearContentDOM( string $contentId ): void {
 		$this->env->removeDOMFragment( $contentId );
 	}
 

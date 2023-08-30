@@ -141,7 +141,7 @@ class DOMTraverser {
 	 *   there is nothing in the traversal code to prevent that.
 	 * @param DTState|null $state
 	 */
-	public function traverse( ?ParsoidExtensionAPI $extAPI, Node $workNode, ?DTState $state = null ) {
+	public function traverse( ?ParsoidExtensionAPI $extAPI, Node $workNode, ?DTState $state = null ): void {
 		$this->traverseInternal( true, $extAPI, $workNode, $state );
 	}
 
@@ -153,7 +153,7 @@ class DOMTraverser {
 	 */
 	private function traverseInternal(
 		bool $isRootNode, ?ParsoidExtensionAPI $extAPI, Node $workNode, ?DTState $state
-	) {
+	): void {
 		while ( $workNode !== null ) {
 			if ( $this->traverseWithTplInfo && $workNode instanceof Element ) {
 				// Identify the first template/extension node.

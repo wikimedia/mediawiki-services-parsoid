@@ -334,7 +334,7 @@ class DOMUtils {
 	 * @param string $type Expected value of "typeof" attribute (literal string)
 	 * @return bool True if the node matches.
 	 */
-	public static function hasNameAndTypeOf( Node $n, string $name, string $type ) {
+	public static function hasNameAndTypeOf( Node $n, string $name, string $type ): bool {
 		return self::matchNameAndTypeOf(
 			$n, $name, '/^' . preg_quote( $type, '/' ) . '$/'
 		) !== null;
@@ -405,7 +405,7 @@ class DOMUtils {
 	 *   string.
 	 * @return bool True if the node matches.
 	 */
-	public static function hasTypeOf( Node $n, string $type ) {
+	public static function hasTypeOf( Node $n, string $type ): bool {
 		return self::hasValueInMultivalAttr( $n, 'typeof', $type );
 	}
 
@@ -416,7 +416,7 @@ class DOMUtils {
 	 * @param string $rel Expected value of "rel" attribute, as a literal string.
 	 * @return bool True if the node matches.
 	 */
-	public static function hasRel( Node $n, string $rel ) {
+	public static function hasRel( Node $n, string $rel ): bool {
 		return self::hasValueInMultivalAttr( $n, 'rel', $rel );
 	}
 
@@ -427,7 +427,7 @@ class DOMUtils {
 	 * @param string $value Expected value of $attrName" attribute, as a literal string.
 	 * @return bool True if the node matches
 	 */
-	public static function hasValueInMultivalAttr( Node $n, string $attrName, string $value ) {
+	public static function hasValueInMultivalAttr( Node $n, string $attrName, string $value ): bool {
 		// fast path
 		if ( !( $n instanceof Element ) ) {
 			return false;
@@ -816,7 +816,7 @@ class DOMUtils {
 	 */
 	public static function setFragmentInnerHTML(
 		DocumentFragment $frag, string $html
-	) {
+	): void {
 		// FIXME: This should be an HTML5 template element
 		$body = $frag->ownerDocument->createElement( 'body' );
 		DOMCompat::setInnerHTML( $body, $html );

@@ -431,7 +431,7 @@ class Sanitizer {
 	 * @param string $matches
 	 * @return string
 	 */
-	private static function normalizeCharReferencesCallback( $matches ) {
+	private static function normalizeCharReferencesCallback( $matches ): string {
 		$ret = null;
 		if ( $matches[1] != '' ) {
 			$ret = self::normalizeEntity( $matches[1] );

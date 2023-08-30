@@ -612,7 +612,7 @@ class WrapSectionsState {
 	 * @param Element $wrapper
 	 * @param array $encapWrappers
 	 */
-	private function collapseWrappers( Element $wrapper, array $encapWrappers ) {
+	private function collapseWrappers( Element $wrapper, array $encapWrappers ): void {
 		$wrapperDp = DOMDataUtils::getDataParsoid( $wrapper );
 
 		// Build up $parts, $pi to set up the combined transclusion info on $wrapper
@@ -694,7 +694,7 @@ class WrapSectionsState {
 	 * partial overlaps. This method identifies those conflicts and fixes up
 	 * the encapsulation by expanding those ranges as necessary.
 	 */
-	private function resolveTplExtSectionConflicts() {
+	private function resolveTplExtSectionConflicts(): void {
 		$secRanges = [];
 		'@phan-var array[] $secRanges';
 		foreach ( $this->tplsAndExtsToExamine as $tplInfo ) {
