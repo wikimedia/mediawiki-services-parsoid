@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use Wikimedia\Assert\Assert;
+
 /**
  * A helper class to make it easier to compute timing metrics.
  */
@@ -36,12 +38,13 @@ class Timing {
 
 	/**
 	 * End this timing measurement, reporting it under the given `name`.
-	 * @param string $name
+	 * @param ?string $name
 	 * @return float Number of milliseconds reported
 	 */
-	public function end( string $name ): float {
+	public function end( ?string $name = null ): float {
 		$elapsed = self::millis() - $this->startTime;
 		if ( $this->metrics ) {
+			Assert::invariant( $name !== null, 'Recording metric without a key.' );
 			$this->metrics->timing( $name, $elapsed );
 		}
 		return $elapsed;
@@ -53,7 +56,7 @@ class Timing {
 	 * @param ?object $metrics
 	 * @return Timing
 	 */
-	public static function start( ?object $metrics ): Timing {
+	public static function start( ?object $metrics = null ): Timing {
 		return new Timing( $metrics );
 	}
 }

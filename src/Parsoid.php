@@ -26,6 +26,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddRedLinks;
@@ -230,7 +231,11 @@ class Parsoid {
 		if ( $metadata === null ) {
 			$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		}
+
+		$parseTiming = Timing::start();
 		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options );
+		$parseTime = $parseTiming->end();
+
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
 		// is covered as well?  It probably depends on expectations of the
 		// Rest API.  If callers of /page/lint/ assume that will update the
@@ -238,13 +243,26 @@ class Parsoid {
 		if ( $env->getSiteConfig()->linting() ) {
 			( new LintLogger( $env ) )->logLintOutput();
 		}
+
 		$headers = DOMUtils::findHttpEquivHeaders( $doc );
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
+
 		if ( $env->pageBundle ) {
 			$out = ContentUtils::extractDpAndSerialize( $node, [
 				'innerXML' => $body_only,
 			] );
+		} else {
+			$out = [
+				'html' => ContentUtils::toXML( $node, [
+					'innerXML' => $body_only,
+				] ),
+			];
+		}
+
+		$this->recordParseMetrics( $env, $parseTime, $out );
+
+		if ( $env->pageBundle ) {
 			return new PageBundle(
 				$out['html'],
 				$out['pb']->parsoid, $out['pb']->mw ?? null,
@@ -253,10 +271,62 @@ class Parsoid {
 				$contentmodel
 			);
 		} else {
-			$xml = ContentUtils::toXML( $node, [
-				'innerXML' => $body_only,
-			] );
-			return $xml;
+			return $out['html'];
+		}
+	}
+
+	/**
+	 *
+	 */
+	private function recordParseMetrics(
+		Env $env, float $parseTime, array $out
+	) {
+		$metrics = $this->siteConfig->metrics();
+		if ( !$metrics ) {
+			return;
+		}
+
+		$pageConfig = $env->getPageConfig();
+
+		// This is somewhat suspect because ParsoidHandler::tryToCreatePageConfig
+		// can set a revision id on a MutableRevisionRecord, but it might be simpler
+		// to make that go away
+		if ( $pageConfig->getRevisionId() ) {
+			$mstr = 'pageWithOldid';
+		} else {
+			$mstr = 'wt';
+		}
+
+		$metrics->timing( "entry.wt2html.{$mstr}.parse", $parseTime );
+
+		if ( Semver::satisfies(
+			$env->getOutputContentVersion(), '!=' . self::defaultHTMLVersion()
+		) ) {
+			$metrics->increment( 'entry.wt2html.parse.version.notdefault' );
+		}
+
+		$metrics->timing(
+			"entry.wt2html.{$mstr}.size.input",
+			// @phan-suppress-next-line PhanDeprecatedFunction
+			strlen( $pageConfig->getPageMainContent() )
+		);
+
+		$outSize = strlen( $out['html'] );
+		$metrics->timing( "entry.wt2html.{$mstr}.size.output", $outSize );
+
+		if ( $parseTime > 10 && $outSize > 100 ) {
+			// * Don't bother with this metric for really small parse times
+			//   p99 for initialization time is ~7ms according to grafana.
+			//   So, 10ms ensures that startup overheads don't skew the metrics
+			// * For body_only=false requests, <head> section isn't generated
+			//   and if the output is small, per-request overheads can skew
+			//   the timePerKB metrics.
+			//
+			// NOTE: This is slightly misleading since there are fixed costs
+			// for generating output like the <head> section and should be factored in,
+			// but this is good enough for now as a useful first degree of approxmation.
+			$timePerKB = $parseTime * 1024 / $outSize;
+			$metrics->timing( 'entry.wt2html.timePerKB', $timePerKB );
 		}
 	}
 
