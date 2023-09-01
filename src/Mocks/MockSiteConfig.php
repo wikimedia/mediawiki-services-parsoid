@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Mocks;
 
+use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
@@ -458,5 +459,14 @@ class MockSiteConfig extends SiteConfig {
 	/** @inheritDoc */
 	public function getExternalLinkTarget() {
 		return $this->externalLinkTarget;
+	}
+
+	/** @inheritDoc */
+	public function metrics(): ?StatsdDataFactoryInterface {
+		static $metrics = null;
+		if ( $metrics === null ) {
+			$metrics = new MockMetrics();
+		}
+		return $metrics;
 	}
 }

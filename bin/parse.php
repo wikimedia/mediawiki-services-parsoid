@@ -14,12 +14,14 @@ use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Api\SiteConfig;
+use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
+use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
@@ -35,6 +37,9 @@ use Wikimedia\Parsoid\Utils\ScriptUtils;
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	use ExtendedOptsProcessor;
+
+	/** @var ISiteConfig */
+	private $siteConfig;
 
 	/** @var PageConfig */
 	private $pageConfig;
@@ -245,6 +250,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			false,
 			true
 		);
+		$this->addOption(
+			'metrics',
+			'Dump a log of the metrics methods that were called from a MockMetrics.'
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -290,6 +299,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			);
 		}
 
+		$this->siteConfig = $siteConfig;
 		$this->pageConfig = $pcFactory->create(
 			$title,
 			null, // UserIdentity
@@ -311,6 +321,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$siteConfig->setLogger( SiteConfig::createLogger( $this->getOption( 'logFile' ) ) );
 		}
 		$dataAccess = new DataAccess( $api, $siteConfig, $configOpts );
+		$this->siteConfig = $siteConfig;
 		$this->pageConfig = new PageConfig( $api, $configOpts + [
 			'title' => $siteConfig->mainpage(),
 			'loadData' => true,
@@ -327,6 +338,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$dataAccess = new MockDataAccess( $configOpts );
 		$pageContent = new MockPageContent( [ 'main' =>
 			$configOpts['pageContent'] ?? '' ] );
+		$this->siteConfig = $siteConfig;
 		$this->pageConfig = new MockPageConfig( $configOpts, $pageContent );
 		$this->metadata = new StubMetadataCollector();
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -541,6 +553,15 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$this->transformFromHtml( $configOpts, $parsoidOpts, $input );
 		} else {
 			$this->transformFromWt( $configOpts, $parsoidOpts, $input );
+		}
+
+		if ( $this->hasOption( 'metrics' ) ) {
+			// FIXME: We're just using whatever siteConfig we ended up with,
+			// even though setupConfig may be called multiple times
+			$metrics = $this->siteConfig->metrics();
+			if ( $metrics instanceof MockMetrics ) {
+				$this->error( print_r( $metrics->log, true ) );
+			}
 		}
 	}
 
