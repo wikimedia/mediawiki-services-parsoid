@@ -969,12 +969,12 @@ parsoid=wt2html
 !! end
 
 !! test
-Should not crash or infiniloop - T325575
+Should handle poorly nested range - T325575
 !! options
 annotations=1
 parsoid=wt2html
 !! wikitext
 <dummyanno><ann2><code>hello</ann2></dummyanno></code>
 !! html/parsoid
-<p><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[0,11]}'/><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/ann2" data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[11,17]}'/><code data-parsoid='{"stx":"html"}'>hello</code><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[35,47]}'/><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[28,35]}'/></span></span></p>
+<p><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[0,11]}'/><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/ann2" data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[11,17]}'/><code data-parsoid='{"stx":"html"}'>hello</code><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[28,35]}'/></span><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[35,47]}'/></span></p>
 !! end

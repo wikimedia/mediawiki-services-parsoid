@@ -192,32 +192,9 @@ class DOMRangeBuilder {
 	private function getDOMRange(
 		Element $startElem, Element $endMeta, Element $endElem
 	) {
-		$range = new DOMRangeInfo;
+		$range = $this->findEnclosingRange( $startElem, $endElem );
 		$range->startElem = $startElem;
 		$range->endElem = $endMeta;
-		$range->id = Utils::stripParsoidIdPrefix( $this->getRangeId( $startElem ) );
-		$range->startOffset = DOMDataUtils::getDataParsoid( $startElem )->tsr->start;
-
-		// Find common ancestor of startElem and endElem
-		$startAncestors = DOMUtils::pathToRoot( $startElem );
-		$elem = $endElem;
-		$parentNode = $endElem->parentNode;
-		while ( $parentNode && $parentNode->nodeType !== XML_DOCUMENT_NODE ) {
-			$i = array_search( $parentNode, $startAncestors, true );
-			if ( $i === 0 ) {
-				// the common ancestor is startElem
-				// widen the scope to include the full subtree
-				$range->start = $startElem->firstChild;
-				$range->end = $startElem->lastChild;
-				break;
-			} elseif ( $i > 0 ) {
-				$range->start = $startAncestors[$i - 1];
-				$range->end = $elem;
-				break;
-			}
-			$elem = $parentNode;
-			$parentNode = $elem->parentNode;
-		}
 
 		$startsInFosterablePosn = DOMUtils::isFosterablePosition( $range->start );
 		$next = $range->start->nextSibling;
@@ -1303,5 +1280,40 @@ class DOMRangeBuilder {
 			$nonOverlappingRanges = $this->findTopLevelNonOverlappingRanges( $root, $tplRanges );
 			$this->encapsulateTemplates( $nonOverlappingRanges );
 		}
+	}
+
+	/**
+	 * Creates a range that encloses $startElem and $endElem
+	 * @param Element $startElem
+	 * @param Element $endElem
+	 * @return DOMRangeInfo
+	 */
+	protected function findEnclosingRange( Element $startElem, Element $endElem ): DOMRangeInfo {
+		$range = new DOMRangeInfo;
+		$range->id = Utils::stripParsoidIdPrefix( $this->getRangeId( $startElem ) );
+		$range->startOffset = DOMDataUtils::getDataParsoid( $startElem )->tsr->start;
+
+		// Find common ancestor of startElem and endElem
+		$startAncestors = DOMUtils::pathToRoot( $startElem );
+		$elem = $endElem;
+		$parentNode = $endElem->parentNode;
+		while ( $parentNode && $parentNode->nodeType !== XML_DOCUMENT_NODE ) {
+			$i = array_search( $parentNode, $startAncestors, true );
+			if ( $i === 0 ) {
+				// the common ancestor is startElem
+				// widen the scope to include the full subtree
+				$range->start = $startElem->firstChild;
+				$range->end = $startElem->lastChild;
+				break;
+			} elseif ( $i > 0 ) {
+				$range->start = $startAncestors[$i - 1];
+				$range->end = $elem;
+				break;
+			}
+			$elem = $parentNode;
+			$parentNode = $elem->parentNode;
+		}
+
+		return $range;
 	}
 }

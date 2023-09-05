@@ -58,6 +58,21 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			if ( $range->endElem !== $range->end ) {
 				$this->moveRangeEnd( $range, $range->end );
 			}
+
+			// It can happen that marking range uneditable adds another layer of nesting that is not captured
+			// by the initial range detection (since it's not there at that time). To avoid that, we check whether
+			// both nodes have the same parent and, if not, we hoist them to a common ancestor.
+			$startParent = DOMCompat::getParentElement( $range->start );
+			$endParent = DOMCompat::getParentElement( $range->end );
+			if ( $startParent !== $endParent ) {
+				$correctedRange = self::findEnclosingRange( $range->start, $range->end );
+				if ( $range->start !== $correctedRange->start ) {
+					$this->moveRangeStart( $range, $correctedRange->start );
+				}
+				if ( $range->end !== $correctedRange->end ) {
+					$this->moveRangeEnd( $range, $correctedRange->end );
+				}
+			}
 		}
 	}
 
