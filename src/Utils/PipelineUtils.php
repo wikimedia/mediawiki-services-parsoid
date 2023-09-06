@@ -379,6 +379,18 @@ class PipelineUtils {
 				if ( isset( $nodeData->parsoid->tmp->endTSR ) ) {
 					unset( $nodeData->parsoid->tmp->endTSR );
 				}
+
+				// The "in transclusion" flag was set on the first child for template
+				// wrapping in the nested pipeline, and doesn't apply to the dom
+				// fragment wrapper in this pipeline.  Keeping it around can induce
+				// template wrapping of a foster box if the dom fragment is found in
+				// a fosterable position.
+				if (
+					isset( $nodeData->parsoid ) &&
+					$nodeData->parsoid->getTempFlag( TempData::IN_TRANSCLUSION )
+				) {
+					$nodeData->parsoid->tmp->setFlag( TempData::IN_TRANSCLUSION, false );
+				}
 			}
 
 			DOMDataUtils::setNodeData( $workNode, $nodeData );

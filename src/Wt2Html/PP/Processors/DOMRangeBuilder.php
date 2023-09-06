@@ -893,7 +893,9 @@ class DOMRangeBuilder {
 
 			$this->ensureElementsInRange( $range );
 
-			$tplArray = $this->compoundTpls[$range->id];
+			$tplArray = $this->compoundTpls[$range->id] ?? null;
+			Assert::invariant( (bool)$tplArray, 'No parts for template range!' );
+
 			$encapTgt = self::findEncapTarget( $range );
 			$encapValid = false;
 			$encapDP = DOMDataUtils::getDataParsoid( $encapTgt );
@@ -951,7 +953,6 @@ class DOMRangeBuilder {
 					$dp1DSR->end >= $dp1DSR->start;
 			}
 
-			Assert::invariant( (bool)$tplArray, 'No parts for template range!' );
 			if ( $encapValid ) {
 				// Find transclusion info from the array (skip past a wikitext element)
 				/** @var CompoundTemplateInfo $firstTplInfo */
