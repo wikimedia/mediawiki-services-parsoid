@@ -461,12 +461,14 @@ class MockSiteConfig extends SiteConfig {
 		return $this->externalLinkTarget;
 	}
 
+	/** @var ?MockMetrics */
+	private $metrics;
+
 	/** @inheritDoc */
 	public function metrics(): ?StatsdDataFactoryInterface {
-		static $metrics = null;
-		if ( $metrics === null ) {
-			$metrics = new MockMetrics();
+		if ( $this->metrics === null ) {
+			$this->metrics = new MockMetrics();
 		}
-		return $metrics;
+		return $this->metrics;
 	}
 }

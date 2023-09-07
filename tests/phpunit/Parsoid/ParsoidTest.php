@@ -5,6 +5,7 @@ namespace Test\Parsoid;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
+use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
@@ -340,4 +341,62 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 			'kk-latn', false
 		];
 	}
+
+	/**
+	 * @covers ::recordParseMetrics
+	 */
+	public function testParseMetrics() {
+		$opts = [];
+		$wt = "testing '''123'''";
+
+		$siteConfig = new MockSiteConfig( $opts );
+		$dataAccess = new MockDataAccess( $opts );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$pageContent = new MockPageContent( [ 'main' => $wt ] );
+		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$parsoid->wikitext2html( $pageConfig );
+
+		$metrics = $siteConfig->metrics();
+		$this->assertInstanceOf( MockMetrics::class, $metrics );
+		$log = $metrics->log;
+		$this->assertCount( 4, $log );
+		$this->assertEquals(
+			[ 'timing', 'entry.wt2html.pageWithOldid.size.input', 17 ],
+			$log[1]
+		);
+	}
+
+	/**
+	 * @covers ::recordSerializationMetrics
+	 */
+	public function testSerializationMetrics() {
+		$opts = [];
+		$html = "<p>hiho</p>";
+
+		$siteConfig = new MockSiteConfig( $opts );
+		$dataAccess = new MockDataAccess( $opts );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$pageContent = new MockPageContent( [ 'main' => '' ] );
+		$pageConfig = new MockPageConfig( $opts, $pageContent );
+
+		$wt = $parsoid->html2wikitext( $pageConfig, $html );
+		$this->assertEquals( 'hiho', $wt );
+
+		$metrics = $siteConfig->metrics();
+		$this->assertInstanceOf( MockMetrics::class, $metrics );
+		$log = $metrics->log;
+		$this->assertCount( 7, $log );
+
+		$this->assertEquals(
+			[ 'timing', 'entry.html2wt.size.input', 11 ],
+			$log[3]
+		);
+		$this->assertEquals(
+			[ 'timing', 'entry.html2wt.size.output', 4 ],
+			$log[5]
+		);
+	}
+
 }

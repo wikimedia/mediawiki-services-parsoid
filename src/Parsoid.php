@@ -386,7 +386,45 @@ class Parsoid {
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		$extApi = new ParsoidExtensionAPI( $env );
-		return $handler->fromDOM( $extApi, $selserData );
+
+		$serialTiming = Timing::start();
+		$wikitext = $handler->fromDOM( $extApi, $selserData );
+		$serialTime = $serialTiming->end();
+
+		$this->recordSerializationMetrics( $options, $serialTime, $wikitext );
+
+		return $wikitext;
+	}
+
+	/**
+	 *
+	 */
+	private function recordSerializationMetrics(
+		array $options, float $serialTime, string $wikitext
+	) {
+		$metrics = $this->siteConfig->metrics();
+		if ( !$metrics ) {
+			return;
+		}
+
+		$htmlSize = $options['htmlSize'] ?? 0;
+		$metrics->timing( 'entry.html2wt.size.input', $htmlSize );
+
+		if ( isset( $options['inputContentVersion'] ) ) {
+			$metrics->increment(
+				'entry.html2wt.original.version.' . $options['inputContentVersion']
+			);
+		}
+
+		$metrics->timing( 'entry.html2wt.total', $serialTime );
+		$metrics->timing( 'entry.html2wt.size.output', strlen( $wikitext ) );
+
+		if ( $htmlSize ) {  // Avoid division by zero
+			// NOTE: the name timePerInputKB is misleading, since $htmlSize is
+			//       in characters, not bytes.
+			$timePerInputKB = $serialTime * 1024 / $htmlSize;
+			$metrics->timing( 'entry.html2wt.timePerInputKB', $timePerInputKB );
+		}
 	}
 
 	/**
@@ -403,6 +441,9 @@ class Parsoid {
 		?SelserData $selserData = null
 	): string {
 		$doc = DOMUtils::parseHTML( $html, true );
+		if ( !isset( $options['htmlSize'] ) ) {
+			$options['htmlSize'] = mb_strlen( $html );
+		}
 		return $this->dom2wikitext( $pageConfig, $doc, $options, $selserData );
 	}
 
