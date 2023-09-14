@@ -223,17 +223,4 @@ class PageConfig extends IPageConfig {
 		}
 		return $this->content;
 	}
-
-	/**
-	 * @param array $parsoidSettings
-	 * @param array $opts
-	 * @return PageConfig
-	 */
-	public static function fromSettings(
-		array $parsoidSettings, array $opts
-	): PageConfig {
-		$api = ApiHelper::fromSettings( $parsoidSettings );
-		return new PageConfig( $api, $opts );
-	}
-
 }

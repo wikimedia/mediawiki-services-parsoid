@@ -762,25 +762,6 @@ class SiteConfig extends ISiteConfig {
 		return $this->protocols;
 	}
 
-	/**
-	 * @param array $parsoidSettings
-	 * @return SiteConfig
-	 */
-	public static function fromSettings( array $parsoidSettings ): SiteConfig {
-		$opts = [];
-		if ( isset( $parsoidSettings['linting'] ) ) {
-			$opts['linting'] = !empty( $parsoidSettings['linting'] );
-		}
-		if ( isset( $parsoidSettings['wt2htmlLimits'] ) ) {
-			$opts['wt2htmlLimits'] = $parsoidSettings['wt2htmlLimits'];
-		}
-		if ( isset( $parsoidSettings['html2wtLimits'] ) ) {
-			$opts['html2wtLimits'] = $parsoidSettings['html2wtLimits'];
-		}
-		$api = ApiHelper::fromSettings( $parsoidSettings );
-		return new SiteConfig( $api, $opts );
-	}
-
 	/** @var ?MockMetrics */
 	private $metrics;
 
