@@ -19,6 +19,7 @@ use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\Ext\AnnotationStripper;
 use Wikimedia\Parsoid\Ext\Cite\Cite;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
@@ -1385,6 +1386,7 @@ abstract class SiteConfig {
 			'parsoidExtTags' => [],
 			'annotationTags' => [],
 			'domProcessors'  => [],
+			'annotationStrippers' => [],
 			'contentModels'  => [],
 		];
 
@@ -1434,10 +1436,21 @@ abstract class SiteConfig {
 			}
 		}
 
-		foreach ( $extConfig['annotations'] ?? [] as $aTag ) {
-			$lowerTagName = mb_strtolower( $aTag );
-			$this->extConfig['allTags'][$lowerTagName] = true;
-			$this->extConfig['annotationTags'][$lowerTagName] = true;
+		if ( isset( $extConfig['annotations'] ) ) {
+			$annotationConfig = $extConfig['annotations'];
+			$annotationTags = $annotationConfig['tagNames'] ?? $annotationConfig;
+			foreach ( $annotationTags ?? [] as $aTag ) {
+				$lowerTagName = mb_strtolower( $aTag );
+				$this->extConfig['allTags'][$lowerTagName] = true;
+				$this->extConfig['annotationTags'][$lowerTagName] = true;
+			}
+			if ( isset( $annotationConfig['annotationStripper'] ) ) {
+				$obj = $this->getObjectFactory()->createObject( $annotationConfig['annotationStripper'], [
+					'allowClassName' => true,
+					'assertClass' => AnnotationStripper::class,
+				] );
+				$this->extConfig['annotationStrippers'][$name] = $obj;
+			}
 		}
 
 		// Extension modules may also register dom processors.
@@ -1480,6 +1493,17 @@ abstract class SiteConfig {
 	 */
 	public function getContentModelHandler( string $contentmodel ): ?ContentModelHandler {
 		return ( $this->getExtConfig() )['contentModels'][$contentmodel] ?? null;
+	}
+
+	/**
+	 * Returns all the annotationStrippers that are defined as annotation configuration
+	 * @return array<AnnotationStripper>
+	 */
+	public function getAnnotationStrippers(): array {
+		$res = $this->getExtConfig()['annotationStrippers'] ?? [];
+		// ensures stability of the method list order
+		ksort( $res );
+		return array_values( $res );
 	}
 
 	/**

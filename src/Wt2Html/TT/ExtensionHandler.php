@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
@@ -93,8 +94,12 @@ class ExtensionHandler extends TokenHandler {
 				],
 			] );
 			try {
+				$extSrc = $dataMw->body->extsrc ?? '';
+				if ( !( $extConfig['options']['hasWikitextInput'] ?? true ) ) {
+					$extSrc = $this->stripAnnotations( $extSrc, $env->getSiteConfig() );
+				}
 				$domFragment = $nativeExt->sourceToDom(
-					$extApi, $dataMw->body->extsrc ?? '', $extArgs
+					$extApi, $extSrc ?? '', $extArgs
 				);
 				$errors = $extApi->getErrors();
 				if ( $extConfig['options']['wt2html']['customizesDataMw'] ?? false ) {
@@ -275,5 +280,15 @@ class ExtensionHandler extends TokenHandler {
 	 */
 	public function onTag( Token $token ): ?TokenHandlerResult {
 		return $token->getName() === 'extension' ? $this->onExtension( $token ) : null;
+	}
+
+	private function stripAnnotations( string $s, SiteConfig $siteConfig ): string {
+		$annotationStrippers = $siteConfig->getAnnotationStrippers();
+
+		$res = $s;
+		foreach ( $annotationStrippers as $annotationStripper ) {
+			$res = $annotationStripper->stripAnnotations( $s );
+		}
+		return $res;
 	}
 }
