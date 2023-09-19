@@ -284,6 +284,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			self::copyOverAttribute( $audio, $span, 'lang' );
 		}
 
+		if ( $info['duration'] ?? null ) {
+			$audio->setAttribute( 'data-durationhint', (string)ceil( (float)$info['duration'] ) );
+		}
+
 		self::addSources( $audio, $info, $dataMw, false );
 		self::addTracks( $audio, $info );
 
@@ -331,6 +335,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		if ( $span->hasAttribute( 'lang' ) ) {
 			self::copyOverAttribute( $video, $span, 'lang' );
+		}
+
+		if ( $info['duration'] ?? null ) {
+			$video->setAttribute( 'data-durationhint', (string)ceil( (float)$info['duration'] ) );
 		}
 
 		self::addSources( $video, $info, $dataMw, true );
