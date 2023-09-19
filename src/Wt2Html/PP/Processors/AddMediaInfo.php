@@ -711,6 +711,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		);
 
 		$hasThumb = false;
+		$needsTMHModules = false;
 
 		foreach ( $validContainers as $c ) {
 			$container = $c['container'];
@@ -798,6 +799,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					break;
 			}
 
+			$needsTMHModules = $needsTMHModules || !$isImage;
+
 			$alt = null;
 			$keepAltInDataMw = !$isImage || $errs;
 			$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'alt', $keepAltInDataMw );
@@ -830,6 +833,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		if ( $hasThumb ) {
 			$env->getMetadata()->addModules( [ 'mediawiki.page.media' ] );
+		}
+
+		if ( $needsTMHModules ) {
+			$env->getMetadata()->addModuleStyles( [ 'ext.tmh.player.styles' ] );
+			$env->getMetadata()->addModules( [ 'ext.tmh.player' ] );
 		}
 	}
 }
