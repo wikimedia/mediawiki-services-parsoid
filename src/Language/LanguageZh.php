@@ -2,6 +2,7 @@
 
 namespace Wikimedia\Parsoid\Language;
 
+/* @note: Use of this class is currently disabled in production, see T346657 */
 /** Chinese conversion code. */
 class LanguageZh extends Language {
 

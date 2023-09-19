@@ -626,9 +626,14 @@ class Parsoid {
 	 * @return bool
 	 */
 	public function implementsLanguageConversionBcp47( PageConfig $pageConfig, Bcp47Code $targetVariant ): bool {
+		// Hardcode disable zh lang conversion support since Parsoid's
+		// implementation is incomplete and not performant.
+		if ( $pageConfig->getPageLanguageBcp47()->toBcp47Code() === 'zh' ) {
+			return false;
+		}
+
 		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
-
 		return LanguageConverter::implementsLanguageConversionBcp47( $env, $targetVariant );
 	}
 
