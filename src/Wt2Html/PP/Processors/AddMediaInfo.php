@@ -710,6 +710,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$infos
 		);
 
+		$hasThumb = false;
+
 		foreach ( $validContainers as $c ) {
 			$container = $c['container'];
 			$anchor = $c['anchor'];
@@ -717,6 +719,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$attrs = $c['attrs'];
 			$dataMw = DOMDataUtils::getDataMw( $container );
 			$errs = $c['errs'];
+
+			$hasThumb = $hasThumb || DOMUtils::hasTypeOf( $container, 'mw:File/Thumb' );
 
 			$info = $files[$c['infoKey']];
 			if ( !$info ) {
@@ -822,6 +826,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			if ( isset( $dataMw->attribs ) && count( $dataMw->attribs ) === 0 ) {
 				unset( $dataMw->attribs );
 			}
+		}
+
+		if ( $hasThumb ) {
+			$env->getMetadata()->addModules( [ 'mediawiki.page.media' ] );
 		}
 	}
 }
