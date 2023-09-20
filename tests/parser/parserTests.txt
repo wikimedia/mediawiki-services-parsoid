@@ -12286,7 +12286,7 @@ this is not the title
 <a href="/index.php?title=Template:DISPLAYTITLE:screen&amp;action=edit&amp;redlink=1" class="new" title="Template:DISPLAYTITLE:screen (page does not exist)">Template:DISPLAYTITLE:screen</a>
 </p>
 !! html/parsoid+integrated
-<p>this is not the title <a rel="mw:WikiLink" href="./Template:DISPLAYTITLE:screen?action=edit&amp;redlink=1" title="Template:DISPLAYTITLE:screen" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-mw='{"parts":[{"template":{"target":{"wt":"DISPLAYTITLE:screen","function":"displaytitle"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:DISPLAYTITLE:screen"]}}'>Template:DISPLAYTITLE:screen</a></p>
+<p>this is not the title <a rel="mw:WikiLink" href="./Template:DISPLAYTITLE:screen?action=edit&amp;redlink=1" title="Template:DISPLAYTITLE:screen" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-mw='{"parts":[{"template":{"target":{"wt":"DISPLAYTITLE:screen","href":"./Template:DISPLAYTITLE:screen"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:DISPLAYTITLE:screen"]}}'>Template:DISPLAYTITLE:screen</a></p>
 !! end
 
 !! test
