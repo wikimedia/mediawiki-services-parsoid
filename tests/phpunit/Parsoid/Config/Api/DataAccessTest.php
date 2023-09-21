@@ -114,9 +114,8 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'ext.discussionTools.init.styles',
 		], $metadata->getModuleStyles() );
 		$this->assertEquals( [], $metadata->getJsConfigVars() );
-		$this->assertEquals( [
-			'Foo' => 'Bar',
-		], $metadata->getCategories() );
+		$this->assertEquals( [ 'Foo' ], $metadata->getCategoryNames() );
+		$this->assertEquals( 'Bar', $metadata->getCategorySortKey( 'Foo' ) );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(
@@ -142,7 +141,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( [], $metadata->getModules() );
 		$this->assertEquals( [], $metadata->getModuleStyles() );
 		$this->assertEquals( [], $metadata->getJsConfigVars() );
-		$this->assertEquals( [], $metadata->getCategories() );
+		$this->assertEquals( [], $metadata->getCategoryNames() );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
 		$this->assertSame(

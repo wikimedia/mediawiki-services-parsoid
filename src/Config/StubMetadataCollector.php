@@ -245,9 +245,19 @@ class StubMetadataCollector implements ContentMetadataCollector {
 		return $result;
 	}
 
-	/** @return array<string,string> */
-	public function getCategories(): array {
-		return $this->get( 'categories' );
+	/** @return list<string> */
+	public function getCategoryNames(): array {
+		// array keys can get converted to int if numeric, so ensure
+		// return value is all strings.
+		return array_map( 'strval', array_keys( $this->get( 'categories' ) ) );
+	}
+
+	/**
+	 * @param string $name Category name
+	 * @return ?string Sort key
+	 */
+	public function getCategorySortKey( string $name ): ?string {
+		return $this->get( 'categories', $name );
 	}
 
 	/**
