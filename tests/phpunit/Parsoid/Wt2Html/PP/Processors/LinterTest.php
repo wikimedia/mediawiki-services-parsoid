@@ -113,6 +113,12 @@ class LinterTest extends TestCase {
 		$desc = 'should not flag tags where end tags are optional in the spec';
 		$wt = '<ul><li>x<li>y</ul><table><tr><th>heading 1<tr><td>col 1<td>col 2</table>';
 		$this->expectEmptyResults( $desc, $wt );
+
+		$desc = 'should lint missing end tag for wikitext table syntax';
+		$result = $this->wtToLint( '{|\n|hiho' );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 9, 9, 0 ], $result[0]['dsr'], $desc );
 	}
 
 	/**
@@ -509,11 +515,13 @@ class LinterTest extends TestCase {
 			"|}"
 		] );
 		$result = $this->wtToLint( $wt );
-		$this->assertCount( 2, $result, $desc );
-		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertTrue( isset( $result[0]['params'] ), $desc );
-		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
-		$this->assertEquals( [ 39, 72, 0, 0 ], $result[0]['dsr'], $desc );
+		$this->assertCount( 3, $result, $desc );
+		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 39, 32, 0 ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'deletable-table-tag', $result[1]['type'], $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( 'table', $result[1]['params']['name'], $desc );
+		$this->assertEquals( [ 39, 72, 0, 0 ], $result[1]['dsr'], $desc );
 
 		$desc = 'should identify deletable table tag for T161341 (2)';
 		$wt = implode( "\n", [
@@ -527,11 +535,13 @@ class LinterTest extends TestCase {
 			"|}"
 		] );
 		$result = $this->wtToLint( $wt );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertTrue( isset( $result[0]['params'] ), $desc );
-		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
-		$this->assertEquals( [ 58, 91, 0, 0 ], $result[0]['dsr'], $desc );
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 58, 32, 0 ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'deletable-table-tag', $result[1]['type'], $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( 'table', $result[1]['params']['name'], $desc );
+		$this->assertEquals( [ 58, 91, 0, 0 ], $result[1]['dsr'], $desc );
 
 		$desc = 'should identify deletable table tag for T161341 (3)';
 		$wt = implode( "\n", [
@@ -545,11 +555,13 @@ class LinterTest extends TestCase {
 			"}}"
 		] );
 		$result = $this->wtToLint( $wt );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 56, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'deletable-table-tag', $result[1]['type'], $desc );
+		$this->assertTrue( isset( $result[1]['templateInfo'] ), $desc );
+		$this->assertEquals( '1x', $result[1]['templateInfo']['name'], $desc );
+		$this->assertEquals( [ 0, 56, null, null ], $result[1]['dsr'], $desc );
 
 		$desc = 'should identify deletable table tag for T161341 (4)';
 		$wt = implode( "\n", [
@@ -563,12 +575,14 @@ class LinterTest extends TestCase {
 			"|}"
 		] );
 		$result = $this->wtToLint( $wt );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
-		$this->assertFalse( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertTrue( isset( $result[0]['params'] ), $desc );
-		$this->assertEquals( 'table', $result[0]['params']['name'], $desc );
-		$this->assertEquals( [ 29, 31, 0, 0 ], $result[0]['dsr'], $desc );
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 29, 2, 0 ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'deletable-table-tag', $result[1]['type'], $desc );
+		$this->assertFalse( isset( $result[1]['templateInfo'] ), $desc );
+		$this->assertTrue( isset( $result[1]['params'] ), $desc );
+		$this->assertEquals( 'table', $result[1]['params']['name'], $desc );
+		$this->assertEquals( [ 29, 31, 0, 0 ], $result[1]['dsr'], $desc );
 	}
 
 	/**
