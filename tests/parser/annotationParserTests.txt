@@ -978,3 +978,30 @@ parsoid=wt2html
 !! html/parsoid
 <p><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[0,11]}'/><span typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/ann2" data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[11,17]}'/><code data-parsoid='{"stx":"html"}'>hello</code><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[28,35]}'/></span><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[35,47]}'/></span></p>
 !! end
+
+!! test
+Fostering in div - "end" tag should be after the "start" tag
+!! options
+annotations=1
+parsoid=wt2html
+!! wikitext
+<table>
+<tbody>
+<tr>
+<td><dummyanno>some <ann2>stuff</td>
+</tr>
+<div>hello</ann2></dummyanno></div>
+<tr><td>hello</td></tr>
+</tbody>
+</table>
+!! html/parsoid
+<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"dsr":[25,93,0,0]}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"dsr":[25,36,null,null],"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[25,36]}'/><div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true,"dsr":[41,81,0,0]}'><meta typeof="mw:Annotation/ann2" data-parsoid='{"dsr":[41,47,null,null],"wasMoved":true}' data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[41,47]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true,"dsr":[0,0,null,null]}'>
+&lt;tbody>
+</p><div data-parsoid='{"stx":"html","fostered":true,"dsr":[0,0,null,null]}'>hello</div><p data-parsoid='{"fostered":true,"autoInsertedStart":true,"dsr":[0,0,null,null]}'>
+&lt;/tbody>
+</p><table data-parsoid='{"stx":"html","dsr":[0,141,7,8]}'><tbody data-parsoid='{"dsr":[7,133,0,0]}'><tr data-parsoid='{"stx":"html","dsr":[16,63,4,5]}'>
+<td data-parsoid='{"stx":"html","dsr":[21,57,4,5]}'>some stuff</td>
+</tr>
+
+<tr data-parsoid='{"stx":"html","dsr":[65,123,4,5]}'><td data-parsoid='{"stx":"html","dsr":[104,118,4,5]}'>hello</td></tr></tbody></table><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"wasMoved":true,"dsr":[74,81,null,null]}' data-mw='{"wtOffsets":[74,81]}'/></div><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true,"dsr":[81,93,null,null]}' data-mw='{"wtOffsets":[81,93]}'/></div>
+!! end

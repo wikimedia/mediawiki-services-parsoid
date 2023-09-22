@@ -176,6 +176,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 				$inPTag = DOMUtils::hasNameOrHasAncestorOfName( $c->parentNode, 'p' );
 				$fosterContentHolder = self::getFosterContentHolder( $c->ownerDocument, $inPTag );
 
+				$fosteredElements = [];
 				// mark as fostered until we hit the table
 				while ( $sibling &&
 					( !( $sibling instanceof Element ) || DOMCompat::nodeName( $sibling ) !== 'table' )
@@ -193,7 +194,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 							// nodes dont need wrappers. sol-transparent wikitext generate
 							// rendering-transparent nodes and we use that helper as a proxy here.
 							DOMDataUtils::getDataParsoid( $sibling )->fostered = true;
-
+							$fosteredElements[] = $sibling;
 							// If the foster content holder is not empty,
 							// close it and get a new content holder.
 							if ( $fosterContentHolder->hasChildNodes() ) {
@@ -225,6 +226,11 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 					$table->parentNode->insertBefore( $fosterContentHolder, $table );
 				}
 
+				foreach ( $fosteredElements as $elem ) {
+					'@phan-var Element $elem';
+					self::moveEndAnnotationsAfter( $elem, $table );
+				}
+
 				// we have fostered transclusions
 				// wrap the whole thing in a transclusion
 				if ( $fosteredTransclusions ) {
@@ -243,6 +249,29 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			}
 
 			$c = $sibling;
+		}
+	}
+
+	/**
+	 * @param Element $fosteredElement
+	 * @param Element $table
+	 * @return void
+	 */
+	private static function moveEndAnnotationsAfter( Element $fosteredElement, Element $table ) {
+		$elem = $fosteredElement->firstChild;
+		$tableSibling = $table->nextSibling;
+		while ( $elem ) {
+			$nextSibling = $elem->nextSibling;
+			if ( WTUtils::isAnnotationEndMarkerMeta( $elem ) ) {
+				// We do not need to worry about template continuity because this comes before
+				// template wrapping.
+				$table->parentNode->insertBefore( $elem, $tableSibling );
+				'@phan-var Element $elem';
+				DOMDataUtils::getDataParsoid( $elem )->wasMoved = true;
+			} elseif ( $elem instanceof Element ) {
+				self::moveEndAnnotationsAfter( $elem, $table );
+			}
+			$elem = $nextSibling;
 		}
 	}
 
