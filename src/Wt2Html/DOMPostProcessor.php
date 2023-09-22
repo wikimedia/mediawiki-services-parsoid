@@ -291,6 +291,7 @@ class DOMPostProcessor extends PipelineStage {
 						'action' => static function ( $node ) use ( &$abouts, $env ) {
 							// TODO: $abouts can be part of DTState
 							$isStart = false;
+							// isStart gets modified (not read) by extractAnnotationType
 							$t = WTUtils::extractAnnotationType( $node, $isStart );
 							if ( $t !== null ) {
 								$about = null;
@@ -308,11 +309,16 @@ class DOMPostProcessor extends PipelineStage {
 										$about = array_pop( $abouts[$t] );
 									}
 								}
-								if ( $about !== null ) {
-									$datamw = DOMDataUtils::getDataMw( $node );
-									$datamw->rangeId = $about;
-									DOMDataUtils::setDataMw( $node, $datamw );
+								if ( $about === null ) {
+									// this doesn't have a start tag, so we don't handle it when creating
+									// annotation ranges, and we replace it with a string
+									$textAnn = $node->ownerDocument->createTextNode( '</' . $t . '>' );
+									$parentNode = $node->parentNode;
+									$parentNode->insertBefore( $textAnn, $node );
+									DOMCompat::remove( $node );
+									return $textAnn;
 								}
+								DOMDataUtils::getDataMw( $node )->rangeId = $about;
 							}
 							return true;
 						}

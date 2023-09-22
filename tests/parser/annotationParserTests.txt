@@ -1028,3 +1028,25 @@ parsoid=wt2html,wt2wt
 <tr><td>hello</td></tr>
 </tbody></table><meta typeof="mw:Annotation/ann2/End" about="#mwt2" data-mw='{"wtOffsets":[86,93]}'/></div><meta typeof="mw:Annotation/dummyanno/End" about="#mwt2" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[93,105]}'/></div>
 !! end
+
+!! test
+Doubly-closed ranges should be processed with the following end tags ignored
+!! options
+annotations=1
+parsoid=wt2html
+!! wikitext
+<dummyanno></dummyanno></dummyanno>
+!! html/parsoid
+<meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[11,23]}'/>&lt;/dummyanno>
+!! end
+
+!! test
+Triply-closed ranges should be processed with the following end tags ignored
+!! options
+annotations=1
+parsoid=wt2html
+!! wikitext
+<dummyanno></dummyanno></dummyanno></dummyanno>
+!! html/parsoid
+<meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[11,23]}'/>&lt;/dummyanno>&lt;/dummyanno>
+!! end
