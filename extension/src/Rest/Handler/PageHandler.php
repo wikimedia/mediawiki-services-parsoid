@@ -20,7 +20,7 @@ declare( strict_types = 1 );
 
 namespace MWParsoid\Rest\Handler;
 
-use MediaWiki\Rest\Handler\ParsoidFormatHelper;
+use MediaWiki\Rest\Handler\Helper\ParsoidFormatHelper;
 use MediaWiki\Rest\Handler\ParsoidHandler as CoreParsoidHandler;
 use MediaWiki\Rest\HttpException;
 use MediaWiki\Rest\Response;

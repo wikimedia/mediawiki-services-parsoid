@@ -23,7 +23,7 @@ namespace MWParsoid\Rest\Handler;
 use LogicException;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Rest\Handler;
-use MediaWiki\Rest\Handler\ParsoidFormatHelper;
+use MediaWiki\Rest\Handler\Helper\ParsoidFormatHelper;
 use MediaWiki\Rest\RequestInterface;
 use MediaWiki\Rest\Response;
 use MediaWiki\Rest\ResponseFactory;
