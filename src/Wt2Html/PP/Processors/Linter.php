@@ -513,7 +513,14 @@ class Linter implements Wt2HtmlDOMProcessor {
 						$lintObj['params']['inTable'] = DOMUtils::hasNameOrHasAncestorOfName( $c, 'table' );
 						$category = $this->getHeadingAncestor( $c ) ?
 							'missing-end-tag-in-heading' : 'missing-end-tag';
-						$env->recordLint( $category, $lintObj );
+						$next = DiffDOMUtils::nextNonSepSibling( $c );
+						if (
+							// Skip if covered by deletable-table-tag
+							!( $cNodeName === 'table' && $next &&
+							( DOMCompat::nodeName( $c ) === 'table' ) )
+						) {
+							$env->recordLint( $category, $lintObj );
+						}
 						if ( isset( Consts::$HTML['FormattingTags'][DOMCompat::nodeName( $c )] ) &&
 							$this->matchedOpenTagPairExists( $c, $dp )
 						) {
