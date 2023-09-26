@@ -288,16 +288,32 @@ class LinkHandlerUtils {
 
 		// Check if the href matches any of our interwiki URL patterns
 		$interwikiMatch = $siteConfig->interwikiMatcher( $href );
-		if ( $interwikiMatch &&
+		if ( !$interwikiMatch ) {
+			return $rtData;
+		}
+
+		$iw = $siteConfig->interwikiMapNoNamespaces()[ltrim( $interwikiMatch[0], ':' )];
+		$localInterwiki = !empty( $iw['local'] );
+
+		// Only to be used in question mark check, since other checks want to include the fragment
+		$targetForQmarkCheck = $interwikiMatch[1];
+		// FIXME: If ever the default value for $wgExternalInterwikiFragmentMode
+		// changes, we can reduce this by always stripping off the fragment
+		// identifier, since in "html5" mode, that isn't encoded.  At present,
+		// we can only do that if we know it's a local interwiki link.
+		if ( $localInterwiki ) {
+			$withoutFragment = strstr( $targetForQmarkCheck, '#', true );
+			if ( $withoutFragment !== false ) {
+				$targetForQmarkCheck = $withoutFragment;
+			}
+		}
+
+		if (
 			// Question mark is a valid title char, so it won't fail the test below,
 			// but gets percent encoded on the way out since it has special
 			// semantics in a url.  That will break the url we're serializing, so
 			// protect it.
-			// FIXME: If ever the default value for $wgExternalInterwikiFragmentMode
-			// changes, we can reduce this by always stripping off the fragment
-			// identifier, since in "html5" mode, that isn't encoded.  At present,
-			// we can only do that if we know it's a local interwiki link.
-			strpos( $interwikiMatch[1], '?' ) === false &&
+			strpos( $targetForQmarkCheck, '?' ) === false &&
 			// Ensure we have a valid link target, otherwise falling back to extlink
 			// is preferable, since it won't serialize as a link.
 			(
