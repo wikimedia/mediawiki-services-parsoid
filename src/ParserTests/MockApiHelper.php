@@ -90,6 +90,23 @@ class MockApiHelper extends ApiHelper {
 				'seek=85' => 'seek%3D3.3666666666667', # hard limited by duration
 			],
 		],
+		'Transcode.webm' => [
+			'size' => 12345,
+			'width' => 492,
+			'height' => 360,
+			'bits' => 0,
+			'duration' => 4,
+			'mime' => 'video/webm; codecs="vp8, vorbis"',
+			'mediatype' => 'VIDEO',
+			'derivatives' => [
+				[
+					'type' => 'video/webm; codecs="vp9, opus"',
+					'transcodekey' => '240p.vp9.webm',
+					'width' => 328,
+					'height' => 240,
+				],
+			],
+		],
 		'Audio.oga' => [
 			'size' => 12345,
 			'width' => 0,
@@ -407,6 +424,7 @@ class MockApiHelper extends ApiHelper {
 		'File:Thumb.png' => 'Thumb.png',
 		'File:LoremIpsum.djvu' => 'LoremIpsum.djvu',
 		'File:Video.ogv' => 'Video.ogv',
+		'File:Transcode.webm' => 'Transcode.webm',
 		'File:Audio.oga' => 'Audio.oga',
 		'File:Bad.jpg' => 'Bad.jpg',
 	];
@@ -757,6 +775,28 @@ class MockApiHelper extends ApiHelper {
 				if ( $info['thumburl'] !== $turl && $mediatype !== 'AUDIO' ) {
 					$info['responsiveUrls']["$scale"] = $turl;
 				}
+			}
+		}
+
+		if ( isset( $props['derivatives'] ) ) {
+			$info['derivatives'] = [
+				[
+					'src' => $info['url'],
+					'type' => $info['mime'],
+					'width' => strval( $info['width'] ),
+					'height' => strval( $info['height'] ),
+				],
+			];
+			foreach ( $props['derivatives'] as $derivative ) {
+				$info['derivatives'][] = [
+					'src' => self::IMAGE_BASE_URL . '/transcoded/' .
+						$md5prefix . $normFileName . '/' .
+						$normFileName . '.' . $derivative['transcodekey'],
+					'type' => $derivative['type'],
+					'transcodekey' => $derivative['transcodekey'],
+					'width' => strval( $derivative['width'] ),
+					'height' => strval( $derivative['height'] ),
+				];
 			}
 		}
 

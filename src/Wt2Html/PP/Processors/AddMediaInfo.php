@@ -187,6 +187,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$source->setAttribute( 'data' . $fromFile . '-width', (string)$o['width'] );
 				$source->setAttribute( 'data' . $fromFile . '-height', (string)$o['height'] );
 			}
+			if ( !$fromFile ) {
+				$source->setAttribute( 'data-transcodekey', $o['transcodekey'] );
+			}
 			$elt->appendChild( $source );
 		}
 	}
