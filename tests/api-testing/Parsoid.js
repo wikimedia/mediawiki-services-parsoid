@@ -327,7 +327,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should prefer higher quality (html)', function(done) {
+		// T347426: Support for non-default major HTML versions has been disabled
+		it.skip('should prefer higher quality (html)', function(done) {
 			var contentVersion = '999.0.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
@@ -340,7 +341,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should prefer higher quality (pagebundle)', function(done) {
+		// T347426: Support for non-default major HTML versions has been disabled
+		it.skip('should prefer higher quality (pagebundle)', function(done) {
 			var contentVersion = '999.0.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
@@ -439,7 +441,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should accept requests for content version 999.x (html)', function(done) {
+		// T347426: Support for non-default major HTML versions has been disabled
+		it.skip('should accept requests for content version 999.x (html)', function(done) {
 			var contentVersion = '999.0.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
@@ -450,7 +453,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should accept requests for content version 999.x (pagebundle)', function(done) {
+		// T347426: Support for non-default major HTML versions has been disabled
+		it.skip('should accept requests for content version 999.x (pagebundle)', function(done) {
 			var contentVersion = '999.0.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
