@@ -450,6 +450,7 @@ class Parsoid {
 	/**
 	 * Update the supplied PageBundle based on the `$update` type.
 	 *
+	 *   'convertoffsets': Convert offsets between formats (byte, char, ucs2)
 	 *   'redlinks': Refreshes the classes of known, missing, etc. links.
 	 *   'variant': Converts the HTML based on the supplied variant.
 	 *
@@ -477,50 +478,57 @@ class Parsoid {
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
 		);
-		ContentUtils::convertOffsets(
-			$env, $doc, $env->getRequestOffsetType(), 'byte'
-		);
-		if ( $update === 'redlinks' ) {
-			( new AddRedLinks() )->run( $env, DOMCompat::getBody( $doc ) );
-		} elseif ( $update === 'variant' ) {
-			// Note that `maybeConvert` could still be a no-op, in case the
-			// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
-			// is a base language code or otherwise invalid.
-			LanguageConverter::maybeConvert(
-				$env, $doc,
-				Utils::mwCodeToBcp47(
-					$options['variant']['target'],
-					// Be strict in what we accept.
-					true, $this->siteConfig->getLogger()
-				),
-				$options['variant']['source'] ?
-				Utils::mwCodeToBcp47(
-					$options['variant']['source'],
-					// Be strict in what we accept.
-					true, $this->siteConfig->getLogger()
-				) : null
+		if ( $update === 'convertoffsets' ) {
+			ContentUtils::convertOffsets(
+				$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 			);
-			// Update content-language and vary headers.
-			// This also ensures there is a <head> element.
-			$ensureHeader = static function ( string $h ) use ( $doc ) {
-				$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$h}\"i]" );
-				if ( !$el ) {
-					$el = DOMUtils::appendToHead( $doc, 'meta', [
-						'http-equiv' => $h,
-					] );
-				}
-				return $el;
-			};
-			( $ensureHeader( 'content-language' ) )->setAttribute(
-				'content', $env->htmlContentLanguageBcp47()->toBcp47Code()
-			);
-			( $ensureHeader( 'vary' ) )->setAttribute(
-				'content', $env->htmlVary()
-			);
+			DOMDataUtils::getPageBundle( $doc )->parsoid->offsetType = $options['outputOffsetType'];
 		} else {
-			throw new LogicException( 'Unknown transformation.' );
+			ContentUtils::convertOffsets(
+				$env, $doc, $env->getRequestOffsetType(), 'byte'
+			);
+			if ( $update === 'redlinks' ) {
+				( new AddRedLinks() )->run( $env, DOMCompat::getBody( $doc ) );
+			} elseif ( $update === 'variant' ) {
+				// Note that `maybeConvert` could still be a no-op, in case the
+				// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
+				// is a base language code or otherwise invalid.
+				LanguageConverter::maybeConvert(
+					$env, $doc,
+					Utils::mwCodeToBcp47(
+						$options['variant']['target'],
+						// Be strict in what we accept.
+						true, $this->siteConfig->getLogger()
+					),
+					$options['variant']['source'] ?
+					Utils::mwCodeToBcp47(
+						$options['variant']['source'],
+						// Be strict in what we accept.
+						true, $this->siteConfig->getLogger()
+					) : null
+				);
+				// Update content-language and vary headers.
+				// This also ensures there is a <head> element.
+				$ensureHeader = static function ( string $h ) use ( $doc ) {
+					$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$h}\"i]" );
+					if ( !$el ) {
+						$el = DOMUtils::appendToHead( $doc, 'meta', [
+							'http-equiv' => $h,
+						] );
+					}
+					return $el;
+				};
+				( $ensureHeader( 'content-language' ) )->setAttribute(
+					'content', $env->htmlContentLanguageBcp47()->toBcp47Code()
+				);
+				( $ensureHeader( 'vary' ) )->setAttribute(
+					'content', $env->htmlVary()
+				);
+			} else {
+				throw new LogicException( 'Unknown transformation.' );
+			}
+			( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 		}
-		( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
 				'discardDataParsoid' => $env->discardDataParsoid,

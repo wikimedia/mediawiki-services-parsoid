@@ -140,7 +140,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$dataAccess = new MockDataAccess( $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$pageContent = new MockPageContent( [ 'main' => '' ] );
+		$pageContent = new MockPageContent( [ 'main' => $testOpts['pageContent'] ?? '' ] );
 		$pageConfig = new MockPageConfig( [
 			'pageLanguage' => $testOpts['pageLanguage'] ?? 'en'
 		], $pageContent );
@@ -166,6 +166,46 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	public function providePb2Pb() {
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
+			[
+				'convertoffsets',
+				[
+					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
+					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
+					'mw' => null,
+				],
+				[
+					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
+					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
+					'mw' => '{"ids":[]}',
+					'version' => self::$defaultContentVersion,
+				],
+				[
+					'inputOffsetType' => 'byte',
+					'outputOffsetType' => 'ucs2',
+					'pageContent' => "La Luna è l'unico satellite naturale della Terra\n\nLa Luna è l'unico satellite naturale della Terra",
+					'body_only' => true
+				]
+			],
+			[
+				'convertoffsets',
+				[
+					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
+					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
+					'mw' => null,
+				],
+				[
+					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
+					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
+					'mw' => '{"ids":[]}',
+					'version' => self::$defaultContentVersion,
+				],
+				[
+					'inputOffsetType' => 'ucs2',
+					'outputOffsetType' => 'byte',
+					'pageContent' => "La Luna è l'unico satellite naturale della Terra\n\nLa Luna è l'unico satellite naturale della Terra",
+					'body_only' => true
+				]
+			],
 			[
 				'redlinks',
 				[
