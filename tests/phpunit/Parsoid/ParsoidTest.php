@@ -170,18 +170,20 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				'convertoffsets',
 				[
 					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
-					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
+					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
 					'mw' => null,
 				],
 				[
 					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
-					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
+					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
 					'mw' => '{"ids":[]}',
 					'version' => self::$defaultContentVersion,
 				],
 				[
 					'inputOffsetType' => 'byte',
 					'outputOffsetType' => 'ucs2',
+					// Note the accented e char that is a multi-byte char.
+					// Without the pageContent property, offset conversion will not work.
 					'pageContent' => "La Luna è l'unico satellite naturale della Terra\n\nLa Luna è l'unico satellite naturale della Terra",
 					'body_only' => true
 				]
@@ -190,12 +192,12 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 				'convertoffsets',
 				[
 					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
-					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
+					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,48,0,0]},"mwAQ":{"dsr":[50,98,0,0]}},"offsetType":"ucs2"}',
 					'mw' => null,
 				],
 				[
 					'html' => '<p id="mwAA">La Luna è l\'unico satellite naturale della Terra</p><p id="mwAQ">La Luna è l\'unico satellite naturale della Terra</p>',
-					'parsoid' => '{"counter":-1,"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
+					'parsoid' => '{"counter":2,"ids":{"mwAA":{"dsr":[0,49,0,0]},"mwAQ":{"dsr":[51,100,0,0]}},"offsetType":"byte"}',
 					'mw' => '{"ids":[]}',
 					'version' => self::$defaultContentVersion,
 				],

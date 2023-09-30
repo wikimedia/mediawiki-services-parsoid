@@ -479,12 +479,17 @@ class Parsoid {
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
 		);
 
+		$dataBagPB = DOMDataUtils::getPageBundle( $doc );
 		switch ( $update ) {
 			case 'convertoffsets':
 				ContentUtils::convertOffsets(
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
-				DOMDataUtils::getPageBundle( $doc )->parsoid->offsetType = $options['outputOffsetType'];
+				$dataBagPB->parsoid->offsetType = $options['outputOffsetType'];
+				// TODO: Fix this broken setup.
+				// DataBag has its pageBundle as a staClass (with an object for parsoid & mw)
+				// whereas $pb is a PageBundle Object (with an array for parsoid & mw)
+				$dataBagPB->parsoid->counter = $pb->parsoid['counter'];
 				break;
 
 			case 'redlinks':
@@ -549,7 +554,7 @@ class Parsoid {
 		);
 		$body_only = !empty( $options['body_only'] );
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		DOMDataUtils::injectPageBundle( $doc, DOMDataUtils::getPageBundle( $doc ) );
+		DOMDataUtils::injectPageBundle( $doc, $dataBagPB );
 		$out = ContentUtils::extractDpAndSerialize( $node, [
 			'innerXML' => $body_only,
 		] );
