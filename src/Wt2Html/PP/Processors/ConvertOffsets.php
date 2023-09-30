@@ -39,6 +39,6 @@ class ConvertOffsets implements Wt2HtmlDOMProcessor {
 			LintLogger::convertDSROffsets( $env, $lints, 'byte', $offsetType );
 			$env->setLints( $lints );
 		}
-		DOMDataUtils::getPageBundle( $doc )->parsoid->offsetType = $offsetType;
+		DOMDataUtils::getPageBundle( $doc )->parsoid['offsetType'] = $offsetType;
 	}
 }

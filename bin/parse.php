@@ -746,10 +746,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$doc = DOMUtils::parseHTML( $html->html );
 				DOMDataUtils::injectPageBundle(
 					$doc,
-					PHPUtils::arrayToObject( [
-						'parsoid' => $html->parsoid,
-						'mw' => $html->mw,
-					] ) );
+					new PageBundle( '', $html->parsoid, $html->mw )
+				);
 				$html = ContentUtils::toXML( $doc );
 			}
 			$this->output( $this->maybeNormalize( $html ) );

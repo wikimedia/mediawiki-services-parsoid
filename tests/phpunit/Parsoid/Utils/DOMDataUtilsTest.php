@@ -2,6 +2,7 @@
 
 namespace Test\Parsoid\Utils;
 
+use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -19,9 +20,13 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testInjectPageBundle() {
 		$doc = DOMUtils::parseHTML( "Hello, world" );
-		DOMDataUtils::injectPageBundle( $doc, PHPUtils::arrayToObject( [
-			'node-id' => [ 'parsoid' => [ 'rah' => 'rah' ] ],
-		] ) );
+		DOMDataUtils::injectPageBundle( $doc,
+			new PageBundle(
+				'',
+				[ "counter" => -1, "ids" => [] ],
+				[ "ids" => [] ]
+			)
+		);
 		// Note that we use the 'native' getElementById, not
 		// DOMCompat::getElementById, in order to test T232390
 		$el = $doc->getElementById( 'mw-pagebundle' );

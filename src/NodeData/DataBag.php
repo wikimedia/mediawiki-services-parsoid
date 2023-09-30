@@ -3,8 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-use stdClass;
-use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Core\PageBundle;
 
 class DataBag {
 	/**
@@ -18,7 +17,7 @@ class DataBag {
 	/** @var int An id counter for this document used for the dataObject map */
 	private $nodeId;
 
-	/** @var stdClass the page bundle object into which all data-parsoid and data-mw
+	/** @var PageBundle the page bundle object into which all data-parsoid and data-mw
 	 * attributes will be extracted to for pagebundle API requests.
 	 */
 	private $pageBundle;
@@ -34,17 +33,18 @@ class DataBag {
 	public function __construct() {
 		$this->dataObject = [];
 		$this->nodeId = 0;
-		$this->pageBundle = (object)[
-			"parsoid" => PHPUtils::arrayToObject( [ "counter" => -1, "ids" => [] ] ),
-			"mw" => PHPUtils::arrayToObject( [ "ids" => [] ] )
-		];
+		$this->pageBundle = new PageBundle(
+			'',
+			[ "counter" => -1, "ids" => [] ],
+			[ "ids" => [] ]
+		);
 	}
 
 	/**
 	 * Return this document's pagebundle object
-	 * @return stdClass
+	 * @return PageBundle
 	 */
-	public function getPageBundle(): stdClass {
+	public function getPageBundle(): PageBundle {
 		return $this->pageBundle;
 	}
 

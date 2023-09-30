@@ -485,11 +485,8 @@ class Parsoid {
 				ContentUtils::convertOffsets(
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
-				$dataBagPB->parsoid->offsetType = $options['outputOffsetType'];
-				// TODO: Fix this broken setup.
-				// DataBag has its pageBundle as a staClass (with an object for parsoid & mw)
-				// whereas $pb is a PageBundle Object (with an array for parsoid & mw)
-				$dataBagPB->parsoid->counter = $pb->parsoid['counter'];
+				$dataBagPB->parsoid['offsetType'] = $options['outputOffsetType'];
+				$dataBagPB->parsoid['counter'] = $pb->parsoid['counter'];
 				break;
 
 			case 'redlinks':

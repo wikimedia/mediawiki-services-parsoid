@@ -9,6 +9,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -440,9 +441,9 @@ class DOMDataUtils {
 	/**
 	 * Get this document's pagebundle object
 	 * @param Document $doc
-	 * @return stdClass
+	 * @return PageBundle
 	 */
-	public static function getPageBundle( Document $doc ): stdClass {
+	public static function getPageBundle( Document $doc ): PageBundle {
 		return self::getBag( $doc )->getPageBundle();
 	}
 
@@ -465,41 +466,41 @@ class DOMDataUtils {
 		$uid = $node->getAttribute( 'id' ) ?? '';
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
-		$docDp = $pb->parsoid;
+		$docDp = &$pb->parsoid;
 		$origId = $uid ?: null;
-		if ( array_key_exists( $uid, $docDp->ids ) ) {
+		if ( array_key_exists( $uid, $docDp['ids'] ) ) {
 			$uid = null;
 			// FIXME: Protect mw ids while tokenizing to avoid false positives.
 			$env->log( 'info', 'Wikitext for this page has duplicate ids: ' . $origId );
 		}
 		if ( !$uid ) {
 			do {
-				$docDp->counter += 1;
+				$docDp['counter'] = $docDp['counter'] + 1;
 				// PORT-FIXME: NOTE that we aren't updating the idIndex here because
 				// we are generating unique ids that will not conflict. In any case,
 				// the idIndex is a workaround for the PHP DOM's issues and we might
 				// switch out of this in the future anyway.
-				$uid = 'mw' . PHPUtils::counterToBase64( $docDp->counter );
+				$uid = 'mw' . PHPUtils::counterToBase64( $docDp['counter'] );
 			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
-		$docDp->ids[$uid] = $data->parsoid;
+		$docDp['ids'][$uid] = $data->parsoid;
 		if ( isset( $data->mw ) ) {
-			$pb->mw->ids[$uid] = $data->mw;
+			$pb->mw['ids'][$uid] = $data->mw;
 		}
 	}
 
 	/**
 	 * @param Document $doc doc
-	 * @param stdClass $obj object
+	 * @param PageBundle $pb object
 	 */
-	public static function injectPageBundle( Document $doc, stdClass $obj ): void {
-		$pb = PHPUtils::jsonEncode( $obj );
+	public static function injectPageBundle( Document $doc, PageBundle $pb ): void {
+		$pbJson = PHPUtils::jsonEncode( [ 'parsoid' => $pb->parsoid ?? [], 'mw' => $pb->mw ?? [] ] );
 		$script = DOMUtils::appendToHead( $doc, 'script', [
 			'id' => 'mw-pagebundle',
 			'type' => 'application/x-mw-pagebundle',
 		] );
-		$script->appendChild( $doc->createTextNode( $pb ) );
+		$script->appendChild( $doc->createTextNode( $pbJson ) );
 	}
 
 	/**
