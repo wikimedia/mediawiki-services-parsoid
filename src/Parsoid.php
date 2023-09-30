@@ -478,18 +478,27 @@ class Parsoid {
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
 		);
-		if ( $update === 'convertoffsets' ) {
-			ContentUtils::convertOffsets(
-				$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
-			);
-			DOMDataUtils::getPageBundle( $doc )->parsoid->offsetType = $options['outputOffsetType'];
-		} else {
-			ContentUtils::convertOffsets(
-				$env, $doc, $env->getRequestOffsetType(), 'byte'
-			);
-			if ( $update === 'redlinks' ) {
+
+		switch ( $update ) {
+			case 'convertoffsets':
+				ContentUtils::convertOffsets(
+					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
+				);
+				DOMDataUtils::getPageBundle( $doc )->parsoid->offsetType = $options['outputOffsetType'];
+				break;
+
+			case 'redlinks':
+				ContentUtils::convertOffsets(
+					$env, $doc, $env->getRequestOffsetType(), 'byte'
+				);
 				( new AddRedLinks() )->run( $env, DOMCompat::getBody( $doc ) );
-			} elseif ( $update === 'variant' ) {
+				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
+				break;
+
+			case 'variant':
+				ContentUtils::convertOffsets(
+					$env, $doc, $env->getRequestOffsetType(), 'byte'
+				);
 				// Note that `maybeConvert` could still be a no-op, in case the
 				// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
 				// is a base language code or otherwise invalid.
@@ -524,11 +533,13 @@ class Parsoid {
 				( $ensureHeader( 'vary' ) )->setAttribute(
 					'content', $env->htmlVary()
 				);
-			} else {
-				throw new LogicException( 'Unknown transformation.' );
-			}
-			( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
+				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
+				break;
+
+			default:
+				throw new LogicException( $update . 'is an unknown transformation' );
 		}
+
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
 				'discardDataParsoid' => $env->discardDataParsoid,
