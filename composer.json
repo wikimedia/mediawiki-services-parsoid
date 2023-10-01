@@ -25,7 +25,7 @@
 	},
 	"require": {
 		"composer-runtime-api": "^2.0",
-		"composer/semver": "3.3.2",
+		"composer/semver": "^3.3.2",
 		"liuggio/statsd-php-client": "^1.0.18",
 		"php": ">=7.4.0",
 		"psr/container": "~1.1.1 || ~2.0.2",
