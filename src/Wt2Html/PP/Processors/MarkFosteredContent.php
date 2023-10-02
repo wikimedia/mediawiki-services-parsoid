@@ -226,15 +226,17 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 					$table->parentNode->insertBefore( $fosterContentHolder, $table );
 				}
 
-				foreach ( $fosteredElements as $elem ) {
-					'@phan-var Element $elem';
-					self::moveEndAnnotationsAfter( $elem, $table );
-				}
-
 				// we have fostered transclusions
 				// wrap the whole thing in a transclusion
 				if ( $fosteredTransclusions ) {
 					self::insertTransclusionMetas( $env, $c, $table );
+				}
+
+				// this needs to happen after inserting the transclusion meta so that they get
+				// included in the transclusion
+				foreach ( $fosteredElements as $elem ) {
+					'@phan-var Element $elem';
+					self::moveEndAnnotationsAfter( $elem, $table );
 				}
 
 				// remove the foster box
