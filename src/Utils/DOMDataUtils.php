@@ -455,6 +455,9 @@ class DOMDataUtils {
 	 * ```
 	 * but attempts to keep user defined ids.
 	 *
+	 * TODO: Note that $data is effective a partial PageBundle containing
+	 * only the 'parsoid' and 'mw' properties.
+	 *
 	 * @param Element $node node
 	 * @param Env $env environment
 	 * @param stdClass $data data
@@ -495,12 +498,11 @@ class DOMDataUtils {
 	 * @param PageBundle $pb object
 	 */
 	public static function injectPageBundle( Document $doc, PageBundle $pb ): void {
-		$pbJson = PHPUtils::jsonEncode( [ 'parsoid' => $pb->parsoid ?? [], 'mw' => $pb->mw ?? [] ] );
 		$script = DOMUtils::appendToHead( $doc, 'script', [
 			'id' => 'mw-pagebundle',
 			'type' => 'application/x-mw-pagebundle',
 		] );
-		$script->appendChild( $doc->createTextNode( $pbJson ) );
+		$script->appendChild( $doc->createTextNode( $pb->encodeForHeadElement() ) );
 	}
 
 	/**

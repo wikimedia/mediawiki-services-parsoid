@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * PORT-FIXME: This is just a placeholder for data that was previously passed
@@ -154,4 +155,11 @@ class PageBundle {
 		);
 	}
 
+	/**
+	 * Encode some of these properties for emitting in the <heaad> element of a doc
+	 * @return string
+	 */
+	public function encodeForHeadElement(): string {
+		return PHPUtils::jsonEncode( [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ] );
+	}
 }
