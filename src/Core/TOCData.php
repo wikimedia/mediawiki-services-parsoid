@@ -3,6 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Utils\CompatJsonCodec;
+
 /**
  * Table of Contents data, including an array of section metadata.
  *
@@ -10,7 +14,9 @@ namespace Wikimedia\Parsoid\Core;
  * with extension data, but may include additional ToC properties in
  * the future.
  */
-class TOCData implements \JsonSerializable {
+class TOCData implements \JsonSerializable, JsonCodecable {
+	use JsonCodecableTrait;
+
 	/**
 	 * The sections in this Table of Contents.
 	 * @var SectionMetadata[]
@@ -282,6 +288,35 @@ class TOCData implements \JsonSerializable {
 		];
 	}
 
+	// JsonCodecable interface
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		return [
+			'sections' => $this->sections,
+			'extensionData' => $this->extensionData,
+		];
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		$tocData = new TOCData( ...$json['sections'] );
+		foreach ( $json['extensionData'] as $key => $value ) {
+			$tocData->setExtensionData( $key, $value );
+		}
+		return $tocData;
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyName ): ?string {
+		if ( $keyName === 'sections' ) {
+			return SectionMetadata::class . '[]';
+		}
+		return null;
+	}
+
+	// Pretty-printing
+
 	/**
 	 * For use in parser tests and wherever else humans might appreciate
 	 * some formatting in the JSON encoded output.
@@ -294,9 +329,8 @@ class TOCData implements \JsonSerializable {
 		}
 		if ( $this->extensionData ) {
 			$out[] = "Extension Data:";
-			// XXX: This should use a codec; extension data might
-			// require special serialization.
-			$out[] = json_encode( $this->extensionData );
+			$codec = new CompatJsonCodec();
+			$out[] = json_encode( $codec->toJsonArray( $this->extensionData ) );
 		}
 		return implode( "\n", $out );
 	}

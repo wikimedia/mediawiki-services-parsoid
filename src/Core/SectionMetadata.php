@@ -3,6 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Utils\CompatJsonCodec;
+
 /**
  * Section metadata for generating TOC.
  *
@@ -19,7 +23,9 @@ namespace Wikimedia\Parsoid\Core;
  * Linker.php::tocLine() and ::makeHeadline() demonstrate how these
  * properties are used to create headings and table of contents lines.
  */
-class SectionMetadata implements \JsonSerializable {
+class SectionMetadata implements \JsonSerializable, JsonCodecable {
+	use JsonCodecableTrait;
+
 	/**
 	 * The heading tag level: a 1 here means an <H1> tag was used, a
 	 * 2 means an <H2> tag was used, etc.
@@ -339,6 +345,62 @@ class SectionMetadata implements \JsonSerializable {
 		return $this->toLegacy();
 	}
 
+	// JsonCodecable interface
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		$ret = [];
+		if ( $this->tocLevel !== 0 ) {
+			$ret['tocLevel'] = $this->tocLevel;
+		}
+		if ( $this->hLevel !== -1 ) {
+			$ret['hLevel'] = $this->hLevel;
+		}
+		if ( $this->line !== '' ) {
+			$ret['line'] = $this->line;
+		}
+		if ( $this->number !== '' ) {
+			$ret['number'] = $this->number;
+		}
+		if ( $this->index !== '' ) {
+			$ret['index'] = $this->index;
+		}
+		if ( $this->fromTitle !== null ) {
+			$ret['fromTitle'] = $this->fromTitle;
+		}
+		if ( $this->codepointOffset !== null ) {
+			$ret['codepointOffset'] = $this->codepointOffset;
+		}
+		if ( $this->anchor !== '' ) {
+			$ret['anchor'] = $this->anchor;
+		}
+		if ( $this->linkAnchor !== $this->anchor ) {
+			$ret['linkAnchor'] = $this->linkAnchor;
+		}
+		if ( $this->extensionData ) {
+			$ret['extensionData'] = $this->extensionData;
+		}
+		return $ret;
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		return new SectionMetadata(
+			$json['tocLevel'] ?? 0,
+			$json['hLevel'] ?? -1,
+			$json['line'] ?? '',
+			$json['number'] ?? '',
+			$json['index'] ?? '',
+			$json['fromTitle'] ?? null,
+			$json['codepointOffset'] ?? null,
+			$json['anchor'] ?? '',
+			$json['linkAnchor'] ?? $json['anchor'] ?? '',
+			$json['extensionData'] ?? null
+		);
+	}
+
+	// Pretty-printing
+
 	/**
 	 * For use in parser tests and wherever else humans might appreciate
 	 * some formatting in the JSON encoded output. For now, nothing special.
@@ -370,9 +432,8 @@ class SectionMetadata implements \JsonSerializable {
 
 		# Extension data
 		if ( $this->extensionData ) {
-			# This should go through a JsonCodec, as it might have
-			# data which requires special serialization.
-			$buf .= " ext:" . json_encode( $this->extensionData );
+			$codec = new CompatJsonCodec();
+			$buf .= " ext:" . json_encode( $codec->toJsonArray( $this->extensionData ) );
 		}
 
 		return $buf;
