@@ -184,18 +184,21 @@ class DOMDataUtils {
 	 * @return DataMwI18n|null
 	 */
 	private static function getDataMwI18n( Element $node ): ?DataMwI18n {
-		$data = self::getNodeData( $node );
-		// We won't set a default value for this property
-		return $data->i18n ?? null;
+		// No default value; returns null if not present.
+		return self::getAttributeObject( $node, 'data-mw-i18n', DataMwI18n::hint() );
 	}
 
 	/**
-	 * Sets the i18n information of a node. This is in private access because it shouldn't
-	 * typically be used directly; instead setDataNodeI18n and setDataAttrI18n should be used.
+	 * Returns the i18n information of a node, setting it to a default
+	 * value if it is missing.  This should not typically be used
+	 * directly; instead setDataNodeI18n and setDataAttrI18n should be
+	 * used.
+	 *
+	 * @param Element $node
+	 * @return DataMwI18n $i18n
 	 */
-	private static function setDataMwI18n( Element $node, DataMwI18n $i18n ) {
-		$data = self::getNodeData( $node );
-		$data->i18n = $i18n;
+	private static function getDataMwI18nDefault( Element $node ): DataMwI18n {
+		return self::getAttributeObjectDefault( $node, 'data-mw-i18n', DataMwI18n::hint() );
 	}
 
 	/**
@@ -204,21 +207,22 @@ class DOMDataUtils {
 	 * @return ?I18nInfo
 	 */
 	public static function getDataNodeI18n( Element $node ): ?I18nInfo {
-		$data = self::getNodeData( $node );
-		// We won't set a default value for this property
-		if ( !isset( $data->i18n ) ) {
+		$i18n = self::getDataMwI18n( $node );
+		if ( $i18n === null ) {
 			return null;
 		}
-		return $data->i18n->getSpanInfo();
+		return $i18n->getSpanInfo();
 	}
 
 	/**
 	 * Sets internationalization (i18n) information of a node, used for later localization
+	 * @param Element $node
+	 * @param I18nInfo $info
+	 * @return void
 	 */
-	public static function setDataNodeI18n( Element $node, I18nInfo $i18n ) {
-		$data = self::getNodeData( $node );
-		$data->i18n ??= new DataMwI18n();
-		$data->i18n->setSpanInfo( $i18n );
+	public static function setDataNodeI18n( Element $node, I18nInfo $info ) {
+		$i18n = self::getDataMwI18nDefault( $node );
+		$i18n->setSpanInfo( $info );
 	}
 
 	/**
@@ -229,12 +233,11 @@ class DOMDataUtils {
 	 * @return ?I18nInfo
 	 */
 	public static function getDataAttrI18n( Element $node, string $name ): ?I18nInfo {
-		$data = self::getNodeData( $node );
-		// We won't set a default value for this property
-		if ( !isset( $data->i18n ) ) {
+		$i18n = self::getDataMwI18n( $node );
+		if ( $i18n === null ) {
 			return null;
 		}
-		return $data->i18n->getAttributeInfo( $name );
+		return $i18n->getAttributeInfo( $name );
 	}
 
 	/**
@@ -242,12 +245,12 @@ class DOMDataUtils {
 	 * localization
 	 * @param Element $node
 	 * @param string $name
-	 * @param I18nInfo $i18n
+	 * @param I18nInfo $info
+	 * @return void
 	 */
-	public static function setDataAttrI18n( Element $node, string $name, I18nInfo $i18n ) {
-		$data = self::getNodeData( $node );
-		$data->i18n ??= new DataMwI18n();
-		$data->i18n->setAttributeInfo( $name, $i18n );
+	public static function setDataAttrI18n( Element $node, string $name, I18nInfo $info ) {
+		$i18n = self::getDataMwI18nDefault( $node );
+		$i18n->setAttributeInfo( $name, $info );
 	}
 
 	/**
@@ -255,12 +258,12 @@ class DOMDataUtils {
 	 * @return array
 	 */
 	public static function getDataAttrI18nNames( Element $node ): array {
-		$data = self::getNodeData( $node );
-		// We won't set a default value for this property
-		if ( !isset( $data->i18n ) ) {
+		$i18n = self::getDataMwI18n( $node );
+		if ( $i18n === null ) {
+			// We won't set a default value for this property
 			return [];
 		}
-		return $data->i18n->getAttributeNames();
+		return $i18n->getAttributeNames();
 	}
 
 	/**
@@ -317,15 +320,6 @@ class DOMDataUtils {
 	 */
 	public static function validDataMw( Element $node ): bool {
 		return (array)self::getDataMw( $node ) !== [];
-	}
-
-	/**
-	 * Check if there is i18n info on a node (for the node or its attributes)
-	 * @param Element $node
-	 * @return bool
-	 */
-	public static function validDataMwI18n( Element $node ): bool {
-		return self::getDataMwI18n( $node ) !== null;
 	}
 
 	/**
@@ -584,12 +578,6 @@ class DOMDataUtils {
 		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
 		self::setDataParsoidDiff( $node, $dpd );
 		$node->removeAttribute( 'data-parsoid-diff' );
-		$dataI18n = DOMCompat::getAttribute( $node, 'data-mw-i18n' );
-		if ( $dataI18n !== null ) {
-			$i18n = DataMwI18n::fromJson( PHPUtils::jsonDecode( $dataI18n, true ) );
-			self::setDataMwI18n( $node, $i18n );
-			$node->removeAttribute( 'data-mw-i18n' );
-		}
 
 		// We don't load rich attributes here: that will be done lazily as
 		// getAttributeObject()/etc methods are called because we don't
@@ -729,10 +717,6 @@ class DOMDataUtils {
 					)
 				);
 			}
-		}
-
-		if ( self::validDataMwI18n( $node ) ) {
-			self::setJSONAttribute( $node, 'data-mw-i18n', self::getDataMwI18n( $node ) );
 		}
 
 		// Serialize the rest of the rich attributes

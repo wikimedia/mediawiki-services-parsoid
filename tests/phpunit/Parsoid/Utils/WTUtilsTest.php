@@ -108,6 +108,39 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * @covers ::addInterfaceI18nAttribute
+	 * @covers ::addPageContentI18nAttribute
+	 * @return void
+	 */
+	public function testAddI18nAttributesNumeric() {
+		// Passing this test depends on Ie63649f5b6717eb8e1c8fbaa030ea0042de59b3a
+		// which is in wikimedia/json-codec 3.0.2
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( "<html><body><span>hello</span></body></html>" );
+		DOMDataUtils::prepareDoc( $doc );
+		$span = DOMCompat::getBody( $doc )->firstChild;
+		WTUtils::addPageContentI18nAttribute( $span, '0', 'key1' );
+		WTUtils::addInterfaceI18nAttribute( $span, '1', 'key2', [ 'Foo' ] );
+		DOMDataUtils::visitAndStoreDataAttribs( $doc, [ 'discardDataParsoid' => true ] );
+		$actualHtml = DOMCompat::getInnerHTML( DOMCompat::getBody( $doc ) );
+		$expectedHtml = '<span typeof="mw:LocalizedAttrs" ' .
+			'data-mw-i18n=\'{' .
+			'"0":{"lang":"x-page","key":"key1","params":null},' .
+			'"1":{"lang":"x-user","key":"key2","params":["Foo"]}' .
+			// Note that this was serialized as an object even though
+			// the keys are all numeric.
+			'}\'>hello</span>';
+		self::assertEquals( $expectedHtml, $actualHtml );
+
+		DOMDataUtils::visitAndLoadDataAttribs( $doc );
+		$span = DOMCompat::getBody( $doc )->firstChild;
+		$attrI18n = DOMDataUtils::getDataAttrI18n( $span, '0' );
+		self::assertNotNull( $attrI18n );
+		$attrI18n = DOMDataUtils::getDataAttrI18n( $span, '1' );
+		self::assertNotNull( $attrI18n );
+	}
+
+	/**
 	 * This also tests the storage/loading of mw-data-i18n attributes in the databag.
 	 * @covers ::addPageContentI18nAttribute
 	 * @covers ::createInterfaceI18nFragment

@@ -3,13 +3,18 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Utils\RichCodecable;
+
 /**
  * data-mw-i18n information, used for internationalization. This data is used to represent the
  * information necessary for later localization of messages (in spans) or element attributes values.
  */
-class DataMwI18n implements \JsonSerializable {
+class DataMwI18n implements RichCodecable {
+	use JsonCodecableTrait;
 
-	/** @var array */
+	/** @var array<string,I18nInfo> */
 	private $i18nInfo = [];
 
 	/**
@@ -59,15 +64,41 @@ class DataMwI18n implements \JsonSerializable {
 		$this->i18nInfo[$name] = $info;
 	}
 
-	public function jsonSerialize(): array {
+	// Rich attribute serialization support.
+
+	/**
+	 * Return a default value for an unset data-mw-i18n attribute.
+	 * @return DataMwI18n
+	 */
+	public static function defaultValue(): DataMwI18n {
+		return new DataMwI18n;
+	}
+
+	public static function hint(): Hint {
+		return Hint::build( self::class, Hint::ALLOW_OBJECT );
+	}
+
+	/** @inheritDoc */
+	public function flatten(): ?string {
+		return null;
+	}
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
 		return $this->i18nInfo;
 	}
 
-	public static function fromJson( array $json ): DataMwI18n {
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
 		$i18n = new DataMwI18n();
 		foreach ( $json as $k => $v ) {
-			$i18n->i18nInfo[$k] = new I18nInfo( $v['lang'], $v['key'], $v['params'] );
+			$i18n->i18nInfo[$k] = $v;
 		}
 		return $i18n;
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyName ): ?string {
+		return I18nInfo::class;
 	}
 }
