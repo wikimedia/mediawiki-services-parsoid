@@ -34,9 +34,10 @@ class Language {
 	public static function isValidInternalCode( string $code ): bool {
 		static $validityCache = [];
 		if ( !isset( $validityCache[$code] ) ) {
-			// XXX PHP version also checks against
-			// MediaWikiTitleCodex::getTitleInvalidRegex()
-			$validityCache[$code] = ( preg_match( '/^[^:\\/\\\\\\000&<>\'"]+$/D', $code ) === 1 );
+			$validityCache[$code] = strcspn( $code, ":/\\\000&<>'\"" ) === strlen( $code ) &&
+				// XXX Core's version also checks against
+				// !preg_match( MediaWikiTitleCodec::getTitleInvalidRegex(), $code ) &&
+				strlen( $code ) <= 128;
 		}
 		return $validityCache[$code];
 	}
