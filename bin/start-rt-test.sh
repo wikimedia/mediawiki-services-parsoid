@@ -19,7 +19,7 @@ testid=$(echo -n "$testid" | head -c 8)
 
 # Update code on scandium since RT testing scripts will hit the Parsoid REST API on scandium
 echo "---- Updating code on scandium ----"
-ssh $uid@scandium.eqiad.wmnet <<EOF
+ssh "$uid"@scandium.eqiad.wmnet <<"EOF"
 # No unset vars + early exit on error
 set -eu -o pipefail
 
@@ -32,7 +32,7 @@ sudo systemctl restart php7.4-fpm.service
 EOF
 
 echo "---- Starting test run $testid on testreduce1001 ----"
-ssh $uid@testreduce1001.eqiad.wmnet <<EOF
+ssh "$uid"@testreduce1001.eqiad.wmnet <<"EOF"
 # No unset vars + early exit on error
 set -eu -o pipefail
 

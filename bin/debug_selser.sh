@@ -11,4 +11,4 @@
 # So, you will want to pipe both stdout and stderr through less.
 # You can copy this commandline to omit "--trace selser" if you dont want the verbose output.
 
-php $(dirname $0)/parserTests.php --selser auto --dump dom:post-changes --knownFailures false --trace selser,wt-escape --filter "$1" --changetree "$2" $3
+php "$(dirname "$0")"/parserTests.php --selser auto --dump dom:post-changes --knownFailures false --trace selser,wt-escape --filter "$1" --changetree "$2" "$3"
