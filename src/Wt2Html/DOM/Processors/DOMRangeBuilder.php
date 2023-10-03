@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
@@ -968,9 +969,10 @@ class DOMRangeBuilder {
 						// to other transclusions. Should match the index of
 						// the corresponding private metadata in $templateInfos.
 						$args = $a->info->getDataMw( $infoIndex++ );
+						// XXX DataMwPart should take a TemplateInfo directly
 						$parts[] = $a->isParam
-							? (object)[ 'templatearg' => $args ]
-							: (object)[ 'template' => $args ];
+							? new DataMwPart( [ 'templatearg' => $args ] )
+							: new DataMwPart( [ 'template' => $args ] );
 						// FIXME: we throw away the array keys and rebuild them
 						// again in WikitextSerializer
 						$pi[] = array_values( $a->info->paramInfos );

@@ -11,11 +11,11 @@ use stdClass;
  * To reduce memory usage, most of the properties need to be dynamic, but
  * we use the property declarations below to allow type checking.
  *
- * @property list<string|stdClass> $parts
+ * @property list<string|DataMwPart> $parts
  * @property string $name
  * @property string $extPrefix
  * @property string $extSuffix
- * @property list $attribs
+ * @property list<array{stdClass,stdClass}> $attribs
  * @property string $src
  * @property string $caption
  * @property string $thumb
@@ -38,10 +38,15 @@ use stdClass;
 class DataMw {
 	public function __construct( array $initialVals = [] ) {
 		foreach ( $initialVals as $k => $v ) {
-			// @phan-suppress-next-line PhanNoopSwitchCases
 			switch ( $k ) {
-				// Add cases here for components which should be instantiated
-				// as proper classes.
+				case 'parts':
+					$this->parts = array_map( static function ( $part ) {
+						if ( is_string( $part ) ) {
+							return $part;
+						}
+						return new DataMwPart( (array)$part );
+					}, $v );
+					break;
 				default:
 					$this->$k = $v;
 					break;

@@ -5,6 +5,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use stdClass;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -12,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
@@ -191,18 +193,23 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// a non-string representation for them and a change in spec along with
 		// a version bump and all that song and dance. If linting accuracy in these
 		// scenarios become a problem, we can revisit this.
-		if ( !empty( $dmw->parts ) && count( $dmw->parts ) === 1 ) {
+		if (
+			!empty( $dmw->parts ) &&
+			count( $dmw->parts ) === 1
+		) {
 			$p0 = $dmw->parts[0];
-			// If just a single part (guaranteed with count above), it will be stdclass
-			'@phan-var \stdClass $p0';
+			if ( !( $p0 instanceof DataMwPart ) ) {
+				throw new UnreachableException(
+					"a single part will always be a DataMwPart not a string"
+				);
+			}
 			$name = null;
-			if ( !empty( $p0->template->target->href ) ) { // Could be "function"
+			if ( !empty( $p0->target->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = PHPUtils::stripPrefix( $p0->template->target->href, './' );
-			} elseif ( !empty( $p0->template ) ) {
-				$name = trim( $p0->template->target->wt );
+				$name = PHPUtils::stripPrefix( $p0->target->href, './' );
 			} else {
-				$name = trim( $p0->templatearg->target->wt );
+				// type === 'templatearg' or 'template'
+				$name = trim( $p0->target->wt );
 			}
 			return [ 'name' => $name ];
 		} else {

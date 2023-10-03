@@ -18,6 +18,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandlerFactory;
+use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -640,20 +641,22 @@ class WikitextSerializer {
 	 * @param SerializerState $state
 	 * @param string $buf
 	 * @param Element $node
-	 * @param string $type The type of the part to be serialized. One of template, templatearg,
-	 *   parserfunction.
-	 * @param stdClass $part The expression fragment to serialize. See $srcParts
+	 * @param DataMwPart $part The expression fragment to serialize. See $srcParts
 	 *   in serializeFromParts() for format.
 	 * @param ?array $tplData Templatedata, see
 	 *   https://github.com/wikimedia/mediawiki-extensions-TemplateData/blob/master/Specification.md
-	 * @param mixed $prevPart Previous part. See $srcParts in serializeFromParts().
-	 * @param mixed $nextPart Next part. See $srcParts in serializeFromParts().
+	 * @param string|DataMwPart $prevPart Previous part. See $srcParts in serializeFromParts().
+	 * @param string|DataMwPart $nextPart Next part. See $srcParts in serializeFromParts().
 	 * @return string
 	 */
 	private function serializePart(
-		SerializerState $state, string $buf, Element $node, string $type, stdClass $part,
+		SerializerState $state, string $buf, Element $node, DataMwPart $part,
 		?array $tplData, $prevPart, $nextPart
 	): string {
+		$type = $part->type;
+		if ( isset( $part->target->function ) ) {
+			$type = 'parserfunction';
+		}
 		// Parse custom format specification, if present.
 		$defaultBlockSpc = "{{_\n| _ = _\n}}"; // "block"
 		$defaultInlineSpc = '{{_|_=_}}'; // "inline"
@@ -908,7 +911,7 @@ class WikitextSerializer {
 	 * Serialize a template from its parts.
 	 * @param SerializerState $state
 	 * @param Element $node
-	 * @param list<stdClass|string> $srcParts Template parts from TemplateInfo::getDataMw()
+	 * @param list<string|DataMwPart> $srcParts Template parts from TemplateInfo::getDataMw()
 	 * @return string
 	 */
 	public function serializeFromParts(
@@ -925,10 +928,7 @@ class WikitextSerializer {
 			$prevPart = $srcParts[$i - 1] ?? null;
 			$nextPart = $srcParts[$i + 1] ?? null;
 
-			$isTplArg = isset( $part->templatearg );
-			$tpl = $part->templatearg ?? $part->template ?? null;
-
-			if ( !isset( $tpl->target->wt ) ) {
+			if ( !isset( $part->target->wt ) ) {
 				// Maybe we should just raise a ClientError
 				$this->env->log( 'error', 'data-mw.parts array is malformed: ',
 					DOMCompat::getOuterHTML( $node ), PHPUtils::jsonEncode( $srcParts ) );
@@ -937,20 +937,20 @@ class WikitextSerializer {
 
 			// Account for clients leaving off the params array, presumably when empty.
 			// See T291741
-			$tpl->params ??= (object)[];
+			$part->params ??= (object)[];
 
-			if ( $isTplArg ) {
+			if ( $part->type === 'templatearg' ) {
 				$buf = $this->serializePart(
-					$state, $buf, $node, 'templatearg', $tpl, null, $prevPart,
+					$state, $buf, $node, $part, null, $prevPart,
 					$nextPart
 				);
 				continue;
 			}
 
-			// transclusion: tpl or parser function
-			$tplHref = $tpl->target->href ?? null;
-			$isTpl = is_string( $tplHref );
-			$type = $isTpl ? 'template' : 'parserfunction';
+			// transclusion: tpl or parser function?
+			// templates have $part->target->href
+			// parser functions have $part->target->function
+			$tplHref = $part->target->href ?? null;
 
 			// While the API supports fetching multiple template data objects in one call,
 			// we will fetch one at a time to benefit from cached responses.
@@ -958,7 +958,8 @@ class WikitextSerializer {
 			// Fetch template data for the template
 			$tplData = null;
 			$apiResp = null;
-			if ( $isTpl && $useTplData ) {
+			if ( $tplHref !== null && $useTplData ) {
+				// Not a parser function
 				try {
 					$title = Title::newFromText(
 						PHPUtils::stripPrefix( Utils::decodeURIComponent( $tplHref ), './' ),
@@ -975,7 +976,7 @@ class WikitextSerializer {
 			if ( !empty( $tplData['missing'] ) || !empty( $tplData['notemplatedata'] ) ) {
 				$tplData = null;
 			}
-			$buf = $this->serializePart( $state, $buf, $node, $type, $tpl, $tplData, $prevPart, $nextPart );
+			$buf = $this->serializePart( $state, $buf, $node, $part, $tplData, $prevPart, $nextPart );
 		}
 		return $buf;
 	}

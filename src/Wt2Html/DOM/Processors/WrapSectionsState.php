@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
@@ -15,6 +16,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -99,18 +101,21 @@ class WrapSectionsState {
 				$metadata->fromTitle = null;
 			} else {
 				$p0 = $dmw->parts[0];
-				// If just a single part (guaranteed with count above), it will be stdclass
-				'@phan-var \stdClass $p0';
-				if ( !empty( $p0->templatearg ) ) {
+				if ( !( $p0 instanceof DataMwPart ) ) {
+					throw new UnreachableException(
+						"a single part will always be a DataMwPart not a string"
+					);
+				}
+				if ( $p0->type === 'templatearg' ) {
 					// Since we currently don't process templates in Parsoid,
 					// this has to be a top-level {{{...}}} and so the content
 					// comes from the current page. But, legacy parser returns 'false'
 					// for this, so we'll return null as well instead of current title.
 					$metadata->fromTitle = null;
-				} elseif ( !empty( $p0->template->target->href ) ) {
+				} elseif ( !empty( $p0->target->href ) ) {
 					// Pick template title, but strip leading "./" prefix
 					$metadata->fromTitle = preg_replace(
-						"#^./#", "", $p0->template->target->href );
+						"#^./#", "", $p0->target->href );
 					if ( $this->sectionNumber >= 0 ) {
 						// Legacy parser sets this to '' in some cases
 						// See "Templated sections (heading from template arg)" parser test
@@ -507,7 +512,7 @@ class WrapSectionsState {
 
 	/**
 	 * FIXME: Duplicated with TableFixups code.
-	 * @param array &$parts
+	 * @param list<string|DataMwPart> &$parts
 	 * @param ?int $offset1
 	 * @param ?int $offset2
 	 * @throws InternalException
@@ -556,18 +561,13 @@ class WrapSectionsState {
 					// Assimilate $encapNode's data-mw and data-parsoid pi info
 					$dmw = DOMDataUtils::getDataMw( $encapNode );
 					foreach ( $dmw->parts ?? [] as $part ) {
-						'@phan-var string|\stdClass $part';
 						// Template index is relative to other transclusions.
 						// This index is used to extract whitespace information from
 						// data-parsoid and that array only includes info for templates.
 						// So skip over strings here.
 						if ( !is_string( $part ) ) {
 							$part = clone $part;
-							if ( isset( $part->template ) ) {
-								$part->template->i = $index++;
-							} else {
-								$part->templatearg->i = $index++;
-							}
+							$part->i = $index++;
 						}
 						$parts[] = $part;
 					}
@@ -591,7 +591,9 @@ class WrapSectionsState {
 			DOMUtils::addTypeOf( $wrapper, "mw:Transclusion" );
 			$wrapperDp->pi = $pi;
 			$this->fillDSRGap( $parts, $prevDp->dsr->end, $wrapperDp->dsr->end );
-			DOMDataUtils::setDataMw( $wrapper, new DataMw( [ 'parts' => $parts ] ) );
+			$dataMw = new DataMw( [] );
+			$dataMw->parts = $parts;
+			DOMDataUtils::setDataMw( $wrapper, $dataMw );
 		} catch ( InternalException $e ) {
 			// We don't have accurate template wrapping information.
 			// Set typeof to 'mw:Placeholder' since 'mw:Transclusion'

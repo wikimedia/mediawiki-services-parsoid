@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -12,6 +11,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -103,7 +103,7 @@ class TableFixups {
 	}
 
 	/**
-	 * @param list<string|stdClass> &$parts
+	 * @param list<string|DataMwPart> &$parts
 	 * @param Frame $frame
 	 * @param int $offset1
 	 * @param int $offset2
@@ -157,20 +157,15 @@ class TableFixups {
 			// Assimilate $tpl's data-mw and data-parsoid pi info
 			$dmw = DOMDataUtils::getDataMw( $tpl );
 			foreach ( $dmw->parts ?? [] as $part ) {
-				'@phan-var string|stdClass $part';
 				// Template index is relative to other transclusions.
 				// This index is used to extract whitespace information from
 				// data-parsoid and that array only includes info for templates.
 				// So skip over strings here.
 				if ( !is_string( $part ) ) {
-					// Cloning is strictly not needed here, but mimicing
+					// Cloning is strictly not needed here, but mimicking
 					// code in WrapSectionsState.php
 					$part = clone $part;
-					if ( isset( $part->template ) ) {
-						$part->template->i = $index++;
-					} else {
-						$part->templatearg->i = $index++;
-					}
+					$part->i = $index++;
 				}
 				$parts[] = $part;
 			}
@@ -191,7 +186,9 @@ class TableFixups {
 		$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tdDp->dsr->end );
 
 		// Save the new data-mw on the td
-		DOMDataUtils::setDataMw( $td, new DataMw( [ 'parts' => $parts ] ) );
+		$dmw = new DataMw( [] );
+		$dmw->parts = $parts;
+		DOMDataUtils::setDataMw( $td, $dmw );
 		$tdDp->pi = $pi;
 
 		// td wraps everything now.
