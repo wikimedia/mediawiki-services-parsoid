@@ -25,7 +25,7 @@ class Timing {
 	 */
 	private function __construct( ?object $metrics ) {
 		$this->metrics = $metrics;
-		$this->startTime = $metrics ? self::millis() : 0; /* will not be used */
+		$this->startTime = self::millis();
 	}
 
 	/**

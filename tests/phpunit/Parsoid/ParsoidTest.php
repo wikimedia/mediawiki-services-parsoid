@@ -402,7 +402,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$metrics = $siteConfig->metrics();
 		$this->assertInstanceOf( MockMetrics::class, $metrics );
 		$log = $metrics->log;
-		$this->assertCount( 4, $log );
+		$this->assertCount( 3, $log );
 		$this->assertEquals(
 			[ 'timing', 'entry.wt2html.pageWithOldid.size.input', 17 ],
 			$log[1]
