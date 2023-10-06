@@ -84,8 +84,6 @@ class MockApiHelper extends ApiHelper {
 			'duration' => 4.3666666666667,
 			'mime' => 'video/ogg; codecs="theora"',
 			'mediatype' => 'VIDEO',
-			'title' => 'Original Ogg file, 320 × 240 (590 kbps)',
-			'shorttitle' => 'Ogg source',
 			# hacky way to get seek parameters to return the correct info
 			'extraParams' => [
 				'seek=1.2' => 'seek%3D1.2',
@@ -102,8 +100,6 @@ class MockApiHelper extends ApiHelper {
 			'duration' => 0.99875,
 			'mime' => 'audio/ogg; codecs="vorbis"',
 			'mediatype' => 'AUDIO',
-			'title' => 'Original Ogg file (41 kbps)',
-			'shorttitle' => 'Ogg source',
 		]
 	];
 
@@ -761,23 +757,6 @@ class MockApiHelper extends ApiHelper {
 				if ( $info['thumburl'] !== $turl && $mediatype !== 'AUDIO' ) {
 					$info['responsiveUrls']["$scale"] = $turl;
 				}
-			}
-		}
-		// Make this look like a TMH response
-		if ( isset( $props['title'] ) || isset( $props['shorttitle'] ) ) {
-			$info['derivatives'] = [
-				[
-					'src' => $info['url'],
-					'type' => $info['mime'],
-					'width' => strval( $info['width'] ),
-					'height' => strval( $info['height'] ),
-				]
-			];
-			if ( isset( $props['title'] ) ) {
-				$info['derivatives'][0]['title'] = $props['title'];
-			}
-			if ( isset( $props['shorttitle'] ) ) {
-				$info['derivatives'][0]['shorttitle'] = $props['shorttitle'];
 			}
 		}
 

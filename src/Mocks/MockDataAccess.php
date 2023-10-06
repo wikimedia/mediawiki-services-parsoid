@@ -341,8 +341,6 @@ class MockDataAccess extends DataAccess {
 			'duration' => 0.99875,
 			'mime' => 'audio/ogg; codecs="vorbis"',
 			'mediatype' => 'AUDIO',
-			'title' => 'Original Ogg file (41 kbps)',
-			'shorttitle' => 'Ogg source',
 		]
 	];
 
@@ -493,23 +491,6 @@ class MockDataAccess extends DataAccess {
 				$info['thumbwidth'] = $txopts['width'];
 				$info['thumbheight'] = $txopts['height'];
 				$info['thumburl'] = $turl;
-			}
-			// Make this look like a TMH response
-			if ( isset( $props['title'] ) || isset( $props['shorttitle'] ) ) {
-				$info['derivatives'] = [
-					[
-						'src' => $info['url'],
-						'type' => $info['mime'],
-						'width' => strval( $info['width'] ),
-						'height' => strval( $info['height'] ),
-					]
-				];
-				if ( isset( $props['title'] ) ) {
-					$info['derivatives'][0]['title'] = $props['title'];
-				}
-				if ( isset( $props['shorttitle'] ) ) {
-					$info['derivatives'][0]['shorttitle'] = $props['shorttitle'];
-				}
 			}
 
 			$ret[] = $info;
