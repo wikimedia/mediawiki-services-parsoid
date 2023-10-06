@@ -79,11 +79,15 @@ class I18nInfo implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
-		return [
+		$json = [
 			'lang' => $this->lang,
 			'key' => $this->key,
-			'params' => $this->params,
 		];
+		// Save some space when there are no params
+		if ( $this->params !== null ) {
+			$json['params'] = $this->params;
+		}
+		return $json;
 	}
 
 	/** @inheritDoc */

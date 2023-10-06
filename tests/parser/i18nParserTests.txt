@@ -14,7 +14,7 @@ i18next=1
 !! wikitext
 <i18ntag>message.key</i18ntag>
 !! html/parsoid
-<p><span typeof="mw:I18n mw:Extension/i18ntag" about="#mwt2" data-mw='{"name":"i18ntag","attrs":{},"body":{"extsrc":"message.key"}}' data-mw-i18n='{"/":{"lang":"x-page","key":"message.key","params":null}}'></span></p>
+<p><span typeof="mw:I18n mw:Extension/i18ntag" about="#mwt2" data-mw='{"name":"i18ntag","attrs":{},"body":{"extsrc":"message.key"}}' data-mw-i18n='{"/":{"lang":"x-page","key":"message.key"}}'></span></p>
 !! end
 
 !! test
@@ -24,5 +24,5 @@ i18next=1
 !! wikitext
 <i18nattr message="message.key">some text</i18nattr>
 !! html/parsoid
-<p><span typeof="mw:LocalizedAttrs mw:Extension/i18nattr" data-mw='{"name":"i18nattr","attrs":{"message":"message.key"},"body":{"extsrc":"some text"}}' data-mw-i18n='{"message":{"lang":"x-user","key":"message.key","params":null}}'>some text</span></p>
+<p><span typeof="mw:LocalizedAttrs mw:Extension/i18nattr" data-mw='{"name":"i18nattr","attrs":{"message":"message.key"},"body":{"extsrc":"some text"}}' data-mw-i18n='{"message":{"lang":"x-user","key":"message.key"}}'>some text</span></p>
 !! end
