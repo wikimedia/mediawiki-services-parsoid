@@ -497,27 +497,35 @@ class Parsoid {
 				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 				break;
 
+			// variant-metadata-hack exists to support the hack in core where
+			// Parsoid-unsupported variants are transformed via core's variant converters.
+			// But, that generated HTML needs Parsoid metadata to make it look like
+			// Parsoid HTML. (See includes/parser/Parsoid/LanguageVariantConverter.php)
+			case 'variant-metadata-hack':
 			case 'variant':
 				ContentUtils::convertOffsets(
 					$env, $doc, $env->getRequestOffsetType(), 'byte'
 				);
-				// Note that `maybeConvert` could still be a no-op, in case the
-				// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
-				// is a base language code or otherwise invalid.
-				LanguageConverter::maybeConvert(
-					$env, $doc,
-					Utils::mwCodeToBcp47(
-						$options['variant']['target'],
-						// Be strict in what we accept.
-						true, $this->siteConfig->getLogger()
-					),
-					$options['variant']['source'] ?
-					Utils::mwCodeToBcp47(
-						$options['variant']['source'],
-						// Be strict in what we accept.
-						true, $this->siteConfig->getLogger()
-					) : null
-				);
+
+				if ( $update === 'variant' ) {
+					// Note that `maybeConvert` could still be a no-op, in case the
+					// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
+					// is a base language code or otherwise invalid.
+					LanguageConverter::maybeConvert(
+						$env, $doc,
+						Utils::mwCodeToBcp47(
+							$options['variant']['target'],
+							// Be strict in what we accept.
+							true, $this->siteConfig->getLogger()
+						),
+						$options['variant']['source'] ?
+						Utils::mwCodeToBcp47(
+							$options['variant']['source'],
+							// Be strict in what we accept.
+							true, $this->siteConfig->getLogger()
+						) : null
+					);
+				}
 				// Update content-language and vary headers.
 				// This also ensures there is a <head> element.
 				$ensureHeader = static function ( string $h ) use ( $doc ) {
