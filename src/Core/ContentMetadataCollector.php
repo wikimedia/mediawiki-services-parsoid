@@ -413,6 +413,7 @@ interface ContentMetadataCollector {
 	 *
 	 * @param string $name
 	 * @param string $content
+	 * @param-taint $content exec_html
 	 */
 	public function setIndicator( $name, $content ): void;
 
