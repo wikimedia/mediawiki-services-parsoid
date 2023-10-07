@@ -34,7 +34,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		);
 		$this->addOption(
 			"uid",
-			"The bastion username you use to login to scandium/testreduce1001",
+			"The bastion username you use to login to scandium/testreduce1002",
 			false, true, 'u'
 		);
 		$this->addOption(
@@ -62,7 +62,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			25 /* default */, 'm' );
 		$this->addOptionWithDefault(
 			"updateTestreduce",
-			"Should testreduce1001 also be updated? (default true)",
+			"Should testreduce1002 also be updated? (default true)",
 			true );
 		$this->setAllowUnregisteredOptions( true );
 	}
@@ -129,7 +129,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function hostname( string $host = null ): string {
 		if ( $host === null ) {
 			// default hostname
-			$host = 'testreduce1001.eqiad.wmnet';
+			$host = 'testreduce1002.eqiad.wmnet';
 		}
 		if ( $this->hasOption( 'uid' ) ) {
 			$host = $this->getOption( 'uid' ) . "@$host";
@@ -189,14 +189,14 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$restartPHP
 		), 'scandium.eqiad.wmnet' );
 		if ( $this->getOption( 'updateTestreduce' ) ) {
-			# Check out on testreduce1001 as well to ensure HTML version changes
+			# Check out on testreduce1002 as well to ensure HTML version changes
 			# don't trip up our test script and we don't have to mess with passing in
 			# the --contentVersion option in most scenarios
-			$this->dashes( "Checking out $commit on testreduce1001" );
+			$this->dashes( "Checking out $commit on testreduce1002" );
 			$this->ssh( self::cmd(
 				$cdDir, '&&',
 				"git fetch", '&&',
-				'git checkout', [ $commit ] ), 'testreduce1001.eqiad.wmnet' );
+				'git checkout', [ $commit ] ), 'testreduce1002.eqiad.wmnet' );
 		}
 
 		$this->dashes( "Running tests" );

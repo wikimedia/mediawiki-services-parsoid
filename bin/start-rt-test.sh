@@ -5,7 +5,7 @@ set -eu -o pipefail
 if [ $# -lt 2 ]
 then
 	echo "USAGE: start-rt-test.sh <uid> <rt-test-id>"
-	echo " - <uid> is your bastion uid you use to log in to scandium/testreduce1001"
+	echo " - <uid> is your bastion uid you use to log in to scandium/testreduce1002"
 	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char prefix of a git hash)"
 	exit 1
 fi
@@ -31,8 +31,8 @@ git log --oneline -n 1
 sudo systemctl restart php7.4-fpm.service
 EOF
 
-echo "---- Starting test run $testid on testreduce1001 ----"
-ssh "$uid"@testreduce1001.eqiad.wmnet <<EOF
+echo "---- Starting test run $testid on testreduce1002 ----"
+ssh "$uid"@testreduce1002.eqiad.wmnet <<EOF
 # No unset vars + early exit on error
 set -eu -o pipefail
 
@@ -45,7 +45,7 @@ sudo service parsoid-rt-client stop
 echo 'Updating deploy repo checkout ...'
 cd /srv/parsoid-testing
 
-# Strictly speaking, it is not necessary to update code on testreduce1001
+# Strictly speaking, it is not necessary to update code on testreduce1002
 # It is only needed if rt-testing related code is updated.
 # But, it is simpler to just update it every single time.
 umask 0002 # Make sure everyone in wikidev group can write
