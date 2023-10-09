@@ -47,7 +47,7 @@
         "selser [[4,0]]": "6lrdf6''fail <dummyanno>miserably'' ... let's fix it</dummyanno>"
     },
     "Fostering in div with fostered transclusion should extend the transclusion on the end annotation tag": {
-        "wt2wt": "<dummyanno><ann2>\n<table>\n<tbody>\n<tr>\n<td><dummyanno>some <ann2>stuff</td>\n</tr>\n{{1x|transclusion}}\n<div>hello</ann2></dummyanno></div>\n<tr><td>hello</td></tr>\n</tbody>\n</table>"
+        "wt2wt": "<dummyanno><ann2>\n<table>\n<tr>\n<td><dummyanno>some <ann2>stuff</td>\n</tr>\n{{1x|transclusion}}\n<div>hello</ann2></dummyanno></div>\n<tr><td>hello</td></tr>\n</table>"
     },
     "New lines around table-spanning annotation range extension should be maintained in selser": {
         "wt2wt": "txt1\n\n<dummyanno>\ntxt2\n{|\n|-\n\n|text3\n|}\n</dummyanno>\n\ntxt4",
