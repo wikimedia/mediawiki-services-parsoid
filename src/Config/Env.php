@@ -97,6 +97,9 @@ class Env {
 	/** @var string */
 	private $currentOffsetType = 'byte';
 
+	/** @var bool */
+	private $skipLanguageConversionPass = false;
+
 	/** @var array<string,mixed> */
 	private $behaviorSwitches = [];
 
@@ -254,6 +257,8 @@ class Env {
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
+	 *  - skipLanguageConversionPass: (bool) Should we skip the language
+	 *      conversion pass? (defaults to false)
 	 *  - htmlVariantLanguage: Bcp47Code|null
 	 *      If non-null, the language variant used for Parsoid HTML
 	 *      as a BCP 47 object.
@@ -299,6 +304,8 @@ class Env {
 			throw new \UnexpectedValueException(
 				$this->outputContentVersion . ' is not an available content version.' );
 		}
+		$this->skipLanguageConversionPass =
+			$options['skipLanguageConversionPass'] ?? false;
 		$this->htmlVariantLanguage = !empty( $options['htmlVariantLanguage'] ) ?
 			Utils::mwCodeToBcp47(
 				$options['htmlVariantLanguage'],
@@ -1096,6 +1103,10 @@ class Env {
 	 */
 	public function getWtVariantLanguageBcp47(): ?Bcp47Code {
 		return $this->wtVariantLanguage;
+	}
+
+	public function getSkipLanguageConversionPass(): bool {
+		return $this->skipLanguageConversionPass;
 	}
 
 	/**

@@ -180,6 +180,9 @@ class Parsoid {
 		if ( isset( $options['logLinterData'] ) ) {
 			$envOptions['logLinterData'] = !empty( $options['logLinterData'] );
 		}
+		$envOptions['skipLanguageConversionPass'] =
+			$options['skipLanguageConversionPass'] ?? false;
+
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
@@ -211,6 +214,7 @@ class Parsoid {
 	 *   'discardDataParsoid'   => (bool) Drop all data-parsoid annotations.
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
+	 *   'skipLanguageConversionPass'  => (bool) Skip the language variant conversion pass (defaults to false)
 	 *   'htmlVariantLanguage'  => (Bcp47Code) If non-null, the language variant used for Parsoid HTML.
 	 *   'wtVariantLanguage'    => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
