@@ -196,13 +196,6 @@ class LanguageConverter {
 	public static function maybeConvert(
 		Env $env, Document $doc, $targetVariant, $sourceVariant
 	): void {
-		// Back-compat w/ old string-passing parameter convention
-		if ( is_string( $targetVariant ) ) {
-			$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
-		}
-		if ( is_string( $sourceVariant ) ) {
-			$sourceVariant = Utils::mwCodeToBcp47( $sourceVariant );
-		}
 		// language converter must be enabled for the pagelanguage
 		if ( !$env->langConverterEnabled() ) {
 			return;
@@ -211,6 +204,15 @@ class LanguageConverter {
 		if ( $targetVariant === null ) {
 			return;
 		}
+
+		// Back-compat w/ old string-passing parameter convention
+		if ( is_string( $targetVariant ) ) {
+			$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+		}
+		if ( is_string( $sourceVariant ) ) {
+			$sourceVariant = Utils::mwCodeToBcp47( $sourceVariant );
+		}
+
 		$variants = $env->getSiteConfig()->variantsFor( $targetVariant );
 		if ( $variants === null ) {
 			return;
