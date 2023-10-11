@@ -186,14 +186,13 @@ class LanguageConverter {
 	 *
 	 * @param Env $env
 	 * @param Document $doc The input document.
-	 * @param string|Bcp47Code|null $htmlVariantLanguage The desired output variant.
-	 *   MediaWiki-internal code string (deprecated), or a BCP 47 language object, or null.
-	 * @param string|Bcp47Code|null $wtVariantLanguage The variant used by convention when
+	 * @param ?Bcp47Code $htmlVariantLanguage The desired output variant.
+	 * @param ?Bcp47Code $wtVariantLanguage The variant used by convention when
 	 *   authoring pages, if there is one; otherwise left null.
-	 *   MediaWiki-internal code string (deprecated), or a BCP 47 language object, or null.
 	 */
 	public static function maybeConvert(
-		Env $env, Document $doc, $htmlVariantLanguage, $wtVariantLanguage
+		Env $env, Document $doc,
+		?Bcp47Code $htmlVariantLanguage, ?Bcp47Code $wtVariantLanguage
 	): void {
 		// language converter must be enabled for the pagelanguage
 		if ( !$env->langConverterEnabled() ) {
@@ -202,17 +201,6 @@ class LanguageConverter {
 		// htmlVariantLanguage must be specified, and a language-with-variants
 		if ( $htmlVariantLanguage === null ) {
 			return;
-		}
-		// Back-compat w/ old string-passing parameter convention
-		if ( is_string( $htmlVariantLanguage ) ) {
-			$htmlVariantLanguage = Utils::mwCodeToBcp47(
-				$htmlVariantLanguage, true, $env->getSiteConfig()->getLogger()
-			);
-		}
-		if ( is_string( $wtVariantLanguage ) ) {
-			$wtVariantLanguage = Utils::mwCodeToBcp47(
-				$wtVariantLanguage, true, $env->getSiteConfig()->getLogger()
-			);
 		}
 		$variants = $env->getSiteConfig()->variantsFor( $htmlVariantLanguage );
 		if ( $variants === null ) {
