@@ -51,7 +51,7 @@ class SectionMetadata implements \JsonSerializable {
 	 *   We strip any parameter from accepted tags, except dir="rtl|ltr" from <span>,
 	 *   to allow setting directionality in toc items.
 	 *
-	 * @note This should be converted into the proper target variant.
+	 * @note This should be converted into the proper html variant.
 	 */
 	public string $line;
 

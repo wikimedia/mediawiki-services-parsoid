@@ -7,23 +7,24 @@ declare( strict_types = 1 );
  *
  * Language conversion is as DOMPostProcessor pass, run over the
  * Parsoid-format HTML output, which may have embedded language converter
- * rules.  We first assign a (guessed) source variant to each DOM node,
+ * rules.  We first assign a (guessed) wikitext variant to each DOM node,
+ * the variant we expect the original wikitext was written in,
  * which will be used when round-tripping the result back to the original
- * source variant.  Then for each applicable text node in the DOM, we
+ * wikitext variant.  Then for each applicable text node in the DOM, we
  * first "bracket" the text, splitting it into cleanly round-trippable
  * segments and lossy/unclean segments.  For the lossy segments we add
- * additional metadata to the output to record the original source variant
- * text to allow round-tripping (and variant-aware editing).
+ * additional metadata to the output to record the original text used in
+ * the wikitext to allow round-tripping (and variant-aware editing).
  *
- * Note that different wikis have different policies for source variant:
+ * Note that different wikis have different policies for wikitext variant:
  * in some wikis all articles are authored in one particular variant, by
  * convention.  In others, it's a "first author gets to choose the variant"
- * situation.  In both cases, a constant/per-article "source variant" may
+ * situation.  In both cases, a constant/per-article "wikitext variant" may
  * be specified via some as-of-yet-unimplemented mechanism; either part of
  * the site configuration, or per-article metadata like pageLanguage.
  * In other wikis (like zhwiki) the text is a random mix of variants; in
- * these cases the "source variant" will be null/unspecified, and we'll
- * dynamically pick the most likely source variant for each subtree.
+ * these cases the "wikitext variant" will be null/unspecified, and we'll
+ * dynamically pick the most likely wikitext variant for each subtree.
  *
  * Each individual language has a dynamically-loaded subclass of `Language`,
  * which may also have a `LanguageConverter` subclass to load appropriate
@@ -174,12 +175,12 @@ class LanguageConverter {
 	}
 
 	/**
-	 * Convert the given document into $targetVariant, if:
+	 * Convert the given document into $htmlVariantLanguage, if:
 	 *  1) language converter is enabled on this wiki, and
-	 *  2) the targetVariant is specified, and it is a known variant (not a
+	 *  2) the htmlVariantLanguage is specified, and it is a known variant (not a
 	 *     base language code)
 	 *
-	 * The `$sourceVariant`, if provided is expected to be per-wiki or
+	 * The `$wtVariantLanguage`, if provided is expected to be per-wiki or
 	 * per-article metadata which specifies a standard "authoring variant"
 	 * for this article or wiki.  For example, all articles are authored in
 	 * Cyrillic by convention.  It should be left blank if there is no
@@ -187,46 +188,44 @@ class LanguageConverter {
 	 *
 	 * @param Env $env
 	 * @param Document $doc The input document.
-	 * @param string|Bcp47Code|null $targetVariant The desired output variant.
+	 * @param string|Bcp47Code|null $htmlVariantLanguage The desired output variant.
 	 *   MediaWiki-internal code string (deprecated), or a BCP 47 language object, or null.
-	 * @param string|Bcp47Code|null $sourceVariant The variant used by convention when
+	 * @param string|Bcp47Code|null $wtVariantLanguage The variant used by convention when
 	 *   authoring pages, if there is one; otherwise left null.
 	 *   MediaWiki-internal code string (deprecated), or a BCP 47 language object, or null.
 	 */
 	public static function maybeConvert(
-		Env $env, Document $doc, $targetVariant, $sourceVariant
+		Env $env, Document $doc, $htmlVariantLanguage, $wtVariantLanguage
 	): void {
 		// language converter must be enabled for the pagelanguage
 		if ( !$env->langConverterEnabled() ) {
 			return;
 		}
-		// targetVariant must be specified, and a language-with-variants
-		if ( $targetVariant === null ) {
+		// htmlVariantLanguage must be specified, and a language-with-variants
+		if ( $htmlVariantLanguage === null ) {
 			return;
 		}
-
 		// Back-compat w/ old string-passing parameter convention
-		if ( is_string( $targetVariant ) ) {
-			$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+		if ( is_string( $htmlVariantLanguage ) ) {
+			$htmlVariantLanguage = Utils::mwCodeToBcp47( $htmlVariantLanguage );
 		}
-		if ( is_string( $sourceVariant ) ) {
-			$sourceVariant = Utils::mwCodeToBcp47( $sourceVariant );
+		if ( is_string( $wtVariantLanguage ) ) {
+			$wtVariantLanguage = Utils::mwCodeToBcp47( $wtVariantLanguage );
 		}
-
-		$variants = $env->getSiteConfig()->variantsFor( $targetVariant );
+		$variants = $env->getSiteConfig()->variantsFor( $htmlVariantLanguage );
 		if ( $variants === null ) {
 			return;
 		}
 
-		// targetVariant must not be a base language code
-		if ( Utils::isBcp47CodeEqual( $targetVariant, $variants['base'] ) ) {
+		// htmlVariantLanguage must not be a base language code
+		if ( Utils::isBcp47CodeEqual( $htmlVariantLanguage, $variants['base'] ) ) {
 			// XXX in the future we probably want to go ahead and expand
 			// empty <span>s left by -{...}- constructs, etc.
 			return;
 		}
 
-		// Record the fact that we've done conversion to targetVariant
-		$env->getPageConfig()->setVariantBcp47( $targetVariant );
+		// Record the fact that we've done conversion to htmlVariantLanguage
+		$env->getPageConfig()->setVariantBcp47( $htmlVariantLanguage );
 
 		// But don't actually do the conversion if __NOCONTENTCONVERT__
 		if ( DOMCompat::querySelector( $doc, 'meta[property="mw:PageProp/nocontentconvert"]' ) ) {
@@ -234,33 +233,33 @@ class LanguageConverter {
 		}
 
 		// OK, convert!
-		self::baseToVariant( $env, DOMCompat::getBody( $doc ), $targetVariant, $sourceVariant );
+		self::baseToVariant( $env, DOMCompat::getBody( $doc ), $htmlVariantLanguage, $wtVariantLanguage );
 	}
 
 	/**
-	 * Convert a text in the "base variant" to a specific variant, given by `targetVariant`.  If
-	 * `sourceVariant` is given, assume that the input wikitext is in `sourceVariant` to
+	 * Convert a text in the "base variant" to a specific variant, given by `htmlVariantLanguage`.  If
+	 * `wtVariantLanguage` is given, assume that the input wikitext is in `wtVariantLanguage` to
 	 * construct round-trip metadata, instead of using a heuristic to guess the best variant
 	 * for each DOM subtree of wikitext.
 	 * @param Env $env
 	 * @param Node $rootNode The root node of a fragment to convert.
-	 * @param string|Bcp47Code $targetVariant The variant to be used for the output DOM.
+	 * @param string|Bcp47Code $htmlVariantLanguage The variant to be used for the output DOM.
 	 *  This is a mediawiki-internal language code string (T320662, deprecated),
 	 *  or a BCP 47 language object (preferred).
-	 * @param string|Bcp47Code|null $sourceVariant An optional variant assumed for the
+	 * @param string|Bcp47Code|null $wtVariantLanguage An optional variant assumed for the
 	 *  input DOM in order to create roundtrip metadata.
 	 *  This is a mediawiki-internal language code (T320662, deprecated),
 	 *  or a BCP 47 language object (preferred), or null.
 	 */
 	public static function baseToVariant(
-		Env $env, Node $rootNode, $targetVariant, $sourceVariant
+		Env $env, Node $rootNode, $htmlVariantLanguage, $wtVariantLanguage
 	): void {
 		// Back-compat w/ old string-passing parameter convention
-		if ( is_string( $targetVariant ) ) {
-			$targetVariant = Utils::mwCodeToBcp47( $targetVariant );
+		if ( is_string( $htmlVariantLanguage ) ) {
+			$htmlVariantLanguage = Utils::mwCodeToBcp47( $htmlVariantLanguage );
 		}
-		if ( is_string( $sourceVariant ) ) {
-			$sourceVariant = Utils::mwCodeToBcp47( $sourceVariant );
+		if ( is_string( $wtVariantLanguage ) ) {
+			$wtVariantLanguage = Utils::mwCodeToBcp47( $wtVariantLanguage );
 		}
 		// PageConfig guarantees getPageLanguage() never returns null.
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
@@ -271,46 +270,46 @@ class LanguageConverter {
 		$languageClass = self::loadLanguage( $env, $pageLangCode );
 		$lang = new $languageClass();
 		$langconv = $lang->getConverter();
-		$targetVariantMw = Utils::bcp47ToMwCode( $targetVariant );
+		$htmlVariantLanguageMw = Utils::bcp47ToMwCode( $htmlVariantLanguage );
 		// XXX we might want to lazily-load conversion tables here.
-		$loadTiming->end( "langconv.{$targetVariantMw}.init" );
+		$loadTiming->end( "langconv.{$htmlVariantLanguageMw}.init" );
 		$loadTiming->end( 'langconv.init' );
 
-		// Check the target variant is valid (and implemented!)
+		// Check the html variant is valid (and implemented!)
 		$validTarget = $langconv !== null && $langconv->getMachine() !== null
-			&& array_key_exists( $targetVariantMw, $langconv->getMachine()->getCodes() );
+			&& array_key_exists( $htmlVariantLanguageMw, $langconv->getMachine()->getCodes() );
 		if ( !$validTarget ) {
 			// XXX create a warning header? (T197949)
-			$env->log( 'info', "Unimplemented variant: {$targetVariantMw}" );
+			$env->log( 'info', "Unimplemented variant: {$htmlVariantLanguageMw}" );
 			return; /* no conversion */
 		}
-		// Check that the source variant is valid.
-		$sourceVariantMw = $sourceVariant ?
-			Utils::bcp47ToMwCode( $sourceVariant ) : null;
-		$validSource = $sourceVariant === null ||
-			array_key_exists( $sourceVariantMw, $langconv->getMachine()->getCodes() );
+		// Check that the wikitext variant is valid.
+		$wtVariantLanguageMw = $wtVariantLanguage ?
+			Utils::bcp47ToMwCode( $wtVariantLanguage ) : null;
+		$validSource = $wtVariantLanguage === null ||
+			array_key_exists( $wtVariantLanguageMw, $langconv->getMachine()->getCodes() );
 		if ( !$validSource ) {
-			throw new ClientError( "Invalid source variant: $sourceVariantMw for target $targetVariantMw" );
+			throw new ClientError( "Invalid wikitext variant: $wtVariantLanguageMw for target $htmlVariantLanguageMw" );
 		}
 
 		$timing = Timing::start( $metrics );
 		if ( $metrics ) {
 			$metrics->increment( 'langconv.count' );
-			$metrics->increment( "langconv." . $targetVariantMw . ".count" );
+			$metrics->increment( "langconv." . $htmlVariantLanguageMw . ".count" );
 		}
 
 		// XXX Eventually we'll want to consult some wiki configuration to
 		// decide whether a ConstantLanguageGuesser is more appropriate.
-		if ( $sourceVariant ) {
-			$guesser = new ConstantLanguageGuesser( $sourceVariant );
+		if ( $wtVariantLanguage ) {
+			$guesser = new ConstantLanguageGuesser( $wtVariantLanguage );
 		} else {
 			$guesser = new MachineLanguageGuesser(
 				// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
-				$langconv->getMachine(), $rootNode, $targetVariant
+				$langconv->getMachine(), $rootNode, $htmlVariantLanguage
 			);
 		}
 
-		$ct = new ConversionTraverser( $env, $targetVariant, $guesser, $langconv->getMachine() );
+		$ct = new ConversionTraverser( $env, $htmlVariantLanguage, $guesser, $langconv->getMachine() );
 		$ct->traverse( null, $rootNode );
 
 		// HACK: to avoid data-parsoid="{}" in the output, set the isNew flag
@@ -327,25 +326,25 @@ class LanguageConverter {
 		}
 
 		$timing->end( 'langconv.total' );
-		$timing->end( "langconv.{$targetVariantMw}.total" );
+		$timing->end( "langconv.{$htmlVariantLanguageMw}.total" );
 		$loadTiming->end( 'langconv.totalWithInit' );
 	}
 
 	/**
-	 * Check if support for target variant conversion is implemented
+	 * Check if support for html variant conversion is implemented
 	 * @internal FIXME: Remove once Parsoid's language variant work is completed
 	 * @param Env $env
-	 * @param Bcp47Code $targetVariant The variant to be checked for implementation
+	 * @param Bcp47Code $htmlVariantLanguage The variant to be checked for implementation
 	 * @return bool
 	 */
-	public static function implementsLanguageConversionBcp47( Env $env, Bcp47Code $targetVariant ): bool {
-		$targetVariantMw = Utils::bcp47ToMwCode( $targetVariant );
+	public static function implementsLanguageConversionBcp47( Env $env, Bcp47Code $htmlVariantLanguage ): bool {
+		$htmlVariantLanguageMw = Utils::bcp47ToMwCode( $htmlVariantLanguage );
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
 		$lang = self::loadLanguage( $env, $pageLangCode );
 		$langconv = $lang->getConverter();
 
 		$validTarget = $langconv !== null && $langconv->getMachine() !== null
-			&& array_key_exists( $targetVariantMw, $langconv->getMachine()->getCodes() );
+			&& array_key_exists( $htmlVariantLanguageMw, $langconv->getMachine()->getCodes() );
 
 		return $validTarget;
 	}

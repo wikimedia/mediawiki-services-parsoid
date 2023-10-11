@@ -279,8 +279,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => new Bcp47CodeValue( 'sr-Cyrl' ),
-						'target' => new Bcp47CodeValue( 'sr-Latn' ),
+						'wikitext' => new Bcp47CodeValue( 'sr-Cyrl' ),
+						'html' => new Bcp47CodeValue( 'sr-Latn' ),
 					]
 				]
 			],
@@ -301,8 +301,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => new Bcp47CodeValue( 'sr-Latn' ),
-						'target' => new Bcp47CodeValue( 'sr-Cyrl' ),
+						'wikitext' => new Bcp47CodeValue( 'sr-Latn' ),
+						'html' => new Bcp47CodeValue( 'sr-Cyrl' ),
 					]
 				]
 			],
@@ -323,8 +323,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => new Bcp47CodeValue( 'sr-Latn' ),
-						'target' => new Bcp47CodeValue( 'sr-Cyrl' ),
+						'wikitext' => new Bcp47CodeValue( 'sr-Latn' ),
+						'html' => new Bcp47CodeValue( 'sr-Cyrl' ),
 					]
 				]
 			],
@@ -347,8 +347,8 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 					'body_only' => true,
 					'pageLanguage' => new Bcp47CodeValue( 'sr' ),
 					'variant' => [
-						'source' => new Bcp47CodeValue( 'sr-Latn' ),
-						'target' => new Bcp47CodeValue( 'sr-Cyrl' ),
+						'wikitext' => new Bcp47CodeValue( 'sr-Latn' ),
+						'html' => new Bcp47CodeValue( 'sr-Cyrl' ),
 					]
 				]
 			],
@@ -360,7 +360,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::implementsLanguageConversionBcp47
 	 * @dataProvider provideImplementsLanguageConversionBcp47
 	 */
-	public function testImplementsLanguageConversionBcp47( string $targetVariantCode, $expected ) {
+	public function testImplementsLanguageConversionBcp47( string $htmlVariantCode, $expected ) {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
@@ -370,7 +370,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
 		$pageConfig = new MockPageConfig( $opts, $pageContent );
 
-		$actual = $parsoid->implementsLanguageConversionBcp47( $pageConfig, new Bcp47CodeValue( $targetVariantCode ) );
+		$actual = $parsoid->implementsLanguageConversionBcp47( $pageConfig, new Bcp47CodeValue( $htmlVariantCode ) );
 		$this->assertEquals( $expected, $actual );
 	}
 

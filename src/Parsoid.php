@@ -513,17 +513,24 @@ class Parsoid {
 
 				if ( $update === 'variant' ) {
 					// Note that `maybeConvert` could still be a no-op, in case the
-					// __NOCONTENTCONVERT__ magic word is present, or the targetVariant
+					// __NOCONTENTCONVERT__ magic word is present, or the htmlVariant
 					// is a base language code or otherwise invalid.
+					$hasWtVariant = $options['variant']['wikitext'] ??
+						// Deprecated name for this option:
+						$options['variant']['source'] ?? false;
 					LanguageConverter::maybeConvert(
 						$env, $doc,
 						Utils::mwCodeToBcp47(
+							$options['variant']['html'] ??
+							// Deprecated name for this option:
 							$options['variant']['target'],
 							// Be strict in what we accept.
 							true, $this->siteConfig->getLogger()
 						),
-						$options['variant']['source'] ?
+						$hasWtVariant ?
 						Utils::mwCodeToBcp47(
+							$options['variant']['wikitext'] ??
+							// Deprecated name for this option:
 							$options['variant']['source'],
 							// Be strict in what we accept.
 							true, $this->siteConfig->getLogger()
@@ -655,10 +662,10 @@ class Parsoid {
 	 *
 	 * @internal FIXME: Remove once Parsoid's language variant work is completed
 	 * @param PageConfig $pageConfig
-	 * @param Bcp47Code $targetVariant Variant language to check
+	 * @param Bcp47Code $htmlVariant Variant language to check
 	 * @return bool
 	 */
-	public function implementsLanguageConversionBcp47( PageConfig $pageConfig, Bcp47Code $targetVariant ): bool {
+	public function implementsLanguageConversionBcp47( PageConfig $pageConfig, Bcp47Code $htmlVariant ): bool {
 		// Hardcode disable zh lang conversion support since Parsoid's
 		// implementation is incomplete and not performant.
 		if ( $pageConfig->getPageLanguageBcp47()->toBcp47Code() === 'zh' ) {
@@ -667,7 +674,7 @@ class Parsoid {
 
 		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
-		return LanguageConverter::implementsLanguageConversionBcp47( $env, $targetVariant );
+		return LanguageConverter::implementsLanguageConversionBcp47( $env, $htmlVariant );
 	}
 
 	/**

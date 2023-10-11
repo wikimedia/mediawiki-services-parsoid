@@ -29,11 +29,11 @@ These metrics cover all wikitext to $FORMAT endpoints (/wikitext/to/lint/, /wiki
 
 ### Language converter
 
-* `langConv.init`: Tracked in LanguageConverter.php and covers initialization time
-* `langConv.$TARGET.init`: Tracked in LanguageConverter.php and covers initialization time (metrics split between variants) 
-* `langConv.total`: Tracked in LanguageConverter.php and covers time to requested target variant
-* `langConv.$TARGET.total`: Tracked in LanguageConverter.php and covers time to convert to requested target variant (metrics split between variants) 
-* `langConv.totalWithInit`: Tracked in LanguageConverter.php and includes both `langConv.init` and `langConv.total`.
+* `langconv.init`: Tracked in LanguageConverter.php and covers initialization time
+* `langconv.$HTMLVARIANT.init`: Tracked in LanguageConverter.php and covers initialization time (metrics split between variants)
+* `langconv.total`: Tracked in LanguageConverter.php and covers time to requested html variant
+* `langconv.$HTMLVARIANT.total`: Tracked in LanguageConverter.php and covers time to convert to requested html variant (metrics split between variants)
+* `langconv.totalWithInit`: Tracked in LanguageConverter.php and includes both `langconv.init` and `langconv.total`.
 
 ## Size metrics
 

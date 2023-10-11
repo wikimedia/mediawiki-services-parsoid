@@ -382,11 +382,19 @@ class TestRunner {
 		// The test can explicitly opt-in to variant conversion with the
 		// 'langconv' option.
 		if ( $testOpts['langconv'] ?? null ) {
+			// These test option names are deprecated:
 			if ( $testOpts['sourceVariant'] ?? false ) {
 				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['sourceVariant'] );
 			}
 			if ( $testOpts['variant'] ?? false ) {
 				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['variant'] );
+			}
+			// Preferred option names:
+			if ( $testOpts['wtVariantLanguage'] ?? false ) {
+				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['wtVariantLanguage'] );
+			}
+			if ( $testOpts['htmlVariantLanguage'] ?? false ) {
+				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['htmlVariantLanguage'] );
 			}
 		}
 
