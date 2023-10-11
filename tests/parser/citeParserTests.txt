@@ -245,7 +245,7 @@ parsoid=wt2html,wt2wt
 !! test
 <ref>s in language variant markup
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 -{lj <ref>a</ref>}-аб-{nj <ref name="y">b</ref>}-вг-{dž}- c <ref name="y" />
 <references />

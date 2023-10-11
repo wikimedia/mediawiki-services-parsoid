@@ -3486,7 +3486,7 @@ wgParserEnableLegacyMediaDOM=false
 !! test
 T146305: Don't break image parsing if nested language converter markup is in the caption.
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext

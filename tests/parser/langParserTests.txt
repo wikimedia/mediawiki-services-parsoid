@@ -32,7 +32,7 @@ Template:1x
 !! test
 sr-ec: Simple conversion of Latin to Cyrillic
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 abvg
 !! html/php
@@ -47,7 +47,7 @@ abvg
 !! test
 sr-ec: Same as above, but assert that -{}-s must be removed and not converted (1)
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 -{lj}-аб-{nj}-вг-{dž}-
 !! html/php
@@ -62,7 +62,7 @@ language=sr variant=sr-ec
 !! test
 sr-ec: This text has some Cyrillic, but is recognized as Latin, so it should be converted
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 абвгšđžčć
 !! html/php
@@ -77,7 +77,7 @@ language=sr variant=sr-ec
 !! test
 sr-ec: Same as above, but assert that -{}-s must be removed and not converted (2)
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 -{lj}-абвг-{nj}-šđžčć-{dž}-
 !! html/php
@@ -92,7 +92,7 @@ language=sr variant=sr-ec
 !! test
 sr-ec: Roman numerals are not converted
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 a I b II v III g IV šđžčć
 !! html/php
@@ -109,7 +109,7 @@ a I b II v III g IV šđžčć
 !! test
 sr-el: A simple conversion of Latin to Latin
 !! options
-language=sr variant=sr-el
+language=sr htmlVariantLanguage=sr-Latn
 !! wikitext
 abcd
 !! html/php
@@ -124,7 +124,7 @@ abcd
 !! test
 sr-el: A simple conversion of Cyrillic to Latin
 !! options
-language=sr variant=sr-el
+language=sr htmlVariantLanguage=sr-Latn
 !! wikitext
 абцд
 !! html/php
@@ -139,7 +139,7 @@ language=sr variant=sr-el
 !! test
 sr-el: This text has some Latin, but is recognized as Cyrillic, so it should be converted
 !! options
-language=sr variant=sr-el
+language=sr htmlVariantLanguage=sr-Latn
 !! wikitext
 abcdшђжчћ
 !! html/php
@@ -154,7 +154,7 @@ abcdшђжчћ
 !! test
 External links should be converted, unless they "look like a URL".
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 [http://example.com abcd]
 
@@ -209,7 +209,7 @@ all additional text is vanished
 !! test
 Language converter glossary rules inside attributes (T119158)
 !! options
-language=sr variant=sr-el
+language=sr htmlVariantLanguage=sr-Latn
 !! config
 wgParserEnableLegacyMediaDOM=false
 !! wikitext
@@ -417,7 +417,7 @@ Latin proverb: -{Ne nuntium necare}-
 !! test
 Prevent conversion with -{}- tags (language variants)
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 Latinski: -{Ne nuntium necare}-
 !! html/php
@@ -430,7 +430,7 @@ Latinski: -{Ne nuntium necare}-
 !! test
 Prevent conversion of text with -{}- tags (language variants)
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 Latinski: -{Ne nuntium necare}-
 !! html/php
@@ -443,7 +443,7 @@ Latinski: -{Ne nuntium necare}-
 !! test
 Prevent conversion of links with -{}- tags (language variants)
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 -{[[Main Page]]}-
 !! html/php
@@ -458,7 +458,7 @@ language=sr variant=sr-ec
 !! config
 wgFragmentMode=[ "html5", "legacy" ]
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 ==-{Naslov}-==
 
@@ -484,7 +484,7 @@ conversion:</p>
 !! test
 Explicit definition of language variant alternatives
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 -{zh:China;zh-tw:Taiwan}-, not China
 !! html/php
@@ -497,7 +497,7 @@ language=zh variant=zh-tw
 !! test
 Explicit definition of language variant alternatives (BCP 47 codes)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 -{zh:China;zh-Hant-TW:Taiwan}-, not China
 !! html/php
@@ -510,7 +510,7 @@ language=zh variant=zh-tw
 !! test
 Filter syntax for language variants
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 foo-{zh;zh-hans;zh-hant|blog, WEBJOURNAL, WEBLOG}-quux
 !! html/php
@@ -525,7 +525,7 @@ foo-{zh;zh-hans;zh-hant|blog, WEBJOURNAL, WEBLOG}-quux
 !! test
 Conversion around HTML tags
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 -{H|span=>sr-ec:script;title=>sr-ec:src}-
 <span title="La-{sr-el:L;sr-ec:C}-tin">ski</span>
@@ -541,7 +541,7 @@ language=sr variant=sr-ec
 !! test
 Explicit session-wise two-way language variant mapping (A flag and - flag)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 This is -{zh:China; zh-tw:Taiwan}-, but we'll forget that now.
 
@@ -570,7 +570,7 @@ and -{China}- is China.
 !! test
 Explicit session-wise one-way language variant mapping (A flag and - flag)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 This is -{COUNTRY=>zh:China;COUNTRY=>zh-tw:Taiwan}-, but we'll forget that now.
 
@@ -599,7 +599,7 @@ and -{COUNTRY}- is COUNTRY.
 !! test
 Explicit session-wise two-way language variant mapping (H flag for hide)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 (This-{H|zh:China;zh-tw:Taiwan}- should be stripped!)
 
@@ -616,7 +616,7 @@ Taiwan is China.
 !! test
 Explicit session-wise one-way language variant mapping (H flag for hide)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 (This-{H|COUNTRY=>zh:China;COUNTRY=>zh-tw:Taiwan}- should be stripped!)
 
@@ -634,7 +634,7 @@ COUNTRY is Taiwan or China.
 !! test
 Adding explicit conversion rule for title (T flag)
 !! options
-language=zh variant=zh-tw showtitle
+language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 !! wikitext
 Should be stripped-{T|zh:China;zh-tw:Taiwan}-!
 
@@ -652,7 +652,7 @@ Taiwan
 !! test
 Code coverage: T combined with H flag
 !! options
-language=zh variant=zh-tw showtitle
+language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 !! wikitext
 Should be stripped-{T;H|zh:China; zh-tw:Taiwan}-!
 
@@ -670,7 +670,7 @@ Taiwan
 !! test
 Code coverage: T with no variants
 !! options
-language=zh variant=zh-tw showtitle
+language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 !! wikitext
 -{H|zh:China; zh-tw:Taiwan}-
 Taiwan is China.-{T|Taiwan is China}-
@@ -687,7 +687,7 @@ Taiwan is China.<meta typeof="mw:LanguageVariant" data-mw-variant='{"disabled":{
 !! test
 Code coverage: rules with no variants
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 -{H|zh:China; zh-tw:Taiwan}-
 Taiwan is China.
@@ -710,7 +710,7 @@ Taiwan is China.</p>
 !! test
 Code coverage: D flag for conversion rule
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 -{D|zh-cn:XA; zh-tw:YA}-
 -{A;D|zh-cn:XB; zh-tw:YB}-
@@ -747,7 +747,7 @@ XA XB XC YA YB YC FOO BAR BAT 012345
 !! test
 Code coverage: N flag for conversion rule
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{N|zh-cn}-
 
@@ -769,7 +769,7 @@ language=zh variant=zh-cn
 !! test
 Code coverage: N flag for conversion rule (wt2html only)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 parsoid=wt2html,html2html
 !! wikitext
 -{D;N|en}-
@@ -783,7 +783,7 @@ parsoid=wt2html,html2html
 !! test
 Testing that changing the language variant here in the tests actually works
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 Should be stripped-{T|zh:China; zh-tw:Taiwan}-!
 !! html/php
@@ -797,7 +797,7 @@ China
 !! test
 Title with HTML
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <i style="color:red">with</i> HTML&amp;Entities}-
 Should be stripped!
@@ -811,7 +811,7 @@ Should be stripped!
 !! test
 Title with Wiki syntax
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title ''with'' Wiki's s&uuml;ntax&copy}-
 Should be stripped!
@@ -825,7 +825,7 @@ Should be stripped!
 !! test
 Title with JavaScript injection
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <i onclick="alert(42)">click me</i> <script>alert(43)</script>}-
 Should be stripped!
@@ -839,7 +839,7 @@ Should be stripped!
 !! test
 Test 1 from T298401/T67747
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <script>a</script>&amp;<i>b</i>}-
 Should be stripped!
@@ -853,7 +853,7 @@ Should be stripped!
 !! test
 Test 2 from T298401/T67747
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <code style="display:none">}-
 Should be stripped!
@@ -867,7 +867,7 @@ Should be stripped!
 !! test
 Test 3 from T298401/T67747
 !! options
-language=zh variant=zh showtitle
+language=zh htmlVariantLanguage=zh showtitle
 !! wikitext
 -{T|zh:Title <b>Foo bar<b>}-
 Should be stripped!
@@ -881,7 +881,7 @@ Should be stripped!
 !! test
 Recursive conversion of alt and title attrs shouldn't clear converter state
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 showtitle
 !! wikitext
 -{H|zh-cn:Exclamation; zh-tw:exclamation}-
@@ -899,7 +899,7 @@ Should be stripped<meta typeof="mw:LanguageVariant" data-mw-variant='{"title":tr
 !! test
 T26072: more test on conversion rule for title
 !! options
-language=zh variant=zh-tw showtitle
+language=zh htmlVariantLanguage=zh-Hant-TW showtitle
 !! wikitext
 This should be stripped-{T|zh:China; zh-tw:Taiwan}-!
 
@@ -917,7 +917,7 @@ Taiwan
 !! test
 Partly disable title conversion if variant == main language code
 !! options
-language=zh variant=zh title=[[ZH]] showtitle
+language=zh htmlVariantLanguage=zh title=[[ZH]] showtitle
 !! wikitext
 -{T|zh-cn:CN;zh-tw:TW}-
 !! html/php
@@ -931,7 +931,7 @@ language=zh variant=zh title=[[ZH]] showtitle
 !! test
 Partly disable title conversion if variant == main language code, more
 !! options
-language=zh variant=zh title=[[ZH]] showtitle
+language=zh htmlVariantLanguage=zh title=[[ZH]] showtitle
 !! wikitext
 -{T|TW}-
 !! html/php
@@ -945,7 +945,7 @@ language=zh variant=zh title=[[ZH]] showtitle
 !! test
 Raw output of variant escape tags (R flag)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 Raw: -{R|zh:China;zh-tw:Taiwan}-
 !! html/php
@@ -959,7 +959,7 @@ Raw: -{R|zh:China;zh-tw:Taiwan}-
 !! test
 Raw output of variant escape tags (R flag) (wt2html only)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 parsoid=wt2html,html2html
 !! wikitext
 -{Variant}- -{D|syntax}- -{D;R|options}-
@@ -973,7 +973,7 @@ parsoid=wt2html,html2html
 !! test
 Nested markup inside raw output of variant escape tags (R flag)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 Nested raw: -{R|nested -{zh:China;zh-tw:Taiwan}- nested}-
 !! html/php
@@ -986,7 +986,7 @@ Nested raw: -{R|nested -{zh:China;zh-tw:Taiwan}- nested}-
 !! test
 Nested markup and spaces inside raw output of variant escape tags (R flag)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 X-{ outer -{ inner }- outer }-X
 !! html/php
@@ -999,7 +999,7 @@ X-{ outer -{ inner }- outer }-X
 !! test
 Templates inside raw output of variant escape tags (R flag)
 !! options
-language=zh variant=zh-tw
+language=zh htmlVariantLanguage=zh-Hant-TW
 !! wikitext
 Nested raw: -{R|nested {{1x|hi}} templates}-
 !! html/php
@@ -1012,7 +1012,7 @@ Nested raw: -{R|nested {{1x|hi}} templates}-
 !! test
 Strings evaluating false shouldn't be ignored by Language converter (T51072)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{zh-cn:0;zh-sg:1;zh-tw:2;zh-hk:3}-
 !! html/php
@@ -1025,7 +1025,7 @@ language=zh variant=zh-cn
 !! test
 Conversion rules from [numeric-only string] to [something else] (T48634)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{H|0=>zh-cn:B}--{H|0=>zh-cn:C;0=>zh-cn:D}--{H|0=>zh-hans:A}-012345-{A|zh-tw:0;zh-cn:E;}-012345
 !! html/php
@@ -1038,7 +1038,7 @@ language=zh variant=zh-cn
 !! test
 Two-way converter rule entries with an empty value should be ignored (T53551)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{H|zh-cn:foo;zh-tw:;}-foobar
 !! html/php
@@ -1051,7 +1051,7 @@ language=zh variant=zh-cn
 !! test
 One-way converter rule entries with an empty "from" string should be ignored (T53551)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{H|=>zh-cn:foo;}-foobar
 !! html/php
@@ -1064,7 +1064,7 @@ language=zh variant=zh-cn
 !! test
 Empty converter rule entries shouldn't be inserted into the conversion table (T53551)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{H|}-foobar
 !! html/php
@@ -1077,7 +1077,7 @@ language=zh variant=zh-cn
 !! test
 Nested using of manual convert syntax
 !! options
-language=zh variant=zh-hk
+language=zh htmlVariantLanguage=zh-Hant-HK
 !! wikitext
 Nested: -{zh-hans:Hi -{zh-cn:China;zh-sg:Singapore;}-;zh-hant:Hello -{zh-tw:Taiwan;zh-hk:H-{ong}- K-{}-ong;}-;}-!
 !! html/php
@@ -1090,7 +1090,7 @@ Nested: -{zh-hans:Hi -{zh-cn:China;zh-sg:Singapore;}-;zh-hant:Hello -{zh-tw:Taiw
 !! test
 HTML markups with conversion syntax in attribs, nested in other conversion blocks
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{zh;zh-hans;zh-hant|<span title="-{X}-">A</span>}-
 !! html/php
@@ -1103,7 +1103,7 @@ language=zh variant=zh-cn
 !! test
 HTML markups with conversion syntax in attribs, nested in other conversion blocks (not working yet in PHP parser)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 -{<span title="-{X}-">A</span>}-
 !! html/php+disabled
@@ -1119,7 +1119,7 @@ language=zh variant=zh-cn
 !! test
 Language converter markup with block content
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 <span>a-{b<div>c}-d
 
@@ -1141,7 +1141,7 @@ language=zh variant=zh-cn
 !! test
 LanguageConverter selser (1)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 parsoid={
   "modes": ["wt2wt", "selser"],
   "changes": [
@@ -1157,7 +1157,7 @@ parsoid={
 !! test
 LanguageConverter selser (2)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 parsoid={
   "modes": ["wt2wt", "selser"],
   "changes": [
@@ -1182,7 +1182,7 @@ parsoid={
 !! test
 LanguageConverter selser (3)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 parsoid={
   "modes": ["wt2wt", "selser"],
   "changes": [
@@ -1206,7 +1206,7 @@ parsoid={
 !! test
 LanguageConverter selser (4)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 parsoid={
   "modes": ["wt2wt", "selser"],
   "changes": [
@@ -1235,7 +1235,7 @@ parsoid={
 !! test
 Proper conversion of text in external links
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 parsoid=wt2html
 !! wikitext
 http://www.google.com
@@ -1267,7 +1267,7 @@ gopher://www.google.com
 !! test
 Do not convert roman numbers to language variants
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 Fridrih IV je car.
 !! html/php
@@ -1304,7 +1304,7 @@ language=sr
 !! test
 Don't break link parsing if language converter markup is in the caption.
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 [[Main Page|-{R|main page}-]]
 !! html/php
@@ -1317,7 +1317,7 @@ language=sr variant=sr-ec
 !! test
 T146304: Don't break template parsing if language converter markup is in the parameter.
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 {{1x|-{R|foo}-}}
 !! html/php
@@ -1330,7 +1330,7 @@ language=sr variant=sr-ec
 !! test
 T153135: Don't break list handling if language converter markup is in the item.
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 ;-{zh-cn:AAA;zh-tw:BBB}-
 ;-{R|foo:bar}-
@@ -1348,7 +1348,7 @@ language=zh variant=zh-cn
 !! test
 T153135: Unclosed markup in definition list (code coverage)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 ;<b>foo:bar
 ;-{zh-cn:AAA
@@ -1363,7 +1363,7 @@ language=zh variant=zh-cn
 !! test
 T153135: Nested language converter markup in definition list (code coverage)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! wikitext
 ;-{|zh-cn:AAA -{zh-hans|foo:bar}- -{R|bat:baz}-}-:def
 !! html/php
@@ -1379,7 +1379,7 @@ language=zh variant=zh-cn
 !! test
 T153140: Don't break table handling if language converter markup is in the cell.
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 parsoid=wt2html,wt2wt,html2html
 !! wikitext
 {|
@@ -1476,7 +1476,7 @@ parsoid=html2wt,wt2wt
 !! test
 Language converter tricky html2wt cases (5)
 !! options
-language=zh variant=zh-cn
+language=zh htmlVariantLanguage=zh-Hans-CN
 !! html/parsoid
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"oneway":[{"f":"a:b=>c","l":"zh-cn","t":"x;foo=>zh-cn:boo"},{"f":"bar","l":"zh-cn","t":"bat;xyz=>zh-cn:abc"}]}'/>foobar</p>
 <p><meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"oneway":[{"f":"A","l":"bo:g;us","t":"B"}]}'/></p>
@@ -1505,7 +1505,7 @@ a:b=>c xyz
 !! test
 T239806: Trailing garbage in language converter rules (1)
 !! options
-language=zh variant=zh-hans
+language=zh htmlVariantLanguage=zh-Hans
 parsoid=wt2html,html2html
 !! wikitext
 -{H|zh-cn:约翰·塞纳; zh-hk:莊·先拿; zh-tw:約翰·希南; ;}-
@@ -1525,7 +1525,7 @@ parsoid=wt2html,html2html
 !! test
 T239806: Trailing garbage in language converter rules (2)
 !! options
-language=zh variant=zh-hans
+language=zh htmlVariantLanguage=zh-Hans
 parsoid=wt2html,html2html
 !! wikitext
 -{H|zh-cn:玛格特·罗比; zh-tw:瑪格·羅比; zh-hk:瑪歌·羅比; zh-sg:玛格·罗比; ;}-
@@ -1554,7 +1554,7 @@ language=sr
 !! test
 Balinese language conversion
 !! options
-language=ban variant=ban-x-palmleaf
+language=ban htmlVariantLanguage=ban-x-palmleaf
 !! wikitext
 ᬫᬦ᭄ᬢ᭄ᬭ -{ban-x-palmleaf:AAA;ban:BBB}-
 !! html/php
