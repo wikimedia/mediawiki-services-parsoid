@@ -736,7 +736,7 @@ abstract class SiteConfig {
 		string $htmlTitle,
 		$lang
 	): void {
-		$lang = Utils::mwCodeToBcp47( $lang );
+		$lang = Utils::mwCodeToBcp47( $lang, true, $this->getLogger() );
 		// Display title
 		$titleElement = DOMCompat::querySelector( $document, 'title' );
 		if ( !$titleElement ) {

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\ParserTests;
 use Closure;
 use Psr\Log\LoggerInterface;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Env;
@@ -389,12 +390,14 @@ class TestRunner {
 			if ( $testOpts['variant'] ?? false ) {
 				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['variant'] );
 			}
-			// Preferred option names:
+			// Preferred option names, which are also specified in bcp-47 codes
 			if ( $testOpts['wtVariantLanguage'] ?? false ) {
-				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['wtVariantLanguage'] );
+				$this->envOptions['wtVariantLanguage'] =
+					new Bcp47CodeValue( $testOpts['wtVariantLanguage'] );
 			}
 			if ( $testOpts['htmlVariantLanguage'] ?? false ) {
-				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['htmlVariantLanguage'] );
+				$this->envOptions['htmlVariantLanguage'] =
+					new Bcp47CodeValue( $testOpts['htmlVariantLanguage'] );
 			}
 		}
 

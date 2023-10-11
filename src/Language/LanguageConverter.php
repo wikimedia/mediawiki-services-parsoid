@@ -207,10 +207,14 @@ class LanguageConverter {
 		}
 		// Back-compat w/ old string-passing parameter convention
 		if ( is_string( $htmlVariantLanguage ) ) {
-			$htmlVariantLanguage = Utils::mwCodeToBcp47( $htmlVariantLanguage );
+			$htmlVariantLanguage = Utils::mwCodeToBcp47(
+				$htmlVariantLanguage, true, $env->getSiteConfig()->getLogger()
+			);
 		}
 		if ( is_string( $wtVariantLanguage ) ) {
-			$wtVariantLanguage = Utils::mwCodeToBcp47( $wtVariantLanguage );
+			$wtVariantLanguage = Utils::mwCodeToBcp47(
+				$wtVariantLanguage, true, $env->getSiteConfig()->getLogger()
+			);
 		}
 		$variants = $env->getSiteConfig()->variantsFor( $htmlVariantLanguage );
 		if ( $variants === null ) {
@@ -256,10 +260,14 @@ class LanguageConverter {
 	): void {
 		// Back-compat w/ old string-passing parameter convention
 		if ( is_string( $htmlVariantLanguage ) ) {
-			$htmlVariantLanguage = Utils::mwCodeToBcp47( $htmlVariantLanguage );
+			$htmlVariantLanguage = Utils::mwCodeToBcp47(
+				$htmlVariantLanguage, true, $env->getSiteConfig()->getLogger()
+			);
 		}
 		if ( is_string( $wtVariantLanguage ) ) {
-			$wtVariantLanguage = Utils::mwCodeToBcp47( $wtVariantLanguage );
+			$wtVariantLanguage = Utils::mwCodeToBcp47(
+				$wtVariantLanguage, true, $env->getSiteConfig()->getLogger()
+			);
 		}
 		// PageConfig guarantees getPageLanguage() never returns null.
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
