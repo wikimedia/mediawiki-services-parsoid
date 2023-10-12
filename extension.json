@@ -13,21 +13,15 @@
 		"MWParsoid\\": "extension/src"
 	},
 	"config": {
-		"ParsoidEnableQueryString": {
-			"value": false,
-			"description": "Whether to enable the ?useparsoid=1 query string for article views"
-		},
 		"ParsoidEnableREST": {
 			"value": true,
 			"description": "Whether to enable Parsoid REST API"
 		}
 	},
 	"Hooks": {
-		"ArticleParserOptions": "ArticleParserOptionsHandler",
 		"UnitTestsList": "UnitTestsListHandler"
 	},
 	"HookHandlers": {
-		"ArticleParserOptionsHandler": { "class": "\\MWParsoid\\ArticleParserOptionsHandler" },
 		"UnitTestsListHandler": { "class": "\\MWParsoid\\UnitTestsListHandler" }
 	},
 	"callback": "\\MWParsoid\\RegistrationHookHandler::onRegistration",
