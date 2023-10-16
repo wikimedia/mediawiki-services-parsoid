@@ -3,6 +3,8 @@
 
 namespace Wikimedia\Parsoid\Tools;
 
+global $argv;
+
 // Hacky preprocessing of command-line arguments: look for
 // --integrated and/or --standalone flags.
 $parsoidMode = null;
