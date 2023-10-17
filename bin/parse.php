@@ -25,6 +25,7 @@ use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\ParserTests\DummyAnnotation;
 use Wikimedia\Parsoid\ParserTests\TestUtils;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
@@ -335,6 +336,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function setupMockConfig( array $configOpts ) {
 		$siteConfig = new MockSiteConfig( $configOpts );
+		$siteConfig->registerExtensionModule( DummyAnnotation::class );
 		$dataAccess = new MockDataAccess( $configOpts );
 		$pageContent = new MockPageContent( [ 'main' =>
 			$configOpts['pageContent'] ?? '' ] );
