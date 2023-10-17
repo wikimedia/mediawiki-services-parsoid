@@ -1050,3 +1050,13 @@ parsoid=wt2html
 !! html/parsoid
 <meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[0,11]}'/><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[11,23]}'/>&lt;/dummyanno>&lt;/dummyanno>
 !! end
+
+!! test
+Annotation in template target
+!! options
+annotations=1
+!! wikitext
+{{<dummyanno>1x|hello</dummyanno> stuff}}
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"&lt;dummyanno>1x","href":"./Template:1x"},"params":{"1":{"wt":"hello&lt;/dummyanno> stuff"}},"i":0}}]}'>hello</span>&lt;/dummyanno><span about="#mwt1"> stuff</span></p>
+!! end

@@ -31,6 +31,18 @@
         "selser [0,[4],0]": "<dummyanno>==1hd5cqy==</dummyanno>",
         "selser [0,2,0]": "<dummyanno>\n119tbl0\n\n==plop==</dummyanno>"
     },
+    "Annotation in template target": {
+        "wt2wt": "{{<dummyanno>1x|hello</dummyanno> stuff}}<nowiki></dummyanno></nowiki><span> stuff</span>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,89,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,41,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"&lt;dummyanno>1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hello&lt;/dummyanno> stuff\"}},\"i\":0}}]}'>hello</span>&lt;/dummyanno><span about=\"#mwt2\" data-parsoid=\"{}\"> stuff</span><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[41,70,8,9]}'>&lt;/dummyanno></span><span data-parsoid='{\"stx\":\"html\",\"dsr\":[70,89,6,7]}'> stuff</span></p>",
+        "html2wt": "{{<dummyanno>1x|hello</dummyanno> stuff}}<nowiki></dummyanno></nowiki><span> stuff</span>",
+        "selser [[0,0,1]]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span data-foobar=\"rcsfl1\"> stuff</span>",
+        "selser [1]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span> stuff</span>",
+        "selser [2]": "tv9ps4\n\n{{<dummyanno>1x|hello</dummyanno> stuff}}",
+        "selser [[0,0,3]]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno>",
+        "selser [[0,0,[4]]]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span>21vtoa</span>",
+        "selser [[0,0,[3]]]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span></span>",
+        "selser [[0,0,[2]]]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span>4cvg4r stuff</span>"
+    },
     "Annotation open tag in fosterable position should expand the range to the entire table": {
         "wt2wt": "<dummyanno>\n{|\n|table\n|with\n|-\n\n|some\n|content\n|-\n|dummyanno\n|one line\n|}\n</dummyanno>"
     },

@@ -18,6 +18,7 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\Params;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -183,9 +184,17 @@ class TemplateHandler extends TokenHandler {
 					// Quotes are valid template targets
 					if ( $ntt->getName() === 'mw-quote' ) {
 						$buf .= $ntt->getAttribute( 'value' );
-					} elseif ( !TokenUtils::isEmptyLineMetaToken( $ntt ) &&
+					} elseif (
+						!TokenUtils::isEmptyLineMetaToken( $ntt ) &&
 						$ntt->getName() !== 'template' &&
-						$ntt->getName() !== 'templatearg'
+						$ntt->getName() !== 'templatearg' &&
+						// Ignore annotations in template targets
+						// NOTE(T295834): There's a large discussion about who's responsible
+						// for stripping these tags in I487baaafcf1ffd771cb6a9e7dd4fb76d6387e412
+						!(
+							$ntt->getName() === 'meta' &&
+							TokenUtils::matchTypeOf( $ntt, WTUtils::ANNOTATION_META_TYPE_REGEXP )
+						)
 					) {
 						// We are okay with empty (comment-only) lines,
 						// {{..}} and {{{..}}} in template targets.
@@ -235,6 +244,7 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		// All good! No newline / only whitespace/comments post newline.
+		// (Well, annotation metas and template(arg) tokens too)
 		return [ $preNlContent . $buf, null ];
 	}
 
