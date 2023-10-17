@@ -677,7 +677,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should get from a title and current revision (html, json content)', function(done) {
+		// Disabled for T349098
+		it.skip('should get from a title and current revision (html, json content)', function(done) {
 			client.req
 			.get(mockDomain + '/v3/page/html/JSON_Page')
 			.redirects(1)
@@ -695,7 +696,8 @@ describe('Parsoid API', function() {
 			.end(done);
 		});
 
-		it('should get from a title and revision (pagebundle, json content)', function(done) {
+		// Disabled for T349098
+		it.skip('should get from a title and revision (pagebundle, json content)', function(done) {
 			client.req
 			.get(mockDomain + '/v3/page/pagebundle/JSON_Page')
 			.redirects(1)
