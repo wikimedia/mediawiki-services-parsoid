@@ -743,6 +743,25 @@ class DOMUtils {
 
 	/**
 	 * @param Document $doc
+	 * @param array $headers
+	 */
+	public static function addHttpEquivHeaders( Document $doc, array $headers ): void {
+		foreach ( $headers as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$value = implode( ',', $value );
+			}
+			$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$key}\"i]" );
+			if ( !$el ) {
+				// This also ensures there is a <head> element.
+				$el = self::appendToHead( $doc, 'meta', [ 'http-equiv' => $key ] );
+			}
+			$el->setAttribute( 'content', $value );
+
+		}
+	}
+
+	/**
+	 * @param Document $doc
 	 * @return string|null
 	 */
 	public static function extractInlinedContentVersion( Document $doc ): ?string {
@@ -896,5 +915,4 @@ class DOMUtils {
 	public static function isMetaDataTag( Element $node ): bool {
 		return isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $node )] );
 	}
-
 }

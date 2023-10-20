@@ -501,59 +501,43 @@ class Parsoid {
 				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 				break;
 
-			// variant-metadata-hack exists to support the hack in core where
-			// Parsoid-unsupported variants are transformed via core's variant converters.
-			// But, that generated HTML needs Parsoid metadata to make it look like
-			// Parsoid HTML. (See includes/parser/Parsoid/LanguageVariantConverter.php)
-			case 'variant-metadata-hack':
 			case 'variant':
 				ContentUtils::convertOffsets(
 					$env, $doc, $env->getRequestOffsetType(), 'byte'
 				);
 
-				if ( $update === 'variant' ) {
-					// Note that `maybeConvert` could still be a no-op, in case the
-					// __NOCONTENTCONVERT__ magic word is present, or the htmlVariant
-					// is a base language code or otherwise invalid.
-					$hasWtVariant = $options['variant']['wikitext'] ??
+				// Note that `maybeConvert` could still be a no-op, in case the
+				// __NOCONTENTCONVERT__ magic word is present, or the htmlVariant
+				// is a base language code or otherwise invalid.
+				$hasWtVariant = $options['variant']['wikitext'] ??
+					// Deprecated name for this option:
+					$options['variant']['source'] ?? false;
+				LanguageConverter::maybeConvert(
+					$env, $doc,
+					Utils::mwCodeToBcp47(
+						$options['variant']['html'] ??
 						// Deprecated name for this option:
-						$options['variant']['source'] ?? false;
-					LanguageConverter::maybeConvert(
-						$env, $doc,
-						Utils::mwCodeToBcp47(
-							$options['variant']['html'] ??
-							// Deprecated name for this option:
-							$options['variant']['target'],
-							// Be strict in what we accept.
-							true, $this->siteConfig->getLogger()
-						),
-						$hasWtVariant ?
-						Utils::mwCodeToBcp47(
-							$options['variant']['wikitext'] ??
-							// Deprecated name for this option:
-							$options['variant']['source'],
-							// Be strict in what we accept.
-							true, $this->siteConfig->getLogger()
-						) : null
-					);
-				}
+						$options['variant']['target'],
+						// Be strict in what we accept.
+						true, $this->siteConfig->getLogger()
+					),
+					$hasWtVariant ?
+					Utils::mwCodeToBcp47(
+						$options['variant']['wikitext'] ??
+						// Deprecated name for this option:
+						$options['variant']['source'],
+						// Be strict in what we accept.
+						true, $this->siteConfig->getLogger()
+					) : null
+				);
+
+				// NOTE: Keep this in sync with code in core's LanguageVariantConverter
 				// Update content-language and vary headers.
-				// This also ensures there is a <head> element.
-				$ensureHeader = static function ( string $h ) use ( $doc ) {
-					$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$h}\"i]" );
-					if ( !$el ) {
-						$el = DOMUtils::appendToHead( $doc, 'meta', [
-							'http-equiv' => $h,
-						] );
-					}
-					return $el;
-				};
-				( $ensureHeader( 'content-language' ) )->setAttribute(
-					'content', $env->htmlContentLanguageBcp47()->toBcp47Code()
-				);
-				( $ensureHeader( 'vary' ) )->setAttribute(
-					'content', $env->htmlVary()
-				);
+				DOMUtils::addHttpEquivHeaders( $doc, [
+					'content-language' => $env->htmlContentLanguageBcp47()->toBcp47Code(),
+					'vary' => $env->htmlVary()
+				] );
+
 				( new ConvertOffsets() )->run( $env, DOMCompat::getBody( $doc ), [], true );
 				break;
 
