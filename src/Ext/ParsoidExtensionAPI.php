@@ -10,11 +10,14 @@ use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
+use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -1014,6 +1017,27 @@ class ParsoidExtensionAPI {
 		}
 
 		return $thumb;
+	}
+
+	/**
+	 * Serialize a MediaStructure to a title and media options string.
+	 * The converse to ::renderMedia.
+	 *
+	 * @param MediaStructure $ms
+	 * @return array Where,
+	 *   [0] is the media title string
+	 *   [1] is the string of media options
+	 */
+	public function serializeMedia( MediaStructure $ms ): array {
+		$ct = LinkHandlerUtils::figureToConstrainedText( $this->serializerState, $ms );
+		if ( $ct instanceof WikiLinkText ) {
+			// Remove the opening and closing square brackets
+			$text = substr( $ct->text, 2, -2 );
+			return array_pad( explode( '|', $text, 2 ), 2, '' );
+		} else {
+			// Note that $ct could be an AutoURLLinkText, not just null
+			return [ '', '' ];
+		}
 	}
 
 	/**

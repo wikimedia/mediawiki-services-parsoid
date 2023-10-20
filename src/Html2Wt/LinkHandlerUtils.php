@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;
+use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
@@ -1041,23 +1042,36 @@ class LinkHandlerUtils {
 	public static function figureHandler(
 		SerializerState $state, Element $node, ?MediaStructure $ms
 	): void {
-		$env = $state->getEnv();
-
 		if ( !$ms ) {
-			$env->log(
+			$state->getEnv()->log(
 				'error/html2wt/figure',
 				"Couldn't parse media structure: ",
 				DOMCompat::getOuterHTML( $node )
 			);
-			$state->emitChunk( '', $node );
 			return;
 		}
+		$ct = self::figureToConstrainedText( $state, $ms );
+		$state->emitChunk( $ct ?? '', $node );
+	}
 
+	/**
+	 * Serialize a figure to contrained text.
+	 *
+	 * WARN: There's probably more to do to ensure this is purely functional,
+	 * no side-effects (ie. calls to state->emit) happen while processing.
+	 *
+	 * @param SerializerState $state
+	 * @param MediaStructure $ms
+	 * @return ?ConstrainedText
+	 */
+	public static function figureToConstrainedText(
+		SerializerState $state, MediaStructure $ms
+	): ?ConstrainedText {
+		$env = $state->getEnv();
 		$outerElt = $ms->containerElt ?? $ms->mediaElt;
 		$linkElt = $ms->linkElt;
 		$elt = $ms->mediaElt;
 		$captionElt = $ms->captionElt;
-
 		$format = WTUtils::getMediaFormat( $outerElt );
 
 		// Try to identify the local title to use for this image.
@@ -1068,16 +1082,14 @@ class LinkHandlerUtils {
 			if ( !$elt->hasAttribute( 'src' ) ) {
 				$env->log( 'error/html2wt/figure',
 					'In WSP.figureHandler, img does not have resource or src:',
-					DOMCompat::getOuterHTML( $node )
+					DOMCompat::getOuterHTML( $outerElt )
 				);
-				$state->emitChunk( '', $node );
-				return;
+				return null;
 			}
 			$src = $elt->getAttribute( 'src' ) ?? '';
 			if ( preg_match( '/^https?:/', $src ) ) {
 				// external image link, presumably $wgAllowExternalImages=true
-				$state->emitChunk( new AutoURLLinkText( $src, $node ), $node );
-				return;
+				return new AutoURLLinkText( $src, $outerElt );
 			}
 			$resource = [
 				'value' => $src,
@@ -1265,7 +1277,7 @@ class LinkHandlerUtils {
 					// to contain arbitrary wikitext, even though it is stripped
 					// to a string before emitting.
 					$value = $state->serializer->wteHandlers->escapeLinkContent(
-						$state, $value, false, $node, true
+						$state, $value, false, $outerElt, true
 					);
 				}
 				$nopts[] = [
@@ -1621,9 +1633,9 @@ class LinkHandlerUtils {
 		}
 		$wikitext .= ']]';
 
-		$state->emitChunk( new WikiLinkText(
-			$wikitext, $node, $state->getEnv()->getSiteConfig(), 'mw:File'
-		), $node );
+		return new WikiLinkText(
+			$wikitext, $outerElt, $state->getEnv()->getSiteConfig(), 'mw:File'
+		);
 	}
 
 }
