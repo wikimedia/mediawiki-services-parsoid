@@ -457,6 +457,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			}
 		} else {
 			$this->error( "Either --titles or --url is required." );
+			return -1;
 		}
 
 		$this->ssh( self::cmd( 'sudo rm -f', [ $this->titlesPath ] ) );
