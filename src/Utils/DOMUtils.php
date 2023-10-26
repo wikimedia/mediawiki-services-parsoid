@@ -742,14 +742,21 @@ class DOMUtils {
 	}
 
 	/**
-	 * @param Document $doc
-	 * @param array $headers
+	 * Add or replace http-equiv headers in the HTML <head>.
+	 * This is used for content-language and vary headers, among possible
+	 * others.
+	 * @param Document $doc The HTML document to update
+	 * @param array<string,string|string[]> $headers An array mapping HTTP
+	 *   header names (which are case-insensitive) to new values.  If an
+	 *   array of values is provided, they will be joined with commas.
 	 */
 	public static function addHttpEquivHeaders( Document $doc, array $headers ): void {
 		foreach ( $headers as $key => $value ) {
 			if ( is_array( $value ) ) {
 				$value = implode( ',', $value );
 			}
+			// HTTP header names are case-insensitive; hence the "i" suffix
+			// on this selector query.
 			$el = DOMCompat::querySelector( $doc, "meta[http-equiv=\"{$key}\"i]" );
 			if ( !$el ) {
 				// This also ensures there is a <head> element.
