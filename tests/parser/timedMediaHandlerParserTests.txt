@@ -251,3 +251,16 @@ wgParserEnableLegacyMediaDOM=false
 !! html/parsoid
 <figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/09/Transcode.webm/180px--Transcode.webm.jpg" controls="" preload="none" height="132" width="180" resource="./File:Transcode.webm" data-durationhint="4" class="mw-file-element"><source src="http://example.com/images/0/09/Transcode.webm" type='video/webm; codecs="vp8, vorbis"' data-file-width="492" data-file-height="360"/><source src="http://example.com/images/transcoded/0/09/Transcode.webm/Transcode.webm.240p.vp9.webm" type='video/webm; codecs="vp9, opus"' data-width="328" data-height="240" data-transcodekey="240p.vp9.webm"/></video></span><figcaption>Hello</figcaption></figure>
 !! end
+
+!! test
+Video with markup in alt option
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Video.ogv|alt=testing '''bold''' in alt]]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" about="#mwt1" data-mw='{"attribs":[["alt",{"html":"alt=testing &lt;b data-parsoid=&apos;{\"dsr\":[29,39,3,3]}&apos;>bold&lt;/b> in alt","txt":"testing bold in alt"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+!! end
