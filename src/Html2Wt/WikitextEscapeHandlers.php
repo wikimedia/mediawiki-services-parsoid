@@ -520,9 +520,7 @@ class WikitextEscapeHandlers {
 		// If the token stream has a TagTk, SelfclosingTagTk, EndTagTk or CommentTk
 		// then this text needs escaping!
 		$numEntities = 0;
-		for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[$i];
-
+		foreach ( $tokens as $t ) {
 			$env->log(
 				'trace/wt-escape', 'T:',
 				static function () use ( $t ) {
@@ -724,8 +722,7 @@ class WikitextEscapeHandlers {
 
 		$tokens = $this->tokenizeStr( $text, $sol );
 
-		for ( $i = 0,  $n = count( $tokens );  $i < $n;  $i++ ) {
-			$t = $tokens[$i];
+		foreach ( $tokens as $t ) {
 			if ( is_string( $t ) ) {
 				if ( strlen( $t ) > 0 ) {
 					$t = WTSUtils::escapeNowikiTags( $t );

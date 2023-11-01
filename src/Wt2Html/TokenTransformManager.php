@@ -112,7 +112,7 @@ class TokenTransformManager extends PipelineStage {
 	 */
 	public function processChunk( array $tokens ): ?array {
 		// Trivial case
-		if ( count( $tokens ) === 0 ) {
+		if ( !$tokens ) {
 			return $tokens;
 		}
 
@@ -126,7 +126,7 @@ class TokenTransformManager extends PipelineStage {
 
 		foreach ( $this->transformers as $transformer ) {
 			if ( !$transformer->isDisabled() ) {
-				if ( count( $tokens ) === 0 ) {
+				if ( !$tokens ) {
 					break;
 				}
 				$tokens = $transformer->process( $tokens );

@@ -828,8 +828,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			return;
 		}
 		print '<testsuites file="' . $file . '">';
-		for ( $i = 0;  $i < count( $modesRan );  $i++ ) {
-			$mode = $modesRan[$i];
+		foreach ( $modesRan as $mode ) {
 			print '<testsuite name="parserTests-' . $mode . '">';
 			print $stats->modes[$mode]->result;
 			print '</testsuite>';

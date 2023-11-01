@@ -877,8 +877,7 @@ class DOMPostProcessor extends PipelineStage {
 			}
 		}
 
-		for ( $i = 0;  $i < count( $this->processors );  $i++ ) {
-			$pp = $this->processors[$i];
+		foreach ( $this->processors as $pp ) {
 			// - Nested pipelines are used for both top-level and non-top-level content.
 			// - Omit is currently set only for templated content pipelines.
 			// - But, skipNested can be set for both templated content as well as

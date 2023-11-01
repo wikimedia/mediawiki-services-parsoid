@@ -135,11 +135,7 @@ abstract class TokenHandler {
 	 */
 	public function process( $tokens ): array {
 		$accum = [];
-		$i = 0;
-		$n = count( $tokens );
-		while ( $i < $n ) {
-			$token = $tokens[$i];
-
+		foreach ( $tokens as $token ) {
 			$res = null;
 			$resTokens = null; // Not needed but helpful for code comprehension
 			if ( $token instanceof NlTk ) {
@@ -169,8 +165,6 @@ abstract class TokenHandler {
 				// Avoid array_merge() -- see https://w.wiki/3zvE
 				PHPUtils::pushArray( $accum, $resTokens );
 			}
-
-			$i++;
 		}
 
 		return $accum;

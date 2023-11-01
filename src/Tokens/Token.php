@@ -199,16 +199,12 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $name
 	 */
 	public function removeAttribute( string $name ): void {
-		$out = [];
-		$attribs = $this->attribs;
-		// FIXME: Could use array_filter
-		for ( $i = 0, $l = count( $attribs ); $i < $l; $i++ ) {
-			$kv = $attribs[$i];
-			if ( mb_strtolower( $kv->k ) !== $name ) {
-				$out[] = $kv;
+		foreach ( $this->attribs as $i => $kv ) {
+			if ( mb_strtolower( $kv->k ) === $name ) {
+				unset( $this->attribs[$i] );
 			}
 		}
-		$this->attribs = $out;
+		$this->attribs = array_values( $this->attribs );
 	}
 
 	/**

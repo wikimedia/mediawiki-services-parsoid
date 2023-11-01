@@ -153,10 +153,10 @@ class TokenizerUtils {
 			}
 		} else {
 			$a = $attrInfo[0];
-			if ( count( $a ) === 0 ) {
+			if ( !$a ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];
 			}
-			if ( ( count( $a ) === 0 && $attrInfo[2] ) || $attrInfo[2] !== '|' ) {
+			if ( ( !$a && $attrInfo[2] ) || $attrInfo[2] !== '|' ) {
 				// Variation from default
 				// 1. Separator present with an empty attribute block
 				// 2. Not "|"
@@ -382,10 +382,10 @@ class TokenizerUtils {
 			}
 		}
 		// ensure we found a comment
-		while ( count( $buf ) && !( $buf[0] instanceof CommentTk ) ) {
+		while ( $buf && !( $buf[0] instanceof CommentTk ) ) {
 			array_shift( $buf );
 		}
-		if ( count( $buf ) ) {
+		if ( $buf ) {
 			array_splice( $attrs, -count( $buf ), count( $buf ) );
 			return [ 'buf' => $buf, 'commentStartPos' => $buf[0]->dataParsoid->tsr->start ];
 		} else {
