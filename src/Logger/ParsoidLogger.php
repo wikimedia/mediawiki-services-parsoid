@@ -11,8 +11,8 @@ class ParsoidLogger {
 	/* @var Logger */
 	private $backendLogger;
 
-	/* @var string */
-	private $enabledRE;
+	/* @var string|null Null means nothing is enabled */
+	private $enabledRE = null;
 
 	/** PORT-FIXME: Not yet implemented. Monolog supports sampling as well! */
 	/* @var string */
@@ -50,7 +50,7 @@ class ParsoidLogger {
 	 * @return string
 	 */
 	private function buildLoggingRE( array $flags, string $logType ): string {
-		return $logType . '/(' . implode( '|', array_keys( $flags ) ) . ')(/|$)';
+		return $logType . '/(?:' . implode( '|', array_keys( $flags ) ) . ')(?:/|$)';
 	}
 
 	/**
@@ -64,7 +64,6 @@ class ParsoidLogger {
 	public function __construct( LoggerInterface $backendLogger, array $options ) {
 		$this->backendLogger = $backendLogger;
 
-		$this->enabledRE = '';
 		$rePatterns = $options['logLevels'];
 		if ( $options['traceFlags'] ) {
 			$rePatterns[] = $this->buildLoggingRE( $options['traceFlags'], 'trace' );
@@ -90,9 +89,7 @@ class ParsoidLogger {
 		}
 
 		if ( count( $rePatterns ) > 0 ) {
-			$this->enabledRE = '#(' . implode( '|', $rePatterns ) . ')#';
-		} else {
-			$this->enabledRE = '/[^\s\S]/';
+			$this->enabledRE = '#^(?:' . implode( '|', $rePatterns ) . ')#';
 		}
 	}
 
@@ -173,7 +170,7 @@ class ParsoidLogger {
 	public function log( string $prefix, ...$args ): void {
 		// FIXME: This requires enabled loglevels to percolate all the way here!!
 		// Quick check for un-enabled logging.
-		if ( !preg_match( $this->enabledRE, $prefix ) ) {
+		if ( !$this->enabledRE || !preg_match( $this->enabledRE, $prefix ) ) {
 			return;
 		}
 
