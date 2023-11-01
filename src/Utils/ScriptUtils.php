@@ -277,13 +277,7 @@ class ScriptUtils {
 	 * @return bool
 	 */
 	public static function booleanOption( $val ): bool {
-		if ( !$val ) {
-			return false;
-		}
-		if ( is_string( $val ) && preg_match( '/^(no|false)$/D', $val ) ) {
-			return false;
-		}
-		return true;
+		return $val && $val !== 'no' && $val !== 'false';
 	}
 
 	/**
