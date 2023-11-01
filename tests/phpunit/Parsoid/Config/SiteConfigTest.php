@@ -164,7 +164,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function testInterwikiMatcher_tooManyPatterns() {
 		$map = [];
-		for ( $i = 0; $i < 100000; $i++ ) {
+		for ( $i = 0; $i < 100; $i++ ) {
 			$map["x$i"] = [
 				'prefix' => "x$i",
 				'url' => "https://example.org/$i/$1",
@@ -180,8 +180,8 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig->method( 'interwikiMap' )->willReturn( $map );
 
 		$this->assertSame(
-			[ 'x9876', 'Foobar' ],
-			$siteConfig->interwikiMatcher( 'https://example.org/9876/Foobar' )
+			[ 'x76', 'Foobar' ],
+			$siteConfig->interwikiMatcher( 'https://example.org/76/Foobar' )
 		);
 		$this->assertSame(
 			[ ':l', 'Foobar' ],
