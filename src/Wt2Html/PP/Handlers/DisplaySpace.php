@@ -61,7 +61,7 @@ class DisplaySpace {
 	private static function insertDisplaySpace(
 		Text $node, int $offset
 	): void {
-		$str = $str = $node->nodeValue;
+		$str = $node->nodeValue;
 
 		$prefix = substr( $str, 0, $offset );
 		$suffix = substr( $str, $offset + 1 );
