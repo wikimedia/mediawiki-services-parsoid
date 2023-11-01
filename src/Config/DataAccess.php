@@ -25,7 +25,7 @@ abstract class DataAccess {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param string[] $titles
-	 * @return array [ string Title => array ], where the array contains
+	 * @return array<string,array> [ string Title => array ], where the array contains
 	 *  - pageId: (int|null) Page ID
 	 *  - revId: (int|null) Current revision of the page
 	 *  - missing: (bool) Whether the page is missing

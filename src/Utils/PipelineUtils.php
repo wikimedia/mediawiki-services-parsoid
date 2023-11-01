@@ -82,7 +82,7 @@ class PipelineUtils {
 	 *    - string srcText - if set, defines the source text for the expansion
 	 *    - SourceRange  srcOffsets - if set, defines the range within the
 	 *          source text that $content corresponds to
-	 *    - bool   sol
+	 *    - bool   sol Whether tokens should be processed in start-of-line context.
 	 * @return Token[]|DocumentFragment (depending on pipeline type)
 	 */
 	public static function processContentInPipeline(

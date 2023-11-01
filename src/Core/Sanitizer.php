@@ -162,7 +162,7 @@ class Sanitizer {
 	 * Fetch the list of acceptable attributes for a given element name.
 	 *
 	 * @param string $element
-	 * @return array
+	 * @return array<string,int>
 	 */
 	public static function attributesAllowedInternal( string $element ): array {
 		// PORT-FIXME: this method is private in core, but used by Gallery
@@ -174,7 +174,7 @@ class Sanitizer {
 	/**
 	 * Foreach array key (an allowed HTML element), return an array
 	 * of allowed attributes
-	 * @return array
+	 * @return array<string,string[]>
 	 */
 	private static function setupAttributesAllowedInternal(): array {
 		static $allowed;

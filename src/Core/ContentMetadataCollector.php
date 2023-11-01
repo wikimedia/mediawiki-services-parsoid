@@ -418,7 +418,7 @@ interface ContentMetadataCollector {
 	public function setIndicator( $name, $content ): void;
 
 	/**
-	 * @return array
+	 * @return array<string,string>
 	 */
 	public function getIndicators(): array;
 }

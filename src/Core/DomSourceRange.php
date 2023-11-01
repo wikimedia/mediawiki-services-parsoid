@@ -42,7 +42,7 @@ class DomSourceRange extends SourceRange {
 	public $trailingWS = 0;
 
 	/**
-	 * Create a new DOM source offset.
+	 * Create a new DOM source offset range (DSR).
 	 * @param ?int $start The starting index (UTF-8 byte count, inclusive)
 	 * @param ?int $end The ending index (UTF-8 byte count, exclusive)
 	 * @param ?int $openWidth The width of the open container tag

@@ -225,8 +225,8 @@ class Utils {
 	}
 
 	/**
-	 * Check for valid DSR range(s)
-	 * DSR = "DOM Source Range".
+	 * Basic check if a DOM Source Range (DSR) is valid. Only checks for underflow, not for
+	 * overflow.
 	 *
 	 * @param ?DomSourceRange $dsr DSR source range values
 	 * @param bool $all Also check the widths of the container tag

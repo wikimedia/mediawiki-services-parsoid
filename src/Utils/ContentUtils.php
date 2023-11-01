@@ -231,7 +231,7 @@ class ContentUtils {
 	}
 
 	/**
-	 * Shift the DSR of a DOM fragment.
+	 * Shift the DOM Source Range (DSR) of a DOM fragment.
 	 * @param Env $env
 	 * @param Node $rootNode
 	 * @param callable $dsrFunc

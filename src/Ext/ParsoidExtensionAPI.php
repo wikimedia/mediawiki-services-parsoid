@@ -366,7 +366,7 @@ class ParsoidExtensionAPI {
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - context "inline", "block", etc. Currently, only "inline" is supported
-	 * @param bool $sol
+	 * @param bool $sol Whether tokens should be processed in start-of-line context.
 	 * @return DocumentFragment
 	 */
 	public function wikitextToDOM(
