@@ -87,14 +87,9 @@ class TDHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( DOMCompat::nodeName( $otherNode ) === 'td'
-			&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row'
-		) {
-			// force single line
-			return [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
-		} else {
-			return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
-		}
+		$forceSingleLine = DOMCompat::nodeName( $otherNode ) === 'td'
+			&& ( DOMDataUtils::getDataParsoid( $node )->stx ?? null ) === 'row';
+		return [ 'min' => $forceSingleLine ? 0 : 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 	}
 
 	/** @inheritDoc */
