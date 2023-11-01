@@ -479,7 +479,7 @@ abstract class SiteConfig {
 
 	/**
 	 * Interwiki link data
-	 * @return array[] Keys are interwiki prefixes, values are arrays with the following keys:
+	 * @return array<string,array> Keys are interwiki prefixes, values are arrays with the following keys:
 	 *   - prefix: (string) The interwiki prefix, same as the key.
 	 *   - url: (string) Target URL, containing a '$1' to be replaced by the interwiki target.
 	 *   - protorel: (bool, optional) Whether the url may be accessed by both http:// and https://.
@@ -495,17 +495,16 @@ abstract class SiteConfig {
 	/**
 	 * Interwiki link data, after removing items that conflict with namespace names.
 	 * (In case of such conflict, namespace wins, interwiki is ignored.)
-	 * @return array[] See interwikiMap()
+	 * @return array<string,array> See interwikiMap()
 	 */
 	public function interwikiMapNoNamespaces(): array {
 		if ( $this->interwikiMapNoNamespaces === null ) {
-			$map = $this->interwikiMap();
-			foreach ( array_keys( $map ) as $key ) {
-				if ( $this->namespaceId( $key ) !== null ) {
-					unset( $map[$key] );
+			$this->interwikiMapNoNamespaces = [];
+			foreach ( $this->interwikiMap() as $key => $value ) {
+				if ( $this->namespaceId( $key ) === null ) {
+					$this->interwikiMapNoNamespaces[$key] = $value;
 				}
 			}
-			$this->interwikiMapNoNamespaces = $map;
 		}
 		return $this->interwikiMapNoNamespaces;
 	}
