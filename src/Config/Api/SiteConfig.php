@@ -426,11 +426,8 @@ class SiteConfig extends ISiteConfig {
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
 		$this->loadSiteData();
-		$ns = $this->canonicalNamespaceId( $name );
-		if ( $ns !== null ) {
-			return $ns;
-		}
-		return $this->nsIds[Utils::normalizeNamespaceName( $name )] ?? null;
+		$name = Utils::normalizeNamespaceName( $name );
+		return $this->nsCanon[$name] ?? $this->nsIds[$name] ?? null;
 	}
 
 	/** @inheritDoc */
