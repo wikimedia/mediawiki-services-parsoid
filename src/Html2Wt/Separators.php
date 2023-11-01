@@ -905,19 +905,19 @@ class Separators {
 							// Both have the same dsr range, so there can't be any
 							// separators between them
 							$sep = '';
-						} elseif ( ( $dsrA->openWidth ?? null ) !== null ) {
+						} elseif ( isset( $dsrA->openWidth ) ) {
 							// B in A, from parent to child
 							$sep = $state->getOrigSrc( $dsrA->innerStart(), $dsrB->start );
 						}
 					} elseif ( $dsrA->end <= $dsrB->start ) {
 						// B following A (siblingish)
 						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->start );
-					} elseif ( ( $dsrB->closeWidth ?? null ) !== null ) {
+					} elseif ( isset( $dsrB->closeWidth ) ) {
 						// A in B, from child to parent
 						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->innerEnd() );
 					}
 				} elseif ( $dsrA->end <= $dsrB->end ) {
-					if ( ( $dsrB->closeWidth ?? null ) !== null ) {
+					if ( isset( $dsrB->closeWidth ) ) {
 						// A in B, from child to parent
 						$sep = $state->getOrigSrc( $dsrA->end, $dsrB->innerEnd() );
 					}

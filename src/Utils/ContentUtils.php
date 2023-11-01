@@ -254,17 +254,17 @@ class ContentUtils {
 				return;
 			}
 			$dp = DOMDataUtils::getDataParsoid( $node );
-			if ( ( $dp->dsr ?? null ) !== null ) {
+			if ( isset( $dp->dsr ) ) {
 				$dp->dsr = $dsrFunc( clone $dp->dsr );
 				// We don't need to setDataParsoid because dp is not a copy
 			}
 			$tmp = $dp->getTemp();
-			if ( ( $tmp->origDSR ?? null ) !== null ) {
+			if ( isset( $tmp->origDSR ) ) {
 				// Even though tmp shouldn't escape Parsoid, go ahead and
 				// convert to enable hybrid testing.
 				$tmp->origDSR = $dsrFunc( clone $tmp->origDSR );
 			}
-			if ( ( $dp->extTagOffsets ?? null ) !== null ) {
+			if ( isset( $dp->extTagOffsets ) ) {
 				$dp->extTagOffsets = $dsrFunc( clone $dp->extTagOffsets );
 			}
 
