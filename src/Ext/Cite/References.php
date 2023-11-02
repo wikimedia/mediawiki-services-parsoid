@@ -553,7 +553,7 @@ class References extends ExtensionTagHandler {
 		}
 
 		// Deal with responsive wrapper
-		if ( DOMCompat::getClassList( $refsNode )->contains( 'mw-references-wrap' ) ) {
+		if ( DOMUtils::hasClass( $refsNode, 'mw-references-wrap' ) ) {
 			// NOTE: The default Cite implementation hardcodes this threshold to 10.
 			// We use a configurable parameter here primarily for test coverage purposes.
 			// See citeParserTests.txt where we set a threshold of 1 or 2.

@@ -163,7 +163,7 @@ class ConversionTraverser extends DOMTraverser {
 		} elseif ( DOMUtils::hasRel( $el, 'mw:ExtLink' ) ) {
 			// WTUtils.usesURLLinkSyntax uses data-parsoid, so don't use it,
 			// but syntactic free links should also have class="external free"
-			if ( DOMCompat::getClassList( $el )->contains( 'free' ) ) {
+			if ( DOMUtils::hasClass( $el, 'free' ) ) {
 				// Don't convert children of syntactic "free links"
 				return $el->nextSibling;
 			}

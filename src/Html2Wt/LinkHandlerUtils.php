@@ -1474,7 +1474,7 @@ class LinkHandlerUtils {
 		}
 
 		if (
-			!DOMCompat::getClassList( $outerElt )->contains( 'mw-default-size' ) &&
+			!DOMUtils::hasClass( $outerElt, 'mw-default-size' ) &&
 			$format !== 'Frame' && !$hasManualthumb
 		) {
 			$size = $getLastOpt( 'width' );
@@ -1503,7 +1503,7 @@ class LinkHandlerUtils {
 					// so this only has the effect of modifying the width.
 					(
 						DOMCompat::nodeName( $elt ) !== 'audio' ||
-						!DOMCompat::getClassList( $outerElt )->contains( 'mw-default-audio-height' )
+						!DOMUtils::hasClass( $outerElt, 'mw-default-audio-height' )
 					)
 				) {
 					$height = intval( $wh['value'] );

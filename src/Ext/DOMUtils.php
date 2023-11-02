@@ -22,6 +22,15 @@ class DOMUtils {
 	}
 
 	/**
+	 * @param Element $element
+	 * @param string $regex Partial regular expression, e.g. "foo|bar"
+	 * @return bool
+	 */
+	public static function hasClass( Element $element, string $regex ): bool {
+		return DU::hasClass( $element, $regex );
+	}
+
+	/**
 	 * Determine whether the node matches the given `typeof` attribute value.
 	 *
 	 * @param Node $n The node to test

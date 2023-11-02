@@ -428,7 +428,7 @@ EOT;
 		$docBody = $this->parseWT( $wt );
 		$figure = DOMCompat::querySelector( $docBody, 'span[typeof~="mw:File"]' );
 		$this->assertInstanceOf( Element::class, $figure );
-		$this->assertTrue( DOMCompat::getClassList( $figure )->contains( 'mw-valign-sub' ) );
+		$this->assertTrue( DOMUtils::hasClass( $figure, 'mw-valign-sub' ) );
 	}
 
 }

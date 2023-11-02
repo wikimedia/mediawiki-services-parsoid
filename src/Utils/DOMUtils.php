@@ -421,6 +421,16 @@ class DOMUtils {
 	}
 
 	/**
+	 * @param Element $element
+	 * @param string $regex Partial regular expression, e.g. "foo|bar"
+	 * @return bool
+	 */
+	public static function hasClass( Element $element, string $regex ): bool {
+		$value = $element->getAttribute( 'class' );
+		return $value && (bool)preg_match( '{(?<=^|\s)' . $regex . '(?=\s|$)}', $value );
+	}
+
+	/**
 	 * Determine whether the node matches the given attribute value for a multivalued attribute
 	 * @param Node $n
 	 * @param string $attrName name of the attribute to check (typically 'typeof', 'rel')

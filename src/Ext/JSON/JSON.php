@@ -198,9 +198,9 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @return array|false|int|string|null
 	 */
 	private function rootValueTableFrom( Element $el ) {
-		if ( DOMCompat::getClassList( $el )->contains( 'mw-json-single-value' ) ) {
+		if ( DOMUtils::hasClass( $el, 'mw-json-single-value' ) ) {
 			return self::primitiveValueFrom( DOMCompat::querySelector( $el, 'tr > td' ) );
-		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-array' ) ) {
+		} elseif ( DOMUtils::hasClass( $el, 'mw-json-array' ) ) {
 			return self::arrayTableFrom( $el )[0];
 		} else {
 			return self::objectTableFrom( $el );
@@ -212,7 +212,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @return array
 	 */
 	private function objectTableFrom( Element $el ) {
-		Assert::invariant( DOMCompat::getClassList( $el )->contains( 'mw-json-object' ),
+		Assert::invariant( DOMUtils::hasClass( $el, 'mw-json-object' ),
 			'Expected mw-json-object' );
 		$tbody = $el;
 		if ( $tbody->firstChild ) {
@@ -228,7 +228,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( !$empty ) {
 			$child = $rows->item( 0 )->firstChild;
 			DOMUtils::assertElt( $child );
-			if ( DOMCompat::getClassList( $child )->contains( 'mw-json-empty' ) ) {
+			if ( DOMUtils::hasClass( $child, 'mw-json-empty' ) ) {
 				$empty = true;
 			}
 		}
@@ -262,7 +262,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @return array
 	 */
 	private function arrayTableFrom( Element $el ): array {
-		Assert::invariant( DOMCompat::getClassList( $el )->contains( 'mw-json-array' ),
+		Assert::invariant( DOMUtils::hasClass( $el, 'mw-json-array' ),
 			'Expected ms-json-array' );
 		$tbody = $el;
 		if ( $tbody->firstChild ) {
@@ -278,7 +278,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( !$empty ) {
 			$child = $rows->item( 0 )->firstChild;
 			DOMUtils::assertElt( $child );
-			if ( DOMCompat::getClassList( $child )->contains( 'mw-json-empty' ) ) {
+			if ( DOMUtils::hasClass( $child, 'mw-json-empty' ) ) {
 				$empty = true;
 			}
 		}
@@ -300,9 +300,9 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		Assert::invariant( DOMCompat::nodeName( $el ) === 'td', 'Expected tagName = td' );
 		$table = $el->firstChild;
 		if ( $table instanceof Element ) {
-			if ( DOMCompat::getClassList( $table )->contains( 'mw-json-array' ) ) {
+			if ( DOMUtils::hasClass( $table, 'mw-json-array' ) ) {
 				return self::arrayTableFrom( $table );
-			} elseif ( DOMCompat::getClassList( $table )->contains( 'mw-json-object' ) ) {
+			} elseif ( DOMUtils::hasClass( $table, 'mw-json-object' ) ) {
 				return self::objectTableFrom( $table );
 			}
 		} else {
@@ -315,13 +315,13 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * @return false|float|int|string|null
 	 */
 	private function primitiveValueFrom( Element $el ) {
-		if ( DOMCompat::getClassList( $el )->contains( 'mw-json-null' ) ) {
+		if ( DOMUtils::hasClass( $el, 'mw-json-null' ) ) {
 			return null;
-		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-boolean' ) ) {
+		} elseif ( DOMUtils::hasClass( $el, 'mw-json-boolean' ) ) {
 			return str_contains( $el->textContent, 'true' );
-		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-number' ) ) {
+		} elseif ( DOMUtils::hasClass( $el, 'mw-json-number' ) ) {
 			return floatval( $el->textContent );
-		} elseif ( DOMCompat::getClassList( $el )->contains( 'mw-json-string' ) ) {
+		} elseif ( DOMUtils::hasClass( $el, 'mw-json-string' ) ) {
 			return (string)$el->textContent;
 		} else {
 			return null; // shouldn't happen.
