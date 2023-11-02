@@ -80,7 +80,6 @@ function contentTypeMatcher( expectedMime, expectedSpec, expectedVersion ) {
 describe('Parsoid API', function() {
 	const client = new REST();
 	const parsedUrl = new url.URL(client.req.app);
-	const REST_PATH = parsedUrl.pathname;
 	const hostname = parsedUrl.hostname;
 	const mockDomain = client.pathPrefix = `rest.php/${hostname}`;
 	const page = utils.title( 'Lint Page ' );
@@ -97,7 +96,7 @@ describe('Parsoid API', function() {
 		oldEdit.result.should.equal('Success');
 		oldrevid = oldEdit.newrevid;
 
-		let edit = await alice.edit(page, { text: '{|\nhi\n|ho\n|}' });
+		let edit = await alice.edit(page, { text: '{|\n|hi\n|ho\n|}' });
 		edit.result.should.equal('Success');
 		revid = edit.newrevid;
 
@@ -586,76 +585,18 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/lint/')
 			.send({
+				// no revid or wikitext source provided
 				original: {
 					title: page,
 				},
 			})
-			.expect(307)  // no revid or wikitext source provided
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain +
-					'/v3/transform/wikitext/to/lint/' + pageEncoded + '/' +  revid
-				);
-			})
+			.expect( validJsonResponse() )
 			.end(done);
 		});
 
 	});
 
 	describe("wt2html", function() {
-
-		it('should redirect title to latest revision (html)', function(done) {
-			client.req
-			.get(mockDomain + `/v3/page/html/${page}`)
-			.expect(302)
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain + `/v3/page/html/${pageEncoded}/${revid}`
-				);
-			})
-			.end(done);
-		});
-
-		it('should redirect title to latest revision (pagebundle)', function(done) {
-			client.req
-			.get(mockDomain + `/v3/page/pagebundle/${page}`)
-			.expect(302)
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain + `/v3/page/pagebundle/${pageEncoded}/${revid}`
-				);
-			})
-			.end(done);
-		});
-
-		it('should redirect title to latest revision (wikitext)', function(done) {
-			client.req
-			.get(mockDomain + `/v3/page/wikitext/${page}`)
-			.expect(302)
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain + `/v3/page/wikitext/${pageEncoded}/${revid}`
-				);
-			})
-			.end(done);
-		});
-
-		it("should preserve querystring params while redirecting", function(done) {
-			client.req
-			.get(mockDomain + `/v3/page/html/${page}?test=123`)
-			.expect(302)
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain + `/v3/page/html/${pageEncoded}/${revid}?test=123`
-				);
-			})
-			.end(done);
-		});
 
 		it('should get from a title and old revision (html)', function(done) {
 			client.req
@@ -857,17 +798,12 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
+				// no revid or wikitext source provided
 				original: {
 					title: page,
 				},
 			})
-			.expect(307)  // no revid or wikitext source provided
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain + `/v3/transform/wikitext/to/html/${pageEncoded}/${revid}`
-				);
-			})
+			.expect(validHtmlResponse())
 			.end(done);
 		});
 
@@ -875,17 +811,12 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.send({
+				// no revid or wikitext source provided
 				original: {
 					title: page,
 				},
 			})
-			.expect(307)  // no revid or wikitext source provided
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.equal(
-					REST_PATH + mockDomain + `/v3/transform/wikitext/to/pagebundle/${pageEncoded}/${revid}`
-				);
-			})
+			.expect(validPageBundleResponse())
 			.end(done);
 		});
 
@@ -893,17 +824,12 @@ describe('Parsoid API', function() {
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
+				// no revid or wikitext source provided
 				original: {
 					title: page,
 				},
 			})
-			.expect(307)  // no revid or wikitext source provided
-			.expect(function(res) {
-				res.headers.should.have.property('location');
-				res.headers.location.should.match(
-					new RegExp( '^' + JSUtils.escapeRegExp(REST_PATH + mockDomain + '/v3/transform/wikitext/to/html/' + pageEncoded + '/') )
-				);
-			})
+			.expect(validHtmlResponse())
 			.end(done);
 		});
 
@@ -2615,6 +2541,9 @@ describe('Parsoid API', function() {
 				} );
 
 			assert.equal( 200, pb2wt2.statusCode, pb2wt2.text );
+
+			// Check that the comment was included in the wikitext
+			assert.include( pb2wt2.text, 'rtSelserEditTestComment' );
 
 			// Remove the selser trigger comment
 			const actual2 = pb2wt2.text.replace(/<!--rtSelserEditTestComment-->\n*$/, '');
