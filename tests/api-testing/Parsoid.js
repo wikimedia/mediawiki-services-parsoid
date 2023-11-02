@@ -80,7 +80,7 @@ function contentTypeMatcher( expectedMime, expectedSpec, expectedVersion ) {
 describe('Parsoid API', function() {
 	const client = new REST();
 	const parsedUrl = new url.URL(client.req.app);
-	const PARSOID_URL = parsedUrl.href;
+	const REST_PATH = parsedUrl.pathname;
 	const hostname = parsedUrl.hostname;
 	const mockDomain = client.pathPrefix = `rest.php/${hostname}`;
 	const page = utils.title( 'Lint Page ' );
@@ -594,7 +594,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain +
+					REST_PATH + mockDomain +
 					'/v3/transform/wikitext/to/lint/' + pageEncoded + '/' +  revid
 				);
 			})
@@ -612,7 +612,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + `/v3/page/html/${pageEncoded}/${revid}`
+					REST_PATH + mockDomain + `/v3/page/html/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -625,7 +625,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + `/v3/page/pagebundle/${pageEncoded}/${revid}`
+					REST_PATH + mockDomain + `/v3/page/pagebundle/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -638,7 +638,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + `/v3/page/wikitext/${pageEncoded}/${revid}`
+					REST_PATH + mockDomain + `/v3/page/wikitext/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -651,7 +651,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + `/v3/page/html/${pageEncoded}/${revid}?test=123`
+					REST_PATH + mockDomain + `/v3/page/html/${pageEncoded}/${revid}?test=123`
 				);
 			})
 			.end(done);
@@ -865,7 +865,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + `/v3/transform/wikitext/to/html/${pageEncoded}/${revid}`
+					REST_PATH + mockDomain + `/v3/transform/wikitext/to/html/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -883,7 +883,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.equal(
-					PARSOID_URL + mockDomain + `/v3/transform/wikitext/to/pagebundle/${pageEncoded}/${revid}`
+					REST_PATH + mockDomain + `/v3/transform/wikitext/to/pagebundle/${pageEncoded}/${revid}`
 				);
 			})
 			.end(done);
@@ -901,7 +901,7 @@ describe('Parsoid API', function() {
 			.expect(function(res) {
 				res.headers.should.have.property('location');
 				res.headers.location.should.match(
-					new RegExp( '^' + JSUtils.escapeRegExp(PARSOID_URL + mockDomain + '/v3/transform/wikitext/to/html/' + pageEncoded + '/') )
+					new RegExp( '^' + JSUtils.escapeRegExp(REST_PATH + mockDomain + '/v3/transform/wikitext/to/html/' + pageEncoded + '/') )
 				);
 			})
 			.end(done);
