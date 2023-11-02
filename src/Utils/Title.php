@@ -5,6 +5,8 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\IPUtils;
 use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Core\LinkTargetTrait;
 
 class Title {
 
@@ -23,15 +25,20 @@ class Title {
 	/** @var TitleNamespace */
 	private $namespace;
 
+	/** @var string */
+	private $interwiki;
+
 	/**
+	 * @param string $interwiki Interwiki prefix, or empty string if none
 	 * @param string $key Page DBkey (with underscores, not spaces)
 	 * @param int|TitleNamespace $ns
 	 * @param SiteConfig $siteConfig
 	 * @param ?string $fragment
 	 */
-	public function __construct(
-		string $key, $ns, SiteConfig $siteConfig, ?string $fragment = null
+	private function __construct(
+		string $interwiki, string $key, $ns, SiteConfig $siteConfig, ?string $fragment = null
 	) {
+		$this->interwiki = $interwiki;
 		$this->dbkey = $key;
 		if ( $ns instanceof TitleNamespace ) {
 			$this->namespaceId = $ns->getId();
@@ -231,20 +238,18 @@ class Title {
 			$title = self::fixSpecialName( $siteConfig, $title );
 		}
 
-		// This is not in core's splitTitleString but matches parsoid's
-		// convention.
-		if ( $interwiki !== null ) {
-			$title = "$interwiki:$title";
-		}
-
-		return new self( $title, $ns, $siteConfig, $fragment );
+		return new self( $interwiki ?? '', $title, $ns, $siteConfig, $fragment );
 	}
 
 	/**
-	 * Get the DBkey
+	 * Get the DBkey, prefixed with interwiki prefix if any.
+	 * This is Parsoid's convention, which differs from core.
 	 * @return string
 	 */
 	public function getKey(): string {
+		if ( $this->interwiki ) {
+			return $this->interwiki . ':' . $this->dbkey;
+		}
 		return $this->dbkey;
 	}
 
@@ -253,10 +258,11 @@ class Title {
 	 * @return string
 	 */
 	public function getPrefixedDBKey(): string {
+		$dbkey = $this->getKey();
 		if ( $this->namespaceName === '' ) {
-			return $this->dbkey;
+			return $dbkey;
 		}
-		return strtr( $this->namespaceName, ' ', '_' ) . ':' . $this->dbkey;
+		return strtr( $this->namespaceName, ' ', '_' ) . ':' . $dbkey;
 	}
 
 	/**
@@ -264,7 +270,7 @@ class Title {
 	 * @return string
 	 */
 	public function getPrefixedText(): string {
-		$ret = strtr( $this->dbkey, '_', ' ' );
+		$ret = strtr( $this->getKey(), '_', ' ' );
 		if ( $this->namespaceName !== '' ) {
 			$ret = $this->namespaceName . ':' . $ret;
 		}
@@ -323,5 +329,76 @@ class Title {
 			$title = implode( '/', $parts );
 		}
 		return $title;
+	}
+
+	/**
+	 * Thunk to make Parsoid's "Title" compatible with the LinkTarget
+	 * interface from core.
+	 * @return LinkTarget
+	 */
+	public function asLinkTarget(): LinkTarget {
+		$interwiki = $this->interwiki;
+		$rawkey = $this->dbkey;
+		return new class(
+			$interwiki,
+			$this->namespaceName,
+			$this->getNamespaceId(), $rawkey, $this->getFragment() ?? ''
+		) implements LinkTarget {
+			use LinkTargetTrait;
+
+			private string $interwiki;
+			private string $namespace;
+			private int $namespaceId;
+			private string $key;
+			private string $fragment;
+
+			/**
+			 * @param string $interwiki
+			 * @param string $namespace
+			 * @param int $namespaceId
+			 * @param string $key
+			 * @param string $fragment
+			 */
+			public function __construct(
+				string $interwiki, string $namespace, int $namespaceId,
+				string $key, string $fragment
+			) {
+				$this->interwiki = $interwiki;
+				$this->namespace = $namespace;
+				$this->namespaceId = $namespaceId;
+				$this->key = $key;
+				$this->fragment = $fragment;
+			}
+
+			/** @inheritDoc */
+			public function getInterwiki(): string {
+				return $this->interwiki;
+			}
+
+			/** @inheritDoc */
+			public function getNamespace(): int {
+				return $this->namespaceId;
+			}
+
+			/** @inheritDoc */
+			public function getNamespaceName(): string {
+				return $this->namespace;
+			}
+
+			/** @inheritDoc */
+			public function getDBKey(): string {
+				return $this->key;
+			}
+
+			/** @inheritDoc */
+			public function getFragment(): string {
+				return $this->fragment;
+			}
+
+			/** @inheritDoc */
+			public function createFragmentTarget( string $fragment ) {
+				return new self( $this->interwiki, $this->namespace, $this->namespaceId, $this->key, $fragment );
+			}
+		};
 	}
 }

@@ -13,6 +13,15 @@ use Wikimedia\Parsoid\Utils\TitleNamespace;
  * @coversDefaultClass \Wikimedia\Parsoid\Utils\Title
  */
 class TitleTest extends \PHPUnit\Framework\TestCase {
+	private static function newTitle( ...$args ) {
+		// Access non-public constructor
+		$classReflection = new \ReflectionClass( Title::class );
+		$constructor = $classReflection->getConstructor();
+		$constructor->setAccessible( true );
+		$title = $classReflection->newInstanceWithoutConstructor();
+		$constructor->invokeArgs( $title, $args );
+		return $title;
+	}
 
 	/**
 	 * @covers ::__construct
@@ -26,7 +35,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testBasics( $args, $key, $pKey, $pText, $fragment, $ns ) {
 		array_splice( $args, 2, 0, [ new MockSiteConfig( [] ) ] );
-		$title = new Title( ...$args );
+		$title = self::newTitle( '', ...$args );
 		$this->assertSame( $key, $title->getKey() );
 		$this->assertSame( $pKey, $title->getPrefixedDBKey() );
 		$this->assertSame( $pText, $title->getPrefixedText() );
@@ -35,6 +44,13 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		$namespace = $title->getNamespace();
 		$this->assertInstanceOf( TitleNamespace::class, $namespace );
 		$this->assertSame( $ns, $namespace->getId() );
+
+		// LinkTarget tests
+		$lt = $title->asLinkTarget();
+		$this->assertSame( '', $lt->getInterwiki() );
+		$this->assertSame( $ns, $lt->getNamespace() );
+		$this->assertSame( $key, $lt->getDBKey() );
+		$this->assertSame( $fragment ?? '', $lt->getFragment() );
 	}
 
 	public function provideBasics() {
@@ -92,12 +108,19 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::newFromText
 	 * @dataProvider provideNewFromText
 	 */
-	public function testNewFromText( $args, $key, $ns, $fragment, $lang = 'en' ) {
-		array_splice( $args, 1, 0, [ $this->getMockSiteConfig( $lang ) ] );
+	public function testNewFromText( $args, $key, $ns, $fragment, $lang = null, $interwiki = '', $rawKey = null ) {
+		array_splice( $args, 1, 0, [ $this->getMockSiteConfig( $lang ?? 'en' ) ] );
 		$title = Title::newFromText( ...$args );
 		$this->assertSame( $key, $title->getKey() );
 		$this->assertSame( $ns, $title->getNamespaceId() );
 		$this->assertSame( $fragment, $title->getFragment() );
+
+		// LinkTarget tests
+		$lt = $title->asLinkTarget();
+		$this->assertSame( $interwiki, $lt->getInterwiki() );
+		$this->assertSame( $ns, $lt->getNamespace() );
+		$this->assertSame( $rawKey ?? $key, $lt->getDBKey() );
+		$this->assertSame( $fragment ?? '', $lt->getFragment() );
 	}
 
 	public function provideNewFromText() {
@@ -218,8 +241,13 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 			[ [ 'User_Talk:::1' ], '0:0:0:0:0:0:0:1', 3, null ],
 			[ [ 'User_talk:::1' ], '0:0:0:0:0:0:0:1', 3, null ],
 			[ [ 'User_talk:::1/24' ], '0:0:0:0:0:0:0:1/24', 3, null ],
+			// Interwiki link, with prefix: note that we put these in the
+			// main namespace, and the "dbkey" contains everything after the
+			// interwiki prefix, including the "namespace"
+			[ [ 'remotetestiw:User:Bar' ], 'remotetestiw:User:Bar', 0, null, null, 'remotetestiw', 'User:Bar' ],
+			[ [ 'remotetestiw:User:Bar#Foo' ], 'remotetestiw:User:Bar', 0, 'Foo', null, 'remotetestiw', 'User:Bar' ],
 			// remotetestiw in user (T329690)
-			[ [ 'remotetestiw:', 2 ], 'remotetestiw:', 2, null ],
+			[ [ 'remotetestiw:', 2 ], 'remotetestiw:', 2, null, null, 'remotetestiw', '' ],
 			// Colons in talk namespaces (T332903)
 			// phpcs:ignore Generic.Files.LineLength.TooLong
 			[ [ 'Talk:2024:Expressions of Interest/Wikimania 2024 Istanbul, Türkiye' ], '2024:Expressions_of_Interest/Wikimania_2024_Istanbul,_Türkiye', 1, null ],
