@@ -360,7 +360,7 @@ class DOMRangeBuilder {
 		} else {
 			// Remove mw:* from the typeof.
 			$type = $meta->getAttribute( 'typeof' ) ?? '';
-			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/[^\s]+|(?=$|\s))/D', '', $type );
+			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/\S+|(?=$|\s))/D', '', $type );
 			$meta->setAttribute( 'typeof', $type );
 		}
 	}

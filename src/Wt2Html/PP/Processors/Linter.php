@@ -933,7 +933,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			if ( $node instanceof Text || !$this->hasNoWrapCSS( $node ) ) {
 				// No CSS property that affects whitespace.
 				$s = $node->textContent;
-				if ( preg_match( '/^([^\s]*)\s/', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace?
+				if ( preg_match( '/^(\S*)\s/', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace?
 					$runLength += strlen( $m[1] );
 					$nowrapNodes[] = [
 						'node' => $node,
@@ -1009,7 +1009,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			if ( !( $prev instanceof Comment ) ) {
 				$s = $prev->textContent;
 				// Find the last \s in the string
-				if ( preg_match( '/\s([^\s]*)$/D', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace here?
+				if ( preg_match( '/\s(\S*)$/D', $s, $m ) ) { // PORT-FIXME: non-ASCII whitespace here?
 					$runLength += strlen( $m[1] );
 					break;
 				} else {

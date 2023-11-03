@@ -669,7 +669,7 @@ class SerializerState {
 							// ! and | chars are harmless outside tables
 							|| ( strspn( $match[2], '|!' ) && $this->wikiTableNesting > 0 )
 							// indent-pres are suppressed inside <blockquote>
-							|| ( preg_match( '/^ [^\s]/', $match[2] )
+							|| ( preg_match( '/^ \S/', $match[2] )
 								&& !DOMUtils::hasNameOrHasAncestorOfName( $node, 'blockquote' ) )
 						) {
 							$res = ConstrainedText::cast( ( $match[1] ?: '' )

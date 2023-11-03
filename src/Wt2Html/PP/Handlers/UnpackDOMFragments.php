@@ -200,7 +200,7 @@ class UnpackDOMFragments {
 				// expansions.  The comment was removed in ca9e760.
 				$fragmentDP->dsr = new DomSourceRange( $placeholderDSR->start, $placeholderDSR->end, null, null );
 			} elseif (
-				DOMUtils::matchTypeOf( $fragmentContent, '/^mw:(Nowiki|Extension(\/[^\s]+))$/' ) !== null
+				DOMUtils::matchTypeOf( $fragmentContent, '/^mw:(Nowiki|Extension(\/\S+))$/' ) !== null
 			) {
 				$fragmentDP->dsr = $placeholderDSR;
 			} else { // non-transcluded images

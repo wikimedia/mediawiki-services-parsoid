@@ -26,14 +26,14 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  */
 class WTUtils {
 	private const FIRST_ENCAP_REGEXP =
-		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/[^\s]+)))(?=$|\s)#D';
+		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|Extension(/\S+)))(?=$|\s)#D';
 
 	/**
 	 * Regex corresponding to FIRST_ENCAP_REGEXP, but excluding extensions. If FIRST_ENCAP_REGEXP is
 	 * updated, this one should be as well.
 	 */
 	private const NON_EXTENSION_ENCAP_REGEXP =
-		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|(/[^\s]+)))(?=$|\s)#D';
+		'#(?:^|\s)(mw:(?:Transclusion|Param|LanguageVariant|(/\S+)))(?=$|\s)#D';
 
 	/**
 	 * Regexp for checking marker metas typeofs representing
@@ -181,7 +181,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function hasExpandedAttrsType( Element $node ): bool {
-		return DOMUtils::matchTypeOf( $node, '/^mw:ExpandedAttrs(\/[^\s]+)*$/' ) !== null;
+		return DOMUtils::matchTypeOf( $node, '/^mw:ExpandedAttrs(\/\S+)*$/' ) !== null;
 	}
 
 	/**

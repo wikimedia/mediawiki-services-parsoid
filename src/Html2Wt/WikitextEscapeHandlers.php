@@ -856,8 +856,8 @@ class WikitextEscapeHandlers {
 		if ( !$fullCheckNeeded ) {
 			$hasQuoteChar = str_contains( $text, "'" );
 			$indentPreUnsafe = !$indentPreSafeMode && (
-				preg_match( '/\n +[^\r\n]*?[^\s]+/', $text ) ||
-				$sol && preg_match( '/^ +[^\r\n]*?[^\s]+/', $text )
+				preg_match( '/\n +[^\r\n]*?\S+/', $text ) ||
+				$sol && preg_match( '/^ +[^\r\n]*?\S+/', $text )
 			);
 			$hasNonQuoteEscapableChars = preg_match( '/[<>\[\]\-\+\|!=#\*:;~{}]|__[^_]*__/', $text );
 			$hasLanguageConverter = preg_match( '/-\{|\}-/', $text );

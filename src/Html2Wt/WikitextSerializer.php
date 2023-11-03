@@ -76,7 +76,7 @@ class WikitextSerializer {
 	/** @var string[] attribute name => value regexp */
 	private const PARSOID_ATTRIBUTES = [
 		'about' => '/^#mwt\d+$/D',
-		'typeof' => '/(^|\s)mw:[^\s]+/',
+		'typeof' => '/(^|\s)mw:\S+/',
 	];
 
 	/** @var string Regexp */
