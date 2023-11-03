@@ -384,20 +384,22 @@ class TestRunner {
 		// 'langconv' option.
 		if ( $testOpts['langconv'] ?? null ) {
 			// These test option names are deprecated:
-			if ( $testOpts['sourceVariant'] ?? false ) {
-				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['sourceVariant'] );
+			// (Note that test options names are lowercased by the reader.)
+			if ( $testOpts['sourcevariant'] ?? false ) {
+				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['sourcevariant'] );
 			}
 			if ( $testOpts['variant'] ?? false ) {
 				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['variant'] );
 			}
 			// Preferred option names, which are also specified in bcp-47 codes
-			if ( $testOpts['wtVariantLanguage'] ?? false ) {
+			// (Note that test options names are lowercased by the reader.)
+			if ( $testOpts['wtvariantlanguage'] ?? false ) {
 				$this->envOptions['wtVariantLanguage'] =
-					new Bcp47CodeValue( $testOpts['wtVariantLanguage'] );
+					new Bcp47CodeValue( $testOpts['wtvariantlanguage'] );
 			}
-			if ( $testOpts['htmlVariantLanguage'] ?? false ) {
+			if ( $testOpts['htmlvariantlanguage'] ?? false ) {
 				$this->envOptions['htmlVariantLanguage'] =
-					new Bcp47CodeValue( $testOpts['htmlVariantLanguage'] );
+					new Bcp47CodeValue( $testOpts['htmlvariantlanguage'] );
 			}
 		}
 
