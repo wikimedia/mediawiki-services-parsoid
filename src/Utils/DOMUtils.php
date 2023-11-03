@@ -196,7 +196,7 @@ class DOMUtils {
 	 * Build path from a node to the root of the document.
 	 *
 	 * @param Node $node
-	 * @return Node[]
+	 * @return Node[] Path including all nodes from $node to the root of the document
 	 */
 	public static function pathToRoot( Node $node ): array {
 		$path = [];
@@ -208,13 +208,18 @@ class DOMUtils {
 	}
 
 	/**
-	 * Compute length of path from $node to the root.
+	 * Compute the edge length of the path from $node to the root.
 	 * Root document is at depth 0, <html> at 1, <body> at 2.
 	 * @param Node $node
 	 * @return int
 	 */
 	public static function nodeDepth( Node $node ): int {
-		return count( self::pathToRoot( $node ) ) - 1;
+		$edges = 0;
+		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures
+		while ( $node = $node->parentNode ) {
+			$edges++;
+		}
+		return $edges;
 	}
 
 	/**
