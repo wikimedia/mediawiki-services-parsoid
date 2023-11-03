@@ -338,8 +338,7 @@ class WikitextEscapeHandlers {
 				strspn( $text, '-+}', 0, 1 ) &&
 				$node
 			) {
-				$patch = DOMUtils::pathToAncestor( $node, $tdNode );
-				foreach ( $patch as $n ) {
+				foreach ( DOMUtils::pathToAncestor( $node, $tdNode ) as $n ) {
 					if ( !$this->isFirstContentNode( $n ) ||
 						!( $n === $node || WTUtils::isZeroWidthWikitextElt( $n ) ) ) {
 						return false;
