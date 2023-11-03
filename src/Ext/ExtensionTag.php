@@ -44,11 +44,7 @@ class ExtensionTag {
 	 * @return string|null
 	 */
 	public function getSource(): ?string {
-		if ( $this->extToken->hasAttribute( 'source' ) ) {
-			return $this->extToken->getAttribute( 'source' );
-		} else {
-			return null;
-		}
+		return $this->extToken->getAttribute( 'source' );
 	}
 
 	/**

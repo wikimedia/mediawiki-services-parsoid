@@ -210,10 +210,10 @@ class TokenUtils {
 	 *   no match.
 	 */
 	public static function matchTypeOf( Token $t, string $typeRe ): ?string {
-		if ( !$t->hasAttribute( 'typeof' ) ) {
+		$v = $t->getAttribute( 'typeof' );
+		if ( $v === null ) {
 			return null;
 		}
-		$v = $t->getAttribute( 'typeof' );
 		Assert::invariant( is_string( $v ), "Typeof is not simple" );
 		foreach ( preg_split( '/\s+/', $v, -1, PREG_SPLIT_NO_EMPTY ) as $ty ) {
 			$count = preg_match( $typeRe, $ty );
