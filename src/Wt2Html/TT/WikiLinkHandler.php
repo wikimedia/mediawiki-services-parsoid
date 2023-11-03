@@ -353,7 +353,7 @@ class WikiLinkHandler extends TokenHandler {
 				return $this->renderWikiLink( $token, $target );
 			}
 			$siteConfig = $this->env->getSiteConfig();
-			$nsId = $title->getNamespaceId();
+			$nsId = $title->getNamespace();
 			if ( $nsId === $siteConfig->canonicalNamespaceId( 'media' ) ) {
 				// Render as a media link.
 				return $this->renderMedia( $token, $target );

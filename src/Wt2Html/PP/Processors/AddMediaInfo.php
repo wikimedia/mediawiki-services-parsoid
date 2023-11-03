@@ -668,7 +668,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
 			if ( $manualthumb !== null ) {
 				$val = $manualthumb[1]->txt;
-				$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespaceId(), true );
+				$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespace(), true );
 				if ( $title === null ) {
 					$errs[] = self::makeErr(
 						'apierror-invalidtitle',

@@ -250,7 +250,7 @@ class TestRunner {
 	private function newEnv( Test $test, string $wikitext ): Env {
 		$pageNs = $this->dummyEnv->makeTitleFromURLDecodedStr(
 			$test->pageName()
-		)->getNameSpaceId();
+		)->getNamespace();
 
 		$opts = [
 			'title' => $test->pageName(),

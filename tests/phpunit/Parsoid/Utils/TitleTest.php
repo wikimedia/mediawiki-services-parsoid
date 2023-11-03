@@ -7,7 +7,6 @@ use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
-use Wikimedia\Parsoid\Utils\TitleNamespace;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Utils\Title
@@ -30,46 +29,31 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::getPrefixedText
 	 * @covers ::getFragment
 	 * @covers ::getNamespace
-	 * @covers ::getNamespaceId
 	 * @dataProvider provideBasics
 	 */
 	public function testBasics( $args, $key, $pKey, $pText, $fragment, $ns ) {
-		array_splice( $args, 2, 0, [ new MockSiteConfig( [] ) ] );
 		$title = self::newTitle( '', ...$args );
 		$this->assertSame( $key, $title->getKey() );
 		$this->assertSame( $pKey, $title->getPrefixedDBKey() );
 		$this->assertSame( $pText, $title->getPrefixedText() );
-		$this->assertSame( $fragment, $title->getFragment() );
-		$this->assertSame( $ns, $title->getNamespaceId() );
-		$namespace = $title->getNamespace();
-		$this->assertInstanceOf( TitleNamespace::class, $namespace );
-		$this->assertSame( $ns, $namespace->getId() );
+		$this->assertSame( $fragment, $title->getFragment() ?: null );
+		$this->assertSame( $ns, $title->getNamespace() );
 
 		// LinkTarget tests
-		$lt = $title->asLinkTarget();
-		$this->assertSame( '', $lt->getInterwiki() );
-		$this->assertSame( $ns, $lt->getNamespace() );
-		$this->assertSame( $key, $lt->getDBKey() );
-		$this->assertSame( $fragment ?? '', $lt->getFragment() );
+		$this->assertSame( '', $title->getInterwiki() );
+		$this->assertSame( $ns, $title->getNamespace() );
+		$this->assertSame( $key, $title->getDBKey() );
+		$this->assertSame( $fragment ?? '', $title->getFragment() );
 	}
 
 	public function provideBasics() {
-		$ns0 = new TitleNamespace( 0, new MockSiteConfig( [] ) );
-		$ns2 = new TitleNamespace( 2, new MockSiteConfig( [] ) );
 		return [
-			'Basic article' => [ [ 'Basic_page', 0 ], 'Basic_page', 'Basic_page', 'Basic page', null, 0 ],
+			'Basic article' => [ [ 'Basic_page', 0, '' ], 'Basic_page', 'Basic_page', 'Basic page', null, 0 ],
 			'User-namespace page' => [
-				[ 'Basic_page', 2 ], 'Basic_page', 'User:Basic_page', 'User:Basic page', null, 2
+				[ 'Basic_page', 2, 'User' ], 'Basic_page', 'User:Basic_page', 'User:Basic page', null, 2
 			],
 			'With fragment' => [
-				[ 'Basic_page', 0, 'frag' ], 'Basic_page', 'Basic_page', 'Basic page', 'frag', 0
-			],
-
-			'Basic article with TitleNamespace' => [
-				[ 'Basic_page', $ns0 ], 'Basic_page', 'Basic_page', 'Basic page', null, 0
-			],
-			'User-namespace page with TitleNamespace' => [
-				[ 'Basic_page', $ns2 ], 'Basic_page', 'User:Basic_page', 'User:Basic page', null, 2
+				[ 'Basic_page', 0, '', 'frag' ], 'Basic_page', 'Basic_page', 'Basic page', 'frag', 0
 			],
 		];
 	}
@@ -112,19 +96,17 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		array_splice( $args, 1, 0, [ $this->getMockSiteConfig( $lang ?? 'en' ) ] );
 		$title = Title::newFromText( ...$args );
 		$this->assertSame( $key, $title->getKey() );
-		$this->assertSame( $ns, $title->getNamespaceId() );
-		$this->assertSame( $fragment, $title->getFragment() );
+		$this->assertSame( $ns, $title->getNamespace() );
+		$this->assertSame( $fragment, $title->getFragment() ?: null );
 
 		// LinkTarget tests
-		$lt = $title->asLinkTarget();
-		$this->assertSame( $interwiki, $lt->getInterwiki() );
-		$this->assertSame( $ns, $lt->getNamespace() );
-		$this->assertSame( $rawKey ?? $key, $lt->getDBKey() );
-		$this->assertSame( $fragment ?? '', $lt->getFragment() );
+		$this->assertSame( $interwiki, $title->getInterwiki() );
+		$this->assertSame( $ns, $title->getNamespace() );
+		$this->assertSame( $rawKey ?? $key, $title->getDBKey() );
+		$this->assertSame( $fragment ?? '', $title->getFragment() );
 	}
 
 	public function provideNewFromText() {
-		$ns2 = new TitleNamespace( 2, new MockSiteConfig( [] ) );
 		$x255 = str_repeat( 'X', 255 );
 		$x512 = str_repeat( 'X', 512 );
 		$poo63 = str_repeat( '💩', 63 );
@@ -135,7 +117,6 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 			'Default NS, overridden' => [ [ 'File:Foo bar', 2 ], 'Foo_bar', 6, null ],
 			'Default NS, overridden to main' => [ [ ':Foo bar', 2 ], 'Foo_bar', 0, null ],
 			'Default NS, overridden to not-main' => [ [ ':File:Foo bar', 2 ], 'Foo_bar', 6, null ],
-			'Default NS (TitleNamespace)' => [ [ 'Foo bar', $ns2 ], 'Foo_bar', 2, null ],
 			'With fragment' => [ [ 'User:Basic page#frag#ment' ], 'Basic_page', 2, 'frag#ment' ],
 			'Should normalize fragment' => [ [ 'User:Basic page#frag ment' ], 'Basic_page', 2, 'frag_ment' ],
 
@@ -178,7 +159,10 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 			[ [ 'A \'B\'' ], 'A_\'B\'', 0, null ],
 			[ [ '.com' ], '.com', 0, null ],
 			[ [ '~' ], '~', 0, null ],
-			[ [ '#' ], '', 0, '' ],
+			// Parsoid had historically differentiated between '' and '#'
+			// as a title, but core does not distinguish between these two
+			// cases of an "empty' title.
+			[ [ '#' ], '', 0, null ],
 			[ [ 'Test#Abc' ], 'Test', 0, 'Abc' ],
 			[ [ '"' ], '"', 0, null ],
 			[ [ '\'' ], '\'', 0, null ],

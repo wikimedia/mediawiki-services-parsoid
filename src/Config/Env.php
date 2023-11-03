@@ -19,7 +19,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
-use Wikimedia\Parsoid\Utils\TitleNamespace;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\ContentModelHandler as WikitextContentModelHandler;
@@ -649,7 +648,7 @@ class Env {
 	private function titleToString( Title $title, bool $ignoreFragment = false ): string {
 		$ret = $title->getPrefixedDBKey();
 		if ( !$ignoreFragment ) {
-			$fragment = $title->getFragment() ?? '';
+			$fragment = $title->getFragment();
 			if ( $fragment !== '' ) {
 				$ret .= '#' . $fragment;
 			}
@@ -678,11 +677,11 @@ class Env {
 	/**
 	 * Create a Title object
 	 * @param string $text URL-decoded text
-	 * @param int|TitleNamespace $defaultNs
+	 * @param ?int $defaultNs
 	 * @param bool $noExceptions
 	 * @return Title|null
 	 */
-	private function makeTitle( string $text, $defaultNs = 0, bool $noExceptions = false ): ?Title {
+	private function makeTitle( string $text, ?int $defaultNs = null, bool $noExceptions = false ): ?Title {
 		try {
 			if ( preg_match( '!^(?:[#/]|\.\./)!', $text ) ) {
 				$defaultNs = $this->getPageConfig()->getNs();
@@ -701,12 +700,12 @@ class Env {
 	 * Create a Title object
 	 * @see Title::newFromURL in MediaWiki
 	 * @param string $str URL-encoded text
-	 * @param int|TitleNamespace $defaultNs
+	 * @param ?int $defaultNs
 	 * @param bool $noExceptions
 	 * @return Title|null
 	 */
 	public function makeTitleFromText(
-		string $str, $defaultNs = 0, bool $noExceptions = false
+		string $str, ?int $defaultNs = null, bool $noExceptions = false
 	): ?Title {
 		return $this->makeTitle( Utils::decodeURIComponent( $str ), $defaultNs, $noExceptions );
 	}
@@ -715,12 +714,12 @@ class Env {
 	 * Create a Title object
 	 * @see Title::newFromText in MediaWiki
 	 * @param string $str URL-decoded text
-	 * @param int|TitleNamespace $defaultNs
+	 * @param ?int $defaultNs
 	 * @param bool $noExceptions
 	 * @return Title|null
 	 */
 	public function makeTitleFromURLDecodedStr(
-		string $str, $defaultNs = 0, bool $noExceptions = false
+		string $str, ?int $defaultNs = null, bool $noExceptions = false
 	): ?Title {
 		return $this->makeTitle( $str, $defaultNs, $noExceptions );
 	}

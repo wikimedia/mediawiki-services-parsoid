@@ -100,12 +100,12 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		$noPrefix = false;
 		$title = $extApi->makeTitle( $oTitleStr, 0 );
-		if ( $title === null || $title->getNamespaceId() !== $fileNs ) {
+		if ( $title === null || $title->getNamespace() !== $fileNs ) {
 			// Try again, this time with a default namespace
 			$title = $extApi->makeTitle( $oTitleStr, $fileNs );
 			$noPrefix = true;
 		}
-		if ( $title === null || $title->getNamespaceId() !== $fileNs ) {
+		if ( $title === null || $title->getNamespace() !== $fileNs ) {
 			return null;
 		}
 

@@ -54,12 +54,13 @@ class MockEnvTest extends \PHPUnit\Framework\TestCase {
 			->getMockForAbstractClass();
 		$mockPageContent = $this->getMockBuilder( PageContent::class )->getMockForAbstractClass();
 		$mockSiteConfig = $this->getMockBuilder( SiteConfig::class )
-			->onlyMethods( [ 'legalTitleChars' ] )
+			->onlyMethods( [ 'legalTitleChars', 'namespaceName' ] )
 			->getMockForAbstractClass();
 
 		$mockPageConfig->method( 'getTitle' )->willReturn( 'Main Page' );
 		$mockPageConfig->method( 'getRevisionContent' )->willReturn( $mockPageContent );
 		$mockSiteConfig->method( 'legalTitleChars' )->willReturn( 'A-Za-z_ ' );
+		$mockSiteConfig->method( 'namespaceName' )->willReturn( '' );
 
 		$env = new MockEnv( [
 			'pageContent' => 'Foo bar?',
