@@ -26,11 +26,15 @@ class Title implements LinkTarget {
 	/** @var string */
 	private $fragment;
 
+	// cached values of prefixed title/key
+	private ?string $prefixedDBKey = null;
+	private ?string $prefixedText = null;
+
 	/**
 	 * @param string $interwiki Interwiki prefix, or empty string if none
 	 * @param string $key Page DBkey (with underscores, not spaces)
 	 * @param int $namespaceId
-	 * @param string $namespaceName
+	 * @param string $namespaceName (with spaces, not underscores)
 	 * @param ?string $fragment
 	 */
 	private function __construct(
@@ -273,11 +277,12 @@ class Title implements LinkTarget {
 	 * @return string
 	 */
 	public function getPrefixedDBKey(): string {
-		$dbkey = $this->getKey();
-		if ( $this->namespaceName === '' ) {
-			return $dbkey;
+		if ( $this->prefixedDBKey === null ) {
+			$this->prefixedDBKey = $this->namespaceName === '' ? '' :
+				( strtr( $this->namespaceName, ' ', '_' ) . ':' );
+			$this->prefixedDBKey .= $this->getKey();
 		}
-		return strtr( $this->namespaceName, ' ', '_' ) . ':' . $dbkey;
+		return $this->prefixedDBKey;
 	}
 
 	/**
@@ -285,11 +290,12 @@ class Title implements LinkTarget {
 	 * @return string
 	 */
 	public function getPrefixedText(): string {
-		$ret = strtr( $this->getKey(), '_', ' ' );
-		if ( $this->namespaceName !== '' ) {
-			$ret = $this->namespaceName . ':' . $ret;
+		if ( $this->prefixedText === null ) {
+			$this->prefixedText = $this->namespaceName === '' ? '' :
+				( $this->namespaceName . ':' );
+			$this->prefixedText .= strtr( $this->getKey(), '_', ' ' );
 		}
-		return $ret;
+		return $this->prefixedText;
 	}
 
 	/**
@@ -302,6 +308,7 @@ class Title implements LinkTarget {
 
 	/**
 	 * Get the human-readable name for the namespace
+	 * (with spaces, not underscores).
 	 * @return string
 	 */
 	public function getNamespaceName(): string {

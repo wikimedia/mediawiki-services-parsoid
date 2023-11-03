@@ -27,11 +27,11 @@ class LinterTest extends TestCase {
 
 		$siteOptions = [ 'linting' => true ] + $options;
 		$siteConfig = new MockSiteConfig( $siteOptions );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ $opts['pageName'] => $wt ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 
 		return $parsoid->wikitext2lint( $pageConfig, [] );
 	}

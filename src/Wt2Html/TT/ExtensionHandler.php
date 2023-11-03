@@ -71,7 +71,7 @@ class ExtensionHandler extends TokenHandler {
 		if ( $metrics ) {
 			// Track uses of extensions
 			$wiki = $siteConfig->iwp();
-			$ns = $pageConfig->getNs();
+			$ns = $pageConfig->getLinkTarget()->getNamespace();
 			if ( $ns === 0 ) {
 				// Article space
 				$nsName = 'main';

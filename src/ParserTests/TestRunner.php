@@ -230,7 +230,7 @@ class TestRunner {
 		$this->dummyEnv = new Env(
 			$this->siteConfig,
 			// Unused; needed to satisfy Env signature requirements
-			new MockPageConfig( [], new MockPageContent( [ 'main' => '' ] ) ),
+			new MockPageConfig( $this->siteConfig, [], new MockPageContent( [ 'main' => '' ] ) ),
 			// Unused; needed to satisfy Env signature requirements
 			$this->dataAccess,
 			// Unused; needed to satisfy Env signature requirements
@@ -248,19 +248,18 @@ class TestRunner {
 	 * @return Env
 	 */
 	private function newEnv( Test $test, string $wikitext ): Env {
-		$pageNs = $this->dummyEnv->makeTitleFromURLDecodedStr(
+		$title = $this->dummyEnv->makeTitleFromURLDecodedStr(
 			$test->pageName()
-		)->getNamespace();
+		);
 
 		$opts = [
-			'title' => $test->pageName(),
-			'pagens' => $pageNs,
+			'title' => $title,
 			'pageContent' => $wikitext,
 			'pageLanguage' => $this->siteConfig->langBcp47(),
 			'pageLanguagedir' => $this->siteConfig->rtl() ? 'rtl' : 'ltr'
 		];
 
-		$pageConfig = new PageConfig( null, $opts );
+		$pageConfig = new PageConfig( null, $this->siteConfig, $opts );
 
 		$env = new Env(
 			$this->siteConfig,

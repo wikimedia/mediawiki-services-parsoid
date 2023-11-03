@@ -87,11 +87,11 @@ class ComputeDSRTest extends TestCase {
 	 */
 	public function testComputeDSR( string $wt, array $specs ): void {
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
 		$doc = ContentUtils::createAndLoadDocument( $html );

@@ -337,11 +337,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function setupMockConfig( array $configOpts ) {
 		$siteConfig = new MockSiteConfig( $configOpts );
 		$siteConfig->registerExtensionModule( DummyAnnotation::class );
-		$dataAccess = new MockDataAccess( $configOpts );
+		$dataAccess = new MockDataAccess( $siteConfig, $configOpts );
 		$pageContent = new MockPageContent( [ 'main' =>
 			$configOpts['pageContent'] ?? '' ] );
 		$this->siteConfig = $siteConfig;
-		$this->pageConfig = new MockPageConfig( $configOpts, $pageContent );
+		$this->pageConfig = new MockPageConfig( $siteConfig, $configOpts, $pageContent );
 		$this->metadata = new StubMetadataCollector();
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}

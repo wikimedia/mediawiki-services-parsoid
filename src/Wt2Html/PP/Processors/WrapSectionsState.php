@@ -206,8 +206,12 @@ class WrapSectionsState {
 			}
 			$metadata->codepointOffset = null;
 		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
-			// PageConfig returns titles with a space, so strtr it
-			$metadata->fromTitle = strtr( $this->env->getPageConfig()->getTitle(), ' ', '_' );
+			$title = Title::newFromLinkTarget(
+				$this->env->getPageConfig()->getLinkTarget(),
+				$this->env->getSiteConfig()
+			);
+			// Use the dbkey (underscores) instead of text (spaces)
+			$metadata->fromTitle = $title->getPrefixedDBKey();
 			$metadata->index = (string)$this->sectionNumber;
 			// Note that our DSR counts *are* byte counts, while this core
 			// interface expects *codepoint* counts.  We are going to convert

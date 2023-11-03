@@ -8,7 +8,10 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -21,7 +24,10 @@ class PageConfig extends IPageConfig {
 	/** @var ?ApiHelper */
 	private $api;
 
-	/** @var string */
+	/** @var ISiteConfig */
+	private ISiteConfig $siteConfig;
+
+	/** @var Title */
 	private $title;
 
 	/** @var string|null */
@@ -44,13 +50,19 @@ class PageConfig extends IPageConfig {
 
 	/**
 	 * @param ?ApiHelper $api (only needed if $opts doesn't provide page info)
+	 * @param ISiteConfig $siteConfig
 	 * @param array $opts
 	 */
-	public function __construct( ?ApiHelper $api, array $opts ) {
+	public function __construct( ?ApiHelper $api, ISiteConfig $siteConfig, array $opts ) {
+		parent::__construct();
 		$this->api = $api;
+		$this->siteConfig = $siteConfig;
 
 		if ( !isset( $opts['title'] ) ) {
 			throw new \InvalidArgumentException( '$opts[\'title\'] must be set' );
+		}
+		if ( !( $opts['title'] instanceof Title ) ) {
+			throw new \InvalidArgumentException( '$opts[\'title\'] must be a Title' );
 		}
 		$this->title = $opts['title'];
 		$this->revid = $opts['revid'] ?? null;
@@ -82,8 +94,8 @@ class PageConfig extends IPageConfig {
 	 */
 	private function mockPageContent( array $opts ) {
 		$this->page = [
-			'title' => $this->title,
-			'ns' => $opts['pagens'] ?? 0,
+			'title' => $this->title->getPrefixedText(),
+			'ns' => $this->title->getNamespace(),
 			'pageid' => -1,
 			'pagelanguage' => $opts['pageLanguage'] ?? 'en',
 			'pagelanguagedir' => $opts['pageLanguageDir'] ?? 'ltr',
@@ -110,7 +122,7 @@ class PageConfig extends IPageConfig {
 		if ( !empty( $this->revid ) ) {
 			$params['revids'] = $this->revid;
 		} else {
-			$params['titles'] = $this->title;
+			$params['titles'] = $this->title->getPrefixedDBKey();
 			$params['rvlimit'] = 1;
 		}
 
@@ -146,9 +158,11 @@ class PageConfig extends IPageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getNs(): int {
+	public function getLinkTarget(): LinkTarget {
 		$this->loadData();
-		return $this->page['ns'];
+		return Title::newFromText(
+			$this->page['title'], $this->siteConfig, $this->page['ns']
+		);
 	}
 
 	/** @inheritDoc */

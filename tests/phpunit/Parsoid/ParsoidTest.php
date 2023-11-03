@@ -29,11 +29,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		$out = $parsoid->wikitext2html( $pageConfig, $parserOpts );
 		if ( !empty( $parserOpts['pageBundle'] ) ) {
 			$this->assertTrue( $out instanceof PageBundle );
@@ -75,11 +75,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		];
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		$lint = $parsoid->wikitext2lint( $pageConfig, $parserOpts );
 		$this->assertEquals( $expected, $lint );
 	}
@@ -107,11 +107,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		$wt = $parsoid->html2wikitext( $pageConfig, $input, $parserOpts );
 		$this->assertEquals( $expected, $wt );
 	}
@@ -137,11 +137,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => $testOpts['pageContent'] ?? '' ] );
-		$pageConfig = new MockPageConfig( [
+		$pageConfig = new MockPageConfig( $siteConfig, [
 			'pageLanguage' => $testOpts['pageLanguage'] ?? 'en'
 		], $pageContent );
 		$pb = new PageBundle(
@@ -364,11 +364,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 
 		$actual = $parsoid->implementsLanguageConversionBcp47( $pageConfig, new Bcp47CodeValue( $htmlVariantCode ) );
 		$this->assertEquals( $expected, $actual );
@@ -392,11 +392,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$wt = "testing '''123'''";
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		$parsoid->wikitext2html( $pageConfig );
 
 		$metrics = $siteConfig->metrics();
@@ -416,11 +416,11 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$html = "<p>hiho</p>";
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 
 		$wt = $parsoid->html2wikitext( $pageConfig, $html );
 		$this->assertEquals( 'hiho', $wt );

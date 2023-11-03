@@ -27,6 +27,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -133,7 +134,9 @@ class TreeBuilderStage extends PipelineStage {
 		if ( isset( $this->lastToken ) && !( $this->lastToken instanceof EOFTk ) ) {
 			$this->env->log(
 				'error', 'EOFTk was lost in page',
-				$this->env->getPageConfig()->getTitle()
+				Title::newFromLinkTarget(
+					$this->env->getPageConfig()->getLinkTarget(), $this->env->getSiteConfig()
+				)->getPrefixedText()
 			);
 		}
 

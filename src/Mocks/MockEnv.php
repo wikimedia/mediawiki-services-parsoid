@@ -22,6 +22,7 @@ class MockEnv extends Env {
 	 *    MockPageConfig.
 	 */
 	public function __construct( array $opts ) {
+		$siteConfig = $opts['siteConfig'] ?? new MockSiteConfig( $opts );
 		if ( isset( $opts['pageConfig'] ) ) {
 			$pageConfig = $opts['pageConfig'];
 		} else {
@@ -29,10 +30,9 @@ class MockEnv extends Env {
 			$pageContent = $content instanceof PageContent
 				? $content
 				: new MockPageContent( [ 'main' => $content ] );
-			$pageConfig = new MockPageConfig( $opts, $pageContent );
+			$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		}
-		$siteConfig = $opts['siteConfig'] ?? new MockSiteConfig( $opts );
-		$dataAccess = $opts['dataAccess'] ?? new MockDataAccess( $opts );
+		$dataAccess = $opts['dataAccess'] ?? new MockDataAccess( $siteConfig, $opts );
 		$metadata = new StubMetadataCollector( $siteConfig->getLogger() );
 		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $metadata, $opts );
 	}

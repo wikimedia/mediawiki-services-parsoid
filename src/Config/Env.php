@@ -585,21 +585,24 @@ class Env {
 		$str = trim( $str );
 
 		$pageConfig = $this->getPageConfig();
+		$title = Title::newFromLinkTarget(
+			$pageConfig->getLinkTarget(), $this->siteConfig
+		);
 
 		// Resolve lonely fragments (important if the current page is a subpage,
 		// otherwise the relative link will be wrong)
 		if ( $str !== '' && $str[0] === '#' ) {
-			return $pageConfig->getTitle() . $str;
+			return $title->getPrefixedText() . $str;
 		}
 
 		// Default return value
 		$titleKey = $str;
-		if ( $this->getSiteConfig()->namespaceHasSubpages( $pageConfig->getNs() ) ) {
+		if ( $this->getSiteConfig()->namespaceHasSubpages( $title->getNamespace() ) ) {
 			// Resolve subpages
 			$reNormalize = false;
 			if ( preg_match( '!^(?:\.\./)+!', $str, $relUp ) ) {
 				$levels = strlen( $relUp[0] ) / 3;  // Levels are indicated by '../'.
-				$titleBits = explode( '/', $pageConfig->getTitle() );
+				$titleBits = explode( '/', $title->getPrefixedText() );
 				if ( $titleBits[0] === '' ) {
 					// FIXME: Punt on subpages of titles starting with "/" for now
 					return $origName;
@@ -616,7 +619,7 @@ class Env {
 				$reNormalize = true;
 			} elseif ( $str !== '' && $str[0] === '/' ) {
 				// Resolve absolute subpage links
-				$str = $pageConfig->getTitle() . $str;
+				$str = $title->getPrefixedText() . $str;
 				$reNormalize = true;
 			}
 
@@ -680,7 +683,7 @@ class Env {
 	private function makeTitle( string $text, ?int $defaultNs = null, bool $noExceptions = false ): ?Title {
 		try {
 			if ( preg_match( '!^(?:[#/]|\.\./)!', $text ) ) {
-				$defaultNs = $this->getPageConfig()->getNs();
+				$defaultNs = $this->getPageConfig()->getLinkTarget()->getNamespace();
 			}
 			$text = $this->resolveTitle( $text );
 			return Title::newFromText( $text, $this->getSiteConfig(), $defaultNs );

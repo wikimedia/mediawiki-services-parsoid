@@ -4,12 +4,16 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config\Api;
 
+use Wikimedia\Parsoid\Config\Api\SiteConfig as ApiSiteConfig;
 use Wikimedia\Parsoid\Config\DataAccess as IDataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * DataAccess via MediaWiki's Action API
@@ -46,10 +50,7 @@ class DataAccess extends IDataAccess {
 	 */
 	private $cache = [];
 
-	/**
-	 * @var ?SiteConfig
-	 */
-	private $siteConfig = null;
+	private ISiteConfig $siteConfig;
 
 	/**
 	 * Get from cache
@@ -90,10 +91,10 @@ class DataAccess extends IDataAccess {
 
 	/**
 	 * @param ApiHelper $api
-	 * @param ?SiteConfig $siteConfig
+	 * @param ISiteConfig $siteConfig
 	 * @param array $opts
 	 */
-	public function __construct( ApiHelper $api, ?SiteConfig $siteConfig, array $opts ) {
+	public function __construct( ApiHelper $api, ISiteConfig $siteConfig, array $opts ) {
 		$this->api = $api;
 		$this->siteConfig = $siteConfig;
 		$this->stripProto = $opts['stripProto'] ?? true;
@@ -106,12 +107,13 @@ class DataAccess extends IDataAccess {
 		}
 
 		$ret = [];
+		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
 		foreach ( array_chunk( $titles, 50 ) as $batch ) {
 			$data = $this->api->makeRequest( [
 				'action' => 'query',
 				'prop' => 'info',
 				'inprop' => 'linkclasses',
-				'inlinkcontext' => $pageConfig->getTitle(),
+				'inlinkcontext' => $pageConfigTitle,
 				'titles' => implode( '|', $batch ),
 			] )['query'];
 			$norm = [];
@@ -154,8 +156,9 @@ class DataAccess extends IDataAccess {
 
 	/** @inheritDoc */
 	public function getFileInfo( PageConfig $pageConfig, array $files ): array {
+		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
 		$sc = $this->siteConfig;
-		if ( $sc && $sc->hasVideoInfo() ) {
+		if ( $sc instanceof ApiSiteConfig && $sc->hasVideoInfo() ) {
 			$prefix = "vi";
 			$propName = "videoinfo";
 		} else {
@@ -168,7 +171,7 @@ class DataAccess extends IDataAccess {
 			'formatversion' => 2,
 			'rawcontinue' => 1,
 			'prop' => $propName,
-			"{$prefix}badfilecontexttitle" => $pageConfig->getTitle(),
+			"{$prefix}badfilecontexttitle" => $pageConfigTitle,
 			"{$prefix}prop" => implode( '|', [
 				'mediatype', 'mime', 'size', 'url', 'badfile'
 			] )
@@ -182,7 +185,7 @@ class DataAccess extends IDataAccess {
 			$name = $file[0];
 			$dims = $file[1];
 
-			$imgNS = $sc ? $sc->namespaceName( $sc->canonicalNamespaceId( "File" ) ) : "File";
+			$imgNS = $sc->namespaceName( $sc->canonicalNamespaceId( 'file' ) );
 			$apiArgs['titles'] = "$imgNS:$name";
 			$needsWidth = isset( $dims['page'] ) || isset( $dims['lang'] );
 			if ( isset( $dims['width'] ) ) {
@@ -267,12 +270,13 @@ class DataAccess extends IDataAccess {
 
 	/** @inheritDoc */
 	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
-		$key = implode( ':', [ 'pst', md5( $pageConfig->getTitle() ) , md5( $wikitext ) ] );
+		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
+		$key = implode( ':', [ 'pst', md5( $pageConfigTitle ) , md5( $wikitext ) ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
 			$data = $this->api->makeRequest( [
 				'action' => 'parse',
-				'title' => $pageConfig->getTitle(),
+				'title' => $pageConfigTitle,
 				'text' => $wikitext,
 				'contentmodel' => 'wikitext',
 				'onlypst' => 1,
@@ -326,12 +330,13 @@ class DataAccess extends IDataAccess {
 		string $wikitext
 	): string {
 		$revid = $pageConfig->getRevisionId();
-		$key = implode( ':', [ 'parse', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
+		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
+		$key = implode( ':', [ 'parse', md5( $pageConfigTitle ), md5( $wikitext ), $revid ] );
 		$data = $this->getCache( $key );
 		if ( $data === null ) {
 			$params = [
 				'action' => 'parse',
-				'title' => $pageConfig->getTitle(),
+				'title' => $pageConfigTitle,
 				'text' => $wikitext,
 				'contentmodel' => 'wikitext',
 				'prop' => 'text|modules|jsconfigvars|categories|properties|externallinks',
@@ -356,12 +361,13 @@ class DataAccess extends IDataAccess {
 		string $wikitext
 	): string {
 		$revid = $pageConfig->getRevisionId();
-		$key = implode( ':', [ 'preprocess', md5( $pageConfig->getTitle() ), md5( $wikitext ), $revid ] );
+		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
+		$key = implode( ':', [ 'preprocess', md5( $pageConfigTitle ), md5( $wikitext ), $revid ] );
 		$data = $this->getCache( $key );
 		if ( $data === null ) {
 			$params = [
 				'action' => 'expandtemplates',
-				'title' => $pageConfig->getTitle(),
+				'title' => $pageConfigTitle,
 				'text' => $wikitext,
 				'prop' => 'wikitext|modules|jsconfigvars|categories|properties',
 				'showstrategykeys' => 1,
@@ -380,8 +386,11 @@ class DataAccess extends IDataAccess {
 
 	/** @inheritDoc */
 	public function fetchTemplateSource(
-		PageConfig $pageConfig, string $title
+		PageConfig $pageConfig, $title
 	): ?PageContent {
+		if ( !is_string( $title ) ) {
+			$title = $this->toPrefixedText( $title );
+		}
 		$key = implode( ':', [ 'content', md5( $title ) ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
@@ -408,7 +417,10 @@ class DataAccess extends IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array {
+	public function fetchTemplateData( PageConfig $pageConfig, $title ): ?array {
+		if ( !is_string( $title ) ) {
+			$title = $this->toPrefixedText( $title );
+		}
 		$key = implode( ':', [ 'templatedata', md5( $title ) ] );
 		$ret = $this->getCache( $key );
 		if ( $ret === null ) {
@@ -429,5 +441,17 @@ class DataAccess extends IDataAccess {
 		foreach ( $lints as $l ) {
 			error_log( PHPUtils::jsonEncode( $l ) );
 		}
+	}
+
+	/**
+	 * Helper to turn a LinkTarget object into the "prefixed text" title form
+	 * expected by the MediaWiki action API.
+	 * @param LinkTarget $linkTarget
+	 * @return string The title, as prefixed text
+	 */
+	private function toPrefixedText( LinkTarget $linkTarget ): string {
+		return Title::newFromLinkTarget(
+			$linkTarget, $this->siteConfig
+		)->getPrefixedText();
 	}
 }

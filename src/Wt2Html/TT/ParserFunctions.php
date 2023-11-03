@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -93,6 +94,15 @@ class ParserFunctions {
 			$v = $this->expandV( $kv->v, $frame );
 			return $this->rejoinKV( $trim, $kv->k, $v );
 		}
+	}
+
+	private function prefixedTitleText(): string {
+		$siteConfig = $this->env->getSiteConfig();
+		$pageConfig = $this->env->getPageConfig();
+		$title = Title::newFromLinkTarget(
+			$pageConfig->getLinkTarget(), $siteConfig
+		);
+		return $title->getPrefixedText();
 	}
 
 	public function pf_if( $token, Frame $frame, Params $params ): array {
@@ -629,13 +639,13 @@ class ParserFunctions {
 	public function pf_fullpagename( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		return [ $target ?: ( $this->env->getPageConfig()->getTitle() ) ];
+		return [ $target ?: ( $this->prefixedTitleText() ) ];
 	}
 
 	public function pf_fullpagenamee( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		return [ $target ?: ( $this->env->getPageConfig()->getTitle() ) ];
+		return [ $target ?: ( $this->prefixedTitleText() ) ];
 	}
 
 	public function pf_pagelanguage( $token, Frame $frame, Params $params ): array {
@@ -663,7 +673,7 @@ class ParserFunctions {
 	public function pf_fullurl( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
-		$target = str_replace( ' ', '_', $target ?: ( $this->env->getPageConfig()->getTitle() ) );
+		$target = str_replace( ' ', '_', $target ?: ( $this->prefixedTitleText() ) );
 		$wikiConf = $this->env->getSiteConfig();
 		$url = null;
 		if ( $args[1] ) {
@@ -846,12 +856,12 @@ class ParserFunctions {
 
 	public function pf_pagename( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		return [ $this->env->getPageConfig()->getTitle() ];
+		return [ $this->prefixedTitleText() ];
 	}
 
 	public function pf_pagenamebase( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		return [ $this->env->getPageConfig()->getTitle() ];
+		return [ $this->prefixedTitleText() ];
 	}
 
 	public function pf_scriptpath( $token, Frame $frame, Params $params ): array {
@@ -883,7 +893,7 @@ class ParserFunctions {
 
 	public function pf_talkpagename( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		$title = $this->env->getPageConfig()->getTitle();
+		$title = $this->prefixedTitleText();
 		return [ preg_replace( '/^[^:]:/', 'Talk:', $title, 1 ) ];
 	}
 

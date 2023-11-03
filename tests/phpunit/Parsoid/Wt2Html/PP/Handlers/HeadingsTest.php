@@ -59,11 +59,11 @@ class HeadingsTest extends TestCase {
 		$expectedIds = $test;
 
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $heading ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
 		$doc = DOMUtils::parseHTML( $html );

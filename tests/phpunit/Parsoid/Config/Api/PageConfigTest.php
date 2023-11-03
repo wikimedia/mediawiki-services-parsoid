@@ -4,6 +4,8 @@ namespace Test\Parsoid\Config\Api;
 
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * @covers \Wikimedia\Parsoid\Config\Api\PageConfig
@@ -18,10 +20,12 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 				[
 					'missing' => 'ThisPageDoesNotExist',
 					'existing' => 'Help:Sample_page',
-				] as $name => $title
+				] as $name => $titleText
 			) {
 				$helper = new TestApiHelper( $this, $name . 'page' );
-				self::$pageConfigs[$name] = new PageConfig( $helper, [ 'title' => $title ] );
+				$siteConfig = new MockSiteConfig( [] );
+				$title = Title::newFromText( $titleText, $siteConfig );
+				self::$pageConfigs[$name] = new PageConfig( $helper, $siteConfig, [ 'title' => $title ] );
 			}
 		}
 

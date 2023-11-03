@@ -850,7 +850,10 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		$start = microtime( true );
-		$pageContent = $env->getDataAccess()->fetchTemplateSource( $env->getPageConfig(), $templateName );
+		$pageContent = $env->getDataAccess()->fetchTemplateSource(
+			$env->getPageConfig(),
+			Title::newFromText( $templateName, $env->getSiteConfig() )
+		);
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
 			$profile->bumpMWTime( "TemplateFetch", 1000 * ( microtime( true ) - $start ), "api" );

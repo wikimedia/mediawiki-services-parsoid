@@ -7,9 +7,11 @@ use Error;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * This implements some of the functionality that the tests/ParserTests/MockAPIHelper.php
@@ -17,6 +19,8 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  * by parser tests.
  */
 class MockDataAccess extends DataAccess {
+	private SiteConfig $siteConfig;
+
 	private static $PAGE_DATA = [
 		"Main_Page" => [
 			"title" => "Main Page",
@@ -353,9 +357,11 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/**
+	 * @param SiteConfig $siteConfig
 	 * @param array $opts
 	 */
-	public function __construct( array $opts ) {
+	public function __construct( SiteConfig $siteConfig, array $opts ) {
+		$this->siteConfig = $siteConfig;
 		// Update data of the large page
 		$mainSlot = &self::$PAGE_DATA['Large_Page']['slots']['main'];
 		$mainSlot['*'] = str_repeat( 'a', $opts['maxWikitextSize'] ?? 1000000 );
@@ -568,8 +574,13 @@ class MockDataAccess extends DataAccess {
 
 	/** @inheritDoc */
 	public function fetchTemplateSource(
-		PageConfig $pageConfig, string $title
+		PageConfig $pageConfig, $title
 	): ?PageContent {
+		if ( !is_string( $title ) ) {
+			$title = Title::newFromLinkTarget(
+				$title, $this->siteConfig
+			)->getPrefixedText();
+		}
 		$normTitle = $this->normTitle( $title );
 		$pageData = self::$PAGE_DATA[$normTitle] ?? null;
 		if ( $pageData ) {
@@ -584,7 +595,12 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array {
+	public function fetchTemplateData( PageConfig $pageConfig, $title ): ?array {
+		if ( !is_string( $title ) ) {
+			$title = Title::newFromLinkTarget(
+				$title, $this->siteConfig
+			)->getPrefixedText();
+		}
 		return self::TEMPLATE_DATA[$this->normTitle( $title )] ?? null;
 	}
 

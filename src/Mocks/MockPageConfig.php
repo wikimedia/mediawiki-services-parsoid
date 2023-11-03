@@ -6,9 +6,13 @@ namespace Wikimedia\Parsoid\Mocks;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 
 class MockPageConfig extends PageConfig {
+	private SiteConfig $siteConfig;
 
 	/** @var ?PageContent */
 	private $content;
@@ -16,29 +20,25 @@ class MockPageConfig extends PageConfig {
 	/** @var int */
 	private $pageid;
 
-	/** @var int */
-	private $pagens;
+	private Title $title;
 
-	/** @var string */
-	private $title;
-
-	/** @var ?string */
-	private $pagelanguage;
+	private Bcp47Code $pagelanguage;
 
 	/** @var ?string */
 	private $pagelanguageDir;
 
 	/**
 	 * Construct a mock environment object for use in tests
+	 * @param SiteConfig $siteConfig
 	 * @param array $opts
 	 * @param ?PageContent $content
 	 */
-	public function __construct( array $opts, ?PageContent $content ) {
+	public function __construct( SiteConfig $siteConfig, array $opts, ?PageContent $content ) {
+		$this->siteConfig = $siteConfig;
 		$this->content = $content;
-		$this->title = $opts['title'] ?? 'TestPage';
+		$this->title = Title::newFromText( $opts['title'] ?? 'TestPage', $siteConfig, $opts['pagens'] ?? null );
 		$this->pageid = $opts['pageid'] ?? -1;
-		$this->pagens = $opts['pagens'] ?? 0;
-		$this->pagelanguage = $opts['pageLanguage'] ?? null;
+		$this->pagelanguage = Utils::mwCodeToBcp47( $opts['pageLanguage'] ?? 'en' );
 		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 	}
 
@@ -49,12 +49,12 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getTitle(): string {
-		return $this->title;
+		return $this->title->getPrefixedText();
 	}
 
 	/** @inheritDoc */
-	public function getNs(): int {
-		return $this->pagens;
+	public function getLinkTarget(): LinkTarget {
+		return $this->title;
 	}
 
 	/** @inheritDoc */
@@ -64,7 +64,7 @@ class MockPageConfig extends PageConfig {
 
 	/** @inheritDoc */
 	public function getPageLanguageBcp47(): Bcp47Code {
-		return Utils::mwCodeToBcp47( $this->pagelanguage ?? 'en' );
+		return $this->pagelanguage;
 	}
 
 	/** @inheritDoc */

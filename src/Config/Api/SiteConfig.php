@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
 use Wikimedia\Parsoid\Utils\ConfigUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -491,6 +492,11 @@ class SiteConfig extends ISiteConfig {
 	public function mainpage(): string {
 		$this->loadSiteData();
 		return $this->siteData['mainpage'];
+	}
+
+	public function mainPageLinkTarget(): Title {
+		$this->loadSiteData();
+		return Title::newFromText( $this->siteData['mainpage'], $this );
 	}
 
 	/** @inheritDoc */

@@ -20,11 +20,11 @@ class TemplateDataTest extends TestCase {
 		$opts = [];
 
 		$siteConfig = new MockSiteConfig( $opts );
-		$dataAccess = new MockDataAccess( $opts );
+		$dataAccess = new MockDataAccess( $siteConfig, $opts );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$pageContent = new MockPageContent( [ 'main' => '' ] );
-		$pageConfig = new MockPageConfig( $opts, $pageContent );
+		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 
 		if ( isset( $origHTML ) && strlen( $origHTML ) > 0 ) {
 			$selserData = new SelserData( $origWT, $origHTML );

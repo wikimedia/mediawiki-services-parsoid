@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\LinkTarget;
 
 /**
  * MediaWiki data access abstract class for Parsoid
@@ -128,11 +129,11 @@ abstract class DataAccess {
 	 * @todo TemplateRequest also returns a bunch of other data, but seems to never use it except for
 	 *   TemplateRequest.setPageSrcInfo() which is replaced by PageConfig.
 	 * @param PageConfig $pageConfig
-	 * @param string $title Title of the page to fetch
+	 * @param string|LinkTarget $title Title of the page to fetch
 	 * @return PageContent|null
 	 */
 	abstract public function fetchTemplateSource(
-		PageConfig $pageConfig, string $title
+		PageConfig $pageConfig, $title
 	): ?PageContent;
 
 	/**
@@ -141,10 +142,10 @@ abstract class DataAccess {
 	 * This replaces TemplateDataRequest
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param string $title
+	 * @param string|LinkTarget $title
 	 * @return array|null
 	 */
-	abstract public function fetchTemplateData( PageConfig $pageConfig, string $title ): ?array;
+	abstract public function fetchTemplateData( PageConfig $pageConfig, $title ): ?array;
 
 	/**
 	 * Log linter data.

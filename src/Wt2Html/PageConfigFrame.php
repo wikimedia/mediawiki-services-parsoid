@@ -26,12 +26,7 @@ class PageConfigFrame extends Frame {
 		$rev = $pageConfig->getRevisionContent();
 		$content = $rev ? $rev->getContent( 'main' ) : '';
 		parent::__construct(
-			// It would be nicer to have the Title object directly available
-			// from PageConfig, but we're trying to keep Parsoid's Title
-			// object separate from MediaWiki's Title object.  When/if they
-			// are unified, we could get use the PageConfig's Title directly
-			// when constructing the Frame.
-			Title::newFromText( $pageConfig->getTitle(), $siteConfig ),
+			Title::newFromLinkTarget( $pageConfig->getLinkTarget(), $siteConfig ),
 			$env,
 			[],
 			$content,

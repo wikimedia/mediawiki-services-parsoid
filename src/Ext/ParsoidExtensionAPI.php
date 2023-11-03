@@ -284,11 +284,8 @@ class ParsoidExtensionAPI {
 	 * @return string
 	 */
 	public function getPageUri(): string {
-		$title = Title::newFromText(
-			$this->env->getPageConfig()->getTitle(),
-			$this->env->getSiteConfig()
-		);
-		return $this->getTitleUri( $title );
+		$title = $this->env->getPageConfig()->getLinkTarget();
+		return $this->getTitleUri( Title::newFromLinkTarget( $title, $this->env->getSiteConfig() ) );
 	}
 
 	/**

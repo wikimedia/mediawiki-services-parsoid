@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Bcp47Code\Bcp47Code;
+use Wikimedia\Parsoid\Core\LinkTarget;
 
 /**
  * Page-level configuration interface for Parsoid
@@ -45,18 +46,43 @@ abstract class PageConfig {
 	/**
 	 * The page's title, as a string.
 	 * @return string With namespace, spaces not underscores
+	 * @deprecated Use ::getLinkTarget() instead; Title::getPrefixedText() will
+	 *  return the title in the same format as before.
 	 */
 	abstract public function getTitle(): string;
+
+	// At least one of ::getTitleObj() and ::getLinkTarget() must be defined
+
+	/**
+	 * The page's title, as a LinkTarget.
+	 * @return LinkTarget
+	 * @deprecated Renamed to ::getLinkTarget()
+	 */
+	public function getTitleObj(): LinkTarget {
+		return $this->getLinkTarget();
+	}
+
+	/**
+	 * The page's title, as a LinkTarget.
+	 * @return LinkTarget
+	 */
+	public function getLinkTarget(): LinkTarget {
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		return $this->getTitleObj();
+	}
 
 	/**
 	 * The page's namespace ID
 	 * @return int
+	 * @deprecated Use ::getLinkTarget()->getNamespace() instead
 	 */
-	abstract public function getNs(): int;
+	public function getNs(): int {
+		return $this->getLinkTarget()->getNamespace();
+	}
 
 	/**
 	 * The page's ID, if any
-	 * @return int 0 if the page doesn't exist
+	 * @return int 0 if the page doesn't (yet?) exist
 	 */
 	abstract public function getPageId(): int;
 

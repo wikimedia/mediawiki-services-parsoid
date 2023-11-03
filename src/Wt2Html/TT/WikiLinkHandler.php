@@ -142,7 +142,9 @@ class WikiLinkHandler extends TokenHandler {
 			} elseif ( isset( $interwikiInfo['localinterwiki'] ) ) {
 				if ( $hrefBits['title'] === '' ) {
 					// Empty title => main page (T66167)
-					$info->title = $env->makeTitleFromURLDecodedStr( $siteConfig->mainpage() );
+					$info->title = Title::newFromLinkTarget(
+						$siteConfig->mainPageLinkTarget(), $siteConfig
+					);
 				} else {
 					$info->href = str_contains( $hrefBits['title'], ':' )
 						? ':' . $hrefBits['title'] : $hrefBits['title'];
@@ -378,7 +380,7 @@ class WikiLinkHandler extends TokenHandler {
 			return $this->renderInterwikiLink( $token, $target );
 		}
 		if ( $target->language ) {
-			$ns = $this->env->getPageConfig()->getNs();
+			$ns = $this->env->getPageConfig()->getLinkTarget()->getNamespace();
 			$noLanguageLinks = $this->env->getSiteConfig()->namespaceIsTalk( $ns ) ||
 				!$this->env->getSiteConfig()->interwikiMagic();
 			if ( $noLanguageLinks ) {
@@ -569,7 +571,9 @@ class WikiLinkHandler extends TokenHandler {
 			$morecontent = Utils::decodeURIComponent( $target->href );
 
 			// Try to match labeling in core
-			if ( $env->getSiteConfig()->namespaceHasSubpages( $env->getPageConfig()->getNs() ) ) {
+			if ( $env->getSiteConfig()->namespaceHasSubpages(
+				$env->getPageConfig()->getLinkTarget()->getNamespace()
+			) ) {
 				// subpage links with a trailing slash get the trailing slashes stripped.
 				// See https://gerrit.wikimedia.org/r/173431
 				if ( preg_match( '#^((\.\./)+|/)(?!\.\./)(.*?[^/])/+$#D', $morecontent, $match ) ) {

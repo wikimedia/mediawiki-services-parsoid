@@ -29,11 +29,11 @@ class RegressionSpecsTest extends TestCase {
 	 */
 	private function parseWT( string $wt, array $pageOpts = [], $wrapSections = false ): Element {
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( $pageOpts, $content );
+		$pageConfig = new MockPageConfig( $siteConfig, $pageOpts, $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => $wrapSections ] );
 
 		$doc = DOMUtils::parseHTML( $html );
@@ -56,11 +56,11 @@ class RegressionSpecsTest extends TestCase {
 		string $withoutSelser, string $withSelser
 	): void {
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
 		// This is mimicking a copy/paste in an editor
@@ -236,11 +236,11 @@ class RegressionSpecsTest extends TestCase {
 		] );
 
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 
 		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
 
@@ -384,10 +384,10 @@ EOT;
 EOT;
 
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 
 		// Without selser
 		$editedWt = $parsoid->html2wikitext( $pageConfig, $editedHtml, [], null );
@@ -413,10 +413,10 @@ EOT;
 		$docBody = $this->parseWT( $wt );
 
 		$siteConfig = new MockSiteConfig( [] );
-		$dataAccess = new MockDataAccess( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( [], $content );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 
 		$editedWt = $parsoid->html2wikitext( $pageConfig, DOMCompat::getOuterHTML( $docBody ), [], null );
 

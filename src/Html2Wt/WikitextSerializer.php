@@ -27,6 +27,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -1001,7 +1002,10 @@ class WikitextSerializer {
 			$tplData = null;
 			$apiResp = null;
 			if ( $isTpl && $useTplData ) {
-				$title = PHPUtils::stripPrefix( $tplHref, './' );
+				$title = Title::newFromText(
+					PHPUtils::stripPrefix( $tplHref, './' ),
+					$this->env->getSiteConfig()
+				);
 				try {
 					$tplData = $this->env->getDataAccess()->fetchTemplateData( $this->env->getPageConfig(), $title );
 				} catch ( Exception $err ) {

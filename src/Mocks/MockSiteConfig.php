@@ -12,7 +12,9 @@ use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 
 class MockSiteConfig extends SiteConfig {
@@ -41,6 +43,7 @@ class MockSiteConfig extends SiteConfig {
 		'project_talk' => 5, 'wt' => 5, 'wikipedia_talk' => 5,
 		'file' => 6,
 		'file_talk' => 7,
+		'help' => 12,
 		'category' => 14,
 		'category_talk' => 15,
 	];
@@ -219,8 +222,8 @@ class MockSiteConfig extends SiteConfig {
 		return new Bcp47CodeValue( 'en' );
 	}
 
-	public function mainpage(): string {
-		return 'Main Page';
+	public function mainPageLinkTarget(): LinkTarget {
+		return Title::newFromText( 'Main Page', $this );
 	}
 
 	/** @inheritDoc */

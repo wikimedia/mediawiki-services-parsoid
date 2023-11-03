@@ -4,22 +4,25 @@ namespace Test\Parsoid\Config\Api;
 
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\PageContent;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 
 /**
  * @covers \Wikimedia\Parsoid\Config\Api\DataAccess
  */
 class DataAccessTest extends \PHPUnit\Framework\TestCase {
 
-	protected function getDataAccess( string $filename ): DataAccess {
+	protected function getDataAccess( string $filename, ?SiteConfig $siteConfig ): DataAccess {
 		$helper = new TestApiHelper( $this, $filename );
-		return new DataAccess( $helper, null, [] );
+		return new DataAccess( $helper, $siteConfig ?? new MockSiteConfig( [] ), [] );
 	}
 
 	public function testGetRedlinkData() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$data = $this->getDataAccess( 'redlinkdata' )->getPageInfo( $pageConfig, [
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$data = $this->getDataAccess( 'redlinkdata', $siteConfig )->getPageInfo( $pageConfig, [
 			'Foo',
 			'Bar_(disambiguation)',
 			'Special:SpecialPages',
@@ -57,6 +60,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetFileInfo() {
+		$siteConfig = new MockSiteConfig( [] );
 		$files = [
 			'Example.svg' => [ 'width' => 100 ],
 			'DoesNotExist.png' => [ 'width' => 200 ],
@@ -80,15 +84,17 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'DoesNotExist.png' => null,
 		];
 		foreach ( $files as $file => $dims ) {
-			$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-			$data = $this->getDataAccess( "fileinfo.$file" )->getFileInfo( $pageConfig, [ [ $file, $dims ] ] );
+			$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+			$data = $this->getDataAccess( "fileinfo.$file", $siteConfig )
+				->getFileInfo( $pageConfig, [ [ $file, $dims ] ] );
 			$this->assertSame( [ $results[$file] ], $data );
 		}
 	}
 
 	public function testDoPst() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$da = $this->getDataAccess( 'dopst' );
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$da = $this->getDataAccess( 'dopst', $siteConfig );
 		$ret = $da->doPst( $pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~' );
 		$this->assertIsString( $ret );
 		$this->assertSame( 'Foobar.[[Category:Foo|Bar]]{{cn}} <!-- Template:Unsigned -->', substr( $ret, 0, 60 ) );
@@ -100,8 +106,9 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testParseWikitext() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$da = $this->getDataAccess( 'parse' );
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$da = $this->getDataAccess( 'parse', $siteConfig );
 		$metadata = new StubMetadataCollector();
 		$ret = $da->parseWikitext(
 			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
@@ -127,8 +134,9 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testPreprocessWikitext() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$da = $this->getDataAccess( 'preprocess' );
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$da = $this->getDataAccess( 'preprocess', $siteConfig );
 		$metadata = new StubMetadataCollector();
 		$ret = $da->preprocessWikitext(
 			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
@@ -153,8 +161,9 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testFetchTemplateSource() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$da = $this->getDataAccess( 'pagecontent-cur' );
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$da = $this->getDataAccess( 'pagecontent-cur', $siteConfig );
 		$c = $da->fetchTemplateSource( $pageConfig, 'Help:Sample page' );
 		$this->assertInstanceOf( PageContent::class, $c );
 		$this->assertSame( [ 'main' ], $c->getRoles() );
@@ -171,8 +180,9 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testFetchTemplateData() {
-		$pageConfig = new MockPageConfig( [ 'title' => 'Foobar' ], null );
-		$da = $this->getDataAccess( 'templatedata' );
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$da = $this->getDataAccess( 'templatedata', $siteConfig );
 		$ret = $da->fetchTemplateData( $pageConfig, 'Template:Citation needed' );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'description', $ret );

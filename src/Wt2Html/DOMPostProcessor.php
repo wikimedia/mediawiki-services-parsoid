@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
@@ -680,6 +681,8 @@ class DOMPostProcessor extends PipelineStage {
 	 * @param Document $document
 	 */
 	public function addMetaData( Env $env, Document $document ): void {
+		$title = Title::newFromLinkTarget( $env->getPageConfig()->getLinkTarget(), $env->getSiteConfig() );
+
 		// Set the charset in the <head> first.
 		// This also adds the <head> element if it was missing.
 		DOMUtils::appendToHead( $document, 'meta', [ 'charset' => 'utf-8' ] );
@@ -715,7 +718,7 @@ class DOMPostProcessor extends PipelineStage {
 		$pageConfig = $env->getPageConfig();
 		$revProps = [
 			'id' => $pageConfig->getPageId(),
-			'ns' => $pageConfig->getNs(),
+			'ns' => $title->getNamespace(),
 			'rev_parentid' => $pageConfig->getParentRevisionId(),
 			'rev_revid' => $pageConfig->getRevisionId(),
 			'rev_sha1' => $pageConfig->getRevisionSha1(),
@@ -758,10 +761,7 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		// Normalize before comparison
-		if (
-			str_replace( '_', ' ', $env->getSiteConfig()->mainpage() ) ===
-			str_replace( '_', ' ', $env->getPageConfig()->getTitle() )
-		) {
+		if ( $title->isSameLinkAs( $env->getSiteConfig()->mainPageLinkTarget() ) ) {
 			DOMUtils::appendToHead( $document, 'meta', [
 				'property' => 'isMainPage',
 				'content' => 'true' /* HTML attribute values should be strings */
@@ -784,8 +784,7 @@ class DOMPostProcessor extends PipelineStage {
 			]
 		);
 
-		$expTitle = strtr( $env->getPageConfig()->getTitle(), ' ', '_' );
-		$expTitle = explode( '/', $expTitle );
+		$expTitle = explode( '/', $title->getPrefixedDBKey() );
 		$expTitle = array_map( static function ( $comp ) {
 			return PHPUtils::encodeURIComponent( $comp );
 		}, $expTitle );
@@ -812,7 +811,7 @@ class DOMPostProcessor extends PipelineStage {
 		$this->updateBodyClasslist( $body, $env );
 		$env->getSiteConfig()->exportMetadataToHeadBcp47(
 			$document, $env->getMetadata(),
-			$env->getPageConfig()->getTitle(), $lang
+			$title->getPrefixedText(), $lang
 		);
 
 		// Indicate whether LanguageConverter is enabled, so that downstream

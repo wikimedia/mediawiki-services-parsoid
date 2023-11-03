@@ -18,6 +18,7 @@ use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\ObjectFactory\ObjectFactory;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\AnnotationStripper;
 use Wikimedia\Parsoid\Ext\Cite\Cite;
@@ -33,6 +34,7 @@ use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -407,6 +409,7 @@ abstract class SiteConfig {
 
 	/**
 	 * Map a namespace index to its preferred name
+	 * (with spaces, not underscores).
 	 *
 	 * @note This replaces namespaceNames
 	 * @param int $ns
@@ -651,11 +654,26 @@ abstract class SiteConfig {
 	 */
 	abstract public function langBcp47(): Bcp47Code;
 
+	// At least one of ::mainpage(), ::mainPageLinkTarget() should be defined
+
 	/**
 	 * Main page title
 	 * @return string
+	 * @deprecated Use ::mainPageLinkTarget()
 	 */
-	abstract public function mainpage(): string;
+	public function mainpage(): string {
+		return Title::newFromLinkTarget( $this->mainPageLinkTarget(), $this )
+			->getPrefixedText();
+	}
+
+	/**
+	 * Main page title, as LinkTarget
+	 * @return LinkTarget
+	 */
+	public function mainPageLinkTarget(): LinkTarget {
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		return Title::newFromText( $this->mainpage(), $this );
+	}
 
 	/**
 	 * Lookup config

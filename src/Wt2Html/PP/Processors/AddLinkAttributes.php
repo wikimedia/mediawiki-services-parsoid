@@ -45,7 +45,7 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 				$classInfoText = 'external autonumber';
 			}
 			$a->setAttribute( 'class', $classInfoText );
-			$ns = $env->getPageConfig()->getNs();
+			$ns = $env->getPageConfig()->getLinkTarget()->getNamespace();
 			$url = DOMCompat::getAttribute( $a, 'href' );
 			if ( $url !== null && $this->noFollowExternalLink( $env->getSiteConfig(), $ns, $url ) ) {
 				DOMUtils::addRel( $a, 'nofollow' );

@@ -6,6 +6,7 @@ use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 
 /**
@@ -50,14 +51,19 @@ class MockEnvTest extends \PHPUnit\Framework\TestCase {
 	public function testEnvOptions() {
 		$mockDataAccess = $this->getMockBuilder( DataAccess::class )->getMockForAbstractClass();
 		$mockPageConfig = $this->getMockBuilder( PageConfig::class )
-			->onlyMethods( [ 'getRevisionContent', 'getTitle' ] )
+			->onlyMethods( [ 'getRevisionContent', 'getLinkTarget' ] )
 			->getMockForAbstractClass();
 		$mockPageContent = $this->getMockBuilder( PageContent::class )->getMockForAbstractClass();
 		$mockSiteConfig = $this->getMockBuilder( SiteConfig::class )
 			->onlyMethods( [ 'legalTitleChars', 'namespaceName' ] )
 			->getMockForAbstractClass();
 
-		$mockPageConfig->method( 'getTitle' )->willReturn( 'Main Page' );
+		$mockTitle = $this->getMockBuilder( LinkTarget::class )
+			->onlyMethods( [ 'getText' ] )
+			->getMockForAbstractClass();
+		$mockTitle->method( 'getText' )->willReturn( 'Main Page' );
+
+		$mockPageConfig->method( 'getLinkTarget' )->willReturn( $mockTitle );
 		$mockPageConfig->method( 'getRevisionContent' )->willReturn( $mockPageContent );
 		$mockSiteConfig->method( 'legalTitleChars' )->willReturn( 'A-Za-z_ ' );
 		$mockSiteConfig->method( 'namespaceName' )->willReturn( '' );
