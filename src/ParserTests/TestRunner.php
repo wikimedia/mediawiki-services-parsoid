@@ -395,10 +395,14 @@ class TestRunner {
 			// These test option names are deprecated:
 			// (Note that test options names are lowercased by the reader.)
 			if ( $testOpts['sourcevariant'] ?? false ) {
-				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['sourcevariant'] );
+				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47(
+					$testOpts['sourcevariant'], true, $this->siteConfig->getLogger()
+				);
 			}
 			if ( $testOpts['variant'] ?? false ) {
-				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47( $testOpts['variant'] );
+				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47(
+					$testOpts['variant'], true, $this->siteConfig->getLogger()
+				);
 			}
 			// Preferred option names, which are also specified in bcp-47 codes
 			// (Note that test options names are lowercased by the reader.)
