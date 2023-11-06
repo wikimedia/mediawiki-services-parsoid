@@ -189,7 +189,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$source->setAttribute( 'data' . $fromFile . '-width', (string)$o['width'] );
 				$source->setAttribute( 'data' . $fromFile . '-height', (string)$o['height'] );
 			}
-			if ( $dataFromTMH ) {
+			if ( $dataFromTMH && isset( $o['title'] ) && isset( $o['shorttitle'] ) ) {
 				$source->setAttribute( 'data-title', $o['title'] );
 				$source->setAttribute( 'data-shorttitle', $o['shorttitle'] );
 			}
