@@ -268,7 +268,7 @@ class TestUtils {
 			$opts['stripLeadingWS'] = false;
 			$opts['stripTrailingWS'] = true;
 		} elseif ( DOMCompat::nodeName( $node ) === 'span' &&
-			preg_match( '/^mw[:]/', $node->getAttribute( 'typeof' ) ?? '' )
+			str_starts_with( $node->getAttribute( 'typeof' ), 'mw:' )
 		) {
 			// SPAN is transparent; pass the strip parameters down to kids
 		} else {
