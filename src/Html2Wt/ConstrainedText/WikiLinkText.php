@@ -67,10 +67,6 @@ class WikiLinkText extends RegExpConstrainedText {
 		Env $env, array $opts
 	): ?WikiLinkText {
 		$stx = $dataParsoid->stx ?? '';
-		// TODO: Leaving this for backwards compatibility, remove when 1.5 is no longer bound
-		if ( DOMUtils::hasRel( $node, 'mw:ExtLink' ) ) {
-			$type = 'mw:WikiLink/Interwiki';
-		}
 		if (
 			DOMUtils::matchRel( $node, '#^mw:WikiLink(/Interwiki)?$#D' ) &&
 			in_array( $stx, [ 'simple', 'piped' ], true )
