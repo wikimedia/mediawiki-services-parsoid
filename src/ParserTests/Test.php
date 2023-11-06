@@ -656,8 +656,7 @@ class Test extends Item {
 					) &&
 					// Deleting these wrappers is tantamount to removing the
 					// references-tag encapsulation wrappers, which results in errors.
-					!preg_match( '/\bmw-references-wrap\b/', $node->getAttribute( 'class' ) ?? ''
-					)
+					!DOMUtils::hasClass( $node, 'mw-references-wrap' )
 				);
 		};
 

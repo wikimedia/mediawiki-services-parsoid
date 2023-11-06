@@ -821,7 +821,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function hasNoWrapCSS( Node $node ): bool {
 		return $node instanceof Element && (
 			str_contains( $node->getAttribute( 'style' ) ?? '', 'nowrap' ) ||
-			preg_match( '/(?:^|\s)nowrap(?:$|\s)/D', $node->getAttribute( 'class' ) ?? '' )
+			DOMUtils::hasClass( $node, 'nowrap' )
 		);
 	}
 
