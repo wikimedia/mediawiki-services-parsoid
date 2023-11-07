@@ -338,11 +338,13 @@ class WikitextEscapeHandlers {
 				strspn( $text, '-+}', 0, 1 ) &&
 				$node
 			) {
-				foreach ( DOMUtils::pathToAncestor( $node, $tdNode ) as $n ) {
+				$n = $node;
+				while ( $n && $n !== $tdNode ) {
 					if ( !$this->isFirstContentNode( $n ) ||
 						!( $n === $node || WTUtils::isZeroWidthWikitextElt( $n ) ) ) {
 						return false;
 					}
+					$n = $n->parentNode;
 				}
 				return true;
 			}

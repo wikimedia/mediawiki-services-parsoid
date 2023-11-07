@@ -193,34 +193,18 @@ class DOMUtils {
 	}
 
 	/**
-	 * Build path from a node to its passed-in ancestor.
-	 * Doesn't include the ancestor in the returned path.
-	 *
-	 * @param Node $node
-	 * @param ?Node $ancestor
-	 *   $ancestor should be an ancestor of $node.
-	 *   If null, we'll walk to the document root.
-	 * @return Node[]
-	 */
-	public static function pathToAncestor(
-		Node $node, ?Node $ancestor = null
-	): array {
-		$path = [];
-		while ( $node && $node !== $ancestor ) {
-			$path[] = $node;
-			$node = $node->parentNode;
-		}
-		return $path;
-	}
-
-	/**
 	 * Build path from a node to the root of the document.
 	 *
 	 * @param Node $node
 	 * @return Node[]
 	 */
 	public static function pathToRoot( Node $node ): array {
-		return self::pathToAncestor( $node, null );
+		$path = [];
+		do {
+			$path[] = $node;
+		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures
+		} while ( $node = $node->parentNode );
+		return $path;
 	}
 
 	/**
@@ -230,7 +214,7 @@ class DOMUtils {
 	 * @return int
 	 */
 	public static function nodeDepth( Node $node ): int {
-		return count( self::pathToAncestor( $node ) ) - 1;
+		return count( self::pathToRoot( $node ) ) - 1;
 	}
 
 	/**
