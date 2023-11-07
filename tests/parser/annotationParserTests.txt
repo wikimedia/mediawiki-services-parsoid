@@ -264,15 +264,20 @@ foo
 |}
 !! html/parsoid
 <div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[7,18]}'/><p data-parsoid='{"fostered":true,"autoInsertedEnd":true,"autoInsertedStart":true}'>
-foo
-bar</p><table>
+foo</p>
+<p>bar</p><table>
 <tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
 <td>baz
 </td></tr></tbody></table><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"wasMoved":true}' data-mw='{"wtOffsets":[21,33]}'/></div>
 !!end
 
+# This test explicitly tests that template continuity is not broken by top-level annotation markers. Observe that the
+# end annotation marker is rendered before the table and not after it as one would expect. This is due to the fact that
+# the table itself is transclusion content, which prevents the creation of the FosterBox. Hence, the end annotation is
+# not detected as being fostered. This is fine because the transclusion prevents block-level DOM editing of the content,
+# which will avoid round-tripping issues.
 !!test
-dummyanno getting roped into a template because of fostering should get the about attribute of the template
+dummyanno getting roped to template top-level because of fostering should get the about attribute of the template
 !! options
 parsoid={
   "modes": ["wt2html", "selser","wt2wt"]
@@ -281,22 +286,96 @@ annotations=1
 !! wikitext
 {{1x|Some text!
 <table>
+<p>first fostered</p>
 <tr>
 <td>table</td></tr>}}
 <dummyanno><tr>
 <td>stuff</td>
-</tr></dummyanno>
+</tr></dummyanno><p>last fostered</p>
 </table>
 !! html/parsoid
-<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Some text!\n&lt;table>\n&lt;tr>\n&lt;td>table&lt;/td>&lt;/tr>"}},"i":0}},"\n&lt;dummyanno>&lt;tr>\n&lt;td>stuff&lt;/td>\n&lt;/tr>&lt;/dummyanno>\n&lt;/table>"]}'>Some text!</p><span about="#mwt1">
-</span><div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" about="#mwt1" data-parsoid='{"dsr":[51,62,null,null],"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[51,62]}' /><table about="#mwt1" data-parsoid='{"stx":"html","dsr":[null,108,null,8]}'>
-<tbody data-parsoid='{"dsr":[null,100,0,0]}'><tr data-parsoid='{"stx":"html"}'>
-<td data-parsoid='{"stx":"html"}'>table</td></tr>
-<tr data-parsoid='{"stx":"html","dsr":[62,87,4,5]}'>
-<td data-parsoid='{"stx":"html","dsr":[67,81,4,5]}'>stuff</td>
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Some text!\n&lt;table>\n&lt;p>first fostered&lt;/p>\n&lt;tr>\n&lt;td>table&lt;/td>&lt;/tr>"}},"i":0}},"\n&lt;dummyanno>&lt;tr>\n&lt;td>stuff&lt;/td>\n&lt;/tr>&lt;/dummyanno>&lt;p>last fostered&lt;/p>\n&lt;/table>"]}'>Some text!</p><span about="#mwt1">
+</span><p about="#mwt1">first fostered</p><meta typeof="mw:Annotation/dummyanno" about="#mwt1" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[73,84]}'/><meta typeof="mw:Annotation/dummyanno/End" about="#mwt1" data-mw='{"wtOffsets":[109,121]}'/><p about="#mwt1">last fostered</p><table about="#mwt1" data-parsoid='{"stx":"html"}'>
+
+<tbody><tr data-parsoid='{"stx":"html"}'>
+<td>table</td></tr>
+<tr>
+<td>stuff</td>
 </tr>
-</tbody></table><meta typeof="mw:Annotation/dummyanno/End" about="#mwt1" data-parsoid='{"dsr":[87,99,null,null],"wasMoved":true}' data-mw='{"wtOffsets":[87,99]}' /></div>
+</tbody></table>
 !!end
+
+# As opposed to the previous test, the transclusion is now in fostered content directly. The annotation markers are
+# entered in the foster box, and then treated as such. The whole content is wrapped in ExtendedAnnRange div and in the
+# transclusion (both annotation tags get the transclusion about tag).
+!! test
+Annotations and templates in the fosterbox
+!! options
+parsoid={
+  "modes": ["wt2html", "selser","wt2wt"]
+}
+annotations=1
+!! wikitext
+<table>
+<tr>
+<td>hello</td>
+<p>{{1x|world}}</p><dummyanno><p>plop</p></dummyanno>
+</tr>
+</table>
+!! html/parsoid
+<div typeof="mw:ExtendedAnnRange" about="#mwt2" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Transclusion mw:Annotation/dummyanno" about="#mwt2" data-parsoid='{"fostered":true,"wasMoved":true,"firstWikitextNode":"TABLE_html","pi":[[{"k":"1"}]]}' data-mw='{"parts":["&lt;table>\n&lt;tr>\n&lt;td>hello&lt;/td>\n&lt;p>",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"world"}},"i":0}},"&lt;/p>&lt;dummyanno>&lt;p>plop&lt;/p>&lt;/dummyanno>\n&lt;/tr>\n&lt;/table>"],"rangeId":"mwa0","extendedRange":true,"wtOffsets":[47,58]}'/><p about="#mwt2">world</p><p about="#mwt2">plop</p><table about="#mwt2">
+<tbody><tr>
+<td>hello</td>
+
+</tr>
+</tbody></table><meta typeof="mw:Annotation/dummyanno/End" about="#mwt2" data-mw='{"wtOffsets":[69,81]}'/></div>
+!! end
+
+!! test
+Fostering of nested annotation ranges
+!! options
+parsoid={
+  "modes": ["wt2html"]
+}
+annotations=1
+!! wikitext
+<table>
+<tr>
+<dummyanno><ann2>plop</ann2></dummyanno>
+<td>cell</td>
+</tr>
+</table>
+!! html/parsoid
+<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[13,24]}'/><div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/ann2" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[24,30]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>plop</p><table data-parsoid='{"stx":"html"}'>
+<tbody><tr data-parsoid='{"stx":"html"}'>
+
+<td data-parsoid='{"stx":"html"}'>cell</td>
+</tr>
+</tbody></table><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"wtOffsets":[34,41]}'/></div><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"wtOffsets":[41,53]}'/></div>
+!! end
+
+!! test
+Fostering of contiguous annotation ranges
+!! options
+parsoid={
+  "modes": ["wt2html"]
+}
+annotations=1
+!! wikitext
+<table>
+<tr>
+<dummyanno>plop</dummyanno><ann2>replop</ann2>
+<td>cell</td>
+</tr>
+</table>
+!! html/parsoid
+<div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/ann2" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"rangeId":"mwa0","extendedRange":true,"wtOffsets":[40,46]}'/><div typeof="mw:ExtendedAnnRange" data-parsoid='{"autoInsertedStart":true,"autoInsertedEnd":true}'><meta typeof="mw:Annotation/dummyanno" data-parsoid='{"fostered":true}' data-mw='{"rangeId":"mwa1","extendedRange":true,"wtOffsets":[13,24]}'/><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>plop</p><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>replop</p><table data-parsoid='{"stx":"html"}'>
+<tbody><tr data-parsoid='{"stx":"html"}'>
+
+<td data-parsoid='{"stx":"html"}'>cell</td>
+</tr>
+</tbody></table><meta typeof="mw:Annotation/dummyanno/End" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"wtOffsets":[28,40]}'/></div><meta typeof="mw:Annotation/ann2/End" data-parsoid='{"fostered":true,"wasMoved":true}' data-mw='{"wtOffsets":[52,59]}'/></div>
+!! end
 
 !! test
 dummyanno tags around <pre> area with new lines
@@ -482,7 +561,7 @@ Add another paragraph.
 
 plop
 </dummyanno>
-!!end 
+!!end
 
 !! test
 Selser: add content at the end of a paragraph with badly nested content with annotation
@@ -509,46 +588,6 @@ Some ''stuff and '''also some'' more stuff''' than that.
 !! html/parsoid
 <p>Some <i>stuff and <b>also some</b></i><b> more stuff</b> than that.</p>
 !! end
-
-!! test
-Selser: add content in a cell of a table where dummyanno gets fostered out should keep the annotation around the table
-!! options
-parsoid={
-  "modes": ["selser"],
-  "changes": [
-    ["tr > td:first-child", "text", "plop"]
-  ]
-}
-annotations=1
-!! wikitext
-{|
-|-
-|a
-|b
-|-
-<dummyanno>
-|c
-|d</dummyanno>
-|-
-|e
-|f
-|}
-!!wikitext/edited
-<dummyanno>
-{|
-|-
-|plop
-|b
-|-
-
-|plop
-|d
-|-
-|plop
-|f
-|}
-</dummyanno>
-!!end
 
 !! test
 Selser: add content before and after <dummyanno> and </dummyanno> tags should keep paragraphs

@@ -140,6 +140,26 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		$table->parentNode->insertBefore( $e, $beforeText ?: $sibling );
 	}
 
+	private static function moveFosteredAnnotations(
+		Node $e, Node $firstFosteredNode, Element $tableParent, ?Node $tableNextSibling
+	): void {
+		if ( WTUtils::isAnnotationStartMarkerMeta( $e ) && $e !== $firstFosteredNode ) {
+			'@phan-var Element $e';
+			DOMDataUtils::getDataParsoid( $e )->wasMoved = true;
+			$firstFosteredNode->parentNode->insertBefore( $e, $firstFosteredNode );
+		} elseif ( WTUtils::isAnnotationEndMarkerMeta( $e ) ) {
+			'@phan-var Element $e';
+			DOMDataUtils::getDataParsoid( $e )->wasMoved = true;
+			$tableParent->insertBefore( $e, $tableNextSibling );
+		} elseif ( $e instanceof Element && $e->hasChildNodes() ) {
+			// avoid iterating over a mutated DOMNodeList
+			$childNodeList = iterator_to_array( $e->childNodes );
+			foreach ( $childNodeList as $child ) {
+				self::moveFosteredAnnotations( $child, $firstFosteredNode, $tableParent, $tableNextSibling );
+			}
+		}
+	}
+
 	/**
 	 * @param Document $doc
 	 * @param bool $inPTag
@@ -181,6 +201,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 				while ( $sibling &&
 					( !( $sibling instanceof Element ) || DOMCompat::nodeName( $sibling ) !== 'table' )
 				) {
+					$fosteredElements[] = $sibling;
 					$next = $sibling->nextSibling;
 					if ( $sibling instanceof Element ) {
 						// TODO: Note the similarity here with the p-wrapping pass.
@@ -194,7 +215,6 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 							// nodes dont need wrappers. sol-transparent wikitext generate
 							// rendering-transparent nodes and we use that helper as a proxy here.
 							DOMDataUtils::getDataParsoid( $sibling )->fostered = true;
-							$fosteredElements[] = $sibling;
 							// If the foster content holder is not empty,
 							// close it and get a new content holder.
 							if ( $fosterContentHolder->hasChildNodes() ) {
@@ -232,11 +252,31 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 					self::insertTransclusionMetas( $env, $c, $table );
 				}
 
+				// We have two possibilities here for the insertion of more than one meta tag after the table.
+				// We can either keep them in the order of traversal (by keeping a reference to the initial
+				// $table->nextSibling), or in reverse order of traversal (by updating $table->nextSibling to
+				// the inserted meta.
+				// This has different consequences depending on whether multiple ranges are nested or not.
+				// If the fosterbox initially contains <ann1><ann2></ann2></ann1>, the end result for the first
+				// possibility becomes <ann1><ann2>TABLE</ann2></ann1>. If the fosterbox initially contains
+				// <ann1></ann1><ann2></ann2>, the end result becomes <ann1><ann2>TABLE</ann1></ann2>. The
+				// consequences are inverted if we insert in reverse order of traversal.
+				// Note that this is only relevant if the annotations are of different types and that, right
+				// now, we only have two types of annotation (namely <translate> and <tvar>), and <tvar> can
+				// only exist nested in <translate>. Hence, we choose to insert in traversal order so that we can
+				// preserve existing nesting order.
+				// (The last option would be to keep a stack of opening metas in the foster table and to re-add
+				// them in inverse order at the end of the table. This would add significant code complexity for
+				// what seems like marginal benefits at best as long as we do not have more annotation types.)
+				$tableNextSibling = $table->nextSibling;
+				$tableParent = $table->parentNode;
 				// this needs to happen after inserting the transclusion meta so that they get
 				// included in the transclusion
 				foreach ( $fosteredElements as $elem ) {
 					'@phan-var Element $elem';
-					self::moveEndAnnotationsAfter( $elem, $table );
+					self::moveFosteredAnnotations(
+						$elem, $fosteredElements[0], $tableParent, $tableNextSibling
+					);
 				}
 
 				// remove the foster box
@@ -251,29 +291,6 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			}
 
 			$c = $sibling;
-		}
-	}
-
-	/**
-	 * @param Element $fosteredElement
-	 * @param Element $table
-	 * @return void
-	 */
-	private static function moveEndAnnotationsAfter( Element $fosteredElement, Element $table ) {
-		$elem = $fosteredElement->firstChild;
-		$tableSibling = $table->nextSibling;
-		while ( $elem ) {
-			$nextSibling = $elem->nextSibling;
-			if ( WTUtils::isAnnotationEndMarkerMeta( $elem ) ) {
-				// We do not need to worry about template continuity because this comes before
-				// template wrapping.
-				$table->parentNode->insertBefore( $elem, $tableSibling );
-				'@phan-var Element $elem';
-				DOMDataUtils::getDataParsoid( $elem )->wasMoved = true;
-			} elseif ( $elem instanceof Element ) {
-				self::moveEndAnnotationsAfter( $elem, $table );
-			}
-			$elem = $nextSibling;
 		}
 	}
 

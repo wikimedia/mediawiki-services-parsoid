@@ -17,6 +17,34 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
+/**
+ * The handling of annotation ranges and transclusion ranges are somewhat different for a number of reasons.
+ * - Annotation ranges can be (and typically are) nested: we want to handle a <tvar> range inside a <translate>
+ *   range (whereas non-top-level transclusions are ignored). That said, this only applies to annotations of
+ *   different types, so finding/handling top-level ranges of a given type is useful (hence extending the
+ *   DOMRangeBuilder, still.)
+ *
+ * - Annotation ranges are not represented in the final document in the same way as transclusions. In an ideal
+ *   world, annotations are well-nested and the corresponding range is not extended; in this case, the annotation
+ *   range is only delimited by a pair of <meta> tags (that can then be displayed by VE, or ignored by
+ *   read-views). The annotated content stays editable; whereas editing of templated content is always prevented.
+ *
+ * - Relatedly: annotation meta tags are NOT removed from the output (whereas transclusion meta tags are an
+ *   intermediary state). This has an impact on fostering. It is safe to bypass the fostering of meta tags in the
+ *   template case, because the meta tags will disappear anyway, and their presence in a fostering position only
+ *   marks the whole table as template content. Annotation tags do not benefit from the same leeway: they will need
+ *   to be moved in the right place (and, for end tags, "the right place" means the end of the table, not the start
+ *   of the table - which we can handle more consistently if the meta tag ends up in the FosterBox). Hence,
+ *   there is little reason to not use the general fostering pass for annotation meta tags as well (except for
+ *   the consistency with transclusion meta tags).
+ *
+ * The assumptions here are consequently as follows:
+ * - annotation <meta> tags are not in a fosterable position (they have been moved out of it in the
+ *   TreeBuilderStage)
+ * - during the MarkFosteredContent pass, end annotation meta tags are moved from the foster box to after the
+ *   table.
+ * This should guarantee that no range is reversed (so that's a case we do not have to worry about).
+ */
 class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	/** @var MigrateTrailingNLs */
 	private $migrateTrailingNls;
@@ -37,21 +65,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 */
 	private function wrapAnnotationsInTree( array $annRanges ): void {
 		foreach ( $annRanges as $range ) {
-			if ( DOMUtils::isFosterablePosition( $range->start ) ) {
-				$newStart = $range->start;
-				while ( DOMUtils::isFosterablePosition( $newStart ) ) {
-					$newStart = $newStart->parentNode;
-				}
-				$range->start = $newStart;
-			}
-
-			if ( DOMUtils::isFosterablePosition( $range->end ) ) {
-				$newEnd = $range->end;
-				while ( DOMUtils::isFosterablePosition( $newEnd ) ) {
-					$newEnd = $newEnd->parentNode;
-				}
-				$range->end = $newEnd;
-			}
 			if ( $range->startElem !== $range->start ) {
 				$this->moveRangeStart( $range, $range->start );
 			}
@@ -121,7 +134,16 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 
 		// Ensure template continuity is not broken
 		$about = DOMCompat::getAttribute( $range->startElem, "about" );
-		if ( $about !== null ) {
+		$continuity = (
+			(
+				$range->startElem->previousElementSibling &&
+				$range->startElem->previousElementSibling->hasAttribute( "about" )
+			) ||
+			( $range->endElem->nextElementSibling &&
+				$range->endElem->nextElementSibling->hasAttribute( "about" )
+			)
+		);
+		if ( $about && $continuity ) {
 			$wrap->setAttribute( "about", $about );
 		}
 		$dp = new DataParsoid();

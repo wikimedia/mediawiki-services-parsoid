@@ -184,6 +184,6 @@
         "selser [0,3,4,0,0]": "<dummyanno>\nmom1vp\n\nLet's have some text.</dummyanno>"
     },
     "dummyanno in the middle of fostered content should extend to the whole range, including fostered content": {
-        "wt2wt": "<dummyanno>\nfoo\nbar\n{|\n|-\n|baz\n|}\n</dummyanno>"
+        "wt2wt": "<dummyanno>\nfoo\n\nbar\n{|\n|-\n|baz\n|}\n</dummyanno>"
     }
 }
