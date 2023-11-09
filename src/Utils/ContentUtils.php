@@ -326,7 +326,7 @@ class ContentUtils {
 		$offsets = [];
 		$collect = static function ( int $n ) use ( &$offsetMap, &$offsets ) {
 			if ( !array_key_exists( $n, $offsetMap ) ) {
-				$box = PHPUtils::arrayToObject( [ 'value' => $n ] );
+				$box = (object)[ 'value' => $n ];
 				$offsetMap[$n] = $box;
 				$offsets[] =& $box->value;
 			}

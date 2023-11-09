@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * @coversDefaultClass  \Wikimedia\Parsoid\Utils\DOMDataUtils
@@ -42,10 +41,10 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$doc = DOMUtils::parseHTML( "<p>Hello, world</p>" );
 		$doc->bag = new DataBag(); // see Env::createDocument
 		$p = DOMCompat::querySelector( $doc, 'p' );
-		DOMDataUtils::storeInPageBundle( $p, $env, PHPUtils::arrayToObject( [
+		DOMDataUtils::storeInPageBundle( $p, $env, (object)[
 			'parsoid' => [ 'go' => 'team' ],
 			'mw' => [ 'test' => 'me' ],
-		] ), DOMDataUtils::usedIdIndex( $p ) );
+		], DOMDataUtils::usedIdIndex( $p ) );
 		$id = $p->getAttribute( 'id' ) ?? '';
 		$this->assertNotEquals( '', $id );
 		// Use the 'native' getElementById, not DOMCompat::getElementById,

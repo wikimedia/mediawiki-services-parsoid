@@ -545,7 +545,7 @@ class References extends ExtensionTagHandler {
 			} elseif ( count( $nestedRefsHTML ) > 0 ) {
 				$dataMw->body = (object)[ 'html' => "\n" . implode( $nestedRefsHTML ) ];
 			} elseif ( empty( $dp->selfClose ) ) {
-				$dataMw->body = PHPUtils::arrayToObject( [ 'html' => '' ] );
+				$dataMw->body = (object)[ 'html' => '' ];
 			} else {
 				unset( $dataMw->body );
 			}

@@ -365,7 +365,7 @@ class Utils {
 		$options = $extToken->getAttribute( 'options' );
 		$defaultDataMw = new DataMw( [
 			'name' => $name,
-			'attrs' => PHPUtils::arrayToObject( TokenUtils::kvToHash( $options ) ),
+			'attrs' => (object)TokenUtils::kvToHash( $options ),
 		] );
 		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
 		if ( $extTagOffsets->closeWidth !== 0 ) {

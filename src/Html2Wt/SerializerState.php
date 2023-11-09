@@ -359,11 +359,11 @@ class SerializerState {
 	}
 
 	private function resetSep() {
-		$this->sep = PHPUtils::arrayToObject( [
+		$this->sep = (object)[
 			'constraints' => null,
 			'src' => null,
 			'lastSourceNode' => null,
-		] );
+		];
 	}
 
 	/**

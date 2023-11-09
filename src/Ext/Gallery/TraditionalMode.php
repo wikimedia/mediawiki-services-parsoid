@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Ext\PHPUtils;
 
 class TraditionalMode extends Mode {
 	/**
@@ -19,7 +18,7 @@ class TraditionalMode extends Mode {
 	protected function __construct( ?string $mode = null ) {
 		parent::__construct( $mode ?? 'traditional' );
 		$this->scale = 1;
-		$this->padding = PHPUtils::arrayToObject( [ 'thumb' => 30, 'box' => 5, 'border' => 8 ] );
+		$this->padding = (object)[ 'thumb' => 30, 'box' => 5, 'border' => 8 ];
 	}
 
 	/** @var float */

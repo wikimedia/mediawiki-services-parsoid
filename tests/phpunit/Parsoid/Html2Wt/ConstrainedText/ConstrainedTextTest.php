@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText
@@ -27,7 +26,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideConstrainedText
 	 */
 	public function testConstrainedText( array $t ) {
-		$t = PHPUtils::arrayToObject( $t );
+		$t = (object)$t;
 		// Set up environment and test data
 		$env = new MockEnv( [
 			'linkPrefixRegex' => $t->linkPrefixRegex ?? null,
@@ -51,7 +50,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 
 		// Test ConstrainedText::escapeLine
 		foreach ( $t->escapes as $e ) {
-			$e = PHPUtils::arrayToObject( $e );
+			$e = (object)$e;
 			$nct = $ct; // copy
 			if ( isset( $e->left ) ) {
 				$n = $node->ownerDocument->createTextNode( $e->left );
