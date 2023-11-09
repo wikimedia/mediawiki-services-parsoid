@@ -104,8 +104,8 @@ class DOMDataUtils {
 			return $dataObject;
 		}
 
-		$nodeId = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
-		if ( $nodeId !== '' ) {
+		$nodeId = DOMCompat::getAttribute( $node,  self::DATA_OBJECT_ATTR_NAME );
+		if ( $nodeId !== null ) {
 			$dataObject = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
 		} else {
 			$dataObject = null; // Make phan happy
@@ -117,7 +117,7 @@ class DOMDataUtils {
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared
 				// between nodes without getting cloned. Useful for debugging.
-				'Node id: ' . $node->getAttribute( self::DATA_OBJECT_ATTR_NAME ) .
+				'Node id: ' . $nodeId .
 				'Stored data: ' . PHPUtils::jsonEncode( $dataObject )
 			);
 		}
@@ -325,10 +325,10 @@ class DOMDataUtils {
 	 * @return mixed
 	 */
 	public static function getJSONAttribute( Element $node, string $name, $defaultVal ) {
-		if ( !$node->hasAttribute( $name ) ) {
+		$attVal = DOMCompat::getAttribute( $node,  $name );
+		if ( $attVal === null ) {
 			return $defaultVal;
 		}
-		$attVal = $node->getAttribute( $name );
 		$decoded = PHPUtils::jsonDecode( $attVal, false );
 		if ( $decoded !== null ) {
 			return $decoded;
@@ -451,12 +451,12 @@ class DOMDataUtils {
 	public static function storeInPageBundle(
 		Element $node, Env $env, stdClass $data, array $idIndex
 	): void {
-		$uid = $node->getAttribute( 'id' ) ?? '';
+		$uid = DOMCompat::getAttribute( $node,  'id' );
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
 		$docDp = &$pb->parsoid;
-		$origId = $uid ?: null;
-		if ( array_key_exists( $uid, $docDp['ids'] ) ) {
+		$origId = $uid;
+		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
 			$uid = null;
 			// FIXME: Protect mw ids while tokenizing to avoid false positives.
 			$env->log( 'info', 'Wikitext for this page has duplicate ids: ' . $origId );
@@ -623,8 +623,8 @@ class DOMDataUtils {
 		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
 		self::setDataParsoidDiff( $node, $dpd );
 		$node->removeAttribute( 'data-parsoid-diff' );
-		if ( $node->hasAttribute( 'data-mw-i18n' ) ) {
-			$dataI18n = $node->getAttribute( 'data-mw-i18n' );
+		$dataI18n = DOMCompat::getAttribute( $node,  'data-mw-i18n' );
+		if ( $dataI18n !== null ) {
 			$i18n = DataMwI18n::fromJson( PHPUtils::jsonDecode( $dataI18n, true ) );
 			self::setDataMwI18n( $node, $i18n );
 			$node->removeAttribute( 'data-mw-i18n' );
@@ -640,8 +640,11 @@ class DOMDataUtils {
 		$index = [];
 		DOMUtils::visitDOM( DOMCompat::getBody( $node->ownerDocument ),
 			static function ( Node $n, ?array $options = null ) use ( &$index ) {
-				if ( $n instanceof Element && $n->hasAttribute( 'id' ) ) {
-					$index[$n->getAttribute( 'id' )] = true;
+				if ( $n instanceof Element ) {
+					$id = DOMCompat::getAttribute( $n,  'id' );
+					if ( $id !== null ) {
+						$index[$id] = true;
+					}
 				}
 			},
 			[]
@@ -746,8 +749,8 @@ class DOMDataUtils {
 		// to access it after the fact we're aware and remove the attribute
 		// since it's no longer needed.
 		$nd = self::getNodeData( $node );
-		$id = $node->getAttribute( self::DATA_OBJECT_ATTR_NAME );
-		$nd->storedId = $id !== null ? intval( $id ) : null; // FIXME: Is this guaranteed not-null?
+		$id = DOMCompat::getAttribute( $node,  self::DATA_OBJECT_ATTR_NAME );
+		$nd->storedId = $id !== null ? intval( $id ) : null;
 		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}
 

@@ -29,8 +29,8 @@ class RemoveRedLinks {
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
 		$wikilinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"].new' );
 		foreach ( $wikilinks as $a ) {
-			$href = $a->getAttribute( 'href' );
-			$qmPos = strpos( $href, '?' );
+			$href = DOMCompat::getAttribute( $a, 'href' );
+			$qmPos = strpos( $href ?? '', '?' );
 			if ( $qmPos !== false ) {
 				$parsedURL = UrlUtils::parseUrl( $href );
 				if ( !isset( $parsedURL['query'] ) ) {

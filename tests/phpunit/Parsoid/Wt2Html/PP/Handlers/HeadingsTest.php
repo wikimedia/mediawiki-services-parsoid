@@ -33,16 +33,16 @@ class HeadingsTest extends TestCase {
 			$h = $elts[$key];
 			$fallback = DOMCompat::querySelectorAll( $h, 'span[typeof="mw:FallbackId"]:empty' );
 			if ( is_String( $id ) ) {
-				$attrib = $h->getAttribute( 'id' );
+				$attrib = DOMCompat::getAttribute( $h, 'id' );
 				$this->assertEquals( $id, $attrib, $name . $heading . $description . $id );
 				$this->assertCount( 0, $fallback, $name . $description .
 					' fallback should not be set.' );
 			} else {
-				$attrib = $h->getAttribute( 'id' );
+				$attrib = DOMCompat::getAttribute( $h, 'id' );
 				$this->assertEquals( $attrib, $id[0], $name . $heading . $description . $id[0] );
 				$this->assertCount( 1, $fallback, $name . $description .
 					' fallback should be set to 1.' );
-				$fallbackAttribute = $fallback[0]->getAttribute( 'id' );
+				$fallbackAttribute = DOMCompat::getAttribute( $fallback[0], 'id' );
 				$this->assertEquals( $id[1], $fallbackAttribute, $name . $heading . $description . $id[1] );
 			}
 		}

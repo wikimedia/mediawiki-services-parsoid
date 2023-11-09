@@ -26,7 +26,7 @@ class HandleLinkNeighbours {
 			return null;
 		}
 
-		$baseAbout = WTUtils::isEncapsulatedDOMForestRoot( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
+		$baseAbout = WTUtils::isEncapsulatedDOMForestRoot( $aNode ) ? DOMCompat::getAttribute( $aNode, 'about' ) : null;
 		return self::findAndHandleNeighbour( $env, false, $regex, $aNode, $baseAbout );
 	}
 
@@ -43,7 +43,7 @@ class HandleLinkNeighbours {
 			return null;
 		}
 
-		$baseAbout = WTUtils::isEncapsulatedDOMForestRoot( $aNode ) ? $aNode->getAttribute( 'about' ) : '';
+		$baseAbout = WTUtils::isEncapsulatedDOMForestRoot( $aNode ) ? DOMCompat::getAttribute( $aNode, 'about' ) : null;
 		return self::findAndHandleNeighbour( $env, true, $regex, $aNode, $baseAbout );
 	}
 
@@ -54,11 +54,11 @@ class HandleLinkNeighbours {
 	 * @param bool $goForward
 	 * @param string $regex
 	 * @param Element $aNode
-	 * @param string $baseAbout
+	 * @param ?string $baseAbout
 	 * @return array
 	 */
 	private static function findAndHandleNeighbour(
-		Env $env, bool $goForward, string $regex, Element $aNode, string $baseAbout
+		Env $env, bool $goForward, string $regex, Element $aNode, ?string $baseAbout
 	): array {
 		$nbrs = [];
 		$node = $goForward ? $aNode->nextSibling : $aNode->previousSibling;
@@ -69,7 +69,7 @@ class HandleLinkNeighbours {
 			if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'span' &&
 				!WTUtils::isLiteralHTMLNode( $node ) &&
 				// <span> comes from the same template we are in
-				$fromTpl && $baseAbout !== '' && $node->getAttribute( 'about' ) === $baseAbout &&
+				$fromTpl && $baseAbout !== null && DOMCompat::getAttribute( $node, 'about' ) === $baseAbout &&
 				// Not interested in <span>s wrapping more than 1 node
 				( !$node->firstChild || $node->firstChild->nextSibling === null )
 			) {
@@ -91,7 +91,7 @@ class HandleLinkNeighbours {
 
 				// Link prefix node is templated => migrate transclusion info to $aNode
 				if ( $unwrappedSpan && $unwrappedSpan->hasAttribute( 'typeof' ) ) {
-					DOMUtils::addTypeOf( $aNode, $unwrappedSpan->getAttribute( 'typeof' ) ?? '' );
+					DOMUtils::addTypeOf( $aNode, DOMCompat::getAttribute( $unwrappedSpan, 'typeof' ) ?? '' );
 					DOMDataUtils::setDataMw( $aNode, DOMDataUtils::getDataMw( $unwrappedSpan ) );
 				}
 

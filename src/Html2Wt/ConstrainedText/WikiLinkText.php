@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
@@ -82,7 +83,8 @@ class WikiLinkText extends RegExpConstrainedText {
 			DOMUtils::matchRel( $node, '#^mw:WikiLink(/Interwiki)?$#D' ) &&
 			in_array( $stx, [ 'simple', 'piped' ], true )
 		) {
-			return new WikiLinkText( $text, $node, $env->getSiteConfig(), $node->getAttribute( 'rel' ) );
+			$rel = DOMCompat::getAttribute( $node, 'rel' );
+			return new WikiLinkText( $text, $node, $env->getSiteConfig(), $rel );
 		}
 		return null;
 	}

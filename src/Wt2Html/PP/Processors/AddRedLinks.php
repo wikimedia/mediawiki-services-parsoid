@@ -32,8 +32,9 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 		foreach ( $chunks as $links ) {
 			$titles = [];
 			foreach ( $links as $a ) {
-				if ( $a->hasAttribute( 'title' ) ) {
-					$titles[$a->getAttribute( 'title' )] = true;
+				$t = DOMCompat::getAttribute( $a, 'title' );
+				if ( $t !== null ) {
+					$titles[$t] = true;
 				}
 			}
 
@@ -50,10 +51,10 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 			}
 
 			foreach ( $links as $a ) {
-				if ( !$a->hasAttribute( 'title' ) ) {
+				$k = DOMCompat::getAttribute( $a, 'title' );
+				if ( $k === null ) {
 					continue;
 				}
-				$k = $a->getAttribute( 'title' );
 				if ( empty( $titleMap[$k] ) ) {
 					// Likely a consequence of T237535; can be removed once
 					// that is fixed.
@@ -63,8 +64,8 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				$data = $titleMap[$k];
 				$a->removeAttribute( 'class' ); // Clear all, if we're doing a pb2pb refresh
 
-				$href = $a->getAttribute( 'href' );
-				$parsedURL = UrlUtils::parseUrl( $href );
+				$href = DOMCompat::getAttribute( $a, 'href' );
+				$parsedURL = UrlUtils::parseUrl( $href ?? '' );
 
 				$queryElts = [];
 				if ( isset( $parsedURL['query'] ) ) {

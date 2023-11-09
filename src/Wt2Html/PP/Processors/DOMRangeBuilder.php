@@ -179,7 +179,7 @@ class DOMRangeBuilder {
 	 * @return string
 	 */
 	protected function getRangeId( Element $node ): string {
-		return $node->getAttribute( "about" ) ?? '';
+		return DOMCompat::getAttribute( $node,  "about" );
 	}
 
 	/**
@@ -359,9 +359,11 @@ class DOMRangeBuilder {
 			$meta->parentNode->removeChild( $meta );
 		} else {
 			// Remove mw:* from the typeof.
-			$type = $meta->getAttribute( 'typeof' ) ?? '';
-			$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/\S+|(?=$|\s))/D', '', $type );
-			$meta->setAttribute( 'typeof', $type );
+			$type = DOMCompat::getAttribute( $meta, 'typeof' );
+			if ( $type !== null ) {
+				$type = preg_replace( '/(?:^|\s)mw:[^\/]*(\/\S+|(?=$|\s))/D', '', $type );
+				$meta->setAttribute( 'typeof', $type );
+			}
 		}
 	}
 
@@ -759,7 +761,7 @@ class DOMRangeBuilder {
 	private function ensureElementsInRange( DOMRangeInfo $range ): void {
 		$n = $range->start;
 		$e = $range->end;
-		$about = $range->startElem->getAttribute( 'about' ) ?? '';
+		$about = DOMCompat::getAttribute( $range->startElem, 'about' );
 		while ( $n ) {
 			$next = $n->nextSibling;
 			if ( !( $n instanceof Element ) ) {
@@ -881,9 +883,12 @@ class DOMRangeBuilder {
 			// and not allow its content to be edited directly.
 			$startElem = $range->startElem;
 			if ( $startElem !== $encapTgt ) {
-				$t1 = $startElem->getAttribute( 'typeof' ) ?? '';
-				$t2 = $encapTgt->getAttribute( 'typeof' ) ?? '';
-				$encapTgt->setAttribute( 'typeof', $t2 ? $t1 . ' ' . $t2 : $t1 );
+				$t1 = DOMCompat::getAttribute( $startElem, 'typeof' );
+				if ( $t1 !== null ) {
+					foreach ( array_reverse( explode( ' ', $t1 ) ) as $t ) {
+						DOMUtils::addTypeOf( $encapTgt, $t, true );
+					}
+				}
 			}
 
 			/* ----------------------------------------------------------------

@@ -26,12 +26,12 @@ class DedupeStyles {
 			return true;
 		}
 
-		if ( !$node->hasAttribute( 'data-mw-deduplicate' ) ) {
+		$key = DOMCompat::getAttribute( $node, 'data-mw-deduplicate' );
+		if ( $key === null ) {
 			// Not a templatestyles <style> tag
 			return true;
 		}
 
-		$key = $node->getAttribute( 'data-mw-deduplicate' );
 		if ( !isset( $env->styleTagKeys[$key] ) ) {
 			// Not a dupe
 			$env->styleTagKeys[$key] = true;
@@ -43,8 +43,8 @@ class DedupeStyles {
 			$link = $node->ownerDocument->createElement( 'link' );
 			DOMUtils::addRel( $link, 'mw-deduplicated-inline-style' );
 			$link->setAttribute( 'href', 'mw-data:' . $key );
-			$link->setAttribute( 'about', $node->getAttribute( 'about' ) ?? '' );
-			$link->setAttribute( 'typeof', $node->getAttribute( 'typeof' ) ?? '' );
+			$link->setAttribute( 'about', DOMCompat::getAttribute( $node, 'about' ) ?? '' );
+			$link->setAttribute( 'typeof', DOMCompat::getAttribute( $node, 'typeof' ) ?? '' );
 			DOMDataUtils::setDataParsoid( $link, DOMDataUtils::getDataParsoid( $node ) );
 			DOMDataUtils::setDataMw( $link, DOMDataUtils::getDataMw( $node ) );
 			$node->parentNode->replaceChild( $link, $node );

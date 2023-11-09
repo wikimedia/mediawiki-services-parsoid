@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class PWrapState {
@@ -45,7 +46,7 @@ class PWrapState {
 		$this->hasOptionalNode = (bool)$t || $this->hasOptionalNode;
 		if ( $t && !str_ends_with( $t, '/End' ) ) {
 			'@phan-var Element $n';  // @var Element $n
-			$this->seenStarts[$n->getAttribute( 'about' )] = true;
+			$this->seenStarts[DOMCompat::getAttribute( $n, 'about' )] = true;
 		}
 	}
 
@@ -65,7 +66,7 @@ class PWrapState {
 					// Check if one of its prior siblings has a matching opening tag.
 					// If so, we are done with unwrapping here since we don't want to
 					// hoist this closing tag by itself.
-					$aboutId = $lastChild->getAttribute( 'about' );
+					$aboutId = DOMCompat::getAttribute( $lastChild, 'about' );
 					if ( $this->seenStarts[$aboutId] ?? null ) {
 						break;
 					}

@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
@@ -43,12 +44,12 @@ class ExtLinkText extends ConstrainedText {
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts
 	): ?ExtLinkText {
-		$type = $node->getAttribute( 'rel' ) ?? '';
 		$stx = $dataParsoid->stx ?? '';
 		if ( DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			!in_array( $stx, [ 'simple', 'piped' ], true )
 		) {
-			return new ExtLinkText( $text, $node, $env->getSiteConfig(), $type );
+			$rel = DOMCompat::getAttribute( $node, 'rel' );
+			return new ExtLinkText( $text, $node, $env->getSiteConfig(), $rel );
 		}
 		return null;
 	}

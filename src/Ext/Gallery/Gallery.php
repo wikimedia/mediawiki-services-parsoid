@@ -151,7 +151,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		$doc = $thumb->ownerDocument;
-		$rdfaType = $thumb->getAttribute( 'typeof' ) ?? '';
+		$rdfaType = DOMCompat::getAttribute( $thumb, 'typeof' ) ?? '';
 
 		// Detach figcaption as well
 		$figcaption = DOMCompat::querySelector( $thumb, 'figcaption' );
@@ -258,7 +258,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 				// Ignore if it isn't a "gallerybox"
 				if (
 					DOMCompat::nodeName( $child ) !== 'li' ||
-					$child->getAttribute( 'class' ) !== 'gallerybox'
+					!DOMUtils::hasClass( $child, 'gallerybox' )
 				) {
 					break;
 				}

@@ -345,4 +345,13 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( [ 'typeof' => 'bat foo bar' ], DOMUtils::attributes( $el ) );
 	}
 
+	/**
+	 * @covers ::hasClass
+	 */
+	public function testHasClass() {
+		$doc = DOMUtils::parseHtml( '<span class="0">' );
+		$el = DOMCompat::querySelector( $doc, 'span' );
+		$this->assertTrue( DOMUtils::hasClass( $el, '\\d' ) );
+	}
+
 }

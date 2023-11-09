@@ -79,7 +79,7 @@ class LinkHandlerUtils {
 	 * @return string
 	 */
 	private static function getHref( Env $env, Element $node ): string {
-		$href = $node->getAttribute( 'href' ) ?? '';
+		$href = DOMCompat::getAttribute( $node, 'href' ) ?? '';
 		if ( ( $href[0] ?? '' ) === '/' && ( $href[1] ?? '' ) !== '/' ) {
 			// protocol-less but absolute.  let's find a base href
 			foreach ( $env->getSiteConfig()->interwikiMapNoNamespaces() as $prefix => $interwikiInfo ) {
@@ -189,7 +189,7 @@ class LinkHandlerUtils {
 
 		// Figure out the type of the link
 		if ( $node->hasAttribute( 'rel' ) ) {
-			$rel = $node->getAttribute( 'rel' ) ?? '';
+			$rel = DOMCompat::getAttribute( $node, 'rel' ) ?? '';
 			// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
 			// Everything else defaults to ExtLink during serialization (unless it is
 			// serializable to a wikilink)
@@ -700,7 +700,7 @@ class LinkHandlerUtils {
 						if ( !(
 							$nextNode instanceof Element && DOMCompat::nodeName( $nextNode ) === 'link' &&
 							DOMUtils::hasRel( $nextNode, 'mw:PageProp/Category' ) &&
-							$nextNode->getAttribute( 'href' ) === $node->getAttribute( 'href' )
+							DOMCompat::getAttribute( $nextNode, 'href' ) === DOMCompat::getAttribute( $node, 'href' )
 						) ) {
 							$linkTarget = ':' . $linkTarget;
 						}
@@ -1011,8 +1011,8 @@ class LinkHandlerUtils {
 				// Without an href, we just emit the string as text.
 				// However, to preserve targets for anchor links,
 				// serialize as a span with a name.
-				if ( $node->hasAttribute( 'name' ) ) {
-					$name = $node->getAttribute( 'name' );
+				$name = DOMCompat::getAttribute( $node, 'name' );
+				if ( $name !== null ) {
 					$doc = $node->ownerDocument;
 					$span = $doc->createElement( 'span' );
 					$span->setAttribute( 'name', $name );
@@ -1077,14 +1077,14 @@ class LinkHandlerUtils {
 		if ( !isset( $resource['value'] ) ) {
 			// from non-parsoid HTML: try to reconstruct resource from src?
 			// (this won't work for manual-thumb images)
-			if ( !$elt->hasAttribute( 'src' ) ) {
+			$src = DOMCompat::getAttribute( $elt, 'src' );
+			if ( $src === null ) {
 				$env->log( 'error/html2wt/figure',
 					'In WSP.figureHandler, img does not have resource or src:',
 					DOMCompat::getOuterHTML( $outerElt )
 				);
 				return null;
 			}
-			$src = $elt->getAttribute( 'src' ) ?? '';
 			if ( preg_match( '/^https?:/', $src ) ) {
 				// external image link, presumably $wgAllowExternalImages=true
 				return new AutoURLLinkText( $src, $outerElt );
@@ -1152,9 +1152,9 @@ class LinkHandlerUtils {
 				$strippedHref = preg_replace(
 					'#[?]((?:page=\d+)|(?:lang=[a-z]+(?:-[a-z]+)*))$#Di',
 					'',
-					$linkElt->getAttribute( 'href' ) ?? ''
+					DOMCompat::getAttribute( $linkElt, 'href' ) ?? ''
 				);
-				if ( $strippedHref === $elt->getAttribute( 'resource' ) ) {
+				if ( $strippedHref === DOMCompat::getAttribute( $elt, 'resource' ) ) {
 					// default link: same place as resource
 					$link = $resource;
 				}
@@ -1199,7 +1199,7 @@ class LinkHandlerUtils {
 
 			// Alt stuff
 			if ( !WTUtils::hasVisibleCaption( $outerElt ) && $elt->hasAttribute( 'alt' ) ) {
-				$altOnElt = trim( $elt->getAttribute( 'alt' ) );
+				$altOnElt = trim( DOMCompat::getAttribute( $elt, 'alt' ) ?? '' );
 				$altFromCaption = trim( WTUtils::textContentFromCaption( $captionElt ) );
 				// The first condition is to support an empty \alt=\ option
 				// when no caption is present

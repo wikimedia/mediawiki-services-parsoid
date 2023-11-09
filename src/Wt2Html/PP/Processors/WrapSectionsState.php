@@ -388,7 +388,7 @@ class WrapSectionsState {
 			// Track entry into templated output
 			if ( !$this->tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 				DOMUtils::assertElt( $node );
-				$about = $node->getAttribute( 'about' ) ?? '';
+				$about = DOMCompat::getAttribute( $node, 'about' );
 				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 				$this->tplInfo = $tplInfo = new WrapSectionsTplInfo;
 				$tplInfo->first = $node;
@@ -562,7 +562,7 @@ class WrapSectionsState {
 					$node->hasAttribute( 'about' ),
 					'Expected an about id'
 				);
-				$about = $node->getAttribute( 'about' );
+				$about = DOMCompat::getAttribute( $node, 'about' );
 				$dsr = DOMDataUtils::getDataParsoid( $this->aboutIdMap[$about] )->dsr;
 			}
 
@@ -739,15 +739,15 @@ class WrapSectionsState {
 			// Add new OR update existing range
 			if ( $start->hasAttribute( 'about' ) ) {
 				// Overlaps with an existing range.
-				$about = $start->getAttribute( 'about' );
+				$about = DOMCompat::getAttribute( $start, 'about' );
 				if ( !$end->hasAttribute( 'about' ) ) {
 					// Extend existing range till $end
 					$secRanges[$about]['end'] = $end;
 					$end->setAttribute( 'about', $about );
 				} else {
-					Assert::invariant( $end->getAttribute( 'about' ) === $about,
+					Assert::invariant( DOMCompat::getAttribute( $end, 'about' ) === $about,
 						"Expected end-range about id to be $about instead of " .
-						$end->getAttribute( 'about' ) . " in the overlap scenario." );
+						DOMCompat::getAttribute( $end, 'about' ) . " in the overlap scenario." );
 				}
 			} else {
 				// Check for nesting in another range.  Since $start and $end
@@ -759,7 +759,7 @@ class WrapSectionsState {
 				while ( $n !== $body ) {
 					'@phan-var Element $n';  // @var Element $n
 					if ( self::isParsoidSection( $n ) && $n->hasAttribute( 'about' ) ) {
-						$about = $n->getAttribute( 'about' );
+						$about = DOMCompat::getAttribute( $n, 'about' );
 						break;
 					}
 					$n = $n->parentNode;
@@ -889,7 +889,10 @@ class WrapSectionsState {
 						$nextSection && WTUtils::isEncapsulationWrapper( $nextSection )
 					) {
 						'@phan-var Element $insertionPoint';
-						$syntheticTocMeta->setAttribute( 'about', $insertionPoint->getAttribute( 'about' ) );
+						$syntheticTocMeta->setAttribute(
+							'about',
+							DOMCompat::getAttribute( $insertionPoint, 'about' )
+						);
 					}
 				}
 			}

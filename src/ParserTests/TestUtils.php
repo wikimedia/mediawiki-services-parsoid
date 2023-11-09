@@ -188,7 +188,7 @@ class TestUtils {
 		for ( $child = $node->firstChild; $child; $child = $next ) {
 			$next = $child->nextSibling;
 			if ( $child instanceof Element && DOMCompat::nodeName( $child ) === 'span' &&
-				preg_match( $stripSpanTypeof, $child->getAttribute( 'typeof' ) ?? '' )
+				preg_match( $stripSpanTypeof, DOMCompat::getAttribute( $child, 'typeof' ) ?? '' )
 			) {
 				self::unwrapSpan( $node, $child, $stripSpanTypeof );
 			}
@@ -267,8 +267,9 @@ class TestUtils {
 			// hack, since PHP adds a newline before </pre>
 			$opts['stripLeadingWS'] = false;
 			$opts['stripTrailingWS'] = true;
-		} elseif ( DOMCompat::nodeName( $node ) === 'span' &&
-			str_starts_with( $node->getAttribute( 'typeof' ), 'mw:' )
+		} elseif (
+			DOMCompat::nodeName( $node ) === 'span' &&
+			DOMUtils::matchTypeOf( $node, '/^mw:/' )
 		) {
 			// SPAN is transparent; pass the strip parameters down to kids
 		} else {

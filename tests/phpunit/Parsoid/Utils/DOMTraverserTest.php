@@ -56,7 +56,7 @@ HTML;
 		$traverser->addHandler( $nodeName, $callback );
 		$traverser->addHandler( null, static function ( Node $node, DTState $state ) use ( &$trace ) {
 			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {
-				$trace[] = $node->getAttribute( 'id' );
+				$trace[] = DOMCompat::getAttribute( $node, 'id' );
 			}
 			return true;
 		} );
@@ -103,7 +103,7 @@ HTML;
 			],
 			'return first child' => [
 				'callback' => static function ( Node $node ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
 						return $node->firstChild;
 					}
 					return true;
@@ -114,7 +114,7 @@ HTML;
 			],
 			'return next sibling' => [
 				'callback' => static function ( Node $node ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
 						return $node->nextSibling;
 					}
 					return true;
@@ -125,7 +125,7 @@ HTML;
 			],
 			'return null' => [
 				'callback' => static function ( Node $node ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
 						return null;
 					}
 					return true;
@@ -136,7 +136,7 @@ HTML;
 			],
 			'return another node' => [
 				'callback' => static function ( Node $node ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
 						$newNode = $node->ownerDocument->createElement( 'div' );
 						$newNode->setAttribute( 'id', 'new' );
 						return $newNode;
@@ -149,7 +149,7 @@ HTML;
 			],
 			'name filter' => [
 				'callback' => static function ( Node $node ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
 						return null;
 					}
 					return true;
@@ -160,7 +160,7 @@ HTML;
 			],
 			'not traversing with tplinfo' => [
 				'callback' => function ( Node $node, DTState $state ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_1' ) {
 						$this->assertTrue( $state->tplInfo === null );
 					}
 					return true;
@@ -171,16 +171,16 @@ HTML;
 			],
 			'traversing with tplinfo' => [
 				'callback' => function ( Node $node, DTState $state ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_1' ) {
 						$this->assertTrue( $state->tplInfo->first === $node );
 					}
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
 						$this->assertTrue( $state->tplInfo->last === $node );
 					}
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_2_1' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2_1' ) {
 						$this->assertTrue( $state->tplInfo !== null );
 					}
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_3' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_3' ) {
 						$this->assertTrue( $state->tplInfo === null );
 					}
 					return true;
@@ -192,7 +192,7 @@ HTML;
 			],
 			'not traversing with tplinfo, with embedded html' => [
 				'callback' => function ( Node $node, DTState $state ) {
-					if ( $node instanceof Element && $node->getAttribute( 'id' ) === 'x1_1' ) {
+					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_1' ) {
 						$this->assertTrue( $state->tplInfo === null );
 					}
 					return true;

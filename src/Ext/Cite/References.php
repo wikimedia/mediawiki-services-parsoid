@@ -125,10 +125,7 @@ class References extends ExtensionTagHandler {
 		// This is data-parsoid from the dom fragment node that's gone through
 		// dsr computation and template wrapping.
 		$nodeDp = DOMDataUtils::getDataParsoid( $node );
-		$typeOf = $node->getAttribute( 'typeof' ) ?? '';
-		$types = explode( ' ', $typeOf );
-		$isTplWrapper = in_array( 'mw:Transclusion', $types, true );
-		$nodeType = implode( ' ', array_diff( $types, [ 'mw:DOMFragment/sealed/ref' ] ) );
+		$isTplWrapper = DOMUtils::hasTypeOf( $node, 'mw:Transclusion' );
 		$contentId = $nodeDp->html;
 		$tplDmw = $isTplWrapper ? DOMDataUtils::getDataMw( $node ) : null;
 
@@ -140,9 +137,8 @@ class References extends ExtensionTagHandler {
 
 		// Use the about attribute on the wrapper with priority, since it's
 		// only added when the wrapper is a template sibling.
-		$about = $node->hasAttribute( 'about' )
-			? $node->getAttribute( 'about' )
-			: $c->getAttribute( 'about' );
+		$about = DOMCompat::getAttribute( $node, 'about' ) ??
+			DOMCompat::getAttribute( $c, 'about' );
 
 		// FIXME(SSS): Need to clarify semantics here.
 		// If both the containing <references> elt as well as the nested <ref>
@@ -365,9 +361,10 @@ class References extends ExtensionTagHandler {
 				'id' => ( $refsData->inEmbeddedContent() || $validFollow ) ?
 					null : ( $ref->name ? $lastLinkback : $ref->id ),
 				'rel' => 'dc:references',
-				'typeof' => $nodeType
+				'typeof' => DOMCompat::getAttribute( $node, 'typeof' ),
 			]
 		);
+		DOMUtils::removeTypeOf( $linkBack, 'mw:DOMFragment/sealed/ref' );
 		DOMUtils::addTypeOf( $linkBack, 'mw:Extension/ref' );
 
 		$dataParsoid = new DataParsoid;
@@ -433,10 +430,9 @@ class References extends ExtensionTagHandler {
 			self::setMisnested( $linkBack, $dsrOffset );
 			self::setMisnested( $refLink, $dsrOffset );
 			self::setMisnested( $refLinkSpan, $dsrOffset );
-			if ( $aParent->hasAttribute( 'about' ) ) {
-				DOMUtils::addAttributes( $linkBack,
-					[ 'about' => $aParent->getAttribute( 'about' ) ]
-				);
+			$parentAbout = DOMCompat::getAttribute( $aParent, 'about' );
+			if ( $parentAbout !== null ) {
+				$linkBack->setAttribute( 'about', $parentAbout );
 			}
 			$node->parentNode->removeChild( $node );
 		} else {
@@ -724,7 +720,7 @@ class References extends ExtensionTagHandler {
 			if ( $child instanceof Element ) {
 				if ( DOMUtils::hasTypeOf( $child, 'mw:Extension/ref' ) ) {
 					$processBodyHtml( $child );
-					$about = $child->getAttribute( 'about' ) ?? '';
+					$about = DOMCompat::getAttribute( $child, 'about' );
 					$errs = $refsData->embeddedErrors[$about] ?? null;
 					if ( $errs ) {
 						self::addErrorsToNode( $child, $errs );

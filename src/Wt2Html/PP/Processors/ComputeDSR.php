@@ -616,7 +616,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					$env->log( "trace/dsr", static function () use ( $frame, $child, $cs, $ce, $dp ) {
 						return "     UPDATING " . DOMCompat::nodeName( $child ) .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
-							"; typeof: " . ( $child->getAttribute( "typeof" ) ?? '' );
+							"; typeof: " . ( DOMCompat::getAttribute( $child,  "typeof" ) ?? '' );
 					} );
 				}
 

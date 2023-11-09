@@ -7,6 +7,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class PackedMode extends TraditionalMode {
 	/**
@@ -34,7 +35,7 @@ class PackedMode extends TraditionalMode {
 	public function scaleMedia( Opts $opts, Element $wrapper ) {
 		$elt = $wrapper->firstChild->firstChild;
 		DOMUtils::assertElt( $elt );
-		$width = $elt->getAttribute( 'width' ) ?? '';
+		$width = DOMCompat::getAttribute( $elt, 'width' );
 		if ( !is_numeric( $width ) ) {
 			$width = $opts->imageWidth;
 		} else {

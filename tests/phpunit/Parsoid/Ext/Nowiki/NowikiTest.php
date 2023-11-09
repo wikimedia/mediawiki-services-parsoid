@@ -56,7 +56,7 @@ class NowikiTest extends TestCase {
 		$doc = $nowiki->sourceToDom( $extApi, 'ab[[cd]]e', [] );
 		$span = DOMCompat::querySelector( $doc, 'span' );
 		$this->assertNotNull( $span );
-		$this->assertSame( 'mw:Nowiki', $span->getAttribute( 'typeof' ) );
+		$this->assertSame( 'mw:Nowiki', DOMCompat::getAttribute( $span, 'typeof' ) );
 		$this->assertSame( 'ab[[cd]]e', $span->textContent );
 
 		$env = new MockEnv( [] );
@@ -66,7 +66,7 @@ class NowikiTest extends TestCase {
 		$this->assertNotNull( $span );
 		$span2 = DOMCompat::querySelector( $span, 'span' );
 		$this->assertNotNull( $span2 );
-		$this->assertSame( 'mw:Entity', $span2->getAttribute( 'typeof' ) );
+		$this->assertSame( 'mw:Entity', DOMCompat::getAttribute( $span2, 'typeof' ) );
 		$this->assertSame( '&', $span2->textContent );
 		$this->assertSame( 'foo&bar', $span->textContent );
 	}

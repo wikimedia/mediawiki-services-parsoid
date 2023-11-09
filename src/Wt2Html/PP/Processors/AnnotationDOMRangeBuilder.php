@@ -120,8 +120,8 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$wrap->setAttribute( "typeof", "mw:ExtendedAnnRange" );
 
 		// Ensure template continuity is not broken
-		$about = $range->startElem->getAttribute( "about" );
-		if ( $about ) {
+		$about = DOMCompat::getAttribute( $range->startElem, "about" );
+		if ( $about !== null ) {
 			$wrap->setAttribute( "about", $about );
 		}
 		$dp = new DataParsoid();
@@ -157,8 +157,8 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$node->parentNode->insertBefore( $startMeta, $node );
 		if ( $node instanceof Element ) {
 			// Ensure template continuity is not broken
-			$about = $node->getAttribute( "about" );
-			if ( $about ) {
+			$about = DOMCompat::getAttribute( $node, "about" );
+			if ( $about !== null ) {
 				$startMeta->setAttribute( "about", $about );
 			}
 		}
@@ -179,8 +179,8 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 
 			// Migrate $endMeta and ensure template continuity is not broken
 			$node->parentNode->insertBefore( $endMeta, $node->nextSibling );
-			$about = $node->getAttribute( "about" );
-			if ( $about ) {
+			$about = DOMCompat::getAttribute( $node, "about" );
+			if ( $about !== null ) {
 				$endMeta->setAttribute( "about", $about );
 			}
 

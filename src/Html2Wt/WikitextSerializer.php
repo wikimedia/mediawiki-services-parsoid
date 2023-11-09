@@ -1036,11 +1036,13 @@ class WikitextSerializer {
 			return new KV( $key, $attrs[$key] );
 		}, array_keys( $attrs ) ) );
 
-		if ( $node->hasAttribute( 'about' ) ) {
-			$extTok->addAttribute( 'about', $node->getAttribute( 'about' ) );
+		$about = DOMCompat::getAttribute( $node, 'about' );
+		if ( $about !== null ) {
+			$extTok->addAttribute( 'about', $about );
 		}
-		if ( $node->hasAttribute( 'typeof' ) ) {
-			$extTok->addAttribute( 'typeof', $node->getAttribute( 'typeof' ) );
+		$typeof = DOMCompat::getAttribute( $node, 'typeof' );
+		if ( $typeof !== null ) {
+			$extTok->addAttribute( 'typeof', $typeof );
 		}
 
 		$attrStr = $this->serializeAttributes( $node, $extTok );

@@ -490,7 +490,7 @@ class DOMNormalizer {
 		if ( !$node->hasAttribute( 'href' ) ) {
 			return $node;
 		}
-		$nodeHref = $node->getAttribute( 'href' );
+		$nodeHref = DOMCompat::getAttribute( $node, 'href' ) ?? '';
 
 		// If there are no tags to swap, we are done
 		if ( $firstChild instanceof Element &&

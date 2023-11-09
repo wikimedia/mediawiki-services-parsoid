@@ -88,12 +88,16 @@ class RegressionSpecsTest extends TestCase {
 		$wt = "a [[Foo]] <ref>b</ref>";
 		$docBody = $this->parseWT( $wt, [ 'title' => 'Main_Page' ] );
 
-		$attrib = DOMCompat::querySelectorAll( $docBody, ".mw-ref a" )[0]->
-			getAttribute( 'href' );
+		$attrib = DOMCompat::getAttribute(
+			DOMCompat::querySelectorAll( $docBody, ".mw-ref a" )[0],
+			'href'
+		);
 		$this->assertEquals( './Main_Page#cite_note-1', $attrib, $description );
 
-		$attrib = DOMCompat::querySelectorAll( $docBody, "#cite_note-1 a" )[0]->
-			getAttribute( 'href' );
+		$attrib = DOMCompat::getAttribute(
+			DOMCompat::querySelectorAll( $docBody, "#cite_note-1 a" )[0],
+			'href'
+		);
 		$this->assertEquals( './Main_Page#cite_ref-1', $attrib, $description );
 	}
 
@@ -347,11 +351,11 @@ class RegressionSpecsTest extends TestCase {
 		$this->assertEquals( "link",  DOMCompat::nodeName( $secondStyle ), $description );
 
 		$this->assertEquals( "mw-deduplicated-inline-style",
-			$secondStyle->getAttribute( 'rel' ), $description );
+			DOMCompat::getAttribute( $secondStyle, 'rel' ), $description );
 
 		$this->assertEquals( 'mw-data:' .
-			$firstStyle->getAttribute( 'data-mw-deduplicate' ),
-			$secondStyle->getAttribute( 'href' ), $description );
+			DOMCompat::getAttribute( $firstStyle, 'data-mw-deduplicate' ),
+			DOMCompat::getAttribute( $secondStyle, 'href' ), $description );
 
 		$keys = [ 'about','typeof','data-mw','data-parsoid' ];
 		foreach ( $keys as $key ) {
@@ -456,10 +460,10 @@ EOT;
 		$firstSection = $docBody->firstChild;
 		$syntheticMeta = $firstSection->lastChild;
 		$this->assertSame( 'meta', DOMCompat::nodeName( $syntheticMeta ) );
-		$this->assertSame( 'mw:PageProp/toc', $syntheticMeta->getAttribute( 'property' ) );
-		$about = $syntheticMeta->getAttribute( 'about' );
-		$this->assertNotSame( '', $about );
-		$this->assertSame( $about, $syntheticMeta->previousSibling->getAttribute( 'about' ) );
+		$this->assertSame( 'mw:PageProp/toc', DOMCompat::getAttribute( $syntheticMeta, 'property' ) );
+		$about = DOMCompat::getAttribute( $syntheticMeta, 'about' );
+		$this->assertNotNull( $about );
+		$this->assertSame( $about, DOMCompat::getAttribute( $syntheticMeta->previousSibling, 'about' ) );
 
 		// Synthetic meta should *not* get an about id
 		$wt = <<<EOT
@@ -479,9 +483,9 @@ EOT;
 		$firstSection = $docBody->firstChild;
 		$syntheticMeta = $firstSection->lastChild;
 		$this->assertSame( 'meta', DOMCompat::nodeName( $syntheticMeta ) );
-		$this->assertSame( 'mw:PageProp/toc', $syntheticMeta->getAttribute( 'property' ) );
-		$about = $syntheticMeta->getAttribute( 'about' );
-		$this->assertSame( '', $about );
+		$this->assertSame( 'mw:PageProp/toc', DOMCompat::getAttribute( $syntheticMeta, 'property' ) );
+		$about = DOMCompat::getAttribute( $syntheticMeta, 'about' );
+		$this->assertNull( $about );
 	}
 
 }

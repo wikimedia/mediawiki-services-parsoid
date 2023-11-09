@@ -149,7 +149,7 @@ class WTSUtils {
 		return self::getShadowInfo(
 			$node,
 			$name,
-			$node->hasAttribute( $name ) ? $node->getAttribute( $name ) : null
+			DOMCompat::getAttribute( $node, $name )
 		);
 	}
 

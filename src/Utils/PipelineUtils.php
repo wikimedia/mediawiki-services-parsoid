@@ -612,7 +612,7 @@ class PipelineUtils {
 						$node->hasAttribute( 'about' )
 					) {
 					$dp = DOMDataUtils::getDataParsoid( $node );
-					$about = $node->hasAttribute( 'about' ) ? $node->getAttribute( 'about' ) : null;
+					$about = DOMCompat::getAttribute( $node, 'about' );
 					$nodes = WTUtils::getAboutSiblings( $node, $about );
 					$key = null;
 					if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {

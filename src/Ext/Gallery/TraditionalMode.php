@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class TraditionalMode extends Mode {
 	/**
@@ -32,11 +33,9 @@ class TraditionalMode extends Mode {
 	 * @param string $v
 	 */
 	private function appendAttr( Element $ul, string $k, string $v ) {
-		$val = $ul->hasAttribute( $k ) ? $ul->getAttribute( $k ) : '';
-		if ( strlen( $val ) > 0 ) {
-			$val .= ' ';
-		}
-		$ul->setAttribute( $k, $val . $v );
+		$val = DOMCompat::getAttribute( $ul, $k );
+		$val = ( $val === null || trim( $val ) === '' ) ? $v : "$val $v";
+		$ul->setAttribute( $k, $val );
 	}
 
 	/**

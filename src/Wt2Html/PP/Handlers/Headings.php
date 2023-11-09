@@ -139,10 +139,10 @@ class Headings {
 			return true;
 		}
 
-		if ( !$node->hasAttribute( 'id' ) ) {
+		$key = DOMCompat::getAttribute( $node, 'id' );
+		if ( $key === null ) {
 			return true;
 		}
-		$key = $node->getAttribute( 'id' );
 		// IE 7 required attributes to be case-insensitively unique (T12721)
 		// but it did not support non-ASCII IDs. We don't support IE 7 anymore,
 		// but changing the algorithm would change the relevant fragment URLs.
@@ -162,7 +162,7 @@ class Headings {
 				$suffix++;
 				$seenIds[$key]++;
 			}
-			$node->setAttribute( 'id', $node->getAttribute( 'id' ) . '_' . $suffix );
+			$node->setAttribute( 'id', DOMCompat::getAttribute( $node, 'id' ) . '_' . $suffix );
 			$seenIds[$key . '_' . $suffix] = 1;
 		}
 		return true;

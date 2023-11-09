@@ -61,8 +61,8 @@ class UnpackDOMFragments {
 		$c = $node->firstChild;
 		while ( $c ) {
 			if ( $c instanceof Element ) {
-				if ( $c->hasAttribute( 'about' ) ) {
-					$cAbout = $c->getAttribute( 'about' );
+				$cAbout = DOMCompat::getAttribute( $c,  'about' );
+				if ( $cAbout !== null ) {
 					// Update about
 					$newAbout = $aboutIdMap[$cAbout] ?? null;
 					if ( !$newAbout ) {
@@ -226,8 +226,8 @@ class UnpackDOMFragments {
 		// of whether we're coming `fromCache` or not.
 		// FIXME: Presumably we have a nesting issue here if this is a cached
 		// transclusion.
-		$about = $placeholder->getAttribute( 'about' ) ?? '';
-		if ( $about !== '' ) {
+		$about = DOMCompat::getAttribute( $placeholder, 'about' );
+		if ( $about !== null ) {
 			// Span wrapping may not have happened for the transclusion above if
 			// the fragment is not the first encapsulation wrapper node.
 			PipelineUtils::addSpanWrappers( $fragmentDOM->childNodes );
@@ -280,8 +280,8 @@ class UnpackDOMFragments {
 			// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup
 			// "[[bad]], very bad" are at encapsulation level and need about ids.
 			DOMUtils::assertElt( $placeholderParent ); // satisfy phan
-			$about = $placeholderParent->getAttribute( 'about' ) ?? '';
-			if ( $about !== '' ) {
+			$about = DOMCompat::getAttribute( $placeholderParent, 'about' );
+			if ( $about !== null ) {
 				self::makeChildrenEncapWrappers( $fragmentDOM, $about );
 			}
 

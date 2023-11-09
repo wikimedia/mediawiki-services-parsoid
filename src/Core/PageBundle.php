@@ -134,7 +134,10 @@ class PageBundle {
 			DOMCompat::getBody( $doc ),
 			static function ( Node $node ) use ( &$pb ): void {
 				if ( $node instanceof Element ) {
-					$id = $node->getAttribute( 'id' ) ?? '';
+					$id = DOMCompat::getAttribute( $node, 'id' );
+					if ( $id === null ) {
+						return;
+					}
 					if ( isset( $pb->parsoid['ids'][$id] ) ) {
 						DOMDataUtils::setJSONAttribute(
 							$node, 'data-parsoid', $pb->parsoid['ids'][$id]

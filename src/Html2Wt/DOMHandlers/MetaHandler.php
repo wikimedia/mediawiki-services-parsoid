@@ -25,7 +25,7 @@ class MetaHandler extends DOMHandler {
 	public function handle(
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
-		$property = $node->getAttribute( 'property' ) ?? '';
+		$property = DOMCompat::getAttribute( $node, 'property' ) ?? '';
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dmw = DOMDataUtils::getDataMw( $node );
 
@@ -98,7 +98,7 @@ class MetaHandler extends DOMHandler {
 				$state->closeAnnotationRange( $annType );
 			}
 		} else {
-			switch ( $node->getAttribute( 'typeof' ) ?? '' ) {
+			switch ( DOMCompat::getAttribute( $node, 'typeof' ) ) {
 				case 'mw:Includes/IncludeOnly':
 					// Remove the dp.src when older revisions of HTML expire in RESTBase
 					$state->emitChunk( $dmw->src ?? $dp->src ?? '', $node );
@@ -244,7 +244,8 @@ class MetaHandler extends DOMHandler {
 			}
 		}
 
-		$type = $node->getAttribute( 'typeof' ) ?: $node->getAttribute( 'property' ) ?:	null;
+		$type = DOMCompat::getAttribute( $node, 'typeof' ) ??
+			DOMCompat::getAttribute( $node, 'property' );
 		if ( $type && str_contains( $type, 'mw:PageProp/categorydefaultsort' ) ) {
 			if ( $otherNode instanceof Element
 				&& DOMCompat::nodeName( $otherNode ) === 'p'

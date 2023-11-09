@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Wikimedia\Parsoid\DOM\Element as DOMElement;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -126,7 +127,7 @@ class TreeMutationRelay extends RelayTreeHandler {
 		if ( WTUtils::isTplMarkerMeta( $element->userData ) ) {
 			$meta = $element->userData;
 
-			$about = $meta->getAttribute( 'about' );
+			$about = DOMCompat::getAttribute( $meta, 'about' );
 			$isEnd = WTUtils::isTplEndMarkerMeta( $meta );
 			$docDataBag = DOMDataUtils::getBag( $meta->ownerDocument );
 			$docDataBag->transclusionMetaTagDepthMap[$about][$isEnd ? 'end' : 'start'] =

@@ -44,12 +44,13 @@ class LST extends ExtensionTagHandler implements ExtensionModule {
 
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$src = null;
+		$content = DOMCompat::getAttribute( $node, 'content' ) ?? '';
 		if ( isset( $dp->src ) ) {
 			$src = $dp->src;
 		} elseif ( DOMUtils::matchTypeOf( $node, '/begin/' ) ) {
-			$src = '<section begin="' . ( $node->getAttribute( 'content' ) ?? '' ) . '" />';
+			$src = '<section begin="' . $content . '" />';
 		} elseif ( DOMUtils::matchTypeOf( $node, '/end/' ) ) {
-			$src = '<section end="' . ( $node->getAttribute( 'content' ) ?? '' ) . '" />';
+			$src = '<section end="' . $content . '" />';
 		} else {
 			$extApi->log( 'error', 'LST <section> without content in: ' .
 				DOMCompat::getOuterHTML( $node ) );

@@ -369,8 +369,8 @@ class DOMUtils {
 		if ( !( $n instanceof Element ) ) {
 			return null;
 		}
-		$attrValue = $n->getAttribute( $attrName );
-		if ( $attrValue === '' ) {
+		$attrValue = DOMCompat::getAttribute( $n, $attrName );
+		if ( $attrValue === null || $attrValue === '' ) {
 			return null;
 		}
 		foreach ( explode( ' ', $attrValue ) as $ty ) {
@@ -415,8 +415,8 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function hasClass( Element $element, string $regex ): bool {
-		$value = $element->getAttribute( 'class' );
-		return $value && (bool)preg_match( '{(?<=^|\s)' . $regex . '(?=\s|$)}', $value );
+		$value = DOMCompat::getAttribute( $element, 'class' );
+		return (bool)preg_match( '{(?<=^|\s)' . $regex . '(?=\s|$)}', $value ?? '' );
 	}
 
 	/**
@@ -431,8 +431,8 @@ class DOMUtils {
 		if ( !( $n instanceof Element ) ) {
 			return false;
 		}
-		$attrValue = $n->getAttribute( $attrName );
-		if ( $attrValue === '' ) {
+		$attrValue = DOMCompat::getAttribute( $n, $attrName );
+		if ( $attrValue === null || $attrValue === '' ) {
 			return false;
 		}
 		if ( $attrValue === $value ) {
@@ -764,7 +764,9 @@ class DOMUtils {
 		$elts = DOMCompat::querySelectorAll( $doc, 'meta[http-equiv][content]' );
 		$r = [];
 		foreach ( $elts as $el ) {
-			$r[strtolower( $el->getAttribute( 'http-equiv' ) )] = $el->getAttribute( 'content' );
+			$r[strtolower(
+				DOMCompat::getAttribute( $el, 'http-equiv' )
+			)] = DOMCompat::getAttribute( $el, 'content' );
 		}
 		return $r;
 	}
@@ -802,7 +804,7 @@ class DOMUtils {
 	public static function extractInlinedContentVersion( Document $doc ): ?string {
 		$el = DOMCompat::querySelector( $doc,
 			'meta[property="mw:htmlVersion"], meta[property="mw:html:version"]' );
-		return $el ? $el->getAttribute( 'content' ) : null;
+		return $el ? DOMCompat::getAttribute( $el, 'content' ) : null;
 	}
 
 	/**
@@ -934,8 +936,9 @@ class DOMUtils {
 	public static function attributes( Element $element ): array {
 		$result = [];
 		// The 'xmlns' attribute is "invisible" T235295
-		if ( $element->hasAttribute( 'xmlns' ) ) {
-			$result['xmlns'] = $element->getAttribute( 'xmlns' );
+		$xmlns = DOMCompat::getAttribute( $element, 'xmlns' );
+		if ( $xmlns !== null ) {
+			$result['xmlns'] = $xmlns;
 		}
 		foreach ( $element->attributes as $attr ) {
 			$result[$attr->name] = $attr->value;

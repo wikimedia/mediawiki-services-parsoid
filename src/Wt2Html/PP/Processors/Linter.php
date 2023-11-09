@@ -821,7 +821,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function hasNoWrapCSS( Node $node ): bool {
 		return $node instanceof Element && (
-			str_contains( $node->getAttribute( 'style' ) ?? '', 'nowrap' ) ||
+			str_contains( DOMCompat::getAttribute( $node, 'style' ) ?? '', 'nowrap' ) ||
 			DOMUtils::hasClass( $node, 'nowrap' )
 		);
 	}
@@ -1386,7 +1386,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			// !tplInfo check is to protect against templated content in
 			// extensions which might in turn be nested in templated content.
 			if ( !$tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-				$aboutSibs = WTUtils::getAboutSiblings( $node, $node->getAttribute( 'about' ) ?? '' );
+				$aboutSibs = WTUtils::getAboutSiblings( $node, DOMCompat::getAttribute( $node, 'about' ) );
 				$tplInfo = (object)[
 					'first' => $node,
 					'last' => end( $aboutSibs ),

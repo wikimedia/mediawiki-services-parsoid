@@ -121,8 +121,8 @@ class Ref extends ExtensionTagHandler {
 				$extraDebug = '';
 				$firstA = DOMCompat::querySelector( $node, 'a[href]' );
 				if ( $firstA ) {
-					$href = $firstA->getAttribute( 'href' ) ?? '';
-					if ( str_starts_with( $href, '#' ) ) {
+					$href = DOMCompat::getAttribute( $firstA, 'href' );
+					if ( $href && str_starts_with( $href, '#' ) ) {
 						try {
 							$ref = DOMCompat::querySelector( $extApi->getTopLevelDoc(), $href );
 							if ( $ref ) {
@@ -151,10 +151,10 @@ class Ref extends ExtensionTagHandler {
 			$hasFollow = strlen( $dataMw->attrs->follow ?? '' ) > 0;
 
 			if ( $hasFollow ) {
-				$about = $node->getAttribute( 'about' ) ?? '';
-				$followNode = DOMCompat::querySelector(
+				$about = DOMCompat::getAttribute( $node, 'about' );
+				$followNode = $about !== null ? DOMCompat::querySelector(
 					$bodyElt, "span[typeof~='mw:Cite/Follow'][about='{$about}']"
-				);
+				) : null;
 				if ( $followNode ) {
 					$src = $extApi->domToWikitext( $html2wtOpts, $followNode, true );
 					$src = ltrim( $src, ' ' );

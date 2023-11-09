@@ -188,7 +188,7 @@ class TableFixups {
 			$prevDp = $tplDp;
 		}
 
-		$aboutId = $lastTpl->getAttribute( 'about' ) ?? '';
+		$aboutId = DOMCompat::getAttribute( $lastTpl, 'about' );
 
 		// Hoist transclusion information to $td.
 		$td->setAttribute( 'typeof', 'mw:Transclusion' );
@@ -216,7 +216,10 @@ class TableFixups {
 		}
 
 		while ( $child ) {
-			if ( DOMCompat::nodeName( $child ) === 'span' && $child->getAttribute( 'about' ) === $aboutId ) {
+			if (
+				DOMCompat::nodeName( $child ) === 'span' &&
+				DOMCompat::getAttribute( $child, 'about' ) === $aboutId
+			) {
 				// Remove the encapsulation attributes. If there are no more attributes left,
 				// the span wrapper is useless and can be removed.
 				$child->removeAttribute( 'about' );
@@ -716,18 +719,18 @@ class TableFixups {
 						 */
 						'@phan-var Element $child';
 						// Fix up transclusion wrapping
-						$about = $child->getAttribute( 'about' ) ?? '';
+						$about = DOMCompat::getAttribute( $child, 'about' );
 						$this->hoistTransclusionInfo( $frame, [ $child ], $cell );
 					} else {
 						// Refetch the about attribute since 'reparseTemplatedAttributes'
 						// might have added one to it.
-						$about = $cell->getAttribute( 'about' ) ?? '';
+						$about = DOMCompat::getAttribute( $cell, 'about' );
 					}
 
 					// about may not be present if the cell was inside
 					// wrapped template content rather than being part
 					// of the outermost wrapper.
-					if ( $about ) {
+					if ( $about !== null ) {
 						$newCell->setAttribute( 'about', $about );
 					}
 					$newCell->appendChild( $ownerDoc->createTextNode( $match[2] ?? '' ) );

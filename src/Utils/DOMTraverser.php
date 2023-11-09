@@ -172,7 +172,7 @@ class DOMTraverser {
 					// may have expanded ranges.
 					&& !WTUtils::isParsoidSectionTag( $workNode )
 				) {
-					$about = $workNode->getAttribute( 'about' ) ?? '';
+					$about = DOMCompat::getAttribute( $workNode, 'about' );
 					$aboutSiblings = WTUtils::getAboutSiblings( $workNode, $about );
 					$state->tplInfo = (object)[
 						'first' => $workNode,

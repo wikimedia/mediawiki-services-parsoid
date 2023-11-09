@@ -31,7 +31,7 @@ HTML;
 
 		DOMPostOrder::traverse( $doc->documentElement, static function ( Node $node ) use ( &$trace ) {
 			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {
-				$trace[] = $node->getAttribute( 'id' );
+				$trace[] = DOMCompat::getAttribute( $node, 'id' );
 			}
 		} );
 

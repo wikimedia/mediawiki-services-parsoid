@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class ImgHandler extends DOMHandler {
@@ -21,7 +22,7 @@ class ImgHandler extends DOMHandler {
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
 		if ( DOMUtils::hasRel( $node, 'mw:externalImage' ) ) {
-			$state->serializer->emitWikitext( $node->getAttribute( 'src' ) ?? '', $node );
+			$state->serializer->emitWikitext( DOMCompat::getAttribute( $node, 'src' ) ?? '', $node );
 		} else {
 			LinkHandlerUtils::figureHandler( $state, $node, new MediaStructure( $node ) );
 		}

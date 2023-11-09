@@ -428,9 +428,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		?string $alt
 	): void {
 		if ( !DOMUtils::hasTypeOf( $container, 'mw:Error' ) ) {
-			$typeOf = $container->getAttribute( 'typeof' ) ?? '';
-			$typeOf = 'mw:Error' . ( $typeOf ? ' ' . $typeOf : '' );
-			$container->setAttribute( 'typeof', $typeOf );
+			DOMUtils::addTypeOf( $container, 'mw:Error', true );
 		}
 		if ( is_array( $dataMw->errors ?? null ) ) {
 			$errs = array_merge( $dataMw->errors, $errs );
@@ -452,7 +450,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		DOMDataUtils::addNormalizedAttribute(
 			$elt,
 			$attribute,
-			$span->getAttribute( $attribute ) ?? '',
+			DOMCompat::getAttribute( $span, $attribute ),
 			WTSUtils::getAttributeShadowInfo( $span, $attribute )['value']
 		);
 	}
@@ -624,8 +622,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$dataMw = DOMDataUtils::getDataMw( $container );
 
 			$dims = [
-				'width' => (int)$span->getAttribute( 'data-width' ) ?: null,
-				'height' => (int)$span->getAttribute( 'data-height' ) ?: null,
+				'width' => (int)DOMCompat::getAttribute( $span, 'data-width' ) ?: null,
+				'height' => (int)DOMCompat::getAttribute( $span, 'data-height' ) ?: null,
 			];
 
 			$page = WTSUtils::getAttrFromDataMw( $dataMw, 'page', true );
@@ -633,8 +631,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$dims['page'] = $page[1]->txt;
 			}
 
-			if ( $span->hasAttribute( 'lang' ) ) {
-				$dims['lang'] = $span->getAttribute( 'lang' );
+			$lang = DOMCompat::getAttribute( $span, 'lang' );
+			if ( $lang !== null ) {
+				$dims['lang'] = $lang;
 			}
 
 			// "starttime" should be used if "thumbtime" isn't present,

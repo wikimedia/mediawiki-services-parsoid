@@ -197,7 +197,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$result = DOMCompat::querySelector( $context, $selector );
 
 		$expectedDataId = $expectedDataIds[0] ?? null;
-		$actualDataId = $result ? $result->getAttribute( 'data-id' ) : null;
+		$actualDataId = $result ? DOMCompat::getAttribute( $result, 'data-id' ) : null;
 		$this->assertSame( $expectedDataId, $actualDataId );
 	}
 
@@ -217,7 +217,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 		$actualDataIds = [];
 		foreach ( $results as $result ) {
-			$actualDataIds[] = $result->getAttribute( 'data-id' );
+			$actualDataIds[] = DOMCompat::getAttribute( $result, 'data-id' );
 		}
 		$this->assertSame( $expectedDataIds, $actualDataIds );
 	}
@@ -562,7 +562,7 @@ HTML;
 		$this->assertSame( [ 'e', 'f', 'g' ], iterator_to_array( $classList ) );
 		$classList->add( 'a' );
 		$classList->remove( 'g' );
-		$this->assertSame( 'e f a', $x->getAttribute( 'class' ) );
+		$this->assertSame( 'e f a', DOMCompat::getAttribute( $x, 'class' ) );
 	}
 
 	/**
@@ -659,6 +659,6 @@ HTML;
 		// not the workaround version in DOMCompat::getElementById()
 		$q = $doc->getElementById( 'this-is-an-id' );
 		$this->assertNotEquals( null, $q );
-		$this->assertEquals( 'this-is-an-id', $q->getAttribute( 'id' ) );
+		$this->assertEquals( 'this-is-an-id', DOMCompat::getAttribute( $q, 'id' ) );
 	}
 }
