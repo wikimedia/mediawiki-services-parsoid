@@ -873,7 +873,24 @@ class WrapSectionsState {
 						$dp = DOMDataUtils::getDataParsoid( $syntheticTocMeta );
 						$dp->dsr = new DomSourceRange( $sectionDSR, $sectionDSR, 0, 0 );
 					}
+					$insertionPoint = $leadSection->container->lastChild;
 					$leadSection->container->appendChild( $syntheticTocMeta );
+
+					$nextSection = $leadSection->container->nextSibling;
+					// If insertionPoint is an encapsulation wrapper *and* next section
+					// also has an encapsulation wrapper (which implies the template content
+					// conteinued across section boundaries), we need to tag the synthetic
+					// meta as part of the same templated region.
+					// ( REMINDER: section tags get a second template layer on top and hence
+					// they have a different about id. The two layers of template wrapping
+					// ensures that template wrapping semantics are preserved whether section tags
+					// are present or not. )
+					if ( $insertionPoint && WTUtils::isEncapsulationWrapper( $insertionPoint ) &&
+						$nextSection && WTUtils::isEncapsulationWrapper( $nextSection )
+					) {
+						'@phan-var Element $insertionPoint';
+						$syntheticTocMeta->setAttribute( 'about', $insertionPoint->getAttribute( 'about' ) );
+					}
 				}
 			}
 			if ( !$showToc ) {

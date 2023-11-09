@@ -23,17 +23,18 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 class RegressionSpecsTest extends TestCase {
 	/**
 	 * @param string $wt
-	 * @param array $opts
+	 * @param array $pageOpts
+	 * @param bool $wrapSections
 	 * @return Element
 	 */
-	private function parseWT( string $wt, array $opts = [] ): Element {
+	private function parseWT( string $wt, array $pageOpts = [], $wrapSections = false ): Element {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( $opts, $content );
-		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => false ] );
+		$pageConfig = new MockPageConfig( $pageOpts, $content );
+		$html = $parsoid->wikitext2html( $pageConfig, [ "wrapSections" => $wrapSections ] );
 
 		$doc = DOMUtils::parseHTML( $html );
 
@@ -429,6 +430,58 @@ EOT;
 		$figure = DOMCompat::querySelector( $docBody, 'span[typeof~="mw:File"]' );
 		$this->assertInstanceOf( Element::class, $figure );
 		$this->assertTrue( DOMUtils::hasClass( $figure, 'mw-valign-sub' ) );
+	}
+
+	/**
+	 * Cannot test this via parser tests becuase that framework strips
+	 * about attributes and here we want to assert the presence of 'about'
+	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapSectionsState
+	 */
+	public function testT350625(): void {
+		$wt = <<<EOT
+{{1x|foo
+<div>}}
+==h1==
+a
+==h2==
+b
+==h3==
+c
+==h4==
+d
+==h5==
+e
+EOT;
+		$docBody = $this->parseWT( $wt, [], true );
+		$firstSection = $docBody->firstChild;
+		$syntheticMeta = $firstSection->lastChild;
+		$this->assertSame( 'meta', DOMCompat::nodeName( $syntheticMeta ) );
+		$this->assertSame( 'mw:PageProp/toc', $syntheticMeta->getAttribute( 'property' ) );
+		$about = $syntheticMeta->getAttribute( 'about' );
+		$this->assertNotSame( '', $about );
+		$this->assertSame( $about, $syntheticMeta->previousSibling->getAttribute( 'about' ) );
+
+		// Synthetic meta should *not* get an about id
+		$wt = <<<EOT
+{{1x|foo
+<div></div>}}<h1>h1</h1>
+a
+==h2==
+b
+==h3==
+c
+==h4==
+d
+==h5==
+e
+EOT;
+		$docBody = $this->parseWT( $wt, [], true );
+		$firstSection = $docBody->firstChild;
+		$syntheticMeta = $firstSection->lastChild;
+		$this->assertSame( 'meta', DOMCompat::nodeName( $syntheticMeta ) );
+		$this->assertSame( 'mw:PageProp/toc', $syntheticMeta->getAttribute( 'property' ) );
+		$about = $syntheticMeta->getAttribute( 'about' );
+		$this->assertSame( '', $about );
 	}
 
 }
