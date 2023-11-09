@@ -237,6 +237,12 @@ class WTUtils {
 			$prev instanceof Element &&
 			$prev->getAttribute( 'about' ) === $about
 		);
+		// NOTE: findFirstEncapsulationWrapperNode can be called by code
+		// even before templates have been fully encapsulated everywhere.
+		// ProcessTreeBuilderFixups::removeAutoInsertedEmptyTags is the main
+		// culprit here and it makes the contract for this helper murky
+		// by hiding potential brokenness since this should never return null
+		// once all templates have been encapsulated!
 		$elt = self::isFirstEncapsulationWrapperNode( $node ) ? $node : null;
 		'@phan-var ?Element $elt'; // @var ?Element $elt
 		return $elt;

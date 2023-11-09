@@ -879,7 +879,7 @@ class WrapSectionsState {
 					$nextSection = $leadSection->container->nextSibling;
 					// If insertionPoint is an encapsulation wrapper *and* next section
 					// also has an encapsulation wrapper (which implies the template content
-					// conteinued across section boundaries), we need to tag the synthetic
+					// continued across section boundaries), we need to tag the synthetic
 					// meta as part of the same templated region.
 					// ( REMINDER: section tags get a second template layer on top and hence
 					// they have a different about id. The two layers of template wrapping
