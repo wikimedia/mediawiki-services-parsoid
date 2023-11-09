@@ -449,9 +449,11 @@ class DOMUtils {
 	 *
 	 * @param Element $node node
 	 * @param string $type type
+	 * @param bool $prepend If true, adds value to start, rather than end.
+	 *    Use of this option in new code is discouraged.
 	 */
-	public static function addTypeOf( Element $node, string $type ): void {
-		self::addValueToMultivalAttr( $node, 'typeof', $type );
+	public static function addTypeOf( Element $node, string $type, bool $prepend = false ): void {
+		self::addValueToMultivalAttr( $node, 'typeof', $type, $prepend );
 	}
 
 	/**
@@ -474,19 +476,46 @@ class DOMUtils {
 	 * @param Element $node
 	 * @param string $attr
 	 * @param string $value
+	 * @param bool $prepend If true, adds value to start, rather than end
 	 */
 	private static function addValueToMultivalAttr(
-		Element $node, string $attr, string $value
+		Element $node, string $attr, string $value, bool $prepend = false
 	): void {
-		$oldValue = $node->getAttribute( $attr ) ?? '';
-		if ( $oldValue !== '' ) {
-			$values = explode( ' ', $oldValue );
+		$value = trim( $value );
+		if ( $value === '' ) {
+			return;
+		}
+		$oldValue = DOMCompat::getAttribute( $node, $attr );
+		if ( $oldValue !== null && trim( $oldValue ) !== '' ) {
+			$values = explode( ' ', trim( $oldValue ) );
 			if ( in_array( $value, $values, true ) ) {
 				return;
 			}
-			$value = $oldValue . ' ' . $value;
+			$value = $prepend ? "$value $oldValue" : "$oldValue $value";
 		}
 		$node->setAttribute( $attr, $value );
+	}
+
+	/**
+	 * Remove a value from a multiple-valued attribute.
+	 *
+	 * @param Element $node node
+	 * @param string $attr The attribute name
+	 * @param string $value The value to remove
+	 */
+	private static function removeValueFromMultivalAttr(
+		Element $node, string $attr, string $value
+	): void {
+		$oldValue = DOMCompat::getAttribute( $node, $attr );
+		if ( $oldValue !== null && $oldValue !== '' ) {
+			$value = trim( $value );
+			$types = array_diff( explode( ' ', $oldValue ), [ $value ] );
+			if ( count( $types ) > 0 ) {
+				$node->setAttribute( $attr, implode( ' ', $types ) );
+			} else {
+				$node->removeAttribute( $attr );
+			}
+		}
 	}
 
 	/**
@@ -496,15 +525,17 @@ class DOMUtils {
 	 * @param string $type type
 	 */
 	public static function removeTypeOf( Element $node, string $type ): void {
-		$oldValue = $node->getAttribute( 'typeof' ) ?? '';
-		if ( $oldValue !== '' ) {
-			$types = array_diff( explode( ' ', $oldValue ), [ $type ] );
-			if ( count( $types ) > 0 ) {
-				$node->setAttribute( 'typeof', implode( ' ', $types ) );
-			} else {
-				$node->removeAttribute( 'typeof' );
-			}
-		}
+		self::removeValueFromMultivalAttr( $node, 'typeof', $type );
+	}
+
+	/**
+	 * Remove a type from the rel attribute.
+	 *
+	 * @param Element $node node
+	 * @param string $rel rel
+	 */
+	public static function removeRel( Element $node, string $rel ): void {
+		self::removeValueFromMultivalAttr( $node, 'rel', $rel );
 	}
 
 	/**

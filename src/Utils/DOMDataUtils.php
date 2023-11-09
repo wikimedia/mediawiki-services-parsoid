@@ -461,7 +461,11 @@ class DOMDataUtils {
 			// FIXME: Protect mw ids while tokenizing to avoid false positives.
 			$env->log( 'info', 'Wikitext for this page has duplicate ids: ' . $origId );
 		}
-		if ( !$uid ) {
+		if ( $uid === '' ) {
+			$uid = null;
+			$env->log( 'info', 'Bogus empty id' );
+		}
+		if ( $uid === null ) {
 			do {
 				$docDp['counter'] = $docDp['counter'] + 1;
 				// PORT-FIXME: NOTE that we aren't updating the idIndex here because
