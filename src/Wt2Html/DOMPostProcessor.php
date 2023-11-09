@@ -126,11 +126,7 @@ class DOMPostProcessor extends PipelineStage {
 	 * @param ?array $processors
 	 */
 	public function registerProcessors( ?array $processors ): void {
-		if ( empty( $processors ) ) {
-			$processors = $this->getDefaultProcessors();
-		}
-
-		foreach ( $processors as $p ) {
+		foreach ( $processors ?: $this->getDefaultProcessors() as $p ) {
 			if ( empty( $p['name'] ) ) {
 				$p['name'] = Utils::stripNamespace( $p['Processor'] );
 			}

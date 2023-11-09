@@ -122,23 +122,14 @@ class SiteConfig extends ISiteConfig {
 
 		$this->api = $api;
 
-		if ( isset( $opts['linting'] ) ) {
-			$this->linterEnabled = !empty( $opts['linting'] );
-		}
-
-		if ( isset( $opts['addHTMLTemplateParameters'] ) ) {
-			$this->addHTMLTemplateParameters = !empty( $opts['addHTMLTemplateParameters'] );
-		}
+		$this->linterEnabled = (bool)( $opts['linting'] ?? false );
+		$this->addHTMLTemplateParameters = (bool)( $opts['addHTMLTemplateParameters'] ?? false );
 
 		if ( isset( $opts['maxDepth'] ) ) {
-			$this->maxDepth = $opts['maxDepth'];
+			$this->maxDepth = (int)$opts['maxDepth'];
 		}
 
-		if ( isset( $opts['logger'] ) ) {
-			$this->setLogger( $opts['logger'] );
-		} else {
-			$this->setLogger( self::createLogger() );
-		}
+		$this->setLogger( $opts['logger'] ?? self::createLogger() );
 
 		if ( isset( $opts['wt2htmlLimits'] ) ) {
 			$this->wt2htmlLimits = array_merge(

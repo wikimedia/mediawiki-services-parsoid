@@ -575,14 +575,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$profiler->start();
 		register_shutdown_function( static function () use ( $profiler ) {
 			$profiler->stop();
-			$fgPath = getenv( 'FLAMEGRAPH_PATH' );
-			if ( empty( $fgPath ) ) {
-				$fgPath = "/usr/local/bin/flamegraph.pl";
-			}
-			$fgOutDir = getenv( 'FLAMEGRAPH_OUTDIR' );
-			if ( empty( $fgOutDir ) ) {
-				$fgOutDir = "/tmp";
-			}
+			$fgPath = getenv( 'FLAMEGRAPH_PATH' ) ?: '/usr/local/bin/flamegraph.pl';
+			$fgOutDir = getenv( 'FLAMEGRAPH_OUTDIR' ) ?: '/tmp';
 			// phpcs:disable MediaWiki.Usage.ForbiddenFunctions.popen
 			$pipe = popen( "$fgPath > $fgOutDir/profile.svg", "w" );
 			fwrite( $pipe, $profiler->getLog()->formatCollapsed() );

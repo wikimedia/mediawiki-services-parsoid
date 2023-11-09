@@ -1017,17 +1017,9 @@ abstract class SiteConfig {
 	 */
 	public function getMagicWordForFunctionHook( string $str ): ?string {
 		$this->populateMagicWords();
-		if ( isset( $this->functionSynonyms[1][$str] ) ) {
-			return $this->functionSynonyms[1][$str];
-		} else {
+		return $this->functionSynonyms[1][$str] ??
 			# Case insensitive functions
-			$str = mb_strtolower( $str );
-			if ( isset( $this->functionSynonyms[0][$str] ) ) {
-				return $this->functionSynonyms[0][$str];
-			} else {
-				return null;
-			}
-		}
+			$this->functionSynonyms[0][mb_strtolower( $str )] ?? null;
 	}
 
 	/**

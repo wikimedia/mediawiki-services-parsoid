@@ -172,13 +172,13 @@ class Parsoid {
 		}
 		$envOptions['discardDataParsoid'] = !empty( $options['discardDataParsoid'] );
 		if ( isset( $options['wrapSections'] ) ) {
-			$envOptions['wrapSections'] = !empty( $options['wrapSections'] );
+			$envOptions['wrapSections'] = (bool)$options['wrapSections'];
 		}
 		if ( isset( $options['pageBundle'] ) ) {
-			$envOptions['pageBundle'] = !empty( $options['pageBundle'] );
+			$envOptions['pageBundle'] = (bool)$options['pageBundle'];
 		}
 		if ( isset( $options['logLinterData'] ) ) {
-			$envOptions['logLinterData'] = !empty( $options['logLinterData'] );
+			$envOptions['logLinterData'] = (bool)$options['logLinterData'];
 		}
 		$envOptions['skipLanguageConversionPass'] =
 			$options['skipLanguageConversionPass'] ?? false;
