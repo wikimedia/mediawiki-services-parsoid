@@ -415,6 +415,27 @@ class DOMCompat {
 	}
 
 	/**
+	 * Return the value of an element attribute.
+	 *
+	 * Unlike PHP's version, this is spec-compliant and returns `null` if
+	 * the attribute is not present, allowing the caller to distinguish
+	 * between "the attribute exists but has the empty string as its value"
+	 * and "the attribute does not exist".
+	 *
+	 * @param Element $element
+	 * @param string $attributeName
+	 * @return ?string The attribute value, or `null` if the attribute does
+	 *   not exist on the element.
+	 * @see https://dom.spec.whatwg.org/#dom-element-getattribute
+	 */
+	public static function getAttribute( $element, string $attributeName ): ?string {
+		if ( !$element->hasAttribute( $attributeName ) ) {
+			return null;
+		}
+		return $element->getAttribute( $attributeName );
+	}
+
+	/**
 	 * Return the class list of this element.
 	 * @param Element $node
 	 * @return TokenList
