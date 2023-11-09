@@ -87,9 +87,7 @@ class TableFixups {
 
 			$dataMW = DOMDataUtils::getDataMw( $nextNode );
 			$nodeSrc = WTUtils::getWTSource( $frame, $node );
-			if ( !isset( $dataMW->parts ) ) {
-				$dataMW->parts = [];
-			}
+			$dataMW->parts ??= [];
 			array_unshift( $dataMW->parts, $nodeSrc );
 
 			// Delete the duplicated <td> node.

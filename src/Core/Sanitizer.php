@@ -910,9 +910,7 @@ class Sanitizer {
 		$n = count( $attrs );
 		for ( $i = 0;  $i < $n;  $i++ ) {
 			$a = $attrs[$i];
-			if ( !isset( $a->v ) ) {
-				$a->v = '';
-			}
+			$a->v ??= '';
 
 			// Convert attributes to string, if necessary.
 			$a->k = TokenUtils::tokensToString( $a->k );

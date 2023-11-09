@@ -183,19 +183,13 @@ class ParserPipelineFactory {
 	 */
 	private function defaultOptions( array $options ): array {
 		// default: not in a template
-		if ( !isset( $options['inTemplate'] ) ) {
-			$options['inTemplate'] = false;
-		}
+		$options['inTemplate'] ??= false;
 
 		// default: not an include context
-		if ( !isset( $options['isInclude'] ) ) {
-			$options['isInclude'] = false;
-		}
+		$options['isInclude'] ??= false;
 
 		// default: wrap templates
-		if ( !isset( $options['expandTemplates'] ) ) {
-			$options['expandTemplates'] = true;
-		}
+		$options['expandTemplates'] ??= true;
 
 		// Catch pipeline option typos
 		foreach ( $options as $k => $v ) {
@@ -319,11 +313,9 @@ class ParserPipelineFactory {
 		$options = $this->defaultOptions( $options );
 		$cacheKey = $this->getCacheKey( $type, $options );
 
-		if ( empty( $this->pipelineCache[$cacheKey] ) ) {
-			$this->pipelineCache[$cacheKey] = [];
-		}
+		$this->pipelineCache[$cacheKey] ??= [];
 
-		if ( count( $this->pipelineCache[$cacheKey] ) ) {
+		if ( $this->pipelineCache[$cacheKey] ) {
 			$pipe = array_pop( $this->pipelineCache[$cacheKey] );
 		} else {
 			$pipe = $this->makePipeline( $type, $cacheKey, $options );
@@ -343,9 +335,7 @@ class ParserPipelineFactory {
 	 */
 	public function returnPipeline( ParserPipeline $pipe ): void {
 		$cacheKey = $pipe->getCacheKey();
-		if ( empty( $this->pipelineCache[$cacheKey] ) ) {
-			$this->pipelineCache[$cacheKey] = [];
-		}
+		$this->pipelineCache[$cacheKey] ??= [];
 		if ( count( $this->pipelineCache[$cacheKey] ) < 100 ) {
 			$this->pipelineCache[$cacheKey][] = $pipe;
 		}

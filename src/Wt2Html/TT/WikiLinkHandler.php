@@ -1441,9 +1441,7 @@ class WikiLinkHandler extends TokenHandler {
 				if ( $maybeOpt ) {
 					$val['txt'] = $optInfo['v'];
 				}
-				if ( !isset( $dataMw->attribs ) ) {
-					$dataMw->attribs = [];
-				}
+				$dataMw->attribs ??= [];
 				$dataMw->attribs[] = [ $opt['ck'], $val ];
 			}
 		}

@@ -248,9 +248,7 @@ class ScriptUtils {
 		}
 
 		if ( isset( $cliOpts['apiURL'] ) ) {
-			if ( !isset( $envOptions['mwApis'] ) ) {
-				$envOptions['mwApis'] = [];
-			}
+			$envOptions['mwApis'] ??= [];
 			$envOptions['mwApis'][] = [ 'prefix' => 'customwiki', 'uri' => $cliOpts['apiURL'] ];
 		}
 

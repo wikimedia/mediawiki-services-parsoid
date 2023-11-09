@@ -279,9 +279,7 @@ $digitLocalizationEnabled = wfLoadJson( __DIR__ . "/digits.localization.config.j
 // Wiki language exceptions
 $wikiLangExceptions = wfLoadJson( __DIR__ . "/wikilang.exceptions.json" );
 foreach ( $wikiLangExceptions as $wiki => $lang ) {
-	if ( !isset( $wikiInfo[$wiki] ) ) {
-		$wikiInfo[$wiki] = []; // init
-	}
+	$wikiInfo[$wiki] ??= []; // init
 }
 
 // Backfill from lang-specific i18n file

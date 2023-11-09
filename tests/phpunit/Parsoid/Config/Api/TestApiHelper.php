@@ -61,9 +61,7 @@ class TestApiHelper extends ApiHelper {
 		$reset = new ScopedCallback( 'curl_close', [ $ch ] );
 
 		$params['format'] = 'json';
-		if ( !isset( $params['formatversion'] ) ) {
-			$params['formatversion'] = '2';
-		}
+		$params['formatversion'] ??= '2';
 
 		$curlopt = [
 			CURLOPT_USERAGENT => 'ApiEnv/1.0 Parsoid-PHP/0.1',

@@ -979,9 +979,7 @@ class WikitextSerializer {
 
 			// Account for clients leaving off the params array, presumably when empty.
 			// See T291741
-			if ( !isset( $tpl->params ) ) {
-				$tpl->params = new stdClass;
-			}
+			$tpl->params ??= (object)[];
 
 			if ( $isTplArg ) {
 				$buf = $this->serializePart(

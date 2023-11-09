@@ -32,12 +32,9 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 		//
 		// SSS FIXME: Given condition 2, we may not need to check th/td anymore
 		// (if we can rely on auto inserted start/end tags being present always).
-		if ( !isset( self::$nodesToMigrateFrom ) ) {
-			self::$nodesToMigrateFrom = PHPUtils::makeSet( [
-					'pre', 'th', 'td', 'tr', 'li', 'dd', 'ol', 'ul', 'dl', 'caption', 'p'
-				]
-			);
-		}
+		self::$nodesToMigrateFrom ??= PHPUtils::makeSet( [
+			'pre', 'th', 'td', 'tr', 'li', 'dd', 'ol', 'ul', 'dl', 'caption', 'p'
+		] );
 		return isset( self::$nodesToMigrateFrom[DOMCompat::nodeName( $node )] ) &&
 			!WTUtils::hasLiteralHTMLMarker( $dp );
 	}

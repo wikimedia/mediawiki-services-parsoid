@@ -445,9 +445,7 @@ class PipelineUtils {
 	public static function encapsulateExpansionHTML(
 		Env $env, Token $token, array $expansion, array $opts
 	): array {
-		if ( !isset( $opts['unpackOutput'] ) ) {
-			$opts['unpackOutput'] = true; // Default
-		}
+		$opts['unpackOutput'] ??= true; // Default
 		// Get placeholder tokens to get our subdom through the token processing
 		// stages. These will be finally unwrapped on the DOM.
 		$toks = self::getWrapperTokens( $expansion['domFragment'], $opts );

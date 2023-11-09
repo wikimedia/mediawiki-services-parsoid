@@ -134,13 +134,9 @@ abstract class Token implements \JsonSerializable {
 	public function setShadowInfo( string $name, $value, $origValue ): void {
 		// Don't shadow if value is the same or the orig is null
 		if ( $value !== $origValue && $origValue !== null ) {
-			if ( !isset( $this->dataParsoid->a ) ) {
-				$this->dataParsoid->a = [];
-			}
+			$this->dataParsoid->a ??= [];
 			$this->dataParsoid->a[$name] = $value;
-			if ( !isset( $this->dataParsoid->sa ) ) {
-				$this->dataParsoid->sa = [];
-			}
+			$this->dataParsoid->sa ??= [];
 			$this->dataParsoid->sa[$name] = $origValue;
 		}
 	}

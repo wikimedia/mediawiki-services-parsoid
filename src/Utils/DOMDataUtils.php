@@ -143,9 +143,7 @@ class DOMDataUtils {
 	 */
 	public static function getDataParsoid( Element $node ): DataParsoid {
 		$data = self::getNodeData( $node );
-		if ( !isset( $data->parsoid ) ) {
-			$data->parsoid = new DataParsoid;
-		}
+		$data->parsoid ??= new DataParsoid;
 		return $data->parsoid;
 	}
 
@@ -206,9 +204,7 @@ class DOMDataUtils {
 	 */
 	public static function setDataNodeI18n( Element $node, I18nInfo $i18n ) {
 		$data = self::getNodeData( $node );
-		if ( !isset( $data->i18n ) ) {
-			$data->i18n = new DataMwI18n();
-		}
+		$data->i18n ??= new DataMwI18n();
 		$data->i18n->setSpanInfo( $i18n );
 	}
 
@@ -238,9 +234,7 @@ class DOMDataUtils {
 	 */
 	public static function setDataAttrI18n( Element $node, string $name, I18nInfo $i18n ) {
 		$data = self::getNodeData( $node );
-		if ( !isset( $data->i18n ) ) {
-			$data->i18n = new DataMwI18n();
-		}
+		$data->i18n ??= new DataMwI18n();
 		$data->i18n->setAttributeInfo( $name, $i18n );
 	}
 
@@ -288,9 +282,7 @@ class DOMDataUtils {
 	 */
 	public static function getDataMw( Element $node ): DataMw {
 		$data = self::getNodeData( $node );
-		if ( !isset( $data->mw ) ) {
-			$data->mw = new DataMw;
-		}
+		$data->mw ??= new DataMw;
 		return $data->mw;
 	}
 
@@ -372,12 +364,8 @@ class DOMDataUtils {
 	 */
 	public static function setShadowInfo( Element $node, string $name, $val ): void {
 		$dp = self::getDataParsoid( $node );
-		if ( !isset( $dp->a ) ) {
-			$dp->a = [];
-		}
-		if ( !isset( $dp->sa ) ) {
-			$dp->sa = [];
-		}
+		$dp->a ??= [];
+		$dp->sa ??= [];
 		$dp->a[$name] = $val;
 	}
 
@@ -402,12 +390,8 @@ class DOMDataUtils {
 			return;
 		}
 		$dp = self::getDataParsoid( $node );
-		if ( !isset( $dp->a ) ) {
-			$dp->a = [];
-		}
-		if ( !isset( $dp->sa ) ) {
-			$dp->sa = [];
-		}
+		$dp->a ??= [];
+		$dp->sa ??= [];
 		// FIXME: This is a hack to not overwrite already shadowed info.
 		// We should either fix the call site that depends on this
 		// behaviour to do an explicit check, or double down on this

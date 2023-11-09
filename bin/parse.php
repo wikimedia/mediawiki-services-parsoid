@@ -541,9 +541,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		if ( $this->hasOption( 'profile' ) ) {
-			if ( !isset( $parsoidOpts['traceFlags'] ) ) {
-				$parsoidOpts['traceFlags'] = [];
-			}
+			$parsoidOpts['traceFlags'] ??= [];
 			$parsoidOpts['traceFlags']['time'] = true;
 		}
 

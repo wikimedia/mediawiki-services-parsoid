@@ -295,9 +295,7 @@ class DataParsoid {
 	 */
 	public function getTemp(): TempData {
 		// tmp can be unset despite being declared
-		if ( !isset( $this->tmp ) ) {
-			$this->tmp = new TempData;
-		}
+		$this->tmp ??= new TempData();
 		return $this->tmp;
 	}
 

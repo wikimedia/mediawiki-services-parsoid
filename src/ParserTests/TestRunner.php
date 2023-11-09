@@ -850,9 +850,7 @@ class TestRunner {
 			$kfModes = array_merge( $options['modes'], [ 'metadata' ] );
 			foreach ( $kfModes as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
-					if ( !isset( $testKnownFailures[$fail['testName']] ) ) {
-						$testKnownFailures[$fail['testName']] = [];
-					}
+					$testKnownFailures[$fail['testName']] ??= [];
 					$testKnownFailures[$fail['testName']][$mode . $fail['suffix']] = $fail['raw'];
 				}
 			}

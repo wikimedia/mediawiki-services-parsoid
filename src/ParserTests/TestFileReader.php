@@ -96,9 +96,7 @@ class TestFileReader {
 				$this->fileOptions['version'] = $testFormat['text'];
 			}
 		}
-		if ( !isset( $this->fileOptions['version'] ) ) {
-			$this->fileOptions['version'] = '1';
-		}
+		$this->fileOptions['version'] ??= '1';
 
 		$knownFailures = $this->knownFailuresPath !== null ?
 			json_decode( file_get_contents( $knownFailuresPath ), true ) :

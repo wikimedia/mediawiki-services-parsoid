@@ -941,11 +941,7 @@ class Env {
 
 		// This will always be recorded as a native 'byte' offset
 		$lintData['dsr'] = $lintData['dsr']->jsonSerialize();
-
-		// Ensure a "params" array
-		if ( !isset( $lintData['params'] ) ) {
-			$lintData['params'] = [];
-		}
+		$lintData['params'] ??= [];
 
 		$this->lints[] = [ 'type' => $type ] + $lintData;
 	}

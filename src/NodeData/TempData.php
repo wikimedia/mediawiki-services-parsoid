@@ -155,9 +155,7 @@ class TempData {
 	 * @return void
 	 */
 	public function setTagData( string $key, $data ) {
-		if ( !isset( $this->tagData ) ) {
-			$this->tagData = [];
-		}
+		$this->tagData ??= [];
 		$this->tagData[$key] = $data;
 	}
 

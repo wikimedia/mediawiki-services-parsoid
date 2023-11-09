@@ -398,9 +398,7 @@ class DOMRangeBuilder {
 	private function recordTemplateInfo(
 		string $compoundTplId, DOMRangeInfo $range, TemplateInfo $templateInfo
 	): void {
-		if ( !isset( $this->compoundTpls[$compoundTplId] ) ) {
-			$this->compoundTpls[$compoundTplId] = [];
-		}
+		$this->compoundTpls[$compoundTplId] ??= [];
 
 		// Record template args info along with any intervening wikitext
 		// between templates that are part of the same compound structure.

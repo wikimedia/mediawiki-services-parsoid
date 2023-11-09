@@ -445,9 +445,7 @@ class Parsoid {
 		?SelserData $selserData = null
 	): string {
 		$doc = DOMUtils::parseHTML( $html, true );
-		if ( !isset( $options['htmlSize'] ) ) {
-			$options['htmlSize'] = mb_strlen( $html );
-		}
+		$options['htmlSize'] ??= mb_strlen( $html );
 		return $this->dom2wikitext( $pageConfig, $doc, $options, $selserData );
 	}
 

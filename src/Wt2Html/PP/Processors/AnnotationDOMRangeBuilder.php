@@ -286,9 +286,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$rangesByType = [];
 		foreach ( $annRanges as $range ) {
 			$annType = WTUtils::extractAnnotationType( $range->startElem );
-			if ( !isset( $rangesByType[$annType] ) ) {
-				$rangesByType[$annType] = [];
-			}
+			$rangesByType[$annType] ??= [];
 			$rangesByType[$annType][] = $range;
 		}
 

@@ -77,15 +77,10 @@ class Profile {
 			$this->recentNestedProfile = null;
 		}
 
-		if ( !isset( $profile[$resource] ) ) {
-			$profile[$resource] = 0;
-		}
-
+		$profile[$resource] ??= 0;
 		$profile[$resource] += $time;
 		if ( $cat ) {
-			if ( !isset( $this->timeCategories[$cat] ) ) {
-				$this->timeCategories[$cat] = 0;
-			}
+			$this->timeCategories[$cat] ??= 0;
 			$this->timeCategories[$cat] += $time;
 		}
 	}
@@ -122,9 +117,7 @@ class Profile {
 	 * @param int $n The amount to increment the counter; defaults to 1.
 	 */
 	public function bumpCount( string $resource, int $n = 1 ): void {
-		if ( !isset( $this->counts[$resource] ) ) {
-			$this->counts[$resource] = 0;
-		}
+		$this->counts[$resource] ??= 0;
 		$this->counts[$resource] += $n;
 	}
 
@@ -236,9 +229,7 @@ class Profile {
 	 */
 	private static function swallowArray( array $a, array &$res ): void {
 		foreach ( $a as $k => $v ) {
-			if ( !isset( $res[$k] ) ) {
-				$res[$k] = 0;
-			}
+			$res[$k] ??= 0;
 			$res[$k] += $v;
 		}
 	}
