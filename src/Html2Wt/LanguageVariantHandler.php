@@ -22,8 +22,8 @@ class LanguageVariantHandler {
 	private static function expandSpArray( array $a ): array {
 		$result = [];
 		foreach ( $a as $el ) {
-			if ( gettype( $el ) === 'integer' ) {
-				for ( $i = 0;  $i < $el;  $i++ ) {
+			if ( is_int( $el ) ) {
+				for ( $i = $el; $i--; ) {
 					$result[] = '';
 				}
 			} else {

@@ -284,7 +284,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		$env->log( "trace/dsr", static function () use ( $args ) {
 			$buf = '';
 			foreach ( $args as $arg ) {
-				$buf .= ( gettype( $arg ) === 'string' ? $arg : PHPUtils::jsonEncode( $arg ) );
+				$buf .= is_string( $arg ) ? $arg : PHPUtils::jsonEncode( $arg );
 			}
 			return $buf;
 		} );

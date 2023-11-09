@@ -177,7 +177,7 @@ class ContentUtils {
 			if ( $dmw->attribs ?? null ) {
 				foreach ( $dmw->attribs as &$a ) {
 					foreach ( $a as $kOrV ) {
-						if ( gettype( $kOrV ) !== 'string' && isset( $kOrV->html ) ) {
+						if ( !is_string( $kOrV ) && isset( $kOrV->html ) ) {
 							$kOrV->html = $proc( $kOrV->html );
 						}
 					}
