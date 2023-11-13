@@ -249,9 +249,9 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 
 	public function provideEncodeHtmlEntities(): array {
 		return [
-			[ 'ab&cd<>e"f\'g&h"j', '&<\'"', 'ab&amp;cd&lt;>e&quot;f&apos;g&amp;h&quot;j' ],
-			[ 'ab&cd<>e"f\'g&h"j', '&<"', 'ab&amp;cd&lt;>e&quot;f\'g&amp;h&quot;j' ],
-			[ 'ab&cd<>e"f\'g&h"j', '&<', 'ab&amp;cd&lt;>e"f\'g&amp;h"j' ],
+			[ 'ab&cd<>e"f\'g&h"j', 'single', 'ab&amp;cd&lt;>e"f&apos;g&amp;h"j' ],
+			[ 'ab&cd<>e"f\'g&h"j', 'double', 'ab&amp;cd&lt;>e&quot;f\'g&amp;h&quot;j' ],
+			[ 'ab&cd<>e"f\'g&h"j', 'xml', 'ab&amp;cd&lt;>e"f\'g&amp;h"j' ],
 		];
 	}
 
