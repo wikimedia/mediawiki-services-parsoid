@@ -663,7 +663,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$tidyFontBug = $c->firstChild !== null;
 			$haveLink = false;
 			for ( $n = $c->firstChild;  $n;  $n = $n->nextSibling ) {
-				if ( DOMCompat::nodeName( $n ) !== 'a' &&
+				$nodeName = DOMCompat::nodeName( $n );
+				if ( $nodeName !== 'a' &&
 					!WTUtils::isRenderingTransparentNode( $n ) &&
 					!WTUtils::isTplMarkerMeta( $n )
 				) {
@@ -671,7 +672,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					break;
 				}
 
-				if ( DOMCompat::nodeName( $n ) === 'a' || DOMCompat::nodeName( $n ) === 'figure' ) {
+				if ( $nodeName === 'a' || $nodeName === 'figure' ) {
 					if ( !$haveLink ) {
 						$haveLink = true;
 					} else {

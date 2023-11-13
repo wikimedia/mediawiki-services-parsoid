@@ -543,7 +543,8 @@ class DOMNormalizer {
 	 */
 	public function normalizeNode( Node $node ): ?Node {
 		$dp = null;
-		if ( DOMCompat::nodeName( $node ) === 'th' || DOMCompat::nodeName( $node ) === 'td' ) {
+		$nodeName = DOMCompat::nodeName( $node );
+		if ( $nodeName === 'th' || $nodeName === 'td' ) {
 			'@phan-var Element $node'; // @var Element $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// Table cells (td/th) previously used the stx_v flag for single-row syntax.
@@ -594,11 +595,11 @@ class DOMNormalizer {
 			return $this->stripIfEmpty( $node );
 
 			// Quote tags
-		} elseif ( isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $node )] ) ) {
+		} elseif ( isset( Consts::$WTQuoteTags[$nodeName] ) ) {
 			return $this->stripIfEmpty( $node );
 
 			// Anchors
-		} elseif ( DOMCompat::nodeName( $node ) === 'a' ) {
+		} elseif ( $nodeName === 'a' ) {
 			'@phan-var Element $node'; // @var Element $node
 			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			// We could have checked for !mw:ExtLink but in
@@ -615,7 +616,7 @@ class DOMNormalizer {
 			return $this->moveFormatTagOutsideATag( $node );
 
 			// Table cells
-		} elseif ( DOMCompat::nodeName( $node ) === 'td' ) {
+		} elseif ( $nodeName === 'td' ) {
 			'@phan-var Element $node'; // @var Element $node
 			$dp = DOMDataUtils::getDataParsoid( $node );
 			// * HTML <td>s won't have escapable prefixes
@@ -639,13 +640,13 @@ class DOMNormalizer {
 			return $node;
 
 			// Font tags without any attributes
-		} elseif ( DOMCompat::nodeName( $node ) === 'font' && DOMDataUtils::noAttrs( $node ) ) {
+		} elseif ( $nodeName === 'font' && DOMDataUtils::noAttrs( $node ) ) {
 			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 			$node->parentNode->removeChild( $node );
 
 			return $next;
-		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'p'
+		} elseif ( $node instanceof Element && $nodeName === 'p'
 			&& !WTUtils::isLiteralHTMLNode( $node ) ) {
 			$next = DiffDOMUtils::nextNonSepSibling( $node );
 			// Normalization of <p></p>, <p><br/></p>, <p><meta/></p> and the like to avoid

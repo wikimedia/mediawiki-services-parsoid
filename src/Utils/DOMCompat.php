@@ -83,7 +83,8 @@ class DOMCompat {
 		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var Element $element */
-			if ( self::nodeName( $element ) === 'body' || self::nodeName( $element ) === 'frameset' ) {
+			$nodeName = self::nodeName( $element );
+			if ( $nodeName === 'body' || $nodeName === 'frameset' ) {
 				// Caching!
 				$document->body = $element;
 				// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
