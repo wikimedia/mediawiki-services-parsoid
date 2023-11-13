@@ -456,17 +456,15 @@ class DOMDiff {
 	 * @param string $laPrefix
 	 */
 	private function debugOut( Node $nodeA, Node $nodeB, string $laPrefix = '' ): void {
-		$this->env->log(
-			'trace/domdiff',
-			'--> A' . $laPrefix . ':' .
+		$prefix = 'trace/domdiff';
+		$this->env->log( $prefix,
+			static fn () => '--> A' . $laPrefix . ':' .
 				( $nodeA instanceof Element
 					? DOMCompat::getOuterHTML( $nodeA )
 					: PHPUtils::jsonEncode( $nodeA->nodeValue ) )
 		);
-
-		$this->env->log(
-			'trace/domdiff',
-			'--> B' . $laPrefix . ':' .
+		$this->env->log( $prefix,
+			static fn () => '--> B' . $laPrefix . ':' .
 				( $nodeB instanceof Element
 					? DOMCompat::getOuterHTML( $nodeB )
 					: PHPUtils::jsonEncode( $nodeB->nodeValue ) )
