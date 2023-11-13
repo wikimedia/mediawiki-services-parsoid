@@ -21,6 +21,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  * end-of-input'.
  */
 abstract class TokenCollector extends TokenHandler {
+	/** @var Token[][] */
 	protected $scopeStack;
 
 	/**

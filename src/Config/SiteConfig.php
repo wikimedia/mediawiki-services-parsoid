@@ -1586,7 +1586,7 @@ abstract class SiteConfig {
 		return $extConfig['domProcessors'];
 	}
 
-	/** @phan-var array<string,int> */
+	/** @var array<string,int> */
 	protected $wt2htmlLimits = [
 		// We won't handle pages beyond this size
 		'wikitextSize' => 2048 * 1024,  // ParserOptions::maxIncludeSize
@@ -1615,7 +1615,7 @@ abstract class SiteConfig {
 		return $this->wt2htmlLimits;
 	}
 
-	/** @phan-var array<string,int> */
+	/** @var array<string,int> */
 	protected $html2wtLimits = [
 		// We refuse to serialize HTML strings bigger than this
 		'htmlSize' => 10000000,  // 10M

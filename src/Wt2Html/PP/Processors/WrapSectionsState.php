@@ -80,7 +80,7 @@ class WrapSectionsState {
 	 * - <s> and <strike> (T35715)
 	 * - <q> (T251672)
 	 */
-	private static $ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
+	private const ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
 
 	/**
 	 * @param Env $env
@@ -124,7 +124,7 @@ class WrapSectionsState {
 						if ( !$c->firstChild ) {
 							// Empty now - strip it!
 							$node->removeChild( $c );
-						} elseif ( !in_array( $cName, self::$ALLOWED_NODES_IN_ANCHOR, true ) ) {
+						} elseif ( !in_array( $cName, self::ALLOWED_NODES_IN_ANCHOR, true ) ) {
 							# Strip all unallowed tag wrappers
 							DOMUtils::migrateChildren( $c, $node, $next );
 							$next = $c->nextSibling;

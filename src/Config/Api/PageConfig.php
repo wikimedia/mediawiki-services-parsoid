@@ -27,10 +27,10 @@ class PageConfig extends IPageConfig {
 	/** @var string|null */
 	private $revid;
 
-	/** @phan-var array<string,mixed>|null */
+	/** @var array<string,mixed>|null */
 	private $page;
 
-	/** @phan-var array<string,mixed>|null */
+	/** @var array<string,mixed>|null */
 	private $rev;
 
 	/** @var PageContent|null */

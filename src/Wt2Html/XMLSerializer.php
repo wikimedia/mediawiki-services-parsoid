@@ -40,10 +40,8 @@ class XMLSerializer {
 	/**
 	 * Elements that strip leading newlines
 	 * http://www.whatwg.org/specs/web-apps/current-work/multipage/the-end.html#html-fragment-serialization-algorithm
-	 * @namespace
-	 * @private
 	 */
-	private static $newlineStrippingElements = [
+	private const NEWLINE_STRIPPING_ELEMENTS = [
 		'pre' => true,
 		'textarea' => true,
 		'listing' => true
@@ -164,7 +162,7 @@ class XMLSerializer {
 							$accum( $child->nodeValue, $node );
 						}
 					} else {
-						if ( $child && isset( self::$newlineStrippingElements[$localName] )
+						if ( $child && isset( self::NEWLINE_STRIPPING_ELEMENTS[$localName] )
 							&& $child->nodeType === XML_TEXT_NODE && str_starts_with( $child->nodeValue, "\n" )
 						) {
 							/* If current node is a pre, textarea, or listing element,

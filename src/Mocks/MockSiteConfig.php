@@ -29,7 +29,7 @@ class MockSiteConfig extends SiteConfig {
 	/** @var int|null */
 	private $tidyWhitespaceBugMaxLength = null;
 
-	protected $namespaceMap = [
+	private const NAMESPACE_MAP = [
 		'media' => -2,
 		'special' => -1,
 		'' => 0,
@@ -142,20 +142,20 @@ class MockSiteConfig extends SiteConfig {
 
 	/** @inheritDoc */
 	public function canonicalNamespaceId( string $name ): ?int {
-		return $this->namespaceMap[$name] ?? null;
+		return self::NAMESPACE_MAP[$name] ?? null;
 	}
 
 	/** @inheritDoc */
 	public function namespaceId( string $name ): ?int {
 		$name = Utils::normalizeNamespaceName( $name );
-		return $this->namespaceMap[$name] ?? null;
+		return self::NAMESPACE_MAP[$name] ?? null;
 	}
 
 	/** @inheritDoc */
 	public function namespaceName( int $ns ): ?string {
 		static $map = null;
 		if ( $map === null ) {
-			$map = array_flip( $this->namespaceMap );
+			$map = array_flip( self::NAMESPACE_MAP );
 		}
 		if ( !isset( $map[$ns] ) ) {
 			return null;

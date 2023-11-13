@@ -43,7 +43,7 @@ class DOMCompat {
 	 * Tab, LF, FF, CR, space
 	 * @see https://infra.spec.whatwg.org/#ascii-whitespace
 	 */
-	private static $ASCII_WHITESPACE = "\t\r\f\n ";
+	private const ASCII_WHITESPACE = "\t\r\f\n ";
 
 	/**
 	 * Create a new empty document.
@@ -430,7 +430,7 @@ class DOMCompat {
 	 * @see https://infra.spec.whatwg.org/#strip-and-collapse-ascii-whitespace
 	 */
 	private static function stripAndCollapseASCIIWhitespace( string $text ): string {
-		$ws = self::$ASCII_WHITESPACE;
+		$ws = self::ASCII_WHITESPACE;
 		return preg_replace( "/[$ws]+/", ' ', trim( $text, $ws ) );
 	}
 

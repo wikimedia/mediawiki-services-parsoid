@@ -33,7 +33,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * This code is not in Wikitext\Consts.php because this
 	 * information is Parsoid-implementation-specific.
 	 */
-	private static $WtTagsWithLimitedTSR = [
+	private const WT_TAGS_WITH_LIMITED_TSR = [
 		"b"  => true,
 		"i"  => true,
 		"h1" => true,
@@ -72,7 +72,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		//   constructs: placeholders, lang variants)
 		$name = DOMCompat::nodeName( $n );
 		return !(
-			isset( self::$WtTagsWithLimitedTSR[$name] ) ||
+			isset( self::WT_TAGS_WITH_LIMITED_TSR[$name] ) ||
 			DOMUtils::matchTypeOf(
 				$n,
 				'/^mw:(Placeholder|LanguageVariant)$/D'

@@ -75,10 +75,10 @@ class Env {
 	 */
 	private $nativeTemplateExpansion;
 
-	/** @phan-var array<string,int> */
+	/** @var array<string,int> */
 	private $wt2htmlUsage = [];
 
-	/** @phan-var array<string,int> */
+	/** @var array<string,int> */
 	private $html2wtUsage = [];
 
 	/** @var bool */

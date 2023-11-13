@@ -242,6 +242,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideEncodeHtmlEntities
 	 */
 	public function testEncodeHtmlEntities( $raw, $encodeChars, $expected ) {
+		/** @var XMLSerializer $XMLSerializer */
 		$XMLSerializer = TestingAccessWrapper::newFromClass( XMLSerializer::class );
 		$actual = $XMLSerializer->encodeHtmlEntities( $raw, $encodeChars );
 		$this->assertEquals( $expected, $actual );

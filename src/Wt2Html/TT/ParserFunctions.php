@@ -253,6 +253,7 @@ class ParserFunctions {
 		$target = $args[0]->k;
 		if ( $target ) {
 			try {
+				// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.eval
 				$res = eval( $target );
 			} catch ( \Exception $e ) {
 				$res = null;
@@ -276,6 +277,7 @@ class ParserFunctions {
 		$res = null;
 		if ( $target ) {
 			try {
+				// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.eval
 				$res = eval( $target );
 			} catch ( \Exception $e ) {
 				return [ 'class="error" in expression ' . $target ];

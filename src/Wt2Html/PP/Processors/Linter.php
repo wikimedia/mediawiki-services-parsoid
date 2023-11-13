@@ -33,7 +33,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	/** @var ParsoidExtensionAPI */
 	private $extApi = null;
 
-	/** @phan-var array<string,bool>|null */
+	/** @var array<string,bool>|null */
 	private $tagsWithChangedMisnestingBehavior = null;
 
 	/** @var string|null */

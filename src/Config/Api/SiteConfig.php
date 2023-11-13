@@ -47,25 +47,25 @@ class SiteConfig extends ISiteConfig {
 	/** @var string */
 	private $savedBswRegexp;
 
-	/** @phan-var array<int,string> */
+	/** @var array<int,string> */
 	protected $nsNames = [];
 
-	/** @phan-var array<int,string> */
+	/** @var array<int,string> */
 	protected $nsCase = [];
 
-	/** @phan-var array<string,int> */
+	/** @var array<string,int> */
 	protected $nsIds = [];
 
-	/** @phan-var array<string,int> */
+	/** @var array<string,int> */
 	protected $nsCanon = [];
 
-	/** @phan-var array<int,bool> */
+	/** @var array<int,bool> */
 	protected $nsWithSubpages = [];
 
-	/** @phan-var array<string,string> */
+	/** @var array<string,string> */
 	private $specialPageNames = [];
 
-	/** @phan-var array */
+	/** @var array */
 	private $specialPageAliases = [];
 
 	/** @var array|null */
