@@ -47,23 +47,21 @@ class XMLSerializer {
 		'listing' => true
 	];
 
-	private static $entityEncodings = [
-		'<' => '&lt;',
-		'&' => '&amp;',
-		'"' => '&quot;',
-		"'" => '&apos;',
+	private const ENTITY_ENCODINGS = [
+		'single' => [ '<' => '&lt;', '&' => '&amp;', "'" => '&apos;' ],
+		'double' => [ '<' => '&lt;', '&' => '&amp;', '"' => '&quot;' ],
+		'xml' => [ '<' => '&lt;', '&' => '&amp;' ],
 	];
 
 	/**
 	 * HTML entity encoder helper.
 	 * Only supports the few entities we'll actually need: <&'"
 	 * @param string $raw Input string
-	 * @param string $encodeChars String with the characters that should be encoded
+	 * @param string $encodeChars Set of characters to encode, "single", "double", or "xml"
 	 * @return string
 	 */
 	private static function encodeHtmlEntities( string $raw, string $encodeChars ): string {
-		$encodings = array_intersect_key( self::$entityEncodings, array_flip( str_split( $encodeChars ) ) );
-		return strtr( $raw, $encodings );
+		return strtr( $raw, self::ENTITY_ENCODINGS[$encodeChars] );
 	}
 
 	/**
@@ -135,12 +133,12 @@ class XMLSerializer {
 					) {
 						// use single quotes
 						$accum( ' ' . $an . "='"
-							. self::encodeHtmlEntities( $av, "<&'" ) . "'",
+							. self::encodeHtmlEntities( $av, 'single' ) . "'",
 							$node );
 					} else {
 						// use double quotes
 						$accum( ' ' . $an . '="'
-							. self::encodeHtmlEntities( $av, '<&"' ) . '"',
+							. self::encodeHtmlEntities( $av, 'double' ) . '"',
 							$node );
 					}
 				}
@@ -196,7 +194,7 @@ class XMLSerializer {
 
 			case XML_TEXT_NODE:
 				'@phan-var Text $node'; // @var Text $node
-				$accum( self::encodeHtmlEntities( $node->nodeValue, '<&' ), $node );
+				$accum( self::encodeHtmlEntities( $node->nodeValue, 'xml' ), $node );
 				return;
 
 			case XML_COMMENT_NODE:
