@@ -67,12 +67,22 @@ class ExtensionHandler extends TokenHandler {
 		$extensionName = $token->getAttributeV( 'name' );
 		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extensionName );
 
-		// Track uses of extensions in the talk namespace
-		if ( $siteConfig->namespaceIsTalk( $pageConfig->getNS() ) ) {
-			$metrics = $siteConfig->metrics();
-			if ( $metrics ) {
-				$metrics->increment( "extension.talk.{$extensionName}" );
+		$metrics = $siteConfig->metrics();
+		if ( $metrics ) {
+			// Track uses of extensions
+			$wiki = $siteConfig->iwp();
+			$ns = $pageConfig->getNs();
+			if ( $ns === 0 ) {
+				// Article space
+				$nsName = 'main';
+			} elseif ( $siteConfig->namespaceIsTalk( $ns ) ) {
+				// Any talk namespace
+				$nsName = 'talk';
+			} else {
+				// Everything else
+				$nsName = "ns-$ns";
 			}
+			$metrics->increment( "extension.{$wiki}.${nsName}.{$extensionName}" );
 		}
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
