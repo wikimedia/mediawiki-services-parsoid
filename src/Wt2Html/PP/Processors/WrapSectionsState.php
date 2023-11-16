@@ -80,7 +80,7 @@ class WrapSectionsState {
 	 * - <s> and <strike> (T35715)
 	 * - <q> (T251672)
 	 */
-	private const ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
+	private const ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'sub', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
 
 	/**
 	 * @param Env $env
