@@ -209,6 +209,9 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 * that core's JsonCodec can handle.)  Attempts to set other types
 	 * as extension data values will break ParserCache for the page.
 	 *
+	 * @todo When more complex values than scalar values are supported,
+	 * TOCData::__clone should be updated to take that into account.
+	 *
 	 * @param string $key The key for accessing the data. Extensions
 	 *   should take care to avoid conflicts in naming keys. It is
 	 *   suggested to use the extension's name as a prefix.  Using

@@ -114,6 +114,9 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 * that core's JsonCodec can handle.)  Attempts to set other types
 	 * as extension data values will break ParserCache for the page.
 	 *
+	 * @todo When values more complex than scalar values get supported,
+	 * __clone needs to be updated accordingly.
+	 *
 	 * @param string $key The key for accessing the data. Extensions
 	 *   should take care to avoid conflicts in naming keys. It is
 	 *   suggested to use the extension's name as a prefix.  Using
@@ -333,5 +336,11 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 			$out[] = json_encode( $codec->toJsonArray( $this->extensionData ) );
 		}
 		return implode( "\n", $out );
+	}
+
+	public function __clone() {
+		foreach ( $this->sections as $k => $v ) {
+			$this->sections[$k] = clone $v;
+		}
 	}
 }
