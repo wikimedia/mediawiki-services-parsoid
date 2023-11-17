@@ -483,7 +483,7 @@ class Sanitizer {
 		# value if $codepoint is too many digits
 		$point = intval( $codepoint );
 		if ( self::validateCodepoint( $point ) ) {
-			return sprintf( '&#%d;', $point );
+			return "&#$point;";
 		} else {
 			return null;
 		}
