@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -22,17 +23,9 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
-		$allLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' );
-
-		if ( !is_array( $allLinks ) ) {
-			// This is not reachable at present: DOMCompat says it can be
-			// iterable but Zest always returns an array.
-			$array = [];
-			foreach ( $allLinks as $link ) {
-				$array[] = $link;
-			}
-			$allLinks = $array;
-		}
+		$allLinks = PHPUtils::iterable_to_array(
+			DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"]' )
+		);
 
 		// Split up processing into chunks of 1000 so that we don't exceed LinkCache::MAX_SIZE
 		$chunks = array_chunk( $allLinks, 1000 );
