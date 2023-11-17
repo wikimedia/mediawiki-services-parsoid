@@ -175,7 +175,6 @@
         "html2wt": "== Section 1 ==\n\n== Section 2 ==\n"
     },
     "span tags with directionality in TOC": {
-        "html2wt": "__TOC__\n==<span dir=\"ltr\">C++</span>==\n\n== <span dir=\"rtl\">זבנג!</span> ==\n\n== <span style=\"font-style: italic\">The attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span> ==\n\n== <span dir=\"ltr\" style=\"font-style: italic\">Attributes after dir on these span tags must be deleted from the TOC</span> ==\n",
-        "selser [0,3,4,2,[0,[3]],0,[[3]],3,0,3,3]": "__TOC__\n\n1jvuudn\n\n1scw8a8\n\n==<span dir=\"rtl\"></span>==\n\n==<span style=\"font-style: italic\"></span>==\n\n==<span style=\"font-style: italic\" dir=\"ltr\">All attributes on these span tags must be deleted from the TOC</span>==\n"
+        "html2wt": "__TOC__\n==<span dir=\"ltr\">C++</span>==\n\n== <span dir=\"rtl\">זבנג!</span> ==\n\n== <span style=\"font-style: italic\" dir=\"ltr\" title=\"hello\">Attributes other than dir</span> ==\n"
     }
 }

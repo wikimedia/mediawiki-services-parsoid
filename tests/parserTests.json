@@ -17,7 +17,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "f1772fc15074cfb34788d5c7121774bfefc2f6f9",
+		"latestCommit": "59512b4f6d5b45f0257f5904cd75d0fac9119081",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -65,7 +65,7 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "9427d6de08093c1615e483a4d03ee75dd4dfcbca"
+				"expectedSHA1": "b478a16a0ae1163d110bf42f94ec0b7573d7632b"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
@@ -101,7 +101,7 @@
 			},
 			"toc.txt": {
 				"path": "tests/parser/toc.txt",
-				"expectedSHA1": "96ca9a17bbf9a1773aa255fe241bb951aeb076a8"
+				"expectedSHA1": "9be2975c3f64aa1c491927ebdaa1599fcac5e383"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
