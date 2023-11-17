@@ -672,6 +672,7 @@ abstract class SiteConfig {
 	 * Lookup config
 	 * @param string $key
 	 * @return mixed|null config value for $key, if present or null, if not.
+	 * @deprecated This very broad interface is no longer needed.
 	 */
 	abstract public function getMWConfigValue( string $key );
 
