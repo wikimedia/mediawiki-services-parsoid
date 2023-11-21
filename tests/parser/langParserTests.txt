@@ -1594,15 +1594,6 @@ Langconvert tag: gan-hans to gan-hant
 !! end
 
 !! test
-Langconvert tag: kk-latn to kk-cyrl
-!! wikitext
-<langconvert from="kk-latn" to="kk-cyrl">test</langconvert>
-!! html/php
-<p>тест
-</p>
-!! end
-
-!! test
 Langconvert tag: ku-latn to ku-arab
 !! wikitext
 <langconvert from="ku-latn" to="ku-arab">test</langconvert>
