@@ -365,7 +365,7 @@ class DOMUtils {
 	 * @return ?string The matching attribute value, or `null` if there is
 	 *   no match.
 	 */
-	public static function matchMultivalAttr( Node $n, string $attrName, string $valueRe ): ?string {
+	private static function matchMultivalAttr( Node $n, string $attrName, string $valueRe ): ?string {
 		if ( !( $n instanceof Element ) ) {
 			return null;
 		}
@@ -426,7 +426,7 @@ class DOMUtils {
 	 * @param string $value Expected value of $attrName" attribute, as a literal string.
 	 * @return bool True if the node matches
 	 */
-	public static function hasValueInMultivalAttr( Node $n, string $attrName, string $value ): bool {
+	private static function hasValueInMultivalAttr( Node $n, string $attrName, string $value ): bool {
 		// fast path
 		if ( !( $n instanceof Element ) ) {
 			return false;
@@ -475,7 +475,7 @@ class DOMUtils {
 	 * @param string $attr
 	 * @param string $value
 	 */
-	public static function addValueToMultivalAttr(
+	private static function addValueToMultivalAttr(
 		Element $node, string $attr, string $value
 	): void {
 		$oldValue = $node->getAttribute( $attr ) ?? '';
