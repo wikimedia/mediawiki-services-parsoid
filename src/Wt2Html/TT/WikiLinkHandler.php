@@ -329,7 +329,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		// Ok, it looks like we have a sensible href. Figure out which handler to use.
-		$isRedirect = (bool)$token->getAttribute( 'redirect' );
+		$isRedirect = (bool)$token->getAttributeV( 'redirect' );
 		return $this->wikiLinkHandler( $token, $target, $isRedirect );
 	}
 
@@ -521,7 +521,7 @@ class WikiLinkHandler extends TokenHandler {
 						if (
 							preg_match(
 								'#^mw:WikiLink(/Interwiki)?$#D',
-								$t->getAttribute( 'rel' ) ?? ''
+								$t->getAttributeV( 'rel' ) ?? ''
 							) &&
 							// ISBN links don't use wikilink-syntax but still
 							// get the same "rel", so should be ignored
@@ -536,7 +536,7 @@ class WikiLinkHandler extends TokenHandler {
 							// as an <a> tag with no content -- but these ought
 							// to be treated as plaintext since we don't allow
 							// nested links.
-							$out[] = '[' . $t->getAttribute( 'href' ) . ']';
+							$out[] = '[' . $t->getAttributeV( 'href' ) . ']';
 						}
 						// suppress <a>
 						continue;
@@ -665,7 +665,7 @@ class WikiLinkHandler extends TokenHandler {
 				$this->options['inTemplate']
 			);
 			$attr = [ $key, $val ];
-			$dataMW = $newTk->getAttribute( 'data-mw' );
+			$dataMW = $newTk->getAttributeV( 'data-mw' );
 			if ( $dataMW ) {
 				$dataMW = PHPUtils::jsonDecode( $dataMW, false );
 				$dataMW->attribs[] = $attr;
@@ -1081,7 +1081,7 @@ class WikiLinkHandler extends TokenHandler {
 					}
 
 					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {
-						$tokenType = $currentToken->getAttribute( 'rel' );
+						$tokenType = $currentToken->getAttributeV( 'rel' );
 						// Using the shadow since entities (think pipes) would
 						// have already been decoded.
 						$tkHref = $currentToken->getAttributeShadowInfo( 'href' )['value'];
@@ -1099,7 +1099,7 @@ class WikiLinkHandler extends TokenHandler {
 							$skipToEndOf = 'a';
 						} elseif ( $tokenType === 'mw:WikiLink/Interwiki' ) {
 							if ( $isLink ) {
-								$resultStr .= $currentToken->getAttribute( 'href' );
+								$resultStr .= $currentToken->getAttributeV( 'href' );
 								$i += 2;
 								continue;
 							}
@@ -1197,7 +1197,7 @@ class WikiLinkHandler extends TokenHandler {
 		$dataParsoid->optList = [];
 
 		// Account for the possibility of an expanded target
-		$dataMwAttr = $token->getAttribute( 'data-mw' );
+		$dataMwAttr = $token->getAttributeV( 'data-mw' );
 		$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
 
 		$opts = [
@@ -1531,7 +1531,7 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $hasExpandableOpt ) {
 			$container->addAttribute( 'about', $env->newAboutId() );
 			$container->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
-		} elseif ( preg_match( '/\bmw:ExpandedAttrs\b/', $token->getAttribute( 'typeof' ) ?? '' ) ) {
+		} elseif ( preg_match( '/\bmw:ExpandedAttrs\b/', $token->getAttributeV( 'typeof' ) ?? '' ) ) {
 			$container->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 		}
 
@@ -1675,7 +1675,7 @@ class WikiLinkHandler extends TokenHandler {
 			}
 
 			// Update data-mw
-			$dataMwAttr = $token->getAttribute( 'data-mw' );
+			$dataMwAttr = $token->getAttributeV( 'data-mw' );
 			$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
 			if ( is_array( $dataMw->errors ?? null ) ) {
 				PHPUtils::pushArray( $dataMw->errors, $errs );

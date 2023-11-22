@@ -254,7 +254,7 @@ class ListHandler extends TokenHandler {
 			if ( $this->currListFrame ) {
 				// Ignoring colons inside tags to prevent illegal overlapping.
 				// Attempts to mimic findColonNoLinks in the php parser.
-				$bullets = $token->getAttribute( 'bullets' );
+				$bullets = $token->getAttributeV( 'bullets' );
 				if ( PHPUtils::lastItem( $bullets ) === ':'
 					&& $this->currListFrame->numOpenTags > 0
 				) {
@@ -265,7 +265,7 @@ class ListHandler extends TokenHandler {
 				$this->currListFrame = new ListFrame;
 			}
 			// convert listItem to list and list item tokens
-			$res = $this->doListItem( $this->currListFrame->bstack, $token->getAttribute( 'bullets' ),
+			$res = $this->doListItem( $this->currListFrame->bstack, $token->getAttributeV( 'bullets' ),
 				$token );
 			return new TokenHandlerResult( $res );
 		}

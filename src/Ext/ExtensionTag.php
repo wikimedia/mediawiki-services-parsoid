@@ -28,7 +28,7 @@ class ExtensionTag {
 	 * @return string
 	 */
 	public function getName(): string {
-		return $this->extToken->getAttribute( 'name' );
+		return $this->extToken->getAttributeV( 'name' );
 	}
 
 	/**
@@ -44,7 +44,7 @@ class ExtensionTag {
 	 * @return string|null
 	 */
 	public function getSource(): ?string {
-		return $this->extToken->getAttribute( 'source' );
+		return $this->extToken->getAttributeV( 'source' );
 	}
 
 	/**

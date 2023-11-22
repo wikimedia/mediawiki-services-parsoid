@@ -356,7 +356,7 @@ class TokenStreamPatcher extends TokenHandler {
 						return new TokenHandlerResult( [] );
 					}
 				} elseif ( $token->getName() === 'link' &&
-					$token->getAttribute( 'rel' ) === 'mw:PageProp/Category'
+					$token->getAttributeV( 'rel' ) === 'mw:PageProp/Category'
 				) {
 					// Replace buffered newline & whitespace tokens with mw:EmptyLine
 					// meta-tokens. This tunnels them through the rest of the transformations

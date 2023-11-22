@@ -79,7 +79,7 @@ abstract class Token implements \JsonSerializable {
 	 * @param string $name
 	 * @return string|Token|Token[]|KV[]|null
 	 */
-	public function getAttribute( string $name ) {
+	public function getAttributeV( string $name ) {
 		return KV::lookup( $this->attribs, $name );
 	}
 
@@ -154,7 +154,7 @@ abstract class Token implements \JsonSerializable {
 	 *   - fromsrc: (bool)
 	 */
 	public function getAttributeShadowInfo( string $name ): array {
-		$curVal = $this->getAttribute( $name );
+		$curVal = $this->getAttributeV( $name );
 
 		// Not the case, continue regular round-trip information.
 		if ( !property_exists( $this->dataParsoid, 'a' ) ||
@@ -387,10 +387,10 @@ abstract class Token implements \JsonSerializable {
 	 */
 	public function fetchExpandedAttrValue( string $key ): ?string {
 		if ( preg_match(
-			'/mw:ExpandedAttrs/', $this->getAttribute( 'typeof' ) ?? ''
+			'/mw:ExpandedAttrs/', $this->getAttributeV( 'typeof' ) ?? ''
 		) ) {
 			$attribs = PHPUtils::jsonDecode(
-				$this->getAttribute( 'data-mw' ), false
+				$this->getAttributeV( 'data-mw' ), false
 			)->attribs;
 			foreach ( $attribs as $attr ) {
 				if ( $attr[0]->txt === $key ) {

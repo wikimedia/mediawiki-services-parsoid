@@ -77,7 +77,7 @@ class TemplateEncapsulator {
 			foreach ( $tplInfo->paramInfos as $paramInfo ) {
 				$paramTokens = null;
 				if ( $paramInfo->named ) {
-					$paramTokens = $this->token->getAttribute( $paramInfo->k );
+					$paramTokens = $this->token->getAttributeV( $paramInfo->k );
 				} else {
 					$paramTokens = $this->token->attribs[$paramInfo->k]->v;
 				}

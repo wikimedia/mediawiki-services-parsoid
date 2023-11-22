@@ -93,7 +93,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$tagAttrs = null;
 		$builtTag = null;
 		$env = $this->env;
-		$origHref = $token->getAttribute( 'href' );
+		$origHref = $token->getAttributeV( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$dataParsoid = $token->dataParsoid->clone();
 
@@ -158,14 +158,14 @@ class ExternalLinkHandler extends TokenHandler {
 		$newAttrs = null;
 		$aStart = null;
 		$env = $this->env;
-		$origHref = $token->getAttribute( 'href' );
+		$origHref = $token->getAttributeV( 'href' );
 		$hasExpandedAttrs = TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$hrefWithEntities = TokenUtils::tokensToString( $origHref, false, [
 				'includeEntities' => true
 			]
 		);
-		$content = $token->getAttribute( 'mw:content' );
+		$content = $token->getAttributeV( 'mw:content' );
 		$dataParsoid = $token->dataParsoid->clone();
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
@@ -236,7 +236,7 @@ class ExternalLinkHandler extends TokenHandler {
 				// and we need src without those spaces.
 				$tsr0a = $dataParsoid->tsr->start + 1;
 				$tsr1a = $dataParsoid->extLinkContentOffsets->start -
-					strlen( $token->getAttribute( 'spaces' ) ?? '' );
+					strlen( $token->getAttributeV( 'spaces' ) ?? '' );
 				$length = $tsr1a - $tsr0a;
 				$aStart->addNormalizedAttribute( 'href', $href,
 					substr( $this->manager->getFrame()->getSrcText(), $tsr0a, $length ) );

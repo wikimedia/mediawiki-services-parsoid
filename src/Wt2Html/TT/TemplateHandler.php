@@ -183,7 +183,7 @@ class TemplateHandler extends TokenHandler {
 				case SelfclosingTagTk::class:
 					// Quotes are valid template targets
 					if ( $ntt->getName() === 'mw-quote' ) {
-						$buf .= $ntt->getAttribute( 'value' );
+						$buf .= $ntt->getAttributeV( 'value' );
 					} elseif (
 						!TokenUtils::isEmptyLineMetaToken( $ntt ) &&
 						$ntt->getName() !== 'template' &&

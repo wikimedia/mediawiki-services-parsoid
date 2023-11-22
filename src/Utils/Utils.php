@@ -208,7 +208,7 @@ class Utils {
 	 * @return string
 	 */
 	public static function extractExtBody( Token $token ): string {
-		$src = $token->getAttribute( 'source' );
+		$src = $token->getAttributeV( 'source' );
 		$extTagOffsets = $token->dataParsoid->extTagOffsets;
 		'@phan-var \Wikimedia\Parsoid\Core\DomSourceRange $extTagOffsets';
 		return $extTagOffsets->stripTags( $src );
@@ -361,8 +361,8 @@ class Utils {
 	 * @return DataMw
 	 */
 	public static function getExtArgInfo( Token $extToken ): DataMw {
-		$name = $extToken->getAttribute( 'name' );
-		$options = $extToken->getAttribute( 'options' );
+		$name = $extToken->getAttributeV( 'name' );
+		$options = $extToken->getAttributeV( 'options' );
 		$defaultDataMw = new DataMw( [
 			'name' => $name,
 			'attrs' => (object)TokenUtils::kvToHash( $options ),

@@ -78,7 +78,7 @@ class AttributeExpander extends TokenHandler {
 		$inInclude = false;
 		foreach ( $tokens as $i => $t ) {
 			if ( $t instanceof SelfclosingTagTk ) {
-				$type = $t->getAttribute( 'typeof' );
+				$type = $t->getAttributeV( 'typeof' );
 				$typeMatch = [];
 				if ( $type && preg_match( $includeRE, $type, $typeMatch, PREG_UNMATCHED_AS_NULL ) ) {
 					$inInclude = !str_ends_with( $typeMatch[1] ?? '', '/End' );
@@ -117,7 +117,7 @@ class AttributeExpander extends TokenHandler {
 				break;
 			} else {
 				if ( $wrapTemplates && $t instanceof SelfclosingTagTk ) {
-					$type = $t->getAttribute( 'typeof' );
+					$type = $t->getAttributeV( 'typeof' );
 					// We are interested in the last start meta tag.
 					// Everything before it is assumed to be closed.
 					$typeMatch = [];
@@ -212,7 +212,7 @@ class AttributeExpander extends TokenHandler {
 
 				if ( $wrapTemplates ) {
 					// Strip all meta tags.
-					$type = $t->getAttribute( 'typeof' );
+					$type = $t->getAttributeV( 'typeof' );
 					$typeMatch = [];
 					if ( $type && preg_match( self::META_TYPE_MATCHER, $type, $typeMatch ) ) {
 						if ( !str_ends_with( $typeMatch[1], '/End' ) ) {
@@ -561,7 +561,7 @@ class AttributeExpander extends TokenHandler {
 		// this check can be relaxed to allow that.
 		// https://gerrit.wikimedia.org/r/#/c/65575 has some reference code that can be used then.
 
-		if ( !$token->getAttribute( 'about' ) && $tmpDataMW && count( $tmpDataMW ) > 0 ) {
+		if ( !$token->getAttributeV( 'about' ) && $tmpDataMW && count( $tmpDataMW ) > 0 ) {
 			// Flatten k-v pairs.
 			$vals = [];
 			foreach ( $tmpDataMW as $obj ) {
@@ -662,8 +662,8 @@ class AttributeExpander extends TokenHandler {
 		}
 
 		$name = $token->getName();
-		$property = $token->getAttribute( 'property' ) ?? '';
-		$typeOf = $token->getAttribute( 'typeof' ) ?? '';
+		$property = $token->getAttributeV( 'property' ) ?? '';
+		$typeOf = $token->getAttributeV( 'typeof' ) ?? '';
 
 		if (
 			// Do not process dom-fragment tokens: a separate handler deals with them.

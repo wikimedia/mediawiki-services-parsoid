@@ -1634,7 +1634,7 @@ extension_annotation_tag =
 		extToken:xmlish_tag<annOrExtTag>
 		// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
 		&{ return !$extToken || $extToken[0]->getName() === 'extension' ||
-			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ?? '' ) > 0); }
+			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttributeV( 'typeof' ) ?? '' ) > 0); }
 			{ return !$extToken ? '' : $extToken[0]; }
 	/ tvar_old_syntax_closing_HACK ) { return $tag; }
 

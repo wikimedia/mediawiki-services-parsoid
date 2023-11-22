@@ -65,7 +65,7 @@ class DOMFragmentBuilder extends TokenHandler {
 		$contentKV = $scopeToken->getAttributeKV( 'content' );
 		$content = $contentKV->v;
 		if ( is_string( $content ) ||
-			$this->subpipelineUnnecessary( $content, $scopeToken->getAttribute( 'contextTok' ) )
+			$this->subpipelineUnnecessary( $content, $scopeToken->getAttributeV( 'contextTok' ) )
 		) {
 			// New pipeline not needed. Pass them through
 			return new TokenHandlerResult( is_string( $content ) ? [ $content ] : $content );
@@ -83,7 +83,7 @@ class DOMFragmentBuilder extends TokenHandler {
 			);
 
 			$pipelineOpts = [
-				'inlineContext' => $scopeToken->getAttribute( 'inlineContext' ) === "1",
+				'inlineContext' => $scopeToken->getAttributeV( 'inlineContext' ) === "1",
 				'expandTemplates' => $this->options['expandTemplates'],
 				'inTemplate' => $this->options['inTemplate']
 			];

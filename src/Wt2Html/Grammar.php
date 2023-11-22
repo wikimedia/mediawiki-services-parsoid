@@ -1305,7 +1305,7 @@ private function a111(&$preproc, $a) {
 }
 private function a112($extToken) {
  return !$extToken || $extToken[0]->getName() === 'extension' ||
-			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttribute( 'typeof' ) ?? '' ) > 0); 
+			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttributeV( 'typeof' ) ?? '' ) > 0); 
 }
 private function a113($extToken) {
  return !$extToken ? '' : $extToken[0]; 

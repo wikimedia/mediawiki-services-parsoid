@@ -420,7 +420,7 @@ class WikitextEscapeHandlers {
 			if ( is_string( $t ) ) {
 				$buf = $t . $buf;
 			} elseif ( $t->getName() === 'wikilink' ) {
-				$target = $t->getAttribute( 'href' );
+				$target = $t->getAttributeV( 'href' );
 				if ( is_array( $target ) ) {
 					// FIXME: in theory template expansion *could* make this a link.
 					return false;
@@ -438,7 +438,7 @@ class WikitextEscapeHandlers {
 				// Check if the extlink came from a template which in the end
 				// would not really parse as an extlink.
 
-				$href = $t->getAttribute( 'href' );
+				$href = $t->getAttributeV( 'href' );
 				if ( is_array( $href ) ) {
 					$href = $href[0];
 				}
@@ -535,7 +535,7 @@ class WikitextEscapeHandlers {
 			if ( TokenUtils::isHTMLTag( $t ) ) {
 				if (
 					TokenUtils::matchTypeOf( $t, '#^mw:Extension(/|$)#' ) &&
-					( $this->extName !== $t->getAttribute( 'name' ) )
+					( $this->extName !== $t->getAttributeV( 'name' ) )
 				) {
 					return true;
 				}
@@ -584,7 +584,7 @@ class WikitextEscapeHandlers {
 				}
 
 				if ( $t->getName() === 'wikilink' ) {
-					if ( $env->isValidLinkTarget( $t->getAttribute( 'href' ) ?? '' ) ) {
+					if ( $env->isValidLinkTarget( $t->getAttributeV( 'href' ) ?? '' ) ) {
 						return true;
 					} else {
 						continue;

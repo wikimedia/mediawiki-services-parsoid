@@ -128,7 +128,7 @@ class TokenUtils {
 				$token instanceof EndTagTk
 			) &&
 			$token->getName() === 'link' &&
-			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttribute( 'rel' ) ?? '' );
+			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttributeV( 'rel' ) ?? '' );
 	}
 
 	/**
@@ -147,7 +147,7 @@ class TokenUtils {
 			( $token->getName() === 'meta' &&
 				$token->hasAttribute( 'property' ) &&
 				preg_match( $env->getSiteConfig()->bswPagePropRegexp(),
-					$token->getAttribute( 'property' ) ?? '' )
+					$token->getAttributeV( 'property' ) ?? '' )
 			) );
 	}
 
@@ -197,7 +197,7 @@ class TokenUtils {
 	public static function isEmptyLineMetaToken( $token ): bool {
 		return $token instanceof SelfclosingTagTk &&
 			$token->getName() === 'meta' &&
-			$token->getAttribute( 'typeof' ) === 'mw:EmptyLine';
+			$token->getAttributeV( 'typeof' ) === 'mw:EmptyLine';
 	}
 
 	/**
@@ -210,7 +210,7 @@ class TokenUtils {
 	 *   no match.
 	 */
 	public static function matchTypeOf( Token $t, string $typeRe ): ?string {
-		$v = $t->getAttribute( 'typeof' );
+		$v = $t->getAttributeV( 'typeof' );
 		if ( $v === null ) {
 			return null;
 		}

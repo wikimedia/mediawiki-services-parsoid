@@ -158,7 +158,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onQuote( Token $token ): TokenHandlerResult {
-		$v = $token->getAttribute( 'value' );
+		$v = $token->getAttributeV( 'value' );
 		$qlen = strlen( $v );
 		$this->env->log(
 			"trace/quote",
@@ -216,7 +216,7 @@ class QuoteTransformer extends TokenHandler {
 		for ( $i = 1; $i < $chunkCount; $i += 2 ) {
 			// quote token
 			Assert::invariant( count( $this->chunks[$i] ) === 1, 'Expected a single token in the chunk' );
-			$qlen = strlen( $this->chunks[$i][0]->getAttribute( "value" ) );
+			$qlen = strlen( $this->chunks[$i][0]->getAttributeV( "value" ) );
 			if ( $qlen === 2 || $qlen === 5 ) {
 				$numitalics++;
 			}
@@ -233,13 +233,13 @@ class QuoteTransformer extends TokenHandler {
 			$chunkCount = count( $this->chunks );
 			for ( $i = 1; $i < $chunkCount; $i += 2 ) {
 				// only look at bold tags
-				if ( strlen( $this->chunks[$i][0]->getAttribute( "value" ) ) !== 3 ) {
+				if ( strlen( $this->chunks[$i][0]->getAttributeV( "value" ) ) !== 3 ) {
 					continue;
 				}
 
 				$tok = $this->chunks[$i][0];
-				$lastCharIsSpace = $tok->getAttribute( 'isSpace_1' );
-				$secondLastCharIsSpace = $tok->getAttribute( 'isSpace_2' );
+				$lastCharIsSpace = $tok->getAttributeV( 'isSpace_1' );
+				$secondLastCharIsSpace = $tok->getAttributeV( 'isSpace_2' );
 				if ( $lastCharIsSpace && $firstspace === -1 ) {
 					$firstspace = $i;
 				} elseif ( !$lastCharIsSpace ) {
@@ -301,7 +301,7 @@ class QuoteTransformer extends TokenHandler {
 	private function convertBold( int $i ): void {
 		// this should be a bold tag.
 		Assert::invariant( $i > 0 && count( $this->chunks[$i] ) === 1
-			&& strlen( $this->chunks[$i][0]->getAttribute( "value" ) ) === 3,
+			&& strlen( $this->chunks[$i][0]->getAttributeV( "value" ) ) === 3,
 			'this should be a bold tag' );
 
 		// we're going to convert it to a single plain text ' plus an italic tag
@@ -329,7 +329,7 @@ class QuoteTransformer extends TokenHandler {
 		$chunkCount = count( $this->chunks );
 		for ( $i = 1; $i < $chunkCount; $i += 2 ) {
 			Assert::invariant( count( $this->chunks[$i] ) === 1, 'expected count chunks[i] == 1' );
-			$qlen = strlen( $this->chunks[$i][0]->getAttribute( "value" ) );
+			$qlen = strlen( $this->chunks[$i][0]->getAttributeV( "value" ) );
 			if ( $qlen === 2 ) {
 				if ( $state === 'i' ) {
 					$this->quoteToTag( $i, [ new EndTagTk( 'i' ) ] );
