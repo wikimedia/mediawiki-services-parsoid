@@ -83,7 +83,8 @@
 			"phpcs -p -s",
 			"minus-x check .",
 			"covers-validator",
-			"@nodeNameCheck"
+			"@nodeNameCheck",
+			"@getAttributeCheck"
 		],
 		"fix": [
 			"minus-x fix .",
@@ -99,6 +100,7 @@
 		"phpunit": "phpunit",
 		"toolcheck": "bin/toolcheck.php.sh",
 		"nodeNameCheck": "bin/nodenamecheck.sh",
+		"getAttributeCheck": "bin/getattributecheck.sh",
 		"phpcs": "phpcs -sp --cache"
 	},
 	"config": {
