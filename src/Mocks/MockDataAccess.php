@@ -375,7 +375,7 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getPageInfo( PageConfig $pageConfig, array $titles ): array {
+	public function getPageInfo( $pageConfigOrTitle, array $titles ): array {
 		$ret = [];
 		foreach ( $titles as $title ) {
 			$normTitle = $this->normTitle( $title );

@@ -24,7 +24,9 @@ abstract class DataAccess {
 	 *
 	 * Replaces Batcher.getPageProps()
 	 *
-	 * @param PageConfig $pageConfig
+	 * @param PageConfig|LinkTarget $pageConfigOrTitle
+	 *  Either a PageConfig or else just the context title from the PageConfig
+	 *  (as a LinkTarget)
 	 * @param string[] $titles
 	 * @return array<string,array> [ string Title => array ], where the array contains
 	 *  - pageId: (int|null) Page ID
@@ -35,7 +37,7 @@ abstract class DataAccess {
 	 *  - linkclasses: (string[]) Extensible "link color" information; see
 	 *      ApiQueryInfo::getLinkClasses() in MediaWiki core
 	 */
-	abstract public function getPageInfo( PageConfig $pageConfig, array $titles ): array;
+	abstract public function getPageInfo( $pageConfigOrTitle, array $titles ): array;
 
 	/**
 	 * Return information about files (images)

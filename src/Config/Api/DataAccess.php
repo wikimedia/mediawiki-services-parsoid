@@ -101,13 +101,16 @@ class DataAccess extends IDataAccess {
 	}
 
 	/** @inheritDoc */
-	public function getPageInfo( PageConfig $pageConfig, array $titles ): array {
+	public function getPageInfo( $pageConfigOrTitle, array $titles ): array {
+		$contextTitle = $pageConfigOrTitle instanceof PageConfig ?
+			$pageConfigOrTitle->getLinkTarget() : $pageConfigOrTitle;
+
 		if ( !$titles ) {
 			return [];
 		}
 
 		$ret = [];
-		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
+		$pageConfigTitle = $this->toPrefixedText( $contextTitle );
 		foreach ( array_chunk( $titles, 50 ) as $batch ) {
 			$data = $this->api->makeRequest( [
 				'action' => 'query',
