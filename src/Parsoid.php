@@ -182,6 +182,8 @@ class Parsoid {
 		}
 		$envOptions['skipLanguageConversionPass'] =
 			$options['skipLanguageConversionPass'] ?? false;
+		$envOptions['nativeTemplateExpansion'] =
+			$options['nativeTemplateExpansion'] ?? false;
 
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
@@ -222,6 +224,7 @@ class Parsoid {
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options
 	 *   'logLevels'            => (string[]) Levels to log
+	 *   'nativeTemplateExpansion'     => (bool) Whether Parsoid native template engine should be used
 	 * ]
 	 * @param ?array &$headers
 	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
