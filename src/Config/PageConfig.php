@@ -51,25 +51,11 @@ abstract class PageConfig {
 	 */
 	abstract public function getTitle(): string;
 
-	// At least one of ::getTitleObj() and ::getLinkTarget() must be defined
-
-	/**
-	 * The page's title, as a LinkTarget.
-	 * @return LinkTarget
-	 * @deprecated Renamed to ::getLinkTarget()
-	 */
-	public function getTitleObj(): LinkTarget {
-		return $this->getLinkTarget();
-	}
-
 	/**
 	 * The page's title, as a LinkTarget.
 	 * @return LinkTarget
 	 */
-	public function getLinkTarget(): LinkTarget {
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		return $this->getTitleObj();
-	}
+	abstract public function getLinkTarget(): LinkTarget;
 
 	/**
 	 * The page's namespace ID

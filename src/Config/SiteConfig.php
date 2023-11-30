@@ -34,7 +34,6 @@ use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -681,26 +680,11 @@ abstract class SiteConfig {
 	 */
 	abstract public function langBcp47(): Bcp47Code;
 
-	// At least one of ::mainpage(), ::mainPageLinkTarget() should be defined
-
-	/**
-	 * Main page title
-	 * @return string
-	 * @deprecated Use ::mainPageLinkTarget()
-	 */
-	public function mainpage(): string {
-		return Title::newFromLinkTarget( $this->mainPageLinkTarget(), $this )
-			->getPrefixedText();
-	}
-
 	/**
 	 * Main page title, as LinkTarget
 	 * @return LinkTarget
 	 */
-	public function mainPageLinkTarget(): LinkTarget {
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		return Title::newFromText( $this->mainpage(), $this );
-	}
+	abstract public function mainPageLinkTarget(): LinkTarget;
 
 	/**
 	 * Lookup config
