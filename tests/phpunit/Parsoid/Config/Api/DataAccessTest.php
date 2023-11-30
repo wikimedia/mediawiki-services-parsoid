@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * @covers \Wikimedia\Parsoid\Config\Api\DataAccess
@@ -164,7 +165,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig = new MockSiteConfig( [] );
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'pagecontent-cur', $siteConfig );
-		$c = $da->fetchTemplateSource( $pageConfig, 'Help:Sample page' );
+		$c = $da->fetchTemplateSource( $pageConfig, Title::newFromText( 'Help:Sample page', $siteConfig ) );
 		$this->assertInstanceOf( PageContent::class, $c );
 		$this->assertSame( [ 'main' ], $c->getRoles() );
 		$this->assertSame( 'wikitext', $c->getModel( 'main' ) );
@@ -176,20 +177,26 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		);
 
 		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertEquals( $c, $da->fetchTemplateSource( $pageConfig, 'Help:Sample page' ) );
+		$this->assertEquals(
+			$c,
+			$da->fetchTemplateSource( $pageConfig, Title::newFromText( 'Help:Sample page', $siteConfig ) )
+		);
 	}
 
 	public function testFetchTemplateData() {
 		$siteConfig = new MockSiteConfig( [] );
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'templatedata', $siteConfig );
-		$ret = $da->fetchTemplateData( $pageConfig, 'Template:Citation needed' );
+		$ret = $da->fetchTemplateData( $pageConfig, Title::newFromText( 'Template:Citation needed', $siteConfig ) );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'description', $ret );
 		$this->assertArrayHasKey( 'params', $ret );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertSame( $ret, $da->fetchTemplateData( $pageConfig, 'Template:Citation needed' ) );
+		$this->assertSame(
+			$ret,
+			$da->fetchTemplateData( $pageConfig, Title::newFromText( 'Template:Citation needed', $siteConfig ) )
+		);
 	}
 
 }

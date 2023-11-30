@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -349,10 +350,16 @@ class MockDataAccess extends DataAccess {
 	];
 
 	/**
-	 * @param string $title
+	 * @param string|LinkTarget $title
 	 * @return string
 	 */
-	private function normTitle( string $title ): string {
+	private function normTitle( $title ): string {
+		if ( !is_string( $title ) ) {
+			$title = Title::newFromLinkTarget(
+				$title, $this->siteConfig
+			);
+			return $title->getPrefixedDBKey();
+		}
 		return strtr( $title, ' ', '_' );
 	}
 
@@ -577,13 +584,8 @@ class MockDataAccess extends DataAccess {
 
 	/** @inheritDoc */
 	public function fetchTemplateSource(
-		PageConfig $pageConfig, $title
+		PageConfig $pageConfig, LinkTarget $title
 	): ?PageContent {
-		if ( !is_string( $title ) ) {
-			$title = Title::newFromLinkTarget(
-				$title, $this->siteConfig
-			)->getPrefixedText();
-		}
 		$normTitle = $this->normTitle( $title );
 		$pageData = self::$PAGE_DATA[$normTitle] ?? null;
 		if ( $pageData ) {
@@ -598,12 +600,7 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function fetchTemplateData( PageConfig $pageConfig, $title ): ?array {
-		if ( !is_string( $title ) ) {
-			$title = Title::newFromLinkTarget(
-				$title, $this->siteConfig
-			)->getPrefixedText();
-		}
+	public function fetchTemplateData( PageConfig $pageConfig, LinkTarget $title ): ?array {
 		return self::TEMPLATE_DATA[$this->normTitle( $title )] ?? null;
 	}
 
