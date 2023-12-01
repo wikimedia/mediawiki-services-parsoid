@@ -661,7 +661,7 @@ class WikiLinkHandler extends TokenHandler {
 			$key = [ 'txt' => 'mw:sortKey' ];
 			$contentKV = $token->getAttributeKV( 'mw:maybeContent' );
 			$so = $contentKV->valueOffset();
-			$val = PipelineUtils::expandValueToDOM(
+			$val = PipelineUtils::expandAttrValueToDOM(
 				$this->env,
 				$this->manager->getFrame(),
 				[ 'html' => $content, 'srcOffsets' => $so ],
@@ -1418,7 +1418,7 @@ class WikiLinkHandler extends TokenHandler {
 					$hasExpandableOpt = true;
 					$val['html'] = $origOptSrc;
 					$val['srcOffsets'] = $oContent->valueOffset();
-					$val = PipelineUtils::expandValueToDOM(
+					$val = PipelineUtils::expandAttrValueToDOM(
 						$env, $manager->getFrame(), $val,
 						$this->options['expandTemplates'],
 						$this->options['inTemplate']

@@ -126,7 +126,7 @@ class PipelineUtils {
 	 *    Unexpanded templates can occur in the content of extension tags.
 	 * @return array
 	 */
-	public static function expandValueToDOM(
+	public static function expandAttrValueToDOM(
 		Env $env, Frame $frame, array $v, bool $expandTemplates, bool $inTemplate
 	): array {
 		if ( is_array( $v['html'] ?? null ) ) {
@@ -177,12 +177,12 @@ class PipelineUtils {
 	 *    Unexpanded templates can occur in the content of extension tags.
 	 * @return array
 	 */
-	public static function expandValuesToDOM(
+	public static function expandAttrValuesToDOM(
 		Env $env, $frame, array $vals, bool $expandTemplates, bool $inTemplate
 	): array {
 		$ret = [];
 		foreach ( $vals as $v ) {
-			$ret[] = self::expandValueToDOM( $env, $frame, $v, $expandTemplates, $inTemplate );
+			$ret[] = self::expandAttrValueToDOM( $env, $frame, $v, $expandTemplates, $inTemplate );
 		}
 		return $ret;
 	}

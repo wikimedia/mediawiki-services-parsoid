@@ -590,7 +590,7 @@ class AttributeExpander extends TokenHandler {
 			$vals = Utils::clone( $vals );
 
 			// Expand all token arrays to DOM.
-			$eVals = PipelineUtils::expandValuesToDOM(
+			$eVals = PipelineUtils::expandAttrValuesToDOM(
 				$this->env, $this->manager->getFrame(), $vals,
 				$this->options['expandTemplates'],
 				$this->options['inTemplate']

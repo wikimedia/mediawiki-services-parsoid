@@ -290,11 +290,6 @@
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
     },
-    "Expansion of multi-line templates in attribute values (T8255)": {
-        "wt2html": "<div style=\"background: \n#00FF00\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: \\n#00FF00\"},\"sa\":{\"style\":\"background: {{1x|#00FF00}}\"},\"dsr\":[0,47,40,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[24,38,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>\\n#00FF00&lt;/span>\"}]]}'>-</div>",
-        "html2html": "<div style=\"background: Template:Identity\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: Template:Identity\"},\"sa\":{\"style\":\"background: {{identity|#00FF00}}\"},\"dsr\":[0,53,46,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Template:Identity\\\" title=\\\"Template:Identity\\\" about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Template:Identity\\\"},\\\"sa\\\":{\\\"href\\\":\\\"Template:Identity\\\"},\\\"dsr\\\":[24,44,null,null],\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"identity\\\",\\\"href\\\":\\\"./Template:Identity\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>Template:Identity&lt;/a>\"}]]}'>-</div>",
-        "html2wt": "<div style=\"background: {{identity|#00FF00}}\">-</div>"
-    },
     "Extra new lines before and after lists are preserved": {
         "html2wt": "a\n\n\n* b\n\n\nc",
         "selser [0,0,[3,0],0,[4],3,3]": "a\n\n\n\n* 10x2a1y",
@@ -593,7 +588,7 @@
         "html2wt": "* <pre>foo</pre>\n* <pre>bar</pre>\n* zar"
     },
     "List items from template": {
-        "html2wt": "{{inner list}}\n*item 2\n\n* item 0\n{{inner list}}\n* item 2\n\n* item 0\n* notSOL{{inner list}}\n* item 2"
+        "html2wt": "{{inner list}}\n*item 2\n\n* item 0\n{{inner list}}\n* item 2\n\n* item 0\n* notSOL\n{{inner list}}\n* item 2"
     },
     "Magic variable as template parameter": {
         "html2wt": "This is a test template with parameter MediaWiki\n"
@@ -904,7 +899,10 @@
         "selser [[0,2,0]]": "<div itemscope>\n\tcfkjjt\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>"
     },
     "Say the magic word": {
-        "html2wt": "* {{PAGENAME}}\n* {{PAGENAMEE}}\n* {{FULLPAGENAME}}\n* {{FULLPAGENAMEE}}\n* {{BASEPAGENAME}}\n* {{BASEPAGENAMEE}}\n* {{SUBPAGENAME}}\n* {{SUBPAGENAMEE}}\n* {{ROOTPAGENAME}}\n* {{ROOTPAGENAMEE}}\n* {{TALKPAGENAME}}\n* {{TALKPAGENAMEE}}\n* {{SUBJECTPAGENAME}}\n* {{SUBJECTPAGENAMEE}}\n* {{NAMESPACEE}}\n* {{NAMESPACE}}\n* {{NAMESPACENUMBER}}\n* {{TALKSPACE}}\n* {{TALKSPACEE}}\n* {{SUBJECTSPACE}}\n* {{SUBJECTSPACEE}}\n* {{Dynamic|{{NUMBEROFUSERS}}|{{NUMBEROFPAGES}}|{{CURRENTVERSION}}|{{CONTENTLANGUAGE}}|{{DIRECTIONMARK}}|{{CURRENTTIMESTAMP}}|{{NUMBEROFARTICLES}}}}"
+        "html2wt": "* {{PAGENAME}}\n* {{PAGENAMEE}}\n* {{FULLPAGENAME}}\n* {{FULLPAGENAMEE}}\n* {{BASEPAGENAME}}\n* {{BASEPAGENAMEE}}\n* {{SUBPAGENAME}}\n* {{SUBPAGENAMEE}}\n* {{ROOTPAGENAME}}\n* {{ROOTPAGENAMEE}}\n* {{TALKPAGENAME}}\n* {{TALKPAGENAMEE}}\n* {{SUBJECTPAGENAME}}\n* {{SUBJECTPAGENAMEE}}\n* {{NAMESPACEE}}\n* {{NAMESPACE}}\n* {{NAMESPACENUMBER}}\n* {{TALKSPACE}}\n* {{TALKSPACEE}}\n* {{SUBJECTSPACE}}\n* {{SUBJECTSPACEE}}\n* {{Dynamic|{{NUMBEROFUSERS}}|{{NUMBEROFPAGES}}|{{CURRENTVERSION}}|{{CONTENTLANGUAGE}}|{{DIRECTIONMARK}}|{{CURRENTTIMESTAMP}}|{{NUMBEROFARTICLES}}}}",
+        "selser [[0,0,0,4,0,0,4,0,0,0,0,3,4,1,0,0,3,2,0,0,3,0,3,4,2,3,0,0,0,0,4,0,4,3,0,0,0,1,0,0,3,2]]": "*{{PAGENAME}}\n*{{PAGENAMEE}}\n\n* 13p23uq\n*{{FULLPAGENAMEE}}\n* 5poza6\n*{{BASEPAGENAME}}\n*{{BASEPAGENAMEE}}\n* 1b7l0og\n*{{SUBPAGENAMEE}}\n*{{ROOTPAGENAME}}\n* gun9n3\n*{{ROOTPAGENAMEE}}\n*{{TALKPAGENAME}}\n*{{TALKPAGENAMEE}}\n* 1yvhsln\n* 1dhshkt\n*{{NAMESPACEE}}\n*{{NAMESPACE}}\n* 1tjbb85\n*{{NAMESPACENUMBER}}\n* q5vzp2\n*{{TALKSPACEE}}\n*{{SUBJECTSPACE}}\n*{{SUBJECTSPACEE}}\n* 151mct\n*{{Dynamic|{{NUMBEROFUSERS}}|{{NUMBEROFPAGES}}|{{CURRENTVERSION}}|{{CONTENTLANGUAGE}}|{{DIRECTIONMARK}}|{{CURRENTTIMESTAMP}}|{{NUMBEROFARTICLES}}}}",
+        "selser [[0,2,0,2,3,0,3,4,3,0,0,0,4,3,0,0,0,1,0,4,0,0,0,0,0,0,2,3,4,0,4,0,3,0,0,0,3,2,2,3,0,1]]": "*{{PAGENAME}}\n* 1dmc91v\n*{{PAGENAMEE}}\n\n* 17cec5r\n*{{FULLPAGENAME}}\n*{{FULLPAGENAMEE}}\n* 1thyvtk\n*{{BASEPAGENAMEE}}\n*{{SUBPAGENAME}}\n* 6yaikj\n*{{ROOTPAGENAME}}\n*{{ROOTPAGENAMEE}}\n* 1bfdkz1\n*{{TALKPAGENAMEE}}\n*{{SUBJECTPAGENAME}}\n*{{SUBJECTPAGENAMEE}}\n* e1vhfy\n* zgr1kf\n*{{NAMESPACE}}\n* 1jz4y9h\n*{{NAMESPACENUMBER}}\n*{{TALKSPACE}}\n*{{TALKSPACEE}}\n* 1gslx47\n*{{SUBJECTSPACE}}\n* 1xez2ye\n*{{Dynamic|{{NUMBEROFUSERS}}|{{NUMBEROFPAGES}}|{{CURRENTVERSION}}|{{CONTENTLANGUAGE}}|{{DIRECTIONMARK}}|{{CURRENTTIMESTAMP}}|{{NUMBEROFARTICLES}}}}",
+        "selser [[0,3,0,3,3,0,4,2,4,0,0,1,3,0,3,1,3,0,3,0,0,2,0,3,0,3,0,1,4,3,0,0,0,0,0,1,0,1,3,0,0,3]]": "*{{PAGENAME}}\n*{{PAGENAMEE}}\n\n*{{FULLPAGENAMEE}}\n* 14ump5x\n* atnm6t\n*{{BASEPAGENAME}}\n* eg93ap\n*{{BASEPAGENAMEE}}\n*{{SUBPAGENAME}}\n*{{SUBPAGENAMEE}}\n*{{ROOTPAGENAME}}\n*{{ROOTPAGENAMEE}}\n*{{TALKPAGENAME}}\n* y57959\n*{{TALKPAGENAMEE}}\n*{{NAMESPACEE}}\n* ybifsz\n*{{NAMESPACENUMBER}}\n*{{TALKSPACE}}\n*{{TALKSPACEE}}\n*{{SUBJECTSPACE}}\n*{{SUBJECTSPACEE}}\n"
     },
     "Self closed html pairs (T7487)": {
         "wt2html": "<center data-parsoid='{\"stx\":\"html\",\"dsr\":[0,47,8,9]}'><font id=\"bug\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[8,25,17,0]}'></font>Centered text</center>\n<div data-parsoid='{\"stx\":\"html\",\"dsr\":[48,88,5,6]}'><font id=\"bug2\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[53,71,18,0]}'></font>In div text</div>",
@@ -1009,35 +1007,36 @@
         "selser [[2]]": "k7rfsq[http://www.example.org/　ideograms]",
         "selser [1]": "[http://www.example.org/　ideograms]"
     },
+    "T236868: Un-closed <noinclude> caused bad SourceRange length": {
+        "html2wt": "{| <noinclude>\n|- <noinclude>\n| A\n|-</noinclude>\n\n|}"
+    },
     "T2523: Template shouldn't eat newline (or add an extra one before table)": {
         "html2wt": "foo\n\n{|\n|1\n|2\n|-\n|3\n|4\n|}"
     },
+    "T2529: Template with table, not included at beginning of line": {
+        "html2wt": "foo \n{{table}}"
+    },
     "T2529: Uncovered bullet": {
-        "wt2wt": "*Foo{{bullet}}\n",
-        "html2wt": "* Foo{{bullet}}\n",
+        "wt2wt": "*Foo{{bullet}}",
+        "html2wt": "* Foo\n{{bullet}}",
         "selser [2]": "xpt49k\n*Foo {{bullet}}",
-        "selser [[2,0,0]]": "* b9vx2l\n*Foo {{bullet}}",
+        "selser [[2,0]]": "* 12na0t\n*Foo {{bullet}}",
         "selser [1]": "*Foo {{bullet}}",
-        "selser [[1,0,0]]": "*Foo {{bullet}}"
+        "selser [[1,0]]": "*Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list": {
-        "wt2wt": "*******Foo\n{{bullet}}\n",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,22,0,0]}'><li data-parsoid='{\"dsr\":[0,11,1,0]}'><ul data-parsoid='{\"dsr\":[1,11,0,0]}'><li data-parsoid='{\"dsr\":[1,11,1,0]}'><ul data-parsoid='{\"dsr\":[2,11,0,0]}'><li data-parsoid='{\"dsr\":[2,11,1,0]}'><ul data-parsoid='{\"dsr\":[3,11,0,0]}'><li data-parsoid='{\"dsr\":[3,11,1,0]}'><ul data-parsoid='{\"dsr\":[4,11,0,0]}'><li data-parsoid='{\"dsr\":[4,11,1,0]}'><ul data-parsoid='{\"dsr\":[5,11,0,0]}'><li data-parsoid='{\"dsr\":[5,11,1,0]}'><ul data-parsoid='{\"dsr\":[6,11,0,0]}'><li data-parsoid='{\"dsr\":[6,11,1,0,1,0]}'>Foo</li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></li>\n<li about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[12,22,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"bullet\",\"href\":\"./Template:Bullet\"},\"params\":{},\"i\":0}}]}'>Bar</li></ul>\n",
-        "html2wt": "******* Foo\n{{bullet}}\n",
-        "selser [[[[[2]]],0,0]]": "**1pu16hr\n*******Foo {{bullet}}",
-        "selser [[[[2]],0,0]]": "** vaurd6\n*******Foo {{bullet}}",
-        "selser [[2,0,0]]": "* oag6qw\n*******Foo {{bullet}}",
+        "wt2wt": "*******Foo\n{{bullet}}",
+        "html2wt": "******* Foo\n{{bullet}}",
+        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo {{bullet}}",
+        "selser [[[[2]],0]]": "** hfccqc\n*******Foo {{bullet}}",
+        "selser [[2,0]]": "* 173c0q7\n*******Foo {{bullet}}",
         "selser [1]": "*******Foo {{bullet}}",
-        "selser [[[1],0,0]]": "*******Foo {{bullet}}",
+        "selser [[[1],0]]": "*******Foo {{bullet}}",
         "selser [2]": "113swo7\n*******Foo {{bullet}}",
-        "selser [[[[1]],0,0]]": "*******Foo {{bullet}}",
-        "selser [[[2],0,0]]": "*lrgux8\n*******Foo {{bullet}}",
-        "selser [[1,0,0]]": "*******Foo {{bullet}}",
-        "selser [[[[[[[1]]]]],0,0]]": "*******Foo {{bullet}}"
-    },
-    "T2529: Uncovered bullet in parser function result": {
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,22,0,0]}'><li data-parsoid='{\"dsr\":[0,22,1,0,1,0]}'>Foo<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"lc:{{bullet}}\",\"function\":\"lc\"},\"params\":{},\"i\":0}}]}'>bar</span></li></ul>",
-        "html2wt": "* Foo{{lc:{{bullet}}}}"
+        "selser [[[[1]],0]]": "*******Foo {{bullet}}",
+        "selser [[[2],0]]": "*qr9mgy\n*******Foo {{bullet}}",
+        "selser [[1,0]]": "*******Foo {{bullet}}",
+        "selser [[[[[[[1]]]]],0]]": "*******Foo {{bullet}}"
     },
     "T2553: link with two variables in a piped link": {
         "wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}",

@@ -48,10 +48,6 @@
 	"Empty table rows go away": {
 		"wt2html": "<table data-parsoid='{\"dsr\":[0,37,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,35,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,16,0,0]}'><td data-parsoid='{\"dsr\":[3,9,1,0]}'>Hello</td>\n<td data-parsoid='{\"dsr\":[10,16,1,0]}'>there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[17,31,14,0]}'></tr>\n<tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[32,34,2,0]}'></tr>\n</tbody></table>"
 	},
-	"Expansion of multi-line templates in attribute values (T8255)": {
-		"wt2html": "<div style=\"background: \n00FF00\" about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"style\":\"background: \\n00FF00\"},\"sa\":{\"style\":\"background: {{1x|#00FF00}}\"},\"dsr\":[0,47,40,6]}' data-mw='{\"attribs\":[[{\"txt\":\"style\"},{\"html\":\"background: &lt;span about=\\\"#mwt1\\\" typeof=\\\"mw:Transclusion\\\" data-parsoid=&apos;{\\\"pi\\\":[[{\\\"k\\\":\\\"1\\\"}]],\\\"dsr\\\":[24,38,null,null]}&apos; data-mw=&apos;{\\\"parts\\\":[{\\\"template\\\":{\\\"target\\\":{\\\"wt\\\":\\\"1x\\\",\\\"href\\\":\\\"./Template:1x\\\"},\\\"params\\\":{\\\"1\\\":{\\\"wt\\\":\\\"#00FF00\\\"}},\\\"i\\\":0}}]}&apos;>\\n&lt;/span>&lt;ol about=\\\"#mwt1\\\" data-parsoid=\\\"{}\\\">&lt;li data-parsoid=\\\"{}\\\">00FF00&lt;/li>&lt;/ol>\"}]]}'>-</div>",
-		"wt2wt": "<div style=\"background: {{1x|#00FF00}}\n\">-</div>"
-	},
 	"Fuzz testing: Parser13": {
 		"wt2wt": "{| \n| http: / a |\n|}"
 	},
@@ -142,10 +138,10 @@
 		"wt2wt": "[http://www.example.org/ ideograms]"
 	},
 	"T2529: Uncovered bullet": {
-		"wt2wt": "*Foo{{bullet}}\n"
+		"wt2wt": "*Foo{{bullet}}"
 	},
 	"T2529: Uncovered bullet in a deeply nested list": {
-		"wt2wt": "*******Foo\n{{bullet}}\n"
+		"wt2wt": "*******Foo\n{{bullet}}"
 	},
 	"T2553: link with two variables in a piped link": {
 		"wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}"
