@@ -206,10 +206,7 @@ class WrapSectionsState {
 			}
 			$metadata->codepointOffset = null;
 		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
-			$title = Title::newFromLinkTarget(
-				$this->env->getPageConfig()->getLinkTarget(),
-				$this->env->getSiteConfig()
-			);
+			$title = $this->env->getContextTitle();
 			// Use the dbkey (underscores) instead of text (spaces)
 			$metadata->fromTitle = $title->getPrefixedDBKey();
 			$metadata->index = (string)$this->sectionNumber;

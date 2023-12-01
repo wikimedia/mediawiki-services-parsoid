@@ -19,7 +19,6 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PP\Handlers\CleanUp;
@@ -681,7 +680,7 @@ class DOMPostProcessor extends PipelineStage {
 	 * @param Document $document
 	 */
 	public function addMetaData( Env $env, Document $document ): void {
-		$title = Title::newFromLinkTarget( $env->getPageConfig()->getLinkTarget(), $env->getSiteConfig() );
+		$title = $env->getContextTitle();
 
 		// Set the charset in the <head> first.
 		// This also adds the <head> element if it was missing.

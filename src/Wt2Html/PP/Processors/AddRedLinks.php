@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
@@ -51,9 +50,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				$profile->bumpCount( "RedLinks" );
 			}
 
-			$prefixedTitleText = Title::newFromLinkTarget(
-				$env->getPageConfig()->getLinkTarget(), $env->getSiteConfig()
-			)->getPrefixedText();
+			$prefixedTitleText = $env->getContextTitle()->getPrefixedText();
 
 			foreach ( $links as $a ) {
 				$k = DOMCompat::getAttribute( $a, 'title' );

@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -97,12 +96,7 @@ class ParserFunctions {
 	}
 
 	private function prefixedTitleText(): string {
-		$siteConfig = $this->env->getSiteConfig();
-		$pageConfig = $this->env->getPageConfig();
-		$title = Title::newFromLinkTarget(
-			$pageConfig->getLinkTarget(), $siteConfig
-		);
-		return $title->getPrefixedText();
+		return $this->env->getContextTitle()->getPrefixedText();
 	}
 
 	public function pf_if( $token, Frame $frame, Params $params ): array {

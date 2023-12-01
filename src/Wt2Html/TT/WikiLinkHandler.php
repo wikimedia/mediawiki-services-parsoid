@@ -380,7 +380,7 @@ class WikiLinkHandler extends TokenHandler {
 			return $this->renderInterwikiLink( $token, $target );
 		}
 		if ( $target->language ) {
-			$ns = $this->env->getPageConfig()->getLinkTarget()->getNamespace();
+			$ns = $this->env->getContextTitle()->getNamespace();
 			$noLanguageLinks = $this->env->getSiteConfig()->namespaceIsTalk( $ns ) ||
 				!$this->env->getSiteConfig()->interwikiMagic();
 			if ( $noLanguageLinks ) {
@@ -572,7 +572,7 @@ class WikiLinkHandler extends TokenHandler {
 
 			// Try to match labeling in core
 			if ( $env->getSiteConfig()->namespaceHasSubpages(
-				$env->getPageConfig()->getLinkTarget()->getNamespace()
+				$env->getContextTitle()->getNamespace()
 			) ) {
 				// subpage links with a trailing slash get the trailing slashes stripped.
 				// See https://gerrit.wikimedia.org/r/173431

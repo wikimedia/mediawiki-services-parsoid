@@ -240,6 +240,8 @@ class Env {
 	 */
 	private $wikitextContentModelHandler;
 
+	private ?Title $cachedContextTitle = null;
+
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param PageConfig $pageConfig
@@ -572,6 +574,19 @@ class Env {
 	}
 
 	/**
+	 * Return the title from the PageConfig, as a Parsoid title.
+	 * @return Title
+	 */
+	public function getContextTitle(): Title {
+		if ( $this->cachedContextTitle === null ) {
+			$this->cachedContextTitle = Title::newFromLinkTarget(
+				$this->pageConfig->getLinkTarget(), $this->siteConfig
+			);
+		}
+		return $this->cachedContextTitle;
+	}
+
+	/**
 	 * Resolve strings that are page-fragments or subpage references with
 	 * respect to the current page name.
 	 *
@@ -585,9 +600,7 @@ class Env {
 		$str = trim( $str );
 
 		$pageConfig = $this->getPageConfig();
-		$title = Title::newFromLinkTarget(
-			$pageConfig->getLinkTarget(), $this->siteConfig
-		);
+		$title = $this->getContextTitle();
 
 		// Resolve lonely fragments (important if the current page is a subpage,
 		// otherwise the relative link will be wrong)
@@ -683,7 +696,7 @@ class Env {
 	private function makeTitle( string $text, ?int $defaultNs = null, bool $noExceptions = false ): ?Title {
 		try {
 			if ( preg_match( '!^(?:[#/]|\.\./)!', $text ) ) {
-				$defaultNs = $this->getPageConfig()->getLinkTarget()->getNamespace();
+				$defaultNs = $this->getContextTitle()->getNamespace();
 			}
 			$text = $this->resolveTitle( $text );
 			return Title::newFromText( $text, $this->getSiteConfig(), $defaultNs );

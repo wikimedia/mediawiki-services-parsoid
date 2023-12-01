@@ -573,7 +573,7 @@ class LinkHandlerUtils {
 				(
 					(
 						$env->getSiteConfig()->namespaceHasSubpages(
-							$env->getPageConfig()->getLinkTarget()->getNamespace()
+							$env->getContextTitle()->getNamespace()
 						) &&
 						preg_match( '#^\.\./.*[^/]$#D', $strippedTargetValue ) &&
 						$contentString === $env->resolveTitle( $strippedTargetValue )
