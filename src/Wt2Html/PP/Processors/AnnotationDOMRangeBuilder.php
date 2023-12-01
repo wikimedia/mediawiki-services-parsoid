@@ -136,11 +136,11 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$about = DOMCompat::getAttribute( $range->startElem, "about" );
 		$continuity = (
 			(
-				$range->startElem->previousElementSibling &&
-				$range->startElem->previousElementSibling->hasAttribute( "about" )
+				DOMCompat::getPreviousElementSibling( $range->startElem ) &&
+				DOMCompat::getPreviousElementSibling( $range->startElem )->hasAttribute( "about" )
 			) ||
-			( $range->endElem->nextElementSibling &&
-				$range->endElem->nextElementSibling->hasAttribute( "about" )
+			( DOMCompat::getNextElementSibling( $range->endElem ) &&
+				DOMCompat::getNextElementSibling( $range->endElem )->hasAttribute( "about" )
 			)
 		);
 		if ( $about && $continuity ) {
