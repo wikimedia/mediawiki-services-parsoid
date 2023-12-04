@@ -173,7 +173,7 @@ class References extends ExtensionTagHandler {
 		if ( $hasRefName ) {
 			if ( $hasFollow ) {
 				// Presumably, "name" has higher precedence
-				$errs[] = [ 'key' => 'cite_error_ref_too_many_keys' ];
+				$errs[] = [ 'key' => 'cite_error_ref_follow_conflicts' ];
 			}
 			if ( isset( $group->indexByName[$refName] ) ) {
 				$ref = $group->indexByName[$refName];
