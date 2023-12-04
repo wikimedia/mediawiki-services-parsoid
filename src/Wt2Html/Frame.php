@@ -132,7 +132,8 @@ class Frame {
 			'pipelineOpts' => [
 				'isInclude' => $this->depth > 0,
 				'expandTemplates' => $options['expandTemplates'],
-				'inTemplate' => $options['inTemplate']
+				'inTemplate' => $options['inTemplate'],
+				'attrExpansion' => $options['attrExpansion'] ?? false
 			],
 			'sol' => true,
 			'srcOffsets' => $options['srcOffsets'] ?? null,

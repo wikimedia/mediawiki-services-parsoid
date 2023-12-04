@@ -66,6 +66,7 @@ class AttributeTransformManager {
 				if ( $expandV ) {
 					// transform the value
 					$v = $this->frame->expand( $v, [
+						'attrExpansion' => true,
 						'expandTemplates' => $this->options['expandTemplates'],
 						'inTemplate' => $this->options['inTemplate'],
 						'srcOffsets' => $cur->srcOffsets->value,
@@ -85,6 +86,7 @@ class AttributeTransformManager {
 				if ( $expandK ) {
 					// transform the key
 					$k = $this->frame->expand( $k, [
+						'attrExpansion' => true,
 						'expandTemplates' => $this->options['expandTemplates'],
 						'inTemplate' => $this->options['inTemplate'],
 						'srcOffsets' => $cur->srcOffsets->key,
