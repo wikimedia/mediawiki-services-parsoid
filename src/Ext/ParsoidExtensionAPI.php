@@ -357,7 +357,9 @@ class ParsoidExtensionAPI {
 	 * @param string $wikitext
 	 * @param array $opts
 	 * - srcOffsets
-	 * - frame
+	 * - processInNewFrame
+	 * - clearDSROffsets
+	 * - shiftDSRFn
 	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
@@ -423,8 +425,10 @@ class ParsoidExtensionAPI {
 	 * @param string $wikitext Wikitext content of the tag
 	 * @param array $opts
 	 * - srcOffsets
-	 * - frame
 	 * - wrapperTag (skip OR pass null to not add any wrapper tag)
+	 * - processInNewFrame
+	 * - clearDSROffsets
+	 * - shiftDSRFn
 	 * - parseOpts
 	 *   - extTag
 	 *   - extTagOpts
