@@ -742,6 +742,10 @@ class TableFixups {
 					// Set data-parsoid noAttrs flag
 					$newCellDP = DOMDataUtils::getDataParsoid( $newCell );
 					$newCellDP->setTempFlag( TempData::NO_ATTRS );
+					// This new cell has 'row' stx (would be set if the tokenizer had parsed it)
+					// It is important to set this so that when $newCell is processed by this pass,
+					// it won't accidentally recombine again with the previous cell!
+					$newCellDP->stx = 'row';
 				}
 			}
 
