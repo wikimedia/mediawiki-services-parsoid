@@ -80,8 +80,7 @@ File:Video.ogv
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px">
 			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" class="mw-file-element" width="120" height="90" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span></div>
-			<div class="gallerytext">
-			</div>
+			<div class="gallerytext"></div>
 		</li>
 </ul>
 !! html/parsoid

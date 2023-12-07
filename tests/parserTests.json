@@ -17,7 +17,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "59512b4f6d5b45f0257f5904cd75d0fac9119081",
+		"latestCommit": "9f2e4faea3ff1d1973b04d758e54aceaccaa0d0e",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -53,7 +53,7 @@
 			},
 			"legacyMedia.txt": {
 				"path": "tests/parser/legacyMedia.txt",
-				"expectedSHA1": "574b4455c87a9a66deb4348cc68932a2761ef1cc"
+				"expectedSHA1": "bfc48c8bc1e7cca7e9756d7b5e6a3e475d412eb6"
 			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
@@ -65,7 +65,7 @@
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
-				"expectedSHA1": "b478a16a0ae1163d110bf42f94ec0b7573d7632b"
+				"expectedSHA1": "5d284686c0ab0959355e9148d876117d6b809620"
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
@@ -111,21 +111,21 @@
 	},
 	"Cite": {
 		"project": "mediawiki/extensions/Cite",
-		"latestCommit": "b9d5ce77305a275935be9c7c402037541db4d4d0",
+		"latestCommit": "69529bdcf657c07f8a6a89e742c250afdef37087",
 		"targets": {
 			"citeParserTests.txt": {
 				"path": "tests/parser/citeParserTests.txt",
-				"expectedSHA1": "96cb5380e24346f67b323cf203f4bfcbe7b38c5f"
+				"expectedSHA1": "d38a6476997c76aa9f024adb6c13390b6da84e7e"
 			}
 		}
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "c51b52367ddd25d7bc67aa8df8413717bcb44600",
+		"latestCommit": "e50f39981656378fb0f4aa6909747facb13b2b4c",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "a7ba567819c5d4bbbc2f1c76bb4d48fc57525c7e"
+				"expectedSHA1": "0c297b9d9cea97ed491e11a8cfcbbed2b525f0da"
 			}
 		}
 	},

@@ -281,8 +281,7 @@ wgParserEnableLegacyMediaDOM=false
 <ul class="gallery mw-gallery-traditional">
 		<li class="gallerybox" style="width: 155px">
 			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></span></div>
-			<div class="gallerytext">
-			</div>
+			<div class="gallerytext"></div>
 		</li>
 </ul>
 <div class="mw-references-wrap"><ol class="references">
@@ -527,7 +526,7 @@ Can't have name="…" and follow="…" the same time
 <ref name="theName" follow="theFollows">theValue</ref>
 <references />
 !! html/php
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid parameter in <code>&lt;ref&gt;</code> tag</span>
 </p>
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"theName","follow":"theFollows"},"body":{"id":"mw-reference-text-cite_note-theName-1"},"errors":[{"key":"cite_error_ref_too_many_keys"}]}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
@@ -535,12 +534,12 @@ Can't have name="…" and follow="…" the same time
 !! end
 
 !! test
-Conflicting name="…" and follow="…" still invalid when a third parameter is present
+Conflicting name="…" and follow="…" together with another invalid parameter
 !! wikitext
 <ref name="theName" follow="theFollows" dummy="dummy">theValue</ref>
 <references />
 !! html/php
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid parameter in <code>&lt;ref&gt;</code> tag</span>
 </p>
 !! html/parsoid
 <p><sup about="#mwt2" class="mw-ref reference" id="cite_ref-theName_1-0" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"theName","follow":"theFollows","dummy":"dummy"},"body":{"id":"mw-reference-text-cite_note-theName-1"},"errors":[{"key":"cite_error_ref_too_many_keys"}]}'><a href="./Parser_test#cite_note-theName-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
@@ -739,12 +738,12 @@ MOD<sup about="#mwt8" class="mw-ref reference mw-ref-follow" rel="dc:references"
 
 # T307741: Parsoid fails this test in both standalone and integrated modes.
 !! test
-Valid parameters become invalid when a third is present
+Report bad attributes in ref tags
 !! wikitext
 <ref name="theName" group="theGroup" dummy="dummy">theValue</ref>
 <references group="theGroup" />
 !! html
-<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid <code>&lt;ref&gt;</code> tag; invalid names, e.g. too many</span>
+<p><span class="error mw-ext-cite-error" lang="en" dir="ltr">Cite error: Invalid parameter in <code>&lt;ref&gt;</code> tag</span>
 </p>
 !! end
 
@@ -2950,15 +2949,15 @@ blah unicode u2028 whitespace<ref name="a b" />
 blah space<sup id="cite_ref-a_b_1-1" class="reference"><a href="#cite_note-a_b-1">&#91;1&#93;</a></sup>
 </p><p>test underbar<sup id="cite_ref-a_b_2-0" class="reference"><a href="#cite_note-a_b-2">&#91;2&#93;</a></sup>
 blah underbar<sup id="cite_ref-a_b_2-1" class="reference"><a href="#cite_note-a_b-2">&#91;2&#93;</a></sup>
-</p><p>test unicode u2028 whitespace<sup id="cite_ref-a b_3-0" class="reference"><a href="#cite_note-a_b-3">&#91;3&#93;</a></sup>
-blah unicode u2028 whitespace<sup id="cite_ref-a b_3-1" class="reference"><a href="#cite_note-a_b-3">&#91;3&#93;</a></sup>
+</p><p>test unicode u2028 whitespace<sup id="cite_ref-a_b_3-0" class="reference"><a href="#cite_note-a_b-3">&#91;3&#93;</a></sup>
+blah unicode u2028 whitespace<sup id="cite_ref-a_b_3-1" class="reference"><a href="#cite_note-a_b-3">&#91;3&#93;</a></sup>
 </p>
 <div class="mw-references-wrap"><ol class="references">
 <li id="cite_note-a_b-1"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_b_1-0">1.0</a></sup> <sup><a href="#cite_ref-a_b_1-1">1.1</a></sup></span> <span class="reference-text">testSpaceRef</span>
 </li>
 <li id="cite_note-a_b-2"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_b_2-0">2.0</a></sup> <sup><a href="#cite_ref-a_b_2-1">2.1</a></sup></span> <span class="reference-text">testUnderbarRef</span>
 </li>
-<li id="cite_note-a b-3"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_b_3-0">3.0</a></sup> <sup><a href="#cite_ref-a_b_3-1">3.1</a></sup></span> <span class="reference-text">testUnicodeWhitespaceRef</span>
+<li id="cite_note-a_b-3"><span class="mw-cite-backlink">↑ <sup><a href="#cite_ref-a_b_3-0">3.0</a></sup> <sup><a href="#cite_ref-a_b_3-1">3.1</a></sup></span> <span class="reference-text">testUnicodeWhitespaceRef</span>
 </li>
 </ol></div>
 !! html/parsoid
