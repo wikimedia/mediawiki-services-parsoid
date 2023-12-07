@@ -564,7 +564,10 @@ class MockDataAccess extends DataAccess {
 			$ret = (string)$revid;
 		} elseif ( $wikitext === '{{mangle}}' ) {
 			$ret = 'hi';
-			$metadata->addCategory( 'Mangle', 'ho' );
+			$metadata->addCategory(
+				Title::newFromText( 'Category:Mangle', $this->siteConfig ),
+				'ho'
+			);
 		} else {
 			$ret = '';
 		}

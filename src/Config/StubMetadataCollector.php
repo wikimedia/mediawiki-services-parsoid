@@ -6,10 +6,11 @@ namespace Wikimedia\Parsoid\Config;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Psr\Log\NullLogger;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorCompat;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Core\TOCData;
+use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * Minimal implementation of a ContentMetadataCollector which just
@@ -18,6 +19,9 @@ use Wikimedia\Parsoid\Core\TOCData;
  */
 class StubMetadataCollector implements ContentMetadataCollector {
 	use ContentMetadataCollectorCompat;
+
+	/** @var SiteConfig */
+	private $siteConfig;
 
 	/** @var LoggerInterface */
 	private $logger;
@@ -45,15 +49,21 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	private const MERGE_STRATEGY_WRITE_ONCE = 'write-once';
 
 	/**
-	 * @param ?LoggerInterface $logger Optional logger to log warnings
-	 * for unsafe metadata updates
+	 * @param SiteConfig $siteConfig Used to resolve title namespaces
+	 *  and to log warnings for unsafe metadata updates
 	 */
-	public function __construct( ?LoggerInterface $logger = null ) {
-		$this->logger = $logger ?? new NullLogger;
+	public function __construct(
+		SiteConfig $siteConfig
+	) {
+		$this->siteConfig = $siteConfig;
+		$this->logger = $siteConfig->getLogger();
 	}
 
 	/** @inheritDoc */
 	public function addCategory( $c, $sort = '' ): void {
+		if ( $c instanceof LinkTarget ) {
+			$c = $c->getDBkey();
+		}
 		// Numeric strings often become an `int` when passed to addCategory()
 		$this->collect( 'categories', (string)$c, $sort, self::MERGE_STRATEGY_WRITE_ONCE );
 	}
@@ -136,6 +146,28 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	/** @inheritDoc */
 	public function setTOCData( TOCData $tocData ): void {
 		$this->collect( 'tocdata', '', $tocData, self::MERGE_STRATEGY_WRITE_ONCE );
+	}
+
+	/** @inheritDoc */
+	public function addLink( LinkTarget $link, $id = null ): void {
+		$this->collect( 'links', '', $this->linkToString( $link ) );
+	}
+
+	/** @inheritDoc */
+	public function addImage( LinkTarget $name, $timestamp = null, $sha1 = null ): void {
+		$this->collect( 'images', '', $this->linkToString( $name ) );
+	}
+
+	/** @inheritDoc */
+	public function addLanguageLink( LinkTarget $lt ): void {
+		$this->collect( 'language-link', '', $this->linkToString( $lt ) );
+	}
+
+	/** @return LinkTarget[] */
+	public function getLanguageLinks(): array {
+		return array_map( function ( $v ) {
+			return $this->stringToLink( $v );
+		}, $this->get( 'language-link', '' ) );
 	}
 
 	/**
@@ -314,5 +346,32 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 */
 	public function getIndicators(): array {
 		return $this->get( 'indicators' );
+	}
+
+	// helper functions for recording LinkTarget objects
+
+	/**
+	 * Convert a LinkTarget to a string for storing in the collected metadata.
+	 * @param LinkTarget $lt
+	 * @return string
+	 */
+	private function linkToString( LinkTarget $lt ): string {
+		$title = Title::newFromLinkTarget( $lt, $this->siteConfig );
+		$text = $title->getPrefixedText();
+		$fragment = $title->getFragment();
+		if ( $fragment !== '' ) {
+			$text .= '#' . $fragment;
+		}
+		return $text;
+	}
+
+	/**
+	 * Convert a string back into a LinkTarget for retrieval from the
+	 * collected metadata.
+	 * @param string $s
+	 * @return LinkTarget
+	 */
+	private function stringToLink( string $s ): LinkTarget {
+		return Title::newFromText( $s, $this->siteConfig );
 	}
 }

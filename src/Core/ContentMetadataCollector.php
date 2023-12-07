@@ -53,8 +53,6 @@ interface ContentMetadataCollector {
 	 * ::setTOCHTML()
 	 *   Omitted because it contains rendered HTML.
 	 *   T293513 will remove this method from ParserOutput
-	 * ::addOutputHook()
-	 *   T292321 will remove this
 	 * ::addHeadItem()
 	 *   Not clear this is needed by Parsoid (but maybe some of the stuff
 	 *   Parsoid adds to head could be refactored to use this interface).
@@ -95,36 +93,29 @@ interface ContentMetadataCollector {
 	 *   from SiteConfig or something.
 	 * ::isLinkInternal()
 	 *   T296036: Should be non-public or at least @internal?
-	 *
-	 * == Temporarily omitted ==
-	 * ::addLink()/::addInterwikiLink()/::addTrackingCategory()
-	 * ::addImage()
-	 *   T296023: Takes a LinkTarget as a parameter; need alternative using a
-	 *   Parsoid-available type. (eg ::addImage() takes 'Title dbKey'; see
-	 *   T296037 to make it consistent)
-	 *   (Does ::addInterwikiLink() really need the internal test for
-	 *   $link->isExternal(), or should that be hoisted to the caller?)
-	 * ::addTemplate()
-	 *   T296038: See above re Title-related types.  In addition, this
-	 *   interacts with user hooks.  The MediaWiki side should probably be
-	 *   responsible for updating the Template dependencies not Parsoid.
-	 *   OTOH, we need to return *something* like a Title back because
-	 *   eventually Parsoid has to fetch the template to expand it.
-	 * ::setLanguageLinks() / ::addLanguageLink()
-	 *   T296019: This *should* accept an array of LinkTargets; see above re:
-	 *   Title-related types.
-	 *   See also includes/deferred/LinksUpdate/LangLinksTable.php, which
-	 *   has its own ideas about the ParserOuput format for language links
-	 * ::setTitleText()
-	 *   T293514: This contains the title in HTML and is redundant with
-	 *   ::setDisplayTitle()
+	 * ::addInterwikiLink()
+	 *   invoked from ::addLink() if the link is external, we don't
+	 *   need a separate entry point.
 	 * ::setSections()
-	 *   T296025: Should be more structured
+	 *   T296025: replaced with ::setTOCData()
+	 * ::setLanguageLinks()
+	 *   Deprecated; replaced with ::addLanguageLink()
 	 * ::addExtraCSPDefaultSrc()
 	 * ::addExtraCSPStyleSrc()
 	 * ::addExtraCSPScriptSrc()
 	 * ::updateRuntimeAdaptiveExpiry()
-	 *   T296345: export a uniform interface for accumulator methods
+	 *   T296345: handled through ::appendOutputStrings()
+	 *
+	 * == Temporarily omitted ==
+	 * ::addTemplate()
+	 *   T296038: Requires page id and revision id.  In addition, this
+	 *   interacts with user hooks.  The MediaWiki side should probably be
+	 *   responsible for updating the Template dependencies not Parsoid.
+	 *   OTOH, we need to return *something* like a Title back because
+	 *   eventually Parsoid has to fetch the template to expand it.
+	 * ::setTitleText()
+	 *   T293514: This contains the title in HTML and is redundant with
+	 *   ::setDisplayTitle()
 	 */
 
 	/**
@@ -141,17 +132,34 @@ interface ContentMetadataCollector {
 
 	/**
 	 * Add a category, with the given sort key.
-	 * @note Note that titles frequently get stored as array keys, and when
-	 * that happens in PHP, array_keys() will recover strings like '0' as
-	 * integers (instead of strings).  To avoid corner case bugs, we allow
-	 * both integers and strings as titles (and sort keys).
-	 * @note In the future, we might consider accepting a LinkTarget (or
-	 * similar proxy) for $c instead of a string.
 	 *
-	 * @param string|int $c Category name
-	 * @param string|int $sort Sort key (pass the empty string to use the default)
+	 * @param LinkTarget $c Category name
+	 * @param string $sort Sort key (pass the empty string to use the default)
 	 */
 	public function addCategory( $c, $sort = '' ): void;
+
+	/**
+	 * Record a local or interwiki inline link for saving in future link tables.
+	 *
+	 * @param LinkTarget $link (used to require Title until 1.38)
+	 * @param int|null $id Optional known page_id so we can skip the lookup
+	 *   (generally not used by Parsoid)
+	 */
+	public function addLink( LinkTarget $link, $id = null ): void;
+
+	/**
+	 * Register a file dependency for this output
+	 * @param LinkTarget $name Title dbKey
+	 * @param string|false|null $timestamp MW timestamp of file creation (or false if non-existing)
+	 * @param string|false|null $sha1 Base 36 SHA-1 of file (or false if non-existing)
+	 */
+	public function addImage( LinkTarget $name, $timestamp = null, $sha1 = null ): void;
+
+	/**
+	 * Add a language link.
+	 * @param LinkTarget $lt
+	 */
+	public function addLanguageLink( LinkTarget $lt ): void;
 
 	/**
 	 * Add a warning to the output for this page.

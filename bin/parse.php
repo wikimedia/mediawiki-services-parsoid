@@ -331,7 +331,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->pageConfig = new PageConfig( $api, $siteConfig, $configOpts + [
 			'loadData' => true
 		] );
-		$this->metadata = new StubMetadataCollector();
+		$this->metadata = new StubMetadataCollector( $siteConfig );
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 
@@ -346,7 +346,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$configOpts['pageContent'] ?? '' ] );
 		$this->siteConfig = $siteConfig;
 		$this->pageConfig = new MockPageConfig( $siteConfig, $configOpts, $pageContent );
-		$this->metadata = new StubMetadataCollector();
+		$this->metadata = new StubMetadataCollector( $siteConfig );
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 

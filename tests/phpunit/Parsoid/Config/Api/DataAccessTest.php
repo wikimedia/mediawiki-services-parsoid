@@ -109,7 +109,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig = new MockSiteConfig( [] );
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'parse', $siteConfig );
-		$metadata = new StubMetadataCollector();
+		$metadata = new StubMetadataCollector( $siteConfig );
 		$ret = $da->parseWikitext(
 			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 		);
@@ -137,7 +137,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$siteConfig = new MockSiteConfig( [] );
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
 		$da = $this->getDataAccess( 'preprocess', $siteConfig );
-		$metadata = new StubMetadataCollector();
+		$metadata = new StubMetadataCollector( $siteConfig );
 		$ret = $da->preprocessWikitext(
 			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 		);

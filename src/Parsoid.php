@@ -233,7 +233,7 @@ class Parsoid {
 		?ContentMetadataCollector $metadata = null
 	) {
 		if ( $metadata === null ) {
-			$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+			$metadata = new StubMetadataCollector( $this->siteConfig );
 		}
 
 		$parseTiming = Timing::start();
@@ -344,7 +344,7 @@ class Parsoid {
 	public function wikitext2lint(
 		PageConfig $pageConfig, array $options = []
 	): array {
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $this->siteConfig );
 		[ $env, ] = $this->parseWikitext( $pageConfig, $metadata, $options );
 		return $env->getLints();
 	}
@@ -382,7 +382,7 @@ class Parsoid {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
 		}
 		$envOptions['topLevelDoc'] = $doc;
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
@@ -472,7 +472,7 @@ class Parsoid {
 			'pageBundle' => true,
 			'topLevelDoc' => DOMUtils::parseHTML( $pb->toHtml(), true ),
 		];
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
@@ -577,7 +577,7 @@ class Parsoid {
 	public function substTopLevelTemplates(
 		PageConfig $pageConfig, string $wikitext
 	): string {
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
 		return Wikitext::pst( $env, $wikitext, true /* $substTLTemplates */ );
 	}
@@ -654,7 +654,7 @@ class Parsoid {
 			return false;
 		}
 
-		$metadata = new StubMetadataCollector( $this->siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
 		return LanguageConverter::implementsLanguageConversionBcp47( $env, $htmlVariant );
 	}

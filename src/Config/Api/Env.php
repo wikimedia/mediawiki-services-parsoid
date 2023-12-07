@@ -28,7 +28,7 @@ class Env extends IEnv {
 		$siteConfig = new SiteConfig( $api, $opts );
 		$pageConfig = new PageConfig( $api, $siteConfig, $opts );
 		$dataAccess = new DataAccess( $api, $siteConfig, $opts );
-		$metadata = new StubMetadataCollector( $siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $siteConfig );
 		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $metadata, $opts );
 	}
 

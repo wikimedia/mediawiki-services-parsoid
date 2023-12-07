@@ -33,7 +33,7 @@ class MockEnv extends Env {
 			$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 		}
 		$dataAccess = $opts['dataAccess'] ?? new MockDataAccess( $siteConfig, $opts );
-		$metadata = new StubMetadataCollector( $siteConfig->getLogger() );
+		$metadata = new StubMetadataCollector( $siteConfig );
 		parent::__construct( $siteConfig, $pageConfig, $dataAccess, $metadata, $opts );
 	}
 

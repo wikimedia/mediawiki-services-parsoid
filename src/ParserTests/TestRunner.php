@@ -234,7 +234,7 @@ class TestRunner {
 			// Unused; needed to satisfy Env signature requirements
 			$this->dataAccess,
 			// Unused; needed to satisfy Env signature requirements
-			new StubMetadataCollector( $this->siteConfig->getLogger() )
+			new StubMetadataCollector( $this->siteConfig )
 		);
 
 		// Init interwiki map to parser tests info.
@@ -265,7 +265,7 @@ class TestRunner {
 			$this->siteConfig,
 			$pageConfig,
 			$this->dataAccess,
-			new StubMetadataCollector( $this->siteConfig->getLogger() ),
+			new StubMetadataCollector( $this->siteConfig ),
 			$this->envOptions
 		);
 
