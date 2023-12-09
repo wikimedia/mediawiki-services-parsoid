@@ -34,13 +34,6 @@ class TokenStreamPatcher extends TokenHandler {
 
 	private bool $sol;
 
-	/**
-	 * Set when we encounter an opening transclusion meta tag.
-	 * This signals that the transclusion output is in SOL context
-	 * since Parsoid treats all transclusion content as independent
-	 * documents in always-sol context.
-	 */
-	private bool $transclusionSOL;
 	private array $tokenBuf;
 	private int $wikiTableNesting;
 	/** True only for top-level & attribute value pipelines */
@@ -79,7 +72,6 @@ class TokenStreamPatcher extends TokenHandler {
 	private function reset() {
 		$this->srcOffset = 0;
 		$this->sol = true;
-		$this->transclusionSOL = false;
 		$this->tokenBuf = [];
 		$this->wikiTableNesting = 0;
 		// This marker tries to track the most recent table-cell token (td/th)
@@ -104,12 +96,11 @@ class TokenStreamPatcher extends TokenHandler {
 			static function () use ( $self, $token ) {
 				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
 					";sol=" . ( $self->sol ? "yes" : "no " ) .
-					";tplSol=" . ( $self->transclusionSOL ? "yes" : "no " ) . ") " .
 					PHPUtils::jsonEncode( $token );
 			}
 		);
 		$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
-		if ( $this->transclusionSOL ) {
+		if ( $this->sol && $this->tplStartToken ) {
 			// When using core preprocessor, start-of-line start is forced by
 			// inserting a newline in certain cases (the "T2529 hack"). In the
 			// legacy parser, the T2529 hack is never applied if the template was
@@ -123,7 +114,6 @@ class TokenStreamPatcher extends TokenHandler {
 		}
 		$this->tokenBuf[] = $token;
 		$this->sol = true;
-		$this->transclusionSOL = false;
 		return new TokenHandlerResult( [] );
 	}
 
@@ -140,10 +130,9 @@ class TokenStreamPatcher extends TokenHandler {
 	 * Clear start of line info
 	 */
 	private function clearSOL() {
-		// clear tsr and sol flags
+		// clear tsr and sol flag
 		$this->srcOffset = null;
 		$this->sol = false;
-		$this->transclusionSOL = false;
 	}
 
 	/**
@@ -200,11 +189,7 @@ class TokenStreamPatcher extends TokenHandler {
 				case 'caption':
 					return [ $token instanceof TagTk ? '|+' : '' ];
 				case 'table':
-					if ( $token instanceof EndTagTk ) {
-						return [ '|}' ];
-					} else {
-						return [ $token ];
-					}
+					return [ $token instanceof EndTagTk ? '|}' : $token ];
 				case 'listItem':
 					return [ implode( '', $token->getAttributeV( 'bullets' ) ) ];
 			}
@@ -248,6 +233,12 @@ class TokenStreamPatcher extends TokenHandler {
 	 *     Ex: "{{my-tpl}}" in sol-context which will get expanded to "\n*foo"
 	 *     but the "\n" wasn't necessary
 	 *
+	 * If we're in native preprocessor mode:
+	 *  - If we are in SOL state, we don't need to add a newline.
+	 *  - If we are not in SOL state, we need to insert a newline in 'T2529' cases.
+	 *    Ex: "{{my-tpl}}" in sol-context which expands to "*foo" but in
+	 *    non-sol context expands to "\n*foo"
+	 *
 	 * @param string $tokenName
 	 */
 	private function handleT2529Hack( string $tokenName ): void {
@@ -260,6 +251,16 @@ class TokenStreamPatcher extends TokenHandler {
 				// the start of the line, so the core preprocessor wouldn't
 				// actually have inserted a newline here.  Swallow up ours.
 				array_pop( $this->tokenBuf );
+			} elseif ( !$this->sol &&
+				$this->tplStartToken &&
+				$this->env->nativeTemplateExpansionEnabled()
+			) {
+				// Native preprocessor; add a newline in "T2529 cases"
+				// for correct whitespace. (Remember that this only happens
+				// if we weren't already at the start of the line.)
+				// Add a newline & force SOL
+				$this->tokenBuf[] = new NlTk( null );
+				$this->sol = true;
 			}
 		}
 	}
@@ -274,7 +275,6 @@ class TokenStreamPatcher extends TokenHandler {
 			static function () use ( $self, $token ) {
 				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
 					";sol=" . ( $self->sol ? "yes" : "no " ) .
-					";tplSol=" . ( $self->transclusionSOL ? "yes" : "no " ) . ") " .
 					PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -360,7 +360,6 @@ class TokenStreamPatcher extends TokenHandler {
 			case 'SelfclosingTagTk':
 				if ( $token->getName() === 'meta' && ( $token->dataParsoid->stx ?? '' ) !== 'html' ) {
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
-						$this->transclusionSOL = true;
 						$this->tplStartToken = $token;
 					}
 					$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
@@ -420,16 +419,13 @@ class TokenStreamPatcher extends TokenHandler {
 				if ( $this->inIndependentParse && !TokenUtils::isHTMLTag( $token ) ) {
 					$tokenName = $token->getName();
 					$this->handleT2529Hack( $tokenName );
-					if ( $tokenName === 'table' ) {
+					if ( $tokenName === 'listItem' && isset( $this->options['attrExpansion'] ) ) {
+						// Convert list items back to bullet wikitext in attribute context
+						$tokens = $this->convertTokenToString( $token );
+					} elseif ( $tokenName === 'table' ) {
 						$this->lastConvertedTableCellToken = null;
 						$this->wikiTableNesting++;
-					} elseif (
-						in_array(
-							$token->getName(),
-							[ 'td', 'th', 'tr', 'caption' ],
-							true
-						)
-					) {
+					} elseif ( in_array( $tokenName, [ 'td', 'th', 'tr', 'caption' ], true ) ) {
 						if ( $this->wikiTableNesting === 0 ) {
 							if ( $token->getName() === 'td' || $token->getName() === 'th' ) {
 								$this->lastConvertedTableCellToken = $token;
@@ -438,9 +434,6 @@ class TokenStreamPatcher extends TokenHandler {
 						} else {
 							$this->lastConvertedTableCellToken = null;
 						}
-					} elseif ( $tokenName === 'listItem' && isset( $this->options['attrExpansion'] ) ) {
-						// Convert list items back to bullet wikitext in attribute context
-						$tokens = $this->convertTokenToString( $token );
 					}
 				}
 				$this->clearSOL();
