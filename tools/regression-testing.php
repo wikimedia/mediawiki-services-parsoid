@@ -4,6 +4,7 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\ScriptUtils;
 use Wikimedia\ScopedCallback;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.NotMatch
@@ -188,7 +189,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'git checkout', [ $commit ], '&&',
 			$restartPHP
 		), 'scandium.eqiad.wmnet' );
-		if ( $this->getOption( 'updateTestreduce' ) ) {
+		if ( ScriptUtils::booleanOption( $this->getOption( 'updateTestreduce' ) ) ) {
 			# Check out on testreduce1002 as well to ensure HTML version changes
 			# don't trip up our test script and we don't have to mess with passing in
 			# the --contentVersion option in most scenarios
