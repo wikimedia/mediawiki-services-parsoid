@@ -193,7 +193,7 @@ abstract class SiteConfig {
 	protected $iwMatcherBatchSize = 4096;
 
 	/** @var array|null */
-	private $iwMatcher = null;
+	protected $iwMatcher = null;
 
 	/** @var bool */
 	protected $addHTMLTemplateParameters = false;
@@ -474,6 +474,18 @@ abstract class SiteConfig {
 	 * @return bool
 	 */
 	abstract public function interwikiMagic(): bool;
+
+	/**
+	 * Return true if the specified magic link syntax is enabled on this
+	 * wiki.
+	 * @param string $which One of "ISBN", "PMID", or "RFC"
+	 * @return true if the specified magic link type is enabled on this wiki
+	 */
+	public function magicLinkEnabled( string $which ): bool {
+		// This should be an abstract method, but in order to provide
+		// graceful upgrades, start by defaulting to true for all link types
+		return true;
+	}
 
 	/**
 	 * Interwiki link data
@@ -1174,14 +1186,18 @@ abstract class SiteConfig {
 			$this->getSpecialPageAliases( 'Booksources' )
 		) );
 
-		// cscott wants a mention of T145590 here ("Update Parsoid to be compatible with magic links
-		// being disabled")
 		$pats = [
 			'ISBN' => '(?:\.\.?/)*(?i:' . $nsAliases . ')(?:%3[Aa]|:)'
 				. '(?i:' . $pageAliases . ')(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
 			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
 			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
 		];
+		// T145590: remove patterns for disabled magic links
+		foreach ( array_keys( $pats ) as $v ) {
+			if ( !$this->magicLinkEnabled( $v ) ) {
+				unset( $pats[$v] );
+			}
+		}
 		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
 		return static function ( $text ) use ( $pats, $regex ) {
 			if ( preg_match( $regex, $text, $m ) ) {

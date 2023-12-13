@@ -20,6 +20,9 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var bool overrides parent-class info */
 	private $interwikiMagic;
 
+	/** @var array<string,bool> overrides parent-class info */
+	private $enabledMagicLinks = [];
+
 	/** @var array overrides parent-class server info */
 	private $serverData;
 
@@ -171,6 +174,8 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public function setupInterwikiMap( array $iwData ): void {
 		$this->interwikiMap = ConfigUtils::computeInterwikiMap( $iwData );
+		$this->interwikiMapNoNamespaces = null;
+		$this->iwMatcher = null;
 	}
 
 	public function interwikiMap(): array {
@@ -217,6 +222,19 @@ class SiteConfig extends ApiSiteConfig {
 
 	public function interwikiMagic(): bool {
 		return $this->interwikiMagic;
+	}
+
+	/**
+	 * @param string $which One of "RFC", "PMID", or "ISBN".
+	 * @param bool $val
+	 */
+	public function setMagicLinkEnabled( string $which, bool $val ): void {
+		$this->enabledMagicLinks[$which] = $val;
+	}
+
+	public function magicLinkEnabled( string $which ): bool {
+		// defaults to enabled
+		return $this->enabledMagicLinks[$which] ?? true;
 	}
 
 	public function fakeTimestamp(): ?int {

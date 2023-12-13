@@ -148,6 +148,7 @@ class SiteConfig extends ISiteConfig {
 		$this->linkTrailRegex = false;
 		$this->mwAliases = null;
 		$this->interwikiMapNoNamespaces = null;
+		$this->iwMatcher = null;
 	}
 
 	/**
@@ -441,6 +442,15 @@ class SiteConfig extends ISiteConfig {
 		$this->loadSiteData();
 		$alias = strtr( mb_strtoupper( $alias ), ' ', '_' );
 		return $this->specialPageNames[$alias] ?? null;
+	}
+
+	/** @inheritDoc */
+	public function magicLinkEnabled( string $which ): bool {
+		$this->loadSiteData();
+		$magic = $this->siteData['magiclinks'] ?? [];
+		// Default to true, as wikis too old to export the 'magiclinks'
+		// property always had magic links enabled.
+		return $magic[$which] ?? true;
 	}
 
 	public function interwikiMagic(): bool {

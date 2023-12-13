@@ -157,10 +157,9 @@ X[https://tools.ietf.org/html/rfc1234 foo]
 <p>X<a rel="mw:ExtLink" href="https://tools.ietf.org/html/rfc1234" class="external text">foo</a></p>
 !! end
 
-# Parsoid fails this test
 !! test
 Magic links: All disabled (T47942)
-!! options
+!! config
 wgEnableMagicLinks={"ISBN":false, "PMID":false, "RFC":false}
 !! wikitext
 ISBN 0-306-40615-2
@@ -171,4 +170,95 @@ RFC 4321
 PMID 1234
 RFC 4321
 </p>
+!! end
+
+!! test
+Magic links: html2wt of old wikitext when disabled (T47942)
+!! config
+wgEnableMagicLinks={"ISBN":false, "PMID":false, "RFC":false}
+!! options
+parsoid=html2wt
+!! html/parsoid
+<p><a href="./Special:BookSources/0306406152" rel="mw:WikiLink" data-parsoid='{"stx":"magiclink"}'>ISBN 0-306-40615-2</a>
+<a href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract" rel="mw:ExtLink nofollow" class="external mw-magiclink" data-parsoid='{"stx":"magiclink"}'>PMID 1234</a>
+<a href="https://tools.ietf.org/html/rfc4321" rel="mw:ExtLink nofollow" class="external mw-magiclink" data-parsoid='{"stx":"magiclink"}'>RFC 4321</a></p>
+!! wikitext
+[[Special:BookSources/0306406152|ISBN 0-306-40615-2]]
+[//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract PMID 1234]
+[https://tools.ietf.org/html/rfc4321 RFC 4321]
+!! end
+
+# PMID has an interwiki setup (if the pmid-interwiki option is set), but RFC
+# doesn't.  Check that we round-trip correctly from the interwiki format,
+# whether magic links are enabled or not (and whether the interwiki is
+# present or not).
+
+!! test
+Prefer PMID magic link, no interwiki and magic links enabled (T145590#8608455)
+!! wikitext
+PMID 234
+!! html/php
+<p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract">PMID 234</a>
+</p>
+!! html/parsoid
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink">PMID 234</a></p>
+!! end
+
+!! test
+Prefer PMID magic link, interwiki and magic links enabled (T145590#8608455)
+!! options
+pmid-interwiki
+!! wikitext
+PMID 234
+!! html/php
+<p><a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract">PMID 234</a>
+</p>
+!! html/parsoid
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" rel="mw:ExtLink" class="external mw-magiclink">PMID 234</a></p>
+!! end
+
+!! test
+Round-trip PMID interwiki, magic links enabled (T145590#8608455)
+!! options
+pmid-interwiki
+!! wikitext
+[[pmid:234|PMID 234]]
+!! html/php
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" class="extiw" title="pmid:234">PMID 234</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink/Interwiki" href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" title="pmid:234" class="extiw">PMID 234</a></p>
+!! end
+
+!! test
+Prefer PMID interwiki, magic links disabled (T145590#8608455)
+!! options
+pmid-interwiki
+!! config
+wgEnableMagicLinks={"PMID":false,"RFC":false}
+!! wikitext
+[[pmid:234|PMID 234]]
+
+[https://tools.ietf.org/html/rfc4321 RFC 4321]
+!! html/php
+<p><a href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" class="extiw" title="pmid:234">PMID 234</a>
+</p><p><a rel="nofollow" class="external text" href="https://tools.ietf.org/html/rfc4321">RFC 4321</a>
+</p>
+!! html/parsoid
+<p><a rel="mw:WikiLink/Interwiki"
+href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" title="pmid:234" class="extiw">PMID 234</a></p>
+<p><a rel="mw:ExtLink" href="https://tools.ietf.org/html/rfc4321" class="external text">RFC 4321</a></p>
+!! end
+
+!! test
+Preder PMID extlink if no interwiki, magic links disabled (T145590#8608455)
+!! options
+parsoid=html2wt
+!! config
+wgEnableMagicLinks={"PMID":false,"RFC":false}
+!! wikitext
+[//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract PMID 234]
+!! html/parsoid
+<p><a rel="mw:WikiLink/Interwiki"
+href="//www.ncbi.nlm.nih.gov/pubmed/234?dopt=Abstract" title="pmid:234" class="extiw">PMID 234</a></p>
 !! end

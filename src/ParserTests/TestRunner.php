@@ -131,7 +131,7 @@ class TestRunner {
 			'prefix' => 'gerrit',
 			'local' => true,
 			'url' => 'https://gerrit.wikimedia.org/$1'
-		]
+		],
 	];
 
 	/** @var bool */
@@ -1023,6 +1023,26 @@ class TestRunner {
 		$this->siteConfig->setInterwikiMagic(
 			$test->config['wgInterwikiMagic'] ?? true
 		);
+
+		// Update $wgEnableMagicLinks flag
+		// default (undefined) setting is true for all types
+		foreach ( [ "RFC", "ISBN", "PMID" ] as $v ) {
+			$this->siteConfig->setMagicLinkEnabled(
+				$v,
+				( $test->config['wgEnableMagicLinks'] ?? [] )[$v] ?? true
+			);
+		}
+		if ( isset( $testOpts['pmid-interwiki'] ) ) {
+			$this->siteConfig->setupInterwikiMap( array_merge( self::PARSER_TESTS_IWPS, [
+				// Added to support T145590#8608455
+				[
+					'prefix' => 'pmid',
+					'local' => true,
+					'url' => '//www.ncbi.nlm.nih.gov/pubmed/$1?dopt=Abstract',
+				]
+			] ) );
+			$teardown[] = fn () => $this->siteConfig->setupInterwikiMap( self::PARSER_TESTS_IWPS );
+		}
 
 		// FIXME: Cite-specific hack
 		$this->siteConfig->responsiveReferences = [
