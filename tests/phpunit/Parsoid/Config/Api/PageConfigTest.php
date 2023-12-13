@@ -33,8 +33,14 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetTitle() {
-		$this->assertSame( 'ThisPageDoesNotExist', $this->getPageConfig( 'missing' )->getTitle() );
-		$this->assertSame( 'Help:Sample page', $this->getPageConfig( 'existing' )->getTitle() );
+		$this->assertSame(
+			'ThisPageDoesNotExist',
+			$this->getPageConfig( 'missing' )->getLinkTarget()->getPrefixedText()
+		);
+		$this->assertSame(
+			'Help:Sample page',
+			$this->getPageConfig( 'existing' )->getLinkTarget()->getPrefixedText()
+		);
 	}
 
 	public function testGetNs() {

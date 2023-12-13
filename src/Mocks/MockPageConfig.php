@@ -48,11 +48,6 @@ class MockPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getTitle(): string {
-		return $this->title->getPrefixedText();
-	}
-
-	/** @inheritDoc */
 	public function getLinkTarget(): LinkTarget {
 		return $this->title;
 	}
