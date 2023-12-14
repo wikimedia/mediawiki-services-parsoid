@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
@@ -140,8 +141,14 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		$table->parentNode->insertBefore( $e, $beforeText ?: $sibling );
 	}
 
+	/**
+	 * @param Node $e
+	 * @param Node $firstFosteredNode
+	 * @param Element|DocumentFragment $tableParent
+	 * @param ?Node $tableNextSibling
+	 */
 	private static function moveFosteredAnnotations(
-		Node $e, Node $firstFosteredNode, Element $tableParent, ?Node $tableNextSibling
+		Node $e, Node $firstFosteredNode, $tableParent, ?Node $tableNextSibling
 	): void {
 		if ( WTUtils::isAnnotationStartMarkerMeta( $e ) && $e !== $firstFosteredNode ) {
 			'@phan-var Element $e';
