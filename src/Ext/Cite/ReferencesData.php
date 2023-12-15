@@ -87,7 +87,7 @@ class ReferencesData {
 	 * @return string
 	 */
 	private function normalizeKey( string $key ): string {
-		$ret = Sanitizer::escapeIdForAttribute( $key );
+		$ret = Sanitizer::escapeIdForLink( $key );
 		$ret = preg_replace( '/[_\s]+/u', '_', $ret );
 		return $ret;
 	}
