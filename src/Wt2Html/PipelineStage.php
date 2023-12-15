@@ -38,8 +38,8 @@ abstract class PipelineStage {
 	/** @var Env */
 	protected $env = null;
 
-	/** @var bool */
-	protected $atTopLevel;
+	/** Defaults to false and resetState initializes it */
+	protected bool $atTopLevel = false;
 
 	/** @var Frame */
 	protected $frame;
@@ -51,8 +51,6 @@ abstract class PipelineStage {
 	public function __construct( Env $env, ?PipelineStage $prevStage = null ) {
 		$this->env = $env;
 		$this->prevStage = $prevStage;
-		// Defaults to false and resetState initializes it
-		$this->atTopLevel = false;
 	}
 
 	/**

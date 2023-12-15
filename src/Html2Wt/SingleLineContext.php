@@ -9,12 +9,7 @@ namespace Wikimedia\Parsoid\Html2Wt;
 class SingleLineContext {
 	// PORT-TODO document
 
-	/** @var array */
-	private $stack;
-
-	public function __construct() {
-		$this->stack = [];
-	}
+	private array $stack = [];
 
 	public function enforce(): void {
 		$this->stack[] = true;

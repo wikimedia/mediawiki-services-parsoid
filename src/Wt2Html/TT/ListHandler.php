@@ -19,7 +19,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  */
 class ListHandler extends TokenHandler {
 	/** @var array<ListFrame> */
-	private $listFrames;
+	private array $listFrames = [];
 	/** @var ?ListFrame */
 	private $currListFrame;
 	/** @var int */
@@ -57,7 +57,6 @@ class ListHandler extends TokenHandler {
 	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
-		$this->listFrames = [];
 		$this->reset();
 	}
 

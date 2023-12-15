@@ -13,39 +13,23 @@ class Profile {
 	/** @var float */
 	public $endTime;
 
-	/** @var array */
-	private $timeProfile;
-
-	/** @var array */
-	private $mwProfile;
-
-	/** @var array */
-	private $timeCategories;
-
-	/** @var array */
-	private $counts;
+	private array $timeProfile = [];
+	private array $mwProfile = [];
+	private array $timeCategories = [];
+	private array $counts = [];
 
 	/**
 	 * Array of profiles for nested pipelines. So, we effectively end up with
 	 * a profile tree with the top-level-doc profile as the root profile.
 	 * @var array<Profile>
 	 */
-	private $nestedProfiles;
+	private array $nestedProfiles = [];
 
 	/**
 	 * This is the most recently pushed nested profile from a nested pipeline.
 	 * @var ?Profile
 	 */
-	private $recentNestedProfile;
-
-	public function __construct() {
-		$this->timeCategories = [];
-		$this->timeProfile = [];
-		$this->mwProfile = [];
-		$this->counts = [];
-		$this->nestedProfiles = [];
-		$this->recentNestedProfile = null;
-	}
+	private ?Profile $recentNestedProfile = null;
 
 	public function start(): void {
 		$this->startTime = microtime( true );

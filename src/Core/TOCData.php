@@ -34,7 +34,7 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 * use, and SectionMetadata::setExtensionData() for a method appropriate
 	 * for attaching information to a specific section of the ToC.
 	 */
-	private array $extensionData;
+	private array $extensionData = [];
 
 	/**
 	 * --------------------------------------------------
@@ -64,7 +64,6 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 */
 	public function __construct( ...$sections ) {
 		$this->sections = $sections;
-		$this->extensionData = [];
 	}
 
 	/**

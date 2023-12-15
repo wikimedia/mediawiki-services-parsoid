@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  */
 abstract class TokenCollector extends TokenHandler {
 	/** @var Token[][] */
-	protected $scopeStack;
+	protected array $scopeStack = [];
 
 	/**
 	 * @param TokenTransformManager $manager manager enviroment
@@ -31,7 +31,6 @@ abstract class TokenCollector extends TokenHandler {
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->onAnyEnabled = false;
-		$this->scopeStack = [];
 	}
 
 	/**

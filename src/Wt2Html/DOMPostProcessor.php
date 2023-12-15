@@ -54,11 +54,8 @@ class DOMPostProcessor extends PipelineStage {
 	/** @var array */
 	private $options;
 
-	/** @var array */
-	private $seenIds;
-
-	/** @var array */
-	private $processors;
+	private array $seenIds = [];
+	private array $processors = [];
 
 	/** @var ParsoidExtensionAPI Provides post-processing support to extensions */
 	private $extApi;
@@ -82,8 +79,6 @@ class DOMPostProcessor extends PipelineStage {
 		parent::__construct( $env, $prevStage );
 
 		$this->options = $options;
-		$this->seenIds = [];
-		$this->processors = [];
 		$this->extApi = new ParsoidExtensionAPI( $env );
 
 		// map from mediawiki metadata names to RDFa property names

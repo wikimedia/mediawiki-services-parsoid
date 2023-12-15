@@ -12,10 +12,10 @@ class DataBag {
 	 * json-parse/json-serialize data-parsoid and data-mw attributes.
 	 * This map is initialized when a DOM is created/parsed/refreshed.
 	 */
-	private $dataObject;
+	private array $dataObject = [];
 
 	/** @var int An id counter for this document used for the dataObject map */
-	private $nodeId;
+	private int $nodeId = 0;
 
 	/** @var PageBundle the page bundle object into which all data-parsoid and data-mw
 	 * attributes will be extracted to for pagebundle API requests.
@@ -31,8 +31,6 @@ class DataBag {
 	public array $transclusionMetaTagDepthMap = [];
 
 	public function __construct() {
-		$this->dataObject = [];
-		$this->nodeId = 0;
 		$this->pageBundle = new PageBundle(
 			'',
 			[ "counter" => -1, "ids" => [] ],

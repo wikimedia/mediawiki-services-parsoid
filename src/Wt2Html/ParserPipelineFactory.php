@@ -161,8 +161,7 @@ class ParserPipelineFactory {
 		'attrExpansion'
 	];
 
-	/** @var array */
-	private $pipelineCache;
+	private array $pipelineCache = [];
 
 	/** @var Env */
 	private $env;
@@ -171,7 +170,6 @@ class ParserPipelineFactory {
 	 * @param Env $env
 	 */
 	public function __construct( Env $env ) {
-		$this->pipelineCache = [];
 		$this->env = $env;
 	}
 
