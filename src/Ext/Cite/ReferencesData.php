@@ -89,10 +89,6 @@ class ReferencesData {
 	private function normalizeKey( string $key ): string {
 		$ret = Sanitizer::escapeIdForAttribute( $key );
 		$ret = preg_replace( '/[_\s]+/u', '_', $ret );
-		// FIXME: The extension to the legacy parser does the following too,
-		// but Parsoid hasn't ported it yet and needs investigation of
-		// whether it's still relevant in the Parsoid context.
-		// $ret = Sanitizer::safeEncodeAttribute( $ret );
 		return $ret;
 	}
 
