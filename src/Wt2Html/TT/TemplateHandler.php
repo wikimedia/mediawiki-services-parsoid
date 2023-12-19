@@ -169,78 +169,87 @@ class TemplateHandler extends TokenHandler {
 		$buf = $maybeTarget[0]; // Will always be a string
 		$tgtTokens = $maybeTarget[1];
 		$preNlContent = null;
-		foreach ( $tgtTokens as $i => $ntt ) {
+		$i = 0;
+		$n = count( $tgtTokens );
+		while ( $i < $n ) {
+			$ntt = $tgtTokens[$i];
 			if ( is_string( $ntt ) ) {
 				$buf .= $ntt;
 				if ( $preNlContent !== null && !preg_match( '/^\s*$/D', $buf ) ) {
 					// intervening newline makes this an invalid template target
 					return [ $preNlContent, array_merge( [ $buf ], array_slice( $tgtTokens, $i ) ) ];
 				}
-				continue;
-			}
+			} else {
+				switch ( get_class( $ntt ) ) {
+					case SelfclosingTagTk::class:
+						// Quotes are valid template targets
+						if ( $ntt->getName() === 'mw-quote' ) {
+							$buf .= $ntt->getAttributeV( 'value' );
+						} elseif (
+							!TokenUtils::isEmptyLineMetaToken( $ntt ) &&
+							$ntt->getName() !== 'template' &&
+							$ntt->getName() !== 'templatearg' &&
+							// Ignore annotations in template targets
+							// NOTE(T295834): There's a large discussion about who's responsible
+							// for stripping these tags in I487baaafcf1ffd771cb6a9e7dd4fb76d6387e412
+							!(
+								$ntt->getName() === 'meta' &&
+								TokenUtils::matchTypeOf( $ntt, WTUtils::ANNOTATION_META_TYPE_REGEXP )
+							)
+						) {
+							// We are okay with empty (comment-only) lines,
+							// {{..}} and {{{..}}} in template targets.
+							if ( $preNlContent !== null ) {
+								return [ $preNlContent, array_merge( [ $buf ], array_slice( $tgtTokens, $i ) ) ];
+							} else {
+								return [ $buf, array_slice( $tgtTokens, $i ) ];
+							}
+						}
+						break;
 
-			switch ( get_class( $ntt ) ) {
-				case SelfclosingTagTk::class:
-					// Quotes are valid template targets
-					if ( $ntt->getName() === 'mw-quote' ) {
-						$buf .= $ntt->getAttributeV( 'value' );
-					} elseif (
-						!TokenUtils::isEmptyLineMetaToken( $ntt ) &&
-						$ntt->getName() !== 'template' &&
-						$ntt->getName() !== 'templatearg' &&
-						// Ignore annotations in template targets
-						// NOTE(T295834): There's a large discussion about who's responsible
-						// for stripping these tags in I487baaafcf1ffd771cb6a9e7dd4fb76d6387e412
-						!(
-							$ntt->getName() === 'meta' &&
-							TokenUtils::matchTypeOf( $ntt, WTUtils::ANNOTATION_META_TYPE_REGEXP )
-						)
-					) {
-						// We are okay with empty (comment-only) lines,
-						// {{..}} and {{{..}}} in template targets.
+					case TagTk::class:
+						if ( TokenUtils::isEntitySpanToken( $ntt ) ) {
+							$buf .= $tgtTokens[$i + 1];
+							$i += 2;
+							break;
+						}
+						// Fall-through
+					case EndTagTk::class:
 						if ( $preNlContent !== null ) {
 							return [ $preNlContent, array_merge( [ $buf ], array_slice( $tgtTokens, $i ) ) ];
 						} else {
 							return [ $buf, array_slice( $tgtTokens, $i ) ];
 						}
-					}
-					break;
 
-				case TagTk::class:
-				case EndTagTk::class:
-					if ( $preNlContent !== null ) {
-						return [ $preNlContent, array_merge( [ $buf ], array_slice( $tgtTokens, $i ) ) ];
-					} else {
-						return [ $buf, array_slice( $tgtTokens, $i ) ];
-					}
-
-				case CommentTk::class:
-					// Ignore comments as well
-					break;
-
-				case NlTk::class:
-					// Ignore only the leading or trailing newlines
-					// (modulo whitespace and comments)
-					//
-					// If we only have whitespace in $buf thus far,
-					// the newline can be ignored. But, if we have
-					// non-ws content in $buf, everything that follows
-					// can only be ws.
-					if ( preg_match( '/^\s*$/D', $buf ) ) {
-						$buf .= "\n";
+					case CommentTk::class:
+						// Ignore comments as well
 						break;
-					} elseif ( $preNlContent === null ) {
-						// Buffer accumulated content
-						$preNlContent = $buf;
-						$buf = "\n";
-						break;
-					} else {
-						return [ $preNlContent, array_merge( [ $buf ], array_slice( $tgtTokens, $i ) ) ];
-					}
 
-				default:
-					throw new UnreachableException( 'Unexpected token type: ' . get_class( $ntt ) );
+					case NlTk::class:
+						// Ignore only the leading or trailing newlines
+						// (modulo whitespace and comments)
+						//
+						// If we only have whitespace in $buf thus far,
+						// the newline can be ignored. But, if we have
+						// non-ws content in $buf, everything that follows
+						// can only be ws.
+						if ( preg_match( '/^\s*$/D', $buf ) ) {
+							$buf .= "\n";
+							break;
+						} elseif ( $preNlContent === null ) {
+							// Buffer accumulated content
+							$preNlContent = $buf;
+							$buf = "\n";
+							break;
+						} else {
+							return [ $preNlContent, array_merge( [ $buf ], array_slice( $tgtTokens, $i ) ) ];
+						}
+
+					default:
+						throw new UnreachableException( 'Unexpected token type: ' . get_class( $ntt ) );
+				}
 			}
+			$i++;
 		}
 
 		// All good! No newline / only whitespace/comments post newline.

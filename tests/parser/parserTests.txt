@@ -288,6 +288,13 @@ File:Redirect to foobar.jpg
 #REDIRECT[[File:Foobar.jpg]]
 !! endarticle
 
+# Use an entity in the name
+!! article
+Template:Foo–bar
+!! text
+foo
+!! endarticle
+
 ###
 ### Basic tests
 ###
@@ -4259,6 +4266,21 @@ __proto__
 ###
 ### Templates
 ####
+
+!! test
+Template titles with entities in them
+!! wikitext
+*{{Foo–bar}}
+*{{Foo&ndash;bar}}
+!! html/php
+<ul><li>foo</li>
+<li>foo</li></ul>
+!! html/parsoid
+<ul>
+<li data-parsoid="{}"><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Foo–bar","href":"./Template:Foo–bar"},"params":{},"i":0}}]}'>foo</span></li>
+<li data-parsoid="{}"><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Foo&amp;ndash;bar","href":"./Template:Foo–bar"},"params":{},"i":0}}]}'>foo</span></li>
+</ul>
+!! end
 
 !! test
 Nonexistent template
