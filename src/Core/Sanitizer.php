@@ -420,7 +420,7 @@ class Sanitizer {
 	 * @return string
 	 * @internal
 	 */
-	public static function normalizeCharReferences( $text ) {
+	public static function normalizeCharReferences( string $text ): string {
 		return preg_replace_callback(
 			self::CHAR_REFS_REGEX,
 			[ self::class, 'normalizeCharReferencesCallback' ],
@@ -429,10 +429,10 @@ class Sanitizer {
 	}
 
 	/**
-	 * @param string $matches
+	 * @param array $matches
 	 * @return string
 	 */
-	private static function normalizeCharReferencesCallback( $matches ): string {
+	private static function normalizeCharReferencesCallback( array $matches ): string {
 		$ret = null;
 		if ( isset( $matches[1] ) ) {
 			$ret = self::normalizeEntity( $matches[1] );
@@ -458,7 +458,7 @@ class Sanitizer {
 	 * @param string $name Semicolon-terminated name
 	 * @return string
 	 */
-	private static function normalizeEntity( $name ) {
+	private static function normalizeEntity( string $name ): string {
 		if ( isset( self::MW_ENTITY_ALIASES[$name] ) ) {
 			// Non-standard MediaWiki-specific entities
 			return '&' . self::MW_ENTITY_ALIASES[$name];
@@ -528,7 +528,7 @@ class Sanitizer {
 	 * @param int $cp
 	 * @return string
 	 */
-	private static function codepointToUtf8( int $cp ) {
+	private static function codepointToUtf8( int $cp ): string {
 		$chr = mb_chr( $cp, 'UTF-8' );
 		Assert::invariant( $chr !== false, "Getting char failed!" );
 		return $chr;
@@ -540,7 +540,7 @@ class Sanitizer {
 	 * @param string $str
 	 * @return int
 	 */
-	private static function utf8ToCodepoint( string $str ) {
+	private static function utf8ToCodepoint( string $str ): int {
 		$ord = mb_ord( $str );
 		Assert::invariant( $ord !== false, "Getting code point failed!" );
 		return $ord;
@@ -550,7 +550,7 @@ class Sanitizer {
 	 * @param string $host
 	 * @return string
 	 */
-	private static function stripIDNs( string $host ) {
+	private static function stripIDNs( string $host ): string {
 		// This code is part of Sanitizer::cleanUrl in core
 		return preg_replace( self::IDN_RE_G, '', $host );
 	}
@@ -600,7 +600,7 @@ class Sanitizer {
 	 * @param string $name Semicolon-terminated entity name
 	 * @return string
 	 */
-	private static function decodeEntity( $name ) {
+	private static function decodeEntity( string $name ): string {
 		// These are MediaWiki-specific entities, not in the HTML standard
 		if ( isset( self::MW_ENTITY_ALIASES[$name] ) ) {
 			$name = self::MW_ENTITY_ALIASES[$name];
@@ -1094,7 +1094,7 @@ class Sanitizer {
 	 * @param array $matches
 	 * @return string
 	 */
-	public static function cssDecodeCallback( $matches ) {
+	public static function cssDecodeCallback( array $matches ): string {
 		if ( $matches[1] !== '' ) {
 			// Line continuation
 			return '';
@@ -1158,7 +1158,7 @@ class Sanitizer {
 	 * @param string $space Space character for the French spaces, defaults to '&#160;'
 	 * @return string Armored text
 	 */
-	public static function armorFrenchSpaces( $text, $space = '&#160;' ) {
+	public static function armorFrenchSpaces( string $text, string $space = '&#160;' ): string {
 		// Replace $ with \$ and \ with \\
 		$space = preg_replace( '#(?<!\\\\)(\\$|\\\\)#', '\\\\$1', $space );
 		return preg_replace(
@@ -1189,7 +1189,7 @@ class Sanitizer {
 	 *
 	 * @since 1.30
 	 */
-	public static function escapeIdForAttribute( string $id, $mode = self::ID_PRIMARY ): string {
+	public static function escapeIdForAttribute( string $id, int $mode = self::ID_PRIMARY ): string {
 		// For consistency with PHP's API, we accept "primary" or "fallback" as
 		// the mode in 'options'.  This (slightly) abstracts the actual details
 		// of the id encoding from the Parsoid code which handles ids; we could
@@ -1237,7 +1237,7 @@ class Sanitizer {
 	 * @param string $mode One of modes from $wgFragmentMode
 	 * @return string
 	 */
-	private static function escapeIdInternalUrl( $id, $mode ) {
+	private static function escapeIdInternalUrl( string $id, string $mode ): string {
 		$id = self::escapeIdInternal( $id, $mode );
 		if ( $mode === 'html5' ) {
 			$id = preg_replace( '/%([a-fA-F0-9]{2})/', '%25$1', $id );
