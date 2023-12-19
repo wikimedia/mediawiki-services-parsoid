@@ -489,10 +489,6 @@ class PipelineUtils {
 		return $toks;
 	}
 
-	/**
-	 * @param Document $doc
-	 * @param array &$textCommentAccum
-	 */
 	private static function wrapAccum(
 		Document $doc, array &$textCommentAccum
 	): void {
@@ -585,11 +581,6 @@ class PipelineUtils {
 		return self::encapsulateExpansionHTML( $env, $token, $expansion, $opts );
 	}
 
-	/**
-	 * @param Env $env
-	 * @param DocumentFragment $domFragment
-	 * @return array
-	 */
 	public static function makeExpansion(
 		Env $env, DocumentFragment $domFragment
 	): array {
@@ -598,11 +589,6 @@ class PipelineUtils {
 		return [ 'domFragment' => $domFragment, 'html' => $fragmentId ];
 	}
 
-	/**
-	 * @param Env $env
-	 * @param array &$expansions
-	 * @param Node $node
-	 */
 	private static function doExtractExpansions( Env $env, array &$expansions, Node $node ): void {
 		$nodes = null;
 		$expAccum = null;

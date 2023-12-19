@@ -21,38 +21,22 @@ class NoInclude extends TokenCollector {
 		parent::__construct( $manager, $options );
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function type(): string {
 		return 'tag';
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function name(): string {
 		return 'noinclude';
 	}
 
-	/**
-	 * @return bool
-	 */
 	protected function toEnd(): bool {
 		return true;    // Match the end-of-input if </noinclude> is missing.
 	}
 
-	/**
-	 * @return bool
-	 */
 	protected function ackEnd(): bool {
 		return true;
 	}
 
-	/**
-	 * @param array $collection
-	 * @return TokenHandlerResult
-	 */
 	protected function transformation( array $collection ): TokenHandlerResult {
 		$start = array_shift( $collection );
 		$sc = TokenUtils::getTokenType( $start );

@@ -110,7 +110,6 @@ class XMLSerializer {
 	 *   - $bit: (string) piece of HTML code
 	 *   - $node: (Node) ??
 	 *   - $flag: (string|null) 'start' or 'end' (??)
-	 * @return void
 	 */
 	private static function serializeToString( Node $node, array $options, callable $accum ): void {
 		$smartQuote = $options['smartQuote'];

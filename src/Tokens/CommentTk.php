@@ -12,10 +12,6 @@ class CommentTk extends Token {
 	/** @var string Comment text */
 	public $value;
 
-	/**
-	 * @param string $value
-	 * @param ?DataParsoid $dataParsoid
-	 */
 	public function __construct(
 		string $value, ?DataParsoid $dataParsoid = null
 	) {

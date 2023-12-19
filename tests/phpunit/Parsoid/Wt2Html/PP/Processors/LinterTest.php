@@ -13,11 +13,7 @@ use Wikimedia\Parsoid\Parsoid;
 /** Test cases for the linter */
 
 class LinterTest extends TestCase {
-	/**
-	 * @param string $wt
-	 * @param array $options
-	 * @return array
-	 */
+
 	private function wtToLint( string $wt, array $options = [] ): array {
 		$opts = [
 			'prefix' => $options['prefix'] ?? 'enwiki',
@@ -36,22 +32,11 @@ class LinterTest extends TestCase {
 		return $parsoid->wikitext2lint( $pageConfig, [] );
 	}
 
-	/**
-	 * @param string $description
-	 * @param string $wt
-	 * @param array $opts
-	 */
 	private function expectEmptyResults( string $description, string $wt, array $opts = [] ): void {
 		$result = $this->wtToLint( $wt, $opts );
 		$this->assertSame( [], $result, $description );
 	}
 
-	/**
-	 * @param string $description
-	 * @param string $wt
-	 * @param string $cat
-	 * @param array $opts
-	 */
 	private function expectLinterCategoryToBeAbsent( string $description, string $wt, string $cat,
 		array $opts = []
 	): void {
@@ -63,11 +48,6 @@ class LinterTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @param string $description
-	 * @param string $wt
-	 * @param string $type
-	 */
 	private function noLintsOfThisType( string $description, string $wt, string $type ): void {
 		$this->expectLinterCategoryToBeAbsent( $description, $wt, $type );
 	}

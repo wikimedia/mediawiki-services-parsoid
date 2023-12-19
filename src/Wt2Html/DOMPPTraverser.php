@@ -16,10 +16,6 @@ use Wikimedia\Parsoid\Utils\DTState;
 class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 	private DOMTraverser $dt;
 
-	/**
-	 * @param bool $traverseWithTplInfo
-	 * @param bool $applyToAttributeEmbeddedHTML
-	 */
 	public function __construct( bool $traverseWithTplInfo = false, bool $applyToAttributeEmbeddedHTML = false ) {
 		$this->dt = new DOMTraverser( $traverseWithTplInfo, $applyToAttributeEmbeddedHTML );
 	}

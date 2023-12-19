@@ -45,9 +45,6 @@ class Stats {
 		return $this->failures;
 	}
 
-	/**
-	 * @param Stats $other
-	 */
 	public function accum( Stats $other ): void {
 		$this->passedTests += $other->passedTests;
 		$this->passedTestsUnexpected += $other->passedTestsUnexpected;

@@ -40,9 +40,6 @@ class MockPageContent extends PageContent {
 		return isset( $this->data[$role] );
 	}
 
-	/**
-	 * @param string $role
-	 */
 	private function checkRole( string $role ): void {
 		if ( !isset( $this->data[$role] ) ) {
 			throw new \InvalidArgumentException( "Unknown role \"$role\"" );

@@ -144,11 +144,6 @@ class EncapsulatedContentHandler extends DOMHandler {
 		return [];
 	}
 
-	/**
-	 * @param Element $node
-	 * @param SerializerState $state
-	 * @return string
-	 */
 	private function handleListPrefix( Element $node, SerializerState $state ): string {
 		$bullets = '';
 		if ( DOMUtils::isListOrListItem( $node )
@@ -222,10 +217,6 @@ class EncapsulatedContentHandler extends DOMHandler {
 		}
 	}
 
-	/**
-	 * @param Element $node
-	 * @return bool
-	 */
 	private function parentBulletsHaveBeenEmitted( Element $node ): bool {
 		if ( WTUtils::isLiteralHTMLNode( $node ) ) {
 			return true;

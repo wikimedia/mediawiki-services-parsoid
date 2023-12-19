@@ -20,9 +20,6 @@ class Timing {
 	/* @var float */
 	private $startTime;
 
-	/**
-	 * @param ?object $metrics
-	 */
 	private function __construct( ?object $metrics ) {
 		$this->metrics = $metrics;
 		$this->startTime = self::millis();
@@ -30,7 +27,6 @@ class Timing {
 
 	/**
 	 * Return the current number of milliseconds since the epoch, as a float.
-	 * @return float
 	 */
 	public static function millis(): float {
 		return 1000 * microtime( true );

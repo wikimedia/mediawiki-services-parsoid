@@ -1231,16 +1231,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 		}
 	}
 
-	/**
-	 * @param Env $env
-	 * @param stdClass|null $tplInfo
-	 * @param Element $node
-	 * @param int $numColumns
-	 * @param int $columnsMax
-	 * @return void
-	 */
 	private function logLargeTableEntry(
-		Env $env, ?stdClass $tplInfo, Element $node, int $numColumns, int $columnsMax ) {
+		Env $env, ?stdClass $tplInfo, Element $node, int $numColumns, int $columnsMax ): void {
 		$templateInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 		$lintObj = [
 			'dsr' => $this->findLintDSR(

@@ -47,8 +47,6 @@ class DataMwI18n implements \JsonSerializable {
 
 	/**
 	 * Defines the internationalization parameters of a string contained in a span.
-	 * @param I18nInfo $info
-	 * @return void
 	 */
 	public function setSpanInfo( I18nInfo $info ) {
 		$this->i18nInfo['/'] = $info;
@@ -56,9 +54,6 @@ class DataMwI18n implements \JsonSerializable {
 
 	/**
 	 * Defines the internationalization parameters of the $name attribute's value.
-	 * @param string $name
-	 * @param I18nInfo $info
-	 * @return void
 	 */
 	public function setAttributeInfo( string $name, I18nInfo $info ) {
 		$this->i18nInfo[$name] = $info;
@@ -68,10 +63,6 @@ class DataMwI18n implements \JsonSerializable {
 		return $this->i18nInfo;
 	}
 
-	/**
-	 * @param array $json
-	 * @return DataMwI18n
-	 */
 	public static function fromJson( array $json ): DataMwI18n {
 		$i18n = new DataMwI18n();
 		foreach ( $json as $k => $v ) {

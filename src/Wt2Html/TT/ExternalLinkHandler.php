@@ -30,10 +30,6 @@ class ExternalLinkHandler extends TokenHandler {
 		}
 	}
 
-	/**
-	 * @param string $str
-	 * @return bool
-	 */
 	private static function imageExtensions( string $str ): bool {
 		switch ( $str ) {
 			case 'jpg': // fall through
@@ -46,11 +42,6 @@ class ExternalLinkHandler extends TokenHandler {
 		}
 	}
 
-	/**
-	 * @param array $array
-	 * @param callable $fn
-	 * @return bool
-	 */
 	private function arraySome( array $array, callable $fn ): bool {
 		foreach ( $array as $value ) {
 			if ( $fn( $value ) ) {
@@ -60,10 +51,6 @@ class ExternalLinkHandler extends TokenHandler {
 		return false;
 	}
 
-	/**
-	 * @param string $href
-	 * @return bool
-	 */
 	private function hasImageLink( string $href ): bool {
 		$allowedPrefixes = $this->env->getSiteConfig()->allowedExternalImagePrefixes();
 		$bits = explode( '.', $href );
@@ -85,10 +72,6 @@ class ExternalLinkHandler extends TokenHandler {
 			} );
 	}
 
-	/**
-	 * @param Token $token
-	 * @return TokenHandlerResult|null
-	 */
 	private function onUrlLink( Token $token ): ?TokenHandlerResult {
 		$tagAttrs = null;
 		$builtTag = null;

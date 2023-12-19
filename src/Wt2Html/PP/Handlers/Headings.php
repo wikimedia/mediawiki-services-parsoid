@@ -118,11 +118,6 @@ class Headings {
 		}
 	}
 
-	/**
-	 * @param array &$seenIds
-	 * @param Node $node
-	 * @return bool
-	 */
 	public static function dedupeHeadingIds( array &$seenIds, Node $node ): bool {
 		// NOTE: This is not completely compliant with how PHP parser does it.
 		// If there is an id in the doc elsewhere, this will assign

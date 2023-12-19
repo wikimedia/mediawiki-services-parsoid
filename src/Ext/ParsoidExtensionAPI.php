@@ -211,9 +211,6 @@ class ParsoidExtensionAPI {
 		WTUtils::addLangI18nAttribute( $element, $lang, $name, $key, $params );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function getErrors(): array {
 		return $this->errors;
 	}
@@ -344,9 +341,6 @@ class ParsoidExtensionAPI {
 		return $this->env->getDOMFragment( $contentId );
 	}
 
-	/**
-	 * @param string $contentId
-	 */
 	public function clearContentDOM( string $contentId ): void {
 		$this->env->removeDOMFragment( $contentId );
 	}
@@ -479,7 +473,6 @@ class ParsoidExtensionAPI {
 	 *
 	 * @param Element $node
 	 * @param mixed $data
-	 * @return void
 	 */
 	public function setTempNodeData( Element $node, $data ): void {
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );

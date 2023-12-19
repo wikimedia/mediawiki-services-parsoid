@@ -37,10 +37,6 @@ class SelectiveSerializer {
 	/** @var SelserData */
 	private $selserData;
 
-	/**
-	 * @param Env $env
-	 * @param array $options
-	 */
 	public function __construct( Env $env, array $options ) {
 		$this->env = $env;
 		$this->wts = new WikitextSerializer( $env, $options );
@@ -176,9 +172,6 @@ class SelectiveSerializer {
 		}
 	}
 
-	/**
-	 * @param Element $body
-	 */
 	private function preprocessDOMForSelser( Element $body ): void {
 		if ( Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.2' ) ) {
 			// Wrap text node children of <li> elements in dummy spans

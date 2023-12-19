@@ -93,10 +93,6 @@ class SpanHandler extends DOMHandler {
 		return $node->nextSibling;
 	}
 
-	/**
-	 * @param Element $node
-	 * @return string|null
-	 */
 	private static function isRecognizedSpanWrapper( Element $node ): ?string {
 		return DOMUtils::matchTypeOf(
 			$node,

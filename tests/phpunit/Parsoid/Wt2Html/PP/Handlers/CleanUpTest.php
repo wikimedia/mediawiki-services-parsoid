@@ -26,10 +26,6 @@ class CleanUpTest extends TestCase {
 	/** @var Document[] */
 	private $liveDocs = [];
 
-	/**
-	 * @param string $wt
-	 * @return Element
-	 */
 	private function parseWT( string $wt ): Element {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
@@ -48,11 +44,6 @@ class CleanUpTest extends TestCase {
 		return DOMCompat::getBody( $doc );
 	}
 
-	/**
-	 * @param DOMTraverser $domVisitor
-	 * @param array $tags
-	 * @param bool $value
-	 */
 	private function addHandlers( DOMTraverser $domVisitor, array $tags, bool $value ): void {
 		foreach ( $tags as $tag ) {
 			$domVisitor->addHandler( $tag,
@@ -63,11 +54,6 @@ class CleanUpTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @param bool $expectedValue
-	 * @param Element $node
-	 * @return bool
-	 */
 	private function autoInsValidation( bool $expectedValue, Element $node ): bool {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$autoInsEnd = isset( $dp->autoInsertedEnd );
@@ -93,9 +79,6 @@ class CleanUpTest extends TestCase {
 		$domVisitor->traverse( null, $body );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideCleanUp(): array {
 		$test = [
 			"{|",
@@ -124,9 +107,6 @@ class CleanUpTest extends TestCase {
 		$domVisitor->traverse( null, $body );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideCleanUpWT(): array {
 		$test = [
 			";Definition list",
@@ -168,9 +148,6 @@ class CleanUpTest extends TestCase {
 		$domVisitor->traverse( null, $body );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideCleanUpHTML(): array {
 		$test = [
 			"<dl>",
@@ -212,9 +189,6 @@ class CleanUpTest extends TestCase {
 		$this->assertEquals( $trailingWS, DOMDataUtils::getDataParsoid( $node )->dsr->trailingWS );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideWhitespaceTrimming(): array {
 		return [
 			/* List item tests */

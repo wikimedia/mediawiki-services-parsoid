@@ -28,11 +28,6 @@ class I18nInfo {
 	 */
 	public $params;
 
-	/**
-	 * @param string $lang
-	 * @param string $key
-	 * @param array|null $params
-	 */
 	public function __construct( string $lang, string $key, ?array $params = null ) {
 		$this->lang = $lang;
 		$this->key = $key;

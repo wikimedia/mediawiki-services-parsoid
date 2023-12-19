@@ -418,9 +418,6 @@ class Env {
 		return array_pop( $this->profileStack );
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function hasTraceFlags(): bool {
 		return !empty( $this->traceFlags );
 	}
@@ -435,9 +432,6 @@ class Env {
 		return isset( $this->traceFlags[$flag] );
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function hasDumpFlags(): bool {
 		return !empty( $this->dumpFlags );
 	}
@@ -842,10 +836,6 @@ class Env {
 		DOMDataUtils::prepareDoc( $this->topLevelDoc );
 	}
 
-	/**
-	 * @param bool $atTopLevel
-	 * @return RemexPipeline
-	 */
 	public function fetchRemexPipeline( bool $atTopLevel ): RemexPipeline {
 		if ( $atTopLevel ) {
 			return $this->remexPipeline;
@@ -921,9 +911,6 @@ class Env {
 		$this->fragmentMap[$id] = $forest;
 	}
 
-	/**
-	 * @param string $id
-	 */
 	public function removeDOMFragment( string $id ): void {
 		$domFragment = $this->fragmentMap[$id];
 		Assert::invariant(

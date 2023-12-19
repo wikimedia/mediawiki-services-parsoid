@@ -30,12 +30,6 @@ class PegTokenizer extends PipelineStage {
 	/** @var Grammar */
 	private $grammar;
 
-	/**
-	 * @param Env $env
-	 * @param array $options
-	 * @param string $stageId
-	 * @param ?PipelineStage $prevStage
-	 */
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
 		?PipelineStage $prevStage = null

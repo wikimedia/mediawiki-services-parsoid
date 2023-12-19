@@ -23,10 +23,6 @@ use Wikimedia\Parsoid\Utils\WTUtils;
  */
 class DisplaySpace {
 
-	/**
-	 * @param Text $node
-	 * @return ?int
-	 */
 	private static function getTextNodeDSRStart( Text $node ): ?int {
 		$parent = $node->parentNode;
 		'@phan-var Element $parent';  /** @var Element $parent */
@@ -54,10 +50,6 @@ class DisplaySpace {
 		return $start;
 	}
 
-	/**
-	 * @param Text $node
-	 * @param int $offset
-	 */
 	private static function insertDisplaySpace(
 		Text $node, int $offset
 	): void {

@@ -16,9 +16,6 @@ class DDHandler extends DOMHandler {
 	/** @var ?string Syntax */
 	private $stx;
 
-	/**
-	 * @param ?string $stx
-	 */
 	public function __construct( ?string $stx = null ) {
 		parent::__construct( $stx !== 'row' );
 		$this->stx = $stx;

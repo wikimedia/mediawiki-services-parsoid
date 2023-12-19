@@ -51,10 +51,6 @@ class Parsoid {
 	/** @var DataAccess */
 	private $dataAccess;
 
-	/**
-	 * @param SiteConfig $siteConfig
-	 * @param DataAccess $dataAccess
-	 */
 	public function __construct(
 		SiteConfig $siteConfig, DataAccess $dataAccess
 	) {
@@ -123,10 +119,6 @@ class Parsoid {
 		return class_exists( '\Wikimedia\LangConv\ReplacementMachine' );
 	}
 
-	/**
-	 * @param array $options
-	 * @return array
-	 */
 	private function setupCommonOptions( array $options ): array {
 		$envOptions = [];
 		if ( isset( $options['offsetType'] ) ) {

@@ -35,13 +35,6 @@ class ParserPipeline {
 	/** @var Frame */
 	private $frame;
 
-	/**
-	 * @param string $type
-	 * @param string $outType
-	 * @param string $cacheKey
-	 * @param array $stages
-	 * @param Env $env
-	 */
 	public function __construct(
 		string $type, string $outType, string $cacheKey, array $stages, Env $env
 	) {
@@ -53,9 +46,6 @@ class ParserPipeline {
 		$this->env = $env;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getCacheKey(): string {
 		return $this->cacheKey;
 	}

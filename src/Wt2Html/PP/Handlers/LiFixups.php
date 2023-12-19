@@ -16,10 +16,7 @@ use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class LiFixups {
-	/**
-	 * @param Node $c
-	 * @return array
-	 */
+
 	private static function getMigrationInfo( Node $c ): array {
 		$tplRoot = WTUtils::findFirstEncapsulationWrapperNode( $c );
 		if ( $tplRoot !== null ) {
@@ -39,10 +36,6 @@ class LiFixups {
 		return [ 'tplRoot' => $tplRoot, 'migratable' => true ];
 	}
 
-	/**
-	 * @param Node $li
-	 * @return Node|null
-	 */
 	private static function findLastMigratableNode( Node $li ): ?Node {
 		$sentinel = null;
 		$c = DiffDOMUtils::lastNonSepChild( $li );

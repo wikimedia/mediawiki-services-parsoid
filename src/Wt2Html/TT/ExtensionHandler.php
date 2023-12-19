@@ -21,18 +21,11 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 class ExtensionHandler extends TokenHandler {
-	/**
-	 * @param TokenTransformManager $manager
-	 * @param array $options
-	 */
+
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 
-	/**
-	 * @param array $options
-	 * @return array
-	 */
 	private static function normalizeExtOptions( array $options ): array {
 		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
 		//
@@ -56,10 +49,6 @@ class ExtensionHandler extends TokenHandler {
 		return $options;
 	}
 
-	/**
-	 * @param Token $token
-	 * @return TokenHandlerResult
-	 */
 	private function onExtension( Token $token ): TokenHandlerResult {
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();

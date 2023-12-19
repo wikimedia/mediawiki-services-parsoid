@@ -13,11 +13,8 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class ProcessTreeBuilderFixups implements Wt2HtmlDOMProcessor {
-	/**
-	 * @param Frame $frame
-	 * @param Node $node
-	 */
-	private static function removeAutoInsertedEmptyTags( Frame $frame, Node $node ) {
+
+	private static function removeAutoInsertedEmptyTags( Frame $frame, Node $node ): void {
 		$c = $node->firstChild;
 		while ( $c !== null ) {
 			// FIXME: Encapsulation only happens after this phase, so you'd think

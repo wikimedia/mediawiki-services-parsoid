@@ -29,17 +29,12 @@ class TreeMutationRelay extends RelayTreeHandler {
 	/** @var DOMElement|null */
 	private $matchedElement;
 
-	/**
-	 * @param DOMBuilder $nextHandler
-	 */
 	public function __construct( DOMBuilder $nextHandler ) {
 		parent::__construct( $nextHandler );
 	}
 
 	/**
 	 * Start watching for a start tag with the given Attributes object.
-	 *
-	 * @param Attributes $attribs
 	 */
 	public function matchStartTag( Attributes $attribs ): void {
 		$this->matchAttribs = $attribs;

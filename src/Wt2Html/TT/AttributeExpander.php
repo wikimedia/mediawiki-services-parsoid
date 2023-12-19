@@ -45,12 +45,6 @@ class AttributeExpander extends TokenHandler {
 		$this->tokenizer = new PegTokenizer( $manager->getEnv() );
 	}
 
-	/**
-	 * @param bool $nlTkOkay
-	 * @param array $tokens
-	 * @param bool $atTopLevel
-	 * @return int
-	 */
 	private static function nlTkIndex(
 		bool $nlTkOkay, array $tokens, bool $atTopLevel
 	): int {
@@ -92,14 +86,6 @@ class AttributeExpander extends TokenHandler {
 		return -1;
 	}
 
-	/**
-	 * @param Frame $frame
-	 * @param Token $token
-	 * @param int $nlTkPos
-	 * @param array $tokens
-	 * @param bool $wrapTemplates
-	 * @return array
-	 */
 	private static function splitTokens(
 		Frame $frame, Token $token, int $nlTkPos, array $tokens, bool $wrapTemplates
 	): array {

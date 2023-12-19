@@ -114,10 +114,6 @@ class SiteConfig extends ISiteConfig {
 			. 'functionhooks|variables',
 	];
 
-	/**
-	 * @param ApiHelper $api
-	 * @param array $opts
-	 */
 	public function __construct( ApiHelper $api, array $opts ) {
 		parent::__construct();
 

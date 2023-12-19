@@ -152,7 +152,6 @@ class TempData {
 	 *
 	 * @param string $key identifier to support a map for multiple extensions
 	 * @param mixed $data
-	 * @return void
 	 */
 	public function setTagData( string $key, $data ) {
 		$this->tagData ??= [];

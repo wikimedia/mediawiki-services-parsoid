@@ -242,11 +242,6 @@ class TestRunner {
 		$this->siteConfig->setupInterwikiMap( self::PARSER_TESTS_IWPS );
 	}
 
-	/**
-	 * @param Test $test
-	 * @param string $wikitext
-	 * @return Env
-	 */
 	private function newEnv( Test $test, string $wikitext ): Env {
 		$title = $this->dummyEnv->makeTitleFromURLDecodedStr(
 			$test->pageName()
@@ -691,13 +686,6 @@ class TestRunner {
 		}
 	}
 
-	/**
-	 * @param Test $test
-	 * @param Element $out
-	 * @param array $options
-	 * @param string $mode
-	 * @return bool
-	 */
 	private function checkHTML(
 		Test $test, Element $out, array $options, string $mode
 	): bool {
@@ -714,13 +702,6 @@ class TestRunner {
 		);
 	}
 
-	/**
-	 * @param Test $test
-	 * @param string $metadataExpected
-	 * @param string $metadataActual
-	 * @param array $options
-	 * @return bool
-	 */
 	private function checkMetadata(
 		Test $test, string $metadataExpected, string $metadataActual, array $options
 	): bool {
@@ -758,8 +739,6 @@ class TestRunner {
 
 	/**
 	 * Removes DSR from data-parsoid for test normalization of an element.
-	 * @param Element $el
-	 * @return void
 	 */
 	private function filterNodeDsr( Element $el ) {
 		$dp = DOMDataUtils::getDataParsoid( $el );
@@ -771,13 +750,6 @@ class TestRunner {
 		}
 	}
 
-	/**
-	 * @param Test $test
-	 * @param string $out
-	 * @param array $options
-	 * @param string $mode
-	 * @return bool
-	 */
 	private function checkWikitext(
 		Test $test, string $out, array $options, string $mode
 	): bool {
@@ -816,10 +788,6 @@ class TestRunner {
 			$this->stats, $test, $options, $mode, $expected, $actual );
 	}
 
-	/**
-	 * @param array $options
-	 * @return array
-	 */
 	private function updateKnownFailures( array $options ): array {
 		// Check in case any tests were removed but we didn't update
 		// the knownFailures

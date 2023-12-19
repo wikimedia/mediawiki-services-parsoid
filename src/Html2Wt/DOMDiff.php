@@ -54,10 +54,6 @@ class DOMDiff {
 	 */
 	public $specializedAttribHandlers;
 
-	/**
-	 * @param Node $node
-	 * @return Node|null
-	 */
 	private function nextNonTemplateSibling( Node $node ): ?Node {
 		if ( WTUtils::isEncapsulationWrapper( $node ) ) {
 			return WTUtils::skipOverEncapsulatedContent( $node );
@@ -72,9 +68,6 @@ class DOMDiff {
 		$this->env->log( 'trace/domdiff', ...$args );
 	}
 
-	/**
-	 * @param Env $env
-	 */
 	public function __construct( Env $env ) {
 		$this->env = $env;
 		$this->extApi = new ParsoidExtensionAPI( $env );
@@ -426,11 +419,6 @@ class DOMDiff {
 		return $subtreeDiffers;
 	}
 
-	/**
-	 * @param Node $node
-	 * @param string $mark
-	 * @param bool $blockNodeDeleted
-	 */
 	private function markNode( Node $node, string $mark, bool $blockNodeDeleted = false ): void {
 		$meta = DiffUtils::addDiffMark( $node, $this->env, $mark );
 
@@ -450,11 +438,6 @@ class DOMDiff {
 		}
 	}
 
-	/**
-	 * @param Node $nodeA
-	 * @param Node $nodeB
-	 * @param string $laPrefix
-	 */
 	private function debugOut( Node $nodeA, Node $nodeB, string $laPrefix = '' ): void {
 		$prefix = 'trace/domdiff';
 		$this->env->log( $prefix,

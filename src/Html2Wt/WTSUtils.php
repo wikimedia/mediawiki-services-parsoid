@@ -20,10 +20,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class WTSUtils {
-	/**
-	 * @param string $sep
-	 * @return bool
-	 */
+
 	public static function isValidSep( string $sep ): bool {
 		/* TODO (Anomie)
 		You might be able to simplify the regex a bit using a no-backtracking group:
@@ -32,10 +29,6 @@ class WTSUtils {
 		return (bool)preg_match( '/^(\s|<!--([^\-]|-(?!->))*-->)*$/uD', $sep );
 	}
 
-	/**
-	 * @param ?DomSourceRange $dsr
-	 * @return bool
-	 */
 	public static function hasValidTagWidths( ?DomSourceRange $dsr ): bool {
 		return $dsr !== null && $dsr->hasValidTagWidths();
 	}
@@ -153,10 +146,6 @@ class WTSUtils {
 		);
 	}
 
-	/**
-	 * @param string $comment
-	 * @return string
-	 */
 	public static function commentWT( string $comment ): string {
 		return '<!--' . WTUtils::decodeComment( $comment ) . '-->';
 	}
@@ -230,10 +219,6 @@ class WTSUtils {
 		}
 	}
 
-	/**
-	 * @param Node $node
-	 * @return string
-	 */
 	public static function traceNodeName( Node $node ): string {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:

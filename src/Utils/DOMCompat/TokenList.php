@@ -95,41 +95,26 @@ class TokenList implements Iterator {
 		}
 	}
 
-	/**
-	 * @return string
-	 */
 	public function current(): string {
 		$this->lazyLoadClassList();
 		return current( $this->classList );
 	}
 
-	/**
-	 * @return void
-	 */
 	public function next(): void {
 		$this->lazyLoadClassList();
 		next( $this->classList );
 	}
 
-	/**
-	 * @return int|null
-	 */
 	public function key(): ?int {
 		$this->lazyLoadClassList();
 		return key( $this->classList );
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function valid(): bool {
 		$this->lazyLoadClassList();
 		return key( $this->classList ) !== null;
 	}
 
-	/**
-	 * @return void
-	 */
 	public function rewind(): void {
 		$this->lazyLoadClassList();
 		reset( $this->classList );

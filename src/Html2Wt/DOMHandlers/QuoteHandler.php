@@ -44,10 +44,6 @@ class QuoteHandler extends DOMHandler {
 		return $node->nextSibling;
 	}
 
-	/**
-	 * @param Element $node
-	 * @return bool
-	 */
 	private function precedingQuoteEltRequiresEscape(
 		Element $node
 	): bool {

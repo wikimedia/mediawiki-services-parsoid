@@ -167,11 +167,6 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 		}
 	}
 
-	/**
-	 * @param Document $doc
-	 * @param bool $inPTag
-	 * @return Element
-	 */
 	private static function getFosterContentHolder( Document $doc, bool $inPTag ): Element {
 		$fosterContentHolder = $doc->createElement( $inPTag ? 'span' : 'p' );
 		$dp = new DataParsoid;

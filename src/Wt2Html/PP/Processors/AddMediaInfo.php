@@ -149,12 +149,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		return $frag;
 	}
 
-	/**
-	 * @param Element $elt
-	 * @param array $info
-	 * @param DataMw $dataMw
-	 * @param bool $hasDimension
-	 */
 	private static function addSources(
 		Element $elt, array $info, DataMw $dataMw, bool $hasDimension
 	): void {
@@ -194,10 +188,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		}
 	}
 
-	/**
-	 * @param Element $elt
-	 * @param array $info
-	 */
 	private static function addTracks( Element $elt, array $info ): void {
 		$doc = $elt->ownerDocument;
 		if ( is_array( $info['thumbdata']['timedtext'] ?? null ) ) {
@@ -399,12 +389,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		return $img;
 	}
 
-	/**
-	 * @param string $key
-	 * @param string $message
-	 * @param ?array $params
-	 * @return array
-	 */
 	private static function makeErr(
 		string $key, string $message, ?array $params = null
 	): array {
@@ -416,13 +400,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		return $e;
 	}
 
-	/**
-	 * @param Element $container
-	 * @param Element $span
-	 * @param array $errs
-	 * @param DataMw $dataMw
-	 * @param string|null $alt
-	 */
 	private static function handleErrors(
 		Element $container, Element $span, array $errs, DataMw $dataMw,
 		?string $alt
@@ -439,11 +416,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		}
 	}
 
-	/**
-	 * @param Element $elt
-	 * @param Element $span
-	 * @param string $attribute
-	 */
 	private static function copyOverAttribute(
 		Element $elt, Element $span, string $attribute
 	): void {
@@ -455,19 +427,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		);
 	}
 
-	/**
-	 * @param Env $env
-	 * @param PegTokenizer $urlParser
-	 * @param Element $container
-	 * @param Element $oldAnchor
-	 * @param array $attrs
-	 * @param DataMw $dataMw
-	 * @param bool $isImage
-	 * @param string|null $captionText
-	 * @param int $page
-	 * @param string $lang
-	 * @return Element
-	 */
 	private static function replaceAnchor(
 		Env $env, PegTokenizer $urlParser, Element $container,
 		Element $oldAnchor, array $attrs, DataMw $dataMw, bool $isImage,

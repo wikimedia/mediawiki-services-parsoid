@@ -68,10 +68,6 @@ class Separators {
 		return $c;
 	}
 
-	/**
-	 * @param Node $n
-	 * @return int|null
-	 */
 	private static function precedingSeparatorTextLen( Node $n ): ?int {
 		// Given the CSS white-space property and specifically,
 		// "pre" and "pre-line" values for this property, it seems that any
@@ -346,10 +342,6 @@ class Separators {
 		return $res;
 	}
 
-	/**
-	 * @param Node $node
-	 * @return string
-	 */
 	public static function debugOut( Node $node ): string {
 		$value = '';
 		if ( $node instanceof Element ) {
@@ -427,20 +419,11 @@ class Separators {
 		];
 	}
 
-	/**
-	 * @param Env $env
-	 * @param SerializerState $state
-	 */
 	public function __construct( Env $env, SerializerState $state ) {
 		$this->env = $env;
 		$this->state = $state;
 	}
 
-	/**
-	 * @param string $sep
-	 * @param array $nlConstraints
-	 * @return string
-	 */
 	private function makeSepIndentPreSafe(
 		string $sep, array $nlConstraints
 	): string {

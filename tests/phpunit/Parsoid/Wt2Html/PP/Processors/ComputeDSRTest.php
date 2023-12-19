@@ -20,11 +20,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\ComputeDSR
  */
 class ComputeDSRTest extends TestCase {
-	/**
-	 * @param string $wt
-	 * @param Element $doc
-	 * @param array $spec
-	 */
+
 	public function validateSpec( string $wt, Element $doc, array $spec ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, $spec['selector'] );
 		$this->assertCount( 1, $elts,
@@ -101,9 +97,6 @@ class ComputeDSRTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideComputeDSR(): array {
 		return [
 			// Paragraph wrapping

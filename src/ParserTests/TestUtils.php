@@ -172,10 +172,6 @@ class TestUtils {
 		);
 	}
 
-	/**
-	 * @param Node $node
-	 * @param ?string $stripSpanTypeof
-	 */
 	private static function cleanSpans(
 		Node $node, ?string $stripSpanTypeof
 	): void {
@@ -195,11 +191,6 @@ class TestUtils {
 		}
 	}
 
-	/**
-	 * @param Node $parent
-	 * @param Node $node
-	 * @param ?string $stripSpanTypeof
-	 */
 	private static function unwrapSpan(
 		Node $parent, Node $node, ?string $stripSpanTypeof
 	): void {
@@ -210,10 +201,6 @@ class TestUtils {
 		$parent->removeChild( $node );
 	}
 
-	/**
-	 * @param ?Node $node
-	 * @return bool
-	 */
 	private static function newlineAround( ?Node $node ): bool {
 		return $node && preg_match(
 			'/^(body|caption|div|dd|dt|li|p|table|tr|td|th|tbody|dl|ol|ul|h[1-6])$/D',
@@ -221,11 +208,6 @@ class TestUtils {
 		);
 	}
 
-	/**
-	 * @param Node $node
-	 * @param array $opts
-	 * @return Node
-	 */
 	private static function normalizeIEWVisitor(
 		Node $node, array $opts
 	): Node {

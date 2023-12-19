@@ -11,12 +11,8 @@ use Wikimedia\Parsoid\Utils\UrlUtils;
 
 class RemoveRedLinks {
 
-	/** @var Env */
 	private Env $env;
 
-	/**
-	 * @param Env $env
-	 */
 	public function __construct( Env $env ) {
 		$this->env = $env;
 	}

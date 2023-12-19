@@ -189,9 +189,6 @@ class PreHandler extends TokenHandler {
 		}
 	}
 
-	/**
-	 * @param array $opts
-	 */
 	public function resetState( array $opts ): void {
 		$this->reset();
 	}

@@ -43,14 +43,6 @@ class RegressionSpecsTest extends TestCase {
 		return( $docBody );
 	}
 
-	/**
-	 * @param string $description
-	 * @param string $wt
-	 * @param array $search
-	 * @param array $replace
-	 * @param string $withoutSelser
-	 * @param string $withSelser
-	 */
 	private function sharedTest(
 		string $description, string $wt, array $search, array $replace,
 		string $withoutSelser, string $withSelser

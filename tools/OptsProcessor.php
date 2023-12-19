@@ -250,9 +250,6 @@ class OptsProcessor {
 		return $this->hasArg( $argId ) ? $this->args[$argId] : $default;
 	}
 
-	/**
-	 * @return bool
-	 */
 	public function isQuiet(): bool {
 		return $this->quiet;
 	}

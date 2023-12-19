@@ -16,16 +16,12 @@ class ExtensionTag {
 	/** @var Token */
 	private $extToken;
 
-	/**
-	 * @param Token $extToken
-	 */
 	public function __construct( Token $extToken ) {
 		$this->extToken = $extToken;
 	}
 
 	/**
 	 * Return the name of the extension tag
-	 * @return string
 	 */
 	public function getName(): string {
 		return $this->extToken->getAttributeV( 'name' );
@@ -33,7 +29,6 @@ class ExtensionTag {
 
 	/**
 	 * Return the source offsets for this extension tag usage
-	 * @return DomSourceRange|null
 	 */
 	public function getOffsets(): ?DomSourceRange {
 		return $this->extToken->dataParsoid->extTagOffsets ?? null;
@@ -41,7 +36,6 @@ class ExtensionTag {
 
 	/**
 	 * Return the full extension source
-	 * @return string|null
 	 */
 	public function getSource(): ?string {
 		return $this->extToken->getAttributeV( 'source' );
@@ -49,15 +43,11 @@ class ExtensionTag {
 
 	/**
 	 * Is this extension tag self-closed?
-	 * @return bool
 	 */
 	public function isSelfClosed(): bool {
 		return !empty( $this->extToken->dataParsoid->selfClose );
 	}
 
-	/**
-	 * @return DataMw
-	 */
 	public function getDefaultDataMw(): DataMw {
 		return Utils::getExtArgInfo( $this->extToken );
 	}

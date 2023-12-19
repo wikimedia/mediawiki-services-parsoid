@@ -259,10 +259,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
-	/**
-	 * @param array $configOpts
-	 */
-	private function setupMwConfig( array $configOpts ) {
+	private function setupMwConfig( array $configOpts ): void {
 		$services = MediaWikiServices::getInstance();
 		$siteConfig = $services->getParsoidSiteConfig();
 		// Overwriting logger so that it logs to console/file
@@ -311,10 +308,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 
-	/**
-	 * @param array $configOpts
-	 */
-	private function setupApiConfig( array $configOpts ) {
+	private function setupApiConfig( array $configOpts ): void {
 		$api = new ApiHelper( $configOpts );
 
 		$siteConfig = new SiteConfig( $api, $configOpts );
@@ -335,10 +329,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
 
-	/**
-	 * @param array $configOpts
-	 */
-	private function setupMockConfig( array $configOpts ) {
+	private function setupMockConfig( array $configOpts ): void {
 		$siteConfig = new MockSiteConfig( $configOpts );
 		$siteConfig->registerExtensionModule( DummyAnnotation::class );
 		$dataAccess = new MockDataAccess( $siteConfig, $configOpts );
@@ -390,13 +381,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	/**
-	 * @param array $configOpts
-	 * @param array $parsoidOpts
-	 * @param string $html
-	 * @param ?SelserData $selserData
-	 * @return string
-	 */
 	public function html2Wt(
 		array $configOpts, array $parsoidOpts, string $html,
 		?SelserData $selserData = null
@@ -414,10 +398,6 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	/**
-	 * @param string $html
-	 * @return string
-	 */
 	private function maybeNormalize( string $html ): string {
 		if ( $this->hasOption( 'normalize' ) ) {
 			$html = TestUtils::normalizeOut(

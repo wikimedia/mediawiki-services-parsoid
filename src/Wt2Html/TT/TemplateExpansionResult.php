@@ -14,11 +14,6 @@ class TemplateExpansionResult {
 	/** @var bool */
 	public $encap;
 
-	/**
-	 * @param array $tokens
-	 * @param bool $shuttle
-	 * @param bool $encap
-	 */
 	public function __construct( array $tokens, bool $shuttle = false, bool $encap = false ) {
 		$this->tokens = $tokens;
 		$this->shuttle = $shuttle;

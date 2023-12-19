@@ -226,10 +226,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	/**
-	 * @param \Wikimedia\Parsoid\Tools\Maintenance $script
-	 * @return array
-	 */
 	public static function processOptions( \Wikimedia\Parsoid\Tools\Maintenance $script ): array {
 		$options = $script->optionsToArray();
 
@@ -452,10 +448,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	/**
-	 * @param ?array $iopts
-	 * @return string
-	 */
 	private static function prettyPrintIOptions(
 		?array $iopts = null
 	): string {
@@ -873,12 +865,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		return ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && !$expectSuccess;
 	}
 
-	/**
-	 * @param Stats $stats
-	 * @param string $mode
-	 * @param string $title
-	 * @param array $time
-	 */
 	private static function pre(
 		Stats $stats, string $mode, string $title, array $time
 	): void {
@@ -897,10 +883,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$stats->modes[$mode]->result .= $testcaseEle;
 	}
 
-	/**
-	 * @param Stats $stats
-	 * @param string $mode
-	 */
 	private static function post( Stats $stats, string $mode ): void {
 		$stats->modes[$mode]->result .= '</testcase>';
 	}

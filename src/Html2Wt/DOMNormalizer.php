@@ -59,9 +59,6 @@ class DOMNormalizer {
 	/** @var SerializerState */
 	private $state;
 
-	/**
-	 * @param SerializerState $state
-	 */
 	public function __construct( SerializerState $state ) {
 		if ( !self::$specializedAttribHandlers ) {
 			self::$specializedAttribHandlers = [
@@ -76,11 +73,6 @@ class DOMNormalizer {
 		$this->inInsertedContent = false;
 	}
 
-	/**
-	 * @param Node $a
-	 * @param Node $b
-	 * @return bool
-	 */
 	private static function similar( Node $a, Node $b ): bool {
 		if ( DOMCompat::nodeName( $a ) === 'a' ) {
 			// FIXME: Similar to 1ce6a98, DiffDOMUtils::nextNonDeletedSibling is being
@@ -130,19 +122,10 @@ class DOMNormalizer {
 			&& self::mergable( DiffDOMUtils::firstNonDeletedChild( $a ), $b );
 	}
 
-	/**
-	 * @param Node $node
-	 * @param bool $rtl
-	 * @return Node|null
-	 */
 	private static function firstChild( Node $node, bool $rtl ): ?Node {
 		return $rtl ? DiffDOMUtils::lastNonDeletedChild( $node ) : DiffDOMUtils::firstNonDeletedChild( $node );
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	private function isInsertedContent( Node $node ): bool {
 		while ( true ) {
 			if ( DiffUtils::hasInsertedDiffMark( $node ) ) {
@@ -155,11 +138,6 @@ class DOMNormalizer {
 		}
 	}
 
-	/**
-	 * @param Node $a
-	 * @param Node $b
-	 * @return bool
-	 */
 	private function rewriteablePair( Node $a, Node $b ): bool {
 		if ( isset( Consts::$WTQuoteTags[DOMCompat::nodeName( $a )] ) ) {
 			// For <i>/<b> pair, we need not check whether the node being transformed
@@ -185,11 +163,6 @@ class DOMNormalizer {
 		return false;
 	}
 
-	/**
-	 * @param Node $node
-	 * @param string $mark
-	 * @param bool $dontRecurse
-	 */
 	public function addDiffMarks( Node $node, string $mark, bool $dontRecurse = false ): void {
 		if ( !$this->state->selserMode || DiffUtils::hasDiffMark( $node, $mark ) ) {
 			return;
@@ -295,10 +268,6 @@ class DOMNormalizer {
 		return $b;
 	}
 
-	/**
-	 * @param Element $node
-	 * @param bool $rtl
-	 */
 	public function hoistLinks( Element $node, bool $rtl ): void {
 		$sibling = self::firstChild( $node, $rtl );
 		$hasHoistableContent = false;
@@ -345,10 +314,6 @@ class DOMNormalizer {
 		}
 	}
 
-	/**
-	 * @param Element $node
-	 * @return Node|null
-	 */
 	public function stripIfEmpty( Element $node ): ?Node {
 		$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
@@ -371,9 +336,6 @@ class DOMNormalizer {
 		}
 	}
 
-	/**
-	 * @param Node $node
-	 */
 	public function moveTrailingSpacesOut( Node $node ): void {
 		$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 		$last = DiffDOMUtils::lastNonDeletedChild( $node );
@@ -399,9 +361,6 @@ class DOMNormalizer {
 		}
 	}
 
-	/**
-	 * @param Element $node
-	 */
 	public function stripBRs( Element $node ): void {
 		$child = $node->firstChild;
 		while ( $child ) {
@@ -703,11 +662,6 @@ class DOMNormalizer {
 		return $node;
 	}
 
-	/**
-	 * @param Node $a
-	 * @param Node $b
-	 * @return Node
-	 */
 	public function normalizeSiblingPair( Node $a, Node $b ): Node {
 		if ( !$this->rewriteablePair( $a, $b ) ) {
 			return $b;
@@ -752,10 +706,6 @@ class DOMNormalizer {
 		return $b;
 	}
 
-	/**
-	 * @param Node $node
-	 * @param bool $recurse
-	 */
 	public function processSubtree( Node $node, bool $recurse ): void {
 		// Process the first child outside the loop.
 		$a = DiffDOMUtils::firstNonDeletedChild( $node );
@@ -785,11 +735,6 @@ class DOMNormalizer {
 		}
 	}
 
-	/**
-	 * @param Node $node
-	 * @param bool $recurse
-	 * @return Node|null
-	 */
 	public function processNode( Node $node, bool $recurse ): ?Node {
 		// Normalize 'node' and the subtree rooted at 'node'
 		// recurse = true  => recurse and normalize subtree

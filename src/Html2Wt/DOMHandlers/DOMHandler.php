@@ -51,9 +51,6 @@ class DOMHandler {
 	/** @var bool */
 	private $forceSOL;
 
-	/**
-	 * @param bool $forceSOL
-	 */
 	public function __construct( bool $forceSOL = false ) {
 		$this->forceSOL = $forceSOL;
 	}

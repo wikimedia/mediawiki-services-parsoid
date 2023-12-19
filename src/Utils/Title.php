@@ -47,12 +47,6 @@ class Title implements LinkTarget {
 		$this->fragment = $fragment ?? '';
 	}
 
-	/**
-	 * @param string $title
-	 * @param SiteConfig $siteConfig
-	 * @param ?int $defaultNs
-	 * @return Title
-	 */
 	public static function newFromText(
 		string $title, SiteConfig $siteConfig, ?int $defaultNs = null
 	): Title {

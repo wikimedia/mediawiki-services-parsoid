@@ -41,9 +41,6 @@ class DOMDataUtils {
 		return $doc->bag;
 	}
 
-	/**
-	 * @param Document $doc
-	 */
 	public static function prepareDoc( Document $doc ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
@@ -173,9 +170,6 @@ class DOMDataUtils {
 	/**
 	 * Sets the i18n information of a node. This is in private access because it shouldn't
 	 * typically be used directly; instead setDataNodeI18n and setDataAttrI18n should be used.
-	 * @param Element $node
-	 * @param DataMwI18n $i18n
-	 * @return void
 	 */
 	private static function setDataMwI18n( Element $node, DataMwI18n $i18n ) {
 		$data = self::getNodeData( $node );
@@ -198,9 +192,6 @@ class DOMDataUtils {
 
 	/**
 	 * Sets internationalization (i18n) information of a node, used for later localization
-	 * @param Element $node
-	 * @param I18nInfo $i18n
-	 * @return void
 	 */
 	public static function setDataNodeI18n( Element $node, I18nInfo $i18n ) {
 		$data = self::getNodeData( $node );
@@ -230,7 +221,6 @@ class DOMDataUtils {
 	 * @param Element $node
 	 * @param string $name
 	 * @param I18nInfo $i18n
-	 * @return void
 	 */
 	public static function setDataAttrI18n( Element $node, string $name, I18nInfo $i18n ) {
 		$data = self::getNodeData( $node );

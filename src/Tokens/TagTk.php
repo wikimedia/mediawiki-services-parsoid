@@ -25,9 +25,6 @@ class TagTk extends Token {
 		$this->dataParsoid = $dataParsoid ?? new DataParsoid;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getName(): string {
 		return $this->name;
 	}

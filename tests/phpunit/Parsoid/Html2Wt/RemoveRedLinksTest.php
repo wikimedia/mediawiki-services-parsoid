@@ -15,10 +15,6 @@ class RemoveRedLinksTest extends TestCase {
 	/**
 	 * @covers ::run
 	 * @dataProvider provideRedLinks
-	 * @param string $html
-	 * @param string $expected
-	 * @param string $message
-	 * @return void
 	 */
 	public function testRun( string $html, string $expected, string $message ) {
 		$doc = ContentUtils::createAndLoadDocument( $html, [ 'markNew' => true ] );

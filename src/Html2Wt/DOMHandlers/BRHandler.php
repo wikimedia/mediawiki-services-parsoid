@@ -89,20 +89,12 @@ class BRHandler extends DOMHandler {
 		return [];
 	}
 
-	/**
-	 * @param Element $br
-	 * @return bool
-	 */
 	private function isPbr( Element $br ): bool {
 		return ( DOMDataUtils::getDataParsoid( $br )->stx ?? null ) !== 'html'
 			&& DOMCompat::nodeName( $br->parentNode ) === 'p'
 			&& DiffDOMUtils::firstNonSepChild( $br->parentNode ) === $br;
 	}
 
-	/**
-	 * @param Element $br
-	 * @return bool
-	 */
 	private function isPbrP( Element $br ): bool {
 		return $this->isPbr( $br ) && DiffDOMUtils::nextNonSepSibling( $br ) === null;
 	}

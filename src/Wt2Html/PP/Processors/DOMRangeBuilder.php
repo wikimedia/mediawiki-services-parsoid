@@ -87,10 +87,6 @@ class DOMRangeBuilder {
 	/** @var string */
 	protected $traceType;
 
-	/**
-	 * @param Document $document
-	 * @param Frame $frame
-	 */
 	public function __construct(
 		Document $document, Frame $frame
 	) {
@@ -101,10 +97,6 @@ class DOMRangeBuilder {
 		$this->traceType = "tplwrap";
 	}
 
-	/**
-	 * @param Element $target
-	 * @param Element $source
-	 */
 	protected function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
 		$srcDP = DOMDataUtils::getDataParsoid( $source );
 		$tgtDP = DOMDataUtils::getDataParsoid( $target );
@@ -351,9 +343,6 @@ class DOMRangeBuilder {
 		return $node;
 	}
 
-/**
- * @param Element $meta
- */
 	private static function stripStartMeta( Element $meta ): void {
 		if ( DOMCompat::nodeName( $meta ) === 'meta' ) {
 			$meta->parentNode->removeChild( $meta );
@@ -367,11 +356,6 @@ class DOMRangeBuilder {
 		}
 	}
 
-	/**
-	 * @param array $nestingInfo
-	 * @param ?string $startId
-	 * @return ?string
-	 */
 	private static function findToplevelEnclosingRange(
 		array $nestingInfo, ?string $startId
 	): ?string {
@@ -1113,7 +1097,6 @@ class DOMRangeBuilder {
 	 * @param Node $rootNode
 	 * @param ElementRange[] &$tpls Template start and end elements by ID
 	 * @param DOMRangeInfo[] &$tplRanges Template range info
-	 * @return void
 	 */
 	private function findWrappableTemplateRangesRecursive(
 		Node $rootNode, array &$tpls, array &$tplRanges
@@ -1263,10 +1246,6 @@ class DOMRangeBuilder {
 		return WTUtils::matchTplType( $elem );
 	}
 
-	/**
-	 * @param ?TemplateInfo $templateInfo
-	 * @param TempData $tmp
-	 */
 	protected function verifyTplInfoExpectation( ?TemplateInfo $templateInfo, TempData $tmp ): void {
 		if ( !$templateInfo ) {
 			// An assertion here is probably an indication that we're
@@ -1275,9 +1254,6 @@ class DOMRangeBuilder {
 		}
 	}
 
-	/**
-	 * @param Node $root
-	 */
 	public function execute( Node $root ): void {
 		$tplRanges = $this->findWrappableMetaRanges( $root );
 		if ( count( $tplRanges ) > 0 ) {

@@ -12,10 +12,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  * Language Variant markup, like `-{ ... }-`.
  */
 class LanguageVariantText extends RegExpConstrainedText {
-	/**
-	 * @param string $text
-	 * @param Element $node
-	 */
+
 	public function __construct( string $text, Element $node ) {
 		parent::__construct( [
 				'text' => $text,
@@ -26,14 +23,6 @@ class LanguageVariantText extends RegExpConstrainedText {
 		);
 	}
 
-	/**
-	 * @param string $text
-	 * @param Element $node
-	 * @param DataParsoid $dataParsoid
-	 * @param Env $env
-	 * @param array $opts
-	 * @return ?LanguageVariantText
-	 */
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts

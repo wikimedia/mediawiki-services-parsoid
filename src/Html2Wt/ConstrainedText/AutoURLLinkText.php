@@ -12,10 +12,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
  * An autolink to an external resource, like `http://example.com`.
  */
 class AutoURLLinkText extends RegExpConstrainedText {
-	/**
-	 * @param string $url
-	 * @param Element $node
-	 */
+
 	public function __construct( string $url, Element $node ) {
 		parent::__construct( [
 				'text' => $url,
@@ -46,24 +43,12 @@ class AutoURLLinkText extends RegExpConstrainedText {
 		'[' . self::TRAILING_PUNCT . '\)]*' .
 		'[' . self::EXT_LINK_URL_CLASS . self::TRAILING_PUNCT . '\)]/u';
 
-	/**
-	 * @param string $url
-	 * @return string
-	 */
 	private static function badSuffix( string $url ): string {
 		return strpos( $url, '(' ) === false ?
 			self::NOPAREN_AUTOURL_BAD_SUFFIX :
 			self::PAREN_AUTOURL_BAD_SUFFIX;
 	}
 
-	/**
-	 * @param string $text
-	 * @param Element $node
-	 * @param DataParsoid $dataParsoid
-	 * @param Env $env
-	 * @param array $opts
-	 * @return ?AutoURLLinkText
-	 */
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts

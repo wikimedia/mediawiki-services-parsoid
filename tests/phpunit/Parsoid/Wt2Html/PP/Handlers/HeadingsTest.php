@@ -17,13 +17,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\PP\Handlers\Headings
  */
 class HeadingsTest extends TestCase {
-	/**
-	 * @param string $name
-	 * @param string $heading
-	 * @param string $description
-	 * @param array $expectedIds
-	 * @param Element $doc
-	 */
+
 	public function validateId( string $name, string $heading, string $description, array $expectedIds,
 								Element $doc ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, 'body > h1' );
@@ -48,11 +42,6 @@ class HeadingsTest extends TestCase {
 		}
 	}
 
-	/**
-	 * @param string $name
-	 * @param array $test
-	 * @param string $description
-	 */
 	public function runHeadingTest( string $name, array $test, string $description ): void {
 		$heading = current( $test );
 		array_shift( $test );
@@ -81,9 +70,6 @@ class HeadingsTest extends TestCase {
 		$this->runHeadingTest( 'Simple Headings ', $simpleHeadings, ' should be valid for ' );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideSimpleHeadings(): array {
 		return [
 			[ [ '=Test=', 'Test' ] ],
@@ -102,9 +88,6 @@ class HeadingsTest extends TestCase {
 			' wikitext chars should be ignored in ' );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideHeadingsWithWtChars(): array {
 		return [
 			[ [ '=This is a [[Link]]=', 'This_is_a_Link' ] ],
@@ -130,9 +113,6 @@ class HeadingsTest extends TestCase {
 			' HTML tags should be stripped in ' );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideHeadingsWithHTML(): array {
 		return [
 			[ [ "=Some <span>html</span> <b>tags</b> here=", 'Some_html_tags_here' ] ],
@@ -151,9 +131,6 @@ class HeadingsTest extends TestCase {
 			' Entities should be encoded ' );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideHeadingsWithEntities(): array {
 		return [
 			[ [ '=Red, Blue, Yellow=', [ 'Red,_Blue,_Yellow', 'Red.2C_Blue.2C_Yellow' ] ] ],
@@ -172,9 +149,6 @@ class HeadingsTest extends TestCase {
 			' Ids should be valid ' );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideNonEnglishHeadings(): array {
 		return [
 			[ [ "=Références=", [ "Références", "R.C3.A9f.C3.A9rences" ] ] ],
@@ -194,9 +168,6 @@ class HeadingsTest extends TestCase {
 		$this->runHeadingTest( 'Edge Case Tests ', $edgeCases, ' Ids should be valid ' );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideEdgeCases(): array {
 		return [
 			[ [ "=a=\n=a=", 'a', 'a_2' ] ],

@@ -63,9 +63,6 @@ class MockSiteConfig extends SiteConfig {
 	/** @var string|bool */
 	private $externalLinkTarget;
 
-	/**
-	 * @param array $opts
-	 */
 	public function __construct( array $opts ) {
 		parent::__construct();
 
@@ -181,9 +178,6 @@ class MockSiteConfig extends SiteConfig {
 		return null;
 	}
 
-	/**
-	 * @param bool $val
-	 */
 	public function setInterwikiMagic( bool $val ): void {
 		$this->interwikiMagic = $val;
 	}

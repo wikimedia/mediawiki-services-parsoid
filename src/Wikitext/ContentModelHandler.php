@@ -122,9 +122,6 @@ class ContentModelHandler extends IContentModelHandler {
 		$selserData->oldDOM = $doc;
 	}
 
-	/**
-	 * @param Document $doc
-	 */
 	private function processIndicators( Document $doc, ParsoidExtensionAPI $extApi ): void {
 		// Erroneous indicators without names will be <span>s
 		$indicators = DOMCompat::querySelectorAll( $doc, 'meta[typeof~="mw:Extension/indicator"]' );

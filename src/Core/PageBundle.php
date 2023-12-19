@@ -37,14 +37,6 @@ class PageBundle {
 	/** @var string|null */
 	public $contentmodel;
 
-	/**
-	 * @param string $html
-	 * @param ?array $parsoid
-	 * @param ?array $mw
-	 * @param ?string $version
-	 * @param ?array $headers
-	 * @param ?string $contentmodel
-	 */
 	public function __construct(
 		string $html, ?array $parsoid = null, ?array $mw = null,
 		?string $version = null, ?array $headers = null,

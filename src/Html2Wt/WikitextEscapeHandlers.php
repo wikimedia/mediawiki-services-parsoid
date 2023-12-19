@@ -37,10 +37,6 @@ class WikitextEscapeHandlers {
 	 */
 	private $tokenizer;
 
-	/**
-	 * @param Env $env
-	 * @param ?string $extName
-	 */
 	public function __construct( Env $env, ?string $extName ) {
 		$this->env = $env;
 		$this->extName = $extName;
@@ -200,10 +196,6 @@ class WikitextEscapeHandlers {
 		return $out;
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	public function isFirstContentNode( Node $node ): bool {
 		// Skip deleted-node markers
 		return DiffDOMUtils::previousNonDeletedSibling( $node ) === null;
@@ -269,29 +261,14 @@ class WikitextEscapeHandlers {
 			preg_match( '/^[^\n]*!!|\|/', $text );
 	}
 
-	/**
-	 * @param SerializerState $state
-	 * @param string $text
-	 * @return bool
-	 */
 	public function mediaOptionHandler( SerializerState $state, string $text ): bool {
 		return str_contains( $text, '|' ) || preg_match( self::LINKS_ESCAPE_RE, $text );
 	}
 
-	/**
-	 * @param SerializerState $state
-	 * @param string $text
-	 * @return bool
-	 */
 	public function wikilinkHandler( SerializerState $state, string $text ): bool {
 		return (bool)preg_match( self::LINKS_ESCAPE_RE, $text );
 	}
 
-	/**
-	 * @param SerializerState $state
-	 * @param string $text
-	 * @return bool
-	 */
 	public function aHandler( SerializerState $state, string $text ): bool {
 		return str_contains( $text, ']' );
 	}
@@ -368,12 +345,6 @@ class WikitextEscapeHandlers {
 		return $tokens;
 	}
 
-	/**
-	 * @param Node $node
-	 * @param SerializerState $state
-	 * @param string $text
-	 * @return bool
-	 */
 	public function textCanParseAsLink( Node $node, SerializerState $state, string $text ): bool {
 		$env = $state->getEnv();
 		$env->log(
@@ -489,12 +460,6 @@ class WikitextEscapeHandlers {
 		return true;
 	}
 
-	/**
-	 * @param SerializerState $state
-	 * @param bool $onNewline
-	 * @param string $text
-	 * @return bool
-	 */
 	private function hasWikitextTokens(
 		SerializerState $state, bool $onNewline, string $text
 	): bool {
@@ -654,13 +619,6 @@ class WikitextEscapeHandlers {
 		return false;
 	}
 
-	/**
-	 * @param string $str
-	 * @param bool $close
-	 * @param bool &$inNowiki
-	 * @param bool &$nowikisAdded
-	 * @param string &$buf
-	 */
 	private static function nowikiWrap(
 		string $str, bool $close, bool &$inNowiki, bool &$nowikisAdded, string &$buf
 	): void {

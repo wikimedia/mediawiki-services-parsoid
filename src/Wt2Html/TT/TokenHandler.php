@@ -39,9 +39,6 @@ abstract class TokenHandler {
 		$this->options = $options;
 	}
 
-	/**
-	 * @param int $id
-	 */
 	public function setPipelineId( int $id ): void {
 		$this->pipelineId = $id;
 	}

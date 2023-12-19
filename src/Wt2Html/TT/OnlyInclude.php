@@ -55,10 +55,6 @@ class OnlyInclude extends TokenHandler {
 			$this->onOnlyInclude( $token ) : null;
 	}
 
-	/**
-	 * @param Token $token
-	 * @return TokenHandlerResult
-	 */
 	private function onOnlyInclude( Token $token ): TokenHandlerResult {
 		$tsr = $token->dataParsoid->tsr;
 		$src = !$this->options['inTemplate']

@@ -32,9 +32,6 @@ class PoemProcessor extends DOMProcessor {
 		}
 	}
 
-	/**
-	 * @param Element $node
-	 */
 	private function processNowikis( Element $node ): void {
 		$doc = $node->ownerDocument;
 		$c = $node->firstChild;

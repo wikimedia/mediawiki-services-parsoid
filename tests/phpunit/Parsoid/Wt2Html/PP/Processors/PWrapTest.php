@@ -17,10 +17,6 @@ use Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap;
  */
 class PWrapTest extends TestCase {
 
-	/**
-	 * @param string $html
-	 * @param string $expected
-	 */
 	private function verifyPWrap( string $html, string $expected ): void {
 		$mockEnv = new MockEnv( [] );
 		$doc = ContentUtils::createAndLoadDocument( $html );

@@ -102,9 +102,6 @@ class LanguageConverter {
 		return $this->machine;
 	}
 
-	/**
-	 * @param ReplacementMachine $machine
-	 */
 	public function setMachine( ReplacementMachine $machine ): void {
 		$this->machine = $machine;
 	}

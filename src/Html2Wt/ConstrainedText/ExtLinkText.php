@@ -32,14 +32,6 @@ class ExtLinkText extends ConstrainedText {
 		);
 	}
 
-	/**
-	 * @param string $text
-	 * @param Element $node
-	 * @param DataParsoid $dataParsoid
-	 * @param Env $env
-	 * @param array $opts
-	 * @return ?ExtLinkText
-	 */
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts

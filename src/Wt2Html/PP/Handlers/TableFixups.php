@@ -35,9 +35,6 @@ class TableFixups {
 	 */
 	private $tokenizer;
 
-	/**
-	 * @param Env $env
-	 */
 	public function __construct( Env $env ) {
 		/**
 		 * Set up some helper objects for reparseTemplatedAttributes
@@ -99,10 +96,6 @@ class TableFixups {
 		return true;
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	private function isSimpleTemplatedSpan( Node $node ): bool {
 		return DOMCompat::nodeName( $node ) === 'span' &&
 			DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&

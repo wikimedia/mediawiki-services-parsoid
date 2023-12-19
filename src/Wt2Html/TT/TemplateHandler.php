@@ -922,10 +922,6 @@ class TemplateHandler extends TokenHandler {
 		);
 	}
 
-	/**
-	 * @param TemplateEncapsulator $state
-	 * @return TemplateExpansionResult
-	 */
 	private function expandTemplate( TemplateEncapsulator $state ): TemplateExpansionResult {
 		$env = $this->env;
 		$token = $state->token;
@@ -1126,10 +1122,6 @@ class TemplateHandler extends TokenHandler {
 		return new TokenHandlerResult( $toks );
 	}
 
-	/**
-	 * @param Token $token
-	 * @return TokenHandlerResult|null
-	 */
 	public function onTag( Token $token ): ?TokenHandlerResult {
 		switch ( $token->getName() ) {
 			case "template":

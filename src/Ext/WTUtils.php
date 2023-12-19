@@ -15,26 +15,15 @@ class WTUtils {
 
 	/**
 	 * Is $node a sealed DOMFragment of a specific extension?
-	 * @param Node $node
-	 * @param string $name
-	 * @return bool
 	 */
 	public static function isSealedFragmentOfType( Node $node, string $name ): bool {
 		return WTU::isSealedFragmentOfType( $node, $name );
 	}
 
-	/**
-	 * @param Element $node
-	 * @return bool
-	 */
 	public static function hasVisibleCaption( Element $node ): bool {
 		return WTU::hasVisibleCaption( $node );
 	}
 
-	/**
-	 * @param Node $node
-	 * @return string
-	 */
 	public static function textContentFromCaption( Node $node ): string {
 		return WTU::textContentFromCaption( $node );
 	}

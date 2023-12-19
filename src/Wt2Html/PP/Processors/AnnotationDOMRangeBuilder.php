@@ -60,9 +60,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		$this->migrateTrailingNls = new MigrateTrailingNLs();
 	}
 
-	/**
-	 * @param array $annRanges
-	 */
 	private function wrapAnnotationsInTree( array $annRanges ): void {
 		foreach ( $annRanges as $range ) {
 			if ( $range->startElem !== $range->start ) {
@@ -293,9 +290,6 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		// nop
 	}
 
-	/**
-	 * @param Node $root
-	 */
 	public function execute( Node $root ): void {
 		try {
 			$annRanges = $this->findWrappableMetaRanges( $root );

@@ -14,46 +14,27 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  * Strips all tokens in noinclude sections.
  */
 class IncludeOnly extends TokenCollector {
-	/**
-	 * @param TokenTransformManager $manager
-	 * @param array $options options
-	 */
+
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function type(): string {
 		return 'tag';
 	}
 
-	/**
-	 * @return string
-	 */
 	protected function name(): string {
 		return 'includeonly';
 	}
 
-	/**
-	 * @return bool
-	 */
 	protected function toEnd(): bool {
 		return true;    // Match the end-of-input if </noinclude> is missing.
 	}
 
-	/**
-	 * @return bool
-	 */
 	protected function ackEnd(): bool {
 		return false;
 	}
 
-	/**
-	 * @param array $collection
-	 * @return TokenHandlerResult
-	 */
 	protected function transformation( array $collection ): TokenHandlerResult {
 		$start = array_shift( $collection );
 

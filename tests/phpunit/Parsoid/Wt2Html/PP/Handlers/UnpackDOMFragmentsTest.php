@@ -14,10 +14,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 class UnpackDOMFragmentsTest extends TestCase {
-	/**
-	 * @param array $wt
-	 * @return Element
-	 */
+
 	private function getOutput( string $wt ): Element {
 		$siteConfig = new MockSiteConfig( [] );
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
@@ -36,10 +33,6 @@ class UnpackDOMFragmentsTest extends TestCase {
 		return DOMCompat::getBody( $doc );
 	}
 
-	/**
-	 * @param Element $body
-	 * @param Element|null $markerNode
-	 */
 	private function validateFixedupDSR( Element $body, ?Element $markerNode ): void {
 		$links = DOMCompat::querySelectorAll( $body, 'a[rel~=mw:ExtLink]' );
 		$count = 0;
@@ -96,9 +89,6 @@ class UnpackDOMFragmentsTest extends TestCase {
 		$this->validateFixedupDSR( $body, $markerNode );
 	}
 
-	/**
-	 * @return array
-	 */
 	public function provideFixMisnestedTagDSRCases(): array {
 		return [
 			[ "[http://example.org Link with [[wikilink]] link in the label]", null ],

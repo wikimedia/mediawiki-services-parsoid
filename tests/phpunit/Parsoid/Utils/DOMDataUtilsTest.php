@@ -54,8 +54,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @return void
-	 * @throws \Wikimedia\Parsoid\Core\ClientError
 	 * @covers ::extractPageBundle
 	 */
 	public function testExtractPageBundle() {

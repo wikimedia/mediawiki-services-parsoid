@@ -48,8 +48,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::createPageContentI18nFragment
-	 * @return void
-	 * @throws \DOMException
 	 */
 	public function testCreatePageContentI18nFragment() {
 		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
@@ -63,8 +61,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::createInterfaceI18nFragment
-	 * @return void
-	 * @throws \DOMException
 	 */
 	public function testCreateInterfaceI18nFragment() {
 		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
@@ -78,8 +74,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::createLangI18nFragment
-	 * @return void
-	 * @throws \DOMException
 	 */
 	public function testCreateLangI18nFragment() {
 		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
@@ -96,7 +90,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::addInterfaceI18nAttribute
 	 * @covers ::addPageContentI18nAttribute
 	 * @covers ::addLangI18nAttribute
-	 * @return void
 	 */
 	public function testAddI18nAttributes() {
 		$doc = ContentUtils::createAndLoadDocument( "<html><body><span>hello</span></body></html>" );
@@ -118,8 +111,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * This also tests the storage/loading of mw-data-i18n attributes in the databag.
 	 * @covers ::addPageContentI18nAttribute
 	 * @covers ::createInterfaceI18nFragment
-	 * @return void
-	 * @throws \DOMException
 	 */
 	public function testCombinedI18n() {
 		$doc = ContentUtils::createAndLoadDocument( "<html><body></body></html>" );
@@ -146,7 +137,6 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 
 	/**
 	 * @covers ::decodedCommentLength
-	 * @return void
 	 */
 	public function testDecodedCommentLength() {
 		$doc = DOMCompat::newDocument( true );

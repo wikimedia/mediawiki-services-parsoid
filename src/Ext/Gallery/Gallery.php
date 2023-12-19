@@ -242,11 +242,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		return $domFragment;
 	}
 
-	/**
-	 * @param ParsoidExtensionAPI $extApi
-	 * @param Element $node
-	 * @return string
-	 */
 	private function contentHandler(
 		ParsoidExtensionAPI $extApi, Element $node
 	): string {

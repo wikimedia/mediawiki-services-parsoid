@@ -62,14 +62,6 @@ class WikiLinkText extends RegExpConstrainedText {
 		return $r;
 	}
 
-	/**
-	 * @param string $text
-	 * @param Element $node
-	 * @param DataParsoid $dataParsoid
-	 * @param Env $env
-	 * @param array $opts
-	 * @return ?WikiLinkText
-	 */
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts

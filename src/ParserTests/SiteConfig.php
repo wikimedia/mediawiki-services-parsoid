@@ -110,9 +110,6 @@ class SiteConfig extends ApiSiteConfig {
 		$this->externalLinkTarget = false;
 	}
 
-	/**
-	 * @param string $name
-	 */
 	private function deleteNamespace( string $name ): void {
 		$normName = Utils::normalizeNamespaceName( $name );
 		$id = $this->namespaceId( $normName );
@@ -131,16 +128,10 @@ class SiteConfig extends ApiSiteConfig {
 		}
 	}
 
-	/**
-	 * @param int $ns
-	 */
 	public function disableSubpagesForNS( int $ns ): void {
 		$this->nsWithSubpages[$ns] = false;
 	}
 
-	/**
-	 * @param int $ns
-	 */
 	public function enableSubpagesForNS( int $ns ): void {
 		$this->nsWithSubpages[$ns] = true;
 	}
@@ -216,9 +207,6 @@ class SiteConfig extends ApiSiteConfig {
 		}
 	}
 
-	/**
-	 * @param bool $val
-	 */
 	public function setInterwikiMagic( bool $val ): void {
 		$this->interwikiMagic = $val;
 	}
@@ -288,7 +276,6 @@ class SiteConfig extends ApiSiteConfig {
 
 	/**
 	 * @param string|false $value
-	 * @return void
 	 */
 	public function setExternalLinkTarget( $value ): void {
 		$this->externalLinkTarget = $value;

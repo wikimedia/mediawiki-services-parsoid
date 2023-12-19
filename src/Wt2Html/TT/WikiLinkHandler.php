@@ -53,10 +53,6 @@ class WikiLinkHandler extends TokenHandler {
 		}
 	}
 
-	/**
-	 * @param string $str
-	 * @return array|null
-	 */
 	private static function hrefParts( string $str ): ?array {
 		if ( preg_match( '/^([^:]+):(.*)$/D', $str, $matches ) ) {
 			return [ 'prefix' => $matches[1], 'title' => $matches[2] ];
@@ -245,11 +241,6 @@ class WikiLinkHandler extends TokenHandler {
 		}
 	}
 
-	/**
-	 * @param TokenTransformManager $manager
-	 * @param Token $token
-	 * @return array
-	 */
 	public static function bailTokens( TokenTransformManager $manager, Token $token ): array {
 		$frame = $manager->getFrame();
 		$tsr = $token->dataParsoid->tsr;
@@ -972,13 +963,6 @@ class WikiLinkHandler extends TokenHandler {
 		return null;
 	}
 
-	/**
-	 * @param Env $env
-	 * @param ?array &$optInfo
-	 * @param string $prefix
-	 * @param string $resultStr
-	 * @return bool
-	 */
 	private static function isWikitextOpt(
 		Env $env, ?array &$optInfo, string $prefix, string $resultStr
 	): bool {
@@ -1166,10 +1150,6 @@ class WikiLinkHandler extends TokenHandler {
 		return $this->used;
 	}
 
-	/**
-	 * @param array $toks
-	 * @return bool
-	 */
 	private function hasTransclusion( array $toks ): bool {
 		foreach ( $toks as $t ) {
 			if (
@@ -1627,22 +1607,11 @@ class WikiLinkHandler extends TokenHandler {
 		return new TokenHandlerResult( $tokens );
 	}
 
-	/**
-	 * @param Title $title
-	 * @return string
-	 */
 	private function specialFilePath( Title $title ): string {
 		$filePath = Sanitizer::sanitizeTitleURI( $title->getKey(), false );
 		return "./Special:FilePath/{$filePath}";
 	}
 
-	/**
-	 * @param Token $token
-	 * @param stdClass $target
-	 * @param array $errs
-	 * @param ?array $info
-	 * @return TokenHandlerResult
-	 */
 	private function linkToMedia( Token $token, stdClass $target, array $errs, ?array $info ): TokenHandlerResult {
 		// Only pass in the url, since media links should not link to the thumburl
 		$imgHref = $info['url'] ?? $this->specialFilePath( $target->title );  // Copied from getPath

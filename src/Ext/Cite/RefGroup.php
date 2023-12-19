@@ -30,9 +30,6 @@ class RefGroup {
 	 */
 	public array $indexByName = [];
 
-	/**
-	 * @param string $group
-	 */
 	public function __construct( string $group = '' ) {
 		$this->name = $group;
 	}
@@ -63,11 +60,6 @@ class RefGroup {
 		return $a;
 	}
 
-	/**
-	 * @param ParsoidExtensionAPI $extApi
-	 * @param Element $refsList
-	 * @param stdClass $ref
-	 */
 	public function renderLine(
 		ParsoidExtensionAPI $extApi, Element $refsList, stdClass $ref
 	): void {

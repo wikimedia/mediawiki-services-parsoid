@@ -194,13 +194,6 @@ abstract class TokenCollector extends TokenHandler {
 		);
 	}
 
-	/**
-	 * @param TokenTransformManager $manager
-	 * @param string $tokenName
-	 * @param Token $startDelim
-	 * @param ?Token $endDelim
-	 * @return SelfclosingTagTk
-	 */
 	protected static function buildStrippedMetaToken(
 		TokenTransformManager $manager, string $tokenName, Token $startDelim,
 		?Token $endDelim

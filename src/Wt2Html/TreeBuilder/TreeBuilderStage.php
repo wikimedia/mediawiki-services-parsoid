@@ -54,12 +54,6 @@ class TreeBuilderStage extends PipelineStage {
 	/** @var bool */
 	private $needTransclusionShadow;
 
-	/**
-	 * @param Env $env
-	 * @param array $options
-	 * @param string $stageId
-	 * @param ?PipelineStage $prevStage
-	 */
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
 		?PipelineStage $prevStage = null
@@ -124,9 +118,6 @@ class TreeBuilderStage extends PipelineStage {
 		}
 	}
 
-	/**
-	 * @return Node
-	 */
 	public function finalizeDOM(): Node {
 		// Check if the EOFTk actually made it all the way through, and flag the
 		// page where it did not!
@@ -152,10 +143,6 @@ class TreeBuilderStage extends PipelineStage {
 		return $node;
 	}
 
-	/**
-	 * @param array $kvArr
-	 * @return array
-	 */
 	private function kvArrToAttr( array $kvArr ): array {
 		$attribs = [];
 		foreach ( $kvArr as $kv ) {

@@ -24,7 +24,6 @@ class PageConfig extends IPageConfig {
 	/** @var ?ApiHelper */
 	private $api;
 
-	/** @var ISiteConfig */
 	private ISiteConfig $siteConfig;
 
 	/** @var Title */
@@ -89,10 +88,7 @@ class PageConfig extends IPageConfig {
 		}
 	}
 
-	/**
-	 * @param array $opts
-	 */
-	private function mockPageContent( array $opts ) {
+	private function mockPageContent( array $opts ): void {
 		$this->page = [
 			'title' => $this->title->getPrefixedText(),
 			'ns' => $this->title->getNamespace(),

@@ -10,9 +10,6 @@ use Exception;
  */
 class ClientError extends Exception {
 
-	/**
-	 * @param string $message
-	 */
 	public function __construct( string $message = 'Bad Request' ) {
 		parent::__construct( $message );
 	}

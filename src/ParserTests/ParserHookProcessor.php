@@ -16,10 +16,6 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  */
 class ParserHookProcessor extends ExtDOMProcessor {
 
-	/**
-	 * @param Node $node
-	 * @param stdClass $obj
-	 */
 	public function staticTagPostProcessor(
 		Node $node, stdClass $obj
 	): void {

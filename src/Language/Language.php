@@ -11,16 +11,10 @@ class Language {
 	/** @var LanguageConverter|null */
 	private $converter;
 
-	/**
-	 * @return LanguageConverter|null
-	 */
 	public function getConverter(): ?LanguageConverter {
 		return $this->converter;
 	}
 
-	/**
-	 * @param LanguageConverter $converter
-	 */
 	public function setConverter( LanguageConverter $converter ): void {
 		$this->converter = $converter;
 	}

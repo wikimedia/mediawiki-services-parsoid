@@ -104,10 +104,6 @@ class ApiHelper {
 		return $data;
 	}
 
-	/**
-	 * @param array $params
-	 * @return string
-	 */
 	private function makeCurlRequest( array $params ): string {
 		$ch = curl_init( $this->endpoint );
 		if ( !$ch ) {

@@ -219,9 +219,6 @@ class Test extends Item {
 		return true; // Trivial match because of a bad test filter
 	}
 
-	/**
-	 * @return string
-	 */
 	public function pageName(): string {
 		if ( !$this->pageName ) {
 			$this->pageName = $this->options['title'] ?? 'Parser test';

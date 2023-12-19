@@ -254,11 +254,6 @@ class ConversionTraverser extends DOMTraverser {
 		return true;
 	}
 
-	/**
-	 * @param DocumentFragment $docFrag
-	 * @param bool $force
-	 * @return ?string
-	 */
 	private function docFragToString(
 		DocumentFragment $docFrag, bool $force = false
 	): ?string {

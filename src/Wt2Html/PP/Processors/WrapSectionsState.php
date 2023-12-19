@@ -82,11 +82,6 @@ class WrapSectionsState {
 	 */
 	private const ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'sub', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
 
-	/**
-	 * @param Env $env
-	 * @param Frame $frame
-	 * @param Node $rootNode
-	 */
 	public function __construct(
 		Env $env,
 		Frame $frame,
@@ -347,10 +342,6 @@ class WrapSectionsState {
 		return $section;
 	}
 
-	/**
-	 * @param Element $span
-	 * @return bool
-	 */
 	private function isEmptySpan( Element $span ): bool {
 		$n = $span->firstChild;
 		while ( $n ) {

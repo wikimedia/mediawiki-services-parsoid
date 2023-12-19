@@ -212,11 +212,6 @@ class DiffUtilsTest extends TestCase {
 		$this->expectNotToPerformAssertions();
 	}
 
-	/**
-	 * @param string $html1
-	 * @param string $html2
-	 * @return Element
-	 */
 	private function parseAndDiff( string $html1, string $html2 ): Element {
 		$mockEnv = new MockEnv( [] );
 

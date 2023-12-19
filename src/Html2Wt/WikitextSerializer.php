@@ -138,7 +138,6 @@ class WikitextSerializer {
 
 	/**
 	 * @param Element $node
-	 * @return void
 	 */
 	public function languageVariantHandler( Node $node ): void {
 		LanguageVariantHandler::handleLanguageVariant( $this->state, $node );
@@ -160,11 +159,6 @@ class WikitextSerializer {
 		return $this->wteHandlers->escapeWikitext( $state, $text, $opts );
 	}
 
-	/**
-	 * @param array $opts
-	 * @param DocumentFragment $node
-	 * @return string
-	 */
 	public function domToWikitext(
 		array $opts, DocumentFragment $node
 	): string {
@@ -173,11 +167,6 @@ class WikitextSerializer {
 		return $serializer->serializeDOM( $node );
 	}
 
-	/**
-	 * @param array $opts
-	 * @param string $html
-	 * @return string
-	 */
 	public function htmlToWikitext( array $opts, string $html ): string {
 		$domFragment = ContentUtils::createAndLoadDocumentFragment(
 			$this->env->topLevelDoc, $html, [ 'markNew' => true ]
@@ -185,11 +174,6 @@ class WikitextSerializer {
 		return $this->domToWikitext( $opts, $domFragment );
 	}
 
-	/**
-	 * @param Element $node
-	 * @param string $key
-	 * @return string
-	 */
 	public function getAttributeKey( Element $node, string $key ): string {
 		$tplAttrs = DOMDataUtils::getDataMw( $node )->attribs ?? [];
 		foreach ( $tplAttrs as $attr ) {
@@ -271,11 +255,6 @@ class WikitextSerializer {
 		return $v ?: WTSUtils::getAttributeShadowInfo( $htmlAttrNode, $key );
 	}
 
-	/**
-	 * @param Element $node
-	 * @param string $name
-	 * @return array
-	 */
 	public function serializedAttrVal( Element $node, string $name ): array {
 		return $this->serializedImageAttrVal( $node, $node, $name );
 	}
@@ -290,11 +269,6 @@ class WikitextSerializer {
 		return WTUtils::isAnnOrExtTag( $this->env, $name );
 	}
 
-	/**
-	 * @param Token $token
-	 * @param string $inner
-	 * @return string
-	 */
 	public function wrapAngleBracket( Token $token, string $inner ): string {
 		if (
 			$this->tagNeedsEscaping( $token->getName() ) &&
@@ -315,11 +289,6 @@ class WikitextSerializer {
 		return "<$inner>";
 	}
 
-	/**
-	 * @param Element $node
-	 * @param bool $wrapperUnmodified
-	 * @return string
-	 */
 	public function serializeHTMLTag( Element $node, bool $wrapperUnmodified ): string {
 		// TODO(arlolra): As of 1.3.0, html pre is considered an extension
 		// and wrapped in encapsulation.  When that version is no longer
@@ -392,12 +361,6 @@ class WikitextSerializer {
 		return $ret;
 	}
 
-	/**
-	 * @param Element $node
-	 * @param Token $token
-	 * @param bool $isWt
-	 * @return string
-	 */
 	public function serializeAttributes( Element $node, Token $token, bool $isWt = false ): string {
 		$attribs = $token->attribs;
 
@@ -554,12 +517,6 @@ class WikitextSerializer {
 		}
 	}
 
-	/**
-	 * @param string $format
-	 * @param string $value
-	 * @param bool $forceTrim
-	 * @return string
-	 */
 	private function formatStringSubst( string $format, string $value, bool $forceTrim ): string {
 		// PORT-FIXME: JS is more agressive and removes various unicode whitespaces
 		// (most notably nbsp). Does that matter?
@@ -1023,11 +980,6 @@ class WikitextSerializer {
 		return $buf;
 	}
 
-	/**
-	 * @param Element $node
-	 * @param SerializerState $state
-	 * @return string
-	 */
 	public function serializeExtensionStartTag( Element $node, SerializerState $state ): string {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$extTagName = $dataMw->name;
@@ -1057,11 +1009,6 @@ class WikitextSerializer {
 		return $src . ( !empty( $dataMw->body ) ? '>' : ' />' );
 	}
 
-	/**
-	 * @param Element $node
-	 * @param SerializerState $state
-	 * @return string
-	 */
 	public function defaultExtensionHandler( Element $node, SerializerState $state ): string {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
@@ -1405,10 +1352,6 @@ class WikitextSerializer {
 		return $nextNode;
 	}
 
-	/**
-	 * @param string $line
-	 * @return string
-	 */
 	private function stripUnnecessaryHeadingNowikis( string $line ): string {
 		$state = $this->state;
 		if ( !$state->hasHeadingEscapes ) {

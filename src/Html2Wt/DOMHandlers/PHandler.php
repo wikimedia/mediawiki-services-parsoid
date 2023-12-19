@@ -172,10 +172,6 @@ class PHandler extends DOMHandler {
 		return false;
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	private function newWikitextLineMightHaveBlockNode( Node $node ): bool {
 		$node = DiffDOMUtils::nextNonDeletedSibling( $node );
 		while ( $node ) {

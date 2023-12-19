@@ -38,11 +38,6 @@ class DiffUtils {
 		return self::getDiffMark( $node ) !== null || self::isDiffMarker( $node );
 	}
 
-	/**
-	 * @param Node $node
-	 * @param string $mark
-	 * @return bool
-	 */
 	public static function hasDiffMark( Node $node, string $mark ): bool {
 		// For 'deletion' and 'insertion' markers on non-element nodes,
 		// a mw:DiffMarker meta is added
@@ -54,18 +49,10 @@ class DiffUtils {
 		}
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	public static function hasInsertedDiffMark( Node $node ): bool {
 		return self::hasDiffMark( $node, DiffMarkers::INSERTED );
 	}
 
-	/**
-	 * @param ?Node $node
-	 * @return bool
-	 */
 	public static function maybeDeletedNode( ?Node $node ): bool {
 		return $node instanceof Element && self::isDiffMarker( $node, DiffMarkers::DELETED );
 	}
@@ -82,18 +69,10 @@ class DiffUtils {
 			$node->hasAttribute( 'data-is-block' );
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	public static function directChildrenChanged( Node $node ): bool {
 		return self::hasDiffMark( $node, DiffMarkers::CHILDREN_CHANGED );
 	}
 
-	/**
-	 * @param Element $node
-	 * @return bool
-	 */
 	public static function onlySubtreeChanged( Element $node ): bool {
 		$dmark = self::getDiffMark( $node );
 		if ( !$dmark ) {
@@ -109,10 +88,6 @@ class DiffUtils {
 		return true;
 	}
 
-	/**
-	 * @param Element $node
-	 * @return bool
-	 */
 	public static function subtreeUnchanged( Element $node ): bool {
 		$dmark = self::getDiffMark( $node );
 		if ( !$dmark ) {
@@ -128,12 +103,6 @@ class DiffUtils {
 		return true;
 	}
 
-	/**
-	 * @param Node $node
-	 * @param Env $env
-	 * @param string $mark
-	 * @return ?Element
-	 */
 	public static function addDiffMark( Node $node, Env $env, string $mark ): ?Element {
 		static $ignoreableNodeTypes = [ XML_DOCUMENT_NODE, XML_DOCUMENT_TYPE_NODE, XML_DOCUMENT_FRAG_NODE ];
 
@@ -188,11 +157,6 @@ class DiffUtils {
 		return $meta;
 	}
 
-	/**
-	 * @param Element $node
-	 * @param array $ignoreableAttribs
-	 * @return array
-	 */
 	private static function getAttributes( Element $node, array $ignoreableAttribs ): array {
 		$h = DOMUtils::attributes( $node );
 		foreach ( $h as $name => $value ) {

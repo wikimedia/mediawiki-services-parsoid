@@ -59,10 +59,6 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		self::primitiveValue( DOMCompat::querySelector( $parent, 'td' ), $val );
 	}
 
-	/**
-	 * @param Element $parent
-	 * @param array $val
-	 */
 	private function objectTable( Element $parent, array $val ): void {
 		DOMCompat::setInnerHTML( $parent,
 			'<table class="mw-json mw-json-object"><tbody>' );
@@ -95,10 +91,6 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$parent->appendChild( $tr );
 	}
 
-	/**
-	 * @param Element $parent
-	 * @param array $val
-	 */
 	private function arrayTable( Element $parent, array $val ): void {
 		DOMCompat::setInnerHTML( $parent,
 			'<table class="mw-json mw-json-array"><tbody>' );
@@ -242,12 +234,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		return $obj;
 	}
 
-	/**
-	 * @param Element $tr
-	 * @param array &$obj
-	 * @param ?int $key
-	 */
-	private function objectRowFrom( Element $tr, array &$obj, ?int $key ) {
+	private function objectRowFrom( Element $tr, array &$obj, ?int $key ): void {
 		$td = $tr->firstChild;
 		if ( $key === null ) {
 			$key = $td->textContent;
@@ -257,10 +244,6 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$obj[$key] = self::valueCellFrom( $td );
 	}
 
-	/**
-	 * @param Element $el
-	 * @return array
-	 */
 	private function arrayTableFrom( Element $el ): array {
 		Assert::invariant( DOMUtils::hasClass( $el, 'mw-json-array' ),
 			'Expected ms-json-array' );

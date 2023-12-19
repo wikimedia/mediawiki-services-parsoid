@@ -19,11 +19,7 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
 class UnpackDOMFragments {
-	/**
-	 * @param Node $targetNode
-	 * @param DocumentFragment $fragment
-	 * @return bool
-	 */
+
 	private static function hasBadNesting(
 		Node $targetNode, DocumentFragment $fragment
 	): bool {
@@ -52,11 +48,6 @@ class UnpackDOMFragments {
 			DOMUtils::treeHasElement( $fragment, 'a' );
 	}
 
-	/**
-	 * @param Env $env
-	 * @param Node $node
-	 * @param array &$aboutIdMap
-	 */
 	private static function fixAbouts( Env $env, Node $node, array &$aboutIdMap = [] ): void {
 		$c = $node->firstChild;
 		while ( $c ) {
@@ -77,10 +68,6 @@ class UnpackDOMFragments {
 		}
 	}
 
-	/**
-	 * @param DocumentFragment $domFragment
-	 * @param string $about
-	 */
 	private static function makeChildrenEncapWrappers(
 		DocumentFragment $domFragment, string $about
 	): void {
@@ -103,11 +90,6 @@ class UnpackDOMFragments {
 		}
 	}
 
-	/**
-	 * @param Env $env
-	 * @param Element $n
-	 * @param int|null &$newOffset
-	 */
 	private static function markMisnested( Env $env, Element $n, ?int &$newOffset ): void {
 		$dp = DOMDataUtils::getDataParsoid( $n );
 		if ( $newOffset === null ) {

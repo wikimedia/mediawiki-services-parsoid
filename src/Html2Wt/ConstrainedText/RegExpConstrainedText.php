@@ -17,9 +17,6 @@ abstract class RegExpConstrainedText extends ConstrainedText {
 	/** @var \Closure(string):bool */
 	public $suffixMatcher;
 
-	/**
-	 * @param array $args
-	 */
 	protected function __construct( array $args ) {
 		parent::__construct( $args );
 		$this->prefix ??= '<nowiki/>';

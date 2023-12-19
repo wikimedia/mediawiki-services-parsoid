@@ -347,10 +347,6 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	/**
-	 * @param string $url
-	 * @return string
-	 */
 	private function makeCurlRequest( string $url ): string {
 		$curlopt = [
 			CURLOPT_USERAGENT => 'Parsoid-RT-Test',
@@ -391,10 +387,6 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		return $res;
 	}
 
-	/**
-	 * @param string $baseUrl
-	 * @param array &$titles
-	 */
 	private function updateSemanticErrorTitles( string $baseUrl, array &$titles ): void {
 		$url = $baseUrl;
 		$page = 0;

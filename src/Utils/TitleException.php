@@ -13,11 +13,6 @@ class TitleException extends RuntimeException {
 	public $type;
 	public $title;
 
-	/**
-	 * @param string $message
-	 * @param string $type
-	 * @param string $title
-	 */
 	public function __construct( string $message, string $type, string $title ) {
 		parent::__construct( $message );
 		$this->type = $type;

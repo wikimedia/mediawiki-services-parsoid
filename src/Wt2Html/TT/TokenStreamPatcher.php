@@ -48,10 +48,6 @@ class TokenStreamPatcher extends TokenHandler {
 	/** @var NlTk|null */
 	private $discardableNlTk = null;
 
-	/**
-	 * @param TokenTransformManager $manager
-	 * @param array $options
-	 */
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		$newOptions = [ 'tsp' => true ] + $options;
 		parent::__construct( $manager, $newOptions );
@@ -161,10 +157,6 @@ class TokenStreamPatcher extends TokenHandler {
 		return $toks;
 	}
 
-	/**
-	 * @param Token $token
-	 * @return array
-	 */
 	private function convertTokenToString( Token $token ): array {
 		$da = $token->dataParsoid;
 		$tsr = $da->tsr ?? null;

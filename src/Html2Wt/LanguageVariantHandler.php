@@ -15,10 +15,7 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  * Serializes language variant markup, like `-{ ... }-`.
  */
 class LanguageVariantHandler {
-	/**
-	 * @param array $a
-	 * @return array
-	 */
+
 	private static function expandSpArray( array $a ): array {
 		$result = [];
 		foreach ( $a as $el ) {
@@ -134,14 +131,9 @@ class LanguageVariantHandler {
 		return $s;
 	}
 
-	/**
-	 * @param array $originalFlags
-	 * @param array &$flags
-	 * @param string $f
-	 */
 	private static function maybeDeleteFlag(
 		array $originalFlags, array &$flags, string $f
-	) {
+	): void {
 		if ( !isset( $originalFlags[$f] ) ) {
 			unset( $flags[$f] );
 		}
@@ -149,9 +141,6 @@ class LanguageVariantHandler {
 
 	/**
 	 * LanguageVariantHandler
-	 * @param SerializerState $state
-	 * @param Element $node
-	 * @return void
 	 */
 	public static function handleLanguageVariant( SerializerState $state, Element $node ): void {
 		$dataMWV = DOMDataUtils::getJSONAttribute( $node, 'data-mw-variant', [] );

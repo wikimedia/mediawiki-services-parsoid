@@ -17,10 +17,6 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 
-	/**
-	 * @param Node $firstChild
-	 * @return bool
-	 */
 	private function migrateFirstChild( Node $firstChild ): bool {
 		if ( WTUtils::isTplEndMarkerMeta( $firstChild ) ) {
 			return true;
@@ -39,10 +35,6 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		return false;
 	}
 
-	/**
-	 * @param Node $lastChild
-	 * @return bool
-	 */
 	private function migrateLastChild( Node $lastChild ): bool {
 		if ( WTUtils::isTplStartMarkerMeta( $lastChild ) ) {
 			return true;
@@ -60,9 +52,6 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 		return false;
 	}
 
-	/**
-	 * @param Element $elt
-	 */
 	private function updateDepths( Element $elt ): void {
 		// Update depths
 		$docDataBag = DOMDataUtils::getBag( $elt->ownerDocument );

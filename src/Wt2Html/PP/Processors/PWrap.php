@@ -29,10 +29,6 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		return $a === [] ? [] : array_merge( ...$a );
 	}
 
-	/**
-	 * @param Element $elt
-	 * @return bool
-	 */
 	private static function pWrapOptionalChildren( Element $elt ): bool {
 		foreach ( $elt->childNodes as $c ) {
 			if ( !self::pWrapOptional( $c ) ) {

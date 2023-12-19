@@ -15,10 +15,6 @@ class AddRedLinksTest extends TestCase {
 	/**
 	 * @covers ::run
 	 * @dataProvider provideRedLinks
-	 * @param string $html
-	 * @param string $expected
-	 * @param string $message
-	 * @return void
 	 */
 	public function testRun( string $html, string $expected, string $message ) {
 		$addRedLinks = new AddRedLinks();

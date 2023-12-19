@@ -12,10 +12,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
  * Handler for behavior switches, like '__TOC__' and similar.
  */
 class BehaviorSwitchHandler extends TokenHandler {
-	/**
-	 * @param TokenTransformManager $manager
-	 * @param array $options options
-	 */
+
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}

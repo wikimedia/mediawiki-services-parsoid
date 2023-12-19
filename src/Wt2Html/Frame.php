@@ -64,30 +64,18 @@ class Frame {
 		}
 	}
 
-	/**
-	 * @return Env
-	 */
 	public function getEnv(): Env {
 		return $this->env;
 	}
 
-	/**
-	 * @return Title
-	 */
 	public function getTitle(): Title {
 		return $this->title;
 	}
 
-	/**
-	 * @return Params
-	 */
 	public function getArgs(): Params {
 		return $this->args;
 	}
 
-	/**
-	 * @return string
-	 */
 	public function getSrcText(): string {
 		return $this->srcText;
 	}
