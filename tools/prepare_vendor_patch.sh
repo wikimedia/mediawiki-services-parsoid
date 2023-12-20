@@ -5,7 +5,7 @@ set -eu -o pipefail
 if [ $# -lt 2 ]; then
 	echo "USAGE: $0 <old-git-tag> <new-git-tag> [<git-sha-of-new-tag> <vendor-repo> <core-repo>]"
 	echo "If git-sha is omitted, HEAD is used by default"
-	echo "If repo args are omited, MW_VENDOR_REPO and MW_CORE_REPO environment variables are used"
+	echo "If repo args are omitted, MW_VENDOR_REPO and MW_CORE_REPO environment variables are used"
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 HEAD ../repos/vendor ../core"
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 HEAD"
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7"
@@ -43,14 +43,22 @@ if [ "${vendorRepo:-foo}" == "foo" ]; then
 		echo "Please provide vendor repo on CLI or set MW_VENDOR_REPO environment variable"
 		exit 1
 	fi
-  vendorRepo="$MW_VENDOR_REPO"
+	vendorRepo="$MW_VENDOR_REPO"
+fi
+if [ ! -d "$vendorRepo" ]; then
+	echo "Vendor repo $vendorRepo doesn't exist. Please verify and try again."
+	exit 1
 fi
 if [ "${coreRepo:-foo}" == "foo" ]; then
 	if [ "${MW_CORE_REPO:-foo}" == "foo" ]; then
 		echo "Please provide core repo on CLI or set MW_CORE_REPO environment variable"
 		exit 1
 	fi
-  coreRepo="$MW_CORE_REPO"
+	coreRepo="$MW_CORE_REPO"
+fi
+if [ ! -d "$coreRepo" ]; then
+	echo "Core repo $coreRepo doesn't exist. Please verify and try again."
+	exit 1
 fi
 
 # Generate deploy log
@@ -133,4 +141,4 @@ echo "------ Followup needed ------"
 echo "* Please add contents of $pwd/deploy.log.txt to [[mw:Parsoid/Deployments]]"
 echo "* Please verify new patch in core repo ($coreRepo) and upload to gerrit for review"
 echo "* Please verify new patch in vendor repo ($vendorRepo) and upload to gerrit for review"
-echo "* Please +2 the uploaded core patch (NOT BEFORE YOU UPLOAD THE VENDOR PATCH) to ensure that when the vendor patch is +2ed, they merge together"
+echo "* Please +2 the uploaded core patch to ensure that when the vendor patch is +2ed, they merge together"
