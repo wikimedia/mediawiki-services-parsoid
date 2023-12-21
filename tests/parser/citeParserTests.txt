@@ -1,6 +1,5 @@
 !! options
 version=2
-parsoid-compatible=wt2html
 !! end
 
 # NOTE about Parsoid HTML for cite tests with follows.
