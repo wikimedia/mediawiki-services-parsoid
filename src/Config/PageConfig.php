@@ -44,6 +44,14 @@ abstract class PageConfig {
 	}
 
 	/**
+	 * The page's title, as a string.
+	 * @return string With namespace, spaces not underscores
+	 * @deprecated Use ::getLinkTarget() instead; Title::getPrefixedText() will
+	 *  return the title in the same format as before.
+	 */
+	abstract public function getTitle(): string;
+
+	/**
 	 * The page's title, as a LinkTarget.
 	 * @return LinkTarget
 	 */

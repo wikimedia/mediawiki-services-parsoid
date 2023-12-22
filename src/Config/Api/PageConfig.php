@@ -9,6 +9,7 @@ use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\PageConfig as IPageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
+use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -147,7 +148,13 @@ class PageConfig extends IPageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getLinkTarget(): Title {
+	public function getTitle(): string {
+		$this->loadData();
+		return $this->page['title']; // normalized
+	}
+
+	/** @inheritDoc */
+	public function getLinkTarget(): LinkTarget {
 		$this->loadData();
 		return Title::newFromText(
 			$this->page['title'], $this->siteConfig, $this->page['ns']
