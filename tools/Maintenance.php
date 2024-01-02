@@ -7,6 +7,8 @@ global $argv;
 
 // Hacky preprocessing of command-line arguments: look for
 // --integrated and/or --standalone flags.
+use MediaWiki\Settings\SettingsBuilder;
+
 $parsoidMode = null;
 for ( $arg = reset( $argv ); $arg !== false; $arg = next( $argv ) ) {
 	if ( $arg === '--' ) {
@@ -65,6 +67,13 @@ if ( $parsoidMode === 'integrated' ) {
 			if ( $this->requiresParsoid ) {
 				$this->requireExtension( 'Parsoid' );
 			}
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public function finalSetup( SettingsBuilder $settingsBuilder = null ) {
+			parent::finalSetup( $settingsBuilder ?? SettingsBuilder::getInstance() );
 		}
 
 		public function addDefaultParams(): void {

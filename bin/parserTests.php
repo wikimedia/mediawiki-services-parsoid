@@ -2,6 +2,7 @@
 // phpcs:disable Generic.Files.LineLength.TooLong
 require_once __DIR__ . '/../tools/Maintenance.php';
 
+use MediaWiki\Settings\SettingsBuilder;
 use SebastianBergmann\Diff\Differ;
 use Wikimedia\Parsoid\ParserTests\Stats;
 use Wikimedia\Parsoid\ParserTests\Test;
@@ -28,8 +29,11 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->setAllowUnregisteredOptions( false );
 	}
 
-	public function finalSetup() {
-		parent::finalSetup();
+	/**
+	 * @inheritDoc
+	 */
+	public function finalSetup( SettingsBuilder $settingsBuilder = null ) {
+		parent::finalSetup( $settingsBuilder );
 		self::requireTestsAutoloader();
 	}
 
