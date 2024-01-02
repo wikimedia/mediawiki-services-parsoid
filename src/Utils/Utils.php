@@ -225,8 +225,16 @@ class Utils {
 	}
 
 	/**
-	 * Basic check if a DOM Source Range (DSR) is valid. Only checks for underflow, not for
-	 * overflow.
+	 * Basic check if a DOM Source Range (DSR) is valid.
+	 *
+	 * Clarifications about the "basic validity checks":
+	 * - Only checks for underflow, not for overflow.
+	 * - Does not verify that start <= end
+	 * - Does not verify that openWidth + endWidth <= end - start
+	 *   (even so, the values might be invalid because of content)
+	 * These would be overkill for our purposes. Given how DSR computation
+	 * works in thie codebase, the real scenarios we care about are
+	 * non-null / non-negative values since that can happen.
 	 *
 	 * @param ?DomSourceRange $dsr DSR source range values
 	 * @param bool $all Also check the widths of the container tag
@@ -238,9 +246,11 @@ class Utils {
 		return $dsr !== null &&
 			self::isValidOffset( $dsr->start ) &&
 			self::isValidOffset( $dsr->end ) &&
-			( !$all || ( self::isValidOffset( $dsr->openWidth ) &&
+			( !$all || (
+				self::isValidOffset( $dsr->openWidth ) &&
 				self::isValidOffset( $dsr->closeWidth )
-				) );
+			  )
+			);
 	}
 
 	/**

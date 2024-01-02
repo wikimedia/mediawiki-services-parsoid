@@ -488,19 +488,11 @@ class TableFixups {
 		$prev = $cell->previousSibling;
 		DOMUtils::assertElt( $prev );
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
-		if ( !$prevDp->getTempFlag( TempData::NO_ATTRS ) ) {
-			return false;
-		}
-
-		// Eliminates scenarios where prevDp comes from a template
-		// and hence couldn't possibly be a candidate for combining.
-		if ( !Utils::isValidDSR( $prevDp->dsr ?? null ) ) {
-			return false;
-		}
 
 		// Build the attribute string
 		$prevCellSrc = PHPUtils::safeSubstr(
 			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length() );
+
 		$cellAttrSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth );
 		$reparseSrc = $cellAttrSrc . "|"; // "|" or "!", but doesn't matter since we discard that anyway
 
@@ -583,11 +575,14 @@ class TableFixups {
 			// table cells could combine. This obviously requires $cell to be
 			// a templated cell. But, we don't support combining templated cells
 			// with other templated cells.  So, previous sibling cannot be templated.
-
+			//
+			// So, bail out of scenarios where prevDp comes from a template (the checks
+			// for isValidDSR( $prevDp-> dsr ) and valid opening tag width catch this.
 			$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
 			if ( $prevDp &&
 				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
 				$prevDp->getTempFlag( TempData::NO_ATTRS ) &&
+				Utils::isValidDSR( $prevDp->dsr ?? null, true ) &&
 				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
 				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
 			) {
