@@ -261,7 +261,7 @@ class References extends ExtensionTagHandler {
 			// Even worse would be if it tried to redefine itself!
 
 			if ( !$ref ) {
-				$ref = $refsData->add( $extApi, $groupName, $refName );
+				$ref = $refsData->add( $extApi, $groupName, $refName, $refDir );
 			}
 
 			// Handle linkbacks
@@ -273,9 +273,12 @@ class References extends ExtensionTagHandler {
 			}
 		}
 
-		if ( isset( $refDmw->attrs->dir ) && $refDir !== 'rtl' && $refDir !== 'ltr' ) {
-			$errs[] = [ 'key' => 'cite_error_ref_invalid_dir',
-				'params' => [ $refDmw->attrs->dir ] ];
+		if ( isset( $refDmw->attrs->dir ) ) {
+			if ( $refDir !== 'rtl' && $refDir !== 'ltr' ) {
+				$errs[] = [ 'key' => 'cite_error_ref_invalid_dir', 'params' => [ $refDir ] ];
+			} elseif ( $ref->dir !== '' && $ref->dir !== $refDir ) {
+				$errs[] = [ 'key' => 'cite_error_ref_conflicting_dir', 'params' => [ $ref->name ] ];
+			}
 		}
 
 		// FIXME: At some point this error message can be changed to a warning, as Parsoid Cite now
@@ -427,6 +430,7 @@ class References extends ExtensionTagHandler {
 		// Keep the first content to compare multiple <ref>s with the same name.
 		if ( $ref->contentId === null && !$missingContent ) {
 			$ref->contentId = $contentId;
+			// Use the dir parameter only from the full definition of a named ref tag
 			$ref->dir = $refDir;
 		} else {
 			DOMCompat::remove( $c );

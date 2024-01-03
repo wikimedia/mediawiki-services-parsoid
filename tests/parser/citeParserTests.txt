@@ -1288,7 +1288,7 @@ T202593: Conflicting dir attributes
 </ol></div>
 !! html/parsoid
 <p><sup class="mw-ref reference" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a","dir":"ltr"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
-<sup class="mw-ref reference" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a","dir":"rtl"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<sup class="mw-ref reference" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"a","dir":"rtl"},"body":{"id":"mw-reference-text-cite_note-a-1"},"errors":[{"key":"cite_error_ref_conflicting_dir","params":["a"]}]}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <div class="mw-references-wrap" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
 <ol class="mw-references references">
 <li id="cite_note-a-1" class="mw-cite-dir-rtl"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-a_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-a_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li>
@@ -1312,7 +1312,7 @@ T202593: Conflicting dir attributes with the full ref first
 </ol></div>
 !! html/parsoid
 <p><sup class="mw-ref reference" id="cite_ref-a_1-0" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a","dir":"ltr"},"body":{"id":"mw-reference-text-cite_note-a-1"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup>
-<sup class="mw-ref reference" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref" data-mw='{"name":"ref","attrs":{"name":"a","dir":"rtl"}}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
+<sup class="mw-ref reference" id="cite_ref-a_1-1" rel="dc:references" typeof="mw:Extension/ref mw:Error" data-mw='{"name":"ref","attrs":{"name":"a","dir":"rtl"},"errors":[{"key":"cite_error_ref_conflicting_dir","params":["a"]}]}'><a href="./Parser_test#cite_note-a-1" style="counter-reset: mw-Ref 1;"><span class="mw-reflink-text">[1]</span></a></sup></p>
 <div class="mw-references-wrap" typeof="mw:Extension/references" data-mw='{"name":"references","attrs":{}}'>
 <ol class="mw-references references">
 <li id="cite_note-a-1" class="mw-cite-dir-ltr"><span rel="mw:referencedBy"><a href="./Parser_test#cite_ref-a_1-0"><span class="mw-linkback-text">1 </span></a><a href="./Parser_test#cite_ref-a_1-1"><span class="mw-linkback-text">2 </span></a></span> <span id="mw-reference-text-cite_note-a-1" class="mw-reference-text">abc</span></li>

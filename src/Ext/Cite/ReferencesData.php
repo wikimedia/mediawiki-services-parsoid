@@ -75,7 +75,7 @@ class ReferencesData {
 	}
 
 	public function add(
-		ParsoidExtensionAPI $extApi, string $groupName, string $refName
+		ParsoidExtensionAPI $extApi, string $groupName, string $refName, string $refDir
 	): stdClass {
 		$group = $this->getRefGroup( $groupName, true );
 		$hasRefName = strlen( $refName ) > 0;
@@ -106,7 +106,7 @@ class ReferencesData {
 			'contentId' => null,
 			// Just used for comparison when we have multiples
 			'cachedHtml' => null,
-			'dir' => '',
+			'dir' => $refDir,
 			'group' => $group->name,
 			'groupIndex' => count( $group->refs ) + 1,
 			'index' => $n,
