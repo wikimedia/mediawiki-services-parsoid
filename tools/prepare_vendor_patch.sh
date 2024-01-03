@@ -16,7 +16,7 @@ fi
 waitForConfirmation() {
 	while true; do
 		# Don't accept from a file
-		read -n 1 -p "Enter y/Y to continue or n/N to exit: " confirm < /dev/tty
+		read -r -n 1 -p "Enter y/Y to continue or n/N to exit: " confirm < /dev/tty
 		echo
 		if [ "$confirm" == "y" ] || [ "$confirm" == "Y" ]; then
 			break
@@ -28,7 +28,7 @@ waitForConfirmation() {
 }
 
 pwd="$PWD"
-newTagSha="HEAD" # DEFAULT
+newTagSha=$(git rev-list -n 1 "HEAD") # DEFAULT
 
 if [ $# -gt 2 ]; then
 	newTagSha=$3
@@ -71,9 +71,11 @@ echo
 
 tagCount=$(git tag -l "$2" | wc -l)
 if [ "$tagCount" != "0" ]; then
-	echo "Tag $2 already exists. Please verify it points to $newTagSha."
-	waitForConfirmation
-	echo
+	existingTagSha=$(git rev-list -n 1 "$2")
+	if [[ "$existingTagSha" != "$newTagSha"* ]]; then
+		echo "Tag $2 already exists but does not point to $newTagSha."
+		exit 1
+	fi
 else
 	# Tag & push new version
 	echo "Creating new tag $2"
