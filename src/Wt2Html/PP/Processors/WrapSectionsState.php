@@ -28,44 +28,37 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 class WrapSectionsState {
-	/** @var Env */
-	private $env;
-
-	/** @var Frame */
-	private $frame;
+	private Env $env;
+	private Frame $frame;
 
 	/** @var Element|DocumentFragment */
 	private $rootNode;
 
 	/**
 	 * The next section debug ID
-	 * @var int
 	 */
-	private $count = 1;
+	private int $count = 1;
 
-	/** @var Document */
-	private $doc;
+	/**
+	 * Pseudo section count is needed to determine TOC rendering
+	 */
+	private int $pseudoSectionCount = 0;
+	private Document $doc;
 
 	/**
 	 * Map of about ID to first element
 	 * @var Element[]
 	 */
-	private $aboutIdMap = [];
-
-	/** @var int */
-	private $sectionNumber = 0;
-
-	/** @var ?WrapSectionsTplInfo */
-	private $tplInfo = null;
+	private array $aboutIdMap = [];
+	private int $sectionNumber = 0;
+	private ?WrapSectionsTplInfo $tplInfo = null;
 
 	/** @var WrapSectionsTplInfo[] */
-	private $tplsAndExtsToExamine = [];
-
-	/** @var int */
-	private $oldLevel = 0;
+	private array $tplsAndExtsToExamine = [];
+	private int $oldLevel = 0;
 
 	/** @var array<string,bool> Set of section anchors */
-	private $processedAnchors = [];
+	private array $processedAnchors = [];
 
 	/**
 	 * See the safe-heading transform code in Parser::finalizeHeadings in core
@@ -328,6 +321,7 @@ class WrapSectionsState {
 		 * The code here handles uneditable sections because of templating.
 		 */
 		if ( $pseudoSection ) {
+			$this->pseudoSectionCount++;
 			$section->setId( -2 );
 		} elseif ( $this->tplInfo !== null ) {
 			$section->setId( -1 );
@@ -839,7 +833,7 @@ class WrapSectionsState {
 		if ( $noTocBS && !$tocBS ) {
 			$showToc = false;
 		}
-		$numHeadings = $this->count - 1; // $this->count is initialized to 1
+		$numHeadings = $this->count - 1 - $this->pseudoSectionCount; // $this->count is initialized to 1
 		$enoughToc = $showToc && ( $numHeadings >= 4 || $tocBS );
 		if ( $forceTocBS ) {
 			$showToc = true;

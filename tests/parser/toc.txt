@@ -1048,6 +1048,36 @@ flags=
 !! end
 
 !! test
+T352467: synthetic sections shouldn't count towards "enough" sections
+!! options
+showflags
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+<div>
+==a==
+==b==
+</div>
+==c==
+!! metadata
+flags=
+!! html/php
+<div>
+<h2><span class="mw-headline" id="a">a</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: a">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<h2><span class="mw-headline" id="b">b</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+</div>
+<h2><span class="mw-headline" id="c">c</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: c">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+!! html/parsoid
+<section data-mw-section-id="-1"></section><section data-mw-section-id="-2"><div>
+<section data-mw-section-id="1"><h2 id="a">a</h2>
+</section><section data-mw-section-id="-1"><h2 id="b">b</h2>
+</section></div>
+</section><section data-mw-section-id="3"><h2 id="c">c</h2></section>
+!! end
+
+!! test
 T307691: show-toc flag: not "enough" sections, but __FORCETOC__
 !! options
 showflags
