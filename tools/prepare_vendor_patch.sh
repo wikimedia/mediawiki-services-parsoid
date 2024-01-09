@@ -10,6 +10,7 @@ if [ $# -lt 2 ]; then
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 HEAD"
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7"
 	echo "You have to skip OR provide both repo values on the CLI"
+	echo "A specific composer install can be passed via the MW_COMPOSER env variable."
 	exit 1
 fi
 
@@ -113,7 +114,12 @@ echo
 # FIXME: Verify that composer is running the version from the README
 # `composer --version === 2.6.4`
 echo "Running composer update"
-composer update --no-dev
+if [ "${MW_COMPOSER:-foo}" == "foo" ]; then
+	composer="composer"
+else
+	composer="${MW_COMPOSER}"
+fi
+$composer update --no-dev
 echo
 
 # Generate commit
