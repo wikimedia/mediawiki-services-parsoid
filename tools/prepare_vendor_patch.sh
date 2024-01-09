@@ -90,7 +90,7 @@ echo "Pushed new tag $2 to origin"
 echo
 
 # Identify fixed bugs
-fixedbugs=$(git log "$1".."$2" | grep -E "^\s*Bug:" | sed 's/^\s*//g;' | sort | uniq)
+fixedbugs=$(git log "$1".."$2" | (grep -E "^\s*Bug:" || echo "") | sed 's/^\s*//g;' | sort | uniq)
 
 # --- Prepare vendor patch ---
 # Update composer.json
