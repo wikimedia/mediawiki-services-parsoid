@@ -429,11 +429,46 @@ EOT;
 	}
 
 	/**
-	 * Cannot test this via parser tests becuase that framework strips
-	 * about attributes and here we want to assert the presence of 'about'
+	 * Tests TOC edge cases in T350625 and T352467
+	 * Cannot test some of this via parser tests because that framework strips
+	 * about attributes and here, we want to assert the presence of 'about'.
 	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapSectionsState
 	 */
-	public function testT350625(): void {
+	public function testTocEdgeCases(): void {
+		// For the test below,
+		// - Synthetic meta should get an about id
+		//   matching the surrounding template
+		// - Synthetic section shoult not get an about id
+		$wt = <<<EOT
+<div>
+{{1x|1=
+foo
+==h1==
+}}
+a
+==h2==
+b
+==h3==
+c
+==h4==
+d
+</div>
+EOT;
+		$docBody = $this->parseWT( $wt, [], true );
+
+		$syntheticMeta = DOMCompat::querySelector( $docBody, 'meta[property=mw:PageProp/toc]' );
+		$about = DOMCompat::getAttribute( $syntheticMeta, 'about' );
+		$this->assertNotNull( $about );
+
+		$syntheticSection = $syntheticMeta->parentNode;
+		$this->assertSame( '-2', DOMCompat::getAttribute( $syntheticSection, 'data-mw-section-id' ) );
+		$this->assertSame( $about, DOMCompat::getAttribute( $syntheticSection->previousSibling, 'about' ) ); // <span> for \n after 'foo'
+		$this->assertSame( $about, DOMCompat::getAttribute( $syntheticSection->nextSibling->firstChild, 'about' ) ); // <h1>
+		$this->assertNull( DOMCompat::getAttribute( $syntheticSection, 'about' ) );
+
+		// For the test below,
+		// - Synthetic meta and synthetic section should not get an about id
+		// - The synthetic section should be nested in a <div> tag
 		$wt = <<<EOT
 {{1x|foo
 <div>}}
@@ -449,35 +484,13 @@ d
 e
 EOT;
 		$docBody = $this->parseWT( $wt, [], true );
-		$firstSection = $docBody->firstChild;
-		$syntheticMeta = $firstSection->lastChild;
-		$this->assertSame( 'meta', DOMCompat::nodeName( $syntheticMeta ) );
-		$this->assertSame( 'mw:PageProp/toc', DOMCompat::getAttribute( $syntheticMeta, 'property' ) );
-		$about = DOMCompat::getAttribute( $syntheticMeta, 'about' );
-		$this->assertNotNull( $about );
-		$this->assertSame( $about, DOMCompat::getAttribute( $syntheticMeta->previousSibling, 'about' ) );
+		$syntheticMeta = DOMCompat::querySelector( $docBody, 'meta[property=mw:PageProp/toc]' );
+		$this->assertNull( DOMCompat::getAttribute( $syntheticMeta, 'about' ) );
 
-		// Synthetic meta should *not* get an about id
-		$wt = <<<EOT
-{{1x|foo
-<div></div>}}<h1>h1</h1>
-a
-==h2==
-b
-==h3==
-c
-==h4==
-d
-==h5==
-e
-EOT;
-		$docBody = $this->parseWT( $wt, [], true );
-		$firstSection = $docBody->firstChild;
-		$syntheticMeta = $firstSection->lastChild;
-		$this->assertSame( 'meta', DOMCompat::nodeName( $syntheticMeta ) );
-		$this->assertSame( 'mw:PageProp/toc', DOMCompat::getAttribute( $syntheticMeta, 'property' ) );
-		$about = DOMCompat::getAttribute( $syntheticMeta, 'about' );
-		$this->assertNull( $about );
+		$syntheticSection = $syntheticMeta->parentNode;
+		$this->assertSame( '-2', DOMCompat::getAttribute( $syntheticSection, 'data-mw-section-id' ) );
+		$this->assertSame( 'div', DOMCompat::nodeName( $syntheticSection->parentNode ) );
+		$this->assertNull( DOMCompat::getAttribute( $syntheticSection, 'about' ) );
 	}
 
 }
