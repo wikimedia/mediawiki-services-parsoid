@@ -114,12 +114,7 @@ echo
 # FIXME: Verify that composer is running the version from the README
 # `composer --version === 2.6.4`
 echo "Running composer update"
-if [ "${MW_COMPOSER:-foo}" == "foo" ]; then
-	composer="composer"
-else
-	composer="${MW_COMPOSER}"
-fi
-$composer update --no-dev
+"${MW_COMPOSER:-composer}" update --no-dev
 echo
 
 # Generate commit
