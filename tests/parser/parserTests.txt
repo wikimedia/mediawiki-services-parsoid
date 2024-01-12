@@ -5372,6 +5372,32 @@ Parsoid: Merge double tds in nested transclusion content (T52603)
 </div>
 !! end
 
+!! article
+Template:Temp?
+!! text
+temp {{{1}}}
+!! endarticle
+
+!! test
+Template name with question mark
+!! options
+parsoid={
+  "modes": [ "selser", "wt2html", "html2wt" ],
+  "changes": [
+    ["span", "attr", "data-mw", "{\"parts\":[{\"template\":{\"target\":{\"wt\":\"temp?\",\"href\":\"./Template:Temp%3F\"},\"params\":{\"1\":{\"wt\":\"456\"}},\"i\":0}}]}"]
+  ]
+}
+!! wikitext
+{{temp?|123}}
+!! wikitext/edited
+{{temp?|456}}
+!! html/php
+<p>temp 123
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"temp?","href":"./Template:Temp%3F"},"params":{"1":{"wt":"123"}},"i":0}}]}'>temp 123</span></p>
+!! end
+
 ###
 ### <includeonly> and <noinclude> in attributes
 ###

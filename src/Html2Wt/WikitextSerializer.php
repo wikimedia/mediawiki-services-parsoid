@@ -959,11 +959,11 @@ class WikitextSerializer {
 			$tplData = null;
 			$apiResp = null;
 			if ( $isTpl && $useTplData ) {
-				$title = Title::newFromText(
-					PHPUtils::stripPrefix( $tplHref, './' ),
-					$this->env->getSiteConfig()
-				);
 				try {
+					$title = Title::newFromText(
+						PHPUtils::stripPrefix( Utils::decodeURIComponent( $tplHref ), './' ),
+						$this->env->getSiteConfig()
+					);
 					$tplData = $this->env->getDataAccess()->fetchTemplateData( $this->env->getPageConfig(), $title );
 				} catch ( Exception $err ) {
 					// Log the error, and use default serialization mode.
