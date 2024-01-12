@@ -711,7 +711,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	): void {
 		if ( WTUtils::isGeneratedFigure( $c ) && !empty( $dp->optList ) ) {
 			$items = [];
-			$bogusPx = isset( $dp->getTemp()->bogusPx );
+			$bogusPx = $dp->getTempFlag( TempData::BOGUS_PX );
 			foreach ( $dp->optList as $item ) {
 				if (
 					$item['ck'] === 'bogus' ||

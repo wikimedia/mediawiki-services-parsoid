@@ -34,9 +34,6 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  *
  * Used to shuttle tokens to the end of a stage in the TTM
  * @property array|null $shuttleTokens
- *
- * Used to indicate that media dimensions have redundant units
- * @property bool|null $bogusPx
  */
 #[\AllowDynamicProperties]
 class TempData {
@@ -96,6 +93,11 @@ class TempData {
 	 * in an assertion.
 	 */
 	public const FROM_FOSTER = 1 << 9;
+
+	/**
+	 * Used to indicate that media dimensions have redundant units.
+	 */
+	public const BOGUS_PX = 1 << 10;
 
 	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used

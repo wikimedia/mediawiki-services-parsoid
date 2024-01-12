@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Language\Language;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -1335,7 +1336,7 @@ class WikiLinkHandler extends TokenHandler {
 					if ( $maybeDim !== null ) {
 						if ( $maybeDim['bogusPx'] ) {
 							// Lint away redundant unit (T207032)
-							$dataParsoid->getTemp()->bogusPx = true;
+							$dataParsoid->setTempFlag( TempData::BOGUS_PX );
 						}
 						$opts['size']['v'] = [
 							'width' => Utils::validateMediaParam( $maybeDim['x'] ) ? $maybeDim['x'] : null,
