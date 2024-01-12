@@ -511,7 +511,7 @@ class WrapSectionsState {
 	 * @param Element $n
 	 * @return bool
 	 */
-	private function isParsoidSection( Element $n ): bool {
+	private static function isParsoidSection( Element $n ): bool {
 		return DOMCompat::nodeName( $n ) === 'section' && $n->hasAttribute( 'data-mw-section-id' );
 	}
 
@@ -519,14 +519,14 @@ class WrapSectionsState {
 	 * Find an ancestor that is a Parsoid-inserted section
 	 *
 	 * @param Node $n
-	 * @return Node
+	 * @return Element
 	 */
-	private function findSectionAncestor( Node $n ): Node {
+	private static function findSectionAncestor( Node $n ): Element {
 		do {
 			$n = DOMUtils::findAncestorOfName( $n, 'section' );
 		} while ( $n && !self::isParsoidSection( $n ) );
 
-		Assert::invariant( $n !== null, "Expected to find Parsoid-section ancestor" );
+		Assert::invariant( $n instanceof Element, "Expected to find Parsoid-section ancestor" );
 		return $n;
 	}
 
@@ -808,43 +808,66 @@ class WrapSectionsState {
 	 * a <div> wraps the heading, the insertion point lies inside the <div> and
 	 * has no relation to the lead section.
 	 */
-	private function findTOCInsertionPoint( Node $elt ): ?array {
+	private static function findTOCInsertionPoint( Node $elt ): ?Element {
 		while ( $elt ) {
 			if ( $elt instanceof Element ) {
 				if ( DOMUtils::isHeading( $elt ) ) {
-					$eltSection = $this->findSectionAncestor( $elt );
-					$startOffset = DOMDataUtils::getDataParsoid( $elt )->dsr->start ?? null;
-
-					// NOTE: Given how <section>s are computed in this file, headings
-					// will never have previous siblings. So, we look at $eltSection's
-					// previous siblings always.
-					if ( DOMCompat::nodeName( $eltSection->previousSibling ) === 'section' ) {
-						// Common case: adds TOC marker to the end of the "lead" section
-						return [
-							'insertionPoint' => null,
-							'container' => $eltSection->previousSibling,
-							'startOffset' => $startOffset
-						];
-					} else {
-						// Edge case: adds TOC marker in a dummy section before '$eltSection'
-						return [
-							'insertionPoint' => $eltSection,
-							'container' => null,
-							'startOffset' => $startOffset
-						];
-					}
+					return $elt;
 				} elseif ( $elt->firstChild ) {
-					$tocIP = $this->findTOCInsertionPoint( $elt->firstChild );
+					$tocIP = self::findTOCInsertionPoint( $elt->firstChild );
 					if ( $tocIP ) {
 						return $tocIP;
 					}
 				}
 			}
-
 			$elt = $elt->nextSibling;
 		}
-
 		return null;
+	}
+
+	/**
+	 * Insert a synthetic section in which to place the TOC
+	 */
+	private function insertSyntheticSection(
+		Element $syntheticTocMeta, Element $insertionPoint
+	): Element {
+		$prev = $insertionPoint->previousSibling;
+
+		// Create a pseudo-section contaning the TOC
+		$syntheticTocSection = $this->doc->createElement( 'section' );
+		$syntheticTocSection->setAttribute( 'data-mw-section-id', '-2' );
+		$insertionPoint->parentNode->insertBefore( $syntheticTocSection, $insertionPoint );
+		$this->pseudoSectionCount++;
+		$syntheticTocSection->appendChild( $syntheticTocMeta );
+
+		// Ensure template continuity is not broken!
+		// If $prev is not an encapsulation wrapper, nothing to do!
+		if ( $prev && WTUtils::isEncapsulationWrapper( $prev ) ) {
+			'@phan-var Element $prev';
+			$prevAbout = DOMCompat::getAttribute( $prev, 'about' );
+
+			// First, handle the case of section-tag-stripping that VE does.
+			// So, find the leftmost non-section-wrapper node since we want
+			// If the about ids are different, $next & $prev belong to
+			// different transclusions and the TOC meta can be left alone.
+			$next = $insertionPoint->firstChild;
+			$nextAbout = $next instanceof Element ? DOMCompat::getAttribute( $next, 'about' ) : null;
+			if ( $prevAbout === $nextAbout ) {
+				$syntheticTocMeta->setAttribute( 'about', $prevAbout );
+			}
+
+			// Now handle case of section-tags not being stripped
+			// NOTE that $syntheticMeta is before $insertipnPoint
+			// If it is not-null, it is known to be a <section>.
+			$next = $insertionPoint;
+			'@phan-var Element $next';
+			$nextAbout = $next ? DOMCompat::getAttribute( $next, 'about' ) : null;
+			if ( $prevAbout === $nextAbout ) {
+				$syntheticTocSection->setAttribute( 'about', $prevAbout );
+			}
+		}
+
+		return $syntheticTocSection;
 	}
 
 	private function addSyntheticTOCMarker(): void {
@@ -882,52 +905,22 @@ class WrapSectionsState {
 						return;
 					}
 
-					$insertionPoint = $tocIP['insertionPoint'];
-					$insertionContainer = $tocIP['container'];
-					if ( $insertionContainer !== null ) {
-						$insertionContainer->appendChild( $syntheticTocMeta );
-					} else {
-						$prev = $insertionPoint->previousSibling;
+					// NOTE: Given how <section>s are computed in this file, headings
+					// will never have previous siblings. So, we look at $eltSection's
+					// previous siblings always.
+					$insertionPoint = self::findSectionAncestor( $tocIP );
 
-						// $insertionPoint is not null here and is known to be a <section>
-						// Create a pseudo-section contaning the TOC
-						$syntheticTocSection = $this->doc->createElement( 'section' );
-						$syntheticTocSection->setAttribute( 'data-mw-section-id', '-2' );
-						$insertionPoint->parentNode->insertBefore( $syntheticTocSection, $insertionPoint );
-						$this->pseudoSectionCount++;
-						$syntheticTocSection->appendChild( $syntheticTocMeta );
-
-						// Ensure template continuity is not broken!
-						// If $prev is not an encapsulation wrapper, nothing to do!
-						if ( $prev && WTUtils::isEncapsulationWrapper( $prev ) ) {
-							'@phan-var Element $prev';
-							$prevAbout = DOMCompat::getAttribute( $prev, 'about' );
-
-							// First, handle the case of section-tag-stripping that VE does.
-							// So, find the leftmost non-section-wrapper node since we want
-							// If the about ids are different, $next & $prev belong to
-							// different transclusions and the TOC meta can be left alone.
-							$next = $insertionPoint->firstChild;
-							$nextAbout = $next instanceof Element ? DOMCompat::getAttribute( $next, 'about' ) : null;
-							if ( $prevAbout === $nextAbout ) {
-								$syntheticTocMeta->setAttribute( 'about', $prevAbout );
-							}
-
-							// Now handle case of section-tags not being stripped
-							// NOTE that $syntheticMeta is before $insertipnPoint
-							// If it is not-null, it is known to be a <section>.
-							$next = $insertionPoint;
-							'@phan-var Element $next';
-							$nextAbout = $next ? DOMCompat::getAttribute( $next, 'about' ) : null;
-							if ( $prevAbout === $nextAbout ) {
-								$syntheticTocSection->setAttribute( 'about', $prevAbout );
-							}
-						}
+					$insertionContainer = $insertionPoint->previousSibling;
+					if ( DOMCompat::nodeName( $insertionContainer ) !== 'section' ) {
+						$insertionContainer = $this->insertSyntheticSection(
+							$syntheticTocMeta, $insertionPoint
+						);
 					}
+					$insertionContainer->appendChild( $syntheticTocMeta );
 
 					// Set a synthetic zero-length dsr to suppress noisy warnings
 					// from the round trip testing script.
-					$syntheticOffset = $tocIP['startOffset'];
+					$syntheticOffset = DOMDataUtils::getDataParsoid( $tocIP )->dsr->start ?? null;
 					if ( $syntheticOffset !== null ) {
 						$dp = DOMDataUtils::getDataParsoid( $syntheticTocMeta );
 						$dp->dsr = new DomSourceRange( $syntheticOffset, $syntheticOffset, 0, 0 );
