@@ -911,7 +911,7 @@ class WrapSectionsState {
 					$insertionPoint = self::findSectionAncestor( $tocIP );
 
 					$insertionContainer = $insertionPoint->previousSibling;
-					if ( DOMCompat::nodeName( $insertionContainer ) !== 'section' ) {
+					if ( !$insertionContainer || DOMCompat::nodeName( $insertionContainer ) !== 'section' ) {
 						$insertionContainer = $this->insertSyntheticSection(
 							$syntheticTocMeta, $insertionPoint
 						);
