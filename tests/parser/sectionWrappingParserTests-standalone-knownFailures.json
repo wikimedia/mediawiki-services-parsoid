@@ -37,5 +37,8 @@
         "selser [0,1]": "= x =\n{{Foobar2}}\ny",
         "selser [2,1]": "1khnb26\n\n= x =\n{{Foobar2}}\ny",
         "selser [0,2]": "1xm4pn9\n\n= x =\n{{Foobar2}}\ny"
+    },
+    "TOC insertion with div wrapping first heading as first child": {
+        "selser [3,[[2,[[2],3]],2],1,[3,4],[3,3],[1]]": "<div>11zps71<h3>1ruu0ajho</h3>\n</div>19j8ezu\n\n==hi==\n1ecpfii\n==ho==\n"
     }
 }
