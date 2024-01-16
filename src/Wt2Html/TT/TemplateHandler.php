@@ -912,7 +912,7 @@ class TemplateHandler extends TokenHandler {
 		// positions.  However, proceeding to go through template expansion
 		// will reparse it as a table cell token.  Hence this special case
 		// handling to avoid that path.
-		if ( $resolvedTgt['magicWordType'] === '!' || $tplToken->attribs[0]->k === '!' ) {
+		if ( $resolvedTgt['magicWordType'] === '!' ) {
 			// If we're not at the top level, return a table cell. This will always
 			// be the case. Either {{!}} was tokenized as a td, or it was tokenized
 			// as template but the recursive call to fetch its content returns a
