@@ -101,7 +101,8 @@ cd "$vendorRepo"
 git checkout master
 git pull origin master --rebase
 vstring=$(echo "$2" | sed 's/v//g;')
-sed -i '' "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
+sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
+rm composer.json.bak
 
 # Wait a bit for changes to propagate to packagist
 sleep 2
@@ -114,7 +115,8 @@ echo
 # FIXME: Verify that composer is running the version from the README
 # `composer --version === 2.6.4`
 echo "Running composer update"
-"${MW_COMPOSER:-composer}" update --no-dev
+composer="${MW_COMPOSER:-composer}"
+$composer update --no-dev
 echo
 
 # Generate commit
@@ -136,7 +138,8 @@ git pull origin master --rebase
 echo
 echo "Bumping Parsoid version in core and preparing patch"
 
-sed -i '' "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
+sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
+rm composer.json.bak
 git commit composer.json -m "Bump wikimedia/parsoid to $vstring
 
 Depends-On: $changeid"
