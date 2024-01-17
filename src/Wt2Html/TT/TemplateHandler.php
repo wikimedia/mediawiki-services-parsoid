@@ -371,7 +371,7 @@ class TemplateHandler extends TokenHandler {
 				);
 			}
 			return [
-				'isPF' => true,
+				'isParserFunction' => true,
 				'magicWordType' => null,
 				'name' => $canonicalFunctionName,
 				'title' => $syntheticTitle, // FIXME: Some made up synthetic title
@@ -529,7 +529,7 @@ class TemplateHandler extends TokenHandler {
 		// .wikitext() methods (subclass of Array)
 
 		$target = $resolvedTgt['name'];
-		if ( isset( $resolvedTgt['isPF'] ) || isset( $resolvedTgt['isVariable'] ) ) {
+		if ( isset( $resolvedTgt['isParserFunction'] ) || isset( $resolvedTgt['isVariable'] ) ) {
 			// FIXME: HARDCODED to core parser function implementations!
 			// These should go through function hook registrations in the
 			// ParserTests mock setup ideally. But, it is complicated because the
@@ -1049,6 +1049,19 @@ class TemplateHandler extends TokenHandler {
 					)
 				);
 			} else {
+				if (
+					!isset( $tgt['isParserFunction'] ) &&
+					!isset( $tgt['isVariable'] ) &&
+					!$templateTitle->isExternal() &&
+					$templateTitle->isSpecialPage()
+				) {
+					$domFragment = PipelineUtils::fetchHTML( $env, $text );
+					$toks = PipelineUtils::tunnelDOMThroughTokens(
+						$env, $token, $domFragment, []
+					);
+					return new TemplateExpansionResult( $toks, true, $this->wrapTemplates );
+				}
+
 				// Fetch and process the template expansion
 				$expansion = Wikitext::preprocess( $env, $text );
 				if ( $expansion['error'] ) {

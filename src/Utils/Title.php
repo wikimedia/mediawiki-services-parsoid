@@ -330,6 +330,15 @@ class Title implements LinkTarget {
 	}
 
 	/**
+	 * Returns true if this is a special page.
+	 *
+	 * @return bool
+	 */
+	public function isSpecialPage() {
+		return $this->getNamespace() === -1; // NS_SPECIAL;
+	}
+
+	/**
 	 * Use the default special page alias.
 	 *
 	 * @param SiteConfig $siteConfig

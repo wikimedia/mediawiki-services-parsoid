@@ -125,12 +125,6 @@
 	"Self-closed tag with broken attribute value quoting": {
 		"wt2html": "<div title=\"Hello world \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,26,26,0]}'></div><p data-parsoid='{\"dsr\":[26,29,0,0]}'>Foo</p>"
 	},
-	"Special page transclusion": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Special:PrefixIndex/Xyzzyx\" title=\"Special:PrefixIndex/Xyzzyx\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"sa\":{\"href\":\":Special:Prefixindex/Xyzzyx\"},\"dsr\":[0,30,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'>Special:Prefixindex/Xyzzyx</a></p>"
-	},
-	"Special page transclusion twice (T7021)": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,61,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Special:PrefixIndex/Xyzzyx\" title=\"Special:PrefixIndex/Xyzzyx\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"sa\":{\"href\":\":Special:Prefixindex/Xyzzyx\"},\"dsr\":[0,30,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'>Special:Prefixindex/Xyzzyx</a>\n<a rel=\"mw:WikiLink\" href=\"./Special:PrefixIndex/Xyzzyx\" title=\"Special:PrefixIndex/Xyzzyx\" about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"sa\":{\"href\":\":Special:Prefixindex/Xyzzyx\"},\"dsr\":[31,61,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Special:Prefixindex/Xyzzyx\",\"href\":\"./Special:PrefixIndex/Xyzzyx\"},\"params\":{},\"i\":0}}]}'>Special:Prefixindex/Xyzzyx</a></p>"
-	},
 	"T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)": {
 		"wt2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]"
 	},

@@ -9736,8 +9736,10 @@ Special page transclusion
 !! html/php
 <ul class="mw-prefixindex-list"><li><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></li>
 </ul>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Special:PrefixIndex/Xyzzyx?action=edit&amp;redlink=1" title="Special:PrefixIndex/Xyzzyx" about="#mwt1" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Special:PrefixIndex/Xyzzyx"},"sa":{"href":"Special:PrefixIndex/Xyzzyx"},"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Special:Prefixindex/Xyzzyx","href":"./Special:PrefixIndex/Xyzzyx"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Special:PrefixIndex/Xyzzyx"]}}'>Special:PrefixIndex/Xyzzyx</a></p>
+!! html/parsoid+integrated
+<ul class="mw-prefixindex-list" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:Prefixindex/Xyzzyx","href":"./Special:PrefixIndex/Xyzzyx"},"params":{},"i":0}}]}'>
+<li><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></li>
+</ul>
 !! end
 
 !! test
@@ -9750,9 +9752,13 @@ Special page transclusion twice (T7021)
 </ul>
 <ul class="mw-prefixindex-list"><li><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></li>
 </ul>
-!! html/parsoid
-<p><a rel="mw:WikiLink" href="./Special:PrefixIndex/Xyzzyx?action=edit&amp;redlink=1" title="Special:PrefixIndex/Xyzzyx" about="#mwt1" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Special:PrefixIndex/Xyzzyx"},"sa":{"href":"Special:PrefixIndex/Xyzzyx"},"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Special:Prefixindex/Xyzzyx","href":"./Special:PrefixIndex/Xyzzyx"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Special:PrefixIndex/Xyzzyx"]}}'>Special:PrefixIndex/Xyzzyx</a>
-<a rel="mw:WikiLink" href="./Special:PrefixIndex/Xyzzyx?action=edit&amp;redlink=1" title="Special:PrefixIndex/Xyzzyx" about="#mwt2" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Special:PrefixIndex/Xyzzyx"},"sa":{"href":"Special:PrefixIndex/Xyzzyx"},"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Special:Prefixindex/Xyzzyx","href":"./Special:PrefixIndex/Xyzzyx"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Special:PrefixIndex/Xyzzyx"]}}'>Special:PrefixIndex/Xyzzyx</a></p>
+!! html/parsoid+integrated
+<ul class="mw-prefixindex-list" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:Prefixindex/Xyzzyx","href":"./Special:PrefixIndex/Xyzzyx"},"params":{},"i":0}}]}'>
+<li><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></li>
+</ul>
+<ul class="mw-prefixindex-list" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:Prefixindex/Xyzzyx","href":"./Special:PrefixIndex/Xyzzyx"},"params":{},"i":0}}]}'>
+<li><a href="/wiki/Xyzzyx" title="Xyzzyx">Xyzzyx</a></li>
+</ul>
 !! end
 
 !! test
@@ -10687,9 +10693,7 @@ Special:Search page linking.
 <p><a href="/wiki/Special:Search" title="Special:Search">Special:Search</a>
 </p>
 !! html/parsoid+integrated
-<p><a rel="mw:WikiLink" href="./Special:Search" title="Special:Search" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:search","href":"./Special:Search"},"params":{},"i":0}}]}'>Special:Search</a></p>
-!! html/parsoid+standalone
-<p><a rel="mw:WikiLink" href="./Special:Search?action=edit&amp;redlink=1" title="Special:Search" about="#mwt1" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Special:Search"},"sa":{"href":"Special:Search"},"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Special:search","href":"./Special:Search"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Special:Search"]}}'>Special:Search</a></p>
+<p><a href="/wiki/Special:Search" title="Special:Search" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:search","href":"./Special:Search"},"params":{},"i":0}}]}'>Special:Search</a></p>
 !! end
 
 !! test

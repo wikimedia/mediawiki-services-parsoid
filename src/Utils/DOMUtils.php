@@ -953,4 +953,11 @@ class DOMUtils {
 	public static function isMetaDataTag( Element $node ): bool {
 		return isset( Consts::$HTML['MetaDataTags'][DOMCompat::nodeName( $node )] );
 	}
+
+	/**
+	 * Strip a paragraph wrapper, if any, before parsing HTML to DOM
+	 */
+	public static function stripPWrapper( string $ret ): string {
+		return preg_replace( '#(^<p>)|(\n</p>(' . Utils::COMMENT_REGEXP_FRAGMENT . '|\s)*$)#D', '', $ret );
+	}
 }
