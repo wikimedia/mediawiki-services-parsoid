@@ -154,7 +154,21 @@ abstract class SiteConfig {
 				}
 			};
 		}
-		$extId = $this->extModuleNextId++;
+		// Transition hack!
+		$extId = null;
+		if ( $module->getConfig()['name'] === 'Cite' ) {
+			// reuse the id of the existing built-in Cite implementation
+			// in order to replace it.
+			foreach ( $this->extModules as $id => $module ) {
+				if ( $module instanceof Cite ) {
+					$extId = $id;
+					break;
+				}
+			}
+		}
+		if ( $extId === null ) {
+			$extId = $this->extModuleNextId++;
+		}
 		$this->extModules[$extId] = $module;
 		// remove cached extConfig to ensure this registration is picked up
 		$this->extConfig = null;
