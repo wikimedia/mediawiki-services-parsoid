@@ -476,6 +476,16 @@ class WTUtils {
 	}
 
 	/**
+	 * Is $node the first wrapper element of extension content?
+	 *
+	 * @param Node $node
+	 * @return bool
+	 */
+	public static function isFirstExtensionWrapperNode( Node $node ): bool {
+		return DOMUtils::matchTypeOf( $node, "#mw:Extension/#" ) !== null;
+	}
+
+	/**
 	 * Checks whether a first encapsulation wrapper node is encapsulating an extension
 	 * that outputs Mediawiki Core DOM Spec HTML (https://www.mediawiki.org/wiki/Specs/HTML)
 	 * @param Node $node

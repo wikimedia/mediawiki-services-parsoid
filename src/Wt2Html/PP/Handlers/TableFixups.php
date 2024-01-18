@@ -275,7 +275,7 @@ class TableFixups {
 						$transclusions[] = $child;
 					}
 
-					if ( DOMUtils::matchTypeOf( $child, "#mw:Extension/#" ) ) {
+					if ( WTUtils::isFirstExtensionWrapperNode( $child ) ) {
 						// "|" chars in extension content don't trigger table-cell parsing
 						// since they have higher precedence in tokenization. The extension
 						// content will simply be dropped (but any side effects it had will
@@ -598,7 +598,7 @@ class TableFixups {
 				return self::OTHER_REPARSE;
 			}
 
-			if ( DOMUtils::matchTypeOf( $child, "#mw:Extension/#" ) ) {
+			if ( WTUtils::isFirstExtensionWrapperNode( $child ) ) {
 				// "|" chars in extension content don't trigger table-cell parsing
 				// since they have higher precedence in tokenization
 				$child = WTUtils::skipOverEncapsulatedContent( $child );
