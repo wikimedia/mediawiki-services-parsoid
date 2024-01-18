@@ -52,6 +52,10 @@ class WrapSectionsState {
 	private array $aboutIdMap = [];
 	private int $sectionNumber = 0;
 	private ?WrapSectionsTplInfo $tplInfo = null;
+	/**
+	 * Set when we enter an extension!
+	 */
+	private ?Node $extExitNode = null;
 
 	/** @var WrapSectionsTplInfo[] */
 	private array $tplsAndExtsToExamine = [];
@@ -329,7 +333,8 @@ class WrapSectionsState {
 			$section->setId( $this->sectionNumber );
 		}
 
-		if ( !$pseudoSection ) {
+		// Sections from extensions shouldn't show up in TOC
+		if ( !$pseudoSection && !$this->extExitNode ) {
 			$this->computeSectionMetadata( $section->metadata, $heading, $newLevel );
 		}
 
@@ -371,42 +376,53 @@ class WrapSectionsState {
 			$addedNode = false;
 			$expandSectionBoundary = false;
 
-			// Track entry into templated output
-			if ( !$this->tplInfo && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
+			// Track entry into templated and extension output
+			if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 				DOMUtils::assertElt( $node );
 				$about = DOMCompat::getAttribute( $node, 'about' );
-				$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
-				$this->tplInfo = $tplInfo = new WrapSectionsTplInfo;
-				$tplInfo->first = $node;
-				$tplInfo->about = $about;
-				$tplInfo->last = end( $aboutSiblings );
-				$this->aboutIdMap[$about] = $node;
 
-				// Collect a sequence of rendering transparent nodes starting at $node
-				while ( $node ) {
-					if ( WTUtils::isRenderingTransparentNode( $node ) || (
-							DOMCompat::nodeName( $node ) === 'span' &&
-							!WTUtils::isLiteralHTMLNode( $node ) &&
-							$this->isEmptySpan( $node )
-						)
-					) {
-						$tplInfo->rtContentNodes[] = $node;
-						$node = $node->nextSibling;
-					} else {
-						break;
-					}
+				// Track whether we are ever in an extension (whether top-level
+				// or in template output). But, we don't care about tracking
+				// extensions nested in other extensions.
+				if ( !$this->extExitNode && WTUtils::isFirstExtensionWrapperNode( $node ) ) {
+					$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
+					$this->extExitNode = end( $aboutSiblings );
 				}
 
-				if ( count( $tplInfo->rtContentNodes ) > 0 && DOMUtils::isHeading( $node ) ) {
-					// In this scenario, we can expand the section boundary to include these nodes
-					// rather than start with the heading. This eliminates unnecessary conflicts
-					// between section & template boundaries.
-					$expandSectionBoundary = true;
-					$next = $node->nextSibling;
-				} else {
-					// Reset to normal sectioning behavior!
-					$node = $tplInfo->first;
-					$tplInfo->rtContentNodes = [];
+				if ( !$this->tplInfo ) {
+					$this->tplInfo = $tplInfo = new WrapSectionsTplInfo;
+					$tplInfo->first = $node;
+					$tplInfo->about = $about;
+					$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
+					$tplInfo->last = end( $aboutSiblings );
+					$this->aboutIdMap[$about] = $node;
+
+					// Collect a sequence of rendering transparent nodes starting at $node
+					while ( $node ) {
+						if ( WTUtils::isRenderingTransparentNode( $node ) || (
+								DOMCompat::nodeName( $node ) === 'span' &&
+								!WTUtils::isLiteralHTMLNode( $node ) &&
+								$this->isEmptySpan( $node )
+							)
+						) {
+							$tplInfo->rtContentNodes[] = $node;
+							$node = $node->nextSibling;
+						} else {
+							break;
+						}
+					}
+
+					if ( count( $tplInfo->rtContentNodes ) > 0 && DOMUtils::isHeading( $node ) ) {
+						// In this scenario, we can expand the section boundary to include these nodes
+						// rather than start with the heading. This eliminates unnecessary conflicts
+						// between section & template boundaries.
+						$expandSectionBoundary = true;
+						$next = $node->nextSibling;
+					} else {
+						// Reset to normal sectioning behavior!
+						$node = $tplInfo->first;
+						$tplInfo->rtContentNodes = [];
+					}
 				}
 			}
 
@@ -488,6 +504,11 @@ class WrapSectionsState {
 				}
 
 				$this->tplInfo = $tplInfo = null;
+			}
+
+			// Track exit from extension output
+			if ( $this->extExitNode === $node ) {
+				$this->extExitNode = null;
 			}
 
 			$node = $next;
