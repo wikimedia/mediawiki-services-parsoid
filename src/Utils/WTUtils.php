@@ -482,7 +482,7 @@ class WTUtils {
 	 * @param Env $env
 	 * @return bool
 	 */
-	public static function isExtensionOutputingCoreMwDomSpec( Node $node, Env $env ): bool {
+	public static function isExtensionOutputtingCoreMwDomSpec( Node $node, Env $env ): bool {
 		if ( DOMUtils::matchTypeOf( $node, self::NON_EXTENSION_ENCAP_REGEXP ) !== null ) {
 			return false;
 		}
