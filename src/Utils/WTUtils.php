@@ -486,8 +486,7 @@ class WTUtils {
 		if ( DOMUtils::matchTypeOf( $node, self::NON_EXTENSION_ENCAP_REGEXP ) !== null ) {
 			return false;
 		}
-		$match = DOMUtils::matchTypeOf( $node, '#^mw:Extension/(.+?)$#D' );
-		$extTagName = $match ? substr( $match, strlen( 'mw:Extension/' ) ) : null;
+		$extTagName = self::getExtTagName( $node );
 		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extTagName );
 		$htmlType = $extConfig['options']['outputHasCoreMwDomSpecMarkup'] ?? null;
 		return $htmlType === true;
