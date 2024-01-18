@@ -7,16 +7,15 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 
 class WrapSectionsTplInfo {
-	/** @var Element */
-	public $first;
-	/** @var string */
-	public $about;
-	/** @var Node */
-	public $last;
+	public Element $first;
+	// FIXME: This maybe-null feels broken.
+	// This is because language variant markup is considered
+	// encapsulated content (by WTUtils helpers) right now but
+	// they may not have any about ids.
+	public ?string $about;
+	public Node $last;
 	/** @var Node[] */
-	public $rtContentNodes = [];
-	/** @var Section|null */
-	public $firstSection;
-	/** @var Section|null */
-	public $lastSection;
+	public array $rtContentNodes = [];
+	public ?Section $firstSection;
+	public ?Section $lastSection;
 }

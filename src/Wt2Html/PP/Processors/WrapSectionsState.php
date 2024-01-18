@@ -392,6 +392,7 @@ class WrapSectionsState {
 				if ( !$this->tplInfo ) {
 					$this->tplInfo = $tplInfo = new WrapSectionsTplInfo;
 					$tplInfo->first = $node;
+					// NOTE: could be null because of language variant markup!
 					$tplInfo->about = $about;
 					$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 					$tplInfo->last = end( $aboutSiblings );
