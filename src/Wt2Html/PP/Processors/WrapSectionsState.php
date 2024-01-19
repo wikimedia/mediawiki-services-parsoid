@@ -398,19 +398,39 @@ class WrapSectionsState {
 					$tplInfo->last = end( $aboutSiblings );
 					$this->aboutIdMap[$about] = $node;
 
-					// Collect a sequence of rendering transparent nodes starting at $node
+					// Collect a sequence of rendering transparent nodes starting at $node.
+					// This could be while ( true ), but being defensive.
+					$resetExtExitNode = false;
 					while ( $node ) {
-						if ( WTUtils::isRenderingTransparentNode( $node ) || (
+						// If we hit the end of the template, we are done!
+						// - If this is a heading, we'll process it below.
+						// - If not, the template never had a heading, so
+						//   we can continue default section wrapping behavior.
+						if ( $tplInfo->last === $node ) {
+							break;
+						}
+
+						// If we hit a non-rendeirng-transparent node or an empty span,
+						// we are done! We cannot exapnd the section boundary.
+						if ( !WTUtils::isRenderingTransparentNode( $node ) && !(
 								DOMCompat::nodeName( $node ) === 'span' &&
 								!WTUtils::isLiteralHTMLNode( $node ) &&
 								$this->isEmptySpan( $node )
 							)
 						) {
-							$tplInfo->rtContentNodes[] = $node;
-							$node = $node->nextSibling;
-						} else {
 							break;
 						}
+
+						// We went through the extension's content. If we end up
+						// expanding the section boundary to include the extension,
+						// we should reset extension tracking because we crossed its exit.
+						if ( $this->extExitNode === $node ) {
+							$resetExtExitNode = true;
+						}
+
+						// Accumulate the rendering-transparent node and loop
+						$tplInfo->rtContentNodes[] = $node;
+						$node = $node->nextSibling;
 					}
 
 					if ( count( $tplInfo->rtContentNodes ) > 0 && DOMUtils::isHeading( $node ) ) {
@@ -418,6 +438,9 @@ class WrapSectionsState {
 						// rather than start with the heading. This eliminates unnecessary conflicts
 						// between section & template boundaries.
 						$expandSectionBoundary = true;
+						if ( $resetExtExitNode ) {
+							$this->extExitNode = null;
+						}
 						$next = $node->nextSibling;
 					} else {
 						// Reset to normal sectioning behavior!
