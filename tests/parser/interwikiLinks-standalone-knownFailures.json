@@ -11,5 +11,9 @@
     },
     "Interwiki link with fragment (T4130)": {
         "html2wt": "[[meatball:SoftSecurity#foo|MeatBall:SoftSecurity#foo]]\n"
+    },
+    "Self-links and interwiki": {
+        "selser [2,2,4,4,[[3]],3,0,0,3]": "1vtzo6c\n\n[[local:Main Page]]\n\n18w2fj1\n\nz5teog\n\n1wi54m5\n\n[[local:Main Page#anchor]]\n",
+        "selser [[[3]],2,[[2]],0,4,4,3,0,4]": "\n1641ogm\n\n[[meatball:Main Page|aehn6wmeatball:Main Page]]\n\n1i1625u\n\nhcmgpz\n\nn6kv8n"
     }
 }

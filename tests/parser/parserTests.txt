@@ -2265,7 +2265,7 @@ wgFragmentMode=[ "html5", "legacy" ]
 <p><a href="#&lt;">#&lt;</a><a href="#&gt;">#&gt;</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#&lt;" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#&lt;"},"sa":{"href":"%23%3c"}}'>#&lt;</a><a rel="mw:WikiLink" href="./Main_Page#>" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#>"},"sa":{"href":"%23%3e"}}'>#></a></p>
+<p><a rel="mw:WikiLink" href="./Main_Page#&lt;" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#&lt;"},"sa":{"href":"%23%3c"}}'>#&lt;</a><a rel="mw:WikiLink" href="./Main_Page#>" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#>"},"sa":{"href":"%23%3e"}}'>#></a></p>
 !! end
 
 ## Example for such a section: == < ==
@@ -2583,7 +2583,6 @@ T2002: [[page|http://url/]] should link to page, not http://url/
 <p><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">http://url/</a></p>
 !! end
 
-# Parsoid does not mark self-links, by design.
 !! test
 T2337: Escaped self-links should be bold
 !! options
@@ -2594,7 +2593,7 @@ title=[[Bug462]]
 <p><a class="mw-selflink selflink">Bu&#103;462</a> <a class="mw-selflink selflink">Bug462</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Bug462" title="Bug462" data-parsoid='{"stx":"simple","a":{"href":"./Bug462"},"sa":{"href":"Bu&amp;#103;462"}}'>Bug462</a> <a rel="mw:WikiLink" href="./Bug462" title="Bug462" data-parsoid='{"stx":"simple","a":{"href":"./Bug462"},"sa":{"href":"Bug462"}}'>Bug462</a></p>
+<p><a rel="mw:WikiLink" href="./Bug462" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./Bug462"},"sa":{"href":"Bu&amp;#103;462"}}'>Bug462</a> <a rel="mw:WikiLink" href="./Bug462" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./Bug462"},"sa":{"href":"Bug462"}}'>Bug462</a></p>
 !! end
 
 !! test
@@ -2607,7 +2606,7 @@ title=[[Main Page]]
 <p><a class="mw-selflink-fragment" href="#section">Main Page#section</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#section" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#section"},"sa":{"href":"Main Page#section"}}'>Main Page#section</a></p>
+<p><a rel="mw:WikiLink" href="./Main_Page#section" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#section"},"sa":{"href":"Main Page#section"}}'>Main Page#section</a></p>
 !! end
 
 
@@ -2621,7 +2620,7 @@ title=[[Main Page]]
 <p><a class="mw-selflink-fragment" href="#section_with_spaces">Main Page#section with spaces</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Main_Page#section_with_spaces" title="Main Page" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#section_with_spaces"},"sa":{"href":"Main Page#section with spaces"}}'>Main Page#section with spaces</a></p>
+<p><a rel="mw:WikiLink" href="./Main_Page#section_with_spaces" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Main_Page#section_with_spaces"},"sa":{"href":"Main Page#section with spaces"}}'>Main Page#section with spaces</a></p>
 !! end
 
 !! article
@@ -2640,7 +2639,7 @@ title=[[0]]
 <p><a class="mw-selflink selflink">0</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./0" title="0" data-parsoid='{"stx":"simple","a":{"href":"./0"},"sa":{"href":"0"}}'>0</a></p>
+<p><a rel="mw:WikiLink" href="./0" class="mw-selflink selflink" data-parsoid='{"stx":"simple","a":{"href":"./0"},"sa":{"href":"0"}}'>0</a></p>
 !!end
 
 !!test
@@ -2852,7 +2851,7 @@ subpage
 <p><a href="#a">b</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./User:Test/123#a" data-parsoid='{"stx":"piped","a":{"href":"./User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
+<p><a rel="mw:WikiLink" href="./User:Test/123#a" class="mw-selflink-fragment" data-parsoid='{"stx":"piped","a":{"href":"./User:Test/123#a"},"sa":{"href":"#a"}}'>b</a></p>
 !! end
 
 !! test
@@ -8997,7 +8996,7 @@ wgFragmentMode=[ "html5", "legacy" ]
 <p><span id="æ:_v">byte</span><a href="#æ:_v">backlink</a>
 </p>
 !! html/parsoid
-<p><span id="æ:_v" data-parsoid='{"stx":"html","a":{"id":"æ:_v"},"sa":{"id":"æ: v"}}'>byte</span><a rel="mw:WikiLink" href="./Main_Page#æ:_v" data-parsoid='{"stx":"piped","a":{"href":"./Main_Page#æ:_v"},"sa":{"href":"#æ: v"}}'>backlink</a></p>
+<p><span id="æ:_v" data-parsoid='{"stx":"html","a":{"id":"æ:_v"},"sa":{"id":"æ: v"}}'>byte</span><a rel="mw:WikiLink" href="./Main_Page#æ:_v" class="mw-selflink-fragment" data-parsoid='{"stx":"piped","a":{"href":"./Main_Page#æ:_v"},"sa":{"href":"#æ: v"}}'>backlink</a></p>
 !! end
 
 !! test
@@ -12213,7 +12212,7 @@ title=[[Foo]]
 <p><a href="#_ref">One</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Foo#_ref" data-parsoid='{"stx":"piped","a":{"href":"./Foo#_ref"},"sa":{"href":"#_ref"}}'>One</a></p>
+<p><a rel="mw:WikiLink" href="./Foo#_ref" class="mw-selflink-fragment" data-parsoid='{"stx":"piped","a":{"href":"./Foo#_ref"},"sa":{"href":"#_ref"}}'>One</a></p>
 !! end
 
 !! test
@@ -16646,8 +16645,8 @@ wgFragmentMode=[ "html5", "legacy" ]
 <p><a href="#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E">#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E</a>
 </p>
 !! html/parsoid
-<h2 id="A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"><span id="A.26B.26C.26amp.3BD.26amp.3Bamp.3BE" typeof="mw:FallbackId" data-parsoid="{}"></span>A&amp;B<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>C<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;D<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;amp;E</h2>
-<p><a rel="mw:WikiLink" href="./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"},"sa":{"href":"#A&amp;B&amp;amp;C&amp;amp;amp;D&amp;amp;amp;amp;E"}}'>#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E</a></p>
+<h2 id="A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"><span id="A.26B.26C.26amp.3BD.26amp.3Bamp.3BE" typeof="mw:FallbackId"></span>A&amp;B<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>C<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;D<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;amp;E</h2>
+<p><a rel="mw:WikiLink" href="./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"},"sa":{"href":"#A&amp;B&amp;amp;C&amp;amp;amp;D&amp;amp;amp;amp;E"}}'>#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E</a></p>
 !! end
 
 !! test
@@ -16731,12 +16730,12 @@ wgFragmentMode=[ "html5", "legacy" ]
 <h2 id="тест"><span id=".D1.82.D0.B5.D1.81.D1.82" typeof="mw:FallbackId"></span>тест</h2>
 
 <h2 id="Hey_&lt;_#_&quot;_>_%_:_'"><span id="Hey_.3C_.23_.22_.3E_.25_:_.27" typeof="mw:FallbackId"></span>Hey &lt; # " ><span typeof="mw:DisplaySpace"> </span>%<span typeof="mw:DisplaySpace"> </span>: '</h2>
-<p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar">#Foo bar</a> <a rel="mw:WikiLink" href="./Parser_test#foo_Bar">#foo Bar</a> <a rel="mw:WikiLink" href="./Parser_test#Тест">#Тест</a> <a rel="mw:WikiLink" href="./Parser_test#тест">#тест</a> <a rel="mw:WikiLink" href="./Parser_test#Hey_&lt;_#_&quot;_>_%_:_'" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Hey_&lt;_#_\"_>_%_:_&apos;"},"sa":{"href":"#Hey &lt; # \" > % : &apos;"}}'>#Hey &lt; # " ><span typeof="mw:DisplaySpace"> </span>%<span typeof="mw:DisplaySpace"> </span>: '</a></p>
+<p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar" class="mw-selflink-fragment">#Foo bar</a> <a rel="mw:WikiLink" href="./Parser_test#foo_Bar" class="mw-selflink-fragment">#foo Bar</a> <a rel="mw:WikiLink" href="./Parser_test#Тест" class="mw-selflink-fragment">#Тест</a> <a rel="mw:WikiLink" href="./Parser_test#тест" class="mw-selflink-fragment">#тест</a> <a rel="mw:WikiLink" href="./Parser_test#Hey_&lt;_#_&quot;_>_%_:_'" class="mw-selflink-fragment">#Hey &lt; # " ><span typeof="mw:DisplaySpace"> </span>%<span typeof="mw:DisplaySpace"> </span>: '</a></p>
 
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"anchorencode:💩","function":"anchorencode"},"params":{},"i":0}}]}'>💩</span> <span id="💩" about="#mwt3" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"id"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[178,197,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:💩\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&#39;>💩&lt;/span>"}]]}'></span></p>
 
 <!-- These two links should produce identical HTML -->
-<p><a rel="mw:WikiLink" href="./Parser_test#啤酒">#啤酒</a> <a rel="mw:WikiLink" href="./Parser_test#啤酒" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#啤酒"},"sa":{"href":"#%E5%95%A4%E9%85%92"}}'>#啤酒</a></p>
+<p><a rel="mw:WikiLink" href="./Parser_test#啤酒" class="mw-selflink-fragment">#啤酒</a> <a rel="mw:WikiLink" href="./Parser_test#啤酒" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#啤酒"},"sa":{"href":"#%E5%95%A4%E9%85%92"}}'>#啤酒</a></p>
 !! end
 
 # Parsoid doesn't support this mode
@@ -16848,8 +16847,8 @@ wgFragmentMode=[ "html5", "legacy" ]
 <p><a href="#Foo_bar">#Foo&#160;bar</a>
 </p>
 !! html/parsoid
-<h2 id="Foo_bar"> Foo<span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>bar </h2>
-<p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Foo_bar"},"sa":{"href":"#Foo&amp;nbsp;bar"}}'>#Foo bar</a></p>
+<h2 id="Foo_bar">Foo<span typeof="mw:Entity" data-parsoid='{"src":"&amp;nbsp;","srcContent":" "}'> </span>bar</h2>
+<p><a rel="mw:WikiLink" href="./Parser_test#Foo_bar" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Foo_bar"},"sa":{"href":"#Foo&amp;nbsp;bar"}}'>#Foo bar</a></p>
 !! end
 
 !! test
@@ -16922,7 +16921,7 @@ wgFragmentMode=[ "html5" ]
 <p><span id="&#91;foo&#93;"></span><a href="#[foo]">#&#91;foo&#93;</a>
 </p>
 !! html/parsoid
-<p><span id="[foo]" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"id":"[foo]"},"sa":{"id":"{{anchorencode:[foo]}}"}}' data-mw='{"attribs":[[{"txt":"id"},{"html":"&lt;span typeof=\"mw:Transclusion mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"srcContent\":\"[\",\"dsr\":[10,32,null,null],\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:[foo]\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&apos;>[&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">foo&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"src\":\"&amp;amp;#x5D;\",\"srcContent\":\"]\"}&apos;>]&lt;/span>"}]]}'></span><a typeof="mw:ExpandedAttrs" about="#mwt4" rel="mw:WikiLink" href="./Parser_test#[foo]" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#[foo]"},"sa":{"href":"#{{anchorencode:[foo]}}"}}' data-mw='{"attribs":[[{"txt":"href"},{"html":"#&lt;span typeof=\"mw:Transclusion mw:Entity\" about=\"#mwt2\" data-parsoid=&apos;{\"srcContent\":\"[\",\"dsr\":[44,66,null,null],\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:[foo]\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&apos;>[&lt;/span>&lt;span about=\"#mwt2\" data-parsoid=\"{}\">foo&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt2\" data-parsoid=&apos;{\"src\":\"&amp;amp;#x5D;\",\"srcContent\":\"]\"}&apos;>]&lt;/span>"}]]}'>#[foo]</a></p>
+<p><span id="[foo]" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"id":"[foo]"},"sa":{"id":"{{anchorencode:[foo]}}"}}' data-mw='{"attribs":[[{"txt":"id"},{"html":"&lt;span typeof=\"mw:Transclusion mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"srcContent\":\"[\",\"dsr\":[10,32,null,null],\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:[foo]\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&apos;>[&lt;/span>&lt;span about=\"#mwt1\" data-parsoid=\"{}\">foo&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt1\" data-parsoid=&apos;{\"src\":\"&amp;amp;#x5D;\",\"srcContent\":\"]\"}&apos;>]&lt;/span>"}]]}'></span><a typeof="mw:ExpandedAttrs" about="#mwt4" rel="mw:WikiLink" href="./Parser_test#[foo]" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#[foo]"},"sa":{"href":"#{{anchorencode:[foo]}}"}}' data-mw='{"attribs":[[{"txt":"href"},{"html":"#&lt;span typeof=\"mw:Transclusion mw:Entity\" about=\"#mwt3\" data-parsoid=&apos;{\"srcContent\":\"[\",\"dsr\":[44,66,null,null],\"pi\":[[]]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"anchorencode:[foo]\",\"function\":\"anchorencode\"},\"params\":{},\"i\":0}}]}&apos;>[&lt;/span>&lt;span about=\"#mwt3\" data-parsoid=\"{}\">foo&lt;/span>&lt;span typeof=\"mw:Entity\" about=\"#mwt3\" data-parsoid=&apos;{\"src\":\"&amp;amp;#x5D;\",\"srcContent\":\"]\"}&apos;>]&lt;/span>"}]]}'>#[foo]</a></p>
 !! end
 ##########################################################################
 # Tests demonstrating white-space insensitivity in input wikitext

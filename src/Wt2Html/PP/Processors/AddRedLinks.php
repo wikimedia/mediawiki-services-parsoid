@@ -83,6 +83,14 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 					$queryElts['action'] = 'edit';
 					$queryElts['redlink'] = '1';
 				} else {
+					if ( $k === $prefixedTitleText ) {
+						if ( isset( $parsedURL['fragment'] ) ) {
+							DOMCompat::getClassList( $a )->add( 'mw-selflink-fragment' );
+						} else {
+							DOMCompat::getClassList( $a )->add( 'mw-selflink', 'selflink' );
+						}
+						$a->removeAttribute( 'title' );
+					}
 					// Clear a potential redlink, if we're doing a pb2pb refresh
 					// This is similar to what's happening in Html2Wt/RemoveRedLinks
 					// and maybe that pass should just run before this one.

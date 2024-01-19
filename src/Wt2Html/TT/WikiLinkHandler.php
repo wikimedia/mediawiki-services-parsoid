@@ -610,10 +610,7 @@ class WikiLinkHandler extends TokenHandler {
 		$newTk->addNormalizedAttribute( 'href', $this->env->makeLink( $target->title ),
 			$target->hrefSrc );
 
-		// Add title unless it's just a fragment
-		if ( $target->href[0] !== '#' ) {
-			$newTk->setAttribute( 'title', $target->title->getPrefixedText() );
-		}
+		$newTk->setAttribute( 'title', $target->title->getPrefixedText() );
 
 		return new TokenHandlerResult( array_merge( [ $newTk ], $content, [ new EndTagTk( 'a' ) ] ) );
 	}

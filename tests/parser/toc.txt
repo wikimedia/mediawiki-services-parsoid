@@ -1832,12 +1832,12 @@ section 6
 <h2 id="Underscore-Entity_between_Text">Underscore-Entity<span typeof="mw:Entity" data-parsoid='{"src":"&amp;#95;","srcContent":"_"}'>_</span>between<span typeof="mw:Entity" data-parsoid='{"src":"&amp;#95;","srcContent":"_"}'>_</span>Text</h2>
 <p>section 6</p>
 
-<p><a rel="mw:WikiLink" href="./Parser_test#Space_between_Text" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Space_between_Text"},"sa":{"href":"#Space between Text"}}'>#Space between Text</a>
-<a rel="mw:WikiLink" href="./Parser_test#Space-Entity_between_Text" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Space-Entity_between_Text"},"sa":{"href":"#Space-Entity&amp;#32;between&amp;#32;Text"}}'>#Space-Entity between Text</a>
-<a rel="mw:WikiLink" href="./Parser_test#Plus+between+Text" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Plus+between+Text"},"sa":{"href":"#Plus+between+Text"}}'>#Plus+between+Text</a>
-<a rel="mw:WikiLink" href="./Parser_test#Plus-Entity+between+Text" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Plus-Entity+between+Text"},"sa":{"href":"#Plus-Entity&amp;#43;between&amp;#43;Text"}}'>#Plus-Entity+between+Text</a>
-<a rel="mw:WikiLink" href="./Parser_test#Underscore_between_Text" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Underscore_between_Text"},"sa":{"href":"#Underscore_between_Text"}}'>#Underscore_between_Text</a>
-<a rel="mw:WikiLink" href="./Parser_test#Underscore-Entity_between_Text" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Underscore-Entity_between_Text"},"sa":{"href":"#Underscore-Entity&amp;#95;between&amp;#95;Text"}}'>#Underscore-Entity_between_Text</a></p>
+<p><a rel="mw:WikiLink" href="./Parser_test#Space_between_Text" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Space_between_Text"},"sa":{"href":"#Space between Text"}}'>#Space between Text</a>
+<a rel="mw:WikiLink" href="./Parser_test#Space-Entity_between_Text" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Space-Entity_between_Text"},"sa":{"href":"#Space-Entity&amp;#32;between&amp;#32;Text"}}'>#Space-Entity between Text</a>
+<a rel="mw:WikiLink" href="./Parser_test#Plus+between+Text" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Plus+between+Text"},"sa":{"href":"#Plus+between+Text"}}'>#Plus+between+Text</a>
+<a rel="mw:WikiLink" href="./Parser_test#Plus-Entity+between+Text" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Plus-Entity+between+Text"},"sa":{"href":"#Plus-Entity&amp;#43;between&amp;#43;Text"}}'>#Plus-Entity+between+Text</a>
+<a rel="mw:WikiLink" href="./Parser_test#Underscore_between_Text" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Underscore_between_Text"},"sa":{"href":"#Underscore_between_Text"}}'>#Underscore_between_Text</a>
+<a rel="mw:WikiLink" href="./Parser_test#Underscore-Entity_between_Text" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#Underscore-Entity_between_Text"},"sa":{"href":"#Underscore-Entity&amp;#95;between&amp;#95;Text"}}'>#Underscore-Entity_between_Text</a></p>
 !! end
 
 # Parsoid html2wt disabled because it adds padding spaces around =
