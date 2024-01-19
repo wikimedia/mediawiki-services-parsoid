@@ -781,7 +781,7 @@ class ParsoidExtensionAPI {
 		Element $elt, bool $inner, callable $checkIfOrigSrcReusable
 	): ?string {
 		$state = $this->serializerState;
-		if ( !$state->selserMode ) {
+		if ( !$state->selserMode || $state->inModifiedContent ) {
 			return null;
 		}
 		$dsr = DOMDataUtils::getDataParsoid( $elt )->dsr ?? null;
