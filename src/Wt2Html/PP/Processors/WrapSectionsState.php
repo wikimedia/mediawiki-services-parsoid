@@ -859,6 +859,7 @@ class WrapSectionsState {
 			// Ignore extension content while finding TOC insertion point
 			if ( WTUtils::isFirstExtensionWrapperNode( $elt ) ) {
 				$elt = WTUtils::skipOverEncapsulatedContent( $elt );
+				continue;
 			}
 			if ( $elt instanceof Element ) {
 				if ( DOMUtils::isHeading( $elt ) ) {
