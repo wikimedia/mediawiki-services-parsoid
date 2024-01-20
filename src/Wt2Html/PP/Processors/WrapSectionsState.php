@@ -410,9 +410,10 @@ class WrapSectionsState {
 							break;
 						}
 
-						// If we hit a non-rendeirng-transparent node or an empty span,
-						// we are done! We cannot exapnd the section boundary.
-						if ( !WTUtils::isRenderingTransparentNode( $node ) && !(
+						// If we hit a non-rendering-transparent node or a non-empty span,
+						// we are done! We cannot expand the section boundary any further.
+						if ( !WTUtils::isRenderingTransparentNode( $node ) &&
+							!(
 								DOMCompat::nodeName( $node ) === 'span' &&
 								!WTUtils::isLiteralHTMLNode( $node ) &&
 								$this->isEmptySpan( $node )
