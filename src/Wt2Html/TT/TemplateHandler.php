@@ -1056,9 +1056,9 @@ class TemplateHandler extends TokenHandler {
 					$templateTitle->isSpecialPage()
 				) {
 					$domFragment = PipelineUtils::fetchHTML( $env, $text );
-					$toks = PipelineUtils::tunnelDOMThroughTokens(
-						$env, $token, $domFragment, []
-					);
+					$toks = $domFragment
+						? PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] )
+						: [];
 					return new TemplateExpansionResult( $toks, true, $this->wrapTemplates );
 				}
 

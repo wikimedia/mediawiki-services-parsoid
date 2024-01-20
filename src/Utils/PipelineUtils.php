@@ -672,12 +672,12 @@ class PipelineUtils {
 	/**
 	 * Fetches output of encapsulations that return HTML from the legacy parser
 	 */
-	public static function fetchHTML( Env $env, string $source ): DocumentFragment {
+	public static function fetchHTML( Env $env, string $source ): ?DocumentFragment {
 		$ret = $env->getDataAccess()->parseWikitext(
 			$env->getPageConfig(), $env->getMetadata(), $source
 		);
-		return DOMUtils::parseHTMLToFragment(
-			$env->topLevelDoc, DOMUtils::stripPWrapper( $ret )
-		);
+		return $ret === '' ? null : DOMUtils::parseHTMLToFragment(
+				$env->topLevelDoc, DOMUtils::stripPWrapper( $ret )
+			);
 	}
 }

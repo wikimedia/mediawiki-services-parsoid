@@ -153,9 +153,10 @@ class ExtensionHandler extends TokenHandler {
 				$profile->bumpMWTime( "Extension", 1000 * ( microtime( true ) - $start ), "api" );
 				$profile->bumpCount( "Extension" );
 			}
-			$toks = $this->onDocumentFragment(
-				$token, $domFragment, $dataMw, []
-			);
+			if ( !$domFragment ) {
+				$domFragment = DOMUtils::parseHTMLToFragment( $env->topLevelDoc, '' );
+			}
+			$toks = $this->onDocumentFragment( $token, $domFragment, $dataMw, [] );
 		}
 		return new TokenHandlerResult( $toks );
 	}
