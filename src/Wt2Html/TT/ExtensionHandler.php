@@ -192,7 +192,7 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		$opts = [
-			'setDSR' => true, // FIXME: This is the only place that sets this ...
+			'setDSR' => true,
 			'wrapperName' => $extensionName,
 		];
 

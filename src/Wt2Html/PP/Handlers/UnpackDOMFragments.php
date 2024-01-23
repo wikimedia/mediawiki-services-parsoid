@@ -161,7 +161,8 @@ class UnpackDOMFragments {
 		// - EXCEPTION: fostered content from tables get their DSR reset
 		//   to zero-width.
 		// - FIXME: We seem to also be doing this for new extension content,
-		//   which is the only place still using `setDSR`.
+		//   and new parser functions returning html, which are the only places
+		//   still using `setDSR`.
 		//
 		// There is currently no DSR for DOMFragments nested inside
 		// transclusion / extension content (extension inside template
