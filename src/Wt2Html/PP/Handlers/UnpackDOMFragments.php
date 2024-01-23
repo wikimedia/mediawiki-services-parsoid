@@ -168,12 +168,11 @@ class UnpackDOMFragments {
 		// content etc).
 		// TODO: Make sure that is the only reason for not having a DSR here.
 		$placeholderDSR = $placeholderDP->dsr ?? null;
-		if ( $placeholderDSR && !(
-				!$placeholderDP->getTempFlag( TempData::SET_DSR ) &&
-				!$placeholderDP->getTempFlag( TempData::FROM_CACHE ) &&
-				empty( $placeholderDP->fostered )
-			)
-		) {
+		if ( $placeholderDSR && (
+			$placeholderDP->getTempFlag( TempData::SET_DSR ) ||
+			$placeholderDP->getTempFlag( TempData::FROM_CACHE ) ||
+			!empty( $placeholderDP->fostered )
+		) ) {
 			DOMUtils::assertElt( $fragmentContent );
 			$fragmentDP = DOMDataUtils::getDataParsoid( $fragmentContent );
 			if ( DOMUtils::hasTypeOf( $fragmentContent, 'mw:Transclusion' ) ) {
