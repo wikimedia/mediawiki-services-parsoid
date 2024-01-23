@@ -776,7 +776,7 @@ class Separators {
 		 * ---------------------------------------------------------------------- */
 		$origSepNeeded = $node !== $prevNode && $state->selserMode;
 		$origSepNeededAndUsable =
-			$origSepNeeded && !$state->inModifiedContent &&
+			$origSepNeeded && !$state->inInsertedContent &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $prevNode, true ) &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $node, false ) &&
 			WTSUtils::origSrcValidInEditedContext( $state, $prevNode ) &&

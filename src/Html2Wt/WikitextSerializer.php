@@ -1131,7 +1131,7 @@ class WikitextSerializer {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
 		if ( $state->selserMode
-			&& !$state->inModifiedContent
+			&& !$state->inInsertedContent
 			&& WTSUtils::origSrcValidInEditedContext( $state, $node )
 			&& Utils::isValidDSR( $dp->dsr ?? null )
 			&& ( $dp->dsr->end > $dp->dsr->start
@@ -1233,18 +1233,18 @@ class WikitextSerializer {
 
 		$state->currNodeUnmodified = false;
 
-		$currentModifiedState = $state->inModifiedContent;
+		$currentInsertedState = $state->inInsertedContent;
 
-		$inModifiedContent = $state->selserMode && DiffUtils::hasInsertedDiffMark( $node );
+		$inInsertedContent = $state->selserMode && DiffUtils::hasInsertedDiffMark( $node );
 
-		if ( $inModifiedContent ) {
-			$state->inModifiedContent = true;
+		if ( $inInsertedContent ) {
+			$state->inInsertedContent = true;
 		}
 
 		$next = $domHandler->handle( $node, $state, $wrapperUnmodified );
 
-		if ( $inModifiedContent ) {
-			$state->inModifiedContent = $currentModifiedState;
+		if ( $inInsertedContent ) {
+			$state->inInsertedContent = $currentInsertedState;
 		}
 
 		return $next;
@@ -1308,7 +1308,7 @@ class WikitextSerializer {
 				}
 				if ( $state->selserMode ) {
 					$prev = $node->previousSibling;
-					if ( !$state->inModifiedContent && (
+					if ( !$state->inInsertedContent && (
 						( !$prev && DOMUtils::atTheTop( $node->parentNode ) ) ||
 						( $prev && !DiffUtils::isDiffMarker( $prev ) )
 					) ) {

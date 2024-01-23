@@ -138,11 +138,11 @@ class SerializerState {
 
 	/**
 	 * Is the serializer currently processing a subtree that has been
-	 * modified compared to original content (ex: via VE / CX)?
+	 * marked inserted compared to original content (ex: via VE / CX)?
 	 *
 	 * @var bool
 	 */
-	public $inModifiedContent;
+	public $inInsertedContent;
 
 	/**
 	 * Did we introduce nowikis for indent-pre protection?

@@ -407,7 +407,7 @@ class DOMDiff {
 		} else {
 			// FIXME: Maybe $editNode should be marked as inserted to avoid
 			// losing any edits, at the cost of more normalization.
-			// $state->inModifiedContent is only set when we're in inserted
+			// $state->inInsertedContent is only set when we're in inserted
 			// content, so not sure this is currently doing all that much.
 			$subtreeDiffers = true;
 		}

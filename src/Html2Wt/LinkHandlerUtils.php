@@ -232,7 +232,7 @@ class LinkHandlerUtils {
 		// Check if the link content has been modified or is newly inserted content.
 		// FIXME: This will only work with selser of course. Hard to test without selser.
 		if (
-			$state->inModifiedContent ||
+			$state->inInsertedContent ||
 			DiffUtils::hasDiffMark( $node, DiffMarkers::SUBTREE_CHANGED )
 		) {
 			$rtData->contentModified = true;
@@ -1185,7 +1185,7 @@ class LinkHandlerUtils {
 			);
 			// FIXME: We should just be able to serialize the children of the
 			// fragment, however, we need some way of marking this as being
-			// inModifiedContent so that any bare text is assured to be escaped
+			// inInsertedContent so that any bare text is assured to be escaped
 			$captionElt = $outerElt->ownerDocument->createElement( 'div' );
 			DOMDataUtils::getDataParsoid( $captionElt )->setTempFlag( TempData::IS_NEW );
 			DOMUtils::migrateChildren( $fragment, $captionElt );
