@@ -129,6 +129,9 @@ class TestUtils {
 		// maplink extension
 		$out = preg_replace( '/\s?data-overlays=\'[^\']*\'/u', '', $out );
 
+		// TEMPORARY: Normalize fragments markers leaking into src strings
+		$out = preg_replace( '/fragment:\d+}}/u', 'fragment}}', $out );
+
 		// unnecessary attributes, we don't need to check these.
 		$unnecessaryAttribs = 'data-parsoid|prefix|about|rev|datatype|inlist|usemap|vocab';
 		if ( $parsoidOnly ) {

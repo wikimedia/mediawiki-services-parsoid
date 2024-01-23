@@ -44,6 +44,17 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 		$doc = $domFragment->ownerDocument;
 		$pre = $doc->createElement( 'pre' );
 
+		$kvArgs = $extApi->extArgsToArray( $args );
+		if ( ( $kvArgs['format'] ?? '' ) === 'wikitext' ) {
+			return $extApi->extTagToDOM( $args, $content, [
+				'wrapperTag' => 'pre',
+				'parseOpts' => [
+					'extTag' => 'pre',
+					'context' => 'inline',
+				],
+			] );
+		}
+
 		Sanitizer::applySanitizedArgs( $extApi->getSiteConfig(), $pre, $args );
 		DOMDataUtils::getDataParsoid( $pre )->stx = 'html';
 
