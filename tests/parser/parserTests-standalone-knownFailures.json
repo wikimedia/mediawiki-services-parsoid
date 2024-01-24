@@ -144,20 +144,6 @@
     "<wbr> is valid wikitext (T54468)": {
         "html2wt": "<wbr />\n"
     },
-    "Abort table cell attribute parsing on wikilink": {
-        "wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}",
-        "html2html": "<table data-parsoid='{\"dsr\":[0,140,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,138,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,137,0,0]}'><td data-parsoid='{\"dsr\":[3,47,1,0]}'>testing <a rel=\"mw:WikiLink\" href=\"./One\" title=\"One\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./One\"},\"sa\":{\"href\":\"one\"},\"dsr\":[12,23,6,2]}'>two</a><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[23,47,8,9]}'> |three</span></td><td data-parsoid='{\"stx\":\"row\",\"dsr\":[47,53,2,0]}'>four</td>\n<td data-parsoid='{\"a\":{\"testing\":null,\"one\":null,\"two\":null},\"sa\":{\"testing\":\"\",\"one\":\"\",\"two\":\"\"},\"dsr\":[54,78,19,0]}'>three</td><td data-parsoid='{\"stx\":\"row\",\"dsr\":[78,84,2,0]}'>four</td>\n<td data-parsoid='{\"dsr\":[85,131,1,0]}'>testing=\"<a rel=\"mw:WikiLink\" href=\"./One\" title=\"One\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./One\"},\"sa\":{\"href\":\"one\"},\"dsr\":[95,106,6,2]}'>two</a><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[106,131,8,9]}'>\" |three</span></td><td data-parsoid='{\"stx\":\"row\",\"dsr\":[131,137,2,0]}'>four</td></tr>\n</tbody></table>",
-        "html2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}",
-        "selser [1]": "{| data-foobar=\"66fol0\"\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[0,1]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[0,[[[2,0,0],1,0,2,[2],4,[0,2,0],4],0]]]": "{|\n|jmvhm1testing [[one|two]] |three|| data-foobar=\"1shr01n\" |four\n|tby7d\n| testing one two |three||18pbj54four\n|1c3ad6u\n|testing=\"18gycam[[one|two]]<nowiki>\" |three</nowiki>\n|fsdzo0\n|}",
-        "selser [2]": "1wu4vn\n{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[0,[[4,[4],3,[3],3,2,3,3],3]]]": "{|\n|1kxbby7||f19k30\n|testing one two |\n|1pq73j5\n|}",
-        "selser [[4,[2,3]]]": "{|<!--1vbv47r--><!--1q0o4rr-->\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[3,1]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[0,2]]": "{|\n<!--160e6cw-->|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
-        "selser [[4,[[2,[2],4,3,2,4,[3,4,4],1],0]]]": "{|<!--3nev4g-->\n|1jw4mk0\n|testing [[one|two]] |three||4ybyuufour\n|1cx5oih\n|1orkt2r||four\n|uabrr0\n|157h2ct6x6cj5|| data-foobar=\"1ey4pzz\" |four\n|}"
-    },
     "Accept empty attributes in th-cells": {
         "html2wt": "{|\n!foo\n!bar\n|}"
     },
@@ -173,6 +159,24 @@
         "selser [[[2]]]": "<font color=#x>1hva2gnfoo</font>",
         "selser [[[3]]]": "<font color=#x></font>",
         "selser [[[4]]]": "<font color=#x>1wi04hg</font>"
+    },
+    "Bail on table cell attribute parsing on wikilink": {
+        "wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}",
+        "html2html": "<table data-parsoid='{\"dsr\":[0,140,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,138,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,137,0,0]}'><td data-parsoid='{\"dsr\":[3,47,1,0]}'>testing <a rel=\"mw:WikiLink\" href=\"./One\" title=\"One\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./One\"},\"sa\":{\"href\":\"one\"},\"dsr\":[12,23,6,2]}'>two</a><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[23,47,8,9]}'> |three</span></td><td data-parsoid='{\"stx\":\"row\",\"dsr\":[47,53,2,0]}'>four</td>\n<td data-parsoid='{\"a\":{\"testing\":null,\"one\":null,\"two\":null},\"sa\":{\"testing\":\"\",\"one\":\"\",\"two\":\"\"},\"dsr\":[54,78,19,0]}'>three</td><td data-parsoid='{\"stx\":\"row\",\"dsr\":[78,84,2,0]}'>four</td>\n<td data-parsoid='{\"dsr\":[85,131,1,0]}'>testing=\"<a rel=\"mw:WikiLink\" href=\"./One\" title=\"One\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./One\"},\"sa\":{\"href\":\"one\"},\"dsr\":[95,106,6,2]}'>two</a><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[106,131,8,9]}'>\" |three</span></td><td data-parsoid='{\"stx\":\"row\",\"dsr\":[131,137,2,0]}'>four</td></tr>\n</tbody></table>",
+        "html2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}",
+        "selser [[3,1]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[3,[2,0]]]": "{|<!--xb8p09-->\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [2]": "hgisit\n{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[0,2]]": "{|\n<!--s1ac4r-->|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [1]": "{| data-foobar=\"m6t5pu\"\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[4,[[1,[4],2,[3],[4],3,[2,1,0],0],3]]]": "{|<!--15jn3oo-->\n| data-foobar=\"1dpsv1f\" |testing [[one|two]] |three||shmm44\n|1a9hxti\n| testing one two | ||u4sv1d\n|7kwa0etesting=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}",
+        "selser [[3,2]]": "{|<!--1bcn9tp-->\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[4,[[0,2,0,4,3,0,[2,0,3],4],2]]]": "{|<!--ucy21x-->\n|testing [[one|two]] |three\n|1sw2rre||four\n|lmqy2j\n|203rzetesting=\"[[one|two]]\n|1boms42<!--cy3v8j-->\n|}",
+        "selser [[0,[2,2]]]": "{|\n<!--1a5ha30-->|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four<!--1xb2qs8-->\n|}",
+        "selser [[0,1]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[2,2]]": "{|<!--1ya6ph8-->\n<!--wmgbkt-->|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[0,[1,0]]]": "{|\n|testing [[one|two]] |three||four\n|testing one two |three||four\n|testing=\"[[one|two]]\" |three||four\n|}",
+        "selser [[0,[[2,0,0,[3],3,0,3,0],4]]]": "{|\n|6oy5gu\n|testing [[one|two]] |three||four\n|testing one two | \n|four<!--1xkfpb6-->\n|}"
     },
     "Bare pipe character from a template (T54363)": {
         "html2wt": "|\n"

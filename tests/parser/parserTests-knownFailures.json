@@ -21,16 +21,16 @@
 	"<pre> inside a link": {
 		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"
 	},
-	"Abort table cell attribute parsing on wikilink": {
-		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
-	},
 	"Attribute test: unquoted but illegal value (hash)": {
 		"wt2wt": "<font color=\"#x\">foo</font>"
+	},
+	"Bail on table cell attribute parsing on wikilink": {
+		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
 	},
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
-	"Don't abort table cell attribute parsing if wikilink is found in template arg": {
+	"Don't bail on table cell attribute parsing if wikilink is found in template arg": {
 		"wt2wt": "{|\n|Test {{#tag:ref|One two \"[[three]]\" four}}\n|}\n<references />"
 	},
 	"Don't fall for the self-closing div": {

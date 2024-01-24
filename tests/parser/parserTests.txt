@@ -4637,7 +4637,7 @@ Dummy article to suppress redlinks in tests
 
 # See: T2553
 !! test
-Abort table cell attribute parsing on wikilink
+Bail on table cell attribute parsing on wikilink
 !! wikitext
 {|
 |testing [[one|two]] |three||four
@@ -4674,7 +4674,7 @@ Dummy article to suppress redlinks in tests
 ## attribute parsing breaks because of a wikilink.
 ## Parsoid's standalone mode doesn't have a compliant ParserFunction extension
 !! test
-Don't abort table cell attribute parsing if wikilink is found in template arg
+Don't bail on table cell attribute parsing if wikilink is found in template arg
 !! wikitext
 {|
 |Test {{#tag:ref|One two "[[three]]" four}}
