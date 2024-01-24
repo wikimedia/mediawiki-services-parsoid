@@ -276,7 +276,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$pcFactory = $services->getParsoidPageConfigFactory();
 		// XXX we're ignoring 'pageLanguage' & 'pageLanguageDir' in $configOpts
 		$title = isset( $configOpts['title'] )
-			? Title::newFromText( $configOpts['title'], $siteConfig )
+			? \Title::newFromText( $configOpts['title'] )
 			: $siteConfig->mainPageLinkTarget();
 
 		$wikitextOverride = $configOpts['pageContent'] ?? null;
