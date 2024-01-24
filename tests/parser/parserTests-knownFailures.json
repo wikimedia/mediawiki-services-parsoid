@@ -30,8 +30,8 @@
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
-	"Don't bail on table cell attribute parsing if wikilink is found in template arg": {
-		"wt2wt": "{|\n|Test {{#tag:ref|One two \"[[three]]\" four}}\n|}\n<references />"
+	"Don't break on | in extension attribute in template": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,33,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tag name=\\\"hi|ho\\\">ha&lt;/tag>\"}},\"i\":0}}]}'>ho\">ha&lt;/tag></span></p>"
 	},
 	"Don't fall for the self-closing div": {
 		"wt2wt": "<div>hello world</div>"
@@ -160,6 +160,9 @@
 	},
 	"Table multiple attributes correction": {
 		"wt2wt": "{|\n! class=\"awesome\" + |status\n|}"
+	},
+	"Template nested in extension tag in template": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,186,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,38,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;span>[[ho|{{1x|hi}}]]&lt;/span>\"}},\"i\":0}}]}'>hi</span><span about=\"#mwt1\" data-parsoid='{\"stx\":\"html\"}'><a rel=\"mw:WikiLink\" href=\"./Ho\" title=\"Ho\">hi</a></span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[39,83,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;spantag>[[ho|{{1x|hi}}]]&lt;/spantag>\"}},\"i\":0}}]}'>hi</span><span typeof=\"mw:Extension/spantag\" about=\"#mwt3\" data-parsoid='{\"src\":\"&lt;spantag>[[ho|hi]]&lt;/spantag>\"}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"[[ho|hi]]\"}}'><a rel=\"mw:WikiLink\" href=\"./Ho\" title=\"Ho\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Ho\"},\"sa\":{\"href\":\"ho\"}}'>hi</a></span>\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[84,141,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;spantag>[http://test.com?q={{1x|ho}}]&lt;/spantag>\"}},\"i\":0}}]}'>{{{1}}}</span>\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[142,186,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;spantag>-{ho|{{1x|hi}}}-&lt;/spantag>\"}},\"i\":0}}]}'>hi</span><span typeof=\"mw:Extension/spantag\" about=\"#mwt9\" data-parsoid='{\"src\":\"&lt;spantag>-{ho|hi}-&lt;/spantag>\"}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"-{ho|hi}-\"}}'><span typeof=\"mw:LanguageVariant\" data-mw-variant='{\"filter\":{\"l\":[\"ho\"],\"t\":\"hi\"}}' data-parsoid='{\"fl\":[\"ho\"],\"src\":\"-{ho|hi}-\"}'></span></span></p>"
 	},
 	"Template with argument in separate line": {
 		"wt2wt": "{{templateasargtest  |\n templ = simple }}"

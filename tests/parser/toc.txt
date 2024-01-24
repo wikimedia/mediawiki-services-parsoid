@@ -303,37 +303,6 @@ Sections:
  h2 index:T-2 toclevel:1 number:2 title:Template:1x off:NULL anchor/linkAnchor:b line:b
 !! end
 
-# FIXME:
-# 1. This potentially exposes a subtle issue in the interaction between TOC, Cite, and
-#    localization. Parsoid doesn't localize numbers in Cite (at all!) since it relies on CSS.
-#    But, with the legacy parser, a wiki with localized numbers will have an anchor
-#    based off a localized number if a <ref> is used in a heading. Parsoid won't!.
-# 2. We probably should be a bit smarter about what to strip for tags when that output
-#    comes from extensions. Below, we have stripped all extension typeofs and info.
-#    But, depends on who uses this 'line' property and how.
-
-# FIXME: test disabled because CI doesn't have the Cite extension installed
-!! test
-Handle extension content in section headers properly
-!! config
-wgFragmentMode=[ "html5", "legacy" ]
-!! options
-nohtml
-showtocdata
-parsoid={
-	"modes": [ "wt2html" ],
-	"wrapSections": true
-}
-!! wikitext
-==c<ref>d</ref>==
-!! metadata/php+disabled
-Sections:
- h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:c[1] line:c<sup>&#91;1&#93;</sup>
-!! metadata/parsoid
-Sections:
- h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:c[1] line:c<sup><span>[1]</span></sup>
-!! end
-
 !! test
 Handle extension content in section headers properly (non-Cite version)
 !! config

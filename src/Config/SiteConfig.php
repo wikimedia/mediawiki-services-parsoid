@@ -21,7 +21,6 @@ use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\AnnotationStripper;
-use Wikimedia\Parsoid\Ext\Cite\Cite;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
@@ -99,7 +98,6 @@ abstract class SiteConfig {
 		Indicator::class,
 		// The following implementations will move to their own repositories
 		// soon, but for now are implemented in the Parsoid repo.
-		Cite::class,
 		LST::class,
 		Poem::class
 	];
@@ -154,21 +152,7 @@ abstract class SiteConfig {
 				}
 			};
 		}
-		// Transition hack!
-		$extId = null;
-		if ( $module->getConfig()['name'] === 'Cite' ) {
-			// reuse the id of the existing built-in Cite implementation
-			// in order to replace it.
-			foreach ( $this->extModules as $id => $module ) {
-				if ( $module instanceof Cite ) {
-					$extId = $id;
-					break;
-				}
-			}
-		}
-		if ( $extId === null ) {
-			$extId = $this->extModuleNextId++;
-		}
+		$extId = $this->extModuleNextId++;
 		$this->extModules[$extId] = $module;
 		// remove cached extConfig to ensure this registration is picked up
 		$this->extConfig = null;

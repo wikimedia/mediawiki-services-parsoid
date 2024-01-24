@@ -109,16 +109,6 @@
 			}
 		}
 	},
-	"Cite": {
-		"project": "mediawiki/extensions/Cite",
-		"latestCommit": "fa5100fa9268b774c72cd024ddc7ae4cec3308da",
-		"targets": {
-			"citeParserTests.txt": {
-				"path": "tests/parser/citeParserTests.txt",
-				"expectedSHA1": "32ef3f6a4131c6d693524f416ef9519bfef8a3e8"
-			}
-		}
-	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
 		"latestCommit": "e50f39981656378fb0f4aa6909747facb13b2b4c",
