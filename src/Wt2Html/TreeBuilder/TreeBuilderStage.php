@@ -48,8 +48,8 @@ class TreeBuilderStage extends PipelineStage {
 	/** @var string|Token */
 	private $lastToken;
 
-	/** @var array<string|NlTk> */
-	private $textContentBuffer;
+	/** @var string */
+	private $textContentBuffer = '';
 
 	/** @var bool */
 	private $needTransclusionShadow;
@@ -225,9 +225,17 @@ class TreeBuilderStage extends PipelineStage {
 				true );
 		}
 
-		if ( is_string( $token ) || $token instanceof NlTk ) {
+		$isString = is_string( $token ) || $token instanceof NlTk;
+		if ( !$isString && $this->textContentBuffer !== '' ) {
+			// Finalize the combined string tokens
+			$dispatcher->characters( $this->textContentBuffer, 0, strlen( $this->textContentBuffer ), 0, 0 );
+			$this->textContentBuffer = '';
+		}
+
+		if ( $isString ) {
 			$data = $token instanceof NlTk ? "\n" : $token;
-			$dispatcher->characters( $data, 0, strlen( $data ), 0, 0 );
+			// Combine string tokens to be finalized later
+			$this->textContentBuffer .= $data;
 			// NlTks are only fostered when accompanied by non-whitespace.
 			// Safe to ignore.
 			if (
