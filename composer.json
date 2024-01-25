@@ -99,9 +99,9 @@
 		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true",
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true --offsetType ucs2",
 		"phpunit": "phpunit",
-		"toolcheck": "bin/toolcheck.php.sh",
-		"nodeNameCheck": "bin/nodenamecheck.sh",
-		"getAttributeCheck": "bin/getattributecheck.sh",
+		"toolcheck": "bash bin/toolcheck.php.sh",
+		"nodeNameCheck": "bash bin/nodenamecheck.sh",
+		"getAttributeCheck": "bash bin/getattributecheck.sh",
 		"phpcs": "phpcs -sp --cache"
 	},
 	"config": {
