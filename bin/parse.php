@@ -554,8 +554,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function startFlameGraphProfiler() {
 		$profiler = new ExcimerProfiler;
-		$profiler->setPeriod( 0.01 );
-		$profiler->setEventType( EXCIMER_CPU );
+		$profiler->setPeriod( 0.00001 );
+		$profiler->setEventType( EXCIMER_REAL );
 		$profiler->start();
 		register_shutdown_function( static function () use ( $profiler ) {
 			$profiler->stop();
