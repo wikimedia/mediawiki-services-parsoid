@@ -645,7 +645,7 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Equivalent of 'preprocessWikitext' from Parser.php in core.
+	 * Equivalent of 'preprocess' from Parser.php in core.
 	 * - expands templates
 	 * - replaces magic variables
 	 * This does not run any hooks however since that would be unexpected.

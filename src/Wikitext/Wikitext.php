@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
  */
 class Wikitext {
 	/**
-	 * Equivalent of 'preprocessWikitext' from Parser.php in core.
+	 * Equivalent of 'preprocess' from Parser.php in core.
 	 * - expands templates
 	 * - replaces magic variables
 	 *
