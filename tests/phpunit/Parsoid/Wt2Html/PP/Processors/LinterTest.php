@@ -1631,7 +1631,8 @@ class LinterTest extends TestCase {
 	public function testLargeTables( $wikiTextLines, $columnCount, $dsr = [], $templateName = null ): void {
 		$opts = [];
 		$siteConfig = new MockSiteConfig( $opts );
-		$columnsMax = $siteConfig->getMaxTableColumnLintHeuristic();
+		$lintConfig = $siteConfig->getLinterConfig();
+		$columnsMax = $lintConfig['maxTableColumnHeuristic'] ?? 0;
 
 		$desc = 'should identify large width table for T334528';
 		$result = $this->wtToLint( implode( "\n", $wikiTextLines ) );

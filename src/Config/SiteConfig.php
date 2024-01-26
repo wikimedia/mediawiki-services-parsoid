@@ -1269,36 +1269,6 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Get the maximum columns in a table before the table is considered large.
-	 *
-	 * This lint heuristic value is hardcoded here and centrally determined without
-	 * an option to set it per-wiki.
-	 *
-	 * @return int
-	 * @deprecated Use ::getLinterConfig()
-	 */
-	public function getMaxTableColumnLintHeuristic(): int {
-		$lintConfig = $this->getLinterConfig();
-		return $lintConfig['maxTableColumnHeuristic'] ?? 0;
-	}
-
-	/**
-	 * Get the maximum rows (header or data) to be checked for the large table lint
-	 * - If we consider the first N rows to be representative of the table, and the table
-	 *   is well-formed and uniform, it is sufficent to check the first N rows to check
-	 *   if the table is "large".
-	 * - This heuristic is used together with the getMaxTableColumnLintHeuristic to
-	 *   identify "large tables".
-	 *
-	 * @return int
-	 * @deprecated Use ::getLinterConfig()
-	 */
-	public function getMaxTableRowsToCheckLintHeuristic(): int {
-		$lintConfig = $this->getLinterConfig();
-		return $lintConfig['maxTableRowsToCheck'] ?? 0;
-	}
-
-	/**
 	 * Serialize ISBN/RFC/PMID URL patterns
 	 *
 	 * @param string[] $match As returned by the getExtResourceURLPatternMatcher() matcher
