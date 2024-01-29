@@ -45,14 +45,11 @@ class TreeBuilderStage extends PipelineStage {
 	/** @var RemexPipeline */
 	private $remexPipeline;
 
-	/** @var string|Token */
+	/** @var string|Token|null */
 	private $lastToken;
 
 	/** @var string */
 	private $textContentBuffer = '';
-
-	/** @var bool */
-	private $needTransclusionShadow;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -89,10 +86,9 @@ class TreeBuilderStage extends PipelineStage {
 		 * -------------------------------------------------------------------- */
 		$this->tableDepth = 0;
 
-		// We only need one for every run of strings and newline tokens.
-		$this->needTransclusionShadow = false;
-
 		$this->remexPipeline = $this->env->fetchRemexPipeline( $this->atTopLevel );
+		$this->textContentBuffer = '';
+		$this->lastToken = null;
 	}
 
 	/**
@@ -208,27 +204,30 @@ class TreeBuilderStage extends PipelineStage {
 		// Store the last token
 		$this->lastToken = $token;
 
-		// If we encountered a non-string non-nl token, we have broken a run of
-		// string+nl content.  If we need transclusion shadow protection, now's
-		// the time to insert it.
-		if (
-			!is_string( $token ) && !( $token instanceof NlTk ) &&
-			$this->needTransclusionShadow
-		) {
-			$this->needTransclusionShadow = false;
-			// If inside a table and a transclusion, add a meta tag after every
-			// text node so that we can detect fostered content that came from
-			// a transclusion.
-			$this->env->log( 'debug/html', $this->pipelineId, 'Inserting shadow transclusion meta' );
-			$this->remexPipeline->insertExplicitStartTag( 'meta',
-				[ 'typeof' => 'mw:TransclusionShadow' ],
-				true );
-		}
-
 		$isString = is_string( $token ) || $token instanceof NlTk;
 		if ( !$isString && $this->textContentBuffer !== '' ) {
 			// Finalize the combined string tokens
 			$dispatcher->characters( $this->textContentBuffer, 0, strlen( $this->textContentBuffer ), 0, 0 );
+
+			// If inside a table and a transclusion, add a meta tag after every
+			// text node so that we can detect fostered content that came from
+			// a transclusion.
+			if ( $this->inTransclusion && $this->tableDepth > 0 ) {
+				// The HTML spec says, "Space characters separated from non-space
+				// characters by non-character tokens are not affected by foster
+				// parenting"
+				// TODO: Investigate why this is limited to newlines
+				if ( !preg_match( '/^\n*$/D', $this->textContentBuffer ) ) {
+					$this->env->log(
+						'debug/html', $this->pipelineId,
+						'Inserting shadow transclusion meta'
+					);
+					$this->remexPipeline->insertExplicitStartTag(
+						'meta', [ 'typeof' => 'mw:TransclusionShadow' ], true
+					);
+				}
+			}
+
 			$this->textContentBuffer = '';
 		}
 
@@ -236,14 +235,6 @@ class TreeBuilderStage extends PipelineStage {
 			$data = $token instanceof NlTk ? "\n" : $token;
 			// Combine string tokens to be finalized later
 			$this->textContentBuffer .= $data;
-			// NlTks are only fostered when accompanied by non-whitespace.
-			// Safe to ignore.
-			if (
-				$this->inTransclusion && $this->tableDepth > 0 &&
-				is_string( $token )
-			) {
-				$this->needTransclusionShadow = true;
-			}
 		} elseif ( $token instanceof TagTk ) {
 			$tName = $token->getName();
 			if ( $tName === 'table' ) {
