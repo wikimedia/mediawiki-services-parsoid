@@ -320,7 +320,7 @@ class WrapSectionsState {
 		 *     Note that templated content cannot be edited directly.
 		 * data-mw-section-id = -2 for pseudo sections
 		 * data-mw-section-id > 0 for everything else and this number
-		 *     matches PHP parser / Mediawiki's notion of that section.
+		 *     matches PHP parser / MediaWiki's notion of that section.
 		 *
 		 * The code here handles uneditable sections because of templating.
 		 */

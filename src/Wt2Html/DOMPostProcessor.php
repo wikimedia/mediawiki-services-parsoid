@@ -640,7 +640,7 @@ class DOMPostProcessor extends PipelineStage {
 		// Set 'parsoid-body' to add the desired layout styling from Vector.
 		$bodyCL->add( 'parsoid-body' );
 		// Also, add the 'mediawiki' class.
-		// Some Mediawiki:Common.css seem to target this selector.
+		// Some MediaWiki:Common.css seem to target this selector.
 		$bodyCL->add( 'mediawiki' );
 		// Set 'mw-parser-output' directly on the body.
 		// Templates target this class as part of the TemplateStyles RFC

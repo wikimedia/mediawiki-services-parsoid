@@ -487,7 +487,7 @@ class WTUtils {
 
 	/**
 	 * Checks whether a first encapsulation wrapper node is encapsulating an extension
-	 * that outputs Mediawiki Core DOM Spec HTML (https://www.mediawiki.org/wiki/Specs/HTML)
+	 * that outputs MediaWiki Core DOM Spec HTML (https://www.mediawiki.org/wiki/Specs/HTML)
 	 * @param Node $node
 	 * @param Env $env
 	 * @return bool
