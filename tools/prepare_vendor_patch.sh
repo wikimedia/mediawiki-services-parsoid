@@ -91,7 +91,7 @@ echo "Pushed new tag $2 to origin"
 echo
 
 # Identify fixed bugs
-fixedbugs=$(git log "$1".."$2" | (grep -E "^\s*Bug:" || echo "") | sed 's/^\s*//g;' | sort | uniq)
+fixedbugs=$(git log "$1".."$2" | (grep -E "^\s*Bug:" || echo "") | sed 's/^[[:blank:]]*//g;' | sort | uniq)
 
 # --- Prepare vendor patch ---
 # Update composer.json
@@ -126,7 +126,7 @@ git add -A wikimedia/parsoid composer.lock composer.json composer
 git commit -m "Bump wikimedia/parsoid to $vstring
 
 $fixedbugs"
-changeid=$(git log -1 | grep "Change-Id" | sed 's/.*://g;')
+changeid=$(git log -1 | grep "Change-Id" | sed 's/.*: //g;')
 
 # --- Prepare core patch that depends on the vendor patch ---
 cd "$pwd" # $5 could be relative or absolute - so go back to original dir first
