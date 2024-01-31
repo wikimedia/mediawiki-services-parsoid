@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\IPUtils;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\LinkTarget;
@@ -100,7 +101,7 @@ class Title implements LinkTarget {
 		if ( preg_match( $prefixRegexp, $title, $m ) ) {
 			$p = $m[1];
 			$nsId = $siteConfig->canonicalNamespaceId( $p ) ??
-				  $siteConfig->namespaceId( $p );
+				$siteConfig->namespaceId( $p );
 			if ( $nsId !== null ) {
 				$title = $m[2];
 				$ns = $nsId;
@@ -384,11 +385,17 @@ class Title implements LinkTarget {
 		if ( $linkTarget instanceof Title ) {
 			return $linkTarget;
 		}
+		$ns = $linkTarget->getNamespace();
+		$namespaceName = $siteConfig->namespaceName( $ns );
+		Assert::invariant(
+			$namespaceName !== null,
+			"Badtitle ({$linkTarget}) in unknown namespace ({$ns})"
+		);
 		return new self(
 			$linkTarget->getInterwiki(),
 			$linkTarget->getDBkey(),
 			$linkTarget->getNamespace(),
-			$siteConfig->namespaceName( $linkTarget->getNamespace() ),
+			$namespaceName,
 			$linkTarget->getFragment()
 		);
 	}
