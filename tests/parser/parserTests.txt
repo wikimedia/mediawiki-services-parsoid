@@ -13977,6 +13977,40 @@ parsoid=wt2html
 </table>
 !! end
 
+!! article
+Template:Tr
+!! text
+|-
+!! end
+
+!! test
+1. Template wrapping shouldn't ignore fostered content
+!! options
+parsoid=wt2wt
+!! wikitext
+{|
+{{tr}}
+{{1x|
+}}
+
+hiho
+!! html/parsoid
+!! end
+
+!! test
+2. Template wrapping shouldn't ignore fostered content
+!! options
+parsoid=wt2wt
+!! wikitext
+{|
+{{tr}}
+{{1x|
+ }}
+
+hiho
+!! html/parsoid
+!! end
+
 !!test
 Support <object> element with .data attribute
 !!options

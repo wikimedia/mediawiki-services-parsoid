@@ -216,8 +216,7 @@ class TreeBuilderStage extends PipelineStage {
 				// The HTML spec says, "Space characters separated from non-space
 				// characters by non-character tokens are not affected by foster
 				// parenting"
-				// TODO: Investigate why this is limited to newlines
-				if ( !preg_match( '/^\n*$/D', $this->textContentBuffer ) ) {
+				if ( !preg_match( '/^\s*$/D', $this->textContentBuffer ) ) {
 					$this->env->log(
 						'debug/html', $this->pipelineId,
 						'Inserting shadow transclusion meta'

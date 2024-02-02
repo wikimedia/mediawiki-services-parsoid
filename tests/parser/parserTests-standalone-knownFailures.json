@@ -33,6 +33,19 @@
         "selser [0,[3,[1,0]]]": "{{1x|}}{| width = '100%'\n|foo\n|}",
         "selser [0,[0,[[1],4]]]": "{{1x|}}{| width = '100%'\n| data-foobar=\"bz5rz9\" |foo<!--4qz9ay-->\n|}"
     },
+    "1. Template wrapping shouldn't ignore fostered content": {
+        "wt2wt": "\nhiho\n{|\n{{tr}}\n{{1x|\n}}\n\nhiho\n|}",
+        "selser [2,4]": "12aq8e6\n\n\n\n1jsmwag",
+        "selser [[2],0]": "em1p42\n\nhiho\n{|\n{{tr}}\n{{1x|\n}}\n\nhiho",
+        "selser [0,[4,0]]": "{|<!--g1bk35-->\n{{tr}}\n{{1x|\n}}\n\nhiho\n|}",
+        "selser [2,[3,0]]": "1uq4e67\n\n{|\n{{tr}}\n{{1x|\n}}\n\nhiho\n|}",
+        "selser [2,[2,0]]": "tq9px4\n\n{|<!--ityqtj-->\n{{tr}}\n{{1x|\n}}\n\nhiho\n|}",
+        "selser [4,0]": "xgjdon\n{|\n{{tr}}\n{{1x|\n}}\n\nhiho",
+        "selser [2,2]": "tcvl39\n\n\n\ndky0ja\n{|\n{{tr}}\n{{1x|\n}}\n\nhiho",
+        "selser [2,0]": "1fb5hmu\n\n{|\n{{tr}}\n{{1x|\n}}\n\nhiho",
+        "selser [3,0]": "{|\n{{tr}}\n{{1x|\n}}\n\nhiho",
+        "selser [2,1]": "taa2fs\n\n{| data-foobar=\"l73o9o\"\n{{tr}}\n{{1x|\n}}\n\nhiho\n|}"
+    },
     "1. includeonly in html attr key": {
         "html2wt": "<span id=\"foo\">bar</span>\n"
     },
@@ -67,6 +80,18 @@
     },
     "2. Nested mixed wikitext and html list (incompatible)": {
         "html2wt": "; hi\n: {{1x|<li>ho</li>}}"
+    },
+    "2. Template wrapping shouldn't ignore fostered content": {
+        "wt2wt": "\nhiho\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",
+        "selser [2,[3,0]]": "7r98ao\n\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",
+        "selser [[3],0]": "{|\n{{tr}}\n{{1x|\n }}\n\nhiho",
+        "selser [0,2]": "\n\nzdnz78\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho",
+        "selser [[2],2]": "mkczsa\n\nhiho\n\ntuwhmn\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho",
+        "selser [[4],0]": "1vsoxut\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho",
+        "selser [0,[4,0]]": "{|<!--iqf0bj-->\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",
+        "selser [2,1]": "1xqx39b\n\n{| data-foobar=\"vh6l68\"\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",
+        "selser [0,1]": "{| data-foobar=\"a0zlmn\"\n{{tr}}\n{{1x|\n }}\n\nhiho\n|}",
+        "selser [2,0]": "1j06got\n\n{|\n{{tr}}\n{{1x|\n }}\n\nhiho"
     },
     "2. includeonly in html attr value": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,155,0,0]}'><span id=\"v1\" about=\"#mwt1\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"id\":\"v1\"},\"sa\":{\"id\":\"&lt;noinclude>v1&lt;/noinclude>&lt;includeonly>v2&lt;/includeonly>\"},\"dsr\":[0,76,66,7]}' data-mw='{\"attribs\":[[{\"txt\":\"id\"},{\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[10,21,null,null]}&apos;/>v1&lt;meta typeof=\\\"mw:Includes/NoInclude/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;/noinclude>\\\",\\\"dsr\\\":[23,35,null,null]}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[35,64,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>v2&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[64,64,null,null]}&apos;/>\"}]]}'>bar</span>\n<span id='\"v1\"' about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"stx\":\"html\",\"a\":{\"id\":\"\\\"v1\\\"\"},\"sa\":{\"id\":\"&lt;noinclude>\\\"v1\\\"&lt;/noinclude>&lt;includeonly>\\\"v2\\\"&lt;/includeonly>\"},\"dsr\":[77,155,68,7]}' data-mw='{\"attribs\":[[{\"txt\":\"id\"},{\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[86,97,null,null]}&apos;/>\\\"v1\\\"&lt;meta typeof=\\\"mw:Includes/NoInclude/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;/noinclude>\\\",\\\"dsr\\\":[101,113,null,null]}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[113,144,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>\\\\\\\"v2\\\\\\\"&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[144,144,null,null]}&apos;/>\"}]]}'>bar</span></p>",
