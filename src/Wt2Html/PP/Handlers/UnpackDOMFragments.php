@@ -133,7 +133,9 @@ class UnpackDOMFragments {
 		$fragmentContent = $fragmentDOM->firstChild;
 		$placeholderParent = $placeholder->parentNode;
 
-		if ( DOMUtils::hasTypeOf( $placeholder, 'mw:Transclusion' ) ) {
+		// FIXME: What about mw:Param?
+		$isTransclusion = DOMUtils::hasTypeOf( $placeholder, 'mw:Transclusion' );
+		if ( $isTransclusion ) {
 			// Ensure our `firstChild` is an element to add annotation.  At present,
 			// we're unlikely to end up with translusion annotations on fragments
 			// where span wrapping hasn't occurred (ie. link contents, since that's
@@ -141,6 +143,8 @@ class UnpackDOMFragments {
 			// omitted or new uses for dom fragments found.  For now, the test case
 			// necessitating this is an edgy link-in-link scenario:
 			//   [[Test|{{1x|[[Hmm|Something <sup>strange</sup>]]}}]]
+			// A new use of dom fragments is for parser functions returning html
+			// (special page transclusions) which don't do span wrapping.
 			PipelineUtils::addSpanWrappers( $fragmentDOM->childNodes );
 			// Reset `fragmentContent`, since the `firstChild` may have changed in
 			// span wrapping.
@@ -160,23 +164,29 @@ class UnpackDOMFragments {
 		//   previously-computed DSR is valid.
 		// - EXCEPTION: fostered content from tables get their DSR reset
 		//   to zero-width.
+		// - EXCEPTION: if we just transferred a transclusion marker,
+		//   bring along the associated DSR.
 		// - FIXME: We seem to also be doing this for new extension content,
-		//   and new parser functions returning html, which are the only places
-		//   still using `setDSR`.
+		//   which is the only place still using `setDSR`.
 		//
 		// There is currently no DSR for DOMFragments nested inside
 		// transclusion / extension content (extension inside template
 		// content etc).
+		// FIXME: Is that always the case?  TSR info is stripped from tokens
+		// in transclusion but DSR computation happens before template wrapping
+		// and seems to sometimes assign DSR to DOMFragments regardless of having
+		// not having TSR set.
 		// TODO: Make sure that is the only reason for not having a DSR here.
 		$placeholderDSR = $placeholderDP->dsr ?? null;
 		if ( $placeholderDSR && (
 			$placeholderDP->getTempFlag( TempData::SET_DSR ) ||
 			$placeholderDP->getTempFlag( TempData::FROM_CACHE ) ||
-			!empty( $placeholderDP->fostered )
+			!empty( $placeholderDP->fostered ) ||
+			$isTransclusion
 		) ) {
 			DOMUtils::assertElt( $fragmentContent );
 			$fragmentDP = DOMDataUtils::getDataParsoid( $fragmentContent );
-			if ( DOMUtils::hasTypeOf( $fragmentContent, 'mw:Transclusion' ) ) {
+			if ( $isTransclusion ) {
 				// FIXME: An old comment from c28f137 said we just use dsr->start and
 				// dsr->end since tag-widths will be incorrect for reuse of template
 				// expansions.  The comment was removed in ca9e760.

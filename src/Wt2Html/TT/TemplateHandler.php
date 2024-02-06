@@ -1057,10 +1057,9 @@ class TemplateHandler extends TokenHandler {
 				) {
 					$domFragment = PipelineUtils::fetchHTML( $env, $text );
 					$toks = $domFragment
-						? PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [
-							'setDSR' => true,
-						] )
+						? PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] )
 						: [];
+					$toks = $this->processTemplateTokens( $toks );
 					return new TemplateExpansionResult( $toks, true, $this->wrapTemplates );
 				}
 
