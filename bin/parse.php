@@ -302,7 +302,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->pageConfig = $pcFactory->create(
 			$title,
 			null, // UserIdentity
-			$revisionRecord ?? $revision
+			$revisionRecord ?? $revision,
+			null,
+			null,
+			$configOpts['ensureAccessibleContent']
 		);
 		$this->metadata = new \ParserOutput();
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -325,6 +328,15 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->pageConfig = new PageConfig( $api, $siteConfig, $configOpts + [
 			'loadData' => true
 		] );
+
+		if ( $configOpts['ensureAccessibleContent'] ) {
+			try {
+				$this->pageConfig->getPageMainContent();
+			} catch ( \Error $e ) {
+				throw new \Exception( 'The specified revision does not exist.' );
+			}
+		}
+
 		$this->metadata = new StubMetadataCollector( $siteConfig );
 		$this->parsoid = new Parsoid( $siteConfig, $dataAccess );
 	}
@@ -532,6 +544,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$startsAtHtml = $this->hasOption( 'html2wt' ) ||
 			$this->hasOption( 'html2html' ) ||
 			$this->hasOption( 'selser' );
+
+		$configOpts['ensureAccessibleContent'] = !$startsAtHtml ||
+			isset( $configOpts['revid'] );
 
 		if ( $startsAtHtml ) {
 			$this->transformFromHtml( $configOpts, $parsoidOpts, $input );
