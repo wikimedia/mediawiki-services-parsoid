@@ -77,6 +77,7 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	/**
 	 * The title of the page that generated this heading.
 	 * For template-generated sections, this will be the template title.
+	 * This string is in "prefixed DB key" format.
 	 */
 	public ?string $fromTitle;
 
@@ -124,7 +125,9 @@ class SectionMetadata implements \JsonSerializable, JsonCodecable {
 	 * This is very similar to the $anchor property, but is appropriately
 	 * URL-escaped to make it appropriate to use in constructing a URL
 	 * fragment link.  You should almost always prepend a `#` symbol
-	 * to `linkAnchor` if you are using it correctly.
+	 * to `linkAnchor` if you are using it correctly.  You are still
+	 * responsible for HTML-escaping the resulting URL if you are emitting
+	 * this as an HTML attribute.
 	 */
 	public string $linkAnchor;
 
