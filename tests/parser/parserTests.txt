@@ -13959,7 +13959,7 @@ T73074: More fostering fun
 !! wikitext
 <table><td></td>{{1x|<tr>}}<!--c-->[[Category:Two]]
 !! html/parsoid
-<link rel="mw:PageProp/Category" href="./Category:Two" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"fostered":true}'/><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{"stx":"html"}'></td></tr><tr about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"autoInsertedEnd":true,"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>"}},"i":0}}]}'></tr><!--c--></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:Two" data-parsoid='{"stx":"simple","a":{"href":"./Category:Two"},"sa":{"href":"Category:Two"},"fostered":true}'/><table data-parsoid='{"stx":"html","autoInsertedEnd":true}'><tbody><tr data-parsoid='{"autoInsertedStart":true}'><td data-parsoid='{"stx":"html"}'></td></tr><tr about="#mwt1" typeof="mw:Transclusion" class='mw-empty-elt' data-parsoid='{"autoInsertedEnd":true,"stx":"html","pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;tr>"}},"i":0}}]}'></tr><!--c--></tbody></table>
 !! end
 
 ## Regression test for Parsoid's template wrapping of fostered content
