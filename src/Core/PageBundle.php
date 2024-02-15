@@ -50,10 +50,14 @@ class PageBundle {
 		$this->contentmodel = $contentmodel;
 	}
 
-	public function toHtml(): string {
+	public function toDom(): Document {
 		$doc = DOMUtils::parseHTML( $this->html );
 		self::apply( $doc, $this );
-		return ContentUtils::toXML( $doc );
+		return $doc;
+	}
+
+	public function toHtml(): string {
+		return ContentUtils::toXML( $this->toDom() );
 	}
 
 	/**
