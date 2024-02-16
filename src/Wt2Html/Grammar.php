@@ -83,7 +83,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 	private function assert( $condition, $text ) {
 		if ( !$condition ) {
-			throw new \Exception( "Grammar.pegphp assertion failure: $text" );
+			throw new \RuntimeException( "Grammar.pegphp assertion failure: $text" );
 		}
 	}
 

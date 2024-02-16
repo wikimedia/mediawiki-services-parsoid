@@ -457,7 +457,7 @@ class DOMDataUtils {
 		}
 		if ( $uid === null ) {
 			do {
-				$docDp['counter'] = $docDp['counter'] + 1;
+				$docDp['counter'] += 1;
 				// PORT-FIXME: NOTE that we aren't updating the idIndex here because
 				// we are generating unique ids that will not conflict. In any case,
 				// the idIndex is a workaround for the PHP DOM's issues and we might

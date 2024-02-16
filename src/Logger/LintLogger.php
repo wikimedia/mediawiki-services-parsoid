@@ -68,7 +68,7 @@ class LintLogger {
 		foreach ( $lints as &$lint ) {
 			$dsr = &$lint['dsr'];
 			if ( ( $dsr[2] ?? 0 ) > 1 ) { // widths 0,1,null are fine
-				$dsr[2] = $dsr[2] - $dsr[0];
+				$dsr[2] -= $dsr[0];
 			}
 			if ( ( $dsr[3] ?? 0 ) > 1 ) { // widths 0,1,null are fine
 				$dsr[3] = $dsr[1] - $dsr[3];

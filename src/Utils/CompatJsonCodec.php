@@ -60,7 +60,7 @@ class CompatJsonCodec extends JsonCodec {
 					// T346829, T327439#8634426
 					// That's ok, though, we can still *serialize* objects for
 					// test cases even if we can't unserialize them.
-					throw new \Exception( "Unserialization of this $className not possible" );
+					throw new \InvalidArgumentException( "Unserialization of this $className not possible" );
 				}
 
 				/** @inheritDoc */

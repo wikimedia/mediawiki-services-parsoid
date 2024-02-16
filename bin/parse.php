@@ -333,7 +333,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			try {
 				$this->pageConfig->getPageMainContent();
 			} catch ( \Error $e ) {
-				throw new \Exception( 'The specified revision does not exist.' );
+				throw new \RuntimeException( 'The specified revision does not exist.' );
 			}
 		}
 

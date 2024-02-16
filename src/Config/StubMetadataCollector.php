@@ -215,12 +215,12 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			return;
 		} elseif ( $strategy === self::MERGE_STRATEGY_UNION ) {
 			if ( !( is_string( $value ) || is_int( $value ) ) ) {
-				throw new \Exception( "Bad value type for $key: " . gettype( $value ) );
+				throw new \InvalidArgumentException( "Bad value type for $key: " . gettype( $value ) );
 			}
 			$this->storage[$which][$key][$value] = true;
 			return;
 		} else {
-			throw new \Exception( "Unknown strategy: $strategy" );
+			throw new \InvalidArgumentException( "Unknown strategy: $strategy" );
 		}
 	}
 

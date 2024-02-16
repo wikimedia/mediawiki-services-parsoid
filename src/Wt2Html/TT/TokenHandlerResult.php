@@ -19,7 +19,7 @@ class TokenHandlerResult {
 		if ( $tokens ) {
 			foreach ( $tokens as $token ) {
 				if ( $token === null ) {
-					throw new \Exception( "Invalid token" );
+					throw new \InvalidArgumentException( "Invalid token" );
 				}
 			}
 		}
