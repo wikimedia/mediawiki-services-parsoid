@@ -186,7 +186,6 @@ class ExternalLinkHandler extends TokenHandler {
 		} elseif ( ( !$hasExpandedAttrs && is_string( $origHref ) ) ||
 					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false
 		) {
-			$rdfaType = 'mw:ExtLink';
 			if ( is_array( $content ) && count( $content ) === 1 && is_string( $content[0] ) ) {
 				$src = $content[0];
 				if ( $env->getSiteConfig()->hasValidProtocol( $src ) &&
@@ -204,7 +203,7 @@ class ExternalLinkHandler extends TokenHandler {
 				}
 			}
 
-			$newAttrs = [ new KV( 'rel', $rdfaType ) ];
+			$newAttrs = [ new KV( 'rel', 'mw:ExtLink' ) ];
 			// combine with existing rdfa attrs
 			// href is set explicitly below
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
