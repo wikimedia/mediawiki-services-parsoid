@@ -466,7 +466,7 @@ class ListHandler extends TokenHandler {
 
 			for ( $i = $prefixLen + $prefixCorrection; $i < count( $bn ); $i++ ) {
 				if ( !self::$bullet_chars_map[$bn[$i]] ) {
-					throw new \Exception( 'Unknown node prefix ' . $prefix[$i] );
+					throw new \InvalidArgumentException( 'Unknown node prefix ' . $prefix[$i] );
 				}
 
 				// Each list item in the chain gets one bullet.

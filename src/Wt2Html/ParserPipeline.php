@@ -139,7 +139,7 @@ class ParserPipeline {
 		foreach ( $this->stages as $stage ) {
 			$output = $stage->process( $output, $opts );
 			if ( $output === null ) {
-				throw new \Exception( 'Stage ' . get_class( $stage ) . ' generated null output.' );
+				throw new \RuntimeException( 'Stage ' . get_class( $stage ) . ' generated null output.' );
 			}
 		}
 

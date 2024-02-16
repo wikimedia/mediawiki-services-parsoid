@@ -45,7 +45,7 @@
 		"composer/composer": "^2.1.9",
 		"ext-curl": "*",
 		"mediawiki/mediawiki-codesniffer": "38.0.0",
-		"mediawiki/mediawiki-phan-config": "0.12.1",
+		"mediawiki/mediawiki-phan-config": "0.14.0",
 		"mediawiki/minus-x": "1.1.1",
 		"monolog/monolog": "^2.2.0",
 		"ockcyp/covers-validator": "1.4.0",

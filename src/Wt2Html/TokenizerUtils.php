@@ -50,7 +50,7 @@ class TokenizerUtils {
 					$res[] = $v;
 				}
 			} else {
-				throw new \Exception( __METHOD__ . ": found falsy element $i" );
+				throw new \RuntimeException( __METHOD__ . ": found falsy element $i" );
 			}
 		}
 
@@ -354,7 +354,7 @@ class TokenizerUtils {
 					&& $c2 === ']';
 
 			default:
-				throw new \Exception( 'Unhandled case!' );
+				throw new \RuntimeException( 'Unhandled case!' );
 		}
 	}
 

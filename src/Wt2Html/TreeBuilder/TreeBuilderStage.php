@@ -1,5 +1,8 @@
 <?php
 declare( strict_types = 1 );
+// Suppress UnusedPluginSuppression because
+// Phan on PHP 7.4 and PHP 8.1 need different suppressions
+// @phan-file-suppress UnusedPluginSuppression,UnusedPluginFileSuppression
 
 /**
  * Front-end/Wrapper for a particular tree builder, in this case the
