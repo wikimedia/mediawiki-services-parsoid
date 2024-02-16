@@ -4,13 +4,11 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -45,20 +43,15 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 				$classInfoText = 'external autonumber';
 			}
 			$a->setAttribute( 'class', $classInfoText );
-			$ns = $env->getContextTitle()->getNamespace();
-			$url = DOMCompat::getAttribute( $a, 'href' );
-			if ( $url !== null && $this->noFollowExternalLink( $env->getSiteConfig(), $ns, $url ) ) {
-				DOMUtils::addRel( $a, 'nofollow' );
-			}
-			$target = $env->getSiteConfig()->getExternalLinkTarget();
-			if ( $target ) {
-				$a->setAttribute( 'target', $target );
-				if ( !in_array( $target, [ '_self', '_parent', '_top' ], true ) ) {
-					// T133507. New windows can navigate parent cross-origin.
-					// Including noreferrer due to lacking browser
-					// support of noopener. Eventually noreferrer should be removed.
-					DOMUtils::addRel( $a, 'noreferrer' );
-					DOMUtils::addRel( $a, 'noopener' );
+			$href = DOMCompat::getAttribute( $a, 'href' ) ?? '';
+			$attribs = $env->getExternalLinkAttribs( $href );
+			foreach ( $attribs as $key => $val ) {
+				if ( $key === 'rel' ) {
+					foreach ( $val as $v ) {
+						DOMUtils::addRel( $a, $v );
+					}
+				} else {
+					$a->setAttribute( $key, $val );
 				}
 			}
 		}
@@ -67,20 +60,5 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 		foreach ( $iwLinks as $a ) {
 			DOMCompat::getClassList( $a )->add( 'extiw' );
 		}
-	}
-
-	/**
-	 * Returns true if the provided external link should have the nofollow attribute
-	 * @param SiteConfig $config
-	 * @param int $ns namespace of the current page
-	 * @param string $url url of the external link
-	 * @return bool
-	 */
-	private function noFollowExternalLink( SiteConfig $config, int $ns, string $url ): bool {
-		$noFollowConfig = $config->getNoFollowConfig();
-
-		return $noFollowConfig['nofollow']
-			&& !in_array( $ns, $noFollowConfig['nsexceptions'], true )
-			&& !UrlUtils::matchesDomainList( $url, $noFollowConfig['domainexceptions'] );
 	}
 }

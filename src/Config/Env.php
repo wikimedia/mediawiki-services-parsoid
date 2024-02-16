@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\UrlUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\ContentModelHandler as WikitextContentModelHandler;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -1126,5 +1127,36 @@ class Env {
 		// HTML
 		return $this->pageConfig->getVariantBcp47() ??
 			$this->pageConfig->getPageLanguageBcp47();
+	}
+
+	/**
+	 * Get an array of attributes to apply to an anchor linking to $url
+	 */
+	public function getExternalLinkAttribs( string $url ): array {
+		$siteConfig = $this->getSiteConfig();
+		$noFollowConfig = $siteConfig->getNoFollowConfig();
+		$attribs = [];
+		$ns = $this->getContextTitle()->getNamespace();
+		if (
+			$noFollowConfig['nofollow'] &&
+			!in_array( $ns, $noFollowConfig['nsexceptions'], true ) &&
+			!UrlUtils::matchesDomainList( $url, $noFollowConfig['domainexceptions'] )
+		) {
+			$attribs['rel'] = [ 'nofollow' ];
+		}
+		$target = $siteConfig->getExternalLinkTarget();
+		if ( $target ) {
+			$attribs['target'] = $target;
+			if ( !in_array( $target, [ '_self', '_parent', '_top' ], true ) ) {
+				// T133507. New windows can navigate parent cross-origin.
+				// Including noreferrer due to lacking browser
+				// support of noopener. Eventually noreferrer should be removed.
+				if ( !isset( $attribs['rel'] ) ) {
+					$attribs['rel'] = [];
+				}
+				array_push( $attribs['rel'], 'noreferrer', 'noopener' );
+			}
+		}
+		return $attribs;
 	}
 }

@@ -1049,4 +1049,10 @@ class ParsoidExtensionAPI {
 		$this->getMetadata()->addModuleStyles( $modulestyles );
 	}
 
+	/**
+	 * Get an array of attributes to apply to an anchor linking to $url
+	 */
+	public function getExternalLinkAttribs( string $url ): array {
+		return $this->env->getExternalLinkAttribs( $url );
+	}
 }
