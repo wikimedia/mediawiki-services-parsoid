@@ -36,7 +36,7 @@ class TestFileReaderTest extends TestCase {
 
 	/** @covers ::__construct */
 	public function testIllegalVersion() {
-		$this->expectErrorMessage( 'Duplicate version specification' );
+		$this->expectExceptionMessage( 'Duplicate version specification' );
 		TestFileReader::read( __DIR__ . '/data/twoVersionsDecl.txt' );
 	}
 

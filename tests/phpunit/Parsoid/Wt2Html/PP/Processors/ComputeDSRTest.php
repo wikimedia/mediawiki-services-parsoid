@@ -29,10 +29,10 @@ class ComputeDSRTest extends TestCase {
 
 		$dp = DOMDataUtils::getDataParsoid( $elts[0] );
 		if ( $spec['dsrContent'] === null ) {
-			$this->assertObjectNotHasAttribute( 'dsr', $dp );
+			$this->assertObjectNotHasProperty( 'dsr', $dp );
 			return;
 		}
-		$this->assertObjectHasAttribute( 'dsr', $dp );
+		$this->assertObjectHasProperty( 'dsr', $dp );
 		$dsr = $dp->dsr;
 		$this->assertInstanceOf( DomSourceRange::class, $dsr );
 
