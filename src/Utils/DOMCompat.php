@@ -212,7 +212,7 @@ class DOMCompat {
 	 * and the lack of Element::getElementsByTagName().
 	 * @param Document|Element $node
 	 * @param string $tagName
-	 * @return iterable<Element> Either an array or an HTMLCollection object
+	 * @return (iterable<Element>&\Countable)|array<Element> Either an array or an HTMLCollection object
 	 * @see https://dom.spec.whatwg.org/#dom-document-getelementsbytagname
 	 * @see https://dom.spec.whatwg.org/#dom-element-getelementsbytagname
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
@@ -272,7 +272,7 @@ class DOMCompat {
 	/**
 	 * @param Document|DocumentFragment|Element $node
 	 * @param string $selector
-	 * @return iterable<Element> Either a NodeList or an array
+	 * @return (iterable<Element>&\Countable)|array<Element> Either a NodeList or an array
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-queryselectorall
 	 * @note Note that unlike the spec this method is not guaranteed to return a NodeList
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
