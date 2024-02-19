@@ -487,7 +487,7 @@ class Utils {
 	 * that this mapping will remain in sync with upstream.
 	 *
 	 * @param string|Bcp47Code $code BCP-47 language code
-	 * @return string Mediawiki-internal language code
+	 * @return string MediaWiki-internal language code
 	 */
 	public static function bcp47ToMwCode( $code ): string {
 		// This map is dumped from
@@ -546,7 +546,7 @@ class Utils {
 	 * effectively a no-op and avoid the issue of upstream sync of the
 	 * mapping table.
 	 *
-	 * @param string|Bcp47Code $code Mediawiki-internal language code or object
+	 * @param string|Bcp47Code $code MediaWiki-internal language code or object
 	 * @param bool $strict If true, this code will log a deprecation message
 	 *  or fail if a MediaWiki-internal language code is passed.
 	 * @param ?LoggerInterface $warnLogger A deprecation warning will be
