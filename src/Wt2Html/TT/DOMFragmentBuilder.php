@@ -32,7 +32,7 @@ class DOMFragmentBuilder extends TokenHandler {
 	 * @return bool
 	 */
 	private function subpipelineUnnecessary( array $toks, Token $contextTok ): bool {
-		for ( $i = 0,  $n = count( $toks );  $i < $n;  $i++ ) {
+		for ( $i = 0, $n = count( $toks );  $i < $n;  $i++ ) {
 			$t = $toks[$i];
 
 			// For wikilinks and extlinks, templates should be properly nested

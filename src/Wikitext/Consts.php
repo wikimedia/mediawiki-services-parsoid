@@ -40,7 +40,7 @@ class Consts {
 				'img_link' => 'link',
 				'img_alt' => 'alt',
 				'img_page' => 'page',
-				'img_lang' => 'lang',  # see T34987
+				'img_lang' => 'lang', # see T34987
 				'img_upright' => 'upright',
 				'img_width' => 'width',
 				'img_class' => 'class',
@@ -79,8 +79,8 @@ class Consts {
 				# Ha! Upright can be either one! Try parsing THAT!
 				'img_upright' => 'upright',
 
-				'timedmedia_loop' => 'loop',  # T308230
-				'timedmedia_muted' => 'muted',  # T308230
+				'timedmedia_loop' => 'loop', # T308230
+				'timedmedia_muted' => 'muted', # T308230
 			]
 		];
 

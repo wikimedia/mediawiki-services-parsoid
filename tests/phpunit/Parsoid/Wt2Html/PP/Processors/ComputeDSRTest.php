@@ -101,7 +101,7 @@ class ComputeDSRTest extends TestCase {
 		return [
 			// Paragraph wrapping
 			'para 1' => [
-				'wt' => 'a',    // disable first test so we can get to the juicy failure immediately.
+				'wt' => 'a', // disable first test so we can get to the juicy failure immediately.
 				'specs' => [
 					[ 'selector' => 'body > p', 'dsrContent' => [ 'a', '', '' ] ]
 				]

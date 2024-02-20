@@ -73,7 +73,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'type' => 'TagTk',
 				'name' => 'div',
 				'attribs' => [
-					[ 'k' => 'role','v' => 'note' ],
+					[ 'k' => 'role', 'v' => 'note' ],
 					[ 'k' => 'class', 'v' => 'hatnote navigation-not-searchable' ],
 				],
 				'dataParsoid' => [
@@ -130,7 +130,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'type' => 'CommentTk',
 				'value' => ' THIS IS A COMMENT ',
 				'dataParsoid' => [
-					'tsr' => [ 2104,2147 ],
+					'tsr' => [ 2104, 2147 ],
 				],
 			],
 			'getTokenType' => 'CommentTk',
@@ -344,7 +344,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$offsets = [
 			# 0th offset must be zero, 1st should be length of string
 			'byte' => [ 0, 32, 4, 13, 9, 18, 21, 22, 23, 25, 28 ],
-			'char' => [ 0, 19, 4,  9, 8, 11, 14, 15, 16, 17, 18 ],
+			'char' => [ 0, 19, 4, 9, 8, 11, 14, 15, 16, 17, 18 ],
 			'ucs2' => [ 0, 22, 4, 10, 8, 13, 16, 17, 18, 19, 20 ],
 		];
 		foreach ( $offsets as $from => $input ) {

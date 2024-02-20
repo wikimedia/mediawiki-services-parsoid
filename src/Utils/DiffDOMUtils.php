@@ -201,7 +201,7 @@ class DiffDOMUtils {
 			if ( $n instanceof Element && !DiffUtils::isDiffMarker( $n ) ) {
 				return false;
 			} elseif ( $n instanceof Text &&
-				( $strict || !preg_match( '/^[ \t]*$/D',  $n->nodeValue ) )
+				( $strict || !preg_match( '/^[ \t]*$/D', $n->nodeValue ) )
 			) {
 				return false;
 			} elseif ( $n instanceof Comment ) {

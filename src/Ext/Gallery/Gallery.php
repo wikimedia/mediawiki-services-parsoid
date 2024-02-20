@@ -248,73 +248,73 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$content = "\n";
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			switch ( $child->nodeType ) {
-			case XML_ELEMENT_NODE:
-				DOMUtils::assertElt( $child );
-				// Ignore if it isn't a "gallerybox"
-				if (
+				case XML_ELEMENT_NODE:
+					DOMUtils::assertElt( $child );
+					// Ignore if it isn't a "gallerybox"
+					if (
 					DOMCompat::nodeName( $child ) !== 'li' ||
 					!DOMUtils::hasClass( $child, 'gallerybox' )
-				) {
-					break;
-				}
-				$oContent = $extApi->getOrigSrc(
+					) {
+						break;
+					}
+					$oContent = $extApi->getOrigSrc(
 					$child, false, [ DiffUtils::class, 'subtreeUnchanged' ]
-				);
-				if ( $oContent !== null ) {
-					$content .= $oContent . "\n";
-					break;
-				}
-				$div = DOMCompat::querySelector( $child, '.thumb' );
-				if ( !$div ) {
-					break;
-				}
-				$gallerytext = DOMCompat::querySelector( $child, '.gallerytext' );
-				if ( $gallerytext ) {
-					$showfilename = DOMCompat::querySelector( $gallerytext, '.galleryfilename' );
-					if ( $showfilename ) {
-						DOMCompat::remove( $showfilename ); // Destructive to the DOM!
+					);
+					if ( $oContent !== null ) {
+						$content .= $oContent . "\n";
+						break;
 					}
-				}
-				$thumb = DiffDOMUtils::firstNonSepChild( $div );
-				$ms = MediaStructure::parse( $thumb );
-				if ( $ms ) {
-					// Unlike other inline media, the caption isn't found in the data-mw
-					// of the container element.  Hopefully this won't be necessary after T268250
-					$ms->captionElt = $gallerytext;
-					// Destructive to the DOM!  But, a convenient way to get the serializer
-					// to ignore the fake dimensions that were added in pLine when parsing.
-					DOMCompat::getClassList( $ms->containerElt )->add( 'mw-default-size' );
-					list( $line, $options ) = $extApi->serializeMedia( $ms );
-					if ( $options ) {
-						$line .= '|' . $options;
+					$div = DOMCompat::querySelector( $child, '.thumb' );
+					if ( !$div ) {
+						break;
 					}
-				} else {
-					// TODO: Previously (<=1.5.0), we rendered valid titles
-					// returning mw:Error (apierror-filedoesnotexist) as
-					// plaintext.  Continue to serialize this content until
-					// that version is no longer supported.
-					$line = $div->textContent;
+					$gallerytext = DOMCompat::querySelector( $child, '.gallerytext' );
 					if ( $gallerytext ) {
-						$caption = $extApi->domChildrenToWikitext(
-							$gallerytext, $extApi::IN_IMG_CAPTION
-						);
-						// Drop empty captions
-						if ( !preg_match( '/^\s*$/D', $caption ) ) {
-							$line .= '|' . $caption;
+						$showfilename = DOMCompat::querySelector( $gallerytext, '.galleryfilename' );
+						if ( $showfilename ) {
+							DOMCompat::remove( $showfilename ); // Destructive to the DOM!
 						}
 					}
-				}
-				// Ensure that this only takes one line since gallery
-				// tag content is split by line
-				$line = str_replace( "\n", ' ', $line );
-				$content .= $line . "\n";
-				break;
-			case XML_TEXT_NODE:
-			case XML_COMMENT_NODE:
-				// Ignore it
-				break;
-			default:
-				throw new UnreachableException( 'should not be here!' );
+					$thumb = DiffDOMUtils::firstNonSepChild( $div );
+					$ms = MediaStructure::parse( $thumb );
+					if ( $ms ) {
+						// Unlike other inline media, the caption isn't found in the data-mw
+						// of the container element.  Hopefully this won't be necessary after T268250
+						$ms->captionElt = $gallerytext;
+						// Destructive to the DOM!  But, a convenient way to get the serializer
+						// to ignore the fake dimensions that were added in pLine when parsing.
+						DOMCompat::getClassList( $ms->containerElt )->add( 'mw-default-size' );
+						[ $line, $options ] = $extApi->serializeMedia( $ms );
+						if ( $options ) {
+							$line .= '|' . $options;
+						}
+					} else {
+						// TODO: Previously (<=1.5.0), we rendered valid titles
+						// returning mw:Error (apierror-filedoesnotexist) as
+						// plaintext.  Continue to serialize this content until
+						// that version is no longer supported.
+						$line = $div->textContent;
+						if ( $gallerytext ) {
+							$caption = $extApi->domChildrenToWikitext(
+							$gallerytext, $extApi::IN_IMG_CAPTION
+							);
+							// Drop empty captions
+							if ( !preg_match( '/^\s*$/D', $caption ) ) {
+								$line .= '|' . $caption;
+							}
+						}
+					}
+					// Ensure that this only takes one line since gallery
+					// tag content is split by line
+					$line = str_replace( "\n", ' ', $line );
+					$content .= $line . "\n";
+					break;
+				case XML_TEXT_NODE:
+				case XML_COMMENT_NODE:
+					// Ignore it
+					break;
+				default:
+					throw new UnreachableException( 'should not be here!' );
 			}
 		}
 		return $content;

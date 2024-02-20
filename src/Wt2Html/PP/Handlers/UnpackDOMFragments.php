@@ -52,7 +52,7 @@ class UnpackDOMFragments {
 		$c = $node->firstChild;
 		while ( $c ) {
 			if ( $c instanceof Element ) {
-				$cAbout = DOMCompat::getAttribute( $c,  'about' );
+				$cAbout = DOMCompat::getAttribute( $c, 'about' );
 				if ( $cAbout !== null ) {
 					// Update about
 					$newAbout = $aboutIdMap[$cAbout] ?? null;

@@ -284,7 +284,7 @@ class TemplateHandler extends TokenHandler {
 		} else {
 			$toks = !is_array( $targetToks ) ? [ $targetToks ] : $targetToks;
 			$toks = $this->processToString( $this->stripIncludeTokens( $toks ) );
-			list( $target, $additionalToks ) = $toks;
+			[ $target, $additionalToks ] = $toks;
 		}
 
 		$target = trim( $target );

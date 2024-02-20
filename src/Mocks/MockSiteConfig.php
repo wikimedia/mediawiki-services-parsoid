@@ -260,29 +260,29 @@ class MockSiteConfig extends SiteConfig {
 	/** @inheritDoc */
 	public function variantsFor( Bcp47Code $lang ): ?array {
 		switch ( $lang->toBcp47Code() ) {
-		case 'sr':
-			return [
+			case 'sr':
+				return [
 				'base' => new Bcp47CodeValue( 'sr' ),
 				'fallbacks' => [
 					new Bcp47CodeValue( 'sr-Cyrl' )
 				]
 			];
-		case 'sr-Cyrl':
-			return [
+			case 'sr-Cyrl':
+				return [
 				'base' => new Bcp47CodeValue( 'sr' ),
 				'fallbacks' => [
 					new Bcp47CodeValue( 'sr' )
 				]
 			];
-		case 'sr-Latn':
-			return [
+			case 'sr-Latn':
+				return [
 				'base' => new Bcp47CodeValue( 'sr' ),
 				'fallbacks' => [
 					new Bcp47CodeValue( 'sr' )
 				]
 			];
-		default:
-			return null;
+			default:
+				return null;
 		}
 	}
 

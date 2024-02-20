@@ -32,7 +32,7 @@ trait ExtendedOptsProcessor {
 		$this->addOption(
 			$name,
 			"$description (default: $defaultValue)",
-			$required, true /* withArg */,
+			$required, true, /* withArg */
 			$shortName, false /* multiOccurence */
 		);
 		$this->setOptionDefault(

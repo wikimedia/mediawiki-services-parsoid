@@ -610,7 +610,7 @@ abstract class SiteConfig {
 			}
 		}
 
-		foreach ( $this->iwMatcher as list( $keys, $regex, $numLangs ) ) {
+		foreach ( $this->iwMatcher as [ $keys, $regex, $numLangs ] ) {
 			if ( preg_match( $regex, $href, $m, PREG_UNMATCHED_AS_NULL ) ) {
 				foreach ( $keys as $i => $key ) {
 					if ( isset( $m[$i + 1] ) ) {
@@ -1602,7 +1602,7 @@ abstract class SiteConfig {
 	/** @var array<string,int> */
 	protected $wt2htmlLimits = [
 		// We won't handle pages beyond this size
-		'wikitextSize' => 2048 * 1024,  // ParserOptions::maxIncludeSize
+		'wikitextSize' => 2048 * 1024, // ParserOptions::maxIncludeSize
 
 		// Max list items per page
 		'listItem' => 30000,
@@ -1631,7 +1631,7 @@ abstract class SiteConfig {
 	/** @var array<string,int> */
 	protected $html2wtLimits = [
 		// We refuse to serialize HTML strings bigger than this
-		'htmlSize' => 10000000,  // 10M
+		'htmlSize' => 10000000, // 10M
 	];
 
 	/**

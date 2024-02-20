@@ -277,7 +277,7 @@ class RegressionSpecsTest extends TestCase {
 		$docBody = $this->parseWT( $wt );
 		$node = DOMCompat::nodeName( $docBody->firstChild );
 
-		$this->assertEquals( "style",  $node, $description );
+		$this->assertEquals( "style", $node, $description );
 	}
 
 	/**
@@ -292,10 +292,10 @@ class RegressionSpecsTest extends TestCase {
 		$docBody = $this->parseWT( $wt );
 
 		$node = DOMCompat::nodeName( $docBody->firstChild );
-		$this->assertEquals( "p",  $node, $description );
+		$this->assertEquals( "p", $node, $description );
 
 		$node = DOMCompat::nodeName( DiffDOMUtils::nextNonSepSibling( $docBody->firstChild ) );
-		$this->assertEquals( "figure",  $node, $description );
+		$this->assertEquals( "figure", $node, $description );
 	}
 
 	/**
@@ -312,10 +312,10 @@ class RegressionSpecsTest extends TestCase {
 		$docBody = $this->parseWT( $wt );
 
 		$firstStyle = $docBody->firstChild->firstChild;
-		$this->assertEquals( "style",  DOMCompat::nodeName( $firstStyle ), $description );
+		$this->assertEquals( "style", DOMCompat::nodeName( $firstStyle ), $description );
 
 		$secondStyle = $firstStyle->nextSibling->nextSibling->nextSibling;
-		$this->assertEquals( "link",  DOMCompat::nodeName( $secondStyle ), $description );
+		$this->assertEquals( "link", DOMCompat::nodeName( $secondStyle ), $description );
 
 		$this->assertEquals( "mw-deduplicated-inline-style",
 			DOMCompat::getAttribute( $secondStyle, 'rel' ), $description );
@@ -324,7 +324,7 @@ class RegressionSpecsTest extends TestCase {
 			DOMCompat::getAttribute( $firstStyle, 'data-mw-deduplicate' ),
 			DOMCompat::getAttribute( $secondStyle, 'href' ), $description );
 
-		$keys = [ 'about','typeof','data-mw','data-parsoid' ];
+		$keys = [ 'about', 'typeof', 'data-mw', 'data-parsoid' ];
 		foreach ( $keys as $key ) {
 			$this->assertTrue( $secondStyle->hasAttribute( $key ), $description );
 		}

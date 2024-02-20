@@ -44,16 +44,17 @@ class DOMUtils {
 
 		$domBuilder = new class( [
 			'suppressHtmlNamespace' => true,
-		] ) extends DOMBuilder {
-				/** @inheritDoc */
-				protected function createDocument(
-					string $doctypeName = null,
-					string $public = null,
-					string $system = null
-				) {
-					// @phan-suppress-next-line PhanTypeMismatchReturn
-					return DOMCompat::newDocument( false );
-				}
+		] ) extends DOMBuilder
+		{
+			/** @inheritDoc */
+			protected function createDocument(
+				string $doctypeName = null,
+				string $public = null,
+				string $system = null
+			) {
+				// @phan-suppress-next-line PhanTypeMismatchReturn
+				return DOMCompat::newDocument( false );
+			}
 		};
 		$treeBuilder = new TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
 		$dispatcher = new Dispatcher( $treeBuilder );
@@ -202,7 +203,7 @@ class DOMUtils {
 		$path = [];
 		do {
 			$path[] = $node;
-		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		} while ( $node = $node->parentNode );
 		return $path;
 	}
@@ -215,7 +216,7 @@ class DOMUtils {
 	 */
 	public static function nodeDepth( Node $node ): int {
 		$edges = 0;
-		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures
+		// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
 		while ( $node = $node->parentNode ) {
 			$edges++;
 		}

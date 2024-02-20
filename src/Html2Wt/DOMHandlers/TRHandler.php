@@ -39,7 +39,7 @@ class TRHandler extends DOMHandler {
 
 	/** @inheritDoc */
 	public function before( Element $node, Node $otherNode, SerializerState $state ): array {
-		if ( $this->trWikitextNeeded( $node,  DOMDataUtils::getDataParsoid( $node ) ) ) {
+		if ( $this->trWikitextNeeded( $node, DOMDataUtils::getDataParsoid( $node ) ) ) {
 			return [ 'min' => 1, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];
 		} else {
 			return [ 'min' => 0, 'max' => $this->maxNLsInTable( $node, $otherNode ) ];

@@ -51,7 +51,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 			'ThisPageDoesNotExist' => [ 'pageId' => null, 'revId' => null, 'missing' => true,
 				'known' => false, 'redirect' => false, 'linkclasses' => [],
 				'invalid' => false ],
-			'File:Example.svg' => [ 'pageId' => null, 'revId' => null,	'missing' => true,
+			'File:Example.svg' => [ 'pageId' => null, 'revId' => null, 'missing' => true,
 				'known' => true, 'redirect' => false, 'linkclasses' => [],
 				'invalid' => false ],
 			':' => [ 'pageId' => null, 'revId' => null, 'missing' => false,

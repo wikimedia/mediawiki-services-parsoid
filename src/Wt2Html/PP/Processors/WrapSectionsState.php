@@ -346,7 +346,7 @@ class WrapSectionsState {
 		while ( $n ) {
 			if ( $n instanceof Element ) {
 				return false;
-			} elseif ( $n instanceof Text && !preg_match( '/^\s*$/D',  $n->nodeValue ) ) {
+			} elseif ( $n instanceof Text && !preg_match( '/^\s*$/D', $n->nodeValue ) ) {
 				return false;
 			}
 			$n = $n->nextSibling;
@@ -631,7 +631,7 @@ class WrapSectionsState {
 			throw new InternalException();
 		}
 		if ( $offset1 < $offset2 ) {
-			$parts[] = PHPUtils::safeSubstr( $this->frame->getSrcText(), $offset1,  $offset2 - $offset1 );
+			$parts[] = PHPUtils::safeSubstr( $this->frame->getSrcText(), $offset1, $offset2 - $offset1 );
 		}
 	}
 

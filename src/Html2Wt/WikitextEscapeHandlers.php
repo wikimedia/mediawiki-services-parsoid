@@ -1126,7 +1126,7 @@ class WikitextEscapeHandlers {
 
 		$tokens = $this->tokenizeStr( $arg, false );
 
-		for ( $i = 0,  $n = count( $tokens ); $i < $n; $i++ ) {
+		for ( $i = 0, $n = count( $tokens ); $i < $n; $i++ ) {
 			$t = $tokens[$i];
 			$last = $i === $n - 1;
 

@@ -101,7 +101,7 @@ class DOMDataUtils {
 			return $dataObject;
 		}
 
-		$nodeId = DOMCompat::getAttribute( $node,  self::DATA_OBJECT_ATTR_NAME );
+		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
 		if ( $nodeId !== null ) {
 			$dataObject = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
 		} else {
@@ -315,7 +315,7 @@ class DOMDataUtils {
 	 * @return mixed
 	 */
 	public static function getJSONAttribute( Element $node, string $name, $defaultVal ) {
-		$attVal = DOMCompat::getAttribute( $node,  $name );
+		$attVal = DOMCompat::getAttribute( $node, $name );
 		if ( $attVal === null ) {
 			return $defaultVal;
 		}
@@ -441,7 +441,7 @@ class DOMDataUtils {
 	public static function storeInPageBundle(
 		Element $node, Env $env, stdClass $data, array $idIndex
 	): void {
-		$uid = DOMCompat::getAttribute( $node,  'id' );
+		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
 		$docDp = &$pb->parsoid;
@@ -613,7 +613,7 @@ class DOMDataUtils {
 		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
 		self::setDataParsoidDiff( $node, $dpd );
 		$node->removeAttribute( 'data-parsoid-diff' );
-		$dataI18n = DOMCompat::getAttribute( $node,  'data-mw-i18n' );
+		$dataI18n = DOMCompat::getAttribute( $node, 'data-mw-i18n' );
 		if ( $dataI18n !== null ) {
 			$i18n = DataMwI18n::fromJson( PHPUtils::jsonDecode( $dataI18n, true ) );
 			self::setDataMwI18n( $node, $i18n );
@@ -631,7 +631,7 @@ class DOMDataUtils {
 		DOMUtils::visitDOM( DOMCompat::getBody( $node->ownerDocument ),
 			static function ( Node $n, ?array $options = null ) use ( &$index ) {
 				if ( $n instanceof Element ) {
-					$id = DOMCompat::getAttribute( $n,  'id' );
+					$id = DOMCompat::getAttribute( $n, 'id' );
 					if ( $id !== null ) {
 						$index[$id] = true;
 					}
@@ -739,7 +739,7 @@ class DOMDataUtils {
 		// to access it after the fact we're aware and remove the attribute
 		// since it's no longer needed.
 		$nd = self::getNodeData( $node );
-		$id = DOMCompat::getAttribute( $node,  self::DATA_OBJECT_ATTR_NAME );
+		$id = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
 		$nd->storedId = $id !== null ? intval( $id ) : null;
 		$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
 	}

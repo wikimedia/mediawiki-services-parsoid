@@ -51,7 +51,7 @@ class DOMDiffTest extends TestCase {
 			} elseif ( isset( $spec['markers'] ) ) {
 				$markers = DiffUtils::getDiffMark( $node )->diff ?? [];
 
-				$this->assertCount( count( $spec['markers'] ), $markers,
+				$this->assertSameSize( $spec['markers'], $markers,
 					'number of markers does not match' );
 
 				foreach ( $markers as $k => $m ) {

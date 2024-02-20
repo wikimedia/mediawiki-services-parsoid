@@ -497,8 +497,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 					!$this->hasIdenticalNestedTag( $c, DOMCompat::nodeName( $c ) )
 				) {
 					$env->recordLint( 'html5-misnesting', $lintObj );
-				// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
-				} elseif ( !$isHtmlElement && DOMUtils::isQuoteElt( $c ) &&
+				} elseif (
+					!$isHtmlElement && DOMUtils::isQuoteElt( $c ) &&
+					// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
 					( $ancestor = $this->getHeadingAncestor( $c->parentNode ) )
 				) {
 					$lintObj['params']['ancestorName'] = DOMCompat::nodeName( $ancestor );
@@ -1145,9 +1146,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		$li = null;
-		// phpcs:ignore MediaWiki.ControlStructures.AssignmentInControlStructures.AssignmentInControlStructures
 		if ( !WTUtils::isLiteralHTMLNode( $node ) ||
 			DOMCompat::nodeName( $node ) !== 'table' ||
+			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found
 			!( $li = $this->getWikitextListItemAncestor( $node ) ) ||
 			!str_contains( DOMCompat::getOuterHTML( $node ), "\n" )
 		) {

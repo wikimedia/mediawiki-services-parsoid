@@ -81,7 +81,7 @@ class CleanUp {
 		while ( $n ) {
 			if ( $n instanceof Comment ||
 				WTUtils::isSolTransparentLink( $n ) ||
-				( $n instanceof Text && preg_match( '/^[ \t]*$/D',  $n->nodeValue ) ) ||
+				( $n instanceof Text && preg_match( '/^[ \t]*$/D', $n->nodeValue ) ) ||
 				( DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) && self::isEmptyNode( $n ) ) ||
 				(
 					$n instanceof Element &&

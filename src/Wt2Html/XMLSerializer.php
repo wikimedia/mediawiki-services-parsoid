@@ -251,14 +251,14 @@ class XMLSerializer {
 				$out['offsets'][$out['uid']]['html'][1] += strlen( $bit );
 			}
 		} else {
-			$newUid = DOMCompat::getAttribute( $node,  'id' );
+			$newUid = DOMCompat::getAttribute( $node, 'id' );
 			// Encapsulated siblings don't have generated ids (but may have an id),
 			// so associate them with preceding content.
 			if ( $newUid && $newUid !== $out['uid'] && !$out['last'] ) {
 				if ( !WTUtils::isEncapsulationWrapper( $node ) ) {
 					$out['uid'] = $newUid;
 				} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-					$about = DOMCompat::getAttribute( $node,  'about' );
+					$about = DOMCompat::getAttribute( $node, 'about' );
 					$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
 					$out['last'] = end( $aboutSiblings );
 					$out['uid'] = $newUid;

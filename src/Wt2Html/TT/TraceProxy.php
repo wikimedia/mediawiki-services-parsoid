@@ -35,7 +35,7 @@ class TraceProxy extends TokenHandler {
 		$this->env->log(
 			$this->traceType, $this->pipelineId,
 			function () {
-				return str_pad( $this->name, 23, ' ',  STR_PAD_LEFT ) . "|";
+				return str_pad( $this->name, 23, ' ', STR_PAD_LEFT ) . "|";
 			},
 			static function () use ( $token ) {
 				return PHPUtils::jsonEncode( $token );

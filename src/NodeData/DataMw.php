@@ -42,9 +42,9 @@ class DataMw {
 			switch ( $k ) {
 				// Add cases here for components which should be instantiated
 				// as proper classes.
-			default:
-				$this->$k = $v;
-				break;
+				default:
+					$this->$k = $v;
+					break;
 			}
 		}
 	}

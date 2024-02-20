@@ -585,7 +585,7 @@ class Parsoid {
 	 *   can't be fulfilled.
 	 */
 	public static function findDowngrade( string $from, string $to ): ?array {
-		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo ) ) {
+		foreach ( self::DOWNGRADES as [ 'from' => $dgFrom, 'to' => $dgTo ] ) {
 			if (
 				Semver::satisfies( $from, "^$dgFrom" ) &&
 				Semver::satisfies( $to, "^$dgTo" )
@@ -606,7 +606,7 @@ class Parsoid {
 	public static function downgrade(
 		array $dg, PageBundle $pageBundle
 	): void {
-		foreach ( self::DOWNGRADES as list( 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ) ) {
+		foreach ( self::DOWNGRADES as [ 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ] ) {
 			if ( $dg['from'] === $dgFrom && $dg['to'] === $dgTo ) {
 				call_user_func( [ self::class, $dgFunc ], $pageBundle );
 

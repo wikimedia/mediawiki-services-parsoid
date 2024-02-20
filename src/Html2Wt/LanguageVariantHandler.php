@@ -43,7 +43,7 @@ class LanguageVariantHandler {
 				'env' => $state->getEnv(),
 				'onSOL' => false
 			];
-		return $state->serializer->htmlToWikitext( $options, $t );
+			return $state->serializer->htmlToWikitext( $options, $t );
 	}
 
 	/**
@@ -248,7 +248,8 @@ class LanguageVariantHandler {
 					array_slice( $dataMWV->twoway, 0, 1 ) :
 					$dataMWV->twoway ?? [];
 				$text = implode( ';',
-					array_map( function ( $rule, $idx ) use ( $state, $textSp ) {
+					array_map(
+						function ( $rule, $idx ) use ( $state, $textSp ) {
 							$text = self::ser( $state, $rule->t, [ 'protect' => '/;|\}-/' ] );
 							if ( $rule->l === '*' ) {
 								$trailingSemi = false;
@@ -259,7 +260,10 @@ class LanguageVariantHandler {
 							array_slice( $textSp, 3 * $idx, $length ) :
 								[ ( $idx > 0 ) ? ' ' : '', '', '' ];
 							return $ws[0] . self::protectLang( $rule->l ) . $ws[1] . ':' . $ws[2] . $text;
-					}, $b, array_keys( $b ) )
+						},
+						$b,
+						array_keys( $b )
+					)
 				);
 				// suppress output of default flag ('S')
 				self::maybeDeleteFlag( $originalFlags, $flags, '$S' );

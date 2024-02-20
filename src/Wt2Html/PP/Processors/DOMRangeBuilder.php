@@ -171,7 +171,7 @@ class DOMRangeBuilder {
 	 * @return string
 	 */
 	protected function getRangeId( Element $node ): string {
-		return DOMCompat::getAttribute( $node,  "about" );
+		return DOMCompat::getAttribute( $node, "about" );
 	}
 
 	/**

@@ -1466,7 +1466,7 @@ class LinkHandlerUtils {
 			// preserve upright option
 			$nopts[] = [
 				'ck' => $upright['ck'],
-				'ak' => [ $upright['ak'] ],  // FIXME: don't use ak here!
+				'ak' => [ $upright['ak'] ], // FIXME: don't use ak here!
 			];
 		}
 
@@ -1483,8 +1483,8 @@ class LinkHandlerUtils {
 				// preserve original width/height string if not touched
 				$nopts[] = [
 					'ck' => 'width',
-					'v' => $sizeString,  // original size string
-					'ak' => [ '$1' ],  // don't add px or the like
+					'v' => $sizeString, // original size string
+					'ak' => [ '$1' ], // don't add px or the like
 				];
 			} else {
 				$bbox = null;
@@ -1516,7 +1516,7 @@ class LinkHandlerUtils {
 						// box explicitly square (100x100px). The 'px' is
 						// added by the alias though, and can be localized.
 						'v' => $bbox . 'x' . $bbox,
-						'ak' => $mwAliases['img_width'],  // adds the 'px' suffix
+						'ak' => $mwAliases['img_width'], // adds the 'px' suffix
 					];
 				}
 			}

@@ -30,7 +30,7 @@ class Section {
 		$this->container = $ownerDoc->createElement( 'section' );
 		// Use named arguments here in PHP 8.0+
 		$this->metadata = new SectionMetadata(
-			-1 /* tocLevel */,
+			-1, /* tocLevel */
 			$level /* hLevel */
 		);
 	}

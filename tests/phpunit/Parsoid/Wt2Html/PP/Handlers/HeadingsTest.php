@@ -21,7 +21,7 @@ class HeadingsTest extends TestCase {
 	public function validateId( string $name, string $heading, string $description, array $expectedIds,
 								Element $doc ): void {
 		$elts = DOMCompat::querySelectorAll( $doc, 'body > h1' );
-		$this->assertCount( count( $expectedIds ), $elts );
+		$this->assertSameSize( $expectedIds, $elts );
 
 		foreach ( $expectedIds as $key => $id ) {
 			$h = $elts[$key];

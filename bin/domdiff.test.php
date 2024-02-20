@@ -28,4 +28,4 @@ $opts = [
 	'storeDiffMark' => true,
 	'quiet' => true
 ];
-print ContentUtils::dumpDOM( $body2, 'DIFF-marked DOM',  $opts );
+print ContentUtils::dumpDOM( $body2, 'DIFF-marked DOM', $opts );

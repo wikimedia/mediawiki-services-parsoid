@@ -509,7 +509,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					}
 
 					// Compute width of opening/closing tags for this dom $node
-					list( $stWidth, $etWidth ) =
+					[ $stWidth, $etWidth ] =
 						$this->computeTagWidths( $stWidth, $etWidth, $child, $dp );
 
 					if ( !empty( $dp->autoInsertedStart ) ) {
@@ -567,7 +567,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							return "     before-recursing:" .
 								"[cs,ce]=" . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 								"; [sw,ew]=" . PHPUtils::jsonEncode( [ $stWidth, $etWidth ] ) .
-								"; subtree-[cs,ce]=" . PHPUtils::jsonEncode( [ $ccs,$cce ] );
+								"; subtree-[cs,ce]=" . PHPUtils::jsonEncode( [ $ccs, $cce ] );
 						} );
 
 						$this->trace( $env, "<recursion>" );
@@ -616,7 +616,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					$env->log( "trace/dsr", static function () use ( $frame, $child, $cs, $ce, $dp ) {
 						return "     UPDATING " . DOMCompat::nodeName( $child ) .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
-							"; typeof: " . ( DOMCompat::getAttribute( $child,  "typeof" ) ?? '' );
+							"; typeof: " . ( DOMCompat::getAttribute( $child, "typeof" ) ?? '' );
 					} );
 				}
 

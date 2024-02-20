@@ -42,7 +42,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 			[ 'Use &gt; here', 'Use &#x26;gt; here', 20 ],
 			[ '--&gt;', '&#x2D;&#x2D;&#x3E;', 13 ],
 			[ '--&amp;gt;', '&#x2D;&#x2D;&#x26;gt;', 17 ],
-			[ '--&amp;amp;gt;','&#x2D;&#x2D;&#x26;amp;gt;', 21 ],
+			[ '--&amp;amp;gt;', '&#x2D;&#x2D;&#x26;amp;gt;', 21 ],
 		];
 	}
 

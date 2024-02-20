@@ -374,16 +374,17 @@ class DOMCompat {
 	public static function setInnerHTML( $element, string $html ): void {
 		$domBuilder = new class( [
 			'suppressHtmlNamespace' => true,
-		] ) extends DOMBuilder {
-				/** @inheritDoc */
-				protected function createDocument(
-					string $doctypeName = null,
-					string $public = null,
-					string $system = null
-				) {
-					// @phan-suppress-next-line PhanTypeMismatchReturn
-					return DOMCompat::newDocument( $doctypeName === 'html' );
-				}
+		] ) extends DOMBuilder
+		{
+			/** @inheritDoc */
+			protected function createDocument(
+				string $doctypeName = null,
+				string $public = null,
+				string $system = null
+			) {
+				// @phan-suppress-next-line PhanTypeMismatchReturn
+				return DOMCompat::newDocument( $doctypeName === 'html' );
+			}
 		};
 		$treeBuilder = new TreeBuilder( $domBuilder );
 		$dispatcher = new Dispatcher( $treeBuilder );

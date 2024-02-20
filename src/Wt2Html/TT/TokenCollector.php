@@ -120,7 +120,7 @@ abstract class TokenCollector extends TokenHandler {
 			} else {
 				// EOF -- collapse stack!
 				$allToks = [];
-				for ( $i = 0,  $n = count( $this->scopeStack );  $i < $n;  $i++ ) {
+				for ( $i = 0, $n = count( $this->scopeStack );  $i < $n;  $i++ ) {
 					PHPUtils::pushArray( $allToks, $this->scopeStack[$i] );
 				}
 				PHPUtils::pushArray( $allToks, $activeTokens );

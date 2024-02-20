@@ -574,30 +574,30 @@ class MockApiHelper extends ApiHelper {
 	 * @param int|float|null &$theight Thumbnail height (inout parameter)
 	 */
 	public static function transformHelper( $width, $height, &$twidth, &$theight ) {
-			if ( $theight === null ) {
-				// File::scaleHeight in PHP
-				$theight = round( $height * $twidth / $width );
-			} elseif (
-				$twidth === null ||
-				// Match checks in ImageHandler.php::normaliseParams in core
-				( $twidth * $height > $theight * $width )
-			) {
-				// MediaHandler::fitBoxWidth in PHP
-				// This is crazy!
-				$idealWidth = $width * $theight / $height;
-				$roundedUp = ceil( $idealWidth );
-				if ( round( $roundedUp * $height / $width ) > $theight ) {
-					$twidth = floor( $idealWidth );
-				} else {
-					$twidth = $roundedUp;
-				}
+		if ( $theight === null ) {
+			// File::scaleHeight in PHP
+			$theight = round( $height * $twidth / $width );
+		} elseif (
+			$twidth === null ||
+			// Match checks in ImageHandler.php::normaliseParams in core
+			( $twidth * $height > $theight * $width )
+		) {
+			// MediaHandler::fitBoxWidth in PHP
+			// This is crazy!
+			$idealWidth = $width * $theight / $height;
+			$roundedUp = ceil( $idealWidth );
+			if ( round( $roundedUp * $height / $width ) > $theight ) {
+				$twidth = floor( $idealWidth );
 			} else {
-				if ( round( $height * $twidth / $width ) > $theight ) {
-					$twidth = ceil( $width * $theight / $height );
-				} else {
-					$theight = round( $height * $twidth / $width );
-				}
+				$twidth = $roundedUp;
 			}
+		} else {
+			if ( round( $height * $twidth / $width ) > $theight ) {
+				$twidth = ceil( $width * $theight / $height );
+			} else {
+				$theight = round( $height * $twidth / $width );
+			}
+		}
 	}
 
 	/**

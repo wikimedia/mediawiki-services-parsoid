@@ -123,7 +123,7 @@ class TemplateEncapsulator {
 		// since the 'k' and 'v' values in params will be expanded tokens
 		//
 		// Ignore params[0] -- that is the template name
-		for ( $i = 1,  $n = count( $params );  $i < $n;  $i++ ) {
+		for ( $i = 1, $n = count( $params );  $i < $n;  $i++ ) {
 			$param = $params[$i];
 			$srcOffsets = $param->srcOffsets;
 			$kSrc = null;

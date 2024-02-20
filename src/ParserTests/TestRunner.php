@@ -689,7 +689,7 @@ class TestRunner {
 	private function checkHTML(
 		Test $test, Element $out, array $options, string $mode
 	): bool {
-		list( $normOut, $normExpected ) = $test->normalizeHTML( $out, $test->cachedNormalizedHTML );
+		[ $normOut, $normExpected ] = $test->normalizeHTML( $out, $test->cachedNormalizedHTML );
 		$expected = [ 'normal' => $normExpected, 'raw' => $test->parsoidHtml ];
 		$actual = [
 			'normal' => $normOut,
@@ -779,7 +779,7 @@ class TestRunner {
 			}
 		}
 
-		list( $normalizedOut, $normalizedExpected ) = $test->normalizeWT( $out, $testWikitext );
+		[ $normalizedOut, $normalizedExpected ] = $test->normalizeWT( $out, $testWikitext );
 
 		$expected = [ 'normal' => $normalizedExpected, 'raw' => $testWikitext ];
 		$actual = [ 'normal' => $normalizedOut, 'raw' => $out, 'input' => $input ];
@@ -846,7 +846,7 @@ class TestRunner {
 			}
 
 			$fileContent = file_get_contents( $this->testFilePath );
-			foreach ( [ 'wt2html','metadata' ] as $mode ) {
+			foreach ( [ 'wt2html', 'metadata' ] as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
 					if ( $options['update-tests'] || $fail['unexpected'] ) {
 						$exp = '/(!!\s*test\s*' .
@@ -940,7 +940,7 @@ class TestRunner {
 		// (Most likely there's either a metadata section or a html/php
 		// section but not html/parsoid section.)
 		if ( $test->parsoidHtml === null && !isset( $test->sections['html/parsoid+standalone'] ) ) {
-			$targetModes = array_diff( $targetModes, [ 'html2wt','html2html' ] );
+			$targetModes = array_diff( $targetModes, [ 'html2wt', 'html2html' ] );
 		}
 
 		if ( !count( $targetModes ) ) {

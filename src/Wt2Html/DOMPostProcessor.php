@@ -488,7 +488,7 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
-						'action' => static fn( $node ) => CleanUp::stripMarkerMetas( $node ),
+						'action' => static fn ( $node ) => CleanUp::stripMarkerMetas( $node ),
 					]
 				]
 			],
@@ -518,11 +518,11 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => static fn( $node ) => DisplaySpace::leftHandler( $node )
+						'action' => static fn ( $node ) => DisplaySpace::leftHandler( $node )
 					],
 					[
 						'nodeName' => null,
-						'action' => static fn( $node ) => DisplaySpace::rightHandler( $node )
+						'action' => static fn ( $node ) => DisplaySpace::rightHandler( $node )
 					],
 				]
 			],
@@ -568,12 +568,12 @@ class DOMPostProcessor extends PipelineStage {
 					// Strip empty elements from template content
 					[
 						'nodeName' => null,
-						'action' => static fn( $node, $state ) => CleanUp::handleEmptyElements( $node, $state )
+						'action' => static fn ( $node, $state ) => CleanUp::handleEmptyElements( $node, $state )
 					],
 					// Additional cleanup
 					[
 						'nodeName' => null,
-						'action' => static fn( $node, $state ) => CleanUp::finalCleanup( $node, $state )
+						'action' => static fn ( $node, $state ) => CleanUp::finalCleanup( $node, $state )
 					]
 				]
 			],

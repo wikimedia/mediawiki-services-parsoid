@@ -148,7 +148,7 @@ class ContentModelHandler extends IContentModelHandler {
 
 		// set indicator metadata for unique keys
 		foreach ( $iData as $name => $html ) {
-			$extApi->getMetadata()->setIndicator( (string)$name,  $html );
+			$extApi->getMetadata()->setIndicator( (string)$name, $html );
 		}
 	}
 

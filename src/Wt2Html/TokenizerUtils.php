@@ -92,7 +92,7 @@ class TokenizerUtils {
 		$out = [];
 		$text = '';
 		$c = self::flattenIfArray( $c );
-		for ( $i = 0,  $l = count( $c );  $i < $l;  $i++ ) {
+		for ( $i = 0, $l = count( $c );  $i < $l;  $i++ ) {
 			$ci = $c[$i];
 			if ( is_string( $ci ) ) {
 				if ( $ci !== '' ) {

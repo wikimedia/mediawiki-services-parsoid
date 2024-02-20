@@ -110,7 +110,7 @@ class TableFixups {
 	 */
 	private function fillDSRGap( array &$parts, Frame $frame, int $offset1, int $offset2 ): void {
 		if ( $offset1 < $offset2 ) {
-			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $offset1,  $offset2 - $offset1 );
+			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $offset1, $offset2 - $offset1 );
 		}
 	}
 

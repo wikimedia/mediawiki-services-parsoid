@@ -206,12 +206,12 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function provideProtocolMethods() {
 		return [
-			[ 'http://wikipedia.org',                       false, false ],
-			[ 'https://wikipedia.org',                      true, true ],
-			[ 'ftp://ftp.something.net',                    false, false ],
-			[ 'something http://wikipedia.org',             false, false ],
-			[ 'something https://wikipedia.org',            false, true ],
-			[ 'something ftp://ftp.something.net',          false, false ],
+			[ 'http://wikipedia.org', false, false ],
+			[ 'https://wikipedia.org', true, true ],
+			[ 'ftp://ftp.something.net', false, false ],
+			[ 'something http://wikipedia.org', false, false ],
+			[ 'something https://wikipedia.org', false, true ],
+			[ 'something ftp://ftp.something.net', false, false ],
 			[ 'http://wikipedia.org https://wikipedia.org', false, true ],
 			[ 'https://wikipedia.org http://wikipedia.org', true, true ],
 		];
@@ -243,39 +243,39 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function provideGetResourceURLPatternMatcher() {
 		$isbnTests = [
-			[ "Special:BookSources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
-			[ "Special:Booksources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
-			[ "special:BookSources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
-			[ "special:Booksources/1234567890X",      [ 'ISBN', '1234567890X' ] ],
-			[ "Special:BookSources/1234567890x",      [ 'ISBN', '1234567890x' ] ],
-			[ "Special:BookSources/1234567890",       [ 'ISBN', '1234567890' ] ],
-			[ "../Special:BookSources/1234567890",    [ 'ISBN', '1234567890' ] ],
+			[ "Special:BookSources/1234567890X", [ 'ISBN', '1234567890X' ] ],
+			[ "Special:Booksources/1234567890X", [ 'ISBN', '1234567890X' ] ],
+			[ "special:BookSources/1234567890X", [ 'ISBN', '1234567890X' ] ],
+			[ "special:Booksources/1234567890X", [ 'ISBN', '1234567890X' ] ],
+			[ "Special:BookSources/1234567890x", [ 'ISBN', '1234567890x' ] ],
+			[ "Special:BookSources/1234567890", [ 'ISBN', '1234567890' ] ],
+			[ "../Special:BookSources/1234567890", [ 'ISBN', '1234567890' ] ],
 			[ "../../Special:BookSources/1234567890", [ 'ISBN', '1234567890' ] ],
-			[ "SPECIAL:BOOKSOURCES/1234567890",       [ 'ISBN', '1234567890' ] ], // see the ?i flag
-			[ "Special:BookSources/1234567890Y",      false ],
-			[ "special:boksources/1234567890",        false ],
-			[ "Notspecial:Booksources/1234567890",    false ],
+			[ "SPECIAL:BOOKSOURCES/1234567890", [ 'ISBN', '1234567890' ] ], // see the ?i flag
+			[ "Special:BookSources/1234567890Y", false ],
+			[ "special:boksources/1234567890", false ],
+			[ "Notspecial:Booksources/1234567890", false ],
 		];
 		$pmidTests = [
-			[ "//www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract",        [ 'PMID', 'covid19' ] ],
-			[ "https://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract",  [ 'PMID', 'covid19' ] ],
-			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract",   [ 'PMID', 'covid19' ] ],
-			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19",                 false ],
+			[ "//www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract", [ 'PMID', 'covid19' ] ],
+			[ "https://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract", [ 'PMID', 'covid19' ] ],
+			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract", [ 'PMID', 'covid19' ] ],
+			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19", false ],
 			// FIXME T257629: Strange that our code treats "foobar://" as "foobar:" + "//"
 			[ "foobar://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract", [ 'PMID', 'covid19' ] ],
-			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract&something_more",  false ],
+			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract&something_more", false ],
 		];
 		$rfcTests = [
-			[ "//tools.ietf.org/html/rfc1234",        [ 'RFC', '1234' ] ],
-			[ "https://tools.ietf.org/html/rfc1234",  [ 'RFC', '1234' ] ],
-			[ "http://tools.ietf.org/html/rfc1234",   [ 'RFC', '1234' ] ],
+			[ "//tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "https://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "http://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
 			// FIXME T257629: Strange that our code accepts RFCs with "_" and doesn't have more validity checking
 			// but, magic links are on the way out anyway.
-			[ "http://tools.ietf.org/html/rfc_1234",  [ 'RFC', '_1234' ] ],
+			[ "http://tools.ietf.org/html/rfc_1234", [ 'RFC', '_1234' ] ],
 			// FIXME T257629: Strange that our code treats "foobar://" as "foobar:" + "//"
 			[ "foobar://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
-			[ "http://tools.ietf.org/html/RFC1234",   false ],
-			[ "http://tools.ietf.org/json/rfc1234",   false ],
+			[ "http://tools.ietf.org/html/RFC1234", false ],
+			[ "http://tools.ietf.org/json/rfc1234", false ],
 		];
 
 		return array_merge( $isbnTests, $pmidTests, $rfcTests );
@@ -332,13 +332,13 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function provideGetMagicWordForFunctionHooks() {
 		return [
-			[ "LCFIRST" , "lcfirst" ],
-			[ "lcfirst" , "lcfirst" ],
-			[ "#expr"   , "expr" ],
-			[ "#EXPR"   , "expr" ],
-			[ "expr"    , null ],
-			[ "expr:"    , null ],
-			[ "#expr:"    , null ],
+			[ "LCFIRST", "lcfirst" ],
+			[ "lcfirst", "lcfirst" ],
+			[ "#expr", "expr" ],
+			[ "#EXPR", "expr" ],
+			[ "expr", null ],
+			[ "expr:", null ],
+			[ "#expr:", null ],
 			[ "lcfirst:", null ],
 			[ "#lcfirst", null ],
 		];
@@ -354,8 +354,8 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
 	public function provideGetMagicWordForVariable() {
 		return [
-			[ "numberofwikis" , "numberofwikis" ],
-			[ "NUMBEROFWIKIS" , null ],
+			[ "numberofwikis", "numberofwikis" ],
+			[ "NUMBEROFWIKIS", null ],
 			[ "numberofadmins", null ],
 		];
 	}
@@ -372,7 +372,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	public function provideLinkTrailRegex() {
 		return [
 			[ '/^([a-z]+)(.*)$/sD', '/^([a-z]+)/sD' ], // enwiki
-			[ '/^()(.*)$/sD'      , null ] // zhwiki
+			[ '/^()(.*)$/sD', null ] // zhwiki
 		];
 	}
 }

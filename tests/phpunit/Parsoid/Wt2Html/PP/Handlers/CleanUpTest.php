@@ -57,7 +57,7 @@ class CleanUpTest extends TestCase {
 	private function autoInsValidation( bool $expectedValue, Element $node ): bool {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$autoInsEnd = isset( $dp->autoInsertedEnd );
-		$this->assertEquals( $expectedValue,  $autoInsEnd );
+		$this->assertEquals( $expectedValue, $autoInsEnd );
 		return true;
 	}
 
@@ -192,33 +192,33 @@ class CleanUpTest extends TestCase {
 	public function provideWhitespaceTrimming(): array {
 		return [
 			/* List item tests */
-			[ "*a",            "li", 0, 0 ],
-			[ "* a",           "li", 1, 0 ],
-			[ "*    a  ",      "li", 4, 2 ],
-			[ "* <!--c-->a",   "li", 1, 0 ],
-			[ "* <!--c--> a",  "li", -1, 0 ],
+			[ "*a", "li", 0, 0 ],
+			[ "* a", "li", 1, 0 ],
+			[ "*    a  ", "li", 4, 2 ],
+			[ "* <!--c-->a", "li", 1, 0 ],
+			[ "* <!--c--> a", "li", -1, 0 ],
 			[ "* <!--c--> a ", "li", -1, 1 ],
-			[ "* a ",          "li", 1, 1 ],
-			[ "*a<!--c--> ",   "li", 0, 1 ],
-			[ "*a <!--c--> ",  "li", 0, -1 ],
-			[ "* [[Category:Foo]] a",  "li", -1, 0 ],
-			[ "* x[[Category:Foo]] ",  "li", 1, 1 ],
+			[ "* a ", "li", 1, 1 ],
+			[ "*a<!--c--> ", "li", 0, 1 ],
+			[ "*a <!--c--> ", "li", 0, -1 ],
+			[ "* [[Category:Foo]] a", "li", -1, 0 ],
+			[ "* x[[Category:Foo]] ", "li", 1, 1 ],
 			[ "* x [[Category:Foo]] ", "li", 1, -1 ],
 
 			/* Heading tests */
-			[ "==h==",             "h2", 0, 0 ],
-			[ "==  h   ==",        "h2", 2, 3 ],
-			[ "== <!--c-->h==",    "h2", 1, 0 ],
-			[ "== <!--c--> h ==",  "h2", -1, 1 ],
-			[ "== h<!--c--> ==",   "h2", 1, 1 ],
+			[ "==h==", "h2", 0, 0 ],
+			[ "==  h   ==", "h2", 2, 3 ],
+			[ "== <!--c-->h==", "h2", 1, 0 ],
+			[ "== <!--c--> h ==", "h2", -1, 1 ],
+			[ "== h<!--c--> ==", "h2", 1, 1 ],
 
 			/* Table tests */
-			[ "{|\n|x\n|}",           "td", 0, 0 ],
-			[ "{|\n| x|| y  \n|}",    "td:first-child", 1, 0 ],
-			[ "{|\n| x|| y  \n|}",    "td:first-child + td", 1, 2 ],
-			[ "{|\n| <!--c-->x\n|}",  "td", 1, 0 ],
+			[ "{|\n|x\n|}", "td", 0, 0 ],
+			[ "{|\n| x|| y  \n|}", "td:first-child", 1, 0 ],
+			[ "{|\n| x|| y  \n|}", "td:first-child + td", 1, 2 ],
+			[ "{|\n| <!--c-->x\n|}", "td", 1, 0 ],
 			[ "{|\n| <!--c--> x\n|}", "td", -1, 0 ],
-			[ "{|\n| <!--c-->x<!--c--> \n|}",   "td", 1, 1 ],
+			[ "{|\n| <!--c-->x<!--c--> \n|}", "td", 1, 1 ],
 			[ "{|\n| <!--c--> x <!--c--> \n|}", "td", -1, -1 ],
 		];
 	}
