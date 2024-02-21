@@ -326,7 +326,7 @@ class PipelineUtils {
 			$wrapperName = 'span';
 		} elseif (
 			in_array( DOMCompat::nodeName( $node ), [ 'style', 'script' ], true ) &&
-			count( $domFragment->childNodes ) > 1
+			( $node->nextSibling !== null )
 		) {
 			// <style>/<script> tags are not fostered, so if we're wrapping
 			// more than a single node, they aren't a good representation for
