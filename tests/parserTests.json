@@ -17,7 +17,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "9f2e4faea3ff1d1973b04d758e54aceaccaa0d0e",
+		"latestCommit": "200b9b6a01de10cb8bdcf3879e08f8af400fa609",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -29,7 +29,7 @@
 			},
 			"definitionLists.txt": {
 				"path": "tests/parser/definitionLists.txt",
-				"expectedSHA1": "8d5c067353d51e5747b9015128d85664230b0a9a"
+				"expectedSHA1": "8d5e29541a7ff2a2af26059133b44204f445da39"
 			},
 			"extLinks.txt": {
 				"path": "tests/parser/extLinks.txt",
@@ -49,7 +49,7 @@
 			},
 			"interwikiLinks.txt": {
 				"path": "tests/parser/interwikiLinks.txt",
-				"expectedSHA1": "34c471dd8e9b0191c6e8b1ef68719641c0362d56"
+				"expectedSHA1": "6f801656d18924c9dd507d01aa40561a62210238"
 			},
 			"legacyMedia.txt": {
 				"path": "tests/parser/legacyMedia.txt",
@@ -61,7 +61,7 @@
 			},
 			"magicWords.txt": {
 				"path": "tests/parser/magicWords.txt",
-				"expectedSHA1": "6f1fb19986cb9d7298d17a612989b63ea87344b9"
+				"expectedSHA1": "cd6033c581aa0fa8586c0a92d2f7886af83f2fd5"
 			},
 			"media.txt": {
 				"path": "tests/parser/media.txt",
@@ -69,7 +69,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "ae835684b5b9969f9aa125ad14e0c49c93542c95"
+				"expectedSHA1": "4da5e9a081bec26a937b9dd067346b919b1a5120"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
@@ -97,15 +97,15 @@
 			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
-				"expectedSHA1": "bb244c17ca5a95ce6bfdddbf999638ab8e9f7211"
+				"expectedSHA1": "ed4511b3f6aa190dc3b3968427e05fbfa48edf24"
 			},
 			"toc.txt": {
 				"path": "tests/parser/toc.txt",
-				"expectedSHA1": "9be2975c3f64aa1c491927ebdaa1599fcac5e383"
+				"expectedSHA1": "9581f00bdb79c284678d6e53ef67fec8d79f78d0"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
-				"expectedSHA1": "fe987026757b7ba520a58fd69c5ed52fb015ee6f"
+				"expectedSHA1": "7124df50b60baea1979089ac34d627808b6e6416"
 			}
 		}
 	},

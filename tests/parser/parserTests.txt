@@ -8541,11 +8541,18 @@ Expansion of multi-line templates in attribute values (T8255)
 #00FF00" about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"style":"background: \n#00FF00"},"sa":{"style":"background: {{1x|#00FF00}}"}}' data-mw='{"attribs":[[{"txt":"style"},{"html":"background: &lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&apos;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[24,38,null,null]}&apos; data-mw=&apos;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"#00FF00\"}},\"i\":0}}]}&apos;>\n#00FF00&lt;/span>"}]]}'>-</div>
 !! end
 
+### FIXME ptsync 2024-02-21: "multi-line" part of these tests appears to
+### have been lost at some point.
+
+### FIXME ptsync 2024-02-21: {{#if}} is not defined for core tests, so
+### this test should use a different parser function (maybe {{lc}}); marked
+### html/php+disabled for now.
+
 !! test
 Expansion of multi-line parser-functions in attribute values (T8255)
 !! wikitext
 <div style="background: {{#if:1|#00FF00|#FF00FF}}">-</div>
-!! html/php
+!! html/php+disabled
 <div style="background: #00FF00">-</div>
 !! html/parsoid+integrated
 <div style="background: 
