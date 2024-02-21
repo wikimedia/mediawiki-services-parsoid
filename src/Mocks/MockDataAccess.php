@@ -291,21 +291,27 @@ class MockDataAccess extends DataAccess {
 			'width' => 1941,
 			'height' => 220,
 			'bits' => 8,
-			'mime' => 'image/jpeg'
+			'mime' => 'image/jpeg',
+			'sha1' => '0000000000000000000000000000001', // Wikimedia\base_convert( '1', 16, 36, 31 )
+			'timestamp' => '20010115123500',
 		],
 		'Thumb.png' => [
 			'size' => 22589,
 			'width' => 135,
 			'height' => 135,
 			'bits' => 8,
-			'mime' => 'image/png'
+			'mime' => 'image/png',
+			'sha1' => '0000000000000000000000000000002', // Wikimedia\base_convert( '2', 16, 36, 31 )
+			'timestamp' => '20130225203040',
 		],
 		'Foobar.svg' => [
 			'size' => 12345,
 			'width' => 240,
 			'height' => 180,
 			'bits' => 24,
-			'mime' => 'image/svg+xml'
+			'mime' => 'image/svg+xml',
+			'sha1' => null, // Wikimedia\base_convert( '', 16, 36, 31 ) returns false
+			'timestamp' => '20010115123500',
 		],
 		'Bad.jpg' => [
 			'size' => 12345,
@@ -313,13 +319,17 @@ class MockDataAccess extends DataAccess {
 			'height' => 240,
 			'bits' => 24,
 			'mime' => 'image/jpeg',
+			'sha1' => '0000000000000000000000000000003', // Wikimedia\base_convert( '3', 16, 36, 31 )
+			'timestamp' => '20010115123500',
 		],
 		'LoremIpsum.djvu' => [
 			'size' => 3249,
 			'width' => 2480,
 			'height' => 3508,
 			'bits' => 8,
-			'mime' => 'image/vnd.djvu'
+			'mime' => 'image/vnd.djvu',
+			'sha1' => null, // Wikimedia\base_convert( '', 16, 36, 31 ) returns false
+			'timestamp' => '20010115123600',
 		],
 		'Video.ogv' => [
 			'size' => 12345,
@@ -335,6 +345,8 @@ class MockDataAccess extends DataAccess {
 				'1.2' => 'seek%3D1.2',
 				'85' => 'seek%3D3.3666666666667', # hard limited by duration
 			],
+			'sha1' => null, // Wikimedia\base_convert( '', 16, 36, 31 ) returns false
+			'timestamp' => '20010115123500',
 		],
 		'Audio.oga' => [
 			'size' => 12345,
@@ -346,6 +358,8 @@ class MockDataAccess extends DataAccess {
 			'duration' => 0.99875,
 			'mime' => 'audio/ogg; codecs="vorbis"',
 			'mediatype' => 'AUDIO',
+			'sha1' => null, // Wikimedia\base_convert( '', 16, 36, 31 ) returns false
+			'timestamp' => '20010115123500',
 		]
 	];
 
@@ -428,6 +442,8 @@ class MockDataAccess extends DataAccess {
 				'mediatype' => $mediatype,
 				'mime' => $props['mime'],
 				'badFile' => ( $normFileName === 'Bad.jpg' ),
+				'sha1' => $props['sha1'],
+				'timestamp' => $props['timestamp'],
 			];
 
 			if ( isset( $props['duration'] ) ) {

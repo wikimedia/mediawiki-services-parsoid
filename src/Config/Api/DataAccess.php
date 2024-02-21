@@ -176,7 +176,7 @@ class DataAccess extends IDataAccess {
 			'prop' => $propName,
 			"{$prefix}badfilecontexttitle" => $pageConfigTitle,
 			"{$prefix}prop" => implode( '|', [
-				'mediatype', 'mime', 'size', 'url', 'badfile'
+				'mediatype', 'mime', 'size', 'url', 'badfile', 'sha1', 'timestamp'
 			] )
 		];
 		if ( $prefix === 'vi' ) {

@@ -779,6 +779,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$needsTMHModules = $needsTMHModules || !$isImage;
 
+			$env->getMetadata()->addImage(
+				$attrs['title'],
+				$info['timestamp'] ?? null,
+				$info['sha1'] ?? null,
+			);
+
 			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $alt );
 			DOMCompat::getClassList( $elt )->add( 'mw-file-element' );
 

@@ -66,6 +66,8 @@ abstract class DataAccess {
 	 *  - thumburl: (string, optional) Thumbnail URL
 	 *  - thumbwidth: (int, optional) Thumbnail width
 	 *  - thumbheight: (int, optional) Thumbnail height
+	 *  - timestamp: (string, optional) Timestamp
+	 *  - sha1: (string, optional) SHA-1
 	 */
 	abstract public function getFileInfo( PageConfig $pageConfig, array $files ): array;
 

@@ -68,6 +68,7 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		];
 		$results = [
 			'Example.svg' => [
+				'timestamp' => '2008-11-01T11:08:14Z',
 				'size' => 10009,
 				'width' => 600,
 				'height' => 600,
@@ -75,12 +76,17 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 				'thumburl' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/100px-Example.svg.png',
 				'thumbwidth' => 100,
 				'thumbheight' => 100,
+				'responsiveUrls' => [
+					'1.5' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/150px-Example.svg.png',
+					'2' => '//upload.wikimedia.org/wikipedia/commons/thumb/8/84/Example.svg/200px-Example.svg.png',
+				],
 				'url' => '//upload.wikimedia.org/wikipedia/commons/8/84/Example.svg',
 				"descriptionurl" => "//commons.wikimedia.org/wiki/File:Example.svg",
 				"descriptionshorturl" => "//commons.wikimedia.org/w/index.php?curid=937952",
+				'sha1' => 'eb2a8759ddf38da50f60feb11f7208f5ec11daac',
 				'mime' => 'image/svg+xml',
 				'mediatype' => 'DRAWING',
-				'badFile' => false
+				'badFile' => false,
 			],
 			'DoesNotExist.png' => null,
 		];
