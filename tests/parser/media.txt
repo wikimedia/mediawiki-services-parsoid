@@ -4336,3 +4336,20 @@ wgParserEnableLegacyMediaDOM=false
 !! html/parsoid
 <p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"&lt;b data-parsoid=&apos;{\"dsr\":[18,29,3,3]}&apos;>thumb&lt;/b>"}'><a href="./File:Foobar.jpg" class="mw-file-description" title="thumb"><img alt="thumb" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span></p>
 !! end
+
+!! test
+Collect media metadata
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! options
+showmedia
+!! wikitext
+[[File:Foobar.jpg|123]]
+!! metadata
+images=Foobar.jpg
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"123"}'><a href="./File:Foobar.jpg" class="mw-file-description" title="123"><img alt="123" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a></span></p>
+!! html/php
+<p><span class="mw-default-size" typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="123"><img alt="123" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a></span>
+</p>
+!! end

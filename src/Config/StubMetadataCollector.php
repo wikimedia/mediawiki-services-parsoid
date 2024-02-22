@@ -155,7 +155,8 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @inheritDoc */
 	public function addImage( LinkTarget $name, $timestamp = null, $sha1 = null ): void {
-		$this->collect( 'images', '', $this->linkToString( $name ) );
+		$title = Title::newFromLinkTarget( $name, $this->siteConfig );
+		$this->collect( 'images', '', $title->getDBkey() );
 	}
 
 	/** @inheritDoc */
@@ -346,6 +347,13 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 */
 	public function getIndicators(): array {
 		return $this->get( 'indicators' );
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getImages(): array {
+		return $this->get( 'images', '' );
 	}
 
 	// helper functions for recording LinkTarget objects

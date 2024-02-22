@@ -573,6 +573,9 @@ class TestRunner {
 				$after[] = "$name=$content";
 			}
 		}
+		if ( isset( $opts['showmedia'] ) ) {
+			$after[] = 'images=' . implode( ', ', $output->getImages() );
+		}
 		if ( $metadataExpected === null ) {
 			// legacy format, add $before and $after to $doc
 			$body = DOMCompat::getBody( $doc );
