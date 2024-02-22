@@ -762,8 +762,6 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 					break;
 			}
 
-			$needsTMHModules = $needsTMHModules || !$isImage;
-
 			$alt = null;
 			$keepAltInDataMw = !$isImage || $errs;
 			$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'alt', $keepAltInDataMw );
@@ -778,6 +776,8 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				self::handleErrors( $container, $span, $errs, $dataMw, $alt );
 				continue;
 			}
+
+			$needsTMHModules = $needsTMHModules || !$isImage;
 
 			$elt = self::$handler( $env, $span, $attrs, $info, $dataMw, $container, $alt );
 			DOMCompat::getClassList( $elt )->add( 'mw-file-element' );
