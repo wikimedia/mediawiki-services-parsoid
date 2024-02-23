@@ -867,6 +867,7 @@ class DOMUtils {
 
 	/**
 	 * innerHTML and outerHTML are not defined on DocumentFragment.
+	 * @see DOMCompat::setInnerHTML() for the Element version
 	 *
 	 * @param DocumentFragment $frag
 	 * @param string $html

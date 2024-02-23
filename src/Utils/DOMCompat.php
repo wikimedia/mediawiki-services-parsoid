@@ -357,6 +357,7 @@ class DOMCompat {
 
 	/**
 	 * Get innerHTML.
+	 * @see DOMUtils::getFragmentInnerHTML() for the fragment version
 	 * @param Element $element
 	 * @return string
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-innerhtml-innerhtml
@@ -368,6 +369,7 @@ class DOMCompat {
 	/**
 	 * Set innerHTML.
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-innerhtml-innerhtml
+	 * @see DOMUtils::setFragmentInnerHTML() for the fragment version
 	 * @param Element $element
 	 * @param string $html
 	 */
