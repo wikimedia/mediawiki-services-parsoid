@@ -28,7 +28,6 @@ use Wikimedia\Parsoid\Ext\Indicator\Indicator;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
-use Wikimedia\Parsoid\Ext\Poem\Poem;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -98,8 +97,7 @@ abstract class SiteConfig {
 		Indicator::class,
 		// The following implementations will move to their own repositories
 		// soon, but for now are implemented in the Parsoid repo.
-		LST::class,
-		Poem::class
+		LST::class
 	];
 
 	/**

@@ -118,16 +118,5 @@
 				"expectedSHA1": "0c297b9d9cea97ed491e11a8cfcbbed2b525f0da"
 			}
 		}
-	},
-	"Poem": {
-		"project": "mediawiki/extensions/Poem",
-		"latestCommit": "9347a82b7a6fbe1ae4eeee49d5144b837a3aaed0",
-		"targets": {
-			"poemParserTests.txt": {
-				"repo": "Poem",
-				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "763b07ff73c231eb0399756ce0776c7a6244e3ed"
-			}
-		}
 	}
 }

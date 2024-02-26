@@ -104,7 +104,7 @@ class ScriptUtils {
 				'',
 				'      fostered, process-fixups, Normalize, pwrap, ',
 				'      media, migrate-metas, migrate-nls, dsr, tplwrap, ',
-				'      dom-unpack, pp:EXT (replace EXT with extension: Cite, Poem, etc)',
+				'      dom-unpack, pp:EXT (replace EXT with extension: Pre, Gallery, etc)',
 				'      fixups, strip-metas, lang-converter, redlinks, ',
 				'      displayspace, linkclasses, sections, convertoffsets',
 				'      i18n, cleanup',
