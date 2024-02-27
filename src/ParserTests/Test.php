@@ -882,10 +882,14 @@ class Test extends Item {
 			$haveIntegratedHTML ||
 			isset( $this->sections['html/parsoid+langconv'] ) ||
 			( isset( $opts['parsoid'] ) && !isset( $opts['parsoid']['normalizePhp'] ) );
+		$externalLinkTarget = ( $opts['externallinktarget'] ?? false ) ||
+			isset( $this->config['wgExternalLinkTarget'] ) ||
+			isset( $this->config['wgNoFollowLinks'] ) ||
+			isset( $this->config['wgNoFollowDomainExceptions'] );
 		$normOpts = [
 			'parsoidOnly' => $parsoidOnly,
 			'preserveIEW' => isset( $opts['parsoid']['preserveIEW'] ),
-			'externallinktarget' => $opts['externallinktarget'] ?? false,
+			'externallinktarget' => $externalLinkTarget,
 		];
 
 		if ( $normExpected === null ) {

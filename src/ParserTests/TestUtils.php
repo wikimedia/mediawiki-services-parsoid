@@ -123,6 +123,7 @@ class TestUtils {
 			$out = preg_replace( $unnecessaryAttribs . '&apos;.*?&apos;/u', '', $out ); // apos variant
 			if ( !$options['externallinktarget'] ) {
 				$out = preg_replace( '/ nofollow/', '', $out );
+				$out = str_replace( ' rel="nofollow"', '', $out );
 				$out = preg_replace( '/ noreferrer noopener/', '', $out );
 			}
 

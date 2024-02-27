@@ -1140,7 +1140,11 @@ class Env {
 		if (
 			$noFollowConfig['nofollow'] &&
 			!in_array( $ns, $noFollowConfig['nsexceptions'], true ) &&
-			!UrlUtils::matchesDomainList( $url, $noFollowConfig['domainexceptions'] )
+			!UrlUtils::matchesDomainList(
+				$url,
+				// Cast to an array because parserTests sets it as a string
+				(array)$noFollowConfig['domainexceptions']
+			)
 		) {
 			$attribs['rel'] = [ 'nofollow' ];
 		}

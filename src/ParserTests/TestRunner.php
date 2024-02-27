@@ -976,6 +976,26 @@ class TestRunner {
 				$this->siteConfig->responsiveReferences['threshold'],
 		];
 
+		if ( isset( $test->config['wgNoFollowLinks'] ) ) {
+			$this->siteConfig->setNoFollowConfig(
+				'nofollow', $test->config['wgNoFollowLinks']
+			);
+		}
+
+		if ( isset( $test->config['wgNoFollowDomainExceptions'] ) ) {
+			$this->siteConfig->setNoFollowConfig(
+				'domainexceptions',
+				$test->config['wgNoFollowDomainExceptions']
+			);
+		}
+
+		// FIXME: Redundant with $testOpts['externallinktarget'] below
+		if ( isset( $test->config['wgExternalLinkTarget'] ) ) {
+			$this->siteConfig->setExternalLinkTarget(
+				$test->config['wgExternalLinkTarget']
+			);
+		}
+
 		// Process test-specific options
 		if ( $testOpts ) {
 			Assert::invariant( !isset( $testOpts['extensions'] ),
@@ -1029,12 +1049,6 @@ class TestRunner {
 
 		$runner = $this;
 		$test->testAllModes( $targetModes, $options, Closure::fromCallable( [ $this, 'runTest' ] ) );
-
-		// clean-up
-		// if/when we remove the "reset()" before every test, this will become necessary
-		if ( isset( $testOpts['externallinktarget'] ) ) {
-			$this->siteConfig->setExternalLinkTarget( false );
-		}
 	}
 
 	/**

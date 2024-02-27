@@ -41,6 +41,9 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var string|false */
 	private $externalLinkTarget = false;
 
+	/** @var ?array */
+	private $noFollowConfig;
+
 	/** @inheritDoc */
 	public function __construct( ApiHelper $api, array $opts ) {
 		$logger = self::createLogger();
@@ -108,6 +111,7 @@ class SiteConfig extends ApiSiteConfig {
 		$this->unregisterParserTestExtension( new I18nTag() );
 		$this->thumbsize = null;
 		$this->externalLinkTarget = false;
+		$this->noFollowConfig = null;
 	}
 
 	private function deleteNamespace( string $name ): void {
@@ -286,5 +290,25 @@ class SiteConfig extends ApiSiteConfig {
 	 */
 	public function getExternalLinkTarget() {
 		return $this->externalLinkTarget;
+	}
+
+	/**
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	public function setNoFollowConfig( string $key, $value ): void {
+		$noFollowConfig = $this->getNoFollowConfig();
+		$noFollowConfig[$key] = $value;
+		$this->noFollowConfig = $noFollowConfig;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getNoFollowConfig(): array {
+		if ( $this->noFollowConfig === null ) {
+			$this->noFollowConfig = parent::getNoFollowConfig();
+		}
+		return $this->noFollowConfig;
 	}
 }
