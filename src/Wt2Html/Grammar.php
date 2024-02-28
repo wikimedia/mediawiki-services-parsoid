@@ -30,6 +30,24 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Wikitext\Consts;
 
 
+
+class GrammarCacheEntry {
+	public $nextPos;
+	public $result;
+	public $preproc;
+	public $th;
+
+
+	public function __construct( $nextPos, $result, $preproc, $th ) {
+		$this->nextPos = $nextPos;
+		$this->result = $result;
+		$this->preproc = $preproc;
+		$this->th = $th;
+
+	}
+}
+
+
 class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	// initializer
 	
@@ -2034,11 +2052,11 @@ private function parsestart($silence, &$param_preproc) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -2073,9 +2091,12 @@ private function parsestart($silence, &$param_preproc) {
     if (!$silence) {$this->fail(1);}
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -2083,13 +2104,13 @@ private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -2188,10 +2209,12 @@ private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$
     if (!$silence) {$this->fail(2);}
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseurl($silence, &$param_preproc) {
@@ -2199,11 +2222,11 @@ private function parseurl($silence, &$param_preproc) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -2441,9 +2464,12 @@ private function parseurl($silence, &$param_preproc) {
     $r1 = $this->a13($r4, $r5, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parserow_syntax_table_args($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -2451,13 +2477,13 @@ private function parserow_syntax_table_args($silence, $boolParams, &$param_prepr
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -2500,10 +2526,12 @@ private function parserow_syntax_table_args($silence, $boolParams, &$param_prepr
     $r1 = $this->a14($r4, $r5, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_attributes($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -2511,13 +2539,13 @@ private function parsetable_attributes($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = [];
   for (;;) {
     // start choice_1
@@ -2555,10 +2583,12 @@ private function parsetable_attributes($silence, $boolParams, &$param_preproc, &
     }
   }
   // free $r2
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsegeneric_newline_attributes($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -2566,13 +2596,13 @@ private function parsegeneric_newline_attributes($silence, $boolParams, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = [];
   for (;;) {
     $r2 = $this->parsegeneric_newline_attribute(true, $boolParams, $param_preproc, $param_th);
@@ -2583,10 +2613,12 @@ private function parsegeneric_newline_attributes($silence, $boolParams, &$param_
     }
   }
   // free $r2
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
@@ -2594,11 +2626,11 @@ private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -2630,9 +2662,12 @@ private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
     $this->savedPos = $p2;
     $r1 = $this->a16($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -2640,13 +2675,13 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -2837,10 +2872,12 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
     if (!$silence) {$this->fail(8);}
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselist_item($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -2848,13 +2885,13 @@ private function parselist_item($silence, $boolParams, &$param_preproc, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $r1 = $this->parsedtdd($silence, $boolParams, $param_preproc, $param_th);
   if ($r1!==self::$FAILED) {
@@ -2866,10 +2903,12 @@ private function parselist_item($silence, $boolParams, &$param_preproc, &$param_
   }
   $r1 = $this->parseli($silence, $boolParams, $param_preproc, $param_th);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetlb($silence, &$param_preproc) {
@@ -2877,11 +2916,11 @@ private function parsetlb($silence, &$param_preproc) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -2912,9 +2951,12 @@ private function parsetlb($silence, &$param_preproc) {
     if (!$silence) {$this->fail(9);}
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenewlineToken($silence) {
@@ -2922,9 +2964,9 @@ private function parsenewlineToken($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -2933,9 +2975,12 @@ private function parsenewlineToken($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a26();
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsespace($silence) {
@@ -2943,9 +2988,9 @@ private function parsespace($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $r1 = $this->input[$this->currPos] ?? '';
@@ -2955,9 +3000,12 @@ private function parsespace($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(10);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsecomment($silence) {
@@ -2965,9 +3013,9 @@ private function parsecomment($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -3059,9 +3107,12 @@ private function parsecomment($silence) {
     $r1 = $this->a27($r5, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsepipe($silence) {
@@ -3069,9 +3120,9 @@ private function parsepipe($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -3091,9 +3142,12 @@ private function parsepipe($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseurl_protocol($silence) {
@@ -3101,9 +3155,9 @@ private function parseurl_protocol($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -3196,9 +3250,12 @@ private function parseurl_protocol($silence) {
     $r1 = $this->a29($r4);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseipv6urladdr($silence) {
@@ -3206,9 +3263,9 @@ private function parseipv6urladdr($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p1 = $this->currPos;
@@ -3260,9 +3317,12 @@ private function parseipv6urladdr($silence) {
   }
   // free $p3
   // free $p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r2;
 }
 private function discardinline_breaks($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -3270,13 +3330,13 @@ private function discardinline_breaks($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start seq_1
   $p1 = $this->currPos;
   $p3 = $this->currPos;
@@ -3313,10 +3373,12 @@ private function discardinline_breaks($silence, $boolParams, &$param_preproc, &$
   $r2 = true;
   seq_1:
   // free $r2,$p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r2;
 }
 private function parseno_punctuation_char($silence) {
@@ -3324,9 +3386,9 @@ private function parseno_punctuation_char($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $r1 = self::charAt($this->input, $this->currPos);
@@ -3336,9 +3398,12 @@ private function parseno_punctuation_char($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(22);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetplarg_or_template($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -3346,13 +3411,13 @@ private function parsetplarg_or_template($silence, $boolParams, &$param_th, &$pa
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -3382,10 +3447,12 @@ private function parsetplarg_or_template($silence, $boolParams, &$param_th, &$pa
     $r1 = $this->a31($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsehtmlentity($silence) {
@@ -3393,9 +3460,9 @@ private function parsehtmlentity($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -3406,9 +3473,12 @@ private function parsehtmlentity($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a32($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseoptional_spaces($silence) {
@@ -3416,9 +3486,9 @@ private function parseoptional_spaces($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p1 = $this->currPos;
@@ -3440,9 +3510,12 @@ private function parseoptional_spaces($silence) {
     $r2 = self::$FAILED;
   }
   // free $p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r2;
 }
 private function discardpipe($silence) {
@@ -3450,9 +3523,9 @@ private function discardpipe($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -3472,9 +3545,12 @@ private function discardpipe($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -3482,13 +3558,13 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -3567,10 +3643,12 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
     $r1 = $this->a36($r4, $r5, $r7, $r8, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardoptionalSpaceToken($silence) {
@@ -3578,9 +3656,9 @@ private function discardoptionalSpaceToken($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -3591,9 +3669,12 @@ private function discardoptionalSpaceToken($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a37($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsebroken_table_attribute_name_char($silence) {
@@ -3601,9 +3682,9 @@ private function parsebroken_table_attribute_name_char($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -3619,9 +3700,12 @@ private function parsebroken_table_attribute_name_char($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a38($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsegeneric_newline_attribute($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -3629,13 +3713,13 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -3729,10 +3813,12 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
     $r1 = $this->a41($r4, $r5, $r7, $r9);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseextlink_nonipv6url($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -3740,18 +3826,20 @@ private function parseextlink_nonipv6url($silence, $boolParams, &$param_preproc,
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = $this->parseextlink_nonipv6url_parameterized($silence, $boolParams & ~0x800, $param_preproc, $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardspace($silence) {
@@ -3759,9 +3847,9 @@ private function discardspace($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $r1 = $this->input[$this->currPos] ?? '';
@@ -3771,9 +3859,12 @@ private function discardspace($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(10);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardunispace($silence) {
@@ -3781,9 +3872,9 @@ private function discardunispace($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $r1 = self::charAt($this->input, $this->currPos);
@@ -3793,9 +3884,12 @@ private function discardunispace($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(25);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseinlineline($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -3803,13 +3897,13 @@ private function parseinlineline($silence, $boolParams, &$param_preproc, &$param
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -3899,10 +3993,12 @@ private function parseinlineline($silence, $boolParams, &$param_preproc, &$param
     $this->savedPos = $p2;
     $r1 = $this->a43($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -3910,13 +4006,13 @@ private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -4032,10 +4128,12 @@ private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
     $r1 = $this->a46($r4, $r15, $r16, $r17);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -4043,13 +4141,13 @@ private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$pa
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -4179,10 +4277,12 @@ private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$pa
     $r1 = $this->a47($r4, $r5, $r9);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseli($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -4190,13 +4290,13 @@ private function parseli($silence, $boolParams, &$param_preproc, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -4247,10 +4347,12 @@ private function parseli($silence, $boolParams, &$param_preproc, &$param_th) {
     $r1 = $this->a48($r4, $r5);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardeof($silence) {
@@ -4258,9 +4360,9 @@ private function discardeof($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $this->savedPos = $this->currPos;
@@ -4270,9 +4372,12 @@ private function discardeof($silence) {
   } else {
     $r1 = self::$FAILED;
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -4280,13 +4385,13 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -4381,10 +4486,12 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   }
   // free $p4
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardnewline($silence) {
@@ -4392,9 +4499,9 @@ private function discardnewline($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -4414,9 +4521,12 @@ private function discardnewline($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -4424,13 +4534,13 @@ private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -4700,10 +4810,12 @@ private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_
   // free $p6
   $r1 = $this->parsebroken_template($silence, $param_preproc);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseraw_htmlentity($silence) {
@@ -4711,9 +4823,9 @@ private function parseraw_htmlentity($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -4772,9 +4884,12 @@ private function parseraw_htmlentity($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a53($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseoptionalSpaceToken($silence) {
@@ -4782,9 +4897,9 @@ private function parseoptionalSpaceToken($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -4795,9 +4910,12 @@ private function parseoptionalSpaceToken($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a37($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_attribute_name($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -4805,13 +4923,13 @@ private function parsetable_attribute_name($silence, $boolParams, &$param_prepro
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -4981,10 +5099,12 @@ private function parsetable_attribute_name($silence, $boolParams, &$param_prepro
     $r1 = $this->a57($r4, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -4992,13 +5112,13 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -5259,10 +5379,12 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
   }
   // free $p6
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardspace_or_newline_or_solidus($silence) {
@@ -5270,9 +5392,9 @@ private function discardspace_or_newline_or_solidus($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -5318,9 +5440,12 @@ private function discardspace_or_newline_or_solidus($silence) {
   }
   // free $p3
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsegeneric_attribute_name($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -5328,13 +5453,13 @@ private function parsegeneric_attribute_name($silence, $boolParams, &$param_prep
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -5477,10 +5602,12 @@ private function parsegeneric_attribute_name($silence, $boolParams, &$param_prep
     $r1 = $this->a57($r4, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardspace_or_newline($silence) {
@@ -5488,9 +5615,9 @@ private function discardspace_or_newline($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   if (strspn($this->input, " \x09\x0a\x0d\x0c", $this->currPos, 1) !== 0) {
@@ -5499,9 +5626,12 @@ private function discardspace_or_newline($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(37);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -5509,13 +5639,13 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -5798,10 +5928,12 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
   }
   // free $p6
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -5809,13 +5941,13 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -5936,10 +6068,12 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -5947,13 +6081,13 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = [];
   for (;;) {
     // start choice_1
@@ -6076,10 +6210,12 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     $r1 = self::$FAILED;
   }
   // free $r2
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseinline_element($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6087,13 +6223,13 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -6301,10 +6437,12 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   }
   // free $p15
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardlist_char($silence) {
@@ -6312,9 +6450,9 @@ private function discardlist_char($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   if (strspn($this->input, "*#:;", $this->currPos, 1) !== 0) {
@@ -6323,9 +6461,12 @@ private function discardlist_char($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(42);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselist_char($silence) {
@@ -6333,9 +6474,9 @@ private function parselist_char($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   if (strspn($this->input, "*#:;", $this->currPos, 1) !== 0) {
@@ -6344,9 +6485,12 @@ private function parselist_char($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(42);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseinlineline_break_on_colon($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6354,18 +6498,20 @@ private function parseinlineline_break_on_colon($silence, $boolParams, &$param_p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = $this->parseinlineline($silence, $boolParams | 0x1000, $param_preproc, $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardeolf($silence) {
@@ -6373,9 +6519,9 @@ private function discardeolf($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -6385,9 +6531,12 @@ private function discardeolf($silence) {
   }
   $r1 = $this->discardeof($silence);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_line($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6395,13 +6544,13 @@ private function parsetable_line($silence, $boolParams, &$param_preproc, &$param
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -6455,10 +6604,12 @@ private function parsetable_line($silence, $boolParams, &$param_preproc, &$param
     $r1 = $this->a67($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6466,13 +6617,13 @@ private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start seq_1
   $p1 = $this->currPos;
   // start choice_1
@@ -6499,10 +6650,12 @@ private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
   $r2 = [$r3,$r4];
   seq_1:
   // free $r2,$p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r2;
 }
 private function discardcomment($silence) {
@@ -6510,9 +6663,9 @@ private function discardcomment($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -6604,9 +6757,12 @@ private function discardcomment($silence) {
     $r1 = $this->a27($r5, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardsof($silence) {
@@ -6614,9 +6770,9 @@ private function discardsof($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $this->savedPos = $this->currPos;
@@ -6626,9 +6782,12 @@ private function discardsof($silence) {
   } else {
     $r1 = self::$FAILED;
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseredirect($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -6636,13 +6795,13 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -6730,10 +6889,12 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
     $r1 = $this->a70($r4, $r5, $r7, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsesol_transparent($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6741,13 +6902,13 @@ private function parsesol_transparent($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $r1 = $this->parsecomment($silence);
   if ($r1!==self::$FAILED) {
@@ -6763,10 +6924,12 @@ private function parsesol_transparent($silence, $boolParams, &$param_preproc, &$
   }
   $r1 = $this->parsebehavior_switch($silence);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseblock_line($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6774,13 +6937,13 @@ private function parseblock_line($silence, $boolParams, &$param_preproc, &$param
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $r1 = $this->parseheading($silence, $boolParams, $param_preproc, $param_th);
   if ($r1!==self::$FAILED) {
@@ -6830,10 +6993,12 @@ private function parseblock_line($silence, $boolParams, &$param_preproc, &$param
   }
   // free $p3
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseblock_lines($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -6841,13 +7006,13 @@ private function parseblock_lines($silence, $boolParams, &$param_preproc, &$para
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -6897,10 +7062,12 @@ private function parseblock_lines($silence, $boolParams, &$param_preproc, &$para
     $r1 = $this->a73($r4, $r5, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardtplarg($silence, $boolParams, &$param_th) {
@@ -6908,15 +7075,18 @@ private function discardtplarg($silence, $boolParams, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
+  $saved_th=$param_th;
   $r1 = $this->discardtplarg_preproc($silence, $boolParams, self::newRef("}}"), $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetemplate($silence, $boolParams, &$param_th) {
@@ -6924,15 +7094,18 @@ private function parsetemplate($silence, $boolParams, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
+  $saved_th=$param_th;
   $r1 = $this->parsetemplate_preproc($silence, $boolParams, self::newRef("}}"), $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsebroken_template($silence, &$param_preproc) {
@@ -6940,11 +7113,11 @@ private function parsebroken_template($silence, &$param_preproc) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -6966,9 +7139,12 @@ private function parsebroken_template($silence, &$param_preproc) {
     $r1 = $this->a74($param_preproc, $r4);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetplarg($silence, $boolParams, &$param_th) {
@@ -6976,15 +7152,18 @@ private function parsetplarg($silence, $boolParams, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
+  $saved_th=$param_th;
   $r1 = $this->parsetplarg_preproc($silence, $boolParams, self::newRef("}}"), $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardwikilink($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -6992,13 +7171,13 @@ private function discardwikilink($silence, $boolParams, &$param_th, &$param_prep
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   // start choice_1
   $r1 = $this->discardwikilink_preproc($silence, $boolParams, self::newRef("]]"), $param_th);
   if ($r1!==self::$FAILED) {
@@ -7006,10 +7185,12 @@ private function discardwikilink($silence, $boolParams, &$param_th, &$param_prep
   }
   $r1 = $this->discardbroken_wikilink($silence, $boolParams, $param_preproc, $param_th);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsedirective($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7017,13 +7198,13 @@ private function parsedirective($silence, $boolParams, &$param_preproc, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $r1 = $this->parsecomment($silence);
   if ($r1!==self::$FAILED) {
@@ -7099,10 +7280,12 @@ private function parsedirective($silence, $boolParams, &$param_preproc, &$param_
   // free $p4
   $r1 = $this->parseinclude_limits($silence, $boolParams, $param_preproc, $param_th);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseinline_xmlish_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7110,13 +7293,13 @@ private function parseinline_xmlish_tag($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -7153,10 +7336,12 @@ private function parseinline_xmlish_tag($silence, $boolParams, &$param_preproc, 
     $r1 = $this->a77($r5);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_attribute_preprocessor_text_single($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7164,13 +7349,13 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -7248,10 +7433,12 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_attribute_preprocessor_text_double($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7259,13 +7446,13 @@ private function parsetable_attribute_preprocessor_text_double($silence, $boolPa
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -7343,10 +7530,12 @@ private function parsetable_attribute_preprocessor_text_double($silence, $boolPa
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_attribute_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7354,13 +7543,13 @@ private function parsetable_attribute_preprocessor_text($silence, $boolParams, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -7441,10 +7630,12 @@ private function parsetable_attribute_preprocessor_text($silence, $boolParams, &
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseless_than($silence, $boolParams) {
@@ -7452,9 +7643,9 @@ private function parseless_than($silence, $boolParams) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p1 = $this->currPos;
@@ -7486,9 +7677,12 @@ private function parseless_than($silence, $boolParams) {
   }
   // free $p3
   // free $p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r2;
 }
 private function parseattribute_preprocessor_text_single($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7496,13 +7690,13 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -7601,10 +7795,12 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseattribute_preprocessor_text_double($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7612,13 +7808,13 @@ private function parseattribute_preprocessor_text_double($silence, $boolParams, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -7717,10 +7913,12 @@ private function parseattribute_preprocessor_text_double($silence, $boolParams, 
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseattribute_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7728,13 +7926,13 @@ private function parseattribute_preprocessor_text($silence, $boolParams, &$param
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -7836,10 +8034,12 @@ private function parseattribute_preprocessor_text($silence, $boolParams, &$param
     $this->savedPos = $p2;
     $r1 = $this->a60($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseautolink($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -7847,13 +8047,13 @@ private function parseautolink($silence, $boolParams, &$param_preproc, &$param_t
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -7898,10 +8098,12 @@ private function parseautolink($silence, $boolParams, &$param_preproc, &$param_t
     $r1 = $this->a24($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsebehavior_switch($silence) {
@@ -7909,9 +8111,9 @@ private function parsebehavior_switch($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -7958,9 +8160,12 @@ private function parsebehavior_switch($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a79($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetext_char($silence) {
@@ -7968,9 +8173,9 @@ private function parsetext_char($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   if (strcspn($this->input, "-'<[{\x0a\x0d:;]}|!=", $this->currPos, 1) !== 0) {
@@ -7979,9 +8184,12 @@ private function parsetext_char($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(54);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -7989,13 +8197,13 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -8310,10 +8518,12 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   }
   // free $p8
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsewikilink($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -8321,13 +8531,13 @@ private function parsewikilink($silence, $boolParams, &$param_th, &$param_prepro
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   // start choice_1
   $r1 = $this->parsewikilink_preproc($silence, $boolParams, self::newRef("]]"), $param_th);
   if ($r1!==self::$FAILED) {
@@ -8335,10 +8545,12 @@ private function parsewikilink($silence, $boolParams, &$param_th, &$param_prepro
   }
   $r1 = $this->parsebroken_wikilink($silence, $boolParams, $param_preproc, $param_th);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsequote($silence) {
@@ -8346,9 +8558,9 @@ private function parsequote($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -8397,9 +8609,12 @@ private function parsequote($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a80($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_content_line($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -8407,13 +8622,13 @@ private function parsetable_content_line($silence, $boolParams, &$param_preproc,
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start seq_1
   $p1 = $this->currPos;
   $r3 = [];
@@ -8455,10 +8670,12 @@ private function parsetable_content_line($silence, $boolParams, &$param_preproc,
   $r2 = [$r3,$r4];
   seq_1:
   // free $r2,$p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r2;
 }
 private function parsetable_end_tag($silence) {
@@ -8466,9 +8683,9 @@ private function parsetable_end_tag($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -8527,9 +8744,12 @@ private function parsetable_end_tag($silence) {
     $r1 = $this->a81($r4, $r5, $r7, $r8);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseempty_line_with_comments($silence) {
@@ -8537,9 +8757,9 @@ private function parseempty_line_with_comments($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -8630,9 +8850,12 @@ private function parseempty_line_with_comments($silence) {
     $r1 = $this->a83($r4, $r5, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsesol_prefix($silence) {
@@ -8640,9 +8863,9 @@ private function parsesol_prefix($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -8661,9 +8884,12 @@ private function parsesol_prefix($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseredirect_word($silence) {
@@ -8671,9 +8897,9 @@ private function parseredirect_word($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p1 = $this->currPos;
@@ -8776,9 +9002,12 @@ private function parseredirect_word($silence) {
   }
   // free $p3
   // free $p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r2;
 }
 private function parseinclude_limits($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -8786,13 +9015,13 @@ private function parseinclude_limits($silence, $boolParams, &$param_preproc, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -8886,10 +9115,12 @@ private function parseinclude_limits($silence, $boolParams, &$param_preproc, &$p
     $r1 = $this->a88($r11, /*sol_il*/($boolParams & 0x2000) !== 0);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -8897,13 +9128,13 @@ private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -8930,10 +9161,12 @@ private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$p
     $r1 = $this->a90($r4);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseheading($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -8941,13 +9174,13 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -9103,10 +9336,12 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
     $r1 = $this->a24($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -9114,13 +9349,13 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -9198,10 +9433,12 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
     $r1 = $this->a97($r5, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -9209,13 +9446,13 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -9399,10 +9636,12 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     $r1 = $this->a102($r5, $r7, $r8);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -9410,13 +9649,13 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -9663,10 +9902,12 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
   // free $p10
   // free $p3
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -9674,13 +9915,13 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -9864,10 +10105,12 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     $r1 = $this->a102($r5, $r7, $r8);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardwikilink_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -9875,13 +10118,13 @@ private function discardwikilink_preproc($silence, $boolParams, &$param_preproc,
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -9951,10 +10194,12 @@ private function discardwikilink_preproc($silence, $boolParams, &$param_preproc,
     $r1 = $this->a109($r5, $r7, $r8, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -9962,13 +10207,13 @@ private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -10039,10 +10284,12 @@ private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, 
     $r1 = $this->a111($param_preproc, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseextension_annotation_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -10050,13 +10297,13 @@ private function parseextension_annotation_tag($silence, $boolParams, &$param_pr
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -10120,10 +10367,12 @@ private function parseextension_annotation_tag($silence, $boolParams, &$param_pr
     $r1 = $this->a77($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsexmlish_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -10131,13 +10380,13 @@ private function parsexmlish_tag($silence, $boolParams, &$param_preproc, &$param
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -10237,10 +10486,12 @@ private function parsexmlish_tag($silence, $boolParams, &$param_preproc, &$param
     $r1 = $this->a116($r5, $r6, /*annOrExtTag*/($boolParams & 0x2) !== 0, $r8, $r9);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetvar_old_syntax_closing_HACK($silence) {
@@ -10248,9 +10499,9 @@ private function parsetvar_old_syntax_closing_HACK($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -10282,9 +10533,12 @@ private function parsetvar_old_syntax_closing_HACK($silence) {
     $r1 = $this->a118();
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -10292,13 +10546,13 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -10551,10 +10805,12 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
     $r1 = $this->a122($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseautoref($silence) {
@@ -10562,9 +10818,9 @@ private function parseautoref($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -10648,9 +10904,12 @@ private function parseautoref($silence) {
     $r1 = $this->a123($r4, $r5, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseisbn($silence) {
@@ -10658,9 +10917,9 @@ private function parseisbn($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -10822,9 +11081,12 @@ private function parseisbn($silence) {
     $r1 = $this->a126($r5, $r6, $r16);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardbehavior_text($silence) {
@@ -10832,9 +11094,9 @@ private function discardbehavior_text($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p1 = $this->currPos;
@@ -10892,9 +11154,12 @@ private function discardbehavior_text($silence) {
   }
   // free $r3
   // free $p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r2;
 }
 private function parselang_variant($silence, $boolParams, &$param_th, &$param_preproc) {
@@ -10902,13 +11167,13 @@ private function parselang_variant($silence, $boolParams, &$param_th, &$param_pr
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_th=$param_th;
-      $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
   // start choice_1
   $r1 = $this->parselang_variant_preproc($silence, $boolParams & ~0x8, self::newRef("}-"), $param_th);
   if ($r1!==self::$FAILED) {
@@ -10916,10 +11181,12 @@ private function parselang_variant($silence, $boolParams, &$param_th, &$param_pr
   }
   $r1 = $this->parsebroken_lang_variant($silence, $param_preproc);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -10927,13 +11194,13 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -11003,10 +11270,12 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
     $r1 = $this->a109($r5, $r7, $r8, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11014,13 +11283,13 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -11091,10 +11360,12 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
     $r1 = $this->a111($param_preproc, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_heading_tags($silence, $boolParams, &$param_preproc) {
@@ -11102,15 +11373,18 @@ private function parsetable_heading_tags($silence, $boolParams, &$param_preproc)
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $r1 = $this->parsetable_heading_tags_parameterized($silence, $boolParams, $param_preproc, self::newRef(true));
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11118,13 +11392,13 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -11214,10 +11488,12 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
     $r1 = $this->a129($r5, $r6, $r8, $r9, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_data_tags($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11225,13 +11501,13 @@ private function parsetable_data_tags($silence, $boolParams, &$param_preproc, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -11298,10 +11574,12 @@ private function parsetable_data_tags($silence, $boolParams, &$param_preproc, &$
     $r1 = $this->a131($r5, $r8, $r9, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11309,13 +11587,13 @@ private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -11377,10 +11655,12 @@ private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, 
     $r1 = $this->a133($r5, $r7, $r8, $r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenewline($silence) {
@@ -11388,9 +11668,9 @@ private function parsenewline($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -11410,9 +11690,12 @@ private function parsenewline($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11420,13 +11703,13 @@ private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start seq_1
   $p1 = $this->currPos;
   // start choice_1
@@ -11457,10 +11740,12 @@ private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) 
   $r2 = true;
   seq_1:
   // free $r2,$p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r2;
 }
 private function parsetemplate_param_value($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11468,13 +11753,13 @@ private function parsetemplate_param_value($silence, $boolParams, &$param_prepro
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = $this->parsetemplate_param_text($silence, $boolParams & ~0x20, $param_preproc, $param_th);
   // tpt <- $r3
@@ -11483,10 +11768,12 @@ private function parsetemplate_param_value($silence, $boolParams, &$param_prepro
     $this->savedPos = $p2;
     $r1 = $this->a134($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardnl_comment_space($silence) {
@@ -11494,9 +11781,9 @@ private function discardnl_comment_space($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -11510,9 +11797,12 @@ private function discardnl_comment_space($silence) {
   }
   $r1 = $this->discardcomment($silence);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenl_comment_space($silence) {
@@ -11520,9 +11810,9 @@ private function parsenl_comment_space($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -11536,9 +11826,12 @@ private function parsenl_comment_space($silence) {
   }
   $r1 = $this->parsecomment($silence);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11546,13 +11839,13 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -11641,10 +11934,12 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   }
   // free $p7
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11652,13 +11947,13 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -11782,10 +12077,12 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
     $this->savedPos = $p2;
     $r1 = $this->a141($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsewikilink_content($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -11793,13 +12090,13 @@ private function parsewikilink_content($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = [];
   for (;;) {
     $p3 = $this->currPos;
@@ -11838,10 +12135,12 @@ private function parsewikilink_content($silence, $boolParams, &$param_preproc, &
     // free $p4
   }
   // free $r2
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetag_name($silence) {
@@ -11849,9 +12148,9 @@ private function parsetag_name($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p1 = $this->currPos;
@@ -11873,9 +12172,12 @@ private function parsetag_name($silence) {
   }
   // free $r3
   // free $p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r2;
 }
 private function parsespace_or_nbsp($silence) {
@@ -11883,9 +12185,9 @@ private function parsespace_or_nbsp($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -11937,9 +12239,12 @@ private function parsespace_or_nbsp($silence) {
   }
   // free $p3
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardend_of_word($silence) {
@@ -11947,9 +12252,9 @@ private function discardend_of_word($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -11972,9 +12277,12 @@ private function discardend_of_word($silence) {
   }
   // free $p2
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsespace_or_nbsp_or_dash($silence) {
@@ -11982,9 +12290,9 @@ private function parsespace_or_nbsp_or_dash($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -12000,9 +12308,12 @@ private function parsespace_or_nbsp_or_dash($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardtext_char($silence) {
@@ -12010,9 +12321,9 @@ private function discardtext_char($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   if (strcspn($this->input, "-'<[{\x0a\x0d:;]}|!=", $this->currPos, 1) !== 0) {
@@ -12021,9 +12332,12 @@ private function discardtext_char($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(54);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12031,13 +12345,13 @@ private function parselang_variant_preproc($silence, $boolParams, &$param_prepro
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -12196,10 +12510,12 @@ private function parselang_variant_preproc($silence, $boolParams, &$param_prepro
     $r1 = $this->a154($r4, $r6, $r13, $r21);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsebroken_lang_variant($silence, &$param_preproc) {
@@ -12207,11 +12523,11 @@ private function parsebroken_lang_variant($silence, &$param_preproc) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
+  $saved_preproc=$param_preproc;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -12232,9 +12548,12 @@ private function parsebroken_lang_variant($silence, &$param_preproc) {
     $r1 = $this->a155($r4, $param_preproc);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_heading_tags_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12242,13 +12561,13 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, &$
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -12316,10 +12635,12 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, &$
     $r1 = $this->a157($r5, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12327,13 +12648,13 @@ private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -12387,10 +12708,12 @@ private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$p
     $r1 = $this->a159($r6, $r7, $r8);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12398,13 +12721,13 @@ private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = [];
   for (;;) {
     $p3 = $this->currPos;
@@ -12467,10 +12790,12 @@ private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
     // free $p4
   }
   // free $r2
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenested_block_in_table($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12478,13 +12803,13 @@ private function parsenested_block_in_table($silence, $boolParams, &$param_prepr
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -12580,10 +12905,12 @@ private function parsenested_block_in_table($silence, $boolParams, &$param_prepr
     $r1 = $this->a161($r12);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardempty_line_with_comments($silence) {
@@ -12591,9 +12918,9 @@ private function discardempty_line_with_comments($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -12684,9 +13011,12 @@ private function discardempty_line_with_comments($silence) {
     $r1 = $this->a83($r4, $r5, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardsol_prefix($silence) {
@@ -12694,9 +13024,9 @@ private function discardsol_prefix($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -12715,9 +13045,12 @@ private function discardsol_prefix($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardsol_transparent($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12725,13 +13058,13 @@ private function discardsol_transparent($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $r1 = $this->discardcomment($silence);
   if ($r1!==self::$FAILED) {
@@ -12747,10 +13080,12 @@ private function discardsol_transparent($silence, $boolParams, &$param_preproc, 
   }
   $r1 = $this->discardbehavior_switch($silence);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetemplate_param_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12758,13 +13093,13 @@ private function parsetemplate_param_text($silence, $boolParams, &$param_preproc
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -12791,10 +13126,12 @@ private function parsetemplate_param_text($silence, $boolParams, &$param_preproc
     $this->savedPos = $p2;
     $r1 = $this->a162($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardnewlineToken($silence) {
@@ -12802,9 +13139,9 @@ private function discardnewlineToken($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -12813,9 +13150,12 @@ private function discardnewlineToken($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a26();
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetemplate_param_name($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12823,13 +13163,13 @@ private function parsetemplate_param_name($silence, $boolParams, &$param_preproc
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $r1 = $this->parsetemplate_param_text($silence, $boolParams | 0x20, $param_preproc, $param_th);
   if ($r1!==self::$FAILED) {
@@ -12849,10 +13189,12 @@ private function parsetemplate_param_name($silence, $boolParams, &$param_preproc
   }
   // free $p3
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselink_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12860,18 +13202,20 @@ private function parselink_text($silence, $boolParams, &$param_preproc, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = $this->parselink_text_parameterized($silence, ($boolParams & ~0x20) | 0x800, $param_preproc, $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseunispace($silence) {
@@ -12879,9 +13223,9 @@ private function parseunispace($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $r1 = self::charAt($this->input, $this->currPos);
@@ -12891,9 +13235,12 @@ private function parseunispace($silence) {
     $r1 = self::$FAILED;
     if (!$silence) {$this->fail(25);}
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parseopt_lang_variant_flags($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12901,13 +13248,13 @@ private function parseopt_lang_variant_flags($silence, $boolParams, &$param_prep
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $p4 = $this->currPos;
   // start seq_1
@@ -12943,10 +13290,12 @@ private function parseopt_lang_variant_flags($silence, $boolParams, &$param_prep
     $this->savedPos = $p2;
     $r1 = $this->a165($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -12954,13 +13303,13 @@ private function parselang_variant_text($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -12990,10 +13339,12 @@ private function parselang_variant_text($silence, $boolParams, &$param_preproc, 
     $this->savedPos = $p2;
     $r1 = $this->a166($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_option_list($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13001,13 +13352,13 @@ private function parselang_variant_option_list($silence, $boolParams, &$param_pr
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -13104,10 +13455,12 @@ private function parselang_variant_option_list($silence, $boolParams, &$param_pr
     $r1 = $this->a169($r11);
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13115,13 +13468,13 @@ private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -13173,10 +13526,12 @@ private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, 
     $r1 = $this->a171($r4, $r5, $r7);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsepipe_pipe($silence) {
@@ -13184,9 +13539,9 @@ private function parsepipe_pipe($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   // start choice_1
@@ -13206,9 +13561,12 @@ private function parsepipe_pipe($silence) {
     $r1 = self::$FAILED;
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardrow_syntax_table_args($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13216,13 +13574,13 @@ private function discardrow_syntax_table_args($silence, $boolParams, &$param_pre
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -13265,10 +13623,12 @@ private function discardrow_syntax_table_args($silence, $boolParams, &$param_pre
     $r1 = $this->a14($r4, $r5, $r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenested_block($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13276,13 +13636,13 @@ private function parsenested_block($silence, $boolParams, &$param_preproc, &$par
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -13311,10 +13671,12 @@ private function parsenested_block($silence, $boolParams, &$param_preproc, &$par
     $r1 = $this->a15($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardinclude_limits($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13322,13 +13684,13 @@ private function discardinclude_limits($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -13422,10 +13784,12 @@ private function discardinclude_limits($silence, $boolParams, &$param_preproc, &
     $r1 = $this->a88($r11, /*sol_il*/($boolParams & 0x2000) !== 0);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardannotation_tag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13433,13 +13797,13 @@ private function discardannotation_tag($silence, $boolParams, &$param_preproc, &
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -13466,10 +13830,12 @@ private function discardannotation_tag($silence, $boolParams, &$param_preproc, &
     $r1 = $this->a90($r4);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardbehavior_switch($silence) {
@@ -13477,9 +13843,9 @@ private function discardbehavior_switch($silence) {
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
+    $this->currPos = $cached->nextPos;
 
-    return $cached['result'];
+    return $cached->result;
   }
 
   $p2 = $this->currPos;
@@ -13526,9 +13892,12 @@ private function discardbehavior_switch($silence) {
     $this->savedPos = $p2;
     $r1 = $this->a79($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselink_text_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13536,13 +13905,13 @@ private function parselink_text_parameterized($silence, $boolParams, &$param_pre
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -13718,10 +14087,12 @@ private function parselink_text_parameterized($silence, $boolParams, &$param_pre
     $this->savedPos = $p2;
     $r1 = $this->a43($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_flags($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13729,13 +14100,13 @@ private function parselang_variant_flags($silence, $boolParams, &$param_preproc,
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -13837,10 +14208,12 @@ private function parselang_variant_flags($silence, $boolParams, &$param_preproc,
     $r1 = $this->a173($r11);
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_option($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -13848,13 +14221,13 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -14092,10 +14465,12 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
   }
   // free $p5
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardbogus_lang_variant_option($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14103,21 +14478,23 @@ private function discardbogus_lang_variant_option($silence, $boolParams, &$param
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = $this->discardlang_variant_text($silence, $boolParams, $param_preproc, $param_th);
   if ($r1===self::$FAILED) {
     $r1 = null;
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsefull_table_in_link_caption($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14125,13 +14502,13 @@ private function parsefull_table_in_link_caption($silence, $boolParams, &$param_
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -14160,10 +14537,12 @@ private function parsefull_table_in_link_caption($silence, $boolParams, &$param_
     $r1 = $this->a176($r6);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_flag($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14171,13 +14550,13 @@ private function parselang_variant_flag($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   $r3 = $this->input[$this->currPos] ?? '';
@@ -14264,10 +14643,12 @@ private function parselang_variant_flag($silence, $boolParams, &$param_preproc, 
     $r1 = $this->a179($r7);
   }
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_name($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14275,13 +14656,13 @@ private function parselang_variant_name($silence, $boolParams, &$param_preproc, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start choice_1
   $p2 = $this->currPos;
   // start seq_1
@@ -14325,10 +14706,12 @@ private function parselang_variant_name($silence, $boolParams, &$param_preproc, 
   // free $p2
   $r1 = $this->parsenowiki_text($silence, $boolParams, $param_preproc, $param_th);
   choice_1:
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_nowiki($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14336,13 +14719,13 @@ private function parselang_variant_nowiki($silence, $boolParams, &$param_preproc
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -14378,10 +14761,12 @@ private function parselang_variant_nowiki($silence, $boolParams, &$param_preproc
     $r1 = $this->a180($r4, $r5);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_text_no_semi($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14389,18 +14774,20 @@ private function parselang_variant_text_no_semi($silence, $boolParams, &$param_p
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = $this->parselang_variant_text($silence, $boolParams | 0x200, $param_preproc, $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14408,18 +14795,20 @@ private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, 
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $r1 = $this->parselang_variant_text_no_semi($silence, $boolParams | 0x400, $param_preproc, $param_th);
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function discardlang_variant_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14427,13 +14816,13 @@ private function discardlang_variant_text($silence, $boolParams, &$param_preproc
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = [];
   for (;;) {
@@ -14463,10 +14852,12 @@ private function discardlang_variant_text($silence, $boolParams, &$param_preproc
     $this->savedPos = $p2;
     $r1 = $this->a166($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsefull_table_in_link_caption_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14474,13 +14865,13 @@ private function parsefull_table_in_link_caption_parameterized($silence, $boolPa
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   // start seq_1
   $p1 = $this->currPos;
   $r3 = $this->parsetable_start_tag($silence, $boolParams, $param_preproc, $param_th);
@@ -14580,10 +14971,12 @@ private function parsefull_table_in_link_caption_parameterized($silence, $boolPa
   $r2 = [$r3,$r4];
   seq_1:
   // free $r2,$p1
-  $cached = ['nextPos' => $this->currPos, 'result' => $r2];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r2;
 }
 private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14591,13 +14984,13 @@ private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_t
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -14653,10 +15046,12 @@ private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_t
     $r1 = $this->a181($r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenowiki_text($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14664,13 +15059,13 @@ private function parsenowiki_text($silence, $boolParams, &$param_preproc, &$para
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   $r3 = $this->parsenowiki($silence, $boolParams, $param_preproc, $param_th);
   // extToken <- $r3
@@ -14679,10 +15074,12 @@ private function parsenowiki_text($silence, $boolParams, &$param_preproc, &$para
     $this->savedPos = $p2;
     $r1 = $this->a182($r3);
   }
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th) {
@@ -14690,13 +15087,13 @@ private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th)
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
-    $this->currPos = $cached['nextPos'];
-      if (array_key_exists("\$preproc", $cached)) $param_preproc = $cached["\$preproc"];
-      if (array_key_exists("\$th", $cached)) $param_th = $cached["\$th"];
-    return $cached['result'];
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
   }
-      $saved_preproc=$param_preproc;
-      $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
@@ -14752,10 +15149,12 @@ private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th)
     $r1 = $this->a181($r10);
   }
   // free $p3
-  $cached = ['nextPos' => $this->currPos, 'result' => $r1];
-    if ($saved_preproc !== $param_preproc) $cached["\$preproc"] = $param_preproc;
-    if ($saved_th !== $param_th) $cached["\$th"] = $param_th;
-  $this->cache[$bucket][$key] = $cached;
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
   return $r1;
 }
 
