@@ -448,7 +448,6 @@ class DOMDataUtils {
 		$origId = $uid;
 		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
 			$uid = null;
-			// FIXME: Protect mw ids while tokenizing to avoid false positives.
 			$env->log( 'info', 'Wikitext for this page has duplicate ids: ' . $origId );
 		}
 		if ( $uid === '' ) {
