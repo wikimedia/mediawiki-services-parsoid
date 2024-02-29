@@ -20,7 +20,8 @@ version=2
 #  msg        apply message transform
 #  comment    run through MediaWiki\CommentFormatter\CommentFormatter::format() instead of main parser
 #
-# Options for adding metadata to the output:
+# Options for adding metadata to the metadata section:
+# (Previously, these options pre- or post- pended to the html section)
 #
 # cat           add category links
 #               (ignored by Parsoid, since it emits <link>s)
@@ -30,8 +31,11 @@ version=2
 #               This can also be a comma-separated list.
 # extension=XXX add the JSON-encoded value of the given extension data.
 #               This can also be a comma-separated list.
-# showtitle     make the first line the title
-# showindicators make the first lines the page status indicators
+# showtitle     add the rendered title
+# showflags     add the set parser output flags
+# showtocdata   add table of contents data
+# showindicators add the page status indicators
+# showmedia     add the titles of the rendered media
 #
 # Parser parameters:
 #
