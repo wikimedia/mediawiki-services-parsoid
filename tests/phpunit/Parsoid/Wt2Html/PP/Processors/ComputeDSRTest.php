@@ -399,11 +399,11 @@ class ComputeDSRTest extends TestCase {
 
 			// xmlish extension tags
 			'xmlish 1' => [
-				'wt' => '<poem>Like rain gone wooden</poem>',
+				'wt' => '<pre>Like rain gone wooden</pre>',
 				'specs' => [
 					[
-						'selector' => 'div.poem',
-						'dsrContent' => [ '<poem>Like rain gone wooden</poem>', '<poem>', '</poem>' ]
+						'selector' => 'pre[typeof="mw:Extension/pre"]',
+						'dsrContent' => [ '<pre>Like rain gone wooden</pre>', '<pre>', '</pre>' ]
 					]
 				]
 			],
