@@ -638,11 +638,14 @@ class WikiLinkHandler extends TokenHandler {
 		$newTk->addNormalizedAttribute( 'href', $env->makeLink( $target->title ), $target->hrefSrc );
 
 		// Change the href to include the sort key, if any (but don't update the rt info)
+		// Fallback to empty string for default sorting
+		$categorySort = '';
 		$strContent = str_replace( "\n", '', TokenUtils::tokensToString( $content ) );
 		if ( $strContent !== '' && $strContent !== $target->href ) {
+			$categorySort = $strContent;
 			$hrefkv = $newTk->getAttributeKV( 'href' );
 			$hrefkv->v .= '#';
-			$hrefkv->v .= str_replace( '#', '%23', Sanitizer::sanitizeTitleURI( $strContent, false ) );
+			$hrefkv->v .= str_replace( '#', '%23', Sanitizer::sanitizeTitleURI( $categorySort, false ) );
 		}
 
 		if ( count( $content ) !== 1 ) {
@@ -671,8 +674,7 @@ class WikiLinkHandler extends TokenHandler {
 			$newTk->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 			$newTk->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMW ) );
 		}
-		// @todo Record this category in the metadata
-		// $this->env->getMetadata()->addCategory('title', 'sort');
+		$this->env->getMetadata()->addCategory( $target->title, $categorySort );
 		return new TokenHandlerResult( [ $newTk ] );
 	}
 

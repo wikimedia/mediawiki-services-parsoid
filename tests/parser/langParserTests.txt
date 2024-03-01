@@ -358,10 +358,11 @@ language=sr
 Simple category in language variants
 !! options
 language=sr cat
+!! metadata
+cat=МедиаWики_Усер'с_Гуиде sort=
 !! wikitext
 [[Category:МедиаWики Усер'с Гуиде]]
 !! html/php
-cat=МедиаWики_Усер'с_Гуиде sort=
 !! html/parsoid
 <link rel="mw:PageProp/Category" href="./Категорија:МедиаWики_Усер'с_Гуиде" data-parsoid='{"stx":"simple","a":{"href":"./Категорија:МедиаWики_Усер&#39;с_Гуиде"},"sa":{"href":"Category:МедиаWики Усер&#39;с Гуиде"}}'/>
 !! end
@@ -388,12 +389,13 @@ Don't convert blue categorylinks to another variant (T35210)
 cat
 language=zh
 parsoid=wt2html
+!! metadata
+cat=分类 sort=
 !! wikitext
 [[A]][[Category:分类]]
 !! html/php
 <p><a href="/wiki/A" title="A">A</a>
 </p>
-cat=分类 sort=
 !! html/parsoid
 <p><a rel="mw:WikiLink" href="./A" title="A">A</a></p>
 <link rel="mw:PageProp/Category" href="./Category:分类"/>
