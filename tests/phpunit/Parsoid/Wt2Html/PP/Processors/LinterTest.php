@@ -10,8 +10,11 @@ use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Parsoid;
 
-/** Test cases for the linter */
-
+/**
+ * Test cases for the linter
+ *
+ * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter
+ */
 class LinterTest extends TestCase {
 
 	private function wtToLint( string $wt, array $options = [] ): array {
