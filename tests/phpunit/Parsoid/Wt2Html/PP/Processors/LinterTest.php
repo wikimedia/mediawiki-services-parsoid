@@ -1539,7 +1539,7 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * @covers       \Wikimedia\Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 *
 	 * @param string[] $wikiTextLines
 	 * @param int $columnCount
@@ -1547,7 +1547,6 @@ class LinterTest extends TestCase {
 	 * @param string|null $templateName
 	 *
 	 * @dataProvider provideLargeTablesTests
-	 * @
 	 */
 	public function testLargeTables( $wikiTextLines, $columnCount, $dsr = [], $templateName = null ): void {
 		$opts = [];
