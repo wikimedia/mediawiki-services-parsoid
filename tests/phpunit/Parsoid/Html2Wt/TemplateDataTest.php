@@ -448,21 +448,21 @@ class TemplateDataTest extends TestCase {
 		// Non-selser test
 		if ( isset( $wt['no_selser'] ) ) {
 			$desc = "$name: Default non-selser serialization should ignore templatedata";
-			self::verifyTransformation( $html, null, null, $wt['no_selser'], $desc );
+			$this->verifyTransformation( $html, null, null, $wt['no_selser'], $desc );
 		}
 
 		// New content test
 		$desc = "$name: Serialization of new content (no data-parsoid) should respect templatedata";
 		// Remove data-parsoid making it look like new content
 		$newHTML = preg_replace( '/data-parsoid.*? data-mw/', ' data-mw', $html );
-		self::verifyTransformation( $newHTML, '', '', $wt['new_content'], $desc );
+		$this->verifyTransformation( $newHTML, '', '', $wt['new_content'], $desc );
 
 		// Transclusion edit test
 		$desc = "$name: Serialization of edited content should respect templatedata";
 		// Replace only the first instance of 'foo' with 'BAR'
 		// to simulate an edit of a transclusion.
 		$newHTML = preg_replace( '/foo/', 'BAR', $html, 1 );
-		self::verifyTransformation(
+		$this->verifyTransformation(
 			$newHTML, $html, $wt['no_selser'] ?? '', $wt['edited'], $desc
 		);
 	}
@@ -497,7 +497,7 @@ class TemplateDataTest extends TestCase {
 		// Replace only the first instance of 'foo' with 'BAR'
 		// to simulate an edit of a transclusion.
 		$newHTML = preg_replace( '/foo/', 'BAR', $html, 1 );
-		self::verifyTransformation(
+		$this->verifyTransformation(
 			$newHTML, $html, $wt['orig'], $wt['edited'], $desc, $contentVersion
 		);
 	}
