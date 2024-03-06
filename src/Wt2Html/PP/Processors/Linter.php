@@ -1320,6 +1320,44 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Log inline background color style rules without a color style rule
+	 *
+	 * This function identifies elements with inline style attributes
+	 * that have background color set but don't have a color style rule.
+	 * It records linter events for such elements to help editors make
+	 * their articles comply with WCAG color contrast rules.
+	 *
+	 * @param Env $env
+	 * @param Element $node
+	 * @param DataParsoid $dp
+	 * @param ?stdClass $tplInfo
+	 */
+	private function logInlineBackgroundWithoutColor( Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo ) {
+		if ( !$env->getSiteConfig()->linting( 'night-mode-unaware-background-color' ) ) {
+			return;
+		}
+
+		// Get inline style attribute value
+		$styleAttrValue = DOMCompat::getAttribute( $node, 'style' );
+
+		// Check if background color is set but font color is not
+		if (
+			( $styleAttrValue !== null ) &&
+			preg_match( '/(^|;)\s*background(-color)?\s*:/i', $styleAttrValue ) &&
+			!preg_match( '/(^|;)\s*color\s*:/i', $styleAttrValue )
+		) {
+			$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+			$lintObj = [
+				'dsr' => $this->findLintDSR(
+					$tplLintInfo, $tplInfo, DOMDataUtils::getDataParsoid( $node )->dsr ?? null
+				),
+				'templateInfo' => $tplLintInfo,
+			];
+			$env->recordLint( 'night-mode-unaware-background-color', $lintObj );
+		}
+	}
+
+	/**
 	 * Log wikitext fixups
 	 * @param Element $node
 	 * @param Env $env
@@ -1346,6 +1384,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->logPHPParserBug( $env, $node, $dp, $tplInfo );
 		$this->logWikilinksInExtlinks( $env, $node, $dp, $tplInfo );
 		$this->logLargeTables( $env, $node, $dp, $tplInfo );
+
+		$this->logInlineBackgroundWithoutColor( $env, $node, $dp, $tplInfo );
 
 		// Log fostered content, but skip rendering-transparent nodes
 		if (

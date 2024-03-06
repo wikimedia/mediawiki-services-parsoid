@@ -1571,4 +1571,80 @@ class LinterTest extends TestCase {
 			$this->assertEquals( $templateName, $result[0]['templateInfo']['name'], $desc );
 		}
 	}
+
+	/**
+	 * @see testLogInlineBackgroundWithoutColor
+	 * @see https://phabricator.wikimedia.org/T358238
+	 *
+	 * Provides test cases for the 'night-mode-unaware-background-color' lint
+	 * We are skipping DSR checks for this lint since:
+	 * - DSR functionality is shared with all lints
+	 * - that DSR functionality is adequately tested in other lints
+	 * - there is nothing unusual DSR-wise about this lint that
+	 *   needs special verification.
+	 */
+	public function provideLogInlineBackgroundWithoutColor(): array {
+		return [
+			[
+				'should not lint when style attribute is missing',
+				'<div></div>',
+				false,
+			],
+			[
+				'should lint when background color is present but font color is missing',
+				'<div style="background-color: red;"></div>',
+				true,
+			],
+			[
+				'should lint when background-color is present but font color is missing in a template',
+				'{{1x|<div style="background-color: red;"></div>}}',
+				true,
+				"1x"
+			],
+			[
+				'should lint when background is present but font color is missing',
+				'<div style="background: green;"></div>',
+				true,
+			],
+			[
+				'should not have lint any issues when both background color and font color are present',
+				'<div style="background-color: red; color: black;"></div>',
+				false,
+			],
+			[
+				'should not lint when font color is present but background color is missing',
+				'<div style="color: red;"></div>',
+				false,
+			],
+			[
+				'should not lint when both background color and font color are present,' .
+				' even though they are missing spaces',
+				'<div style="background-color:black;color:blue;"></div>' .
+				'<div style="color:blue;background-color:black;"></div>',
+				false,
+			],
+		];
+	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
+	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter::logInlineBackgroundWithoutColor
+	 * @see https://phabricator.wikimedia.org/T358238
+	 * @dataProvider provideLogInlineBackgroundWithoutColor
+	 */
+	public function testLogInlineBackgroundWithoutColor(
+		string $desc, string $wikitext, bool $haveLint, ?string $templateName = null
+	): void {
+		if ( !$haveLint ) {
+			$this->expectEmptyResults( $desc, $wikitext );
+		} else {
+			$result = $this->wtToLint( $wikitext );
+			$this->assertCount( 1, $result, $desc );
+			$this->assertEquals( 'night-mode-unaware-background-color', $result[0]['type'], $desc );
+			if ( $templateName ) {
+				$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
+				$this->assertEquals( $templateName, $result[0]['templateInfo']['name'], $desc );
+			}
+		}
+	}
 }
