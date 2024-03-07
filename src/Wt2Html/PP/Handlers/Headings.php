@@ -134,8 +134,8 @@ class Headings {
 			return true;
 		}
 
-		$key = DOMCompat::getAttribute( $node, 'id' );
-		if ( $key === null ) {
+		$origKey = DOMCompat::getAttribute( $node, 'id' );
+		if ( $origKey === null ) {
 			return true;
 		}
 		// IE 7 required attributes to be case-insensitively unique (T12721)
@@ -143,21 +143,19 @@ class Headings {
 		// but changing the algorithm would change the relevant fragment URLs.
 		// This case folding and matching algorithm has to stay exactly the
 		// same to preserve external links to the page.
-		$key = strtolower( $key );
+		$key = strtolower( $origKey );
 		if ( !isset( $seenIds[$key] ) ) {
 			$seenIds[$key] = 1;
 			return true;
 		}
 		// Only update headings and legacy links (first children of heading)
-		if ( preg_match( '/^h\d$/D', DOMCompat::nodeName( $node ) ) ||
-			WTUtils::isFallbackIdSpan( $node )
-		) {
+		if ( DOMUtils::isHeading( $node ) || WTUtils::isFallbackIdSpan( $node ) ) {
 			$suffix = ++$seenIds[$key];
 			while ( !empty( $seenIds[$key . '_' . $suffix] ) ) {
 				$suffix++;
 				$seenIds[$key]++;
 			}
-			$node->setAttribute( 'id', DOMCompat::getAttribute( $node, 'id' ) . '_' . $suffix );
+			$node->setAttribute( 'id', $origKey . '_' . $suffix );
 			$seenIds[$key . '_' . $suffix] = 1;
 		}
 		return true;

@@ -212,7 +212,7 @@ class WrapSectionsState {
 			$metadata->codepointOffset = null;
 		}
 
-		// Deep clone the heading to mutate it to trip unwanted tags and attributes.
+		// Deep clone the heading to mutate it to strip unwanted tags and attributes.
 		$clone = DOMDataUtils::cloneNode( $heading, true );
 		'@phan-var Element $clone'; // @var Element $clone
 		DOMDataUtils::visitAndStoreDataAttribs( $clone, [
