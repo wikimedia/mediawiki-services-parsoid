@@ -34,6 +34,9 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  *
  * Used to shuttle tokens to the end of a stage in the TTM
  * @property array|null $shuttleTokens
+ *
+ * Section data associated with a heading
+ * @property array|null $section
  */
 #[\AllowDynamicProperties]
 class TempData {

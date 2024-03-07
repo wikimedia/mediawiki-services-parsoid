@@ -2065,3 +2065,51 @@ blah
 Sections:
  h2 index:1 toclevel:1 number:1 title:Parser_test off:69 anchor/linkAnchor:page_h2 line:page h2
 !! end
+
+!! test
+TOC data when heading content is equal to an id already set on the page
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+<span id="hiho">hiho</span>
+=== hiho ===
+!! html/php
+<p><span id="hiho">hiho</span>
+</p>
+<h3><span class="mw-headline" id="hiho">hiho</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: hiho">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+!! metadata/php
+Sections:
+ h3 index:1 toclevel:1 number:1 title:Parser_test off:28 anchor/linkAnchor:hiho line:hiho
+!! html/parsoid
+<section data-mw-section-id="0"><p><span id="hiho">hiho</span></p>
+</section><section data-mw-section-id="1"><h3 id="hiho_2">hiho</h3></section>
+!! metadata/parsoid
+Sections:
+ h3 index:1 toclevel:1 number:1 title:Parser_test off:28 anchor/linkAnchor:hiho_2 line:hiho
+!! end
+
+!! test
+TOC data when heading already has an id
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+<h3 id="asdf">odd</h3>
+!! html/php
+<h3 id="asdf"><span class="mw-headline" id="odd">odd</span></h3>
+!! metadata/php
+Sections:
+ h3 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:odd line:odd
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><h3 id="asdf" data-parsoid='{"stx":"html","reusedId":true}'>odd</h3></section>
+!! metadata/parsoid
+Sections:
+ h3 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:asdf line:odd
+!! end

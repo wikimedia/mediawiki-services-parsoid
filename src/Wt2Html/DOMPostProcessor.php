@@ -449,28 +449,6 @@ class DOMPostProcessor extends PipelineStage {
 					]
 				]
 			],
-			// Benefits from running after determining which media are redlinks
-			[
-				'name' => 'Headings-genAnchors',
-				'shortcut' => 'heading-ids',
-				'skipNested' => true,
-				'isTraverser' => true,
-				// No need to generate heading ids for HTML embedded in attributes
-				'applyToAttributeEmbeddedHTML' => false,
-				'handlers' => [
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node ) => Headings::genAnchors( $node, $env )
-					],
-					[
-						'nodeName' => null,
-						'action' => static function ( $node ) use ( &$seenIds ) {
-							// TODO: $seenIds can be part of DTState
-							return Headings::dedupeHeadingIds( $seenIds, $node );
-						}
-					]
-				]
-			],
 			[
 				'Processor' => Linter::class,
 				'omit' => !$env->getSiteConfig()->linting(),
@@ -533,6 +511,28 @@ class DOMPostProcessor extends PipelineStage {
 				// since some (not yet known) use cases might benefit from this information
 				// on these hidden links.
 				'skipNested' => true
+			],
+			// Benefits from running after determining which media are redlinks
+			[
+				'name' => 'Headings-genAnchors',
+				'shortcut' => 'heading-ids',
+				'skipNested' => true,
+				'isTraverser' => true,
+				// No need to generate heading ids for HTML embedded in attributes
+				'applyToAttributeEmbeddedHTML' => false,
+				'handlers' => [
+					[
+						'nodeName' => null,
+						'action' => static fn ( $node ) => Headings::genAnchors( $node, $env )
+					],
+					[
+						'nodeName' => null,
+						'action' => static function ( $node ) use ( &$seenIds ) {
+							// TODO: $seenIds can be part of DTState
+							return Headings::dedupeHeadingIds( $seenIds, $node );
+						}
+					]
+				]
 			],
 			// Add <section> wrappers around sections
 			[

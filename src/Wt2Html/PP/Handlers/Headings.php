@@ -38,7 +38,7 @@ class Headings {
 	 *
 	 * @param Node $node
 	 */
-	public static function processHeadingContent( Node $node ): void {
+	private static function processHeadingContent( Node $node ): void {
 		$c = $node->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
@@ -47,6 +47,12 @@ class Headings {
 					DOMUtils::migrateChildren( $c, $node, $next );
 					$next = $c->nextSibling;
 					$node->removeChild( $c );
+				} elseif ( DOMUtils::hasTypeOf( $c, 'mw:LanguageVariant' ) ) {
+					// Special case for -{...}-
+					$dp = DOMDataUtils::getDataParsoid( $c );
+					$node->replaceChild(
+						$node->ownerDocument->createTextNode( $dp->src ?? '' ), $c
+					);
 				} else {
 					$cName = DOMCompat::nodeName( $c );
 					if ( in_array( $cName, [ 'style', 'script' ], true ) ) {
@@ -100,6 +106,19 @@ class Headings {
 		}
 		'@phan-var Element $node';  /** @var Element $node */
 
+		// Deep clone the heading to mutate it to strip unwanted tags and attributes.
+		$clone = DOMDataUtils::cloneNode( $node, true );
+		'@phan-var Element $clone'; // @var Element $clone
+		// Don't bother storing data-attribs on $clone,
+		// processHeadingContent is about to strip them
+
+		self::processHeadingContent( $clone );
+		$buf = DOMCompat::getInnerHTML( $clone );
+		$line = trim( $buf );
+
+		$dp = DOMDataUtils::getDataParsoid( $node );
+		$tmp = $dp->getTemp();
+
 		// Cannot generate an anchor id if the heading already has an id!
 		//
 		// NOTE: Divergence from PHP parser behavior.
@@ -109,15 +128,24 @@ class Headings {
 		// generating a <h* id="anchor-id-here"> ..</h*> => we either overwrite or
 		// preserve the existing id and use it for TOC, etc. We choose to preserve it.
 		if ( $node->hasAttribute( 'id' ) ) {
-			DOMDataUtils::getDataParsoid( $node )->reusedId = true;
+			$linkAnchorId = DOMCompat::getAttribute( $node, 'id' );
+			$dp->reusedId = true;
+			$tmp->section = [
+				'line' => $line,
+				'linkAnchor' => $linkAnchorId,
+			];
 			return true;
 		}
 
-		$anchorText = Sanitizer::normalizeSectionNameWhiteSpace( self::textContentOf( $node ) );
+		// Additional processing for $anchor
+		$anchorText = $clone->textContent; // strip all tags
+		$anchorText = Sanitizer::normalizeSectionNameWhiteSpace( $anchorText );
 		$anchorText = self::normalizeSectionName( $anchorText, $env );
 
-		// Create an anchor with a sanitized id
+		# NOTE: Parsoid defaults to html5 mode. So, if we want to replicate
+		# legacy output, we should handle that explicitly.
 		$anchorId = Sanitizer::escapeIdForAttribute( $anchorText );
+		$linkAnchorId = Sanitizer::escapeIdForLink( $anchorText );
 		$fallbackId = Sanitizer::escapeIdForAttribute( $anchorText, Sanitizer::ID_FALLBACK );
 		if ( $anchorId === $fallbackId ) {
 			$fallbackId = null; /* not needed */
@@ -127,6 +155,11 @@ class Headings {
 		// step.
 
 		$node->setAttribute( 'id', $anchorId );
+		$tmp->section = [
+			'line' => $line,
+			'linkAnchor' => $linkAnchorId,
+		];
+
 		if ( $fallbackId ) {
 			$span = $node->ownerDocument->createElement( 'span' );
 			$span->setAttribute( 'id', $fallbackId );
@@ -141,35 +174,6 @@ class Headings {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Our own version of node.textContent which handles LanguageVariant
-	 * markup the same way PHP does (ie, uses the source wikitext), and
-	 * handles <style>/<script> tags the same way PHP does (ie, ignores
-	 * the contents)
-	 * @param Node $node
-	 * @return string
-	 */
-	private static function textContentOf( Node $node ): string {
-		$str = '';
-		if ( $node->hasChildNodes() ) {
-			foreach ( $node->childNodes as $n ) {
-				if ( $n instanceof Text ) {
-					$str .= $n->nodeValue;
-				} elseif ( DOMUtils::hasTypeOf( $n, 'mw:LanguageVariant' ) ) {
-					// Special case for -{...}-
-					// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
-					$dp = DOMDataUtils::getDataParsoid( $n );
-					$str .= $dp->src ?? '';
-				} elseif ( DOMCompat::nodeName( $n ) === 'style' || DOMCompat::nodeName( $n ) === 'script' ) {
-					/* ignore children */
-				} else {
-					$str .= self::textContentOf( $n );
-				}
-			}
-		}
-		return $str;
 	}
 
 	/**
@@ -218,13 +222,19 @@ class Headings {
 			return true;
 		}
 		// Only update headings and legacy links (first children of heading)
-		if ( DOMUtils::isHeading( $node ) || WTUtils::isFallbackIdSpan( $node ) ) {
+		$isHeading = DOMUtils::isHeading( $node );
+		if ( $isHeading || WTUtils::isFallbackIdSpan( $node ) ) {
 			$suffix = ++$seenIds[$key];
 			while ( !empty( $seenIds[$key . '_' . $suffix] ) ) {
 				$suffix++;
 				$seenIds[$key]++;
 			}
 			$node->setAttribute( 'id', $origKey . '_' . $suffix );
+			if ( $isHeading ) {
+				$tmp = DOMDataUtils::getDataParsoid( $node )->getTemp();
+				$linkAnchorId = $tmp->section['linkAnchor'];
+				$tmp->section['linkAnchor'] = $linkAnchorId . '_' . $suffix;
+			}
 			$seenIds[$key . '_' . $suffix] = 1;
 		}
 		return true;

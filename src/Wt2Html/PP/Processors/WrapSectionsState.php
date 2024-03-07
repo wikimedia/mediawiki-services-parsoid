@@ -7,7 +7,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
-use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\SectionMetadata;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -21,12 +20,9 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\Title;
-use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
-use Wikimedia\Parsoid\Wt2Html\PP\Handlers\Headings;
 
 class WrapSectionsState {
 	private Env $env;
@@ -61,9 +57,6 @@ class WrapSectionsState {
 	/** @var WrapSectionsTplInfo[] */
 	private array $tplsAndExtsToExamine = [];
 	private int $oldLevel = 0;
-
-	/** @var array<string,bool> Set of section anchors */
-	private array $processedAnchors = [];
 
 	public function __construct(
 		Env $env,
@@ -143,45 +136,10 @@ class WrapSectionsState {
 			$metadata->codepointOffset = null;
 		}
 
-		// Deep clone the heading to mutate it to strip unwanted tags and attributes.
-		$clone = DOMDataUtils::cloneNode( $heading, true );
-		'@phan-var Element $clone'; // @var Element $clone
-		// Don't bother storing data-attribs on $clone,
-		// processHeadingContent is about to strip them
-
-		Headings::processHeadingContent( $clone );
-		$buf = DOMCompat::getInnerHTML( $clone );
-		$metadata->line = trim( $buf );
-
-		// Additional processing for $anchor
-		$anchor = $clone->textContent; // strip all tags
-		$anchor = Sanitizer::normalizeSectionNameWhiteSpace( $anchor );
-		try {
-			// Equivalent to calling self::normalizeSectionName( $anchor) in Parser.php
-			$anchor = Title::newFromText( "Foo#$anchor", $this->env->getSiteConfig() )->getFragment();
-		} catch ( TitleException $ex ) {
-		}
-
-		$linkAnchor = $anchor;
-
-		# NOTE: Parsoid defaults to html5 mode. So, if we want to replicate
-		# legacy output, we should handle that explicitly.
-		$anchor = Sanitizer::escapeIdForAttribute( $anchor );
-		$linkAnchor = Sanitizer::escapeIdForLink( $linkAnchor );
-
-		// Dedupe anchors - they have to be case-insensitively unique
-		$arrayKey = strtolower( $anchor );
-		if ( isset( $this->processedAnchors[$arrayKey] ) ) {
-			for ( $i = 2; isset( $this->processedAnchors["{$arrayKey}_$i"] ); ++$i );
-			$anchor .= "_$i";
-			$linkAnchor .= "_$i";
-			$this->processedAnchors["{$arrayKey}_$i"] = true;
-		} else {
-			$this->processedAnchors[$arrayKey] = true;
-		}
-
-		$metadata->anchor = $anchor;
-		$metadata->linkAnchor = $linkAnchor;
+		$metadata->anchor = DOMCompat::getAttribute( $heading, 'id' );
+		$section = DOMDataUtils::getDataParsoid( $heading )->getTemp()->section;
+		$metadata->line = $section['line'];
+		$metadata->linkAnchor = $section['linkAnchor'];
 	}
 
 	/**
