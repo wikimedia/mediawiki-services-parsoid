@@ -215,9 +215,8 @@ class WrapSectionsState {
 		// Deep clone the heading to mutate it to strip unwanted tags and attributes.
 		$clone = DOMDataUtils::cloneNode( $heading, true );
 		'@phan-var Element $clone'; // @var Element $clone
-		DOMDataUtils::visitAndStoreDataAttribs( $clone, [
-			'discardDataParsoid' => true
-		] );
+		// Don't bother storing data-attribs on $clone,
+		// processHeadingContent is about to strip them
 
 		$this->processHeadingContent( $clone );
 		$buf = DOMCompat::getInnerHTML( $clone );
