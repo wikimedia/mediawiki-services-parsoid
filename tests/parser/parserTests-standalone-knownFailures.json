@@ -246,11 +246,8 @@
     },
     "Decoding of HTML entities in headings and links for IDs and link fragments (T103714)": {
         "html2wt": "== A&B&amp;C&amp;amp;D&amp;amp;amp;E ==\n[[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]",
-        "selser [3,2,1]": "7ijk5s\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
-        "selser [3,2,[1]]": "jil05u\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
-        "selser [4,2,1]": "s078h6\n\n1xg44n1\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
-        "selser [1,2,[2]]": "==A&B&amp;C&amp;amp;D&amp;amp;amp;E==\nrtkcgi\njn1m2m[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
-        "selser [[0,2,0,3,0,0,0,0],4,[1]]": "==ngxj3gA&B&amp;&amp;amp;D&amp;amp;amp;E==\n45ozgq\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]"
+        "selser [0,[4,4,1]]": "yj16gg\n\niboewz\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]",
+        "metadata": "Sections:\n h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:A&B&C&D&amp;E line:A&amp;B<span>&amp;</span>C<span>&amp;</span>amp;D<span>&amp;</span>amp;amp;E"
     },
     "Don't fall for the self-closing div": {
         "wt2wt": "<div>hello world</div>",

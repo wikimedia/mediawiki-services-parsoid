@@ -16582,6 +16582,11 @@ wgRawHtml=1
 Decoding of HTML entities in headings and links for IDs and link fragments (T103714)
 !! config
 wgFragmentMode=[ "html5", "legacy" ]
+!! options
+showtocdata
+parsoid={
+	"wrapSections": true
+}
 !! wikitext
 ==A&B&amp;C&amp;amp;D&amp;amp;amp;E==
 [[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]
@@ -16590,8 +16595,11 @@ wgFragmentMode=[ "html5", "legacy" ]
 <p><a href="#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E">#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E</a>
 </p>
 !! html/parsoid
-<h2 id="A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"><span id="A.26B.26C.26amp.3BD.26amp.3Bamp.3BE" typeof="mw:FallbackId"></span>A&amp;B<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>C<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;D<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;amp;E</h2>
-<p><a rel="mw:WikiLink" href="./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"},"sa":{"href":"#A&amp;B&amp;amp;C&amp;amp;amp;D&amp;amp;amp;amp;E"}}'>#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E</a></p>
+<section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"><span id="A.26B.26C.26amp.3BD.26amp.3Bamp.3BE" typeof="mw:FallbackId"></span>A&amp;B<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>C<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;D<span typeof="mw:Entity" data-parsoid='{"src":"&amp;amp;","srcContent":"&amp;"}'>&amp;</span>amp;amp;E</h2>
+<p><a rel="mw:WikiLink" href="./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E" class="mw-selflink-fragment" data-parsoid='{"stx":"simple","a":{"href":"./Parser_test#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E"},"sa":{"href":"#A&amp;B&amp;amp;C&amp;amp;amp;D&amp;amp;amp;amp;E"}}'>#A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E</a></p></section>
+!! metadata
+Sections:
+ h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:A&B&C&amp;D&amp;amp;E line:A&amp;B&amp;C&amp;amp;D&amp;amp;amp;E
 !! end
 
 !! test
