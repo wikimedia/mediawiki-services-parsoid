@@ -156,7 +156,6 @@ class WrapSectionsState {
 		// Additional processing for $anchor
 		$anchor = $clone->textContent; // strip all tags
 		$anchor = Sanitizer::normalizeSectionNameWhiteSpace( $anchor );
-		$anchor = Sanitizer::decodeCharReferences( $anchor );
 		try {
 			// Equivalent to calling self::normalizeSectionName( $anchor) in Parser.php
 			$anchor = Title::newFromText( "Foo#$anchor", $this->env->getSiteConfig() )->getFragment();
