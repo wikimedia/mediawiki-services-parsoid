@@ -26,6 +26,7 @@ use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
+use Wikimedia\Parsoid\Wt2Html\PP\Handlers\Headings;
 
 class WrapSectionsState {
 	private Env $env;
@@ -64,21 +65,6 @@ class WrapSectionsState {
 	/** @var array<string,bool> Set of section anchors */
 	private array $processedAnchors = [];
 
-	/**
-	 * See the safe-heading transform code in Parser::finalizeHeadings in core
-	 *
-	 * Allowed HTML tags are:
-	 * - <sup> and <sub> (T10393)
-	 * - <i> (T28375)
-	 * - <b> (r105284)
-	 * - <bdi> (T74884)
-	 * - <span dir="rtl"> and <span dir="ltr"> (T37167)
-	 *   (handled separately in code below)
-	 * - <s> and <strike> (T35715)
-	 * - <q> (T251672)
-	 */
-	private const ALLOWED_NODES_IN_ANCHOR = [ 'span', 'sup', 'sub', 'i', 'b', 'bdi', 's', 'strike', 'q' ];
-
 	public function __construct(
 		Env $env,
 		Frame $frame,
@@ -88,61 +74,6 @@ class WrapSectionsState {
 		$this->frame = $frame;
 		$this->rootNode = $rootNode;
 		$this->doc = $rootNode->ownerDocument;
-	}
-
-	/**
-	 * This method implements the equivalent of the regexp-based safe-headline
-	 * transform in Parser::finalizeHeadings in core.
-	 *
-	 * @param Node $node
-	 */
-	private function processHeadingContent( Node $node ): void {
-		$c = $node->firstChild;
-		while ( $c ) {
-			$next = $c->nextSibling;
-			if ( $c instanceof Element ) {
-				if ( WTUtils::isATagFromWikiLinkSyntax( $c ) ) {
-					$dp = DOMDataUtils::getDataParsoid( $c );
-					DOMUtils::migrateChildren( $c, $node, $next );
-					$next = $c->nextSibling;
-					$node->removeChild( $c );
-				} else {
-					$cName = DOMCompat::nodeName( $c );
-					if ( in_array( $cName, [ 'style', 'script' ], true ) ) {
-						# Remove any <style> or <script> tags (T198618)
-						$node->removeChild( $c );
-					} else {
-						$this->processHeadingContent( $c );
-						if ( !$c->firstChild ) {
-							// Empty now - strip it!
-							$node->removeChild( $c );
-						} elseif ( !in_array( $cName, self::ALLOWED_NODES_IN_ANCHOR, true ) ) {
-							# Strip all unallowed tag wrappers
-							DOMUtils::migrateChildren( $c, $node, $next );
-							$next = $c->nextSibling;
-							$node->removeChild( $c );
-						} else {
-							# We strip any parameter from accepted tags except dir="rtl|ltr" from <span>,
-							# to allow setting directionality in toc items.
-							foreach ( DOMUtils::attributes( $c ) as $key => $val ) {
-								if ( $cName === 'span' ) {
-									if ( $key !== 'dir' || ( $val !== 'ltr' && $val !== 'rtl' ) ) {
-										$c->removeAttribute( $key );
-									}
-								} else {
-									$c->removeAttribute( $key );
-								}
-							}
-						}
-					}
-				}
-			} elseif ( !( $c instanceof Text ) ) {
-				// Strip everying else but text nodes
-				$node->removeChild( $c );
-			}
-
-			$c = $next;
-		}
 	}
 
 	/**
@@ -218,7 +149,7 @@ class WrapSectionsState {
 		// Don't bother storing data-attribs on $clone,
 		// processHeadingContent is about to strip them
 
-		$this->processHeadingContent( $clone );
+		Headings::processHeadingContent( $clone );
 		$buf = DOMCompat::getInnerHTML( $clone );
 		$metadata->line = trim( $buf );
 
