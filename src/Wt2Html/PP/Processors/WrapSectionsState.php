@@ -271,9 +271,20 @@ class WrapSectionsState {
 				// Track whether we are ever in an extension (whether top-level
 				// or in template output). But, we don't care about tracking
 				// extensions nested in other extensions.
+				//
+				// NOTE: Here are making the assumption that extensions never emit
+				// a DOM forest and only ever have a single wrapper node. While
+				// ExtensionHandler doesn't assume that, this seems to be borne out
+				// in reality. But, if this assumption were not true, we would be adding
+				// TOC entries from extension-generated about siblings into the TOC.
+				// In scenarios where templates generated the extension and the extension
+				// was the first node, we cannot reliably determine what part of the output
+				// came from extensions in that case (because the template wrapping clobbers
+				// that information). So, for now, we ignore this edge case where extensions
+				// generate multiple DOM nodes (that also have headings). Later on, we may
+				// enforce a single-wrapper-node requirement for extensions.
 				if ( !$this->extExitNode && WTUtils::isFirstExtensionWrapperNode( $node ) ) {
-					$aboutSiblings = WTUtils::getAboutSiblings( $node, $about );
-					$this->extExitNode = end( $aboutSiblings );
+					$this->extExitNode = $node;
 				}
 
 				if ( !$this->tplInfo ) {
