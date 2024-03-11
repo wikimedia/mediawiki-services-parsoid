@@ -40,7 +40,7 @@
 		"wikimedia/remex-html": "^3.0.0 || ^4.0.0",
 		"wikimedia/scoped-callback": "^3.0.0 || ^4.0.0",
 		"wikimedia/wikipeg": "^4.0.0",
-		"wikimedia/zest-css": "^3.0.0",
+		"wikimedia/zest-css": "^3.0.1",
 		"ext-dom": "*",
 		"ext-json": "*"
 	},
