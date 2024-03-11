@@ -44,11 +44,7 @@ class Headings {
 			$next = $c->nextSibling;
 			if ( $c instanceof Element ) {
 				$cName = DOMCompat::nodeName( $c );
-				if ( WTUtils::isATagFromWikiLinkSyntax( $c ) ) {
-					DOMUtils::migrateChildren( $c, $node, $next );
-					$next = $c->nextSibling;
-					$node->removeChild( $c );
-				} elseif ( DOMUtils::hasTypeOf( $c, 'mw:LanguageVariant' ) ) {
+				if ( DOMUtils::hasTypeOf( $c, 'mw:LanguageVariant' ) ) {
 					// Special case for -{...}-
 					$dp = DOMDataUtils::getDataParsoid( $c );
 					$node->replaceChild(
