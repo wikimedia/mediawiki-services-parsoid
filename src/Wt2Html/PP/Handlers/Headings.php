@@ -43,6 +43,7 @@ class Headings {
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( $c instanceof Element ) {
+				$cName = DOMCompat::nodeName( $c );
 				if ( WTUtils::isATagFromWikiLinkSyntax( $c ) ) {
 					DOMUtils::migrateChildren( $c, $node, $next );
 					$next = $c->nextSibling;
@@ -53,32 +54,29 @@ class Headings {
 					$node->replaceChild(
 						$node->ownerDocument->createTextNode( $dp->src ?? '' ), $c
 					);
+				} elseif ( in_array( $cName, [ 'style', 'script' ], true ) ) {
+					# Remove any <style> or <script> tags (T198618)
+					$node->removeChild( $c );
 				} else {
-					$cName = DOMCompat::nodeName( $c );
-					if ( in_array( $cName, [ 'style', 'script' ], true ) ) {
-						# Remove any <style> or <script> tags (T198618)
+					self::processHeadingContent( $c );
+					if ( !$c->firstChild ) {
+						// Empty now - strip it!
+						$node->removeChild( $c );
+					} elseif ( !in_array( $cName, self::ALLOWED_NODES_IN_ANCHOR, true ) ) {
+						# Strip all unallowed tag wrappers
+						DOMUtils::migrateChildren( $c, $node, $next );
+						$next = $c->nextSibling;
 						$node->removeChild( $c );
 					} else {
-						self::processHeadingContent( $c );
-						if ( !$c->firstChild ) {
-							// Empty now - strip it!
-							$node->removeChild( $c );
-						} elseif ( !in_array( $cName, self::ALLOWED_NODES_IN_ANCHOR, true ) ) {
-							# Strip all unallowed tag wrappers
-							DOMUtils::migrateChildren( $c, $node, $next );
-							$next = $c->nextSibling;
-							$node->removeChild( $c );
-						} else {
-							# We strip any parameter from accepted tags except dir="rtl|ltr" from <span>,
-							# to allow setting directionality in toc items.
-							foreach ( DOMUtils::attributes( $c ) as $key => $val ) {
-								if ( $cName === 'span' ) {
-									if ( $key !== 'dir' || ( $val !== 'ltr' && $val !== 'rtl' ) ) {
-										$c->removeAttribute( $key );
-									}
-								} else {
+						# We strip any parameter from accepted tags except dir="rtl|ltr" from <span>,
+						# to allow setting directionality in toc items.
+						foreach ( DOMUtils::attributes( $c ) as $key => $val ) {
+							if ( $cName === 'span' ) {
+								if ( $key !== 'dir' || ( $val !== 'ltr' && $val !== 'rtl' ) ) {
 									$c->removeAttribute( $key );
 								}
+							} else {
+								$c->removeAttribute( $key );
 							}
 						}
 					}
