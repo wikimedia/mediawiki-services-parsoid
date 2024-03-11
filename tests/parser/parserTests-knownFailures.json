@@ -36,9 +36,6 @@
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
-	"Decoding of HTML entities in headings and links for IDs and link fragments (T103714)": {
-		"metadata": "Sections:\n h2 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:A&B&C&amp;D&amp;amp;E line:A&amp;B<span>&amp;</span>C<span>&amp;</span>amp;D<span>&amp;</span>amp;amp;E"
-	},
 	"Don't break on | in extension attribute in template": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,33,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tag name=\\\"hi|ho\\\">ha&lt;/tag>\"}},\"i\":0}}]}'>ho\">ha&lt;/tag></span></p>"
 	},

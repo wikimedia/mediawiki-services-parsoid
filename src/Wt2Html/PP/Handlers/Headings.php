@@ -58,7 +58,10 @@ class Headings {
 					if ( !$c->firstChild ) {
 						// Empty now - strip it!
 						$node->removeChild( $c );
-					} elseif ( !in_array( $cName, self::ALLOWED_NODES_IN_ANCHOR, true ) ) {
+					} elseif (
+						!in_array( $cName, self::ALLOWED_NODES_IN_ANCHOR, true ) ||
+						( $cName === 'span' && DOMUtils::hasTypeOf( $c, 'mw:Entity' ) )
+					) {
 						# Strip all unallowed tag wrappers
 						DOMUtils::migrateChildren( $c, $node, $next );
 						$next = $c->nextSibling;
