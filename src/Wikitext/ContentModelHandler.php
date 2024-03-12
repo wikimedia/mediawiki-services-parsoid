@@ -136,8 +136,6 @@ class ContentModelHandler extends IContentModelHandler {
 		// Given that, the for-loop below implements "last-one-wins" semantics
 		// for indicators that use the same name key.
 		foreach ( $indicators as $meta ) {
-			// T214241: indicator data-mw info is clobbered when the indicator
-			// happens to be the transclusion wrapper as well.
 			if ( !DOMUtils::hasTypeOf( $meta, "mw:Transclusion" ) ) {
 				// Since the DOM is in "stored" state, we have to reparse data-mw here.
 				$dmw = DOMDataUtils::getJSONAttribute( $meta, 'data-mw', null );

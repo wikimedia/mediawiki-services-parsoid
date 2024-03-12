@@ -14,7 +14,6 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
-use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
@@ -974,8 +973,9 @@ class DOMRangeBuilder {
 				}
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node
-				$encapDataMw = new DataMw( [ 'parts' => $parts ] );
-				// FIXME: This is going to clobber any data-mw on $encapTgt, see T214241
+				// Avoid clobbering existing (ex: extension) data-mw information (T214241)
+				$encapDataMw = DOMDataUtils::getDataMw( $encapTgt );
+				$encapDataMw->parts = $parts;
 				DOMDataUtils::setDataMw( $encapTgt, $encapDataMw );
 				$encapDP->pi = $pi;
 
