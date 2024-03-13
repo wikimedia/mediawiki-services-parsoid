@@ -57,7 +57,6 @@ class Sanitizer {
 		|&/x';
 
 	private const INSECURE_RE = '! expression
-		| filter\s*:
 		| accelerator\s*:
 		| -o-link\s*:
 		| -o-link-source\s*:
