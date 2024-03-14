@@ -637,7 +637,7 @@ class TestRunner {
 			$env, $test, $options, $mode, $doc,
 			$metadataExpected, $metadataActual
 		);
-		if ( $test->parsoidHtml ) {
+		if ( $test->parsoidHtml !== null ) {
 			$checkPassed = $this->checkHTML( $test, DOMCompat::getBody( $doc ), $options, $mode );
 		} else {
 			// Running the test for metadata, presumably.

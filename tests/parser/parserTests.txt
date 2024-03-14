@@ -4156,7 +4156,7 @@ Namespace 0 {{ns:0}} (T6783)
 Namespace 0 {{ns:00}} (T6783)
 !! wikitext
 {{ns:00}}
-!! html
+!! html/php
 !! html/parsoid+integrated
 <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"ns:00","function":"ns"},"params":{},"i":0}}]}'></span>
 !! end
