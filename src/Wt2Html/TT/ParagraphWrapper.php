@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -176,7 +177,7 @@ class ParagraphWrapper extends TokenHandler {
 	 *
 	 * @param array &$out array to append to
 	 * @param int &$offset The offset reference to update
-	 * @return Token|string
+	 * @return Token
 	 */
 	public function processOneNlTk( array &$out, &$offset ) {
 		$n = count( $this->nlWsTokens );
@@ -188,9 +189,7 @@ class ParagraphWrapper extends TokenHandler {
 				$out[] = $t;
 			}
 		}
-
-		// FIXME: We should return null and fix callers
-		return "";
+		throw new UnreachableException( 'nlWsTokens was expected to contain an NlTk.' );
 	}
 
 	/**
