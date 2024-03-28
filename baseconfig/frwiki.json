@@ -6,11 +6,11 @@
             "sitename": "Wikipédia",
             "mainpageisdomainroot": false,
             "logo": "//fr.wikipedia.org/static/images/project-logos/frwiki.png",
-            "generator": "MediaWiki 1.40.0-wmf.1",
-            "phpversion": "7.2.34-18+0~20210223.60+debian10~1.gbpb21322+wmf5",
+            "generator": "MediaWiki 1.42.0-wmf.23",
+            "phpversion": "7.4.33",
             "phpsapi": "fpm-fcgi",
             "dbtype": "mysql",
-            "dbversion": "10.4.25-MariaDB-log",
+            "dbversion": "10.6.16-MariaDB-log",
             "imagewhitelistenabled": false,
             "langconversion": true,
             "linkconversion": true,
@@ -19,12 +19,12 @@
             "linkprefix": "",
             "linktrail": "/^([a-zàâçéèêîôûäëïöüùÇÉÂÊÎÔÛÄËÏÖÜÀÈÙ]+)(.*)$/sDu",
             "legaltitlechars": " %!\"$&'()*,\\-.\\/0-9:;=?@A-Z\\\\^_`a-z~\\x80-\\xFF+",
-            "invalidusernamechars": "@:>",
+            "invalidusernamechars": "@:>=",
             "allunicodefixes": false,
             "fixarabicunicode": true,
             "fixmalayalamunicode": true,
-            "git-hash": "2fc21db59813e5e92fa0921d5e00d73317479b98",
-            "git-branch": "wmf/1.40.0-wmf.1",
+            "git-hash": "768fd92fc05f390b230e12630125520ab07d2a02",
+            "git-branch": "wmf/1.42.0-wmf.23",
             "case": "first-letter",
             "lang": "fr",
             "fallback": [
@@ -38,7 +38,7 @@
             "writeapi": true,
             "maxarticlesize": 2097152,
             "timezone": "Europe/Paris",
-            "timeoffset": 120,
+            "timeoffset": 60,
             "articlepath": "/wiki/$1",
             "scriptpath": "/w",
             "script": "/w/index.php",
@@ -46,10 +46,10 @@
             "server": "//fr.wikipedia.org",
             "servername": "fr.wikipedia.org",
             "wikiid": "frwiki",
-            "time": "2022-09-19T21:43:04Z",
+            "time": "2024-03-28T17:30:40Z",
             "misermode": true,
             "uploadsenabled": true,
-            "maxuploadsize": 4294967296,
+            "maxuploadsize": 5368709120,
             "minuploadchunksize": 1024,
             "galleryoptions": {
                 "imagesPerRow": 0,
@@ -124,6 +124,7 @@
                 "wiktionary.org",
                 "wikivoyage.org",
                 "wikidata.org",
+                "wikifunctions.org",
                 "tools.wmflabs.org",
                 "toolforge.org",
                 "etherpad.wmflabs.org"
@@ -131,10 +132,11 @@
             "externallinktarget": false,
             "wmf-config": {
                 "wmfMasterDatacenter": "eqiad",
-                "wmfEtcdLastModifiedIndex": 1048958,
+                "wmfEtcdLastModifiedIndex": 3088417,
                 "wmgCirrusSearchDefaultCluster": "local",
                 "wgCirrusSearchDefaultCluster": "eqiad"
             },
+            "citeresponsivereferences": true,
             "linter": {
                 "high": [
                     "deletable-table-tag",
@@ -157,17 +159,16 @@
                 ],
                 "low": [
                     "missing-end-tag",
+                    "missing-end-tag-in-heading",
                     "obsolete-tag",
                     "stripped-tag"
+                ],
+                "none": [
+                    "large-tables",
+                    "night-mode-unaware-background-color"
                 ]
             },
             "mobileserver": "https://fr.m.wikipedia.org",
-            "readinglists-config": {
-                "maxListsPerUser": 100,
-                "maxEntriesPerList": 5000,
-                "deletedRetentionDays": 30
-            },
-            "citeresponsivereferences": true,
             "pageviewservice-supported-metrics": {
                 "pageviews": {
                     "pageviews": true,
@@ -181,6 +182,11 @@
                     "pageviews": true,
                     "uniques": false
                 }
+            },
+            "readinglists-config": {
+                "maxListsPerUser": 100,
+                "maxEntriesPerList": 5000,
+                "deletedRetentionDays": 30
             }
         },
         "protocols": [
@@ -196,6 +202,7 @@
             "ircs://",
             "magnet:",
             "mailto:",
+            "matrix:",
             "mms://",
             "news:",
             "nntp://",
@@ -463,45 +470,6 @@
                 "name": "Discussion module",
                 "subpages": true,
                 "canonical": "Module talk",
-                "content": false,
-                "nonincludable": false
-            },
-            "2300": {
-                "id": 2300,
-                "case": "case-sensitive",
-                "name": "Gadget",
-                "subpages": false,
-                "canonical": "Gadget",
-                "content": false,
-                "nonincludable": false,
-                "namespaceprotection": "gadgets-edit"
-            },
-            "2301": {
-                "id": 2301,
-                "case": "case-sensitive",
-                "name": "Discussion gadget",
-                "subpages": false,
-                "canonical": "Gadget talk",
-                "content": false,
-                "nonincludable": false
-            },
-            "2302": {
-                "id": 2302,
-                "case": "case-sensitive",
-                "name": "Définition de gadget",
-                "subpages": false,
-                "canonical": "Gadget definition",
-                "content": false,
-                "nonincludable": false,
-                "namespaceprotection": "gadgets-definition-edit",
-                "defaultcontentmodel": "GadgetDefinition"
-            },
-            "2303": {
-                "id": 2303,
-                "case": "case-sensitive",
-                "name": "Discussion définition de gadget",
-                "subpages": false,
-                "canonical": "Gadget definition talk",
                 "content": false,
                 "nonincludable": false
             },
@@ -2177,6 +2145,20 @@
                 "case-sensitive": false
             },
             {
+                "name": "archivedtalk",
+                "aliases": [
+                    "__ARCHIVEDTALK__"
+                ],
+                "case-sensitive": false
+            },
+            {
+                "name": "notalk",
+                "aliases": [
+                    "__NOTALK__"
+                ],
+                "case-sensitive": false
+            },
+            {
                 "name": "related",
                 "aliases": [
                     "related"
@@ -2224,6 +2206,13 @@
                     "__EXPECTED_UNCONNECTED_PAGE__"
                 ],
                 "case-sensitive": true
+            },
+            {
+                "name": "phonos",
+                "aliases": [
+                    "phonos"
+                ],
+                "case-sensitive": false
             },
             {
                 "name": "calendar",
@@ -2359,18 +2348,18 @@
                 "case-sensitive": false
             },
             {
-                "name": "phonos",
-                "aliases": [
-                    "phonos"
-                ],
-                "case-sensitive": false
-            },
-            {
                 "name": "translation",
                 "aliases": [
                     "translation"
                 ],
                 "case-sensitive": false
+            },
+            {
+                "name": "translatablepage",
+                "aliases": [
+                    "TRANSLATABLEPAGE"
+                ],
+                "case-sensitive": true
             },
             {
                 "name": "PAGEBANNER",
@@ -2580,6 +2569,11 @@
                 "protorel": false
             },
             {
+                "prefix": "antwiki",
+                "url": "https://antwiki.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "appropedia",
                 "url": "http://www.appropedia.org/$1",
                 "protorel": false
@@ -2708,11 +2702,6 @@
                 "protorel": false
             },
             {
-                "prefix": "comixpedia",
-                "url": "http://www.comixpedia.org/index.php?title=$1",
-                "protorel": false
-            },
-            {
                 "prefix": "commons",
                 "local": true,
                 "url": "https://commons.wikimedia.org/wiki/$1",
@@ -2769,13 +2758,8 @@
                 "protorel": false
             },
             {
-                "prefix": "delicious",
-                "url": "https://www.delicious.com/tag/$1",
-                "protorel": true
-            },
-            {
                 "prefix": "devmo",
-                "url": "https://developer.mozilla.org/en/docs/$1",
+                "url": "https://developer.mozilla.org/docs/$1",
                 "protorel": false
             },
             {
@@ -2796,6 +2780,11 @@
             {
                 "prefix": "dict",
                 "url": "http://www.dict.org/bin/Dict?Database=*&Form=Dict1&Strategy=*&Query=$1",
+                "protorel": false
+            },
+            {
+                "prefix": "discord",
+                "url": "https://discord.com/$1",
                 "protorel": false
             },
             {
@@ -2853,7 +2842,7 @@
             },
             {
                 "prefix": "dpd",
-                "url": "http://lema.rae.es/dpd/?key=$1",
+                "url": "https://www.rae.es/dpd/$1",
                 "protorel": false
             },
             {
@@ -2863,7 +2852,7 @@
             },
             {
                 "prefix": "drae",
-                "url": "http://dle.rae.es/?w=$1",
+                "url": "https://dle.rae.es/?w=$1",
                 "protorel": false
             },
             {
@@ -2898,7 +2887,7 @@
             },
             {
                 "prefix": "encyc",
-                "url": "http://encyc.org/wiki/$1",
+                "url": "https://encyc.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -2943,13 +2932,13 @@
                 "protorel": true
             },
             {
-                "prefix": "evowiki",
-                "url": "http://wiki.cotch.net/index.php/$1",
+                "prefix": "exotica",
+                "url": "https://www.exotica.org.uk/wiki/$1",
                 "protorel": false
             },
             {
-                "prefix": "exotica",
-                "url": "https://www.exotica.org.uk/wiki/$1",
+                "prefix": "exkcd",
+                "url": "https://www.explainxkcd.com/wiki/index.php/$1",
                 "protorel": false
             },
             {
@@ -3030,18 +3019,14 @@
                 "protorel": false
             },
             {
-                "prefix": "freefeel",
-                "url": "http://freefeel.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "freekiwiki",
                 "url": "http://wiki.freegeek.org/index.php/$1",
                 "protorel": false
             },
             {
                 "prefix": "freenode",
-                "url": "irc://irc.freenode.net/$1",
+                "local": true,
+                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#freenode",
                 "protorel": false
             },
             {
@@ -3153,11 +3138,6 @@
                 "protorel": false
             },
             {
-                "prefix": "h2wiki",
-                "url": "http://halowiki.net/p/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "hammondwiki",
                 "url": "http://www.dairiki.org/HammondWiki/index.php3?$1",
                 "protorel": false
@@ -3214,19 +3194,9 @@
                 "protorel": false
             },
             {
-                "prefix": "imdbcharacter",
-                "url": "https://www.imdb.com/character/ch$1/",
-                "protorel": false
-            },
-            {
                 "prefix": "incubator",
                 "local": true,
                 "url": "https://incubator.wikimedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "infosecpedia",
-                "url": "http://infosecpedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -3303,7 +3273,7 @@
             },
             {
                 "prefix": "kamelo",
-                "url": "http://kamelopedia.mormo.org/index.php/$1",
+                "url": "http://kamelopedia.net/wiki/$1",
                 "protorel": false
             },
             {
@@ -3610,11 +3580,6 @@
                 "protorel": false
             },
             {
-                "prefix": "opera7wiki",
-                "url": "http://operawiki.info/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "organicdesign",
                 "url": "https://www.organicdesign.co.nz/$1",
                 "protorel": false
@@ -3856,11 +3821,6 @@
                 "protorel": false
             },
             {
-                "prefix": "seapig",
-                "url": "http://www.seapig.org/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "seattlewiki",
                 "url": "https://seattle.fandom.com/wiki/$1",
                 "protorel": false
@@ -3888,12 +3848,13 @@
             },
             {
                 "prefix": "sharemap",
-                "url": "https://sharemap.org/$1",
-                "protorel": true
+                "local": true,
+                "url": "https://meta.wikimedia.org/w/index.php?title=Interwiki_map/discontinued#Sharemap",
+                "protorel": false
             },
             {
                 "prefix": "silcode",
-                "url": "http://www.sil.org/iso639-3/documentation.asp?id=$1",
+                "url": "https://iso639-3.sil.org/code/$1",
                 "protorel": false
             },
             {
@@ -4053,6 +4014,12 @@
                 "protorel": false
             },
             {
+                "prefix": "toolhub",
+                "local": true,
+                "url": "https://toolhub.wikimedia.org/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "toollabs",
                 "url": "https://iw.toolforge.org/$1",
                 "protorel": false
@@ -4079,11 +4046,6 @@
                 "protorel": false
             },
             {
-                "prefix": "tvtropes",
-                "url": "http://www.tvtropes.org/pmwiki/pmwiki.php/Main/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "twiki",
                 "url": "http://twiki.org/cgi-bin/view/$1",
                 "protorel": false
@@ -4105,8 +4067,7 @@
             },
             {
                 "prefix": "uncyclopedia",
-                "local": true,
-                "url": "https://meta.wikimedia.org/wiki/Interwiki_map/discontinued#uncyclopedia",
+                "url": "https://en.uncyclopedia.co/wiki/$1",
                 "protorel": false
             },
             {
@@ -4257,6 +4218,12 @@
                 "protorel": false
             },
             {
+                "prefix": "wikifunctions",
+                "local": true,
+                "url": "https://www.wikifunctions.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "wikifur",
                 "url": "https://en.wikifur.com/wiki/$1",
                 "protorel": true
@@ -4269,11 +4236,6 @@
             {
                 "prefix": "wikiindex",
                 "url": "http://wikiindex.org/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "wikilemon",
-                "url": "http://wiki.illemonati.com/$1",
                 "protorel": false
             },
             {
@@ -4496,7 +4458,7 @@
             },
             {
                 "prefix": "wmcz",
-                "url": "https://www.wikimedia.cz/web/$1",
+                "url": "https://www.wikimedia.cz/$1",
                 "protorel": false
             },
             {
@@ -4528,6 +4490,12 @@
                 "prefix": "wmdk",
                 "local": true,
                 "url": "https://dk.wikimedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "wmdoc",
+                "local": true,
+                "url": "https://doc.wikimedia.org/$1",
                 "protorel": false
             },
             {
@@ -4894,13 +4862,13 @@
                 "protorel": false
             },
             {
-                "prefix": "xtools",
-                "url": "https://xtools.wmflabs.org/$1",
+                "prefix": "xkcd",
+                "url": "https://xkcd.com/$1",
                 "protorel": false
             },
             {
-                "prefix": "zrhwiki",
-                "url": "http://www.zrhwiki.ch/wiki/$1",
+                "prefix": "xtools",
+                "url": "https://xtools.wmcloud.org/$1",
                 "protorel": false
             },
             {
@@ -4932,9 +4900,16 @@
                 "protorel": false
             },
             {
+                "prefix": "f",
+                "local": true,
+                "url": "https://www.wikifunctions.org/wiki/$1",
+                "protorel": false
+            },
+            {
                 "prefix": "aa",
                 "local": true,
                 "language": "Qafár af",
+                "bcp47": "aa",
                 "url": "https://aa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4942,6 +4917,7 @@
                 "prefix": "ab",
                 "local": true,
                 "language": "аԥсшәа",
+                "bcp47": "ab",
                 "url": "https://ab.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4949,6 +4925,7 @@
                 "prefix": "ace",
                 "local": true,
                 "language": "Acèh",
+                "bcp47": "ace",
                 "url": "https://ace.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4956,6 +4933,7 @@
                 "prefix": "ady",
                 "local": true,
                 "language": "адыгабзэ",
+                "bcp47": "ady",
                 "url": "https://ady.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4963,13 +4941,13 @@
                 "prefix": "af",
                 "local": true,
                 "language": "Afrikaans",
+                "bcp47": "af",
                 "url": "https://af.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "ak",
                 "local": true,
-                "language": "Akan",
                 "url": "https://ak.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4977,6 +4955,8 @@
                 "prefix": "als",
                 "local": true,
                 "language": "Alemannisch",
+                "deprecated": "gsw",
+                "bcp47": "gsw",
                 "url": "https://als.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4984,6 +4964,7 @@
                 "prefix": "alt",
                 "local": true,
                 "language": "алтай тил",
+                "bcp47": "alt",
                 "url": "https://alt.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4991,6 +4972,7 @@
                 "prefix": "am",
                 "local": true,
                 "language": "አማርኛ",
+                "bcp47": "am",
                 "url": "https://am.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -4998,6 +4980,7 @@
                 "prefix": "ami",
                 "local": true,
                 "language": "Pangcah",
+                "bcp47": "ami",
                 "url": "https://ami.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5005,6 +4988,7 @@
                 "prefix": "an",
                 "local": true,
                 "language": "aragonés",
+                "bcp47": "an",
                 "url": "https://an.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5012,13 +4996,23 @@
                 "prefix": "ang",
                 "local": true,
                 "language": "Ænglisc",
+                "bcp47": "ang",
                 "url": "https://ang.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "anp",
+                "local": true,
+                "language": "अंगिका",
+                "bcp47": "anp",
+                "url": "https://anp.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "ar",
                 "local": true,
                 "language": "العربية",
+                "bcp47": "ar",
                 "url": "https://ar.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5026,6 +5020,7 @@
                 "prefix": "arc",
                 "local": true,
                 "language": "ܐܪܡܝܐ",
+                "bcp47": "arc",
                 "url": "https://arc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5033,6 +5028,7 @@
                 "prefix": "ary",
                 "local": true,
                 "language": "الدارجة",
+                "bcp47": "ary",
                 "url": "https://ary.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5040,6 +5036,7 @@
                 "prefix": "arz",
                 "local": true,
                 "language": "مصرى",
+                "bcp47": "arz",
                 "url": "https://arz.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5047,6 +5044,7 @@
                 "prefix": "as",
                 "local": true,
                 "language": "অসমীয়া",
+                "bcp47": "as",
                 "url": "https://as.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5054,6 +5052,7 @@
                 "prefix": "ast",
                 "local": true,
                 "language": "asturianu",
+                "bcp47": "ast",
                 "url": "https://ast.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5061,6 +5060,7 @@
                 "prefix": "atj",
                 "local": true,
                 "language": "Atikamekw",
+                "bcp47": "atj",
                 "url": "https://atj.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5068,6 +5068,7 @@
                 "prefix": "av",
                 "local": true,
                 "language": "авар",
+                "bcp47": "av",
                 "url": "https://av.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5075,6 +5076,7 @@
                 "prefix": "avk",
                 "local": true,
                 "language": "Kotava",
+                "bcp47": "avk",
                 "url": "https://avk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5082,6 +5084,7 @@
                 "prefix": "awa",
                 "local": true,
                 "language": "अवधी",
+                "bcp47": "awa",
                 "url": "https://awa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5089,6 +5092,7 @@
                 "prefix": "ay",
                 "local": true,
                 "language": "Aymar aru",
+                "bcp47": "ay",
                 "url": "https://ay.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5096,6 +5100,7 @@
                 "prefix": "az",
                 "local": true,
                 "language": "azərbaycanca",
+                "bcp47": "az",
                 "url": "https://az.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5103,6 +5108,7 @@
                 "prefix": "azb",
                 "local": true,
                 "language": "تۆرکجه",
+                "bcp47": "azb",
                 "url": "https://azb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5110,6 +5116,7 @@
                 "prefix": "ba",
                 "local": true,
                 "language": "башҡортса",
+                "bcp47": "ba",
                 "url": "https://ba.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5117,6 +5124,7 @@
                 "prefix": "ban",
                 "local": true,
                 "language": "Basa Bali",
+                "bcp47": "ban",
                 "url": "https://ban.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5124,6 +5132,7 @@
                 "prefix": "bar",
                 "local": true,
                 "language": "Boarisch",
+                "bcp47": "bar",
                 "url": "https://bar.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5131,13 +5140,24 @@
                 "prefix": "bat-smg",
                 "local": true,
                 "language": "žemaitėška",
+                "deprecated": "sgs",
+                "bcp47": "sgs",
                 "url": "https://bat-smg.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "bbc",
+                "local": true,
+                "language": "Batak Toba",
+                "bcp47": "bbc",
+                "url": "https://bbc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "bcl",
                 "local": true,
                 "language": "Bikol Central",
+                "bcp47": "bcl",
                 "url": "https://bcl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5145,6 +5165,7 @@
                 "prefix": "be",
                 "local": true,
                 "language": "беларуская",
+                "bcp47": "be",
                 "url": "https://be.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5152,6 +5173,7 @@
                 "prefix": "be-tarask",
                 "local": true,
                 "language": "беларуская (тарашкевіца)",
+                "bcp47": "be-tarask",
                 "url": "https://be-tarask.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5159,6 +5181,8 @@
                 "prefix": "be-x-old",
                 "local": true,
                 "language": "беларуская (тарашкевіца)",
+                "deprecated": "be-tarask",
+                "bcp47": "be-tarask",
                 "url": "https://be-tarask.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5166,6 +5190,7 @@
                 "prefix": "bg",
                 "local": true,
                 "language": "български",
+                "bcp47": "bg",
                 "url": "https://bg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5173,6 +5198,7 @@
                 "prefix": "bh",
                 "local": true,
                 "language": "भोजपुरी",
+                "bcp47": "bh",
                 "url": "https://bh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5180,6 +5206,7 @@
                 "prefix": "bi",
                 "local": true,
                 "language": "Bislama",
+                "bcp47": "bi",
                 "url": "https://bi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5187,6 +5214,7 @@
                 "prefix": "bjn",
                 "local": true,
                 "language": "Banjar",
+                "bcp47": "bjn",
                 "url": "https://bjn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5194,6 +5222,7 @@
                 "prefix": "blk",
                 "local": true,
                 "language": "ပအိုဝ်ႏဘာႏသာႏ",
+                "bcp47": "blk",
                 "url": "https://blk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5201,6 +5230,7 @@
                 "prefix": "bm",
                 "local": true,
                 "language": "bamanankan",
+                "bcp47": "bm",
                 "url": "https://bm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5208,6 +5238,7 @@
                 "prefix": "bn",
                 "local": true,
                 "language": "বাংলা",
+                "bcp47": "bn",
                 "url": "https://bn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5215,6 +5246,7 @@
                 "prefix": "bo",
                 "local": true,
                 "language": "བོད་ཡིག",
+                "bcp47": "bo",
                 "url": "https://bo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5222,6 +5254,7 @@
                 "prefix": "bpy",
                 "local": true,
                 "language": "বিষ্ণুপ্রিয়া মণিপুরী",
+                "bcp47": "bpy",
                 "url": "https://bpy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5229,6 +5262,7 @@
                 "prefix": "br",
                 "local": true,
                 "language": "brezhoneg",
+                "bcp47": "br",
                 "url": "https://br.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5236,13 +5270,23 @@
                 "prefix": "bs",
                 "local": true,
                 "language": "bosanski",
+                "bcp47": "bs",
                 "url": "https://bs.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "btm",
+                "local": true,
+                "language": "Batak Mandailing",
+                "bcp47": "btm",
+                "url": "https://btm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "bug",
                 "local": true,
-                "language": "ᨅᨔ ᨕᨘᨁᨗ",
+                "language": "Basa Ugi",
+                "bcp47": "bug",
                 "url": "https://bug.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5250,6 +5294,7 @@
                 "prefix": "bxr",
                 "local": true,
                 "language": "буряад",
+                "bcp47": "bxr",
                 "url": "https://bxr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5257,6 +5302,7 @@
                 "prefix": "ca",
                 "local": true,
                 "language": "català",
+                "bcp47": "ca",
                 "url": "https://ca.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5264,13 +5310,15 @@
                 "prefix": "cbk-zam",
                 "local": true,
                 "language": "Chavacano de Zamboanga",
+                "bcp47": "cbk",
                 "url": "https://cbk-zam.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "cdo",
                 "local": true,
-                "language": "Mìng-dĕ̤ng-ngṳ̄",
+                "language": "閩東語 / Mìng-dĕ̤ng-ngṳ̄",
+                "bcp47": "cdo",
                 "url": "https://cdo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5278,6 +5326,7 @@
                 "prefix": "ce",
                 "local": true,
                 "language": "нохчийн",
+                "bcp47": "ce",
                 "url": "https://ce.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5285,6 +5334,7 @@
                 "prefix": "ceb",
                 "local": true,
                 "language": "Cebuano",
+                "bcp47": "ceb",
                 "url": "https://ceb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5292,13 +5342,15 @@
                 "prefix": "ch",
                 "local": true,
                 "language": "Chamoru",
+                "bcp47": "ch",
                 "url": "https://ch.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "cho",
                 "local": true,
-                "language": "Choctaw",
+                "language": "Chahta anumpa",
+                "bcp47": "cho",
                 "url": "https://cho.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5306,6 +5358,7 @@
                 "prefix": "chr",
                 "local": true,
                 "language": "ᏣᎳᎩ",
+                "bcp47": "chr",
                 "url": "https://chr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5313,6 +5366,7 @@
                 "prefix": "chy",
                 "local": true,
                 "language": "Tsetsêhestâhese",
+                "bcp47": "chy",
                 "url": "https://chy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5320,6 +5374,7 @@
                 "prefix": "ckb",
                 "local": true,
                 "language": "کوردی",
+                "bcp47": "ckb",
                 "url": "https://ckb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5327,6 +5382,7 @@
                 "prefix": "co",
                 "local": true,
                 "language": "corsu",
+                "bcp47": "co",
                 "url": "https://co.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5334,6 +5390,7 @@
                 "prefix": "cr",
                 "local": true,
                 "language": "Nēhiyawēwin / ᓀᐦᐃᔭᐍᐏᐣ",
+                "bcp47": "cr",
                 "url": "https://cr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5341,6 +5398,7 @@
                 "prefix": "crh",
                 "local": true,
                 "language": "qırımtatarca",
+                "bcp47": "crh",
                 "url": "https://crh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5348,6 +5406,7 @@
                 "prefix": "cs",
                 "local": true,
                 "language": "čeština",
+                "bcp47": "cs",
                 "url": "https://cs.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5355,6 +5414,7 @@
                 "prefix": "csb",
                 "local": true,
                 "language": "kaszëbsczi",
+                "bcp47": "csb",
                 "url": "https://csb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5362,6 +5422,7 @@
                 "prefix": "cu",
                 "local": true,
                 "language": "словѣньскъ / ⰔⰎⰑⰂⰡⰐⰠⰔⰍⰟ",
+                "bcp47": "cu",
                 "url": "https://cu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5369,6 +5430,7 @@
                 "prefix": "cv",
                 "local": true,
                 "language": "чӑвашла",
+                "bcp47": "cv",
                 "url": "https://cv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5376,6 +5438,7 @@
                 "prefix": "cy",
                 "local": true,
                 "language": "Cymraeg",
+                "bcp47": "cy",
                 "url": "https://cy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5383,6 +5446,7 @@
                 "prefix": "da",
                 "local": true,
                 "language": "dansk",
+                "bcp47": "da",
                 "url": "https://da.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5390,6 +5454,7 @@
                 "prefix": "dag",
                 "local": true,
                 "language": "dagbanli",
+                "bcp47": "dag",
                 "url": "https://dag.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5397,13 +5462,23 @@
                 "prefix": "de",
                 "local": true,
                 "language": "Deutsch",
+                "bcp47": "de",
                 "url": "https://de.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "dga",
+                "local": true,
+                "language": "Dagaare",
+                "bcp47": "dga",
+                "url": "https://dga.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "din",
                 "local": true,
                 "language": "Thuɔŋjäŋ",
+                "bcp47": "din",
                 "url": "https://din.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5411,6 +5486,7 @@
                 "prefix": "diq",
                 "local": true,
                 "language": "Zazaki",
+                "bcp47": "diq",
                 "url": "https://diq.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5418,6 +5494,7 @@
                 "prefix": "dsb",
                 "local": true,
                 "language": "dolnoserbski",
+                "bcp47": "dsb",
                 "url": "https://dsb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5425,6 +5502,7 @@
                 "prefix": "dty",
                 "local": true,
                 "language": "डोटेली",
+                "bcp47": "dty",
                 "url": "https://dty.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5432,6 +5510,7 @@
                 "prefix": "dv",
                 "local": true,
                 "language": "ދިވެހިބަސް",
+                "bcp47": "dv",
                 "url": "https://dv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5439,6 +5518,7 @@
                 "prefix": "dz",
                 "local": true,
                 "language": "ཇོང་ཁ",
+                "bcp47": "dz",
                 "url": "https://dz.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5446,6 +5526,7 @@
                 "prefix": "ee",
                 "local": true,
                 "language": "eʋegbe",
+                "bcp47": "ee",
                 "url": "https://ee.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5453,6 +5534,7 @@
                 "prefix": "el",
                 "local": true,
                 "language": "Ελληνικά",
+                "bcp47": "el",
                 "url": "https://el.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5460,6 +5542,7 @@
                 "prefix": "eml",
                 "local": true,
                 "language": "emiliàn e rumagnòl",
+                "bcp47": "egl",
                 "url": "https://eml.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5467,6 +5550,7 @@
                 "prefix": "en",
                 "local": true,
                 "language": "English",
+                "bcp47": "en",
                 "url": "https://en.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5474,6 +5558,7 @@
                 "prefix": "eo",
                 "local": true,
                 "language": "Esperanto",
+                "bcp47": "eo",
                 "url": "https://eo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5481,6 +5566,7 @@
                 "prefix": "es",
                 "local": true,
                 "language": "español",
+                "bcp47": "es",
                 "url": "https://es.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5488,6 +5574,7 @@
                 "prefix": "et",
                 "local": true,
                 "language": "eesti",
+                "bcp47": "et",
                 "url": "https://et.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5495,6 +5582,7 @@
                 "prefix": "eu",
                 "local": true,
                 "language": "euskara",
+                "bcp47": "eu",
                 "url": "https://eu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5502,6 +5590,7 @@
                 "prefix": "ext",
                 "local": true,
                 "language": "estremeñu",
+                "bcp47": "ext",
                 "url": "https://ext.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5509,13 +5598,23 @@
                 "prefix": "fa",
                 "local": true,
                 "language": "فارسی",
+                "bcp47": "fa",
                 "url": "https://fa.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "fat",
+                "local": true,
+                "language": "mfantse",
+                "bcp47": "fat",
+                "url": "https://fat.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "ff",
                 "local": true,
                 "language": "Fulfulde",
+                "bcp47": "ff",
                 "url": "https://ff.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5523,6 +5622,7 @@
                 "prefix": "fi",
                 "local": true,
                 "language": "suomi",
+                "bcp47": "fi",
                 "url": "https://fi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5530,6 +5630,8 @@
                 "prefix": "fiu-vro",
                 "local": true,
                 "language": "võro",
+                "deprecated": "vro",
+                "bcp47": "vro",
                 "url": "https://fiu-vro.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5537,6 +5639,7 @@
                 "prefix": "fj",
                 "local": true,
                 "language": "Na Vosa Vakaviti",
+                "bcp47": "fj",
                 "url": "https://fj.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5544,13 +5647,23 @@
                 "prefix": "fo",
                 "local": true,
                 "language": "føroyskt",
+                "bcp47": "fo",
                 "url": "https://fo.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "fon",
+                "local": true,
+                "language": "fɔ̀ngbè",
+                "bcp47": "fon",
+                "url": "https://fon.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "fr",
                 "local": true,
                 "language": "français",
+                "bcp47": "fr",
                 "localinterwiki": true,
                 "url": "https://fr.wikipedia.org/wiki/$1",
                 "protorel": false
@@ -5559,6 +5672,7 @@
                 "prefix": "frp",
                 "local": true,
                 "language": "arpetan",
+                "bcp47": "frp",
                 "url": "https://frp.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5566,6 +5680,7 @@
                 "prefix": "frr",
                 "local": true,
                 "language": "Nordfriisk",
+                "bcp47": "frr",
                 "url": "https://frr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5573,6 +5688,7 @@
                 "prefix": "fur",
                 "local": true,
                 "language": "furlan",
+                "bcp47": "fur",
                 "url": "https://fur.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5580,6 +5696,7 @@
                 "prefix": "fy",
                 "local": true,
                 "language": "Frysk",
+                "bcp47": "fy",
                 "url": "https://fy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5587,6 +5704,7 @@
                 "prefix": "ga",
                 "local": true,
                 "language": "Gaeilge",
+                "bcp47": "ga",
                 "url": "https://ga.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5594,6 +5712,7 @@
                 "prefix": "gag",
                 "local": true,
                 "language": "Gagauz",
+                "bcp47": "gag",
                 "url": "https://gag.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5601,6 +5720,7 @@
                 "prefix": "gan",
                 "local": true,
                 "language": "贛語",
+                "bcp47": "gan",
                 "url": "https://gan.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5608,6 +5728,7 @@
                 "prefix": "gcr",
                 "local": true,
                 "language": "kriyòl gwiyannen",
+                "bcp47": "gcr",
                 "url": "https://gcr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5615,6 +5736,7 @@
                 "prefix": "gd",
                 "local": true,
                 "language": "Gàidhlig",
+                "bcp47": "gd",
                 "url": "https://gd.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5622,6 +5744,7 @@
                 "prefix": "gl",
                 "local": true,
                 "language": "galego",
+                "bcp47": "gl",
                 "url": "https://gl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5629,6 +5752,7 @@
                 "prefix": "glk",
                 "local": true,
                 "language": "گیلکی",
+                "bcp47": "glk",
                 "url": "https://glk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5636,6 +5760,7 @@
                 "prefix": "gn",
                 "local": true,
                 "language": "Avañe'ẽ",
+                "bcp47": "gn",
                 "url": "https://gn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5643,6 +5768,7 @@
                 "prefix": "gom",
                 "local": true,
                 "language": "गोंयची कोंकणी / Gõychi Konknni",
+                "bcp47": "gom",
                 "url": "https://gom.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5650,6 +5776,7 @@
                 "prefix": "gor",
                 "local": true,
                 "language": "Bahasa Hulontalo",
+                "bcp47": "gor",
                 "url": "https://gor.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5657,20 +5784,55 @@
                 "prefix": "got",
                 "local": true,
                 "language": "𐌲𐌿𐍄𐌹𐍃𐌺",
+                "bcp47": "got",
                 "url": "https://got.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "gpe",
+                "local": true,
+                "language": "Ghanaian Pidgin",
+                "bcp47": "gpe",
+                "url": "https://gpe.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "gsw",
+                "local": true,
+                "language": "Alemannisch",
+                "bcp47": "gsw",
+                "url": "https://als.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "gu",
                 "local": true,
                 "language": "ગુજરાતી",
+                "bcp47": "gu",
                 "url": "https://gu.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "guc",
+                "local": true,
+                "language": "wayuunaiki",
+                "bcp47": "guc",
+                "url": "https://guc.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "gur",
+                "local": true,
+                "language": "farefare",
+                "bcp47": "gur",
+                "url": "https://gur.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "guw",
                 "local": true,
                 "language": "gungbe",
+                "bcp47": "guw",
                 "url": "https://guw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5678,6 +5840,7 @@
                 "prefix": "gv",
                 "local": true,
                 "language": "Gaelg",
+                "bcp47": "gv",
                 "url": "https://gv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5685,6 +5848,7 @@
                 "prefix": "ha",
                 "local": true,
                 "language": "Hausa",
+                "bcp47": "ha",
                 "url": "https://ha.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5692,6 +5856,7 @@
                 "prefix": "hak",
                 "local": true,
                 "language": "客家語/Hak-kâ-ngî",
+                "bcp47": "hak",
                 "url": "https://hak.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5699,6 +5864,7 @@
                 "prefix": "haw",
                 "local": true,
                 "language": "Hawaiʻi",
+                "bcp47": "haw",
                 "url": "https://haw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5706,6 +5872,7 @@
                 "prefix": "he",
                 "local": true,
                 "language": "עברית",
+                "bcp47": "he",
                 "url": "https://he.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5713,6 +5880,7 @@
                 "prefix": "hi",
                 "local": true,
                 "language": "हिन्दी",
+                "bcp47": "hi",
                 "url": "https://hi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5720,6 +5888,7 @@
                 "prefix": "hif",
                 "local": true,
                 "language": "Fiji Hindi",
+                "bcp47": "hif",
                 "url": "https://hif.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5727,6 +5896,7 @@
                 "prefix": "ho",
                 "local": true,
                 "language": "Hiri Motu",
+                "bcp47": "ho",
                 "url": "https://ho.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5734,6 +5904,7 @@
                 "prefix": "hr",
                 "local": true,
                 "language": "hrvatski",
+                "bcp47": "hr",
                 "url": "https://hr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5741,6 +5912,7 @@
                 "prefix": "hsb",
                 "local": true,
                 "language": "hornjoserbsce",
+                "bcp47": "hsb",
                 "url": "https://hsb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5748,6 +5920,7 @@
                 "prefix": "ht",
                 "local": true,
                 "language": "Kreyòl ayisyen",
+                "bcp47": "ht",
                 "url": "https://ht.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5755,6 +5928,7 @@
                 "prefix": "hu",
                 "local": true,
                 "language": "magyar",
+                "bcp47": "hu",
                 "url": "https://hu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5762,6 +5936,7 @@
                 "prefix": "hy",
                 "local": true,
                 "language": "հայերեն",
+                "bcp47": "hy",
                 "url": "https://hy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5769,6 +5944,7 @@
                 "prefix": "hyw",
                 "local": true,
                 "language": "Արեւմտահայերէն",
+                "bcp47": "hyw",
                 "url": "https://hyw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5776,6 +5952,7 @@
                 "prefix": "hz",
                 "local": true,
                 "language": "Otsiherero",
+                "bcp47": "hz",
                 "url": "https://hz.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5783,6 +5960,7 @@
                 "prefix": "ia",
                 "local": true,
                 "language": "interlingua",
+                "bcp47": "ia",
                 "url": "https://ia.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5790,6 +5968,7 @@
                 "prefix": "id",
                 "local": true,
                 "language": "Bahasa Indonesia",
+                "bcp47": "id",
                 "url": "https://id.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5797,6 +5976,7 @@
                 "prefix": "ie",
                 "local": true,
                 "language": "Interlingue",
+                "bcp47": "ie",
                 "url": "https://ie.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5804,6 +5984,7 @@
                 "prefix": "ig",
                 "local": true,
                 "language": "Igbo",
+                "bcp47": "ig",
                 "url": "https://ig.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5811,6 +5992,7 @@
                 "prefix": "ii",
                 "local": true,
                 "language": "ꆇꉙ",
+                "bcp47": "ii",
                 "url": "https://ii.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5818,6 +6000,7 @@
                 "prefix": "ik",
                 "local": true,
                 "language": "Iñupiatun",
+                "bcp47": "ik",
                 "url": "https://ik.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5825,6 +6008,7 @@
                 "prefix": "ilo",
                 "local": true,
                 "language": "Ilokano",
+                "bcp47": "ilo",
                 "url": "https://ilo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5832,6 +6016,7 @@
                 "prefix": "inh",
                 "local": true,
                 "language": "гӀалгӀай",
+                "bcp47": "inh",
                 "url": "https://inh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5839,6 +6024,7 @@
                 "prefix": "io",
                 "local": true,
                 "language": "Ido",
+                "bcp47": "io",
                 "url": "https://io.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5846,6 +6032,7 @@
                 "prefix": "is",
                 "local": true,
                 "language": "íslenska",
+                "bcp47": "is",
                 "url": "https://is.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5853,13 +6040,15 @@
                 "prefix": "it",
                 "local": true,
                 "language": "italiano",
+                "bcp47": "it",
                 "url": "https://it.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "iu",
                 "local": true,
-                "language": "ᐃᓄᒃᑎᑐᑦ/inuktitut",
+                "language": "ᐃᓄᒃᑎᑐᑦ / inuktitut",
+                "bcp47": "iu",
                 "url": "https://iu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5867,6 +6056,7 @@
                 "prefix": "ja",
                 "local": true,
                 "language": "日本語",
+                "bcp47": "ja",
                 "url": "https://ja.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5874,6 +6064,7 @@
                 "prefix": "jam",
                 "local": true,
                 "language": "Patois",
+                "bcp47": "jam",
                 "url": "https://jam.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5881,6 +6072,7 @@
                 "prefix": "jbo",
                 "local": true,
                 "language": "la .lojban.",
+                "bcp47": "jbo",
                 "url": "https://jbo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5888,6 +6080,7 @@
                 "prefix": "jv",
                 "local": true,
                 "language": "Jawa",
+                "bcp47": "jv",
                 "url": "https://jv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5895,6 +6088,7 @@
                 "prefix": "ka",
                 "local": true,
                 "language": "ქართული",
+                "bcp47": "ka",
                 "url": "https://ka.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5902,6 +6096,7 @@
                 "prefix": "kaa",
                 "local": true,
                 "language": "Qaraqalpaqsha",
+                "bcp47": "kaa",
                 "url": "https://kaa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5909,6 +6104,7 @@
                 "prefix": "kab",
                 "local": true,
                 "language": "Taqbaylit",
+                "bcp47": "kab",
                 "url": "https://kab.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5916,6 +6112,7 @@
                 "prefix": "kbd",
                 "local": true,
                 "language": "адыгэбзэ",
+                "bcp47": "kbd",
                 "url": "https://kbd.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5923,6 +6120,7 @@
                 "prefix": "kbp",
                 "local": true,
                 "language": "Kabɩyɛ",
+                "bcp47": "kbp",
                 "url": "https://kbp.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5930,6 +6128,7 @@
                 "prefix": "kcg",
                 "local": true,
                 "language": "Tyap",
+                "bcp47": "kcg",
                 "url": "https://kcg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5937,6 +6136,7 @@
                 "prefix": "kg",
                 "local": true,
                 "language": "Kongo",
+                "bcp47": "kg",
                 "url": "https://kg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5944,6 +6144,7 @@
                 "prefix": "ki",
                 "local": true,
                 "language": "Gĩkũyũ",
+                "bcp47": "ki",
                 "url": "https://ki.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5951,6 +6152,7 @@
                 "prefix": "kj",
                 "local": true,
                 "language": "Kwanyama",
+                "bcp47": "kj",
                 "url": "https://kj.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5958,6 +6160,7 @@
                 "prefix": "kk",
                 "local": true,
                 "language": "қазақша",
+                "bcp47": "kk",
                 "url": "https://kk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5965,6 +6168,7 @@
                 "prefix": "kl",
                 "local": true,
                 "language": "kalaallisut",
+                "bcp47": "kl",
                 "url": "https://kl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5972,6 +6176,7 @@
                 "prefix": "km",
                 "local": true,
                 "language": "ភាសាខ្មែរ",
+                "bcp47": "km",
                 "url": "https://km.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5979,6 +6184,7 @@
                 "prefix": "kn",
                 "local": true,
                 "language": "ಕನ್ನಡ",
+                "bcp47": "kn",
                 "url": "https://kn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5986,6 +6192,7 @@
                 "prefix": "ko",
                 "local": true,
                 "language": "한국어",
+                "bcp47": "ko",
                 "url": "https://ko.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -5993,6 +6200,7 @@
                 "prefix": "koi",
                 "local": true,
                 "language": "перем коми",
+                "bcp47": "koi",
                 "url": "https://koi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6000,6 +6208,7 @@
                 "prefix": "kr",
                 "local": true,
                 "language": "kanuri",
+                "bcp47": "kr",
                 "url": "https://kr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6007,6 +6216,7 @@
                 "prefix": "krc",
                 "local": true,
                 "language": "къарачай-малкъар",
+                "bcp47": "krc",
                 "url": "https://krc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6014,6 +6224,7 @@
                 "prefix": "ks",
                 "local": true,
                 "language": "कॉशुर / کٲشُر",
+                "bcp47": "ks",
                 "url": "https://ks.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6021,6 +6232,7 @@
                 "prefix": "ksh",
                 "local": true,
                 "language": "Ripoarisch",
+                "bcp47": "ksh",
                 "url": "https://ksh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6028,6 +6240,7 @@
                 "prefix": "ku",
                 "local": true,
                 "language": "kurdî",
+                "bcp47": "ku",
                 "url": "https://ku.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6035,6 +6248,7 @@
                 "prefix": "kv",
                 "local": true,
                 "language": "коми",
+                "bcp47": "kv",
                 "url": "https://kv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6042,6 +6256,7 @@
                 "prefix": "kw",
                 "local": true,
                 "language": "kernowek",
+                "bcp47": "kw",
                 "url": "https://kw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6049,6 +6264,7 @@
                 "prefix": "ky",
                 "local": true,
                 "language": "кыргызча",
+                "bcp47": "ky",
                 "url": "https://ky.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6056,6 +6272,7 @@
                 "prefix": "la",
                 "local": true,
                 "language": "Latina",
+                "bcp47": "la",
                 "url": "https://la.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6063,6 +6280,7 @@
                 "prefix": "lad",
                 "local": true,
                 "language": "Ladino",
+                "bcp47": "lad",
                 "url": "https://lad.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6070,6 +6288,7 @@
                 "prefix": "lb",
                 "local": true,
                 "language": "Lëtzebuergesch",
+                "bcp47": "lb",
                 "url": "https://lb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6077,6 +6296,7 @@
                 "prefix": "lbe",
                 "local": true,
                 "language": "лакку",
+                "bcp47": "lbe",
                 "url": "https://lbe.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6084,6 +6304,7 @@
                 "prefix": "lez",
                 "local": true,
                 "language": "лезги",
+                "bcp47": "lez",
                 "url": "https://lez.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6091,6 +6312,7 @@
                 "prefix": "lfn",
                 "local": true,
                 "language": "Lingua Franca Nova",
+                "bcp47": "lfn",
                 "url": "https://lfn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6098,6 +6320,7 @@
                 "prefix": "lg",
                 "local": true,
                 "language": "Luganda",
+                "bcp47": "lg",
                 "url": "https://lg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6105,6 +6328,7 @@
                 "prefix": "li",
                 "local": true,
                 "language": "Limburgs",
+                "bcp47": "li",
                 "url": "https://li.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6112,6 +6336,7 @@
                 "prefix": "lij",
                 "local": true,
                 "language": "Ligure",
+                "bcp47": "lij",
                 "url": "https://lij.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6119,6 +6344,7 @@
                 "prefix": "lld",
                 "local": true,
                 "language": "Ladin",
+                "bcp47": "lld",
                 "url": "https://lld.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6126,6 +6352,7 @@
                 "prefix": "lmo",
                 "local": true,
                 "language": "lombard",
+                "bcp47": "lmo",
                 "url": "https://lmo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6133,6 +6360,7 @@
                 "prefix": "ln",
                 "local": true,
                 "language": "lingála",
+                "bcp47": "ln",
                 "url": "https://ln.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6140,6 +6368,7 @@
                 "prefix": "lo",
                 "local": true,
                 "language": "ລາວ",
+                "bcp47": "lo",
                 "url": "https://lo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6147,6 +6376,7 @@
                 "prefix": "lrc",
                 "local": true,
                 "language": "لۊری شومالی",
+                "bcp47": "lrc",
                 "url": "https://lrc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6154,6 +6384,7 @@
                 "prefix": "lt",
                 "local": true,
                 "language": "lietuvių",
+                "bcp47": "lt",
                 "url": "https://lt.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6161,6 +6392,7 @@
                 "prefix": "ltg",
                 "local": true,
                 "language": "latgaļu",
+                "bcp47": "ltg",
                 "url": "https://ltg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6168,13 +6400,23 @@
                 "prefix": "lv",
                 "local": true,
                 "language": "latviešu",
+                "bcp47": "lv",
                 "url": "https://lv.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "lzh",
+                "local": true,
+                "language": "文言",
+                "bcp47": "lzh",
+                "url": "https://zh-classical.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "mad",
                 "local": true,
                 "language": "Madhurâ",
+                "bcp47": "mad",
                 "url": "https://mad.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6182,6 +6424,7 @@
                 "prefix": "mai",
                 "local": true,
                 "language": "मैथिली",
+                "bcp47": "mai",
                 "url": "https://mai.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6189,6 +6432,7 @@
                 "prefix": "map-bms",
                 "local": true,
                 "language": "Basa Banyumasan",
+                "bcp47": "jv-x-bms",
                 "url": "https://map-bms.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6196,6 +6440,7 @@
                 "prefix": "mdf",
                 "local": true,
                 "language": "мокшень",
+                "bcp47": "mdf",
                 "url": "https://mdf.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6203,6 +6448,7 @@
                 "prefix": "mg",
                 "local": true,
                 "language": "Malagasy",
+                "bcp47": "mg",
                 "url": "https://mg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6210,6 +6456,7 @@
                 "prefix": "mh",
                 "local": true,
                 "language": "Ebon",
+                "bcp47": "mh",
                 "url": "https://mh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6217,6 +6464,7 @@
                 "prefix": "mhr",
                 "local": true,
                 "language": "олык марий",
+                "bcp47": "mhr",
                 "url": "https://mhr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6224,6 +6472,7 @@
                 "prefix": "mi",
                 "local": true,
                 "language": "Māori",
+                "bcp47": "mi",
                 "url": "https://mi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6231,6 +6480,7 @@
                 "prefix": "min",
                 "local": true,
                 "language": "Minangkabau",
+                "bcp47": "min",
                 "url": "https://min.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6238,6 +6488,7 @@
                 "prefix": "mk",
                 "local": true,
                 "language": "македонски",
+                "bcp47": "mk",
                 "url": "https://mk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6245,6 +6496,7 @@
                 "prefix": "ml",
                 "local": true,
                 "language": "മലയാളം",
+                "bcp47": "ml",
                 "url": "https://ml.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6252,6 +6504,7 @@
                 "prefix": "mn",
                 "local": true,
                 "language": "монгол",
+                "bcp47": "mn",
                 "url": "https://mn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6259,13 +6512,15 @@
                 "prefix": "mni",
                 "local": true,
                 "language": "ꯃꯤꯇꯩ ꯂꯣꯟ",
+                "bcp47": "mni",
                 "url": "https://mni.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "mnw",
                 "local": true,
-                "language": "ဘာသာ မန်",
+                "language": "ဘာသာမန်",
+                "bcp47": "mnw",
                 "url": "https://mnw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6273,6 +6528,7 @@
                 "prefix": "mo",
                 "local": true,
                 "language": "молдовеняскэ",
+                "bcp47": "ro-Cyrl-MD",
                 "url": "https://mo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6280,6 +6536,7 @@
                 "prefix": "mr",
                 "local": true,
                 "language": "मराठी",
+                "bcp47": "mr",
                 "url": "https://mr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6287,6 +6544,7 @@
                 "prefix": "mrj",
                 "local": true,
                 "language": "кырык мары",
+                "bcp47": "mrj",
                 "url": "https://mrj.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6294,6 +6552,7 @@
                 "prefix": "ms",
                 "local": true,
                 "language": "Bahasa Melayu",
+                "bcp47": "ms",
                 "url": "https://ms.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6301,6 +6560,7 @@
                 "prefix": "mt",
                 "local": true,
                 "language": "Malti",
+                "bcp47": "mt",
                 "url": "https://mt.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6308,6 +6568,7 @@
                 "prefix": "mus",
                 "local": true,
                 "language": "Mvskoke",
+                "bcp47": "mus",
                 "url": "https://mus.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6315,6 +6576,7 @@
                 "prefix": "mwl",
                 "local": true,
                 "language": "Mirandés",
+                "bcp47": "mwl",
                 "url": "https://mwl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6322,6 +6584,7 @@
                 "prefix": "my",
                 "local": true,
                 "language": "မြန်မာဘာသာ",
+                "bcp47": "my",
                 "url": "https://my.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6329,6 +6592,7 @@
                 "prefix": "myv",
                 "local": true,
                 "language": "эрзянь",
+                "bcp47": "myv",
                 "url": "https://myv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6336,6 +6600,7 @@
                 "prefix": "mzn",
                 "local": true,
                 "language": "مازِرونی",
+                "bcp47": "mzn",
                 "url": "https://mzn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6343,6 +6608,7 @@
                 "prefix": "na",
                 "local": true,
                 "language": "Dorerin Naoero",
+                "bcp47": "na",
                 "url": "https://na.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6350,13 +6616,23 @@
                 "prefix": "nah",
                 "local": true,
                 "language": "Nāhuatl",
+                "bcp47": "nah",
                 "url": "https://nah.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "nan",
+                "local": true,
+                "language": "Bân-lâm-gú",
+                "bcp47": "nan",
+                "url": "https://zh-min-nan.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "nap",
                 "local": true,
                 "language": "Napulitano",
+                "bcp47": "nap",
                 "url": "https://nap.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6364,6 +6640,7 @@
                 "prefix": "nds",
                 "local": true,
                 "language": "Plattdüütsch",
+                "bcp47": "nds",
                 "url": "https://nds.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6371,6 +6648,7 @@
                 "prefix": "nds-nl",
                 "local": true,
                 "language": "Nedersaksies",
+                "bcp47": "nds-NL",
                 "url": "https://nds-nl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6378,6 +6656,7 @@
                 "prefix": "ne",
                 "local": true,
                 "language": "नेपाली",
+                "bcp47": "ne",
                 "url": "https://ne.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6385,6 +6664,7 @@
                 "prefix": "new",
                 "local": true,
                 "language": "नेपाल भाषा",
+                "bcp47": "new",
                 "url": "https://new.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6392,6 +6672,7 @@
                 "prefix": "ng",
                 "local": true,
                 "language": "Oshiwambo",
+                "bcp47": "ng",
                 "url": "https://ng.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6399,6 +6680,7 @@
                 "prefix": "nia",
                 "local": true,
                 "language": "Li Niha",
+                "bcp47": "nia",
                 "url": "https://nia.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6406,6 +6688,7 @@
                 "prefix": "nl",
                 "local": true,
                 "language": "Nederlands",
+                "bcp47": "nl",
                 "url": "https://nl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6413,6 +6696,7 @@
                 "prefix": "nn",
                 "local": true,
                 "language": "norsk nynorsk",
+                "bcp47": "nn",
                 "url": "https://nn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6420,6 +6704,7 @@
                 "prefix": "no",
                 "local": true,
                 "language": "norsk",
+                "bcp47": "no",
                 "url": "https://no.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6427,6 +6712,7 @@
                 "prefix": "nov",
                 "local": true,
                 "language": "Novial",
+                "bcp47": "nov",
                 "url": "https://nov.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6434,6 +6720,7 @@
                 "prefix": "nqo",
                 "local": true,
                 "language": "ߒߞߏ",
+                "bcp47": "nqo",
                 "url": "https://nqo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6441,6 +6728,7 @@
                 "prefix": "nrm",
                 "local": true,
                 "language": "Nouormand",
+                "bcp47": "nrf",
                 "url": "https://nrm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6448,6 +6736,7 @@
                 "prefix": "nso",
                 "local": true,
                 "language": "Sesotho sa Leboa",
+                "bcp47": "nso",
                 "url": "https://nso.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6455,6 +6744,7 @@
                 "prefix": "nv",
                 "local": true,
                 "language": "Diné bizaad",
+                "bcp47": "nv",
                 "url": "https://nv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6462,6 +6752,7 @@
                 "prefix": "ny",
                 "local": true,
                 "language": "Chi-Chewa",
+                "bcp47": "ny",
                 "url": "https://ny.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6469,6 +6760,7 @@
                 "prefix": "oc",
                 "local": true,
                 "language": "occitan",
+                "bcp47": "oc",
                 "url": "https://oc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6476,6 +6768,7 @@
                 "prefix": "olo",
                 "local": true,
                 "language": "livvinkarjala",
+                "bcp47": "olo",
                 "url": "https://olo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6483,6 +6776,7 @@
                 "prefix": "om",
                 "local": true,
                 "language": "Oromoo",
+                "bcp47": "om",
                 "url": "https://om.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6490,6 +6784,7 @@
                 "prefix": "or",
                 "local": true,
                 "language": "ଓଡ଼ିଆ",
+                "bcp47": "or",
                 "url": "https://or.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6497,6 +6792,7 @@
                 "prefix": "os",
                 "local": true,
                 "language": "ирон",
+                "bcp47": "os",
                 "url": "https://os.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6504,6 +6800,7 @@
                 "prefix": "pa",
                 "local": true,
                 "language": "ਪੰਜਾਬੀ",
+                "bcp47": "pa",
                 "url": "https://pa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6511,6 +6808,7 @@
                 "prefix": "pag",
                 "local": true,
                 "language": "Pangasinan",
+                "bcp47": "pag",
                 "url": "https://pag.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6518,6 +6816,7 @@
                 "prefix": "pam",
                 "local": true,
                 "language": "Kapampangan",
+                "bcp47": "pam",
                 "url": "https://pam.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6525,6 +6824,7 @@
                 "prefix": "pap",
                 "local": true,
                 "language": "Papiamentu",
+                "bcp47": "pap",
                 "url": "https://pap.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6532,6 +6832,7 @@
                 "prefix": "pcd",
                 "local": true,
                 "language": "Picard",
+                "bcp47": "pcd",
                 "url": "https://pcd.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6539,6 +6840,7 @@
                 "prefix": "pcm",
                 "local": true,
                 "language": "Naijá",
+                "bcp47": "pcm",
                 "url": "https://pcm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6546,6 +6848,7 @@
                 "prefix": "pdc",
                 "local": true,
                 "language": "Deitsch",
+                "bcp47": "pdc",
                 "url": "https://pdc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6553,6 +6856,7 @@
                 "prefix": "pfl",
                 "local": true,
                 "language": "Pälzisch",
+                "bcp47": "pfl",
                 "url": "https://pfl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6560,6 +6864,7 @@
                 "prefix": "pi",
                 "local": true,
                 "language": "पालि",
+                "bcp47": "pi",
                 "url": "https://pi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6567,6 +6872,7 @@
                 "prefix": "pih",
                 "local": true,
                 "language": "Norfuk / Pitkern",
+                "bcp47": "pih",
                 "url": "https://pih.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6574,6 +6880,7 @@
                 "prefix": "pl",
                 "local": true,
                 "language": "polski",
+                "bcp47": "pl",
                 "url": "https://pl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6581,6 +6888,7 @@
                 "prefix": "pms",
                 "local": true,
                 "language": "Piemontèis",
+                "bcp47": "pms",
                 "url": "https://pms.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6588,6 +6896,7 @@
                 "prefix": "pnb",
                 "local": true,
                 "language": "پنجابی",
+                "bcp47": "pnb",
                 "url": "https://pnb.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6595,6 +6904,7 @@
                 "prefix": "pnt",
                 "local": true,
                 "language": "Ποντιακά",
+                "bcp47": "pnt",
                 "url": "https://pnt.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6602,6 +6912,7 @@
                 "prefix": "ps",
                 "local": true,
                 "language": "پښتو",
+                "bcp47": "ps",
                 "url": "https://ps.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6609,6 +6920,7 @@
                 "prefix": "pt",
                 "local": true,
                 "language": "português",
+                "bcp47": "pt",
                 "url": "https://pt.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6616,6 +6928,7 @@
                 "prefix": "pwn",
                 "local": true,
                 "language": "pinayuanan",
+                "bcp47": "pwn",
                 "url": "https://pwn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6623,6 +6936,7 @@
                 "prefix": "qu",
                 "local": true,
                 "language": "Runa Simi",
+                "bcp47": "qu",
                 "url": "https://qu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6630,6 +6944,7 @@
                 "prefix": "rm",
                 "local": true,
                 "language": "rumantsch",
+                "bcp47": "rm",
                 "url": "https://rm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6637,6 +6952,7 @@
                 "prefix": "rmy",
                 "local": true,
                 "language": "romani čhib",
+                "bcp47": "rmy",
                 "url": "https://rmy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6644,6 +6960,7 @@
                 "prefix": "rn",
                 "local": true,
                 "language": "ikirundi",
+                "bcp47": "rn",
                 "url": "https://rn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6651,6 +6968,7 @@
                 "prefix": "ro",
                 "local": true,
                 "language": "română",
+                "bcp47": "ro",
                 "url": "https://ro.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6658,6 +6976,8 @@
                 "prefix": "roa-rup",
                 "local": true,
                 "language": "armãneashti",
+                "deprecated": "rup",
+                "bcp47": "rup",
                 "url": "https://roa-rup.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6665,6 +6985,7 @@
                 "prefix": "roa-tara",
                 "local": true,
                 "language": "tarandíne",
+                "bcp47": "nap-x-tara",
                 "url": "https://roa-tara.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6672,6 +6993,7 @@
                 "prefix": "ru",
                 "local": true,
                 "language": "русский",
+                "bcp47": "ru",
                 "url": "https://ru.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6679,13 +7001,23 @@
                 "prefix": "rue",
                 "local": true,
                 "language": "русиньскый",
+                "bcp47": "rue",
                 "url": "https://rue.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "rup",
+                "local": true,
+                "language": "armãneashti",
+                "bcp47": "rup",
+                "url": "https://roa-rup.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "rw",
                 "local": true,
                 "language": "Ikinyarwanda",
+                "bcp47": "rw",
                 "url": "https://rw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6693,6 +7025,7 @@
                 "prefix": "sa",
                 "local": true,
                 "language": "संस्कृतम्",
+                "bcp47": "sa",
                 "url": "https://sa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6700,6 +7033,7 @@
                 "prefix": "sah",
                 "local": true,
                 "language": "саха тыла",
+                "bcp47": "sah",
                 "url": "https://sah.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6707,6 +7041,7 @@
                 "prefix": "sat",
                 "local": true,
                 "language": "ᱥᱟᱱᱛᱟᱲᱤ",
+                "bcp47": "sat",
                 "url": "https://sat.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6714,6 +7049,7 @@
                 "prefix": "sc",
                 "local": true,
                 "language": "sardu",
+                "bcp47": "sc",
                 "url": "https://sc.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6721,6 +7057,7 @@
                 "prefix": "scn",
                 "local": true,
                 "language": "sicilianu",
+                "bcp47": "scn",
                 "url": "https://scn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6728,6 +7065,7 @@
                 "prefix": "sco",
                 "local": true,
                 "language": "Scots",
+                "bcp47": "sco",
                 "url": "https://sco.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6735,6 +7073,7 @@
                 "prefix": "sd",
                 "local": true,
                 "language": "سنڌي",
+                "bcp47": "sd",
                 "url": "https://sd.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6742,6 +7081,7 @@
                 "prefix": "se",
                 "local": true,
                 "language": "davvisámegiella",
+                "bcp47": "se",
                 "url": "https://se.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6749,13 +7089,23 @@
                 "prefix": "sg",
                 "local": true,
                 "language": "Sängö",
+                "bcp47": "sg",
                 "url": "https://sg.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "sgs",
+                "local": true,
+                "language": "žemaitėška",
+                "bcp47": "sgs",
+                "url": "https://bat-smg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "sh",
                 "local": true,
                 "language": "srpskohrvatski / српскохрватски",
+                "bcp47": "sh",
                 "url": "https://sh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6763,6 +7113,7 @@
                 "prefix": "shi",
                 "local": true,
                 "language": "Taclḥit",
+                "bcp47": "shi",
                 "url": "https://shi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6770,6 +7121,7 @@
                 "prefix": "shn",
                 "local": true,
                 "language": "ၽႃႇသႃႇတႆး ",
+                "bcp47": "shn",
                 "url": "https://shn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6777,6 +7129,7 @@
                 "prefix": "shy",
                 "local": true,
                 "language": "tacawit",
+                "bcp47": "shy",
                 "url": "https://shy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6784,6 +7137,7 @@
                 "prefix": "si",
                 "local": true,
                 "language": "සිංහල",
+                "bcp47": "si",
                 "url": "https://si.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6791,6 +7145,7 @@
                 "prefix": "simple",
                 "local": true,
                 "language": "Simple English",
+                "bcp47": "en-simple",
                 "url": "https://simple.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6798,6 +7153,7 @@
                 "prefix": "sk",
                 "local": true,
                 "language": "slovenčina",
+                "bcp47": "sk",
                 "url": "https://sk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6805,6 +7161,7 @@
                 "prefix": "skr",
                 "local": true,
                 "language": "سرائیکی",
+                "bcp47": "skr",
                 "url": "https://skr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6812,6 +7169,7 @@
                 "prefix": "sl",
                 "local": true,
                 "language": "slovenščina",
+                "bcp47": "sl",
                 "url": "https://sl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6819,6 +7177,7 @@
                 "prefix": "sm",
                 "local": true,
                 "language": "Gagana Samoa",
+                "bcp47": "sm",
                 "url": "https://sm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6826,6 +7185,7 @@
                 "prefix": "smn",
                 "local": true,
                 "language": "anarâškielâ",
+                "bcp47": "smn",
                 "url": "https://smn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6833,6 +7193,7 @@
                 "prefix": "sn",
                 "local": true,
                 "language": "chiShona",
+                "bcp47": "sn",
                 "url": "https://sn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6840,6 +7201,7 @@
                 "prefix": "so",
                 "local": true,
                 "language": "Soomaaliga",
+                "bcp47": "so",
                 "url": "https://so.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6847,6 +7209,7 @@
                 "prefix": "sq",
                 "local": true,
                 "language": "shqip",
+                "bcp47": "sq",
                 "url": "https://sq.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6854,6 +7217,7 @@
                 "prefix": "sr",
                 "local": true,
                 "language": "српски / srpski",
+                "bcp47": "sr",
                 "url": "https://sr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6861,6 +7225,7 @@
                 "prefix": "srn",
                 "local": true,
                 "language": "Sranantongo",
+                "bcp47": "srn",
                 "url": "https://srn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6868,6 +7233,7 @@
                 "prefix": "ss",
                 "local": true,
                 "language": "SiSwati",
+                "bcp47": "ss",
                 "url": "https://ss.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6875,6 +7241,7 @@
                 "prefix": "st",
                 "local": true,
                 "language": "Sesotho",
+                "bcp47": "st",
                 "url": "https://st.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6882,6 +7249,7 @@
                 "prefix": "stq",
                 "local": true,
                 "language": "Seeltersk",
+                "bcp47": "stq",
                 "url": "https://stq.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6889,6 +7257,7 @@
                 "prefix": "su",
                 "local": true,
                 "language": "Sunda",
+                "bcp47": "su",
                 "url": "https://su.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6896,6 +7265,7 @@
                 "prefix": "sv",
                 "local": true,
                 "language": "svenska",
+                "bcp47": "sv",
                 "url": "https://sv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6903,6 +7273,7 @@
                 "prefix": "sw",
                 "local": true,
                 "language": "Kiswahili",
+                "bcp47": "sw",
                 "url": "https://sw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6910,6 +7281,7 @@
                 "prefix": "szl",
                 "local": true,
                 "language": "ślůnski",
+                "bcp47": "szl",
                 "url": "https://szl.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6917,6 +7289,7 @@
                 "prefix": "szy",
                 "local": true,
                 "language": "Sakizaya",
+                "bcp47": "szy",
                 "url": "https://szy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6924,6 +7297,7 @@
                 "prefix": "ta",
                 "local": true,
                 "language": "தமிழ்",
+                "bcp47": "ta",
                 "url": "https://ta.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6931,6 +7305,7 @@
                 "prefix": "tay",
                 "local": true,
                 "language": "Tayal",
+                "bcp47": "tay",
                 "url": "https://tay.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6938,6 +7313,7 @@
                 "prefix": "tcy",
                 "local": true,
                 "language": "ತುಳು",
+                "bcp47": "tcy",
                 "url": "https://tcy.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6945,6 +7321,7 @@
                 "prefix": "te",
                 "local": true,
                 "language": "తెలుగు",
+                "bcp47": "te",
                 "url": "https://te.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6952,6 +7329,7 @@
                 "prefix": "tet",
                 "local": true,
                 "language": "tetun",
+                "bcp47": "tet",
                 "url": "https://tet.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6959,6 +7337,7 @@
                 "prefix": "tg",
                 "local": true,
                 "language": "тоҷикӣ",
+                "bcp47": "tg",
                 "url": "https://tg.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6966,6 +7345,7 @@
                 "prefix": "th",
                 "local": true,
                 "language": "ไทย",
+                "bcp47": "th",
                 "url": "https://th.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6973,6 +7353,7 @@
                 "prefix": "ti",
                 "local": true,
                 "language": "ትግርኛ",
+                "bcp47": "ti",
                 "url": "https://ti.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6980,6 +7361,7 @@
                 "prefix": "tk",
                 "local": true,
                 "language": "Türkmençe",
+                "bcp47": "tk",
                 "url": "https://tk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -6987,13 +7369,23 @@
                 "prefix": "tl",
                 "local": true,
                 "language": "Tagalog",
+                "bcp47": "tl",
                 "url": "https://tl.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "tly",
+                "local": true,
+                "language": "tolışi",
+                "bcp47": "tly",
+                "url": "https://tly.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "tn",
                 "local": true,
                 "language": "Setswana",
+                "bcp47": "tn",
                 "url": "https://tn.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7001,6 +7393,7 @@
                 "prefix": "to",
                 "local": true,
                 "language": "lea faka-Tonga",
+                "bcp47": "to",
                 "url": "https://to.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7008,6 +7401,7 @@
                 "prefix": "tpi",
                 "local": true,
                 "language": "Tok Pisin",
+                "bcp47": "tpi",
                 "url": "https://tpi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7015,6 +7409,7 @@
                 "prefix": "tr",
                 "local": true,
                 "language": "Türkçe",
+                "bcp47": "tr",
                 "url": "https://tr.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7022,6 +7417,7 @@
                 "prefix": "trv",
                 "local": true,
                 "language": "Seediq",
+                "bcp47": "trv",
                 "url": "https://trv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7029,13 +7425,15 @@
                 "prefix": "ts",
                 "local": true,
                 "language": "Xitsonga",
+                "bcp47": "ts",
                 "url": "https://ts.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "tt",
                 "local": true,
-                "language": "татарча/tatarça",
+                "language": "татарча / tatarça",
+                "bcp47": "tt",
                 "url": "https://tt.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7043,6 +7441,7 @@
                 "prefix": "tum",
                 "local": true,
                 "language": "chiTumbuka",
+                "bcp47": "tum",
                 "url": "https://tum.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7050,6 +7449,7 @@
                 "prefix": "tw",
                 "local": true,
                 "language": "Twi",
+                "bcp47": "tw",
                 "url": "https://tw.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7057,6 +7457,7 @@
                 "prefix": "ty",
                 "local": true,
                 "language": "reo tahiti",
+                "bcp47": "ty",
                 "url": "https://ty.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7064,6 +7465,7 @@
                 "prefix": "tyv",
                 "local": true,
                 "language": "тыва дыл",
+                "bcp47": "tyv",
                 "url": "https://tyv.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7071,6 +7473,7 @@
                 "prefix": "udm",
                 "local": true,
                 "language": "удмурт",
+                "bcp47": "udm",
                 "url": "https://udm.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7078,6 +7481,7 @@
                 "prefix": "ug",
                 "local": true,
                 "language": "ئۇيغۇرچە / Uyghurche",
+                "bcp47": "ug",
                 "url": "https://ug.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7085,6 +7489,7 @@
                 "prefix": "uk",
                 "local": true,
                 "language": "українська",
+                "bcp47": "uk",
                 "url": "https://uk.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7092,13 +7497,15 @@
                 "prefix": "ur",
                 "local": true,
                 "language": "اردو",
+                "bcp47": "ur",
                 "url": "https://ur.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "uz",
                 "local": true,
-                "language": "oʻzbekcha/ўзбекча",
+                "language": "oʻzbekcha / ўзбекча",
+                "bcp47": "uz",
                 "url": "https://uz.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7106,6 +7513,7 @@
                 "prefix": "ve",
                 "local": true,
                 "language": "Tshivenda",
+                "bcp47": "ve",
                 "url": "https://ve.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7113,6 +7521,7 @@
                 "prefix": "vec",
                 "local": true,
                 "language": "vèneto",
+                "bcp47": "vec",
                 "url": "https://vec.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7120,6 +7529,7 @@
                 "prefix": "vep",
                 "local": true,
                 "language": "vepsän kel’",
+                "bcp47": "vep",
                 "url": "https://vep.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7127,6 +7537,7 @@
                 "prefix": "vi",
                 "local": true,
                 "language": "Tiếng Việt",
+                "bcp47": "vi",
                 "url": "https://vi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7134,6 +7545,7 @@
                 "prefix": "vls",
                 "local": true,
                 "language": "West-Vlams",
+                "bcp47": "vls",
                 "url": "https://vls.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7141,13 +7553,23 @@
                 "prefix": "vo",
                 "local": true,
                 "language": "Volapük",
+                "bcp47": "vo",
                 "url": "https://vo.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "vro",
+                "local": true,
+                "language": "võro",
+                "bcp47": "vro",
+                "url": "https://fiu-vro.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "wa",
                 "local": true,
                 "language": "walon",
+                "bcp47": "wa",
                 "url": "https://wa.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7155,6 +7577,7 @@
                 "prefix": "war",
                 "local": true,
                 "language": "Winaray",
+                "bcp47": "war",
                 "url": "https://war.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7162,6 +7585,7 @@
                 "prefix": "wo",
                 "local": true,
                 "language": "Wolof",
+                "bcp47": "wo",
                 "url": "https://wo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7169,6 +7593,7 @@
                 "prefix": "wuu",
                 "local": true,
                 "language": "吴语",
+                "bcp47": "wuu",
                 "url": "https://wuu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7176,6 +7601,7 @@
                 "prefix": "xal",
                 "local": true,
                 "language": "хальмг",
+                "bcp47": "xal",
                 "url": "https://xal.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7183,6 +7609,7 @@
                 "prefix": "xh",
                 "local": true,
                 "language": "isiXhosa",
+                "bcp47": "xh",
                 "url": "https://xh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7190,6 +7617,7 @@
                 "prefix": "xmf",
                 "local": true,
                 "language": "მარგალური",
+                "bcp47": "xmf",
                 "url": "https://xmf.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7197,6 +7625,7 @@
                 "prefix": "yi",
                 "local": true,
                 "language": "ייִדיש",
+                "bcp47": "yi",
                 "url": "https://yi.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7204,6 +7633,7 @@
                 "prefix": "yo",
                 "local": true,
                 "language": "Yorùbá",
+                "bcp47": "yo",
                 "url": "https://yo.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7211,6 +7641,7 @@
                 "prefix": "yue",
                 "local": true,
                 "language": "粵語",
+                "bcp47": "yue",
                 "url": "https://zh-yue.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7218,6 +7649,7 @@
                 "prefix": "za",
                 "local": true,
                 "language": "Vahcuengh",
+                "bcp47": "za",
                 "url": "https://za.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7225,13 +7657,23 @@
                 "prefix": "zea",
                 "local": true,
                 "language": "Zeêuws",
+                "bcp47": "zea",
                 "url": "https://zea.wikipedia.org/wiki/$1",
+                "protorel": false
+            },
+            {
+                "prefix": "zgh",
+                "local": true,
+                "language": "ⵜⴰⵎⴰⵣⵉⵖⵜ ⵜⴰⵏⴰⵡⴰⵢⵜ",
+                "bcp47": "zgh",
+                "url": "https://zgh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
                 "prefix": "zh",
                 "local": true,
                 "language": "中文",
+                "bcp47": "zh",
                 "url": "https://zh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7239,6 +7681,8 @@
                 "prefix": "zh-classical",
                 "local": true,
                 "language": "文言",
+                "deprecated": "lzh",
+                "bcp47": "lzh",
                 "url": "https://zh-classical.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7246,6 +7690,8 @@
                 "prefix": "zh-min-nan",
                 "local": true,
                 "language": "Bân-lâm-gú",
+                "deprecated": "nan",
+                "bcp47": "nan",
                 "url": "https://zh-min-nan.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7253,6 +7699,8 @@
                 "prefix": "zh-yue",
                 "local": true,
                 "language": "粵語",
+                "deprecated": "yue",
+                "bcp47": "yue",
                 "url": "https://zh-yue.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7260,6 +7708,7 @@
                 "prefix": "zu",
                 "local": true,
                 "language": "isiZulu",
+                "bcp47": "zu",
                 "url": "https://zu.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7288,21 +7737,10 @@
                 "protorel": false
             },
             {
-                "prefix": "minnan",
-                "local": true,
-                "url": "https://zh-min-nan.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "zh-cfr",
-                "local": true,
-                "url": "https://zh-min-nan.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "zh-cn",
                 "local": true,
                 "language": "中文（中国大陆）",
+                "bcp47": "zh-Hans-CN",
                 "url": "https://zh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7310,6 +7748,7 @@
                 "prefix": "zh-tw",
                 "local": true,
                 "language": "中文（臺灣）",
+                "bcp47": "zh-Hant-TW",
                 "url": "https://zh.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7323,6 +7762,7 @@
                 "prefix": "egl",
                 "local": true,
                 "language": "Emiliàn",
+                "bcp47": "egl",
                 "url": "https://eml.wikipedia.org/wiki/$1",
                 "protorel": false
             },
@@ -7333,52 +7773,11 @@
                 "protorel": false
             },
             {
-                "prefix": "gsw",
-                "local": true,
-                "language": "Alemannisch",
-                "url": "https://als.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "lzh",
-                "local": true,
-                "language": "文言",
-                "url": "https://zh-classical.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "nan",
-                "local": true,
-                "language": "Bân-lâm-gú",
-                "url": "https://zh-min-nan.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
                 "prefix": "nb",
                 "local": true,
                 "language": "norsk bokmål",
+                "bcp47": "nb",
                 "url": "https://no.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "rup",
-                "local": true,
-                "language": "armãneashti",
-                "url": "https://roa-rup.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "sgs",
-                "local": true,
-                "language": "žemaitėška",
-                "url": "https://bat-smg.wikipedia.org/wiki/$1",
-                "protorel": false
-            },
-            {
-                "prefix": "vro",
-                "local": true,
-                "language": "võro",
-                "url": "https://fiu-vro.wikipedia.org/wiki/$1",
                 "protorel": false
             },
             {
@@ -7516,43 +7915,6 @@
                     ]
                 }
             },
-            "kk": {
-                "kk": {
-                    "fallbacks": [
-                        "kk-cyrl"
-                    ]
-                },
-                "kk-arab": {
-                    "fallbacks": [
-                        "kk"
-                    ]
-                },
-                "kk-cn": {
-                    "fallbacks": [
-                        "kk-arab"
-                    ]
-                },
-                "kk-cyrl": {
-                    "fallbacks": [
-                        "kk"
-                    ]
-                },
-                "kk-kz": {
-                    "fallbacks": [
-                        "kk-cyrl"
-                    ]
-                },
-                "kk-latn": {
-                    "fallbacks": [
-                        "kk"
-                    ]
-                },
-                "kk-tr": {
-                    "fallbacks": [
-                        "kk-latn"
-                    ]
-                }
-            },
             "ku": {
                 "ku": {
                     "fallbacks": [
@@ -7567,6 +7929,18 @@
                 "ku-latn": {
                     "fallbacks": [
                         "ku-arab"
+                    ]
+                }
+            },
+            "sh": {
+                "sh-cyrl": {
+                    "fallbacks": [
+                        "sh-latn"
+                    ]
+                },
+                "sh-latn": {
+                    "fallbacks": [
+                        "sh-latn"
                     ]
                 }
             },
@@ -7617,6 +7991,18 @@
                     ]
                 }
             },
+            "tly": {
+                "tly": {
+                    "fallbacks": [
+                        "tly"
+                    ]
+                },
+                "tly-cyrl": {
+                    "fallbacks": [
+                        "tly"
+                    ]
+                }
+            },
             "uz": {
                 "uz": {
                     "fallbacks": [
@@ -7631,6 +8017,24 @@
                 "uz-latn": {
                     "fallbacks": [
                         "uz"
+                    ]
+                }
+            },
+            "wuu": {
+                "wuu": {
+                    "fallbacks": [
+                        "wuu-hans",
+                        "wuu-hant"
+                    ]
+                },
+                "wuu-hans": {
+                    "fallbacks": [
+                        "wuu"
+                    ]
+                },
+                "wuu-hant": {
+                    "fallbacks": [
+                        "wuu"
                     ]
                 }
             },
@@ -7670,30 +8074,30 @@
                 },
                 "zh-hk": {
                     "fallbacks": [
-                        "zh-hant",
                         "zh-mo",
+                        "zh-hant",
                         "zh-tw"
                     ]
                 },
                 "zh-mo": {
                     "fallbacks": [
-                        "zh-hant",
                         "zh-hk",
+                        "zh-hant",
                         "zh-tw"
                     ]
                 },
                 "zh-my": {
                     "fallbacks": [
-                        "zh-hans",
                         "zh-sg",
+                        "zh-hans",
                         "zh-cn"
                     ]
                 },
                 "zh-sg": {
                     "fallbacks": [
+                        "zh-my",
                         "zh-hans",
-                        "zh-cn",
-                        "zh-my"
+                        "zh-cn"
                     ]
                 },
                 "zh-tw": {
@@ -7706,28 +8110,35 @@
             }
         },
         "defaultoptions": {
+            "vector-limited-width": 1,
+            "vector-page-tools-pinned": 1,
+            "vector-main-menu-pinned": 1,
+            "vector-toc-pinned": 1,
+            "vector-client-prefs-pinned": 1,
+            "vector-font-size": 0,
+            "vector-night-mode": 2,
             "globaluserpage": true,
             "rcenhancedfilters-seen-highlight-button-counter": 0,
-            "advancedsearch-disable": false,
+            "advancedsearch-disable": 0,
             "usebetatoolbar": 1,
             "wikieditor-realtimepreview": 0,
             "usecodemirror": 0,
             "betafeatures-auto-enroll": false,
             "popupsreferencepreviews": 0,
-            "popups-reference-previews": 0,
+            "popups-reference-previews": "1",
             "visualeditor-autodisable": 0,
             "visualeditor-betatempdisable": 0,
+            "visualeditor-collab": 0,
             "visualeditor-editor": "visualeditor",
-            "visualeditor-enable": 1,
-            "visualeditor-enable-experimental": 0,
-            "visualeditor-enable-language": 0,
+            "visualeditor-enable": 0,
             "visualeditor-hidebetawelcome": 0,
             "visualeditor-hidetabdialog": 0,
             "visualeditor-newwikitext": 0,
             "visualeditor-tabs": "remember-last",
-            "visualeditor-visualdiffpage": 0,
+            "minerva-night-mode": 0,
             "mobile-editor": "",
             "math": "mathml",
+            "math-popups": "1",
             "echo-subscriptions-web-login-fail": true,
             "echo-subscriptions-email-login-fail": true,
             "echo-subscriptions-web-login-success": false,
@@ -7752,7 +8163,7 @@
             "discussiontools-autotopicsub": 0,
             "discussiontools-visualenhancements": 1,
             "usecodeeditor": 1,
-            "revisionslider-disable": false,
+            "revisionslider-disable": 0,
             "twocolconflict-enabled": 1,
             "eventlogging-display-web": 0,
             "eventlogging-display-console": 0,
@@ -7775,15 +8186,18 @@
             "oresHighlight": false,
             "oresRCHideNonDamaging": false,
             "oresWatchlistHideNonDamaging": false,
-            "ipinfo-enable": 0,
             "ipinfo-use-agreement": 0,
             "twl-notified": null,
+            "parsermigration": "0",
+            "parsermigration-parsoid-readviews": "0",
             "ccmeonemails": 0,
             "date": "default",
             "diffonly": 0,
+            "diff-type": "table",
             "disablemail": 0,
             "editfont": "monospace",
             "editondblclick": 0,
+            "editrecovery": 0,
             "editsectiononrightclick": 0,
             "email-allow-new-users": 1,
             "enotifminoredits": false,
@@ -7793,57 +8207,59 @@
             "extendwatchlist": 0,
             "fancysig": 0,
             "forceeditsummary": 0,
+            "forcesafemode": 0,
             "gender": "unknown",
+            "hidecategorization": 1,
             "hideminor": 0,
             "hidepatrolled": 0,
-            "hidecategorization": 1,
             "imagesize": 2,
             "minordefault": 0,
             "newpageshidepatrolled": 0,
             "nickname": "",
-            "pst-cssjs": 1,
             "norollbackdiff": 0,
+            "prefershttps": 1,
             "previewonfirst": 0,
             "previewontop": 1,
+            "pst-cssjs": 1,
             "rcdays": 7,
             "rcenhancedfilters-disable": 0,
             "rclimit": 50,
+            "requireemail": 0,
             "search-match-redirect": true,
             "search-special-page": "Search",
+            "search-thumbnail-extra-namespaces": true,
             "searchlimit": 20,
             "showhiddencats": false,
             "shownumberswatching": 1,
             "showrollbackconfirmation": 0,
             "skin": "vector-2022",
+            "skin-responsive": 1,
             "thumbsize": 4,
             "underline": 2,
+            "useeditwarning": 1,
             "uselivepreview": 0,
             "usenewrc": 0,
             "watchcreations": true,
             "watchdefault": 0,
             "watchdeletion": 0,
-            "watchuploads": 1,
             "watchlistdays": 3,
             "watchlisthideanons": 0,
             "watchlisthidebots": 0,
+            "watchlisthidecategorization": 1,
             "watchlisthideliu": 0,
             "watchlisthideminor": 0,
             "watchlisthideown": 0,
             "watchlisthidepatrolled": 0,
-            "watchlisthidecategorization": 1,
             "watchlistreloadautomatically": 0,
             "watchlistunwatchlinks": 0,
             "watchmoves": 0,
             "watchrollback": 0,
+            "watchuploads": 1,
             "wlenhancedfilters-disable": 0,
             "wllimit": 250,
-            "useeditwarning": 1,
-            "prefershttps": 1,
-            "requireemail": 0,
-            "skin-responsive": 1,
             "echo-cross-wiki-notifications": 1,
             "growthexperiments-addimage-desktop": 1,
-            "timecorrection": "System|120",
+            "timecorrection": "System|60",
             "centralnotice-display-campaign-type-advocacy": 1,
             "centralnotice-display-campaign-type-article-writing": 1,
             "centralnotice-display-campaign-type-photography": 1,
@@ -7859,12 +8275,14 @@
             "variant-crh": "crh",
             "variant-gan": "gan",
             "variant-iu": "iu",
-            "variant-kk": "kk",
             "variant-ku": "ku",
+            "variant-sh": "sh-latn",
             "variant-shi": "shi",
             "variant-sr": "sr",
             "variant-tg": "tg",
+            "variant-tly": "tly",
             "variant-uz": "uz",
+            "variant-wuu": "wuu",
             "variant-zh": "zh",
             "searchNs0": 1,
             "searchNs1": 0,
@@ -7892,71 +8310,7 @@
             "searchNs711": 0,
             "searchNs828": 0,
             "searchNs829": 0,
-            "searchNs2300": 0,
-            "searchNs2301": 0,
-            "searchNs2302": 0,
-            "searchNs2303": 0,
             "searchNs2600": 0,
-            "multimediaviewer-enable": 1,
-            "mf_amc_optin": "0",
-            "echo-email-format": "html",
-            "echo-subscriptions-email-system": true,
-            "echo-subscriptions-web-system": true,
-            "echo-subscriptions-push-system": true,
-            "echo-subscriptions-email-system-noemail": false,
-            "echo-subscriptions-web-system-noemail": true,
-            "echo-subscriptions-push-system-noemail": true,
-            "echo-subscriptions-email-system-emailonly": false,
-            "echo-subscriptions-web-system-emailonly": true,
-            "echo-subscriptions-push-system-emailonly": true,
-            "echo-subscriptions-email-user-rights": true,
-            "echo-subscriptions-web-user-rights": true,
-            "echo-subscriptions-push-user-rights": true,
-            "echo-subscriptions-email-other": false,
-            "echo-subscriptions-web-other": true,
-            "echo-subscriptions-push-other": true,
-            "echo-subscriptions-email-edit-user-talk": false,
-            "echo-subscriptions-web-edit-user-talk": true,
-            "echo-subscriptions-push-edit-user-talk": true,
-            "echo-subscriptions-email-reverted": false,
-            "echo-subscriptions-web-reverted": true,
-            "echo-subscriptions-push-reverted": true,
-            "echo-subscriptions-email-article-linked": false,
-            "echo-subscriptions-web-article-linked": false,
-            "echo-subscriptions-push-article-linked": false,
-            "echo-subscriptions-email-mention": false,
-            "echo-subscriptions-web-mention": true,
-            "echo-subscriptions-push-mention": true,
-            "echo-subscriptions-email-mention-failure": false,
-            "echo-subscriptions-web-mention-failure": false,
-            "echo-subscriptions-push-mention-failure": false,
-            "echo-subscriptions-email-mention-success": false,
-            "echo-subscriptions-web-mention-success": false,
-            "echo-subscriptions-push-mention-success": false,
-            "echo-subscriptions-email-emailuser": false,
-            "echo-subscriptions-web-emailuser": true,
-            "echo-subscriptions-push-emailuser": true,
-            "echo-subscriptions-email-thank-you-edit": false,
-            "echo-subscriptions-web-thank-you-edit": true,
-            "echo-subscriptions-push-thank-you-edit": true,
-            "echo-subscriptions-push-login-fail": true,
-            "echo-subscriptions-push-login-success": true,
-            "echo-subscriptions-push-edit-thank": true,
-            "echo-subscriptions-push-flow-discussion": true,
-            "echo-subscriptions-email-dt-subscription": false,
-            "echo-subscriptions-web-dt-subscription": true,
-            "echo-subscriptions-push-dt-subscription": true,
-            "echo-subscriptions-email-dt-subscription-archiving": false,
-            "echo-subscriptions-web-dt-subscription-archiving": true,
-            "echo-subscriptions-push-dt-subscription-archiving": true,
-            "echo-subscriptions-email-cx": false,
-            "echo-subscriptions-push-cx": true,
-            "echo-subscriptions-email-ge-mentorship": false,
-            "echo-subscriptions-web-ge-mentorship": true,
-            "echo-subscriptions-push-ge-mentorship": true,
-            "echo-subscriptions-email-wikibase-action": false,
-            "echo-subscriptions-web-wikibase-action": true,
-            "echo-subscriptions-push-wikibase-action": true,
             "gadget-AffMasLiens": 0,
             "gadget-AncreTitres": 0,
             "gadget-dictionaryLookupHover": 0,
@@ -7979,7 +8333,6 @@
             "gadget-SousPages": 0,
             "gadget-verifEbauche": 0,
             "gadget-CustomSidebar": 0,
-            "gadget-ShortenUrl": 0,
             "gadget-EditZeroth": 0,
             "gadget-OngletGoogle": 0,
             "gadget-OngletJournal": 0,
@@ -8029,6 +8382,7 @@
             "gadget-CarteInteractive": 0,
             "gadget-KartoLayer": 0,
             "gadget-Accessibility": 0,
+            "gadget-Adiutor": 0,
             "gadget-AvertissementImage": 0,
             "gadget-Evaluation": 0,
             "gadget-OptimizedShort": 0,
@@ -8039,23 +8393,92 @@
             "gadget-BlockMessage": 0,
             "gadget-SuppressionDeluxe": 0,
             "cirrussearch-pref-completion-profile": "fuzzy",
+            "multimediaviewer-enable": 1,
             "popups": "0",
+            "mf_amc_optin": "0",
+            "echo-email-format": "html",
+            "echo-subscriptions-email-system": true,
+            "echo-subscriptions-web-system": true,
+            "echo-subscriptions-push-system": true,
+            "echo-subscriptions-email-system-noemail": false,
+            "echo-subscriptions-web-system-noemail": true,
+            "echo-subscriptions-push-system-noemail": true,
+            "echo-subscriptions-email-system-emailonly": false,
+            "echo-subscriptions-web-system-emailonly": true,
+            "echo-subscriptions-push-system-emailonly": true,
+            "echo-subscriptions-email-user-rights": true,
+            "echo-subscriptions-web-user-rights": true,
+            "echo-subscriptions-push-user-rights": true,
+            "echo-subscriptions-email-other": false,
+            "echo-subscriptions-web-other": true,
+            "echo-subscriptions-push-other": true,
+            "echo-subscriptions-email-edit-user-talk": false,
+            "echo-subscriptions-web-edit-user-talk": true,
+            "echo-subscriptions-push-edit-user-talk": true,
+            "echo-subscriptions-email-edit-user-page": false,
+            "echo-subscriptions-web-edit-user-page": true,
+            "echo-subscriptions-push-edit-user-page": true,
+            "echo-subscriptions-email-reverted": false,
+            "echo-subscriptions-web-reverted": true,
+            "echo-subscriptions-push-reverted": true,
+            "echo-subscriptions-email-article-linked": false,
+            "echo-subscriptions-web-article-linked": false,
+            "echo-subscriptions-push-article-linked": false,
+            "echo-subscriptions-email-mention": false,
+            "echo-subscriptions-web-mention": true,
+            "echo-subscriptions-push-mention": true,
+            "echo-subscriptions-email-mention-failure": false,
+            "echo-subscriptions-web-mention-failure": false,
+            "echo-subscriptions-push-mention-failure": false,
+            "echo-subscriptions-email-mention-success": false,
+            "echo-subscriptions-web-mention-success": false,
+            "echo-subscriptions-push-mention-success": false,
+            "echo-subscriptions-email-emailuser": false,
+            "echo-subscriptions-web-emailuser": true,
+            "echo-subscriptions-push-emailuser": true,
+            "echo-subscriptions-email-thank-you-edit": false,
+            "echo-subscriptions-web-thank-you-edit": true,
+            "echo-subscriptions-push-thank-you-edit": true,
+            "echo-subscriptions-push-flow-discussion": true,
+            "echo-subscriptions-email-cx": false,
+            "echo-subscriptions-push-cx": true,
+            "echo-subscriptions-email-ge-mentorship": false,
+            "echo-subscriptions-web-ge-mentorship": true,
+            "echo-subscriptions-push-ge-mentorship": true,
+            "echo-subscriptions-email-ge-newcomer": true,
+            "echo-subscriptions-web-ge-newcomer": true,
+            "echo-subscriptions-push-ge-newcomer": true,
+            "echo-subscriptions-push-login-fail": true,
+            "echo-subscriptions-push-login-success": true,
+            "echo-subscriptions-push-edit-thank": true,
+            "echo-subscriptions-email-dt-subscription": false,
+            "echo-subscriptions-web-dt-subscription": true,
+            "echo-subscriptions-push-dt-subscription": true,
+            "echo-subscriptions-email-dt-subscription-archiving": false,
+            "echo-subscriptions-web-dt-subscription-archiving": true,
+            "echo-subscriptions-push-dt-subscription-archiving": true,
+            "echo-subscriptions-email-wikibase-action": false,
+            "echo-subscriptions-web-wikibase-action": true,
+            "echo-subscriptions-push-wikibase-action": true,
             "growthexperiments-help-panel-tog-help-panel": false,
             "homepage_mobile_discovery_notice_seen": true,
             "growthexperiments-homepage-suggestededits-guidance-blue-dot": "{\"vector\":{\"link-recommendation\":true,\"image-recommendation\":true},\"minerva\":{\"link-recommendation\":true,\"image-recommendation\":true}}",
             "growthexperiments-homepage-se-topic-filters-mode": "OR",
             "growthexperiments-homepage-enable": false,
             "growthexperiments-homepage-pt-link": false,
-            "growthexperiments-tour-help-panel": true,
-            "growthexperiments-tour-homepage-mentorship": true,
-            "growthexperiments-tour-homepage-welcome": true,
-            "growthexperiments-tour-homepage-discovery": true,
             "growthexperiments-starred-mentees": "",
             "growthexperiments-mentor-dashboard-seen": 0,
             "growthexperiments-mentor-dashboard-last-update": null,
             "growthexperiments-mentee-overview-presets": "{\"usersToShow\":10,\"filters\":{\"minedits\":1,\"maxedits\":500}}",
             "growthexperiments-homepage-mentorship-enabled": 1,
-            "growthexperiments-mentorship-weight": 2
+            "growthexperiments-mentorship-was-praised": false,
+            "growthexperiments-personalized-praise-skipped-until": null,
+            "growthexperiments-personalized-praise-settings": "{}",
+            "growthexperiments-tour-help-panel": true,
+            "growthexperiments-tour-homepage-mentorship": true,
+            "growthexperiments-tour-homepage-welcome": true,
+            "growthexperiments-tour-homepage-discovery": true,
+            "growthexperiments-tour-newimpact-discovery": false
         },
         "specialpagealiases": [
             {
@@ -9139,6 +9562,12 @@
                 ]
             },
             {
+                "realname": "Mylog",
+                "aliases": [
+                    "MyLog"
+                ]
+            },
+            {
                 "realname": "Mypage",
                 "aliases": [
                     "Ma_page",
@@ -9219,6 +9648,14 @@
                 ]
             },
             {
+                "realname": "Renameuser",
+                "aliases": [
+                    "Renommer_utilisateur",
+                    "RenommerUtilisateur",
+                    "RenameUser"
+                ]
+            },
+            {
                 "realname": "Revisiondelete",
                 "aliases": [
                     "Versions_supprimées",
@@ -9248,6 +9685,12 @@
                 "realname": "PageData",
                 "aliases": [
                     "PageData"
+                ]
+            },
+            {
+                "realname": "Contribute",
+                "aliases": [
+                    "Contribute"
                 ]
             },
             {
@@ -9290,6 +9733,12 @@
                 "realname": "Mute",
                 "aliases": [
                     "Mute"
+                ]
+            },
+            {
+                "realname": "EditRecovery",
+                "aliases": [
+                    "EditRecovery"
                 ]
             },
             {
@@ -9369,6 +9818,12 @@
                 ]
             },
             {
+                "realname": "QrCode",
+                "aliases": [
+                    "QrCode"
+                ]
+            },
+            {
                 "realname": "GlobalBlock",
                 "aliases": [
                     "Blocage_global",
@@ -9407,14 +9862,6 @@
                 ]
             },
             {
-                "realname": "Renameuser",
-                "aliases": [
-                    "Renommer_utilisateur",
-                    "RenommerUtilisateur",
-                    "RenameUser"
-                ]
-            },
-            {
                 "realname": "Nuke",
                 "aliases": [
                     "Nuke"
@@ -9435,15 +9882,15 @@
                 ]
             },
             {
-                "realname": "CentralLogin",
-                "aliases": [
-                    "CentralLogin"
-                ]
-            },
-            {
                 "realname": "CentralAutoLogin",
                 "aliases": [
                     "CentralAutoLogin"
+                ]
+            },
+            {
+                "realname": "CentralLogin",
+                "aliases": [
+                    "CentralLogin"
                 ]
             },
             {
@@ -9551,12 +9998,6 @@
                 ]
             },
             {
-                "realname": "RenderBook",
-                "aliases": [
-                    "RenderBook"
-                ]
-            },
-            {
                 "realname": "DownloadAsPdf",
                 "aliases": [
                     "DownloadAsPdf",
@@ -9584,6 +10025,12 @@
                     "FiltredAbus",
                     "FilterAbus",
                     "AbuseFilter"
+                ]
+            },
+            {
+                "realname": "BlockedExternalDomains",
+                "aliases": [
+                    "BlockedExternalDomains"
                 ]
             },
             {
@@ -9784,9 +10231,21 @@
                 ]
             },
             {
+                "realname": "DiscussionToolsDebug",
+                "aliases": [
+                    "DiscussionToolsDebug"
+                ]
+            },
+            {
                 "realname": "TwoColConflictProvideSubmittedText",
                 "aliases": [
                     "ProvideSubmittedText"
+                ]
+            },
+            {
+                "realname": "WikimediaDebug",
+                "aliases": [
+                    "WikimediaDebug"
                 ]
             },
             {
@@ -9841,12 +10300,6 @@
                 "realname": "PageAssessments",
                 "aliases": [
                     "PageAssessments"
-                ]
-            },
-            {
-                "realname": "GraphSandbox",
-                "aliases": [
-                    "GraphSandbox"
                 ]
             },
             {
@@ -9922,6 +10375,12 @@
                 ]
             },
             {
+                "realname": "ReadingLists",
+                "aliases": [
+                    "ReadingLists"
+                ]
+            },
+            {
                 "realname": "GlobalPreferences",
                 "aliases": [
                     "GlobalPreferences"
@@ -9940,9 +10399,26 @@
                 ]
             },
             {
+                "realname": "ManageMentors",
+                "aliases": [
+                    "ManageMentors"
+                ]
+            },
+            {
+                "realname": "EnrollAsMentor",
+                "aliases": [
+                    "EnrollAsMentor"
+                ]
+            },
+            {
+                "realname": "QuitMentorship",
+                "aliases": [
+                    "QuitMentorship"
+                ]
+            },
+            {
                 "realname": "Nearby",
                 "aliases": [
-                    "Nearby",
                     "Nearby"
                 ]
             },
@@ -9968,13 +10444,6 @@
                 "realname": "InvestigateBlock",
                 "aliases": [
                     "InvestigateBlock"
-                ]
-            },
-            {
-                "realname": "WelcomeSurvey",
-                "aliases": [
-                    "Suivi_des_premiers_clics",
-                    "WelcomeSurvey"
                 ]
             },
             {
@@ -10005,9 +10474,10 @@
                 ]
             },
             {
-                "realname": "QuitMentorship",
+                "realname": "WelcomeSurvey",
                 "aliases": [
-                    "QuitMentorship"
+                    "Suivi_des_premiers_clics",
+                    "WelcomeSurvey"
                 ]
             }
         ],
@@ -10017,27 +10487,28 @@
             "<gallery>",
             "<indicator>",
             "<langconvert>",
+            "<graph>",
             "<timeline>",
             "<hiero>",
-            "<source>",
-            "<syntaxhighlight>",
-            "<score>",
-            "<templatestyles>",
-            "<templatedata>",
-            "<graph>",
             "<charinsert>",
             "<ref>",
             "<references>",
             "<inputbox>",
             "<imagemap>",
+            "<source>",
+            "<syntaxhighlight>",
             "<poem>",
             "<categorytree>",
             "<section>",
+            "<score>",
+            "<templatestyles>",
+            "<templatedata>",
             "<math>",
             "<ce>",
             "<chem>",
             "<maplink>",
-            "<mapframe>"
+            "<mapframe>",
+            "<phonos>"
         ],
         "functionhooks": [
             "ns",
@@ -10058,14 +10529,7 @@
             "gender",
             "plural",
             "bidi",
-            "numberofpages",
-            "numberofusers",
-            "numberofactiveusers",
-            "numberofarticles",
-            "numberoffiles",
-            "numberofadmins",
             "numberingroup",
-            "numberofedits",
             "language",
             "padleft",
             "padright",
@@ -10076,23 +10540,16 @@
             "pagesize",
             "protectionlevel",
             "protectionexpiry",
-            "namespace",
-            "namespacee",
-            "namespacenumber",
-            "talkspace",
-            "talkspacee",
-            "subjectspace",
-            "subjectspacee",
             "pagename",
             "pagenamee",
             "fullpagename",
             "fullpagenamee",
+            "subpagename",
+            "subpagenamee",
             "rootpagename",
             "rootpagenamee",
             "basepagename",
             "basepagenamee",
-            "subpagename",
-            "subpagenamee",
             "talkpagename",
             "talkpagenamee",
             "subjectpagename",
@@ -10107,18 +10564,26 @@
             "revisiontimestamp",
             "revisionuser",
             "cascadingsources",
+            "namespace",
+            "namespacee",
+            "namespacenumber",
+            "talkspace",
+            "talkspacee",
+            "subjectspace",
+            "subjectspacee",
+            "numberofarticles",
+            "numberoffiles",
+            "numberofusers",
+            "numberofactiveusers",
+            "numberofpages",
+            "numberofadmins",
+            "numberofedits",
             "int",
             "special",
             "speciale",
             "tag",
             "formatdate",
             "displaytitle",
-            "target",
-            "babel",
-            "coordinates",
-            "invoke",
-            "related",
-            "assessment",
             "if",
             "ifeq",
             "switch",
@@ -10134,10 +10599,16 @@
             "lst",
             "lstx",
             "lsth",
+            "target",
+            "babel",
+            "coordinates",
+            "invoke",
+            "related",
             "noexternallanglinks",
             "property",
             "statements",
             "commaSeparatedList",
+            "assessment",
             "mentor"
         ],
         "variables": [
