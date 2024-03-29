@@ -90,6 +90,33 @@ Sections:
 !! end
 
 !! test
+Literal html heading from template
+!! options
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! wikitext
+{{1x|
+<h2>hi</h2>
+ho
+}}
+!! html/php
+<h2><span class="mw-headline" id="hi">hi</span></h2>
+<p>ho
+</p>
+!! html/parsoid
+<section data-mw-section-id="0"></section><section data-mw-section-id="-1"><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"\n&lt;h2>hi&lt;/h2>\nho\n"}},"i":0}}]}'>
+</span><h2 about="#mwt1" id="hi">hi</h2><span about="#mwt1">
+</span><p about="#mwt1">ho</p><span about="#mwt1">
+</span></section>
+!! metadata
+Sections:
+ h2 index: toclevel:1 number:1 title:NULL off:NULL anchor/linkAnchor:hi line:hi
+!! end
+
+!! test
 Duplicate headings should get unique anchors
 !! options
 nohtml

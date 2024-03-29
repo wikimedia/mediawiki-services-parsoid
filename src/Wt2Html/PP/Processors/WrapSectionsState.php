@@ -82,7 +82,12 @@ class WrapSectionsState {
 		}
 		$this->oldLevel = $newLevel;
 
-		if ( $this->tplInfo !== null ) {
+		if ( WTUtils::isLiteralHTMLNode( $heading ) ) {
+			// Literal HTML tags in wikitext don't get section edit links
+			$metadata->fromTitle = null;
+			$metadata->index = '';
+			$metadata->codepointOffset = null;
+		} elseif ( $this->tplInfo !== null ) {
 			$dmw = DOMDataUtils::getDataMw( $this->tplInfo->first );
 			$metadata->index = ''; // Match legacy parser
 			if ( !isset( $dmw->parts ) ) {
@@ -117,7 +122,7 @@ class WrapSectionsState {
 				}
 			}
 			$metadata->codepointOffset = null;
-		} elseif ( !WTUtils::isLiteralHTMLNode( $heading ) ) {
+		} else {
 			$title = $this->env->getContextTitle();
 			// Use the dbkey (underscores) instead of text (spaces)
 			$metadata->fromTitle = $title->getPrefixedDBKey();
@@ -126,10 +131,6 @@ class WrapSectionsState {
 			// interface expects *codepoint* counts.  We are going to convert
 			// these in a batch (for efficiency) in ::convertTOCOffsets() below
 			$metadata->codepointOffset = DOMDataUtils::getDataParsoid( $heading )->dsr->start ?? -1;
-		} else {
-			$metadata->fromTitle = null;
-			$metadata->index = '';
-			$metadata->codepointOffset = null;
 		}
 
 		$metadata->anchor = DOMCompat::getAttribute( $heading, 'id' );
