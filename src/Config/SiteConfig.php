@@ -331,14 +331,6 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Maximum run length for Tidy whitespace bug
-	 * @return int Length in Unicode codepoints
-	 */
-	public function tidyWhitespaceBugMaxLength(): int {
-		return 100;
-	}
-
-	/**
 	 * Statistics aggregator, for counting and timing.
 	 *
 	 * @return StatsdDataFactoryInterface|null
@@ -1247,6 +1239,11 @@ abstract class SiteConfig {
 			// - This heuristic is used together with the
 			//   'maxTableColumnHeuristic' to identify "large tables".
 			'maxTableRowsToCheck' => 10,
+			// Max length of content covered by 'white-space:nowrap' CSS
+			// that we consider "safe" when Tidy is replaced.  Beyond that,
+			// wikitext will have to be fixed up to manually insert whitespace
+			// at the right places.  Length in bytes.
+			'tidyWhitespaceBugMaxLength' => 100,
 		];
 	}
 

@@ -8,13 +8,10 @@ use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 
 class MockEnv extends Env {
-
 	/**
 	 * @param array $opts
 	 *  - log: (bool) Whether the logger should log. Default false.
 	 *  - wrapSections: (bool) Whether to wrap sections. Default false.
-	 *  - tidyWhitespaceBugMaxLength: (int|null) Value to use for tidyWhitespaceBugMaxLength,
-	 *    if non-null.
 	 *  - pageConfig: (PageConfig) If given, supplies a custom PageConfig instance to use.
 	 *  - siteConfig: (SiteConfig) If given, supplies a custom SiteConfig instance to use.
 	 *  - dataAccess: (DataAccess) If given, supplies a custom DataAccess instance to use.

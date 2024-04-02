@@ -28,8 +28,8 @@ class MockSiteConfig extends SiteConfig {
 	/** @var bool */
 	private $interwikiMagic = true;
 
-	/** @var int|null */
-	private $tidyWhitespaceBugMaxLength = null;
+	/** @var array */
+	private $linterOverrides = [];
 
 	private const NAMESPACE_MAP = [
 		'media' => -2,
@@ -72,7 +72,9 @@ class MockSiteConfig extends SiteConfig {
 		if ( isset( $opts['maxDepth'] ) ) {
 			$this->maxDepth = $opts['maxDepth'];
 		}
-		$this->tidyWhitespaceBugMaxLength = $opts['tidyWhitespaceBugMaxLength'] ?? null;
+		if ( isset( $opts['linterOverrides'] ) ) {
+			$this->linterOverrides = $opts['linterOverrides'];
+		}
 		$this->linkPrefixRegex = $opts['linkPrefixRegex'] ?? null;
 		$this->linkTrailRegex = $opts['linkTrailRegex'] ?? '/^([a-z]+)/sD'; // enwiki default
 		$this->externalLinkTarget = $opts['externallinktarget'] ?? false;
@@ -85,8 +87,8 @@ class MockSiteConfig extends SiteConfig {
 		$this->setLogger( $logger );
 	}
 
-	public function tidyWhitespaceBugMaxLength(): int {
-		return $this->tidyWhitespaceBugMaxLength ?? parent::tidyWhitespaceBugMaxLength();
+	public function getLinterConfig(): array {
+		return $this->linterOverrides + parent::getLinterConfig();
 	}
 
 	public function allowedExternalImagePrefixes(): array {

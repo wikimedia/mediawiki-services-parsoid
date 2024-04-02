@@ -1021,7 +1021,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$prev = $prev->previousSibling;
 		}
 
-		if ( $runLength < $env->getSiteConfig()->tidyWhitespaceBugMaxLength() ) {
+		$lintConfig = $env->getSiteConfig()->getLinterConfig();
+		$tidyWhitespaceBugMaxLength = $lintConfig['tidyWhitespaceBugMaxLength'] ?? 100;
+
+		if ( $runLength < $tidyWhitespaceBugMaxLength ) {
 			// Mark processed nodes and bail
 			$markProcessedNodes();
 			return;

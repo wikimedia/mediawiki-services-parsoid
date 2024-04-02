@@ -17,19 +17,17 @@ use Wikimedia\Parsoid\Parsoid;
  */
 class LinterTest extends TestCase {
 
-	private function wtToLint( string $wt, array $options = [] ): array {
-		$opts = [
-			'prefix' => $options['prefix'] ?? 'enwiki',
-			'pageName' => $options['pageName'] ?? 'main',
-			'wrapSections' => false
+	private function wtToLint( string $wt, array $linterOverrides = [] ): array {
+		$siteOptions = [
+			'linting' => true,
+			'linterOverrides' => $linterOverrides,
 		];
-
-		$siteOptions = [ 'linting' => true ] + $options;
 		$siteConfig = new MockSiteConfig( $siteOptions );
+
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
-		$content = new MockPageContent( [ $opts['pageName'] => $wt ] );
+		$content = new MockPageContent( [ 'main' => $wt ] );
 		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
 
 		return $parsoid->wikitext2lint( $pageConfig, [] );
