@@ -267,8 +267,8 @@ describe('Parsoid API', function() {
 			.expect(406)
 			.expect(function(res) {
 				// FIXME: See skipped html error test above
-				JSON.parse(res.error.text).message.should.equal(
-					'Not acceptable'
+				JSON.parse(res.error.text).errorKey.should.equal(
+					'rest-unsupported-target-format'
 				);
 			})
 			.end(done);
@@ -281,8 +281,8 @@ describe('Parsoid API', function() {
 			.send({ wikitext: '== h2 ==' })
 			.expect(406)
 			.expect(function(res) {
-				JSON.parse(res.error.text).message.should.equal(
-					'Not acceptable'
+				JSON.parse(res.error.text).errorKey.should.equal(
+					'rest-unsupported-target-format'
 				);
 			})
 			.end(done);
