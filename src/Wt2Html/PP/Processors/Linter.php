@@ -555,9 +555,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logFosteredContent(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): ?Element {
-		if ( !$env->getSiteConfig()->linting( 'fostered' ) ) {
-			return null;
-		}
 		$maybeTable = $node->nextSibling;
 		$clear = false;
 
@@ -1189,9 +1186,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function logWikilinksInExtlinks(
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
 	) {
-		if ( !$env->getSiteConfig()->linting( 'wikilink-in-extlink' ) ) {
-			return;
-		}
 		if ( DOMCompat::nodeName( $c ) === 'a' &&
 			DOMUtils::hasRel( $c, "mw:ExtLink" ) &&
 			// Images in extlinks will end up with broken up extlinks inside the
@@ -1275,9 +1269,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param ?stdClass $tplInfo
 	 */
 	private function logLargeTables( Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo ) {
-		if ( !$env->getSiteConfig()->linting( 'large-tables' ) ) {
-			return;
-		}
 		if ( DOMCompat::nodeName( $node ) !== 'table' ) {
 			return;
 		}
@@ -1333,10 +1324,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * @param ?stdClass $tplInfo
 	 */
 	private function logInlineBackgroundWithoutColor( Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo ) {
-		if ( !$env->getSiteConfig()->linting( 'night-mode-unaware-background-color' ) ) {
-			return;
-		}
-
 		// Get inline style attribute value
 		$styleAttrValue = DOMCompat::getAttribute( $node, 'style' );
 

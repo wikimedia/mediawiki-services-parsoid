@@ -929,6 +929,10 @@ class Env {
 	 *  - templateInfo: (array|null)
 	 */
 	public function recordLint( string $type, array $lintData ): void {
+		if ( !$this->getSiteConfig()->linting( $type ) ) {
+			return;
+		}
+
 		if ( empty( $lintData['dsr'] ) ) {
 			$this->log( 'error/lint', "Missing DSR; msg=", $lintData );
 			return;
