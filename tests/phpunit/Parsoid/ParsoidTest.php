@@ -93,6 +93,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 						'type' => 'wikilink-in-extlink',
 						'dsr' => [ 0, 52, 19, 1 ],
 						'params' => [],
+						'templateInfo' => null,
 					]
 				]
 			]

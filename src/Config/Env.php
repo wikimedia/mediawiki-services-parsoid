@@ -929,11 +929,6 @@ class Env {
 	 *  - templateInfo: (array|null)
 	 */
 	public function recordLint( string $type, array $lintData ): void {
-		// Parsoid-JS tests don't like getting null properties where JS had undefined.
-		$lintData = array_filter( $lintData, static function ( $v ) {
-			return $v !== null;
-		} );
-
 		if ( empty( $lintData['dsr'] ) ) {
 			$this->log( 'error/lint', "Missing DSR; msg=", $lintData );
 			return;
