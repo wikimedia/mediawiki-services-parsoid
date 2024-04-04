@@ -1626,7 +1626,7 @@ class LinterTest extends TestCase {
 
 	/**
 	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
-	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter::logInlineBackgroundWithoutColor
+	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\Linter::lintNightModeUnawareBackgroundColor
 	 * @see https://phabricator.wikimedia.org/T358238
 	 * @dataProvider provideLogInlineBackgroundWithoutColor
 	 */

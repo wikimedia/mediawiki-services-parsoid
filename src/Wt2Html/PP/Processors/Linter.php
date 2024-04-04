@@ -349,13 +349,13 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log Treebuilder fixups marked by dom.markTreeBuilderFixup.js
+	 * Lint Treebuilder fixups marked by dom.markTreeBuilderFixup.js
 	 *
 	 * It handles the following scenarios:
 	 *
-	 * 1. Unclosed end tags
-	 * 2. Unclosed start tags
-	 * 3. Stripped tags
+	 * 1. Unclosed end tags (`missing-end-tag`, `missing-end-tag-in-heading`)
+	 * 2. Invalid self-closed tags (`self-closed-tag`)
+	 * 3. Stripped tags (`stripped-tag`)
 	 *
 	 * In addition, we have specialized categories for some patterns
 	 * where we encounter unclosed end tags.
@@ -365,7 +365,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * 6. multiple-unclosed-formatting-tags
 	 * 7. unclosed-quotes-in-heading
 	 */
-	private function logTreeBuilderFixup(
+	private function lintTreeBuilderFixup(
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		// This might have been processed as part of
@@ -493,7 +493,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log fostered content marked by markFosteredContent.js
+	 * Lint fostered content marked by MarkFosteredContent.
+	 *
+	 * Lint category: `fostered`
 	 *
 	 * This will log cases like:
 	 *
@@ -505,7 +507,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 *
 	 * Here 'foo' gets fostered out.
 	 */
-	private function logFosteredContent(
+	private function lintFostered(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): ?Element {
 		$maybeTable = $node->nextSibling;
@@ -554,9 +556,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log obsolete HTML tags
+	 * Lint obsolete HTML tags.
+	 *
+	 * Lint category: `obsolete-tag`, `tidy-font-bug`
 	 */
-	private function logObsoleteHTMLTags(
+	private function lintObsoleteTag(
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if ( !$this->obsoleteTagsRE ) {
@@ -644,13 +648,16 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log bogus (=unrecognized) media options
+	 * Log bogus (=unrecognized) media options.
 	 *
 	 * See - https://www.mediawiki.org/wiki/Help:Images#Syntax
+	 *
+	 * Lint category: `bogus-image-options`
 	 */
-	private function logBogusMediaOptions(
+	private function lintBogusImageOptions(
 		Env $env, Node $c, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
+		// Despite the lint category name, this checks all media, not just images
 		if ( WTUtils::isGeneratedFigure( $c ) && !empty( $dp->optList ) ) {
 			$items = [];
 			$bogusPx = $dp->getTempFlag( TempData::BOGUS_PX );
@@ -674,7 +681,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log tables Tidy deletes
+	 * Lint tables Tidy deletes.
+	 *
+	 * Lint category: `deletable-table-tag`
 	 *
 	 * In this example below, the second table is in a fosterable position
 	 * (inside a <tr>). The tree builder closes the first table at that point
@@ -693,7 +702,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 *   |}
 	 *   |}
 	 */
-	private function logDeletableTables(
+	private function lintDeletableTableTag(
 		Env $env, Node $c, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if ( DOMCompat::nodeName( $c ) === 'table' ) {
@@ -761,9 +770,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log bad P wrapping
+	 * Lint bad P wrapping.
+	 *
+	 * Lint category: `pwrap-bug-workaround`
 	 */
-	private function logBadPWrapping(
+	private function lintPWrapBugWorkaround(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if (
@@ -790,9 +801,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log Tidy div span flip
+	 * Lint Tidy div span flip.
+	 *
+	 * Lint category: `misc-tidy-replacement-issues`
 	 */
-	private function logTidyDivSpanFlip(
+	private function lintMiscTidyReplacementIssues(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if ( DOMCompat::nodeName( $node ) !== 'span' ) {
@@ -821,9 +834,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log tidy whitespace bug
+	 * Lint tidy whitespace bug.
+	 *
+	 * Lint category: `tidy-whitespace-bug`
 	 */
-	private function logTidyWhitespaceBug(
+	private function lintTidyWhitespaceBug(
 		Env $env, Node $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		// We handle a run of nodes in one shot.
@@ -988,8 +1003,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * break pretty spectacularly with Remex.
 	 *
 	 * Ex: https://it.wikipedia.org/wiki/Hubert_H._Humphrey_Metrodome?oldid=93017491#Note
+	 *
+	 * Lint category: `multiple-unclosed-formatting-tags`
 	 */
-	private function detectMultipleUnclosedFormattingTags( array $lints, Env $env ): void {
+	private function lintMultipleUnclosedFormattingTags( array $lints, Env $env ): void {
 		$firstUnclosedTag = [
 			'small' => null,
 			'big' => null
@@ -1028,7 +1045,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * Post-process an array of lints
 	 */
 	private function postProcessLints( array $lints, Env $env ): void {
-		$this->detectMultipleUnclosedFormattingTags( $lints, $env );
+		$this->lintMultipleUnclosedFormattingTags( $lints, $env );
 	}
 
 	/**
@@ -1049,9 +1066,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log PHP parser bug
+	 * Lint a PHP parser bug.
+	 *
+	 * Lint category: `multiline-html-table-in-list`
 	 */
-	private function logPHPParserBug(
+	private function lintMultilineHtmlTableInList(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		$li = null;
@@ -1082,15 +1101,17 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log wikilinks or media in external links
+	 * Log wikilinks or media in external links.
 	 *
 	 * HTML tags can be nested but this is not the case for <a> tags
 	 * which when nested outputs the <a> tags adjacent to each other
 	 * In the example below, [[Google]] is a wikilink that is nested
 	 * in the outer external link
 	 * [http://google.com This is [[Google]]'s search page]
+	 *
+	 * Linter category: `wikilink-in-extlink`
 	 */
-	private function logWikilinksInExtlinks(
+	private function lintWikilinksInExtlink(
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if ( DOMCompat::nodeName( $c ) === 'a' &&
@@ -1133,7 +1154,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		}
 	}
 
-	private function logLargeTableEntry(
+	private function recordLargeTablesLint(
 		Env $env, ?stdClass $tplInfo, Element $node, int $numColumns, int $columnsMax
 	): void {
 		$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
@@ -1163,12 +1184,14 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log large tables
+	 * Lint large tables.
 	 *
-	 * we need to identify the articles having such tables
-	 * to help editors optimize their articles
+	 * Identify articles having overly-large tables
+	 * to help editors optimize their articles.
+	 *
+	 * Linter category: `large-tables`
 	 */
-	private function logLargeTables(
+	private function lintLargeTables(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		if ( DOMCompat::nodeName( $node ) !== 'table' ) {
@@ -1197,13 +1220,13 @@ class Linter implements Wt2HtmlDOMProcessor {
 		while ( $tr && $trCount < $maxRowsToCheck ) {
 			$numTh = $tr->getElementsByTagName( 'th' )->length;
 			if ( $numTh > $maxColumns ) {
-				$this->logLargeTableEntry( $env, $tplInfo, $node, $numTh, $maxColumns );
+				$this->recordLargeTablesLint( $env, $tplInfo, $node, $numTh, $maxColumns );
 				return;
 			}
 
 			$numTd = $tr->getElementsByTagName( 'td' )->length;
 			if ( $numTd > $maxColumns ) {
-				$this->logLargeTableEntry( $env, $tplInfo, $node, $numTd, $maxColumns );
+				$this->recordLargeTablesLint( $env, $tplInfo, $node, $numTd, $maxColumns );
 				return;
 			}
 
@@ -1213,14 +1236,16 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Log inline background color style rules without a color style rule
+	 * Log inline background color style rules without a color style rule.
 	 *
 	 * This function identifies elements with inline style attributes
 	 * that have background color set but don't have a color style rule.
 	 * It records linter events for such elements to help editors make
 	 * their articles comply with WCAG color contrast rules.
+	 *
+	 * Linter category: `night-mode-unaware-background-color`
 	 */
-	private function logInlineBackgroundWithoutColor(
+	private function lintNightModeUnawareBackgroundColor(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
 		// Get inline style attribute value
@@ -1251,23 +1276,23 @@ class Linter implements Wt2HtmlDOMProcessor {
 	): ?Element {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 
-		$this->logTreeBuilderFixup( $env, $node, $dp, $tplInfo );
-		$this->logDeletableTables( $env, $node, $dp, $tplInfo ); // For T161341
-		$this->logBadPWrapping( $env, $node, $dp, $tplInfo ); // For T161306
-		$this->logObsoleteHTMLTags( $env, $node, $dp, $tplInfo );
-		$this->logBogusMediaOptions( $env, $node, $dp, $tplInfo );
-		$this->logTidyWhitespaceBug( $env, $node, $dp, $tplInfo );
-		$this->logTidyDivSpanFlip( $env, $node, $dp, $tplInfo );
+		$this->lintTreeBuilderFixup( $env, $node, $dp, $tplInfo );
+		$this->lintDeletableTableTag( $env, $node, $dp, $tplInfo ); // For T161341
+		$this->lintPWrapBugWorkaround( $env, $node, $dp, $tplInfo ); // For T161306
+		$this->lintObsoleteTag( $env, $node, $dp, $tplInfo );
+		$this->lintBogusImageOptions( $env, $node, $dp, $tplInfo );
+		$this->lintTidyWhitespaceBug( $env, $node, $dp, $tplInfo );
+		$this->lintMiscTidyReplacementIssues( $env, $node, $dp, $tplInfo );
 
 		// When an HTML table is nested inside a list and if any part of the table
 		// is on a new line, the PHP parser misnests the list and the table.
 		// Tidy fixes the misnesting one way (puts table inside/outside the list)
 		// HTML5 parser fix it another way (list expands to rest of the page!)
-		$this->logPHPParserBug( $env, $node, $dp, $tplInfo );
-		$this->logWikilinksInExtlinks( $env, $node, $dp, $tplInfo );
-		$this->logLargeTables( $env, $node, $dp, $tplInfo );
+		$this->lintMultilineHtmlTableInList( $env, $node, $dp, $tplInfo );
+		$this->lintWikilinksInExtlink( $env, $node, $dp, $tplInfo );
+		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 
-		$this->logInlineBackgroundWithoutColor( $env, $node, $dp, $tplInfo );
+		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 
 		// Log fostered content, but skip rendering-transparent nodes
 		if (
@@ -1279,7 +1304,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			!( DOMCompat::nodeName( $node ) === 'link' &&
 				DOMUtils::hasTypeOf( $node, 'mw:Extension/section' ) )
 		) {
-			return $this->logFosteredContent( $env, $node, $dp, $tplInfo );
+			return $this->lintFostered( $env, $node, $dp, $tplInfo );
 		} else {
 			return null;
 		}
