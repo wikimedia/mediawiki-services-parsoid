@@ -151,4 +151,23 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		self::assertEquals( 7, WTUtils::decodedCommentLength( $div->lastChild ) );
 		self::assertEquals( 9, WTUtils::decodedCommentLength( $p->lastChild ) );
 	}
+
+	/**
+	 * @covers ::fromExtensionContent
+	 */
+	public function testFromExtensionContent() {
+		$html = "<span typeof='mw:Extension/foo' data-mw='{}'>bar</span>";
+		$doc = ContentUtils::createAndLoadDocument( $html );
+		$body = DOMCompat::getBody( $doc );
+
+		$node = $body->firstChild; // span wrapper
+		self::assertTrue( WTUtils::fromExtensionContent( $node ) );
+		self::assertTrue( WTUtils::fromExtensionContent( $node, "foo" ) );
+		self::assertFalse( WTUtils::fromExtensionContent( $node, "poem" ) );
+
+		$node = $node->firstChild; // "bar" text node
+		self::assertTrue( WTUtils::fromExtensionContent( $node ) );
+		self::assertTrue( WTUtils::fromExtensionContent( $node, "foo" ) );
+		self::assertFalse( WTUtils::fromExtensionContent( $node, "poem" ) );
+	}
 }
