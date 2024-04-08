@@ -3,14 +3,15 @@
 set -eu -o pipefail
 
 if [ $# -lt 2 ]; then
-	echo "USAGE: $0 <old-git-tag> <new-git-tag> [<git-sha-of-new-tag> <vendor-repo> <core-repo>]"
+	echo "USAGE: $0 <old-git-tag> <new-git-tag> <task-id> [<git-sha-of-new-tag> <vendor-repo> <core-repo>]"
 	echo "If git-sha is omitted, HEAD is used by default"
 	echo "If repo args are omitted, MW_VENDOR_REPO and MW_CORE_REPO environment variables are used"
-	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 HEAD ../repos/vendor ../core"
-	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 HEAD"
-	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7"
+	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 TXXXXXX HEAD ../repos/vendor ../core"
+	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 TXXXXXX HEAD"
+	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 TXXXXXX"
 	echo "You have to skip OR provide both repo values on the CLI"
 	echo "A specific composer install can be passed via the MW_COMPOSER env variable."
+	echo "The task id refers to the associated release phab task.
 	exit 1
 fi
 
@@ -40,11 +41,11 @@ if [ "$composerVersion" != "$readmeVersion" ]; then
 	exit 1
 fi
 
-if [ $# -gt 2 ]; then
-	newTagSha=$3
-	if [ $# -gt 3 ]; then
-		vendorRepo="$4"
-		coreRepo="$5"
+if [ $# -gt 3 ]; then
+	newTagSha=$4
+	if [ $# -gt 4 ]; then
+		vendorRepo="$5"
+		coreRepo="$6"
 	fi
 fi
 
@@ -126,12 +127,13 @@ $composer update --no-dev
 echo
 
 # Generate commit
-# FIXME: Use a branch instead of master?
 echo "Preparing vendor patch"
+git checkout -b $3
 git add -A wikimedia/parsoid composer.lock composer.json composer
 git commit -m "Bump wikimedia/parsoid to $vstring
 
-$fixedbugs"
+$fixedbugs
+Bug: $3"
 changeid=$(git log -1 | grep "Change-Id" | sed 's/.*: //g;')
 
 # --- Prepare core patch that depends on the vendor patch ---
@@ -146,9 +148,11 @@ echo "Bumping Parsoid version in core and preparing patch"
 
 sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
 rm composer.json.bak
+git checkout -b $3
 git commit composer.json -m "Bump wikimedia/parsoid to $vstring
 
-Depends-On: $changeid"
+Depends-On: $changeid
+Bug: $3"
 echo
 
 # Add instructions
