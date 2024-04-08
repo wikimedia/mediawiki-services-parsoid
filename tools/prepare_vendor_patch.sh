@@ -31,6 +31,15 @@ waitForConfirmation() {
 pwd="$PWD"
 newTagSha=$(git rev-list -n 1 "HEAD") # DEFAULT
 
+# Check composer version
+composer="${MW_COMPOSER:-composer}"
+composerVersion=$($composer --version 2> /dev/null | cut -d ' ' -f 3)
+readmeVersion="2.7.2"
+if [ "$composerVersion" != "$readmeVersion" ]; then
+	echo "Composer ($composerVersion) should be the same version as in the vendor README ($readmeVersion)."
+	exit 1
+fi
+
 if [ $# -gt 2 ]; then
 	newTagSha=$3
 	if [ $# -gt 3 ]; then
@@ -112,10 +121,7 @@ waitForConfirmation
 echo
 
 # update packages
-# FIXME: Verify that composer is running the version from the README
-# `composer --version === 2.6.4`
 echo "Running composer update"
-composer="${MW_COMPOSER:-composer}"
 $composer update --no-dev
 echo
 
