@@ -198,15 +198,19 @@ interface ContentMetadataCollector {
 	public function appendOutputStrings( string $name, array $value ): void;
 
 	/**
-	 * Set a property to be stored in the page_props database table.
+	 * Set a page property to be stored in the page_props database table.
 	 *
-	 * page_props is a key value store indexed by the page ID. This allows
+	 * page_props is a key-value store indexed by the page ID. This allows
 	 * the parser to set a property on a page which can then be quickly
 	 * retrieved given the page ID or via a DB join when given the page
 	 * title.
 	 *
-	 * page_props is also indexed by numeric value, to allow
+	 * Since 1.23, page_props are also indexed by numeric value, to allow
 	 * for efficient "top k" queries of pages wrt a given property.
+	 * This only works if the value is passed as a int, float, or
+	 * bool. Since 1.42 you should use ::setNumericPageProperty()
+	 * if you want your page property value to be indexed, which will ensure
+	 * that the value is of the proper type.
 	 *
 	 * setPageProperty() is thus used to propagate properties from the parsed
 	 * page to request contexts other than a page view of the currently parsed
@@ -215,26 +219,51 @@ interface ContentMetadataCollector {
 	 * Some applications examples:
 	 *
 	 *   * To implement hidden categories, hiding pages from category listings
-	 *     by storing a property.
+	 *     by storing a page property.
 	 *
-	 * * Overriding the displayed article title
-	 *     (ContentMetadataCollector::setDisplayTitle()).
+	 *   * Overriding the displayed article title (ParserOutput::setDisplayTitle()).
 	 *
 	 *   * To implement image tagging, for example displaying an icon on an
 	 *     image thumbnail to indicate that it is listed for deletion on
 	 *     Wikimedia Commons.
 	 *     This is not actually implemented, yet but would be pretty cool.
 	 *
-	 * @note Do not use setPageProperty() to set a property which is only used
-	 * in a context where the content metadata itself is already available,
-	 * for example a normal page view. There is no need to save such a property
-	 * in the database since the text is already parsed. You can just hook
-	 * OutputPageParserOutput and get your data out of the ParserOutput object.
+	 * @note Use of non-scalar values (anything other than
+	 *  `string|int|float|bool`) has been deprecated in 1.42.
+	 *  Although any JSON-serializable value can be stored/fetched in
+	 *  ParserOutput, when the values are stored to the database
+	 *  (in `deferred/LinksUpdate/PagePropsTable.php`) they will be
+	 *  converted: booleans will be converted to '0' and '1', null
+	 *  will become '', and everything else will be cast to string
+	 *  (not JSON-serialized).  Page properties obtained from the
+	 *  PageProps service will thus always be strings.
 	 *
-	 * If you are writing an extension where you want to set a property in the
-	 * parser which is used by an OutputPageParserOutput hook, you have to
-	 * associate the extension data directly with the ParserOutput object.
-	 * Since MediaWiki 1.21, you can use setExtensionData() to do this:
+	 * @note The sort key stored in the database *will be NULL* unless
+	 *  the value passed here is an `int|float|bool`.  If you *do not*
+	 *  want your property *value* indexed and sorted (for example, the
+	 *  value is a title string which can be numeric but only
+	 *  incidentally, like when it gets retrieved from an array key)
+	 *  be sure to cast to string or use
+	 *  `::setUnsortedPageProperty()`.  If you *do* want your property
+	 *  *value* indexed and sorted, you should use
+	 *  `::setNumericPageProperty()` instead as this will ensure the
+	 *  value type is correct. Note that either way it is possible to
+	 *  efficiently look up all the pages with a certain property; we
+	 *  are only talking about sorting the *values* assigned to the
+	 *  property, for example for a "top N values of the property"
+	 *  query.
+	 *
+	 * @note Note that `::getPageProperty()`/`::setPageProperty()` do
+	 *  not do any conversions themselves; you should therefore be
+	 *  careful to distinguish values returned from the PageProp
+	 *  service (always strings) from values retrieved from a
+	 *  ParserOutput.
+	 *
+	 * @note Do not use setPageProperty() to set a property which is only used
+	 * in a context where the ParserOutput object itself is already available,
+	 * for example a normal page view. There is no need to save such a property
+	 * in the database since the text is already parsed; use
+	 * ::setExtensionData() instead.
 	 *
 	 * @par Example:
 	 * @code
@@ -248,17 +277,54 @@ interface ContentMetadataCollector {
 	 *    $output->getExtensionData( 'my_ext_foo' );
 	 * @endcode
 	 *
-	 * @note Only scalar values like numbers and strings are supported
-	 * as a value. Attempt to use an object or array will
-	 * not work properly with LinksUpdate.
+	 * @note The use of `null` as a value is deprecated since 1.42; use
+	 * the empty string instead if you need a placeholder value, or
+	 * ::unsetPageProperty() if you mean to remove a page property.
 	 *
-	 * @note As with ::setJsConfigVar(), setting a page property to multiple
-	 * conflicting values during the parse is not supported.
+	 * @note The use of non-string values is deprecated since 1.42; if you
+	 * need an page property value with a sort index
+	 * use ::setNumericPageProperty().
 	 *
 	 * @param string $name
 	 * @param int|float|string|bool|null $value
+	 * @since 1.38
 	 */
 	public function setPageProperty( string $name, $value ): void;
+
+	/**
+	 * Set a numeric page property whose *value* is intended to be sorted
+	 * and indexed.  The sort key used for the property will be the value,
+	 * coerced to a number.
+	 *
+	 * See `::setPageProperty()` for details.
+	 *
+	 * In the future, we may allow the value to be specified independent
+	 * of sort key (T357783).
+	 *
+	 * @param string $propName The name of the page property
+	 * @param int|float|string $numericValue the numeric value
+	 * @since 1.42
+	 */
+	public function setNumericPageProperty( string $propName, $numericValue ): void;
+
+	/**
+	 * Set a page property whose *value* is not intended to be sorted and
+	 * indexed.
+	 *
+	 * See `::setPageProperty()` for details.  It is recommended to
+	 * use the empty string if you need a placeholder value (ie, if
+	 * it is the *presence* of the property which is important, not
+	 * the *value* the property is set to).
+	 *
+	 * It is still possible to efficiently look up all the pages with
+	 * a certain property (the "presence" of it *is* indexed; see
+	 * Special:PagesWithProp, list=pageswithprop).
+	 *
+	 * @param string $propName The name of the page property
+	 * @param string $value Optional value; defaults to the empty string.
+	 * @since 1.42
+	 */
+	public function setUnsortedPageProperty( string $propName, string $value = '' ): void;
 
 	/**
 	 * Attaches arbitrary data to this content. This can be used to
