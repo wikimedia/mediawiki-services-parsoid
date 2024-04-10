@@ -510,6 +510,19 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function lintFostered(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): ?Element {
+		// Skip rendering-transparent nodes
+		if (
+			empty( $dp->fostered ) ||
+			WTUtils::isRenderingTransparentNode( $node ) ||
+			// TODO: Section tags are rendering transparent but not sol transparent,
+			// and that method only considers WTUtils::isSolTransparentLink, though
+			// there is a FIXME to consider all link nodes.
+			( DOMCompat::nodeName( $node ) === 'link' &&
+				DOMUtils::hasTypeOf( $node, 'mw:Extension/section' ) )
+		) {
+			return null;
+		}
+
 		$maybeTable = $node->nextSibling;
 		$clear = false;
 
@@ -1280,7 +1293,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		Element $node, Env $env, ?stdClass $tplInfo
 	): ?Element {
 		$dp = DOMDataUtils::getDataParsoid( $node );
-
 		$this->lintTreeBuilderFixup( $env, $node, $dp, $tplInfo );
 		$this->lintDeletableTableTag( $env, $node, $dp, $tplInfo ); // For T161341
 		$this->lintPWrapBugWorkaround( $env, $node, $dp, $tplInfo ); // For T161306
@@ -1292,21 +1304,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintWikilinksInExtlink( $env, $node, $dp, $tplInfo );
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
-
-		// Log fostered content, but skip rendering-transparent nodes
-		if (
-			!empty( $dp->fostered ) &&
-			!WTUtils::isRenderingTransparentNode( $node ) &&
-			// TODO: Section tags are rendering transparent but not sol transparent,
-			// and that method only considers WTUtils::isSolTransparentLink, though
-			// there is a FIXME to consider all link nodes.
-			!( DOMCompat::nodeName( $node ) === 'link' &&
-				DOMUtils::hasTypeOf( $node, 'mw:Extension/section' ) )
-		) {
-			return $this->lintFostered( $env, $node, $dp, $tplInfo );
-		} else {
-			return null;
-		}
+		return $this->lintFostered( $env, $node, $dp, $tplInfo );
 	}
 
 	/**
