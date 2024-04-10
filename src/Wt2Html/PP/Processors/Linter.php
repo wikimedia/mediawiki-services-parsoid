@@ -1068,6 +1068,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 	/**
 	 * Lint a PHP parser bug.
 	 *
+	 * When an HTML table is nested inside a list, if any part of the table
+	 * is on a new line, the PHP parser misnests the list and the table.
+	 * Tidy fixes the misnesting one way (puts table inside/outside the list)
+	 * HTML5 parser fixes it another way (list expands to rest of the page!)
+	 *
 	 * Lint category: `multiline-html-table-in-list`
 	 */
 	private function lintMultilineHtmlTableInList(
@@ -1283,15 +1288,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintBogusImageOptions( $env, $node, $dp, $tplInfo );
 		$this->lintTidyWhitespaceBug( $env, $node, $dp, $tplInfo );
 		$this->lintMiscTidyReplacementIssues( $env, $node, $dp, $tplInfo );
-
-		// When an HTML table is nested inside a list and if any part of the table
-		// is on a new line, the PHP parser misnests the list and the table.
-		// Tidy fixes the misnesting one way (puts table inside/outside the list)
-		// HTML5 parser fix it another way (list expands to rest of the page!)
 		$this->lintMultilineHtmlTableInList( $env, $node, $dp, $tplInfo );
 		$this->lintWikilinksInExtlink( $env, $node, $dp, $tplInfo );
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
-
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 
 		// Log fostered content, but skip rendering-transparent nodes
