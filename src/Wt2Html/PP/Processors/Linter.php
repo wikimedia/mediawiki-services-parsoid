@@ -509,63 +509,43 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function lintFostered(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
-	): ?Element {
+	): void {
+		if ( DOMCompat::nodeName( $node ) !== 'table' ) {
+			return;
+		}
+
+		// The top-level nodes in the foster box are span/p wrapped
+		// and so, if we have fostered content, previous siblings to
+		// the table are expected to be elements.
+		$maybeFostered = $node->previousSibling;
+
 		// Skip rendering-transparent nodes
-		if (
-			empty( $dp->fostered ) ||
-			WTUtils::isRenderingTransparentNode( $node ) ||
+		while ( $maybeFostered instanceof Element && (
+			WTUtils::isRenderingTransparentNode( $maybeFostered ) ||
 			// TODO: Section tags are rendering transparent but not sol transparent,
 			// and that method only considers WTUtils::isSolTransparentLink, though
 			// there is a FIXME to consider all link nodes.
-			( DOMCompat::nodeName( $node ) === 'link' &&
-				DOMUtils::hasTypeOf( $node, 'mw:Extension/section' ) )
+			( DOMCompat::nodeName( $maybeFostered ) === 'link' &&
+				DOMUtils::hasTypeOf( $maybeFostered, 'mw:Extension/section' ) )
+		) ) {
+			$maybeFostered = $maybeFostered->previousSibling;
+		}
+
+		if (
+			!( $maybeFostered instanceof Element ) ||
+			 empty( DOMDataUtils::getDataParsoid( $maybeFostered )->fostered )
 		) {
-			return null;
-		}
-
-		$maybeTable = $node->nextSibling;
-		$clear = false;
-
-		while ( $maybeTable && DOMCompat::nodeName( $maybeTable ) !== 'table' ) {
-			if ( $tplInfo && $maybeTable === $tplInfo->last ) {
-				$clear = true;
-			}
-			$maybeTable = $maybeTable->nextSibling;
-		}
-
-		if ( !$maybeTable instanceof Element ) {
-			return null;
-		} elseif ( $clear && $tplInfo ) {
-			$tplInfo->clear = true;
-		}
-
-		// In pathological cases, we might walk past fostered nodes
-		// that carry templating information. This then triggers
-		// other errors downstream. So, walk back to that first node
-		// and ignore this fostered content error. The new node will
-		// trigger fostered content lint error.
-		if ( !$tplInfo && WTUtils::isEncapsulatedDOMForestRoot( $maybeTable ) &&
-			!WTUtils::isFirstEncapsulationWrapperNode( $maybeTable )
-		) {
-			$tplNode = WTUtils::findFirstEncapsulationWrapperNode( $maybeTable );
-			if ( $tplNode !== null ) {
-				return $tplNode;
-			}
-
-			// We got misled by the about id on 'maybeTable'.
-			// Let us carry on with regularly scheduled programming.
+			return;
 		}
 
 		$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 		$lintObj = [
 			'dsr' => $this->findLintDSR(
-				$tplLintInfo, $tplInfo, DOMDataUtils::getDataParsoid( $maybeTable )->dsr ?? null
+				$tplLintInfo, $tplInfo, $dp->dsr ?? null
 			),
 			'templateInfo' => $tplLintInfo,
 		];
 		$env->recordLint( 'fostered', $lintObj );
-
-		return $maybeTable;
 	}
 
 	/**
@@ -1304,7 +1284,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintWikilinksInExtlink( $env, $node, $dp, $tplInfo );
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
-		return $this->lintFostered( $env, $node, $dp, $tplInfo );
+		$this->lintFostered( $env, $node, $dp, $tplInfo );
+		return null;
 	}
 
 	/**
