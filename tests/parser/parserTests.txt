@@ -7046,11 +7046,12 @@ Category with newline in sort key
 !! options
 cat
 parsoid=wt2html,html2html
-!! metadata
-cat=Wikidata:Tools sort=*
 !! wikitext
 [[Category:Wikidata:Tools|
 *]]
+!! metadata
+cat=Wikidata:Tools sort=
+*
 !! html/php
 !! html/parsoid
 <link rel="mw:PageProp/Category" href="./Category:Wikidata:Tools#*"/>
@@ -7174,6 +7175,57 @@ parsoid=wt2html
 <li>Foo <link rel="mw:PageProp/Category" href="./Category:Foo"/><link rel="mw:PageProp/Category" href="./Category:Bar"/> Bar</li>
 <li>Foo <link rel="mw:PageProp/Category" href="./Category:Foo"/> <link rel="mw:PageProp/Category" href="./Category:Bar"/>Bar</li>
 <li>Foo <link rel="mw:PageProp/Category" href="./Category:Foo"/> <link rel="mw:PageProp/Category" href="./Category:Bar"/> Bar</li>
+</ul>
+!! end
+
+## Same as the above test, but with equally-invisible interlanguage links
+!! test
+Language link / non-newline whitespace interactions (T359886)
+!! options
+parsoid=wt2html
+!! wikitext
+* Foo[[es:Foo]]Bar
+* Foo[[es:Foo]] Bar
+* Foo [[es:Foo]]Bar
+* Foo [[es:Foo]] Bar
+
+* Foo[[es:Foo]][[es:Bar]]Bar
+* Foo[[es:Foo]][[es:Bar]] Bar
+* Foo[[es:Foo]] [[es:Bar]]Bar
+* Foo[[es:Foo]] [[es:Bar]] Bar
+* Foo [[es:Foo]][[es:Bar]]Bar
+* Foo [[es:Foo]][[es:Bar]] Bar
+* Foo [[es:Foo]] [[es:Bar]]Bar
+* Foo [[es:Foo]] [[es:Bar]] Bar
+!! html/php
+<ul><li>FooBar</li>
+<li>Foo Bar</li>
+<li>Foo Bar</li>
+<li>Foo  Bar</li></ul>
+<ul><li>FooBar</li>
+<li>Foo Bar</li>
+<li>Foo Bar</li>
+<li>Foo  Bar</li>
+<li>Foo Bar</li>
+<li>Foo  Bar</li>
+<li>Foo  Bar</li>
+<li>Foo   Bar</li></ul>
+!! html/parsoid
+<ul>
+<li>Foo<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/>Bar</li>
+<li>Foo<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/> Bar</li>
+<li>Foo <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/>Bar</li>
+<li>Foo <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/> Bar</li>
+</ul>
+<ul>
+<li>Foo<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/>Bar</li>
+<li>Foo<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/> Bar</li>
+<li>Foo<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/> <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/>Bar</li>
+<li>Foo<link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/> <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/> Bar</li>
+<li>Foo <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/>Bar</li>
+<li>Foo <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/><link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/> Bar</li>
+<li>Foo <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/> <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/>Bar</li>
+<li>Foo <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Foo"/> <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Bar"/> Bar</li>
 </ul>
 !! end
 
@@ -7584,6 +7636,19 @@ Parsoid: Defaultsort (template-generated)
 {{{{1x|DEFAULTSORT}}:Foo}}
 !! html/parsoid+integrated
 <span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{1x|DEFAULTSORT}}:Foo","function":"defaultsort"},"params":{},"i":0}}]}'></span>
+!! end
+
+!! test
+{{defaultsort}} should be location-independent (T353530)
+!! options
+cat
+!! wikitext
+[[Category:Foo]]
+{{DEFAULTSORT:Bar}}
+[[Category:Bat]]
+!! metadata
+cat=Foo sort=Bar
+cat=Bat sort=Bar
 !! end
 
 ###

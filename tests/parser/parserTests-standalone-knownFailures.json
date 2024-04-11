@@ -221,6 +221,9 @@
     "Categories and newlines: should behave properly with linkprefix (T87753)": {
         "selser [[3],0,3,0,0]": "\n\n[[تصنيف:Bar]]"
     },
+    "Category with newline in sort key": {
+        "metadata": "cat=Wikidata:Tools sort=*"
+    },
     "Common list": {
         "html2wt": "* Common list\n* item 2\n* item 3"
     },
@@ -1673,5 +1676,8 @@
     "{{#special:}} page name, known": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,26,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Recentchanges\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>"
+    },
+    "{{defaultsort}} should be location-independent (T353530)": {
+        "metadata": "cat=Foo sort=\ncat=Bat sort="
     }
 }
