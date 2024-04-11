@@ -20,11 +20,5 @@
         "selser [0,[3,[[1]]]]": "{|\n| data-foobar=\"1dr8gfc\" |x\n|}",
         "selser [0,[2,[1]]]": "{|<!--1i1jtb9-->\n\n|x\n|}",
         "selser [0,[3,2]]": "{|<!--3rhy9v-->\n|x\n|}"
-    },
-    "Templates where an indicator is the leading content (1)": {
-        "metadata": ""
-    },
-    "Templates where an indicator is the leading content (2)": {
-        "metadata": "x=bar"
     }
 }
