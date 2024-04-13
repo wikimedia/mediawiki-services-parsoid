@@ -1271,7 +1271,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function logWikitextFixups(
 		Element $node, Env $env, ?stdClass $tplInfo
-	): ?Element {
+	): void {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$this->lintTreeBuilderFixup( $env, $node, $dp, $tplInfo );
 		$this->lintDeletableTableTag( $env, $node, $dp, $tplInfo ); // For T161341
@@ -1285,7 +1285,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
-		return null;
 	}
 
 	/**
@@ -1318,18 +1317,18 @@ class Linter implements Wt2HtmlDOMProcessor {
 					// FIXME: This is not being used. Instead the code is recomputing
 					// this info in findEnclosingTemplateName.
 					'isTemplated' => DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ),
-					'clear' => false,
 				];
 			}
 
-			$nextNode = false;
+			$handled = false;
+
 			// Let native extensions lint their content
 			$nativeExt = WTUtils::getNativeExt( $env, $node );
 			if ( $nativeExt ) {
 				if ( !$this->extApi ) {
 					$this->extApi = new ParsoidExtensionAPI( $env );
 				}
-				$nextNode = $nativeExt->lintHandler(
+				$handled = $nativeExt->lintHandler(
 					$this->extApi,
 					$node,
 					function ( $extRootNode ) use ( $env, $tplInfo ) {
@@ -1340,25 +1339,21 @@ class Linter implements Wt2HtmlDOMProcessor {
 					}
 				);
 			}
-			if ( $nextNode === false ) {
-				// Default node handler
+
+			// Default node handler
+			if ( $handled === false ) {
 				// Lint this node
-				$nextNode = $this->logWikitextFixups( $node, $env, $tplInfo );
-				if ( $tplInfo && $tplInfo->clear ) {
-					$tplInfo = null;
-				}
+				$this->logWikitextFixups( $node, $env, $tplInfo );
 
 				// Lint subtree
-				if ( !$nextNode ) {
-					$this->findLints( $node, $env, $tplInfo );
-				}
+				$this->findLints( $node, $env, $tplInfo );
 			}
 
 			if ( $tplInfo && $tplInfo->last === $node ) {
 				$tplInfo = null;
 			}
 
-			$node = $nextNode ?: $node->nextSibling;
+			$node = $node->nextSibling;
 		}
 	}
 

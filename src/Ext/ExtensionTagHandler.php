@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Ext;
 use Closure;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 
 /**
  * A Parsoid extension module may register handlers for one or more
@@ -68,22 +67,17 @@ abstract class ExtensionTagHandler {
 	 * to register those lints. Alternatively, the extension might simply
 	 * inspect its DOM and invoke the default lint handler on a DOM tree
 	 * that it wants inspected. For example, <ref> nodes often only have
-	 * a pointer (the id attribute) to its content, and is lint handler would
+	 * a pointer (the id attribute) to its content, and its lint handler would
 	 * look up the DOM tree and invoke the default lint handler on that tree.
-	 *
-	 * FIXME: There is probably no reason for the lint handler to return anything.
-	 * The caller should simply proceed with the next sibling of $rootNode
-	 * after the lint handler returns.
 	 *
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param Element $rootNode Extension content's root node
 	 * @param callable $defaultHandler Default lint handler
 	 *    - Default lint handler has signature $defaultHandler( Element $elt ): void
-	 * @return Node|null|false Return `false` to indicate that this
+	 * @return bool Return `false` to indicate that this
 	 *   extension has no special lint handler (the default lint handler will
-	 *   be used.  Return `null` to indicate linting should proceed with the
-	 *   next sibling.  (Deprecated) A `Node` can be returned to indicate
-	 *   the point in the tree where linting should resume.
+	 *   be used.  Return `true` to indicate linting should proceed with the
+	 *   next sibling.
 	 */
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, Element $rootNode, callable $defaultHandler
