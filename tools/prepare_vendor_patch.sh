@@ -11,7 +11,7 @@ if [ $# -lt 2 ]; then
 	echo "Ex: $0 v0.19.0-a6 v0.19.0-a7 TXXXXXX"
 	echo "You have to skip OR provide both repo values on the CLI"
 	echo "A specific composer install can be passed via the MW_COMPOSER env variable."
-	echo "The task id refers to the associated release phab task.
+	echo "The task id refers to the associated release phab task."
 	exit 1
 fi
 
@@ -151,8 +151,8 @@ rm composer.json.bak
 git checkout -b $3
 git commit composer.json -m "Bump wikimedia/parsoid to $vstring
 
-Depends-On: $changeid
-Bug: $3"
+Bug: $3
+Depends-On: $changeid"
 echo
 
 # Add instructions
