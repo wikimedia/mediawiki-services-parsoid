@@ -1338,6 +1338,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 						);
 					}
 				);
+				// NOTE: See the note in WrapSectionsState::shouldOmitFromTOC()
+				// but we've assumed extension content is contained in a single
+				// wrapper node and it's safe to move to $node->nextSibling.
 			}
 
 			// Default node handler
