@@ -295,42 +295,6 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Whether to enable linter Backend.
-	 * Consults the allow list and block list from ::getLinterConfig().
-	 *
-	 * @param null $type If $type is null or omitted, returns true if *any* linting
-	 *   type is enabled; otherwise returns true only if the specified
-	 *   linting type is enabled.
-	 * @return bool If $type is null or omitted, returns true if *any* linting
-	 *   type is enabled; otherwise returns true only if the specified
-	 *   linting type is enabled.
-	 */
-	final public function linting( ?string $type = null ) {
-		if ( !$this->linterEnabled ) {
-			return false;
-		}
-		$lintConfig = $this->getLinterConfig();
-		// Allow list
-		$allowList = $lintConfig['enabled'] ?? null;
-		if ( is_array( $allowList ) ) {
-			if ( $type === null ) {
-				return count( $allowList ) > 0;
-			}
-			return $allowList[$type] ?? false;
-		}
-		// Block list
-		if ( $type === null ) {
-			return true;
-		}
-		$blockList = $lintConfig['disabled'] ?? null;
-		if ( is_array( $blockList ) ) {
-			return !( $blockList[$type] ?? false );
-		}
-		// No specific configuration
-		return true;
-	}
-
-	/**
 	 * Statistics aggregator, for counting and timing.
 	 *
 	 * @return StatsdDataFactoryInterface|null
@@ -1214,12 +1178,19 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function linterEnabled(): bool {
+		return $this->linterEnabled;
+	}
+
+	/**
 	 * Return the desired linter configuration.  These are heuristic values
 	 * which have hardcoded defaults but could be overridden on a per-wiki
 	 * basis.
 	 * @return array{enabled?:string[],disabled?:string[],maxTableColumnHeuristic?:int,maxTableRowsToCheck?:int}
 	 */
-	public function getLinterConfig(): array {
+	public function getLinterSiteConfig(): array {
 		return [
 			// Allow list for specific lint types.
 			// Takes precedence over block list.

@@ -87,8 +87,8 @@ class MockSiteConfig extends SiteConfig {
 		$this->setLogger( $logger );
 	}
 
-	public function getLinterConfig(): array {
-		return $this->linterOverrides + parent::getLinterConfig();
+	public function getLinterSiteConfig(): array {
+		return $this->linterOverrides + parent::getLinterSiteConfig();
 	}
 
 	public function allowedExternalImagePrefixes(): array {

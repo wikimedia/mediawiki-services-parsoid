@@ -92,10 +92,7 @@ class LintLogger {
 			return;
 		}
 
-		// Filter only enabled linting types
-		$enabledBuffer = array_filter( $env->getLints(), static function ( $item ) use ( $env ) {
-			return $env->getSiteConfig()->linting( $item['type'] );
-		} );
+		$enabledBuffer = $env->getLints();
 
 		// Convert offsets to ucs2
 		$offsetType = $env->getCurrentOffsetType();

@@ -949,7 +949,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$prev = $prev->previousSibling;
 		}
 
-		$lintConfig = $env->getSiteConfig()->getLinterConfig();
+		$lintConfig = $env->getLinterConfig();
 		$tidyWhitespaceBugMaxLength = $lintConfig['tidyWhitespaceBugMaxLength'] ?? 100;
 
 		if ( $runLength < $tidyWhitespaceBugMaxLength ) {
@@ -1204,7 +1204,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
-		$lintConfig = $env->getSiteConfig()->getLinterConfig();
+		$lintConfig = $env->getLinterConfig();
 		$maxColumns = $lintConfig['maxTableColumnHeuristic'] ?? 5;
 		$maxRowsToCheck = $lintConfig['maxTableRowsToCheck'] ?? 10;
 

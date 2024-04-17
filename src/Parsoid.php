@@ -172,6 +172,9 @@ class Parsoid {
 		if ( isset( $options['logLinterData'] ) ) {
 			$envOptions['logLinterData'] = (bool)$options['logLinterData'];
 		}
+		if ( isset( $options['linterOverrides'] ) ) {
+			$envOptions['linterOverrides'] = $options['linterOverrides'];
+		}
 		$envOptions['skipLanguageConversionPass'] =
 			$options['skipLanguageConversionPass'] ?? false;
 
@@ -210,6 +213,7 @@ class Parsoid {
 	 *   'htmlVariantLanguage'  => (Bcp47Code) If non-null, the language variant used for Parsoid HTML.
 	 *   'wtVariantLanguage'    => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
+	 *   'linterOverrides'      => (array) Override the site linting configs.
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options
@@ -236,7 +240,7 @@ class Parsoid {
 		// is covered as well?  It probably depends on expectations of the
 		// Rest API.  If callers of /page/lint/ assume that will update the
 		// results on the Special page.
-		if ( $env->getSiteConfig()->linting() ) {
+		if ( $env->linting() ) {
 			( new LintLogger( $env ) )->logLintOutput();
 		}
 

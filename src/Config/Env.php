@@ -126,6 +126,9 @@ class Env {
 	/** @var bool logLinterData */
 	public $logLinterData = false;
 
+	/** @var array linterOverrides */
+	private $linterOverrides = [];
+
 	/** @var bool[] */
 	private $traceFlags;
 
@@ -259,6 +262,7 @@ class Env {
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
+	 *  - linterOverrides: (array) Override the site linting configs.
 	 *  - skipLanguageConversionPass: (bool) Should we skip the language
 	 *      conversion pass? (defaults to false)
 	 *  - htmlVariantLanguage: Bcp47Code|null
@@ -320,6 +324,7 @@ class Env {
 		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
 		$this->logLinterData = !empty( $options['logLinterData'] );
+		$this->linterOverrides = $options['linterOverrides'] ?? [];
 		$this->traceFlags = $options['traceFlags'] ?? [];
 		$this->dumpFlags = $options['dumpFlags'] ?? [];
 		$this->debugFlags = $options['debugFlags'] ?? [];
@@ -929,7 +934,7 @@ class Env {
 	 *  - templateInfo: (array|null)
 	 */
 	public function recordLint( string $type, array $lintData ): void {
-		if ( !$this->getSiteConfig()->linting( $type ) ) {
+		if ( !$this->linting( $type ) ) {
 			return;
 		}
 
@@ -1161,5 +1166,48 @@ class Env {
 			}
 		}
 		return $attribs;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getLinterConfig(): array {
+		return $this->linterOverrides + $this->getSiteConfig()->getLinterSiteConfig();
+	}
+
+	/**
+	 * Whether to enable linter Backend.
+	 * Consults the allow list and block list from ::getLinterConfig().
+	 *
+	 * @param null $type If $type is null or omitted, returns true if *any* linting
+	 *   type is enabled; otherwise returns true only if the specified
+	 *   linting type is enabled.
+	 * @return bool If $type is null or omitted, returns true if *any* linting
+	 *   type is enabled; otherwise returns true only if the specified
+	 *   linting type is enabled.
+	 */
+	public function linting( ?string $type = null ) {
+		if ( !$this->getSiteConfig()->linterEnabled() ) {
+			return false;
+		}
+		$lintConfig = $this->getLinterConfig();
+		// Allow list
+		$allowList = $lintConfig['enabled'] ?? null;
+		if ( is_array( $allowList ) ) {
+			if ( $type === null ) {
+				return count( $allowList ) > 0;
+			}
+			return in_array( $type, $allowList, true );
+		}
+		// Block list
+		if ( $type === null ) {
+			return true;
+		}
+		$blockList = $lintConfig['disabled'] ?? null;
+		if ( is_array( $blockList ) ) {
+			return !in_array( $type, $blockList, true );
+		}
+		// No specific configuration
+		return true;
 	}
 }

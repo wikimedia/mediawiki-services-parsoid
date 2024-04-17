@@ -451,7 +451,7 @@ class DOMPostProcessor extends PipelineStage {
 			],
 			[
 				'Processor' => Linter::class,
-				'omit' => !$env->getSiteConfig()->linting(),
+				'omit' => !$env->linting(),
 				'skipNested' => true
 				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
