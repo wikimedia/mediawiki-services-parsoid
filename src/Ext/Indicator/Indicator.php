@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Ext\Indicator;
 use Closure;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\Ext\DiffDOMUtils;
 use Wikimedia\Parsoid\Ext\DOMDataUtils;
 use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
@@ -66,14 +67,14 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 			] );
 
 		// Strip an outer paragraph if it is the sole paragraph without additional attributes
-		$content = $domFragment->firstChild;
+		$content = DiffDOMUtils::firstNonSepChild( $domFragment );
 		if ( $content &&
 			DOMCompat::nodeName( $content ) === 'p' &&
-			$content->nextSibling === null &&
+			DiffDOMUtils::nextNonSepSibling( $content ) === null &&
 			$content instanceof Element && // Needed to mollify Phan
 			DOMDataUtils::noAttrs( $content )
 		) {
-			DOMUtils::migrateChildren( $content, $domFragment );
+			DOMUtils::migrateChildren( $content, $domFragment, $content->nextSibling );
 			$domFragment->removeChild( $content );
 		}
 

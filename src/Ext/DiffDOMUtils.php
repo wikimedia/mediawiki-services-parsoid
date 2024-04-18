@@ -39,4 +39,14 @@ class DiffDOMUtils {
 		return DDU::firstNonSepChild( $node );
 	}
 
+	/**
+	 * Get the next non separator sibling node.
+	 *
+	 * @param Node $node
+	 * @return Node|null
+	 */
+	public static function nextNonSepSibling( Node $node ): ?Node {
+		return DDU::nextNonSepSibling( $node );
+	}
+
 }
