@@ -99,9 +99,9 @@ const isUpToDate = Promise.async(function *(targetRepo) {
 	return true;
 });
 
-const forceUpdate = Promise.async(function *(targetRepo) {
+const forceUpdate = Promise.async(function *(targetRepo, branch) {
 	const repoInfo = testFiles[targetRepo];
-	const gerritPath = '/r/plugins/gitiles/' + repoInfo.project + '/+log/refs/heads/master' + '?format=JSON';
+	const gerritPath = '/r/plugins/gitiles/' + repoInfo.project + '/+log/refs/heads/' + branch + '?format=JSON';
 	console.log('Fetching ' + targetRepo + ' history from ' + gerritPath);
 
 	// fetch the history page
@@ -148,6 +148,13 @@ Promise.async(function *() {
 	const opts = yargs
 	.usage(usage)
 	.options({
+		'all': {
+			description: 'Fetch files for all targets defined in the parserTests.json.'
+		},
+		'branch': {
+			description: 'Branch on which to fetch the latest parserTests files.',
+			default: 'master',
+		},
 		'help': { description: 'Show this message' },
 	});
 	const argv = opts.argv;
@@ -173,6 +180,6 @@ Promise.async(function *() {
 		if (yield isUpToDate(targetRepo)) {
 			console.warn("Files not locally modified.");
 		}
-		yield forceUpdate(targetRepo);
+		yield forceUpdate(targetRepo, argv.branch);
 	}
 })().done();
