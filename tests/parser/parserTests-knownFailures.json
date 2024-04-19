@@ -33,6 +33,9 @@
 	"Bail on table cell attribute parsing on wikilink": {
 		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
 	},
+	"Category with newline in sort key": {
+		"metadata": "cat=Wikidata:Tools sort=*"
+	},
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
