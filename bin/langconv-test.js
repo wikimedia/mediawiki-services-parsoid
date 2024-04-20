@@ -22,28 +22,34 @@ const { Util } = require('../lib/utils/Util.js');
 const { ScriptUtils } = require('../tools/ScriptUtils.js');
 
 const jsonFormat = function(error, domain, title, lang, options, results) {
-	if (error) { return { error: error.stack || error.toString() }; }
+	if (error) {
+		return { error: error.stack || error.toString() };
+	}
 	const p = Diff.patchDiff(results.php, results.parsoid);
 	return { patch: p };
 };
 
 const plainFormat = function(error, domain, title, lang, options, results) {
-	if (error) { return error.stack || error.toString(); }
-	const article = `${domain} ${title} ${lang || ''}`;
+	if (error) {
+		return error.stack || error.toString();
+	}
+	const article = `${ domain } ${ title } ${ lang || '' }`;
 	const diff = Diff.colorDiff(results.php, results.parsoid, {
 		context: 1,
 		noColor: (colors.mode === 'none'),
 		diffCount: true,
 	});
-	if (diff.count === 0) { return ''; }
-	return `== ${article} ==\n${diff.output}\n${diff.count} different words found.\n`;
+	if (diff.count === 0) {
+		return '';
+	}
+	return `== ${ article } ==\n${ diff.output }\n${ diff.count } different words found.\n`;
 };
 
 const xmlFormat = function(error, domain, title, lang, options, results) {
-	const article = `${domain} ${title} ${lang || ''}`;
+	const article = `${ domain } ${ title } ${ lang || '' }`;
 	let output = '<testsuites>\n';
-	output += `<testsuite name="Variant ${Util.escapeHtml(article)}">\n`;
-	output += `<testcase name="revision ${results.revid}">\n`;
+	output += `<testsuite name="Variant ${ Util.escapeHtml(article) }">\n`;
+	output += `<testcase name="revision ${ results.revid }">\n`;
 	if (error) {
 		output += '<error type="parserFailedToFinish">';
 		output += Util.escapeHtml(error.stack || error.toString());
@@ -92,7 +98,9 @@ class PHPVariantRequest extends ApiRequest {
 		// This argument to the API is not documented!  Except in
 		// https://phabricator.wikimedia.org/T44356#439479 and
 		// https://phabricator.wikimedia.org/T34906#381101
-		if (variant) { apiargs.variant = variant; }
+		if (variant) {
+			apiargs.variant = variant;
+		}
 
 		const uri = env.conf.wiki.apiURI;
 		this.requestOptions = {
@@ -105,6 +113,7 @@ class PHPVariantRequest extends ApiRequest {
 
 		this.request(this.requestOptions);
 	}
+
 	_handleJSON(error, data) {
 		if (!error && !(data && data.parse)) {
 			error = this._errorObj(data, this.text, 'Missing data.parse.');
@@ -117,6 +126,7 @@ class PHPVariantRequest extends ApiRequest {
 			this._processListeners(error, data.parse);
 		}
 	}
+
 	_errorObj(data, requestStr, defaultMsg) {
 		if (data && data.error && data.error.code === 'missingtitle') {
 			return new DoesNotExistError(this.title);
@@ -162,9 +172,9 @@ const parsoidFetch = Promise.async(function *(env, title, options) {
 	if (!/\/$/.test(uri)) {
 		uri += '/';
 	}
-	uri += `${domain}/v3/page/html/${encodeURIComponent(title)}`;
+	uri += `${ domain }/v3/page/html/${ encodeURIComponent(title) }`;
 	if (options.oldid) {
-		uri += `/${options.oldid}`;
+		uri += `/${ options.oldid }`;
 	}
 	const resp = yield ScriptUtils.retryingHTTPRequest(10, {
 		method: 'GET',
@@ -178,7 +188,7 @@ const parsoidFetch = Promise.async(function *(env, title, options) {
 	const res = resp[0];
 	const body = resp[1];
 	if (res.statusCode !== 200) {
-		throw new Error(`Can\'t fetch Parsoid source: ${uri}`);
+		throw new Error(`Can\'t fetch Parsoid source: ${ uri }`);
 	}
 	const oldid = res.request.path.replace(/^(.*)\//, '');
 	const document = DOMUtils.parseHTML(body);
@@ -196,11 +206,15 @@ const hrefToTitle = function(href) {
 
 const nodeHrefToTitle = function(node, suppressCategory) {
 	const href = node && node.hasAttribute('href') && node.getAttribute('href');
-	if (!href) { return null; }
+	if (!href) {
+		return null;
+	}
 	const title = hrefToTitle(href);
 	if (suppressCategory) {
 		const categoryMatch = title.match(/^([^:]+)[:]/);
-		if (categoryMatch) { return null; /* skip it */ }
+		if (categoryMatch) {
+			return null; /* skip it */
+		}
 	}
 	return title;
 };
@@ -237,12 +251,22 @@ const extractText = function(env, document) {
 	 * elements.  Even there, we are careful never to emit two newlines
 	 * in a row, or whitespace before or after a newline. */
 	const addSep = (s) => {
-		if (s === '') { return; }
-		if (/\n/.test(s)) { sep = '\n'; return; }
-		if (sep === '\n') { return; }
+		if (s === '') {
+			return;
+		}
+		if (/\n/.test(s)) {
+			sep = '\n'; return;
+		}
+		if (sep === '\n') {
+			return;
+		}
 		sep = ' ';
 	};
-	const emit = (s) => { if (s !== '') { buf += sep; buf += s; sep = ''; } };
+	const emit = (s) => {
+		if (s !== '') {
+			buf += sep; buf += s; sep = '';
+		}
+	};
 	dt.addHandler('#text', (node, env2, atTopLevel, tplInfo) => {
 		const v = node.nodeValue.replace(/\s+/g, ' ');
 		const m = /^(\s*)(.*?)(\s*)$/.exec(v);
@@ -262,7 +286,9 @@ const extractText = function(env, document) {
 	});
 	/* These are the block elements which we delimit with newlines (aka,
 	 * we ensure they start on a line of their own). */
-	var forceBreak = () => { addSep('\n'); return true; };
+	var forceBreak = () => {
+		addSep('\n'); return true;
+	};
 	for (const el of ['p','li','div','table','tr','h1','h2','h3','h4','h5','h6','figure', 'figcaption']) {
 		dt.addHandler(el, forceBreak);
 	}
@@ -275,7 +301,9 @@ const extractText = function(env, document) {
 		return true;
 	});
 	/* Separate table columns with spaces */
-	dt.addHandler('td', () => { addSep(' '); return true; });
+	dt.addHandler('td', () => {
+		addSep(' '); return true;
+	});
 	/* Suppress reference numbers and linkback text */
 	dt.addHandler('sup', (node) => {
 		if (
@@ -319,13 +347,13 @@ const extractText = function(env, document) {
 		// Rewrite red links as normal links
 		let m = /^\/w\/index\.php\?title=(.*?)&.*redlink=1$/.exec(href);
 		if (m) {
-			href = `/wiki/${m[1]}`;
+			href = `/wiki/${ m[1] }`;
 		}
 		// Local links to this page, or self-links
 		m = /^#/.test(href);
 		if (m || node.classList.contains('mw-selflink')) {
 			const title = encodeURIComponent(env.page.name);
-			href = `/wiki/${title}${href}`;
+			href = `/wiki/${ title }${ href }`;
 		}
 		// Now look for wiki links
 		if (node.classList.contains('external')) {
@@ -334,7 +362,7 @@ const extractText = function(env, document) {
 		if (/^(\.\.?|\/wiki)\//.test(href)) {
 			const title = hrefToTitle(href);
 			addSep(' ');
-			emit(`[${title}]`);
+			emit(`[${ title }]`);
 			addSep(' ');
 		}
 		return true;
@@ -347,7 +375,7 @@ const extractText = function(env, document) {
 			emit('Redirect to:');
 			forceBreak();
 			const title = nodeHrefToTitle(node);
-			emit(`[${title}]`);
+			emit(`[${ title }]`);
 			addSep(' ');
 			emit(title);
 			return node.nextSibling;
@@ -367,11 +395,11 @@ const nocksWrap = function(f) {
 			if (!(yield fs.exists(dir))) {
 				yield fs.mkdir(dir);
 			}
-			dir = `${dir}/${domain}`;
+			dir = `${ dir }/${ domain }`;
 			if (!(yield fs.exists(dir))) {
 				yield fs.mkdir(dir);
 			}
-			nocksFile = `${dir}/lc-${encodeURIComponent(title)}-${lang}.js`;
+			nocksFile = `${ dir }/lc-${ encodeURIComponent(title) }-${ lang }.js`;
 			if (options.record) {
 				nock = require('nock');
 				nock.recorder.rec({ dont_print: true });
@@ -386,7 +414,7 @@ const nocksWrap = function(f) {
 				const nockCalls = nock.recorder.play();
 				yield fs.writeFile(
 					nocksFile,
-					`'use strict';\nlet nock = require('nock');\n${nockCalls.join('\n')}`,
+					`'use strict';\nlet nock = require('nock');\n${ nockCalls.join('\n') }`,
 					'utf8'
 				);
 				nock.recorder.clear();
@@ -428,7 +456,7 @@ const runTest = nocksWrap(Promise.async(function *(domain, title, lang, options,
 	// Step 3: Strip most markup (so we're comparing text, not markup)
 	//  ...but eventually we'll leave <a href> since there's some title
 	//    conversion that should be done.
-	const normalize = out => `TITLE: ${out.displaytitle}\n\n` +
+	const normalize = out => `TITLE: ${ out.displaytitle }\n\n` +
 		extractText(env, out.document);
 	const phpText = normalize(phpDoc);
 	const parsoidText = normalize(parsoidDoc);
@@ -584,7 +612,9 @@ if (require.main === module) {
 				if (!r.error) {
 					titlesDone.add(queue[i]);
 					for (const t of r.linkedTitles) {
-						if (/:/.test(t)) { continue; /* hack: no namespaces */ }
+						if (/:/.test(t)) {
+							continue; /* hack: no namespaces */
+						}
 						queue.push(t);
 					}
 				}

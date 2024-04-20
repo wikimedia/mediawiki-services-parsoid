@@ -114,10 +114,14 @@ const forceUpdate = Promise.async(function *(targetRepo) {
 		https.get(url, function(result) {
 			var res = '';
 			result.setEncoding('utf8');
-			result.on('data', function(data) { res += data; });
+			result.on('data', function(data) {
+				res += data;
+			});
 			// The slice on the result is because gitiles is returning
 			// JSON starting with extraneous characters, ")]}'\n"
-			result.on('end', function() { resolve(res.slice(5)); });
+			result.on('end', function() {
+				resolve(res.slice(5));
+			});
 		}).on('error', function(err) {
 			console.error(err);
 			reject(err);

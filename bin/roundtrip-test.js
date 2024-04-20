@@ -752,7 +752,9 @@ var runTests = Promise.async(function *(title, options, formatter) {
 	}
 
 	// Preserve the default, but only if neither was provided.
-	if (!prefix && !domain) { domain = 'en.wikipedia.org'; }
+	if (!prefix && !domain) {
+		domain = 'en.wikipedia.org';
+	}
 
 	if (domain && prefix) {
 		// All good.
@@ -835,7 +837,7 @@ var runTests = Promise.async(function *(title, options, formatter) {
 		if (redirectMatch) {
 			const target = Util.decodeURIComponent(entities.decodeHTML5(redirectMatch[1].replace(/^(\.\/)?/, '')));
 			// Log this so we can collect these and update the database titles
-			console.error(`REDIRECT: ${prefix}:${title.replace(/"/g, '\\"')} -> ${prefix}:${target.replace(/"/g, '\\"')}`);
+			console.error(`REDIRECT: ${ prefix }:${ title.replace(/"/g, '\\"') } -> ${ prefix }:${ target.replace(/"/g, '\\"') }`);
 			return yield runTests(target, options, formatter);
 		}
 

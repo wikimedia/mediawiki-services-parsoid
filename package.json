@@ -22,8 +22,8 @@
 		"api-testing": "1.6.0",
 		"chai": "^4.1.2",
 		"colors": "^1.2.4",
-		"eslint": "8.31.0",
-		"eslint-config-wikimedia": "0.25.0",
+		"eslint": "8.57.0",
+		"eslint-config-wikimedia": "0.27.0",
 		"mocha": "git+https://github.com/arlolra/mocha.git#fix-ansi-regex",
 		"nock": "^9.2.5"
 	},

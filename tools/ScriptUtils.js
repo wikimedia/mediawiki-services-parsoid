@@ -246,7 +246,9 @@ var ScriptUtils = {
 	 * @return {boolean}
 	 */
 	booleanOption: function(val) {
-		if (!val) { return false; }
+		if (!val) {
+			return false;
+		}
 		if ((typeof val) === 'string' && /^(no|false)$/i.test(val)) {
 			return false;
 		}

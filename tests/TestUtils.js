@@ -171,7 +171,9 @@ TestUtils.unwrapSpansAndNormalizeIEW = function(body, stripSpanTypeof, parsoidOn
 	var unwrapSpan;  // forward declare
 	var cleanSpans = function(node) {
 		var child, next;
-		if (!stripSpanTypeof) { return; }
+		if (!stripSpanTypeof) {
+			return;
+		}
 		for (child = node.firstChild; child; child = next) {
 			next = child.nextSibling;
 			if (child.nodeName === 'SPAN' &&
@@ -243,7 +245,9 @@ TestUtils.unwrapSpansAndNormalizeIEW = function(body, stripSpanTypeof, parsoidOn
 				inPRE);
 			stripLeadingWS = false;
 		}
-		if (inPRE || preserveIEW) { return node; }
+		if (inPRE || preserveIEW) {
+			return node;
+		}
 		// now add newlines around appropriate nodes.
 		for (child = node.firstChild; child; child = next) {
 			prev = child.previousSibling;

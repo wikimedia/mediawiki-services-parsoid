@@ -112,11 +112,11 @@ const fetchAllHTML = Promise.async(function *(domain, title) {
 // Get diff slices from offsets
 function formatDiff(str1, str2, offset, context) {
 	return [
-		`----- JS:[${offset[0].start}, ${offset[0].end}] -----`,
+		`----- JS:[${ offset[0].start }, ${ offset[0].end }] -----`,
 		str1.slice(offset[0].start - context, offset[0].start).blue +
 		str1.slice(offset[0].start, offset[0].end).green +
 		str1.slice(offset[0].end, offset[0].end + context).blue,
-		`+++++ PHP:[${offset[1].start}, ${offset[1].end}] +++++`,
+		`+++++ PHP:[${ offset[1].start }, ${ offset[1].end }] +++++`,
 		str2.slice(offset[1].start - context, offset[1].start).blue +
 		str2.slice(offset[1].start, offset[1].end).red +
 		str2.slice(offset[1].end, offset[1].end + context).blue,
@@ -166,9 +166,9 @@ function displayResult(diffs, domain, title) {
 	domain = domain || '<unknown>';
 	title = title || '<unknown>';
 	if (diffs.length === 0) {
-		console.log(`${domain}:${title}: NO HTML DIFFS FOUND!`);
+		console.log(`${ domain }:${ title }: NO HTML DIFFS FOUND!`);
 	} else {
-		console.log(`Parsoid/JS vs. Parsoid/PHP HTML diffs for ${domain}:${title}`);
+		console.log(`Parsoid/JS vs. Parsoid/PHP HTML diffs for ${ domain }:${ title }`);
 		console.log(diffs.join('\n'));
 	}
 }

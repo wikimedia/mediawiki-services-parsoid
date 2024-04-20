@@ -65,7 +65,7 @@ function contentTypeMatcher( expectedMime, expectedSpec, expectedVersion ) {
 		const [ , mime, spec, version ] = parts;
 
 		// match version using caret semantics
-		if ( !semver.satisfies( version, `^${expectedVersion || defaultContentVersion}` ) ) {
+		if ( !semver.satisfies( version, `^${ expectedVersion || defaultContentVersion }` ) ) {
 			return false;
 		}
 
@@ -81,7 +81,7 @@ describe('Parsoid API', function() {
 	const client = new REST();
 	const parsedUrl = new url.URL(client.req.app);
 	const hostname = parsedUrl.hostname;
-	const mockDomain = client.pathPrefix = `rest.php/${hostname}`;
+	const mockDomain = client.pathPrefix = `rest.php/${ hostname }`;
 	const page = utils.title( 'Lint Page ' );
 	const pageEncoded = encodeURIComponent( page );
 	let revid, oldrevid;
@@ -425,7 +425,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should sanity check 2.x content (pagebundle)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Missing files in wiki
+			if (skipForNow) {
+				return this.skip();
+			}  // Missing files in wiki
 			var contentVersion = '2.8.0';
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
@@ -534,7 +536,9 @@ describe('Parsoid API', function() {
 	describe('wt2lint', function() {
 
 		it('should lint the given page', function(done) {
-			if (skipForNow) { return this.skip(); }  // Enable linting config
+			if (skipForNow) {
+				return this.skip();
+			}  // Enable linting config
 			client.req
 			.get(mockDomain + '/v3/page/lint/' + page + '/' + revid )
 			.expect(status200)
@@ -547,7 +551,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should lint the given wikitext', function(done) {
-			if (skipForNow) { return this.skip(); }  // Enable linting config
+			if (skipForNow) {
+				return this.skip();
+			}  // Enable linting config
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/lint/')
 			.send({
@@ -568,7 +574,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should lint the given page, transform', function(done) {
-			if (skipForNow) { return this.skip(); }  // Enable linting config
+			if (skipForNow) {
+				return this.skip();
+			}  // Enable linting config
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/lint/' + page + '/' + revid)
 			.send({})
@@ -600,7 +608,7 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and old revision (html)', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/html/${page}/${oldrevid}`)
+			.get(mockDomain + `/v3/page/html/${ page }/${ oldrevid }`)
 			.redirects( 0 )
 			.expect(validHtmlResponse(function(doc) {
 				doc.body.firstChild.firstChild.textContent.should.contain('First Revision Content');
@@ -610,7 +618,7 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and current revision (html)', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/html/${page}`)
+			.get(mockDomain + `/v3/page/html/${ page }`)
 			.redirects( 1 )
 			.expect(validHtmlResponse(function(doc) {
 				doc.body.firstChild.firstChild.textContent.should.contain('hi');
@@ -631,7 +639,7 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and revision (pagebundle)', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
+			.get(mockDomain + `/v3/page/pagebundle/${ page }/${ revid }`)
 			.redirects( 0 )
 			.expect(validPageBundleResponse())
 			.end(done);
@@ -650,7 +658,7 @@ describe('Parsoid API', function() {
 
 		it('should get from a title and revision (wikitext)', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/wikitext/${page}/${oldrevid}`)
+			.get(mockDomain + `/v3/page/wikitext/${ page }/${ oldrevid }`)
 			.redirects( 0 )
 			.expect(validWikitextResponse('First Revision Content'))
 			.end(done);
@@ -659,7 +667,7 @@ describe('Parsoid API', function() {
 		it.skip('should set a custom etag for get requests (html)', function(done) {
 			const etagPrefixExp = new RegExp( '^"' + revid + '/' );
 			client.req
-			.get(mockDomain + `/v3/page/html/${page}/${revid}`)
+			.get(mockDomain + `/v3/page/html/${ page }/${ revid }`)
 			.expect(validHtmlResponse())
 			.expect((res) => {
 				res.headers.should.have.property('etag');
@@ -671,7 +679,7 @@ describe('Parsoid API', function() {
 		it.skip('should set a custom etag for get requests (pagebundle)', function(done) {
 			const etagPrefixExp = new RegExp( '^"' + revid + '/' );
 			client.req
-			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
+			.get(mockDomain + `/v3/page/pagebundle/${ page }/${ revid }`)
 			.expect(validPageBundleResponse())
 			.expect((res) => {
 				res.headers.should.have.property('etag');
@@ -883,7 +891,7 @@ describe('Parsoid API', function() {
 
 		it('should accept the wikitext source as original data', function(done) {
 			client.req
-			.post(mockDomain + `/v3/transform/wikitext/to/html/${page}/${revid}`)
+			.post(mockDomain + `/v3/transform/wikitext/to/html/${ page }/${ revid }`)
 			.send({
 				original: {
 					wikitext: {
@@ -901,9 +909,11 @@ describe('Parsoid API', function() {
 		});
 
 		it('should use the proper source text', function(done) {
-			if (skipForNow) { return this.skip(); }  // Missing template 1x
+			if (skipForNow) {
+				return this.skip();
+			}  // Missing template 1x
 			client.req
-			.post(mockDomain + `/v3/transform/wikitext/to/html/${page}/${revid}`)
+			.post(mockDomain + `/v3/transform/wikitext/to/html/${ page }/${ revid }`)
 			.send({
 				original: {
 					wikitext: {
@@ -981,7 +991,7 @@ describe('Parsoid API', function() {
 
 		it('should not include captured offsets', function(done) {
 			client.req
-			.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
+			.get(mockDomain + `/v3/page/pagebundle/${ page }/${ revid }`)
 			.expect(validPageBundleResponse(function(doc, dp) {
 				dp.should.not.have.property('sectionOffsets');
 			}))
@@ -989,7 +999,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should return a request too large error (post wt)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Set limits in config
+			if (skipForNow) {
+				return this.skip();
+			}  // Set limits in config
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.send({
@@ -1003,7 +1015,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should return a request too large error (get page)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Set limits in config
+			if (skipForNow) {
+				return this.skip();
+			}  // Set limits in config
 			client.req
 			.get(mockDomain + '/v3/page/html/Large_Page/3')
 			.expect(413)
@@ -1011,7 +1025,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should add redlinks for get (html)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create Relinks_Page
+			if (skipForNow) {
+				return this.skip();
+			}  // Create Relinks_Page
 			client.req
 			.get(mockDomain + '/v3/page/html/Redlinks_Page/103')
 			.expect(validHtmlResponse(function(doc) {
@@ -1027,7 +1043,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should add redlinks for get (pagebundle)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create Redlinks_Page
+			if (skipForNow) {
+				return this.skip();
+			}  // Create Redlinks_Page
 			client.req
 			.get(mockDomain + '/v3/page/pagebundle/Redlinks_Page/103')
 			.expect(validPageBundleResponse(function(doc) {
@@ -1043,7 +1061,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should add redlinks for transform (html)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Fix redlinks count, by creating pages
+			if (skipForNow) {
+				return this.skip();
+			}  // Fix redlinks count, by creating pages
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/html/')
 			.send({
@@ -1062,7 +1082,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should add redlinks for transform (pagebundle)', function(done) {
-			if (skipForNow) { return this.skip(); }  // Fix redlinks count, by creating pages
+			if (skipForNow) {
+				return this.skip();
+			}  // Fix redlinks count, by creating pages
 			client.req
 			.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
 			.send({
@@ -1084,7 +1106,7 @@ describe('Parsoid API', function() {
 
 			it('should not perform unnecessary variant conversion for get of en page (html)', function(done) {
 				client.req
-				.get(mockDomain + `/v3/page/html/${page}/${revid}`)
+				.get(mockDomain + `/v3/page/html/${ page }/${ revid }`)
 				.set('Accept-Language', 'sr-el')
 				.expect(validHtmlResponse())
 				.expect('Content-Language', 'en')
@@ -1097,7 +1119,7 @@ describe('Parsoid API', function() {
 
 			it('should not perform unnecessary variant conversion for get of en page (pagebundle)', function(done) {
 				client.req
-				.get(mockDomain + `/v3/page/pagebundle/${page}/${revid}`)
+				.get(mockDomain + `/v3/page/pagebundle/${ page }/${ revid }`)
 				.set('Accept-Language', 'sr-el')
 				.expect(validPageBundleResponse())
 				.expect((res) => {
@@ -1515,7 +1537,7 @@ describe('Parsoid API', function() {
 
 		it('should allow a revision id in the url', function(done) {
 			client.req
-			.post(mockDomain + `/v3/transform/html/to/wikitext/${page}/${revid}`)
+			.post(mockDomain + `/v3/transform/html/to/wikitext/${ page }/${ revid }`)
 			.send({
 				html: '<!DOCTYPE html>\n<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="http://localhost/index.php/Special:Redirect/revision/1"><head prefix="mwr: http://localhost/index.php/Special:Redirect/"><meta property="mw:articleNamespace" content="0"/><link rel="dc:replaces" resource="mwr:revision/0"/><meta property="dc:modified" content="2014-09-12T22:46:59.000Z"/><meta about="mwr:user/0" property="dc:title" content="MediaWiki default"/><link rel="dc:contributor" resource="mwr:user/0"/><meta property="mw:revisionSHA1" content="8e0aa2f2a7829587801db67d0424d9b447e09867"/><meta property="dc:description" content=""/><link rel="dc:isVersionOf" href="http://localhost/index.php/Main_Page"/><title>Main_Page</title><base href="http://localhost/index.php/"/><link rel="stylesheet" href="//localhost/load.php?modules=mediawiki.legacy.commonPrint,shared|mediawiki.skinning.elements|mediawiki.skinning.content|mediawiki.skinning.interface|skins.vector.styles|site|mediawiki.skinning.content.parsoid&amp;only=styles&amp;debug=true&amp;skin=vector"/></head><body data-parsoid=\'{"dsr":[0,592,0,0]}\' lang="en" class="mw-content-ltr sitedir-ltr ltr mw-body mw-body-content mediawiki" dir="ltr"><p data-parsoid=\'{"dsr":[0,59,0,0]}\'><strong data-parsoid=\'{"stx":"html","dsr":[0,59,8,9]}\'>MediaWiki has been successfully installed.</strong></p>\n\n<p data-parsoid=\'{"dsr":[61,171,0,0]}\'>Consult the <a rel="mw:ExtLink" href="//meta.wikimedia.org/wiki/Help:Contents" data-parsoid=\'{"dsr":[73,127,41,1]}\'>User\'s Guide</a> for information on using the wiki software.</p>\n\n<h2 data-parsoid=\'{"dsr":[173,194,2,2]}\'> Getting started </h2>\n<ul data-parsoid=\'{"dsr":[195,592,0,0]}\'><li data-parsoid=\'{"dsr":[195,300,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:Configuration_settings" data-parsoid=\'{"dsr":[197,300,75,1]}\'>Configuration settings list</a></li>\n<li data-parsoid=\'{"dsr":[301,373,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Manual:FAQ" data-parsoid=\'{"dsr":[303,373,56,1]}\'>MediaWiki FAQ</a></li>\n<li data-parsoid=\'{"dsr":[374,472,1,0]}\'> <a rel="mw:ExtLink" href="https://lists.wikimedia.org/mailman/listinfo/mediawiki-announce" data-parsoid=\'{"dsr":[376,472,65,1]}\'>MediaWiki release mailing list</a></li>\n<li data-parsoid=\'{"dsr":[473,592,1,0]}\'> <a rel="mw:ExtLink" href="//www.mediawiki.org/wiki/Special:MyLanguage/Localisation#Translation_resources" data-parsoid=\'{"dsr":[475,592,80,1]}\'>Localise MediaWiki for your language</a></li></ul></body></html>',
 			})
@@ -1700,7 +1722,9 @@ describe('Parsoid API', function() {
 		// was used.
 
 		it('should use selser with supplied wikitext', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create Junk Page
+			if (skipForNow) {
+				return this.skip();
+			}  // Create Junk Page
 			// New and old html are identical, which should produce no diffs
 			// and reuse the original wikitext.
 			client.req
@@ -1741,7 +1765,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should use selser with wikitext fetched from the mw api', function(done) {
-			if (skipForNow) { return this.skip(); }  // Creat Junk Page
+			if (skipForNow) {
+				return this.skip();
+			}  // Creat Junk Page
 			// New and old html are identical, which should produce no diffs
 			// and reuse the original wikitext.
 			client.req
@@ -2144,7 +2170,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should return a request too large error', function(done) {
-			if (skipForNow) { return this.skip(); }  // Set limits in config
+			if (skipForNow) {
+				return this.skip();
+			}  // Set limits in config
 			client.req
 			.post(mockDomain + '/v3/transform/html/to/wikitext/')
 			.send({
@@ -2303,7 +2331,9 @@ describe('Parsoid API', function() {
 		});
 
 		it('should accept the original and update the redlinks', function(done) {
-			if (skipForNow) { return this.skip(); }  // Create pages to fix redlinks count
+			if (skipForNow) {
+				return this.skip();
+			}  // Create pages to fix redlinks count
 			// NOTE: Keep this on an older version to show that it's preserved
 			// through the transformation.
 			var contentVersion = '2.0.0';
@@ -2368,7 +2398,9 @@ describe('Parsoid API', function() {
 			});
 
 			it('should accept the original and do variant conversion (given oldid)', function(done) {
-				if (skipForNow) { return this.skip(); } // Enabled language conversion
+				if (skipForNow) {
+					return this.skip();
+				} // Enabled language conversion
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.send({
@@ -2406,7 +2438,9 @@ describe('Parsoid API', function() {
 			});
 
 			it('should accept the original and do variant conversion (given pagelanguage)', function(done) {
-				if (skipForNow) { return this.skip(); } // Enabled language conversion
+				if (skipForNow) {
+					return this.skip();
+				} // Enabled language conversion
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.set('Content-Language', 'sr')
@@ -2497,11 +2531,11 @@ describe('Parsoid API', function() {
 		it( 'Roundtrip should convert wikitext to HTML and back, with selser working', async () => {
 			// get the wikitext of the page
 			const { text: oldWt } = await client.req
-				.get( mockDomain + `/v3/page/wikitext/${pageEncoded}` );
+				.get( mockDomain + `/v3/page/wikitext/${ pageEncoded }` );
 
 			// First, fetch the HTML for the requested page's wikitext
 			const wt2html = await client.req
-				.post( mockDomain + `/v3/transform/wikitext/to/pagebundle/${pageEncoded}` )
+				.post( mockDomain + `/v3/transform/wikitext/to/pagebundle/${ pageEncoded }` )
 				.send( Object.assign( {
 					wikitext: oldWt,
 				}, transformOptions ) );
@@ -2510,7 +2544,7 @@ describe('Parsoid API', function() {
 
 			// Now, request the wikitext for the obtained HTML, without providing the original HTML
 			const pb2wt1 = await client.req
-				.post( mockDomain + `/v3/transform/pagebundle/to/wikitext/${pageEncoded}` )
+				.post( mockDomain + `/v3/transform/pagebundle/to/wikitext/${ pageEncoded }` )
 				.send( Object.assign( {
 					html: wt2html.body.html,
 				}, transformOptions ) );
@@ -2527,7 +2561,7 @@ describe('Parsoid API', function() {
 			newDocument.body.appendChild(newNode);
 
 			const pb2wt2 = await client.req
-				.post( mockDomain + `/v3/transform/pagebundle/to/wikitext/${pageEncoded}` )
+				.post( mockDomain + `/v3/transform/pagebundle/to/wikitext/${ pageEncoded }` )
 				.send( {
 					html: newDocument.outerHTML,
 					oldid: revid,
@@ -2557,7 +2591,7 @@ describe('Parsoid API', function() {
 
 		it( '/transform/html must accept the ETag in the If-Match header, if one is returned by /page/html (T238849)', async () => {
 			const { statusCode: status1, headers: headers1, text: text1 } = await client.req
-				.get( mockDomain + `/v3/page/html/${page}/${revid}` )
+				.get( mockDomain + `/v3/page/html/${ page }/${ revid }` )
 				.query( { stash: 'yes' } );
 
 			assert.deepEqual( status1, 200, text1 );
@@ -2574,7 +2608,7 @@ describe('Parsoid API', function() {
 			// The request above should have stashed a rendering associated with the ETag it
 			// returned. Pass the ETag in the If-Match header.
 			const { statusCode: status2, text: text2 } = await client.req
-				.post( mockDomain + `/v3/transform/html/to/wikitext/${page}/${revid}` )
+				.post( mockDomain + `/v3/transform/html/to/wikitext/${ page }/${ revid }` )
 				.set( 'If-Match', headers1.etag )
 				.send( {
 					html: text1

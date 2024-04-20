@@ -31,7 +31,9 @@ const data =
 		require('fs').readFileSync(file, "utf8")
 	)
 	.rows
-	.sort(function(a,b) { return 0.5 - Math.random(); })
+	.sort(function(a,b) {
+		return 0.5 - Math.random();
+	})
 	.map(function(e) {
 		const nsId = Number(e[1]);
 		let ns;
@@ -46,6 +48,6 @@ const data =
 	})
 	.slice(0,Number(numEntries))
 	.map(function(e) {
-		return `INSERT IGNORE INTO pages(prefix, title) VALUES("${wikiPrefix}", "${e.replace(/"/g, '\\"')}");`;
+		return `INSERT IGNORE INTO pages(prefix, title) VALUES("${ wikiPrefix }", "${ e.replace(/"/g, '\\"') }");`;
 	});
 console.log(data.join("\n"));

@@ -22,12 +22,16 @@ ConsolePrinter.printSectionHeader = function(heading) {
 
 ConsolePrinter.printTableHeader = function(columns) {
 	console.log("-".repeat(80));
-	console.log(columns.map(function(c) { return pad(c); }).join('\t'));
+	console.log(columns.map(function(c) {
+		return pad(c);
+	}).join('\t'));
 	console.log("-".repeat(80));
 };
 
 ConsolePrinter.printTableRow = function(columns) {
-	console.log(columns.map(function(c) { return pad(c); }).join('\t'));
+	console.log(columns.map(function(c) {
+		return pad(c);
+	}).join('\t'));
 };
 
 ConsolePrinter.printTableFooter = function() {

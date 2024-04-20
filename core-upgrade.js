@@ -31,7 +31,9 @@ if (require('semver').gte(process.version, '10.0.0')) {
 				msg += ': ' + util.format.apply(util, args);
 			}
 			class AssertionException extends Error {
-				constructor(msg2) { super(msg2); this.message = msg2; }
+				constructor(msg2) {
+					super(msg2); this.message = msg2;
+				}
 			}
 			throw new AssertionException(msg);
 		}

@@ -95,6 +95,7 @@ class DefaultMap extends Map {
 		super();
 		this.makeDefaultValue = makeDefaultValue;
 	}
+
 	getDefault(key) {
 		if (!this.has(key)) {
 			this.set(key, this.makeDefaultValue());
@@ -113,7 +114,9 @@ function *readLines(inFile) {
 		let sawCR = false;
 		while (true) {
 			const bytesRead = fs.readSync(fd, buf, 0, buf.length);
-			if (bytesRead === 0) { break; }
+			if (bytesRead === 0) {
+				break;
+			}
 			let lineStart = 0;
 			for (let i = 0; i < bytesRead; i++) {
 				if (buf[i] === 13 || buf[i] === 10) {
@@ -143,7 +146,9 @@ function readAttFile(inFile, handleState, handleFinal) {
 	let edges = [];
 	const finalStates = [];
 	for (const line of readLines(inFile)) {
-		if (line.length === 0) { continue; }
+		if (line.length === 0) {
+			continue;
+		}
 		const fields = line.split(/\t/g);
 		const state = +fields[0];
 		if (fields.length === 1 || state !== lastState) {
@@ -181,6 +186,7 @@ class DynamicBuffer {
 		this.buffers = [ this.currBuff ];
 		this.lastLength = 0;
 	}
+
 	emit(b) {
 		console.assert(b !== undefined);
 		if (this.offset >= this.currBuff.length) {
@@ -191,6 +197,7 @@ class DynamicBuffer {
 		this.currBuff[this.offset++] = b;
 		this._maybeUpdateLength();
 	}
+
 	emitUnsignedV(val, pad) {
 		const o = [];
 		/* eslint-disable no-bitwise */
@@ -208,6 +215,7 @@ class DynamicBuffer {
 			}
 		}
 	}
+
 	emitSignedV(val, pad) {
 		if (val >= 0) {
 			val *= 2;
@@ -216,22 +224,27 @@ class DynamicBuffer {
 		}
 		this.emitUnsignedV(val, pad);
 	}
+
 	position() {
 		return this.offset + this.buffNum * this.chunkLength;
 	}
+
 	length() {
 		return this.lastLength + (this.buffers.length - 1) * this.chunkLength;
 	}
+
 	truncate() {
 		this.lastLength = this.offset;
 		this.buffers.length = this.buffNum + 1;
 	}
+
 	_maybeCreateBuffers() {
 		while (this.buffNum >= this.buffers.length) {
 			this.buffers.push(Buffer.alloc(this.chunkLength));
 			this.lastLength = 0;
 		}
 	}
+
 	_maybeUpdateLength() {
 		if (
 			this.offset > this.lastLength &&
@@ -240,6 +253,7 @@ class DynamicBuffer {
 			this.lastLength = this.offset;
 		}
 	}
+
 	seek(pos) {
 		console.assert(pos !== undefined);
 		this.buffNum = Math.floor(pos / this.chunkLength);
@@ -248,6 +262,7 @@ class DynamicBuffer {
 		this.currBuff = this.buffers[this.buffNum];
 		this._maybeUpdateLength();
 	}
+
 	read() {
 		if (this.offset >= this.currBuff.length) {
 			this.buffNum++; this.offset = 0;
@@ -258,6 +273,7 @@ class DynamicBuffer {
 		this._maybeUpdateLength();
 		return b;
 	}
+
 	readUnsignedV() {
 		let b = this.read();
 		/* eslint-disable no-bitwise */
@@ -270,6 +286,7 @@ class DynamicBuffer {
 		/* eslint-enable no-bitwise */
 		return val;
 	}
+
 	readSignedV() {
 		const v = this.readUnsignedV();
 		/* eslint-disable no-bitwise */
@@ -280,6 +297,7 @@ class DynamicBuffer {
 		}
 		/* eslint-enable no-bitwise */
 	}
+
 	writeFile(outFile) {
 		const fd = fs.openSync(outFile, 'w');
 		try {
@@ -305,16 +323,24 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 	let finalStates;
 	const alphabet = new Set();
 	const sym2byte = function(sym) {
-		if (sym === '@_IDENTITY_SYMBOL_@') { return BYTE_IDENTITY; }
-		if (sym === '@0@') { return BYTE_EPSILON; }
-		if (sym === '[[') { return BYTE_LBRACKET; }
-		if (sym === ']]') { return BYTE_RBRACKET; }
+		if (sym === '@_IDENTITY_SYMBOL_@') {
+			return BYTE_IDENTITY;
+		}
+		if (sym === '@0@') {
+			return BYTE_EPSILON;
+		}
+		if (sym === '[[') {
+			return BYTE_LBRACKET;
+		}
+		if (sym === ']]') {
+			return BYTE_RBRACKET;
+		}
 		if (/^[0-9A-F][0-9A-F]$/i.test(sym)) {
 			const b = Number.parseInt(sym, 16);
 			console.assert(b !== 0 && b < 0xF8);
 			return b;
 		}
-		console.assert(false, `Bad symbol: ${sym}`);
+		console.assert(false, `Bad symbol: ${ sym }`);
 	};
 	// Quickly read through once in order to pull out the set of final states
 	// and the alphabet
@@ -329,7 +355,9 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 	// Anything not in `alphabet` is going to be treated as 'anything else'
 	// but we want to force 0x00 and 0xF8-0xFF to be treated as 'anything else'
 	alphabet.delete(0);
-	for (let i = 0xF8; i <= 0xFF; i++) { alphabet.delete(i); }
+	for (let i = 0xF8; i <= 0xFF; i++) {
+		alphabet.delete(i);
+	}
 	// Emit a magic number.
 	const out = new DynamicBuffer();
 	out.emit(0x70); out.emit(0x46); out.emit(0x53); out.emit(0x54);
@@ -357,7 +385,9 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 		for (let i = 1; i <= BYTE_EOF; i++) {
 			let e = (alphabet.has(i) || i === BYTE_EOF) ?
 				edgeMap.get(i) : edgeMap.get(BYTE_IDENTITY);
-			if (!e) { e = { outByte: BYTE_FAIL, to: state }; }
+			if (!e) {
+				e = { outByte: BYTE_FAIL, to: state };
+			}
 			// where possible remap outByte to IDENTITY to maximize chances
 			// of adjacent states matching
 			const out2 = (i === e.outByte) ? BYTE_IDENTITY : e.outByte;
@@ -444,7 +474,7 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 			out.seek(p);
 			const state = out.readSignedV();
 			out.seek(p);
-			console.assert(stateMap.has(state), `${state} not found`);
+			console.assert(stateMap.has(state), `${ state } not found`);
 			out.emitSignedV(stateMap.get(state) - p, edgeWidth - 2);
 		}
 		out.seek(edge0 + nEdges * edgeWidth);
@@ -484,8 +514,12 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 		}
 		stateMap.set(out.position(), out.position() - trimmed);
 
-		if (trimmed === 0) { break; /* nothing left to do */ }
-		if (verbose) { console.log('.'); }
+		if (trimmed === 0) {
+			break; /* nothing left to do */
+		}
+		if (verbose) {
+			console.log('.');
+		}
 
 		out.seek(state0pos);
 		while (out.position() < out.length()) {
@@ -583,15 +617,15 @@ function main() {
 		const inverseLangs = argv.language.slice(1);
 		const baseDir = path.join(__dirname, '..', 'lib', 'language', 'fst');
 		for (const f of [
-			`trans-${convertLang}`,
-			`brack-${convertLang}-noop`,
-		].concat(inverseLangs.map(inv => `brack-${convertLang}-${inv}`))) {
+			`trans-${ convertLang }`,
+			`brack-${ convertLang }-noop`,
+		].concat(inverseLangs.map(inv => `brack-${ convertLang }-${ inv }`))) {
 			if (argv.verbose) {
 				console.log(f);
 			}
 			processOne(
-				path.join(baseDir, `${f}.att`),
-				path.join(baseDir, `${f}.pfst`),
+				path.join(baseDir, `${ f }.att`),
+				path.join(baseDir, `${ f }.pfst`),
 				argv.verbose
 			);
 		}

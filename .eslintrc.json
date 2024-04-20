@@ -98,7 +98,9 @@
 		"node/no-missing-require": "off",
 		"jsdoc/require-asterisk-prefix": "warn",
 		"unicorn/prefer-string-slice": "warn",
-		"es-x/no-hashbang": "warn"
+		"es-x/no-hashbang": "warn",
+		"n/no-process-exit": "warn",
+		"n/no-missing-require": "warn"
 	},
 	"overrides": [
 		{

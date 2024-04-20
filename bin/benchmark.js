@@ -66,27 +66,27 @@ function genFullUrls(config, domain, title, revid) {
 
 	switch (config.mode || 'wt2html') {
 		case 'wt2html':
-			restFragment = `${domain}/v3/page/html/${encodeURIComponent(title)}/${revid}`;
+			restFragment = `${ domain }/v3/page/html/${ encodeURIComponent(title) }/${ revid }`;
 			break;
 		case 'wt2pb':
-			restFragment = `${domain}/v3/page/pagebundle/${encodeURIComponent(title)}/${revid}`;
+			restFragment = `${ domain }/v3/page/pagebundle/${ encodeURIComponent(title) }/${ revid }`;
 			break;
 		case 'html2wt':
-			initRestFragment = `${domain}/v3/page/html/${encodeURIComponent(title)}/${revid}`;
-			restFragment = `${domain}/v3/transform/html/to/wikitext/${encodeURIComponent(title)}/${revid}`;
+			initRestFragment = `${ domain }/v3/page/html/${ encodeURIComponent(title) }/${ revid }`;
+			restFragment = `${ domain }/v3/transform/html/to/wikitext/${ encodeURIComponent(title) }/${ revid }`;
 			break;
 		case 'pb2wt':
-			initRestFragment = `${domain}/v3/page/pagebundle/${encodeURIComponent(title)}/${revid}`;
-			restFragment = `${domain}/v3/transform/pagebundle/to/wikitext/${encodeURIComponent(title)}/${revid}`;
+			initRestFragment = `${ domain }/v3/page/pagebundle/${ encodeURIComponent(title) }/${ revid }`;
+			restFragment = `${ domain }/v3/transform/pagebundle/to/wikitext/${ encodeURIComponent(title) }/${ revid }`;
 			break;
 		default:
 			console.log("Mode " + config.mode + " is not supported right now.");
 			process.exit(-1);
 	}
 	return {
-		js : `${config.jsServer.baseURI}/${restFragment}`,
-		php: `${config.phpServer.baseURI.replace(/DOMAIN/, domain)}/${restFragment}`,
-		init: initRestFragment ? `${config.phpServer.baseURI.replace(/DOMAIN/, domain)}/${initRestFragment}` : null,
+		js : `${ config.jsServer.baseURI }/${ restFragment }`,
+		php: `${ config.phpServer.baseURI.replace(/DOMAIN/, domain) }/${ restFragment }`,
+		init: initRestFragment ? `${ config.phpServer.baseURI.replace(/DOMAIN/, domain) }/${ initRestFragment }` : null,
 		jsTime: null,
 		phpTime: null,
 	};
@@ -117,7 +117,7 @@ function prefixToDomain(prefix) {
 		return prefix.endsWith(p);
 	});
 
-	return project ? `${prefix.slice(0, Math.max(0, prefix.length - project.length))}.${project}.org` : null;
+	return project ? `${ prefix.slice(0, Math.max(0, prefix.length - project.length)) }.${ project }.org` : null;
 }
 
 function contentFileName(url) {
@@ -175,13 +175,15 @@ function issueRequest(opts, url, finalizer) {
 
 	const reqId = state.numPendingRequests;
 	if (config.verbose) {
-		console.log(`--> ID=${reqId}; URL:${url}; PENDING=${state.numPendingRequests}; OUTSTANDING=${state.outStanding}`);
+		console.log(`--> ID=${ reqId }; URL:${ url }; PENDING=${ state.numPendingRequests }; OUTSTANDING=${ state.outStanding }`);
 	}
 	state.numPendingRequests--;
 	state.outStanding++;
 	const startTime = process.hrtime();
 	return request(httpOptions)
-	.catch(function(error) { console.log("errrorr!" + error); })
+	.catch(function(error) {
+		console.log("errrorr!" + error);
+	})
 	.then(function(ret) {
 		state.outStanding--;
 		if (opts.type === 'init') {
@@ -193,7 +195,7 @@ function issueRequest(opts, url, finalizer) {
 			const endTime = process.hrtime();
 			const reqTime = Math.round((endTime[0] * 1e9 + endTime[1]) / 1e6 - (startTime[0] * 1e9 + startTime[1]) / 1e6);
 			if (config.verbose) {
-				console.log(`<-- ID=${reqId}; URL:${url}; TIME=${reqTime}; STATUS: ${ret[0].statusCode}; LEN: ${ret[1].length}`);
+				console.log(`<-- ID=${ reqId }; URL:${ url }; TIME=${ reqTime }; STATUS: ${ ret[0].statusCode }; LEN: ${ ret[1].length }`);
 			}
 			if (!opts.results[reqId]) {
 				opts.results[reqId] = {
@@ -211,12 +213,14 @@ function issueRequest(opts, url, finalizer) {
 				}, { sum: 0, min: 1000000, max: 0 });
 				res.avg = res.sum / state.times.length;
 				res.median = state.times.sort((a, b) => a - b)[Math.floor(state.times.length / 2)];
-				console.log(`\n${opts.type.toUpperCase()} STATS: ${JSON.stringify(res)}`);
+				console.log(`\n${ opts.type.toUpperCase() } STATS: ${ JSON.stringify(res) }`);
 				finalizer();
 			}
 		}
 	})
-	.catch(function(error) { console.log("errrorr!" + error); });
+	.catch(function(error) {
+		console.log("errrorr!" + error);
+	});
 }
 
 function computeRandomRequestStream(testUrls, config) {
@@ -339,7 +343,7 @@ p.then(function() {
 			opts.results.forEach(function(r) {
 				if (r.jsTime < r.phpTime) {
 					numJSFaster++;
-					console.log(`For ${r.url}, Parsoid/JS was faster than Parsoid/PHP (${r.jsTime} vs. ${r.phpTime})`);
+					console.log(`For ${ r.url }, Parsoid/JS was faster than Parsoid/PHP (${ r.jsTime } vs. ${ r.phpTime })`);
 				} else {
 					numPHPFaster++;
 				}
