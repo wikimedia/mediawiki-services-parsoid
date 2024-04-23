@@ -747,23 +747,28 @@ class DOMRangeBuilder {
 		$about = DOMCompat::getAttribute( $range->startElem, 'about' );
 		while ( $n ) {
 			$next = $n->nextSibling;
-			if ( !( $n instanceof Element ) ) {
-				// Don't add span-wrappers in fosterable positions
-				//
-				// NOTE: there cannot be any non-IEW text in fosterable position
-				// since the HTML tree builder would already have fostered it out.
-				if ( !DOMUtils::isFosterablePosition( $n ) ) {
-					$span = $this->document->createElement( 'span' );
-					$span->setAttribute( 'about', $about );
-					$dp = new DataParsoid;
-					$dp->setTempFlag( TempData::WRAPPER );
-					DOMDataUtils::setDataParsoid( $span, $dp );
-					$n->parentNode->replaceChild( $span, $n );
-					$span->appendChild( $n );
-					$n = $span;
-				}
-			} else {
+			if ( $n instanceof Element ) {
 				$n->setAttribute( 'about', $about );
+			} elseif ( DOMUtils::isFosterablePosition( $n ) ) {
+				// NOTE: There cannot be any non-IEW text in fosterable position
+				// since the HTML tree builder would already have fostered it out.
+				// So, any non-element node found here is safe to delete since:
+				// (a) this has no rendering output impact, and
+				// (b) data-mw captures template output => we don't need
+				//     to preserve this for html2wt either. Removing this
+				//     lets us preserve DOM range continuity.
+				$n->parentNode->removeChild( $n );
+			} else {
+				// Add a span wrapper to let us add about-ids to represent
+				// the DOM range as a contiguous chain of DOM nodes.
+				$span = $this->document->createElement( 'span' );
+				$span->setAttribute( 'about', $about );
+				$dp = new DataParsoid;
+				$dp->setTempFlag( TempData::WRAPPER );
+				DOMDataUtils::setDataParsoid( $span, $dp );
+				$n->parentNode->replaceChild( $span, $n );
+				$span->appendChild( $n );
+				$n = $span;
 			}
 
 			if ( $n === $e ) {
