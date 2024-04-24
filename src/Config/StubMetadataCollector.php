@@ -112,8 +112,17 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	}
 
 	/** @inheritDoc */
-	public function setPageProperty( string $name, $value ): void {
-		$this->collect( 'properties', $name, $value, self::MERGE_STRATEGY_WRITE_ONCE );
+	public function setUnsortedPageProperty( string $propName, string $value = '' ): void {
+		$this->collect( 'properties', $propName, $value, self::MERGE_STRATEGY_WRITE_ONCE );
+	}
+
+	/** @inheritDoc */
+	public function setNumericPageProperty( string $propName, $numericValue ): void {
+		if ( !is_numeric( $numericValue ) ) {
+			throw new \TypeError( __METHOD__ . " with non-numeric value" );
+		}
+		$value = 0 + $numericValue; # cast to number
+		$this->collect( 'properties', $propName, $value, self::MERGE_STRATEGY_WRITE_ONCE );
 	}
 
 	/** @inheritDoc */

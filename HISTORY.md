@@ -1,3 +1,10 @@
+0.20.0 / 2024-10
+================
+* ContentMetadataCollector::setPageProperty() has been removed; use
+  ContentMetadataCollector::setNumericPageProperty() or
+  ContentMetadataCollector::setUnsortedPageProperty() instead.
+
+
 0.11.0 / 2019-12-20
 ===================
 This is the LAST release of (the JS implementation of) Parsoid. Parsoid has been
