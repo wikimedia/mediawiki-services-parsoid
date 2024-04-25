@@ -4353,3 +4353,35 @@ images=Foobar.jpg
 <p><span class="mw-default-size" typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="123"><img alt="123" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" class="mw-file-element" /></a></span>
 </p>
 !! end
+
+!! test
+Entities in media filenames
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Hi&#45;ho.jpg|thumb]]
+
+<gallery>
+Hi&#45;ho.jpg
+File:Hi&#45;ho.jpg
+</gallery>
+!! html/php
+<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="/wiki/File:Hi-ho.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg" decoding="async" width="180" height="20" class="mw-file-element" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/270px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/360px-Hi-ho.jpg 2x" /></a><figcaption></figcaption></figure>
+<ul class="gallery mw-gallery-traditional">
+		<li class="gallerybox" style="width: 155px">
+			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="/wiki/File:Hi-ho.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/120px-Hi-ho.jpg" decoding="async" width="120" height="14" class="mw-file-element" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/240px-Hi-ho.jpg 2x" /></a></span></div>
+			<div class="gallerytext"></div>
+		</li>
+		<li class="gallerybox" style="width: 155px">
+			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="/wiki/File:Hi-ho.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/120px-Hi-ho.jpg" decoding="async" width="120" height="14" class="mw-file-element" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/240px-Hi-ho.jpg 2x" /></a></span></div>
+			<div class="gallerytext"></div>
+		</li>
+</ul>
+!! html/parsoid
+<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="./File:Hi-ho.jpg" class="mw-file-description"><img resource="./File:Hi-ho.jpg" src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="20" width="180" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/270px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/360px-Hi-ho.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Hi-ho.jpg","height":"20","width":"180"},"sa":{"resource":"File:Hi&amp;#45;ho.jpg"}}'/></a><figcaption></figcaption></figure>
+
+<ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-parsoid='{"dsr":[30,83,9,10]}' data-mw='{"name":"gallery","attrs":{},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Hi-ho.jpg" class="mw-file-description"><img resource="./File:Hi-ho.jpg" src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/120px-Hi-ho.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/240px-Hi-ho.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Hi-ho.jpg","height":"14","width":"120"},"sa":{"resource":"Hi&amp;#45;ho.jpg"}}'/></a></span></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Hi-ho.jpg" class="mw-file-description"><img resource="./File:Hi-ho.jpg" src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/120px-Hi-ho.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/240px-Hi-ho.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Hi-ho.jpg","height":"14","width":"120"},"sa":{"resource":"File:Hi&amp;#45;ho.jpg"}}'/></a></span></div><div class="gallerytext"></div></li>
+</ul>
+!! end

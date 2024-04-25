@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\Utils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -98,11 +99,16 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		$fileNs = $extApi->getSiteConfig()->canonicalNamespaceId( 'file' );
 
+		// Match entity decoding of the WikiLinkHandler when determining
+		// if this is a valid title.  The grammar decodes entities and
+		// the call to TokenUtils::tokensToString keeps the contents.
+		$decodedTitleStr = Utils::decodeWtEntities( $oTitleStr );
+
 		$noPrefix = false;
-		$title = $extApi->makeTitle( $oTitleStr, 0 );
+		$title = $extApi->makeTitle( $decodedTitleStr, 0 );
 		if ( $title === null || $title->getNamespace() !== $fileNs ) {
 			// Try again, this time with a default namespace
-			$title = $extApi->makeTitle( $oTitleStr, $fileNs );
+			$title = $extApi->makeTitle( $decodedTitleStr, $fileNs );
 			$noPrefix = true;
 		}
 		if ( $title === null || $title->getNamespace() !== $fileNs ) {

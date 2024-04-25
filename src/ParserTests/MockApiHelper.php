@@ -117,7 +117,14 @@ class MockApiHelper extends ApiHelper {
 			'duration' => 0.99875,
 			'mime' => 'audio/ogg; codecs="vorbis"',
 			'mediatype' => 'AUDIO',
-		]
+		],
+		'Hi-ho.jpg' => [
+			'size' => 7881,
+			'width' => 1941,
+			'height' => 220,
+			'bits' => 8,
+			'mime' => 'image/jpeg'
+		],
 	];
 
 	private $articleCache = [];
@@ -427,6 +434,7 @@ class MockApiHelper extends ApiHelper {
 		'File:Transcode.webm' => 'Transcode.webm',
 		'File:Audio.oga' => 'Audio.oga',
 		'File:Bad.jpg' => 'Bad.jpg',
+		'File:Hi-ho.jpg' => 'Hi-ho.jpg',
 	];
 
 	private const PNAMES = [
