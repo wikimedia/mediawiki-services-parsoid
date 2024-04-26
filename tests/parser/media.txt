@@ -4385,3 +4385,30 @@ File:Hi&#45;ho.jpg
 <li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Hi-ho.jpg" class="mw-file-description"><img resource="./File:Hi-ho.jpg" src="http://example.com/images/thumb/9/9d/Hi-ho.jpg/120px-Hi-ho.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/9/9d/Hi-ho.jpg/180px-Hi-ho.jpg 1.5x, http://example.com/images/thumb/9/9d/Hi-ho.jpg/240px-Hi-ho.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Hi-ho.jpg","height":"14","width":"120"},"sa":{"resource":"File:Hi&amp;#45;ho.jpg"}}'/></a></span></div><div class="gallerytext"></div></li>
 </ul>
 !! end
+
+!! test
+Inline gallery attributes are appended to the defaults
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+<gallery perrow="1" style="color: red">
+File:Foobar.jpg|One
+File:Foobar.jpg|Two
+</gallery>
+!! html/php
+<ul class="gallery mw-gallery-traditional" style="max-width: 163px;color: red">
+		<li class="gallerybox" style="width: 155px">
+			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="One"><img alt="One" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></span></div>
+			<div class="gallerytext">One</div>
+		</li>
+		<li class="gallerybox" style="width: 155px">
+			<div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="/wiki/File:Foobar.jpg" class="mw-file-description" title="Two"><img alt="Two" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" width="120" height="14" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" /></a></span></div>
+			<div class="gallerytext">Two</div>
+		</li>
+</ul>
+!! html/parsoid
+<ul class="gallery mw-gallery-traditional" style="max-width: 163px; color: red" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{"perrow":"1","style":"color: red"},"body":{}}'>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="One"><img alt="One" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" class="mw-file-element"/></a></span></div><div class="gallerytext">One</div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="Two"><img alt="Two" resource="./File:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/120px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="14" width="120" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/240px-Foobar.jpg 2x" class="mw-file-element"/></a></span></div><div class="gallerytext">Two</div></li>
+</ul>
+!! end

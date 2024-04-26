@@ -33,18 +33,29 @@ class TraditionalMode extends Mode {
 		$ul->setAttribute( $k, $val );
 	}
 
+	/**
+	 * Attributes in this method are applied to the list element in the order
+	 * that matches the legacy parser.
+	 *
+	 * 1. Default
+	 * 2. Inline
+	 * 3. Additional
+	 *
+	 * The order is particularly important for appending to the style attribute
+	 * since editors do not always terminate with a semi-colon.
+	 */
 	private function ul(
 		Opts $opts, DocumentFragment $domFragment
 	): Element {
 		$ul = $domFragment->ownerDocument->createElement( 'ul' );
 		$cl = 'gallery mw-gallery-' . $this->mode;
 		$ul->setAttribute( 'class', $cl );
+		$this->perRow( $opts, $ul );
 		foreach ( $opts->attrs as $k => $v ) {
 			$this->appendAttr( $ul, $k, $v );
 		}
-		$domFragment->appendChild( $ul );
-		$this->perRow( $opts, $ul );
 		$this->setAdditionalOptions( $opts, $ul );
+		$domFragment->appendChild( $ul );
 		return $ul;
 	}
 
