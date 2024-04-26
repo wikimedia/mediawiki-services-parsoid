@@ -1543,8 +1543,6 @@ class WikiLinkHandler extends TokenHandler {
 			$container,
 			$anchor,
 			$span,
-			// FIXME: The php parser seems to put the link text here instead.
-			// The title can go on the `anchor` as the "title" attribute.
 			$target->title->getPrefixedText(),
 			new EndTagTk( 'span' ),
 			new EndTagTk( 'a' )
