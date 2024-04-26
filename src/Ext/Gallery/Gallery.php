@@ -85,9 +85,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 
 		$oTitleStr = $matches[1];
 		$imageOptStr = $matches[2] ?? '';
-
-		// TODO: % indicates rawurldecode.
-
 		$mode = Mode::byName( $opts->mode );
 
 		$imageOpts = [
