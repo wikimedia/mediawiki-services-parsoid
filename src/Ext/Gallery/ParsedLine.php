@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\Ext\DOMUtils;
 
 class ParsedLine {
 
@@ -31,6 +32,8 @@ class ParsedLine {
 	 */
 	public $dsr;
 
+	public bool $hasError;
+
 	/**
 	 * Construct a new ParsedLine object.
 	 * @param Element $thumb
@@ -45,5 +48,6 @@ class ParsedLine {
 		$this->gallerytext = $gallerytext;
 		$this->rdfaType = $rdfaType;
 		$this->dsr = $dsr;
+		$this->hasError = DOMUtils::hasTypeOf( $thumb, 'mw:Error' );
 	}
 }

@@ -115,11 +115,15 @@ class TraditionalMode extends Mode {
 	/**
 	 * @param float|int $width
 	 * @param float|int $height
+	 * @param bool $hasError
 	 * @return string
 	 */
-	protected function thumbStyle( $width, $height ): string {
-		$style = [ 'width: ' . $this->thumbWidth( $width ) . 'px;' ];
-		if ( $this->mode === 'traditional' ) {
+	protected function thumbStyle( $width, $height, bool $hasError ): string {
+		$style = [];
+		if ( !$hasError ) {
+			$style[] = 'width: ' . $this->thumbWidth( $width ) . 'px;';
+		}
+		if ( $hasError || $this->mode === 'traditional' ) {
 			$style[] = 'height: ' . $this->thumbHeight( $height ) . 'px;';
 		}
 		return implode( ' ', $style );
@@ -169,7 +173,7 @@ class TraditionalMode extends Mode {
 
 		$thumb = $doc->createElement( 'div' );
 		$thumb->setAttribute( 'class', 'thumb' );
-		$thumb->setAttribute( 'style', $this->thumbStyle( $width, $height ) );
+		$thumb->setAttribute( 'style', $this->thumbStyle( $width, $height, $o->hasError ) );
 
 		$wrapper = $doc->createElement( 'span' );
 		$wrapper->setAttribute( 'typeof', $o->rdfaType );
