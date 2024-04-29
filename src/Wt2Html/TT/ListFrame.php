@@ -19,18 +19,16 @@ class ListFrame {
 	 * NlTk that triggered atEOL
 	 */
 	public ?NlTk $nlTk = null;
-	/** @var array */
-	public $solTokens = [];
+	public array $solTokens = [];
 	/**
 	 * Bullet stack, previous element's listStyle
-	 * @var array
 	 */
-	public $bstack = [];
+	public array $bstack = [];
 	/**
 	 * Stack of end tags
 	 * @var array<EndTagTk>
 	 */
-	public $endtags = [];
+	public array $endtags = [];
 	/**
 	 * Partial DOM building heuristic:
 	 * Number of open block tags encountered within list context.
@@ -40,4 +38,11 @@ class ListFrame {
 	 * Number of open tags encountered within list context.
 	 */
 	public int $numOpenTags = 0;
+
+	/**
+	 * Did we generate a <dd> already on this line?
+	 * Used to convert extra : listitems to ":" instead of extra <dl>s.
+	 * Gets reset on encountering a NlTk or a ; listitem.
+	 */
+	public bool $haveDD = false;
 }

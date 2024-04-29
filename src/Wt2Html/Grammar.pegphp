@@ -1910,13 +1910,18 @@ hacky_dl_uses =
 	return TokenizerUtils::flattenIfArray( [ $li, $tbl, $line ?: [] ] );
 }
 
+dtdd_colon = c:inlineline_break_on_colon? cpos:(":" { return $this->endOffset(); })
+{
+	return [ $c, $cpos ];
+}
+
 dtdd =
 	bullets:(!(";" !list_char) lc:list_char { return $lc; })*
 	";"
-	c:inlineline_break_on_colon?
-	cpos:(":" { return $this->endOffset(); })
+	colons:dtdd_colon*
 	d:inlineline?
 	&eolf {
+		$bulletToks = [];
 		// Leave bullets as an array -- list handler expects this
 		// TSR: +1 for the leading ";"
 		$numBullets = count( $bullets ) + 1;
@@ -1926,17 +1931,26 @@ dtdd =
 		$li1Bullets[] = ';';
 		$dp = new DataParsoid;
 		$dp->tsr = $tsr;
-		$li1 = new TagTk( 'listItem', [ new KV( 'bullets', $li1Bullets, $tsr->expandTsrV() ) ], $dp );
-		// TSR: -1 for the intermediate ":"
-		$li2Bullets = $bullets;
-		$li2Bullets[] = ':';
-		$tsr2 = new SourceRange( $cpos - 1, $cpos );
-		$dp2 = new DataParsoid;
-		$dp2->tsr = $tsr2;
-		$dp2->stx = 'row';
-		$li2 = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ], $dp2 );
+		$bulletToks[] = new TagTk( 'listItem', [ new KV( 'bullets', $li1Bullets, $tsr->expandTsrV() ) ], $dp );
+		foreach ( $colons as $colon) {
+			if ( $colon[0] ) { // can be null because of "?" in dtdd_colon
+				$bulletToks[] = $colon[0];
+			}
+			$cpos = $colon[1];
+			// TSR: -1 for the intermediate ":"
+			$li2Bullets = $bullets;
+			$li2Bullets[] = ':';
+			$tsr2 = new SourceRange( $cpos - 1, $cpos );
+			$dp2 = new DataParsoid;
+			$dp2->tsr = $tsr2;
+			$dp2->stx = 'row';
+			$bulletToks[] = new TagTk( 'listItem', [ new KV( 'bullets', $li2Bullets, $tsr2->expandTsrV() ) ], $dp2 );
+		}
 
-		return array_merge( [ $li1 ], $c ?: [], [ $li2 ], $d ?: [] );
+		if ( $d ) {
+			$bulletToks = array_merge( $bulletToks, $d );
+		}
+		return $bulletToks;
 	}
 
 list_char = [*#:;]

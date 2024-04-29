@@ -110,19 +110,7 @@
         "html2wt": "; '''bold'''"
     },
     "Definition lists: ignore colons inside tags": {
-        "wt2html": "<dl data-parsoid='{\"dsr\":[0,38,0,0]}'><dt data-parsoid='{\"dsr\":[0,38,1,0]}'>one <b data-parsoid='{\"stx\":\"html\",\"dsr\":[5,34,3,4]}'>two<span typeof=\"mw:DisplaySpace\" data-parsoid='{\"dsr\":[11,12,0,0]}'> </span>: tag <i data-parsoid='{\"stx\":\"html\",\"dsr\":[18,29,3,4]}'>fun:</i>:</b>:def</dt></dl>",
-        "wt2wt": ";one <b>two : tag <i>fun:</i>:</b><nowiki>:def</nowiki>",
-        "html2wt": "; one '''two : tag ''fun:'':'''\n: def",
-        "selser [[[3,[2,0,3,3,0],0]]]": ";<b>1uz6j1ntwo :</b>:def",
-        "selser [[1]]": ";one <b>two : tag <i>fun:</i>:</b>:def",
-        "selser [[2]]": ": 63f2vo\n;one <b>two : tag <i>fun:</i>:</b>:def",
-        "selser [2]": "1vyzwic\n;one <b>two : tag <i>fun:</i>:</b>:def",
-        "selser [1]": ";one <b>two : tag <i>fun:</i>:</b>:def",
-        "selser [[[4,[4,0,2,4,3],0]]]": ";1guwtke<b>1c7opx6 z5lbus: tag 1qp4x2b</b>:def",
-        "selser [[[2,[0,0,3,[3],2],0]]]": ";m4autdone <b>two 18zi5k8:</b>:def",
-        "selser [[[0,[0,0,0,3,4],0]]]": ";one <b>two : tag qvu4dz</b>:def",
-        "selser [[[4,2,0]]]": ";19f00pvjxkgge<b>two : tag <i>fun:</i>:</b>:def",
-        "selser [[[3,2,0]]]": ";1yorxlx<b>two : tag <i>fun:</i>:</b>:def"
+        "html2wt": "; one '''two : tag ''fun:'':'''\n: def"
     },
     "Malformed definition list with colon": {
         "html2wt": "; news:alt.wikipedia.rox -- don't crash or enter an infinite loop"
