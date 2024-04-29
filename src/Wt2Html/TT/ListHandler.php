@@ -250,13 +250,16 @@ class ListHandler extends TokenHandler {
 	private function onListItem( Token $token ): ?TokenHandlerResult {
 		if ( $token instanceof TagTk ) {
 			$this->onAnyEnabled = true;
+			$bullets = $token->getAttributeV( 'bullets' );
 			if ( $this->currListFrame ) {
 				// Ignoring colons inside tags to prevent illegal overlapping.
 				// Attempts to mimic findColonNoLinks in the php parser.
-				$bullets = $token->getAttributeV( 'bullets' );
 				if ( PHPUtils::lastItem( $bullets ) === ':'
 					&& $this->currListFrame->numOpenTags > 0
 				) {
+					$this->env->log( 'trace/list', $this->pipelineId,
+						'ANY:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
+						} );
 					$this->env->log( 'trace/list', $this->pipelineId, 'RET: ', ':' );
 					return new TokenHandlerResult( [ ':' ] );
 				}
@@ -264,8 +267,7 @@ class ListHandler extends TokenHandler {
 				$this->currListFrame = new ListFrame;
 			}
 			// convert listItem to list and list item tokens
-			$res = $this->doListItem( $this->currListFrame->bstack, $token->getAttributeV( 'bullets' ),
-				$token );
+			$res = $this->doListItem( $this->currListFrame->bstack, $bullets, $token );
 			return new TokenHandlerResult( $res );
 		}
 
@@ -356,9 +358,11 @@ class ListHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function doListItem( array $bs, array $bn, Token $token ): array {
-		$this->env->log( 'trace/list', $this->pipelineId,
-			'BEGIN:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-			} );
+		$this->env->log(
+			'trace/list', $this->pipelineId, 'BEGIN:',
+			static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
+			}
+		);
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
@@ -368,9 +372,7 @@ class ListHandler extends TokenHandler {
 			$newDP = $dp->clone();
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
-				$newDP->tsr = new SourceRange(
-					$tsr->start + $k, $tsr->start + $j
-				);
+				$newDP->tsr = new SourceRange( $tsr->start + $k, $tsr->start + $j );
 			}
 			return $newDP;
 		};
@@ -381,9 +383,12 @@ class ListHandler extends TokenHandler {
 		$itemToken = null;
 
 		// emit close tag tokens for closed lists
-		$this->env->log( 'trace/list', $this->pipelineId, static function () use ( $bs, $bn ) {
-			return '    bs: ' . PHPUtils::jsonEncode( $bs ) . '; bn: ' . PHPUtils::jsonEncode( $bn );
-		} );
+		$this->env->log(
+			'trace/list', $this->pipelineId,
+			static function () use ( $bs, $bn ) {
+				return '    bs: ' . PHPUtils::jsonEncode( $bs ) . '; bn: ' . PHPUtils::jsonEncode( $bn );
+			}
+		);
 
 		if ( count( $prefix ) === count( $bs ) && count( $bn ) === count( $bs ) ) {
 			$this->env->log( 'trace/list', $this->pipelineId, '    -> no nesting change' );
@@ -524,9 +529,11 @@ class ListHandler extends TokenHandler {
 		$this->currListFrame->nlTk = null;
 		$this->currListFrame->atEOL = false;
 
-		$this->env->log( 'trace/list', $this->pipelineId,
-			'RET:', static function () use ( $res ) { return PHPUtils::jsonEncode( $res );
-			} );
+		$this->env->log(
+			'trace/list', $this->pipelineId, 'RET:',
+			static function () use ( $res ) { return PHPUtils::jsonEncode( $res );
+			}
+		);
 		return $res;
 	}
 }
