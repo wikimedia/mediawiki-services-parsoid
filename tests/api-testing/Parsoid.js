@@ -236,7 +236,7 @@ describe('Parsoid API', function() {
 					res.headers['content-type'].should.equal(
 						'application/json'
 					);
-					res.body.message.should.equal('The specified revision does not exist.');
+					res.body.errorKey.should.equal('rest-specified-revision-unavailable');
 				})
 				.end(done);
 		});
