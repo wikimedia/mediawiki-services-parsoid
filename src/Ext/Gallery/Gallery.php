@@ -87,9 +87,9 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		$imageOptStr = $matches[2] ?? '';
 		$fileNs = $extApi->getSiteConfig()->canonicalNamespaceId( 'file' );
 
-		// Match entity decoding of the WikiLinkHandler when determining
-		// if this is a valid title.  The grammar decodes entities and
-		// the call to TokenUtils::tokensToString keeps the contents.
+		// WikiLinkHandler effectively decodes entities in titles by having
+		// PEG decode entities and preserving the decoding while stringifying.
+		// Match that behavior here by decoding entities in the title string.
 		$decodedTitleStr = Utils::decodeWtEntities( $oTitleStr );
 
 		$noPrefix = false;
