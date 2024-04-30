@@ -84,6 +84,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		}
 
 		$oTitleStr = $matches[1];
+		$imageOptStr = $matches[2] ?? '';
 		$fileNs = $extApi->getSiteConfig()->canonicalNamespaceId( 'file' );
 
 		// Match entity decoding of the WikiLinkHandler when determining
@@ -119,9 +120,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			$titleStr = $oTitleStr;
 		}
 
-		$imageOptStr = $matches[2] ?? '';
-		$mode = Mode::byName( $opts->mode );
-
 		// A somewhat common editor mistake is to close a gallery line with
 		// trailing square brackets, perhaps as a result of converting a file
 		// from wikilink syntax.  Unfortunately, the implementation in
@@ -131,6 +129,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			$imageOptStr = preg_replace( '/]]$/D', '', $imageOptStr );
 		}
 
+		$mode = Mode::byName( $opts->mode );
 		$imageOpts = [
 			[ $imageOptStr, $lineStartOffset + strlen( $oTitleStr ) ],
 			// T305628: Dimensions are last one wins so ensure this takes
