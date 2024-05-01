@@ -55,8 +55,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		// Audio files don't have dimensions, so we fallback to these arbitrary
 		// defaults, and the "mw-default-audio-height" class is added.
 		if ( $info['mediatype'] === 'AUDIO' ) {
+			// FIXME: TMH uses 23 but VE wants 32
 			$height = /* height || */32; // Arguably, audio should respect a defined height
-			$width = $width ?: $env->getSiteConfig()->widthOption();
+			$width = max( 35, $width ?: $env->getSiteConfig()->widthOption() );
 		}
 
 		// Handle client-side upscaling (including 'border')
@@ -260,9 +261,10 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'height', (string)$size['height'], null, true );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'width', (string)$size['width'], null, true );
+		$audio->setAttribute( 'style', "width: {$size['width']}px;" );
 
 		// Hardcoded until defined heights are respected.
-		// See `AddMediaInfo.handleSize`
+		// See `AddMediaInfo::handleSize`
 		DOMCompat::getClassList( $container )->add( 'mw-default-audio-height' );
 
 		self::copyOverAttribute( $audio, $span, 'resource' );

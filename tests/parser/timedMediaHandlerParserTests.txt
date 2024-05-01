@@ -200,7 +200,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><audio id="mwe_player_1" controls="" preload="none" class="mw-file-element" width="180" style="width:180px;" data-durationhint="1" data-mwtitle="Audio.oga" data-mwprovider="local"><source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-width="0" data-height="0" /></audio></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size mw-default-audio-height" typeof="mw:File"><span><audio controls="" preload="none" height="32" width="180" resource="./File:Audio.oga" data-durationhint="1" class="mw-file-element"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></audio></span></span></p>
+<p><span class="mw-default-size mw-default-audio-height" typeof="mw:File"><span><audio controls="" preload="none" height="32" width="180" style="width: 180px;" resource="./File:Audio.oga" data-durationhint="1" class="mw-file-element"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></audio></span></span></p>
 !! end
 
 ## For backwards compatibility with Parsoid content versions up to 1.7.0
