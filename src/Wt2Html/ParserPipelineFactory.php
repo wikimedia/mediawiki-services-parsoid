@@ -88,7 +88,7 @@ class ParserPipelineFactory {
 			// Build a tree out of the fully processed token stream
 			"class" => TreeBuilderStage::class,
 		],
-		"DOMPP" => [
+		"DOMTransform" => [
 			// Generic DOM transformer.
 			// This performs a lot of post-processing of the DOM
 			// (Template wrapping, broken wikitext/html detection, etc.)
@@ -105,7 +105,7 @@ class ParserPipelineFactory {
 		"wikitext-to-dom" => [
 			"outType" => "DOM",
 			"stages" => [
-				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMPP"
+				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMTransform"
 			]
 		],
 
@@ -130,7 +130,7 @@ class ParserPipelineFactory {
 		// Stages 3-5 of the pipeline
 		"expanded-tokens-to-dom" => [
 			"outType" => "DOM",
-			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP" ]
+			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMTransform" ]
 		],
 	];
 

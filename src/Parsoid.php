@@ -29,8 +29,8 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
-use Wikimedia\Parsoid\Wt2Html\PP\Processors\AddRedLinks;
-use Wikimedia\Parsoid\Wt2Html\PP\Processors\ConvertOffsets;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
 
 class Parsoid {
 

@@ -371,7 +371,7 @@ EOT;
 	 * Tests TOC edge cases in T350625 and T352467
 	 * Cannot test some of this via parser tests because that framework strips
 	 * about attributes and here, we want to assert the presence of 'about'.
-	 * @covers \Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapSectionsState
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapSectionsState
 	 */
 	public function testTocEdgeCases(): void {
 		// For the test below,

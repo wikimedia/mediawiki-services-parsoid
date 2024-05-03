@@ -260,7 +260,7 @@ class Env {
 	 *  - nativeTemplateExpansion: boolean
 	 *  - discardDataParsoid: boolean
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
-	 *                See `Parsoid\Wt2Html\PP\Processors\ConvertOffsets`.
+	 *                See `Parsoid\Wt2Html\DOM\Processors\ConvertOffsets`.
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
 	 *  - linterOverrides: (array) Override the site linting configs.
 	 *  - skipLanguageConversionPass: (bool) Should we skip the language
@@ -544,7 +544,7 @@ class Env {
 	 * representation), but for external use we can convert these to
 	 * other formats when we output wt2html or input for html2wt.
 	 *
-	 * @see Parsoid\Wt2Html\PP\Processors\ConvertOffsets
+	 * @see Parsoid\Wt2Html\DOM\Processors\ConvertOffsets
 	 * @return string 'byte', 'ucs2', or 'char'
 	 */
 	public function getRequestOffsetType(): string {
@@ -557,7 +557,7 @@ class Env {
 	 * been converted to the external format (as returned by
 	 * `getRequestOffsetType`) yet.
 	 *
-	 * @see Parsoid\Wt2Html\PP\Processors\ConvertOffsets
+	 * @see Parsoid\Wt2Html\DOM\Processors\ConvertOffsets
 	 * @return string 'byte', 'ucs2', or 'char'
 	 */
 	public function getCurrentOffsetType(): string {
@@ -566,7 +566,7 @@ class Env {
 
 	/**
 	 * Update the current offset type. Only
-	 * Parsoid\Wt2Html\PP\Processors\ConvertOffsets should be doing this.
+	 * Parsoid\Wt2Html\DOM\Processors\ConvertOffsets should be doing this.
 	 * @param string $offsetType 'byte', 'ucs2', or 'char'
 	 */
 	public function setCurrentOffsetType( string $offsetType ) {

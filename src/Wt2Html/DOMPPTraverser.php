@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Utils\DTState;
 
 /**
  * This is a class that wraps the DOMTraverser utility for use
- * in the DOM Post Processor pipeline.
+ * in the DOM Processor pipeline.
  */
 class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 	private DOMTraverser $dt;
