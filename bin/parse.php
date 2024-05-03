@@ -85,18 +85,18 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		$this->addOption( 'selser',
 						 'Use the selective serializer to go from HTML to Wikitext.' );
-		$this->addOption(
-			'oldtext',
-			'The old page text for a selective-serialization (see --selser)',
-			false,
-			true
-		);
-		$this->addOption( 'oldtextfile',
-						 'File containing the old page text for a selective-serialization (see --selser)',
+		$this->addOption( 'selpar',
+						 'In the wt->html direction, update HTML selectively' );
+		$this->addOption( 'revtextfile',
+						 'File containing revision wikitext for selective html/wikitext updates',
 						 false, true );
-		$this->addOption( 'oldhtmlfile',
-						 'File containing the old HTML for a selective-serialization (see --selser)',
+		$this->addOption( 'revhtmlfile',
+						 'File containing revision HTML for selective html/wikitext updates',
 						 false, true );
+		$this->addOption( 'editedtemplatetitle',
+						 'Title of the edited template (for --selpar)',
+						 false, true );
+
 		$this->addOption( 'inputfile', 'File containing input as an alternative to stdin', false, true );
 		$this->addOption( 'logFile', 'File to log trace/dumps to', false, true );
 		$this->addOption(
@@ -208,8 +208,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->addOption(
-			'oldid',
-			'Oldid of the given page.',
+			'revid',
+			'revid of the given page.',
 			false,
 			true
 		);
@@ -393,7 +393,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		array $configOpts, array $parsoidOpts, string $html,
 		?SelserData $selserData = null
 	): string {
-		$configOpts["pageContent"] = $selserData->oldText ?? ''; // FIXME: T234549
+		$configOpts["pageContent"] = $selserData->revText ?? ''; // FIXME: T234549
 		$this->setupConfig( $configOpts );
 
 		try {
@@ -484,7 +484,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			$this->getOption( 'domain', $matches[1] );
 			$this->getOption( 'pageName', urldecode( $matches[2] ) );
 			if ( isset( $matches[3] ) ) {
-				$this->getOption( 'oldid', $matches[3] );
+				$this->getOption( 'revid', $matches[3] );
 			}
 		}
 		$apiURL = "https://en.wikipedia.org/w/api.php";
@@ -504,8 +504,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( $this->hasOption( 'pageName' ) ) {
 			$configOpts['title'] = $this->getOption( 'pageName' );
 		}
-		if ( $this->hasOption( 'oldid' ) ) {
-			$configOpts['revid'] = (int)$this->getOption( 'oldid' );
+		if ( $this->hasOption( 'revid' ) ) {
+			$configOpts['revid'] = (int)$this->getOption( 'revid' );
 		}
 		if ( $this->hasOption( 'maxdepth' ) ) {
 			$configOpts['maxDepth'] = (int)$this->getOption( 'maxdepth' );
@@ -629,34 +629,32 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$input = $this->getPageBundleXML( $input ) ?? $input;
 
 		if ( $this->hasOption( 'selser' ) ) {
-			if ( $this->hasOption( 'oldtext' ) ) {
-				$oldText = $this->getOption( 'oldtext' );
-			} elseif ( $this->hasOption( 'oldtextfile' ) ) {
-				$oldText = file_get_contents( $this->getOption( 'oldtextfile' ) );
-				if ( $oldText === false ) {
+			if ( $this->hasOption( 'revtextfile' ) ) {
+				$revText = file_get_contents( $this->getOption( 'revtextfile' ) );
+				if ( $revText === false ) {
 					return;
 				}
 			} else {
 				$this->error(
-					'Please provide original wikitext ' .
-					'(--oldtext or --oldtextfile). Selser requires that.'
+					'Please provide original wikitext via --revtextfile. ' .
+					'Selective Serialization needs it.'
 				);
 				$this->maybeHelp();
 				return;
 			}
-			$oldHTML = null;
-			if ( $this->hasOption( 'oldhtmlfile' ) ) {
-				$oldHTML = file_get_contents( $this->getOption( 'oldhtmlfile' ) );
-				if ( $oldHTML === false ) {
+			$revHTML = null;
+			if ( $this->hasOption( 'revhtmlfile' ) ) {
+				$revHTML = file_get_contents( $this->getOption( 'revhtmlfile' ) );
+				if ( $revHTML === false ) {
 					return;
 				}
 				if ( isset( $pb ) ) {
-					$oldDoc = DOMUtils::parseHTML( $oldHTML );
-					PageBundle::apply( $oldDoc, $pb );
-					$oldHTML = ContentUtils::toXML( $oldDoc );
+					$revDoc = DOMUtils::parseHTML( $revHTML );
+					PageBundle::apply( $revDoc, $pb );
+					$revHTML = ContentUtils::toXML( $revDoc );
 				}
 			}
-			$selserData = new SelserData( $oldText, $oldHTML );
+			$selserData = new SelserData( $revText, $revHTML );
 		} else {
 			$selserData = null;
 		}

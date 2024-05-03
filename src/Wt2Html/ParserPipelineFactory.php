@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\InternalException;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\TreeBuilderStage;
@@ -131,6 +132,13 @@ class ParserPipelineFactory {
 		"expanded-tokens-to-dom" => [
 			"outType" => "DOM",
 			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP" ]
+		],
+
+		// This pipeline takes a DOM and emits a fully processed DOM as output.
+		// Stage 5
+		"selective-dom-update" => [
+			"outType" => "DOM",
+			"stages" => [ "DOMPP" ],
 		],
 	];
 
@@ -280,8 +288,16 @@ class ParserPipelineFactory {
 			// Top-level doc parsing always start in SOL state
 			'sol' => true,
 		] );
-
 		return $result->ownerDocument;
+	}
+
+	public function selectiveDOMUpdate( SelectiveUpdateData $revData ): Document {
+		$pipe = $this->getPipeline( 'selective-dom-update' );
+		$pipe->init( [
+			'toplevel' => true,
+			'frame' => $this->env->topFrame,
+		] );
+		return $pipe->something( $revData );
 	}
 
 	/**

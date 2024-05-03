@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -190,9 +191,13 @@ class ParserPipeline {
 		return $this->outputType === "DOM" ? $ret[0] : $ret;
 	}
 
+	public function something( SelectiveUpdateData $revData ): Document {
+		return $revData->revDOM;
+	}
+
 	/**
-	 * @param array $initialState Once the pipeline is retrieved / constructed
-	 *   it will be initialized with this state.
+	 * @param array $initialState Once the pipeline is retrieved / constructed,
+	 * it will be initialized with this state.
 	 */
 	public function init( array $initialState = [] ) {
 		// Reset pipeline state once per top-level doc.

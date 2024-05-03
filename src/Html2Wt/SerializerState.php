@@ -403,9 +403,9 @@ class SerializerState {
 			// here instead.  See T240053.
 			// But, see comment in UnpackDOMFragments where we very very rarely
 			// can deliberately set DSR to point outside page source.
-			$start <= strlen( $this->selserData->oldText )
+			$start <= strlen( $this->selserData->revText )
 		) {
-			return substr( $this->selserData->oldText, $start, $end - $start );
+			return substr( $this->selserData->revText, $start, $end - $start );
 		} else {
 			return null;
 		}

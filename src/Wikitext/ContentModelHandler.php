@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wikitext;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ContentModelHandler as IContentModelHandler;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
@@ -102,23 +103,23 @@ class ContentModelHandler extends IContentModelHandler {
 		// selser, will only get worse over time.
 		//
 		// So, we're forced to trade off the correctness for usability.
-		if ( $selserData->oldHTML === null ) {
-			$env->log( "warn/html2wt", "Missing selserData->oldHTML. Regenerating." );
+		if ( $selserData->revHTML === null ) {
+			$env->log( "warn/html2wt", "Missing selserData->revHTML. Regenerating." );
 
 			// FIXME(T266838): Create a new Env for this parse?  Something is
 			// needed to avoid this rigmarole.
 			$topLevelDoc = $env->topLevelDoc;
 			$env->setupTopLevelDoc();
-			// This effectively parses $selserData->oldText for us because
-			// $selserData->oldText = $env->getPageconfig()->getPageMainContent()
+			// This effectively parses $selserData->revText for us because
+			// $selserData->revText = $env->getPageconfig()->getPageMainContent()
 			$doc = $this->toDOM( $extApi );
 			$env->topLevelDoc = $topLevelDoc;
 		} else {
-			$doc = ContentUtils::createDocument( $selserData->oldHTML, true );
+			$doc = ContentUtils::createDocument( $selserData->revHTML, true );
 		}
 
 		$this->canonicalizeDOM( $env, $doc );
-		$selserData->oldDOM = $doc;
+		$selserData->revDOM = $doc;
 	}
 
 	private function processIndicators( Document $doc, ParsoidExtensionAPI $extApi ): void {
@@ -150,11 +151,22 @@ class ContentModelHandler extends IContentModelHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function toDOM( ParsoidExtensionAPI $extApi ): Document {
-		$doc = $this->env->getPipelineFactory()->parse(
-			// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
-			$this->env->getPageConfig()->getPageMainContent()
-		);
+	public function toDOM(
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
+	): Document {
+		$pipelineFactory = $this->env->getPipelineFactory();
+
+		if ( $selectiveUpdateData ) {
+			$doc = ContentUtils::createDocument( $selserData->revHTML, true );
+			DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
+			$selectiveUpdateData->revDOM = $doc;
+			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
+		} else {
+			$doc = $pipelineFactory->parse(
+				// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
+				$this->env->getPageConfig()->getPageMainContent()
+			);
+		}
 
 		// Hardcoded support for indicators
 		$this->processIndicators( $doc, $extApi );
@@ -206,7 +218,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$this->canonicalizeDOM( $env, $env->topLevelDoc );
 
 		$serializerOpts = [ 'selserData' => $selserData ];
-		if ( $selserData && $selserData->oldText !== null ) {
+		if ( $selserData && $selserData->revText !== null ) {
 			$serializer = new SelectiveSerializer( $env, $serializerOpts );
 			$this->setupSelser( $extApi, $selserData );
 			$wtsType = 'selser';

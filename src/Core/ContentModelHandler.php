@@ -12,7 +12,9 @@ abstract class ContentModelHandler {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @return Document
 	 */
-	abstract public function toDOM( ParsoidExtensionAPI $extApi ): Document;
+	abstract public function toDOM(
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selsectiveUpdateData
+	): Document;
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi

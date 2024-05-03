@@ -194,7 +194,7 @@ class SelectiveSerializer {
 		$r = null;
 
 		$body = DOMCompat::getBody( $doc );
-		$oldBody = DOMCompat::getBody( $this->selserData->oldDOM );
+		$oldBody = DOMCompat::getBody( $this->selserData->revDOM );
 
 		// Preprocess DOMs - this is specific to selser
 		$this->preprocessDOMForSelser( $oldBody );
@@ -213,7 +213,7 @@ class SelectiveSerializer {
 
 		if ( $diff['isEmpty'] ) {
 			// Nothing was modified, just re-use the original source
-			$r = $this->selserData->oldText;
+			$r = $this->selserData->revText;
 		} else {
 			if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
 				$options = [ 'storeDiffMark' => true ];
