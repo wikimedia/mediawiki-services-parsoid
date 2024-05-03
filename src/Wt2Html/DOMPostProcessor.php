@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -650,6 +651,11 @@ class DOMPostProcessor extends PipelineStage {
 		// with this class to reduce visual differences.  Consider getting
 		// rid of it.
 		$bodyCL->add( 'mw-parser-output' );
+
+		// Set the parsoid version on the body, for consistency with
+		// the wrapper div.
+		$body->setAttribute( 'data-mw-parsoid-version', Parsoid::version() );
+		$body->setAttribute( 'data-mw-html-version', Parsoid::defaultHTMLVersion() );
 	}
 
 	/**
