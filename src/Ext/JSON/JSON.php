@@ -11,7 +11,7 @@ namespace Wikimedia\Parsoid\Ext\JSON;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DOMUtils;
@@ -149,9 +149,12 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * Implementation matches that from includes/content/JsonContent.php in
 	 * mediawiki core, except that we distinguish value types.
 	 * @param ParsoidExtensionAPI $extApi
+	 * @param ?SelectiveUpdateData $selectiveUpdateData
 	 * @return Document
 	 */
-	public function toDOM( ParsoidExtensionAPI $extApi ): Document {
+	public function toDOM(
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
+	): Document {
 		// @phan-suppress-next-line PhanDeprecatedFunction not ready for this yet
 		$jsonText = $extApi->getPageConfig()->getPageMainContent();
 		$document = $extApi->getTopLevelDoc();
@@ -314,11 +317,11 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	/**
 	 * DOM to JSON.
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param ?SelserData $selserData
+	 * @param ?SelectiveUpdateData $selectiveUpdateData
 	 * @return string
 	 */
 	public function fromDOM(
-		ParsoidExtensionAPI $extApi, ?SelserData $selserData = null
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
 	): string {
 		$body = DOMCompat::getBody( $extApi->getTopLevelDoc() );
 		$t = $body->firstChild;

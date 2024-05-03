@@ -5,8 +5,10 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
@@ -191,8 +193,23 @@ class ParserPipeline {
 	}
 
 	/**
-	 * @param array $initialState Once the pipeline is retrieved / constructed
-	 *   it will be initialized with this state.
+	 * @param SelectiveUpdateData $selparData
+	 * @param array $options
+	 */
+	public function selectiveParse(
+		SelectiveUpdateData $selparData, array $options
+	): Document {
+		$domPP = $this->stages[0];
+		$options = [
+			'selparData' => $selparData
+		] + $options;
+		$domPP->process( DOMCompat::getBody( $selparData->revDOM ), $options );
+		return $selparData->revDOM;
+	}
+
+	/**
+	 * @param array $initialState Once the pipeline is retrieved / constructed,
+	 * it will be initialized with this state.
 	 */
 	public function init( array $initialState = [] ) {
 		// Reset pipeline state once per top-level doc.

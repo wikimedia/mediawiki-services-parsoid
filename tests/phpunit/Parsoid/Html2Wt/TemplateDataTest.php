@@ -3,7 +3,7 @@
 namespace Test\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -27,7 +27,7 @@ class TemplateDataTest extends TestCase {
 		$pageConfig = new MockPageConfig( $siteConfig, $opts, $pageContent );
 
 		if ( isset( $origHTML ) && strlen( $origHTML ) > 0 ) {
-			$selserData = new SelserData( $origWT, $origHTML );
+			$selserData = new SelectiveUpdateData( $origWT, $origHTML );
 		} else {
 			$selserData = null;
 		}

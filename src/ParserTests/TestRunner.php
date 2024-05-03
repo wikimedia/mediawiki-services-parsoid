@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -361,7 +361,7 @@ class TestRunner {
 	private function convertHtml2Wt( Env $env, Test $test, string $mode, Document $doc ): string {
 		$startsAtWikitext = $mode === 'wt2wt' || $mode === 'wt2html' || $mode === 'selser';
 		if ( $mode === 'selser' ) {
-			$selserData = new SelserData( $test->wikitext, $test->cachedBODYstr );
+			$selserData = new SelectiveUpdateData( $test->wikitext, $test->cachedBODYstr );
 		} else {
 			$selserData = null;
 		}

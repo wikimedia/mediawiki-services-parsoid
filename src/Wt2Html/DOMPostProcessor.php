@@ -8,6 +8,7 @@ use DateTime;
 use Generator;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -43,6 +44,7 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTrailingNLs;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Normalize;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ProcessTreeBuilderFixups;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\PWrap;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\UpdateTemplateOutput;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapAnnotations;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapSections;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapTemplates;
@@ -65,6 +67,8 @@ class DOMPostProcessor extends PipelineStage {
 
 	/** @var string */
 	private $timeProfile = '';
+
+	private ?SelectiveUpdateData $selparData = null;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -186,6 +190,12 @@ class DOMPostProcessor extends PipelineStage {
 		 * --------------------------------------------------------------------------- */
 
 		$processors = [
+			[
+				'Processor' => UpdateTemplateOutput::class,
+				'shortcut' => 'update-template',
+				'selective' => true,
+				'skipNested' => true
+			],
 			// Common post processing
 			[
 				'Processor' => MarkFosteredContent::class,
@@ -841,6 +851,16 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		foreach ( $this->processors as $pp ) {
+			if ( $this->selparData ) {
+				if ( empty( $pp['selective'] ) ) {
+					continue;
+				}
+			} else {
+				if ( !empty( $pp['selective'] ) ) {
+					continue;
+				}
+			}
+
 			// - Nested pipelines are used for both top-level and non-top-level content.
 			// - Omit is currently set only for templated content pipelines.
 			// - But, skipNested can be set for both templated content as well as
@@ -898,7 +918,10 @@ class DOMPostProcessor extends PipelineStage {
 
 			// Excessive to do it here always, but protects against future changes
 			// to how $this->frame may be updated.
-			$pp['proc']( $node, [ 'frame' => $this->frame ] + $this->options, $this->atTopLevel );
+			$pp['proc']( $node, [
+				'frame' => $this->frame,
+				'selparData' => $this->selparData,
+			] + $this->options, $this->atTopLevel );
 
 			if ( $hasDumpFlags && ( $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] )
 				|| $env->hasDumpFlag( 'dom:post-*' ) )
@@ -938,6 +961,9 @@ class DOMPostProcessor extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function process( $node, array $opts = null ) {
+		if ( isset( $opts['selparData'] ) ) {
+			$this->selparData = $opts['selparData'];
+		}
 		'@phan-var Node $node'; // @var Node $node
 		$this->doPostProcess( $node );
 		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType

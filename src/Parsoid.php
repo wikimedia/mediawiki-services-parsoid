@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Language\LanguageConverter;
@@ -151,12 +151,14 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param ContentMetadataCollector $metadata
 	 * @param array $options See wikitext2html.
+	 * @param ?SelectiveUpdateData $selparData See wikitext2html.
 	 * @return array
 	 */
 	private function parseWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		array $options = []
+		array $options = [],
+		?SelectiveUpdateData $selparData = null
 	): array {
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['outputContentVersion'] ) ) {
@@ -191,7 +193,8 @@ class Parsoid {
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		$extApi = new ParsoidExtensionAPI( $env );
-		return [ $env, $handler->toDOM( $extApi ), $contentmodel ];
+		// FIXME: Hardcoded to assume 'mode' is 'template'
+		return [ $env, $handler->toDOM( $extApi, $selparData ), $contentmodel ];
 	}
 
 	/**
@@ -222,18 +225,19 @@ class Parsoid {
 	 * @param ?array &$headers
 	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
 	 *  collect and retrieve metadata about the parse.
+	 * @param ?SelectiveUpdateData $selparData
 	 * @return PageBundle|string
 	 */
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = [], ?array &$headers = null,
-		?ContentMetadataCollector $metadata = null
+		?ContentMetadataCollector $metadata = null, ?SelectiveUpdateData $selparData = null
 	) {
 		if ( $metadata === null ) {
 			$metadata = new StubMetadataCollector( $this->siteConfig );
 		}
 
 		$parseTiming = Timing::start();
-		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options );
+		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options, $selparData );
 		$parseTime = $parseTiming->end();
 
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
@@ -366,12 +370,12 @@ class Parsoid {
 	 *   'logLevels'           => (string[]) Levels to log
 	 *   'htmlSize'            => (int) Size of the HTML that generated $doc
 	 * ]
-	 * @param ?SelserData $selserData
+	 * @param ?SelectiveUpdateData $selserData
 	 * @return string
 	 */
 	public function dom2wikitext(
 		PageConfig $pageConfig, Document $doc, array $options = [],
-		?SelserData $selserData = null
+		?SelectiveUpdateData $selserData = null
 	): string {
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['inputContentVersion'] ) ) {
@@ -433,12 +437,12 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param string $html
 	 * @param array $options
-	 * @param ?SelserData $selserData
+	 * @param ?SelectiveUpdateData $selserData
 	 * @return string
 	 */
 	public function html2wikitext(
 		PageConfig $pageConfig, string $html, array $options = [],
-		?SelserData $selserData = null
+		?SelectiveUpdateData $selserData = null
 	): string {
 		$doc = DOMUtils::parseHTML( $html, true );
 		$options['htmlSize'] ??= mb_strlen( $html );

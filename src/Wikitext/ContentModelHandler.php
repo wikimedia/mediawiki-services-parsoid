@@ -5,7 +5,7 @@ namespace Wikimedia\Parsoid\Wikitext;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ContentModelHandler as IContentModelHandler;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -62,9 +62,11 @@ class ContentModelHandler extends IContentModelHandler {
 	 * Fetch prior DOM for selser.
 	 *
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param SelserData $selserData
+	 * @param SelectiveUpdateData $selserData
 	 */
-	private function setupSelser( ParsoidExtensionAPI $extApi, SelserData $selserData ) {
+	private function setupSelser(
+		ParsoidExtensionAPI $extApi, SelectiveUpdateData $selserData
+	) {
 		$env = $this->env;
 
 		// Why is it safe to use a reparsed dom for dom diff'ing?
@@ -102,23 +104,23 @@ class ContentModelHandler extends IContentModelHandler {
 		// selser, will only get worse over time.
 		//
 		// So, we're forced to trade off the correctness for usability.
-		if ( $selserData->oldHTML === null ) {
-			$env->log( "warn/html2wt", "Missing selserData->oldHTML. Regenerating." );
+		if ( $selserData->revHTML === null ) {
+			$env->log( "warn/html2wt", "Missing selserData->revHTML. Regenerating." );
 
 			// FIXME(T266838): Create a new Env for this parse?  Something is
 			// needed to avoid this rigmarole.
 			$topLevelDoc = $env->topLevelDoc;
 			$env->setupTopLevelDoc();
-			// This effectively parses $selserData->oldText for us because
-			// $selserData->oldText = $env->getPageconfig()->getPageMainContent()
+			// This effectively parses $selserData->revText for us because
+			// $selserData->revText = $env->getPageconfig()->getPageMainContent()
 			$doc = $this->toDOM( $extApi );
 			$env->topLevelDoc = $topLevelDoc;
 		} else {
-			$doc = ContentUtils::createDocument( $selserData->oldHTML, true );
+			$doc = ContentUtils::createDocument( $selserData->revHTML, true );
 		}
 
 		$this->canonicalizeDOM( $env, $doc );
-		$selserData->oldDOM = $doc;
+		$selserData->revDOM = $doc;
 	}
 
 	private function processIndicators( Document $doc, ParsoidExtensionAPI $extApi ): void {
@@ -153,14 +155,34 @@ class ContentModelHandler extends IContentModelHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function toDOM( ParsoidExtensionAPI $extApi ): Document {
-		$doc = $this->env->getPipelineFactory()->parse(
-			// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
-			$this->env->getPageConfig()->getPageMainContent()
-		);
+	public function toDOM(
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
+	): Document {
+		$pipelineFactory = $this->env->getPipelineFactory();
+
+		if ( $selectiveUpdateData ) {
+			// TODO: The use of ContentUtils::createAndLoadDocument is discouraged
+			// but maybe combining with $env->setupTopLevelDoc can make something
+			// valid.
+			$doc = ContentUtils::createAndLoadDocument(
+				$selectiveUpdateData->revHTML, [ 'validateXMLNames' => true ]
+			);
+			$this->env->setupTopLevelDoc( $doc );
+			$selectiveUpdateData->revDOM = $doc;
+			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
+			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
+		} else {
+			$doc = $pipelineFactory->parse(
+				// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
+				$this->env->getPageConfig()->getPageMainContent()
+			);
+		}
 
 		// Hardcoded support for indicators
-		$this->processIndicators( $doc, $extApi );
+		// TODO: Eventually we'll want to apply this to selective updates as well
+		if ( !$selectiveUpdateData ) {
+			$this->processIndicators( $doc, $extApi );
+		}
 
 		return $doc;
 	}
@@ -200,7 +222,7 @@ class ContentModelHandler extends IContentModelHandler {
 	 * @inheritDoc
 	 */
 	public function fromDOM(
-		ParsoidExtensionAPI $extApi, ?SelserData $selserData = null
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selserData = null
 	): string {
 		$env = $this->env;
 		$metrics = $env->getSiteConfig()->metrics();
@@ -209,7 +231,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$this->canonicalizeDOM( $env, $env->topLevelDoc );
 
 		$serializerOpts = [ 'selserData' => $selserData ];
-		if ( $selserData && $selserData->oldText !== null ) {
+		if ( $selserData ) {
 			$serializer = new SelectiveSerializer( $env, $serializerOpts );
 			$this->setupSelser( $extApi, $selserData );
 			$wtsType = 'selser';

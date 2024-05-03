@@ -8,7 +8,7 @@ use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -238,8 +238,7 @@ class SerializerState {
 	 */
 	public $selserMode;
 
-	/** @var SelserData */
-	private $selserData;
+	private ?SelectiveUpdateData $selserData;
 
 	/**
 	 * If in selser mode, while processing a node, do we know if
@@ -299,7 +298,7 @@ class SerializerState {
 	 *   - inPHPBlock: (bool)
 	 *   - inAttribute: (bool)
 	 *   - protect: (string)
-	 *   - selserData: (SelserData)
+	 *   - selserData: (SelectiveUpdateData)
 	 */
 	public function __construct( WikitextSerializer $serializer, array $options = [] ) {
 		$this->env = $serializer->env;
@@ -404,10 +403,10 @@ class SerializerState {
 			// here instead.  See T240053.
 			// But, see comment in UnpackDOMFragments where we very very rarely
 			// can deliberately set DSR to point outside page source.
-			$sr->start <= strlen( $this->selserData->oldText )
+			$sr->start <= strlen( $this->selserData->revText )
 		) {
 			// XXX should use $frame->getSrcText() like WTUtils::getWTSource
-			return $sr->substr( $this->selserData->oldText );
+			return $sr->substr( $this->selserData->revText );
 		} else {
 			return null;
 		}
@@ -428,11 +427,11 @@ class SerializerState {
 			return false;
 		}
 		if ( !( $dsr->start <= $dsr->end &&
-			  $dsr->end <= strlen( $this->selserData->oldText ) ) ) {
+			  $dsr->end <= strlen( $this->selserData->revText ) ) ) {
 			return false;
 		}
 		// check the UTF-8 ranges.
-		$src = $this->selserData->oldText;
+		$src = $this->selserData->revText;
 		$check = static function ( $start, $end ) use ( $src ) {
 			if ( $start === $end ) {
 				// zero-length string is always ok

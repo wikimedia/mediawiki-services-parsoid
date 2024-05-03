@@ -10,17 +10,20 @@ abstract class ContentModelHandler {
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
+	 * @param ?SelectiveUpdateData $selectiveUpdateData
 	 * @return Document
 	 */
-	abstract public function toDOM( ParsoidExtensionAPI $extApi ): Document;
+	abstract public function toDOM(
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
+	): Document;
 
 	/**
 	 * @param ParsoidExtensionAPI $extApi
-	 * @param ?SelserData $selserData
+	 * @param ?SelectiveUpdateData $selectiveUpdateData
 	 * @return string
 	 */
 	abstract public function fromDOM(
-		ParsoidExtensionAPI $extApi, ?SelserData $selserData = null
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
 	): string;
 
 }

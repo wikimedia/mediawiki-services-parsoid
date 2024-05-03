@@ -31,13 +31,13 @@ TMPPB=$(tempfile pb)
 # inline data-parsoid
 echo "<p>foo</p><p>boo</p>" | tee $TMPWT | php $BIN/parse.php --mock | tee $TMPORIG |
     sed -e "s/foo/bar/g" > $TMPEDIT
-php $BIN/parse.php --mock --selser --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
+php $BIN/parse.php --mock --selser --revtextfile $TMPWT --revhtmlfile $TMPORIG < $TMPEDIT
 
 # data-parsoid in separate files
 php $BIN/parse.php --mock --pboutfile $TMPPB < $TMPWT |
     tee $TMPORIG | sed -e "s/foo/bar/g" > $TMPEDIT
 php $BIN/parse.php --mock --pbinfile $TMPPB --selser \
-    --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
+    --revtextfile $TMPWT --revhtmlfile $TMPORIG < $TMPEDIT
 
 # Linting
 echo "<div>foo" | php $BIN/parse.php --mock --logLinterData

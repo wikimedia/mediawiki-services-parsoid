@@ -4,7 +4,7 @@ namespace Test\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
@@ -99,7 +99,7 @@ class SerializerStateTest extends TestCase {
 	 */
 	public function testGetOrigSrc() {
 		$env = new MockEnv( [] );
-		$selserData = new SelserData( '0123456789' );
+		$selserData = new SelectiveUpdateData( '0123456789' );
 		$state = $this->getState( [
 			'selserData' => $selserData,
 		], $env );

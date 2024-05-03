@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt;
 use Composer\Semver\Semver;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
-use Wikimedia\Parsoid\Core\SelserData;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -28,21 +28,15 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  */
 class SelectiveSerializer {
 
-	/** @var Env */
-	private $env;
-
-	private $wts;
-	private $trace;
-
-	/** @var SelserData */
-	private $selserData;
+	private Env $env;
+	private WikitextSerializer $wts;
+	private SelectiveUpdateData $selserData;
+	private bool $trace;
 
 	public function __construct( Env $env, array $options ) {
 		$this->env = $env;
 		$this->wts = new WikitextSerializer( $env, $options );
 		$this->selserData = $options['selserData'];
-
-		// Debug options
 		$this->trace = $this->env->hasTraceFlag( 'selser' );
 	}
 
@@ -194,7 +188,7 @@ class SelectiveSerializer {
 		$r = null;
 
 		$body = DOMCompat::getBody( $doc );
-		$oldBody = DOMCompat::getBody( $this->selserData->oldDOM );
+		$oldBody = DOMCompat::getBody( $this->selserData->revDOM );
 
 		// Preprocess DOMs - this is specific to selser
 		$this->preprocessDOMForSelser( $oldBody );
@@ -213,7 +207,7 @@ class SelectiveSerializer {
 
 		if ( $diff['isEmpty'] ) {
 			// Nothing was modified, just re-use the original source
-			$r = $this->selserData->oldText;
+			$r = $this->selserData->revText;
 		} else {
 			if ( $this->trace || $this->env->hasDumpFlag( 'dom:post-dom-diff' ) ) {
 				$options = [ 'storeDiffMark' => true ];

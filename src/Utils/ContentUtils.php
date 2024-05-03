@@ -77,7 +77,7 @@ class ContentUtils {
 	public static function createAndLoadDocument(
 		string $html, array $options = []
 	): Document {
-		$doc = self::createDocument( $html );
+		$doc = self::createDocument( $html, $options['validateXMLNames'] ?? false );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), $options
 		);
