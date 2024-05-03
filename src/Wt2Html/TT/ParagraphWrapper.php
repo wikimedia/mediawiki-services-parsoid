@@ -434,7 +434,8 @@ class ParagraphWrapper extends TokenHandler {
 			 );
 			$res = [ $token ];
 			return new TokenHandlerResult( $res );
-		} elseif ( $token instanceof CommentTk
+		} elseif (
+			$token instanceof CommentTk
 			|| is_string( $token ) && preg_match( '/^[\t ]*$/D', $token )
 			|| TokenUtils::isEmptyLineMetaToken( $token )
 		) {
@@ -448,11 +449,12 @@ class ParagraphWrapper extends TokenHandler {
 				$this->nlWsTokens[] = $token;
 				return new TokenHandlerResult( [] );
 			}
-		} elseif ( !is_string( $token ) &&
+		} elseif (
 			// T186965: <style> behaves similarly to sol transparent tokens in
 			// that it doesn't open/close paragraphs, but also doesn't induce
 			// a new paragraph by itself.
-			( TokenUtils::isSolTransparent( $this->env, $token ) || $token->getName() === 'style' )
+			TokenUtils::isSolTransparent( $this->env, $token ) ||
+			( !is_string( $token ) && $token->getName() === 'style' )
 		) {
 			if ( $this->undoIndentPre && PreHandler::isIndentPreWS( $token ) ) {
 				$this->nlWsTokens[] = ' ';

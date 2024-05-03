@@ -153,7 +153,7 @@ class TokenUtils {
 
 	/**
 	 * This should come close to matching
-	 * {@link DOMUtils.emitsSolTransparentSingleLineWT},
+	 * {@link WTUtils::emitsSolTransparentSingleLineWT},
 	 * without the single line caveat.
 	 * @param Env $env
 	 * @param Token|string $token
@@ -161,7 +161,7 @@ class TokenUtils {
 	 */
 	public static function isSolTransparent( Env $env, $token ): bool {
 		if ( is_string( $token ) ) {
-			return (bool)preg_match( '/^\s*$/D', $token );
+			return (bool)preg_match( '/^[ \t]*$/D', $token );
 		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
 		} elseif ( $token instanceof CommentTk && !self::isTranslationUnitMarker( $env, $token ) ) {
