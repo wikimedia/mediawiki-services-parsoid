@@ -300,7 +300,7 @@ class TemplateEncapsulator {
 			$this->env, $this->frame,
 			$paramInfo->valueWt,
 			[
-				'pipelineType' => 'text/x-mediawiki/full',
+				'pipelineType' => 'wikitext-to-dom',
 				'pipelineOpts' => [
 					'isInclude' => false,
 					'expandTemplates' => true,

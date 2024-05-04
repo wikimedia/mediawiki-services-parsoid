@@ -44,7 +44,7 @@ class LanguageVariantHandler extends TokenHandler {
 		$domFragment = PipelineUtils::processContentInPipeline(
 			$this->env, $manager->getFrame(), array_merge( $attribs[$t]->v, [ new EOFTk() ] ),
 			[
-				'pipelineType' => 'tokens/x-mediawiki/expanded',
+				'pipelineType' => 'expanded-tokens-to-dom',
 				'pipelineOpts' => [
 					'inlineContext' => true,
 					'expandTemplates' => $options['expandTemplates'],

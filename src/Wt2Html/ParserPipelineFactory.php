@@ -47,9 +47,9 @@ class ParserPipelineFactory {
 				TemplateHandler::class,
 				ExtensionHandler::class,
 
-				// Expand attributes after templates to avoid expanding unused branches
-				// No expansion of quotes, paragraphs etc in attributes, as in
-				// PHP parser- up to text/x-mediawiki/expanded only.
+				// Expand attributes after templates to avoid expanding unused branches.
+				// No expansion of quotes, paragraphs etc in attributes,
+				// as with the legacy parser - up to end of TokenTransform2.
 				AttributeExpander::class,
 
 				// now all attributes expanded to tokens or string
@@ -102,7 +102,7 @@ class ParserPipelineFactory {
 		// processed DOM as output. This is the pipeline used for
 		// all top-level documents.
 		// Stages 1-5 of the pipeline
-		"text/x-mediawiki/full" => [
+		"wikitext-to-dom" => [
 			"outType" => "DOM",
 			"stages" => [
 				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMPP"
@@ -112,7 +112,7 @@ class ParserPipelineFactory {
 		// This pipeline takes wikitext as input and emits tokens that
 		// have had all templates, extensions, links, images processed
 		// Stages 1-2 of the pipeline
-		"text/x-mediawiki" => [
+		"wikitext-to-expanded-tokens" => [
 			"outType" => "Tokens",
 			"stages" => [ "Tokenizer", "TokenTransform2" ]
 		],
@@ -120,7 +120,7 @@ class ParserPipelineFactory {
 		// This pipeline takes tokens from the PEG tokenizer and emits
 		// tokens that have had all templates and extensions processed.
 		// Stage 2 of the pipeline
-		"tokens/x-mediawiki" => [
+		"peg-tokens-to-expanded-tokens" => [
 			"outType" => "Tokens",
 			"stages" => [ "TokenTransform2" ]
 		],
@@ -128,7 +128,7 @@ class ParserPipelineFactory {
 		// This pipeline takes tokens from stage 2 and emits a fully
 		// processed DOM as output.
 		// Stages 3-5 of the pipeline
-		"tokens/x-mediawiki/expanded" => [
+		"expanded-tokens-to-dom" => [
 			"outType" => "DOM",
 			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMPP" ]
 		],
@@ -269,7 +269,7 @@ class ParserPipelineFactory {
 	}
 
 	public function parse( string $src ): Document {
-		$pipe = $this->getPipeline( 'text/x-mediawiki/full' );
+		$pipe = $this->getPipeline( 'wikitext-to-dom' );
 		$pipe->init( [
 			'toplevel' => true,
 			'frame' => $this->env->topFrame,

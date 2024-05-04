@@ -73,7 +73,7 @@ class ParserFunctions {
 		$kv, Frame $frame, $defaultValue = null, string $type = null, bool $trim = false
 	): array {
 		if ( $type === null ) {
-			$type = 'tokens/x-mediawiki/expanded';
+			$type = 'expanded-tokens-to-dom';
 		}
 
 		if ( $kv === null ) {
@@ -186,7 +186,7 @@ class ParserFunctions {
 					//
 					// 'val' may be an array of tokens rather than a string as in the
 					// example above where 'val' is indeed the final return value.
-					// Hence 'tokens/x-mediawiki/expanded' type below.
+					// Hence 'expanded-tokens-to-dom' type below.
 					$v = $this->expandV( $kv->v, $frame );
 					return $this->switchLookupFallback( $frame, array_slice( $kvs, $i + 1 ), $key, $dict, $v );
 				}
@@ -596,7 +596,7 @@ class ParserFunctions {
 		$accum = [];
 		foreach ( $args as $item ) {
 			// FIXME: we are swallowing all errors
-			$res = $this->expandKV( $item, $frame, '', 'text/x-mediawiki/expanded', false );
+			$res = $this->expandKV( $item, $frame, '', 'expanded-tokens-to-dom', false );
 			PHPUtils::pushArray( $accum, $res );
 		}
 

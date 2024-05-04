@@ -380,7 +380,7 @@ class ParsoidExtensionAPI {
 				$this->env, $frame, $wikitext,
 				[
 					// Full pipeline for processing content
-					'pipelineType' => 'text/x-mediawiki/full',
+					'pipelineType' => 'wikitext-to-dom',
 					'pipelineOpts' => [
 						'expandTemplates' => true,
 						'extTag' => $parseOpts['extTag'],

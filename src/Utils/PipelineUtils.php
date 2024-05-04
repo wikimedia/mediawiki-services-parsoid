@@ -132,7 +132,7 @@ class PipelineUtils {
 		if ( is_array( $v['html'] ?? null ) ) {
 			// Set up pipeline options
 			$opts = [
-				'pipelineType' => 'tokens/x-mediawiki/expanded',
+				'pipelineType' => 'expanded-tokens-to-dom',
 				'pipelineOpts' => [
 					'attrExpansion' => true,
 					'inlineContext' => true,

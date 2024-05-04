@@ -260,7 +260,7 @@ class WikiLinkHandler extends TokenHandler {
 		$toks = PipeLineUtils::processContentInPipeline(
 			$manager->getEnv(), $frame, $src, [
 				'sol' => false,
-				'pipelineType' => 'text/x-mediawiki',
+				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'srcOffsets' => new SourceRange( $startOffset, $startOffset + strlen( $src ) ),
 				'pipelineOpts' => [
 					'expandTemplates' => $manager->getOptions()['expandTemplates'],
@@ -1560,7 +1560,7 @@ class WikiLinkHandler extends TokenHandler {
 					$this->manager->getFrame(),
 					array_merge( $optsCaption['v'], [ new EOFTk() ] ),
 					[
-						'pipelineType' => 'tokens/x-mediawiki/expanded',
+						'pipelineType' => 'expanded-tokens-to-dom',
 						'pipelineOpts' => [
 							'inlineContext' => true,
 							'expandTemplates' => $this->options['expandTemplates'],

@@ -116,7 +116,7 @@ class Frame {
 		// - the attribute use is wrappable  Ex: [[ ... | {{ .. link text }} ]]
 
 		$opts = [
-			'pipelineType' => 'tokens/x-mediawiki',
+			'pipelineType' => 'peg-tokens-to-expanded-tokens',
 			'pipelineOpts' => [
 				'isInclude' => $this->depth > 0,
 				'expandTemplates' => $options['expandTemplates'],

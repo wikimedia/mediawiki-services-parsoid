@@ -94,7 +94,7 @@ class DOMFragmentBuilder extends TokenHandler {
 				// Append EOF
 				$content,
 				[
-					'pipelineType' => 'tokens/x-mediawiki/expanded',
+					'pipelineType' => 'expanded-tokens-to-dom',
 					'pipelineOpts' => $pipelineOpts,
 					'srcOffsets' => $srcOffsets->value,
 					'sol' => true

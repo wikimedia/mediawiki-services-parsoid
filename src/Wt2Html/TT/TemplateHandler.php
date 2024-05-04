@@ -473,7 +473,7 @@ class TemplateHandler extends TokenHandler {
 
 		$toks = PipelineUtils::processContentInPipeline(
 			$this->env, $frame, $src, [
-				'pipelineType' => 'text/x-mediawiki',
+				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'pipelineOpts' => [
 					'inTemplate' => $this->options['inTemplate'],
 					'expandTemplates' => $expandTemplates && $this->options['expandTemplates'],
@@ -640,7 +640,7 @@ class TemplateHandler extends TokenHandler {
 			$frame,
 			$src,
 			[
-				'pipelineType' => 'text/x-mediawiki',
+				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'pipelineOpts' => [
 					'inTemplate' => true,
 					'isInclude' => true,

@@ -143,7 +143,7 @@ class TokenStreamPatcher extends TokenHandler {
 	private function reprocessTokens( int $srcOffset, array $toks, bool $popEOF = false ): array {
 		// Update tsr
 		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
-		$pipe = $this->env->getPipelineFactory()->getPipeline( "tokens/x-mediawiki" );
+		$pipe = $this->env->getPipelineFactory()->getPipeline( 'peg-tokens-to-expanded-tokens' );
 		$pipe->init( [
 			'frame' => $this->manager->getFrame(),
 			'toplevel' => $this->atTopLevel,
