@@ -14,6 +14,13 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 class UnpackDOMFragmentsTest extends TestCase {
+	/** @var array */
+	private $liveDocs;
+
+	protected function setUp(): void {
+		parent::setUp();
+		$this->liveDocs = [];
+	}
 
 	private function getOutput( string $wt ): Element {
 		$siteConfig = new MockSiteConfig( [] );
