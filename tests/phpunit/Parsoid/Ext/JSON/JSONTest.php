@@ -45,7 +45,7 @@ class JSONTest extends TestCase {
 		$env = new MockEnv( $opts );
 		$API = new ParsoidExtensionAPI( $env );
 
-		$doc = $json->toDOM( $API, $pageContent );
+		$doc = $json->toDOM( $API );
 		$response = DOMCompat::getOuterHTML( $doc->documentElement );
 		$this->assertSame( $expected, $response );
 	}
