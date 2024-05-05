@@ -664,7 +664,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function transformFromHtml( $configOpts, $parsoidOpts, $input ) {
 		$input = $this->getPageBundleXML( $input ) ?? $input;
 		if ( $this->hasOption( 'selser' ) ) {
-			$selserData = (SelserData)$this->setupSelectiveUpdateData();
+			$selserData = $this->setupSelectiveUpdateData();
 			if ( $selserData === null ) {
 				return;
 			}

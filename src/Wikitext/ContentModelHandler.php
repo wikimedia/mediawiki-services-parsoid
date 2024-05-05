@@ -218,7 +218,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$this->canonicalizeDOM( $env, $env->topLevelDoc );
 
 		$serializerOpts = [ 'selserData' => $selserData ];
-		if ( $selserData && $selserData->revText !== null ) {
+		if ( $selserData ) {
 			$serializer = new SelectiveSerializer( $env, $serializerOpts );
 			$this->setupSelser( $extApi, $selserData );
 			$wtsType = 'selser';

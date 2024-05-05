@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\DOM\Document;
  */
 class SelectiveUpdateData {
 	public string $revText;
-	public string $revHTML;
+	public ?string $revHTML;
 	/**
 	 * DOM document corresponding to $revHTML
 	 */
