@@ -5,12 +5,10 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
-use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
@@ -25,13 +23,13 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 
 		$selparData = $options['selparData'] ?? null;
 		if ( !$selparData ) {
-			error_log("Missing selpar data");
+			error_log( "Missing selpar data" );
 			return;
 		}
 
 		// FIXME: Hardcoded for English
 		$tplTitle = "./Template:" . $selparData->templateTitle;
-		$tplNodes = DOMCompat::querySelectorAll( $root, '[typeof~="mw:Transclusion"]');
+		$tplNodes = DOMCompat::querySelectorAll( $root, '[typeof~="mw:Transclusion"]' );
 		foreach ( $tplNodes as $tplNode ) {
 			$dataMw = DOMDataUtils::getDataMW( $tplNode );
 			if ( $dataMw->parts[0]->template->target->href === $tplTitle ) {
@@ -43,10 +41,10 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 					'sol' => false, // FIXME: Not strictly correct
 					'srcText' => $selparData->revText,
 					'pipelineOpts' => []
-	 			];
+				];
 
 				// FIXME: This fragment might need its p-wrapper stripped in some cases
-				$frag  = PipelineUtils::processContentInPipeline( $env, $options['frame'], $wt, $opts );
+				$frag = PipelineUtils::processContentInPipeline( $env, $options['frame'], $wt, $opts );
 
 				// FIXME: May have more than one child in the general case
 				$content = $frag->firstChild;
