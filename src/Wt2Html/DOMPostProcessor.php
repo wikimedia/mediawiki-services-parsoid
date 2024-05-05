@@ -7,6 +7,7 @@ use Closure;
 use DateTime;
 use Generator;
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -67,6 +68,8 @@ class DOMPostProcessor extends PipelineStage {
 	/** @var string */
 	private $timeProfile = '';
 
+	private SelectiveUpdateData $selparData;
+
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
 		?PipelineStage $prevStage = null
@@ -114,6 +117,9 @@ class DOMPostProcessor extends PipelineStage {
 
 	public function registerProcessors( ?array $processors ): void {
 		foreach ( $processors ?: $this->getDefaultProcessors() as $p ) {
+			if ( $this->selparData && empty( $p['selective'] ) ) {
+				continue;
+			}
 			if ( empty( $p['name'] ) ) {
 				$p['name'] = Utils::stripNamespace( $p['Processor'] );
 			}
@@ -911,7 +917,10 @@ class DOMPostProcessor extends PipelineStage {
 
 			// Excessive to do it here always, but protects against future changes
 			// to how $this->frame may be updated.
-			$pp['proc']( $node, [ 'frame' => $this->frame ] + $this->options, $this->atTopLevel );
+			$pp['proc']( $node, [
+				'frame' => $this->frame,
+				'selparData' => $this->selparData,
+			] + $this->options, $this->atTopLevel );
 
 			if ( $hasDumpFlags && ( $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] )
 				|| $env->hasDumpFlag( 'dom:post-*' ) )
@@ -951,6 +960,9 @@ class DOMPostProcessor extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function process( $node, array $opts = null ) {
+		if ( isset( $opts['selparData'] ) ) {
+			$this->selparData = $opts['selparData'];
+		}
 		'@phan-var Node $node'; // @var Node $node
 		$this->doPostProcess( $node );
 		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType

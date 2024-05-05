@@ -292,19 +292,18 @@ class ParserPipelineFactory {
 	}
 
 	/**
-	 * @param SelectiveUpdateData $revData
+	 * @param SelectiveUpdateData $selparData
 	 * @param array $options Options for selective DOM update
 	 * - mode: (string) One of "template", "section", "generic"
 	 *         For now, defaults to 'template', if absent
 	 */
-	public function selectiveDOMUpdate( SelectiveUpdateData $revData, array $options = [] ): Document {
+	public function selectiveDOMUpdate( SelectiveUpdateData $selparData, array $options = [] ): Document {
 		$pipe = $this->getPipeline( 'selective-dom-update' );
 		$pipe->init( [
 			'toplevel' => true,
 			'frame' => $this->env->topFrame,
 		] );
-		$options['mode'] ??= 'template';
-		return $pipe->selectiveParse( $revData, $options );
+		return $pipe->selectiveParse( $selparData, $options );
 	}
 
 	/**

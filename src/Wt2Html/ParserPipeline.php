@@ -192,12 +192,18 @@ class ParserPipeline {
 	}
 
 	/**
-	 * @param SelectiveUpdateData $revData
-	 * @param array $options Options for selective DOM update
-	 * - mode: (string) One of "template", "section", "generic"
+	 * @param SelectiveUpdateData $selparData
+	 * @param array $options
 	 */
-	public function selectiveParse( SelectiveUpdateData $revData, array $options ): Document {
-		return $revData->revDOM;
+	public function selectiveParse(
+		SelectiveUpdateData $selparData, array $options
+	): Document {
+		$domPP = $this->stages[0];
+		$options = [
+			'selparData' => $selparData
+		] + $options;
+		$domPP->process( $selparData->revDOM, $options );
+		return $selparData->revDOM;
 	}
 
 	/**
