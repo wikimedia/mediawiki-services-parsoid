@@ -117,15 +117,6 @@ class DOMPostProcessor extends PipelineStage {
 
 	public function registerProcessors( ?array $processors ): void {
 		foreach ( $processors ?: $this->getDefaultProcessors() as $p ) {
-			if ( $this->selparData ) {
-				if ( empty( $p['selective'] ) ) {
-					continue;
-				}
-			} else {
-				if ( !empty( $p['selective'] ) ) {
-					continue;
-				}
-			}
 			if ( empty( $p['name'] ) ) {
 				$p['name'] = Utils::stripNamespace( $p['Processor'] );
 			}
@@ -867,6 +858,16 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		foreach ( $this->processors as $pp ) {
+			if ( $this->selparData ) {
+				if ( empty( $pp['selective'] ) ) {
+					continue;
+				}
+			} else {
+				if ( !empty( $pp['selective'] ) ) {
+					continue;
+				}
+			}
+
 			// - Nested pipelines are used for both top-level and non-top-level content.
 			// - Omit is currently set only for templated content pipelines.
 			// - But, skipNested can be set for both templated content as well as

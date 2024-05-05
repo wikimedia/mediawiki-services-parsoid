@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\PP\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -40,11 +41,13 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 				$opts = [
 					'pipelineType' => 'wikitext-to-dom',
 					'sol' => false, // FIXME: Not strictly correct
+					'srcText' => $selparData->revText,
 					'pipelineOpts' => []
 	 			];
 
 				// FIXME: This fragment might need its p-wrapper stripped in some cases
 				$frag  = PipelineUtils::processContentInPipeline( $env, $options['frame'], $wt, $opts );
+
 				// FIXME: May have more than one child in the general case
 				$content = $frag->firstChild;
 				DOMDataUtils::getDataParsoid( $content )->dsr = $dp->dsr;
