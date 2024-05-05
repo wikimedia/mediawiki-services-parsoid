@@ -43,6 +43,7 @@ use Wikimedia\Parsoid\Wt2Html\PP\Processors\MigrateTrailingNLs;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\Normalize;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\ProcessTreeBuilderFixups;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\PWrap;
+use Wikimedia\Parsoid\Wt2Html\PP\Processors\UpdateTemplateOutput;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapAnnotations;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapSections;
 use Wikimedia\Parsoid\Wt2Html\PP\Processors\WrapTemplates;
@@ -186,6 +187,11 @@ class DOMPostProcessor extends PipelineStage {
 		 * --------------------------------------------------------------------------- */
 
 		$processors = [
+			[
+				'Processor' => UpdateTemplateOutput::class,
+				'shortcut' => 'update-template',
+				'selective' => true
+			],
 			// Common post processing
 			[
 				'Processor' => MarkFosteredContent::class,
