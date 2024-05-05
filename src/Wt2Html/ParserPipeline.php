@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
@@ -202,7 +203,7 @@ class ParserPipeline {
 		$options = [
 			'selparData' => $selparData
 		] + $options;
-		$domPP->process( $selparData->revDOM, $options );
+		$domPP->process( DOMCompat::getBody( $selparData->revDOM ), $options );
 		return $selparData->revDOM;
 	}
 
