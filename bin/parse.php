@@ -388,6 +388,18 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			die( 1 );
 		}
 	}
+	/**
+	 * @param array $configOpts
+	 * @param array $parsoidOpts
+	 * @param SelectiveUpdateData $revData
+	 * @param ?string $wt
+	 * @return string|PageBundle
+	 */
+	public function selectiveParse(
+		array $configOpts, array $parsoidOpts, SelectiveUpdateData $revData, ?string $wt
+	) {
+		// do osmething
+	}
 
 	public function html2Wt(
 		array $configOpts, array $parsoidOpts, string $html,
@@ -618,6 +630,39 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
+	private function setupSelectiveUpdateData() {
+		if ( $this->hasOption( 'revtextfile' ) ) {
+			$revText = file_get_contents( $this->getOption( 'revtextfile' ) );
+			if ( $revText === false ) {
+				return null;
+			}
+		} else {
+			$this->error(
+				'Please provide original wikitext via --revtextfile. ' .
+				'Selective Serialization needs it.'
+			);
+			$this->maybeHelp();
+			return null;
+		}
+		$revHTML = null;
+		if ( $this->hasOption( 'revhtmlfile' ) ) {
+			$revHTML = file_get_contents( $this->getOption( 'revhtmlfile' ) );
+			if ( $revHTML === false ) {
+				return null;
+			}
+			if ( isset( $pb ) ) {
+				$revDoc = DOMUtils::parseHTML( $revHTML );
+				PageBundle::apply( $revDoc, $pb );
+				$revHTML = ContentUtils::toXML( $revDoc );
+			}
+		}
+		if ( $this->hasOption( 'selser' ) ) {
+			$selserData = new SelserData( $revText, $revHTML );
+		} elseif ( $this->hasOption( 'selpar' ) ) {
+			$selserData = new SelectiveUpdateData( $revText, $revHTML );
+		}
+	}
+
 	/**
 	 * Do html2wt or html2html and output the result
 	 *
@@ -627,34 +672,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function transformFromHtml( $configOpts, $parsoidOpts, $input ) {
 		$input = $this->getPageBundleXML( $input ) ?? $input;
-
 		if ( $this->hasOption( 'selser' ) ) {
-			if ( $this->hasOption( 'revtextfile' ) ) {
-				$revText = file_get_contents( $this->getOption( 'revtextfile' ) );
-				if ( $revText === false ) {
-					return;
-				}
-			} else {
-				$this->error(
-					'Please provide original wikitext via --revtextfile. ' .
-					'Selective Serialization needs it.'
-				);
-				$this->maybeHelp();
+			$selserData = $this->setupSelectiveUpdateData();
+			if ( $selserData === null ) {
 				return;
 			}
-			$revHTML = null;
-			if ( $this->hasOption( 'revhtmlfile' ) ) {
-				$revHTML = file_get_contents( $this->getOption( 'revhtmlfile' ) );
-				if ( $revHTML === false ) {
-					return;
-				}
-				if ( isset( $pb ) ) {
-					$revDoc = DOMUtils::parseHTML( $revHTML );
-					PageBundle::apply( $revDoc, $pb );
-					$revHTML = ContentUtils::toXML( $revDoc );
-				}
-			}
-			$selserData = new SelserData( $revText, $revHTML );
 		} else {
 			$selserData = null;
 		}
@@ -711,7 +733,15 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string $input
 	 */
 	private function transformFromWt( $configOpts, $parsoidOpts, $input ) {
-		if ( $this->hasOption( 'wt2wt' ) ) {
+		if ( $this->hasOption( 'selpar' ) ) {
+			$revData = $this->setupSelectiveUpdateData();
+			if ( $revData === null ) {
+				return;
+			}
+			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input ) {
+				return $this->selectiveParse( $configOpts, $parsoidOpts, $input, $revData );
+			} );
+		} elseif ( $this->hasOption( 'wt2wt' ) ) {
 			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input ) {
 				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				return $this->html2Wt( $configOpts, $parsoidOpts, $html );
