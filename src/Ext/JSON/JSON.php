@@ -149,9 +149,10 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	 * Implementation matches that from includes/content/JsonContent.php in
 	 * mediawiki core, except that we distinguish value types.
 	 * @param ParsoidExtensionAPI $extApi
+	 * @param ?SelectiveUpdateData $selectiveUpdateData
 	 * @return Document
 	 */
-	public function toDOM( ParsoidExtensionAPI $extApi ): Document {
+	public function toDOM( ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null ): Document {
 		// @phan-suppress-next-line PhanDeprecatedFunction not ready for this yet
 		$jsonText = $extApi->getPageConfig()->getPageMainContent();
 		$document = $extApi->getTopLevelDoc();
