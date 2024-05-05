@@ -117,11 +117,14 @@ class DOMPostProcessor extends PipelineStage {
 
 	public function registerProcessors( ?array $processors ): void {
 		foreach ( $processors ?: $this->getDefaultProcessors() as $p ) {
-			if ( $this->selparData && empty( $p['selective'] ) ) {
-				continue;
-			}
-			if ( !$this->selparData && !empty( $p['selective'] ) ) {
-				continue;
+			if ( $this->selparData ) {
+				if ( empty( $p['selective'] ) ) {
+					continue;
+				}
+			} else {
+				if ( !empty( $p['selective'] ) ) {
+					continue;
+				}
 			}
 			if ( empty( $p['name'] ) ) {
 				$p['name'] = Utils::stripNamespace( $p['Processor'] );
