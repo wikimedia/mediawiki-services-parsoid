@@ -7,8 +7,8 @@ use Closure;
 use DateTime;
 use Generator;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -68,7 +68,7 @@ class DOMPostProcessor extends PipelineStage {
 	/** @var string */
 	private $timeProfile = '';
 
-	private SelectiveUpdateData $selparData;
+	private ?SelectiveUpdateData $selparData = null;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -196,7 +196,8 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => UpdateTemplateOutput::class,
 				'shortcut' => 'update-template',
-				'selective' => true
+				'selective' => true,
+				'skipNested' => true
 			],
 			// Common post processing
 			[
