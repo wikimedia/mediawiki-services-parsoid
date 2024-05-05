@@ -10,23 +10,20 @@ use Wikimedia\Parsoid\DOM\Document;
  * This is always revision (current or previous)wikitext & html.
  */
 class SelectiveUpdateData {
-	/** @var string */
-	public $revText;
-
-	/** @var ?string */
-	public $revHTML;
-
+	public string $revText;
+	public string $revHTML;
 	/**
 	 * DOM document corresponding to $revHTML
-	 * @var Document
 	 */
-	public $revDOM;
+	public Document $revDOM;
+	/**
+	 * If we are doing selective updates for a template edit,
+	 * title string of the edited template.
+	 */
+	public ?string $templateTitle;
 
 	/**
 	 * Data that's necessary to perform selective serialization.
-	 *
-	 * @param string $revText
-	 * @param ?string $revHTML
 	 */
 	public function __construct( string $revText, ?string $revHTML = null ) {
 		$this->revText = $revText;

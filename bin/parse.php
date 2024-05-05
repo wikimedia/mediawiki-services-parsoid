@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockMetrics;
@@ -618,7 +619,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	private function setupSelectiveUpdateData() {
+	private function setupSelectiveUpdateData(): SelectiveUpdateData {
 		if ( $this->hasOption( 'revtextfile' ) ) {
 			$revText = file_get_contents( $this->getOption( 'revtextfile' ) );
 			if ( $revText === false ) {
@@ -645,9 +646,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			}
 		}
 		if ( $this->hasOption( 'selser' ) ) {
-			$selserData = new SelserData( $revText, $revHTML );
+			return new SelserData( $revText, $revHTML );
 		} elseif ( $this->hasOption( 'selpar' ) ) {
-			$selserData = new SelectiveUpdateData( $revText, $revHTML );
+			$revData = new SelectiveUpdateData( $revText, $revHTML );
+			$revData->templateTitle = $this->getOption( 'editedtemplatetitle' );
+			return $revData;
 		}
 	}
 
@@ -661,7 +664,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	private function transformFromHtml( $configOpts, $parsoidOpts, $input ) {
 		$input = $this->getPageBundleXML( $input ) ?? $input;
 		if ( $this->hasOption( 'selser' ) ) {
-			$selserData = $this->setupSelectiveUpdateData();
+			$selserData = (SelserData)$this->setupSelectiveUpdateData();
 			if ( $selserData === null ) {
 				return;
 			}
