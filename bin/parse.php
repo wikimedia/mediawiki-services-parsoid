@@ -369,11 +369,12 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param ?string $wt
-	 * @param ?SelectiveUpdateData $wt
+	 * @param ?SelectiveUpdateData $selparData
 	 * @return string|PageBundle
 	 */
 	public function wt2Html(
-		array $configOpts, array $parsoidOpts, ?string $wt, ?SelectiveUpdateData $selparData = null
+		array $configOpts, array $parsoidOpts, ?string $wt,
+		?SelectiveUpdateData $selparData = null
 	) {
 		if ( $wt !== null ) {
 			$configOpts["pageContent"] = $wt;

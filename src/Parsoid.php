@@ -152,7 +152,7 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param ContentMetadataCollector $metadata
 	 * @param array $options See wikitext2html.
-	 * @param ?SelectiveUpdateDAt $selparData See wikitext2html.
+	 * @param ?SelectiveUpdateData $selparData See wikitext2html.
 	 * @return array
 	 */
 	private function parseWikitext(
