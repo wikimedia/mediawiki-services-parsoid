@@ -28,8 +28,7 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
-
-		// Hardcode for english
+		// FIXME: Hardcoded for English
 		$tplTitle = "./Template:" . $selparData->templateTitle;
 		$tplNodes = DOMCompat::querySelectorAll( $root, '[typeof~="mw:Transclusion"]');
 		foreach ( $tplNodes as $tplNode ) {
@@ -40,11 +39,16 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 				$wt = $dp->dsr->substr( $selparData->revText );
 				$opts = [
 					'pipelineType' => 'wikitext-to-dom',
-					'sol' => false,
+					'sol' => false, // FIXME: Not strictly correct
 					'pipelineOpts' => []
 	 			];
+
+				// FIXME: This fragment might need its p-wrapper stripped in some cases
 				$frag  = PipelineUtils::processContentInPipeline( $env, $options['frame'], $wt, $opts );
-				error_log("Frag: " . DOMUtils::getFragmentInnerHTML( $frag ) );
+				// FIXME: May have more than one child in the general case
+				$content = $frag->firstChild;
+				DOMDataUtils::getDataParsoid( $content )->dsr = $dp->dsr;
+				$tplNode->parentNode->replaceChild( $content, $tplNode );
 			}
 		}
 	}

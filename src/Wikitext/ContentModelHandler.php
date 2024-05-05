@@ -158,6 +158,7 @@ class ContentModelHandler extends IContentModelHandler {
 
 		if ( $selectiveUpdateData ) {
 			$doc = ContentUtils::createDocument( $selectiveUpdateData->revHTML, true );
+			$this->env->setupTopLevelDoc( $doc );
 			DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
