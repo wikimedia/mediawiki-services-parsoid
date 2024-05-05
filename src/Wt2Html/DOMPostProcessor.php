@@ -120,6 +120,9 @@ class DOMPostProcessor extends PipelineStage {
 			if ( $this->selparData && empty( $p['selective'] ) ) {
 				continue;
 			}
+			if ( !$this->selparData && !empty( $p['selective'] ) ) {
+				continue;
+			}
 			if ( empty( $p['name'] ) ) {
 				$p['name'] = Utils::stripNamespace( $p['Processor'] );
 			}
