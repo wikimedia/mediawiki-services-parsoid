@@ -297,7 +297,7 @@ class ParserPipelineFactory {
 	 * - mode: (string) One of "template", "section", "generic"
 	 *         For now, defaults to 'template'
 	 * - title: For template edits, title of the template
-	 **/
+	 */
 	public function selectiveDOMUpdate( SelectiveUpdateData $revData, array $options = [] ): Document {
 		$pipe = $this->getPipeline( 'selective-dom-update' );
 		$pipe->init( [

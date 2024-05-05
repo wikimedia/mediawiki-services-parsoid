@@ -388,6 +388,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			die( 1 );
 		}
 	}
+
 	/**
 	 * @param array $configOpts
 	 * @param array $parsoidOpts

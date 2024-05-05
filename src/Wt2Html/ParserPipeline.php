@@ -197,7 +197,7 @@ class ParserPipeline {
 	 * - mode: (string) One of "template", "section", "generic"
 	 *         For now, defaults to 'template'
 	 * - title: For template edits, title of the template
-	 **/
+	 */
 	public function something( SelectiveUpdateData $revData, array $options ): Document {
 		return $revData->revDOM;
 	}
