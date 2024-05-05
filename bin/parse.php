@@ -619,7 +619,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	private function setupSelectiveUpdateData(): ?SelectiveUpdateData {
+	private function setupSelectiveUpdateData( ?string $mode = null ): ?SelectiveUpdateData {
 		if ( $this->hasOption( 'revtextfile' ) ) {
 			$revText = file_get_contents( $this->getOption( 'revtextfile' ) );
 			if ( $revText === false ) {
@@ -648,7 +648,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( $this->hasOption( 'selser' ) ) {
 			return new SelserData( $revText, $revHTML );
 		} elseif ( $this->hasOption( 'selpar' ) ) {
-			$revData = new SelectiveUpdateData( $revText, $revHTML );
+			$revData = new SelectiveUpdateData( $revText, $revHTML, $mode );
 			$revData->templateTitle = $this->getOption( 'editedtemplatetitle' );
 			if ( !$revData->templateTitle ) {
 				$this->error(
@@ -733,16 +733,12 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 */
 	private function transformFromWt( $configOpts, $parsoidOpts, $input ) {
 		if ( $this->hasOption( 'selpar' ) ) {
-			$revData = $this->setupSelectiveUpdateData();
-			if ( $revData === null ) {
+			$selparData = $this->setupSelectiveUpdateData( 'template' );
+			if ( $selparData === null ) {
 				return;
 			}
 			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input, $revData ) {
-				$parsoidOpts['selectiveParseOpts'] = [
-					'mode' => 'template',
-					'revData' => $revData
-				];
-				return $this->wt2Html( $configOpts, $parsoidOpts, $input );
+				return $this->wt2Html( $configOpts, $parsoidOpts, $input, $selparData );
 			} );
 		} elseif ( $this->hasOption( 'wt2wt' ) ) {
 			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input ) {

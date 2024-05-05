@@ -303,7 +303,7 @@ class ParserPipelineFactory {
 			'toplevel' => true,
 			'frame' => $this->env->topFrame,
 		] );
-		$options['mode'] = $options['mode'] ?? 'template';
+		$options['mode'] ??= 'template';
 		return $pipe->selectiveParse( $revData, $options );
 	}
 

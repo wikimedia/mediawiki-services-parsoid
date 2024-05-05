@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
+use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -220,18 +221,16 @@ class Parsoid {
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options
 	 *   'logLevels'            => (string[]) Levels to log
-	 *   'selectiveParseOpts'   => (array|null) Options for selective HTML updates
-	 *                             - mode: "template", 'section"', "generic"
-	 *                             - revData: Revision Data for selective updates
 	 * ]
 	 * @param ?array &$headers
 	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
 	 *  collect and retrieve metadata about the parse.
+	 * @param ?SelectiveUpdateData $selparData
 	 * @return PageBundle|string
 	 */
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = [], ?array &$headers = null,
-		?ContentMetadataCollector $metadata = null
+		?ContentMetadataCollector $metadata = null, ?SelectiveUpdateData $selparData = null
 	) {
 		if ( $metadata === null ) {
 			$metadata = new StubMetadataCollector( $this->siteConfig );

@@ -12,10 +12,12 @@ use Wikimedia\Parsoid\DOM\Document;
 class SelectiveUpdateData {
 	public string $revText;
 	public ?string $revHTML;
+
 	/**
 	 * DOM document corresponding to $revHTML
 	 */
 	public Document $revDOM;
+
 	/**
 	 * If we are doing selective updates for a template edit,
 	 * title string of the edited template.
@@ -23,10 +25,18 @@ class SelectiveUpdateData {
 	public ?string $templateTitle;
 
 	/**
+	 * Options for selective HTML updates: template, section, generic
+	 */
+	public ?string $mode;
+
+	/**
 	 * Data that's necessary to perform selective serialization.
 	 */
-	public function __construct( string $revText, ?string $revHTML = null ) {
+	public function __construct(
+		string $revText, ?string $revHTML = null, ?string $mode = null
+	) {
 		$this->revText = $revText;
 		$this->revHTML = $revHTML;
+		$this->mode = $mode;
 	}
 }
