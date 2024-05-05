@@ -650,11 +650,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				if ( $oldHTML === false ) {
 					return;
 				}
-				if ( isset( $pb ) ) {
-					$oldDoc = DOMUtils::parseHTML( $oldHTML );
-					PageBundle::apply( $oldDoc, $pb );
-					$oldHTML = ContentUtils::toXML( $oldDoc );
-				}
+				$oldHTML = $this->getPageBundleXML( $oldHTML ) ?? $oldHTML;
 			}
 			$selserData = new SelserData( $oldText, $oldHTML );
 		} else {
