@@ -192,7 +192,7 @@ class ParserPipeline {
 	}
 
 	/**
-	 * @param SelectiveUpdateDAta $revData
+	 * @param SelectiveUpdateData $revData
 	 * @param array $options Options for selective DOM update
 	 * - mode: (string) One of "template", "section", "generic"
 	 *         For now, defaults to 'template'
