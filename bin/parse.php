@@ -619,7 +619,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 	}
 
-	private function setupSelectiveUpdateData(): SelectiveUpdateData {
+	private function setupSelectiveUpdateData(): ?SelectiveUpdateData {
 		if ( $this->hasOption( 'revtextfile' ) ) {
 			$revText = file_get_contents( $this->getOption( 'revtextfile' ) );
 			if ( $revText === false ) {
@@ -650,6 +650,14 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		} elseif ( $this->hasOption( 'selpar' ) ) {
 			$revData = new SelectiveUpdateData( $revText, $revHTML );
 			$revData->templateTitle = $this->getOption( 'editedtemplatetitle' );
+			if ( !$revData->templateTitle ) {
+				$this->error(
+					'Please provide title of the edited template. ' .
+					'Selective Parsing (which right now defaults to template edits only) needs it.'
+				);
+				$this->maybeHelp();
+				return null;
+			}
 			return $revData;
 		}
 	}
