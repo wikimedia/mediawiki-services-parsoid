@@ -191,7 +191,9 @@ class Parsoid {
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		$extApi = new ParsoidExtensionAPI( $env );
-		return [ $env, $handler->toDOM( $extApi ), $contentmodel ];
+		// FIXME: Hardcoded to assume 'mode' is 'template'
+		$selectiveUpdateData = $options['selectiveParseOpts']['revData'] ?? null;
+		return [ $env, $handler->toDOM( $extApi, $selectiveUpdateData ), $contentmodel ];
 	}
 
 	/**
@@ -218,6 +220,9 @@ class Parsoid {
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options
 	 *   'logLevels'            => (string[]) Levels to log
+	 *   'selectiveParseOpts'   => (array|null) Options for selective HTML updates
+	 *                             - mode: "template", 'section"', "generic"
+	 *                             - revData: Revision Data for selective updates
 	 * ]
 	 * @param ?array &$headers
 	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
