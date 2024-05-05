@@ -152,12 +152,14 @@ class Parsoid {
 	 * @param PageConfig $pageConfig
 	 * @param ContentMetadataCollector $metadata
 	 * @param array $options See wikitext2html.
+	 * @param ?SelectiveUpdateDAt $selparData See wikitext2html.
 	 * @return array
 	 */
 	private function parseWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		array $options = []
+		array $options = [],
+		?SelectiveUpdateData $selparData = null
 	): array {
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['outputContentVersion'] ) ) {
@@ -193,8 +195,7 @@ class Parsoid {
 		$handler = $env->getContentHandler( $contentmodel );
 		$extApi = new ParsoidExtensionAPI( $env );
 		// FIXME: Hardcoded to assume 'mode' is 'template'
-		$selectiveUpdateData = $options['selectiveParseOpts']['revData'] ?? null;
-		return [ $env, $handler->toDOM( $extApi, $selectiveUpdateData ), $contentmodel ];
+		return [ $env, $handler->toDOM( $extApi, $selparData ), $contentmodel ];
 	}
 
 	/**
@@ -237,7 +238,7 @@ class Parsoid {
 		}
 
 		$parseTiming = Timing::start();
-		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options );
+		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options, $selparData );
 		$parseTime = $parseTiming->end();
 
 		// FIXME: Does this belong in parseWikitext so that the other endpoint

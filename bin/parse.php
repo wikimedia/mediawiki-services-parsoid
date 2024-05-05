@@ -369,10 +369,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param array $configOpts
 	 * @param array $parsoidOpts
 	 * @param ?string $wt
+	 * @param ?SelectiveUpdateData $wt
 	 * @return string|PageBundle
 	 */
 	public function wt2Html(
-		array $configOpts, array $parsoidOpts, ?string $wt
+		array $configOpts, array $parsoidOpts, ?string $wt, ?SelectiveUpdateData $selparData = null
 	) {
 		if ( $wt !== null ) {
 			$configOpts["pageContent"] = $wt;
@@ -382,7 +383,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		try {
 			return $this->parsoid->wikitext2html(
-				$this->pageConfig, $parsoidOpts, $headers, $this->metadata
+				$this->pageConfig, $parsoidOpts, $headers, $this->metadata, $selparData
 			);
 		} catch ( ClientError $e ) {
 			$this->error( $e->getMessage() );
@@ -737,7 +738,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			if ( $selparData === null ) {
 				return;
 			}
-			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input, $revData ) {
+			$this->benchmark( function () use ( $configOpts, $parsoidOpts, $input, $selparData ) {
 				return $this->wt2Html( $configOpts, $parsoidOpts, $input, $selparData );
 			} );
 		} elseif ( $this->hasOption( 'wt2wt' ) ) {
