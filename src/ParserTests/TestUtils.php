@@ -156,8 +156,7 @@ class TestUtils {
 		$out = preg_replace( $attribTroubleRE . "'[^']*\\\\?'/u", '', $out ); // single-quoted variant
 		// strip typeof last
 		$out = preg_replace( '/ typeof="[^\"]*"/u', '', $out );
-		// replace mwt ids
-		$out = preg_replace( '/ id="mw((t\d+)|([\w-]{2,}))"/u', '', $out );
+		$out = self::stripParsoidIds( $out );
 		$out = preg_replace( '/<span[^>]+about="[^"]*"[^>]*>/u', '', $out );
 		$out = preg_replace( '#(\s)<span>\s*</span>\s*#u', '$1', $out );
 		$out = preg_replace( '#<span>\s*</span>#u', '', $out );
@@ -171,6 +170,15 @@ class TestUtils {
 			'#(src="[^"]*?)/thumb(/[0-9a-f]/[0-9a-f]{2}/[^/]+)/[0-9]+px-[^"/]+(?=")#u', '$1$2',
 			$out
 		);
+	}
+
+	/**
+	 * Strip Parsoid ID attributes (id="mwXX", used to associate NodeData) from an HTML string
+	 * @param string $s
+	 * @return string
+	 */
+	public static function stripParsoidIds( string $s ): string {
+		return preg_replace( '/ id="mw([-\w]{2,})"/u', '', $s );
 	}
 
 	private static function cleanSpans(
