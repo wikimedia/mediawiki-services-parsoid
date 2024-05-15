@@ -4,8 +4,7 @@
 		"mocha": true
 	},
 	"extends": [
-		"wikimedia/server",
-		"wikimedia/jsdoc"
+		"wikimedia/server"
 	],
 	"parserOptions": {
 		"ecmaVersion": 2018
