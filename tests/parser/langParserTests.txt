@@ -28,9 +28,9 @@ Template:1x
 !! endarticle
 
 !! article
-Parsoid测试
+Тест
 !! text
-Simplified Chinese article variant
+sr-el article variant
 !! endarticle
 
 ## sr-ec ##
@@ -1683,14 +1683,14 @@ parsoid=html2wt
 !! test
 Nonexistent internal link targets should be resolved using variants (T258856)
 !! options
-language=zh variant=zh-hant
+language=sr variant=sr-ec
 !! wikitext
-[[Parsoid測試]]
+[[Test]]
 !! html/php
-<p><a href="/wiki/Parsoid%E6%B5%8B%E8%AF%95" title="Parsoid測試">Parsoid測試</a>
+<p><a href="/wiki/%D0%A2%D0%B5%D1%81%D1%82" title="Тест">Тест</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Parsoid测试" title="Parsoid测试" data-parsoid='{"stx":"simple","a":{"href":"./Parsoid测试","title":"Parsoid测试"},"sa":{"href":"Parsoid測試","title":"Parsoid測試"}}'>Parsoid測試</a></p>
+<p><a rel="mw:WikiLink" href="./Тест" title="Тест" data-parsoid='{"stx":"simple","a":{"href":"./Тест","title":"Тест"},"sa":{"href":"Test","title":"Test"}}'>Test</a></p>
 !! html/parsoid+langconv
-<p data-mw-variant-lang="zh-hant"><a rel="mw:WikiLink" href="./Parsoid测试" title="Parsoid测试">Parsoid測試</a></p>
+<p data-mw-variant-lang="sr-el"><a rel="mw:WikiLink" href="./Тест" title="Тест">Тест</a></p>
 !! end

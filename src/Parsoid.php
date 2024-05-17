@@ -645,7 +645,7 @@ class Parsoid {
 	 */
 	public function implementsLanguageConversionBcp47( PageConfig $pageConfig, Bcp47Code $htmlVariant ): bool {
 		// Hardcode disable zh lang conversion support since Parsoid's
-		// implementation is incomplete and not performant.
+		// implementation is incomplete and not performant (T346657).
 		if ( $pageConfig->getPageLanguageBcp47()->toBcp47Code() === 'zh' ) {
 			return false;
 		}

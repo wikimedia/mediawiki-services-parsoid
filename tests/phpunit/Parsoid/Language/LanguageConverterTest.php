@@ -41,6 +41,16 @@ class LanguageConverterTest extends TestCase {
 		$this->assertSame( [ 'sr-ec' => 'тест' ], $variants );
 	}
 
+	/** @covers \Wikimedia\Parsoid\Language\LanguageConverter::autoConvertToAllVariants */
+	public function testShouldNotPerformAutoConvertForChinese(): void {
+		$env = self::getMockEnv( 'zh' );
+		$doc = new DOMDocument();
+
+		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
+
+		$this->assertSame( [], $variants );
+	}
+
 	private static function getMockEnv( string $pageLanguageCode ): Env {
 		$siteConfig = new MockSiteConfig( [] );
 		return new MockEnv( [

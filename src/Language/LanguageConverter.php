@@ -369,6 +369,13 @@ class LanguageConverter {
 		string $text
 	): array {
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
+
+		// Parsoid's Chinese language converter implementation is not performant enough,
+		// so disable it explicitly (T346657).
+		if ( $pageLangCode->toBcp47Code() === 'zh' ) {
+			return [];
+		}
+
 		if ( $env->getSiteConfig()->variantsFor( $pageLangCode ) === null ) {
 			// Optimize for the common case where the page language has no variants.
 			return [];
