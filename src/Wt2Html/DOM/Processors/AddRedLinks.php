@@ -205,7 +205,9 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				continue;
 			}
 
-			$variantTitles = LanguageConverter::autoConvertToAllVariants( $env, $doc, $title );
+			// array_keys converts strings representing numbers to ints.
+			// So, cast $title to string explicitly.
+			$variantTitles = LanguageConverter::autoConvertToAllVariants( $env, $doc, (string)$title );
 
 			foreach ( $variantTitles as $variantTitle ) {
 				$origsByVariant[$variantTitle][] = $title;
