@@ -28,4 +28,7 @@ class WTUtils {
 		return WTU::textContentFromCaption( $node );
 	}
 
+	public static function fromEncapsulatedContent( Node $node ): bool {
+		return WTU::fromEncapsulatedContent( $node );
+	}
 }
