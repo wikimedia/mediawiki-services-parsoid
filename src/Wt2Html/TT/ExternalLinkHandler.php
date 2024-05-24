@@ -32,10 +32,13 @@ class ExternalLinkHandler extends TokenHandler {
 
 	private static function imageExtensions( string $str ): bool {
 		switch ( $str ) {
+			case 'avif': // fall through
+			case 'gif': // fall through
+			case 'jpeg': // fall through
 			case 'jpg': // fall through
 			case 'png': // fall through
-			case 'gif': // fall through
 			case 'svg':
+			case 'webp':
 				return true;
 			default:
 				return false;
