@@ -225,6 +225,12 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 			// Map resolved variant titles to their corresponding originals
 			foreach ( $variantChunkData as $variantTitle => $pageData ) {
+				// Handle invalid titles
+				// For example, a conversion might result in a title that's too long.
+				if ( !empty( $pageData['invalid'] ) ) {
+					continue;
+				}
+
 				// Handle non-existent variant titles
 				if ( !empty( $pageData['missing'] ) && empty( $pageData['known'] ) ) {
 					continue;
