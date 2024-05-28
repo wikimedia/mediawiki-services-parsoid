@@ -98,6 +98,9 @@ if ( $STANDALONE ) {
 } else {
 	$cfg['exclude_analysis_directory_list'][] = 'extension/tests/';
 	$cfg['exclude_analysis_directory_list'][] = $IP . '/tests/parser';
+	// When running in integrated mode, don't (re)check src, just check
+	// the stuff in extension/
+	$cfg['exclude_analysis_directory_list'][] = 'src';
 
 	foreach ( [
 		'wikimedia/parsoid',
