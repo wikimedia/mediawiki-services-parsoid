@@ -421,7 +421,7 @@ class TestUtils {
 			// Attempt to instantiate this class to determine if the
 			// (optional) php-console-color library is installed.
 			try {
-				self::$consoleColor = new \JakubOnderka\PhpConsoleColor\ConsoleColor();
+				self::$consoleColor = new \PHP_Parallel_Lint\PhpConsoleColor\ConsoleColor();
 			} catch ( Error $e ) {
 				/* fall back to no-color mode */
 			}
