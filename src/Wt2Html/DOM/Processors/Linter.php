@@ -1086,9 +1086,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// => we are in trouble with the PHP Parser + Remex combo
 		$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 		$lintObj = [
-			'dsr' => $this->findLintDSR(
-				$tplLintInfo, $tplInfo, DOMDataUtils::getDataParsoid( $node )->dsr ?? null
-			),
+			'dsr' => $this->findLintDSR( $tplLintInfo, $tplInfo, $dp->dsr ?? null ),
 			'templateInfo' => $tplLintInfo,
 			'params' => [
 				'name' => 'table',
@@ -1110,15 +1108,16 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * Linter category: `wikilink-in-extlink`
 	 */
 	private function lintWikilinksInExtlink(
-		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
+		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
-		if ( DOMCompat::nodeName( $c ) === 'a' &&
-			DOMUtils::hasRel( $c, "mw:ExtLink" ) &&
+		if (
+			DOMCompat::nodeName( $node ) === 'a' &&
+			DOMUtils::hasRel( $node, "mw:ExtLink" ) &&
 			// Images in extlinks will end up with broken up extlinks inside the
 			// <figure> DOM. Those have 'misnested' flag set on them. Ignore those.
-			empty( DOMDataUtils::getDataParsoid( $c )->misnested )
+			empty( $dp->misnested )
 		) {
-			$next = $c->nextSibling;
+			$next = $node->nextSibling;
 			$lintError = $next instanceof Element &&
 				!empty( DOMDataUtils::getDataParsoid( $next )->misnested ) &&
 				// This check may not be necessary but ensures that we are
@@ -1130,7 +1129,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			// their structure. However, since timed media is inherently clickable, being nested
 			// in an extlink could surprise a user clicking on it by navigating away from the page.
 			if ( !$lintError ) {
-				DOMUtils::visitDOM( $c, static function ( $element ) use ( &$lintError ) {
+				DOMUtils::visitDOM( $node, static function ( $element ) use ( &$lintError ) {
 					if ( $element instanceof Element &&
 						( DOMCompat::nodeName( $element ) === 'audio' ||
 							DOMCompat::nodeName( $element ) === 'video' )
@@ -1142,9 +1141,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			if ( $lintError ) {
 				$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 				$lintObj = [
-					'dsr' => $this->findLintDSR(
-						$tplLintInfo, $tplInfo, DOMDataUtils::getDataParsoid( $c )->dsr ?? null
-					),
+					'dsr' => $this->findLintDSR( $tplLintInfo, $tplInfo, $dp->dsr ?? null ),
 					'templateInfo' => $tplLintInfo,
 				];
 				$env->recordLint( 'wikilink-in-extlink', $lintObj );
@@ -1257,9 +1254,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		) {
 			$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
 			$lintObj = [
-				'dsr' => $this->findLintDSR(
-					$tplLintInfo, $tplInfo, DOMDataUtils::getDataParsoid( $node )->dsr ?? null
-				),
+				'dsr' => $this->findLintDSR( $tplLintInfo, $tplInfo, $dp->dsr ?? null ),
 				'templateInfo' => $tplLintInfo,
 			];
 			$env->recordLint( 'night-mode-unaware-background-color', $lintObj );
