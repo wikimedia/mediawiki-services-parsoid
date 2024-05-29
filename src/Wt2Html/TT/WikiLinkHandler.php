@@ -154,8 +154,9 @@ class WikiLinkHandler extends TokenHandler {
 				}
 			} elseif ( !empty( $interwikiInfo['url'] ) ) {
 				$info->href = $hrefBits['title'];
-				// Ensure a valid title, even though we're discarding the result
-				$env->makeTitleFromURLDecodedStr( $title );
+				// Ensure a valid title and store it for later use.
+				// (don't store as $info->title because that signals a wikilink)
+				$interwikiInfo['title'] = $env->makeTitleFromURLDecodedStr( $title );
 				// Interwiki or language link? If no language info, or if it starts
 				// with an explicit ':' (like [[:en:Foo]]), it's not a language link.
 				if ( $info->fromColonEscapedText ||
@@ -744,6 +745,9 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Change the rel to be mw:PageProp/Language
 		$newTk->getAttributeKV( 'rel' )->v = 'mw:PageProp/Language';
+
+		// Add language link(s) to metadata
+		$this->env->getMetadata()->addLanguageLink( $target->language['title'] );
 
 		return new TokenHandlerResult( [ $newTk ] );
 	}

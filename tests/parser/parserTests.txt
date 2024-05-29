@@ -7615,14 +7615,17 @@ ill
 [[es:Alimento]]
 [[fr:Nourriture]]
 [[zh:食品]]
-!! html/php
+!! metadata
 es:Alimento fr:Nourriture zh:食品
+!! html/php
 !! html/parsoid
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/Alimento"/>
 <link rel="mw:PageProp/Language" href="http://fr.wikipedia.org/wiki/Nourriture"/>
 <link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/食品"/>
 !! end
 
+# Known difference: parsoid does not throw away duplicate language links.
+# Metadata are going to be deduplicated in the LinksUpdate job
 !! test
 Duplicate interlanguage links (T26502)
 !! options
@@ -7632,8 +7635,11 @@ ill
 [[es:2]]
 [[fr:1]]
 [[fr:2]]
-!! html/php
+!! metadata/php
 es:1 fr:1
+!! metadata/parsoid
+es:1 es:2 fr:1 fr:2
+!! html/php
 !! html/parsoid
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/1"/>
 <link rel="mw:PageProp/Language" href="http://es.wikipedia.org/wiki/2"/>

@@ -540,7 +540,10 @@ class TestRunner {
 		$after = [];
 
 		// 'showtitle' not yet supported
-		// 'ill' not yet supported
+
+		if ( isset( $opts['ill'] ) ) {
+			$after[] = implode( ' ', $output->getLanguageLinks() );
+		}
 
 		if ( isset( $opts['cat'] ) ) {
 			foreach ( $output->getCategoryNames() as $name ) {
