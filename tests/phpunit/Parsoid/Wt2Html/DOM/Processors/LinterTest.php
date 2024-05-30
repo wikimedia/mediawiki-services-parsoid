@@ -33,6 +33,17 @@ class LinterTest extends TestCase {
 		return $parsoid->wikitext2lint( $pageConfig, [] );
 	}
 
+	private function filterLints( array $result, string $cat ): array {
+		$matches = [];
+		foreach ( $result as $r ) {
+			$type = $r['type'] ?? null;
+			if ( $type === $cat ) {
+				$matches[] = $r;
+			}
+		}
+		return $matches;
+	}
+
 	private function expectEmptyResults( string $description, string $wt, array $opts = [] ): void {
 		$result = $this->wtToLint( $wt, $opts );
 		$this->assertSame( [], $result, $description );
@@ -186,6 +197,7 @@ class LinterTest extends TestCase {
 			"File:Foobar.jpg|... a [[black-collared barbet]], waiting to be fed</center>\n" .
 			"</gallery>"
 		);
+		$result = $this->filterLints( $result, 'stripped-tag' );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'stripped-tag', $result[0]['type'], $desc );
 		$this->assertEquals( 'stripped-tag', $result[1]['type'], $desc );
@@ -312,6 +324,7 @@ class LinterTest extends TestCase {
 
 		$desc = 'should lint Bogus image width options correctly';
 		$result = $this->wtToLint( '[[File:Foobar.jpg|thumb|left150px|Caption]]' );
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 43, 2, 2 ], $result[0]['dsr'], $desc );
@@ -319,6 +332,7 @@ class LinterTest extends TestCase {
 		$desc = "should lint Bogus image with bogus width definition correctly";
 		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|300px300px|Caption]]" );
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 44, 2, 2 ], $result[0]['dsr'], $desc );
@@ -326,6 +340,7 @@ class LinterTest extends TestCase {
 		$desc = "should lint Bogus image with duplicate width options correctly";
 		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|300px|250px|Caption]]" );
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 45, 2, 2 ], $result[0]['dsr'], $desc );
@@ -335,6 +350,7 @@ class LinterTest extends TestCase {
 		$desc = "should lint Bogus image with separated duplicate widths options correctly";
 		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|250px|right|thumb|x216px|Caption]]" );
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 58, 2, 2 ], $result[0]['dsr'], $desc );
@@ -345,11 +361,13 @@ class LinterTest extends TestCase {
 
 		$desc = 'should not lint image with caption masquerading as width option';
 		$result = $this->wtToLint( '[[File:Foobar.jpg|thumb|Foo px]]' );
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 0, $result, $desc );
 
 		$desc = "should lint image with width option with redundant units";
 		$result = $this->wtToLint(
 			"[[File:Foobar.jpg|thumb|250pxpx|right|Caption]]" );
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 47, 2, 2 ], $result[0]['dsr'], $desc );
@@ -364,6 +382,7 @@ class LinterTest extends TestCase {
 			'[[File:Foobar.jpg|thumb|upright=-1|Caption]]' .
 			'[[File:Foobar.jpg|thumb|upright=1.5|Caption]]'
 		);
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 4, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 47, 2, 2 ], $result[0]['dsr'], $desc );
@@ -388,6 +407,7 @@ class LinterTest extends TestCase {
 			'[[File:Foobar.jpg|frameless|frame]]' .
 			'[[File:Foobar.jpg|thumbnail=Thumb.png|thumb]]'
 		);
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 3, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 35, 2, 2 ], $result[0]['dsr'], $desc );
@@ -407,6 +427,7 @@ class LinterTest extends TestCase {
 			'[[File:Foobar.jpg|frame|200px]]' .
 			'[[File:Foobar.jpg|thumbnail=Thumb.png|400px]]'
 		);
+		$result = $this->filterLints( $result, 'bogus-image-options' );
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 31, 2, 2 ], $result[0]['dsr'], $desc );
@@ -1121,6 +1142,7 @@ class LinterTest extends TestCase {
 		$desc = "should lint image wikilink in external link correctly";
 		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Foobar.jpg|thumb]] image]" );
+		$result = $this->filterLints( $result, 'wikilink-in-extlink' );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 59, 27, 1 ], $result[0]['dsr'], $desc );
@@ -1128,11 +1150,13 @@ class LinterTest extends TestCase {
 		$desc = "should lint image wikilink in external link with |link= correctly";
 		$result = $this->wtToLint(
 			"[http://foo.bar/other.link [[File:Foobar.jpg|link=]] image]" );
+		$result = $this->filterLints( $result, 'wikilink-in-extlink' );
 		$this->assertCount( 0, $result, $desc );
 
 		$desc = "should not generate lint error for image wikilink following external link";
 		$result = $this->wtToLint(
 			"[http://foo.bar/other.link testing123][[File:Foobar.jpg]]" );
+		$result = $this->filterLints( $result, 'wikilink-in-extlink' );
 		$this->assertCount( 0, $result, $desc );
 
 		$desc = "should lint audio wikilink in external link correctly";
@@ -1625,6 +1649,62 @@ class LinterTest extends TestCase {
 	}
 
 	/**
+	 * Provide test cases for image alt text
+	 * @return array[]
+	 */
+	public function provideMissingImageAltTextTests() {
+		return [
+			[
+				'wikiText' => '[[File:Foobar.jpg]]',
+				'count' => 1,
+				'desc' => 'Inline image, no alt or caption',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|alt=Painting depicting a gazebo]]',
+				'count' => 0,
+				'desc' => 'Inline image, explicit alt',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|Painting depicting a gazebo]]',
+				'count' => 0,
+				'desc' => 'Inline image, implicit alt as caption',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|thumb|On display]]',
+				'count' => 1,
+				'desc' => 'Thumbnail image, no alt, has caption',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|thumb|alt=Painting depicting a gazebo]]',
+				'count' => 0,
+				'desc' => 'Thumbnail image, explicit alt, no caption',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|thumb|alt=Painting depicting a gazebo|On display]]',
+				'count' => 0,
+				'desc' => 'Thumbnail image, explicit alt, has caption',
+			],
+
+			// Currently an explicitly empty alt does not trigger the lint.
+			[
+				'wikiText' => '[[File:Foobar.jpg|alt=]]',
+				'count' => 0,
+				'desc' => 'Inline image, explicit empty alt',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|thumb|alt=]]',
+				'count' => 0,
+				'desc' => 'Thumbnail image, explicit empty alt, no caption',
+			],
+			[
+				'wikiText' => '[[File:Foobar.jpg|thumb|alt=|On display]]',
+				'count' => 0,
+				'desc' => 'Thumbnail image, explicit empty alt, has caption',
+			],
+		];
+	}
+
+	/**
 	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
 	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter::lintNightModeUnawareBackgroundColor
 	 * @see https://phabricator.wikimedia.org/T358238
@@ -1644,5 +1724,20 @@ class LinterTest extends TestCase {
 				$this->assertEquals( $templateName, $result[0]['templateInfo']['name'], $desc );
 			}
 		}
+	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\ParserPipeline
+	 *
+	 * @param string[] $wikiText input text
+	 * @param int $count of expected lint results
+	 * @param string $desc description of test case
+	 *
+	 * @dataProvider provideMissingImageAltTextTests
+	 */
+	public function testMissingImageAltText( $wikiText, $count, $desc ): void {
+		$result = $this->wtToLint( $wikiText );
+		$result = $this->filterLints( $result, 'missing-image-alt-text' );
+		$this->assertCount( $count, $result, $desc );
 	}
 }

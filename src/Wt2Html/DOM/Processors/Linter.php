@@ -1262,6 +1262,49 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Lint for missing image alt text
+	 */
+	private function lintMissingAltText(
+		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
+	): void {
+		if ( !WTUtils::isGeneratedFigure( $c ) ) {
+			return;
+		}
+
+		// Extract the media element in its standard place
+		$media = $c->firstChild->firstChild ?? null;
+		if ( !( $media instanceof Element ) || DOMCompat::nodeName( $media ) !== 'img' ) {
+			// Videos and such are handled differently; check only
+			// simple image output for alt text.
+			return;
+		}
+
+		if ( $media->hasAttribute( 'alt' ) ) {
+			// Present and accounted for, either via explicit markup
+			// or filling in from an inline caption or other future
+			// source.
+			//
+			// Note that an explicit empty alt text will be counted
+			// as present, as this may be done deliberately for
+			// spacer images or similar.
+			return;
+		}
+
+		$resource = DOMCompat::getAttribute( $media, 'resource' ) ?? '';
+		$file = basename( urldecode( $resource ) );
+
+		$tplLintInfo = $this->findEnclosingTemplateName( $env, $tplInfo );
+		$lintObj = [
+			'dsr' => $this->findLintDSR( $tplLintInfo, $tplInfo, $dp->dsr ?? null ),
+			'templateInfo' => $tplLintInfo,
+			'params' => [
+				'file' => $file,
+			]
+		];
+		$env->recordLint( 'missing-image-alt-text', $lintObj );
+	}
+
+	/**
 	 * Log wikitext fixups
 	 */
 	private function logWikitextFixups(
@@ -1280,6 +1323,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
+		$this->lintMissingAltText( $env, $node, $dp, $tplInfo );
 	}
 
 	/**
