@@ -54,6 +54,9 @@ class KV implements \JsonSerializable {
 	}
 
 	/**
+	 * BUG: When there are multiple matching attributes, Sanitizer lets the last one win
+	 * whereas this method is letting the first one win. This can introduce subtle bugs!
+	 *
 	 * Lookup a string key in a KV array and return the first matching KV object
 	 *
 	 * @param KV[]|null $kvs
