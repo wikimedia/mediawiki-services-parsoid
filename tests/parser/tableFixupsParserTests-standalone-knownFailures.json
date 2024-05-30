@@ -1,4 +1,19 @@
 {
+    "Ensure td-cell-type is switched to th when the first cell in a row is a <th>": {
+        "wt2html": "<table data-parsoid='{\"dsr\":[0,23,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,21,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,20,0,0]}'><th data-parsoid='{\"dsr\":[3,5,1,0]}'>a</th><th data-parsoid='{\"stx\":\"row\",\"startTagSrc\":\"||\",\"dsr\":[5,8,2,0]}'>b</th>\n<th data-parsoid='{\"dsr\":[9,11,1,0]}'>c</th><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"startTagSrc\":\"|\",\"attrSepSrc\":\"|\",\"dsr\":[11,20,null,null,1,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"tdfoo\",\"href\":\"./Template:Tdfoo\"},\"params\":{},\"i\":0}}]}'>y</td></tr>\n</tbody></table>",
+        "wt2wt": "{|\n!a||b\n!c\n{{tdfoo}}\n|}",
+        "html2html": "<table data-parsoid='{\"dsr\":[0,23,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,21,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,20,0,0]}'><th data-parsoid='{\"dsr\":[3,5,1,0]}'>a</th>\n<th data-parsoid='{\"dsr\":[6,8,1,0]}'>b</th>\n<th data-parsoid='{\"dsr\":[9,11,1,0]}'>c</th><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"startTagSrc\":\"|\",\"attrSepSrc\":\"|\",\"dsr\":[11,20,null,null,1,0],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"tdfoo\",\"href\":\"./Template:Tdfoo\"},\"params\":{},\"i\":0}}]}'>y</td></tr>\n</tbody></table>",
+        "html2wt": "{|\n!a\n!b\n!c{{tdfoo}}\n|}",
+        "selser [[0,1]]": "{|\n!a||b\n!c{{tdfoo}}\n|}",
+        "selser [1]": "{| data-foobar=\"od7qpi\"\n!a||b\n!c{{tdfoo}}\n|}",
+        "selser [[3,[2,3]]]": "{|<!--16ekxn2-->\n!a||b\n!c{{tdfoo}}\n|}",
+        "selser [2]": "65kozi\n{|\n!a||b\n!c{{tdfoo}}\n|}",
+        "selser [[3,1]]": "{|\n!a||b\n!c{{tdfoo}}\n|}",
+        "selser [[4,[2,0]]]": "{|<!--1not7kn--><!--2cjdby-->\n!a||b\n!c{{tdfoo}}\n|}",
+        "selser [[3,[[[3],2,0,0,0],0]]]": "{|\n!\n!1r4kyfp||b\n!c{{tdfoo}}\n|}",
+        "selser [[0,[[0,1,3,[4],0],2]]]": "{|\n!a|| data-foobar=\"1t76opf\" |b\n!1p6b5lu{{tdfoo}}<!--jjvcbm-->\n|}",
+        "selser [[0,2]]": "{|\n<!--18e2p9l-->!a||b\n!c{{tdfoo}}\n|}"
+    },
     "Table cell attribute merging edge cases": {
         "selser [[0,[0,0,[0,[0,0,4]],0,[3,2],0]]]": "{|\n| {{td_attrs_and_content|1=<div>foo</div> class=\"foo\"}} baz\n|-\n|{{td_attrs_and_content|1=[[No Merging Here]] class=\"foo\"}}<nowiki/>xd7gu\n|-\n|1yjfcke\n|{{td_attrs_and_content|1=[[File:Foo.jpg]] class=\"foo\"}} baz\n|}"
     }
