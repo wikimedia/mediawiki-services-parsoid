@@ -435,11 +435,13 @@ class DOMPostProcessor extends PipelineStage {
 					],
 					[
 						'nodeName' => 'td',
-						'action' => fn ( $node ) => $tableFixer->handleTableCellTemplates( $node, $this->frame )
+						'action' => fn ( $node, $state ) =>
+							$tableFixer->handleTableCellTemplates( $node, $this->frame, $state )
 					],
 					[
 						'nodeName' => 'th',
-						'action' => fn ( $node ) => $tableFixer->handleTableCellTemplates( $node, $this->frame )
+						'action' => fn ( $node, $state ) =>
+							$tableFixer->handleTableCellTemplates( $node, $this->frame, $state )
 					],
 					// 3. Deduplicate template styles
 					// (should run after dom-fragment expansion + after extension post-processors)

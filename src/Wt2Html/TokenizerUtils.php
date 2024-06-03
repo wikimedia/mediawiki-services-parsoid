@@ -139,19 +139,41 @@ class TokenizerUtils {
 		string $tagName, string $wtChar, $attrInfo, SourceRange $tsr,
 		int $endPos, $content, bool $addEndTag = false
 	): array {
-		$a = null;
 		$dp = new DataParsoid;
 		$dp->tsr = $tsr;
 
-		if ( !$attrInfo ) {
-			$a = [];
-			if ( $tagName === 'td' || $tagName === 'th' ) {
+		if ( $tagName === 'td' ) {
+			if ( !$attrInfo ) {
 				// Add a flag that indicates that the tokenizer didn't
 				// encounter a "|...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
 				$dp->setTempFlag( TempData::NO_ATTRS );
+			} elseif ( !$attrInfo[0] && $attrInfo[1] === "" ) {
+				// FIXME: Skip comments between the two "|" chars
+				// [ [], "", "|"] => "||" syntax for first <td> on line
+				$dp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
+				$dp->setTempFlag( TempData::NO_ATTRS );
 			}
-		} else {
+		} elseif ( $tagName === 'th' ) {
+			if ( !$attrInfo ) {
+				// Add a flag that indicates that the tokenizer didn't
+				// encounter a "|...|" attribute box. This is useful when
+				// deciding which <td>/<th> cells need attribute fixups.
+				$dp->setTempFlag( TempData::NO_ATTRS );
+
+				// FIXME: Skip comments between the two "!" chars
+				// "!!foo" in sol context parses as <th>!foo</th>
+				if (
+					is_string( $content[0][0] ?? null ) &&
+					str_starts_with( $content[0][0], "!" )
+				) {
+					$dp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
+				}
+			}
+		}
+
+		$a = [];
+		if ( $attrInfo ) {
 			$a = $attrInfo[0];
 			if ( !$a ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];

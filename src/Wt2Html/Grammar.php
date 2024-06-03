@@ -15,6 +15,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 	use Wikimedia\Parsoid\Core\DomSourceRange;
 	use Wikimedia\Parsoid\NodeData\DataMw;
 	use Wikimedia\Parsoid\NodeData\DataParsoid;
+	use Wikimedia\Parsoid\NodeData\TempData;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
 	use Wikimedia\Parsoid\Tokens\EOFTk;
 	use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -1757,6 +1758,7 @@ private function a159($pp, $tdt) {
 			$da = $tdt[0]->dataParsoid = clone $tdt[0]->dataParsoid;
 			$da->tsr = clone $da->tsr;
 			$da->stx = 'row';
+			$da->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
 			$da->tsr->start -= strlen( $pp ); // include "||"
 			if ( $pp !== '||' || ( isset( $da->startTagSrc ) && $da->startTagSrc !== $pp ) ) {
 				// Variation from default
@@ -1911,7 +1913,8 @@ private function a171($pp, $tht) {
 			$da = $tht[0]->dataParsoid = clone $tht[0]->dataParsoid;
 			$da->tsr = clone $da->tsr;
 			$da->stx = 'row';
-			$da->tsr->start -= strlen( $pp ); // include "||" or "!!"
+			$da->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
+			$da->tsr->start -= strlen( $pp ); // include "!!" or "||"
 			if ( $pp !== '!!' || ( isset( $da->startTagSrc ) && $da->startTagSrc !== $pp ) ) {
 				// Variation from default
 				$da->startTagSrc = $pp . ( isset( $da->startTagSrc ) ? substr( $da->startTagSrc, 1 ) : '' );

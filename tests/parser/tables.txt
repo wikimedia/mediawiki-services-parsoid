@@ -96,7 +96,7 @@ foo
 
 # This is unlikely to ever be used in any production wikipage
 # since it doesn't make any sense embedding tables in links.
-# FIXME: Note that the PHP parser and Parsoid differ on this!
+# FIXME: Note that the legacy parser and Parsoid differ on this!
 !! test
 Tables with multiple newlines after individual lines embedded in links
 !! options

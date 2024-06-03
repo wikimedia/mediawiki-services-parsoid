@@ -53,54 +53,64 @@ class TempData {
 	public const NO_ATTRS = 1 << 1;
 
 	/**
+	 * The tokenizer sets this on table cells that use "||" or "!!" style syntax for
+	 * th/td cells. While the tokenizer sets this on all cells, we are only interested
+	 * in this info for td/th cells in "SOF" context (modulo comments & whtespace)
+	 * in templates. Since Parsoid processes templates in independent parsing contexts,
+	 * td/dh cells with this flag set cannot be merged with preceding cells. But cells
+	 * without this flag and coming from a template are viable candidates for merging.
+	 */
+	public const NON_MERGEABLE_TABLE_CELL = 1 << 2;
+
+	/**
 	 * This is set on cell elements that could not be combined with the previous
 	 * cell. Private to TableFixups.
 	 */
-	public const FAILED_REPARSE = 1 << 2;
+	public const FAILED_REPARSE = 1 << 3;
 
 	/**
 	 * This is set on span tags that are created by PipelineUtils::addSpanWrappers().
 	 */
-	public const WRAPPER = 1 << 3;
+	public const WRAPPER = 1 << 4;
 
 	/**
 	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
 	 * to propagate the setDSR option to that function.
 	 */
-	public const SET_DSR = 1 << 4;
+	public const SET_DSR = 1 << 5;
 
 	/**
 	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
 	 * to propagate the fromCache option to that function.
 	 */
-	public const FROM_CACHE = 1 << 5;
+	public const FROM_CACHE = 1 << 6;
 
 	/**
 	 * A flag private to Linter, used to suppress duplicate messages.
 	 */
-	public const LINTED = 1 << 6;
+	public const LINTED = 1 << 7;
 
 	/**
 	 * A flag private to Linter to help it traverse a DOM
 	 */
-	public const PROCESSED_TIDY_WS_BUG = 1 << 7;
+	public const PROCESSED_TIDY_WS_BUG = 1 << 8;
 
 	/**
 	 * This is set on all elements that originate in a template. It controls
 	 * the insertion of mw:Transclusion markers in MarkFosteredContent.
 	 */
-	public const IN_TRANSCLUSION = 1 << 8;
+	public const IN_TRANSCLUSION = 1 << 9;
 
 	/**
 	 * MarkFosteredContent sets this on meta mw:Transclusion tags. It is only used
 	 * in an assertion.
 	 */
-	public const FROM_FOSTER = 1 << 9;
+	public const FROM_FOSTER = 1 << 10;
 
 	/**
 	 * Used to indicate that media dimensions have redundant units.
 	 */
-	public const BOGUS_PX = 1 << 10;
+	public const BOGUS_PX = 1 << 11;
 
 	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used

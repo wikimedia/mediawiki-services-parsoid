@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -65,9 +66,9 @@ class TableFixups {
 			DOMCompat::nodeName( $nextNode ) === 'td' &&
 			!WTUtils::isLiteralHTMLNode( $nextNode ) &&
 			DiffDOMUtils::nodeEssentiallyEmpty( $node ) && (
-				// FIXME: will not be set for nested templates
+				// Since typeof will not be set for nested template,
+				// use a hacky work-around for nested templates.
 				DOMUtils::hasTypeOf( $nextNode, 'mw:Transclusion' ) ||
-				// Hacky work-around for nested templates
 				preg_match( '/^{{.*?}}$/D', DOMDataUtils::getDataParsoid( $nextNode )->src ?? '' )
 			)
 		) {
@@ -117,13 +118,9 @@ class TableFixups {
 	/**
 	 * Hoist transclusion information from cell content / attributes
 	 * onto the cell itself.
-	 *
-	 * @param Frame $frame
-	 * @param Element[] $transclusions
-	 * @param Element $td
 	 */
 	private function hoistTransclusionInfo(
-		Frame $frame, array $transclusions, Element $td
+		Frame $frame, array $transclusions, Element $td, DTState $dtState
 	): void {
 		// Initialize dsr for $td
 		// In `handleTableCellTemplates`, we're creating a cell w/o dsr info.
@@ -225,6 +222,17 @@ class TableFixups {
 			} else {
 				$child = $child->nextSibling;
 			}
+		}
+
+		// $dtState->tplInfo can be null when information is hoisted
+		// from children to $td because DOMTraverser hasn't seen the
+		// children yet!
+		if ( !$dtState->tplInfo ) {
+			$dtState->tplInfo = (object)[
+				'first' => $td,
+				'last' => $td,
+				'clear' => false
+			];
 		}
 	}
 
@@ -343,12 +351,10 @@ class TableFixups {
 	 * - There is only a single transclusion in the table cell content. This
 	 *   limitation can be lifted with more advanced data-mw construction.
 	 *
-	 * @param Frame $frame
-	 * @param Element $cell known to be <td> / <th>
-	 * @param ?Element $templateWrapper
+	 * $cell known to be <td> / <th>
 	 */
 	public function reparseTemplatedAttributes(
-		Frame $frame, Element $cell, ?Element $templateWrapper
+		Frame $frame, Element $cell, ?Element $templateWrapper, DTSTate $dtState
 	): void {
 		$env = $frame->getEnv();
 		// Collect attribute content and examine it
@@ -364,7 +370,7 @@ class TableFixups {
 		 * Till we figure out a reliable test for this, we'll reparse attributes always.
 		 *
 		 * // This DOM pass is trying to bridge broken parses across
-		 * // template boundaries. so, if templates aren't involved,
+		 * // template boundaries. So, if templates aren't involved,
 		 * // no reason to reparse.
 		 * if ( count( $attributishContent['transclusions'] ) === 0 &&
 		 * 	!WTUtils::fromEncapsulatedContent( $cell )
@@ -412,13 +418,16 @@ class TableFixups {
 		// Sanitize attrs and transfer them to the td node
 		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $cell, $attrs );
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
+		// Reparsed cells start off as non-mergeable-table cells
+		// and preserve that property after reparsing
+		$cellDp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
 		$cellDp->setTempFlag( TempData::NO_ATTRS, false );
 
 		// If the transclusion node was embedded within the td node,
 		// lift up the about group to the td node.
 		$transclusions = $attributishContent['transclusions'];
 		if ( $transclusions && ( $cell !== $transclusions[0] || count( $transclusions ) > 1 ) ) {
-			$this->hoistTransclusionInfo( $frame, $transclusions, $cell );
+			$this->hoistTransclusionInfo( $frame, $transclusions, $cell, $dtState );
 		}
 
 		// Drop content that has been consumed by the reparsed attribute content.
@@ -450,26 +459,16 @@ class TableFixups {
 	 *   - $cell's attribute is dropped
 	 *   - $prev's content is dropped
 	 *
+	 * FIXME: There are a number of other merge possibilities that end up
+	 * in this function that aren't accounted for yet! Couple of them are
+	 * in the unsupported scenario 1/2 buckets below.
+	 *
 	 * @param Frame $frame
 	 * @param Element $cell
 	 * @return bool
 	 */
-	private function combineWithPreviousCell( Frame $frame, Element $cell ): bool {
+	private function combineAttrsWithPreviousCell( Frame $frame, Element $cell ): bool {
 		// UNSUPPORTED SCENARIO 1:
-		// While in the general case, we should look for combinability no matter
-		// whether $cell has attributes or not,  we are currently restricting
-		// our support to use cases where $cell doesn't have attributes since that
-		// is the common scenario and use case for this kind of markup.
-		//
-		//     Ex: |class="foo"{{1x|1={{!}}title="x"{{!}}foo}}
-		//         should parse as <td class="foo">title="x"|foo</td>
-		$cellIsTd = DOMCompat::nodeName( $cell ) === 'td';
-		$cellDp = DOMDataUtils::getDataParsoid( $cell );
-		if ( $cellIsTd && !$cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
-			return false;
-		}
-
-		// UNSUPPORTED SCENARIO 2:
 		// In this cell-combining scenario, $prev can have attributes only if it
 		// also had content. See example below:
 		//     Ex: |class="foo"|bar{{1x|1={{!}}foo}}
@@ -477,7 +476,7 @@ class TableFixups {
 		// In this case, the attributes/content of $cell would end up as the
 		// content of the combined cell.
 		//
-		// UNSUPPORTED SCENARIO 3:
+		// UNSUPPORTED SCENARIO 2:
 		// The template produced attributes as well as maybe a new cell.
 		//     Ex: |class="foo"{{1x| foo}} and |class="foo"{{1x|&nbsp;foo}}
 		// We let the more general 'reparseTemplatedAttributes' code handle
@@ -489,9 +488,8 @@ class TableFixups {
 		// Build the attribute string
 		$prevCellSrc = PHPUtils::safeSubstr(
 			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length() );
-
-		$cellAttrSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth );
-		$reparseSrc = $cellAttrSrc . "|"; // "|" or "!", but doesn't matter since we discard that anyway
+		// "|" or "!", but doesn't matter since we discard that anyway
+		$reparseSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth ) . "|";
 
 		// Reparse the attributish prefix
 		$env = $frame->getEnv();
@@ -503,9 +501,8 @@ class TableFixups {
 		}
 
 		// Update data-mw, DSR if $cell is an encapsulation wrapper
-		$dataMW = null;
-		$cellIsTplWrapper = WTUtils::isFirstEncapsulationWrapperNode( $cell );
-		if ( $cellIsTplWrapper ) {
+		$cellDp = DOMDataUtils::getDataParsoid( $cell );
+		if ( DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ) {
 			$dataMW = DOMDataUtils::getDataMw( $cell );
 			array_unshift( $dataMW->parts, $prevCellSrc );
 			$cellDSR = $cellDp->dsr ?? null;
@@ -543,6 +540,8 @@ class TableFixups {
 		// returns an array consisting of [table_attributes, spaces, pipe]
 		$attrs = $attributeTokens[0];
 		Sanitizer::applySanitizedArgs( $env->getSiteConfig(), $combinedCell, $attrs );
+		// Combined cells don't merge further
+		$combinedCellDp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
 		$combinedCellDp->setTempFlag( TempData::NO_ATTRS, false );
 
 		return true;
@@ -553,32 +552,32 @@ class TableFixups {
 	private const OTHER_REPARSE = 2;
 
 	/**
-	 * @param Element $cell $cell is known to be <td>/<th>
-	 * @return int
+	 * $cell is known to be <td>/<th>
 	 */
-	private function getReparseType( Element $cell ): int {
-		$prev = $cell->previousSibling;
+	private function getReparseType( Element $cell, DTState $dtState ): int {
+		$inTplContent = $dtState->tplInfo !== null;
 		$dp = DOMDataUtils::getDataParsoid( $cell );
-		if ( WTUtils::fromEncapsulatedContent( $cell ) && // See long comment below
+		if ( !$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
 			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
-			!isset( $dp->stx ) // has to be first cell of the row
+			// This is a good proxy for what we need: "Is $cell a template wrapper?".
+			// That info won't be available for nested templates unless we want
+			// to use the more expensive hacky check as used in "stripDoubleTDs"
+			// above. "inTplContent" is sufficient because we won't have mergeable
+			// cells for wikitext that doesn't get any part of its content from
+			// templates because NON_MERGEABLE_TABLE_CELL prevents such merges.
+			$inTplContent
 		) {
-			// Parsoid parses content of templates independent of top-level content.
-			// But, this breaks legacy-parser-supported use-cases where template
-			// content combines with top-level content to yield a table cell whose
-			// source straddles the template boundary.
-			//
-			// In Parsoid, we handle this by looking for opportunities where
-			// table cells could combine. This obviously requires $cell to be
-			// a templated cell. But, we don't support combining templated cells
-			// with other templated cells.  So, previous sibling cannot be templated.
+			// Look for opportunities where table cells could combine. This requires
+			// $cell to be a templated cell. But, we don't support combining
+			// templated cells with other templated cells. So, previous sibling
+			// cannot be templated.
 			//
 			// So, bail out of scenarios where prevDp comes from a template (the checks
 			// for isValidDSR( $prevDp-> dsr ) and valid opening tag width catch this.
+			$prev = $cell->previousSibling;
 			$prevDp = $prev instanceof Element ? DOMDataUtils::getDataParsoid( $prev ) : null;
 			if ( $prevDp &&
 				!WTUtils::hasLiteralHTMLMarker( $prevDp ) &&
-				$prevDp->getTempFlag( TempData::NO_ATTRS ) &&
 				Utils::isValidDSR( $prevDp->dsr ?? null, true ) &&
 				!DOMUtils::hasTypeOf( $prev, 'mw:Transclusion' ) &&
 				!str_contains( DOMCompat::getInnerHTML( $prev ), "\n" )
@@ -591,29 +590,42 @@ class TableFixups {
 		$testRE = $cellIsTd ? '/[|]/' : '/[!|]/';
 		$child = $cell->firstChild;
 		while ( $child ) {
-			if ( $child instanceof Text && preg_match( $testRE, $child->textContent ) ) {
+			if ( !$inTplContent && DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
+				$inTplContent = true;
+			}
+
+			if ( $inTplContent &&
+				$child instanceof Text &&
+				preg_match( $testRE, $child->textContent )
+			) {
 				return self::OTHER_REPARSE;
 			}
 
-			if ( WTUtils::isFirstExtensionWrapperNode( $child ) ) {
-				// "|" chars in extension content don't trigger table-cell parsing
-				// since they have higher precedence in tokenization
-				$child = WTUtils::skipOverEncapsulatedContent( $child );
-			} else {
-				if ( $child instanceof Element ) {
+			if ( $child instanceof Element ) {
+				if ( WTUtils::isFirstExtensionWrapperNode( $child ) ) {
+					// "|" chars in extension/language variant content don't trigger
+					// table-cell parsing since they have higher precedence in tokenization
+					$child = WTUtils::skipOverEncapsulatedContent( $child );
+				} else {
 					if ( DOMUtils::hasRel( $child, 'mw:WikiLink' ) ||
 						WTUtils::isGeneratedFigure( $child )
 					) {
 						// Wikilinks/images abort attribute parsing
 						return self::NO_REPARSING;
 					}
-					if ( preg_match( $testRE, DOMCompat::getOuterHTML( $child ) ) ) {
+					// FIXME: Ugly for now
+					$outerHTML = DOMCompat::getOuterHTML( $child );
+					if ( preg_match( $testRE, $outerHTML ) &&
+						( $inTplContent || preg_match( '/"mw:Transclusion"/', $outerHTML ) )
+					) {
 						// A "|" char in the HTML will trigger table cell tokenization.
 						// Ex: "| foobar <div> x | y </div>" will split the <div>
 						// in table-cell tokenization context.
 						return self::OTHER_REPARSE;
 					}
+					$child = $child->nextSibling;
 				}
+			} else {
 				$child = $child->nextSibling;
 			}
 		}
@@ -622,11 +634,34 @@ class TableFixups {
 	}
 
 	/**
+	 * In a wikitext-syntax-table-parsing context, the meaning of
+	 * "|", "||", "!", "!!" is context-sensitive.  Additionally, the
+	 * complete syntactical construct for a table cell (including leading
+	 * pipes, attributes, and content-separating pipe char) might straddle
+	 * a template boundary - with some content coming from the top-level and
+	 * some from a template.
+	 *
+	 * This impacts parsing of tables when some cells are templated since
+	 * Parsoid parses template content independent of top-level content
+	 * (without any preceding context). This means that Parsoid's table-cell
+	 * parsing in templated contexts might be incorrect
+	 *
+	 * To deal with this, Parsoid implements this table-fixups pass that
+	 * has to deal with cell-merging and cell-reparsing scenarios.
+	 *
+	 * HTML-syntax cells and non-templated cells without any templated content
+	 * are not subject to this transformation and can be skipped right away.
+	 *
+	 * FIXME: This pass can benefit from a customized procsssor rather than
+	 * piggyback on top of DOMTraverser since the DOM can be significantly
+	 * mutated in these handlers.
+	 *
 	 * @param Element $cell $cell is known to be <td>/<th>
 	 * @param Frame $frame
+	 * @param DTState $dtState
 	 * @return mixed
 	 */
-	public function handleTableCellTemplates( Element $cell, Frame $frame ) {
+	public function handleTableCellTemplates( Element $cell, Frame $frame, DTState $dtState ) {
 		if ( WTUtils::isLiteralHTMLNode( $cell ) ) {
 			return true;
 		}
@@ -651,28 +686,28 @@ class TableFixups {
 			}
 		}
 
-		$reparseType = $this->getReparseType( $cell );
+		$reparseType = $this->getReparseType( $cell, $dtState );
 		if ( $reparseType === self::NO_REPARSING ) {
 			return true;
 		}
 
+		$cellDp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $reparseType === self::COMBINE_WITH_PREV_CELL ) {
-			if ( $this->combineWithPreviousCell( $frame, $cell ) ) {
+			if ( $this->combineAttrsWithPreviousCell( $frame, $cell ) ) {
 				return true;
 			} else {
 				// Clear property and retry $cell for other reparses
 				// The DOMTraverser will resume the handler on the
 				// returned $cell.
-				DOMDataUtils::getDataParsoid( $cell )->setTempFlag( TempData::FAILED_REPARSE );
+				$cellDp->setTempFlag( TempData::FAILED_REPARSE );
 				return $cell;
 			}
 		}
 
 		// If the cell didn't have attrs, extract and reparse templated attrs
-		$dp = DOMDataUtils::getDataParsoid( $cell );
-		if ( $dp->getTempFlag( TempData::NO_ATTRS ) ) {
+		if ( $cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
 			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
-			$this->reparseTemplatedAttributes( $frame, $cell, $templateWrapper );
+			$this->reparseTemplatedAttributes( $frame, $cell, $templateWrapper, $dtState );
 		}
 
 		// Now, examine the <td> to see if it hides additional <td>s
@@ -728,7 +763,7 @@ class TableFixups {
 						'@phan-var Element $child';
 						// Fix up transclusion wrapping
 						$about = DOMCompat::getAttribute( $child, 'about' );
-						$this->hoistTransclusionInfo( $frame, [ $child ], $cell );
+						$this->hoistTransclusionInfo( $frame, [ $child ], $cell, $dtState );
 					} else {
 						// Refetch the about attribute since 'reparseTemplatedAttributes'
 						// might have added one to it.
@@ -740,17 +775,21 @@ class TableFixups {
 					// of the outermost wrapper.
 					if ( $about !== null ) {
 						$newCell->setAttribute( 'about', $about );
+						if ( $dtState->tplInfo && $dtState->tplInfo->last === $cell ) {
+							$dtState->tplInfo->last = $newCell;
+						}
 					}
 					$newCell->appendChild( $ownerDoc->createTextNode( $match[2] ?? '' ) );
 					$cell->parentNode->insertBefore( $newCell, $cell->nextSibling );
 
 					// Set data-parsoid noAttrs flag
-					$newCellDP = DOMDataUtils::getDataParsoid( $newCell );
-					$newCellDP->setTempFlag( TempData::NO_ATTRS );
+					$newCellDp = DOMDataUtils::getDataParsoid( $newCell );
 					// This new cell has 'row' stx (would be set if the tokenizer had parsed it)
+					$newCellDp->stx = 'row';
+					$newCellDp->setTempFlag( TempData::NO_ATTRS );
 					// It is important to set this so that when $newCell is processed by this pass,
 					// it won't accidentally recombine again with the previous cell!
-					$newCellDP->stx = 'row';
+					$newCellDp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
 				}
 			}
 
