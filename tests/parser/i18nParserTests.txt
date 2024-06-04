@@ -14,7 +14,7 @@ i18next=1
 !! wikitext
 <i18ntag>message.key</i18ntag>
 !! html/parsoid
-<p><span typeof="mw:Extension/i18ntag" about="#mwt3" data-mw='{"name":"i18ntag","attrs":{},"body":{"extsrc":"message.key"}}' data-mw-i18n='{"/":{"lang":"x-page","key":"message.key","params":null}}'>message.key</span></p>
+<p><span typeof="mw:I18n mw:Extension/i18ntag" about="#mwt2" data-mw='{"name":"i18ntag","attrs":{},"body":{"extsrc":"message.key"}}' data-mw-i18n='{"/":{"lang":"x-page","key":"message.key","params":null}}'></span></p>
 !! end
 
 !! test

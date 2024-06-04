@@ -35,7 +35,6 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddMediaInfo;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ComputeDSR;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
-use Wikimedia\Parsoid\Wt2Html\DOM\Processors\I18n;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\LangConverter;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MarkFosteredContent;
@@ -547,16 +546,6 @@ class DOMPostProcessor extends PipelineStage {
 				'shortcut' => 'convertoffsets',
 				'skipNested' => true,
 				// FIXME: T214994: Have to process HTML in embedded attributes?
-			],
-			[
-				'Processor' => I18n::class,
-				'shortcut' => 'i18n',
-				// FIXME(T214994): This should probably be `true`, since we
-				// want this to be another html2html type pass, but then our
-				// processor would need to handle nested content.  Redlinks,
-				// displayspace, and others are ignoring that for now though,
-				// so let's wait until there's a more general mechanism.
-				'skipNested' => false,
 			],
 			[
 				'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
