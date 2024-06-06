@@ -1880,7 +1880,9 @@ private function a168($lvtext) {
 }
 private function a169($arg, $tagEndPos, &$th, $d) {
 
-			if ( $th !== false && strpos( $this->text(), "\n" ) !== false ) {
+			// Ignore newlines found in transclusions!
+			// This is not perfect (since {{..}} may not always tokenize to transclusions).
+			if ( $th !== false && strpos( preg_replace( "/{{[\s\S]+?}}/", "", $this->text() ), "\n" ) !== false ) {
 				// There's been a newline. Remove the break and continue
 				// tokenizing nested_block_in_tables.
 				$th = false;
