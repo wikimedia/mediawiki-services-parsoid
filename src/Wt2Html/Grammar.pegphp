@@ -1050,11 +1050,11 @@ template_preproc =
 		r:(
 			p0:("" { return $this->endOffset(); })
 			v:nl_comment_space*
-			p:("" { return $this->endOffset(); })
+			p1:("" { return $this->endOffset(); })
 			&("|" / "}}")
 			{
 				// empty argument
-				$tsr0 = new SourceRange( $p0, $p );
+				$tsr0 = new SourceRange( $p0, $p1 );
 				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
 			}
 			/ template_param
@@ -1730,7 +1730,7 @@ generic_newline_attribute =
 	space_or_newline_or_solidus*
 	namePos0:("" { return $this->endOffset(); })
 	name:generic_attribute_name
-	namePos:("" { return $this->endOffset(); })
+	namePos1:("" { return $this->endOffset(); })
 	vd:(space_or_newline* "=" v:generic_att_value? { return $v; })?
 {
 	// NB: Keep in sync w/ table_attibute
@@ -1739,7 +1739,7 @@ generic_newline_attribute =
 	if ( is_string( $name ) ) {
 		$name = TokenizerUtils::protectAttrs( $name );
 	}
-	$nameSO = new SourceRange( $namePos0, $namePos );
+	$nameSO = new SourceRange( $namePos0, $namePos1 );
 	if ( $vd !== null ) {
 		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
 		$res->vsrc = $vd['srcOffsets']->substr( $this->input );
@@ -1757,7 +1757,7 @@ table_attribute =
 	s:optionalSpaceToken
 	namePos0:("" { return $this->endOffset(); })
 	name:table_attribute_name
-	namePos:("" { return $this->endOffset(); })
+	namePos1:("" { return $this->endOffset(); })
 	vd:(optionalSpaceToken "=" v:table_att_value? { return $v; })?
 {
 	// NB: Keep in sync w/ generic_newline_attribute
@@ -1766,7 +1766,7 @@ table_attribute =
 	if ( gettype( $name ) === 'string' ) {
 		$name = TokenizerUtils::protectAttrs( $name );
 	}
-	$nameSO = new SourceRange( $namePos0, $namePos );
+	$nameSO = new SourceRange( $namePos0, $namePos1 );
 	if ( $vd !== null ) {
 		$res = new KV( $name, $vd['value'], $nameSO->join( $vd['srcOffsets'] ) );
 		$res->vsrc = $vd['srcOffsets']->substr( $this->input );
@@ -2140,7 +2140,6 @@ table_data_tags =
 	! <tableDataBlock>
 	p:pipe
 	![+-] td:table_data_tag
-	tagEndPos:("" { return $this->endOffset(); })
 	tds:tds {
 		// Avoid modifying a cached result
 		$td[0] = clone $td[0];
