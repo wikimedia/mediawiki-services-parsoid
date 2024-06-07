@@ -2,8 +2,59 @@
     "Basic section headings": {
         "html2wt": "== Headline 1 ==\nSome text\n\n== Headline 2 ==\nMore\n\n=== Smaller headline ===\nBlah blah\n"
     },
+    "Decoding of HTML entities in headings and links for IDs and link fragments (T103714)": {
+        "html2wt": "== A&B&amp;C&amp;amp;D&amp;amp;amp;E ==\n[[#A&B&amp;C&amp;amp;D&amp;amp;amp;E]]",
+        "selser [0,[4,4,1]]": "yj16gg\n\niboewz\n\n[[#A&B&C&amp;amp;D&amp;amp;amp;E]]"
+    },
     "Disable TOC": {
         "html2wt": "Lead\n\n== Section 1 ==\n\n== Section 2 ==\n\n== Section 3 ==\n\n== Section 4 ==\n\n== Section 5 ==\n"
+    },
+    "Extra newlines between heading and content are swallowed (Parsoid does not)": {
+        "html2wt": "= b =\n\n\n\n[[a]]",
+        "selser [[4],4,0,0,[4]]": "=1i3fc42=\nd9ugny\n\n\n\n\n1xo9nnv",
+        "selser [0,4,2,0,4]": "=b=\ny19t80\n\ngwhbjp\n\n\n\n\nbpvndi"
+    },
+    "Extra newlines followed by heading": {
+        "html2wt": "a\n\n\n= b =\n[[a]]\n\n\n= b =\n",
+        "selser [3,0,2,4,3,4,2,4,[3,0],4,2]": "\n1rpdmjs\n\n\n\n\n1m8rnx6\n\n9mvzu6\n\n1a14yhf\n\n[[a]]\n\n1eenxni\n\n\n\njglaet\n\nqawuyd\n\n=b=",
+        "selser [1,4,0,2,4,0,[2],4,2,3,1]": "a\n\n1t6hdnx\n\n\n\n\n1hp7xsj\n\n1s383e6\n\nk9foao[[a]]\n\n13k97kb\n\n10rwuas\n\n\n\n=b=",
+        "selser [0,0,2,2,4,0,0,0,3,4,3]": "a\n\n162aqj0\n\n\n\n\n8opsh0\n\n1dg1v4k\n\n[[a]]\n\n7aatlq",
+        "selser [[3],3,[0,4],2,1,0,0,2,2,2,2]": "\n\n19aalue\n\n7lmeoa\n\n=b=\n[[a]]\n\n13jd4mc\n\n1cjjif4\n\n\n\n\nrht02p\n\ni6thar\n\n=b=",
+        "selser [4,0,2,0,3,0,4,0,2,2,0]": "15t07xh\n\n5mv9u3\n\n\n\n\nwwvxq4\n\nui3jyl\n\n\n\n\nmnk4f9\n\n=b=",
+        "selser [3,2,[0,4],0,0,0,[[3]],2,[3,1],0,[4]]": "432yfg\n\ntaus95\n=b=\n\n1fe4zaf\n\n\n=1oq0otf=",
+        "selser [0,0,[4,0],2,0,2,2,3,1,0,0]": "a\n\na6i42p\n\n1g2k5xv\n\n=b=\n1vtsv4i\ngbp8og\n\n[[a]]\n\n\n\n=b=",
+        "selser [[4],2,2,4,[3],3,1,4,[2,0],3,2]": "1qdwb9h\n\nef0pma\n\nnjcyxe\n\n\n\n\n1euiueh\n\n[[a]]\n\nyp9y4c\n\n12b9d8p\n\n1uww3v3\n\n=b=",
+        "selser [[4],4,2,2,3,4,[[3]],0,3,3,[2]]": "1w6534l\n\n1glz29i\n\nxgcblb\n\n\n\n\n1974kg2\n\n6nxnd9\n\n=1ello1hb=",
+        "selser [4,4,[0,3],3,[2],0,0,3,2,0,1]": "mqc6nz\n\n2twhbl\n\n=hpy3j1b=\n[[a]]\n\n1306oay\n\n\n\n=b=",
+        "selser [2,0,2,0,0,0,[[4]],2,[0,3],0,2]": "5xb0cx\n\na\n\n16w5pym\n\n\n\n=b=\n[[a|4dgjf5]]\n\n14ho0f4\n\newgvov\n\n=b=",
+        "selser [2,3,0,2,2,0,[4],3,[4,2],0,4]": "1iz7fb0\n\na\n\n\n\n\n1ahq5a3\n\n5xzrgl\n\n=b=\nx1sld1\n\nm9s4m61y6feyb\n1qtkc1e"
+    },
+    "Fuzz testing: Parser14": {
+        "html2wt": "== onmouseover= ==\nhttp://__TOC__"
+    },
+    "HHP2.1: Heuristics for headings in preprocessor parenthetical structures": {
+        "wt2wt": "<nowiki>{{foo|</nowiki>\n=heading=\n",
+        "html2wt": "<nowiki>{{foo|</nowiki>\n\n= heading =\n",
+        "selser [0,2,4]": "{{foo|\n\nyqaqb9\n\n1ryqcax",
+        "selser [0,4,2]": "{{foo|\n\n1a212y6\n\n1de13a0\n\n=heading=",
+        "selser [0,4,[4]]": "{{foo|\n\n1qthvsg\n\n=mdqo1r="
+    },
+    "HHP2.2: Heuristics for headings in preprocessor parenthetical structures": {
+        "wt2wt": "<nowiki>{{foo|</nowiki>\n==heading==\n",
+        "html2wt": "<nowiki>{{foo|</nowiki>\n\n== heading ==\n",
+        "selser [0,4,3]": "{{foo|\n\nn8rcbi",
+        "selser [0,4,2]": "{{foo|\n\nfm10z3\n\n168s7yg\n\n==heading==",
+        "selser [2,4,2]": "1ey5z59\n\n{{foo|\n\n2cij1f\n\nsbot99\n\n==heading==",
+        "selser [0,3,[4]]": "{{foo|\n==10wxo3x==",
+        "selser [0,0,3]": "{{foo|\n",
+        "selser [0,0,[4]]": "{{foo|\n==54w4zy=="
+    },
+    "HTML5 ids: fallback to legacy": {
+        "html2wt": "== Foo bar ==\n\n== foo Bar ==\n\n== Тест ==\n\n== Тест ==\n\n== тест ==\n\n== Hey < # \" > % : ' ==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n<!-- These two links should produce identical HTML -->\n[[#啤酒]] [[#%E5%95%A4%E9%85%92]]",
+        "selser [3,3,[3],0,[0,3],0,0,0,0,0,[3,0,0,4,0,0],3,1,0,0,0,2,0,[0,2,0],3]": "\n==Тест==\n\n==тест==\n\n==Hey < # \" > uil09e : '==\n[[#Foo bar]] [[#foo Bar]] [[#Тест]] [[#тест]] [[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\nu46tm4<!-- These two links should produce identical HTML -->\n\n[[#啤酒]]<nowiki/>norrr7 [[#啤酒]]\n",
+        "selser [3,0,4,0,4,0,2,0,1,0,[4,0,0,0,0,4],0,[1,0,0,0,4,3,[4],2,4],3,[0,0,2],4,4,4,1,4]": "\n6ze4fn\n\n1avxyec\n\n1ugscuw\n\n==Тест==\n\n==тест==\n\n==ltvbujHey < # \" > % kgadth==\n[[#Foo bar]] [[#foo Bar]] 12tkxz4[[#тест|b8lrok]]1sumsj6 19b22wg\n\n{{anchorencode:💩}} 8d035y<span id=\"{{anchorencode:💩}}\"></span>\n\n19zalhk\n\n1krv6y1\n\n1ci48d0\n\n[[#啤酒]] [[#啤酒]]\n\n10zmeyy",
+        "selser [[4],4,1,0,4,0,2,0,0,4,1,3,[2,0,2,2,[3],0,[4],3,1],0,2,0,2,4,1,2]": "==1f3lkrb==\n11qe63s\n\n==foo Bar==\n\no18c3z\n\n1tsat6f\n\n==Тест==\n\n==тест==\nbu4nlz\n\n==Hey < # \" > % : '==\nolz8dh[[#Foo bar]] 16wig31[[#foo Bar]]<nowiki/>szv1s8  [[#тест|aaxfmm]][[#Hey < # \" > % : ']]\n\ney7857\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\nfia5ft<!-- These two links should produce identical HTML -->\n\nxi6m6u\n\n[[#啤酒]] [[#啤酒]]\n\nqul42e\n",
+        "selser [0,2,3,2,1,0,[3,0],4,4,2,[0,4,0,2,0,3],0,[0,0,4,3,1,0,2,3,1],3,1,4,0,2,1,3]": "==Foo bar==\n1dpzxys\n\n7py4pu\n\n==Тест==\n\n==Тест==\nms2xu2\n\n1u6nw1d\n\nlh4rn3\n\n==twumu8 6ssrq0% ==\n[[#Foo bar]] t2u696[[#Тест]] a8f0yu[[#тест]][[#Hey < # \" > % : ']]\n\n{{anchorencode:💩}} <span id=\"{{anchorencode:💩}}\"></span>\n\n31pwt4<!-- These two links should produce identical HTML -->\n\nz0rdg6\n\n[[#啤酒]] [[#啤酒]]\n"
     },
     "Header with space, plus and underscore as entity": {
         "html2wt": "Id should not contain + for spaces\n\n== Space between Text ==\nsection 1\n\n== Space-Entity&#32;between&#32;Text ==\nsection 2\n\n== Plus+between+Text ==\nsection 3\n\n== Plus-Entity&#43;between&#43;Text ==\nsection 4\n\n== Underscore_between_Text ==\nsection 5\n\n== Underscore-Entity&#95;between&#95;Text ==\nsection 6\n\n[[#Space between Text]]\n[[#Space-Entity&#32;between&#32;Text]]\n[[#Plus+between+Text]]\n[[#Plus-Entity&#43;between&#43;Text]]\n[[#Underscore_between_Text]]\n[[#Underscore-Entity&#95;between&#95;Text]]",
@@ -23,8 +74,14 @@
         "selser [3,2,3,0,4,0,3,3,1,4,1,0,4,4,[0,3],0,[4],3,[3,0],0,0]": "17gdt2k\n\n1jltxmn\n\nsection 2\n\nn2b5xt\n\n==text & text==\n1p9a9an\n\n1yupftd\n\n1jbpp2d\n\n==text \" text==\nsection 5",
         "selser [[2],3,2,2,[4],2,4,4,3,0,4,0,[4],3,[1,0],2,[3],0,2,0,[3]]": "j43btgThe tooltips shall not show entities to the user (ie. be double escaped)\n\n5rn6g9\n\n==text > text==\no18ilq\nnj8372\n\ni9mcmd\n\n1gs3sns\n\n14wknp6\n\nzrrrb2\n\nw7iboh\n\n==text ' text==\n1qpdiyh\n\n\nypbypv\n\n==text \" text==\n"
     },
+    "Inclusion of !userCanEdit() content": {
+        "html2wt": "== header ==\n"
+    },
     "Link inside a section heading": {
         "html2wt": "== Section with a [[Main Page|link]] in it ==\n"
+    },
+    "Morwen/13: Unclosed link followed by heading": {
+        "html2wt": "[[link\n\n== heading ==\n"
     },
     "Resolving duplicate section names": {
         "html2wt": "== Foo bar ==\n\n== Foo bar ==\n"
@@ -167,12 +224,26 @@
         "selser [0,[0,2,0]]": "== One ==\nru8a5j\n__TOC__",
         "selser [0,[0,0,4]]": "== One ==\n1sy42xn"
     },
+    "T8563: Edit link generation for section shown by <includeonly>": {
+        "html2wt": "== Includeonly section ==\n\n== Section T-1 ==\n"
+    },
+    "T8563: Edit link generation for section suppressed by <includeonly>": {
+        "html2wt": "== Section 1 ==\n"
+    },
+    "T90902: Normalize weird characters in section IDs": {
+        "html2wt": "== Foo&nbsp;bar ==\n[[#Foo&nbsp;bar]]",
+        "selser [3,4,[1],4]": "fju4o3\n\n[[#Foo bar]]\n\njhxqub",
+        "selser [3,2,1,0]": "9arxg8\n\n[[#Foo bar]]\n"
+    },
     "__FORCETOC__ override": {
         "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/newsectionlink\" data-parsoid='{\"src\":\"__NEWSECTIONLINK__\",\"magicSrc\":\"__NEWSECTIONLINK__\",\"dsr\":[0,18,null,null]}'/>\n<meta property=\"mw:PageProp/forcetoc\" data-parsoid='{\"src\":\"__FORCETOC__\",\"magicSrc\":\"__FORCETOC__\",\"dsr\":[19,31,null,null]}'/>\n</section>",
         "metadata": "flags="
     },
     "__NOEDITSECTION__ keyword": {
         "html2wt": "== Section 1 ==\n\n== Section 2 ==\n"
+    },
+    "nowiki inside link inside heading (T20295)": {
+        "html2wt": "== [[Foo|xyz]] ==\n"
     },
     "span tags with directionality in TOC": {
         "html2wt": "__TOC__\n==<span dir=\"ltr\">C++</span>==\n\n== <span dir=\"rtl\">זבנג!</span> ==\n\n== <span style=\"font-style: italic\" dir=\"ltr\" title=\"hello\">Attributes other than dir</span> ==\n"

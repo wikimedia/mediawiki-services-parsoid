@@ -69,12 +69,6 @@
 	"Fuzz testing: Parser22": {
 		"wt2wt": "http://===r:::https://b\n\n{|\n|}"
 	},
-	"HHP2.1: Heuristics for headings in preprocessor parenthetical structures": {
-		"wt2wt": "<nowiki>{{foo|</nowiki>\n=heading=\n"
-	},
-	"HHP2.2: Heuristics for headings in preprocessor parenthetical structures": {
-		"wt2wt": "<nowiki>{{foo|</nowiki>\n==heading==\n"
-	},
 	"HTML multiple attributes correction": {
 		"wt2wt": "<p class=\"awesome\">Awesome!</p>"
 	},
