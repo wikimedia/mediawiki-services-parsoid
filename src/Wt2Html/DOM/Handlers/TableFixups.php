@@ -631,6 +631,26 @@ class TableFixups {
 			return true;
 		}
 
+		// Deal with <th> special case where "!! foo" is parsed as <th>! foo</th>
+		// but should have been parsed as <th>foo</th> when not the first child
+		if ( DOMCompat::nodeName( $cell ) === 'th' &&
+			DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) &&
+			// This is checking that previous sibling is not "\n" which would
+			// signal that this <th> is on a fresh line and the "!" shouldn't be stripped.
+			// If this weren't template output, we would check for "stx" === 'row'.
+			// FIXME: Note that ths check is fragile and doesn't work always, but this is
+			// the price we pay for Parsoid's independent template parsing!
+			$cell->previousSibling instanceof Element
+		) {
+			$fc = DiffDOMUtils::firstNonSepChild( $cell );
+			if ( $fc instanceof Text ) {
+				$leadingText = $fc->nodeValue;
+				if ( str_starts_with( $leadingText, "!" ) ) {
+					$fc->nodeValue = substr( $leadingText, 1 );
+				}
+			}
+		}
+
 		$reparseType = $this->getReparseType( $cell );
 		if ( $reparseType === self::NO_REPARSING ) {
 			return true;
