@@ -7,6 +7,7 @@ use Composer\Semver\Semver;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\PageBundle;
@@ -41,10 +42,25 @@ class DOMDataUtils {
 		return $doc->bag;
 	}
 
+	/**
+	 * Return the JsonCodec used for rich attributes in a Document.
+	 * @param Document $doc
+	 * @return JsonCodec
+	 */
+	private static function getCodec( Document $doc ): JsonCodec {
+		// This is a dynamic property; it is not declared.
+		// All references go through here so we can suppress phan's complaint.
+		// @phan-suppress-next-line PhanUndeclaredProperty
+		return $doc->codec;
+	}
+
 	public static function prepareDoc( Document $doc ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		$doc->bag = new DataBag();
+		// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		$doc->codec = new JsonCodec();
 
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
