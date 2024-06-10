@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
-use InvalidArgumentException;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 
@@ -63,11 +62,7 @@ class PHPUtils {
 	 * @return string
 	 */
 	public static function jsonEncode( $o ): string {
-		$str = json_encode( $o, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
-		if ( $str === false ) {
-			// Do this manually until JSON_THROW_ON_ERROR is available
-			throw new InvalidArgumentException( 'JSON encoding failed.' );
-		}
+		$str = json_encode( $o, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR );
 		$str = str_replace( self::BAD_CHARS, self::BAD_CHARS_ESCAPED, $str );
 		return $str;
 	}
