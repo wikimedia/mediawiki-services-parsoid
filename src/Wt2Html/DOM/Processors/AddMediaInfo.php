@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
+use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -399,15 +400,23 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	private static function makeErr(
 		string $key, string $message, ?array $params = null
-	): array {
+	): stdClass {
 		$e = [ 'key' => $key, 'message' => $message ];
 		// Additional error info for clients that could fix the error.
 		if ( $params !== null ) {
 			$e['params'] = $params;
 		}
-		return $e;
+		// T367141: this should be a real class type
+		return (object)$e;
 	}
 
+	/**
+	 * @param Element $container
+	 * @param Element $span
+	 * @param list<stdClass> $errs
+	 * @param DataMw $dataMw
+	 * @param ?string $alt
+	 */
 	private static function handleErrors(
 		Element $container, Element $span, array $errs, DataMw $dataMw,
 		?string $alt

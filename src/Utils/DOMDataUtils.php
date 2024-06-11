@@ -7,9 +7,9 @@ use Composer\Semver\Semver;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -20,9 +20,7 @@ use Wikimedia\Parsoid\NodeData\DataMwI18n;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\I18nInfo;
 use Wikimedia\Parsoid\NodeData\NodeData;
-use Wikimedia\Parsoid\NodeData\ParamInfo;
 use Wikimedia\Parsoid\NodeData\TempData;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 
 /**
  * These helpers pertain to HTML and data attributes of a node.
@@ -47,7 +45,7 @@ class DOMDataUtils {
 	 * @param Document $doc
 	 * @return JsonCodec
 	 */
-	private static function getCodec( Document $doc ): JsonCodec {
+	public static function getCodec( Document $doc ): JsonCodec {
 		// This is a dynamic property; it is not declared.
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
@@ -457,9 +455,11 @@ class DOMDataUtils {
 	public static function storeInPageBundle(
 		Element $node, Env $env, stdClass $data, array $idIndex
 	): void {
+		$hints = self::getCodecHints();
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$document = $node->ownerDocument;
 		$pb = self::getPageBundle( $document );
+		$codec = self::getCodec( $document );
 		$docDp = &$pb->parsoid;
 		$origId = $uid;
 		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
@@ -481,10 +481,26 @@ class DOMDataUtils {
 			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
 		}
-		$docDp['ids'][$uid] = $data->parsoid;
+		// Convert from DataParsoid/DataMw objects to associative array
+		$docDp['ids'][$uid] = $codec->toJsonArray( $data->parsoid, $hints['data-parsoid'] );
 		if ( isset( $data->mw ) ) {
-			$pb->mw['ids'][$uid] = $data->mw;
+			$pb->mw['ids'][$uid] = $codec->toJsonArray( $data->mw, $hints['data-mw'] );
 		}
+	}
+
+	/**
+	 * Helper function to create static Hint objects for JsonCodec.
+	 * @return array<Hint>
+	 */
+	public static function getCodecHints(): array {
+		static $hints = null;
+		if ( $hints === null ) {
+			$hints = [
+				'data-parsoid' => Hint::build( DataParsoid::class, Hint::ALLOW_OBJECT ),
+				'data-mw' => Hint::build( DataMw::class, Hint::ALLOW_OBJECT ),
+			];
+		}
+		return $hints;
 	}
 
 	/**
@@ -526,81 +542,6 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Massage the data parsoid object loaded from a node attribute
-	 * into expected shape.
-	 *
-	 * @param stdClass $stdDP
-	 * @param array $options
-	 * @param ?Element $node
-	 * @return DataParsoid
-	 */
-	private static function massageLoadedDataParsoid(
-		stdClass $stdDP, array $options = [], ?Element $node = null
-	): DataParsoid {
-		$dp = new DataParsoid;
-		foreach ( $stdDP as $key => $value ) {
-			switch ( $key ) {
-				case 'a':
-				case 'sa':
-					$dp->$key = (array)$value;
-					break;
-
-				case 'dsr':
-				case 'extTagOffsets':
-					if ( $value !== null ) {
-						$dp->$key = DomSourceRange::fromArray( $value );
-					}
-					break;
-
-				case 'tsr':
-				case 'extLinkContentOffsets':
-					if ( $value !== null ) {
-						$dp->$key = SourceRange::fromArray( $value );
-					}
-					break;
-
-				case 'optList':
-					$optList = [];
-					foreach ( $value as $item ) {
-						$optList[] = (array)$item;
-					}
-					$dp->optList = $optList;
-					break;
-
-				case 'pi':
-					$pi = [];
-					foreach ( $value as $item ) {
-						$pi2 = [];
-						foreach ( $item as $item2 ) {
-							$pi2[] = ParamInfo::newFromJson( $item2 );
-						}
-						$pi[] = $pi2;
-					}
-					$dp->pi = $pi;
-					break;
-
-				case 'tmp':
-					// $tmp in DataParsoid.php is lazy-initialized and can be empty
-					if ( $value ) {
-						$tmp = new TempData;
-						foreach ( $value as $key2 => $value2 ) {
-							$tmp->$key2 = $value2;
-						}
-						$dp->tmp = $tmp;
-					}
-					break;
-
-				default:
-					$dp->$key = $value;
-			}
-		}
-		if ( !empty( $options['markNew'] ) ) {
-			$dp->setTempFlag( TempData::IS_NEW, !$node->hasAttribute( 'data-parsoid' ) );
-		}
-		return $dp;
-	}
-
-	/**
 	 * These are intended be used on a document after post-processing, so that
 	 * the underlying .dataobject is transparently applied (in the store case)
 	 * and reloaded (in the load case), rather than worrying about keeping
@@ -617,14 +558,23 @@ class DOMDataUtils {
 		}
 		// Reset the node data object's stored state, since we're reloading it
 		self::setNodeData( $node, new NodeData );
-		$dp = self::massageLoadedDataParsoid(
-			self::getJSONAttribute( $node, 'data-parsoid', new stdClass ),
-			$options, $node );
+		$codec = self::getCodec( $node->ownerDocument );
+		$dataParsoidAttr = DOMCompat::getAttribute( $node, 'data-parsoid' );
+		$dp = $codec->newFromJsonString(
+			$dataParsoidAttr ?? '{}', self::getCodecHints()['data-parsoid']
+		);
+		if ( !empty( $options['markNew'] ) ) {
+			$dp->setTempFlag( TempData::IS_NEW, $dataParsoidAttr === null );
+		}
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
-		$dmw = self::getJSONAttribute( $node, 'data-mw', null );
-		self::setDataMw( $node, $dmw !== null ? new DataMw( (array)$dmw ) : null );
+
+		$dataMwAttr = DOMCompat::getAttribute( $node, 'data-mw' );
+		$dmw = $dataMwAttr === null ? null :
+			$codec->newFromJsonString( $dataMwAttr, self::getCodecHints()['data-mw'] );
+		self::setDataMw( $node, $dmw );
 		$node->removeAttribute( 'data-mw' );
+
 		$dpd = self::getJSONAttribute( $node, 'data-parsoid-diff', null );
 		self::setDataParsoidDiff( $node, $dpd );
 		$node->removeAttribute( 'data-parsoid-diff' );
@@ -690,12 +640,14 @@ class DOMDataUtils {
 	 *   - idIndex: Array of used ID attributes
 	 */
 	public static function storeDataAttribs( Node $node, ?array $options = null ): void {
+		$hints = self::getCodecHints();
 		$options ??= [];
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
+		$codec = self::getCodec( $node->ownerDocument );
 		$dp = self::getDataParsoid( $node );
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( $dp->getTempFlag( TempData::IS_NEW ) ) {
@@ -721,9 +673,15 @@ class DOMDataUtils {
 			}
 
 			if ( !empty( $options['storeInPageBundle'] ) ) {
-				$data = (object)[ 'parsoid' => $dp ];
+				$data ??= new stdClass;
+				$data->parsoid = $dp;
 			} else {
-				self::setJSONAttribute( $node, 'data-parsoid', $dp );
+				$node->setAttribute(
+					'data-parsoid',
+					PHPUtils::jsonEncode(
+						$codec->toJsonArray( $dp, $hints['data-parsoid'] )
+					)
+				);
 			}
 		}
 
@@ -734,10 +692,15 @@ class DOMDataUtils {
 				// The pagebundle didn't have data-mw before 999.x
 				Semver::satisfies( $options['env']->getOutputContentVersion(), '^999.0.0' )
 			) {
-				$data = $data ?: new stdClass;
+				$data ??= new stdClass;
 				$data->mw = self::getDataMw( $node );
 			} else {
-				self::setJSONAttribute( $node, 'data-mw', self::getDataMw( $node ) );
+				$node->setAttribute(
+					'data-mw',
+					PHPUtils::jsonEncode(
+						$codec->toJsonArray( self::getDataMw( $node ), $hints['data-mw'] )
+					)
+				);
 			}
 		}
 

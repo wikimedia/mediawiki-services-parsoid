@@ -11,11 +11,13 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use stdClass;
 use Wikimedia\Assert\Assert;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Language\Language;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -26,6 +28,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -1646,14 +1649,19 @@ class WikiLinkHandler extends TokenHandler {
 			}
 
 			// Update data-mw
+			$codec = new JsonCodec();
 			$dataMwAttr = $token->getAttributeV( 'data-mw' );
-			$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
+			$dataMw = $dataMwAttr ? $codec->newFromJsonString(
+				$dataMwAttr, DOMDataUtils::getCodecHints()['data-mw']
+			) : new DataMw;
 			if ( is_array( $dataMw->errors ?? null ) ) {
 				PHPUtils::pushArray( $dataMw->errors, $errs );
 			} else {
 				$dataMw->errors = $errs;
 			}
-			$link->setAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
+			$link->setAttribute( 'data-mw', $codec->toJsonString(
+				$dataMw, DOMDataUtils::getCodecHints()['data-mw']
+			) );
 		}
 
 		$tokens = array_merge( [ $link ], $content, [ new EndTagTk( 'a' ) ] );

@@ -5,9 +5,9 @@ namespace Wikimedia\Parsoid\Tokens;
 
 use stdClass;
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
-use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
@@ -269,7 +269,7 @@ abstract class Token implements \JsonSerializable {
 			}
 			$so = $e["srcOffsets"] ?? null;
 			if ( $so ) {
-				$so = KVSourceRange::fromArray( $so );
+				$so = KVSourceRange::newFromJsonArray( $so );
 			}
 			$kvs[] = new KV(
 				$e["k"] ?? null,
@@ -306,37 +306,17 @@ abstract class Token implements \JsonSerializable {
 		}
 
 		if ( is_array( $input ) && isset( $input['type'] ) ) {
+			$codec = new JsonCodec();
 			if ( isset( $input['dataParsoid'] ) ) {
-				$da = new DataParsoid;
-				foreach ( $input['dataParsoid'] as $key => $value ) {
-					switch ( $key ) {
-						case 'tmp':
-							$tmp = $da->getTemp();
-							foreach ( $value as $key2 => $value2 ) {
-								$tmp->$key2 = $value2;
-							}
-							break;
-						case 'dsr':
-							// dsr is generally for DOM trees, not Tokens.
-							$da->dsr = DomSourceRange::fromArray( $value );
-							break;
-						case 'tsr':
-							$da->tsr = SourceRange::fromArray( $value );
-							break;
-						case 'extTagOffsets':
-							$da->extTagOffsets = DomSourceRange::fromArray( $value );
-							break;
-						case 'extLinkContentOffsets':
-							$da->extLinkContentOffsets =
-								SourceRange::fromArray( $value );
-							break;
-						default:
-							$da->$key = $value;
-					}
-				}
+				$da = $codec->newFromJsonArray(
+					$input['dataParsoid'],
+					DOMDataUtils::getCodecHints()['data-parsoid']
+				);
 			} else {
 				$da = null;
 			}
+			// In theory this should be refactored to use JsonCodecable
+			// and remove the ad-hoc deserialization code here.
 			switch ( $input['type'] ) {
 				case "SelfclosingTagTk":
 					$token = new SelfclosingTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
@@ -385,10 +365,12 @@ abstract class Token implements \JsonSerializable {
 		if ( preg_match(
 			'/mw:ExpandedAttrs/', $this->getAttributeV( 'typeof' ) ?? ''
 		) ) {
-			$attribs = PHPUtils::jsonDecode(
-				$this->getAttributeV( 'data-mw' ), false
-			)->attribs;
-			foreach ( $attribs as $attr ) {
+			$codec = new JsonCodec();
+			$dmw = $codec->newFromJsonString(
+				$this->getAttributeV( 'data-mw' ),
+				DOMDataUtils::getCodecHints()['data-mw']
+			);
+			foreach ( $dmw->attribs as $attr ) {
 				if ( $attr[0]->txt === $key ) {
 					return $attr[1]->html;
 				}

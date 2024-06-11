@@ -3,6 +3,9 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -239,7 +242,9 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property array|null $fl Original flags, copied from $this->original on the token.
  */
 #[\AllowDynamicProperties]
-class DataParsoid {
+class DataParsoid implements JsonCodecable {
+	use JsonCodecableTrait;
+
 	/**
 	 * Holds a number of transient properties in the wt->html pipeline to pass information between
 	 * stages. Dropped before serialization.
@@ -327,5 +332,52 @@ class DataParsoid {
 		} elseif ( isset( $this->tmp ) ) {
 			$this->tmp->bits &= ~$flag;
 		}
+	}
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		$result = (array)$this;
+		unset( $result['tmp'] );
+		return $result;
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyname ) {
+		static $hints = null;
+		if ( $hints === null ) {
+			$dsr = Hint::build( DomSourceRange::class, Hint::USE_SQUARE );
+			$sr = Hint::build( SourceRange::class, Hint::USE_SQUARE );
+			$hints = [
+				'dsr' => $dsr,
+				'extTagOffsets' => $dsr,
+				'tsr' => $sr,
+				'extLinkContentOffsets' => $sr,
+				'pi' => Hint::build( ParamInfo::class, Hint::LIST, Hint::LIST ),
+				'linkTk' => Token::class,
+			];
+		}
+		return $hints[$keyname] ?? null;
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ): DataParsoid {
+		$dp = new DataParsoid;
+		foreach ( $json as $key => $value ) {
+			switch ( $key ) {
+				case 'tmp':
+					// This isn't serialized, but we can deserialize it
+					// for tests.
+					$tmp = new TempData;
+					foreach ( $value as $key2 => $value2 ) {
+						$tmp->$key2 = $value2;
+					}
+					$dp->$key = $tmp;
+					break;
+				default:
+					$dp->$key = $value;
+					break;
+			}
+		}
+		return $dp;
 	}
 }

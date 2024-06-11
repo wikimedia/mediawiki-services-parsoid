@@ -136,7 +136,10 @@ class ContentModelHandler extends IContentModelHandler {
 		// for indicators that use the same name key.
 		foreach ( $indicators as $meta ) {
 			// Since the DOM is in "stored" state, we have to reparse data-mw here.
-			$dmw = DOMDataUtils::getJSONAttribute( $meta, 'data-mw', null );
+			$codec = DOMDataUtils::getCodec( $doc );
+			$dataMwAttr = DOMCompat::getAttribute( $meta, 'data-mw' );
+			$dmw = $dataMwAttr === null ? null :
+				$codec->newFromJsonString( $dataMwAttr, DOMDataUtils::getCodecHints()['data-mw'] );
 			$name = $dmw->attrs->name;
 			$iData[$name] = $dmw->html;
 		}

@@ -121,7 +121,7 @@ class ParsoidExtensionAPI {
 		if ( count( $params ) > 0 ) {
 			$err['params'] = $params;
 		}
-		$this->errors[] = $err;
+		$this->errors[] = (object)$err; // T367141: should create Error object
 		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $key, $params );
 	}
 

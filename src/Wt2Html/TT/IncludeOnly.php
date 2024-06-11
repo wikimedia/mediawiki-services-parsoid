@@ -3,10 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
@@ -49,8 +51,11 @@ class IncludeOnly extends TokenCollector {
 				null
 			);
 			if ( $start->dataParsoid->src ) {
-				$datamw = PHPUtils::jsonEncode( [ 'src' => $start->dataParsoid->src ] );
-				$token->addAttribute( 'data-mw', $datamw );
+				$datamw = new DataMw( [ 'src' => $start->dataParsoid->src ] );
+				$codec = new JsonCodec();
+				$token->addAttribute( 'data-mw', $codec->toJsonString(
+					$datamw, DOMDataUtils::getCodecHints()['data-mw']
+				) );
 			}
 			return ( $this->options['isInclude'] ) ?
 				new TokenHandlerResult( [] ) : new TokenHandlerResult( [ $token ] );
@@ -76,8 +81,11 @@ class IncludeOnly extends TokenCollector {
 				$start, $eof ? null : $end );
 
 			if ( $start->dataParsoid->src ) {
-				$dataMw = PHPUtils::jsonEncode( [ 'src' => $start->dataParsoid->src ] );
-				$tokens[0]->addAttribute( 'data-mw', $dataMw );
+				$datamw = new DataMw( [ 'src' => $start->dataParsoid->src ] );
+				$codec = new JsonCodec();
+				$tokens[0]->addAttribute( 'data-mw', $codec->toJsonString(
+					$datamw, DOMDataUtils::getCodecHints()['data-mw']
+				) );
 			}
 
 			if ( $end && !$eof ) {

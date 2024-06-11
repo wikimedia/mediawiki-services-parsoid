@@ -3,8 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-use stdClass;
-
 class TemplateInfo {
 	/**
 	 * The target wikitext
@@ -34,9 +32,9 @@ class TemplateInfo {
 	 * Get JSON-serializable data for data-mw.parts.template
 	 *
 	 * @param int $index The index into data-parsoid.pi
-	 * @return stdClass
+	 * @return DataMwPartInner
 	 */
-	public function getDataMw( int $index ): stdClass {
+	public function getDataMw( int $index ): DataMwPartInner {
 		$target = [ 'wt' => $this->targetWt ];
 		if ( $this->func !== null ) {
 			$target['function'] = $this->func;
@@ -53,17 +51,18 @@ class TemplateInfo {
 				$param['html'] = $info->html;
 			}
 			if ( $info->keyWt !== null ) {
-				$param['key']['wt'] = $info->keyWt;
+				$param['key'] = (object)[
+					'wt' => $info->keyWt,
+				];
 			}
-			$params[$info->k] = $param;
+			$params[$info->k] = (object)$param;
 		}
 
 		// Cast everything to object to satisfy pre-serialization consumers of data-mw
-		return (object)[
-			'target' => (object)$target,
-			// params also needs to be cast to object in case all the keys are numeric
-			'params' => (object)$params,
-			'i' => $index
-		];
+		return new DataMwPartInner(
+			(object)$target,
+			new ParamMap( $params ),
+			$index
+		);
 	}
 }

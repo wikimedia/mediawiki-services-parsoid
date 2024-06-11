@@ -25,14 +25,14 @@ use Wikimedia\Parsoid\Utils\Utils;
 #[\AllowDynamicProperties]
 class NodeData {
 	/**
-	 * @var DataParsoid|null The unserialized data-parsoid attribute
+	 * The unserialized data-parsoid attribute
 	 */
-	public $parsoid;
+	public ?DataParsoid $parsoid = null;
 
 	/**
-	 * @var object|null The unserialized data-mw attribute
+	 * The unserialized data-mw attribute
 	 */
-	public $mw;
+	public ?DataMw $mw = null;
 
 	/**
 	 * Deep clone this object

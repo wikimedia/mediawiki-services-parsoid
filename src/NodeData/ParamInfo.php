@@ -3,11 +3,13 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-use JsonSerializable;
-use stdClass;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Tokens\KVSourceRange;
 
-class ParamInfo implements JsonSerializable {
+class ParamInfo implements JsonCodecable {
+	use JsonCodecableTrait;
+
 	/**
 	 * The parameter key
 	 * @var string
@@ -55,13 +57,13 @@ class ParamInfo implements JsonSerializable {
 
 	/**
 	 * Create an object from unserialized data-parsoid.pi
-	 * @param stdClass $data
+	 * @param array $data
 	 * @return self
 	 */
-	public static function newFromJson( stdClass $data ) {
-		$info = new self( $data->k ?? '' );
-		$info->named = $data->named ?? false;
-		$info->spc = $data->spc ?? null;
+	public static function newFromJsonArray( array $data ): ParamInfo {
+		$info = new self( $data['k'] ?? '' );
+		$info->named = $data['named'] ?? false;
+		$info->spc = $data['spc'] ?? null;
 		return $info;
 	}
 
@@ -71,7 +73,7 @@ class ParamInfo implements JsonSerializable {
 	 *
 	 * @return array
 	 */
-	public function jsonSerialize(): array {
+	public function toJsonArray(): array {
 		$ret = [ 'k' => $this->k ];
 		if ( $this->named ) {
 			$ret['named'] = true;

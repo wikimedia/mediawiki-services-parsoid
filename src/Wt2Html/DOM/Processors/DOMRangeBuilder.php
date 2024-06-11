@@ -971,8 +971,8 @@ class DOMRangeBuilder {
 						$args = $a->info->getDataMw( $infoIndex++ );
 						// XXX DataMwPart should take a TemplateInfo directly
 						$parts[] = $a->isParam
-							? new DataMwPart( [ 'templatearg' => $args ] )
-							: new DataMwPart( [ 'template' => $args ] );
+							? new DataMwPart( 'templatearg', $args )
+							: new DataMwPart( 'template', $args );
 						// FIXME: we throw away the array keys and rebuild them
 						// again in WikitextSerializer
 						$pi[] = array_values( $a->info->paramInfos );

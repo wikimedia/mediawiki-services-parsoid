@@ -4,11 +4,14 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Tokens;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 
 /**
  * Represents a source offset range for a key-value pair.
  */
-class KVSourceRange implements \JsonSerializable {
+class KVSourceRange implements JsonCodecable {
+	use JsonCodecableTrait;
 
 	/**
 	 * Source range for the key.
@@ -58,7 +61,7 @@ class KVSourceRange implements \JsonSerializable {
 	 * @param int[] $so
 	 * @return KVSourceRange
 	 */
-	public static function fromArray( array $so ): KVSourceRange {
+	public static function newFromJsonArray( array $so ): KVSourceRange {
 		Assert::invariant(
 			count( $so ) === 4,
 			'Not enough elements in KVSourceRange array'
@@ -69,7 +72,7 @@ class KVSourceRange implements \JsonSerializable {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize(): array {
+	public function toJsonArray(): array {
 		return [
 			$this->key->start,
 			$this->key->end,

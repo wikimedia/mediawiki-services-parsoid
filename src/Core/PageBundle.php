@@ -17,21 +17,38 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  * PORT-FIXME: This is just a placeholder for data that was previously passed
  * to entrypoint in JavaScript.  Who will construct these objects and whether
  * this is the correct interface is yet to be determined.
+ *
+ * Note that the parsoid/mw properties of the page bundle are in "serialized
+ * array" form; that is, they are flat arrays appropriate for json-encoding
+ * and do not contain DataParsoid or DataMw objects.
  */
 class PageBundle {
 	/** @var string */
 	public $html;
 
-	/** @var ?array */
+	/**
+	 * A map from ID to the array serialization of DataParsoid for the Node
+	 * with that ID.
+	 *
+	 * @var null|array{counter?:int,offsetType?:string,ids:array<string,array>}
+	 */
 	public $parsoid;
 
-	/** @var ?array */
+	/**
+	 * A map from ID to the array serialization of DataMw for the Node
+	 * with that ID.
+	 *
+	 * @var null|array{ids:array<string,array>}
+	 */
 	public $mw;
 
 	/** @var ?string */
 	public $version;
 
-	/** @var ?array */
+	/**
+	 * A map of HTTP headers: both name and value should be strings.
+	 * @var array<string,string>|null
+	 */
 	public $headers;
 
 	/** @var string|null */
@@ -155,10 +172,12 @@ class PageBundle {
 	}
 
 	/**
-	 * Encode some of these properties for emitting in the <heaad> element of a doc
+	 * Encode some of these properties for emitting in the <head> element of a doc
 	 * @return string
 	 */
 	public function encodeForHeadElement(): string {
+		// Note that $this->parsoid and $this->mw are already serialized arrays
+		// so a naive jsonEncode is sufficient.  We don't need a codec.
 		return PHPUtils::jsonEncode( [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ] );
 	}
 }

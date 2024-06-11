@@ -1031,7 +1031,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		if ( $multiUnclosedTagName ) {
 			$item = $firstUnclosedTag[$multiUnclosedTagName];
 			if ( isset( $item['dsr'] ) ) {
-				$item['dsr'] = DomSourceRange::fromArray( $item['dsr'] );
+				$item['dsr'] = DomSourceRange::newFromJsonArray( $item['dsr'] );
 			}
 			$env->recordLint( 'multiple-unclosed-formatting-tags', [
 				'params' => $item['params'] ?? [],

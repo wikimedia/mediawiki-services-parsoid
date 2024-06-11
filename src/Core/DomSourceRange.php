@@ -180,7 +180,7 @@ class DomSourceRange extends SourceRange {
 	 * @param array<int|null> $dsr
 	 * @return DomSourceRange
 	 */
-	public static function fromArray( array $dsr ): DomSourceRange {
+	public static function newFromJsonArray( array $dsr ): DomSourceRange {
 		$n = count( $dsr );
 		Assert::invariant( $n === 2 || $n === 4 || $n === 6, 'Not enough elements in DSR array' );
 		return new DomSourceRange(
@@ -191,7 +191,7 @@ class DomSourceRange extends SourceRange {
 	/**
 	 * @inheritDoc
 	 */
-	public function jsonSerialize(): array {
+	public function toJsonArray(): array {
 		$a = [ $this->start, $this->end, $this->openWidth, $this->closeWidth ];
 		if ( $this->leadingWS !== 0 || $this->trailingWS !== 0 ) {
 			$a[] = $this->leadingWS;

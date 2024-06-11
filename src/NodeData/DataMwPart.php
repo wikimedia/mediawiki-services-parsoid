@@ -4,23 +4,35 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use stdClass;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 
 /**
  * A serialization part.
  *
  * @property stdClass $target
- * @property stdClass $params
+ * @property ParamMap $params
  * @property int $i
  */
 #[\AllowDynamicProperties]
-class DataMwPart implements \JsonSerializable {
+class DataMwPart implements JsonCodecable {
+	use JsonCodecableTrait;
+
 	/** Type of this part: template, templatearg, extension, or parserfunction */
 	public string $type;
 
-	public function __construct( array $initialVals = [] ) {
-		if ( isset( $initialVals['template'] ) ) {
+	public function __construct( string $type, DataMwPartInner $inner ) {
+		$this->type = $type;
+		foreach ( $inner->toJsonArray() as $k => $v ) {
+			$this->$k = $v;
+		}
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ): DataMwPart {
+		if ( isset( $json['template'] ) ) {
 			$type = 'template';
-		} elseif ( isset( $initialVals['templatearg'] ) ) {
+		} elseif ( isset( $json['templatearg'] ) ) {
 			$type = 'templatearg';
 		} else {
 			// Once upon a time the type could also include "extension" or
@@ -29,31 +41,23 @@ class DataMwPart implements \JsonSerializable {
 			// of target.href.
 			throw new \InvalidArgumentException( "bad type for data-mw.part" );
 		}
-		$this->type = $type;
-		foreach ( $initialVals[$type] as $k => $v ) {
-			// @phan-suppress-next-line PhanNoopSwitchCases
-			switch ( $k ) {
-				// Add more cases here if needed for special properties
-				default:
-					$this->$k = $v;
-					break;
-			}
-		}
+		return new DataMwPart( $type, $json[$type] );
 	}
 
-	public function jsonSerialize(): stdClass {
-		$inner = [];
-		if ( isset( $this->target ) ) {
-			$inner['target'] = $this->target;
-		}
-		if ( isset( $this->params ) ) {
-			$inner['params'] = $this->params;
-		}
-		if ( isset( $this->i ) ) {
-			$inner['i'] = $this->i;
-		}
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyname ) {
+		return DataMwPartInner::class;
+	}
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		$inner = new DataMwPartInner(
+			$this->target ?? null,
+			$this->params ?? null,
+			$this->i ?? null
+		);
 		$result = [];
 		$result[$this->type] = $inner;
-		return (object)$result;
+		return $result;
 	}
 }

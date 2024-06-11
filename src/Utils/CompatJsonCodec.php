@@ -64,7 +64,7 @@ class CompatJsonCodec extends JsonCodec {
 				}
 
 				/** @inheritDoc */
-				public function jsonClassHintFor( string $className, string $keyName ): ?string {
+				public function jsonClassHintFor( string $className, string $keyName ) {
 					return null;
 				}
 			};

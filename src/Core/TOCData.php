@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Core;
 
+use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
@@ -310,9 +311,9 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	}
 
 	/** @inheritDoc */
-	public static function jsonClassHintFor( string $keyName ): ?string {
+	public static function jsonClassHintFor( string $keyName ) {
 		if ( $keyName === 'sections' ) {
-			return SectionMetadata::class . '[]';
+			return Hint::build( SectionMetadata::class, Hint::LIST );
 		}
 		return null;
 	}

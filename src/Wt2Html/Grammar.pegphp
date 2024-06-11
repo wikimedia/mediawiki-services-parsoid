@@ -6,13 +6,15 @@
  */
 {
 	use Wikimedia\Assert\UnreachableException;
+	use Wikimedia\JsonCodec\JsonCodec;
 	use Wikimedia\Parsoid\Config\Env;
 	use Wikimedia\Parsoid\Config\SiteConfig;
 	use Wikimedia\Parsoid\Core\DomSourceRange;
+	use Wikimedia\Parsoid\NodeData\DataMw;
 	use Wikimedia\Parsoid\NodeData\DataParsoid;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
-	use Wikimedia\Parsoid\Tokens\EndTagTk;
 	use Wikimedia\Parsoid\Tokens\EOFTk;
+	use Wikimedia\Parsoid\Tokens\EndTagTk;
 	use Wikimedia\Parsoid\Tokens\KV;
 	use Wikimedia\Parsoid\Tokens\KVSourceRange;
 	use Wikimedia\Parsoid\Tokens\NlTk;
@@ -20,9 +22,10 @@
 	use Wikimedia\Parsoid\Tokens\SourceRange;
 	use Wikimedia\Parsoid\Tokens\TagTk;
 	use Wikimedia\Parsoid\Tokens\Token;
+	use Wikimedia\Parsoid\Utils\DOMDataUtils;
+	use Wikimedia\Parsoid\Utils\PHPUtils;
 	use Wikimedia\Parsoid\Utils\TokenUtils;
 	use Wikimedia\Parsoid\Utils\Utils;
-	use Wikimedia\Parsoid\Utils\PHPUtils;
 	use Wikimedia\Parsoid\Utils\WTUtils;
 	use Wikimedia\Parsoid\Wikitext\Consts;
 }
@@ -183,10 +186,12 @@
 					$v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
 					$attrMap[$k] = $v;
 				}
-				$datamw = [];
 				// Possible follow-up in T295168 for attribute sanitation
-				$datamw['attrs'] = $attrMap;
-				array_push( $metaAttrs, new KV( 'data-mw', PHPUtils::jsonEncode( $datamw ) ) );
+				$datamw = new DataMw( [ 'attrs' => (object)$attrMap ] );
+				$codec = new JsonCodec();
+				array_push( $metaAttrs, new KV( 'data-mw',
+					$codec->toJsonString( $datamw, DOMDataUtils::getCodecHints()['data-mw']
+				) ) );
 			}
 			$dp = new DataParsoid();
 			$dp->tsr = $tsr;

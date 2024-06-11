@@ -80,6 +80,7 @@ class XMLSerializer {
 		if ( !isset( $attrs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] ) ) {
 			return;
 		}
+		$codec = DOMDataUtils::getCodec( $node->ownerDocument );
 		$nd = DOMDataUtils::getNodeData( $node );
 		$pd = $nd->parsoid_diff ?? null;
 		if ( $pd && $storeDiffMark ) {
@@ -92,11 +93,15 @@ class XMLSerializer {
 				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 				unset( $dp->tmp );
 			}
-			$attrs['data-parsoid'] = PHPUtils::jsonEncode( $dp );
+			$attrs['data-parsoid'] = $codec->toJsonString(
+				$dp, DOMDataUtils::getCodecHints()['data-parsoid']
+			);
 		}
 		$dmw = $nd->mw;
 		if ( $dmw ) {
-			$attrs['data-mw'] = PHPUtils::jsonEncode( $dmw );
+			$attrs['data-mw'] = $codec->toJsonString(
+				$dmw, DOMDataUtils::getCodecHints()['data-mw']
+			);
 		}
 		unset( $attrs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] );
 	}
