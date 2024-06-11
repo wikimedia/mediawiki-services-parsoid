@@ -1290,6 +1290,18 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
+		// Follow the parent tree looking for aria-hidden=true or equivalent roles
+		for ( $node = $media; $node->parentNode; $node = $node->parentNode ) {
+			$hidden = strtolower( DOMCompat::getAttribute( $node, 'aria-hidden' ) ?? '' );
+			$role = strtolower( DOMCompat::getAttribute( $node, 'role' ) ?? '' );
+			if ( $hidden === 'true'
+				|| $role === 'presentation'
+				|| $role === 'none' ) {
+				// This entire subtree is excluded from the accessibility tree.
+				return;
+			}
+		}
+
 		$resource = DOMCompat::getAttribute( $media, 'resource' ) ?? '';
 		$file = basename( urldecode( $resource ) );
 

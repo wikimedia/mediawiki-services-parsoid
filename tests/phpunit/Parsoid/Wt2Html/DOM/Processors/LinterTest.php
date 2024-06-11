@@ -1701,6 +1701,51 @@ class LinterTest extends TestCase {
 				'count' => 0,
 				'desc' => 'Thumbnail image, explicit empty alt, has caption',
 			],
+
+			// Use of aria-hidden=true or role=presentation/role=none suppresses
+			// the lint on the whole subtree.
+			[
+				'wikiText' =>
+					"<div aria-hidden=true>\n" .
+					"<div>\n" .
+					"[[File:Foobar.jpg]]\n" .
+					"</div>\n" .
+					"</div>",
+				'count' => 0,
+				'desc' => 'Image in an aria-hidden=true div',
+			],
+			// It's common to use aria-hidden=true and role=presentation together
+			// for backwards compatibility reasons; treat them equivalently here.
+			[
+				'wikiText' =>
+					"<div aria-hidden=true role=presentation>\n" .
+					"<div>\n" .
+					"[[File:Foobar.jpg]]\n" .
+					"</div>\n" .
+					"</div>",
+				'count' => 0,
+				'desc' => 'Image in an aria-hidden=true role=presentation div',
+			],
+			[
+				'wikiText' =>
+					"<div role=presentation>\n" .
+					"<div>\n" .
+					"[[File:Foobar.jpg]]\n" .
+					"</div>\n" .
+					"</div>",
+				'count' => 0,
+				'desc' => 'Image inside a bare role=presentation div',
+			],
+			[
+				'wikiText' =>
+					"<div role=none>\n" .
+					"<div>\n" .
+					"[[File:Foobar.jpg]]\n" .
+					"</div>\n" .
+					"</div>",
+				'count' => 0,
+				'desc' => 'Image inside a bare role=none div',
+			],
 		];
 	}
 
