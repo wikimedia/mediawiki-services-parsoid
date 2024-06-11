@@ -115,11 +115,11 @@
 	},
 	"TMH": {
 		"project": "mediawiki/extensions/TimedMediaHandler",
-		"latestCommit": "e50f39981656378fb0f4aa6909747facb13b2b4c",
+		"latestCommit": "45745d6d3facc08d92980c69d690a673eb1125fc",
 		"targets": {
 			"timedMediaHandlerParserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "0c297b9d9cea97ed491e11a8cfcbbed2b525f0da"
+				"expectedSHA1": "fbf20107153b3c6c7e8d6f8b4125855f52443bd6"
 			}
 		}
 	}
