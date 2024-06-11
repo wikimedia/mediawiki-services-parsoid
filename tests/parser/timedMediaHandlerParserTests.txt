@@ -15,7 +15,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -28,7 +28,7 @@ wgParserEnableLegacyMediaDOM=true
 <p><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -40,7 +40,7 @@ wgParserEnableLegacyMediaDOM=false
 !! html/php
 <figure class="mw-default-size" typeof="mw:File/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="180" height="135" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local" resource="/wiki/File:Video.ogv"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span><figcaption></figcaption></figure>
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" height="135" width="180" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span><figcaption></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="135" width="180" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -52,7 +52,7 @@ wgParserEnableLegacyMediaDOM=true
 !! html/php
 <div class="thumb tright"><div class="thumbinner" style="width:182px;"><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="thumbimage" width="180" height="135" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video>  <div class="thumbcaption"><div class="magnify"><a href="/wiki/File:Video.ogv" class="internal" title="Enlarge"></a></div></div></div></div>
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" height="135" width="180" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span><figcaption></figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/180px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="135" width="180" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -65,7 +65,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size mw-image-border" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size mw-image-border" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size mw-image-border" typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -85,7 +85,7 @@ File:Video.ogv
 </ul>
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt2" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" height="90" width="120" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></div><div class="gallerytext"></div></li>
+<li class="gallerybox" style="width: 155px;"><div class="thumb" style="width: 150px; height: 150px;"><span typeof="mw:File"><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/120px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="90" width="120" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></div><div class="gallerytext"></div></li>
 </ul>
 !! end
 
@@ -99,7 +99,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.367-Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["thumbtime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["thumbtime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -112,7 +112,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.367-Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:03.367" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["starttime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv#t=3.3666666666667" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["starttime",{"txt":"1:25"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D3.3666666666667-Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv#t=3.3666666666667" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -125,7 +125,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv#t=00:00:01.200,00:00:02.300" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["starttime",{"txt":"0:1.2"}],["endtime",{"txt":"00:00:2.3"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv#t=1.2,2.3" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["starttime",{"txt":"0:1.2"}],["endtime",{"txt":"00:00:2.3"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px-seek%3D1.2-Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv#t=1.2,2.3" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -138,7 +138,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["alt",{"txt":"Test"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["alt",{"txt":"Test"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -151,7 +151,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"attribs":[["link",{"txt":"Example"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -187,7 +187,7 @@ wgParserEnableLegacyMediaDOM=false
 !! html/php
 <figure typeof="mw:File/Thumb"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local" resource="/wiki/File:Foobar.jpg"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span><figcaption></figcaption></figure>
 !! html/parsoid
-<figure typeof="mw:File/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Video.ogv"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Foobar.jpg" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span><figcaption></figcaption></figure>
+<figure typeof="mw:File/Thumb" data-mw='{"attribs":[["manualthumb",{"txt":"Video.ogv"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Foobar.jpg" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span><figcaption></figcaption></figure>
 !! end
 
 !! test
@@ -200,7 +200,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><audio id="mwe_player_1" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="180" style="width:180px;" data-durationhint="1" data-mwtitle="Audio.oga" data-mwprovider="local"><source src="http://example.com/images/4/41/Audio.oga" type="audio/ogg; codecs=&quot;vorbis&quot;" data-width="0" data-height="0" /></audio></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size mw-default-audio-height" typeof="mw:File"><span><audio controls="" preload="none" height="32" width="180" style="width: 180px;" resource="./File:Audio.oga" data-durationhint="1" class="mw-file-element"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></audio></span></span></p>
+<p><span class="mw-default-size mw-default-audio-height" typeof="mw:File"><span><audio controls="" preload="none" data-mw-tmh="" height="32" width="180" style="width: 180px;" resource="./File:Audio.oga" data-durationhint="1" class="mw-file-element"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></audio></span></span></p>
 !! end
 
 ## For backwards compatibility with Parsoid content versions up to 1.7.0
@@ -224,7 +224,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-parsoid='{"optList":[{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-parsoid='{"optList":[{"ck":"bogus","ak":"disablecontrols=ok"},{"ck":"caption","ak":"These are bogus."}]}' data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 !! test
@@ -237,7 +237,7 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" muted="" loop="" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" muted="" loop="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File" data-mw='{"caption":"These are bogus."}'><span title="These are bogus."><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" muted="" loop="" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end
 
 ## FIXME: Mock transcoding on the php side as well
@@ -248,7 +248,7 @@ wgParserEnableLegacyMediaDOM=false
 !! wikitext
 [[File:Transcode.webm|thumb|Hello]]
 !! html/parsoid
-<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/09/Transcode.webm/180px--Transcode.webm.jpg" controls="" preload="none" height="132" width="180" resource="./File:Transcode.webm" data-durationhint="4" class="mw-file-element"><source src="http://example.com/images/0/09/Transcode.webm" type='video/webm; codecs="vp8, vorbis"' data-file-width="492" data-file-height="360"/><source src="http://example.com/images/transcoded/0/09/Transcode.webm/Transcode.webm.240p.vp9.webm" type='video/webm; codecs="vp9, opus"' data-width="328" data-height="240" data-transcodekey="240p.vp9.webm"/></video></span><figcaption>Hello</figcaption></figure>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><span><video poster="http://example.com/images/thumb/0/09/Transcode.webm/180px--Transcode.webm.jpg" controls="" preload="none" data-mw-tmh="" height="132" width="180" resource="./File:Transcode.webm" data-durationhint="4" class="mw-file-element"><source src="http://example.com/images/0/09/Transcode.webm" type='video/webm; codecs="vp8, vorbis"' data-file-width="492" data-file-height="360"/><source src="http://example.com/images/transcoded/0/09/Transcode.webm/Transcode.webm.240p.vp9.webm" type='video/webm; codecs="vp9, opus"' data-width="328" data-height="240" data-transcodekey="240p.vp9.webm"/></video></span><figcaption>Hello</figcaption></figure>
 !! end
 
 !! test
@@ -261,5 +261,5 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size" typeof="mw:File"><span><video id="mwe_player_1" poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" class="mw-file-element" width="320" height="240" data-durationhint="5" data-mwtitle="Video.ogv" data-mwprovider="local"><source src="http://example.com/images/0/00/Video.ogv" type="video/ogg; codecs=&quot;theora&quot;" data-width="320" data-height="240" /></video></span></span>
 </p>
 !! html/parsoid
-<p><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" about="#mwt1" data-mw='{"attribs":[["alt",{"html":"alt=testing &lt;b data-parsoid=&apos;{\"dsr\":[29,39,3,3]}&apos;>bold&lt;/b> in alt","txt":"testing bold in alt"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
+<p><span class="mw-default-size" typeof="mw:File mw:ExpandedAttrs" about="#mwt1" data-mw='{"attribs":[["alt",{"html":"alt=testing &lt;b data-parsoid=&apos;{\"dsr\":[29,39,3,3]}&apos;>bold&lt;/b> in alt","txt":"testing bold in alt"}]]}'><span><video poster="http://example.com/images/thumb/0/00/Video.ogv/320px--Video.ogv.jpg" controls="" preload="none" data-mw-tmh="" height="240" width="320" resource="./File:Video.ogv" data-durationhint="5" class="mw-file-element"><source src="http://example.com/images/0/00/Video.ogv" type='video/ogg; codecs="theora"' data-file-width="320" data-file-height="240"/></video></span></span></p>
 !! end

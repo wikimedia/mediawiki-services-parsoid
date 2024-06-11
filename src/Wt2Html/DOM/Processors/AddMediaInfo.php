@@ -258,6 +258,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$audio->setAttribute( 'loop', '' );
 		}
 
+		// HACK(T295514): Until T313875 is implemented
+		$audio->setAttribute( 'data-mw-tmh', '' );
+
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'height', (string)$size['height'], null, true );
 		DOMDataUtils::addNormalizedAttribute( $audio, 'width', (string)$size['width'], null, true );
@@ -315,6 +318,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		if ( $loop ) {
 			$video->setAttribute( 'loop', '' );
 		}
+
+		// HACK(T295514): Until T313875 is implemented
+		$video->setAttribute( 'data-mw-tmh', '' );
 
 		$size = self::handleSize( $env, $attrs, $info );
 		DOMDataUtils::addNormalizedAttribute( $video, 'height', (string)$size['height'], null, true );
