@@ -37,7 +37,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * @property string $rangeId
  * @property SourceRange $wtOffsets
  * @property bool $extendedRange
- * @property stdClass $attrs
+ * @property stdClass $attrs Attributes for an extension tag or annotation (T367616 should be renamed)
  */
 #[\AllowDynamicProperties]
 class DataMw implements JsonCodecable {
@@ -77,6 +77,7 @@ class DataMw implements JsonCodecable {
 		if ( $hints === null ) {
 			$hints = [
 				'attribs' => Hint::build( stdClass::class, Hint::LIST, Hint::LIST ),
+				// T367616: 'attrs' should be renamed to 'extAttrs'
 				'attrs' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
 				'body' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
 				'wtOffsets' => Hint::build( SourceRange::class, Hint::USE_SQUARE ),

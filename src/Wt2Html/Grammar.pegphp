@@ -187,6 +187,7 @@
 					$attrMap[$k] = $v;
 				}
 				// Possible follow-up in T295168 for attribute sanitation
+				// T367616: 'attrs' should be renamed to 'extAttrs'
 				$datamw = new DataMw( [ 'attrs' => (object)$attrMap ] );
 				$codec = new JsonCodec();
 				array_push( $metaAttrs, new KV( 'data-mw',

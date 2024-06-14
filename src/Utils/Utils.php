@@ -375,6 +375,7 @@ class Utils {
 		$options = $extToken->getAttributeV( 'options' );
 		$defaultDataMw = new DataMw( [
 			'name' => $name,
+			// T367616: 'attrs' should be renamed to 'extAttrs'
 			'attrs' => (object)TokenUtils::kvToHash( $options ),
 		] );
 		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
