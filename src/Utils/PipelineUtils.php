@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
@@ -203,7 +204,10 @@ class PipelineUtils {
 			}
 		}
 		if ( DOMDataUtils::validDataMw( $node ) ) {
-			$out[] = new KV( 'data-mw', PHPUtils::jsonEncode( DOMDataUtils::getDataMw( $node ) ) );
+			$codec = new JsonCodec();
+			$out[] = new KV( 'data-mw', $codec->toJsonString(
+				DOMDataUtils::getDataMw( $node ), DOMDataUtils::getCodecHints()['data-mw']
+			) );
 		}
 		return [ 'attrs' => $out, 'dataAttrs' => DOMDataUtils::getDataParsoid( $node ) ];
 	}

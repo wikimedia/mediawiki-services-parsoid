@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwAttrib;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -376,18 +377,18 @@ class WTSUtils {
 	 * @param DataMw $dataMw
 	 * @param string $key
 	 * @param bool $keep
-	 * @return array|null
+	 * @return ?DataMwAttrib
 	 */
 	public static function getAttrFromDataMw(
 		DataMw $dataMw, string $key, bool $keep
-	): ?array {
+	): ?DataMwAttrib {
 		$arr = $dataMw->attribs ?? [];
 		$i = false;
 		foreach ( $arr as $k => $a ) {
-			if ( is_string( $a[0] ) ) {
-				$txt = $a[0];
-			} elseif ( is_object( $a[0] ) ) {
-				$txt = $a[0]->txt ?? null;
+			if ( is_string( $a->key ) ) {
+				$txt = $a->key;
+			} elseif ( is_array( $a->key ) ) {
+				$txt = $a->key['txt'] ?? null;
 			} else {
 				throw new UnreachableException( 'Control should never get here!' );
 			}
@@ -401,7 +402,7 @@ class WTSUtils {
 		}
 
 		$ret = $arr[$i];
-		if ( !$keep && !isset( $ret[1]->html ) ) {
+		if ( !$keep && !isset( $ret->value['html'] ) ) {
 			array_splice( $arr, $i, 1 );
 			$dataMw->attribs = $arr;
 		}

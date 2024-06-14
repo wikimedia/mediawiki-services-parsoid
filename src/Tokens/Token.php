@@ -371,8 +371,8 @@ abstract class Token implements \JsonSerializable {
 				DOMDataUtils::getCodecHints()['data-mw']
 			);
 			foreach ( $dmw->attribs as $attr ) {
-				if ( $attr[0]->txt === $key ) {
-					return $attr[1]->html;
+				if ( ( $attr->key['txt'] ?? null ) === $key ) {
+					return $attr->value['html'] ?? null;
 				}
 			}
 		}

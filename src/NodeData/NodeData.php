@@ -56,9 +56,13 @@ class NodeData {
 		// Avoid cloning sealed DOMFragments that may occur in expanded attributes
 		if ( $nd->mw && $stripSealedFragments && is_array( $nd->mw->attribs ) ) {
 			foreach ( $nd->mw->attribs as $attr ) {
-				foreach ( $attr as $v ) {
-					if ( isset( $v->html ) && str_contains( $v->html, 'mw:DOMFragment/sealed' ) ) {
-						$doc = DOMUtils::parseHTML( $v->html );
+				// Look for DOMFragments in both key and value of DataMwAttrib
+				foreach ( [ 'key', 'value' ] as $part ) {
+					if (
+						isset( $attr->$part['html'] ) &&
+						str_contains( $attr->$part['html'], 'mw:DOMFragment/sealed' )
+					) {
+						$doc = DOMUtils::parseHTML( $attr->$part['html'] );
 						DOMUtils::visitDOM( $doc, static function ( Node $node ) {
 							if (
 								DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment/sealed/\w+$#D' )
@@ -66,7 +70,7 @@ class NodeData {
 								DOMCompat::getParentElement( $node )->removeChild( $node );
 							}
 						} );
-						$v->html = DOMCompat::getInnerHTML( DOMCompat::getBody( $doc ) );
+						$attr->$part['html'] = DOMCompat::getInnerHTML( DOMCompat::getBody( $doc ) );
 					}
 				}
 			}

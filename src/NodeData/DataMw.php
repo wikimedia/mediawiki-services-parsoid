@@ -20,7 +20,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * @property string $name
  * @property string $extPrefix
  * @property string $extSuffix
- * @property list<array{stdClass,stdClass}> $attribs
+ * @property list<DataMwAttrib> $attribs Extended attributes of an HTML tag
  * @property string $src
  * @property string $caption
  * @property string $thumb
@@ -76,7 +76,7 @@ class DataMw implements JsonCodecable {
 		static $hints = null;
 		if ( $hints === null ) {
 			$hints = [
-				'attribs' => Hint::build( stdClass::class, Hint::LIST, Hint::LIST ),
+				'attribs' => Hint::build( DataMwAttrib::class, Hint::USE_SQUARE, Hint::LIST ),
 				// T367616: 'attrs' should be renamed to 'extAttrs'
 				'attrs' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
 				'body' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),

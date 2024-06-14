@@ -13,9 +13,9 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Generator;
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\NodeData\TempData;
@@ -162,7 +162,8 @@ class TreeBuilderStage extends PipelineStage {
 		$data = new NodeData;
 		$data->parsoid = $dataParsoid;
 		if ( isset( $attribs['data-mw'] ) ) {
-			$data->mw = new DataMw( (array)json_decode( $attribs['data-mw'] ) );
+			$codec = new JsonCodec();
+			$data->mw = $codec->newFromJsonString( $attribs['data-mw'], DOMDataUtils::getCodecHints()['data-mw'] );
 			unset( $attribs['data-mw'] );
 		}
 		// Store in the top level doc since we'll be importing the nodes after treebuilding

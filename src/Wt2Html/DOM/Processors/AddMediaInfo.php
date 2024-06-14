@@ -136,13 +136,13 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		if ( $starttime || $endtime ) {
 			$frag .= '#t=';
 			if ( $starttime ) {
-				$time = self::parseTimeString( $starttime[1]->txt, $info['duration'] ?? null );
+				$time = self::parseTimeString( $starttime->value['txt'], $info['duration'] ?? null );
 				if ( $time !== null ) {
 					$frag .= $time;
 				}
 			}
 			if ( $endtime ) {
-				$time = self::parseTimeString( $endtime[1]->txt, $info['duration'] ?? null );
+				$time = self::parseTimeString( $endtime->value['txt'], $info['duration'] ?? null );
 				if ( $time !== null ) {
 					$frag .= ',' . $time;
 				}
@@ -471,7 +471,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			};
 			if ( $attr !== null ) {
 				$discard = true;
-				$val = $attr[1]->txt;
+				$val = $attr->value['txt'];
 				if ( $val === '' ) {
 					// No href if link= was specified
 					$anchor = $doc->createElement( 'span' );
@@ -615,7 +615,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$page = WTSUtils::getAttrFromDataMw( $dataMw, 'page', true );
 			if ( $page ) {
-				$dims['page'] = $page[1]->txt;
+				$dims['page'] = $page->value['txt'];
 			}
 
 			$lang = DOMCompat::getAttribute( $span, 'lang' );
@@ -630,9 +630,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$thumbtime = WTSUtils::getAttrFromDataMw( $dataMw, 'thumbtime', true );
 			$starttime = WTSUtils::getAttrFromDataMw( $dataMw, 'starttime', true );
 			if ( $thumbtime || $starttime ) {
-				$seek = isset( $thumbtime[1] )
-					? $thumbtime[1]->txt
-					: ( isset( $starttime[1] ) ? $starttime[1]->txt : '' );
+				$seek = isset( $thumbtime->value )
+					? $thumbtime->value['txt']
+					: ( isset( $starttime->value ) ? $starttime->value['txt'] : '' );
 				$seek = self::parseTimeString( $seek );
 				if ( $seek !== null ) {
 					$dims['seek'] = $seek;
@@ -653,7 +653,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$manualKey = null;
 			$manualthumb = WTSUtils::getAttrFromDataMw( $dataMw, 'manualthumb', true );
 			if ( $manualthumb !== null ) {
-				$val = $manualthumb[1]->txt;
+				$val = $manualthumb->value['txt'];
 				$title = $env->makeTitleFromText( $val, $attrs['title']->getNamespace(), true );
 				if ( $title === null ) {
 					$errs[] = self::makeErr(
@@ -768,7 +768,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				// $sanitizedArgs = Sanitizer::sanitizeTagAttrs( $env->getSiteConfig(), 'img', null, [
 				// 	new KV( 'alt', $captionText )  // Could be a 'title' too
 				// ] );
-				// $captionText = $sanitizedArgs['alt'][0];
+				// $captionText = $sanitizedArgs['alt']->key;
 			}
 
 			// Info relates to the thumb, not necessarily the file.
@@ -794,7 +794,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$keepAltInDataMw = !$isImage || $errs;
 			$attr = WTSUtils::getAttrFromDataMw( $dataMw, 'alt', $keepAltInDataMw );
 			if ( $attr !== null ) {
-				$alt = $attr[1]->txt;
+				$alt = $attr->value['txt'];
 			} elseif ( $captionText ) {
 				$alt = $captionText;
 			}

@@ -1137,11 +1137,11 @@ class LinkHandlerUtils {
 		$linkFromDataMw = WTSUtils::getAttrFromDataMw( $outerDMW, 'link', true );
 		if ( $linkFromDataMw !== null ) {
 			// "link" attribute on the `outerElt` takes precedence
-			if ( isset( $linkFromDataMw[1]->html ) ) {
+			if ( isset( $linkFromDataMw->value['html'] ) ) {
 				$link = $state->serializer->getAttributeValueAsShadowInfo( $outerElt, 'link' );
 			} else {
 				$link = [
-					'value' => "link={$linkFromDataMw[1]->txt}",
+					'value' => "link={$linkFromDataMw->value['txt']}",
 					'modified' => false,
 					'fromsrc' => false,
 					'fromDataMW' => true
@@ -1377,7 +1377,7 @@ class LinkHandlerUtils {
 			if ( $v === null ) {
 				$a = WTSUtils::getAttrFromDataMw( $outerDMW, $o['ck'], true );
 				if ( $a !== null ) {
-					if ( isset( $a[1]->html ) ) {
+					if ( isset( $a->value['html'] ) ) {
 						$si = $state->serializer->getAttributeValueAsShadowInfo( $outerElt, $o['ck'] );
 						if ( isset( $si['value'] ) ) {
 							$nopts[] = [
@@ -1387,7 +1387,7 @@ class LinkHandlerUtils {
 							continue;
 						}
 					} else {
-						$v = $a[1]->txt;
+						$v = $a->value['txt'];
 					}
 				}
 			}

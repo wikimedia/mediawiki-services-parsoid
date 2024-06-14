@@ -180,12 +180,11 @@ class WikitextSerializer {
 		foreach ( $tplAttrs as $attr ) {
 			// If this attribute's key is generated content,
 			// serialize HTML back to generator wikitext.
-			// PORT-FIXME: bool check might not be safe. Need documentation on attrib format.
-			if ( ( $attr[0]->txt ?? null ) === $key && isset( $attr[0]->html ) ) {
+			if ( ( $attr->key['txt'] ?? null ) === $key && isset( $attr->key['html'] ) ) {
 				return $this->htmlToWikitext( [
 					'env' => $this->env,
 					'onSOL' => false,
-				], $attr[0]->html );
+				], $attr->key['html'] );
 			}
 		}
 		return $key;
@@ -202,22 +201,22 @@ class WikitextSerializer {
 			// If this attribute's value is generated content,
 			// serialize HTML back to generator wikitext.
 			// PORT-FIXME: not type safe. Need documentation on attrib format.
-			if ( ( $attr[0] === $key || ( $attr[0]->txt ?? null ) === $key )
+			if ( ( $attr->key === $key || ( $attr->key['txt'] ?? null ) === $key )
 				 // Only return here if the value is generated (ie. .html),
 				 // it may just be in .txt form.
-				 && isset( $attr[1]->html )
+				 && isset( $attr->value['html'] )
 				 // !== null is required. html:"" will serialize to "" and
 				 // will be returned here. This is used to suppress the =".."
 				 // string in the attribute in scenarios where the template
 				 // generates a "k=v" string.
 				 // Ex: <div {{1x|1=style='color:red'}}>foo</div>
-				 && $attr[1]->html !== null
+				 && $attr->value['html'] !== null
 			) {
 				return $this->htmlToWikitext( [
 					'env' => $this->env,
 					'onSOL' => false,
 					'inAttribute' => true,
-				], $attr[1]->html );
+				], $attr->value['html'] );
 			}
 		}
 		return null;

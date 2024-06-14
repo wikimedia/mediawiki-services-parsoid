@@ -18,6 +18,7 @@ use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Language\Language;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwAttrib;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -663,19 +664,25 @@ class WikiLinkHandler extends TokenHandler {
 				$this->options['expandTemplates'],
 				$this->options['inTemplate']
 			);
-			$attr = [ $key, $val ];
+			$attr = new DataMwAttrib( $key, $val );
 			$dataMW = $newTk->getAttributeV( 'data-mw' );
 			if ( $dataMW ) {
-				$dataMW = PHPUtils::jsonDecode( $dataMW, false );
+				$codec = new JsonCodec();
+				$dataMW = $codec->newFromJsonString(
+					$dataMW, DOMDataUtils::getCodecHints()['data-mw']
+				);
 				$dataMW->attribs[] = $attr;
 			} else {
-				$dataMW = (object)[ 'attribs' => [ $attr ] ];
+				$dataMW = new DataMw( [ 'attribs' => [ $attr ] ] );
 			}
 
 			// Mark token as having expanded attrs
 			$newTk->addAttribute( 'about', $env->newAboutId() );
 			$newTk->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
-			$newTk->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMW ) );
+			$codec = new JsonCodec();
+			$newTk->addAttribute( 'data-mw', $codec->toJsonString(
+				$dataMW, DOMDataUtils::getCodecHints()['data-mw']
+			) );
 		}
 		$this->env->getMetadata()->addCategory( $target->title, $categorySort );
 		return new TokenHandlerResult( [ $newTk ] );
@@ -1183,9 +1190,14 @@ class WikiLinkHandler extends TokenHandler {
 		$dataParsoid = $token->dataParsoid->clone();
 		$dataParsoid->optList = [];
 
+		$dataMw = new DataMw();
+		$codec = new JsonCodec();
 		// Account for the possibility of an expanded target
 		$dataMwAttr = $token->getAttributeV( 'data-mw' );
-		$dataMw = $dataMwAttr ? PHPUtils::jsonDecode( $dataMwAttr, false ) : new stdClass;
+		if ( $dataMwAttr ) {
+			$dataMw = $codec->newFromJsonString( $dataMwAttr, DOMDataUtils::getCodecHints()['data-mw'] );
+		}
+		'@phan-var DataMw $dataMw';
 
 		$opts = [
 			'title' => [
@@ -1429,7 +1441,7 @@ class WikiLinkHandler extends TokenHandler {
 					$val['txt'] = $optInfo['v'];
 				}
 				$dataMw->attribs ??= [];
-				$dataMw->attribs[] = [ $opt['ck'], $val ];
+				$dataMw->attribs[] = new DataMwAttrib( $opt['ck'], $val );
 			}
 		}
 
@@ -1600,8 +1612,9 @@ class WikiLinkHandler extends TokenHandler {
 			$tokens[] = new EndTagTk( 'figcaption' );
 		}
 
-		if ( (array)$dataMw !== [] ) {
-			$container->addAttribute( 'data-mw', PHPUtils::jsonEncode( $dataMw ) );
+		$dataMwAttr = $codec->toJsonString( $dataMw, DOMDataUtils::getCodecHints()['data-mw'] );
+		if ( $dataMwAttr !== '{}' ) {
+			$container->addAttribute( 'data-mw', $dataMwAttr );
 		}
 
 		$tokens[] = $containerClose;

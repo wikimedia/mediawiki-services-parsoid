@@ -175,10 +175,11 @@ class ContentUtils {
 		if ( DOMUtils::matchTypeOf( $elt, '/^mw:ExpandedAttrs$/' ) ) {
 			$dmw = DOMDataUtils::getDataMw( $elt );
 			if ( $dmw->attribs ?? null ) {
-				foreach ( $dmw->attribs as &$a ) {
-					foreach ( $a as $kOrV ) {
-						if ( !is_string( $kOrV ) && isset( $kOrV->html ) ) {
-							$kOrV->html = $proc( $kOrV->html );
+				foreach ( $dmw->attribs as $a ) {
+					// Look in both key and value of the DataMwAttrib
+					foreach ( [ 'key', 'value' ] as $part ) {
+						if ( !is_string( $a->$part ) && isset( $a->$part['html'] ) ) {
+							$a->$part['html'] = $proc( $a->$part['html'] );
 						}
 					}
 				}
