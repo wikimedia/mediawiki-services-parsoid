@@ -135,12 +135,12 @@ class TokenStreamPatcher extends TokenHandler {
 	 * Fully reprocess the output tokens from the tokenizer through
 	 * all the other handlers in stage 2.
 	 *
-	 * @param int $srcOffset
+	 * @param int|false $srcOffset See TokenUtils::shiftTokenTSR, which has b/c for null
 	 * @param array $toks
 	 * @param bool $popEOF
 	 * @return array
 	 */
-	private function reprocessTokens( int $srcOffset, array $toks, bool $popEOF = false ): array {
+	private function reprocessTokens( $srcOffset, array $toks, bool $popEOF = false ): array {
 		// Update tsr
 		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
 		$pipe = $this->env->getPipelineFactory()->getPipeline( 'peg-tokens-to-expanded-tokens' );

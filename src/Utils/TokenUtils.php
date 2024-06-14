@@ -242,7 +242,7 @@ class TokenUtils {
 	/**
 	 * Shift TSR of a token
 	 *
-	 * Port warning: in JS this was sometimes called with $offset=undefined, which meant do
+	 * PORT-FIXME: In JS this was sometimes called with $offset=undefined, which meant do
 	 * nothing by default, except if there was a third parameter set to true, in which case it
 	 * meant the same thing as $offset = null. We can't pass in undefined in PHP, so this should
 	 * usually be handled with isset() is the caller. But isset() returns true if the variable is
