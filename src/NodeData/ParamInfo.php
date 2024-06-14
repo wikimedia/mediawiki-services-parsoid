@@ -12,45 +12,31 @@ class ParamInfo implements JsonCodecable {
 
 	/**
 	 * The parameter key
-	 * @var string
 	 */
-	public $k;
+	public string $k;
 
 	/**
 	 * The key source wikitext, if different from $k
-	 * @var string|null
 	 */
-	public $keyWt;
+	public ?string $keyWt = null;
 
 	/**
 	 * The parameter value source wikitext
-	 * @var string|null
 	 */
-	public $valueWt;
+	public ?string $valueWt = null;
 
-	/**
-	 * @var KVSourceRange|null
-	 */
-	public $srcOffsets;
+	public ?KVSourceRange $srcOffsets = null;
 
-	/**
-	 * @var bool
-	 */
-	public $named = false;
+	public bool $named = false;
 
 	/**
 	 * @var string[]|null
 	 */
-	public $spc;
+	public ?array $spc = null;
 
-	/** @var string|null */
-	public $html;
+	public ?string $html = null;
 
-	/**
-	 * @param string $key
-	 * @param KVSourceRange|null $srcOffsets
-	 */
-	public function __construct( $key, $srcOffsets = null ) {
+	public function __construct( string $key, ?KVSourceRange $srcOffsets = null ) {
 		$this->k = $key;
 		$this->srcOffsets = $srcOffsets;
 	}

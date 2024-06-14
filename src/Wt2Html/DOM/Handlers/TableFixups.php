@@ -11,8 +11,8 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataMw;
-use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -103,7 +103,7 @@ class TableFixups {
 	}
 
 	/**
-	 * @param list<string|DataMwPart> &$parts
+	 * @param list<string|TemplateInfo> &$parts
 	 * @param Frame $frame
 	 * @param int $offset1
 	 * @param int $offset2

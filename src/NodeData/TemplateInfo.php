@@ -3,38 +3,91 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
-class TemplateInfo {
+use stdClass;
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
+
+class TemplateInfo implements JsonCodecable {
+	use JsonCodecableTrait;
+
 	/**
 	 * The target wikitext
-	 * @var string|null
 	 */
-	public $targetWt;
+	public ?string $targetWt = null;
 
 	/**
 	 * The parser function name
-	 * @var string|null
 	 */
-	public $func;
+	public ?string $func = null;
 
 	/**
 	 * The URL of the target
-	 * @var string|null
 	 */
-	public $href;
+	public ?string $href = null;
 
 	/**
 	 * Param infos indexed by key (ParamInfo->k)
-	 * @var ParamInfo[]
+	 * @var list<ParamInfo>
 	 */
-	public $paramInfos;
+	public array $paramInfos = [];
 
 	/**
-	 * Get JSON-serializable data for data-mw.parts.template
-	 *
-	 * @param int $index The index into data-parsoid.pi
-	 * @return DataMwPartInner
+	 * The type of template (template, templatearg, parserfunction).
+	 * @note For backward-compatibility reasons, this property is
+	 * not serialized/deserialized.
+	 * @var 'template'|'templatearg'|'parserfunction'|null
 	 */
-	public function getDataMw( int $index ): DataMwPartInner {
+	public ?string $type = null;
+
+	/**
+	 * The index into data-parsoid.pi
+	 */
+	public ?int $i = null;
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ): TemplateInfo {
+		$ti = new TemplateInfo;
+		$ti->targetWt = $json['target']['wt'] ?? null;
+		$ti->href = $json['target']['href'] ?? null;
+		$ti->func = $json['target']['function'] ?? null;
+		$ti->paramInfos = [];
+		$params = (array)( $json['params'] ?? null );
+		foreach ( $params as $k => $v ) {
+			// Converting $params to an array can turn the keys into ints,
+			// so we need to explicitly cast them back to string.
+			$info = new ParamInfo( (string)$k );
+			$info->valueWt = $v->wt ?? null;
+			$info->html = $v->html ?? null;
+			$info->keyWt = $v->key->wt ?? null;
+			$ti->paramInfos[] = $info;
+		}
+		$ti->i = $json['i'] ?? null;
+		return $ti;
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyname ) {
+		static $hints = null;
+		if ( $hints === null ) {
+			$hints = [
+				// The most deeply nested stdClass structure is "wt" inside
+				// "key" inside a parameter:
+				//     "params":{"1":{"key":{"wt":"..."}}}
+				'params' => Hint::build(
+					stdClass::class, Hint::ALLOW_OBJECT,
+					Hint::STDCLASS, Hint::ALLOW_OBJECT,
+					Hint::STDCLASS, Hint::ALLOW_OBJECT
+				),
+			];
+		}
+		return $hints[$keyname] ?? null;
+	}
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		// This is a complicated serialization, but necessary for
+		// backward compatibility with existing data-mw
 		$target = [ 'wt' => $this->targetWt ];
 		if ( $this->func !== null ) {
 			$target['function'] = $this->func;
@@ -44,6 +97,7 @@ class TemplateInfo {
 		}
 		$params = [];
 		foreach ( $this->paramInfos as $info ) {
+			// Non-standard serialization of ParamInfo, alas.
 			$param = [
 				'wt' => $info->valueWt,
 			];
@@ -57,12 +111,10 @@ class TemplateInfo {
 			}
 			$params[$info->k] = (object)$param;
 		}
-
-		// Cast everything to object to satisfy pre-serialization consumers of data-mw
-		return new DataMwPartInner(
-			(object)$target,
-			new ParamMap( $params ),
-			$index
-		);
+		return [
+			'target' => $target,
+			'params' => (object)$params,
+			'i' => $this->i,
+		];
 	}
 }

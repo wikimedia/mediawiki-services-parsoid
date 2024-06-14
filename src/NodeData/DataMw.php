@@ -16,7 +16,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * To reduce memory usage, most of the properties need to be dynamic, but
  * we use the property declarations below to allow type checking.
  *
- * @property list<string|DataMwPart> $parts
+ * @property list<string|TemplateInfo> $parts
  * @property string $name
  * @property string $extPrefix
  * @property string $extSuffix
@@ -80,7 +80,7 @@ class DataMw implements JsonCodecable {
 				'attrs' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
 				'body' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
 				'wtOffsets' => Hint::build( SourceRange::class, Hint::USE_SQUARE ),
-				'parts' => Hint::build( DataMwPart::class, Hint::LIST ),
+				'parts' => Hint::build( TemplateInfo::class, Hint::STDCLASS, Hint::LIST ),
 				// T367141
 				'errors' => Hint::build( stdClass::class, Hint::LIST ),
 			];
@@ -100,11 +100,43 @@ class DataMw implements JsonCodecable {
 				$result['errors']
 			);
 		}
+		// Legacy encoding of parts.
+		if ( isset( $result['parts'] ) ) {
+			$result['parts'] = array_map( static function ( $p ) {
+				if ( $p instanceof TemplateInfo ) {
+					$type = $p->type ?? 'template';
+					if ( $type === 'parserfunction' ) {
+						$type = 'template';
+					}
+					$pp = (object)[];
+					$pp->$type = $p;
+					return $pp;
+				}
+				return $p;
+			}, $result['parts'] );
+		}
 		return $result;
 	}
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): DataMw {
+		// Decode legacy encoding of parts.
+		if ( isset( $json['parts'] ) ) {
+			$json['parts'] = array_map( static function ( $p ) {
+				if ( is_object( $p ) ) {
+					$type = 'template';
+					if ( isset( $p->templatearg ) ) {
+						$type = 'templatearg';
+					}
+					$p = $p->$type;
+					if ( isset( $p->func ) ) {
+						$type = 'parserfunction';
+					}
+					$p->type = $type;
+				}
+				return $p;
+			}, $json['parts'] );
+		}
 		return new DataMw( $json );
 	}
 }

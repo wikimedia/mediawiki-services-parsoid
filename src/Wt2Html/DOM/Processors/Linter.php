@@ -13,9 +13,9 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\NodeData\DataMwPart;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -198,18 +198,18 @@ class Linter implements Wt2HtmlDOMProcessor {
 			count( $dmw->parts ) === 1
 		) {
 			$p0 = $dmw->parts[0];
-			if ( !( $p0 instanceof DataMwPart ) ) {
+			if ( !( $p0 instanceof TemplateInfo ) ) {
 				throw new UnreachableException(
-					"a single part will always be a DataMwPart not a string"
+					"a single part will always be a TemplateInfo not a string"
 				);
 			}
 			$name = null;
-			if ( !empty( $p0->target->href ) ) { // Could be "function"
+			if ( !empty( $p0->href ) ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
-				$name = PHPUtils::stripPrefix( $p0->target->href, './' );
+				$name = PHPUtils::stripPrefix( $p0->href, './' );
 			} else {
 				// type === 'templatearg' or 'template'
-				$name = trim( $p0->target->wt );
+				$name = trim( $p0->targetWt );
 			}
 			return [ 'name' => $name ];
 		} else {
