@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
-use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
@@ -14,7 +13,6 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -609,11 +607,7 @@ class AttributeExpander extends TokenHandler {
 				foreach ( $annotationTypes as $annotationType ) {
 					$token->addSpaceSeparatedAttribute( 'typeof', 'mw:Annotation/' . $annotationType );
 				}
-				$dmw = new DataMw( [ 'attribs' => $expAttrs ] );
-				$codec = new JsonCodec();
-				$token->addAttribute( 'data-mw', $codec->toJsonString(
-					$dmw, DOMDataUtils::getCodecHints()['data-mw']
-				) );
+				$token->dataMw = new DataMw( [ 'attribs' => $expAttrs ] );
 			}
 		}
 

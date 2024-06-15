@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;
 
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 
 /**
@@ -15,14 +16,15 @@ class NlTk extends Token {
 	 *    byte offsets for a token (in this case, the newline) in the
 	 *    UTF8-encoded source string
 	 * @param ?DataParsoid $dataParsoid
+	 * @param ?DataMw $dataMw
 	 */
 	public function __construct(
-		?SourceRange $tsr, ?DataParsoid $dataParsoid = null
+		?SourceRange $tsr,
+		?DataParsoid $dataParsoid = null,
+		?DataMw $dataMw = null
 	) {
-		if ( $dataParsoid ) {
-			$this->dataParsoid = $dataParsoid;
-		} elseif ( $tsr ) {
-			$this->dataParsoid = new DataParsoid;
+		parent::__construct( $dataParsoid, $dataMw );
+		if ( $dataParsoid == null && $tsr !== null ) {
 			$this->dataParsoid->tsr = $tsr;
 		}
 	}
@@ -33,7 +35,8 @@ class NlTk extends Token {
 	public function jsonSerialize(): array {
 		return [
 			'type' => $this->getType(),
-			'dataParsoid' => $this->dataParsoid
+			'dataParsoid' => $this->dataParsoid,
+			'dataMw' => $this->dataMw,
 		];
 	}
 }

@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Tokens;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -14,11 +15,18 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
-	/** @var DataParsoid|null */
-	public $dataParsoid;
+	public ?DataParsoid $dataParsoid = null;
+	public ?DataMw $dataMw = null;
 
 	/** @var KV[] */
 	public $attribs;
+
+	protected function __construct(
+		?DataParsoid $dataParsoid, ?DataMw $dataMw
+	) {
+		$this->dataParsoid = $dataParsoid ?? new DataParsoid;
+		$this->dataMw = $dataMw;
+	}
 
 	/**
 	 * @inheritDoc
@@ -315,26 +323,34 @@ abstract class Token implements \JsonSerializable {
 			} else {
 				$da = null;
 			}
+			if ( isset( $input['dataMw'] ) ) {
+				$dmw = $codec->newFromJsonArray(
+					$input['dataMw'],
+					DOMDataUtils::getCodecHints()['data-mw']
+				);
+			} else {
+				$dmw = null;
+			}
 			// In theory this should be refactored to use JsonCodecable
 			// and remove the ad-hoc deserialization code here.
 			switch ( $input['type'] ) {
 				case "SelfclosingTagTk":
-					$token = new SelfclosingTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
+					$token = new SelfclosingTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da, $dmw );
 					break;
 				case "TagTk":
-					$token = new TagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
+					$token = new TagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da, $dmw );
 					break;
 				case "EndTagTk":
-					$token = new EndTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da );
+					$token = new EndTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da, $dmw );
 					break;
 				case "NlTk":
-					$token = new NlTk( $da->tsr ?? null, $da );
+					$token = new NlTk( $da->tsr ?? null, $da, $dmw );
 					break;
 				case "EOFTk":
 					$token = new EOFTk();
 					break;
 				case "CommentTk":
-					$token = new CommentTk( $input["value"], $da );
+					$token = new CommentTk( $input["value"], $da, $dmw );
 					break;
 				default:
 					// Looks like data-parsoid can have a 'type' property in some cases
@@ -365,11 +381,10 @@ abstract class Token implements \JsonSerializable {
 		if ( preg_match(
 			'/mw:ExpandedAttrs/', $this->getAttributeV( 'typeof' ) ?? ''
 		) ) {
-			$codec = new JsonCodec();
-			$dmw = $codec->newFromJsonString(
-				$this->getAttributeV( 'data-mw' ),
-				DOMDataUtils::getCodecHints()['data-mw']
-			);
+			$dmw = $this->dataMw;
+			if ( !isset( $dmw->attribs ) ) {
+				return null;
+			}
 			foreach ( $dmw->attribs as $attr ) {
 				if ( ( $attr->key['txt'] ?? null ) === $key ) {
 					return $attr->value['html'] ?? null;

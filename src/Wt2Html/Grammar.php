@@ -201,6 +201,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 		if ( $isAnnotationTag ) {
 			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
+			$datamw = null;
 			if ( count( $attribs ) > 0 ) {
 				$attrMap = [];
 				foreach ( $attribs as $attr ) {
@@ -213,10 +214,6 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 				// Possible follow-up in T295168 for attribute sanitation
 				// T367616: 'attrs' should be renamed to 'extAttrs'
 				$datamw = new DataMw( [ 'attrs' => (object)$attrMap ] );
-				$codec = new JsonCodec();
-				array_push( $metaAttrs, new KV( 'data-mw',
-					$codec->toJsonString( $datamw, DOMDataUtils::getCodecHints()['data-mw']
-				) ) );
 			}
 			$dp = new DataParsoid();
 			$dp->tsr = $tsr;
@@ -226,7 +223,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 			// annotation ranges. Without TSR, they might end up stuck in
 			// fosterable positions and cause havoc on edits by breaking selser.
 			if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
-				return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
+				return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw ) ];
 			} else {
 				return [];
 			}
