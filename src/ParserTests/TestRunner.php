@@ -263,12 +263,29 @@ class TestRunner {
 			new StubMetadataCollector( $this->siteConfig ),
 			$this->envOptions
 		);
-
 		$env->pageCache = $this->articles;
+
 		// Set parsing resource limits.
 		// $env->setResourceLimits();
 
 		return $env;
+	}
+
+	private function normalizeTitleKey( string $title ): string {
+		return $this->dummyEnv->normalizedTitleKey( $title, false, true );
+	}
+
+	private function addArticle( Article $art ): array {
+		$key = $this->normalizeTitleKey( $art->title );
+		$oldVal = $this->articles[$key] ?? null;
+		$this->articles[$key] = $art->text;
+		$teardown = [
+			function () use ( $key, $oldVal ) {
+				$this->articles[$key] = $oldVal;
+			},
+			$this->mockApi->addArticle( $key, $art ),
+		];
+		return $teardown;
 	}
 
 	/**
@@ -281,7 +298,7 @@ class TestRunner {
 			error_log( $warnMsg );
 		};
 		$normFunc = function ( string $title ): string {
-			return $this->dummyEnv->normalizedTitleKey( $title, false, true );
+			return $this->normalizeTitleKey( $title );
 		};
 		$testReader = TestFileReader::read(
 			$this->testFilePath, $warnFunc, $normFunc, $this->knownFailuresInfix
@@ -290,9 +307,7 @@ class TestRunner {
 		$this->testCases = $testReader->testCases;
 		$this->articles = [];
 		foreach ( $testReader->articles as $art ) {
-			$key = $normFunc( $art->title );
-			$this->articles[$key] = $art->text;
-			$this->mockApi->addArticle( $key, $art );
+			$this->addArticle( $art );
 		}
 		if ( !ScriptUtils::booleanOption( $options['quieter'] ?? '' ) ) {
 			if ( $this->knownFailuresPath ) {
@@ -961,6 +976,18 @@ class TestRunner {
 		$this->mockApi->setApiPrefix( $prefix );
 		$this->siteConfig->reset();
 
+		// Add the title associated with the current test as a known title to
+		// be consistent with the test runner in the core repo.
+		$teardown = $this->addArticle( new Article( [
+			'title' => $test->pageName(),
+			'text' => $test->wikitext ?? '',
+			// Fake it
+			'type' => 'article',
+			'filename' => 'fake',
+			'lineNumStart' => 0,
+			'lineNumEnd' => 0,
+		] ) );
+
 		// We don't do any sanity checking or type casting on $test->config
 		// values here: if you set a bogus value in a parser test it *should*
 		// blow things up, so that you fix your test case.
@@ -1052,6 +1079,10 @@ class TestRunner {
 
 		$runner = $this;
 		$test->testAllModes( $targetModes, $options, Closure::fromCallable( [ $this, 'runTest' ] ) );
+
+		foreach ( $teardown as $t ) {
+			$t();
+		}
 	}
 
 	/**

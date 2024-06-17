@@ -528,9 +528,14 @@ class MockApiHelper extends ApiHelper {
 	 * the proper known/missing information about that title.
 	 * @param string $key The normalized title of the article
 	 * @param Article $article The contents of the article
+	 * @return callable
 	 */
-	public function addArticle( string $key, Article $article ): void {
+	public function addArticle( string $key, Article $article ): callable {
+		$oldVal = $this->articleCache[$key] ?? null;
 		$this->articleCache[$key] = $article;
+		return function () use ( $key, $oldVal ) {
+			$this->articleCache[$key] = $oldVal;
+		};
 	}
 
 	public function makeRequest( array $params ): array {
