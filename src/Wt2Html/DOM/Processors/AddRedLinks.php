@@ -97,12 +97,15 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 					$newUrl['query'] = $origUrl['query'];
 					$newUrl['fragment'] = $origUrl['fragment'];
 
+					$variantPrefixedText = $variantTitle->getPrefixedText();
 					DOMDataUtils::addNormalizedAttribute(
-						$a,
-						'title',
-						$variantTitle->getPrefixedText(),
-						$k
+						$a, 'title', $variantPrefixedText, $k
 					);
+					// Set $k to the new title for the selflink check below.
+					// Note that getVariantTitles doesn't set $variantData for
+					// missing titles, so we won't be in this block for the
+					// red-link-title case below.
+					$k = $variantPrefixedText;
 
 					DOMDataUtils::addNormalizedAttribute(
 						$a,
