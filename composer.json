@@ -99,7 +99,7 @@
 		"parserTests": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true",
 		"parserTests-ucs2": "php bin/parserTests.php --wt2html --wt2wt --html2wt --html2html --selser true --quiet --knownFailures true --offsetType ucs2",
 		"phpunit": "phpunit",
-		"toolcheck": "bash bin/toolcheck.php.sh",
+		"toolcheck": "bash bin/toolcheck.sh",
 		"nodeNameCheck": "bash bin/nodenamecheck.sh",
 		"getAttributeCheck": "bash bin/getattributecheck.sh",
 		"phpcs": "phpcs -sp --cache"
