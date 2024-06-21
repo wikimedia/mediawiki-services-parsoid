@@ -336,8 +336,17 @@ class DataParsoid implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
+		static $clearNullsFrom = [
+			'dsr', 'tsr', 'extTagOffsets', 'extLinkContentOffsets'
+		];
 		$result = (array)$this;
 		unset( $result['tmp'] );
+		// Conciseness: don't include `null` values from certain properties.
+		foreach ( $clearNullsFrom as $prop ) {
+			if ( !isset( $result[$prop] ) ) {
+				unset( $result[$prop] );
+			}
+		}
 		return $result;
 	}
 

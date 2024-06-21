@@ -257,15 +257,27 @@ class ContentUtils {
 			if ( isset( $dp->dsr ) ) {
 				$dp->dsr = $dsrFunc( clone $dp->dsr );
 				// We don't need to setDataParsoid because dp is not a copy
+
+				// This is a bit of a hack, but we use this function to
+				// clear DSR properties as well.  See below as well.
+				if ( $dp->dsr === null ) {
+					unset( $dp->dsr );
+				}
 			}
 			$tmp = $dp->getTemp();
 			if ( isset( $tmp->origDSR ) ) {
 				// Even though tmp shouldn't escape Parsoid, go ahead and
 				// convert to enable hybrid testing.
 				$tmp->origDSR = $dsrFunc( clone $tmp->origDSR );
+				if ( $tmp->origDSR === null ) {
+					unset( $tmp->origDSR );
+				}
 			}
 			if ( isset( $dp->extTagOffsets ) ) {
 				$dp->extTagOffsets = $dsrFunc( clone $dp->extTagOffsets );
+				if ( $dp->extTagOffsets === null ) {
+					unset( $dp->extTagOffsets );
+				}
 			}
 
 			// Handle embedded HTML in attributes
