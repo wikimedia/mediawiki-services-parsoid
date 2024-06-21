@@ -364,6 +364,15 @@ class DataParsoid implements JsonCodecable {
 		$dp = new DataParsoid;
 		foreach ( $json as $key => $value ) {
 			switch ( $key ) {
+				case 'dsr':
+				case 'extTagOffsets':
+				case 'tsr':
+				case 'extLinkContentOffsets':
+					// For backward compatibility, leave these unset if null.
+					if ( $value !== null ) {
+						$dp->$key = $value;
+					}
+					break;
 				case 'tmp':
 					// This isn't serialized, but we can deserialize it
 					// for tests.
