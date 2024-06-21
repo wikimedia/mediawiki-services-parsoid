@@ -40,10 +40,16 @@ php $BIN/parse.php --mock --pbinfile $TMPPB --selser \
     --oldtextfile $TMPWT --oldhtmlfile $TMPORIG < $TMPEDIT
 
 # Linting
-echo "<div>foo" | php $BIN/parse.php --mock --linting
+echo "<div>foo" | php $BIN/parse.php --mock --logLinterData
+echo "<div>foo" | php $BIN/parse.php --mock --wt2lint
 
 # Ensure lint output (exactly 1 line) is present!
-x=`echo "<div>foo" | php $BIN/parse.php --mock --linting 2>&1 > /dev/null | wc -l`
+x=`echo "<div>foo" | php $BIN/parse.php --mock --logLinterData 2>&1 > /dev/null | wc -l`
+if [ ! $x -eq 1 ]
+then
+	exit -1
+fi
+x=`echo "<div>foo" | php $BIN/parse.php --mock --wt2lint 2>&1 | wc -l`
 if [ ! $x -eq 1 ]
 then
 	exit -1

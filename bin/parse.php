@@ -62,6 +62,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			. "If no options are provided, --wt2html is enabled by default.\n"
 			. "See --help for detailed usage help." );
 		$this->addOption( 'wt2html', 'Wikitext -> HTML' );
+		$this->addOption( 'wt2lint', 'Wikitext -> Lint.  Enables --linting' );
 		$this->addOption( 'html2wt', 'HTML -> Wikitext' );
 		$this->addOption( 'wt2wt', 'Wikitext -> Wikitext' );
 		$this->addOption( 'html2html', 'HTML -> HTML' );
@@ -145,6 +146,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$this->addOption(
 			'linting',
 			'Parse with linter enabled.'
+		);
+		$this->addOption(
+			'logLinterData',
+			'Log the linter data.  Enables --linting.  With --integrated, ' .
+				'it attempts to queue up a job to add to the linter table.'
 		);
 		$this->addOption(
 			'addHTMLTemplateParameters',
@@ -376,13 +382,41 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( $wt !== null ) {
 			$configOpts["pageContent"] = $wt;
 		}
-
 		$this->setupConfig( $configOpts );
 
 		try {
 			return $this->parsoid->wikitext2html(
 				$this->pageConfig, $parsoidOpts, $headers, $this->metadata
 			);
+		} catch ( ClientError $e ) {
+			$this->error( $e->getMessage() );
+			die( 1 );
+		}
+	}
+
+	/**
+	 * @param array $configOpts
+	 * @param array $parsoidOpts
+	 * @param ?string $wt
+	 * @return string
+	 */
+	public function wt2lint(
+		array $configOpts, array $parsoidOpts, ?string $wt
+	) {
+		if ( $wt !== null ) {
+			$configOpts["pageContent"] = $wt;
+		}
+		$this->setupConfig( $configOpts );
+
+		try {
+			$lints = $this->parsoid->wikitext2lint(
+				$this->pageConfig, $parsoidOpts
+			);
+			$lintStr = '';
+			foreach ( $lints as $l ) {
+				$lintStr .= PHPUtils::jsonEncode( $l ) . "\n";
+			}
+			return $lintStr;
 		} catch ( ClientError $e ) {
 			$this->error( $e->getMessage() );
 			die( 1 );
@@ -498,7 +532,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"standalone" => !$this->hasOption( 'integrated' ),
 			"apiEndpoint" => $apiURL,
 			"addHTMLTemplateParameters" => $this->hasOption( 'addHTMLTemplateParameters' ),
-			"linting" => $this->hasOption( 'linting' ),
+			"linting" => $this->hasOption( 'linting' ) ||
+				$this->hasOption( 'logLinterData' ) ||
+				$this->hasOption( 'wt2lint' ),
 			"mock" => $this->hasOption( 'mock' )
 		];
 		if ( $this->hasOption( 'pageName' ) ) {
@@ -514,8 +550,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$parsoidOpts += [
 			"body_only" => ScriptUtils::booleanOption( $this->getOption( 'body_only' ) ),
 			"wrapSections" => $this->hasOption( 'wrapSections' ),
-			// This ensures we can run --linting and get lint output.
-			"logLinterData" => true,
+			"logLinterData" => $this->hasOption( 'logLinterData' ),
 			"pageBundle" =>
 			$this->hasOption( 'pageBundle' ) || $this->hasOption( 'pboutfile' ),
 		];
@@ -714,6 +749,8 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
 				return $this->html2Wt( $configOpts, $parsoidOpts, $html );
 			} );
+		} elseif ( $this->hasOption( 'wt2lint' ) ) {
+			$this->output( $this->wt2Lint( $configOpts, $parsoidOpts, $input ) );
 		} elseif ( $parsoidOpts['pageBundle'] ?? false ) {
 			if ( $this->hasOption( 'pboutfile' ) ) {
 				$html = $this->wt2Html( $configOpts, $parsoidOpts, $input );
