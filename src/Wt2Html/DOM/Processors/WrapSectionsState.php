@@ -23,6 +23,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
@@ -114,8 +115,8 @@ class WrapSectionsState {
 					$metadata->fromTitle = null;
 				} elseif ( !empty( $p0->target->href ) ) {
 					// Pick template title, but strip leading "./" prefix
-					$metadata->fromTitle = preg_replace(
-						"#^./#", "", $p0->target->href );
+					$tplHref = Utils::decodeURIComponent( $p0->target->href );
+					$metadata->fromTitle = PHPUtils::stripPrefix( $tplHref, './' );
 					if ( $this->sectionNumber >= 0 ) {
 						// Legacy parser sets this to '' in some cases
 						// See "Templated sections (heading from template arg)" parser test
