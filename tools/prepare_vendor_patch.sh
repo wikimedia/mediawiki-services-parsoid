@@ -73,8 +73,12 @@ if [ ! -d "$coreRepo" ]; then
 fi
 
 # Generate deploy log
-bash ./tools/gen_deploy_log.sh "$1" "$newTagSha" > deploy.log.txt
-cat deploy.log.txt
+deployLog=$(bash ./tools/gen_deploy_log.sh "$1" "$newTagSha")
+
+echo "{{tracked|$3}}
+$deployLog" > deploy.log.txt
+
+echo "$deployLog"
 echo "-----------------------------------------------"
 echo "^^^ These patches will be part of the new tag."
 waitForConfirmation
