@@ -204,13 +204,12 @@ class WikitextSerializer {
 			if ( ( $attr->key === $key || ( $attr->key['txt'] ?? null ) === $key )
 				 // Only return here if the value is generated (ie. .html),
 				 // it may just be in .txt form.
-				 && isset( $attr->value['html'] )
-				 // !== null is required. html:"" will serialize to "" and
+				 // html:"" will serialize to "" and
 				 // will be returned here. This is used to suppress the =".."
 				 // string in the attribute in scenarios where the template
 				 // generates a "k=v" string.
 				 // Ex: <div {{1x|1=style='color:red'}}>foo</div>
-				 && $attr->value['html'] !== null
+				 && isset( $attr->value['html'] )
 			) {
 				return $this->htmlToWikitext( [
 					'env' => $this->env,
