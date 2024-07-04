@@ -31,8 +31,5 @@
 	},
 	"T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
 		"wt2wt": "==One==\n__TOC__"
-	},
-	"__FORCETOC__ override": {
-		"metadata": "flags="
 	}
 }

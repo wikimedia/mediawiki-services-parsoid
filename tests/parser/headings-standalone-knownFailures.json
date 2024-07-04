@@ -260,8 +260,7 @@
         "selser [3,2,1,0]": "9arxg8\n\n[[#Foo bar]]\n"
     },
     "__FORCETOC__ override": {
-        "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/newsectionlink\" data-parsoid='{\"src\":\"__NEWSECTIONLINK__\",\"magicSrc\":\"__NEWSECTIONLINK__\",\"dsr\":[0,18,null,null]}'/>\n<meta property=\"mw:PageProp/forcetoc\" data-parsoid='{\"src\":\"__FORCETOC__\",\"magicSrc\":\"__FORCETOC__\",\"dsr\":[19,31,null,null]}'/>\n</section>",
-        "metadata": "flags="
+        "html2html": "<section data-mw-section-id=\"0\" data-parsoid=\"{}\"><meta property=\"mw:PageProp/newsectionlink\" data-parsoid='{\"src\":\"__NEWSECTIONLINK__\",\"magicSrc\":\"__NEWSECTIONLINK__\",\"dsr\":[0,18,null,null]}'/>\n<meta property=\"mw:PageProp/forcetoc\" data-parsoid='{\"src\":\"__FORCETOC__\",\"magicSrc\":\"__FORCETOC__\",\"dsr\":[19,31,null,null]}'/>\n</section>"
     },
     "__NOEDITSECTION__ keyword": {
         "wt2html": "<meta property=\"mw:PageProp/noeditsection\" data-parsoid='{\"src\":\"__NOEDITSECTION__\",\"magicSrc\":\"__NOEDITSECTION__\",\"dsr\":[0,17,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[18,31,2,2]}'>Section 1</h2>\n<h2 id=\"Section_2\" data-parsoid='{\"dsr\":[32,45,2,2]}'>Section 2</h2>",

@@ -874,6 +874,20 @@ class WrapSectionsState {
 		}
 	}
 
+	/** Transfer information about new section links from behaviour switches to CMC */
+	private function addNewSectionInfo() {
+		// ParserOutputFlags::NEW_SECTION
+		$this->env->getMetadata()->setOutputFlag(
+			'mw-NewSection',
+			$this->env->getBehaviorSwitch( 'newsectionlink', false )
+		);
+		// ParserOutputFlags::HIDE_NEW_SECTION
+		$this->env->getMetadata()->setOutputFlag(
+			'mw-HideNewSection',
+			$this->env->getBehaviorSwitch( 'nonewsectionlink', false )
+		);
+	}
+
 	/**
 	 * DOM Postprocessor entry function to walk DOM rooted at $root
 	 * and add <section> wrappers as necessary.
@@ -899,5 +913,7 @@ class WrapSectionsState {
 		$this->convertTOCOffsets();
 
 		$this->addSyntheticTOCMarker();
+
+		$this->addNewSectionInfo();
 	}
 }
