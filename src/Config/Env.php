@@ -857,21 +857,8 @@ class Env {
 	}
 
 	/**
-	 * BehaviorSwitchHandler support function that adds a property named by
-	 * $variable and sets it to $state
-	 *
-	 * @deprecated Use setBehaviorSwitch() instead.
-	 * @param string $variable
-	 * @param mixed $state
-	 */
-	public function setVariable( string $variable, $state ): void {
-		$this->setBehaviorSwitch( $variable, $state );
-	}
-
-	/**
 	 * Record a behavior switch.
 	 *
-	 * @todo Does this belong here, or on some equivalent to MediaWiki's ParserOutput?
 	 * @param string $switch Switch name
 	 * @param mixed $state Relevant state data to record
 	 */
@@ -882,7 +869,6 @@ class Env {
 	/**
 	 * Fetch the state of a previously-recorded behavior switch.
 	 *
-	 * @todo Does this belong here, or on some equivalent to MediaWiki's ParserOutput?
 	 * @param string $switch Switch name
 	 * @param mixed $default Default value if the switch was never set
 	 * @return mixed State data that was previously passed to setBehaviorSwitch(), or $default
