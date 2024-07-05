@@ -98,7 +98,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'missing-end-tag', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 27, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'p', $result[0]['params']['name'], $desc );
 
@@ -133,7 +133,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'div', $result[0]['params']['name'], $desc );
 		$this->assertEquals( [ 0, 27, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations (</i> is stripped)';
 		$result = $this->wtToLint( '<b><i>X</b></i>' );
@@ -152,7 +152,7 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'i', $result[0]['params']['name'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should lint stripped tags correctly in misnested tag situations (<i> is auto-inserted)';
 		$result = $this->wtToLint( '<b><i>X</b>Y</i>' );
@@ -227,7 +227,7 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'tt', $result[0]['params']['name'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should not lint auto-inserted obsolete tags';
 		$result = $this->wtToLint( "<tt>foo\n\n\nbar" );
@@ -310,7 +310,7 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = 'should batch lint Bogus image options correctly';
 		$result = $this->wtToLint( '[[file:a.jpg|foo|bar|baz]]' );
@@ -473,7 +473,7 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[1]['params'] ), $desc );
 		$this->assertEquals( 'frame', $result[1]['params']['items'][0], $desc );
 		$this->assertTrue( isset( $result[1]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[1]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[1]['templateInfo']['name'], $desc );
 
 		$desc = "should lint size option used in gallery";
 		$result = $this->wtToLint(
@@ -512,7 +512,7 @@ class LinterTest extends TestCase {
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
 		$this->assertEquals( 'b', $result[0]['params']['name'][0], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 	}
 
 	/**
@@ -570,7 +570,7 @@ class LinterTest extends TestCase {
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'deletable-table-tag', $result[0]['type'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 		$this->assertEquals( [ 0, 56, null, null ], $result[0]['dsr'], $desc );
 
 		$desc = 'should identify deletable table tag for T161341 (4)';
@@ -778,7 +778,7 @@ class LinterTest extends TestCase {
 		$result = $this->wtToLint( "{{1x|[[:One]]}}\n{{1x|[[::Two]]}}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 		// TODO(arlolra): Frame doesn't have tsr info yet
 		$this->assertEquals( [ 0, 0, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['params'] ), $desc );
@@ -1123,7 +1123,7 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'wikilink-in-extlink', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 66, null, null ], $result[0]['dsr'], $desc );
 		$this->assertTrue( isset( $result[0]['templateInfo'] ), $desc );
-		$this->assertEquals( '1x', $result[0]['templateInfo']['name'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
 
 		$desc = "should lint wikilink set in italics in external link correctly";
 		$result = $this->wtToLint(
@@ -1420,7 +1420,7 @@ class LinterTest extends TestCase {
 				],
 				'columnCount' => 6,
 				'dsr' => [ 0, 233, null, null ],
-				'templateName' => '1x'
+				'templateName' => 'Template:1x'
 			],
 			'transclusions 6 header columns and 5 row columns' => [
 				'wikiTextLines' => [
@@ -1446,7 +1446,7 @@ class LinterTest extends TestCase {
 				],
 				'columnCount' => 6,
 				'dsr' => [ 0, 235, null, null ],
-				'templateName' => '1x'
+				'templateName' => 'Template:1x'
 			],
 			'transclusions 5 header columns and 5 row columns' => [
 				'wikiTextLines' => [
@@ -1471,7 +1471,7 @@ class LinterTest extends TestCase {
 				],
 				'columnCount' => 5,
 				'dsr' => [], // empty dsr => no lints found
-				'templateName' => '1x'
+				'templateName' => 'Template:1x'
 			],
 			'long rows 30' => [
 				'wikiTextLines' => $noLongRowsTable,
@@ -1635,7 +1635,7 @@ class LinterTest extends TestCase {
 				'should lint when background-color is present but font color is missing in a template',
 				'{{1x|<div style="background-color: red;"></div>}}',
 				true,
-				"1x"
+				'Template:1x'
 			],
 			[
 				'should lint when background is present but font color is missing',

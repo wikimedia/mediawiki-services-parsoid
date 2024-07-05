@@ -43,6 +43,8 @@ class MockSiteConfig extends SiteConfig {
 		'project_talk' => 5, 'wt' => 5, 'wikipedia_talk' => 5,
 		'file' => 6,
 		'file_talk' => 7,
+		'template' => 10,
+		'template_talk' => 11,
 		'help' => 12,
 		'category' => 14,
 		'category_talk' => 15,
