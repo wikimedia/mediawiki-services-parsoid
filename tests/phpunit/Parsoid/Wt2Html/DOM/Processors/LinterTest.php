@@ -17,7 +17,9 @@ use Wikimedia\Parsoid\Parsoid;
  */
 class LinterTest extends TestCase {
 
-	private function wtToLint( string $wt, array $linterOverrides = [] ): array {
+	private function wtToLint(
+		string $wt, array $linterOverrides = [], ?string $title = null
+	): array {
 		$siteOptions = [
 			'linting' => true,
 			'linterOverrides' => $linterOverrides,
@@ -28,7 +30,9 @@ class LinterTest extends TestCase {
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
 
 		$content = new MockPageContent( [ 'main' => $wt ] );
-		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
+		$pageConfig = new MockPageConfig(
+			$siteConfig, [ 'title' => $title ], $content
+		);
 
 		return $parsoid->wikitext2lint( $pageConfig, [] );
 	}
@@ -277,6 +281,10 @@ class LinterTest extends TestCase {
 		$result = $this->wtToLint( "{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}" );
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
+
+		$desc = 'should not lint fostered include directives without fostered content on template pages';
+		$result = $this->wtToLint( "{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}", [], 'Template:Fostered' );
+		$this->assertSame( [], $result, $desc );
 
 		$desc = 'should lint fostered include directives that has fostered content';
 		$result = $this->wtToLint( "{|\n<noinclude>boo</noinclude>\n|-\n| bar\n|}" );

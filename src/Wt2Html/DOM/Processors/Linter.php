@@ -526,8 +526,19 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// the table are expected to be elements.
 		$maybeFostered = $node->previousSibling;
 
-		// Skip rendering-transparent nodes if they come from a template
-		while ( $tplInfo && $maybeFostered instanceof Element && (
+		$isTemplatePage = $env->getContextTitle()->getNamespace() === 10; // NS_TEMPLATE
+
+		// Skip rendering-transparent nodes if they come from a template or
+		// we're on a template page
+		//
+		// We're trying to find a balance between creating noise for wikignomes
+		// and avoiding dirty-diffs from DiscussionTools.  DiscussionTools
+		// expects to know when pages have fostered content otherwise it can
+		// lead to corruption on edit.  However, rendering transparent nodes
+		// often end up in fosterable positions, like category links from
+		// templates or include directives on template pages.  Neither of which
+		// seem particularly concerning for DT.
+		while ( ( $tplInfo || $isTemplatePage ) && $maybeFostered instanceof Element && (
 			WTUtils::isRenderingTransparentNode( $maybeFostered ) ||
 			// TODO: Section tags are rendering transparent but not sol transparent,
 			// and that method only considers WTUtils::isSolTransparentLink, though
