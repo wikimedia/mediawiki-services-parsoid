@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * Catch-all class for all token types.
  */
 abstract class Token implements \JsonSerializable {
-	public ?DataParsoid $dataParsoid = null;
+	public DataParsoid $dataParsoid;
 	public ?DataMw $dataMw = null;
 
 	/** @var KV[] */
@@ -365,13 +365,11 @@ abstract class Token implements \JsonSerializable {
 
 		if ( is_array( $token ) ) {
 			self::rebuildNestedTokens( $token );
-		} else {
+		} elseif ( $token instanceof Token ) {
 			if ( !empty( $token->attribs ) ) {
 				self::rebuildNestedTokens( $token->attribs );
 			}
-			if ( !empty( $token->dataParsoid ) ) {
-				self::rebuildNestedTokens( $token->dataParsoid );
-			}
+			self::rebuildNestedTokens( $token->dataParsoid );
 		}
 
 		return $token;

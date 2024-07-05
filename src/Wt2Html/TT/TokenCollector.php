@@ -199,13 +199,13 @@ abstract class TokenCollector extends TokenHandler {
 		?Token $endDelim
 	): SelfclosingTagTk {
 		$da = $startDelim->dataParsoid;
-		$tsr0 = $da ? $da->tsr : null;
+		$tsr0 = $da->tsr;
 		$t0 = $tsr0 ? $tsr0->start : null;
 		$t1 = null;
 
 		if ( $endDelim !== null ) {
-			$da = $endDelim->dataParsoid ?? null;
-			$tsr1 = $da ? $da->tsr : null;
+			$da = $endDelim->dataParsoid;
+			$tsr1 = $da->tsr;
 			$t1 = $tsr1 ? $tsr1->end : null;
 		} else {
 			$t1 = strlen( $manager->getFrame()->getSrcText() );

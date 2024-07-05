@@ -187,7 +187,7 @@ class TreeBuilderStage extends PipelineStage {
 
 		$dispatcher = $this->remexPipeline->dispatcher;
 		$attribs = isset( $token->attribs ) ? $this->kvArrToAttr( $token->attribs ) : [];
-		$dataParsoid = $token->dataParsoid ?? new DataParsoid;
+		$dataParsoid = !is_string( $token ) ? $token->dataParsoid : new DataParsoid;
 		$dataMw = $token->dataMw ?? null;
 		$tmp = $dataParsoid->getTemp();
 
