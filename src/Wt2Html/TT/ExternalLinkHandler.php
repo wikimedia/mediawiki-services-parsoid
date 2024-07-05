@@ -82,6 +82,7 @@ class ExternalLinkHandler extends TokenHandler {
 		$origHref = $token->getAttributeV( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
 		$dataParsoid = $token->dataParsoid->clone();
+		$dataMw = $token->dataMw ? $token->dataMw->clone() : null;
 
 		if ( $this->hasImageLink( $href ) ) {
 			$checkAlt = explode( '/', $href );
@@ -95,7 +96,7 @@ class ExternalLinkHandler extends TokenHandler {
 			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $tagAttrs )['attribs'];
 			return new TokenHandlerResult(
-				[ new SelfclosingTagTk( 'img', $tagAttrs, $dataParsoid, $token->dataMw ) ] );
+				[ new SelfclosingTagTk( 'img', $tagAttrs, $dataParsoid, $dataMw ) ] );
 		} else {
 			$tagAttrs = [
 				new KV( 'rel', 'mw:ExtLink' )
@@ -105,7 +106,7 @@ class ExternalLinkHandler extends TokenHandler {
 			// href is set explicitly below
 			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $tagAttrs )['attribs'];
-			$builtTag = new TagTk( 'a', $tagAttrs, $dataParsoid, $token->dataMw );
+			$builtTag = new TagTk( 'a', $tagAttrs, $dataParsoid, $dataMw );
 			$dataParsoid->stx = 'url';
 
 			if ( !$this->options['inTemplate'] ) {
@@ -153,6 +154,7 @@ class ExternalLinkHandler extends TokenHandler {
 		);
 		$content = $token->getAttributeV( 'mw:content' );
 		$dataParsoid = $token->dataParsoid->clone();
+		$dataMw = $token->dataMw ? $token->dataMw->clone() : null;
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
 		);
@@ -182,7 +184,7 @@ class ExternalLinkHandler extends TokenHandler {
 			// combine with existing rdfa attrs
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $newAttrs )['attribs'];
-			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $token->dataMw );
+			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $dataMw );
 			$tokens = array_merge( [ $aStart ],
 				is_array( $content ) ? $content : [ $content ], [ new EndTagTk( 'a' ) ] );
 			return new TokenHandlerResult( $tokens );
@@ -211,7 +213,7 @@ class ExternalLinkHandler extends TokenHandler {
 			// href is set explicitly below
 			$newAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $newAttrs )['attribs'];
-			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $token->dataMw );
+			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $dataMw );
 
 			if ( !$this->options['inTemplate'] ) {
 				// If we are from a top-level page, add normalized attr info for
