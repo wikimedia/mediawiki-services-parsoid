@@ -82,7 +82,7 @@ class LinkHandlerUtils {
 		$href = DOMCompat::getAttribute( $node, 'href' ) ?? '';
 		if ( ( $href[0] ?? '' ) === '/' && ( $href[1] ?? '' ) !== '/' ) {
 			// protocol-less but absolute.  let's find a base href
-			foreach ( $env->getSiteConfig()->interwikiMapNoNamespaces() as $prefix => $interwikiInfo ) {
+			foreach ( $env->getSiteConfig()->interwikiMapNoNamespaces() as $interwikiInfo ) {
 				if ( isset( $interwikiInfo['localinterwiki'] ) && isset( $interwikiInfo['url'] ) ) {
 					$base = $interwikiInfo['url'];
 

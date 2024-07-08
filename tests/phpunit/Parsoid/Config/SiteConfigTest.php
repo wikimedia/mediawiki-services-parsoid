@@ -129,6 +129,10 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'prefix' => 'example',
 				'url' => '//example.org/$1',
 			],
+			'2' => [
+				'prefix' => '2',
+				'url' => 'https://two.org/$1',
+			],
 		] );
 
 		$this->assertSame( $expect, $siteConfig->interwikiMatcher( $href ) );
@@ -149,6 +153,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			[ 'https://en.wikipedia.org/wiki/Foobar', [ ':en', 'Foobar' ] ], // not 'w'
 			[ './w:Foobar', [ 'w', 'Foobar' ] ],
 			[ 'de%3AFoobar', [ ':de', 'Foobar' ] ],
+			[ 'https://two.org/Two', [ '2', 'Two' ] ],
 
 			// Protocol-relative handling
 			[ 'https://archive.org/details/301works', [ 'iarchive', '301works' ] ],

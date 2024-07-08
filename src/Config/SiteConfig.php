@@ -482,7 +482,7 @@ abstract class SiteConfig {
 		if ( $this->interwikiMapNoNamespaces === null ) {
 			$this->interwikiMapNoNamespaces = [];
 			foreach ( $this->interwikiMap() as $key => $value ) {
-				if ( $this->namespaceId( $key ) === null ) {
+				if ( $this->namespaceId( (string)$key ) === null ) {
 					$this->interwikiMapNoNamespaces[$key] = $value;
 				}
 			}
@@ -500,6 +500,7 @@ abstract class SiteConfig {
 			$keys = [ [], [] ];
 			$patterns = [ [], [] ];
 			foreach ( $this->interwikiMapNoNamespaces() as $key => $iw ) {
+				$key = (string)$key;
 				$lang = (int)( !empty( $iw['language'] ) );
 
 				$url = $iw['url'];
