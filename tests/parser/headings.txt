@@ -1350,17 +1350,33 @@ flags=no-toc
 <section data-mw-section-id="4"><h3 id="Four">Four</h3></section></section>
 !! end
 
+## Note that the legacy parser doesn't set the flag.  It instead uses the presence
+## of the behavior switch to inhibit the creation of the placeholders that would
+## get replaced with the section edit links.
 !! test
 __NOEDITSECTION__ keyword
+!! options
+showflags
+parsoid={
+	"wrapSections": true
+}
 !! config
 wgParserEnableLegacyHeadingDOM=false
 !! wikitext
 __NOEDITSECTION__
 ==Section 1==
 ==Section 2==
-!! html
+!! html/php
 <div class="mw-heading mw-heading2"><h2 id="Section_1">Section 1</h2></div>
 <div class="mw-heading mw-heading2"><h2 id="Section_2">Section 2</h2></div>
+!! metadata/php
+flags=
+!! html/parsoid
+<section data-mw-section-id="0"><meta property="mw:PageProp/noeditsection" data-parsoid='{"magicSrc":"__NOEDITSECTION__"}'/>
+</section><section data-mw-section-id="1"><h2 id="Section_1" data-parsoid='{}'>Section 1</h2>
+</section><section data-mw-section-id="2"><h2 id="Section_2" data-parsoid='{}'>Section 2</h2></section>
+!! metadata/parsoid
+flags=no-section-edit-links
 !! end
 
 !! test

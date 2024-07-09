@@ -874,18 +874,29 @@ class WrapSectionsState {
 		}
 	}
 
-	/** Transfer information about new section links from behaviour switches to CMC */
-	private function addNewSectionInfo() {
-		// ParserOutputFlags::NEW_SECTION
-		$this->env->getMetadata()->setOutputFlag(
-			'mw-NewSection',
-			$this->env->getBehaviorSwitch( 'newsectionlink', false )
-		);
-		// ParserOutputFlags::HIDE_NEW_SECTION
-		$this->env->getMetadata()->setOutputFlag(
-			'mw-HideNewSection',
-			$this->env->getBehaviorSwitch( 'nonewsectionlink', false )
-		);
+	/** Transfer information about section links from behaviour switches to CMC */
+	private function addSectionInfo() {
+		$newSectionLink = $this->env->getBehaviorSwitch( 'newsectionlink' );
+		if ( $newSectionLink !== null ) {
+			// ParserOutputFlags::NEW_SECTION
+			$this->env->getMetadata()->setOutputFlag(
+				'mw-NewSection', $newSectionLink
+			);
+		}
+		$noNewSectionLink = $this->env->getBehaviorSwitch( 'nonewsectionlink' );
+		if ( $noNewSectionLink !== null ) {
+			// ParserOutputFlags::HIDE_NEW_SECTION
+			$this->env->getMetadata()->setOutputFlag(
+				'mw-HideNewSection', $noNewSectionLink
+			);
+		}
+		$noEditSection = $this->env->getBehaviorSwitch( 'noeditsection' );
+		if ( $noEditSection !== null ) {
+			// ParserOutputFlags::NO_SECTION_EDIT_LINKS
+			$this->env->getMetadata()->setOutputFlag(
+				'no-section-edit-links', $noEditSection
+			);
+		}
 	}
 
 	/**
@@ -914,6 +925,6 @@ class WrapSectionsState {
 
 		$this->addSyntheticTOCMarker();
 
-		$this->addNewSectionInfo();
+		$this->addSectionInfo();
 	}
 }

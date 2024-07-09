@@ -64,9 +64,6 @@
 	"T8563: Edit link generation for section suppressed by <includeonly>": {
 		"wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[53,66,2,2]}'>Section 1</h2>"
 	},
-	"__NOEDITSECTION__ keyword": {
-		"wt2html": "<meta property=\"mw:PageProp/noeditsection\" data-parsoid='{\"src\":\"__NOEDITSECTION__\",\"magicSrc\":\"__NOEDITSECTION__\",\"dsr\":[0,17,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[18,31,2,2]}'>Section 1</h2>\n<h2 id=\"Section_2\" data-parsoid='{\"dsr\":[32,45,2,2]}'>Section 2</h2>"
-	},
 	"nowiki inside link inside heading (T20295)": {
 		"wt2html": "<h2 id=\"xyz\" data-parsoid='{\"dsr\":[0,32,2,2]}'><a rel=\"mw:WikiLink\" href=\"./Foo\" title=\"Foo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Foo\"},\"sa\":{\"href\":\"foo\"},\"dsr\":[2,30,6,2]}'>x<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[9,27,8,9]}'>y</span>z</a></h2>"
 	}
