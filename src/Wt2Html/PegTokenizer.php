@@ -23,12 +23,8 @@ use Wikimedia\WikiPEG\SyntaxError;
 class PegTokenizer extends PipelineStage {
 	private $options;
 	private $offsets;
-
-	/** @var SyntaxError|null */
-	private $lastError;
-
-	/** @var Grammar */
-	private $grammar;
+	private ?SyntaxError $lastError = null;
+	private ?Grammar $grammar = null;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -229,6 +225,9 @@ class PegTokenizer extends PipelineStage {
 	 */
 	public function resetState( array $opts ): void {
 		TokenizerUtils::resetAnnotationIncludeRegex();
+		if ( $this->grammar ) {
+			$this->grammar->resetState();
+		}
 		parent::resetState( $opts );
 	}
 }

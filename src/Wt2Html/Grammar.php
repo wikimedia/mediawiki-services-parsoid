@@ -102,6 +102,10 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	private $prevOffset = 0;
 	private $headingIndex = 0;
 
+	public function resetState() {
+		$this->headingIndex = 0;
+	}
+
 	private function assert( $condition, $text ) {
 		if ( !$condition ) {
 			throw new \RuntimeException( "Grammar.pegphp assertion failure: $text" );
@@ -1186,11 +1190,13 @@ private function a95($s, $ce, $endTPos, $spc) {
 			$tagDP = new DataParsoid;
 			$tagDP->tsr = $this->tsrOffsets( 'start' );
 			$tagDP->tsr->end += $level;
-			// Match the old parser's behavior by (a) making headingIndex part of tokenizer
-			// state(don't reuse pipeline!) and (b) assigning the index when
-			// ==*== is tokenized, even if we're inside a template argument
-			// or other context which won't end up putting the heading
-			// on the output page.  T213468/T214538
+			// Match the old parser's behavior by
+			// (a) making headingIndex part of tokenizer state
+			//   (don't reuse pipeline! see $this->resetState above)
+			// (b) assigning the index when ==*== is tokenized,
+			//   even if we're inside a template argument
+			//   or other context which won't end up putting the heading
+			//   on the output page.  T213468/T214538
 			$this->headingIndex++;
 			$tagDP->getTemp()->headingIndex = $this->headingIndex;
 			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];

@@ -11,4 +11,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	public function parse( $input, $options = [] ) {
 		return null;
 	}
+
+	public function resetState() {
+	}
 }
