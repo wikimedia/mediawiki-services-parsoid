@@ -15237,8 +15237,8 @@ private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th)
 case "start_async":
   return $this->streamstart_async(false, self::newRef(null));
   break;
-				default:
-					throw new \Wikimedia\WikiPEG\InternalError( "Can't stream rule $startRule." );
+			default:
+				throw new \Wikimedia\WikiPEG\InternalError( "Can't stream rule $startRule." );
 			}
 		} else {
 			switch ( $startRule ) {
@@ -15278,8 +15278,8 @@ case "extlink":
 case "list_item":
   $result = $this->parselist_item(false, 0, self::newRef(null), self::newRef(null));
   break;
-				default:
-					throw new \Wikimedia\WikiPEG\InternalError( "Can't start parsing from rule $startRule." );
+			default:
+				throw new \Wikimedia\WikiPEG\InternalError( "Can't start parsing from rule $startRule." );
 			}
 		}
 
