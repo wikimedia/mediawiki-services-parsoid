@@ -115,6 +115,9 @@
     "Section headings with TOC, language conversion rules, and displaytitle\n(T306862, T331316, T26072)": {
         "metadata": "Sections:\n h2 index:1 toclevel:1 number:1 title:Parser_test off:192 anchor/linkAnchor:Foo line:Foo\n h2 index:2 toclevel:1 number:2 title:Parser_test off:209 anchor/linkAnchor:Bar line:Bar\n h2 index:3 toclevel:1 number:3 title:Parser_test off:226 anchor/linkAnchor:-{Foo_Bar}- line:-{Foo Bar}-"
     },
+    "Sections follow template redirects": {
+        "metadata": "Sections:"
+    },
     "T307691: show-toc flag: \"enough\" sections": {
         "wt2wt": "==One==\n===Two===\n==Three==\n===Four===\n",
         "html2wt": "== One ==\n\n=== Two ===\n\n== Three ==\n\n=== Four ===\n",

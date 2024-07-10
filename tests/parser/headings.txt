@@ -3011,3 +3011,27 @@ Sections:
  h3 index:T-1 toclevel:1 number:3 title:Template:With_two off:NULL anchor/linkAnchor:in_2 line:in 2
  h3 index:T-2 toclevel:1 number:4 title:Template:With_two off:NULL anchor/linkAnchor:in_3 line:in 3
 !! end
+
+!! article
+Template:With redirect
+!! text
+#REDIRECT [[Template:With one]]
+!! endarticle
+
+!! test
+Sections follow template redirects
+!! options
+nohtml
+showtocdata
+parsoid={
+	"modes": [ "wt2html" ],
+	"wrapSections": true
+}
+!! config
+wgParserEnableLegacyHeadingDOM=false
+!! wikitext
+{{with redirect}}
+!! metadata
+Sections:
+ h3 index:T-1 toclevel:1 number:1 title:Template:With_one off:NULL anchor/linkAnchor:in line:in
+!! end
