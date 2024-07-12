@@ -849,7 +849,17 @@ class TestRunner {
 				JSON_FORCE_OBJECT | JSON_UNESCAPED_UNICODE
 			) . "\n";
 			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
-				file_put_contents( $this->knownFailuresPath, $contents );
+				if ( $this->knownFailuresPath !== null ) {
+					file_put_contents( $this->knownFailuresPath, $contents );
+				} else {
+					// To be safe, we don't try to write a file that doesn't
+					// (yet) exist.  Create an empty file if you need to, and
+					// then we'll happily update it for you.
+					throw new \RuntimeException(
+						"Known failures file for {$this->testFileName} does not exist, " .
+						"and so won't be updated."
+					);
+				}
 			} elseif ( $allModes && $offsetType === 'byte' ) {
 				$knownFailuresChanged = $contents !== $old;
 			}
