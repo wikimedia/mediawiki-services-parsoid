@@ -798,6 +798,19 @@ class WikiLinkHandler extends TokenHandler {
 		return new TokenHandlerResult( $tokens );
 	}
 
+	private static $horizontalAligns = [
+		// PHP parser wraps in <div class="floatnone">
+		'left',
+		// PHP parser wraps in <div class="center"><div class="floatnone">
+		'right',
+		// PHP parser wraps in <div class="floatleft">
+		'center',
+		// PHP parser wraps in <div class="floatright">
+		'none',
+	];
+	private static $verticalAligns = [ 'baseline', 'sub', 'super', 'top', 'text-top', 'middle',
+		'bottom', 'text-bottom' ];
+
 	/**
 	 * Get the style and class lists for an image's wrapper element.
 	 *
@@ -826,77 +839,15 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		$halign = $opts['halign']['v'] ?? null;
-		switch ( $halign ) {
-			case 'none':
-				// PHP parser wraps in <div class="floatnone">
-				$isInline = false;
-				if ( $halign === 'none' ) {
-					$classes[] = 'mw-halign-none';
-				}
-				break;
-
-			case 'center':
-				// PHP parser wraps in <div class="center"><div class="floatnone">
-				$isInline = false;
-				if ( $halign === 'center' ) {
-					$classes[] = 'mw-halign-center';
-				}
-				break;
-
-			case 'left':
-				// PHP parser wraps in <div class="floatleft">
-				$isInline = false;
-				if ( $halign === 'left' ) {
-					$classes[] = 'mw-halign-left';
-				}
-				break;
-
-			case 'right':
-				// PHP parser wraps in <div class="floatright">
-				$isInline = false;
-				if ( $halign === 'right' ) {
-					$classes[] = 'mw-halign-right';
-				}
-				break;
+		if ( in_array( $halign, self::$horizontalAligns, true ) ) {
+			$isInline = false;
+			$classes[] = "mw-halign-$halign";
 		}
 
 		if ( $isInline ) {
 			$valignOpt = $opts['valign']['v'] ?? null;
-			switch ( $valignOpt ) {
-				case 'middle':
-					$classes[] = 'mw-valign-middle';
-					break;
-
-				case 'baseline':
-					$classes[] = 'mw-valign-baseline';
-					break;
-
-				case 'sub':
-					$classes[] = 'mw-valign-sub';
-					break;
-
-				case 'super':
-					$classes[] = 'mw-valign-super';
-					break;
-
-				case 'top':
-					$classes[] = 'mw-valign-top';
-					break;
-
-				case 'text_top':
-					$classes[] = 'mw-valign-text-top';
-					break;
-
-				case 'bottom':
-					$classes[] = 'mw-valign-bottom';
-					break;
-
-				case 'text_bottom':
-					$classes[] = 'mw-valign-text-bottom';
-					break;
-
-				default:
-					break;
+			if ( in_array( $valignOpt, self::$verticalAligns, true ) ) {
+				$classes[] = str_replace( '_', '-', "mw-valign-$valignOpt" );
 			}
 		}
 
@@ -1143,12 +1094,15 @@ class WikiLinkHandler extends TokenHandler {
 		if ( $this->used ) {
 			return $this->used;
 		}
-		$this->used = PHPUtils::makeSet( [
-				'lang', 'width', 'class', 'upright',
-				'border', 'frameless', 'framed', 'thumbnail',
-				'left', 'right', 'center', 'none',
-				'baseline', 'sub', 'super', 'top', 'text_top', 'middle', 'bottom', 'text_bottom'
-			]
+		$this->used = PHPUtils::makeSet(
+			array_merge(
+				[
+					'lang', 'width', 'class', 'upright',
+					'border', 'frameless', 'framed', 'thumbnail',
+				],
+				self::$horizontalAligns,
+				self::$verticalAligns
+			)
 		);
 		return $this->used;
 	}
