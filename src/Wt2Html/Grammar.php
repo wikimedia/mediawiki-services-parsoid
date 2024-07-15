@@ -103,6 +103,7 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 	private $headingIndex = 0;
 
 	public function resetState() {
+		$this->prevOffset = 0;
 		$this->headingIndex = 0;
 	}
 
