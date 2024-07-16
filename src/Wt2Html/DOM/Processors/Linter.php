@@ -538,7 +538,17 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// often end up in fosterable positions, like category links from
 		// templates or include directives on template pages.  Neither of which
 		// seem particularly concerning for DT.
-		while ( ( $tplInfo || $isTemplatePage ) && $maybeFostered instanceof Element && (
+		//
+		// FIXME(T369317): Not skipping rendering transparent nodes is proving too
+		// costly to wikignomes work.  We should explore other alternatives like
+		// surfacing if fostered content is all rendering transparent in params
+		// and then suppressing those lints from Linter UI.  Or, introduce a new
+		// hidden category, 'fostered-transparent' or some such.
+		// $skipRenderingTransparentNodes = ( $tplInfo || $isTemplatePage );
+		$skipRenderingTransparentNodes = true;
+
+		// @phan-suppress-next-line PhanInfiniteLoop
+		while ( $skipRenderingTransparentNodes && $maybeFostered instanceof Element && (
 			WTUtils::isRenderingTransparentNode( $maybeFostered ) ||
 			// TODO: Section tags are rendering transparent but not sol transparent,
 			// and that method only considers WTUtils::isSolTransparentLink, though

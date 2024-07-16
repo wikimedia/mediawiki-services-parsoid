@@ -261,26 +261,20 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
 		$this->assertEquals( [ 0, 18, 2, 2 ], $result[0]['dsr'], $desc );
 
-		$desc = 'should lint fostered categories';
-		$result = $this->wtToLint( "{|\n[[Category:Fostered]]\n|-\n| bar\n|}" );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
+		$desc = 'should not lint fostered categories';
+		$this->expectEmptyResults( $desc, "{|\n[[Category:Fostered]]\n|-\n| bar\n|}" );
 
 		$desc = 'should not lint fostered categories from templates';
 		$this->expectEmptyResults( $desc, "{|\n{{1x|[[Category:Fostered]]}}\n|-\n| bar\n|}" );
 
-		$desc = 'should lint fostered behavior switches';
-		$result = $this->wtToLint( "{|\n__NOTOC__\n|-\n| bar\n|}" );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
+		$desc = 'should not lint fostered behavior switches';
+		$this->expectEmptyResults( $desc, "{|\n__NOTOC__\n|-\n| bar\n|}" );
 
 		$desc = 'should not lint fostered behavior switches from templates';
 		$this->expectEmptyResults( $desc, "{|\n{{1x|__NOTOC__}}\n|-\n| bar\n|}" );
 
-		$desc = 'should lint fostered include directives without fostered content';
-		$result = $this->wtToLint( "{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}" );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
+		$desc = 'should not lint fostered include directives without fostered content';
+		$this->expectEmptyResults( $desc, "{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}" );
 
 		$desc = 'should not lint fostered include directives without fostered content on template pages';
 		$result = $this->wtToLint( "{|\n<includeonly>boo</includeonly>\n|-\n| bar\n|}", [], 'Template:Fostered' );
@@ -291,10 +285,8 @@ class LinterTest extends TestCase {
 		$this->assertCount( 1, $result, $desc );
 		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
 
-		$desc = 'should lint fostered section tags';
-		$result = $this->wtToLint( "{|\n<section name='123'/>\n|-\n| bar\n|}" );
-		$this->assertCount( 1, $result, $desc );
-		$this->assertEquals( 'fostered', $result[0]['type'], $desc );
+		$desc = 'should not lint fostered section tags';
+		$this->expectEmptyResults( $desc, "{|\n<section name='123'/>\n|-\n| bar\n|}" );
 	}
 
 	/**
