@@ -1,7 +1,7 @@
 <?php
 /*
  * DO NOT EDIT MANUALLY.
- * File generated from Grammar.pegphp with `composer regen-tokenizer`.
+ * File generated from Grammar.pegphp with `npm run regen-php-tokenizer`.
  */
 
 
