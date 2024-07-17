@@ -1296,7 +1296,7 @@ parsoid={ "modes": ["wt2html","selser"], "suppressErrors": true }
 </table>
 !! html/parsoid
 <ul data-parsoid='{"fostered":true,"autoInsertedEnd":true}'><li>a</li><li>b</li></ul><table>
-<tbody><tr data-parsoid='{"startTagSrc":"|-"}'>
+<tbody><tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-"}'>
 
 </tr></tbody></table>
 !! end

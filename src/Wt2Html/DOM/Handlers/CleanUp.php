@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\TempData;
-use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -69,34 +68,43 @@ class CleanUp {
 
 	/**
 	 * The following are considered "empty node"s:
-	 * - Comments, sol-transparent links, nowiki spans without content
+	 * - Comments, rendering transparent nodes, nowiki spans without content
 	 *   are all stripped  by the core parser.
 	 * - Text nodes with whitespace don't count either.
 	 * - Parsoid-added span wrappers around other "empty node"s.
 	 *
 	 * @param Node $node
+	 * @param bool &$hasRTNodes Set to true if the node contained rendering transparent nodes.
+	 *   Note this value is only reliable if ::isEmptyNode() returns true.
 	 * @return bool
 	 */
-	private static function isEmptyNode( Node $node ): bool {
-		$n = $node->firstChild;
-		while ( $n ) {
-			if ( $n instanceof Comment ||
-				WTUtils::isSolTransparentLink( $n ) ||
-				( $n instanceof Text && preg_match( '/^[ \t]*$/D', $n->nodeValue ) ) ||
-				( DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) && self::isEmptyNode( $n ) ) ||
-				(
-					$n instanceof Element &&
-					DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER ) &&
-					self::isEmptyNode( $n )
-				)
-			) {
-				$n = $n->nextSibling;
+	private static function isEmptyNode( Node $node, bool &$hasRTNodes ): bool {
+		for ( $n = $node->firstChild; $n !== null; $n = $n->nextSibling ) {
+			if ( $n instanceof Comment ) {
 				continue;
+			} elseif ( $n instanceof Text ) {
+				if ( !preg_match( '/^[ \t\r\n]*$/D', $n->nodeValue ) ) {
+					return false;
+				}
+				continue;
+			} elseif ( $n instanceof Element ) {
+				if ( WTUtils::isRenderingTransparentNode( $n ) ) {
+					$hasRTNodes = true;
+					continue;
+				}
+				if (
+					(
+						DOMUtils::hasTypeOf( $n, 'mw:Nowiki' ) ||
+						DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER )
+					) && self::isEmptyNode( $n, $hasRTNodes )
+				) {
+					continue;
+				}
+				return false;
+			} else {
+				return false;
 			}
-
-			return false;
 		}
-
 		return true;
 	}
 
@@ -115,9 +123,13 @@ class CleanUp {
 	 * @return bool|Node
 	 */
 	public static function handleEmptyElements( Node $node, DTState $state ) {
+		// Set by isEmptyNode() to indicate whether a node which is "empty" contained
+		// invisible "rendering transparent" nodes.
+		$hasRTNodes = false;
+
 		if ( !( $node instanceof Element ) ||
 			!isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] ) ||
-			!self::isEmptyNode( $node )
+			!self::isEmptyNode( $node, $hasRTNodes )
 		) {
 			return true;
 		}
@@ -136,14 +148,14 @@ class CleanUp {
 		 * The node is known to be empty and a deletion candidate
 		 * - If node is part of template content and is not the
 		 *   first encapsulation wrapper node, and doesn't contain
-		 *   any sol transparent links, it can be deleted.
+		 *   any rendering transparent nodes, it can be deleted.
 		 * - If not, we add the mw-empty-elt class so that wikis
 		 *   can decide what to do with them.
 		 */
 		if (
 			$state->tplInfo &&
 			$state->tplInfo->first !== $node &&
-			DiffDOMUtils::nodeEssentiallyEmpty( $node )
+			!$hasRTNodes
 		) {
 			$nextNode = $node->nextSibling;
 			$node->parentNode->removeChild( $node );

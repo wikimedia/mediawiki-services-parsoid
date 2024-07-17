@@ -294,7 +294,7 @@
         "html2wt": "{|\n{{1x|<tr><td>foo</td></tr>}}\n|}"
     },
     "Empty TR followed by mixed-ws-comment line should RT correctly": {
-        "html2html": "<table data-parsoid='{\"dsr\":[0,36,2,2]}'>\n <!--c-->\n<tbody data-parsoid='{\"dsr\":[13,34,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[13,25,2,0]}'>\n<!--c--> </tr><!--d-->\n</tbody></table>",
+        "html2html": "<table data-parsoid='{\"dsr\":[0,36,2,2]}'>\n <!--c-->\n<tbody data-parsoid='{\"dsr\":[13,34,0,0]}'><tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[13,25,2,0]}'>\n<!--c--> </tr><!--d-->\n</tbody></table>",
         "html2wt": "{|\n <!--c-->\n|-\n<!--c--> <!--d-->\n|}"
     },
     "Empty attribute crash test single-quotes (T4067)": {

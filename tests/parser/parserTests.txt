@@ -13621,7 +13621,7 @@ Empty TR followed by mixed-ws-comment line should RT correctly
 <tbody>
 <tr class='mw-empty-elt'></tr>
  <!--c-->
-<tr>
+<tr class="mw-empty-elt">
 <!--c--> </tr><!--d-->
 </tbody></table>
 !! end
