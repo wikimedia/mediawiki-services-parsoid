@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\TempData;
+use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -134,11 +135,16 @@ class CleanUp {
 		/**
 		 * The node is known to be empty and a deletion candidate
 		 * - If node is part of template content and is not the
-		 *   first encapsulation wrapper node, it can be deleted.
+		 *   first encapsulation wrapper node, and doesn't contain
+		 *   any sol transparent links, it can be deleted.
 		 * - If not, we add the mw-empty-elt class so that wikis
 		 *   can decide what to do with them.
 		 */
-		if ( $state->tplInfo && $state->tplInfo->first !== $node ) {
+		if (
+			$state->tplInfo &&
+			$state->tplInfo->first !== $node &&
+			DiffDOMUtils::nodeEssentiallyEmpty( $node )
+		) {
 			$nextNode = $node->nextSibling;
 			$node->parentNode->removeChild( $node );
 			return $nextNode;

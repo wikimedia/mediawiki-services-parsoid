@@ -16422,6 +16422,19 @@ Empty LI (T49673)
 !! end
 
 !! test
+Empty list item with rendering transparent tag
+!! wikitext
+{{1x|*hmm
+*[[category:123]]}}
+!! html/php
+<ul><li>hmm</li>
+<li class="mw-empty-elt"></li></ul>
+!! html/parsoid
+<ul about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"*hmm\n*[[category:123]]"}},"i":0}}]}'><li>hmm</li>
+<li class="mw-empty-elt"><link rel="mw:PageProp/Category" href="./Category:123"/></li></ul>
+!! end
+
+!! test
 unclosed internal link XSS (T137264)
 !! wikitext
 [[#%3Cscript%3Ealert(1)%3C/script%3E|
