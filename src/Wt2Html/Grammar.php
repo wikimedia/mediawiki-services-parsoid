@@ -12750,47 +12750,15 @@ private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
     $p3 = $this->currPos;
     // start seq_1
     $p4 = $this->currPos;
-    // start choice_1
     $r5 = $this->parsepipe_pipe($silence);
-    if ($r5!==self::$FAILED) {
-      goto choice_1;
-    }
-    $p6 = $this->currPos;
-    // start seq_2
-    $p7 = $this->currPos;
-    $r8 = $this->parsepipe($silence);
-    // p <- $r8
-    if ($r8===self::$FAILED) {
-      $r5 = self::$FAILED;
-      goto seq_2;
-    }
-    $p9 = $this->currPos;
-    $r10 = $this->discardrow_syntax_table_args(true, $boolParams, $param_preproc, $param_th);
-    if ($r10!==self::$FAILED) {
-      $r10 = false;
-      $this->currPos = $p9;
-    } else {
-      $this->currPos = $p7;
-      $r5 = self::$FAILED;
-      goto seq_2;
-    }
-    // free $p9
-    $r5 = true;
-    seq_2:
-    if ($r5!==self::$FAILED) {
-      $this->savedPos = $p6;
-      $r5 = $this->a29($r8);
-    }
-    // free $p7
-    choice_1:
     // pp <- $r5
     if ($r5===self::$FAILED) {
       $r2 = self::$FAILED;
       goto seq_1;
     }
-    $r11 = $this->parsetable_data_tag($silence, $boolParams, $param_preproc, $param_th);
-    // tdt <- $r11
-    if ($r11===self::$FAILED) {
+    $r6 = $this->parsetable_data_tag($silence, $boolParams, $param_preproc, $param_th);
+    // tdt <- $r6
+    if ($r6===self::$FAILED) {
       $this->currPos = $p4;
       $r2 = self::$FAILED;
       goto seq_1;
@@ -12799,7 +12767,7 @@ private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
     seq_1:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r2 = $this->a159($r5, $r11);
+      $r2 = $this->a159($r5, $r6);
       $r1[] = $r2;
     } else {
       break;
@@ -13643,68 +13611,6 @@ private function parsepipe_pipe($silence) {
     $r1,
     self::$UNDEFINED,
     self::$UNDEFINED
-  );
-  return $r1;
-}
-private function discardrow_syntax_table_args($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([483, $boolParams & 0x3eff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $r4 = $this->parsetable_attributes($silence, $boolParams | 0x100, $param_preproc, $param_th);
-  // as <- $r4
-  if ($r4===self::$FAILED) {
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r5 = $this->parseoptional_spaces($silence);
-  // s <- $r5
-  if ($r5===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r6 = $this->parsepipe($silence);
-  // p <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $p7 = $this->currPos;
-  $r8 = $this->discardpipe(true);
-  if ($r8 === self::$FAILED) {
-    $r8 = false;
-  } else {
-    $r8 = self::$FAILED;
-    $this->currPos = $p7;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $p7
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a14($r4, $r5, $r6);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r1;
 }
