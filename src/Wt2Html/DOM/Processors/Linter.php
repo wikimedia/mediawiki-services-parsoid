@@ -1055,9 +1055,9 @@ class Linter implements Wt2HtmlDOMProcessor {
 				$item['dsr'] = DomSourceRange::newFromJsonArray( $item['dsr'] );
 			}
 			$env->recordLint( 'multiple-unclosed-formatting-tags', [
-				'params' => $item['params'] ?? [],
-				'dsr' => $item['dsr'] ?? null,
-				'templateInfo' => $item['tplLintInfo'] ?? null
+				'params' => $item['params'],
+				'dsr' => $item['dsr'],
+				'templateInfo' => $item['templateInfo'],
 			] );
 		}
 	}
