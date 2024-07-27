@@ -140,9 +140,7 @@ const phpFetch = Promise.async(function *(env, title, revid) {
 		const req = new PHPVariantRequest(
 			env, title, env.htmlVariantLanguage, revid
 		);
-		req.once('src', (err, src) => {
-			return err ? reject(err) : resolve(src);
-		});
+		req.once('src', (err, src) => err ? reject(err) : resolve(src));
 	});
 	const document = DOMUtils.parseHTML(parse.text['*']);
 	const displaytitle = parse.displaytitle;

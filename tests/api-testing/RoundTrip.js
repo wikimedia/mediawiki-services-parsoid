@@ -30,12 +30,10 @@ describe( 'Parsoid round-trip e2e testing with MW REST endpoints', function () {
 			)
 				.redirects(1) // roundtrip-test.js executes at least one redirect per request
 				.expect(status200)
-				.then((res) => {
-					return [
-						{ request: res.req, headers: res.headers },
-						Object.keys(res.body).length !== 0 ? res.body : res.text
-					];
-				});
+				.then((res) => [
+					{ request: res.req, headers: res.headers },
+					Object.keys(res.body).length !== 0 ? res.body : res.text
+				]);
 		}
 	};
 

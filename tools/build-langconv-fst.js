@@ -405,13 +405,11 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 	};
 	readAttFile(inFile, (state, edges) => {
 		// Map characters to bytes
-		edges = edges.map((e) => {
-			return {
-				to: e.to,
-				inByte: sym2byte(e.inChar),
-				outByte: sym2byte(e.outChar),
-			};
-		});
+		edges = edges.map((e) => ({
+			to: e.to,
+			inByte: sym2byte(e.inChar),
+			outByte: sym2byte(e.outChar),
+		}));
 		// If this is a final state, add a synthetic EOF edge
 		if (finalStates.has(state)) {
 			edges.push({ to: -1, inByte: BYTE_EOF, outByte: BYTE_EPSILON });
@@ -433,13 +431,11 @@ function processOne(inFile, outFile, verbose, justBrackets, maxEdgeBytes) {
 				const nstate = synState--;
 				extraStates.push({
 					state: nstate,
-					edges: e.map((ee) => {
-						return {
-							to: ee.to,
-							inByte: BYTE_EPSILON,
-							outByte: ee.outByte,
-						};
-					}),
+					edges: e.map((ee) => ({
+						to: ee.to,
+						inByte: BYTE_EPSILON,
+						outByte: ee.outByte,
+					})),
 				});
 				edgeMap.set(inByte, [{
 					to: nstate,
