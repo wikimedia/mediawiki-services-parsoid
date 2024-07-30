@@ -931,7 +931,7 @@ class Env {
 
 		// This will always be recorded as a native 'byte' offset
 		$lintData['dsr'] = $lintData['dsr']->toJsonArray();
-		$lintData['params'] ??= (object)[];
+		$lintData['params'] ??= [];
 
 		$this->lints[] = [ 'type' => $type ] + $lintData;
 	}
