@@ -140,6 +140,9 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 		}
 
 		// Ensure template continuity is not broken
+		// FIXME: What about if the endMeta has an about id?  Even though
+		// annotations don't come from template, template ranges can subsume
+		// them by adding strings to their "parts".
 		$about = DOMCompat::getAttribute( $startMeta, "about" );
 		$previousElt = DOMCompat::getPreviousElementSibling( $startMeta );
 		$nextElt = DOMCompat::getNextElementSibling( $endMeta );
@@ -151,6 +154,8 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			$wrap->setAttribute( "about", $about );
 		}
 
+		// FIXME: If we're adding an about id, we need to fixup the dsr
+		// on the template to include any range we may be adding.
 		$dp = new DataParsoid();
 		$dp->autoInsertedStart = true;
 		$dp->autoInsertedEnd = true;
@@ -313,9 +318,19 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			$rangesByType[$annType][] = $range;
 		}
 
-		foreach ( $rangesByType as $singleTypeRange ) {
+		foreach ( $rangesByType as $singleTypeRanges ) {
+			// FIXME: The ranges in $singleTypeRanges may have start/end that
+			// are no longer siblings because of the wrapping in makeUneditable.
+			// wrapAnnotationsInTree tries to account for that by calling
+			// by redoing findEnclosingRange but that happens after
+			// findTopLevelNonOverlappingRanges, which may rely on the assumption
+			// of a linear range, further analysis is needed.
+			//
+			// Furthermore, makeUneditable may be messing up any ranges we've
+			// already processed of other types since those aren't guaranteed
+			// to be non-overlapping of the current type.
 			$this->nodeRanges = new SplObjectStorage;
-			$topRanges = $this->findTopLevelNonOverlappingRanges( $root, $singleTypeRange );
+			$topRanges = $this->findTopLevelNonOverlappingRanges( $root, $singleTypeRanges );
 			$this->wrapAnnotationsInTree( $topRanges );
 			foreach ( $topRanges as $range ) {
 				$isExtended = $this->isExtended( $range );
