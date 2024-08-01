@@ -92,64 +92,70 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * it into a <div> (for block ranges) or <span> (for inline ranges) with the mw:ExtendedAnnRange
 	 * type.
 	 * @param DOMRangeInfo $range
-	 * @param int|null $actualRangeStart
-	 * @param int|null $actualRangeEnd
 	 */
-	private function makeUneditable( DOMRangeInfo $range, ?int $actualRangeStart, ?int $actualRangeEnd ) {
-		$parent = $range->startElem->parentNode;
+	private function makeUneditable( DOMRangeInfo $range ) {
+		$startMeta = $range->startElem;
+		$endMeta = $range->endElem;
 
-		$node = $range->startElem;
+		$actualRangeStart = DOMDataUtils::getDataParsoid( $startMeta )->dsr->start;
+		$actualRangeEnd = DOMDataUtils::getDataParsoid( $endMeta )->dsr->end;
+
 		$inline = true;
-		while ( $node !== $range->endElem && $node !== null ) {
+		$node = $startMeta;
+		while ( true ) {
+			if ( $node === null ) {
+				// Start and end aren't siblings, we'll log an error below
+				break;
+			}
 			if ( DOMUtils::hasBlockTag( $node ) ) {
 				$inline = false;
 				break;
 			}
+			if ( $node === $endMeta ) {
+				break;
+			}
 			$node = $node->nextSibling;
 		}
-		if ( $inline && $node !== null && DOMUtils::hasBlockTag( $node ) ) {
-			$inline = false;
-		}
 
-		$wrap = $parent->ownerDocument->createElement( $inline ? 'span' : 'div' );
-		$parent->insertBefore( $wrap, $range->startElem );
-
-		$toMove = $range->startElem;
-		while ( $toMove !== $range->endElem && $toMove !== null ) {
-			$nextToMove = $toMove->nextSibling;
-			$wrap->appendChild( $toMove );
-			$toMove = $nextToMove;
-		}
-
-		if ( $toMove !== null ) {
-			$wrap->appendChild( $toMove );
-		} else {
-			$this->env->log( 'warn', "End of annotation range [$actualRangeStart, $actualRangeEnd] not found. " .
-				"Document marked uneditable until its end." );
-		}
-
+		$wrap = $startMeta->ownerDocument->createElement( $inline ? 'span' : 'div' );
 		$wrap->setAttribute( "typeof", "mw:ExtendedAnnRange" );
+		$startMeta->parentNode->insertBefore( $wrap, $startMeta );
+
+		$node = $startMeta;
+		while ( true ) {
+			if ( $node === null ) {
+				$this->env->log(
+					'warn',
+					"End of annotation range [$actualRangeStart, $actualRangeEnd] not found. " .
+					"Document marked uneditable until its end."
+				);
+				break;
+			}
+			$next = $node->nextSibling;
+			$wrap->appendChild( $node );
+			if ( $node === $endMeta ) {
+				break;
+			}
+			$node = $next;
+		}
 
 		// Ensure template continuity is not broken
-		$about = DOMCompat::getAttribute( $range->startElem, "about" );
+		$about = DOMCompat::getAttribute( $startMeta, "about" );
+		$previousElt = DOMCompat::getPreviousElementSibling( $startMeta );
+		$nextElt = DOMCompat::getNextElementSibling( $endMeta );
 		$continuity = (
-			(
-				DOMCompat::getPreviousElementSibling( $range->startElem ) &&
-				DOMCompat::getPreviousElementSibling( $range->startElem )->hasAttribute( "about" )
-			) ||
-			( DOMCompat::getNextElementSibling( $range->endElem ) &&
-				DOMCompat::getNextElementSibling( $range->endElem )->hasAttribute( "about" )
-			)
+			( $previousElt && $previousElt->hasAttribute( "about" ) ) ||
+			( $nextElt && $nextElt->hasAttribute( "about" ) )
 		);
 		if ( $about && $continuity ) {
 			$wrap->setAttribute( "about", $about );
 		}
+
 		$dp = new DataParsoid();
 		$dp->autoInsertedStart = true;
 		$dp->autoInsertedEnd = true;
 		$dp->dsr = new DomSourceRange( $actualRangeStart, $actualRangeEnd, 0, 0 );
 		DOMDataUtils::setDataParsoid( $wrap, $dp );
-		$openRanges = [];
 	}
 
 	/**
@@ -312,11 +318,9 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			$topRanges = $this->findTopLevelNonOverlappingRanges( $root, $singleTypeRange );
 			$this->wrapAnnotationsInTree( $topRanges );
 			foreach ( $topRanges as $range ) {
-				$actualRangeStart = DOMDataUtils::getDataParsoid( $range->start )->dsr->start;
-				$actualRangeEnd = DOMDataUtils::getDataParsoid( $range->end )->dsr->end;
 				$isExtended = $this->isExtended( $range );
 				if ( $isExtended ) {
-					$this->makeUneditable( $range, $actualRangeStart, $actualRangeEnd );
+					$this->makeUneditable( $range );
 				}
 				$this->setMetaDataMwForRange( $range, $isExtended );
 			}
