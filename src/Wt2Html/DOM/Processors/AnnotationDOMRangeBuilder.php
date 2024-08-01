@@ -75,6 +75,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 			$startParent = DOMCompat::getParentElement( $range->start );
 			$endParent = DOMCompat::getParentElement( $range->end );
 			if ( $startParent !== $endParent ) {
+				// Post-moves above, start/end have been set to the respective metas
 				$correctedRange = self::findEnclosingRange( $range->start, $range->end );
 				if ( $range->start !== $correctedRange->start ) {
 					$this->moveRangeStart( $range, $correctedRange->start );

@@ -41,11 +41,6 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  *    the subset of top-level non-overlapping ranges which will be wrapped as
  *    individual units.
  *
- *    range.startElem, range.endElem are the start/end meta tags for a transclusion
- *    range.start, range.end are the start/end DOM nodes after the range is
- *    expanded, merged with other ranges, etc. In the simple cases, they will
- *    be identical to startElem, endElem.
- *
  * 3. encapsulateTemplates
  *
  *    For each non-overlapping range,
@@ -156,8 +151,15 @@ class DOMRangeBuilder {
 			if ( $dsr && is_int( $dsr->end ?? null ) ) {
 				$len = $endNode instanceof Text
 					? strlen( $endNode->nodeValue )
+					// A comment
+					// @phan-suppress-next-line PhanTypeMismatchArgumentSuperType
 					: WTUtils::decodedCommentLength( $endNode );
-				$dsr = new DomSourceRange( $dsr->end + $offset, $dsr->end + $offset + $len, null, null );
+				$dsr = new DomSourceRange(
+					$dsr->end + $offset,
+					$dsr->end + $offset + $len,
+					null,
+					null
+				);
 			}
 
 			return $dsr;
@@ -176,25 +178,24 @@ class DOMRangeBuilder {
 	/**
 	 * Find the common DOM ancestor of two DOM nodes.
 	 *
-	 * @param Element $startElem
+	 * @param Element $startMeta
 	 * @param Element $endMeta
 	 * @param Element $endElem
 	 * @return DOMRangeInfo
 	 */
 	private function getDOMRange(
-		Element $startElem, Element $endMeta, Element $endElem
+		Element $startMeta, Element $endMeta, Element $endElem
 	) {
-		$range = $this->findEnclosingRange( $startElem, $endElem );
-		$range->startElem = $startElem;
-		$range->endElem = $endMeta;
-
+		$range = $this->findEnclosingRange( $startMeta, $endMeta, $endElem );
 		$startsInFosterablePosn = DOMUtils::isFosterablePosition( $range->start );
 		$next = $range->start->nextSibling;
 
 		// Detect empty content and handle them!
 		if ( WTUtils::isTplMarkerMeta( $range->start ) && $next === $endElem ) {
-			Assert::invariant( $range->start === $startElem,
-				"Expected startElem to be same as range.start" );
+			Assert::invariant(
+				$range->start === $range->startElem,
+				"Expected startElem to be same as range.start"
+			);
 			if ( $startsInFosterablePosn ) {
 				// Expand range!
 				$range->start = $range->end = $range->start->parentNode;
@@ -250,7 +251,7 @@ class DOMRangeBuilder {
 				}
 				$range->start = $newStart;
 				// Update dsr to point to original start
-				$this->updateDSRForFirstRangeNode( $range->start, $startElem );
+				$this->updateDSRForFirstRangeNode( $range->start, $range->startElem );
 			} else {
 				// If not, we are forced to expand the template range.
 				$range->start = $range->end = $rangeStartParent;
@@ -263,21 +264,24 @@ class DOMRangeBuilder {
 			$span = $this->document->createElement( 'span' );
 			$range->start->parentNode->insertBefore( $span, $range->start );
 			$span->appendChild( $range->start );
-			$this->updateDSRForFirstRangeNode( $span, $startElem );
 			$range->start = $span;
+			$this->updateDSRForFirstRangeNode( $range->start, $range->startElem );
 		}
 
 		$range->start = $this->getStartConsideringFosteredContent( $range->start );
 
 		$rangeStartNextSibling = $range->start->nextSibling;
-		if ( $range->start === $startElem && $rangeStartNextSibling instanceof Element ) {
+		if (
+			$range->start === $range->startElem &&
+			$rangeStartNextSibling instanceof Element
+		) {
 			// HACK!
 			// The strip-double-tds pass has a HACK that requires DSR and src
 			// information being set on this element node. So, this HACK here
 			// is supporting that HACK there.
 			//
 			// (The parser test for T52603 will fail without this fix)
-			$this->updateDSRForFirstRangeNode( $rangeStartNextSibling, $startElem );
+			$this->updateDSRForFirstRangeNode( $rangeStartNextSibling, $range->startElem );
 		}
 
 		// Use the negative test since it doesn't mark the range as flipped
@@ -1272,28 +1276,33 @@ class DOMRangeBuilder {
 	}
 
 	/**
-	 * Creates a range that encloses $startElem and $endElem
-	 * @param Element $startElem
-	 * @param Element $endElem
+	 * Creates a range that encloses $startMeta and $endMeta
+	 *
+	 * @param Element $startMeta
+	 * @param Element $endMeta
+	 * @param ?Element $endElem
 	 * @return DOMRangeInfo
 	 */
-	protected function findEnclosingRange( Element $startElem, Element $endElem ): DOMRangeInfo {
-		$range = new DOMRangeInfo;
-		$range->id = Utils::stripParsoidIdPrefix( $this->getRangeId( $startElem ) );
-		$range->startOffset = DOMDataUtils::getDataParsoid( $startElem )->tsr->start;
+	protected function findEnclosingRange(
+		Element $startMeta, Element $endMeta, ?Element $endElem = null
+	): DOMRangeInfo {
+		$range = new DOMRangeInfo(
+			Utils::stripParsoidIdPrefix( $this->getRangeId( $startMeta ) ),
+			DOMDataUtils::getDataParsoid( $startMeta )->tsr->start,
+			$startMeta,
+			$endMeta
+		);
 
-		// Find common ancestor of startElem and endElem
-		$startAncestors = DOMUtils::pathToRoot( $startElem );
-		$elem = $endElem;
-		$parentNode = $endElem->parentNode;
+		// Find common ancestor of startMeta and endElem
+		$startAncestors = DOMUtils::pathToRoot( $startMeta );
+		$elem = $endElem ?? $endMeta;
+		$parentNode = $elem->parentNode;
 		while ( $parentNode && $parentNode->nodeType !== XML_DOCUMENT_NODE ) {
 			$i = array_search( $parentNode, $startAncestors, true );
 			if ( $i === 0 ) {
-				// the common ancestor is startElem
-				// widen the scope to include the full subtree
-				$range->start = $startElem->firstChild;
-				$range->end = $startElem->lastChild;
-				break;
+				throw new UnreachableException(
+					'The startMeta cannot be the common ancestor.'
+				);
 			} elseif ( $i > 0 ) {
 				$range->start = $startAncestors[$i - 1];
 				$range->end = $elem;
