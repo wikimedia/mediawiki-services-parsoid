@@ -376,8 +376,7 @@ class DOMCompat {
 	public static function setInnerHTML( $element, string $html ): void {
 		$domBuilder = new class( [
 			'suppressHtmlNamespace' => true,
-		] ) extends DOMBuilder
-		{
+		] ) extends DOMBuilder {
 			/** @inheritDoc */
 			protected function createDocument(
 				string $doctypeName = null,
