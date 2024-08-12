@@ -216,7 +216,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			return;
 		} elseif ( $strategy === self::MERGE_STRATEGY_UNION ) {
 			if ( !( is_string( $value ) || is_int( $value ) ) ) {
-				throw new \InvalidArgumentException( "Bad value type for $key: " . gettype( $value ) );
+				throw new \InvalidArgumentException( "Bad value type for $key: " . get_debug_type( $value ) );
 			}
 			$this->storage[$which][$key][$value] = true;
 			return;
