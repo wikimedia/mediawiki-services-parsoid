@@ -436,7 +436,7 @@ class ParagraphWrapper extends TokenHandler {
 			return new TokenHandlerResult( $res );
 		} elseif (
 			$token instanceof CommentTk
-			|| is_string( $token ) && preg_match( '/^[\t ]*$/D', $token )
+			|| ( is_string( $token ) && preg_match( '/^[\t ]*$/D', $token ) )
 			|| TokenUtils::isEmptyLineMetaToken( $token )
 		) {
 			if ( $this->newLineCount === 0 ) {

@@ -193,7 +193,7 @@ class MetaHandler extends DOMHandler {
 
 				if (
 					DiffUtils::isDiffMarker( $prevElementSibling ) ||
-					$prevdiffdata !== null && $prevdiffdata->diff !== null
+					( $prevdiffdata !== null && $prevdiffdata->diff !== null )
 				) {
 					return true;
 				}
@@ -217,8 +217,8 @@ class MetaHandler extends DOMHandler {
 	 */
 	private function needNewLineSepBeforeMeta( Node $meta, Node $otherNode ) {
 		return ( $otherNode !== $meta->parentNode
-			&& ( $otherNode instanceof Element &&
-				DOMUtils::isWikitextBlockNode( $otherNode ) ||
+			&& (
+				( $otherNode instanceof Element && DOMUtils::isWikitextBlockNode( $otherNode ) ) ||
 				( $otherNode instanceof Text &&
 					DOMUtils::isWikitextBlockNode( DiffDOMUtils::nextNonSepSibling( $meta ) )
 				)

@@ -478,7 +478,7 @@ class Separators {
 			// (except for a special case for <br> nodes)
 			if ( $nodeB && WTSUtils::precedingSpaceSuppressesIndentPre( $nodeB, $origNodeB ) ) {
 				$isIndentPreSafe = true;
-			} elseif ( $sepType === 'sibling' || $nodeA && DOMUtils::atTheTop( $nodeA ) ) {
+			} elseif ( $sepType === 'sibling' || ( $nodeA && DOMUtils::atTheTop( $nodeA ) ) ) {
 				Assert::invariant( !DOMUtils::atTheTop( $nodeA ) || $sepType === 'parent-child', __METHOD__ );
 
 				// 'nodeB' is the first non-separator child of 'nodeA'.

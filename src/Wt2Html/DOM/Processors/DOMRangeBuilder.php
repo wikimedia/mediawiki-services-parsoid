@@ -211,8 +211,8 @@ class DOMRangeBuilder {
 			// fosterable positions in the DOM.
 		} elseif ( $startsInFosterablePosn &&
 			( !( $range->start instanceof Element ) ||
-				WTUtils::isTplMarkerMeta( $range->start ) &&
-				( !( $next instanceof Element ) || WTUtils::isTplMarkerMeta( $next ) )
+				( WTUtils::isTplMarkerMeta( $range->start ) &&
+					( !( $next instanceof Element ) || WTUtils::isTplMarkerMeta( $next ) ) )
 			)
 		) {
 			$rangeStartParent = $range->start->parentNode;

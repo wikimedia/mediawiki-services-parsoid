@@ -147,7 +147,7 @@ class DOMHandler {
 
 		$nextSibling = DiffDOMUtils::nextNonSepSibling( $node );
 		$dp = DOMDataUtils::getDataParsoid( $otherNode );
-		if ( $nextSibling === $otherNode && ( $dp->stx ?? null ) === 'html' || isset( $dp->src ) ) {
+		if ( ( $nextSibling === $otherNode && ( $dp->stx ?? null ) === 'html' ) || isset( $dp->src ) ) {
 			return [ 'min' => 0, 'max' => 2 ];
 		} elseif ( $nextSibling === $otherNode && DOMUtils::isListOrListItem( $otherNode ) ) {
 			if ( DOMUtils::isList( $node ) && DOMCompat::nodeName( $otherNode ) === DOMCompat::nodeName( $node ) ) {
