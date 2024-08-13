@@ -485,6 +485,13 @@ class TableFixups {
 		DOMUtils::assertElt( $prev );
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );
 
+		// If $prevDp has attributes already, we don't want to reparse content
+		// as the attributes.  However, we might be in unsupported scenario 1
+		// above, but that's definitionally still unsupported so bail for now.
+		if ( !$prevDp->getTempFlag( TempData::NO_ATTRS ) ) {
+			return false;
+		}
+
 		// Build the attribute string
 		$prevCellSrc = PHPUtils::safeSubstr(
 			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length() );
