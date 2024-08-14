@@ -303,6 +303,24 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Increment a counter metric
+	 * @param string $name
+	 * @param array $labels
+	 * @param float $amount
+	 * @return void
+	 */
+	abstract public function incrementCounter( string $name, array $labels, float $amount = 1 );
+
+	/**
+	 * Record a timing metric
+	 * @param string $name
+	 * @param float $value
+	 * @param array $labels
+	 * @return void
+	 */
+	abstract public function observeTiming( string $name, float $value, array $labels );
+
+	/**
 	 * If enabled, bidi chars adjacent to category links will be stripped
 	 * in the html -> wt serialization pass.
 	 * @return bool

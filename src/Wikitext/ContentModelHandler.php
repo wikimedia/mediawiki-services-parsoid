@@ -224,8 +224,8 @@ class ContentModelHandler extends IContentModelHandler {
 		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selserData = null
 	): string {
 		$env = $this->env;
-		$metrics = $env->getSiteConfig()->metrics();
-		$setupTiming = Timing::start( $metrics );
+		$siteConfig = $env->getSiteConfig();
+		$setupTiming = Timing::start( $siteConfig );
 
 		$this->canonicalizeDOM( $env, $env->topLevelDoc );
 
@@ -240,15 +240,15 @@ class ContentModelHandler extends IContentModelHandler {
 			$wtsType = 'noselser';
 		}
 
-		$setupTiming->end( 'html2wt.setup' );
+		$setupTiming->end( 'html2wt.setup', 'html2wt_setup', [] );
 
-		$preprocTiming = Timing::start( $metrics );
+		$preprocTiming = Timing::start( $siteConfig );
 		$this->preprocessEditedDOM( $env, $env->topLevelDoc );
-		$preprocTiming->end( 'html2wt.preprocess' );
+		$preprocTiming->end( 'html2wt.preprocess', 'html2wt_preprocess', [] );
 
-		$serializeTiming = Timing::start( $metrics );
+		$serializeTiming = Timing::start( $siteConfig );
 		$res = $serializer->serializeDOM( $env->topLevelDoc );
-		$serializeTiming->end( "html2wt.{$wtsType}.serialize" );
+		$serializeTiming->end( "html2wt.{$wtsType}.serialize", "html2wt_serialize", [ 'wts' => $wtsType ] );
 
 		return $res;
 	}

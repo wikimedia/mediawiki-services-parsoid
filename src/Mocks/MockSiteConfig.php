@@ -475,4 +475,28 @@ class MockSiteConfig extends SiteConfig {
 		}
 		return $this->metrics;
 	}
+
+	/**
+	 * Increment a counter metric
+	 * @param string $name
+	 * @param array $labels
+	 * @param float $amount
+	 * @return void
+	 */
+	public function incrementCounter( string $name, array $labels, float $amount = 1 ): void {
+		// We don't use the labels for now, using MockMetrics instead
+		$this->metrics->increment( $name );
+	}
+
+	/**
+	 * Record a timing metric
+	 * @param string $name
+	 * @param float $value
+	 * @param array $labels
+	 * @return void
+	 */
+	public function observeTiming( string $name, float $value, array $labels ): void {
+		// We don't use the labels for now, using MockMetrics instead
+		$this->metrics->timing( $name, $value );
+	}
 }

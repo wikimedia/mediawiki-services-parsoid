@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\SiteConfig;
 
 /**
  * A helper class to make it easier to compute timing metrics.
@@ -16,13 +17,30 @@ class Timing {
 	 *
 	 * @var ?object
 	 */
-	private $metrics;
-	/* @var float */
-	private $startTime;
+	private ?object $metrics;
 
-	private function __construct( ?object $metrics ) {
-		$this->metrics = $metrics;
+	/**
+	 * @var float
+	 */
+	private float $startTime;
+
+	/**
+	 * @var ?SiteConfig
+	 */
+	private ?SiteConfig $siteConfig;
+
+	private ?float $elapsed;
+
+	private function __construct( ?object $configOrMetrics, ?float $elapsed = null ) {
+		if ( $configOrMetrics instanceof SiteConfig ) {
+			$this->siteConfig = $configOrMetrics;
+			$this->metrics = $configOrMetrics->metrics();
+		} else {
+			$this->siteConfig = null;
+			$this->metrics = $configOrMetrics;
+		}
 		$this->startTime = self::millis();
+		$this->elapsed = $elapsed;
 	}
 
 	/**
@@ -34,25 +52,46 @@ class Timing {
 
 	/**
 	 * End this timing measurement, reporting it under the given `name`.
+	 * @param ?string $statsdCompat
 	 * @param ?string $name
+	 * @param ?array $labels
 	 * @return float Number of milliseconds reported
 	 */
-	public function end( ?string $name = null ): float {
-		$elapsed = self::millis() - $this->startTime;
-		if ( $this->metrics ) {
-			Assert::invariant( $name !== null, 'Recording metric without a key.' );
-			$this->metrics->timing( $name, $elapsed );
+	public function end(
+		?string $statsdCompat = null,
+		?string $name = null,
+		?array $labels = []
+	): float {
+		if ( !$this->elapsed ) {
+			$this->elapsed = self::millis() - $this->startTime;
 		}
-		return $elapsed;
+		if ( $this->metrics ) {
+			Assert::invariant( $statsdCompat !== null, 'Recording metric without a key.' );
+			$this->metrics->timing( $statsdCompat, $this->elapsed );
+		}
+		if ( $this->siteConfig ) {
+			$this->siteConfig->observeTiming( $name, $this->elapsed, $labels );
+		}
+		return $this->elapsed;
+	}
+
+	/**
+	 * Override elapsed time of a timing instance
+	 * @param SiteConfig $siteConfig
+	 * @param float $elapsed Elapsed time of the timing
+	 * @return Timing
+	 */
+	public static function fakeTiming( SiteConfig $siteConfig, float $elapsed ): Timing {
+		return new Timing( $siteConfig, $elapsed );
 	}
 
 	/**
 	 * Start a timing measurement, logging it to the given `$metrics` object
 	 * (which just needs to have a `timing()` method).
-	 * @param ?object $metrics
+	 * @param ?object $configOrMetrics
 	 * @return Timing
 	 */
-	public static function start( ?object $metrics = null ): Timing {
-		return new Timing( $metrics );
+	public static function start( ?object $configOrMetrics = null ): Timing {
+		return new Timing( $configOrMetrics );
 	}
 }

@@ -404,7 +404,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$this->assertInstanceOf( MockMetrics::class, $metrics );
 		$log = $metrics->log;
 		$this->assertContains(
-			[ 'timing', 'entry.wt2html.pageWithOldid.size.input', 17 ],
+			[ 'timing', 'entry.wt2html.pageWithOldid.size.input', 17.0 ],
 			$log
 		);
 	}
@@ -429,15 +429,15 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$metrics = $siteConfig->metrics();
 		$this->assertInstanceOf( MockMetrics::class, $metrics );
 		$log = $metrics->log;
-		$this->assertCount( 7, $log );
+		$this->assertCount( 14, $log );
 
 		$this->assertEquals(
-			[ 'timing', 'entry.html2wt.size.input', 11 ],
-			$log[3]
+			[ 'timing', 'entry.html2wt.size.input', 11.0 ],
+			$log[6]
 		);
 		$this->assertEquals(
-			[ 'timing', 'entry.html2wt.size.output', 4 ],
-			$log[5]
+			[ 'timing', 'entry.html2wt.size.output', 4.0 ],
+			$log[10]
 		);
 	}
 

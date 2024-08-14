@@ -200,9 +200,9 @@ class SelectiveSerializer {
 			$diff = [ 'isEmpty' => false ];
 			$body = DOMCompat::getBody( $this->env->getDOMDiff() );
 		} else {
-			$domDiffTiming = Timing::start( $this->env->getSiteConfig()->metrics() );
+			$domDiffTiming = Timing::start( $this->env->getSiteConfig() );
 			$diff = ( new DOMDiff( $this->env ) )->diff( $oldBody, $body );
-			$domDiffTiming->end( 'html2wt.selser.domDiff' );
+			$domDiffTiming->end( 'html2wt.selser.domDiff', 'html2wt_domDiff', [ 'wts' => 'selser' ] );
 		}
 
 		if ( $diff['isEmpty'] ) {
