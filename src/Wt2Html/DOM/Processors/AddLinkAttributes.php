@@ -4,27 +4,18 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
-use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
-class AddLinkAttributes implements Wt2HtmlDOMProcessor {
+class AddLinkAttributes {
+
 	/**
-	 * @inheritDoc
+	 * Adds classes to external links and interwiki links
 	 */
-	public function run(
-		Env $env, Node $root, array $options = [], bool $atTopLevel = false
-	): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
-		// Add class info to ExtLink information.
-		// Currently positions the class immediately after the rel attribute
-		// to keep tests stable.
-		$extLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:ExtLink"]' );
-		foreach ( $extLinks as $a ) {
+	public static function handler( Element $a, Env $env ): bool {
+		if ( DOMUtils::hasRel( $a, "mw:ExtLink" ) ) {
 			if ( $a->firstChild ) {
 				// The "external free" class is reserved for links which
 				// are syntactically unbracketed; see commit
@@ -54,11 +45,9 @@ class AddLinkAttributes implements Wt2HtmlDOMProcessor {
 					$a->setAttribute( $key, $val );
 				}
 			}
-		}
-		// Add classes to Interwiki links
-		$iwLinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink/Interwiki"]' );
-		foreach ( $iwLinks as $a ) {
+		} elseif ( DOMUtils::hasRel( $a, 'mw:WikiLink/Interwiki' ) ) {
 			DOMCompat::getClassList( $a )->add( 'extiw' );
 		}
+		return true;
 	}
 }

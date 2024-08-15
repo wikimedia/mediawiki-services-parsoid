@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Wt2Html\DOMPPTraverser;
 
 class AddLinkAttributesTest extends TestCase {
 
@@ -18,8 +19,9 @@ class AddLinkAttributesTest extends TestCase {
 		$mockEnv = new MockEnv( [ 'pageConfig' => $pageConfig, "siteConfig" => $siteConfig ] );
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
-		$addLinkClasses = new AddLinkAttributes();
-		$addLinkClasses->run( $mockEnv, $body );
+		$traverser = new DOMPPTraverser( false, true );
+		$traverser->addHandler( 'a', static fn ( $node ) => AddLinkAttributes::handler( $node, $mockEnv ) );
+		$traverser->run( $mockEnv, $body );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );
 		$pattern = '/ ' . DOMDataUtils::DATA_OBJECT_ATTR_NAME . '="\d+"/';
@@ -33,8 +35,9 @@ class AddLinkAttributesTest extends TestCase {
 		$mockEnv = new MockEnv( [ 'pageConfig' => $pageConfig, "siteConfig" => $siteConfig ] );
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
-		$addLinkClasses = new AddLinkAttributes();
-		$addLinkClasses->run( $mockEnv, $body );
+		$traverser = new DOMPPTraverser( false, true );
+		$traverser->addHandler( 'a', static fn ( $node ) => AddLinkAttributes::handler( $node, $mockEnv ) );
+		$traverser->run( $mockEnv, $body );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );
 		$pattern = '/ ' . DOMDataUtils::DATA_OBJECT_ATTR_NAME . '="\d+"/';
@@ -43,7 +46,7 @@ class AddLinkAttributesTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddLinkAttributes::run
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddLinkAttributes::handler
 	 * @dataProvider provideNoFollow
 	 * @param string $html
 	 * @param int $pageNs
@@ -54,7 +57,7 @@ class AddLinkAttributesTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddLinkAttributes::run
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddLinkAttributes::handler
 	 * @dataProvider provideTarget
 	 * @param string $html
 	 * @param string $target

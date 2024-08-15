@@ -307,3 +307,19 @@ x=
 !! html/parsoid
 <p class="mw-empty-elt"><span typeof="mw:Nowiki"></span><meta typeof="mw:Extension/indicator" about="#mwt4" data-mw='{"name":"indicator","attrs":{"name":"x"},"body":{"extsrc":"\n&lt;span>some stuff&lt;/span>\n"},"html":"\n&lt;span data-parsoid=&apos;{\"stx\":\"html\",\"dsr\":[31,54,6,7]}&apos;>some stuff&lt;/span>\n"}'/><span typeof="mw:Nowiki"></span></p>
 !! end
+
+!! test
+Indicator shouldn't prevent addition of link classes
+!! options
+showindicators
+!! wikitext
+<indicator name="link">[http://www.example.com Example]</indicator>
+!! metadata/php
+link=<a rel="nofollow" class="external text" href="http://www.example.com">Example</a>
+!! metadata/parsoid
+link=<a rel="mw:ExtLink nofollow" href="http://www.example.com" class="external text" data-parsoid='{"dsr":[23,55,24,1]}'>Example</a>
+!! html/php
+!! html/parsoid
+<meta typeof="mw:Extension/indicator" data-mw='{"name":"indicator","attrs":{"name":"link"},"body":{"extsrc":"[http://www.example.com Example]"},"html":"&lt;a rel=\"mw:ExtLink nofollow\" href=\"http://www.example.com\" class=\"external text\">Example&lt;/a>"}'/>
+!! end
+

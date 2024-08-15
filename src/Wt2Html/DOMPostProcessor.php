@@ -507,12 +507,17 @@ class DOMPostProcessor extends PipelineStage {
 				]
 			],
 			[
-				'Processor' => AddLinkAttributes::class,
+				'name' => 'AddLinkAttributes',
 				'shortcut' => 'linkclasses',
-				// FIXME: T214994: Might be beneficial to process HTML in embedded attributes
-				// since some (not yet known) use cases might benefit from this information
-				// on these hidden links.
-				'skipNested' => true
+				'isTraverser' => true,
+				'applyToAttributeEmbeddedHTML' => true,
+				'skipNested' => true,
+				'handlers' => [
+					[
+						'nodeName' => 'a',
+						'action' => static fn ( $node ) => AddLinkAttributes::handler( $node, $env ),
+					]
+				]
 			],
 			// Benefits from running after determining which media are redlinks
 			[
