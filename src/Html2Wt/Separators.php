@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\DOMHandler;
-use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -635,19 +634,26 @@ class Separators {
 			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
-				if ( $state->haveTrimmedWsDSR && (
-					$dsr->leadingWS > 0 || ( $dsr->leadingWS === 0 && $dsr->trailingWS > 0 )
-				) ) {
-					$range = new SourceRange( $dsr->innerStart(), $dsr->innerStart() + $dsr->leadingWS );
-					$sep = $state->getOrigSrc( $range ) ?? '';
-					return strspn( $sep, " \t" ) === strlen( $sep ) ? $sep : null;
-				} else {
-					if ( $dsr->innerStart() < $dsr->innerEnd() ) {
-						$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
-						// return first character of inner range iff it is
-						// tab or space
-						return preg_match( '/^[ \t]/', $sep ) ? $sep[0] : null;
+				if ( $state->haveTrimmedWsDSR && $dsr->leadingWS > 0 ) {
+					if ( preg_match(
+						'/^([ \t]*)/',
+						$state->getOrigSrc( $dsr->innerRange() ) ?? '',
+						$matches
+					) ) {
+						// $matches[1] is just spaces and tabs
+						$sep = substr( $matches[1], 0, $dsr->leadingWS );
+						if ( strlen( $sep ) !== $dsr->leadingWS ) {
+							return null;
+						}
+						return $sep;
 					}
+				} elseif ( $state->haveTrimmedWsDSR && $dsr->leadingWS === 0 && $dsr->trailingWS > 0 ) {
+					return '';
+				} elseif ( $dsr->innerStart() < $dsr->innerEnd() ) {
+					$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
+					// return first character of inner range iff it is
+					// tab or space
+					return preg_match( '/^[ \t]/', $sep ) ? $sep[0] : null;
 				}
 			}
 		}
@@ -701,23 +707,24 @@ class Separators {
 			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
-				if ( $state->haveTrimmedWsDSR && (
-					$dsr->trailingWS > 0 || ( $dsr->trailingWS === 0 && $dsr->leadingWS > 0 )
-				) ) {
-					$range = new SourceRange( $dsr->innerEnd() - $dsr->trailingWS, $dsr->innerEnd() );
-					$sep = $state->getOrigSrc( $range ) ?? '';
-					if ( !preg_match( '/^[ \t]*$/', $sep ) ) {
-						$sep = null;
+				if ( $state->haveTrimmedWsDSR && $dsr->trailingWS > 0 ) {
+					if ( preg_match(
+						'/([ \t]*)$/',
+						$state->getOrigSrc( $dsr->innerRange() ) ?? '',
+						$matches
+					) ) {
+						// $matches[1] is just spaces and tabs
+						$sep = substr( $matches[1], -$dsr->trailingWS );
 					}
-				} else {
-					// The > instead of >= is to deal with an edge case
-					// = = where that single space is captured by the
-					// getLeadingSpace case above
-					if ( ( $dsr->innerEnd() - 1 ) > $dsr->innerStart() ) {
-						$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
-						// Return last character of $sep iff it is space or tab
-						$sep = preg_match( '/[ \t]$/', $sep ) ? substr( $sep, -1 ) : null;
-					}
+				} elseif ( $state->haveTrimmedWsDSR && $dsr->trailingWS === 0 && $dsr->leadingWS > 0 ) {
+					return '';
+				} elseif ( ( $dsr->innerEnd() - 1 ) > $dsr->innerStart() ) {
+					// The > instead of >= in the test above is to
+					// deal with an edge case where that single space
+					// is captured by the getLeadingSpace case above
+					$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
+					// Return last character of $sep iff it is space or tab
+					$sep = preg_match( '/[ \t]$/', $sep ) ? substr( $sep, -1 ) : null;
 				}
 			}
 		}
