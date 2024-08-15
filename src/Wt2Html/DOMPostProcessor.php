@@ -489,11 +489,10 @@ class DOMPostProcessor extends PipelineStage {
 				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
 			[
-				'name' => 'DisplaySpace',
-				'shortcut' => 'displayspace',
+				'name' => 'DisplaySpace+AddLinkAttributes',
+				'shortcut' => 'displayspace+linkclasses',
 				'skipNested' => true,
-				// Don't need to process HTML in embedded attributes
-				'applyToAttributeEmbeddedHTML' => false,
+				'applyToAttributeEmbeddedHTML' => true,
 				'isTraverser' => true,
 				'handlers' => [
 					[
@@ -504,19 +503,11 @@ class DOMPostProcessor extends PipelineStage {
 						'nodeName' => null,
 						'action' => static fn ( $node ) => DisplaySpace::rightHandler( $node )
 					],
-				]
-			],
-			[
-				'name' => 'AddLinkAttributes',
-				'shortcut' => 'linkclasses',
-				'isTraverser' => true,
-				'applyToAttributeEmbeddedHTML' => true,
-				'skipNested' => true,
-				'handlers' => [
 					[
 						'nodeName' => 'a',
 						'action' => static fn ( $node ) => AddLinkAttributes::handler( $node, $env ),
-					]
+					],
+
 				]
 			],
 			// Benefits from running after determining which media are redlinks
