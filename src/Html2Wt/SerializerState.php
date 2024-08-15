@@ -392,9 +392,10 @@ class SerializerState {
 	/**
 	 * Extracts a subset of the page source bound by the supplied source range.
 	 * @param SourceRange $sr
+	 * @param bool $noUtf8Check Should we skip utf8-validity checks?
 	 * @return string|null
 	 */
-	public function getOrigSrc( SourceRange $sr ): ?string {
+	public function getOrigSrc( SourceRange $sr, bool $noUtf8Check = false ): ?string {
 		Assert::invariant( $this->selserMode, 'SerializerState::$selserMode must be set' );
 		if (
 			$sr->start <= $sr->end &&
@@ -406,7 +407,7 @@ class SerializerState {
 			$sr->start <= strlen( $this->selserData->oldText )
 		) {
 			// XXX should use $frame->getSrcText() like WTUtils::getWTSource
-			return $sr->substr( $this->selserData->oldText );
+			return $sr->substr( $this->selserData->oldText, $noUtf8Check );
 		} else {
 			return null;
 		}

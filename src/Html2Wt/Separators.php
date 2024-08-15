@@ -891,6 +891,12 @@ class Separators {
 			// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
 			if ( Utils::isValidDSR( $dsrA ) && Utils::isValidDSR( $dsrB ) ) {
 				// Figure out containment relationship
+				//
+				// NOTE: "->to()" calls below compute synthetic DSR ranges
+				// which may not necessarily have offsets that correspond to valid
+				// UTF-8 characters. So, we shouldn't be doing utf-8 validity checks
+				// for these ranges. Since we validate $sep further below, it is also
+				// safe because bogus $sep strings are discarded.
 				if ( $dsrA->start <= $dsrB->start ) {
 					if ( $dsrB->end <= $dsrA->end ) {
 						if ( $dsrA->start === $dsrB->start && $dsrA->end === $dsrB->end ) {
@@ -899,19 +905,19 @@ class Separators {
 							$sep = '';
 						} elseif ( isset( $dsrA->openWidth ) ) {
 							// B in A, from parent to child
-							$sep = $state->getOrigSrc( $dsrA->openRange()->to( $dsrB ) );
+							$sep = $state->getOrigSrc( $dsrA->openRange()->to( $dsrB ), true );
 						}
 					} elseif ( $dsrA->end <= $dsrB->start ) {
 						// B following A (siblingish)
-						$sep = $state->getOrigSrc( $dsrA->to( $dsrB ) );
+						$sep = $state->getOrigSrc( $dsrA->to( $dsrB ), true );
 					} elseif ( isset( $dsrB->closeWidth ) ) {
 						// A in B, from child to parent
-						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ) );
+						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ), true );
 					}
 				} elseif ( $dsrA->end <= $dsrB->end ) {
 					if ( isset( $dsrB->closeWidth ) ) {
 						// A in B, from child to parent
-						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ) );
+						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ), true );
 					}
 				} else {
 					$this->env->log( 'info/html2wt', 'dsr backwards: should not happen!' );
