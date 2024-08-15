@@ -1,7 +1,7 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;

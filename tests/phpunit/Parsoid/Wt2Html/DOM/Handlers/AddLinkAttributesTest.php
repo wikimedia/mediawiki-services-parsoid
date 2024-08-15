@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
+namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Mocks\MockEnv;
@@ -46,7 +46,7 @@ class AddLinkAttributesTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddLinkAttributes::handler
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddLinkAttributes::handler
 	 * @dataProvider provideNoFollow
 	 * @param string $html
 	 * @param int $pageNs
@@ -57,7 +57,7 @@ class AddLinkAttributesTest extends TestCase {
 	}
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddLinkAttributes::handler
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddLinkAttributes::handler
 	 * @dataProvider provideTarget
 	 * @param string $html
 	 * @param string $target
