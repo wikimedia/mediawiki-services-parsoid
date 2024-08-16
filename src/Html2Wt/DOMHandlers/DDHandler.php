@@ -49,9 +49,7 @@ class DDHandler extends DOMHandler {
 			!( $lastChild instanceof Element && $lastChild->hasAttribute( 'data-mw-selser-wrapper' ) )
 		) {
 			$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
-			if ( $trailingSpace ) {
-				$state->appendSep( $trailingSpace );
-			}
+			$state->appendSep( $trailingSpace ?? '' );
 		}
 
 		$state->singleLineContext->pop();

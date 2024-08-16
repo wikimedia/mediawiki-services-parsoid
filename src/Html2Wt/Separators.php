@@ -634,21 +634,19 @@ class Separators {
 			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
-				if ( $state->haveTrimmedWsDSR && $dsr->leadingWS > 0 ) {
+				if (
+					$state->haveTrimmedWsDSR &&
+					$dsr->hasTrimmedWS() &&
+					$dsr->hasValidLeadingWS()
+				) {
 					if ( preg_match(
 						'/^([ \t]*)/',
 						$state->getOrigSrc( $dsr->innerRange() ) ?? '',
 						$matches
 					) ) {
 						// $matches[1] is just spaces and tabs
-						$sep = substr( $matches[1], 0, $dsr->leadingWS );
-						if ( strlen( $sep ) !== $dsr->leadingWS ) {
-							return null;
-						}
-						return $sep;
+						return substr( $matches[1], 0, $dsr->leadingWS );
 					}
-				} elseif ( $state->haveTrimmedWsDSR && $dsr->leadingWS === 0 && $dsr->trailingWS > 0 ) {
-					return '';
 				} elseif ( $dsr->innerStart() < $dsr->innerEnd() ) {
 					$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
 					// return first character of inner range iff it is
@@ -694,7 +692,6 @@ class Separators {
 			return null;
 		}
 
-		$sep = null;
 		'@phan-var Element|DocumentFragment $parentNode'; // @var Element|DocumentFragment $parentNode
 		if ( isset( Consts::$WikitextTagsWithTrimmableWS[DOMCompat::nodeName( $parentNode )] ) &&
 			( $origNode instanceof Element || !preg_match( '/[ \t]$/', $origNode->nodeValue ) )
@@ -707,29 +704,32 @@ class Separators {
 			$state = $this->state;
 			$dsr = DOMDataUtils::getDataParsoid( $parentNode )->dsr ?? null;
 			if ( Utils::isValidDSR( $dsr, true ) ) {
-				if ( $state->haveTrimmedWsDSR && $dsr->trailingWS > 0 ) {
+				if (
+					$state->haveTrimmedWsDSR &&
+					$dsr->hasTrimmedWS() &&
+					$dsr->hasValidTrailingWS()
+				) {
 					if ( preg_match(
 						'/([ \t]*)$/',
 						$state->getOrigSrc( $dsr->innerRange() ) ?? '',
 						$matches
 					) ) {
 						// $matches[1] is just spaces and tabs
-						$sep = substr( $matches[1], -$dsr->trailingWS );
+						// note that trailingWS can be zero
+						return substr( $matches[1], strlen( $matches[1] ) - $dsr->trailingWS );
 					}
-				} elseif ( $state->haveTrimmedWsDSR && $dsr->trailingWS === 0 && $dsr->leadingWS > 0 ) {
-					return '';
 				} elseif ( ( $dsr->innerEnd() - 1 ) > $dsr->innerStart() ) {
 					// The > instead of >= in the test above is to
 					// deal with an edge case where that single space
 					// is captured by the getLeadingSpace case above
 					$sep = $state->getOrigSrc( $dsr->innerRange() ) ?? '';
 					// Return last character of $sep iff it is space or tab
-					$sep = preg_match( '/[ \t]$/', $sep ) ? substr( $sep, -1 ) : null;
+					return preg_match( '/[ \t]$/', $sep ) ? substr( $sep, -1 ) : null;
 				}
 			}
 		}
 
-		return $sep;
+		return null;
 	}
 
 	/**
@@ -738,7 +738,7 @@ class Separators {
 	 * @param Node $node
 	 * @param bool $leading
 	 *   if true, trimmed leading whitespace is emitted
-	 *   if false, trimmed railing whitespace is emitted
+	 *   if false, trimmed trailing whitespace is emitted
 	 * @return string|null
 	 */
 	public function recoverTrimmedWhitespace( Node $node, bool $leading ): ?string {
@@ -999,14 +999,10 @@ class Separators {
 		if ( $sep === null ) {
 			if ( $sepType === 'parent-child' ) {
 				$sep = $this->recoverTrimmedWhitespace( $node, true );
-				if ( $sep !== null ) {
-					$state->sep->src = $sep . $state->sep->src;
-				}
+				$state->sep->src = ( $sep ?? '' ) . $state->sep->src;
 			} elseif ( $sepType === 'child-parent' ) {
 				$sep = $this->recoverTrimmedWhitespace( $node, false );
-				if ( $sep !== null ) {
-					$state->sep->src .= $sep;
-				}
+				$state->sep->src .= $sep ?? '';
 			}
 		}
 

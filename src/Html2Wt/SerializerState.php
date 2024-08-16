@@ -348,7 +348,7 @@ class SerializerState {
 	 * @param string $src
 	 */
 	public function appendSep( string $src ): void {
-		$this->sep->src = ( $this->sep->src ?: '' ) . $src;
+		$this->sep->src = ( $this->sep->src ?? '' ) . $src;
 	}
 
 	/**
@@ -647,7 +647,7 @@ class SerializerState {
 			$this->emitSep( $origSep, $node, 'ORIG-SEP:' );
 		} else {
 			$sep = $this->separators->buildSep( $node );
-			$this->emitSep( $sep ?: '', $node, 'SEP:' );
+			$this->emitSep( $sep ?? '', $node, 'SEP:' );
 		}
 	}
 

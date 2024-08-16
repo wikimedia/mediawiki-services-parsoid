@@ -65,20 +65,18 @@ class THHandler extends DOMHandler {
 
 		// PORT-FIXME does regexp whitespace semantics change matter?
 		if ( !preg_match( '/\s$/D', $state->currLine->text ) ) {
-			$trailingSpace = null;
+			$trailingSpace = '';
 			if ( $nextUsesRowSyntax ) {
 				$trailingSpace = $this->getTrailingSpace( $state, $node, '' );
 			}
 			// Recover any trimmed whitespace only on unmodified nodes
-			if ( !$trailingSpace ) {
+			if ( $trailingSpace === '' ) {
 				$lastChild = DiffDOMUtils::lastNonSepChild( $node );
 				if ( $lastChild && !DiffUtils::hasDiffMarkers( $lastChild ) ) {
-					$trailingSpace = $state->recoverTrimmedWhitespace( $node, false );
+					$trailingSpace = $state->recoverTrimmedWhitespace( $node, false ) ?? '';
 				}
 			}
-			if ( $trailingSpace ) {
-				$state->appendSep( $trailingSpace );
-			}
+			$state->appendSep( $trailingSpace );
 		}
 		return $node->nextSibling;
 	}

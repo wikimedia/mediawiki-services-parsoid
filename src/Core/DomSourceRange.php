@@ -190,6 +190,35 @@ class DomSourceRange extends SourceRange {
 	}
 
 	/**
+	 * Determine if this DSR records that whitespace was trimmed from
+	 * this node.  Note that this doesn't mean that the amount trimmed
+	 * is known; use ::hasValidLeadingWS() or ::hasValidTrimmedWS()
+	 * to determine that.
+	 * @return bool True if either leadingWS or trailingWS is non-zero.
+	 */
+	public function hasTrimmedWS(): bool {
+		return $this->leadingWS !== 0 || $this->trailingWS !== 0;
+	}
+
+	/**
+	 * @note In most cases you should check to see if this node
+	 * ::hasTrimmedWS() *and* whether the amount is valid.
+	 * @return bool if the amount of leading whitespace is known.
+	 */
+	public function hasValidLeadingWS(): bool {
+		return $this->leadingWS !== -1;
+	}
+
+	/**
+	 * @note In most cases you should check to see if this node
+	 * ::hasTrimmedWS() *and* whether the amount is valid.
+	 * @return bool if the amount of trailing whitespace is known.
+	 */
+	public function hasValidTrailingWS(): bool {
+		return $this->trailingWS !== -1;
+	}
+
+	/**
 	 * Convert a TSR to a DSR with zero-width container open/close tags.
 	 * @param SourceRange $tsr
 	 * @return DomSourceRange
