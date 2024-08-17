@@ -25,7 +25,11 @@ class DisplaySpace {
 
 	private static function getTextNodeDSRStart( Text $node ): ?int {
 		$parent = $node->parentNode;
-		'@phan-var Element $parent';  /** @var Element $parent */
+		if ( !$parent instanceof Element ) {
+			// This will be a DocumentFragment while processing embedded fragments
+			// during the combined DOMPP pass that processes them.
+			return null;
+		}
 		$dsr = DOMDataUtils::getDataParsoid( $parent )->dsr ?? null;
 		if ( !Utils::isValidDSR( $dsr, true ) ) {
 			return null;

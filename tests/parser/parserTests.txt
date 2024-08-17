@@ -12595,6 +12595,18 @@ T5158: Test for French spaces in attributes
 </p>
 !! end
 
+# This test relies on the fact that image captions are processed
+# as independent document fragments.
+!! test
+Displayspace processing on embedded fragments
+!! options
+parsoid=wt2html
+!! wikitext
+[[File:Foobar.jpg|« test »]]
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:File" data-parsoid='{"optList":[{"ck":"caption","ak":"« test »"}]}' data-mw='{"caption":"«&lt;span typeof=\"mw:DisplaySpace\" data-parsoid=&apos;{\"dsr\":[null,null,null,null]}&apos;> &lt;/span>test&lt;span typeof=\"mw:DisplaySpace\" data-parsoid=&apos;{\"dsr\":[null,null,null,null]}&apos;> &lt;/span>»"}'><a href="./File:Foobar.jpg" class="mw-file-description" title="« test »" data-parsoid="{}"><img alt="« test »" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element" data-parsoid='{"a":{"resource":"./File:Foobar.jpg","height":"220","width":"1941"},"sa":{"resource":"File:Foobar.jpg"}}'/></a></span></p>
+!! end
+
 !! test
 HTML5 data attributes
 !! wikitext
