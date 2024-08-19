@@ -623,12 +623,31 @@ class AttributeExpander extends TokenHandler {
 	 * @param Token $token Token whose attrs being expanded.
 	 * @return TokenHandlerResult
 	 */
-	public function processComplexAttributes( Token $token ): TokenHandlerResult {
+	private function processComplexAttributes( Token $token ): TokenHandlerResult {
 		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
 			'expandTemplates' => $this->options['expandTemplates'],
 			'inTemplate' => $this->options['inTemplate']
 		] );
 		return $this->buildExpandedAttrs( $token, $atm->process( $token->attribs ) );
+	}
+
+	/**
+	 * Expand the first attribute of the token -- usually needed to support
+	 * tempate tokens where the template target itself is a complex attribute.
+	 *
+	 * @param Token $token Token whose first attribute is being expanded.
+	 * @return TokenHandlerResult
+	 */
+	public function expandFirstAttribute( Token $token ): TokenHandlerResult {
+		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
+			'expandTemplates' => $this->options['expandTemplates'],
+			'inTemplate' => $this->options['inTemplate']
+		] );
+		$expandedAttrs = $atm->process( [ $token->attribs[0] ] );
+		return $this->buildExpandedAttrs(
+			$token,
+			array_replace( $token->attribs, [ 0 => $expandedAttrs[0] ] )
+		);
 	}
 
 	/**

@@ -938,10 +938,10 @@ class TemplateHandler extends TokenHandler {
 
 		// Since AttributeExpander runs later in the pipeline than TemplateHandler,
 		// if the template name is templated, use our copy of AttributeExpander
-		// to process all attributes to tokens, and force reprocessing of this
+		// to process the first attribute to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
 		if ( $expandTemplates && self::hasTemplateToken( $token->attribs[0]->k ) ) {
-			$ret = $this->ae->processComplexAttributes( $token );
+			$ret = $this->ae->expandFirstAttribute( $token );
 			$toks = $ret->tokens ?? null;
 			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
 				"Expected only the input token as the return value." );
