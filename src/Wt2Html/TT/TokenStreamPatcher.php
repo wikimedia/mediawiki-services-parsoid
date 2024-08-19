@@ -91,7 +91,7 @@ class TokenStreamPatcher extends TokenHandler {
 		$this->env->log( 'trace/tsp', $this->pipelineId,
 			static function () use ( $self, $token ) {
 				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
-					";sol=" . ( $self->sol ? "yes" : "no " ) .
+					";sol=" . ( $self->sol ? "yes" : "no " ) . ') ' .
 					PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -266,7 +266,7 @@ class TokenStreamPatcher extends TokenHandler {
 		$this->env->log( 'trace/tsp', $this->pipelineId,
 			static function () use ( $self, $token ) {
 				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
-					";sol=" . ( $self->sol ? "yes" : "no " ) .
+					";sol=" . ( $self->sol ? "yes" : "no " ) . ') ' .
 					PHPUtils::jsonEncode( $token );
 			}
 		);
