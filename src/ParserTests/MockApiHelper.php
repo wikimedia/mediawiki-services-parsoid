@@ -423,6 +423,7 @@ class MockApiHelper extends ApiHelper {
 		'Archivo:Foobar.jpg' => 'Foobar.jpg',
 		'Mynd:Foobar.jpg' => 'Foobar.jpg',
 		"Датотека:Foobar.jpg" => 'Foobar.jpg',
+		'Dosiero:Foobar.jpg' => 'Foobar.jpg',
 		'Image:Foobar.svg' => 'Foobar.svg',
 		'File:Foobar.svg' => 'Foobar.svg',
 		'Файл:Foobar.svg' => 'Foobar.svg',

@@ -879,11 +879,7 @@ class WikiLinkHandler extends TokenHandler {
 		// 'imgOption' is the key we'd put in opts; it names the 'group'
 		// for the option, and doesn't have an img_ prefix.
 		$imgOption = Consts::$Media['SimpleOptions'][$canonicalOption] ?? null;
-		$bits = $getOption( $oText );
-		$normalizedBit0 = $bits ? mb_strtolower( trim( $bits['k'] ) ) : null;
-		$key = $bits ? ( Consts::$Media['PrefixOptions'][$normalizedBit0] ?? null ) : null;
-
-		if ( !empty( $imgOption ) && $key === null ) {
+		if ( !empty( $imgOption ) ) {
 			return [
 				'ck' => $imgOption,
 				'v' => $shortCanonicalOption,
@@ -891,9 +887,26 @@ class WikiLinkHandler extends TokenHandler {
 				's' => true
 			];
 		}
+		// If there isn't a literal match for the option, look for a
+		// prefix match (ie, img_width => `$1px`)
 
-		// bits.a has the localized name for the prefix option
-		// (with $1 as a placeholder for the value, which is in bits.v)
+		// *Note* that the legacy parser doesn't have a "principled"
+		// precedence here (T372935), it just so happens that members
+		// of Consts::PrefixOptions like
+		// img_width/img_page/img_lang/timedmedia_* are added last (as
+		// handler parameters), and other prefixed options like
+		// img_link/img_alt/img_class *happen* to be last in the
+		// $internalParamMap.  But the possibility for conflicts
+		// between prefixed parameters and literal options still
+		// exists in the legacy parser.
+		$bits = $getOption( $oText );
+		$normalizedBit0 = $bits ? mb_strtolower( trim( $bits['k'] ) ) : null;
+		$key = $bits ? ( Consts::$Media['PrefixOptions'][$normalizedBit0] ?? null ) : null;
+
+		// bits.a *used to have* the localized name for the prefix option
+		// (see SiteConfig::getMediaPrefixParameterizedAliasMatcher, this was
+		// dropped in the port from JS.)
+		// with $1 as a placeholder for the value, which is in bits.v
 		// 'normalizedBit0' is the canonical English option name
 		// (from mediawiki upstream) with a prefix.
 		// 'key' is the parsoid 'group' for the option; it doesn't
