@@ -74,16 +74,15 @@ class SourceRange implements JsonCodecable {
 	 * Return the substring of the given string corresponding to this
 	 * range.
 	 * @param string $str The source text string
-	 * @param bool $noUtf8Check Should we skip utf8-validity checks?
 	 * @return string
 	 */
-	public function substr( string $str, bool $noUtf8Check = false ): string {
+	public function substr( string $str ): string {
 		$start = $this->start;
 		$length = $this->length();
 		Assert::invariant( ( $start ?? -1 ) >= 0, "Bad SourceRange start" );
 		// @phan-suppress-next-line PhanCoalescingNeverNull
 		Assert::invariant( ( $length ?? -1 ) >= 0, "Bad SourceRange length" );
-		return $noUtf8Check ? substr( $str, $start, $length ) : PHPUtils::safeSubstr( $str, $start, $length );
+		return PHPUtils::safeSubstr( $str, $start, $length );
 	}
 
 	/**
