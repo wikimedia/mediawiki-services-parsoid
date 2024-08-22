@@ -889,7 +889,15 @@ class Separators {
 			}
 
 			// FIXME: Maybe we shouldn't set dsr in the dsr pass if both aren't valid?
-			if ( Utils::isValidDSR( $dsrA ) && Utils::isValidDSR( $dsrB ) ) {
+			// NOTE: Synthetic DSR ranges
+			// may not necessarily have offsets that correspond to valid
+			// UTF-8 characters. So use $state->isValidDSR() to ensure that
+			// all offsets land on valid UTF-8 characters before trying to
+			// construct substrings based on relations between them.
+			if (
+				$state->isValidDSR( $dsrA ) &&
+				$state->isValidDSR( $dsrB )
+			) {
 				// Figure out containment relationship
 				//
 				// NOTE: "->to()" calls below compute synthetic DSR ranges
@@ -903,19 +911,19 @@ class Separators {
 							// Both have the same dsr range, so there can't be any
 							// separators between them
 							$sep = '';
-						} elseif ( isset( $dsrA->openWidth ) && Utils::isValidDSR( $dsrA, true ) ) {
+						} elseif ( isset( $dsrA->openWidth ) && $state->isValidDSR( $dsrA, true ) ) {
 							// B in A, from parent to child
 							$sep = $state->getOrigSrc( $dsrA->openRange()->to( $dsrB ), true );
 						}
 					} elseif ( $dsrA->end <= $dsrB->start ) {
 						// B following A (siblingish)
 						$sep = $state->getOrigSrc( $dsrA->to( $dsrB ), true );
-					} elseif ( isset( $dsrB->closeWidth ) && Utils::isValidDSR( $dsrB, true ) ) {
+					} elseif ( isset( $dsrB->closeWidth ) && $state->isValidDSR( $dsrB, true ) ) {
 						// A in B, from child to parent
 						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ), true );
 					}
 				} elseif ( $dsrA->end <= $dsrB->end ) {
-					if ( isset( $dsrB->closeWidth ) && Utils::isValidDSR( $dsrB, true ) ) {
+					if ( isset( $dsrB->closeWidth ) && $state->isValidDSR( $dsrB, true ) ) {
 						// A in B, from child to parent
 						$sep = $state->getOrigSrc( $dsrA->to( $dsrB->closeRange() ), true );
 					}

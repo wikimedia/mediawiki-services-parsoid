@@ -7,6 +7,7 @@ use Composer\Semver\Semver;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\SelserData;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -411,6 +412,84 @@ class SerializerState {
 		} else {
 			return null;
 		}
+	}
+
+	/**
+	 * Check the validity of a DSR in the context of the page source.
+	 *
+	 * Returns false if Utils::isValidDSR() would return false, but also
+	 * returns false if the DSR offsets would create a bad UTF-8 string
+	 * (ie, the start offsets don't point to a valid UTF-8 start character).
+	 * @param ?DomSourceRange $dsr DSR source range values
+	 * @param bool $all Also check the widths of the container tag
+	 * @return bool
+	 */
+	public function isValidDSR( ?DomSourceRange $dsr, bool $all = false ) {
+		if ( !Utils::isValidDSR( $dsr, $all ) ) {
+			return false;
+		}
+		if ( !( $dsr->start <= $dsr->end &&
+			  $dsr->end <= strlen( $this->selserData->oldText ) ) ) {
+			return false;
+		}
+		// check the UTF-8 ranges.
+		$src = $this->selserData->oldText;
+		$check = static function ( $start, $end ) use ( $src ) {
+			if ( $start === $end ) {
+				// zero-length string is always ok
+				return true;
+			}
+			$firstChar = ord( $src[$start] );
+			if ( ( $firstChar & 0xC0 ) === 0x80 ) {
+				return false; // bad UTF-8 at start of string
+			}
+			$i = 0;
+			// This next loop won't pass $start because we've already
+			// asserted that the first character isn't 10xx xxxx
+			do {
+				$i--;
+				if ( $i <= -5 ) {
+					return false; // bad UTF-8 at end of string (>4 byte sequence)
+				}
+				$lastChar = ord( $src[$end + $i] );
+			} while ( ( $lastChar & 0xC0 ) === 0x80 );
+			if ( ( $lastChar & 0x80 ) === 0 ) {
+				return $i === -1;
+			} elseif ( ( $lastChar & 0xE0 ) === 0xC0 ) {
+				return $i === -2;
+			} elseif ( ( $lastChar & 0xF0 ) === 0xE0 ) {
+				return $i === -3;
+			} elseif ( ( $lastChar & 0xF8 ) === 0xF0 ) {
+				return $i === -4;
+			} else {
+				return false;
+			}
+		};
+		if ( !$all ) {
+			return $check( $dsr->start, $dsr->end );
+		}
+		// Check each inner ranges.
+		$openEnd = $dsr->start + $dsr->openWidth;
+		if ( $openEnd > $dsr->end ) {
+			return false;
+		}
+		if ( !$check( $dsr->start, $openEnd ) ) {
+			return false;
+		}
+		$closeStart = $dsr->end - $dsr->closeWidth;
+		if ( $dsr->start > $closeStart ) {
+			return false;
+		}
+		if ( !$check( $closeStart, $dsr->end ) ) {
+			return false;
+		}
+		if ( $openEnd > $closeStart ) {
+			return false;
+		}
+		if ( !$check( $openEnd, $closeStart ) ) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
