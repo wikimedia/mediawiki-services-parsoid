@@ -164,10 +164,9 @@ class ContentModelHandler extends IContentModelHandler {
 			// TODO: The use of ContentUtils::createAndLoadDocument is discouraged
 			// but maybe combining with $env->setupTopLevelDoc can make something
 			// valid.
-			$doc = ContentUtils::createAndLoadDocument(
-				$selectiveUpdateData->revHTML, [ 'validateXMLNames' => true ]
-			);
+			$doc = ContentUtils::createDocument( $selectiveUpdateData->revHTML, true );
 			$this->env->setupTopLevelDoc( $doc );
+			DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
 			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
