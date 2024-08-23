@@ -138,7 +138,7 @@ class ParserPipelineFactory {
 		// Stage 5
 		"selective-dom-update" => [
 			"outType" => "DOM",
-			"stages" => [ "DOMPP" ],
+			"stages" => [ "DOMTransform" ],
 		],
 	];
 
