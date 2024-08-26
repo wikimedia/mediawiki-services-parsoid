@@ -98,6 +98,6 @@ trait ContentMetadataCollectorCompat {
 	public function setUnsortedPageProperty( string $propName, string $value = '' ): void {
 		// $value is already coerced to string by the argument type hint
 		// @phan-suppress-next-line PhanUndeclaredMethod in CMC interface
-		$this->setPageProperty( $name, $value );
+		$this->setPageProperty( $propName, $value );
 	}
 }

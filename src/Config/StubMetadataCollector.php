@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorCompat;
+use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Core\TOCData;
 use Wikimedia\Parsoid\Utils\Title;
@@ -125,16 +126,12 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @inheritDoc */
 	public function addModules( array $modules ): void {
-		foreach ( $modules as $module ) {
-			$this->collect( 'modules', '', $module );
-		}
+		$this->appendOutputStrings( CMCSS::MODULE, $modules );
 	}
 
 	/** @inheritDoc */
 	public function addModuleStyles( array $moduleStyles ): void {
-		foreach ( $moduleStyles as $style ) {
-			$this->collect( 'modulestyles', '', $style );
-		}
+		$this->appendOutputStrings( CMCSS::MODULE_STYLE, $moduleStyles );
 	}
 
 	/** @inheritDoc */
@@ -255,12 +252,12 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @return string[] */
 	public function getModules(): array {
-		return $this->get( 'modules', '' );
+		return $this->get( 'outputstrings', CMCSS::MODULE );
 	}
 
 	/** @return string[] */
 	public function getModuleStyles(): array {
-		return $this->get( 'modulestyles', '' );
+		return $this->get( 'outputstrings', CMCSS::MODULE_STYLE );
 	}
 
 	/** @return string[] */

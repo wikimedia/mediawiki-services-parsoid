@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\Core\Sanitizer;
@@ -1035,18 +1036,18 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * @param array $modules
-	 * @deprecated Use ::getMetadata()->addModules() instead.
+	 * @deprecated Use ::getMetadata()->appendOutputStrings( MODULE, ...) instead.
 	 */
 	public function addModules( array $modules ) {
-		$this->getMetadata()->addModules( $modules );
+		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE, $modules );
 	}
 
 	/**
 	 * @param array $modulestyles
-	 * @deprecated Use ::getMetadata()->addModuleStyles() instead.
+	 * @deprecated Use ::getMetadata()->appendOutputStrings(MODULE_STYLE, ...) instead.
 	 */
 	public function addModuleStyles( array $modulestyles ) {
-		$this->getMetadata()->addModuleStyles( $modulestyles );
+		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE_STYLE, $modulestyles );
 	}
 
 	/**

@@ -288,6 +288,7 @@ interface ContentMetadataCollector {
 	 * @param string $name
 	 * @param int|float|string|bool|null $value
 	 * @since 1.38
+	 * @deprecated use ::setUnsortedPageProperty() or ::setNumericPageProperty()
 	 */
 	public function setPageProperty( string $name, $value ): void;
 
@@ -443,12 +444,14 @@ interface ContentMetadataCollector {
 	/**
 	 * @see OutputPage::addModules
 	 * @param string[] $modules
+	 * @deprecated use ::appendOutputStrings(::MODULE, ...)
 	 */
 	public function addModules( array $modules ): void;
 
 	/**
 	 * @see OutputPage::addModuleStyles
 	 * @param string[] $modules
+	 * @deprecated use ::appendOutputStrings(::MODULE_STYLE, ...)
 	 */
 	public function addModuleStyles( array $modules ): void;
 
@@ -490,9 +493,4 @@ interface ContentMetadataCollector {
 	 * @param-taint $content exec_html
 	 */
 	public function setIndicator( $name, $content ): void;
-
-	/**
-	 * @return array<string,string>
-	 */
-	public function getIndicators(): array;
 }

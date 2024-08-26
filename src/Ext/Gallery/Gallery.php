@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use stdClass;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\MediaStructure;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -230,8 +231,8 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		} );
 
 		$mode = Mode::byName( $opts->mode );
-		$extApi->getMetadata()->addModules( $mode->getModules() );
-		$extApi->getMetadata()->addModuleStyles( $mode->getModuleStyles() );
+		$extApi->getMetadata()->appendOutputStrings( CMCSS::MODULE, $mode->getModules() );
+		$extApi->getMetadata()->appendOutputStrings( CMCSS::MODULE_STYLE, $mode->getModuleStyles() );
 		$domFragment = $mode->render( $extApi, $opts, $caption, $lines );
 
 		$dataMw = $extApi->extTag->getDefaultDataMw();

@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -300,8 +301,8 @@ class DataAccess extends IDataAccess {
 		foreach ( ( $data['categories'] ?? [] ) as $c ) {
 			$metadata->addCategory( $c['category'], $c['sortkey'] );
 		}
-		$metadata->addModules( $data['modules'] ?? [] );
-		$metadata->addModuleStyles( $data['modulestyles'] ?? [] );
+		$metadata->appendOutputStrings( CMCSS::MODULE, $data['modules'] ?? [] );
+		$metadata->appendOutputStrings( CMCSS::MODULE_STYLE, $data['modulestyles'] ?? [] );
 		foreach ( ( $data['jsconfigvars'] ?? [] ) as $key => $value ) {
 			$strategy = 'write-once';
 			if ( is_array( $value ) ) {
@@ -322,7 +323,16 @@ class DataAccess extends IDataAccess {
 			$metadata->addExternalLink( $url );
 		}
 		foreach ( ( $data['properties'] ?? [] ) as $name => $value ) {
-			$metadata->setPageProperty( $name, $value );
+			if ( is_string( $value ) ) {
+				$metadata->setUnsortedPageProperty( $name, $value );
+			} elseif ( is_numeric( $value ) ) {
+				$metadata->setNumericPageProperty( $name, $value );
+			} elseif ( is_bool( $value ) ) {
+				// Deprecated back-compat
+				$metadata->setNumericPageProperty( $name, (int)$value );
+			} else {
+				// Non-scalar values deprecatedin 1.42; drop them.
+			}
 		}
 	}
 

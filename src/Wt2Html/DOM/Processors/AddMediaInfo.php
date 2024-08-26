@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -829,12 +830,12 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 		}
 
 		if ( $hasThumb ) {
-			$env->getMetadata()->addModules( [ 'mediawiki.page.media' ] );
+			$env->getMetadata()->appendOutputStrings( CMCSS::MODULE, [ 'mediawiki.page.media' ] );
 		}
 
 		if ( $needsTMHModules ) {
-			$env->getMetadata()->addModuleStyles( [ 'ext.tmh.player.styles' ] );
-			$env->getMetadata()->addModules( [ 'ext.tmh.player' ] );
+			$env->getMetadata()->appendOutputStrings( CMCSS::MODULE_STYLE, [ 'ext.tmh.player.styles' ] );
+			$env->getMetadata()->appendOutputStrings( CMCSS::MODULE, [ 'ext.tmh.player' ] );
 		}
 	}
 }
