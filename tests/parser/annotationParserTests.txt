@@ -1099,3 +1099,20 @@ annotations=1
 !! html/parsoid
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"&lt;dummyanno>1x","href":"./Template:1x"},"params":{"1":{"wt":"hello&lt;/dummyanno> stuff"}},"i":0}}]}'>hello</span>&lt;/dummyanno><span about="#mwt1"> stuff</span></p>
 !! end
+
+# Note that mw:Extension isn't registered as a 'real' interwiki link in
+# the parser test runner, but it was the necessary prefix to trigger
+# T373374
+!! test
+T373374: Annotation with interwiki links
+!! options
+annotations=1
+parsoid=wt2html
+!! wikitext
+<dummyanno>[[<ann2>wikipedia:Talk:Foo</ann2>|Bar]]</dummyanno>
+
+<dummyanno>[[<ann2>mw:Extension:Foo</ann2>|Bar]]</dummyanno>
+!! html/parsoid
+<p><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa2","extendedRange":false,"wtOffsets":[0,11]}'/><a typeof="mw:ExpandedAttrs mw:Annotation/ann2" rel="mw:WikiLink/Interwiki" href="http://en.wikipedia.org/wiki/Talk:Foo" title="wikipedia:Talk:Foo" class="extiw" data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;meta typeof=\"mw:Annotation/ann2\" data-mw=&apos;{\"rangeId\":\"mwa0\",\"extendedRange\":false,\"wtOffsets\":[13,19]}&apos;/>wikipedia:Talk:Foo&lt;meta typeof=\"mw:Annotation/ann2/End\" data-mw=&apos;{\"wtOffsets\":[37,44]}&apos;/>"}]]}'>Bar</a><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[50,62]}'/></p>
+<p><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa3","extendedRange":false,"wtOffsets":[64,75]}'/><a typeof="mw:ExpandedAttrs mw:Annotation/ann2 mw:LocalizedAttrs" rel="mw:WikiLink" href="./Mw:Extension:Foo?action=edit&amp;redlink=1" title="Mw:Extension:Foo" class="new" data-mw='{"attribs":[[{"txt":"href"},{"html":"&lt;meta typeof=\"mw:Annotation/ann2\" data-mw=&apos;{\"rangeId\":\"mwa1\",\"extendedRange\":false,\"wtOffsets\":[77,83]}&apos;/>mw:Extension:Foo&lt;meta typeof=\"mw:Annotation/ann2/End\" data-mw=&apos;{\"wtOffsets\":[99,106]}&apos;/>"}]]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Mw:Extension:Foo"]}}'>Bar</a><meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[112,124]}'/></p>
+!! end

@@ -28,6 +28,8 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -302,8 +304,11 @@ class WikiLinkHandler extends TokenHandler {
 			// Use the expanded attr instead of trying to unpackDOMFragments
 			// since the fragment will have been released when expanding to DOM
 			$expandedVal = $token->fetchExpandedAttrValue( 'href' );
-			if ( preg_match( '#mw:(Nowiki|Extension|DOMFragment/sealed)#', $expandedVal ?? '' ) ) {
-				return new TokenHandlerResult( self::bailTokens( $this->manager, $token ) );
+			$expandedDom = DOMUtils::parseHTML( $expandedVal ?? '' );
+			foreach ( DOMCompat::querySelectorAll( $expandedDom, '[typeof]' ) as $el ) {
+				if ( DOMUtils::matchTypeOf( $el, '#^mw:(Nowiki|Extension|DOMFragment/sealed)#' ) !== null ) {
+					return new TokenHandlerResult( self::bailTokens( $this->manager, $token ) );
+				}
 			}
 		}
 
