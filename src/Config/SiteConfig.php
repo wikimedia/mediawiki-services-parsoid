@@ -29,7 +29,6 @@ use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
-use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -705,8 +704,7 @@ abstract class SiteConfig {
 	 * @param string[] $moduleStyles
 	 * @param array<string,mixed> $jsConfigVars
 	 * @param string $htmlTitle The display title, as escaped HTML
-	 * @param string|Bcp47Code $lang a MediaWiki-internal language code string,
-	 *   or a Bcp47Code object (latter is preferred)
+	 * @param Bcp47Code $lang a Bcp47Code object
 	 */
 	protected function exportMetadataHelper(
 		Document $document,
@@ -715,15 +713,16 @@ abstract class SiteConfig {
 		array $moduleStyles,
 		array $jsConfigVars,
 		string $htmlTitle,
-		$lang
+		Bcp47Code $lang
 	): void {
-		$lang = Utils::mwCodeToBcp47( $lang, true, $this->getLogger() );
-		// Display title
-		$titleElement = DOMCompat::querySelector( $document, 'title' );
-		if ( !$titleElement ) {
-			$titleElement = DOMUtils::appendToHead( $document, 'title' );
-		}
-		DOMCompat::setInnerHTML( $titleElement, $htmlTitle );
+		// $htmlTitle contains the DISPLAYTITLE but it corresponds to the
+		// value of the ParserOutput *not* the ultimate value which would
+		// be used in the <h1> tag *nor* the plaintext value which would
+		// be used for the page <title>.  OutputPage does additional
+		// validation/stripping on the displaytitle value before using it.
+		// As such we're going to just ignore $htmlTitle for now rather
+		// than report an incorrect value in the <head> (T324431).
+
 		// JsConfigVars
 		$content = null;
 		try {

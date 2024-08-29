@@ -790,6 +790,9 @@ class DOMPostProcessor extends PipelineStage {
 		$body = DOMCompat::getBody( $document );
 		$body->setAttribute( 'lang', $lang->toBcp47Code() );
 		$this->updateBodyClasslist( $body, $env );
+		// T324431: Note that this is *not* the displaytitle, and that
+		// the title element contents are plaintext *not* HTML
+		DOMCompat::setTitle( $document, $title->getPrefixedText() );
 		$env->getSiteConfig()->exportMetadataToHeadBcp47(
 			$document, $env->getMetadata(),
 			$title->getPrefixedText(), $lang
