@@ -32,23 +32,6 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
  */
 class TableFixups {
 	/**
-	 * @var PegTokenizer
-	 */
-	private $tokenizer;
-
-	public function __construct( Env $env ) {
-		/**
-		 * Set up some helper objects for reparseTemplatedAttributes
-		 */
-
-		/**
-		 * Actually the regular tokenizer, but we'll use
-		 * tokenizeTableCellAttributes only.
-		 */
-		$this->tokenizer = new PegTokenizer( $env );
-	}
-
-	/**
 	 * DOM visitor that strips the double td for this test case:
 	 * ```
 	 * |{{1x|{{!}} Foo}}
@@ -56,10 +39,10 @@ class TableFixups {
 	 *
 	 * @see https://phabricator.wikimedia.org/T52603
 	 * @param Element $node
-	 * @param Frame $frame
+	 * @param DTState $dtState
 	 * @return bool|Node
 	 */
-	public function stripDoubleTDs( Element $node, Frame $frame ) {
+	public static function stripDoubleTDs( Element $node, DTState $dtState ) {
 		$nextNode = $node->nextSibling;
 		if ( !WTUtils::isLiteralHTMLNode( $node ) &&
 			$nextNode instanceof Element &&
@@ -84,7 +67,7 @@ class TableFixups {
 			}
 
 			$dataMW = DOMDataUtils::getDataMw( $nextNode );
-			$nodeSrc = WTUtils::getWTSource( $frame, $node );
+			$nodeSrc = WTUtils::getWTSource( $dtState->options['frame'], $node );
 			$dataMW->parts ??= [];
 			array_unshift( $dataMW->parts, $nodeSrc );
 
@@ -97,7 +80,7 @@ class TableFixups {
 		return true;
 	}
 
-	private function isSimpleTemplatedSpan( Node $node ): bool {
+	private static function isSimpleTemplatedSpan( Node $node ): bool {
 		return DOMCompat::nodeName( $node ) === 'span' &&
 			DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) &&
 			DOMUtils::allChildrenAreTextOrComments( $node );
@@ -109,7 +92,7 @@ class TableFixups {
 	 * @param int $offset1
 	 * @param int $offset2
 	 */
-	private function fillDSRGap( array &$parts, Frame $frame, int $offset1, int $offset2 ): void {
+	private static function fillDSRGap( array &$parts, Frame $frame, int $offset1, int $offset2 ): void {
 		if ( $offset1 < $offset2 ) {
 			$parts[] = PHPUtils::safeSubstr( $frame->getSrcText(), $offset1, $offset2 - $offset1 );
 		}
@@ -119,8 +102,8 @@ class TableFixups {
 	 * Hoist transclusion information from cell content / attributes
 	 * onto the cell itself.
 	 */
-	private function hoistTransclusionInfo(
-		Frame $frame, array $transclusions, Element $td, DTState $dtState
+	private static function hoistTransclusionInfo(
+		DTState $dtState, array $transclusions, Element $td
 	): void {
 		// Initialize dsr for $td
 		// In `handleTableCellTemplates`, we're creating a cell w/o dsr info.
@@ -138,6 +121,7 @@ class TableFixups {
 		$pi = [];
 		$lastTpl = null;
 		$prevDp = null;
+		$frame = $dtState->options['frame'];
 
 		$index = 0;
 		foreach ( $transclusions as $i => $tpl ) {
@@ -146,9 +130,9 @@ class TableFixups {
 
 			// Plug DSR gaps between transclusions
 			if ( !$prevDp ) {
-				$this->fillDSRGap( $parts, $frame, $tdDp->dsr->start, $tplDp->dsr->start );
+				self::fillDSRGap( $parts, $frame, $tdDp->dsr->start, $tplDp->dsr->start );
 			} else {
-				$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tplDp->dsr->start );
+				self::fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tplDp->dsr->start );
 			}
 
 			// Assimilate $tpl's data-mw and data-parsoid pi info
@@ -180,7 +164,7 @@ class TableFixups {
 		$td->setAttribute( 'about', $aboutId );
 
 		// Add wikitext for the table cell content following $lastTpl
-		$this->fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tdDp->dsr->end );
+		self::fillDSRGap( $parts, $frame, $prevDp->dsr->end, $tdDp->dsr->end );
 
 		// Save the new data-mw on the td
 		$dmw = new DataMw( [] );
@@ -248,7 +232,7 @@ class TableFixups {
 	 * @param ?Element $templateWrapper
 	 * @return ?array
 	 */
-	public function collectAttributishContent(
+	public static function collectAttributishContent(
 		Env $env, Element $cell, ?Element $templateWrapper
 	): ?array {
 		$buf = [];
@@ -353,12 +337,13 @@ class TableFixups {
 	 *
 	 * $cell known to be <td> / <th>
 	 */
-	public function reparseTemplatedAttributes(
-		Frame $frame, Element $cell, ?Element $templateWrapper, DTSTate $dtState
+	public static function reparseTemplatedAttributes(
+		DTState $dtState, Element $cell, ?Element $templateWrapper
 	): void {
-		$env = $frame->getEnv();
+		$env = $dtState->env;
+		$frame = $dtState->options['frame'];
 		// Collect attribute content and examine it
-		$attributishContent = $this->collectAttributishContent( $env, $cell, $templateWrapper );
+		$attributishContent = self::collectAttributishContent( $env, $cell, $templateWrapper );
 		if ( !$attributishContent ) {
 			return;
 		}
@@ -404,7 +389,10 @@ class TableFixups {
 		}
 
 		// re-parse the attributish prefix
-		$attributeTokens = $this->tokenizer->tokenizeTableCellAttributes( $attributishPrefix, false );
+		if ( !$dtState->tokenizer ) {
+			$dtState->tokenizer = new PegTokenizer( $env );
+		}
+		$attributeTokens = $dtState->tokenizer->tokenizeTableCellAttributes( $attributishPrefix, false );
 
 		// No attributes => nothing more to do!
 		if ( !$attributeTokens ) {
@@ -427,7 +415,7 @@ class TableFixups {
 		// lift up the about group to the td node.
 		$transclusions = $attributishContent['transclusions'];
 		if ( $transclusions && ( $cell !== $transclusions[0] || count( $transclusions ) > 1 ) ) {
-			$this->hoistTransclusionInfo( $frame, $transclusions, $cell, $dtState );
+			self::hoistTransclusionInfo( $dtState, $transclusions, $cell );
 		}
 
 		// Drop content that has been consumed by the reparsed attribute content.
@@ -463,11 +451,11 @@ class TableFixups {
 	 * in this function that aren't accounted for yet! Couple of them are
 	 * in the unsupported scenario 1/2 buckets below.
 	 *
-	 * @param Frame $frame
+	 * @param DTState $dtState
 	 * @param Element $cell
 	 * @return bool
 	 */
-	private function combineAttrsWithPreviousCell( Frame $frame, Element $cell ): bool {
+	private static function combineAttrsWithPreviousCell( DTState $dtState, Element $cell ): bool {
 		// UNSUPPORTED SCENARIO 1:
 		// In this cell-combining scenario, $prev can have attributes only if it
 		// also had content. See example below:
@@ -493,14 +481,18 @@ class TableFixups {
 		}
 
 		// Build the attribute string
+		$frame = $dtState->options['frame'];
 		$prevCellSrc = PHPUtils::safeSubstr(
 			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length() );
 		// "|" or "!", but doesn't matter since we discard that anyway
 		$reparseSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth ) . "|";
 
 		// Reparse the attributish prefix
-		$env = $frame->getEnv();
-		$attributeTokens = $this->tokenizer->tokenizeTableCellAttributes( $reparseSrc, false );
+		$env = $dtState->env;
+		if ( !$dtState->tokenizer ) {
+			$dtState->tokenizer = new PegTokenizer( $env );
+		}
+		$attributeTokens = $dtState->tokenizer->tokenizeTableCellAttributes( $reparseSrc, false );
 		if ( !is_array( $attributeTokens ) ) {
 			$env->log( "error/wt2html",
 				"TableFixups: Failed to successfully reparse $reparseSrc as table cell attributes" );
@@ -561,7 +553,7 @@ class TableFixups {
 	/**
 	 * $cell is known to be <td>/<th>
 	 */
-	private function getReparseType( Element $cell, DTState $dtState ): int {
+	private static function getReparseType( Element $cell, DTState $dtState ): int {
 		$inTplContent = $dtState->tplInfo !== null;
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if ( !$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
@@ -664,11 +656,10 @@ class TableFixups {
 	 * mutated in these handlers.
 	 *
 	 * @param Element $cell $cell is known to be <td>/<th>
-	 * @param Frame $frame
 	 * @param DTState $dtState
 	 * @return mixed
 	 */
-	public function handleTableCellTemplates( Element $cell, Frame $frame, DTState $dtState ) {
+	public static function handleTableCellTemplates( Element $cell, DTState $dtState ) {
 		if ( WTUtils::isLiteralHTMLNode( $cell ) ) {
 			return true;
 		}
@@ -693,14 +684,14 @@ class TableFixups {
 			}
 		}
 
-		$reparseType = $this->getReparseType( $cell, $dtState );
+		$reparseType = self::getReparseType( $cell, $dtState );
 		if ( $reparseType === self::NO_REPARSING ) {
 			return true;
 		}
 
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
 		if ( $reparseType === self::COMBINE_WITH_PREV_CELL ) {
-			if ( $this->combineAttrsWithPreviousCell( $frame, $cell ) ) {
+			if ( self::combineAttrsWithPreviousCell( $dtState, $cell ) ) {
 				return true;
 			} else {
 				// Clear property and retry $cell for other reparses
@@ -713,8 +704,9 @@ class TableFixups {
 
 		// If the cell didn't have attrs, extract and reparse templated attrs
 		if ( $cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
+			$frame = $dtState->options['frame'];
 			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
-			$this->reparseTemplatedAttributes( $frame, $cell, $templateWrapper, $dtState );
+			self::reparseTemplatedAttributes( $dtState, $cell, $templateWrapper );
 		}
 
 		// Now, examine the <td> to see if it hides additional <td>s
@@ -733,7 +725,7 @@ class TableFixups {
 
 			if ( $newCell ) {
 				$newCell->appendChild( $child );
-			} elseif ( $child instanceof Text || $this->isSimpleTemplatedSpan( $child ) ) {
+			} elseif ( $child instanceof Text || self::isSimpleTemplatedSpan( $child ) ) {
 				// FIXME: This skips over scenarios like <div>foo||bar</div>.
 				$cellName = DOMCompat::nodeName( $cell );
 				$hasSpanWrapper = !( $child instanceof Text );
@@ -770,7 +762,7 @@ class TableFixups {
 						'@phan-var Element $child';
 						// Fix up transclusion wrapping
 						$about = DOMCompat::getAttribute( $child, 'about' );
-						$this->hoistTransclusionInfo( $frame, [ $child ], $cell, $dtState );
+						self::hoistTransclusionInfo( $dtState, [ $child ], $cell );
 					} else {
 						// Refetch the about attribute since 'reparseTemplatedAttributes'
 						// might have added one to it.

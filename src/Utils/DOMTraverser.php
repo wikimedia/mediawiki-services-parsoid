@@ -99,7 +99,7 @@ class DOMTraverser {
 					//    is aiming for would lead us to use a new state or even a new
 					//    traversal object here and that feels a little bit "more correct"
 					//    than reusing partial state.
-					$newState = $state ? new DTState( $state->options, false ) : null;
+					$newState = $state ? new DTState( $state->env, $state->options, false ) : null;
 					$self->traverse( $extAPI, $dom, $newState );
 					return $extAPI->domToHtml( $dom, true, true );
 				}

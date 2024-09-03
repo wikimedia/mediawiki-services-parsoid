@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -114,10 +115,10 @@ class UnpackDOMFragments {
 	 * DOMTraverser handler that unpacks DOM fragments which were injected in the
 	 * token pipeline.
 	 * @param Node $placeholder
-	 * @param Env $env
+	 * @param DTState $state
 	 * @return bool|Node
 	 */
-	public static function handler( Node $placeholder, Env $env ) {
+	public static function handler( Node $placeholder, DTState $state ) {
 		if ( !$placeholder instanceof Element ) {
 			return true;
 		}
@@ -127,6 +128,7 @@ class UnpackDOMFragments {
 			return true;
 		}
 
+		$env = $state->env;
 		$placeholderDP = DOMDataUtils::getDataParsoid( $placeholder );
 		Assert::invariant( str_starts_with( $placeholderDP->html, 'mwf' ), '' );
 		$fragmentDOM = $env->getDOMFragment( $placeholderDP->html );

@@ -3,10 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class AddLinkAttributes {
@@ -14,7 +14,7 @@ class AddLinkAttributes {
 	/**
 	 * Adds classes to external links and interwiki links
 	 */
-	public static function handler( Element $a, Env $env ): bool {
+	public static function handler( Element $a, DTState $state ): bool {
 		if ( DOMUtils::hasRel( $a, "mw:ExtLink" ) ) {
 			if ( $a->firstChild ) {
 				// The "external free" class is reserved for links which
@@ -35,7 +35,7 @@ class AddLinkAttributes {
 			}
 			$a->setAttribute( 'class', $classInfoText );
 			$href = DOMCompat::getAttribute( $a, 'href' ) ?? '';
-			$attribs = $env->getExternalLinkAttribs( $href );
+			$attribs = $state->env->getExternalLinkAttribs( $href );
 			foreach ( $attribs as $key => $val ) {
 				if ( $key === 'rel' ) {
 					foreach ( $val as $v ) {

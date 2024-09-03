@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 class HandleLinkNeighbours {
@@ -129,10 +130,10 @@ class HandleLinkNeighbours {
 	 * NOTE that this function mutates the node's siblings on either side.
 	 *
 	 * @param Element $node
-	 * @param Env $env
+	 * @param DTState $state
 	 * @return bool|Element
 	 */
-	public static function handler( Element $node, Env $env ) {
+	public static function handler( Element $node, DTState $state ) {
 		if ( !DOMUtils::matchRel( $node, '#^mw:WikiLink(/Interwiki)?$#D' ) ) {
 			return true;
 		}
@@ -141,6 +142,7 @@ class HandleLinkNeighbours {
 		$inTpl = $firstTplNode !== null && DOMUtils::hasTypeOf( $firstTplNode, 'mw:Transclusion' );
 
 		// Find link prefix neighbors
+		$env = $state->env;
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$prefixNbrs = self::getLinkPrefix( $env, $node );
 		if ( !empty( $prefixNbrs ) ) {

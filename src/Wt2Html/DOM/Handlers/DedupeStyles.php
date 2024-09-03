@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -14,11 +13,10 @@ class DedupeStyles {
 
 	/**
 	 * @param Element $node
-	 * @param Env $env
 	 * @param DTState $state
 	 * @return bool|Element
 	 */
-	public static function dedupe( Element $node, Env $env, DTState $state ) {
+	public static function dedupe( Element $node, DTState $state ) {
 		// Don't run on embedded docs for now since we don't want the
 		// canonical styles to be introduced in embedded HTML which means
 		// they will get lost wrt the top level document.
@@ -32,6 +30,7 @@ class DedupeStyles {
 			return true;
 		}
 
+		$env = $state->env;
 		if ( !isset( $env->styleTagKeys[$key] ) ) {
 			// Not a dupe
 			$env->styleTagKeys[$key] = true;

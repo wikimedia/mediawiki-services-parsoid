@@ -17,6 +17,11 @@ class WrapTemplates implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
+		// Don't run this in template content
+		if ( $options['inTemplate'] ) {
+			return;
+		}
+
 		$op = new DOMRangeBuilder( $root->ownerDocument, $options['frame'] );
 		$op->execute( $root );
 	}

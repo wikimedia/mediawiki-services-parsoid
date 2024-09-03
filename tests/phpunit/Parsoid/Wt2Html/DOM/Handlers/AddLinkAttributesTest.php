@@ -20,8 +20,8 @@ class AddLinkAttributesTest extends TestCase {
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$traverser = new DOMPPTraverser( false, true );
-		$traverser->addHandler( 'a', static fn ( $node ) => AddLinkAttributes::handler( $node, $mockEnv ) );
-		$traverser->run( $mockEnv, $body );
+		$traverser->addHandler( 'a', static fn ( $node, $state ) => AddLinkAttributes::handler( $node, $state ) );
+		$traverser->run( $mockEnv, $body, [ 'env' => $mockEnv ] );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );
 		$pattern = '/ ' . DOMDataUtils::DATA_OBJECT_ATTR_NAME . '="\d+"/';
@@ -36,8 +36,8 @@ class AddLinkAttributesTest extends TestCase {
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
 		$traverser = new DOMPPTraverser( false, true );
-		$traverser->addHandler( 'a', static fn ( $node ) => AddLinkAttributes::handler( $node, $mockEnv ) );
-		$traverser->run( $mockEnv, $body );
+		$traverser->addHandler( 'a', static fn ( $node, $state ) => AddLinkAttributes::handler( $node, $state ) );
+		$traverser->run( $mockEnv, $body, [ 'env' => $mockEnv ] );
 
 		$innerHtml = DOMCompat::getInnerHTML( $body );
 		$pattern = '/ ' . DOMDataUtils::DATA_OBJECT_ATTR_NAME . '="\d+"/';

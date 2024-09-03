@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
@@ -94,10 +95,10 @@ class Headings {
 	 * This is to ensure that links that are out there in the wild
 	 * continue to be valid links into Parsoid HTML.
 	 * @param Node $node
-	 * @param Env $env
+	 * @param DTState $state
 	 * @return bool
 	 */
-	public static function genAnchors( Node $node, Env $env ): bool {
+	public static function genAnchors( Node $node, DTState $state ): bool {
 		if ( !DOMUtils::isHeading( $node ) ) {
 			return true;
 		}
@@ -137,7 +138,7 @@ class Headings {
 		// Additional processing for $anchor
 		$anchorText = $clone->textContent; // strip all tags
 		$anchorText = Sanitizer::normalizeSectionNameWhiteSpace( $anchorText );
-		$anchorText = self::normalizeSectionName( $anchorText, $env );
+		$anchorText = self::normalizeSectionName( $anchorText, $state->env );
 
 		# NOTE: Parsoid defaults to html5 mode. So, if we want to replicate
 		# legacy output, we should handle that explicitly.
@@ -188,7 +189,7 @@ class Headings {
 		}
 	}
 
-	public static function dedupeHeadingIds( array &$seenIds, Node $node ): bool {
+	public static function dedupeHeadingIds( Node $node, DTState $state ): bool {
 		// NOTE: This is not completely compliant with how PHP parser does it.
 		// If there is an id in the doc elsewhere, this will assign
 		// the heading a suffixed id, whereas the PHP parser processes
@@ -214,6 +215,7 @@ class Headings {
 		// This case folding and matching algorithm has to stay exactly the
 		// same to preserve external links to the page.
 		$key = strtolower( $origKey );
+		$seenIds = &$state->seenIds;
 		if ( !isset( $seenIds[$key] ) ) {
 			$seenIds[$key] = 1;
 			return true;

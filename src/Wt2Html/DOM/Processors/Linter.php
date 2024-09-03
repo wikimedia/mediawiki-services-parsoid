@@ -1445,6 +1445,10 @@ class Linter implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
+		if ( !$env->linting() ) {
+			return;
+		}
+
 		// Track time spent linting so we can evaluate benefits
 		// of migrating this code off the critical path to its own
 		// post processor.

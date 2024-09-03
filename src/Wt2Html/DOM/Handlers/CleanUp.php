@@ -357,19 +357,22 @@ class CleanUp {
 	/**
 	 * Perform some final cleanup
 	 *
-	 * @param array $usedIdIndex
 	 * @param Node $node
-	 * @param Env $env
 	 * @param DTState $state
 	 * @return bool|Node The next node or true to continue with $node->nextSibling
 	 */
-	public static function saveDataParsoid(
-		array $usedIdIndex, Node $node, Env $env, DTState $state
-	) {
+	public static function saveDataParsoid( Node $node, DTState $state ) {
 		if ( !( $node instanceof Element ) ) {
 			return true;
 		}
 
+		$usedIdIndex = &$state->usedIdIndex;
+		if ( $state->atTopLevel && DOMUtils::isBody( $node ) ) {
+			// Initialization
+			$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
+		}
+
+		$env = $state->env;
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$isFirstEncapsulationWrapperNode = ( $state->tplInfo->first ?? null ) === $node ||
 			// Traversal isn't done with tplInfo for section tags, but we should

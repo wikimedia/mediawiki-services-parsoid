@@ -49,7 +49,7 @@ HTML;
 			$doc->loadHTML( $html );
 		}
 
-		$state = new DTState( [], true );
+		$state = new DTState( $env, [], true );
 		$trace = [];
 
 		$traverser = new DOMTraverser( $withTplInfo, $processAttrEmbeddedHTML );

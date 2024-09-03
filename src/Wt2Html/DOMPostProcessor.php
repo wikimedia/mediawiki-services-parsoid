@@ -53,21 +53,11 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapTemplates;
  * Perform post-processing steps on an already-built HTML DOM.
  */
 class DOMPostProcessor extends PipelineStage {
-	/** @var array */
-	private $options;
-
-	private array $seenIds = [];
+	private array $options;
 	private array $processors = [];
-
-	/** @var ParsoidExtensionAPI Provides post-processing support to extensions */
-	private $extApi;
-
-	/** @var array */
-	private $metadataMap;
-
-	/** @var string */
-	private $timeProfile = '';
-
+	private ParsoidExtensionAPI $extApi; // Provides post-processing support to extensions
+	private array $metadataMap;
+	private string $timeProfile = '';
 	private ?SelectiveUpdateData $selparData = null;
 
 	public function __construct(
@@ -159,14 +149,6 @@ class DOMPostProcessor extends PipelineStage {
 	}
 
 	public function getDefaultProcessors(): array {
-		$env = $this->env;
-		$options = $this->options;
-		$seenIds = &$this->seenIds;
-		$usedIdIndex = [];
-		$abouts = [];
-
-		$tableFixer = new TableFixups( $env );
-
 		/* ---------------------------------------------------------------------------
 		 * FIXME:
 		 * 1. PipelineFactory caches pipelines per env
@@ -244,7 +226,6 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => MigrateTemplateMarkerMetas::class,
 				'shortcut' => 'migrate-metas',
-				'omit' => $options['inTemplate'],
 				'skipNested' => false
 			],
 			[
@@ -260,13 +241,11 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => ComputeDSR::class,
 				'shortcut' => 'dsr',
-				'omit' => $options['inTemplate'],
 				'skipNested' => false
 			],
 			[
 				'Processor' => WrapTemplates::class,
 				'shortcut' => 'tplwrap',
-				'omit' => $options['inTemplate'],
 				'skipNested' => false
 			],
 			[
@@ -277,7 +256,8 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'meta',
-						'action' => static function ( $node ) use ( &$abouts, $env ) {
+						'action' => static function ( $node, $state ) {
+							$abouts = &$state->abouts;
 							// TODO: $abouts can be part of DTState
 							$isStart = false;
 							// isStart gets modified (not read) by extractAnnotationType
@@ -288,7 +268,7 @@ class DOMPostProcessor extends PipelineStage {
 									// The 'mwa' prefix is specific to annotations;
 									// if other DOM ranges are to use this mechanism, another prefix
 									// should be used.
-									$about = $env->newAnnotationId();
+									$about = $state->env->newAnnotationId();
 									if ( !array_key_exists( $t, $abouts ) ) {
 										$abouts[$t] = [];
 									}
@@ -334,11 +314,11 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => 'a',
-						'action' => static fn ( $node ) => HandleLinkNeighbours::handler( $node, $env )
+						'action' => static fn ( $node, $state ) => HandleLinkNeighbours::handler( $node, $state )
 					],
 					[
 						'nodeName' => null,
-						'action' => static fn ( $node ) => UnpackDOMFragments::handler( $node, $env )
+						'action' => static fn ( $node, $state ) => UnpackDOMFragments::handler( $node, $state )
 					]
 				]
 			]
@@ -403,7 +383,7 @@ class DOMPostProcessor extends PipelineStage {
 		 *   by analyzing what the DOM postprocessor does and see if it introduces
 		 *   potential ordering issues.
 		 */
-		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
+		foreach ( $this->env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
 			foreach ( $domProcs as $i => $domProcSpec ) {
 				$processors[] = [
 					'isExtPP' => true, // This is an extension DOM post processor
@@ -441,29 +421,26 @@ class DOMPostProcessor extends PipelineStage {
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[
 						'nodeName' => 'td',
-						'action' => fn ( $node ) => $tableFixer->stripDoubleTDs( $node, $this->frame )
+						'action' => fn ( $node, $state ) => TableFixups::stripDoubleTDs( $node, $state )
 					],
 					[
 						'nodeName' => 'td',
-						'action' => fn ( $node, $state ) =>
-							$tableFixer->handleTableCellTemplates( $node, $this->frame, $state )
+						'action' => fn ( $node, $state ) => TableFixups::handleTableCellTemplates( $node, $state )
 					],
 					[
 						'nodeName' => 'th',
-						'action' => fn ( $node, $state ) =>
-							$tableFixer->handleTableCellTemplates( $node, $this->frame, $state )
+						'action' => fn ( $node, $state ) => TableFixups::handleTableCellTemplates( $node, $state )
 					],
 					// 3. Deduplicate template styles
 					// (should run after dom-fragment expansion + after extension post-processors)
 					[
 						'nodeName' => 'style',
-						'action' => static fn ( $node, $dtState ) => DedupeStyles::dedupe( $node, $env, $dtState )
+						'action' => static fn ( $node, $state ) => DedupeStyles::dedupe( $node, $state )
 					]
 				]
 			],
 			[
 				'Processor' => Linter::class,
-				'omit' => !$env->linting(),
 				'skipNested' => true
 				// FIXME: T214994: Have to process HTML in embedded attributes?
 			],
@@ -515,7 +492,7 @@ class DOMPostProcessor extends PipelineStage {
 					],
 					[
 						'nodeName' => 'a',
-						'action' => static fn ( $node ) => AddLinkAttributes::handler( $node, $env ),
+						'action' => static fn ( $node, $state ) => AddLinkAttributes::handler( $node, $state ),
 					],
 
 				]
@@ -531,14 +508,11 @@ class DOMPostProcessor extends PipelineStage {
 				'handlers' => [
 					[
 						'nodeName' => null,
-						'action' => static fn ( $node ) => Headings::genAnchors( $node, $env )
+						'action' => static fn ( $node, $state ) => Headings::genAnchors( $node, $state )
 					],
 					[
 						'nodeName' => null,
-						'action' => static function ( $node ) use ( &$seenIds ) {
-							// TODO: $seenIds can be part of DTState
-							return Headings::dedupeHeadingIds( $seenIds, $node );
-						}
+						'action' => static fn ( $node, $state ) => Headings::dedupeHeadingIds( $node, $state )
 					]
 				]
 			],
@@ -594,13 +568,7 @@ class DOMPostProcessor extends PipelineStage {
 					// don't affect other handlers that run alongside it.
 					[
 						'nodeName' => null,
-						'action' => static function ( $node, $state ) use ( $env, &$usedIdIndex ) {
-							// TODO: $usedIdIndex can be part of DTState
-							if ( $state->atTopLevel && DOMUtils::isBody( $node ) ) {
-								$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
-							}
-							return CleanUp::saveDataParsoid( $usedIdIndex, $node, $env, $state );
-						}
+						'action' => static fn ( $node, $state ) => CleanUp::saveDataParsoid( $node, $state )
 					]
 				]
 			],
@@ -614,14 +582,6 @@ class DOMPostProcessor extends PipelineStage {
 	 */
 	public function setSourceOffsets( SourceRange $so ): void {
 		$this->options['sourceOffsets'] = $so;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function resetState( array $options ): void {
-		parent::resetState( $options );
-		$this->seenIds = [];
 	}
 
 	private function updateBodyClasslist( Element $body, Env $env ): void {
@@ -864,13 +824,6 @@ class DOMPostProcessor extends PipelineStage {
 				}
 			}
 
-			// - Nested pipelines are used for both top-level and non-top-level content.
-			// - Omit is currently set only for templated content pipelines.
-			// - But, skipNested can be set for both templated content as well as
-			//   top-level content.
-			if ( !empty( $pp['omit'] ) ) {
-				continue;
-			}
 			Assert::invariant( isset( $pp['skipNested'] ),
 				"skipNested property missing for " . $pp['name'] . " processor." );
 			if ( $pp['skipNested'] && !$this->atTopLevel ) {
@@ -919,12 +872,16 @@ class DOMPostProcessor extends PipelineStage {
 				}
 			}
 
-			// Excessive to do it here always, but protects against future changes
-			// to how $this->frame may be updated.
-			$pp['proc']( $node, [
-				'frame' => $this->frame,
-				'selparData' => $this->selparData,
-			] + $this->options, $this->atTopLevel );
+			// FIXME: env, frame, selparData, options, atTopLevel can all be
+			// put into a stdclass or a real class (DOMProcConfig?) and passed around.
+			$pp['proc'](
+				$node,
+				[
+					'frame' => $this->frame,
+					'selparData' => $this->selparData,
+				] + $this->options,
+				$this->atTopLevel
+			);
 
 			if ( $hasDumpFlags && ( $env->hasDumpFlag( 'dom:post-' . $pp['shortcut'] )
 				|| $env->hasDumpFlag( 'dom:post-*' ) )
