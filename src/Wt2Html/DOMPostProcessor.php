@@ -12,7 +12,6 @@ use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -22,7 +21,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
-use Wikimedia\Parsoid\Utils\WTUtils;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddAnnotationIds;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddLinkAttributes;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\DedupeStyles;
@@ -44,6 +43,7 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTrailingNLs;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Normalize;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ProcessTreeBuilderFixups;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\PWrap;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\RunExtensionProcessors;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\UpdateTemplateOutput;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapAnnotations;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapSections;
@@ -113,7 +113,10 @@ class DOMPostProcessor extends PipelineStage {
 			if ( empty( $p['shortcut'] ) ) {
 				$p['shortcut'] = $p['name'];
 			}
-			if ( !empty( $p['isTraverser'] ) ) {
+			if ( empty( $p['isTraverser'] ) ) {
+				// Internal processor w/ ::run() method, class name given
+				$p['proc'] = new $p['Processor']();
+			} else {
 				$t = new DOMPPTraverser(
 					$p['tplInfo'] ?? false,
 					$p['applyToAttributeEmbeddedHTML'] ?? false
@@ -121,28 +124,7 @@ class DOMPostProcessor extends PipelineStage {
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
-				$p['proc'] = function ( Node $root, array $options, bool $atTopLevel ) use ( $t ) {
-					return $t->run( $this->env, $root, $options, $atTopLevel );
-				};
-			} else {
-				$classNameOrSpec = $p['Processor'];
-				if ( empty( $p['isExtPP'] ) ) {
-					// Internal processor w/ ::run() method, class name given
-					$c = new $classNameOrSpec();
-					$p['proc'] = function ( Node $root, array $options, bool $atTopLevel ) use ( $c ) {
-						return $c->run( $this->env, $root, $options, $atTopLevel );
-					};
-				} else {
-					// Extension post processor, object factory spec given
-					$objectFactory = $this->env->getSiteConfig()->getObjectFactory();
-					$c = $objectFactory->createObject( $classNameOrSpec, [
-						'allowClassName' => true,
-						'assertClass' => ExtDOMProcessor::class,
-					] );
-					$p['proc'] = function ( Node $root, array $options, bool $atTopLevel ) use ( $c ) {
-						return $c->wtPostprocess( $this->extApi, $root, $options );
-					};
-				}
+				$p['proc'] = $t;
 			}
 			$this->processors[] = $p;
 		}
@@ -254,44 +236,7 @@ class DOMPostProcessor extends PipelineStage {
 				'skipNested' => false,
 				'isTraverser' => true,
 				'handlers' => [
-					[
-						'nodeName' => 'meta',
-						'action' => static function ( $node, $state ) {
-							$abouts = &$state->abouts;
-							// TODO: $abouts can be part of DTState
-							$isStart = false;
-							// isStart gets modified (not read) by extractAnnotationType
-							$t = WTUtils::extractAnnotationType( $node, $isStart );
-							if ( $t !== null ) {
-								$about = null;
-								if ( $isStart ) {
-									// The 'mwa' prefix is specific to annotations;
-									// if other DOM ranges are to use this mechanism, another prefix
-									// should be used.
-									$about = $state->env->newAnnotationId();
-									if ( !array_key_exists( $t, $abouts ) ) {
-										$abouts[$t] = [];
-									}
-									array_push( $abouts[$t], $about );
-								} else {
-									if ( array_key_exists( $t, $abouts ) ) {
-										$about = array_pop( $abouts[$t] );
-									}
-								}
-								if ( $about === null ) {
-									// this doesn't have a start tag, so we don't handle it when creating
-									// annotation ranges, and we replace it with a string
-									$textAnn = $node->ownerDocument->createTextNode( '</' . $t . '>' );
-									$parentNode = $node->parentNode;
-									$parentNode->insertBefore( $textAnn, $node );
-									DOMCompat::remove( $node );
-									return $textAnn;
-								}
-								DOMDataUtils::getDataMw( $node )->rangeId = $about;
-							}
-							return true;
-						}
-					]
+					[ 'nodeName' => 'meta', 'action' => [ AddAnnotationIds::class, 'handler' ] ]
 				],
 				'withAnnotations' => true
 			],
@@ -312,91 +257,79 @@ class DOMPostProcessor extends PipelineStage {
 				'skipNested' => false,
 				'isTraverser' => true,
 				'handlers' => [
-					[
-						'nodeName' => 'a',
-						'action' => static fn ( $node, $state ) => HandleLinkNeighbours::handler( $node, $state )
-					],
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node, $state ) => UnpackDOMFragments::handler( $node, $state )
-					]
+					[ 'nodeName' => 'a', 'action' => [ HandleLinkNeighbours::class, 'handler' ] ],
+					[ 'nodeName' => null, 'action' => [ UnpackDOMFragments::class, 'handler' ] ]
 				]
-			]
-		];
-
-		/**
-		 * FIXME: There are two potential ordering problems here.
-		 *
-		 * 1. unpackDOMFragment should always run immediately
-		 *    before these extensionPostProcessors, which we do currently.
-		 *    This ensures packed content get processed correctly by extensions
-		 *    before additional transformations are run on the DOM.
-		 *
-		 * This ordering issue is handled through documentation.
-		 *
-		 * 2. This has existed all along (in the PHP parser as well as Parsoid
-		 *    which is probably how the ref-in-ref hack works - because of how
-		 *    parser functions and extension tags are procesed, #tag:ref doesn't
-		 *    see a nested ref anymore) and this patch only exposes that problem
-		 *    more clearly with the unpackOutput property.
-		 *
-		 * * Consider the set of extensions that
-		 *   (a) process wikitext
-		 *   (b) provide an extensionPostProcessor
-		 *   (c) run the extensionPostProcessor only on the top-level
-		 *   As of today, there is exactly one extension (Cite) that has all
-		 *   these properties, so the problem below is a speculative problem
-		 *   for today. But, this could potentially be a problem in the future.
-		 *
-		 * * Let us say there are at least two of them, E1 and E2 that
-		 *   support extension tags <e1> and <e2> respectively.
-		 *
-		 * * Let us say in an instance of <e1> on the page, <e2> is present
-		 *   and in another instance of <e2> on the page, <e1> is present.
-		 *
-		 * * In what order should E1's and E2's extensionPostProcessors be
-		 *   run on the top-level? Depending on what these handlers do, you
-		 *   could get potentially different results. You can see this quite
-		 *   starkly with the unpackOutput flag.
-		 *
-		 * * The ideal solution to this problem is to require that every extension's
-		 *   extensionPostProcessor be idempotent which lets us run these
-		 *   post processors repeatedly till the DOM stabilizes. But, this
-		 *   still doesn't necessarily guarantee that ordering doesn't matter.
-		 *   It just guarantees that with the unpackOutput flag set to false
-		 *   multiple extensions, all sealed fragments get fully processed.
-		 *   So, we still need to worry about that problem.
-		 *
-		 *   But, idempotence *could* potentially be a sufficient property in most cases.
-		 *   To see this, consider that there is a Footnotes extension which is similar
-		 *   to the Cite extension in that they both extract inline content in the
-		 *   page source to a separate section of output and leave behind pointers to
-		 *   the global section in the output DOM. Given this, the Cite and Footnote
-		 *   extension post processors would essentially walk the dom and
-		 *   move any existing inline content into that global section till it is
-		 *   done. So, even if a <footnote> has a <ref> and a <ref> has a <footnote>,
-		 *   we ultimately end up with all footnote content in the footnotes section
-		 *   and all ref content in the references section and the DOM stabilizes.
-		 *   Ordering is irrelevant here.
-		 *
-		 *   So, perhaps one way of catching these problems would be in code review
-		 *   by analyzing what the DOM postprocessor does and see if it introduces
-		 *   potential ordering issues.
-		 */
-		foreach ( $this->env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
-			foreach ( $domProcs as $i => $domProcSpec ) {
-				$processors[] = [
-					'isExtPP' => true, // This is an extension DOM post processor
-					'name' => "pp:$extName:$i",
-					'Processor' => $domProcSpec,
-					// This should be documented in the spec that an extension's
-					// wtDOMProcess handler is run once on the top level document.
-					'skipNested' => true
-				];
-			}
-		}
-
-		$processors = array_merge( $processors, [
+			],
+			/**
+			 * FIXME: There are two potential ordering problems here.
+			 *
+			 * 1. unpackDOMFragment should always run immediately
+			 *    before these extensionPostProcessors, which we do currently.
+			 *    This ensures packed content get processed correctly by extensions
+			 *    before additional transformations are run on the DOM.
+			 *
+			 * This ordering issue is handled through documentation.
+			 *
+			 * 2. This has existed all along (in the PHP parser as well as Parsoid
+			 *    which is probably how the ref-in-ref hack works - because of how
+			 *    parser functions and extension tags are procesed, #tag:ref doesn't
+			 *    see a nested ref anymore) and this patch only exposes that problem
+			 *    more clearly with the unpackOutput property.
+			 *
+			 * * Consider the set of extensions that
+			 *   (a) process wikitext
+			 *   (b) provide an extensionPostProcessor
+			 *   (c) run the extensionPostProcessor only on the top-level
+			 *   As of today, there is exactly one extension (Cite) that has all
+			 *   these properties, so the problem below is a speculative problem
+			 *   for today. But, this could potentially be a problem in the future.
+			 *
+			 * * Let us say there are at least two of them, E1 and E2 that
+			 *   support extension tags <e1> and <e2> respectively.
+			 *
+			 * * Let us say in an instance of <e1> on the page, <e2> is present
+			 *   and in another instance of <e2> on the page, <e1> is present.
+			 *
+			 * * In what order should E1's and E2's extensionPostProcessors be
+			 *   run on the top-level? Depending on what these handlers do, you
+			 *   could get potentially different results. You can see this quite
+			 *   starkly with the unpackOutput flag.
+			 *
+			 * * The ideal solution to this problem is to require that every extension's
+			 *   extensionPostProcessor be idempotent which lets us run these
+			 *   post processors repeatedly till the DOM stabilizes. But, this
+			 *   still doesn't necessarily guarantee that ordering doesn't matter.
+			 *   It just guarantees that with the unpackOutput flag set to false
+			 *   multiple extensions, all sealed fragments get fully processed.
+			 *   So, we still need to worry about that problem.
+			 *
+			 *   But, idempotence *could* potentially be a sufficient property in most cases.
+			 *   To see this, consider that there is a Footnotes extension which is similar
+			 *   to the Cite extension in that they both extract inline content in the
+			 *   page source to a separate section of output and leave behind pointers to
+			 *   the global section in the output DOM. Given this, the Cite and Footnote
+			 *   extension post processors would essentially walk the dom and
+			 *   move any existing inline content into that global section till it is
+			 *   done. So, even if a <footnote> has a <ref> and a <ref> has a <footnote>,
+			 *   we ultimately end up with all footnote content in the footnotes section
+			 *   and all ref content in the references section and the DOM stabilizes.
+			 *   Ordering is irrelevant here.
+			 *
+			 *   So, perhaps one way of catching these problems would be in code review
+			 *   by analyzing what the DOM postprocessor does and see if it introduces
+			 *   potential ordering issues.
+			 */
+			[
+				'Processor' => RunExtensionProcessors::class,
+				// FIXME: We've lost the ability to dump dom pre/post individual
+				// extension processors. Need to fix RunExtensionProcessors to
+				// reintroduce that granularity
+				'shortcut' => 'extpp',
+				// This should be documented in the spec that an extension's
+				// wtDOMProcess handler is run once on the top level document.
+				'skipNested' => true
+			],
 			[
 				'name' => 'MigrateTrailingCategories,TableFixups,DedupeStyles',
 				'shortcut' => 'fixups',
@@ -406,37 +339,16 @@ class DOMPostProcessor extends PipelineStage {
 				'tplInfo' => true,
 				'handlers' => [
 					// Move trailing categories in <li>s out of the list
-					[
-						'nodeName' => 'li',
-						'action' => static fn ( $node, $state ) => LiFixups::migrateTrailingCategories( $node, $state )
-					],
-					[
-						'nodeName' => 'dt',
-						'action' => static fn ( $node, $state ) => LiFixups::migrateTrailingCategories( $node, $state )
-					],
-					[
-						'nodeName' => 'dd',
-						'action' => static fn ( $node, $state ) => LiFixups::migrateTrailingCategories( $node, $state )
-					],
+					[ 'nodeName' => 'li', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
+					[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
+					[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
 					// 2. Fix up issues from templated table cells and table cell attributes
-					[
-						'nodeName' => 'td',
-						'action' => fn ( $node, $state ) => TableFixups::stripDoubleTDs( $node, $state )
-					],
-					[
-						'nodeName' => 'td',
-						'action' => fn ( $node, $state ) => TableFixups::handleTableCellTemplates( $node, $state )
-					],
-					[
-						'nodeName' => 'th',
-						'action' => fn ( $node, $state ) => TableFixups::handleTableCellTemplates( $node, $state )
-					],
+					[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'stripDoubleTDs' ] ],
+					[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
+					[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 					// 3. Deduplicate template styles
 					// (should run after dom-fragment expansion + after extension post-processors)
-					[
-						'nodeName' => 'style',
-						'action' => static fn ( $node, $state ) => DedupeStyles::dedupe( $node, $state )
-					]
+					[ 'nodeName' => 'style', 'action' => [ DedupeStyles::class, 'dedupe' ] ]
 				]
 			],
 			[
@@ -453,10 +365,7 @@ class DOMPostProcessor extends PipelineStage {
 				'isTraverser' => true,
 				'applyToAttributeEmbeddedHTML' => true,
 				'handlers' => [
-					[
-						'nodeName' => 'meta',
-						'action' => static fn ( $node ) => CleanUp::stripMarkerMetas( $node ),
-					]
+					[ 'nodeName' => 'meta', 'action' => [ CleanUp::class, 'stripMarkerMetas' ] ]
 				]
 			],
 			// Language conversion and Red link marking are done here
@@ -482,19 +391,9 @@ class DOMPostProcessor extends PipelineStage {
 				'applyToAttributeEmbeddedHTML' => true,
 				'isTraverser' => true,
 				'handlers' => [
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node ) => DisplaySpace::leftHandler( $node )
-					],
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node ) => DisplaySpace::rightHandler( $node )
-					],
-					[
-						'nodeName' => 'a',
-						'action' => static fn ( $node, $state ) => AddLinkAttributes::handler( $node, $state ),
-					],
-
+					[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'leftHandler' ] ],
+					[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'rightHandler' ] ],
+					[ 'nodeName' => 'a', 'action' => [ AddLinkAttributes::class, 'handler' ] ]
 				]
 			],
 			// Benefits from running after determining which media are redlinks
@@ -506,14 +405,8 @@ class DOMPostProcessor extends PipelineStage {
 				// No need to generate heading ids for HTML embedded in attributes
 				'applyToAttributeEmbeddedHTML' => false,
 				'handlers' => [
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node, $state ) => Headings::genAnchors( $node, $state )
-					],
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node, $state ) => Headings::dedupeHeadingIds( $node, $state )
-					]
+					[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
+					[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
 				]
 			],
 			// Add <section> wrappers around sections
@@ -538,15 +431,9 @@ class DOMPostProcessor extends PipelineStage {
 				'tplInfo' => true,
 				'handlers' => [
 					// Strip empty elements from template content
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node, $state ) => CleanUp::handleEmptyElements( $node, $state )
-					],
+					[ 'nodeName' => null, 'action' => [ CleanUp::class, 'handleEmptyElements' ] ],
 					// Additional cleanup
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node, $state ) => CleanUp::finalCleanup( $node, $state )
-					]
+					[ 'nodeName' => null, 'action' => [ CleanUp::class, 'finalCleanup' ] ]
 				]
 			],
 			[
@@ -566,13 +453,10 @@ class DOMPostProcessor extends PipelineStage {
 					// Save data.parsoid into data-parsoid html attribute.
 					// Make this its own thing so that any changes to the DOM
 					// don't affect other handlers that run alongside it.
-					[
-						'nodeName' => null,
-						'action' => static fn ( $node, $state ) => CleanUp::saveDataParsoid( $node, $state )
-					]
+					[ 'nodeName' => null, 'action' => [ CleanUp::class, 'saveDataParsoid' ] ]
 				]
-			],
-		] );
+			]
+		];
 
 		return $processors;
 	}
@@ -872,11 +756,13 @@ class DOMPostProcessor extends PipelineStage {
 				}
 			}
 
-			// FIXME: env, frame, selparData, options, atTopLevel can all be
+			// FIXME: env, extApi, frame, selparData, options, atTopLevel can all be
 			// put into a stdclass or a real class (DOMProcConfig?) and passed around.
-			$pp['proc'](
+			$pp['proc']->run(
+				$this->env,
 				$node,
 				[
+					'extApi' => $this->extApi,
 					'frame' => $this->frame,
 					'selparData' => $this->selparData,
 				] + $this->options,
