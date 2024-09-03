@@ -33,9 +33,9 @@ class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 	 * @inheritDoc
 	 */
 	public function run(
-		Env $env, Node $workNode, array $options = [], bool $atTopLevel = false
+		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$state = new DTState( $options, $atTopLevel );
-		$this->dt->traverse( new ParsoidExtensionAPI( $env ), $workNode, $state );
+		$this->dt->traverse( new ParsoidExtensionAPI( $env ), $root, $state );
 	}
 }
