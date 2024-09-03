@@ -214,7 +214,7 @@ class DOMPostProcessor extends PipelineStage {
 			[
 				'Processor' => PWrap::class,
 				'shortcut' => 'pwrap',
-				'skipNested' => true
+				'skipNested' => false
 				// Don't need to process HTML in embedded attributes
 			],
 			// This is run at all levels for now - gallery extension's "packed" mode
