@@ -312,7 +312,7 @@ class DataAccess extends IDataAccess {
 				unset( $value['_mw-strategy'] );
 			}
 			if ( $strategy === 'union' ) {
-				foreach ( $value as $item ) {
+				foreach ( $value as $item => $ignore ) {
 					$metadata->appendJsConfigVar( $key, $item );
 				}
 			} else {
