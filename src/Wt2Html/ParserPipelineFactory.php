@@ -9,6 +9,33 @@ use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddAnnotationIds;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddLinkAttributes;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\CleanUp;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\DedupeStyles;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\DisplaySpace;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\HandleLinkNeighbours;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\Headings;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\LiFixups;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\TableFixups;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\UnpackDOMFragments;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddMediaInfo;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ComputeDSR;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\LangConverter;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MarkFosteredContent;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTemplateMarkerMetas;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTrailingNLs;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Normalize;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ProcessTreeBuilderFixups;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\PWrap;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\RunExtensionProcessors;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\UpdateTemplateOutput;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapAnnotations;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapSections;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\WrapTemplates;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\TreeBuilderStage;
 use Wikimedia\Parsoid\Wt2Html\TT\AttributeExpander;
 use Wikimedia\Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
@@ -32,7 +59,248 @@ use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
  * This class assembles parser pipelines from parser stages
  */
 class ParserPipelineFactory {
+	public static function init(): void {
+		if ( self::$initialized ) {
+			return;
+		}
+
+		self::$stages["FullParseDOMTransform"]["processors"] =
+			array_merge(
+				self::NESTED_PIPELINE_DOM_TRANSFORMS,
+				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
+			);
+
+		// In later patches, this will change
+		self::$stages["SelectiveUpdateFragmentDOMTransform"]["processors"] =
+			array_merge(
+				self::NESTED_PIPELINE_DOM_TRANSFORMS,
+				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
+			);
+
+		self::$initialized = true;
+	}
+
+	private static $initialized = false;
 	private static $globalPipelineId = 0;
+
+	public const NESTED_PIPELINE_DOM_TRANSFORMS = [
+		[ 'Processor' => MarkFosteredContent::class, 'shortcut' => 'fostered' ],
+		[ 'Processor' => ProcessTreeBuilderFixups::class, 'shortcut' => 'process-fixups' ],
+		[ 'Processor' => Normalize::class ],
+		[ 'Processor' => PWrap::class, 'shortcut' => 'pwrap' ],
+		// This is run at all levels for now - gallery extension's "packed" mode
+		// would otherwise need a post-processing pass to scale media after it
+		// has been fetched. That introduces an ordering dependency that may
+		// or may not complicate things.
+		[ 'Processor' => AddMediaInfo::class, 'shortcut' => 'media' ],
+		// - Run this after PWrap because it can add additional opportunities for
+		//   meta migration which we will miss if we run this before p-wrapping.
+		// - We could potentially move this just before WrapTemplates by seeing this
+		//   as a preprocessing pass for that. But, we will have to update the pass
+		//   to update DSR properties where required.
+		// - In summary, this can at most be moved before AddMediaInfo or after
+		//   MigrateTrailingNLs without needing any other changes.
+		[ 'Processor' => MigrateTemplateMarkerMetas::class, 'shortcut' => 'migrate-metas' ],
+		[ 'Processor' => MigrateTrailingNLs::class, 'shortcut' => 'migrate-nls' ],
+		// DSR computation and template wrapping cannot be skipped for top-level content
+		// even if they are part of nested level pipelines, because such content might be
+		// embedded in attributes and they may need to be processed independently.
+		[ 'Processor' => ComputeDSR::class, 'shortcut' => 'dsr' ],
+		[ 'Processor' => WrapTemplates::class, 'shortcut' => 'tplwrap' ],
+		[
+			'isTraverser' => true,
+			'name' => 'AddAnnotationIds',
+			'shortcut' => 'ann-ids',
+			'handlers' => [
+				[ 'nodeName' => 'meta', 'action' => [ AddAnnotationIds::class, 'handler' ] ]
+			],
+			'withAnnotations' => true
+		],
+		[
+			'Processor' => WrapAnnotations::class,
+			'shortcut' => 'annwrap',
+			'withAnnotations' => true
+		],
+		[
+			'isTraverser' => true,
+			'name' => 'HandleLinkNeighbours,UnpackDOMFragments',
+			'shortcut' => 'dom-unpack',
+			'handlers' => [
+				// Link prefixes and suffixes
+				[ 'nodeName' => 'a', 'action' => [ HandleLinkNeighbours::class, 'handler' ] ],
+				// Always run this on nested pipelines so that when we get to the
+				// top level pipeline, all embedded fragments have been expanded!
+				[ 'nodeName' => null, 'action' => [ UnpackDOMFragments::class, 'handler' ] ]
+			]
+		]
+	];
+
+	public const FULL_PARSE_GLOBAL_DOM_TRANSFORMS = [
+		// FIXME: We've lost the ability to dump dom pre/post individual
+		// extension processors. Need to fix RunExtensionProcessors to
+		// reintroduce that granularity
+		//
+		// FIXME: It should be documented in the spec that an extension's
+		// wtDOMProcess handler is run once on the top level document.
+		[ 'Processor' => RunExtensionProcessors::class, 'shortcut' => 'extpp' ],
+		[
+			'isTraverser' => true,
+			'name' => 'MigrateTrailingCategories,TableFixups,DedupeStyles',
+			'shortcut' => 'fixups',
+			'applyToAttributeEmbeddedHTML' => true,
+			'tplInfo' => true,
+			'handlers' => [
+				// 1. Move trailing categories in <li>s out of the list
+				[ 'nodeName' => 'li', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
+				[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
+				[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
+				// 2. Fix up issues from templated table cells and table cell attributes
+				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'stripDoubleTDs' ] ],
+				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
+				[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
+				// 3. Deduplicate template styles
+				// (should run after dom-fragment expansion + after extension post-processors)
+				[ 'nodeName' => 'style', 'action' => [ DedupeStyles::class, 'dedupe' ] ]
+			]
+		],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => Linter::class ],
+		// Strip marker metas -- removes left over marker metas (ex: metas
+		// nested in expanded tpl/extension output).
+		[
+			'isTraverser' => true,
+			'name' => 'CleanUp-stripMarkerMetas',
+			'shortcut' => 'strip-metas',
+			'applyToAttributeEmbeddedHTML' => true,
+			'handlers' => [
+				[ 'nodeName' => 'meta', 'action' => [ CleanUp::class, 'stripMarkerMetas' ] ]
+			]
+		],
+		// Language conversion and Red link marking are done here
+		// *before* we cleanup and save data-parsoid because they
+		// are also used in pb2pb/html2html passes, and we want to
+		// keep their input/output formats consistent.
+		//
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => LangConverter::class, 'shortcut' => 'lang-converter' ],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => AddRedLinks::class, 'shortcut' => 'redlinks' ],
+		[
+			'isTraverser' => true,
+			'name' => 'DisplaySpace+AddLinkAttributes',
+			'shortcut' => 'displayspace+linkclasses',
+			'applyToAttributeEmbeddedHTML' => true,
+			'handlers' => [
+				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'leftHandler' ] ],
+				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'rightHandler' ] ],
+				[ 'nodeName' => 'a', 'action' => [ AddLinkAttributes::class, 'handler' ] ]
+			]
+		],
+		// Benefits from running after determining which media are redlinks
+		[
+			'isTraverser' => true,
+			'name' => 'Headings-genAnchors',
+			'shortcut' => 'heading-ids',
+			// No need to generate heading ids for HTML embedded in attributes
+			'applyToAttributeEmbeddedHTML' => false,
+			'handlers' => [
+				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
+				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
+			]
+		],
+		// Don't need to process HTML in embedded attributes
+		[ 'Processor' => WrapSections::class, 'shortcut' => 'sections' ],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => ConvertOffsets::class, 'shortcut' => 'convertoffsets' ],
+		[
+			'isTraverser' => true,
+			'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
+			'shortcut' => 'cleanup',
+			'applyToAttributeEmbeddedHTML' => true,
+			'tplInfo' => true,
+			'handlers' => [
+				// Strip empty elements from template content
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'handleEmptyElements' ] ],
+				// Additional cleanup
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'finalCleanup' ] ]
+			]
+		],
+		[
+			'isTraverser' => true,
+			'name' => 'CleanUp-saveDataParsoid',
+			'shortcut' => 'saveDP',
+			// FIXME This means the data-* from embedded HTML fragments won't end up
+			// in the pagebundle. But, if we try to call this on those fragments,
+			// we get multiple calls to store embedded docs. So, we may need to
+			// write a custom traverser if we want these embedded data* objects
+			// in the pagebundle (this is not a regression since they weren't part
+			// of the pagebundle all this while anyway.)
+			'applyToAttributeEmbeddedHTML' => false,
+			'tplInfo' => true,
+			'handlers' => [
+				// Save data.parsoid into data-parsoid html attribute.
+				// Make this its own thing so that any changes to the DOM
+				// don't affect other handlers that run alongside it.
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'saveDataParsoid' ] ]
+			]
+		]
+	];
+
+	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
+		[ 'Processor' => UpdateTemplateOutput::class, 'shortcut' => 'update-template' ],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => Linter::class ],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => LangConverter::class, 'shortcut' => 'lang-converter' ],
+		// Benefits from running after determining which media are redlinks
+		[
+			'isTraverser' => true,
+			'name' => 'Headings-genAnchors',
+			'shortcut' => 'heading-ids',
+			// No need to generate heading ids for HTML embedded in attributes
+			'applyToAttributeEmbeddedHTML' => false,
+			'handlers' => [
+				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
+				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
+			]
+		],
+		// Don't need to process HTML in embedded attributes
+		[ 'Processor' => WrapSections::class, 'shortcut' => 'sections' ],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => ConvertOffsets::class, 'shortcut' => 'convertoffsets' ],
+		[
+			'isTraverser' => true,
+			'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
+			'shortcut' => 'cleanup',
+			'applyToAttributeEmbeddedHTML' => true,
+			'tplInfo' => true,
+			'handlers' => [
+				// Strip empty elements from template content
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'handleEmptyElements' ] ],
+				// Additional cleanup
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'finalCleanup' ] ]
+			]
+		],
+		[
+			'isTraverser' => true,
+			'name' => 'CleanUp-saveDataParsoid',
+			'shortcut' => 'saveDP',
+			// FIXME This means the data-* from embedded HTML fragments won't end up
+			// in the pagebundle. But, if we try to call this on those fragments,
+			// we get multiple calls to store embedded docs. So, we may need to
+			// write a custom traverser if we want these embedded data* objects
+			// in the pagebundle (this is not a regression since they weren't part
+			// of the pagebundle all this while anyway.)
+			'applyToAttributeEmbeddedHTML' => false,
+			'tplInfo' => true,
+			'handlers' => [
+				// Save data.parsoid into data-parsoid html attribute.
+				// Make this its own thing so that any changes to the DOM
+				// don't affect other handlers that run alongside it.
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'saveDataParsoid' ] ]
+			]
+		]
+	];
 
 	private static $stages = [
 		"Tokenizer" => [
@@ -94,24 +362,25 @@ class ParserPipelineFactory {
 		// (Template wrapping, broken wikitext/html detection, etc.)
 		"FullParseDOMTransform" => [
 			"class" => DOMPostProcessor::class,
-			"processors" => [],
+			"processors" => null // Will be initialized in an init function()
 		],
 		// DOM transformer for fragments of a top-level document
 		"NestedFragmentDOMTransform" => [
 			"class" => DOMPostProcessor::class,
-			"processors" => [],
+			"processors" => self::NESTED_PIPELINE_DOM_TRANSFORMS
 		],
 		// DOM transformer for fragments during selective updates.
 		// This may eventually become identical to NestedFrgmentDOMTransform,
 		// but at this time, it is unclear if that will materialize.
 		"SelectiveUpdateFragmentDOMTransform" => [
 			"class" => DOMPostProcessor::class,
-			"processors" => [],
+			"processors" => null // Will be initialized in an init function()
 		],
 		// DOM transformer for the top-level page during selective updates.
 		"SelectiveUpdateDOMTransform" => [
+			// For use in the top-level of the selective-update pipeline
 			"class" => DOMPostProcessor::class,
-			"processors" => [],
+			"processors" => self::SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS
 		],
 	];
 
@@ -174,8 +443,8 @@ class ParserPipelineFactory {
 		// This pipeline takes a DOM and emits a fully processed DOM as output.
 		"selective-update-dom-to-dom" => [
 			"outType" => "DOM",
-			"stages" => [ "DOMTransform" ],
-		],
+			"stages" => [ "SelectiveUpdateDOMTransform" ]
+		]
 	];
 
 	private static $supportedOptions = [
@@ -252,6 +521,8 @@ class ParserPipelineFactory {
 	private function makePipeline(
 		string $type, string $cacheKey, array $options
 	): ParserPipeline {
+		self::init();
+
 		if ( !isset( self::$pipelineRecipes[$type] ) ) {
 			throw new InternalException( 'Unsupported Pipeline: ' . $type );
 		}
@@ -262,9 +533,11 @@ class ParserPipelineFactory {
 
 		foreach ( $recipeStages as $stageId ) {
 			$stageData = self::$stages[$stageId];
+			// @phan-suppress-next-line PhanNonClassMethodCall,PhanTypeExpectedObjectOrClassName
 			$stage = new $stageData["class"]( $this->env, $options, $stageId, $prevStage );
 			if ( isset( $stageData["transformers"] ) ) {
 				foreach ( $stageData["transformers"] as $tName ) {
+					// @phan-suppress-next-line PhanTypeExpectedObjectOrClassName
 					$stage->addTransformer( new $tName( $stage, $options ) );
 				}
 			} elseif ( isset( $stageData["processors"] ) ) {
