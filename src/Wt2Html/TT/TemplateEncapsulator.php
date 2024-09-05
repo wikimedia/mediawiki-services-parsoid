@@ -300,7 +300,7 @@ class TemplateEncapsulator {
 			$this->env, $this->frame,
 			$paramInfo->valueWt,
 			[
-				'pipelineType' => 'wikitext-to-dom',
+				'pipelineType' => 'fullparse-wikitext-to-dom',
 				'pipelineOpts' => [
 					'isInclude' => false,
 					'expandTemplates' => true,

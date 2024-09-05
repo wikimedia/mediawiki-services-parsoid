@@ -1538,7 +1538,7 @@ class WikiLinkHandler extends TokenHandler {
 					$this->manager->getFrame(),
 					array_merge( $optsCaption['v'], [ new EOFTk() ] ),
 					[
-						'pipelineType' => 'expanded-tokens-to-dom',
+						'pipelineType' => 'expanded-tokens-to-fragment',
 						'pipelineOpts' => [
 							'inlineContext' => true,
 							'expandTemplates' => $this->options['expandTemplates'],

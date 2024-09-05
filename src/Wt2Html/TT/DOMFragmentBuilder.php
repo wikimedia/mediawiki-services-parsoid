@@ -94,7 +94,7 @@ class DOMFragmentBuilder extends TokenHandler {
 				// Append EOF
 				$content,
 				[
-					'pipelineType' => 'expanded-tokens-to-dom',
+					'pipelineType' => 'expanded-tokens-to-fragment',
 					'pipelineOpts' => $pipelineOpts,
 					'srcOffsets' => $srcOffsets->value,
 					'sol' => true

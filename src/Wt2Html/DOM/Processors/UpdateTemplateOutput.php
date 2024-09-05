@@ -38,7 +38,7 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 				$dp = DOMDataUtils::getDataParsoid( $tplNode );
 				$wt = $dp->dsr->substr( $selparData->revText );
 				$opts = [
-					'pipelineType' => 'wikitext-to-dom',
+					'pipelineType' => 'selective-update-fragment-wikitext-to-dom',
 					'sol' => false, // FIXME: Not strictly correct
 					'srcText' => $selparData->revText,
 					'pipelineOpts' => []

@@ -85,14 +85,31 @@ class ParserPipelineFactory {
 				ParagraphWrapper::class
 			],
 		],
+		// Build a tree out of the fully processed token stream
 		"TreeBuilder" => [
-			// Build a tree out of the fully processed token stream
 			"class" => TreeBuilderStage::class,
 		],
-		"DOMTransform" => [
-			// Generic DOM transformer.
-			// This performs a lot of post-processing of the DOM
-			// (Template wrapping, broken wikitext/html detection, etc.)
+		// DOM transformer for top-level documents.
+		// This performs a lot of post-processing of the DOM
+		// (Template wrapping, broken wikitext/html detection, etc.)
+		"FullParseDOMTransform" => [
+			"class" => DOMPostProcessor::class,
+			"processors" => [],
+		],
+		// DOM transformer for fragments of a top-level document
+		"NestedFragmentDOMTransform" => [
+			"class" => DOMPostProcessor::class,
+			"processors" => [],
+		],
+		// DOM transformer for fragments during selective updates.
+		// This may eventually become identical to NestedFrgmentDOMTransform,
+		// but at this time, it is unclear if that will materialize.
+		"SelectiveUpdateFragmentDOMTransform" => [
+			"class" => DOMPostProcessor::class,
+			"processors" => [],
+		],
+		// DOM transformer for the top-level page during selective updates.
+		"SelectiveUpdateDOMTransform" => [
 			"class" => DOMPostProcessor::class,
 			"processors" => [],
 		],
@@ -102,17 +119,46 @@ class ParserPipelineFactory {
 		// This pipeline takes wikitext as input and emits a fully
 		// processed DOM as output. This is the pipeline used for
 		// all top-level documents.
-		// Stages 1-5 of the pipeline
-		"wikitext-to-dom" => [
+		"fullparse-wikitext-to-dom" => [
 			"outType" => "DOM",
 			"stages" => [
-				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "DOMTransform"
+				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "FullParseDOMTransform"
 			]
+		],
+
+		// This pipeline takes wikitext as input and emits a partially
+		// processed DOM as output. This is the pipeline used for processing
+		// page fragments to DOM in a selective page update context
+		"selective-update-fragment-wikitext-to-dom" => [
+			"outType" => "DOM",
+			"stages" => [
+				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "SelectiveUpdateFragmentDOMTransform"
+			]
+		],
+
+		// This pipeline takes wikitext as input and emits a fully
+		// processed DOM as output. This is the pipeline used for
+		// wikitext fragments of a top-level document that should be
+		// processed to a DOM fragment. This pipeline doesn't run all
+		// of the DOM transformations in the DOMTransform pipeline.
+		// We will like use a specialized DOMTransform stage here.
+		"wikitext-to-fragment" => [
+			"outType" => "DOM",
+			"stages" => [
+				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "NestedFragmentDOMTransform"
+			]
+		],
+
+		// This pipeline takes tokens from stage 2 and emits a DOM fragment
+		// as output - this runs the same DOM transforms as the 'wikitext-to-fragment'
+		// pipeline and will get a spcialized DOMTransform stage as above.
+		"expanded-tokens-to-fragment" => [
+			"outType" => "DOM",
+			"stages" => [ "TokenTransform3", "TreeBuilder", "NestedFragmentDOMTransform" ]
 		],
 
 		// This pipeline takes wikitext as input and emits tokens that
 		// have had all templates, extensions, links, images processed
-		// Stages 1-2 of the pipeline
 		"wikitext-to-expanded-tokens" => [
 			"outType" => "Tokens",
 			"stages" => [ "Tokenizer", "TokenTransform2" ]
@@ -120,23 +166,13 @@ class ParserPipelineFactory {
 
 		// This pipeline takes tokens from the PEG tokenizer and emits
 		// tokens that have had all templates and extensions processed.
-		// Stage 2 of the pipeline
 		"peg-tokens-to-expanded-tokens" => [
 			"outType" => "Tokens",
 			"stages" => [ "TokenTransform2" ]
 		],
 
-		// This pipeline takes tokens from stage 2 and emits a fully
-		// processed DOM as output.
-		// Stages 3-5 of the pipeline
-		"expanded-tokens-to-dom" => [
-			"outType" => "DOM",
-			"stages" => [ "TokenTransform3", "TreeBuilder", "DOMTransform" ]
-		],
-
 		// This pipeline takes a DOM and emits a fully processed DOM as output.
-		// Stage 5
-		"selective-dom-update" => [
+		"selective-update-dom-to-dom" => [
 			"outType" => "DOM",
 			"stages" => [ "DOMTransform" ],
 		],
@@ -277,7 +313,7 @@ class ParserPipelineFactory {
 	}
 
 	public function parse( string $src ): Document {
-		$pipe = $this->getPipeline( 'wikitext-to-dom' );
+		$pipe = $this->getPipeline( 'fullparse-wikitext-to-dom' );
 		$pipe->init( [
 			'toplevel' => true,
 			'frame' => $this->env->topFrame,
@@ -298,7 +334,7 @@ class ParserPipelineFactory {
 	 *         For now, defaults to 'template', if absent
 	 */
 	public function selectiveDOMUpdate( SelectiveUpdateData $selparData, array $options = [] ): Document {
-		$pipe = $this->getPipeline( 'selective-dom-update' );
+		$pipe = $this->getPipeline( 'selective-update-dom-to-dom' );
 		$pipe->init( [
 			'toplevel' => true,
 			'frame' => $this->env->topFrame,

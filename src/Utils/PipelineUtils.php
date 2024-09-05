@@ -133,7 +133,7 @@ class PipelineUtils {
 		if ( is_array( $v['html'] ?? null ) ) {
 			// Set up pipeline options
 			$opts = [
-				'pipelineType' => 'expanded-tokens-to-dom',
+				'pipelineType' => 'expanded-tokens-to-fragment',
 				'pipelineOpts' => [
 					'attrExpansion' => true,
 					'inlineContext' => true,

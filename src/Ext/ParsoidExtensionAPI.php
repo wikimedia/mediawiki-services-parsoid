@@ -381,7 +381,7 @@ class ParsoidExtensionAPI {
 				$this->env, $frame, $wikitext,
 				[
 					// Full pipeline for processing content
-					'pipelineType' => 'wikitext-to-dom',
+					'pipelineType' => 'wikitext-to-fragment',
 					'pipelineOpts' => [
 						'expandTemplates' => true,
 						'extTag' => $parseOpts['extTag'],
