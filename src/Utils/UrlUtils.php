@@ -109,7 +109,7 @@ class UrlUtils {
 	 * '/a/./b/../c/' becomes '/a/c/'.
 	 *
 	 * @see https://tools.ietf.org/html/rfc3986#section-5.2.4
-	 * @note Copied from MediaWiki's wfRemoveDotSegments
+	 * @note Copied from MediaWiki's UrlUtils::removeDotSegments()
 	 * @param string $urlPath URL path, potentially containing dot-segments
 	 * @return string URL path with all dot-segments removed
 	 */
