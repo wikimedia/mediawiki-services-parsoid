@@ -27,7 +27,7 @@ class PackedMode extends TraditionalMode {
 
 	/** @inheritDoc */
 	public function dimensions( Opts $opts ): string {
-		$size = ceil( $opts->imageHeight * $this->scale );
+		$size = floor( $opts->imageHeight * $this->scale );
 		return "x{$size}px";
 	}
 
