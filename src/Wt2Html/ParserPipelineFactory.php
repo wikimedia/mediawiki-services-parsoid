@@ -389,16 +389,27 @@ class ParserPipelineFactory {
 		// processed DOM as output. This is the pipeline used for
 		// all top-level documents.
 		"fullparse-wikitext-to-dom" => [
+			"alwaysToplevel" => true,
 			"outType" => "DOM",
 			"stages" => [
 				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "FullParseDOMTransform"
 			]
 		],
 
+		// This pipeline takes a DOM and emits a fully processed DOM as output.
+		"selective-update-dom-to-dom" => [
+			"alwaysToplevel" => true,
+			"outType" => "DOM",
+			"stages" => [ "SelectiveUpdateDOMTransform" ]
+		],
+
 		// This pipeline takes wikitext as input and emits a partially
 		// processed DOM as output. This is the pipeline used for processing
 		// page fragments to DOM in a selective page update context
+		// This is always toplevel because the wikitext being updated
+		// is found at the toplevel of the page.
 		"selective-update-fragment-wikitext-to-dom" => [
+			"alwaysToplevel" => true,
 			"outType" => "DOM",
 			"stages" => [
 				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "SelectiveUpdateFragmentDOMTransform"
@@ -412,6 +423,8 @@ class ParserPipelineFactory {
 		// of the DOM transformations in the DOMTransform pipeline.
 		// We will like use a specialized DOMTransform stage here.
 		"wikitext-to-fragment" => [
+			// FIXME: This is known to be always *not* top-level
+			// We could use a different flag to lock these pipelines too.
 			"outType" => "DOM",
 			"stages" => [
 				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "NestedFragmentDOMTransform"
@@ -438,12 +451,6 @@ class ParserPipelineFactory {
 		"peg-tokens-to-expanded-tokens" => [
 			"outType" => "Tokens",
 			"stages" => [ "TokenTransform2" ]
-		],
-
-		// This pipeline takes a DOM and emits a fully processed DOM as output.
-		"selective-update-dom-to-dom" => [
-			"outType" => "DOM",
-			"stages" => [ "SelectiveUpdateDOMTransform" ]
 		]
 	];
 
@@ -549,6 +556,7 @@ class ParserPipelineFactory {
 		}
 
 		return new ParserPipeline(
+			$recipe['alwaysToplevel'] ?? false,
 			$type,
 			$recipe["outType"],
 			$cacheKey,
@@ -587,17 +595,9 @@ class ParserPipelineFactory {
 
 	public function parse( string $src ): Document {
 		$pipe = $this->getPipeline( 'fullparse-wikitext-to-dom' );
-		$pipe->init( [
-			'toplevel' => true,
-			'frame' => $this->env->topFrame,
-		] );
-
-		$result = $pipe->parseChunkily( $src, [
-			'atTopLevel' => true,
-			// Top-level doc parsing always start in SOL state
-			'sol' => true,
-		] );
-		return $result->ownerDocument;
+		$pipe->init( [ 'frame' => $this->env->topFrame ] );
+		// Top-level doc parsing always start in SOL state
+		return $pipe->parseChunkily( $src, [ 'sol' => true ] )->ownerDocument;
 	}
 
 	/**
@@ -608,10 +608,7 @@ class ParserPipelineFactory {
 	 */
 	public function selectiveDOMUpdate( SelectiveUpdateData $selparData, array $options = [] ): Document {
 		$pipe = $this->getPipeline( 'selective-update-dom-to-dom' );
-		$pipe->init( [
-			'toplevel' => true,
-			'frame' => $this->env->topFrame,
-		] );
+		$pipe->init( [ 'frame' => $this->env->topFrame ] );
 		return $pipe->selectiveParse( $selparData, $options );
 	}
 

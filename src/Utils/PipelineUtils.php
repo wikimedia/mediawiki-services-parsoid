@@ -96,7 +96,7 @@ class PipelineUtils {
 		);
 
 		$pipeline->init( [
-			'toplevel' => false,
+			'toplevel' => false, // NOTE: some pipelines force toplevel to true
 			'frame' => $frame,
 			'tplArgs' => $opts['tplArgs'] ?? null,
 			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),

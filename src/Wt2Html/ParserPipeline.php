@@ -16,31 +16,21 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  */
 
 class ParserPipeline {
-	/** @var int */
-	private $id;
-
-	/** @var string */
-	private $outputType;
-
-	/** @var string */
-	private $pipelineType;
-
-	/** @var array */
-	private $stages;
-
-	/** @var Env */
-	private $env;
-
-	/** @var string */
-	private $cacheKey;
-
-	/** @var Frame */
-	private $frame;
+	private bool $alwaysToplevel;
+	private bool $atTopLevel;
+	private int $id;
+	private string $outputType;
+	private string $pipelineType;
+	private array $stages;
+	private Env $env;
+	private string $cacheKey;
+	private Frame $frame;
 
 	public function __construct(
-		string $type, string $outType, string $cacheKey, array $stages, Env $env
+		bool $alwaysToplevel, string $type, string $outType, string $cacheKey, array $stages, Env $env
 	) {
 		$this->id = -1;
+		$this->alwaysToplevel = $alwaysToplevel;
 		$this->cacheKey = $cacheKey;
 		$this->pipelineType = $type;
 		$this->outputType = $outType;
@@ -141,7 +131,7 @@ class ParserPipeline {
 			$this->env->popProfile();
 			$profile->end();
 
-			if ( isset( $opts['atTopLevel'] ) ) {
+			if ( $this->atTopLevel ) {
 				$body = $output;
 				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
 				$body->appendChild( $body->ownerDocument->createComment( $profile->print() ) );
@@ -179,7 +169,7 @@ class ParserPipeline {
 			$this->env->popProfile();
 			$profile->end();
 
-			if ( isset( $opts['atTopLevel'] ) ) {
+			if ( $this->atTopLevel ) {
 				Assert::invariant( $this->outputType === 'DOM', 'Expected top-level output to be DOM' );
 				$body = $ret[0];
 				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
@@ -193,18 +183,16 @@ class ParserPipeline {
 	}
 
 	/**
-	 * @param SelectiveUpdateData $selparData
-	 * @param array $options
+	 * Selective update parts of the old DOM based on $options
+	 * $options has additional info about what needs updating.
+	 * FIXME: Doucment $options array here.
 	 */
 	public function selectiveParse(
 		SelectiveUpdateData $selparData, array $options
 	): Document {
-		$domPP = $this->stages[0];
-		$options = [
-			'selparData' => $selparData
-		] + $options;
-		$domPP->process( DOMCompat::getBody( $selparData->revDOM ), $options );
-		return $selparData->revDOM;
+		$dom = $selparData->revDOM;
+		$this->parse( DOMCompat::getBody( $dom ), [ 'selparData' => $selparData ] + $options );
+		return $dom;
 	}
 
 	/**
@@ -216,12 +204,12 @@ class ParserPipeline {
 		// This clears state from any per-doc global state
 		// maintained across all pipelines used by the document.
 		// (Ex: Cite state)
-		$toplevel = $initialState['toplevel'];
-		$this->resetState( [ 'toplevel' => $toplevel ] );
+		$this->atTopLevel = $this->alwaysToplevel ?: $initialState['toplevel'];
+		$this->resetState( [ 'toplevel' => $this->atTopLevel ] );
 
 		// Set frame
 		$frame = $initialState['frame'];
-		if ( !$toplevel ) {
+		if ( !$this->atTopLevel ) {
 			$tplArgs = $initialState['tplArgs'] ?? null;
 			$srcText = $initialState['srcText'] ?? null;
 			if ( isset( $tplArgs['title'] ) ) {
