@@ -74,6 +74,8 @@ class DOMDataUtils {
 		Assert::invariant( $topLevelDoc->bag instanceof DataBag, 'doc bag not set' );
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		$childDoc->bag = $topLevelDoc->bag;
+		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
+		$childDoc->codec = $topLevelDoc->codec;
 	}
 
 	/**
