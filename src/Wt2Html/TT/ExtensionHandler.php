@@ -73,6 +73,11 @@ class ExtensionHandler extends TokenHandler {
 				$nsName = "ns-$ns";
 			}
 			$metrics->increment( "extension.{$wiki}.{$nsName}.{$extensionName}" );
+			$siteConfig->incrementCounter( "extension_total", [
+				"wiki" => $wiki,
+				"namespace" => $nsName,
+				"name" => $extensionName,
+			] );
 		}
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );

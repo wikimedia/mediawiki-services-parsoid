@@ -303,12 +303,19 @@ class Parsoid {
 
 		$timing = Timing::fakeTiming( $this->siteConfig, $parseTime );
 		$timing->end( "entry.wt2html.{$mstr}.parse", 'wt2html_parse', [ 'type' => $mstr ] );
+		$version = 'default';
 
 		if ( Semver::satisfies(
 			$env->getOutputContentVersion(), '!=' . self::defaultHTMLVersion()
 		) ) {
 			$metrics->increment( 'entry.wt2html.parse.version.notdefault' );
+			$version = 'non-default';
 		}
+
+		$this->siteConfig->incrementCounter( 'wt2hml_parse_total', [
+			'type' => $mstr,
+			'version' => $version
+		] );
 
 		// @phan-suppress-next-line PhanDeprecatedFunction
 		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $pageConfig->getPageMainContent() ) );

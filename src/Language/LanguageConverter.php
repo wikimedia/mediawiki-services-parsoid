@@ -290,6 +290,10 @@ class LanguageConverter {
 		if ( $metrics ) {
 			$metrics->increment( 'langconv.count' );
 			$metrics->increment( "langconv." . $htmlVariantLanguageMw . ".count" );
+			$env->getSiteConfig()->incrementCounter(
+				'langconv_count_total',
+				[ 'variant' => $htmlVariantLanguageMw ]
+			);
 		}
 
 		// XXX Eventually we'll want to consult some wiki configuration to
