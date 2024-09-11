@@ -70,11 +70,10 @@ class ParserPipelineFactory {
 				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
 			);
 
-		// In later patches, this will change
 		self::$stages["SelectiveUpdateFragmentDOMTransform"]["processors"] =
 			array_merge(
 				self::NESTED_PIPELINE_DOM_TRANSFORMS,
-				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
+				self::SELECTIVE_UPDATE_FRAGMENT_DOM_TRANSFORMS
 			);
 
 		self::$initialized = true;
@@ -246,12 +245,60 @@ class ParserPipelineFactory {
 		]
 	];
 
-	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
-		[ 'Processor' => UpdateTemplateOutput::class, 'shortcut' => 'update-template' ],
+	public const SELECTIVE_UPDATE_FRAGMENT_DOM_TRANSFORMS = [
+		// FIXME: We've lost the ability to dump dom pre/post individual
+		// extension processors. Need to fix RunExtensionProcessors to
+		// reintroduce that granularity
+		//
+		// FIXME: It should be documented in the spec that an extension's
+		// wtDOMProcess handler is run once on the top level document.
+		[ 'Processor' => RunExtensionProcessors::class, 'shortcut' => 'extpp' ],
+		[
+			'isTraverser' => true,
+			'name' => 'MigrateTrailingCategories,TableFixups',
+			'shortcut' => 'fixups',
+			'applyToAttributeEmbeddedHTML' => true,
+			'tplInfo' => true,
+			'handlers' => [
+				// 1. Move trailing categories in <li>s out of the list
+				[ 'nodeName' => 'li', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
+				[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
+				[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
+				// 2. Fix up issues from templated table cells and table cell attributes
+				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'stripDoubleTDs' ] ],
+				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
+				[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
+			]
+		],
+		// Strip marker metas -- removes left over marker metas (ex: metas
+		// nested in expanded tpl/extension output).
+		[
+			'isTraverser' => true,
+			'name' => 'CleanUp-stripMarkerMetas',
+			'shortcut' => 'strip-metas',
+			'applyToAttributeEmbeddedHTML' => true,
+			'handlers' => [
+				[ 'nodeName' => 'meta', 'action' => [ CleanUp::class, 'stripMarkerMetas' ] ]
+			]
+		],
+		// Language conversion and Red link marking are done here
+		// *before* we cleanup and save data-parsoid because they
+		// are also used in pb2pb/html2html passes, and we want to
+		// keep their input/output formats consistent.
+		//
 		// FIXME: T214994: Have to process HTML in embedded attributes?
-		[ 'Processor' => Linter::class ],
-		// FIXME: T214994: Have to process HTML in embedded attributes?
-		[ 'Processor' => LangConverter::class, 'shortcut' => 'lang-converter' ],
+		[ 'Processor' => AddRedLinks::class, 'shortcut' => 'redlinks' ],
+		[
+			'isTraverser' => true,
+			'name' => 'DisplaySpace+AddLinkAttributes',
+			'shortcut' => 'displayspace+linkclasses',
+			'applyToAttributeEmbeddedHTML' => true,
+			'handlers' => [
+				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'leftHandler' ] ],
+				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'rightHandler' ] ],
+				[ 'nodeName' => 'a', 'action' => [ AddLinkAttributes::class, 'handler' ] ]
+			]
+		],
 		// Benefits from running after determining which media are redlinks
 		[
 			'isTraverser' => true,
@@ -261,11 +308,8 @@ class ParserPipelineFactory {
 			'applyToAttributeEmbeddedHTML' => false,
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
-				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
 			]
 		],
-		// Don't need to process HTML in embedded attributes
-		[ 'Processor' => WrapSections::class, 'shortcut' => 'sections' ],
 		// FIXME: T214994: Have to process HTML in embedded attributes?
 		[ 'Processor' => ConvertOffsets::class, 'shortcut' => 'convertoffsets' ],
 		[
@@ -279,6 +323,26 @@ class ParserPipelineFactory {
 				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'handleEmptyElements' ] ],
 				// Additional cleanup
 				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'finalCleanup' ] ]
+			]
+		]
+	];
+
+	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
+		[ 'Processor' => UpdateTemplateOutput::class, 'shortcut' => 'update-template' ],
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => Linter::class ],
+		// FIXME: Are lang converters idempotent?
+		// FIXME: T214994: Have to process HTML in embedded attributes?
+		[ 'Processor' => LangConverter::class, 'shortcut' => 'lang-converter' ],
+		// Benefits from running after determining which media are redlinks
+		[
+			'isTraverser' => true,
+			'name' => 'Headings-dedupeIds',
+			'shortcut' => 'heading-ids',
+			// No need to generate heading ids for HTML embedded in attributes
+			'applyToAttributeEmbeddedHTML' => false,
+			'handlers' => [
+				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
 			]
 		],
 		[
@@ -381,7 +445,7 @@ class ParserPipelineFactory {
 			// For use in the top-level of the selective-update pipeline
 			"class" => DOMPostProcessor::class,
 			"processors" => self::SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS
-		],
+		]
 	];
 
 	private static $pipelineRecipes = [
@@ -478,7 +542,7 @@ class ParserPipelineFactory {
 
 		// Are we processing content of attributes?
 		// (in current usage, used for transcluded attr. keys/values)
-		'attrExpansion'
+		'attrExpansion',
 	];
 
 	private array $pipelineCache = [];

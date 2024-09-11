@@ -149,9 +149,7 @@ class Headings {
 			$fallbackId = null; /* not needed */
 		}
 
-		// The ids need to be unique, but we'll enforce this in a post-processing
-		// step.
-
+		// The ids need to be unique, but we'll enforce this in a post-processing step.
 		$node->setAttribute( 'id', $anchorId );
 		$tmp->section = [
 			'line' => $line,

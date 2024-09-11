@@ -9,11 +9,20 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 	/**
+	 * FIXME:
+	 * -- mwt-id counter may need to be reset!
+	 * -- We have hardcoded check for Template: in English
+	 * -- We aren't checking for other instances (ex: template args)
+	 * -- We aren't checking for indirect dependencies (ex: nested templates)
+	 * -- In the core repo, we also need to figure out what OutputTransformPipeline
+	 *    stages need to run in this case.
+	 *
 	 * @inheritDoc
 	 */
 	public function run(
@@ -29,29 +38,51 @@ class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 
 		// FIXME: Hardcoded for English
 		$tplTitle = "./Template:" . $selparData->templateTitle;
+		// FIXME: Insufficient - missing check for template args, indirect dependencies
 		$tplNodes = DOMCompat::querySelectorAll( $root, '[typeof~="mw:Transclusion"]' );
 		foreach ( $tplNodes as $tplNode ) {
 			$dataMw = DOMDataUtils::getDataMW( $tplNode );
 			$ti = $dataMw->parts[0] ?? null;
 			if ( !is_string( $ti ) && $ti->href === $tplTitle ) {
-				// we found it!
 				$dp = DOMDataUtils::getDataParsoid( $tplNode );
 				$wt = $dp->dsr->substr( $selparData->revText );
 				$opts = [
 					'pipelineType' => 'selective-update-fragment-wikitext-to-dom',
 					'sol' => false, // FIXME: Not strictly correct
 					'srcText' => $selparData->revText,
-					'pipelineOpts' => []
+					'pipelineOpts' => [],
+					'srcOffsets' => $dp->dsr,
 				];
 
-				// FIXME: This fragment might need its p-wrapper stripped in some cases
-				// Pull out only the translcusion marked portion of $frag
-				$frag = PipelineUtils::processContentInPipeline( $env, $options['frame'], $wt, $opts );
+				// Process template string in new pipeline
+				$frag = PipelineUtils::processContentInPipeline(
+					$env, $options['frame'], $wt, $opts
+				);
 
-				// FIXME: May have more than one child in the general case
-				$content = $frag->firstChild;
-				DOMDataUtils::getDataParsoid( $content )->dsr = $dp->dsr;
-				$tplNode->parentNode->replaceChild( $content, $tplNode );
+				// Pull out only the transclusion marked portion of $frag & strip p-wrapper
+				$newContent = $frag->firstChild;
+				if (
+					DOMCompat::nodeName( $tplNode ) !== 'p' &&
+					DOMCompat::nodeName( $newContent ) === 'p'
+				) {
+					$newContent = $newContent->firstChild;
+				}
+				DOMDataUtils::getDataParsoid( $newContent )->dsr = $dp->dsr;
+
+				// Delete template from DOM + add new content to DOM
+				// Note that $tplNode and $frag may have more than one child in the general case
+				$tplParent = $tplNode->parentNode;
+				$about = DOMCompat::getAttribute( $tplNode, 'about' );
+				do {
+					$next = $tplNode->nextSibling;
+					$tplParent->removeChild( $tplNode );
+					$tplNode = $next;
+				} while (
+					$tplNode instanceof Element &&
+					DOMCompat::getAttribute( $tplNode, 'about' ) === $about
+				);
+
+				DOMUtils::migrateChildren( $newContent->parentNode, $tplParent, $tplNode );
 			}
 		}
 	}

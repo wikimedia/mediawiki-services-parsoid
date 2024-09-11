@@ -169,7 +169,6 @@ class ContentModelHandler extends IContentModelHandler {
 			$this->canonicalizeDOM( $env, $env->topLevelDoc, true );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
-			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
 		} else {
 			$doc = $pipelineFactory->parse(
 				// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
