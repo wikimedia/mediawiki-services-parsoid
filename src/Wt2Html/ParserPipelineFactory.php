@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\LiFixups;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\TableFixups;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\UnpackDOMFragments;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddMediaInfo;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddMetaData;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ComputeDSR;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
@@ -83,6 +84,7 @@ class ParserPipelineFactory {
 	}
 
 	private const DOM_PROCESSOR_CONFIG = [
+		'addmetadata' => [ 'Processor' => AddMetaData::class ],
 		'annwrap' => [ 'Processor' => WrapAnnotations::class, 'withAnnotations' => true ],
 		'convertoffsets' => [ 'Processor' => ConvertOffsets::class ], // FIXME: T214994
 		'dsr' => [ 'Processor' => ComputeDSR::class ],
@@ -268,13 +270,16 @@ class ParserPipelineFactory {
 		'extpp',
 		'fixups+dedupe-styles', 'linter', 'strip-metas', 'lang-converter', 'redlinks',
 		'displayspace+linkclasses', 'heading-ids', // Benefits from running after determining which media are redlinks
-		'sections', 'convertoffsets', 'cleanup', 'saveDP'
+		'sections', 'convertoffsets', 'cleanup', 'saveDP', 'addmetadata'
 	];
 
 	public const SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS = [
 		'extpp', // FIXME: this should be a different processor
 		'fixups', 'strip-metas', 'redlinks', 'displayspace+linkclasses',
-		'gen-anchors', 'convertoffsets', 'cleanup'
+		'gen-anchors', 'convertoffsets', 'cleanup',
+		// FIXME: This will probably need some special-case code to first
+		// strip old metadata before adding fresh metadata.
+		'addmetadata'
 	];
 
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [

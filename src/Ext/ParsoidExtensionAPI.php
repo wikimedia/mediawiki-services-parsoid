@@ -33,7 +33,7 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
-use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddMetaData;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
@@ -857,13 +857,13 @@ class ParsoidExtensionAPI {
 	public function postProcessDOM( Document $doc ): void {
 		$env = $this->env;
 		// From CleanUp::saveDataParsoid
-		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
+		$body = DOMCompat::getBody( $doc );
+		DOMDataUtils::visitAndStoreDataAttribs( $body, [
 			'storeInPageBundle' => $env->pageBundle,
 			'env' => $env
 		] );
-		// DOMPostProcessor has a FIXME about moving this to DOMUtils / Env
-		$dompp = new DOMPostProcessor( $env );
-		$dompp->addMetaData( $env, $doc );
+		// Ugh! But, this whole method needs to go away anyway
+		( new AddMetaData( null ) )->run( $env, $body );
 	}
 
 	/**
