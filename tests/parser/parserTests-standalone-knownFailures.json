@@ -247,6 +247,9 @@
         "selser [[4]]": "<DIV ID=\"x\">1ntl0vu</DIV>",
         "selser [[3]]": "<DIV ID=\"x\"></DIV>"
     },
+    "Dir parser function (invalid code)": {
+        "metadata": ""
+    },
     "Don't fall for the self-closing div": {
         "wt2wt": "<div>hello world</div>",
         "html2wt": "<div>hello world</div>",

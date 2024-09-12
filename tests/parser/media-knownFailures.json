@@ -14,6 +14,9 @@
 	"Image with multiple attributes from the same template": {
 		"wt2wt": "[[File:Foobar.jpg|right|Caption text]]"
 	},
+	"Image with size specified with pxpx (T15500, T53628)": {
+		"metadata": ""
+	},
 	"Image: upright option is ignored on inline and frame images (parsoid)": {
 		"wt2wt": "[[File:Foobar.jpg|500x500px|caption]]"
 	},

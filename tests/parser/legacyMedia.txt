@@ -472,8 +472,11 @@ wgParserEnableLegacyMediaDOM=true
 Image with size specified with pxpx (T15500, T53628)
 !! options
 parsoid=wt2html,wt2wt,html2html
+cat
 !! config
 wgParserEnableLegacyMediaDOM=true
+!! metadata
+cat=Pages_with_image_sizes_containing_extra_px sort=
 !! wikitext
 [[File:Foobar.jpg|20pxpx]]
 [[File:Foobar.jpg|200x20pxpx]]
@@ -574,7 +577,7 @@ Image with link parameter, wgNoFollowDomainExceptions
 !! wikitext
 [[File:Foobar.jpg|link=http://example.com/]]
 !! config
-wgNoFollowDomainExceptions="example.com"
+wgNoFollowDomainExceptions=["example.com"]
 wgParserEnableLegacyMediaDOM=true
 !! html/php
 <p><a href="http://example.com/"><img alt="Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" width="1941" height="220" /></a>

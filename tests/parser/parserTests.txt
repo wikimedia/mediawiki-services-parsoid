@@ -24,9 +24,7 @@ version=2
 # (Previously, these options pre- or post- pended to the html section)
 #
 # cat           add category links
-#               (ignored by Parsoid, since it emits <link>s)
 # ill           add inter-language links
-#               (ignored by Parsoid, since it emits <link>s)
 # property=XXX  add the value of the page property with the given name.
 #               This can also be a comma-separated list.
 # extension=XXX add the JSON-encoded value of the given extension data.
@@ -46,6 +44,7 @@ version=2
 #               test using a BCP-47 code (eg zh-Hant-TW)
 # htmlVariantLanguage=XXX   set the html (output) variant of language for this
 #               test using a BCP-47 code (eg zh-Hant-TW)
+# userLanguage=XXX  set user language to XXX for this test
 # notoc         disable table of contents
 # thumbsize=NNN set the default thumb size to NNNpx for this test
 # wrap          include the normal wrapper <div class="mw-parser-output"> (since 1.30)
@@ -55,7 +54,7 @@ version=2
 #
 #  wgEnableUploads, wgAllowExternalImages, wgMaxTocLevel,
 #  wgLinkHolderBatchSize, wgRawHtml, wgInterwikiMagic,
-#  wgEnableMagicLinks
+#  wgEnableMagicLinks, wgLocaltimezone
 #
 # Test execution options:
 #
@@ -13002,8 +13001,8 @@ Ignore pipe between table row attributes
 </td></tr></tbody></table>
 !! end
 
-!!test
-Language parser function
+!! test
+Language parser function (autonym)
 !! wikitext
 {{#language:ar}}
 !! html/php
@@ -13011,6 +13010,269 @@ Language parser function
 </p>
 !! html/parsoid+integrated
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:ar","function":"language"},"params":{},"i":0}}]}'>العربية</span></p>
+!! end
+
+!! test
+Language parser function (case-insensitive)
+!! wikitext
+{{#language:AR}}
+!! html/php
+<p>العربية
+</p>
+!! html/parsoid+integrated
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:AR","function":"language"},"params":{},"i":0}}]}'>العربية</span></p>
+!! end
+
+!! test
+Language parser function (non-autonym)
+!! wikitext
+{{#language:aR|En}}
+!! html/php
+<p>Arabic
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:aR","function":"language"},"params":{"1":{"wt":"En"}},"i":0}}]}'>Arabic</span></p>
+!! end
+
+!! test
+Language parser function (bcp-47 codes)
+!! wikitext
+{{#language:de-x-formal|en-simple}}
+!! html/php
+<p>German (formal address)
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:de-x-formal","function":"language"},"params":{"1":{"wt":"en-simple"}},"i":0}}]}'>German (formal address)</span></p>
+!! end
+
+!! test
+Language parser function (target language)
+!! options
+language=ar
+!! wikitext
+{{#language}} / {{#language:}}
+!! html/php
+<p>العربية / العربية
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language","function":"language"},"params":{},"i":0}}]}'>العربية</span> / <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:","function":"language"},"params":{},"i":0}}]}'>العربية</span></p>
+!! end
+
+!! test
+Language parser function (target language, non-autonym)
+!! options
+language=ar
+!! wikitext
+{{#language:|en}}
+!! html/php
+<p>Arabic
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#language:","function":"language"},"params":{"1":{"wt":"en"}},"i":0}}]}'>Arabic</span></p>
+!! end
+
+!! test
+Dir parser function (valid codes)
+!! wikitext
+Persian: {{#dir:fa}}
+
+English: {{#dir:en}}
+
+Persian (with space): {{#dir: fa}}
+
+Tajik: {{#dir:tg}}
+
+The string 'egl' is a valid internal code; however when used as a
+BCP-47 code it refers to the internal code 'eml'.  Unfortunately,
+both of these have ltr directionality which makes this test case
+less useful than it could be.
+
+Ambiguous BCP-47 code:
+;Directionality of internal code 'egl':{{#dir:egl}}
+;Directionality of internal code 'eml':{{#dir:egl|bcp47}} == {{#dir:eml}}
+!! html/php
+<p>Persian: rtl
+</p><p>English: ltr
+</p><p>Persian (with space): rtl
+</p><p>Tajik: ltr
+</p><p>The string 'egl' is a valid internal code; however when used as a
+BCP-47 code it refers to the internal code 'eml'.  Unfortunately,
+both of these have ltr directionality which makes this test case
+less useful than it could be.
+</p><p>Ambiguous BCP-47 code:
+</p>
+<dl><dt>Directionality of internal code 'egl'</dt>
+<dd>ltr</dd>
+<dt>Directionality of internal code 'eml'</dt>
+<dd>ltr == ltr</dd></dl>
+!! html/parsoid+integrated
+<p>Persian: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:fa","function":"dir"},"params":{},"i":0}}]}'>rtl</span></p>
+<p>English: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:en","function":"dir"},"params":{},"i":0}}]}'>ltr</span></p>
+<p>Persian (with space): <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir: fa","function":"dir"},"params":{},"i":0}}]}'>rtl</span></p>
+<p>Tajik: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:tg","function":"dir"},"params":{},"i":0}}]}'>ltr</span></p>
+<p>The string 'egl' is a valid internal code; however when used as a BCP-47 code it refers to the internal code 'eml'. Unfortunately, both of these have ltr directionality which makes this test case less useful than it could be.</p>
+<p>Ambiguous BCP-47 code:</p>
+<dl>
+<dt>Directionality of internal code 'egl'</dt>
+<dd><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:egl","function":"dir"},"params":{},"i":0}}]}'>ltr</span></dd>
+<dt>Directionality of internal code 'eml'</dt>
+<dd><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:egl","function":"dir"},"params":{"1":{"wt":"bcp47"}},"i":0}}]}'>ltr</span> == <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:eml","function":"dir"},"params":{},"i":0}}]}'>ltr</span></dd>
+</dl>
+!! end
+
+!! test
+Dir parser function (target language)
+!! options
+language=fa
+cat
+!! metadata
+!! wikitext
+These are all equivalent:
+
+{{#dir}} / {{#dir:}} / {{#dir:{{PAGELANGUAGE}}}}
+!! html/php
+<p>These are all equivalent:
+</p><p>rtl / rtl / rtl
+</p>
+!! html/parsoid+integrated
+<p>These are all equivalent:</p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir","function":"dir"},"params":{},"i":0}}]}'>rtl</span> / <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:","function":"dir"},"params":{},"i":0}}]}'>rtl</span> / <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:{{PAGELANGUAGE}}","function":"dir"},"params":{},"i":0}}]}'>rtl</span></p>
+!! end
+
+!! test
+Dir parser function (invalid code)
+!! options
+cat
+!! wikitext
+{{#dir:blah<blah}}
+!! metadata
+cat=Pages_with_invalid_language_codes sort=
+!! html/php
+<p>ltr
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#dir:blah&lt;blah","function":"dir"},"params":{},"i":0}}]}'>ltr</span></p>
+!! end
+
+!! test
+Bcp47 parser function (valid codes)
+!! wikitext
+Serbian: {{#bcp47:sr-ec}}
+
+Cantonese: {{#bcp47:zh-yue}}
+
+Formal German (with space): {{#bcp47: de-formal}}
+
+Simple English: {{#bcp47:simple}}
+
+The string 'egl' is a valid internal code, distinct from the
+internal code 'eml'; however both map to the BCP-47 code 'egl'.
+
+Ambiguous BCP-47 code:
+;Internal code 'eml':{{#bcp47:eml}} == egl
+;Internal code 'egl':{{#bcp47:egl}} == egl
+!! html/php
+<p>Serbian: sr-Cyrl
+</p><p>Cantonese: yue
+</p><p>Formal German (with space): de-x-formal
+</p><p>Simple English: en-simple
+</p><p>The string 'egl' is a valid internal code, distinct from the
+internal code 'eml'; however both map to the BCP-47 code 'egl'.
+</p><p>Ambiguous BCP-47 code:
+</p>
+<dl><dt>Internal code 'eml'</dt>
+<dd>egl == egl</dd>
+<dt>Internal code 'egl'</dt>
+<dd>egl == egl</dd></dl>
+!! html/parsoid+integrated
+<p>Serbian: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:sr-ec","function":"bcp47"},"params":{},"i":0}}]}'>sr-Cyrl</span></p>
+<p>Cantonese: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:zh-yue","function":"bcp47"},"params":{},"i":0}}]}'>yue</span></p>
+<p>Formal German (with space): <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47: de-formal","function":"bcp47"},"params":{},"i":0}}]}'>de-x-formal</span></p>
+<p>Simple English: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:simple","function":"bcp47"},"params":{},"i":0}}]}'>en-simple</span></p>
+<p>The string 'egl' is a valid internal code, distinct from the internal code 'eml'; however both map to the BCP-47 code 'egl'.</p>
+<p>Ambiguous BCP-47 code:</p>
+<dl>
+<dt>Internal code 'eml'</dt>
+<dd><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:eml","function":"bcp47"},"params":{},"i":0}}]}'>egl</span> == egl</dd>
+<dt>Internal code 'egl'</dt>
+<dd><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:egl","function":"bcp47"},"params":{},"i":0}}]}'>egl</span> == egl</dd>
+</dl>
+!! end
+
+!! test
+Bcp47 parser function (target language)
+!! options
+language=sr-ec
+!! wikitext
+These are all equivalent:
+
+{{#bcp47}} / {{#bcp47:}} / {{#bcp47:{{PAGELANGUAGE}}}}
+!! html/php
+<p>These are all equivalent:
+</p><p>sr-Cyrl / sr-Cyrl / sr-Cyrl
+</p>
+!! html/parsoid+integrated
+<p>These are all equivalent:</p>
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47","function":"bcp47"},"params":{},"i":0}}]}'>sr-Cyrl</span> / <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:","function":"bcp47"},"params":{},"i":0}}]}'>sr-Cyrl</span> / <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:{{PAGELANGUAGE}}","function":"bcp47"},"params":{},"i":0}}]}'>sr-Cyrl</span></p>
+!! end
+
+# from https://commons.wikimedia.org/w/index.php?title=Template:BCP47&oldid=597081406
+!! test
+Bcp47 parser function (examples from Template:BCP47)
+!! wikitext
+Unaffected codes, for example:
+*{{#bcp47:en}} returns: "en"
+Changes required by BCP47, using standard codes:
+*{{#bcp47:als}} returns: "gsw"
+*{{#bcp47:fiu-vro}} returns: "vro"
+*{{#bcp47:simple}} returns: "en"
+*{{#bcp47:zh-classical}} returns: "lzh"
+*{{#bcp47:roa-rup}} returns: "rup"
+Changes required by BCP47, currently using private-use extensions:
+*{{#bcp47:nrm}} returns: "nrf"
+*{{#bcp47:roa-tara}} returns: "it-x-tara"
+Changes preferable with BCP47 for improved interoperability (not really violations):
+*{{#bcp47:be-x-old}} returns: "be-tarask"
+!! html/php
+<p>Unaffected codes, for example:
+</p>
+<ul><li>en returns: "en"</li></ul>
+<p>Changes required by BCP47, using standard codes:
+</p>
+<ul><li>gsw returns: "gsw"</li>
+<li>vro returns: "vro"</li>
+<li>en-simple returns: "en"</li>
+<li>lzh returns: "lzh"</li>
+<li>rup returns: "rup"</li></ul>
+<p>Changes required by BCP47, currently using private-use extensions:
+</p>
+<ul><li>nrf returns: "nrf"</li>
+<li>nap-x-tara returns: "it-x-tara"</li></ul>
+<p>Changes preferable with BCP47 for improved interoperability (not really violations):
+</p>
+<ul><li>be-tarask returns: "be-tarask"</li></ul>
+!! html/parsoid+integrated
+<p>Unaffected codes, for example:</p>
+<ul>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:en","function":"bcp47"},"params":{},"i":0}}]}'>en</span> returns: "en"</li>
+</ul>
+<p>Changes required by BCP47, using standard codes:</p>
+<ul>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:als","function":"bcp47"},"params":{},"i":0}}]}'>gsw</span> returns: "gsw"</li>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:fiu-vro","function":"bcp47"},"params":{},"i":0}}]}'>vro</span> returns: "vro"</li>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:simple","function":"bcp47"},"params":{},"i":0}}]}'>en-simple</span> returns: "en"</li>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:zh-classical","function":"bcp47"},"params":{},"i":0}}]}'>lzh</span> returns: "lzh"</li>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:roa-rup","function":"bcp47"},"params":{},"i":0}}]}'>rup</span> returns: "rup"</li>
+</ul>
+<p>Changes required by BCP47, currently using private-use extensions:</p>
+<ul>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:nrm","function":"bcp47"},"params":{},"i":0}}]}'>nrf</span> returns: "nrf"</li>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:roa-tara","function":"bcp47"},"params":{},"i":0}}]}'>nap-x-tara</span> returns: "it-x-tara"</li>
+</ul>
+<p>Changes preferable with BCP47 for improved interoperability (not really violations):</p>
+<ul>
+<li><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#bcp47:be-x-old","function":"bcp47"},"params":{},"i":0}}]}'>be-tarask</span> returns: "be-tarask"</li>
+</ul>
 !! end
 
 !!test
