@@ -72,6 +72,11 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 class RunExtensionProcessors implements Wt2HtmlDOMProcessor {
 	private ?array $extProcessors = null;
 
+	/**
+	 * FIXME: We've lost the ability to dump dom pre/post individual
+	 * extension processors. Need to fix RunExtensionProcessors to
+	 * reintroduce that granularity
+	 */
 	private function initialize( Env $env ): array {
 		$extProcessors = [];
 		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
