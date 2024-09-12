@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
@@ -266,6 +267,8 @@ class CleanUp {
 			return true;
 		}
 
+		Assert::invariant( $state->atTopLevel, 'This pass should only be run on the top-level' );
+
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// Delete from data parsoid, wikitext originating autoInsertedEnd info
 		if ( !empty( $dp->autoInsertedEnd ) && !WTUtils::hasLiteralHTMLMarker( $dp ) &&
@@ -291,7 +294,7 @@ class CleanUp {
 			str_starts_with( DOMCompat::getAttribute( $node, 'property' ) ?? '', 'mw:PageProp/' );
 		if ( $validDSR && !$isPageProp ) {
 			unset( $dp->src );
-		} elseif ( $isFirstEncapsulationWrapperNode && ( !$state->atTopLevel || empty( $dp->tsr ) ) ) {
+		} elseif ( $isFirstEncapsulationWrapperNode && empty( $dp->tsr ) ) {
 			// Transcluded nodes will not have dp.tsr set
 			// and don't need dp.src either.
 			unset( $dp->src );
@@ -364,9 +367,9 @@ class CleanUp {
 		if ( !( $node instanceof Element ) ) {
 			return true;
 		}
-
+		Assert::invariant( $state->atTopLevel, 'This pass should only be run on the top-level' );
 		$usedIdIndex = &$state->usedIdIndex;
-		if ( $state->atTopLevel && DOMUtils::isBody( $node ) ) {
+		if ( DOMUtils::isBody( $node ) ) {
 			// Initialization
 			$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
 		}

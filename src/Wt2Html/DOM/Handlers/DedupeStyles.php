@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -20,9 +21,7 @@ class DedupeStyles {
 		// Don't run on embedded docs for now since we don't want the
 		// canonical styles to be introduced in embedded HTML which means
 		// they will get lost wrt the top level document.
-		if ( !$state->atTopLevel ) {
-			return true;
-		}
+		Assert::invariant( $state->atTopLevel, 'This pass should only be run on the top-level' );
 
 		$key = DOMCompat::getAttribute( $node, 'data-mw-deduplicate' );
 		if ( $key === null ) {

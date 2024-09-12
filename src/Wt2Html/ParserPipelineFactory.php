@@ -206,7 +206,8 @@ class ParserPipelineFactory {
 		]
 	];
 
-	// NOTES about ordering:
+	// NOTES about ordering / inclusion:
+	//
 	// media:
 	//    This is run at all levels for now - gallery extension's "packed" mode
 	//    would otherwise need a post-processing pass to scale media after it
@@ -224,6 +225,12 @@ class ParserPipelineFactory {
 	//    DSR computation and template wrapping cannot be skipped for top-level content
 	//    even if they are part of nested level pipelines, because such content might be
 	//    embedded in attributes and they may need to be processed independently.
+	//
+	// Nested (non-top-level) pipelines can never include the following:
+	// - lang-converter, convertoffsets, dedupe-styles, cleanup, saveDP
+	//
+	// FIXME: Perhaps introduce a config flag in the processor config that
+	// verifies this property against a pipeline's 'toplevel' state.
 	public const NESTED_PIPELINE_DOM_TRANSFORMS = [
 		'fostered', 'process-fixups', 'normalize', 'pwrap',
 		'media', 'migrate-metas', 'migrate-nls', 'dsr', 'tplwrap',
@@ -231,7 +238,7 @@ class ParserPipelineFactory {
 	];
 
 	// NOTES about ordering:
-	// lang-converter, redlinkts:
+	// lang-converter, redlinks:
 	//    Language conversion and redlink marking are done here
 	//    *before* we cleanup and save data-parsoid because they
 	//    are also used in pb2pb/html2html passes, and we want to
