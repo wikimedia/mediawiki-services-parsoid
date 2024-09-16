@@ -246,6 +246,7 @@ class Title implements LinkTarget {
 	 *
 	 * @return string
 	 * @see ::getDBkey()
+	 * @deprecated
 	 */
 	public function getKey(): string {
 		if ( $this->interwiki ) {
@@ -273,9 +274,11 @@ class Title implements LinkTarget {
 	 */
 	public function getPrefixedDBKey(): string {
 		if ( $this->prefixedDBKey === null ) {
-			$this->prefixedDBKey = $this->namespaceName === '' ? '' :
+			$this->prefixedDBKey = $this->interwiki === '' ? '' :
+				( $this->interwiki . ':' );
+			$this->prefixedDBKey .= $this->namespaceName === '' ? '' :
 				( strtr( $this->namespaceName, ' ', '_' ) . ':' );
-			$this->prefixedDBKey .= $this->getKey();
+			$this->prefixedDBKey .= $this->getDBkey();
 		}
 		return $this->prefixedDBKey;
 	}
@@ -286,9 +289,11 @@ class Title implements LinkTarget {
 	 */
 	public function getPrefixedText(): string {
 		if ( $this->prefixedText === null ) {
-			$this->prefixedText = $this->namespaceName === '' ? '' :
+			$this->prefixedText = $this->interwiki === '' ? '' :
+				( $this->interwiki . ':' );
+			$this->prefixedText .= $this->namespaceName === '' ? '' :
 				( $this->namespaceName . ':' );
-			$this->prefixedText .= strtr( $this->getKey(), '_', ' ' );
+			$this->prefixedText .= $this->getText();
 		}
 		return $this->prefixedText;
 	}
@@ -327,7 +332,8 @@ class Title implements LinkTarget {
 	 */
 	public function equals( Title $title ) {
 		return $this->getNamespace() === $title->getNamespace() &&
-			$this->getKey() === $title->getKey();
+			$this->getInterwiki() === $title->getInterwiki() &&
+			$this->getDBkey() === $title->getDBkey();
 	}
 
 	/**

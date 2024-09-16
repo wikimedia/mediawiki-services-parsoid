@@ -646,7 +646,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				'title' => $env->makeTitleFromText( $span->textContent ),
 			];
 
-			$file = [ $attrs['title']->getKey(), $dims ];
+			$file = [ $attrs['title']->getDBKey(), $dims ];
 			$infoKey = md5( json_encode( $file ) );
 			$files[$infoKey] = $file;
 			$errs = [];
@@ -663,7 +663,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 						[ 'name' => $val ]
 					);
 				} else {
-					$file = [ $title->getKey(), $dims ];
+					$file = [ $title->getDBkey(), $dims ];
 					$manualKey = md5( json_encode( $file ) );
 					$files[$manualKey] = $file;
 				}
