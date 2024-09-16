@@ -21,8 +21,6 @@
         "metadata": "es:Spanish ZH :Chinese es:Foo bar"
     },
     "Interlanguage link with a fragment": {
-        "wt2html": "<link rel=\"mw:PageProp/Language\" href=\"http://zh.wikipedia.org/wiki/Chinese#fragment\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/Chinese#fragment\"},\"sa\":{\"href\":\"zh:Chinese#fragment\"},\"dsr\":[0,23,null,null]}'/>",
-        "html2wt": "",
         "metadata": "zh:Chinese#fragment"
     },
     "Interlanguage link with spacing": {

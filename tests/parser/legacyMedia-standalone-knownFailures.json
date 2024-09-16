@@ -48,9 +48,9 @@
         "html2wt": "[http://www.google.com][[File:Foobar.jpg|alt=123|class=mw-file-element|1941x1941px]]\n\n[http://www.google.com]"
     },
     "Fragment in media filename": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"caption\",\"ak\":\"123\"}],\"dsr\":[0,32,null,null]}' data-mw='{\"caption\":\"123\"}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" title=\"123\" data-parsoid=\"{}\"><img alt=\"123\" resource=\"./File:Foobar.jpg#fragment\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg#fragment\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg#fragment\"}}'/></a></span></p>",
         "wt2wt": "[[File:Foobar.jpg#fragment|123|link=File:Foobar.jpg]]",
-        "html2wt": "[[File:Foobar.jpg|123]]",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,53,0,0]}'><span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[{\"ck\":\"link\",\"ak\":\"link=File:Foobar.jpg\"},{\"ck\":\"caption\",\"ak\":\"123\"}],\"dsr\":[0,53,null,null]}' data-mw='{\"caption\":\"123\"}'><a href=\"./File:Foobar.jpg\" title=\"123\" data-parsoid=\"{}\"><img alt=\"123\" resource=\"./File:Foobar.jpg#fragment\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg#fragment\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg#fragment\"}}'/></a></span></p>",
+        "html2wt": "[[File:Foobar.jpg#fragment|link=File:Foobar.jpg|123]]",
         "selser [2]": "hutwn7\n\n[[File:Foobar.jpg#fragment|123]]",
         "selser [1]": "[[File:Foobar.jpg#fragment|123]]"
     },
