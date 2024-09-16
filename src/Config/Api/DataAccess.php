@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TitleValue;
 
 /**
  * DataAccess via MediaWiki's Action API
@@ -299,7 +300,11 @@ class DataAccess extends IDataAccess {
 	 */
 	private function mergeMetadata( array $data, ContentMetadataCollector $metadata ): void {
 		foreach ( ( $data['categories'] ?? [] ) as $c ) {
-			$metadata->addCategory( $c['category'], $c['sortkey'] );
+			$tv = TitleValue::tryNew(
+				14, // NS_CATEGORY,
+				$c['category']
+			);
+			$metadata->addCategory( $tv, $c['sortkey'] );
 		}
 		$metadata->appendOutputStrings( CMCSS::MODULE, $data['modules'] ?? [] );
 		$metadata->appendOutputStrings( CMCSS::MODULE_STYLE, $data['modulestyles'] ?? [] );
