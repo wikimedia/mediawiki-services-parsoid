@@ -344,12 +344,17 @@ class Parsoid {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param array $options See wikitext2html.
+	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
+	 *  collect and retrieve metadata about the parse.
 	 * @return array
 	 */
 	public function wikitext2lint(
-		PageConfig $pageConfig, array $options = []
+		PageConfig $pageConfig, array $options = [],
+		?ContentMetadataCollector $metadata = null
 	): array {
-		$metadata = new StubMetadataCollector( $this->siteConfig );
+		if ( $metadata === null ) {
+			$metadata = new StubMetadataCollector( $this->siteConfig );
+		}
 		[ $env, ] = $this->parseWikitext( $pageConfig, $metadata, $options );
 		return $env->getLints();
 	}
