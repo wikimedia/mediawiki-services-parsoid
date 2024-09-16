@@ -27,11 +27,17 @@
 	"<pre> inside a link": {
 		"wt2wt": "[[Main<pre> Page</pre>]] [[Main Page|the main page]]<pre>[it's not very good]</pre>"
 	},
+	"Anchor containing a #. (T65430)": {
+		"metadata": ""
+	},
 	"Attribute test: unquoted but illegal value (hash)": {
 		"wt2wt": "<font color=\"#x\">foo</font>"
 	},
 	"Bail on table cell attribute parsing on wikilink": {
 		"wt2wt": "{|\n|testing [[one|two]]<nowiki> |three</nowiki>||four\n| testing one two |three||four\n|testing=\"[[one|two]]<nowiki>\" |three</nowiki>||four\n|}"
+	},
+	"Broken link with fragment": {
+		"metadata": ""
 	},
 	"Category with newline in sort key": {
 		"metadata": "cat=Wikidata:Tools sort=*"
@@ -128,6 +134,9 @@
 	"Self-closed tag with broken attribute value quoting": {
 		"wt2html": "<div title=\"Hello world \" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,26,26,0]}'></div><p data-parsoid='{\"dsr\":[26,29,0,0]}'>Foo</p>"
 	},
+	"Special page link with fragment": {
+		"metadata": ""
+	},
 	"T192913 Regression test: 2. html2wt of links should not trip on parser functions found in target (2)": {
 		"wt2wt": "[[Category:Bugs-{{#if:blah|Regression|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}</nowiki>]]\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|<nowiki>Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}</nowiki>]]"
 	},
@@ -209,6 +218,9 @@
 	"Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out": {
 		"wt2wt": "{|\n|<small>foo\n\nbar\n|}\n\n{|\n|<small>foo<small>\n|}"
 	},
+	"Transclusion with a (stripped) fragment": {
+		"metadata": ""
+	},
 	"Using {{!}} in template arguments, part 2 (T290526)": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Main_Page?action=edit&amp;redlink=1\" title=\"Template:Main Page\" about=\"#mwt1\" typeof=\"mw:Transclusion mw:LocalizedAttrs\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:Main_Page\"},\"sa\":{\"href\":\":Template:Main Page\"},\"dsr\":[0,30,null,null],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Main Page\",\"href\":\"./Template:Main_Page\"},\"params\":{\"1\":{\"wt\":\"Something else \"}},\"i\":0}}]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Template:Main Page\"]}}'>Template:Main Page</a></p>\n\n<p data-parsoid='{\"dsr\":[32,49,0,0]}'>{{ <span about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[35,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span> }}</p>"
 	},
@@ -238,5 +250,8 @@
 	},
 	"div with unquoted attribute": {
 		"wt2wt": "<div id=\"rock\">HTML rocks</div>"
+	},
+	"multiple templates that are redirects": {
+		"metadata": ""
 	}
 }

@@ -22,14 +22,26 @@
         "selser [[4,0,3]]": "16kyf0l",
         "selser [[[1,2],2,4]]": "[http://www.musee-picasso.fr/pages/page_id18528_u1l2.htm ''La muerte de Casagemas''hafj2q (1901) en el sitio de] 17q070l1omkplm"
     },
+    "External links: [encoded ampersand]": {
+        "metadata": ""
+    },
+    "External links: [encoded equals] (T8102)": {
+        "metadata": ""
+    },
     "External links: [raw ampersand]": {
-        "html2wt": "Old &#x26; use: [http://x&y]"
+        "html2wt": "Old &#x26; use: [http://x&y]",
+        "metadata": ""
+    },
+    "External links: [raw equals]": {
+        "metadata": ""
     },
     "External links: encoded ampersand": {
-        "html2wt": "Old &#x26; use: http://x&y"
+        "html2wt": "Old &#x26; use: http://x&y",
+        "metadata": ""
     },
     "External links: encoded equals (T8102)": {
-        "html2wt": "http://example.com/?foo=bar"
+        "html2wt": "http://example.com/?foo=bar",
+        "metadata": ""
     },
     "External links: multiple legal whitespace is fine, Magnus. Don't break it please. (T7081)": {
         "wt2wt": "[http://www.example.com test]",
@@ -38,8 +50,12 @@
         "selser [[2]]": "7sl362[http://www.example.com  test]",
         "selser [1]": "[http://www.example.com  test]"
     },
+    "External links: non-bracketed": {
+        "metadata": ""
+    },
     "External links: raw ampersand": {
-        "html2wt": "Old & use: http://x&y\n"
+        "html2wt": "Old & use: http://x&y\n",
+        "metadata": ""
     },
     "IPv6 urls, autolink format (T23261)": {
         "html2wt": "http://[2404:130:0:1000::187:2]/index.php\n\nExamples from RFC 2373, section 2.2:\n\n* http://[1080::8:800:200C:417A]/unicast\n* http://[FF01::101]/multicast\n* http://[::1]/loopback\n* http://[::]/unspecified\n* http://[::13.1.68.3]/ipv4compat\n* http://[::FFFF:129.144.52.38]/ipv4compat\n\nExamples from RFC 2732, section 2:\n\n* http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html\n* http://[1080:0:0:0:8:800:200C:417A]/index.html\n* http://[3ffe:2a00:100:7031::1]\n* http://[1080::8:800:200C:417A]/foo\n* http://[::192.9.5.5]/ipng\n* http://[::FFFF:129.144.52.38]:80/index.html\n* http://[2010:836B:4179::836B:4179]"

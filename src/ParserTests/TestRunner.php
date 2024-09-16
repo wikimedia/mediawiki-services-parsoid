@@ -666,7 +666,12 @@ class TestRunner {
 			$checkPassed = true;
 		}
 
-		if ( $metadataExpected !== null && !$modeObj->isCachingMode() ) {
+		// We could also check metadata in the html2html or wt2wt
+		// modes, but (a) we'd need a separate key for known failures
+		// to avoid overwriting the wt2html metadata results, and (b)
+		// any failures would probably be redundant with html2wt
+		// failures and not indicative of a "real" root cause bug.
+		if ( $metadataExpected !== null && !$modeObj->isCachingMode() && $mode === 'wt2html' ) {
 			$metadataResult = $this->checkMetadata( $test, $metadataExpected, $metadataActual ?? '', $options );
 			$checkPassed = $checkPassed && $metadataResult;
 		}
@@ -843,6 +848,10 @@ class TestRunner {
 			foreach ( $kfModes as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
 					$testKnownFailures[$fail['testName']] ??= [];
+					Assert::invariant(
+						!isset( $testKnownFailures[$fail['testName']][$mode . $fail['suffix']] ),
+						"Overwriting known failures result for " . $fail['testName'] . " " . $mode . $fail['suffix']
+					);
 					$testKnownFailures[$fail['testName']][$mode . $fail['suffix']] = $fail['raw'];
 				}
 			}

@@ -175,6 +175,9 @@
     "Accept empty td cell attribute": {
         "html2wt": "{|\n| align=\"center\" |foo\n|\n|}"
     },
+    "Anchor containing a #. (T65430)": {
+        "metadata": ""
+    },
     "Attribute test: unquoted but illegal value (hash)": {
         "wt2wt": "<font color=\"#x\">foo</font>",
         "html2wt": "<font color=\"#x\">foo</font>\n",
@@ -205,6 +208,9 @@
     },
     "Bare pipe character from a template (T54363)": {
         "html2wt": "|\n"
+    },
+    "Broken link with fragment": {
+        "metadata": ""
     },
     "CSS line continuation 1": {
         "html2wt": "<div style=\"/* insecure input */\"></div>"
@@ -257,6 +263,9 @@
         "selser [[3]]": "<div></div/>",
         "selser [2]": "12umu83<div>hello world</div/>",
         "selser [[2]]": "<div>1c5s34thello world</div/>"
+    },
+    "Duplicate interlanguage links (T26502)": {
+        "metadata": "es:1 es:2 fr:1 fr:2"
     },
     "Empty LI (T49673)": {
         "wt2wt": "*a\n*\n*\n*b",
@@ -542,6 +551,9 @@
         "selser [0,3,[4]]": "'''Bold paragraph\n\ni5pa1",
         "selser [[2],4,2]": "19nmwq1'''Bold paragraph\n\ndh4zbb\n\nbwvwda\n\nNew wiki paragraph",
         "selser [0,0,2]": "'''Bold paragraph\n\n10pnlgs\n\nNew wiki paragraph"
+    },
+    "Interlanguage links": {
+        "metadata": "es:Alimento fr:Nourriture zh:食品"
     },
     "Internal link with is link trail and link prefix": {
         "html2wt": "[[Mótmælendatrú|xxxar]]\n[[Mótmælendatrú|mótmælendatrúar]]\n[[Söfnuður|mótmælendasöfnuður]]\n[[Söfnuður|mótmælendasöfnuðir]]\n[[Söfnuður|mótmælendasöfnuðirxxx]]\n"
@@ -911,6 +923,9 @@
         "selser [[3,0,3]]": "=== <span id=\"x\">hi</span> ===",
         "selser [[0,0,2]]": "=== hi <span id=\"x\">hi</span>1w2au0v hi ho ===",
         "selser [[4,[3],0]]": "=== 64yg7h<span id=\"x\"></span> hi ho ==="
+    },
+    "Special page link with fragment": {
+        "metadata": ""
     },
     "Special parser function": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,65,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:RandomPage\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[24,45,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:BaDtItLe\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span>\n<span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[46,65,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#special:Foobar\",\"function\":\"special\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_special missing in Parsoid.</span></p>",
@@ -1503,6 +1518,9 @@
     "Transclusion of a sibling page (one level up)": {
         "html2wt": "Sibling article\n"
     },
+    "Transclusion with a (stripped) fragment": {
+        "metadata": ""
+    },
     "Un-closed <onlyinclude>": {
         "html2wt": ""
     },
@@ -1603,6 +1621,9 @@
         "wt2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><i data-parsoid='{\"dsr\":[0,8,2,2]}'>test</i></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,25,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,25,8,9]}'>''test''</span></p>",
         "html2wt": "<nowiki>''test''</nowiki>"
+    },
+    "multiple templates that are redirects": {
+        "metadata": ""
     },
     "new support for bdi element (T33817)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,193,0,0]}'>ולדימיר לנין (ברוסית: <bdi lang=\"ru\" data-parsoid='{\"stx\":\"html\",\"dsr\":[39,87,15,6]}'>Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי.</p>",
