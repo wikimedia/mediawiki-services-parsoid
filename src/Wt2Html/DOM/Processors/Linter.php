@@ -356,7 +356,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Lint Treebuilder fixups marked by dom.markTreeBuilderFixup.js
+	 * Lint Treebuilder fixups marked by ProcessTreeBuilderFixups
 	 *
 	 * It handles the following scenarios:
 	 *
