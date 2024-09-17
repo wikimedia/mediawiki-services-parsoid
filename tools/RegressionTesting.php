@@ -1,11 +1,13 @@
 <?php
 
-require_once __DIR__ . '/../tools/Maintenance.php';
+namespace Wikimedia\Parsoid\Tools;
 
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
 use Wikimedia\ScopedCallback;
+
+require_once __DIR__ . '/Maintenance.php';
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.NotMatch
 class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {

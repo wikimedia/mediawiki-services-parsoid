@@ -1,6 +1,6 @@
 <?php
 
-namespace Wikimedia\Parsoid\Wt2Html\DOM\Handlers;
+namespace Test\Parsoid\Wt2Html\DOM\Handlers;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Mocks\MockEnv;
@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddLinkAttributes;
 use Wikimedia\Parsoid\Wt2Html\DOMPPTraverser;
 
 class AddLinkAttributesTest extends TestCase {

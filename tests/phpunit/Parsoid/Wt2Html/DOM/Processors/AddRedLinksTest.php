@@ -1,11 +1,12 @@
 <?php
 
-namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
+namespace Test\Parsoid\Wt2Html\DOM\Processors;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks

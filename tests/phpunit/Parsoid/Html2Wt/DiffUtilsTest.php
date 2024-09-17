@@ -1,5 +1,6 @@
 <?php
-namespace spec\Parsoid\Utils;
+
+namespace Test\Parsoid\Html2Wt;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\DOM\Document;
