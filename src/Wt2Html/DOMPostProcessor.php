@@ -338,10 +338,10 @@ class DOMPostProcessor extends PipelineStage {
 				'applyToAttributeEmbeddedHTML' => true,
 				'tplInfo' => true,
 				'handlers' => [
-					// Move trailing categories in <li>s out of the list
-					[ 'nodeName' => 'li', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
-					[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
-					[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingCategories' ] ],
+					// Move trailing sol-transparent links (ex: categories) in <li>s out of the list
+					[ 'nodeName' => 'li', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
+					[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
+					[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
 					// 2. Fix up issues from templated table cells and table cell attributes
 					[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'stripDoubleTDs' ] ],
 					[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],

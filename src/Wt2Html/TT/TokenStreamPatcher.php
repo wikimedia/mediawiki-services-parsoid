@@ -363,9 +363,7 @@ class TokenStreamPatcher extends TokenHandler {
 						$this->tokenBuf[] = $token;
 						return new TokenHandlerResult( [] );
 					}
-				} elseif ( $token->getName() === 'link' &&
-					$token->getAttributeV( 'rel' ) === 'mw:PageProp/Category'
-				) {
+				} elseif ( TokenUtils::isSolTransparentLinkTag( $token ) ) {
 					// Replace buffered newline & whitespace tokens with mw:EmptyLine
 					// meta-tokens. This tunnels them through the rest of the transformations
 					// without affecting them. During HTML building, they are expanded

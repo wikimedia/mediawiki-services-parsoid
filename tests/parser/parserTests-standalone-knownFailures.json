@@ -111,10 +111,13 @@
         "selser [1]": "<span id=\"<noinclude>v1</noinclude><includeonly>v2</includeonly>\">bar</span>\n<span id=<noinclude>\"v1\"</noinclude><includeonly>\"v2\"</includeonly>>bar</span>",
         "selser [[3,0,0]]": "\n<span id=<noinclude>\"v1\"</noinclude><includeonly>\"v2\"</includeonly>>bar</span>"
     },
-    "3. Categories and newlines: newline suppression for last list item should RT properly": {
-        "html2wt": "* a\n* b\n   \n[[Category:Foo]]\n   \n[[Category:Bar]]\n[[Category:Baz]]\n\n: c\n\n[[Category:C]]\n\n; d\n\n[[Category:D]]",
-        "selser [2,3,4,2,2,0,3,2,[3],3,0,0,[1],0,4]": "q620vp\n*a\n*b\nhhfaih\n\nv4npyx\n   \n1o3h9yi\n[[Category:Bar]]\n1ybvf0r\n\n\n\n[[Category:C]]\n\n;d\n\n17avyym",
-        "selser [[1,0,1],2,3,0,0,0,0,3,[4],0,0,2,[[3]],4,0]": "*a\n*b\n114edt3\n   \n\n   \n[[Category:Bar]]\n[[Category:Baz]]\n: k8gefx\n\n[[Category:C]]\n1j9166e\n\n;\nxa181l\n[[Category:D]]"
+    "3. cats/langlinks and newlines: newline suppression for last list item should RT properly": {
+        "html2wt": "* a\n* b\n   \n[[Category:Foo]]\n   \n[[Category:Bar]]\n[[Category:Baz]]\n[[es:Foo]]\n\n: c\n\n[[Category:C]]\n\n; d\n\n[[Category:D]]\n[[es:Bar]]",
+        "selser [[0,4,0],2,0,0,3,0,0,0,0,0,[[2]],0,4,3,[4],4,3,0,1]": "*a\n* 1je9nn9\n*b\n2wgu5e\n   \n[[Category:Foo]]\n   \n\n[[Category:Baz]]\n[[es:Foo]]\n\n:oiyhghc\n\n1e9e86j\n: p1o0v3\nhp6fs2\n[[es:Bar]]",
+        "selser [4,4,1,0,3,0,0,2,1,2,0,2,2,2,[4],2,3,2,4]": "erm3cp\n\nryijrf\n[[Category:Foo]]\n   \n\n[[Category:Baz]]\n13b7wjk\n[[es:Foo]]\nmib3by\n\n:c\n1kra6df\n\n1gd9tyl\n[[Category:C]]\n1wy86xi\n\n: r63zv\n4qio61\n\nnqz955\n\n12y9su",
+        "selser [[1,2,3],0,1,2,2,0,0,0,0,4,[2],3,0,4,4,3,0,0,0]": "*a\n* gjpecg\n   \n[[Category:Foo]]\n17wx6lj\n   \n1bxd8m1\n[[Category:Bar]]\n[[Category:Baz]]\n[[es:Foo]]\nqptth8\n: 55rj2w\n:c\n\n[[Category:C]]\nuhx0e0\n\n1jqrhj9\n[[Category:D]]\n[[es:Bar]]",
+        "selser [[0,3,3],0,0,0,4,0,0,0,3,0,3,0,0,3,[2],3,0,3,0]": "*a\n   \n[[Category:Foo]]\n   \n508fps\n[[Category:Baz]]\n\n\n\n\n[[Category:C]]\n: 15gqjn9\n;d\n[[Category:D]]\n[[es:Bar]]",
+        "selser [2,0,2,2,3,0,0,0,4,4,[1],4,0,2,[3],4,2,3,0]": "1erpgb0\n*a\n*b\n   \n1gm05hz\n[[Category:Foo]]\nqs2o2x\n   \n\n[[Category:Baz]]\n1jrjxjo\n\n1ovl2vk\n:c\n1iivo6q\n[[Category:C]]\nbaqdys\n\n\n15zbdri\n\n1slr19a\n[[Category:D]]\n[[es:Bar]]"
     },
     "3. includeonly in part of an attr value": {
         "html2wt": "<span style=\"color:red;\">bar</span>\n"
@@ -122,22 +125,21 @@
     "3a. Table cells without escapable prefixes after edits": {
         "selser [manual]": "{|\n| id=\"x\" | -\n|}"
     },
-    "4. Categories and newlines: newline suppression for last list item should RT properly": {
-        "html2wt": "* a\n**** b\n\n[[Category:Foo]]",
-        "selser [[[0,3]],0,0]": "*a\n\n\n[[Category:Foo]]"
+    "4. cats/langlinks: newline suppression for last list item should RT properly": {
+        "html2wt": "* a\n**** b\n\n[[Category:Foo]]\n[[es:Foo]]"
     },
     "4. includeonly in table attributes": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,77,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,75,0,0]}'><tr about=\"#mwt1\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\"&lt;noinclude>\\n|-\\n|a\\n&lt;/noinclude>\":null},\"sa\":{\"&lt;noinclude>\\n|-\\n|a\\n&lt;/noinclude>\":\"\"},\"dsr\":[3,36,33,0]}' data-mw='{\"attribs\":[[{\"txt\":\"a\",\"html\":\"&lt;meta typeof=\\\"mw:Includes/NoInclude\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;noinclude>\\\",\\\"dsr\\\":[6,17,null,null]}&apos;/>\\n|-\\n|a\\n&lt;meta typeof=\\\"mw:Includes/NoInclude/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"&amp;lt;/noinclude>\\\",\\\"dsr\\\":[24,36,null,null]}&apos;/>\"},{\"html\":\"\"}]]}'></tr>\n<tr about=\"#mwt2\" typeof=\"mw:ExpandedAttrs\" data-parsoid='{\"startTagSrc\":\"|-\",\"a\":{\"&lt;includeonly>\\n|-\\n|b\\n&lt;/includeonly>\":null},\"sa\":{\"&lt;includeonly>\\n|-\\n|b\\n&lt;/includeonly>\":\"\"},\"dsr\":[37,74,37,0]}' data-mw='{\"attribs\":[[{\"txt\":\"\",\"html\":\"&lt;meta typeof=\\\"mw:Includes/IncludeOnly\\\" data-parsoid=&apos;{\\\"dsr\\\":[40,74,null,null]}&apos; data-mw=&apos;{\\\"src\\\":\\\"&amp;lt;includeonly>\\\\n|-\\\\n|b\\\\n&amp;lt;/includeonly>\\\"}&apos;/>&lt;meta typeof=\\\"mw:Includes/IncludeOnly/End\\\" data-parsoid=&apos;{\\\"src\\\":\\\"\\\",\\\"dsr\\\":[74,74,null,null]}&apos;/>\"},{\"html\":\"\"}]]}'></tr>\n</tbody></table>",
         "html2wt": "{|\n|a\n|}"
     },
-    "7. Categories and newlines: migrateTrailingCategories dom pass should leave template content alone": {
-        "html2wt": "* {{1x|a\n[[Category:Foo]]}}"
-    },
-    "8. Categories and newlines: migrateTrailingCategories dom pass should not get tripped by intervening templates": {
-        "html2wt": "* a\n\n{{1x|[[Category:Foo]]\n[[Category:Bar]]}}\n[[Category:Baz]]"
+    "7. cats/langlinks: migrateTrailingSolTransparentLinks dom pass should leave template content alone": {
+        "html2wt": "* {{1x|a\n[[Category:Foo]]\n[[es:Foo]]}}"
     },
     "8. Encapsulate foster-parented transclusion content": {
         "wt2wt": "{{1x|a\n}}\n{|{{1x|style='color:red'}}\n|-\n|b\n|}\n"
+    },
+    "8. cats/langlinks: migrateTrailingSolTransparentLinks dom pass should not get tripped by intervening templates": {
+        "html2wt": "* a\n\n{{1x|[[Category:Foo]]\n[[Category:Bar]]}}\n[[Category:Baz]]\n[[es:Baz]]"
     },
     "<br> to <br />": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,3,0,0]}'>123</p>\n",
@@ -220,9 +222,6 @@
     },
     "Case insensitivity of parser functions for non-ASCII characters (T10143)": {
         "html2wt": "Ěščř\nĚščř\něščř\něščř\něščř\něščř\nĚŠČŘ\nĚŠČŘ\n"
-    },
-    "Categories and newlines: migrateTrailingCategories dom pass should not get tripped by comments and whitespace": {
-        "html2wt": "* a\n\n[[Category:Bar]]<!--boo1--> <!--boo2-->\n[[Category:Baz]]<!--boo3--> <!--boo4-->"
     },
     "Categories and newlines: should behave properly with linkprefix (T87753)": {
         "selser [[3],0,3,0,0]": "\n\n[[تصنيف:Bar]]"
@@ -1587,6 +1586,9 @@
     "anchorencode encodes like the TOC generator: (T20431)": {
         "html2wt": "=== _ +:.3A%3A _ &&amp;]] x ===\n{{anchorencode: _ +:.3A%3A _ &&amp;]] x}}\n\n__NOEDITSECTION__\n",
         "selser [2,2,3,0,0]": "19m5ghj\n\n===_ +:.3A%3A _ &&amp;]] x===\n1n9wtpj\n\n\n__NOEDITSECTION__"
+    },
+    "cats/langlinks: migrateTrailingSolTransparentLinks dom pass should not get tripped by comments and whitespace": {
+        "html2wt": "* a\n\n[[Category:Bar]]<!--boo1--> <!--boo2-->\n[[Category:Baz]]<!--boo3--> <!--boo4-->\n[[es:Foo]]<!--boo5--> <!--boo6-->"
     },
     "div with illegal double attributes": {
         "wt2wt": "<div id=\"b\">HTML rocks</div>",

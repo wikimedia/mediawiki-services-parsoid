@@ -348,11 +348,8 @@ class WTUtils {
 
 	/**
 	 * Does $node represent a redirect link?
-	 *
-	 * @param Node $node
-	 * @return bool
 	 */
-	public static function isRedirectLink( Node $node ): bool {
+	public static function isRedirectLink( ?Node $node ): bool {
 		return $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'link' &&
 			DOMUtils::matchRel( $node, '#\bmw:PageProp/redirect\b#' ) !== null;
@@ -360,9 +357,6 @@ class WTUtils {
 
 	/**
 	 * Does $node represent a category link?
-	 *
-	 * @param ?Node $node
-	 * @return bool
 	 */
 	public static function isCategoryLink( ?Node $node ): bool {
 		return $node instanceof Element &&
@@ -372,11 +366,8 @@ class WTUtils {
 
 	/**
 	 * Does $node represent a link that is sol-transparent?
-	 *
-	 * @param Node $node
-	 * @return bool
 	 */
-	public static function isSolTransparentLink( Node $node ): bool {
+	public static function isSolTransparentLink( ?Node $node ): bool {
 		return $node instanceof Element &&
 			DOMCompat::nodeName( $node ) === 'link' &&
 			DOMUtils::matchRel( $node, TokenUtils::SOL_TRANSPARENT_LINK_REGEX ) !== null;
