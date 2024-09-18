@@ -4493,3 +4493,20 @@ language=eo
 !! html/parsoid
 <figure class="mw-halign-left" typeof="mw:File" data-parsoid='{"optList":[{"ck":"left","ak":"maldekstra"},{"ck":"width","ak":"100ra"},{"ck":"caption","ak":"caption"}]}'><a href="./Dosiero:Foobar.jpg" class="mw-file-description" title="caption"><img alt="caption" resource="./Dosiero:Foobar.jpg" src="http://example.com/images/thumb/3/3a/Foobar.jpg/100px-Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="11" width="100" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/150px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/200px-Foobar.jpg 2x" class="mw-file-element" data-parsoid='{"a":{"resource":"./Dosiero:Foobar.jpg","height":"11","width":"100"},"sa":{"resource":"Dosiero:Foobar.jpg"}}'/></a><figcaption>caption</figcaption></figure>
 !! end
+
+!! test
+Broken media gets category
+!! options
+cat
+!! config
+wgParserEnableLegacyMediaDOM=false
+!! wikitext
+[[File:Foobaz.jpg]]
+!! html/php
+<p><span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foobaz.jpg" class="new" title="File:Foobaz.jpg"><span class="mw-file-element mw-broken-media">File:Foobaz.jpg</span></a></span>
+</p>
+!! html/parsoid
+<p><span class="mw-default-size" typeof="mw:Error mw:File" data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}]}'><a href="./Special:FilePath/Foobaz.jpg"><span class="mw-file-element mw-broken-media" resource="./File:Foobaz.jpg">File:Foobaz.jpg</span></a></span></p>
+!! metadata
+cat=Pages_with_broken_file_links sort=
+!! end

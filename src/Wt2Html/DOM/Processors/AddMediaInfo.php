@@ -717,6 +717,11 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 			$info = $files[$c['infoKey']];
 			if ( !$info ) {
+				$env->getDataAccess()->addTrackingCategory(
+					$env->getPageConfig(),
+					$env->getMetadata(),
+					'broken-file-category'
+				);
 				$errs[] = self::makeErr( 'apierror-filedoesnotexist', 'This image does not exist.' );
 			} elseif ( isset( $info['thumberror'] ) ) {
 				$errs[] = self::makeErr( 'apierror-unknownerror', $info['thumberror'] );
