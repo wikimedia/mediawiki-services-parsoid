@@ -88,9 +88,8 @@ interface ContentMetadataCollector {
 	 *   Doesn't seem necessary, we have ::addCategory().
 	 *   (And adding the ability to overwrite categories would be bad.)
 	 * ::addTrackingCategory()
-	 *   This was moved to Parser / the TrackingCategories service, but
-	 *   perhaps it would be helpful if we had a version of this available
-	 *   from SiteConfig or something.
+	 *   This was moved to Parser / the TrackingCategories service, and
+	 *   equivalently DataAccess in Parsoid.
 	 * ::isLinkInternal()
 	 *   T296036: Should be non-public or at least @internal?
 	 * ::addInterwikiLink()

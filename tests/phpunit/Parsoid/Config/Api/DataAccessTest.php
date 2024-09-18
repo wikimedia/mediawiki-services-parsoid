@@ -205,4 +205,12 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
+	public function testAddTrackingCategory() {
+		$siteConfig = new MockSiteConfig( [] );
+		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
+		$metadata = new StubMetadataCollector( $siteConfig );
+		$da = $this->getDataAccess( 'trackingcategory', $siteConfig );
+		$da->addTrackingCategory( $pageConfig, $metadata, 'broken-file-category' );
+		$this->assertEquals( [ 'Articles_with_missing_files' ], $metadata->getCategoryNames() );
+	}
 }

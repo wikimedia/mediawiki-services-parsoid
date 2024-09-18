@@ -158,4 +158,19 @@ abstract class DataAccess {
 	 * @param array $lints
 	 */
 	abstract public function logLinterData( PageConfig $pageConfig, array $lints ): void;
+
+	/**
+	 * Add a tracking category with the given key to the metadata for the page.
+	 *
+	 * @param PageConfig $pageConfig the page on which the tracking category
+	 *   is to be added
+	 * @param ContentMetadataCollector $metadata The metadata for the page
+	 * @param string $key Message key (not localized)
+	 */
+	abstract public function addTrackingCategory(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $key
+	): void;
+
 }

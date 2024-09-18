@@ -468,4 +468,34 @@ class DataAccess extends IDataAccess {
 			$linkTarget, $this->siteConfig
 		)->getPrefixedText();
 	}
+
+	/** @inheritDoc */
+	public function addTrackingCategory(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $key
+	): void {
+		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
+		$cacheKey = implode( ':', [ 'allmessages', md5( $pageConfigTitle ), md5( $key ) ] );
+		$data = $this->getCache( $cacheKey );
+		if ( $data === null ) {
+			$params = [
+				'action' => 'query',
+				'meta' => 'allmessages',
+				'amtitle' => $pageConfigTitle,
+				'ammessages' => $key,
+				'amenableparser' => 1,
+			];
+			$data = $this->api->makeRequest( $params )['query']['allmessages'][0];
+			$this->setCache( $cacheKey, $data );
+		}
+		if ( isset( $data['missing'] ) ) {
+			return;
+		}
+		$tv = TitleValue::tryNew(
+			14, // NS_CATEGORY,
+			$data['content']
+		);
+		$metadata->addCategory( $tv );
+	}
 }

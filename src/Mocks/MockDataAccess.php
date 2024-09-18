@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TitleValue;
 
 /**
  * This implements some of the functionality that the tests/ParserTests/MockAPIHelper.php
@@ -627,5 +628,25 @@ class MockDataAccess extends DataAccess {
 		foreach ( $lints as $l ) {
 			error_log( PHPUtils::jsonEncode( $l ) );
 		}
+	}
+
+	private const TRACKING_CATEGORIES = [
+		'broken-file-category' => 'Pages with broken file links',
+	];
+
+	/** @inheritDoc */
+	public function addTrackingCategory(
+		PageConfig $pageConfig,
+		ContentMetadataCollector $metadata,
+		string $key
+	): void {
+		if ( !isset( self::TRACKING_CATEGORIES[$key] ) ) {
+			throw new Error( 'Unknown tracking category: ' . $key );
+		}
+		$tv = TitleValue::tryNew(
+			14, // NS_CATEGORY,
+			self::TRACKING_CATEGORIES[$key]
+		);
+		$metadata->addCategory( $tv );
 	}
 }

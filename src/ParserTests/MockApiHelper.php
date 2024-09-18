@@ -813,6 +813,10 @@ class MockApiHelper extends ApiHelper {
 		];
 	}
 
+	private const TRACKING_CATEGORIES = [
+		'broken-file-category' => 'Pages with broken file links',
+	];
+
 	private function processQuery( array $params ): array {
 		if ( ( $params['meta'] ?? null ) === 'siteinfo' ) {
 			if ( !isset( $this->cachedConfigs[$this->prefix] ) ) {
@@ -820,6 +824,18 @@ class MockApiHelper extends ApiHelper {
 					file_get_contents( __DIR__ . "/../../baseconfig/$this->prefix.json" ), true );
 			}
 			return $this->cachedConfigs[$this->prefix];
+		}
+
+		if ( ( $params['meta'] ?? null ) === 'allmessages' ) {
+			$allmessages = [];
+			if ( isset( self::TRACKING_CATEGORIES[$params['ammessages']] ) ) {
+				$allmessages[] = [
+					'content' => self::TRACKING_CATEGORIES[$params['ammessages']]
+				];
+			} else {
+				$allmessages[] = [ 'missing' => true ];
+			}
+			return [ 'query' => [ 'allmessages' => $allmessages ] ];
 		}
 
 		$revid = $params['revids'] ?? null;

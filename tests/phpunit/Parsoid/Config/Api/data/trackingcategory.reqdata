@@ -1,0 +1,2 @@
+{"action":"query","meta":"allmessages","amtitle":"Foobar","ammessages":"broken-file-category","amenableparser":1}
+{"batchcomplete":true,"query":{"allmessages":[{"name":"broken-file-category","normalizedname":"broken-file-category","content":"Articles with missing files"}]}}
