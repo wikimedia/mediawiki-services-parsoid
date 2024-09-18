@@ -30,6 +30,7 @@ use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MarkFosteredContent;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTemplateMarkerMetas;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\MigrateTrailingNLs;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Normalize;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ProcessEmbeddedDocs;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ProcessTreeBuilderFixups;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\PWrap;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\RunExtensionProcessors;
@@ -86,19 +87,20 @@ class ParserPipelineFactory {
 	private const DOM_PROCESSOR_CONFIG = [
 		'addmetadata' => [ 'Processor' => AddMetaData::class ],
 		'annwrap' => [ 'Processor' => WrapAnnotations::class, 'withAnnotations' => true ],
-		'convertoffsets' => [ 'Processor' => ConvertOffsets::class ], // FIXME: T214994
+		'convertoffsets' => [ 'Processor' => ConvertOffsets::class ],
 		'dsr' => [ 'Processor' => ComputeDSR::class ],
+		'embedded-docs' => [ 'Processor' => ProcessEmbeddedDocs::class ],
 		'extpp' => [ 'Processor' => RunExtensionProcessors::class ],
 		'fostered' => [ 'Processor' => MarkFosteredContent::class ],
-		'linter' => [ 'Processor' => Linter::class ], // FIXME: T214994
-		'lang-converter' => [ 'Processor' => LangConverter::class ], // FIXME: T214994
+		'linter' => [ 'Processor' => Linter::class ],
+		'lang-converter' => [ 'Processor' => LangConverter::class ],
 		'media' => [ 'Processor' => AddMediaInfo::class ],
 		'migrate-metas' => [ 'Processor' => MigrateTemplateMarkerMetas::class ],
 		'migrate-nls' => [ 'Processor' => MigrateTrailingNLs::class ],
 		'normalize' => [ 'Processor' => Normalize::class ],
 		'process-fixups' => [ 'Processor' => ProcessTreeBuilderFixups::class ],
 		'pwrap' => [ 'Processor' => PWrap::class ],
-		'redlinks' => [ 'Processor' => AddRedLinks::class ], // FIXME: T214994
+		'redlinks' => [ 'Processor' => AddRedLinks::class ],
 		'sections' => [ 'Processor' => WrapSections::class ], // Don't process HTML in embedded attributes
 		'tplwrap' => [ 'Processor' => WrapTemplates::class ],
 		'update-template' => [ 'Processor' => UpdateTemplateOutput::class ],
@@ -122,7 +124,6 @@ class ParserPipelineFactory {
 		'fixups' => [
 			'isTraverser' => true,
 			'name' => 'MigrateTrailingCategories,TableFixups',
-			'applyToAttributeEmbeddedHTML' => true,
 			'tplInfo' => true,
 			'handlers' => [
 				// 1. Move trailing categories in <li>s out of the list
@@ -137,7 +138,6 @@ class ParserPipelineFactory {
 		'fixups+dedupe-styles' => [
 			'isTraverser' => true,
 			'name' => 'MigrateTrailingCategories,TableFixups,DedupeStyles',
-			'applyToAttributeEmbeddedHTML' => true,
 			'tplInfo' => true,
 			'handlers' => [
 				// 1. Move trailing categories in <li>s out of the list
@@ -157,7 +157,6 @@ class ParserPipelineFactory {
 		'strip-metas' => [
 			'isTraverser' => true,
 			'name' => 'CleanUp-stripMarkerMetas',
-			'applyToAttributeEmbeddedHTML' => true,
 			'handlers' => [
 				[ 'nodeName' => 'meta', 'action' => [ CleanUp::class, 'stripMarkerMetas' ] ]
 			]
@@ -165,7 +164,6 @@ class ParserPipelineFactory {
 		'displayspace+linkclasses' => [
 			'isTraverser' => true,
 			'name' => 'DisplaySpace+AddLinkAttributes',
-			'applyToAttributeEmbeddedHTML' => true,
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'leftHandler' ] ],
 				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'rightHandler' ] ],
@@ -175,8 +173,6 @@ class ParserPipelineFactory {
 		'gen-anchors' => [
 			'isTraverser' => true,
 			'name' => 'Headings-genAnchors',
-			// No need to generate heading ids for HTML embedded in attributes
-			'applyToAttributeEmbeddedHTML' => false,
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
 			]
@@ -184,8 +180,6 @@ class ParserPipelineFactory {
 		'dedupe-heading-ids' => [
 			'isTraverser' => true,
 			'name' => 'Headings-dedupeIds',
-			// No need to generate heading ids for HTML embedded in attributes
-			'applyToAttributeEmbeddedHTML' => false,
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
 			]
@@ -193,8 +187,6 @@ class ParserPipelineFactory {
 		'heading-ids' => [
 			'isTraverser' => true,
 			'name' => 'Headings-genAnchors',
-			// No need to generate heading ids for HTML embedded in attributes
-			'applyToAttributeEmbeddedHTML' => false,
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
@@ -203,7 +195,6 @@ class ParserPipelineFactory {
 		'cleanup' => [
 			'isTraverser' => true,
 			'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
-			'applyToAttributeEmbeddedHTML' => true,
 			'tplInfo' => true,
 			'handlers' => [
 				// Strip empty elements from template content
@@ -215,13 +206,6 @@ class ParserPipelineFactory {
 		'saveDP' => [
 			'isTraverser' => true,
 			'name' => 'CleanUp-saveDataParsoid',
-			// FIXME This means the data-* from embedded HTML fragments won't end up
-			// in the pagebundle. But, if we try to call this on those fragments,
-			// we get multiple calls to store embedded docs. So, we may need to
-			// write a custom traverser if we want these embedded data* objects
-			// in the pagebundle (this is not a regression since they weren't part
-			// of the pagebundle all this while anyway.)
-			'applyToAttributeEmbeddedHTML' => false,
 			'tplInfo' => true,
 			'handlers' => [
 				// Save data.parsoid into data-parsoid html attribute.
@@ -266,9 +250,32 @@ class ParserPipelineFactory {
 		// FIXME: It should be documented in the spec that an extension's
 		// wtDOMProcess handler is run once on the top level document.
 		'extpp',
-		'fixups+dedupe-styles', 'linter', 'strip-metas', 'lang-converter', 'redlinks',
-		'displayspace+linkclasses', 'heading-ids', // Benefits from running after determining which media are redlinks
-		'sections', 'convertoffsets', 'cleanup', 'saveDP', 'addmetadata'
+		'fixups+dedupe-styles', 'linter', 'strip-metas',
+		'lang-converter', 'redlinks', 'displayspace+linkclasses',
+		// Benefits from running after determining which media are redlinks
+		'heading-ids',
+		'sections', 'convertoffsets', 'cleanup',
+		'embedded-docs',
+		'saveDP', 'addmetadata'
+	];
+
+	// Skipping sections, addmetadata from the above pipeline
+	//
+	// FIXME: Skip extpp, linter, lang-converter, redlinks, heading-ids, convertoffsets, saveDP for now.
+	// This replicates behavior prior to this refactor.
+	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
+		'fixups+dedupe-styles', 'strip-metas',
+		'displayspace+linkclasses',
+		'cleanup',
+		// Need to run this recursively
+		'embedded-docs',
+		// FIXME This means the data-* from embedded HTML fragments won't end up
+		// in the pagebundle. But, if we try to call this on those fragments,
+		// we get multiple calls to store embedded docs. So, we may need to
+		// write a custom traverser if we want these embedded data* objects
+		// in the pagebundle (this is not a regression since they weren't part
+		// of the pagebundle all this while anyway.)
+		/* 'saveDP' */
 	];
 
 	public const SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS = [
@@ -352,6 +359,11 @@ class ParserPipelineFactory {
 			"class" => DOMPostProcessor::class,
 			"processors" => self::NESTED_PIPELINE_DOM_TRANSFORMS
 		],
+		// DOM transformations to run on attribute-embedded docs of the top level doc
+		"FullParseEmbeddedDocsDOMTransform" => [
+			"class" => DOMPostProcessor::class,
+			"processors" => self::FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS
+		],
 		// DOM transformer for fragments during selective updates.
 		// This may eventually become identical to NestedFrgmentDOMTransform,
 		// but at this time, it is unclear if that will materialize.
@@ -377,6 +389,12 @@ class ParserPipelineFactory {
 			"stages" => [
 				"Tokenizer", "TokenTransform2", "TokenTransform3", "TreeBuilder", "FullParseDOMTransform"
 			]
+		],
+
+		"fullparse-embedded-docs-dom-to-dom" => [
+			"alwaysToplevel" => true,
+			"outType" => "DOM",
+			"stages" => [ "FullParseEmbeddedDocsDOMTransform" ]
 		],
 
 		// This pipeline takes a DOM and emits a fully processed DOM as output.

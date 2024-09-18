@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Node;
@@ -46,11 +45,7 @@ class DOMPostProcessor extends PipelineStage {
 				// @phan-suppress-next-line PhanNonClassMethodCall
 				$p['proc'] = new $p['Processor']( $this );
 			} else {
-				$t = new DOMPPTraverser(
-					$this,
-					$p['tplInfo'] ?? false,
-					$p['applyToAttributeEmbeddedHTML'] ?? false
-				);
+				$t = new DOMPPTraverser( $this, $p['tplInfo'] ?? false );
 				foreach ( $p['handlers'] as $h ) {
 					$t->addHandler( $h['nodeName'], $h['action'] );
 				}
@@ -121,12 +116,6 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		foreach ( $this->processors as $pp ) {
-			if ( $pp['applyToAttributeEmbeddedHTML'] ?? false ) {
-				Assert::invariant( ( $pp['isTraverser'] ?? false ) === true,
-					'applyToAttributeEmbeddedHTML can only be executed for DOM traverser passes, and ' . $pp['name'] .
-					'is not such a pass' );
-			}
-
 			// FIXME: We should push this code into the specific processors and eliminate
 			// this flag from the processor config in ParserPipelineFactory -- this will
 			// let us further simplify DOM Processor config / declarations there.

@@ -69,8 +69,7 @@ class PipelineUtils {
 	 * @param Frame $frame
 	 *    The parent frame within which the expansion is taking place.
 	 *    Used for template expansion and source text tracking.
-	 * @param string|Token|Token[] $content
-	 *    This could be wikitext or single token or an array of tokens.
+	 * @param string|Token|array<Token|string>|Element $content
 	 *    How this content is processed depends on what kind of pipeline
 	 *    is constructed specified by opts.
 	 * @param array $opts
