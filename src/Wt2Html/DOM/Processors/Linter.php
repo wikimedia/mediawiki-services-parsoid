@@ -32,14 +32,12 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
  * and emits them as linter events.
  */
 class Linter implements Wt2HtmlDOMProcessor {
-	/** @var ParsoidExtensionAPI */
-	private $extApi = null;
+	private ?ParsoidExtensionAPI $extApi = null;
+	private ?string $obsoleteTagsRE = null;
+	private array $seenIds = [];
 
 	/** @var array<string,bool>|null */
-	private $tagsWithChangedMisnestingBehavior = null;
-
-	/** @var string|null */
-	private $obsoleteTagsRE = null;
+	private ?array $tagsWithChangedMisnestingBehavior = null;
 
 	/**
 	 * We are trying to find HTML5 tags that have different behavior compared to HTML4
@@ -1290,6 +1288,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 
 	/**
 	 * Lint for missing image alt text
+	 *
+	 * Linter category: `missing-image-alt-text`
 	 */
 	private function lintMissingAltText(
 		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
@@ -1344,6 +1344,33 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
+	 * Lint duplicate ids in the page
+	 *
+	 * Linter category: `duplicate-ids`
+	 */
+	private function lintDuplicateIds(
+		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
+	) {
+		$id = DOMCompat::getAttribute( $node, 'id' );
+		if ( $id === null ) {
+			return;
+		}
+		if ( !isset( $this->seenIds[$id] ) ) {
+			$this->seenIds[$id] = 1;
+			return;
+		}
+		$tplLintInfo = self::findEnclosingTemplateName( $env, $tplInfo );
+		$lintObj = [
+			'dsr' => self::findLintDSR(
+				$tplLintInfo, $tplInfo, $dp->dsr ?? null
+			),
+			'templateInfo' => $tplLintInfo,
+			'params' => [ 'id' => $id ],
+		];
+		$env->recordLint( 'duplicate-ids', $lintObj );
+	}
+
+	/**
 	 * Log wikitext fixups
 	 */
 	private function logWikitextFixups(
@@ -1363,6 +1390,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
 		$this->lintMissingAltText( $env, $node, $dp, $tplInfo );
+		$this->lintDuplicateIds( $env, $node, $dp, $tplInfo );
 	}
 
 	/**

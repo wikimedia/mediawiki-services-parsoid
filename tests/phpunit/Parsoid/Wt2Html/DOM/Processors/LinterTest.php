@@ -1818,4 +1818,39 @@ class LinterTest extends TestCase {
 		$result = $this->filterLints( $result, 'missing-image-alt-text' );
 		$this->assertCount( $count, $result, $desc );
 	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Handlers\Headings::dedupeHeadingIds
+	 */
+	public function testDuplicateIds(): void {
+		$desc = 'should not lint unique ids';
+		$result = $this->wtToLint( "<div id='one'>Hi</div><div id='two'>Ho</div>" );
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = 'should lint duplicate ids';
+		$result = $this->wtToLint( "<div id='one'>Hi</div><div id='one'>Ho</div>" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'duplicate-ids', $result[0]['type'], $desc );
+		$this->assertEquals( [ 22, 44, 14, 6 ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params']['id'] ), $desc );
+		$this->assertEquals( 'one', $result[0]['params']['id'], $desc );
+
+		$desc = 'should lint duplicate ids from templates';
+		$result = $this->wtToLint( "{{1x|1=<div id='one'>Hi</div>}}{{1x|1=<div id='one'>Ho</div>}}" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'duplicate-ids', $result[0]['type'], $desc );
+		$this->assertEquals( [ 31, 62, null, null ], $result[0]['dsr'], $desc );
+		$this->assertTrue( isset( $result[0]['params']['id'] ), $desc );
+		$this->assertEquals( 'one', $result[0]['params']['id'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
+
+		$desc = 'should not lint duplicate ids from headings';
+		$result = $this->wtToLint( "== Hi ho ==\n== Hi ho ==" );
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = 'should maybe lint ids that would conflict with headings';
+		$result = $this->wtToLint( "==hi==\n<div id='hi'>ho</div>" );
+		$this->assertCount( 0, $result, $desc );
+	}
+
 }

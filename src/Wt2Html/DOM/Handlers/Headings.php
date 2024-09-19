@@ -200,6 +200,7 @@ class Headings {
 		// consistent when handling this edge case, and in the common
 		// case (where heading ids won't conflict with ids elsewhere),
 		// matches PHP parser behavior.
+		// FIXME: Maybe we should lint this issue away
 		if ( !$node instanceof Element ) {
 			// Not an Element
 			return true;
