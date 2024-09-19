@@ -299,6 +299,20 @@ class Title implements LinkTarget {
 	}
 
 	/**
+	 * Get the prefixed title with spaces, plus any fragment
+	 * (part beginning with '#')
+	 *
+	 * @return string The prefixed title, with spaces and the fragment, including '#'
+	 */
+	public function getFullText(): string {
+		$text = $this->getPrefixedText();
+		if ( $this->hasFragment() ) {
+			$text .= '#' . $this->getFragment();
+		}
+		return $text;
+	}
+
+	/**
 	 * Get the namespace ID
 	 * @return int
 	 */

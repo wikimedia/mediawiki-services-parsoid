@@ -6,12 +6,13 @@ namespace Wikimedia\Parsoid\Config;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorCompat;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Core\TOCData;
-use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\TitleValue;
 
 /**
  * Minimal implementation of a ContentMetadataCollector which just
@@ -20,6 +21,14 @@ use Wikimedia\Parsoid\Utils\Title;
  */
 class StubMetadataCollector implements ContentMetadataCollector {
 	use ContentMetadataCollectorCompat;
+
+	public const LINKTYPE_CATEGORY = 'category';
+	public const LINKTYPE_LANGUAGE = 'language';
+	public const LINKTYPE_INTERWIKI = 'interwiki';
+	public const LINKTYPE_LOCAL = 'local';
+	public const LINKTYPE_MEDIA = 'media';
+	public const LINKTYPE_SPECIAL = 'special';
+	public const LINKTYPE_TEMPLATE = 'template';
 
 	/** @var SiteConfig */
 	private $siteConfig;
@@ -62,11 +71,13 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @inheritDoc */
 	public function addCategory( $c, $sort = '' ): void {
-		if ( $c instanceof LinkTarget ) {
-			$c = $c->getDBkey();
-		}
 		// Numeric strings often become an `int` when passed to addCategory()
-		$this->collect( 'categories', (string)$c, $sort, self::MERGE_STRATEGY_WRITE_ONCE );
+		$this->collect(
+			self::LINKTYPE_CATEGORY,
+			$this->linkToString( $c ),
+			$sort,
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
 	}
 
 	/** @inheritDoc */
@@ -76,7 +87,16 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @inheritDoc */
 	public function addExternalLink( string $url ): void {
-		$this->collect( 'externallinks', '', $url );
+		$this->collect(
+			'externallinks',
+			$url,
+			'',
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
+	}
+
+	public function getExternalLinks(): array {
+		return array_keys( $this->get( 'externallinks' ) );
 	}
 
 	/** @inheritDoc */
@@ -147,25 +167,117 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @inheritDoc */
 	public function addLink( LinkTarget $link, $id = null ): void {
-		$this->collect( 'links', '', $this->linkToString( $link ) );
+		# Fragments are stripped when collecting.
+		$link = $link->createFragmentTarget( '' );
+		$type = self::LINKTYPE_LOCAL;
+
+		if ( $link->isExternal() ) {
+			$type = self::LINKTYPE_INTERWIKI;
+		} elseif ( $link->inNamespace( -1 ) ) {
+			$type = self::LINKTYPE_SPECIAL;
+		}
+
+		if ( $type === self::LINKTYPE_LOCAL && $link->getDbkey() === '' ) {
+			// Don't record self links - [[#Foo]]
+			return;
+		}
+		$this->collect(
+			$type,
+			$this->linkToString( $link ),
+			'',
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
 	}
 
 	/** @inheritDoc */
-	public function addImage( LinkTarget $name, $timestamp = null, $sha1 = null ): void {
-		$title = Title::newFromLinkTarget( $name, $this->siteConfig );
-		$this->collect( 'images', '', $title->getDBkey() );
+	public function addImage( LinkTarget $link, $timestamp = null, $sha1 = null ): void {
+		# Fragments are stripped when collecting.
+		$link = $link->createFragmentTarget( '' );
+		$this->collect(
+			self::LINKTYPE_MEDIA,
+			$this->linkToString( $link ),
+			'',
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
 	}
 
 	/** @inheritDoc */
 	public function addLanguageLink( LinkTarget $lt ): void {
-		$this->collect( 'language-link', '', $this->linkToString( $lt ) );
+		# Fragments are *not* stripped from language links.
+		# Language links are deduplicated by the interwiki prefix
+
+		# Note that, unlike some other types of collected metadata,
+		# language links are 'first wins' and the subsequent entries
+		# for the same language are ignored.
+		if ( $this->get( self::LINKTYPE_LANGUAGE, $lt->getInterwiki(), self::MERGE_STRATEGY_WRITE_ONCE ) !== null ) {
+			return;
+		}
+
+		$this->collect(
+			self::LINKTYPE_LANGUAGE,
+			$lt->getInterwiki(),
+			$this->linkToString( $lt ),
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
 	}
 
-	/** @return LinkTarget[] */
-	public function getLanguageLinks(): array {
-		return array_map( function ( $v ) {
-			return $this->stringToLink( $v );
-		}, $this->get( 'language-link', '' ) );
+	/**
+	 * Add a dependency on the given template.
+	 * @param LinkTarget $link
+	 * @param int $page_id
+	 * @param int $rev_id
+	 */
+	public function addTemplate( LinkTarget $link, int $page_id, int $rev_id ): void {
+		# Fragments are stripped when collecting.
+		$link = $link->createFragmentTarget( '' );
+		// XXX should store the page_id and rev_id
+		$this->collect(
+			self::LINKTYPE_TEMPLATE,
+			$this->linkToString( $link ),
+			'',
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
+	}
+
+	/**
+	 * @see ParserOutput::getLinkList()
+	 * @param string $linkType A link type, which should be a constant from
+	 *  this class
+	 * @return list<array{link:LinkTarget,pageid?:int,revid?:int,sort?:string,time?:string|false,sha1?:string|false}>
+	 */
+	public function getLinkList( string $linkType ): array {
+		$result = [];
+		switch ( $linkType ) {
+			case self::LINKTYPE_CATEGORY:
+				foreach ( $this->get( $linkType ) as $link => $sort ) {
+					$result[] = [
+						'link' => $this->stringToLink( (string)$link ),
+						'sort' => $sort,
+					];
+				}
+				break;
+			case self::LINKTYPE_LANGUAGE:
+				foreach ( $this->get( $linkType ) as $lang => $link ) {
+					$result[] = [
+						'link' => $this->stringToLink( $link ),
+					];
+				}
+				break;
+			case self::LINKTYPE_INTERWIKI:
+			case self::LINKTYPE_LOCAL:
+			case self::LINKTYPE_MEDIA:
+			case self::LINKTYPE_SPECIAL:
+			case self::LINKTYPE_TEMPLATE:
+				foreach ( $this->get( $linkType ) as $link => $ignore ) {
+					$result[] = [
+						'link' => $this->stringToLink( (string)$link ),
+					];
+				}
+				break;
+			default:
+				throw new UnreachableException( "Bad link type: $linkType" );
+		}
+		return $result;
 	}
 
 	/**
@@ -277,9 +389,10 @@ class StubMetadataCollector implements ContentMetadataCollector {
 
 	/** @return list<string> */
 	public function getCategoryNames(): array {
-		// array keys can get converted to int if numeric, so ensure
-		// return value is all strings.
-		return array_map( 'strval', array_keys( $this->get( 'categories' ) ) );
+		return array_map(
+			fn ( $item ) => $item['link']->getDBkey(),
+			$this->getLinkList( self::LINKTYPE_CATEGORY )
+		);
 	}
 
 	/**
@@ -287,7 +400,15 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 * @return ?string Sort key
 	 */
 	public function getCategorySortKey( string $name ): ?string {
-		return $this->get( 'categories', $name );
+		$tv = TitleValue::tryNew(
+			14, // NS_CATEGORY
+			$name
+		);
+		return $this->get(
+			self::LINKTYPE_CATEGORY,
+			$this->linkToString( $tv ),
+			self::MERGE_STRATEGY_WRITE_ONCE
+		);
 	}
 
 	/**
@@ -346,13 +467,6 @@ class StubMetadataCollector implements ContentMetadataCollector {
 		return $this->get( 'indicators' );
 	}
 
-	/**
-	 * @return array
-	 */
-	public function getImages(): array {
-		return $this->get( 'images', '' );
-	}
-
 	// helper functions for recording LinkTarget objects
 
 	/**
@@ -361,13 +475,12 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 * @return string
 	 */
 	private function linkToString( LinkTarget $lt ): string {
-		$title = Title::newFromLinkTarget( $lt, $this->siteConfig );
-		$text = $title->getPrefixedText();
-		$fragment = $title->getFragment();
-		if ( $fragment !== '' ) {
-			$text .= '#' . $fragment;
-		}
-		return $text;
+		return implode( '#', [
+			(string)$lt->getNamespace(),
+			$lt->getDBkey(),
+			$lt->getInterwiki(),
+			$lt->getFragment(),
+		] );
 	}
 
 	/**
@@ -377,6 +490,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	 * @return LinkTarget
 	 */
 	private function stringToLink( string $s ): LinkTarget {
-		return Title::newFromText( $s, $this->siteConfig );
+		[ $namespace, $dbkey, $interwiki, $fragment ] = explode( '#', $s, 4 );
+		return TitleValue::tryNew( (int)$namespace, $dbkey, $fragment, $interwiki );
 	}
 }

@@ -21,6 +21,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
+use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 
@@ -545,16 +546,49 @@ class TestRunner {
 
 		// 'showtitle' not yet supported
 
-		if ( isset( $opts['ill'] ) ) {
-			$after[] = implode( ' ', $output->getLanguageLinks() );
-		}
-
+		// unlike other link types, this dumps the 'sort' property as well
 		if ( isset( $opts['cat'] ) ) {
-			foreach ( $output->getCategoryNames() as $name ) {
-				$sortkey = $output->getCategorySortKey( $name );
+			$defaultSortKey = $output->getPageProperty( 'defaultsort' ) ?? '';
+			foreach (
+				$output->getLinkList( StubMetadataCollector::LINKTYPE_CATEGORY )
+				as [ 'link' => $link, 'sort' => $sort ]
+			) {
+				$sortkey = $sort ?: $defaultSortKey;
+				$name = $link->getDBkey();
 				$after[] = "cat=$name sort=$sortkey";
 			}
 		}
+
+		if ( isset( $opts['extlinks'] ) ) {
+			foreach ( $output->getExternalLinks() as $url => $ignore ) {
+				$after[] = "extlink=$url";
+			}
+		}
+
+		// Unlike other link types, this is stored as text, not dbkey
+		if ( isset( $opts['ill'] ) ) {
+			foreach (
+				$output->getLinkList( StubMetadataCollector::LINKTYPE_LANGUAGE )
+				as [ 'link' => $ll ]
+			) {
+				$after[] = "ill=" . Title::newFromLinkTarget( $ll, $this->siteConfig )->getFullText();
+			}
+		}
+
+		$linkoptions = [
+			[ 'iwl', 'iwl=', StubMetadataCollector::LINKTYPE_INTERWIKI ],
+			[ 'links', 'link=', StubMetadataCollector::LINKTYPE_LOCAL ],
+			[ 'special', 'special=', StubMetadataCollector::LINKTYPE_SPECIAL ],
+			[ 'templates', 'template=', StubMetadataCollector::LINKTYPE_TEMPLATE ],
+		];
+		foreach ( $linkoptions as [ $optName, $prefix, $type ] ) {
+			if ( isset( $opts[$optName] ) ) {
+				foreach ( $output->getLinkList( $type ) as [ 'link' => $ll ] ) {
+					$after[] = $prefix . Title::newFromLinkTarget( $ll, $this->siteConfig )->getPrefixedDBkey();
+				}
+			}
+		}
+
 		if ( isset( $opts['extension'] ) ) {
 			$extList = $opts['extension'];
 			if ( !is_array( $extList ) ) {
@@ -596,7 +630,11 @@ class TestRunner {
 			}
 		}
 		if ( isset( $opts['showmedia'] ) ) {
-			$after[] = 'images=' . implode( ', ', $output->getImages() );
+			$images = array_map(
+				fn ( $item ) => $item['link']->getDBkey(),
+				$output->getLinkList( StubMetadataCollector::LINKTYPE_MEDIA )
+			);
+			$after[] = 'images=' . implode( ', ', $images );
 		}
 		if ( $metadataExpected === null ) {
 			// legacy format, add $before and $after to $doc

@@ -263,9 +263,6 @@
         "selser [2]": "12umu83<div>hello world</div/>",
         "selser [[2]]": "<div>1c5s34thello world</div/>"
     },
-    "Duplicate interlanguage links (T26502)": {
-        "metadata": "es:1 es:2 fr:1 fr:2"
-    },
     "Empty LI (T49673)": {
         "wt2wt": "*a\n*\n*\n*b",
         "html2wt": "* a\n*\n*\n* b",
@@ -544,9 +541,6 @@
         "selser [0,3,[4]]": "'''Bold paragraph\n\ni5pa1",
         "selser [[2],4,2]": "19nmwq1'''Bold paragraph\n\ndh4zbb\n\nbwvwda\n\nNew wiki paragraph",
         "selser [0,0,2]": "'''Bold paragraph\n\n10pnlgs\n\nNew wiki paragraph"
-    },
-    "Interlanguage links": {
-        "metadata": "es:Alimento fr:Nourriture zh:食品"
     },
     "Internal link with is link trail and link prefix": {
         "html2wt": "[[Mótmælendatrú|xxxar]]\n[[Mótmælendatrú|mótmælendatrúar]]\n[[Söfnuður|mótmælendasöfnuður]]\n[[Söfnuður|mótmælendasöfnuðir]]\n[[Söfnuður|mótmælendasöfnuðirxxx]]\n"

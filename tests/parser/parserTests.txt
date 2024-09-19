@@ -7691,8 +7691,8 @@ ill=zh:食品
 <link rel="mw:PageProp/Language" href="http://zh.wikipedia.org/wiki/食品"/>
 !! end
 
-# Known difference: parsoid does not throw away duplicate language links.
-# Metadata are going to be deduplicated in the LinksUpdate job
+# Integrated-mode parsoid behavior will match other modes after
+# I82a05a51d94782ebb9fa87ff889ca0f633b3e15c is merged in core.
 !! test
 Duplicate interlanguage links (T26502)
 !! options
@@ -7702,10 +7702,10 @@ ill
 [[es:2]]
 [[fr:1]]
 [[fr:2]]
-!! metadata/php
+!! metadata
 ill=es:1
 ill=fr:1
-!! metadata/parsoid
+!! metadata/parsoid+integrated
 ill=es:1
 ill=es:2
 ill=fr:1
