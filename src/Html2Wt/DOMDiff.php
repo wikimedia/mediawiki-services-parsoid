@@ -54,8 +54,10 @@ class DOMDiff {
 	 */
 	public $specializedAttribHandlers;
 
-	private function nextNonTemplateSibling( Node $node ): ?Node {
-		if ( WTUtils::isEncapsulationWrapper( $node ) ) {
+	public bool $skipEncapsulatedContent = true;
+
+	private function nextAnalyzableSibling( Node $node ): ?Node {
+		if ( WTUtils::isEncapsulationWrapper( $node ) && $this->skipEncapsulatedContent ) {
 			return WTUtils::skipOverEncapsulatedContent( $node );
 		}
 		return $node->nextSibling;
@@ -256,7 +258,7 @@ class DOMDiff {
 							$newNode = $lookaheadNode;
 							break;
 						}
-						$lookaheadNode = self::nextNonTemplateSibling( $lookaheadNode );
+						$lookaheadNode = self::nextAnalyzableSibling( $lookaheadNode );
 					}
 				}
 
@@ -284,7 +286,7 @@ class DOMDiff {
 							// between block nodes).
 							$isBlockNode = WTUtils::isBlockNodeWithVisibleWT( $lookaheadNode );
 						}
-						$lookaheadNode = self::nextNonTemplateSibling( $lookaheadNode );
+						$lookaheadNode = self::nextAnalyzableSibling( $lookaheadNode );
 					}
 				}
 
@@ -330,9 +332,9 @@ class DOMDiff {
 
 			// And move on to the next pair (skipping over template HTML)
 			if ( $baseNode && $newNode ) {
-				$baseNode = self::nextNonTemplateSibling( $baseNode );
+				$baseNode = self::nextAnalyzableSibling( $baseNode );
 				if ( !$dontAdvanceNewNode ) {
-					$newNode = self::nextNonTemplateSibling( $newNode );
+					$newNode = self::nextAnalyzableSibling( $newNode );
 				}
 			}
 		}
@@ -342,7 +344,7 @@ class DOMDiff {
 			$this->debug( '--found trailing new node: inserted--' );
 			$this->markNode( $newNode, DiffMarkers::INSERTED );
 			$foundDiffOverall = true;
-			$newNode = self::nextNonTemplateSibling( $newNode );
+			$newNode = self::nextAnalyzableSibling( $newNode );
 		}
 
 		// If there are extra base nodes, something was deleted. Mark the parent as
@@ -400,9 +402,13 @@ class DOMDiff {
 				$subtreeDiffers = $ext->diffHandler(
 					$this->extApi, [ $this, 'doDOMDiff' ], $baseNode, $newNode
 				);
-			} else {
+			} elseif ( $this->skipEncapsulatedContent ) {
 				// Otherwise, for encapsulated content, we don't know about the subtree.
 				$subtreeDiffers = false;
+			} else {
+				$this->debug( '--shallow equal (encapsulated): recursing--' );
+				// Recursively diff subtrees if not template-like content
+				$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
 			}
 		} else {
 			// FIXME: Maybe $editNode should be marked as inserted to avoid

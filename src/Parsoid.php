@@ -22,6 +22,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Logger\LintLogger;
+use Wikimedia\Parsoid\Utils\ComputeSelectiveStats;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -152,7 +153,7 @@ class Parsoid {
 	 * @param ContentMetadataCollector $metadata
 	 * @param array $options See wikitext2html.
 	 * @param ?SelectiveUpdateData $selparData See wikitext2html.
-	 * @return array
+	 * @return array{0:Env,1:Document,2:?string}
 	 */
 	private function parseWikitext(
 		PageConfig $pageConfig,
@@ -217,10 +218,25 @@ class Parsoid {
 	 *   'wtVariantLanguage'    => (Bcp47Code) If non-null, the language variant used for wikitext.
 	 *   'logLinterData'        => (bool) Should we log linter data if linting is enabled?
 	 *   'linterOverrides'      => (array) Override the site linting configs.
+	 *   // Debugging options, not for use in production
 	 *   'traceFlags'           => (array) associative array with tracing options
 	 *   'dumpFlags'            => (array) associative array with dump options
 	 *   'debugFlags'           => (array) associative array with debug options
 	 *   'logLevels'            => (string[]) Levels to log
+	 *   // Experimental options, not considered stable
+	 *   'sampleStats'          => (bool) If true, okay to perform "expensive"
+	 *                             analysis to generate metrics.
+	 *   'renderReason'         => (?string) Passed through from MediaWiki core
+	 *                             to classify metrics; see
+	 *                             ParserOptions::getRenderReason()
+	 *   'previousInput'        => (?PageConfig) wikitext, revision ID, etc of
+	 *                             some recent parse of this page.
+	 *                             Not guaranteed to be usable for selective
+	 *                             update, and could even be from a "newer"
+	 *                             revision (if this is a render of an old
+	 *                             revision).
+	 *   'previousOutput'       => (?PageBundle) output of the prior parse of
+	 *                             'previousInput'
 	 * ]
 	 * @param ?array &$headers
 	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
@@ -264,7 +280,9 @@ class Parsoid {
 			];
 		}
 
-		$this->recordParseMetrics( $env, $parseTime, $out );
+		$this->recordParseMetrics(
+			$env, $parseTime, $out, $headers, $contentmodel, $options
+		);
 
 		if ( $env->pageBundle ) {
 			return new PageBundle(
@@ -283,7 +301,9 @@ class Parsoid {
 	 *
 	 */
 	private function recordParseMetrics(
-		Env $env, float $parseTime, array $out
+		Env $env, float $parseTime,
+		array $out, ?array $headers, string $contentmodel,
+		array $options
 	) {
 		$metrics = $this->siteConfig->metrics();
 		if ( !$metrics ) {
@@ -347,6 +367,45 @@ class Parsoid {
 				'wt2html_msPerKB',
 				[]
 			);
+		}
+
+		// Expensive analyses: sampleStats is randomly sampled will not be
+		// true "often"
+		$doSample = $options['sampleStats'] ??
+			$options['sample_stats'] ?? // temporary back-compat
+			false;
+		if ( !$doSample ) {
+			return;
+		}
+
+		try {
+			// create new page bundle for this computation to ensure we
+			// don't inadvertently corrupt the main document result.
+			$siteConfig = $env->getSiteConfig();
+			$newPb = new PageBundle(
+				$out['html'],
+				$out['pb']->parsoid, $out['pb']->mw ?? null,
+				$env->getOutputContentVersion(),
+				$headers,
+				$contentmodel
+			);
+			$labels = ComputeSelectiveStats::classify(
+				$env,
+				$options['previousInput'] ?? null,
+				$options['previousOutput'] ?? null,
+				$pageConfig,
+				$newPb
+			);
+			$labels['wiki'] = $siteConfig->iwp();
+			$labels['reason'] = $options['renderReason'] ?? 'unknown';
+
+			$siteConfig->incrementCounter( 'selective_update_total', $labels );
+			$siteConfig->incrementCounter( 'selective_update_seconds', $labels, $parseTime / 1000. );
+		} catch ( \Throwable $t ) {
+			// Don't ever allow bugs in the classification code to
+			// impact the availability of content for read views/editing,
+			// just log.
+			$env->log( 'warn', 'Classification failure', $t->getTraceAsString() );
 		}
 	}
 

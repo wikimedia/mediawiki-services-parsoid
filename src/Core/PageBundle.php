@@ -145,7 +145,7 @@ class PageBundle {
 	public static function apply( Document $doc, PageBundle $pb ): void {
 		DOMUtils::visitDOM(
 			DOMCompat::getBody( $doc ),
-			static function ( Node $node ) use ( &$pb ): void {
+			static function ( Node $node ) use ( $pb ): void {
 				if ( $node instanceof Element ) {
 					$id = DOMCompat::getAttribute( $node, 'id' );
 					if ( $id === null ) {
