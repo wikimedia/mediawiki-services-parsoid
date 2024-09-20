@@ -19,8 +19,12 @@ Magic links: internal link to RFC (T2479)
 
 !! test
 Magic links: RFC (T2479)
+!! options
+cat
 !! wikitext
 RFC 822
+!! metadata
+cat=Pages_using_RFC_magic_links sort=
 !! html/php
 <p><a class="external mw-magiclink-rfc" rel="nofollow" href="https://tools.ietf.org/html/rfc822">RFC 822</a>
 </p>
@@ -58,8 +62,12 @@ RFC
 
 !! test
 Magic links: ISBN (T3937)
+!! options
+cat
 !! wikitext
 ISBN 0-306-40615-2
+!! metadata
+cat=Pages_using_ISBN_magic_links sort=
 !! html/php
 <p><a href="/wiki/Special:BookSources/0306406152" class="internal mw-magiclink-isbn">ISBN 0-306-40615-2</a>
 </p>
@@ -114,8 +122,12 @@ PMID 1234
 
 !! test
 Magic links: PMID (T67278)
+!! options
+cat
 !! wikitext
 This is PMID 1234 but thisPMID 1234 is not PMID 1234linked.
+!! metadata
+cat=Pages_using_PMID_magic_links sort=
 !! html/php
 <p>This is <a class="external mw-magiclink-pmid" rel="nofollow" href="//www.ncbi.nlm.nih.gov/pubmed/1234?dopt=Abstract">PMID 1234</a> but thisPMID 1234 is not PMID 1234linked.
 </p>
@@ -161,10 +173,13 @@ X[https://tools.ietf.org/html/rfc1234 foo]
 Magic links: All disabled (T47942)
 !! config
 wgEnableMagicLinks={"ISBN":false, "PMID":false, "RFC":false}
+!! options
+cat
 !! wikitext
 ISBN 0-306-40615-2
 PMID 1234
 RFC 4321
+!! metadata
 !! html
 <p>ISBN 0-306-40615-2
 PMID 1234

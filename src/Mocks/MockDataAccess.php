@@ -632,6 +632,9 @@ class MockDataAccess extends DataAccess {
 
 	private const TRACKING_CATEGORIES = [
 		'broken-file-category' => 'Pages with broken file links',
+		'magiclink-tracking-rfc' => 'Pages using RFC magic links',
+		'magiclink-tracking-isbn' => 'Pages using ISBN magic links',
+		'magiclink-tracking-pmid' => 'Pages using PMID magic links',
 	];
 
 	/** @inheritDoc */
