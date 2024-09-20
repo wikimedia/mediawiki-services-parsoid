@@ -18,6 +18,7 @@ use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Language\Language;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
+use Wikimedia\Parsoid\NodeData\DataMwError;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -1588,6 +1589,13 @@ class WikiLinkHandler extends TokenHandler {
 		return "./Special:FilePath/{$filePath}";
 	}
 
+	/**
+	 * @param Token $token
+	 * @param stdClass $target
+	 * @param list<DataMwError> $errs
+	 * @param ?array{url?:string} $info
+	 * @return TokenHandlerResult
+	 */
 	private function linkToMedia( Token $token, stdClass $target, array $errs, ?array $info ): TokenHandlerResult {
 		// Only pass in the url, since media links should not link to the thumburl
 		$imgHref = $info['url'] ?? $this->specialFilePath( $target->title );  // Copied from getPath
@@ -1626,7 +1634,7 @@ class WikiLinkHandler extends TokenHandler {
 			// Update data-mw
 			$dataMw = $token->dataMw ?? new DataMw;
 			if ( is_array( $dataMw->errors ?? null ) ) {
-				PHPUtils::pushArray( $dataMw->errors, $errs );
+				array_push( $dataMw->errors, ...$errs );
 			} else {
 				$dataMw->errors = $errs;
 			}
@@ -1655,9 +1663,9 @@ class WikiLinkHandler extends TokenHandler {
 			[ [ $title->getDBkey(), [ 'height' => null, 'width' => null ] ] ]
 		)[0];
 		if ( !$info ) {
-			$errs[] = [ 'key' => 'apierror-filedoesnotexist', 'message' => 'This image does not exist.' ];
+			$errs[] = new DataMwError( 'apierror-filedoesnotexist', [], 'This image does not exist.' );
 		} elseif ( isset( $info['thumberror'] ) ) {
-			$errs[] = [ 'key' => 'apierror-unknownerror', 'message' => $info['thumberror'] ];
+			$errs[] = new DataMwError( 'apierror-unknownerror', [], $info['thumberror'] );
 		}
 		return $this->linkToMedia( $token, $target, $errs, $info );
 	}

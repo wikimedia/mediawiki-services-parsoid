@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
 use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\NodeData\DataMwError;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -72,7 +73,7 @@ class ParsoidExtensionAPI {
 	 * an extension is returning a dom fragment, errors were encountered while
 	 * generating it and should be marked up with the mw:Error typeof.
 	 *
-	 * @var array
+	 * @var list<DataMwError>
 	 */
 	private $errors = [];
 
@@ -118,11 +119,7 @@ class ParsoidExtensionAPI {
 	 * @return DocumentFragment
 	 */
 	public function pushError( string $key, ...$params ): DocumentFragment {
-		$err = [ 'key' => $key ];
-		if ( count( $params ) > 0 ) {
-			$err['params'] = $params;
-		}
-		$this->errors[] = (object)$err; // T367141: should create Error object
+		$this->errors[] = new DataMwError( $key, $params );
 		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $key, $params );
 	}
 
@@ -212,6 +209,9 @@ class ParsoidExtensionAPI {
 		WTUtils::addLangI18nAttribute( $element, $lang, $name, $key, $params );
 	}
 
+	/**
+	 * @return list<DataMwError>
+	 */
 	public function getErrors(): array {
 		return $this->errors;
 	}

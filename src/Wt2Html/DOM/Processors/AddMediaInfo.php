@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
@@ -13,6 +12,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwError;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -401,20 +401,14 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 	private static function makeErr(
 		string $key, string $message, ?array $params = null
-	): stdClass {
-		$e = [ 'key' => $key, 'message' => $message ];
-		// Additional error info for clients that could fix the error.
-		if ( $params !== null ) {
-			$e['params'] = $params;
-		}
-		// T367141: this should be a real class type
-		return (object)$e;
+	): DataMwError {
+		return new DataMwError( $key, $params ?? [], $message );
 	}
 
 	/**
 	 * @param Element $container
 	 * @param Element $span
-	 * @param list<stdClass> $errs
+	 * @param list<DataMwError> $errs
 	 * @param DataMw $dataMw
 	 * @param ?string $alt
 	 */

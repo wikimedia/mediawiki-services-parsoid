@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 use Exception;
+use Wikimedia\Parsoid\NodeData\DataMwError;
 
 /**
  * Exception thrown to halt extension tag content parsing and produce standard
@@ -17,7 +18,7 @@ use Exception;
 class ExtensionError extends Exception {
 
 	/**
-	 * @var array
+	 * @var DataMwError
 	 */
 	public $err;
 
@@ -29,10 +30,7 @@ class ExtensionError extends Exception {
 		string $key = 'mw-extparse-error', ...$params
 	) {
 		parent::__construct();
-		$this->err = [ 'key' => $key ];
-		if ( count( $params ) > 0 ) {
-			$this->err['params'] = $params;
-		}
+		$this->err = new DataMwError( $key, $params );
 	}
 
 }
