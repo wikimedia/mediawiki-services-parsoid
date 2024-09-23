@@ -301,8 +301,8 @@ class Parsoid {
 			$mstr = 'wt';
 		}
 
-		$timing = Timing::fakeTiming( $this->siteConfig, $parseTime );
-		$timing->end( "entry.wt2html.{$mstr}.parse", 'wt2html_parse', [ 'type' => $mstr ] );
+		$timing = Timing::fakeTiming( $this->siteConfig, $parseTime, true );
+		$timing->end( "entry.wt2html.{$mstr}.parse", 'wt2html_parse_seconds', [ 'type' => $mstr ] );
 		$version = 'default';
 
 		if ( Semver::satisfies(
@@ -321,13 +321,13 @@ class Parsoid {
 		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $pageConfig->getPageMainContent() ) );
 		$timing->end(
 			"entry.wt2html.{$mstr}.size.input",
-			"wt2html_size_input",
+			"wt2html_size_input_bytes",
 			[ "type" => $mstr ]
 		);
 
 		$outSize = strlen( $out['html'] );
 		$timing = Timing::fakeTiming( $this->siteConfig, $outSize );
-		$timing->end( "entry.wt2html.{$mstr}.size.output", "wt2html_size_output", [ "type" => $mstr ] );
+		$timing->end( "entry.wt2html.{$mstr}.size.output", "wt2html_size_output_bytes", [ "type" => $mstr ] );
 
 		if ( $parseTime > 10 && $outSize > 100 ) {
 			// * Don't bother with this metric for really small parse times
@@ -340,9 +340,13 @@ class Parsoid {
 			// NOTE: This is slightly misleading since there are fixed costs
 			// for generating output like the <head> section and should be factored in,
 			// but this is good enough for now as a useful first degree of approxmation.
-			$timePerKB = $parseTime * 1024 / $outSize;
-			$timing = Timing::fakeTiming( $this->siteConfig, $timePerKB );
-			$timing->end( 'entry.wt2html.timePerKB', 'wt2html_timePerKB', [] );
+			$msPerKB = $parseTime * 1024 / $outSize;
+			$timing = Timing::fakeTiming( $this->siteConfig, $msPerKB );
+			$timing->end(
+				'entry.wt2html.timePerKB',
+				'wt2html_msPerKB',
+				[]
+			);
 		}
 	}
 
@@ -431,7 +435,7 @@ class Parsoid {
 
 		$htmlSize = $options['htmlSize'] ?? 0;
 		$timing = Timing::fakeTiming( $this->siteConfig, $htmlSize );
-		$timing->end( 'entry.html2wt.size.input', 'html2wt_size_input' );
+		$timing->end( 'entry.html2wt.size.input', 'html2wt_size_input_bytes' );
 
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$metrics->increment(
@@ -443,18 +447,22 @@ class Parsoid {
 			);
 		}
 
-		$timing = Timing::fakeTiming( $this->siteConfig, $serialTime );
-		$timing->end( 'entry.html2wt.total', 'html2wt_total', [] );
+		$timing = Timing::fakeTiming( $this->siteConfig, $serialTime, true );
+		$timing->end( 'entry.html2wt.total', 'html2wt_total_seconds', [] );
 
 		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $wikitext ) );
-		$timing->end( 'entry.html2wt.size.output', 'html2wt_size_output', [] );
+		$timing->end( 'entry.html2wt.size.output', 'html2wt_size_output_bytes', [] );
 
 		if ( $htmlSize ) {  // Avoid division by zero
 			// NOTE: the name timePerInputKB is misleading, since $htmlSize is
 			//       in characters, not bytes.
-			$timePerInputKB = $serialTime * 1024 / $htmlSize;
-			$timing = Timing::fakeTiming( $this->siteConfig, $timePerInputKB );
-			$timing->end( 'entry.html2wt.timePerInputKB', 'html2wt_timePerInputKB', [] );
+			$msPerKB = $serialTime * 1024 / $htmlSize;
+			$timing = Timing::fakeTiming( $this->siteConfig, $msPerKB );
+			$timing->end(
+				'entry.html2wt.timePerInputKB',
+				'html2wt_msPerKB',
+				[]
+			);
 		}
 	}
 

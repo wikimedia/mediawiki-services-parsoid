@@ -239,15 +239,19 @@ class ContentModelHandler extends IContentModelHandler {
 			$wtsType = 'noselser';
 		}
 
-		$setupTiming->end( 'html2wt.setup', 'html2wt_setup', [] );
+		$setupTiming->end( 'html2wt.setup', 'html2wt_setup_seconds', [] );
 
 		$preprocTiming = Timing::start( $siteConfig );
 		$this->preprocessEditedDOM( $env, $env->topLevelDoc );
-		$preprocTiming->end( 'html2wt.preprocess', 'html2wt_preprocess', [] );
+		$preprocTiming->end( 'html2wt.preprocess', 'html2wt_preprocess_seconds', [] );
 
 		$serializeTiming = Timing::start( $siteConfig );
 		$res = $serializer->serializeDOM( $env->topLevelDoc );
-		$serializeTiming->end( "html2wt.{$wtsType}.serialize", "html2wt_serialize", [ 'wts' => $wtsType ] );
+		$serializeTiming->end(
+			"html2wt.{$wtsType}.serialize",
+			"html2wt_serialize_seconds",
+			[ 'wts' => $wtsType ]
+		);
 
 		return $res;
 	}
