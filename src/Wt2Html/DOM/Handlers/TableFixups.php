@@ -483,9 +483,22 @@ class TableFixups {
 		// Build the attribute string
 		$frame = $dtState->options['frame'];
 		$prevCellSrc = PHPUtils::safeSubstr(
-			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length() );
+			$frame->getSrcText(), $prevDp->dsr->start, $prevDp->dsr->length()
+		);
+		$reparseSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth );
+
+		// The previous cell had NO_ATTRS, from the check above, but the cell
+		// ends in a vertical bar.  This isn't a scenario where we'll combine
+		// the cell content to form attributes, so there's no sense in trying
+		// to tokenize them below; they probably already failed during the
+		// original tokenizing  However, the trailing vertical probably does
+		// want to be hoisted into the next cell, to combine to form row syntax.
+		if ( substr( $reparseSrc, -1 ) === "|" ) {
+			return false;
+		}
+
 		// "|" or "!", but doesn't matter since we discard that anyway
-		$reparseSrc = substr( $prevCellSrc, $prevDp->dsr->openWidth ) . "|";
+		$reparseSrc .= "|";
 
 		// Reparse the attributish prefix
 		$env = $dtState->env;

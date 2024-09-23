@@ -6,6 +6,12 @@
 # all table fixup tests will move here.
 
 !! article
+Main Page
+!! text
+blah blah
+!! endarticle
+
+!! article
 Template:1x
 !! text
 {{{1}}}
@@ -141,6 +147,29 @@ parsoid=wt2html
 !! html/parsoid
 <table>
 <tbody><tr><td about="#mwt1" typeof="mw:Transclusion" class="foo" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["|class=\"foo\"|content|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>content</td><td about="#mwt1">foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Unsupported scenario: Templated cell not merging with previous cell and trailing vertical bar
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+| [[Main Page]] content|{{1x|1={{!}}foo}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> content</td>
+<td>foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr>
+<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> content</td>
+<td typeof="mw:Transclusion" data-mw='{"parts":["|", {"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td>
+</tr>
 </tbody></table>
 !! end
 
