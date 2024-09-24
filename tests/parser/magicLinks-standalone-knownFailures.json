@@ -1,4 +1,10 @@
 {
+    "ISBN code coverage": {
+        "html2wt": "ISBN 978-0-1234-56&#x20;789"
+    },
+    "ISBN length": {
+        "selser [0,2,[[3]],3,1]": "ISBN 123456789\n\nidpr0y\n\nISBN 12345678901"
+    },
     "Prefer PMID magic link, interwiki and magic links enabled (T145590#8608455)": {
         "selser [[[4]]]": "[[pmid:234|1pkzku0]]",
         "selser [[[2]]]": "[[pmid:234|124i68hPMID 234]]"

@@ -506,12 +506,6 @@
     "Horizontal ruler -- eats additional dashes on the same line": {
         "html2wt": "----"
     },
-    "ISBN code coverage": {
-        "html2wt": "ISBN 978-0-1234-56&#x20;789"
-    },
-    "ISBN length": {
-        "selser [0,2,[[3]],3,1]": "ISBN 123456789\n\nidpr0y\n\nISBN 12345678901"
-    },
     "Ignore pipe between table row attributes": {
         "wt2wt": "{|\n|quux\n|- id=\"foo\" style=\"color: red\" |\n|bar\n|}",
         "html2wt": "{|\n|quux\n|- id=\"foo\" style=\"color: red\"\n|bar\n|}",
