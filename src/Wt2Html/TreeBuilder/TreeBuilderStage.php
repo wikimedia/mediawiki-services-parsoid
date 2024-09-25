@@ -89,7 +89,7 @@ class TreeBuilderStage extends PipelineStage {
 		 * -------------------------------------------------------------------- */
 		$this->tableDepth = 0;
 
-		$this->remexPipeline = $this->env->fetchRemexPipeline( $this->atTopLevel );
+		$this->remexPipeline = $this->env->fetchRemexPipeline( $this->toFragment );
 		$this->textContentBuffer = '';
 		$this->lastToken = null;
 	}
@@ -127,9 +127,7 @@ class TreeBuilderStage extends PipelineStage {
 			);
 		}
 
-		if ( $this->atTopLevel ) {
-			$node = DOMCompat::getBody( $this->remexPipeline->doc );
-		} else {
+		if ( $this->toFragment ) {
 			// This is similar to DOMCompat::setInnerHTML() in that we can
 			// consider it equivalent to the fragment parsing algorithm,
 			// https://html.spec.whatwg.org/#html-fragment-parsing-algorithm
@@ -137,6 +135,8 @@ class TreeBuilderStage extends PipelineStage {
 			DOMUtils::migrateChildrenBetweenDocs(
 				DOMCompat::getBody( $this->remexPipeline->doc ), $node
 			);
+		} else {
+			$node = DOMCompat::getBody( $this->remexPipeline->doc );
 		}
 
 		return $node;

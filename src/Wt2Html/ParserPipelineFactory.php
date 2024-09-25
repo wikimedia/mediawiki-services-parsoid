@@ -595,7 +595,10 @@ class ParserPipelineFactory {
 
 	public function parse( string $src ): Document {
 		$pipe = $this->getPipeline( 'fullparse-wikitext-to-dom' );
-		$pipe->init( [ 'frame' => $this->env->topFrame ] );
+		$pipe->init( [
+			'frame' => $this->env->topFrame,
+			'toFragment' => false,
+		] );
 		// Top-level doc parsing always start in SOL state
 		return $pipe->parseChunkily( $src, [ 'sol' => true ] )->ownerDocument;
 	}
@@ -608,7 +611,10 @@ class ParserPipelineFactory {
 	 */
 	public function selectiveDOMUpdate( SelectiveUpdateData $selparData, array $options = [] ): Document {
 		$pipe = $this->getPipeline( 'selective-update-dom-to-dom' );
-		$pipe->init( [ 'frame' => $this->env->topFrame ] );
+		$pipe->init( [
+			'frame' => $this->env->topFrame,
+			'toFragment' => false,
+		] );
 		return $pipe->selectiveParse( $selparData, $options );
 	}
 

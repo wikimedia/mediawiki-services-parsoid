@@ -205,7 +205,10 @@ class ParserPipeline {
 		// maintained across all pipelines used by the document.
 		// (Ex: Cite state)
 		$this->atTopLevel = $this->alwaysToplevel ?: $initialState['toplevel'];
-		$this->resetState( [ 'toplevel' => $this->atTopLevel ] );
+		$this->resetState( [
+			'toplevel' => $this->atTopLevel,
+			'toFragment' => $initialState['toFragment'] ?? true,
+		] );
 
 		// Set frame
 		$frame = $initialState['frame'];

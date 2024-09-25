@@ -41,6 +41,8 @@ abstract class PipelineStage {
 	/** Defaults to false and resetState initializes it */
 	protected bool $atTopLevel = false;
 
+	protected bool $toFragment = true;
+
 	/** @var Frame */
 	protected $frame;
 
@@ -78,6 +80,7 @@ abstract class PipelineStage {
 	public function resetState( array $options ): void {
 		/* Default implementation */
 		$this->atTopLevel = $options['toplevel'] ?? false;
+		$this->toFragment = $options['toFragment'] ?? true;
 	}
 
 	/**

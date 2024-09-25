@@ -834,6 +834,7 @@ class Env {
 	 */
 	public function setupTopLevelDoc( ?Document $topLevelDoc = null ) {
 		if ( $topLevelDoc ) {
+			$this->remexPipeline = null;
 			$this->topLevelDoc = $topLevelDoc;
 		} else {
 			$this->remexPipeline = new RemexPipeline( $this );
@@ -842,8 +843,8 @@ class Env {
 		DOMDataUtils::prepareDoc( $this->topLevelDoc );
 	}
 
-	public function fetchRemexPipeline( bool $atTopLevel ): RemexPipeline {
-		if ( $atTopLevel ) {
+	public function fetchRemexPipeline( bool $toFragment ): RemexPipeline {
+		if ( !$toFragment ) {
 			return $this->remexPipeline;
 		} else {
 			$pipeline = new RemexPipeline( $this );
