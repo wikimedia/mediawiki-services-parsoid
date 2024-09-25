@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
@@ -143,14 +144,19 @@ class TokenStreamPatcher extends TokenHandler {
 	private function reprocessTokens( $srcOffset, array $toks, bool $popEOF = false ): array {
 		// Update tsr
 		TokenUtils::shiftTokenTSR( $toks, $srcOffset );
-		$pipe = $this->env->getPipelineFactory()->getPipeline( 'peg-tokens-to-expanded-tokens' );
-		$pipe->init( [
-			'frame' => $this->manager->getFrame(),
-			'toplevel' => $this->atTopLevel,
-			// The tokens should be reprocessed in the context of the original frame's source
-			'srcText' => $this->manager->getFrame()->getSrcText()
-		] );
-		$toks = (array)$pipe->parse( $toks, [] );
+
+		$toks = (array)PipelineUtils::processContentInPipeline(
+			$this->env,
+			$this->manager->getFrame(),
+			$toks,
+			[
+				'pipelineType' => 'peg-tokens-to-expanded-tokens',
+				'pipelineOpts' => [],
+				'sol' => true,
+				'toplevel' => $this->atTopLevel,
+			]
+		);
+
 		if ( $popEOF ) {
 			array_pop( $toks ); // pop EOFTk
 		}

@@ -84,6 +84,7 @@ class PipelineUtils {
 	 *    - SourceRange  srcOffsets - if set, defines the range within the
 	 *          source text that $content corresponds to
 	 *    - bool   sol Whether tokens should be processed in start-of-line context.
+	 *    - bool   toplevel Whether the pipeline is considered atTopLevel
 	 * @return Token[]|DocumentFragment (depending on pipeline type)
 	 */
 	public static function processContentInPipeline(
@@ -96,7 +97,8 @@ class PipelineUtils {
 		);
 
 		$pipeline->init( [
-			'toplevel' => false, // NOTE: some pipelines force toplevel to true
+			// NOTE: some pipelines force toplevel to true
+			'toplevel' => $opts['toplevel'] ?? false,
 			'frame' => $frame,
 			'tplArgs' => $opts['tplArgs'] ?? null,
 			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
