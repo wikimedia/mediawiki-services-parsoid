@@ -34,14 +34,16 @@ class ContentModelHandler extends IContentModelHandler {
 
 	/**
 	 * Bring DOM to expected canonical form
-	 * @param Env $env
-	 * @param Document $doc
 	 */
-	private function canonicalizeDOM( Env $env, Document $doc ): void {
+	private function canonicalizeDOM(
+		Env $env, Document $doc, bool $isSelectiveUpdate
+	): void {
 		$body = DOMCompat::getBody( $doc );
 
 		// Convert DOM to internal canonical form
-		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
+		DOMDataUtils::visitAndLoadDataAttribs( $body, [
+			'markNew' => !$isSelectiveUpdate,
+		] );
 
 		// Update DSR offsets if necessary.
 		ContentUtils::convertOffsets(
@@ -119,7 +121,7 @@ class ContentModelHandler extends IContentModelHandler {
 			$doc = ContentUtils::createDocument( $selserData->revHTML, true );
 		}
 
-		$this->canonicalizeDOM( $env, $doc );
+		$this->canonicalizeDOM( $env, $doc, false );
 		$selserData->revDOM = $doc;
 	}
 
@@ -158,22 +160,20 @@ class ContentModelHandler extends IContentModelHandler {
 	public function toDOM(
 		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
 	): Document {
-		$pipelineFactory = $this->env->getPipelineFactory();
+		$env = $this->env;
+		$pipelineFactory = $env->getPipelineFactory();
 
 		if ( $selectiveUpdateData ) {
-			// TODO: The use of ContentUtils::createAndLoadDocument is discouraged
-			// but maybe combining with $env->setupTopLevelDoc can make something
-			// valid.
 			$doc = ContentUtils::createDocument( $selectiveUpdateData->revHTML, true );
-			$this->env->setupTopLevelDoc( $doc );
-			DOMDataUtils::visitAndLoadDataAttribs( DOMCompat::getBody( $doc ) );
+			$env->setupTopLevelDoc( $doc );
+			$this->canonicalizeDOM( $env, $env->topLevelDoc, true );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
 			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
 		} else {
 			$doc = $pipelineFactory->parse(
 				// @phan-suppress-next-line PhanDeprecatedFunction not ready for topFrame yet
-				$this->env->getPageConfig()->getPageMainContent()
+				$env->getPageConfig()->getPageMainContent()
 			);
 		}
 
@@ -227,7 +227,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$siteConfig = $env->getSiteConfig();
 		$setupTiming = Timing::start( $siteConfig );
 
-		$this->canonicalizeDOM( $env, $env->topLevelDoc );
+		$this->canonicalizeDOM( $env, $env->topLevelDoc, false );
 
 		$serializerOpts = [ 'selserData' => $selserData ];
 		if ( $selserData ) {
