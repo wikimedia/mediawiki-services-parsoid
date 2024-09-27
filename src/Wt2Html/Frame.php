@@ -183,32 +183,32 @@ class Frame {
 	}
 
 	/**
-	 * @param array $args
-	 * @param KV[] $attribs
-	 * @param array $toks
-	 * @return array
-	 */
-	private function lookupArg( array $args, array $attribs, array $toks ): array {
-		$argName = trim( TokenUtils::tokensToString( $toks ) );
-		$res = $args['dict'][$argName] ?? null;
-
-		if ( $res !== null ) {
-			$res = isset( $args['namedArgs'][$argName] ) ? TokenUtils::tokenTrim( $res ) : $res;
-			return is_string( $res ) ? [ $res ] : $res;
-		} elseif ( count( $attribs ) > 1 ) {
-			return $this->expandArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
-		} else {
-			return array_merge( [ '{{{' ], $toks, [ '}}}' ] );
-		}
-	}
-
-	/**
 	 * @param Token $tplArgToken
 	 * @return array tokens representing the arg value
 	 */
 	public function expandTemplateArg( Token $tplArgToken ): array {
+		$args = $this->args->named();
 		$attribs = $tplArgToken->attribs;
-		$toks = $this->expandArg( $attribs[0]->k, $attribs[0]->srcOffsets->key );
-		return $this->lookupArg( $this->args->named(), $attribs, $toks );
+
+		$expandedKeyToks = $this->expandArg(
+			$attribs[0]->k,
+			$attribs[0]->srcOffsets->key
+		);
+
+		$argName = trim( TokenUtils::tokensToString( $expandedKeyToks ) );
+		$res = $args['dict'][$argName] ?? null;
+
+		if ( $res !== null ) {
+			$res = isset( $args['namedArgs'][$argName] ) ?
+				TokenUtils::tokenTrim( $res ) : $res;
+			return is_string( $res ) ? [ $res ] : $res;
+		} elseif ( count( $attribs ) > 1 ) {
+			return $this->expandArg(
+				$attribs[1]->v,
+				$attribs[1]->srcOffsets->value
+			);
+		} else {
+			return array_merge( [ '{{{' ], $expandedKeyToks, [ '}}}' ] );
+		}
 	}
 }
