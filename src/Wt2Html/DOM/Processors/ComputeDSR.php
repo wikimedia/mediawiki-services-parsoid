@@ -740,8 +740,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		$opts = [ 'attrExpansion' => $options['attrExpansion'] ?? false ];
 		$this->computeNodeDSR( $frame, $root, $startOffset, $endOffset, 0, $opts );
 
-		if ( $atTopLevel ) {
-			'@phan-var Element $root';  // @var Element $root
+		if ( $root instanceof Element ) {
 			$dp = DOMDataUtils::getDataParsoid( $root );
 			$dp->dsr = new DomSourceRange( $startOffset, $endOffset, 0, 0 );
 		}

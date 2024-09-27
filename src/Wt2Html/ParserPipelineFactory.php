@@ -279,7 +279,7 @@ class ParserPipelineFactory {
 
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
 		'update-template', 'linter', 'lang-converter', /* FIXME: Are lang converters idempotent? */
-		'dedupe-heading-ids', 'saveDP'
+		'heading-ids', 'sections', 'saveDP'
 	];
 
 	private static $stages = [
