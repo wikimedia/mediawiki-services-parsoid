@@ -198,7 +198,7 @@ class Frame {
 		} elseif ( count( $attribs ) > 1 ) {
 			return $this->expandArg( $attribs[1]->v, $attribs[1]->srcOffsets->value );
 		} else {
-			return [ '{{{' . $argName . '}}}' ];
+			return array_merge( [ '{{{' ], $toks, [ '}}}' ] );
 		}
 	}
 
