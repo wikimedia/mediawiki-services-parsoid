@@ -1978,9 +1978,6 @@
         "selser [3,2,0]": "1kxc4ot\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]",
         "selser [4,2,2]": "1c1qznt\n\nklxc2j\n\n1ixrma7\n[[Category:Bugs-{{#if:blah|Regression|None}}-{{#if:blah|2020|None}}|fragment]]"
     },
-    "T2041: Template parameters shown as broken links": {
-        "html2wt": "<nowiki>{{{parameter}}}</nowiki>\n"
-    },
     "T21052 U+3000 IDEOGRAPHIC SPACE should terminate bracketed external links": {
         "wt2wt": "[http://www.example.org/ ideograms]",
         "html2wt": "[http://www.example.org/ ideograms]\n",
