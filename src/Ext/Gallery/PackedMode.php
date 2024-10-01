@@ -27,8 +27,10 @@ class PackedMode extends TraditionalMode {
 
 	/** @inheritDoc */
 	public function dimensions( Opts $opts ): string {
-		$size = floor( $opts->imageHeight * $this->scale );
-		return "x{$size}px";
+		$height = floor( $opts->imageHeight * $this->scale );
+		// The legacy parser does this so that the width is not the contraining factor
+		$width = floor( ( $opts->imageHeight * 10 + 100 ) * $this->scale );
+		return "{$width}x{$height}px";
 	}
 
 	/** @inheritDoc */
