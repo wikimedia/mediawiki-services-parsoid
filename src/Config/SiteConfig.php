@@ -488,7 +488,14 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Interwiki link data
+	 * Interwiki link data.
+	 *
+	 * Note that the order of the keys in this array is significant: if more
+	 * than one prefix matches a given URL during html2wt conversion, the
+	 * *first* match is used.  If you want `wikitech` to be used instead of
+	 * `labsconsole`, for example, the `'wikitech'=>[....]` key needs to
+	 * enumerate first.
+	 *
 	 * @return array<string,array> Keys are interwiki prefixes, values are arrays with the following keys:
 	 *   - prefix: (string) The interwiki prefix, same as the key.
 	 *   - url: (string) Target URL, containing a '$1' to be replaced by the interwiki target.
