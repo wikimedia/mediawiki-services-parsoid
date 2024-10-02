@@ -13,7 +13,7 @@ require('../core-upgrade.js');
  * $PARSOID is the path to a checked out git copy of Parsoid
  * $TARGET_REPO identifies which set of parserTests we're synchronizing.
  *   This should be one of the top-level keys in tests/parserTests.json,
- *   like 'core' or 'Cite'.
+ *   like 'core' or 'TMH'.
  *   The `path` key under that gives the gerrit project name for the repo; see
  *       https://gerrit.wikimedia.org/r/admin/repos/$project
  * $REPO_PATH is the path to a checked out git copy of the repo containing
@@ -51,7 +51,7 @@ require('../core-upgrade.js');
  *
  *   For the core repo, you also need to update integrated mode failures
  *   $ cd $TARGET_REPO
- *   $ php tests/parser/parserTests.php --wt2html --wt2wt --updateKnownFailures --dir $PARSOID/tests/parser
+ *   $ php tests/parser/parserTests.php --parsoid --updateKnownFailures --dir $PARSOID/tests/parser
  *
  *   $ git add -u
  *   $ git commit -m "Sync parserTests with core"
