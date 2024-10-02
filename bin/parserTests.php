@@ -511,7 +511,12 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( ScriptUtils::booleanOption( $options['knownFailures'] ?? null ) && $expectFail !== null ) {
 			// compare with remembered output
 			$offsetType = $options['offsetType'] ?? 'byte';
-			if ( TestUtils::normalizeAbout( $expectFail ) !== TestUtils::normalizeAbout( $actual['raw'] ) && $offsetType === 'byte' ) {
+
+			if (
+				$offsetType === 'byte' &&
+				$item->normalizeKnownFailure( $expectFail ) !==
+				$item->normalizeKnownFailure( $actual['raw'] )
+			) {
 				$knownFailures = true;
 			} else {
 				if ( !$quiet && !$quieter ) {

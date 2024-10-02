@@ -912,6 +912,18 @@ class Test extends Item {
 	}
 
 	/**
+	 * Normalize "known failure" output.
+	 *
+	 * This is an extremely light normalization, since the point of the
+	 * known failure file is to catch changes in output, even if we don't
+	 * know what "correct" is.  But we do remove 'about' numbering, since
+	 * that is not guaranteed consistent from run to run.
+	 */
+	public function normalizeKnownFailure( string $out ): string {
+		return TestUtils::normalizeAbout( $out );
+	}
+
+	/**
 	 * Normalize expected and actual wikitext to suppress irrelevant differences.
 	 *
 	 * Because of selser as well as manual edit trees, expected wikitext isn't always
