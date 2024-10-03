@@ -48,7 +48,7 @@ let outerConfig = {
 	},
 	phpServer: {
 		baseURI: 'http://DOMAIN/w/rest.php',
-		proxy: '', // 'http://scandium.eqiad.wmnet:80',
+		proxy: '', // 'http://parsoidtest1001.eqiad.wmnet:80',
 	},
 	maxOutstanding: 4,
 	maxRequests: 25,

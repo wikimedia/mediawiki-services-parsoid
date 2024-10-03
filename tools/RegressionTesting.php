@@ -37,7 +37,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		);
 		$this->addOption(
 			"uid",
-			"The bastion username you use to login to scandium/testreduce1002",
+			"The bastion username you use to login to parsoidtest1001/testreduce1002",
 			false, true, 'u'
 		);
 		$this->addOption(
@@ -178,19 +178,21 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$resultPath = "/tmp/results.$commit.json";
 		$testScript = self::cmd(
 			$cdDir, '&&',
-			'node tools/runRtTests.js --proxyURL http://scandium.eqiad.wmnet:80 --parsoidURL http://DOMAIN/w/rest.php',
+			'node tools/runRtTests.js',
+			'--proxyURL http://parsoidtest1001.eqiad.wmnet:80',
+			'--parsoidURL http://DOMAIN/w/rest.php',
 			$this->outputContentVersion(),
 			[ '-f', $this->titlesPath ],
 			[ '-o', $resultPath ]
 		);
 
-		$this->dashes( "Checking out $commit on scandium" );
+		$this->dashes( "Checking out $commit on parsoidtest1001" );
 		$this->ssh( self::cmd(
 			$cdDir, '&&',
 			"git fetch", '&&',
 			'git checkout', [ $commit ], '&&',
 			$restartPHP
-		), 'scandium.eqiad.wmnet' );
+		), 'parsoidtest1001.eqiad.wmnet' );
 		if ( ScriptUtils::booleanOption( $this->getOption( 'updateTestreduce' ) ) ) {
 			# Check out on testreduce1002 as well to ensure HTML version changes
 			# don't trip up our test script and we don't have to mess with passing in

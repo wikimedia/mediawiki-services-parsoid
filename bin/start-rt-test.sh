@@ -5,7 +5,7 @@ set -eu -o pipefail
 if [ $# -lt 2 ]
 then
 	echo "USAGE: start-rt-test.sh <uid> <rt-test-id>"
-	echo " - <uid> is your bastion uid you use to log in to scandium/testreduce1002"
+	echo " - <uid> is your bastion uid you use to log in to parsoidtest1001/testreduce1002"
 	echo " - <rt-test-id> is the test id to show up in the testreduce web UI (usually a 8-char prefix of a git hash)"
 	exit 1
 fi
@@ -17,9 +17,9 @@ testid=$2
 # copy-and-paste full git hashes on the command line.  Normalize.
 testid=$(echo -n "$testid" | head -c 8)
 
-# Update code on scandium since RT testing scripts will hit the Parsoid REST API on scandium
-echo "---- Updating code on scandium ----"
-ssh "$uid"@scandium.eqiad.wmnet <<EOF
+# Update code on parsoidtest1001 since RT testing scripts will hit the Parsoid REST API on parsoidtest1001
+echo "---- Updating code on parsoidtest1001 ----"
+ssh "$uid"@parsoidtest1001.eqiad.wmnet <<EOF
 # No unset vars + early exit on error
 set -eu -o pipefail
 

@@ -20,13 +20,13 @@ for ( $arg = reset( $argv ); $arg !== false; $arg = next( $argv ) ) {
 	}
 }
 
-# On scandium and production machines, you should use:
+# On parsoidtest1001 and production machines, you should use:
 # sudo -u www-data php /srv/mediawiki/multiversion/MWScript.php \
 #     /srv/parsoid-testing/bin/<cmd>.php --wiki=hiwiki --integrated <args>
 #
 # eg:
 #
-# USER@scandium:/srv/mediawiki/multiversion$ echo '==Foo==' | \
+# USER@parsoidtest1001:/srv/mediawiki/multiversion$ echo '==Foo==' | \
 #    sudo -u www-data php MWScript.php \
 #    /srv/parsoid-testing/bin/parse.php --wiki=hiwiki --integrated
 #
