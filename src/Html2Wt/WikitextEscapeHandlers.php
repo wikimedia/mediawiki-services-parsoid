@@ -1223,9 +1223,9 @@ class WikitextEscapeHandlers {
 					// Replace pipe by an entity. This is not completely safe.
 					if ( $t->getName() === 'extlink' || $t->getName() === 'urllink' ) {
 						$tkBits = $this->tokenizer->tokenizeSync( $tkSrc, [
-								'startRule' => 'tplarg_or_template_or_bust'
-							]
-						);
+							'startRule' => 'tplarg_or_template_or_bust',
+							'sol' => true,
+						] );
 						foreach ( $tkBits as $bit ) {
 							if ( $bit instanceof Token ) {
 								self::appendStr(

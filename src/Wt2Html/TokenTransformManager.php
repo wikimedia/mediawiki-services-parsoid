@@ -159,17 +159,17 @@ class TokenTransformManager extends PipelineStage {
 	 * Process a chunk of tokens.
 	 *
 	 * @param array $tokens Array of tokens to process
-	 * @param ?array $opts
+	 * @param array $opts
 	 * @return array Returns the array of processed tokens
 	 */
-	public function process( $tokens, ?array $opts = null ): array {
+	public function process( $tokens, array $opts ): array {
 		return $this->processChunk( $tokens );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function processChunkily( $input, array $opts = null ): Generator {
+	public function processChunkily( $input, array $opts ): Generator {
 		if ( $this->prevStage ) {
 			foreach ( $this->prevStage->processChunkily( $input, $opts ) as $chunk ) {
 				'@phan-var array $chunk'; // @var array $chunk

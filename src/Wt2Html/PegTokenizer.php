@@ -67,15 +67,15 @@ class PegTokenizer extends PipelineStage {
 	 * the generic arg types to be specific to this pipeline stage.
 	 *
 	 * @param string $input wikitext to tokenize
-	 * @param ?array $opts
+	 * @param array{sol:bool} $opts
 	 * - atTopLevel: (bool) Whether we are processing the top-level document
 	 * - sol: (bool) Whether input should be processed in start-of-line context
 	 * @return array|false The token array, or false for a syntax error
 	 */
-	public function process( $input, ?array $opts = null ) {
+	public function process( $input, array $opts ) {
 		Assert::invariant( is_string( $input ), "Input should be a string" );
 		PHPUtils::assertValidUTF8( $input ); // Transitional check for PHP port
-		return $this->tokenizeSync( $input, $opts ?? [] );
+		return $this->tokenizeSync( $input, $opts );
 	}
 
 	/**
@@ -88,17 +88,18 @@ class PegTokenizer extends PipelineStage {
 	 * process().
 	 *
 	 * @param string $text
-	 * @param ?array $opts
+	 * @param array{sol:bool} $opts
 	 *   - sol (bool) Whether text should be processed in start-of-line context.
 	 * @return Generator
 	 */
-	public function processChunkily( $text, ?array $opts ): Generator {
+	public function processChunkily( $text, array $opts ): Generator {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
 
 		Assert::invariant( is_string( $text ), "Input should be a string" );
 		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
+		Assert::invariant( isset( $opts['sol'] ), "Sol should be set" );
 
 		// Kick it off!
 		$pipelineOffset = $this->offsets['startOffset'] ?? 0;
@@ -107,7 +108,7 @@ class PegTokenizer extends PipelineStage {
 			'pipelineId' => $this->getPipelineId(),
 			'pegTokenizer' => $this,
 			'pipelineOffset' => $pipelineOffset,
-			'sol' => !empty( $opts['sol'] ), // defaults to false
+			'sol' => $opts['sol'],
 			'stream' => true,
 			'startRule' => 'start_async',
 		];
@@ -129,22 +130,22 @@ class PegTokenizer extends PipelineStage {
 	 * The text is tokenized synchronously in one shot.
 	 *
 	 * @param string $text
-	 * @param array $args
+	 * @param array{sol:bool} $args
 	 * - sol: (bool) Whether input should be processed in start-of-line context.
 	 * - startRule: (string) which tokenizer rule to tokenize with
 	 * @return array|false The token array, or false for a syntax error
 	 */
-	public function tokenizeSync( string $text, array $args = [] ) {
+	public function tokenizeSync( string $text, array $args ) {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
 		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
+		Assert::invariant( isset( $args['sol'] ), "Sol should be set" );
 		$args += [
 			'pegTokenizer' => $this,
 			'pipelineId' => $this->getPipelineId(),
 			'pipelineOffset' => $this->offsets['startOffset'] ?? 0,
 			'startRule' => 'start',
-			'sol' => $args['sol'] ?? true, // defaults to true
 			'env' => $this->env
 		];
 

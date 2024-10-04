@@ -199,7 +199,7 @@ class DOMPostProcessor extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function process( $node, array $opts = null ) {
+	public function process( $node, array $opts ) {
 		if ( isset( $opts['selparData'] ) ) {
 			$this->selparData = $opts['selparData'];
 		}
@@ -212,7 +212,7 @@ class DOMPostProcessor extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function processChunkily( $input, ?array $options ): Generator {
+	public function processChunkily( $input, array $options ): Generator {
 		if ( $this->prevStage ) {
 			// The previous stage will yield a DOM.
 			// FIXME: Should we change the signature of that to return a DOM
@@ -222,7 +222,7 @@ class DOMPostProcessor extends PipelineStage {
 		} else {
 			$node = $input;
 		}
-		$this->process( $node );
+		$this->process( $node, $options );
 		yield $node;
 	}
 }

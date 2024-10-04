@@ -461,7 +461,7 @@ class TreeBuilderStage extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function process( $input, array $opts = null ) {
+	public function process( $input, array $opts ) {
 		'@phan-var array $input'; // @var array $input
 		$this->processChunk( $input );
 		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
@@ -471,7 +471,7 @@ class TreeBuilderStage extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function processChunkily( $input, array $opts = null ): Generator {
+	public function processChunkily( $input, array $opts ): Generator {
 		if ( $this->prevStage ) {
 			foreach ( $this->prevStage->processChunkily( $input, $opts ) as $chunk ) {
 				'@phan-var array $chunk'; // @var array $chunk

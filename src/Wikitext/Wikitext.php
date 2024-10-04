@@ -78,7 +78,7 @@ class Wikitext {
 			// Then, substitute each starting '{{' with '{{subst' using the
 			// template token's tsr.
 			$tokenizer = new PegTokenizer( $env );
-			$tokens = $tokenizer->tokenizeSync( $wt );
+			$tokens = $tokenizer->tokenizeSync( $wt, [ 'sol' => true ] );
 			$tsrIncr = 0;
 			foreach ( $tokens as $token ) {
 				/** @var Token $token */

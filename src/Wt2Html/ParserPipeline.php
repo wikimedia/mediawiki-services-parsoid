@@ -105,7 +105,7 @@ class ParserPipeline {
 	 * in the rest of the pipeline)
 	 *
 	 * @param array|string|Document $input wikitext string or array of tokens or Document
-	 * @param array $opts
+	 * @param array{sol:bool} $opts
 	 *  - sol (bool) Whether tokens should be processed in start-of-line context.
 	 *  - chunky (bool) Whether we are processing the input chunkily.
 	 *                  If so, the first stage will be skipped
@@ -146,7 +146,7 @@ class ParserPipeline {
 	 * Parse input in chunks
 	 *
 	 * @param string $input Input wikitext
-	 * @param array $opts
+	 * @param array{sol:bool} $opts
 	 *  - atTopLevel: (bool) Whether we are processing the top-level document
 	 *  - sol: (bool) Whether input should be processed in start-of-line context
 	 * @return Document|array final DOM or array of token chnks
