@@ -298,9 +298,9 @@ class TokenUtils {
 					// now that $frame->srcText is always accurate?
 
 					// content offsets for ext-links
-					if ( $offset && isset( $da->extLinkContentOffsets ) ) {
-						$da->extLinkContentOffsets =
-							$da->extLinkContentOffsets->offset( $offset );
+					if ( $offset && isset( $da->tmp->extLinkContentOffsets ) ) {
+						$da->tmp->extLinkContentOffsets =
+							$da->tmp->extLinkContentOffsets->offset( $offset );
 					}
 
 					// Process attributes
@@ -525,8 +525,8 @@ class TokenUtils {
 			if ( isset( $input->dataParsoid->tsr ) ) {
 				self::collectOffsets( $input->dataParsoid->tsr, $offsetFunc );
 			}
-			if ( isset( $input->dataParsoid->extLinkContentOffsets ) ) {
-				self::collectOffsets( $input->dataParsoid->extLinkContentOffsets, $offsetFunc );
+			if ( isset( $input->dataParsoid->tmp->extLinkContentOffsets ) ) {
+				self::collectOffsets( $input->dataParsoid->tmp->extLinkContentOffsets, $offsetFunc );
 			}
 			if ( isset( $input->dataParsoid->tokens ) ) {
 				self::collectOffsets( $input->dataParsoid->tokens, $offsetFunc );

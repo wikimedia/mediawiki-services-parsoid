@@ -19,6 +19,9 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * The original DSR for a quote (b/i) element prior to its adjustment by ComputeDSR.
  * @property DomSourceRange|null $origDSR
  *
+ * Offsets of external link content.
+ * @property SourceRange|null $extLinkContentOffsets
+ *
  * This is set on h1-h6 tokens to track section numbers.
  * @property int|null $headingIndex
  *

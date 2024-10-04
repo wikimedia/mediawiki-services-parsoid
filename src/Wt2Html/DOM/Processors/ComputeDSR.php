@@ -211,7 +211,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					return [ 2, 2 ];
 				}
 			} elseif ( isset( $dp->tsr ) && WTUtils::isATagFromExtLinkSyntax( $node ) ) {
-				return [ $dp->extLinkContentOffsets->start - $dp->tsr->start, 1 ];
+				return [ $dp->tmp->extLinkContentOffsets->start - $dp->tsr->start, 1 ];
 			} elseif ( WTUtils::isATagFromURLLinkSyntax( $node ) ||
 				WTUtils::isATagFromMagicLinkSyntax( $node )
 			) {

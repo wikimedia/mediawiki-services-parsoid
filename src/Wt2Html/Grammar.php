@@ -624,7 +624,7 @@ private function a23($p0, $flat, $p1, $sp, $p2, $content, $p3) {
 			$tsr2 = new SourceRange( $p2, $p3 );
 			$dp = new DataParsoid;
 			$dp->tsr = $this->tsrOffsets();
-			$dp->extLinkContentOffsets = $tsr2;
+			$dp->getTemp()->extLinkContentOffsets = $tsr2;
 			return [
 				new SelfclosingTagTk(
 					'extlink',

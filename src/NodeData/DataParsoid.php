@@ -193,10 +193,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * this is a pre-save transformation trick.
  * @property bool|null $pipeTrick
  *
- * Offsets of external link content.
- * Temporarily present in data-parsoid, but not in final DOM output.
- * @property SourceRange|null $extLinkContentOffsets
- *
  * Did the link use interwiki syntax?
  * Probably redundant with the rel=mw:WikiLink/Interwiki
  * @property bool|null $isIW
@@ -280,9 +276,6 @@ class DataParsoid implements JsonCodecable {
 		if ( isset( $dp->extTagOffsets ) ) {
 			$dp->extTagOffsets = clone $dp->extTagOffsets;
 		}
-		if ( isset( $dp->extLinkContentOffsets ) ) {
-			$dp->extLinkContentOffsets = clone $dp->extLinkContentOffsets;
-		}
 
 		// The remaining properties were sufficiently handled by the clone operator
 		return $dp;
@@ -337,7 +330,7 @@ class DataParsoid implements JsonCodecable {
 	/** @inheritDoc */
 	public function toJsonArray(): array {
 		static $clearNullsFrom = [
-			'dsr', 'tsr', 'extTagOffsets', 'extLinkContentOffsets'
+			'dsr', 'tsr', 'extTagOffsets',
 		];
 		$result = (array)$this;
 		unset( $result['tmp'] );
@@ -360,7 +353,6 @@ class DataParsoid implements JsonCodecable {
 				'dsr' => $dsr,
 				'extTagOffsets' => $dsr,
 				'tsr' => $sr,
-				'extLinkContentOffsets' => $sr,
 				'pi' => Hint::build( ParamInfo::class, Hint::LIST, Hint::LIST ),
 				'linkTk' => Token::class,
 			];
@@ -376,7 +368,6 @@ class DataParsoid implements JsonCodecable {
 				case 'dsr':
 				case 'extTagOffsets':
 				case 'tsr':
-				case 'extLinkContentOffsets':
 					// For backward compatibility, leave these unset if null.
 					if ( $value !== null ) {
 						$dp->$key = $value;

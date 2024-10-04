@@ -222,7 +222,7 @@ class ExternalLinkHandler extends TokenHandler {
 				// extLinkContentOffsets->start covers all spaces before content
 				// and we need src without those spaces.
 				$tsr0a = $dataParsoid->tsr->start + 1;
-				$tsr1a = $dataParsoid->extLinkContentOffsets->start -
+				$tsr1a = $dataParsoid->tmp->extLinkContentOffsets->start -
 					strlen( $token->getAttributeV( 'spaces' ) ?? '' );
 				$length = $tsr1a - $tsr0a;
 				$aStart->addNormalizedAttribute( 'href', $href,
@@ -233,7 +233,7 @@ class ExternalLinkHandler extends TokenHandler {
 
 			$content = PipelineUtils::getDOMFragmentToken(
 				$content,
-				$dataParsoid->tsr ? $dataParsoid->extLinkContentOffsets : null,
+				$dataParsoid->tsr ? $dataParsoid->tmp->extLinkContentOffsets : null,
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 

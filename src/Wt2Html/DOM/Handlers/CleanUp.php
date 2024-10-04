@@ -305,7 +305,6 @@ class CleanUp {
 		// Remove temporary information
 		// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 		unset( $dp->tmp );
-		unset( $dp->extLinkContentOffsets ); // not stored in tmp currently
 
 		// Various places, like ContentUtils::shiftDSR, can set this to `null`
 		if ( property_exists( $dp, 'dsr' ) && $dp->dsr === null ) {
