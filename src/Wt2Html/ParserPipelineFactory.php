@@ -177,7 +177,8 @@ class ParserPipelineFactory {
 			'name' => 'CleanUp-saveDataParsoid',
 			'tplInfo' => true,
 			'handlers' => [
-				// Save data.parsoid into data-parsoid html attribute.
+				// Mark which data.parsoid's should be serialized into
+				// data-parsoid html attributes.
 				// Make this its own thing so that any changes to the DOM
 				// don't affect other handlers that run alongside it.
 				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'saveDataParsoid' ] ]

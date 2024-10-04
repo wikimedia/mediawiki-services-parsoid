@@ -305,10 +305,6 @@ class CleanUp {
 			unset( $dp->tsr );
 		}
 
-		// Remove temporary information
-		// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
-		unset( $dp->tmp );
-
 		// Various places, like ContentUtils::shiftDSR, can set this to `null`
 		if ( property_exists( $dp, 'dsr' ) && $dp->dsr === null ) {
 			unset( $dp->dsr );
@@ -368,11 +364,6 @@ class CleanUp {
 			return true;
 		}
 		Assert::invariant( $state->atTopLevel, 'This pass should only be run on the top-level' );
-		$usedIdIndex = &$state->usedIdIndex;
-		if ( DOMUtils::isBody( $node ) ) {
-			// Initialization
-			$usedIdIndex = DOMDataUtils::usedIdIndex( $node );
-		}
 
 		$env = $state->env;
 		$dp = DOMDataUtils::getDataParsoid( $node );
@@ -400,15 +391,11 @@ class CleanUp {
 			( empty( $dp->stx ) || ( $state->tplInfo->last ?? null ) !== $node )
 		);
 
-		DOMDataUtils::storeDataAttribs( $node, [
-				'discardDataParsoid' => $discardDataParsoid,
-				// Even though we're passing in the `env`, this is the only place
-				// we want the storage to happen, so don't refactor this in there.
-				'storeInPageBundle' => $env->pageBundle,
-				'idIndex' => $usedIdIndex,
-				'env' => $env
-			]
-		);
+		// Mark this as an empty/"new" data-parsoid
+		if ( $discardDataParsoid ) {
+			// See description of hack in DOMDataUtils::storeDataAttribs()
+			$dp->setTempFlag( TempData::IS_NEW );
+		}
 
 		return true;
 	}

@@ -853,15 +853,21 @@ class ParsoidExtensionAPI {
 	 * and adding metadata to the page.
 	 *
 	 * @param Document $doc
+	 * @param bool $storeDataAttribs For compatibility, this method
+	 *  stores data attributes by default -- but the new convention
+	 *  for ::toDOM is to return a "prepared and loaded" document, aka
+	 *  one with a databag not one with serialized data attributes
 	 */
-	public function postProcessDOM( Document $doc ): void {
+	public function postProcessDOM( Document $doc, bool $storeDataAttribs = true ): void {
 		$env = $this->env;
 		// From CleanUp::saveDataParsoid
 		$body = DOMCompat::getBody( $doc );
-		DOMDataUtils::visitAndStoreDataAttribs( $body, [
-			'storeInPageBundle' => $env->pageBundle,
-			'env' => $env
-		] );
+		if ( $storeDataAttribs ) {
+			DOMDataUtils::visitAndStoreDataAttribs( $body, [
+				'storeInPageBundle' => $env->pageBundle,
+				'env' => $env
+			] );
+		}
 		// Ugh! But, this whole method needs to go away anyway
 		( new AddMetaData( null ) )->run( $env, $body );
 	}

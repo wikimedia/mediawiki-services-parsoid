@@ -139,11 +139,7 @@ class ContentModelHandler extends IContentModelHandler {
 		// Given that, the for-loop below implements "last-one-wins" semantics
 		// for indicators that use the same name key.
 		foreach ( $indicators as $meta ) {
-			// Since the DOM is in "stored" state, we have to reparse data-mw here.
-			$codec = DOMDataUtils::getCodec( $doc );
-			$dataMwAttr = DOMCompat::getAttribute( $meta, 'data-mw' );
-			$dmw = $dataMwAttr === null ? null :
-				$codec->newFromJsonString( $dataMwAttr, DOMDataUtils::getCodecHints()['data-mw'] );
+			$dmw = DOMDataUtils::getDataMw( $meta );
 			$name = $dmw->attrs->name;
 			$iData[$name] = $dmw->html;
 		}

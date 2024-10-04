@@ -11,7 +11,7 @@ abstract class ContentModelHandler {
 	/**
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param ?SelectiveUpdateData $selectiveUpdateData
-	 * @return Document
+	 * @return Document the result document in "prepared and loaded" form
 	 */
 	abstract public function toDOM(
 		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null

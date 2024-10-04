@@ -10,7 +10,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -215,11 +214,6 @@ class AddMetaData implements Wt2HtmlDOMProcessor {
 		DOMUtils::appendToHead( $document, 'base', [
 			'href' => $env->getSiteConfig()->baseURI()
 		] );
-
-		// Stick data attributes in the head
-		if ( $env->pageBundle ) {
-			DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
-		}
 
 		// PageConfig guarantees language will always be non-null.
 		$lang = $env->getPageConfig()->getPageLanguageBcp47();

@@ -153,6 +153,7 @@ class Parsoid {
 	 * @param array $options See wikitext2html.
 	 * @param ?SelectiveUpdateData $selparData See wikitext2html.
 	 * @return array{0:Env,1:Document,2:?string}
+	 *  The returned document is in "prepared and loaded" form.
 	 */
 	private function parseWikitext(
 		PageConfig $pageConfig,
@@ -251,6 +252,10 @@ class Parsoid {
 
 		$parseTiming = Timing::start();
 		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options, $selparData );
+		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
+			'storeInPageBundle' => $env->pageBundle,
+			'env' => $env,
+		] );
 		$parseTimeMs = $parseTiming->end();
 
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
@@ -266,6 +271,9 @@ class Parsoid {
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 
 		if ( $env->pageBundle ) {
+			DOMDataUtils::injectPageBundle(
+				$doc, DOMDataUtils::getPageBundle( $doc )
+			);
 			$out = ContentUtils::extractDpAndSerialize( $node, [
 				'innerXML' => $body_only,
 				'contentversion' => $env->getOutputContentVersion(),

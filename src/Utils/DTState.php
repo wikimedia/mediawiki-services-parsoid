@@ -21,7 +21,6 @@ class DTState {
 	public ?stdClass $tplInfo = null;
 	public array $abouts = [];
 	public array $seenIds = [];
-	public array $usedIdIndex = [];
 	public ?PegTokenizer $tokenizer = null; // Needed by TableFixups handlers
 
 	public function __construct( Env $env, array $options = [], bool $atTopLevel = false ) {
