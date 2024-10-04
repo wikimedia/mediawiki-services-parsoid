@@ -1056,4 +1056,16 @@ class ParsoidExtensionAPI {
 	public function getExternalLinkAttribs( string $url ): array {
 		return $this->env->getExternalLinkAttribs( $url );
 	}
+
+	/**
+	 * Add a tracking category to the current page.
+	 * @param string $key Message key (not localized)
+	 */
+	public function addTrackingCategory( string $key ): void {
+		$this->env->getDataAccess()->addTrackingCategory(
+			$this->env->getPageConfig(),
+			$this->env->getMetadata(),
+			$key
+		);
+	}
 }
