@@ -20,6 +20,17 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
+/**
+ * This class contains helper functions which should not be directly used
+ * outside of Parsoid.
+ *
+ * Per T332457, most of the code in Wikimedia\Parsoid\ParserTests is
+ * "for use in parser test runners only", including the core parser
+ * test runner, but this file is "more internal" than that: core's
+ * parser test runner should not use these helpers directly.
+ *
+ * @internal
+ */
 class TestUtils {
 	/** @var mixed */
 	private static $consoleColor;
