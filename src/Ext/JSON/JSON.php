@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\JSON;
 
+use JsonException;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
@@ -160,25 +161,12 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$document = $extApi->getTopLevelDoc();
 		$body = DOMCompat::getBody( $document );
 
-		// PORT-FIXME: When production moves to PHP 7.3, re-enable this try
-		// catch code
-
-		// try {
-		// 	$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
-		// 	self::rootValueTable( $body, $src );
-		// } catch ( JsonException $e ) {
-		// 	DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
-		// }
-
-		$src = json_decode( $jsonText, false, 6 );
-		if ( $src === null && json_last_error() !== JSON_ERROR_NONE ) {
-			DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
-		} else {
+		try {
+			$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
 			self::rootValueTable( $body, $src );
+		} catch ( JsonException $e ) {
+			DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
 		}
-
-		// end of PHP 7.2 compatible error handling code, remove whem enabling
-		// 7.3+ try catch code
 
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
