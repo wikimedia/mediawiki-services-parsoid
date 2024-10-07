@@ -337,8 +337,6 @@ class XMLSerializer {
 		if ( !$options['innerXML'] && DOMCompat::nodeName( $node ) === 'html' && $options['addDoctype'] ) {
 			$out['html'] = "<!DOCTYPE html>\n" . $out['html'];
 		}
-		// Verify UTF-8 soundness (transitional check for PHP port)
-		PHPUtils::assertValidUTF8( $out['html'] );
 		// Drop the bookkeeping
 		unset( $out['start'], $out['uid'], $out['last'] );
 		if ( !$options['captureOffsets'] ) {

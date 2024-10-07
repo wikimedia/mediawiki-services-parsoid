@@ -17,7 +17,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {
@@ -74,7 +73,6 @@ class PegTokenizer extends PipelineStage {
 	 */
 	public function process( $input, array $opts ) {
 		Assert::invariant( is_string( $input ), "Input should be a string" );
-		PHPUtils::assertValidUTF8( $input ); // Transitional check for PHP port
 		return $this->tokenizeSync( $input, $opts );
 	}
 
@@ -98,7 +96,6 @@ class PegTokenizer extends PipelineStage {
 		}
 
 		Assert::invariant( is_string( $text ), "Input should be a string" );
-		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
 		Assert::invariant( isset( $opts['sol'] ), "Sol should be set" );
 
 		// Kick it off!
@@ -139,7 +136,6 @@ class PegTokenizer extends PipelineStage {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
-		PHPUtils::assertValidUTF8( $text ); // Transitional check for PHP port
 		Assert::invariant( isset( $args['sol'] ), "Sol should be set" );
 		$args += [
 			'pegTokenizer' => $this,
