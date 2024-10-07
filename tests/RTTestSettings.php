@@ -28,9 +28,4 @@ $wgParsoidSettings['useSelser'] = true;
 // but we don't want to save lints to the production db.
 $wgParsoidSettings['linting'] = (bool)$wgReadOnly;
 
-// Disabled for now so porting the dev api isn't on the critical path
-// These endpoints are occasionally useful while investigating rt testing
-// diffs on the server.
-// $wgParsoidSettings['devAPI'] = true;
-
 $wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
