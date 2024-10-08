@@ -27,58 +27,9 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 /**
  * Provides DOMTraverser visitors that fix template-induced interrupted table cell parsing
  * by recombining table cells and/or reparsing table cell content as attributes.
- * - stripDoubleTDs
  * - handleTableCellTemplates
  */
 class TableFixups {
-	/**
-	 * DOM visitor that strips the double td for this test case:
-	 * ```
-	 * |{{1x|{{!}} Foo}}
-	 * ```
-	 *
-	 * @see https://phabricator.wikimedia.org/T52603
-	 * @param Element $node
-	 * @param DTState $dtState
-	 * @return bool|Node
-	 */
-	public static function stripDoubleTDs( Element $node, DTState $dtState ) {
-		$nextNode = $node->nextSibling;
-		if ( !WTUtils::isLiteralHTMLNode( $node ) &&
-			$nextNode instanceof Element &&
-			DOMCompat::nodeName( $nextNode ) === 'td' &&
-			!WTUtils::isLiteralHTMLNode( $nextNode ) &&
-			DiffDOMUtils::nodeEssentiallyEmpty( $node ) && (
-				// Since typeof will not be set for nested template,
-				// use a hacky work-around for nested templates.
-				DOMUtils::hasTypeOf( $nextNode, 'mw:Transclusion' ) ||
-				preg_match( '/^{{.*?}}$/D', DOMDataUtils::getDataParsoid( $nextNode )->src ?? '' )
-			)
-		) {
-			// Update the dsr. Since we are coalescing the first
-			// node with the second (or, more precisely, deleting
-			// the first node), we have to update the second DSR's
-			// starting point and start tag width.
-			$nodeDSR = DOMDataUtils::getDataParsoid( $node )->dsr ?? null;
-			$nextNodeDP = DOMDataUtils::getDataParsoid( $nextNode );
-
-			if ( $nodeDSR && !empty( $nextNodeDP->dsr ) ) {
-				$nextNodeDP->dsr->start = $nodeDSR->start;
-			}
-
-			$dataMW = DOMDataUtils::getDataMw( $nextNode );
-			$nodeSrc = WTUtils::getWTSource( $dtState->options['frame'], $node );
-			$dataMW->parts ??= [];
-			array_unshift( $dataMW->parts, $nodeSrc );
-
-			// Delete the duplicated <td> node.
-			$node->parentNode->removeChild( $node );
-			// This node was deleted, so don't continue processing on it.
-			return $nextNode;
-		}
-
-		return true;
-	}
 
 	private static function isSimpleTemplatedSpan( Node $node ): bool {
 		return DOMCompat::nodeName( $node ) === 'span' &&
@@ -573,8 +524,8 @@ class TableFixups {
 			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
 			// This is a good proxy for what we need: "Is $cell a template wrapper?".
 			// That info won't be available for nested templates unless we want
-			// to use the more expensive hacky check as used in "stripDoubleTDs"
-			// above. "inTplContent" is sufficient because we won't have mergeable
+			// to use a more expensive hacky check.
+			// "inTplContent" is sufficient because we won't have mergeable
 			// cells for wikitext that doesn't get any part of its content from
 			// templates because NON_MERGEABLE_TABLE_CELL prevents such merges.
 			$inTplContent
