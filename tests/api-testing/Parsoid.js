@@ -1458,7 +1458,7 @@ describe('Parsoid API', function() {
 		it('should error when if-match doesn\'t match', function(done) {
 			client.req
 				.post(mockDomain + '/v3/transform/html/to/wikitext/')
-				.set( 'if-match', '"1234/deadbeef"' )
+				.set( 'if-match', '"1219844647/deadbeef"' )
 				.send({
 					html: '<pre>hi ho</pre>'
 				})
