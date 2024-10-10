@@ -14,11 +14,13 @@ class Opts {
 	 * @param array<string,string> $attrs The attribute array
 	 */
 	public function __construct( ParsoidExtensionAPI $extApi, array $attrs ) {
+		$siteConfig = $extApi->getSiteConfig();
+
 		// Set default values from config
 		// The options 'showDimensions' and 'showBytes' for traditional mode are not implemented,
 		// They are not used for galleries in wikitext (only on category pages or special pages)
 		// The deprecated option 'captionLength' for traditional mode is not implemented.
-		$galleryOptions = $extApi->getSiteConfig()->galleryOptions();
+		$galleryOptions = $siteConfig->galleryOptions();
 		$this->imagesPerRow = $galleryOptions['imagesPerRow'];
 		$this->imageWidth = $galleryOptions['imageWidth'];
 		$this->imageHeight = $galleryOptions['imageHeight'];
@@ -29,12 +31,16 @@ class Opts {
 			$this->imagesPerRow = intval( $attrs['perrow'], 10 );
 		}
 
-		$maybeDim = Utils::parseMediaDimensions( $attrs['widths'] ?? '', true );
+		$maybeDim = Utils::parseMediaDimensions(
+			$siteConfig, $attrs['widths'] ?? '', true, false
+		);
 		if ( $maybeDim && Utils::validateMediaParam( $maybeDim['x'] ) ) {
 			$this->imageWidth = $maybeDim['x'];
 		}
 
-		$maybeDim = Utils::parseMediaDimensions( $attrs['heights'] ?? '', true );
+		$maybeDim = Utils::parseMediaDimensions(
+			$siteConfig, $attrs['heights'] ?? '', true, false
+		);
 		if ( $maybeDim && Utils::validateMediaParam( $maybeDim['x'] ) ) {
 			$this->imageHeight = $maybeDim['x'];
 		}

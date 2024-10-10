@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext;
 
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Utils\Utils as U;
 
 /**
@@ -40,12 +41,20 @@ class Utils {
 
 	/**
 	 * Parse media dimensions
+	 *
+	 * @param SiteConfig $siteConfig
 	 * @param string $str media dimension string to parse
 	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
+	 * @param bool $localized Defaults to false; set to true if the $str
+	 *   has already been matched against `img_width` to localize the `px`
+	 *   suffix.
 	 * @return array{x:int,y?:int}|null
 	 */
-	public static function parseMediaDimensions( string $str, bool $onlyOne = false ): ?array {
-		return U::parseMediaDimensions( $str, $onlyOne );
+	public static function parseMediaDimensions(
+		SiteConfig $siteConfig, string $str, bool $onlyOne = false,
+		bool $localized = false
+	): ?array {
+		return U::parseMediaDimensions( $siteConfig, $str, $onlyOne, $localized );
 	}
 
 	/**

@@ -7,6 +7,7 @@ use Psr\Log\LoggerInterface;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\NodeData\DataMw;
@@ -391,13 +392,26 @@ class Utils {
 	/**
 	 * Parse media dimensions
 	 *
+	 * @param SiteConfig $siteConfig
 	 * @param string $str media dimension string to parse
 	 * @param bool $onlyOne If set, returns null if multiple dimenstions are present
+	 * @param bool $localized Defaults to false; set to true if the $str
+	 *   has already been matched against `img_width` to localize the `px`
+	 *   suffix.
 	 * @return ?array{x:int,y?:int,bogusPx:bool}
 	 */
 	public static function parseMediaDimensions(
-		string $str, bool $onlyOne = false
+		SiteConfig $siteConfig, string $str, bool $onlyOne = false,
+		bool $localized = false
 	): ?array {
+		if ( !$localized ) {
+			$getOption = $siteConfig->getMediaPrefixParameterizedAliasMatcher();
+			$bits = $getOption( $str );
+			$normalizedBit0 = $bits ? mb_strtolower( trim( $bits['k'] ) ) : null;
+			if ( $normalizedBit0 === 'img_width' ) {
+				$str = $bits['v'];
+			}
+		}
 		$dimensions = null;
 		// We support a trailing 'px' here for historical reasons
 		// (T15500, T53628, T207032)
