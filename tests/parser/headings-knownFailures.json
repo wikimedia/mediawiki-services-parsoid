@@ -20,7 +20,7 @@
 		"wt2wt": "<nowiki>{{foo|</nowiki>\n==heading==\n"
 	},
 	"Inclusion of !userCanEdit() content": {
-		"wt2html": "<h2 about=\"#mwt1\" typeof=\"mw:Transclusion\" id=\"header\" data-parsoid='{\"dsr\":[0,18,null,null],\"pi\":[[]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:Fake\",\"href\":\"./MediaWiki:Fake\"},\"params\":{},\"i\":0}}]}'>header</h2>"
+		"wt2html": "<h2 about=\"#mwt1\" typeof=\"mw:Transclusion\" id=\"header\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,18,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:Fake\",\"href\":\"./MediaWiki:Fake\"},\"params\":{},\"i\":0}}]}'>header</h2>"
 	},
 	"Link inside a section heading": {
 		"wt2html": "<h2 id=\"Section_with_a_link_in_it\" data-parsoid='{\"dsr\":[0,43,2,2]}'>Section with a <a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[17,35,12,2]}'>link</a> in it</h2>"

@@ -270,20 +270,6 @@ class DOMRangeBuilder {
 
 		$range->start = $this->getStartConsideringFosteredContent( $range->start );
 
-		$rangeStartNextSibling = $range->start->nextSibling;
-		if (
-			$range->start === $range->startElem &&
-			$rangeStartNextSibling instanceof Element
-		) {
-			// HACK!
-			// The strip-double-tds pass has a HACK that requires DSR and src
-			// information being set on this element node. So, this HACK here
-			// is supporting that HACK there.
-			//
-			// (The parser test for T52603 will fail without this fix)
-			$this->updateDSRForFirstRangeNode( $rangeStartNextSibling, $range->startElem );
-		}
-
 		// Use the negative test since it doesn't mark the range as flipped
 		// if range.start === range.end
 		if ( !DOMUtils::inSiblingOrder( $range->start, $range->end ) ) {
