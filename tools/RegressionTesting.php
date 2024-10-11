@@ -2,6 +2,7 @@
 
 namespace Wikimedia\Parsoid\Tools;
 
+use Error;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
