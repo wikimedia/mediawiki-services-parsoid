@@ -73,7 +73,7 @@ abstract class Token implements \JsonSerializable {
 	 * Set a value and preserve the original wikitext that produced it.
 	 *
 	 * @param string $name
-	 * @param string|Token|Token[] $value
+	 * @param string|Token|array<Token|string> $value
 	 * @param mixed $origValue
 	 */
 	public function addNormalizedAttribute( string $name, $value, $origValue ): void {
@@ -85,7 +85,7 @@ abstract class Token implements \JsonSerializable {
 	 * Generic attribute accessor.
 	 *
 	 * @param string $name
-	 * @return string|Token|Token[]|KV[]|null
+	 * @return string|Token|array<Token|string>|KV[]|null
 	 */
 	public function getAttributeV( string $name ) {
 		return KV::lookup( $this->attribs, $name );
@@ -115,7 +115,7 @@ abstract class Token implements \JsonSerializable {
 	 * Set an unshadowed attribute.
 	 *
 	 * @param string $name
-	 * @param string|Token|Token[] $value
+	 * @param string|Token|array<Token|string> $value
 	 */
 	public function setAttribute( string $name, $value ): void {
 		// First look for the attribute and change the last match if found.
@@ -156,7 +156,7 @@ abstract class Token implements \JsonSerializable {
 	 *
 	 * @param string $name
 	 * @return array Information about the shadow info attached to this attribute:
-	 *   - value: (Token|Token[]|string)
+	 *   - value: (string|Token|array<Token|string>)
 	 *     When modified is false and fromsrc is true, this is always a string.
 	 *   - modified: (bool)
 	 *   - fromsrc: (bool)

@@ -249,7 +249,7 @@ class TokenUtils {
 	 * null, so let's use false instead of null for whatever the previous code meant by a null
 	 * offset.
 	 *
-	 * @param Token[] $tokens
+	 * @param array<Token|string> $tokens
 	 * @param int|false $offset
 	 */
 	public static function shiftTokenTSR( array $tokens, $offset ): void {
@@ -507,7 +507,7 @@ class TokenUtils {
 	}
 
 	/**
-	 * @param array<Token>|array<KV>|KV|Token|DomSourceRange|KVSourceRange|SourceRange|string $input
+	 * @param array<Token|string>|array<KV>|KV|Token|DomSourceRange|KVSourceRange|SourceRange|string $input
 	 * @param callable $offsetFunc
 	 */
 	private static function collectOffsets( $input, callable $offsetFunc ): void {
@@ -665,7 +665,7 @@ class TokenUtils {
 	 * Convert an array of key-value pairs into a hash of keys to values.
 	 * For duplicate keys, the last entry wins.
 	 * @param array<KV> $kvs
-	 * @return array<string,Token[]>|array<string,string>
+	 * @return array<string,array<Token|string>>|array<string,string>
 	 */
 	public static function kvToHash( array $kvs ): array {
 		$res = [];

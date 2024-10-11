@@ -85,7 +85,7 @@ class KV implements \JsonSerializable {
 	 *
 	 * @param KV[]|null $kvs
 	 * @param string $key
-	 * @return string|Token|Token[]|null
+	 * @return string|Token|array<Token|string>|null
 	 */
 	public static function lookup( ?array $kvs, string $key ) {
 		$kv = self::lookupKV( $kvs, $key );

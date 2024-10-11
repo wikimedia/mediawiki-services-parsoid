@@ -93,9 +93,9 @@ class Frame {
 
 	/**
 	 * Expand / convert a thunk (a chunk of tokens not yet fully expanded).
-	 * @param Token[] $chunk
+	 * @param array<Token|string> $chunk
 	 * @param array $options
-	 * @return Token[]
+	 * @return array<Token|string>
 	 */
 	public function expand( array $chunk, array $options ): array {
 		$this->env->log( 'debug', 'Frame.expand', $chunk );

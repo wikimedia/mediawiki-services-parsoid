@@ -42,7 +42,7 @@ class PipelineUtils {
 	 * be a bit fragile and makes dom-fragments a leaky abstraction by leaking subpipeline
 	 * processing into the top-level pipeline.
 	 *
-	 * @param Token[]|string $content The array of tokens to process.
+	 * @param string|Token|array<Token|string> $content The array of tokens to process.
 	 * @param SourceRange $srcOffsets Wikitext source offsets (start/end) of these tokens.
 	 * @param array $opts Parsing options.
 	 *    - Token token The token that generated the content.
@@ -84,7 +84,7 @@ class PipelineUtils {
 	 *          source text that $content corresponds to
 	 *    - bool   sol Whether tokens should be processed in start-of-line context.
 	 *    - bool   toplevel Whether the pipeline is considered atTopLevel
-	 * @return Token[]|DocumentFragment (depending on pipeline type)
+	 * @return array<Token|string>|DocumentFragment (depending on pipeline type)
 	 */
 	public static function processContentInPipeline(
 		Env $env, Frame $frame, $content, array $opts
@@ -216,7 +216,7 @@ class PipelineUtils {
 	 * Convert a DOM to tokens. Data attributes for nodes are stored outside the DOM.
 	 *
 	 * @param Node $node The root of the DOM tree to convert to tokens
-	 * @param Token[] $tokBuf This is where the tokens get stored
+	 * @param array<Token|string> $tokBuf This is where the tokens get stored
 	 * @return array
 	 */
 	private static function convertDOMtoTokens( Node $node, array $tokBuf ): array {
@@ -268,7 +268,7 @@ class PipelineUtils {
 	 * @param DocumentFragment $domFragment List of DOM nodes that need to be tunneled through.
 	 * @param array $opts
 	 * @see encapsulateExpansionHTML's doc. for more info about these options.
-	 * @return Token[] List of token representatives.
+	 * @return array<Token|string> List of token representatives.
 	 */
 	private static function getWrapperTokens(
 		DocumentFragment $domFragment, array $opts
@@ -450,7 +450,7 @@ class PipelineUtils {
 	 *    - array pipelineOpts
 	 *    - bool  unpackOutput
 	 *    - string wrapperName
-	 * @return Token[]
+	 * @return array<Token|string>
 	 */
 	public static function encapsulateExpansionHTML(
 		Env $env, Token $token, array $expansion, array $opts
@@ -580,7 +580,7 @@ class PipelineUtils {
 	 * @param array $opts
 	 *    Options to be passed onto the encapsulation code
 	 *    See encapsulateExpansionHTML's doc. for more info about these options.
-	 * @return Token[]
+	 * @return array<Token|string>
 	 */
 	public static function tunnelDOMThroughTokens(
 		Env $env, Token $token, DocumentFragment $domFragment, array $opts

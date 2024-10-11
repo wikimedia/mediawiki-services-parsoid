@@ -105,7 +105,7 @@ class PreHandler extends TokenHandler {
 	private $state;
 	/** @var int */
 	private $preTSR;
-	/** @var array<Token> */
+	/** @var array<Token|string> */
 	private $tokens;
 	/** @var array<Token|string> */
 	private $currLinePreToks;
