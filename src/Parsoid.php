@@ -271,6 +271,9 @@ class Parsoid {
 		if ( $env->pageBundle ) {
 			$out = ContentUtils::extractDpAndSerialize( $node, [
 				'innerXML' => $body_only,
+				'contentversion' => $env->getOutputContentVersion(),
+				'headers' => $headers,
+				'contentmodel' => $contentmodel,
 			] );
 		} else {
 			$out = [
@@ -285,13 +288,7 @@ class Parsoid {
 		);
 
 		if ( $env->pageBundle ) {
-			return new PageBundle(
-				$out['html'],
-				$out['pb']->parsoid, $out['pb']->mw ?? null,
-				$env->getOutputContentVersion(),
-				$headers,
-				$contentmodel
-			);
+			return $out['pb'];
 		} else {
 			return $out['html'];
 		}
@@ -644,16 +641,13 @@ class Parsoid {
 		DOMDataUtils::injectPageBundle( $doc, $dataBagPB );
 		$out = ContentUtils::extractDpAndSerialize( $node, [
 			'innerXML' => $body_only,
-		] );
-		return new PageBundle(
-			$out['html'],
-			$out['pb']->parsoid, $out['pb']->mw ?? null,
 			// Prefer the passed in version, since this was just a transformation
-			$pb->version ?? $env->getOutputContentVersion(),
-			DOMUtils::findHttpEquivHeaders( $doc ),
+			'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
+			'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
 			// Prefer the passed in content model
-			$pb->contentmodel ?? $pageConfig->getContentModel()
-		);
+			'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel()
+		] );
+		return $out['pb'];
 	}
 
 	/**

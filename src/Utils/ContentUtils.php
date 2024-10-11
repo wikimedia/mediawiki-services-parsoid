@@ -110,6 +110,10 @@ class ContentUtils {
 		$doc = DOMUtils::isBody( $node ) ? $node->ownerDocument : $node;
 		$pb = DOMDataUtils::extractPageBundle( $doc );
 		$out = XMLSerializer::serialize( $node, $options );
+		$pb->html = $out['html'];
+		$pb->version = $options['contentversion'] ?? null;
+		$pb->headers = $options['headers'] ?? null;
+		$pb->contentmodel = $options['contentmodel'] ?? null;
 		$out['pb'] = $pb;
 		return $out;
 	}

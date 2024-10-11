@@ -180,4 +180,15 @@ class PageBundle {
 		// so a naive jsonEncode is sufficient.  We don't need a codec.
 		return PHPUtils::jsonEncode( [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ] );
 	}
+
+	public static function decodeFromHeadElement( string $s ): PageBundle {
+		// Note that only 'parsoid' and 'mw' are encoded, so these will be
+		// the only fields set in the decoded PageBundle
+		$decoded = PHPUtils::jsonDecode( $s );
+		return new PageBundle(
+			'', /* html */
+			$decoded['parsoid'] ?? null,
+			$decoded['mw'] ?? null
+		);
+	}
 }
