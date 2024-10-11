@@ -9,7 +9,6 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -450,12 +449,11 @@ class DOMDataUtils {
 	 * only the 'parsoid' and 'mw' properties.
 	 *
 	 * @param Element $node node
-	 * @param Env $env environment
 	 * @param stdClass $data data
 	 * @param array $idIndex Index of used id attributes in the DOM
 	 */
 	public static function storeInPageBundle(
-		Element $node, Env $env, stdClass $data, array $idIndex
+		Element $node, stdClass $data, array $idIndex
 	): void {
 		$hints = self::getCodecHints();
 		$uid = DOMCompat::getAttribute( $node, 'id' );
@@ -466,11 +464,9 @@ class DOMDataUtils {
 		$origId = $uid;
 		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
 			$uid = null;
-			$env->log( 'info', 'Wikitext for this page has duplicate ids: ' . $origId );
 		}
 		if ( $uid === '' ) {
 			$uid = null;
-			$env->log( 'info', 'Bogus empty id' );
 		}
 		if ( $uid === null ) {
 			do {
@@ -712,7 +708,7 @@ class DOMDataUtils {
 
 		// Store pagebundle
 		if ( $data !== null ) {
-			self::storeInPageBundle( $node, $options['env'], $data, $options['idIndex'] );
+			self::storeInPageBundle( $node, $data, $options['idIndex'] );
 		}
 
 		// Indicate that this node's data has been stored so that if we try

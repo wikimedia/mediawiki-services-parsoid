@@ -3,7 +3,6 @@
 namespace Test\Parsoid\Utils;
 
 use Wikimedia\Parsoid\Core\PageBundle;
-use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -38,10 +37,9 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::storeInPageBundle
 	 */
 	public function testStoreInPageBundle() {
-		$env = new MockEnv( [] );
 		$doc = ContentUtils::createDocument( "<p>Hello, world</p>" );
 		$p = DOMCompat::querySelector( $doc, 'p' );
-		DOMDataUtils::storeInPageBundle( $p, $env, (object)[
+		DOMDataUtils::storeInPageBundle( $p, (object)[
 			'parsoid' => [ 'go' => 'team' ],
 			'mw' => [ 'test' => 'me' ],
 		], DOMDataUtils::usedIdIndex( $p ) );
