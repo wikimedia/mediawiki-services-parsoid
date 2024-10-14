@@ -10,13 +10,13 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Perform post-processing steps on an already-built HTML DOM.
  */
 class DOMPostProcessor extends PipelineStage {
 	private array $options;
+	/** @var array[] */
 	private array $processors = [];
 	private ParsoidExtensionAPI $extApi; // Provides post-processing support to extensions
 	private string $timeProfile = '';
@@ -36,13 +36,10 @@ class DOMPostProcessor extends PipelineStage {
 		return $this->timeProfile;
 	}
 
-	public function registerProcessors( ?array $processors ): void {
+	public function registerProcessors( array $processors ): void {
 		foreach ( $processors as $p ) {
-			$p['name'] ??= Utils::stripNamespace( $p['Processor'] );
-			$p['shortcut'] ??= $p['name'];
-			if ( empty( $p['isTraverser'] ) ) {
+			if ( isset( $p['Processor'] ) ) {
 				// Internal processor w/ ::run() method, class name given
-				// @phan-suppress-next-line PhanNonClassMethodCall
 				$p['proc'] = new $p['Processor']( $this );
 			} else {
 				$t = new DOMPPTraverser( $this, $p['tplInfo'] ?? false );
@@ -116,9 +113,8 @@ class DOMPostProcessor extends PipelineStage {
 		}
 
 		foreach ( $this->processors as $pp ) {
-			// FIXME: We should push this code into the specific processors and eliminate
-			// this flag from the processor config in ParserPipelineFactory -- this will
-			// let us further simplify DOM Processor config / declarations there.
+			// This is an optimization for the 'AddAnnotationIds' handler
+			// which is embedded in a DOMTraverser where we cannot check this flag.
 			if ( !empty( $pp['withAnnotations'] ) && !$this->env->hasAnnotations ) {
 				continue;
 			}

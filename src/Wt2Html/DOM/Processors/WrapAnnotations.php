@@ -18,7 +18,9 @@ class WrapAnnotations implements Wt2HtmlDOMProcessor {
 	public function run(
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
-		$op = new AnnotationDOMRangeBuilder( $root->ownerDocument, $options['frame'] );
-		$op->execute( $root );
+		if ( $env->hasAnnotations ) {
+			$op = new AnnotationDOMRangeBuilder( $root->ownerDocument, $options['frame'] );
+			$op->execute( $root );
+		}
 	}
 }

@@ -67,7 +67,6 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 					[
 						'name' => 'CleanUp-handleEmptyElts',
 						'shortcut' => 'cleanup',
-						'isTraverser' => true,
 						'tplInfo' => true,
 						'handlers' => [
 							[
