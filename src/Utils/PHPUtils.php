@@ -15,7 +15,7 @@ use Wikimedia\Assert\UnreachableException;
 class PHPUtils {
 	/**
 	 * Convert a counter to a Base64 encoded string.
-	 * Padding is stripped. \,+ are replaced with _,- respectively.
+	 * Padding is stripped. /,+ are replaced with _,- respectively.
 	 * Warning: Max integer is 2^31 - 1 for bitwise operations.
 	 * @param int $n
 	 * @return string
