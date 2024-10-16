@@ -306,9 +306,6 @@ class Parsoid {
 		array $options
 	) {
 		$metrics = $this->siteConfig->metrics();
-		if ( !$metrics ) {
-			return;
-		}
 
 		$pageConfig = $env->getPageConfig();
 
@@ -328,11 +325,13 @@ class Parsoid {
 		if ( Semver::satisfies(
 			$env->getOutputContentVersion(), '!=' . self::defaultHTMLVersion()
 		) ) {
-			$metrics->increment( 'entry.wt2html.parse.version.notdefault' );
+			if ( $metrics ) {
+				$metrics->increment( 'entry.wt2html.parse.version.notdefault' );
+			}
 			$version = 'non-default';
 		}
 
-		$this->siteConfig->incrementCounter( 'wt2hml_parse_total', [
+		$this->siteConfig->incrementCounter( 'wt2html_parse_total', [
 			'type' => $mstr,
 			'version' => $version
 		] );
@@ -371,9 +370,7 @@ class Parsoid {
 
 		// Expensive analyses: sampleStats is randomly sampled will not be
 		// true "often"
-		$doSample = $options['sampleStats'] ??
-			$options['sample_stats'] ?? // temporary back-compat
-			false;
+		$doSample = $options['sampleStats'] ?? false;
 		if ( !$doSample ) {
 			return;
 		}
@@ -381,7 +378,6 @@ class Parsoid {
 		try {
 			// create new page bundle for this computation to ensure we
 			// don't inadvertently corrupt the main document result.
-			$siteConfig = $env->getSiteConfig();
 			$newPb = new PageBundle(
 				$out['html'],
 				$out['pb']->parsoid, $out['pb']->mw ?? null,
@@ -396,11 +392,11 @@ class Parsoid {
 				$pageConfig,
 				$newPb
 			);
-			$labels['wiki'] = $siteConfig->iwp();
+			$labels['wiki'] = $this->siteConfig->iwp();
 			$labels['reason'] = $options['renderReason'] ?? 'unknown';
 
-			$siteConfig->incrementCounter( 'selective_update_total', $labels );
-			$siteConfig->incrementCounter( 'selective_update_seconds', $labels, $parseTime / 1000. );
+			$this->siteConfig->incrementCounter( 'selective_update_total', $labels );
+			$this->siteConfig->incrementCounter( 'selective_update_seconds', $labels, $parseTime / 1000. );
 		} catch ( \Throwable $t ) {
 			// Don't ever allow bugs in the classification code to
 			// impact the availability of content for read views/editing,
@@ -488,18 +484,17 @@ class Parsoid {
 	) {
 		$siteConfig = $this->siteConfig;
 		$metrics = $siteConfig->metrics();
-		if ( !$metrics ) {
-			return;
-		}
 
 		$htmlSize = $options['htmlSize'] ?? 0;
 		$timing = Timing::fakeTiming( $this->siteConfig, $htmlSize );
 		$timing->end( 'entry.html2wt.size.input', 'html2wt_size_input_bytes' );
 
 		if ( isset( $options['inputContentVersion'] ) ) {
-			$metrics->increment(
-				'entry.html2wt.original.version.' . $options['inputContentVersion']
-			);
+			if ( $metrics ) {
+				$metrics->increment(
+					'entry.html2wt.original.version.' . $options['inputContentVersion']
+				);
+			}
 			$this->siteConfig->incrementCounter(
 				'html2wt_original_version',
 				[ 'input_content_version' => $options['inputContentVersion'] ]

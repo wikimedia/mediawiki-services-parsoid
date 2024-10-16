@@ -50,14 +50,14 @@ class ComputeSelectiveStats {
 			$labels['rev-diff'] = '0';
 		} elseif ( $oldRev === $newPage->getParentRevisionId() ) {
 			// "normal edit": new revision is the one after old revision
-			$labels['rev-diff'] = '+1';
+			$labels['rev-diff'] = '1';
 		} elseif ( $newRev === $oldPage->getParentRevisionId() ) {
 			// new revision is the one *before* old revision
 			// This is probably a render triggered from RevisionOutputCache
 			// of the previous revision where the "oldRev" is coming from
 			// the parser cache and is thus the latest.  This may happen
 			// during races, vandalism patrol, HTML diffing, etc.
-			$labels['rev-diff'] = '-1';
+			$labels['rev-diff'] = 'minus1';
 		}
 
 		// Parse to DOM and diff
@@ -201,7 +201,7 @@ class ComputeSelectiveStats {
 			return 'unknown';
 		}
 		if ( $limit !== null && $val >= $limit ) {
-			return "{$limit}+";
+			return "{$limit}plus";
 		}
 		return "$val";
 	}
