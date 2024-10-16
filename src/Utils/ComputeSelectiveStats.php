@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
+use Wikimedia\Parsoid\NodeData\TemplateInfo;
 
 /**
  * This file contains code to classify opportunities for selective
@@ -119,7 +120,10 @@ class ComputeSelectiveStats {
 			if ( !( $el instanceof Element ) ) {
 				return true;
 			}
-			if ( $el === ( $state->tplInfo->first ?? null ) ) {
+			if (
+				$el === ( $state->tplInfo->first ?? null ) &&
+				DOMUtils::hasTypeOf( $el, 'mw:Transclusion' )
+			) {
 				$changed = false;
 				$about = DOMCompat::getAttribute( $el, 'about' );
 				foreach ( WTUtils::getAboutSiblings( $el, $about ) as $sib ) {
@@ -138,8 +142,12 @@ class ComputeSelectiveStats {
 				if ( $changed ) {
 					$templatesModified++;
 					$dataMw = DOMDataUtils::getDataMw( $el );
-					$name = is_array( $dataMw->parts ) ?
-						  $dataMw->parts[0]->href : null;
+					$name = null;
+					foreach ( $dataMw->parts ?? [] as $part ) {
+						if ( $part instanceof TemplateInfo ) {
+							$name ??= $part->href;
+						}
+					}
 					$namedTemplates[$name ?? 'unknown'] = true;
 				}
 				// Don't recurse into templates, just tabulate top-level
