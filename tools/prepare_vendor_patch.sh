@@ -35,7 +35,7 @@ newTagSha=$(git rev-list -n 1 "HEAD") # DEFAULT
 # Check composer version
 composer="${MW_COMPOSER:-composer}"
 composerVersion=$($composer --version 2> /dev/null | cut -d ' ' -f 3)
-readmeVersion="2.7.2"
+readmeVersion="2.8.1"
 if [ "$composerVersion" != "$readmeVersion" ]; then
 	echo "Composer ($composerVersion) should be the same version as in the vendor README ($readmeVersion)."
 	exit 1
