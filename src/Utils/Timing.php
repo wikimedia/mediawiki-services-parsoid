@@ -30,9 +30,8 @@ class Timing {
 	private ?SiteConfig $siteConfig;
 
 	private ?float $elapsed;
-	private bool $measuresTime;
 
-	private function __construct( ?object $configOrMetrics, ?float $elapsed = null, bool $measuresTime = true ) {
+	private function __construct( ?object $configOrMetrics, ?float $elapsed = null ) {
 		if ( $configOrMetrics instanceof SiteConfig ) {
 			$this->siteConfig = $configOrMetrics;
 			$this->metrics = $configOrMetrics->metrics();
@@ -42,7 +41,6 @@ class Timing {
 		}
 		$this->startTime = self::millis();
 		$this->elapsed = $elapsed;
-		$this->measuresTime = $measuresTime;
 	}
 
 	/**
@@ -64,7 +62,7 @@ class Timing {
 		?string $name = null,
 		?array $labels = []
 	): float {
-		if ( !$this->elapsed ) {
+		if ( $this->elapsed === null ) {
 			$this->elapsed = self::millis() - $this->startTime;
 		}
 		if ( $this->metrics ) {
@@ -72,9 +70,9 @@ class Timing {
 			$this->metrics->timing( $statsdCompat, $this->elapsed );
 		}
 		if ( $this->siteConfig ) {
-			// StatsLib compatibility: Base unit is suggested to be seconds
-			$elapsed = $this->measuresTime ? $this->elapsed / 1000 : $this->elapsed;
-			$this->siteConfig->observeTiming( $name, $elapsed, $labels );
+			// Note that observeTiming takes a value in *milliseconds*
+			// despite the name of the metric ending in `_seconds`
+			$this->siteConfig->observeTiming( $name, $this->elapsed, $labels );
 		}
 		return $this->elapsed;
 	}
@@ -82,12 +80,11 @@ class Timing {
 	/**
 	 * Override elapsed time of a timing instance
 	 * @param SiteConfig $siteConfig
-	 * @param float $value Value to measure in the metrics
-	 * @param bool $measuresTime If fake timing is measuring time
+	 * @param float $value Value to measure in the metrics (milliseconds if timing)
 	 * @return Timing
 	 */
-	public static function fakeTiming( SiteConfig $siteConfig, float $value, bool $measuresTime = false ): Timing {
-		return new Timing( $siteConfig, $value, $measuresTime );
+	public static function fakeTiming( SiteConfig $siteConfig, float $value ): Timing {
+		return new Timing( $siteConfig, $value );
 	}
 
 	/**

@@ -254,7 +254,7 @@ class Parsoid {
 
 		$parseTiming = Timing::start();
 		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options, $selparData );
-		$parseTime = $parseTiming->end();
+		$parseTimeMs = $parseTiming->end();
 
 		// FIXME: Does this belong in parseWikitext so that the other endpoint
 		// is covered as well?  It probably depends on expectations of the
@@ -281,7 +281,7 @@ class Parsoid {
 		}
 
 		$this->recordParseMetrics(
-			$env, $parseTime, $out, $headers, $contentmodel, $options
+			$env, $parseTimeMs, $out, $headers, $contentmodel, $options
 		);
 
 		if ( $env->pageBundle ) {
@@ -301,7 +301,7 @@ class Parsoid {
 	 *
 	 */
 	private function recordParseMetrics(
-		Env $env, float $parseTime,
+		Env $env, float $parseTimeMs,
 		array $out, ?array $headers, string $contentmodel,
 		array $options
 	) {
@@ -318,7 +318,7 @@ class Parsoid {
 			$mstr = 'wt';
 		}
 
-		$timing = Timing::fakeTiming( $this->siteConfig, $parseTime, true );
+		$timing = Timing::fakeTiming( $this->siteConfig, $parseTimeMs );
 		$timing->end( "entry.wt2html.{$mstr}.parse", 'wt2html_parse_seconds', [ 'type' => $mstr ] );
 		$version = 'default';
 
@@ -348,7 +348,7 @@ class Parsoid {
 		$timing = Timing::fakeTiming( $this->siteConfig, $outSize );
 		$timing->end( "entry.wt2html.{$mstr}.size.output", "wt2html_size_output_bytes", [ "type" => $mstr ] );
 
-		if ( $parseTime > 10 && $outSize > 100 ) {
+		if ( $parseTimeMs > 10 && $outSize > 100 ) {
 			// * Don't bother with this metric for really small parse times
 			//   p99 for initialization time is ~7ms according to grafana.
 			//   So, 10ms ensures that startup overheads don't skew the metrics
@@ -359,7 +359,7 @@ class Parsoid {
 			// NOTE: This is slightly misleading since there are fixed costs
 			// for generating output like the <head> section and should be factored in,
 			// but this is good enough for now as a useful first degree of approxmation.
-			$msPerKB = $parseTime * 1024 / $outSize;
+			$msPerKB = $parseTimeMs * 1024 / $outSize;
 			$timing = Timing::fakeTiming( $this->siteConfig, $msPerKB );
 			$timing->end(
 				'entry.wt2html.timePerKB',
@@ -396,7 +396,7 @@ class Parsoid {
 			$labels['reason'] = $options['renderReason'] ?? 'unknown';
 
 			$this->siteConfig->incrementCounter( 'selective_update_total', $labels );
-			$this->siteConfig->incrementCounter( 'selective_update_seconds', $labels, $parseTime / 1000. );
+			$this->siteConfig->incrementCounter( 'selective_update_seconds', $labels, $parseTimeMs / 1000. );
 		} catch ( \Throwable $t ) {
 			// Don't ever allow bugs in the classification code to
 			// impact the availability of content for read views/editing,
@@ -501,7 +501,7 @@ class Parsoid {
 			);
 		}
 
-		$timing = Timing::fakeTiming( $this->siteConfig, $serialTime, true );
+		$timing = Timing::fakeTiming( $this->siteConfig, $serialTime );
 		$timing->end( 'entry.html2wt.total', 'html2wt_total_seconds', [] );
 
 		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $wikitext ) );

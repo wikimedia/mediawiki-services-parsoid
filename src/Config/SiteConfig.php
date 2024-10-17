@@ -312,9 +312,14 @@ abstract class SiteConfig {
 	abstract public function incrementCounter( string $name, array $labels, float $amount = 1 );
 
 	/**
-	 * Record a timing metric
+	 * Record a timing metric.
+	 *
+	 * Note that the value should be provided in *milliseconds* even though
+	 * the name of the metric may end (by convention) in `_seconds`.  The
+	 * metrics infrastructure will make the appropriate conversion.
+	 *
 	 * @param string $name
-	 * @param float $value
+	 * @param float $value A timing value *in milliseconds*
 	 * @param array $labels
 	 * @return void
 	 */
