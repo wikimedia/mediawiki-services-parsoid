@@ -100,8 +100,9 @@ class Title implements LinkTarget {
 		$m = [];
 		if ( preg_match( $prefixRegexp, $title, $m ) ) {
 			$p = $m[1];
-			$nsId = $siteConfig->canonicalNamespaceId( $p ) ??
-				$siteConfig->namespaceId( $p );
+			$pLower = mb_strtolower( $p );
+			$nsId = $siteConfig->canonicalNamespaceId( $pLower ) ??
+				$siteConfig->namespaceId( $pLower );
 			if ( $nsId !== null ) {
 				$title = $m[2];
 				$ns = $nsId;
@@ -110,22 +111,23 @@ class Title implements LinkTarget {
 					$nsId === $siteConfig->canonicalNamespaceId( 'talk' ) &&
 					preg_match( $prefixRegexp, $title, $x )
 				) {
-					if ( $siteConfig->namespaceId( $x[1] ) ) {
+					$xLower = mb_strtolower( $x[1] );
+					if ( $siteConfig->namespaceId( $xLower ) ) {
 						// Disallow Talk:File:x type titles.
 						throw new TitleException(
 							"Invalid Talk namespace title \"$origTitle\"", 'title-invalid-talk-namespace', $title
 						);
-					} elseif ( $siteConfig->interwikiMapNoNamespaces()[$x[1]] ?? null ) {
+					} elseif ( $siteConfig->interwikiMapNoNamespaces()[$xLower] ?? null ) {
 						// Disallow Talk:Interwiki:x type titles.
 						throw new TitleException(
 							"Invalid Talk namespace title \"$origTitle\"", 'title-invalid-talk-namespace', $title
 						);
 					}
 				}
-			} elseif ( $siteConfig->interwikiMapNoNamespaces()[$p] ?? null ) {
+			} elseif ( $siteConfig->interwikiMapNoNamespaces()[$pLower] ?? null ) {
 				# Interwiki link
 				$title = $m[2];
-				$interwiki = strtolower( $p );
+				$interwiki = $pLower;
 
 				# We don't check for a redundant interwiki prefix to the
 				# local wiki, like core does here in

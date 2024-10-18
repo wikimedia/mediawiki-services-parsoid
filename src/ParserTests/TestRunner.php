@@ -225,7 +225,7 @@ class TestRunner {
 		$this->stats = new Stats();
 		$this->stats->modes = $newModes;
 
-		$this->mockApi = new MockApiHelper();
+		$this->mockApi = new MockApiHelper( null, fn ( $title )=>$this->normalizeTitleKey( $title ) );
 		$this->siteConfig = new SiteConfig( $this->mockApi, [] );
 		$this->dataAccess = new DataAccess( $this->mockApi, $this->siteConfig, [ 'stripProto' => false ] );
 		$this->dummyEnv = new Env(
@@ -241,6 +241,7 @@ class TestRunner {
 		// Init interwiki map to parser tests info.
 		// This suppresses interwiki info from cached configs.
 		$this->siteConfig->setupInterwikiMap( self::PARSER_TESTS_IWPS );
+		$this->siteConfig->reset();
 	}
 
 	private function newEnv( Test $test, string $wikitext ): Env {

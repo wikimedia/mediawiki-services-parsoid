@@ -505,10 +505,15 @@ class MockApiHelper extends ApiHelper {
 	/** @var string wiki prefix for which we are mocking the api access */
 	private $prefix = 'enwiki';
 
-	public function __construct( ?string $prefix = null ) {
-		if ( $prefix ) {
-			$this->prefix = $prefix;
-		}
+	/** @var callable(string):string A helper to normalize titles. */
+	private $normalizeTitle = null;
+
+	public function __construct( ?string $prefix = null, callable $normalizeTitleFunc = null ) {
+		$this->prefix = $prefix ?? $this->prefix;
+		$this->normalizeTitle = $normalizeTitleFunc ??
+			// poor man's normalization
+			( fn ( $t ) => str_replace( ' ', '_', $t ) );
+
 		// PORT-FIXME: Need to get this value
 		// $wtSizeLimit = $parsoidOptions->limits->wt2html->maxWikitextSize;
 		$wtSizeLimit = 1000000;
@@ -885,7 +890,8 @@ class MockApiHelper extends ApiHelper {
 			$titles = preg_split( '/\|/', $params['titles'] );
 			foreach ( $titles as $t ) {
 				$props = [ 'title' => $t ];
-				$key = str_replace( ' ', '_', $t ); # poor man's normalization
+				$normalizeTitle = $this->normalizeTitle;
+				$key = $normalizeTitle( $t );
 				$definedInPt = isset( $this->articleCache[$key] );
 				if ( in_array( $t, self::$missingTitles, true ) ||
 					 !$definedInPt ) {

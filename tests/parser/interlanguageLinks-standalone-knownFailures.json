@@ -5,9 +5,6 @@
         "selser [[4,4,0,1]]": "1e95x3n1nj8xix\n[[: zh : Chinese]]",
         "selser [[4,3,4,1]]": "rg2aoi7eel2y[[: zh : Chinese]]"
     },
-    "Interlanguage link variations": {
-        "metadata": "ill=es:Spanish\nill=ZH :Chinese"
-    },
     "Interlanguage link with spacing": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://zh.wikipedia.org/wiki/%20%20%20%20Chinese%20%20%20%20%20\"},\"sa\":{\"href\":\"   zh  :    Chinese     \"},\"dsr\":[15,43,null,null]}'/>",
         "wt2wt": "Blah blah blah\n[[   zh  :    Chinese     |   zh  :    Chinese     ]]",

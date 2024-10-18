@@ -397,7 +397,7 @@ abstract class SiteConfig {
 	 * Map a namespace name to its index
 	 *
 	 * @note This replaces canonicalNamespaces
-	 * @param string $name
+	 * @param string $name all-lowercase and with underscores rather than spaces.
 	 * @return int|null
 	 */
 	abstract public function namespaceId( string $name ): ?int;
