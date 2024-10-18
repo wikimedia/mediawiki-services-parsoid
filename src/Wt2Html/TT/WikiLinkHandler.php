@@ -363,7 +363,11 @@ class WikiLinkHandler extends TokenHandler {
 				// Render as a media link.
 				return $this->renderMedia( $token, $target );
 			}
-			if ( !$target->fromColonEscapedText ) {
+			if (
+				!$target->fromColonEscapedText &&
+				// Protect from purely fragment links on pages in these namespaces
+				( $target->href[0] ?? '' ) !== '#'
+			) {
 				if ( $nsId === $siteConfig->canonicalNamespaceId( 'file' ) ) {
 					// Render as a file.
 					return $this->renderFile( $token, $target );
