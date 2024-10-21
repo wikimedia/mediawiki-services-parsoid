@@ -62,28 +62,7 @@ use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
  * This class assembles parser pipelines from parser stages
  */
 class ParserPipelineFactory {
-	private static $initialized = false;
 	private static $globalPipelineId = 0;
-
-	public static function init(): void {
-		if ( self::$initialized ) {
-			return;
-		}
-
-		self::$stages["FullParseDOMTransform"]["processors"] =
-			array_merge(
-				self::NESTED_PIPELINE_DOM_TRANSFORMS,
-				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
-			);
-
-		self::$stages["SelectiveUpdateFragmentDOMTransform"]["processors"] =
-			array_merge(
-				self::NESTED_PIPELINE_DOM_TRANSFORMS,
-				self::SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS
-			);
-
-		self::$initialized = true;
-	}
 
 	private const DOM_PROCESSOR_CONFIG = [
 		'addmetadata' => AddMetaData::class,
@@ -349,7 +328,10 @@ class ParserPipelineFactory {
 		// (Template wrapping, broken wikitext/html detection, etc.)
 		"FullParseDOMTransform" => [
 			"class" => DOMPostProcessor::class,
-			"processors" => null // Will be initialized in an init function()
+			"processors" => [
+				self::NESTED_PIPELINE_DOM_TRANSFORMS,
+				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
+			],
 		],
 		// DOM transformer for fragments of a top-level document
 		"NestedFragmentDOMTransform" => [
@@ -366,7 +348,10 @@ class ParserPipelineFactory {
 		// but at this time, it is unclear if that will materialize.
 		"SelectiveUpdateFragmentDOMTransform" => [
 			"class" => DOMPostProcessor::class,
-			"processors" => null // Will be initialized in an init function()
+			"processors" => [
+				self::NESTED_PIPELINE_DOM_TRANSFORMS,
+				self::SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS
+			],
 		],
 		// DOM transformer for the top-level page during selective updates.
 		"SelectiveUpdateDOMTransform" => [
@@ -541,8 +526,6 @@ class ParserPipelineFactory {
 	private function makePipeline(
 		string $type, string $cacheKey, array $options
 	): ParserPipeline {
-		self::init();
-
 		if ( !isset( self::$pipelineRecipes[$type] ) ) {
 			throw new InternalException( 'Unsupported Pipeline: ' . $type );
 		}
@@ -553,16 +536,23 @@ class ParserPipelineFactory {
 
 		foreach ( $recipeStages as $stageId ) {
 			$stageData = self::$stages[$stageId];
-			// @phan-suppress-next-line PhanNonClassMethodCall,PhanTypeExpectedObjectOrClassName
 			$stage = new $stageData["class"]( $this->env, $options, $stageId, $prevStage );
 			if ( isset( $stageData["transformers"] ) ) {
 				foreach ( $stageData["transformers"] as $tName ) {
 					$stage->addTransformer( new $tName( $stage, $options ) );
 				}
 			} elseif ( isset( $stageData["processors"] ) ) {
-				$stage->registerProcessors( self::procNamesToProcs( $stageData["processors"] ) );
+				$processors = [];
+				array_walk_recursive(
+					$stageData["processors"],
+					static function ( $p ) use ( &$processors ) {
+						$processors[] = $p;
+					}
+				);
+				$stage->registerProcessors(
+					self::procNamesToProcs( $processors )
+				);
 			}
-
 			$prevStage = $stage;
 			$pipeStages[] = $stage;
 		}
