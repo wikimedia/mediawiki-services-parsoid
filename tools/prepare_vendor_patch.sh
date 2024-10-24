@@ -132,7 +132,7 @@ echo
 
 # Generate commit
 echo "Preparing vendor patch"
-git checkout -b $3
+git checkout -B $3
 git add -A wikimedia/parsoid composer.lock composer.json composer
 git commit -m "Bump wikimedia/parsoid to $vstring
 
@@ -152,7 +152,7 @@ echo "Bumping Parsoid version in core and preparing patch"
 
 sed -i.bak "s/wikimedia\/parsoid.*/wikimedia\/parsoid\": \"$vstring\",/g;" composer.json
 rm composer.json.bak
-git checkout -b $3
+git checkout -B $3
 git commit composer.json -m "Bump wikimedia/parsoid to $vstring
 
 Bug: $3
