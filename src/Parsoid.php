@@ -574,7 +574,9 @@ class Parsoid {
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
 				$dataBagPB->parsoid['offsetType'] = $options['outputOffsetType'];
-				$dataBagPB->parsoid['counter'] = $pb->parsoid['counter'];
+				if ( isset( $pb->parsoid['counter'] ) ) {
+					$dataBagPB->parsoid['counter'] = $pb->parsoid['counter'];
+				}
 				break;
 
 			case 'redlinks':
