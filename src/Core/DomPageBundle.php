@@ -131,16 +131,23 @@ class DomPageBundle implements JsonCodecable {
 	 */
 	public function toDom( bool $load = true, ?array $options = null ): Document {
 		$doc = $this->doc;
-		self::apply( $doc, $this );
 		if ( $load ) {
+			$options ??= [];
 			DOMDataUtils::prepareDoc( $doc );
 			$body = DOMCompat::getBody( $doc );
 			'@phan-var Element $body'; // assert non-null
-			DOMDataUtils::visitAndLoadDataAttribs( $body, $options ?? [
-				'markNew' => true,
-				'validateXMLNames' => true,
-			] );
+			DOMDataUtils::visitAndLoadDataAttribs(
+				$body,
+				[
+					'loadFromPageBundle' => $this,
+				] + $options + [
+					'markNew' => true,
+					'validateXMLNames' => true,
+				]
+			);
 			DOMDataUtils::getBag( $doc )->loaded = true;
+		} else {
+			self::apply( $doc, $this );
 		}
 		$this->doc = null; // Prevent reuse of the DomPageBundle
 		return $doc;

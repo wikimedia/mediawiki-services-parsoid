@@ -155,34 +155,51 @@ class DOMDataUtils {
 	 * Get data object from a node.
 	 *
 	 * @param Element $node node
+	 * @param ?DomPageBundle $pb Optional source for node data
 	 * @return NodeData
 	 */
-	public static function getNodeData( Element $node ): NodeData {
-		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+	public static function getNodeData( Element $node, ?DomPageBundle $pb = null ): NodeData {
+		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
+		if ( $nodeId === null ) {
 			// Initialized on first request
-			$dataObject = new NodeData;
-			self::setNodeData( $node, $dataObject );
-			return $dataObject;
+			$nodeData = new NodeData;
+			self::setNodeData( $node, $nodeData );
+			$id = DOMCompat::getAttribute( $node, 'id' );
+			if ( $id !== null && $pb !== null ) {
+				// See if there is data-parsoid or data-mw in the page bundle
+				$codec = self::getCodec( $node->ownerDocument );
+				$hints = self::getCodecHints();
+				if ( isset( $pb->parsoid['ids'][$id] ) ) {
+					$dp = $codec->newFromJsonArray(
+						$pb->parsoid['ids'][$id],
+						$hints['data-parsoid']
+					);
+					$nodeData->parsoid = $dp;
+				}
+				if ( isset( $pb->mw['ids'][$id] ) ) {
+					$dmw = $codec->newFromJsonArray(
+						$pb->mw['ids'][$id],
+						$hints['data-mw']
+					);
+					$nodeData->mw = $dmw;
+				}
+			}
+			return $nodeData;
 		}
 
-		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
-		if ( $nodeId !== null ) {
-			$dataObject = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
-		} else {
-			$dataObject = null; // Make phan happy
-		}
-		Assert::invariant( $dataObject !== null, 'Bogus nodeId given!' );
-		if ( isset( $dataObject->storedId ) ) {
+		$nodeData = self::getBag( $node->ownerDocument )->getObject( (int)$nodeId );
+		Assert::invariant( $nodeData !== null, 'Bogus nodeId given!' );
+		if ( isset( $nodeData->storedId ) ) {
 			throw new UnreachableException(
 				'Trying to fetch node data without loading!' .
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared
 				// between nodes without getting cloned. Useful for debugging.
 				'Node id: ' . $nodeId . ' ' .
-				'Stored data: ' . PHPUtils::jsonEncode( $dataObject )
+				'Stored data: ' . PHPUtils::jsonEncode( $nodeData )
 			);
 		}
-		return $dataObject;
+		return $nodeData;
 	}
 
 	/**
@@ -502,9 +519,11 @@ class DOMDataUtils {
 		$docDp = &$pb->parsoid;
 		$origId = $uid;
 		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
+			// Forcibly reset the ID if there's a conflict
 			$uid = null;
 		}
 		if ( $uid === '' ) {
+			// Forcibly reset the ID if it is invalid
 			$uid = null;
 		}
 		if ( $uid === null ) {
@@ -570,30 +589,40 @@ class DOMDataUtils {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
-		// Reset the node data object's stored state, since we're reloading it
-		self::setNodeData( $node, new NodeData );
+		$nodeData = self::getNodeData( $node, $options['loadFromPageBundle'] ?? null );
 		$codec = self::getCodec( $node->ownerDocument );
 		$dataParsoidAttr = DOMCompat::getAttribute( $node, 'data-parsoid' );
-		$dp = $codec->newFromJsonString(
-			$dataParsoidAttr ?? '{}', self::getCodecHints()['data-parsoid']
-		);
+		if ( $dataParsoidAttr === null ) {
+			// data-parsoid might have come from page bundle
+			$newDP = ( $nodeData->parsoid === null );
+			$dp = self::getDataParsoid( $node );
+		} else {
+			$newDP = false;
+			$dp = $codec->newFromJsonString(
+				$dataParsoidAttr, self::getCodecHints()['data-parsoid']
+			);
+		}
 		if ( !empty( $options['markNew'] ) ) {
-			$dp->setTempFlag( TempData::IS_NEW, $dataParsoidAttr === null );
+			$dp->setTempFlag( TempData::IS_NEW, $newDP );
 		}
 		self::setDataParsoid( $node, $dp );
 		$node->removeAttribute( 'data-parsoid' );
 
 		$dataMwAttr = DOMCompat::getAttribute( $node, 'data-mw' );
-		try {
-			$dmw = $dataMwAttr === null
-				? null
-				: $codec->newFromJsonString( $dataMwAttr, self::getCodecHints()['data-mw'] );
-		} catch ( TypeError $e ) {
-			// improve debuggability
-			throw new UnexpectedValueException( "Unable to decode JsonString [$dataMwAttr]", 0, $e );
+		// note that data-mw might already be present in node data from
+		// page bundle, but inline attribute takes precedence
+		if ( $dataMwAttr !== null ) {
+			try {
+				$dmw = $codec->newFromJsonString(
+					$dataMwAttr, self::getCodecHints()['data-mw']
+				);
+			} catch ( TypeError $e ) {
+				// improve debuggability
+				throw new UnexpectedValueException( "Unable to decode JsonString [$dataMwAttr]", 0, $e );
+			}
+			self::setDataMw( $node, $dmw );
+			$node->removeAttribute( 'data-mw' );
 		}
-		self::setDataMw( $node, $dmw );
-		$node->removeAttribute( 'data-mw' );
 
 		// We don't load rich attributes here: that will be done lazily as
 		// getAttributeObject()/etc methods are called because we don't
