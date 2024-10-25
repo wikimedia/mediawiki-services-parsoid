@@ -223,7 +223,7 @@ class ParsoidExtensionAPI {
 	 * @return Document
 	 */
 	public function getTopLevelDoc(): Document {
-		return $this->env->topLevelDoc;
+		return $this->env->getTopLevelDoc();
 	}
 
 	/**

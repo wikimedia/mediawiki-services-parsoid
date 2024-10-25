@@ -131,7 +131,7 @@ class TreeBuilderStage extends PipelineStage {
 			// This is similar to DOMCompat::setInnerHTML() in that we can
 			// consider it equivalent to the fragment parsing algorithm,
 			// https://html.spec.whatwg.org/#html-fragment-parsing-algorithm
-			$node = $this->env->topLevelDoc->createDocumentFragment();
+			$node = $this->env->getTopLevelDoc()->createDocumentFragment();
 			DOMUtils::migrateChildrenBetweenDocs(
 				DOMCompat::getBody( $this->remexPipeline->doc ), $node
 			);
@@ -165,7 +165,7 @@ class TreeBuilderStage extends PipelineStage {
 			$data->mw = $dataMw;
 		}
 		// Store in the top level doc since we'll be importing the nodes after treebuilding
-		$nodeId = DOMDataUtils::stashObjectInDoc( $this->env->topLevelDoc, $data );
+		$nodeId = DOMDataUtils::stashObjectInDoc( $this->env->getTopLevelDoc(), $data );
 		$attribs[DOMDataUtils::DATA_OBJECT_ATTR_NAME] = (string)$nodeId;
 		return $attribs;
 	}

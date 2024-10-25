@@ -230,7 +230,7 @@ class Env {
 	 *
 	 * @var Document
 	 */
-	public $topLevelDoc;
+	private $topLevelDoc;
 
 	/**
 	 * The RemexPipeline used during a wt2html operation.
@@ -841,6 +841,15 @@ class Env {
 			$this->topLevelDoc = $this->remexPipeline->doc;
 		}
 		DOMDataUtils::prepareDoc( $this->topLevelDoc );
+	}
+
+	public function getTopLevelDoc(): Document {
+		return $this->topLevelDoc;
+	}
+
+	/** FIXME: Callers should use ::setupTopLevelDoc instead */
+	public function setTopLevelDoc( Document $doc ): void {
+		$this->topLevelDoc = $doc;
 	}
 
 	public function fetchRemexPipeline( bool $toFragment ): RemexPipeline {

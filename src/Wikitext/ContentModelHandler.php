@@ -111,12 +111,12 @@ class ContentModelHandler extends IContentModelHandler {
 
 			// FIXME(T266838): Create a new Env for this parse?  Something is
 			// needed to avoid this rigmarole.
-			$topLevelDoc = $env->topLevelDoc;
+			$topLevelDoc = $env->getTopLevelDoc();
 			$env->setupTopLevelDoc();
 			// This effectively parses $selserData->revText for us because
 			// $selserData->revText = $env->getPageconfig()->getPageMainContent()
 			$doc = $this->toDOM( $extApi );
-			$env->topLevelDoc = $topLevelDoc;
+			$env->setTopLevelDoc( $topLevelDoc );
 		} else {
 			$doc = ContentUtils::createDocument( $selserData->revHTML, true );
 		}
@@ -166,7 +166,7 @@ class ContentModelHandler extends IContentModelHandler {
 		if ( $selectiveUpdateData ) {
 			$doc = ContentUtils::createDocument( $selectiveUpdateData->revHTML, true );
 			$env->setupTopLevelDoc( $doc );
-			$this->canonicalizeDOM( $env, $env->topLevelDoc, true );
+			$this->canonicalizeDOM( $env, $env->getTopLevelDoc(), true );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
 		} else {
@@ -226,7 +226,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$siteConfig = $env->getSiteConfig();
 		$setupTiming = Timing::start( $siteConfig );
 
-		$this->canonicalizeDOM( $env, $env->topLevelDoc, false );
+		$this->canonicalizeDOM( $env, $env->getTopLevelDoc(), false );
 
 		$serializerOpts = [ 'selserData' => $selserData ];
 		if ( $selserData ) {
@@ -242,11 +242,11 @@ class ContentModelHandler extends IContentModelHandler {
 		$setupTiming->end( 'html2wt.setup', 'html2wt_setup_seconds', [] );
 
 		$preprocTiming = Timing::start( $siteConfig );
-		$this->preprocessEditedDOM( $env, $env->topLevelDoc );
+		$this->preprocessEditedDOM( $env, $env->getTopLevelDoc() );
 		$preprocTiming->end( 'html2wt.preprocess', 'html2wt_preprocess_seconds', [] );
 
 		$serializeTiming = Timing::start( $siteConfig );
-		$res = $serializer->serializeDOM( $env->topLevelDoc );
+		$res = $serializer->serializeDOM( $env->getTopLevelDoc() );
 		$serializeTiming->end(
 			"html2wt.{$wtsType}.serialize",
 			"html2wt_serialize_seconds",

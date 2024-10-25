@@ -114,7 +114,7 @@ class ExtensionHandler extends TokenHandler {
 				}
 			} catch ( ExtensionError $e ) {
 				$domFragment = WTUtils::createInterfaceI18nFragment(
-					$env->topLevelDoc, $e->err->key, $e->err->params ?: null
+					$env->getTopLevelDoc(), $e->err->key, $e->err->params ?: null
 				);
 				$errors = [ $e->err ];
 				// FIXME: Should we include any errors collected
@@ -160,7 +160,7 @@ class ExtensionHandler extends TokenHandler {
 				$profile->bumpCount( "Extension" );
 			}
 			if ( !$domFragment ) {
-				$domFragment = DOMUtils::parseHTMLToFragment( $env->topLevelDoc, '' );
+				$domFragment = DOMUtils::parseHTMLToFragment( $env->getTopLevelDoc(), '' );
 			}
 			$toks = $this->onDocumentFragment( $token, $domFragment, $dataMw, [] );
 		}

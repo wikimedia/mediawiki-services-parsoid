@@ -687,7 +687,7 @@ class PipelineUtils {
 			$env->getPageConfig(), $env->getMetadata(), $source
 		);
 		return $ret === '' ? null : DOMUtils::parseHTMLToFragment(
-				$env->topLevelDoc, DOMUtils::stripPWrapper( $ret )
+				$env->getTopLevelDoc(), DOMUtils::stripPWrapper( $ret )
 			);
 	}
 }

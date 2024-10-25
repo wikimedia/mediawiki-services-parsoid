@@ -367,7 +367,7 @@ class TestRunner {
 		} else {
 			$selserData = null;
 		}
-		$env->topLevelDoc = $doc;
+		$env->setTopLevelDoc( $doc );
 		$extApi = new ParsoidExtensionAPI( $env );
 		return $env->getContentHandler()->fromDOM( $extApi, $selserData );
 	}
