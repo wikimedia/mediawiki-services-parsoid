@@ -26,6 +26,9 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * These utilites pertain to querying / extracting / modifying wikitext information from the DOM.
+ *
+ * @note Many of these methods are not safe to use unless the DOM has been
+ *  loaded and prepared, as they consult DataParsoid from the NodeData.
  */
 class WTUtils {
 	private const FIRST_ENCAP_REGEXP =

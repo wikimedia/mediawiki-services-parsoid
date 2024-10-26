@@ -649,7 +649,8 @@
         "selser [[1]]": "*\n**bar",
         "selser [[[0,[[3]]]]]": "*\n**",
         "selser [[[0,[1]]]]": "*\n**bar",
-        "selser [[2]]": "* 1yzerqh\n*\n**bar"
+        "selser [[2]]": "* 1yzerqh\n*\n**bar",
+        "selser [[[0,2]]]": "* n33qhd\n**bar"
     },
     "Nested lists 4 (first element empty)": {
         "html2wt": "**\n* bar"
@@ -661,6 +662,7 @@
         "selser [2]": "1u5v0i7\n*\n**",
         "selser [[[0,1]]]": "*\n**",
         "selser [[1]]": "*\n**",
+        "selser [[[0,2]]]": "* m7u3sr\n**",
         "selser [[2]]": "* 14d3cex\n*\n**"
     },
     "Nested lists 7 (skip initial nesting levels)": {
@@ -862,12 +864,12 @@
         "selser [[2,1,0]]": "<div itemscope>obr3o0\n\t<nowiki><meta itemprop=\"hello\" content=\"world\"></nowiki>\n\t<nowiki><meta http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><link itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>",
         "selser [[0,1,0]]": "<div itemscope>\n\t<nowiki><meta itemprop=\"hello\" content=\"world\"></nowiki>\n\t<nowiki><meta http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><link itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>",
         "selser [[0,[2],0]]": "<div itemscope>\n\t7gwr4j<nowiki><meta itemprop=\"hello\" content=\"world\"></nowiki>\n\t<nowiki><meta http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\"></nowiki>\n\t<nowiki><link itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" href=\"{{SERVER}}\"></nowiki>\n\t<nowiki><link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\"></nowiki>\n</div>",
-        "selser [[3,2,0]]": "<div itemscope>1mh1xk5\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>",
+        "selser [[3,2,0]]": "<div itemscope>\n1mh1xk5\n\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>",
         "selser [1]": "<div itemscope=\"\" data-foobar=\"itggi0\">\n\t<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>",
-        "selser [[2,2,0]]": "<div itemscope>59jrda\n\t131zru6\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>",
+        "selser [[2,2,0]]": "<div itemscope>59jrda\n\t131zru6\n\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>",
         "selser [[2,4,0]]": "<div itemscope>1k21p46\n\t10tbl0m\n</div>",
         "selser [[3,0,4]]": "<div itemscope>\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n14z0d3m</div>",
-        "selser [[0,2,0]]": "<div itemscope>\n\tcfkjjt\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>"
+        "selser [[0,2,0]]": "<div itemscope>\n\tcfkjjt\n\n<meta itemprop=\"hello\" content=\"world\">\n\t<meta http-equiv=\"refresh\" content=\"5\">\n\t<meta itemprop=\"hello\" http-equiv=\"refresh\" content=\"5\">\n\t<link itemprop=\"hello\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" href=\"{{SERVER}}\">\n\t<link rel=\"stylesheet\" itemprop=\"hello\" href=\"{{SERVER}}\">\n</div>"
     },
     "Say the magic word": {
         "html2wt": "* {{PAGENAME}}\n* {{PAGENAMEE}}\n* {{FULLPAGENAME}}\n* {{FULLPAGENAMEE}}\n* {{BASEPAGENAME}}\n* {{BASEPAGENAMEE}}\n* {{SUBPAGENAME}}\n* {{SUBPAGENAMEE}}\n* {{ROOTPAGENAME}}\n* {{ROOTPAGENAMEE}}\n* {{TALKPAGENAME}}\n* {{TALKPAGENAMEE}}\n* {{SUBJECTPAGENAME}}\n* {{SUBJECTPAGENAMEE}}\n* {{NAMESPACEE}}\n* {{NAMESPACE}}\n* {{NAMESPACENUMBER}}\n* {{TALKSPACE}}\n* {{TALKSPACEE}}\n* {{SUBJECTSPACE}}\n* {{SUBJECTSPACEE}}\n* {{Dynamic|{{NUMBEROFUSERS}}|{{NUMBEROFPAGES}}|{{CURRENTVERSION}}|{{CONTENTLANGUAGE}}|{{DIRECTIONMARK}}|{{CURRENTTIMESTAMP}}|{{NUMBEROFARTICLES}}}}"
@@ -1105,7 +1107,7 @@
         "html2wt": "<blockquote>\nLine one\n\nLine two\n\n</blockquote>"
     },
     "T8200: paragraphs inside blockquotes (extra line break on open)": {
-        "selser [[0,[3],2]]": "<blockquote>\n\n1x8wibb\n\n\n\nLine two</blockquote>"
+        "selser [[0,[3],2]]": "<blockquote>\n\n\n1x8wibb\n\n\n\nLine two</blockquote>"
     },
     "T8200: paragraphs inside blockquotes (no extra line breaks)": {
         "html2wt": "<blockquote>Line one\nLine two</blockquote>"

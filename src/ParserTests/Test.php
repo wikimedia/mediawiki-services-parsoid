@@ -503,7 +503,10 @@ class Test extends Item {
 					$wrapperName = 'p';
 					break;
 				default:
-					if ( WTUtils::isBlockNodeWithVisibleWT( $n ) ) {
+					// We're trying to determine if it is safe to place a
+					// bare text node.  If $n is a block, wrap the text node
+					// we're putting beside it.
+					if ( DOMUtils::isWikitextBlockNode( $n ) ) {
 						$wrapperName = 'p';
 					}
 					break;
