@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -12,19 +14,27 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
- * PORT-FIXME: This is just a placeholder for data that was previously passed
- * to entrypoint in JavaScript.  Who will construct these objects and whether
- * this is the correct interface is yet to be determined.
+ * A page bundle stores an HTML string with separated data-parsoid and
+ * (optionally) data-mw content.  The data-parsoid and data-mw content
+ * is indexed by the id attributes on individual nodes.  This content
+ * needs to be loaded before the data-parsoid and/or data-mw
+ * information can be used.
  *
  * Note that the parsoid/mw properties of the page bundle are in "serialized
  * array" form; that is, they are flat arrays appropriate for json-encoding
  * and do not contain DataParsoid or DataMw objects.
+ *
+ * See DomPageBundle for a similar structure used where the HTML string
+ * has been parsed into a DOM.
  */
-class PageBundle {
-	/** @var string */
-	public $html;
+class PageBundle implements JsonCodecable {
+	use JsonCodecableTrait;
+
+	/** The document, as an HTML string. */
+	public string $html;
 
 	/**
 	 * A map from ID to the array serialization of DataParsoid for the Node
@@ -190,6 +200,87 @@ class PageBundle {
 			'', /* html */
 			$decoded['parsoid'] ?? null,
 			$decoded['mw'] ?? null
+		);
+	}
+
+	/**
+	 * Convert a DomPageBundle to a PageBundle.
+	 *
+	 * This serializes the DOM from the DomPageBundle, with the given $options.
+	 * The options can also provide defaults for content version, headers,
+	 * content model, and offsetType if they weren't already set in the
+	 * DomPageBundle.
+	 *
+	 * @param DomPageBundle $dpb
+	 * @param array $options XMLSerializer options
+	 * @return PageBundle
+	 */
+	public static function fromDomPageBundle( DomPageBundle $dpb, array $options = [] ): PageBundle {
+		$node = $dpb->doc;
+		if ( $options['body_only'] ?? false ) {
+			$node = DOMCompat::getBody( $dpb->doc );
+			$options += [ 'innerXML' => true ];
+		}
+		$out = XMLSerializer::serialize( $node, $options );
+		$pb = new PageBundle(
+			$out['html'],
+			$dpb->parsoid,
+			$dpb->mw,
+			$dpb->version ?? $options['contentversion'] ?? null,
+			$dpb->headers ?? $options['headers'] ?? null,
+			$dpb->contentmodel ?? $options['contentmodel'] ?? null
+		);
+		if ( isset( $options['offsetType'] ) ) {
+			$pb->parsoid['offsetType'] ??= $options['offsetType'];
+		}
+		return $pb;
+	}
+
+	/**
+	 * Convert this PageBundle to "single document" form, where page bundle
+	 * information is embedded in the <head> of the document.
+	 * @param array $options XMLSerializer options
+	 * @return string an HTML string
+	 */
+	public function toSingleDocumentHtml( array $options = [] ): string {
+		return DomPageBundle::fromPageBundle( $this )
+			->toSingleDocumentHtml( $options );
+	}
+
+	/**
+	 * Convert this PageBundle to "inline attribute" form, where page bundle
+	 * information is represented as inline JSON-valued attributes.
+	 * @param array $options XMLSerializer options
+	 * @return string an HTML string
+	 */
+	public function toInlineAttributeHtml( array $options = [] ): string {
+		return DomPageBundle::fromPageBundle( $this )
+			->toInlineAttributeHtml( $options );
+	}
+
+	// JsonCodecable -------------
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		return [
+			'html' => $this->html,
+			'parsoid' => $this->parsoid,
+			'mw' => $this->mw,
+			'version' => $this->version,
+			'headers' => $this->headers,
+			'contentmodel' => $this->contentmodel,
+		];
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ): PageBundle {
+		return new PageBundle(
+			$json['html'] ?? '',
+			$json['parsoid'] ?? null,
+			$json['mw'] ?? null,
+			$json['version'] ?? null,
+			$json['headers'] ?? null,
+			$json['contentmodel'] ?? null
 		);
 	}
 }
