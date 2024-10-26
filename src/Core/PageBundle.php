@@ -102,13 +102,14 @@ class PageBundle {
 	 * @return array
 	 */
 	public function responseData() {
+		$version = $this->version ?? '0.0.0';
 		$responseData = [
 			'contentmodel' => $this->contentmodel ?? '',
 			'html' => [
 				'headers' => array_merge( [
 					'content-type' => 'text/html; charset=utf-8; '
 						. 'profile="https://www.mediawiki.org/wiki/Specs/HTML/'
-						. $this->version . '"',
+						. $version . '"',
 				], $this->headers ?? [] ),
 				'body' => $this->html,
 			],
@@ -116,17 +117,17 @@ class PageBundle {
 				'headers' => [
 					'content-type' => 'application/json; charset=utf-8; '
 						. 'profile="https://www.mediawiki.org/wiki/Specs/data-parsoid/'
-						. $this->version . '"',
+						. $version . '"',
 				],
 				'body' => $this->parsoid,
 			],
 		];
-		if ( Semver::satisfies( $this->version, '^999.0.0' ) ) {
+		if ( Semver::satisfies( $version, '^999.0.0' ) ) {
 			$responseData['data-mw'] = [
 				'headers' => [
 					'content-type' => 'application/json; charset=utf-8; ' .
 						'profile="https://www.mediawiki.org/wiki/Specs/data-mw/' .
-						$this->version . '"',
+						$version . '"',
 				],
 				'body' => $this->mw,
 			];
