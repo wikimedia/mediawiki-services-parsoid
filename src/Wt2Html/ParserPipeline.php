@@ -7,7 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -106,7 +106,7 @@ class ParserPipeline {
 	 * in case that first stage is the source of input chunks we are processing
 	 * in the rest of the pipeline)
 	 *
-	 * @param string|Token|array<Token|string>|Element $input
+	 * @param string|Token|array<Token|string>|DocumentFragment $input
 	 * @param array{sol:bool} $opts
 	 *  - sol (bool) Whether tokens should be processed in start-of-line context.
 	 *  - chunky (bool) Whether we are processing the input chunkily.
