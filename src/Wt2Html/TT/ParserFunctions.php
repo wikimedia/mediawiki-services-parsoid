@@ -70,7 +70,7 @@ class ParserFunctions {
 
 	// XXX: move to frame?
 	private function expandKV(
-		$kv, Frame $frame, $defaultValue = null, string $type = null, bool $trim = false
+		$kv, Frame $frame, $defaultValue = null, ?string $type = null, bool $trim = false
 	): array {
 		if ( $type === null ) {
 			$type = 'expanded-tokens-to-fragment';

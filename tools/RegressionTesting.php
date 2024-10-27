@@ -106,7 +106,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string|null $hostname The host on which to execute the command.
 	 * @throws Error if the command does not successfully execute
 	 */
-	private function ssh( array $cmd, string $hostname = null ): void {
+	private function ssh( array $cmd, ?string $hostname = null ): void {
 		array_unshift( $cmd, 'ssh', $this->hostname( $hostname ) );
 		$this->sh( $cmd );
 	}
@@ -130,7 +130,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string|null $host The hostname to use.
 	 * @return string
 	 */
-	private function hostname( string $host = null ): string {
+	private function hostname( ?string $host = null ): string {
 		if ( $host === null ) {
 			// default hostname
 			$host = 'testreduce1002.eqiad.wmnet';
@@ -158,7 +158,7 @@ class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	 * @param string|null $heading The heading text, or null to print a line of dashes
 	 * @param bool $force Whether to print the heading even if --quiet
 	 */
-	private function dashes( string $heading = null, bool $force = false ): void {
+	private function dashes( ?string $heading = null, bool $force = false ): void {
 		if ( $this->hasOption( 'quiet' ) && !$force ) {
 			return;
 		}

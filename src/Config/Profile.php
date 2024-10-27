@@ -73,7 +73,7 @@ class Profile {
 	 * @param float $time Time in milliseconds
 	 * @param string|null $cat
 	 */
-	public function bumpTimeUse( string $resource, float $time, string $cat = null ): void {
+	public function bumpTimeUse( string $resource, float $time, ?string $cat = null ): void {
 		$this->bumpProfileTimeUse( $this->timeProfile, $resource, $time, $cat );
 	}
 
@@ -84,7 +84,7 @@ class Profile {
 	 * @param float $time Time in milliseconds
 	 * @param string|null $cat
 	 */
-	public function bumpMWTime( string $resource, float $time, string $cat = null ): void {
+	public function bumpMWTime( string $resource, float $time, ?string $cat = null ): void {
 		// FIXME: For now, skip the category since this leads to double counting
 		// when reportind time by categories since this time is part of other
 		// '$this->timeProfile' categories already.

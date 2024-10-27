@@ -508,7 +508,7 @@ class MockApiHelper extends ApiHelper {
 	/** @var callable(string):string A helper to normalize titles. */
 	private $normalizeTitle = null;
 
-	public function __construct( ?string $prefix = null, callable $normalizeTitleFunc = null ) {
+	public function __construct( ?string $prefix = null, ?callable $normalizeTitleFunc = null ) {
 		$this->prefix = $prefix ?? $this->prefix;
 		$this->normalizeTitle = $normalizeTitleFunc ??
 			// poor man's normalization

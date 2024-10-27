@@ -72,7 +72,7 @@ if ( $parsoidMode === 'integrated' ) {
 		/**
 		 * @inheritDoc
 		 */
-		public function finalSetup( SettingsBuilder $settingsBuilder = null ) {
+		public function finalSetup( ?SettingsBuilder $settingsBuilder = null ) {
 			parent::finalSetup( $settingsBuilder ?? SettingsBuilder::getInstance() );
 		}
 

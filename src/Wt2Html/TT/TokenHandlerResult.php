@@ -15,7 +15,7 @@ class TokenHandlerResult {
 	 *   current token
 	 * @param bool $skipOnAny Don't call this handler's onAny() method for this token
 	 */
-	public function __construct( array $tokens = null, $skipOnAny = false ) {
+	public function __construct( ?array $tokens = null, $skipOnAny = false ) {
 		if ( $tokens ) {
 			foreach ( $tokens as $token ) {
 				if ( $token === null ) {
