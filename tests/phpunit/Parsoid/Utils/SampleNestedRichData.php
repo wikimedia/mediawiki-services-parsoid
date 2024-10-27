@@ -19,7 +19,7 @@ class SampleNestedRichData implements JsonCodecable {
 	 *
 	 * @param SampleRichData|null $foo
 	 */
-	public function __construct( SampleRichData $foo = null ) {
+	public function __construct( ?SampleRichData $foo = null ) {
 		$this->foo = $foo;
 	}
 

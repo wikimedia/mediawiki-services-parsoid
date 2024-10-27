@@ -34,7 +34,7 @@ class SerializerStateTest extends TestCase {
 	}
 
 	private function getState(
-		array $options = [], MockEnv $env = null, WikitextSerializer $serializer = null
+		array $options = [], ?MockEnv $env = null, ?WikitextSerializer $serializer = null
 	): SerializerState {
 		if ( !$env ) {
 			$env = new MockEnv( [] );

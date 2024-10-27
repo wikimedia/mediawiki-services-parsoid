@@ -360,7 +360,7 @@ class Test extends Item {
 				'@phan-var Element $node'; // @var Element $node
 				DOMCompat::setInnerHTML( $node, $h );
 			},
-			'remove' => static function ( Node $node, string $optSelector = null ) {
+			'remove' => static function ( Node $node, ?string $optSelector = null ) {
 				// jquery lets us specify an optional selector to further
 				// restrict the removed elements.
 				// text nodes don't have the "querySelectorAll" method, so

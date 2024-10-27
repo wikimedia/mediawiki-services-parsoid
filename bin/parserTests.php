@@ -32,7 +32,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	/**
 	 * @inheritDoc
 	 */
-	public function finalSetup( SettingsBuilder $settingsBuilder = null ) {
+	public function finalSetup( ?SettingsBuilder $settingsBuilder = null ) {
 		parent::finalSetup( $settingsBuilder );
 		self::requireTestsAutoloader();
 	}
