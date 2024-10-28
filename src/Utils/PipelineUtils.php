@@ -372,7 +372,7 @@ class PipelineUtils {
 			// were not applied in cleanup.  However, tmp
 			// was stripped.
 			$v['html'] = ContentUtils::ppToXML(
-				$domFragment, [ 'innerXML' => true ]
+				$domFragment, [ 'innerXML' => true, 'fragment' => true ]
 			);
 		}
 		// Remove srcOffsets after value is expanded, so they don't show

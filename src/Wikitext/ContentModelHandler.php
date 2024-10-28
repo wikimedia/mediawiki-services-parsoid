@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wikitext;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ContentModelHandler as IContentModelHandler;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
@@ -15,6 +16,7 @@ use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 
 class ContentModelHandler extends IContentModelHandler {
@@ -36,14 +38,13 @@ class ContentModelHandler extends IContentModelHandler {
 	 * Bring DOM to expected canonical form
 	 */
 	private function canonicalizeDOM(
-		Env $env, Document $doc, bool $isSelectiveUpdate
+		Env $env, Document $doc
 	): void {
+		Assert::invariant(
+			DOMDataUtils::isPreparedAndLoaded( $doc ),
+			"doc should already be prepared and loaded"
+		);
 		$body = DOMCompat::getBody( $doc );
-
-		// Convert DOM to internal canonical form
-		DOMDataUtils::visitAndLoadDataAttribs( $body, [
-			'markNew' => !$isSelectiveUpdate,
-		] );
 
 		// Update DSR offsets if necessary.
 		ContentUtils::convertOffsets(
@@ -118,10 +119,13 @@ class ContentModelHandler extends IContentModelHandler {
 			$doc = $this->toDOM( $extApi );
 			$env->setTopLevelDoc( $topLevelDoc );
 		} else {
-			$doc = ContentUtils::createDocument( $selserData->revHTML, true );
+			$doc = ContentUtils::createAndLoadDocument(
+				$selserData->revHTML,
+				[ 'markNew' => true, 'validateXMLNames' => true, ]
+			);
 		}
 
-		$this->canonicalizeDOM( $env, $doc, false );
+		$this->canonicalizeDOM( $env, $doc );
 		$selserData->revDOM = $doc;
 	}
 
@@ -160,9 +164,11 @@ class ContentModelHandler extends IContentModelHandler {
 		$pipelineFactory = $env->getPipelineFactory();
 
 		if ( $selectiveUpdateData ) {
-			$doc = ContentUtils::createDocument( $selectiveUpdateData->revHTML, true );
-			$env->setupTopLevelDoc( $doc );
-			$this->canonicalizeDOM( $env, $env->getTopLevelDoc(), true );
+			$doc = DOMUtils::parseHTML( $selectiveUpdateData->revHTML, true );
+			$env->setupTopLevelDoc( $doc, [
+				'markNew' => false, // !isSelectiveUpdate
+			] );
+			$this->canonicalizeDOM( $env, $env->getTopLevelDoc() );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
 		} else {
@@ -178,6 +184,10 @@ class ContentModelHandler extends IContentModelHandler {
 			$this->processIndicators( $doc, $extApi );
 		}
 
+		Assert::invariant(
+			DOMDataUtils::isPreparedAndLoaded( $doc ),
+			"toDOM should return a prepared and loaded doc"
+		);
 		return $doc;
 	}
 
@@ -222,7 +232,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$siteConfig = $env->getSiteConfig();
 		$setupTiming = Timing::start( $siteConfig );
 
-		$this->canonicalizeDOM( $env, $env->getTopLevelDoc(), false );
+		$this->canonicalizeDOM( $env, $env->getTopLevelDoc() );
 
 		$serializerOpts = [ 'selserData' => $selserData ];
 		if ( $selserData ) {

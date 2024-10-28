@@ -8,29 +8,12 @@ use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
  * @coversDefaultClass  \Wikimedia\Parsoid\Utils\DOMDataUtils
  */
 class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
-
-	/**
-	 * @covers ::injectPageBundle
-	 */
-	public function testInjectPageBundle() {
-		// Note that injectPageBundle does not need a "prepared" document.
-		$doc = DOMUtils::parseHTML( "Hello, world" );
-		DOMDataUtils::injectPageBundle( $doc,
-			PageBundle::newEmpty( '' )
-		);
-		// Note that we use the 'native' getElementById, not
-		// DOMCompat::getElementById, in order to test T232390
-		$el = $doc->getElementById( 'mw-pagebundle' );
-		$this->assertNotNull( $el );
-		$this->assertEquals( 'script', DOMCompat::nodeName( $el ) );
-	}
 
 	/**
 	 * @covers ::storeInPageBundle
@@ -51,26 +34,6 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		// in order to test T232390.
 		$el = $dpb->doc->getElementById( $id );
 		$this->assertEquals( $p, $el );
-	}
-
-	/**
-	 * @covers ::extractPageBundle
-	 */
-	public function testExtractPageBundle() {
-		$html = <<<'EOF'
-<html>
-  <head>
-    <script id="mw-pagebundle" type="application/x-mw-pagebundle">
-      {"parsoid":
-      {"counter":1,"ids":{"mwAA":{"dsr":[0,13,0,0]},
-      "mwAQ":{"dsr":[0,12,0,0]}},"offsetType":"byte"},"mw":{"ids":[]}}
-    </script>
-  </head>
-  <body><p id="mwAQ">Hello, world</p>
-EOF;
-		$doc = DOMUtils::parseHTML( $html );
-		$pb = DOMDataUtils::extractPageBundle( $doc );
-		self::assertIsArray( $pb->parsoid['ids'] );
 	}
 
 	// Tests for rich attribute support

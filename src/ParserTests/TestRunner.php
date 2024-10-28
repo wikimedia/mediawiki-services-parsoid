@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -370,7 +371,7 @@ class TestRunner {
 		} else {
 			$selserData = null;
 		}
-		$env->setTopLevelDoc( $doc );
+		$env->setupTopLevelDoc( $doc );
 		$extApi = new ParsoidExtensionAPI( $env );
 		return $env->getContentHandler()->fromDOM( $extApi, $selserData );
 	}
@@ -449,7 +450,7 @@ class TestRunner {
 				// therefore causes false failures.
 				$html = TestUtils::normalizePhpOutput( $html );
 			}
-			$doc = ContentUtils::createDocument( $html );
+			$doc = DOMUtils::parseHTML( $html );
 			$wt = $this->convertHtml2Wt( $env, $test, $mode, $doc );
 		} else { // startsAtWikitext
 			// Always serialize DOM to string and reparse before passing to wt2wt
@@ -467,10 +468,10 @@ class TestRunner {
 				if ( $mode === 'wt2html' ) {
 					// no-op
 				} else {
-					$doc = ContentUtils::createDocument( $test->cachedBODYstr );
+					$doc = DOMUtils::parseHTML( $test->cachedBODYstr );
 				}
 			} else {
-				$doc = ContentUtils::createDocument( $test->cachedBODYstr );
+				$doc = DOMUtils::parseHTML( $test->cachedBODYstr );
 			}
 		}
 
@@ -494,7 +495,7 @@ class TestRunner {
 			// Save the modified DOM so we can re-test it later.
 			// Always serialize to string and reparse before passing to selser/wt2wt.
 			$test->changedHTMLStr = ContentUtils::toXML( DOMCompat::getBody( $doc ) );
-			$doc = ContentUtils::createDocument( $test->changedHTMLStr );
+			$doc = DOMUtils::parseHTML( $test->changedHTMLStr );
 		} elseif ( $mode === 'wt2wt' ) {
 			// Handle a 'changes' option if present.
 			if ( $testManualChanges ) {
@@ -742,7 +743,7 @@ class TestRunner {
 			if ( $test->changetree === [ 5 ] ) {
 				$test->resultWT = $test->wikitext;
 			} else {
-				$doc = ContentUtils::createDocument( $test->changedHTMLStr );
+				$doc = DOMUtils::parseHTML( $test->changedHTMLStr );
 				$test->resultWT = $this->convertHtml2Wt( $env, $test, 'wt2wt', $doc );
 			}
 		}

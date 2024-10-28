@@ -8,6 +8,7 @@ use Composer\Semver\Comparator;
 use Composer\Semver\Semver;
 use InvalidArgumentException;
 use LogicException;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Config\DataAccess;
 use Wikimedia\Parsoid\Config\Env;
@@ -15,6 +16,7 @@ use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
+use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
@@ -193,7 +195,15 @@ class Parsoid {
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		$extApi = new ParsoidExtensionAPI( $env );
-		return [ $env, $handler->toDOM( $extApi, $selparData ), $contentmodel ];
+		$doc = $handler->toDOM( $extApi, $selparData );
+		if ( !DOMDataUtils::isPreparedAndLoaded( $doc ) ) {
+			// DEPRECATED. Extensions for other content types might still
+			// be returning plain/stored docs here.  Prepare and load them
+			// for consistency.
+			$dpb = new DomPageBundle( $doc );
+			$doc = $dpb->toDom();
+		}
+		return [ $env, $doc, $contentmodel ];
 	}
 
 	/**
@@ -432,8 +442,11 @@ class Parsoid {
 	 * Serialize DOM to wikitext.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param Document $doc Data attributes are expected to have been applied
-	 *   already.  Loading them will happen once the environment is created.
+	 * @param Document|PageBundle|DomPageBundle $doc This is either a page
+	 *   bundle or a "naive" DOM without special handling of
+	 *   data-parsoid/data-mw etc.  A naive DOM can either be in "single
+	 *   document" form (data attributes in an element in the <head>) or in
+	 *   "inline attributes" form.
 	 * @param array $options [
 	 *   'inputContentVersion' => (string) The content version of the input.
 	 *     Necessary if it differs from the current default in order to
@@ -453,9 +466,13 @@ class Parsoid {
 	 * @return string
 	 */
 	public function dom2wikitext(
-		PageConfig $pageConfig, Document $doc, array $options = [],
+		PageConfig $pageConfig, $doc, array $options = [],
 		?SelectiveUpdateData $selserData = null
 	): string {
+		Assert::invariant(
+			!DOMDataUtils::isPrepared( $doc ),
+			"document should not be already prepared"
+		);
 		$envOptions = $this->setupCommonOptions( $options );
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
@@ -552,26 +569,23 @@ class Parsoid {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param string $update 'redlinks'|'variant'
-	 * @param PageBundle $pb
+	 * @param PageBundle|DomPageBundle $pb
 	 * @param array $options
 	 * @return PageBundle
 	 */
 	public function pb2pb(
-		PageConfig $pageConfig, string $update, PageBundle $pb,
+		PageConfig $pageConfig, string $update, $pb,
 		array $options = []
 	): PageBundle {
 		$envOptions = [
 			'pageBundle' => true,
-			'topLevelDoc' => DOMUtils::parseHTML( $pb->toHtml(), true ),
+			'topLevelDoc' => $pb,
 		];
 		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
 		);
 		$doc = $env->getTopLevelDoc();
-		DOMDataUtils::visitAndLoadDataAttribs(
-			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
-		);
 
 		switch ( $update ) {
 			case 'convertoffsets':
@@ -745,7 +759,7 @@ class Parsoid {
 		// See the comment in around `DOMDataUtils::applyPageBundle`
 		$newPageBundle = new PageBundle(
 			$pageBundle->html,
-			[ 'ids' => [] ],
+			null,
 			$pageBundle->mw
 		);
 		$pageBundle->html = $newPageBundle->toInlineAttributeHtml();

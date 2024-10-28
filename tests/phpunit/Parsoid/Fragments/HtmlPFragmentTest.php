@@ -27,7 +27,7 @@ class HtmlPFragmentTest extends PFragmentTestCase {
 		$f = HtmlPFragment::concat( $ext, $html1, $html2, $html3 );
 		$this->assertFalse( $f->isEmpty() );
 		$df = $f->asDom( $ext );
-		$this->assertSame( '<b data-object-id="0">foo</b>', DOMCompat::getInnerHTML( $df ) );
+		$this->assertMatchesRegularExpression( '|<b data-object-id="\d">foo</b>|', DOMCompat::getInnerHTML( $df ) );
 	}
 
 	/**

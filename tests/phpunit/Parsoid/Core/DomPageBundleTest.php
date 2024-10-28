@@ -79,8 +79,8 @@ EOF;
 		$html2 = $dpb->toSingleDocumentHtml();
 		$this->assertEquals( <<<'EOF'
 <!DOCTYPE html>
-<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"counter":1,"ids":{"mwAA":{},"mwAQ":{"dsr":[0,12,0,0]}}},"mw":{"ids":[]}}</script></head><body id="mwAA">
-  <p id="mwAQ">Hello, world</p>
+<html><head><script id="mw-pagebundle" type="application/x-mw-pagebundle">{"parsoid":{"counter":0,"ids":{"mwAA":{"dsr":[0,12,0,0]}}},"mw":{"ids":[]}}</script></head><body>
+  <p id="mwAA">Hello, world</p>
  
 </body></html>
 EOF

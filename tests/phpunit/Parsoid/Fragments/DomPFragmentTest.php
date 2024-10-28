@@ -72,7 +72,12 @@ class DomPFragmentTest extends PFragmentTestCase {
 			}
 
 			public function toJsonArray( $obj ): array {
-				return [ 'html' => ContentUtils::ppToXML( $obj ) ];
+				return [
+					'html' => ContentUtils::ppToXML( $obj, [
+						'innerXML' => true,
+						'fragment' => true,
+					] ),
+				];
 			}
 
 			public function newFromJsonArray( string $className, array $json ) {

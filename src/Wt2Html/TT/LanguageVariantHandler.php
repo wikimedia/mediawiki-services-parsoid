@@ -56,7 +56,7 @@ class LanguageVariantHandler extends TokenHandler {
 		);
 		return [
 			'xmlstr' => ContentUtils::ppToXML(
-				$domFragment, [ 'innerXML' => true ]
+				$domFragment, [ 'innerXML' => true, 'fragment' => true, ]
 			),
 			'isBlock' => DOMUtils::hasBlockElementDescendant( $domFragment ),
 		];

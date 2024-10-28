@@ -697,7 +697,7 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * Serialize DOM element to string (inner/outer HTML is controlled by flag).
-	 * If $releaseDom is set to true, the DOM will be left in non-canonical form
+	 * If $releaseDom is set to true, the DOM will not be "prepared and loaded"
 	 * and is not safe to use after this call. This is primarily a performance optimization.
 	 *
 	 * @param Node $node
@@ -715,7 +715,7 @@ class ParsoidExtensionAPI {
 		// none should exist anyways.
 		// FIXME: This roundtrip discards data-parsoid.tmp data from $node.
 		// Maybe it meant to set keepTmp, but that flag is currently broken.
-		$html = ContentUtils::ppToXML( $node, [ 'innerXML' => $innerHTML ] );
+		$html = ContentUtils::ppToXML( $node, [ 'innerXML' => $innerHTML, 'fragment' => true ] );
 		if ( !$releaseDom ) {
 			DOMDataUtils::visitAndLoadDataAttribs( $node );
 		}

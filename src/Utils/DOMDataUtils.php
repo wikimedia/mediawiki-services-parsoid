@@ -11,7 +11,6 @@ use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -66,6 +65,10 @@ class DOMDataUtils {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		return isset( $doc->bag );
+	}
+
+	public static function isPreparedAndLoaded( Document $doc ): bool {
+		return self::isPrepared( $doc ) && self::getBag( $doc )->loaded;
 	}
 
 	public static function prepareDoc( Document $doc ): void {
@@ -546,38 +549,17 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * @param Document $doc doc
-	 * @param PageBundle $pb object
-	 */
-	public static function injectPageBundle( Document $doc, PageBundle $pb ): void {
-		$script = DOMUtils::appendToHead( $doc, 'script', [
-			'id' => 'mw-pagebundle',
-			'type' => 'application/x-mw-pagebundle',
-		] );
-		$script->appendChild( $doc->createTextNode( $pb->encodeForHeadElement() ) );
-	}
-
-	/**
-	 * @param Document $doc doc
-	 * @return ?PageBundle
-	 */
-	public static function extractPageBundle( Document $doc ): ?PageBundle {
-		$pb = null;
-		$dpScriptElt = DOMCompat::getElementById( $doc, 'mw-pagebundle' );
-		if ( $dpScriptElt ) {
-			$dpScriptElt->parentNode->removeChild( $dpScriptElt );
-			$pb = PageBundle::decodeFromHeadElement( $dpScriptElt->textContent );
-		}
-		return $pb;
-	}
-
-	/**
 	 * Walk DOM from node downward calling loadDataAttribs
 	 *
 	 * @param Node $node node
 	 * @param array $options options
 	 */
 	public static function visitAndLoadDataAttribs( Node $node, array $options = [] ): void {
+		$doc = $node->ownerDocument ?? $node;
+		Assert::invariant( self::isPrepared( $doc ), "document should be prepared" );
+		if ( $node === DOMCompat::getBody( $doc ) ) {
+			Assert::invariant( !self::getBag( $doc )->loaded, "redundant load" );
+		}
 		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $options );
 	}
 
@@ -650,6 +632,8 @@ class DOMDataUtils {
 	 * @param array $options options
 	 */
 	public static function visitAndStoreDataAttribs( Node $node, array $options = [] ): void {
+		Assert::invariant( self::getBag( $node->ownerDocument ?? $node )->loaded,
+						  "store without load" );
 		// PORT-FIXME: storeDataAttribs calls storeInPageBundle which calls getElementById.
 		// PHP's `getElementById` implementation is broken, and we work around that by
 		// using Zest which uses XPath. So, getElementById call can be O(n) and calling it

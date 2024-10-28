@@ -1557,9 +1557,11 @@ class WikiLinkHandler extends TokenHandler {
 
 				// Use parsed DOM given in `captionDOM`
 				// FIXME: Does this belong in `dataMw.attribs`?
-				$dataMw->caption = ContentUtils::ppToXML(
-					$captionDOM, [ 'innerXML' => true ]
-				);
+				// FIXME: This should use a rich attribute with a fragment type
+				$dataMw->caption = ContentUtils::ppToXML( $captionDOM, [
+					'innerXML' => true,
+					'fragment' => true,
+				] );
 			}
 		} else {
 			// We always add a figcaption for blocks

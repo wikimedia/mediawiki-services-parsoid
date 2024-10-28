@@ -312,7 +312,7 @@ class TemplateEncapsulator {
 			$dp->dsr = null;
 		} );
 		$paramInfo->html = ContentUtils::ppToXML(
-			$domFragment, [ 'innerXML' => true ]
+			$domFragment, [ 'innerXML' => true, 'fragment' => true, ]
 		);
 	}
 

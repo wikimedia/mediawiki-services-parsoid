@@ -140,6 +140,7 @@ class DomPageBundle implements JsonCodecable {
 				'markNew' => true,
 				'validateXMLNames' => true,
 			] );
+			DOMDataUtils::getBag( $doc )->loaded = true;
 		}
 		$this->doc = null; // Prevent reuse of the DomPageBundle
 		return $doc;

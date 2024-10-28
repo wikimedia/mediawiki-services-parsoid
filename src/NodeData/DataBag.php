@@ -16,6 +16,12 @@ class DataBag {
 	private int $nodeId = 0;
 
 	/**
+	 * Track whether or not data attributes have been loaded for this
+	 * document. See DOMDataUtils::visitAndLoadDataAttribs().
+	 */
+	public bool $loaded = false;
+
+	/**
 	 * FIXME: Figure out a decent interface for updating these depths
 	 * without needing to import the various util files.
 	 *

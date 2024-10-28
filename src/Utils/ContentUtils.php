@@ -37,19 +37,40 @@ class ContentUtils {
 	 *
 	 * @param Node $node
 	 * @param array $options
+	 *   Data attribute options, see DOMDataUtils::storeDataAttribs() for
+	 *   details.  In addition, setting `$options['fragment']` to true
+	 *   should be used when serializing a DocumentFragment unconnected to
+	 *   the parent document; this ensures that we don't mistakenly mark
+	 *   the top level document as "unloaded" if we were just serializing
+	 *   a fragment.
+	 *
+	 *   Eventually most places which serialize using the `fragment` option
+	 *   should be converted to store the DocumentFragment natively, instead
+	 *   of as a string (T348161).
+	 *
 	 * @return string
 	 */
 	public static function ppToXML( Node $node, array $options = [] ): string {
+		$doc = $node->ownerDocument ?? $node;
 		DOMDataUtils::visitAndStoreDataAttribs( $node, $options );
+		if ( !( $options['fragment'] ?? false ) ) {
+			DOMDataUtils::getBag( $doc )->loaded = false;
+		}
 		return self::toXML( $node, $options );
 	}
 
 	/**
-	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
+	 * Create a new prepared document with the given HTML.
+	 *
+	 * Don't use this inside of the parser pipeline: it shouldn't be necessary
 	 * to create new documents when parsing or serializing.  A document lives
 	 * on the environment which can be used to create fragments.  The bag added
 	 * as a dynamic property to the PHP wrapper around the libxml doc
 	 * is at risk of being GC-ed.
+	 *
+	 * @note This method should generally not be used; use
+	 * ::createAndLoadDocument() instead to obtain a completely
+	 * "prepared and loaded" document.
 	 *
 	 * @param string $html
 	 * @param bool $validateXMLNames
@@ -64,7 +85,10 @@ class ContentUtils {
 	}
 
 	/**
-	 * XXX: Don't use this outside of testing.  It shouldn't be necessary
+	 * Create a new prepared document with the given HTML and load the
+	 * data attributes.
+	 *
+	 * Don't use this inside of the parser pipeline: it shouldn't be necessary
 	 * to create new documents when parsing or serializing.  A document lives
 	 * on the environment which can be used to create fragments.  The bag added
 	 * as a dynamic property to the PHP wrapper around the libxml doc
@@ -75,12 +99,13 @@ class ContentUtils {
 	 * @return Document
 	 */
 	public static function createAndLoadDocument(
-		string $html, array $options = []
+		string $html, array $options = [ 'markNew' => true, 'validateXMLNames' => true, ]
 	): Document {
 		$doc = self::createDocument( $html, $options['validateXMLNames'] ?? false );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), $options
 		);
+		DOMDataUtils::getBag( $doc )->loaded = true;
 		return $doc;
 	}
 
@@ -97,25 +122,6 @@ class ContentUtils {
 		DOMUtils::setFragmentInnerHTML( $domFragment, $html );
 		DOMDataUtils::visitAndLoadDataAttribs( $domFragment, $options );
 		return $domFragment;
-	}
-
-	/**
-	 * Pull the data-parsoid script element out of the doc before serializing.
-	 *
-	 * @param Node $node
-	 * @param array $options XMLSerializer options.
-	 * @return array
-	 */
-	public static function extractDpAndSerialize( Node $node, array $options = [] ): array {
-		$doc = DOMUtils::isBody( $node ) ? $node->ownerDocument : $node;
-		$pb = DOMDataUtils::extractPageBundle( $doc );
-		$out = XMLSerializer::serialize( $node, $options );
-		$pb->html = $out['html'];
-		$pb->version = $options['contentversion'] ?? null;
-		$pb->headers = $options['headers'] ?? null;
-		$pb->contentmodel = $options['contentmodel'] ?? null;
-		$out['pb'] = $pb;
-		return $out;
 	}
 
 	/**
@@ -307,7 +313,7 @@ class ContentUtils {
 		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {
 			$node = self::createAndLoadDocumentFragment( $doc, $str );
 			DOMPostOrder::traverse( $node, $convertNode );
-			return self::ppToXML( $node, [ 'innerXML' => true ] );
+			return self::ppToXML( $node, [ 'innerXML' => true, 'fragment' => true ] );
 		};
 		DOMPostOrder::traverse( $rootNode, $convertNode );
 		return $rootNode; // chainable

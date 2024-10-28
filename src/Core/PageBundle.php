@@ -6,14 +6,7 @@ namespace Wikimedia\Parsoid\Core;
 use Composer\Semver\Semver;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
-use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 
 /**
@@ -98,16 +91,6 @@ class PageBundle implements JsonCodecable {
 		);
 	}
 
-	public function toDom(): Document {
-		$doc = DOMUtils::parseHTML( $this->html );
-		self::apply( $doc, $this );
-		return $doc;
-	}
-
-	public function toHtml(): string {
-		return ContentUtils::toXML( $this->toDom() );
-	}
-
 	/**
 	 * Check if this pagebundle is valid.
 	 * @param string $contentVersion Document content version to validate against.
@@ -164,64 +147,6 @@ class PageBundle implements JsonCodecable {
 			];
 		}
 		return $responseData;
-	}
-
-	/**
-	 * Applies the `data-*` attributes JSON structure to the document.
-	 * Leaves `id` attributes behind -- they are used by citation code to
-	 * extract `<ref>` body from the DOM.
-	 *
-	 * @param Document $doc doc
-	 * @param PageBundle $pb page bundle
-	 */
-	public static function apply( Document $doc, PageBundle $pb ): void {
-		DOMUtils::visitDOM(
-			DOMCompat::getBody( $doc ),
-			static function ( Node $node ) use ( $pb ): void {
-				if ( $node instanceof Element ) {
-					$id = DOMCompat::getAttribute( $node, 'id' );
-					if ( $id === null ) {
-						return;
-					}
-					if ( isset( $pb->parsoid['ids'][$id] ) ) {
-						DOMDataUtils::setJSONAttribute(
-							$node, 'data-parsoid', $pb->parsoid['ids'][$id]
-						);
-					}
-					if ( isset( $pb->mw['ids'][$id] ) ) {
-						// Only apply if it isn't already set.  This means
-						// earlier applications of the pagebundle have higher
-						// precedence, inline data being the highest.
-						if ( !$node->hasAttribute( 'data-mw' ) ) {
-							DOMDataUtils::setJSONAttribute(
-								$node, 'data-mw', $pb->mw['ids'][$id]
-							);
-						}
-					}
-				}
-			}
-		);
-	}
-
-	/**
-	 * Encode some of these properties for emitting in the <head> element of a doc
-	 * @return string
-	 */
-	public function encodeForHeadElement(): string {
-		// Note that $this->parsoid and $this->mw are already serialized arrays
-		// so a naive jsonEncode is sufficient.  We don't need a codec.
-		return PHPUtils::jsonEncode( [ 'parsoid' => $this->parsoid ?? [], 'mw' => $this->mw ?? [] ] );
-	}
-
-	public static function decodeFromHeadElement( string $s ): PageBundle {
-		// Note that only 'parsoid' and 'mw' are encoded, so these will be
-		// the only fields set in the decoded PageBundle
-		$decoded = PHPUtils::jsonDecode( $s );
-		return new PageBundle(
-			'', /* html */
-			$decoded['parsoid'] ?? null,
-			$decoded['mw'] ?? null
-		);
 	}
 
 	/**

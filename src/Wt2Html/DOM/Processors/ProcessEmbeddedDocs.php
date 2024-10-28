@@ -34,7 +34,7 @@ class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 						'sol' => true
 					],
 				);
-				return ContentUtils::ppToXML( $df, [ 'innerXML' => true ] );
+				return ContentUtils::ppToXML( $df, [ 'innerXML' => true, 'fragment' => true ] );
 			}
 		);
 
