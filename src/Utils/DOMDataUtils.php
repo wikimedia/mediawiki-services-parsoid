@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Composer\Semver\Semver;
+use InvalidArgumentException;
 use stdClass;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
@@ -1196,7 +1197,12 @@ class DOMDataUtils {
 						$flat = $v->flatten();
 					}
 					$classHint ??= get_class( $v );
-					$json = $codec->toJsonArray( $v, $classHint );
+					try {
+						$json = $codec->toJsonArray( $v, $classHint );
+					} catch ( InvalidArgumentException $e ) {
+						// For better debuggability, include the attribute name
+						throw new InvalidArgumentException( "$attrName: " . $e->getMessage() );
+					}
 				}
 				if ( !self::isHtmlAttributeWithSpecialSemantics( $tagName, $attrName ) ) {
 					$encoded = PHPUtils::jsonEncode( $json );
