@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 
 class UnpackDOMFragments {
 
@@ -154,7 +153,7 @@ class UnpackDOMFragments {
 			DOMUtils::assertElt( $fragmentContent );
 			// Transfer typeof, data-mw, and param info
 			// about attributes are transferred below.
-			DOMDataUtils::setDataMw( $fragmentContent, Utils::clone( DOMDataUtils::getDataMw( $placeholder ) ) );
+			DOMDataUtils::setDataMw( $fragmentContent, clone DOMDataUtils::getDataMw( $placeholder ) );
 			DOMUtils::addTypeOf( $fragmentContent, 'mw:Transclusion' );
 			DOMDataUtils::getDataParsoid( $fragmentContent )->pi = $placeholderDP->pi ?? null;
 		}

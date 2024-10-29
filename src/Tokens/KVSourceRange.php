@@ -41,6 +41,11 @@ class KVSourceRange implements JsonCodecable {
 		$this->value = new SourceRange( $valueStart, $valueEnd );
 	}
 
+	public function __clone() {
+		$this->key = clone $this->key;
+		$this->value = clone $this->value;
+	}
+
 	/**
 	 * Return a new key-value source offset range shifted by $amount.
 	 * @param int $amount The amount to shift by

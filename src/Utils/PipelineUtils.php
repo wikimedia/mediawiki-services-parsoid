@@ -357,7 +357,7 @@ class PipelineUtils {
 				!$node->hasAttribute( 'data-parsoid' ),
 				"Expected node to have its data attributes loaded" );
 
-			$nodeData = DOMDataUtils::getNodeData( $node )->cloneNodeData();
+			$nodeData = clone DOMDataUtils::getNodeData( $node );
 
 			if ( $wrapperName !== DOMCompat::nodeName( $node ) ) {
 				// Create a copy of the node without children

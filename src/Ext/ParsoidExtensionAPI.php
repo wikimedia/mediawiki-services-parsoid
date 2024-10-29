@@ -638,10 +638,10 @@ class ParsoidExtensionAPI {
 	): void {
 		DOMUtils::migrateChildren( $from, $to );
 		DOMDataUtils::setDataParsoid(
-			$to, DOMDataUtils::getDataParsoid( $from )->clone()
+			$to, clone DOMDataUtils::getDataParsoid( $from )
 		);
 		DOMDataUtils::setDataMw(
-			$to, Utils::clone( DOMDataUtils::getDataMw( $from ) )
+			$to, clone DOMDataUtils::getDataMw( $from )
 		);
 	}
 

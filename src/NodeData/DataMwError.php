@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\NodeData;
 
+use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 
@@ -34,7 +35,16 @@ class DataMwError implements JsonCodecable {
 		$this->message = $message;
 	}
 
-		/** @inheritDoc */
+	public function __clone() {
+		if ( $this->params ) {
+			$codec = new JsonCodec;
+			$this->params = $codec->newFromJsonArray(
+				$codec->toJsonArray( $this->params )
+			);
+		}
+	}
+
+	/** @inheritDoc */
 	public function toJsonArray(): array {
 		$result = [ 'key' => $this->key ];
 		if ( $this->message !== null ) {

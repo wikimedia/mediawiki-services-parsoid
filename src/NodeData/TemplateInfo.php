@@ -45,6 +45,12 @@ class TemplateInfo implements JsonCodecable {
 	 */
 	public ?int $i = null;
 
+	public function __clone() {
+		foreach ( $this->paramInfos as &$pi ) {
+			$pi = clone $pi;
+		}
+	}
+
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): TemplateInfo {
 		$ti = new TemplateInfo;

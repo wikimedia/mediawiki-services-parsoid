@@ -31,7 +31,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 		$metaToken = new SelfclosingTagTk(
 			'meta',
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
-			$token->dataParsoid->clone()
+			clone $token->dataParsoid
 		);
 
 		return new TokenHandlerResult( [ $metaToken ] );

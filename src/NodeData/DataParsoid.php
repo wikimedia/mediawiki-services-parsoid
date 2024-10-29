@@ -250,35 +250,29 @@ class DataParsoid implements JsonCodecable {
 
 	/**
 	 * Deeply clone this object
-	 *
-	 * @return DataParsoid
 	 */
-	public function clone(): self {
-		$dp = clone $this;
+	public function __clone() {
 		// Properties that need deep cloning
-		if ( isset( $dp->tmp ) ) {
-			$dp->tmp = Utils::clone( $dp->tmp );
+		if ( isset( $this->tmp ) ) {
+			$this->tmp = Utils::clone( $this->tmp );
 		}
-		if ( isset( $dp->linkTk ) ) {
-			$dp->linkTk = Utils::clone( $dp->linkTk );
+		if ( isset( $this->linkTk ) ) {
+			$this->linkTk = Utils::clone( $this->linkTk );
 		}
-		if ( isset( $dp->tokens ) ) {
-			$dp->tokens = Utils::clone( $dp->tokens );
-		}
-
-		// Properties that need shallow cloning
-		if ( isset( $dp->tsr ) ) {
-			$dp->tsr = clone $dp->tsr;
-		}
-		if ( isset( $dp->dsr ) ) {
-			$dp->dsr = clone $dp->dsr;
-		}
-		if ( isset( $dp->extTagOffsets ) ) {
-			$dp->extTagOffsets = clone $dp->extTagOffsets;
+		if ( isset( $this->tokens ) ) {
+			$this->tokens = Utils::clone( $this->tokens );
 		}
 
-		// The remaining properties were sufficiently handled by the clone operator
-		return $dp;
+		// Properties that can use PHP cloning
+		if ( isset( $this->tsr ) ) {
+			$this->tsr = clone $this->tsr;
+		}
+		if ( isset( $this->dsr ) ) {
+			$this->dsr = clone $this->dsr;
+		}
+		if ( isset( $this->extTagOffsets ) ) {
+			$this->extTagOffsets = clone $this->extTagOffsets;
+		}
 	}
 
 	public function isModified(): bool {

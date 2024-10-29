@@ -81,8 +81,8 @@ class ExternalLinkHandler extends TokenHandler {
 		$env = $this->env;
 		$origHref = $token->getAttributeV( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
-		$dataParsoid = $token->dataParsoid->clone();
-		$dataMw = $token->dataMw ? $token->dataMw->clone() : null;
+		$dataParsoid = clone $token->dataParsoid;
+		$dataMw = $token->dataMw ? clone $token->dataMw : null;
 
 		if ( $this->hasImageLink( $href ) ) {
 			$checkAlt = explode( '/', $href );
@@ -153,8 +153,8 @@ class ExternalLinkHandler extends TokenHandler {
 			]
 		);
 		$content = $token->getAttributeV( 'mw:content' );
-		$dataParsoid = $token->dataParsoid->clone();
-		$dataMw = $token->dataMw ? $token->dataMw->clone() : null;
+		$dataParsoid = clone $token->dataParsoid;
+		$dataMw = $token->dataMw ? clone $token->dataMw : null;
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
 		);

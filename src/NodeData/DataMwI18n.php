@@ -64,6 +64,16 @@ class DataMwI18n implements RichCodecable {
 		$this->i18nInfo[$name] = $info;
 	}
 
+	public function __clone() {
+		// The I18nInfo objects should generally be immutable and thus
+		// not require cloning, but just in case someone puts a
+		// mutable object inside the I18nInfo::$params array, we'll
+		// play it safe and deep clone them.
+		foreach ( $this->i18nInfo as &$value ) {
+			$value = clone $value;
+		}
+	}
+
 	// Rich attribute serialization support.
 
 	/**

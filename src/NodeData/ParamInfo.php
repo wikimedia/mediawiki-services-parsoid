@@ -41,6 +41,12 @@ class ParamInfo implements JsonCodecable {
 		$this->srcOffsets = $srcOffsets;
 	}
 
+	public function __clone() {
+		if ( $this->srcOffsets !== null ) {
+			$this->srcOffsets = clone $this->srcOffsets;
+		}
+	}
+
 	/**
 	 * Create an object from unserialized data-parsoid.pi
 	 * @param array $data

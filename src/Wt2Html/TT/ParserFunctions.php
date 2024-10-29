@@ -862,7 +862,7 @@ class ParserFunctions {
 
 	public function pf_server( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
-		$dataParsoid = $token->dataParsoid->clone();
+		$dataParsoid = clone $token->dataParsoid;
 		return [
 			new TagTk( 'a', [
 					new KV( 'rel', 'nofollow' ),

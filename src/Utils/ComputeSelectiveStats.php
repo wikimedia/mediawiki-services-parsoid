@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 
 /**
@@ -67,14 +68,17 @@ class ComputeSelectiveStats {
 		// Don't skip over template content!
 		$dd->skipEncapsulatedContent = false;
 		// Ignore differences in data-parsoid 'dsr' and 'tmp'
-		$cleanDP = static function ( $dp ) {
-			$dp = $dp->clone();
+		$cleanDP = static function ( DataParsoid $dp ): DataParsoid {
+			$dp = clone $dp;
 			foreach ( [ 'tmp', 'tsr', 'dsr', 'extTagOffsets', 'extLinkContentOffsets' ] as $prop ) {
 				unset( $dp->$prop );
 			}
 			return $dp;
 		};
 		$dd->specializedAttribHandlers['data-parsoid'] = static function ( $nA, $vA, $nB, $vB ) use ( $cleanDP ) {
+			// This is deliberately a not-strict equality comparisong between
+			// two DataParsoid objects.
+			// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 			return $cleanDP( $vA ) == $cleanDP( $vB );
 		};
 		// Ignore differences in 'id' attributes, since these are a side-effect

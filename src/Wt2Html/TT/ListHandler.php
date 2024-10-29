@@ -376,7 +376,7 @@ class ListHandler extends TokenHandler {
 		$dp = $token->dataParsoid;
 
 		$makeDP = static function ( $k, $j ) use ( $dp ) {
-			$newDP = $dp->clone();
+			$newDP = clone $dp;
 			$tsr = $dp->tsr ?? null;
 			if ( $tsr ) {
 				$newDP->tsr = new SourceRange( $tsr->start + $k, $tsr->start + $j );

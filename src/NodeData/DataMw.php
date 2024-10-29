@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\NodeData;
 
 use stdClass;
 use Wikimedia\JsonCodec\Hint;
-use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -61,14 +60,35 @@ class DataMw implements JsonCodecable {
 		return ( (array)$this ) === [];
 	}
 
-	/**
-	 * Deeply clone this object
-	 *
-	 * @return DataMw
-	 */
-	public function clone(): self {
-		$codec = new JsonCodec;
-		return $codec->newFromJsonArray( $codec->toJsonArray( $this ) );
+	public function __clone() {
+		// Deep clone non-primitive properties
+		if ( isset( $this->parts ) ) {
+			foreach ( $this->parts as &$part ) {
+				if ( !is_string( $part ) ) {
+					$part = clone $part;
+				}
+			}
+		}
+		// Properties which are lists of cloneable objects
+		foreach ( [ 'attribs', 'errors' ] as $prop ) {
+			if ( isset( $this->$prop ) ) {
+				foreach ( $this->$prop as &$item ) {
+					$item = clone $item;
+				}
+			}
+		}
+		// Properties which are cloneable objects
+		foreach ( [ 'wtOffsets' ] as $prop ) {
+			if ( isset( $this->$prop ) ) {
+				$this->$prop = clone $this->$prop;
+			}
+		}
+		// Generic stdClass, use PHP serialization as a kludge
+		foreach ( [ 'body', 'attrs' ] as $prop ) {
+			if ( isset( $this->$prop ) ) {
+				$this->$prop = unserialize( serialize( $this->$prop ) );
+			}
+		}
 	}
 
 	/** @inheritDoc */

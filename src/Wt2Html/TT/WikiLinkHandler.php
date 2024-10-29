@@ -201,8 +201,8 @@ class WikiLinkHandler extends TokenHandler {
 
 		$rlink = new SelfclosingTagTk( 'link',
 			Utils::clone( $token->attribs ),
-			$token->dataParsoid->clone(),
-			$token->dataMw ? $token->dataMw->clone() : null );
+			clone $token->dataParsoid,
+			$token->dataMw ? clone $token->dataMw : null );
 		$wikiLinkTk = $rlink->dataParsoid->linkTk;
 		$rlink->setAttribute( 'rel', 'mw:PageProp/redirect' );
 
@@ -486,8 +486,8 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Set attribs and dataParsoid
 		$newTk->attribs = $newAttrData['attribs'];
-		$newTk->dataParsoid = $dataParsoid->clone();
-		$newTk->dataMw = $dataMw !== null ? $dataMw->clone() : null;
+		$newTk->dataParsoid = clone $dataParsoid;
+		$newTk->dataMw = $dataMw !== null ? clone $dataMw : null;
 		unset( $newTk->dataParsoid->src ); // clear src string since we can serialize this
 
 		// Note: Link tails are handled on the DOM in handleLinkNeighbours, so no
@@ -1161,7 +1161,7 @@ class WikiLinkHandler extends TokenHandler {
 		// into this new processing model. See T98995
 		// const cachedMedia = env.mediaCache[token.dataParsoid.src];
 
-		$dataParsoid = $token->dataParsoid->clone();
+		$dataParsoid = clone $token->dataParsoid;
 		$dataParsoid->optList = [];
 
 		// Account for the possibility of an expanded target
