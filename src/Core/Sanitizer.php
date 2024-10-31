@@ -975,6 +975,10 @@ class Sanitizer {
 			# Escape HTML id attributes
 			if ( $k === 'id' ) {
 				$v = self::escapeIdForAttribute( $v, self::ID_PRIMARY );
+				if ( $v === '' ) {
+					$newAttrs[$k] = [ null, $origV, $origK ];
+					continue;
+				}
 			}
 
 			# Escape HTML id reference lists

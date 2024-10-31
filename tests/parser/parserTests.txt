@@ -9184,11 +9184,25 @@ wgFragmentMode=[ "legacy" ]
 !! test
 Sanitizer: Validating the contents of the id attribute (T6515)
 !! options
-disabled
+parsoid=wt2html,html2html
 !! wikitext
 <br id="" /><br id="a space" />
-!! html
-Something ...
+!! html/php
+<p><br /><br id="a_space" />
+</p>
+!! html/parsoid
+<p><br data-parsoid='{"stx":"html","selfClose":true,"a":{"id":null},"sa":{"id":""}}'/><br id="a_space" data-parsoid='{"stx":"html","selfClose":true,"a":{"id":"a_space"},"sa":{"id":"a space"}}'/></p>
+!! end
+
+!! test
+Sanitizer: Validating the contents of the id attribute, empty attribute syntax (T6515)
+!! wikitext
+<br id />
+!! html/php
+<p><br />
+</p>
+!! html/parsoid
+<p><br data-parsoid='{"stx":"html","selfClose":true,"a":{"id":null},"sa":{"id":""}}'/></p>
 !! end
 
 # In HTML5, id must be unique amongst all the ids in the element's home subtree.

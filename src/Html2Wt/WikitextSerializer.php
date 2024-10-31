@@ -477,11 +477,15 @@ class WikitextSerializer {
 				// Attrib not present -- sanitized away!
 				if ( !KV::lookupKV( $attribs, (string)$k ) ) {
 					$v = $dataParsoid->sa[$k] ?? null;
-					// PORT-FIXME check type
+					// FIXME: The tokenizer and attribute shadowing currently
+					// don't make much effort towards distinguishing the use
+					// of HTML empty attribute syntax.  We can derive whether
+					// empty attribute syntax was used from the attributes
+					// srcOffsets in the Sanitizer, from the key end position
+					// and value start position being different.
 					if ( $v !== null && $v !== '' ) {
 						$out[] = $k . '="' . str_replace( '"', '&quot;', $v ) . '"';
 					} else {
-						// at least preserve the key
 						$out[] = $k;
 					}
 				}
