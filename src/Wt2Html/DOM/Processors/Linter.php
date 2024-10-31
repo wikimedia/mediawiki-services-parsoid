@@ -1352,7 +1352,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	) {
 		$id = DOMCompat::getAttribute( $node, 'id' );
-		if ( $id === null ) {
+		if ( $id === null || $id === '' ) {
 			return;
 		}
 		if ( !isset( $this->seenIds[$id] ) ) {

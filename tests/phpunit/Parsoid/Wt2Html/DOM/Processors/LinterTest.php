@@ -1827,6 +1827,10 @@ class LinterTest extends TestCase {
 		$result = $this->wtToLint( "<div id='one'>Hi</div><div id='two'>Ho</div>" );
 		$this->assertCount( 0, $result, $desc );
 
+		$desc = 'should not lint empty ids';
+		$result = $this->wtToLint( "<div id=''>Hi</div><div id=''>Ho</div>" );
+		$this->assertCount( 0, $result, $desc );
+
 		$desc = 'should lint duplicate ids';
 		$result = $this->wtToLint( "<div id='one'>Hi</div><div id='one'>Ho</div>" );
 		$this->assertCount( 1, $result, $desc );
