@@ -16,7 +16,6 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  * property is null in more than about 75% of instances. There are typically
  * a very large number of NodeData objects, so this optimisation is worthwhile.
  *
- * @property object|null $parsoid_diff
  * @property object|null $mw_variant
  * @property int|null $storedId
  */

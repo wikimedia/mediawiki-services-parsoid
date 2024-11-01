@@ -3,12 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoidDiff;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -18,14 +18,13 @@ class DiffUtils {
 	 * Get a node's diff marker.
 	 *
 	 * @param Node $node
-	 * @return stdClass|null
+	 * @return ?DataParsoidDiff
 	 */
-	public static function getDiffMark( Node $node ): ?stdClass {
+	public static function getDiffMark( Node $node ): ?DataParsoidDiff {
 		if ( !( $node instanceof Element ) ) {
 			return null;
 		}
-		$data = DOMDataUtils::getNodeData( $node );
-		return $data->parsoid_diff ?? null;
+		return DOMDataUtils::getDataParsoidDiff( $node );
 	}
 
 	/**
@@ -44,8 +43,8 @@ class DiffUtils {
 		if ( $mark === DiffMarkers::DELETED || ( $mark === DiffMarkers::INSERTED && !( $node instanceof Element ) ) ) {
 			return self::isDiffMarker( $node->previousSibling, $mark );
 		} else {
-			$diffMark = self::getDiffMark( $node );
-			return $diffMark && in_array( $mark, $diffMark->diff, true );
+			$diffMarks = self::getDiffMark( $node );
+			return $diffMarks && $diffMarks->hasDiffMarker( $mark );
 		}
 	}
 
@@ -78,14 +77,9 @@ class DiffUtils {
 		if ( !$dmark ) {
 			return false;
 		}
-
-		foreach ( $dmark->diff as $mark ) {
-			if ( $mark !== DiffMarkers::SUBTREE_CHANGED && $mark !== DiffMarkers::CHILDREN_CHANGED ) {
-				return false;
-			}
-		}
-
-		return true;
+		return $dmark->hasOnlyDiffMarkers(
+			DiffMarkers::SUBTREE_CHANGED, DiffMarkers::CHILDREN_CHANGED
+		);
 	}
 
 	public static function subtreeUnchanged( Element $node ): bool {
@@ -93,14 +87,7 @@ class DiffUtils {
 		if ( !$dmark ) {
 			return true;
 		}
-
-		foreach ( $dmark->diff as $mark ) {
-			if ( $mark !== DiffMarkers::MODIFIED_WRAPPER ) {
-				return false;
-			}
-		}
-
-		return true;
+		return $dmark->hasOnlyDiffMarkers( DiffMarkers::MODIFIED_WRAPPER );
 	}
 
 	public static function addDiffMark( Node $node, Env $env, string $mark ): ?Element {
@@ -132,15 +119,8 @@ class DiffUtils {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
-		$dpd = self::getDiffMark( $node );
-		if ( !$dpd ) {
-			$dpd = (object)[ // FIXME object or array?
-				'diff' => [ $change ]
-			];
-		} elseif ( !in_array( $change, $dpd->diff, true ) ) {
-			$dpd->diff[] = $change;
-		}
-		DOMDataUtils::getNodeData( $node )->parsoid_diff = $dpd;
+		$dpd = DOMDataUtils::getDataParsoidDiffDefault( $node );
+		$dpd->addDiffMarker( $change );
 	}
 
 	/**

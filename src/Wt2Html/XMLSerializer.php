@@ -10,10 +10,10 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\NodeData\DataParsoidDiff;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -81,11 +81,13 @@ class XMLSerializer {
 			return;
 		}
 		$codec = DOMDataUtils::getCodec( $node->ownerDocument );
-		$nd = DOMDataUtils::getNodeData( $node );
-		$pd = $nd->parsoid_diff ?? null;
-		if ( $pd && $storeDiffMark ) {
-			$attrs['data-parsoid-diff'] = PHPUtils::jsonEncode( $pd );
+		$dpd = DOMDataUtils::getDataParsoidDiff( $node );
+		if ( $storeDiffMark && $dpd !== null ) {
+			$attrs['data-parsoid-diff'] = $codec->toJsonString(
+				$dpd, DataParsoidDiff::hint()
+			);
 		}
+		$nd = DOMDataUtils::getNodeData( $node );
 		$dp = $nd->parsoid;
 		if ( $dp ) {
 			if ( !$keepTmp ) {

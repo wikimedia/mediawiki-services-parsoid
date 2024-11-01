@@ -163,8 +163,6 @@ class DiffUtilsTest extends TestCase {
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
 			[ DiffMarkers::MODIFIED_WRAPPER ]
 		);
-
-		$this->expectNotToPerformAssertions();
 	}
 
 	/**
@@ -184,8 +182,6 @@ class DiffUtilsTest extends TestCase {
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
 			[ DiffMarkers::MODIFIED_WRAPPER ]
 		);
-
-		$this->expectNotToPerformAssertions();
 	}
 
 	/**
@@ -209,8 +205,6 @@ class DiffUtilsTest extends TestCase {
 			$this->selectNode( $body, 'body > p:nth-child(1)' ),
 			[ DiffMarkers::MODIFIED_WRAPPER ]
 		);
-
-		$this->expectNotToPerformAssertions();
 	}
 
 	private function parseAndDiff( string $html1, string $html2 ): Element {
@@ -234,25 +228,14 @@ class DiffUtilsTest extends TestCase {
 
 	private function selectNode( Element $body, string $selector ): Element {
 		$nodes = DOMCompat::querySelectorAll( $body, $selector );
-		if ( count( $nodes ) !== 1 ) {
-			$this->fail( 'It should be exactly one node for the selector' );
-		}
+		$this->assertCount( 1, $nodes, 'It should be exactly one node for the selector' );
 		return $nodes[0];
 	}
 
 	private function checkMarkers( Element $node, array $markers ): void {
-		$data = DOMDataUtils::getNodeData( $node );
-		$diff = $data->parsoid_diff->diff;
-		if ( count( $markers ) !== count( $diff ) ) {
-			var_dump( $markers );
-			var_dump( $diff );
-			$this->fail( 'Count of diff should be equal count of markers' );
-		}
-		foreach ( $markers as $key => $value ) {
-			if ( $diff[$key] !== $value ) {
-				$this->fail( 'Diff is not equal to the marker' );
-			}
-		}
+		$dpd = DOMDataUtils::getDataParsoidDiff( $node );
+		$diff = $dpd ? $dpd->toJsonArray()['diff'] : [];
+		$this->assertEqualsCanonicalizing( $markers, $diff );
 	}
 
 }

@@ -160,8 +160,10 @@ class MetaHandler extends DOMHandler {
 				// deleted or modified, we emit _now_ so that we don't risk losing it. The range
 				// stays extended in the round-tripped version of the wikitext.
 				$nextdiffdata = DOMDataUtils::getDataParsoidDiff( $nextContentSibling );
-				if ( DiffUtils::isDiffMarker( $nextContentSibling ) ||
-					( $nextdiffdata->diff ?? null ) ) {
+				if (
+					DiffUtils::isDiffMarker( $nextContentSibling ) ||
+					( $nextdiffdata && !$nextdiffdata->isEmpty() )
+				) {
 					return true;
 				}
 
@@ -193,7 +195,7 @@ class MetaHandler extends DOMHandler {
 
 				if (
 					DiffUtils::isDiffMarker( $prevElementSibling ) ||
-					( $prevdiffdata !== null && $prevdiffdata->diff !== null )
+					( $prevdiffdata && !$prevdiffdata->isEmpty() )
 				) {
 					return true;
 				}
