@@ -42,7 +42,7 @@ class AddLinkAttributes {
 						DOMUtils::addRel( $a, $v );
 					}
 				} else {
-                    // prevent parsing of non-string values
+					// prevent parsing of non-string values
 					$a->setAttribute( $key, !is_string($val) ? '' : $val );
 				}
 			}
