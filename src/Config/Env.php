@@ -654,23 +654,6 @@ class Env {
 	}
 
 	/**
-	 * Convert a Title to a string
-	 * @param Title $title
-	 * @param bool $ignoreFragment
-	 * @return string
-	 */
-	private function titleToString( Title $title, bool $ignoreFragment = false ): string {
-		$ret = $title->getPrefixedDBKey();
-		if ( !$ignoreFragment ) {
-			$fragment = $title->getFragment();
-			if ( $fragment !== '' ) {
-				$ret .= '#' . $fragment;
-			}
-		}
-		return $ret;
-	}
-
-	/**
 	 * Get normalized title key for a title string.
 	 *
 	 * @param string $str Should be in url-decoded format.
@@ -685,7 +668,9 @@ class Env {
 		if ( !$title ) {
 			return null;
 		}
-		return $this->titleToString( $title, $ignoreFragment );
+		return $ignoreFragment ?
+			$title->getPrefixedDBKey() :
+			$title->getFullDBKey();
 	}
 
 	/**
@@ -739,13 +724,14 @@ class Env {
 	}
 
 	/**
-	 * Make a link to a Title
+	 * Make a link to a local Title
 	 * @param Title $title
 	 * @return string
 	 */
 	public function makeLink( Title $title ): string {
+		Assert::invariant( $title->getInterwiki() === '', 'Local titles only' );
 		return $this->getSiteConfig()->relativeLinkPrefix() . Sanitizer::sanitizeTitleURI(
-			$this->titleToString( $title ),
+			$title->getFullDBKey(),
 			false
 		);
 	}

@@ -315,6 +315,22 @@ class Title implements LinkTarget {
 	}
 
 	/**
+	 * Get the prefixed title with underscores, plus any fragment
+	 * (part beginning with '#')
+	 *
+	 * @return string The prefixed title, with underscores, and the fragment, including '#'
+	 * @note This method is Parsoid-only and doesn't exist in mediawiki-core's
+	 *  Title class.
+	 */
+	public function getFullDBKey(): string {
+		$dbkey = $this->getPrefixedDBKey();
+		if ( $this->hasFragment() ) {
+			$dbkey .= '#' . $this->getFragment();
+		}
+		return $dbkey;
+	}
+
+	/**
 	 * Get the namespace ID
 	 * @return int
 	 */
