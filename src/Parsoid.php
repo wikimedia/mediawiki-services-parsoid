@@ -29,7 +29,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
-use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
 
@@ -650,21 +649,6 @@ class Parsoid {
 			'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel()
 		] );
 		return $out['pb'];
-	}
-
-	/**
-	 * Perform pre-save transformations with top-level templates subst'd.
-	 *
-	 * @param PageConfig $pageConfig
-	 * @param string $wikitext
-	 * @return string
-	 */
-	public function substTopLevelTemplates(
-		PageConfig $pageConfig, string $wikitext
-	): string {
-		$metadata = new StubMetadataCollector( $this->siteConfig );
-		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
-		return Wikitext::pst( $env, $wikitext, true /* $substTLTemplates */ );
 	}
 
 	/**
