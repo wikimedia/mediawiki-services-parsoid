@@ -72,18 +72,6 @@ abstract class DataAccess {
 	abstract public function getFileInfo( PageConfig $pageConfig, array $files ): array;
 
 	/**
-	 * Perform a pre-save transform on wikitext
-	 *
-	 * This replaces PHPParseRequest with onlypst = true
-	 *
-	 * @todo Parsoid should be able to do this itself.
-	 * @param PageConfig $pageConfig
-	 * @param string $wikitext
-	 * @return string Processed wikitext
-	 */
-	abstract public function doPst( PageConfig $pageConfig, string $wikitext ): string;
-
-	/**
 	 * Perform a parse on wikitext
 	 *
 	 * This replaces PHPParseRequest with onlypst = false, and Batcher.parse()

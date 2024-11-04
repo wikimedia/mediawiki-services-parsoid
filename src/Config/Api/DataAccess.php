@@ -273,25 +273,6 @@ class DataAccess extends IDataAccess {
 		}
 	}
 
-	/** @inheritDoc */
-	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
-		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
-		$key = implode( ':', [ 'pst', md5( $pageConfigTitle ), md5( $wikitext ) ] );
-		$ret = $this->getCache( $key );
-		if ( $ret === null ) {
-			$data = $this->api->makeRequest( [
-				'action' => 'parse',
-				'title' => $pageConfigTitle,
-				'text' => $wikitext,
-				'contentmodel' => 'wikitext',
-				'onlypst' => 1,
-			] );
-			$ret = $data['parse']['text'];
-			$this->setCache( $key, $ret );
-		}
-		return $ret;
-	}
-
 	/**
 	 * Transfer the metadata returned in an API result into our
 	 * ContentMetadataCollector.

@@ -98,20 +98,6 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
-	public function testDoPst() {
-		$siteConfig = new MockSiteConfig( [] );
-		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );
-		$da = $this->getDataAccess( 'dopst', $siteConfig );
-		$ret = $da->doPst( $pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~' );
-		$this->assertIsString( $ret );
-		$this->assertSame( 'Foobar.[[Category:Foo|Bar]]{{cn}} <!-- Template:Unsigned -->', substr( $ret, 0, 60 ) );
-
-		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertSame(
-			$ret, $da->doPst( $pageConfig, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~' )
-		);
-	}
-
 	public function testParseWikitext() {
 		$siteConfig = new MockSiteConfig( [] );
 		$pageConfig = new MockPageConfig( $siteConfig, [ 'title' => 'Foobar' ], null );

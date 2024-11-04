@@ -530,12 +530,6 @@ class MockDataAccess extends DataAccess {
 	}
 
 	/** @inheritDoc */
-	public function doPst( PageConfig $pageConfig, string $wikitext ): string {
-		// FIXME: This is all mockAPI does
-		return preg_replace( '/\{\{subst:1x\|([^}]+)\}\}/', '$1', $wikitext, 1 );
-	}
-
-	/** @inheritDoc */
 	public function parseWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
