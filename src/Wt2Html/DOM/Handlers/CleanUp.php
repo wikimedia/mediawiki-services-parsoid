@@ -380,10 +380,10 @@ class CleanUp {
 			// Traversal isn't done with tplInfo for section tags, but we should
 			// still clean them up as if they are the head of encapsulation.
 			WTUtils::isParsoidSectionTag( $node );
-		$discardDataParsoid = $env->discardDataParsoid;
 
 		// Strip data-parsoid from templated content, where unnecessary.
-		if ( ( $state->tplInfo ?? null ) &&
+		$discardDataParsoid = (
+			( $state->tplInfo ?? null ) &&
 			// Always keep info for the first node
 			!$isFirstEncapsulationWrapperNode &&
 			// We can't remove data-parsoid from inside <references> text,
@@ -398,9 +398,7 @@ class CleanUp {
 			//
 			// This is only needed for the last top-level node .
 			( empty( $dp->stx ) || ( $state->tplInfo->last ?? null ) !== $node )
-		) {
-			$discardDataParsoid = true;
-		}
+		);
 
 		DOMDataUtils::storeDataAttribs( $node, [
 				'discardDataParsoid' => $discardDataParsoid,

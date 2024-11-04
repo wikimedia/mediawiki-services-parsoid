@@ -164,7 +164,6 @@ class Parsoid {
 		if ( isset( $options['outputContentVersion'] ) ) {
 			$envOptions['outputContentVersion'] = $options['outputContentVersion'];
 		}
-		$envOptions['discardDataParsoid'] = !empty( $options['discardDataParsoid'] );
 		if ( isset( $options['wrapSections'] ) ) {
 			$envOptions['wrapSections'] = (bool)$options['wrapSections'];
 		}
@@ -209,7 +208,6 @@ class Parsoid {
 	 *   'outputContentVersion' => (string|null) Version of HTML to output.
 	 *                                           `null` returns the default version.
 	 *   'contentmodel'         => (string|null) The content model of the input.
-	 *   'discardDataParsoid'   => (bool) Drop all data-parsoid annotations.
 	 *   'offsetType'           => (string) ucs2, char, byte are valid values
 	 *                                      what kind of source offsets should be emitted?
 	 *   'skipLanguageConversionPass'  => (bool) Skip the language variant conversion pass (defaults to false)
@@ -632,7 +630,6 @@ class Parsoid {
 
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
-				'discardDataParsoid' => $env->discardDataParsoid,
 				'storeInPageBundle' => $env->pageBundle,
 				'env' => $env,
 			]

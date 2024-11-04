@@ -183,9 +183,6 @@ class Env {
 	/** @var bool */
 	public $pageBundle;
 
-	/** @var bool */
-	public $discardDataParsoid = false;
-
 	/** @var Document */
 	private $domDiff;
 
@@ -258,7 +255,6 @@ class Env {
 	 *  - dumpFlags: (bool[]) Dump flags
 	 *  - debugFlags: (bool[]) Debug flags
 	 *  - nativeTemplateExpansion: boolean
-	 *  - discardDataParsoid: boolean
 	 *  - offsetType: 'byte' (default), 'ucs2', 'char'
 	 *                See `Parsoid\Wt2Html\DOM\Processors\ConvertOffsets`.
 	 *  - logLinterData: (bool) Should we log linter data if linting is enabled?
@@ -321,7 +317,6 @@ class Env {
 				true, $this->siteConfig->getLogger()
 			) : null;
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
-		$this->discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
 		$this->logLinterData = !empty( $options['logLinterData'] );
 		$this->linterOverrides = $options['linterOverrides'] ?? [];
