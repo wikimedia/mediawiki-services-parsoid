@@ -42,7 +42,8 @@ class AddLinkAttributes {
 						DOMUtils::addRel( $a, $v );
 					}
 				} else {
-					$a->setAttribute( $key, $val );
+					// prevent parsing of non-string values
+					$a->setAttribute( $key, !is_string($val) ? '' : $val );
 				}
 			}
 		} elseif ( DOMUtils::hasRel( $a, 'mw:WikiLink/Interwiki' ) ) {
