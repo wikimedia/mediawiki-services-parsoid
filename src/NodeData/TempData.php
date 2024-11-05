@@ -25,10 +25,6 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * This is set on h1-h6 tokens to track section numbers.
  * @property int|null $headingIndex
  *
- * This is an array of key-value pairs [[k,v], [k,v]] set by AttributeExpander
- * on template tokens. It filters through to data-mw attribs.
- * @property array|null $templatedAttribs
- *
  * Information about a template invocation
  * @property TemplateInfo|null $tplarginfo
  *

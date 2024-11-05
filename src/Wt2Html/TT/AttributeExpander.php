@@ -590,18 +590,11 @@ class AttributeExpander extends TokenHandler {
 				$expAttrs[] = new DataMwAttrib( $eVals[$j], $eVals[$j + 1] );
 			}
 
-			if ( $token->getName() === 'template' ) {
-				// Don't add Parsoid about, typeof, data-mw attributes here since
-				// we won't be able to distinguish between Parsoid-added attributes
-				// and actual template attributes in cases like:
-				//   {{some-tpl|about=#mwt1|typeof=mw:Transclusion}}
-				// In both cases, we will encounter a template token that looks like:
-				//   { ... "attribs":[{"k":"about","v":"#mwt1"},{"k":"typeof","v":"mw:Transclusion"}] .. }
-				// So, record these in the tmp attribute for the template hander
-				// to retrieve and process.
-				$token->dataParsoid->getTemp()->templatedAttribs = $expAttrs;
-			} else {
-				// Mark token as having expanded attrs.
+			// Mark token as having expanded attrs.
+			//
+			// Template tokens are omitted because the attribute expander is
+			// just being used to resolve the template target.
+			if ( $token->getName() !== 'template' ) {
 				$token->addAttribute( 'about', $this->env->newAboutId() );
 				$token->addSpaceSeparatedAttribute( 'typeof', 'mw:ExpandedAttrs' );
 				foreach ( $annotationTypes as $annotationType ) {
