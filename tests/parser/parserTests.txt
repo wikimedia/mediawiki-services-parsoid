@@ -17134,3 +17134,11 @@ parsoid={
 !! wikitext/edited
 <div width="95%" style="border: 3px solid darkblue">hiho
 !! end
+
+!! test
+Extension tag with embedded html
+!! wikitext
+<embedtag>Content with a [[broken link]].</embedtag>
+!! html/parsoid
+<p><span typeof="mw:Extension/embedtag" about="#mwt2" data-mw='{"name":"embedtag","attrs":{},"body":{"html":"Content with a &lt;a rel=\"mw:WikiLink\" href=\"./Broken_link?action=edit&amp;redlink=1\" title=\"Broken link\" class=\"new\" typeof=\"mw:LocalizedAttrs\" data-parsoid=&apos;{\"stx\":\"simple\",\"a\":{\"href\":\"./Broken_link\"},\"sa\":{\"href\":\"broken link\"}}&apos; data-mw-i18n=&apos;{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Broken link\"]}}&apos;>broken link&lt;/a>."}}'></span></p>
+!! end

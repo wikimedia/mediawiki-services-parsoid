@@ -322,6 +322,11 @@
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
     },
+    "Extension tag with embedded html": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,52,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link\\\" title=\\\"Broken link\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link\\\"},\\\"sa\\\":{\\\"href\\\":\\\"broken link\\\"},\\\"dsr\\\":[25,40,2,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,86,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,86,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link%3Faction=edit&amp;amp;redlink=1\\\" title=\\\"Broken link?action=edit&amp;amp;redlink=1\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"piped\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link%3Faction=edit&amp;amp;redlink=1\\\"},\\\"sa\\\":{\\\"href\\\":\\\"Broken link?action=edit&amp;amp;redlink=1\\\"},\\\"dsr\\\":[25,74,36,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>",
+        "html2wt": "<embedtag>Content with a [[Broken link?action=edit&redlink=1|broken link]].</embedtag>"
+    },
     "Extra new lines before and after lists are preserved": {
         "html2wt": "a\n\n\n* b\n\n\nc",
         "selser [0,0,[3,0],0,[4],3,3]": "a\n\n\n\n* 10x2a1y",

@@ -63,6 +63,9 @@
 	"Empty table rows go away": {
 		"wt2html": "<table data-parsoid='{\"dsr\":[0,37,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,35,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,16,0,0]}'><td data-parsoid='{\"dsr\":[3,9,1,0]}'>Hello</td>\n<td data-parsoid='{\"dsr\":[10,16,1,0]}'>there</td></tr>\n<tr class=\"foo\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[17,31,14,0]}'></tr>\n<tr class=\"mw-empty-elt\" data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[32,34,2,0]}'></tr>\n</tbody></table>"
 	},
+	"Extension tag with embedded html": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,52,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link\\\" title=\\\"Broken link\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link\\\"},\\\"sa\\\":{\\\"href\\\":\\\"broken link\\\"},\\\"dsr\\\":[25,40,2,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>"
+	},
 	"Fuzz testing: Parser13": {
 		"wt2wt": "{| \n| http: / a |\n|}"
 	},

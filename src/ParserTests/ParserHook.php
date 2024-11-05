@@ -62,6 +62,22 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 					],
 				] );
 
+			case 'embedtag':
+				$dataMw = $extApi->extTag->getDefaultDataMw();
+				$domFragment = $extApi->extTagToDOM( $args, $content, [
+					'parseOpts' => [
+						'extTag' => $extName,
+						'context' => 'inline',
+					],
+				] );
+				$dataMw->body = (object)[
+					'html' => $extApi->domToHtml( $domFragment, true )
+				];
+				$span = $domFragment->ownerDocument->createElement( 'span' );
+				DOMDataUtils::setDataMw( $span, $dataMw );
+				DOMCompat::replaceChildren( $domFragment, $span );
+				return $domFragment;
+
 			default:
 				throw new Error( "Unexpected tag name: $extName in ParserHook" );
 		}
@@ -83,7 +99,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$extName = WTUtils::getExtTagName( $node ) ?? $dataMw->name;
-		if ( $extName !== 'spantag' ) {
+		if ( !in_array( $extName, [ 'spantag', 'embedtag' ], true ) ) {
 			return false; // use default serialization
 		}
 		$html2wtOpts = [
@@ -94,7 +110,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 		$src = '';
 		if ( $wrapperUnmodified && isset( $dataMw->body->extsrc ) ) {
 			$src = $dataMw->body->extsrc;
-		} elseif ( isset( $dataMw->body->html ) ) {
+		} elseif ( $extName === 'embedtag' ) {
 			// First look for the extension's content in data-mw.body.html
 			$src = $extApi->htmlToWikitext( $html2wtOpts, $dataMw->body->html );
 		} else {
@@ -113,13 +129,23 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				[ 'name' => 'statictag', 'handler' => self::class ],
 				[ 'name' => 'asidetag', 'handler' => self::class ],
 				[ 'name' => 'pwraptest', 'handler' => self::class ],
-				[ 'name' => 'spantag', 'handler' => self::class,
-				  'options' => [
-					  'wt2html' => [
-						  'embedsHTMLInAttributes' => true,
-					  ],
-					  'outputHasCoreMwDomSpecMarkup' => true,
-				  ],
+				[
+					'name' => 'spantag',
+					'handler' => self::class,
+					'options' => [
+						'outputHasCoreMwDomSpecMarkup' => true,
+					],
+				],
+				[
+					'name' => 'embedtag',
+					'handler' => self::class,
+					'options' => [
+						'wt2html' => [
+							'embedsHTMLInAttributes' => true,
+							'customizesDataMw' => true,
+						],
+					],
+					'outputHasCoreMwDomSpecMarkup' => true,
 				],
 			],
 			'domProcessors' => [
