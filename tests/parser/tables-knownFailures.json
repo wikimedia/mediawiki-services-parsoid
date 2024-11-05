@@ -33,6 +33,6 @@
 		"wt2wt": "{|\n| foo bar |baz\n|foo bar foo||baz\n| style=\"color:red;\" |baz\n|style='color:red;'||baz\n|}"
 	},
 	"Templated table cell with untemplated attributes: Unsupported Scenario": {
-		"wt2html": "<table data-parsoid='{\"dsr\":[0,55,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,53,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,52,2,0]}'>\n<td title=\"fail\" about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"foo\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true}]],\"dsr\":[6,52,null,null]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n</tbody></table>"
+		"wt2html": "<table data-parsoid='{\"dsr\":[0,55,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,53,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,52,2,0]}'>\n<td title=\"fail\" about=\"#mwt\" typeof=\"mw:Transclusion\" class=\"foo\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true}]],\"dsr\":[6,52,null,null]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n</tbody></table>"
 	}
 }

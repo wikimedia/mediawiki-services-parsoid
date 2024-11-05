@@ -20,7 +20,7 @@
 		"wt2wt": "<nowiki>{{foo|</nowiki>\n==heading==\n"
 	},
 	"Inclusion of !userCanEdit() content": {
-		"wt2html": "<h2 about=\"#mwt1\" typeof=\"mw:Transclusion\" id=\"header\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,18,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:Fake\",\"href\":\"./MediaWiki:Fake\"},\"params\":{},\"i\":0}}]}'>header</h2>"
+		"wt2html": "<h2 about=\"#mwt\" typeof=\"mw:Transclusion\" id=\"header\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,18,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:Fake\",\"href\":\"./MediaWiki:Fake\"},\"params\":{},\"i\":0}}]}'>header</h2>"
 	},
 	"Link inside a section heading": {
 		"wt2html": "<h2 id=\"Section_with_a_link_in_it\" data-parsoid='{\"dsr\":[0,43,2,2]}'>Section with a <a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[17,35,12,2]}'>link</a> in it</h2>"
@@ -65,7 +65,7 @@
 		"wt2wt": "==One==\n__TOC__"
 	},
 	"T8563: Edit link generation for section shown by <includeonly>": {
-		"wt2html": "<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"includeonly section\",\"href\":\"./Template:Includeonly_section\"},\"params\":{},\"i\":0}}]}'>\n</span><h2 about=\"#mwt1\" id=\"Includeonly_section\">Includeonly section</h2><span about=\"#mwt1\">\n\n</span><h2 about=\"#mwt1\" id=\"Section_T-1\">Section T-1</h2>"
+		"wt2html": "<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"includeonly section\",\"href\":\"./Template:Includeonly_section\"},\"params\":{},\"i\":0}}]}'>\n</span><h2 about=\"#mwt\" id=\"Includeonly_section\">Includeonly section</h2><span about=\"#mwt\">\n\n</span><h2 about=\"#mwt\" id=\"Section_T-1\">Section T-1</h2>"
 	},
 	"T8563: Edit link generation for section suppressed by <includeonly>": {
 		"wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[53,66,2,2]}'>Section 1</h2>"
