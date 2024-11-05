@@ -486,9 +486,8 @@ class TableFixups {
 
 			// Remove all content on $prev which will
 			// become the new combined cell
-			while ( $prev->firstChild ) {
-				$prev->removeChild( $prev->firstChild );
-			}
+			DOMCompat::replaceChildren( $prev );
+
 			// Note that this implicitly migrates data-mw and data-parsoid
 			foreach ( DOMUtils::attributes( $cell ) as $k => $v ) {
 				$combinedCell->setAttribute( $k, $v );

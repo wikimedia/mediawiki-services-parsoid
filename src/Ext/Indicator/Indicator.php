@@ -63,8 +63,8 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 
 		// Convert indicator wikitext to DOM
 		$domFragment = $extApi->extTagToDOM( [] /* No args to apply */, $content, [
-				'parseOpts' => [ 'extTag' => 'indicator' ],
-			] );
+			'parseOpts' => [ 'extTag' => 'indicator' ],
+		] );
 
 		// Strip an outer paragraph if it is the sole paragraph without additional attributes
 		$content = DiffDOMUtils::firstNonSepChild( $domFragment );
@@ -78,14 +78,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 			$domFragment->removeChild( $content );
 		}
 
-		// Save HTML and remove content from the fragment
 		$dataMw->html = $extApi->domToHtml( $domFragment, true );
-
-		$c = $domFragment->firstChild;
-		while ( $c ) {
-			$domFragment->removeChild( $c );
-			$c = $domFragment->firstChild;
-		}
 
 		// Use a meta tag whose data-mw we will stuff this HTML into later.
 		// NOTE: Till T214994 is resolved, this HTML will not get processed
@@ -94,9 +87,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 
 		DOMDataUtils::setDataMw( $meta, $dataMw );
 
-		// Append meta
-		$domFragment->appendChild( $meta );
-
+		DOMCompat::replaceChildren( $domFragment, $meta );
 		return $domFragment;
 	}
 }

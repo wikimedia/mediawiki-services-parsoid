@@ -690,9 +690,7 @@ class TestRunner {
 		$metadataActual = null;
 		if ( isset( $test->options['nohtml'] ) ) {
 			$body = DOMCompat::getBody( $doc );
-			while ( $body->hasChildNodes() ) {
-				$body->removeChild( $body->firstChild );
-			}
+			DOMCompat::replaceChildren( $body );
 		}
 		$this->addParserOutputInfo(
 			$env, $test, $options, $mode, $doc,
