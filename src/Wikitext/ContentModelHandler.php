@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Html2Wt\SelectiveSerializer;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\Timing;
 
 class ContentModelHandler extends IContentModelHandler {
@@ -38,7 +39,7 @@ class ContentModelHandler extends IContentModelHandler {
 	 * Bring DOM to expected canonical form
 	 */
 	private function canonicalizeDOM(
-		Env $env, Document $doc
+		Env $env, Document $doc, bool $isSelectiveUpdate
 	): void {
 		Assert::invariant(
 			DOMDataUtils::isPreparedAndLoaded( $doc ),
@@ -57,8 +58,14 @@ class ContentModelHandler extends IContentModelHandler {
 		// and other clients that might have stripped them.
 		ContentUtils::stripUnnecessaryWrappersAndSyntheticNodes( $body );
 
-		$redLinkRemover = new RemoveRedLinks( $this->env );
-		$redLinkRemover->run( $body );
+		if ( !$isSelectiveUpdate ) {
+			$redLinkRemover = new DOMTraverser(
+				traverseWithTplInfo: false,
+				applyToAttributeEmbeddedHTML: true,
+			);
+			$redLinkRemover->addHandler( 'a', [ RemoveRedLinks::class, 'handler' ] );
+			$redLinkRemover->traverse( $env->getSiteConfig(), $body, null );
+		}
 	}
 
 	/**
@@ -125,7 +132,7 @@ class ContentModelHandler extends IContentModelHandler {
 			$doc = ContentUtils::createAndLoadDocument( $selserData->revHTML );
 		}
 
-		$this->canonicalizeDOM( $env, $doc );
+		$this->canonicalizeDOM( $env, $doc, false );
 		$selserData->revDOM = $doc;
 	}
 
@@ -174,7 +181,7 @@ class ContentModelHandler extends IContentModelHandler {
 				"toplevelDoc should not be a single-document page bundle"
 			);
 			$env->setupTopLevelDoc( $doc );
-			$this->canonicalizeDOM( $env, $env->getTopLevelDoc() );
+			$this->canonicalizeDOM( $env, $env->getTopLevelDoc(), true );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );
 		} else {
@@ -238,7 +245,7 @@ class ContentModelHandler extends IContentModelHandler {
 		$siteConfig = $env->getSiteConfig();
 		$setupTiming = Timing::start( $siteConfig );
 
-		$this->canonicalizeDOM( $env, $env->getTopLevelDoc() );
+		$this->canonicalizeDOM( $env, $env->getTopLevelDoc(), false );
 
 		$serializerOpts = [ 'selserData' => $selectiveUpdateData ];
 		if ( $selectiveUpdateData ) {

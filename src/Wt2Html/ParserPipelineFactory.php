@@ -206,7 +206,8 @@ class ParserPipelineFactory {
 		'media', 'migrate-metas', 'migrate-nls', 'dsr', 'tplwrap',
 		'ann-ids', 'annwrap',
 		'fixups', 'linkclasses',
-		'linkneighbours+dom-unpack'
+		'linkneighbours+dom-unpack',
+		'redlinks'
 	];
 
 	// NOTES about ordering:
@@ -225,7 +226,7 @@ class ParserPipelineFactory {
 		// content of all extensions (wikitext-produced or not).
 		'displayspace',
 		'dedupe-styles',
-		'lang-converter', 'redlinks',
+		'lang-converter',
 		'gen-anchors', # depends on lang-converter
 		'linter', 'strip-metas',
 		'dedupe-heading-ids',
@@ -240,7 +241,7 @@ class ParserPipelineFactory {
 
 	// Skipping sections, addmetadata from the above pipeline
 	//
-	// FIXME: Skip extpp, lang-converter, redlinks, gen-anchors, dedupe-heading-ids, convertoffsets for now.
+	// FIXME: Skip extpp, lang-converter, gen-anchors, dedupe-heading-ids, convertoffsets for now.
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
 		// Even though displayspace *could* be run in the nested pipeline,
@@ -263,7 +264,6 @@ class ParserPipelineFactory {
 		// with french spacing, we should run it once on the full DOM including
 		// content of all extensions (wikitext-produced or not).
 		'displayspace',
-		'redlinks',
 		'gen-anchors',
 		'strip-metas',
 		'convertoffsets', 'cleanup',

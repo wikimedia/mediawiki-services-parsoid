@@ -318,11 +318,6 @@
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
     },
-    "Extension tag with embedded html": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt1\" data-parsoid='{\"dsr\":[0,52,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link\\\" title=\\\"Broken link\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link\\\"},\\\"sa\\\":{\\\"href\\\":\\\"broken link\\\"},\\\"dsr\\\":[25,40,2,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,86,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt1\" data-parsoid='{\"dsr\":[0,86,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link%3Faction=edit&amp;amp;redlink=1\\\" title=\\\"Broken link?action=edit&amp;amp;redlink=1\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"piped\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link%3Faction=edit&amp;amp;redlink=1\\\"},\\\"sa\\\":{\\\"href\\\":\\\"Broken link?action=edit&amp;amp;redlink=1\\\"},\\\"dsr\\\":[25,74,36,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>",
-        "html2wt": "<embedtag>Content with a [[Broken link?action=edit&redlink=1|broken link]].</embedtag>"
-    },
     "Extra new lines before and after lists are preserved": {
         "html2wt": "a\n\n\n* b\n\n\nc",
         "selser [0,0,[3,0],0,[4],3,3]": "a\n\n\n\n* 10x2a1y",
@@ -1640,6 +1635,10 @@
     "new support for bdi element (T33817)": {
         "html2html": "<p data-parsoid='{\"dsr\":[0,193,0,0]}'>ולדימיר לנין (ברוסית: <bdi lang=\"ru\" data-parsoid='{\"stx\":\"html\",\"dsr\":[39,87,15,6]}'>Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי.</p>",
         "html2wt": "ולדימיר לנין (ברוסית: <bdi lang=\"ru\">Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי."
+    },
+    "percent-encoding and + signs in internal links (T28410)": {
+        "selser [[0,0,0,0,[3],2,[4],4,2,4,3,3,4,4,3,4,[[[4]]],2,0,0,4]]": "[[User:+%]] [[Page+title%]]\ng6ebew [[%+|102p4ly]]<nowiki/>x43yh1kpwnbz[[%+ ]]1iz2d212bu4rt1hl6hdav5u0kv[[File:%+abc%39|foo|[[bar]]]]164yade\n[[%33%45]] mdq65u",
+        "selser [[4,2,[4],2,[3],0,2,0,0,4,0,3,[4],2,1,0,0,4,0,0,2]]": "145pa6l129ts4i [[Page+title%|1wirx1k]]1gqpjm3\n40e2zd[[%+|%20]] [[%+ ]]15mcys[[%+r]][[%|1bzm99r]]11b6xgc [[+]] [[File:%+abc%39|foo|[[bar]]]]jk1r4l[[%33%45]] 1qjrzva[[%33%45+]]"
     },
     "text with character entity: eacute": {
         "html2wt": "I always thought é was a cute letter.\n"

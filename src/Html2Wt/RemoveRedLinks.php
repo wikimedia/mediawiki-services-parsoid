@@ -3,26 +3,21 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\UrlUtils;
 
 class RemoveRedLinks {
-
-	/** @suppress PhanEmptyPublicMethod */
-	public function __construct( Env $env ) {
-	}
-
 	/**
 	 * Remove redlinks from a document
-	 * @param Element $root
 	 */
-	public function run( Node $root ): void {
-		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
-		$wikilinks = DOMCompat::querySelectorAll( $root, 'a[rel~="mw:WikiLink"].new' );
-		foreach ( $wikilinks as $a ) {
+	public static function handler( Node $a ): bool {
+		'@phan-var Element $a';
+		if ( DOMUtils::matchRel( $a, '#mw:WikiLink#' ) &&
+			DOMCompat::getClassList( $a )->contains( 'new' )
+		) {
 			$href = DOMCompat::getAttribute( $a, 'href' );
 			$qmPos = strpos( $href ?? '', '?' );
 			if ( $qmPos !== false ) {
@@ -54,5 +49,7 @@ class RemoveRedLinks {
 				$a->setAttribute( 'href', $href );
 			}
 		}
+
+		return true;
 	}
 }

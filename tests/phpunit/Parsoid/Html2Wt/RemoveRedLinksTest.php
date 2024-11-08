@@ -6,8 +6,9 @@ namespace Test\Parsoid\Html2Wt;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Core\DOMCompat;
 use Wikimedia\Parsoid\Html2Wt\RemoveRedLinks;
-use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
+use Wikimedia\Parsoid\Utils\DOMTraverser;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\RemoveRedLinks
@@ -15,15 +16,15 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 class RemoveRedLinksTest extends TestCase {
 
 	/**
-	 * @covers ::run
+	 * @covers ::handler
 	 * @dataProvider provideRedLinks
 	 */
 	public function testRun( string $html, string $expected, string $message ) {
 		$doc = ContentUtils::createAndLoadDocument( $html );
 		$body = DOMCompat::getBody( $doc );
-		$env = new MockEnv( [] );
-		$removeRedLinks = new RemoveRedLinks( $env );
-		$removeRedLinks->run( $body );
+		$redLinkRemover = new DOMTraverser( false, true );
+		$redLinkRemover->addHandler( 'a', [ RemoveRedLinks::class, 'handler' ] );
+		$redLinkRemover->traverse( new MockSiteConfig( [] ), $body, null );
 		$actual = ContentUtils::ppToXML( $body, [ 'discardDataParsoid' => true, 'innerXML' => true ] );
 		$this->assertEquals( $expected, $actual, $message );
 	}
