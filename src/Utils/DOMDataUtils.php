@@ -637,7 +637,8 @@ class DOMDataUtils {
 	 *   - keepTmp: Preserve DataParsoid::$tmp
 	 *   - storeInPageBundle: If true, data will be stored in the page bundle
 	 *     instead of data-parsoid and data-mw.
-	 *   - env: The Env object required for various features
+	 *   - outputContentVersion: Version of output we're storing.  The page bundle
+	 *     didn't have data-mw before 999.x
 	 *   - idIndex: Array of used ID attributes
 	 */
 	public static function storeDataAttribs( Node $node, ?array $options = null ): void {
@@ -704,9 +705,9 @@ class DOMDataUtils {
 		// Strip invalid data-mw attributes
 		if ( self::validDataMw( $node ) ) {
 			if (
-				!empty( $options['storeInPageBundle'] ) && isset( $options['env'] ) &&
+				!empty( $options['storeInPageBundle'] ) &&
 				// The pagebundle didn't have data-mw before 999.x
-				Semver::satisfies( $options['env']->getOutputContentVersion(), '^999.0.0' )
+				Semver::satisfies( $options['outputContentVersion'] ?? '0.0.0', '^999.0.0' )
 			) {
 				$data ??= new stdClass;
 				$data->mw = self::getDataMw( $node );

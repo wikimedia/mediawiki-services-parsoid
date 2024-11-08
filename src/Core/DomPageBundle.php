@@ -9,7 +9,6 @@ use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -233,9 +232,8 @@ class DomPageBundle implements JsonCodecable {
 			DOMCompat::getBody( $doc ),
 			[
 				'storeInPageBundle' => $dpb,
-			] + $options + [
-				'env' => new MockEnv( [] ),
-			]
+				'outputContentVersion' => $dpb->version,
+			] + $options
 		);
 		return $dpb;
 	}

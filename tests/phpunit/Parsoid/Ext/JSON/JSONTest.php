@@ -33,9 +33,7 @@ class JSONTest extends TestCase {
 			'<html prefix="dc: http://purl.org/dc/terms/ mw: http://mediawiki.org/rdf/" about="https://my.wiki.example/wikix/Special:Redirect/revision/1"><head prefix="mwr: https://my.wiki.example/wikix/Special:Redirect/"><meta charset="utf-8"/><meta property="mw:pageId" content="-1"/><meta property="mw:pageNamespace" content="0"/><meta property="mw:htmlVersion" content="' . self::$defaultContentVersion . '"/><meta property="mw:html:version" content="' . self::$defaultContentVersion . '"/><link rel="dc:isVersionOf" href="//my.wiki.example/wikix/TestPage"/><base href="//my.wiki.example/wikix/"/><title>TestPage</title><link rel="stylesheet" href="//my.wiki.example/wx/load.php?lang=en&amp;modules=mediawiki.skinning.content.parsoid%7Cmediawiki.skinning.interface%7Csite.styles&amp;only=styles&amp;skin=vector"/><meta http-equiv="content-language" content="en"/><meta http-equiv="vary" content="Accept"/></head><body lang="en" class="mw-content-rtl sitedir-rtl rtl mw-body-content parsoid-body mediawiki mw-parser-output" dir="rtl" data-mw-parsoid-version="' . $parsoidVersion . '" data-mw-html-version="' . self::$defaultContentVersion . '" data-parsoid="{}"><table typeof="mw:Error" data-mw=\'{"errors":[{"key":"bad-json"}]}\' data-parsoid="{}"></table></body></html>';
 
 		$doc = $json->toDOM( $API );
-		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
-			'env' => $env
-		] );
+		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
 
 		$response = DOMCompat::getOuterHTML( $doc->documentElement );
 		$this->assertSame( $expected, $response );
@@ -52,9 +50,7 @@ class JSONTest extends TestCase {
 		$API = new ParsoidExtensionAPI( $env );
 
 		$doc = $json->toDOM( $API );
-		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
-			'env' => $env
-		] );
+		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ) );
 		$response = DOMCompat::getOuterHTML( $doc->documentElement );
 		$this->assertSame( $expected, $response );
 	}

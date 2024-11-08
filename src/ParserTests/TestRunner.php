@@ -349,7 +349,6 @@ class TestRunner {
 		$extApi = new ParsoidExtensionAPI( $env );
 		$doc = $handler->toDOM( $extApi );
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
-			'env' => $env,
 			'storeInPageBundle' => false,
 		] );
 		return $doc;

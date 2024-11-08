@@ -35,9 +35,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 		$document = ContentUtils::createAndLoadDocument( $html );
 		$dpp->doPostProcess( DOMCompat::getBody( $document ) );
 		if ( $storeDataAttribs ) {
-			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $document ), [
-				'env' => $mockEnv
-			] );
+			DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $document ) );
 		}
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );
 	}

@@ -253,7 +253,7 @@ class Parsoid {
 		[ $env, $doc, $contentmodel ] = $this->parseWikitext( $pageConfig, $metadata, $options, $selparData );
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
 			'storeInPageBundle' => $env->pageBundle,
-			'env' => $env,
+			'outputContentVersion' => $env->getOutputContentVersion(),
 		] );
 		$parseTimeMs = $parseTiming->end();
 
@@ -638,7 +638,7 @@ class Parsoid {
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), [
 				'storeInPageBundle' => $env->pageBundle,
-				'env' => $env,
+				'outputContentVersion' => $env->getOutputContentVersion(),
 			]
 		);
 		$body_only = !empty( $options['body_only'] );
