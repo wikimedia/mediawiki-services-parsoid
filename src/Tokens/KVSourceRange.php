@@ -15,15 +15,13 @@ class KVSourceRange implements JsonCodecable {
 
 	/**
 	 * Source range for the key.
-	 * @var SourceRange
 	 */
-	public $key;
+	public SourceRange $key;
 
 	/**
 	 * Source range for the value.
-	 * @var SourceRange
 	 */
-	public $value;
+	public SourceRange $value;
 
 	/**
 	 * Create a new key-value source offset range.

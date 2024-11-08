@@ -517,8 +517,10 @@ class AttributeExpander extends TokenHandler {
 					//         is clearer and less confusing than
 					//    [{ "txt":..., "html":... }, { "html":... }]
 					$tmpDataMW[$key] = [
+						// @phan-suppress-next-line PhanCoalescingNeverNullInLoop $expandedA is nullable
 						'k' => [ 'txt' => $key, 'srcOffsets' => $expandedA->srcOffsets->key ?? null ],
 						// FIXME: Why is 'txt' missing? Why are we not checking for [] ?
+						// @phan-suppress-next-line PhanCoalescingNeverNullInLoop $expandedA is nullable
 						'v' => [ 'html' => $valHTML, 'srcOffsets' => $expandedA->srcOffsets->value ?? null ]
 					];
 
