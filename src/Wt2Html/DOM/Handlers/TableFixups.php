@@ -189,7 +189,7 @@ class TableFixups {
 		Env $env, Element $cell, ?Element $templateWrapper
 	): ?array {
 		$buf = [];
-		$nowikis = [];
+		$frags = [];
 		$transclusions = $templateWrapper ? [ $templateWrapper ] : [];
 
 		// Some of this logic could be replaced by DSR-based recovery of
@@ -198,7 +198,7 @@ class TableFixups {
 		// same logic uniformly.
 
 		$traverse = static function ( ?Node $child ) use (
-			&$traverse, &$buf, &$nowikis, &$transclusions
+			&$traverse, &$buf, &$frags, &$transclusions, $env
 		): bool {
 			while ( $child ) {
 				if ( $child instanceof Comment ) {
@@ -217,24 +217,17 @@ class TableFixups {
 						$transclusions[] = $child;
 					}
 
-					if ( WTUtils::isFirstExtensionWrapperNode( $child ) ) {
-						// "|" chars in extension content don't trigger table-cell parsing
-						// since they have higher precedence in tokenization. The extension
-						// content will simply be dropped (but any side effects it had will
-						// continue to apply. Ex: <ref> tags might leave an orphaned ref in
-						// the <references> section).
-						$child = WTUtils::skipOverEncapsulatedContent( $child );
-						continue;
-					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
+					if ( DOMUtils::hasTypeOf( $child, 'mw:Entity' ) ) {
 						// Get entity's wikitext source, not rendered content.
 						// "&#10;" is "\n" which breaks attribute parsing!
 						$buf[] = DOMDataUtils::getDataParsoid( $child )->src ?? $child->textContent;
-					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:Nowiki' ) ) {
-						// Nowiki span were added to protect otherwise
-						// meaningful wikitext chars used in attributes.
-						// Save the content and add in a marker to splice out later.
-						$nowikis[] = $child->textContent;
-						$buf[] = '<nowiki-marker>';
+					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:DOMFragment' ) ) {
+						$fragDOM = $env->getDOMFragment( DOMDataUtils::getDataParsoid( $child )->html );
+						// FIXME: This is correct only for nowikis.
+						// For everything else, we need to figure out what needs to happen
+						// here wrt the extension opening & closing tags.
+						$frags[] = $fragDOM->firstChild->textContent;
+						$buf[] = '<frag-marker>';
 					} elseif ( self::shouldAbortAttr( $child ) ) {
 						return true;
 					} else {
@@ -253,7 +246,7 @@ class TableFixups {
 		if ( $traverse( $cell->firstChild ) ) {
 			return [
 				'txt' => implode( '', $buf ),
-				'nowikis' => $nowikis,
+				'frags' => $frags,
 				'transclusions' => $transclusions,
 			];
 		} else {
@@ -320,19 +313,19 @@ class TableFixups {
 		}
 		$attributishPrefix = $matches[1];
 
-		// Splice in nowiki content.  We added in <nowiki> markers to prevent the
-		// above regexps from matching on nowiki-protected chars.
-		if ( str_contains( $attributishPrefix, '<nowiki-marker>' ) ) {
+		// Splice in fragment content. We added in <frag-marker> markers to prevent
+		// the above regexps from matching protected chars.
+		if ( str_contains( $attributishPrefix, '<frag-marker>' ) ) {
 			$attributishPrefix = preg_replace_callback(
-				'/<nowiki-marker>/',
+				'/<frag-marker>/',
 				static function ( $unused ) use ( &$attributishContent ) {
 					// This is a little tricky. We want to use the content from the
-					// nowikis to reparse the string to key/val pairs but the rule,
+					// fragments to reparse the string to key/val pairs but the rule,
 					// single_cell_table_args, will invariably get tripped up on
-					// newlines which, to this point, were shuttled through in the
-					// nowiki. Core sanitizer will do this replacement in attr vals
+					// newlines which, to this point, were shuttled through the fragment.
+					// Core sanitizer will do this replacement in attr vals
 					// so it's a safe normalization to do here.
-					return preg_replace( '/\s+/', ' ', array_shift( $attributishContent['nowikis'] ) );
+					return preg_replace( '/\s+/', ' ', array_shift( $attributishContent['frags'] ) );
 				},
 				$attributishPrefix
 			);
@@ -808,30 +801,30 @@ class TableFixups {
 				return self::OTHER_REPARSE;
 			}
 
-			if ( $child instanceof Element ) {
-				if ( WTUtils::isFirstExtensionWrapperNode( $child ) ) {
-					// "|" chars in extension/language variant content don't trigger
-					// table-cell parsing since they have higher precedence in tokenization
-					$child = WTUtils::skipOverEncapsulatedContent( $child );
-				} else {
-					if ( self::shouldAbortAttr( $child ) ) {
-						return self::NO_REPARSING;
-					}
-					// FIXME: Ugly for now
-					$outerHTML = DOMCompat::getOuterHTML( $child );
-					if ( preg_match( $testRE, $outerHTML ) &&
-						( $inTplContent || preg_match( '/"mw:Transclusion"/', $outerHTML ) )
-					) {
-						// A "|" char in the HTML will trigger table cell tokenization.
-						// Ex: "| foobar <div> x | y </div>" will split the <div>
-						// in table-cell tokenization context.
-						return self::OTHER_REPARSE;
-					}
-					$child = $child->nextSibling;
+			// FIXME: Extlinks can hide pipes in dom fragments, but we are not handling that
+			// right now -- it is likely an edge case and it is icky to deal with it.
+			// There can be other sources of dom fragments (parser functions returning HTML,)
+			// that could hide pipes but it is unclear we need to support that form of
+			// string gluing here. For now, we treat that as unsupported behavior unless
+			// we find real uses that need to be dealt with.
+			if ( $child instanceof Element && !DOMUtils::hasTypeOf( $child, 'mw:DOMFragment' ) ) {
+				// "|" chars in extension/language variant content don't trigger
+				// table-cell parsing since they have higher precedence in tokenization
+				if ( self::shouldAbortAttr( $child ) ) {
+					return self::NO_REPARSING;
 				}
-			} else {
-				$child = $child->nextSibling;
+				// FIXME: Ugly for now
+				$outerHTML = DOMCompat::getOuterHTML( $child );
+				if ( preg_match( $testRE, $outerHTML ) &&
+					( $inTplContent || preg_match( '/"mw:Transclusion"/', $outerHTML ) )
+				) {
+					// A "|" char in the HTML will trigger table cell tokenization.
+					// Ex: "| foobar <div> x | y </div>" will split the <div>
+					// in table-cell tokenization context.
+					return self::OTHER_REPARSE;
+				}
 			}
+			$child = $child->nextSibling;
 		}
 
 		return self::NO_REPARSING;

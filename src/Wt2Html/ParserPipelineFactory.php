@@ -110,18 +110,11 @@ class ParserPipelineFactory {
 				[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
 			]
 		],
-		'fixups+dedupe-styles' => [
-			'name' => 'MigrateTrailingCategories,TableFixups,DedupeStyles',
+		'dedupe-styles' => [
+			'name' => 'DedupeStyles',
 			'tplInfo' => true,
 			'handlers' => [
-				// 1. Move trailing categories in <li>s out of the list
-				[ 'nodeName' => 'li', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
-				[ 'nodeName' => 'dt', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
-				[ 'nodeName' => 'dd', 'action' => [ LiFixups::class, 'migrateTrailingSolTransparentLinks' ] ],
-				// 2. Fix up issues from templated table cells and table cell attributes
-				[ 'nodeName' => 'td', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
-				[ 'nodeName' => 'th', 'action' => [ TableFixups::class, 'handleTableCellTemplates' ] ],
-				// 3. Deduplicate template styles
+				// Deduplicate template styles
 				// (should run after dom-fragment expansion + after extension post-processors)
 				[ 'nodeName' => 'style', 'action' => [ DedupeStyles::class, 'dedupe' ] ]
 			]
@@ -210,7 +203,9 @@ class ParserPipelineFactory {
 	public const NESTED_PIPELINE_DOM_TRANSFORMS = [
 		'fostered', 'process-fixups', 'normalize', 'pwrap',
 		'media', 'migrate-metas', 'migrate-nls', 'dsr', 'tplwrap',
-		'ann-ids', 'annwrap', 'linkneighbours+dom-unpack'
+		'ann-ids', 'annwrap',
+		'fixups', 'linkclasses',
+		'linkneighbours+dom-unpack'
 	];
 
 	// NOTES about ordering:
@@ -223,9 +218,14 @@ class ParserPipelineFactory {
 		// FIXME: It should be documented in the spec that an extension's
 		// wtDOMProcess handler is run once on the top level document.
 		'extpp',
-		'fixups+dedupe-styles',
-		'lang-converter', 'redlinks', 'displayspace', 'linkclasses',
-		'gen-anchors',
+		// Even though displayspace *could* be run in the nested pipeline,
+		// if we want to spare non-wikitext extensions from having to deal
+		// with french spacing, we should run it once on the full DOM including
+		// content of all extensions (wikitext-produced or not).
+		'displayspace',
+		'dedupe-styles',
+		'lang-converter', 'redlinks',
+		'gen-anchors', # depends on lang-converter
 		'linter', 'strip-metas',
 		'dedupe-heading-ids',
 		'sections', 'convertoffsets', 'cleanup',
@@ -238,8 +238,12 @@ class ParserPipelineFactory {
 	// FIXME: Skip extpp, linter, lang-converter, redlinks, gen-anchors, dedupe-heading-ids, convertoffsets for now.
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
-		'fixups+dedupe-styles', 'strip-metas',
-		'displayspace', 'linkclasses',
+		// Even though displayspace *could* be run in the nested pipeline,
+		// if we want to spare non-wikitext extensions from having to deal
+		// with french spacing, we should run it once on the full DOM including
+		// content of all extensions (wikitext-produced or not).
+		'displayspace',
+		'dedupe-styles', 'strip-metas',
 		'cleanup',
 		'embedded-docs', // Need to run this recursively
 		'markDiscardableDP'
@@ -247,13 +251,22 @@ class ParserPipelineFactory {
 
 	public const SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS = [
 		'extpp', // FIXME: this should be a different processor
-		'fixups',
-		'redlinks', 'displayspace', 'linkclasses',
+		// Even though displayspace *could* be run in the nested pipeline,
+		// if we want to spare non-wikitext extensions from having to deal
+		// with french spacing, we should run it once on the full DOM including
+		// content of all extensions (wikitext-produced or not).
+		'displayspace',
+		'redlinks',
 		'gen-anchors',
 		'strip-metas',
 		'convertoffsets', 'cleanup',
 	];
 
+	/**
+	 * These passes below should be global passes that rely on
+	 * full-DOM global state. So, 'displayspace' doesn't belong here.
+	 * It is sufficient to run it on the updated fragments above.
+	 */
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
 		'update-template',
 		'lang-converter', /* FIXME: Are lang converters idempotent? */
