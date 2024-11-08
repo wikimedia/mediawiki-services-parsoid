@@ -170,7 +170,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 
 		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
-		$extApi->postProcessDOM( $document, false );
+		$extApi->postProcessDOM( $document );
 
 		return $document;
 	}
