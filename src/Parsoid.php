@@ -193,7 +193,6 @@ class Parsoid {
 		$contentmodel = $options['contentmodel'] ?? null;
 		$handler = $env->getContentHandler( $contentmodel );
 		$extApi = new ParsoidExtensionAPI( $env );
-		// FIXME: Hardcoded to assume 'mode' is 'template'
 		return [ $env, $handler->toDOM( $extApi, $selparData ), $contentmodel ];
 	}
 
