@@ -220,7 +220,7 @@ class AddMetaData implements Wt2HtmlDOMProcessor {
 		// Stick data attributes in the head
 		if ( $env->pageBundle ) {
 			DOMDataUtils::injectPageBundle( $document,
-				PageBundle::fromDomPageBundle( DOMDataUtils::getPageBundle( $document ) )
+				PageBundle::fromDomPageBundle( $env->pageBundle )
 			);
 		}
 

@@ -233,9 +233,10 @@ class DomPageBundle implements JsonCodecable {
 			DOMCompat::getBody( $doc ),
 			[
 				'storeInPageBundle' => $dpb,
+				'outputContentVersion' => $dpb->version,
 			] + $options + [
 				'env' => new MockEnv( [] ),
-			]
+			],
 		);
 		return $dpb;
 	}
