@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\DOM\Document;
 
 class DataBag {
 	/**
@@ -18,10 +18,10 @@ class DataBag {
 	/** @var int An id counter for this document used for the dataObject map */
 	private int $nodeId = 0;
 
-	/** @var PageBundle|DomPageBundle the page bundle object into which all data-parsoid and data-mw
+	/** The page bundle object into which all data-parsoid and data-mw
 	 * attributes will be extracted to for pagebundle API requests.
 	 */
-	private $pageBundle;
+	private DomPageBundle $pageBundle;
 
 	/**
 	 * FIXME: Figure out a decent interface for updating these depths
@@ -31,9 +31,9 @@ class DataBag {
 	 */
 	public array $transclusionMetaTagDepthMap = [];
 
-	public function __construct() {
-		$this->pageBundle = new PageBundle(
-			'',
+	public function __construct( Document $doc ) {
+		$this->pageBundle = new DomPageBundle(
+			$doc,
 			[ "counter" => -1, "ids" => [] ],
 			[ "ids" => [] ]
 		);
@@ -41,17 +41,15 @@ class DataBag {
 
 	/**
 	 * Return this document's pagebundle object
-	 * @return PageBundle|DomPageBundle
 	 */
-	public function getPageBundle() {
+	public function getPageBundle(): DomPageBundle {
 		return $this->pageBundle;
 	}
 
 	/**
 	 * Reset the document's pagebundle object
-	 * @param PageBundle|DomPageBundle $pageBundle
 	 */
-	public function setPageBundle( $pageBundle ): void {
+	public function setPageBundle( DomPageBundle $pageBundle ): void {
 		$this->pageBundle = $pageBundle;
 	}
 

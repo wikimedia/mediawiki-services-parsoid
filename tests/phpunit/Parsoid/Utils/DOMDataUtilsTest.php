@@ -79,9 +79,7 @@ EOF;
 	 * @covers ::getAttributeObject
 	 */
 	public function testRichAttributeMissing() {
-		$doc = DOMUtils::parseHTML( "<p>Hello, world</p>" );
-		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
+		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		// Reserved HTML attribute
@@ -97,11 +95,9 @@ EOF;
 	 * @covers ::getAttributeObject
 	 */
 	public function testRichAttributeBackCompat1() {
-		$doc = DOMUtils::parseHTML(
+		$doc = ContentUtils::createAndLoadDocument(
 			"<p foo='flattened!' data-mw='{\"attribs\":[[\"foo\",{\"bar\":42}]]}'>Hello, world</p>"
 		);
-		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		// Reserved HTML attribute
@@ -126,11 +122,9 @@ EOF;
 	 * @covers ::getAttributeObject
 	 */
 	public function testRichAttributeBackCompat2() {
-		$doc = DOMUtils::parseHTML(
+		$doc = ContentUtils::createAndLoadDocument(
 			"<p foo='flattened!' data-mw='{\"attribs\":[[\"foo\",{\"bar\":42}],[{\"txt\":\"bar\",\"html\":\"&lt;b>bar&lt;/b>\"},{\"html\":\"xyz\"}]]}'>Hello, world</p>"
 		);
-		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		// Reserved HTML attribute
@@ -160,9 +154,7 @@ EOF;
 	 */
 	public function testRichAttributeObject() {
 		$rd = [];
-		$doc = DOMUtils::parseHTML( "<p>Hello, world</p>" );
-		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
+		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		$attrNames = [ 'foo', 'data-mw-foo' ];
@@ -198,9 +190,7 @@ EOF;
 			'Hello, world</p>',
 			$html
 		);
-		$doc = DOMUtils::parseHTML( $html );
-		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
+		$doc = ContentUtils::createAndLoadDocument( $html );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 
 		// Values should be preserved!
@@ -218,9 +208,7 @@ EOF;
 	 * @covers ::getAttributeObjectDefault
 	 */
 	public function testRichAttributeObjectNested() {
-		$doc = DOMUtils::parseHTML( "<p>Hello, world</p>" );
-		DOMDataUtils::prepareDoc( $doc );
-		DOMDataUtils::visitAndLoadDataAttribs( $doc );
+		$doc = ContentUtils::createAndLoadDocument( "<p>Hello, world</p>" );
 		$p = DOMCompat::querySelector( $doc, 'p' );
 		$this->assertNull( DOMDataUtils::getAttributeObject( $p, 'data-mw-foo', SampleRichData::hint() ) );
 

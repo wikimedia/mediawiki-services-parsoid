@@ -26,8 +26,9 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $html, $actualHtml );
 		$actualWt = WTUtils::decodeComment( $html );
 		$this->assertEquals( $wikitext, $actualWt );
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( "<html><body><!--$html--></body></html>" );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body><!--$html--></body></html>"
+		);
 		$body = $doc->getElementsByTagName( "body" )->item( 0 );
 		$node = $body->childNodes->item( 0 );
 		$actualLen = WTUtils::decodedCommentLength( $node );
@@ -115,9 +116,9 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	public function testAddI18nAttributesNumeric() {
 		// Passing this test depends on Ie63649f5b6717eb8e1c8fbaa030ea0042de59b3a
 		// which is in wikimedia/json-codec 3.0.2
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( "<html><body><span>hello</span></body></html>" );
-		DOMDataUtils::prepareDoc( $doc );
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body><span>hello</span></body></html>"
+		);
 		$span = DOMCompat::getBody( $doc )->firstChild;
 		WTUtils::addPageContentI18nAttribute( $span, '0', 'key1' );
 		WTUtils::addInterfaceI18nAttribute( $span, '1', 'key2', [ 'Foo' ] );
@@ -172,11 +173,12 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::decodedCommentLength
 	 */
 	public function testDecodedCommentLength() {
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( "<html><body><div>" .
+		$doc = ContentUtils::createAndLoadDocument(
+			"<html><body><div>" .
 			"<p><!--c1--></p>" .
 			"a <meta typeof='mw:Placeholder/UnclosedComment'/><!--c2\n-->" .
-			"</body></html>" );
+			"</body></html>"
+		);
 		$body = DOMCompat::getBody( $doc );
 		$body->setAttribute( 'hasUnclosedComment', "1" );
 		$div = $body->firstChild;

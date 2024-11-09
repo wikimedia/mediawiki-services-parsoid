@@ -270,15 +270,19 @@ class Parsoid {
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 
 		if ( $env->pageBundle ) {
-			DOMDataUtils::injectPageBundle(
-				$doc, DOMDataUtils::getPageBundle( $doc )
-			);
-			$out = ContentUtils::extractDpAndSerialize( $node, [
-				'innerXML' => $body_only,
-				'contentversion' => $env->getOutputContentVersion(),
-				'headers' => $headers,
-				'contentmodel' => $contentmodel,
-			] );
+			$out = [
+				'pb' => PageBundle::fromDomPageBundle(
+					DOMDataUtils::getPageBundle( $doc ),
+					[
+						'body_only' => $body_only,
+						'contentversion' => $env->getOutputContentVersion(),
+						'headers' => $headers,
+						'contentmodel' => $contentmodel,
+						'offsetType' => $env->getCurrentOffsetType(),
+					]
+				),
+			];
+			$out['html'] = $out['pb']->html; // for use in metrics
 		} else {
 			$out = [
 				'html' => ContentUtils::toXML( $node, [
@@ -381,7 +385,7 @@ class Parsoid {
 			// don't inadvertently corrupt the main document result.
 			$newPb = new PageBundle(
 				$out['html'],
-				$out['pb']->parsoid, $out['pb']->mw ?? null,
+				$out['pb']->parsoid ?? null, $out['pb']->mw ?? null,
 				$env->getOutputContentVersion(),
 				$headers,
 				$contentmodel
@@ -641,18 +645,18 @@ class Parsoid {
 				'outputContentVersion' => $env->getOutputContentVersion(),
 			]
 		);
-		$body_only = !empty( $options['body_only'] );
-		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		DOMDataUtils::injectPageBundle( $doc, $dataBagPB );
-		$out = ContentUtils::extractDpAndSerialize( $node, [
-			'innerXML' => $body_only,
-			// Prefer the passed in version, since this was just a transformation
-			'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
-			'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
-			// Prefer the passed in content model
-			'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel()
-		] );
-		return $out['pb'];
+		return PageBundle::fromDomPageBundle(
+			DOMDataUtils::getPageBundle( $doc ),
+			[
+				'body_only' => !empty( $options['body_only'] ),
+				// Prefer the passed in version, since this was just a transformation
+				'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
+				'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
+				// Prefer the passed in content model
+				'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel(),
+				'offsetType' => $env->getCurrentOffsetType(),
+			]
+		);
 	}
 
 	/**
@@ -747,7 +751,8 @@ class Parsoid {
 			[ 'ids' => [] ],
 			$pageBundle->mw
 		);
-		$pageBundle->html = $newPageBundle->toHtml();
+		$pageBundle->html = $newPageBundle->toInlineAttributeHtml();
+
 		// Now, modify the pagebundle to the expected form.  This is important
 		// since, at least in the serialization path, the original pb will be
 		// applied to the modified content and its presence could cause lost

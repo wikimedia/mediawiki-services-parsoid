@@ -5,8 +5,8 @@ namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
+use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
@@ -62,8 +62,8 @@ class ComputeSelectiveStats {
 		}
 
 		// Parse to DOM and diff
-		$oldDoc = self::pb2doc( $env, $oldPb );
-		$newDoc = self::pb2doc( $env, $newPb );
+		$oldDoc = DomPageBundle::fromPageBundle( $oldPb )->toDom();
+		$newDoc = DomPageBundle::fromPageBundle( $newPb )->toDom();
 		$dd = new DOMDiff( $env );
 		// Don't skip over template content!
 		$dd->skipEncapsulatedContent = false;
@@ -176,16 +176,6 @@ class ComputeSelectiveStats {
 	}
 
 	// ----------- Helper functions ---------------
-
-	/** Convert a page bundle to a DOM Document. */
-	private static function pb2doc( Env $env, PageBundle $pb ): Document {
-		$doc = $pb->toDom();
-		DOMDataUtils::prepareDoc( $doc );
-		$body = DOMCompat::getBody( $doc );
-		'@phan-var Element $body'; // assert non-null
-		DOMDataUtils::visitAndLoadDataAttribs( $body, [ 'markNew' => true ] );
-		return $doc;
-	}
 
 	/** Convert a PageConfig to a wikitext string. */
 	private static function pc2wt( PageConfig $pc ): string {
