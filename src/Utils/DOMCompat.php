@@ -365,6 +365,30 @@ class DOMCompat {
 	}
 
 	/**
+	 * Append the node to the parent node.
+	 * @param Document|DocumentFragment|Element $parentNode
+	 * @param Node|string ...$nodes
+	 * @note This method was added in PHP 8.0.0
+	 */
+	public static function append( $parentNode, ...$nodes ): void {
+		Assert::parameterType(
+			self::or(
+				Document::class, DocumentFragment::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
+			),
+			$parentNode, '$parentNode'
+		);
+		foreach ( $nodes as $node ) {
+			if ( is_string( $node ) ) {
+				$node = $parentNode->ownerDocument->createTextNode( $node );
+			}
+			$parentNode->appendChild( $node );
+		}
+	}
+
+	/**
 	 * Removes the node from the document.
 	 * @param Element|CharacterData $node
 	 * @see https://dom.spec.whatwg.org/#dom-childnode-remove

@@ -477,6 +477,32 @@ HTML;
 	}
 
 	/**
+	 * @covers ::append()
+	 */
+	public function testAppend() {
+		$html = '<html><body><div id="a">abc</div></body></html>';
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( $html );
+
+		$df = $doc->createDocumentFragment();
+		$df->appendChild( $doc->createTextNode( "1" ) );
+		$df->appendChild( $doc->createElement( "span" ) );
+		$df->appendChild( $doc->createTextNode( "2" ) );
+
+		DOMCompat::append(
+			$doc->getElementById( 'a' ),
+			'def',
+			$df,
+			$doc->createElement( 'b' ),
+			'y&z'
+		);
+		$this->assertSame(
+			'<html><body><div id="a">abcdef1<span></span>2<b></b>y&amp;z</div></body></html>',
+			DOMCompat::getOuterHTML( $doc->documentElement )
+		);
+	}
+
+	/**
 	 * @covers ::remove()
 	 */
 	public function testRemove() {
