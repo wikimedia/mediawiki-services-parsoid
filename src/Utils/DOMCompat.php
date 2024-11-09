@@ -234,10 +234,38 @@ class DOMCompat {
 	}
 
 	/**
+	 * Return the first child of the node that is an Element, or null
+	 * otherwise.
+	 * @param Document|DocumentFragment|Element $node
+	 * @return Element|null
+	 * @see https://dom.spec.whatwg.org/#dom-parentnode-firstelementchild
+	 * @note This property was added to PHP in 8.0.0, and won't be needed
+	 *  once our minimum required version >= 8.0.0
+	 */
+	public static function getFirstElementChild( $node ) {
+		Assert::parameterType(
+			self::or(
+				Document::class, DocumentFragment::class, Element::class,
+				// For compatibility with code which might call this from
+				// outside Parsoid.
+				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
+			),
+			$node, '$node' );
+		$firstChild = $node->firstChild;
+		while ( $firstChild && $firstChild->nodeType !== XML_ELEMENT_NODE ) {
+			$firstChild = $firstChild->nextSibling;
+		}
+		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
+		return $firstChild;
+	}
+
+	/**
 	 * Return the last child of the node that is an Element, or null otherwise.
 	 * @param Document|DocumentFragment|Element $node
 	 * @return Element|null
 	 * @see https://dom.spec.whatwg.org/#dom-parentnode-lastelementchild
+	 * @note This property was added to PHP in 8.0.0, and won't be needed
+	 *  once our minimum required version >= 8.0.0
 	 */
 	public static function getLastElementChild( $node ) {
 		Assert::parameterType(

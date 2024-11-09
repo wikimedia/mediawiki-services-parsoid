@@ -160,6 +160,29 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * @covers ::getFirstElementChild()
+	 */
+	public function testGetFirstElementChild() {
+		$html = '<html><body> <!-- foo --> <div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( $html );
+		$html = $doc->getElementsByTagName( 'html' )->item( 0 );
+		'@phan-var Element $html'; /** @var Element $html */
+		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var Element $body'; /** @var Element $body */
+		$this->assertSameNode( $doc->getElementById( 'a' ), DOMCompat::getFirstElementChild( $body ) );
+		$this->assertSameNode( $html, DOMCompat::getFirstElementChild( $doc ) );
+		$this->assertSameNode( $body, DOMCompat::getFirstElementChild( $html ) );
+
+		$html = '<html><body></body></html>';
+		$doc = DOMCompat::newDocument( true );
+		$doc->loadHTML( $html );
+		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
+		'@phan-var Element $body'; /** @var Element $body */
+		$this->assertNull( DOMCompat::getFirstElementChild( $body ) );
+	}
+
+	/**
 	 * @covers ::getLastElementChild()
 	 */
 	public function testGetLastElementChild() {
