@@ -788,7 +788,7 @@ class TestRunner {
 	}
 
 	/**
-	 * Removes DSR from data-parsoid for test normalization of a complet document. If
+	 * Removes DSR from data-parsoid for test normalization of a complete document. If
 	 * data-parsoid gets subsequently empty, removes it too.
 	 * @param string $raw
 	 * @return string
@@ -800,8 +800,7 @@ class TestRunner {
 				$this->filterNodeDsr( $child );
 			}
 		}
-		DOMDataUtils::visitAndStoreDataAttribs( $doc );
-		$ret = ContentUtils::toXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
+		$ret = ContentUtils::ppToXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
 		$ret = preg_replace( '/\sdata-parsoid="{}"/', '', $ret );
 		return $ret;
 	}
@@ -812,6 +811,8 @@ class TestRunner {
 	private function filterNodeDsr( Element $el ) {
 		$dp = DOMDataUtils::getDataParsoid( $el );
 		unset( $dp->dsr );
+		// XXX: could also set TempData::IS_NEW if !$dp->isModified(),
+		// rather than using the preg_replace above.
 		foreach ( $el->childNodes as $child ) {
 			if ( $child instanceof Element ) {
 				$this->filterNodeDsr( $child );

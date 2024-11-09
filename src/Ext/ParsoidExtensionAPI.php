@@ -428,7 +428,7 @@ class ParsoidExtensionAPI {
 	 *   - extTag
 	 *   - extTagOpts
 	 *   - context
-	 * @return DocumentFragment
+	 * @return DocumentFragment "prepared and loaded"
 	 */
 	public function extTagToDOM(
 		array $extArgs, string $wikitext, array $opts

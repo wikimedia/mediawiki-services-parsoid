@@ -9,6 +9,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -51,10 +52,15 @@ class DOMDataUtils {
 		return $doc->codec;
 	}
 
+	public static function isPrepared( Document $doc ): bool {
+		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
+		return isset( $doc->bag );
+	}
+
 	public static function prepareDoc( Document $doc ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = new DataBag();
+		$doc->bag = new DataBag( $doc );
 		// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		$doc->codec = new JsonCodec();
@@ -129,7 +135,7 @@ class DOMDataUtils {
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared
 				// between nodes without getting cloned. Useful for debugging.
-				'Node id: ' . $nodeId .
+				'Node id: ' . $nodeId . ' ' .
 				'Stored data: ' . PHPUtils::jsonEncode( $dataObject )
 			);
 		}
@@ -430,10 +436,8 @@ class DOMDataUtils {
 
 	/**
 	 * Get this document's pagebundle object
-	 * @param Document $doc
-	 * @return PageBundle
 	 */
-	public static function getPageBundle( Document $doc ): PageBundle {
+	public static function getPageBundle( Document $doc ): DomPageBundle {
 		return self::getBag( $doc )->getPageBundle();
 	}
 

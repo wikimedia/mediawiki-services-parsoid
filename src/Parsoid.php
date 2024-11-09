@@ -29,7 +29,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
-use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\ConvertOffsets;
 
@@ -269,9 +268,19 @@ class Parsoid {
 		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
 
 		if ( $env->pageBundle ) {
-			$out = ContentUtils::extractDpAndSerialize( $node, [
-				'innerXML' => $body_only,
-			] );
+			$out = [
+				'pb' => PageBundle::fromDomPageBundle(
+					DOMDataUtils::getPageBundle( $doc ),
+					[
+						'body_only' => $body_only,
+						'contentversion' => $env->getOutputContentVersion(),
+						'headers' => $headers,
+						'contentmodel' => $contentmodel,
+						'offsetType' => $env->getCurrentOffsetType(),
+					]
+				),
+			];
+			$out['html'] = $out['pb']->html; // for use in metrics
 		} else {
 			$out = [
 				'html' => ContentUtils::toXML( $node, [
@@ -377,7 +386,7 @@ class Parsoid {
 			// don't inadvertently corrupt the main document result.
 			$newPb = new PageBundle(
 				$out['html'],
-				$out['pb']->parsoid, $out['pb']->mw ?? null,
+				$out['pb']->parsoid ?? null, $out['pb']->mw ?? null,
 				$env->getOutputContentVersion(),
 				$headers,
 				$contentmodel
@@ -633,36 +642,19 @@ class Parsoid {
 				'env' => $env,
 			]
 		);
-		$body_only = !empty( $options['body_only'] );
-		$node = $body_only ? DOMCompat::getBody( $doc ) : $doc;
-		DOMDataUtils::injectPageBundle( $doc, $dataBagPB );
-		$out = ContentUtils::extractDpAndSerialize( $node, [
-			'innerXML' => $body_only,
-		] );
-		return new PageBundle(
-			$out['html'],
-			$out['pb']->parsoid, $out['pb']->mw ?? null,
-			// Prefer the passed in version, since this was just a transformation
-			$pb->version ?? $env->getOutputContentVersion(),
-			DOMUtils::findHttpEquivHeaders( $doc ),
-			// Prefer the passed in content model
-			$pb->contentmodel ?? $pageConfig->getContentModel()
-		);
-	}
 
-	/**
-	 * Perform pre-save transformations with top-level templates subst'd.
-	 *
-	 * @param PageConfig $pageConfig
-	 * @param string $wikitext
-	 * @return string
-	 */
-	public function substTopLevelTemplates(
-		PageConfig $pageConfig, string $wikitext
-	): string {
-		$metadata = new StubMetadataCollector( $this->siteConfig );
-		$env = new Env( $this->siteConfig, $pageConfig, $this->dataAccess, $metadata );
-		return Wikitext::pst( $env, $wikitext, true /* $substTLTemplates */ );
+		return PageBundle::fromDomPageBundle(
+			DOMDataUtils::getPageBundle( $doc ),
+			[
+				'body_only' => !empty( $options['body_only'] ),
+				// Prefer the passed in version, since this was just a transformation
+				'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
+				'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
+				// Prefer the passed in content model
+				'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel(),
+				'offsetType' => $env->getCurrentOffsetType(),
+			]
+		);
 	}
 
 	/**
@@ -757,7 +749,8 @@ class Parsoid {
 			[ 'ids' => [] ],
 			$pageBundle->mw
 		);
-		$pageBundle->html = $newPageBundle->toHtml();
+		$pageBundle->html = $newPageBundle->toInlineAttributeHtml();
+
 		// Now, modify the pagebundle to the expected form.  This is important
 		// since, at least in the serialization path, the original pb will be
 		// applied to the modified content and its presence could cause lost

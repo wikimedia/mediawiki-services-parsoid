@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 use Closure;
 use DateTime;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Parsoid;
@@ -218,7 +219,9 @@ class AddMetaData implements Wt2HtmlDOMProcessor {
 
 		// Stick data attributes in the head
 		if ( $env->pageBundle ) {
-			DOMDataUtils::injectPageBundle( $document, DOMDataUtils::getPageBundle( $document ) );
+			DOMDataUtils::injectPageBundle( $document,
+				PageBundle::fromDomPageBundle( DOMDataUtils::getPageBundle( $document ) )
+			);
 		}
 
 		// PageConfig guarantees language will always be non-null.

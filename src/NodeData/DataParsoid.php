@@ -54,7 +54,9 @@ use Wikimedia\Parsoid\Utils\Utils;
  * the objects are not fully populated.
  * @property ParamInfo[][]|null $pi
  *
- * Expanded template HTML (native preprocessor only).
+ * DOM fragment identifier for DocumentFragment tunneled through Tokens.
+ * The identifier here indexes into Env::$fragmentMap to map to a
+ * DocumentFragment.
  * @property string|null $html
  *
  * On mw:Entity spans this is set to the decoded entity value.

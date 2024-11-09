@@ -10,7 +10,7 @@ use Wikimedia\Parsoid\Html2Wt\SerializerState;
 use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Zest\Zest;
 
 class SerializerStateTest extends TestCase {
@@ -52,8 +52,9 @@ class SerializerStateTest extends TestCase {
 	 * @return Element
 	 */
 	private function getNode( $html = '<div id="main"></div>', $selector = '#main' ): Element {
-		$document = DOMCompat::newDocument( true );
-		$document->loadHTML( "<html><body>$html</body></html>" );
+		$document = ContentUtils::createAndLoadDocument(
+			"<html><body>$html</body></html>"
+		);
 		return Zest::find( $selector, $document )[0];
 	}
 
