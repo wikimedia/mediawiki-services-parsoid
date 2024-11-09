@@ -10,6 +10,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
@@ -436,9 +437,9 @@ class DOMDataUtils {
 	/**
 	 * Get this document's pagebundle object
 	 * @param Document $doc
-	 * @return PageBundle
+	 * @return PageBundle|DomPageBundle
 	 */
-	public static function getPageBundle( Document $doc ): PageBundle {
+	public static function getPageBundle( Document $doc ) {
 		return self::getBag( $doc )->getPageBundle();
 	}
 

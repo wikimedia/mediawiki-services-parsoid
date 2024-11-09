@@ -228,10 +228,11 @@ class DomPageBundle implements JsonCodecable {
 			$metadata->headers ?? $options['headers'] ?? null,
 			$metadata->contentmodel ?? $options['contentmodel'] ?? null
 		);
+		DOMDataUtils::getBag( $doc )->setPageBundle( $dpb );
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ),
 			[
-				'storeInPageBundle' => $dpb,
+				'storeInPageBundle' => true,
 				'outputContentVersion' => $dpb->version,
 			] + $options
 		);
