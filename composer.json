@@ -33,7 +33,7 @@
 		"symfony/polyfill-php80": "^1.23.1",
 		"wikimedia/assert": "^0.5.1",
 		"wikimedia/bcp-47-code": "^2.0.0",
-		"wikimedia/idle-dom": "1.0.0",
+		"wikimedia/idle-dom": "2.0.1",
 		"wikimedia/ip-utils": "^5.0.0",
 		"wikimedia/json-codec": "^3.0.2",
 		"wikimedia/object-factory": "^5.0.1",
