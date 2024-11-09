@@ -15,7 +15,7 @@ class DataBag {
 	 */
 	private array $dataObject = [];
 
-	/** @var int An id counter for this document used for the dataObject map */
+	/** An id counter for this document used for the dataObject map */
 	private int $nodeId = 0;
 
 	/** The page bundle object into which all data-parsoid and data-mw

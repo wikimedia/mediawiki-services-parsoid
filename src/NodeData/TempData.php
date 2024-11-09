@@ -115,15 +115,13 @@ class TempData {
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used
 	 * in findAutoInsertedTags() in conjunction with data-stag to identify
 	 * auto-inserted tags, and for debugging.
-	 * @var int|null
 	 */
-	public $tagId;
+	public ?int $tagId;
 
 	/**
 	 * A combination of flags combined from consts on this class.
-	 * @var int
 	 */
-	public $bits = 0;
+	public int $bits = 0;
 
 	/**
 	 * Node temporary attribute key-value pair to be processed in post-process steps.
@@ -132,16 +130,11 @@ class TempData {
 	 *
 	 * Make this property private and leave for ParsoidExtensionAPI to manipulate its
 	 * content.
-	 *
-	 * @var array|null
 	 */
 	private ?array $tagData;
 
 	/**
 	 * Check whether a bit is set in $this->bits
-	 *
-	 * @param int $flag
-	 * @return bool
 	 */
 	public function getFlag( int $flag ): bool {
 		return (bool)( $this->bits & $flag );
@@ -149,9 +142,6 @@ class TempData {
 
 	/**
 	 * Set a bit in $this->bits
-	 *
-	 * @param int $flag
-	 * @param bool $value
 	 */
 	public function setFlag( int $flag, bool $value = true ): void {
 		if ( $value ) {
@@ -167,7 +157,7 @@ class TempData {
 	 * @param string $key identifier to support a map for multiple extensions
 	 * @param mixed $data
 	 */
-	public function setTagData( string $key, $data ) {
+	public function setTagData( string $key, $data ): void {
 		$this->tagData ??= [];
 		$this->tagData[$key] = $data;
 	}

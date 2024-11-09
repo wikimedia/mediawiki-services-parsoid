@@ -16,21 +16,19 @@ class I18nInfo implements JsonCodecable {
 	/**
 	 * Value for the "lang" parameter. Can be one of USER_LANG or PAGE_LANG, or a fixed language
 	 * code (discouraged when USER_LANG or PAGE_LANG could be used instead).
-	 * @var string
 	 */
-	public $lang;
+	public string $lang;
 
 	/**
 	 * Key of the message in localization files
-	 * @var string
 	 */
-	public $key;
+	public string $key;
 
 	/**
 	 * Ordered list of parameters for the localized message
-	 * @var ?array
+	 * @var ?list
 	 */
-	public $params;
+	public ?array $params;
 
 	public function __construct( string $lang, string $key, ?array $params = null ) {
 		$this->lang = $lang;

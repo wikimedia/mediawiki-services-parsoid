@@ -246,9 +246,8 @@ class DataParsoid implements JsonCodecable {
 	/**
 	 * Holds a number of transient properties in the wt->html pipeline to pass information between
 	 * stages. Dropped before serialization.
-	 * @var TempData|null
 	 */
-	public $tmp;
+	public ?TempData $tmp;
 
 	/**
 	 * Deeply clone this object
