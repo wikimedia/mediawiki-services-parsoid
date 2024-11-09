@@ -42,7 +42,7 @@ class I18nInfo implements JsonCodecable {
 		// Parameters should generally be immutable, in which case a clone
 		// isn't strictly speaking necessary.  But just in case someone puts
 		// a mutable object in here, deep clone the parameter array.
-		foreach ( $this->params as $key => &$value ) {
+		foreach ( $this->params ?? [] as $key => &$value ) {
 			if ( is_object( $value ) ) {
 				$value = clone $value;
 			}
