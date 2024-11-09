@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Logger\LintLogger;
 use Wikimedia\Parsoid\Utils\ContentUtils;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
@@ -39,6 +38,5 @@ class ConvertOffsets implements Wt2HtmlDOMProcessor {
 			LintLogger::convertDSROffsets( $env, $lints, 'byte', $offsetType );
 			$env->setLints( $lints );
 		}
-		DOMDataUtils::getPageBundle( $doc )->parsoid['offsetType'] = $offsetType;
 	}
 }

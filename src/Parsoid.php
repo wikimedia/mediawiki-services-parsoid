@@ -271,16 +271,13 @@ class Parsoid {
 
 		if ( $env->pageBundle ) {
 			$out = [
-				'pb' => PageBundle::fromDomPageBundle(
-					DOMDataUtils::getPageBundle( $doc ),
-					[
-						'body_only' => $body_only,
-						'contentversion' => $env->getOutputContentVersion(),
-						'headers' => $headers,
-						'contentmodel' => $contentmodel,
-						'offsetType' => $env->getCurrentOffsetType(),
-					]
-				),
+				'pb' => PageBundle::fromDomPageBundle( $env->pageBundle, [
+					'body_only' => $body_only,
+					'contentversion' => $env->getOutputContentVersion(),
+					'headers' => $headers,
+					'contentmodel' => $contentmodel,
+					'offsetType' => $env->getCurrentOffsetType(),
+				] ),
 			];
 			$out['html'] = $out['pb']->html; // for use in metrics
 		} else {
@@ -576,15 +573,17 @@ class Parsoid {
 			DOMCompat::getBody( $doc ), [ 'markNew' => true ]
 		);
 
-		$dataBagPB = DOMDataUtils::getPageBundle( $doc );
 		switch ( $update ) {
 			case 'convertoffsets':
+				// This method also calls Env::setCurrentOffsetType, which
+				// is used by PageBundle::fromDomPageBundle() below to set
+				// 'offsetType' in the 'parsoid' property of the page bundle
 				ContentUtils::convertOffsets(
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
 				);
-				$dataBagPB->parsoid['offsetType'] = $options['outputOffsetType'];
 				if ( isset( $pb->parsoid['counter'] ) ) {
-					$dataBagPB->parsoid['counter'] = $pb->parsoid['counter'];
+					$internalPB = $env->pageBundle;
+					$internalPB->parsoid['counter'] = $pb->parsoid['counter'];
 				}
 				break;
 
@@ -646,18 +645,15 @@ class Parsoid {
 				'outputContentVersion' => $env->getOutputContentVersion(),
 			]
 		);
-		return PageBundle::fromDomPageBundle(
-			DOMDataUtils::getPageBundle( $doc ),
-			[
-				'body_only' => !empty( $options['body_only'] ),
-				// Prefer the passed in version, since this was just a transformation
-				'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
-				'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
-				// Prefer the passed in content model
-				'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel(),
-				'offsetType' => $env->getCurrentOffsetType(),
-			]
-		);
+		return PageBundle::fromDomPageBundle( $env->pageBundle, [
+			'body_only' => !empty( $options['body_only'] ),
+			// Prefer the passed in version, since this was just a transformation
+			'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
+			'headers' => DOMUtils::findHttpEquivHeaders( $doc ),
+			// Prefer the passed in content model
+			'contentmodel' => $pb->contentmodel ?? $pageConfig->getContentModel(),
+			'offsetType' => $env->getCurrentOffsetType(),
+		] );
 	}
 
 	/**

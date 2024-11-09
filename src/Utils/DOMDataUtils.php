@@ -71,7 +71,7 @@ class DOMDataUtils {
 	public static function prepareDoc( Document $doc ): void {
 		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->bag = new DataBag( $doc );
+		$doc->bag = new DataBag();
 		// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		$doc->codec = new JsonCodec();
@@ -455,15 +455,8 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Get this document's pagebundle object
-	 */
-	public static function getPageBundle( Document $doc ): DomPageBundle {
-		return self::getBag( $doc )->getPageBundle();
-	}
-
-	/**
 	 * Removes the `data-*` attribute from a node, and migrates the data to the
-	 * document's JSON store. Generates a unique id with the following format:
+	 * given DomPageBundle. Generates a unique id with the following format:
 	 * ```
 	 * mw<base64-encoded counter>
 	 * ```
@@ -472,17 +465,17 @@ class DOMDataUtils {
 	 * TODO: Note that $data is effective a partial PageBundle containing
 	 * only the 'parsoid' and 'mw' properties.
 	 *
+	 * @param DomPageBundle $pb
 	 * @param Element $node node
 	 * @param stdClass $data data
 	 * @param array $idIndex Index of used id attributes in the DOM
 	 */
 	public static function storeInPageBundle(
-		Element $node, stdClass $data, array $idIndex
+		DomPageBundle $pb, Element $node, stdClass $data, array $idIndex
 	): void {
 		$hints = self::getCodecHints();
 		$uid = DOMCompat::getAttribute( $node, 'id' );
 		$document = $node->ownerDocument;
-		$pb = self::getPageBundle( $document );
 		$codec = self::getCodec( $document );
 		$docDp = &$pb->parsoid;
 		$origId = $uid;
@@ -650,8 +643,8 @@ class DOMDataUtils {
 	 * @param ?array $options options
 	 *   - discardDataParsoid: Discard DataParsoid objects instead of storing them
 	 *   - keepTmp: Preserve DataParsoid::$tmp
-	 *   - storeInPageBundle: If true, data will be stored in the page bundle
-	 *     instead of data-parsoid and data-mw.
+	 *   - storeInPageBundle: If set to a DomPageBundle, data will be stored
+	 *     in the given page bundle instead of data-parsoid and data-mw.
 	 *   - outputContentVersion: Version of output we're storing.  The page bundle
 	 *     didn't have data-mw before 999.x
 	 *   - idIndex: Array of used ID attributes
@@ -742,7 +735,7 @@ class DOMDataUtils {
 
 		// Store pagebundle
 		if ( $data !== null ) {
-			self::storeInPageBundle( $node, $data, $options['idIndex'] );
+			self::storeInPageBundle( $options['storeInPageBundle'], $node, $data, $options['idIndex'] );
 		}
 
 		// Indicate that this node's data has been stored so that if we try
