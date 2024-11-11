@@ -240,28 +240,7 @@ class UnpackDOMFragments {
 			/* -----------------------------------------------------------------------
 			 * If placeholderParent is an A element and fragmentDOM contains another
 			 * A element, we have an invalid nesting of A elements and needs fixing up.
-			 *
-			 * $doc1: ... $placeholderParent -> [... $placeholder=mw:DOMFragment, ...] ...
-			 *
-			 * 1. Change doc1:$placeholderParent -> [... "#unique-hash-code", ...] by replacing
-			 *    $placeholder with the "#unique-hash-code" text string
-			 *
-			 * 2. $str = $placeholderParent->str_replace(#unique-hash-code, $placeholderHTML)
-			 *    We now have a HTML string with the bad nesting. We will now use the HTML5
-			 *    parser to parse this HTML string and give us the fixed up DOM
-			 *
-			 * 3. ParseHTML(str) to get
-			 *    $doc2: [BODY -> [[placeholderParent -> [...], nested-A-tag-from-placeholder, ...]]]
-			 *
-			 * 4. Replace $placeholderParent (in $doc1) with $doc2->body->childNodes
 			 * ----------------------------------------------------------------------- */
-			// FIXME: This is not the most robust hashcode function to use here.
-			// With a granularity of a second, if replacements aren't done right away,
-			// you can get hash conflicts. It is also conceivable that there is a use
-			// of a parser function that returns the value of time and that may lead to
-			// hashcode conflicts as well.
-			$hashCode = (string)time();
-			$placeholderParent->replaceChild( $placeholder->ownerDocument->createTextNode( $hashCode ), $placeholder );
 
 			// If placeholderParent has an about, it presumably is nested inside a template
 			// Post fixup, its children will surface to the encapsulation wrapper level.
@@ -278,22 +257,23 @@ class UnpackDOMFragments {
 				self::makeChildrenEncapWrappers( $fragmentDOM, $about );
 			}
 
-			$fragmentHTML = ContentUtils::ppToXML( $fragmentDOM, [
-					'innerXML' => true,
-					// We just added some span wrappers and we need to keep
-					// that tmp info so the unnecessary ones get stripped.
-					// Should be fine since tmp was stripped before packing.
-					'keepTmp' => true
-				]
-			);
+			while ( $fragmentDOM->firstChild ) {
+				$placeholderParent->insertBefore( $fragmentDOM->firstChild, $placeholder );
+			}
+			$placeholderParent->removeChild( $placeholder );
 
 			$markerNode = $placeholderParent->previousSibling;
 
 			// We rely on HTML5 parser to fixup the bad nesting (see big comment above)
-			$placeholderParentHTML = ContentUtils::ppToXML( $placeholderParent );
-			$unpackedMisnestedHTML = str_replace( $hashCode, $fragmentHTML, $placeholderParentHTML );
+			$placeholderParentHTML = ContentUtils::ppToXML( $placeholderParent, [
+				// We just added some span wrappers and we need to keep
+				// that tmp info so the unnecessary ones get stripped.
+				// Should be fine since tmp was stripped before packing.
+				'keepTmp' => true
+			] );
+
 			$unpackedFragment = DOMUtils::parseHTMLToFragment(
-				$placeholderParent->ownerDocument, $unpackedMisnestedHTML
+				$placeholderParent->ownerDocument, $placeholderParentHTML
 			);
 
 			DOMUtils::migrateChildren(
