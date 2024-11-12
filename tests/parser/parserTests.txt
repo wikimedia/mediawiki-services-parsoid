@@ -17152,7 +17152,7 @@ parsoid=wt2html
 
 z
 !! html/parsoid
-<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'></i></p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":"&lt;span typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"},{"html":""}]]}'>
+<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"},{"html":""}]]}'></i></p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
 
 <p>z</p></i>
 !! end
@@ -17166,7 +17166,7 @@ parsoid=wt2html
 
 z
 !! html/parsoid
-<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>a</i></p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"}]]}'>
+<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"}]]}'>a</i></p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>
 
 <p>z</p></i>
 !! end

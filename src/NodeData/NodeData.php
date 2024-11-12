@@ -60,10 +60,7 @@ class NodeData {
 		}
 
 		// Avoid cloning sealed DOMFragments that may occur in expanded attributes
-		// NOTE that we are removing the sealed DOMFragments from $this, *not*
-		// the cloned node data $nd, which will retain the original values.
-
-		foreach ( $this->mw->attribs ?? [] as $attr ) {
+		foreach ( $nd->mw->attribs ?? [] as $attr ) {
 			// Look for DOMFragments in both key and value of DataMwAttrib
 			foreach ( [ 'key', 'value' ] as $part ) {
 				if (
