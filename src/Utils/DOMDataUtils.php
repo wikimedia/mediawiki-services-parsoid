@@ -110,13 +110,15 @@ class DOMDataUtils {
 		return self::getBag( $doc )->stashObject( $obj );
 	}
 
-	public static function dedupeNodeData( Node $node ): void {
+	public static function dedupeNodeData( Node ...$nodes ): void {
+		if ( count( $nodes ) === 0 ) {
+			return;
+		}
 		$seen = [];
-		self::dedupeNodeDataVisitor(
-			self::getBag( $node->ownerDocument ),
-			$seen,
-			$node
-		);
+		$bag = self::getBag( $nodes[0]->ownerDocument );
+		foreach ( $nodes as $node ) {
+			self::dedupeNodeDataVisitor( $bag, $seen, $node );
+		}
 	}
 
 	private static function dedupeNodeDataVisitor(

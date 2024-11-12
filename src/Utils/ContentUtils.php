@@ -162,6 +162,13 @@ class ContentUtils {
 		// @phan-suppress-next-line PhanDeprecatedFunction internal use
 		self::processAttributeEmbeddedHTML( $extAPI, $elt, $str2df2str );
 
+		if ( WTUtils::isInlineMedia( $elt ) ) {
+			$caption = DOMDataUtils::getDataMw( $elt )->caption ?? null;
+			if ( $caption !== null ) {
+				$proc( $caption );
+			}
+		}
+
 		// Process extension-specific embedded DocumentFragments
 		$extTagName = WTUtils::getExtTagName( $elt );
 		if ( $extTagName ) {
@@ -236,15 +243,6 @@ class ContentUtils {
 					$dmwv->filter->t = $proc( $dmwv->filter->t );
 				}
 				DOMDataUtils::setJSONAttribute( $elt, 'data-mw-variant', $dmwv );
-			}
-		}
-
-		// Inline media -- look inside the data-mw attribute
-		if ( WTUtils::isInlineMedia( $elt ) ) {
-			$dmw = DOMDataUtils::getDataMw( $elt );
-			$caption = $dmw->caption ?? null;
-			if ( $caption ) {
-				$dmw->caption = $proc( $caption );
 			}
 		}
 

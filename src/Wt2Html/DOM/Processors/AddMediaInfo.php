@@ -13,7 +13,6 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwError;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -742,9 +741,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 				$captionText = null;
 			} else {
 				if ( WTUtils::isInlineMedia( $container ) ) {
-					$caption = ContentUtils::createAndLoadDocumentFragment(
-						$container->ownerDocument, $dataMw->caption ?? ''
-					);
+					$caption = $dataMw->caption ?? $container->ownerDocument->createDocumentFragment();
 				} else {
 					$caption = DOMCompat::querySelector( $container, 'figcaption' );
 					// If the caption had tokens, it was placed in a DOMFragment

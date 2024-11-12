@@ -28,7 +28,6 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -1571,11 +1570,7 @@ class WikiLinkHandler extends TokenHandler {
 
 				// Use parsed DOM given in `captionDOM`
 				// FIXME: Does this belong in `dataMw.attribs`?
-				// FIXME: This should use a rich attribute with a fragment type
-				$dataMw->caption = ContentUtils::ppToXML( $captionDOM, [
-					'innerXML' => true,
-					'fragment' => true,
-				] );
+				$dataMw->caption = $captionDOM;
 			}
 		} else {
 			// We always add a figcaption for blocks

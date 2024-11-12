@@ -18,7 +18,6 @@ use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
 use Wikimedia\Parsoid\Html2Wt\DOMHandlers\FallbackHTMLHandler;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -1188,13 +1187,8 @@ class LinkHandlerUtils {
 		}
 
 		// Reconstruct the caption
-		if ( !$captionElt && is_string( $outerDMW->caption ?? null ) ) {
-			// IMPORTANT: Assign to a variable to prevent the fragment
-			// from getting GCed before we are done with it.
-			$fragment = ContentUtils::createAndLoadDocumentFragment(
-				$outerElt->ownerDocument, $outerDMW->caption,
-				[ 'markNew' => true ]
-			);
+		if ( !$captionElt && ( $outerDMW->caption ?? null ) !== null ) {
+			$fragment = $outerDMW->caption;
 			// FIXME: We should just be able to serialize the children of the
 			// fragment, however, we need some way of marking this as being
 			// inInsertedContent so that any bare text is assured to be escaped
