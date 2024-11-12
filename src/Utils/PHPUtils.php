@@ -106,17 +106,27 @@ class PHPUtils {
 
 	/**
 	 * Append an array to an accumulator using the most efficient method
-	 * available. Makes sure that accumulation is O(n).
+	 * available. Pushing N elements onto $dest is guaranteed to be O(N).
 	 *
 	 * See https://w.wiki/3zvE
 	 *
 	 * @param array &$dest Destination array
-	 * @param array $source Array to merge
+	 * @param array ...$sources Arrays to merge
 	 */
-	public static function pushArray( array &$dest, array $source ): void {
-		if ( count( $dest ) < count( $source ) ) {
-			$dest = array_merge( $dest, $source );
-		} else {
+	public static function pushArray( array &$dest, array ...$sources ): void {
+		if ( count( $sources ) === 0 ) {
+			return;
+		}
+		// If the number of elements to be pushed is greater than the size
+		// of the destination, then we can just use PHP's native array_merge
+		// since the size of $dest is also O(N).
+		$sourceCount = array_sum( array_map( fn ( $s ) => count( $s ), $sources ) );
+		if ( count( $dest ) < $sourceCount ) {
+			$dest = array_merge( $dest, ...$sources );
+			return;
+		}
+		// ...otherwise append each item in turn to $dest.
+		foreach ( $sources as $source ) {
 			foreach ( $source as $item ) {
 				$dest[] = $item;
 			}

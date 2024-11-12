@@ -193,4 +193,27 @@ class PHPUtilsTest extends TestCase {
 			[ "xx\xED\xA1\x92\xED\xBD\xA2xx", false ], // U+24B62 -> U+D852 U+DF62
 		];
 	}
+
+	/**
+	 * @covers ::pushArray
+	 */
+	public function testPushArray() {
+		$b = [ 1 ];
+		// No sources
+		PHPUtils::pushArray( $b );
+		$this->assertSame( [ 1 ], $b );
+		// one source, $dest smaller
+		PHPUtils::pushArray( $b, [ 2, 3 ] );
+		$this->assertSame( [ 1, 2, 3 ], $b );
+		 // one source, source smaller
+		PHPUtils::pushArray( $b, [ 4 ] );
+		$this->assertSame( [ 1, 2, 3, 4 ], $b );
+		// multiple sources, combined larger than $dest
+		PHPUtils::pushArray( $b, [ 5, 6 ], [ 7 ], [ 8, 9, 10 ] );
+		$this->assertSame( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ], $b );
+		// multiple sources, combined smaller than $dest
+		PHPUtils::pushArray( $b, [ 11 ], [ 12, 13 ] );
+		$this->assertSame( [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 ], $b );
+	}
+
 }
