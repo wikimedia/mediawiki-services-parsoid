@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\JsonCodec\Hint;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
@@ -251,5 +252,10 @@ class DomSourceRange extends SourceRange {
 			$a[] = $this->trailingWS;
 		}
 		return $a;
+	}
+
+	/** JsonCodec serialization hint. */
+	public static function hint(): Hint {
+		return Hint::build( self::class, Hint::USE_SQUARE );
 	}
 }

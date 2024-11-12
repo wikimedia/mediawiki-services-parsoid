@@ -341,8 +341,8 @@ class DataParsoid implements JsonCodecable {
 	public static function jsonClassHintFor( string $keyname ) {
 		static $hints = null;
 		if ( $hints === null ) {
-			$dsr = Hint::build( DomSourceRange::class, Hint::USE_SQUARE );
-			$sr = Hint::build( SourceRange::class, Hint::USE_SQUARE );
+			$dsr = DomSourceRange::hint();
+			$sr = SourceRange::hint();
 			$hints = [
 				'dsr' => $dsr,
 				'extTagOffsets' => $dsr,

@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Tokens;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -136,5 +137,10 @@ class SourceRange implements JsonCodecable {
 			'Wrong # of elements in SourceRange array'
 		);
 		return new SourceRange( $json[0], $json[1] );
+	}
+
+	/** JsonCodec serialization hint. */
+	public static function hint(): Hint {
+		return Hint::build( self::class, Hint::USE_SQUARE );
 	}
 }
