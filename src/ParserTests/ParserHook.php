@@ -78,6 +78,9 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				DOMCompat::replaceChildren( $domFragment, $span );
 				return $domFragment;
 
+			case 'sealtag':
+				return $extApi->htmlToDom( '<span />' );
+
 			default:
 				throw new Error( "Unexpected tag name: $extName in ParserHook" );
 		}
@@ -144,8 +147,17 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 							'embedsHTMLInAttributes' => true,
 							'customizesDataMw' => true,
 						],
+						'outputHasCoreMwDomSpecMarkup' => true,
 					],
-					'outputHasCoreMwDomSpecMarkup' => true,
+				],
+				[
+					'name' => 'sealtag',
+					'handler' => self::class,
+					'options' => [
+						'wt2html' => [
+							'unpackOutput' => false,
+						],
+					],
 				],
 			],
 			'domProcessors' => [

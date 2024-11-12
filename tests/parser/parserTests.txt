@@ -17142,3 +17142,31 @@ Extension tag with embedded html
 !! html/parsoid
 <p><span typeof="mw:Extension/embedtag" about="#mwt2" data-mw='{"name":"embedtag","attrs":{},"body":{"html":"Content with a &lt;a rel=\"mw:WikiLink\" href=\"./Broken_link?action=edit&amp;redlink=1\" title=\"Broken link\" class=\"new\" typeof=\"mw:LocalizedAttrs\" data-parsoid=&apos;{\"stx\":\"simple\",\"a\":{\"href\":\"./Broken_link\"},\"sa\":{\"href\":\"broken link\"}}&apos; data-mw-i18n=&apos;{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Broken link\"]}}&apos;>broken link&lt;/a>."}}'></span></p>
 !! end
+
+!! test
+Cloned formatting element with extension tag that unpacks itself in attribute name position
+!! options
+parsoid=wt2html
+!! wikitext
+<i <sealtag>y</sealtag>>
+
+z
+!! html/parsoid
+<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'></i></p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":"&lt;span typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"},{"html":""}]]}'>
+
+<p>z</p></i>
+!! end
+
+!! test
+Cloned formatting element with extension tag that unpacks itself in attribute value position
+!! options
+parsoid=wt2html
+!! wikitext
+<i title="<sealtag>y</sealtag>">a
+
+z
+!! html/parsoid
+<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>a</i></p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"}]]}'>
+
+<p>z</p></i>
+!! end
