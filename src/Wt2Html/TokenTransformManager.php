@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\Profile;
+use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
@@ -43,6 +44,9 @@ class TokenTransformManager extends PipelineStage {
 	/** @var bool */
 	private $hasShuttleTokens = false;
 
+	/** @var array<string,PFragment> */
+	private array $fragmentMap = [];
+
 	public function __construct(
 		Env $env, array $options, string $stageId,
 		?PipelineStage $prevStage = null
@@ -67,6 +71,11 @@ class TokenTransformManager extends PipelineStage {
 
 	public function getOptions(): array {
 		return $this->options;
+	}
+
+	/** @return array<string,PFragment> */
+	public function getFragmentMap(): array {
+		return $this->fragmentMap;
 	}
 
 	/**
@@ -141,11 +150,17 @@ class TokenTransformManager extends PipelineStage {
 		return $tokens;
 	}
 
+	/** @inheritDoc */
+	public function setFragmentMap( array $fragmentMap ): void {
+		$this->fragmentMap = $fragmentMap;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
 	public function resetState( array $opts ): void {
 		$this->hasShuttleTokens = false;
+		$this->fragmentMap = [];
 		parent::resetState( $opts );
 		foreach ( $this->transformers as $transformer ) {
 			$transformer->resetState( $opts );

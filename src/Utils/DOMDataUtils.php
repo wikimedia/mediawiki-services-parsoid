@@ -13,6 +13,7 @@ use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataBag;
@@ -756,11 +757,25 @@ class DOMDataUtils {
 	}
 
 	/**
+	 * Clones a DocumentFragment and its associated data bags
+	 */
+	public static function cloneDocumentFragment( DocumentFragment $df ): DocumentFragment {
+		$clone = $df->cloneNode( true );
+		'@phan-var DocumentFragment $clone'; // @var DocumentFragment $clone
+		foreach ( $clone->childNodes as $child ) {
+			if ( $child instanceof Element ) {
+				self::fixClonedData( $child );
+			}
+		}
+		return $clone;
+	}
+
+	/**
 	 * Recursively fixes cloned data from $elt: to avoid conflicts of element IDs, we clone the
 	 * data and set it in the node with a new element ID (which setNodeData does).
 	 * @param Element $elt
 	 */
-	private static function fixClonedData( Element $elt ) {
+	private static function fixClonedData( Element $elt ): void {
 		if ( $elt->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 			self::setNodeData( $elt, clone self::getNodeData( $elt ) );
 		}

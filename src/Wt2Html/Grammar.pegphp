@@ -1073,7 +1073,7 @@ broken_template =
 
 template_preproc =
 	"{{" leadWS:$( nl_comment_space* )
-	target:template_param_value
+	target:(template_param_value / parsoid_fragment_marker )
 	params:(
 		nl_comment_space* "|"
 		r:(
@@ -1106,6 +1106,9 @@ template_preproc =
 		return $obj;
 	}
 	/ $('{{' space_or_newline* '}}')
+
+// Keep this in sync with PipelineUtils::pfragmentToParsoidFragmentMarkers()
+parsoid_fragment_marker = $( "#parsoid\0fragment:" [0-9]+ )
 
 tplarg =
 	tplarg_preproc<&preproc="}}">

@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -1048,6 +1049,18 @@ class TemplateHandler extends TokenHandler {
 						$env, $token, $cachedTransclusion, [ 'fromCache' => true ]
 					)
 				);
+			} elseif ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
+				// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
+				$fragmentMap = $this->manager->getFragmentMap();
+				$domFragment = $fragmentMap[$text]->asDom(
+					new ParsoidExtensionAPI( $env )
+				);
+				$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
+				$toks = $this->processTemplateTokens( $toks );
+				// This is an internal strip marker, it should be wrapped at a
+				// higher level and we don't need to wrap it again.
+				$wrapTemplates = false;
+				return new TemplateExpansionResult( $toks, true, $wrapTemplates );
 			} else {
 				if (
 					!isset( $tgt['isParserFunction'] ) &&
@@ -1069,6 +1082,13 @@ class TemplateHandler extends TokenHandler {
 					return new TemplateExpansionResult(
 						[ $expansion['src'] ], false, $this->wrapTemplates
 					);
+				} elseif ( isset( $expansion['fragment'] ) ) {
+					$domFragment = $expansion['fragment']->asDom(
+						new ParsoidExtensionAPI( $env )
+					);
+					$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
+					$toks = $this->processTemplateTokens( $toks );
+					return new TemplateExpansionResult( $toks, true, $this->wrapTemplates );
 				} else {
 					$tplToks = $this->processTemplateSource(
 						$token,

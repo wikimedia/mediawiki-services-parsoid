@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wikitext;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Fragments\PFragment;
 
 /**
  * This class represents core wikitext concepts that are currently represented
@@ -31,18 +32,22 @@ class Wikitext {
 	 *
 	 * @param Env $env
 	 * @param string $wt
-	 * @return array
+	 * @return array{error:bool,src?:string,fragment?:PFragment}
 	 *  - 'error' did we hit resource limits?
 	 *  - 'src' expanded wikitext OR error message to print
 	 *     FIXME: Maybe error message should be localizable
+	 *  - 'fragment' Optional fragment (wikitext plus strip state)
 	 */
 	public static function preprocess( Env $env, string $wt ): array {
 		$start = microtime( true );
 		$ret = $env->getDataAccess()->preprocessWikitext( $env->getPageConfig(), $env->getMetadata(), $wt );
-
-		// FIXME: Should this bump be len($ret) - len($wt)?
-		// I could argue both ways.
-		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', strlen( $ret ) ) ) {
+		$wikitextSize = strlen( $wt );
+		if ( is_string( $ret ) ) {
+			// FIXME: Should this bump be len($ret) - len($wt)?
+			// I could argue both ways.
+			$wikitextSize = strlen( $ret );
+		}
+		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', $wikitextSize ) ) {
 			return [
 				'error' => true,
 				'src' => "wt2html: wikitextSize limit exceeded",
@@ -55,9 +60,12 @@ class Wikitext {
 			$profile->bumpCount( "Template" );
 		}
 
-		return [
+		return is_string( $ret ) ? [
 			'error' => false,
 			'src' => $ret,
+		] : [
+			'error' => false,
+			'fragment' => $ret,
 		];
 	}
 }

@@ -13,6 +13,8 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\NodeList;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Fragments\PFragment;
+use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
@@ -30,6 +32,29 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * This file contains parsing pipeline related utilities.
  */
 class PipelineUtils {
+	// keep in sync with internal_strip_marker in Grammar.pegphp
+	public const PARSOID_FRAGMENT_PREFIX = '{{#parsoid\0fragment:';
+
+	/**
+	 * Returns a wikitext string with embedded parsoid fragment markers,
+	 * as well as a mapping from the marker IDs to PFragment objects.
+	 * @return array{0:string,1:array<string,PFragment>} A array consisting of
+	 *   the wikitext string, followed by the id-to-PFragment map.
+	 */
+	public static function pFragmentToParsoidFragmentMarkers( PFragment $fragment ): array {
+		static $counter = 0;
+		$pieces = WikitextPFragment::castFromPFragment( $fragment )->split();
+		$result = [ $pieces[0] ];
+		$map = [];
+		for ( $i = 1; $i < count( $pieces ); $i += 2 ) {
+			$marker = self::PARSOID_FRAGMENT_PREFIX . ( $counter++ ) . '}}';
+			$map[$marker] = $pieces[$i];
+			$result[] = $marker;
+			$result[] = $pieces[$i + 1];
+		}
+		return [ implode( '', $result ), $map ];
+	}
+
 	/**
 	 * Creates a dom-fragment-token for processing 'content' (an array of tokens)
 	 * in its own subpipeline all the way to DOM. These tokens will be processed
@@ -69,7 +94,7 @@ class PipelineUtils {
 	 * @param Frame $frame
 	 *    The parent frame within which the expansion is taking place.
 	 *    Used for template expansion and source text tracking.
-	 * @param string|Token|array<Token|string>|DocumentFragment $content
+	 * @param string|Token|array<Token|string>|DocumentFragment|PFragment $content
 	 *    How this content is processed depends on what kind of pipeline
 	 *    is constructed specified by opts.
 	 * @param array $opts
@@ -102,6 +127,7 @@ class PipelineUtils {
 			'tplArgs' => $opts['tplArgs'] ?? null,
 			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
 			'srcOffsets' => $opts['srcOffsets'] ?? null,
+			'fragmentMap' => $opts['fragmentMap'] ?? [],
 		] );
 
 		// Off the starting block ... ready, set, go!

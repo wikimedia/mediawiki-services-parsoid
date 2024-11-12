@@ -225,6 +225,9 @@ class DomSourceRange extends SourceRange {
 	 * @return DomSourceRange
 	 */
 	public static function fromTsr( SourceRange $tsr ): DomSourceRange {
+		if ( $tsr instanceof DomSourceRange ) {
+			return $tsr;
+		}
 		return new DomSourceRange( $tsr->start, $tsr->end, null, null );
 	}
 

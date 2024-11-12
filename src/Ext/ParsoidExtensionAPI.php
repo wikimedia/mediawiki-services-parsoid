@@ -17,6 +17,8 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Fragments\PFragment;
+use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
 use Wikimedia\Parsoid\Html2Wt\LinkHandlerUtils;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
@@ -97,7 +99,7 @@ class ParsoidExtensionAPI {
 		$this->wt2htmlOpts = $options['wt2html'] ?? null;
 		$this->html2wtOpts = $options['html2wt'] ?? null;
 		$this->serializerState = $this->html2wtOpts['state'] ?? null;
-		$this->frame = $this->wt2htmlOpts['frame'] ?? null;
+		$this->frame = $this->wt2htmlOpts['frame'] ?? $env->topFrame ?? null;
 		$this->extTag = $this->wt2htmlOpts['extTag'] ?? null;
 	}
 
@@ -349,7 +351,7 @@ class ParsoidExtensionAPI {
 	/**
 	 * Parse wikitext to DOM
 	 *
-	 * @param string $wikitext
+	 * @param string|PFragment $wikitextOrPFragment
 	 * @param array $opts
 	 * - srcOffsets
 	 * - processInNewFrame
@@ -363,15 +365,28 @@ class ParsoidExtensionAPI {
 	 * @return DocumentFragment
 	 */
 	public function wikitextToDOM(
-		string $wikitext, array $opts, bool $sol
+		$wikitextOrPFragment, array $opts, bool $sol
 	): DocumentFragment {
-		if ( $wikitext === '' ) {
+		if ( is_string( $wikitextOrPFragment ) ) {
+			$srcOffsets = $opts['srcOffsets'] ?? null;
+			if ( $srcOffsets !== null && !$srcOffsets instanceof DomSourceRange ) {
+				$srcOffsets = DomSourceRange::fromTsr( $srcOffsets );
+			}
+			$pFragment = WikitextPFragment::newFromWt(
+				$wikitextOrPFragment, $srcOffsets
+			);
+		} else {
+			$pFragment = $wikitextOrPFragment;
+		}
+		if ( $pFragment->isEmpty() ) {
 			$domFragment = $this->getTopLevelDoc()->createDocumentFragment();
 		} else {
 			// Parse content to DOM and pass DOM-fragment token back to the main pipeline.
 			// The DOM will get unwrapped and integrated  when processing the top level document.
+			[ $wikitext, $fragmentMap ] =
+				PipelineUtils::pFragmentToParsoidFragmentMarkers( $pFragment );
+			$srcOffsets = $pFragment->getSrcOffsets() ?? $opts['srcOffsets'] ?? null;
 			$parseOpts = $opts['parseOpts'] ?? [];
-			$srcOffsets = $opts['srcOffsets'] ?? null;
 			$frame = $this->frame;
 			if ( !empty( $opts['processInNewFrame'] ) ) {
 				$frame = $frame->newChild( $frame->getTitle(), [], $wikitext );
@@ -384,13 +399,14 @@ class ParsoidExtensionAPI {
 					'pipelineType' => 'wikitext-to-fragment',
 					'pipelineOpts' => [
 						'expandTemplates' => true,
-						'extTag' => $parseOpts['extTag'],
+						'extTag' => $parseOpts['extTag'] ?? null,
 						'extTagOpts' => $parseOpts['extTagOpts'] ?? null,
 						'inTemplate' => $this->inTemplate(),
 						'inlineContext' => ( $parseOpts['context'] ?? '' ) === 'inline',
 					],
 					'srcOffsets' => $srcOffsets,
 					'sol' => $sol,
+					'fragmentMap' => $fragmentMap,
 				]
 			);
 
@@ -653,10 +669,14 @@ class ParsoidExtensionAPI {
 	 * This also doesn't support replacing template args from a frame.
 	 *
 	 * @param string $wikitext
-	 * @return string preprocessed wikitext
+	 * @return array{error:bool,src?:string,fragment?:PFragment}
+	 *  - 'error' did we hit resource limits?
+	 *  - 'src' expanded wikitext OR error message to print
+	 *     FIXME: Maybe error message should be localizable
+	 *  - 'fragment' Optional fragment (wikitext plus strip state)
 	 */
-	public function preprocessWikitext( string $wikitext ): string {
-		return Wikitext::preprocess( $this->env, $wikitext )['src'];
+	public function preprocessWikitext( string $wikitext ) {
+		return Wikitext::preprocess( $this->env, $wikitext );
 	}
 
 	/**

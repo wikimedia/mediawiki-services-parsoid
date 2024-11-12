@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Fragments\PFragment;
 
 /**
  * MediaWiki data access abstract class for Parsoid
@@ -99,13 +100,13 @@ abstract class DataAccess {
 	 * @param ContentMetadataCollector $metadata Will collect metadata about
 	 *   the preprocessed content.
 	 * @param string $wikitext
-	 * @return string Expanded wikitext
+	 * @return string|PFragment Expanded wikitext
 	 */
 	abstract public function preprocessWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
 		string $wikitext
-	): string;
+	);
 
 	/**
 	 * Fetch latest revision of article/template content for transclusion.
