@@ -4,13 +4,13 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Ext;
 
 /**
- * A Parsoid native extension module.  This bundles up the configuration
- * for a number of different ExtensionTagHandlers, ContentModelHandlers,
- * and DomProcessors into one registered object.  The only method required
- * is `getConfig`.
+ * A Parsoid native extension module.  This bundles up the
+ * configuration for a number of different ExtensionTagHandlers,
+ * ContentModelHandlers, FragmentHandlers, and DomProcessors into one
+ * registered object.  The only method required is `getConfig`.
  *
- * FIXME: This might be created on-demand by configuration data specified
- * in extension.json.
+ * An ExtensionModule can be created on-demand from configuration data
+ * specified in extension.json; see SiteConfig::registerExtensionModule().
  */
 interface ExtensionModule {
 

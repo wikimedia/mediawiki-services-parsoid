@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
+use Wikimedia\Parsoid\Ext\AsyncResult;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\TempData;
@@ -298,10 +299,24 @@ class TemplateHandler extends TokenHandler {
 			}
 		}
 
-		// Check if we have a magic-word variable.
+		// Check if we have a magic variable implemented by the legacy parser
 		$magicWordVar = $siteConfig->getMagicWordForVariable( $prefix ) ??
 			$siteConfig->getMagicWordForVariable( mb_strtolower( $prefix ) );
-		if ( $magicWordVar ) {
+		[ 'key' => $canonicalFunctionName, 'isNative' => $isNative ] =
+			  $siteConfig->getMagicWordForParserFunction( $prefix );
+		if ( $canonicalFunctionName !== null && !$isNative ) {
+			// Parsoid's FragmentHandler handles both magic variables (T391063)
+			// and zero-argument parser functions, but in the legacy
+			// parser "nohash" parser functions without a colon must
+			// be magic variables; they won't be invoked as parser
+			// functions.
+			if ( ( !$hasHash ) && ( !$haveColon ) ) {
+				$canonicalFunctionName = null;
+			}
+		}
+		// Ensure that magic words registered by parsoid fragment handlers
+		// aren't confused for magic variables implemented by the legacy parser
+		if ( $magicWordVar && $canonicalFunctionName === null ) {
 			$state->variableName = $magicWordVar;
 			return [
 				'isVariable' => true,
@@ -311,21 +326,19 @@ class TemplateHandler extends TokenHandler {
 				'title' => $env->makeTitleFromURLDecodedStr( "Special:Variable/$magicWordVar" ),
 				'pfArg' => $pfArg,
 				'srcOffsets' => new SourceRange(
-					$srcOffsets->start + strlen( $untrimmedPrefix ) + 1,
+					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
 					$srcOffsets->end ),
 			];
 		}
 
 		// FIXME: Checks for msgnw, msg, raw are missing at this point
 
-		$canonicalFunctionName = null;
-		if ( $haveColon ) {
-			$canonicalFunctionName = $siteConfig->getMagicWordForFunctionHook( $prefix );
-		}
+		$broken = false;
 		if ( $canonicalFunctionName === null && $hasHash ) {
 			// If the target starts with a '#' it can't possibly be a template
 			// so this must be a "broken" parser function invocation
 			$canonicalFunctionName = substr( $prefix, 1 );
+			$broken = true;
 			// @todo: Flag this as an author error somehow (T314524)
 		}
 		if ( $canonicalFunctionName !== null ) {
@@ -344,16 +357,31 @@ class TemplateHandler extends TokenHandler {
 					'Special:ParserFunction/unknown'
 				);
 			}
-			return [
+			$ret = [
 				'isParserFunction' => true,
 				'magicWordType' => null,
 				'name' => $canonicalFunctionName,
+				'localName' => $prefix,
 				'title' => $syntheticTitle, // FIXME: Some made up synthetic title
 				'pfArg' => $pfArg,
 				'srcOffsets' => new SourceRange(
-					$srcOffsets->start + strlen( $untrimmedPrefix ) + 1,
+					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
 					$srcOffsets->end ),
 			];
+
+			// Check if we have a Parsoid fragment handler for this parser func
+			// ($canonicalFunctionName is invalid/not localized if this is
+			// $broken)
+			$fragmentHandler = ( $broken || !$isNative ) ? null :
+				$siteConfig->getFragmentHandlerImpl( $canonicalFunctionName );
+			if ( $fragmentHandler ) {
+				$ret['handler'] = $fragmentHandler;
+				$ret['handlerOptions'] = $siteConfig->getFragmentHandlerConfig(
+					$canonicalFunctionName
+				)['options'] ?? [];
+				$state->isV3ParserFunction = true;
+			}
+			return $ret;
 		}
 
 		// We've exhausted the parser-function scenarios, and we still have additional tokens.
@@ -816,6 +844,75 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		$frame = $this->manager->getFrame();
+		if ( isset( $tgt['handler'] ) ) {
+			$handler = $tgt['handler'];
+			$extApi = new ParsoidExtensionAPI( $env, [
+				'wt2html' => [
+					'frame' => $frame,
+					'parseOpts' => $this->options,
+				],
+			] );
+			// Trim before colon to make first argument
+			$args = [
+				new KV( '', $tgt['pfArg'], $tgt['srcOffsets']->expandTsrV() ),
+			];
+			for ( $i = 1; $i < count( $token->attribs ); $i++ ) {
+				$args[] = $token->attribs[$i];
+			}
+			// FIXME: this will be refactored to use the tokenizer (T390344)
+			$arguments = new TemplateHandlerArguments( $env, $frame, $args );
+			$hasAsyncContent = $tgt['handlerOptions']['hasAsyncContent'] ?? false;
+			if ( $hasAsyncContent ) {
+				// The HAS_ASYNC_CONTENT flag needs to be set by the fragment
+				// handler if this handler can *ever* return async content,
+				// regardless of whether this particular fragment was ready.
+				$env->getMetadata()->setOutputFlag( 'has-async-content' );
+			}
+			$fragment = $handler->sourceToFragment(
+				$extApi,
+				$arguments,
+				false /* this is using {{ ... }} syntax */
+			);
+			if ( $fragment instanceof AsyncResult ) {
+				Assert::invariant(
+					$hasAsyncContent,
+					"returning async result without declaration"
+				);
+				$env->getMetadata()->setOutputFlag( 'async-not-ready' );
+				$fragment = $fragment->fallbackContent( $extApi ) ??
+					// TODO (T390341): use localized fallback message
+					WikitextPFragment::newFromLiteral( 'Content not ready', null );
+			}
+			// Map fragment to parsoid wikitext + embedded markers
+			[
+				'wikitext' => $wikitext,
+			] = PipelineUtils::preparePFragment(
+				$env,
+				$this->manager->getFrame(),
+				$fragment,
+				[
+					// options
+				]
+			);
+			$tplToks = $this->processTemplateSource(
+				$this->manager->getFrame(),
+				$token,
+				[
+					'name' => $tgt['name'],
+					'title' => $tgt['title'],
+					'attribs' => [],
+				],
+				$wikitext,
+				[
+					// We need to expand embedded {{#parsoid-fragment}}
+					// markers still (T385806)
+					'expandTemplates' => true,
+				] + $this->options
+			);
+			return new TemplateExpansionResult(
+				$tplToks, true, $this->wrapTemplates
+			);
+		}
 
 		if ( $env->nativeTemplateExpansionEnabled() ) {
 			// Expand argument keys

@@ -966,12 +966,17 @@ class DOMRangeBuilder {
 						// to other transclusions. Should match the index of
 						// the corresponding private metadata in $templateInfos.
 						$a->info->i = $infoIndex++;
-						$a->info->type = 'template';
 						if ( $a->isParam ) {
 							$a->info->type = 'templatearg';
 						} elseif ( $a->info->func ) {
-							$a->info->type = $this->v3PFOutput ?
-								'v3parserfunction' : 'parserfunction';
+							// type might be initialized to v3parserfunction
+							// already
+							if ( !$a->info->type ) {
+								$a->info->type = $this->v3PFOutput ?
+									'v3parserfunction' : 'parserfunction';
+							}
+						} else {
+							$a->info->type = 'template';
 						}
 						$parts[] = $a->info;
 						// FIXME: we throw away the array keys and rebuild them

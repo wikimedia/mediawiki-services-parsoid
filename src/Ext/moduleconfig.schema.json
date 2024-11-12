@@ -152,6 +152,41 @@
 					"properties": {}
 				}
 			}
+		},
+		"FragmentHandler": {
+			"type": "object",
+			"required": [
+				"key"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"key": {
+					"description": "The magic word ID used for transclusions handled by this handler",
+					"type": "string"
+				},
+				"handler": {
+					"description": "An object factory spec for an object extending FragmentHandler",
+					"$ref": "#/definitions/ObjectFactorySpecOrClassString"
+				},
+				"options": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"parserFunction": {
+							"description": "Whether parser function syntax can be used to invoke this fragment handler",
+							"type": "boolean"
+						},
+						"nohash": {
+							"description": "Don't prepend a # character to the localized magic word",
+							"type": "boolean"
+						},
+						"hasAsyncContent": {
+							"description": "Must be set to true if the FragmentHandler can ever return an AsyncResult",
+							"type": "boolean"
+						}
+					}
+				}
+			}
 		}
 	},
 	"type": "object",
@@ -189,6 +224,13 @@
 			"type": "array",
 			"items": {
 				"$ref": "#/definitions/ObjectFactorySpecOrClassString"
+			}
+		},
+		"fragmentHandlers": {
+			"description": "A list of fragment handlers",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/FragmentHandler"
 			}
 		},
 		"tags": {

@@ -18,6 +18,16 @@ use Wikimedia\Parsoid\Utils\WTUtils;
  */
 class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 
+	/**
+	 * Ensure that both integrated and standalone test runners have the
+	 * magic word definitions used by these test hooks.
+	 * @see SiteConfig::getCustomSiteConfigFileName()
+	 * @see ParserTestRunner::staticSetup() (in core)
+	 */
+	public static function getParserTestConfigFileName(): string {
+		return ParserTestFragmentHandlers::getParserTestConfigFileName();
+	}
+
 	/** @inheritDoc */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
@@ -187,7 +197,10 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 			],
 			'domProcessors' => [
 				ParserHookProcessor::class
-			]
+			],
+			'fragmentHandlers' =>
+				ParserTestFragmentHandlers::getFragmentHandlersConfig(),
 		];
 	}
+
 }

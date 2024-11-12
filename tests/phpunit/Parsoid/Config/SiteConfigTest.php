@@ -328,14 +328,19 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * @dataProvider provideGetMagicWordForFunctionHooks
+	 * @dataProvider provideGetMagicWordForParserFunctions
 	 */
-	public function testGetMagicWordForFunctionHooks( $input, $res ) {
+	public function testGetMagicWordForParserFunction( $input, $res ) {
 		$siteConfig = $this->setupMagicWordTestConfig();
-		$this->assertSame( $res, $siteConfig->getMagicWordForFunctionHook( $input ) );
+		$isNative = true;
+		$this->assertSame(
+			// All of these are "legacy" parser functions
+			[ 'key' => $res, 'isNative' => false ],
+			$siteConfig->getMagicWordForParserFunction( $input )
+		);
 	}
 
-	public function provideGetMagicWordForFunctionHooks() {
+	public function provideGetMagicWordForParserFunctions() {
 		return [
 			[ "LCFIRST", "lcfirst" ],
 			[ "lcfirst", "lcfirst" ],

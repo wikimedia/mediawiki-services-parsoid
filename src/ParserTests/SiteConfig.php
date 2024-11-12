@@ -68,6 +68,11 @@ class SiteConfig extends ApiSiteConfig {
 		$this->suppressLogger->pushHandler( $filterHandler );
 	}
 
+	/** @inheritDoc */
+	protected function getCustomSiteConfigFileName(): string {
+		return ParserHook::getParserTestConfigFileName();
+	}
+
 	public function reset() {
 		parent::reset();
 

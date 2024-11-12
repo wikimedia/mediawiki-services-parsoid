@@ -1,0 +1,44 @@
+{
+	"magicwords": [
+		{
+			"name": "f1_wt",
+			"aliases": [ "f1_wt" ],
+			"case-sensitive": false
+		},
+		{
+			"name": "f1_wt_nohash",
+			"aliases": [ "f1_wt_nohash", "#f1_wt_hash" ],
+			"case-sensitive": true
+		},
+		{
+			"name": "f2_if",
+			"aliases": [ "f2_if" ],
+			"case-sensitive": true
+		},
+		{
+			"name": "f3_uc",
+			"aliases": [ "f3_uc" ],
+			"case-sensitive": true
+		},
+		{
+			"name": "f4_return_html",
+			"aliases": [ "f4_return_html" ],
+			"case-sensitive": true
+		},
+		{
+			"name": "f5_from_nowiki",
+			"aliases": [ "f5_from_nowiki" ],
+			"case-sensitive": true
+		},
+		{
+			"name": "f6_async_return",
+			"aliases": [ "f6_async_return" ],
+			"case-sensitive": true
+		},
+		{
+			"name": "f7_kv",
+			"aliases": [ "f7_kv" ],
+			"case-sensitive": true
+		}
+	]
+}

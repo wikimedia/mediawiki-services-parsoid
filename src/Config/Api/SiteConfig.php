@@ -212,6 +212,17 @@ class SiteConfig extends ISiteConfig {
 	}
 
 	/**
+	 * Let us do standalone development testing of features that need
+	 * custom siteconfig. For now, we need new magic words defined.
+	 * In the future, this file could include other custom config.
+	 *
+	 * @return string
+	 */
+	protected function getCustomSiteConfigFileName(): string {
+		return __DIR__ . "/standalone.siteconfig.json";
+	}
+
+	/**
 	 * Load site data from the Action API, if necessary
 	 */
 	private function loadSiteData(): void {
@@ -244,6 +255,13 @@ class SiteConfig extends ISiteConfig {
 		$bsws = [];
 		$this->paramMWs = [];
 		$this->allMWs = [];
+
+		// Fold custom magic words into the API response
+		$f = $this->getCustomSiteConfigFileName();
+		if ( file_exists( $f ) ) {
+			$config = json_decode( file_get_contents( $f ), true );
+			PHPUtils::pushArray( $data['magicwords'], $config['magicwords'] );
+		}
 
 		// Recast the API results in the format that core MediaWiki returns internally
 		// This enables us to use the Production SiteConfig without changes and add the

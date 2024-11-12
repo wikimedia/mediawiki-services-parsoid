@@ -134,7 +134,7 @@ abstract class ExtensionTagHandler {
 	/**
 	 * XXX: Experimental
 	 *
-	 * Call $domDiff on corresponding substrees of $origNode and $editedNode
+	 * Call $domDiff on corresponding subtrees of $origNode and $editedNode
 	 *
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param callable $domDiff

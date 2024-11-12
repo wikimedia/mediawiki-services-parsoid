@@ -35,6 +35,7 @@ class TemplateEncapsulator {
 	public ?string $variableName = null;
 	public ?string $parserFunctionName = null;
 	public ?string $resolvedTemplateTarget = null;
+	public bool $isV3ParserFunction = false;
 
 	public function __construct( Env $env, Frame $frame, Token $token, string $wrapperType ) {
 		$this->env = $env;
@@ -215,6 +216,9 @@ class TemplateEncapsulator {
 			$ret->func = $this->variableName;
 		} elseif ( $this->parserFunctionName !== null ) {
 			$ret->func = $this->parserFunctionName;
+			if ( $this->isV3ParserFunction ) {
+				$ret->type = 'v3parserfunction';
+			}
 		} elseif ( $this->resolvedTemplateTarget !== null ) {
 			$ret->href = $this->resolvedTemplateTarget;
 		}

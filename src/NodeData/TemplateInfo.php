@@ -36,7 +36,7 @@ class TemplateInfo implements JsonCodecable {
 	 * The type of template (template, templatearg, parserfunction).
 	 * @note For backward-compatibility reasons, this property is
 	 * not serialized/deserialized.
-	 * @var 'template'|'templatearg'|'parserfunction'|null
+	 * @var 'template'|'templatearg'|'parserfunction'|'v3parserfunction'|null
 	 */
 	public ?string $type = null;
 
@@ -61,13 +61,17 @@ class TemplateInfo implements JsonCodecable {
 
 		if ( isset( $json['target']['key'] ) ) {
 			$ti->func = $json['target']['key'];
-			$ti->targetWt .= ':' . $params['1']->wt;
-			// Downshift all params by 1
-			$numKeys = count( $params );
-			for ( $i = 1; $i < $numKeys; $i++ ) {
-				$params[(string)$i] = $params[(string)( $i + 1 )];
+			// Parser functions can have zero arguments
+			if ( isset( $params['1'] ) ) {
+				$ti->targetWt .= ':' . $params['1']->wt;
+				// Downshift all params by 1
+				// TODO T390344: this doesn't work for named arguments
+				$numKeys = count( $params );
+				for ( $i = 1; $i < $numKeys; $i++ ) {
+					$params[(string)$i] = $params[(string)( $i + 1 )];
+				}
+				unset( $params[(string)$numKeys] );
 			}
-			unset( $params[(string)$numKeys] );
 		} else {
 			$ti->func = $json['target']['function'] ?? null;
 		}
@@ -135,16 +139,18 @@ class TemplateInfo implements JsonCodecable {
 		}
 
 		if ( $v3PF ) {
-			// Upshift all params by 1
+			// Upshift all params by 1 (TODO T390344)
 			$numKeys = count( $params );
 			for ( $i = $numKeys; $i > 0; $i-- ) {
-				$params[(string)( $i + 1 )] = $params[(string)$i];
+				$params[(string)( $i + 1 )] = $params[(string)$i] ?? null;
 			}
 
+			// Parser functions can have zero arguments.
 			$matches = null;
-			preg_match( '/^([^:]*):(.*)$/', $this->targetWt, $matches );
-			$params['1'] = (object)[ 'wt' => $matches[2] ];
-			$target['wt'] = $matches[1];
+			if ( preg_match( '/^([^:]*):(.*)$/', $this->targetWt, $matches ) ) {
+				$params['1'] = (object)[ 'wt' => $matches[2] ];
+				$target['wt'] = $matches[1];
+			}
 		}
 
 		return [

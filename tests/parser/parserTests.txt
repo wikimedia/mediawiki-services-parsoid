@@ -7632,6 +7632,7 @@ Parsoid: Defaultsort
 <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"DEFAULTSORT:Foo","function":"defaultsort"},"params":{},"i":0}}]}'></span>
 !! end
 
+# See also T391062 for parsoid-native default sort.
 !! test
 Parsoid: Defaultsort variations (T236846)
 !! wikitext

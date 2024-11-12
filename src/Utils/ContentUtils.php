@@ -178,6 +178,14 @@ class ContentUtils {
 				$tagHandler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
 			}
 		}
+		$key = WTUtils::getFragmentHandlerKey( $elt );
+		if ( $key ) {
+			$config = $extAPI->getSiteConfig()->getFragmentHandlerConfig( $key );
+			if ( $config['options']['embedsDomInAttributes'] ?? false ) {
+				$handler = $extAPI->getSiteConfig()->getFragmentHandlerImpl( $key );
+				$handler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
+			}
+		}
 	}
 
 	/**

@@ -1,0 +1,278 @@
+# Tests of Parsoid Fragment Handlers
+# TODO (T390343): wt2wt/html2wt modes should be enabled in parsoid-compatible
+!! options
+parsoid-compatible=wt2html
+version=2
+!! end
+
+!! article
+Template:1x
+!! text
+{{{1}}}
+!! endarticle
+
+!! article
+Foo
+!! text
+Define [[Foo]] to avoid a red link
+!! endarticle
+
+!! article
+FOO
+!! text
+#REDIRECT [[Foo]]
+!! endarticle
+
+!! test
+f1_wt: Basic parser function test
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f1_wt:foo|bar}}
+
+{{#f1_wt:foo|''bar''}}
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt","key":"f1_wt"},"params":{"1":{"wt":"foo"},"2":{"wt":"bar"}},"i":0}}]}'>foo bar</span></p>
+<p><span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f1_wt" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt","key":"f1_wt"},"params":{"1":{"wt":"foo"},"2":{"wt":"&apos;&apos;bar&apos;&apos;"}},"i":0}}]}'>foo </span><i about="#mwt2">bar</i></p>
+!! end
+
+!! test
+f1_wt: Nested template for an arg
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f1_wt:foo|1|{{1x|A}}|2}}
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt","key":"f1_wt"},"params":{"1":{"wt":"foo"},"2":{"wt":"1"},"3":{"wt":"{{1x|A}}"},"4":{"wt":"2"}},"i":0}}]}'>foo 1 A 2</span></p>
+!! end
+
+!! test
+f1_wt: Multi-level nesting of templates and parser functions
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f1_wt:foo|1|{{1x|{{#f1_wt:BAR|A|{{1x|B}}|C}}D}}|{{1x|3}}|4}}
+!! html/parsoid+integrated
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt","key":"f1_wt"},"params":{"1":{"wt":"foo"},"2":{"wt":"1"},"3":{"wt":"{{1x|{{#f1_wt:BAR|A|{{1x|B}}|C}}D}}"},"4":{"wt":"{{1x|3}}"},"5":{"wt":"4"}},"i":0}}]}'>foo 1 BAR A B CD 3 4</span></p>
+!! end
+
+!! test
+f1_wt: Case insensitivity
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#F1_wt:x}}
+
+{{#f1_WT:y}}
+!! html/parsoid
+<p><span typeof="mw:Transclusion mw:ParserFunction/f1_wt" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#F1_wt","key":"f1_wt"},"params":{"1":{"wt":"x"}},"i":0}}]}'>x</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f1_wt" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_WT","key":"f1_wt"},"params":{"1":{"wt":"y"}},"i":0}}]}'>y</span></p>
+!! end
+
+# T391063: the zero-arg form will need to be explicitly permitted as a
+# "magic variable" in the future.
+!! test
+f1_wt_nohash: Test 'nohash' option
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+0 args: {{f1_wt_nohash}} (no output)
+
+1 arg: {{f1_wt_nohash:foo}}
+
+{{#f1_wt_nohash:foo}}
+!! html/parsoid+standalone
+<p>0 args: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{},"i":0}}]}'></span> (no output)</p>
+
+<p>1 arg: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
+
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#f1_wt_nohash:foo","function":"f1_wt_nohash"},"params":{},"i":0}}]}'>Parser function implementation for pf_f1_wt_nohash missing in Parsoid.</span></p>
+!! html/parsoid+integrated
+<p>0 args: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{},"i":0}}]}'></span> (no output)</p>
+
+<p>1 arg: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"f1_wt_nohash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
+
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#f1_wt_nohash:foo","function":"f1_wt_nohash"},"params":{},"i":0}}]}'>{{#f1_wt_nohash:foo}}</span></p>
+!! end
+
+!! test
+f1_wt_hash: Test magic words which already include the leading hash
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+0 args: {{#f1_wt_hash}}
+
+{{f1_wt_hash:foo}}
+
+1 arg: {{#f1_wt_hash:foo}}
+!! html/parsoid
+<p>0 args: </p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt_hash","key":"f1_wt_nohash"},"params":{},"i":0}}]}'></span>
+
+<p><a rel="mw:WikiLink" href="./Template:F1_wt_hash:foo?action=edit&amp;redlink=1" title="Template:F1 wt hash:foo" about="#mwt3" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Template:F1_wt_hash:foo"},"sa":{"href":"Template:F1_wt_hash:foo"},"pi":[[]],"dsr":[45,63,null,null]}' data-mw='{"parts":[{"template":{"target":{"wt":"f1_wt_hash:foo","href":"./Template:F1_wt_hash:foo"},"params":{},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:F1 wt hash:foo"]}}'>Template:F1 wt hash:foo</a></p>
+
+<p>1 arg: <span about="#mwt4" typeof="mw:Transclusion mw:ParserFunction/f1_wt_nohash" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f1_wt_hash","key":"f1_wt_nohash"},"params":{"1":{"wt":"foo"}},"i":0}}]}'>foo</span></p>
+!! end
+
+!! test
+f2_if: test basic operation
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f2_if: |yes|NO}}
+
+{{#f2_if:{{1x| }}|yes|NO}}
+
+{{#f2_if:{{1x|x}}|'''yes'''|NO}}
+
+{{#f2_if:           |'''YES'''|NO}}
+
+{{#f2_if:<spantag>something</spantag>|yes|no}}
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":" "},"2":{"wt":"yes"},"3":{"wt":"NO"}},"i":0}}]}'>NO</span></p>
+
+<p><span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"{{1x| }}"},"2":{"wt":"yes"},"3":{"wt":"NO"}},"i":0}}]}'>NO</span></p>
+
+<p><b about="#mwt4" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"{{1x|x}}"},"2":{"wt":"&apos;&apos;&apos;yes&apos;&apos;&apos;"},"3":{"wt":"NO"}},"i":0}}]}'>yes</b></p>
+
+<p><span about="#mwt6" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"           "},"2":{"wt":"&apos;&apos;&apos;YES&apos;&apos;&apos;"},"3":{"wt":"NO"}},"i":0}}]}'>NO</span></p>
+
+<p><span about="#mwt8" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"&lt;spantag>something&lt;/spantag>"},"2":{"wt":"yes"},"3":{"wt":"no"}},"i":0}}]}'>yes</span></p>
+!! end
+
+!! test
+f2_if: Verify lazy evaluation of then/else
+!! options
+cat
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f2_if:1|{{1x|[[Category:Foo]]}}|{{1x|[[Category:Bar]]}}}}
+!! metadata/parsoid
+cat=Foo sort=
+!! html/parsoid
+<link rel="mw:PageProp/Category" href="./Category:Foo" typeof="mw:Transclusion mw:ParserFunction/f2_if" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f2_if","key":"f2_if"},"params":{"1":{"wt":"1"},"2":{"wt":"{{1x|[[Category:Foo]]}}"},"3":{"wt":"{{1x|[[Category:Bar]]}}"}},"i":0}}]}'/>
+!! end
+
+!! test
+f3_uc: basic operation
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f3_uc:lower UPPER}}
+
+{{#f3_uc:{{1x|foo}}}}
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f3_uc" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f3_uc","key":"f3_uc"},"params":{"1":{"wt":"lower UPPER"}},"i":0}}]}'>LOWER UPPER</span></p>
+<p><span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f3_uc" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f3_uc","key":"f3_uc"},"params":{"1":{"wt":"{{1x|foo}}"}},"i":0}}]}'>FOO</span></p>
+!! end
+
+!! test
+f3_uc: nowiki content should be skipped (not converted to uppercase)
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f3_uc:pre<nowiki>inside</nowiki>post}}
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion mw:ParserFunction/f3_uc" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f3_uc","key":"f3_uc"},"params":{"1":{"wt":"pre&lt;nowiki>inside&lt;/nowiki>post"}},"i":0}}]}'>PRE</span><span typeof="mw:Nowiki">inside</span><span>POST</span></p>
+!! end
+
+# TODO T390345: content inside <spantag> should be skipped
+!! test
+f3_uc: extension tag content should be skipped (not converted to uppercase)
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f3_uc:pre<spantag>inside</spantag>post}}
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion mw:ParserFunction/f3_uc" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f3_uc","key":"f3_uc"},"params":{"1":{"wt":"pre&lt;spantag>inside&lt;/spantag>post"}},"i":0}}]}'>PRE</span><span typeof="mw:Extension/spantag" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"inside"}}'>inside</span><span>POST</span></p>
+!! end
+
+# TODO T391007: missing mw:ParserFunction on HTML return value
+!! test
+f4_return_html: test returning an HTML fragment
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f4_return_html}}
+!! html/parsoid+integrated
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f4_return_html","key":"f4_return_html"},"params":{},"i":0}}]}'>html </span><b about="#mwt1"> contents</b></p>
+!! end
+
+!! test
+f5_from_nowiki: test retrieving an argument from <nowiki>
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+{{#f5_from_nowiki:<nowiki>argument [[with]] <b>markup</b> '''foo'''</nowiki>}}
+!! html/parsoid+integrated
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f5_from_nowiki","key":"f5_from_nowiki"},"params":{"1":{"wt":"&lt;nowiki>argument [[with]] &lt;b>markup&lt;/b> &apos;&apos;&apos;foo&apos;&apos;&apos;&lt;/nowiki>"}},"i":0}}]}'>'''oof''' >b/&lt;pukram>b&lt; ]]htiw[[ tnemugra</span></p>
+!! end
+
+# TODO T390345: argument chaining doesn't work yet
+# Note also that &amp; is decoded, even inside a <nowiki>; this isn't
+# "really" raw text. However, the LiteralPFragment returned by
+# #f5_from_nowiki *is* really raw text: entities in the returned
+# value do not get further decoded when they are provided as input.
+!! test
+f5_from_nowiki: test chaining literal arguments together
+!! options
+parsoid=wt2html,wt2wt
+disabled
+!! wikitext
+{{#f5_from_nowiki:{{#f5_from_nowiki:<nowiki>&amp;amp;</nowiki>}}}}
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f5_from_nowiki","key":"f5_from_nowiki"},"params":{"1":{"wt":"{{#f5_from_nowiki:&lt;nowiki>&amp;amp;amp;&lt;/nowiki>}}"}},"i":0}}]}'>&amp;amp;</span></p>
+!! end
+
+!! test
+f6_async_return: Test conditionally-asynchronous content (ready case)
+!! options
+parsoid=wt2html,wt2wt
+showflags
+!! wikitext
+Content is ready: {{#f6_async_return:ready|Ready!}}
+!! metadata/parsoid
+flags=has-async-content
+!! html/parsoid
+<p>Content is ready: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"ready"},"2":{"wt":"Ready!"}},"i":0}}]}'>Ready!</span></p>
+!! end
+
+# TODO (T390341): The default fallback content should be localized.
+!! test
+f6_async_return: Test conditionally-asynchronous content (not ready case)
+!! options
+parsoid=wt2html,wt2wt
+showflags
+!! wikitext
+Default fallback content: {{#f6_async_return:not ready}}
+
+Specified fallback content: {{#f6_async_return:not ready|My own fallback}}
+!! metadata/parsoid
+flags=async-not-ready, has-async-content
+!! html/parsoid
+<p>Default fallback content: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"}},"i":0}}]}'>Content not ready</span></p>
+<p>Specified fallback content: <span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"},"2":{"wt":"My own fallback"}},"i":0}}]}'>My own fallback</span></p>
+!! end
+
+# TODO T391007: missing mw:ParserFunction on HTML return value
+!! test
+f7_kv: simple return
+!! options
+parsoid=wt2html
+!! wikitext
+{{#f7_kv:foo=bar|bat=baz}}
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>(arguments)</span></p>
+!! end
+
+# TODO T390344: named arguments (add back wt2wt mode once fixed)
+# TODO T390347: argument interpolation
+# TODO T391007: missing mw:ParserFunction on HTML return value
+!! test
+f7_kv: ordered argument chaining
+!! options
+parsoid=wt2html
+!! wikitext
+{{#f1_wt:A|{{#f7_kv:B|C}}|D}}
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>A B C D</span></p>
+!! end
