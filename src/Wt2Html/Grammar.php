@@ -204,7 +204,6 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 				}
 			}
 		}
-
 		if ( $isAnnotationTag ) {
 			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
 			$datamw = null;
@@ -235,22 +234,60 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 			}
 		}
 
-		$isInstalledExt = isset( $this->extTags[$tagName] );
+		$dp = $t->dataParsoid;
+		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
+
 		$isIncludeTag = WTUtils::isIncludeTag( $tagName );
+		if ( $isIncludeTag ) {
+			if ( $t instanceof EndTagTk ) {
+				return $t;
+			}
+
+			$tagContentFound = ( $t instanceof SelfclosingTagTk ) ?
+				null :
+				preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
+
+			if ( !$tagContentFound ) {
+				$dp->src = $dp->tsr->substr( $this->input );
+				$dp->extTagOffsets = new DomSourceRange(
+					$dp->tsr->start, $dp->tsr->end,
+					$dp->tsr->length(), 0
+				);
+				return $t;
+			}
+
+			$extSrc = $tagContent[0];
+			$extEndOffset = $dp->tsr->start + strlen( $extSrc );
+			$extEndTagWidth = strlen( $tagContent[1] );
+
+			$dp->src = $extSrc;
+			$dp->extTagOffsets = new DomSourceRange(
+				$dp->tsr->start, $extEndOffset,
+				$dp->tsr->length(), $extEndTagWidth
+			);
+
+			$this->currPos = $dp->extTagOffsets->innerEnd();
+
+			// Parse ext-content, strip eof, and shift tsr
+			$extContent = $dp->extTagOffsets->stripTags( $dp->src );
+			$tokenizer = new PegTokenizer( $this->env );
+			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
+			$extContentToks = $tokenizer->tokenizeSync( $extContent, [ 'sol' => true ] );
+			if ( $dp->extTagOffsets->closeWidth > 0 ) {
+				TokenUtils::stripEOFTkFromTokens( $extContentToks );
+			}
+			array_unshift( $extContentToks, $t );
+			return $extContentToks;
+		}
 
 		// Extensions have higher precedence when they shadow html tags.
-		if ( !( $isInstalledExt || $isIncludeTag ) ) {
+		$isInstalledExt = isset( $this->extTags[$tagName] );
+		if ( !$isInstalledExt ) {
 			return $t;
 		}
 
-		$dp = $t->dataParsoid;
-		$skipPos = $this->currPos;
-
 		switch ( get_class( $t ) ) {
 			case EndTagTk::class:
-				if ( $isIncludeTag ) {
-					return $t;
-				}
 				// Similar to TagTk, we rely on the sanitizer to convert to text
 				// where necessary and emit tokens to ease the wikitext escaping
 				// code.  However, extension tags that shadow html tags will see
@@ -264,35 +301,21 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 					$dp->tsr->start, $dp->tsr->end,
 					$dp->tsr->length(), 0
 				);
-				if ( $isIncludeTag ) {
-					return $t;
-				}
 				break;
 
 			case TagTk::class:
-				$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
 				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
-
 				if ( !$tagContentFound ) {
-					$dp->src = $dp->tsr->substr( $this->input );
-					$dp->extTagOffsets = new DomSourceRange(
-						$dp->tsr->start, $dp->tsr->end,
-						$dp->tsr->length(), 0
-					);
-					if ( $isIncludeTag ) {
-						return $t;
-					} else {
-						// This is undefined behaviour.  The old parser currently
-						// returns text here (see core commit 674e8388cba),
-						// whereas this results in unclosed
-						// extension tags that shadow html tags falling back to
-						// their html equivalent.  The sanitizer will take care
-						// of converting to text where necessary.  We do this to
-						// simplify `hasWikitextTokens` when escaping wikitext,
-						// which wants these as tokens because it's otherwise
-						// lacking in context.
-						return $t; // not text()
-					}
+					// This is undefined behaviour.  The old parser currently
+					// returns text here (see core commit 674e8388cba),
+					// whereas this results in unclosed
+					// extension tags that shadow html tags falling back to
+					// their html equivalent.  The sanitizer will take care
+					// of converting to text where necessary.  We do this to
+					// simplify `hasWikitextTokens` when escaping wikitext,
+					// which wants these as tokens because it's otherwise
+					// lacking in context.
+					return $t; // not text()
 				}
 
 				$extSrc = $tagContent[0];
@@ -351,46 +374,23 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 					$dp->tsr->length(), $extEndTagWidth
 				);
 
-				$skipPos = $dp->extTagOffsets->innerEnd();
+				$this->currPos = $dp->extTagOffsets->end;
 
-				// If the xml-tag is a known installed (not native) extension,
-				// skip the end-tag as well.
-				if ( $isInstalledExt ) {
-					$skipPos = $dp->extTagOffsets->end;
-				}
+				// update tsr->end to span the start and end tags.
+				$dp->tsr->end = $this->endOffset(); // was just modified above
 				break;
 
 			default:
 				$this->unreachable();
 		}
 
-		$this->currPos = $skipPos;
-
-		if ( $isInstalledExt ) {
-			// update tsr->end to span the start and end tags.
-			$dp->tsr->end = $this->endOffset(); // was just modified above
-			return new SelfclosingTagTk( 'extension', [
-					new KV( 'typeof', 'mw:Extension' ),
-					new KV( 'name', $tagName ),
-					new KV( 'about', $this->env->newAboutId() ),
-					new KV( 'source', $dp->src ),
-					new KV( 'options', $t->attribs )
-				], $dp
-			);
-		} elseif ( $isIncludeTag ) {
-			// Parse ext-content, strip eof, and shift tsr
-			$extContent = $dp->extTagOffsets->stripTags( $dp->src );
-			$tokenizer = new PegTokenizer( $this->env );
-			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
-			$extContentToks = $tokenizer->tokenizeSync( $extContent, [ 'sol' => true ] );
-			if ( $dp->extTagOffsets->closeWidth > 0 ) {
-				TokenUtils::stripEOFTkFromTokens( $extContentToks );
-			}
-			array_unshift( $extContentToks, $t );
-			return $extContentToks;
-		} else {
-			$this->unreachable();
-		}
+		return new SelfclosingTagTk( 'extension', [
+			new KV( 'typeof', 'mw:Extension' ),
+			new KV( 'name', $tagName ),
+			new KV( 'about', $this->env->newAboutId() ),
+			new KV( 'source', $dp->src ),
+			new KV( 'options', $t->attribs )
+		], $dp );
 	}
 
 
@@ -15342,8 +15342,8 @@ private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th)
 case "start_async":
   return $this->streamstart_async(false, self::newRef(null));
   break;
-				default:
-					throw new \Wikimedia\WikiPEG\InternalError( "Can't stream rule $startRule." );
+			default:
+				throw new \Wikimedia\WikiPEG\InternalError( "Can't stream rule $startRule." );
 			}
 		} else {
 			switch ( $startRule ) {
@@ -15383,8 +15383,8 @@ case "extlink":
 case "list_item":
   $result = $this->parselist_item(false, 0, self::newRef(null), self::newRef(null));
   break;
-				default:
-					throw new \Wikimedia\WikiPEG\InternalError( "Can't start parsing from rule $startRule." );
+			default:
+				throw new \Wikimedia\WikiPEG\InternalError( "Can't start parsing from rule $startRule." );
 			}
 		}
 
