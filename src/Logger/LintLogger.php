@@ -30,8 +30,8 @@ class LintLogger {
 	 *
 	 * @param Env $env
 	 * @param array &$lints
-	 * @param string $from
-	 * @param string $to
+	 * @param ('byte'|'ucs2'|'char') $from
+	 * @param ('byte'|'ucs2'|'char') $to
 	 */
 	public static function convertDSROffsets(
 		Env $env, array &$lints, string $from = 'byte', string $to = 'ucs2'

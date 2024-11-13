@@ -39,7 +39,7 @@ class DomPageBundle implements JsonCodecable {
 	 * A map from ID to the array serialization of DataParsoid for the Node
 	 * with that ID.
 	 *
-	 * @var null|array{counter?:int,offsetType?:string,ids:array<string,array>}
+	 * @var null|array{counter?:int,offsetType?:'byte'|'ucs2'|'char',ids:array<string,array>}
 	 */
 	public $parsoid;
 

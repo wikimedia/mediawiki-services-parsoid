@@ -362,8 +362,8 @@ class TokenUtils {
 	 *  populate it with references as `$offsets[] = &$var;`.
 	 *
 	 * @param string $s Unicode string the offsets are offsets into, UTF-8 encoded.
-	 * @param string $from Offset type to convert from.
-	 * @param string $to Offset type to convert to.
+	 * @param ('byte'|'ucs2'|'char') $from Offset type to convert from.
+	 * @param ('byte'|'ucs2'|'char') $to Offset type to convert to.
 	 * @param int[] $offsets References to the offsets to convert.
 	 */
 	public static function convertOffsets(
@@ -463,8 +463,8 @@ class TokenUtils {
 	 * @see TokenUtils::convertOffsets()
 	 *
 	 * @param string $s The offset reference string
-	 * @param string $from Offset type to convert from
-	 * @param string $to Offset type to convert to
+	 * @param ('byte'|'ucs2'|'char') $from Offset type to convert from
+	 * @param ('byte'|'ucs2'|'char') $to Offset type to convert to
 	 * @param array<Token|string|array> $tokens
 	 */
 	public static function convertTokenOffsets(

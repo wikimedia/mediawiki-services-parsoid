@@ -91,10 +91,10 @@ class Env {
 	/** @var bool */
 	private $wrapSections;
 
-	/** @var string */
+	/** @var ('byte'|'ucs2'|'char') */
 	private $requestOffsetType = 'byte';
 
-	/** @var string */
+	/** @var ('byte'|'ucs2'|'char') */
 	private $currentOffsetType = 'byte';
 
 	/** @var bool */
@@ -540,7 +540,7 @@ class Env {
 	 * other formats when we output wt2html or input for html2wt.
 	 *
 	 * @see Parsoid\Wt2Html\DOM\Processors\ConvertOffsets
-	 * @return string 'byte', 'ucs2', or 'char'
+	 * @return ('byte'|'ucs2'|'char')
 	 */
 	public function getRequestOffsetType(): string {
 		return $this->requestOffsetType;
@@ -553,7 +553,7 @@ class Env {
 	 * `getRequestOffsetType`) yet.
 	 *
 	 * @see Parsoid\Wt2Html\DOM\Processors\ConvertOffsets
-	 * @return string 'byte', 'ucs2', or 'char'
+	 * @return ('byte'|'ucs2'|'char')
 	 */
 	public function getCurrentOffsetType(): string {
 		return $this->currentOffsetType;
@@ -562,7 +562,7 @@ class Env {
 	/**
 	 * Update the current offset type. Only
 	 * Parsoid\Wt2Html\DOM\Processors\ConvertOffsets should be doing this.
-	 * @param string $offsetType 'byte', 'ucs2', or 'char'
+	 * @param ('byte'|'ucs2'|'char') $offsetType 'byte', 'ucs2', or 'char'
 	 */
 	public function setCurrentOffsetType( string $offsetType ) {
 		$this->currentOffsetType = $offsetType;
