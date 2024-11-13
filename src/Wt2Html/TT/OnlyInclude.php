@@ -5,10 +5,11 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
@@ -80,8 +81,7 @@ class OnlyInclude extends TokenHandler {
 		$isTag = null;
 		$meta = null;
 
-		$tc = TokenUtils::getTokenType( $token );
-		if ( $tc === 'EOFTk' ) {
+		if ( $token instanceof EOFTk ) {
 			$this->inOnlyInclude = false;
 			if ( count( $this->accum ) && !$this->foundOnlyInclude ) {
 				$res = $this->accum;
@@ -95,7 +95,10 @@ class OnlyInclude extends TokenHandler {
 			}
 		}
 
-		$isTag = $tc === 'TagTk' || $tc === 'EndTagTk' || $tc === 'SelfclosingTagTk';
+		$isTag = $token instanceof TagTk ||
+			$token instanceof EndTagTk ||
+			$token instanceof SelfclosingTagTk;
+
 		if ( $isTag ) {
 			switch ( $token->getName() ) {
 				case 'onlyinclude':
@@ -115,12 +118,22 @@ class OnlyInclude extends TokenHandler {
 				$this->foundOnlyInclude = true;
 				$this->inOnlyInclude = true;
 				// wrap collected tokens into meta tag for round-tripping
-				$meta = TokenCollector::buildMetaToken( $this->manager, $tagName,
-					$tc === 'EndTagTk', $token->dataParsoid->tsr ?? null, '' );
+				$meta = TokenCollector::buildMetaToken(
+					$this->manager,
+					$tagName,
+					$token instanceof EndTagTk,
+					$token->dataParsoid->tsr ?? null,
+					''
+				);
 			} else {
 				$this->inOnlyInclude = false;
-				$meta = TokenCollector::buildMetaToken( $this->manager, $tagName,
-					$tc === 'EndTagTk', $token->dataParsoid->tsr ?? null, '' );
+				$meta = TokenCollector::buildMetaToken(
+					$this->manager,
+					$tagName,
+					$token instanceof EndTagTk,
+					$token->dataParsoid->tsr ?? null,
+					''
+				);
 			}
 			return new TokenHandlerResult( [ $meta ] );
 		} else {

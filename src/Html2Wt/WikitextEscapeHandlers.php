@@ -9,6 +9,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\SelfClosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -494,8 +495,6 @@ class WikitextEscapeHandlers {
 				}
 			);
 
-			$tc = TokenUtils::getTokenType( $t );
-
 			// Ignore html tags that aren't allowed as literals in wikitext
 			if ( TokenUtils::isHTMLTag( $t ) ) {
 				if (
@@ -511,7 +510,7 @@ class WikitextEscapeHandlers {
 				// the worst case can be anywhere. So, we conservatively escape these
 				// elements always (which can lead to excessive nowiki-escapes in some
 				// cases, but is always safe).
-				if ( ( $tc === 'TagTk' || $tc === 'EndTagTk' ) &&
+				if ( ( $t instanceof TagTk || $t instanceof EndTagTk ) &&
 					$env->getSiteConfig()->isExtensionTag( mb_strtolower( $t->getName() ) )
 				) {
 					return true;
@@ -532,7 +531,7 @@ class WikitextEscapeHandlers {
 				}
 			}
 
-			if ( $tc === 'SelfclosingTagTk' ) {
+			if ( $t instanceof SelfclosingTagTk ) {
 				// * Ignore RFC/ISBN/PMID tokens when those are encountered in the
 				// context of another link's content -- those are not parsed to
 				// ext-links in that context. (T109371)
@@ -559,11 +558,11 @@ class WikitextEscapeHandlers {
 				return true;
 			}
 
-			if ( $state->inCaption && $tc === 'TagTk' && $t->getName() === 'listItem' ) {
+			if ( $state->inCaption && $t instanceof TagTk && $t->getName() === 'listItem' ) {
 				continue;
 			}
 
-			if ( $tc === 'TagTk' ) {
+			if ( $t instanceof TagTk ) {
 				// Ignore mw:Entity tokens
 				if ( $t->getName() === 'span' && TokenUtils::hasTypeOf( $t, 'mw:Entity' ) ) {
 					$numEntities++;
@@ -589,7 +588,7 @@ class WikitextEscapeHandlers {
 				return true;
 			}
 
-			if ( $tc === 'EndTagTk' ) {
+			if ( $t instanceof EndTagTk ) {
 				// Ignore mw:Entity tokens
 				if ( $numEntities > 0 && $t->getName() === 'span' ) {
 					$numEntities--;
@@ -725,7 +724,7 @@ class WikitextEscapeHandlers {
 
 			// Now put back the escaping we removed above
 			$tSrc = WTSUtils::escapeNowikiTags( $tsr->substr( $text ) );
-			switch ( TokenUtils::getTokenType( $t ) ) {
+			switch ( $t->getType() ) {
 				case 'NlTk':
 					$buf .= $tSrc;
 					$sol = true;
@@ -1184,7 +1183,21 @@ class WikitextEscapeHandlers {
 				}
 			}
 
-			switch ( TokenUtils::getTokenType( $t ) ) {
+			if ( is_string( $t ) ) {
+				self::appendStr(
+					$t,
+					$last,
+					true,
+					$buf,
+					$openNowiki,
+					$isTemplate,
+					$serializeAsNamed,
+					$opts
+				);
+				continue;
+			}
+
+			switch ( $t->getType() ) {
 				case 'TagTk':
 				case 'EndTagTk':
 				case 'NlTk':
@@ -1267,18 +1280,6 @@ class WikitextEscapeHandlers {
 							$opts
 						);
 					}
-					break;
-				case 'string':
-					self::appendStr(
-						$t,
-						$last,
-						true,
-						$buf,
-						$openNowiki,
-						$isTemplate,
-						$serializeAsNamed,
-						$opts
-					);
 					break;
 				case 'EOFTk':
 					break;

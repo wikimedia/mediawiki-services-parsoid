@@ -3,9 +3,10 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
 
 /**
@@ -39,17 +40,16 @@ class NoInclude extends TokenCollector {
 
 	protected function transformation( array $collection ): TokenHandlerResult {
 		$start = array_shift( $collection );
-		$sc = TokenUtils::getTokenType( $start );
 
 		// A stray end tag.
-		if ( $sc === 'EndTagTk' ) {
+		if ( $start instanceof EndTagTk ) {
 			$meta = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
 				true, ( $start->dataParsoid->tsr ?? null ), null );
 			return new TokenHandlerResult( [ $meta ] );
 		}
 
 		// Handle self-closing tag case specially!
-		if ( $sc === 'SelfclosingTagTk' ) {
+		if ( $start instanceof SelfclosingTagTk ) {
 			return ( $this->options['isInclude'] ) ?
 				new TokenHandlerResult( [] ) :
 				new TokenHandlerResult( [
