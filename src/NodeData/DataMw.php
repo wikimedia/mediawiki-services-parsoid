@@ -57,7 +57,7 @@ class DataMw implements JsonCodecable {
 
 	/** Returns true iff there are no dynamic properties of this object. */
 	public function isEmpty(): bool {
-		return ( (array)$this ) === [];
+		return $this->toJsonArray() === [];
 	}
 
 	public function __clone() {

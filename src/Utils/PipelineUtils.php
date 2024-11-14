@@ -424,11 +424,11 @@ class PipelineUtils {
 				$out[] = new KV( $name, $value );
 			}
 		}
+		$dmw = DOMDataUtils::getDataMw( $node );
 		return [
 			'attrs' => $out,
 			'dataParsoid' => DOMDataUtils::getDataParsoid( $node ),
-			'dataMw' =>
-				DOMDataUtils::validDataMw( $node ) ? DOMDataUtils::getDataMw( $node ) : null,
+			'dataMw' => $dmw->isEmpty() ? null : $dmw,
 		];
 	}
 

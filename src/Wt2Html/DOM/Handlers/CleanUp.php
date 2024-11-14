@@ -36,7 +36,7 @@ class CleanUp {
 			// Sometimes a non-tpl meta node might get the mw:Transclusion typeof
 			// element attached to it. So, check if the node has data-mw,
 			// in which case we also have to keep it.
-			( !DOMDataUtils::validDataMw( $node ) && (
+			( DOMDataUtils::getDataMw( $node )->isEmpty() && (
 				(
 					DOMUtils::hasTypeOf( $node, 'mw:Placeholder/StrippedTag' ) &&
 					// NOTE: In ComputeDSR, we don't zero out the width of these
@@ -283,14 +283,15 @@ class CleanUp {
 			// still clean them up as if they are the head of encapsulation.
 			WTUtils::isParsoidSectionTag( $node );
 
-		// Remove dp.src from elements that have valid data-mw and dsr.
+		// Remove dp.src from elements that have non-empty data-mw and dsr.
 		// This should reduce data-parsoid bloat.
 		//
 		// Presence of data-mw is a proxy for us knowing how to serialize
 		// this content from HTML. Token handlers should strip src for
 		// content where data-mw isn't necessary and html2wt knows how to
 		// handle the HTML markup.
-		$validDSR = DOMDataUtils::validDataMw( $node ) && Utils::isValidDSR( $dp->dsr ?? null );
+		$validDSR = Utils::isValidDSR( $dp->dsr ?? null ) &&
+			!DOMDataUtils::getDataMw( $node )->isEmpty();
 		$isPageProp = DOMCompat::nodeName( $node ) === 'meta' &&
 			str_starts_with( DOMCompat::getAttribute( $node, 'property' ) ?? '', 'mw:PageProp/' );
 		if ( $validDSR && !$isPageProp ) {

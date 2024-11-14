@@ -47,7 +47,7 @@ class DOMDataUtils {
 	 * @return bool
 	 */
 	public static function dataMwExists( Element $elt ): bool {
-		return DDU::validDataMw( $elt );
+		return !DDU::getDataMw( $elt )->isEmpty();
 	}
 
 	/**

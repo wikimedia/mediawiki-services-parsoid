@@ -149,7 +149,7 @@ class DiffUtils {
 		if ( !in_array( 'data-parsoid', $ignoreableAttribs, true ) ) {
 			$h['data-parsoid'] = DOMDataUtils::getDataParsoid( $node );
 		}
-		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) && DOMDataUtils::validDataMw( $node ) ) {
+		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) && !DOMDataUtils::getDataMw( $node )->isEmpty() ) {
 			$h['data-mw'] = DOMDataUtils::getDataMw( $node );
 		}
 		return $h;

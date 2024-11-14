@@ -365,16 +365,6 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Check if there is meta wiki info in a node.
-	 *
-	 * @param Element $node node
-	 * @return bool
-	 */
-	public static function validDataMw( Element $node ): bool {
-		return (array)self::getDataMw( $node ) !== [];
-	}
-
-	/**
 	 * Get an object from a JSON-encoded XML attribute on a node.
 	 *
 	 * @param Element $node node
@@ -716,20 +706,21 @@ class DOMDataUtils {
 		// (b) eventually we can remove support for output content version
 		// older than 999.x.
 
-		// Strip invalid data-mw attributes
-		if ( self::validDataMw( $node ) ) {
+		// Strip empty data-mw attributes
+		$dmw = self::getDataMw( $node );
+		if ( !$dmw->isEmpty() ) {
 			if (
 				!empty( $options['storeInPageBundle'] ) &&
 				// The pagebundle didn't have data-mw before 999.x
 				Semver::satisfies( $options['outputContentVersion'] ?? '0.0.0', '^999.0.0' )
 			) {
 				$data ??= new stdClass;
-				$data->mw = self::getDataMw( $node );
+				$data->mw = $dmw;
 			} else {
 				$node->setAttribute(
 					'data-mw',
 					PHPUtils::jsonEncode(
-						$codec->toJsonArray( self::getDataMw( $node ), $hints['data-mw'] )
+						$codec->toJsonArray( $dmw, $hints['data-mw'] )
 					)
 				);
 			}
