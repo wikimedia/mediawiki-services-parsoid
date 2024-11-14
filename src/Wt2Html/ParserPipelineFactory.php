@@ -447,7 +447,8 @@ class ParserPipelineFactory {
 		'inTemplate',
 
 		// If true, indicates that we are in a <includeonly> context
-		// (in current usage, isInclude === inTemplate)
+		// (in current usage, isInclude === inTemplate,
+		// or Frame::expand'ing at some depth)
 		'isInclude',
 
 		// The extension tag that is being processed (Ex: ref, references)

@@ -66,7 +66,7 @@ class NoInclude extends TokenCollector {
 		$end = array_pop( $collection );
 		$eof = $end instanceof EOFTk;
 
-		if ( empty( $this->options['isInclude'] ) ) {
+		if ( !$this->options['isInclude'] ) {
 			// Content is preserved
 			// Add meta tags for open and close
 			$startTSR = $start->dataParsoid->tsr ?? null;
@@ -79,10 +79,6 @@ class NoInclude extends TokenCollector {
 				$tokens[] = TokenCollector::buildMetaToken( $this->manager, 'mw:Includes/NoInclude',
 					true, $endTSR, null );
 			}
-		} elseif ( !$this->options['inTemplate'] ) {
-			// Content is stripped
-			$tokens[] = TokenCollector::buildStrippedMetaToken( $this->manager,
-				'mw:Includes/NoInclude', $start, $eof ? null : $end );
 		}
 
 		// Preserve EOF

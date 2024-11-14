@@ -62,7 +62,7 @@ class IncludeOnly extends TokenCollector {
 		if ( $this->options['isInclude'] ) {
 			// Just pass through the full collection including delimiters
 			$tokens = $collection;
-		} elseif ( !$this->options['inTemplate'] ) {
+		} else {
 			// Content is stripped
 			// Add meta tags for open and close for roundtripping.
 			//
