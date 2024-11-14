@@ -2374,73 +2374,107 @@ include_check =
 
 include_limits =
 	&include_check
-	il:( t:xmlish_tag<annOrExtTag> {
+	t:xmlish_tag<annOrExtTag> {
 		$tagName = mb_strtolower( $t->getName() );
-		$dp = $t->dataParsoid;
-		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
-
-		if ( $t instanceof EndTagTk ) {
-			return [$t];
+		switch ( $tagName ) {
+			case 'includeonly':
+				$typeOf = 'mw:Includes/IncludeOnly';
+				break;
+			case 'noinclude':
+				$typeOf = 'mw:Includes/NoInclude';
+				break;
+			case 'onlyinclude':
+				$typeOf = 'mw:Includes/OnlyInclude';
+				break;
+			default:
+				$this->unreachable();
 		}
 
-		$tagContentFound = ( $t instanceof SelfclosingTagTk ) ?
-			null :
-			preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
-
-		if ( !$tagContentFound ) {
-			$dp->src = $dp->tsr->substr( $this->input );
-			$dp->extTagOffsets = new DomSourceRange(
-				$dp->tsr->start, $dp->tsr->end,
-				$dp->tsr->length(), 0
-			);
-			return [$t];
+		$isEnd = ( $t instanceof EndTagTk );
+		if ( $isEnd ) {
+			$typeOf .= '/End';
 		}
 
-		$extSrc = $tagContent[0];
-		$extEndOffset = $dp->tsr->start + strlen( $extSrc );
-		$extEndTagWidth = strlen( $tagContent[1] );
+		$dp = new DataParsoid;
+		$dp->tsr = $t->dataParsoid->tsr;
+		$dp->src = $dp->tsr->substr( $this->input );
 
-		$dp->src = $extSrc;
-		$dp->extTagOffsets = new DomSourceRange(
-			$dp->tsr->start, $extEndOffset,
-			$dp->tsr->length(), $extEndTagWidth
+		$meta = new SelfclosingTagTk(
+			'meta', [ new KV( 'typeof', $typeOf ) ], $dp
 		);
 
-		$this->currPos = $dp->extTagOffsets->innerEnd();
+		if ( $t instanceof TagTk ) {
+			$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
+			preg_match( $endTagRE, $this->input, $content, 0, $dp->tsr->start );
+		}
 
-		// Parse ext-content, strip eof, and shift tsr
-		$extContent = $dp->extTagOffsets->stripTags( $dp->src );
-		$tokenizer = new PegTokenizer( $this->env );
-		$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
-		$extContentToks = $tokenizer->tokenizeSync( $extContent, [ 'sol' => true ] );
-		if ( $dp->extTagOffsets->closeWidth > 0 ) {
-			TokenUtils::stripEOFTkFromTokens( $extContentToks );
-		}
-		array_unshift( $extContentToks, $t );
-		return $extContentToks;
-	} )
-	sol_il: <sol_il>
-	& {
-		$il = $il[0];
-		$lname = mb_strtolower( $il->getName() );
-		// Preserve SOL where necessary (for onlyinclude and noinclude)
-		// Note that this only works because we encounter <*include*> tags in
-		// the toplevel content and we rely on the php preprocessor to expand
-		// templates, so we shouldn't ever be tokenizing inInclude.
-		// Last line should be empty (except for comments)
-		if ( $lname !== 'includeonly' && $sol_il && $il instanceof TagTk ) {
-			$dp = $il->dataParsoid;
-			$inclContent = $dp->extTagOffsets->stripTags( $dp->src );
-			$nlpos = strrpos( $inclContent, "\n" );
-			$last = $nlpos === false ? $inclContent : substr( $inclContent, $nlpos + 1 );
-			if ( !preg_match( '/^(<!--([^-]|-(?!->))*-->)*$/D', $last ) ) {
-				return false;
+		if ( !empty( $this->pipelineOpts['isInclude'] ) ) {
+			switch ( $tagName ) {
+				case 'includeonly':
+					// Drop the tag, keep the content
+					return [];
+				case 'noinclude':
+					if ( $t instanceof TagTk ) {
+						// Skip the content
+						$this->currPos = $dp->tsr->start + strlen( $content[0] );
+					}
+					// Drop it all
+					return [];
+				case 'onlyinclude':
+					if ( $t instanceof TagTk && $content ) {
+						// Parse the content, strip eof, and shift tsr
+						$contentSrc = $content[0];
+						$endOffset = $dp->tsr->start + strlen( $contentSrc );
+						$endTagWidth = strlen( $content[1] );
+						$tagOffsets = new DomSourceRange(
+							$dp->tsr->start, $endOffset,
+							$dp->tsr->length(), $endTagWidth
+						);
+						$this->currPos = $tagOffsets->innerEnd();
+						$justContent = $tagOffsets->stripTags( $contentSrc );
+						// FIXME: What about the pipelineOpts of the current pipeline?
+						$tokenizer = new PegTokenizer( $this->env );
+						$tokenizer->setSourceOffsets( $tagOffsets->innerRange() );
+						$contentToks = $tokenizer->tokenizeSync(
+							$justContent, [ 'sol' => true ]
+						);
+						TokenUtils::stripEOFTkFromTokens( $contentToks );
+						array_unshift( $contentToks, $t );
+						return $contentToks;
+					} else {
+						return [$t];
+					}
 			}
+		} else {
+			$tokens = [ $meta ];
+			if ( $tagName === 'includeonly' ) {
+				if ( $t instanceof TagTk && $content ) {
+					// Add the content / end tag to the meta for roundtripping
+					$dp->tsr->end = $dp->tsr->start + strlen( $content[0] );
+					$dp->src = $dp->tsr->substr( $this->input );
+					$meta->dataMw = new DataMw( [ 'src' => $dp->src ] );
+					$this->currPos = $dp->tsr->end;
+					// FIXME: We shouldn't bother with this because SelfclosingTk
+					// was never balanced to begin with
+					if ( strlen( $content[1] ) ) {
+						$eDp = new DataParsoid;
+						$eDp->tsr = new SourceRange( $dp->tsr->end, $dp->tsr->end );
+						$eDp->src = $eDp->tsr->substr( $this->input );
+						$tokens[] = new SelfclosingTagTk( 'meta', [
+							new KV( 'typeof', 'mw:Includes/IncludeOnly/End' )
+						], $eDp );
+					}
+				} elseif ( !( $t instanceof EndTagTk ) ) {
+					$meta->dataMw = new DataMw( [ 'src' => $dp->src ] );
+				} else {
+					// Compatibility with the legacy parser which leaves these in
+					// as strings, which the sanitizer will do for us
+					array_pop( $tokens );
+					$tokens[] = $t;
+				}
+			}
+			return $tokens;
 		}
-		return true;
-	}
-	{
-		return $il;
 	}
 
 // 'Preprocessor' directive- higher-level things that can occur in otherwise
@@ -2637,7 +2671,7 @@ space_or_nbsp_or_dash =
 	space_or_nbsp / "-"
 
 // Elements that do not break beginning or end of line for blocks (headers for instance)
-sol_transparent = comment / include_limits<sol_il> / annotation_tag / behavior_switch
+sol_transparent = comment / include_limits / annotation_tag / behavior_switch
 
 sol = (empty_line_with_comments / sol_prefix) sol_transparent*
 

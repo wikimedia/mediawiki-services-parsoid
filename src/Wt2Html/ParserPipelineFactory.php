@@ -45,10 +45,8 @@ use Wikimedia\Parsoid\Wt2Html\TT\BehaviorSwitchHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\DOMFragmentBuilder;
 use Wikimedia\Parsoid\Wt2Html\TT\ExtensionHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\ExternalLinkHandler;
-use Wikimedia\Parsoid\Wt2Html\TT\IncludeOnly;
 use Wikimedia\Parsoid\Wt2Html\TT\LanguageVariantHandler;
 use Wikimedia\Parsoid\Wt2Html\TT\ListHandler;
-use Wikimedia\Parsoid\Wt2Html\TT\NoInclude;
 use Wikimedia\Parsoid\Wt2Html\TT\OnlyInclude;
 use Wikimedia\Parsoid\Wt2Html\TT\ParagraphWrapper;
 use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
@@ -277,8 +275,6 @@ class ParserPipelineFactory {
 			"class" => TokenTransformManager::class,
 			"transformers" => [
 				OnlyInclude::class,
-				IncludeOnly::class,
-				NoInclude::class,
 
 				TemplateHandler::class,
 				ExtensionHandler::class,

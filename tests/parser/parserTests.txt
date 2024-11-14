@@ -5160,12 +5160,22 @@ T236868: Un-closed <noinclude> caused bad SourceRange length
 !! wikitext
 {| <noinclude>
 |- <noinclude>
-| A
-|-</noinclude>
+|A
+|- </noinclude>
 |}
+!! html/php
+<table>
+
+<tbody><tr>
+<td>A
+</td></tr>
+</tbody></table>
 !! html/parsoid
-<table about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"a":{"&lt;noinclude>\n|- &lt;noinclude>\n| A\n|-&lt;/noinclude>":null},"sa":{"&lt;noinclude>\n|- &lt;noinclude>\n| A\n|-&lt;/noinclude>":""}}' data-mw='{"attribs":[[{"txt":" A","html":"&lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[3,14,null,null]}&apos;/>\n|- &lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[18,29,null,null]}&apos;/>\n| A\n|-&lt;meta typeof=\"mw:Includes/NoInclude/End\" data-parsoid=&apos;{\"src\":\"&amp;lt;/noinclude>\",\"dsr\":[36,48,null,null]}&apos;/>"},{"html":""}]]}'>
-</table>
+<table about="#mwt1" typeof="mw:ExpandedAttrs" data-parsoid='{"a":{"&lt;noinclude>":null},"sa":{"&lt;noinclude>":""},"dsr":[0,51,14,2]}' data-mw='{"attribs":[[{"txt":"","html":"&lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[3,14,null,null]}&apos;/>"},{"html":""}]]}'>
+<tbody data-parsoid='{"dsr":[15,49,0,0]}'><tr about="#mwt2" typeof="mw:ExpandedAttrs" data-parsoid='{"startTagSrc":"|-","a":{"&lt;noinclude>":null},"sa":{"&lt;noinclude>":""},"dsr":[15,32,14,0]}' data-mw='{"attribs":[[{"txt":"","html":"&lt;meta typeof=\"mw:Includes/NoInclude\" data-parsoid=&apos;{\"src\":\"&amp;lt;noinclude>\",\"dsr\":[18,29,null,null]}&apos;/>"},{"html":""}]]}'>
+<td data-parsoid='{"dsr":[30,32,1,0]}'>A</td></tr>
+<tr class="mw-empty-elt" data-parsoid='{"startTagSrc":"|-","a":{"&lt;/noinclude>":null},"sa":{"&lt;/noinclude>":""},"dsr":[33,48,15,0]}'></tr>
+</tbody></table>
 !! end
 
 !!test
@@ -5388,7 +5398,7 @@ parsoid={
 !!test
 0. includeonly around the entire attribute
 !! wikitext
-<span <includeonly>id="v1"</includeonly><noinclude>id="v2"</noinclude>>bar</span>
+<span <includeonly>id="v1"</includeonly><noinclude>id="v2" </noinclude>>bar</span>
 !! html
 <p><span id="v2">bar</span>
 </p>
@@ -17169,4 +17179,17 @@ z
 <p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"}]]}'>a</i></p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>
 
 <p>z</p></i>
+!! end
+
+!! test
+Include directive string gluing
+!! wikitext
+<noinclude>{{1x|</noinclude>testing<noinclude>}}</noinclude>
+!! html/php
+<p>testing
+</p>
+!! html/parsoid+integrated
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><p data-parsoid='{}'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;/noinclude>testing&lt;noinclude>"}},"i":0}}]}'>testing</span></p><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
+!! html/parsoid+standalone
+<meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><p data-parsoid='{}'><meta typeof="mw:Transclusion mw:Includes/NoInclude/End" about="#mwt1" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;/noinclude>testing&lt;noinclude>"}},"i":0}}]}'/><span about="#mwt1">testing</span><meta typeof="mw:Includes/NoInclude" about="#mwt1"/></p><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
 !! end
