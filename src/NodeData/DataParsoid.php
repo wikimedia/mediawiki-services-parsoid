@@ -277,9 +277,7 @@ class DataParsoid implements JsonCodecable {
 	}
 
 	public function isModified(): bool {
-		// NOTE: strict equality will not work in this comparison
-		// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
-		return $this != new self;
+		return $this->toJsonArray() !== [];
 	}
 
 	/**
