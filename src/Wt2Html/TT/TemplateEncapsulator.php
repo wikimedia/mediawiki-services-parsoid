@@ -27,31 +27,21 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  * with the appropriate meta tags, adding argument info data.
  */
 class TemplateEncapsulator {
-	/** @var Env */
-	private $env;
-	/** @var Frame */
-	private $frame;
-	/** @var string */
-	private $wrapperType;
-	/** @var string */
-	private $wrappedObjectId;
-	/** @var Token */
-	public $token;
-	/** @var string|null */
-	public $variableName;
-	/** @var string|null */
-	public $parserFunctionName;
-	/** @var string|null */
-	public $resolvedTemplateTarget;
+	private Env $env;
+	private Frame $frame;
+	private string $wrapperType;
+	private string $aboutId;
+	public Token $token;
+	public ?string $variableName = null;
+	public ?string $parserFunctionName = null;
+	public ?string $resolvedTemplateTarget = null;
 
-	public function __construct(
-		Env $env, Frame $frame, Token $token, string $wrapperType
-	) {
+	public function __construct( Env $env, Frame $frame, Token $token, string $wrapperType ) {
 		$this->env = $env;
 		$this->frame = $frame;
 		$this->token = $token;
 		$this->wrapperType = $wrapperType;
-		$this->wrappedObjectId = $env->newObjectId();
+		$this->aboutId = $env->newAboutId();
 	}
 
 	/**
@@ -241,7 +231,7 @@ class TemplateEncapsulator {
 
 		$attrs = [
 			new KV( 'typeof', $this->wrapperType ),
-			new KV( 'about', '#' . $this->wrappedObjectId )
+			new KV( 'about', $this->aboutId )
 		];
 		$dp = new DataParsoid;
 		$dp->tsr = clone $this->token->dataParsoid->tsr;
@@ -259,7 +249,7 @@ class TemplateEncapsulator {
 		return new SelfclosingTagTk( 'meta',
 			[
 				new KV( 'typeof', $this->wrapperType . '/End' ),
-				new KV( 'about', '#' . $this->wrappedObjectId )
+				new KV( 'about', $this->aboutId )
 			],
 			$dp
 		);

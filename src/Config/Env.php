@@ -766,14 +766,6 @@ class Env {
 	}
 
 	/**
-	 * Generate a new object id
-	 * @return string
-	 */
-	public function newObjectId(): string {
-		return "mwt" . $this->generateUID();
-	}
-
-	/**
 	 * Generate a new annotation uid
 	 * @return int
 	 */
@@ -794,7 +786,7 @@ class Env {
 	 * @return string
 	 */
 	public function newAboutId(): string {
-		return "#" . $this->newObjectId();
+		return '#mwt' . $this->generateUID();
 	}
 
 	/**
