@@ -817,6 +817,21 @@ class WTUtils {
 		return $name === 'includeonly' || $name === 'noinclude' || $name === 'onlyinclude';
 	}
 
+	public static function isAnnotationTag( Env $env, string $name ): bool {
+		$tagName = mb_strtolower( $name );
+		$siteConfig = $env->getSiteConfig();
+		$isAnnotationTag = $siteConfig->isAnnotationTag( $tagName );
+		if ( !$isAnnotationTag ) {
+			// avoid crashing on <tvar|name> even if we don't support that syntax explicitly
+			$pipepos = strpos( $tagName, '|' );
+			if ( $pipepos ) {
+				$strBeforePipe = substr( $tagName, 0, $pipepos );
+				$isAnnotationTag = $siteConfig->isAnnotationTag( $strBeforePipe );
+			}
+		}
+		return $isAnnotationTag;
+	}
+
 	/**
 	 * Check if tag is annotation or extension directive
 	 * Adapted from similar grammar function
@@ -827,21 +842,10 @@ class WTUtils {
 	 */
 	public static function isAnnOrExtTag( Env $env, string $name ): bool {
 		$tagName = mb_strtolower( $name );
-		$siteConfig = $env->getSiteConfig();
-		$extTags = $siteConfig->getExtensionTagNameMap();
-		$isInstalledExt = isset( $extTags[$tagName] );
-		$isIncludeTag = self::isIncludeTag( $tagName );
-		$isAnnotationTag = $siteConfig->isAnnotationTag( $tagName );
-
-		if ( !$isAnnotationTag ) {
-			// avoid crashing on <tvar|name> even if we don't support that syntax explicitly
-			$pipepos = strpos( $tagName, '|' );
-			if ( $pipepos ) {
-				$strBeforePipe = substr( $tagName, 0, $pipepos );
-				$isAnnotationTag = $siteConfig->isAnnotationTag( $strBeforePipe );
-			}
-		}
-		return $isInstalledExt || $isIncludeTag || $isAnnotationTag;
+		$extTags = $env->getSiteConfig()->getExtensionTagNameMap();
+		return isset( $extTags[$tagName] ) ||
+			self::isIncludeTag( $tagName ) ||
+			self::isAnnotationTag( $env, $tagName );
 	}
 
 	/**

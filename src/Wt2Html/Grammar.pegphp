@@ -165,209 +165,6 @@
 			isset( Consts::$HTML['OlderHTMLTags'][$lName] );
 	}
 
-	private function maybeAnnotationOrExtensionTag( Token $t, ?bool $end, array $attribs, SourceRange $tsr ) {
-		$tagName = mb_strtolower( $t->getName() );
-
-		$isAnnotationTag = $this->siteConfig->isAnnotationTag( $tagName );
-		if ( !$isAnnotationTag ) {
-			$pipepos = strpos( $tagName, '|' );
-			if ( $pipepos ) {
-				$strBeforePipe = substr( $tagName, 0, $pipepos );
-				$isAnnotationTag = $this->siteConfig->isAnnotationTag( $strBeforePipe );
-				if ( $isAnnotationTag ) {
-					$attribs = [ new KV( "name", substr( $tagName, $pipepos + 1, strlen( $tagName ) - $pipepos - 1 ) ) ];
-					$tagName = $strBeforePipe;
-				}
-			}
-		}
-		if ( $isAnnotationTag ) {
-			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ($end ? '/End' : '') ) ];
-			$datamw = null;
-			if ( count( $attribs ) > 0 ) {
-				$attrMap = [];
-				foreach ( $attribs as $attr ) {
-					// If the key or the value is not a string, we replace it by the thing that generated it and
-					// consider that wikitext as a raw string instead.
-					$k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
-					$v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
-					$attrMap[$k] = $v;
-				}
-				// Possible follow-up in T295168 for attribute sanitation
-				// T367616: 'attrs' should be renamed to 'extAttrs'
-				$datamw = new DataMw( [ 'attrs' => (object)$attrMap ] );
-			}
-			$dp = new DataParsoid();
-			$dp->tsr = $tsr;
-			$this->env->hasAnnotations = true;
-			// FIXME: Suppress annotation meta tokens from template pipelines
-			// since they may not have TSR values and won't get recognized as
-			// annotation ranges. Without TSR, they might end up stuck in
-			// fosterable positions and cause havoc on edits by breaking selser.
-			if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
-				return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw ) ];
-			} else {
-				return [];
-			}
-		}
-
-		$dp = $t->dataParsoid;
-		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
-
-		$isIncludeTag = WTUtils::isIncludeTag( $tagName );
-		if ( $isIncludeTag ) {
-			if ( $t instanceof EndTagTk ) {
-				return $t;
-			}
-
-			$tagContentFound = ( $t instanceof SelfclosingTagTk ) ?
-				null :
-				preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
-
-			if ( !$tagContentFound ) {
-				$dp->src = $dp->tsr->substr( $this->input );
-				$dp->extTagOffsets = new DomSourceRange(
-					$dp->tsr->start, $dp->tsr->end,
-					$dp->tsr->length(), 0
-				);
-				return $t;
-			}
-
-			$extSrc = $tagContent[0];
-			$extEndOffset = $dp->tsr->start + strlen( $extSrc );
-			$extEndTagWidth = strlen( $tagContent[1] );
-
-			$dp->src = $extSrc;
-			$dp->extTagOffsets = new DomSourceRange(
-				$dp->tsr->start, $extEndOffset,
-				$dp->tsr->length(), $extEndTagWidth
-			);
-
-			$this->currPos = $dp->extTagOffsets->innerEnd();
-
-			// Parse ext-content, strip eof, and shift tsr
-			$extContent = $dp->extTagOffsets->stripTags( $dp->src );
-			$tokenizer = new PegTokenizer( $this->env );
-			$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
-			$extContentToks = $tokenizer->tokenizeSync( $extContent, [ 'sol' => true ] );
-			if ( $dp->extTagOffsets->closeWidth > 0 ) {
-				TokenUtils::stripEOFTkFromTokens( $extContentToks );
-			}
-			array_unshift( $extContentToks, $t );
-			return $extContentToks;
-		}
-
-		// Extensions have higher precedence when they shadow html tags.
-		$isInstalledExt = isset( $this->extTags[$tagName] );
-		if ( !$isInstalledExt ) {
-			return $t;
-		}
-
-		switch ( get_class( $t ) ) {
-			case EndTagTk::class:
-				// Similar to TagTk, we rely on the sanitizer to convert to text
-				// where necessary and emit tokens to ease the wikitext escaping
-				// code.  However, extension tags that shadow html tags will see
-				// their unmatched end tags dropped while tree building, since
-				// the sanitizer will let them through.
-				return $t; // not text()
-
-			case SelfclosingTagTk::class:
-				$dp->src = $dp->tsr->substr( $this->input );
-				$dp->extTagOffsets = new DomSourceRange(
-					$dp->tsr->start, $dp->tsr->end,
-					$dp->tsr->length(), 0
-				);
-				break;
-
-			case TagTk::class:
-				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
-				if ( !$tagContentFound ) {
-					// This is undefined behaviour.  The old parser currently
-					// returns text here (see core commit 674e8388cba),
-					// whereas this results in unclosed
-					// extension tags that shadow html tags falling back to
-					// their html equivalent.  The sanitizer will take care
-					// of converting to text where necessary.  We do this to
-					// simplify `hasWikitextTokens` when escaping wikitext,
-					// which wants these as tokens because it's otherwise
-					// lacking in context.
-					return $t; // not text()
-				}
-
-				$extSrc = $tagContent[0];
-				$extEndOffset = $dp->tsr->start + strlen( $extSrc );
-				$extEndTagWidth = strlen( $tagContent[1] );
-
-				if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
-					// Support nesting in extensions tags while tokenizing in templates
-					// to support the #tag parser function.
-					//
-					// It's necessary to permit this broadly in templates because
-					// there's no way to distinguish whether the nesting happened
-					// while expanding the #tag parser function, or just a general
-					// syntax errors.  In other words,
-					//
-					//   hi<ref>ho<ref>hi</ref>ho</ref>
-					//
-					// and
-					//
-					//   hi{{#tag:ref|ho<ref>hi</ref>ho}}
-					//
-					// found in template are returned indistinguishably after a
-					// preprocessing request, though the old parser renders them
-					// differently.  #tag in template is probably a common enough
-					// use case that we want to accept these false positives,
-					// though another approach could be to drop this code here, and
-					// invoke a native #tag handler and forgo those in templates.
-					//
-					// Expand `extSrc` as long as there is a <tagName> found in the
-					// extension source body.
-					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '(?:[^/>]|/(?!>))*>~i';
-					$s = substr( $extSrc, $dp->tsr->end - $dp->tsr->start );
-					$openTags = 0;
-					while ( true ) {
-						if ( preg_match_all( $startTagRE, $s, $matches ) ) {
-							$openTags += count( $matches[0] );
-						}
-						if ( !$openTags ) {
-							break;
-						}
-						if ( !preg_match( $endTagRE, $this->input, $tagContent, 0, $extEndOffset ) ) {
-							break;
-						}
-						$openTags -= 1;
-						$s = $tagContent[0];
-						$extEndOffset += strlen( $s );
-						$extEndTagWidth = strlen( $tagContent[1] );
-						$extSrc .= $s;
-					}
-				}
-
-				// Extension content source
-				$dp->src = $extSrc;
-				$dp->extTagOffsets = new DomSourceRange(
-					$dp->tsr->start, $extEndOffset,
-					$dp->tsr->length(), $extEndTagWidth
-				);
-
-				$this->currPos = $dp->extTagOffsets->end;
-
-				// update tsr->end to span the start and end tags.
-				$dp->tsr->end = $this->endOffset(); // was just modified above
-				break;
-
-			default:
-				$this->unreachable();
-		}
-
-		return new SelfclosingTagTk( 'extension', [
-			new KV( 'typeof', 'mw:Extension' ),
-			new KV( 'name', $tagName ),
-			new KV( 'about', $this->env->newAboutId() ),
-			new KV( 'source', $dp->src ),
-			new KV( 'options', $t->attribs )
-		], $dp );
-	}
 }
 
 /* ********************************************************
@@ -648,12 +445,14 @@ inlineline =
 		return TokenizerUtils::flattenStringlist( $c );
 	}
 
-inline_xmlish_tag =
-	"<" tag:(xmlish_tag<annOrExtTag> / xmlish_tag<annOrExtTag=false> / tvar_old_syntax_closing_HACK )
-	{ return $tag; }
+html_tag = xmlish_tag<annOrExtTag=false>
+
+// Doesn't use wellformed_extension_tag because html_tag is permissible
+angle_bracket_markup =
+	annotation_tag / maybe_extension_tag / include_limits / html_tag / comment
 
 inline_element =
-	& '<' r:( inline_xmlish_tag / comment ) { return $r; }
+	& '<' r:angle_bracket_markup { return $r; }
 	/ & '{' r:tplarg_or_template { return $r; }
 	/ & "-{" r:lang_variant_or_tpl { return $r; }
 	// FIXME: The old parser's handleInternalLinks2 splits on [[, resulting
@@ -1638,42 +1437,225 @@ quote =
 // In coordination with language team, get rid of this hack once all old uses
 // are migrated to new syntax (T274881).
 tvar_old_syntax_closing_HACK =
-	"/>"
+	!<annOrExtTag>
+	"</>"
 	& { return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); }
 	{
 		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
 		$dp = new DataParsoid();
 		$dp->tsr = $this->tsrOffsets();
-		$dp->tsr->start--; // For "<" matched at the start of xmlish_tag rule
-		if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
-			return [ new SelfclosingTagTk ( 'meta', $metaAttrs, $dp ) ];
-		} else {
-			// suppress meta tags from pipeline output
-			return [];
-		}
+		return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp );
+	}
+
+annotation_check =
+	!<annOrExtTag>
+	start:xmlish_start
+	&{
+		list(,$name) = $start;
+		return WTUtils::isAnnotationTag( $this->env, $name );
 	}
 
 annotation_tag =
-	annToken:extension_annotation_tag
-	&{
-		return ( $annToken instanceof Token && $annToken->getName() !== 'extension' );
-	}
-	{ return $annToken; }
+	tag:( tvar_old_syntax_closing_HACK / (
+		&annotation_check
+		t:xmlish_tag<annOrExtTag>
+		{
+			$end = ( $t instanceof EndTagTk );
+			$attribs = $t->attribs;
+			$tagName = mb_strtolower( $t->getName() );
+			$tsr = $t->dataParsoid->tsr;
 
-extension_annotation_tag =
+			// We already applied this logic in WTUtils::isAnnotationTag
+			// to get here so we can make some assumptions.
+			if ( !$this->siteConfig->isAnnotationTag( $tagName ) ) {
+				$pipepos = strpos( $tagName, '|' );
+				$strBeforePipe = substr( $tagName, 0, $pipepos );
+				$newName = substr( $tagName, $pipepos + 1, strlen( $tagName ) - $pipepos - 1 );
+				$attribs = [ new KV( "name", $newName ) ];
+				$tagName = $strBeforePipe;
+			}
+
+			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ( $end ? '/End' : '' ) ) ];
+			$datamw = null;
+			if ( count( $attribs ) > 0 ) {
+				$attrMap = [];
+				foreach ( $attribs as $attr ) {
+					// If the key or the value is not a string,
+					// we replace it by the thing that generated it and
+					// consider that wikitext as a raw string instead.
+					$k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
+					$v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
+					$attrMap[$k] = $v;
+				}
+				// Possible follow-up in T295168 for attribute sanitation
+				// T367616: 'attrs' should be renamed to 'extAttrs'
+				$datamw = new DataMw( [ 'attrs' => (object)$attrMap ] );
+			}
+			$dp = new DataParsoid();
+			$dp->tsr = $tsr;
+			$this->env->hasAnnotations = true;
+
+			return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw );
+		}
+	) )
+	{
+		// FIXME: Suppress annotation meta tokens from template pipelines
+		// since they may not have TSR values and won't get recognized as
+		// annotation ranges. Without TSR, they might end up stuck in
+		// fosterable positions and cause havoc on edits by breaking selser.
+		if ( empty( $this->pipelineOpts['inTemplate'] ) ) {
+			return $tag;
+		} else {
+			return '';
+		}
+	}
+
+extension_check =
 	!<annOrExtTag>
-	"<" tag:(
-		extToken:xmlish_tag<annOrExtTag>
-		// Account for `maybeAnnotationOrExtensionTag` returning unmatched start / end tags
-		&{ return !$extToken || $extToken[0]->getName() === 'extension' ||
-			($extToken[0]->getName() === 'meta' && preg_match( WTUtils::ANNOTATION_META_TYPE_REGEXP, $extToken[0]->getAttributeV( 'typeof' ) ?? '' ) > 0); }
-		{ return !$extToken ? '' : $extToken[0]; }
-	/ tvar_old_syntax_closing_HACK ) { return $tag; }
+	start:xmlish_start
+	&{
+		list(,$name) = $start;
+		return isset( $this->extTags[mb_strtolower( $name )] ) &&
+			// NOTE: This check is redundant with the precedence of the current
+			// rules ( annotation_tag / *_extension_tag ) but kept as a precaution
+			// since annotation tags are in extTags and we want them handled
+			// elsewhere.
+			!WTUtils::isAnnotationTag( $this->env, $name );
+	}
+
+maybe_extension_tag =
+	&extension_check
+	t:xmlish_tag<annOrExtTag>
+	{
+		$tagName = mb_strtolower( $t->getName() );
+		$dp = $t->dataParsoid;
+		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
+
+		switch ( get_class( $t ) ) {
+			case EndTagTk::class:
+				// Similar to TagTk, we rely on the sanitizer to convert to text
+				// where necessary and emit tokens to ease the wikitext escaping
+				// code.  However, extension tags that shadow html tags will see
+				// their unmatched end tags dropped while tree building, since
+				// the sanitizer will let them through.
+				return $t; // not text()
+
+			case SelfclosingTagTk::class:
+				$dp->src = $dp->tsr->substr( $this->input );
+				$dp->extTagOffsets = new DomSourceRange(
+					$dp->tsr->start, $dp->tsr->end,
+					$dp->tsr->length(), 0
+				);
+				break;
+
+			case TagTk::class:
+				$tagContentFound = preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
+				if ( !$tagContentFound ) {
+					// This is undefined behaviour.  The old parser currently
+					// returns text here (see core commit 674e8388cba),
+					// whereas this results in unclosed
+					// extension tags that shadow html tags falling back to
+					// their html equivalent.  The sanitizer will take care
+					// of converting to text where necessary.  We do this to
+					// simplify `hasWikitextTokens` when escaping wikitext,
+					// which wants these as tokens because it's otherwise
+					// lacking in context.
+					return $t; // not text()
+				}
+
+				$extSrc = $tagContent[0];
+				$extEndOffset = $dp->tsr->start + strlen( $extSrc );
+				$extEndTagWidth = strlen( $tagContent[1] );
+
+				if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
+					// Support nesting in extensions tags while tokenizing in templates
+					// to support the #tag parser function.
+					//
+					// It's necessary to permit this broadly in templates because
+					// there's no way to distinguish whether the nesting happened
+					// while expanding the #tag parser function, or just a general
+					// syntax errors.  In other words,
+					//
+					//   hi<ref>ho<ref>hi</ref>ho</ref>
+					//
+					// and
+					//
+					//   hi{{#tag:ref|ho<ref>hi</ref>ho}}
+					//
+					// found in template are returned indistinguishably after a
+					// preprocessing request, though the old parser renders them
+					// differently.  #tag in template is probably a common enough
+					// use case that we want to accept these false positives,
+					// though another approach could be to drop this code here, and
+					// invoke a native #tag handler and forgo those in templates.
+					//
+					// Expand `extSrc` as long as there is a <tagName> found in the
+					// extension source body.
+					$startTagRE = '~<' . preg_quote( $tagName, '~' ) . '(?:[^/>]|/(?!>))*>~i';
+					$s = substr( $extSrc, $dp->tsr->end - $dp->tsr->start );
+					$openTags = 0;
+					while ( true ) {
+						if ( preg_match_all( $startTagRE, $s, $matches ) ) {
+							$openTags += count( $matches[0] );
+						}
+						if ( !$openTags ) {
+							break;
+						}
+						if ( !preg_match( $endTagRE, $this->input, $tagContent, 0, $extEndOffset ) ) {
+							break;
+						}
+						$openTags -= 1;
+						$s = $tagContent[0];
+						$extEndOffset += strlen( $s );
+						$extEndTagWidth = strlen( $tagContent[1] );
+						$extSrc .= $s;
+					}
+				}
+
+				// Extension content source
+				$dp->src = $extSrc;
+				$dp->extTagOffsets = new DomSourceRange(
+					$dp->tsr->start, $extEndOffset,
+					$dp->tsr->length(), $extEndTagWidth
+				);
+
+				$this->currPos = $dp->extTagOffsets->end;
+
+				// update tsr->end to span the start and end tags.
+				$dp->tsr->end = $this->endOffset(); // was just modified above
+				break;
+
+			default:
+				$this->unreachable();
+		}
+
+		return new SelfclosingTagTk( 'extension', [
+			new KV( 'typeof', 'mw:Extension' ),
+			new KV( 'name', $tagName ),
+			new KV( 'about', $this->env->newAboutId() ),
+			new KV( 'source', $dp->src ),
+			new KV( 'options', $t->attribs )
+		], $dp );
+	}
+
+// Account for extension_tag returning unmatched start / end tags
+wellformed_extension_tag =
+	extToken:maybe_extension_tag
+	&{ return $extToken->getName() === 'extension'; }
+	{ return $extToken; }
+
+nowiki_check =
+	!<annOrExtTag>
+	start:xmlish_start
+	&{
+		list(,$name) = $start;
+		return ( mb_strtolower( $name ) === 'nowiki' );
+	}
 
 nowiki =
-	& ("<" "/"? "nowiki"i )
-	extToken:extension_annotation_tag
-	{ return $extToken; }
+	&nowiki_check
+	ext:wellformed_extension_tag
+	{ return $ext; }
 
 // Used by lang_variant productions to protect special language names or
 // conversion strings.
@@ -1703,25 +1685,17 @@ tag_name = $[^\t\n\v />\0]+
 // and value.
 space_or_newline_or_solidus = space_or_newline / (s:"/" !">" { return $s; })
 
+xmlish_start = "<" end:"/"? name:tag_name { return [ $end, $name ]; }
+
 xmlish_tag =
-	& {
-		$this->assert(
-			$this->input[$this->currPos - 1] === '<',
-			'Failed to open xmlish_tag before entering.'
-		);
-		return true;
-	}
-	end:"/"?
-	name: tag_name
 	annOrExtTag: <annOrExtTag>
+	start:xmlish_start
 	& {
-		if ( $annOrExtTag ) {
-			return WTUtils::isAnnOrExtTag( $this->env, $name );
-		} else {
-			// Only enforce ascii alpha first char for non-extension tags.
-			// See tag_name above for the details.
-			return preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name );
-		}
+		// Only enforce ascii alpha first char for non-extension tags.
+		// See tag_name above for the details.
+		list(,$name) = $start;
+		return $annOrExtTag ||
+			( preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name ) );
 	}
 	// By the time we get to `doTableStuff` in the old parser, we've already
 	// safely encoded element attributes. See 55313f4e in core.
@@ -1731,6 +1705,7 @@ xmlish_tag =
 	space* // not preserved - canonicalized on RT via dirty diff
 	">"
 	{
+		list($end, $name) = $start;
 		$lcName = mb_strtolower( $name );
 
 		// Extension tags don't necessarily have the same semantics as html tags,
@@ -1743,8 +1718,9 @@ xmlish_tag =
 		}
 
 		$tsr = $this->tsrOffsets();
-		$tsr->start--; // For "<" matched at the start of xmlish_tag rule
-		$res = TokenizerUtils::buildXMLTag( $name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, $tsr );
+		$res = TokenizerUtils::buildXMLTag(
+			$name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, $tsr
+		);
 
 		// change up data-attribs in one scenario
 		// void-elts that aren't self-closed ==> useful for accurate RT-ing
@@ -1753,8 +1729,7 @@ xmlish_tag =
 			$res->dataParsoid->noClose = true;
 		}
 
-		$met = $this->maybeAnnotationOrExtensionTag( $res, $end, $attribs, $tsr );
-		return is_array( $met ) ? $met : [ $met ];
+		return $res;
 	}
 
 // A generic attribute that can span multiple lines.
@@ -1861,7 +1836,7 @@ table_attribute_name =
 			// Accept tags-inside-attributes as attribute names.
 			// The sanitizer will strip and shadow them for roundtripping.
 			// Example: <hiddentext>generated with.. </hiddentext>
-			/ x:inline_xmlish_tag ill:inlineline? { return array_merge( $x, $ill ?: [] ); }
+			/ &'<' x:html_tag ill:inlineline? { return array_merge( [$x], $ill ?: [] ); }
 			/ $( !( space_or_newline / [\0/=>] ) . )
 		) { return $t; }
 	)*
@@ -2389,14 +2364,65 @@ htmlentity =
  * |}
  */
 
+include_check =
+	!<annOrExtTag>
+	start:xmlish_start
+	&{
+		list(,$name) = $start;
+		return WTUtils::isIncludeTag( mb_strtolower( $name ) );
+	}
+
 include_limits =
-	& ("<" "/"? ( "includeonly"i / "noinclude"i / "onlyinclude"i ) )
-	"<" il:xmlish_tag<annOrExtTag>
+	&include_check
+	il:( t:xmlish_tag<annOrExtTag> {
+		$tagName = mb_strtolower( $t->getName() );
+		$dp = $t->dataParsoid;
+		$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
+
+		if ( $t instanceof EndTagTk ) {
+			return [$t];
+		}
+
+		$tagContentFound = ( $t instanceof SelfclosingTagTk ) ?
+			null :
+			preg_match( $endTagRE, $this->input, $tagContent, 0, $dp->tsr->start );
+
+		if ( !$tagContentFound ) {
+			$dp->src = $dp->tsr->substr( $this->input );
+			$dp->extTagOffsets = new DomSourceRange(
+				$dp->tsr->start, $dp->tsr->end,
+				$dp->tsr->length(), 0
+			);
+			return [$t];
+		}
+
+		$extSrc = $tagContent[0];
+		$extEndOffset = $dp->tsr->start + strlen( $extSrc );
+		$extEndTagWidth = strlen( $tagContent[1] );
+
+		$dp->src = $extSrc;
+		$dp->extTagOffsets = new DomSourceRange(
+			$dp->tsr->start, $extEndOffset,
+			$dp->tsr->length(), $extEndTagWidth
+		);
+
+		$this->currPos = $dp->extTagOffsets->innerEnd();
+
+		// Parse ext-content, strip eof, and shift tsr
+		$extContent = $dp->extTagOffsets->stripTags( $dp->src );
+		$tokenizer = new PegTokenizer( $this->env );
+		$tokenizer->setSourceOffsets( new SourceRange( $dp->extTagOffsets->innerStart(), $dp->extTagOffsets->innerEnd() ) );
+		$extContentToks = $tokenizer->tokenizeSync( $extContent, [ 'sol' => true ] );
+		if ( $dp->extTagOffsets->closeWidth > 0 ) {
+			TokenUtils::stripEOFTkFromTokens( $extContentToks );
+		}
+		array_unshift( $extContentToks, $t );
+		return $extContentToks;
+	} )
 	sol_il: <sol_il>
 	& {
 		$il = $il[0];
 		$lname = mb_strtolower( $il->getName() );
-		if ( !WTUtils::isIncludeTag( $lname ) ) { return false;  }
 		// Preserve SOL where necessary (for onlyinclude and noinclude)
 		// Note that this only works because we encounter <*include*> tags in
 		// the toplevel content and we rely on the php preprocessor to expand
@@ -2421,7 +2447,8 @@ include_limits =
 // plain-text content.
 directive =
 	comment
-	/ extension_annotation_tag
+	/ annotation_tag
+	/ wellformed_extension_tag
 	/ tplarg_or_template
 	/ & "-{" v:lang_variant_or_tpl { return $v; }
 	/ & "&" e:htmlentity { return $e; }
