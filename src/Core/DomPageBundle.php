@@ -80,6 +80,27 @@ class DomPageBundle implements JsonCodecable {
 		);
 	}
 
+	public static function newEmpty(
+		Document $doc,
+		?string $version = null,
+		?array $headers = null,
+		?string $contentmodel = null
+	): self {
+		return new DomPageBundle(
+			$doc,
+			[
+				'counter' => -1,
+				'ids' => [],
+			],
+			[
+				'ids' => [],
+			],
+			$version,
+			$headers,
+			$contentmodel
+		);
+	}
+
 	/**
 	 * Create a DomPageBundle from a PageBundle.
 	 *
@@ -220,10 +241,8 @@ class DomPageBundle implements JsonCodecable {
 	 */
 	public static function fromLoadedDocument( Document $doc, array $options = [] ): DomPageBundle {
 		$metadata = $options['pageBundle'] ?? null;
-		$dpb = new DomPageBundle(
+		$dpb = self::newEmpty(
 			$doc,
-			[ 'counter' => -1, 'ids' => [], ],
-			[ 'ids' => [], ],
 			$metadata->version ?? $options['contentversion'] ?? null,
 			$metadata->headers ?? $options['headers'] ?? null,
 			$metadata->contentmodel ?? $options['contentmodel'] ?? null

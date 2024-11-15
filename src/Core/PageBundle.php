@@ -77,6 +77,27 @@ class PageBundle implements JsonCodecable {
 		$this->contentmodel = $contentmodel;
 	}
 
+	public static function newEmpty(
+		string $html,
+		?string $version = null,
+		?array $headers = null,
+		?string $contentmodel = null
+	): self {
+		return new PageBundle(
+			$html,
+			[
+				'counter' => -1,
+				'ids' => [],
+			],
+			[
+				'ids' => [],
+			],
+			$version,
+			$headers,
+			$contentmodel
+		);
+	}
+
 	public function toDom(): Document {
 		$doc = DOMUtils::parseHTML( $this->html );
 		self::apply( $doc, $this );

@@ -346,10 +346,8 @@ class Env {
 		}
 		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
 		if ( $options['pageBundle'] ?? false ) {
-			$this->pageBundle = new DomPageBundle(
-				$this->topLevelDoc,
-				[ 'counter' => -1, 'ids' => [], ],
-				[ 'ids' => [], ]
+			$this->pageBundle = DomPageBundle::newEmpty(
+				$this->topLevelDoc
 			);
 		}
 		// NOTE:

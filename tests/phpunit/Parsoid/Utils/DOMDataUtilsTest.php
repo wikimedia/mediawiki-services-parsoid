@@ -23,11 +23,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		// Note that injectPageBundle does not need a "prepared" document.
 		$doc = DOMUtils::parseHTML( "Hello, world" );
 		DOMDataUtils::injectPageBundle( $doc,
-			new PageBundle(
-				'',
-				[ "counter" => -1, "ids" => [] ],
-				[ "ids" => [] ]
-			)
+			PageBundle::newEmpty( '' )
 		);
 		// Note that we use the 'native' getElementById, not
 		// DOMCompat::getElementById, in order to test T232390
@@ -40,10 +36,8 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::storeInPageBundle
 	 */
 	public function testStoreInPageBundle() {
-		$dpb = DomPageBundle::fromPageBundle( new PageBundle(
-			"<p>Hello, world</p>",
-			[ 'counter' => -1, 'ids' => [], ],
-			[ 'ids' => [], ],
+		$dpb = DomPageBundle::fromPageBundle( PageBundle::newEmpty(
+			"<p>Hello, world</p>"
 		) );
 		DOMDataUtils::prepareDoc( $dpb->doc );
 		$p = DOMCompat::querySelector( $dpb->doc, 'p' );

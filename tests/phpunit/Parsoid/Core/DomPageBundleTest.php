@@ -19,10 +19,8 @@ class DomPageBundleTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::toSingleDocument
 	 */
 	public function testInjectPageBundle() {
-		$dpb = DomPageBundle::fromPageBundle( new PageBundle(
-			"Hello, world",
-			[ 'counter' => -1, 'ids' => [], ],
-			[ 'ids' => [], ],
+		$dpb = DomPageBundle::fromPageBundle( PageBundle::newEmpty(
+			"Hello, world"
 		) );
 		$doc = $dpb->toSingleDocument();
 		// Note that we use the 'native' getElementById, not
