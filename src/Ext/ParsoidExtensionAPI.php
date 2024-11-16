@@ -383,7 +383,7 @@ class ParsoidExtensionAPI {
 		} else {
 			// Parse content to DOM and pass DOM-fragment token back to the main pipeline.
 			// The DOM will get unwrapped and integrated  when processing the top level document.
-			[ $wikitext, $fragmentMap ] =
+			[ $wikitext, $pFragmentMap ] =
 				PipelineUtils::pFragmentToParsoidFragmentMarkers( $pFragment );
 			$srcOffsets = $pFragment->getSrcOffsets() ?? $opts['srcOffsets'] ?? null;
 			$parseOpts = $opts['parseOpts'] ?? [];
@@ -392,6 +392,7 @@ class ParsoidExtensionAPI {
 				$frame = $frame->newChild( $frame->getTitle(), [], $wikitext );
 				$srcOffsets = new SourceRange( 0, strlen( $wikitext ) );
 			}
+			$this->env->addToPFragmentMap( $pFragmentMap );
 			$domFragment = PipelineUtils::processContentInPipeline(
 				$this->env, $frame, $wikitext,
 				[
@@ -406,7 +407,6 @@ class ParsoidExtensionAPI {
 					],
 					'srcOffsets' => $srcOffsets,
 					'sol' => $sol,
-					'fragmentMap' => $fragmentMap,
 				]
 			);
 

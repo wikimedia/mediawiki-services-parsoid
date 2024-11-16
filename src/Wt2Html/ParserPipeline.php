@@ -233,8 +233,5 @@ class ParserPipeline {
 		if ( $srcOffsets ) {
 			$this->setSourceOffsets( $srcOffsets );
 		}
-
-		// Set the fragment map.
-		$this->applyToStage( 'setFragmentMap', $initialState['fragmentMap'] ?? [] );
 	}
 }

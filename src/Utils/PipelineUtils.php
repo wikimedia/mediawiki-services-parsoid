@@ -127,7 +127,6 @@ class PipelineUtils {
 			'tplArgs' => $opts['tplArgs'] ?? null,
 			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),
 			'srcOffsets' => $opts['srcOffsets'] ?? null,
-			'fragmentMap' => $opts['fragmentMap'] ?? [],
 		] );
 
 		// Off the starting block ... ready, set, go!

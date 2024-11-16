@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\TOCData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Logger\ParsoidLogger;
 use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -108,6 +109,12 @@ class Env {
 	 * @var array<string,DocumentFragment>
 	 */
 	private $fragmentMap = [];
+
+	/**
+	 * Maps pfragment id to a PFragment.
+	 * @var array<string,PFragment>
+	 */
+	private array $pFragmentMap = [];
 
 	/**
 	 * @var int used to generate fragment ids as needed during parse
@@ -906,6 +913,15 @@ class Env {
 			!$domFragment->hasChildNodes(), 'Fragment should be empty.'
 		);
 		unset( $this->fragmentMap[$id] );
+	}
+
+	public function getPFragment( string $id ): PFragment {
+		return $this->pFragmentMap[$id];
+	}
+
+	/** @param array<string,PFragment> $mapping */
+	public function addToPFragmentMap( array $mapping ): void {
+		$this->pFragmentMap += $mapping;
 	}
 
 	/**

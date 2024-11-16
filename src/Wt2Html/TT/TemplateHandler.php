@@ -1051,8 +1051,8 @@ class TemplateHandler extends TokenHandler {
 				);
 			} elseif ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
 				// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
-				$fragmentMap = $this->manager->getFragmentMap();
-				$domFragment = $fragmentMap[$text]->asDom(
+				$pFragment = $env->getPFragment( $text );
+				$domFragment = $pFragment->asDom(
 					new ParsoidExtensionAPI( $env )
 				);
 				$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );

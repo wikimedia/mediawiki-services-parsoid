@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
@@ -101,14 +100,6 @@ abstract class PipelineStage {
 	 * @param SourceRange $so
 	 */
 	public function setSourceOffsets( SourceRange $so ): void {
-		/* Default implementation: Do nothing */
-	}
-
-	/**
-	 * Sets the fragment map for embedded HTML inside the parsing pipeline.
-	 * @param array<string,PFragment> $fragmentMap
-	 */
-	public function setFragmentMap( array $fragmentMap ): void {
 		/* Default implementation: Do nothing */
 	}
 
