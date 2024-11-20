@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils\DOMCompat;
 
 use Iterator;
-use LogicException;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
@@ -19,20 +18,19 @@ class TokenList implements Iterator {
 	/** @var Element The node whose classes are listed. */
 	protected $node;
 
-	/** @var string|bool Copy of the attribute text, used for change detection. */
-	private $attribute = false;
+	/** Copy of the attribute text, used for change detection. */
+	private string $attribute = '';
 
 	// Testing element existence with a list is less painful than returning numeric keys
 	// with a map, so let's go with that.
 	/** @var string[] */
-	private $classList;
+	private array $classList = [];
 
 	/**
 	 * @param Element $node The node whose classes are listed.
 	 */
 	public function __construct( $node ) {
 		$this->node = $node;
-		$this->lazyLoadClassList();
 	}
 
 	/**
@@ -136,9 +134,7 @@ class TokenList implements Iterator {
 	 * Set the class attribute of the wrapped element based on the classList property.
 	 */
 	private function saveClassList(): void {
-		if ( $this->classList === null ) {
-			throw new LogicException( 'no class list to set' );
-		} elseif ( $this->classList === [] ) {
+		if ( !$this->classList ) {
 			$this->attribute = '';
 			$this->node->removeAttribute( 'class' );
 		} else {
