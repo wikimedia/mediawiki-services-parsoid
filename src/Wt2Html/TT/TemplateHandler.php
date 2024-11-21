@@ -112,43 +112,6 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * Strip include tags, and the contents of includeonly tags as well.
-	 * @param (Token|string)[] $tokens
-	 * @return (Token|string)[]
-	 */
-	private function stripIncludeTokens( array $tokens ): array {
-		$toks = [];
-		$includeOnly = false;
-		foreach ( $tokens as $tok ) {
-			if ( is_string( $tok ) ) {
-				if ( !$includeOnly ) {
-					$toks[] = $tok;
-				}
-				continue;
-			}
-
-			switch ( get_class( $tok ) ) {
-				case TagTk::class:
-				case EndTagTk::class:
-				case SelfclosingTagTk::class:
-					$tokName = $tok->getName();
-					if ( $tokName === 'noinclude' || $tokName === 'onlyinclude' ) {
-						break;
-					} elseif ( $tokName === 'includeonly' ) {
-						$includeOnly = $tok instanceof TagTk;
-						break;
-					}
-					// Fall through
-				default:
-					if ( !$includeOnly ) {
-						$toks[] = $tok;
-					}
-			}
-		}
-		return $toks;
-	}
-
-	/**
 	 * Take output of tokensToString and further postprocess it.
 	 * - If it can be processed to a string which would be a valid template transclusion target,
 	 *   the return value will be [ $the_string_value, null ]
@@ -196,6 +159,13 @@ class TemplateHandler extends TokenHandler {
 							!(
 								$ntt->getName() === 'meta' &&
 								TokenUtils::matchTypeOf( $ntt, WTUtils::ANNOTATION_META_TYPE_REGEXP )
+							) &&
+							// Note that OnlyInclude only converts to metas during TT
+							// in isInclude context, but we shouldn't find ourselves
+							// here in that case.
+							!(
+								$ntt->getName() === 'meta' &&
+								TokenUtils::matchTypeOf( $ntt, '#^mw:Includes/#' )
 							)
 						) {
 							// We are okay with empty (comment-only) lines,
@@ -284,7 +254,7 @@ class TemplateHandler extends TokenHandler {
 			$target = $targetToks;
 		} else {
 			$toks = !is_array( $targetToks ) ? [ $targetToks ] : $targetToks;
-			$toks = $this->processToString( $this->stripIncludeTokens( $toks ) );
+			$toks = $this->processToString( $toks );
 			[ $target, $additionalToks ] = $toks;
 		}
 

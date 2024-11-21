@@ -17193,3 +17193,42 @@ Include directive string gluing
 !! html/parsoid+standalone
 <meta typeof="mw:Includes/NoInclude" data-parsoid='{"src":"&lt;noinclude>"}'/><p data-parsoid='{}'><meta typeof="mw:Transclusion mw:Includes/NoInclude/End" about="#mwt1" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;/noinclude>testing&lt;noinclude>"}},"i":0}}]}'/><span about="#mwt1">testing</span><meta typeof="mw:Includes/NoInclude" about="#mwt1"/></p><meta typeof="mw:Includes/NoInclude/End" data-parsoid='{"src":"&lt;/noinclude>"}'/>
 !! end
+
+!! test
+1. Include directive in template target
+!! wikitext
+{{1x<noinclude>|123</noinclude>}}
+!! html/php
+<p>123
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;noinclude>","href":"./Template:1x"},"params":{"1":{"wt":"123&lt;/noinclude>"}},"i":0}}]}'>123</span></p>
+!! html/parsoid+standalone
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;noinclude>","href":"./Template:1x"},"params":{"1":{"wt":"123&lt;/noinclude>"}},"i":0}}]}'>123</span><meta typeof="mw:Includes/NoInclude/End" about="#mwt1"/></p>
+!! end
+
+!! test
+2. Include directive in template target
+!! wikitext
+{{1x<includeonly>|123</includeonly>|345}}
+!! html/php
+<p>345
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;includeonly>|123&lt;/includeonly>","href":"./Template:1x"},"params":{"1":{"wt":"345"}},"i":0}}]}'>345</span></p>
+!! html/parsoid+standalone
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;includeonly>|123&lt;/includeonly>","href":"./Template:1x"},"params":{"1":{"wt":"345"}},"i":0}}]}'>345</span></p>
+!! end
+
+!! test
+3. Include directive in template target
+!! wikitext
+{{1x<onlyinclude>|123</onlyinclude>}}
+!! html/php
+<p>123
+</p>
+!! html/parsoid+integrated
+<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;onlyinclude>","href":"./Template:1x"},"params":{"1":{"wt":"123&lt;/onlyinclude>"}},"i":0}}]}'>123</span></p>
+!! html/parsoid+standalone
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;onlyinclude>","href":"./Template:1x"},"params":{"1":{"wt":"123&lt;/onlyinclude>"}},"i":0}}]}'>123</span><meta typeof="mw:Includes/OnlyInclude/End" about="#mwt1"/></p>
+!! end
