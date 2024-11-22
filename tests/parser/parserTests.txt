@@ -4563,8 +4563,6 @@ Templates with templated name
 ## Regression test; the output here isn't really that interesting.
 ## wt2html only, since the bare {{ will get escaped when serializing
 ## needs investigation!
-## In integrated mode, since the whole "{{...}}" is sent to core for
-## processing, we wrap the output (unexpanded text) in a Transclusion.
 !! test
 Templates with templated name and top level template args
 !! options
@@ -4574,10 +4572,8 @@ parsoid=wt2html
 !! html/php
 <p>{{1{{2{{{3}}}|4=5}}}}
 </p>
-!! html/parsoid+standalone
+!! html/parsoid
 <p>{{1{{2<span about="#mwt5" typeof="mw:Param" data-mw='{"parts":[{"templatearg":{"target":{"wt":"3"},"params":{},"i":0}}]}'>{{{3}}}</span>|4=5}}}}</p>
-!! html/parsoid+integrated
-<p>{{1<span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"2{{{3}}}","href":"./Template:2"},"params":{"4":{"wt":"5"}},"i":0}}]}'>{{2{{{3}}}|4=5}}</span>}}</p>
 !! end
 
 ## Regression test (T372669) that is only exercised in integrated mode.
@@ -17231,4 +17227,15 @@ Include directive string gluing
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;onlyinclude>","href":"./Template:1x"},"params":{"1":{"wt":"123&lt;/onlyinclude>"}},"i":0}}]}'>123</span></p>
 !! html/parsoid+standalone
 <p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x&lt;onlyinclude>","href":"./Template:1x"},"params":{"1":{"wt":"123&lt;/onlyinclude>"}},"i":0}}]}'>123</span><meta typeof="mw:Includes/OnlyInclude/End" about="#mwt1"/></p>
+!! end
+
+!! test
+4. Include directive in template target
+!! wikitext
+{{{{{1<noinclude>|1x</noinclude>}}}|123}}
+!! html/php
+<p>123
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{{1&lt;noinclude>|1x&lt;/noinclude>}}}","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}'>123</span></p>
 !! end

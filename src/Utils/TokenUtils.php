@@ -76,7 +76,8 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isTemplateToken( $token ): bool {
-		return $token instanceof SelfclosingTagTk && $token->getName() === 'template';
+		return $token instanceof SelfclosingTagTk &&
+			in_array( $token->getName(), [ 'template', 'templatearg' ], true );
 	}
 
 	/**
