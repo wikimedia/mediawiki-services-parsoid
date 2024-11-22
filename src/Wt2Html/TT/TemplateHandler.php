@@ -1023,7 +1023,21 @@ class TemplateHandler extends TokenHandler {
 				// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
 				$pFragment = $env->getPFragment( $text );
 				$domFragment = $pFragment->asDom(
-					new ParsoidExtensionAPI( $env )
+					new ParsoidExtensionAPI(
+						$env, [
+							'wt2html' => [
+								'frame' => $this->manager->getFrame(),
+								'parseOpts' => [
+									// This fragment comes from a template and it is important to set
+									// the 'inTemplate' parse option for it.
+									'inTemplate' => true,
+									// There might be translcusions within this fragment and we want
+									// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
+									'expandTemplates' => true
+								] + $this->options
+							]
+						]
+					)
 				);
 				$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
 				$toks = $this->processTemplateTokens( $toks );
@@ -1054,7 +1068,21 @@ class TemplateHandler extends TokenHandler {
 					);
 				} elseif ( isset( $expansion['fragment'] ) ) {
 					$domFragment = $expansion['fragment']->asDom(
-						new ParsoidExtensionAPI( $env )
+						new ParsoidExtensionAPI(
+							$env, [
+								'wt2html' => [
+									'frame' => $this->manager->getFrame(),
+									'parseOpts' => [
+										// This fragment comes from a template and it is important to set
+										// the 'inTemplate' parse option for it.
+										'inTemplate' => true,
+										// There might be translcusions within this fragment and we want
+										// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
+										'expandTemplates' => true
+									] + $this->options
+								]
+							]
+						)
 					);
 					$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
 					$toks = $this->processTemplateTokens( $toks );
