@@ -1251,4 +1251,64 @@ class DOMDataUtils {
 			}
 		}
 	}
+
+	/**
+	 * Modify the attribute array, replacing data-object-id with JSON
+	 * encoded data.  This is just a debugging hack, not to be confused with
+	 * DOMDataUtils::storeDataAttribs(), and does not store flattened
+	 * versions of attributes.
+	 *
+	 * @param Element $node
+	 * @param array &$attrs
+	 * @param bool $keepTmp
+	 * @param bool $storeDiffMark
+	 */
+	public static function dumpRichAttribs( Element $node, array &$attrs, bool $keepTmp, bool $storeDiffMark ): void {
+		if ( !$node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+			return; // No rich attributes here
+		}
+		$nodeData = self::getNodeData( $node );
+		$codec = self::getCodec( $node->ownerDocument ?? $node );
+		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
+			// Look for dynamic properties with names w/ the proper prefix
+			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
+				$attrName = substr( $k, strlen( self::RICH_ATTR_DATA_PREFIX ) );
+				if ( is_array( $v ) ) {
+					// If $v is an array, it was never decoded.
+					$json = $v[0];
+				} else {
+					$hintName = self::RICH_ATTR_HINT_PREFIX . $attrName;
+					$classHint = $nodeData->$hintName ?? null;
+					if ( is_a( $v, RichCodecable::class ) ) {
+						$classHint ??= $v::hint();
+					}
+					$classHint ??= get_class( $v );
+					$json = $codec->toJsonArray( $v, $classHint );
+				}
+				$encoded = PHPUtils::jsonEncode( $json );
+				$attrs[$attrName] = $encoded;
+			}
+		}
+		$dp = $nodeData->parsoid;
+		if ( $dp ) {
+			if ( !$keepTmp ) {
+				$dp = clone $dp;
+				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
+				unset( $dp->tmp );
+			}
+			$attrs['data-parsoid'] = $codec->toJsonString(
+				$dp, self::getCodecHints()['data-parsoid']
+			);
+		}
+		$dmw = $nodeData->mw;
+		if ( $dmw ) {
+			$attrs['data-mw'] = $codec->toJsonString(
+				$dmw, self::getCodecHints()['data-mw']
+			);
+		}
+		if ( !$storeDiffMark ) {
+			unset( $attrs['data-parsoid-diff'] );
+		}
+		unset( $attrs[self::DATA_OBJECT_ATTR_NAME] );
+	}
 }
