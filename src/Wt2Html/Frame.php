@@ -118,7 +118,6 @@ class Frame {
 		$opts = [
 			'pipelineType' => 'peg-tokens-to-expanded-tokens',
 			'pipelineOpts' => [
-				'isInclude' => $this->depth > 0,
 				'expandTemplates' => $options['expandTemplates'],
 				'inTemplate' => $options['inTemplate'],
 				'attrExpansion' => $options['attrExpansion'] ?? false

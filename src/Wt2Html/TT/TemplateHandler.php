@@ -161,7 +161,7 @@ class TemplateHandler extends TokenHandler {
 								TokenUtils::matchTypeOf( $ntt, WTUtils::ANNOTATION_META_TYPE_REGEXP )
 							) &&
 							// Note that OnlyInclude only converts to metas during TT
-							// in isInclude context, but we shouldn't find ourselves
+							// in inTemplate context, but we shouldn't find ourselves
 							// here in that case.
 							!(
 								$ntt->getName() === 'meta' &&
@@ -614,7 +614,6 @@ class TemplateHandler extends TokenHandler {
 				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'pipelineOpts' => [
 					'inTemplate' => true,
-					'isInclude' => true,
 					// FIXME: In reality, this is broken for parser tests where
 					// we expand templates natively. We do want all nested templates
 					// to be expanded. But, setting this to !usePHPPreProcessor seems

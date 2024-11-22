@@ -939,7 +939,7 @@ private function a87($t) {
 			preg_match( $endTagRE, $this->input, $content, 0, $dp->tsr->start );
 		}
 
-		if ( !empty( $this->pipelineOpts['isInclude'] ) ) {
+		if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
 			switch ( $tagName ) {
 				case 'includeonly':
 					// Drop the tag, keep the content

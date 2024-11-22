@@ -442,11 +442,6 @@ class ParserPipelineFactory {
 		// template or its arguments
 		'inTemplate',
 
-		// If true, indicates that we are in a <includeonly> context
-		// (in current usage, isInclude === inTemplate,
-		// or Frame::expand'ing at some depth)
-		'isInclude',
-
 		// The extension tag that is being processed (Ex: ref, references)
 		// (in current usage, only used for native tag implementation)
 		'extTag',
@@ -479,9 +474,6 @@ class ParserPipelineFactory {
 	private function defaultOptions( array $options ): array {
 		// default: not in a template
 		$options['inTemplate'] ??= false;
-
-		// default: not an include context
-		$options['isInclude'] ??= false;
 
 		// default: wrap templates
 		$options['expandTemplates'] ??= true;
@@ -566,9 +558,6 @@ class ParserPipelineFactory {
 	}
 
 	private function getCacheKey( string $cacheKey, array $options ): string {
-		if ( empty( $options['isInclude'] ) ) {
-			$cacheKey .= '::noInclude';
-		}
 		if ( empty( $options['expandTemplates'] ) ) {
 			$cacheKey .= '::noExpand';
 		}

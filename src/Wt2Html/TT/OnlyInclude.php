@@ -31,7 +31,8 @@ class OnlyInclude extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
-		return !empty( $this->options['isInclude'] ) ? $this->onAnyInclude( $token ) : null;
+		return !empty( $this->options['inTemplate'] ) ?
+			$this->onAnyInclude( $token ) : null;
 	}
 
 	/**
@@ -78,7 +79,7 @@ class OnlyInclude extends TokenHandler {
 				$this->manager->getFrame()->getSrcText()
 			);
 
-			// FIXME: Just drop these, we're isInclude
+			// FIXME: Just drop these, we're inTemplate
 			$meta = new SelfclosingTagTk(
 				'meta', [ new KV( 'typeof', $tagName ) ], $dp
 			);

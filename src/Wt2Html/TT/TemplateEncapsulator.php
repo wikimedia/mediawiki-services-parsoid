@@ -292,7 +292,6 @@ class TemplateEncapsulator {
 			[
 				'pipelineType' => 'fullparse-wikitext-to-dom',
 				'pipelineOpts' => [
-					'isInclude' => false,
 					'expandTemplates' => true,
 					// No need to do paragraph-wrapping here
 					'inlineContext' => true
