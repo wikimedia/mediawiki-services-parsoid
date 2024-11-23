@@ -934,25 +934,28 @@ private function a87($t) {
 			'meta', [ new KV( 'typeof', $typeOf ) ], $dp
 		);
 
+		$startTagWithContent = false;
 		if ( $t instanceof TagTk ) {
 			$endTagRE = '~.*?(</' . preg_quote( $tagName, '~' ) . '\s*>)~iusA';
-			preg_match( $endTagRE, $this->input, $content, 0, $dp->tsr->start );
+			$startTagWithContent = preg_match(
+				$endTagRE, $this->input, $content, 0, $dp->tsr->start
+			);
 		}
 
 		if ( !empty( $this->pipelineOpts['inTemplate'] ) ) {
 			switch ( $tagName ) {
 				case 'includeonly':
-					// Drop the tag, keep the content
+					// Drop the tag
 					return [];
 				case 'noinclude':
-					if ( $t instanceof TagTk ) {
+					if ( $startTagWithContent ) {
 						// Skip the content
 						$this->currPos = $dp->tsr->start + strlen( $content[0] );
 					}
 					// Drop it all
 					return [];
 				case 'onlyinclude':
-					if ( $t instanceof TagTk && $content ) {
+					if ( $startTagWithContent ) {
 						// Parse the content, strip eof, and shift tsr
 						$contentSrc = $content[0];
 						$endOffset = $dp->tsr->start + strlen( $contentSrc );
@@ -979,7 +982,7 @@ private function a87($t) {
 		} else {
 			$tokens = [ $meta ];
 			if ( $tagName === 'includeonly' ) {
-				if ( $t instanceof TagTk && $content ) {
+				if ( $startTagWithContent ) {
 					// Add the content / end tag to the meta for roundtripping
 					$dp->tsr->end = $dp->tsr->start + strlen( $content[0] );
 					$dp->src = $dp->tsr->substr( $this->input );
