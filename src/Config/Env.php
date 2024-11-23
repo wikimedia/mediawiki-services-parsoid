@@ -741,7 +741,9 @@ class Env {
 	 * @return string
 	 */
 	public function makeLink( Title $title ): string {
-		Assert::invariant( $title->getInterwiki() === '', 'Local titles only' );
+		// T380676: This method *should* be used only for local titles,
+		// (ie $title->getInterwiki() should be '') but apparently we
+		// are using it for interwiki/interlanguage links as well.
 		return $this->getSiteConfig()->relativeLinkPrefix() . Sanitizer::sanitizeTitleURI(
 			$title->getFullDBKey(),
 			false
