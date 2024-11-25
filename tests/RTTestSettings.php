@@ -29,6 +29,3 @@ $wgParsoidSettings['useSelser'] = true;
 $wgParsoidSettings['linting'] = (bool)$wgReadOnly;
 
 $wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
-
-// Turn on fragment support
-$wgParsoidFragmentSupport = true;
