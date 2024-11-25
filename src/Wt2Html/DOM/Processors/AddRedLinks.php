@@ -240,7 +240,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				}
 
 				foreach ( $origsByVariant[$variantTitle] as $origTitle ) {
-					$variantsByOrig[$origTitle] = [ 'variantTitle' => $variantTitle ] + $pageData;
+					$variantsByOrig[$origTitle] = [ 'variantTitle' => (string)$variantTitle ] + $pageData;
 				}
 			}
 		}
