@@ -668,16 +668,9 @@ class DOMDataUtils {
 		$codec = self::getCodec( $node->ownerDocument );
 		$dp = self::getDataParsoid( $node );
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
-		if ( $dp->getTempFlag( TempData::IS_NEW ) ) {
-			// Only necessary to support the cite extension's getById,
-			// that's already been loaded once.
-			//
-			// This is basically a hack to ensure that DOMUtils.isNewElt
-			// continues to work since we effectively rely on the absence
-			// of data-parsoid to identify new elements. But, loadDataAttribs
-			// creates an empty {} if one doesn't exist. So, this hack
-			// ensures that a loadDataAttribs + storeDataAttribs pair don't
-			// dirty the node by introducing an empty data-parsoid attribute
+		if ( $dp->getTempFlag( TempData::IS_NEW ) && !$dp->isModified() ) {
+			// This hack ensures that a loadDataAttribs + storeDataAttribs pair
+			// don't dirty the node by introducing an empty data-parsoid attribute
 			// where one didn't exist before.
 			//
 			// Ideally, we'll find a better solution for this edge case later.
