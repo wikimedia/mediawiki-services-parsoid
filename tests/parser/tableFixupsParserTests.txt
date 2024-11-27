@@ -265,6 +265,8 @@ wgParserEnableLegacyMediaDOM=false
 |-
 |{{td_attrs_and_content|1=[[No Merging Here]] class="foo"}} baz
 |-
+|{{td_attrs_and_content|1=[[wikipedia:No Merging Here]] class="foo"}} baz
+|-
 |{{td_attrs_and_content|1=[[File:Foo.jpg]] class="foo"}} baz
 |}
 !! html/php
@@ -276,6 +278,9 @@ wgParserEnableLegacyMediaDOM=false
 <td><a href="/wiki/No_Merging_Here" title="No Merging Here">No Merging Here</a> class="foo" | foobar baz
 </td></tr>
 <tr>
+<td><a href="http://en.wikipedia.org/wiki/No_Merging_Here" class="extiw" title="wikipedia:No Merging Here">wikipedia:No Merging Here</a> class="foo" | foobar baz
+</td></tr>
+<tr>
 <td><span class="mw-default-size" typeof="mw:Error mw:File"><a href="/index.php?title=Special:Upload&amp;wpDestFile=Foo.jpg" class="new" title="File:Foo.jpg"><span class="mw-file-element mw-broken-media">File:Foo.jpg</span></a></span> class="foo" | foobar baz
 </td></tr></tbody></table>
 !! html/parsoid
@@ -283,6 +288,8 @@ wgParserEnableLegacyMediaDOM=false
 <tbody><tr data-parsoid='{"autoInsertedStart":true}'><td class="foo" typeof="mw:Transclusion" about="#mwt1" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["| ",{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"&lt;div>foo&lt;/div> class=\"foo\""}},"i":0}}," baz"]}'>foobar baz</td></tr>
 <tr data-parsoid='{"startTagSrc":"|-"}'>
 <td><a rel="mw:WikiLink" href="./No_Merging_Here" title="No Merging Here" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./No_Merging_Here"},"sa":{"href":"No Merging Here"},"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[No Merging Here]] class=\"foo\""}},"i":0}}]}'>No Merging Here</a><span about="#mwt2"> class="foo" | foobar</span> baz</td></tr>
+<tr data-parsoid='{"startTagSrc":"|-"}'>
+<td><a rel="mw:WikiLink/Interwiki" href="http://en.wikipedia.org/wiki/No%20Merging%20Here" title="wikipedia:No Merging Here" about="#mwt3" typeof="mw:Transclusion" class="extiw" data-parsoid='{"stx":"simple","a":{"href":"http://en.wikipedia.org/wiki/No%20Merging%20Here"},"sa":{"href":"wikipedia:No Merging Here"},"isIW":true,"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[wikipedia:No Merging Here]] class=\"foo\""}},"i":0}}]}'>wikipedia:No Merging Here</a><span about="#mwt3"> class="foo" | foobar</span> baz</td></tr>
 <tr data-parsoid='{"startTagSrc":"|-"}'>
 <td><span class="mw-default-size" typeof="mw:Transclusion mw:Error mw:File" about="#mwt3" data-parsoid='{"optList":[],"pi":[[{"k":"1","named":true}]]}' data-mw='{"errors":[{"key":"apierror-filedoesnotexist","message":"This image does not exist."}],"parts":[{"template":{"target":{"wt":"td_attrs_and_content","href":"./Template:Td_attrs_and_content"},"params":{"1":{"wt":"[[File:Foo.jpg]] class=\"foo\""}},"i":0}}]}'><a href="./Special:FilePath/Foo.jpg"><span class="mw-file-element mw-broken-media" resource="./File:Foo.jpg">File:Foo.jpg</span></a></span><span about="#mwt3"> class="foo" | foobar</span> baz</td></tr>
 </tbody></table>
