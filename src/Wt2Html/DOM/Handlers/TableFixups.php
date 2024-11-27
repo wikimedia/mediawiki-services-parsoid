@@ -233,11 +233,7 @@ class TableFixups {
 						// Save the content and add in a marker to splice out later.
 						$nowikis[] = $child->textContent;
 						$buf[] = '<nowiki-marker>';
-					} elseif (
-						DOMUtils::matchRel( $child, '#^mw:WikiLink(/Interwiki)?$#' ) ||
-						WTUtils::isGeneratedFigure( $child )
-					) {
-						// Wikilinks/images abort attribute parsing
+					} elseif ( self::shouldAbortAttr( $child ) ) {
 						return true;
 					} else {
 						if ( $traverse( $child->firstChild ) ) {
@@ -515,6 +511,16 @@ class TableFixups {
 	private const OTHER_REPARSE = 2;
 
 	/**
+	 * The legacy parser naively aborts attributes on '/\[\[|-\{/'
+	 * Wikilinks and language converter constructs should follow suit
+	 */
+	private static function shouldAbortAttr( Element $child ): bool {
+		return DOMUtils::matchRel( $child,
+			'#^mw:(WikiLink(/Interwiki)?|MediaLink|PageProp/(Category|Language))$#' ) ||
+			WTUtils::isGeneratedFigure( $child );
+	}
+
+	/**
 	 * $cell is known to be <td>/<th>
 	 */
 	private static function getReparseType( Element $cell, DTState $dtState ): int {
@@ -570,11 +576,7 @@ class TableFixups {
 					// table-cell parsing since they have higher precedence in tokenization
 					$child = WTUtils::skipOverEncapsulatedContent( $child );
 				} else {
-					if (
-						DOMUtils::matchRel( $child, '#^mw:WikiLink(/Interwiki)?$#' ) ||
-						WTUtils::isGeneratedFigure( $child )
-					) {
-						// Wikilinks/images abort attribute parsing
+					if ( self::shouldAbortAttr( $child ) ) {
 						return self::NO_REPARSING;
 					}
 					// FIXME: Ugly for now

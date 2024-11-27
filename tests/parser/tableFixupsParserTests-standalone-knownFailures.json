@@ -14,10 +14,6 @@
         "selser [[0,[[0,1,3,[4],0],2]]]": "{|\n!a|| data-foobar=\"1t76opf\" |b\n!1p6b5lu{{tdfoo}}<!--jjvcbm-->\n|}",
         "selser [[0,2]]": "{|\n<!--18e2p9l-->!a||b\n!c{{tdfoo}}\n|}"
     },
-    "Table cell attribute merging edge cases": {
-        "selser [[0,[0,0,[0,[0,0,4]],0,[3,2],0,3,4]]]": "{|\n| {{td_attrs_and_content|1=<div>foo</div> class=\"foo\"}} baz\n|-\n|{{td_attrs_and_content|1=[[No Merging Here]] class=\"foo\"}}<nowiki/>bucx9b\n|-\n|1aidy3e\n|{{td_attrs_and_content|1=[[wikipedia:No Merging Here]] class=\"foo\"}} baz\n<!--gt6ql9-->|}",
-        "selser [[0,[2,0,[0,[0,0,4]],0,3,4,[0,[0,0,2]],3]]]": "{|\n<!--3npg4m-->| {{td_attrs_and_content|1=<div>foo</div> class=\"foo\"}} baz\n|-\n|{{td_attrs_and_content|1=[[No Merging Here]] class=\"foo\"}}<nowiki/>bh7r7m\n<!--1svjjve-->|-\n|{{td_attrs_and_content|1=[[File:Foo.jpg]] class=\"foo\"}}bbp7im baz\n|}"
-    },
     "Unsupported scenario: Templated cell merging with previous cell with attributes": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,47,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,45,0,0]}'><tr data-parsoid='{\"autoInsertedStart\":true,\"dsr\":[3,44,0,0]}'><td class=\"foo\" data-parsoid='{\"dsr\":[3,27,13,0]}'>title=\"foo\"</td><td about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true}]],\"dsr\":[27,44,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}foo\"}},\"i\":0}}]}'>foo</td></tr>\n</tbody></table>"
     },
