@@ -257,6 +257,13 @@ class UnpackDOMFragments {
 				self::makeChildrenEncapWrappers( $fragmentDOM, $about );
 			}
 
+			// $fragmentDOM is "prepared and loaded".  We're going to make the
+			// fragment into an HTML string in order to let the HTML parser
+			// loose on it.  We don't need to store data attributes, though,
+			// since the data-object-id attributes will still link them up
+			// properly after the round trip through the HTML parser.
+			// (We just added some span wrappers and we need to keep
+			// that tmp info so the unnecessary ones get stripped.)
 			while ( $fragmentDOM->firstChild ) {
 				$placeholderParent->insertBefore( $fragmentDOM->firstChild, $placeholder );
 			}
@@ -265,16 +272,19 @@ class UnpackDOMFragments {
 			$markerNode = $placeholderParent->previousSibling;
 
 			// We rely on HTML5 parser to fixup the bad nesting (see big comment above)
-			$placeholderParentHTML = ContentUtils::ppToXML( $placeholderParent, [
-				// We just added some span wrappers and we need to keep
-				// that tmp info so the unnecessary ones get stripped.
-				// Should be fine since tmp was stripped before packing.
-				'keepTmp' => true
-			] );
-
+			// Again, we don't need to store data-attributes as long as the
+			// data-object-ids are preserved.
+			$placeholderParentHTML = ContentUtils::toXML( $placeholderParent );
 			$unpackedFragment = DOMUtils::parseHTMLToFragment(
 				$placeholderParent->ownerDocument, $placeholderParentHTML
 			);
+
+			// Nodes can be copied during HTML parsing, for example elements
+			// on the "active formatting list" will be copied when elements
+			// are misnested.  Check the data-object-ids of all the nodes we
+			// just created and renumber & clone the node data for any which
+			// got copied.
+			DOMDataUtils::dedupeNodeData( $unpackedFragment );
 
 			DOMUtils::migrateChildren(
 				$unpackedFragment, $placeholderParent->parentNode, $placeholderParent
@@ -297,7 +307,6 @@ class UnpackDOMFragments {
 			$newOffset = null;
 			$node = $linkNode;
 			while ( $node !== $placeholderParent ) {
-				DOMDataUtils::visitAndLoadDataAttribs( $node );
 
 				if ( $node === $linkNode ) {
 					$newOffset = DOMDataUtils::getDataParsoid( $linkNode )->dsr->end ?? null;

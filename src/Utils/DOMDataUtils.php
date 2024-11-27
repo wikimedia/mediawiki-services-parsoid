@@ -104,6 +104,33 @@ class DOMDataUtils {
 		return self::getBag( $doc )->stashObject( $obj );
 	}
 
+	public static function dedupeNodeData( Node $node ): void {
+		$seen = [];
+		self::dedupeNodeDataVisitor(
+			self::getBag( $node->ownerDocument ),
+			$seen,
+			$node
+		);
+	}
+
+	private static function dedupeNodeDataVisitor(
+		DataBag $bag, array &$seen, Node $node
+	) {
+		if ( $node instanceof Element && $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+			$id = (int)DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
+			if ( $seen[$id] ?? false ) {
+				// dedupe!
+				$nd = $bag->getObject( $id );
+				$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
+				self::setNodeData( $node, $nd->cloneNodeData() );
+			}
+			$seen[$id] = true;
+		}
+		foreach ( $node->childNodes as $child ) {
+			self::dedupeNodeDataVisitor( $bag, $seen, $child );
+		}
+	}
+
 	/**
 	 * Does this node have any attributes?
 	 * @param Element $node
