@@ -45,6 +45,7 @@ class ScriptUtils {
 				'-------',
 				'- With one or more comma-separated flags, traces those specific phases',
 				'- Supported flags:',
+				'  * grammar   : shows rules processed by grammar',
 				'  * peg       : shows tokens emitted by tokenizer',
 				'  * ttm:2     : shows tokens flowing through stage 2 of the parsing pipeline',
 				'  * ttm:3     : shows tokens flowing through stage 3 of the parsing pipeline',

@@ -30,8 +30,7 @@
 	"scripts": {
 		"eslint": "eslint --cache --ext .js,.json .",
 		"eslint-fix": "eslint --cache --ext .js,.json --fix .",
-		"regen-php-tokenizer": "node bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --header-comment-file ./bin/grammarheader-npm.txt",
-		"regen-php-tokenizer-trace": "node bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --trace",
+		"regen-php-tokenizer": "node bin/inspectTokenizer.js --source --php -o src/Wt2Html/Grammar.php --header-comment-file ./bin/grammarheader-npm.txt && node bin/inspectTokenizer.js --source --php --trace --className TracingGrammar -o src/Wt2Html/TracingGrammar.php",
 		"regen-php-tests-tokenizer": "node node_modules/wikipeg/bin/wikipeg --php --class-name Grammar src/ParserTests/Grammar.pegphp src/ParserTests/Grammar.php",
 		"api-testing": "mocha --timeout 0 tests/api-testing",
 		"test": "npm run eslint"

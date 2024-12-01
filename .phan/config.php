@@ -134,6 +134,7 @@ $cfg['suppress_issue_types'] = array_filter( $cfg['suppress_issue_types'], stati
 
 // Exclude peg-generated output
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
+$cfg['exclude_file_list'][] = "src/Wt2Html/TracingGrammar.php";
 $cfg['exclude_file_list'][] = "src/ParserTests/Grammar.php";
 
 // FIXME: Temporary?

@@ -23,7 +23,8 @@ class PegTokenizer extends PipelineStage {
 	private $options;
 	private $offsets;
 	private ?SyntaxError $lastError = null;
-	private ?Grammar $grammar = null;
+	/* @var Grammar|TracingGrammar|null */
+	private $grammar = null;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -37,7 +38,7 @@ class PegTokenizer extends PipelineStage {
 
 	private function initGrammar() {
 		if ( !$this->grammar ) {
-			$this->grammar = new Grammar;
+			$this->grammar = $this->env->hasTraceFlag( 'grammar' ) ? new TracingGrammar : new Grammar;
 		}
 	}
 

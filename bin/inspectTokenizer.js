@@ -17,6 +17,12 @@ yargs.options({
 		'default': false,
 	},
 
+	'className': {
+		description: 'PHP class name for the generated code',
+		'boolean': false,
+		'default': '',
+	},
+
 	'rules': {
 		description: 'Show rule action source code',
 		'boolean': true,
@@ -76,6 +82,9 @@ function generateSource(opts) {
 	var tokenizer = new PegTokenizer();
 	var headerComment = fs.readFileSync(opts['header-comment-file']).toString();
 	var pegOpts = { trace: opts.trace, headerComment: headerComment };
+	if (opts.className) {
+		pegOpts.className = opts.className;
+	}
 	var source = tokenizer.compileTokenizer(tokenizer.parseTokenizer(pegOpts), pegOpts);
 	file.write(source, 'utf8');
 }
