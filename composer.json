@@ -54,7 +54,7 @@
 		"ockcyp/covers-validator": "1.6.0",
 		"php-parallel-lint/php-console-highlighter": "1.0.0",
 		"php-parallel-lint/php-parallel-lint": "1.4.0",
-		"phpunit/phpunit": "9.6.16",
+		"phpunit/phpunit": "9.6.21",
 		"sebastian/diff": "^4.0.3",
 		"wikimedia/alea": "^1.0.0",
 		"wikimedia/langconv": "^0.4.2",
