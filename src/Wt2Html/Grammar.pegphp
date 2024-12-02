@@ -2676,7 +2676,9 @@ space_or_nbsp_or_dash =
 // Elements that do not break beginning or end of line for blocks (headers for instance)
 sol_transparent = comment / include_limits / annotation_tag / behavior_switch
 
-sol = (empty_line_with_comments / sol_prefix) sol_transparent*
+sol = sp:sol_prefix elc:empty_lines_with_comments? st:sol_transparent* {
+	return [ $sp, $elc ?? [], $st ];
+}
 
 sol_prefix =
 	newlineToken
@@ -2690,13 +2692,13 @@ sol_prefix =
 	}
 
 // This rule requires at least one comment to be matched
-empty_line_with_comments =
-	sp:sol_prefix p:("" { return $this->endOffset(); }) c:(space* comment (space / comment)* newline)+ {
+// This matches a run of empty lines with comments
+empty_lines_with_comments =
+	p:("" { return $this->endOffset(); }) c:(space* comment (space / comment)* newline)+ {
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $p, $this->endOffset() );
 		$dp->tokens = TokenizerUtils::flattenIfArray( $c );
 		return [
-			$sp,
 			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], $dp )
 		];
 	}
