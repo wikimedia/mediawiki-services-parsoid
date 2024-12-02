@@ -26,6 +26,9 @@
 	"Table cell attributes: Pipes protected by nowikis should be treated as a plain character": {
 		"wt2wt": "{|\n| title=\"foo\" |bar\n| title=\"foo<nowiki>|</nowiki>\" |bar\n|title=\"foo<nowiki>|</nowiki>\" bar\n|}"
 	},
+	"Table lines with multiple newlines, spaces, comments embedded in file caption": {
+		"wt2wt": "[[File:Foobar.jpg|thumb|\n  <!--cmt-->   \n{|\n  \n |test\n   <!--cmt-->\n|}]]"
+	},
 	"Table rowspan": {
 		"wt2wt": "{| border=\"1\"\n|Cell 1, row 1\n| rowspan=\"2\" |Cell 2, row 1 (and 2)\n|Cell 3, row 1\n|-\n|Cell 1, row 2\n|Cell 3, row 2\n|}"
 	},

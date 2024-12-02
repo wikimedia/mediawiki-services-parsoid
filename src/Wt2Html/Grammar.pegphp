@@ -388,9 +388,7 @@ block_line =
 	heading
 	/ list_item
 	/ hr
-	/ st:optionalSpaceToken &[ <{}|!] tl:table_line {
-		return array_merge( $st, $tl );
-	}
+	/ &[ \t<{}|!] tl:table_line { return $tl; }
 
 br =
 	s:optionalSpaceToken &newline {
@@ -1937,7 +1935,7 @@ hacky_dl_uses =
 	bullets:":"+
 	tbl:(table_line (sol+ table_line)*)
 	line:inlineline?
-	&((space / comment)* eolf)
+	&(space_or_comment* eolf)
 {
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
@@ -2057,41 +2055,40 @@ full_table_in_link_caption =
 	// Suppress the recursion protection from tableDataBlock since we're trying
 	// to parse a full table and if the link is itself nested in a table this
 	// will always stop.  Hopefully, this won't result in any overflows.
-	r: full_table_in_link_caption_parameterized<linkdesc=false, table, fullTable, tableDataBlock=false> {
+	r: embedded_full_table<linkdesc=false, table, fullTable, tableDataBlock=false> {
 		return $r;
 	}
 
-full_table_in_link_caption_parameterized =
-	table_start_tag
+embedded_full_table_line_prefix = sol space_or_comment*
+
+embedded_full_table =
+	space_or_comment* table_start_tag
 	// Accept multiple end tags since a nested table may have been
 	// opened in the table content line.
 	(
-		(sol+ (table_content_line / tplarg_or_template))*
-		sol+ table_end_tag
+		(embedded_full_table_line_prefix+ (table_content_line / tplarg_or_template))*
+		embedded_full_table_line_prefix+ table_end_tag
 	)+
 
 // This rule assumes start-of-line position!
 table_line =
-	(! inline_breaks / & '{{!}}' )
+	sc:space_or_comment*
+	! inline_breaks
 	tl:(
 		table_start_tag
 		/ table_content_line<table>
 		/ table_end_tag
 	) {
-		return $tl;
+		return array_merge($sc, $tl);
 	}
 
 table_content_line =
-	(space / comment)* (
-		table_heading_tags
-		/ table_row_tag
-		/ table_data_tags
-		/ table_caption_tag
-	)
+	table_heading_tags
+	/ table_row_tag
+	/ table_data_tags
+	/ table_caption_tag
 
 table_start_tag "table_start_tag" =
-	sc:(space / comment)*
-	startPos:("" { return $this->endOffset(); })
 	b:"{" p:pipe
 	// ok to normalize away stray |} on rt (see T59360)
 	ta:(table_attributes<table=false> / &{ $this->unreachable(); })
@@ -2104,16 +2101,17 @@ table_start_tag "table_start_tag" =
 		}
 
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $startPos, $tsEndPos );
+		$dp->tsr = new SourceRange( $this->startOffset(), $tsEndPos );
 		if ( $p !== '|' ) {
 			// Variation from default
 			$dp->startTagSrc = $b . $p;
 		}
 
-		return array_merge( $sc,
+		return array_merge(
 			[ new TagTk( 'table', $ta, $dp ) ],
 			$coms ? $coms['buf'] : [],
-			$s2 );
+			$s2
+		);
 	}
 
 // FIXME: Not sure if we want to support it, but this should allow columns.
@@ -2262,21 +2260,18 @@ tds = (
 	)*
 
 table_end_tag =
-	sc:(space / comment)*
-	startPos:("" { return $this->endOffset(); })
 	p:pipe
 	b:"}"
 	{
 		$dp = new DataParsoid;
-		$dp->tsr = new SourceRange( $startPos, $this->endOffset() );
+		$dp->tsr = new SourceRange( $this->startOffset(), $this->endOffset() );
 		$tblEnd = new EndTagTk( 'table', [], $dp );
 		if ( $p !== '|' ) {
 			// p+"<brace-char>" is triggering some bug in pegJS
 			// I cannot even use that expression in the comment!
 			$tblEnd->dataParsoid->endTagSrc = $p . $b;
 		}
-		array_push( $sc, $tblEnd );
-		return $sc;
+		return [ $tblEnd ];
 	}
 
 /**
@@ -2666,7 +2661,9 @@ comment =
 		return [ new CommentTk( $data, $dp ) ];
 	}
 
-nl_comment_space = newlineToken / space / comment
+space_or_comment = space / comment
+
+nl_comment_space = newlineToken / space_or_comment
 
 optionalSpaceToken =
 	s:optional_spaces {
@@ -2728,7 +2725,7 @@ sol_prefix =
 // This rule requires at least one comment to be matched
 // This matches a run of empty lines with comments
 empty_lines_with_comments =
-	p:("" { return $this->endOffset(); }) c:(space* comment (space / comment)* newline)+ {
+	p:("" { return $this->endOffset(); }) c:(space* comment space_or_comment* newline)+ {
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $p, $this->endOffset() );
 		$dp->tokens = TokenizerUtils::flattenIfArray( $c );

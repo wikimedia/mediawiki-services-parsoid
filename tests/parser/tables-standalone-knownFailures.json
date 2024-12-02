@@ -200,6 +200,19 @@
     "Table cell with a single comment": {
         "html2wt": "{|\n|\n|a\n|}"
     },
+    "Table lines with multiple newlines, spaces, comments embedded in file caption": {
+        "wt2wt": "[[File:Foobar.jpg|thumb|\n  <!--cmt-->   \n{|\n  \n |test\n   <!--cmt-->\n|}]]",
+        "selser [[0,[4,0,4,[3,2]]]]": "[[File:Foobar.jpg|thumb|12pl3ks<!--cmt-->1xyh5hn\n{|<!--962lih-->\n|test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,[0,0,3,[0,1]]]]": "[[File:Foobar.jpg|thumb|\n  <!--cmt-->{|\n  \n |test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,[2,0,0,2]]]": "[[File:Foobar.jpg|thumb|1nrxll2\n  <!--cmt-->   \n\n1o911bn\n{|\n  \n |test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,[4,0,2,[0,1]]]]": "[[File:Foobar.jpg|thumb|150c1rj<!--cmt-->18e26md   \n{|\n  \n |test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,[0,0,3,[0,[1,2]]]]]": "[[File:Foobar.jpg|thumb|\n  <!--cmt-->{|\n  \n |test\n   <!--cmt-->  <!--fq3034-->\n|}]]",
+        "selser [[0,[2,0,3,[2,[2,3]]]]]": "[[File:Foobar.jpg|thumb|yzi5w\n  <!--cmt-->{|<!--3jd5jh-->\n  \n <!--19jthjj-->|test\n   <!--cmt-->  |}]]",
+        "selser [[0,[0,0,4,2]]]": "[[File:Foobar.jpg|thumb|\n<!--cmt-->1k74aci\n\nucj9v7\n{|\n  \n |test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,2]]": "[[File:Foobar.jpg|thumb|\n  <!--cmt-->   \n{|\n  \n |test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,1]]": "[[File:Foobar.jpg|thumb|\n  <!--cmt-->   \n{|\n  \n |test\n   <!--cmt-->  \n|}]]",
+        "selser [[0,[0,0,4,[2,2]]]]": "[[File:Foobar.jpg|thumb|\n<!--cmt-->1wakvgs\n{|<!--fk331f-->\n  \n <!--1oz1ybk-->|test\n   <!--cmt-->  \n|}]]"
+    },
     "Table rowspan": {
         "wt2wt": "{| border=\"1\"\n|Cell 1, row 1\n| rowspan=\"2\" |Cell 2, row 1 (and 2)\n|Cell 3, row 1\n|-\n|Cell 1, row 2\n|Cell 3, row 2\n|}",
         "html2wt": "{| border=\"1\"\n|Cell 1, row 1\n| rowspan=\"2\" |Cell 2, row 1 (and 2)\n|Cell 3, row 1\n|-\n|Cell 1, row 2\n|Cell 3, row 2\n|}",
