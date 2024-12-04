@@ -396,7 +396,7 @@ class Parsoid {
 			);
 			$labels['wiki'] = $this->siteConfig->iwp();
 			$labels['reason'] = $options['renderReason'] ?? 'unknown';
-			$labels['useragent'] = $options['userAgent'] ?? 'unknown';
+			$labels['useragent'] = $options['userAgent'] ?: 'unknown';
 
 			$this->siteConfig->incrementCounter( 'selective_update_total', $labels );
 			$this->siteConfig->incrementCounter( 'selective_update_seconds', $labels, $parseTimeMs / 1000. );
