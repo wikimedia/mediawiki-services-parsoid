@@ -36,6 +36,10 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  *
  * Section data associated with a heading
  * @property array|null $section
+ *
+ * For td/th tokens, wikitext source for attributes
+ * This is needed to reparse this as content when tokenization is incorrect
+ * @property string|null $attrSrc
  */
 #[\AllowDynamicProperties]
 class TempData {
@@ -68,21 +72,21 @@ class TempData {
 	public const FAILED_REPARSE = 1 << 3;
 
 	/**
+	 * This cell is a merge of two cells in TableFixups.
+	 * For now, this prevents additional merges.
+	 */
+	public const MERGED_TABLE_CELL = 1 << 4;
+
+	/**
 	 * This is set on span tags that are created by PipelineUtils::addSpanWrappers().
 	 */
-	public const WRAPPER = 1 << 4;
+	public const WRAPPER = 1 << 5;
 
 	/**
 	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
 	 * to propagate the setDSR option to that function.
 	 */
-	public const SET_DSR = 1 << 5;
-
-	/**
-	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
-	 * to propagate the fromCache option to that function.
-	 */
-	public const FROM_CACHE = 1 << 6;
+	public const SET_DSR = 1 << 6;
 
 	/**
 	 * A flag private to Linter, used to suppress duplicate messages.
@@ -110,6 +114,12 @@ class TempData {
 	 * Used to indicate that media dimensions have redundant units.
 	 */
 	public const BOGUS_PX = 1 << 11;
+
+	/**
+	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
+	 * to propagate the fromCache option to that function.
+	 */
+	public const FROM_CACHE = 1 << 12;
 
 	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used

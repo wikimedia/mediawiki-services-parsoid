@@ -1577,7 +1577,8 @@ private function a130($p, $args, $tagEndPos, $c) {
 
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
-			'caption', '|+', $args, $tsr, $this->endOffset(), $c, true );
+			$this->input, 'caption', '|+', $args, $tsr, $this->endOffset(), $c, true
+		);
 	
 }
 private function a131($start) {
@@ -1818,9 +1819,11 @@ private function a164($arg) {
 }
 private function a165($arg, $tagEndPos, $td) {
 
-		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
-		return TokenizerUtils::buildTableTokens( 'td', '|', $arg,
-			$tsr, $this->endOffset(), $td );
+		$tagStart = $this->startOffset();
+		$tsr = new SourceRange( $tagStart, $tagEndPos );
+		return TokenizerUtils::buildTableTokens(
+			$this->input, 'td', '|', $arg, $tsr, $this->endOffset(), $td
+		);
 	
 }
 private function a166($pp, $tdt) {
@@ -1973,9 +1976,11 @@ private function a176($arg, $tagEndPos, &$th, $d) {
 }
 private function a177($arg, $tagEndPos, $c) {
 
-		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
-		return TokenizerUtils::buildTableTokens( 'th', '!', $arg,
-			$tsr, $this->endOffset(), $c );
+		$tagStart = $this->startOffset();
+		$tsr = new SourceRange( $tagStart, $tagEndPos );
+		return TokenizerUtils::buildTableTokens(
+			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $c
+		);
 	
 }
 private function a178($pp, $tht) {

@@ -126,6 +126,7 @@ class TokenizerUtils {
 	 * Build a token array representing <tag>$content</tag> alongwith
 	 * appropriate attributes and TSR info set on the tokens.
 	 *
+	 * @param string $pegSource
 	 * @param string $tagName
 	 * @param string $wtChar
 	 * @param mixed $attrInfo
@@ -136,8 +137,8 @@ class TokenizerUtils {
 	 * @return array (of tokens)
 	 */
 	public static function buildTableTokens(
-		string $tagName, string $wtChar, $attrInfo, SourceRange $tsr,
-		int $endPos, $content, bool $addEndTag = false
+		string $pegSource, string $tagName, string $wtChar, $attrInfo,
+		SourceRange $tsr, int $endPos, $content, bool $addEndTag = false
 	): array {
 		$dp = new DataParsoid;
 		$dp->tsr = $tsr;
@@ -148,11 +149,13 @@ class TokenizerUtils {
 				// encounter a "|...|" attribute box. This is useful when
 				// deciding which <td>/<th> cells need attribute fixups.
 				$dp->setTempFlag( TempData::NO_ATTRS );
-			} elseif ( !$attrInfo[0] && $attrInfo[1] === "" ) {
-				// FIXME: Skip comments between the two "|" chars
-				// [ [], "", "|"] => "||" syntax for first <td> on line
-				$dp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
-				$dp->setTempFlag( TempData::NO_ATTRS );
+			} else {
+				if ( !$attrInfo[0] && $attrInfo[1] === "" ) {
+					// FIXME: Skip comments between the two "|" chars
+					// [ [], "", "|"] => "||" syntax for first <td> on line
+					$dp->setTempFlag( TempData::NON_MERGEABLE_TABLE_CELL );
+					$dp->setTempFlag( TempData::NO_ATTRS );
+				}
 			}
 		} elseif ( $tagName === 'th' ) {
 			if ( !$attrInfo ) {
@@ -174,6 +177,11 @@ class TokenizerUtils {
 
 		$a = [];
 		if ( $attrInfo ) {
+			if ( $tagName !== 'caption' ) {
+				$dp->getTemp()->attrSrc = substr(
+					$pegSource, $tsr->start, $tsr->end - $tsr->start - strlen( $attrInfo[2] )
+				);
+			}
 			$a = $attrInfo[0];
 			if ( !$a ) {
 				$dp->startTagSrc = $wtChar . $attrInfo[1];
@@ -184,6 +192,8 @@ class TokenizerUtils {
 				// 2. Not "|"
 				$dp->attrSepSrc = $attrInfo[2];
 			}
+		} elseif ( $tagName !== 'caption' ) {
+			$dp->getTemp()->attrSrc = '';
 		}
 
 		$tokens = [ new TagTk( $tagName, $a, $dp ) ];

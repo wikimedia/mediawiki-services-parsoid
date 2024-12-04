@@ -2095,7 +2095,8 @@ table_caption_tag =
 	c:nested_block_in_table* {
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
-			'caption', '|+', $args, $tsr, $this->endOffset(), $c, true );
+			$this->input, 'caption', '|+', $args, $tsr, $this->endOffset(), $c, true
+		);
 	}
 
 table_row_tag =
@@ -2154,9 +2155,11 @@ table_heading_tag =
 			return $d;
 		}
 	)* {
-		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
-		return TokenizerUtils::buildTableTokens( 'th', '!', $arg,
-			$tsr, $this->endOffset(), $c );
+		$tagStart = $this->startOffset();
+		$tsr = new SourceRange( $tagStart, $tagEndPos );
+		return TokenizerUtils::buildTableTokens(
+			$this->input, 'th', '!', $arg, $tsr, $this->endOffset(), $c
+		);
 	}
 
 ths = (
@@ -2202,9 +2205,11 @@ table_data_tag =
 	tagEndPos:("" { return $this->endOffset(); })
 	td:nested_block_in_table*
 	{
-		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
-		return TokenizerUtils::buildTableTokens( 'td', '|', $arg,
-			$tsr, $this->endOffset(), $td );
+		$tagStart = $this->startOffset();
+		$tsr = new SourceRange( $tagStart, $tagEndPos );
+		return TokenizerUtils::buildTableTokens(
+			$this->input, 'td', '|', $arg, $tsr, $this->endOffset(), $td
+		);
 	}
 
 tds = (

@@ -889,7 +889,9 @@ class TemplateHandler extends TokenHandler {
 			// single | in an ambiguous context which will again be tokenized as td.
 			// In any case, this should only be relevant for parserTests.
 			if ( empty( $atTopLevel ) ) {
-				$toks = [ new TagTk( 'td' ) ];
+				$td = new TagTk( 'td' );
+				$td->dataParsoid->getTemp()->attrSrc = '';
+				$toks = [ $td ];
 			} else {
 				$toks = [ '|' ];
 			}

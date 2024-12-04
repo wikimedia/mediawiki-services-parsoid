@@ -50,14 +50,16 @@ No Merging Here
 Dummy article to suppress redlinks in tests
 !! end
 
-## FIXME: This is fixable -- if we relax some restrictions from older code
+## This fixup requires reaching across a <tbody> boundary to
+## merge a child of <tbody><tr><td> with a <caption> node.
+## We won't likely support this unless this is really necessary.
 !! test
 Unsupported scenario: Cell combining with captions
 !! options
 parsoid=wt2html
 !! wikitext
 {|
-|+class="foo"{{1x|1={{!}}some caption}}
+|+class="foo"{{1x|{{!}}some caption}}
 |bar
 |}
 !! html/php
@@ -69,7 +71,7 @@ parsoid=wt2html
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<caption>class="foo"</caption><tbody about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}some caption"}},"i":0}},"\n|bar\n"]}'><tr><td>some caption</td>
+<caption>class="foo"</caption><tbody about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}some caption"}},"i":0}},"\n|bar\n"]}'><tr><td>some caption</td>
 <td>bar</td></tr>
 </tbody></table>
 !! end
@@ -80,7 +82,7 @@ Unsupported scenario: Templated cell merge with another templated cell
 parsoid=wt2html
 !! wikitext
 {|
-|{{1x|1=class="foo"}}{{1x|1={{!}}foo}}
+|{{1x|1=class="foo"}}{{1x|{{!}}foo}}
 |}
 !! html/php
 <table>
@@ -89,13 +91,14 @@ parsoid=wt2html
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr><td about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["|{{1x|1=class=\"foo\"}}",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr>
+<tbody><tr><td about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":["|{{1x|1=class=\"foo\"}}",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr>
 </tbody></table>
 !! end
 
-## FIXME: This is fixable -- if we relax some restrictions from older code
+## FIXME:Same as "6. table-fixups td-td cell-combining: prev=single_pipe,attrs,no_content; cell=attrs"
+## This test fails in standalone mode and hence marked +integrated only
 !! test
-Unsupported scenario: Templated cell with attributes merging with previous cell
+Templated cell with attributes merging with previous cell
 !! options
 parsoid=wt2html
 !! wikitext
@@ -107,19 +110,18 @@ parsoid=wt2html
 <tbody><tr>
 <td class="foo">title="foo"|foo
 </td></tr></tbody></table>
-!! html/parsoid
+!! html/parsoid+integrated
 <table>
-<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" class="foo" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["|class=\"foo\"",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}title=\"foo\"{{!}}foo"}},"i":0}}]}'>title="foo"</td><td about="#mwt1">foo</td></tr>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" class="foo" data-mw='{"parts":["|class=\"foo\"",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}title=\"foo\"{{!}}foo"}},"i":0}}]}'>title="foo"|foo</td></tr>
 </tbody></table>
 !! end
 
+## FIXME:Same as "7. table-fixups td-td cell-combining: prev=single_pipe,attrs,content; cell=no_attrs"
 !! test
-Unsupported scenario: Templated cell merging with previous cell with attributes
-!! options
-parsoid=wt2html
+Templated cell merging with previous cell with attributes
 !! wikitext
 {|
-|class="foo"|title="foo"{{1x|1={{!}}foo}}
+|class="foo"|title="foo"{{1x|{{!}}foo}}
 |}
 !! html/php
 <table>
@@ -128,75 +130,11 @@ parsoid=wt2html
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" class="foo" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["|class=\"foo\"|title=\"foo\"",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>title="foo"|foo</td></tr>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" class="foo" data-mw='{"parts":["|class=\"foo\"|title=\"foo\"",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>title="foo"|foo</td></tr>
 </tbody></table>
 !! end
 
-!! test
-Unsupported scenario: Templated cell not merging with previous cell with attributes and trailing vertical bar
-!! options
-parsoid=wt2html
-!! wikitext
-{|
-|class="foo"|content|{{1x|1={{!}}foo}}
-|}
-!! html/php
-<table>
-<tbody><tr>
-<td class="foo">content</td>
-<td>foo
-</td></tr></tbody></table>
-!! html/parsoid
-<table>
-<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" class="foo" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["|class=\"foo\"|content|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>content</td><td about="#mwt1">foo</td></tr>
-</tbody></table>
-!! end
-
-!! test
-Unsupported scenario: Templated cell not merging with previous cell and trailing vertical bar
-!! options
-parsoid=wt2html
-!! wikitext
-{|
-| [[Main Page]] content|{{1x|1={{!}}foo}}
-|}
-!! html/php
-<table>
-<tbody><tr>
-<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> content</td>
-<td>foo
-</td></tr></tbody></table>
-!! html/parsoid
-<table>
-<tbody><tr>
-<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> content</td>
-<td typeof="mw:Transclusion" data-mw='{"parts":["|", {"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td>
-</tr>
-</tbody></table>
-!! end
-
-!! test
-Unsupported scenario: Templated cell not merging with previous cell and trailing vertical bar, attributes and row syntax
-!! options
-parsoid=wt2html
-!! wikitext
-{|
-|one||[[two]]||three|{{1x|{{!}}four}}
-|}
-!! html/php
-<table>
-<tbody><tr>
-<td>one</td>
-<td><a href="/index.php?title=Two&amp;action=edit&amp;redlink=1" class="new" title="Two (page does not exist)">two</a></td>
-<td>three</td>
-<td>four
-</td></tr></tbody></table>
-!! html/parsoid
-<table>
-<tbody><tr><td>one</td><td data-parsoid='{"stx":"row"}'><a rel="mw:WikiLink" href="./Two?action=edit&amp;redlink=1" title="Two" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Two"]}}'>two</a></td><td data-parsoid='{"stx":"row"}'>three</td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}four"}},"i":0}}]}'>four</td></tr>
-</tbody></table>
-!! end
-
+## FIXME:Same as "1. table-fixups td-td cell-combining: prev=single_pipe,no_attrs,no_content; cell=no_attrs"
 !! test
 Merge tds (T52603)
 !! wikitext
@@ -462,5 +400,316 @@ Ensure td-cell-type is switched to th when the first cell in a row is a <th>
 <tbody><tr>
 <th>a</th><th>b</tb>
 <th>c</th><th about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"tdfoo","href":"./Template:Tdfoo"},"params":{},"i":0}}]}'>y</th></tr>
+</tbody></table>
+!! end
+
+## ---------------------------------------------------------------------
+## Semi-exhaustive list of tests for TableFixups::reparseWithPreviousell
+## A bunch of these tests fail standalone mode, but pass integrated mode
+## Those tests use html/parsoid+integrated sections only
+## ---------------------------------------------------------------------
+!! test
+1. table-fixups td-td cell-combining: prev=single_pipe,no_attrs,no_content; cell=no_attrs
+!! wikitext
+{|
+|{{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end
+
+## In standalone mode, Parsoid fails this test because the template parses as
+## two cells instead of a single cell.
+!! test
+2. table-fixups td-td cell-combining: prev=single_pipe,no_attrs,no_content; cell=attrs
+!! wikitext
+{|
+|{{1x|1={{!}}class='x'{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>class='x'|y
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}}y"}},"i":0}}]}'>class='x'|y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+3. table-fixups td-td cell-combining: prev=single_pipe,no_attrs,content; cell=no_attrs
+!! wikitext
+{|
+| b {{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["| b ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+4. table-fixups td-td cell-combining: prev=single_pipe,no_attrs,content; cell=attrs
+!! wikitext
+{|
+| b {{1x|1={{!}}class='x'{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>class='x'|y
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["| b ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}}y"}},"i":0}}]}'>class='x'|y</td></tr>
+!! end
+
+!! test
+5. table-fixups td-td cell-combining: prev=single_pipe,attrs,no_content; cell=no_attrs
+!! wikitext
+{|
+|title='a'|{{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>title='a'</td>
+<td>y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>title='a'</td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+6. table-fixups td-td cell-combining: prev=single_pipe,attrs,no_content; cell=attrs
+!! wikitext
+{|
+|title='a'|{{1x|1={{!}}class='x'{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>title='a'</td>
+<td class="x">y
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td>title='a'</td><td class='x' about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+7. table-fixups td-td cell-combining: prev=single_pipe,attrs,content; cell=no_attrs
+!! wikitext
+{|
+|title='a'| b {{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td title="a">b |y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" title="a" data-mw='{"parts":["|title=&apos;a&apos;| b ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>b |y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+8. table-fixups td-td cell-combining: prev=single_pipe,attrs,content; cell=attrs
+!! wikitext
+{|
+|title='a'| b {{1x|1={{!}}class='x'{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td title="a">b |class='x'|y
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" title="a" data-mw='{"parts":["|title=&apos;a&apos;| b ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}}y"}},"i":0}}]}'>b |class='x'|y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+9. table-fixups td-td cell-combining: prev=double_pipe,no_content; cell=no_attrs
+!! wikitext
+{|
+||{{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td></td>
+<td>y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td></td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+10. table-fixups td-td cell-combining: prev=double_pipe,no_content; cell=attrs
+!! wikitext
+{|
+||{{1x|1={{!}}class='x'{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td></td>
+<td class="x">y
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td></td><td class='x' about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+11. table-fixups td-td cell-combining: prev=double_pipe,content; cell=no_attrs
+!! wikitext
+{|
+|| a {{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>a |y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|| a ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>a |y</td></tr>
+</tbody></table>
+!! end
+
+!! test
+12. table-fixups td-td cell-combining: prev=double_pipe,content; cell=attrs
+!! wikitext
+{|
+|| a {{1x|1={{!}}class='x'{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>a |class='x'|y
+</td></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|| a ",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}class=&apos;x&apos;{{!}}y"}},"i":0}}]}'>a |class='x'|y</td></tr>
+</tbody></table>
+!! end
+
+## These are the only interesting th-th combination scenarios that are different from td-td
+!! test
+1. table-fixups th-th cell-combining: cell=no-attrs
+!! wikitext
+{|
+!{{1x|!y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<th>!y
+</th></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><th about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":["!",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"!y"}},"i":0}}]}'>!y</th></tr>
+</tbody></table>
+!! end
+
+# NOTE: the whitespace in "! class='x'" is important
+# because "!!class='x'" and ""!! class='x'"" parse differently.
+# That seems like a bug in legacy (which Parsoid replicates).
+!! test
+2. table-fixups th-th cell-combining: cell=attrs
+!! wikitext
+{|
+!{{1x|1=! class="x"{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<th class="x">y
+</th></tr></tbody></table>
+!! html/parsoid+integrated
+<table>
+<tbody><tr><th class="x" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"firstWikitextNode":"TH","pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":["!",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"! class=\"x\"{{!}}y"}},"i":0}}]}'>y</th></tr>
+</tbody></table>
+
+!! end
+
+!! test
+Templated cell not merging with previous cell with attributes and trailing vertical bar
+!! wikitext
+{|
+| class="foo" |content|{{1x|{{!}}foo}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td class="foo">content</td>
+<td>foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td class="foo">content</td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td></tr>
+</tbody></table>
+!! end
+
+!! test
+Templated cell not merging with previous cell and trailing vertical bar
+!! wikitext
+{|
+|[[Main Page]] content|{{1x|{{!}}foo}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td><a href="/wiki/Main_Page" title="Main Page">Main Page</a> content</td>
+<td>foo
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr>
+<td><a rel="mw:WikiLink" href="./Main_Page" title="Main Page">Main Page</a> content</td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}foo"}},"i":0}}]}'>foo</td>
+</tr>
+</tbody></table>
+!! end
+
+!! test
+Templated cell not merging with previous cell and trailing vertical bar, attributes and row syntax
+!! wikitext
+{|
+|one||[[two]]||three|{{1x|{{!}}four}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>one</td>
+<td><a href="/index.php?title=Two&amp;action=edit&amp;redlink=1" class="new" title="Two (page does not exist)">two</a></td>
+<td>three</td>
+<td>four
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>one</td><td data-parsoid='{"stx":"row"}'><a rel="mw:WikiLink" href="./Two?action=edit&amp;redlink=1" title="Two" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Two"]}}'>two</a></td><td data-parsoid='{"stx":"row"}'>three</td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}four"}},"i":0}}]}'>four</td></tr>
 </tbody></table>
 !! end

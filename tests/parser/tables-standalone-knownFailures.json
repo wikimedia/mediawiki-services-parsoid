@@ -237,11 +237,11 @@
         "selser [[2,[[4,3],3]]]": "<table><!--y87cl6-->\n<td>1m48vn2</td></tr>\n</table>",
         "selser [[2,[0,3]]]": "<table><!--5qwxo-->\n<td>foo</td>\n</tr>\n</table>"
     },
+    "Templated table cell with untemplated attributes": {
+        "wt2html": "<table data-parsoid='{\"dsr\":[0,55,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,53,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,52,2,0]}'>\n<td about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"foo\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true}]],\"dsr\":[6,52,null,null]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>title=\"fail\"</td><td about=\"#mwt1\">bar</td></tr>\n</tbody></table>"
+    },
     "Templated table cell with untemplated attributes: Unsupported (standalone mode) Scenarios": {
         "wt2html": "<table data-parsoid='{\"dsr\":[0,78,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,76,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,36,2,0]}'>\n<td about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"foo\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true,\"spc\":[\"\",\"\",\" \",\"\"]}]],\"dsr\":[6,36,null,null]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}bar\"}},\"i\":0}}]}'>bar</td></tr>\n<tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[37,75,2,0]}'>\n<td about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[40,75,1,0],\"firstWikitextNode\":\"TD\",\"pi\":[[{\"k\":\"1\",\"named\":true}]]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&amp;nbsp;{{!}}bar\"}},\"i\":0}}]}'>class=\"foo\"<span typeof=\"mw:Entity\"> </span></td><td about=\"#mwt3\">bar</td></tr>\n</tbody></table>"
-    },
-    "Templated table cell with untemplated attributes: Unsupported Scenario": {
-        "wt2html": "<table data-parsoid='{\"dsr\":[0,55,2,2]}'>\n<tbody data-parsoid='{\"dsr\":[3,53,0,0]}'><tr data-parsoid='{\"startTagSrc\":\"|-\",\"dsr\":[3,52,2,0]}'>\n<td about=\"#mwt1\" typeof=\"mw:Transclusion\" class=\"foo\" data-parsoid='{\"pi\":[[{\"k\":\"1\",\"named\":true}]],\"dsr\":[6,52,null,null]}' data-mw='{\"parts\":[\"|class=\\\"foo\\\"\",{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{!}}title=\\\"fail\\\"{{!}}bar\"}},\"i\":0}}]}'>title=\"fail\"</td><td about=\"#mwt1\">bar</td></tr>\n</tbody></table>"
     },
     "Wikitext table with a lot of comments": {
         "html2wt": "{|\n|foo\n|-\n|\n|}",
