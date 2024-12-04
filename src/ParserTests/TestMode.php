@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
+use Stringable;
+
 /**
  * Represents a parser test mode, that is, a certain way of executing a
  * parser tests and evaluating the result.
@@ -16,7 +18,7 @@ namespace Wikimedia\Parsoid\ParserTests;
  * wikitext and verify that the result matches the "wikitext" section,
  * after normalization).
  */
-class TestMode {
+class TestMode implements Stringable {
 
 	/** Valid test modes, as keys for efficient query/set intersection. */
 	public const TEST_MODES = [

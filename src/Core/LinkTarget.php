@@ -22,12 +22,14 @@ declare( strict_types = 1 );
  */
 namespace Wikimedia\Parsoid\Core;
 
+use Stringable;
+
 /**
  * Represents the target of a wiki link.
  *
  * @see https://www.mediawiki.org/wiki/Manual:Modeling_pages
  */
-interface LinkTarget {
+interface LinkTarget extends Stringable {
 
 	/**
 	 * Get the namespace index.
