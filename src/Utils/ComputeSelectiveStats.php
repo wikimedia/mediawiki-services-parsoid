@@ -182,6 +182,42 @@ class ComputeSelectiveStats {
 		return $pc->getRevisionContent()->getContent( 'main' );
 	}
 
+	// See https://www.mediawiki.org/wiki/Manual:Stats#Cardinality
+
+	/** Restrict the cardinality of user agent labels */
+	public static function filterUserAgent( ?string $userAgent ): string {
+		static $acceptableAgents = [
+			'ChangePropagation_JobQueue_WMF' => true,
+			'ChangePropagation_WMF' => true,
+			'Mobileapps_WMF' => true,
+			'RESTBase_WMF' => true,
+			'C_WikiAPI' => true,
+			'Java_7_0_for_MediaWikiAPI' => true,
+		];
+		static $agentPrefixes = [
+			'MediaWiki_API',
+			'MediaWiki_Bot',
+			'Mozilla_4_0',
+			'Mozilla_5_0',
+			'Mozilla',
+			'REST_API_Crawler_Google',
+			'IABot',
+			'Rust_mediawiki_API',
+		];
+		if ( $userAgent === null ) {
+			return 'unknown';
+		}
+		if ( $acceptableAgents[$userAgent] ?? false ) {
+			return $userAgent;
+		}
+		foreach ( $agentPrefixes as $prefix ) {
+			if ( str_starts_with( $userAgent, $prefix ) ) {
+				return $prefix;
+			}
+		}
+		return 'other';
+	}
+
 	/** Convert a boolean to a string for labelling purposes. */
 	private static function bool2str( ?bool $val ): string {
 		return ( $val === true ) ? 'true' : (
@@ -189,7 +225,10 @@ class ComputeSelectiveStats {
 		);
 	}
 
-	/** Convert an integer to a string for labelling purposes. */
+	/**
+	 * Convert an integer to a string for labelling purposes,
+	 * restricting its cardinality.
+	 */
 	private static function int2str( ?int $val, ?int $limit = null ): string {
 		if ( $val === null ) {
 			return 'unknown';
