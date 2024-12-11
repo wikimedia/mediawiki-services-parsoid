@@ -744,7 +744,7 @@ class Separators {
 	public function recoverTrimmedWhitespace( Node $node, bool $leading ): ?string {
 		// Deal with scenarios where leading / trailing whitespace were trimmed.
 		// We now need to figure out if we need to add any leading / trailing WS back.
-		if ( $this->state->useWhitespaceHeuristics && $this->state->selserMode ) {
+		if ( $this->state->selserMode ) {
 			if ( $leading ) {
 				return $this->fetchLeadingTrimmedSpace( $node );
 			} else {

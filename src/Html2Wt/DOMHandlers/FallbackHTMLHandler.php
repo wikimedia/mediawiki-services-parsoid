@@ -25,15 +25,6 @@ class FallbackHTMLHandler extends DOMHandler {
 		Element $node, SerializerState $state, bool $wrapperUnmodified = false
 	): ?Node {
 		$serializer = $state->serializer;
-
-		// Wikitext supports the following list syntax:
-		//
-		// * <li class="a"> hello world
-		//
-		// The "LI Hack" gives support for this syntax, and we need to
-		// specially reconstruct the above from a single <li> tag.
-		$serializer->handleLIHackIfApplicable( $node );
-
 		$tag = $serializer->serializeHTMLTag( $node, $wrapperUnmodified );
 		$state->emitChunk( $tag, $node );
 

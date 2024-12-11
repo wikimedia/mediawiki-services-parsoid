@@ -4119,21 +4119,6 @@ Foo
 <span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"{{1x|DISPLAYTITLE}}:Foo","function":"displaytitle"},"params":{},"i":0}}]}'></span>
 !! end
 
-# Can be removed when T335843 is addressed
-!! test
-Parsoid html2wt b/c check: Cached Parsoid HTML for DISPLAYTITLE should be handled properly
-!! options
-parsoid=html2wt
-!! html/parsoid
-<meta property='mw:PageProp/displaytitle' content='foo'/>
-<meta property="mw:PageProp/displaytitle" content="Parser test" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"src":"{{DISPLAYTITLE:&#39;&#39;{{PAGENAME}}&#39;&#39;}}"}' data-mw='{"attribs":[[{"txt":"content"},{"html":"DISPLAYTITLE:&lt;i data-parsoid=&#39;{\"dsr\":[15,31,2,2]}&#39;>&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[]],\"dsr\":[17,29,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"PAGENAME\",\"function\":\"pagename\"},\"params\":{},\"i\":0}}]}&#39;>Parser test&lt;/span>&lt;/i>"}]]}'/>
-<meta property="mw:PageProp/displaytitle" content="Foo" about="#mwt1" typeof="mw:ExpandedAttrs" data-mw='{"attribs":[[{"txt":"content"},{"html":"&lt;span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid=&#39;{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[2,23,null,null]}&#39; data-mw=&#39;{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"DISPLAYTITLE\"}},\"i\":0}}]}&#39;>DISPLAYTITLE&lt;/span>:Foo"}]]}'/>
-!! wikitext
-{{DISPLAYTITLE:foo}}
-{{DISPLAYTITLE:''{{PAGENAME}}''}}
-{{{{1x|DISPLAYTITLE}}:Foo}}
-!! end
-
 !! test
 Namespace 1 {{ns:1}}
 !! wikitext
@@ -7652,17 +7637,6 @@ Parsoid: Defaultsort variations (T236846)
 <span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"DEFAULTSORT:DOGGIE","function":"defaultsort"},"params":{},"i":0}}]}'></span>
 !! end
 
-# Can be removed when T335843 is addressed
-!! test
-Parsoid html2wt b/c check: Defaultsort with key content being added (T236846)
-!! options
-parsoid=html2wt
-!! html/parsoid
-<meta property="mw:PageProp/categorydefaultsort" content="BIRD" data-parsoid='{"src":"{{DEFAULTSORT}}"}'/>
-!! wikitext
-{{DEFAULTSORT:BIRD}}
-!! end
-
 # NOTE: mw:ExpandedAttrs is not the best typeof here. mw:Transclusion is better.
 # But, this is a limitation of our representation and is documented in
 # TemplateHandler.php in processSpecialMagicWord
@@ -8213,31 +8187,6 @@ language=is
 <a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg">Bat!</a>
 !! wikitext
 [[Miðill:Foobar.jpg|Bat!]]
-!! end
-
-# This is a test to ensure we don't crash or choke when given
-# old cached 1.7.0 HTML for media links; we don't require that the
-# result be "valid" because wt2wt was completely broken in 1.7.0
-!! test
-Media link from old 1.7.0 DOM spec (crash test, parsoid-only) T198511
-!! options
-parsoid=html2wt
-!! html/parsoid
-<p>This is what Parsoid would emit (and we still handle this HTML fine):</p>
-<p><a rel="mw:MediaLink" href="http://example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
-<p>But VisualEditor would mangle the rel attribute, and give us back this:</p>
-<p><a rel="mw:ExtLink" href="http://example.com/images/3/3a/Foobar.jpg" title="Foobar.jpg">A neat file to look at</a></p>
-<p>But at least we don't crash when trying to handle the mangled HTML!</p>
-!! wikitext
-This is what Parsoid would emit (and we still handle this HTML fine):
-
-[[Media:Foobar.jpg|A neat file to look at]]
-
-But VisualEditor would mangle the rel attribute, and give us back this:
-
-[http://example.com/images/3/3a/Foobar.jpg A neat file to look at]
-
-But at least we don't crash when trying to handle the mangled HTML!
 !! end
 
 !! test
@@ -13366,22 +13315,6 @@ parsoid=wt2html
 #### https://www.mediawiki.org/wiki/Parsoid/HTML_based_LST
 #### ----------------------------------------------------------------
 
-## We still need to support serializing the older format while content is stored.
-!! test
-LST Sections: Backwards compatibility
-!! options
-parsoid={
-  "suppressErrors": true,
-  "modes": ["html2wt"]
-}
-!! wikitext
-<section begin="2011-05-16" />
-<section end="2014-04-10 (MW 1.23wmf22)" />
-!! html/parsoid
-<p><meta typeof="mw:Extension/LabeledSectionTransclusion/begin" content="2011-05-16"/>
-<meta typeof="mw:Extension/LabeledSectionTransclusion/end" content="2014-04-10 (MW 1.23wmf22)"/></p>
-!! end
-
 !! test
 LST Sections: Newfangled approach
 !! wikitext
@@ -16520,23 +16453,6 @@ parsoid={
 <span id="a">a</span><!--c1-->
 
 <!--c2--><span id="b">b</span>
-!! end
-
-## T89383
-!! test
-Selser: Check for validity of DSR before using it
-!! options
-parsoid={
-  "modes": ["selser"],
-  "changes": [
-    [ "#a", "before", "<meta property='mw:PageProp/displaytitle' content='foo'>" ]
-  ]
-}
-!! wikitext
-<span id="a">a</span>
-!! wikitext/edited
-{{DISPLAYTITLE:foo}}
-<span id="a">a</span>
 !! end
 
 !! test

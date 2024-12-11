@@ -90,10 +90,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * assignment of a new id attribute.
  * @property bool|null $reusedId
  *
- * FIXME: Get rid of this property and the code that reads it after content
- * version 2.2.0 has expired from caches.
- * @property mixed $liHackSrc
- *
  * The link token associated with a redirect
  * @property Token|null $linkTk
  *

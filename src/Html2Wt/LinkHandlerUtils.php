@@ -190,7 +190,7 @@ class LinkHandlerUtils {
 		// Figure out the type of the link
 		if ( $node->hasAttribute( 'rel' ) ) {
 			$rel = DOMCompat::getAttribute( $node, 'rel' ) ?? '';
-			// Parsoid only emits and recognizes ExtLink, WikiLink, and PageProp rel values.
+			// Parsoid only emits and recognizes ExtLink, WikiLink, MediaLink and PageProp rel values.
 			// Everything else defaults to ExtLink during serialization (unless it is
 			// serializable to a wikilink)
 			// We're keeping the preg_match here instead of going through DOMUtils::matchRel
@@ -334,7 +334,6 @@ class LinkHandlerUtils {
 			( !empty( $dp->isIW ) || !empty( $target['modified'] ) || !empty( $rtData->contentModified ) )
 		) {
 			// External link that is really an interwiki link. Convert it.
-			// TODO: Leaving this for backwards compatibility, remove when 1.5 is no longer bound
 			if ( $rtData->type === 'mw:ExtLink' ) {
 				$rtData->type = 'mw:WikiLink';
 			}

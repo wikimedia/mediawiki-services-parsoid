@@ -495,31 +495,6 @@ class WikitextSerializer {
 		return implode( ' ', $out );
 	}
 
-	/**
-	 * FIXME: Get rid of this function after content version 2.2.0 has expired from caches.
-	 *
-	 * @param Element $node
-	 */
-	public function handleLIHackIfApplicable( Element $node ): void {
-		$liHackSrc = DOMDataUtils::getDataParsoid( $node )->liHackSrc ?? null;
-		$prev = DiffDOMUtils::previousNonSepSibling( $node );
-
-		// If we are dealing with an LI hack, then we must ensure that
-		// we are dealing with either
-		//
-		//   1. A node with no previous sibling inside of a list.
-		//
-		//   2. A node whose previous sibling is a list element.
-		if ( $liHackSrc !== null
-			// Case 1
-			&& ( ( $prev === null && DOMUtils::isList( $node->parentNode ) )
-				// Case 2
-				|| ( $prev !== null && DOMUtils::isListItem( $prev ) ) )
-		) {
-			$this->state->emitChunk( $liHackSrc, $node );
-		}
-	}
-
 	private function formatStringSubst( string $format, string $value, bool $forceTrim ): string {
 		// PORT-FIXME: JS is more agressive and removes various unicode whitespaces
 		// (most notably nbsp). Does that matter?

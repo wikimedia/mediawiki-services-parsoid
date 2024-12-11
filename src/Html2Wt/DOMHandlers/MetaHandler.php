@@ -42,33 +42,9 @@ class MetaHandler extends DOMHandler {
 		if ( $property ) {
 			preg_match( '#^mw\:PageProp/(.*)$#D', $property, $switchType );
 			if ( $switchType ) {
-				$out = $switchType[1];
-				$cat = preg_match( '/^(?:category)?(.*)/', $out, $catMatch );
-				if ( $cat && (
-					// Need this b/c support while RESTBase has Parsoid HTML
-					// in storage with meta tags for these.
-					// Can be removed as part of T335843
-					$catMatch[1] === 'defaultsort' || $catMatch[1] === 'displaytitle'
-				) ) {
-					$contentInfo = $state->serializer->serializedAttrVal( $node, 'content' );
-					if ( WTUtils::hasExpandedAttrsType( $node ) ) {
-						$out = '{{' . $contentInfo['value'] . '}}';
-					} elseif ( isset( $dp->src ) ) {
-						$colon = strpos( $dp->src, ':', 2 );
-						$out = preg_replace( '/^([^:}]+).*$/D', "$1", $dp->src, 1 );
-						if ( ( $colon === false ) && ( $contentInfo['value'] === '' ) ) {
-							$out .= '}}';
-						} else {
-							$out .= ':' . $contentInfo['value'] . '}}';
-						}
-					} else {
-						$magicWord = mb_strtoupper( $catMatch[1] );
-						$out = '{{' . $magicWord . ':' . $contentInfo['value'] . '}}';
-					}
-				} else {
-					$out = $state->getEnv()->getSiteConfig()->getMagicWordWT(
-						$switchType[1], $dp->magicSrc ?? '' );
-				}
+				$out = $state->getEnv()->getSiteConfig()->getMagicWordWT(
+					$switchType[1], $dp->magicSrc ?? ''
+				);
 				$state->emitChunk( $out, $node );
 			} else {
 				( new FallbackHTMLHandler )->handle( $node, $state );

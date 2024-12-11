@@ -51,11 +51,7 @@ class MetaHandlerTest extends TestCase {
 		$state = new SerializerState( $serializer, [] );
 
 		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$html = '<meta property="mw:PageProp/categorydefaultsort" content="1972-73 New York Knicks Season" data-parsoid=\'{"src":"{{DEFAULTSORT:1972-73 New York Knicks Season}}"}\'/>';
-		$this->processMeta( $env, $state, $html, '{{DEFAULTSORT:1972-73 New York Knicks Season}}' );
-
-		// phpcs:ignore Generic.Files.LineLength.TooLong
-		$html = '<meta property="mw:PageProp/categorydefaultsort" content="$1" data-parsoid=\'{"src":"{{DEFAULTSORT:$1}}"}\'/>';
-		$this->processMeta( $env, $state, $html, '{{DEFAULTSORT:$1}}' );
+		$html = '<meta property="mw:PageProp/notoc" data-parsoid=\'{"src":"__NOTOC__","magicSrc":"__NOTOC__"}\'/>';
+		$this->processMeta( $env, $state, $html, '__NOTOC__' );
 	}
 }

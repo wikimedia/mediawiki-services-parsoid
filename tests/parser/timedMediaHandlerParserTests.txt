@@ -203,17 +203,6 @@ wgParserEnableLegacyMediaDOM=false
 <p><span class="mw-default-size mw-default-audio-height" typeof="mw:File"><span><audio controls="" preload="none" data-mw-tmh="" height="32" width="180" style="width: 180px;" resource="./File:Audio.oga" data-durationhint="1" class="mw-file-element"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></audio></span></span></p>
 !! end
 
-## For backwards compatibility with Parsoid content versions up to 1.7.0
-!! test
-Simple audio element, rendered as a video tag
-!! options
-parsoid=html2wt
-!! html/parsoid
-<p><span class="mw-default-size mw-default-audio-height" typeof="mw:Audio"><span><video poster="http://example.com/images/w/resources/assets/file-type-icons/fileicon-ogg.png" controls="" preload="none" height="32" width="220" resource="./File:Audio.oga"><source src="http://example.com/images/4/41/Audio.oga" type='audio/ogg; codecs="vorbis"'/></video></span></span></p>
-!! wikitext
-[[File:Audio.oga]]
-!! end
-
 !! test
 Flag disablecontrols as bogus options in Parsoid
 !! config

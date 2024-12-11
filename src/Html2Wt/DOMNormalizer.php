@@ -501,27 +501,7 @@ class DOMNormalizer {
 	 * @return Node|null the normalized node
 	 */
 	public function normalizeNode( Node $node ): ?Node {
-		$dp = null;
 		$nodeName = DOMCompat::nodeName( $node );
-		if ( $nodeName === 'th' || $nodeName === 'td' ) {
-			'@phan-var Element $node'; // @var Element $node
-			$dp = DOMDataUtils::getDataParsoid( $node );
-			// Table cells (td/th) previously used the stx_v flag for single-row syntax.
-			// Newer code uses stx flag since that is used everywhere else.
-			// While we still have old HTML in cache / storage, accept
-			// the stx_v flag as well.
-			// TODO: We are at html version 1.5.0 now. Once storage
-			// no longer has version 1.5.0 content, we can get rid of
-			// this b/c code.
-			if ( isset( $dp->stx_v ) ) {
-				// HTML (stx='html') elements will not have the stx_v flag set
-				// since the single-row syntax only applies to native-wikitext.
-				// So, we can safely override it here.
-				$dp->stx = $dp->stx_v;
-			}
-		}
-
-		$next = null;
 
 		if ( $this->state->getEnv()->getSiteConfig()->scrubBidiChars() ) {
 			// Strip bidirectional chars around categories
@@ -555,6 +535,7 @@ class DOMNormalizer {
 
 			// Quote tags
 		} elseif ( isset( Consts::$WTQuoteTags[$nodeName] ) ) {
+			'@phan-var Element $node'; // @var Element $node
 			return $this->stripIfEmpty( $node );
 
 			// Anchors
@@ -599,7 +580,10 @@ class DOMNormalizer {
 			return $node;
 
 			// Font tags without any attributes
-		} elseif ( $nodeName === 'font' && DOMDataUtils::noAttrs( $node ) ) {
+		} elseif (
+			$node instanceof Element && $nodeName === 'font' &&
+			DOMDataUtils::noAttrs( $node )
+		) {
 			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			DOMUtils::migrateChildren( $node, $node->parentNode, $node );
 			$node->parentNode->removeChild( $node );

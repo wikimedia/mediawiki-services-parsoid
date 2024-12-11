@@ -390,9 +390,6 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'ref' => true,
 				'references' => true,
 				'section' => true,
-				'labeledsectiontransclusion' => true,
-				'labeledsectiontransclusion/begin' => true,
-				'labeledsectiontransclusion/end' => true
 			],
 			array_fill_keys( array_keys( $this->getSiteConfig()->getExtensionTagNameMap() ), true )
 		);

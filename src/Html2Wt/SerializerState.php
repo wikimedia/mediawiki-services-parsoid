@@ -222,16 +222,6 @@ class SerializerState {
 	public $out = '';
 
 	/**
-	 * Whether to use heuristics to determine if a list item, heading, table cell, etc.
-	 * should have whitespace inserted after the "*#=|!" wikitext chars? This is normally
-	 * true by default, but not so if HTML content version is older than 1.7.0.
-	 * In practice, we are now at version 2.1, but Flow stores HTML, so till Flow migrates
-	 * all its content over to a later version, we need a boolean flag.
-	 * @var bool
-	 */
-	public $useWhitespaceHeuristics;
-
-	/**
 	 * Are we in selective serialization mode?
 	 * @see SelectiveSerializer
 	 * @var bool
@@ -333,8 +323,6 @@ class SerializerState {
 	 * @param bool $selserMode Are we running selective serialization?
 	 */
 	public function initMode( bool $selserMode ): void {
-		$this->useWhitespaceHeuristics =
-			Semver::satisfies( $this->env->getInputContentVersion(), '>=1.7.0' );
 		$this->selserMode = $selserMode;
 	}
 

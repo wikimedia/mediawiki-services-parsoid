@@ -49,11 +49,6 @@ class DOMHandlerFactory {
 				return new DTHandler();
 			case 'figure':
 				return new FigureHandler();
-			// TODO: Remove when 2.1.x content is deprecated, since we no
-			// longer emit inline media in figure-inline.  See the test,
-			// "Serialize simple image with figure-inline wrapper"
-			case 'figure-inline':
-				return new MediaHandler();
 			case 'hr':
 				return new HRHandler();
 			case 'h1':

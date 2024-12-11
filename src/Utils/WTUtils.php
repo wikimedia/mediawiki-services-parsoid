@@ -292,7 +292,7 @@ class WTUtils {
 	 */
 	public static function isInlineMedia( Node $node ): bool {
 		return self::isGeneratedFigure( $node ) &&
-			DOMCompat::nodeName( $node ) !== 'figure';  // span, figure-inline
+			DOMCompat::nodeName( $node ) === 'span';
 	}
 
 	/**
@@ -300,9 +300,7 @@ class WTUtils {
 	 * @return bool
 	 */
 	public static function isGeneratedFigure( Node $node ): bool {
-		// TODO: Remove "Image|Video|Audio" when version 2.4.0 of the content
-		// is no longer supported
-		return DOMUtils::matchTypeOf( $node, '#^mw:(File|Image|Video|Audio)($|/)#D' ) !== null;
+		return DOMUtils::matchTypeOf( $node, '#^mw:File($|/)#D' ) !== null;
 	}
 
 	/**
@@ -1061,9 +1059,7 @@ class WTUtils {
 	 * @return string
 	 */
 	public static function getMediaFormat( Element $node ): string {
-		// TODO: Remove "Image|Video|Audio" when version 2.4.0 of the content
-		// is no longer supported
-		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:(File|Image|Video|Audio)(/|$)#' );
+		$mediaType = DOMUtils::matchTypeOf( $node, '#^mw:File(/|$)#' );
 		$parts = explode( '/', $mediaType ?? '' );
 		return $parts[1] ?? '';
 	}

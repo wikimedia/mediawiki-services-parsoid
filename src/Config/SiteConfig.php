@@ -26,7 +26,6 @@ use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
 use Wikimedia\Parsoid\Ext\Indicator\Indicator;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
-use Wikimedia\Parsoid\Ext\LST\LST;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -94,9 +93,6 @@ abstract class SiteConfig {
 		Pre::class,
 		Gallery::class,
 		Indicator::class,
-		// The following implementations will move to their own repositories
-		// soon, but for now are implemented in the Parsoid repo.
-		LST::class
 	];
 
 	/**
