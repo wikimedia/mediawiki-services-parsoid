@@ -26,17 +26,5 @@
     },
     "Space and question mark encoding in interlanguage links (T95473)": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'>Blah blah blah</p>\n<link rel=\"mw:PageProp/Language\" href=\"http://es.wikipedia.org/wiki/Foo%20bar%3F\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://es.wikipedia.org/wiki/Foo%20bar%3F\"},\"sa\":{\"href\":\"es:Foo bar?\"},\"dsr\":[15,30,null,null]}'/>"
-    },
-    "{{#interlanguagelink}} parser function as a means to force an interlanguage link (T363538)": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,60,0,0]}'><li data-parsoid='{\"dsr\":[0,39,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[1,39,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#interlanguagelink:mi\",\"function\":\"interlanguagelink\"},\"params\":{\"1\":{\"wt\":\"Template:Bar\"}},\"i\":0}}]}'>Parser function implementation for pf_interlanguagelink missing in Parsoid.</span></li>\n<li data-parsoid='{\"dsr\":[40,60,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Foo\" title=\"Template:Foo\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:Foo\"},\"sa\":{\"href\":\"mi:Template:Foo\"},\"dsr\":[41,60,2,2]}'>mi:Template:Foo</a></li></ul>",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,75,0,0]}'><li data-parsoid='{\"dsr\":[0,40,1,0,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[2,40,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#interlanguagelink:mi\",\"function\":\"interlanguagelink\"},\"params\":{\"1\":{\"wt\":\"Template:Bar\"}},\"i\":0}}]}'>Parser function implementation for pf_interlanguagelink missing in Parsoid.</span></li>\n<li data-parsoid='{\"dsr\":[41,75,1,0,1,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Foo\" title=\"Template:Foo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Template:Foo\"},\"sa\":{\"href\":\"Template:Foo\"},\"dsr\":[43,75,15,2]}'>mi:Template:Foo</a></li></ul>\n",
-        "html2wt": "* {{#interlanguagelink:mi|Template:Bar}}\n* [[Template:Foo|mi:Template:Foo]]\n",
-        "metadata": ""
-    },
-    "{{#interlanguagelink}} parser function as a means to force an interlanguage link, v2 (T363538)": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,72,0,0]}'><li data-parsoid='{\"dsr\":[0,72,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[1,72,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#interlanguagelink:mi\",\"function\":\"interlanguagelink\"},\"params\":{\"1\":{\"wt\":\"Template:Bat#fragment-kept\"},\"2\":{\"wt\":\"caption is ignored\"}},\"i\":0}}]}'>Parser function implementation for pf_interlanguagelink missing in Parsoid.</span></li></ul>",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,73,0,0]}'><li data-parsoid='{\"dsr\":[0,73,1,0,1,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[2,73,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#interlanguagelink:mi\",\"function\":\"interlanguagelink\"},\"params\":{\"1\":{\"wt\":\"Template:Bat#fragment-kept\"},\"2\":{\"wt\":\"caption is ignored\"}},\"i\":0}}]}'>Parser function implementation for pf_interlanguagelink missing in Parsoid.</span></li></ul>\n",
-        "html2wt": "* {{#interlanguagelink:mi|Template:Bat#fragment-kept|caption is ignored}}\n",
-        "metadata": ""
     }
 }
