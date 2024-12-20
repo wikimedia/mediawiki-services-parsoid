@@ -256,7 +256,7 @@ abstract class PFragment implements JsonCodecable {
 	}
 
 	/** @inheritDoc */
-	protected function toJsonArray(): array {
+	public function toJsonArray(): array {
 		return $this->srcOffsets === null ? [] : [
 			'dsr' => $this->srcOffsets
 		];

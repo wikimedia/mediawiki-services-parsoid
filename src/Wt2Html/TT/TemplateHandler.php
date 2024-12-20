@@ -570,30 +570,32 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
+	 * Dump template source if '--dump tplsrc' flag was set
+	 */
+	private function dumpTplSrc( Token $token, string $templateName, string $src, bool $fragmentMode = false ): void {
+		$dump = str_repeat( '=', 28 ) . " template source " . ( $fragmentMode ? '(FRAGMENT)' : '' ) .
+			str_repeat( '=', 28 ) . "\n";
+		$dump .= 'TEMPLATE:' . $templateName . 'TRANSCLUSION:' .
+			PHPUtils::jsonEncode( $token->dataParsoid->src ) . "\n";
+		$dump .= str_repeat( '-', 80 ) . "\n";
+		$dump .= $src . "\n";
+		$dump .= str_repeat( '-', 80 ) . "\n";
+		$this->env->writeDump( $dump );
+	}
+
+	/**
 	 * Process a fetched template source to a token stream.
-	 *
-	 * @param Token $token
-	 * @param array $tplArgs
-	 * @param string $src
-	 * @return array
 	 */
 	private function processTemplateSource( Token $token, array $tplArgs, string $src ): array {
-		$env = $this->env;
-		$frame = $this->manager->getFrame();
-		if ( $env->hasDumpFlag( 'tplsrc' ) ) {
-			$dump = str_repeat( '=', 28 ) . " template source " .
-				str_repeat( '=', 28 ) . "\n";
-			$dump .= 'TEMPLATE:' . $tplArgs['name'] . 'TRANSCLUSION:' .
-				PHPUtils::jsonEncode( $token->dataParsoid->src ) . "\n";
-			$dump .= str_repeat( '-', 80 ) . "\n";
-			$dump .= $src . "\n";
-			$dump .= str_repeat( '-', 80 ) . "\n";
-			$env->writeDump( $dump );
+		if ( $this->env->hasDumpFlag( 'tplsrc' ) ) {
+			$this->dumpTplSrc( $token, $tplArgs['name'], $src );
 		}
-
 		if ( $src === '' ) {
 			return [];
 		}
+
+		$env = $this->env;
+		$frame = $this->manager->getFrame();
 
 		$env->log( 'debug', 'TemplateHandler.processTemplateSource',
 			$tplArgs['name'], $tplArgs['attribs'] );
@@ -1068,6 +1070,14 @@ class TemplateHandler extends TokenHandler {
 						[ $expansion['src'] ], false, $this->wrapTemplates
 					);
 				} elseif ( isset( $expansion['fragment'] ) ) {
+					if ( $this->env->hasDumpFlag( 'tplsrc' ) ) {
+						// Assumes this is always a WikitextPFragment which is true for now.
+						$wt = $expansion['fragment']->toJsonArray()['wt'];
+						// FIXME: json_encode isn't the right thing always
+						// but good enough for debugging current usage
+						$wt = is_array( $wt ) ? json_encode( $wt ) : $wt;
+						$this->dumpTplSrc( $token, $templateName, $wt, true );
+					}
 					$domFragment = $expansion['fragment']->asDom(
 						new ParsoidExtensionAPI(
 							$env, [
