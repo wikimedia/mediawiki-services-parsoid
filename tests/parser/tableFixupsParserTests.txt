@@ -1,9 +1,11 @@
-!! Version 2
-#
 # This file will hold tests for table fixup dom handlers.
 # For now, we are only adding tests for unsupported scenarios here.
 # Eventually, once the monolithic parser test file is split up,
 # all table fixup tests will move here.
+!! options
+version=2
+parsoid-compatible=wt2html,wt2wt
+!! end
 
 !! article
 Main Page
