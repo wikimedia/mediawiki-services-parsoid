@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Utils;
 
 /**
  * Utilities for manipulating URLs
- * @see https://tools.ietf.org/html/rfc3986
+ * @see https://datatracker.ietf.org/doc/html/rfc3986
  */
 class UrlUtils {
 
