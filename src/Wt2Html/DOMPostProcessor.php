@@ -52,28 +52,6 @@ class DOMPostProcessor extends PipelineStage {
 		}
 	}
 
-	/* ---------------------------------------------------------------------------
-	 * FIXME:
-	 * 1. PipelineFactory caches pipelines per env
-	 * 2. PipelineFactory.parse uses a default cache key
-	 * 3. ParserTests uses a shared/global env object for all tests.
-	 * 4. ParserTests also uses PipelineFactory.parse (via env.getContentHandler())
-	 *    => the pipeline constructed for the first test that runs wt2html
-	 *       is used for all subsequent wt2html tests
-	 * 5. If we are selectively turning on/off options on a per-test basis
-	 *    in parser tests, those options won't work if those options are
-	 *    also used to configure pipeline construction (including which DOM passes
-	 *    are enabled).
-	 *
-	 *    Ex: if (env.wrapSections) { addPP('wrapSections', wrapSections); }
-	 *
-	 *    This won't do what you expect it to do. This is primarily a
-	 *    parser tests script issue -- but given the abstraction layers that
-	 *    are on top of the parser pipeline construction, fixing that is
-	 *    not straightforward right now. So, this note is a warning to future
-	 *    developers to pay attention to how they construct pipelines.
-	 * --------------------------------------------------------------------------- */
-
 	/**
 	 * @inheritDoc
 	 */
