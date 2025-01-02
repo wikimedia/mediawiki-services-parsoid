@@ -1458,7 +1458,7 @@ private function a123($r) {
 private function a124($ref, $sp, $identifier) {
 
 		$base_urls = [
-			'RFC' => 'https://tools.ietf.org/html/rfc%s',
+			'RFC' => 'https://datatracker.ietf.org/doc/html/rfc%s',
 			'PMID' => '//www.ncbi.nlm.nih.gov/pubmed/%s?dopt=Abstract'
 		];
 		$tsr = $this->tsrOffsets();

@@ -1202,7 +1202,15 @@ abstract class SiteConfig {
 		$pats = [
 			'ISBN' => '(?:\.\.?/)*(?i:' . $nsAliases . ')(?:%3[Aa]|:)'
 				. '(?i:' . $pageAliases . ')(?:%2[Ff]|/)(?P<ISBN>\d+[Xx]?)',
-			'RFC' => '[^/]*//tools\.ietf\.org/html/rfc(?P<RFC>\w+)',
+			// Recently the target url for RFCs changed from
+			// tools.ietf.org to datatracker.ietf.org/docs.
+			// Given edit stash storage on Wikimedia wikis, we need to retain the
+			// old mapping to ensure html->wt can handle that HTML properly
+			// But, 3rd party wikis with Parsoid HTML in their caches will also
+			// need this b/c support for much longer. Once the MW LTS release with
+			// tools.ietf.org EOLs, we can remove the tools.ietf.org string here.
+			// T382963 tracks the eventual removal of this b/c.
+			'RFC' => '[^/]*//(?:datatracker\.ietf\.org/doc|tools\.ietf\.org)/html/rfc(?P<RFC>\w+)',
 			'PMID' => '[^/]*//www\.ncbi\.nlm\.nih\.gov/pubmed/(?P<PMID>\w+)\?dopt=Abstract',
 		];
 		// T145590: remove patterns for disabled magic links

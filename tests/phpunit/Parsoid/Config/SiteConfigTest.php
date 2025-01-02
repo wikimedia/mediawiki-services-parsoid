@@ -76,11 +76,11 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 				'[[Special:Booksources/9780615720302|Working With MediaWiki]]'
 			],
 			[
-				[ 'RFC', '2324' ], 'https://tools.ietf.org/html/rfc2324', 'RFC 2324', 'RFC 2324'
+				[ 'RFC', '2324' ], 'https://datatracker.ietf.org/doc/html/rfc2324', 'RFC 2324', 'RFC 2324'
 			],
 			[
-				[ 'RFC', '2324' ], 'https://tools.ietf.org/html/rfc2324', 'HTCPCP',
-				'[https://tools.ietf.org/html/rfc2324 HTCPCP]'
+				[ 'RFC', '2324' ], 'https://datatracker.ietf.org/doc/html/rfc2324', 'HTCPCP',
+				'[https://datatracker.ietf.org/doc/html/rfc2324 HTCPCP]'
 			],
 		];
 	}
@@ -271,15 +271,15 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 			[ "http://www.ncbi.nlm.nih.gov/pubmed/covid19?dopt=Abstract&something_more", false ],
 		];
 		$rfcTests = [
-			[ "//tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
-			[ "https://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
-			[ "http://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "//datatracker.ietf.org/doc/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "https://datatracker.ietf.org/doc/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "http://datatracker.ietf.org/doc/html/rfc1234", [ 'RFC', '1234' ] ],
 			// FIXME T257629: Strange that our code accepts RFCs with "_" and doesn't have more validity checking
 			// but, magic links are on the way out anyway.
-			[ "http://tools.ietf.org/html/rfc_1234", [ 'RFC', '_1234' ] ],
+			[ "http://datatracker.ietf.org/doc/html/rfc_1234", [ 'RFC', '_1234' ] ],
 			// FIXME T257629: Strange that our code treats "foobar://" as "foobar:" + "//"
-			[ "foobar://tools.ietf.org/html/rfc1234", [ 'RFC', '1234' ] ],
-			[ "http://tools.ietf.org/html/RFC1234", false ],
+			[ "foobar://datatracker.ietf.org/doc/html/rfc1234", [ 'RFC', '1234' ] ],
+			[ "http://datatracker.ietf.org/doc/html/RFC1234", false ],
 			[ "http://tools.ietf.org/json/rfc1234", false ],
 		];
 

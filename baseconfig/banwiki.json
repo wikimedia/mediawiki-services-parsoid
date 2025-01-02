@@ -3917,7 +3917,7 @@
             },
             {
                 "prefix": "rfc",
-                "url": "https://tools.ietf.org/html/rfc$1",
+                "url": "https://datatracker.ietf.org/doc/html/rfc$1",
                 "protorel": true
             },
             {
