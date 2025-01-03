@@ -46,9 +46,6 @@ class TokenStreamPatcher extends TokenHandler {
 	/** @var SelfclosingTagTk|null */
 	private $tplStartToken = null;
 
-	/** @var NlTk|null */
-	private $discardableNlTk = null;
-
 	public function __construct( TokenTransformManager $manager, array $options ) {
 		$newOptions = [ 'tsp' => true ] + $options;
 		parent::__construct( $manager, $newOptions );
@@ -97,18 +94,6 @@ class TokenStreamPatcher extends TokenHandler {
 			}
 		);
 		$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
-		if ( $this->sol && $this->tplStartToken ) {
-			// When using core preprocessor, start-of-line start is forced by
-			// inserting a newline in certain cases (the "T2529 hack"). In the
-			// legacy parser, the T2529 hack is never applied if the template was
-			// already at the start of the line (the `!$piece['lineStart']`
-			// check in Parser::braceSubstitution where T2529 is handled), but
-			// that context (`$this->sol`) isn't passed through when Parsoid
-			// invokes the core preprocessor. Thus, when $this->sol is true,
-			// prepare to (if the following tokens warrant it) remove an unnecessary
-			// T2529 newline added by the legacy preprocessor.
-			$this->discardableNlTk = $token;
-		}
 		$this->tokenBuf[] = $token;
 		$this->sol = true;
 		return new TokenHandlerResult( [] );
@@ -204,61 +189,10 @@ class TokenStreamPatcher extends TokenHandler {
 		try {
 			return $this->onAnyInternal( $token );
 		} finally {
-			// Ensure we always clean up discardableNlTk and tplStartToken even
+			// Ensure we always clean up tplStartToken even
 			// in the presence of exceptions.
-			$this->discardableNlTk = null;
 			if ( $this->tplStartToken !== $token ) {
 				$this->tplStartToken = null;
-			}
-		}
-	}
-
-	/**
-	 * The legacy parser's "T2529 hack" attempts to ensure templates are
-	 * always evaluated in start-of-line context by prepending a newline
-	 * if necessary.  However, it is inconsistent: in particular it
-	 * only treats }| : ; # * as SOL-sensitive tokens, neglecting ==
-	 * (headings) and ! | |} (in table context).
-	 *
-	 * If we're using the core preprocessor for template expansion:
-	 *  - The core preprocessor as invoked by Parsoid will always insert the
-	 *    newline in the "T2529 cases" (even though it's not necessary; Parsoid
-	 *    is already in SOL mode) *HOWEVER*
-	 *  - As described in ::onNewline() above, the newline insertion is
-	 *    /supposed/ to be suppressed if the template was *already*
-	 *    at the start of the line.  So we need to strip the unnecessarily
-	 *    added NlTk to avoid "extra" whitespace in Parsoid's expansion.
-	 *     Ex: "{{my-tpl}}" in sol-context which will get expanded to "\n*foo"
-	 *     but the "\n" wasn't necessary
-	 *
-	 * If we're in native preprocessor mode:
-	 *  - If we are in SOL state, we don't need to add a newline.
-	 *  - If we are not in SOL state, we need to insert a newline in 'T2529' cases.
-	 *    Ex: "{{my-tpl}}" in sol-context which expands to "*foo" but in
-	 *    non-sol context expands to "\n*foo"
-	 *
-	 * @param string $tokenName
-	 */
-	private function handleT2529Hack( string $tokenName ): void {
-		// Core's
-		if ( $tokenName === 'table' || $tokenName === 'listItem' ) {
-			// We're in a context when the core preprocessor would apply
-			// the "T2529 hack" to ensure start-of-line context.
-			if ( $this->discardableNlTk ) {
-				// We're using core preprocessor and were already at
-				// the start of the line, so the core preprocessor wouldn't
-				// actually have inserted a newline here.  Swallow up ours.
-				array_pop( $this->tokenBuf );
-			} elseif ( !$this->sol &&
-				$this->tplStartToken &&
-				$this->env->nativeTemplateExpansionEnabled()
-			) {
-				// Native preprocessor; add a newline in "T2529 cases"
-				// for correct whitespace. (Remember that this only happens
-				// if we weren't already at the start of the line.)
-				// Add a newline & force SOL
-				$this->tokenBuf[] = new NlTk( null );
-				$this->sol = true;
 			}
 		}
 	}
@@ -414,7 +348,6 @@ class TokenStreamPatcher extends TokenHandler {
 			case 'TagTk':
 				if ( $this->inIndependentParse && !TokenUtils::isHTMLTag( $token ) ) {
 					$tokenName = $token->getName();
-					$this->handleT2529Hack( $tokenName );
 					if ( $tokenName === 'listItem' && isset( $this->options['attrExpansion'] ) ) {
 						// Convert list items back to bullet wikitext in attribute context
 						$tokens = $this->convertTokenToString( $token );

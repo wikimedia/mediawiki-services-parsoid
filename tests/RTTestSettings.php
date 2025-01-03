@@ -29,3 +29,6 @@ $wgParsoidSettings['useSelser'] = true;
 $wgParsoidSettings['linting'] = (bool)$wgReadOnly;
 
 $wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
+
+// For T382464
+$wgParsoidNewTemplateExpansionMode = true;

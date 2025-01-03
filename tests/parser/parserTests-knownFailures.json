@@ -147,10 +147,10 @@
 		"wt2wt": "[http://www.example.org/ ideograms]"
 	},
 	"T2529: Uncovered bullet": {
-		"wt2wt": "*Foo{{bullet}}\n"
+		"wt2wt": "*Foo{{bullet}}"
 	},
 	"T2529: Uncovered bullet in a deeply nested list": {
-		"wt2wt": "*******Foo\n{{bullet}}\n"
+		"wt2wt": "*******Foo\n{{bullet}}"
 	},
 	"T2553: link with two variables in a piped link": {
 		"wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}"

@@ -978,27 +978,26 @@
         "html2wt": "foo\n\n{|\n|1\n|2\n|-\n|3\n|4\n|}"
     },
     "T2529: Uncovered bullet": {
-        "wt2wt": "*Foo{{bullet}}\n",
-        "html2wt": "* Foo{{bullet}}\n",
+        "wt2wt": "*Foo{{bullet}}",
+        "html2wt": "* Foo{{bullet}}",
         "selser [2]": "xpt49k\n*Foo {{bullet}}",
-        "selser [[2,0,0]]": "* b9vx2l\n*Foo {{bullet}}",
+        "selser [[2,0]]": "* 12na0t\n*Foo {{bullet}}",
         "selser [1]": "*Foo {{bullet}}",
-        "selser [[1,0,0]]": "*Foo {{bullet}}"
+        "selser [[1,0]]": "*Foo {{bullet}}"
     },
     "T2529: Uncovered bullet in a deeply nested list": {
-        "wt2wt": "*******Foo\n{{bullet}}\n",
-        "html2html": "<ul data-parsoid='{\"dsr\":[0,22,0,0]}'><li data-parsoid='{\"dsr\":[0,11,1,0]}'><ul data-parsoid='{\"dsr\":[1,11,0,0]}'><li data-parsoid='{\"dsr\":[1,11,1,0]}'><ul data-parsoid='{\"dsr\":[2,11,0,0]}'><li data-parsoid='{\"dsr\":[2,11,1,0]}'><ul data-parsoid='{\"dsr\":[3,11,0,0]}'><li data-parsoid='{\"dsr\":[3,11,1,0]}'><ul data-parsoid='{\"dsr\":[4,11,0,0]}'><li data-parsoid='{\"dsr\":[4,11,1,0]}'><ul data-parsoid='{\"dsr\":[5,11,0,0]}'><li data-parsoid='{\"dsr\":[5,11,1,0]}'><ul data-parsoid='{\"dsr\":[6,11,0,0]}'><li data-parsoid='{\"dsr\":[6,11,1,0,1,0]}'>Foo</li></ul></li></ul></li></ul></li></ul></li></ul></li></ul></li>\n<li about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[12,22,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"bullet\",\"href\":\"./Template:Bullet\"},\"params\":{},\"i\":0}}]}'>Bar</li></ul>\n",
-        "html2wt": "******* Foo\n{{bullet}}\n",
-        "selser [[[[[2]]],0,0]]": "**1pu16hr\n*******Foo {{bullet}}",
-        "selser [[[[2]],0,0]]": "** vaurd6\n*******Foo {{bullet}}",
-        "selser [[2,0,0]]": "* oag6qw\n*******Foo {{bullet}}",
+        "wt2wt": "*******Foo\n{{bullet}}",
+        "html2wt": "******* Foo\n{{bullet}}",
+        "selser [[[[[2]]],0]]": "**sm0xpk\n*******Foo {{bullet}}",
+        "selser [[[[2]],0]]": "** hfccqc\n*******Foo {{bullet}}",
+        "selser [[2,0]]": "* 173c0q7\n*******Foo {{bullet}}",
         "selser [1]": "*******Foo {{bullet}}",
-        "selser [[[1],0,0]]": "*******Foo {{bullet}}",
+        "selser [[[1],0]]": "*******Foo {{bullet}}",
         "selser [2]": "113swo7\n*******Foo {{bullet}}",
-        "selser [[[[1]],0,0]]": "*******Foo {{bullet}}",
-        "selser [[[2],0,0]]": "*lrgux8\n*******Foo {{bullet}}",
-        "selser [[1,0,0]]": "*******Foo {{bullet}}",
-        "selser [[[[[[[1]]]]],0,0]]": "*******Foo {{bullet}}"
+        "selser [[[[1]],0]]": "*******Foo {{bullet}}",
+        "selser [[[2],0]]": "*qr9mgy\n*******Foo {{bullet}}",
+        "selser [[1,0]]": "*******Foo {{bullet}}",
+        "selser [[[[[[[1]]]]],0]]": "*******Foo {{bullet}}"
     },
     "T2553: link with two variables in a piped link": {
         "wt2wt": "{|\n|[[{{{1}}}<nowiki>|</nowiki>{{{2}}}]]\n|}",
@@ -1282,7 +1281,7 @@
         "html2wt": "<div>Foo</div><div>bar</div>"
     },
     "Templates: Don't strip whitespace from positional-param values": {
-        "html2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span></p>\n\n<p data-parsoid='{\"dsr\":[10,26,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[10,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </span></p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[28,39,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[41,58,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[60,70,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<ul about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[72,82,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[84,94,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>\n",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,8,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,8,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"a\"}},\"i\":0}}]}'>a</span></p>\n\n<p data-parsoid='{\"dsr\":[10,26,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[10,26,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"{{1x|b}} \"}},\"i\":0}}]}'>b </span></p>\n\n<pre about=\"#mwt4\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[28,39,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" c \\n\"}},\"i\":0}}]}'>c </pre><span about=\"#mwt4\">\n</span>\n\n<pre about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"dsr\":[41,58,1,0],\"pi\":[[{\"k\":\"1\"}]]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\" {{1x|d}}\\n\"}},\"i\":0}}]}'>d</pre><span about=\"#mwt5\">\n</span>\n\n<span about=\"#mwt7\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[60,70,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n e\"}},\"i\":0}}]}'>\n</span><pre about=\"#mwt7\">e</pre>\n\n<span about=\"#mwt8\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[72,82,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n*f\"}},\"i\":0}}]}'>\n</span><ul about=\"#mwt8\"><li>f</li></ul>\n\n<span about=\"#mwt9\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[84,94,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"\\n \"}},\"i\":0}},\"g\"]}'>\n</span><pre about=\"#mwt9\">g</pre>\n",
         "html2wt": "{{1x|a}}\n\n{{1x|{{1x|b}} }}\n\n{{1x| c \n}}\n\n{{1x| {{1x|d}}\n}}\n\n{{1x|\n e}}\n\n{{1x|\n*f}}\n\n{{1x|\n }}g\n"
     },
     "Templates: HTML Tables: 1. Generating start of a HTML table": {
