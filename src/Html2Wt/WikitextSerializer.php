@@ -714,7 +714,7 @@ class WikitextSerializer {
 		// Per-parameter info from data-parsoid for pre-existing parameters
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		// Account for clients not setting the `i`, see T238721
-		$dpArgInfo = isset( $part->i ) ? ( $dp->pi[$part->i] ?? [] ) : [];
+		$dpArgInfo = $part->i !== null ? ( $dp->pi[$part->i] ?? [] ) : [];
 
 		// Build a key -> arg info map
 		$dpArgInfoMap = [];
@@ -923,7 +923,7 @@ class WikitextSerializer {
 			$prevPart = $srcParts[$i - 1] ?? null;
 			$nextPart = $srcParts[$i + 1] ?? null;
 
-			if ( !isset( $part->targetWt ) ) {
+			if ( $part->targetWt === null ) {
 				// Maybe we should just raise a ClientError
 				$this->env->log( 'error', 'data-mw.parts array is malformed: ',
 					DOMCompat::getOuterHTML( $node ), PHPUtils::jsonEncode( $srcParts ) );
@@ -952,7 +952,7 @@ class WikitextSerializer {
 			// Fetch template data for the template
 			$tplData = null;
 			$apiResp = null;
-			if ( isset( $part->href ) && $useTplData ) {
+			if ( $part->href !== null && $useTplData ) {
 				// Not a parser function
 				try {
 					$title = Title::newFromText(
