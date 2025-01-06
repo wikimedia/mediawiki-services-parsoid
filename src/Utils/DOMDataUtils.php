@@ -139,7 +139,7 @@ class DOMDataUtils {
 		} else {
 			$dataObject = null; // Make phan happy
 		}
-		Assert::invariant( isset( $dataObject ), 'Bogus nodeId given!' );
+		Assert::invariant( $dataObject !== null, 'Bogus nodeId given!' );
 		if ( isset( $dataObject->storedId ) ) {
 			throw new UnreachableException(
 				'Trying to fetch node data without loading!' .

@@ -625,9 +625,9 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			$thumbtime = WTSUtils::getAttrFromDataMw( $dataMw, 'thumbtime', true );
 			$starttime = WTSUtils::getAttrFromDataMw( $dataMw, 'starttime', true );
 			if ( $thumbtime || $starttime ) {
-				$seek = isset( $thumbtime->value )
+				$seek = $thumbtime && $thumbtime->value !== null
 					? $thumbtime->value['txt']
-					: ( isset( $starttime->value ) ? $starttime->value['txt'] : '' );
+					: ( $starttime && $starttime->value !== null ? $starttime->value['txt'] : '' );
 				$seek = self::parseTimeString( $seek );
 				if ( $seek !== null ) {
 					$dims['seek'] = $seek;

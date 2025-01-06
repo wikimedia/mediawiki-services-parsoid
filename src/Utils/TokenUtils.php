@@ -305,7 +305,7 @@ class TokenUtils {
 					}
 
 					// Process attributes
-					if ( isset( $t->attribs ) ) {
+					if ( $t->attribs !== null ) {
 						for ( $j = 0, $m = count( $t->attribs );  $j < $m;  $j++ ) {
 							$a = $t->attribs[$j];
 							if ( is_array( $a->k ) ) {

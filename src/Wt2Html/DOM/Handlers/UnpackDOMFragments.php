@@ -95,7 +95,7 @@ class UnpackDOMFragments {
 		if ( $newOffset === null ) {
 			// We end up here when $placeholderParent is part of encapsulated content.
 			// Till we add logic to prevent that from happening, we need this fallback.
-			if ( isset( $dp->dsr->start ) ) {
+			if ( isset( $dp->dsr ) && $dp->dsr->start !== null ) {
 				$newOffset = $dp->dsr->start;
 			}
 

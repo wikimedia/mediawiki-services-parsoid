@@ -421,7 +421,7 @@ class PipelineUtils {
 				// template wrapping of a foster box if the dom fragment is found in
 				// a fosterable position.
 				if (
-					isset( $nodeData->parsoid ) &&
+					$nodeData->parsoid !== null &&
 					$nodeData->parsoid->getTempFlag( TempData::IN_TRANSCLUSION )
 				) {
 					$nodeData->parsoid->tmp->setFlag( TempData::IN_TRANSCLUSION, false );

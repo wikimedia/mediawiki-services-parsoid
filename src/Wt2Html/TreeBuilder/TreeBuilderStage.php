@@ -120,7 +120,7 @@ class TreeBuilderStage extends PipelineStage {
 	public function finalizeDOM(): Node {
 		// Check if the EOFTk actually made it all the way through, and flag the
 		// page where it did not!
-		if ( isset( $this->lastToken ) && !( $this->lastToken instanceof EOFTk ) ) {
+		if ( $this->lastToken !== null && !( $this->lastToken instanceof EOFTk ) ) {
 			$this->env->log(
 				'error', 'EOFTk was lost in page',
 				$this->env->getContextTitle()->getPrefixedText()
@@ -186,7 +186,7 @@ class TreeBuilderStage extends PipelineStage {
 		}
 
 		$dispatcher = $this->remexPipeline->dispatcher;
-		$attribs = isset( $token->attribs ) ? $this->kvArrToAttr( $token->attribs ) : [];
+		$attribs = !is_string( $token ) && $token->attribs !== null ? $this->kvArrToAttr( $token->attribs ) : [];
 		$dataParsoid = !is_string( $token ) ? $token->dataParsoid : new DataParsoid;
 		$dataMw = $token->dataMw ?? null;
 		$tmp = $dataParsoid->getTemp();
