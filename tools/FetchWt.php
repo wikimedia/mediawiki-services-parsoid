@@ -18,7 +18,10 @@ class FetchWt extends FetchingTool {
 	/** Creates supported parameters and description for the fetchwt script and adds the
 	 * generic ones
 	 */
-	public function addDefaultParams(): void {
+	public function __construct() {
+		parent::__construct();
+		parent::addDefaultParams();
+
 		$this->addOption( 'output', 'Write page to given file', false, true );
 
 		$this->addOption( 'prefix',
@@ -34,7 +37,7 @@ class FetchWt extends FetchingTool {
 		$this->addOption( 'title', 'Page title to fetch (only if revid is not present)',
 			false, true );
 
-		parent::addDefaultParams();
+		$this->setAllowUnregisteredOptions( false );
 	}
 
 	public function execute() {
