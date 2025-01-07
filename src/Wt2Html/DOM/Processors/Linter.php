@@ -1480,18 +1480,13 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// Track time spent linting so we can evaluate benefits
 		// of migrating this code off the critical path to its own
 		// post processor.
-		$metrics = $env->getSiteConfig()->metrics();
-		$timer = null;
-		if ( $metrics ) {
-			$timer = Timing::start( $metrics );
-		}
+		$siteConfig = $env->getSiteConfig();
+		$timer = Timing::start( $siteConfig );
 
 		$this->findLints( $root, $env );
 		$this->postProcessLints( $env->getLints(), $env );
 
-		if ( $metrics ) {
-			$timer->end( "linting" );
-		}
+		$timer->end( "linting", "linting", [] );
 	}
 
 }
