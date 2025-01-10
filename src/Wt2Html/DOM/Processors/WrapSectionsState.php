@@ -867,7 +867,7 @@ class WrapSectionsState {
 					}
 				}
 			}
-			if ( !$showToc ) {
+			if ( $numHeadings > 0 && !$showToc ) {
 				// ParserOutputFlags::NO_TOC
 				$this->env->getMetadata()->setOutputFlag( 'no-toc' );
 			}
