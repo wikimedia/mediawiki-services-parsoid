@@ -203,10 +203,15 @@ class ComputeSelectiveStats {
 			'REST_API_Crawler_Google',
 			'IABot',
 			'Rust_mediawiki_API',
+			'ChangePropagation', // fallback
 		];
 		if ( $userAgent === null ) {
 			return 'unknown';
 		}
+		// Replace non-alphanumeric characters, the same way that core does
+		// See mediawiki-core:includes/libs/Stats/StatsUtils::normalizeString()
+		$userAgent = preg_replace( '/\W+/', '_', $userAgent );
+		$userAgent = trim( $userAgent, "_" );
 		if ( $acceptableAgents[$userAgent] ?? false ) {
 			return $userAgent;
 		}
