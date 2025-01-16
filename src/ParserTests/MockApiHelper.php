@@ -823,6 +823,7 @@ class MockApiHelper extends ApiHelper {
 		'magiclink-tracking-rfc' => 'Pages using RFC magic links',
 		'magiclink-tracking-isbn' => 'Pages using ISBN magic links',
 		'magiclink-tracking-pmid' => 'Pages using PMID magic links',
+		'hidden-category-category' => 'Hidden categories',
 	];
 
 	private function processQuery( array $params ): array {

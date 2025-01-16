@@ -47,6 +47,16 @@ class BehaviorSwitchHandler extends TokenHandler {
 				self::$OutputFlagFromBS[$magicWord], true
 			);
 		}
+		if (
+			$magicWord === 'hiddencat' &&
+			$env->getPageConfig()->getLinkTarget()->getNamespace() === 14 // NS_CATEGORY
+		) {
+			$env->getDataAccess()->addTrackingCategory(
+				$env->getPageConfig(),
+				$env->getMetadata(),
+				'hidden-category-category'
+			);
+		}
 		$metaToken = new SelfclosingTagTk(
 			'meta',
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
