@@ -1211,6 +1211,18 @@ __NOCONTENTCONVERT__
 !! end
 
 !! test
+NOGALLERY sets flag
+!! options
+showflags
+!! wikitext
+__NOGALLERY__
+!! html/parsoid
+<meta property="mw:PageProp/nogallery" data-parsoid='{"src":"__NOGALLERY__","magicSrc":"__NOGALLERY__"}'/>
+!! metadata
+flags=mw-NoGallery
+!! end
+
+!! test
 New section link / no new section link
 !! options
 showflags

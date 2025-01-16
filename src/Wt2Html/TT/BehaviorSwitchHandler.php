@@ -17,6 +17,20 @@ class BehaviorSwitchHandler extends TokenHandler {
 		parent::__construct( $manager, $options );
 	}
 
+	private static $OutputFlagFromBS = [
+		// ParserOutputFlags::NO_GALLERY
+		'nogallery' => 'mw-NoGallery',
+
+		// ParserOutputFlags::NEW_SECTION
+		'newsectionlink' => 'mw-NewSection',
+
+		// ParserOutputFlags::HIDE_NEW_SECTION
+		'nonewsectionlink' => 'mw-HideNewSection',
+
+		// ParserOutputFlags::NO_SECTION_EDIT_LINKS
+		'noeditsection' => 'no-section-edit-links',
+	];
+
 	/**
 	 * Main handler.
 	 * See {@link TokenTransformManager#addTransform}'s transformation parameter.
@@ -28,12 +42,16 @@ class BehaviorSwitchHandler extends TokenHandler {
 		$env = $this->env;
 		$magicWord = $env->getSiteConfig()->getMagicWordForBehaviorSwitch( $token->attribs[0]->v );
 		$env->setBehaviorSwitch( $magicWord, true );
+		if ( isset( self::$OutputFlagFromBS[$magicWord] ) ) {
+			$env->getMetadata()->setOutputFlag(
+				self::$OutputFlagFromBS[$magicWord], true
+			);
+		}
 		$metaToken = new SelfclosingTagTk(
 			'meta',
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
 			clone $token->dataParsoid
 		);
-
 		return new TokenHandlerResult( [ $metaToken ] );
 	}
 
