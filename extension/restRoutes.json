@@ -12,21 +12,87 @@
 		"method": "GET"
 	},
 	{
-		"path": "/{domain}/v3/transform/{from}/to/{format}",
+		"path": "/{domain}/v3/transform/{from}/to/html",
 		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
 		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
-		"method": "POST"
+		"method": "POST",
+		"format": "html"
 	},
 	{
-		"path": "/{domain}/v3/transform/{from}/to/{format}/{title}",
+		"path": "/{domain}/v3/transform/{from}/to/pagebundle",
 		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
 		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
-		"method": "POST"
+		"method": "POST",
+		"format": "pagebundle"
 	},
 	{
-		"path": "/{domain}/v3/transform/{from}/to/{format}/{title}/{revision}",
+		"path": "/{domain}/v3/transform/{from}/to/wikitext",
 		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
 		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
-		"method": "POST"
+		"method": "POST",
+		"format": "wikitext"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/lint",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "lint"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/html/{title}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "html"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/pagebundle/{title}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "pagebundle"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/wikitext/{title}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "wikitext"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/lint/{title}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "lint"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/html/{title}/{revision}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "html"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/pagebundle/{title}/{revision}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "pagebundle"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/wikitext/{title}/{revision}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "wikitext"
+	},
+	{
+		"path": "/{domain}/v3/transform/{from}/to/lint/{title}/{revision}",
+		"class": "MWParsoid\\Rest\\Handler\\TransformHandler",
+		"factory": "MWParsoid\\Rest\\Handler\\TransformHandler::factory",
+		"method": "POST",
+		"format": "lint"
 	}
 ]
