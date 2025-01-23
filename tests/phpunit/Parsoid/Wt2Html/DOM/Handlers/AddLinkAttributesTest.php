@@ -10,7 +10,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddLinkAttributes;
-use Wikimedia\Parsoid\Wt2Html\DOMPPTraverser;
+use Wikimedia\Parsoid\Wt2Html\DOM\Processors\DOMPPTraverser;
 
 class AddLinkAttributesTest extends TestCase {
 

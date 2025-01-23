@@ -1,13 +1,15 @@
 <?php
 declare( strict_types = 1 );
 
-namespace Wikimedia\Parsoid\Wt2Html;
+namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DTState;
+use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
+use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
  * This is a class that wraps the DOMTraverser utility for use
