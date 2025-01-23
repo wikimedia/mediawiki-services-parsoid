@@ -47,8 +47,8 @@ class ScriptUtils {
 				'- Supported flags:',
 				'  * grammar   : shows rules processed by grammar',
 				'  * peg       : shows tokens emitted by tokenizer',
-				'  * ttm:2     : shows tokens flowing through stage 2 of the parsing pipeline',
-				'  * ttm:3     : shows tokens flowing through stage 3 of the parsing pipeline',
+				'  * thp:2     : shows tokens flowing through stage 2 of the parsing pipeline',
+				'  * thp:3     : shows tokens flowing through stage 3 of the parsing pipeline',
 				'  * tsp       : shows tokens flowing through the TokenStreamPatcher '
 					. '(useful to see in-order token stream)',
 				'  * list      : shows actions of the list handler',
@@ -70,7 +70,7 @@ class ScriptUtils {
 				'',
 				'Examples:',
 				"$ php $script --trace pre,p-wrap,html < foo",
-				"$ php $script --trace ttm:3,dsr < foo",
+				"$ php $script --trace thp:3,dsr < foo",
 				''
 			]
 		);

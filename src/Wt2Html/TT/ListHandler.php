@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * Create list tag around list items and map wiki bullet levels to html.
@@ -52,10 +52,10 @@ class ListHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param TokenTransformManager $manager manager environment
+	 * @param TokenHandlerPipeline $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->reset();
 	}

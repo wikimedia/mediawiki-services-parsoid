@@ -272,8 +272,8 @@ class ParserPipelineFactory {
 			"class" => PegTokenizer::class,
 		],
 		"TokenTransform2" => [
-			"class" => TokenTransformManager::class,
-			"transformers" => [
+			"class" => TokenHandlerPipeline::class,
+			"token-handlers" => [
 				OnlyInclude::class,
 
 				TemplateHandler::class,
@@ -297,8 +297,8 @@ class ParserPipelineFactory {
 			],
 		],
 		"TokenTransform3" => [
-			"class" => TokenTransformManager::class,
-			"transformers" => [
+			"class" => TokenHandlerPipeline::class,
+			"token-handlers" => [
 				TokenStreamPatcher::class,
 				// add <pre>s
 				PreHandler::class,
@@ -527,8 +527,8 @@ class ParserPipelineFactory {
 		foreach ( $recipeStages as $stageId ) {
 			$stageData = self::$stages[$stageId];
 			$stage = new $stageData["class"]( $this->env, $options, $stageId, $prevStage );
-			if ( isset( $stageData["transformers"] ) ) {
-				foreach ( $stageData["transformers"] as $tName ) {
+			if ( isset( $stageData["token-handlers"] ) ) {
+				foreach ( $stageData["token-handlers"] as $tName ) {
 					$stage->addTransformer( new $tName( $stage, $options ) );
 				}
 			} elseif ( isset( $stageData["processors"] ) ) {

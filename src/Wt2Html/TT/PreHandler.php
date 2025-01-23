@@ -18,7 +18,7 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * PRE-handling relies on the following 6-state FSM.
@@ -176,10 +176,10 @@ class PreHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param TokenTransformManager $manager manager enviroment
+	 * @param TokenHandlerPipeline $manager manager enviroment
 	 * @param array $options various configuration options
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		if ( !empty( $this->options['inlineContext'] ) ) {
 			$this->disabled = true;

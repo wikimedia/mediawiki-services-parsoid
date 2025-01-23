@@ -20,7 +20,7 @@ use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * Generic attribute expansion handler.
@@ -35,14 +35,14 @@ class AttributeExpander extends TokenHandler {
 	private $tokenizer;
 
 	/**
-	 * @param TokenTransformManager $manager
+	 * @param TokenHandlerPipeline $manager
 	 * @param array $options
 	 *  - bool inTemplate Is this being invoked while processing a template?
 	 *  - bool expandTemplates Should we expand templates encountered here?
 	 *  - bool standalone Is this AttributeExpander used as part of a pipeline
 	 *                    or is it being used standalone as an utility class?
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->tokenizer = new PegTokenizer( $manager->getEnv() );
 	}

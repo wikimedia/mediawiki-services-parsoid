@@ -19,11 +19,11 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class ExtensionHandler extends TokenHandler {
 
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 

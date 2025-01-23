@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * Insert paragraph tags where needed -- smartly and carefully
@@ -53,10 +53,10 @@ class ParagraphWrapper extends TokenHandler {
 
 	/**
 	 * Constructor for paragraph wrapper.
-	 * @param TokenTransformManager $manager manager enviroment
+	 * @param TokenHandlerPipeline $manager manager enviroment
 	 * @param array $options various configuration options
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		// Disable p-wrapper
 		$this->disabled = !empty( $this->options['inlineContext'] );

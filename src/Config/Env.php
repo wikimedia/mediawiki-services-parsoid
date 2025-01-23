@@ -63,7 +63,7 @@ class Env {
 	 */
 	public $topFrame;
 	// XXX In the future, perhaps replace PageConfig with the Frame, and
-	// add $this->currentFrame (relocated from TokenTransformManager) if/when
+	// add $this->currentFrame (relocated from TokenHandlerPipeline) if/when
 	// we've removed async parsing.
 
 	/**

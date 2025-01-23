@@ -22,7 +22,7 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
 use Wikimedia\Parsoid\Wt2Html\Params;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * Template and template argument handling.
@@ -54,13 +54,13 @@ class TemplateHandler extends TokenHandler {
 	 private $safeSubstRegex;
 
 	/**
-	 * @param TokenTransformManager $manager
+	 * @param TokenHandlerPipeline $manager
 	 * @param array $options
 	 *  - ?bool inTemplate Is this being invoked while processing a template?
 	 *  - ?bool expandTemplates Should we expand templates encountered here?
 	 *  - ?string extTag The name of the extension tag, if any, which is being expanded.
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->parserFunctions = new ParserFunctions( $this->env );
 		$this->ae = new AttributeExpander( $this->manager, [

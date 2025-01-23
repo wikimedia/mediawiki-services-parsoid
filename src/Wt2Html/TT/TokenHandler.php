@@ -8,12 +8,12 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 abstract class TokenHandler {
 	/** @var Env */
 	protected $env;
-	/** @var TokenTransformManager */
+	/** @var TokenHandlerPipeline */
 	protected $manager;
 	/** @var int|null */
 	protected $pipelineId;
@@ -30,10 +30,10 @@ abstract class TokenHandler {
 	protected $atTopLevel = false;
 
 	/**
-	 * @param TokenTransformManager $manager The manager for this stage of the parse.
+	 * @param TokenHandlerPipeline $manager The manager for this stage of the parse.
 	 * @param array $options Any options for the expander.
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		$this->manager = $manager;
 		$this->env = $manager->getEnv();
 		$this->options = $options;

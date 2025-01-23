@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2html\TokenHandlerPipeline;
 
 /**
  * PORT-FIXME: Maybe we need to look at all uses of flatten
@@ -61,10 +61,10 @@ class QuoteTransformer extends TokenHandler {
 	private $last;
 
 	/**
-	 * @param TokenTransformManager $manager manager environment
+	 * @param TokenHandlerPipeline $manager manager environment
 	 * @param array $options options
 	 */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->reset();
 	}

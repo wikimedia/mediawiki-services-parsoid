@@ -6,14 +6,14 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * Handler for behavior switches, like '__TOC__' and similar.
  */
 class BehaviorSwitchHandler extends TokenHandler {
 
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 	}
 
@@ -33,7 +33,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 
 	/**
 	 * Main handler.
-	 * See {@link TokenTransformManager#addTransform}'s transformation parameter.
+	 * See {@link TokenHandlerPipeline#addTransform}'s transformation parameter.
 	 *
 	 * @param Token $token
 	 * @return TokenHandlerResult

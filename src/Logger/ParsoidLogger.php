@@ -37,8 +37,8 @@ class ParsoidLogger {
 		'trace/selser' => '[SELSER]',
 		'trace/domdiff' => '[DOM-DIFF]',
 		'trace/wt-escape' => '[wt-esc]',
-		'trace/ttm:2' => '[2-TTM]',
-		'trace/ttm:3' => '[3-TTM]',
+		'trace/thp:2' => '[2-THP]',
+		'trace/thp:3' => '[3-THP]',
 	];
 
 	/**

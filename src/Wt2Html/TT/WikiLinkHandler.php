@@ -39,7 +39,7 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class WikiLinkHandler extends TokenHandler {
 	/**
@@ -48,7 +48,7 @@ class WikiLinkHandler extends TokenHandler {
 	private $urlParser;
 
 	/** @inheritDoc */
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 
 		// Create a new peg parser for image options.
@@ -250,7 +250,7 @@ class WikiLinkHandler extends TokenHandler {
 		}
 	}
 
-	public static function bailTokens( TokenTransformManager $manager, Token $token ): array {
+	public static function bailTokens( TokenHandlerPipeline $manager, Token $token ): array {
 		$frame = $manager->getFrame();
 		$tsr = $token->dataParsoid->tsr;
 		$frameSrc = $frame->getSrcText();

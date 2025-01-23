@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
  * This class is an attempt to fixup the token stream to reparse strings
@@ -46,7 +46,7 @@ class TokenStreamPatcher extends TokenHandler {
 	/** @var SelfclosingTagTk|null */
 	private $tplStartToken = null;
 
-	public function __construct( TokenTransformManager $manager, array $options ) {
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		$newOptions = [ 'tsp' => true ] + $options;
 		parent::__construct( $manager, $newOptions );
 		$this->tokenizer = new PegTokenizer( $this->env );

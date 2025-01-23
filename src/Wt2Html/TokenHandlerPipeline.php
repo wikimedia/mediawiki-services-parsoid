@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\Wt2Html\TT\TraceProxy;
  * eliminated and the various token transforms just extend PipelineStage
  * directly.
  */
-class TokenTransformManager extends PipelineStage {
+class TokenHandlerPipeline extends PipelineStage {
 	/** @var array */
 	private $options;
 
@@ -50,7 +50,7 @@ class TokenTransformManager extends PipelineStage {
 		parent::__construct( $env, $prevStage );
 		$this->options = $options;
 		$this->pipelineId = null;
-		$this->traceType = 'trace/ttm:' . str_replace( 'TokenTransform', '', $stageId );
+		$this->traceType = 'trace/thp:' . str_replace( 'TokenTransform', '', $stageId );
 		$this->traceEnabled = $env->hasTraceFlags();
 	}
 
@@ -82,9 +82,9 @@ class TokenTransformManager extends PipelineStage {
 
 	public function shuttleTokensToEndOfStage( array $toks ): array {
 		$this->hasShuttleTokens = true;
-		$ttmEnd = new SelfclosingTagTk( 'mw:ttm-end' );
-		$ttmEnd->dataParsoid->getTemp()->shuttleTokens = $toks;
-		return [ $ttmEnd ];
+		$thpEnd = new SelfclosingTagTk( 'mw:thp-end' );
+		$thpEnd->dataParsoid->getTemp()->shuttleTokens = $toks;
+		return [ $thpEnd ];
 	}
 
 	/**
@@ -122,7 +122,7 @@ class TokenTransformManager extends PipelineStage {
 			$this->hasShuttleTokens = false;
 			$accum = [];
 			foreach ( $tokens as $i => $t ) {
-				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'mw:ttm-end' ) {
+				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'mw:thp-end' ) {
 					$toks = $t->dataParsoid->getTemp()->shuttleTokens;
 					PHPUtils::pushArray( $accum, $toks );
 				} else {
@@ -133,9 +133,9 @@ class TokenTransformManager extends PipelineStage {
 		}
 
 		if ( $profile ) {
-			$profile->bumpTimeUse( 'TTM',
+			$profile->bumpTimeUse( 'THP',
 				( microtime( true ) - $startTime ) * 1000 - $this->tokenTimes,
-				'TTM' );
+				'THP' );
 		}
 
 		return $tokens;

@@ -31,7 +31,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * The TSR of the end tag
  * @property SourceRange|null $endTSR
  *
- * Used to shuttle tokens to the end of a stage in the TTM
+ * Used to shuttle tokens to the end of a stage in the TokenHandlerPipeline
  * @property array|null $shuttleTokens
  *
  * Section data associated with a heading

@@ -8,14 +8,14 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2Html\TokenTransformManager;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class TraceProxy extends TokenHandler {
 	private $traceType;
 	private $handler;
 	private $name;
 
-	public function __construct( TokenTransformManager $manager, array $options,
+	public function __construct( TokenHandlerPipeline $manager, array $options,
 		string $traceType, TokenHandler $handler
 	) {
 		parent::__construct( $manager, $options );
