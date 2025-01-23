@@ -426,6 +426,11 @@ class PipelineUtils {
 				) {
 					$nodeData->parsoid->tmp->setFlag( TempData::IN_TRANSCLUSION, false );
 				}
+				// Similarly for "fostered", it applies to the nested pipeline and,
+				// if transferred, can interfere when unpacking
+				if ( isset( $nodeData->parsoid->fostered ) ) {
+					unset( $nodeData->parsoid->fostered );
+				}
 			}
 
 			DOMDataUtils::setNodeData( $workNode, $nodeData );

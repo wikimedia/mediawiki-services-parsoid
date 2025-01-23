@@ -87,3 +87,13 @@ parsoid=wt2html
 </table>
 </figcaption></figure>
 !! end
+
+!! test
+Unpacking fostered content
+!! options
+parsoid=wt2html
+!! wikitext
+[http://google.com <table>hi</table> ho]
+!! html/parsoid
+<a rel="mw:ExtLink nofollow" href="http://google.com" class="external text"><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>hi</p><table data-parsoid='{"stx":"html"}'></table> ho</a>
+!! end

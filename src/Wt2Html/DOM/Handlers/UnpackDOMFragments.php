@@ -323,14 +323,14 @@ class UnpackDOMFragments {
 			$placeholderParent->parentNode->removeChild( $placeholderParent );
 		} else {
 			// Preserve fostered flag from DOM fragment
-			if ( $fragmentContent instanceof Element ) {
-				if ( !empty( $placeholderDP->fostered ) ) {
-					$n = $fragmentContent;
-					while ( $n ) {
-						$dp = DOMDataUtils::getDataParsoid( $n );
-						$dp->fostered = true;
-						$n = $n->nextSibling;
-					}
+			if ( !empty( $placeholderDP->fostered ) ) {
+				PipelineUtils::addSpanWrappers( $fragmentDOM->childNodes );
+				$n = $fragmentDOM->firstChild;
+				while ( $n ) {
+					DOMUtils::assertElt( $n );
+					$dp = DOMDataUtils::getDataParsoid( $n );
+					$dp->fostered = true;
+					$n = $n->nextSibling;
 				}
 			}
 
