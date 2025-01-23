@@ -10,22 +10,22 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\CleanUp;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\Normalize;
-use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
+use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
 
-class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
+class DOMProcessorPipelineTest extends \PHPUnit\Framework\TestCase {
 
 	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
 	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\DOMPostProcessor
-	 * @dataProvider provideDOMPostProcessor
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline
+	 * @dataProvider provideDOMProcessorPipeline
 	 */
-	public function testDOMPostProcessor( bool $atTopLevel, array $processors, string $html, string $expected, $storeDataAttribs = false ) {
+	public function testDOMProcessorPipeline( bool $atTopLevel, array $processors, string $html, string $expected, $storeDataAttribs = false ) {
 		// Use 'Test Page' to verify that dc:isVersionOf link in header uses underscores
 		// but the user rendered version in <title> in header uses spaces.
 		$mockEnv = new MockEnv( [ 'title' => 'Test Page' ] );
-		$dpp = new DOMPostProcessor( $mockEnv, [ 'inTemplate' => false ] );
+		$dpp = new DOMProcessorPipeline( $mockEnv, [ 'inTemplate' => false ] );
 		$dpp->registerProcessors( $processors );
 		$opts = [
 			'toplevel' => $atTopLevel
@@ -40,7 +40,7 @@ class DOMPostProcessorTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );
 	}
 
-	public function provideDOMPostProcessor(): array {
+	public function provideDOMProcessorPipeline(): array {
 		return [
 			[
 				false,

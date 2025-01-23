@@ -124,7 +124,7 @@ abstract class PipelineStage {
 	 * implement a generator that parses the input in chunks and yields output
 	 * in chunks as well.
 	 *
-	 * Implementations that don't consume tokens (ex: Tokenizer, DOMPostProcessor)
+	 * Implementations that don't consume tokens (ex: Tokenizer, DOMProcessorPipeline)
 	 * will provide specialized implementations that handle their input type.
 	 *
 	 * @param string|array|Document $input

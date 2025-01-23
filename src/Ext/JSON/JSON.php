@@ -168,7 +168,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 			DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
 		}
 
-		// We're responsible for running the standard DOMPostProcessor on our
+		// We're responsible for running the standard DOMProcessorPipeline on our
 		// resulting document.
 		$extApi->postProcessDOM( $document );
 

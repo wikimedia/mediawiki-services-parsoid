@@ -598,7 +598,7 @@ class PipelineUtils {
 	 * Convert a HTML5 DOM into a mw:DOMFragment and generate appropriate
 	 * tokens to insert into the token stream for further processing.
 	 *
-	 * The DOMPostProcessor will unpack the fragment and insert the HTML
+	 * The DOMProcessorPipeline will unpack the fragment and insert the HTML
 	 * back into the DOM.
 	 *
 	 * @param Env $env

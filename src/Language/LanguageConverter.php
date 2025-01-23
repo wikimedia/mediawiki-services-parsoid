@@ -5,7 +5,7 @@ declare( strict_types = 1 );
  * A bidirectional Language Converter, capable of round-tripping variant
  * conversion.
  *
- * Language conversion is as DOMPostProcessor pass, run over the
+ * Language conversion is a DOMProcessorPipeline pass, run over the
  * Parsoid-format HTML output, which may have embedded language converter
  * rules.  We first assign a (guessed) wikitext variant to each DOM node,
  * the variant we expect the original wikitext was written in,

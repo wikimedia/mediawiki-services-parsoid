@@ -8,7 +8,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DTState;
-use Wikimedia\Parsoid\Wt2Html\DOMPostProcessor;
+use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 /**
@@ -19,7 +19,7 @@ class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 	private DOMTraverser $dt;
 
 	public function __construct(
-		?DOMPostProcessor $domPP, bool $traverseWithTplInfo = false, bool $applyToAttributeEmbeddedHTML = false
+		?DOMProcessorPipeline $domPP, bool $traverseWithTplInfo = false, bool $applyToAttributeEmbeddedHTML = false
 	) {
 		$this->dt = new DOMTraverser( $traverseWithTplInfo, $applyToAttributeEmbeddedHTML );
 	}

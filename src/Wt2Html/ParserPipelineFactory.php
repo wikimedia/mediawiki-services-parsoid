@@ -324,7 +324,7 @@ class ParserPipelineFactory {
 		// This performs a lot of post-processing of the DOM
 		// (Template wrapping, broken wikitext/html detection, etc.)
 		"FullParseDOMTransform" => [
-			"class" => DOMPostProcessor::class,
+			"class" => DOMProcessorPipeline::class,
 			"processors" => [
 				self::NESTED_PIPELINE_DOM_TRANSFORMS,
 				self::FULL_PARSE_GLOBAL_DOM_TRANSFORMS
@@ -332,19 +332,19 @@ class ParserPipelineFactory {
 		],
 		// DOM transformer for fragments of a top-level document
 		"NestedFragmentDOMTransform" => [
-			"class" => DOMPostProcessor::class,
+			"class" => DOMProcessorPipeline::class,
 			"processors" => self::NESTED_PIPELINE_DOM_TRANSFORMS
 		],
 		// DOM transformations to run on attribute-embedded docs of the top level doc
 		"FullParseEmbeddedDocsDOMTransform" => [
-			"class" => DOMPostProcessor::class,
+			"class" => DOMProcessorPipeline::class,
 			"processors" => self::FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS
 		],
 		// DOM transformer for fragments during selective updates.
 		// This may eventually become identical to NestedFrgmentDOMTransform,
 		// but at this time, it is unclear if that will materialize.
 		"SelectiveUpdateFragmentDOMTransform" => [
-			"class" => DOMPostProcessor::class,
+			"class" => DOMProcessorPipeline::class,
 			"processors" => [
 				self::NESTED_PIPELINE_DOM_TRANSFORMS,
 				self::SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS
@@ -353,7 +353,7 @@ class ParserPipelineFactory {
 		// DOM transformer for the top-level page during selective updates.
 		"SelectiveUpdateDOMTransform" => [
 			// For use in the top-level of the selective-update pipeline
-			"class" => DOMPostProcessor::class,
+			"class" => DOMProcessorPipeline::class,
 			"processors" => self::SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS
 		]
 	];
