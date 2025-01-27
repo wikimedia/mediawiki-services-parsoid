@@ -10,7 +10,8 @@ version=2
 # Some taken from https://meta.wikimedia.org/wiki/Parser_testing
 # All (C) their respective authors and released under the GPL
 #
-# The syntax should be fairly self-explanatory.
+# The syntax should be fairly self-explanatory. The test parser
+# expects end-of-line markers to be \n and not \r\n.
 #
 # Currently supported test options:
 # One of the following modes:
