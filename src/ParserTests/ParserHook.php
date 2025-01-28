@@ -49,16 +49,26 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 			case 'pwraptest':
 				return $extApi->htmlToDom( '<!--CMT--><style>p{}</style>' );
 
+			case 'divtag':
 			case 'spantag':
-				// "Transparent" tag which wraps wikitext in a <span>;
+				// "Transparent" tag which wraps wikitext in a <span> or <div>;
 				// useful in testing various parsoid wrapping scenarios
 				// (we used to use <ref> for this)
-				// NOTE: This tag disables p-wrapping and indent-pre transforms.
+				//
+				// NOTE: When using <spantag>, p-wrapping and indent-pre
+				// transforms are disabled.
+				$argArray = $extApi->extArgsToArray( $args );
+				$isDiv = ( $extName === 'divtag' );
+				$isRaw = $argArray['raw'] ?? false;
+				$tag = $isDiv ? 'div' : 'span';
+				if ( $isRaw ) {
+					return $extApi->htmlToDom( "<$tag>$content</$tag>" );
+				}
 				return $extApi->extTagToDOM( $args, $content, [
-					'wrapperTag' => 'span',
+					'wrapperTag' => $tag,
 					'parseOpts' => [
 						'extTag' => $extName,
-						'context' => 'inline',
+						'context' => $isDiv ? 'block' : 'inline',
 					],
 				] );
 
@@ -102,8 +112,13 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	) {
 		$dataMw = DOMDataUtils::getDataMw( $node );
 		$extName = WTUtils::getExtTagName( $node ) ?? $dataMw->name;
-		if ( !in_array( $extName, [ 'spantag', 'embedtag' ], true ) ) {
+		if ( !in_array( $extName, [ 'spantag', 'divtag', 'embedtag' ], true ) ) {
 			return false; // use default serialization
+		}
+		if ( in_array( $extName, [ 'spantag', 'divtag' ], true ) ) {
+			if ( $dataMw->attrs->raw ?? false ) {
+				return false; // use default serialization in 'raw' mode
+			}
 		}
 		$html2wtOpts = [
 			'extName' => $extName,
@@ -132,6 +147,13 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				[ 'name' => 'statictag', 'handler' => self::class ],
 				[ 'name' => 'asidetag', 'handler' => self::class ],
 				[ 'name' => 'pwraptest', 'handler' => self::class ],
+				[
+					'name' => 'divtag',
+					'handler' => self::class,
+					'options' => [
+						'outputHasCoreMwDomSpecMarkup' => true,
+					],
+				],
 				[
 					'name' => 'spantag',
 					'handler' => self::class,
