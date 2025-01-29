@@ -664,30 +664,14 @@ class AttributeExpander extends TokenHandler {
 		}
 
 		$name = $token->getName();
-		$property = $token->getAttributeV( 'property' ) ?? '';
 		$typeOf = $token->getAttributeV( 'typeof' ) ?? '';
 
 		if (
 			// Do not process dom-fragment tokens: a separate handler deals with them.
 			$name === 'mw:dom-fragment-token' ||
-			(
-				$name === 'meta' &&
-				(
-					// Parsoid generated metas don't need expansion
-					preg_match( '/mw:(Placeholder|Transclusion|Param|Includes)/', $typeOf ) ||
-					// The TemplateHandler runs before the AttributeExpander and
-					// magic words masquerading as templates may themselves be
-					// templated (as in templated template names).
-					// See TemplateHandler::processSpecialMagicWord()
-					// So, we may see page properties that have already been
-					// expanded and annotated with mw:ExpandedAttrs.  We return
-					// early to avoid the assertion below, at the expense of
-					// perhaps not catching other cases where tokens are passed
-					// through here doubly by mistake.
-					( preg_match( '/mw:(PageProp)/', $property ) &&
-						str_contains( $typeOf, 'mw:ExpandedAttrs' ) )
-				)
-			)
+			// Parsoid generated metas don't need expansion
+			( $name === 'meta' &&
+				preg_match( '/mw:(Placeholder|Transclusion|Param|Includes)/', $typeOf ) )
 		) {
 			return null;
 		}
