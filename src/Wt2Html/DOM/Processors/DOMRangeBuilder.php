@@ -78,6 +78,9 @@ class DOMRangeBuilder {
 	/** @var array<string|CompoundTemplateInfo>[] */
 	private $compoundTpls = [];
 
+	/** Are we generating spec 3.x HTML for parser functions */
+	private bool $v3PFOutput;
+
 	/** @var string */
 	protected $traceType;
 
@@ -89,6 +92,10 @@ class DOMRangeBuilder {
 		$this->env = $frame->getEnv();
 		$this->nodeRanges = new SplObjectStorage;
 		$this->traceType = "tplwrap";
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		$this->v3PFOutput = (bool)$this->env->getSiteConfig()->getMWConfigValue(
+			'ParsoidExperimentalParserFunctionOutput'
+		);
 	}
 
 	protected function updateDSRForFirstRangeNode( Element $target, Element $source ): void {
@@ -963,13 +970,18 @@ class DOMRangeBuilder {
 						if ( $a->isParam ) {
 							$a->info->type = 'templatearg';
 						} elseif ( $a->info->func ) {
-							$a->info->type = 'parserfunction';
+							$a->info->type = $this->v3PFOutput ?
+								'v3parserfunction' : 'parserfunction';
 						}
 						$parts[] = $a->info;
 						// FIXME: we throw away the array keys and rebuild them
 						// again in WikitextSerializer
 						$pi[] = array_values( $a->info->paramInfos );
 					}
+				}
+
+				if ( !is_string( $parts[0] ) && $parts[0]->type === 'v3parserfunction' ) {
+					DOMUtils::addTypeOf( $encapTgt, 'mw:ParserFunction', false );
 				}
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node

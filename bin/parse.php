@@ -255,6 +255,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'metrics',
 			'Dump a log of the metrics methods that were called from a MockMetrics.'
 		);
+		$this->addOption( 'v3pf', 'Generate Experimental Parsoid HTML v3 parser function output' );
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -544,6 +545,9 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 		if ( $this->hasOption( 'maxdepth' ) ) {
 			$configOpts['maxDepth'] = (int)$this->getOption( 'maxdepth' );
+		}
+		if ( $this->hasOption( 'v3pf' ) ) {
+			$configOpts['v3pf'] = true;
 		}
 
 		$parsoidOpts += [

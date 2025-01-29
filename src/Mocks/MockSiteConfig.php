@@ -31,6 +31,9 @@ class MockSiteConfig extends SiteConfig {
 	/** @var array */
 	private $linterOverrides = [];
 
+	/** If set, generate experimental Parsoid HTML v3 parser function output */
+	private bool $v3pf;
+
 	private const NAMESPACE_MAP = [
 		'media' => -2,
 		'special' => -1,
@@ -80,6 +83,7 @@ class MockSiteConfig extends SiteConfig {
 		$this->linkPrefixRegex = $opts['linkPrefixRegex'] ?? null;
 		$this->linkTrailRegex = $opts['linkTrailRegex'] ?? '/^([a-z]+)/sD'; // enwiki default
 		$this->externalLinkTarget = $opts['externallinktarget'] ?? false;
+		$this->v3pf = $opts['v3pf'] ?? false;
 
 		// Use Monolog's PHP console handler
 		$logger = new Logger( "Parsoid CLI" );
@@ -231,6 +235,8 @@ class MockSiteConfig extends SiteConfig {
 				return true;
 			case 'CiteResponsiveReferencesThreshold':
 				return 10;
+			case 'ParsoidExperimentalParserFunctionOutput':
+				return $this->v3pf;
 			default:
 				return null;
 		}

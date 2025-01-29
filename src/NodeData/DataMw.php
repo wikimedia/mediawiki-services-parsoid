@@ -128,6 +128,8 @@ class DataMw implements JsonCodecable {
 					$type = $p->type ?? 'template';
 					if ( $type === 'parserfunction' ) {
 						$type = 'template';
+					} elseif ( $type === 'v3parserfunction' ) {
+						$type = 'parserfunction';
 					}
 					$pp = (object)[];
 					$pp->$type = $p;
@@ -145,15 +147,18 @@ class DataMw implements JsonCodecable {
 		if ( isset( $json['parts'] ) ) {
 			$json['parts'] = array_map( static function ( $p ) {
 				if ( is_object( $p ) ) {
-					$type = 'template';
+					$ptype = $type = 'template';
 					if ( isset( $p->templatearg ) ) {
-						$type = 'templatearg';
+						$ptype = $type = 'templatearg';
+					} elseif ( isset( $p->parserfunction ) ) {
+						$type = 'parserfunction';
+						$ptype = 'v3parserfunction';
 					}
 					$p = $p->$type;
 					if ( isset( $p->func ) ) {
-						$type = 'parserfunction';
+						$ptype = 'parserfunction';
 					}
-					$p->type = $type;
+					$p->type = $ptype;
 				}
 				return $p;
 			}, $json['parts'] );

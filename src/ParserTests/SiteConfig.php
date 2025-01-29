@@ -41,6 +41,11 @@ class SiteConfig extends ApiSiteConfig {
 	/** @var LoggerInterface */
 	public $suppressLogger;
 
+	/** If set, generate experimental Parsoid HTML v3 parser function output
+	 * Individual parser tests could change this
+	 */
+	public bool $v3pf;
+
 	/** @var string|false */
 	private $externalLinkTarget = false;
 
@@ -115,6 +120,7 @@ class SiteConfig extends ApiSiteConfig {
 		$this->thumbsize = null;
 		$this->externalLinkTarget = false;
 		$this->noFollowConfig = null;
+		$this->v3pf = false;
 	}
 
 	private function deleteNamespace( string $name ): void {
@@ -210,6 +216,9 @@ class SiteConfig extends ApiSiteConfig {
 
 			case 'CiteResponsiveReferencesThreshold':
 				return $this->responsiveReferences['threshold'];
+
+			case 'ParsoidExperimentalParserFunctionOutput':
+				return $this->v3pf;
 
 			default:
 				return null;

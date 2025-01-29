@@ -1,0 +1,5 @@
+{
+	"When ParsoidExperimentalParserFunctionSupport is enabled, Parsoid should generate v3.x HTML for parser functions": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,23,0,0]}'>a <span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[2,21,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#if:foo\",\"function\":\"if\"},\"params\":{\"1\":{\"wt\":\"bar\"},\"2\":{\"wt\":\"baz\"}},\"i\":0}}]}'>bar</span> b</p>"
+	}
+}

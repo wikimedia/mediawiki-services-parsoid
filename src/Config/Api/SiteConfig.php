@@ -105,6 +105,9 @@ class SiteConfig extends ISiteConfig {
 	private $featureDetectionDone = false;
 	private $hasVideoInfo = false;
 
+	/** If set, generate experimental Parsoid HTML v3 parser function output */
+	private bool $v3pf;
+
 	/** @var string[] Base parameters for a siteinfo query */
 	public const SITE_CONFIG_QUERY_PARAMS = [
 		'action' => 'query',
@@ -138,6 +141,8 @@ class SiteConfig extends ISiteConfig {
 				$this->html2wtLimits, $opts['html2wtLimits']
 			);
 		}
+
+		$this->v3pf = $opts['v3pf'] ?? false;
 	}
 
 	protected function reset() {
@@ -515,6 +520,9 @@ class SiteConfig extends ISiteConfig {
 
 			case 'CiteResponsiveReferencesThreshold':
 				return 10;
+
+			case 'ParsoidExperimentalParserFunctionOutput':
+				return $this->v3pf;
 
 			// We can add more hardcoded keys based on testing needs
 			// but null is the default for keys unsupported in this mode.

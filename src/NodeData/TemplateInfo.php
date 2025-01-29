@@ -56,9 +56,22 @@ class TemplateInfo implements JsonCodecable {
 		$ti = new TemplateInfo;
 		$ti->targetWt = $json['target']['wt'] ?? null;
 		$ti->href = $json['target']['href'] ?? null;
-		$ti->func = $json['target']['function'] ?? null;
 		$ti->paramInfos = [];
 		$params = (array)( $json['params'] ?? null );
+
+		if ( isset( $json['target']['key'] ) ) {
+			$ti->func = $json['target']['key'];
+			$ti->targetWt .= ':' . $params['1']->wt;
+			// Downshift all params by 1
+			$numKeys = count( $params );
+			for ( $i = 1; $i < $numKeys; $i++ ) {
+				$params[(string)$i] = $params[(string)( $i + 1 )];
+			}
+			unset( $params[(string)$numKeys] );
+		} else {
+			$ti->func = $json['target']['function'] ?? null;
+		}
+
 		foreach ( $params as $k => $v ) {
 			// Converting $params to an array can turn the keys into ints,
 			// so we need to explicitly cast them back to string.
@@ -94,9 +107,12 @@ class TemplateInfo implements JsonCodecable {
 	public function toJsonArray(): array {
 		// This is a complicated serialization, but necessary for
 		// backward compatibility with existing data-mw
+
+		$v3PF = $this->type === 'v3parserfunction';
 		$target = [ 'wt' => $this->targetWt ];
 		if ( $this->func !== null ) {
-			$target['function'] = $this->func;
+			$key = $v3PF ? 'key' : 'function';
+			$target[$key] = $this->func;
 		}
 		if ( $this->href !== null ) {
 			$target['href'] = $this->href;
@@ -117,6 +133,20 @@ class TemplateInfo implements JsonCodecable {
 			}
 			$params[$info->k] = (object)$param;
 		}
+
+		if ( $v3PF ) {
+			// Upshift all params by 1
+			$numKeys = count( $params );
+			for ( $i = $numKeys; $i > 0; $i-- ) {
+				$params[(string)( $i + 1 )] = $params[(string)$i];
+			}
+
+			$matches = null;
+			preg_match( '/^([^:]*):(.*)$/', $this->targetWt, $matches );
+			$params['1'] = (object)[ 'wt' => $matches[2] ];
+			$target['wt'] = $matches[1];
+		}
+
 		return [
 			'target' => $target,
 			'params' => (object)$params,

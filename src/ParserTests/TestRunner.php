@@ -1113,6 +1113,8 @@ class TestRunner {
 			);
 		}
 
+		$this->siteConfig->v3pf = $test->config['wgParsoidExperimentalParserFunctionSupport'] ?? false;
+
 		// Process test-specific options
 		if ( $testOpts ) {
 			Assert::invariant( !isset( $testOpts['extensions'] ),
