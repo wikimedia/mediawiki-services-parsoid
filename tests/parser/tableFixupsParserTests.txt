@@ -731,3 +731,26 @@ Convert non-plaintext attributes to content
 <tbody><tr><td>test <a rel="mw:ExtLink nofollow" href="http://google.com" class="external text">123</a></td><td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"row"}' data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}four"}},"i":0}}]}'>four</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Convert multiple expanded attributes to content
+!! wikitext
+{|
+|{{1x|title}}='a' class='234'|{{1x|{{!}}y}}
+|title='{{1x|a}}'|{{1x|{{!}}y}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>title='a' class='234'</td>
+<td>y
+</td>
+<td>title='a'</td>
+<td>y
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td about="#mwt4"><span about="#mwt9" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"title"}},"i":0}}]}'>title</span>='a' class='234'</td><td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"row"}' data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>y</td>
+<td about="#mwt8">title='<span about="#mwt10" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"a"}},"i":0}}]}'>a</span>'</td><td about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"stx":"row"}' data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}y"}},"i":0}}]}'>y</td></tr>
+</tbody></table>
+!! end

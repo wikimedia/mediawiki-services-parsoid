@@ -14,7 +14,6 @@ use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\NodeData\TemplateInfo;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -502,67 +501,61 @@ class TableFixups {
 		$doc = $cell->ownerDocument;
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
 		$cellAttrSrc = $cellDp->getTemp()->attrSrc ?? null;
+
 		if ( DOMUtils::matchTypeOf( $cell, "/\bmw:ExpandedAttrs\b/" ) ) {
-			// HTML present in data-mw
-			$datamw = DOMDataUtils::getDataMw( $cell );
-			$expandedAttrHTML = $datamw->attribs[0]->key['html'];
+			DOMUtils::removeTypeOf( $cell, 'mw:ExpandedAttrs' );
+			$dataMw = DOMDataUtils::getDataMw( $cell );
+			unset( $dataMw->attribs );
+		}
 
-			// convert HTML to DOM
-			$frag = ContentUtils::createAndLoadDocumentFragment( $doc, $expandedAttrHTML );
-			$children = iterator_to_array( $frag->childNodes );
-			$updateDSR = false;
+		// Process attribute wikitext as HTML
+		$leadingPipeChar = DOMCompat::nodeName( $cell ) === 'td' ? '|' : '!';
+		$fromTpl = WTUtils::fromEncapsulatedContent( $cell );
+		if ( !preg_match( "#['[{<]#", $cellAttrSrc ) ) {
+			// Optimization:
+			// - SOL constructs like =-*# won't be found here
+			// - If no non-sol wikitext constructs, this will just a plain string
+			$str = ( $leadingPipe ? $leadingPipeChar : '' ) .
+				$cellAttrSrc .
+				( $cellAttrSrc && $trailingPipe ? '|' : '' );
+			$children = [ $doc->createTextNode( $str ) ];
 		} else {
-			// Process attribute wikitext as HTML
-			$leadingPipeChar = DOMCompat::nodeName( $cell ) === 'td' ? '|' : '!';
-			$fromTpl = WTUtils::fromEncapsulatedContent( $cell );
-			if ( !preg_match( "#['[{<]#", $cellAttrSrc ) ) {
-				// Optimization:
-				// - SOL constructs like =-*# won't be found here
-				// - If no non-sol wikitext constructs, this will just a plain string
-				$str = ( $leadingPipe ? $leadingPipeChar : '' ) .
-					$cellAttrSrc .
-					( $cellAttrSrc && $trailingPipe ? '|' : '' );
-				$children = [ $doc->createTextNode( $str ) ];
+			if ( isset( $cellDp->startTagSrc ) ) {
+				$attrSrcOffset = strlen( $cellDp->startTagSrc );
+			} elseif ( ( $cellDp->stx ?? '' ) === 'row' ) {
+				$attrSrcOffset = 2;
 			} else {
-				if ( isset( $cellDp->startTagSrc ) ) {
-					$attrSrcOffset = strlen( $cellDp->startTagSrc );
-				} elseif ( ( $cellDp->stx ?? '' ) === 'row' ) {
-					$attrSrcOffset = 2;
-				} else {
-					$attrSrcOffset = 1;
-				}
-				$frag = PipelineUtils::processContentInPipeline(
-					$env, $frame, $cellAttrSrc, [
-						'sol' => false,
-						'toplevel' => !$fromTpl,
-						'srcOffsets' => $fromTpl ? null : new SourceRange(
-							$cellDp->tsr->start + $attrSrcOffset, $cellDp->tsr->end - 1
-						),
-						'pipelineType' => 'wikitext-to-fragment',
-						'pipelineOpts' => [ 'inlineContext' => true ]
-					]
-				);
-
-				if ( $leadingPipe ) {
-					$fc = $frag->firstChild;
-					if ( $fc instanceof Text ) {
-						$fc->textContent = $leadingPipeChar . $fc->textContent;
-					} else {
-						$frag->insertBefore( $doc->createTextNode( $leadingPipeChar ), $fc );
-					}
-				}
-				if ( $trailingPipe ) {
-					$lc = $frag->lastChild;
-					if ( $lc instanceof Text ) {
-						$lc->textContent .= '|';
-					} else {
-						$frag->appendChild( $doc->createTextNode( '|' ) );
-					}
-				}
-				$children = iterator_to_array( $frag->childNodes );
+				$attrSrcOffset = 1;
 			}
+			$frag = PipelineUtils::processContentInPipeline(
+				$env, $frame, $cellAttrSrc, [
+					'sol' => false,
+					'toplevel' => !$fromTpl,
+					'srcOffsets' => $fromTpl ? null : new SourceRange(
+						$cellDp->tsr->start + $attrSrcOffset, $cellDp->tsr->end - 1
+					),
+					'pipelineType' => 'wikitext-to-fragment',
+					'pipelineOpts' => [ 'inlineContext' => true ]
+				]
+			);
 
-			$updateDSR = !$fromTpl;
+			if ( $leadingPipe ) {
+				$fc = $frag->firstChild;
+				if ( $fc instanceof Text ) {
+					$fc->textContent = $leadingPipeChar . $fc->textContent;
+				} else {
+					$frag->insertBefore( $doc->createTextNode( $leadingPipeChar ), $fc );
+				}
+			}
+			if ( $trailingPipe ) {
+				$lc = $frag->lastChild;
+				if ( $lc instanceof Text ) {
+					$lc->textContent .= '|';
+				} else {
+					$frag->appendChild( $doc->createTextNode( '|' ) );
+				}
+			}
+			$children = iterator_to_array( $frag->childNodes );
 		}
 
 		// Append new children
@@ -572,22 +565,23 @@ class TableFixups {
 		}
 
 		// Remove $cell's attributes
-		foreach ( $cell->attributes as $attr ) {
+		foreach ( iterator_to_array( $cell->attributes ) as $attr ) {
 			if ( !in_array( $attr->name, self::PARSOID_ATTRIBUTES, true ) ) {
 				$cell->removeAttribute( $attr->name );
 			}
 		}
+
 		// Remove shadow attributes to suppress them from wt2wt output!
 		unset( $cellDp->a );
 		unset( $cellDp->sa );
 
 		// Update DSR
-		if ( $updateDSR ) {
+		if ( !$fromTpl ) {
 			$excessDP = strlen( $cellAttrSrc ) + (int)$leadingPipe + (int)$trailingPipe;
 			$cellDp->dsr->openWidth -= $excessDP;
 		}
 
-		// This has no attributes onw
+		// This has no attributes now
 		$cellDp->setTempFlag( TempData::NO_ATTRS );
 	}
 
