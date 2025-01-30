@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -14,6 +15,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -1071,11 +1073,13 @@ class TemplateHandler extends TokenHandler {
 					);
 				} elseif ( isset( $expansion['fragment'] ) ) {
 					if ( $this->env->hasDumpFlag( 'tplsrc' ) ) {
-						// Assumes this is always a WikitextPFragment which is true for now.
-						$wt = $expansion['fragment']->toJsonArray()['wt'];
-						// FIXME: json_encode isn't the right thing always
-						// but good enough for debugging current usage
-						$wt = is_array( $wt ) ? json_encode( $wt ) : $wt;
+						$codec = DOMDataUtils::getCodec( $env->getTopLevelDoc() );
+						$v = $codec->toJsonArray( $expansion['fragment'], PFragment::hint() );
+						// For a wikitext pfragment, just show the 'wt' portion
+						if ( $v['wt'] ) {
+							$v = $v['wt'];
+						}
+						$wt = is_string( $v ) ? $v : json_encode( $v );
 						$this->dumpTplSrc( $token, $templateName, $wt, true );
 					}
 					$domFragment = $expansion['fragment']->asDom(
