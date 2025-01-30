@@ -713,3 +713,21 @@ Templated cell not merging with previous cell and trailing vertical bar, attribu
 <tbody><tr><td>one</td><td data-parsoid='{"stx":"row"}'><a rel="mw:WikiLink" href="./Two?action=edit&amp;redlink=1" title="Two" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Two"]}}'>two</a></td><td data-parsoid='{"stx":"row"}'>three</td><td about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}four"}},"i":0}}]}'>four</td></tr>
 </tbody></table>
 !! end
+
+!! test
+Convert non-plaintext attributes to content
+!! wikitext
+{|
+|test [http://google.com 123]|{{1x|{{!}}four}}
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>test <a rel="nofollow" class="external text" href="http://google.com">123</a></td>
+<td>four
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>test <a rel="mw:ExtLink nofollow" href="http://google.com" class="external text">123</a></td><td about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"row"}' data-mw='{"parts":["|",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"{{!}}four"}},"i":0}}]}'>four</td></tr>
+</tbody></table>
+!! end

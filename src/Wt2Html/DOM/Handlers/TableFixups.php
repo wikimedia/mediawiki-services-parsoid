@@ -509,13 +509,13 @@ class TableFixups {
 
 			// convert HTML to DOM
 			$frag = ContentUtils::createAndLoadDocumentFragment( $doc, $expandedAttrHTML );
-			$children = $frag->childNodes;
+			$children = iterator_to_array( $frag->childNodes );
 			$updateDSR = false;
 		} else {
 			// Process attribute wikitext as HTML
 			$leadingPipeChar = DOMCompat::nodeName( $cell ) === 'td' ? '|' : '!';
 			$fromTpl = WTUtils::fromEncapsulatedContent( $cell );
-			if ( !preg_match( "#'\[{<#", $cellAttrSrc ) ) {
+			if ( !preg_match( "#['[{<]#", $cellAttrSrc ) ) {
 				// Optimization:
 				// - SOL constructs like =-*# won't be found here
 				// - If no non-sol wikitext constructs, this will just a plain string
@@ -524,11 +524,20 @@ class TableFixups {
 					( $cellAttrSrc && $trailingPipe ? '|' : '' );
 				$children = [ $doc->createTextNode( $str ) ];
 			} else {
+				if ( isset( $cellDp->startTagSrc ) ) {
+					$attrSrcOffset = strlen( $cellDp->startTagSrc );
+				} elseif ( ( $cellDp->stx ?? '' ) === 'row' ) {
+					$attrSrcOffset = 2;
+				} else {
+					$attrSrcOffset = 1;
+				}
 				$frag = PipelineUtils::processContentInPipeline(
 					$env, $frame, $cellAttrSrc, [
 						'sol' => false,
 						'toplevel' => !$fromTpl,
-						'srcOffsets' => $fromTpl ? null : new SourceRange( $cellDp->tsr->start, $cellDp->tsr->end - 1 ),
+						'srcOffsets' => $fromTpl ? null : new SourceRange(
+							$cellDp->tsr->start + $attrSrcOffset, $cellDp->tsr->end - 1
+						),
 						'pipelineType' => 'wikitext-to-fragment',
 						'pipelineOpts' => [ 'inlineContext' => true ]
 					]
@@ -550,7 +559,7 @@ class TableFixups {
 						$frag->appendChild( $doc->createTextNode( '|' ) );
 					}
 				}
-				$children = $frag->childNodes;
+				$children = iterator_to_array( $frag->childNodes );
 			}
 
 			$updateDSR = !$fromTpl;
