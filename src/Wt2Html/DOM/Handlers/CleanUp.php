@@ -381,15 +381,24 @@ class CleanUp {
 			// We can't remove data-parsoid from inside <references> text,
 			// as that's the only HTML representation we have left for it.
 			!self::inNativeContent( $env, $node ) &&
-			// FIXME: We can't remove dp from nodes with stx information
-			// because the serializer uses stx information in some cases to
+			// FIXME(T100856): stx is semantic info and should probably be
+			// moved out of data-parsoid.  We can't remove dp from nodes
+			// with stx information for two scenarios.
+			//
+			// 1. The serializer uses stx information in some cases to
 			// emit the right newline separators.
 			//
 			// For example, "a\n\nb" and "<p>a</p><p>b/p>" both generate
 			// identical html but serialize to different wikitext.
 			//
-			// This is only needed for the last top-level node .
-			( empty( $dp->stx ) || ( $state->tplInfo->last ?? null ) !== $node )
+			// This is only needed for the last top-level node.
+			//
+			// 2. We omit heading wrapping for html literals in core's
+			// OutputTransform stages and need a way to distinguish them.
+			( empty( $dp->stx ) || !(
+				( $state->tplInfo->last ?? null ) === $node ||
+				DOMUtils::isHeading( $node )
+			) )
 		);
 
 		// Mark this as an empty AND new data-parsoid
