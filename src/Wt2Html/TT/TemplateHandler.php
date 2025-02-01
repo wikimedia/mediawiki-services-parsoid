@@ -6,7 +6,6 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -15,7 +14,6 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -23,6 +21,7 @@ use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wikitext\Wikitext;
+use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\Params;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
@@ -553,13 +552,15 @@ class TemplateHandler extends TokenHandler {
 		$src = $this->fetchTemplateAndTitle( $target, $attribs );
 		if ( $src !== null ) {
 			$toks = $this->processTemplateSource(
+				$this->manager->getFrame(),
 				$state->token,
 				[
 					'name' => $target,
 					'title' => $resolvedTgt['title'],
 					'attribs' => array_slice( $attribs, 1 ), // strip template target
 				],
-				$src
+				$src,
+				$this->options
 			);
 			return new TemplateExpansionResult( $toks, true, $encap );
 		} else {
@@ -574,19 +575,24 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Process a fetched template source to a token stream.
 	 */
-	private function processTemplateSource( Token $token, array $tplArgs, string $src ): array {
+	private function processTemplateSource(
+		Frame $frame, Token $token, array $tplArgs, string $src,
+		array $options = []
+	): array {
 		if ( $this->env->hasDumpFlag( 'tplsrc' ) ) {
 			PipelineUtils::dumpTplSrc(
 				$this->env, $token, $tplArgs['name'], $src, false
 			);
 		}
+		$this->env->log( 'debug', 'TemplateHandler.processTemplateSource',
+			$tplArgs['name'], $tplArgs['attribs'] );
 		$toks = PipelineUtils::processTemplateSource(
 			$this->env,
-			$this->manager->getFrame(),
+			$frame,
 			$token,
 			$tplArgs,
 			$src,
-			$this->options['extTag'] ?? null
+			$options
 		);
 		return $this->processTemplateTokens( $toks );
 	}
@@ -860,6 +866,10 @@ class TemplateHandler extends TokenHandler {
 
 			if ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
 				// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
+				// This is an atomic DOM subtree/forest, and so we're going
+				// to process it all the way to DOM.  Contrast with our
+				// handling of a PFragment return value from a parser
+				// function below, which process to tokens only.
 				$pFragment = $env->getPFragment( $text );
 				$domFragment = $pFragment->asDom(
 					new ParsoidExtensionAPI(
@@ -905,48 +915,41 @@ class TemplateHandler extends TokenHandler {
 					return new TemplateExpansionResult(
 						[ $expansion['src'] ], false, $this->wrapTemplates
 					);
-				} elseif ( isset( $expansion['fragment'] ) ) {
-					if ( $this->env->hasDumpFlag( 'tplsrc' ) ) {
-						$codec = DOMDataUtils::getCodec( $env->getTopLevelDoc() );
-						$v = $codec->toJsonArray( $expansion['fragment'], PFragment::hint() );
-						// For a wikitext pfragment, just show the 'wt' portion
-						if ( $v['wt'] ) {
-							$v = $v['wt'];
-						}
-						$wt = is_string( $v ) ? $v : json_encode( $v );
-						PipelineUtils::dumpTplSrc(
-							$env, $token, $templateName, $wt, true
-						);
-					}
-					$domFragment = $expansion['fragment']->asDom(
-						new ParsoidExtensionAPI(
-							$env, [
-								'wt2html' => [
-									'frame' => $this->manager->getFrame(),
-									'parseOpts' => [
-										// This fragment comes from a template and it is important to set
-										// the 'inTemplate' parse option for it.
-										'inTemplate' => true,
-										// There might be translcusions within this fragment and we want
-										// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
-										'expandTemplates' => true
-									] + $this->options
-								]
-							]
-						)
-					);
-					$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
-					$toks = $this->processTemplateTokens( $toks );
-					return new TemplateExpansionResult( $toks, true, $this->wrapTemplates );
 				} else {
+					if ( isset( $expansion['fragment'] ) ) {
+						// This is a mixed expansion which contains wikitext and
+						// atomic PFragments.  Process this to tokens.
+						// (Contrast with the processing of {{#parsoid-fragment}}
+						// above, which represents an atomic PFragment.)
+						[
+							'wikitext' => $wikitext,
+						] = PipelineUtils::preparePFragment(
+							$env,
+							$this->manager->getFrame(),
+							$expansion['fragment'],
+							[
+								// options
+							]
+						);
+						// We need to expand embedded {{#parsoid-fragment}}
+						// markers still (T385806)
+						$expandTemplates = true;
+					} else {
+						$wikitext = $expansion['src'];
+						$expandTemplates = false;
+					}
 					$tplToks = $this->processTemplateSource(
+						$this->manager->getFrame(),
 						$token,
 						[
 							'name' => $templateName,
 							'title' => $templateTitle,
 							'attribs' => $attribs
 						],
-						$expansion['src']
+						$wikitext,
+						[
+							'expandTemplates' => $expandTemplates,
+						] + $this->options
 					);
 					return new TemplateExpansionResult(
 						$tplToks, true, $this->wrapTemplates

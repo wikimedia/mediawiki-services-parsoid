@@ -17221,7 +17221,7 @@ But with isRawHTML the result is left alone:
 :foo -{raw}- <b>bold</b>
 </div>
 <p class="mw-empty-elt"></p>
-!! html/parsoid
+!! html/parsoid+integrated
 <p>DoBlockLevels and LanguageConverter still run on isHTML content:</p>
 <div typeof="mw:Extension/divtag" data-mw='{"name":"divtag","attrs":{"raw":"true","ishtml":"true"},"body":{"extsrc":"&lt;!--protect newline-->\n:foo -{raw}- &lt;b>bold&lt;/b>\n"}}'><!--protect newline--> :foo -{raw}- <b>bold</b></div>
 <p>But with isRawHTML the result is left alone:</p>
@@ -17252,7 +17252,7 @@ But with isRawHTML the result is left alone:
 <p>But with isRawHTML the result is left alone:
 </p><div>:foo -{raw}- <b>bold</b></div>
 <p class="mw-empty-elt"></p>
-!! html/parsoid
+!! html/parsoid+integrated
 <p>DoBlockLevels and LanguageConverter still run on isHTML content:</p>
 <div typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#divtag:&lt;!--protect newline-->\n:foo -{raw}- &lt;b>bold&lt;/b>\n","function":"divtagpf"},"params":{"1":{"wt":"raw"},"2":{"wt":"isHTML"}},"i":0}}]}'>:foo -{raw}- <b>bold</b></div>
 <p>But with isRawHTML the result is left alone:</p>
@@ -17263,6 +17263,8 @@ But with isRawHTML the result is left alone:
 Handling of nowiki strip markers in Parsoid fragments
 !! config
 wgParsoidFragmentSupport="v2"
+!! options
+parsoid=wt2html
 !! wikitext
 Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>
 
@@ -17271,7 +17273,7 @@ Parser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}
 <p>Extension tag: <span>a &amp;amp; &lt;b&gt;c&lt;/b&gt;</span>
 </p><p>Parser function: <span>a &amp;amp; &lt;b&gt;c&lt;/b&gt;</span>
 </p>
-!! html/parsoid
+!! html/parsoid+integrated
 <p>Extension tag: <span typeof="mw:Extension/spantag" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>"}}'>a <span typeof="mw:Entity">&amp;</span>amp; &lt;b>c&lt;/b></span></p>
 <p>Parser function: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#spantag:&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>","function":"spantagpf"},"params":{},"i":0}}]}'>a <span typeof="mw:Entity">&amp;</span>amp; &lt;b>c&lt;/b></span></p>
 !! end
@@ -17285,7 +17287,7 @@ Text {{#spantag:text <spantag>more text</spantag>}}
 !! html/php
 <p>Text <span>text <span>more text</span></span>
 </p>
-!! html/parsoid
+!! html/parsoid+integrated
 <p>Text <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#spantag:text &lt;spantag>more text&lt;/spantag>","function":"spantagpf"},"params":{},"i":0}}]}'>text <span typeof="mw:Extension/spantag" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"more text"}}'>more text</span></span></p>
 !! end
 
@@ -17298,6 +17300,6 @@ Text {{#spantag:<nowiki><b></nowiki> {{#spantag:<nowiki><c></nowiki>}}}}
 !! html/php
 <p>Text <span>&lt;b&gt; <span>&lt;c&gt;</span></span>
 </p>
-!! html/parsoid
+!! html/parsoid+integrated
 <p>Text <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#spantag:&lt;nowiki>&lt;b>&lt;/nowiki> {{#spantag:&lt;nowiki>&lt;c>&lt;/nowiki>}}","function":"spantagpf"},"params":{},"i":0}}]}'>&lt;b> <span>&lt;c></span></span></p>
 !! end

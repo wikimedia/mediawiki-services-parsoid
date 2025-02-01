@@ -152,16 +152,38 @@ class PipelineUtils {
 		$env->writeDump( $dump );
 	}
 
+	public static function preparePFragment(
+		Env $env,
+		Frame $frame,
+		PFragment $pFragment,
+		array $opts
+	): array {
+		[ $wikitext, $pFragmentMap ] =
+			self::pFragmentToParsoidFragmentMarkers( $pFragment );
+		// FUTURE WORK: Fragment should probably contain a Frame pointer as
+		// well, since srcOffsets are only meaningful in relation to a specific
+		// Frame::$srcText.  When that happens, we should assign an appropriate
+		// $frame here.
+		$srcOffsets = $pFragment->getSrcOffsets() ?? $opts['srcOffsets'] ?? null;
+		if ( !empty( $opts['processInNewFrame'] ) ) {
+			$frame = $frame->newChild( $frame->getTitle(), [], $wikitext );
+			$srcOffsets = new SourceRange( 0, strlen( $wikitext ) );
+		}
+		$env->addToPFragmentMap( $pFragmentMap );
+		return [
+			'frame' => $frame,
+			'wikitext' => $wikitext,
+			'srcOffsets' => $srcOffsets,
+		];
+	}
+
 	public static function processTemplateSource(
-		Env $env, Frame $frame, Token $token, array $tplArgs,
-		string $src, ?string $extTag
+		Env $env, Frame $frame, Token $token, ?array $tplArgs,
+		string $src, array $opts = []
 	): array {
 		if ( $src === '' ) {
 			return [];
 		}
-
-		$env->log( 'debug', 'PipelineUtils.processTemplateSource',
-			$tplArgs['name'], $tplArgs['attribs'] );
 
 		// Get a nested transformation pipeline for the wikitext that takes
 		// us through stages 1-2, with the appropriate pipeline options set.
@@ -188,8 +210,8 @@ class PipelineUtils {
 					// till that time.
 					//
 					// NOTE: No expansion required for nested templates.
-					'expandTemplates' => false,
-					'extTag' => $extTag,
+					'expandTemplates' => $opts['expandTemplates'] ?? false,
+					'extTag' => $opts['extTag'] ?? null,
 				],
 				'srcText' => $src,
 				'srcOffsets' => new SourceRange( 0, strlen( $src ) ),
