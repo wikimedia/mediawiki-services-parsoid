@@ -635,7 +635,7 @@ class TestRunner {
 		}
 		if ( isset( $opts['showmedia'] ) ) {
 			$images = array_map(
-				fn ( $item ) => $item['link']->getDBkey(),
+				static fn ( $item ) => $item['link']->getDBkey(),
 				$output->getLinkList( StubMetadataCollector::LINKTYPE_MEDIA )
 			);
 			$after[] = 'images=' . implode( ', ', $images );

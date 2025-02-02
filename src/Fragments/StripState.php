@@ -168,7 +168,7 @@ class StripState {
 	 */
 	public function addAllFrom( StripState ...$others ): void {
 		PHPUtils::pushArray(
-			$this->items, ...array_map( fn ( $ss )=>$ss->items, $others )
+			$this->items, ...array_map( static fn ( $ss )=>$ss->items, $others )
 		);
 	}
 

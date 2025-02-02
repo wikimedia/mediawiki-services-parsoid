@@ -669,7 +669,7 @@ class WikitextSerializer {
 		$buf .= $this->formatStringSubst( $formatStart, $part->targetWt, $forceTrim );
 
 		// Short-circuit transclusions without params
-		$paramKeys = array_map( fn ( ParamInfo $pi ) => $pi->k, $part->paramInfos );
+		$paramKeys = array_map( static fn ( ParamInfo $pi ) => $pi->k, $part->paramInfos );
 		if ( !$paramKeys ) {
 			if ( substr( $formatEnd, 0, 1 ) === "\n" ) {
 				$formatEnd = substr( $formatEnd, 1 );

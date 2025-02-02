@@ -120,7 +120,7 @@ class PHPUtils {
 		// If the number of elements to be pushed is greater than the size
 		// of the destination, then we can just use PHP's native array_merge
 		// since the size of $dest is also O(N).
-		$sourceCount = array_sum( array_map( fn ( $s ) => count( $s ), $sources ) );
+		$sourceCount = array_sum( array_map( static fn ( $s ) => count( $s ), $sources ) );
 		if ( count( $dest ) < $sourceCount ) {
 			$dest = array_merge( $dest, ...$sources );
 			return;

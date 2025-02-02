@@ -116,7 +116,7 @@ class DataMw implements JsonCodecable {
 		// objects once those exist.
 		if ( isset( $result['errors'] ) ) {
 			$result['errors'] = array_map(
-				fn ( $e ) => is_array( $e ) ? DataMwError::newFromJsonArray( $e ) :
+				static fn ( $e ) => is_array( $e ) ? DataMwError::newFromJsonArray( $e ) :
 					( $e instanceof DataMwError ? $e : DataMwError::newFromJsonArray( (array)$e ) ),
 				$result['errors']
 			);

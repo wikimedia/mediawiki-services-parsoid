@@ -512,7 +512,7 @@ class MockApiHelper extends ApiHelper {
 		$this->prefix = $prefix ?? $this->prefix;
 		$this->normalizeTitle = $normalizeTitleFunc ??
 			// poor man's normalization
-			( fn ( $t ) => str_replace( ' ', '_', $t ) );
+			( static fn ( $t ) => str_replace( ' ', '_', $t ) );
 
 		// PORT-FIXME: Need to get this value
 		// $wtSizeLimit = $parsoidOptions->limits->wt2html->maxWikitextSize;

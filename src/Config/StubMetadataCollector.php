@@ -399,7 +399,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	/** @return list<string> */
 	public function getCategoryNames(): array {
 		return array_map(
-			fn ( $item ) => $item['link']->getDBkey(),
+			static fn ( $item ) => $item['link']->getDBkey(),
 			$this->getLinkList( self::LINKTYPE_CATEGORY )
 		);
 	}
