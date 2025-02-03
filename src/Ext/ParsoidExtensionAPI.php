@@ -715,6 +715,8 @@ class ParsoidExtensionAPI {
 		// FIXME: This is going to drop any diff markers but since
 		// the dom differ doesn't traverse into extension content (right now),
 		// none should exist anyways.
+		// FIXME: This roundtrip discards data-parsoid.tmp data from $node.
+		// Maybe it meant to set keepTmp, but that flag is currently broken.
 		$html = ContentUtils::ppToXML( $node, [ 'innerXML' => $innerHTML ] );
 		if ( !$releaseDom ) {
 			DOMDataUtils::visitAndLoadDataAttribs( $node );

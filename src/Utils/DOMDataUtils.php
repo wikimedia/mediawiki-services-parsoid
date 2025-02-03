@@ -705,6 +705,8 @@ class DOMDataUtils {
 		}
 		$data = null;
 		if ( !$discardDataParsoid ) {
+			// FIXME: $dp->toJsonArray drops tmp so it's discarded regardless
+			// of this flag
 			if ( empty( $options['keepTmp'] ) ) {
 				// @phan-suppress-next-line PhanTypeObjectUnsetDeclaredProperty
 				unset( $dp->tmp );

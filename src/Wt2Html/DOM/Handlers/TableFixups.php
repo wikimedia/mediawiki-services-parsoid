@@ -751,7 +751,8 @@ class TableFixups {
 	 * $cell is known to be <td>/<th>
 	 */
 	private static function getReparseType( Element $cell, DTState $dtState ): int {
-		$inTplContent = $dtState->tplInfo !== null;
+		$inTplContent = $dtState->tplInfo !== null &&
+			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
 		$dp = DOMDataUtils::getDataParsoid( $cell );
 		if ( !$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
 			!$dp->getTempFlag( TempData::MERGED_TABLE_CELL ) &&
