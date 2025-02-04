@@ -45,9 +45,6 @@
 	"DIV IN UPPERCASE": {
 		"wt2wt": "<DIV id=\"x\">HTML ROCKS</DIV>"
 	},
-	"Don't break on | in extension attribute in template": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,33,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,33,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;tag name=\\\"hi|ho\\\">ha&lt;/tag>\"}},\"i\":0}}]}'>ho\">ha&lt;/tag></span></p>"
-	},
 	"Don't fall for the self-closing div": {
 		"wt2wt": "<div>hello world</div>"
 	},
@@ -87,6 +84,18 @@
 	"Handling html with a div self-closing tag": {
 		"wt2html": "<div title=\"\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[0,13,13,0]}'></div>\n<div title=\"\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[14,26,12,0]}'></div>\n<div title=\"\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[27,93,13,0]}'>\n<div title=\"bar\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[41,58,17,0]}'></div>\n<div title=\"bar\" data-parsoid='{\"stx\":\"html\",\"selfClose\":true,\"dsr\":[59,75,16,0]}'></div>\n<div title=\"bar/\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[76,93,17,0]}'></div></div>",
 		"wt2wt": "<div title=\"\" />\n<div title=\"\" />\n<div title=\"\">\n<div title=\"bar\" />\n<div title=\"bar\" />\n<div title=\"bar/\">"
+	},
+	"Handling of nested nowiki strip markers in Parsoid fragments (1)": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,5,0,0]}'>Text </p><p typeof=\"mw:Transclusion\" about=\"#mwt\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,51,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:text &lt;spantag>more text&lt;/spantag>\",\"function\":\"spantagpf\"},\"params\":{},\"i\":0}}]}'><span>text <span typeof=\"mw:Extension/spantag\" about=\"#mwt\" data-parsoid='{\"src\":\"&lt;spantag>more text&lt;/spantag>\"}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"more text\"}}'>more text</span></span></p>",
+		"wt2wt": "Text \n\n{{#spantag:text <spantag>more text</spantag>}}"
+	},
+	"Handling of nested nowiki strip markers in Parsoid fragments (2)": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,5,0,0]}'>Text </p><p typeof=\"mw:Transclusion\" about=\"#mwt\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,72,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:&lt;nowiki>&lt;b>&lt;/nowiki> {{#spantag:&lt;nowiki>&lt;c>&lt;/nowiki>}}\",\"function\":\"spantagpf\"},\"params\":{},\"i\":0}}]}'><span>&lt;b> <span>&lt;c></span></span></p>",
+		"wt2wt": "Text \n\n{{#spantag:<nowiki><b></nowiki> {{#spantag:<nowiki><c></nowiki>}}}}"
+	},
+	"Handling of nowiki strip markers in Parsoid fragments": {
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,71,0,0]}'>Extension tag: <span typeof=\"mw:Extension/spantag\" about=\"#mwt\" data-parsoid='{\"dsr\":[15,71,9,10]}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>\"}}'>a <span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;amp;\",\"srcContent\":\"&amp;\"}'>&amp;</span>amp; &lt;b>c&lt;/b></span></p><p data-parsoid='{\"dsr\":[71,90,0,0]}'>\n\nParser function: </p><p typeof=\"mw:Transclusion\" about=\"#mwt\" data-parsoid='{\"pi\":[[]],\"dsr\":[90,140,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>\",\"function\":\"spantagpf\"},\"params\":{},\"i\":0}}]}'><span>a <span typeof=\"mw:Entity\">&amp;</span>amp; &lt;b>c&lt;/b></span></p>",
+		"wt2wt": "Extension tag: <spantag>a &#x26;amp; <nowiki><b>c</b></nowiki></spantag>\n\nParser function: \n\n{{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}"
 	},
 	"Horizontal ruler (should it add that extra space?)": {
 		"wt2wt": "<hr>\n<hr>\nfoo <hr> bar"
@@ -178,9 +187,6 @@
 	},
 	"Table multiple attributes correction": {
 		"wt2wt": "{|\n! class=\"awesome\" + |status\n|}"
-	},
-	"Template nested in extension tag in template": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,186,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,38,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;span>[[ho|{{1x|hi}}]]&lt;/span>\"}},\"i\":0}}]}'>hi</span><span about=\"#mwt\" data-parsoid='{\"stx\":\"html\"}'><a rel=\"mw:WikiLink\" href=\"./Ho\" title=\"Ho\">hi</a></span>\n<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[39,83,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;spantag>[[ho|{{1x|hi}}]]&lt;/spantag>\"}},\"i\":0}}]}'>hi</span><span typeof=\"mw:Extension/spantag\" about=\"#mwt\" data-parsoid='{\"src\":\"&lt;spantag>[[ho|hi]]&lt;/spantag>\"}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"[[ho|hi]]\"}}'><a rel=\"mw:WikiLink\" href=\"./Ho\" title=\"Ho\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Ho\"},\"sa\":{\"href\":\"ho\"}}'>hi</a></span>\n<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[84,141,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;spantag>[http://test.com?q={{1x|ho}}]&lt;/spantag>\"}},\"i\":0}}]}'>{{{1}}}</span>\n<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[142,186,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hi&lt;spantag>-{ho|{{1x|hi}}}-&lt;/spantag>\"}},\"i\":0}}]}'>hi</span><span typeof=\"mw:Extension/spantag\" about=\"#mwt\" data-parsoid='{\"src\":\"&lt;spantag>-{ho|hi}-&lt;/spantag>\"}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"-{ho|hi}-\"}}'><span typeof=\"mw:LanguageVariant\" data-mw-variant='{\"filter\":{\"l\":[\"ho\"],\"t\":\"hi\"}}' data-parsoid='{\"fl\":[\"ho\"],\"src\":\"-{ho|hi}-\"}'></span></span></p>"
 	},
 	"Template with argument in separate line": {
 		"wt2wt": "{{templateasargtest  |\n templ = simple }}"

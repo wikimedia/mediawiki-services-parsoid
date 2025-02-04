@@ -322,6 +322,9 @@
     "Expansion of multi-line templates in attribute values (T8255 check 2)": {
         "html2wt": "<div style=\"background: \n#00FF00\">-</div>"
     },
+    "Extension tag contents using isRawHTML flag": {
+        "html2wt": "DoBlockLevels and LanguageConverter still run on isHTML content:\n<divtag raw=\"true\" ishtml=\"true\"><!--protect newline-->\n:foo -{raw}- <b>bold</b>\n</divtag>\nBut with isRawHTML the result is left alone:\n<divtag raw=\"true\" israwhtml=\"true\"><!--protect newline-->\n:foo -{raw}- <b>bold</b>\n</divtag>"
+    },
     "Extension tag with embedded html": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,52,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,52,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link\\\" title=\\\"Broken link\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"simple\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link\\\"},\\\"sa\\\":{\\\"href\\\":\\\"broken link\\\"},\\\"dsr\\\":[25,40,2,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>",
         "html2html": "<p data-parsoid='{\"dsr\":[0,86,0,0]}'><span typeof=\"mw:Extension/embedtag\" about=\"#mwt2\" data-parsoid='{\"dsr\":[0,86,10,11]}' data-mw='{\"name\":\"embedtag\",\"attrs\":{},\"body\":{\"html\":\"Content with a &lt;a rel=\\\"mw:WikiLink\\\" href=\\\"./Broken_link%3Faction=edit&amp;amp;redlink=1\\\" title=\\\"Broken link?action=edit&amp;amp;redlink=1\\\" data-parsoid=&apos;{\\\"stx\\\":\\\"piped\\\",\\\"a\\\":{\\\"href\\\":\\\"./Broken_link%3Faction=edit&amp;amp;redlink=1\\\"},\\\"sa\\\":{\\\"href\\\":\\\"Broken link?action=edit&amp;amp;redlink=1\\\"},\\\"dsr\\\":[25,74,36,2]}&apos;>broken link&lt;/a>.\"}}'></span></p>",
@@ -479,6 +482,37 @@
     },
     "Handling of &#x0A; in URLs": {
         "html2wt": "* irc://&#x0A;a"
+    },
+    "Handling of nested nowiki strip markers in Parsoid fragments (1)": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Text <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,51,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:text &lt;spantag>more text&lt;/spantag>\",\"function\":\"spantag\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_spantag missing in Parsoid.</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,51,0,0]}'>Text <span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,51,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:text &lt;spantag>more text&lt;/spantag>\",\"function\":\"spantag\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_spantag missing in Parsoid.</span></p>"
+    },
+    "Handling of nested nowiki strip markers in Parsoid fragments (2)": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,72,0,0]}'>Text <span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,72,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:&lt;nowiki>&lt;b>&lt;/nowiki> {{#spantag:&lt;nowiki>&lt;c>&lt;/nowiki>}}\",\"function\":\"spantag\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_spantag missing in Parsoid.</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,72,0,0]}'>Text <span about=\"#mwt3\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[5,72,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:&lt;nowiki>&lt;b>&lt;/nowiki> {{#spantag:&lt;nowiki>&lt;c>&lt;/nowiki>}}\",\"function\":\"spantag\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_spantag missing in Parsoid.</span></p>"
+    },
+    "Handling of nowiki strip markers in Parsoid fragments": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,71,0,0]}'>Extension tag: <span typeof=\"mw:Extension/spantag\" about=\"#mwt3\" data-parsoid='{\"dsr\":[15,71,9,10]}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>\"}}'>a <span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;amp;\",\"srcContent\":\"&amp;\"}'>&amp;</span>amp; &lt;b>c&lt;/b></span></p>\n\n<p data-parsoid='{\"dsr\":[73,140,0,0]}'>Parser function: <span about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[90,140,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>\",\"function\":\"spantag\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_spantag missing in Parsoid.</span></p>",
+        "wt2wt": "Extension tag: <spantag>a &#x26;amp; <nowiki><b>c</b></nowiki></spantag>\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,72,0,0]}'>Extension tag: <span typeof=\"mw:Extension/spantag\" about=\"#mwt3\" data-parsoid='{\"dsr\":[15,72,9,10]}' data-mw='{\"name\":\"spantag\",\"attrs\":{},\"body\":{\"extsrc\":\"a &amp;#x26;amp; &lt;nowiki>&lt;b>c&lt;/b>&lt;/nowiki>\"}}'>a <span typeof=\"mw:Entity\" data-parsoid='{\"src\":\"&amp;#x26;\",\"srcContent\":\"&amp;\",\"dsr\":[26,32,null,null]}'>&amp;</span>amp; &lt;b>c&lt;/b></span></p>\n\n<p data-parsoid='{\"dsr\":[74,141,0,0]}'>Parser function: <span about=\"#mwt5\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[91,141,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#spantag:&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>\",\"function\":\"spantag\"},\"params\":{},\"i\":0}}]}'>Parser function implementation for pf_spantag missing in Parsoid.</span></p>",
+        "html2wt": "Extension tag: <spantag>a &#x26;amp; <nowiki><b>c</b></nowiki></spantag>\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [[4,0],0,[3,0]]": "yai3rq<spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n{{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [1,0,4]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\nfx8dgz",
+        "selser [1,4,0]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n1j29iia\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [[2,0],4,[4,0]]": "lwvy0rExtension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n1ctpwvp\n\n1yffixw{{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [0,0,4]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n1h2g145",
+        "selser [[4,0],4,0]": "144xmgn<spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\nwv130h\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [2,0,3]": "g1kxsg\n\nExtension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n",
+        "selser [0,2,4]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n1gc3dcl\n\ndwubla",
+        "selser [0,0,[3,0]]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n{{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [[4,0],0,1]": "1nbjg7u<spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [2,0,0]": "1vasod9\n\nExtension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [[3,0],0,4]": "<spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n1wi2uyw",
+        "selser [0,2,3]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n1rw82zg\n",
+        "selser [0,4,[4,0]]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\ni13wte\n\n10a3v7h{{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [0,2,[2,0]]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\n737c3g\n\n1uc447mParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [0,4,[2,0]]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\nvssbbf\n\n1exu843Parser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}",
+        "selser [1,3,0]": "Extension tag: <spantag><nowiki>a &amp;amp; <b>c</b></nowiki></spantag>\n\nParser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}"
     },
     "Horizontal ruler (should it add that extra space?)": {
         "wt2wt": "<hr>\n<hr>\nfoo <hr> bar",
@@ -773,6 +807,11 @@
     },
     "Parser Functions: 2. Nested use (only outermost should be marked up)": {
         "html2wt": "FOO\n"
+    },
+    "Parser function contents using isRawHTML flag": {
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,136,0,0]}'>DoBlockLevels and LanguageConverter still run on isHTML content:\n<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[65,136,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#divtag:&lt;!--protect newline-->\\n:foo -{raw}- &lt;b>bold&lt;/b>\\n\",\"function\":\"divtag\"},\"params\":{\"1\":{\"wt\":\"raw\"},\"2\":{\"wt\":\"isHTML\"}},\"i\":0}}]}'>Parser function implementation for pf_divtag missing in Parsoid.</span></p>\n\n<p data-parsoid='{\"dsr\":[138,257,0,0]}'>But with isRawHTML the result is left alone:\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[183,257,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#divtag:&lt;!--protect newline-->\\n:foo -{raw}- &lt;b>bold&lt;/b>\\n\",\"function\":\"divtag\"},\"params\":{\"1\":{\"wt\":\"raw\"},\"2\":{\"wt\":\"isRawHTML\"}},\"i\":0}}]}'>Parser function implementation for pf_divtag missing in Parsoid.</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,254,0,0]}'>DoBlockLevels and LanguageConverter still run on isHTML content:\n<span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[65,135,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#divtag:&lt;!--protect newline-->\\n:foo -{raw}- &lt;b>bold&lt;/b>\",\"function\":\"divtag\"},\"params\":{\"1\":{\"wt\":\"raw\"},\"2\":{\"wt\":\"isHTML\"}},\"i\":0}}]}'>Parser function implementation for pf_divtag missing in Parsoid.</span>\nBut with isRawHTML the result is left alone:\n<span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"},{\"k\":\"2\"}]],\"dsr\":[181,254,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#divtag:&lt;!--protect newline-->\\n:foo -{raw}- &lt;b>bold&lt;/b>\",\"function\":\"divtag\"},\"params\":{\"1\":{\"wt\":\"raw\"},\"2\":{\"wt\":\"isRawHTML\"}},\"i\":0}}]}'>Parser function implementation for pf_divtag missing in Parsoid.</span></p>",
+        "html2wt": "DoBlockLevels and LanguageConverter still run on isHTML content:\n{{#divtag:<!--protect newline-->\n:foo -{raw}- <b>bold</b>|raw|isHTML}}\nBut with isRawHTML the result is left alone:\n{{#divtag:<!--protect newline-->\n:foo -{raw}- <b>bold</b>|raw|isRawHTML}}"
     },
     "Parsing an URL": {
         "html2wt": "http://fr.wikipedia.org/wiki/🍺\n",
