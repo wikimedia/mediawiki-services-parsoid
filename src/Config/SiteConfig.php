@@ -1586,7 +1586,8 @@ abstract class SiteConfig {
 		return $extConfig['parsoidExtTags'][mb_strtolower( $tagName )] ?? null;
 	}
 
-	private $tagHandlerCache = [];
+	/** @var array<string,?ExtensionTagHandler> */
+	private array $tagHandlerCache = [];
 
 	/**
 	 * @param string $tagName Extension tag name
@@ -1594,6 +1595,7 @@ abstract class SiteConfig {
 	 *   Returns the implementation of the named extension, if there is one.
 	 */
 	public function getExtTagImpl( string $tagName ): ?ExtensionTagHandler {
+		$tagName = mb_strtolower( $tagName );
 		if ( !array_key_exists( $tagName, $this->tagHandlerCache ) ) {
 			$tagConfig = $this->getExtTagConfig( $tagName );
 			$this->tagHandlerCache[$tagName] = isset( $tagConfig['handler'] ) ?
@@ -1609,7 +1611,7 @@ abstract class SiteConfig {
 	/**
 	 * Return an array mapping extension name to an array of object factory
 	 * specs for Ext\DOMProcessor objects
-	 * @return array
+	 * @return array<name,list<string|array>>
 	 */
 	public function getExtDOMProcessors(): array {
 		$extConfig = $this->getExtConfig();
