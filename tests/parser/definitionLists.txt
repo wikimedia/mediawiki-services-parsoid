@@ -539,7 +539,6 @@ Definition Lists: Nesting: Multi-level (Parsoid only)
 </dl>
 !! end
 
-
 !! test
 Definition Lists: Nesting: Test 2
 !! wikitext
@@ -550,7 +549,6 @@ Definition Lists: Nesting: Test 2
 <dd>
 <dl><dd>d2</dd></dl></dd></dl>
 !! end
-
 
 !! test
 Definition Lists: Nesting: Test 3
@@ -563,7 +561,6 @@ Definition Lists: Nesting: Test 3
 <dl><dd><dl><dd>d2</dd></dl></dd></dl></dd></dl></dd></dl>
 !! end
 
-
 !! test
 Definition Lists: Nesting: Test 4
 !! wikitext
@@ -573,7 +570,6 @@ Definition Lists: Nesting: Test 4
 <dl><dd><dl><dd><dl><dt>t3</dt>
 <dd>d3</dd></dl></dd></dl></dd></dl>
 !! end
-
 
 ## The Parsoid team believes the following three test exposes a
 ## bug in the PHP parser.  (Parsoid team thinks the PHP parser is
@@ -621,7 +617,6 @@ Definition Lists: Mixed Lists: Test 2
 <dd>d2</dd></dl></li></ul>
 !! end
 
-
 !! test
 Definition Lists: Mixed Lists: Test 3
 !! wikitext
@@ -631,7 +626,6 @@ Definition Lists: Mixed Lists: Test 3
 <ul><li><dl><dd><dl><dd><dl><dd>d1</dd>
 <dd>d2</dd></dl></dd></dl></dd></dl></li></ul>
 !! end
-
 
 !! test
 Definition Lists: Mixed Lists: Test 4
@@ -647,7 +641,6 @@ parsoid=wt2html,html2html
 <dd>d4</dd></dl></li></ul>
 !! end
 
-
 !! test
 Definition Lists: Mixed Lists: Test 5
 !! wikitext
@@ -657,7 +650,6 @@ Definition Lists: Mixed Lists: Test 5
 <ul><li><dl><dd>d1
 <dl><dd>d2</dd></dl></dd></dl></li></ul>
 !! end
-
 
 !! test
 Definition Lists: Mixed Lists: Test 6
@@ -669,7 +661,6 @@ Definition Lists: Mixed Lists: Test 6
 <dl><dd><dl><dd>d3</dd></dl></dd></dl></dd></dl></li></ul></li></ol>
 !! end
 
-
 !! test
 Definition Lists: Mixed Lists: Test 7
 !! wikitext
@@ -679,7 +670,6 @@ Definition Lists: Mixed Lists: Test 7
 <dl><dd><ul><li>d1</li>
 <li>d2</li></ul></dd></dl>
 !! end
-
 
 !! test
 Definition Lists: Mixed Lists: Test 8
@@ -691,7 +681,6 @@ Definition Lists: Mixed Lists: Test 8
 <dl><dd><ul><li>d2</li></ul></dd></dl></dd></dl>
 !! end
 
-
 !! test
 Definition Lists: Mixed Lists: Test 9
 !! options
@@ -702,7 +691,6 @@ parsoid=wt2html,html2html
 <ul><li><dl><dt>foo</dt>
 <dd>bar</dd></dl></li></ul>
 !! end
-
 
 !! test
 Definition Lists: Mixed Lists: Test 10
@@ -735,49 +723,6 @@ Definition Lists: Mixed Lists: Test 11
 <dd><ul><li>b</li></ul></dd></dl>
 !! end
 
-# FIXME: Maybe get rid of this test?
-!! test
-Definition Lists: Mixed Lists: Test 12
-!! options
-parsoid=wt2html,html2html
-!! wikitext
-*#*#;*;;foo :bar
-*#*#;boo :baz
-!! html/php
-<ul><li><ol><li><ul><li><ol><li><dl><dt>foo</dt>
-<dd><ul><li><dl><dt><dl><dt>bar</dt></dl></dt></dl></li></ul></dd></dl></li></ol></li></ul>
-<dl><dt>boo</dt>
-<dd>baz</dd></dl></li></ol></li></ul>
-!! html/parsoid
-<ul>
-<li>
-<ol>
-<li>
-<ul>
-<li>
-<ol>
-<li>
-<dl>
-<dt>
-<ul>
-<li>
-<dl>
-<dt>
-<dl>
-<dt>foo</dt>
-<dd data-parsoid='{"stx":"row"}'>bar</dd>
-</dl></dt>
-</dl></li>
-</ul></dt>
-<dt>boo</dt>
-<dd data-parsoid='{"stx":"row"}'>baz</dd>
-</dl></li>
-</ol></li>
-</ul></li>
-</ol></li>
-</ul>
-!! end
-
 !! test
 Definition Lists: Mixed Lists: Test 13
 !! options
@@ -790,47 +735,6 @@ parsoid=wt2html,html2html
 <dd><ul><li><dl><dt><dl><dt>bar</dt></dl></dt></dl></li></ul></dd></dl></li></ol></li></ul>
 <dl><dt>boo</dt>
 <dd>baz</dd></dl></li></ol></li></ul>
-!! end
-
-# FIXME: Maybe get rid of this test?
-# From an old description in the Parsoid codebase:
-# * The test is wrong, there are two colons where there should be :;
-# * The PHP parser is wrong to close the <dl> after the <dt> containing the <ul>.
-!! test
-Definition Lists: Weird Ones: Test 1
-!! options
-parsoid=wt2html,html2html
-!! wikitext
-*#;*::;;foo :bar (who uses this?)
-!! html/php
-<ul><li><ol><li><dl><dt>foo</dt>
-<dd><ul><li><dl><dd><dl><dd><dl><dt><dl><dt>bar (who uses this?)</dt></dl></dt></dl></dd></dl></dd></dl></li></ul></dd></dl></li></ol></li></ul>
-!! html/parsoid
-<ul>
-<li>
-<ol>
-<li>
-<dl>
-<dt>
-<ul>
-<li>
-<dl>
-<dd>
-<dl>
-<dd>
-<dl>
-<dt>
-<dl>
-<dt>foo</dt>
-<dd data-parsoid='{"stx":"row"}'>bar (who uses this?)</dd>
-</dl></dt>
-</dl></dd>
-</dl></dd>
-</dl></li>
-</ul></dt>
-</dl></li>
-</ol></li>
-</ul>
 !! end
 
 !! test
@@ -872,9 +776,8 @@ Definition Lists: colons occurring in tags
 <dl><dt><dl><dt><i>a:b</i></dt></dl></dt></dl></dt></dl>
 !! end
 
-# Parsoid's output differs here again because it shares
-# nesting between the two lists unlike the PHP parser.
-# Unsure which is more desirable.
+# Parsoid's output is preferable here because it shares
+# nesting between the two lists unlike the legacy parser.
 !! test
 Definition Lists: colons and tables 1
 !! wikitext
