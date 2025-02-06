@@ -615,10 +615,17 @@ class TableFixups {
 		$cellDp = DOMDataUtils::getDataParsoid( $cell );
 		$cellHasAttrs = !$cellDp->getTempFlag( TempData::NO_ATTRS );
 
-		$prevCellSrc = $prevDp->dsr->substr( $frame->getSrcText() );
+		// Even though we have valid dsr for $prev as a condition of entering
+		// here, use tsr start because dsr computation may have expanded the range
+		// to include fostered content
+		$prevDsr = clone $prevDp->dsr;
+		$prevDsr->start = $prevDp->tsr->start;
+
+		$prevCellSrc = $prevDsr->substr( $frame->getSrcText() );
+
 		// $prevCellContent = substr( $prevCellSrc, $prevDp->dsr->openWidth );
 		// The following is equivalent because td/th has zero end-tag width
-		$prevCellContent = $prevDp->dsr->innerSubstr( $frame->getSrcText() );
+		$prevCellContent = $prevDsr->innerSubstr( $frame->getSrcText() );
 
 		// Parsoid currently doesn't support parsing "|<--cmt-->|" as
 		// a "||" which legacy parser does. We won't support this.
@@ -637,8 +644,8 @@ class TableFixups {
 			//    migrate "|" to $cell
 			$strippedChar = self::stripTrailingPipe( $prev );
 			if ( !$strippedChar ) {
-				// If we don't see any instances of these in logstash in a few weeks,
-				// we should get rid of the conservative checks.
+				// We saw these in T384737, it's worth keeping around these conservative
+				// checks for the time being
 				$env->log( "error/wt2html", "TableFixups: stripTrailingPipe failed." );
 			} else {
 				self::transferSourceBetweenCells(
