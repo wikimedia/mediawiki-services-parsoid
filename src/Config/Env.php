@@ -202,35 +202,10 @@ class Env {
 	public $hasAnnotations;
 
 	/**
-	 * PORT-FIXME: public currently
-	 * Cache of wikitext source for a title
+	 * Cache of wikitext source for a title; only used for ParserTests.
 	 * @var array
 	 */
 	public $pageCache = [];
-
-	/**
-	 * PORT-FIXME: public currently
-	 * HTML Cache of expanded transclusions to support
-	 * reusing expansions from HTML of previous revision.
-	 * @var array
-	 */
-	public $transclusionCache = [];
-
-	/**
-	 * PORT-FIXME: public currently
-	 * HTML Cache of expanded media wikiext to support
-	 * reusing expansions from HTML of previous revision.
-	 * @var array
-	 */
-	public $mediaCache = [];
-
-	/**
-	 * PORT-FIXME: public currently
-	 * HTML Cache of expanded extension tags to support
-	 * reusing expansions from HTML of previous revision.
-	 * @var array
-	 */
-	public $extensionCache = [];
 
 	/**
 	 * The current top-level document. During wt2html, this will be the document

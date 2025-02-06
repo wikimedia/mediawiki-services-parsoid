@@ -1159,7 +1159,6 @@ class WikiLinkHandler extends TokenHandler {
 
 		// FIXME: Re-enable use of media cache and figure out how that fits
 		// into this new processing model. See T98995
-		// const cachedMedia = env.mediaCache[token.dataParsoid.src];
 
 		$dataParsoid = clone $token->dataParsoid;
 		$dataParsoid->optList = [];

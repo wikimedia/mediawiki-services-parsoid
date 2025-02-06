@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Ext\ExtensionError;
@@ -81,8 +80,6 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
-		$cachedExpansion = $env->extensionCache[$token->dataParsoid->src] ?? null;
-
 		$options = $token->getAttributeV( 'options' );
 		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
 
@@ -141,29 +138,17 @@ class ExtensionHandler extends TokenHandler {
 			// sourceToDom).
 		}
 
-		if ( $cachedExpansion ) {
-			// WARNING: THIS HAS BEEN UNUSED SINCE 2015, SEE T98995.
-			// THIS CODE WAS WRITTEN BUT APPARENTLY NEVER TESTED.
-			// NO WARRANTY.  MAY HALT AND CATCH ON FIRE.
-			throw new UnreachableException( 'Should not be here!' );
-			/*
-			$toks = PipelineUtils::encapsulateExpansionHTML(
-				$env, $token, $cachedExpansion, [ 'fromCache' => true ]
-			);
-			*/
-		} else {
-			$start = microtime( true );
-			$domFragment = PipelineUtils::fetchHTML( $env, $token->getAttributeV( 'source' ) );
-			if ( $env->profiling() ) {
-				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "Extension", 1000 * ( microtime( true ) - $start ), "api" );
-				$profile->bumpCount( "Extension" );
-			}
-			if ( !$domFragment ) {
-				$domFragment = DOMUtils::parseHTMLToFragment( $env->getTopLevelDoc(), '' );
-			}
-			$toks = $this->onDocumentFragment( $token, $domFragment, $dataMw, [] );
+		$start = microtime( true );
+		$domFragment = PipelineUtils::fetchHTML( $env, $token->getAttributeV( 'source' ) );
+		if ( $env->profiling() ) {
+			$profile = $env->getCurrentProfile();
+			$profile->bumpMWTime( "Extension", 1000 * ( microtime( true ) - $start ), "api" );
+			$profile->bumpCount( "Extension" );
 		}
+		if ( !$domFragment ) {
+			$domFragment = DOMUtils::parseHTMLToFragment( $env->getTopLevelDoc(), '' );
+		}
+		$toks = $this->onDocumentFragment( $token, $domFragment, $dataMw, [] );
 		return new TokenHandlerResult( $toks );
 	}
 

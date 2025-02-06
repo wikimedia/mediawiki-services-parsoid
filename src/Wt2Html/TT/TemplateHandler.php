@@ -858,18 +858,7 @@ class TemplateHandler extends TokenHandler {
 				return new TemplateExpansionResult( $error );
 			}
 
-			// Check if we have an expansion for this template in the cache already
-			$cachedTransclusion = $env->transclusionCache[$text] ?? null;
-			if ( $cachedTransclusion ) {
-				// cache hit: reuse the expansion DOM
-				// FIXME(SSS): How does this work again for
-				// templates like {{start table}} and {[end table}}??
-				return new TemplateExpansionResult(
-					PipelineUtils::encapsulateExpansionHTML(
-						$env, $token, $cachedTransclusion, [ 'fromCache' => true ]
-					)
-				);
-			} elseif ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
+			if ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
 				// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
 				$pFragment = $env->getPFragment( $text );
 				$domFragment = $pFragment->asDom(
