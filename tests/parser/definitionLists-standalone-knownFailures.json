@@ -1,96 +1,4 @@
 {
-    "Definition Lists: Hacky use to indent tables": {
-        "html2wt": ":: {|\n|foo\n|bar\n|}\n\nthis text\nshould be left alone\n"
-    },
-    "Definition Lists: Hacky use to indent tables (WS-insensitive)": {
-        "wt2wt": ":{|\n|a\n|}",
-        "html2wt": ": {|\n|a\n|}\n",
-        "selser [[[[4,3]]]]": ":{|<!--nvkt7k-->\n|} ",
-        "selser [[[[0,4]]]]": ":{|\n<!--1cibqk6-->|} ",
-        "selser [[1]]": ":{|\n|a\n|} ",
-        "selser [[[[0,[[[4]],0]]]]]": ":{|\n|9li6zw\n|} ",
-        "selser [1]": ":{|\n|a\n|} ",
-        "selser [[[[4,[4,2]]]]]": ":{|<!--10ihbx0--><!--k9nvuw--><!--15hevs9-->\n|} ",
-        "selser [[[[3,[0,2]]]]]": ":{|\n|a<!--12bq36y-->\n|} ",
-        "selser [2]": "h175d3\n:{|\n|a\n|} ",
-        "selser [[[[4,[[[2]],3]]]]]": ":{|<!--1bb9eok-->\n|j0vzm1a\n|} ",
-        "selser [[[[3,0]]]]": ":{|\n|a\n|} ",
-        "selser [[[[3,[[3],0]]]]]": ":{|\n|} ",
-        "selser [[2]]": ": 1tk1yz2\n:{|\n|a\n|} ",
-        "selser [[[[0,2]]]]": ":{|\n<!--hzzj8m-->|a\n|} ",
-        "selser [[[[0,1]]]]": ":{|\n|a\n|} "
-    },
-    "Definition Lists: Hacky use to indent tables (with content following table)": {
-        "html2wt": ": {|\n|foo\n|bar\n|} <!--c1-->  this text should be part of the dl"
-    },
-    "Definition Lists: Hacky use to indent tables, with comments (T65979)": {
-        "html2wt": "<!-- foo -->\n:: {|\n|foo\n|bar\n|}<!-- bar -->\n\nthis text\nshould be left alone"
-    },
-    "Definition Lists: Indentation: Missing 1st level": {
-        "html2wt": ":: i2\n::: i3\n"
-    },
-    "Definition Lists: Indentation: Multi-level indent": {
-        "html2wt": "::: i3\n"
-    },
-    "Definition Lists: Indentation: Regular": {
-        "html2wt": ": i1\n:: i2\n::: i3\n"
-    },
-    "Definition Lists: Mixed Lists: Test 1": {
-        "html2wt": "\n:;* foo\n::* bar\n:; baz\n"
-    },
-    "Definition Lists: Mixed Lists: Test 11": {
-        "html2wt": "; a\n:* b\n"
-    },
-    "Definition Lists: Mixed Lists: Test 13": {
-        "wt2html": "<ul data-parsoid='{\"dsr\":[0,32,0,0]}'><li data-parsoid='{\"dsr\":[0,32,1,0]}'><ol data-parsoid='{\"dsr\":[1,32,0,0]}'><li data-parsoid='{\"dsr\":[1,32,1,0]}'><ul data-parsoid='{\"dsr\":[2,32,0,0]}'><li data-parsoid='{\"dsr\":[2,32,1,0]}'><ol data-parsoid='{\"dsr\":[3,32,0,0]}'><li data-parsoid='{\"dsr\":[3,32,1,0]}'><dl data-parsoid='{\"dsr\":[4,32,0,0]}'><dt data-parsoid='{\"dsr\":[4,18,1,0]}'><ul data-parsoid='{\"dsr\":[5,17,0,0]}'><li data-parsoid='{\"dsr\":[5,17,1,0]}'><dl data-parsoid='{\"dsr\":[6,17,0,0]}'><dt data-parsoid='{\"dsr\":[6,17,1,0]}'><dl data-parsoid='{\"dsr\":[7,17,0,0]}'><dt data-parsoid='{\"dsr\":[7,12,1,0,0,1]}'>foo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[12,17,1,0,1,0]}'>bar</dd></dl></dt></dl></li></ul>\n</dt><dt data-parsoid='{\"dsr\":[18,27,5,0,0,1]}'>boo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[27,32,1,0,1,0]}'>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>"
-    },
-    "Definition Lists: Mixed Lists: Test 2": {
-        "html2wt": "*: d1\n*: d2\n"
-    },
-    "Definition Lists: Mixed Lists: Test 3": {
-        "html2wt": "*::: d1\n*::: d2\n"
-    },
-    "Definition Lists: Mixed Lists: Test 5": {
-        "html2wt": "*: d1\n*:: d2\n"
-    },
-    "Definition Lists: Mixed Lists: Test 6": {
-        "html2wt": "#*: d1\n#*::: d3\n"
-    },
-    "Definition Lists: Mixed Lists: Test 7": {
-        "html2wt": ":* d1\n:* d2\n"
-    },
-    "Definition Lists: Mixed Lists: Test 8": {
-        "html2wt": ":* d1\n::* d2\n",
-        "selser [[[1,2,1]]]": ":*d1 zmr5na\n::*d2",
-        "selser [[[1,4,[2]]]]": ":*d1 mzvb16\n:: 101qtoa\n::*d2",
-        "selser [[[1,2,[[[[4]]]]]]]": ":*d1 1p1a6zd\n::*1pbzx7v\n",
-        "selser [[[[3],2,[1]]]]": ": 17llcws\n::*d2",
-        "selser [[[3,0,[4]]]]": ":\n:: 14p3rxo\n",
-        "selser [[[[[2]],4,2]]]": ":*1j4b9ocd1 7pruea ld6si3\n::*d2"
-    },
-    "Definition Lists: Nesting: Multi-level (Parsoid only)": {
-        "html2html": "\n<dl data-parsoid='{\"dsr\":[1,27,0,0]}'><dt data-parsoid='{\"dsr\":[1,6,1,0,1,1]}'>t1</dt>\n<dd data-parsoid='{\"dsr\":[7,17,1,0,1,6]}'>d1</dd>\n<dt data-parsoid='{\"dsr\":[18,27,1,0]}'><dl data-parsoid='{\"dsr\":[19,27,0,0]}'><dt data-parsoid='{\"dsr\":[19,24,1,0,1,1]}'>t2</dt>\n<dd data-parsoid='{\"dsr\":[25,27,2,0]}'></dd></dl></dt></dl>\n<p data-parsoid='{\"dsr\":[28,50,0,0]}'>\t\t\t;: d2              </p>\n<dl data-parsoid='{\"dsr\":[51,66,0,0]}'><dt data-parsoid='{\"dsr\":[51,66,1,0]}'><dl data-parsoid='{\"dsr\":[52,66,0,0]}'><dt data-parsoid='{\"dsr\":[52,66,1,0]}'><dl data-parsoid='{\"dsr\":[53,66,0,0]}'><dt data-parsoid='{\"dsr\":[53,58,1,0,1,1]}'>t3</dt>\n<dd data-parsoid='{\"dsr\":[59,62,3,0]}'></dd>\n<dd data-parsoid='{\"dsr\":[63,66,3,0]}'></dd></dl></dt></dl></dt></dl>\n<p data-parsoid='{\"dsr\":[67,98,0,0]}'>\t\t\t\t\t;;: d3                    </p>\n",
-        "html2wt": "\n; t1 \n: d1      \n;; t2 \n;:\n\t\t\t;: d2              \n;;; t3 \n;;:\n;;:\n\t\t\t\t\t;;: d3                    \n",
-        "selser [[[3],3,0,[[2,2,1,3,[[[3],1,0,0]]]]]]": ";\n;: 1k7hpg\n;;t2\n;: 1lvwm2s::2 \n;;;:::d3"
-    },
-    "Definition Lists: Nesting: Test 2": {
-        "html2wt": "; t1\n:: d2\n"
-    },
-    "Definition Lists: Nesting: Test 3": {
-        "html2wt": ":; t1\n:::: d2\n"
-    },
-    "Definition Lists: Nesting: Test 4": {
-        "html2wt": "::; t3\n::: d3\n"
-    },
-    "Definition Lists: No nesting: Multiple dd's": {
-        "html2wt": "; x\n: a\n: b"
-    },
-    "Definition Lists: colons and tables 1": {
-        "html2wt": ": {|\n|x\n|}\n: {|\n|y\n|}\n"
-    },
-    "Definition Lists: colons occurring in tags": {
-        "html2wt": "; a:b\n; '''a:b'''\n; <i>a:b</i>\n; <span>a:b</span>\n; <div>a:b</div>\n; <div>a\n: b</div>\n; {{1x|a:b}}\n; {{1x|''a:b''}}\n;;; ''a:b''\n"
-    },
     "Definition list for indentation only": {
         "html2wt": ": Indented text"
     },
@@ -113,10 +21,93 @@
     "Definition lists: ignore colons inside tags": {
         "html2wt": "; one '''two : tag ''fun:'':'''\n: def"
     },
+    "Hacky use to indent tables": {
+        "html2wt": ":: {|\n|foo\n|bar\n|}\n\nthis text\nshould be left alone\n"
+    },
+    "Hacky use to indent tables (WS-insensitive)": {
+        "wt2wt": ":{|\n|a\n|}",
+        "html2wt": ": {|\n|a\n|}\n",
+        "selser [1]": ":{|\n|a\n|} ",
+        "selser [[[2]]]": ":9ir450 {| |a |} ",
+        "selser [[[[0,2]]]]": ":{|\n<!--vw4ery-->|a\n|} ",
+        "selser [[[[4,2]]]]": ":{|<!--3cryqi--><!--maehme-->\n|a\n|} ",
+        "selser [[[1]]]": ":{| data-foobar=\"1s271wa\"\n|a\n|} ",
+        "selser [2]": "1ovg6m7\n:{|\n|a\n|} ",
+        "selser [[2]]": ": arpppi\n:{|\n|a\n|} ",
+        "selser [[1]]": ":{|\n|a\n|} ",
+        "selser [[[[3,[[4],0]]]]]": ":{|\n|1tkmhkq\n|} ",
+        "selser [[[[0,1]]]]": ":{|\n|a\n|} ",
+        "selser [[[[0,3]]]]": ":{|\n|} ",
+        "selser [[[[2,2]]]]": ":{|<!--f7em35-->\n<!--xdu4ht-->|a\n|} ",
+        "selser [[[[3,[[[3]],3]]]]]": ":{|\n|\n|} ",
+        "selser [[[[0,4]]]]": ":{|\n<!--254mqb-->|} "
+    },
+    "Hacky use to indent tables (with content following table)": {
+        "html2wt": ": {|\n|foo\n|bar\n|} <!--c1-->  this text should be part of the dl"
+    },
+    "Hacky use to indent tables, with comments (T65979)": {
+        "html2wt": "<!-- foo -->\n:: {|\n|foo\n|bar\n|}<!-- bar -->\n\nthis text\nshould be left alone"
+    },
+    "Indentation: Missing 1st level": {
+        "html2wt": ":: i2\n::: i3\n"
+    },
+    "Indentation: Multi-level indent": {
+        "html2wt": "::: i3\n"
+    },
+    "Indentation: Regular": {
+        "html2wt": ": i1\n:: i2\n::: i3\n"
+    },
     "Malformed definition list with colon": {
         "html2wt": "; news:alt.wikipedia.rox -- don't crash or enter an infinite loop"
     },
+    "Mixed Lists: Test 1": {
+        "html2wt": "\n:;* foo\n::* bar\n:; baz\n"
+    },
+    "Mixed Lists: Test 11": {
+        "html2wt": "; a\n:* b\n"
+    },
+    "Mixed Lists: Test 13": {
+        "wt2html": "<ul data-parsoid='{\"dsr\":[0,32,0,0]}'><li data-parsoid='{\"dsr\":[0,32,1,0]}'><ol data-parsoid='{\"dsr\":[1,32,0,0]}'><li data-parsoid='{\"dsr\":[1,32,1,0]}'><ul data-parsoid='{\"dsr\":[2,32,0,0]}'><li data-parsoid='{\"dsr\":[2,32,1,0]}'><ol data-parsoid='{\"dsr\":[3,32,0,0]}'><li data-parsoid='{\"dsr\":[3,32,1,0]}'><dl data-parsoid='{\"dsr\":[4,32,0,0]}'><dt data-parsoid='{\"dsr\":[4,18,1,0]}'><ul data-parsoid='{\"dsr\":[5,17,0,0]}'><li data-parsoid='{\"dsr\":[5,17,1,0]}'><dl data-parsoid='{\"dsr\":[6,17,0,0]}'><dt data-parsoid='{\"dsr\":[6,17,1,0]}'><dl data-parsoid='{\"dsr\":[7,17,0,0]}'><dt data-parsoid='{\"dsr\":[7,12,1,0,0,1]}'>foo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[12,17,1,0,1,0]}'>bar</dd></dl></dt></dl></li></ul>\n</dt><dt data-parsoid='{\"dsr\":[18,27,5,0,0,1]}'>boo</dt><dd data-parsoid='{\"stx\":\"row\",\"dsr\":[27,32,1,0,1,0]}'>baz</dd></dl></li></ol></li></ul></li></ol></li></ul>"
+    },
+    "Mixed Lists: Test 2": {
+        "html2wt": "*: d1\n*: d2\n"
+    },
+    "Mixed Lists: Test 3": {
+        "html2wt": "*::: d1\n*::: d2\n"
+    },
+    "Mixed Lists: Test 5": {
+        "html2wt": "*: d1\n*:: d2\n"
+    },
+    "Mixed Lists: Test 6": {
+        "html2wt": "#*: d1\n#*::: d3\n"
+    },
+    "Mixed Lists: Test 7": {
+        "html2wt": ":* d1\n:* d2\n"
+    },
+    "Mixed Lists: Test 8": {
+        "html2wt": ":* d1\n::* d2\n",
+        "selser [[[0,2,1]]]": ":*d1 tzb8dv\n::*d2",
+        "selser [[[[3],2,1]]]": ": zkuunv\n::*d2",
+        "selser [[[[4],4,1]]]": ":* 1elzkuo 5qe6k7\n::*d2"
+    },
     "Nested definition lists using html syntax": {
+        "html2wt": "; x\n: a\n: b"
+    },
+    "Nesting: Multi-level (Parsoid only)": {
+        "html2html": "\n<dl data-parsoid='{\"dsr\":[1,27,0,0]}'><dt data-parsoid='{\"dsr\":[1,6,1,0,1,1]}'>t1</dt>\n<dd data-parsoid='{\"dsr\":[7,17,1,0,1,6]}'>d1</dd>\n<dt data-parsoid='{\"dsr\":[18,27,1,0]}'><dl data-parsoid='{\"dsr\":[19,27,0,0]}'><dt data-parsoid='{\"dsr\":[19,24,1,0,1,1]}'>t2</dt>\n<dd data-parsoid='{\"dsr\":[25,27,2,0]}'></dd></dl></dt></dl>\n<p data-parsoid='{\"dsr\":[28,50,0,0]}'>\t\t\t;: d2              </p>\n<dl data-parsoid='{\"dsr\":[51,66,0,0]}'><dt data-parsoid='{\"dsr\":[51,66,1,0]}'><dl data-parsoid='{\"dsr\":[52,66,0,0]}'><dt data-parsoid='{\"dsr\":[52,66,1,0]}'><dl data-parsoid='{\"dsr\":[53,66,0,0]}'><dt data-parsoid='{\"dsr\":[53,58,1,0,1,1]}'>t3</dt>\n<dd data-parsoid='{\"dsr\":[59,62,3,0]}'></dd>\n<dd data-parsoid='{\"dsr\":[63,66,3,0]}'></dd></dl></dt></dl></dt></dl>\n<p data-parsoid='{\"dsr\":[67,98,0,0]}'>\t\t\t\t\t;;: d3                    </p>\n",
+        "html2wt": "\n; t1 \n: d1      \n;; t2 \n;:\n\t\t\t;: d2              \n;;; t3 \n;;:\n;;:\n\t\t\t\t\t;;: d3                    \n",
+        "selser [[1,0,0,[[[3],2,2,3,1]]]]": ";t1:d1\n;;\n;: 9yw3oe:\n;: 7e4uy5:2 \n;;;t3:::d3"
+    },
+    "Nesting: Test 2": {
+        "html2wt": "; t1\n:: d2\n"
+    },
+    "Nesting: Test 3": {
+        "html2wt": ":; t1\n:::: d2\n"
+    },
+    "Nesting: Test 4": {
+        "html2wt": "::; t3\n::: d3\n"
+    },
+    "No nesting: Multiple dd's": {
         "html2wt": "; x\n: a\n: b"
     },
     "T13748: Literal closing tags": {
@@ -129,5 +120,11 @@
     },
     "Table / list interaction: lists nested in tables nested in indented lists": {
         "html2wt": ": {|\n|\n: a\n: b\n|\n* c\n* d\n|}\n\n* e\n* f"
+    },
+    "colons and tables 1": {
+        "html2wt": ": {|\n|x\n|}\n: {|\n|y\n|}\n"
+    },
+    "colons occurring in tags": {
+        "html2wt": "; a:b\n; '''a:b'''\n; <i>a:b</i>\n; <span>a:b</span>\n; <div>a:b</div>\n; <div>a\n: b</div>\n; {{1x|a:b}}\n; {{1x|''a:b''}}\n;;; ''a:b''\n"
     }
 }

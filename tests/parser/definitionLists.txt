@@ -223,7 +223,7 @@ Nested definition lists using html syntax
 !! end
 
 !! test
-Definition Lists: No nesting: Multiple dd's
+No nesting: Multiple dd's
 !! wikitext
 ;x
 :a
@@ -235,7 +235,7 @@ Definition Lists: No nesting: Multiple dd's
 !! end
 
 !! test
-Definition Lists: Indentation: Regular
+Indentation: Regular
 !! wikitext
 :i1
 ::i2
@@ -247,7 +247,7 @@ Definition Lists: Indentation: Regular
 !! end
 
 !! test
-Definition Lists: Indentation: Missing 1st level
+Indentation: Missing 1st level
 !! wikitext
 ::i2
 :::i3
@@ -257,7 +257,7 @@ Definition Lists: Indentation: Missing 1st level
 !! end
 
 !! test
-Definition Lists: Indentation: Multi-level indent
+Indentation: Multi-level indent
 !! wikitext
 :::i3
 !! html
@@ -265,7 +265,7 @@ Definition Lists: Indentation: Multi-level indent
 !! end
 
 !! test
-Definition Lists: Hacky use to indent tables
+Hacky use to indent tables
 !! wikitext
 ::{|
 |foo
@@ -286,7 +286,7 @@ should be left alone
 !! end
 
 !! test
-Definition Lists: Hacky use to indent tables (with content following table)
+Hacky use to indent tables (with content following table)
 !! wikitext
 :{|
 |foo
@@ -309,7 +309,7 @@ Definition Lists: Hacky use to indent tables (with content following table)
 !! end
 
 !! test
-Definition Lists: Hacky use to indent tables, with comments (T65979)
+Hacky use to indent tables, with comments (T65979)
 !! wikitext
 <!-- foo -->
 ::{|
@@ -329,7 +329,7 @@ should be left alone</p>
 !! end
 
 !! test
-Definition Lists: Hacky use to indent tables, with comment before table
+Hacky use to indent tables, with comment before table
 !!options
 parsoid=wt2html
 !! wikitext
@@ -346,7 +346,7 @@ parsoid=wt2html
 # hacky-indent table and then reopens it; Parsoid emits the "expected"
 # output.  Parsoid team regards this as a bug in the legacy parser.
 !! test
-Definition Lists: Hack use to indent tables, in a nested list context (T262943)
+Hack use to indent tables, in a nested list context (T262943)
 !! wikitext
 This is a discussion thread.
 
@@ -381,7 +381,7 @@ This is a discussion thread.
 # The trailing whitespace in this test is to catch a regression in
 # Parsoid after T54473.
 !! test
-Definition Lists: Hacky use to indent tables (WS-insensitive)
+Hacky use to indent tables (WS-insensitive)
 !! wikitext
 :{|
 |a
@@ -399,7 +399,7 @@ Definition Lists: Hacky use to indent tables (WS-insensitive)
 
 # wt2wt / html2wt will normalize newlines - so disabled those test modes
 !! test
-Definition Lists: Hacky use to indent tables (nl-insensitive)
+Hacky use to indent tables (nl-insensitive)
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -512,7 +512,7 @@ Table / list interaction: lists nested in tables nested in indented lists
 !!end
 
 !! test
-Definition Lists: Nesting: Multi-level (Parsoid only)
+Nesting: Multi-level (Parsoid only)
 !! wikitext
 ;t1:d1
 ;;t2::d2
@@ -540,7 +540,7 @@ Definition Lists: Nesting: Multi-level (Parsoid only)
 !! end
 
 !! test
-Definition Lists: Nesting: Test 2
+Nesting: Test 2
 !! wikitext
 ;t1
 ::d2
@@ -551,7 +551,7 @@ Definition Lists: Nesting: Test 2
 !! end
 
 !! test
-Definition Lists: Nesting: Test 3
+Nesting: Test 3
 !! wikitext
 :;t1
 ::::d2
@@ -562,7 +562,7 @@ Definition Lists: Nesting: Test 3
 !! end
 
 !! test
-Definition Lists: Nesting: Test 4
+Nesting: Test 4
 !! wikitext
 ::;t3
 :::d3
@@ -578,7 +578,7 @@ Definition Lists: Nesting: Test 4
 ## <dl> tags with a single <dt> child; it converts the <dt> into
 ## a <dd> in that case.  (Parsoid leaves the <dt> alone!)
 !! test
-Definition Lists: Mixed Lists: Test 1
+Mixed Lists: Test 1
 !! wikitext
 :;*foo
 ::*bar
@@ -608,7 +608,7 @@ Definition Lists: Mixed Lists: Test 1
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 2
+Mixed Lists: Test 2
 !! wikitext
 *:d1
 *:d2
@@ -618,7 +618,7 @@ Definition Lists: Mixed Lists: Test 2
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 3
+Mixed Lists: Test 3
 !! wikitext
 *:::d1
 *:::d2
@@ -628,7 +628,7 @@ Definition Lists: Mixed Lists: Test 3
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 4
+Mixed Lists: Test 4
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -642,7 +642,7 @@ parsoid=wt2html,html2html
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 5
+Mixed Lists: Test 5
 !! wikitext
 *:d1
 *::d2
@@ -652,7 +652,7 @@ Definition Lists: Mixed Lists: Test 5
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 6
+Mixed Lists: Test 6
 !! wikitext
 #*:d1
 #*:::d3
@@ -662,7 +662,7 @@ Definition Lists: Mixed Lists: Test 6
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 7
+Mixed Lists: Test 7
 !! wikitext
 :*d1
 :*d2
@@ -672,7 +672,7 @@ Definition Lists: Mixed Lists: Test 7
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 8
+Mixed Lists: Test 8
 !! wikitext
 :*d1
 ::*d2
@@ -682,7 +682,7 @@ Definition Lists: Mixed Lists: Test 8
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 9
+Mixed Lists: Test 9
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -693,7 +693,7 @@ parsoid=wt2html,html2html
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 10
+Mixed Lists: Test 10
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -710,7 +710,7 @@ parsoid=wt2html,html2html
 
 # This is a regression test for T175099
 !! test
-Definition Lists: Mixed Lists: Test 11
+Mixed Lists: Test 11
 !! wikitext
 ;a
 :*b
@@ -724,7 +724,7 @@ Definition Lists: Mixed Lists: Test 11
 !! end
 
 !! test
-Definition Lists: Mixed Lists: Test 13
+Mixed Lists: Test 13
 !! options
 parsoid=wt2html,html2html
 !! wikitext
@@ -738,7 +738,7 @@ parsoid=wt2html,html2html
 !! end
 
 !! test
-Definition Lists: colons occurring in tags
+colons occurring in tags
 !! wikitext
 ;a:b
 ;'''a:b'''
@@ -779,7 +779,7 @@ Definition Lists: colons occurring in tags
 # Parsoid's output is preferable here because it shares
 # nesting between the two lists unlike the legacy parser.
 !! test
-Definition Lists: colons and tables 1
+colons and tables 1
 !! wikitext
 :{|
 |x
@@ -809,7 +809,7 @@ Definition Lists: colons and tables 1
 
 # FIXME: Does this need a html/php section?
 !! test
-Definition Lists: template interaction
+Template interaction
 !! wikitext
 ::{{definition_list}}
 
