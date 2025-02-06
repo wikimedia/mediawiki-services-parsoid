@@ -429,7 +429,7 @@ class Test extends Item {
 				continue;
 			}
 			foreach ( $els as $el ) {
-				call_user_func_array( $fn, array_merge( [ $el ], array_slice( $change, 2 ) ) );
+				$fn( $el, ...array_slice( $change, 2 ) );
 			}
 		}
 

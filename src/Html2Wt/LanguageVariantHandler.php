@@ -110,7 +110,7 @@ class LanguageVariantHandler {
 			// Reinsert the original whitespace around the flag (if any)
 			$i = $originalFlags[$f] ?? null;
 			if ( !empty( $protectFunc ) ) {
-				$p = call_user_func_array( [ self::class, $protectFunc ], [ $f ] );
+				$p = self::$protectFunc( $f );
 			} else {
 				$p = $f;
 			}

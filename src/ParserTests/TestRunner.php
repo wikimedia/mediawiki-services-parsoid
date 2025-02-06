@@ -1242,7 +1242,7 @@ class TestRunner {
 		 * ) {
 		 * $parserTests->stats->loggedErrorCount++;
 		 * }
-		 * return call_user_func_array( [ $_logger, 'log' ], $arguments );
+		 * return $_logger->log( ...$arguments );
 		 * };
 		 * };
 		 * } ) );
