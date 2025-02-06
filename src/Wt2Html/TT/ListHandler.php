@@ -20,10 +20,10 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 class ListHandler extends TokenHandler {
 	/** @var array<ListFrame> */
 	private array $listFrames = [];
-	/** @var ?ListFrame */
-	private $currListFrame;
-	/** @var int */
-	private $nestedTableCount;
+	private ?ListFrame $currListFrame;
+	private int $nestedTableCount;
+	private bool $inT2529Mode = false;
+
 	/**
 	 * Debug string output of bullet character mappings.
 	 * @var array<string,array<string,string>>
@@ -92,6 +92,16 @@ class ListHandler extends TokenHandler {
 				return PHPUtils::jsonEncode( $token );
 			} );
 		$tokens = null;
+
+		if ( $token instanceof Token && TokenUtils::matchTypeOf( $token, '#^mw:Transclusion$#' ) ) {
+			// We are now in T2529 scenario where legacy would have added a newline
+			// if it had encountered a list-start character. So, if we encounter
+			// a listItem token next, we should first execute the same actions
+			// as if we had run onAny on a NlTk (see below).
+			$this->inT2529Mode = true;
+		} elseif ( !TokenUtils::isSolTransparent( $this->env, $token ) ) {
+			$this->inT2529Mode = false;
+		}
 
 		if ( !$this->currListFrame ) {
 			// this.currListFrame will be null only when we are in a table
@@ -169,6 +179,7 @@ class ListHandler extends TokenHandler {
 		if ( $token instanceof NlTk ) {
 			$this->currListFrame->atEOL = true;
 			$this->currListFrame->nlTk = $token;
+			$this->currListFrame->haveDD = false;
 			// php's findColonNoLinks is run in doBlockLevels, which examines
 			// the text line-by-line. At nltk, any open tags will cease having
 			// an effect.
@@ -248,6 +259,21 @@ class ListHandler extends TokenHandler {
 	 * @return TokenHandlerResult|null
 	 */
 	private function onListItem( Token $token ): ?TokenHandlerResult {
+		if ( $this->inT2529Mode ) {
+			// See comment in onAny where this property is set to true
+			// The only relevant change is to 'haveDD'.
+			$this->currListFrame->haveDD = false;
+			$this->inT2529Mode = false;
+
+			// 'atEOL' and NlTk changes don't apply.
+			//
+			// This might be a divergence, but, I don't think we should
+			// close open tags here as in the NlTk case. So, this means that
+			// this wikitext ";term: def=foo<b>{{1x|:bar}}</b>"
+			// will generate different output in Parsoid & legacy..
+			// I believe Parsoid's output is better, but we can comply
+			// if we see a real regression for this.
+		}
 		if ( $token instanceof TagTk ) {
 			$this->onAnyEnabled = true;
 			$bullets = $token->getAttributeV( 'bullets' );
@@ -255,7 +281,7 @@ class ListHandler extends TokenHandler {
 				// Ignoring colons inside tags to prevent illegal overlapping.
 				// Attempts to mimic findColonNoLinks in the php parser.
 				if ( PHPUtils::lastItem( $bullets ) === ':'
-					&& ( $this->currListFrame->numOpenTags > 0 )
+					&& ( $this->currListFrame->haveDD || $this->currListFrame->numOpenTags > 0 )
 				) {
 					$this->env->log( 'trace/list', $this->pipelineId,
 						'ANY:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
@@ -304,6 +330,12 @@ class ListHandler extends TokenHandler {
 	private function pushList( array $container, DataParsoid $dp1, DataParsoid $dp2 ): array {
 		$this->currListFrame->endtags[] = new EndTagTk( $container['list'] );
 		$this->currListFrame->endtags[] = new EndTagTk( $container['item'] );
+
+		if ( $container['item'] === 'dd' ) {
+			$this->currListFrame->haveDD = true;
+		} elseif ( $container['item'] === 'dt' ) {
+			$this->currListFrame->haveDD = false; // reset
+		}
 
 		return [
 			new TagTk( $container['list'], [], $dp1 ),
@@ -429,6 +461,11 @@ class ListHandler extends TokenHandler {
 				$tokens = array_merge( $this->currListFrame->solTokens, $tokens );
 				$newName = self::$bullet_chars_map[$bn[$prefixLen]]['item'];
 				$endTag = array_pop( $this->currListFrame->endtags );
+				if ( $newName === 'dd' ) {
+					$this->currListFrame->haveDD = true;
+				} elseif ( $newName === 'dt' ) {
+					$this->currListFrame->haveDD = false; // reset
+				}
 				$this->currListFrame->endtags[] = new EndTagTk( $newName );
 
 				$newTag = null;

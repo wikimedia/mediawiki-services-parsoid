@@ -524,14 +524,11 @@ Nesting: Multi-level (Parsoid only)
   <dt>
     <dl>
       <dt>t2 </dt>
-      <dd></dd>
-			<dd>d2</dd>
+      <dd>:d2</dd>
       <dt>
         <dl>
           <dt>t3 </dt>
-          <dd></dd>
-          <dd></dd>
-					<dd>d3</dd>
+          <dd>::d3</dd>
         </dl>
       </dt>
     </dl>
@@ -828,4 +825,46 @@ Template interaction
 <dl><dd>two</dd>
 <dd>three</dd></dl></dd>
 <dd data-parsoid='{}'>four</dd></dl></dd></dl>
+!! end
+
+!! test
+Second colon on line: No templates involved
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+;term:def=foo:bar
+
+;'''1:00''':bar
+!! html/php
+<dl><dt>term</dt>
+<dd>def=foo:bar</dd></dl>
+<dl><dt><b>1:00</b></dt>
+<dd>bar</dd></dl>
+!! html/parsoid
+<dl><dt>term</dt><dd>def=foo:bar</dd></dl>
+
+<dl><dt><b>1:00</b></dt><dd>bar</dd></dl>
+!! end
+
+!! test
+Second colon on line: Templates involved and T2959 kicks in
+!! options
+parsoid=wt2html,wt2wt
+!! wikitext
+:a
+::{{1x|1=::foo}} bar
+
+;term:def=foo{{1x|:bar}}
+!! html/php
+<dl><dd>a
+<dl><dd></dd>
+<dd>foo bar</dd></dl></dd></dl>
+<dl><dt>term</dt>
+<dd>def=foo</dd>
+<dd>bar</dd></dl>
+!! html/parsoid+integrated
+<dl><dd>a
+<dl><dd></dd><dd about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"::foo"}},"i":0}}," bar"]}'>foo bar</dd></dl></dd></dl>
+
+<dl><dt>term</dt><dd>def=foo</dd><dd about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":":bar"}},"i":0}}]}'>bar</dd></dl>
 !! end

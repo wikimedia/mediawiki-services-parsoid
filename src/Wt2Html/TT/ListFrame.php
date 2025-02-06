@@ -38,4 +38,11 @@ class ListFrame {
 	 * Number of open tags encountered within list context.
 	 */
 	public int $numOpenTags = 0;
+
+	/**
+	 * Did we generate a <dd> already on this line?
+	 * Used to convert extra : listitems to ":" instead of extra <dl>s.
+	 * Gets reset on encountering a NlTk or a ; listitem.
+	 */
+	public bool $haveDD = false;
 }
