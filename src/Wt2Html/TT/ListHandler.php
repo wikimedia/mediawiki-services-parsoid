@@ -262,7 +262,9 @@ class ListHandler extends TokenHandler {
 		if ( $this->inT2529Mode ) {
 			// See comment in onAny where this property is set to true
 			// The only relevant change is to 'haveDD'.
-			$this->currListFrame->haveDD = false;
+			if ( $this->currListFrame ) {
+				$this->currListFrame->haveDD = false;
+			}
 			$this->inT2529Mode = false;
 
 			// 'atEOL' and NlTk changes don't apply.
