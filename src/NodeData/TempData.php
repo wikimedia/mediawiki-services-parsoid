@@ -78,48 +78,54 @@ class TempData {
 	public const MERGED_TABLE_CELL = 1 << 4;
 
 	/**
+	 * Indicates a cell is from the start of template source.
+	 * Used in TableFixups.
+	 */
+	public const AT_SRC_START = 1 << 5;
+
+	/**
 	 * This is set on span tags that are created by PipelineUtils::addSpanWrappers().
 	 */
-	public const WRAPPER = 1 << 5;
+	public const WRAPPER = 1 << 6;
 
 	/**
 	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
 	 * to propagate the setDSR option to that function.
 	 */
-	public const SET_DSR = 1 << 6;
+	public const SET_DSR = 1 << 7;
 
 	/**
 	 * A flag private to Linter, used to suppress duplicate messages.
 	 */
-	public const LINTED = 1 << 7;
+	public const LINTED = 1 << 8;
 
 	/**
 	 * A flag private to Linter to help it traverse a DOM
 	 */
-	public const PROCESSED_TIDY_WS_BUG = 1 << 8;
+	public const PROCESSED_TIDY_WS_BUG = 1 << 9;
 
 	/**
 	 * This is set on all elements that originate in a template. It controls
 	 * the insertion of mw:Transclusion markers in MarkFosteredContent.
 	 */
-	public const IN_TRANSCLUSION = 1 << 9;
+	public const IN_TRANSCLUSION = 1 << 10;
 
 	/**
 	 * MarkFosteredContent sets this on meta mw:Transclusion tags. It is only used
 	 * in an assertion.
 	 */
-	public const FROM_FOSTER = 1 << 10;
+	public const FROM_FOSTER = 1 << 11;
 
 	/**
 	 * Used to indicate that media dimensions have redundant units.
 	 */
-	public const BOGUS_PX = 1 << 11;
+	public const BOGUS_PX = 1 << 12;
 
 	/**
 	 * This is set on wrapper tokens created by PipelineUtils::encapsulateExpansionHTML()
 	 * to propagate the fromCache option to that function.
 	 */
-	public const FROM_CACHE = 1 << 12;
+	public const FROM_CACHE = 1 << 13;
 
 	/**
 	 * All elements inserted by TreeBuilderStage receive an integer ID. It is used

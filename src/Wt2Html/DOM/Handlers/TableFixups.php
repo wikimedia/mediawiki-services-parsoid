@@ -510,6 +510,7 @@ class TableFixups {
 
 		// Process attribute wikitext as HTML
 		$leadingPipeChar = DOMCompat::nodeName( $cell ) === 'td' ? '|' : '!';
+		// FIXME: Encapsulated doesn't necessarily mean templated
 		$fromTpl = WTUtils::fromEncapsulatedContent( $cell );
 		if ( !preg_match( "#['[{<]#", $cellAttrSrc ) ) {
 			// Optimization:
@@ -758,19 +759,15 @@ class TableFixups {
 	 * $cell is known to be <td>/<th>
 	 */
 	private static function getReparseType( Element $cell, DTState $dtState ): int {
-		$inTplContent = $dtState->tplInfo !== null &&
-			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
 		$dp = DOMDataUtils::getDataParsoid( $cell );
-		if ( !$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
+		if (
+			!$dp->getTempFlag( TempData::NON_MERGEABLE_TABLE_CELL ) &&
 			!$dp->getTempFlag( TempData::MERGED_TABLE_CELL ) &&
 			!$dp->getTempFlag( TempData::FAILED_REPARSE ) &&
-			// This is a good proxy for what we need: "Is $cell a template wrapper?".
-			// That info won't be available for nested templates unless we want
-			// to use a more expensive hacky check.
-			// "inTplContent" is sufficient because we won't have mergeable
-			// cells for wikitext that doesn't get any part of its content from
-			// templates because NON_MERGEABLE_TABLE_CELL prevents such merges.
-			$inTplContent
+			// Template wrapping, which happens prior to this pass, may have combined
+			// various regions.  The important indicator of whether we want to try
+			// to combine is if the $cell was the first node of a template.
+			$dp->getTempFlag( TempData::AT_SRC_START )
 		) {
 			// Look for opportunities where table cells could combine. This requires
 			// $cell to be a templated cell. But, we don't support combining
@@ -790,6 +787,11 @@ class TableFixups {
 				return self::COMBINE_WITH_PREV_CELL;
 			}
 		}
+
+		// FIXME: We're traversing with the outermost encapsulation, but encapsulations
+		// can be nested (ie. template in extension content) so the check is insufficient
+		$inTplContent = $dtState->tplInfo !== null &&
+			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
 
 		$cellIsTd = DOMCompat::nodeName( $cell ) === 'td';
 		$testRE = $cellIsTd ? '/[|]/' : '/[!|]/';
