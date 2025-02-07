@@ -8,7 +8,6 @@ use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentModelHandler;
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\Core\TOCData;
@@ -265,12 +264,9 @@ class Env {
 	 *      wikitext variant in wt2html mode, and in html2wt mode new
 	 *      or edited HTML will be left unconverted.
 	 *  - logLevels: (string[]) Levels to log
-	 *  - topLevelDoc: (Document|PageBundle|DomPageBundle) Set explicitly
+	 *  - topLevelDoc: Document Set explicitly
 	 *      when serializing otherwise it gets initialized for parsing.
-	 *      This is either a PageBundle/DomPageBundle, or a "naive" DOM in
-	 *      either "single document" (data attributes in <head>) or "inline
-	 *      attributes" form.  As passed from the caller it should not be
-	 *      prepared or loaded; this will be done in ::setupTopLevelDoc().
+	 *      This should be a "prepared & loaded" document.
 	 */
 	public function __construct(
 		SiteConfig $siteConfig,
@@ -806,55 +802,36 @@ class Env {
 	 * When an environment is constructed, we initialize a document (and
 	 * RemexPipeline) to be used throughout the parse.
 	 *
-	 * @param Document|PageBundle|DomPageBundle|null $topLevelDoc if non-null,
-	 *  the document should not yet be prepared or loaded.  We will do that
-	 *  here (see `ContentUtils::createAndLoad()`).  If the provided value is
-	 *  a Document, it can be in either "single document" or "inline
-	 *  attributes" form.
-	 * @param array $options Loading options
+	 * @param ?Document $topLevelDoc if non-null,
+	 *  the document should be prepared and loaded.
 	 */
-	public function setupTopLevelDoc( $topLevelDoc = null, array $options = [] ): void {
-		$options += [ 'markNew' => true, 'validateXMLNames' => true, ];
+	public function setupTopLevelDoc( ?Document $topLevelDoc = null ): void {
 		if ( $topLevelDoc ) {
 			$this->remexPipeline = null;
-			// Recognize a "single document" page bundle.
-			if (
-				$topLevelDoc instanceof Document &&
-				DomPageBundle::isSingleDocument( $topLevelDoc )
-			) {
-				$topLevelDoc = DomPageBundle::fromSingleDocument( $topLevelDoc );
-			}
-			// Convert a PageBundle (string html) to a DomPageBundle (DOM)
-			if ( $topLevelDoc instanceof PageBundle ) {
-				$topLevelDoc = DomPageBundle::fromPageBundle( $topLevelDoc );
-			}
-			// Use DomPageBundle::toDom() to efficiently apply and load
-			// (without necessarily having to add attributes to the DOM)
-			if ( $topLevelDoc instanceof DomPageBundle ) {
-				$this->topLevelDoc = $topLevelDoc->toDom( true, $options );
-				return; // Skip preparation and loading, it's already done.
-			}
-			// This is an unprepared/unloaded Document.
-			$this->topLevelDoc = $topLevelDoc;
+			// This is a prepared & loaded Document.
 			Assert::invariant(
-				!DOMDataUtils::isPreparedAndLoaded( $topLevelDoc ),
-				"toplevelDoc should not be prepared and loaded already"
+				DOMDataUtils::isPreparedAndLoaded( $topLevelDoc ),
+				"toplevelDoc should be prepared and loaded already"
 			);
-			// Fall through to prepare and load.
+			$this->topLevelDoc = $topLevelDoc;
 		} else {
 			$this->remexPipeline = new RemexPipeline( $this );
 			$this->topLevelDoc = $this->remexPipeline->doc;
-			// Fall through to prepare and load.
+			// Prepare and load.
 			// (Loading should be easy since the doc is expected to be empty.)
-			$options['markNew'] = false; // Don't mark the <body> tag as new!
+			$options = [
+				'validateXMLNames' => true,
+				 // Don't mark the <body> tag as new!
+				'markNew' => false,
+			];
+			DOMDataUtils::prepareDoc( $this->topLevelDoc );
+			DOMDataUtils::visitAndLoadDataAttribs(
+				DOMCompat::getBody( $this->topLevelDoc ), $options
+			);
+			// Mark the document as loaded so we can try to catch errors which
+			// might try to reload this again later.
+			DOMDataUtils::getBag( $this->topLevelDoc )->loaded = true;
 		}
-		DOMDataUtils::prepareDoc( $this->topLevelDoc );
-		DOMDataUtils::visitAndLoadDataAttribs(
-			DOMCompat::getBody( $this->topLevelDoc ), $options
-		);
-		// Mark the document as loaded so we can try to catch errors which
-		// might try to reload this again later.
-		DOMDataUtils::getBag( $this->topLevelDoc )->loaded = true;
 	}
 
 	/**
@@ -868,15 +845,6 @@ class Env {
 	 */
 	public function getTopLevelDoc(): Document {
 		return $this->topLevelDoc;
-	}
-
-	/** FIXME: Callers should use ::setupTopLevelDoc instead */
-	public function setTopLevelDoc( Document $doc ): void {
-		Assert::invariant(
-			DOMDataUtils::isPreparedAndLoaded( $doc ),
-			"toplevelDoc should be prepared and loaded"
-		);
-		$this->topLevelDoc = $doc;
 	}
 
 	public function fetchRemexPipeline( bool $toFragment ): RemexPipeline {

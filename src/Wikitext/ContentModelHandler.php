@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wikitext;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ContentModelHandler as IContentModelHandler;
+use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\DOMProcessor as ExtDOMProcessor;
@@ -16,7 +17,6 @@ use Wikimedia\Parsoid\Html2Wt\WikitextSerializer;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 
 class ContentModelHandler extends IContentModelHandler {
@@ -117,7 +117,7 @@ class ContentModelHandler extends IContentModelHandler {
 			// This effectively parses $selserData->revText for us because
 			// $selserData->revText = $env->getPageconfig()->getPageMainContent()
 			$doc = $this->toDOM( $extApi );
-			$env->setTopLevelDoc( $topLevelDoc );
+			$env->setupTopLevelDoc( $topLevelDoc );
 		} else {
 			$doc = ContentUtils::createAndLoadDocument(
 				$selserData->revHTML,
@@ -164,10 +164,18 @@ class ContentModelHandler extends IContentModelHandler {
 		$pipelineFactory = $env->getPipelineFactory();
 
 		if ( $selectiveUpdateData ) {
-			$doc = DOMUtils::parseHTML( $selectiveUpdateData->revHTML, true );
-			$env->setupTopLevelDoc( $doc, [
-				'markNew' => false, // !isSelectiveUpdate
-			] );
+			$doc = ContentUtils::createAndLoadDocument(
+				$selectiveUpdateData->revHTML,
+				[
+					'markNew' => false, // !isSelectiveUpdate
+					'validateXMLNames' => true,
+				]
+			);
+			Assert::invariant(
+				!DomPageBundle::isSingleDocument( $doc ),
+				"toplevelDoc should not be a single-document page bundle"
+			);
+			$env->setupTopLevelDoc( $doc );
 			$this->canonicalizeDOM( $env, $env->getTopLevelDoc() );
 			$selectiveUpdateData->revDOM = $doc;
 			$doc = $pipelineFactory->selectiveDOMUpdate( $selectiveUpdateData );

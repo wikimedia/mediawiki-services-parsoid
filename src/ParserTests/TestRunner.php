@@ -371,6 +371,20 @@ class TestRunner {
 		} else {
 			$selserData = null;
 		}
+		Assert::invariant(
+				!DOMDataUtils::isPreparedAndLoaded( $doc ),
+				"doc should not be prepared and loaded already"
+		);
+		DOMDataUtils::prepareDoc( $doc );
+		DOMDataUtils::visitAndLoadDataAttribs(
+			DOMCompat::getBody( $doc ), [
+				'markNew' => true, 'validateXMLNames' => true,
+			]
+		);
+		// Mark the document as loaded so we can try to catch errors which
+		// might try to reload this again later.
+		DOMDataUtils::getBag( $doc )->loaded = true;
+
 		$env->setupTopLevelDoc( $doc );
 		$extApi = new ParsoidExtensionAPI( $env );
 		return $env->getContentHandler()->fromDOM( $extApi, $selserData );
@@ -450,6 +464,9 @@ class TestRunner {
 				// therefore causes false failures.
 				$html = TestUtils::normalizePhpOutput( $html );
 			}
+			// FUTURE WORK: it would be better if we used
+			// ContentUtils::createAndLoadDocument() here -- and for all of the
+			// ::parseHTML() calls below this as well.
 			$doc = DOMUtils::parseHTML( $html );
 			$wt = $this->convertHtml2Wt( $env, $test, $mode, $doc );
 		} else { // startsAtWikitext

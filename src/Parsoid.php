@@ -477,7 +477,7 @@ class Parsoid {
 		if ( isset( $options['inputContentVersion'] ) ) {
 			$envOptions['inputContentVersion'] = $options['inputContentVersion'];
 		}
-		$envOptions['topLevelDoc'] = $doc;
+		$envOptions['topLevelDoc'] = self::prepareAndLoadDocOrBundle( $doc );
 		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
 			$this->siteConfig, $pageConfig, $this->dataAccess, $metadata, $envOptions
@@ -579,7 +579,7 @@ class Parsoid {
 	): PageBundle {
 		$envOptions = [
 			'pageBundle' => true,
-			'topLevelDoc' => $pb,
+			'topLevelDoc' => self::prepareAndLoadDocOrBundle( $pb ),
 		];
 		$metadata = new StubMetadataCollector( $this->siteConfig );
 		$env = new Env(
@@ -770,4 +770,47 @@ class Parsoid {
 		// deletions.
 		$pageBundle->mw = [ 'ids' => [] ];
 	}
+
+	/**
+	 * Convert an input document in a variety of formats (page bundle, etc)
+	 * to a "prepared and loaded" document suitable to be given to
+	 * Env::setupTopLevelDoc()
+	 * @param Document|PageBundle|DomPageBundle $topLevelDoc
+	 * @return Document
+	 */
+	private static function prepareAndLoadDocOrBundle( $topLevelDoc ): Document {
+		$options = [ 'markNew' => true, 'validateXMLNames' => true, ];
+		// Recognize a "single document" page bundle.
+		if (
+			$topLevelDoc instanceof Document &&
+			DomPageBundle::isSingleDocument( $topLevelDoc )
+		) {
+			$topLevelDoc = DomPageBundle::fromSingleDocument( $topLevelDoc );
+		}
+		// Convert a PageBundle (string html) to a DomPageBundle (DOM)
+		if ( $topLevelDoc instanceof PageBundle ) {
+			$topLevelDoc = DomPageBundle::fromPageBundle( $topLevelDoc );
+		}
+		// Use DomPageBundle::toDom() to efficiently apply and load
+		// (without necessarily having to add attributes to the DOM)
+		if ( $topLevelDoc instanceof DomPageBundle ) {
+			// Skip preparation and loading, it's already done.
+			return $topLevelDoc->toDom( true, $options );
+		}
+
+		// This is an unprepared/unloaded Document.
+		Assert::invariant(
+			!DOMDataUtils::isPreparedAndLoaded( $topLevelDoc ),
+			"toplevelDoc should not be prepared and loaded already"
+		);
+		DOMDataUtils::prepareDoc( $topLevelDoc );
+		DOMDataUtils::visitAndLoadDataAttribs(
+			DOMCompat::getBody( $topLevelDoc ), $options
+		);
+		// Mark the document as loaded so we can try to catch errors which
+		// might try to reload this again later.
+		DOMDataUtils::getBag( $topLevelDoc )->loaded = true;
+		return $topLevelDoc;
+	}
+
 }
