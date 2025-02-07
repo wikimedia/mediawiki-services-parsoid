@@ -60,31 +60,6 @@ class ContentUtils {
 	}
 
 	/**
-	 * Create a new prepared document with the given HTML.
-	 *
-	 * Don't use this inside of the parser pipeline: it shouldn't be necessary
-	 * to create new documents when parsing or serializing.  A document lives
-	 * on the environment which can be used to create fragments.  The bag added
-	 * as a dynamic property to the PHP wrapper around the libxml doc
-	 * is at risk of being GC-ed.
-	 *
-	 * @note This method should generally not be used; use
-	 * ::createAndLoadDocument() instead to obtain a completely
-	 * "prepared and loaded" document.
-	 *
-	 * @param string $html
-	 * @param bool $validateXMLNames
-	 * @return Document
-	 */
-	public static function createDocument(
-		string $html = '', bool $validateXMLNames = false
-	): Document {
-		$doc = DOMUtils::parseHTML( $html, $validateXMLNames );
-		DOMDataUtils::prepareDoc( $doc );
-		return $doc;
-	}
-
-	/**
 	 * Create a new prepared document with the given HTML and load the
 	 * data attributes.
 	 *
@@ -101,7 +76,8 @@ class ContentUtils {
 	public static function createAndLoadDocument(
 		string $html, array $options = [ 'markNew' => true, 'validateXMLNames' => true, ]
 	): Document {
-		$doc = self::createDocument( $html, $options['validateXMLNames'] ?? false );
+		$doc = DOMUtils::parseHTML( $html, $options['validateXMLNames'] ?? false );
+		DOMDataUtils::prepareDoc( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), $options
 		);

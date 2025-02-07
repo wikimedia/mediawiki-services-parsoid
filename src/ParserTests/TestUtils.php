@@ -91,12 +91,14 @@ class TestUtils {
 			$mockState = new SerializerState( $mockSerializer, [ 'selserMode' => false ] );
 			if ( is_string( $domBody ) ) {
 				// Careful about the lifetime of this document
-				$doc = ContentUtils::createDocument( $domBody );
+				$doc = ContentUtils::createAndLoadDocument( $domBody );
 				$domBody = DOMCompat::getBody( $doc );
+			} else {
+				DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );
 			}
-			DOMDataUtils::visitAndLoadDataAttribs( $domBody, [ 'markNew' => true ] );
 			( new DOMNormalizer( $mockState ) )->normalize( $domBody );
 			DOMDataUtils::visitAndStoreDataAttribs( $domBody );
+			DOMDataUtils::getBag( $domBody->ownerDocument )->loaded = false;
 		} elseif ( is_string( $domBody ) ) {
 			$domBody = DOMCompat::getBody( DOMUtils::parseHTML( $domBody ) );
 		}
