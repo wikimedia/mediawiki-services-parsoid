@@ -4,6 +4,7 @@ namespace Test\Parsoid\Wt2Html\DOM\Processors;
 
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -48,12 +49,12 @@ class PWrapTest extends TestCase {
 			[ ' <!--c--> ', ' <!--c--> ' ],
 			[
 				// "empty" span gets no p-wrapper
-				'<span about="#mwt1" data-parsoid=\'{"tmp":{"tagId":null,"bits":32}}\'><!--x--></span>',
+				'<span about="#mwt1" data-parsoid=\'{"tmp":{"tagId":null,"bits":' . TempData::WRAPPER . '}}\'><!--x--></span>',
 				'<span about="#mwt1"><!--x--></span>'
 			],
 			[
 				// "empty" span gets no p-wrapper
-				'<style>p{}</style><span about="#mwt1" data-parsoid=\'{"tmp":{"tagId":null,"bits":32}}\'><!--x--></span>',
+				'<style>p{}</style><span about="#mwt1" data-parsoid=\'{"tmp":{"tagId":null,"bits":' . TempData::WRAPPER . '}}\'><!--x--></span>',
 				'<style>p{}</style><span about="#mwt1"><!--x--></span>'
 			],
 			[ '<div>a</div>', '<div>a</div>' ],
