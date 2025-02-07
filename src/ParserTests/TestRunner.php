@@ -1235,7 +1235,7 @@ class TestRunner {
 		 * // "suppressError" option on the test if error is expected.)
 		 * $env->setLogger = ( ( function ( $parserTests, $superSetLogger ) {
 		 * return function ( $_logger ) use ( &$parserTests ) {
-		 * call_user_func( 'superSetLogger', $_logger );
+		 * superSetLogger( $_logger );
 		 * $this->log = function ( $level ) use ( &$_logger, &$parserTests ) {
 		 * if ( $_logger !== $parserTests->suppressLogger &&
 		 * preg_match( '/^(fatal|error)\b/', $level )

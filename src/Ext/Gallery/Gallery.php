@@ -394,6 +394,6 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		ParsoidExtensionAPI $extApi, callable $domDiff, Element $origNode,
 		Element $editedNode
 	): bool {
-		return call_user_func( $domDiff, $origNode, $editedNode );
+		return $domDiff( $origNode, $editedNode );
 	}
 }

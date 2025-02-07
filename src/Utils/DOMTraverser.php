@@ -108,7 +108,7 @@ class DOMTraverser {
 
 		foreach ( $this->handlers as $handler ) {
 			if ( $handler['nodeName'] === null || $handler['nodeName'] === $name ) {
-				$result = call_user_func( $handler['action'], $node, $state );
+				$result = $handler['action']( $node, $state );
 				if ( $result !== true ) {
 					// Abort processing for this node
 					return $result;

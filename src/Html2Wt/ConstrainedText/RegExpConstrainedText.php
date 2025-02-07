@@ -45,10 +45,10 @@ abstract class RegExpConstrainedText extends ConstrainedText {
 	/** @inheritDoc */
 	public function escape( State $state ): Result {
 		$result = new Result( $this->text );
-		if ( call_user_func( $this->prefixMatcher, $state->leftContext ) ) {
+		if ( ( $this->prefixMatcher )( $state->leftContext ) ) {
 			$result->prefix = $this->prefix;
 		}
-		if ( call_user_func( $this->suffixMatcher, $state->rightContext ) ) {
+		if ( ( $this->suffixMatcher )( $state->rightContext ) ) {
 			$result->suffix = $this->suffix;
 		}
 		return $result;

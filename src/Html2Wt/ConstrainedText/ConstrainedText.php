@@ -212,8 +212,7 @@ class ConstrainedText {
 		// to be sure we check subtypes before parent types.
 		$types = self::$types;
 		for ( $i = count( $types ) - 1;  $i >= 0;  $i-- ) {
-			$ct = call_user_func(
-				[ $types[$i], 'fromSelSerImpl' ],
+			$ct = $types[$i]::fromSelSerImpl(
 				$text, $node, $dataParsoid, $env, $opts
 			);
 			if ( !$ct ) {

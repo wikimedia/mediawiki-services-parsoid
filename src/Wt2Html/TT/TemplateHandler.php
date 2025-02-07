@@ -528,7 +528,7 @@ class TemplateHandler extends TokenHandler {
 				$resolvedTgt['srcOffsets']->expandTsrK()
 			);
 			$env->log( 'debug', 'entering prefix', $target, $state->token );
-			$res = call_user_func( [ $this->parserFunctions, $target ],
+			$res = $this->parserFunctions->$target(
 				$state->token, $this->manager->getFrame(), $pfAttribs );
 			if ( $this->wrapTemplates ) {
 				$res = $this->parserFunctionsWrapper( $res );
