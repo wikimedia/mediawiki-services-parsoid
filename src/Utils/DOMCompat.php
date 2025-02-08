@@ -176,13 +176,12 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-nonelementparentnode-getelementbyid
 	 */
 	public static function getElementById( $node, string $id ) {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, DocumentFragment::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMDocumentFragment::class
-			),
+			],
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
 		$elements = Zest::getElementsById( $node, $id );
@@ -219,13 +218,12 @@ class DOMCompat {
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
 	public static function getElementsByTagName( $node, string $tagName ): iterable {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, Element::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMElement::class
-			),
+			],
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument Zest is declared to take DOMDocument\DOMElement
 		$result = Zest::getElementsByTagName( $node, $tagName );
@@ -243,13 +241,12 @@ class DOMCompat {
 	 *  once our minimum required version >= 8.0.0
 	 */
 	public static function getFirstElementChild( $node ) {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, DocumentFragment::class, Element::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			),
+			],
 			$node, '$node' );
 		$firstChild = $node->firstChild;
 		while ( $firstChild && $firstChild->nodeType !== XML_ELEMENT_NODE ) {
@@ -268,13 +265,12 @@ class DOMCompat {
 	 *  once our minimum required version >= 8.0.0
 	 */
 	public static function getLastElementChild( $node ) {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, DocumentFragment::class, Element::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			),
+			],
 			$node, '$node' );
 		$lastChild = $node->lastChild;
 		while ( $lastChild && $lastChild->nodeType !== XML_ELEMENT_NODE ) {
@@ -306,13 +302,12 @@ class DOMCompat {
 	 *   (which cannot be freely constructed in PHP), just a traversable containing Elements.
 	 */
 	public static function querySelectorAll( $node, string $selector ): iterable {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, DocumentFragment::class, Element::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			),
+			],
 			$node, '$node' );
 		// @phan-suppress-next-line PhanTypeMismatchArgument DOMNode
 		return Zest::find( $selector, $node );
@@ -325,13 +320,12 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-previouselementsibling
 	 */
 	public static function getPreviousElementSibling( $node ) {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Element::class, CharacterData::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMElement::class, \DOMCharacterData::class
-			),
+			],
 			$node, '$node' );
 		$previousSibling = $node->previousSibling;
 		while ( $previousSibling && $previousSibling->nodeType !== XML_ELEMENT_NODE ) {
@@ -348,13 +342,12 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-nondocumenttypechildnode-nextelementsibling
 	 */
 	public static function getNextElementSibling( $node ) {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Element::class, CharacterData::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMElement::class, \DOMCharacterData::class
-			),
+			],
 			$node, '$node' );
 		$nextSibling = $node->nextSibling;
 		while ( $nextSibling && $nextSibling->nodeType !== XML_ELEMENT_NODE ) {
@@ -371,13 +364,12 @@ class DOMCompat {
 	 * @note This method was added in PHP 8.0.0
 	 */
 	public static function append( $parentNode, ...$nodes ): void {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, DocumentFragment::class, Element::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			),
+			],
 			$parentNode, '$parentNode'
 		);
 		foreach ( $nodes as $node ) {
@@ -394,13 +386,12 @@ class DOMCompat {
 	 * @see https://dom.spec.whatwg.org/#dom-childnode-remove
 	 */
 	public static function remove( $node ): void {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Element::class, CharacterData::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMElement::class, \DOMCharacterData::class
-			),
+			],
 			$node, '$node' );
 		if ( $node->parentNode ) {
 			$node->parentNode->removeChild( $node );
@@ -551,13 +542,12 @@ class DOMCompat {
 	public static function replaceChildren(
 		$parentNode, ...$nodes
 	): void {
-		Assert::parameterType(
-			self::or(
+		Assert::parameterType( [
 				Document::class, DocumentFragment::class, Element::class,
 				// For compatibility with code which might call this from
 				// outside Parsoid.
 				\DOMDocument::class, \DOMDocumentFragment::class, \DOMElement::class
-			),
+			],
 			$parentNode, '$parentNode'
 		);
 		while ( $parentNode->firstChild ) {
@@ -569,14 +559,5 @@ class DOMCompat {
 			}
 			$parentNode->insertBefore( $node, null );
 		}
-	}
-
-	/**
-	 * Join class names together in a form suitable for Assert::parameterType.
-	 * @param class-string ...$args
-	 * @return string
-	 */
-	private static function or( ...$args ) {
-		return implode( '|', $args );
 	}
 }

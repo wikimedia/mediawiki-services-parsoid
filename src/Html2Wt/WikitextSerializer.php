@@ -1551,7 +1551,7 @@ class WikitextSerializer {
 		Node $node, bool $selserMode = false
 	): string {
 		Assert::parameterType(
-			Document::class . '|' . DocumentFragment::class,
+			[ Document::class, DocumentFragment::class ],
 			$node, '$node' );
 
 		if ( $node instanceof Document ) {
