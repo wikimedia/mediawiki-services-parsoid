@@ -1,0 +1,8 @@
+{
+	"Avoid overreaching on whitespace correction": {
+		"wt2wt": "<code>\nb\n\n\n<br />\n</code>"
+	},
+	"Documented wt2wt failure - closing </code> disappears": {
+		"wt2wt": "<code>\nb\n\n"
+	}
+}

@@ -1,0 +1,74 @@
+!! options
+version=2
+parsoid-compatible=wt2html,wt2wt
+!! end
+# This file contains tests of the TreeBuilder behavior
+
+# The html/php section mostly documents what legacy does here,
+# it's not a test per se.
+!! test
+Avoid AFE reconstruction on whitespace (T368720)
+!! options
+parsoid=wt2html,wt2wt,selser
+!! wikitext
+<code>
+a
+
+b
+
+c
+
+d
+</code>
+!! html/php
+<p><code>
+a
+</code></p><p><code>b
+</code></p><p><code>c
+</code></p><p><code>d
+</code>
+</p>
+!! html/parsoid
+<p><code data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
+a</code></p>
+
+<p><code data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>b</code></p>
+
+<p><code data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>c</code></p>
+
+<p><code data-parsoid='{"stx":"html","autoInsertedStart":true}'>d
+</code></p>
+!! end
+
+!! test
+Avoid overreaching on whitespace correction
+!! options
+parsoid=wt2html,wt2wt,selser
+!! wikitext
+<code>
+b
+
+
+</code>
+!! html/parsoid
+<p><code data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
+b</code></p>
+<p><code data-parsoid='{"stx":"html","autoInsertedStart":true}'>
+<br/>
+</code></p>
+!! end
+
+!! test
+Documented wt2wt failure - closing </code> disappears
+!! options
+parsoid=wt2html,wt2wt,selser
+!! wikitext
+<code>
+b
+
+</code>
+!! html/parsoid
+<p><code data-parsoid='{"stx":"html","autoInsertedEnd":true}'>
+b</code></p>
+<p class="mw-empty-elt"></p>
+!! end

@@ -39,8 +39,8 @@ parsoid=wt2html
 b
 {{1x|c<div>d</div>}}
 !! html/parsoid
-<p><i data-parsoid='{"stx":"html","autoInsertedEnd":true}'>a</i></p><i data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>
+<p><i data-parsoid='{"stx":"html","autoInsertedEnd":true}'>a</i></p>
 
-<p>b</p></i>
-<p about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c&lt;div>d&lt;/div>"}},"i":0}}]}'><i>c</i></p><i about="#mwt1" data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'><div>d</div></i>
+<p><i data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>b</i></p>
+<p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"c&lt;div>d&lt;/div>"}},"i":0}}]}'><i>c</i></p><i about="#mwt1" data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'><div>d</div></i>
 !! end

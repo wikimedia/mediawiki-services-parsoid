@@ -34,6 +34,7 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PipelineStage;
+use Wikimedia\RemexHtml\TreeBuilder\Marker;
 
 class TreeBuilderStage extends PipelineStage {
 	/** @var int */
@@ -108,9 +109,29 @@ class TreeBuilderStage extends PipelineStage {
 			$s = microtime( true );
 		}
 		$n = count( $tokens );
-		for ( $i = 0;  $i < $n;  $i++ ) {
-			$this->processToken( $tokens[$i] );
+		$i = 0;
+		while ( $i < $n ) {
+			$token = $tokens[$i];
+			// if there are exactly two newlines directly after the paragraph end, and if we have active
+			// formatting elements, we process one of the new lines inside the paragraph (before the EndTk)
+			// rather than after (T368720)
+			$nlIndex = $i + 1;
+			if ( $token instanceof EndTagTk && $token->getName() === 'p' && $this->hasAfe() ) {
+				while ( $nlIndex < $n && $tokens[$nlIndex] instanceof NlTk ) {
+					$nlIndex++;
+				}
+			}
+			if ( $nlIndex === $i + 3 ) {
+				$this->processToken( $tokens[$i + 1] );
+				$this->processToken( $tokens[$i + 2] );
+				$this->processToken( $token );
+				$i += 3;
+			} else {
+				$this->processToken( $token );
+				$i += 1;
+			}
 		}
+
 		if ( $profile ) {
 			$profile->bumpTimeUse(
 				'HTML5 TreeBuilder', 1000 * ( microtime( true ) - $s ), 'HTML5' );
@@ -481,5 +502,13 @@ class TreeBuilderStage extends PipelineStage {
 		} else {
 			yield $this->process( $input, $opts );
 		}
+	}
+
+	private function hasAfe(): bool {
+		$afe = $this->remexPipeline->treeBuilder->afe->getTail();
+		while ( $afe !== null && $afe instanceof Marker ) {
+			$afe = $afe->prevAFE;
+		}
+		return $afe !== null;
 	}
 }

@@ -95,7 +95,7 @@
 		"wt2wt": "{|\n|quux\n|- id=\"foo\" style=\"color: red\" |\n|bar\n|}"
 	},
 	"Inline HTML vs wiki block nesting": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p><b data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[17,37,0,0]}'>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'>New wiki paragraph</p></b>"
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,17,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,17,3,0]}'>Bold paragraph</b></p>\n\n<p data-parsoid='{\"dsr\":[19,37,0,0]}'><b data-parsoid='{\"stx\":\"html\",\"autoInsertedStart\":true,\"autoInsertedEnd\":true,\"dsr\":[19,37,0,0]}'>New wiki paragraph</b></p>"
 	},
 	"Inline wiki vs wiki block nesting": {
 		"wt2wt": "'''Bold paragraph'''\n\nNew wiki paragraph"
