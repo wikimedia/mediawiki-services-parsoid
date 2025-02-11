@@ -4018,8 +4018,8 @@ parsoid=wt2html,wt2wt,html2html
 </small></p><small><ul><li>foo</li></ul></small><small></small><p><small></small>
 </p>
 !! html/parsoid
-<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p><small data-parsoid='{"stx":"html","autoInsertedEnd":true,"autoInsertedStart":true}'>
-<ul><li data-parsoid='{}'>foo</li></ul></small>
+<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p>
+<ul><li><small data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>foo</small></li></ul>
 <p><small data-parsoid='{"stx":"html","autoInsertedStart":true}'></small></p>
 !! end
 
@@ -4036,7 +4036,7 @@ parsoid=wt2html,wt2wt,html2html
 </small><li><small>b</small></li></ul>
 !! html/parsoid
 <p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p>
-<ul><small data-parsoid='{"stx":"html","autoInsertedEnd":true,"autoInsertedStart":true}'><li>a</li></small>
+<ul><li><small data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>a</small></li>
 <li><small data-parsoid='{"stx":"html","autoInsertedStart":true}'>b</small></li></ul>
 !! end
 
@@ -17108,9 +17108,9 @@ parsoid=wt2html
 
 z
 !! html/parsoid
-<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"},{"html":""}]]}'></i></p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>
+<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"},{"html":""}]]}'></i></p>
 
-<p>z</p></i>
+<p><i about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"&lt;sealtag>y&lt;/sealtag>":null},"sa":{"&lt;sealtag>y&lt;/sealtag>":""},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"","html":""},{"html":""}]]}'>z</i></p>
 !! end
 
 !! test
@@ -17122,9 +17122,9 @@ parsoid=wt2html
 
 z
 !! html/parsoid
-<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"}]]}'>a</i></p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>
+<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":"&lt;span about=\"#mwt2\" typeof=\"mw:Extension/sealtag\" data-parsoid=&apos;{\"src\":\"&amp;lt;sealtag>y&amp;lt;/sealtag>\"}&apos; data-mw=&apos;{\"name\":\"sealtag\",\"attrs\":{},\"body\":{\"extsrc\":\"y\"}}&apos;>&lt;/span>"}]]}'>a</i></p>
 
-<p>z</p></i>
+<p><i title="" about="#mwt3" typeof="mw:ExpandedAttrs" data-parsoid='{"stx":"html","a":{"title":""},"sa":{"title":"&lt;sealtag>y&lt;/sealtag>"},"autoInsertedStart":true,"autoInsertedEnd":true}' data-mw='{"attribs":[[{"txt":"title"},{"html":""}]]}'>z</i></p>
 !! end
 
 !! test

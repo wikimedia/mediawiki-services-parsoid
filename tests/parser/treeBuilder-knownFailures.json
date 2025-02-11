@@ -1,0 +1,5 @@
+{
+	"Avoid AFE reconstruction on whitespace": {
+                "wt2wt": "<i>a\n\nb\n \n\nc\n\nd\n</i> "
+        },
+}
