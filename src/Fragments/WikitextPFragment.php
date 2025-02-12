@@ -54,6 +54,9 @@ class WikitextPFragment extends PFragment {
 	 * @param array<string|PFragment> $pieces
 	 */
 	public static function newFromSplitWt( array $pieces, ?DomSourceRange $srcOffsets = null ): WikitextPFragment {
+		// T386233: Temporarily disable <nowiki/> insertion
+		$disableNowiki = true;
+
 		$wikitext = [];
 		$isFirst = true;
 		$lastIsMarker = false;
@@ -75,7 +78,9 @@ class WikitextPFragment extends PFragment {
 				// that our source ranges are adjacent (ie, the wikitext
 				// strings were adjacent in the source document)
 				if ( !( $isFirst || $lastIsMarker || $p->startsWithMarker() ) ) {
-					$wikitext[] = '<nowiki/>';
+					if ( !$disableNowiki ) {
+						$wikitext[] = '<nowiki/>';
+					}
 				}
 				$wikitext[] = $p->value;
 				if ( $p->stripState !== null ) {
@@ -97,7 +102,9 @@ class WikitextPFragment extends PFragment {
 			} else {
 				// This is a wikitext string
 				if ( !( $isFirst || $lastIsMarker ) ) {
-					$wikitext[] = '<nowiki/>';
+					if ( !$disableNowiki ) {
+						$wikitext[] = '<nowiki/>';
+					}
 				}
 				$wikitext[] = $p;
 				$lastIsMarker = false;
