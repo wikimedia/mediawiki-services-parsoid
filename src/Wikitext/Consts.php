@@ -215,7 +215,7 @@ class Consts {
 				'rt', 'rtc', 'ruby', 's', 'samp', 'select', 'small', 'span',
 				'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var',
 				// Those defined in tidy.conf
-				'video', 'audio', 'bdi', 'data', 'time', 'mark',
+				'video', 'audio', 'bdi', 'data', 'time', 'mark', 'source'
 			] ),
 
 			'ListTags' => PHPUtils::makeSet( [ 'ul', 'ol', 'dl' ] ),
