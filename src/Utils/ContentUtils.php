@@ -74,9 +74,10 @@ class ContentUtils {
 	 * @return Document
 	 */
 	public static function createAndLoadDocument(
-		string $html, array $options = [ 'markNew' => true, 'validateXMLNames' => true, ]
+		string $html, array $options = []
 	): Document {
-		$doc = DOMUtils::parseHTML( $html, $options['validateXMLNames'] ?? false );
+		$options += [ 'markNew' => true, 'validateXMLNames' => true ];
+		$doc = DOMUtils::parseHTML( $html, $options['validateXMLNames'] );
 		DOMDataUtils::prepareDoc( $doc );
 		DOMDataUtils::visitAndLoadDataAttribs(
 			DOMCompat::getBody( $doc ), $options
