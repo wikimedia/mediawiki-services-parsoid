@@ -208,14 +208,13 @@ class Consts {
 			 * From \\MediaWiki\Tidy\RemexCompatMunger::$onlyInlineElements
 			 */
 			'OnlyInlineElements' => PHPUtils::makeSet( [
-				'a', 'abbr', 'acronym', 'applet', 'b', 'basefont', 'bdo',
-				'big', 'br', 'button', 'cite', 'code', 'del', 'dfn', 'em',
+				'a', 'abbr', 'acronym', 'applet', 'audio', 'b', 'basefont', 'bdi', 'bdo',
+				'big', 'br', 'button', 'cite', 'code', 'data', 'del', 'dfn', 'em',
 				'font', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'label',
-				'legend', 'map', 'object', 'param', 'q', 'rb', 'rbc', 'rp',
-				'rt', 'rtc', 'ruby', 's', 'samp', 'select', 'small', 'span',
-				'strike', 'strong', 'sub', 'sup', 'textarea', 'tt', 'u', 'var',
-				// Those defined in tidy.conf
-				'video', 'audio', 'bdi', 'data', 'time', 'mark', 'source'
+				'legend', 'map', 'mark', 'object', 'param', 'q', 'rb', 'rbc', 'rp',
+				'rt', 'rtc', 'ruby', 's', 'samp', 'select', 'small', 'source', 'span',
+				'strike', 'strong', 'sub', 'sup', 'textarea', 'time', 'track', 'tt', 'u',
+				'var', 'video', 'wbr'
 			] ),
 
 			'ListTags' => PHPUtils::makeSet( [ 'ul', 'ol', 'dl' ] ),
