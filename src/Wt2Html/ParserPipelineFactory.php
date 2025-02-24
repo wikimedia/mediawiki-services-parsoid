@@ -134,11 +134,16 @@ class ParserPipelineFactory {
 				[ 'nodeName' => 'meta', 'action' => [ CleanUp::class, 'stripMarkerMetas' ] ]
 			]
 		],
-		'displayspace+linkclasses' => [
-			'name' => 'DisplaySpace+AddLinkAttributes',
+		'displayspace' => [
+			'name' => 'DisplaySpace',
 			'handlers' => [
 				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'leftHandler' ] ],
 				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'rightHandler' ] ],
+			]
+		],
+		'linkclasses' => [
+			'name' => 'AddLinkAttributes',
+			'handlers' => [
 				[ 'nodeName' => 'a', 'action' => [ AddLinkAttributes::class, 'handler' ] ]
 			]
 		],
@@ -226,7 +231,7 @@ class ParserPipelineFactory {
 		// wtDOMProcess handler is run once on the top level document.
 		'extpp',
 		'fixups+dedupe-styles', 'linter', 'strip-metas',
-		'lang-converter', 'redlinks', 'displayspace+linkclasses',
+		'lang-converter', 'redlinks', 'displayspace', 'linkclasses',
 		// Benefits from running after determining which media are redlinks
 		'heading-ids',
 		'sections', 'convertoffsets', 'cleanup',
@@ -240,7 +245,7 @@ class ParserPipelineFactory {
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
 		'fixups+dedupe-styles', 'strip-metas',
-		'displayspace+linkclasses',
+		'displayspace', 'linkclasses',
 		'cleanup',
 		// Need to run this recursively
 		'embedded-docs',
@@ -255,7 +260,7 @@ class ParserPipelineFactory {
 
 	public const SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS = [
 		'extpp', // FIXME: this should be a different processor
-		'fixups', 'strip-metas', 'redlinks', 'displayspace+linkclasses',
+		'fixups', 'strip-metas', 'redlinks', 'displayspace', 'linkclasses',
 		'gen-anchors', 'convertoffsets', 'cleanup',
 		// FIXME: This will probably need some special-case code to first
 		// strip old metadata before adding fresh metadata.
