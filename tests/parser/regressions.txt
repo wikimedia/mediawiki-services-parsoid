@@ -97,3 +97,22 @@ parsoid=wt2html
 !! html/parsoid
 <a rel="mw:ExtLink nofollow" href="http://google.com" class="external text"><p data-parsoid='{"fostered":true,"autoInsertedStart":true}'>hi</p><table data-parsoid='{"stx":"html"}'></table> ho</a>
 !! end
+
+!! test
+Pipe magic word in bailing wikilink
+!! options
+parsoid=wt2html
+!! wikitext
+{|
+| [[{{!}}]] [[{{!}}]]
+|}
+!! html/php
+<table>
+<tbody><tr>
+<td>[[|]] [[|]]
+</td></tr></tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>[[<span about="#mwt7" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span>]] [[<span about="#mwt10" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span>]]</td></tr>
+</tbody></table>
+!! end

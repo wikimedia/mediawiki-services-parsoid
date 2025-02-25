@@ -267,6 +267,8 @@ class WikiLinkHandler extends TokenHandler {
 		$startOffset = $tsr->start + 1;
 		$toks = PipeLineUtils::processContentInPipeline(
 			$manager->getEnv(), $frame, $src, [
+				// FIXME: Set toplevel when bailing
+				// 'toplevel' => $atTopLevel ?? false,
 				'sol' => false,
 				'pipelineType' => 'wikitext-to-expanded-tokens',
 				'srcOffsets' => new SourceRange( $startOffset, $startOffset + strlen( $src ) ),

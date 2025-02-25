@@ -452,6 +452,8 @@ class TemplateHandler extends TokenHandler {
 					'expandTemplates' => $expandTemplates && $this->options['expandTemplates'],
 				],
 				'sol' => false,
+				// FIXME: Set toplevel when bailing
+				// 'toplevel' => $this->atTopLevel,
 				'srcOffsets' => $srcOffsets,
 			]
 		);
@@ -720,13 +722,12 @@ class TemplateHandler extends TokenHandler {
 	 * ```
 	 * magicWordType === '!' => {{!}} is the magic word
 	 * ```
-	 * @param bool $atTopLevel
 	 * @param TemplateEncapsulator $state
 	 * @param array $resolvedTgt
 	 * @return TemplateExpansionResult
 	 */
 	private function processSpecialMagicWord(
-		bool $atTopLevel, TemplateEncapsulator $state, array $resolvedTgt
+		TemplateEncapsulator $state, array $resolvedTgt
 	): TemplateExpansionResult {
 		$env = $this->env;
 		$tplToken = $state->token;
@@ -744,7 +745,7 @@ class TemplateHandler extends TokenHandler {
 			// as template but the recursive call to fetch its content returns a
 			// single | in an ambiguous context which will again be tokenized as td.
 			// In any case, this should only be relevant for parserTests.
-			if ( empty( $atTopLevel ) ) {
+			if ( $this->options['inTemplate'] ) {
 				$td = new TagTk( 'td' );
 				$td->dataParsoid->getTemp()->attrSrc = '';
 				$td->dataParsoid->setTempFlag( TempData::AT_SRC_START );
@@ -810,7 +811,7 @@ class TemplateHandler extends TokenHandler {
 		}
 
 		if ( isset( $tgt['magicWordType'] ) ) {
-			return $this->processSpecialMagicWord( $this->atTopLevel, $state, $tgt );
+			return $this->processSpecialMagicWord( $state, $tgt );
 		}
 
 		$frame = $this->manager->getFrame();
