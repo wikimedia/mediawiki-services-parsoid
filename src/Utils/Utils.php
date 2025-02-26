@@ -278,7 +278,9 @@ class Utils {
 	 */
 	public static function escapeHtml( string $s ): string {
 		// Only encodes five characters: " ' & < >
-		return htmlspecialchars( $s, ENT_QUOTES | ENT_HTML5 );
+		$s = htmlspecialchars( $s, ENT_QUOTES | ENT_HTML5 );
+		$s = str_replace( "\u{0338}", '&#x338;', $s );
+		return $s;
 	}
 
 	/**
