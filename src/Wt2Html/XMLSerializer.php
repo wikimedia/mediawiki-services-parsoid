@@ -50,7 +50,7 @@ class XMLSerializer {
 	private const ENTITY_ENCODINGS = [
 		'single' => [ '<' => '&lt;', '&' => '&amp;', "'" => '&apos;' ],
 		'double' => [ '<' => '&lt;', '&' => '&amp;', '"' => '&quot;' ],
-		'xml' => [ '<' => '&lt;', '&' => '&amp;' ],
+		'xml' => [ '<' => '&lt;', '&' => '&amp;', "\u{0338}" => '&#x338;' ],
 	];
 
 	/**
