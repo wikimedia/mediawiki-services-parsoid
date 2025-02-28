@@ -907,7 +907,7 @@ class PipelineUtils {
 	/**
 	 * Fetches output of encapsulations that return HTML from the legacy parser
 	 */
-	public static function fetchHTML( Env $env, string $source ): ?DocumentFragment {
+	public static function parseToHTML( Env $env, string $source ): ?DocumentFragment {
 		$ret = $env->getDataAccess()->parseWikitext(
 			$env->getPageConfig(), $env->getMetadata(), $source
 		);

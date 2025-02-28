@@ -139,7 +139,7 @@ class ExtensionHandler extends TokenHandler {
 		}
 
 		$start = microtime( true );
-		$domFragment = PipelineUtils::fetchHTML( $env, $token->getAttributeV( 'source' ) );
+		$domFragment = PipelineUtils::parseToHTML( $env, $token->getAttributeV( 'source' ) );
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
 			$profile->bumpMWTime( "Extension", 1000 * ( microtime( true ) - $start ), "api" );
