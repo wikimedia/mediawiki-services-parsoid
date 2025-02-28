@@ -183,11 +183,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Porting note: this can be '0', handle emptiness checks with care
  * @property string|null $prefix
  *
- * True if the link was a pipetrick (`[[Foo|]]`).
- * @note This will likely be removed soon since this should not show up in saved wikitext since
- * this is a pre-save transformation trick.
- * @property bool|null $pipeTrick
- *
  * Did the link use interwiki syntax?
  * Probably redundant with the rel=mw:WikiLink/Interwiki
  * @property bool|null $isIW
