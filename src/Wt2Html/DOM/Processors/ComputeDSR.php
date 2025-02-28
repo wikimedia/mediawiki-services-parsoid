@@ -200,8 +200,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 		} else {
 			if ( WTUtils::isATagFromWikiLinkSyntax( $node ) && !WTUtils::hasExpandedAttrsType( $node ) ) {
 				if ( isset( $dp->stx ) && $dp->stx === "piped" ) {
+					$pipeLen = strlen( $dp->firstPipeSrc ?? '|' );
 					$href = $dp->sa['href'];
-					return [ strlen( $href ) + 3, 2 ];
+					return [ 2 + strlen( $href ) + $pipeLen, 2 ];
 				} else {
 					return [ 2, 2 ];
 				}

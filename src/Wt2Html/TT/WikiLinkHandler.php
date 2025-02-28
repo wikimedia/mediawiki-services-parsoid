@@ -324,6 +324,7 @@ class WikiLinkHandler extends TokenHandler {
 			// TODO: add useful debugging info for editors ('if you would like to
 			// make this content editable, then fix template X..')
 			// TODO: also check other parameters for pipes!
+			// NOTE: We'd need to clear firstPipeSrc if this case gets supported
 			return new TokenHandlerResult( self::bailTokens( $this->manager, $token ) );
 		}
 

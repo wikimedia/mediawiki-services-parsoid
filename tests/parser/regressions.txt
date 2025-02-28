@@ -113,6 +113,6 @@ parsoid=wt2html
 </td></tr></tbody></table>
 !! html/parsoid
 <table>
-<tbody><tr><td>[[<span about="#mwt7" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span>]] [[<span about="#mwt10" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"!","function":"!"},"params":{},"i":0}}]}'>|</span>]]</td></tr>
+<tbody><tr><td>[[|]] [[|]]</td></tr>
 </tbody></table>
 !! end

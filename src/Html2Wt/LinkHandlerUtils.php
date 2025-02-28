@@ -832,13 +832,14 @@ class LinkHandlerUtils {
 			$state->needsEscaping = $needsEscaping;
 			$state->emitChunk( $linkData->prefix . $pipedText . $linkData->tail, $node );
 		} else {
+			$pipe = $dp->firstPipeSrc ?? '|';
 			if ( $isPiped && $needsEscaping ) {
 				// We are definitely not in sol context since content
 				// will be preceded by "[[" or "[" text in target wikitext.
-				$pipedText = '|' . $state->serializer->wteHandlers
+				$pipedText = $pipe . $state->serializer->wteHandlers
 					->escapeLinkContent( $state, $contentSrc, false, $node, false );
 			} elseif ( $isPiped ) {
-				$pipedText = '|' . $contentSrc;
+				$pipedText = $pipe . $contentSrc;
 			} else {
 				$pipedText = '';
 			}

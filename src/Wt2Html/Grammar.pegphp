@@ -1306,13 +1306,13 @@ lang_variant_text_no_semi_or_arrow =
 
 wikilink_content =
 	(
-		pipe
+		p:pipe
 		startPos:("" { return $this->endOffset(); })
 		lt:link_text? {
 			$tsr = new SourceRange( $startPos, $this->endOffset() );
 			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
 			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
-			return $maybeContent;
+			return [$p, $maybeContent];
 		}
 	)*
 
@@ -1340,34 +1340,44 @@ wikilink_preproc =
 	lcs:wikilink_content
 	inline_breaks "]]"
 	{
-		$pipeTrick = count( $lcs ) === 1 && count( $lcs[0]->v ) === 0;
-		$textTokens = [];
+		$pipeTrick = count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
 		if ( $target === null || $pipeTrick ) {
+			$textTokens = [];
 			$textTokens[] = '[[';
 			if ( $target ) {
 				$textTokens[] = $target;
 			}
 			foreach ( $lcs as $a ) {
-				// a is a mw:maybeContent attribute
+				// $a[0] is a pipe
+				// FIXME: Account for variation, emit a template tag
 				$textTokens[] = '|';
-				if ( count( $a->v ) > 0 ) {
-					$textTokens[] = $a->v;
+				// $a[1] is a mw:maybeContent attribute
+				if ( count( $a[1]->v ) > 0 ) {
+					$textTokens[] = $a[1]->v;
 				}
 			}
 			$textTokens[] = ']]';
 			return $textTokens;
 		}
-		$obj = new SelfclosingTagTk( 'wikilink' );
 		$tsr = new SourceRange( $spos, $tpos );
-		$hrefKV = new KV( 'href', $target, $tsr->expandTsrV() );
-		$hrefKV->vsrc = $tsr->substr( $this->input );
-		// XXX: Point to object with path, revision and input information
-		// obj.source = input;
-		$obj->attribs[] = $hrefKV;
-		$obj->attribs = array_merge( $obj->attribs, $lcs );
+		$hrefKV = new KV(
+			'href', $target, $tsr->expandTsrV(), null,
+			$tsr->substr( $this->input )
+		);
+		$obj = new SelfclosingTagTk( 'wikilink' );
+		$attribs = array_map( static fn ( $lc ) => $lc[1], $lcs );
+		$obj->attribs = array_merge( [$hrefKV], $attribs );
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
 		$dp->src = $this->text();
+		// Capture a variation in the separator between target
+		// and contents.  Note that target might have other templates
+		// that emit pipes, so this might not actually be the first
+		// separator, but the WikiLinkHandler doesn't support that
+		// yet, see onWikiLink.
+		if ( $lcs && $lcs[0][0] !== '|' ) {
+			$dp->firstPipeSrc = $lcs[0][0];
+		}
 		$obj->dataParsoid = $dp;
 		return [ $obj ];
 	}
@@ -2499,8 +2509,7 @@ directive =
 wikilink_preprocessor_text =
 	r:(
 		t:$[^<[{\n\r\t|!\]}{ &\-]+
-		// XXX gwicke: any more chars we need to allow here?
-		/ !inline_breaks wr:( directive / $( !"]]" ( text_char / [!<\-\}\]\n\r] ) ) )
+		/ !inline_breaks !pipe wr:( directive / $( !"]]" ( text_char / [!<\-\}\]\n\r] ) ) )
 		{ return $wr; }
 	)+ {
 		return TokenizerUtils::flattenStringlist( $r );

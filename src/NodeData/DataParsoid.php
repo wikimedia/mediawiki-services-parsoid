@@ -187,6 +187,10 @@ use Wikimedia\Parsoid\Utils\Utils;
  * Probably redundant with the rel=mw:WikiLink/Interwiki
  * @property bool|null $isIW
  *
+ * Source for first separator in a wikilink to account for variation
+ * Ex. [[Test{{!}}123]]
+ * @property string|null $firstPipeSrc
+ *
  * == Tables ==
  *
  * Source for start-text separators in table wikitext.
