@@ -1621,7 +1621,7 @@ class WikiLinkHandler extends TokenHandler {
 		// Change the rel to be mw:MediaLink
 		$link->getAttributeKV( 'rel' )->v = 'mw:MediaLink';
 
-		$link->setAttribute( 'href', $imgHref );
+		$link->addNormalizedAttribute( 'href', $imgHref, $target->hrefSrc );
 
 		// html2wt will use the resource rather than try to parse the href.
 		$link->addNormalizedAttribute(

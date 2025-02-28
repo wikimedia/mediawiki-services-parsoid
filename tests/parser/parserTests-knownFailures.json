@@ -98,7 +98,7 @@
 		"wt2wt": "'''Bold paragraph'''\n\nNew wiki paragraph"
 	},
 	"Media link redirect": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:MediaLink\" href=\"http://example.com/images/3/3a/Foobar.jpg\" resource=\"./Media:Redirect_to_foobar.jpg\" title=\"Foobar.jpg\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"resource\":\"./Media:Redirect_to_foobar.jpg\"},\"sa\":{\"resource\":\"Media:Redirect to foobar.jpg\"},\"dsr\":[0,32,2,2]}'>Media:Redirect to foobar.jpg</a></p>"
+		"wt2html": "<p data-parsoid='{\"dsr\":[0,32,0,0]}'><a rel=\"mw:MediaLink\" href=\"http://example.com/images/3/3a/Foobar.jpg\" resource=\"./Media:Redirect_to_foobar.jpg\" title=\"Foobar.jpg\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"http://example.com/images/3/3a/Foobar.jpg\",\"resource\":\"./Media:Redirect_to_foobar.jpg\"},\"sa\":{\"href\":\"Media:Redirect to foobar.jpg\",\"resource\":\"Media:Redirect to foobar.jpg\"},\"dsr\":[0,32,2,2]}'>Media:Redirect to foobar.jpg</a></p>"
 	},
 	"Mixing markup for italics and bold": {
 		"wt2wt": "'<nowiki/>''bold'<nowiki/>'''''bold''bolditalics'''''"
