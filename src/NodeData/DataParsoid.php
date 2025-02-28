@@ -77,9 +77,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  * is documented as "mixed" but may possibly be a nullable string.
  * @property array|null $sa Source attributes
  *
- * FIXME never written
- * @property bool|null $strippedNL
- *
  * The number of extra dashes in the source of an hr
  * @property int|null $extra_dashes
  *
