@@ -16729,7 +16729,7 @@ wgFragmentMode=[ "html5" ]
 <a href="https://gerrit.wikimedia.org/#/q/project:mediawiki/services/parsoid" class="extiw" title="gerrit:">Gerrit</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?Test#1.2F2" title="meatball:Test" class="extiw" data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Test#1.2F2"},"sa":{"href":"meatball:Test#1/2"},"isIW":true}'>meatball:Test#1/2</a>
+<p><a rel="mw:WikiLink/Interwiki" href="http://www.usemod.com/cgi-bin/mb.pl?Test#1.2F2" title="meatball:Test" class="extiw" data-parsoid='{"stx":"simple","a":{"href":"http://www.usemod.com/cgi-bin/mb.pl?Test#1.2F2"},"sa":{"href":"meatball:Test#1/2"}}'>meatball:Test#1/2</a>
 <a rel="mw:WikiLink/Interwiki" href="https://gerrit.wikimedia.org/#/q/project:mediawiki/services/parsoid" class="extiw">Gerrit</a></p>
 !! end
 

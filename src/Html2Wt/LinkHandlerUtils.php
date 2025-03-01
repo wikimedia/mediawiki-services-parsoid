@@ -186,6 +186,7 @@ class LinkHandlerUtils {
 			'linkType' => null
 		];
 		$rtData->content = new stdClass;
+		$isIW = false;
 
 		// Figure out the type of the link
 		if ( $node->hasAttribute( 'rel' ) ) {
@@ -196,12 +197,17 @@ class LinkHandlerUtils {
 			// We're keeping the preg_match here instead of going through DOMUtils::matchRel
 			// because we have \b guards to handle the multivalue, and we're keeping the matches,
 			// which matchRel doesn't do.
-			if ( preg_match( '/\b(mw:(WikiLink|ExtLink|MediaLink|PageProp)\S*)\b/', $rel, $typeMatch ) ) {
+			if ( preg_match( '/\b(mw:(WikiLink|ExtLink|MediaLink|PageProp)(\S*))\b/', $rel, $typeMatch ) ) {
 				$rtData->type = $typeMatch[1];
 				// Strip link subtype info
 				if ( $typeMatch[2] === 'WikiLink' || $typeMatch[2] === 'ExtLink' ) {
 					$rtData->type = 'mw:' . $typeMatch[2];
 				}
+				$isIW = (
+					( $typeMatch[2] === 'WikiLink' && ( $typeMatch[3] ?? '' ) === '/Interwiki' ) ||
+					// TODO: Remove this when we no longer have to worry about Flow boards
+					( $typeMatch[2] === 'ExtLink' && ( $dp->isIW ?? false ) )
+				);
 			}
 		}
 
@@ -290,9 +296,9 @@ class LinkHandlerUtils {
 		// Check if the href matches any of our interwiki URL patterns
 		$interwikiMatch = $siteConfig->interwikiMatcher( $href );
 		if ( !$interwikiMatch ) {
-			if ( !empty( $dp->isIW ) ) {
-				// If the data-parsoid thinks this is an interwiki but we can't find it
-				// then ignore the data-parsoid href (which is proably just the interwiki link again)
+			if ( $isIW ) {
+				// If this is an interwiki but we can't find it then ignore the
+				// data-parsoid href (which is proably just the interwiki link again)
 				// and use the href from the <a> tag
 				$rtData->target = DOMCompat::getAttribute( $node, 'href' );
 			}
@@ -337,7 +343,7 @@ class LinkHandlerUtils {
 				!empty( $rtData->content->string ) ||
 				!empty( $rtData->contentNode )
 			) &&
-			( !empty( $dp->isIW ) || !empty( $target['modified'] ) || !empty( $rtData->contentModified ) )
+			( $isIW || !empty( $target['modified'] ) || !empty( $rtData->contentModified ) )
 		) {
 			// External link that is really an interwiki link. Convert it.
 			if ( $rtData->type === 'mw:ExtLink' ) {

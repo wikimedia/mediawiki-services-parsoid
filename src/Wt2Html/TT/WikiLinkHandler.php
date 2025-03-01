@@ -796,10 +796,8 @@ class WikiLinkHandler extends TokenHandler {
 		}
 		$newTk->addNormalizedAttribute( 'href', $absHref, $target->hrefSrc );
 
-		// Change the rel to be mw:ExtLink
 		$newTk->getAttributeKV( 'rel' )->v = 'mw:WikiLink/Interwiki';
-		// Remember that this was using wikitext syntax though
-		$newTk->dataParsoid->isIW = true;
+
 		// Add title unless it's just a fragment (and trim off fragment)
 		// (The normalization here is similar to what Title#getPrefixedDBKey() does.)
 		if ( $target->href === '' || $target->href[0] !== '#' ) {
