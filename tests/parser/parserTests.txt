@@ -9841,8 +9841,6 @@ Article for special page transclusion test
 
 !! test
 Special page transclusion
-!! config
-wgParsoidFragmentSupport="v2"
 !! wikitext
 {{Special:Prefixindex/Xyzzyx}}
 !! html/php
@@ -9856,8 +9854,6 @@ wgParsoidFragmentSupport="v2"
 
 !! test
 Special page transclusion twice (T7021)
-!! config
-wgParsoidFragmentSupport="v2"
 !! wikitext
 {{Special:Prefixindex/Xyzzyx}}
 {{Special:Prefixindex/Xyzzyx}}
@@ -10822,15 +10818,13 @@ parsoid=html2wt
 
 !! test
 Special:Search page linking.
-!! config
-wgParsoidFragmentSupport="v2"
 !! wikitext
 {{Special:search}}
 !! html/php
 <p><a href="/wiki/Special:Search" title="Special:Search">Special:Search</a>
 </p>
 !! html/parsoid+integrated
-<p><a rel="mw:WikiLink" href="./Special:Search" title="Special:Search" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:search","href":"./Special:Search"},"params":{},"i":0}}]}'>Special:Search</a></p>
+<p><a href="/wiki/Special:Search" title="Special:Search" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"Special:search","href":"./Special:Search"},"params":{},"i":0}}]}'>Special:Search</a></p>
 !! end
 
 !! test
