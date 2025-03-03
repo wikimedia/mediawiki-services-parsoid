@@ -11,8 +11,7 @@
 			"regressions.txt": {},
 			"selserWrappingParserTests.txt": {},
 			"separatorTests.txt": {},
-			"tableFixupsParserTests.txt": {},
-			"treeBuilder.txt": {}
+			"tableFixupsParserTests.txt": {}
 		}
 	},
 	"core": {

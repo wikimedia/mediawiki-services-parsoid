@@ -3511,8 +3511,8 @@ wgParserEnableLegacyMediaDOM=false
 !! html/parsoid
 <table>
 <tbody><tr><td>
-<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p>
-<figure class="mw-default-size mw-halign-right" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="Test"><img alt="Test" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a><figcaption><small data-parsoid='{"stx":"html","autoInsertedStart":true,"autoInsertedEnd":true}'>Test</small></figcaption></figure>
+<p><small data-parsoid='{"stx":"html","autoInsertedEnd":true}'></small></p><small data-parsoid='{"stx":"html","autoInsertedEnd":true,"autoInsertedStart":true}'>
+<figure class="mw-default-size mw-halign-right" typeof="mw:File"><a href="./File:Foobar.jpg" class="mw-file-description" title="Test"><img alt="Test" resource="./File:Foobar.jpg" src="http://example.com/images/3/3a/Foobar.jpg" decoding="async" data-file-width="1941" data-file-height="220" data-file-type="bitmap" height="220" width="1941" class="mw-file-element"/></a><figcaption>Test</figcaption></figure></small>
 <p><small data-parsoid='{"stx":"html","autoInsertedStart":true}'></small></p></td></tr>
 </tbody></table>
 !! end

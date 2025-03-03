@@ -34,7 +34,6 @@ use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\PipelineStage;
-use Wikimedia\RemexHtml\TreeBuilder\Marker;
 
 class TreeBuilderStage extends PipelineStage {
 	/** @var int */
@@ -109,25 +108,9 @@ class TreeBuilderStage extends PipelineStage {
 			$s = microtime( true );
 		}
 		$n = count( $tokens );
-		$i = 0;
-		while ( $i < $n ) {
-			$token = $tokens[$i];
-			// if there is whitespace directly after the paragraph end, and if we have active formatting elements,
-			// we process said whitespace inside the paragraph (before the EndTk) rather than after (T368720)
-			$nlIndex = $i + 1;
-			if ( $token instanceof EndTagTk && $token->getName() == 'p' && $this->hasAfe() ) {
-				while ( $nlIndex < $n &&
-					( $tokens[$nlIndex] instanceof NlTk ||
-						( is_string( $tokens[$nlIndex] ) && trim( $tokens[$nlIndex] ) === '' ) )
-				) {
-					$this->processToken( $tokens[$nlIndex] );
-					$nlIndex++;
-				}
-			}
-			$this->processToken( $token );
-			$i = $nlIndex;
+		for ( $i = 0;  $i < $n;  $i++ ) {
+			$this->processToken( $tokens[$i] );
 		}
-
 		if ( $profile ) {
 			$profile->bumpTimeUse(
 				'HTML5 TreeBuilder', 1000 * ( microtime( true ) - $s ), 'HTML5' );
@@ -498,13 +481,5 @@ class TreeBuilderStage extends PipelineStage {
 		} else {
 			yield $this->process( $input, $opts );
 		}
-	}
-
-	private function hasAfe(): bool {
-		$afe = $this->remexPipeline->treeBuilder->afe->getTail();
-		while ( $afe !== null && $afe instanceof Marker ) {
-			$afe = $afe->prevAFE;
-		}
-		return $afe !== null;
 	}
 }
