@@ -26,6 +26,10 @@ set -eu -o pipefail
 umask 0002 # Make sure everyone in wikidev group can write
 cd /srv/parsoid-testing
 git fetch
+if [[ $(git diff --stat) != '' ]]; then
+  echo "Tree is dirty!\nCleanup before starting rt."
+  exit 1
+fi
 git checkout $testid
 git log --oneline -n 1
 sudo systemctl restart php7.4-fpm.service
