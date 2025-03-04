@@ -26,7 +26,7 @@ set -eu -o pipefail
 umask 0002 # Make sure everyone in wikidev group can write
 cd /srv/parsoid-testing
 git fetch
-if [[ $(git diff --stat) != '' ]]; then
+if [[ \$(git diff --stat) != '' ]]; then
   echo "Tree is dirty!\nCleanup before starting rt."
   exit 1
 fi
