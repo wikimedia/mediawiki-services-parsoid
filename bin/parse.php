@@ -10,6 +10,7 @@ require_once __DIR__ . '/../tools/Maintenance.php';
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
+use MediaWiki\Title\Title as MWTitle;
 use Wikimedia\Parsoid\Config\Api\ApiHelper;
 use Wikimedia\Parsoid\Config\Api\DataAccess;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
@@ -31,7 +32,7 @@ use Wikimedia\Parsoid\Parsoid;
 use Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
-use Wikimedia\Parsoid\Utils\Title;
+use Wikimedia\Parsoid\Utils\Title as ParsoidTitle;
 
 // phpcs:ignore MediaWiki.Files.ClassMatchesFilename.WrongCase
 class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
@@ -276,7 +277,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$pcFactory = $services->getParsoidPageConfigFactory();
 		// XXX we're ignoring 'pageLanguage' & 'pageLanguageDir' in $configOpts
 		$title = isset( $configOpts['title'] )
-			? \Title::newFromText( $configOpts['title'] )
+			? MWTitle::newFromText( $configOpts['title'] )
 			: $siteConfig->mainPageLinkTarget();
 
 		$wikitextOverride = $configOpts['pageContent'] ?? null;
@@ -322,7 +323,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$dataAccess = new DataAccess( $api, $siteConfig, $configOpts );
 		$this->siteConfig = $siteConfig;
 		$configOpts['title'] = isset( $configOpts['title'] )
-			? Title::newFromText( $configOpts['title'], $siteConfig )
+			? ParsoidTitle::newFromText( $configOpts['title'], $siteConfig )
 			: $siteConfig->mainPageLinkTarget();
 
 		$this->pageConfig = new PageConfig( $api, $siteConfig, $configOpts + [
