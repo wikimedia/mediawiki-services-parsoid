@@ -626,6 +626,11 @@ class PipelineUtils {
 				if ( isset( $nodeData->parsoid->fostered ) ) {
 					unset( $nodeData->parsoid->fostered );
 				}
+
+				// Note that the TempData::WRAPPER flag may be transfered to the
+				// fragment wrapper.  Depending on the contents of the fragment,
+				// it's questionable if that's truly representative.  Our modeling
+				// based on the first node of the fragment has limitations.
 			}
 
 			DOMDataUtils::setNodeData( $workNode, $nodeData );

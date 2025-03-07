@@ -210,7 +210,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 						// This can likely be combined in some more maintainable way.
 						if (
 							DOMUtils::isRemexBlockNode( $sibling ) ||
-							PWrap::pWrapOptional( $sibling )
+							PWrap::pWrapOptional( $env, $sibling )
 						) {
 							// Block nodes don't need to be wrapped in a p-tag either.
 							// Links, includeonly directives, and other rendering-transparent

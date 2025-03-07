@@ -29,9 +29,9 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		return $a === [] ? [] : array_merge( ...$a );
 	}
 
-	private static function pWrapOptionalChildren( Element $elt ): bool {
-		foreach ( $elt->childNodes as $c ) {
-			if ( !self::pWrapOptional( $c ) ) {
+	private static function pWrapOptionalChildren( Env $env, Node $n ): bool {
+		foreach ( $n->childNodes as $c ) {
+			if ( !self::pWrapOptional( $env, $c ) ) {
 				return false;
 			}
 		}
@@ -50,19 +50,27 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *   \\MediaWiki\Tidy\RemexCompatMunger::$metadataElements.
 	 * - parsoid-added span wrappers around pwrap-optional nodes
 	 *
+	 * @param Env $env
 	 * @param Node $n
 	 * @return bool
 	 */
-	public static function pWrapOptional( Node $n ): bool {
+	public static function pWrapOptional( Env $env, Node $n ): bool {
+		if (
+			$n instanceof Element &&
+			DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER )
+		) {
+			if ( DOMUtils::hasTypeOf( $n, 'mw:DOMFragment' ) ) {
+				$domFragment = $env->getDOMFragment(
+					DOMDataUtils::getDataParsoid( $n )->html
+				);
+				return self::pWrapOptionalChildren( $env, $domFragment );
+			} else {
+				return self::pWrapOptionalChildren( $env, $n );
+			}
+		}
 		return $n instanceof Comment ||
 			( $n instanceof Text && preg_match( '/^\s*$/D', $n->nodeValue ) ) ||
-			(
-				$n instanceof Element &&
-				( DOMUtils::isMetaDataTag( $n ) || (
-					DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER ) &&
-					self::pWrapOptionalChildren( $n )
-				) )
-			);
+			( $n instanceof Element && DOMUtils::isMetaDataTag( $n ) );
 	}
 
 	/**
@@ -144,11 +152,12 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *  false: closes a paragraph
 	 *  null: agnostic, doesn't open or close a paragraph
 	 *
+	 * @param Env $env
 	 * @param Node $n
 	 * @return array
 	 */
-	private function split( Node $n ): array {
-		if ( $this->pWrapOptional( $n ) ) {
+	private function split( Env $env, Node $n ): array {
+		if ( $this->pWrapOptional( $env, $n ) ) {
 			// Set 'pwrap' to null so p-wrapping doesn't break
 			// a run of wrappable nodes because of these.
 			return [ [ 'pwrap' => null, 'node' => $n ] ];
@@ -166,7 +175,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			$children = $n->childNodes;
 			$splits = [];
 			foreach ( $children as $child ) {
-				$splits[] = $this->split( $child );
+				$splits[] = $this->split( $env, $child );
 			}
 			return $this->mergeRuns( $n, $this->flatten( $splits ) );
 		}
@@ -210,17 +219,18 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *    algorithm also ensures that it doesn't end with one of those either
 	 *    (if it impacts template / param / annotation range building).
 	 *
+	 * @param Env $env
 	 * @param Element|DocumentFragment $root
 	 */
-	private function pWrapDOM( Node $root ) {
-		$state = new PWrapState();
+	private function pWrapDOM( Env $env, Node $root ) {
+		$state = new PWrapState( $env );
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( DOMUtils::isRemexBlockNode( $c ) ) {
 				$state->reset();
 			} else {
-				$vs = $this->split( $c );
+				$vs = $this->split( $env, $c );
 				foreach ( $vs as $v ) {
 					$n = $v['node'];
 					if ( $v['pwrap'] === false ) {
@@ -254,18 +264,19 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * and uses pWrapDOM to add appropriate paragraph wrapper
 	 * tags around children of nodes with tag name '$tagName'.
 	 *
+	 * @param Env $env
 	 * @param Element|DocumentFragment $root
 	 * @param string $tagName
 	 */
-	private function pWrapInsideTag( Node $root, string $tagName ) {
+	private function pWrapInsideTag( Env $env, Node $root, string $tagName ) {
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;
 			if ( $c instanceof Element ) {
 				if ( DOMCompat::nodeName( $c ) === $tagName ) {
-					$this->pWrapDOM( $c );
+					$this->pWrapDOM( $env, $c );
 				} else {
-					$this->pWrapInsideTag( $c, $tagName );
+					$this->pWrapInsideTag( $env, $c, $tagName );
 				}
 			}
 			$c = $next;
@@ -287,7 +298,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 		}
 
 		'@phan-var Element|DocumentFragment $root';  // @var Element|DocumentFragment $root
-		$this->pWrapDOM( $root );
-		$this->pWrapInsideTag( $root, 'blockquote' );
+		$this->pWrapDOM( $env, $root );
+		$this->pWrapInsideTag( $env, $root, 'blockquote' );
 	}
 }

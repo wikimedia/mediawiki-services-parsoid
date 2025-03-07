@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -24,6 +25,12 @@ class PWrapState {
 	 * @var array
 	 */
 	private $seenStarts = [];
+
+	private Env $env;
+
+	public function __construct( Env $env ) {
+		$this->env = $env;
+	}
 
 	/**
 	 * Unwrap + reset
@@ -59,7 +66,7 @@ class PWrapState {
 	private function unwrapTrailingPWrapOptionalNodes() {
 		if ( $this->hasOptionalNode ) {
 			$lastChild = $this->p->lastChild;
-			while ( PWrap::pWrapOptional( $lastChild ) ) {
+			while ( PWrap::pWrapOptional( $this->env, $lastChild ) ) {
 				$t = DOMUtils::matchNameAndTypeOf( $lastChild, 'meta', self::RANGE_TYPE_RE );
 				if ( $t && str_ends_with( $t, '/End' ) ) {
 					'@phan-var Element $lastChild';  // @var Element $lastChild
