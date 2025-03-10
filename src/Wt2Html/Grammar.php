@@ -4560,41 +4560,49 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   $p3 = $this->currPos;
   // start seq_2
   $p4 = $this->currPos;
-  $r9 = $this->parsesol($silence, $boolParams, $param_preproc, $param_th);
-  // s <- $r9
-  if ($r9===self::$FAILED) {
+  if (!(/*tableDataBlock*/($boolParams & 0x1) !== 0)) {
+    $r9 = false;
+  } else {
+    $r9 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_2;
   }
-  $p10 = $this->currPos;
-  $r11 = $this->discardsof(true);
-  if ($r11 === self::$FAILED) {
-    $r11 = false;
-  } else {
-    $r11 = self::$FAILED;
-    $this->currPos = $p10;
+  $r10 = $this->parsesol($silence, $boolParams, $param_preproc, $param_th);
+  // s <- $r10
+  if ($r10===self::$FAILED) {
     $this->currPos = $p4;
     $r1 = self::$FAILED;
     goto seq_2;
   }
-  // free $p10
-  $p10 = $this->currPos;
-  $r12 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+  $p11 = $this->currPos;
+  $r12 = $this->discardsof(true);
   if ($r12 === self::$FAILED) {
     $r12 = false;
   } else {
     $r12 = self::$FAILED;
-    $this->currPos = $p10;
+    $this->currPos = $p11;
     $this->currPos = $p4;
     $r1 = self::$FAILED;
     goto seq_2;
   }
-  // free $p10
+  // free $p11
+  $p11 = $this->currPos;
+  $r13 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+  if ($r13 === self::$FAILED) {
+    $r13 = false;
+  } else {
+    $r13 = self::$FAILED;
+    $this->currPos = $p11;
+    $this->currPos = $p4;
+    $r1 = self::$FAILED;
+    goto seq_2;
+  }
+  // free $p11
   $r1 = true;
   seq_2:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a42($r9);
+    $r1 = $this->a42($r10);
   }
   // free $p4
   choice_1:

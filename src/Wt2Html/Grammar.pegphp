@@ -314,17 +314,25 @@ redirect_word =
  * The actual contents of each block.
  */
 block =
-	// Redirect has to be the first alternative; otherwise it gets parsed as a <ol>
-	// In practice, WikiContent::getRedirectTargetAndText() in MediaWiki strips
-	// the redirect from the source so it never sees it.
+/* Redirect has to be the first alternative; otherwise it gets parsed as a <ol>
+ *  In practice, WikiContent::getRedirectTargetAndText() in MediaWiki strips
+ *  the redirect from the source so it never sees it.
+ */
 	&sof r:redirect cil:sol_transparent* bl:block_line? {
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	}
 	/ block_lines
-	// Inlineline includes generic tags; wrapped into paragraphs in token
-	// transform and DOM postprocessor
+/* Inlineline includes generic tags; wrapped into paragraphs in token
+ * transform and DOM postprocessor
+ */
 	/ inlineline
-	/ s:sol !sof !inline_breaks { return $s; }
+/*
+ * Don't match SOL on its own when in a table data-block. This ensures
+ * we don't match a stray "||" on the line as a <td> when the newline itself
+ * may not have started with a <td>. The block_lines rule above does allow
+ * SOLs to be matched when required for lists, headings, hrs, and fresh table lines.
+ */
+	/ !<tableDataBlock> s:sol !sof !inline_breaks { return $s; }
 
 /*
  * A block nested in other constructs. Avoid eating end delimiters for other
