@@ -623,16 +623,40 @@ class ParsoidExtensionAPI {
 	/**
 	 * Normalizes spaces from extension tag arguments, except for those keyed by values in $exceptions
 	 * @param KV[] &$extArgs Array of extension args
-	 * @param string[] $exclude array of keys for which the value should not be normalized
+	 * @param array[] $action array that is either empty or has one key, 'except' or 'only', which defines the
+	 * attributes that should be respectively excluded or only included from the normalization
 	 */
-	public function normalizeWhiteSpaceInArgs( array &$extArgs, array $exclude ) {
-		$closure = static function ( $key, $value ) use ( $exclude ) {
-			if ( in_array( strtolower( trim( $key ) ), $exclude, true ) ) {
-				return $value;
-			} else {
+	public function normalizeWhiteSpaceInArgs( array &$extArgs, array $action = [] ) {
+		$except = $action['except'] ?? null;
+		$only = $action['only'] ?? null;
+
+		if ( $except && $only ) {
+			$this->log( 'warn', 'normalizeWhiteSpaceInArgs should not have both except and only parameters' );
+			return;
+		}
+
+		if ( $except ) {
+			$closure = static function ( $key, $value ) use ( $except ) {
+				if ( in_array( strtolower( trim( $key ) ), $except, true ) ) {
+					return $value;
+				} else {
+					return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
+				}
+			};
+		} elseif ( $only ) {
+			$closure = static function ( $key, $value ) use ( $only ) {
+				if ( in_array( strtolower( trim( $key ) ), $only, true ) ) {
+					return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
+				} else {
+					return $value;
+				}
+			};
+		} else {
+			$closure = static function ( $key, $value ) {
 				return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
-			}
-		};
+			};
+		}
+
 		$this->updateAllArgs( $extArgs, $closure );
 	}
 
