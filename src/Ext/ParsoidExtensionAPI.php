@@ -602,6 +602,41 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
+	 * Updates all arguments, similar to findAndUpdateArg, but applies the closure to all arguments
+	 * @param KV[] &$extArgs Array of extension args
+	 * @param ?Closure $updater $updater will get the existing string value
+	 *    for the key and value of the arg and is expected to return an updated value.
+	 */
+	public function updateAllArgs( array &$extArgs, ?Closure $updater = null ): void {
+		if ( !$updater ) {
+			return;
+		}
+		foreach ( $extArgs as $i => $kv ) {
+			$k = TokenUtils::tokensToString( $kv->k );
+			$val = $kv->v;
+			$kv = clone $kv;
+			$kv->v = $updater( $k, TokenUtils::tokensToString( $val ) );
+			$extArgs[$i] = $kv;
+		}
+	}
+
+	/**
+	 * Normalizes spaces from extension tag arguments, except for those keyed by values in $exceptions
+	 * @param KV[] &$extArgs Array of extension args
+	 * @param string[] $exclude array of keys for which the value should not be normalized
+	 */
+	public function normalizeWhiteSpaceInArgs( array &$extArgs, array $exclude ) {
+		$closure = static function ( $key, $value ) use ( $exclude ) {
+			if ( in_array( strtolower( trim( $key ) ), $exclude, true ) ) {
+				return $value;
+			} else {
+				return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
+			}
+		};
+		$this->updateAllArgs( $extArgs, $closure );
+	}
+
+	/**
 	 * This method adds a new argument to the extension args array
 	 * @param KV[] &$extArgs
 	 * @param string $key

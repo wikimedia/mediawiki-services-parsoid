@@ -26,7 +26,7 @@ class ExtensionHandler extends TokenHandler {
 		parent::__construct( $manager, $options );
 	}
 
-	private static function normalizeExtOptions( array $options ): array {
+	private static function normalizeExtOptions( array $options, string $normalizeFlag ): array {
 		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
 		//
 		// Extension options should always be interpreted as plain text. The
@@ -39,10 +39,17 @@ class ExtensionHandler extends TokenHandler {
 			// string, as it can be a token stream if the parser has recognized it
 			// as a directive.
 			$v = $o->vsrc ?? TokenUtils::tokensToString( $o->v, false, [ 'includeEntities' => true ] );
-			// Normalize whitespace in extension attribute values
-			// FIXME: If the option is parsed as wikitext, this normalization
-			// can mess with src offsets.
-			$o->v = trim( preg_replace( '/[\t\r\n ]+/', ' ', $v ) );
+
+			// Let extensions decide which format they want their options in; by default they are interpreted as
+			// with normalized spaces and trimmed.
+			if ( $normalizeFlag === 'keepspaces' ) {
+				$o->v = $v;
+			} elseif ( $normalizeFlag === 'trim' ) {
+				$o->v = trim( $v );
+			} else {
+				$o->v = trim( preg_replace( '/[\r\n\t ]+/', ' ', $v ) );
+			}
+
 			// Decode character references
 			$o->v = Utils::decodeWtEntities( $o->v );
 		}
@@ -81,7 +88,8 @@ class ExtensionHandler extends TokenHandler {
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
 		$options = $token->getAttributeV( 'options' );
-		$token->setAttribute( 'options', self::normalizeExtOptions( $options ) );
+		$normalizeFlag = $extConfig['options']['wt2html']['attributeWSNormalizationPref'] ?? 'normalize';
+		$token->setAttribute( 'options', self::normalizeExtOptions( $options, $normalizeFlag ) );
 
 		// Call after normalizing extension options, since that can affect the result
 		$dataMw = Utils::getExtArgInfo( $token );
