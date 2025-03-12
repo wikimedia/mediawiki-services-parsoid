@@ -1273,8 +1273,6 @@ Templates: Strip leading and trailing whitespace from named-param values
 
 !! test
 Templates: Don't strip whitespace from positional-param values
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 {{1x|a }}
 
@@ -3639,8 +3637,6 @@ baz</li></ul>
 
 !! test
 List items are not parsed correctly following a <pre> block (T2785)
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 *<pre>foo</pre>
 *<pre>bar</pre>
@@ -3657,8 +3653,6 @@ wgParsoidNewTemplateExpansionMode=true
 
 !! test
 List items from template
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 
 {{inner list}}
@@ -3884,8 +3878,6 @@ Parsoid: Make sure nested lists are serialized on their own line even if HTML co
 
 !! test
 Parsoid: Test of whitespace serialization with Templated bullets
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! options
 parsoid=wt2html
 !! wikitext
@@ -4830,8 +4822,6 @@ Template:table
 
 !! test
 T2529: Template with table, not included at beginning of line
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 foo {{table}}
 !! html/php
@@ -8657,8 +8647,6 @@ wgFragmentMode=[ "legacy" ]
 
 !! test
 Expansion of multi-line templates in attribute values (T8255)
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 <div style="background: {{1x|#00FF00}}">-</div>
 !! html/php
@@ -8676,8 +8664,6 @@ wgParsoidNewTemplateExpansionMode=true
 
 !! test
 Expansion of multi-line parser-functions in attribute values (T8255)
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 <div style="background: {{#if:1|#00FF00|#FF00FF}}">-</div>
 !! html/php+disabled
@@ -11517,8 +11503,6 @@ Parsing of overlapping (improperly nested) inline html tags
 
 !! test
 T2529: Uncovered bullet
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 *Foo {{bullet}}
 !! html/php
@@ -11530,8 +11514,6 @@ wgParsoidNewTemplateExpansionMode=true
 
 !! test
 T2529: Uncovered bullet in a deeply nested list
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 *******Foo {{bullet}}
 !! html/php
@@ -11575,8 +11557,6 @@ y
 
 !! test
 T2529: Uncovered bullet in parser function result
-!! config
-wgParsoidNewTemplateExpansionMode=true
 !! wikitext
 *Foo{{lc:{{bullet}} }}
 !! html/php
@@ -17312,4 +17292,30 @@ Text {{#spantag:<nowiki><b></nowiki> {{#spantag:<nowiki><c></nowiki>}}}}
 </p>
 !! html/parsoid+integrated
 <p>Text <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#spantag:&lt;nowiki>&lt;b>&lt;/nowiki> {{#spantag:&lt;nowiki>&lt;c>&lt;/nowiki>}}","function":"spantagpf"},"params":{},"i":0}}]}'>&lt;b> <span>&lt;c></span></span></p>
+!! end
+
+!! test
+T386233: suppress <nowiki/> tags between extension tags
+!! config
+wgParsoidFragmentSupport="v2"
+!! wikitext
+Deliberately unclosed b tag triggers p-wrapping if a nowiki span is
+added between the divtags:
+
+<b>{{1x|<divtag>abc</divtag><divtag>xyz</divtag>}}
+!! html/php
+<p>Deliberately unclosed b tag triggers p-wrapping if a nowiki span is
+added between the divtags:
+</p>
+<b><div>abc</div><div>xyz</div></b>
+!! html/parsoid+integrated
+<p>Deliberately unclosed b tag triggers p-wrapping if a nowiki span is added between the divtags:</p>
+<b>
+<div typeof="mw:Extension/divtag mw:Transclusion" data-mw='{"name":"divtag","attrs":{},"body":{"extsrc":"abc"},"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;divtag>abc&lt;/divtag>&lt;divtag>xyz&lt;/divtag>"}},"i":0}}]}'>
+<p>abc</p>
+</div>
+<div typeof="mw:Extension/divtag" data-mw='{"name":"divtag","attrs":{},"body":{"extsrc":"xyz"}}'>
+<p>xyz</p>
+</div>
+</b>
 !! end
