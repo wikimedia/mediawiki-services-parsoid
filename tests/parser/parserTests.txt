@@ -1126,7 +1126,7 @@ maxincludesize=30
 <p><a href="/wiki/Template:3x_on_newline" title="Template:3x on newline">Template:3x on newline</a><!-- WARNING: template omitted, post-expand include size too large -->
 </p>
 !! html/parsoid+integrated
-<p><a rel="mw:WikiLink" href="./Template:3x_on_newline" title="Template:3x on newline" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Template:3x_on_newline"},"sa":{"href":":Template:3x on newline"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"1234567890"}},"i":0}}]}'>Template:3x on newline</a><span about="#mwt1"><!-- WARNING: template omitted, post&#x2D;expand include size too large --></span></p>
+<p><a rel="mw:WikiLink" href="./Template:3x_on_newline" title="Template:3x on newline" about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"stx":"simple","a":{"href":"./Template:3x_on_newline"},"sa":{"href":":Template:3x on newline"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"3x_on_newline","href":"./Template:3x_on_newline"},"params":{"1":{"wt":"1234567890"}},"i":0}}]}'>Template:3x on newline</a><span about="#mwt1"><!-- WARNING: template omitted, post-expand include size too large --></span></p>
 !! end
 
 !! test
@@ -17265,7 +17265,7 @@ Parser function: {{#spantag:<nowiki>a &amp;amp; <b>c</b></nowiki>}}
 </p>
 !! html/parsoid+integrated
 <p>Extension tag: <span typeof="mw:Extension/spantag" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>"}}'>a <span typeof="mw:Entity">&amp;</span>amp; &lt;b>c&lt;/b></span></p>
-<p>Parser function: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#spantag:&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>","function":"spantagpf"},"params":{},"i":0}}]}'>a <span typeof="mw:Entity">&amp;</span>amp; &lt;b>c&lt;/b></span></p>
+<p>Parser function: <span typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#spantag:&lt;nowiki>a &amp;amp;amp; &lt;b>c&lt;/b>&lt;/nowiki>","function":"spantagpf"},"params":{},"i":0}}]}'>a &amp;amp; &lt;b>c&lt;/b></span></p>
 !! end
 
 !! test

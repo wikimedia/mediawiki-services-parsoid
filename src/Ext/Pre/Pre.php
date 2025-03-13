@@ -26,6 +26,11 @@ class Pre extends ExtensionTagHandler implements ExtensionModule {
 				[
 					'name' => 'pre',
 					'handler' => self::class,
+					'options' => [
+						// Strip nowiki markers from #tag parser-function
+						// arguments (T299103)
+						'stripNowiki' => true,
+					],
 				]
 			]
 		];
