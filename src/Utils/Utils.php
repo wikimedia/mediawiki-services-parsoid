@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataMwBody;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -479,9 +480,9 @@ class Utils {
 		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
 		if ( $extTagOffsets->closeWidth !== 0 ) {
 			// If not self-closing...
-			$defaultDataMw->body = (object)[
-				'extsrc' => self::extractExtBody( $extToken ),
-			];
+			$defaultDataMw->body = new DataMwBody(
+				self::extractExtBody( $extToken ),
+			);
 		}
 		return $defaultDataMw;
 	}

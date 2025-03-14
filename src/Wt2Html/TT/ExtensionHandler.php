@@ -109,7 +109,7 @@ class ExtensionHandler extends TokenHandler {
 					$extSrc = $this->stripAnnotations( $extSrc, $env->getSiteConfig() );
 				}
 				$domFragment = $nativeExt->sourceToDom(
-					$extApi, $extSrc ?? '', $extArgs
+					$extApi, $extSrc, $extArgs
 				);
 				$errors = $extApi->getErrors();
 				if ( $extConfig['options']['wt2html']['customizesDataMw'] ?? false ) {

@@ -89,9 +89,8 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 						'context' => 'inline',
 					],
 				] );
-				$dataMw->body = (object)[
-					'html' => $extApi->domToHtml( $domFragment, true )
-				];
+				$dataMw->body->extsrc = null; // clear wt representation
+				$dataMw->body->html = $extApi->domToHtml( $domFragment, true );
 				$span = $domFragment->ownerDocument->createElement( 'span' );
 				DOMDataUtils::setDataMw( $span, $dataMw );
 				DOMCompat::replaceChildren( $domFragment, $span );
@@ -141,7 +140,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 		$src = '';
 		if ( $wrapperUnmodified && isset( $dataMw->body->extsrc ) ) {
 			$src = $dataMw->body->extsrc;
-		} elseif ( $extName === 'embedtag' ) {
+		} elseif ( $extName === 'embedtag' && isset( $dataMw->body->html ) ) {
 			// First look for the extension's content in data-mw.body.html
 			$src = $extApi->htmlToWikitext( $html2wtOpts, $dataMw->body->html );
 		} else {

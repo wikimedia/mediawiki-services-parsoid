@@ -19,6 +19,7 @@ use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Ext\Utils;
+use Wikimedia\Parsoid\NodeData\DataMwBody;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
 /**
@@ -242,7 +243,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 			// Self-closed tags don't have a body but unsetting on it induces one
 			isset( $dataMw->body )
 		) {
-			unset( $dataMw->body->extsrc );
+			$dataMw->body->extsrc = null;
 		}
 
 		// Remove the caption since it's redundant with the HTML
@@ -356,7 +357,7 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		//
 		// This relies on the caption having been removed above
 		if ( DiffDOMUtils::firstNonSepChild( $node ) !== null ) {
-			$dataMw->body ??= new stdClass;
+			$dataMw->body ??= new DataMwBody;
 		}
 
 		$startTagSrc = $extApi->extStartTagToWikitext( $node );

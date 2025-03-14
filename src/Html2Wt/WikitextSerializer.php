@@ -973,7 +973,7 @@ class WikitextSerializer {
 		if ( $attrStr ) {
 			$src .= ' ' . $attrStr;
 		}
-		return $src . ( !empty( $dataMw->body ) ? '>' : ' />' );
+		return $src . ( isset( $dataMw->body ) ? '>' : ' />' );
 	}
 
 	public function defaultExtensionHandler( Element $node, SerializerState $state ): string {
