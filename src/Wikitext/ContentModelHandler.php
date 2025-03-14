@@ -149,8 +149,10 @@ class ContentModelHandler extends IContentModelHandler {
 		}
 
 		// set indicator metadata for unique keys
+		// (Note that this could easily be updated in the future to pass
+		// a DocumentFragment directly, instead of converting to a string.)
 		foreach ( $iData as $name => $html ) {
-			$extApi->getMetadata()->setIndicator( (string)$name, $html );
+			$extApi->getMetadata()->setIndicator( (string)$name, $extApi->domToHtml( $html, true ) );
 		}
 	}
 

@@ -43,11 +43,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 	): void {
 		$dmw = DOMDataUtils::getDataMw( $elt );
 		if ( isset( $dmw->html ) ) {
-			$dom = $extApi->htmlToDom( $dmw->html );
-			$ret = $proc( $dom );
-			if ( $ret ) {
-				$dmw->html = $extApi->domToHtml( $dom, true, true );
-			}
+			$proc( $dmw->html );
 		}
 	}
 
@@ -81,18 +77,16 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 			$domFragment->removeChild( $content );
 		}
 
-		// We should embed this directly as a DocumentFragment once
-		// T348161 lands.
-		$dataMw->html = $extApi->domToHtml( $domFragment, true );
+		$dataMw->html = $domFragment;
 
 		// Use a meta tag whose data-mw we will stuff this HTML into later.
 		// NOTE: Till T214994 is resolved, this HTML will not get processed
 		// by all the top-level DOM passes that may need to process this (ex: linting)
 		$meta = $domFragment->ownerDocument->createElement( 'meta' );
-
 		DOMDataUtils::setDataMw( $meta, $dataMw );
 
-		DOMCompat::replaceChildren( $domFragment, $meta );
+		$domFragment = $meta->ownerDocument->createDocumentFragment();
+		$domFragment->appendChild( $meta );
 		return $domFragment;
 	}
 }
