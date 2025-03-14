@@ -6,6 +6,8 @@ namespace Wikimedia\Parsoid\Utils;
 use Composer\Semver\Semver;
 use InvalidArgumentException;
 use stdClass;
+use TypeError;
+use UnexpectedValueException;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
@@ -582,8 +584,14 @@ class DOMDataUtils {
 		$node->removeAttribute( 'data-parsoid' );
 
 		$dataMwAttr = DOMCompat::getAttribute( $node, 'data-mw' );
-		$dmw = $dataMwAttr === null ? null :
-			$codec->newFromJsonString( $dataMwAttr, self::getCodecHints()['data-mw'] );
+		try {
+			$dmw = $dataMwAttr === null
+				? null
+				: $codec->newFromJsonString( $dataMwAttr, self::getCodecHints()['data-mw'] );
+		} catch ( TypeError $e ) {
+			// improve debuggability
+			throw new UnexpectedValueException( "Unable to decode JsonString [$dataMwAttr]", 0, $e );
+		}
 		self::setDataMw( $node, $dmw );
 		$node->removeAttribute( 'data-mw' );
 
