@@ -445,7 +445,8 @@ class TokenUtils {
 					break;
 
 				default:
-					throw new \InvalidArgumentException( '$s is not UTF-8' );
+					throw new \InvalidArgumentException(
+						bin2hex( $s ) . " (dumped via php bin2hex) is not valid UTF-8" );
 			}
 		}
 
