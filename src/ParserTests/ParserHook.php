@@ -90,10 +90,11 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 					],
 				] );
 				$dataMw->body->extsrc = null; // clear wt representation
-				$dataMw->body->setHtml( $extApi, $domFragment );
+				$dataMw->body->html = $domFragment;
 				$span = $domFragment->ownerDocument->createElement( 'span' );
 				DOMDataUtils::setDataMw( $span, $dataMw );
-				DOMCompat::replaceChildren( $domFragment, $span );
+				$domFragment = $span->ownerDocument->createDocumentFragment();
+				$domFragment->appendChild( $span );
 				return $domFragment;
 
 			case 'sealtag':
@@ -110,11 +111,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	): void {
 		$dataMw = DOMDataUtils::getDataMw( $elt );
 		if ( isset( $dataMw->body->html ) ) {
-			$dom = $dataMw->body->getHtml( $extApi );
-			$ret = $proc( $dom );
-			if ( $ret ) {
-				$dataMw->body->setHtml( $extApi, $dom );
-			}
+			$proc( $dataMw->body->html );
 		}
 	}
 
@@ -141,7 +138,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 			$src = $dataMw->body->extsrc;
 		} elseif ( $extName === 'embedtag' && isset( $dataMw->body->html ) ) {
 			// First look for the extension's content in data-mw.body.html
-			$src = $extApi->htmlToWikitext( $html2wtOpts, $dataMw->body->html );
+			$src = $extApi->domToWikitext( $html2wtOpts, $dataMw->body->html );
 		} else {
 			$src = $extApi->htmlToWikitext( $html2wtOpts, DOMCompat::getInnerHTML( $node ) );
 		}
