@@ -51,11 +51,10 @@ class ParserHookProcessor extends ExtDOMProcessor {
 				$node->parentNode->replaceChild( $span, $node );
 				$extApi->clearContentDOM( $contentId );
 			}
-			$extApi->processAttributeEmbeddedHTML(
-				$node, function ( string $html ) use ( $extApi ) {
-					$domFragment = $extApi->htmlToDom( $html );
+			$extApi->processAttributeEmbeddedDom(
+				$node, function ( $domFragment ) use ( $extApi ) {
 					$this->wtPostprocess( $extApi, $domFragment, [] );
-					return $extApi->domToHtml( $domFragment, true, true );
+					return true; // Conservatively say we changed things
 				}
 			);
 		}

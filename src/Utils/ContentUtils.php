@@ -146,6 +146,47 @@ class ContentUtils {
 	 *
 	 * @param ParsoidExtensionAPI $extAPI
 	 * @param Element $elt The node whose data attributes need to be examined
+	 * @param callable(DocumentFragment):bool $proc
+	 *        The processor that will process the embedded HTML.
+	 *        This processor will be provided a DocumentFragment
+	 *        and is expected to return true if that fragment was modified.
+	 */
+	public static function processAttributeEmbeddedDom(
+		ParsoidExtensionAPI $extAPI, Element $elt, callable $proc
+	): void {
+		$str2df2str = static function ( string $html ) use ( $extAPI, $proc ): string {
+			$dom = $extAPI->htmlToDom( $html );
+			$ret = $proc( $dom );
+			return $ret ? $extAPI->domToHtml( $dom, true, true ) : $html;
+		};
+		// @phan-suppress-next-line PhanDeprecatedFunction internal use
+		self::processAttributeEmbeddedHTML( $extAPI, $elt, $str2df2str );
+
+		// Process extension-specific embedded DocumentFragments
+		$extTagName = WTUtils::getExtTagName( $elt );
+		if ( $extTagName ) {
+			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $extTagName );
+			if ( $extConfig['options']['wt2html']['embedsDomInAttributes'] ?? false ) {
+				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $extTagName );
+				$tagHandler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
+			}
+		}
+	}
+
+	/**
+	 * Extensions might be interested in examining their content embedded
+	 * in data-mw attributes that don't otherwise show up in the DOM.
+	 *
+	 * Ex: inline media captions that aren't rendered, language variant markup,
+	 *     attributes that are transcluded. More scenarios might be added later.
+	 *
+	 * @deprecated
+	 * Don't use this directly: use ::processAttributeEmbeddedDom().
+	 * This method may omit content which is embedded natively as
+	 * DocumentFragments instead of as HTML strings.
+	 *
+	 * @param ParsoidExtensionAPI $extAPI
+	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
 	 *        Signature: (string) -> string
 	 *        This processor will be provided the HTML string as input
@@ -230,13 +271,8 @@ class ContentUtils {
 		Env $env, Node $rootNode, callable $dsrFunc, ParsoidExtensionAPI $extAPI
 	): Node {
 		$doc = $rootNode->ownerDocument;
-		$convertString = static function ( $str ) {
-			// Stub $convertString out to allow definition of a pair of
-			// mutually-recursive functions.
-			return $str;
-		};
 		$convertNode = static function ( Node $node ) use (
-			$env, $extAPI, $dsrFunc, &$convertString, &$convertNode
+			$env, $extAPI, $dsrFunc, &$convertNode
 		) {
 			if ( !( $node instanceof Element ) ) {
 				return;
@@ -269,7 +305,12 @@ class ContentUtils {
 			}
 
 			// Handle embedded HTML in attributes
-			self::processAttributeEmbeddedHTML( $extAPI, $node, $convertString );
+			self::processAttributeEmbeddedDom(
+				$extAPI, $node,
+				static function ( DocumentFragment $df ) use ( $convertNode ): bool {
+					DOMPostOrder::traverse( $df, $convertNode );
+					return true;
+				} );
 
 			// DOMFragments will have already been unpacked when DSR shifting is run
 			if ( DOMUtils::hasTypeOf( $node, 'mw:DOMFragment' ) ) {
@@ -286,11 +327,6 @@ class ContentUtils {
 					DOMPostOrder::traverse( $domFragment, $convertNode );
 				}
 			}
-		};
-		$convertString = function ( string $str ) use ( $doc, $env, $convertNode ): string {
-			$node = self::createAndLoadDocumentFragment( $doc, $str );
-			DOMPostOrder::traverse( $node, $convertNode );
-			return self::ppToXML( $node, [ 'innerXML' => true, 'fragment' => true ] );
 		};
 		DOMPostOrder::traverse( $rootNode, $convertNode );
 		return $rootNode; // chainable

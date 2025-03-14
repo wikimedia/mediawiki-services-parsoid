@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\ParserTests;
 
-use Closure;
 use Error;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -97,12 +96,16 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	}
 
 	/** @inheritDoc */
-	public function processAttributeEmbeddedHTML(
-		ParsoidExtensionAPI $extApi, Element $elt, Closure $proc
+	public function processAttributeEmbeddedDom(
+		ParsoidExtensionAPI $extApi, Element $elt, callable $proc
 	): void {
 		$dataMw = DOMDataUtils::getDataMw( $elt );
 		if ( isset( $dataMw->body->html ) ) {
-			$dataMw->body->html = $proc( $dataMw->body->html );
+			$dom = $extApi->htmlToDom( $dataMw->body->html );
+			$ret = $proc( $dom );
+			if ( $ret ) {
+				$dataMw->body->html = $extApi->domToHtml( $dom, true, true );
+			}
 		}
 	}
 
@@ -166,7 +169,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 					'handler' => self::class,
 					'options' => [
 						'wt2html' => [
-							'embedsHTMLInAttributes' => true,
+							'embedsDomInAttributes' => true,
 							'customizesDataMw' => true,
 						],
 						'outputHasCoreMwDomSpecMarkup' => true,

@@ -80,11 +80,10 @@ class DOMTraverser {
 		// attributes first, we ensure attribute are always processed.
 		if ( $node instanceof Element && $this->applyToAttributeEmbeddedHTML ) {
 			$self = $this;
-			ContentUtils::processAttributeEmbeddedHTML(
+			ContentUtils::processAttributeEmbeddedDom(
 				$extAPI,
 				$node,
-				static function ( string $html ) use ( $self, $extAPI, $state ) {
-					$dom = $extAPI->htmlToDom( $html );
+				static function ( DocumentFragment $dom ) use ( $self, $extAPI, $state ) {
 					// We are processing a nested document (which by definition
 					// is not a top-level document).
 					// FIXME:
@@ -101,7 +100,7 @@ class DOMTraverser {
 					//    than reusing partial state.
 					$newState = $state ? new DTState( $state->env, $state->options, false ) : null;
 					$self->traverse( $extAPI, $dom, $newState );
-					return $extAPI->domToHtml( $dom, true, true );
+					return true; // $dom might have been changed
 				}
 			);
 		}

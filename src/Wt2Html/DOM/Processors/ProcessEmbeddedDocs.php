@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -18,12 +19,10 @@ class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 	private ParsoidExtensionAPI $extApi;
 
 	private function processNode( Element $elt ): void {
-		$doc = $elt->ownerDocument;
-		ContentUtils::processAttributeEmbeddedHTML(
+		ContentUtils::processAttributeEmbeddedDom(
 			$this->extApi,
 			$elt,
-			function ( string $html ) use ( $doc ) {
-				$df = ContentUtils::createAndLoadDocumentFragment( $doc, $html );
+			function ( DocumentFragment $df ) {
 				PipelineUtils::processContentInPipeline(
 					$this->env,
 					$this->env->topFrame,
@@ -34,7 +33,7 @@ class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 						'sol' => true
 					],
 				);
-				return ContentUtils::ppToXML( $df, [ 'innerXML' => true, 'fragment' => true ] );
+				return true; // might have been changed.
 			}
 		);
 

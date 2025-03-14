@@ -660,10 +660,14 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * Extensions might be interested in examining (their) content embedded
-	 * in data-mw attributes that don't otherwise show up in the DOM.
+	 * in attributes that don't otherwise show up in the DOM.
 	 *
 	 * Ex: inline media captions that aren't rendered, language variant markup,
 	 *     attributes that are transcluded. More scenarios might be added later.
+	 * @deprecated
+	 * Don't use this directly: use ::processAttributeEmbeddedDom().
+	 * This method may omit content which is embedded natively as
+	 * DocumentFragments instead of as HTML strings.
 	 *
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param Closure $proc The processor that will process the embedded HTML
@@ -672,7 +676,25 @@ class ParsoidExtensionAPI {
 	 *        and is expected to return a possibly modified string.
 	 */
 	public function processAttributeEmbeddedHTML( Element $elt, Closure $proc ): void {
+		// @phan-suppress-next-line PhanDeprecatedFunction
 		ContentUtils::processAttributeEmbeddedHTML( $this, $elt, $proc );
+	}
+
+	/**
+	 * Extensions might be interested in examining (their) content embedded
+	 * in attributes that don't otherwise show up in the DOM.
+	 *
+	 * Ex: inline media captions that aren't rendered, language variant markup,
+	 *     attributes that are transcluded. More scenarios might be added later.
+	 *
+	 * @param Element $elt The node whose data attributes need to be examined
+	 * @param callable(DocumentFragment):bool $proc
+	 *        The processor that will process the embedded HTML.
+	 *        This processor will be provided a DocumentFragment
+	 *        and is expected to return true if that fragment was modified.
+	 */
+	public function processAttributeEmbeddedDom( Element $elt, callable $proc ): void {
+		ContentUtils::processAttributeEmbeddedDom( $this, $elt, $proc );
 	}
 
 	/**

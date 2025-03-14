@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Ext\Indicator;
 
-use Closure;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\DiffDOMUtils;
@@ -28,7 +27,7 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 					'handler' => self::class,
 					'options' => [
 						'wt2html' => [
-							'embedsHTMLInAttributes' => true,
+							'embedsDomInAttributes' => true,
 							'customizesDataMw' => true,
 						],
 						'outputHasCoreMwDomSpecMarkup' => true
@@ -39,12 +38,16 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 	}
 
 	/** @inheritDoc */
-	public function processAttributeEmbeddedHTML(
-		ParsoidExtensionAPI $extApi, Element $elt, Closure $proc
+	public function processAttributeEmbeddedDom(
+		ParsoidExtensionAPI $extApi, Element $elt, callable $proc
 	): void {
 		$dmw = DOMDataUtils::getDataMw( $elt );
 		if ( isset( $dmw->html ) ) {
-			$dmw->html = $proc( $dmw->html );
+			$dom = $extApi->htmlToDom( $dmw->html );
+			$ret = $proc( $dom );
+			if ( $ret ) {
+				$dmw->html = $extApi->domToHtml( $dom, true, true );
+			}
 		}
 	}
 
@@ -78,6 +81,8 @@ class Indicator extends ExtensionTagHandler implements ExtensionModule {
 			$domFragment->removeChild( $content );
 		}
 
+		// We should embed this directly as a DocumentFragment once
+		// T348161 lands.
 		$dataMw->html = $extApi->domToHtml( $domFragment, true );
 
 		// Use a meta tag whose data-mw we will stuff this HTML into later.
