@@ -1,6 +1,5 @@
 <?php
 declare( strict_types = 1 );
-// @phan-file-suppress PhanEmptyPublicMethod
 
 namespace Wikimedia\Parsoid\Ext;
 
