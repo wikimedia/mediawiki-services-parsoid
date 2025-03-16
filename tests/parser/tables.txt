@@ -313,6 +313,24 @@ A table with captions with non-default spaced attributes and a table row
 !! end
 
 !! test
+Multi-line captions in tables
+!! wikitext
+{|
+|+line 1 of caption
+line 2 of caption
+|data
+|}
+!! html
+<table>
+<caption>line 1 of caption
+line 2 of caption
+</caption>
+<tbody><tr>
+<td>data
+</td></tr></tbody></table>
+!! end
+
+!! test
 Table td-cell syntax variations
 !! wikitext
 {|

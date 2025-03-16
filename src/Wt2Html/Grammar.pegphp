@@ -332,7 +332,7 @@ block =
  * may not have started with a <td>. The block_lines rule above does allow
  * SOLs to be matched when required for lists, headings, hrs, and fresh table lines.
  */
-	/ !<tableDataBlock> s:sol !sof !inline_breaks { return $s; }
+	/ ( &<tableCaption> / !<tableDataBlock> ) s:sol !sof !inline_breaks { return $s; }
 
 /*
  * A block nested in other constructs. Avoid eating end delimiters for other
@@ -343,7 +343,7 @@ nested_block = !inline_breaks b:block { return $b; }
 /*
  * The same, but suitable for use inside a table construct.
  * Doesn't match table_heading_tag, table_row_tag, table_data_tag,
- * table_caption tag, or table_end_tag, although it does allow
+ * table_caption_tag, or table_end_tag, although it does allow
  * table_start_tag (for nested tables).
  */
 nested_block_in_table =
@@ -2110,7 +2110,7 @@ table_caption_tag =
 	p:pipe "+"
 	args:row_syntax_table_args?
 	tagEndPos:("" { return $this->endOffset(); })
-	c:nested_block_in_table* {
+	c:nested_block_in_table<tableCaption>* {
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
 			$this->input, 'caption', '|+', $args, $tsr, $this->endOffset(), $c, true
