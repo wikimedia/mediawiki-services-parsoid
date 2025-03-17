@@ -1,12 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * This file contains general utilities for:
- * (a) querying token properties and token types
- * (b) manipulating tokens, individually and as collections.
- */
-
 namespace Wikimedia\Parsoid\Utils;
 
 use Wikimedia\Assert\Assert;
@@ -25,6 +19,11 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
+/**
+ * This class contains general utilities for:
+ * (a) querying token properties and token types
+ * (b) manipulating tokens, individually and as collections.
+ */
 class TokenUtils {
 	public const SOL_TRANSPARENT_LINK_REGEX =
 		'/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/D';
@@ -78,6 +77,24 @@ class TokenUtils {
 	public static function isTemplateToken( $token ): bool {
 		return $token instanceof SelfclosingTagTk &&
 			in_array( $token->getName(), [ 'template', 'templatearg' ], true );
+	}
+
+	/**
+	 * Is this a template arg token?
+	 * @param Token|string|null $token
+	 * @return bool
+	 */
+	public static function isTemplateArgToken( $token ): bool {
+		return $token instanceof SelfclosingTagTk && $token->getName() === 'templatearg';
+	}
+
+	/**
+	 * Is this an extension token?
+	 * @param Token|string|null $token
+	 * @return bool
+	 */
+	public static function isExtensionToken( $token ): bool {
+		return $token instanceof SelfclosingTagTk && $token->getName() === 'extension';
 	}
 
 	/**
@@ -174,6 +191,34 @@ class TokenUtils {
 		} else {  // only metas left
 			return !( isset( $token->dataParsoid->stx ) && $token->dataParsoid->stx === 'html' );
 		}
+	}
+
+	/**
+	 * @param Token $t
+	 * @return bool
+	 */
+	public static function isAnnotationMetaToken( Token $t ): bool {
+		return self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP ) !== null;
+	}
+
+	/**
+	 * Checks whether the provided meta tag token is an annotation start token
+	 * @param Token $t
+	 * @return bool
+	 */
+	public static function isAnnotationStartToken( Token $t ): bool {
+		$type = self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP );
+		return $type !== null && !str_ends_with( $type, '/End' );
+	}
+
+	/**
+	 * Checks whether the provided meta tag token is an annotation end token
+	 * @param Token $t
+	 * @return bool
+	 */
+	public static function isAnnotationEndToken( Token $t ): bool {
+		$type = self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP );
+		return $type !== null && str_ends_with( $type, '/End' );
 	}
 
 	/**
@@ -729,23 +774,4 @@ class TokenUtils {
 		return $tokens;
 	}
 
-	/**
-	 * Checks whether the provided meta tag token is an annotation start token
-	 * @param Token $t
-	 * @return bool
-	 */
-	public static function isAnnotationStartToken( Token $t ): bool {
-		$type = self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP );
-		return $type !== null && !str_ends_with( $type, '/End' );
-	}
-
-	/**
-	 * Checks whether the provided meta tag token is an annotation end token
-	 * @param Token $t
-	 * @return bool
-	 */
-	public static function isAnnotationEndToken( Token $t ): bool {
-		$type = self::matchTypeOf( $t, WTUtils::ANNOTATION_META_TYPE_REGEXP );
-		return $type !== null && str_ends_with( $type, '/End' );
-	}
 }
