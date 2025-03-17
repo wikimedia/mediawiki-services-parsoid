@@ -5,6 +5,8 @@ namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 
 /**
  * Information about the body of an extension tag.
@@ -42,6 +44,26 @@ class DataMwBody implements JsonCodecable {
 			$values['html'] ?? null,
 			$values['id'] ?? null,
 		);
+	}
+
+	/**
+	 * Transitional helper method to set the html property as a
+	 * DocumentFragment.
+	 */
+	public function setHtml( ParsoidExtensionApi $extApi, DocumentFragment $df ): void {
+		$this->html = $extApi->domToHtml( $df, true );
+	}
+
+	/**
+	 * Transitional helper method to get the html property as a
+	 * DocumentFragment.
+	 */
+	public function getHtml( ParsoidExtensionApi $extApi ): DocumentFragment {
+		return $extApi->htmlToDom( $this->html );
+	}
+
+	public function hasHtml() {
+		return isset( $this->html );
 	}
 
 	/**
