@@ -99,13 +99,13 @@ abstract class DataAccess {
 	 * @param PageConfig $pageConfig
 	 * @param ContentMetadataCollector $metadata Will collect metadata about
 	 *   the preprocessed content.
-	 * @param string $wikitext
+	 * @param string|PFragment $wikitext
 	 * @return string|PFragment Expanded wikitext
 	 */
 	abstract public function preprocessWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext
+		$wikitext
 	);
 
 	/**

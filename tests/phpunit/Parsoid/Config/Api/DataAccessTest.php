@@ -134,6 +134,9 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$ret = $da->preprocessWikitext(
 			$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
 		);
+		if ( !is_string( $ret ) ) {
+			$ret = $ret->killMarkers();
+		}
 		$this->assertEquals(
 			// phpcs:ignore Generic.Files.LineLength.TooLong
 			"Foobar.[[Category:Foo|Bar]]<sup class=\"noprint Inline-Template Template-Fact\" style=\"white-space:nowrap;\">&#91;<i>[[Wikipedia:Citation needed|<span title=\"This claim needs references to reliable sources.\">citation needed</span>]]</i>&#93;</sup> {{subst:unsigned|Example}} ~~~~~",
@@ -145,11 +148,14 @@ class DataAccessTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( [], $metadata->getCategoryNames() );
 
 		// Test caching. Cache miss would make TestApiHelper throw.
-		$this->assertSame(
-			$ret,
-			$da->preprocessWikitext(
+		$ret2 = $da->preprocessWikitext(
 				$pageConfig, $metadata, 'Foobar.[[Category:Foo|Bar]]{{cn}} {{subst:unsigned|Example}} ~~~~~'
-			)
+		);
+		if ( !is_string( $ret2 ) ) {
+			$ret2 = $ret2->killMarkers();
+		}
+		$this->assertSame(
+			$ret, $ret2
 		);
 	}
 

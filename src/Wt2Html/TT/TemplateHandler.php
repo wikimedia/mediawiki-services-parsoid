@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
@@ -913,13 +914,23 @@ class TemplateHandler extends TokenHandler {
 				}
 
 				// Fetch and process the template expansion
-				$expansion = Wikitext::preprocess( $env, $text );
-				if ( $expansion['error'] ) {
+				$error = false;
+				$fragment = Wikitext::preprocessFragment(
+					$env, WikitextPFragment::newFromWt( $text, null ), $error
+				);
+				if ( $error ) {
 					return new TemplateExpansionResult(
-						[ $expansion['src'] ], false, $this->wrapTemplates
+						[ $fragment->killMarkers() ], false, $this->wrapTemplates
 					);
 				} else {
-					if ( isset( $expansion['fragment'] ) ) {
+					if (
+						$fragment instanceof WikitextPFragment &&
+						!$fragment->containsMarker()
+					) {
+						// Optimize simple case
+						$wikitext = $fragment->killMarkers();
+						$expandTemplates = false;
+					} else {
 						// This is a mixed expansion which contains wikitext and
 						// atomic PFragments.  Process this to tokens.
 						// (Contrast with the processing of {{#parsoid-fragment}}
@@ -929,7 +940,7 @@ class TemplateHandler extends TokenHandler {
 						] = PipelineUtils::preparePFragment(
 							$env,
 							$this->manager->getFrame(),
-							$expansion['fragment'],
+							$fragment,
 							[
 								// options
 							]
@@ -937,9 +948,6 @@ class TemplateHandler extends TokenHandler {
 						// We need to expand embedded {{#parsoid-fragment}}
 						// markers still (T385806)
 						$expandTemplates = true;
-					} else {
-						$wikitext = $expansion['src'];
-						$expandTemplates = false;
 					}
 					$tplToks = $this->processTemplateSource(
 						$this->manager->getFrame(),

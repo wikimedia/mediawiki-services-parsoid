@@ -753,9 +753,40 @@ class ParsoidExtensionAPI {
 	 *  - 'src' expanded wikitext OR error message to print
 	 *     FIXME: Maybe error message should be localizable
 	 *  - 'fragment' Optional fragment (wikitext plus strip state)
+	 * @deprecated Use ::preprocessFragment instead
 	 */
 	public function preprocessWikitext( string $wikitext ) {
-		return Wikitext::preprocess( $this->env, $wikitext );
+		$error = false;
+		$result = $this->preprocessFragment(
+			WikitextPFragment::newFromWt( $wikitext, null ),
+			$error
+		);
+		if ( $error ) {
+			return [
+				'error' => true,
+				'src' => $result->killMarkers(),
+			];
+		}
+		return [ 'error' => false, 'fragment' => $result, ];
+	}
+
+	/**
+	 * Equivalent of 'preprocess' from Parser.php in core.
+	 * - expands templates
+	 * - replaces magic variables
+	 * This does not run any hooks however since that would be unexpected.
+	 * This also doesn't support replacing template args from a frame.
+	 *
+	 * This version takes fragments as input and output.
+	 *
+	 * @param PFragment $fragment The input fragment
+	 * @param bool|null &$error Set to true if we hit resource limits
+	 * @return PFragment expanded wikitext OR error message to print
+	 *
+	 * @unstable EXPERIMENTAL! This interface may change further
+	 */
+	public function preprocessFragment( PFragment $fragment, ?bool &$error = null ): PFragment {
+		return Wikitext::preprocessFragment( $this->env, $fragment, $error );
 	}
 
 	/**

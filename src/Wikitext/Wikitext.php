@@ -5,6 +5,8 @@ namespace Wikimedia\Parsoid\Wikitext;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Fragments\PFragment;
+use Wikimedia\Parsoid\Fragments\StripState;
+use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 
 /**
  * This class represents core wikitext concepts that are currently represented
@@ -31,27 +33,33 @@ class Wikitext {
 	 * are breached.
 	 *
 	 * @param Env $env
-	 * @param string $wt
-	 * @return array{error:bool,src?:string,fragment?:PFragment}
-	 *  - 'error' did we hit resource limits?
-	 *  - 'src' expanded wikitext OR error message to print
-	 *     FIXME: Maybe error message should be localizable
-	 *  - 'fragment' Optional fragment (wikitext plus strip state)
+	 * @param PFragment $fragment input wikitext, possibly with embedded
+	 *  strip markers.
+	 * @param ?bool &$error Set to true if we hit resource limits
+	 * @return PFragment Expanded wikitext OR error message to print
 	 */
-	public static function preprocess( Env $env, string $wt ): array {
+	public static function preprocessFragment( Env $env, PFragment $fragment, ?bool &$error = null ): PFragment {
+		$error = false;
 		$start = microtime( true );
-		$ret = $env->getDataAccess()->preprocessWikitext( $env->getPageConfig(), $env->getMetadata(), $wt );
-		$wikitextSize = strlen( $wt );
-		if ( is_string( $ret ) ) {
-			// FIXME: Should this bump be len($ret) - len($wt)?
-			// I could argue both ways.
-			$wikitextSize = strlen( $ret );
+		# $originalSize = strlen( $fragment->asMarkedWikitext( StripState::new() ) );
+		// Only pass a string to preprocessWikitext unless core is ready
+		// for this new API.
+		// @phan-suppress-next-line PhanDeprecatedFunction
+		if ( !$env->getSiteConfig()->getMWConfigValue( 'ParsoidFragmentInput' ) ) {
+			$fragment = $fragment->killMarkers();
 		}
+		$ret = $env->getDataAccess()->preprocessWikitext( $env->getPageConfig(), $env->getMetadata(), $fragment );
+		if ( is_string( $ret ) ) {
+			$ret = WikitextPFragment::newFromWt( $ret, null );
+		}
+		$wikitextSize = strlen( $ret->asMarkedWikitext( StripState::new() ) );
+		// FIXME: Should this bump be $wikitextSize - $originalSize?
+		// We should try to figure out what core does and match it.
 		if ( !$env->bumpWt2HtmlResourceUse( 'wikitextSize', $wikitextSize ) ) {
-			return [
-				'error' => true,
-				'src' => "wt2html: wikitextSize limit exceeded",
-			];
+			$error = true;
+			return WikitextPFragment::newFromLiteral(
+				"wt2html: wikitextSize limit exceeded", null
+			);
 		}
 
 		if ( $env->profiling() ) {
@@ -59,13 +67,6 @@ class Wikitext {
 			$profile->bumpMWTime( "Template", 1000 * ( microtime( true ) - $start ), "api" );
 			$profile->bumpCount( "Template" );
 		}
-
-		return is_string( $ret ) ? [
-			'error' => false,
-			'src' => $ret,
-		] : [
-			'error' => false,
-			'fragment' => $ret,
-		];
+		return $ret;
 	}
 }

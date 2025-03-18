@@ -244,6 +244,26 @@ abstract class PFragment implements JsonCodecable {
 	}
 
 	/**
+	 * Expand templates, extension tags, and parser functions in a fragment.
+	 *
+	 * Fragment values are typically provided as lazy arguments with delayed
+	 * evaluation; see [[en:Lazy_evaluation]].  The ::expand() method will
+	 * "demand" a value, expanding templates and in the process executing
+	 * parser functions and extension tags, making the argument strict.
+	 * The ::asDom() and ::asHtmlString() methods perform a similar
+	 * strict-evaluation function in the process of rendering to DOM/HTML.
+	 *
+	 * Expansion is generally considered to be idempotent: expanding an
+	 * expanded value should be a no-op.
+	 *
+	 * @see PPFrame::expand() in core
+	 * @see frame:expandTemplate(), frame:getArgument():expand() in Scribunto
+	 */
+	public function expand( ParsoidExtensionAPI $ext, ?bool &$error = null ): PFragment {
+		return $ext->preprocessFragment( $this, $error );
+	}
+
+	/**
 	 * Helper function to create a new fragment from a mixed array of
 	 * strings and fragments.
 	 *

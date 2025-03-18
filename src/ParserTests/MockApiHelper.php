@@ -550,7 +550,7 @@ class MockApiHelper extends ApiHelper {
 				return $this->fetchTemplateData( $params );
 
 			case 'expandtemplates':
-				$ret = $this->preProcess( $params['titles'] ?? $params['title'], $params['text'], $params['revid'] ?? null );
+				$ret = $this->preProcess( $params['titles'] ?? $params['title'], $params['text'], $params['revid'] ?? null ) ?? [ 'wikitext' => '' ];
 				if ( $ret ) {
 					$ret += [
 						'categories' => [],
@@ -558,7 +558,7 @@ class MockApiHelper extends ApiHelper {
 						'modulestyles' => []
 					];
 				}
-				return $ret;
+				return [ 'expandtemplates' => $ret ];
 
 			default:
 				return []; // FIXME: Maybe some error
@@ -1021,6 +1021,8 @@ class MockApiHelper extends ApiHelper {
 			return [ 'wikitext' => 'purple' ];
 		} elseif ( $text === '{{REVISIONID}}' ) {
 			return [ 'wikitext' => (string)$revid ];
+		} elseif ( !str_contains( $text, '{' ) ) {
+			return [ 'wikitext' => $text ];
 		} else {
 			error_log( "UNKNOWN TEMPLATE: $text for $title\n" );
 			return null;

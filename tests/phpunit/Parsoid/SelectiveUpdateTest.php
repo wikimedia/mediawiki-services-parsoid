@@ -39,8 +39,11 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 			->method( 'preprocessWikitext' )
 			->willReturnCallback( static function (
 				MockPageConfig $pageConfig, ContentMetadataCollector $metadata,
-				string $wikitext
+				$wikitext
 			): string {
+				if ( !is_string( $wikitext ) ) {
+					$wikitext = $wikitext->killMarkers();
+				}
 				preg_match( '/{{1x\|(.*?)}}/s', $wikitext, $match );
 				return str_repeat( $match[1] ?? '', 2 );
 			} );

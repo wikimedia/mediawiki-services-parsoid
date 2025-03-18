@@ -12,6 +12,8 @@ use Wikimedia\Parsoid\Config\SiteConfig as ISiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollectorStringSets as CMCSS;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Fragments\PFragment;
+use Wikimedia\Parsoid\Fragments\StripState;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -357,8 +359,17 @@ class DataAccess extends IDataAccess {
 	public function preprocessWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext
-	): string {
+		$wikitext
+	) {
+		$ss = StripState::new();
+		if ( !is_string( $wikitext ) ) {
+			// This is a bit of a hack -- we pass our parsoid strip markers
+			// through core, then find them in the output and map them back
+			// to fragments.  This is the only external exposure of our
+			// Parsoid-internal strip markers, and they must not conflict
+			// with core's: see StripState::MARKER_PREFIX for more details.
+			$wikitext = $wikitext->asMarkedWikitext( $ss );
+		}
 		$revid = $pageConfig->getRevisionId();
 		$pageConfigTitle = $this->toPrefixedText( $pageConfig->getLinkTarget() );
 		$key = implode( ':', [ 'preprocess', md5( $pageConfigTitle ), md5( $wikitext ), $revid ] );
@@ -380,7 +391,9 @@ class DataAccess extends IDataAccess {
 
 		$this->mergeMetadata( $data, $metadata );
 
-		return $data['wikitext'];
+		// Find our strip markers in the API result and map them back to
+		// fragments using our stored strip state
+		return PFragment::fromSplitWt( $ss->splitWt( $data['wikitext'] ) );
 	}
 
 	/** @inheritDoc */

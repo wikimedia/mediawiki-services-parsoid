@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -567,10 +568,14 @@ class MockDataAccess extends DataAccess {
 	public function preprocessWikitext(
 		PageConfig $pageConfig,
 		ContentMetadataCollector $metadata,
-		string $wikitext
-	): string {
+		$wikitext
+	) {
 		$revid = $pageConfig->getRevisionId();
 
+		if ( !is_string( $wikitext ) ) {
+			// Flatten fragments into wikitext
+			$wikitext = $wikitext->killMarkers();
+		}
 		$expanded = str_replace( '{{!}}', '|', $wikitext );
 		preg_match( '/{{1x\|(.*?)}}/s', $expanded, $match1 );
 		preg_match( '/{{#tag:ref\|(.*?)\|(.*?)}}/s', $expanded, $match2 );
@@ -593,7 +598,7 @@ class MockDataAccess extends DataAccess {
 			$ret = '';
 		}
 
-		return $ret;
+		return WikitextPFragment::newFromWt( $ret, null );
 	}
 
 	/** @inheritDoc */

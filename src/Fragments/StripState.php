@@ -35,11 +35,23 @@ class StripState {
 
 	/**
 	 * See Parser.php::MARKER_SUFFIX in core for an explanation of the
-	 * special characters used in the marker.  Note that this marker is
-	 * only valid in strings! We would need to use an alternate marker for
-	 * HTML/DOM since \x7f is (deliberately) not a valid HTML character.
+	 * special characters used in the marker.
+	 *
+	 * @note This marker is only valid in strings! We would need to
+	 * use an alternate marker if we wanted "strip markers" inside DOM
+	 * content since \x7f is (deliberately) not a valid HTML
+	 * character.
+	 *
+	 * @note These markers are generally not visible outside of Parsoid;
+	 * they are replaced with "real" core strip markers before being
+	 * passed to legacy code.  *However* when running Parsoid in
+	 * standalone/"API" mode we do use these to bypass fragment content
+	 * around the legacy preprocessor, and so these should *not* match
+	 * the Parser::MARKER_PREFIX used in core.  We've added a `P` to
+	 * our prefix/suffix to ensure we don't conflict.
 	 */
 	private const MARKER_PREFIX = "\x7f'\"`PUNIQ-";
+	/** @see ::MARKER_PREFIX */
 	private const MARKER_SUFFIX = "-QINUP`\"'\x7f";
 
 	/**
