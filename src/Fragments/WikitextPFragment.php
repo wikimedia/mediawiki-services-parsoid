@@ -181,6 +181,13 @@ class WikitextPFragment extends PFragment {
 	}
 
 	/**
+	 * Returns true if this fragment contains some non-wikitext content.
+	 */
+	public function containsMarker(): bool {
+		return StripState::containsStripMarker( $this->value );
+	}
+
+	/**
 	 * Split this fragment at its strip markers and return an array
 	 * which alternates between string items and PFragment items.
 	 * The first and last items are guaranteed to be strings, and the
@@ -192,6 +199,25 @@ class WikitextPFragment extends PFragment {
 			return [ $this->value ];
 		}
 		return $this->stripState->splitWt( $this->value );
+	}
+
+	/**
+	 * Return a version of this wikitext fragment with all strip markers
+	 * removed.
+	 * @return string
+	 */
+	public function killMarkers(): string {
+		return implode( array_filter( $this->split(), "is_string" ) );
+	}
+
+	/** @inheritDoc */
+	public function markerSkipCallback( callable $callback ): PFragment {
+		return PFragment::fromSplitWt(
+			array_map(
+				static fn ( $el ) => is_string( $el ) ? $callback( $el ) : $el,
+				$this->split()
+			), $this->srcOffsets
+		);
 	}
 
 	/**

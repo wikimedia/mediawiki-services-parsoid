@@ -200,6 +200,30 @@ abstract class PFragment implements JsonCodecable {
 	}
 
 	/**
+	 * Return a version of this fragment with all non-wikitext content
+	 * removed.
+	 * See Parser::killMarkers() and StripState::killMarkers() in core.
+	 * @return string
+	 */
+	public function killMarkers(): string {
+		// This is overridden in WikitextPFragment
+		return '';
+	}
+
+	/**
+	 * Call a callback function on all regions of the given text that
+	 * are wikitext content, replacing them with the return value of
+	 * the callback.  Non-wikitext content is skipped but included
+	 * in their proper places.
+	 * @param callable(string):string $callback
+	 * @return PFragment
+	 */
+	public function markerSkipCallback( callable $callback ): PFragment {
+		// This is overridden in WikitextPFragment
+		return $this;
+	}
+
+	/**
 	 * Helper function to create a new fragment from a mixed array of
 	 * strings and fragments.
 	 *

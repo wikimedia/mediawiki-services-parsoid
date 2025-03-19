@@ -21,6 +21,7 @@ class WikitextPFragmentTest extends PFragmentTestCase {
 	 * @covers ::newFromLiteral
 	 * @covers ::concat
 	 * @covers ::asDom
+	 * @covers ::containsMarker
 	 */
 	public function testConcat() {
 		$wt1 = WikitextPFragment::newFromLiteral( "[x]", new DomSourceRange( 0, 3, null, null ) );
@@ -28,6 +29,7 @@ class WikitextPFragmentTest extends PFragmentTestCase {
 		$wt3 = $this->wtFragment( "[[Title]]", 6 );
 		$f = WikitextPFragment::concat( $wt1, $wt2, $wt3 );
 		$this->assertFalse( $f->isEmpty() );
+		$this->assertFalse( $f->containsMarker() );
 
 		$ext = $this->newExtensionAPI();
 		$df = $f->asDom( $ext );
@@ -60,21 +62,25 @@ class WikitextPFragmentTest extends PFragmentTestCase {
 	 * @covers ::newFromJsonArray
 	 * @covers ::jsonClassHintFor
 	 * @covers ::asHtmlString
+	 * @covers ::containsMarker
+	 * @covers ::killMarkers
 	 */
 	public function testCodec() {
 		$f = WikitextPFragment::newFromSplitWt( [
 			"begin",
 			HtmlPFragment::newFromHtmlString( "<b>foo</b>", null ),
 			"end"
-		] );
+		], new DomSourceRange( 0, 8, null, null ) );
+		$this->assertTrue( $f->containsMarker() );
 
 		$codec = new JsonCodec();
 		$hint = PFragment::hint();
 		$json = $codec->toJsonString( $f, $hint );
-		$this->assertSame( '{"wt":["begin",{"html":"\u003Cb\u003Efoo\u003C/b\u003E"},"end"]}', $json );
+		$this->assertSame( '{"wt":["begin",{"html":"\u003Cb\u003Efoo\u003C/b\u003E"},"end"],"dsr":[0,8,null,null]}', $json );
 
 		$f = $codec->newFromJsonString( $json, $hint );
 		$ext = $this->newExtensionAPI();
-		$this->assertSame( '<p data-parsoid=\'{"dsr":[null,3,0,0]}\'>begin<b data-parsoid="{}">foo</b>end</p>', $f->asHtmlString( $ext ) );
+		$this->assertSame( '<p data-parsoid=\'{"dsr":[null,8,0,0]}\'>begin<b data-parsoid="{}">foo</b>end</p>', $f->asHtmlString( $ext ) );
+		$this->assertSame( 'beginend', $f->killMarkers() );
 	}
 }
