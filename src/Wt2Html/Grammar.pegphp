@@ -332,7 +332,7 @@ block =
  * may not have started with a <td>. The block_lines rule above does allow
  * SOLs to be matched when required for lists, headings, hrs, and fresh table lines.
  */
-	/ ( &<tableCaption> / !<tableDataBlock> ) s:sol !sof !inline_breaks { return $s; }
+	/ ( &<tableCaption> / &<fullTable> / !<tableDataBlock> ) s:sol !sof !inline_breaks { return $s; }
 
 /*
  * A block nested in other constructs. Avoid eating end delimiters for other
@@ -2044,7 +2044,7 @@ full_table_in_link_caption =
 	// Suppress the recursion protection from tableDataBlock since we're trying
 	// to parse a full table and if the link is itself nested in a table this
 	// will always stop.  Hopefully, this won't result in any overflows.
-	r: full_table_in_link_caption_parameterized<linkdesc=false, table, tableDataBlock=false> {
+	r: full_table_in_link_caption_parameterized<linkdesc=false, table, fullTable, tableDataBlock=false> {
 		return $r;
 	}
 
