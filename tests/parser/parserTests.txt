@@ -3062,6 +3062,18 @@ Wikilink in wikilink
 <p>[[Hi|<a rel="mw:WikiLink" href="./Ho" title="Ho" data-parsoid='{"stx":"simple","a":{"href":"./Ho"},"sa":{"href":"Ho"}}'>Ho</a>]]</p>
 !! end
 
+!! test
+Category in wikilink
+!! options
+parsoid=wt2html
+!! wikitext
+[[Hi|Ho[[Category:Hiho]]]]
+!! html/php
+<p>[[Hi|Ho]]
+</p>
+!! html/parsoid
+<p>[[Hi|Ho<link rel="mw:PageProp/Category" href="./Category:Hiho"/>]]</p>
+!! end
 
 !! test
 Parsoid-specific test: Wikilinks with &nbsp; should RT properly

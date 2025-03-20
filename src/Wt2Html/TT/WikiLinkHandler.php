@@ -554,6 +554,19 @@ class WikiLinkHandler extends TokenHandler {
 						continue;
 					}
 
+					// Categories also use wikilink syntax so we bail to match
+					// legacy output.  However, this isn't an a-in-a scenario
+					// so maybe should be permitted in the future.
+					if (
+						$t instanceof SelfclosingTagTk && $t->getName() === 'link' &&
+						preg_match(
+							'#^mw:PageProp/Category$#D',
+							$t->getAttributeV( 'rel' ) ?? ''
+						)
+					) {
+						throw new InternalException( 'Category-in-link' );
+					}
+
 					if ( $t instanceof EndTagTk && $t->getName() === 'a' ) {
 						continue; // suppress </a>
 					}
