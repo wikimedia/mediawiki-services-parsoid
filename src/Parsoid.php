@@ -231,6 +231,7 @@ class Parsoid {
 	 *   'debugFlags'           => (array) associative array with debug options
 	 *   'logLevels'            => (string[]) Levels to log
 	 *   // Experimental options, not considered stable
+	 *   'useFragmentBank'      => (bool) Alternative encoding of embedded HTML
 	 *   'sampleStats'          => (bool) If true, okay to perform "expensive"
 	 *                             analysis to generate metrics.
 	 *   'renderReason'         => (?string) Passed through from MediaWiki core
@@ -264,6 +265,7 @@ class Parsoid {
 		DOMDataUtils::visitAndStoreDataAttribs( DOMCompat::getBody( $doc ), [
 			'storeInPageBundle' => $env->pageBundle,
 			'outputContentVersion' => $env->getOutputContentVersion(),
+			'useFragmentBank' => $options['useFragmentBank'] ?? false,
 		] );
 		$parseTimeMs = $parseTiming->end();
 

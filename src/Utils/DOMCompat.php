@@ -560,4 +560,28 @@ class DOMCompat {
 			$parentNode->insertBefore( $node, null );
 		}
 	}
+
+	/**
+	 * Return HTMLTemplateElement#content
+	 *
+	 * In the PHP DOM, <template> elements do not have a dedicated
+	 * DocumentFragment and children are stored directly under the
+	 * Element.  In the HTML5 spec, the contents are stored in a
+	 * DocumentFragment with a unique owner document.
+	 *
+	 * Bridge this gap by returning the <template> element for
+	 * PHP's DOM, or the DocumentFragment for an HTML5-compliant DOM.
+	 *
+	 * @param Element $node A <template> element
+	 * @return Element|DocumentFragment Either the element (for PHP compat)
+	 *  or the DocumentFragment which is the template's "content"
+	 */
+	public static function getTemplateElementContent( $node ) {
+		// @phan-suppress-next-line PhanUndeclaredProperty only in IDLeDOM
+		if ( isset( $node->content ) ) {
+			// @phan-suppress-next-line PhanUndeclaredProperty only in IDLeDOM
+			return $node->content;
+		}
+		return $node;
+	}
 }

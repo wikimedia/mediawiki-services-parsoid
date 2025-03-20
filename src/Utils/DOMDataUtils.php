@@ -11,7 +11,6 @@ use UnexpectedValueException;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
-use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -53,10 +52,12 @@ class DOMDataUtils {
 
 	/**
 	 * Return the JsonCodec used for rich attributes in a Document.
-	 * @param Document $doc
-	 * @return JsonCodec
+	 * @param Node $node
+	 * @return DOMDataCodec
 	 */
-	public static function getCodec( Document $doc ): JsonCodec {
+	public static function getCodec( Node $node ): DOMDataCodec {
+		// Owner document is set for all nodes except Document itself.
+		$doc = $node->ownerDocument ?? $node;
 		// This is a dynamic property; it is not declared.
 		// All references go through here so we can suppress phan's complaint.
 		// @phan-suppress-next-line PhanUndeclaredProperty
@@ -79,7 +80,7 @@ class DOMDataUtils {
 		$doc->bag = new DataBag();
 		// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		$doc->codec = new JsonCodec();
+		$doc->codec = new DOMDataCodec( $doc, [] );
 
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
@@ -167,7 +168,7 @@ class DOMDataUtils {
 			$id = DOMCompat::getAttribute( $node, 'id' );
 			if ( $id !== null && $pb !== null ) {
 				// See if there is data-parsoid or data-mw in the page bundle
-				$codec = self::getCodec( $node->ownerDocument );
+				$codec = self::getCodec( $node );
 				$hints = self::getCodecHints();
 				if ( isset( $pb->parsoid['ids'][$id] ) ) {
 					$dp = $codec->newFromJsonArray(
@@ -514,8 +515,7 @@ class DOMDataUtils {
 	): void {
 		$hints = self::getCodecHints();
 		$uid = DOMCompat::getAttribute( $node, 'id' );
-		$document = $node->ownerDocument;
-		$codec = self::getCodec( $document );
+		$codec = self::getCodec( $node );
 		$docDp = &$pb->parsoid;
 		$origId = $uid;
 		if ( $uid !== null && array_key_exists( $uid, $docDp['ids'] ) ) {
@@ -571,6 +571,10 @@ class DOMDataUtils {
 		if ( $node === DOMCompat::getBody( $doc ) ) {
 			Assert::invariant( !self::getBag( $doc )->loaded, "redundant load" );
 		}
+		// If the 'markNew' flag is passed, it needs to be recorded in the
+		// Document codec's options, so that we can use this flag when
+		// loading embedded document fragments.
+		self::getCodec( $node )->setOptions( $options );
 		DOMUtils::visitDOM( $node, [ self::class, 'loadDataAttribs' ], $options );
 	}
 
@@ -590,7 +594,7 @@ class DOMDataUtils {
 			return;
 		}
 		$nodeData = self::getNodeData( $node, $options['loadFromPageBundle'] ?? null );
-		$codec = self::getCodec( $node->ownerDocument );
+		$codec = self::getCodec( $node );
 		$dataParsoidAttr = DOMCompat::getAttribute( $node, 'data-parsoid' );
 		if ( $dataParsoidAttr === null ) {
 			// data-parsoid might have come from page bundle
@@ -670,7 +674,14 @@ class DOMDataUtils {
 		if ( !empty( $options['storeInPageBundle'] ) ) {
 			$options['idIndex'] = self::usedIdIndex( $node );
 		}
+		// Set the "storage options" and save the "loading options"
+		$codec = self::getCodec( $node );
+		$oldOptions = $codec->setOptions( $options );
+
 		DOMUtils::visitDOM( $node, [ self::class, 'storeDataAttribs' ], $options );
+
+		// Restore the "loading options"
+		$codec->setOptions( $oldOptions );
 	}
 
 	/**
@@ -703,7 +714,7 @@ class DOMDataUtils {
 
 		Assert::invariant( empty( $options['discardDataParsoid'] ) || empty( $options['keepTmp'] ),
 			'Conflicting options: discardDataParsoid and keepTmp are both enabled.' );
-		$codec = self::getCodec( $node->ownerDocument );
+		$codec = self::getCodec( $node );
 		$dp = self::getDataParsoid( $node );
 		$discardDataParsoid = !empty( $options['discardDataParsoid'] );
 		if ( $dp->getTempFlag( TempData::IS_NEW ) && !$dp->isModified() ) {
@@ -940,7 +951,7 @@ class DOMDataUtils {
 		// we can tell whether the value has been decoded already or not.
 		if ( is_array( $value ) ) {
 			// This value should be decoded
-			$codec = self::getCodec( $node->ownerDocument );
+			$codec = self::getCodec( $node );
 			$value = $codec->newFromJsonArray( $value[0], $classHint );
 			if ( is_array( $value ) ) {
 				// JsonCodec allows class hints to indicate that the value
@@ -963,8 +974,8 @@ class DOMDataUtils {
 	/**
 	 * Return the value of a rich attribute as a live (by-reference)
 	 * object.  This also serves as an assertion that there are not
-	 * conflicting types.  If the value is not present and the class
-	 * hint is a RichCodecable, a default value will be created using
+	 * conflicting types.  If the value is not present, a default value
+	 * will be created using `$codec->defaultValue()` falling back to
 	 * `$className::defaultValue()` and stored as the value of the
 	 * attribute.
 	 *
@@ -992,9 +1003,8 @@ class DOMDataUtils {
 				$className = $className->parent;
 			}
 			'@phan-var string $className';
-			if ( is_a( $className, RichCodecable::class, true ) ) {
-				$value = $className::defaultValue();
-			}
+			$codec = self::getCodec( $node );
+			$value = $codec->defaultValue( $className );
 			$value ??= new $className;
 			self::setAttributeObject( $node, $name, $value, $classHint );
 		}
@@ -1010,7 +1020,8 @@ class DOMDataUtils {
 	 * @note For attribute names where
 	 *  `::isHtmlAttributeWithSpecialSemantics()` returns `true` you
 	 *  can customize the "flattened" representation used for HTML
-	 *  semantics by having the value implement `RichCodecable::flatten()`.
+	 *  semantics via `$codec->flatten()` which falls back to
+	 * `$className::flatten()`.
 	 *
 	 * @phan-template T
 	 * @param Element $node The node on which the attribute is to be found.
@@ -1112,6 +1123,93 @@ class DOMDataUtils {
 		if ( count( $dataMw->attribs ) === 0 ) {
 			unset( $dataMw->attribs );
 			DOMUtils::removeTypeOf( $node, 'mw:ExpandedAttrs' );
+		}
+	}
+
+	/**
+	 * Return the value of a rich attribute as a live `DocumentFragment`.
+	 * This also serves as an assertion that there are not conflicting types.
+	 *
+	 * @note A string-valued attribute will be returned as a DocumentFragment
+	 *   with a single Text node.  This supports the efficient serialization
+	 *   of 'simple' DocumentFragments as simple strings.
+	 *
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @return ?DocumentFragment The attribute value, or null if not present.
+	 */
+	public static function getAttributeDom(
+		Element $node, string $name
+	): ?DocumentFragment {
+		// As it turns out, the implementation for a DocumentFragment is
+		// the same; all the implementation differences are in the codec
+		return self::getAttributeObject(
+			$node, $name, DocumentFragment::class
+		);
+	}
+
+	/**
+	 * Return the value of a rich attribute as a `DocumentFragment`,
+	 * creating a new document fragment and setting the attribute if the
+	 * attribute was not previously present.
+	 *
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @return DocumentFragment The attribute value.
+	 */
+	public static function getAttributeDomDefault(
+		Element $node, string $name
+	): DocumentFragment {
+		$value = self::getAttributeDom( $node, $name );
+		if ( $value === null ) {
+			$value = $node->ownerDocument->createDocumentFragment();
+			self::setAttributeDOM( $node, $name, $value );
+		}
+		return $value;
+	}
+
+	/**
+	 * Set the value of a rich attribute, overwriting any previous
+	 * value.  Generally mutating the result returned by the
+	 * `::getAttribute*Default()` methods should be done instead of
+	 * using this method, since the objects returned are live.
+	 *
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 * @param DocumentFragment $value
+	 */
+	public static function setAttributeDom(
+		Element $node, string $name, DocumentFragment $value
+	): void {
+		// Remove attribute from DOM; will be rewritten from node data during
+		// serialization.
+		self::removeAttributeDom( $node, $name );
+		$nodeData = self::getNodeData( $node );
+		$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+		$nodeData->$propName = $value;
+		$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
+		$nodeData->$hintName = DocumentFragment::class;
+	}
+
+	/**
+	 * Remove a rich attribute.
+	 *
+	 * @param Element $node The node on which the attribute is to be found.
+	 * @param string $name The name of the attribute.
+	 */
+	public static function removeAttributeDom(
+		Element $node, string $name
+	): void {
+		// Remove attribute from DOM; will be rewritten from node data during
+		// serialization.
+		$node->removeAttribute( $name );
+		self::removeFromExpandedAttrs( $node, $name );
+		if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+			$nodeData = self::getNodeData( $node );
+			$propName = self::RICH_ATTR_DATA_PREFIX . $name;
+			unset( $nodeData->$propName );
+			$hintName = self::RICH_ATTR_HINT_PREFIX . $name;
+			unset( $nodeData->$hintName );
 		}
 	}
 
@@ -1230,7 +1328,7 @@ class DOMDataUtils {
 		}
 		$tagName = $node->tagName;
 		$nodeData = self::getNodeData( $node );
-		$codec = self::getCodec( $node->ownerDocument );
+		$codec = self::getCodec( $node );
 		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
 			// Look for dynamic properties with names w/ the proper prefix
 			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
@@ -1251,10 +1349,12 @@ class DOMDataUtils {
 					$classHint = $nodeData->$hintName ?? null;
 					if ( is_a( $v, RichCodecable::class ) ) {
 						$classHint ??= $v::hint();
-						$flat = $v->flatten();
 					}
 					$classHint ??= get_class( $v );
 					try {
+						// NOTE: call 'flatten()' before 'toJsonArray()' since
+						// the latter may have side effects on $v.
+						$flat = $codec->flatten( $v );
 						$json = $codec->toJsonArray( $v, $classHint );
 					} catch ( InvalidArgumentException $e ) {
 						// For better debuggability, include the attribute name
@@ -1297,7 +1397,10 @@ class DOMDataUtils {
 			return; // No rich attributes here
 		}
 		$nodeData = self::getNodeData( $node );
-		$codec = self::getCodec( $node->ownerDocument ?? $node );
+		$codec = self::getCodec( $node );
+		// Reset to a default set of codec options
+		// (in particular, make sure 'useFragmentBank' is not set)
+		$oldOptions = $codec->setOptions( [] );
 		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
 			// Look for dynamic properties with names w/ the proper prefix
 			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
@@ -1339,5 +1442,7 @@ class DOMDataUtils {
 			unset( $attrs['data-parsoid-diff'] );
 		}
 		unset( $attrs[self::DATA_OBJECT_ATTR_NAME] );
+		// Restore codec options
+		$codec->setOptions( $oldOptions );
 	}
 }

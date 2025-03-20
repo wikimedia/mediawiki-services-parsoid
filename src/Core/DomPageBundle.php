@@ -192,7 +192,7 @@ class DomPageBundle implements JsonCodecable {
 		DOMUtils::visitDOM(
 			DOMCompat::getBody( $doc ), $apply
 		);
-		// For template-bank representations, visit <template> nodes in the
+		// For fragment bank representations, visit <template> nodes in the
 		// <head> as well.
 		DOMUtils::visitDOM(
 			DOMCompat::getHead( $doc ), $apply

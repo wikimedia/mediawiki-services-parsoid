@@ -117,8 +117,12 @@ class DOMUtils {
 	public static function migrateChildrenBetweenDocs(
 		Node $from, Node $to, ?Node $beforeNode = null
 	): void {
-		$n = $from->firstChild;
 		$destDoc = $to->ownerDocument;
+		if ( $destDoc === $from->ownerDocument ) {
+			self::migrateChildren( $from, $to, $beforeNode );
+			return;
+		}
+		$n = $from->firstChild;
 		while ( $n ) {
 			$to->insertBefore( $destDoc->importNode( $n, true ), $beforeNode );
 			$n = $n->nextSibling;

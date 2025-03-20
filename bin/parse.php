@@ -137,6 +137,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'Output pagebundle JSON'
 		);
 		$this->addOption(
+			'fragmentbank',
+			'Use fragment bank representation for embedded HTML'
+		);
+		$this->addOption(
 			'wrapSections',
 			// Override the default in Env since the wrappers are annoying in dev-mode
 			'Output <section> tags (default false)'
@@ -558,6 +562,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			"pageBundle" =>
 			$this->hasOption( 'pageBundle' ) || $this->hasOption( 'pboutfile' ),
 		];
+		if ( $this->hasOption( 'fragmentbank' ) ) {
+			$parsoidOpts['useFragmentBank'] = true;
+			$parsoidOpts['body_only'] = false;
+		}
 		foreach ( [
 			'offsetType', 'outputContentVersion',
 			'wtVariantLanguage', 'htmlVariantLanguage',
