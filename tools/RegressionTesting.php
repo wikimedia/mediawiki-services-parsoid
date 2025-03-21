@@ -14,7 +14,7 @@ require_once __DIR__ . '/Maintenance.php';
 class RegressionTesting extends \Wikimedia\Parsoid\Tools\Maintenance {
 	use \Wikimedia\Parsoid\Tools\ExtendedOptsProcessor;
 
-	private $titlesPath = '/tmp/titles';
+	private string $titlesPath = '/tmp/titles';
 
 	public function __construct() {
 		parent::__construct( false /* Doesn't actually require parsoid */ );

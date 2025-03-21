@@ -10,7 +10,7 @@ use Wikimedia\Parsoid\Config\Api\SiteConfig;
  */
 class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 
-	private static $siteConfig;
+	private static ?SiteConfig $siteConfig = null;
 
 	protected function getSiteConfig(): SiteConfig {
 		if ( self::$siteConfig === null ) {

@@ -18,7 +18,7 @@ use Wikimedia\Parsoid\Utils\WTUtils;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
-	private static $nodesToMigrateFrom;
+	private static ?array $nodesToMigrateFrom = null;
 
 	private function nodeEndsLineInWT( Node $node, DataParsoid $dp ): bool {
 		// These nodes either end a line in wikitext (tr, li, dd, ol, ul, dl, caption,

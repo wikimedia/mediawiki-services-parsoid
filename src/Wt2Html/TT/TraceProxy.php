@@ -11,9 +11,9 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class TraceProxy extends TokenHandler {
-	private $traceType;
-	private $handler;
-	private $name;
+	private string $traceType;
+	private TokenHandler $handler;
+	private string $name;
 
 	public function __construct( TokenHandlerPipeline $manager, array $options,
 		string $traceType, TokenHandler $handler

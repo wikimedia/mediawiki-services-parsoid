@@ -8,15 +8,13 @@ use Psr\Log\LogLevel;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class ParsoidLogger {
-	/* @var Logger */
-	private $backendLogger;
+	private LoggerInterface $backendLogger;
 
-	/* @var string|null Null means nothing is enabled */
-	private $enabledRE = null;
+	/** Null means nothing is enabled */
+	private ?string $enabledRE = null;
 
 	/** PORT-FIXME: Not yet implemented. Monolog supports sampling as well! */
-	/* @var string */
-	private $samplingRE;
+	private string $samplingRE;
 
 	private const PRETTY_LOGTYPE_MAP = [
 		'debug' => '[DEBUG]',

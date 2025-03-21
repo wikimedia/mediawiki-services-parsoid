@@ -127,8 +127,8 @@ class MockApiHelper extends ApiHelper {
 		],
 	];
 
-	private $articleCache = [];
-	private $cachedConfigs = [];
+	private array $articleCache = [];
+	private array $cachedConfigs = [];
 
 	private const MAIN_PAGE = [
 		'query' => [

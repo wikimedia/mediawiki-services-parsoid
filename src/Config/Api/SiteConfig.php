@@ -102,8 +102,8 @@ class SiteConfig extends ISiteConfig {
 	/** @var int */
 	private $maxDepth = 40;
 
-	private $featureDetectionDone = false;
-	private $hasVideoInfo = false;
+	private bool $featureDetectionDone = false;
+	private bool $hasVideoInfo = false;
 
 	/** If set, generate experimental Parsoid HTML v3 parser function output */
 	private bool $v3pf;
@@ -628,7 +628,7 @@ class SiteConfig extends ISiteConfig {
 		return false;
 	}
 
-	private static $noHashFunctions = null;
+	private static ?array $noHashFunctions = null;
 
 	/** @inheritDoc */
 	protected function updateFunctionSynonym( string $func, string $magicword, bool $caseSensitive ): void {

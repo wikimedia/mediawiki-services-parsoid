@@ -55,7 +55,7 @@ if ( $parsoidMode === 'integrated' ) {
 	] );
 
 	abstract class Maintenance extends \Maintenance {
-		private $requiresParsoid;
+		private bool $requiresParsoid;
 
 		/**
 		 * @param bool $requiresParsoid Whether parsoid-specific processing

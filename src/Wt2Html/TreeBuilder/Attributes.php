@@ -8,7 +8,7 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\RemexHtml\Tokenizer\PlainAttributes;
 
 class Attributes extends PlainAttributes {
-	private $document;
+	private Document $document;
 
 	/**
 	 * @param Document $document

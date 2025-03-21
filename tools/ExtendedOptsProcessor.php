@@ -3,7 +3,7 @@
 namespace Wikimedia\Parsoid\Tools;
 
 trait ExtendedOptsProcessor {
-	private $optionDefaults = [];
+	private array $optionDefaults = [];
 
 	/**
 	 * @param string $name

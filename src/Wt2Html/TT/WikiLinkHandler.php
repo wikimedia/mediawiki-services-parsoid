@@ -1121,7 +1121,7 @@ class WikiLinkHandler extends TokenHandler {
 		return $opts['format']['v'] ?? null;
 	}
 
-	private $used;
+	private array $used = [];
 
 	/**
 	 * This is the set of file options that apply to the container, rather

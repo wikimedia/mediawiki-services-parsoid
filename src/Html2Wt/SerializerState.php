@@ -279,7 +279,7 @@ class SerializerState {
 	 */
 	private $logPrefix = 'OUT:';
 
-	public $haveTrimmedWsDSR = false;
+	public bool $haveTrimmedWsDSR = false;
 
 	/**
 	 * @param WikitextSerializer $serializer

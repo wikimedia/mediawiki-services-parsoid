@@ -51,7 +51,7 @@ class DOMNormalizer {
 	];
 	private const HTML_IGNORABLE_ATTRS = [ 'data-parsoid', DOMDataUtils::DATA_OBJECT_ATTR_NAME ];
 
-	private static $specializedAttribHandlers;
+	private static array $specializedAttribHandlers = [];
 
 	/** @var bool */
 	private $inInsertedContent;

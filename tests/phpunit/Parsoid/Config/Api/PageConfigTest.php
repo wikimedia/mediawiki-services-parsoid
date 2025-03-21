@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Utils\Title;
  */
 class PageConfigTest extends \PHPUnit\Framework\TestCase {
 
-	private static $pageConfigs = [];
+	private static array $pageConfigs = [];
 
 	protected function getPageConfig( string $id ): PageConfig {
 		if ( !self::$pageConfigs ) {

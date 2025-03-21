@@ -20,10 +20,10 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {
-	private $options;
-	private $offsets;
+	private array $options;
+	private array $offsets;
 	private ?SyntaxError $lastError = null;
-	/* @var Grammar|TracingGrammar|null */
+	/** @var Grammar|TracingGrammar|null */
 	private $grammar = null;
 
 	public function __construct(

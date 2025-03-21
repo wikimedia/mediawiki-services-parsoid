@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
 
 class DOMProcessorPipelineTest extends \PHPUnit\Framework\TestCase {
 
-	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
+	private static string $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
 	/**
 	 * @covers \Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline

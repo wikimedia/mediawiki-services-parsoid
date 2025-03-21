@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\Parsoid;
 
 class TemplateDataTest extends TestCase {
 
-	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
+	private static string $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
 	private function verifyTransformation( string $newHTML, ?string $origHTML, ?string $origWT, string $expectedWT,
 		string $description, ?string $contentVersion = null ) {

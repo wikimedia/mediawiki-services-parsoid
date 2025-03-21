@@ -60,7 +60,7 @@ use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
  * This class assembles parser pipelines from parser stages
  */
 class ParserPipelineFactory {
-	private static $globalPipelineId = 0;
+	private static int $globalPipelineId = 0;
 
 	private const DOM_PROCESSOR_CONFIG = [
 		'addmetadata' => AddMetaData::class,

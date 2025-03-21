@@ -30,7 +30,7 @@ class RemexPipeline {
 	/** @var Document */
 	public $doc;
 
-	private $nextFakeLength = 1;
+	private int $nextFakeLength = 1;
 
 	/**
 	 * Create a RemexHtml pipeline

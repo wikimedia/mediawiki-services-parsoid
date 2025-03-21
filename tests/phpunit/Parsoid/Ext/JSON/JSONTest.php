@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 class JSONTest extends TestCase {
-	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
+	private static string $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
 	/**
 	 * Create a DOM document using JSON to create the document body and verify correctness

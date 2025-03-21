@@ -22,8 +22,8 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
 class TokenizerUtils {
-	private static $protectAttrsRegExp;
-	private static $inclAnnRegExp;
+	private static ?string $protectAttrsRegExp = null;
+	private static ?string $inclAnnRegExp = null;
 
 	/**
 	 * @param mixed $e

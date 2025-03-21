@@ -19,7 +19,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
  */
 class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
-	private static $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
+	private static string $defaultContentVersion = Parsoid::AVAILABLE_VERSIONS[0];
 
 	/**
 	 * @covers ::wikitext2html

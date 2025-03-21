@@ -6,25 +6,25 @@ namespace Wikimedia\Parsoid\Wikitext;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 
 class Consts {
-	public static $Media;
-	public static $Sanitizer;
-	public static $WikitextTagsWithTrimmableWS;
-	public static $HTMLTagsRequiringSOLContext;
-	public static $WTQuoteTags;
-	public static $SolSpaceSensitiveTags;
-	public static $HTML;
-	public static $WTTagsWithNoClosingTags;
-	public static $Output;
-	public static $WtTagWidths;
-	public static $ZeroWidthWikitextTags;
-	public static $LCFlagMap;
-	public static $LCNameMap;
-	public static $blockElems;
-	public static $antiBlockElems;
-	public static $alwaysBlockElems;
-	public static $neverBlockElems;
-	public static $wikitextBlockElems;
-	public static $strippedUrlCharacters;
+	public static array $Media;
+	public static array $Sanitizer;
+	public static array $WikitextTagsWithTrimmableWS;
+	public static array $HTMLTagsRequiringSOLContext;
+	public static array $WTQuoteTags;
+	public static array $SolSpaceSensitiveTags;
+	public static array $HTML;
+	public static array $WTTagsWithNoClosingTags;
+	public static array $Output;
+	public static array $WtTagWidths;
+	public static array $ZeroWidthWikitextTags;
+	public static array $LCFlagMap;
+	public static array $LCNameMap;
+	public static array $blockElems;
+	public static array $antiBlockElems;
+	public static array $alwaysBlockElems;
+	public static array $neverBlockElems;
+	public static array $wikitextBlockElems;
+	public static string $strippedUrlCharacters;
 
 	public static function init() {
 		/*

@@ -10,8 +10,8 @@ use RuntimeException;
  * @note Replaces JS TitleError, because that implies it extends Error rather than Exception
  */
 class TitleException extends RuntimeException {
-	public $type;
-	public $title;
+	public string $type;
+	public string $title;
 
 	public function __construct( string $message, string $type, string $title ) {
 		parent::__construct( $message );
