@@ -272,7 +272,7 @@ class ParserPipelineFactory {
 		'heading-ids', 'sections', 'saveDP'
 	];
 
-	private static $stages = [
+	private const STAGES = [
 		"Tokenizer" => [
 			"class" => PegTokenizer::class,
 		],
@@ -363,7 +363,7 @@ class ParserPipelineFactory {
 		]
 	];
 
-	private static $pipelineRecipes = [
+	private const PIPELINE_RECIPES = [
 		// This pipeline takes wikitext as input and emits a fully
 		// processed DOM as output. This is the pipeline used for
 		// all top-level documents.
@@ -439,7 +439,7 @@ class ParserPipelineFactory {
 		]
 	];
 
-	private static $supportedOptions = [
+	private const SUPPORTED_OPTIONS = [
 		// If true, templates found in content will have its contents expanded
 		'expandTemplates',
 
@@ -486,7 +486,7 @@ class ParserPipelineFactory {
 		// Catch pipeline option typos
 		foreach ( $options as $k => $v ) {
 			Assert::invariant(
-				in_array( $k, self::$supportedOptions, true ),
+				in_array( $k, self::SUPPORTED_OPTIONS, true ),
 				'Invalid cacheKey option: ' . $k
 			);
 		}
@@ -521,16 +521,16 @@ class ParserPipelineFactory {
 	private function makePipeline(
 		string $type, string $cacheKey, array $options
 	): ParserPipeline {
-		if ( !isset( self::$pipelineRecipes[$type] ) ) {
+		if ( !isset( self::PIPELINE_RECIPES[$type] ) ) {
 			throw new InternalException( 'Unsupported Pipeline: ' . $type );
 		}
-		$recipe = self::$pipelineRecipes[$type];
+		$recipe = self::PIPELINE_RECIPES[$type];
 		$pipeStages = [];
 		$prevStage = null;
 		$recipeStages = $recipe["stages"];
 
 		foreach ( $recipeStages as $stageId ) {
-			$stageData = self::$stages[$stageId];
+			$stageData = self::STAGES[$stageId];
 			$stage = new $stageData["class"]( $this->env, $options, $stageId, $prevStage );
 			if ( isset( $stageData["token-handlers"] ) ) {
 				foreach ( $stageData["token-handlers"] as $tName ) {

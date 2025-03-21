@@ -542,13 +542,11 @@ class Utils {
 	 * 3. '-', though allowed in Icelandic (possibly due to a bug), is disallowed.
 	 * 4. '1', though allowed in Lak (possibly due to a bug), is disallowed.
 	 */
-	// phpcs:disable Generic.Files.LineLength.TooLong
-	public static $linkTrailRegex =
+	private const LINK_TRAIL_REGEX =
 		'/^[^\0-`{÷ĀĈ-ČĎĐĒĔĖĚĜĝĠ-ĪĬ-įĲĴ-ĹĻ-ĽĿŀŅņŉŊŌŎŏŒŔŖ-ŘŜŝŠŤŦŨŪ-ŬŮŲ-ŴŶŸ' .
 		'ſ-ǤǦǨǪ-Ǯǰ-ȗȜ-ȞȠ-ɘɚ-ʑʓ-ʸʽ-̂̄-΅·΋΍΢Ϗ-ЯѐѝѠѢѤѦѨѪѬѮѰѲѴѶѸѺ-ѾҀ-҃҅-ҐҒҔҕҘҚҜ-ҠҤ-ҪҬҭҰҲ' .
 		'Ҵ-ҶҸҹҼ-ҿӁ-ӗӚ-ӜӞӠ-ӢӤӦӪ-ӲӴӶ-ՠֈ-׏׫-ؠً-ٳٵ-ٽٿ-څڇ-ڗڙ-ڨڪ-ڬڮڰ-ڽڿ-ۅۈ-ۊۍ-۔ۖ-਀਄਋-਎਑਒' .
 		'਩਱਴਷਺਻਽੃-੆੉੊੎-੘੝੟-੯ੴ-჏ჱ-ẼẾ-\x{200b}\x{200d}-‒—-‗‚‛”--\x{fffd}]+$/Du';
-	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
 	 * Check whether some text is a valid link trail.
@@ -557,7 +555,7 @@ class Utils {
 	 * @return bool
 	 */
 	public static function isLinkTrail( string $text ): bool {
-		return $text !== '' && preg_match( self::$linkTrailRegex, $text );
+		return $text !== '' && preg_match( self::LINK_TRAIL_REGEX, $text );
 	}
 
 	/**

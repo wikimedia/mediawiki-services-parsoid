@@ -17,7 +17,7 @@ class BehaviorSwitchHandler extends TokenHandler {
 		parent::__construct( $manager, $options );
 	}
 
-	private static $OutputFlagFromBS = [
+	private const OUTPUT_FLAG_FROM_BEHAVIOR_SWITCH = [
 		// ParserOutputFlags::NO_GALLERY
 		'nogallery' => 'mw-NoGallery',
 
@@ -42,9 +42,9 @@ class BehaviorSwitchHandler extends TokenHandler {
 		$env = $this->env;
 		$magicWord = $env->getSiteConfig()->getMagicWordForBehaviorSwitch( $token->attribs[0]->v );
 		$env->setBehaviorSwitch( $magicWord, true );
-		if ( isset( self::$OutputFlagFromBS[$magicWord] ) ) {
+		if ( isset( self::OUTPUT_FLAG_FROM_BEHAVIOR_SWITCH[$magicWord] ) ) {
 			$env->getMetadata()->setOutputFlag(
-				self::$OutputFlagFromBS[$magicWord], true
+				self::OUTPUT_FLAG_FROM_BEHAVIOR_SWITCH[$magicWord], true
 			);
 		}
 		if (

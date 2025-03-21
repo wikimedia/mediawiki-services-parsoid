@@ -826,7 +826,7 @@ class WikiLinkHandler extends TokenHandler {
 		return new TokenHandlerResult( $tokens );
 	}
 
-	private static $horizontalAligns = [
+	private const HORIZONTAL_ALIGNS = [
 		// PHP parser wraps in <div class="floatnone">
 		'left',
 		// PHP parser wraps in <div class="center"><div class="floatnone">
@@ -836,7 +836,7 @@ class WikiLinkHandler extends TokenHandler {
 		// PHP parser wraps in <div class="floatright">
 		'none',
 	];
-	private static $verticalAligns = [ 'baseline', 'sub', 'super', 'top', 'text-top', 'middle',
+	private const VERTICAL_ALIGNS = [ 'baseline', 'sub', 'super', 'top', 'text-top', 'middle',
 		'bottom', 'text-bottom' ];
 
 	/**
@@ -867,14 +867,14 @@ class WikiLinkHandler extends TokenHandler {
 		}
 
 		$halign = $opts['halign']['v'] ?? null;
-		if ( in_array( $halign, self::$horizontalAligns, true ) ) {
+		if ( in_array( $halign, self::HORIZONTAL_ALIGNS, true ) ) {
 			$isInline = false;
 			$classes[] = "mw-halign-$halign";
 		}
 
 		if ( $isInline ) {
 			$valignOpt = $opts['valign']['v'] ?? null;
-			if ( in_array( $valignOpt, self::$verticalAligns, true ) ) {
+			if ( in_array( $valignOpt, self::VERTICAL_ALIGNS, true ) ) {
 				$classes[] = str_replace( '_', '-', "mw-valign-$valignOpt" );
 			}
 		}
@@ -1141,8 +1141,8 @@ class WikiLinkHandler extends TokenHandler {
 					'lang', 'width', 'class', 'upright',
 					'border', 'frameless', 'framed', 'thumbnail',
 				],
-				self::$horizontalAligns,
-				self::$verticalAligns
+				self::HORIZONTAL_ALIGNS,
+				self::VERTICAL_ALIGNS
 			)
 		);
 		return $this->used;

@@ -29,7 +29,7 @@ use Wikimedia\Parsoid\Wikitext\Consts;
 class XMLSerializer {
 
 	// https://html.spec.whatwg.org/#serialising-html-fragments
-	private static $alsoSerializeAsVoid = [
+	private const ALSO_SERIALIZE_AS_VOID = [
 		'basefont' => true,
 		'bgsound' => true,
 		'frame' => true,
@@ -105,7 +105,7 @@ class XMLSerializer {
 				}
 				if ( $child || (
 					!isset( Consts::$HTML['VoidTags'][$nodeName] ) &&
-					!isset( self::$alsoSerializeAsVoid[$nodeName] )
+					!isset( self::ALSO_SERIALIZE_AS_VOID[$nodeName] )
 				) ) {
 					$accum( '>', $node, 'start' );
 					// if is cdata child node

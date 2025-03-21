@@ -130,7 +130,7 @@ class MockApiHelper extends ApiHelper {
 	private $articleCache = [];
 	private $cachedConfigs = [];
 
-	private static $MAIN_PAGE = [
+	private const MAIN_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -156,7 +156,7 @@ class MockApiHelper extends ApiHelper {
 	];
 
 	// Old response structure, pre-mcr
-	private static $OLD_RESPONSE = [
+	private const OLD_RESPONSE = [
 		'query' => [
 			'pages' => [
 				[
@@ -177,7 +177,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $JUNK_PAGE = [
+	private const JUNK_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -202,7 +202,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $LARGE_PAGE = [
+	private const LARGE_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -227,7 +227,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $REUSE_PAGE = [
+	private const REUSE_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -252,7 +252,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $JSON_PAGE = [
+	private const JSON_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -277,7 +277,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $LINT_PAGE = [
+	private const LINT_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -302,7 +302,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $REDLINKS_PAGE = [
+	private const REDLINKS_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -327,7 +327,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $VARIANT_PAGE = [
+	private const VARIANT_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -354,7 +354,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $NOVARIANT_PAGE = [
+	private const NOVARIANT_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -381,7 +381,7 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $REVISION_PAGE = [
+	private const REVISION_PAGE = [
 		'query' => [
 			'pages' => [
 				[
@@ -406,15 +406,15 @@ class MockApiHelper extends ApiHelper {
 		]
 	];
 
-	private static $missingTitles = [ 'Doesnotexist' ];
-	private static $specialTitles = [
+	private const MISSING_TITLES = [ 'Doesnotexist' ];
+	private const SPECIAL_TITLES = [
 		'Special:Version',
 		'Special:BookSources',
 		'Special:BookSources/isbn=4-00-026157-6',
 		'Special:BookSources/0978739256',
 	];
-	private static $redirectTitles = [ 'Redirected' ];
-	private static $disambigTitles = [ 'Disambiguation' ];
+	private const REDIRECT_TITLES = [ 'Redirected' ];
+	private const DISAMBIG_TITLES = [ 'Disambiguation' ];
 
 	private const FNAMES = [
 		'Image:Foobar.jpg' => 'Foobar.jpg',
@@ -458,7 +458,7 @@ class MockApiHelper extends ApiHelper {
 	// This templatedata description only provides a subset of fields
 	// that mediawiki API returns. Parsoid only uses the format and
 	// paramOrder fields at this point, so keeping these lean.
-	private static $templateData = [
+	private const TEMPLATE_DATA = [
 		'Template:NoFormatWithParamOrder' => [
 			'paramOrder' => [ 'f0', 'f1', 'unused2', 'f2', 'unused3' ]
 		],
@@ -513,12 +513,6 @@ class MockApiHelper extends ApiHelper {
 		$this->normalizeTitle = $normalizeTitleFunc ??
 			// poor man's normalization
 			( static fn ( $t ) => str_replace( ' ', '_', $t ) );
-
-		// PORT-FIXME: Need to get this value
-		// $wtSizeLimit = $parsoidOptions->limits->wt2html->maxWikitextSize;
-		$wtSizeLimit = 1000000;
-		$mainSlot = &self::$LARGE_PAGE['query']['pages'][0]['revisions'][0]['slots']['main'];
-		$mainSlot['content'] = str_repeat( 'a', $wtSizeLimit + 1 );
 	}
 
 	/**
@@ -851,27 +845,33 @@ class MockApiHelper extends ApiHelper {
 
 		if ( ( $params['prop'] ?? null ) === 'revisions' ) {
 			if ( $revid === '1' || $params['titles'] === 'Main_Page' ) {
-				return self::$MAIN_PAGE;
+				return self::MAIN_PAGE;
 			} elseif ( $revid === '2' || $params['titles'] === 'Junk_Page' ) {
-				return self::$JUNK_PAGE;
+				return self::JUNK_PAGE;
 			} elseif ( $revid === '3' || $params['titles'] === 'Large_Page' ) {
-				return self::$LARGE_PAGE;
+				$largePage = self::LARGE_PAGE;
+				// PORT-FIXME: Need to get this value
+				// $wtSizeLimit = $parsoidOptions->limits->wt2html->maxWikitextSize;
+				$wtSizeLimit = 1000000;
+				$largePage['query']['pages'][0]['revisions'][0]['slots']['main']['content']
+					= str_repeat( 'a', $wtSizeLimit + 1 );
+				return $largePage;
 			} elseif ( $revid === '63' || $params['titles'] === 'Revision_ID' ) {
-				return self::$REVISION_PAGE;
+				return self::REVISION_PAGE;
 			} elseif ( $revid === '100' || $params['titles'] === 'Reuse_Page' ) {
-				return self::$REUSE_PAGE;
+				return self::REUSE_PAGE;
 			} elseif ( $revid === '101' || $params['titles'] === 'JSON_Page' ) {
-				return self::$JSON_PAGE;
+				return self::JSON_PAGE;
 			} elseif ( $revid === '102' || $params['titles'] === 'Lint_Page' ) {
-				return self::$LINT_PAGE;
+				return self::LINT_PAGE;
 			} elseif ( $revid === '103' || $params['titles'] === 'Redlinks_Page' ) {
-				return self::$REDLINKS_PAGE;
+				return self::REDLINKS_PAGE;
 			} elseif ( $revid === '104' || $params['titles'] === 'Variant_Page' ) {
-				return self::$VARIANT_PAGE;
+				return self::VARIANT_PAGE;
 			} elseif ( $revid === '105' || $params['titles'] === 'No_Variant_Page' ) {
-				return self::$NOVARIANT_PAGE;
+				return self::NOVARIANT_PAGE;
 			} elseif ( $revid === '999' || $params['titles'] === 'Old_Response' ) {
-				return self::$OLD_RESPONSE;
+				return self::OLD_RESPONSE;
 			} else {
 				return [ 'query' => [ 'pages' => [
 							[
@@ -894,19 +894,19 @@ class MockApiHelper extends ApiHelper {
 				$normalizeTitle = $this->normalizeTitle;
 				$key = $normalizeTitle( $t );
 				$definedInPt = isset( $this->articleCache[$key] );
-				if ( in_array( $t, self::$missingTitles, true ) ||
+				if ( in_array( $t, self::MISSING_TITLES, true ) ||
 					 !$definedInPt ) {
 					$props['missing'] = true;
 				}
-				if ( in_array( $t, self::$specialTitles, true ) ) {
+				if ( in_array( $t, self::SPECIAL_TITLES, true ) ) {
 					$props['special'] = true;
 					$props['missing'] = false;
 				}
-				if ( in_array( $t, self::$redirectTitles, true ) ) {
+				if ( in_array( $t, self::REDIRECT_TITLES, true ) ) {
 					$props['redirect'] = true;
 					$props['missing'] = false;
 				}
-				if ( in_array( $t, self::$disambigTitles, true ) ) {
+				if ( in_array( $t, self::DISAMBIG_TITLES, true ) ) {
 					$props['linkclasses'] = [ 'mw-disambig' ];
 					$props['missing'] = false;
 				}
@@ -1032,7 +1032,7 @@ class MockApiHelper extends ApiHelper {
 			// Assumes that titles is a single title
 			// (which is how Parsoid uses this)
 			'pages' => [
-				'1' => self::$templateData[$params['titles'] ?? ''] ?? []
+				'1' => self::TEMPLATE_DATA[$params['titles'] ?? ''] ?? []
 			]
 		];
 	}

@@ -22,8 +22,9 @@ use Wikimedia\Parsoid\Utils\TitleValue;
  */
 class MockDataAccess extends DataAccess {
 	private SiteConfig $siteConfig;
+	private array $opts;
 
-	private static $PAGE_DATA = [
+	private const PAGE_DATA = [
 		"Main_Page" => [
 			"title" => "Main Page",
 			"pageid" => 1,
@@ -384,9 +385,7 @@ class MockDataAccess extends DataAccess {
 	 */
 	public function __construct( SiteConfig $siteConfig, array $opts ) {
 		$this->siteConfig = $siteConfig;
-		// Update data of the large page
-		$mainSlot = &self::$PAGE_DATA['Large_Page']['slots']['main'];
-		$mainSlot['*'] = str_repeat( 'a', $opts['maxWikitextSize'] ?? 1000000 );
+		$this->opts = $opts;
 	}
 
 	/** @inheritDoc */
@@ -394,12 +393,16 @@ class MockDataAccess extends DataAccess {
 		$ret = [];
 		foreach ( $titles as $title ) {
 			$normTitle = $this->normTitle( $title );
-			$pageData = self::$PAGE_DATA[$normTitle] ?? null;
+			$pageData = self::PAGE_DATA[$normTitle] ?? null;
+			if ( $normTitle === 'Large_Page' ) {
+				// Update data of the large page
+				$pageData['slots']['main']['*'] = str_repeat( 'a', $this->opts['maxWikitextSize'] ?? 1000000 );
+			}
 			$ret[$title] = [
 				'pageId' => $pageData['pageid'] ?? null,
 				'revId' => $pageData['revid'] ?? null,
 				'missing' => $pageData === null,
-				'known' => $pageData !== null || ( $pageData['known'] ?? false ),
+				'known' => $pageData !== null,
 				'redirect' => $pageData['redirect'] ?? false,
 				'linkclasses' => $pageData['linkclasses'] ?? [],
 			];
@@ -598,7 +601,7 @@ class MockDataAccess extends DataAccess {
 		PageConfig $pageConfig, LinkTarget $title
 	): ?PageContent {
 		$normTitle = $this->normTitle( $title );
-		$pageData = self::$PAGE_DATA[$normTitle] ?? null;
+		$pageData = self::PAGE_DATA[$normTitle] ?? null;
 		if ( $pageData ) {
 			$content = [];
 			foreach ( $pageData['slots'] as $role => $data ) {
