@@ -161,12 +161,11 @@ class TokenStreamPatcher extends TokenHandler {
 		} elseif ( !empty( $da->autoInsertedStart ) && !empty( $da->autoInsertedEnd ) ) {
 			return [ '' ];
 		} else {
-			// SSS FIXME: What about "!!" and "||"??
 			switch ( $token->getName() ) {
 				case 'td':
-					return [ '|' ];
+					return [ ( $token->dataParsoid->stx ?? '' ) === 'row' ? '||' : '|' ];
 				case 'th':
-					return [ '!' ];
+					return [ ( $token->dataParsoid->stx ?? '' ) === 'row' ? '!!' : '!' ];
 				case 'tr':
 					return [ '|-' ];
 				case 'caption':

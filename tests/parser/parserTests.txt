@@ -5490,28 +5490,38 @@ parsoid=wt2html
 
 !! test
 Table wikitext syntax outside wiki-tables
+!! options
+parsoid={ "modes": ["wt2html","wt2wt"], "normalizePhp": true }
 !! wikitext
 a
 |+ not a caption
-! not a table heading
+! not a table heading!! neither is this
 |- not a table row
-| not a table cell
+| not a table cell || neither is this
 | class="foo bar" | baz
 b
 |}
 |-
 c
+|-
+{{1x|!a!!b}}
+|-
+{{1x|{{!}}a {{!}}{{!}}b}}
 !! html
 <p>a
 |+ not a caption
-! not a table heading
+! not a table heading!! neither is this
 |- not a table row
-| not a table cell
+| not a table cell || neither is this
 | class="foo bar" | baz
 b
 |}
 |-
 c
+|-
+!a!!b
+|-
+|a ||b
 </p>
 !! end
 
