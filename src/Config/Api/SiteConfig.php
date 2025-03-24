@@ -642,25 +642,62 @@ class SiteConfig extends ISiteConfig {
 				// and also doesn't reflect no-hash functions registered by extensions
 				// via setFunctionHook calls. As such, you might run into GOTCHAs during
 				// debugging of production issues in standalone / API config mode.
+				// Keep this in sync with CoreParserFunctions::register in core.
 				self::$noHashFunctions = PHPUtils::makeSet( [
 					'ns', 'nse', 'urlencode', 'lcfirst', 'ucfirst', 'lc', 'uc',
 					'localurl', 'localurle', 'fullurl', 'fullurle', 'canonicalurl',
-					'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'bidi',
-					'numberofpages', 'numberofusers', 'numberofactiveusers',
-					'numberofarticles', 'numberoffiles', 'numberofadmins',
-					'numberingroup', 'numberofedits', 'language',
+					'canonicalurle', 'formatnum', 'grammar', 'gender', 'plural', 'formal',
+					'bidi', 'numberingroup', 'language',
 					'padleft', 'padright', 'anchorencode', 'defaultsort', 'filepath',
 					'pagesincategory', 'pagesize', 'protectionlevel', 'protectionexpiry',
-					'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
-					'subjectspace', 'subjectspacee', 'pagename', 'pagenamee',
-					'fullpagename', 'fullpagenamee', 'rootpagename', 'rootpagenamee',
-					'basepagename', 'basepagenamee', 'subpagename', 'subpagenamee',
-					'talkpagename', 'talkpagenamee', 'subjectpagename',
-					'subjectpagenamee', 'pageid', 'revisionid', 'revisionday',
+					# The following are the "parser function" forms of magic
+					# variables defined in CoreMagicVariables.  The no-args form will
+					# go through the magic variable code path (and be cached); the
+					# presence of arguments will cause the parser function form to
+					# be invoked. (Note that the actual implementation will pass
+					# a Parser object as first argument, in addition to the
+					# parser function parameters.)
+
+					# For this group, the first parameter to the parser function is
+					# "page title", and the no-args form (and the magic variable)
+					# defaults to "current page title".
+					'pagename', 'pagenamee',
+					'fullpagename', 'fullpagenamee',
+					'subpagename', 'subpagenamee',
+					'rootpagename', 'rootpagenamee',
+					'basepagename', 'basepagenamee',
+					'talkpagename', 'talkpagenamee',
+					'subjectpagename', 'subjectpagenamee',
+					'pageid', 'revisionid', 'revisionday',
 					'revisionday2', 'revisionmonth', 'revisionmonth1', 'revisionyear',
-					'revisiontimestamp', 'revisionuser', 'cascadingsources',
-					// Special callbacks in core
-					'namespace', 'int', 'displaytitle', 'pagesinnamespace',
+					'revisiontimestamp',
+					'revisionuser',
+					'cascadingsources',
+					'namespace', 'namespacee', 'namespacenumber', 'talkspace', 'talkspacee',
+					'subjectspace', 'subjectspacee',
+
+						# More parser functions corresponding to CoreMagicVariables.
+					# For this group, the first parameter to the parser function is
+					# "raw" (uses the 'raw' format if present) and the no-args form
+					# (and the magic variable) defaults to 'not raw'.
+					'numberofarticles', 'numberoffiles',
+					'numberofusers',
+					'numberofactiveusers',
+					'numberofpages',
+					'numberofadmins',
+					'numberofedits',
+
+					# These magic words already contain the hash, and the no-args form
+					# is the same as passing an empty first argument
+					'bcp47',
+					'dir',
+					'interwikilink',
+					'interlanguagelink',
+
+					# ###############################################
+					# The following are not from core's $noHash list
+					# but are instead special callbacks from core:
+					'int', 'displaytitle', 'pagesinnamespace',
 				] );
 			}
 
