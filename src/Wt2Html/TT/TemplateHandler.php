@@ -1017,20 +1017,6 @@ class TemplateHandler extends TokenHandler {
 				$wrapTemplates = false;
 				return new TemplateExpansionResult( $toks, true, $wrapTemplates );
 			} else {
-				if (
-					!isset( $tgt['isParserFunction'] ) &&
-					!isset( $tgt['isVariable'] ) &&
-					!$templateTitle->isExternal() &&
-					$templateTitle->isSpecialPage()
-				) {
-					$domFragment = PipelineUtils::parseToHTML( $env, $text );
-					$toks = $domFragment
-						? PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] )
-						: [];
-					$toks = $this->processTemplateTokens( $toks );
-					return new TemplateExpansionResult( $toks, true, $this->wrapTemplates );
-				}
-
 				// Fetch and process the template expansion
 				$error = false;
 				$fragment = Wikitext::preprocessFragment(
