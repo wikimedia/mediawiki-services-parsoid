@@ -99,7 +99,7 @@ class TestFileReader {
 		$this->fileOptions['version'] ??= '1';
 
 		$knownFailures = $this->knownFailuresPath !== null ?
-			json_decode( file_get_contents( $knownFailuresPath ), true ) :
+			json_decode( file_get_contents( $knownFailuresPath ), true, 512, JSON_THROW_ON_ERROR ) :
 			null;
 
 		$testNames = [];
