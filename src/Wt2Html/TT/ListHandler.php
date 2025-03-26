@@ -128,13 +128,14 @@ class ListHandler extends TokenHandler {
 		if ( $token instanceof TagTk
 			// Table tokens will push the frame and remain balanced.
 			// They're safe to ignore in the bookkeeping.
-			&& $token->getName() !== 'table' ) {
+			&& $token->getName() !== 'table'
+		) {
 			$this->currListFrame->numOpenTags += 1;
-		} elseif ( $token instanceof EndTagTk && $this->currListFrame->numOpenTags > 0 ) {
-			$this->currListFrame->numOpenTags -= 1;
-		}
+		} elseif ( $token instanceof EndTagTk ) {
+			if ( $this->currListFrame->numOpenTags > 0 ) {
+				$this->currListFrame->numOpenTags -= 1;
+			}
 
-		if ( $token instanceof EndTagTk ) {
 			if ( $token->getName() === 'table' ) {
 				// close all open lists and pop a frame
 				$ret = $this->closeLists( $token );
@@ -157,10 +158,24 @@ class ListHandler extends TokenHandler {
 			}
 
 			/* Non-block tag -- fall-through to other tests below */
+		} elseif ( $token instanceof NlTk ) {
+			if ( $this->currListFrame->atEOL ) {
+				// Non-list item in newline context ==> close all previous lists
+				return new TokenHandlerResult( $this->closeLists( $token ) );
+			} else {
+				$this->currListFrame->atEOL = true;
+				$this->currListFrame->nlTk = $token;
+				$this->currListFrame->haveDD = false;
+				// php's findColonNoLinks is run in doBlockLevels, which examines
+				// the text line-by-line. At nltk, any open tags will cease having
+				// an effect.
+				$this->currListFrame->numOpenTags = 0;
+				return new TokenHandlerResult( [] );
+			}
 		}
 
 		if ( $this->currListFrame->atEOL ) {
-			if ( !$token instanceof NlTk && TokenUtils::isSolTransparent( $this->env, $token ) ) {
+			if ( TokenUtils::isSolTransparent( $this->env, $token ) ) {
 				// Hold on to see where the token stream goes from here
 				// - another list item, or
 				// - end of list
@@ -174,17 +189,6 @@ class ListHandler extends TokenHandler {
 				// Non-list item in newline context ==> close all previous lists
 				return new TokenHandlerResult( $this->closeLists( $token ) );
 			}
-		}
-
-		if ( $token instanceof NlTk ) {
-			$this->currListFrame->atEOL = true;
-			$this->currListFrame->nlTk = $token;
-			$this->currListFrame->haveDD = false;
-			// php's findColonNoLinks is run in doBlockLevels, which examines
-			// the text line-by-line. At nltk, any open tags will cease having
-			// an effect.
-			$this->currListFrame->numOpenTags = 0;
-			return new TokenHandlerResult( [] );
 		}
 
 		if ( $token instanceof TagTk ) {
