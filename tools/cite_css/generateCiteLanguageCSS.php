@@ -1,8 +1,6 @@
 <?php
 
-/* phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic */
-
-function wfGetCSS( string $selector, array $rules ) {
+function wfGetCSS( string $selector, array $rules ): string {
 	return "$selector {\n\t" . implode( "\n\t", $rules ) . "\n}\n";
 }
 
