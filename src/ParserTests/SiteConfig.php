@@ -112,11 +112,6 @@ class SiteConfig extends ApiSiteConfig {
 		// Reset other values to defaults
 		$this->responsiveReferences = [ 'enabled' => true, 'threshold' => 10 ];
 		$this->disableSubpagesForNS( 0 );
-		$this->unregisterParserTestExtension( new StyleTag() );
-		$this->unregisterParserTestExtension( new RawHTML() );
-		$this->unregisterParserTestExtension( new ParserHook() );
-		$this->unregisterParserTestExtension( new DummyAnnotation() );
-		$this->unregisterParserTestExtension( new I18nTag() );
 		$this->thumbsize = null;
 		$this->externalLinkTarget = false;
 		$this->noFollowConfig = null;
@@ -265,44 +260,14 @@ class SiteConfig extends ApiSiteConfig {
 
 	/**
 	 * Register an extension for use in parser tests
-	 * @param ExtensionModule $ext
+	 * @param class-string<ExtensionModule> $extClass
+	 * @return callable a cleanup function to unregister this extension
 	 */
-	public function registerParserTestExtension( ExtensionModule $ext ): void {
-		$this->getExtConfig(); // ensure $this->extConfig is initialized
-		$this->processExtensionModule( $ext );
-	}
-
-	/**
-	 * Unregister a previously registered extension.
-	 * @param ExtensionModule $ext
-	 */
-	private function unregisterParserTestExtension( ExtensionModule $ext ): void {
-		$extConfig = $ext->getConfig();
-		$name = $extConfig['name'];
-
-		$this->getExtConfig(); // ensure $this->extConfig is initialized
-		foreach ( ( $extConfig['tags'] ?? [] ) as $tagConfig ) {
-			$lowerTagName = mb_strtolower( $tagConfig['name'] );
-			unset( $this->extConfig['allTags'][$lowerTagName] );
-			unset( $this->extConfig['parsoidExtTags'][$lowerTagName] );
-		}
-
-		foreach ( ( $extConfig['annotations'] ?? [] ) as $annotationTag ) {
-			$lowerTagName = mb_strtolower( $annotationTag );
-			unset( $this->extConfig['allTags'][$lowerTagName] );
-			unset( $this->extConfig['annotationTags'][$lowerTagName] );
-		}
-
-		if ( isset( $extConfig['domProcessors'] ) ) {
-			unset( $this->extConfig['domProcessors'][$name] );
-		}
-
-		/*
-		 * FIXME: Unsetting contentmodels is also tricky with the current
-		 * state tracked during registration. We will have to reprocess all
-		 * extensions or maintain a linked list of applicable extensions
-		 * for every content model
-		 */
+	public function registerParserTestExtension( string $extClass ): callable {
+		$extId = $this->registerExtensionModule( $extClass );
+		return function () use ( $extId ) {
+			$this->unregisterExtensionModule( $extId );
+		};
 	}
 
 	/**

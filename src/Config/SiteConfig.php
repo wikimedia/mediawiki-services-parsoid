@@ -163,7 +163,9 @@ abstract class SiteConfig {
 	 */
 	final public function unregisterExtensionModule( int $extId ): void {
 		unset( $this->extModules[$extId] );
-		$this->extConfig = null; // remove cached extConfig
+		// remove cached extConfig; this will also regenerate
+		// magic word synonyms from the still-registered modules.
+		$this->extConfig = null;
 	}
 
 	/**

@@ -1160,21 +1160,21 @@ class TestRunner {
 
 			// Emulate PHP parser's tag hook to tunnel content past the sanitizer
 			if ( isset( $testOpts['styletag'] ) ) {
-				$this->siteConfig->registerParserTestExtension( new StyleTag() );
+				$teardown[] = $this->siteConfig->registerParserTestExtension( StyleTag::class );
 			}
 
 			if ( ( $testOpts['wgrawhtml'] ?? null ) === '1' ) {
-				$this->siteConfig->registerParserTestExtension( new RawHTML() );
+				$teardown[] = $this->siteConfig->registerParserTestExtension( RawHTML::class );
 			}
 
 			if ( isset( $testOpts['thumbsize'] ) ) {
 				$this->siteConfig->thumbsize = (int)$testOpts['thumbsize'];
 			}
 			if ( isset( $testOpts['annotations'] ) ) {
-				$this->siteConfig->registerParserTestExtension( new DummyAnnotation() );
+				$teardown[] = $this->siteConfig->registerParserTestExtension( DummyAnnotation::class );
 			}
 			if ( isset( $testOpts['i18next'] ) ) {
-				$this->siteConfig->registerParserTestExtension( new I18nTag() );
+				$teardown[] = $this->siteConfig->registerParserTestExtension( I18nTag::class );
 			}
 			if ( isset( $testOpts['externallinktarget'] ) ) {
 				$this->siteConfig->setExternalLinkTarget( $testOpts['externallinktarget'] );
@@ -1182,12 +1182,12 @@ class TestRunner {
 		}
 
 		// Ensure ParserHook is always registered!
-		$this->siteConfig->registerParserTestExtension( new ParserHook() );
+		$teardown[] = $this->siteConfig->registerParserTestExtension( ParserHook::class );
 
 		$runner = $this;
 		$test->testAllModes( $targetModes, $options, Closure::fromCallable( [ $this, 'runTest' ] ) );
 
-		foreach ( $teardown as $t ) {
+		foreach ( array_reverse( $teardown ) as $t ) {
 			$t();
 		}
 	}
