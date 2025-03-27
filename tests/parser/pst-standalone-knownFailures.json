@@ -11,7 +11,7 @@
         "html2wt": "Foobar\n"
     },
     "subst: does not work during normal parse": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Subst:Includes?action=edit&amp;redlink=1\" title=\"Template:Subst:Includes\" about=\"#mwt1\" typeof=\"mw:Transclusion mw:LocalizedAttrs\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:Subst:Includes\"},\"sa\":{\"href\":\"Template:Subst:Includes\"},\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SubstTest\",\"href\":\"./Template:SubstTest\"},\"params\":{},\"i\":0}}]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Template:Subst:Includes\"]}}'>Template:Subst:Includes</a></p>",
+        "wt2html": "<p data-parsoid='{\"dsr\":[0,13,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Subst:Includes?action=edit&amp;redlink=1\" title=\"Template:Subst:Includes\" about=\"#mwt1\" typeof=\"mw:Transclusion mw:LocalizedAttrs\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:Subst:Includes\"},\"sa\":{\"href\":\":Template:Subst:Includes\"},\"pi\":[[]],\"dsr\":[0,13,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"SubstTest\",\"href\":\"./Template:SubstTest\"},\"params\":{},\"i\":0}}]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Template:Subst:Includes\"]}}'>Template:Subst:Includes</a></p>",
         "html2wt": "<nowiki>{{subst:Includes}}</nowiki>\n"
     }
 }

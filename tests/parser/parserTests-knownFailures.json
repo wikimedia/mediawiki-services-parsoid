@@ -218,9 +218,6 @@
 	"Trailing newlines in a deep dom-subtree that ends a wikitext line should be migrated out": {
 		"wt2wt": "{|\n|<small>foo\n\nbar\n|}\n\n{|\n|<small>foo<small>\n|}"
 	},
-	"Using {{!}} in template arguments, part 2 (T290526)": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'><a rel=\"mw:WikiLink\" href=\"./Template:Main_Page?action=edit&amp;redlink=1\" title=\"Template:Main Page\" about=\"#mwt\" typeof=\"mw:Transclusion mw:LocalizedAttrs\" class=\"new\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Template:Main_Page\"},\"sa\":{\"href\":\":Template:Main Page\"},\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,30,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"Main Page\",\"href\":\"./Template:Main_Page\"},\"params\":{\"1\":{\"wt\":\"Something else \"}},\"i\":0}}]}' data-mw-i18n='{\"title\":{\"lang\":\"x-page\",\"key\":\"red-link-title\",\"params\":[\"Template:Main Page\"]}}'>Template:Main Page</a></p>\n\n<p data-parsoid='{\"dsr\":[32,49,0,0]}'>{{ <span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[35,46,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"T290526\",\"href\":\"./Template:T290526\"},\"params\":{},\"i\":0}}]}'>Main Page|Something else</span> }}</p>"
-	},
 	"Verify that displaytitle works (T24501) AllowDisplayTitle=false": {
 		"metadata": "Screen"
 	},

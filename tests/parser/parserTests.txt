@@ -10925,7 +10925,7 @@ parsoid=wt2html
 </p><p>{{ Main Page|Something else }}
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./Template:Main_Page?action=edit&amp;redlink=1" title="Template:Main Page" about="#mwt1" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Template:Main_Page"},"sa":{"href":"Template:Main_Page"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Main Page","href":"./Template:Main_Page"},"params":{"1":{"wt":"Something else "}},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:Main Page"]}}'>Template:Main_Page</a></p>
+<p><a rel="mw:WikiLink" href="./Template:Main_Page?action=edit&amp;redlink=1" title="Template:Main Page" about="#mwt1" typeof="mw:Transclusion mw:LocalizedAttrs" class="new" data-parsoid='{"stx":"simple","a":{"href":"./Template:Main_Page"},"sa":{"href":"Template:Main_Page"},"pi":[[{"k":"1"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"Main Page","href":"./Template:Main_Page"},"params":{"1":{"wt":"Something else "}},"i":0}}]}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Template:Main Page"]}}'>Template:Main Page</a></p>
 
 <p>{{ <span about="#mwt5" typeof="mw:Transclusion" data-parsoid='{"pi":[[]]}' data-mw='{"parts":[{"template":{"target":{"wt":"T290526","href":"./Template:T290526"},"params":{},"i":0}}]}'>Main Page|Something else</span> }}</p>
 !! end

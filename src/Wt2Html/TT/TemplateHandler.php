@@ -569,7 +569,7 @@ class TemplateHandler extends TokenHandler {
 		} else {
 			// Convert to a wikilink (which will become a redlink after the redlinks pass).
 			$toks = [ new SelfclosingTagTk( 'wikilink' ) ];
-			$hrefSrc = $resolvedTgt['name'];
+			$hrefSrc = ':' . strtr( $resolvedTgt['name'], '_', ' ' );
 			$toks[0]->attribs[] = new KV( 'href', $hrefSrc, null, null, $hrefSrc );
 			return new TemplateExpansionResult( $toks, false, $encap );
 		}
