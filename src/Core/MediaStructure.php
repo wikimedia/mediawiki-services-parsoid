@@ -14,7 +14,7 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  * All media should have a fixed structure:
  *
  * ```
- * <conatinerElt>
+ * <containerElt>
  *  <linkElt><mediaElt /></linkElt>
  *  <captionElt>...</captionElt>
  * </containerElt>
