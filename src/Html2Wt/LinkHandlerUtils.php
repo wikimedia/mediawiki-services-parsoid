@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\ExtLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\MagicLinkText;
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\WikiLinkText;
+use Wikimedia\Parsoid\Html2Wt\DOMHandlers\FallbackHTMLHandler;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -1058,6 +1059,7 @@ class LinkHandlerUtils {
 				"Couldn't parse media structure: ",
 				DOMCompat::getOuterHTML( $node )
 			);
+			( new FallbackHTMLHandler )->handle( $node, $state );
 			return;
 		}
 		$ct = self::figureToConstrainedText( $state, $ms );

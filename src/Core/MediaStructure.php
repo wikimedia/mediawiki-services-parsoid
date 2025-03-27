@@ -109,7 +109,12 @@ class MediaStructure {
 	 * @return ?MediaStructure
 	 */
 	public static function parse( Node $node ): ?MediaStructure {
-		if ( !WTUtils::isGeneratedFigure( $node ) ) {
+		if (
+			// Be a bit more liberal than WTUtils::isGeneratedFigure to support
+			// serializing arbitrary HTML and old Flow boards
+			DOMCompat::nodeName( $node ) !== 'figure' &&
+			!WTUtils::isInlineMedia( $node )
+		) {
 			return null;
 		}
 		'@phan-var Element $node';  // @var Element $node

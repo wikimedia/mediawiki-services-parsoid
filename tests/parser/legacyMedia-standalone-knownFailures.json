@@ -45,7 +45,7 @@
         "html2wt": "[[File:Foobar.jpg|thumb|Caption [[Link1]]\n<nowiki>[[]]</nowiki>\n[[Link2]]\n]]"
     },
     "File in link scenarios": {
-        "html2wt": "[http://www.google.com][[File:Foobar.jpg|alt=123|class=mw-file-element|1941x1941px]]\n\n[http://www.google.com]"
+        "html2wt": "[http://www.google.com <span class=\"mw-default-size\"></span>][[File:Foobar.jpg|alt=123|class=mw-file-element|1941x1941px]]\n\n[http://www.google.com]<figure class=\"mw-default-size\">[http://www.google.com][[File:Foobar.jpg|class=mw-file-element|180x180px]]<figcaption>123</figcaption></figure>"
     },
     "Fragment in media filename": {
         "wt2wt": "[[File:Foobar.jpg#fragment|123|link=File:Foobar.jpg]]",

@@ -51,7 +51,7 @@
         "html2html": "<p class=\"mw-empty-elt\" data-parsoid='{\"stx\":\"html\",\"autoInsertedEnd\":true,\"dsr\":[0,3,3,0]}'></p>\n<figure class=\"mw-default-size\" typeof=\"mw:File/Thumb\" data-parsoid='{\"optList\":[{\"ck\":\"thumbnail\",\"ak\":\"thumb\"}],\"dsr\":[4,29,2,2]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" data-parsoid='{\"dsr\":[6,27,null,null]}'><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"20\" width=\"180\" srcset=\"http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"20\",\"width\":\"180\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a><figcaption data-parsoid='{\"dsr\":[27,27,0,0]}'></figcaption></figure>\n<p class=\"mw-empty-elt\" data-parsoid='{\"autoInsertedStart\":true,\"stx\":\"html\",\"dsr\":[30,34,0,4]}'></p>"
     },
     "File in link scenarios": {
-        "html2wt": "[http://www.google.com][[File:Foobar.jpg|alt=123|class=mw-file-element|1941x1941px]]\n\n[http://www.google.com]"
+        "html2wt": "[http://www.google.com <span class=\"mw-default-size\"></span>][[File:Foobar.jpg|alt=123|class=mw-file-element|1941x1941px]]\n\n[http://www.google.com]<figure class=\"mw-default-size\">[http://www.google.com][[File:Foobar.jpg|class=mw-file-element|180x180px]]<figcaption>123</figcaption></figure>"
     },
     "File with link to page section": {
         "html2wt": "[[Main Page#section]]\n[[File:Foobar.jpg|link=Main_Page#section]]"
