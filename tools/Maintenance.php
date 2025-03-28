@@ -62,8 +62,8 @@ if ( $parsoidMode === 'integrated' ) {
 		 *   should be done (default: true)
 		 */
 		public function __construct( bool $requiresParsoid = true ) {
-			parent::__construct();
 			$this->requiresParsoid = $requiresParsoid;
+			parent::__construct();
 			if ( $this->requiresParsoid ) {
 				$this->requireExtension( 'Parsoid' );
 			}
