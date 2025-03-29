@@ -386,7 +386,7 @@ ScriptUtils.retryingHTTPRequest = function(retries, requestOptions, delay) {
 				return ScriptUtils.retryingHTTPRequest(retries, requestOptions, delay * 2);
 			});
 		} else {
-			return Promise.reject(error);
+			throw error;
 		}
 	})
 	.spread(function(res, body) {
