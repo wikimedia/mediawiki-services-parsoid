@@ -183,7 +183,7 @@ class SerializerState {
 	/**
 	 * Stack of wikitext escaping handlers -- these handlers are responsible
 	 * for smart escaping when the surrounding wikitext context is known.
-	 * @var callable[] See {@link serializeChildren()}
+	 * @var (callable|null)[] See {@link serializeChildren()}
 	 */
 	public $wteHandlerStack = [];
 

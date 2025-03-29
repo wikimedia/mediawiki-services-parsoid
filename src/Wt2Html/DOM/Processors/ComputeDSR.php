@@ -226,7 +226,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param int|null $etWidth End tag width
 	 * @param Element $node
 	 * @param DataParsoid $dp
-	 * @return int[] Start and end tag widths
+	 * @return (int|null)[] Start and end tag widths
 	 */
 	private function computeTagWidths( $stWidth, $etWidth, Element $node, DataParsoid $dp ): array {
 		if ( isset( $dp->extTagOffsets ) ) {

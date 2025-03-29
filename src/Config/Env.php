@@ -1196,7 +1196,7 @@ class Env {
 	 * Whether to enable linter Backend.
 	 * Consults the allow list and block list from ::getLinterConfig().
 	 *
-	 * @param null $type If $type is null or omitted, returns true if *any* linting
+	 * @param string|null $type If $type is null or omitted, returns true if *any* linting
 	 *   type is enabled; otherwise returns true only if the specified
 	 *   linting type is enabled.
 	 * @return bool If $type is null or omitted, returns true if *any* linting

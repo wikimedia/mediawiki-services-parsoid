@@ -107,7 +107,7 @@ class ConstrainedText {
 	public $noSep;
 
 	/**
-	 * @param array{text:string,node:Node,prefix?:string,suffix?:string} $args Options.
+	 * @param array{text:string,node:Node,prefix?:?string,suffix?:?string} $args Options.
 	 */
 	public function __construct( array $args ) {
 		$this->text = $args['text'];

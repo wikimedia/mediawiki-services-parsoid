@@ -1241,7 +1241,7 @@ abstract class SiteConfig {
 	 * Return the desired linter configuration.  These are heuristic values
 	 * which have hardcoded defaults but could be overridden on a per-wiki
 	 * basis.
-	 * @return array{enabled?:string[],disabled?:string[],maxTableColumnHeuristic?:int,maxTableRowsToCheck?:int}
+	 * @return array{enabled?:?string[],disabled?:?string[],maxTableColumnHeuristic?:int,maxTableRowsToCheck?:int}
 	 */
 	public function getLinterSiteConfig(): array {
 		return [
