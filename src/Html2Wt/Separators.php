@@ -302,7 +302,7 @@ class Separators {
 			'debug/wts/sep',
 			'make-new   |',
 			static function () use ( $nlConstraints, $sepNlCount, $minNls, $sep, $origSep ) {
-				$constraints = Utils::clone( $nlConstraints, true, true );
+				$constraints = Utils::cloneArray( $nlConstraints );
 				unset( $constraints['constraintInfo'] );
 				return PHPUtils::jsonEncode( $sep ) . ', ' . PHPUtils::jsonEncode( $origSep ) . ', ' .
 					$minNls . ', ' . $sepNlCount . ', ' . PHPUtils::jsonEncode( $constraints );
@@ -549,7 +549,7 @@ class Separators {
 			'debug/wts/sep',
 			'ipre-safe  |',
 			static function () use ( $sep, $nlConstraints ) {
-				$constraints = Utils::clone( $nlConstraints, true, true );
+				$constraints = Utils::cloneArray( $nlConstraints );
 				unset( $constraints['constraintInfo'] );
 				return PHPUtils::jsonEncode( $sep ) . ', ' . PHPUtils::jsonEncode( $constraints );
 			}

@@ -577,7 +577,7 @@ class AttributeExpander extends TokenHandler {
 			//
 			// The general principle here being, don't share tokens between
 			// pipelines.
-			$vals = Utils::clone( $vals );
+			$vals = Utils::cloneArray( $vals );
 
 			// Expand all token arrays to DOM.
 			$eVals = PipelineUtils::expandAttrValuesToDOM(

@@ -5,16 +5,13 @@ namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * A class for temporary node-related data, stored in DataParsoid->tmp
  *
  * We use undeclared properties to reduce memory usage, since there are
  * typically very many instances of this class.
- *
- * An associative array with keys "key" and "params", set on span typeof=mw:I18n
- * elements to carry wfMessage() parameters.
- * @property array|null $i18n
  *
  * The original DSR for a quote (b/i) element prior to its adjustment by ComputeDSR.
  * @property DomSourceRange|null $origDSR
@@ -35,7 +32,7 @@ use Wikimedia\Parsoid\Tokens\SourceRange;
  * @property array|null $shuttleTokens
  *
  * Section data associated with a heading
- * @property array|null $section
+ * @property ?array{line:string,linkAnchor:string} $section
  *
  * For td/th tokens, wikitext source for attributes
  * This is needed to reparse this as content when tokenization is incorrect
@@ -150,6 +147,23 @@ class TempData {
 	private ?array $tagData;
 
 	/**
+	 * Deeply clone this object
+	 */
+	public function __clone() {
+		// Properties that need deep cloning
+		foreach ( [ 'origDSR', 'extLinkContentOffsets', 'tplarginfo', 'endTSR' ] as $f ) {
+			if ( isset( $this->$f ) ) {
+				$this->$f = clone $this->$f;
+			}
+		}
+		foreach ( [ 'shuttleTokens', 'tagData', 'section' ] as $f ) {
+			if ( isset( $this->$f ) ) {
+				$this->$f = Utils::cloneArray( $this->$f );
+			}
+		}
+	}
+
+	/**
 	 * Check whether a bit is set in $this->bits
 	 */
 	public function getFlag( int $flag ): bool {
@@ -171,7 +185,7 @@ class TempData {
 	 * Set a tag attribute for a specific extension with a given key
 	 *
 	 * @param string $key identifier to support a map for multiple extensions
-	 * @param mixed $data
+	 * @param mixed $data Should be cloneable
 	 */
 	public function setTagData( string $key, $data ): void {
 		$this->tagData ??= [];

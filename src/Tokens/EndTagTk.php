@@ -28,6 +28,11 @@ class EndTagTk extends Token {
 		$this->attribs = $attribs;
 	}
 
+	public function __clone() {
+		parent::__clone();
+		// No new non-primitive properties to clone.
+	}
+
 	public function getName(): string {
 		return $this->name;
 	}

@@ -199,7 +199,7 @@ class WikiLinkHandler extends TokenHandler {
 		// <link rel="mw:PageProp/redirect"> token from it.
 
 		$rlink = new SelfclosingTagTk( 'link',
-			Utils::clone( $token->attribs ),
+			Utils::cloneArray( $token->attribs ?? [] ),
 			clone $token->dataParsoid,
 			$token->dataMw ? clone $token->dataMw : null );
 		$wikiLinkTk = $rlink->dataParsoid->linkTk;
@@ -211,7 +211,7 @@ class WikiLinkHandler extends TokenHandler {
 
 		// Transfer href attribute back to wikiLinkTk, since it may have been
 		// template-expanded in the pipeline prior to this point.
-		$wikiLinkTk->attribs = Utils::clone( $token->attribs );
+		$wikiLinkTk->attribs = Utils::cloneArray( $token->attribs ?? [] );
 
 		// Set "redirect" attribute on the wikilink token to indicate that
 		// image and category links should be handled as plain links.

@@ -68,14 +68,19 @@ class Utils {
 		return isset( Consts::$HTML['VoidTags'][$name] );
 	}
 
-	/**
-	 * recursive deep clones helper function
-	 *
-	 * @param object $el object
-	 * @return object
-	 */
-	private static function recursiveClone( $el ) {
-		return self::clone( $el, true );
+	public static function cloneArray( array $arr ): array {
+		return array_map(
+			static function ( $val ) {
+				if ( is_array( $val ) ) {
+					return self::cloneArray( $val );
+				} elseif ( is_object( $val ) ) {
+					return clone $val;
+				} else {
+					return $val;
+				}
+			},
+			$arr
+		);
 	}
 
 	/**

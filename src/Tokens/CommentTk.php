@@ -25,6 +25,11 @@ class CommentTk extends Token {
 		$this->value = $value;
 	}
 
+	public function __clone() {
+		parent::__clone();
+		// No new non-primitive properties to clone.
+	}
+
 	/**
 	 * @inheritDoc
 	 */

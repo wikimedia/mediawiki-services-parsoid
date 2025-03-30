@@ -9,6 +9,7 @@ use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
@@ -18,14 +19,25 @@ abstract class Token implements \JsonSerializable {
 	public DataParsoid $dataParsoid;
 	public ?DataMw $dataMw = null;
 
-	/** @var KV[] */
-	public $attribs;
+	/** @var ?array<KV> */
+	public ?array $attribs = null;
 
 	protected function __construct(
 		?DataParsoid $dataParsoid, ?DataMw $dataMw
 	) {
 		$this->dataParsoid = $dataParsoid ?? new DataParsoid;
 		$this->dataMw = $dataMw;
+	}
+
+	public function __clone() {
+		// Deep clone non-primitive properties
+		$this->dataParsoid = clone $this->dataParsoid;
+		if ( $this->dataMw !== null ) {
+			$this->dataMw = clone $this->dataMw;
+		}
+		if ( $this->attribs !== null ) {
+			$this->attribs = Utils::cloneArray( $this->attribs );
+		}
 	}
 
 	/**

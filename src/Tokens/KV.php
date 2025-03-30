@@ -4,6 +4,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;
 
+use Wikimedia\Parsoid\Utils\Utils;
+
 /**
  * Represents a Key-value pair.
  */
@@ -47,6 +49,20 @@ class KV implements \JsonSerializable {
 		$this->srcOffsets = $srcOffsets;
 		$this->ksrc = $ksrc;
 		$this->vsrc = $vsrc;
+	}
+
+	public function __clone() {
+		// Deep clone non-primitive properties
+		foreach ( [ 'k', 'v' ] as $f ) {
+			if ( is_array( $this->$f ) ) {
+				$this->$f = Utils::cloneArray( $this->$f );
+			} elseif ( is_object( $this->$f ) ) {
+				$this->$f = clone $this->$f;
+			}
+		}
+		if ( $this->srcOffsets !== null ) {
+			$this->srcOffsets = clone $this->srcOffsets;
+		}
 	}
 
 	/**

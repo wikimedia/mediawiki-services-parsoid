@@ -92,7 +92,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  *
  * On a meta mw:EmptyLine, the associated comment and whitespace tokens. Used
  * in this sense by both the tokenizer and TokenStreamPatcher.
- * @property array $tokens
+ * @property array<Token> $tokens
  *
  * This is set to "extlink" on auto URL (external hotlink) image links.
  * @property string|null $type
@@ -247,16 +247,14 @@ class DataParsoid implements JsonCodecable {
 	public function __clone() {
 		// Properties that need deep cloning
 		if ( isset( $this->tmp ) ) {
-			$this->tmp = Utils::clone( $this->tmp );
+			$this->tmp = clone $this->tmp;
 		}
 		if ( isset( $this->linkTk ) ) {
-			$this->linkTk = Utils::clone( $this->linkTk );
+			$this->linkTk = clone $this->linkTk;
 		}
 		if ( isset( $this->tokens ) ) {
-			$this->tokens = Utils::clone( $this->tokens );
+			$this->tokens = Utils::cloneArray( $this->tokens );
 		}
-
-		// Properties that can use PHP cloning
 		if ( isset( $this->tsr ) ) {
 			$this->tsr = clone $this->tsr;
 		}
