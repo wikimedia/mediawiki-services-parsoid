@@ -29,79 +29,63 @@ class Test extends Item {
 
 	/* --- These are test properties from the test file --- */
 
-	/** @var ?string This is the test name, not page title for the test */
-	public $testName = null;
+	/** This is the test name, not page title for the test */
+	public ?string $testName = null;
 
-	/** @var array */
-	public $options = [];
+	/** @var array<string,string|bool|array> */
+	public array $options = [];
 
-	/** @var array */
-	public $config = [];
+	/** @var array<string,string|array> */
+	public array $config = [];
 
-	/** @var array */
-	public $sections = [];
+	/** @var array<string,string> */
+	public array $sections = [];
 
 	/** @var array Known failures for this test, indexed by testing mode. */
-	public $knownFailures = [];
+	public array $knownFailures = [];
 
 	/* --- These next are computed based on an ordered list of preferred
 	*      section keys --- */
 
-	/** @var ?string */
-	public $wikitext = null;
+	public ?string $wikitext = null;
 
-	/** @var ?string */
-	public $parsoidHtml = null;
+	public ?string $parsoidHtml = null;
 
-	/** @var ?string */
-	public $legacyHtml = null;
+	public ?string $legacyHtml = null;
 
 	/* --- The rest below are computed by Parsoid while running tests -- */
 
-	/** @var string */
-	private $pageName;
+	private ?string $pageName = null;
 
-	/** @var int */
-	private $pageNs;
+	private ?int $pageNs = null;
 
-	/** @var array */
-	public $selserChangeTrees = [];
+	/** @var list */
+	public array $selserChangeTrees = [];
 
-	/** @var ?array */
-	public $changetree = null;
+	/** @var ?list */
+	public ?array $changetree = null;
 
-	/** @var bool */
-	public $duplicateChange = false;
+	public bool $duplicateChange = false;
 
-	/** @var ?string */
-	public $seed = null;
+	public ?string $seed = null;
 
-	/** @var ?string */
-	public $resultWT = null;
+	public ?string $resultWT = null;
 
-	/** @var ?bool */
-	public $wt2wtPassed = null;
+	public ?bool $wt2wtPassed = null;
 
-	/** @var ?string */
-	public $wt2wtResult = null;
+	public ?string $wt2wtResult = null;
 
-	/** @var ?string */
-	public $selser = null;
+	public ?string $selser = null;
 
-	/** @var ?string */
-	public $changedHTMLStr = null;
+	public ?string $changedHTMLStr = null;
 
-	/** @var ?string */
-	public $cachedBODYstr = null;
+	public ?string $cachedBODYstr = null;
 
-	/** @var ?string */
-	public $cachedWTstr = null;
+	public ?string $cachedWTstr = null;
 
-	/** @var ?string */
-	public $cachedNormalizedHTML = null;
+	public ?string $cachedNormalizedHTML = null;
 
-	/** @var array */
-	public $time = [];
+	public array $time = [];
 
 	private const DIRECT_KEYS = [
 		'type',
@@ -193,6 +177,17 @@ class Test extends Item {
 					) );
 				}
 			}
+		}
+	}
+
+	public function __clone() {
+		// Properties that need deep cloning
+		foreach ( [ 'options', 'config', 'sections',
+					'knownFailures', 'selserChangeTrees', 'time' ] as $f ) {
+			$this->$f = Utils::cloneArray( $this->$f );
+		}
+		if ( $this->changetree !== null ) {
+			$this->changetree = Utils::cloneArray( $this->changetree );
 		}
 	}
 
@@ -845,7 +840,7 @@ class Test extends Item {
 			} else {
 				if ( $targetMode === 'wt2html' && isset( $this->sections['html/parsoid+langconv'] ) ) {
 					// Since we are clobbering options and parsoidHtml, clone the test object
-					$testClone = Utils::clone( $this );
+					$testClone = clone $this;
 					$testClone->options['langconv'] = true;
 					$testClone->parsoidHtml = $this->sections['html/parsoid+langconv'];
 					$runTest( $testClone, $targetMode, $runnerOpts );

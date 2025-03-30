@@ -98,6 +98,7 @@ class Utils {
 	 * @param bool $deepClone
 	 * @param bool $debug
 	 * @return object|array
+	 * @deprecated Use native PHP cloning and Utils::cloneArray when needed
 	 */
 	public static function clone( $obj, $deepClone = true, $debug = false ) {
 		if ( $debug ) {
@@ -108,6 +109,7 @@ class Utils {
 				if ( $deepClone ) {
 					return array_map(
 						static function ( $o ) {
+							// @phan-suppress-next-line PhanDeprecatedFunction
 							return Utils::clone( $o, true, true );
 						},
 						$obj
