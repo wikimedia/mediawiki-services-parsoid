@@ -194,7 +194,7 @@ class DOMDataUtils {
 		Assert::invariant( $nodeData !== null, 'Bogus nodeId given!' );
 		if ( isset( $nodeData->storedId ) ) {
 			throw new UnreachableException(
-				'Trying to fetch node data without loading!' .
+				'Trying to fetch node data without loading! ' .
 				// If this node's data-object id is different from storedId,
 				// it will indicate that the data-parsoid object was shared
 				// between nodes without getting cloned. Useful for debugging.
