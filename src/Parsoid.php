@@ -351,7 +351,7 @@ class Parsoid {
 		] );
 
 		// @phan-suppress-next-line PhanDeprecatedFunction
-		$timing = Timing::fakeTiming( $this->siteConfig, 1000 * strlen( $pageConfig->getPageMainContent() ) );
+		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $pageConfig->getPageMainContent() ) );
 		$timing->end(
 			"entry.wt2html.{$mstr}.size.input",
 			"wt2html_size_input_bytes",
@@ -359,7 +359,7 @@ class Parsoid {
 		);
 
 		$outSize = strlen( $out['html'] );
-		$timing = Timing::fakeTiming( $this->siteConfig, 1000 * $outSize );
+		$timing = Timing::fakeTiming( $this->siteConfig, $outSize );
 		$timing->end( "entry.wt2html.{$mstr}.size.output", "wt2html_size_output_bytes", [ "type" => $mstr ] );
 
 		if ( $parseTimeMs > 10 && $outSize > 100 ) {
@@ -508,7 +508,7 @@ class Parsoid {
 		$metrics = $siteConfig->metrics();
 
 		$htmlSize = $options['htmlSize'] ?? 0;
-		$timing = Timing::fakeTiming( $this->siteConfig, 1000 * $htmlSize );
+		$timing = Timing::fakeTiming( $this->siteConfig, $htmlSize );
 		$timing->end( 'entry.html2wt.size.input', 'html2wt_size_input_bytes' );
 
 		if ( isset( $options['inputContentVersion'] ) ) {
@@ -526,7 +526,7 @@ class Parsoid {
 		$timing = Timing::fakeTiming( $this->siteConfig, $serialTime );
 		$timing->end( 'entry.html2wt.total', 'html2wt_total_seconds', [] );
 
-		$timing = Timing::fakeTiming( $this->siteConfig, 1000 * strlen( $wikitext ) );
+		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $wikitext ) );
 		$timing->end( 'entry.html2wt.size.output', 'html2wt_size_output_bytes', [] );
 
 		if ( $htmlSize ) {  // Avoid division by zero
