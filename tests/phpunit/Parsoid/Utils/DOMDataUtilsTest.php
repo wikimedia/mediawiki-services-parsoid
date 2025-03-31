@@ -30,7 +30,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		DOMDataUtils::storeInPageBundle( $dpb, $p, (object)[
 			'parsoid' => [ 'go' => 'team' ],
 			'mw' => [ 'test' => 'me' ],
-		], DOMDataUtils::usedIdIndex( $p ) );
+		], DOMDataUtils::usedIdIndex( null, $p->ownerDocument ) );
 		$id = DOMCompat::getAttribute( $p, 'id' ) ?? '';
 		$this->assertNotEquals( '', $id );
 		// Use the 'native' getElementById, not DOMCompat::getElementById,

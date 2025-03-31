@@ -255,11 +255,17 @@ class DomPageBundle implements JsonCodecable {
 			$metadata->headers ?? $options['headers'] ?? null,
 			$metadata->contentmodel ?? $options['contentmodel'] ?? null
 		);
+		// XXX We can't create a full idIndex unless we can traverse
+		// extension content, which requires an Env or a ParsoidExtensionAPI,
+		// but as long as your extension content doesn't contain IDs beginning
+		// with 'mw' you'll be fine.
+		$env = $options['env'] ?? $options['extAPI'] ?? null;
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ),
 			[
 				'storeInPageBundle' => $dpb,
 				'outputContentVersion' => $dpb->version,
+				'idIndex' => DOMDataUtils::usedIdIndex( $env, $doc ),
 			] + $options
 		);
 		return $dpb;

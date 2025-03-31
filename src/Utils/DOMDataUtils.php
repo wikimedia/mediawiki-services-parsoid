@@ -11,11 +11,13 @@ use UnexpectedValueException;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
+use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
@@ -531,10 +533,13 @@ class DOMDataUtils {
 		if ( $uid === null ) {
 			do {
 				$docDp['counter'] += 1;
-				// PORT-FIXME: NOTE that we aren't updating the idIndex here because
-				// we are generating unique ids that will not conflict. In any case,
-				// the idIndex is a workaround for the PHP DOM's issues and we might
-				// switch out of this in the future anyway.
+				// The idIndex maps all *existing* ids from the original
+				// document, so that we can ensure than any *newly assigned*
+				// UIDs don't happen to step on them.  We don't need to update
+				// the idIndex here because (a) we only add a new UID if it
+				// doesn't conflict with an existing ID, and (b) by
+				// construction, none of our new UIDs will conflict with each
+				// other.
 				$uid = 'mw' . PHPUtils::counterToBase64( $docDp['counter'] );
 			} while ( isset( $idIndex[$uid] ) );
 			self::addNormalizedAttribute( $node, 'id', $uid, $origId );
@@ -639,22 +644,26 @@ class DOMDataUtils {
 
 	/**
 	 * Builds an index of id attributes seen in the DOM
-	 * @param Node $node
+	 * @param Env|ParsoidExtensionAPI|null $env Provide an env or a parsoid
+	 *  extension API in order to properly traverse
+	 *  document fragments embedded in extension DOM.
+	 * @param Document $doc
 	 * @return array
 	 */
-	public static function usedIdIndex( Node $node ): array {
+	public static function usedIdIndex( $env, Document $doc ): array {
 		$index = [];
-		DOMUtils::visitDOM( DOMCompat::getBody( $node->ownerDocument ),
-			static function ( Node $n, ?array $options = null ) use ( &$index ) {
-				if ( $n instanceof Element ) {
-					$id = DOMCompat::getAttribute( $n, 'id' );
-					if ( $id !== null ) {
-						$index[$id] = true;
-					}
+		$t = new DOMTraverser( false, $env !== null );
+		$t->addHandler( null, static function ( $n, $state ) use ( &$index ) {
+			if ( $n instanceof Element ) {
+				$id = DOMCompat::getAttribute( $n, 'id' );
+				if ( $id !== null ) {
+					$index[$id] = true;
 				}
-			},
-			[]
-		);
+			}
+			return true;
+		} );
+		$extApi = ( $env instanceof Env ) ? new ParsoidExtensionAPI( $env ) : $env;
+		$t->traverse( $extApi, DOMCompat::getBody( $doc ) );
 		return $index;
 	}
 
@@ -674,7 +683,8 @@ class DOMDataUtils {
 		// So, we work around that by building an index and avoiding getElementById entirely
 		// in storeInPageBundle.
 		if ( !empty( $options['storeInPageBundle'] ) ) {
-			$options['idIndex'] = self::usedIdIndex( $node );
+			Assert::invariant( isset( $options['idIndex'] ),
+							  "Page bundle requires idIndex to avoid conflicts" );
 		}
 		// Set the "storage options" and save the "loading options"
 		$codec = self::getCodec( $node );
