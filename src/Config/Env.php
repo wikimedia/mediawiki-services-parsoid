@@ -930,6 +930,19 @@ class Env {
 	}
 
 	/**
+	 * @internal
+	 * Serialize pfragment map to string for debugging dumps
+	 */
+	public function pFragmentMapToString(): string {
+		$codec = DOMDataUtils::getCodec( $this->getTopLevelDoc() );
+		$buf = '';
+		foreach ( $this->pFragmentMap as $k => $v ) {
+			$buf .= "$k = " . $codec->toJsonString( $v, PFragment::hint() );
+		}
+		return $buf;
+	}
+
+	/**
 	 * Record a lint
 	 * @param string $type Lint type key
 	 * @param array $lintData Data for the lint.

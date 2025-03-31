@@ -148,6 +148,11 @@ class PipelineUtils {
 			PHPUtils::jsonEncode( $dp['src'] ) . "\n";
 		$dump .= str_repeat( '-', 80 ) . "\n";
 		$dump .= $src . "\n";
+		$pfragMapStr = $env->pFragmentMapToString();
+		if ( $pfragMapStr ) {
+			$dump .= "----- P-FRAGMENT MAP -----\n";
+			$dump .= $pfragMapStr;
+		}
 		$dump .= str_repeat( '-', 80 ) . "\n";
 		$env->writeDump( $dump );
 	}
