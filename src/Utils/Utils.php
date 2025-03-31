@@ -27,6 +27,8 @@ class Utils {
 	/** Regular fragment for matching a wikitext comment */
 	public const COMMENT_REGEXP = '/' . self::COMMENT_REGEXP_FRAGMENT . '/';
 
+	public const COMMENT_OR_WS_REGEXP = '/^(\s|' . self::COMMENT_REGEXP_FRAGMENT . ')*$/D';
+
 	/**
 	 * Strip Parsoid id prefix from aboutID
 	 *

@@ -90,9 +90,6 @@ class WikitextSerializer {
 		'/^(\n)?(\{\{ *_+)(\n? *\|\n? *_+ *= *)(_+)(\n? *\}\})(\n)?$/D';
 
 	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
-	private const COMMENT_OR_WS_REGEXP = '/^(\s|' . Utils::COMMENT_REGEXP_FRAGMENT . ')*$/D';
-
-	/** @var string Regexp for testing whether nowiki added around heading-like wikitext is needed */
 	private const HEADING_NOWIKI_REGEXP = '/^(?:' . Utils::COMMENT_REGEXP_FRAGMENT . ')*'
 		. '<nowiki>(=+[^=]+=+)<\/nowiki>(.+)$/D';
 
@@ -1334,7 +1331,7 @@ class WikitextSerializer {
 		};
 
 		preg_match( self::HEADING_NOWIKI_REGEXP, $line, $match );
-		if ( $match && !preg_match( self::COMMENT_OR_WS_REGEXP, $match[2] ) ) {
+		if ( $match && !preg_match( Utils::COMMENT_OR_WS_REGEXP, $match[2] ) ) {
 			// The nowikiing was spurious since the trailing = is not in EOL position
 			return $escaper( $match[1] ) . $match[2];
 		} else {

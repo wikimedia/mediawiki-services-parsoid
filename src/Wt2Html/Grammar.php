@@ -102,10 +102,12 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 	private $prevOffset = 0;
 	private $headingIndex = 0;
+	private $hasSOLTransparentAtStart = false;
 
 	public function resetState() {
 		$this->prevOffset = 0;
 		$this->headingIndex = 0;
+		$this->hasSOLTransparentAtStart = false;
 	}
 
 	private function assert( $condition, $text ) {
@@ -667,6 +669,7 @@ private function a48() {
 }
 private function a49($r, $cil, $bl) {
 
+		$this->hasSOLTransparentAtStart = true;
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	
 }
@@ -757,6 +760,7 @@ private function a68($tl) {
 }
 private function a69($sp, $elc, $st) {
 
+	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 
 }
@@ -1113,6 +1117,7 @@ private function a93($s, $ce, $endTPos, $spc) {
 			$tagDP = new DataParsoid;
 			$tagDP->tsr = $this->tsrOffsets( 'start' );
 			$tagDP->tsr->end += $level;
+
 			// Match the old parser's behavior by
 			// (a) making headingIndex part of tokenizer state
 			//   (don't reuse pipeline! see $this->resetState above)
@@ -1120,16 +1125,29 @@ private function a93($s, $ce, $endTPos, $spc) {
 			//   even if we're inside a template argument
 			//   or other context which won't end up putting the heading
 			//   on the output page.  T213468/T214538
-			$this->headingIndex++;
-			$tagDP->getTemp()->headingIndex = $this->headingIndex;
+
+			// Unlike hasSOLTransparentAtStart, trailing whitespace and comments
+			// are allowed
+			$hasSOLTransparentAtEnd = !preg_match(
+				Utils::COMMENT_OR_WS_REGEXP,
+				substr( $this->input, $endTPos, $this->endOffset() - $endTPos )
+			);
+
+			// If either of these are true, the legacy preprocessor won't tokenize
+			// a heading and therefore won't assign them a heading index.  They
+			// will however parse as headings in the legacy parser's second pass,
+			// once sol transparent tokens have been stripped.
+			if ( !$this->hasSOLTransparentAtStart && !$hasSOLTransparentAtEnd ) {
+				$this->headingIndex++;
+				$tagDP->getTemp()->headingIndex = $this->headingIndex;
+			}
+
 			$res = [ new TagTk( 'h' . $level, [], $tagDP ) ];
-
 			PHPUtils::pushArray( $res, $c );
-
 			$endTagDP = new DataParsoid;
 			$endTagDP->tsr = new SourceRange( $endTPos - $level, $endTPos );
 			$res[] = new EndTagTk( 'h' . $level, [], $endTagDP );
-			$res[] = $spc;
+			PHPUtils::pushArray( $res, $spc );
 			return $res;
 		
 }

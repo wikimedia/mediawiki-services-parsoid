@@ -5,6 +5,9 @@
 	"Disable TOC": {
 		"wt2html": "<p data-parsoid='{\"dsr\":[0,4,0,0]}'>Lead</p>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[5,18,2,2]}'>Section 1</h2>\n<h2 id=\"Section_2\" data-parsoid='{\"dsr\":[19,32,2,2]}'>Section 2</h2>\n<h2 id=\"Section_3\" data-parsoid='{\"dsr\":[33,46,2,2]}'>Section 3</h2>\n<h2 id=\"Section_4\" data-parsoid='{\"dsr\":[47,60,2,2]}'>Section 4</h2>\n<h2 id=\"Section_5\" data-parsoid='{\"dsr\":[61,74,2,2]}'>Section 5</h2>"
 	},
+	"Editable headings can only have trailing comments and whitespace": {
+		"wt2wt": "====test====\nyup\n\n====hi ho====\n<noinclude>\nnope\n</noinclude>\n\n====test 2====\nanother yup\n\n<!-- well -->====ha ha====\nback to nope\n\n====he he====  <!-- but this is ok -->\nsee"
+	},
 	"Ensure comments in toc lines are stripped": {
 		"wt2html": "Sections:"
 	},
