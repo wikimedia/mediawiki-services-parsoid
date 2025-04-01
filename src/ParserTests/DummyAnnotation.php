@@ -17,7 +17,9 @@ class DummyAnnotation extends ExtensionTagHandler implements ExtensionModule {
 			'name' => 'DummyAnnotation',
 			// If these are not the same length as "translate" and "tvar"
 			// respectively, it requires adjusting wtOffsets in the (large) test file.
-			'annotations' => [ 'dummyanno', 'ann2' ]
+			'annotations' => [
+				'tagNames' => [ 'dummyanno', 'ann2' ]
+			],
 		];
 	}
 }

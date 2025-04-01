@@ -1,0 +1,202 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"@comment": "Keep this in sync with [[mw:Parsoid/Internals/Module Configuration Schema]]",
+	"definitions": {
+		"ObjectFactorySpec": {
+			"type": "object",
+			"additionalProperties": false,
+			"properties": {
+				"factory": {
+					"type": [
+						"string",
+						"array"
+					],
+					"description": "A factory function to be called to create the object"
+				},
+				"class": {
+					"type": "string",
+					"description": "The fully-qualified class name of the object. This should be omitted if a factory is specified."
+				},
+				"args": {
+					"type": "array",
+					"description": "The arguments passed to the object constructor or factory"
+				},
+				"services": {
+					"type": "array",
+					"description": "If supplied and non-empty, the named services are requested from the service container and prepended before 'args'."
+				},
+				"optional_services": {
+					"type": "array",
+					"description": "If supplied and non-empty, the named services are requested from the service container and appended after 'services' if the services are available; null is passed if the services are not available."
+				}
+			},
+			"@comment": "factory and class should be mutually exclusive",
+			"oneOf": [
+				{
+					"required": [ "factory" ],
+					"not": { "required": [ "class" ] }
+				},
+				{
+					"required": [ "class" ],
+					"not": { "required": [ "factory" ] }
+				}
+			]
+		},
+		"ObjectFactorySpecOrClassString": {
+			"oneOf": [
+				{
+					"type": "string",
+					"description": "The fully-qualified class name of the object."
+				},
+				{
+					"$ref": "#/definitions/ObjectFactorySpec"
+				}
+			]
+		},
+		"ExtensionTagHandler": {
+			"type": "object",
+			"required": [
+				"name",
+				"handler"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"name": {
+					"type": "string",
+					"description": "Case-insensitive extension tag name"
+				},
+				"handler": {
+					"description": "An object factory spec for an object extending ExtensionTagHandler",
+					"$ref": "#/definitions/ObjectFactorySpecOrClassString"
+				},
+				"options": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {
+						"outputHasCoreMwDomSpecMarkup": {
+							"type": "boolean"
+						},
+						"stripNowiki": {
+							"type": "boolean"
+						},
+						"hasWikitextInput": {
+							"type": "boolean"
+						},
+						"wt2html": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"embedsDomInAttributes": {
+									"type": "boolean"
+								},
+								"embedsHTMLInAttributes": {
+									"type": "boolean"
+								},
+								"attributeWSNormalizationPref": {
+									"enum": [
+										"normalize", "keepspaces", "trim"
+									]
+								},
+								"customizesDataMw": {
+									"type": "boolean"
+								},
+								"setDSR": {
+									"type": "boolean"
+								},
+								"wrapperName": {
+									"type": "string"
+								},
+								"unpackOutput": {
+									"type": "boolean"
+								}
+							}
+						},
+						"html2wt": {
+							"type": "object",
+							"additionalProperties": false,
+							"properties": {
+								"format": {
+									"enum": [
+										"block",
+										"inline"
+									]
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"AnnotationHandler": {
+			"type": "object",
+			"required": [
+				"tagNames"
+			],
+			"additionalProperties": false,
+			"properties": {
+				"tagNames": {
+					"description": "Case-insensitive annotation tag names",
+					"type": "array",
+					"minItems": 1,
+					"items": {
+						"type": "string"
+					}
+				},
+				"annotationStripper": {
+					"description": "An object factory spec for an object implementing AnnotationStripper",
+					"$ref": "#/definitions/ObjectFactorySpecOrClassString"
+				},
+				"options": {
+					"type": "object",
+					"additionalProperties": false,
+					"properties": {}
+				}
+			}
+		}
+	},
+	"type": "object",
+	"additionalProperties": false,
+	"patternProperties": {
+		"^@": {
+			"type": [
+				"string",
+				"array"
+			],
+			"description": "Arbitrary notes, ignored by the parser."
+		}
+	},
+	"required": [
+		"name"
+	],
+	"properties": {
+		"name": {
+			"type": "string",
+			"description": "Extension module name; must be unique"
+		},
+		"annotations": {
+			"description": "An annotation handler",
+			"$ref": "#/definitions/AnnotationHandler"
+		},
+		"contentModels": {
+			"description": "A map from contentmodel names to ContentModelHandler classes",
+			"type": "object",
+			"patternProperties": {
+				".*": { "$ref": "#/definitions/ObjectFactorySpecOrClassString" }
+			}
+		},
+		"domProcessors": {
+			"description": "A list of ExtDOMProcessor classes",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/ObjectFactorySpecOrClassString"
+			}
+		},
+		"tags": {
+			"description": "A list of extension tag handlers",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/ExtensionTagHandler"
+			}
+		}
+	}
+}

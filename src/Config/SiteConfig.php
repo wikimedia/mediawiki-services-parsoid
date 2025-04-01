@@ -3,6 +3,8 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config;
 
+use JsonSchema\Constraints\Constraint;
+use JsonSchema\Validator;
 use Liuggio\StatsdClient\Factory\StatsdDataFactoryInterface;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
@@ -1408,6 +1410,16 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Whether to validate extension module's configuration arrays
+	 * against the schema.  Returns true by default.  Subclasses
+	 * should return true when running tests, but may elect to return
+	 * false in production.
+	 */
+	protected function shouldValidateExtConfig(): bool {
+		return true;
+	}
+
+	/**
 	 * FIXME: might benefit from T250230 (caching) but see T270307 --
 	 * currently SiteConfig::unregisterExtensionModule() is called
 	 * during testing, which requires invalidating $this->extConfig.
@@ -1446,6 +1458,18 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * Return the JSON Schema for Extension Modules.
+	 */
+	private static function getExtensionModuleSchema(): object {
+		static $schema = null;
+		if ( $schema === null ) {
+			$schemaPath = __DIR__ . '/../Ext/moduleconfig.schema.json';
+			$schema = json_decode( file_get_contents( $schemaPath ) );
+		}
+		return $schema;
+	}
+
+	/**
 	 * Register a Parsoid-compatible extension
 	 * @param ExtensionModule $ext
 	 */
@@ -1456,6 +1480,20 @@ abstract class SiteConfig {
 			isset( $extConfig['name'] ),
 			"Every extension module must have a name."
 		);
+		if ( $this->shouldValidateExtConfig() ) {
+			$validator = new Validator;
+			$validator->validate(
+				$extConfig,
+				self::getExtensionModuleSchema(),
+				Constraint::CHECK_MODE_TYPE_CAST // allow associative arrays
+			);
+			Assert::invariant(
+				$validator->isValid(),
+				"Found errors when validating " .
+					$extConfig['name'] . " ExtensionModule config: " .
+					json_encode( $validator->getErrors(), JSON_PRETTY_PRINT )
+			);
+		}
 		$name = $extConfig['name'];
 
 		// These are extension tag handlers.  They have
@@ -1475,8 +1513,8 @@ abstract class SiteConfig {
 
 		if ( isset( $extConfig['annotations'] ) ) {
 			$annotationConfig = $extConfig['annotations'];
-			$annotationTags = $annotationConfig['tagNames'] ?? $annotationConfig;
-			foreach ( $annotationTags ?? [] as $aTag ) {
+			$annotationTags = $annotationConfig['tagNames'] ?? [];
+			foreach ( $annotationTags as $aTag ) {
 				$lowerTagName = mb_strtolower( $aTag );
 				$this->extConfig['allTags'][$lowerTagName] = true;
 				$this->extConfig['annotationTags'][$lowerTagName] = true;
@@ -1572,7 +1610,7 @@ abstract class SiteConfig {
 	 * Get an array of defined extension tags, with the lower case name
 	 * in the key, and the value being arbitrary.
 	 *
-	 * @return array
+	 * @return array<string,true>
 	 */
 	public function getExtensionTagNameMap(): array {
 		$extConfig = $this->getExtConfig();
