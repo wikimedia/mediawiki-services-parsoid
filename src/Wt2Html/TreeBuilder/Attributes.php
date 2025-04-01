@@ -19,7 +19,7 @@ class Attributes extends PlainAttributes {
 		parent::__construct( $data );
 	}
 
-	public function clone() {
+	public function clone(): self {
 		if ( isset( $this->data[DOMDataUtils::DATA_OBJECT_ATTR_NAME] ) ) {
 			$newAttrs = $this->data;
 			$data = DOMDataUtils::getBag( $this->document )->getObject(

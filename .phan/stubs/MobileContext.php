@@ -2,7 +2,7 @@
 
 // Stub MobileContext class from MobileFrontend extension
 class MobileContext extends ContextSource {
-	public static function singleton() {
+	public static function singleton(): self {
 		return new self();
 	}
 
