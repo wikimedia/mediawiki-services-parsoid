@@ -981,7 +981,8 @@ class DOMRangeBuilder {
 				}
 
 				if ( !is_string( $parts[0] ) && $parts[0]->type === 'v3parserfunction' ) {
-					DOMUtils::addTypeOf( $encapTgt, 'mw:ParserFunction', false );
+					$key = $parts[0]->func;
+					DOMUtils::addTypeOf( $encapTgt, 'mw:ParserFunction/' . $key, false );
 				}
 
 				// Set up dsr->start, dsr->end, and data-mw on the target node

@@ -10,7 +10,7 @@ wgParsoidExperimentalParserFunctionSupport=true
 !! wikitext
 a {{#if:foo|bar|baz}} b
 !! html/parsoid
-<p data-parsoid='{"dsr":[0,23,0,0]}'>a <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]],"dsr":[2,21,null,null]}' data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#if","key":"if"},"params":{"1":{"wt":"foo"},"2":{"wt":"bar"},"3":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
+<p data-parsoid='{"dsr":[0,23,0,0]}'>a <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/if" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]],"dsr":[2,21,null,null]}' data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#if","key":"if"},"params":{"1":{"wt":"foo"},"2":{"wt":"bar"},"3":{"wt":"baz"}},"i":0}}]}'>bar</span> b</p>
 !! end
 
 !! test
