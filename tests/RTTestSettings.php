@@ -30,5 +30,5 @@ $wgParsoidSettings['linting'] = (bool)$wgReadOnly;
 
 $wgParsoidSettings['metricsPrefix'] = 'Parsoid-Tests.';
 
-// Turn on fragment support -- v2 to use exttag strip tags
-$wgParsoidFragmentSupport = 'v2';
+// Turn on fragment support -- v3 to use exttag strip tags and fix {{#babel}}
+$wgParsoidFragmentSupport = 'v3';
