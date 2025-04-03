@@ -118,13 +118,6 @@ class Headings {
 		$tmp = $dp->getTemp();
 
 		// Cannot generate an anchor id if the heading already has an id!
-		//
-		// NOTE: Divergence from PHP parser behavior.
-		//
-		// The PHP parser generates a <h*><span id="anchor-id-here-">..</span><h*>
-		// So, it can preserve the existing id if any. However, in Parsoid, we are
-		// generating a <h* id="anchor-id-here"> ..</h*> => we either overwrite or
-		// preserve the existing id and use it for TOC, etc. We choose to preserve it.
 		if ( $node->hasAttribute( 'id' ) ) {
 			$linkAnchorId = DOMCompat::getAttribute( $node, 'id' );
 			$dp->reusedId = true;
