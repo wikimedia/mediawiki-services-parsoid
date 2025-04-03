@@ -355,13 +355,13 @@ class CleanUp {
 	}
 
 	/**
-	 * Perform some final cleanup
+	 * Mark which data-parsoid attributes can be discarded
 	 *
 	 * @param Node $node
 	 * @param DTState $state
 	 * @return bool|Node The next node or true to continue with $node->nextSibling
 	 */
-	public static function saveDataParsoid( Node $node, DTState $state ) {
+	public static function markDiscardableDataParsoid( Node $node, DTState $state ) {
 		if ( !( $node instanceof Element ) ) {
 			return true;
 		}
@@ -407,7 +407,7 @@ class CleanUp {
 			// We cannot unset data-parsoid because any code that runs after
 			// this that calls DOMDataUtils::getDataParsoid will reinitialize
 			// it to an empty object. So, we do that re-init here and set the
-			// IS_NEW flag to ensure DOMDataUtils::storeDataParsoid discards this
+			// IS_NEW flag to ensure DOMDataUtils::storeDataAttribs discards this
 			// if unmodified. The empty data-parsoid blob is considered unmodified.
 			$dp = new DataParsoid;
 			$dp->setTempFlag( TempData::IS_NEW );

@@ -176,15 +176,15 @@ class ParserPipelineFactory {
 				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'finalCleanup' ] ]
 			]
 		],
-		'saveDP' => [
-			'name' => 'CleanUp-saveDataParsoid',
+		'markDiscardableDP' => [
+			'name' => 'CleanUp-markDiscardableDataParsoid',
 			'tplInfo' => true,
 			'handlers' => [
 				// Mark which data.parsoid's should be serialized into
 				// data-parsoid html attributes.
 				// Make this its own thing so that any changes to the DOM
 				// don't affect other handlers that run alongside it.
-				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'saveDataParsoid' ] ]
+				[ 'nodeName' => null, 'action' => [ CleanUp::class, 'markDiscardableDataParsoid' ] ]
 			]
 		]
 	];
@@ -210,7 +210,7 @@ class ParserPipelineFactory {
 	//    embedded in attributes and they may need to be processed independently.
 	//
 	// Nested (non-top-level) pipelines can never include the following:
-	// - lang-converter, convertoffsets, dedupe-styles, cleanup, saveDP
+	// - lang-converter, convertoffsets, dedupe-styles, cleanup, markDiscardableDP
 	//
 	// FIXME: Perhaps introduce a config flag in the processor config that
 	// verifies this property against a pipeline's 'toplevel' state.
@@ -223,7 +223,7 @@ class ParserPipelineFactory {
 	// NOTES about ordering:
 	// lang-converter, redlinks:
 	//    Language conversion and redlink marking are done here
-	//    *before* we cleanup and save data-parsoid because they
+	//    *before* we cleanup and mark discardable data-parsoid because they
 	//    are also used in pb2pb/html2html passes, and we want to
 	//    keep their input/output formats consistent.
 	public const FULL_PARSE_GLOBAL_DOM_TRANSFORMS = [
@@ -236,26 +236,19 @@ class ParserPipelineFactory {
 		'heading-ids',
 		'sections', 'convertoffsets', 'cleanup',
 		'embedded-docs',
-		'saveDP', 'addmetadata'
+		'markDiscardableDP', 'addmetadata'
 	];
 
 	// Skipping sections, addmetadata from the above pipeline
 	//
-	// FIXME: Skip extpp, linter, lang-converter, redlinks, heading-ids, convertoffsets, saveDP for now.
+	// FIXME: Skip extpp, linter, lang-converter, redlinks, heading-ids, convertoffsets for now.
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
 		'fixups+dedupe-styles', 'strip-metas',
 		'displayspace', 'linkclasses',
 		'cleanup',
-		// Need to run this recursively
-		'embedded-docs',
-		// FIXME This means the data-* from embedded HTML fragments won't end up
-		// in the pagebundle. But, if we try to call this on those fragments,
-		// we get multiple calls to store embedded docs. So, we may need to
-		// write a custom traverser if we want these embedded data* objects
-		// in the pagebundle (this is not a regression since they weren't part
-		// of the pagebundle all this while anyway.)
-		/* 'saveDP' */
+		'embedded-docs', // Need to run this recursively
+		'markDiscardableDP'
 	];
 
 	public const SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS = [
@@ -269,7 +262,7 @@ class ParserPipelineFactory {
 
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
 		'update-template', 'linter', 'lang-converter', /* FIXME: Are lang converters idempotent? */
-		'dedupe-heading-ids', 'sections', 'saveDP'
+		'dedupe-heading-ids', 'sections', 'markDiscardableDP'
 	];
 
 	private const STAGES = [
