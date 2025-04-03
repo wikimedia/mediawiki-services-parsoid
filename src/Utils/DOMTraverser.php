@@ -103,15 +103,6 @@ class DOMTraverser {
 					return true; // $dom might have been changed
 				}
 			);
-			// Handle embedded DocumentFragments
-			if ( WTUtils::isInlineMedia( $node ) ) {
-				$dmw = DOMDataUtils::getDataMw( $node );
-				$caption = $dmw->caption ?? null;
-				if ( $caption ) {
-					$newState = $state ? new DTState( $state->env, $state->options, false ) : null;
-					$self->traverse( $extAPI, $caption, $newState );
-				}
-			}
 		}
 
 		foreach ( $this->handlers as $handler ) {
