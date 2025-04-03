@@ -30,8 +30,9 @@ class Timing {
 	private ?SiteConfig $siteConfig;
 
 	private ?float $elapsed;
+	private bool $isTime;
 
-	private function __construct( ?object $configOrMetrics, ?float $elapsed = null ) {
+	private function __construct( ?object $configOrMetrics, ?float $elapsed = null, bool $isTime = true ) {
 		if ( $configOrMetrics instanceof SiteConfig ) {
 			$this->siteConfig = $configOrMetrics;
 			$this->metrics = $configOrMetrics->metrics();
@@ -41,6 +42,7 @@ class Timing {
 		}
 		$this->startTime = self::millis();
 		$this->elapsed = $elapsed;
+		$this->isTime = $isTime;
 	}
 
 	/**
@@ -71,8 +73,14 @@ class Timing {
 		}
 		if ( $this->siteConfig ) {
 			// Note that observeTiming takes a value in *milliseconds*
-			// despite the name of the metric ending in `_seconds`
-			$this->siteConfig->observeTiming( $name, $this->elapsed, $labels );
+			// despite the name of the metric ending in `_seconds`.
+
+			// TODO Replace this with histogram when metric type is available
+			// If metric doesn't observe time, scale by 1000 to work around the internal
+			// scaling of statslib to convert ms to s.
+
+			$observedValue = $this->isTime ? $this->elapsed : 1000 * $this->elapsed;
+			$this->siteConfig->observeTiming( $name, $observedValue, $labels );
 		}
 		return $this->elapsed;
 	}
@@ -81,10 +89,11 @@ class Timing {
 	 * Override elapsed time of a timing instance
 	 * @param SiteConfig $siteConfig
 	 * @param float $value Value to measure in the metrics (milliseconds if timing)
+	 * @param bool $isTime Flag if fake timing measures time (workaround for histogram)
 	 * @return Timing
 	 */
-	public static function fakeTiming( SiteConfig $siteConfig, float $value ): Timing {
-		return new Timing( $siteConfig, $value );
+	public static function fakeTiming( SiteConfig $siteConfig, float $value, bool $isTime = true ): Timing {
+		return new Timing( $siteConfig, $value, $isTime );
 	}
 
 	/**
