@@ -236,7 +236,6 @@ flags=has-async-content
 <p>Content is ready: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"ready"},"2":{"wt":"Ready!"}},"i":0}}]}'>Ready!</span></p>
 !! end
 
-# TODO (T390341): The default fallback content should be localized.
 !! test
 f6_async_return: Test conditionally-asynchronous content (not ready case)
 !! options
@@ -248,8 +247,8 @@ Default fallback content: {{#f6_async_return:not ready}}
 Specified fallback content: {{#f6_async_return:not ready|My own fallback}}
 !! metadata/parsoid
 flags=async-not-ready, has-async-content
-!! html/parsoid
-<p>Default fallback content: <span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"}},"i":0}}]}'>Content not ready</span></p>
+!! html/parsoid+integrated
+<p>Default fallback content: <span class="mw-async-not-ready" typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"}},"i":0}}]}'><span typeof="mw:I18n" data-mw-i18n='{"/":{"lang":"x-page","key":"parsoid-async-not-ready-fallback"}}'></span></span></p>
 <p>Specified fallback content: <span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"},"2":{"wt":"My own fallback"}},"i":0}}]}'>My own fallback</span></p>
 !! end
 

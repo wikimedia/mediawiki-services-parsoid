@@ -1792,6 +1792,14 @@ abstract class SiteConfig {
 		return $extConfig['domProcessors'];
 	}
 
+	/**
+	 * Return the localization key we should use for asynchronous
+	 * fallback content.
+	 */
+	public function getAsyncFallbackMessageKey(): string {
+		return 'parsoid-async-not-ready-fallback';
+	}
+
 	/** @var array<string,int> */
 	protected $wt2htmlLimits = [
 		// We won't handle pages beyond this size

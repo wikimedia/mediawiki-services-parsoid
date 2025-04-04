@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Ext\AsyncResult;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Fragments\DomPFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -17,6 +18,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\Title;
@@ -883,9 +885,24 @@ class TemplateHandler extends TokenHandler {
 					"returning async result without declaration"
 				);
 				$env->getMetadata()->setOutputFlag( 'async-not-ready' );
-				$fragment = $fragment->fallbackContent( $extApi ) ??
-					// TODO (T390341): use localized fallback message
-					WikitextPFragment::newFromLiteral( 'Content not ready', null );
+				$fragment = $fragment->fallbackContent( $extApi );
+				if ( $fragment === null ) {
+					// Create localized fallback message
+					$doc = $env->getTopLevelDoc();
+					$msg = $doc->createDocumentFragment();
+					$span = $doc->createElement( 'span' );
+					$span->setAttribute( 'class', 'mw-async-not-ready' );
+					DOMCompat::append(
+						$span,
+						WTUtils::createPageContentI18nFragment(
+							$doc,
+							$env->getSiteConfig()->getAsyncFallbackMessageKey(),
+							null
+						)
+					);
+					$msg->appendChild( $span );
+					$fragment = DomPFragment::newFromDocumentFragment( $msg, null );
+				}
 			}
 			// Map fragment to parsoid wikitext + embedded markers
 			[
