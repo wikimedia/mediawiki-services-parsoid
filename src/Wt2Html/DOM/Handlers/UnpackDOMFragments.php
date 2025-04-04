@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
+use Wikimedia\Parsoid\Utils\WTUtils;
 
 class UnpackDOMFragments {
 
@@ -155,6 +156,12 @@ class UnpackDOMFragments {
 			// about attributes are transferred below.
 			DOMDataUtils::setDataMw( $fragmentContent, clone DOMDataUtils::getDataMw( $placeholder ) );
 			DOMUtils::addTypeOf( $fragmentContent, 'mw:Transclusion' );
+			// It should be impossible to have a single DOMFragment represent
+			// the output from multiple parser functions
+			$key = WTUtils::getFragmentHandlerKey( $placeholder );
+			if ( $key !== null ) {
+				DOMUtils::addTypeOf( $fragmentContent, "mw:ParserFunction/$key" );
+			}
 			DOMDataUtils::getDataParsoid( $fragmentContent )->pi = $placeholderDP->pi ?? null;
 		}
 

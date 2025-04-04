@@ -186,7 +186,6 @@ parsoid=wt2html,wt2wt
 <p><span typeof="mw:Transclusion mw:ParserFunction/f3_uc" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f3_uc","key":"f3_uc"},"params":{"1":{"wt":"pre&lt;spantag>inside&lt;/spantag>post"}},"i":0}}]}'>PRE</span><span typeof="mw:Extension/spantag" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"inside"}}'>inside</span><span>POST</span></p>
 !! end
 
-# TODO T391007: missing mw:ParserFunction on HTML return value
 !! test
 f4_return_html: test returning an HTML fragment
 !! options
@@ -194,7 +193,7 @@ parsoid=wt2html,wt2wt
 !! wikitext
 {{#f4_return_html}}
 !! html/parsoid+integrated
-<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f4_return_html","key":"f4_return_html"},"params":{},"i":0}}]}'>html </span><b about="#mwt1"> contents</b></p>
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f4_return_html" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f4_return_html","key":"f4_return_html"},"params":{},"i":0}}]}'>html </span><b about="#mwt1"> contents</b></p>
 !! end
 
 !! test
@@ -204,7 +203,7 @@ parsoid=wt2html,wt2wt
 !! wikitext
 {{#f5_from_nowiki:<nowiki>argument [[with]] <b>markup</b> '''foo'''</nowiki>}}
 !! html/parsoid+integrated
-<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f5_from_nowiki","key":"f5_from_nowiki"},"params":{"1":{"wt":"&lt;nowiki>argument [[with]] &lt;b>markup&lt;/b> &apos;&apos;&apos;foo&apos;&apos;&apos;&lt;/nowiki>"}},"i":0}}]}'>'''oof''' >b/&lt;pukram>b&lt; ]]htiw[[ tnemugra</span></p>
+<p><span about="#mwt1" typeof="mw:Transclusion mw:ParserFunction/f5_from_nowiki" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f5_from_nowiki","key":"f5_from_nowiki"},"params":{"1":{"wt":"&lt;nowiki>argument [[with]] &lt;b>markup&lt;/b> &apos;&apos;&apos;foo&apos;&apos;&apos;&lt;/nowiki>"}},"i":0}}]}'>'''oof''' >b/&lt;pukram>b&lt; ]]htiw[[ tnemugra</span></p>
 !! end
 
 # TODO T390345: argument chaining doesn't work yet
@@ -220,7 +219,7 @@ disabled
 !! wikitext
 {{#f5_from_nowiki:{{#f5_from_nowiki:<nowiki>&amp;amp;</nowiki>}}}}
 !! html/parsoid+integrated
-<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f5_from_nowiki","key":"f5_from_nowiki"},"params":{"1":{"wt":"{{#f5_from_nowiki:&lt;nowiki>&amp;amp;amp;&lt;/nowiki>}}"}},"i":0}}]}'>&amp;amp;</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f5_from_nowiki" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f5_from_nowiki","key":"f5_from_nowiki"},"params":{"1":{"wt":"{{#f5_from_nowiki:&lt;nowiki>&amp;amp;amp;&lt;/nowiki>}}"}},"i":0}}]}'>&amp;amp;</span></p>
 !! end
 
 !! test
@@ -248,11 +247,10 @@ Specified fallback content: {{#f6_async_return:not ready|My own fallback}}
 !! metadata/parsoid
 flags=async-not-ready, has-async-content
 !! html/parsoid+integrated
-<p>Default fallback content: <span class="mw-async-not-ready" typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"}},"i":0}}]}'><span typeof="mw:I18n" data-mw-i18n='{"/":{"lang":"x-page","key":"parsoid-async-not-ready-fallback"}}'></span></span></p>
+<p>Default fallback content: <span class="mw-async-not-ready" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"}},"i":0}}]}'><span typeof="mw:I18n" data-mw-i18n='{"/":{"lang":"x-page","key":"parsoid-async-not-ready-fallback"}}'></span></span></p>
 <p>Specified fallback content: <span about="#mwt2" typeof="mw:Transclusion mw:ParserFunction/f6_async_return" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f6_async_return","key":"f6_async_return"},"params":{"1":{"wt":"not ready"},"2":{"wt":"My own fallback"}},"i":0}}]}'>My own fallback</span></p>
 !! end
 
-# TODO T391007: missing mw:ParserFunction on HTML return value
 !! test
 f7_kv: simple return
 !! options
@@ -260,12 +258,11 @@ parsoid=wt2html
 !! wikitext
 {{#f7_kv:foo=bar|bat=baz}}
 !! html/parsoid+integrated
-<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>(arguments)</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>(arguments)</span></p>
 !! end
 
 # TODO T390344: named arguments (add back wt2wt mode once fixed)
 # TODO T390347: argument interpolation
-# TODO T391007: missing mw:ParserFunction on HTML return value
 !! test
 f7_kv: ordered argument chaining
 !! options
@@ -273,7 +270,7 @@ parsoid=wt2html
 !! wikitext
 {{#f1_wt:A|{{#f7_kv:B|C}}|D}}
 !! html/parsoid+integrated
-<p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>A B C D</span></p>
+<p><span typeof="mw:Transclusion mw:ParserFunction/f7_kv" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>A B C D</span></p>
 !! end
 
 !! test
@@ -287,9 +284,9 @@ parsoid=wt2html
 * Two: {{#f8_countargs:one|two}}
 !! html/parsoid+integrated
 <ul>
-<li>Zero: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{},"i":0}}]}'>0</span></li>
-<li>One: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":""}},"i":0}}]}'>1</span></li>
-<li>One: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"}},"i":0}}]}'>1</span></li>
-<li>Two: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"},"2":{"wt":"two"}},"i":0}}]}'>2</span></li>
+<li>Zero: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{},"i":0}}]}'>0</span></li>
+<li>One: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":""}},"i":0}}]}'>1</span></li>
+<li>One: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"}},"i":0}}]}'>1</span></li>
+<li>Two: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"},"2":{"wt":"two"}},"i":0}}]}'>2</span></li>
 </ul>
 !! end
