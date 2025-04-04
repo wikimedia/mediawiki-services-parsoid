@@ -364,6 +364,7 @@ class TemplateHandler extends TokenHandler {
 				'localName' => $prefix,
 				'title' => $syntheticTitle, // FIXME: Some made up synthetic title
 				'pfArg' => $pfArg,
+				'haveColon' => $haveColon, // FIXME: T391063
 				'srcOffsets' => new SourceRange(
 					$srcOffsets->start + strlen( $untrimmedPrefix ) + ( $haveColon ? 1 : 0 ),
 					$srcOffsets->end ),
@@ -852,10 +853,13 @@ class TemplateHandler extends TokenHandler {
 					'parseOpts' => $this->options,
 				],
 			] );
-			// Trim before colon to make first argument
-			$args = [
-				new KV( '', $tgt['pfArg'], $tgt['srcOffsets']->expandTsrV() ),
-			];
+			$args = [];
+			// Don't pass '' as the "1st argument" if the parser function
+			// didn't have a colon delimiter.
+			if ( count( $token->attribs ) > 1 || $tgt['haveColon'] ) {
+				// Trim before colon to make first argument
+				$args[] = new KV( '', $tgt['pfArg'], $tgt['srcOffsets']->expandTsrV() );
+			}
 			for ( $i = 1; $i < count( $token->attribs ); $i++ ) {
 				$args[] = $token->attribs[$i];
 			}

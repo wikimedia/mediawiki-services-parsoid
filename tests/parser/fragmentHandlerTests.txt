@@ -276,3 +276,21 @@ parsoid=wt2html
 !! html/parsoid+integrated
 <p><span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f7_kv","key":"f7_kv"},"params":{"bat":{"wt":"baz"},"2":null,"1":{"wt":"foo=bar"}},"i":0}}]}'>A B C D</span></p>
 !! end
+
+!! test
+f8_countargs: verify zero-arg handling
+!! options
+parsoid=wt2html
+!! wikitext
+* Zero: {{#f8_countargs}}
+* One: {{#f8_countargs:}}
+* One: {{#f8_countargs:one}}
+* Two: {{#f8_countargs:one|two}}
+!! html/parsoid+integrated
+<ul>
+<li>Zero: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{},"i":0}}]}'>0</span></li>
+<li>One: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":""}},"i":0}}]}'>1</span></li>
+<li>One: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"}},"i":0}}]}'>1</span></li>
+<li>Two: <span typeof="mw:Transclusion" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"},"2":{"wt":"two"}},"i":0}}]}'>2</span></li>
+</ul>
+!! end

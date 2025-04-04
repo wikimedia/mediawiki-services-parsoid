@@ -42,7 +42,7 @@ class ParserTestFragmentHandlers {
 			// and as cases in ::getHandler() below.
 			'f1_wt', 'f2_if', 'f3_uc',
 			'f4_return_html', 'f5_from_nowiki',
-			'f7_kv',
+			'f7_kv', 'f8_countargs',
 		];
 		$handlerFactory = self::class . '::getHandler';
 		$fragmentConfig = array_map( static fn ( $key ) => [
@@ -280,6 +280,23 @@ class ParserTestFragmentHandlers {
 								return $this->arguments->getNamedArgs( $extApi, $expandAndTrim );
 							}
 						};
+					}
+				};
+
+			case 'f8_countargs':
+				// This is a test function which simply reports the number
+				// of ordered arguments.
+				return new class extends FragmentHandler {
+					/** @inheritDoc */
+					public function sourceToFragment(
+						ParsoidExtensionAPI $extApi,
+						Arguments $arguments,
+						bool $tagSyntax
+					) {
+						return LiteralStringPFragment::newFromLiteral(
+							strval( count( $arguments->getOrderedArgs( $extApi ) ) ),
+							null
+						);
 					}
 				};
 

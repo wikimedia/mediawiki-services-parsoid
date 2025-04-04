@@ -39,6 +39,11 @@
 			"name": "f7_kv",
 			"aliases": [ "f7_kv" ],
 			"case-sensitive": true
+		},
+		{
+			"name": "f8_countargs",
+			"aliases": [ "f8_countargs" ],
+			"case-sensitive": true
 		}
 	]
 }
