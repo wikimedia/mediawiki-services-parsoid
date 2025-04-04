@@ -451,7 +451,7 @@ inlineline =
 	c:(
 		urltext
 		/ !inline_breaks
-		r:(inline_element / !newline s:. { return $s; }) { return $r; }
+		r:( inline_element / !newline s:. { return $s; }) { return $r; }
 	)+ {
 		return TokenizerUtils::flattenStringlist( $c );
 	}
@@ -1352,7 +1352,7 @@ wikilink =
 broken_wikilink =
 	&"[["
 	preproc:<&preproc>
-	&{ $preproc =  null; return true; }
+	&{ $preproc = null; return true; }
 	a:("[" (extlink / "[")) {
 		return $a;
 	}
@@ -1362,17 +1362,21 @@ wikilink_preproc =
 	spos:("" { return $this->endOffset(); })
 	target:wikilink_preprocessor_text?
 	tpos:("" { return $this->endOffset(); })
-	lcs:wikilink_content
-	inline_breaks "]]"
+	lcs:(
+	  l:wikilink_content inline_breaks { return [$l,null]; }
+	  / l:inlineline { return [null,$l]; }
+	)
+	"]]"
 	{
-		$pipeTrick = count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
-		if ( $target === null || $pipeTrick ) {
+		[$lcs, $not_wikilink] = $lcs;
+		$pipeTrick = $lcs && count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
+		if ( $target === null || $pipeTrick || $not_wikilink) {
 			$textTokens = [];
 			$textTokens[] = '[[';
 			if ( $target ) {
 				$textTokens[] = $target;
 			}
-			foreach ( $lcs as $a ) {
+			foreach ( $lcs ?? [] as $a ) {
 				// $a[0] is a pipe
 				// FIXME: Account for variation, emit a template tag
 				$textTokens[] = '|';
@@ -1380,6 +1384,9 @@ wikilink_preproc =
 				if ( count( $a[1]->v ) > 0 ) {
 					$textTokens[] = $a[1]->v;
 				}
+			}
+			if ( $not_wikilink ) {
+			   $textTokens[] = $not_wikilink;
 			}
 			$textTokens[] = ']]';
 			return $textTokens;

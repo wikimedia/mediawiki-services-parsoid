@@ -1651,6 +1651,29 @@ parsoid=wt2html
 !! end
 
 !! test
+Non-wikilinks should not be treated as broken wikilinks
+!! options
+parsoid=wt2html
+!! wikitext
+{{1x|[[1],[2]]}}
+
+{{1x|[[{}]]}}
+
+{{1x|[[1, [[2, 3]], 4]]}}
+!! html/php
+<p>[[1],[2]]
+</p><p>[[{}]]
+</p><p>[[1, <a href="/index.php?title=2,_3&amp;action=edit&amp;redlink=1" class="new" title="2, 3 (page does not exist)">2, 3</a>, 4]]
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[1],[2]]"}},"i":0}}]}'>[[1],[2]]</span></p>
+
+<p><span about="#mwt2" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[{}]]"}},"i":0}}]}'>[[{}]]</span></p>
+
+<p><span about="#mwt3" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"[[1, [[2, 3]], 4]]"}},"i":0}}]}'>[[1, </span><a rel="mw:WikiLink" href="./2,_3?action=edit&amp;redlink=1" title="2, 3" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["2, 3"]}}'>2, 3</a><span>, 4]]</span></p>
+!! end
+
+!! test
 Wikilinks with embedded newlines are not broken
 !! wikitext
 {{1x|[[ Foo

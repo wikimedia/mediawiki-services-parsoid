@@ -376,15 +376,16 @@ class TokenizerUtils {
 					}
 				}
 				return false;
+
 			case '[':
-				// This is a special case in php's doTableStuff, added in
-				// response to T2553.  If it encounters a `[[`, it bails on
-				// parsing attributes and interprets it all as content.
+				// 'tableCellArg' check is a special case in php's doTableStuff
+				// added in response to T2553.  If it encounters a `[[`, it bails
+				// on parsing attributes and interprets it all as content.
 				return $stops['tableCellArg'] && $c2 === '[';
 
 			case '-':
-				// Same as above: a special case in doTableStuff, added
-				// as part of T153140
+				// Same as above for 'tableCellArg': a special case in doTableStuff,
+				// added as part of T153140
 				return $stops['tableCellArg'] && $c2 === '{';
 
 			case ']':
