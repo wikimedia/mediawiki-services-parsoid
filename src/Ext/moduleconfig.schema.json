@@ -208,6 +208,13 @@
 			"type": "string",
 			"description": "Extension module name; must be unique"
 		},
+		"PFragmentTypes": {
+			"description": "A list of PFragment subclass names that should be registered for serialization",
+			"type": "array",
+			"items": {
+				"type": "string"
+			}
+		},
 		"annotations": {
 			"description": "An annotation handler",
 			"$ref": "#/definitions/AnnotationHandler"

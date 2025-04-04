@@ -31,6 +31,7 @@ use Wikimedia\Parsoid\Ext\Indicator\Indicator;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
+use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -1645,6 +1646,11 @@ abstract class SiteConfig {
 				'assertClass' => ContentModelHandler::class,
 			] );
 			$this->extConfig['contentModels'][$cm] = $handler;
+		}
+
+		// Extension modules can register new PFragment types
+		foreach ( $extConfig['PFragmentTypes'] ?? [] as $pfClass ) {
+			PFragment::registerFragmentClass( $pfClass );
 		}
 	}
 

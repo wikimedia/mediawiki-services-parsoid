@@ -355,7 +355,7 @@ abstract class PFragment implements JsonCodecable {
 	 * serialized fragments of the given class.
 	 * @param class-string<PFragment> $className
 	 */
-	public function registerFragmentClass( string $className ): void {
+	public static function registerFragmentClass( string $className ): void {
 		if ( !in_array( $className, self::$FRAGMENT_TYPES, true ) ) {
 			self::$FRAGMENT_TYPES[] = $className;
 		}
