@@ -76,7 +76,8 @@ interface Arguments {
 	 *  booleans can be passed, which specifies the desired value of
 	 *  $expandAndTrim for each ordered argument; missing entries
 	 *  default to `true`.
-	 * @return list<PFragment> The ordered argument list
+	 * @return list<PFragment> The ordered argument list.  The first
+	 *  argument is at index 0, as is conventional for PHP arrays.
 	 */
 	public function getOrderedArgs(
 		ParsoidExtensionAPI $extApi,
@@ -101,7 +102,9 @@ interface Arguments {
 	 *  boolean, an map of booleans can be passed, which specifies the
 	 *  desired value of $expandAndTrim for each named argument;
 	 *  missing entries default to `true`.
-	 * @return array<string|int,PFragment> The named argument map
+	 * @return array<string|int,PFragment> The named argument map.
+	 *  Note that the first unnamed argument corresponds to the key 1,
+	 *  not 0.
 	 */
 	public function getNamedArgs(
 		ParsoidExtensionAPI $extApi,
