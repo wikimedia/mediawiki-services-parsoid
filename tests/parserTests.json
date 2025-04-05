@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "c502dfa897ebc18799fed43f03621ce5c6b10a88",
+		"latestCommit": "2ea61f9aa47399544c308ca95b3941b20d26e74c",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -39,7 +39,7 @@
 			},
 			"headings.txt": {
 				"path": "tests/parser/headings.txt",
-				"expectedSHA1": "674aa5db17f1e01d26e3d96ba7a7e2ff56cc53f3"
+				"expectedSHA1": "f4d415a44d8e7c6fc699bd68e439954930be6130"
 			},
 			"indentPre.txt": {
 				"path": "tests/parser/indentPre.txt",
@@ -83,11 +83,11 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "888d2c986f4c3a1b91e01eca9abebdfc06f39ce0"
+				"expectedSHA1": "867af511cb6cd0052e262ae3ad3afc0ff21c81ba"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
-				"expectedSHA1": "0d59819b43876d6f72b10626f96910e945cc44fd"
+				"expectedSHA1": "70988a24e37005f2f5be8010d5e9aa90009d5b10"
 			},
 			"pst.txt": {
 				"path": "tests/parser/pst.txt",
@@ -95,7 +95,7 @@
 			},
 			"pWrapping.txt": {
 				"path": "tests/parser/pWrapping.txt",
-				"expectedSHA1": "9f4f9812521ba7498ba32ea12fb41e8ff193a862"
+				"expectedSHA1": "bad78b2ff3d23283b417f91483909b58db695098"
 			},
 			"preprocessor.txt": {
 				"path": "tests/parser/preprocessor.txt",
@@ -111,7 +111,7 @@
 			},
 			"tables.txt": {
 				"path": "tests/parser/tables.txt",
-				"expectedSHA1": "5054e5d8648c7964888ad20c4c71e2ca7f75a0ec"
+				"expectedSHA1": "e1eafd4c1f3cd9501eb8a896d998ab7cddda70e3"
 			},
 			"wtEscaping.txt": {
 				"path": "tests/parser/wtEscaping.txt",
