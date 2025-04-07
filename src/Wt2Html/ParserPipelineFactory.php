@@ -255,14 +255,14 @@ class ParserPipelineFactory {
 		'extpp', // FIXME: this should be a different processor
 		'fixups', 'strip-metas', 'redlinks', 'displayspace', 'linkclasses',
 		'gen-anchors', 'convertoffsets', 'cleanup',
-		// FIXME: This will probably need some special-case code to first
-		// strip old metadata before adding fresh metadata.
-		'addmetadata'
 	];
 
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
 		'update-template', 'linter', 'lang-converter', /* FIXME: Are lang converters idempotent? */
-		'dedupe-heading-ids', 'sections', 'markDiscardableDP'
+		'dedupe-heading-ids', 'sections', 'markDiscardableDP',
+		// FIXME: This will probably need some special-case code to first
+		// strip old metadata before adding fresh metadata.
+		'addmetadata'
 	];
 
 	private const STAGES = [
