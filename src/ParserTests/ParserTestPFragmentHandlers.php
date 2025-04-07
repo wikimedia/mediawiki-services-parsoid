@@ -6,22 +6,22 @@ namespace Wikimedia\Parsoid\ParserTests;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Ext\Arguments;
 use Wikimedia\Parsoid\Ext\AsyncResult;
-use Wikimedia\Parsoid\Ext\FragmentHandler;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Ext\PFragmentHandler;
 use Wikimedia\Parsoid\Fragments\HtmlPFragment;
 use Wikimedia\Parsoid\Fragments\LiteralStringPFragment;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 
 /**
- * Various FragmentHandler implementations used in parser tests.
+ * Various PFragmentHandler implementations used in parser tests.
  * @see ParserHook for registration
  */
-class ParserTestFragmentHandlers {
+class ParserTestPFragmentHandlers {
 
 	/**
 	 * Ensure that both integrated and standalone test runners have the
-	 * magic word definitions used by these fragment handlers.
+	 * magic word definitions used by these PFragment handlers.
 	 * @see SiteConfig::getCustomSiteConfigFileName()
 	 * @see ParserTestRunner::staticSetup() (in core)
 	 */
@@ -30,12 +30,12 @@ class ParserTestFragmentHandlers {
 	}
 
 	/**
-	 * Return a configuration fragment for the fragment handlers defined
+	 * Return a configuration fragment for the PFragmentHandlers defined
 	 * here.
 	 * @see ParserHook::getConfig()
 	 */
-	public static function getFragmentHandlersConfig(): array {
-		// This is a list of "normal" parser function fragment handlers;
+	public static function getPFragmentHandlersConfig(): array {
+		// This is a list of "normal" parser function PFragment handlers;
 		// no special options.
 		$normalPFs = [
 			// Following keys must be present in ParserTests.siteconfig.json
@@ -45,7 +45,7 @@ class ParserTestFragmentHandlers {
 			'f7_kv', 'f8_countargs',
 		];
 		$handlerFactory = self::class . '::getHandler';
-		$fragmentConfig = array_map( static fn ( $key ) => [
+		$pFragmentConfig = array_map( static fn ( $key ) => [
 			'key' => $key,
 			'handler' => [
 				'factory' => $handlerFactory,
@@ -54,8 +54,8 @@ class ParserTestFragmentHandlers {
 			'options' => [ 'parserFunction' => true, ],
 		], $normalPFs );
 
-		// "Uncommon" parser function fragment handlers
-		$fragmentConfig[] = [
+		// "Uncommon" parser function PFragment handlers
+		$pFragmentConfig[] = [
 			'key' => 'f1_wt_nohash',
 			'handler' => [
 				'factory' => $handlerFactory,
@@ -67,7 +67,7 @@ class ParserTestFragmentHandlers {
 				'nohash' => true,
 			],
 		];
-		$fragmentConfig[] = [
+		$pFragmentConfig[] = [
 			'key' => 'f6_async_return',
 			'handler' => [
 				'factory' => $handlerFactory,
@@ -78,21 +78,23 @@ class ParserTestFragmentHandlers {
 				'hasAsyncContent' => true,
 			],
 		];
-		return $fragmentConfig;
+		return $pFragmentConfig;
 	}
 
 	/**
 	 * Return a handler for a registered parser function
+	 *
 	 * @param string $fn
-	 * @return FragmentHandler
+	 *
+	 * @return PFragmentHandler
 	 */
-	public static function getHandler( string $fn ): FragmentHandler {
+	public static function getHandler( string $fn ): PFragmentHandler {
 		switch ( $fn ) {
 			case 'f1_wt':
 			case 'f1_wt_nohash':
 				// This is a test function which simply concatenates all of
 				// its (ordered) arguments.
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -116,7 +118,7 @@ class ParserTestFragmentHandlers {
 			case 'f2_if':
 				// This is our implementation of the {{#if:..}} parser function.
 				// Extension or other fragments will evaluate to 'true'
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -154,7 +156,7 @@ class ParserTestFragmentHandlers {
 				// This is our implementation of the {{uc:..}} parser function.
 				// It skips over extension and other DOM fragments (legacy
 				// parser uses markerSkipCallback in core).
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -172,7 +174,7 @@ class ParserTestFragmentHandlers {
 			case 'f4_return_html':
 				// Demonstrate returning an HTML fragment from a parser
 				// function
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -189,7 +191,7 @@ class ParserTestFragmentHandlers {
 			case 'f5_from_nowiki':
 				// Demonstrate fetching the raw text of an argument which
 				// was protected with <nowiki>
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -209,7 +211,7 @@ class ParserTestFragmentHandlers {
 
 			case 'f6_async_return':
 				// Demonstrate a conditionally-asynchronous return.
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -244,7 +246,7 @@ class ParserTestFragmentHandlers {
 
 			case 'f7_kv':
 				// Demonstrate Arguments as return value
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,
@@ -286,7 +288,7 @@ class ParserTestFragmentHandlers {
 			case 'f8_countargs':
 				// This is a test function which simply reports the number
 				// of ordered arguments.
-				return new class extends FragmentHandler {
+				return new class extends PFragmentHandler {
 					/** @inheritDoc */
 					public function sourceToFragment(
 						ParsoidExtensionAPI $extApi,

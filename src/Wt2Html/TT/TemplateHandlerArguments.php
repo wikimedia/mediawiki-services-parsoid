@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 
 /**
  * An implementation of the Arguments interface used by TemplateHandler
- * to invoke FragmentHandlers.
+ * to invoke PFragmentHandlers.
  *
  * @unstable This will change with named-argument support (T390344)
  */
@@ -29,7 +29,7 @@ class TemplateHandlerArguments implements Arguments {
 	 * @param KV[] $args
 	 */
 	public function __construct( Env $env, Frame $frame, array $args ) {
-		// Each argument maps to a fragment, which the fragment handler
+		// Each argument maps to a PFragment, which the PFragment handler
 		// can expand (or not!).  But wikitext expansion can't break
 		// argument boundaries.
 		foreach ( $args as $arg ) {

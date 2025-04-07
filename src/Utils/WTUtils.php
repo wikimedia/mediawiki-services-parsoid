@@ -800,9 +800,9 @@ class WTUtils {
 	 * @param Node $node
 	 * @return ?string
 	 */
-	public static function getFragmentHandlerKey( Node $node ): ?string {
+	public static function getPFragmentHandlerKey( Node $node ): ?string {
 		// TODO (T390342): use ::getExtTagName() to look up extension tag
-		// fragment handlers
+		// PFragment handlers
 		$match = DOMUtils::matchTypeOf( $node, '#^mw:ParserFunction/(.+?)$#D' );
 		return $match ? substr( $match, strlen( 'mw:ParserFunction/' ) ) : null;
 	}

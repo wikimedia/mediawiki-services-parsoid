@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Ext;
 use Wikimedia\Parsoid\Fragments\PFragment;
 
 /**
- * An AsyncResult indicates that the given fragment handler was not yet
+ * An AsyncResult indicates that the given PFragmentHandler was not yet
  * ready to provide content.
  *
  * It can optionally provide a PFragment as temporary fallback content.

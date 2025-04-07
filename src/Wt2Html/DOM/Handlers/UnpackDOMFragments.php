@@ -158,7 +158,7 @@ class UnpackDOMFragments {
 			DOMUtils::addTypeOf( $fragmentContent, 'mw:Transclusion' );
 			// It should be impossible to have a single DOMFragment represent
 			// the output from multiple parser functions
-			$key = WTUtils::getFragmentHandlerKey( $placeholder );
+			$key = WTUtils::getPFragmentHandlerKey( $placeholder );
 			if ( $key !== null ) {
 				DOMUtils::addTypeOf( $fragmentContent, "mw:ParserFunction/$key" );
 			}

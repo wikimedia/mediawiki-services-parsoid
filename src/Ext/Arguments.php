@@ -7,7 +7,7 @@ use Wikimedia\Parsoid\Fragments\PFragment;
 
 /**
  * An object which implements Arguments provides a way to parse or
- * interpret its contents as arguments to a FragmentHandler or
+ * interpret its contents as arguments to a PFragmentHandler or
  * other transclusion.
  *
  * There are two primary modes of parsing arguments, and both must

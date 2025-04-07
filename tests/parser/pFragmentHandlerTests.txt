@@ -1,4 +1,4 @@
-# Tests of Parsoid Fragment Handlers
+# Tests of Parsoid PFragment Handlers
 # TODO (T390343): wt2wt/html2wt modes should be enabled in parsoid-compatible
 !! options
 parsoid-compatible=wt2html

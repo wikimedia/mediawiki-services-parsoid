@@ -20,7 +20,7 @@ use Wikimedia\Parsoid\Fragments\PFragment;
  * would be a valid return value, and in other cases `null` would be a
  * likely "accidental" return value which we'd like to catch and flag.
  *
- * FragmentHandler supplies lazy (unexpanded) arguments using the
+ * PFragmentHandler supplies lazy (unexpanded) arguments using the
  * Arguments interface.  Argument values can be evaluated eagerly
  * (expanded) using PFragment::expand().  The Arguments interface
  * provides for interpreting the argument list either as named or
@@ -47,7 +47,7 @@ use Wikimedia\Parsoid\Fragments\PFragment;
  * although the Arguments interface can provide both behaviors
  * regardless of syntax.
  */
-abstract class FragmentHandler {
+abstract class PFragmentHandler {
 
 	/**
 	 * Convert an fragment generator's content to a PFragment.
@@ -56,7 +56,7 @@ abstract class FragmentHandler {
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param Arguments $arguments The arguments of
 	 *  the fragment.
-	 * @param bool $tagSyntax True if this fragment handler was invoked using
+	 * @param bool $tagSyntax True if this PFragment handler was invoked using
 	 *  extension tag syntax; false if parser function syntax was used
 	 *  (including {{#tag:}}).
 	 * @return PFragment|AsyncResult
@@ -158,3 +158,5 @@ abstract class FragmentHandler {
 		return false;
 	}
 }
+/** @deprecated */
+class_alias( PFragmentHandler::class, '\Wikimedia\Parsoid\Ext\FragmentHandler' );

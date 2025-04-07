@@ -299,7 +299,7 @@ abstract class PFragment implements JsonCodecable {
 		 *
 		 * Note that <nowiki> effectively decodes entities, so the result
 		 * is not *exactly* raw text.  Other methods can be used (for
-		 * example, a FragmentHandler which returns a LiteralPFragment)
+		 * example, a PFragmentHandler which returns a LiteralPFragment)
 		 * if we need literal treatment of `&`.
 		 */
 		return $this->asDom( $ext )->textContent;

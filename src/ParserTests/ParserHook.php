@@ -25,7 +25,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 	 * @see ParserTestRunner::staticSetup() (in core)
 	 */
 	public static function getParserTestConfigFileName(): string {
-		return ParserTestFragmentHandlers::getParserTestConfigFileName();
+		return ParserTestPFragmentHandlers::getParserTestConfigFileName();
 	}
 
 	/** @inheritDoc */
@@ -199,7 +199,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 				ParserHookProcessor::class
 			],
 			'fragmentHandlers' =>
-				ParserTestFragmentHandlers::getFragmentHandlersConfig(),
+				ParserTestPFragmentHandlers::getPFragmentHandlersConfig(),
 		];
 	}
 

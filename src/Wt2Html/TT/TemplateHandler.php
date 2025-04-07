@@ -307,7 +307,7 @@ class TemplateHandler extends TokenHandler {
 		[ 'key' => $canonicalFunctionName, 'isNative' => $isNative ] =
 			  $siteConfig->getMagicWordForParserFunction( $prefix );
 		if ( $canonicalFunctionName !== null && !$isNative ) {
-			// Parsoid's FragmentHandler handles both magic variables (T391063)
+			// Parsoid's PFragmentHandler handles both magic variables (T391063)
 			// and zero-argument parser functions, but in the legacy
 			// parser "nohash" parser functions without a colon must
 			// be magic variables; they won't be invoked as parser
@@ -316,7 +316,7 @@ class TemplateHandler extends TokenHandler {
 				$canonicalFunctionName = null;
 			}
 		}
-		// Ensure that magic words registered by parsoid fragment handlers
+		// Ensure that magic words registered by parsoid PFragment handlers
 		// aren't confused for magic variables implemented by the legacy parser
 		if ( $magicWordVar && $canonicalFunctionName === null ) {
 			$state->variableName = $magicWordVar;
@@ -372,14 +372,14 @@ class TemplateHandler extends TokenHandler {
 					$srcOffsets->end ),
 			];
 
-			// Check if we have a Parsoid fragment handler for this parser func
+			// Check if we have a Parsoid PFragment handler for this parser func
 			// ($canonicalFunctionName is invalid/not localized if this is
 			// $broken)
-			$fragmentHandler = ( $broken || !$isNative ) ? null :
-				$siteConfig->getFragmentHandlerImpl( $canonicalFunctionName );
-			if ( $fragmentHandler ) {
-				$ret['handler'] = $fragmentHandler;
-				$ret['handlerOptions'] = $siteConfig->getFragmentHandlerConfig(
+			$pFragmentHandler = ( $broken || !$isNative ) ? null :
+				$siteConfig->getPFragmentHandlerImpl( $canonicalFunctionName );
+			if ( $pFragmentHandler ) {
+				$ret['handler'] = $pFragmentHandler;
+				$ret['handlerOptions'] = $siteConfig->getPFragmentHandlerConfig(
 					$canonicalFunctionName
 				)['options'] ?? [];
 				$state->isV3ParserFunction = true;

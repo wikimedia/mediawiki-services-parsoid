@@ -25,11 +25,11 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\Ext\AnnotationStripper;
 use Wikimedia\Parsoid\Ext\ExtensionModule;
 use Wikimedia\Parsoid\Ext\ExtensionTagHandler;
-use Wikimedia\Parsoid\Ext\FragmentHandler;
 use Wikimedia\Parsoid\Ext\Gallery\Gallery;
 use Wikimedia\Parsoid\Ext\Indicator\Indicator;
 use Wikimedia\Parsoid\Ext\JSON\JSON;
 use Wikimedia\Parsoid\Ext\Nowiki\Nowiki;
+use Wikimedia\Parsoid\Ext\PFragmentHandler;
 use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -69,9 +69,9 @@ abstract class SiteConfig {
 
 	/**
 	 * @var array{0:array<string,string>,1:array<string,string>}
-	 *   Localized aliases for parser functions defined with fragment handlers.
+	 *   Localized aliases for parser functions defined with PFragment handlers.
 	 */
-	protected array $fragmentHandlerFuncSynonyms = [ [], [] ];
+	protected array $pFragmentHandlerFuncSynonyms = [ [], [] ];
 
 	/** @var string[] */
 	private $protocolsRegexes = [];
@@ -1066,7 +1066,7 @@ abstract class SiteConfig {
 	 *   any leading `#` (but not a trailing colon or bar)
 	 * @return array{key:?string,isNative:bool}
 	 *   The magic word "key" for this parser function and a boolean
-	 *   indicating whether this is a parsoid-native fragment handler
+	 *   indicating whether this is a parsoid-native PFragment handler
 	 *   (true) or a parser function handled by the legacy parser
 	 *   fallback (false).  The key is `null` if no parser function
 	 *   matching $str is known.
@@ -1083,8 +1083,8 @@ abstract class SiteConfig {
 		# Native implementations take precedence
 		$isNative = true;
 		$this->getExtConfig();
-		$key = $this->fragmentHandlerFuncSynonyms[1][$str] ??
-			$this->fragmentHandlerFuncSynonyms[0][$lower] ?? null;
+		$key = $this->pFragmentHandlerFuncSynonyms[1][$str] ??
+			$this->pFragmentHandlerFuncSynonyms[0][$lower] ?? null;
 		if ( $key === null ) {
 			# Legacy parser functions
 			$isNative = false;
@@ -1500,7 +1500,7 @@ abstract class SiteConfig {
 			'domProcessors'  => [],
 			'annotationStrippers' => [],
 			'contentModels'  => [],
-			'fragmentHandlers'  => [],
+			'pFragmentHandlers'  => [],
 		];
 
 		// There may be some tags defined by the parent wiki which have no
@@ -1508,9 +1508,9 @@ abstract class SiteConfig {
 		// the legacy parser.
 		$this->extConfig['allTags'] = $this->getNonNativeExtensionTags();
 
-		// Reset the list of fragment handler synonyms; they will be recreated
+		// Reset the list of PFragment handler synonyms; they will be recreated
 		// as we process the extension modules.
-		$this->fragmentHandlerFuncSynonyms = [ [], [], ];
+		$this->pFragmentHandlerFuncSynonyms = [ [], [], ];
 
 		foreach ( $this->getExtensionModules() as $module ) {
 			$this->processExtensionModule( $module );
@@ -1598,33 +1598,33 @@ abstract class SiteConfig {
 
 		$this->populateMagicWords();
 		$magicWordMap = $this->getMagicWords();
-		// Fragment handlers are named using magic words
-		foreach ( $extConfig['fragmentHandlers'] ?? [] as $fragmentHandler ) {
-			$key = $fragmentHandler['key'] ?? null; # A magic word
+		// PFragment handlers are named using magic words
+		foreach ( $extConfig['pFragmentHandlers'] ?? $extConfig['fragmentHandlers'] ?? [] as $pFragmentHandler ) {
+			$key = $pFragmentHandler['key'] ?? null; # A magic word
 			if ( !$key ) {
 				continue;
 			}
-			$this->extConfig['fragmentHandlers'][$key] = $fragmentHandler;
+			$this->extConfig['pFragmentHandlers'][$key] = $pFragmentHandler;
 			if ( !array_key_exists( $key, $magicWordMap ) ) {
 				continue;
 			}
 			// Case-insensitive is deprecated! T389029
 			$caseSensitive = $magicWordMap[$key][0] ?? 0;
 			foreach ( $this->mwAliases[$key] as $alias ) {
-				if ( isset( $fragmentHandler['options']['parserFunction'] ) ) {
+				if ( isset( $pFragmentHandler['options']['parserFunction'] ) ) {
 					# 'hash' is the default; for legacy compatibility a few
 					# parser functions are defined without a hash or have
 					# the hash already prepended to the magic word alias
 					$pfAlias = $alias;
-					if ( !isset( $fragmentHandler['options']['nohash'] ) ) {
+					if ( !isset( $pFragmentHandler['options']['nohash'] ) ) {
 						$pfAlias = '#' . $pfAlias;
 					}
-					$this->fragmentHandlerFuncSynonyms[$caseSensitive][$pfAlias] = $key;
+					$this->pFragmentHandlerFuncSynonyms[$caseSensitive][$pfAlias] = $key;
 				}
 				// TODO (T390342): ['options']['extensionTag'] can also be set,
-				// and we would register this fragment handler as a
+				// and we would register this PFragment handler as a
 				// localizable (!) extension tag.
-				// $this->fragmentHandlerTagSynonyms[$case][$alias]=$key;
+				// $this->pFragmentHandlerTagSynonyms[$case][$alias]=$key;
 			}
 		}
 
@@ -1733,8 +1733,8 @@ abstract class SiteConfig {
 
 	/** @var array<string,?ExtensionTagHandler> */
 	private array $tagHandlerCache = [];
-	/** @var array<string,?FragmentHandler> */
-	private array $fragmentHandlerCache = [];
+	/** @var array<string,?PFragmentHandler> */
+	private array $pFragmentHandlerCache = [];
 
 	/**
 	 * @param string $tagName Extension tag name
@@ -1756,30 +1756,31 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * @param string $key Magic word ID naming this fragment handler
+	 * @param string $key Magic word ID naming this PFragment handler
 	 * @return string|array|null Object factory specification for a
-	 *  FragmentHandler.
+	 *  PFragmentHandler.
 	 */
-	public function getFragmentHandlerConfig( string $key ) {
+	public function getPFragmentHandlerConfig( string $key ) {
 		$extConfig = $this->getExtConfig();
-		return $extConfig['fragmentHandlers'][$key] ?? null;
+		return $extConfig['pFragmentHandlers'][$key] ?? null;
 	}
 
 	/**
-	 * @param string $key Magic word ID naming this fragment handler
-	 * @return ?FragmentHandler
+	 * @param string $key Magic word ID naming this PFragment handler
+	 *
+	 * @return ?PFragmentHandler
 	 */
-	public function getFragmentHandlerImpl( string $key ): ?FragmentHandler {
-		if ( !array_key_exists( $key, $this->fragmentHandlerCache ) ) {
-			$handlerConfig = $this->getFragmentHandlerConfig( $key );
-			$this->fragmentHandlerCache[$key] = isset( $handlerConfig['handler'] ) ?
+	public function getPFragmentHandlerImpl( string $key ): ?PFragmentHandler {
+		if ( !array_key_exists( $key, $this->pFragmentHandlerCache ) ) {
+			$handlerConfig = $this->getPFragmentHandlerConfig( $key );
+			$this->pFragmentHandlerCache[$key] = isset( $handlerConfig['handler'] ) ?
 				$this->getObjectFactory()->createObject( $handlerConfig['handler'], [
 					'allowClassName' => true,
-					'assertClass' => FragmentHandler::class,
+					'assertClass' => PFragmentHandler::class,
 				] ) : null;
 		}
 
-		return $this->fragmentHandlerCache[$key];
+		return $this->pFragmentHandlerCache[$key];
 	}
 
 	/**

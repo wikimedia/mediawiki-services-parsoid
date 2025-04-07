@@ -153,7 +153,7 @@
 				}
 			}
 		},
-		"FragmentHandler": {
+		"PFragmentHandler": {
 			"type": "object",
 			"required": [
 				"key"
@@ -165,7 +165,7 @@
 					"type": "string"
 				},
 				"handler": {
-					"description": "An object factory spec for an object extending FragmentHandler",
+					"description": "An object factory spec for an object extending PFragmentHandler",
 					"$ref": "#/definitions/ObjectFactorySpecOrClassString"
 				},
 				"options": {
@@ -173,7 +173,7 @@
 					"additionalProperties": false,
 					"properties": {
 						"parserFunction": {
-							"description": "Whether parser function syntax can be used to invoke this fragment handler",
+							"description": "Whether parser function syntax can be used to invoke this PFragment handler",
 							"type": "boolean"
 						},
 						"nohash": {
@@ -181,7 +181,7 @@
 							"type": "boolean"
 						},
 						"hasAsyncContent": {
-							"description": "Must be set to true if the FragmentHandler can ever return an AsyncResult",
+							"description": "Must be set to true if the PFragmentHandler can ever return an AsyncResult",
 							"type": "boolean"
 						}
 					}
@@ -234,10 +234,17 @@
 			}
 		},
 		"fragmentHandlers": {
-			"description": "A list of fragment handlers",
+			"description": "A list of PFragment handlers (backwards compatibility, deprecated)",
 			"type": "array",
 			"items": {
-				"$ref": "#/definitions/FragmentHandler"
+				"$ref": "#/definitions/PFragmentHandler"
+			}
+		},
+		"pFragmentHandlers": {
+			"description": "A list of PFragment handlers",
+			"type": "array",
+			"items": {
+				"$ref": "#/definitions/PFragmentHandler"
 			}
 		},
 		"tags": {
