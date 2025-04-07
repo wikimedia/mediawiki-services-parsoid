@@ -1741,4 +1741,44 @@ class LinterTest extends TestCase {
 		$this->assertCount( 0, $result, $desc );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Handlers\Headings::genAnchors
+	 */
+	public function testEmptyHeadings(): void {
+		$desc = 'should not lint headings with content';
+		$result = $this->wtToLint( "== hi ==" );
+		$this->assertCount( 0, $result, $desc );
+
+		$desc = 'should lint headings without content';
+		$result = $this->wtToLint( "== ==" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'empty-heading', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 5, 2, 2 ], $result[0]['dsr'], $desc );
+
+		$desc = 'should lint templated headings without content';
+		$result = $this->wtToLint( "{{1x|== ==}}" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'empty-heading', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 12, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'], $desc );
+
+		$desc = 'should lint headings with only transparent content';
+		$result = $this->wtToLint( "== <!-- test -->[[Category:123]] ==" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'empty-heading', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 35, 2, 2 ], $result[0]['dsr'], $desc );
+
+		$desc = 'should lint headings with only underscores because they are normalized away';
+		$result = $this->wtToLint( "== ____ ==" );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'empty-heading', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 10, 2, 2 ], $result[0]['dsr'], $desc );
+
+		$desc = 'should lint multiple empty headings before deduplication';
+		$result = $this->wtToLint( "== ==\n\n== ==" );
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'empty-heading', $result[0]['type'], $desc );
+		$this->assertEquals( 'empty-heading', $result[1]['type'], $desc );
+	}
+
 }

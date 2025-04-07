@@ -159,13 +159,6 @@ class ParserPipelineFactory {
 				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
 			]
 		],
-		'heading-ids' => [
-			'name' => 'Headings-genAnchors',
-			'handlers' => [
-				[ 'nodeName' => null, 'action' => [ Headings::class, 'genAnchors' ] ],
-				[ 'nodeName' => null, 'action' => [ Headings::class, 'dedupeHeadingIds' ] ]
-			]
-		],
 		'cleanup' => [
 			'name' => 'CleanUp-handleEmptyElts,CleanUp-cleanup',
 			'tplInfo' => true,
@@ -230,10 +223,11 @@ class ParserPipelineFactory {
 		// FIXME: It should be documented in the spec that an extension's
 		// wtDOMProcess handler is run once on the top level document.
 		'extpp',
-		'fixups+dedupe-styles', 'linter', 'strip-metas',
+		'fixups+dedupe-styles',
 		'lang-converter', 'redlinks', 'displayspace', 'linkclasses',
-		// Benefits from running after determining which media are redlinks
-		'heading-ids',
+		'gen-anchors',
+		'linter', 'strip-metas',
+		'dedupe-heading-ids',
 		'sections', 'convertoffsets', 'cleanup',
 		'embedded-docs',
 		'markDiscardableDP', 'addmetadata'
@@ -241,7 +235,7 @@ class ParserPipelineFactory {
 
 	// Skipping sections, addmetadata from the above pipeline
 	//
-	// FIXME: Skip extpp, linter, lang-converter, redlinks, heading-ids, convertoffsets for now.
+	// FIXME: Skip extpp, linter, lang-converter, redlinks, gen-anchors, dedupe-heading-ids, convertoffsets for now.
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
 		'fixups+dedupe-styles', 'strip-metas',
@@ -253,13 +247,20 @@ class ParserPipelineFactory {
 
 	public const SELECTIVE_UPDATE_FRAGMENT_GLOBAL_DOM_TRANSFORMS = [
 		'extpp', // FIXME: this should be a different processor
-		'fixups', 'strip-metas', 'redlinks', 'displayspace', 'linkclasses',
-		'gen-anchors', 'convertoffsets', 'cleanup',
+		'fixups',
+		'redlinks', 'displayspace', 'linkclasses',
+		'gen-anchors',
+		'strip-metas',
+		'convertoffsets', 'cleanup',
 	];
 
 	public const SELECTIVE_UPDATE_GLOBAL_DOM_TRANSFORMS = [
-		'update-template', 'linter', 'lang-converter', /* FIXME: Are lang converters idempotent? */
-		'dedupe-heading-ids', 'sections', 'markDiscardableDP',
+		'update-template',
+		'lang-converter', /* FIXME: Are lang converters idempotent? */
+		'linter',
+		'dedupe-heading-ids',
+		'sections',
+		'markDiscardableDP',
 		// FIXME: This will probably need some special-case code to first
 		// strip old metadata before adding fresh metadata.
 		'addmetadata'

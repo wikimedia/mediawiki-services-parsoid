@@ -1287,14 +1287,36 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Lint duplicate ids in the page
+	 * Lint ids in the page for:
 	 *
-	 * Linter category: `duplicate-ids`
+	 * - Duplicate ids
+	 * - Empty headings
+	 *
+	 * Linter category: `duplicate-ids`, `empty-heading`
 	 */
-	private function lintDuplicateIds(
+	private function lintIds(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	) {
 		$id = DOMCompat::getAttribute( $node, 'id' );
+
+		if ( DOMUtils::isHeading( $node ) ) {
+			// FIXME: Should we consider WrapSectionState::shouldOmitFromTOC in this
+			// analysis, and I guess when assigning them as well?
+			if ( $id === null || $id === '' ) {
+				$tplLintInfo = self::findEnclosingTemplateName( $env, $tplInfo );
+				$lintObj = [
+					'dsr' => self::findLintDSR(
+						$tplLintInfo, $tplInfo, $dp->dsr ?? null
+					),
+					'templateInfo' => $tplLintInfo,
+				];
+				$env->recordLint( 'empty-heading', $lintObj );
+			}
+
+			// Heading ids are deduplicated, don't bother linting them
+			return;
+		}
+
 		if ( $id === null || $id === '' ) {
 			return;
 		}
@@ -1332,7 +1354,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
-		$this->lintDuplicateIds( $env, $node, $dp, $tplInfo );
+		$this->lintIds( $env, $node, $dp, $tplInfo );
 	}
 
 	/**
