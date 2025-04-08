@@ -1287,63 +1287,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * Lint for missing image alt text
-	 *
-	 * Linter category: `missing-image-alt-text`
-	 */
-	private function lintMissingAltText(
-		Env $env, Element $c, DataParsoid $dp, ?stdClass $tplInfo
-	): void {
-		if ( !WTUtils::isGeneratedFigure( $c ) ) {
-			return;
-		}
-
-		// Extract the media element in its standard place
-		$media = $c->firstChild->firstChild ?? null;
-		if ( !( $media instanceof Element ) || DOMCompat::nodeName( $media ) !== 'img' ) {
-			// Videos and such are handled differently; check only
-			// simple image output for alt text.
-			return;
-		}
-
-		if ( $media->hasAttribute( 'alt' ) ) {
-			// Present and accounted for, either via explicit markup
-			// or filling in from an inline caption or other future
-			// source.
-			//
-			// Note that an explicit empty alt text will be counted
-			// as present, as this may be done deliberately for
-			// spacer images or similar.
-			return;
-		}
-
-		// Follow the parent tree looking for aria-hidden=true or equivalent roles
-		for ( $node = $media; $node->parentNode; $node = $node->parentNode ) {
-			$hidden = strtolower( DOMCompat::getAttribute( $node, 'aria-hidden' ) ?? '' );
-			$role = strtolower( DOMCompat::getAttribute( $node, 'role' ) ?? '' );
-			if ( $hidden === 'true'
-				|| $role === 'presentation'
-				|| $role === 'none' ) {
-				// This entire subtree is excluded from the accessibility tree.
-				return;
-			}
-		}
-
-		$resource = DOMCompat::getAttribute( $media, 'resource' ) ?? '';
-		$file = basename( urldecode( $resource ) );
-
-		$tplLintInfo = self::findEnclosingTemplateName( $env, $tplInfo );
-		$lintObj = [
-			'dsr' => self::findLintDSR( $tplLintInfo, $tplInfo, $dp->dsr ?? null ),
-			'templateInfo' => $tplLintInfo,
-			'params' => [
-				'file' => $file,
-			]
-		];
-		$env->recordLint( 'missing-image-alt-text', $lintObj );
-	}
-
-	/**
 	 * Lint duplicate ids in the page
 	 *
 	 * Linter category: `duplicate-ids`
@@ -1389,7 +1332,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$this->lintLargeTables( $env, $node, $dp, $tplInfo );
 		$this->lintNightModeUnawareBackgroundColor( $env, $node, $dp, $tplInfo );
 		$this->lintFostered( $env, $node, $dp, $tplInfo );
-		$this->lintMissingAltText( $env, $node, $dp, $tplInfo );
 		$this->lintDuplicateIds( $env, $node, $dp, $tplInfo );
 	}
 

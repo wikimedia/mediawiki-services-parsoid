@@ -1683,107 +1683,6 @@ class LinterTest extends TestCase {
 	}
 
 	/**
-	 * Provide test cases for image alt text
-	 * @return array[]
-	 */
-	public function provideMissingImageAltTextTests() {
-		return [
-			[
-				'wikiText' => '[[File:Foobar.jpg]]',
-				'count' => 1,
-				'desc' => 'Inline image, no alt or caption',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|alt=Painting depicting a gazebo]]',
-				'count' => 0,
-				'desc' => 'Inline image, explicit alt',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|Painting depicting a gazebo]]',
-				'count' => 0,
-				'desc' => 'Inline image, implicit alt as caption',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|thumb|On display]]',
-				'count' => 1,
-				'desc' => 'Thumbnail image, no alt, has caption',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|thumb|alt=Painting depicting a gazebo]]',
-				'count' => 0,
-				'desc' => 'Thumbnail image, explicit alt, no caption',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|thumb|alt=Painting depicting a gazebo|On display]]',
-				'count' => 0,
-				'desc' => 'Thumbnail image, explicit alt, has caption',
-			],
-
-			// Currently an explicitly empty alt does not trigger the lint.
-			[
-				'wikiText' => '[[File:Foobar.jpg|alt=]]',
-				'count' => 0,
-				'desc' => 'Inline image, explicit empty alt',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|thumb|alt=]]',
-				'count' => 0,
-				'desc' => 'Thumbnail image, explicit empty alt, no caption',
-			],
-			[
-				'wikiText' => '[[File:Foobar.jpg|thumb|alt=|On display]]',
-				'count' => 0,
-				'desc' => 'Thumbnail image, explicit empty alt, has caption',
-			],
-
-			// Use of aria-hidden=true or role=presentation/role=none suppresses
-			// the lint on the whole subtree.
-			[
-				'wikiText' =>
-					"<div aria-hidden=true>\n" .
-					"<div>\n" .
-					"[[File:Foobar.jpg]]\n" .
-					"</div>\n" .
-					"</div>",
-				'count' => 0,
-				'desc' => 'Image in an aria-hidden=true div',
-			],
-			// It's common to use aria-hidden=true and role=presentation together
-			// for backwards compatibility reasons; treat them equivalently here.
-			[
-				'wikiText' =>
-					"<div aria-hidden=true role=presentation>\n" .
-					"<div>\n" .
-					"[[File:Foobar.jpg]]\n" .
-					"</div>\n" .
-					"</div>",
-				'count' => 0,
-				'desc' => 'Image in an aria-hidden=true role=presentation div',
-			],
-			[
-				'wikiText' =>
-					"<div role=presentation>\n" .
-					"<div>\n" .
-					"[[File:Foobar.jpg]]\n" .
-					"</div>\n" .
-					"</div>",
-				'count' => 0,
-				'desc' => 'Image inside a bare role=presentation div',
-			],
-			[
-				'wikiText' =>
-					"<div role=none>\n" .
-					"<div>\n" .
-					"[[File:Foobar.jpg]]\n" .
-					"</div>\n" .
-					"</div>",
-				'count' => 0,
-				'desc' => 'Image inside a bare role=none div',
-			],
-		];
-	}
-
-	/**
 	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter::lintNightModeUnawareBackgroundColor
 	 * @see https://phabricator.wikimedia.org/T358238
 	 * @dataProvider provideLogInlineBackgroundWithoutColor
@@ -1802,21 +1701,6 @@ class LinterTest extends TestCase {
 				$this->assertEquals( $templateName, $result[0]['templateInfo']['name'], $desc );
 			}
 		}
-	}
-
-	/**
-	 * @covers \Wikimedia\Parsoid\Wt2Html\DOM\Processors\Linter::lintMissingAltText
-	 *
-	 * @param string[] $wikiText input text
-	 * @param int $count of expected lint results
-	 * @param string $desc description of test case
-	 *
-	 * @dataProvider provideMissingImageAltTextTests
-	 */
-	public function testMissingImageAltText( $wikiText, $count, $desc ): void {
-		$result = $this->wtToLint( $wikiText );
-		$result = $this->filterLints( $result, 'missing-image-alt-text' );
-		$this->assertCount( $count, $result, $desc );
 	}
 
 	/**
