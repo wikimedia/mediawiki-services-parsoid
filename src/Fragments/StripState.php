@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Fragments;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * An abstraction/generalization of "strip state" from mediawiki core.
@@ -179,9 +178,11 @@ class StripState {
 	 * Add all mappings from the given strip states to this one.
 	 */
 	public function addAllFrom( StripState ...$others ): void {
-		PHPUtils::pushArray(
-			$this->items, ...array_map( static fn ( $ss )=>$ss->items, $others )
-		);
+		foreach ( $others as $ss ) {
+			foreach ( $ss->items as $key => $value ) {
+				$this->items[$key] = $value;
+			}
+		}
 	}
 
 	/**
