@@ -11,6 +11,7 @@ use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecInterface;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 
 /**
@@ -47,8 +48,11 @@ class DataMw implements JsonCodecable {
 
 	public function __construct( array $initialVals = [] ) {
 		foreach ( $initialVals as $k => $v ) {
-			// @phan-suppress-next-line PhanNoopSwitchCases
 			switch ( $k ) {
+				case 'attrs':
+					// T367616: facilitate renaming.
+					$this->attrs = $v;
+					break;
 				// Add cases here for components which should be instantiated
 				// as proper classes.
 				default:
@@ -62,6 +66,46 @@ class DataMw implements JsonCodecable {
 	public function isEmpty(): bool {
 		$result = (array)$this;
 		return $result === [];
+	}
+
+	/**
+	 * Helper method to facilitate renaming the 'attrs' property to
+	 * 'extAttribs' (T367616).
+	 * @return ?array<string,string|array<Token|string>>
+	 */
+	public function getExtAttribs(): ?array {
+		if ( isset( $this->attrs ) ) {
+			return (array)$this->attrs;
+		}
+		return null;
+	}
+
+	/**
+	 * Helper method to facilitate renaming the 'attrs' property to
+	 * 'extAttribs' (T367616).
+	 * @param string $name
+	 * @return string|array<Token|string>|null
+	 */
+	public function getExtAttrib( string $name ) {
+		return $this->attrs->$name ?? null;
+	}
+
+	/**
+	 * Helper method to facilitate renaming the 'attrs' property to
+	 * 'extAttribs' (T367616).
+	 * @param string $name
+	 * @param string|array<Token|string>|null $value
+	 *  Setting to null will unset it from the array.
+	 */
+	public function setExtAttrib( string $name, $value ): void {
+		if ( !isset( $this->attrs ) ) {
+			$this->attrs = (object)[];
+		}
+		if ( $value === null ) {
+			unset( $this->attrs->$name );
+		} else {
+			$this->attrs->$name = $value;
+		}
 	}
 
 	public function __clone() {
@@ -107,7 +151,8 @@ class DataMw implements JsonCodecable {
 		if ( $hints === null ) {
 			$hints = [
 				'attribs' => Hint::build( DataMwAttrib::class, Hint::USE_SQUARE, Hint::LIST ),
-				// T367616: 'attrs' should be renamed to 'extAttrs'
+				// T367616: 'attrs' should be renamed to 'extAttribs' in
+				// a future revision of the MediaWiki DOM Spec
 				'attrs' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
 				'body' => Hint::build( DataMwBody::class, Hint::ALLOW_OBJECT ),
 				'wtOffsets' => Hint::build( SourceRange::class, Hint::USE_SQUARE ),

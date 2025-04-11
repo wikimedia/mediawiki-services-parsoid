@@ -954,7 +954,7 @@ class WikitextSerializer {
 		// Serialize extension attributes in normalized form as:
 		// key='value'
 		// FIXME: with no dataParsoid, shadow info will mark it as new
-		$attrs = (array)( $dataMw->attrs ?? [] );
+		$attrs = $dataMw->getExtAttribs() ?? [];
 		$extTok = new TagTk( $extTagName, array_map( static function ( $key ) use ( $attrs ) {
 			return new KV( $key, $attrs[$key] );
 		}, array_keys( $attrs ) ) );

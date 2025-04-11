@@ -474,9 +474,13 @@ class Utils {
 		$options = $extToken->getAttributeV( 'options' );
 		$defaultDataMw = new DataMw( [
 			'name' => $name,
-			// T367616: 'attrs' should be renamed to 'extAttrs'
-			'attrs' => (object)TokenUtils::kvToHash( $options ),
+			// Back-compat w/ existing DOM spec output: ensure 'attrs'
+			// exists even if there are no attributes.
+			'attrs' => (object)[],
 		] );
+		foreach ( TokenUtils::kvToHash( $options ) as $name => $value ) {
+			$defaultDataMw->setExtAttrib( $name, $value );
+		}
 		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
 		if ( $extTagOffsets->closeWidth !== 0 ) {
 			// If not self-closing...

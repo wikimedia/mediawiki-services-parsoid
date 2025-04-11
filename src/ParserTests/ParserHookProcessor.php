@@ -24,8 +24,7 @@ class ParserHookProcessor extends ExtDOMProcessor {
 		if ( $node instanceof Element ) {
 			if ( DOMUtils::hasTypeOf( $node, 'mw:Extension/statictag' ) ) {
 				$dataMw = DOMDataUtils::getDataMw( $node );
-				// T367616: ->attrs-> should be renamed to extAttrs
-				if ( ( $dataMw->attrs->action ?? null ) === 'flush' ) {
+				if ( $dataMw->getExtAttrib( 'action' ) === 'flush' ) {
 					$node->appendChild( $node->ownerDocument->createTextNode( $obj->buf ) );
 					$obj->buf = '';
 				} else {

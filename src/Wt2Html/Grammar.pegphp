@@ -1520,18 +1520,16 @@ annotation_tag =
 			$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/' . $tagName . ( $end ? '/End' : '' ) ) ];
 			$datamw = null;
 			if ( count( $attribs ) > 0 ) {
-				$attrMap = [];
+				$datamw = new DataMw();
 				foreach ( $attribs as $attr ) {
 					// If the key or the value is not a string,
 					// we replace it by the thing that generated it and
 					// consider that wikitext as a raw string instead.
 					$k = is_string( $attr->k ) ? $attr->k : $attr->ksrc;
 					$v = is_string( $attr->v ) ? $attr->v : $attr->vsrc;
-					$attrMap[$k] = $v;
+					// Possible follow-up in T295168 for attribute sanitation
+					$datamw->setExtAttrib( $k, $v );
 				}
-				// Possible follow-up in T295168 for attribute sanitation
-				// T367616: 'attrs' should be renamed to 'extAttrs'
-				$datamw = new DataMw( [ 'attrs' => (object)$attrMap ] );
 			}
 			$dp = new DataParsoid();
 			$dp->tsr = $tsr;

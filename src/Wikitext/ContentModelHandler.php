@@ -144,7 +144,7 @@ class ContentModelHandler extends IContentModelHandler {
 		// for indicators that use the same name key.
 		foreach ( $indicators as $meta ) {
 			$dmw = DOMDataUtils::getDataMw( $meta );
-			$name = $dmw->attrs->name;
+			$name = $dmw->getExtAttrib( 'name' );
 			$iData[$name] = $dmw->html;
 		}
 

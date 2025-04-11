@@ -128,7 +128,7 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 			return false; // use default serialization
 		}
 		if ( in_array( $extName, [ 'spantag', 'divtag' ], true ) ) {
-			if ( $dataMw->attrs->raw ?? false ) {
+			if ( $dataMw->getExtAttrib( 'raw' ) ?? false ) {
 				return false; // use default serialization in 'raw' mode
 			}
 		}

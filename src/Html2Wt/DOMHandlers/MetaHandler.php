@@ -54,13 +54,11 @@ class MetaHandler extends DOMHandler {
 			if ( $this->needToWriteStartMeta( $state, $node ) ) {
 				$datamw = DOMDataUtils::getDataMw( $node );
 				$attrs = "";
-				if ( isset( $datamw->attrs ) ) {
-					foreach ( get_object_vars( $datamw->attrs ) as $k => $v ) {
-						if ( $v === "" ) {
-							$attrs .= ' ' . $k;
-						} else {
-							$attrs .= ' ' . $k . '="' . $v . '"';
-						}
+				foreach ( ( $datamw->getExtAttribs() ?? [] ) as $k => $v ) {
+					if ( $v === "" ) {
+						$attrs .= ' ' . $k;
+					} else {
+						$attrs .= ' ' . $k . '="' . $v . '"';
 					}
 				}
 				// Follow-up on attributes sanitation to happen in T295168
