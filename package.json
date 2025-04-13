@@ -19,7 +19,7 @@
 		"yargs": "^16.2.0"
 	},
 	"devDependencies": {
-		"api-testing": "1.6.0",
+		"api-testing": "1.7.1",
 		"chai": "^4.1.2",
 		"colors": "^1.2.4",
 		"eslint": "8.57.0",
