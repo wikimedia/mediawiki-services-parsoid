@@ -12,35 +12,20 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  */
 class AttributeTransformManager {
 	/**
-	 * @var array
-	 */
-	private $options;
-
-	/**
-	 * @var Frame
-	 */
-	private $frame;
-
-	/**
-	 * @param Frame $frame
-	 * @param array $options
-	 *  - bool inTemplate (reqd) Is this being invoked while processing a template?
-	 *  - bool expandTemplates (reqd) Should we expand templates encountered here?
-	 */
-	public function __construct( Frame $frame, array $options ) {
-		$this->options = $options;
-		$this->frame = $frame;
-	}
-
-	/**
 	 * Expand both key and values of all key/value pairs. Used for generic
 	 * (non-template) tokens in the AttributeExpander handler, which runs after
 	 * templates are already expanded.
 	 *
+	 * @param Frame $frame
+	 * @param array $options
+	 *  - bool inTemplate (reqd) Is this being invoked while processing a template?
+	 *  - bool expandTemplates (reqd) Should we expand templates encountered here?
 	 * @param KV[] $attributes
-	 * @return KV[] expanded attributes
+	 * @return ?KV[] expanded attributes
 	 */
-	public function process( array $attributes ): array {
+	public static function process( Frame $frame, array $options, array $attributes ): ?array {
+		$expanded = false;
+
 		// Transform each argument (key and value).
 		foreach ( $attributes as &$cur ) {
 			$k = $cur->k;
@@ -65,10 +50,10 @@ class AttributeTransformManager {
 
 				if ( $expandV ) {
 					// transform the value
-					$v = $this->frame->expand( $v, [
+					$v = $frame->expand( $v, [
 						'attrExpansion' => true,
-						'expandTemplates' => $this->options['expandTemplates'],
-						'inTemplate' => $this->options['inTemplate'],
+						'expandTemplates' => $options['expandTemplates'],
+						'inTemplate' => $options['inTemplate'],
 						'srcOffsets' => $cur->srcOffsets->value,
 					] );
 				}
@@ -85,20 +70,21 @@ class AttributeTransformManager {
 
 				if ( $expandK ) {
 					// transform the key
-					$k = $this->frame->expand( $k, [
+					$k = $frame->expand( $k, [
 						'attrExpansion' => true,
-						'expandTemplates' => $this->options['expandTemplates'],
-						'inTemplate' => $this->options['inTemplate'],
+						'expandTemplates' => $options['expandTemplates'],
+						'inTemplate' => $options['inTemplate'],
 						'srcOffsets' => $cur->srcOffsets->key,
 					] );
 				}
 			}
 
 			if ( $expandK || $expandV ) {
+				$expanded = true;
 				$cur = new KV( $k, $v, $cur->srcOffsets );
 			}
 		}
 
-		return $attributes;
+		return $expanded ? $attributes : null;
 	}
 }

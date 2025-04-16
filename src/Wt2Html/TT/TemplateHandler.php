@@ -937,10 +937,11 @@ class TemplateHandler extends TokenHandler {
 
 		if ( $env->nativeTemplateExpansionEnabled() ) {
 			// Expand argument keys
-			$atm = new AttributeTransformManager( $frame,
-				[ 'expandTemplates' => false, 'inTemplate' => true ]
-			);
-			$newAttribs = $atm->process( $token->attribs );
+			$newAttribs = AttributeTransformManager::process(
+				$frame,
+				[ 'expandTemplates' => false, 'inTemplate' => true ],
+				$token->attribs
+			) ?? $token->attribs;
 			$target = $newAttribs[0]->k;
 			if ( !$target ) {
 				$env->log( 'debug', 'No template target! ', $newAttribs );

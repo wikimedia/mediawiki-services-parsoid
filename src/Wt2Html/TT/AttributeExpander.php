@@ -619,11 +619,19 @@ class AttributeExpander extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function processComplexAttributes( Token $token ): TokenHandlerResult {
-		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
-			'expandTemplates' => $this->options['expandTemplates'],
-			'inTemplate' => $this->options['inTemplate']
-		] );
-		return $this->buildExpandedAttrs( $token, $atm->process( $token->attribs ) );
+		$expandedAttrs = AttributeTransformManager::process(
+			$this->manager->getFrame(),
+			[
+				'expandTemplates' => $this->options['expandTemplates'],
+				'inTemplate' => $this->options['inTemplate']
+			],
+			$token->attribs
+		);
+		if ( $expandedAttrs ) {
+			return $this->buildExpandedAttrs( $token, $expandedAttrs );
+		} else {
+			return new TokenHandlerResult( [ $token ] );
+		}
 	}
 
 	/**
@@ -634,15 +642,22 @@ class AttributeExpander extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	public function expandFirstAttribute( Token $token ): TokenHandlerResult {
-		$atm = new AttributeTransformManager( $this->manager->getFrame(), [
-			'expandTemplates' => $this->options['expandTemplates'],
-			'inTemplate' => $this->options['inTemplate']
-		] );
-		$expandedAttrs = $atm->process( [ $token->attribs[0] ] );
-		return $this->buildExpandedAttrs(
-			$token,
-			array_replace( $token->attribs, [ 0 => $expandedAttrs[0] ] )
+		$expandedAttrs = AttributeTransformManager::process(
+			$this->manager->getFrame(),
+			[
+				'expandTemplates' => $this->options['expandTemplates'],
+				'inTemplate' => $this->options['inTemplate']
+			],
+			[ $token->attribs[0] ]
 		);
+		if ( $expandedAttrs ) {
+			return $this->buildExpandedAttrs(
+				$token,
+				array_replace( $token->attribs, [ 0 => $expandedAttrs[0] ] )
+			);
+		} else {
+			return new TokenHandlerResult( [ $token ] );
+		}
 	}
 
 	/**
