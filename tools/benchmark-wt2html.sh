@@ -83,8 +83,8 @@ fi
 # Pre-record network traffic, if necessary.
 if [ -n "$FORCE" -o ! -f $(dirname $0)/../nocks/en.wikipedia.org/"$PAGENAME.js" ]; then
     echo "Recording parse network traffic."
-    $(dirname $0)/../bin/parse.js --wt2html --domain en.wikipedia.org \
-        --pageName $PAGENAME --record < /dev/null > /dev/null
+    php $(dirname $0)/../bin/parse.php --wt2html --domain en.wikipedia.org \
+        --page $PAGENAME --record > /dev/null
 fi
 
 # only re-run benchmark if output file doesn't exist.  otherwise, just
@@ -93,8 +93,8 @@ if [ -n "$FORCE" -o ! -f "$OUTPUT.times" ]; then
     rm -f "$OUTPUT.times"
     for f in $(seq 1 $REPEAT) extra1 extra2; do
         /usr/bin/time -f%U -o "$OUTPUT.times" -a \
-        $(dirname $0)/../bin/parse.js --wt2html --domain en.wikipedia.org \
-        --pageName $PAGENAME --replay < /dev/null > /dev/null
+        php $(dirname $0)/../bin/parse.php --wt2html --domain en.wikipedia.org \
+        --page $PAGENAME --replay > /dev/null
     done
 fi
 

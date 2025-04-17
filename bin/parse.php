@@ -117,18 +117,34 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			true
 		);
 		$this->addOption(
-			'pageName',
-			'The page name, returned for {{PAGENAME}}. If no input is given ' .
-			'(ie. empty/stdin closed), it downloads and parses the page. ' .
+			'title',
+			'The title of the page the input belongs to, returned for ' .
+			'{{PAGENAME}}. ' .
 			'This should be the actual title of the article (that is, not ' .
 			'including any URL-encoding that might be necessary in wikitext).',
 			false,
 			true
 		);
 		$this->addOption(
+			'page',
+			'Instead of parsing stdin, fetch and parse the content of this ' .
+			'page.  Cannot be used together with title. ' .
+			'This should be the actual title of the article (that is, not ' .
+			'including any URL-encoding that might be necessary in wikitext).',
+			false,
+			true
+		);
+		$this->addOption(
+			'pageName',
+			'Backward-compatibility alias for --page if no input is given, ' .
+			'or --title if inout is provided on stdin.',
+			false,
+			true
+		);
+		$this->addOption(
 			'restURL',
 			'Parses a RESTBase API URL (as supplied in our logs) and ' .
-			'sets --domain and --pageName.  Debugging aid.',
+			'sets --domain and --page.  Debugging aid.',
 			false,
 			true
 		);
@@ -495,20 +511,29 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				return;
 			}
 		} else {
-			if ( $this->hasOption( 'restURL' ) ) {
-				$input = '';
+			if ( $this->hasOption( 'restURL' ) || $this->hasOption( 'page' ) ) {
+				$input = null; // fetch
 			} else {
 				$input = file_get_contents( 'php://stdin' );
+				if ( $this->hasOption( 'pageName' ) ) {
+					$pageName = $this->getOption( 'pageName' );
+					if ( strlen( $input ) === 0 ) {
+						// implicitly sets the option by supplying a default
+						$this->getOption( 'page', $pageName );
+						$input = null; // fetch
+					} else {
+						// implicitly sets the option by supplying a default
+						$this->getOption( 'title', $pageName );
+					}
+				}
 			}
-			if ( strlen( $input ) === 0 ) {
+			if ( $input === null ) {
 				// Parse page if no input
 				if ( $this->hasOption( 'html2wt' ) || $this->hasOption( 'html2html' ) ) {
 					$this->error(
 						'Fetching page content is only supported when starting at wikitext.'
 					);
 					return;
-				} else {
-					$input = null;
 				}
 			}
 		}
@@ -536,7 +561,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			}
 			# Calling it with the default implicitly sets it as well.
 			$this->getOption( 'domain', $matches[1] );
-			$this->getOption( 'pageName', urldecode( $matches[2] ) );
+			$this->getOption( 'page', urldecode( $matches[2] ) );
 			if ( isset( $matches[3] ) ) {
 				$this->getOption( 'revid', $matches[3] );
 			}
@@ -557,8 +582,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 				$this->hasOption( 'wt2lint' ),
 			"mock" => $this->hasOption( 'mock' )
 		];
-		if ( $this->hasOption( 'pageName' ) ) {
-			$configOpts['title'] = $this->getOption( 'pageName' );
+		if ( $this->hasOption( 'title' ) ) {
+			$configOpts['title'] = $this->getOption( 'title' );
+		}
+		if ( $this->hasOption( 'page' ) ) {
+			$configOpts['title'] = $this->getOption( 'page' );
 		}
 		if ( $this->hasOption( 'revid' ) ) {
 			$configOpts['revid'] = (int)$this->getOption( 'revid' );
