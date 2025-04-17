@@ -59,17 +59,23 @@ class ParsoidExtensionAPITest extends TestCase {
 			new KV( 'details', ' foo  bar bar' ),
 			new KV( 'follow', 'foo foo bar  ' )
 		];
+		$before = json_encode( $extArgs );
+		$extApi = new class( new MockEnv( [] ), [] ) extends ParsoidExtensionAPI {
+			public bool $warned = false;
 
-		$extApi = new ParsoidExtensionAPI( new MockEnv( [] ), [] );
+			public function log( string $prefix, ...$args ): void {
+				if ( $prefix === 'warn' ) {
+					$this->warned = true;
+				}
+			}
+		};
+		// These options are mutually exclusive and raise a warning
 		$extApi->normalizeWhiteSpaceInArgs( $extArgs, [ 'except' => [ 'details' ], 'only' => [ 'follow' ] ] );
 		$this->assertSame(
-			json_encode( [
-				new KV( 'name', 'foo  bar' ),
-				new KV( 'details', ' foo  bar bar' ),
-				new KV( 'follow', 'foo foo bar  ' )
-			] ),
+			$before,
 			json_encode( $extArgs )
 		);
+		$this->assertTrue( $extApi->warned );
 	}
 
 	/** @covers ::normalizeWhiteSpaceInArgs */
