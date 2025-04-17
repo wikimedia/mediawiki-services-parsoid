@@ -261,6 +261,21 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			'Dump a log of the metrics methods that were called from a MockMetrics.'
 		);
 		$this->addOption( 'v3pf', 'Generate Experimental Parsoid HTML v3 parser function output' );
+		$this->addOption(
+			'record',
+			'Record HTTP requests for later replay'
+		);
+		$this->addOption(
+			'replay',
+			'Replay recorded HTTP requests for offline testing or benchmarking.'
+		);
+		$this->addOption(
+			'record-dir',
+			'Specify a desired storage directory for --record/--replay; ' .
+				'defaults to .record',
+			false,
+			true
+		);
 		$this->setAllowUnregisteredOptions( false );
 	}
 
@@ -553,6 +568,22 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 		if ( $this->hasOption( 'v3pf' ) ) {
 			$configOpts['v3pf'] = true;
+		}
+		if ( $this->hasOption( 'record' ) || $this->hasOption( 'replay' ) ) {
+			$cacheDir = __DIR__ . '/../.record';
+			$cacheDir = $this->getOption( 'record-dir', $cacheDir );
+			if ( !is_dir( $cacheDir ) ) {
+				mkdir( $cacheDir, 0777, true );
+			}
+			$configOpts['cacheDir'] = $cacheDir;
+			if ( $this->hasOption( 'record' ) ) {
+				$configOpts['writeToCache'] = true; # or 'pretty'
+			} elseif ( $this->hasOption( 'replay' ) ) {
+				// Specifying --record --replay together will silently fetch
+				// any missing API requests; otherwise with just --replay
+				// we'll throw an error if we're missing anything.
+				$configOpts['onlyCached'] = true;
+			}
 		}
 
 		$parsoidOpts += [

@@ -20,6 +20,9 @@ class ApiHelper {
 	/** @var bool|string */
 	private $writeToCache;
 
+	/** @var bool */
+	private $onlyCached;
+
 	/**
 	 * @param array $opts
 	 *  - apiEndpoint: (string) URL for api.php. Required.
@@ -30,6 +33,9 @@ class ApiHelper {
 	 *  - writeToCache: (bool|string) If present and truthy, writes successful
 	 *    network requests to `cacheDir` so they can be reused.  If set to
 	 *    the string 'pretty', prettifies the JSON returned before writing it.
+	 *  - onlyCached: (bool) If present and truthy, throws an error if a
+	 *    desired API request is not found in `cacheDir`, in order to avoid
+	 *    polluting benchmark results.
 	 */
 	public function __construct( array $opts ) {
 		if ( !isset( $opts['apiEndpoint'] ) ) {
@@ -39,6 +45,7 @@ class ApiHelper {
 
 		$this->cacheDir = $opts['cacheDir'] ?? null;
 		$this->writeToCache = $opts['writeToCache'] ?? false;
+		$this->onlyCached = $opts['onlyCached'] ?? false;
 
 		$this->curlopt = [
 			CURLOPT_USERAGENT => trim( ( $opts['userAgent'] ?? '' ) . ' ApiEnv/1.0 Parsoid-PHP/0.1' ),
@@ -105,6 +112,9 @@ class ApiHelper {
 	}
 
 	private function makeCurlRequest( array $params ): string {
+		if ( $this->onlyCached ) {
+			throw new \RuntimeException( "Failed to find request in recorded cache." );
+		}
 		$ch = curl_init( $this->endpoint );
 		if ( !$ch ) {
 			throw new \RuntimeException( "Failed to open curl handle to $this->endpoint" );
