@@ -75,12 +75,8 @@ class DOMDiff {
 		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->specializedAttribHandlers = [
 			'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
-				if ( isset( $dmwA->caption ) || isset( $dmwB->caption ) ) {
-					if (
-						$dmwA->caption === null ||
-						$dmwB->caption === null ||
-						!$this->treeEquals( $dmwA->caption, $dmwB->caption, true )
-					) {
+				if ( isset( $dmwA->caption ) && isset( $dmwB->caption ) ) {
+					if ( !$this->treeEquals( $dmwA->caption, $dmwB->caption, true ) ) {
 						return false;
 					}
 					$dmwA = (array)$dmwA;
