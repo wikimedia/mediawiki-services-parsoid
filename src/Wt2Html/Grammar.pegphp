@@ -354,6 +354,8 @@ nested_block_in_table =
 		return $b;
 	}
 
+nested_inlineline = !inline_breaks i:inlineline { return $i; }
+
 /*
  * Line-based block constructs.
  */
@@ -885,8 +887,8 @@ broken_template =
 	}
 
 template_preproc =
-	"{{" leadWS:$( nl_comment_space* )
-	target:(template_param_value / parsoid_fragment_marker )
+	"{{" nl_comment_space*
+	target:(inlineline_in_tpls / parsoid_fragment_marker )
 	params:(
 		nl_comment_space* "|"
 		r:(
@@ -902,7 +904,7 @@ template_preproc =
 			/ template_param
 		) { return $r; }
 	)*
-	trailWS:$( nl_comment_space* )
+	nl_comment_space*
 	inline_breaks "}}"
 	{
 		// Insert target as first positional attribute, so that it can be
@@ -912,9 +914,6 @@ template_preproc =
 		$dp = new DataParsoid;
 		$dp->tsr = $this->tsrOffsets();
 		$dp->src = $this->text();
-		$tmp = $dp->getTemp();
-		$tmp->leadWS = $leadWS;
-		$tmp->trailWS = $trailWS;
 		$obj = new SelfclosingTagTk( 'template', $params, $dp );
 		return $obj;
 	}
@@ -927,9 +926,9 @@ tplarg =
 	tplarg_preproc<&preproc="}}">
 
 tplarg_preproc =
-	"{{{"
+	"{{{" nl_comment_space*
 	p:("" { return $this->endOffset(); })
-	target:template_param_value?
+	target:inlineline_in_tpls?
 	params:(
 		nl_comment_space* "|"
 		r:(
@@ -1037,6 +1036,18 @@ template_param_text =
 			$r = $r[0];
 		}
 		return $r;
+	}
+
+inlineline_in_tpls =
+	il:(nested_inlineline<equal=false, table=false, extlink=false, templateArg=true, tableCellArg=false> / newlineToken)+
+	{
+		// il is guaranteed to be an array -- so, tu.flattenIfArray will
+		// always return an array
+		$r = TokenizerUtils::flattenIfArray( $il );
+		if ( count( $r ) === 1 && is_string( $r[0] ) ) {
+			$r = $r[0];
+		}
+		return [ 'tokens' => $r, 'srcOffsets' => $this->tsrOffsets() ];
 	}
 
 //// Language converter block markup of language variants: -{ ... }-

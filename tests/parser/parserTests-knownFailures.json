@@ -78,6 +78,9 @@
 	"Fuzz testing: Parser22": {
 		"wt2wt": "http://===r:::https://b\n\n{|\n|}"
 	},
+	"Fuzz testing: Parser25 (T8055)": {
+		"wt2wt": "{{{| \n<LI CLASS=||\n >\n}}}blah\" onmouseover=\"alert('hello world');\" align=\"left\"'''MOVE MOUSE CURSOR OVER HERE"
+	},
 	"HTML multiple attributes correction": {
 		"wt2wt": "<p class=\"awesome\">Awesome!</p>"
 	},

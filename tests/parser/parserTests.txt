@@ -9694,7 +9694,7 @@ Fuzz testing: Parser25 (T8055)
 <p>&lt;LI CLASS=blah" onmouseover="alert('hello world');" align="left"<b>MOVE MOUSE CURSOR OVER HERE</b>
 </p>
 !! html/parsoid
-<span about="#mwt1" typeof="mw:Param" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"},{"k":"3"}]]}' data-mw='{"parts":[{"templatearg":{"target":{"wt":"\n"},"params":{"1":{"wt":" \n&lt;LI CLASS="},"2":{"wt":""},"3":{"wt":"\n >\n"}},"i":0}},"blah\" onmouseover=\"alert(&#39;hello world&#39;);\" align=\"left\"&#39;&#39;&#39;MOVE MOUSE CURSOR OVER HERE"]}'> 
+<span about="#mwt1" typeof="mw:Param" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"},{"k":"3"}]]}' data-mw='{"parts":[{"templatearg":{"target":{"wt":""},"params":{"1":{"wt":" \n&lt;LI CLASS="},"2":{"wt":""},"3":{"wt":"\n >\n"}},"i":0}},"blah\" onmouseover=\"alert(&#39;hello world&#39;);\" align=\"left\"&#39;&#39;&#39;MOVE MOUSE CURSOR OVER HERE"]}'>
 </span><p about="#mwt1">&lt;LI CLASS=blah" onmouseover="alert('hello world');" align="left"<b>MOVE MOUSE CURSOR OVER HERE</b></p>
 !! end
 

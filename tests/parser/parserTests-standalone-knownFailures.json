@@ -402,6 +402,10 @@
         "selser [3,0,0]": "\n{|",
         "selser [1,0,2]": "http://===r:::https://b\n\ntkvjp1\n{|"
     },
+    "Fuzz testing: Parser25 (T8055)": {
+        "wt2wt": "{{{| \n<LI CLASS=||\n >\n}}}blah\" onmouseover=\"alert('hello world');\" align=\"left\"'''MOVE MOUSE CURSOR OVER HERE",
+        "html2wt": "{{{| \n<LI CLASS=||\n >\n}}}blah\" onmouseover=\"alert('hello world');\" align=\"left\"'''MOVE MOUSE CURSOR OVER HERE"
+    },
     "HTML bullet list, closed tags (T7497)": {
         "selser [[4,[3],3,0,3]]": "<ul><li>1a9n41r</li><li></li>\n<li>Two</li></ul>",
         "selser [[4,[2],3,0,0]]": "<ul><li>eoh8fa</li><li>t6txntOne</li>\n<li>Two</li>\n</ul>"
