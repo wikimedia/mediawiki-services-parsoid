@@ -55,6 +55,9 @@ class MetaHandler extends DOMHandler {
 				$datamw = DOMDataUtils::getDataMw( $node );
 				$attrs = "";
 				foreach ( ( $datamw->getExtAttribs() ?? [] ) as $k => $v ) {
+					// numeric $k will get converted to int by PHP when
+					// they are used as array keys
+					$k = (string)$k;
 					if ( $v === "" ) {
 						$attrs .= ' ' . $k;
 					} else {

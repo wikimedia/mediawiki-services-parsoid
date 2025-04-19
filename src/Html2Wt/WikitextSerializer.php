@@ -956,7 +956,9 @@ class WikitextSerializer {
 		// FIXME: with no dataParsoid, shadow info will mark it as new
 		$attrs = $dataMw->getExtAttribs() ?? [];
 		$extTok = new TagTk( $extTagName, array_map( static function ( $key ) use ( $attrs ) {
-			return new KV( $key, $attrs[$key] );
+			// explicit conversion to string because PHP will convert to int
+			// if $key is numeric
+			return new KV( (string)$key, $attrs[$key] );
 		}, array_keys( $attrs ) ) );
 
 		$about = DOMCompat::getAttribute( $node, 'about' );

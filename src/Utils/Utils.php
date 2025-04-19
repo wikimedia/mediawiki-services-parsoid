@@ -479,7 +479,10 @@ class Utils {
 			'attrs' => (object)[],
 		] );
 		foreach ( TokenUtils::kvToHash( $options ) as $name => $value ) {
-			$defaultDataMw->setExtAttrib( $name, $value );
+			// Explicit cast to string is needed here, since a numeric
+			// attribute name will get converted to 'int' when it is used
+			// as an array key.
+			$defaultDataMw->setExtAttrib( (string)$name, $value );
 		}
 		$extTagOffsets = $extToken->dataParsoid->extTagOffsets;
 		if ( $extTagOffsets->closeWidth !== 0 ) {

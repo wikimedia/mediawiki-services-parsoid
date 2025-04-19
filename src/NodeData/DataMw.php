@@ -71,7 +71,9 @@ class DataMw implements JsonCodecable {
 	/**
 	 * Helper method to facilitate renaming the 'attrs' property to
 	 * 'extAttribs' (T367616).
-	 * @return ?array<string,string|array<Token|string>>
+	 * @note that numeric key values will be converted from string
+	 *   to int by PHP when they are used as array keys
+	 * @return ?array<string|int,string|array<Token|string>>
 	 */
 	public function getExtAttribs(): ?array {
 		if ( isset( $this->attrs ) ) {

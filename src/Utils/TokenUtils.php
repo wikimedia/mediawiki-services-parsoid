@@ -711,8 +711,10 @@ class TokenUtils {
 	/**
 	 * Convert an array of key-value pairs into a hash of keys to values.
 	 * For duplicate keys, the last entry wins.
+	 * @note that numeric key values will be converted by PHP from string to
+	 *  int when they are used as array keys.
 	 * @param array<KV> $kvs
-	 * @return array<string,array<Token|string>>|array<string,string>
+	 * @return array<string|int,array<Token|string>>|array<string|int,string>
 	 */
 	public static function kvToHash( array $kvs ): array {
 		$res = [];

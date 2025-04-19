@@ -290,3 +290,14 @@ parsoid=wt2html
 <li>Two: <span typeof="mw:Transclusion mw:ParserFunction/f8_countargs" data-mw='{"parts":[{"parserfunction":{"target":{"wt":"#f8_countargs","key":"f8_countargs"},"params":{"1":{"wt":"one"},"2":{"wt":"two"}},"i":0}}]}'>2</span></li>
 </ul>
 !! end
+
+# Disabled because named arguments aren't yet supported
+!! test
+f8_countargs: verify numeric argument name handling
+!! options
+parsoid=wt2html
+disabled
+!! wikitext
+* Two: {{#f8_countargs:1=1|2=2}}
+!! html/parsoid+integrated
+!! end
