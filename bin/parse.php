@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 require_once __DIR__ . '/../tools/Maintenance.php';
 
 use MediaWiki\MediaWikiServices;
+use MediaWiki\Parser\ParserOptions;
 use MediaWiki\Revision\MutableRevisionRecord;
 use MediaWiki\Revision\SlotRecord;
 use MediaWiki\Title\Title as MWTitle;
@@ -340,11 +341,10 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		}
 
 		$this->siteConfig = $siteConfig;
-		$this->pageConfig = $pcFactory->create(
+		$this->pageConfig = $pcFactory->createFromParserOptions(
+			ParserOptions::newFromAnon(),
 			$title,
-			null, // UserIdentity
 			$revisionRecord ?? $revision,
-			null,
 			null,
 			$configOpts['ensureAccessibleContent']
 		);
