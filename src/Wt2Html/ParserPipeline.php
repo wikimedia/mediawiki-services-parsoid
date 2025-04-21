@@ -133,7 +133,7 @@ class ParserPipeline {
 			$this->env->popProfile();
 			$profile->end();
 
-			if ( $this->atTopLevel ) {
+			if ( $this->atTopLevel && $this->pipelineType === 'fullparse-wikitext-to-dom' ) {
 				$body = $output;
 				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
 				$body->appendChild( $body->ownerDocument->createComment( $profile->print() ) );
@@ -171,7 +171,7 @@ class ParserPipeline {
 			$this->env->popProfile();
 			$profile->end();
 
-			if ( $this->atTopLevel ) {
+			if ( $this->atTopLevel && $this->pipelineType === 'fullparse-wikitext-to-dom' ) {
 				Assert::invariant( $this->outputType === 'DOM', 'Expected top-level output to be DOM' );
 				$body = $ret[0];
 				$body->appendChild( $body->ownerDocument->createTextNode( "\n" ) );
