@@ -277,7 +277,7 @@ class WikiLinkHandler extends TokenHandler {
 				],
 			]
 		);
-		TokenUtils::stripEOFTkfromTokens( $toks );
+		TokenUtils::stripEOFTkFromTokens( $toks );
 		return array_merge( [ '[' ], $toks );
 	}
 

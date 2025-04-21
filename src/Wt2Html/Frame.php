@@ -128,7 +128,7 @@ class Frame {
 		];
 
 		$tokens = PipelineUtils::processContentInPipeline( $this->env, $this, $content, $opts );
-		TokenUtils::stripEOFTkfromTokens( $tokens );
+		TokenUtils::stripEOFTkFromTokens( $tokens );
 		return $tokens;
 	}
 

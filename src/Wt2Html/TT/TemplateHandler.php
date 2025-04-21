@@ -489,7 +489,7 @@ class TemplateHandler extends TokenHandler {
 				'srcOffsets' => $srcOffsets,
 			]
 		);
-		TokenUtils::stripEOFTkfromTokens( $toks );
+		TokenUtils::stripEOFTkFromTokens( $toks );
 		return new TemplateExpansionResult( array_merge( [ '{' ], $toks, [ '}' ] ), true );
 	}
 
@@ -666,7 +666,7 @@ class TemplateHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function processTemplateTokens( array $chunk ): array {
-		TokenUtils::stripEOFTkfromTokens( $chunk );
+		TokenUtils::stripEOFTkFromTokens( $chunk );
 
 		foreach ( $chunk as $i => $t ) {
 			if ( !$t ) {
