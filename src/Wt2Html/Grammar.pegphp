@@ -1672,7 +1672,6 @@ maybe_extension_tag =
 		return new SelfclosingTagTk( 'extension', [
 			new KV( 'typeof', 'mw:Extension' ),
 			new KV( 'name', $tagName ),
-			new KV( 'about', $this->env->newAboutId() ),
 			new KV( 'source', $dp->src ),
 			new KV( 'options', $t->attribs )
 		], $dp );

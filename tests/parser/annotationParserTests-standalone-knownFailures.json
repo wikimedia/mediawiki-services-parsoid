@@ -33,7 +33,7 @@
     },
     "Annotation in template target": {
         "wt2wt": "{{<dummyanno>1x|hello</dummyanno> stuff}}<nowiki></dummyanno></nowiki><span> stuff</span>",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,89,0,0]}'><span about=\"#mwt2\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,41,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"&lt;dummyanno>1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hello&lt;/dummyanno> stuff\"}},\"i\":0}}]}'>hello</span>&lt;/dummyanno><span about=\"#mwt2\" data-parsoid=\"{}\"> stuff</span><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[41,70,8,9]}'>&lt;/dummyanno></span><span data-parsoid='{\"stx\":\"html\",\"dsr\":[70,89,6,7]}'> stuff</span></p>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,89,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,41,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"&lt;dummyanno>1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"hello&lt;/dummyanno> stuff\"}},\"i\":0}}]}'>hello</span>&lt;/dummyanno><span about=\"#mwt1\" data-parsoid=\"{}\"> stuff</span><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[41,70,8,9]}'>&lt;/dummyanno></span><span data-parsoid='{\"stx\":\"html\",\"dsr\":[70,89,6,7]}'> stuff</span></p>",
         "html2wt": "{{<dummyanno>1x|hello</dummyanno> stuff}}<nowiki></dummyanno></nowiki><span> stuff</span>",
         "selser [[0,0,1]]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span data-foobar=\"rcsfl1\"> stuff</span>",
         "selser [1]": "{{<dummyanno>1x|hello</dummyanno> stuff}}</dummyanno><span> stuff</span>",
