@@ -19,7 +19,7 @@
 	},
 	"core": {
 		"project": "mediawiki/core",
-		"latestCommit": "2ea61f9aa47399544c308ca95b3941b20d26e74c",
+		"latestCommit": "940c55eb33f4ebd26d333746e4225d3cad371951",
 		"targets": {
 			"comments.txt": {
 				"path": "tests/parser/comments.txt",
@@ -27,7 +27,7 @@
 			},
 			"badCharacters.txt": {
 				"path": "tests/parser/badCharacters.txt",
-				"expectedSHA1": "e2f899e0190e8cc2bece52e543b183dc5b0ab0a2"
+				"expectedSHA1": "9594789e80e678a291ce91700d33c8225fa759b9"
 			},
 			"definitionLists.txt": {
 				"path": "tests/parser/definitionLists.txt",
@@ -39,7 +39,7 @@
 			},
 			"headings.txt": {
 				"path": "tests/parser/headings.txt",
-				"expectedSHA1": "f4d415a44d8e7c6fc699bd68e439954930be6130"
+				"expectedSHA1": "c7f920d4d7c5b086767b5c81df5f33579bfaf3cf"
 			},
 			"indentPre.txt": {
 				"path": "tests/parser/indentPre.txt",
@@ -51,7 +51,7 @@
 			},
 			"interlanguageLinks.txt": {
 				"path": "tests/parser/interlanguageLinks.txt",
-				"expectedSHA1": "02afc344588207be9f4275b796e3c034532ba084"
+				"expectedSHA1": "56b3b85ad5dc3f2f20ae9b8c9bb6b729c003a144"
 			},
 			"interwikiLinks.txt": {
 				"path": "tests/parser/interwikiLinks.txt",
@@ -83,7 +83,7 @@
 			},
 			"parserTests.txt": {
 				"path": "tests/parser/parserTests.txt",
-				"expectedSHA1": "867af511cb6cd0052e262ae3ad3afc0ff21c81ba"
+				"expectedSHA1": "41481183bec81392b80e51b5baafb09086b40e13"
 			},
 			"preTags.txt": {
 				"path": "tests/parser/preTags.txt",
