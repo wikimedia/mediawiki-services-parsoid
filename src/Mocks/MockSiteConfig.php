@@ -235,8 +235,6 @@ class MockSiteConfig extends SiteConfig {
 				return true;
 			case 'CiteResponsiveReferencesThreshold':
 				return 10;
-			case 'ParsoidFragmentInput':
-				return false;
 			case 'ParsoidExperimentalParserFunctionOutput':
 				return $this->v3pf;
 			default:

@@ -539,9 +539,6 @@ class SiteConfig extends ISiteConfig {
 			case 'CiteResponsiveReferencesThreshold':
 				return 10;
 
-			case 'ParsoidFragmentInput':
-				return false;
-
 			case 'ParsoidExperimentalParserFunctionOutput':
 				return $this->v3pf;
 

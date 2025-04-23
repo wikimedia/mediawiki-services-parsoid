@@ -217,9 +217,6 @@ class SiteConfig extends ApiSiteConfig {
 			case 'CiteResponsiveReferencesThreshold':
 				return $this->responsiveReferences['threshold'];
 
-			case 'ParsoidFragmentInput':
-				return false;
-
 			case 'ParsoidExperimentalParserFunctionOutput':
 				return $this->v3pf;
 

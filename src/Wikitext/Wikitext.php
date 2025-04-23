@@ -42,12 +42,6 @@ class Wikitext {
 		$error = false;
 		$start = hrtime( true );
 		# $originalSize = strlen( $fragment->asMarkedWikitext( StripState::new() ) );
-		// Only pass a string to preprocessWikitext unless core is ready
-		// for this new API.
-		// @phan-suppress-next-line PhanDeprecatedFunction
-		if ( !$env->getSiteConfig()->getMWConfigValue( 'ParsoidFragmentInput' ) ) {
-			$fragment = $fragment->killMarkers();
-		}
 		$ret = $env->getDataAccess()->preprocessWikitext( $env->getPageConfig(), $env->getMetadata(), $fragment );
 		if ( is_string( $ret ) ) {
 			$ret = WikitextPFragment::newFromWt( $ret, null );
