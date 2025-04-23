@@ -465,11 +465,11 @@ class Sanitizer {
 		} elseif ( in_array( $name, [ 'lt;', 'gt;', 'amp;', 'quot;' ], true ) ) {
 			// Keep these in word form
 			return "&$name";
-		} elseif ( isset( HTMLData::$namedEntityTranslations[$name] ) ) {
+		} elseif ( isset( HTMLData::NAMED_ENTITY_TRANSLATION[$name] ) ) {
 			// Beware: some entities expand to more than 1 codepoint
 			return preg_replace_callback( '/./Ssu', function ( $m ) {
 				return '&#' . self::utf8ToCodepoint( $m[0] ) . ';';
-			}, HTMLData::$namedEntityTranslations[$name] );
+			}, HTMLData::NAMED_ENTITY_TRANSLATION[$name] );
 		} else {
 			return "&amp;$name";
 		}
@@ -605,7 +605,7 @@ class Sanitizer {
 		if ( isset( self::MW_ENTITY_ALIASES[$name] ) ) {
 			$name = self::MW_ENTITY_ALIASES[$name];
 		}
-		$trans = HTMLData::$namedEntityTranslations[$name] ?? null;
+		$trans = HTMLData::NAMED_ENTITY_TRANSLATION[$name] ?? null;
 		return $trans ?? "&$name";
 	}
 
