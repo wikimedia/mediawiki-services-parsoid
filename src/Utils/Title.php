@@ -56,9 +56,18 @@ class Title implements LinkTarget {
 		}
 		$origTitle = $title;
 
+		// Title::newFromText() calls ::newFromTextThrow() which calls
+		// Sanitizer::decodeCharReferencesAndNormalize($title) here.
+		// We appear to ban char references in the title, see below.
+
+		// This check appears to be Parsoid-specific, but mirrors a check
+		// below done in TitleParser::splitTitleString().
 		if ( !mb_check_encoding( $title, 'UTF-8' ) ) {
 			throw new TitleException( "Bad UTF-8 in title \"$origTitle\"", 'title-invalid-utf8', $origTitle );
 		}
+
+		// Title::secureAndSplit() calls TitleParser::splitTitleString(),
+		// which the following code is from:
 
 		// Strip Unicode bidi override characters.
 		$title = preg_replace( '/[\x{200E}\x{200F}\x{202A}-\x{202E}]+/u', '', $title );
@@ -94,7 +103,7 @@ class Title implements LinkTarget {
 
 		# Namespace or interwiki prefix
 		$prefixRegexp = "/^(.+?)_*:_*(.*)$/S";
-		// MediaWikiTitleCodec::splitTitleString wraps a loop around the
+		// TitleParser::splitTitleString wraps a loop around the
 		// next section, to allow it to repeat this prefix processing if
 		// an interwiki prefix is found which points at the local wiki.
 		$m = [];
@@ -131,7 +140,7 @@ class Title implements LinkTarget {
 
 				# We don't check for a redundant interwiki prefix to the
 				# local wiki, like core does here in
-				# MediaWikiTitleCodec::splitTitleString;
+				# TitleParser::splitTitleString;
 				# core then does a `continue` to repeat the processing
 
 				// If there's an initial colon after the interwiki, that also
@@ -150,8 +159,11 @@ class Title implements LinkTarget {
 		if ( $fragmentIndex !== false ) {
 			$fragment = substr( $title, $fragmentIndex + 1 );
 			$title = rtrim( substr( $title, 0, $fragmentIndex ), '_' );
+			# TitleParser::splitTitleString replaces _ with spaces in
+			# $fragment here?
 		}
 
+		// This is from TitleParser::getTitleInvalidRegex()
 		$illegalCharsRe = '/[^' . $siteConfig->legalTitleChars() . ']'
 			// URL percent encoding sequences interfere with the ability
 			// to round-trip titles -- you can't link to them consistently.
@@ -195,6 +207,9 @@ class Title implements LinkTarget {
 			);
 		}
 
+		# Normally, all wiki links are forced to have an initial capital letter so [[foo]]
+		# and [[Foo]] point to the same place.  Don't force it for interwikis, since the
+		# other site might be case-sensitive.
 		if ( $interwiki === null && $siteConfig->namespaceCase( $ns ) === 'first-letter' ) {
 			$title = $siteConfig->ucfirst( $title );
 		}
@@ -205,12 +220,19 @@ class Title implements LinkTarget {
 			throw new TitleException( 'Empty title', 'title-invalid-empty', $title );
 		}
 
-		// This is from MediaWikiTitleCodec::splitTitleString() in core
+		// Allow IPv6 usernames to start with '::' by canonicalizing IPv6 titles.
+		// IP names are not allowed for accounts, and can only be referring to
+		// edits from the IP. Given '::' abbreviations and caps/lowercaps,
+		// there are numerous ways to present the same IP. Having sp:contribs scan
+		// them all is silly and having some show the edits and others not is
+		// inconsistent. Same for talk/userpages. Keep them normalized instead.
 		if ( $title !== '' && ( # T329690
 			$ns === $siteConfig->canonicalNamespaceId( 'user' ) ||
 			$ns === $siteConfig->canonicalNamespaceId( 'user_talk' )
 		) ) {
 			$title = IPUtils::sanitizeIP( $title );
+			// IPUtils::sanitizeIP return null only for bad input
+			'@phan-var string $title';
 		}
 
 		// Any remaining initial :s are illegal.
@@ -220,7 +242,7 @@ class Title implements LinkTarget {
 			);
 		}
 
-		// This is not in core's splitTitleString but matches
+		// This is not in core's TitleParser::splitTitleString but matches
 		// mediawiki-title's newFromText.
 		if ( $ns === $siteConfig->canonicalNamespaceId( 'special' ) ) {
 			$title = self::fixSpecialName( $siteConfig, $title );
