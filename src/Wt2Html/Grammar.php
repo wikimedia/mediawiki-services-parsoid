@@ -98,6 +98,9 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 			'(?:__|$|[-\'<[{\n\r:;\]}|\!=&]|(RFC|PMID|ISBN|' .
 			'(?i)' . $this->siteConfig->getProtocolsRegex( true ) .
 			')))!A';
+
+		// Flag should always be an actual boolean (not falsy or undefined)
+		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
 	}
 
 	private $prevOffset = 0;
@@ -884,8 +887,6 @@ private function a82($sc, $startPos, $p, $b) {
 private function a83() {
 
 		// Use the sol flag only at the start of the input
-		// Flag should always be an actual boolean (not falsy or undefined)
-		$this->assert( is_bool( $this->options['sol'] ), 'sol should be boolean' );
 		return $this->endOffset() === 0 && $this->options['sol'];
 	
 }
