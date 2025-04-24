@@ -146,11 +146,11 @@ class ExtensionHandler extends TokenHandler {
 			// sourceToDom).
 		}
 
-		$start = microtime( true );
+		$start = hrtime( true );
 		$domFragment = PipelineUtils::parseToHTML( $env, $token->getAttributeV( 'source' ) );
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
-			$profile->bumpMWTime( "Extension", 1000 * ( microtime( true ) - $start ), "api" );
+			$profile->bumpMWTime( "Extension", hrtime( true ) - $start, "api" );
 			$profile->bumpCount( "Extension" );
 		}
 		if ( !$domFragment ) {

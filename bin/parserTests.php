@@ -375,7 +375,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				"\n";
 		}
 		if ( $file !== null ) {
-			print 'Execution time: ' . round( 1000 * ( microtime( true ) - $stats->startTime ), 3 ) . "ms\n";
+			print 'Execution time: ' . round( ( hrtime( true ) - $stats->startTime ) / 1000, 3 ) . "ms\n";
 		}
 
 		if ( $failTotalTests !== 0 ) {

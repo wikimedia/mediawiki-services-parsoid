@@ -40,7 +40,7 @@ class Wikitext {
 	 */
 	public static function preprocessFragment( Env $env, PFragment $fragment, ?bool &$error = null ): PFragment {
 		$error = false;
-		$start = microtime( true );
+		$start = hrtime( true );
 		# $originalSize = strlen( $fragment->asMarkedWikitext( StripState::new() ) );
 		// Only pass a string to preprocessWikitext unless core is ready
 		// for this new API.
@@ -64,7 +64,7 @@ class Wikitext {
 
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
-			$profile->bumpMWTime( "Template", 1000 * ( microtime( true ) - $start ), "api" );
+			$profile->bumpMWTime( "Template", hrtime( true ) - $start, "api" );
 			$profile->bumpCount( "Template" );
 		}
 		return $ret;

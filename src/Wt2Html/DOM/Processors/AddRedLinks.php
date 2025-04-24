@@ -51,11 +51,11 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				return;
 			}
 
-			$start = microtime( true );
+			$start = hrtime( true );
 			$titleMap = $env->getDataAccess()->getPageInfo( $env->getPageConfig(), array_keys( $titles ) );
 			if ( $env->profiling() ) {
 				$profile = $env->getCurrentProfile();
-				$profile->bumpMWTime( "RedLinks", 1000 * ( microtime( true ) - $start ), "api" );
+				$profile->bumpMWTime( "RedLinks", hrtime( true ) - $start, "api" );
 				$profile->bumpCount( "RedLinks" );
 			}
 

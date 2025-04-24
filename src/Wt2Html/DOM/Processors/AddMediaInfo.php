@@ -677,7 +677,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
-		$start = microtime( true );
+		$start = hrtime( true );
 
 		$infos = $env->getDataAccess()->getFileInfo(
 			$env->getPageConfig(),
@@ -686,7 +686,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		if ( $env->profiling() ) {
 			$profile = $env->getCurrentProfile();
-			$profile->bumpMWTime( "Media", 1000 * ( microtime( true ) - $start ), "api" );
+			$profile->bumpMWTime( "Media", hrtime( true ) - $start, "api" );
 			$profile->bumpCount( "Media" );
 		}
 

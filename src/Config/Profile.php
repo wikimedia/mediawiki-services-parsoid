@@ -7,10 +7,10 @@ namespace Wikimedia\Parsoid\Config;
  * Records time profiling information
  */
 class Profile {
-	/** @var float */
+	/** @var int|float - int on 64-bit systems */
 	public $startTime;
 
-	/** @var float */
+	/** @var int|float - int on 64-bit systems */
 	public $endTime;
 
 	private array $timeProfile = [];
@@ -32,11 +32,11 @@ class Profile {
 	private ?Profile $recentNestedProfile = null;
 
 	public function start(): void {
-		$this->startTime = microtime( true );
+		$this->startTime = hrtime( true );
 	}
 
 	public function end(): void {
-		$this->endTime = microtime( true );
+		$this->endTime = hrtime( true );
 	}
 
 	public function pushNestedProfile( Profile $p ): void {
@@ -46,15 +46,16 @@ class Profile {
 	/**
 	 * @param array &$profile
 	 * @param string $resource
-	 * @param float $time Time in milliseconds
+	 * @param int|float $time Time in nanoseconds
 	 * @param ?string $cat
 	 */
 	private function bumpProfileTimeUse(
-		array &$profile, string $resource, float $time, ?string $cat
+		array &$profile, string $resource, $time, ?string $cat
 	): void {
+		$time /= 1000000; // ns --> ms
 		if ( $profile === $this->timeProfile && $this->recentNestedProfile ) {
 			// Eliminate double-counting
-			$time -= ( $this->recentNestedProfile->endTime - $this->recentNestedProfile->startTime ) * 1000;
+			$time -= ( $this->recentNestedProfile->endTime - $this->recentNestedProfile->startTime ) / 1000000;
 			$this->recentNestedProfile = null;
 		}
 
@@ -70,10 +71,10 @@ class Profile {
 	 * Update a profile timer.
 	 *
 	 * @param string $resource
-	 * @param float $time Time in milliseconds
+	 * @param int|float $time Time in nanoseconds
 	 * @param string|null $cat
 	 */
-	public function bumpTimeUse( string $resource, float $time, ?string $cat = null ): void {
+	public function bumpTimeUse( string $resource, $time, ?string $cat = null ): void {
 		$this->bumpProfileTimeUse( $this->timeProfile, $resource, $time, $cat );
 	}
 
@@ -81,10 +82,10 @@ class Profile {
 	 * Update profile usage for "MW API" requests
 	 *
 	 * @param string $resource
-	 * @param float $time Time in milliseconds
+	 * @param int|float $time Time in nanoseconds
 	 * @param string|null $cat
 	 */
-	public function bumpMWTime( string $resource, float $time, ?string $cat = null ): void {
+	public function bumpMWTime( string $resource, $time, ?string $cat = null ): void {
 		// FIXME: For now, skip the category since this leads to double counting
 		// when reportind time by categories since this time is part of other
 		// '$this->timeProfile' categories already.
@@ -178,7 +179,7 @@ class Profile {
 		$outLines[] = "";
 		$outLines[] = $mwOut['buf'];
 		$outLines[] = str_repeat( "-", 85 );
-		$parseTime = ( $this->endTime - $this->startTime ) * 1000;
+		$parseTime = ( $this->endTime - $this->startTime ) / 1000000;
 		$outLines[] = $this->formatLine( 'TOTAL PARSE TIME (1)', $parseTime );
 		$outLines[] = $this->formatLine( 'TOTAL PARSOID CPU TIME (2)', $cpuOut['total'] );
 		if ( $mwOut['total'] > 0 ) {

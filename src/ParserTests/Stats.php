@@ -4,7 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\ParserTests;
 
 class Stats {
-	/** @var float */
+	/** @var int|float - int on 64-bit systems */
 	public $startTime;
 
 	/** @var Stats[] */
@@ -35,7 +35,7 @@ class Stats {
 	public $result;
 
 	public function __construct() {
-		$this->startTime = microtime( true );
+		$this->startTime = hrtime( true );
 	}
 
 	public function allFailures(): int {

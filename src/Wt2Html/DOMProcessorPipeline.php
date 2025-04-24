@@ -107,7 +107,7 @@ class DOMProcessorPipeline extends PipelineStage {
 					" ",
 					( strlen( $pp['name'] ) < 30 ) ? 30 - strlen( $pp['name'] ) : 0
 				);
-				$ppStart = microtime( true );
+				$ppStart = hrtime( true );
 			}
 
 			$opts = null;
@@ -149,11 +149,11 @@ class DOMProcessorPipeline extends PipelineStage {
 			}
 
 			if ( $profile ) {
-				$ppElapsed = 1000 * ( microtime( true ) - $ppStart );
+				$ppElapsed = hrtime( true ) - $ppStart;
 				if ( $this->atTopLevel ) {
 					$this->timeProfile .= str_pad( $prefix . '; ' . $ppName, 65 ) .
 						' time = ' .
-						str_pad( number_format( $ppElapsed, 2 ), 10, ' ', STR_PAD_LEFT ) . "\n";
+						str_pad( number_format( $ppElapsed / 1000000, 2 ), 10, ' ', STR_PAD_LEFT ) . "\n";
 				}
 				$profile->bumpTimeUse( $resourceCategory, $ppElapsed, 'DOM' );
 			}

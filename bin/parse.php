@@ -704,11 +704,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 			if ( $this->hasOption( 'delay' ) ) {
 				usleep( $this->getOption( 'delay' ) * 1000 );
 			}
-			$startTime = microtime( true );
+			$startTime = hrtime( true );
 			for ( $i = 0; $i < $count; $i++ ) {
 				$callback();
 			}
-			$total = ( microtime( true ) - $startTime ) * 1000;
+			$total = ( hrtime( true ) - $startTime ) / 1000000;
 			$this->output( "Total time: $total ms\n" );
 			if ( $count > 1 ) {
 				$mean = $total / $count;

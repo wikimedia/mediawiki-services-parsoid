@@ -44,9 +44,9 @@ class TraceProxy extends TokenHandler {
 
 		$profile = $this->manager->profile;
 		if ( $profile ) {
-			$s = microtime( true );
+			$s = hrtime( true );
 			$res = $this->handler->$func( $token );
-			$t = (int)( ( microtime( true ) - $s ) * 1000 );
+			$t = hrtime( true ) - $s;
 			$traceName = "{$this->name}::$func";
 			$profile->bumpTimeUse( $traceName, $t, "TT" );
 			$profile->bumpCount( $traceName );

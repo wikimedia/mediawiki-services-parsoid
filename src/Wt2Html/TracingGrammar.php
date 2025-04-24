@@ -293,7 +293,7 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 				$this->startTime = null;
 				if ( $this->env->profiling() ) {
 					$profile = $this->env->getCurrentProfile();
-					$this->startTime = microtime( true );
+					$this->startTime = hrtime( true );
 				}
 				return true;
 			
@@ -303,7 +303,7 @@ private function a1($t) {
 				if ( $this->env->profiling() ) {
 					$profile = $this->env->getCurrentProfile();
 					$profile->bumpTimeUse(
-						'PEG', 1000 * ( microtime( true ) - $this->startTime ), 'PEG' );
+						'PEG', hrtime( true ) - $this->startTime, 'PEG' );
 				}
 				return true;
 			

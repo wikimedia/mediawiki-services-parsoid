@@ -106,7 +106,7 @@ class TreeBuilderStage extends PipelineStage {
 		$profile = null;
 		if ( $this->env->profiling() ) {
 			$profile = $this->env->getCurrentProfile();
-			$s = microtime( true );
+			$s = hrtime( true );
 		}
 		$n = count( $tokens );
 		$i = 0;
@@ -134,7 +134,7 @@ class TreeBuilderStage extends PipelineStage {
 
 		if ( $profile ) {
 			$profile->bumpTimeUse(
-				'HTML5 TreeBuilder', 1000 * ( microtime( true ) - $s ), 'HTML5' );
+				'HTML5 TreeBuilder', hrtime( true ) - $s, 'HTML5' );
 		}
 	}
 

@@ -34,7 +34,7 @@ class TokenHandlerPipeline extends PipelineStage {
 	/** @var TokenHandler[] */
 	private $transformers = [];
 
-	/** @var int For TraceProxy */
+	/** @var int|float For TraceProxy */
 	public $tokenTimes = 0;
 
 	/** @var Profile|null For TraceProxy */
@@ -101,7 +101,7 @@ class TokenHandlerPipeline extends PipelineStage {
 		$profile = $this->profile = $this->env->profiling() ? $this->env->getCurrentProfile() : null;
 
 		if ( $profile ) {
-			$startTime = microtime( true );
+			$startTime = hrtime( true );
 			$this->tokenTimes = 0;
 		}
 
@@ -134,7 +134,7 @@ class TokenHandlerPipeline extends PipelineStage {
 
 		if ( $profile ) {
 			$profile->bumpTimeUse( 'THP',
-				( microtime( true ) - $startTime ) * 1000 - $this->tokenTimes,
+				hrtime( true ) - $startTime - $this->tokenTimes,
 				'THP' );
 		}
 

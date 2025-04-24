@@ -447,7 +447,7 @@ class TestRunner {
 			!empty( $testOpts['parsoid'] ) &&
 			!isset( $testOpts['parsoid']['normalizePhp'] )
 		);
-		$test->time['start'] = microtime( true );
+		$test->time['start'] = hrtime( true );
 		$doc = null;
 		$wt = null;
 
@@ -706,7 +706,7 @@ class TestRunner {
 		Env $env, Test $test, array $options, string $mode, Document $doc
 	): void {
 		$modeObj = new TestMode( $mode );
-		$test->time['end'] = microtime( true );
+		$test->time['end'] = hrtime( true );
 		$metadataExpected = self::getStandaloneMetadataSection( $test );
 		$metadataActual = null;
 		if ( isset( $test->options['nohtml'] ) ) {
@@ -754,7 +754,7 @@ class TestRunner {
 	private function processSerializedWT(
 		Env $env, Test $test, array $options, string $mode, string $wikitext
 	): void {
-		$test->time['end'] = microtime( true );
+		$test->time['end'] = hrtime( true );
 
 		if ( $mode === 'selser' && $options['selser'] !== 'noauto' ) {
 			if ( $test->changetree === [ 5 ] ) {
