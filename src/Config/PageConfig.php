@@ -96,18 +96,6 @@ abstract class PageConfig {
 	abstract public function getRevisionTimestamp(): ?string;
 
 	/**
-	 * The revision's author's user name, if any
-	 * @return string|null
-	 */
-	abstract public function getRevisionUser(): ?string;
-
-	/**
-	 * The revision's author's user ID, if any
-	 * @return int|null 0 if the user is not registered
-	 */
-	abstract public function getRevisionUserId(): ?int;
-
-	/**
 	 * The revision's SHA1 checksum, if any
 	 * @return string|null Hex encoded
 	 */

@@ -195,18 +195,6 @@ class PageConfig extends IPageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionUser(): ?string {
-		$this->loadData();
-		return $this->rev['user'] ?? null;
-	}
-
-	/** @inheritDoc */
-	public function getRevisionUserId(): ?int {
-		$this->loadData();
-		return $this->rev['userid'] ?? null;
-	}
-
-	/** @inheritDoc */
 	public function getRevisionSha1(): ?string {
 		$this->loadData();
 		return $this->rev['sha1'] ?? null;

@@ -83,18 +83,6 @@ class MockPageConfig extends PageConfig {
 	}
 
 	/** @inheritDoc */
-	public function getRevisionUser(): ?string {
-		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	/** @inheritDoc */
-	public function getRevisionUserId(): ?int {
-		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
-		throw new \BadMethodCallException( 'Not implemented' );
-	}
-
-	/** @inheritDoc */
 	public function getRevisionSha1(): ?string {
 		return null;
 	}
