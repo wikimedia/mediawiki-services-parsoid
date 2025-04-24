@@ -375,7 +375,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 				"\n";
 		}
 		if ( $file !== null ) {
-			print 'Execution time: ' . round( ( hrtime( true ) - $stats->startTime ) / 1000, 3 ) . "ms\n";
+			print 'Execution time: ' . round( ( hrtime( true ) - $stats->startTime ) / 1000000, 3 ) . "ms\n";
 		}
 
 		if ( $failTotalTests !== 0 ) {
@@ -884,7 +884,7 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 		if ( $time && $time['end'] && $time['start'] ) {
 			$timeTotal = $time['end'] - $time['start'];
 			if ( !is_nan( $timeTotal ) ) {
-				$testcaseEle .= 'time="' . ( ( $time['end'] - $time['start'] ) / 1000.0 ) . '"';
+				$testcaseEle .= 'time="' . ( ( $time['end'] - $time['start'] ) / 1000000 ) . '"';
 			}
 		}
 
