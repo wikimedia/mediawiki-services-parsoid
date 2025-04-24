@@ -109,7 +109,7 @@ abstract class SiteConfig {
 	];
 
 	/**
-	 * Array specifying fully qualified class name for Parsoid-compatible extensions
+	 * Array mapping parsoid internal extension ID to ExtensionModule object.
 	 * @var ?array<int,ExtensionModule>
 	 */
 	private $extModules = null;
@@ -1604,6 +1604,10 @@ abstract class SiteConfig {
 			if ( !$key ) {
 				continue;
 			}
+			# transfer information about the extension and parsoid module
+			# in which this fragment handler is defined
+			$pFragmentHandler['module-name'] = $extConfig['name'];
+			$pFragmentHandler['extension-name'] = $extConfig['extension-name'] ?? null;
 			$this->extConfig['pFragmentHandlers'][$key] = $pFragmentHandler;
 			if ( !array_key_exists( $key, $magicWordMap ) ) {
 				continue;
@@ -1756,9 +1760,19 @@ abstract class SiteConfig {
 	}
 
 	/**
+	 * @return list<string> Magic word IDs naming PFragment handlers
+	 *  registered with Parsoid.
+	 */
+	public function getPFragmentHandlerKeys() {
+		$extConfig = $this->getExtConfig();
+		return array_keys( $extConfig['pFragmentHandlers'] ?? [] );
+	}
+
+	/**
 	 * @param string $key Magic word ID naming this PFragment handler
-	 * @return string|array|null Object factory specification for a
-	 *  PFragmentHandler.
+	 * @return array{handler?:string|array}|null Configuration for the
+	 *   fragment handler, including a 'handler' property which contains
+	 *   an object factory specification for a PFragmentHandler.
 	 */
 	public function getPFragmentHandlerConfig( string $key ) {
 		$extConfig = $this->getExtConfig();
