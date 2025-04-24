@@ -579,6 +579,18 @@
     "Magic variable as template parameter": {
         "html2wt": "This is a test template with parameter MediaWiki\n"
     },
+    "Media link with nested wikilinks": {
+        "wt2wt": "[[Media:Foobar.jpg|[[Test]]<nowiki>]]</nowiki>\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]<nowiki>]]</nowiki>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,104,0,0]}'>[[Media:Foobar.jpg|<a rel=\"mw:WikiLink\" href=\"./Test\" title=\"Test\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Test\"},\"sa\":{\"href\":\"Test\"},\"dsr\":[19,27,2,2]}'>Test</a><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[27,46,8,9]}'>]]</span>\n[[Media:Foobar.jpg|<span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[],\"dsr\":[66,85,null,null]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a></span><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[85,104,8,9]}'>]]</span></p>",
+        "html2wt": "[[Media:Foobar.jpg|[[Test]]<nowiki>]]</nowiki>\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]<nowiki>]]</nowiki>",
+        "selser [[0,1,3,0,0]]": "[[Media:Foobar.jpg|[[Test]][[File:Foobar.jpg]]]]",
+        "selser [[0,2,0,0,0]]": "[[Media:Foobar.jpg|s7pgp2[[Test]]]]\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]]]",
+        "selser [1]": "[[Media:Foobar.jpg|[[Test]]]]\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]]]",
+        "selser [2]": "1uo6m0d\n\n[[Media:Foobar.jpg|[[Test]]]]\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]]]",
+        "selser [[0,0,3,0,0]]": "[[Media:Foobar.jpg|[[Test]][[File:Foobar.jpg]]]]",
+        "selser [[4,[3],0,0,0]]": "180u00l]]\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]]]",
+        "selser [[0,[2],0,0,2]]": "[[Media:Foobar.jpg|[[Test|13d5pvmTest]]]]\n[[Media:Foobar.jpg|[[File:Foobar.jpg]]<nowiki>fw015r]]</nowiki>"
+    },
     "Mixed list": {
         "html2wt": "* Mixed list\n*# with numbers\n** and bullets\n*# and numbers\n* bullets again\n** bullet level 2\n*** bullet level 3\n***# Number on level 4\n** bullet level 2\n**# Number on level 3\n**# Number on level 3\n*# number level 2\n* Level 1\n*** Level 3\n\n#** Level 3, but ordered\n",
         "selser [3,0,0]": "#**Level 3, but ordered"
@@ -1574,6 +1586,15 @@
     "WTS of edited external link surrounded by square brackets (T220018)": {
         "wt2wt": "[[http://example.com foo]]",
         "selser [manual]": "[[http://example.com foo]]"
+    },
+    "Wikilink in wikilink": {
+        "wt2wt": "[[Hi|[[Ho]]<nowiki>]]</nowiki>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,30,0,0]}'>[[Hi|<a rel=\"mw:WikiLink\" href=\"./Ho\" title=\"Ho\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./Ho\"},\"sa\":{\"href\":\"Ho\"},\"dsr\":[5,11,2,2]}'>Ho</a><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[11,30,8,9]}'>]]</span></p>",
+        "html2wt": "[[Hi|[[Ho]]<nowiki>]]</nowiki>",
+        "selser [2]": "1lgm4ar\n\n[[Hi|[[Ho]]]]",
+        "selser [1]": "[[Hi|[[Ho]]]]",
+        "selser [[0,2,0]]": "[[Hi|1v1zr3e[[Ho]]]]",
+        "selser [[0,[4],0]]": "[[Hi|[[Ho|662q18]]]]"
     },
     "anchorencode encodes like the TOC generator: (T20431)": {
         "html2wt": "=== _ +:.3A%3A _ &&amp;]] x ===\n{{anchorencode: _ +:.3A%3A _ &&amp;]] x}}\n\n__NOEDITSECTION__\n",

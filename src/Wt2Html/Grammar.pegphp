@@ -2533,7 +2533,7 @@ wikilink_preprocessor_text =
 		/ !inline_breaks !pipe wr:( directive / $( !"]]" ( text_char / [!<\-\}\]\n\r] ) ) )
 		{ return $wr; }
 	)+ {
-		return TokenizerUtils::flattenStringlist( $r );
+		return TokenizerUtils::flattenString( $r );
 	}
 
 // added special separator character class inline: separates url from

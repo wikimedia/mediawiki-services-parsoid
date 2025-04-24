@@ -394,7 +394,8 @@ class WikitextEscapeHandlers {
 			} elseif ( $t->getName() === 'wikilink' ) {
 				$target = $t->getAttributeV( 'href' );
 				if ( is_array( $target ) ) {
-					// FIXME: in theory template expansion *could* make this a link.
+					// FIXME: Can lead to false negatives.
+					// In theory, template expansion *could* make this a link.
 					return false;
 				}
 				if ( $env->isValidLinkTarget( $target ) &&

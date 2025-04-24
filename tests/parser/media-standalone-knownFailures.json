@@ -112,6 +112,14 @@
     "Invalid image attributes (T64500)": {
         "selser [0,2,[0,4],3,0]": "[[File:Foobar.jpg|thumb|float|left|caption]]r3ecic\n\n[[File:Foobar.jpg|thumb|righ]]\n\n[[File:Foobar.jpg|bogus1|thumb|bogus2|left|bogus3|caption]]"
     },
+    "Media in wikilink": {
+        "wt2wt": "[[Test|[[File:Foobar.jpg]]<nowiki>]]</nowiki>",
+        "html2html": "<p data-parsoid='{\"dsr\":[0,45,0,0]}'>[[Test|<span class=\"mw-default-size\" typeof=\"mw:File\" data-parsoid='{\"optList\":[],\"dsr\":[7,26,null,null]}'><a href=\"./File:Foobar.jpg\" class=\"mw-file-description\" data-parsoid=\"{}\"><img resource=\"./File:Foobar.jpg\" src=\"http://example.com/images/3/3a/Foobar.jpg\" decoding=\"async\" data-file-width=\"1941\" data-file-height=\"220\" data-file-type=\"bitmap\" height=\"220\" width=\"1941\" class=\"mw-file-element\" data-parsoid='{\"a\":{\"resource\":\"./File:Foobar.jpg\",\"height\":\"220\",\"width\":\"1941\"},\"sa\":{\"resource\":\"File:Foobar.jpg\"}}'/></a></span><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[26,45,8,9]}'>]]</span></p>",
+        "html2wt": "[[Test|[[File:Foobar.jpg]]<nowiki>]]</nowiki>",
+        "selser [1]": "[[Test|[[File:Foobar.jpg]]]]",
+        "selser [2]": "5ihmtv\n\n[[Test|[[File:Foobar.jpg]]]]",
+        "selser [[2,0,0]]": "4rjulg[[Test|[[File:Foobar.jpg]]]]"
+    },
     "Parsoid-specific image handling - caption with a template in it": {
         "html2wt": "[[File:Foobar.jpg|thumb|200x200px|This caption has a {{1x|transclusion}} in it.]]\n"
     },
