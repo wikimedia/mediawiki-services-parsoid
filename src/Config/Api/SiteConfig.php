@@ -860,6 +860,28 @@ class SiteConfig extends ISiteConfig {
 		$this->metrics->timing( $name, $value );
 	}
 
+	/**
+	 * Record a histogram metric
+	 * @param string $name
+	 * @param float $value A time value in milliseconds
+	 * @param array $buckets The buckets used in this histogram
+	 * @param array $labels The metric labels
+	 * @return void
+	 */
+	public function observeHistogram( string $name, float $value, array $buckets, array $labels ) {
+		$this->metrics->histogram( $name, $value, $buckets, $labels );
+	}
+
+	/**
+	 * Generate mock histogram buckets
+	 * @param float $mean
+	 * @param int $skip
+	 * @return array
+	 */
+	public function getHistogramBuckets( float $mean, int $skip ) {
+		return [ 0, $mean, 2 * $mean ];
+	}
+
 	/** @inheritDoc */
 	public function getNoFollowConfig(): array {
 		$this->loadSiteData();

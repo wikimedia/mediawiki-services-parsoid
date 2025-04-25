@@ -17,6 +17,11 @@ class MockMetrics implements StatsdDataFactoryInterface {
 	}
 
 	/** @inheritDoc */
+	public function histogram( string $key, float $value, array $buckets, array $labels ) {
+		$this->log[] = [ 'histogram', $key, $value, $buckets, $labels ];
+	}
+
+	/** @inheritDoc */
 	public function gauge( $key, $value ) {
 		$this->log[] = [ 'gauge', $key, $value ];
 	}

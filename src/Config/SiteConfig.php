@@ -356,6 +356,24 @@ abstract class SiteConfig {
 	abstract public function observeTiming( string $name, float $value, array $labels );
 
 	/**
+	 * Record a histogram metric
+	 * @param string $name
+	 * @param float $value A time value in milliseconds
+	 * @param array $buckets The buckets used in this histogram
+	 * @param array $labels The metric labels
+	 * @return void
+	 */
+	abstract public function observeHistogram( string $name, float $value, array $buckets, array $labels );
+
+	/**
+	 * Generate histogram buckets based on mean and skip
+	 * @param float $mean
+	 * @param int $skip
+	 * @return array
+	 */
+	abstract public function getHistogramBuckets( float $mean, int $skip );
+
+	/**
 	 * If enabled, bidi chars adjacent to category links will be stripped
 	 * in the html -> wt serialization pass.
 	 * @return bool

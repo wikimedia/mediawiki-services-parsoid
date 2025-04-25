@@ -29,6 +29,7 @@ use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\Histogram;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Processors\AddRedLinks;
@@ -52,12 +53,14 @@ class Parsoid {
 
 	/** @var DataAccess */
 	private $dataAccess;
+	private Histogram $histogram;
 
 	public function __construct(
 		SiteConfig $siteConfig, DataAccess $dataAccess
 	) {
 		$this->siteConfig = $siteConfig;
 		$this->dataAccess = $dataAccess;
+		$this->histogram = new Histogram( $this->siteConfig );
 	}
 
 	/**
@@ -352,17 +355,26 @@ class Parsoid {
 			'version' => $version
 		] );
 
+		// TODO: Remove fake timing after migration to histogram is complete
 		// @phan-suppress-next-line PhanDeprecatedFunction
-		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $pageConfig->getPageMainContent() ), false );
+		$inSize = $pageConfig->getPageMainContent();
+		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $inSize ), false );
 		$timing->end(
 			"entry.wt2html.{$mstr}.size.input",
+			"legacy_wt2html_size_input_bytes",
+			[ "type" => $mstr ]
+		);
+		$this->histogram->observe(
 			"wt2html_size_input_bytes",
+			strlen( $inSize ),
 			[ "type" => $mstr ]
 		);
 
 		$outSize = strlen( $out['html'] );
+		// TODO: Remove fake timing after migration to histogram is complete
 		$timing = Timing::fakeTiming( $this->siteConfig, $outSize, false );
-		$timing->end( "entry.wt2html.{$mstr}.size.output", "wt2html_size_output_bytes", [ "type" => $mstr ] );
+		$timing->end( "entry.wt2html.{$mstr}.size.output", "legacy_wt2html_size_output_bytes", [ "type" => $mstr ] );
+		$this->histogram->observe( "wt2html_size_output_bytes", $outSize, [ "type" => $mstr ] );
 
 		if ( $parseTimeMs > 10 && $outSize > 100 ) {
 			// * Don't bother with this metric for really small parse times
@@ -375,13 +387,16 @@ class Parsoid {
 			// NOTE: This is slightly misleading since there are fixed costs
 			// for generating output like the <head> section and should be factored in,
 			// but this is good enough for now as a useful first degree of approxmation.
+
+			// TODO: Remove fake timing after migration to histogram is complete
 			$msPerKB = $parseTimeMs * 1024 / $outSize;
 			$timing = Timing::fakeTiming( $this->siteConfig, $msPerKB );
 			$timing->end(
 				'entry.wt2html.timePerKB',
-				'wt2html_msPerKB',
+				'legacy_wt2html_msPerKB',
 				[]
 			);
+			$this->histogram->observe( 'wt2html_msPerKB', $msPerKB );
 		}
 
 		// Expensive analyses: sampleStats is randomly sampled will not be
@@ -511,7 +526,9 @@ class Parsoid {
 
 		$htmlSize = $options['htmlSize'] ?? 0;
 		$timing = Timing::fakeTiming( $this->siteConfig, $htmlSize, false );
-		$timing->end( 'entry.html2wt.size.input', 'html2wt_size_input_bytes' );
+		// TODO: Remove fake timing after migration to histogram is complete
+		$timing->end( 'entry.html2wt.size.input', 'legacy_html2wt_size_input_bytes' );
+		$this->histogram->observe( 'html2wt_size_input_bytes', $htmlSize );
 
 		if ( isset( $options['inputContentVersion'] ) ) {
 			if ( $metrics ) {
@@ -529,18 +546,22 @@ class Parsoid {
 		$timing->end( 'entry.html2wt.total', 'html2wt_total_seconds', [] );
 
 		$timing = Timing::fakeTiming( $this->siteConfig, strlen( $wikitext ), false );
-		$timing->end( 'entry.html2wt.size.output', 'html2wt_size_output_bytes', [] );
+		// TODO: Remove fake timing after migration to histogram is complete
+		$timing->end( 'entry.html2wt.size.output', 'legacy_html2wt_size_output_bytes', [] );
+		$this->histogram->observe( 'html2wt_size_output_bytes', strlen( $wikitext ) );
 
 		if ( $htmlSize ) {  // Avoid division by zero
 			// NOTE: the name timePerInputKB is misleading, since $htmlSize is
 			//       in characters, not bytes.
 			$msPerKB = $serialTime * 1024 / $htmlSize;
+			// TODO: Remove fake timing after migration to histogram is complete
 			$timing = Timing::fakeTiming( $this->siteConfig, $msPerKB );
 			$timing->end(
 				'entry.html2wt.timePerInputKB',
-				'html2wt_msPerKB',
+				'legacy_html2wt_msPerKB',
 				[]
 			);
+			$this->histogram->observe( 'html2wt_msPerKB', $msPerKB );
 		}
 	}
 
