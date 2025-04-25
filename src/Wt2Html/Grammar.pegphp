@@ -31,30 +31,17 @@
 	use Wikimedia\Parsoid\Wikitext\Consts;
 }
 {
-	/** @var Env */
-	private $env;
-
-	/** @var SiteConfig */
-	private $siteConfig;
-
-	/** @var array */
-	private $pipelineOpts;
-
-	/** @var int */
-	private $pipelineOffset;
-
-	private $extTags;
-
+	private Env $env;
+	private SiteConfig $siteConfig;
+	private array $pipelineOpts;
+	private int $pipelineOffset;
+	private array $extTags;
+	/** @var int|float */
 	private $startTime;
-
-	/** @var string */
-	private $reUrltextLookahead;
-
-	/** @var string */
-	private $urltextPlainSegment = '';
-
-	/** @var bool */
-	private $urltextFoundAutolink = false;
+	private string $reUrltextLookahead;
+	private string $urltextPlainSegment = '';
+	private bool $urltextFoundAutolink = false;
+	private bool $annotationsEnabledOnWiki = false;
 
 	protected function initialize() {
 		$this->env = $this->options['env'];
@@ -66,6 +53,7 @@
 		// standalone tokenizers user by some pipelines handlers.
 		$this->pipelineOffset = $this->options['pipelineOffset'] ?? 0;
 		$this->extTags = $this->siteConfig->getExtensionTagNameMap();
+		$this->annotationsEnabledOnWiki = count( $this->siteConfig->getAnnotationTags() ) > 0;
 
 		// Non-greedy text_char sequence: stop at ampersand, double-underscore,
 		 // magic link prefix or protocol
@@ -1501,6 +1489,7 @@ annotation_check =
 	}
 
 annotation_tag =
+	& { return $this->annotationsEnabledOnWiki; /* short-circuit! */ }
 	tag:( tvar_old_syntax_closing_HACK / (
 		&annotation_check
 		t:xmlish_tag<annOrExtTag>
