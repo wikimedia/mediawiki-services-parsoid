@@ -25,6 +25,7 @@ class PegTokenizer extends PipelineStage {
 	private ?SyntaxError $lastError = null;
 	/** @var Grammar|TracingGrammar|null */
 	private $grammar = null;
+	private bool $tracing;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -34,11 +35,12 @@ class PegTokenizer extends PipelineStage {
 		$this->env = $env;
 		$this->options = $options;
 		$this->offsets = [];
+		$this->tracing = $env->hasTraceFlag( 'grammar' );
 	}
 
 	private function initGrammar() {
 		if ( !$this->grammar ) {
-			$this->grammar = $this->env->hasTraceFlag( 'grammar' ) ? new TracingGrammar : new Grammar;
+			$this->grammar = $this->tracing ? new TracingGrammar : new Grammar;
 		}
 	}
 
@@ -111,6 +113,10 @@ class PegTokenizer extends PipelineStage {
 			'startRule' => 'start_async',
 		];
 
+		if ( $this->tracing ) {
+			$args['tracer'] = new Tracer( $text );
+		}
+
 		try {
 			// Wrap wikipeg's generator with our own generator
 			// to catch exceptions and track time usage.
@@ -145,6 +151,10 @@ class PegTokenizer extends PipelineStage {
 			'startRule' => 'start',
 			'env' => $this->env
 		];
+
+		if ( $this->tracing ) {
+			$args['tracer'] = new Tracer( $text );
+		}
 
 		$start = null;
 		$profile = null;
