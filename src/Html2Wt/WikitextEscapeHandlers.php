@@ -489,12 +489,7 @@ class WikitextEscapeHandlers {
 		// then this text needs escaping!
 		$numEntities = 0;
 		foreach ( $tokens as $t ) {
-			$env->log(
-				'trace/wt-escape', 'T:',
-				static function () use ( $t ) {
-					return PHPUtils::jsonEncode( $t );
-				}
-			);
+			$env->log( 'trace/wt-escape', 'T:', $t );
 
 			// Ignore html tags that aren't allowed as literals in wikitext
 			if ( TokenUtils::isHTMLTag( $t ) ) {

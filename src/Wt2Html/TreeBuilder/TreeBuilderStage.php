@@ -221,9 +221,7 @@ class TreeBuilderStage extends PipelineStage {
 			$tmp->tagId = $this->tagId++;
 		}
 
-		$this->env->log( 'trace/html', $this->pipelineId, static function () use ( $token ) {
-			return PHPUtils::jsonEncode( $token );
-		} );
+		$this->env->log( 'trace/html', $this->pipelineId, $token );
 
 		// Store the last token
 		$this->lastToken = $token;

@@ -19,7 +19,6 @@ use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -133,9 +132,7 @@ class SanitizerHandler extends TokenHandler {
 			return null;
 		}
 		$env = $this->env;
-		$env->log( 'trace/sanitizer', $this->pipelineId, static function () use ( $token ) {
-			return PHPUtils::jsonEncode( $token );
-		} );
+		$env->log( 'trace/sanitizer', $this->pipelineId, $token );
 
 		// Pass through a transparent line meta-token
 		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
@@ -147,9 +144,7 @@ class SanitizerHandler extends TokenHandler {
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
 		);
 
-		$env->log( 'trace/sanitizer', $this->pipelineId, static function () use ( $token ) {
-			return ' ---> ' . PHPUtils::jsonEncode( $token );
-		} );
+		$env->log( 'trace/sanitizer', $this->pipelineId, $token );
 		return $token === null ? null : new TokenHandlerResult( [ $token ] );
 	}
 }

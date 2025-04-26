@@ -87,10 +87,7 @@ class ListHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
-		$this->env->log( 'trace/list', $this->pipelineId,
-			'ANY:', static function () use ( $token ) {
-				return PHPUtils::jsonEncode( $token );
-			} );
+		$this->env->log( 'trace/list', $this->pipelineId, 'ANY: ', $token );
 		$tokens = null;
 
 		if ( $token instanceof Token && TokenUtils::matchTypeOf( $token, '#^mw:Transclusion$#' ) ) {
@@ -211,9 +208,7 @@ class ListHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
-		$this->env->log( 'trace/list', $this->pipelineId,
-			'END:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-			} );
+		$this->env->log( 'trace/list', $this->pipelineId, 'END: ', $token );
 
 		$this->listFrames = [];
 		if ( !$this->currListFrame ) {
@@ -289,9 +284,7 @@ class ListHandler extends TokenHandler {
 				if ( PHPUtils::lastItem( $bullets ) === ':'
 					&& ( $this->currListFrame->haveDD || $this->currListFrame->numOpenTags > 0 )
 				) {
-					$this->env->log( 'trace/list', $this->pipelineId,
-						'ANY:', static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-						} );
+					$this->env->log( 'trace/list', $this->pipelineId, 'ANY: ', $token );
 					$this->env->log( 'trace/list', $this->pipelineId, 'RET: ', ':' );
 					return new TokenHandlerResult( [ ':' ] );
 				}
@@ -396,11 +389,7 @@ class ListHandler extends TokenHandler {
 	 * @return array
 	 */
 	private function doListItem( array $bs, array $bn, Token $token ): array {
-		$this->env->log(
-			'trace/list', $this->pipelineId, 'BEGIN:',
-			static function () use ( $token ) { return PHPUtils::jsonEncode( $token );
-			}
-		);
+		$this->env->log( 'trace/list', $this->pipelineId, 'BEGIN: ', $token );
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
@@ -572,11 +561,7 @@ class ListHandler extends TokenHandler {
 		$this->currListFrame->nlTk = null;
 		$this->currListFrame->atEOL = false;
 
-		$this->env->log(
-			'trace/list', $this->pipelineId, 'RET:',
-			static function () use ( $res ) { return PHPUtils::jsonEncode( $res );
-			}
-		);
+		$this->env->log( 'trace/list', $this->pipelineId, 'RET: ', $res );
 		return $res;
 	}
 }

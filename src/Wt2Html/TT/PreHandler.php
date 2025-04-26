@@ -329,10 +329,7 @@ class PreHandler extends TokenHandler {
 		$env = $this->env;
 
 		$env->log( 'trace/pre', $this->pipelineId, 'NL    |',
-			self::STATE_STR[$this->state], '|',
-			static function () use ( $token ) {
-				return PHPUtils::jsonEncode( $token );
-			}
+			self::STATE_STR[$this->state], '| ', $token
 		);
 
 		// Whenever we move into SOL-state, init preTSR to
@@ -372,11 +369,7 @@ class PreHandler extends TokenHandler {
 		}
 
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
-		$env->log( 'debug/pre', $this->pipelineId, '---->  ',
-			static function () use ( $ret ) {
-				return PHPUtils::jsonEncode( $ret );
-			}
-		);
+		$env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
 		return new TokenHandlerResult( $ret, true );
 	}
@@ -386,10 +379,7 @@ class PreHandler extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
 		$this->env->log( 'trace/pre', $this->pipelineId, 'eof   |',
-			self::STATE_STR[$this->state], '|',
-			static function () use ( $token ) {
-				return PHPUtils::jsonEncode( $token );
-			}
+			self::STATE_STR[$this->state], '| ', $token
 		);
 
 		switch ( $this->state ) {
@@ -419,11 +409,7 @@ class PreHandler extends TokenHandler {
 		}
 
 		$this->env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
-		$this->env->log( 'debug/pre', $this->pipelineId, '---->  ',
-			static function () use ( $ret ){
-				return PHPUtils::jsonEncode( $ret );
-			}
-		);
+		$this->env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
 		return new TokenHandlerResult( $ret, true );
 	}
@@ -456,10 +442,7 @@ class PreHandler extends TokenHandler {
 		$env = $this->env;
 
 		$env->log( 'trace/pre', $this->pipelineId, 'any   |',
-			self::STATE_STR[$this->state], '|',
-			static function () use ( $token ) {
-				return PHPUtils::jsonEncode( $token );
-			}
+			self::STATE_STR[$this->state], '|', $token
 		);
 
 		if ( $this->state === self::STATE_IGNORE ) {
@@ -541,11 +524,7 @@ class PreHandler extends TokenHandler {
 		}
 
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
-		$env->log( 'debug/pre', $this->pipelineId, '---->  ',
-			static function () use ( $ret ) {
-				return PHPUtils::jsonEncode( $ret );
-			}
-		);
+		$env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
 		return new TokenHandlerResult( $ret );
 	}
