@@ -34,11 +34,23 @@ class CommentTk extends Token {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {
-		return [
+		$ret = [
 			'type' => $this->getType(),
 			'value' => $this->value,
 			'dataParsoid' => $this->dataParsoid,
-			'dataMw' => $this->dataMw,
 		];
+		if ( $this->dataMw !== null ) {
+			$ret['dataMw'] = $this->dataMw;
+		}
+		return $ret;
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		return new self(
+			$json['value'],
+			$json['dataParsoid'] ?? null,
+			$json['dataMw'] ?? null
+		);
 	}
 }

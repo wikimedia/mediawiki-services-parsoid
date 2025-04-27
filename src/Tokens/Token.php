@@ -3,11 +3,13 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;
 
-use stdClass;
 use Wikimedia\Assert\Assert;
-use Wikimedia\JsonCodec\JsonCodec;
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Utils\CompatJsonCodec;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -15,7 +17,9 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 /**
  * Catch-all class for all token types.
  */
-abstract class Token implements \JsonSerializable {
+abstract class Token implements JsonCodecable, \JsonSerializable {
+	use JsonCodecableTrait;
+
 	public DataParsoid $dataParsoid;
 	public ?DataMw $dataMw = null;
 
@@ -45,6 +49,40 @@ abstract class Token implements \JsonSerializable {
 	 */
 	#[\ReturnTypeWillChange]
 	abstract public function jsonSerialize();
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		return $this->jsonSerialize();
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyName ) {
+		switch ( $keyName ) {
+			case 'dataParsoid':
+				return DOMDataUtils::getCodecHints()['data-parsoid'];
+			case 'dataMw':
+				return DOMDataUtils::getCodecHints()['data-mw'];
+			case 'attribs':
+				return Hint::build( KV::class, Hint::LIST );
+			default:
+				return null;
+		}
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		$type = $json['type'] ?? '\\';
+		Assert::invariant( !str_contains( $type, '\\' ), 'Bad type' );
+		$classParts = explode( '\\', self::class );
+		array_pop( $classParts );
+		$type = implode( '\\', [ ...$classParts, $type ] );
+		Assert::invariant( $type !== self::class, 'Bad type' );
+		return $type::newFromJsonArray( $json );
+	}
+
+	public static function hint(): Hint {
+		return Hint::build( self::class, Hint::INHERITED );
+	}
 
 	/**
 	 * Get a name for the token.
@@ -265,56 +303,6 @@ abstract class Token implements \JsonSerializable {
 	}
 
 	/**
-	 * Create key value set from an array
-	 *
-	 * @param array $a
-	 * @return array
-	 */
-	private static function kvsFromArray( array $a ): array {
-		$kvs = [];
-		foreach ( $a as $e ) {
-			if ( is_array( $e["k"] ?? null ) ) {
-				self::rebuildNestedTokens( $e["k"] );
-			}
-			$v = $e['v'] ?? null;
-			if ( is_array( $v ) ) {
-				// $v is either an array of Tokens or an array of KVs
-				if ( count( $v ) > 0 ) {
-					if ( is_array( $v[0] ) && array_key_exists( 'k', $v[0] ) ) {
-						$v = self::kvsFromArray( $v );
-					} else {
-						self::rebuildNestedTokens( $v );
-					}
-				}
-			}
-			$so = $e["srcOffsets"] ?? null;
-			if ( $so ) {
-				$so = KVSourceRange::newFromJsonArray( $so );
-			}
-			$kvs[] = new KV(
-				$e["k"] ?? null,
-				$v,
-				$so,
-				$e["ksrc"] ?? null,
-				$e["vsrc"] ?? null
-			);
-		}
-		return $kvs;
-	}
-
-	/**
-	 * @param iterable|stdClass|DataParsoid &$a
-	 */
-	private static function rebuildNestedTokens( &$a ): void {
-		// objects do not count as iterables in PHP but can be iterated nevertheless
-		// @phan-suppress-next-line PhanTypeSuspiciousNonTraversableForeach
-		foreach ( $a as &$v ) {
-			$v = self::getToken( $v );
-		}
-		unset( $v ); // Future-proof protection
-	}
-
-	/**
 	 * Get a token from some PHP structure. Used by the PHPUnit tests.
 	 *
 	 * @param KV|Token|array|string|int|float|bool|null $input
@@ -324,67 +312,8 @@ abstract class Token implements \JsonSerializable {
 		if ( !$input ) {
 			return $input;
 		}
-
-		if ( is_array( $input ) && isset( $input['type'] ) ) {
-			$codec = new JsonCodec();
-			if ( isset( $input['dataParsoid'] ) ) {
-				$da = $codec->newFromJsonArray(
-					$input['dataParsoid'],
-					DOMDataUtils::getCodecHints()['data-parsoid']
-				);
-			} else {
-				$da = null;
-			}
-			if ( isset( $input['dataMw'] ) ) {
-				$dmw = $codec->newFromJsonArray(
-					$input['dataMw'],
-					DOMDataUtils::getCodecHints()['data-mw']
-				);
-			} else {
-				$dmw = null;
-			}
-			// In theory this should be refactored to use JsonCodecable
-			// and remove the ad-hoc deserialization code here.
-			switch ( $input['type'] ) {
-				case "SelfclosingTagTk":
-					$token = new SelfclosingTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da, $dmw );
-					break;
-				case "TagTk":
-					$token = new TagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da, $dmw );
-					break;
-				case "EndTagTk":
-					$token = new EndTagTk( $input['name'], self::kvsFromArray( $input['attribs'] ), $da, $dmw );
-					break;
-				case "NlTk":
-					$token = new NlTk( $da->tsr ?? null, $da, $dmw );
-					break;
-				case "EOFTk":
-					$token = new EOFTk();
-					break;
-				case "CommentTk":
-					$token = new CommentTk( $input["value"], $da, $dmw );
-					break;
-				default:
-					// Looks like data-parsoid can have a 'type' property in some cases
-					// We can change that usage and then throw an exception here
-					$token = &$input;
-			}
-		} elseif ( is_array( $input ) ) {
-			$token = &$input;
-		} else {
-			$token = $input;
-		}
-
-		if ( is_array( $token ) ) {
-			self::rebuildNestedTokens( $token );
-		} elseif ( $token instanceof Token ) {
-			if ( !empty( $token->attribs ) ) {
-				self::rebuildNestedTokens( $token->attribs );
-			}
-			self::rebuildNestedTokens( $token->dataParsoid );
-		}
-
-		return $token;
+		$codec = new CompatJsonCodec();
+		return $codec->newFromJsonArray( $input, self::hint() );
 	}
 
 	public function fetchExpandedAttrValue( string $key ): ?string {

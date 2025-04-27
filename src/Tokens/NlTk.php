@@ -33,10 +33,22 @@ class NlTk extends Token {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {
-		return [
+		$ret = [
 			'type' => $this->getType(),
 			'dataParsoid' => $this->dataParsoid,
-			'dataMw' => $this->dataMw,
 		];
+		if ( $this->dataMw !== null ) {
+			$ret['dataMw'] = $this->dataMw;
+		}
+		return $ret;
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		return new self(
+			null,
+			$json['dataParsoid'] ?? null,
+			$json['dataMw'] ?? null
+		);
 	}
 }

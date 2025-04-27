@@ -4,12 +4,17 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;
 
+use Wikimedia\JsonCodec\Hint;
+use Wikimedia\JsonCodec\JsonCodecable;
+use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Represents a Key-value pair.
  */
-class KV implements \JsonSerializable {
+class KV implements JsonCodecable, \JsonSerializable {
+	use JsonCodecableTrait;
+
 	/**
 	 * Commonly a string, but where the key might be templated,
 	 * this can be an array of tokens even.
@@ -142,5 +147,35 @@ class KV implements \JsonSerializable {
 			$ret["vsrc"] = $this->vsrc;
 		}
 		return $ret;
+	}
+
+	/** @inheritDoc */
+	public function toJsonArray(): array {
+		return $this->jsonSerialize();
+	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		return new self(
+			$json['k'], $json['v'],
+			$json['srcOffsets'] ?? null,
+			$json['ksrc'] ?? null,
+			$json['vsrc'] ?? null
+		);
+	}
+
+	/** @inheritDoc */
+	public static function jsonClassHintFor( string $keyName ) {
+		switch ( $keyName ) {
+			case 'k':
+			case 'v':
+				// Hint these as "array of Token" which is the most common
+				// thing after "string".
+				return Hint::build( Token::class, Hint::INHERITED, Hint::LIST );
+			case 'srcOffsets':
+				return Hint::build( KVSourceRange::class, Hint::USE_SQUARE );
+			default:
+				return null;
+		}
 	}
 }

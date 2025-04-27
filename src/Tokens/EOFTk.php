@@ -20,4 +20,9 @@ class EOFTk extends Token {
 			'type' => $this->getType()
 		];
 	}
+
+	/** @inheritDoc */
+	public static function newFromJsonArray( array $json ) {
+		return new self;
+	}
 }
