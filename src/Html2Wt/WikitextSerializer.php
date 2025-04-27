@@ -109,8 +109,8 @@ class WikitextSerializer {
 	/** @var SerializerState */
 	private $state;
 
-	/** @var string Log type for trace() */
-	private $logType;
+	/** @var string Trace type for Env::trace() */
+	public $logType;
 
 	/**
 	 * @param Env $env
@@ -120,7 +120,7 @@ class WikitextSerializer {
 	 */
 	public function __construct( Env $env, $options ) {
 		$this->env = $env;
-		$this->logType = $options['logType'] ?? 'trace/wts';
+		$this->logType = $options['logType'] ?? 'wts';
 		$this->state = new SerializerState( $this, $options );
 		$this->wteHandlers = new WikitextEscapeHandlers( $env, $options['extName'] ?? null );
 	}
@@ -1147,10 +1147,10 @@ class WikitextSerializer {
 
 				$out = $state->getOrigSrc( $dp->dsr ) ?? '';
 
-				$this->trace( 'ORIG-src with DSR', static function () use ( $dp, $out ) {
-					return '[' . $dp->dsr->start . ',' . $dp->dsr->end . '] = '
-						. PHPUtils::jsonEncode( $out );
-				} );
+				$this->env->trace(
+					$this->logType,
+					'ORIG-src with DSR', $dp->dsr, ' = ', $out
+				);
 
 				// When reusing source, we should only suppress serializing
 				// to a single line for the cases we've allowed in normal serialization.
@@ -1233,18 +1233,18 @@ class WikitextSerializer {
 		$state->currNode = $node;
 
 		if ( $state->selserMode ) {
-			$this->trace(
-				static function () use ( $node ) {
-					return WTSUtils::traceNodeName( $node );
-				},
+			$this->env->trace(
+				$this->logType,
+				static fn () => WTSUtils::traceNodeName( $node ),
 				'; prev-unmodified: ', $state->prevNodeUnmodified,
-				'; SOL: ', $state->onSOL );
+				'; SOL: ', $state->onSOL
+			);
 		} else {
-			$this->trace(
-				static function () use ( $node ) {
-					return WTSUtils::traceNodeName( $node );
-				},
-				'; SOL: ', $state->onSOL );
+			$this->env->trace(
+				$this->logType,
+				static fn () => WTSUtils::traceNodeName( $node ),
+				'; SOL: ', $state->onSOL
+			);
 		}
 
 		switch ( $node->nodeType ) {
@@ -1557,7 +1557,7 @@ class WikitextSerializer {
 			$node = DOMCompat::getBody( $node );
 		}
 
-		$this->logType = $selserMode ? 'trace/selser' : 'trace/wts';
+		$this->logType = $selserMode ? 'selser' : 'wts';
 
 		$state = $this->state;
 		$state->initMode( $selserMode );
@@ -1601,13 +1601,4 @@ class WikitextSerializer {
 
 		return $state->out;
 	}
-
-	/**
-	 * @note Porting note: this replaces the pattern $serializer->env->log( $serializer->logType, ... )
-	 * @param mixed ...$args
-	 */
-	public function trace( ...$args ) {
-		$this->env->log( $this->logType, ...$args );
-	}
-
 }

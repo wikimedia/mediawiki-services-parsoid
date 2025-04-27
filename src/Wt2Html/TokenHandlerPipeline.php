@@ -50,7 +50,7 @@ class TokenHandlerPipeline extends PipelineStage {
 		parent::__construct( $env, $prevStage );
 		$this->options = $options;
 		$this->pipelineId = null;
-		$this->traceType = 'trace/thp:' . str_replace( 'TokenTransform', '', $stageId );
+		$this->traceType = 'thp:' . str_replace( 'TokenTransform', '', $stageId );
 		$this->traceEnabled = $env->hasTraceFlags();
 	}
 

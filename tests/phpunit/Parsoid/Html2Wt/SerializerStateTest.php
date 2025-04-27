@@ -23,13 +23,11 @@ class SerializerStateTest extends TestCase {
 	private function getBaseSerializerMock( array $extraMethodsToMock = [] ): WikitextSerializer {
 		$serializer = $this->getMockBuilder( WikitextSerializer::class )
 			->disableOriginalConstructor()
-			->onlyMethods( array_merge( [ 'trace' ], $extraMethodsToMock ) )
+			->onlyMethods( $extraMethodsToMock )
 			->getMock();
-		$serializer->expects( $this->any() )
-			->method( 'trace' )
-			->willReturn( null );
 		/** @var WikitextSerializer $serializer */
 		$serializer->env = new MockEnv( [] );
+		$serializer->logType = 'wts';
 		return $serializer;
 	}
 

@@ -519,9 +519,10 @@ class SerializerState {
 
 		$this->currLine->chunks[] = $chunk;
 
-		$this->serializer->trace( '--->', $logPrefix, static function () use ( $chunk ) {
-			return PHPUtils::jsonEncode( $chunk->text );
-		} );
+		$this->env->trace(
+			$this->serializer->logType,
+			'--->', $logPrefix, static fn () =>PHPUtils::jsonEncode( $chunk->text )
+		);
 	}
 
 	/**
@@ -649,9 +650,10 @@ class SerializerState {
 	 */
 	public function recoverTrimmedWhitespace( Node $node, bool $leading ): ?string {
 		$sep = $this->separators->recoverTrimmedWhitespace( $node, $leading );
-		$this->serializer->trace( '--->', "TRIMMED-SEP:", static function () use ( $sep ) {
-			return PHPUtils::jsonEncode( $sep );
-		} );
+		$this->env->trace(
+			$this->serializer->logType,
+			'--->', "TRIMMED-SEP:", static fn () => PHPUtils::jsonEncode( $sep )
+		);
 		return $sep;
 	}
 

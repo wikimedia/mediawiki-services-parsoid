@@ -31,11 +31,9 @@ class TraceProxy extends TokenHandler {
 	 * @return TokenHandlerResult|null
 	 */
 	private function traceEvent( string $func, $token ) {
-		$this->env->log(
+		$this->env->trace(
 			$this->traceType, $this->pipelineId,
-			function () {
-				return str_pad( $this->name, 23, ' ', STR_PAD_LEFT ) . "| ";
-			},
+			fn () => str_pad( $this->name, 23, ' ', STR_PAD_LEFT ) . "| ",
 			$token
 		);
 
