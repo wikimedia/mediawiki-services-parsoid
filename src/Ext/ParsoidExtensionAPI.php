@@ -99,7 +99,7 @@ class ParsoidExtensionAPI {
 		$this->wt2htmlOpts = $options['wt2html'] ?? null;
 		$this->html2wtOpts = $options['html2wt'] ?? null;
 		$this->serializerState = $this->html2wtOpts['state'] ?? null;
-		$this->frame = $this->wt2htmlOpts['frame'] ?? $env->topFrame ?? null;
+		$this->frame = $this->wt2htmlOpts['frame'] ?? $env->topFrame;
 		$this->extTag = $this->wt2htmlOpts['extTag'] ?? null;
 	}
 

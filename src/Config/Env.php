@@ -38,37 +38,26 @@ use Wikimedia\Parsoid\Wt2Html\TreeBuilder\RemexPipeline;
  * and provides certain other services.
  */
 class Env {
+	private SiteConfig $siteConfig;
+	private PageConfig $pageConfig;
+	private DataAccess $dataAccess;
+	private ContentMetadataCollector $metadata;
 
-	/** @var SiteConfig */
-	private $siteConfig;
-
-	/** @var PageConfig */
-	private $pageConfig;
-
-	/** @var DataAccess */
-	private $dataAccess;
-
-	/** @var ContentMetadataCollector */
-	private $metadata;
-
-	/** @var TOCData Table of Contents metadata for the article */
-	private $tocData;
+	/** Table of Contents metadata for the article */
+	private TOCData $tocData;
 
 	/**
-	 * The top-level frame for this conversion.  This largely wraps the
-	 * PageConfig.
-	 *
-	 * In the future we may replace PageConfig with the Frame, and add
-	 * a
-	 * @var Frame
+	 * The top-level frame for this conversion.
+	 * This largely wraps the PageConfig.
+	 * In the future we may replace PageConfig with the Frame
 	 */
-	public $topFrame;
+	public Frame $topFrame;
 	// XXX In the future, perhaps replace PageConfig with the Frame, and
 	// add $this->currentFrame (relocated from TokenHandlerPipeline) if/when
 	// we've removed async parsing.
 
 	/**
-	 * @var bool Are we using native template expansion?
+	 * Are we using native template expansion?
 	 *
 	 * Parsoid implements native template expansion, which is currently
 	 * only used during parser tests; in production, template expansion
@@ -77,40 +66,34 @@ class Env {
 	 * FIXME: Hopefully this distinction can be removed when we're entirely
 	 * in PHP land.
 	 */
-	private $nativeTemplateExpansion;
+	private bool $nativeTemplateExpansion;
 
 	/** @var array<string,int> */
-	private $wt2htmlUsage = [];
+	private array $wt2htmlUsage = [];
 
 	/** @var array<string,int> */
-	private $html2wtUsage = [];
-
-	/** @var bool */
-	private $profiling = false;
+	private array $html2wtUsage = [];
+	private bool $profiling = false;
 
 	/** @var array<Profile> */
-	private $profileStack = [];
-
-	/** @var bool */
-	private $wrapSections;
+	private array $profileStack = [];
+	private bool $wrapSections;
 
 	/** @var ('byte'|'ucs2'|'char') */
-	private $requestOffsetType = 'byte';
+	private string $requestOffsetType = 'byte';
 
 	/** @var ('byte'|'ucs2'|'char') */
-	private $currentOffsetType = 'byte';
-
-	/** @var bool */
-	private $skipLanguageConversionPass = false;
+	private string $currentOffsetType = 'byte';
+	private bool $skipLanguageConversionPass = false;
 
 	/** @var array<string,mixed> */
-	private $behaviorSwitches = [];
+	private array $behaviorSwitches = [];
 
 	/**
 	 * Maps fragment id to the fragment forest (array of Nodes).
 	 * @var array<string,DocumentFragment>
 	 */
-	private $fragmentMap = [];
+	private array $fragmentMap = [];
 
 	/**
 	 * Maps pfragment id to a PFragment.
@@ -119,75 +102,60 @@ class Env {
 	private array $pFragmentMap = [];
 
 	/**
-	 * @var int used to generate fragment ids as needed during parse
+	 * Used to generate fragment ids as needed during parse
 	 */
-	private $fid = 1;
+	private int $fid = 1;
 
-	/** @var int used to generate uids as needed during this parse */
-	private $uid = 1;
+	/** Used to generate uids as needed during this parse */
+	private int $uid = 1;
 
-	/** @var int used to generate annotation uids as needed during this parse */
-	private $annUid = 0;
+	/** Used to generate annotation uids as needed during this parse */
+	private int $annUid = 0;
 
-	/** @var array[] Lints recorded */
-	private $lints = [];
-
-	/** @var bool logLinterData */
-	public $logLinterData = false;
-
-	/** @var array linterOverrides */
-	private $linterOverrides = [];
+	/** Lints recorded */
+	private array $lints = [];
+	public bool $logLinterData = false;
+	private array $linterOverrides = [];
 
 	/** @var bool[] */
-	private $traceFlags;
+	private array $traceFlags;
 
 	/** @var bool[] */
-	private $dumpFlags;
+	private array $dumpFlags;
 
 	/** @var bool[] */
-	private $debugFlags;
-
-	/** @var ParsoidLogger */
-	private $parsoidLogger;
+	private array $debugFlags;
+	private ParsoidLogger $parsoidLogger;
 
 	/**
 	 * The default content version that Parsoid assumes it's serializing or
 	 * updating in the pb2pb endpoints
-	 *
-	 * @var string
 	 */
-	private $inputContentVersion;
+	private string $inputContentVersion;
 
 	/**
 	 * The default content version that Parsoid will generate.
-	 *
-	 * @var string
 	 */
-	private $outputContentVersion;
+	private string $outputContentVersion;
 
 	/**
 	 * If non-null, the language variant used for Parsoid HTML;
 	 * we convert to this if wt2html, or from this if html2wt.
-	 * @var ?Bcp47Code
 	 */
-	private $htmlVariantLanguage;
+	private ?Bcp47Code $htmlVariantLanguage;
 
 	/**
 	 * If non-null, the language variant to be used for wikitext.
 	 * If null, heuristics will be used to identify the original wikitext variant
 	 * in wt2html mode, and in html2wt mode new or edited HTML will be left unconverted.
-	 * @var ?Bcp47Code
 	 */
-	private $wtVariantLanguage;
-
-	/** @var ParserPipelineFactory */
-	private $pipelineFactory;
+	private ?Bcp47Code $wtVariantLanguage;
+	private ParserPipelineFactory $pipelineFactory;
 
 	/**
 	 * FIXME Used in DedupeStyles::dedupe()
-	 * @var array
 	 */
-	public $styleTagKeys = [];
+	public array $styleTagKeys = [];
 
 	/**
 	 * The DomPageBundle holding the JSON data for data-parsoid and data-mw
@@ -195,18 +163,13 @@ class Env {
 	 * attributes.
 	 */
 	public ?DomPageBundle $pageBundle = null;
-
-	/** @var Document */
-	private $domDiff;
-
-	/** @var bool */
-	public $hasAnnotations;
+	private ?Document $domDiff = null;
+	public bool $hasAnnotations = false;
 
 	/**
 	 * Cache of wikitext source for a title; only used for ParserTests.
-	 * @var array
 	 */
-	public $pageCache = [];
+	public array $pageCache = [];
 
 	/**
 	 * The current top-level document. During wt2html, this will be the document
@@ -215,23 +178,14 @@ class Env {
 	 *
 	 * This document should be prepared and loaded; see
 	 * ContentUtils::createAndLoadDocument().
-	 *
-	 * @var Document
 	 */
-	private $topLevelDoc;
+	private Document $topLevelDoc;
 
 	/**
 	 * The RemexPipeline used during a wt2html operation.
-	 *
-	 * @var RemexPipeline|null
 	 */
-	private $remexPipeline;
-
-	/**
-	 * @var WikitextContentModelHandler
-	 */
-	private $wikitextContentModelHandler;
-
+	private ?RemexPipeline $remexPipeline;
+	private WikitextContentModelHandler $wikitextContentModelHandler;
 	private ?Title $cachedContextTitle = null;
 
 	/**
