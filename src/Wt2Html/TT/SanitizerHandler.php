@@ -132,11 +132,11 @@ class SanitizerHandler extends TokenHandler {
 			return null;
 		}
 		$env = $this->env;
-		$env->log( 'trace/sanitizer', $this->pipelineId, $token );
+		$env->trace( 'sanitizer', $this->pipelineId, $token );
 
 		// Pass through a transparent line meta-token
 		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-			$env->log( 'trace/sanitizer', $this->pipelineId, '--unchanged--' );
+			$env->trace( 'sanitizer', $this->pipelineId, '--unchanged--' );
 			return null;
 		}
 
@@ -144,7 +144,7 @@ class SanitizerHandler extends TokenHandler {
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
 		);
 
-		$env->log( 'trace/sanitizer', $this->pipelineId, $token );
+		$env->trace( 'sanitizer', $this->pipelineId, $token );
 		return $token === null ? null : new TokenHandlerResult( [ $token ] );
 	}
 }

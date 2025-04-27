@@ -98,8 +98,8 @@ class DOMDiff {
 			'Expected to be diff\'ing different documents.'
 		);
 
-		$this->env->log( 'trace/domdiff', "ORIG:\n", $nodeA );
-		$this->env->log( 'trace/domdiff', "NEW :\n", $nodeB );
+		$this->env->trace( 'domdiff', "ORIG:\n", $nodeA );
+		$this->env->trace( 'domdiff', "NEW :\n", $nodeB );
 
 		// The root nodes are equal, call recursive differ
 		$foundChange = $this->doDOMDiff( $nodeA, $nodeB );
@@ -214,7 +214,7 @@ class DOMDiff {
 			$this->debugOut( $baseNode, $newNode );
 			// shallow check first
 			if ( !$this->treeEquals( $baseNode, $newNode, false ) ) {
-				$this->env->log( 'trace/domdiff', '-- not equal --' );
+				$this->env->trace( 'domdiff', '-- not equal --' );
 				$savedNewNode = $newNode;
 				$foundDiff = false;
 
@@ -223,7 +223,7 @@ class DOMDiff {
 
 				// look-ahead in *new* DOM to detect insertions
 				if ( DiffDOMUtils::isContentNode( $baseNode ) ) {
-					$this->env->log( 'trace/domdiff', '--lookahead in new dom--' );
+					$this->env->trace( 'domdiff', '--lookahead in new dom--' );
 					$lookaheadNode = $newNode->nextSibling;
 					while ( $lookaheadNode ) {
 						$this->debugOut( $baseNode, $lookaheadNode, 'new' );
@@ -233,7 +233,7 @@ class DOMDiff {
 							// mark skipped-over nodes as inserted
 							$markNode = $newNode;
 							while ( $markNode !== $lookaheadNode ) {
-								$this->env->log( 'trace/domdiff', '--found diff: inserted--' );
+								$this->env->trace( 'domdiff', '--found diff: inserted--' );
 								$this->markNode( $markNode, DiffMarkers::INSERTED );
 								$markNode = $markNode->nextSibling;
 							}
@@ -248,14 +248,14 @@ class DOMDiff {
 				// look-ahead in *base* DOM to detect deletions
 				if ( !$foundDiff && DiffDOMUtils::isContentNode( $newNode ) ) {
 					$isBlockNode = WTUtils::isBlockNodeWithVisibleWT( $baseNode );
-					$this->env->log( 'trace/domdiff', '--lookahead in old dom--' );
+					$this->env->trace( 'domdiff', '--lookahead in old dom--' );
 					$lookaheadNode = $baseNode->nextSibling;
 					while ( $lookaheadNode ) {
 						$this->debugOut( $lookaheadNode, $newNode, 'old' );
 						if ( DiffDOMUtils::isContentNode( $lookaheadNode ) &&
 							$this->treeEquals( $lookaheadNode, $newNode, true )
 						) {
-							$this->env->log( 'trace/domdiff', '--found diff: deleted--' );
+							$this->env->trace( 'domdiff', '--found diff: deleted--' );
 							// mark skipped-over nodes as deleted
 							$this->markNode( $newNode, DiffMarkers::DELETED, $isBlockNode );
 							$baseNode = $lookaheadNode;
@@ -275,7 +275,7 @@ class DOMDiff {
 
 				if ( !$foundDiff ) {
 					if ( !( $savedNewNode instanceof Element ) ) {
-						$this->env->log( 'trace/domdiff', '--found diff: modified text/comment--' );
+						$this->env->trace( 'domdiff', '--found diff: modified text/comment--' );
 						$this->markNode(
 							$savedNewNode, DiffMarkers::DELETED,
 							WTUtils::isBlockNodeWithVisibleWT( $baseNode )
@@ -287,7 +287,7 @@ class DOMDiff {
 					) {
 						// Identical wrapper-type, but modified.
 						// Mark modified-wrapper, and recurse.
-						$this->env->log( 'trace/domdiff', '--found diff: modified-wrapper--' );
+						$this->env->trace( 'domdiff', '--found diff: modified-wrapper--' );
 						$this->markNode( $savedNewNode, DiffMarkers::MODIFIED_WRAPPER );
 						$this->subtreeDiffers( $baseNode, $savedNewNode );
 					} else {
@@ -305,7 +305,7 @@ class DOMDiff {
 				}
 
 				// Record the fact that direct children changed in the parent node
-				$this->env->log( 'trace/domdiff', '--found diff: children-changed--' );
+				$this->env->trace( 'domdiff', '--found diff: children-changed--' );
 				$this->markNode( $newParentNode, DiffMarkers::CHILDREN_CHANGED );
 
 				$foundDiffOverall = true;
@@ -324,7 +324,7 @@ class DOMDiff {
 
 		// mark extra new nodes as inserted
 		while ( $newNode ) {
-			$this->env->log( 'trace/domdiff', '--found trailing new node: inserted--' );
+			$this->env->trace( 'domdiff', '--found trailing new node: inserted--' );
 			$this->markNode( $newNode, DiffMarkers::INSERTED );
 			$foundDiffOverall = true;
 			$newNode = self::nextAnalyzableSibling( $newNode );
@@ -333,7 +333,7 @@ class DOMDiff {
 		// If there are extra base nodes, something was deleted. Mark the parent as
 		// having lost children for now.
 		if ( $baseNode ) {
-			$this->env->log( 'trace/domdiff', '--found trailing base nodes: deleted--' );
+			$this->env->trace( 'domdiff', '--found trailing base nodes: deleted--' );
 			$this->markNode( $newParentNode, DiffMarkers::CHILDREN_CHANGED );
 			// SSS FIXME: WTS checks for zero children in a few places
 			// That code would have to be upgraded if we emit mw:DiffMarker
@@ -366,7 +366,7 @@ class DOMDiff {
 		$newEncapsulated = WTUtils::isEncapsulationWrapper( $newNode );
 
 		if ( !$baseEncapsulated && !$newEncapsulated ) {
-			$this->env->log( 'trace/domdiff', '--shallow equal: recursing--' );
+			$this->env->trace( 'domdiff', '--shallow equal: recursing--' );
 			// Recursively diff subtrees if not template-like content
 			$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
 		} elseif ( $baseEncapsulated && $newEncapsulated ) {
@@ -381,7 +381,7 @@ class DOMDiff {
 			}
 
 			if ( $ext && ( $baseExtTagName === WTUtils::getExtTagName( $newNode ) ) ) {
-				$this->env->log( 'trace/domdiff', '--diffing extension content--' );
+				$this->env->trace( 'domdiff', '--diffing extension content--' );
 				$subtreeDiffers = $ext->diffHandler(
 					$this->extApi, [ $this, 'doDOMDiff' ], $baseNode, $newNode
 				);
@@ -389,7 +389,7 @@ class DOMDiff {
 				// Otherwise, for encapsulated content, we don't know about the subtree.
 				$subtreeDiffers = false;
 			} else {
-				$this->env->log( 'trace/domdiff', '--shallow equal (encapsulated): recursing--' );
+				$this->env->trace( 'domdiff', '--shallow equal (encapsulated): recursing--' );
 				// Recursively diff subtrees if not template-like content
 				$subtreeDiffers = $this->doDOMDiff( $baseNode, $newNode );
 			}
@@ -402,7 +402,7 @@ class DOMDiff {
 		}
 
 		if ( $subtreeDiffers ) {
-			$this->env->log( 'trace/domdiff', '--found diff: subtree-changed--' );
+			$this->env->trace( 'domdiff', '--found diff: subtree-changed--' );
 			$this->markNode( $newNode, DiffMarkers::SUBTREE_CHANGED );
 		}
 		return $subtreeDiffers;
@@ -428,13 +428,13 @@ class DOMDiff {
 	}
 
 	private function debugOut( Node $nodeA, Node $nodeB, string $laPrefix = '' ): void {
-		$this->env->log(
-			'trace/domdiff',
+		$this->env->trace(
+			'domdiff',
 			'--> A', $laPrefix, ':',
 			( $nodeA instanceof Element ? $nodeA : $nodeA->nodeValue )
 		);
-		$this->env->log(
-			'trace/domdiff',
+		$this->env->trace(
+			'domdiff',
 			'--> B', $laPrefix, ':',
 			( $nodeB instanceof Element ? $nodeB : $nodeB->nodeValue )
 		);

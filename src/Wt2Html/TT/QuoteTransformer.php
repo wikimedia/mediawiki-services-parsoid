@@ -131,7 +131,7 @@ class QuoteTransformer extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
-		$this->env->log( "trace/quote", $this->pipelineId, "ANY | ", $token );
+		$this->env->trace( "quote", $this->pipelineId, "ANY | ", $token );
 
 		if ( $this->onAnyEnabled ) {
 			$this->currentChunk[] = $token;
@@ -153,7 +153,7 @@ class QuoteTransformer extends TokenHandler {
 	private function onQuote( Token $token ): TokenHandlerResult {
 		$v = $token->getAttributeV( 'value' );
 		$qlen = strlen( $v );
-		$this->env->log( "trace/quote", $this->pipelineId, "QUOTE | ", $token );
+		$this->env->trace( "quote", $this->pipelineId, "QUOTE | ", $token );
 
 		$this->onAnyEnabled = true;
 
@@ -179,8 +179,8 @@ class QuoteTransformer extends TokenHandler {
 			return null;
 		}
 
-		$this->env->log(
-			"trace/quote",
+		$this->env->trace(
+			"quote",
 			$this->pipelineId,
 			"NL    |",
 			static function () use( $token ) {
@@ -263,7 +263,7 @@ class QuoteTransformer extends TokenHandler {
 		// PORT-FIXME: Is there a more efficient way of doing this?
 		$res = new TokenHandlerResult( array_flatten( $this->chunks ) );
 
-		$this->env->log( "trace/quote", $this->pipelineId, "-----> ", $token );
+		$this->env->trace( "quote", $this->pipelineId, "-----> ", $token );
 
 		// prepare for next line
 		$this->reset();

@@ -76,7 +76,7 @@ class ParsoidLogger {
 			$rePatterns[] = $this->buildLoggingRE( $options['debugFlags'], 'debug' );
 		}
 		if ( $options['dumpFlags'] ) {
-			// For tracing, Parsoid simply calls $env->log( "trace/SOMETHING", ... );
+			// For tracing, Parsoid simply calls $env->trace( "SOMETHING", ... );
 			// The filtering based on whether a trace is enabled is handled by this class.
 			// This is done via the regexp pattern being constructed above.
 			// However, for dumping, at some point before / during the port from JS to PHP,

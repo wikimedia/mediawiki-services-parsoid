@@ -952,6 +952,17 @@ class Env {
 	}
 
 	/**
+	 * Shortcut helper that also allows early exit if tracing is not enabled.
+	 * @param string $prefix
+	 * @param mixed ...$args
+	 */
+	public function trace( string $prefix, ...$args ): void {
+		if ( $this->traceFlags ) {
+			$this->parsoidLogger->log( $prefix ? "trace/$prefix" : "trace", ...$args );
+		}
+	}
+
+	/**
 	 * Bump usage of some limited parser resource
 	 * (ex: tokens, # transclusions, # list items, etc.)
 	 *

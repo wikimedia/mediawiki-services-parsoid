@@ -145,7 +145,7 @@ class TracingGrammar extends \Wikimedia\WikiPEG\PEGParserBase {
 
 		// Shift tsr of all tokens by the pipeline offset
 		TokenUtils::shiftTokenTSR( $tokens, $this->pipelineOffset );
-		$this->env->log( 'trace/peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
+		$this->env->trace( 'peg', $this->options['pipelineId'] ?? '0', '---->   ', $tokens );
 
 		$i = null;
 		$n = count( $tokens );

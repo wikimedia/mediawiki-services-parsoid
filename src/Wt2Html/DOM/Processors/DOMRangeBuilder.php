@@ -287,8 +287,8 @@ class DOMRangeBuilder {
 			$range->flipped = true;
 		}
 
-		$this->env->log(
-			"trace/{$this->traceType}/findranges",
+		$this->env->trace(
+			"{$this->traceType}/findranges",
 			static function () use ( &$range ) {
 				$msg = '';
 				$dp1 = DOMDataUtils::getDataParsoid( $range->start );
@@ -585,7 +585,7 @@ class DOMRangeBuilder {
 
 			$this->verifyTplInfoExpectation( $templateInfo, $tmp );
 
-			$this->env->log( "trace/{$this->traceType}/merge", static function () use ( &$DOMDataUtils, &$r ) {
+			$this->env->trace( "{$this->traceType}/merge", static function () use ( &$DOMDataUtils, &$r ) {
 				$msg = '';
 				$dp1 = DOMDataUtils::getDataParsoid( $r->start );
 				$dp2 = DOMDataUtils::getDataParsoid( $r->end );
@@ -613,7 +613,7 @@ class DOMRangeBuilder {
 				$subsumedRanges[$r->id] ?? null
 			);
 			if ( $enclosingRangeId ) {
-				$this->env->log( "trace/{$this->traceType}/merge", '--nested in ', $enclosingRangeId, '--' );
+				$this->env->trace( "{$this->traceType}/merge", '--nested in ', $enclosingRangeId, '--' );
 
 				// Nested -- ignore r
 				$startTagToStrip = $r->startElem;
@@ -627,7 +627,7 @@ class DOMRangeBuilder {
 				// In the common case, in overlapping scenarios, r.start is
 				// identical to prev.end. However, in fostered content scenarios,
 				// there can true overlap of the ranges.
-				$this->env->log( "trace/{$this->traceType}/merge", '--overlapped--' );
+				$this->env->trace( "{$this->traceType}/merge", '--overlapped--' );
 
 				// See comment above, where `subsumedRanges` is defined.
 				$subsumedRanges[$r->id] = $prev->id;
@@ -662,7 +662,7 @@ class DOMRangeBuilder {
 					$this->recordTemplateInfo( $prev->id, $r, $templateInfo );
 				}
 			} else {
-				$this->env->log( "trace/{$this->traceType}/merge", '--normal--' );
+				$this->env->trace( "{$this->traceType}/merge", '--normal--' );
 
 				// Default -- no overlap
 				// Emit the merged range

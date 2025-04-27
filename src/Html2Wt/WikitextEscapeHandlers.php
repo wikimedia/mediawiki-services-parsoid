@@ -348,8 +348,8 @@ class WikitextEscapeHandlers {
 
 	public function textCanParseAsLink( Node $node, SerializerState $state, string $text ): bool {
 		$env = $state->getEnv();
-		$env->log(
-			'trace/wt-escape', 'link-test-text=',
+		$env->trace(
+			'wt-escape', 'link-test-text=',
 			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
@@ -373,7 +373,7 @@ class WikitextEscapeHandlers {
 		$n = count( $tokens );
 		$lastToken = $tokens[$n - 1];
 
-		$env->log( 'trace/wt-escape', 'str=', $str, ';tokens=', $tokens );
+		$env->trace( 'wt-escape', 'str=', $str, ';tokens=', $tokens );
 
 		// If 'text' remained outside of any non-string tokens,
 		// it does not need nowiking.
@@ -466,8 +466,8 @@ class WikitextEscapeHandlers {
 		SerializerState $state, bool $onNewline, string $text
 	): bool {
 		$env = $state->getEnv();
-		$env->log(
-			'trace/wt-escape', 'nl:', $onNewline, ':text=',
+		$env->trace(
+			'wt-escape', 'nl:', $onNewline, ':text=',
 			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
@@ -489,7 +489,7 @@ class WikitextEscapeHandlers {
 		// then this text needs escaping!
 		$numEntities = 0;
 		foreach ( $tokens as $t ) {
-			$env->log( 'trace/wt-escape', 'T:', $t );
+			$env->trace( 'wt-escape', 'T:', $t );
 
 			// Ignore html tags that aren't allowed as literals in wikitext
 			if ( TokenUtils::isHTMLTag( $t ) ) {
@@ -781,8 +781,8 @@ class WikitextEscapeHandlers {
 	 */
 	public function escapeWikitext( SerializerState $state, string $text, array $opts ): string {
 		$env = $state->getEnv();
-		$env->log(
-			'trace/wt-escape', 'EWT:',
+		$env->trace(
+			'wt-escape', 'EWT:',
 			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
@@ -824,14 +824,14 @@ class WikitextEscapeHandlers {
 		//
 		// Pure white-space or text without wt-special chars need not be analyzed
 		if ( !$fullCheckNeeded && !$hasQuoteChar && !$indentPreUnsafe && !$hasNonQuoteEscapableChars ) {
-			$env->log( 'trace/wt-escape', '---No-checks needed---' );
+			$env->trace( 'wt-escape', '---No-checks needed---' );
 			return $text;
 		}
 
 		// Context-specific escape handler
 		$wteHandler = PHPUtils::lastItem( $state->wteHandlerStack );
 		if ( $wteHandler && $wteHandler( $state, $text, $opts ) ) {
-			$env->log( 'trace/wt-escape', '---Context-specific escape handler---' );
+			$env->trace( 'wt-escape', '---Context-specific escape handler---' );
 			return $this->escapedText( $state, false, $text, true );
 		}
 
@@ -848,7 +848,7 @@ class WikitextEscapeHandlers {
 					$this->hasWikitextTokens( $state, $sol, $text )
 				)
 			) {
-				$env->log( 'trace/wt-escape', '---quotes: escaping text---' );
+				$env->trace( 'wt-escape', '---quotes: escaping text---' );
 				// If the reason for full wrap is that the text contains non-quote
 				// escapable chars, it's still possible to minimize the contents
 				// of the <nowiki> (T71950).
@@ -856,7 +856,7 @@ class WikitextEscapeHandlers {
 			} else {
 				$quoteEscapedText = self::escapedIBSiblingNodeText( $state, $text, $opts );
 				if ( $quoteEscapedText ) {
-					$env->log( 'trace/wt-escape', '---sibling of i/b tag---' );
+					$env->trace( 'wt-escape', '---sibling of i/b tag---' );
 					return $quoteEscapedText;
 				}
 			}
@@ -866,14 +866,14 @@ class WikitextEscapeHandlers {
 		// Conditional escaping requires matching brace pairs and knowledge
 		// of whether we are in template arg context or not.
 		if ( preg_match( '/\{\{\{|\{\{|\}\}\}|\}\}/', $text ) ) {
-			$env->log( 'trace/wt-escape', '---Unconditional: transclusion chars---' );
+			$env->trace( 'wt-escape', '---Unconditional: transclusion chars---' );
 			return $this->escapedText( $state, false, $text );
 		}
 
 		// Once we eliminate the possibility of multi-line tokens, split the text
 		// around newlines and escape each line separately.
 		if ( preg_match( '/\n./', $text ) ) {
-			$env->log( 'trace/wt-escape', '-- <multi-line-escaping-mode> --' );
+			$env->trace( 'wt-escape', '-- <multi-line-escaping-mode> --' );
 			// We've already processed the full string in a context-specific handler.
 			// No more additional processing required. So, push/pop a null handler.
 			$state->wteHandlerStack[] = null;
@@ -895,16 +895,16 @@ class WikitextEscapeHandlers {
 			// If nothing changed, check if the original multiline string has
 			// any wikitext tokens (ex: multi-line html tags <div\n>foo</div\n>).
 			if ( $ret === $text && $this->hasWikitextTokens( $state, $sol, $text ) ) {
-				$env->log( 'trace/wt-escape', '---Found multi-line wt tokens---' );
+				$env->trace( 'wt-escape', '---Found multi-line wt tokens---' );
 				$ret = $this->escapedText( $state, $sol, $text );
 			}
 
-			$env->log( 'trace/wt-escape', '-- </multi-line-escaping-mode> --' );
+			$env->trace( 'wt-escape', '-- </multi-line-escaping-mode> --' );
 			return $ret;
 		}
 
-		$env->log(
-			'trace/wt-escape', 'SOL:', $sol,
+		$env->trace(
+			'wt-escape', 'SOL:', $sol,
 			static function () use ( $text ) {
 				return PHPUtils::jsonEncode( $text );
 			}
@@ -919,14 +919,14 @@ class WikitextEscapeHandlers {
 			if ( !$sol && !preg_match( "/''|[<>]|\\[.*\\]|\\]|(=[ ]*(\\n|$))|__[^_]*__/", $text ) ) {
 				// It is not necessary to test for an unmatched opening bracket ([)
 				// as long as we always escape an unmatched closing bracket (]).
-				$env->log( 'trace/wt-escape', '---Not-SOL and safe---' );
+				$env->trace( 'wt-escape', '---Not-SOL and safe---' );
 				return $text;
 			}
 
 			// Quick checks when on a newline
 			// + can only occur as "|+" and - can only occur as "|-" or ----
 			if ( $sol && !preg_match( '/(^|\n)[ #*:;=]|[<\[\]>\|\'!]|\-\-\-\-|__[^_]*__/', $text ) ) {
-				$env->log( 'trace/wt-escape', '---SOL and safe---' );
+				$env->trace( 'wt-escape', '---SOL and safe---' );
 				return $text;
 			}
 		}
@@ -940,7 +940,7 @@ class WikitextEscapeHandlers {
 				!empty( $opts['inMultilineMode'] )
 			)
 		) {
-			$env->log( 'trace/wt-escape', '---SOL and pre---' );
+			$env->trace( 'wt-escape', '---SOL and pre---' );
 			$state->hasIndentPreNowikis = true;
 			return $this->escapedText( $state, $sol, $text );
 		}
@@ -952,17 +952,17 @@ class WikitextEscapeHandlers {
 		//
 		// Ignores entities
 		if ( $hasTildes ) {
-			$env->log( 'trace/wt-escape', '---Found tildes---' );
+			$env->trace( 'wt-escape', '---Found tildes---' );
 			return $this->escapedText( $state, $sol, $text );
 		} elseif ( $this->hasWikitextTokens( $state, $sol, $text ) ) {
-			$env->log( 'trace/wt-escape', '---Found WT tokens---' );
+			$env->trace( 'wt-escape', '---Found WT tokens---' );
 			return $this->escapedText( $state, $sol, $text );
 		} elseif ( preg_match( '/[^\[]*\]/', $text ) &&
 			$this->textCanParseAsLink( $opts['node'], $state, $text )
 		) {
 			// we have an closing bracket, and
 			// - the text will get parsed as a link in
-			$env->log( 'trace/wt-escape', '---Links: complex single-line test---' );
+			$env->trace( 'wt-escape', '---Links: complex single-line test---' );
 			return $this->escapedText( $state, $sol, $text );
 		} elseif ( !empty( $opts['isLastChild'] ) && substr( $text, -1 ) === '=' ) {
 			// 1. we have an open heading char, and
@@ -974,19 +974,19 @@ class WikitextEscapeHandlers {
 				if ( ( $state->currLine->text . $text )[$n] === '=' ) {
 					// The first character after the heading wikitext is/will be a '='.
 					// So, the trailing '=' can change semantics if it is not nowikied.
-					$env->log( 'trace/wt-escape', '---Heading: complex single-line test---' );
+					$env->trace( 'wt-escape', '---Heading: complex single-line test---' );
 					return $this->escapedText( $state, $sol, $text );
 				} else {
 					return $text;
 				}
 			} elseif ( strlen( $state->currLine->text ) > 0 && $state->currLine->text[0] === '=' ) {
-				$env->log( 'trace/wt-escape', '---Text-as-heading: complex single-line test---' );
+				$env->trace( 'wt-escape', '---Text-as-heading: complex single-line test---' );
 				return $this->escapedText( $state, $sol, $text );
 			} else {
 				return $text;
 			}
 		} else {
-			$env->log( 'trace/wt-escape', '---All good!---' );
+			$env->trace( 'wt-escape', '---All good!---' );
 			return $text;
 		}
 	}

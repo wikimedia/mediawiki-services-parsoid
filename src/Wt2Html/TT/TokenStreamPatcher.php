@@ -86,7 +86,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 */
 	public function onNewline( NlTk $token ): ?TokenHandlerResult {
 		$self = $this;
-		$this->env->log( 'trace/tsp', $this->pipelineId,
+		$this->env->trace( 'tsp', $this->pipelineId,
 			static function () use ( $self, $token ) {
 				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
 					";sol=" . ( $self->sol ? "yes" : "no " ) . ') ' .
@@ -202,7 +202,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 */
 	public function onAnyInternal( $token ): ?TokenHandlerResult {
 		$self = $this;
-		$this->env->log( 'trace/tsp', $this->pipelineId,
+		$this->env->trace( 'tsp', $this->pipelineId,
 			static function () use ( $self, $token ) {
 				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
 					";sol=" . ( $self->sol ? "yes" : "no " ) . ') ' .

@@ -50,7 +50,7 @@ class RemexPipeline {
 			$tracer = new TreeMutationTracer(
 				$this->relay,
 				static function ( $msg ) use ( $env ) {
-					$env->log( 'trace/remex', $msg );
+					$env->trace( 'remex', $msg );
 				}
 			);
 		} else {

@@ -328,7 +328,7 @@ class PreHandler extends TokenHandler {
 	public function onNewline( NlTk $token ): ?TokenHandlerResult {
 		$env = $this->env;
 
-		$env->log( 'trace/pre', $this->pipelineId, 'NL    |',
+		$env->trace( 'pre', $this->pipelineId, 'NL    |',
 			self::STATE_STR[$this->state], '| ', $token
 		);
 
@@ -378,7 +378,7 @@ class PreHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
-		$this->env->log( 'trace/pre', $this->pipelineId, 'eof   |',
+		$this->env->trace( 'pre', $this->pipelineId, 'eof   |',
 			self::STATE_STR[$this->state], '| ', $token
 		);
 
@@ -441,7 +441,7 @@ class PreHandler extends TokenHandler {
 	public function onAny( $token ): ?TokenHandlerResult {
 		$env = $this->env;
 
-		$env->log( 'trace/pre', $this->pipelineId, 'any   |',
+		$env->trace( 'pre', $this->pipelineId, 'any   |',
 			self::STATE_STR[$this->state], '|', $token
 		);
 

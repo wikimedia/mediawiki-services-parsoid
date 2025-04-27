@@ -141,7 +141,7 @@ class ParagraphWrapper extends TokenHandler {
 			PHPUtils::pushArray( $res, $this->currLineTokens );
 			$this->resetCurrLine();
 		}
-		$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->   ', $res );
+		$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $res );
 		return $res;
 	}
 
@@ -161,7 +161,7 @@ class ParagraphWrapper extends TokenHandler {
 		$nlWsTokens = $this->nlWsTokens;
 		$this->resetBuffers();
 		PHPUtils::pushArray( $resToks, $nlWsTokens );
-		$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->   ', $resToks );
+		$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $resToks );
 		return $resToks;
 	}
 
@@ -276,7 +276,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @return TokenHandlerResult
 	 */
 	private function onNewlineOrEOF( Token $token ): TokenHandlerResult {
-		$this->env->log( 'trace/p-wrap', $this->pipelineId, 'NL    | ', $token );
+		$this->env->trace( 'p-wrap', $this->pipelineId, 'NL    | ', $token );
 		if ( $this->currLineBlockTagSeen ) {
 			$this->closeOpenPTag( $this->currLineTokens );
 		} elseif ( !$this->inBlockElem && !$this->hasOpenPTag && $this->currLineHasWrappableTokens ) {
@@ -296,7 +296,7 @@ class ParagraphWrapper extends TokenHandler {
 			$this->closeOpenPTag( $this->tokenBuffer );
 			$res = $this->processPendingNLs();
 			$this->reset();
-			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->   ', $res );
+			$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $res );
 			return new TokenHandlerResult( $res, true );
 		} else {
 			$this->resetCurrLine();
@@ -317,7 +317,7 @@ class ParagraphWrapper extends TokenHandler {
 		$nlTk = null;
 		$nlOffset = 0;
 
-		$this->env->log( 'trace/p-wrap', $this->pipelineId, '        NL-count: ', $newLineCount );
+		$this->env->trace( 'p-wrap', $this->pipelineId, '        NL-count: ', $newLineCount );
 
 		if ( $newLineCount >= 2 && !$this->inBlockElem ) {
 			$this->closeOpenPTag( $resToks );
@@ -369,7 +369,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?TokenHandlerResult {
-		$this->env->log( 'trace/p-wrap', $this->pipelineId, 'ANY   | ', $token );
+		$this->env->trace( 'p-wrap', $this->pipelineId, 'ANY   | ', $token );
 		$res = null;
 		if ( $token instanceof TagTk && $token->getName() === 'pre'
 			 && !TokenUtils::isHTMLTag( $token )
@@ -405,12 +405,12 @@ class ParagraphWrapper extends TokenHandler {
 				$this->inPre = false;
 				$this->currLineBlockTagSeen = true;
 				$this->currLineBlockTagOpen = false;
-				$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->   ', $token );
+				$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $token );
 				$res = [ $token ];
 				return new TokenHandlerResult( $res );
 			}
 		} elseif ( $token instanceof EOFTk || $this->inPre ) {
-			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->   ', $token );
+			$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $token );
 			$res = [ $token ];
 			return new TokenHandlerResult( $res );
 		} elseif (
