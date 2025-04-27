@@ -273,20 +273,6 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	}
 
 	/**
-	 * @param Env $env
-	 * @param mixed ...$args
-	 */
-	private function trace( Env $env, ...$args ): void {
-		$env->log( "trace/dsr", static function () use ( $args ) {
-			$buf = '';
-			foreach ( $args as $arg ) {
-				$buf .= is_string( $arg ) ? $arg : PHPUtils::jsonEncode( $arg );
-			}
-			return $buf;
-		} );
-	}
-
-	/**
 	 * TSR = "Tag Source Range".  Start and end offsets giving the location
 	 * where the tag showed up in the original source.
 	 *
@@ -323,7 +309,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$e = $s;
 		}
 
-		$this->trace( $env, "BEG: ", DOMCompat::nodeName( $node ), " with [s, e]=", [ $s, $e ] );
+		$env->log( "trace/dsr", "BEG: ", DOMCompat::nodeName( $node ), "with [s, e]=", [ $s, $e ] );
 
 		/** @var int|null $ce Child end */
 		$ce = $e;
@@ -498,7 +484,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 								$stWidth = $tsr->end - $tsr->start;
 							}
 
-							$this->trace( $env, "     TSR: ", $tsr, "; cs: ", $cs, "; ce: ", $ce );
+							$env->log( "trace/dsr", "     TSR: ", $tsr, "; cs: ", $cs, "; ce: ", $ce );
 						} elseif ( $s && $child->previousSibling === null ) {
 							$cs = $s;
 						}
@@ -566,9 +552,9 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 								"; subtree-[cs,ce]=" . PHPUtils::jsonEncode( [ $ccs, $cce ] );
 						} );
 
-						$this->trace( $env, "<recursion>" );
+						$env->log( "trace/dsr", "<recursion>" );
 						$newDsr = $this->computeNodeDSR( $frame, $child, $ccs, $cce, $dsrCorrection, $opts );
-						$this->trace( $env, "</recursion>" );
+						$env->log( "trace/dsr", "</recursion>" );
 					}
 
 					// $cs = min($child-dom-tree dsr->start - tag-width, current dsr->start)
@@ -702,7 +688,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				DOMCompat::nodeName( $node ), "s:", $s, "; cs:", $cs );
 		}
 
-		$this->trace( $env, "END: ", DOMCompat::nodeName( $node ), ", returning: ", $cs, ", ", $e );
+		$env->log( "trace/dsr", "END: ", DOMCompat::nodeName( $node ), "returning: ", $cs, ", ", $e );
 
 		return [ $cs, $e ];
 	}
