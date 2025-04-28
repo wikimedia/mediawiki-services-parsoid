@@ -78,6 +78,7 @@ class Sanitizer {
 	 * [1]: http://ha.ckers.org/xss.html
 	 */
 	private const EVIL_URI_PATTERN = '!(^|\s|\*/\s*)(javascript|vbscript)(\W|$)!iD';
+	/* NOTE: This need not include A-Z because we are comparing against a lower-case string */
 	private const XMLNS_ATTRIBUTE_PATTERN = "/^xmlns:[:A-Z_a-z-.0-9]+$/D";
 
 	/**
@@ -147,6 +148,7 @@ class Sanitizer {
 							# <reserved-E0FFF>
 				/xuD";
 
+	/* NOTE: This could be \p{Ll} because we are comparing against a lower-case string */
 	private const GET_ATTRIBS_RE = '/^[:_\p{L}\p{N}][:_\.\-\p{L}\p{N}]*$/uD';
 
 	/**
@@ -160,12 +162,14 @@ class Sanitizer {
 
 	/**
 	 * Fetch the list of acceptable attributes for a given element name.
+	 * FIXME: Not marked private because it is used in src/Ext/Gallery
+	 *
+	 * @internal
 	 *
 	 * @param string $element
 	 * @return array<string,int>
 	 */
 	public static function attributesAllowedInternal( string $element ): array {
-		// PORT-FIXME: this method is private in core, but used by Gallery
 		$lists = self::setupAttributesAllowedInternal();
 		$list = $lists[$element] ?? [];
 		return array_flip( $list );
@@ -925,12 +929,14 @@ class Sanitizer {
 				}
 			}
 
-			$origK = $a->ksrc ?? $a->k;
-			// $a->k can be uppercase
-			$k = mb_strtolower( $a->k );
+			$k = $a->k;
 			$v = $a->v;
+			$origK = $a->ksrc ?? $k;
 			$origV = $a->vsrc ?? $v;
 			$psdAttr = self::isParsoidAttr( $k, $v, $attrs );
+
+			// $a->k can be uppercase
+			$k = mb_strtolower( $k );
 
 			// Bypass RDFa/allowed attribute checks for Parsoid-inserted attrs
 			// Safe to do since the tokenizer renames about/typeof attrs.
