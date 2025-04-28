@@ -224,16 +224,12 @@ class WTUtils {
 
 	/**
 	 * Find the first wrapper element of encapsulated content.
-	 * @param Node $node
-	 * @return Element|null
 	 */
 	public static function findFirstEncapsulationWrapperNode( Node $node ): ?Element {
 		if ( !self::isEncapsulatedDOMForestRoot( $node ) ) {
 			return null;
 		}
-		/** @var Element $node */
-		DOMUtils::assertElt( $node );
-
+		'@phan-var Element $node'; // @var ?Element $elt
 		$about = DOMCompat::getAttribute( $node, 'about' );
 		$prev = $node;
 		do {
@@ -286,13 +282,9 @@ class WTUtils {
 		return DOMCompat::nodeName( $node ) === "pre" && !self::isLiteralHTMLNode( $node );
 	}
 
-	/**
-	 * @param Node $node
-	 * @return bool
-	 */
 	public static function isInlineMedia( Node $node ): bool {
-		return self::isGeneratedFigure( $node ) &&
-			DOMCompat::nodeName( $node ) === 'span';
+		return DOMCompat::nodeName( $node ) === 'span' &&
+			self::isGeneratedFigure( $node );
 	}
 
 	/**
@@ -332,19 +324,11 @@ class WTUtils {
 
 	/**
 	 * Check if $node is a root in an encapsulated DOM forest.
-	 *
-	 * @param Node $node
-	 * @return bool
 	 */
 	public static function isEncapsulatedDOMForestRoot( Node $node ): bool {
-		$about = $node instanceof Element ?
-			DOMCompat::getAttribute( $node, 'about' ) : null;
-		if ( $about !== null ) {
-			// FIXME: Ensure that our DOM spec clarifies this expectation
-			return Utils::isParsoidObjectId( $about );
-		} else {
-			return false;
-		}
+		$about = $node instanceof Element ? DOMCompat::getAttribute( $node, 'about' ) : null;
+		// FIXME: Ensure that our DOM spec clarifies this expectation
+		return $about !== null && Utils::isParsoidObjectId( $about );
 	}
 
 	/**
@@ -502,18 +486,12 @@ class WTUtils {
 	 *
 	 * All root-level $nodes of generated content are considered
 	 * encapsulation wrappers and share an about-id.
-	 *
-	 * @param Node $node
-	 * @return bool
 	 */
 	public static function isEncapsulationWrapper( Node $node ): bool {
 		// True if it has an encapsulation type or while walking backwards
 		// over elts with identical about ids, we run into a $node with an
 		// encapsulation type.
-		if ( !( $node instanceof Element ) ) {
-			return false;
-		}
-		return self::findFirstEncapsulationWrapperNode( $node ) !== null;
+		return $node instanceof Element && self::findFirstEncapsulationWrapperNode( $node ) !== null;
 	}
 
 	/**
@@ -540,13 +518,10 @@ class WTUtils {
 
 	/**
 	 * Is $node a Parsoid-generated <section> tag?
-	 *
-	 * @param Node $node
-	 * @return bool
 	 */
 	public static function isParsoidSectionTag( Node $node ): bool {
-		return $node instanceof Element &&
-			DOMCompat::nodeName( $node ) === 'section' &&
+		return DOMCompat::nodeName( $node ) === 'section' &&
+			// @phan-suppress-next-line PhanUndeclaredMethod
 			$node->hasAttribute( 'data-mw-section-id' );
 	}
 

@@ -695,7 +695,7 @@ class DOMUtils {
 	 * @return bool
 	 */
 	public static function atTheTop( ?Node $node ): bool {
-		return self::isDocumentFragment( $node ) || self::isBody( $node );
+		return self::isBody( $node ) || self::isDocumentFragment( $node );
 	}
 
 	/**
