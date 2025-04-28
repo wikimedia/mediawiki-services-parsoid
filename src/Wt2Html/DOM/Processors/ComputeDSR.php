@@ -416,7 +416,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 					$cs = $ce - WTUtils::decodedCommentLength( $child );
 				}
 			} elseif ( $cType === XML_ELEMENT_NODE ) {
-				DOMUtils::assertElt( $child );
+				'@phan-var Element $child'; // @var Element $child
 				$dp = DOMDataUtils::getDataParsoid( $child );
 				$tsr = $dp->tsr ?? null;
 				$oldCE = $tsr ? $tsr->end : null;
@@ -632,7 +632,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							'@phan-var Comment $sibling'; // @var Comment $sibling
 							$newCE += WTUtils::decodedCommentLength( $sibling );
 						} elseif ( $nType === XML_ELEMENT_NODE ) {
-							DOMUtils::assertElt( $sibling );
+							'@phan-var Element $sibling'; // @var Element $sibling
 							$siblingDP = DOMDataUtils::getDataParsoid( $sibling );
 							$siblingDP->dsr ??= new DomSourceRange( null, null, null, null );
 							$sdsrStart = $siblingDP->dsr->start;

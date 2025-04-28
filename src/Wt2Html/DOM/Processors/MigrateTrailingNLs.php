@@ -58,7 +58,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 	 * and hasn't been fostered out of a table.
 	 * (3) It is the rightmost node in the DOM subtree rooted at a node
 	 * that ends a line in wikitext
-	 * @param Node $node
+	 * @param Element|DocumentFragment $node
 	 * @return bool
 	 */
 	private function canMigrateNLOutOfNode( Node $node ): bool {
@@ -77,7 +77,6 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 			}
 		}
 
-		DOMUtils::assertElt( $node );
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		return empty( $dp->fostered ) &&
 			( $this->nodeEndsLineInWT( $node, $dp ) ||

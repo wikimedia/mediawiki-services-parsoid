@@ -78,7 +78,7 @@ class XMLSerializer {
 		$saveData = $options['saveData'];
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
-				DOMUtils::assertElt( $node );
+				'@phan-var Element $node'; // @var Element $node
 				$child = $node->firstChild;
 				$nodeName = DOMCompat::nodeName( $node );
 				$localName = $node->localName;
