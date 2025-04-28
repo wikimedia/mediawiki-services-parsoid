@@ -27,15 +27,20 @@ use Wikimedia\Zest\Zest;
  *
  * Only implements the methods that are actually used by Parsoid.
  *
- * Because this class may be used by code outside Parsoid it tries to
+ * Because this class may be used by code outside Parsoid, it tries to
  * be relatively tolerant of object types: you can call it either with
  * PHP's DOM* types or with a "proper" DOM implementation, and it will
- * attempt to Do The Right Thing regardless.  As a result there are
+ * attempt to Do The Right Thing regardless. As a result, there are
  * generally not parameter type hints for DOM object types, and the
  * return types will be broad enough to accomodate the value a "real"
  * DOM implementation would return, as well as the values our
  * thunk will return. (For instance, we can't create a "real" NodeList
  * in our compatibility thunk.)
+ *
+ * Exception to the above: ::nodeName method is not so much a DOM compatibility
+ * method in the sense above, but a proxy to let us support multiple DOM libraries
+ * agains the Parsoid codebase that may do different things. And, the default
+ * behavior is tailored for performance vs. being HTML-standards-compliant.
  */
 class DOMCompat {
 
@@ -59,13 +64,15 @@ class DOMCompat {
 	}
 
 	/**
-	 * Return the lower-case version of the node name (HTML says this should
-	 * be capitalized).
-	 * @param Node $node
-	 * @return string
+	 * Return the lower-case version of the node name.
+	 * FIXME: HTML says this should be capitalized, but we are tailoring
+	 * this to the DOM libraries that Parsoid uses that return lower-case names.
 	 */
 	public static function nodeName( Node $node ): string {
-		return strtolower( $node->nodeName );
+		// If we change DOM libraries that defaults to upper-case per HTML spec,
+		// we will probably flip this condition and change rest of Parsoid to
+		// compare against upper-case strings.
+		return $node instanceof \DOMNode ? $node->nodeName : strtolower( $node->nodeName );
 	}
 
 	/**
