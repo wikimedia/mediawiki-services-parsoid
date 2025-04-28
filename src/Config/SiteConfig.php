@@ -112,12 +112,19 @@ abstract class SiteConfig {
 	 * Array mapping parsoid internal extension ID to ExtensionModule object.
 	 * @var ?array<int,ExtensionModule>
 	 */
-	private $extModules = null;
+	private ?array $extModules = null;
+
 	/**
-	 * Private counter to assign IDs to $extModules
-	 * @var int
+	 * Array mapping parsoid internal extension ID to mediawiki Extension
+	 * name.
+	 * @var array<int,string>
 	 */
-	private $extModuleNextId = 0;
+	private array $extModuleOwner = [];
+
+	/**
+	 * Private counter to assign IDs to $extModules / $extModuleOwner
+	 */
+	private int $extModuleNextId = 0;
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
 
@@ -133,6 +140,14 @@ abstract class SiteConfig {
 	 */
 	final public function registerExtensionModule( $configOrSpec ): int {
 		$this->getExtensionModules(); // ensure it's initialized w/ core modules
+		// MediaWiki core passes along the name of the MediaWiki extension
+		// which registered this extension module as 'extension-name'
+		$extensionName = null;
+		if ( !is_string( $configOrSpec ) ) {
+			$extensionName = $configOrSpec['extension-name'] ?? null;
+			unset( $configOrSpec['extension-name'] );
+		}
+
 		if ( is_string( $configOrSpec ) || isset( $configOrSpec['class'] ) || isset( $configOrSpec['factory'] ) ) {
 			// Treat this as an object factory spec for an ExtensionModule
 			// ObjectFactory::createObject accepts an array, not just a callable (phan bug)
@@ -160,6 +175,7 @@ abstract class SiteConfig {
 		}
 		$extId = $this->extModuleNextId++;
 		$this->extModules[$extId] = $module;
+		$this->extModuleOwner[$extId] = $extensionName;
 		// remove cached extConfig to ensure this registration is picked up
 		$this->extConfig = null;
 		return $extId;
@@ -176,6 +192,7 @@ abstract class SiteConfig {
 	 */
 	final public function unregisterExtensionModule( int $extId ): void {
 		unset( $this->extModules[$extId] );
+		unset( $this->extModuleOwner[$extId] );
 		// remove cached extConfig; this will also regenerate
 		// magic word synonyms from the still-registered modules.
 		$this->extConfig = null;
@@ -191,7 +208,9 @@ abstract class SiteConfig {
 		if ( $this->extModules === null ) {
 			$this->extModules = [];
 			foreach ( self::$coreExtModules as $m ) {
-				$this->extModules[$this->extModuleNextId++] = new $m();
+				$extId = $this->extModuleNextId++;
+				$this->extModules[$extId] = new $m();
+				$this->extModuleOwner[$extId] = null; // native module
 			}
 		}
 		return array_values( $this->extModules );
@@ -1512,8 +1531,9 @@ abstract class SiteConfig {
 		// as we process the extension modules.
 		$this->pFragmentHandlerFuncSynonyms = [ [], [], ];
 
-		foreach ( $this->getExtensionModules() as $module ) {
-			$this->processExtensionModule( $module );
+		$this->getExtensionModules();
+		foreach ( $this->extModules as $extId => $module ) {
+			$this->processExtensionModule( $module, $this->extModuleOwner[$extId] );
 		}
 	}
 
@@ -1540,14 +1560,18 @@ abstract class SiteConfig {
 	/**
 	 * Register a Parsoid-compatible extension
 	 * @param ExtensionModule $ext
+	 * @param string|null $extensionOwner the MediaWiki extension which registered
+	 *   this extension module.
 	 */
-	protected function processExtensionModule( ExtensionModule $ext ): void {
+	protected function processExtensionModule( ExtensionModule $ext, ?string $extensionOwner = null ): void {
 		Assert::invariant( $this->extConfig !== null, "not yet inited!" );
 		$extConfig = $ext->getConfig();
+		$name = $extConfig['name'] ?? null;
 		Assert::invariant(
-			isset( $extConfig['name'] ),
+			$name !== null,
 			"Every extension module must have a name."
 		);
+
 		if ( $this->shouldValidateExtConfig() ) {
 			$validator = new Validator;
 			$validator->validate(
@@ -1562,7 +1586,6 @@ abstract class SiteConfig {
 					json_encode( $validator->getErrors(), JSON_PRETTY_PRINT )
 			);
 		}
-		$name = $extConfig['name'];
 
 		// These are extension tag handlers.  They have
 		// wt2html (sourceToDom), html2wt (domToWikitext), and
@@ -1606,8 +1629,8 @@ abstract class SiteConfig {
 			}
 			# transfer information about the extension and parsoid module
 			# in which this fragment handler is defined
-			$pFragmentHandler['module-name'] = $extConfig['name'];
-			$pFragmentHandler['extension-name'] = $extConfig['extension-name'] ?? null;
+			$pFragmentHandler['module-name'] = $name;
+			$pFragmentHandler['extension-name'] = $extensionOwner;
 			$this->extConfig['pFragmentHandlers'][$key] = $pFragmentHandler;
 			if ( !array_key_exists( $key, $magicWordMap ) ) {
 				continue;
