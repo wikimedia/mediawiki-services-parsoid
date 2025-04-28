@@ -4,12 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use InvalidArgumentException;
-use Wikimedia\WikiPEG\DefaultTracer;
+use Wikimedia\WikiPEG\Tracer as ITracer;
 
 /**
  * FIXME: DefaultTracer should make some things protected
  */
-class Tracer extends DefaultTracer {
+class Tracer implements ITracer {
 	/** @var int */
 	private $indentLevel = 0;
 	private string $text;
@@ -21,7 +21,7 @@ class Tracer extends DefaultTracer {
 	/**
 	 * @param array $event
 	 */
-	public function trace( $event ) {
+	public function trace( $event ): void {
 		switch ( $event['type'] ) {
 			case 'rule.enter':
 				$this->log( $event );
