@@ -1107,7 +1107,7 @@ describe('Parsoid API', function() {
 			it('should not perform unnecessary variant conversion for get of en page (html)', function(done) {
 				client.req
 				.get(mockDomain + `/v3/page/html/${ page }/${ revid }`)
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.expect(validHtmlResponse())
 				.expect('Content-Language', 'en')
 				.expect((res) => {
@@ -1120,7 +1120,7 @@ describe('Parsoid API', function() {
 			it('should not perform unnecessary variant conversion for get of en page (pagebundle)', function(done) {
 				client.req
 				.get(mockDomain + `/v3/page/pagebundle/${ page }/${ revid }`)
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.expect(validPageBundleResponse())
 				.expect((res) => {
 					// HTTP headers should not be set.
@@ -1141,13 +1141,13 @@ describe('Parsoid API', function() {
 			it('should not perform unnecessary variant conversion for get on page w/ magic word (html)', function(done) {
 				client.req
 				.get(mockDomain + '/v3/page/html/No_Variant_Page/105')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.expect(validHtmlResponse((doc) => {
 					// No conversion done since __NOCONTENTCONVERT__ is set
 					doc.body.textContent.should.equal('абвг abcd\n');
 				}))
 				// But the vary/language headers are still set.
-				.expect('Content-Language', 'sr-el')
+				.expect('Content-Language', 'sr-Latn')
 				.expect('Vary', /\bAccept-Language\b/i)
 				.end(done);
 			});
@@ -1155,7 +1155,7 @@ describe('Parsoid API', function() {
 			it('should not perform unnecessary variant conversion for get on page w/ magic word (pagebundle)', function(done) {
 				client.req
 				.get(mockDomain + '/v3/page/pagebundle/No_Variant_Page/105')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.expect(validPageBundleResponse((doc) => {
 					// No conversion done since __NOCONTENTCONVERT__ is set
 					doc.body.textContent.should.equal('абвг abcd\n');
@@ -1171,7 +1171,7 @@ describe('Parsoid API', function() {
 					const vary2 = headers.vary || '';
 					vary2.should.match(/\bAccept-Language\b/i);
 					const lang2 = headers['content-language'];
-					lang2.should.equal('sr-el');
+					lang2.should.equal('sr-Latn');
 				})
 				.end(done);
 			});
@@ -1284,8 +1284,8 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for get (html)', function(done) {
 				client.req
 				.get(mockDomain + '/v3/page/html/Variant_Page/104')
-				.set('Accept-Language', 'sr-el')
-				.expect('Content-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
+				.expect('Content-Language', 'sr-Latn')
 				.expect('Vary', /\bAccept-Language\b/i)
 				.expect(validHtmlResponse((doc) => {
 					doc.body.textContent.should.equal('abvg abcd');
@@ -1296,7 +1296,7 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for get (pagebundle)', function(done) {
 				client.req
 				.get(mockDomain + '/v3/page/pagebundle/Variant_Page/104')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.expect(validPageBundleResponse((doc) => {
 					doc.body.textContent.should.equal('abvg abcd');
 				}))
@@ -1304,7 +1304,7 @@ describe('Parsoid API', function() {
 					const headers = res.body.html.headers;
 					headers.should.have.property('content-language');
 					headers.should.have.property('vary');
-					headers['content-language'].should.equal('sr-el');
+					headers['content-language'].should.equal('sr-Latn');
 					headers.vary.should.match(/\bAccept-Language\b/i);
 				})
 				.end(done);
@@ -1313,12 +1313,12 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for transform given pagelanguage in HTTP header (html)', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/wikitext/to/html/')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.set('Content-Language', 'sr')
 				.send({
 					wikitext: "абвг abcd x",
 				})
-				.expect('Content-Language', 'sr-el')
+				.expect('Content-Language', 'sr-Latn')
 				.expect('Vary', /\bAccept-Language\b/i)
 				.expect(validHtmlResponse((doc) => {
 					doc.body.textContent.should.equal('abvg abcd x');
@@ -1329,7 +1329,7 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for transform given pagelanguage in HTTP header (pagebundle)', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.set('Content-Language', 'sr')
 				.send({
 					wikitext: "абвг abcd x",
@@ -1341,7 +1341,7 @@ describe('Parsoid API', function() {
 					const headers = res.body.html.headers;
 					headers.should.have.property('content-language');
 					headers.should.have.property('vary');
-					headers['content-language'].should.equal('sr-el');
+					headers['content-language'].should.equal('sr-Latn');
 					headers.vary.should.match(/\bAccept-Language\b/i);
 				})
 				.end(done);
@@ -1350,7 +1350,7 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for transform given pagelanguage in JSON header (html)', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/wikitext/to/html/')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.send({
 					wikitext: {
 						headers: {
@@ -1359,7 +1359,7 @@ describe('Parsoid API', function() {
 						body: "абвг abcd x",
 					},
 				})
-				.expect('Content-Language', 'sr-el')
+				.expect('Content-Language', 'sr-Latn')
 				.expect('Vary', /\bAccept-Language\b/i)
 				.expect(validHtmlResponse((doc) => {
 					doc.body.textContent.should.equal('abvg abcd x');
@@ -1370,7 +1370,7 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for transform given pagelanguage in JSON header (pagebundle)', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.send({
 					wikitext: {
 						headers: {
@@ -1386,7 +1386,7 @@ describe('Parsoid API', function() {
 					const headers = res.body.html.headers;
 					headers.should.have.property('content-language');
 					headers.should.have.property('vary');
-					headers['content-language'].should.equal('sr-el');
+					headers['content-language'].should.equal('sr-Latn');
 					headers.vary.should.match(/\bAccept-Language\b/i);
 				})
 				.end(done);
@@ -1395,14 +1395,14 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for transform given pagelanguage from oldid (html)', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/wikitext/to/html/')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.send({
 					original: { revid: 104 },
 					wikitext: {
 						body: "абвг abcd x",
 					},
 				})
-				.expect('Content-Language', 'sr-el')
+				.expect('Content-Language', 'sr-Latn')
 				.expect('Vary', /\bAccept-Language\b/i)
 				.expect(validHtmlResponse((doc) => {
 					doc.body.textContent.should.equal('abvg abcd x');
@@ -1413,7 +1413,7 @@ describe('Parsoid API', function() {
 			it('should perform variant conversion for transform given pagelanguage from oldid (pagebundle)', function(done) {
 				client.req
 				.post(mockDomain + '/v3/transform/wikitext/to/pagebundle/')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.send({
 					original: { revid: 104 },
 					wikitext: "абвг abcd",
@@ -1425,7 +1425,7 @@ describe('Parsoid API', function() {
 					const headers = res.body.html.headers;
 					headers.should.have.property('content-language');
 					headers.should.have.property('vary');
-					headers['content-language'].should.equal('sr-el');
+					headers['content-language'].should.equal('sr-Latn');
 					headers.vary.should.match(/\bAccept-Language\b/i);
 				})
 				.end(done);
@@ -2378,7 +2378,7 @@ describe('Parsoid API', function() {
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/MediaWiki:ok%2Fnl')
 				.send({
 					updates: {
-						variant: { target: 'sr-el' },
+						variant: { target: 'sr-Latn' },
 					},
 					original: {
 						revid,
@@ -2405,7 +2405,7 @@ describe('Parsoid API', function() {
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.send({
 					updates: {
-						variant: { target: 'sr-el' },
+						variant: { target: 'sr-Latn' },
 					},
 					original: {
 						revid: 104, /* sets the pagelanguage */
@@ -2430,7 +2430,7 @@ describe('Parsoid API', function() {
 				.expect((res) => {
 					const headers = res.body.html.headers;
 					headers.should.have.property('content-language');
-					headers['content-language'].should.equal('sr-el');
+					headers['content-language'].should.equal('sr-Latn');
 					headers.should.have.property('vary');
 					headers.vary.should.match(/\bAccept-Language\b/i);
 				})
@@ -2444,7 +2444,7 @@ describe('Parsoid API', function() {
 				client.req
 				.post(mockDomain + '/v3/transform/pagebundle/to/pagebundle/')
 				.set('Content-Language', 'sr')
-				.set('Accept-Language', 'sr-el')
+				.set('Accept-Language', 'sr-Latn')
 				.send({
 					updates: {
 						variant: { /* target implicit from accept-language */ },
@@ -2471,7 +2471,7 @@ describe('Parsoid API', function() {
 				.expect((res) => {
 					const headers = res.body.html.headers;
 					headers.should.have.property('content-language');
-					headers['content-language'].should.equal('sr-el');
+					headers['content-language'].should.equal('sr-Latn');
 					headers.should.have.property('vary');
 					headers.vary.should.match(/\bAccept-Language\b/i);
 				})

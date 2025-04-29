@@ -143,7 +143,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 
 		$pageContent = new MockPageContent( [ 'main' => $testOpts['pageContent'] ?? '' ] );
 		$pageConfig = new MockPageConfig( $siteConfig, [
-			'pageLanguage' => $testOpts['pageLanguage'] ?? 'en'
+			'pageLanguage' => $testOpts['pageLanguage'] ?? new Bcp47CodeValue( 'en' ),
 		], $pageContent );
 		$pb = new PageBundle(
 			$input['html'],

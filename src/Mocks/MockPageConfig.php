@@ -4,12 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Mocks;
 
 use Wikimedia\Bcp47Code\Bcp47Code;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\LinkTarget;
 use Wikimedia\Parsoid\Utils\Title;
-use Wikimedia\Parsoid\Utils\Utils;
 
 class MockPageConfig extends PageConfig {
 	private SiteConfig $siteConfig;
@@ -38,7 +38,7 @@ class MockPageConfig extends PageConfig {
 		$this->content = $content;
 		$this->title = Title::newFromText( $opts['title'] ?? 'TestPage', $siteConfig, $opts['pagens'] ?? null );
 		$this->pageid = $opts['pageid'] ?? -1;
-		$this->pagelanguage = Utils::mwCodeToBcp47( $opts['pageLanguage'] ?? 'en' );
+		$this->pagelanguage = $opts['pageLanguage'] ?? new Bcp47CodeValue( 'en' );
 		$this->pagelanguageDir = $opts['pageLanguageDir'] ?? null;
 	}
 

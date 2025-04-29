@@ -1708,7 +1708,7 @@ parsoid=html2wt
 !! test
 Nonexistent internal link targets should be resolved using variants (T258856)
 !! options
-language=sr variant=sr-ec
+language=sr htmlVariantLanguage=sr-Cyrl
 !! wikitext
 [[Test]]
 !! html/php

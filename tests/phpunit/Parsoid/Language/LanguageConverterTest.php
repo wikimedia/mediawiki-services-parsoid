@@ -2,6 +2,7 @@
 namespace Test\Parsoid\Language;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
@@ -60,7 +61,7 @@ class LanguageConverterTest extends TestCase {
 		return new MockEnv( [
 			'pageConfig' => new MockPageConfig(
 				$siteConfig,
-				[ 'pageLanguage' => $pageLanguageCode ],
+				[ 'pageLanguage' => new Bcp47CodeValue( $pageLanguageCode ) ],
 				null
 			)
 		] );

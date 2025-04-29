@@ -23,7 +23,6 @@ use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\ScriptUtils;
 use Wikimedia\Parsoid\Utils\Title;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 
 /**
@@ -415,18 +414,6 @@ class TestRunner {
 		// The test can explicitly opt-in to variant conversion with the
 		// 'langconv' option.
 		if ( $testOpts['langconv'] ?? null ) {
-			// These test option names are deprecated:
-			// (Note that test options names are lowercased by the reader.)
-			if ( $testOpts['sourcevariant'] ?? false ) {
-				$this->envOptions['wtVariantLanguage'] = Utils::mwCodeToBcp47(
-					$testOpts['sourcevariant'], true, $this->siteConfig->getLogger()
-				);
-			}
-			if ( $testOpts['variant'] ?? false ) {
-				$this->envOptions['htmlVariantLanguage'] = Utils::mwCodeToBcp47(
-					$testOpts['variant'], true, $this->siteConfig->getLogger()
-				);
-			}
 			// Preferred option names, which are also specified in bcp-47 codes
 			// (Note that test options names are lowercased by the reader.)
 			if ( $testOpts['wtvariantlanguage'] ?? false ) {

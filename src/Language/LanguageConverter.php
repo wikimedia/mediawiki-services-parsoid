@@ -237,28 +237,13 @@ class LanguageConverter {
 	 * for each DOM subtree of wikitext.
 	 * @param Env $env
 	 * @param Element $rootNode The root node of a fragment to convert.
-	 * @param string|Bcp47Code $htmlVariantLanguage The variant to be used for the output DOM.
-	 *  This is a mediawiki-internal language code string (T320662, deprecated),
-	 *  or a BCP 47 language object (preferred).
-	 * @param string|Bcp47Code|null $wtVariantLanguage An optional variant assumed for the
+	 * @param Bcp47Code $htmlVariantLanguage The variant to be used for the output DOM.
+	 * @param Bcp47Code|null $wtVariantLanguage An optional variant assumed for the
 	 *  input DOM in order to create roundtrip metadata.
-	 *  This is a mediawiki-internal language code (T320662, deprecated),
-	 *  or a BCP 47 language object (preferred), or null.
 	 */
 	public static function baseToVariant(
-		Env $env, Element $rootNode, $htmlVariantLanguage, $wtVariantLanguage
+		Env $env, Element $rootNode, Bcp47Code $htmlVariantLanguage, ?Bcp47Code $wtVariantLanguage
 	): void {
-		// Back-compat w/ old string-passing parameter convention
-		if ( is_string( $htmlVariantLanguage ) ) {
-			$htmlVariantLanguage = Utils::mwCodeToBcp47(
-				$htmlVariantLanguage, true, $env->getSiteConfig()->getLogger()
-			);
-		}
-		if ( is_string( $wtVariantLanguage ) ) {
-			$wtVariantLanguage = Utils::mwCodeToBcp47(
-				$wtVariantLanguage, true, $env->getSiteConfig()->getLogger()
-			);
-		}
 		// PageConfig guarantees getPageLanguage() never returns null.
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
 

@@ -239,18 +239,8 @@ class Env {
 		}
 		$this->skipLanguageConversionPass =
 			$options['skipLanguageConversionPass'] ?? false;
-		$this->htmlVariantLanguage = !empty( $options['htmlVariantLanguage'] ) ?
-			Utils::mwCodeToBcp47(
-				$options['htmlVariantLanguage'],
-				// Be strict in what we accept here.
-				true, $this->siteConfig->getLogger()
-			) : null;
-		$this->wtVariantLanguage = !empty( $options['wtVariantLanguage'] ) ?
-			Utils::mwCodeToBcp47(
-				$options['wtVariantLanguage'],
-				// Be strict in what we accept here.
-				true, $this->siteConfig->getLogger()
-			) : null;
+		$this->htmlVariantLanguage = $options['htmlVariantLanguage'] ?? null;
+		$this->wtVariantLanguage = $options['wtVariantLanguage'] ?? null;
 		$this->nativeTemplateExpansion = !empty( $options['nativeTemplateExpansion'] );
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
 		$this->logLinterData = !empty( $options['logLinterData'] );
