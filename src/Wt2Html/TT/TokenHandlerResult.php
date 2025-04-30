@@ -12,13 +12,6 @@ class TokenHandlerResult {
 	 *   current token
 	 */
 	public function __construct( ?array $tokens = null ) {
-		if ( $tokens ) {
-			foreach ( $tokens as $token ) {
-				if ( $token === null ) {
-					throw new \InvalidArgumentException( "Invalid token" );
-				}
-			}
-		}
 		$this->tokens = $tokens;
 	}
 }
