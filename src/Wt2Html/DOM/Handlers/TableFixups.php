@@ -748,6 +748,59 @@ class TableFixups {
 			WTUtils::isGeneratedFigure( $child );
 	}
 
+	private static function pipeStatusInContent( Node $node, string $testRE, bool $inTplContent ): int {
+		$about = null;
+		$child = $node->firstChild;
+		while ( $child ) {
+			if ( $inTplContent &&
+				$child instanceof Text &&
+				preg_match( $testRE, $child->textContent )
+			) {
+				return 1;
+			}
+
+			if ( $child instanceof Element ) {
+				if ( $about && DOMCompat::getAttribute( $child, 'about' ) !== $about ) {
+					$inTplContent = false;
+					$about = null;
+				}
+
+				if ( !$inTplContent && DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
+					$inTplContent = true;
+					$about = DOMCompat::getAttribute( $child, 'about' );
+				}
+
+				// FIXME: Extlinks can hide pipes in dom fragments, but we are not handling that
+				// right now -- it is likely an edge case and it is icky to deal with it.
+				// There can be other sources of dom fragments (parser functions returning HTML,)
+				// that could hide pipes but it is unclear we need to support that form of
+				// string gluing here. For now, we treat that as unsupported behavior unless
+				// we find real uses that need to be dealt with.
+				if ( !DOMUtils::hasTypeOf( $child, 'mw:DOMFragment' ) ) {
+					// "|" chars in extension/language variant content don't trigger
+					// table-cell parsing since they have higher precedence in tokenization
+					if ( self::shouldAbortAttr( $child ) ) {
+						return -1;
+					}
+
+					// A "|" char in the HTML will trigger table cell tokenization.
+					// Ex: "| foobar <div> x | y </div>" will split the <div>
+					// in table-cell tokenization context.
+					$status = self::pipeStatusInContent( $child, $testRE, $inTplContent );
+					if ( $status !== 0 ) { // abort OR found
+						return $status;
+					}
+
+					// $status = 0; not-found; continue with next sibling
+				}
+			}
+
+			$child = $child->nextSibling;
+		}
+
+		return 0;
+	}
+
 	/**
 	 * $cell is known to be <td>/<th>
 	 */
@@ -785,49 +838,9 @@ class TableFixups {
 		// can be nested (ie. template in extension content) so the check is insufficient
 		$inTplContent = $dtState->tplInfo !== null &&
 			DOMUtils::hasTypeOf( $dtState->tplInfo->first, 'mw:Transclusion' );
-
-		$cellIsTd = DOMCompat::nodeName( $cell ) === 'td';
-		$testRE = $cellIsTd ? '/[|]/' : '/[!|]/';
-		$child = $cell->firstChild;
-		while ( $child ) {
-			if ( !$inTplContent && DOMUtils::hasTypeOf( $child, 'mw:Transclusion' ) ) {
-				$inTplContent = true;
-			}
-
-			if ( $inTplContent &&
-				$child instanceof Text &&
-				preg_match( $testRE, $child->textContent )
-			) {
-				return self::OTHER_REPARSE;
-			}
-
-			// FIXME: Extlinks can hide pipes in dom fragments, but we are not handling that
-			// right now -- it is likely an edge case and it is icky to deal with it.
-			// There can be other sources of dom fragments (parser functions returning HTML,)
-			// that could hide pipes but it is unclear we need to support that form of
-			// string gluing here. For now, we treat that as unsupported behavior unless
-			// we find real uses that need to be dealt with.
-			if ( $child instanceof Element && !DOMUtils::hasTypeOf( $child, 'mw:DOMFragment' ) ) {
-				// "|" chars in extension/language variant content don't trigger
-				// table-cell parsing since they have higher precedence in tokenization
-				if ( self::shouldAbortAttr( $child ) ) {
-					return self::NO_REPARSING;
-				}
-				// FIXME: Ugly for now
-				$outerHTML = DOMCompat::getOuterHTML( $child );
-				if ( preg_match( $testRE, $outerHTML ) &&
-					( $inTplContent || preg_match( '/"mw:Transclusion"/', $outerHTML ) )
-				) {
-					// A "|" char in the HTML will trigger table cell tokenization.
-					// Ex: "| foobar <div> x | y </div>" will split the <div>
-					// in table-cell tokenization context.
-					return self::OTHER_REPARSE;
-				}
-			}
-			$child = $child->nextSibling;
-		}
-
-		return self::NO_REPARSING;
+		$testRE = DOMCompat::nodeName( $cell ) === 'td' ? '/[|]/' : '/[!|]/';
+		$status = self::pipeStatusInContent( $cell, $testRE, $inTplContent );
+		return $status === 1 ? self::OTHER_REPARSE : self::NO_REPARSING;
 	}
 
 	/**
