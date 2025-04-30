@@ -1933,9 +1933,9 @@ li =
  */
 hacky_dl_uses =
 	bullets:":"+
-	tbl:(table_line (sol+ table_line)*)
-	line:inlineline?
-	&(space_or_comment* eolf)
+	sc:space_or_comment*
+	!inline_breaks
+	tbl:table_start_tag
 {
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
@@ -1943,7 +1943,7 @@ hacky_dl_uses =
 	$dp = new DataParsoid;
 	$dp->tsr = $tsr;
 	$li = new TagTk( 'listItem', [ new KV( 'bullets', $bullets, $tsr->expandTsrV() ) ], $dp );
-	return TokenizerUtils::flattenIfArray( [ $li, $tbl, $line ?: [] ] );
+	return array_merge( [ $li ], $sc, $tbl );
 }
 
 dtdd_colon = c:inlineline_break_on_colon? cpos:(":" { return $this->endOffset(); })
