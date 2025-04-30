@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\WTUtils;
 
 /**
@@ -431,12 +432,12 @@ class DOMDiff {
 		$this->env->trace(
 			'domdiff',
 			'--> A', $laPrefix, ':',
-			( $nodeA instanceof Element ? $nodeA : $nodeA->nodeValue )
+			static fn () => ( $nodeA instanceof Element ? $nodeA : PHPUtils::jsonEncode( $nodeA->nodeValue ) )
 		);
 		$this->env->trace(
 			'domdiff',
 			'--> B', $laPrefix, ':',
-			( $nodeB instanceof Element ? $nodeB : $nodeB->nodeValue )
+			static fn () => ( $nodeB instanceof Element ? $nodeB : PHPUtils::jsonEncode( $nodeB->nodeValue ) )
 		);
 	}
 }
