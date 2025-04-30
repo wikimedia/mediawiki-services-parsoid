@@ -411,8 +411,8 @@ class ParagraphWrapper extends TokenHandler {
 			}
 		} elseif ( $token instanceof EOFTk || $this->inPre ) {
 			$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $token );
-			$res = [ $token ];
-			return new TokenHandlerResult( $res );
+			// null is a signal of an unmodified token
+			return null;
 		} elseif (
 			$token instanceof CommentTk
 			|| ( is_string( $token ) && preg_match( '/^[\t ]*$/D', $token ) )

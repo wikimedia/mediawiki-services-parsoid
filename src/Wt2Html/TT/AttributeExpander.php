@@ -616,9 +616,9 @@ class AttributeExpander extends TokenHandler {
 	 * (Ex: Templated styles)
 	 *
 	 * @param Token $token Token whose attrs being expanded.
-	 * @return TokenHandlerResult
+	 * @return ?TokenHandlerResult
 	 */
-	private function processComplexAttributes( Token $token ): TokenHandlerResult {
+	private function processComplexAttributes( Token $token ): ?TokenHandlerResult {
 		$expandedAttrs = AttributeTransformManager::process(
 			$this->manager->getFrame(),
 			[
@@ -627,11 +627,9 @@ class AttributeExpander extends TokenHandler {
 			],
 			$token->attribs
 		);
-		if ( $expandedAttrs ) {
-			return $this->buildExpandedAttrs( $token, $expandedAttrs );
-		} else {
-			return new TokenHandlerResult( [ $token ] );
-		}
+
+		// null signifies unmodified token
+		return $expandedAttrs ? $this->buildExpandedAttrs( $token, $expandedAttrs ) : null;
 	}
 
 	/**
@@ -639,9 +637,9 @@ class AttributeExpander extends TokenHandler {
 	 * tempate tokens where the template target itself is a complex attribute.
 	 *
 	 * @param Token $token Token whose first attribute is being expanded.
-	 * @return TokenHandlerResult
+	 * @return ?TokenHandlerResult
 	 */
-	public function expandFirstAttribute( Token $token ): TokenHandlerResult {
+	public function expandFirstAttribute( Token $token ): ?TokenHandlerResult {
 		$expandedAttrs = AttributeTransformManager::process(
 			$this->manager->getFrame(),
 			[
@@ -656,7 +654,8 @@ class AttributeExpander extends TokenHandler {
 				array_replace( $token->attribs, [ 0 => $expandedAttrs[0] ] )
 			);
 		} else {
-			return new TokenHandlerResult( [ $token ] );
+			// null signifies unmodified token
+			return null;
 		}
 	}
 

@@ -115,8 +115,7 @@ abstract class TokenHandler {
 	 * @return bool
 	 */
 	private function isModified( $token, $res ): bool {
-		return $res->tokens !== null
-			&& $res->tokens !== [ $token ];
+		return $res->tokens !== [ $token ];
 	}
 
 	/**

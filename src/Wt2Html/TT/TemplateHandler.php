@@ -804,7 +804,7 @@ class TemplateHandler extends TokenHandler {
 		// template token since we will then know the actual template target.
 		if ( $expandTemplates && self::hasTemplateToken( $token->attribs[0]->k ) ) {
 			$ret = $this->ae->expandFirstAttribute( $token );
-			$toks = $ret->tokens ?? null;
+			$toks = $ret ? $ret->tokens : null;
 			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
 				"Expected only the input token as the return value." );
 		}

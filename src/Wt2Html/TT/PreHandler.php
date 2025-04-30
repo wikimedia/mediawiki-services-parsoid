@@ -371,7 +371,7 @@ class PreHandler extends TokenHandler {
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return new TokenHandlerResult( $ret );
+		return $ret !== null ? new TokenHandlerResult( $ret ) : null;
 	}
 
 	/**
@@ -400,7 +400,7 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_IGNORE:
-				$ret = null;
+				$ret = null; // Signals unmodified token
 				break;
 
 			default:
@@ -411,7 +411,7 @@ class PreHandler extends TokenHandler {
 		$this->env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$this->env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return new TokenHandlerResult( $ret );
+		return $ret !== null ? new TokenHandlerResult( $ret ) : null;
 	}
 
 	/**
