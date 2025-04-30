@@ -143,7 +143,7 @@ abstract class TokenHandler {
 			$modified = $res && $this->isModified( $token, $res );
 			if ( $modified ) {
 				$resTokens = $res->tokens;
-			} elseif ( $this->onAnyEnabled && ( !$res || !$res->skipOnAny ) ) {
+			} elseif ( $this->onAnyEnabled ) {
 				$res = $this->onAny( $token );
 				$modified = $res && $this->isModified( $token, $res );
 				if ( $modified ) {

@@ -297,7 +297,7 @@ class ParagraphWrapper extends TokenHandler {
 			$res = $this->processPendingNLs();
 			$this->reset();
 			$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $res );
-			return new TokenHandlerResult( $res, true );
+			return new TokenHandlerResult( $res );
 		} else {
 			$this->resetCurrLine();
 			$this->newLineCount++;

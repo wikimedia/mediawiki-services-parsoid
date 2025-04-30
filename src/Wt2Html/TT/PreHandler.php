@@ -371,7 +371,7 @@ class PreHandler extends TokenHandler {
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return new TokenHandlerResult( $ret, true );
+		return new TokenHandlerResult( $ret );
 	}
 
 	/**
@@ -411,7 +411,7 @@ class PreHandler extends TokenHandler {
 		$this->env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$this->env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return new TokenHandlerResult( $ret, true );
+		return new TokenHandlerResult( $ret );
 	}
 
 	/**
@@ -441,14 +441,19 @@ class PreHandler extends TokenHandler {
 	public function onAny( $token ): ?TokenHandlerResult {
 		$env = $this->env;
 
+		// Don't run onAny for NlTk of EOFTk tokens
+		if ( $token instanceof NlTk || $token instanceof EOFTk ) {
+			return null;
+		}
+
 		$env->trace( 'pre', $this->pipelineId, 'any   |',
 			self::STATE_STR[$this->state], '|', $token
 		);
 
 		if ( $this->state === self::STATE_IGNORE ) {
-			$env->log( 'error', static function () use ( $token ) {
-				return '!ERROR! IGNORE! Cannot get here: ' . PHPUtils::jsonEncode( $token );
-			} );
+			$env->log( 'error',
+				'!ERROR! IGNORE! Cannot get here: ' . PHPUtils::jsonEncode( $token )
+			);
 			return null;
 		}
 
