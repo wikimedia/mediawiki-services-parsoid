@@ -12,8 +12,8 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Wikitext\Consts;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
-use Wikimedia\RemexHtml\DOM\DOMBuilder;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
@@ -42,19 +42,7 @@ class DOMUtils {
 			$html = '<body>' . $html;
 		}
 
-		$domBuilder = new class( [
-			'suppressHtmlNamespace' => true,
-		] ) extends DOMBuilder {
-			/** @inheritDoc */
-			protected function createDocument(
-				?string $doctypeName = null,
-				?string $public = null,
-				?string $system = null
-			) {
-				// @phan-suppress-next-line PhanTypeMismatchReturn
-				return DOMCompat::newDocument( false );
-			}
-		};
+		$domBuilder = new DOMBuilder; // our DOMBuilder, not remex's
 		$treeBuilder = new TreeBuilder( $domBuilder, [ 'ignoreErrors' => true ] );
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );

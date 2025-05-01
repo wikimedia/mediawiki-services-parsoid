@@ -29,6 +29,7 @@ class DOMBuilder extends RemexDOMBuilder {
 		?string $public = null,
 		?string $system = null
 	) {
+		$doctypeName ??= 'html';
 		// @phan-suppress-next-line PhanTypeMismatchReturn
 		return DOMCompat::newDocument( $doctypeName === 'html' );
 	}
