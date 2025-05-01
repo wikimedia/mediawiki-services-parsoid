@@ -94,9 +94,9 @@ class LanguageVariantHandler extends TokenHandler {
 	 * Main handler.
 	 * See {@link TokenHandlerPipeline#addTransform}'s transformation parameter
 	 * @param Token $token
-	 * @return TokenHandlerResult|null
+	 * @return ?array<string|Token>
 	 */
-	private function onLanguageVariant( Token $token ): ?TokenHandlerResult {
+	private function onLanguageVariant( Token $token ): ?array {
 		$manager = $this->manager;
 		$options = $this->options;
 		$attribs = $token->attribs;
@@ -279,13 +279,13 @@ class LanguageVariantHandler extends TokenHandler {
 			$tokens[] = new EndTagTk( $isBlock ? 'div' : 'span', [], $metaDP );
 		}
 
-		return new TokenHandlerResult( $tokens );
+		return $tokens;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	public function onTag( Token $token ): ?array {
 		return $token->getName() === 'language-variant' ? $this->onLanguageVariant( $token ) : null;
 	}
 }

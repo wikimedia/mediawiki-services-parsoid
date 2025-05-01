@@ -216,7 +216,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * Wrap buffered tokens with <pre>..</pre>
 	 *
-	 * @return array
+	 * @return array<string|Token>
 	 */
 	private function genPre(): array {
 		$ret = [];
@@ -288,7 +288,7 @@ class PreHandler extends TokenHandler {
 	 * Get results and cleanup state
 	 *
 	 * @param Token|string $token
-	 * @return array
+	 * @return array<string|Token>
 	 */
 	private function purgeBuffers( $token ): array {
 		$this->processCurrLine( $token, true );
@@ -302,7 +302,7 @@ class PreHandler extends TokenHandler {
 	 * Discard pre on this line. Generate pre formatting for previous lines, if any.
 	 *
 	 * @param Token|string $token
-	 * @return array
+	 * @return array<string|Token>
 	 */
 	private function discardCurrLinePre( $token ): array {
 		$ret = $this->genPre();
@@ -325,7 +325,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onNewline( NlTk $token ): ?TokenHandlerResult {
+	public function onNewline( NlTk $token ): ?array {
 		$env = $this->env;
 
 		$env->trace( 'pre', $this->pipelineId, 'NL    |',
@@ -371,13 +371,13 @@ class PreHandler extends TokenHandler {
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return $ret !== null ? new TokenHandlerResult( $ret ) : null;
+		return $ret;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
+	public function onEnd( EOFTk $token ): ?array {
 		$this->env->trace( 'pre', $this->pipelineId, 'eof   |',
 			self::STATE_STR[$this->state], '| ', $token
 		);
@@ -411,7 +411,7 @@ class PreHandler extends TokenHandler {
 		$this->env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$this->env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return $ret !== null ? new TokenHandlerResult( $ret ) : null;
+		return $ret;
 	}
 
 	/**
@@ -438,7 +438,7 @@ class PreHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	public function onAny( $token ): ?array {
 		$env = $this->env;
 
 		// Don't run onAny for NlTk of EOFTk tokens
@@ -531,6 +531,6 @@ class PreHandler extends TokenHandler {
 		$env->log( 'debug/pre', $this->pipelineId, 'saved :', $this->tokens );
 		$env->log( 'debug/pre', $this->pipelineId, '---->   ', $ret );
 
-		return new TokenHandlerResult( $ret );
+		return $ret;
 	}
 }

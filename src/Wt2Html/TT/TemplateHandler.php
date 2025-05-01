@@ -89,8 +89,8 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Parser functions also need template wrapping.
 	 *
-	 * @param array $tokens
-	 * @return array
+	 * @param array<string|Token> $tokens
+	 * @return array<string|Token>
 	 */
 	private function parserFunctionsWrapper( array $tokens ): array {
 		$chunkToks = [];
@@ -127,7 +127,7 @@ class TemplateHandler extends TokenHandler {
 	 * Ex: With "{{uc:foo [[foo]] {{1x|foo}} bar}}", we return
 	 *     [ "uc:foo ", [ wikilink-token, " ", template-token, " bar" ] ]
 	 *
-	 * @param array $tokens
+	 * @param array<string|Token> $tokens
 	 * @return array first element is always a string
 	 */
 	private function processToString( array $tokens ): array {
@@ -428,10 +428,10 @@ class TemplateHandler extends TokenHandler {
 
 	/**
 	 * Flatten
-	 * @param (Token|string)[] $tokens
+	 * @param array<Token|string> $tokens
 	 * @param ?string $prefix
-	 * @param Token|string|(Token|string)[] $t
-	 * @return array
+	 * @param Token|string|array<Token|string> $t
+	 * @return array<string|Token>
 	 */
 	private function flattenAndAppendToks(
 		array $tokens, ?string $prefix, $t
@@ -500,7 +500,7 @@ class TemplateHandler extends TokenHandler {
 	 * @param mixed $target
 	 * @param Title $title
 	 * @param bool $ignoreLoop
-	 * @return ?array
+	 * @return ?array<string|Token>
 	 */
 	private function enforceTemplateConstraints( $target, Title $title, bool $ignoreLoop ): ?array {
 		$error = $this->manager->getFrame()->loopAndDepthCheck(
@@ -636,8 +636,8 @@ class TemplateHandler extends TokenHandler {
 	 * Process the main template element, including the arguments.
 	 *
 	 * @param TemplateEncapsulator $state
-	 * @param array $tokens
-	 * @return array
+	 * @param array<string|Token> $tokens
+	 * @return array<string|Token>
 	 */
 	private function encapTokens( TemplateEncapsulator $state, array $tokens ): array {
 		// Template encapsulation normally wouldn't happen in nested context,
@@ -662,8 +662,8 @@ class TemplateHandler extends TokenHandler {
 	/**
 	 * Handle chunk emitted from the input pipeline after feeding it a template.
 	 *
-	 * @param array $chunk
-	 * @return array
+	 * @param array<string|Token> $chunk
+	 * @return array<string|Token>
 	 */
 	private function processTemplateTokens( array $chunk ): array {
 		TokenUtils::stripEOFTkFromTokens( $chunk );
@@ -735,7 +735,7 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * @param mixed $tokens
+	 * @param array<string|Token> $tokens
 	 * @return bool
 	 */
 	private static function hasTemplateToken( $tokens ): bool {
@@ -803,8 +803,7 @@ class TemplateHandler extends TokenHandler {
 		// to process the first attribute to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
 		if ( $expandTemplates && self::hasTemplateToken( $token->attribs[0]->k ) ) {
-			$ret = $this->ae->expandFirstAttribute( $token );
-			$toks = $ret ? $ret->tokens : null;
+			$toks = $this->ae->expandFirstAttribute( $token );
 			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
 				"Expected only the input token as the return value." );
 		}
@@ -1087,11 +1086,9 @@ class TemplateHandler extends TokenHandler {
 	 * Expands target and arguments (both keys and values) and either directly
 	 * calls or sets up the callback to expandTemplate, which then fetches and
 	 * processes the template.
-	 *
-	 * @param Token $token
-	 * @return TokenHandlerResult
+	 * @return array<string|Token>
 	 */
-	private function onTemplate( Token $token ): TokenHandlerResult {
+	private function onTemplate( Token $token ): array {
 		$state = new TemplateEncapsulator(
 			$this->env, $this->manager->getFrame(), $token, 'mw:Transclusion'
 		);
@@ -1105,15 +1102,14 @@ class TemplateHandler extends TokenHandler {
 			// rest of the handlers in the current pipeline in the pipeline above.
 			$toks = $this->manager->shuttleTokensToEndOfStage( $toks );
 		}
-		return new TokenHandlerResult( $toks );
+		return $toks;
 	}
 
 	/**
 	 * Expand template arguments with tokens from the containing frame.
-	 * @param Token $token
-	 * @return TokenHandlerResult
+	 * @return array<string|Token>
 	 */
-	private function onTemplateArg( Token $token ): TokenHandlerResult {
+	private function onTemplateArg( Token $token ): array {
 		$toks = $this->manager->getFrame()->expandTemplateArg( $token );
 
 		if ( $this->wrapTemplates && $this->options['expandTemplates'] ) {
@@ -1130,10 +1126,11 @@ class TemplateHandler extends TokenHandler {
 		// rest of the handlers in the current pipeline in the pipeline above.
 		$toks = $this->manager->shuttleTokensToEndOfStage( $toks );
 
-		return new TokenHandlerResult( $toks );
+		return $toks;
 	}
 
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	/** @inheritDoc */
+	public function onTag( Token $token ): ?array {
 		switch ( $token->getName() ) {
 			case "template":
 				return $this->onTemplate( $token );

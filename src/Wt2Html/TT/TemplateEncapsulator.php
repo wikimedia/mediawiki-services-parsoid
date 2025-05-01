@@ -49,8 +49,8 @@ class TemplateEncapsulator {
 	 * Main entry point.
 	 * Encapsulate the template element, including the arguments.
 	 *
-	 * @param array $tokens
-	 * @return array
+	 * @param array<string|Token> $tokens
+	 * @return array<string|Token>
 	 */
 	public function encapTokens( array $tokens ): array {
 		$toks = $this->getEncapsulationInfo( $tokens );
@@ -226,6 +226,9 @@ class TemplateEncapsulator {
 		return $ret;
 	}
 
+	/**
+	 * @return array<string|Token>
+	 */
 	private function getEncapsulationInfo( ?array $chunk = null ): array {
 		// TODO
 		// * only add this information for top-level includes, but track parameter

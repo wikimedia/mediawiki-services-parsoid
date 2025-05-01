@@ -251,7 +251,7 @@ class AttributeExpander extends TokenHandler {
 	 * Callback for attribute expansion in AttributeTransformManager
 	 * @param Token $token
 	 * @param KV[] $expandedAttrs
-	 * @return TokenHandlerResult
+	 * @return array<string|Token>
 	 */
 	private function buildExpandedAttrs( Token $token, array $expandedAttrs ) {
 		// If we're not in a template, we'll be doing template wrapping in dom
@@ -606,9 +606,7 @@ class AttributeExpander extends TokenHandler {
 			}
 		}
 
-		return new TokenHandlerResult(
-			array_merge( $metaTokens, [ $token ], $postNLToks )
-		);
+		return array_merge( $metaTokens, [ $token ], $postNLToks );
 	}
 
 	/**
@@ -616,9 +614,9 @@ class AttributeExpander extends TokenHandler {
 	 * (Ex: Templated styles)
 	 *
 	 * @param Token $token Token whose attrs being expanded.
-	 * @return ?TokenHandlerResult
+	 * @return ?array<string|Token>
 	 */
-	private function processComplexAttributes( Token $token ): ?TokenHandlerResult {
+	private function processComplexAttributes( Token $token ): ?array {
 		$expandedAttrs = AttributeTransformManager::process(
 			$this->manager->getFrame(),
 			[
@@ -637,9 +635,9 @@ class AttributeExpander extends TokenHandler {
 	 * tempate tokens where the template target itself is a complex attribute.
 	 *
 	 * @param Token $token Token whose first attribute is being expanded.
-	 * @return ?TokenHandlerResult
+	 * @return ?array<string|Token>
 	 */
-	public function expandFirstAttribute( Token $token ): ?TokenHandlerResult {
+	public function expandFirstAttribute( Token $token ): ?array {
 		$expandedAttrs = AttributeTransformManager::process(
 			$this->manager->getFrame(),
 			[
@@ -666,10 +664,9 @@ class AttributeExpander extends TokenHandler {
 	 * processes / expands them.
 	 * (Ex: Templated styles)
 	 *
-	 * @param Token|string $token Token whose attrs being expanded.
-	 * @return TokenHandlerResult|null
+	 * @inheritDoc
 	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	public function onAny( $token ): ?array {
 		if (
 			!( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) ||
 			!count( $token->attribs )

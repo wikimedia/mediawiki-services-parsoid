@@ -84,7 +84,7 @@ class TokenStreamPatcher extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onNewline( NlTk $token ): ?TokenHandlerResult {
+	public function onNewline( NlTk $token ): ?array {
 		$self = $this;
 		$this->env->trace( 'tsp', $this->pipelineId,
 			static function () use ( $self, $token ) {
@@ -96,13 +96,13 @@ class TokenStreamPatcher extends TokenHandler {
 		$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
 		$this->tokenBuf[] = $token;
 		$this->sol = true;
-		return new TokenHandlerResult( [] );
+		return [];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
+	public function onEnd( EOFTk $token ): ?array {
 		$res = $this->onAny( $token );
 		$this->reset();
 		return $res;
@@ -124,7 +124,7 @@ class TokenStreamPatcher extends TokenHandler {
 	 * @param int|false $srcOffset See TokenUtils::shiftTokenTSR, which has b/c for null
 	 * @param array $toks
 	 * @param bool $popEOF
-	 * @return array
+	 * @return array<string|Token>
 	 */
 	private function reprocessTokens( $srcOffset, array $toks, bool $popEOF = false ): array {
 		// Update tsr
@@ -148,6 +148,9 @@ class TokenStreamPatcher extends TokenHandler {
 		return $toks;
 	}
 
+	/**
+	 * @return array<string|Token>
+	 */
 	private function convertTokenToString( Token $token ): array {
 		$da = $token->dataParsoid;
 		$tsr = $da->tsr ?? null;
@@ -176,7 +179,6 @@ class TokenStreamPatcher extends TokenHandler {
 					return [ implode( '', $token->getAttributeV( 'bullets' ) ) ];
 			}
 
-			// No conversion if we get here
 			return [ $token ];
 		}
 	}
@@ -184,7 +186,7 @@ class TokenStreamPatcher extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	public function onAny( $token ): ?array {
 		try {
 			return $this->onAnyInternal( $token );
 		} finally {
@@ -197,10 +199,10 @@ class TokenStreamPatcher extends TokenHandler {
 	}
 
 	/**
-	 * @param mixed $token
-	 * @return ?TokenHandlerResult
+	 * @param string|Token $token
+	 * @return ?array<string|Token>
 	 */
-	public function onAnyInternal( $token ): ?TokenHandlerResult {
+	public function onAnyInternal( $token ): ?array {
 		$self = $this;
 		$this->env->trace( 'tsp', $this->pipelineId,
 			static function () use ( $self, $token ) {
@@ -219,7 +221,7 @@ class TokenStreamPatcher extends TokenHandler {
 				// white-space as well.
 				if ( count( $this->tokenBuf ) > 0 && preg_match( '/^\s*$/D', $token ) ) {
 					$this->tokenBuf[] = $token;
-					return new TokenHandlerResult( [] );
+					return [];
 				}
 
 				// This is only applicable where we use Parsoid's (broken) native preprocessor.
@@ -300,7 +302,7 @@ class TokenStreamPatcher extends TokenHandler {
 						// If we have buffered newlines, we might very well encounter
 						// a category link, so continue buffering.
 						$this->tokenBuf[] = $token;
-						return new TokenHandlerResult( [] );
+						return [];
 					}
 				} elseif ( TokenUtils::isSolTransparentLinkTag( $token ) ) {
 					// Replace buffered newline & whitespace tokens with mw:EmptyLine
@@ -390,7 +392,11 @@ class TokenStreamPatcher extends TokenHandler {
 		if ( count( $this->tokenBuf ) > 0 ) {
 			$tokens = array_merge( $this->tokenBuf, $tokens );
 			$this->tokenBuf = [];
+		} elseif ( $tokens === [ $token ] ) {
+			// Adhere to convention: if input is unmodified, return null.
+			$tokens = null;
 		}
-		return new TokenHandlerResult( $tokens );
+
+		return $tokens;
 	}
 }

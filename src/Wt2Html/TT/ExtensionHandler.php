@@ -56,7 +56,10 @@ class ExtensionHandler extends TokenHandler {
 		return $options;
 	}
 
-	private function onExtension( Token $token ): TokenHandlerResult {
+	/**
+	 * @return array<string|Token>
+	 */
+	private function onExtension( Token $token ): array {
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
 		$pageConfig = $env->getPageConfig();
@@ -132,13 +135,13 @@ class ExtensionHandler extends TokenHandler {
 					$toks = $this->onDocumentFragment(
 						$token, $domFragment, $dataMw, $errors
 					);
-					return new TokenHandlerResult( $toks );
+					return $toks;
 				} else {
 					// The extension dropped this instance completely (!!)
 					// Should be a rarity and presumably the extension
 					// knows what it is doing. Ex: nested refs are dropped
 					// in some scenarios.
-					return new TokenHandlerResult( [] );
+					return [];
 				}
 			}
 			// Fall through: this extension is electing not to use
@@ -156,8 +159,7 @@ class ExtensionHandler extends TokenHandler {
 		if ( !$domFragment ) {
 			$domFragment = DOMUtils::parseHTMLToFragment( $env->getTopLevelDoc(), '' );
 		}
-		$toks = $this->onDocumentFragment( $token, $domFragment, $dataMw, [] );
-		return new TokenHandlerResult( $toks );
+		return $this->onDocumentFragment( $token, $domFragment, $dataMw, [] );
 	}
 
 	/**
@@ -167,7 +169,7 @@ class ExtensionHandler extends TokenHandler {
 	 * @param DocumentFragment $domFragment
 	 * @param DataMw $dataMw
 	 * @param list<DataMwError> $errors
-	 * @return array
+	 * @return array<string|Token>
 	 */
 	private function onDocumentFragment(
 		Token $extToken, DocumentFragment $domFragment, DataMw $dataMw,
@@ -268,7 +270,7 @@ class ExtensionHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	public function onTag( Token $token ): ?array {
 		return $token->getName() === 'extension' ? $this->onExtension( $token ) : null;
 	}
 

@@ -127,7 +127,7 @@ class SanitizerHandler extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	public function onAny( $token ): ?array {
 		if ( is_string( $token ) ) {
 			return null;
 		}
@@ -140,11 +140,11 @@ class SanitizerHandler extends TokenHandler {
 			return null;
 		}
 
-		$token = $this->sanitizeToken(
+		$newToken = $this->sanitizeToken(
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate
 		);
 
-		$env->trace( 'sanitizer', $this->pipelineId, $token );
-		return $token === null ? null : new TokenHandlerResult( [ $token ] );
+		$env->trace( 'sanitizer', $this->pipelineId, $newToken );
+		return ( $newToken === null || $newToken === $token ) ? null : [ $newToken ];
 	}
 }

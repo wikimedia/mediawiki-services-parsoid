@@ -28,7 +28,7 @@ class TraceProxy extends TokenHandler {
 	/**
 	 * @param string $func
 	 * @param string|Token $token
-	 * @return TokenHandlerResult|null
+	 * @return ?array<string|Token>
 	 */
 	private function traceEvent( string $func, $token ) {
 		$this->env->trace(
@@ -54,23 +54,20 @@ class TraceProxy extends TokenHandler {
 		return $res;
 	}
 
-	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
+	public function onEnd( EOFTk $token ): ?array {
 		return $this->traceEvent( 'onEnd', $token );
 	}
 
-	public function onNewline( NlTk $token ): ?TokenHandlerResult {
+	public function onNewline( NlTk $token ): ?array {
 		return $this->traceEvent( 'onNewline', $token );
 	}
 
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	public function onTag( Token $token ): ?array {
 		return $this->traceEvent( 'onTag', $token );
 	}
 
-	/**
-	 * @param string|Token $token
-	 * @return TokenHandlerResult|null
-	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	/** @inheritDoc */
+	public function onAny( $token ): ?array {
 		return $this->traceEvent( 'onAny', $token );
 	}
 

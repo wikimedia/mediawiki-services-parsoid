@@ -34,11 +34,9 @@ class BehaviorSwitchHandler extends TokenHandler {
 	/**
 	 * Main handler.
 	 * See {@link TokenHandlerPipeline#addTransform}'s transformation parameter.
-	 *
-	 * @param Token $token
-	 * @return TokenHandlerResult
+	 * @return array<Token>
 	 */
-	public function onBehaviorSwitch( Token $token ): TokenHandlerResult {
+	public function onBehaviorSwitch( Token $token ): array {
 		$env = $this->env;
 		$magicWord = $env->getSiteConfig()->getMagicWordForBehaviorSwitch( $token->attribs[0]->v );
 		$env->setBehaviorSwitch( $magicWord, true );
@@ -62,13 +60,13 @@ class BehaviorSwitchHandler extends TokenHandler {
 			[ new KV( 'property', 'mw:PageProp/' . $magicWord ) ],
 			clone $token->dataParsoid
 		);
-		return new TokenHandlerResult( [ $metaToken ] );
+		return [ $metaToken ];
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	public function onTag( Token $token ): ?array {
 		return $token->getName() === 'behavior-switch' ? $this->onBehaviorSwitch( $token ) : null;
 	}
 }

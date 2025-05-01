@@ -7,7 +7,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 abstract class TokenHandler {
@@ -63,20 +62,20 @@ abstract class TokenHandler {
 	/**
 	 * This handler is called for EOF tokens only
 	 * @param EOFTk $token EOF token to be processed
-	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 * @return ?array<string|Token> A token array or null to efficiently
 	 *   indicate that the input token is unchanged.
 	 */
-	public function onEnd( EOFTk $token ): ?TokenHandlerResult {
+	public function onEnd( EOFTk $token ): ?array {
 		return null;
 	}
 
 	/**
 	 * This handler is called for newline tokens only
 	 * @param NlTk $token Newline token to be processed
-	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 * @return ?array<string|Token> A token array or null to efficiently
 	 *   indicate that the input token is unchanged.
 	 */
-	public function onNewline( NlTk $token ): ?TokenHandlerResult {
+	public function onNewline( NlTk $token ): ?array {
 		return null;
 	}
 
@@ -86,10 +85,10 @@ abstract class TokenHandler {
 	 * For example, a list handler may only process 'listitem' TagTk tokens.
 	 *
 	 * @param Token $token Token to be processed
-	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 * @return ?array<string|Token> A token array, or null to efficiently
 	 *   indicate that the input token is unchanged.
 	 */
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	public function onTag( Token $token ): ?array {
 		return null;
 	}
 
@@ -102,33 +101,20 @@ abstract class TokenHandler {
 	 *     of the handlers).
 	 *
 	 * @param Token|string $token Token to be processed
-	 * @return TokenHandlerResult|null A TokenHandlerResult, or null to efficiently
+	 * @return ?array<string|Token> A token array, or null to efficiently
 	 *   indicate that the input token is unchanged.
 	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	public function onAny( $token ): ?array {
 		return null;
 	}
 
 	/**
-	 * @param mixed $token
-	 * @param TokenHandlerResult $res
-	 * @return bool
+	 * Push an input array of tokens through the handler
+	 * and return a new array of transformed tokens.
 	 */
-	private function isModified( $token, $res ): bool {
-		return $res->tokens !== [ $token ];
-	}
-
-	/**
-	 * Push an input array of tokens through the transformer
-	 * and return the transformed tokens
-	 * @param array $tokens
-	 * @return array
-	 */
-	public function process( $tokens ): array {
+	public function process( array $tokens ): array {
 		$accum = [];
 		foreach ( $tokens as $token ) {
-			$res = null;
-			$resTokens = null; // Not needed but helpful for code comprehension
 			if ( $token instanceof NlTk ) {
 				$res = $this->onNewline( $token );
 			} elseif ( $token instanceof EOFTk ) {
@@ -139,22 +125,17 @@ abstract class TokenHandler {
 				$res = null;
 			}
 
-			$modified = $res && $this->isModified( $token, $res );
-			if ( $modified ) {
-				$resTokens = $res->tokens;
-			} elseif ( $this->onAnyEnabled ) {
+			if ( $res === null && $this->onAnyEnabled ) {
 				$res = $this->onAny( $token );
-				$modified = $res && $this->isModified( $token, $res );
-				if ( $modified ) {
-					$resTokens = $res->tokens;
-				}
 			}
 
-			if ( !$modified ) {
+			if ( $res === null ) {
 				$accum[] = $token;
-			} elseif ( $resTokens ) {
+			} else {
 				// Avoid array_merge() -- see https://w.wiki/3zvE
-				PHPUtils::pushArray( $accum, $resTokens );
+				foreach ( $res as $t ) {
+					$accum[] = $t;
+				}
 			}
 		}
 

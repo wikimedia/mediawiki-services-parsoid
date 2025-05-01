@@ -30,23 +30,23 @@ class OnlyInclude extends TokenHandler {
 	/**
 	 * @inheritDoc
 	 */
-	public function onAny( $token ): ?TokenHandlerResult {
+	public function onAny( $token ): ?array {
 		return !empty( $this->options['inTemplate'] ) ?
 			$this->onAnyInclude( $token ) : null;
 	}
 
 	/**
 	 * @param Token|array $token
-	 * @return TokenHandlerResult|null
+	 * @return ?array<string|Token>
 	 */
-	private function onAnyInclude( $token ): ?TokenHandlerResult {
+	private function onAnyInclude( $token ): ?array {
 		if ( $token instanceof EOFTk ) {
 			$this->inOnlyInclude = false;
 			if ( count( $this->accum ) && !$this->foundOnlyInclude ) {
 				$res = $this->accum;
 				$res[] = $token;
 				$this->accum = [];
-				return new TokenHandlerResult( $res );
+				return $res;
 			} else {
 				$this->foundOnlyInclude = false;
 				$this->accum = [];
@@ -84,13 +84,13 @@ class OnlyInclude extends TokenHandler {
 				'meta', [ new KV( 'typeof', $tagName ) ], $dp
 			);
 
-			return new TokenHandlerResult( [ $meta ] );
+			return [ $meta ];
 		} else {
 			if ( $this->inOnlyInclude ) {
 				return null;
 			} else {
 				$this->accum[] = $token;
-				return new TokenHandlerResult( [] );
+				return [];
 			}
 		}
 	}

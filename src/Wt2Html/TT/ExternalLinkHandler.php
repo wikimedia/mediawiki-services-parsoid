@@ -75,7 +75,10 @@ class ExternalLinkHandler extends TokenHandler {
 			} );
 	}
 
-	private function onUrlLink( Token $token ): ?TokenHandlerResult {
+	/**
+	 * @return ?array<string|Token>
+	 */
+	private function onUrlLink( Token $token ): ?array {
 		$tagAttrs = null;
 		$builtTag = null;
 		$env = $this->env;
@@ -95,8 +98,7 @@ class ExternalLinkHandler extends TokenHandler {
 			// combine with existing rdfa attrs
 			$tagAttrs = WikiLinkHandler::buildLinkAttrs(
 				$token->attribs, false, null, $tagAttrs )['attribs'];
-			return new TokenHandlerResult(
-				[ new SelfclosingTagTk( 'img', $tagAttrs, $dataParsoid, $dataMw ) ] );
+			return [ new SelfclosingTagTk( 'img', $tagAttrs, $dataParsoid, $dataMw ) ];
 		} else {
 			$tagAttrs = [
 				new KV( 'rel', 'mw:ExtLink' )
@@ -121,27 +123,26 @@ class ExternalLinkHandler extends TokenHandler {
 
 			$dp = new DataParsoid;
 			$dp->tsr = $dataParsoid->tsr->expandTsrK()->value;
-			return new TokenHandlerResult( [
-					$builtTag,
-					// Make sure there are no IDN-ignored characters in the text so
-					// the user doesn't accidentally copy any.
-					Sanitizer::cleanUrl( $env->getSiteConfig(), $href, '' ), // mode could be 'wikilink'
-					new EndTagTk(
-						'a',
-						[],
-						$dp
-					)
-				]
-			);
+			return [
+				$builtTag,
+				// Make sure there are no IDN-ignored characters in the text so
+				// the user doesn't accidentally copy any.
+				Sanitizer::cleanUrl( $env->getSiteConfig(), $href, '' ), // mode could be 'wikilink'
+				new EndTagTk(
+					'a',
+					[],
+					$dp
+				)
+			];
 		}
 	}
 
 	/**
 	 * Bracketed external link
 	 * @param Token $token
-	 * @return TokenHandlerResult|null
+	 * @return ?array<string|Token>
 	 */
-	private function onExtLink( Token $token ): ?TokenHandlerResult {
+	private function onExtLink( Token $token ): ?array {
 		$newAttrs = null;
 		$aStart = null;
 		$env = $this->env;
@@ -187,7 +188,7 @@ class ExternalLinkHandler extends TokenHandler {
 			$aStart = new TagTk( 'a', $newAttrs, $dataParsoid, $dataMw );
 			$tokens = array_merge( [ $aStart ],
 				is_array( $content ) ? $content : [ $content ], [ new EndTagTk( 'a' ) ] );
-			return new TokenHandlerResult( $tokens );
+			return $tokens;
 		} elseif ( ( !$hasExpandedAttrs && is_string( $origHref ) ) ||
 					$this->urlParser->tokenizeURL( $hrefWithEntities ) !== false
 		) {
@@ -237,16 +238,15 @@ class ExternalLinkHandler extends TokenHandler {
 				[ 'inlineContext' => true, 'token' => $token ]
 			);
 
-			$tokens = [ $aStart, $content, new EndTagTk( 'a' ) ];
-			return new TokenHandlerResult( $tokens );
+			return [ $aStart, $content, new EndTagTk( 'a' ) ];
 		} else {
 			// Not a link, convert href to plain text.
-			return new TokenHandlerResult( WikiLinkHandler::bailTokens( $this->manager, $token ) );
+			return WikiLinkHandler::bailTokens( $this->manager, $token );
 		}
 	}
 
 	/** @inheritDoc */
-	public function onTag( Token $token ): ?TokenHandlerResult {
+	public function onTag( Token $token ): ?array {
 		switch ( $token->getName() ) {
 			case 'urllink':
 				return $this->onUrlLink( $token );
