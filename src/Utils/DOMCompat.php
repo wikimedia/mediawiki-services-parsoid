@@ -39,8 +39,9 @@ use Wikimedia\Zest\Zest;
  *
  * Exception to the above: ::nodeName method is not so much a DOM compatibility
  * method in the sense above, but a proxy to let us support multiple DOM libraries
- * agains the Parsoid codebase that may do different things. And, the default
- * behavior is tailored for performance vs. being HTML-standards-compliant.
+ * against the Parsoid codebase that expects lower-case names. In this specific
+ * instance the default behavior is tailored for performance vs. being
+ * HTML-standards-compliant.
  */
 class DOMCompat {
 
