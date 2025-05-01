@@ -3,6 +3,7 @@
 namespace Test\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
 use Wikimedia\TestingAccessWrapper;
 
@@ -13,9 +14,7 @@ use Wikimedia\TestingAccessWrapper;
  */
 class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	private static function parse( string $html, int $options = 0 ) {
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, $options );
-		return $doc;
+		return DOMUtils::parseHTML( $html );
 	}
 
 	/**
@@ -161,19 +160,19 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::serialize
 	 */
 	public function testSerialize_quotes() {
-		$html = '<html><body>'
+		$html = '<html><head></head><body>'
 			. '<div attr="&quot;&apos;&quot;"></div>'
 			. '<div attr=\'&quot;&apos;&quot;\'></div>'
 			. '<div attr="&apos;&quot;&apos;"></div>'
 			. '<div attr=\'&apos;&quot;&apos;\'></div>'
 			. '</body></html>';
-		$expectedNonSmart = "<!DOCTYPE html>\n<html><body>"
+		$expectedNonSmart = "<!DOCTYPE html>\n<html><head></head><body>"
 			. '<div attr="&quot;\'&quot;"></div>'
 			. '<div attr="&quot;\'&quot;"></div>'
 			. '<div attr="\'&quot;\'"></div>'
 			. '<div attr="\'&quot;\'"></div>'
 			. '</body></html>';
-		$expectedSmart = "<!DOCTYPE html>\n<html><body>"
+		$expectedSmart = "<!DOCTYPE html>\n<html><head></head><body>"
 			. '<div attr=\'"&apos;"\'></div>'
 			. '<div attr=\'"&apos;"\'></div>'
 			. '<div attr="\'&quot;\'"></div>'
@@ -198,10 +197,10 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	public function testSerialize_emptyElements() {
 		// Must have a single root node, otherwise libxml messes up parsing in NOIMPLIED mode.
 		$html = '<div><span /><hr/></div>';
-		$expectedHtml = '<div><span></span><hr/></div>';
-		$doc = self::parse( $html, LIBXML_HTML_NOIMPLIED );
+		$expectedHtml = '<div><span><hr/></span></div>';
+		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
+		$ret = XMLSerializer::serialize( DOMCompat::getBody( $doc )->firstChild, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
@@ -211,10 +210,10 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::serialize
 	 */
 	public function testSerialize_rawContent() {
-		$html = '<script>x</script>';
-		$doc = self::parse( $html, LIBXML_HTML_NOIMPLIED );
+		$html = '<body><script>x</script></body>';
+		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
+		$ret = XMLSerializer::serialize( DOMCompat::getBody( $doc ), [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $html, $ret['html'] );
@@ -224,14 +223,16 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::serialize
 	 */
 	public function testSerialize_newlineStrippingElements() {
-		// Must have a single root node, otherwise libxml messes up parsing in NOIMPLIED mode.
-		// This test looks confusing because Document::loadHTML doesn't fully follow the spec;
-		// it should strip the first newline within a pre block.
+		// This test looks confusing because we don't want to trust
+		// that the parser necessarily parses the contents correctly.
 		$html = "<div><pre>\n</pre><div>\n</div></div>";
 		$expectedHtml = "<div><pre>\n\n</pre><div>\n</div></div>";
-		$doc = self::parse( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = self::parse( $html );
+		$div = DOMCompat::getBody( $doc )->firstChild;
+		$pre = $div->firstChild;
+		DOMCompat::replaceChildren( $pre, $doc->createTextNode( "\n" ) );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
+		$ret = XMLSerializer::serialize( $div, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );

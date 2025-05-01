@@ -88,6 +88,9 @@ class DOMCompat {
 		if ( $document->body !== null ) {
 			return $document->body;
 		}
+		if ( $document->documentElement === null ) {
+			return null;
+		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var Element $element */
 			$nodeName = self::nodeName( $element );
@@ -114,6 +117,9 @@ class DOMCompat {
 		// document head changes.
 		if ( isset( $document->head ) ) {
 			return $document->head;
+		}
+		if ( $document->documentElement === null ) {
+			return null;
 		}
 		foreach ( $document->documentElement->childNodes as $element ) {
 			/** @var Element $element */

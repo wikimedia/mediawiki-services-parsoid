@@ -6,6 +6,7 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMPostOrder;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 
 class DOMPostOrderTest extends \PHPUnit\Framework\TestCase {
 
@@ -26,8 +27,7 @@ class DOMPostOrderTest extends \PHPUnit\Framework\TestCase {
 	</div>
 </body></html>
 HTML;
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 
 		DOMPostOrder::traverse( $doc->documentElement, static function ( Node $node ) use ( &$trace ) {
 			if ( $node instanceof Element && $node->hasAttribute( 'id' ) ) {

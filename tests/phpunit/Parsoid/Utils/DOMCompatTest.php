@@ -21,14 +21,17 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testGetBody() {
 		$html = '<html><head><title>Foo</title></head><body id="x"><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$body = DOMCompat::getBody( $doc );
 		$this->assertSameNode( $body, $doc->getElementById( 'x' ) );
 
 		$html = '<html><head><title>Foo</title></head></html>';
+		$doc = DOMUtils::parseHTML( $html );
+		$body = DOMCompat::getBody( $doc );
+		$this->assertNotNull( $body );
+		$this->assertNull( $body->firstChild );
+
 		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 		$body = DOMCompat::getBody( $doc );
 		$this->assertNull( $body );
 	}
@@ -38,14 +41,17 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testGetHead() {
 		$html = '<html><head id="x"><title>Foo</title></head><body><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$head = DOMCompat::getHead( $doc );
 		$this->assertSameNode( $head, $doc->getElementById( 'x' ) );
 
 		$html = '<html><body><div>y</div></body></html>';
+		$doc = DOMUtils::parseHTML( $html );
+		$head = DOMCompat::getHead( $doc );
+		$this->assertNotNull( $head );
+		$this->assertNull( $head->firstChild );
+
 		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 		$head = DOMCompat::getHead( $doc );
 		$this->assertNull( $head );
 	}
@@ -55,20 +61,17 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testGetTitle() {
 		$html = '<html><head><title>Foo</title></head><body><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$title = DOMCompat::getTitle( $doc );
 		$this->assertSame( 'Foo', $title );
 
 		$html = '<html><head><title> Foo&#9;Bar  </title></head><body><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$title = DOMCompat::getTitle( $doc );
 		$this->assertSame( 'Foo Bar', $title );
 
 		$html = '<html><body><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = DOMUtils::parseHTML( $html );
 		$title = DOMCompat::getTitle( $doc );
 		$this->assertSame( '', $title );
 	}
@@ -77,10 +80,9 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::setTitle()
 	 */
 	public function testSetTitle() {
-		// modify <title> if it is exist
+		// modify <title> if it exists
 		$html = '<html><head><title>Foo</title></head><body><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		DOMCompat::setTitle( $doc, 'Bar' );
 		$title = $doc->getElementsByTagName( 'title' )->item( 0 );
 		$this->assertInstanceOf( Element::class, $title );
@@ -88,8 +90,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 		// ...even if it is not in <head>
 		$html = '<html><body><title>Foo</title><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = DOMUtils::parseHTML( $html );
 		DOMCompat::setTitle( $doc, 'Bar' );
 		$title = $doc->getElementsByTagName( 'title' )->item( 0 );
 		$this->assertInstanceOf( Element::class, $title );
@@ -97,8 +98,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 
 		// append it to <head> if it does not exist
 		$html = '<html><head><style></style></head><body><div>y</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
+		$doc = DOMUtils::parseHTML( $html );
 		DOMCompat::setTitle( $doc, 'Bar' );
 		$title = $doc->getElementsByTagName( 'title' )->item( 0 );
 		$this->assertInstanceOf( Element::class, $title );
@@ -107,9 +107,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $title, $title->parentNode->lastChild );
 
 		// bail out if there's no <head>
-		$html = '<html><body><div>y</div></body></html>';
 		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html, LIBXML_HTML_NOIMPLIED );
 		DOMCompat::setTitle( $doc, 'Bar' );
 		$head = $doc->getElementsByTagName( 'head' )->item( 0 );
 		$this->assertNull( $head );
@@ -123,15 +121,13 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	public function testGetParentElement() {
 		// has parent element
 		$html = '<html><body id="x"><div>1</div><div id="y">2</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$element = $doc->getElementById( 'y' );
 		$this->assertSame( $doc->getElementById( 'x' ), DOMCompat::getParentElement( $element ) );
 
 		// no parent element
 		$html = '<html></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$this->assertNull( DOMCompat::getParentElement( $doc->documentElement ) );
 
 		// TODO is it possible to have a node with non-Element parent element?
@@ -142,13 +138,12 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testGetElementById() {
 		$html = '<html><body><div id="x"></div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 
 		$x = $doc->getElementById( 'x' );
 		$this->assertSame( $x, DOMCompat::getElementById( $doc, 'x' ) );
 
-		$x->parentNode->removeChild( $x );
+		DOMCompat::remove( $x );
 
 		// https://bugs.php.net/bug.php?id=77686
 		if ( version_compare( PHP_VERSION, '8.1.20', '>' ) ) {
@@ -164,8 +159,8 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testGetFirstElementChild() {
 		$html = '<html><body> <!-- foo --> <div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
+		DOMCompat::remove( DOMCompat::getHead( $doc ) );
 		$html = $doc->getElementsByTagName( 'html' )->item( 0 );
 		'@phan-var Element $html'; /** @var Element $html */
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
@@ -175,8 +170,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSameNode( $body, DOMCompat::getFirstElementChild( $html ) );
 
 		$html = '<html><body></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		'@phan-var Element $body'; /** @var Element $body */
 		$this->assertNull( DOMCompat::getFirstElementChild( $body ) );
@@ -187,8 +181,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testGetLastElementChild() {
 		$html = '<html><body><div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$html = $doc->getElementsByTagName( 'html' )->item( 0 );
 		'@phan-var Element $html'; /** @var Element $html */
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
@@ -198,8 +191,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSameNode( $body, DOMCompat::getLastElementChild( $html ) );
 
 		$html = '<html><body></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		'@phan-var Element $body'; /** @var Element $body */
 		$this->assertNull( DOMCompat::getLastElementChild( $body ) );
@@ -214,8 +206,8 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 * @param string|null $expectedDataIds
 	 */
 	public function testQuerySelector( $html, $selector, $contextCallback, $expectedDataIds ) {
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
+		DOMCompat::remove( DOMCompat::getHead( $doc ) );
 		$context = $contextCallback ? $contextCallback( $doc ) : $doc->documentElement;
 		$result = DOMCompat::querySelector( $context, $selector );
 
@@ -233,8 +225,8 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 	 * @param string|null $expectedDataIds
 	 */
 	public function testQuerySelectorAll( $html, $selector, $contextCallback, $expectedDataIds ) {
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
+		DOMCompat::remove( DOMCompat::getHead( $doc ) );
 		$context = $contextCallback ? $contextCallback( $doc ) : $doc->documentElement;
 		$results = DOMCompat::querySelectorAll( $context, $selector );
 
@@ -451,8 +443,7 @@ HTML;
 	 */
 	public function testGetPreviousElementSibling() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$a = $doc->getElementById( 'a' );
 		$b = $doc->getElementById( 'b' );
 		$c = $doc->getElementById( 'c' );
@@ -466,8 +457,7 @@ HTML;
 	 */
 	public function testGetNextElementSibling() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b"></div><div id="c"></div>3</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$a = $doc->getElementById( 'a' );
 		$b = $doc->getElementById( 'b' );
 		$c = $doc->getElementById( 'c' );
@@ -480,9 +470,8 @@ HTML;
 	 * @covers ::append()
 	 */
 	public function testAppend() {
-		$html = '<html><body><div id="a">abc</div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$html = '<html><head></head><body><div id="a">abc</div></body></html>';
+		$doc = DOMUtils::parseHTML( $html );
 
 		$df = $doc->createDocumentFragment();
 		$df->appendChild( $doc->createTextNode( "1" ) );
@@ -497,7 +486,7 @@ HTML;
 			'y&z'
 		);
 		$this->assertSame(
-			'<html><body><div id="a">abcdef1<span></span>2<b></b>y&amp;z</div></body></html>',
+			'<html><head></head><body><div id="a">abcdef1<span></span>2<b></b>y&amp;z</div></body></html>',
 			DOMCompat::getOuterHTML( $doc->documentElement )
 		);
 	}
@@ -506,9 +495,8 @@ HTML;
 	 * @covers ::remove()
 	 */
 	public function testRemove() {
-		$html = '<html><body><div id="a"></div><div id="b"><span id="c">1</span></div>2</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$html = '<html><head></head><body><div id="a"></div><div id="b"><span id="c">1</span></div>2</body></html>';
+		$doc = DOMUtils::parseHTML( $html );
 
 		// do not error when element has no parent
 		$elmt = $doc->createElement( 'div' );
@@ -521,8 +509,10 @@ HTML;
 		DOMCompat::remove( $b );
 		$this->assertNotNull( $doc->getElementById( 'a' ) );
 
-		$this->assertSame( '<html><body><div id="a"></div>2</body></html>',
-			DOMCompat::getOuterHTML( $doc->documentElement ) );
+		$this->assertSame(
+			'<html><head></head><body><div id="a"></div>2</body></html>',
+			DOMCompat::getOuterHTML( $doc->documentElement )
+		);
 
 		// https://bugs.php.net/bug.php?id=77686
 		if ( version_compare( PHP_VERSION, '8.1.20', '>' ) ) {
@@ -536,15 +526,19 @@ HTML;
 	 */
 	public function testGetInnerHTML() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
+		DOMCompat::remove( DOMCompat::getHead( $doc ) );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		'@phan-var Element $body'; /** @var Element $body */
 		$b = $doc->getElementById( 'b' );
-		$this->assertSame( '<body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body>',
-			DOMCompat::getInnerHTML( $doc->documentElement ) );
-		$this->assertSame( '0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3',
-			DOMCompat::getInnerHTML( $body ) );
+		$this->assertSame(
+			'<body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body>',
+			DOMCompat::getInnerHTML( $doc->documentElement )
+		);
+		$this->assertSame(
+			'0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3',
+			DOMCompat::getInnerHTML( $body )
+		);
 		$this->assertSame( '2', DOMCompat::getInnerHTML( $b ) );
 	}
 
@@ -554,14 +548,18 @@ HTML;
 	public function testSetInnerHTML() {
 		$html = '<html><body><div>1</div><div>2</div>3</body></html>';
 		$innerHtml = '<div>4</div><!-- 5 -->6';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		'@phan-var Element $body'; /** @var Element $body */
 		DOMCompat::setInnerHTML( $body, $innerHtml );
-		$this->assertSame( "<body>$innerHtml</body>", $doc->saveXML( $body, LIBXML_NSCLEAN ) );
-		$this->assertSame( '4',
-			$doc->getElementsByTagName( 'body' )->item( 0 )->firstChild->textContent );
+		$this->assertSame(
+			"<body>$innerHtml</body>",
+			DOMCompat::getOuterHTML( $body )
+		);
+		$this->assertSame(
+			'4',
+			$doc->getElementsByTagName( 'body' )->item( 0 )->firstChild->textContent
+		);
 	}
 
 	/**
@@ -569,17 +567,23 @@ HTML;
 	 */
 	public function testGetOuterHTML() {
 		$html = '<html><body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
+		DOMCompat::remove( DOMCompat::getHead( $doc ) );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		'@phan-var Element $body'; /** @var Element $body */
 		$b = $doc->getElementById( 'b' );
 		$this->assertSame(
 			'<html><body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body></html>',
-			DOMCompat::getOuterHTML( $doc->documentElement ) );
-		$this->assertSame( '<body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body>',
-			DOMCompat::getOuterHTML( $body ) );
-		$this->assertSame( '<div id="b">2</div>', DOMCompat::getOuterHTML( $b ) );
+			DOMCompat::getOuterHTML( $doc->documentElement )
+		);
+		$this->assertSame(
+			'<body>0<div id="a"></div>1<div id="b">2</div><div id="c"></div>3</body>',
+			DOMCompat::getOuterHTML( $body )
+		);
+		$this->assertSame(
+			'<div id="b">2</div>',
+			DOMCompat::getOuterHTML( $b )
+		);
 	}
 
 	/**
@@ -588,8 +592,7 @@ HTML;
 	 */
 	public function testGetClassList() {
 		$html = '<html><body><div id="x" class=" a  b&#9;c "></div></body></html>';
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadHTML( $html );
+		$doc = DOMUtils::parseHTML( $html );
 		$x = $doc->getElementById( 'x' );
 		$classList = DOMCompat::getClassList( $x );
 		$this->assertInstanceOf( TokenList::class, $classList );
@@ -652,8 +655,7 @@ HTML;
 	 * @dataProvider provideNormalize
 	 */
 	public function testNormalize( $textNodeCount, $interleaveSpan, $expectedNodeCount ) {
-		$doc = DOMCompat::newDocument( true );
-		$doc->loadXML( "<html><body></body></html>" );
+		$doc = DOMUtils::parseHTML( "<html><body></body></html>" );
 		$body = $doc->getElementsByTagName( 'body' )->item( 0 );
 		$div = $doc->createElement( 'div' );
 		$body->appendChild( $div );

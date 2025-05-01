@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
+use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\DTState;
 
 class DOMTraverserTest extends \PHPUnit\Framework\TestCase {
@@ -45,8 +46,7 @@ HTML;
 		if ( $withTplInfo || $processAttrEmbeddedHTML ) {
 			$doc = ContentUtils::createAndLoadDocument( $html );
 		} else {
-			$doc = DOMCompat::newDocument( true );
-			$doc->loadHTML( $html );
+			$doc = DOMUtils::parseHTML( $html );
 		}
 
 		$state = new DTState( $env, [], true );
