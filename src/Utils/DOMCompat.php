@@ -11,8 +11,8 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
+use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
 use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
-use Wikimedia\RemexHtml\DOM\DOMBuilder;
 use Wikimedia\RemexHtml\HTMLData;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
@@ -374,19 +374,7 @@ class DOMCompat {
 	 * @param string $html
 	 */
 	public static function setInnerHTML( $element, string $html ): void {
-		$domBuilder = new class( [
-			'suppressHtmlNamespace' => true,
-		] ) extends DOMBuilder {
-			/** @inheritDoc */
-			protected function createDocument(
-				?string $doctypeName = null,
-				?string $public = null,
-				?string $system = null
-			) {
-				// @phan-suppress-next-line PhanTypeMismatchReturn
-				return DOMCompat::newDocument( $doctypeName === 'html' );
-			}
-		};
+		$domBuilder = new DOMBuilder; // Our version, not Remex's
 		$treeBuilder = new TreeBuilder( $domBuilder );
 		$dispatcher = new Dispatcher( $treeBuilder );
 		$tokenizer = new Tokenizer( $dispatcher, $html, [ 'ignoreErrors' => true ] );
