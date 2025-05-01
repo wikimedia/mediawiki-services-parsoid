@@ -33,7 +33,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Language;
 
-use DOMDocument;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Config\Env;
@@ -355,13 +354,13 @@ class LanguageConverter {
 	 * Convert a string in an unknown variant of the page language to all its possible variants.
 	 *
 	 * @param Env $env
-	 * @param DOMDocument $doc
+	 * @param Document $doc
 	 * @param string $text
 	 * @return string[] map of converted variants keyed by variant language
 	 */
 	public static function autoConvertToAllVariants(
 		Env $env,
-		DOMDocument $doc,
+		Document $doc,
 		string $text
 	): array {
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
@@ -396,6 +395,7 @@ class LanguageConverter {
 				}
 
 				$fragment = $machine->convert(
+					// @phan-suppress-next-line PhanTypeMismatchArgument DOM library issues
 					$doc,
 					$text,
 					$destCode,

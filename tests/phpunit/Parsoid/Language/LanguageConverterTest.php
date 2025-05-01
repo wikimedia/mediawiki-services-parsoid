@@ -1,20 +1,20 @@
 <?php
 namespace Test\Parsoid\Language;
 
-use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Language\LanguageConverter;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\DOMCompat;
 
 class LanguageConverterTest extends TestCase {
 
 	/** @covers \Wikimedia\Parsoid\Language\LanguageConverter::autoConvertToAllVariants */
 	public function testAutoConvertShouldReturnNoResultsIfNoConverterExistsForPageLanguage(): void {
 		$env = self::getMockEnv( 'de' );
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 
 		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
 
@@ -24,7 +24,7 @@ class LanguageConverterTest extends TestCase {
 	/** @covers \Wikimedia\Parsoid\Language\LanguageConverter::autoConvertToAllVariants */
 	public function testAutoConvertShouldReturnNoResultsIfConvertedTextIsTheSame(): void {
 		$env = self::getMockEnv( 'sr' );
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 
 		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, '123' );
 
@@ -34,7 +34,7 @@ class LanguageConverterTest extends TestCase {
 	/** @covers \Wikimedia\Parsoid\Language\LanguageConverter::autoConvertToAllVariants */
 	public function testAutoConvertShouldReturnResultsKeyedByVariantCode(): void {
 		$env = self::getMockEnv( 'sr' );
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 
 		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
 
@@ -44,7 +44,7 @@ class LanguageConverterTest extends TestCase {
 	/** @covers \Wikimedia\Parsoid\Language\LanguageConverter::autoConvertToAllVariants */
 	public function testShouldNotPerformAutoConvertForChinese(): void {
 		$env = self::getMockEnv( 'zh' );
-		$doc = new DOMDocument();
+		$doc = DOMCompat::newDocument( true );
 
 		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
 
