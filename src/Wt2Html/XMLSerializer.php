@@ -79,8 +79,10 @@ class XMLSerializer {
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				'@phan-var Element $node'; // @var Element $node
-				$child = $node->firstChild;
 				$nodeName = DOMCompat::nodeName( $node );
+				$child = $nodeName === 'template' ?
+					DOMCompat::getTemplateElementContent( $node )->firstChild :
+					$node->firstChild;
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
 				$attrs = DOMUtils::attributes( $node );

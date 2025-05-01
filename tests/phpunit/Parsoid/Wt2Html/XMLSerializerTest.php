@@ -209,6 +209,24 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	/**
 	 * @covers ::serialize
 	 */
+	public function testSerialize_templateNodes() {
+		// This test is more relevant with standards-compliant DOM
+		// implementations.
+		$html = '<html>' .
+			  '<head><template id="in-head">a<b>c</b>a</template></head>' .
+			  '<body><template id="in-body">h<i>j</i>k</template></body>' .
+			  '</html>';
+		$doc = self::parse( $html );
+
+		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false, 'addDoctype' => false ] );
+		$this->assertIsArray( $ret );
+		$this->assertArrayHasKey( 'html', $ret );
+		$this->assertSame( $html, $ret['html'] );
+	}
+
+	/**
+	 * @covers ::serialize
+	 */
 	public function testSerialize_rawContent() {
 		$html = '<body><script>x</script></body>';
 		$doc = self::parse( $html );
