@@ -248,6 +248,11 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 
 		ScriptUtils::setColorFlags( $options );
 
+		if ( ( $options['updateKnownFailures'] ?? null ) && ( $options['selser'] ?? null ) === 'auto' ) {
+			print "\nERROR: can't combine --updateKnownFailures with --selser auto\n";
+			die( 1 );
+		}
+
 		if ( !( $options['wt2wt'] || $options['wt2html'] || $options['html2wt'] || $options['html2html']
 			|| isset( $options['selser'] ) )
 		) {
@@ -258,13 +263,6 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 			if ( ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null ) ) {
 				// turn on all modes by default for --updateKnownFailures
 				$options['selser'] = true;
-				// double checking options are valid (T53448 asks to be able to use --filter here)
-				if ( isset( $options['filter'] ) || isset( $options['regex'] ) ||
-					isset( $options['maxtests'] ) || $options['exit-unexpected']
-				) {
-					print "\nERROR: can't combine --updateKnownFailures with --filter, --maxtests or --exit-unexpected";
-					die( 1 );
-				}
 			}
 		}
 

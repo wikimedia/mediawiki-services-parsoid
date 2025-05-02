@@ -202,6 +202,7 @@ class TestRunner {
 	 * @var array
 	 */
 	private $envOptions;
+	private array $skipped = [];
 
 	/**
 	 * @param string $testFilePath
@@ -856,11 +857,11 @@ class TestRunner {
 				isset( $options['maxtests'] )
 			);
 		$offsetType = $options['offsetType'] ?? 'byte';
-
 		// Update knownFailures, if requested
 		if ( $allModes ||
 			ScriptUtils::booleanOption( $options['updateKnownFailures'] ?? null )
 		) {
+			$testKnownFailures = [];
 			if ( $this->knownFailuresPath !== null ) {
 				$old = file_get_contents( $this->knownFailuresPath );
 			} else {
@@ -869,16 +870,66 @@ class TestRunner {
 				// end up with an empty array of known failures below.
 				$old = '{}';
 			}
-			$testKnownFailures = [];
+
 			$kfModes = array_merge( $options['modes'], [ 'metadata' ] );
+
+			if ( !$allModes ) {
+				$testKnownFailures = json_decode( $old, true );
+				foreach ( $testKnownFailures as $key => $knownFailure ) {
+					if ( !in_array( $key, $this->skipped, true ) ) {
+						$testKnownFailures[$key] = array_filter( $testKnownFailures[$key],
+							static function ( $k ) use ( $kfModes ) {
+								return !in_array( $k, $kfModes, true ) &&
+									( !str_starts_with( $k, 'selser' ) || !in_array( 'selser', $kfModes, true ) );
+							}, ARRAY_FILTER_USE_KEY );
+					}
+				}
+			}
+
 			foreach ( $kfModes as $mode ) {
 				foreach ( $this->stats->modes[$mode]->failList as $fail ) {
 					$testKnownFailures[$fail['testName']] ??= [];
-					Assert::invariant(
-						!isset( $testKnownFailures[$fail['testName']][$mode . $fail['suffix']] ),
-						"Overwriting known failures result for " . $fail['testName'] . " " . $mode . $fail['suffix']
-					);
 					$testKnownFailures[$fail['testName']][$mode . $fail['suffix']] = $fail['raw'];
+				}
+			}
+
+			if ( !$allModes ) {
+				foreach ( $testKnownFailures as $key => $knownFailure ) {
+					if ( !in_array( $key, $this->skipped, true ) ) {
+						uksort( $knownFailure, static function ( string $a, string $b ) {
+							if ( str_starts_with( $a, 'selser' ) && str_starts_with( $b, 'selser' ) ) {
+								return 0;
+							}
+							if ( str_starts_with( $a, 'selser' ) ) {
+								if ( str_starts_with( $b, 'metadata' ) ) {
+									return -1;
+								}
+
+								return 1;
+							}
+							if ( str_starts_with( $b, 'selser' ) ) {
+								if ( str_starts_with( $a, 'metadata' ) ) {
+									return 1;
+								}
+
+								return -1;
+							}
+							$order =
+								[
+									'wt2html' => 1,
+									'wt2wt' => 2,
+									'html2wt' => 3,
+									'html2html' => 4,
+									'metadata' => 5
+								];
+							if ( $order[$a] < $order[$b] ) {
+								return -1;
+							} elseif ( $order[$b] < $order[$a] ) {
+								return 1;
+							}
+							return 0;
+						} );
+					}
 				}
 			}
 			// Sort, otherwise, titles get added above based on the first
@@ -975,28 +1026,8 @@ class TestRunner {
 		}
 
 		$testOpts = $test->options;
-
-		// ensure that test is not skipped if it has a wikitext/edited or
-		// html/parsoid+langconv section (but not a parsoid html section)
-		$haveHtml = ( $test->parsoidHtml !== null ) ||
-			isset( $test->sections['wikitext/edited'] ) ||
-			isset( $test->sections['html/parsoid+standalone'] ) ||
-			isset( $test->sections['html/parsoid+langconv'] ) ||
-			self::getStandaloneMetadataSection( $test ) !== null;
-		$hasHtmlParsoid =
-			isset( $test->sections['html/parsoid'] ) ||
-			isset( $test->sections['html/parsoid+standalone'] );
-
-		// Skip test whose title does not match --filter
-		// or which is disabled or php-only
-		if ( $test->wikitext === null ||
-			!$haveHtml ||
-			( isset( $testOpts['disabled'] ) && !$this->runDisabled ) ||
-			( isset( $testOpts['php'] ) && !(
-				$hasHtmlParsoid || $this->runPHP )
-			) ||
-			!$test->matchesFilter( $this->testFilter )
-		) {
+		if ( $this->shouldSkipTest( $test, $testOpts ) ) {
+			$this->skipped[] = $test->testName;
 			return;
 		}
 
@@ -1247,5 +1278,23 @@ class TestRunner {
 
 		// Update knownFailures
 		return $this->updateKnownFailures( $options );
+	}
+
+	private function shouldSkipTest( Test $test, array $testOpts ): bool {
+		// ensure that test is not skipped if it has a wikitext/edited or
+		// html/parsoid+langconv section (but not a parsoid html section)
+		$haveHtml =
+			( $test->parsoidHtml !== null ) || isset( $test->sections['wikitext/edited'] ) ||
+			isset( $test->sections['html/parsoid+standalone'] ) ||
+			isset( $test->sections['html/parsoid+langconv'] ) ||
+			self::getStandaloneMetadataSection( $test ) !== null;
+		$hasHtmlParsoid =
+			isset( $test->sections['html/parsoid'] ) || isset( $test->sections['html/parsoid+standalone'] );
+
+		// Skip test whose title does not match --filter
+		// or which is disabled or php-only
+		return ( $test->wikitext === null || !$haveHtml || ( isset( $testOpts['disabled'] ) && !$this->runDisabled ) ||
+			( isset( $testOpts['php'] ) && !( $hasHtmlParsoid || $this->runPHP ) ) ||
+			!$test->matchesFilter( $this->testFilter ) );
 	}
 }
