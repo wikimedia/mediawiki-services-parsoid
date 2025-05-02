@@ -97,25 +97,24 @@ class DOMCompat {
 	}
 
 	/**
-	 * Create a new empty document.
-	 * This is abstracted because the process is a little different depending
-	 * on whether we're using Dodo or DOMDocument, and phan gets a little
-	 * confused by this.
-	 * @param bool $isHtml
+	 * Create a new empty HTML document using the preferred DOM
+	 * implementation.
+	 * @param bool $isHtml (optional) Should always be true.
 	 * @return Document
 	 */
-	public static function newDocument( bool $isHtml ) {
+	public static function newDocument( bool $isHtml = true ): Document {
+		Assert::invariant( $isHtml, "only HTML documents are supported" );
 		if ( self::isUsingDodo() ) {
 			$doc = ( new DOMParser() )->parseFromString(
-				'<div></div>', $isHtml ? 'text/html' : 'text/xml'
+				'<div></div>', 'text/html'
 			);
 		} elseif ( self::isUsing84Dom() ) {
-			Assert::invariant( $isHtml, "only HTML documents are supported" );
 			$doc = HTMLDocument::createEmpty( "UTF-8" );
 		} else {
 			// @phan-suppress-next-line PhanParamTooMany,PhanTypeInstantiateInterface
 			$doc = new Document( "1.0", "UTF-8" );
 		}
+		'@phan-var Document $doc';
 		// Remove doctype, head, body, etc for compat w/ PHP
 		while ( $doc->firstChild !== null ) {
 			$doc->removeChild( $doc->firstChild );
