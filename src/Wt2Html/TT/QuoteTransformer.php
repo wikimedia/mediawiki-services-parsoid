@@ -129,13 +129,8 @@ class QuoteTransformer extends TokenHandler {
 	 */
 	public function onAny( $token ): ?array {
 		$this->env->trace( "quote", $this->pipelineId, "ANY | ", $token );
-
-		if ( $this->onAnyEnabled ) {
-			$this->currentChunk[] = $token;
-			return [];
-		} else {
-			return null;
-		}
+		$this->currentChunk[] = $token;
+		return [];
 	}
 
 	/**
