@@ -767,9 +767,10 @@ class TemplateHandler extends TokenHandler {
 		// to process the first attribute to tokens, and force reprocessing of this
 		// template token since we will then know the actual template target.
 		if ( $expandTemplates && self::hasTemplateToken( $token->attribs[0]->k ) ) {
-			$toks = $this->ae->expandFirstAttribute( $token );
-			Assert::invariant( $toks && count( $toks ) === 1 && $toks[0] === $token,
+			$ret = $this->ae->expandFirstAttribute( $token );
+			Assert::invariant( $ret === [ $token ],
 				"Expected only the input token as the return value." );
+			// $token is modified in place and $ret is unused after this.
 		}
 
 		if ( $this->atMaxArticleSize ) {
