@@ -427,42 +427,6 @@ class TemplateHandler extends TokenHandler {
 	}
 
 	/**
-	 * Flatten
-	 * @param array<Token|string> $tokens
-	 * @param ?string $prefix
-	 * @param Token|string|array<Token|string> $t
-	 * @return array<string|Token>
-	 */
-	private function flattenAndAppendToks(
-		array $tokens, ?string $prefix, $t
-	): array {
-		if ( is_array( $t ) ) {
-			$len = count( $t );
-			if ( $len > 0 ) {
-				if ( $prefix !== null && $prefix !== '' ) {
-					$tokens[] = $prefix;
-				}
-				PHPUtils::pushArray( $tokens, $t );
-			}
-		} elseif ( is_string( $t ) ) {
-			$len = strlen( $t );
-			if ( $len > 0 ) {
-				if ( $prefix !== null && $prefix !== '' ) {
-					$tokens[] = $prefix;
-				}
-				$tokens[] = $t;
-			}
-		} else {
-			if ( $prefix !== null && $prefix !== '' ) {
-				$tokens[] = $prefix;
-			}
-			$tokens[] = $t;
-		}
-
-		return $tokens;
-	}
-
-	/**
 	 * By default, don't attempt to expand any templates in the wikitext that will be reprocessed.
 	 *
 	 * @param Token $token
