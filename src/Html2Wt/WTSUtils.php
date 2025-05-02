@@ -372,4 +372,18 @@ class WTSUtils {
 		return preg_replace( '#<(/?nowiki\s*/?\s*)>#i', '&lt;$1&gt;', $text );
 	}
 
+	public static function hasNonIgnorableAttributes( Element $node ): bool {
+		foreach ( DOMUtils::attributes( $node ) as $k => $v ) {
+			$k = (string)$k;
+			if (
+				!preg_match( '/^data-parsoid/', $k ) &&
+				( $k !== DOMDataUtils::DATA_OBJECT_ATTR_NAME ) &&
+				!( $k === 'id' && preg_match( '/^mw[\w-]{2,}$/D', $v ) )
+			) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

@@ -789,8 +789,8 @@ class Separators {
 			!WTSUtils::nextToDeletedBlockNodeInWT( $prevNode, true ) &&
 			!WTSUtils::nextToDeletedBlockNodeInWT( $node, false ) &&
 			WTSUtils::origSrcValidInEditedContext( $state, $prevNode ) &&
-			WTSUtils::origSrcValidInEditedContext( $state, $node );
-
+			WTSUtils::origSrcValidInEditedContext( $state, $node ) &&
+			!$this->needNewSep( $prevNode );
 		if ( $origSepNeededAndUsable ) {
 			if ( $prevNode instanceof Element ) {
 				$dsrA = self::handleAutoInserted( $prevNode );
@@ -1034,5 +1034,16 @@ class Separators {
 			$sep = self::makeSepIndentPreSafe( $sep, $sepConstraints );
 		}
 		return $sep;
+	}
+
+	private function needNewSep( Node $node ): bool {
+		// If an "empty start tag" tr node is modified to add attributes to it, we cannot re-use the existing ""
+		// separator, and we need to force its re-generation
+		if ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'tr'
+			&& empty( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
+		) {
+			return DiffUtils::hasDiffMark( $node, DiffMarkers::MODIFIED_WRAPPER );
+		}
+		return false;
 	}
 }

@@ -5,7 +5,7 @@
     },
     "9. table-fixups td-td cell-combining: prev=double_pipe,no_content; cell=no_attrs": {
         "wt2wt": "{|\n| |{{1x|{{!}}y}}\n|}",
-        "selser [[0,[1,4]]]": "{|\n||{{1x|{{!}}y}}<!--wi1qxh-->\n|}",
+        "selser [[0,[1,4]]]": "{|\n|- data-foobar=\"1uw5zpf\"\n||{{1x|{{!}}y}}<!--wi1qxh-->\n|}",
         "selser [[3,1]]": "{|\n||{{1x|{{!}}y}}\n|}",
         "selser [[0,[2,0]]]": "{|\n<!--1dkccon-->||{{1x|{{!}}y}}\n|}",
         "selser [1]": "{| data-foobar=\"7cxlod\"\n||{{1x|{{!}}y}}\n|}",

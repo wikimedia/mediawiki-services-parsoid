@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Html2Wt\DOMHandlers;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
+use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -54,18 +55,23 @@ class TRHandler extends DOMHandler {
 	private function trWikitextNeeded( Element $node, DataParsoid $dp ): bool {
 		// If the token has 'startTagSrc' set, it means that the tr
 		// was present in the source wikitext and we emit it -- if not,
-		// we ignore it.
+		// we need further analysis
 		// ignore comments and ws
 		if ( ( $dp->startTagSrc ?? null ) || DiffDOMUtils::previousNonSepSibling( $node ) ) {
 			return true;
 		} else {
 			// If parent has a thead/tbody previous sibling, then
-			// we need the |- separation. But, a caption preceded
+			// we need the |- separation. But, if a caption preceded
 			// this node's parent, all is good.
 			$parentSibling = DiffDOMUtils::previousNonSepSibling( $node->parentNode );
 
 			// thead/tbody/tfoot is always present around tr tags in the DOM.
-			return $parentSibling && DOMCompat::nodeName( $parentSibling ) !== 'caption';
+			if ( $parentSibling && DOMCompat::nodeName( $parentSibling ) !== 'caption' ) {
+				return true;
+			}
+
+			// last check: if we would skip it BUT have attributes, then we need to serialize too
+			return WTSUtils::hasNonIgnorableAttributes( $node );
 		}
 	}
 
