@@ -358,7 +358,9 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_IGNORE:
-				$ret = null; // Signals unmodified token
+				// Returning null will invoke the onAny handler
+				// Since we want to skip it, return [ $token ].
+				$ret = [ $token ];
 				$this->reset();
 				$this->preTSR = self::initPreTSR( $token );
 				break;
@@ -400,7 +402,9 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_IGNORE:
-				$ret = null; // Signals unmodified token
+				// Returning null will invoke the onAny handler.
+				// Since we want to skip it, return [ $token ].
+				$ret = [ $token ];
 				break;
 
 			default:
@@ -440,11 +444,6 @@ class PreHandler extends TokenHandler {
 	 */
 	public function onAny( $token ): ?array {
 		$env = $this->env;
-
-		// Don't run onAny for NlTk of EOFTk tokens
-		if ( $token instanceof NlTk || $token instanceof EOFTk ) {
-			return null;
-		}
 
 		$env->trace( 'pre', $this->pipelineId, 'any   |',
 			self::STATE_STR[$this->state], '|', $token
