@@ -236,7 +236,6 @@ function wfDetectCounterType( string $msg ): ?string {
 
 function wfBackfill( string $citeI18nDir, string $lang, array &$messages ): void {
 	$jsonMsgKeys = [
-		"cite_reference_link",
 		"cite_references_link_one",
 		"cite_references_link_many_format_backlink_labels",
 		"cite_references_link_many_format",
@@ -435,68 +434,6 @@ foreach ( $wikiInfo as $wiki => &$messages ) {
 	// Generate other CSS rules
 	foreach ( $messages as $key => $msg ) {
 		switch ( $key ) {
-			case "reference_link":
-				// "[$3]" is the effective default Parsoid CSS output
-				if ( $msg !== "[$3]" ) {
-					$cssSel = '.mw-ref > a::after';
-					$parts = preg_split( "/\\$3/", $msg );
-					$rule = "content:";
-					if ( $parts[0] !== "" ) {
-						$rule .= " '" . $parts[0] . "'";
-					}
-					// FIXME: the counter is language-specific
-					// but editors can fix this or we can edit it manually
-					$rule .= " counter( mw-Ref, $refCounterType )";
-					if ( $parts[1] !== "" ) {
-						$rule .= " '" . $parts[1] . "'";
-					}
-					$rule .= ";";
-					wfEmitCSS( $cssSel, [ $rule ] );
-
-					// Add default CSS rule for groups
-					$cssSel = ".mw-ref > a[data-mw-group]::after";
-					$baseRule = $rule;
-					$newRule = preg_replace( "/counter\(/", "attr(data-mw-group) ' ' counter(", $baseRule );
-					wfEmitCSS( $cssSel, [ $newRule ] );
-
-					// Add CSS rules for groups with custom counters
-					$baseRule = $rule;
-					foreach ( $groupLabels as $group => $groupCounterType ) {
-						$cssSel = ".mw-ref > a[data-mw-group=$group]::after";
-						$newRule = preg_replace( "/$refCounterType/", "$groupCounterType", $baseRule );
-						wfEmitCSS( $cssSel, [ $newRule ] );
-					}
-
-					/**
-					 * // This won't execute because $refCountertype is known to be 'decimal'
-					 * // but leaving behind as documentation
-					 * if ( $resetRefCounterTypes ) {
-					 * 	$cssSel = ".mw-ref > a[ data-mw-group ]::after";
-					 * 	$rule = preg_replace( "/$refCounterType/", "decimal", $baseRule );
-					 * 	wfEmitCSS( $cssSel, [ $rule ] );
-					 * }
-					 */
-				} else {
-					if ( $resetRefCounterTypes ) {
-						wfEmitCSS(
-							".mw-ref > a::after",
-							[ "content: '[' counter( mw-Ref, decimal ) ']';" ]
-						);
-
-						wfEmitCSS(
-							".mw-ref > a[ data-mw-group ]::after",
-							[ "content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, decimal ) ']';" ]
-						);
-					}
-					// Add CSS rules for ref-groups
-					foreach ( $groupLabels as $group => $groupCounterType ) {
-						$cssSel = ".mw-ref > a[data-mw-group=$group]::after";
-						$rule = "content: '[' counter( mw-Ref, $groupCounterType ) ']';";
-						wfEmitCSS( $cssSel, [ $rule ] );
-					}
-				}
-				break;
-
 			case "references_link_one":
 				// "↑ " is the effective default Parsoid CSS output
 				$msg = rtrim( $msg );

@@ -102,14 +102,6 @@ foreach ( $allLangs as $lang ) {
 				) ) . ';';
 			$out[] = wfGetCSS( $cssSel, $cssRules );
 		}
-		$out[] = wfGetCSS(
-			".mw-ref > a::after",
-			[ "content: '[' counter( mw-Ref, $counterType ) ']';" ]
-		);
-		$out[] = wfGetCSS(
-			".mw-ref > a[ data-mw-group ]::after",
-			[ "content: '[' attr( data-mw-group ) ' ' counter( mw-Ref, $counterType ) ']';" ]
-		);
 	}
 
 	$separator = $localizedSeps[$lang] ?? '.';
