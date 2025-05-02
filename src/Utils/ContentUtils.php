@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
  * These utilities are for processing content that's generated
@@ -25,11 +25,11 @@ class ContentUtils {
 	 * XML Serializer.
 	 *
 	 * @param Node $node
-	 * @param array $options XMLSerializer options.
+	 * @param array $options XHtmlSerializer options.
 	 * @return string
 	 */
 	public static function toXML( Node $node, array $options = [] ): string {
-		return XMLSerializer::serialize( $node, $options )['html'];
+		return XHtmlSerializer::serialize( $node, $options )['html'];
 	}
 
 	/**
@@ -442,7 +442,7 @@ class ContentUtils {
 	 *   - env
 	 *   - idIndex
 	 *
-	 * XMLSerializer options:
+	 * XHtmlSerializer options:
 	 *   - smartQuote
 	 *   - innerXML
 	 *   - captureOffsets

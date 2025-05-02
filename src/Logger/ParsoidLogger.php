@@ -9,7 +9,7 @@ use Wikimedia\JsonCodec\JsonCodec;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Utils\CompatJsonCodec;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 class ParsoidLogger {
 	private LoggerInterface $backendLogger;
@@ -165,7 +165,7 @@ class ParsoidLogger {
 				}
 			} elseif ( $arg instanceof Node ) {
 				$output .= ' ' .
-					XMLSerializer::serialize( $arg, [ 'saveData' => true ] )['html'];
+					XHtmlSerializer::serialize( $arg, [ 'saveData' => true ] )['html'];
 			} else {
 				$encode = fn ( $x ) => $this->codec->toJsonArray(
 					$x,

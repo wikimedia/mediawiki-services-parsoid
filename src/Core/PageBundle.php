@@ -7,7 +7,7 @@ use Composer\Semver\Semver;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
  * A page bundle stores an HTML string with separated data-parsoid and
@@ -158,7 +158,7 @@ class PageBundle implements JsonCodecable {
 	 * DomPageBundle.
 	 *
 	 * @param DomPageBundle $dpb
-	 * @param array $options XMLSerializer options
+	 * @param array $options XHtmlSerializer options
 	 * @return PageBundle
 	 */
 	public static function fromDomPageBundle( DomPageBundle $dpb, array $options = [] ): PageBundle {
@@ -167,7 +167,7 @@ class PageBundle implements JsonCodecable {
 			$node = DOMCompat::getBody( $dpb->doc );
 			$options += [ 'innerXML' => true ];
 		}
-		$out = XMLSerializer::serialize( $node, $options );
+		$out = XHtmlSerializer::serialize( $node, $options );
 		$pb = new PageBundle(
 			$out['html'],
 			$dpb->parsoid,
@@ -185,7 +185,7 @@ class PageBundle implements JsonCodecable {
 	/**
 	 * Convert this PageBundle to "single document" form, where page bundle
 	 * information is embedded in the <head> of the document.
-	 * @param array $options XMLSerializer options
+	 * @param array $options XHtmlSerializer options
 	 * @return string an HTML string
 	 */
 	public function toSingleDocumentHtml( array $options = [] ): string {
@@ -196,7 +196,7 @@ class PageBundle implements JsonCodecable {
 	/**
 	 * Convert this PageBundle to "inline attribute" form, where page bundle
 	 * information is represented as inline JSON-valued attributes.
-	 * @param array $options XMLSerializer options
+	 * @param array $options XHtmlSerializer options
 	 * @return string an HTML string
 	 */
 	public function toInlineAttributeHtml( array $options = [] ): string {
