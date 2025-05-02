@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
 use Wikimedia\RemexHtml\TreeBuilder\TreeBuilder;
@@ -756,7 +756,7 @@ class DOMUtils {
 	 * Defined similarly to DOMCompat::getInnerHTML()
 	 */
 	public static function getFragmentInnerHTML( DocumentFragment $frag ): string {
-		return XMLSerializer::serialize(
+		return XHtmlSerializer::serialize(
 			$frag, [ 'innerXML' => true ]
 		)['html'];
 	}
@@ -804,8 +804,7 @@ class DOMUtils {
 	 *
 	 * Add the xmlns attribute if available, to workaround PHP's surprising
 	 * behavior with the xmlns attribute: HTML is *not* an XML document,
-	 * but various parts of PHP (including our misnamed XMLSerializer) pretend
-	 * that it is, sort of.
+	 * but various parts of PHP pretend that it is, sort of.
 	 *
 	 * @param Element $element
 	 * @return array<string,string>

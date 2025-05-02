@@ -12,7 +12,7 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Utils\DOMCompat\TokenList;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\DOMBuilder;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 use Wikimedia\RemexHtml\HTMLData;
 use Wikimedia\RemexHtml\Tokenizer\Tokenizer;
 use Wikimedia\RemexHtml\TreeBuilder\Dispatcher;
@@ -420,7 +420,7 @@ class DOMCompat {
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-innerhtml-innerhtml
 	 */
 	public static function getInnerHTML( $element ): string {
-		return XMLSerializer::serialize( $element, [ 'innerXML' => true ] )['html'];
+		return XHtmlSerializer::serialize( $element, [ 'innerXML' => true ] )['html'];
 	}
 
 	/**
@@ -458,7 +458,7 @@ class DOMCompat {
 	 * @see https://w3c.github.io/DOM-Parsing/#dom-element-outerhtml
 	 */
 	public static function getOuterHTML( $element ): string {
-		return XMLSerializer::serialize( $element, [ 'addDoctype' => false ] )['html'];
+		return XHtmlSerializer::serialize( $element, [ 'addDoctype' => false ] )['html'];
 	}
 
 	/**

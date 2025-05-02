@@ -4,15 +4,15 @@ namespace Test\Parsoid\Wt2Html;
 
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 use Wikimedia\TestingAccessWrapper;
 
 /**
  * Test the entity encoding logic (which the JS version did not have as it called
  * on the entities npm package).
- * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\XMLSerializer
+ * @coversDefaultClass \Wikimedia\Parsoid\Wt2Html\XHtmlSerializer
  */
-class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
+class XHtmlSerializerTest extends \PHPUnit\Framework\TestCase {
 	private static function parse( string $html, int $options = 0 ) {
 		return DOMUtils::parseHTML( $html );
 	}
@@ -32,17 +32,17 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. "\n\n" . '<!--comment--><div id="345">end</div></body>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc );
+		$ret = XHtmlSerializer::serialize( $doc );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'innerXML' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'innerXML' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedInnerHtml, $ret['html'] );
@@ -57,7 +57,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. "\n\n" . '<!--comment--><div id="345">end</div></body></html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( '123', $ret['offsets'] );
@@ -66,7 +66,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$this->assertArrayHasKey( '345', $ret['offsets'] );
 		$this->assertSame( [ 62, 85 ], $ret['offsets']['345']['html'] );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true, 'innerXML' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'captureOffsets' => true, 'innerXML' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( '123', $ret['offsets'] );
@@ -87,7 +87,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '</body></html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
@@ -108,7 +108,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '</body></html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
@@ -130,7 +130,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '</body></html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'captureOffsets' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'offsets', $ret );
 		$this->assertArrayHasKey( 'mwAQ', $ret['offsets'] );
@@ -150,7 +150,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. "\n\n" . '<!--comment--><div id="345">end</div></body></html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc );
+		$ret = XHtmlSerializer::serialize( $doc );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
@@ -180,12 +180,12 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			. '</body></html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedNonSmart, $ret['html'] );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => true ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'smartQuote' => true ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedSmart, $ret['html'] );
@@ -200,7 +200,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$expectedHtml = '<div><span><hr/></span></div>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( DOMCompat::getBody( $doc )->firstChild, [ 'smartQuote' => false ] );
+		$ret = XHtmlSerializer::serialize( DOMCompat::getBody( $doc )->firstChild, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
@@ -218,7 +218,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 			  '</html>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( $doc, [ 'smartQuote' => false, 'addDoctype' => false ] );
+		$ret = XHtmlSerializer::serialize( $doc, [ 'smartQuote' => false, 'addDoctype' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $html, $ret['html'] );
@@ -231,7 +231,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$html = '<body><script>x</script></body>';
 		$doc = self::parse( $html );
 
-		$ret = XMLSerializer::serialize( DOMCompat::getBody( $doc ), [ 'smartQuote' => false ] );
+		$ret = XHtmlSerializer::serialize( DOMCompat::getBody( $doc ), [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $html, $ret['html'] );
@@ -250,7 +250,7 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 		$pre = $div->firstChild;
 		DOMCompat::replaceChildren( $pre, $doc->createTextNode( "\n" ) );
 
-		$ret = XMLSerializer::serialize( $div, [ 'smartQuote' => false ] );
+		$ret = XHtmlSerializer::serialize( $div, [ 'smartQuote' => false ] );
 		$this->assertIsArray( $ret );
 		$this->assertArrayHasKey( 'html', $ret );
 		$this->assertSame( $expectedHtml, $ret['html'] );
@@ -261,9 +261,9 @@ class XMLSerializerTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideEncodeHtmlEntities
 	 */
 	public function testEncodeHtmlEntities( $raw, $encodeChars, $expected ) {
-		/** @var XMLSerializer $XMLSerializer */
-		$XMLSerializer = TestingAccessWrapper::newFromClass( XMLSerializer::class );
-		$actual = $XMLSerializer->encodeHtmlEntities( $raw, $encodeChars );
+		/** @var XHtmlSerializer $XHtmlSerializer */
+		$XHtmlSerializer = TestingAccessWrapper::newFromClass( XHtmlSerializer::class );
+		$actual = $XHtmlSerializer->encodeHtmlEntities( $raw, $encodeChars );
 		$this->assertEquals( $expected, $actual );
 	}
 

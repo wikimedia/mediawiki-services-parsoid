@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
-use Wikimedia\Parsoid\Wt2Html\XMLSerializer;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
  * A page bundle stores an HTML DOM with separated data-parsoid and
@@ -282,18 +282,18 @@ class DomPageBundle implements JsonCodecable {
 	/**
 	 * Convert this DomPageBundle to "single document" form, where page bundle
 	 * information is embedded in the <head> of the document.
-	 * @param array $options XMLSerializer options
+	 * @param array $options XHtmlSerializer options
 	 * @return string an HTML string
 	 */
 	public function toSingleDocumentHtml( array $options = [] ): string {
 		$doc = $this->toSingleDocument();
-		return XMLSerializer::serialize( $doc, $options )['html'];
+		return XHtmlSerializer::serialize( $doc, $options )['html'];
 	}
 
 	/**
 	 * Convert this DomPageBundle to "inline attribute" form, where page bundle
 	 * information is represented as inline JSON-valued attributes.
-	 * @param array $options XMLSerializer options
+	 * @param array $options XHtmlSerializer options
 	 * @return string an HTML string
 	 */
 	public function toInlineAttributeHtml( array $options = [] ): string {
@@ -304,7 +304,7 @@ class DomPageBundle implements JsonCodecable {
 		} else {
 			$node = $doc;
 		}
-		return XMLSerializer::serialize( $node, $options )['html'];
+		return XHtmlSerializer::serialize( $node, $options )['html'];
 	}
 
 	/**
