@@ -806,39 +806,6 @@ class TestRunner {
 		);
 	}
 
-	/**
-	 * Removes DSR from data-parsoid for test normalization of a complete document. If
-	 * data-parsoid gets subsequently empty, removes it too.
-	 * @param string $raw
-	 * @return string
-	 */
-	private function filterDsr( string $raw ): string {
-		$doc = ContentUtils::createAndLoadDocument( $raw );
-		foreach ( $doc->childNodes as $child ) {
-			if ( $child instanceof Element ) {
-				$this->filterNodeDsr( $child );
-			}
-		}
-		$ret = ContentUtils::ppToXML( DOMCompat::getBody( $doc ), [ 'innerXML' => true ] );
-		$ret = preg_replace( '/\sdata-parsoid="{}"/', '', $ret );
-		return $ret;
-	}
-
-	/**
-	 * Removes DSR from data-parsoid for test normalization of an element.
-	 */
-	private function filterNodeDsr( Element $el ) {
-		$dp = DOMDataUtils::getDataParsoid( $el );
-		unset( $dp->dsr );
-		// XXX: could also set TempData::IS_NEW if !$dp->isModified(),
-		// rather than using the preg_replace above.
-		foreach ( $el->childNodes as $child ) {
-			if ( $child instanceof Element ) {
-				$this->filterNodeDsr( $child );
-			}
-		}
-	}
-
 	private function checkWikitext(
 		Test $test, string $out, array $options, string $mode
 	): bool {
@@ -959,7 +926,7 @@ class TestRunner {
 							 ')/m';
 						$fail['noDsr'] = $fail['raw'];
 						if ( $updateFormat === 'noDsr' && $mode !== 'metadata' ) {
-							$fail['noDsr'] = $this->filterDsr( $fail['noDsr'] );
+							$fail['noDsr'] = TestUtils::filterDsr( $fail['noDsr'] );
 						}
 						$fileContent = preg_replace_callback(
 							$exp,
