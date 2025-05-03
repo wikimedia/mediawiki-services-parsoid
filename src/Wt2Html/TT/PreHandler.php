@@ -346,8 +346,8 @@ class PreHandler extends TokenHandler {
 
 			case self::STATE_MULTILINE_PRE:
 			case self::STATE_PRE_COLLECT:
-				$this->processCurrLine( $token );
 				$ret = [];
+				$this->processCurrLine( $token );
 				$this->state = self::STATE_SOL_AFTER_PRE;
 				break;
 
@@ -358,7 +358,7 @@ class PreHandler extends TokenHandler {
 				break;
 
 			case self::STATE_IGNORE:
-				// Returning null will invoke the onAny handler
+				// Returning null will invoke the onAny handler.
 				// Since we want to skip it, return [ $token ].
 				$ret = [ $token ];
 				$this->reset();

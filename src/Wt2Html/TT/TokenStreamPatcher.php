@@ -393,9 +393,6 @@ class TokenStreamPatcher extends TokenHandler {
 		if ( count( $this->tokenBuf ) > 0 ) {
 			$tokens = array_merge( $this->tokenBuf, $tokens );
 			$this->tokenBuf = [];
-		} elseif ( $tokens === [ $token ] ) {
-			// Adhere to convention: if input is unmodified, return null.
-			$tokens = null;
 		}
 
 		return $tokens;

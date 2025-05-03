@@ -10,14 +10,10 @@ use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 abstract class TokenHandler {
-	/** @var Env */
-	protected $env;
-	/** @var TokenHandlerPipeline */
-	protected $manager;
-	/** @var int|null */
-	protected $pipelineId;
-	/** @var array */
-	protected $options;
+	protected Env $env;
+	protected TokenHandlerPipeline $manager;
+	protected ?int $pipelineId;
+	protected array $options;
 	/** This is set if the token handler is disabled for the entire pipeline. */
 	protected bool $disabled = false;
 	/**
@@ -25,8 +21,7 @@ abstract class TokenHandler {
 	 * is encountered. This only enables/disables the onAny handler.
 	 */
 	protected bool $onAnyEnabled = true;
-	/** @var bool */
-	protected $atTopLevel = false;
+	protected bool $atTopLevel = false;
 
 	/**
 	 * @param TokenHandlerPipeline $manager The manager for this stage of the parse.
@@ -62,8 +57,13 @@ abstract class TokenHandler {
 	/**
 	 * This handler is called for EOF tokens only
 	 * @param EOFTk $token EOF token to be processed
-	 * @return ?array<string|Token> A token array or null to efficiently
-	 *   indicate that the input token is unchanged.
+	 * @return ?array<string|Token>
+	 *   - null indicates that the token was passed-through
+	 *     and it will be dispatched to the onAny handler
+	 *   - an array indicates the token was transformed
+	 *     and it will skip the onAny handler. The result array
+	 *     may be the cumulative transformation of this token
+	 *     and other previous tokens before this.
 	 */
 	public function onEnd( EOFTk $token ): ?array {
 		return null;
@@ -72,8 +72,13 @@ abstract class TokenHandler {
 	/**
 	 * This handler is called for newline tokens only
 	 * @param NlTk $token Newline token to be processed
-	 * @return ?array<string|Token> A token array or null to efficiently
-	 *   indicate that the input token is unchanged.
+	 * @return ?array<string|Token>
+	 *   - null indicates that the token was passed-through
+	 *     and it will be dispatched to the onAny handler
+	 *   - an array indicates the token was transformed
+	 *     and it will skip the onAny handler. The result array
+	 *     may be the cumulative transformation of this token
+	 *     and other previous tokens before this.
 	 */
 	public function onNewline( NlTk $token ): ?array {
 		return null;
@@ -85,24 +90,33 @@ abstract class TokenHandler {
 	 * For example, a list handler may only process 'listitem' TagTk tokens.
 	 *
 	 * @param Token $token Token to be processed
-	 * @return ?array<string|Token> A token array, or null to efficiently
-	 *   indicate that the input token is unchanged.
+	 * @return ?array<string|Token>
+	 *   - null indicates that the token was passed-through
+	 *     and it will be dispatched to the onAny handler
+	 *   - an array indicates the token was transformed
+	 *     and it will skip the onAny handler. The result array
+	 *     may be the cumulative transformation of this token
+	 *     and other previous tokens before this.
 	 */
 	public function onTag( Token $token ): ?array {
 		return null;
 	}
 
 	/**
-	 * This handler is called for *all* tokens in the token stream except if
-	 * (a) The more specific handlers above modified the token
-	 * (b) the more specific handlers (onTag, onEnd, onNewline) have set
-	 *     the skip flag in their return values.
-	 * (c) this handlers 'active' flag is set to false (can be set by any
-	 *     of the handlers).
+	 * This handler is called for *all* tokens in the token stream except if:
+	 * (a) the more specific handlers (onTag, onEnd, onNewline) returned
+	 *     a non-null array which means the token was modified and
+	 *     shouldn't be processed by the onAny handler.
+	 * (b) onAnyEnabled is set to false (can be set by any of the above
+	 *     specific handlers).
 	 *
 	 * @param Token|string $token Token to be processed
-	 * @return ?array<string|Token> A token array, or null to efficiently
-	 *   indicate that the input token is unchanged.
+	 * @return ?array<string|Token>
+	 *   - null indicates that the token was untransformed
+	 *     and it will be added to this handler's output array.
+	 *   - an array indicates the token was transformed
+	 *     and the contents of the array will be added to this
+	 *     handler's output array.
 	 */
 	public function onAny( $token ): ?array {
 		return null;
