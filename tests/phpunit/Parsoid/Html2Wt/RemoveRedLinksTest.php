@@ -27,7 +27,7 @@ class RemoveRedLinksTest extends TestCase {
 		$this->assertEquals( $expected, $actual, $message );
 	}
 
-	public function provideRedLinks(): array {
+	public static function provideRedLinks(): array {
 		return [
 			[
 				'<a href="./Hello" rel="mw:WikiLink">Hello</a>',

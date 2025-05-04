@@ -40,7 +40,7 @@ class DOMProcessorPipelineTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, DOMCompat::getOuterHTML( $document->documentElement ) );
 	}
 
-	public function provideDOMProcessorPipeline(): array {
+	public static function provideDOMProcessorPipeline(): array {
 		return [
 			[
 				false,

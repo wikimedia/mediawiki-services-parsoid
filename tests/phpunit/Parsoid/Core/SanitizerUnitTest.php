@@ -18,7 +18,7 @@ class SanitizerUnitTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expected, Sanitizer::decodeCharReferences( $input ) );
 	}
 
-	public function provideDecodeCharReferences() {
+	public static function provideDecodeCharReferences() {
 		return [
 			'decode named entities' => [
 				"\u{00E9}cole",

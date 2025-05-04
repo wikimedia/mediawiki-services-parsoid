@@ -17,7 +17,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideDecodeWtEntities() {
+	public static function provideDecodeWtEntities() {
 		// Easy cases...
 		yield "Lowercase &" => [ '&amp;', '&' ];
 		yield "Uppercase &" => [ '&AMP;', '&' ];
@@ -26,7 +26,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		yield "Semicolon-less &" => [ '&ampamp;', '&ampamp;' ];
 		yield "Semicolon-less query" => [ '&prod=foo', '&prod=foo' ];
 		// Exhaustive test against Sanitizer::validateCodePoint()
-		$checkEntity = function ( int $cp, string $s ) {
+		$checkEntity = static function ( int $cp, string $s ) {
 			$expected = self::validateCodePoint( $cp ) ?
 					  mb_chr( $cp, "utf-8" ) : $s;
 			yield $s => [ $s, $expected ];
@@ -80,7 +80,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideEscapeWtEntities() {
+	public static function provideEscapeWtEntities() {
 		return [
 			[ '&amp;', '&amp;amp;' ],
 			// Not all entities, just those that are valid
@@ -98,7 +98,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideEscapeHtml() {
+	public static function provideEscapeHtml() {
 		return [
 			[ 'only 5 characters escaped', 'only 5 characters escaped' ],
 			[ '<>&"\'', '&lt;&gt;&amp;&quot;&apos;' ],
@@ -114,7 +114,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideEntityEncodeAll() {
+	public static function provideEntityEncodeAll() {
 		return [
 			[ 'Even ASCII', '&#x45;&#x76;&#x65;&#x6E;&#x20;&#x41;&#x53;&#x43;&#x49;&#x49;' ],
 			[ 'is encoded', '&#x69;&#x73;&#x20;&#x65;&#x6E;&#x63;&#x6F;&#x64;&#x65;&#x64;' ],
@@ -137,7 +137,7 @@ class UtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expect2 ?? $expect1, Utils::decodeURI( $input ) );
 	}
 
-	public function provideDecodeURI() {
+	public static function provideDecodeURI() {
 		return [
 			'Simple example' => [ 'abc %66%6f%6f%c2%a0%62%61%72', "abc foo\xc2\xa0bar" ],
 			'Non-BMP example' => [ '%66%6f%6f%f0%9f%92%a9%62%61%72', 'foo💩bar' ],

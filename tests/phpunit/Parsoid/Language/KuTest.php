@@ -80,7 +80,7 @@ class KuTest extends TestCase {
 		}
 	}
 
-	public function provideKu() {
+	public static function provideKu() {
 		return array_map( static function ( $item ) {
 			return [
 				$item['title'],

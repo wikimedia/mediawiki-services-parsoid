@@ -59,7 +59,7 @@ class SiteConfigTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expected, preg_match( $re, " mw:PageProp/$upper " ) );
 	}
 
-	public function bswPagePropProvider() {
+	public static function bswPagePropProvider() {
 		return [
 			// Case sensitive
 			[ 'NOGLOBAL', true ],

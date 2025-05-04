@@ -61,7 +61,7 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expectedHTML, $out );
 	}
 
-	public function provideSelectiveUpdate() {
+	public static function provideSelectiveUpdate() {
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			[

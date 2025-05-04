@@ -18,7 +18,7 @@ class PHPUtilsTest extends TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideReStrip() {
+	public static function provideReStrip() {
 		return [
 			[ '/abc/', null, 'abc' ], // easy case
 			[ ' /abc/mA', null, 'abc' ], // flags and leading whitespace
@@ -73,7 +73,7 @@ class PHPUtilsTest extends TestCase {
 		$this->assertEquals( $s1, $s3 );
 	}
 
-	public function provideSafeSubstr() {
+	public static function provideSafeSubstr() {
 		$cases = [
 			// Simple case
 			[ 'input' => 'abc', 'indices' => [
@@ -122,7 +122,7 @@ class PHPUtilsTest extends TestCase {
 		$this->assertTrue( $expectedOk );
 	}
 
-	public function provideAssertValidUTF8() {
+	public static function provideAssertValidUTF8() {
 		// Our UTF8 validity checker uses `//u` as an optimization, which
 		// relies on PHP's pcre extension to pass PCRE2_UTF and not
 		// PCRE2_NO_UTF_CHECK or PCRE2_MATCH_INVALID_UTF8 through to pcre,

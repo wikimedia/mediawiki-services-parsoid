@@ -79,7 +79,7 @@ class CleanUpTest extends TestCase {
 		$domVisitor->traverse( null, $body );
 	}
 
-	public function provideCleanUp(): array {
+	public static function provideCleanUp(): array {
 		$test = [
 			"{|",
 			"|a",
@@ -107,7 +107,7 @@ class CleanUpTest extends TestCase {
 		$domVisitor->traverse( null, $body );
 	}
 
-	public function provideCleanUpWT(): array {
+	public static function provideCleanUpWT(): array {
 		$test = [
 			";Definition list",
 			":First definition",
@@ -148,7 +148,7 @@ class CleanUpTest extends TestCase {
 		$domVisitor->traverse( null, $body );
 	}
 
-	public function provideCleanUpHTML(): array {
+	public static function provideCleanUpHTML(): array {
 		$test = [
 			"<dl>",
 			"<dt>Definition list",
@@ -189,7 +189,7 @@ class CleanUpTest extends TestCase {
 		$this->assertEquals( $trailingWS, DOMDataUtils::getDataParsoid( $node )->dsr->trailingWS );
 	}
 
-	public function provideWhitespaceTrimming(): array {
+	public static function provideWhitespaceTrimming(): array {
 		return [
 			/* List item tests */
 			[ "*a", "li", 0, 0 ],

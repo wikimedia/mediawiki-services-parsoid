@@ -72,7 +72,7 @@ class EnTest extends TestCase {
 		}
 	}
 
-	public function provideEn() {
+	public static function provideEn() {
 		return array_map( static function ( $item ) {
 			return [
 				$item['title'],

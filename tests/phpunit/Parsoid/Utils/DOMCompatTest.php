@@ -237,7 +237,7 @@ class DOMCompatTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expectedDataIds, $actualDataIds );
 	}
 
-	public function provideQuerySelector() {
+	public static function provideQuerySelector() {
 		// TODO would be nicer to have separate HTML per test (maybe something like parser tests)
 		$html1 = <<<'HTML'
 <html><body>
@@ -627,7 +627,7 @@ HTML;
 		$this->assertSame( $expectedOutput, $actualOutput );
 	}
 
-	public function provideStripAndCollapseASCIIWhitespace() {
+	public static function provideStripAndCollapseASCIIWhitespace() {
 		return [
 			[ '  foo  ', 'foo' ],
 			[ " \n foo \t \n bar ", 'foo bar' ],
@@ -671,7 +671,7 @@ HTML;
 		$this->assertSame( $expectedNodeCount, $div->childNodes->length );
 	}
 
-	public function provideNormalize() {
+	public static function provideNormalize() {
 		return [
 			[
 				"textNodeCount" => 1,

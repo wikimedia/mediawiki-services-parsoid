@@ -46,7 +46,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $fragment ?? '', $title->getFragment() );
 	}
 
-	public function provideBasics() {
+	public static function provideBasics() {
 		return [
 			'Basic article' => [ [ 'Basic_page', 0, '' ], 'Basic_page', 'Basic_page', 'Basic page', null, 0 ],
 			'User-namespace page' => [
@@ -106,7 +106,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $fragment ?? '', $title->getFragment() );
 	}
 
-	public function provideNewFromText() {
+	public static function provideNewFromText() {
 		$x255 = str_repeat( 'X', 255 );
 		$x512 = str_repeat( 'X', 512 );
 		$poo63 = str_repeat( '💩', 63 );
@@ -251,7 +251,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
-	public function provideNewFromText_errors() {
+	public static function provideNewFromText_errors() {
 		$x256 = str_repeat( 'X', 256 );
 		$x513 = str_repeat( 'X', 513 );
 		$poo64 = str_repeat( '💩', 64 );

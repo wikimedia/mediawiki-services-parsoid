@@ -70,7 +70,7 @@ class HeadingsTest extends TestCase {
 		$this->runHeadingTest( 'Simple Headings ', $simpleHeadings, ' should be valid for ' );
 	}
 
-	public function provideSimpleHeadings(): array {
+	public static function provideSimpleHeadings(): array {
 		return [
 			[ [ '=Test=', 'Test' ] ],
 			[ [ '=Test 1 2 3=', 'Test_1_2_3' ] ],
@@ -88,7 +88,7 @@ class HeadingsTest extends TestCase {
 			' wikitext chars should be ignored in ' );
 	}
 
-	public function provideHeadingsWithWtChars(): array {
+	public static function provideHeadingsWithWtChars(): array {
 		return [
 			[ [ '=This is a [[Link]]=', 'This_is_a_Link' ] ],
 			[ [ "=Some '''bold''' and '''italic''' text=", 'Some_bold_and_italic_text' ] ],
@@ -113,7 +113,7 @@ class HeadingsTest extends TestCase {
 			' HTML tags should be stripped in ' );
 	}
 
-	public function provideHeadingsWithHTML(): array {
+	public static function provideHeadingsWithHTML(): array {
 		return [
 			[ [ "=Some <span>html</span> <b>tags</b> here=", 'Some_html_tags_here' ] ],
 			/* PHP parser output is a bit weird on a heading with these contents */
@@ -131,7 +131,7 @@ class HeadingsTest extends TestCase {
 			' Entities should be encoded ' );
 	}
 
-	public function provideHeadingsWithEntities(): array {
+	public static function provideHeadingsWithEntities(): array {
 		return [
 			[ [ '=Red, Blue, Yellow=', [ 'Red,_Blue,_Yellow', 'Red.2C_Blue.2C_Yellow' ] ] ],
 			[ [ '=!@#$%^&*()=', [ '!@#$%^&*()', ".21.40.23.24.25.5E.26.2A.28.29" ] ] ],
@@ -149,7 +149,7 @@ class HeadingsTest extends TestCase {
 			' Ids should be valid ' );
 	}
 
-	public function provideNonEnglishHeadings(): array {
+	public static function provideNonEnglishHeadings(): array {
 		return [
 			[ [ "=Références=", [ "Références", "R.C3.A9f.C3.A9rences" ] ] ],
 			// phpcs:ignore Generic.Files.LineLength.TooLong
@@ -168,7 +168,7 @@ class HeadingsTest extends TestCase {
 		$this->runHeadingTest( 'Edge Case Tests ', $edgeCases, ' Ids should be valid ' );
 	}
 
-	public function provideEdgeCases(): array {
+	public static function provideEdgeCases(): array {
 		return [
 			[ [ "=a=\n=a=", 'a', 'a_2' ] ],
 			[ [ "=a/b=\n=a.2Fb=", [ "a/b", "a.2Fb" ], "a.2Fb_2" ] ],

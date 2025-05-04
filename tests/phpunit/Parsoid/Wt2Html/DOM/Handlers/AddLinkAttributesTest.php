@@ -68,7 +68,7 @@ class AddLinkAttributesTest extends TestCase {
 		$this->verifyTarget( $html, $target, $expected );
 	}
 
-	public function provideTarget() {
+	public static function provideTarget() {
 		return [
 			[
 				'<a href="http://www.example.com/plop" rel="mw:ExtLink">example.com</a>',
@@ -93,7 +93,7 @@ class AddLinkAttributesTest extends TestCase {
 		];
 	}
 
-	public function provideNoFollow() {
+	public static function provideNoFollow() {
 		// The mocked SiteConfig sets nofollow exceptions for the domain example.com and for the
 		// namespace 1
 		return [

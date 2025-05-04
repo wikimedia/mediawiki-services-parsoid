@@ -483,7 +483,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( 'test2', $dp->src );
 	}
 
-	public function provideUseFragmentBank() {
+	public static function provideUseFragmentBank() {
 		yield 'fragment bank serialization' => [ true ];
 		yield 'compatible serialization' => [ false ];
 	}

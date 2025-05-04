@@ -41,7 +41,7 @@ class PWrapTest extends TestCase {
 		$this->verifyPWrap( $html, $expected );
 	}
 
-	public function provideNoPWrapper() {
+	public static function provideNoPWrapper() {
 		// NOTE: verifyPWrap doesn't store data attribs. Hence no data-parsoid in output.
 		return [
 			[ '', '' ],
@@ -76,7 +76,7 @@ class PWrapTest extends TestCase {
 		$this->verifyPWrap( $html, $expected );
 	}
 
-	public function provideSimplePWrapper(): array {
+	public static function provideSimplePWrapper(): array {
 		return [
 			[ 'a', '<p>a</p>' ],
 			// <span> is not a splittable tag, but gets p-wrapped in simple wrapping scenarios
@@ -102,7 +102,7 @@ class PWrapTest extends TestCase {
 		$this->verifyPWrap( $html, $expected );
 	}
 
-	public function provideComplexPWrapper(): array {
+	public static function provideComplexPWrapper(): array {
 		return [
 			[
 				'<i>x<div>a</div>y</i>',

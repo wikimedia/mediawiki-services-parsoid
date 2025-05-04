@@ -97,7 +97,7 @@ class ComputeDSRTest extends TestCase {
 		}
 	}
 
-	public function provideComputeDSR(): array {
+	public static function provideComputeDSR(): array {
 		return [
 			// Paragraph wrapping
 			'para 1' => [

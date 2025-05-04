@@ -66,7 +66,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	// phpcs:disable Generic.Files.LineLength.TooLong
-	public function provideConstrainedText(): array {
+	public static function provideConstrainedText(): array {
 		return [
 			[ [
 				'name' => 'WikiLinkText: Simple',

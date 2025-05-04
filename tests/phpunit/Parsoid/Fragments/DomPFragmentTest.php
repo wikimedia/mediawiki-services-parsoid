@@ -46,7 +46,7 @@ class DomPFragmentTest extends PFragmentTestCase {
 		$this->assertSame( !$release, $dom3->isValid() );
 	}
 
-	public function provideRelease() {
+	public static function provideRelease() {
 		yield 'no release' => [ false ];
 		yield 'with release' => [ true ];
 	}

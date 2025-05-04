@@ -43,7 +43,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
-	public function provideWt2Html(): array {
+	public static function provideWt2Html(): array {
 		return [
 			[
 				"'''hi ho'''",
@@ -84,7 +84,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $lint );
 	}
 
-	public function provideWt2Lint() {
+	public static function provideWt2Lint() {
 		return [
 			[
 				"[http://google.com This is [[Google]]'s search page]",
@@ -117,7 +117,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $wt );
 	}
 
-	public function provideHtml2Wt() {
+	public static function provideHtml2Wt() {
 		return [
 			[
 				"<pre>hi</pre>\n<div>ho</div>",
@@ -164,7 +164,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		}
 	}
 
-	public function providePb2Pb() {
+	public static function providePb2Pb() {
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
 			[
@@ -375,7 +375,7 @@ class ParsoidTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, $actual );
 	}
 
-	public function provideImplementsLanguageConversionBcp47() {
+	public static function provideImplementsLanguageConversionBcp47() {
 		yield 'Variant conversion is implemented for en-x-piglatin' => [
 			'en-x-piglatin', true
 		];

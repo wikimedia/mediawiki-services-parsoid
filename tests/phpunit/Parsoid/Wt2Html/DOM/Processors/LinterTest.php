@@ -1240,7 +1240,7 @@ class LinterTest extends TestCase {
 	 * Provide test cases for large tables
 	 * @return array[]
 	 */
-	public function provideLargeTablesTests(): array {
+	public static function provideLargeTablesTests(): array {
 		$noLongRowsTable = [
 			"{|",
 			"|-",
@@ -1639,7 +1639,7 @@ class LinterTest extends TestCase {
 	 * - there is nothing unusual DSR-wise about this lint that
 	 *   needs special verification.
 	 */
-	public function provideLogInlineBackgroundWithoutColor(): array {
+	public static function provideLogInlineBackgroundWithoutColor(): array {
 		return [
 			[
 				'should not lint when style attribute is missing',

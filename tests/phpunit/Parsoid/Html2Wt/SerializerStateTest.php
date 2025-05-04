@@ -196,7 +196,7 @@ class SerializerStateTest extends TestCase {
 		$state->$method( $node, $callback );
 	}
 
-	public function provideSerializeChildrenToString() {
+	public static function provideSerializeChildrenToString() {
 		return [
 			[ 'kickOffSerialize' ],
 			[ 'serializeLinkChildrenToString' ],

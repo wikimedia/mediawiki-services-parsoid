@@ -70,7 +70,7 @@ class SrTest extends TestCase {
 		}
 	}
 
-	public function provideSr() {
+	public static function provideSr() {
 		return array_map( static function ( $item ) {
 			return [
 				$item['title'],

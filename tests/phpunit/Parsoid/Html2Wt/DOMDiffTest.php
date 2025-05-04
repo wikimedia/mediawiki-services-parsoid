@@ -63,7 +63,7 @@ class DOMDiffTest extends TestCase {
 	 * update code accordingly. If possible, simplify / reduce the different
 	 * markers being used.
 	 */
-	public function provideDiff(): array {
+	public static function provideDiff(): array {
 		return [
 			[
 				[

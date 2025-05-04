@@ -2,6 +2,7 @@
 
 namespace Test\Parsoid\Utils;
 
+use PHPUnit\Framework\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -64,13 +65,13 @@ HTML;
 		$this->assertSame( $expectedTrace, $trace );
 	}
 
-	public function provideTraverse() {
+	public static function provideTraverse() {
 		$basicEnv = new MockEnv( [] );
 
 		return [
 			'basic' => [
-				'callback' => function ( Node $node, ?DTState $state ) use ( $basicEnv ) {
-					$this->assertTrue( $state->atTopLevel );
+				'callback' => static function ( Node $node, ?DTState $state ) use ( $basicEnv ) {
+					Assert::assertTrue( $state->atTopLevel );
 					return true;
 				},
 				'nodeName' => null,
@@ -143,9 +144,9 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'not traversing with tplinfo' => [
-				'callback' => function ( Node $node, DTState $state ) {
+				'callback' => static function ( Node $node, DTState $state ) {
 					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_1' ) {
-						$this->assertTrue( $state->tplInfo === null );
+						Assert::assertTrue( $state->tplInfo === null );
 					}
 					return true;
 				},
@@ -154,18 +155,18 @@ HTML;
 				'expectedTrace' => [ 'x1', 'x1_1', 'x1_2', 'x1_2_1', 'x1_2_2', 'x1_3', 'x2', 'x2_1' ],
 			],
 			'traversing with tplinfo' => [
-				'callback' => function ( Node $node, DTState $state ) {
+				'callback' => static function ( Node $node, DTState $state ) {
 					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_1' ) {
-						$this->assertTrue( $state->tplInfo->first === $node );
+						Assert::assertTrue( $state->tplInfo->first === $node );
 					}
 					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2' ) {
-						$this->assertTrue( $state->tplInfo->last === $node );
+						Assert::assertTrue( $state->tplInfo->last === $node );
 					}
 					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_2_1' ) {
-						$this->assertTrue( $state->tplInfo !== null );
+						Assert::assertTrue( $state->tplInfo !== null );
 					}
 					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_3' ) {
-						$this->assertTrue( $state->tplInfo === null );
+						Assert::assertTrue( $state->tplInfo === null );
 					}
 					return true;
 				},
@@ -175,9 +176,9 @@ HTML;
 				'withTplInfo' => true,
 			],
 			'not traversing with tplinfo, with embedded html' => [
-				'callback' => function ( Node $node, DTState $state ) {
+				'callback' => static function ( Node $node, DTState $state ) {
 					if ( $node instanceof Element && DOMCompat::getAttribute( $node, 'id' ) === 'x1_1' ) {
-						$this->assertTrue( $state->tplInfo === null );
+						Assert::assertTrue( $state->tplInfo === null );
 					}
 					return true;
 				},

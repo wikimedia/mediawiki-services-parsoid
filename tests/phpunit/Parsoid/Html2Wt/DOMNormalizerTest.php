@@ -54,7 +54,7 @@ class DOMNormalizerTest extends TestCase {
 		$this->assertEquals( $expected, $actual, $message );
 	}
 
-	public function provideNormalize(): array {
+	public static function provideNormalize(): array {
 		return [
 			// Tag Minimization
 			[ '<i>X</i><i>Y</i>', '<i>XY</i>', 'Tag Minimization #1', ],

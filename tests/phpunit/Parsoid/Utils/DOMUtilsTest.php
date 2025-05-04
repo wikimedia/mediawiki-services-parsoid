@@ -76,7 +76,7 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expected, $actual );
 	}
 
-	public function provideNodeProperties() {
+	public static function provideNodeProperties() {
 		return [
 			[ '<a href="xyz">foo<!--bar--></a>', [
 				'allChildrenAreTextOrComments' => true,
@@ -214,7 +214,7 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expected, $actual );
 	}
 
-	public function provideElementProperties() {
+	public static function provideElementProperties() {
 		return [
 			[ '<a href="xyz">foo<!--bar--></a>', [
 				'attributes' => [ 'href' => 'xyz' ],
@@ -317,7 +317,7 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( [], DOMUtils::attributes( $el ) );
 	}
 
-	public function provideMultivalAttr() {
+	public static function provideMultivalAttr() {
 		return [ [ 'TypeOf' ], [ 'Rel' ] ];
 	}
 

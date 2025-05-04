@@ -96,7 +96,7 @@ class UnpackDOMFragmentsTest extends TestCase {
 		$this->validateFixedupDSR( $body, $markerNode );
 	}
 
-	public function provideFixMisnestedTagDSRCases(): array {
+	public static function provideFixMisnestedTagDSRCases(): array {
 		return [
 			[ "[http://example.org Link with [[wikilink]] link in the label]", null ],
 			[ "[http://example.org <span>[[wikilink]]</span> link in the label]", null ],

@@ -31,7 +31,7 @@ class UrlUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $url, UrlUtils::assembleUrl( $parsed ) );
 	}
 
-	public function provideParsedUrl(): array {
+	public static function provideParsedUrl(): array {
 		return [
 			'Full URL' => [
 				'http://user@example.com/some/path?que/ry#fra/gme?nt',
@@ -148,7 +148,7 @@ class UrlUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expect, UrlUtils::removeDotSegments( $path ) );
 	}
 
-	public function provideRemoveDotSegments() {
+	public static function provideRemoveDotSegments() {
 		return [
 			[ '/a/b/c/./../../g', '/a/g' ],
 			[ 'mid/content=5/../6', 'mid/6' ],
@@ -226,7 +226,7 @@ class UrlUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertSame( $expect, UrlUtils::expandUrl( $url, $base ) );
 	}
 
-	public function provideExpandUrl() {
+	public static function provideExpandUrl() {
 		return [
 			[ 'g:h', 'http://a/b/c/d;p?q', 'g:h' ],
 			[ 'g', 'http://a/b/c/d;p?q', 'http://a/b/c/g' ],

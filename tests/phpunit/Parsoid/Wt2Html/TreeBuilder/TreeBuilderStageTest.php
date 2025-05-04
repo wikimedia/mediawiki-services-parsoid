@@ -27,7 +27,7 @@ class TreeBuilderStageTest extends \PHPUnit\Framework\TestCase {
 		);
 	}
 
-	public function provideTreeBuilder(): array {
+	public static function provideTreeBuilder(): array {
 		return [
 			[
 				[

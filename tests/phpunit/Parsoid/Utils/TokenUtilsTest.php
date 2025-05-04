@@ -154,7 +154,7 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		],
 	];
 
-	public function provideTokens() {
+	public static function provideTokens() {
 		foreach ( self::TOKEN_TEST_DATA as $k => $t ) {
 			$t['name'] = $t['name'] ?? "Token Test #$k";
 			$t['token'] = Token::getToken( $t['token'] );

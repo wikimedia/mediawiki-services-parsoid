@@ -35,7 +35,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals( $length, $actualLen );
 	}
 
-	public function provideCommentEncoding(): array {
+	public static function provideCommentEncoding(): array {
 		// length includes the length of the <!-- and --> delimiters
 		return [
 			[ 'abc', 'abc', 10 ],
