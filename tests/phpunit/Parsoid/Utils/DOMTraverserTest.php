@@ -67,22 +67,6 @@ HTML;
 	public function provideTraverse() {
 		$basicEnv = new MockEnv( [] );
 
-		$expectError = $this->getMockBuilder( MockEnv::class )
-			->setConstructorArgs( [ [] ] )
-			->onlyMethods( [ 'log' ] )
-			->getMock();
-		$expectError->expects( $this->atLeastOnce() )
-			->method( 'log' )
-			->willReturnCallback( function ( $prefix ) {
-				$this->assertSame( 'error', $prefix );
-			} );
-		$dontExpectError = $this->getMockBuilder( MockEnv::class )
-			->setConstructorArgs( [ [] ] )
-			->onlyMethods( [ 'log' ] )
-			->getMock();
-		$dontExpectError->expects( $this->never() )
-			->method( 'log' );
-
 		return [
 			'basic' => [
 				'callback' => function ( Node $node, ?DTState $state ) use ( $basicEnv ) {
