@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -123,6 +124,14 @@ abstract class TokenHandler {
 	}
 
 	/**
+	 * Should the nested tokens of this compound token be processed
+	 * by this handler?
+	 */
+	public function shouldProcessCompoundToken( Token $token ): bool {
+		return true;
+	}
+
+	/**
 	 * Push an input array of tokens through the handler
 	 * and return a new array of transformed tokens.
 	 */
@@ -134,7 +143,16 @@ abstract class TokenHandler {
 			} elseif ( $token instanceof EOFTk ) {
 				$res = $this->onEnd( $token );
 			} elseif ( !is_string( $token ) ) {
-				$res = $this->onTag( $token );
+				if ( $token instanceof CompoundTk &&
+					$this->shouldProcessCompoundToken( $token )
+				) {
+					$token->setNestedTokens(
+						$this->process( $token->getNestedTokens() )
+					);
+					$res = null;
+				} else {
+					$res = $this->onTag( $token );
+				}
 			} else {
 				$res = null;
 			}

@@ -10,8 +10,8 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
  * HTML tag token
  */
 class TagTk extends Token {
-	/** @var string Name of the end tag */
-	private $name;
+	/** Name of the tag */
+	protected string $name;
 
 	/**
 	 * @param string $name

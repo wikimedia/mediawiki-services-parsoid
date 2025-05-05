@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\NodeData;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -256,6 +257,10 @@ class TreeBuilderStage extends PipelineStage {
 			$data = $token instanceof NlTk ? "\n" : $token;
 			// Combine string tokens to be finalized later
 			$this->textContentBuffer .= $data;
+		} elseif ( $token instanceof CompoundTk ) {
+			$this->env->trace( 'html', $this->pipelineId, "---- START NESTED TOKENS ----" );
+			$this->processChunk( $token->getNestedTokens() );
+			$this->env->trace( 'html', $this->pipelineId, "---- END NESTED TOKENS ----" );
 		} elseif ( $token instanceof TagTk ) {
 			$tName = $token->getName();
 			if ( $tName === 'table' ) {

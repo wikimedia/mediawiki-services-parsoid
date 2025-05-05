@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Tokens\EndTagTk;
+use Wikimedia\Parsoid\Tokens\ListTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 
 /**
@@ -57,4 +58,10 @@ class ListFrame {
 	 * Gets reset on encountering a NlTk or a ; listitem.
 	 */
 	public bool $haveDD = false;
+
+	public ListTk $listTk;
+
+	public function __construct() {
+		$this->listTk = new ListTk;
+	}
 }

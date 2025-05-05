@@ -71,6 +71,10 @@ class TraceProxy extends TokenHandler {
 		return $this->traceEvent( 'onAny', $token );
 	}
 
+	public function shouldProcessCompoundToken( Token $token ): bool {
+		return $this->handler->shouldProcessCompoundToken( $token );
+	}
+
 	public function resetState( array $options ): void {
 		$this->handler->resetState( $options );
 		// Copy onAnyEnabled for TraceProxy::process() to read

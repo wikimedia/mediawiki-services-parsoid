@@ -8,6 +8,7 @@ use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\ListTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -71,6 +72,11 @@ class ParagraphWrapper extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ): ?array {
 		return $this->onNewlineOrEOF( $token );
+	}
+
+	public function shouldProcessCompoundToken( Token $token ): bool {
+		// This is the only known compound token so far
+		return !( $token instanceof ListTk );
 	}
 
 	/**
@@ -457,6 +463,12 @@ class ParagraphWrapper extends TokenHandler {
 			} else {
 				return $this->processBuffers( $token, false );
 			}
+		}
+
+		// Skip the entire list token - dont process nested tokens
+		if ( $token instanceof ListTk ) {
+			$this->currLineBlockTagSeen = true;
+			return $this->processBuffers( $token, true );
 		}
 
 		if ( isset( Consts::$wikitextBlockElems[$tokenName] ) ) {
