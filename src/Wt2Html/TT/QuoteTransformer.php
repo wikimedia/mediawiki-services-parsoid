@@ -415,7 +415,7 @@ class QuoteTransformer extends TokenHandler {
 					$startpos = $tags[$i]->dataParsoid->tsr->end;
 				}
 			}
-			$this->last[$tags[$i]->getName()] = ( $tags[$i]->getType() === "EndTagTk" ) ? null : $tags[$i];
+			$this->last[$tags[$i]->getName()] = ( $tags[$i] instanceof EndTagTk ) ? null : $tags[$i];
 			$result[] = $tags[$i];
 		}
 		if ( $tsr ) {

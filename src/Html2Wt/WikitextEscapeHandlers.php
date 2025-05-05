@@ -7,8 +7,10 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfClosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -720,16 +722,16 @@ class WikitextEscapeHandlers {
 
 			// Now put back the escaping we removed above
 			$tSrc = WTSUtils::escapeNowikiTags( $tsr->substr( $text ) );
-			switch ( $t->getType() ) {
-				case 'NlTk':
+			switch ( true ) {
+				case $t instanceof NlTk:
 					$buf .= $tSrc;
 					$sol = true;
 					break;
-				case 'CommentTk':
+				case $t instanceof CommentTk:
 					// Comments are sol-transparent
 					$buf .= $tSrc;
 					break;
-				case 'TagTk':
+				case $t instanceof TagTk:
 					// Treat tokens with missing tags as self-closing tokens
 					// for the purpose of minimal nowiki escaping
 					self::nowikiWrap(
@@ -741,11 +743,11 @@ class WikitextEscapeHandlers {
 					);
 					$sol = false;
 					break;
-				case 'EndTagTk':
+				case $t instanceof EndTagTk:
 					self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
 					$sol = false;
 					break;
-				case 'SelfclosingTagTk':
+				case $t instanceof SelfclosingTagTk:
 					if ( $t->getName() !== 'meta' ||
 						!TokenUtils::hasTypeOf( $t, 'mw:EmptyLine' )
 					) {
@@ -1193,11 +1195,11 @@ class WikitextEscapeHandlers {
 				continue;
 			}
 
-			switch ( $t->getType() ) {
-				case 'TagTk':
-				case 'EndTagTk':
-				case 'NlTk':
-				case 'CommentTk':
+			switch ( true ) {
+				case $t instanceof TagTk:
+				case $t instanceof EndTagTk:
+				case $t instanceof NlTk:
+				case $t instanceof CommentTk:
 					$da = $t->dataParsoid;
 					if ( empty( $da->tsr ) ) {
 						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
@@ -1218,7 +1220,7 @@ class WikitextEscapeHandlers {
 						$opts
 					);
 					break;
-				case 'SelfclosingTagTk':
+				case $t instanceof SelfclosingTagTk:
 					$da = $t->dataParsoid;
 					if ( empty( $da->tsr ) ) {
 						$errors = [ 'Missing tsr for: ' . PHPUtils::jsonEncode( $t ) ];
@@ -1277,7 +1279,7 @@ class WikitextEscapeHandlers {
 						);
 					}
 					break;
-				case 'EOFTk':
+				case $t instanceof EOFTk:
 					break;
 			}
 		}

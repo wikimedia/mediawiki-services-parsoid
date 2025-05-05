@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -213,9 +214,9 @@ class TokenStreamPatcher extends TokenHandler {
 		);
 
 		$tokens = [ $token ];
-		$tc = TokenUtils::getTokenType( $token );
-		switch ( $tc ) {
-			case 'string':
+
+		switch ( true ) {
+			case is_string( $token ):
 				// While we are buffering newlines to suppress them
 				// in case we see a category, buffer all intervening
 				// white-space as well.
@@ -284,13 +285,13 @@ class TokenStreamPatcher extends TokenHandler {
 				}
 				break;
 
-			case 'CommentTk':
+			case $token instanceof CommentTk:
 				// Comments don't change SOL state
 				// Update srcOffset
 				$this->srcOffset = $token->dataParsoid->tsr->end ?? null;
 				break;
 
-			case 'SelfclosingTagTk':
+			case $token instanceof SelfclosingTagTk:
 				if ( $token->getName() === 'meta' && ( $token->dataParsoid->stx ?? '' ) !== 'html' ) {
 					if ( TokenUtils::hasTypeOf( $token, 'mw:Transclusion' ) ) {
 						$this->tplStartToken = $token;
@@ -346,7 +347,7 @@ class TokenStreamPatcher extends TokenHandler {
 				}
 				break;
 
-			case 'TagTk':
+			case $token instanceof TagTk:
 				if ( $this->inIndependentParse && !TokenUtils::isHTMLTag( $token ) ) {
 					$tokenName = $token->getName();
 					if ( $tokenName === 'listItem' && isset( $this->options['attrExpansion'] ) ) {
@@ -369,7 +370,7 @@ class TokenStreamPatcher extends TokenHandler {
 				$this->clearSOL();
 				break;
 
-			case 'EndTagTk':
+			case $token instanceof EndTagTk:
 				if ( $this->inIndependentParse && !TokenUtils::isHTMLTag( $token ) ) {
 					if ( $this->wikiTableNesting > 0 ) {
 						if ( $token->getName() === 'table' ) {
