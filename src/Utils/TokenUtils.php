@@ -29,15 +29,6 @@ class TokenUtils {
 		'/(?:^|\s)mw:PageProp\/(?:Category|redirect|Language)(?=$|\s)/D';
 
 	/**
-	 * Gets a string type value for a token
-	 * @param Token|string $token
-	 * @return string
-	 */
-	public static function getTokenType( $token ): string {
-		return is_string( $token ) ? 'string' : $token->getType();
-	}
-
-	/**
 	 * @param string $name
 	 * @return bool
 	 */

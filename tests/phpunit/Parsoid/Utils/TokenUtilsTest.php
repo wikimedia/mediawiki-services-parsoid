@@ -18,12 +18,10 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 	private const TOKEN_TEST_DATA = [
 		[
 			'token' => 'string',
-			'getTokenType' => 'string',
 			'tokensToString' => 'string',
 		],
 		[
 			'token' => [ 'type' => 'NlTk' ],
-			'getTokenType' => 'NlTk',
 			'tokenTrimTransparent' => true,
 		],
 		[
@@ -33,7 +31,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'name' => 'div',
 				'attribs' => [],
 			],
-			'getTokenType' => 'TagTk',
 			'tagClosesBlockScope' => true,
 		],
 		[
@@ -43,7 +40,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'name' => 'p',
 				'attribs' => [],
 			],
-			'getTokenType' => 'TagTk',
 			'tagOpensBlockScope' => true,
 		],
 		[
@@ -53,7 +49,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'name' => 'td',
 				'attribs' => [],
 			],
-			'getTokenType' => 'TagTk',
 			'tagClosesBlockScope' => true,
 			'isTableTag' => true,
 		],
@@ -64,7 +59,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				'name' => 'template',
 				'attribs' => [],
 			],
-			'getTokenType' => 'SelfclosingTagTk',
 			'isTemplateToken' => true,
 		],
 		[
@@ -80,7 +74,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 					'stx' => 'html',
 				],
 			],
-			'getTokenType' => 'TagTk',
 			'tagClosesBlockScope' => true,
 			'isHTMLTag' => true,
 		],
@@ -99,7 +92,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 					'tagWidths' => [ 8, 9 ]
 				],
 			],
-			'getTokenType' => 'TagTk',
 			'hasDOMFragmentType' => true,
 		],
 		[
@@ -121,7 +113,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 					],
 				],
 			],
-			'getTokenType' => 'SelfclosingTagTk',
 			'isSolTransparentLinkTag' => true,
 		],
 		[
@@ -133,7 +124,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 					'tsr' => [ 2104, 2147 ],
 				],
 			],
-			'getTokenType' => 'CommentTk',
 		],
 		[
 			'name' => 'empty line meta token',
@@ -149,7 +139,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 					],
 				],
 			],
-			'getTokenType' => 'SelfclosingTagTk',
 			'isEmptyLineMetaToken' => true,
 		],
 	];
@@ -160,17 +149,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 			$t['token'] = Token::getToken( $t['token'] );
 			yield $t['name'] => [ $t ];
 		}
-	}
-
-	/**
-	 * @covers ::getTokenType
-	 * @dataProvider provideTokens
-	 */
-	public function testGetTokenType( array $testCase ) {
-		$this->assertEquals(
-			$testCase['getTokenType'] ?? 'unknown',
-			TokenUtils::getTokenType( $testCase['token'] )
-		);
 	}
 
 	/**
