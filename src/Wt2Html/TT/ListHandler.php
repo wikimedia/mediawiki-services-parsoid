@@ -80,7 +80,12 @@ class ListHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onTag( Token $token ): ?array {
-		return $token->getName() === 'listItem' ? $this->onListItem( $token ) : null;
+		if ( $token->getName() === 'listItem' ) {
+			'@phan-var TagTk $token'; // @var TagTk $token
+			return $this->onListItem( $token );
+		} else {
+			return null;
+		}
 	}
 
 	/**
@@ -255,7 +260,7 @@ class ListHandler extends TokenHandler {
 	 * Handle a list item
 	 * @return ?array<string|Token>
 	 */
-	private function onListItem( Token $token ): ?array {
+	private function onListItem( TagTk $token ): ?array {
 		if ( $this->inT2529Mode ) {
 			// See comment in onAny where this property is set to true
 			// The only relevant change is to 'haveDD'.
@@ -273,28 +278,24 @@ class ListHandler extends TokenHandler {
 			// I believe Parsoid's output is better, but we can comply
 			// if we see a real regression for this.
 		}
-		if ( $token instanceof TagTk ) {
-			$this->onAnyEnabled = true;
-			$bullets = $token->getAttributeV( 'bullets' );
-			if ( $this->currListFrame ) {
-				// Ignoring colons inside tags to prevent illegal overlapping.
-				// Attempts to mimic findColonNoLinks in the php parser.
-				if ( PHPUtils::lastItem( $bullets ) === ':'
-					&& ( $this->currListFrame->haveDD || $this->currListFrame->numOpenTags > 0 )
-				) {
-					$this->env->trace( 'list', $this->pipelineId, 'ANY: ', $token );
-					$this->env->trace( 'list', $this->pipelineId, 'RET: ', ':' );
-					return [ ':' ];
-				}
-			} else {
-				$this->currListFrame = new ListFrame;
-			}
-			// convert listItem to list and list item tokens
-			return $this->doListItem( $this->currListFrame->bstack, $bullets, $token );
-		}
 
-		$this->env->trace( 'list', $this->pipelineId, 'RET: ', $token );
-		return null;
+		$this->onAnyEnabled = true;
+		$bullets = $token->getAttributeV( 'bullets' );
+		if ( $this->currListFrame ) {
+			// Ignoring colons inside tags to prevent illegal overlapping.
+			// Attempts to mimic findColonNoLinks in the php parser.
+			if ( PHPUtils::lastItem( $bullets ) === ':'
+				&& ( $this->currListFrame->haveDD || $this->currListFrame->numOpenTags > 0 )
+			) {
+				$this->env->trace( 'list', $this->pipelineId, 'ANY: ', $token );
+				$this->env->trace( 'list', $this->pipelineId, 'RET: ', ':' );
+				return [ ':' ];
+			}
+		} else {
+			$this->currListFrame = new ListFrame;
+		}
+		// convert listItem to list and list item tokens
+		return $this->doListItem( $this->currListFrame->bstack, $bullets, $token );
 	}
 
 	/**
