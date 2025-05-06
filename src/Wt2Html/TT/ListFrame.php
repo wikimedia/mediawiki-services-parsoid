@@ -8,6 +8,18 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 
 /**
  * Private helper class for ListHandler.
+ *
+ * NOTE: This is *not* a per-list frame.
+ *
+ * This is a frame for every nested context within which list
+ * processing proceeds independent of any parent context.
+ * Currently, *only* tables introduce a new nested parsing context
+ * and lists embedded in a table cell are independent of any list
+ * that the table itself might be embedded in.
+ *
+ * So, if you ignore tables, there will only be a single list frame ever
+ * in the list-frame stack maintained in ListHandler.
+ *
  * @private
  */
 class ListFrame {
