@@ -286,18 +286,7 @@ class WikitextSerializer {
 	}
 
 	public function serializeHTMLTag( Element $node, bool $wrapperUnmodified ): string {
-		// TODO(arlolra): As of 1.3.0, html pre is considered an extension
-		// and wrapped in encapsulation.  When that version is no longer
-		// accepted for serialization, we can remove this backwards
-		// compatibility code.
-		//
-		// 'inHTMLPre' flag has to be updated always,
-		// even when we are selsering in the wrapperUnmodified case.
 		$token = WTSUtils::mkTagTk( $node );
-		if ( $token->getName() === 'pre' ) {
-			// html-syntax pre is very similar to nowiki
-			$this->state->inHTMLPre = true;
-		}
 
 		if ( $wrapperUnmodified ) {
 			$dsr = DOMDataUtils::getDataParsoid( $node )->dsr;
@@ -339,9 +328,6 @@ class WikitextSerializer {
 		}
 
 		$token = WTSUtils::mkEndTagTk( $node );
-		if ( $token->getName() === 'pre' ) {
-			$this->state->inHTMLPre = false;
-		}
 
 		// srcTagName cannot be '' so, it is okay to use ?? operator
 		$tokenName = $token->dataParsoid->srcTagName ?? $token->getName();

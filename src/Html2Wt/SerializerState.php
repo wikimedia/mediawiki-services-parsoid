@@ -116,12 +116,6 @@ class SerializerState {
 	public $inIndentPre = false;
 
 	/**
-	 * Is the serializer currently handling a html-pre tag?
-	 * @var bool
-	 */
-	public $inHTMLPre = false;
-
-	/**
 	 * Is the serializer currently handling a tag that the PHP parser
 	 * treats as a block tag?
 	 * @var bool
@@ -684,7 +678,7 @@ class SerializerState {
 
 		$needsEscaping = $this->needsEscaping;
 		if ( $needsEscaping && $this->currNode instanceof Text ) {
-			$needsEscaping = !$this->inHTMLPre && ( $this->onSOL || !$this->currNodeUnmodified );
+			$needsEscaping = ( $this->onSOL || !$this->currNodeUnmodified );
 		}
 
 		// Escape 'res' if necessary
@@ -830,7 +824,7 @@ class SerializerState {
 	private function serializeChildrenToString(
 		Node $node, ?callable $wtEscaper, string $inState
 	): string {
-		$states = [ 'inLink', 'inCaption', 'inIndentPre', 'inHTMLPre', 'inPHPBlock', 'inAttribute' ];
+		$states = [ 'inLink', 'inCaption', 'inIndentPre', 'inPHPBlock', 'inAttribute' ];
 		Assert::parameter( in_array( $inState, $states, true ), '$inState', 'Must be one of: '
 			. implode( ', ', $states ) );
 		// FIXME: Make sure that the separators emitted here conform to the
