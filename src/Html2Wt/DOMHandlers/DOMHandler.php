@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Html2Wt\SerializerState;
-use Wikimedia\Parsoid\Html2Wt\WTSUtils;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -267,8 +266,7 @@ class DOMHandler {
 	private function serializeTableElement(
 		string $symbol, ?string $endSymbol, SerializerState $state, Element $node
 	): string {
-		$token = WTSUtils::mkTagTk( $node );
-		$sAttribs = $state->serializer->serializeAttributes( $node, $token );
+		$sAttribs = $state->serializer->serializeAttributes( $node );
 		if ( $sAttribs !== '' ) {
 			// IMPORTANT: use ?? not ?: in the first check because we want to preserve an
 			// empty string. Use != '' in the second to avoid treating '0' as empty.

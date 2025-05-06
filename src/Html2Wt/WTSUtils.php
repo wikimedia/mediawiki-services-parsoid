@@ -10,9 +10,6 @@ use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
-use Wikimedia\Parsoid\Tokens\EndTagTk;
-use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -32,50 +29,6 @@ class WTSUtils {
 
 	public static function hasValidTagWidths( ?DomSourceRange $dsr ): bool {
 		return $dsr !== null && $dsr->hasValidTagWidths();
-	}
-
-	/**
-	 * Get the attributes on a node in an array of KV objects.
-	 *
-	 * @param Element $node
-	 * @return KV[]
-	 */
-	public static function getAttributeKVArray( Element $node ): array {
-		$kvs = [];
-		foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
-			$kvs[] = new KV( $name, $value );
-		}
-		return $kvs;
-	}
-
-	/**
-	 * Create a `TagTk` corresponding to a DOM node.
-	 *
-	 * @param Element $node
-	 * @return TagTk
-	 */
-	public static function mkTagTk( Element $node ): TagTk {
-		$attribKVs = self::getAttributeKVArray( $node );
-		return new TagTk(
-			DOMCompat::nodeName( $node ),
-			$attribKVs,
-			DOMDataUtils::getDataParsoid( $node )
-		);
-	}
-
-	/**
-	 * Create a `EndTagTk` corresponding to a DOM node.
-	 *
-	 * @param Element $node
-	 * @return EndTagTk
-	 */
-	public static function mkEndTagTk( Element $node ): EndTagTk {
-		$attribKVs = self::getAttributeKVArray( $node );
-		return new EndTagTk(
-			DOMCompat::nodeName( $node ),
-			$attribKVs,
-			DOMDataUtils::getDataParsoid( $node )
-		);
 	}
 
 	/**
