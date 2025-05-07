@@ -329,7 +329,7 @@ class PreHandler extends TokenHandler {
 		$env = $this->env;
 
 		$env->trace( 'pre', $this->pipelineId, 'NL    |',
-			self::STATE_STR[$this->state], '| ', $token
+			self::STATE_STR[$this->state], '|', $token
 		);
 
 		// Whenever we move into SOL-state, init preTSR to
@@ -381,7 +381,7 @@ class PreHandler extends TokenHandler {
 	 */
 	public function onEnd( EOFTk $token ): ?array {
 		$this->env->trace( 'pre', $this->pipelineId, 'eof   |',
-			self::STATE_STR[$this->state], '| ', $token
+			self::STATE_STR[$this->state], '|', $token
 		);
 
 		switch ( $this->state ) {

@@ -182,7 +182,7 @@ class ParsoidLogger {
 				} else {
 					$a = $encode( $arg );
 				}
-				$output .= PHPUtils::jsonEncode( $a );
+				$output .= ' ' . PHPUtils::jsonEncode( $a );
 			}
 		}
 

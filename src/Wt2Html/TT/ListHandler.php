@@ -93,7 +93,7 @@ class ListHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?array {
-		$this->env->trace( 'list', $this->pipelineId, 'ANY: ', $token );
+		$this->env->trace( 'list', $this->pipelineId, 'ANY:', $token );
 		$tokens = null;
 
 		if ( $token instanceof Token && TokenUtils::matchTypeOf( $token, '#^mw:Transclusion$#' ) ) {
@@ -122,7 +122,7 @@ class ListHandler extends TokenHandler {
 				$this->nestedTableCount++;
 			}
 
-			$this->env->trace( 'list', $this->pipelineId, 'RET: ', $token );
+			$this->env->trace( 'list', $this->pipelineId, 'RET:', $token );
 			return null;
 		}
 
@@ -154,7 +154,7 @@ class ListHandler extends TokenHandler {
 						// Non-list item in newline context ==> close all previous lists
 						return $this->closeLists( $token );
 					} else {
-						$this->env->trace( 'list', $this->pipelineId, 'RET: ', $token );
+						$this->env->trace( 'list', $this->pipelineId, 'RET:', $token );
 						return null;
 					}
 				}
@@ -201,12 +201,12 @@ class ListHandler extends TokenHandler {
 			} elseif ( self::generateImpliedEndTags( $token->getName() ) ) {
 				$this->currListFrame->numOpenBlockTags++;
 			}
-			$this->env->trace( 'list', $this->pipelineId, 'RET: ', $token );
+			$this->env->trace( 'list', $this->pipelineId, 'RET:', $token );
 			return null;
 		}
 
 		// Nothing else left to do
-		$this->env->trace( 'list', $this->pipelineId, 'RET: ', $token );
+		$this->env->trace( 'list', $this->pipelineId, 'RET:', $token );
 		return null;
 	}
 
@@ -214,7 +214,7 @@ class ListHandler extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onEnd( EOFTk $token ): ?array {
-		$this->env->trace( 'list', $this->pipelineId, 'END: ', $token );
+		$this->env->trace( 'list', $this->pipelineId, 'END:', $token );
 		$toks = $this->closeLists( $token );
 		$this->reset();
 		return $toks;
@@ -248,7 +248,7 @@ class ListHandler extends TokenHandler {
 		$this->resetCurrListFrame();
 
 		$this->env->trace( 'list', $this->pipelineId, '----closing all lists----' );
-		$this->env->trace( 'list', $this->pipelineId, 'RET: ', $tokens );
+		$this->env->trace( 'list', $this->pipelineId, 'RET:', $tokens );
 
 		return $tokens;
 	}
@@ -284,8 +284,8 @@ class ListHandler extends TokenHandler {
 			if ( PHPUtils::lastItem( $bullets ) === ':'
 				&& ( $this->currListFrame->haveDD || $this->currListFrame->numOpenTags > 0 )
 			) {
-				$this->env->trace( 'list', $this->pipelineId, 'ANY: ', $token );
-				$this->env->trace( 'list', $this->pipelineId, 'RET: ', ':' );
+				$this->env->trace( 'list', $this->pipelineId, 'ANY:', $token );
+				$this->env->trace( 'list', $this->pipelineId, 'RET:', ':' );
 				return [ ':' ];
 			}
 		} else {
@@ -380,7 +380,7 @@ class ListHandler extends TokenHandler {
 	 * @return array<string|Token>
 	 */
 	private function doListItem( array $bs, array $bn, Token $token ): array {
-		$this->env->trace( 'list', $this->pipelineId, 'BEGIN: ', $token );
+		$this->env->trace( 'list', $this->pipelineId, 'BEGIN:', $token );
 
 		$prefixLen = $this->commonPrefixLength( $bs, $bn );
 		$prefix = array_slice( $bn, 0, $prefixLen/*CHECK THIS*/ );
@@ -552,7 +552,7 @@ class ListHandler extends TokenHandler {
 		$this->currListFrame->nlTk = null;
 		$this->currListFrame->atEOL = false;
 
-		$this->env->trace( 'list', $this->pipelineId, 'RET: ', $res );
+		$this->env->trace( 'list', $this->pipelineId, 'RET:', $res );
 		return $res;
 	}
 }
