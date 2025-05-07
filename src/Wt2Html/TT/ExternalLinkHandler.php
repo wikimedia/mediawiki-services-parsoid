@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
@@ -246,7 +247,7 @@ class ExternalLinkHandler extends TokenHandler {
 	}
 
 	/** @inheritDoc */
-	public function onTag( Token $token ): ?array {
+	public function onTag( XMLTagTk $token ): ?array {
 		switch ( $token->getName() ) {
 			case 'urllink':
 				return $this->onUrlLink( $token );

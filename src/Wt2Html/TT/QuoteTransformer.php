@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2html\TokenHandlerPipeline;
 
@@ -97,7 +98,7 @@ class QuoteTransformer extends TokenHandler {
 	 * Handles mw-quote tokens and td/th tokens
 	 * @inheritDoc
 	 */
-	public function onTag( Token $token ): ?array {
+	public function onTag( XMLTagTk $token ): ?array {
 		$tkName = $token->getName();
 		if ( $tkName === 'mw-quote' ) {
 			return $this->onQuote( $token );
@@ -166,14 +167,7 @@ class QuoteTransformer extends TokenHandler {
 			return null;
 		}
 
-		$this->env->trace(
-			"quote",
-			$this->pipelineId,
-			"NL    |",
-			static function () use( $token ) {
-				return PHPUtils::jsonEncode( $token );
-			}
-		);
+		$this->env->trace( "quote", $this->pipelineId, "NL    |", $token );
 
 		if (
 			( $token->getName() === 'td' || $token->getName() === 'th' ) &&

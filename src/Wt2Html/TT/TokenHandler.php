@@ -6,12 +6,10 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\CompoundTk;
-use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
-use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
-use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
@@ -95,7 +93,7 @@ abstract class TokenHandler {
 	 * The handler may choose to process only specific kinds of tokens.
 	 * For example, a list handler may only process 'listitem' TagTk tokens.
 	 *
-	 * @param Token $token Token to be processed
+	 * @param XMLTagTk $token tag to be processed
 	 * @return ?array<string|Token>
 	 *   - null indicates that the token was passed-through
 	 *     and it will be dispatched to the onAny handler
@@ -104,7 +102,7 @@ abstract class TokenHandler {
 	 *     may be the cumulative transformation of this token
 	 *     and other previous tokens before this.
 	 */
-	public function onTag( Token $token ): ?array {
+	public function onTag( XMLTagTk $token ): ?array {
 		return null;
 	}
 
@@ -144,22 +142,17 @@ abstract class TokenHandler {
 		$accum = [];
 		foreach ( $tokens as $token ) {
 			switch ( true ) {
-				case is_string( $token ):
-					$res = null;
+				case $token instanceof XMLTagTk:
+					$res = $this->onTag( $token );
 					break;
 
-				case $token instanceof TagTk:
-				case $token instanceof EndTagTk:
-				case $token instanceof SelfclosingTagTk:
-					$res = $this->onTag( $token );
+				case is_string( $token ):
+				case $token instanceof CommentTk:
+					$res = null;
 					break;
 
 				case $token instanceof NlTk:
 					$res = $this->onNewline( $token );
-					break;
-
-				case $token instanceof CommentTk:
-					$res = null;
 					break;
 
 				case $token instanceof CompoundTk:

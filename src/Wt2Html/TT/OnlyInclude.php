@@ -8,8 +8,8 @@ use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
-use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 
 /**
  * OnlyInclude sadly forces synchronous template processing, as it needs to
@@ -54,11 +54,7 @@ class OnlyInclude extends TokenHandler {
 			}
 		}
 
-		$isTag = $token instanceof TagTk ||
-			$token instanceof EndTagTk ||
-			$token instanceof SelfclosingTagTk;
-
-		if ( $isTag && $token->getName() === 'onlyinclude' ) {
+		if ( $token instanceof XMLTagTk && $token->getName() === 'onlyinclude' ) {
 			// FIXME: This doesn't seem to consider self-closing tags
 			// or close really
 			if ( !$this->inOnlyInclude ) {

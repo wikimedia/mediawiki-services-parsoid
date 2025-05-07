@@ -7,6 +7,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class TraceProxy extends TokenHandler {
@@ -62,7 +63,7 @@ class TraceProxy extends TokenHandler {
 		return $this->traceEvent( 'onNewline', $token );
 	}
 
-	public function onTag( Token $token ): ?array {
+	public function onTag( XMLTagTk $token ): ?array {
 		return $this->traceEvent( 'onTag', $token );
 	}
 

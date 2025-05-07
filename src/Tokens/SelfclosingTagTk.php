@@ -9,10 +9,7 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
 /**
  * Token for a self-closing tag (HTML or otherwise)
  */
-class SelfclosingTagTk extends Token {
-	/** @var string Name of the end tag */
-	private $name;
-
+class SelfclosingTagTk extends XMLTagTk {
 	/**
 	 * @param string $name
 	 * @param KV[] $attribs
@@ -32,26 +29,6 @@ class SelfclosingTagTk extends Token {
 	public function __clone() {
 		parent::__clone();
 		// No new non-primitive properties to clone.
-	}
-
-	public function getName(): string {
-		return $this->name;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function jsonSerialize(): array {
-		$ret = [
-			'type' => $this->getType(),
-			'name' => $this->name,
-			'attribs' => $this->attribs,
-			'dataParsoid' => $this->dataParsoid,
-		];
-		if ( $this->dataMw !== null ) {
-			$ret['dataMw'] = $this->dataMw;
-		}
-		return $ret;
 	}
 
 	/** @inheritDoc */
