@@ -85,12 +85,11 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	}
 
 	/**
-	 * Get a name for the token.
-	 * Derived classes can override this.
-	 * @return string
+	 * Gets token name. This is only implemented by XMLTagTk.
+	 * Returns '' for all other tokens.
 	 */
 	public function getName(): string {
-		return $this->getType();
+		return '';
 	}
 
 	/**

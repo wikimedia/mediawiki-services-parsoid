@@ -8,11 +8,6 @@ namespace Wikimedia\Parsoid\Tokens;
  */
 class IndentPreTk extends CompoundTk {
 	/** @inheritDoc */
-	public function getName(): string {
-		return "IndentPreTk";
-	}
-
-	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ) {
 		return new self( $json['nestedTokens'] ?? [] );
 	}

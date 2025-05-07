@@ -18,7 +18,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\KV;
-use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -896,12 +896,12 @@ class Sanitizer {
 	/**
 	 * @param SiteConfig $siteConfig
 	 * @param ?string $tagName
-	 * @param ?Token $token
+	 * @param ?XMLTagTk $token
 	 * @param array $attrs
 	 * @return array
 	 */
 	public static function sanitizeTagAttrs(
-		SiteConfig $siteConfig, ?string $tagName, ?Token $token, array $attrs
+		SiteConfig $siteConfig, ?string $tagName, ?XMLTagTk $token, array $attrs
 	): array {
 		$tag = $tagName ?: $token->getName();
 

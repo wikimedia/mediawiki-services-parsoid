@@ -8,11 +8,6 @@ namespace Wikimedia\Parsoid\Tokens;
  */
 class ListTk extends CompoundTk {
 	/** @inheritDoc */
-	public function getName(): string {
-		return "ListTk";
-	}
-
-	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ) {
 		return new self( $json['nestedTokens'] ?? [] );
 	}
