@@ -343,7 +343,7 @@ class WikitextSerializer {
 		return $ret;
 	}
 
-	public function serializeAttributes( Element $node, Token $token, bool $isWt = false ): string {
+	public function serializeAttributes( Element $node, Token $token ): string {
 		$attribs = $token->attribs;
 
 		$out = [];
@@ -426,7 +426,7 @@ class WikitextSerializer {
 				$kk = preg_replace( '/^data-x-/i', '', $kk, 1 );
 				// PORT-FIXME: is this type safe? $vv could be a ConstrainedText
 				if ( $vv !== null && strlen( $vv ) > 0 ) {
-					if ( !$vInfo['fromsrc'] && !$isWt ) {
+					if ( !$vInfo['fromsrc'] ) {
 						// Escape wikitext entities
 						$vv = str_replace( '>', '&gt;', Utils::escapeWtEntities( $vv ) );
 					}
