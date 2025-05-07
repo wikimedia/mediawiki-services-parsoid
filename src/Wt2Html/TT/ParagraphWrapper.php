@@ -8,6 +8,7 @@ use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\IndentPreTk;
 use Wikimedia\Parsoid\Tokens\ListTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
@@ -25,20 +26,10 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
  */
 class ParagraphWrapper extends TokenHandler {
 
-	private bool $inPre = false;
 	private bool $hasOpenPTag = false;
 	private bool $inBlockElem = false;
 	private bool $inBlockquote = false;
 
-	/**
-	 * The state machine in the PreHandler is line based and only suppresses
-	 * indent-pres when encountering blocks on a line.  However, the legacy
-	 * parser's `doBlockLevels` has a concept of being "$inBlockElem", which
-	 * is mimicked here.  Rather than replicate that awareness in both passes,
-	 * we piggyback on it here to undo indent-pres when they're found to be
-	 * undesirable.
-	 */
-	private bool $undoIndentPre = false;
 	private array $tokenBuffer = [];
 	private array $nlWsTokens = [];
 	private int $newLineCount = 0;
@@ -64,7 +55,7 @@ class ParagraphWrapper extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ): ?array {
-		return $this->inPre ? null : $this->onNewlineOrEOF( $token );
+		return $this->onNewlineOrEOF( $token );
 	}
 
 	/**
@@ -75,8 +66,7 @@ class ParagraphWrapper extends TokenHandler {
 	}
 
 	public function shouldProcessCompoundToken( Token $token ): bool {
-		// This is the only known compound token so far
-		return !( $token instanceof ListTk );
+		return false;
 	}
 
 	/**
@@ -97,8 +87,6 @@ class ParagraphWrapper extends TokenHandler {
 		$this->resetBuffers();
 		$this->resetCurrLine();
 		$this->hasOpenPTag = false;
-		$this->inPre = false;
-		$this->undoIndentPre = false;
 		// NOTE: This flag is the local equivalent of what we're mimicking with
 		// the 'inlineContext' pipeline option.
 		$this->inBlockElem = false;
@@ -365,6 +353,30 @@ class ParagraphWrapper extends TokenHandler {
 		return $resToks;
 	}
 
+	private function undoIndentPre( IndentPreTk $ipre ): array {
+		$ret1 = $this->newLineCount === 0 ? $this->flushBuffers( '' ) : [];
+
+		$this->env->trace( 'p-wrap', $this->pipelineId, '---- UNDOING PRE ----' );
+		$nestedTokens = $ipre->getNestedTokens();
+		$n = count( $nestedTokens );
+		$i = 1; // skip the <pre> and </pre>
+		while ( $i < $n - 1 ) {
+			$token = $nestedTokens[$i];
+			if ( PreHandler::isIndentPreWS( $token ) ) {
+				$this->nlWsTokens[] = ' ';
+			} elseif ( $token instanceof NlTk ) {
+				PHPUtils::pushArray( $ret1, $this->onNewlineOrEOF( $token ) );
+			} else {
+				PHPUtils::pushArray( $ret1, $this->onAny( $token ) );
+			}
+
+			$i++;
+		}
+
+		$this->env->trace( 'p-wrap', $this->pipelineId, '---- DONE UNDOING PRE ----' );
+		return $ret1;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -375,11 +387,6 @@ class ParagraphWrapper extends TokenHandler {
 		if ( is_string( $token ) ||
 			$token instanceof CommentTk || TokenUtils::isEmptyLineMetaToken( $token )
 		) {
-			if ( $this->inPre ) {
-				$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $token );
-				return null; // unmodified token
-			}
-
 			if ( !is_string( $token ) || preg_match( '/^[\t ]*$/D', $token ) ) {
 				if ( $this->newLineCount === 0 ) {
 					// Since we have no pending newlines to trip us up,
@@ -398,43 +405,6 @@ class ParagraphWrapper extends TokenHandler {
 		}
 
 		$tokenName = $token->getName();
-		if ( $tokenName === 'pre' && !TokenUtils::isHTMLTag( $token ) ) {
-			if ( $token instanceof TagTk ) {
-				if ( $this->inBlockElem || $this->inBlockquote ) {
-					$this->undoIndentPre = true;
-					return $this->newLineCount === 0 ? $this->flushBuffers( '' ) : [];
-				} else {
-					$this->inPre = true;
-					// This will put us `inBlockElem`, so we need the extra `!inPre`
-					// condition below.  Presumably, we couldn't have entered
-					// `inBlockElem` while being `inPre`.  Alternatively, we could say
-					// that indent-pre is "never suppressing" and set the `blockTagOpen`
-					// flag to false. The point of all this is that we want to close
-					// any open p-tags.
-					$this->currLineBlockTagSeen = true;
-					$this->currLineBlockTagOpen = true;
-					return $this->processBuffers( $token, true );
-				}
-			} else { /* EndTagTk */
-				if ( ( $this->inBlockElem && !$this->inPre ) || $this->inBlockquote ) {
-					$this->undoIndentPre = false;
-					// No pre-tokens inside block tags -- swallow it.
-					return [];
-				} else {
-					$this->inPre = false;
-					$this->currLineBlockTagSeen = true;
-					$this->currLineBlockTagOpen = false;
-					$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $token );
-					return null; // unmodified token
-				}
-			}
-		}
-
-		if ( $this->inPre || $token instanceof EOFTk ) {
-			$this->env->trace( 'p-wrap', $this->pipelineId, '---->   ', $token );
-			return null;
-		}
-
 		if (
 			// T186965: <style> behaves similarly to sol transparent tokens in
 			// that it doesn't open/close paragraphs, but also doesn't induce
@@ -442,10 +412,7 @@ class ParagraphWrapper extends TokenHandler {
 			TokenUtils::isSolTransparent( $this->env, $token ) ||
 			$tokenName === 'style'
 		) {
-			if ( $this->undoIndentPre && PreHandler::isIndentPreWS( $token ) ) {
-				$this->nlWsTokens[] = ' ';
-				return [];
-			} elseif ( $this->newLineCount === 0 ) {
+			if ( $this->newLineCount === 0 ) {
 				// Since we have no pending newlines to trip us up,
 				// no need to buffer -- just flush everything
 				return $this->flushBuffers( $token );
@@ -469,6 +436,28 @@ class ParagraphWrapper extends TokenHandler {
 		if ( $token instanceof ListTk ) {
 			$this->currLineBlockTagSeen = true;
 			return $this->processBuffers( $token, true );
+		}
+
+		// Skip the entire indent-pre token - dont process nested tokens
+		// But, if nested in blockquote, process specially
+		if ( $token instanceof IndentPreTk ) {
+			if ( $this->inBlockElem || $this->inBlockquote ) {
+				// The state machine in the PreHandler is line based and only suppresses
+				// indent-pres when encountering blocks on a line.  However, the legacy
+				// parser's `doBlockLevels` has a concept of being "$inBlockElem", which
+				// is mimicked here.  Rather than replicate that awareness in both passes,
+				// we piggyback on it here to undo indent-pres when they're found to be
+				// undesirable.
+				return $this->undoIndentPre( $token );
+			} else {
+				$this->currLineBlockTagSeen = true;
+				return $this->processBuffers( $token, true );
+			}
+		}
+
+		if ( $token instanceof EOFTk ) {
+			$this->env->log( 'trace/p-wrap', $this->pipelineId, '---->   ', $token );
+			return null;
 		}
 
 		if ( isset( Consts::$wikitextBlockElems[$tokenName] ) ) {

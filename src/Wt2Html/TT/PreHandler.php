@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\IndentPreTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
@@ -241,16 +242,20 @@ class PreHandler extends TokenHandler {
 			}
 
 			// Add pre wrapper around the selected tokens
+			// and embed them in a compound IndentPre token
 			$da = null;
 			if ( $this->preTSR !== -1 ) {
 				$da = new DataParsoid;
 				$da->tsr = new SourceRange( $this->preTSR, $this->preTSR );
 			}
-			$ret = [ new TagTk( 'pre', [], $da ) ];
+			$indentPreTk = new IndentPreTk;
+			$indentPreTk->addToken( new TagTk( 'pre', [], $da ) );
 			for ( $j = 0; $j < $i + 1; $j++ ) {
-				$ret[] = $this->tokens[$j];
+				$indentPreTk->addToken( $this->tokens[$j] );
 			}
-			$ret[] = new EndTagTk( 'pre' );
+			$indentPreTk->addToken( new EndTagTk( 'pre' ) );
+
+			$ret = [ $indentPreTk ];
 			for ( $j = $i + 1; $j < $n; $j++ ) {
 				$t = $this->tokens[$j];
 				if ( self::isIndentPreWS( $t ) ) {

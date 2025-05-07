@@ -4,10 +4,15 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\CompoundTk;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 abstract class TokenHandler {
@@ -138,23 +143,45 @@ abstract class TokenHandler {
 	public function process( array $tokens ): array {
 		$accum = [];
 		foreach ( $tokens as $token ) {
-			if ( $token instanceof NlTk ) {
-				$res = $this->onNewline( $token );
-			} elseif ( $token instanceof EOFTk ) {
-				$res = $this->onEnd( $token );
-			} elseif ( !is_string( $token ) ) {
-				if ( $token instanceof CompoundTk &&
-					$this->shouldProcessCompoundToken( $token )
-				) {
-					$token->setNestedTokens(
-						$this->process( $token->getNestedTokens() )
-					);
+			switch ( true ) {
+				case is_string( $token ):
 					$res = null;
-				} else {
+					break;
+
+				case $token instanceof TagTk:
+				case $token instanceof EndTagTk:
+				case $token instanceof SelfclosingTagTk:
 					$res = $this->onTag( $token );
-				}
-			} else {
-				$res = null;
+					break;
+
+				case $token instanceof NlTk:
+					$res = $this->onNewline( $token );
+					break;
+
+				case $token instanceof CommentTk:
+					$res = null;
+					break;
+
+				case $token instanceof CompoundTk:
+					if ( $this->shouldProcessCompoundToken( $token ) ) {
+						$newToks = $this->process( $token->getNestedTokens() );
+						$fakeEOF = new EOFTk;
+						$flushedOutput = $this->onEnd( $fakeEOF );
+						if ( $flushedOutput !== null ) {
+							array_pop( $flushedOutput ); // pop fake EOF
+							PHPUtils::pushArray( $newToks, $flushedOutput );
+						}
+						$token->setNestedTokens( $newToks );
+					}
+					$res = null;
+					break;
+
+				case $token instanceof EOFTk:
+					$res = $this->onEnd( $token );
+					break;
+
+				default:
+					$res = null;
 			}
 
 			if ( $res === null && $this->onAnyEnabled ) {
