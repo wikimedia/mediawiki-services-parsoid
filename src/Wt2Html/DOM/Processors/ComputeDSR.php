@@ -577,7 +577,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 				if ( $cs !== null || $ce !== null ) {
 					if ( $ce < 0 ) {
 						if ( !$fosteredNode ) {
-							$env->log( "info/dsr/negative",
+							$env->trace( "dsr/negative",
 								"Negative DSR for node: " . DOMCompat::nodeName( $node ) . "; resetting to zero" );
 						}
 						$ce = 0;
@@ -684,7 +684,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 
 		// Detect errors
 		if ( $s !== null && $cs !== $s && !$this->acceptableInconsistency( $opts, $node, $cs, $s ) ) {
-			$env->log( "info/dsr/inconsistent", "DSR inconsistency: cs/s mismatch for node:",
+			$env->trace( "dsr/inconsistent", "DSR inconsistency: cs/s mismatch for node:",
 				DOMCompat::nodeName( $node ), "s:", $s, "; cs:", $cs );
 		}
 
