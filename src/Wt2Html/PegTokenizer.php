@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\WikiPEG\SyntaxError;
 
@@ -38,7 +39,9 @@ class PegTokenizer extends PipelineStage {
 		parent::__construct( $env );
 		$this->env = $env;
 		$this->options = $options;
-		$this->tracing = $env->hasTraceFlag( 'grammar' );
+		$this->tracing = $env->hasTraceFlag( 'grammar' ) ||
+			// Allow substitution of a custom tracer for unit testing
+			isset( $options['tracer'] );
 		// Cache only on seeing the same source the second time.
 		// This minimizes cache bloat & token cloning penalties.
 		$this->cache = $this->env->getCache(
@@ -130,13 +133,44 @@ class PegTokenizer extends PipelineStage {
 		];
 
 		if ( $this->tracing ) {
-			$args['tracer'] = new Tracer( $input );
+			$args['tracer'] = $this->options['tracer'] ?? new Tracer( $input );
 		}
 
-		// Wrap wikipeg's generator with our own generator
-		// to track time usage.
-		// @phan-suppress-next-line PhanTypeInvalidYieldFrom
-		yield from $this->grammar->parse( $input, $args );
+		foreach ( $this->onlyIncludeOffsets( $input, $args ) as [ $start, $end ] ) {
+			$piece = substr( $input, $start, $end - $start );
+			// Wrap wikipeg's generator with our own generator
+			// to track time usage.
+			// @phan-suppress-next-line PhanTypeInvalidYieldFrom
+			yield from $this->grammar->parse( $piece, [
+				'pipelineOffset' => $args['pipelineOffset'] + $start,
+			] + $args );
+		}
+	}
+
+	/**
+	 * Provide the offsets into $input needed for <onlyinclude> processing
+	 * if `inTemplate` mode.  Otherwise just return the start and end
+	 * of the string.
+	 */
+	private function onlyIncludeOffsets( string $input, array $args ): array {
+		// Handle <onlyinclude>
+		if (
+			( $this->options['inTemplate'] ?? false ) &&
+			str_contains( $input, '<onlyinclude>' ) &&
+			str_contains( $input, '</onlyinclude>' )
+		) {
+			try {
+				return $this->grammar->parse( $input, [
+					'stream' => false,
+					'startRule' => 'preproc_find_only_include',
+					'pipelineOffset' => 0,
+				] + $args );
+			} catch ( SyntaxError ) {
+				/* ignore, fall through to process the whole input */
+				$this->env->log( 'warn', "Couldn't extract <onlyinclude>" );
+			}
+		}
+		return [ [ 0, strlen( $input ) ] ];
 	}
 
 	/**
@@ -185,14 +219,15 @@ class PegTokenizer extends PipelineStage {
 			"|" . (int)$args['sol'] .
 			"|" . $args['startRule'] .
 			"|" . $args['pipelineOffset'] .
-			"|" . ( $args['source'] ? spl_object_id( $args['source'] ) : "" );
+			"|" . ( $args['source'] ? spl_object_id( $args['source'] ) : "" ) .
+			"|" . ( $this->options['enableOnlyInclude'] ?? false );
 		$res = $this->cache->lookup( $cacheKey, $text );
 		if ( $res !== null ) {
 			return $res;
 		}
 
 		if ( $this->tracing ) {
-			$args['tracer'] = new Tracer( $text );
+			$args['tracer'] = $this->options['tracer'] ?? new Tracer( $text );
 		}
 
 		$start = null;
@@ -203,15 +238,38 @@ class PegTokenizer extends PipelineStage {
 		}
 
 		try {
-			$toks = $this->grammar->parse( $text, $args );
-			// The 'start' and 'start_async' rules manually call
-			// ::shiftTokenTSR before returning tokens.  For all
-			// others, we still need to perform the shift by the
-			// requested $pipelineOffset.
-			if ( $args['startRule'] !== 'start' && $args['startRule'] !== 'start_async' ) {
-				TokenUtils::shiftTokenTSR(
-					is_array( $toks ) ? $toks : [ $toks ], $args['pipelineOffset']
-				);
+			if ( $this->options['enableOnlyInclude'] ?? false ) {
+				$toks = [];
+				foreach ( $this->onlyIncludeOffsets( $text, $args ) as [ $start, $end ] ) {
+					$piece = substr( $text, $start, $end - $start );
+					$result = $this->grammar->parse( $piece, [
+						'pipelineOffset' => $args['pipelineOffset'] + $start,
+					] + $args );
+					if ( !is_array( $result ) ) {
+						$result = [ $result ];
+					}
+					// The 'start' and 'start_async' rules manually call
+					// ::shiftTokenTSR before returning tokens.  For all
+					// others, we still need to perform the shift by the
+					// requested $args['pipelineOffset'].
+					if ( $args['startRule'] !== 'start' ) {
+						TokenUtils::shiftTokenTSR(
+							$result, $args['pipelineOffset'] + $start
+						);
+					}
+					PHPUtils::pushArray( $toks, $result );
+				}
+			} else {
+				$toks = $this->grammar->parse( $text, $args );
+				// The 'start' and 'start_async' rules manually call
+				// ::shiftTokenTSR before returning tokens.  For all
+				// others, we still need to perform the shift by the
+				// requested $args['pipelineOffset'].
+				if ( $args['startRule'] !== 'start' ) {
+					TokenUtils::shiftTokenTSR(
+						is_array( $toks ) ? $toks : [ $toks ], $args['pipelineOffset']
+					);
+				}
 			}
 		} catch ( SyntaxError $e ) {
 			$exception = $e;

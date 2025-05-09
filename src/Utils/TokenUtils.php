@@ -14,6 +14,7 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\KVSourceRange;
 use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\PreprocTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -315,6 +316,7 @@ class TokenUtils {
 				case $t instanceof XMLTagTk:
 				case $t instanceof NlTk:
 				case $t instanceof CommentTk:
+				case $t instanceof PreprocTk:
 					$da = $t->dataParsoid;
 					$tsr = $da->tsr ?? null;
 					if ( $tsr ) {
@@ -652,6 +654,8 @@ class TokenUtils {
 			} elseif ( is_array( $token ) ) {
 				Assert::invariant( !$strict, "strict case handled above" );
 				$out .= self::tokensToString( $token, $strict, $opts );
+			} elseif ( $token instanceof PreprocTk ) {
+				$out .= $token->print( pretty: false );
 			} elseif (
 				$token instanceof CommentTk ||
 				( empty( $opts['retainNLs'] ) && $token instanceof NlTk )
