@@ -285,6 +285,7 @@ class ParserPipelineFactory {
 		"Tokenizer" => [
 			"class" => PegTokenizer::class,
 		],
+		/* Except for OnlyInclude & AttributeExpander, these are all tag-based handlers */
 		"TokenTransform2" => [
 			"class" => TokenHandlerPipeline::class,
 			"token-handlers" => [
@@ -310,6 +311,10 @@ class ParserPipelineFactory {
 				DOMFragmentBuilder::class
 			],
 		],
+		/**
+		 * Except for BehaviorSwitchHandler & SanitizerHandler, these are all line-based handlers.
+		 * FIXME: Should BehaviorSwitchhandler be moved up?
+		 */
 		"TokenTransform3" => [
 			"class" => TokenHandlerPipeline::class,
 			"token-handlers" => [

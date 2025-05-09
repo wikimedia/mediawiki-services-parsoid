@@ -15,7 +15,7 @@ use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 
-class ExternalLinkHandler extends TokenHandler {
+class ExternalLinkHandler extends XMLTagBasedHandler {
 	/** @var PegTokenizer */
 	private $urlParser;
 

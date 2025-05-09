@@ -34,7 +34,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 /**
  * Template and template argument handling.
  */
-class TemplateHandler extends TokenHandler {
+class TemplateHandler extends XMLTagBasedHandler {
 	/**
 	 * @var bool Should we wrap template tokens with template meta tags?
 	 */

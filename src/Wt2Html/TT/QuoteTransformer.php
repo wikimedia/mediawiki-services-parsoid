@@ -39,7 +39,7 @@ function array_flatten( array $array ): array {
 /**
  * MediaWiki-compatible italic/bold handling as a token stream transformation.
  */
-class QuoteTransformer extends TokenHandler {
+class QuoteTransformer extends LineBasedHandler {
 	/** Chunks alternate between quote tokens and sequences of non-quote
 	 * tokens.  The quote tokens are later replaced with the actual tag
 	 * token for italic or bold.  The first chunk is a non-quote chunk.

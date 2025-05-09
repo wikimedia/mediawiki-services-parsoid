@@ -26,7 +26,7 @@ use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
-class SanitizerHandler extends TokenHandler {
+class SanitizerHandler extends UniversalTokenHandler {
 	/** @var bool */
 	private $inTemplate;
 

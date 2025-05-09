@@ -26,7 +26,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
  * -- there is much fun to be had mimicking "wikitext visual newlines"
  * behavior as implemented by the PHP parser.
  */
-class ParagraphWrapper extends TokenHandler {
+class ParagraphWrapper extends LineBasedHandler {
 
 	private bool $hasOpenPTag = false;
 	private bool $inBlockElem = false;

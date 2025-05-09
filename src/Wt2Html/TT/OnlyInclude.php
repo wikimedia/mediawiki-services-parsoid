@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Tokens\XMLTagTk;
  * This can fortunately be worked around by caching the tokens after
  * onlyinclude processing (which is a good idea anyway).
  */
-class OnlyInclude extends TokenHandler {
+class OnlyInclude extends UniversalTokenHandler {
 	/** @var array */
 	private $accum = [];
 

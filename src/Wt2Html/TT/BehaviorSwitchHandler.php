@@ -13,7 +13,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 /**
  * Handler for behavior switches, like '__TOC__' and similar.
  */
-class BehaviorSwitchHandler extends TokenHandler {
+class BehaviorSwitchHandler extends XMLTagBasedHandler {
 
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );

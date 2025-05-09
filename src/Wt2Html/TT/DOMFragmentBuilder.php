@@ -10,7 +10,7 @@ use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
-class DOMFragmentBuilder extends TokenHandler {
+class DOMFragmentBuilder extends XMLTagBasedHandler {
 	/**
 	 * @param TokenHandlerPipeline $manager manager environment
 	 * @param array $options options

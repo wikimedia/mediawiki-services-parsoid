@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 /**
  * Handler for language conversion markup, which looks like `-{ ... }-`.
  */
-class LanguageVariantHandler extends TokenHandler {
+class LanguageVariantHandler extends XMLTagBasedHandler {
 	/** @inheritDoc */
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );

@@ -21,7 +21,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 /**
  * Create list tag around list items and map wiki bullet levels to html.
  */
-class ListHandler extends TokenHandler {
+class ListHandler extends LineBasedHandler {
 	/**
 	 * Debug string output of bullet character mappings.
 	 * @var array<string,array<string,string>>

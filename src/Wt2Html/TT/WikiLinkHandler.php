@@ -41,7 +41,7 @@ use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
-class WikiLinkHandler extends TokenHandler {
+class WikiLinkHandler extends XMLTagBasedHandler {
 	/**
 	 * @var PegTokenizer
 	 */

@@ -26,7 +26,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 /**
  * Generic attribute expansion handler.
  */
-class AttributeExpander extends TokenHandler {
+class AttributeExpander extends UniversalTokenHandler {
 	private const META_TYPE_MATCHER = '#(mw:(LanguageVariant|Transclusion|Param|Includes|Annotation/)(.*)$)#D';
 
 	/**
@@ -659,10 +659,7 @@ class AttributeExpander extends TokenHandler {
 	}
 
 	/**
-	 * Token handler.
-	 *
-	 * For tokens that might have complex attributes, this handler
-	 * processes / expands them.
+	 * For tokens that might have complex attributes, this handler processes / expands them.
 	 * (Ex: Templated styles)
 	 *
 	 * @inheritDoc

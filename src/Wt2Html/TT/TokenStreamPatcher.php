@@ -29,7 +29,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
  * given that we dont have a preprocessor.  This will be a grab-bag of
  * heuristics and tricks to handle different scenarios.
  */
-class TokenStreamPatcher extends TokenHandler {
+class TokenStreamPatcher extends LineBasedHandler {
 	private PegTokenizer $tokenizer;
 
 	/** @var int|null */

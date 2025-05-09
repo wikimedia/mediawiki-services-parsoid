@@ -4,12 +4,18 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\Profile;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Wt2Html\TT\LineBasedHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\LineBasedHandlerTraceProxy;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
-use Wikimedia\Parsoid\Wt2Html\TT\TraceProxy;
+use Wikimedia\Parsoid\Wt2Html\TT\UniversalTokenHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\UniversalTokenHandlerTraceProxy;
+use Wikimedia\Parsoid\Wt2Html\TT\XMLTagBasedHandler;
+use Wikimedia\Parsoid\Wt2Html\TT\XMLTagBasedHandlerTraceProxy;
 
 /**
  * Token transformation manager. Individual transformations
@@ -74,10 +80,17 @@ class TokenHandlerPipeline extends PipelineStage {
 	 */
 	public function addTransformer( TokenHandler $t ): void {
 		if ( $this->traceEnabled ) {
-			$this->transformers[] = new TraceProxy( $this, $this->options, $this->traceType, $t );
-		} else {
-			$this->transformers[] = $t;
+			if ( $t instanceof XMLTagBasedHandler ) {
+				$t = new XMLTagBasedHandlerTraceProxy( $this, $this->options, $this->traceType, $t );
+			} elseif ( $t instanceof LineBasedHandler ) {
+				$t = new LineBasedHandlerTraceProxy( $this, $this->options, $this->traceType, $t );
+			} elseif ( $t instanceof UniversalTokenHandler ) {
+				$t = new UniversalTokenHandlerTraceProxy( $this, $this->options, $this->traceType, $t );
+			} else {
+				throw new UnreachableException( "THP: Got unknown token handler type: " . get_class( $t ) );
+			}
 		}
+		$this->transformers[] = $t;
 	}
 
 	public function shuttleTokensToEndOfStage( array $toks ): array {

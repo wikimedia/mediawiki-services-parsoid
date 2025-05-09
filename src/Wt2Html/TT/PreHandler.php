@@ -94,7 +94,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
  *   the rest of the string.
  * ```
  */
-class PreHandler extends TokenHandler {
+class PreHandler extends LineBasedHandler {
 	// FSM states
 	private const STATE_SOL = 1;
 	private const STATE_PRE = 2;
