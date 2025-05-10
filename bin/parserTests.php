@@ -17,7 +17,10 @@ class ParserTests extends \Wikimedia\Parsoid\Tools\Maintenance {
 	/** @var array */
 	public $processedOptions;
 
-	// PORT-FIXME: Used to be colors::mode in all the use sites
+	/**
+	 * PORT-FIXME: Used to be colors::mode in all the use sites
+	 * @var string
+	 */
 	public static $colors_mode;
 
 	/** @var Differ */
