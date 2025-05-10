@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable MediaWiki.Commenting.FunctionComment.DefaultNullTypeParam -- T218324, T218816
 declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;

@@ -1,8 +1,6 @@
 <?php
 
-/* phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic */
 /* phpcs:disable Generic.Files.LineLength.TooLong */
-/* phpcs:disable MediaWiki.Commenting.FunctionComment.WrongStyle */
 
 /* ------------------------------------------------------------------------------
  * This script is meant to be used as a tool to process Cite's i18n messages used
