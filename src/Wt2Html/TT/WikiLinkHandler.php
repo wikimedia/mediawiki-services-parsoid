@@ -42,21 +42,12 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class WikiLinkHandler extends XMLTagBasedHandler {
-	/**
-	 * @var PegTokenizer
-	 */
-	private $urlParser;
+	private static array $cache = [];
+	private static array $sourceCounts = [];
 
-	/** @inheritDoc */
-	public function __construct( TokenHandlerPipeline $manager, array $options ) {
-		parent::__construct( $manager, $options );
-
-		// Create a new peg parser for image options.
-		if ( !$this->urlParser ) {
-			// Actually the regular tokenizer, but we'll call it with the
-			// url rule only.
-			$this->urlParser = new PegTokenizer( $this->env );
-		}
+	public static function initCaches(): void {
+		self::$cache = [];
+		self::$sourceCounts = [];
 	}
 
 	private static function hrefParts( string $str ): ?array {
@@ -65,6 +56,18 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		} else {
 			return null;
 		}
+	}
+
+	private PegTokenizer $urlParser;
+
+	/** @inheritDoc */
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
+		parent::__construct( $manager, $options );
+
+		// Create a new peg parser for image options.
+		// Actually the regular tokenizer, but we'll call it with the
+		// url rule only.
+		$this->urlParser = new PegTokenizer( $this->env );
 	}
 
 	/**
@@ -268,7 +271,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			return [ $linkSrc ];  // Forget about trying to tokenize this
 		}
 		$startOffset = $tsr->start + 1;
-		$toks = PipeLineUtils::processContentInPipeline(
+		$toks = PipelineUtils::processContentInPipeline(
 			$manager->getEnv(), $frame, $src, [
 				// FIXME: Set toplevel when bailing
 				// 'toplevel' => $atTopLevel ?? false,
@@ -293,6 +296,22 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 * @throws InternalException
 	 */
 	private function onWikiLink( Token $token ): array {
+		$tsrStart = $token->dataParsoid->tsr->start ?? null;
+
+		// Check if we have cached output for this wikilink source.
+		// Given wikilink-syntax source, token output is deterministic
+		// and so we can benefit from caching.
+		$src = $token->dataParsoid->src ?? '';
+		if ( $tsrStart !== null && strlen( $src ) > 0 ) {
+			$cachedOutput = self::$cache[$src] ?? null;
+			if ( $cachedOutput ) {
+				$offset = $tsrStart - $cachedOutput['start'];
+				$toks = Utils::cloneArray( $cachedOutput['tokens'] );
+				TokenUtils::shiftTokenTSR( $toks, $offset );
+				return $toks;
+			}
+		}
+
 		$env = $this->env;
 		$hrefKV = $token->getAttributeKV( 'href' );
 		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
@@ -341,7 +360,22 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 		// Ok, it looks like we have a sensible href. Figure out which handler to use.
 		$isRedirect = (bool)$token->getAttributeV( 'redirect' );
-		return $this->wikiLinkHandler( $token, $target, $isRedirect );
+		$toks = $this->wikiLinkHandler( $token, $target, $isRedirect );
+
+		if ( $tsrStart !== null ) {
+			self::$sourceCounts[$src] = ( self::$sourceCounts[$src] ?? 0 ) + 1;
+			// Cache only on seeing the same source the fourth time.
+			// This minimizes cache bloat & token cloning penalties
+			// and reserving benefits for links seen at least 5 times.
+			if ( self::$sourceCounts[$src] > 3 ) {
+				self::$cache[$src] = [
+					'start' => $tsrStart,
+					'tokens' => Utils::cloneArray( $toks )
+				];
+			}
+		}
+
+		return $toks;
 	}
 
 	/**

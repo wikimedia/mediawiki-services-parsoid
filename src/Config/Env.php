@@ -30,6 +30,7 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\RemexPipeline;
+use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
 
 /**
  * Environment/Envelope class for Parsoid
@@ -300,6 +301,11 @@ class Env {
 		$this->metadata->setTOCData( $this->tocData );
 
 		$this->wikitextContentModelHandler = new WikitextContentModelHandler( $this );
+
+		// Initialize caches
+		// This is needed because parser tests reuse pipelines
+		// and we don't want link output reused across tests.
+		WikiLinkHandler::initCaches();
 	}
 
 	/**

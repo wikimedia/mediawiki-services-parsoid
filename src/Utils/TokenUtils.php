@@ -310,7 +310,7 @@ class TokenUtils {
 				case CommentTk::class:
 				case EndTagTk::class:
 					$da = $t->dataParsoid;
-					$tsr = $da->tsr;
+					$tsr = $da->tsr ?? null;
 					if ( $tsr ) {
 						if ( $offset ) {
 							$da->tsr = $tsr->offset( $offset );
