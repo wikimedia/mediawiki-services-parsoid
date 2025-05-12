@@ -1054,7 +1054,7 @@ class TemplateHandler extends TokenHandler {
 	 * processes the template.
 	 * @return array<string|Token>
 	 */
-	private function onTemplate( Token $token ): array {
+	private function onTemplate( XMLTagTk $token ): array {
 		$state = new TemplateEncapsulator(
 			$this->env, $this->manager->getFrame(), $token, 'mw:Transclusion'
 		);
@@ -1075,7 +1075,7 @@ class TemplateHandler extends TokenHandler {
 	 * Expand template arguments with tokens from the containing frame.
 	 * @return array<string|Token>
 	 */
-	private function onTemplateArg( Token $token ): array {
+	private function onTemplateArg( XMLTagTk $token ): array {
 		$toks = $this->manager->getFrame()->expandTemplateArg( $token );
 
 		if ( $this->wrapTemplates && $this->options['expandTemplates'] ) {

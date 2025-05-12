@@ -202,7 +202,8 @@ class QuoteTransformer extends TokenHandler {
 
 		$this->env->trace( "quote", $this->pipelineId, "NL    |", $token );
 
-		if ( $token &&
+		if (
+			$token instanceof XMLTagTk &&
 			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
 			( $token->dataParsoid->stx ?? '' ) === 'html'
 		) {

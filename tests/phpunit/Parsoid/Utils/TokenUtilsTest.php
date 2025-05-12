@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 
 /**
@@ -159,8 +160,8 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['tagOpensBlockScope'] ?? false,
-			is_string( $token ) ? false :
-			TokenUtils::tagOpensBlockScope( $token->getName() )
+			$token instanceof XMLTagTk ?
+				TokenUtils::tagOpensBlockScope( $token->getName() ) : false
 		);
 	}
 
@@ -172,8 +173,8 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$token = $testCase['token'];
 		$this->assertEquals(
 			$testCase['tagClosesBlockScope'] ?? false,
-			is_string( $token ) ? false :
-			TokenUtils::tagClosesBlockScope( $token->getName() )
+			$token instanceof XMLTagTk ?
+				TokenUtils::tagClosesBlockScope( $token->getName() ) : false
 		);
 	}
 

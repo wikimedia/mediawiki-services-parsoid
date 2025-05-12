@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -165,7 +166,8 @@ class TokenStreamPatcher extends TokenHandler {
 		} elseif ( !empty( $da->autoInsertedStart ) && !empty( $da->autoInsertedEnd ) ) {
 			return [ '' ];
 		} else {
-			switch ( $token->getName() ) {
+			$tokenName = ( $token instanceof XMLTagTk ) ? $token->getName() : '';
+			switch ( $tokenName ) {
 				case 'td':
 					return [ ( $token->dataParsoid->stx ?? '' ) === 'row' ? '||' : '|' ];
 				case 'th':

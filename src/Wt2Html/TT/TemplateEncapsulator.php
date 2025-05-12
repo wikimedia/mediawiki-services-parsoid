@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -31,13 +32,13 @@ class TemplateEncapsulator {
 	private Frame $frame;
 	private string $wrapperType;
 	private string $aboutId;
-	public Token $token;
+	public XMLTagTk $token;
 	public ?string $variableName = null;
 	public ?string $parserFunctionName = null;
 	public ?string $resolvedTemplateTarget = null;
 	public bool $isV3ParserFunction = false;
 
-	public function __construct( Env $env, Frame $frame, Token $token, string $wrapperType ) {
+	public function __construct( Env $env, Frame $frame, XMLTagTk $token, string $wrapperType ) {
 		$this->env = $env;
 		$this->frame = $frame;
 		$this->token = $token;

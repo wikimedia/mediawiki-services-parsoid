@@ -20,6 +20,7 @@ use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
 use Wikimedia\Parsoid\Wt2Html\Frame;
@@ -55,10 +56,11 @@ class SanitizerHandler extends TokenHandler {
 		$attribs = $token->attribs ?? null;
 		$allowedTags = Consts::$Sanitizer['AllowedLiteralTags'];
 
-		if ( TokenUtils::isHTMLTag( $token )
-			&& ( empty( $allowedTags[$token->getName()] )
-				|| ( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) )
-			)
+		if (
+			$token instanceof XMLTagTk &&
+			TokenUtils::isHTMLTag( $token ) &&
+			( empty( $allowedTags[$token->getName()] ) ||
+				( $token instanceof EndTagTk && !empty( self::NO_END_TAG_SET[$token->getName()] ) ) )
 		) { // unknown tag -- convert to plain text
 			if ( !$inTemplate && !empty( $token->dataParsoid->tsr ) ) {
 				// Just get the original token source, so that we can avoid

@@ -222,7 +222,7 @@ class WikiLinkHandler extends TokenHandler {
 		// the resulting href and transfer it to rlink.
 		$r = $this->onWikiLink( $wikiLinkTk );
 		$firstToken = ( $r[0] ?? null );
-		$isValid = $firstToken instanceof Token &&
+		$isValid = $firstToken instanceof XMLTagTk &&
 			in_array( $firstToken->getName(), [ 'a', 'link' ], true );
 		if ( $isValid ) {
 			$da = $r[0]->dataParsoid;
@@ -1011,7 +1011,10 @@ class WikiLinkHandler extends TokenHandler {
 				}
 
 				$resultStr .= $nextResult;
-			} elseif ( !( $currentToken instanceof EndTagTk ) ) {
+			} elseif (
+				( $currentToken instanceof XMLTagTk ) &&
+				!( $currentToken instanceof EndTagTk )
+			) {
 				// This is actually a token
 				if ( TokenUtils::hasDOMFragmentType( $currentToken ) ) {
 					if ( self::isWikitextOpt( $env, $optInfo, $prefix, $resultStr ) ) {

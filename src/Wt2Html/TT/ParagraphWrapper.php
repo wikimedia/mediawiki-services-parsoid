@@ -15,6 +15,7 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wikitext\Consts;
@@ -202,7 +203,7 @@ class ParagraphWrapper extends TokenHandler {
 			$countOut = count( $out );
 			for ( $i = 0; $i < $countOut; $i++ ) {
 				$t = $out[$i];
-				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
+				if ( ( $t instanceof XMLTagTk ) && $t->getName() === 'meta' ) {
 					if ( TokenUtils::hasTypeOf( $t, 'mw:Transclusion' ) ) {
 						// We hit a start tag and everything before it is sol-transparent.
 						$tplStartIndex = $i;
@@ -242,7 +243,7 @@ class ParagraphWrapper extends TokenHandler {
 			// Look for open markers before closing.
 			for ( $i = count( $out ) - 1; $i > -1; $i-- ) {
 				$t = $out[$i];
-				if ( !is_string( $t ) && $t->getName() === 'meta' ) {
+				if ( ( $t instanceof XMLTagTk ) && $t->getName() === 'meta' ) {
 					if ( TokenUtils::hasTypeOf( $t, 'mw:Transclusion' ) ) {
 						// We hit a start tag and everything after it is sol-transparent.
 						// Don't include the sol-transparent tags OR the start tag.
@@ -420,13 +421,13 @@ class ParagraphWrapper extends TokenHandler {
 			return $this->processBuffers( $token, false );
 		}
 
-		$tokenName = $token->getName();
+		$tokenName = ( $token instanceof XMLTagTk ) ? $token->getName() : '';
 		if (
 			// T186965: <style> behaves similarly to sol transparent tokens in
 			// that it doesn't open/close paragraphs, but also doesn't induce
 			// a new paragraph by itself.
-			TokenUtils::isSolTransparent( $this->env, $token ) ||
-			$tokenName === 'style'
+			$tokenName === 'style' ||
+			TokenUtils::isSolTransparent( $this->env, $token )
 		) {
 			if ( $this->newLineCount === 0 ) {
 				// Since we have no pending newlines to trip us up,

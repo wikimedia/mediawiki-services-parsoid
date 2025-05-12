@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\PipelineUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
@@ -89,7 +90,7 @@ class AttributeExpander extends TokenHandler {
 	}
 
 	private static function splitTokens(
-		Frame $frame, Token $token, int $nlTkPos, array $tokens, bool $wrapTemplates
+		Frame $frame, XMLTagTk $token, int $nlTkPos, array $tokens, bool $wrapTemplates
 	): array {
 		$preNLBuf = [];
 		$postNLBuf = null;
@@ -249,11 +250,11 @@ class AttributeExpander extends TokenHandler {
 
 	/**
 	 * Callback for attribute expansion in AttributeTransformManager
-	 * @param Token $token
+	 * @param XMLTagTk $token
 	 * @param KV[] $expandedAttrs
 	 * @return array<string|Token>
 	 */
-	private function buildExpandedAttrs( Token $token, array $expandedAttrs ) {
+	private function buildExpandedAttrs( XMLTagTk $token, array $expandedAttrs ): array {
 		// If we're not in a template, we'll be doing template wrapping in dom
 		// post-processing (same conditional there), so take care of meta markers
 		// found while processing tokens.
@@ -613,10 +614,10 @@ class AttributeExpander extends TokenHandler {
 	 * Processes any attribute keys and values that are not simple strings.
 	 * (Ex: Templated styles)
 	 *
-	 * @param Token $token Token whose attrs being expanded.
+	 * @param XMLTagTk $token Token whose attrs being expanded.
 	 * @return ?array<string|Token>
 	 */
-	private function processComplexAttributes( Token $token ): ?array {
+	private function processComplexAttributes( XMLTagTk $token ): ?array {
 		$expandedAttrs = AttributeTransformManager::process(
 			$this->manager->getFrame(),
 			[
@@ -634,10 +635,10 @@ class AttributeExpander extends TokenHandler {
 	 * Expand the first attribute of the token -- usually needed to support
 	 * tempate tokens where the template target itself is a complex attribute.
 	 *
-	 * @param Token $token Token whose first attribute is being expanded.
+	 * @param XMLTagTK $token Token whose first attribute is being expanded.
 	 * @return ?array<string|Token>
 	 */
-	public function expandFirstAttribute( Token $token ): ?array {
+	public function expandFirstAttribute( XMLTagTk $token ): ?array {
 		$expandedAttrs = AttributeTransformManager::process(
 			$this->manager->getFrame(),
 			[
