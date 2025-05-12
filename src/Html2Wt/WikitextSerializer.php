@@ -462,7 +462,7 @@ class WikitextSerializer {
 			$aKeys = array_keys( $dataParsoid->a );
 			foreach ( $aKeys as $k ) {
 				// Attrib not present -- sanitized away!
-				if ( DOMCompat::getAttribute( $node, $k ) === null ) {
+				if ( DOMCompat::getAttribute( $node, (string)$k ) === null ) {
 					$sv = $dataParsoid->sa[$k] ?? null;
 					// FIXME: The tokenizer and attribute shadowing currently
 					// don't make much effort towards distinguishing the use
