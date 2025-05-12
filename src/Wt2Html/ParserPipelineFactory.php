@@ -299,6 +299,10 @@ class ParserPipelineFactory {
 				// as with the legacy parser - up to end of TokenTransform2.
 				AttributeExpander::class,
 
+				// add before transforms that depend on behavior switches
+				// examples: toc generation, edit sections
+				BehaviorSwitchHandler::class,
+
 				// now all attributes expanded to tokens or string
 				// more convenient after attribute expansion
 				WikiLinkHandler::class,
@@ -312,8 +316,7 @@ class ParserPipelineFactory {
 			],
 		],
 		/**
-		 * Except for BehaviorSwitchHandler & SanitizerHandler, these are all line-based handlers.
-		 * FIXME: Should BehaviorSwitchhandler be moved up?
+		 * Except for SanitizerHandler, these are all line-based handlers.
 		 */
 		"TokenTransform3" => [
 			"class" => TokenHandlerPipeline::class,
@@ -322,9 +325,6 @@ class ParserPipelineFactory {
 				// add <pre>s
 				PreHandler::class,
 				QuoteTransformer::class,
-				// add before transforms that depend on behavior switches
-				// examples: toc generation, edit sections
-				BehaviorSwitchHandler::class,
 
 				ListHandler::class,
 				SanitizerHandler::class,

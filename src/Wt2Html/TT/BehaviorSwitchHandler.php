@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -71,15 +70,4 @@ class BehaviorSwitchHandler extends XMLTagBasedHandler {
 	public function onTag( XMLTagTk $token ): ?array {
 		return $token->getName() === 'behavior-switch' ? $this->onBehaviorSwitch( $token ) : null;
 	}
-
-	/**
-	 * Process nested tokens and update the compound token.
-	 *
-	 * @inheritDoc
-	 */
-	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
-		$ctk->setNestedTokens( $tokensHandler->process( $ctk->getNestedTokens() ) );
-		return null;
-	}
-
 }
