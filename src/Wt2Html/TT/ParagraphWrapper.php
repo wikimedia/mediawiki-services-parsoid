@@ -354,27 +354,31 @@ class ParagraphWrapper extends TokenHandler {
 	}
 
 	private function undoIndentPre( IndentPreTk $ipre ): array {
-		$ret1 = $this->newLineCount === 0 ? $this->flushBuffers( '' ) : [];
+		$ret = $this->newLineCount === 0 ? $this->flushBuffers( '' ) : [];
 
 		$this->env->trace( 'p-wrap', $this->pipelineId, '---- UNDOING PRE ----' );
 		$nestedTokens = $ipre->getNestedTokens();
 		$n = count( $nestedTokens );
-		$i = 1; // skip the <pre> and </pre>
-		while ( $i < $n - 1 ) {
+		$i = 1; // skip the <pre>
+		while ( $i < $n ) {
 			$token = $nestedTokens[$i];
 			if ( PreHandler::isIndentPreWS( $token ) ) {
 				$this->nlWsTokens[] = ' ';
 			} elseif ( $token instanceof NlTk ) {
-				PHPUtils::pushArray( $ret1, $this->onNewlineOrEOF( $token ) );
+				PHPUtils::pushArray( $ret, $this->onNewlineOrEOF( $token ) );
+			} elseif ( $token instanceof EndTagTk && $token->getName() === 'pre' ) {
+				// Skip </pre>
+				// There may be other tokens after this in cases where
+				// tags are unbalanced in the input.
 			} else {
-				PHPUtils::pushArray( $ret1, $this->onAny( $token ) );
+				PHPUtils::pushArray( $ret, $this->onAny( $token ) );
 			}
 
 			$i++;
 		}
 
 		$this->env->trace( 'p-wrap', $this->pipelineId, '---- DONE UNDOING PRE ----' );
-		return $ret1;
+		return $ret;
 	}
 
 	/**

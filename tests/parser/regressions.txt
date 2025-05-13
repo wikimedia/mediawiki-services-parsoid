@@ -132,3 +132,22 @@ parsoid=wt2html
    <br></p>
 <div data-parsoid='{"stx":"html"}'>b</div>
 !! end
+
+# Edge case in p-wrapping handling IndentPreTk
+!! test
+Unbalanced i-tags shouldn't leak out of blockquote containing leading whitespace
+!! options
+parsoid=wt2html
+!! wikitext
+<blockquote>
+    foo ''bar
+</blockquote>
+
+baz
+!! html/parsoid
+<blockquote data-parsoid='{"stx":"html"}'>
+ <p>   foo <i data-parsoid='{"autoInsertedEnd":true}'>bar</i></p>
+</blockquote>
+
+<p>baz</p>
+!! end
