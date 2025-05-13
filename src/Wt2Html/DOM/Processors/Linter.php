@@ -1317,6 +1317,11 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
+		if ( WTUtils::isFallbackIdSpan( $node ) ) {
+			// Fallback ids are deduplicated, don't bother linting them
+			return;
+		}
+
 		if ( $id === null || $id === '' ) {
 			return;
 		}

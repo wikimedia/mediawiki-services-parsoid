@@ -1736,6 +1736,10 @@ class LinterTest extends TestCase {
 		$result = $this->wtToLint( "== Hi ho ==\n== Hi ho ==" );
 		$this->assertCount( 0, $result, $desc );
 
+		$desc = 'should not lint duplicate ids from headings with fallback ids';
+		$result = $this->wtToLint( "== Hi 'ho' ==\n== Hi 'ho' ==" );
+		$this->assertCount( 0, $result, $desc );
+
 		$desc = 'should maybe lint ids that would conflict with headings';
 		$result = $this->wtToLint( "==hi==\n<div id='hi'>ho</div>" );
 		$this->assertCount( 0, $result, $desc );
