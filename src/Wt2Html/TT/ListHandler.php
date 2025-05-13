@@ -38,18 +38,23 @@ class ListHandler extends TokenHandler {
 	/** @var array<ListFrame> */
 	private array $listFrameStack;
 	private ?ListFrame $currListFrame;
-	/**
-	 * $currListTk points to:
-	 * - $currListFrame->listTk if $currListFrame is not null
-	 * - the top-of-listframe-stack's listTk if $currListFrame is null
-	 */
-	private ?ListTk $currListTk;
 	private int $nestedTableCount;
 	private bool $inT2529Mode = false;
 
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->reset();
+	}
+
+	private function getCurrListTk(): ?ListTk {
+		if ( $this->currListFrame ) {
+			return $this->currListFrame->listTk;
+		}
+		$count = count( $this->listFrameStack );
+		if ( $count ) {
+			return $this->listFrameStack[$count - 1]->listTk;
+		}
+		return null;
 	}
 
 	/**
@@ -75,7 +80,6 @@ class ListHandler extends TokenHandler {
 		$this->listFrameStack = [];
 		$this->onAnyEnabled = false;
 		$this->nestedTableCount = 0;
-		$this->currListTk = null;
 		$this->currListFrame = null;
 	}
 
@@ -139,7 +143,7 @@ class ListHandler extends TokenHandler {
 				$this->nestedTableCount++;
 			}
 
-			$this->currListTk->addToken( $token );
+			$this->getCurrListTk()->addToken( $token );
 			$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $token );
 			return [];
 		}
@@ -172,7 +176,7 @@ class ListHandler extends TokenHandler {
 						// ==> close all previous lists and reset frame to null
 						return $this->closeLists( $token );
 					} else {
-						$this->currListTk->addToken( $token );
+						$this->getCurrListTk()->addToken( $token );
 						$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $token );
 						return [];
 					}
@@ -219,7 +223,7 @@ class ListHandler extends TokenHandler {
 			if ( $token->getName() === 'table' ) {
 				$this->listFrameStack[] = $this->currListFrame;
 				$this->currListFrame = null;
-				// NOTE that $this->currListTk still points to the
+				// NOTE that $this->getCurrListTk still points to the
 				// now-nulled listFrame's list token.
 			} elseif ( $this->generateImpliedEndTags( $token->getName() ) ) {
 				$this->currListFrame->numOpenBlockTags++;
@@ -227,7 +231,7 @@ class ListHandler extends TokenHandler {
 		}
 
 		// Nothing else left to do
-		$this->currListTk->addToken( $token );
+		$this->getCurrListTk()->addToken( $token );
 		$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $token );
 		return [];
 	}
@@ -242,10 +246,8 @@ class ListHandler extends TokenHandler {
 		if ( $pop ) {
 			if ( $numListFrames > 0 ) {
 				$this->currListFrame = array_pop( $this->listFrameStack );
-				$this->currListTk = $this->currListFrame->listTk;
 			} else {
 				$this->currListFrame = null;
-				$this->currListTk = null;
 			}
 		} else {
 			Assert::invariant(
@@ -253,18 +255,11 @@ class ListHandler extends TokenHandler {
 				"For reset calls, expected currListFrame to be non-null!"
 			);
 			$this->currListFrame = null;
-			// Look at top of list frame to set $this->currListTk
-			// Because $this->currListFrame !== null above, we are
-			// guaranteed that we are updating $this->currListTk here
-			if ( $numListFrames > 0 ) {
-				$this->currListTk = $this->listFrameStack[$numListFrames - 1]->listTk;
-			} else {
-				$this->currListTk = null;
-			}
 		}
 
-		if ( $this->currListTk ) {
-			$this->currListTk->addTokens( $ret );
+		$currListTk = $this->getCurrListTk();
+		if ( $currListTk ) {
+			$currListTk->addTokens( $ret );
 			$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $ret );
 			$ret = [];
 		} else {
@@ -291,9 +286,9 @@ class ListHandler extends TokenHandler {
 			$toks = [];
 		}
 
-		while ( $this->currListTk ) {
+		while ( $this->getCurrListTk() ) {
 			// $toks should be [] here
-			$toks = $this->popOrResetListFrame( [ $this->currListTk ], true );
+			$toks = $this->popOrResetListFrame( [ $this->getCurrListTk() ], true );
 		}
 		$this->reset();
 
@@ -314,12 +309,12 @@ class ListHandler extends TokenHandler {
 	private function closeLists( $token = null, $pop = false ): array {
 		$this->env->trace( 'list', $this->pipelineId, '----closing all lists----' );
 
-		// pop all open list item tokens onto $this->currListTk
+		// pop all open list item tokens onto $this->getCurrListTk
 		$ret = $this->popTags( count( $this->currListFrame->bstack ) );
-		$this->currListTk->addTokens( $ret );
+		$this->getCurrListTk()->addTokens( $ret );
 		$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]: ', $ret );
 
-		$ret = [ $this->currListTk ];
+		$ret = [ $this->getCurrListTk() ];
 		PHPUtils::pushArray( $ret, $this->currListFrame->solTokens );
 		if ( $this->currListFrame->nlTk ) {
 			$ret[] = $this->currListFrame->nlTk;
@@ -364,12 +359,11 @@ class ListHandler extends TokenHandler {
 			) {
 				$this->env->trace( 'list', $this->pipelineId, 'ANY:', $token );
 				$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]: ', ':' );
-				$this->currListTk->addToken( ':' );
+				$this->getCurrListTk()->addToken( ':' );
 				return [];
 			}
 		} else {
 			$this->currListFrame = new ListFrame;
-			$this->currListTk = $this->currListFrame->listTk;
 		}
 		// convert listItem to list and list item tokens
 		return $this->doListItem( $this->currListFrame->bstack, $bullets, $token );
@@ -626,7 +620,7 @@ class ListHandler extends TokenHandler {
 		$this->currListFrame->solTokens = [];
 		$this->currListFrame->nlTk = null;
 		$this->currListFrame->atEOL = false;
-		$this->currListTk->addTokens( $res ); // same as $this->currListFrame->listTk
+		$this->getCurrListTk()->addTokens( $res ); // same as $this->currListFrame->listTk
 
 		$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $res );
 		return [];
