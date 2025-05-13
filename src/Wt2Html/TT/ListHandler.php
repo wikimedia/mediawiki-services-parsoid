@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
@@ -34,6 +35,11 @@ class ListHandler extends TokenHandler {
 	/** @var array<ListFrame> */
 	private array $listFrameStack;
 	private ?ListFrame $currListFrame;
+	/**
+	 * $currListTk points to:
+	 * - $currListFrame->listTk if $currListFrame is not null
+	 * - the top-of-listframe-stack's listTk if $currListFrame is null
+	 */
 	private ?ListTk $currListTk;
 	private int $nestedTableCount;
 	private bool $inT2529Mode = false;
@@ -195,6 +201,8 @@ class ListHandler extends TokenHandler {
 			if ( $token->getName() === 'table' ) {
 				$this->listFrameStack[] = $this->currListFrame;
 				$this->currListFrame = null;
+				// NOTE that $this->currListTk still points to the
+				// now-nulled listFrame's list token.
 			} elseif ( $this->generateImpliedEndTags( $token->getName() ) ) {
 				$this->currListFrame->numOpenBlockTags++;
 			}
@@ -220,12 +228,30 @@ class ListHandler extends TokenHandler {
 	 * @param bool $pop
 	 * @return array<string|Token>
 	 */
-	private function popOrResetListFrame( array $ret, bool $pop = true ): array {
+	private function popOrResetListFrame( array $ret, bool $pop ): array {
 		$numListFrames = count( $this->listFrameStack );
-		if ( $numListFrames === 0 ) {
-			$this->currListTk = null;
+		if ( $pop ) {
+			if ( $numListFrames > 0 ) {
+				$this->currListFrame = array_pop( $this->listFrameStack );
+				$this->currListTk = $this->currListFrame->listTk;
+			} else {
+				$this->currListFrame = null;
+				$this->currListTk = null;
+			}
 		} else {
-			$this->currListTk = $this->listFrameStack[$numListFrames - 1]->listTk;
+			Assert::invariant(
+				$this->currListFrame !== null,
+				"For reset calls, expected currListFrame to be non-null!"
+			);
+			$this->currListFrame = null;
+			// Look at top of list frame to set $this->currListTk
+			// Because $this->currListFrame !== null above, we are
+			// guaranteed that we are updating $this->currListTk here
+			if ( $numListFrames > 0 ) {
+				$this->currListTk = $this->listFrameStack[$numListFrames - 1]->listTk;
+			} else {
+				$this->currListTk = null;
+			}
 		}
 
 		if ( $this->currListTk ) {
@@ -238,9 +264,6 @@ class ListHandler extends TokenHandler {
 			$this->env->trace( 'list', $this->pipelineId, 'RET:', $ret );
 		}
 
-		// Pop or reset
-		$this->currListFrame = $pop ? array_pop( $this->listFrameStack ) : null;
-
 		return $ret;
 	}
 
@@ -250,12 +273,18 @@ class ListHandler extends TokenHandler {
 	public function onEnd( EOFTk $token ): ?array {
 		$this->env->trace( 'list', $this->pipelineId, 'END:', $token );
 
-		// EOF goes at the end outside all compound tokens
-		// So, don't pass in the token into closeLists
-		$toks = $this->closeLists( null, true );
+		// null => all lists have been closed and nothing to do on that front
+		if ( $this->currListFrame !== null ) {
+			// EOF goes at the end outside all compound tokens
+			// So, don't pass in the token into closeLists
+			$toks = $this->closeLists( null, true );
+		} else {
+			$toks = [];
+		}
+
 		while ( $this->currListTk ) {
 			// $toks should be [] here
-			$toks = $this->popOrResetListFrame( [ $this->currListTk ] );
+			$toks = $this->popOrResetListFrame( [ $this->currListTk ], true );
 		}
 		$this->reset();
 
@@ -276,30 +305,15 @@ class ListHandler extends TokenHandler {
 	private function closeLists( $token = null, $pop = false ): array {
 		$this->env->trace( 'list', $this->pipelineId, '----closing all lists----' );
 
-		if ( $this->currListFrame ) {
-			// pop all open list item tokens
-			$ret = $this->popTags( count( $this->currListFrame->bstack ) );
+		// pop all open list item tokens onto $this->currListTk
+		$ret = $this->popTags( count( $this->currListFrame->bstack ) );
+		$this->currListTk->addTokens( $ret );
+		$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]: ', $ret );
 
-			// purge all stashed sol-tokens
-			$solTokens = $this->currListFrame->solTokens;
-			$closingNlTk = $this->currListFrame->nlTk ?? null;
-		} else {
-			$ret = [];
-			$solTokens = null;
-			$closingNlTk = null;
-		}
-
-		if ( $this->currListTk ) {
-			$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]: ', $ret );
-			$this->currListTk->addTokens( $ret );
-			$ret = [ $this->currListTk ];
-		}
-
-		if ( $solTokens ) {
-			PHPUtils::pushArray( $ret, $solTokens );
-		}
-		if ( $closingNlTk ) {
-			$ret[] = $closingNlTk;
+		$ret = [ $this->currListTk ];
+		PHPUtils::pushArray( $ret, $this->currListFrame->solTokens );
+		if ( $this->currListFrame->nlTk ) {
+			$ret[] = $this->currListFrame->nlTk;
 		}
 		if ( $token ) {
 			$ret[] = $token;
