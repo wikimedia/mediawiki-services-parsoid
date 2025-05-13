@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -41,14 +42,24 @@ class TraceProxy extends TokenHandler {
 		$profile = $this->manager->profile;
 		if ( $profile ) {
 			$s = hrtime( true );
-			$res = $this->handler->$func( $token );
+			if ( $func === 'onCompoundTk' ) {
+				'@phan-var CompoundTk $token';
+				$res = $this->handler->$func( $token, $this );
+			} else {
+				$res = $this->handler->$func( $token );
+			}
 			$t = hrtime( true ) - $s;
 			$traceName = "{$this->name}::$func";
 			$profile->bumpTimeUse( $traceName, $t, "TT" );
 			$profile->bumpCount( $traceName );
 			$this->manager->tokenTimes += $t;
 		} else {
-			$res = $this->handler->$func( $token );
+			if ( $func === 'onCompoundTk' ) {
+				'@phan-var CompoundTk $token';
+				$res = $this->handler->$func( $token, $this );
+			} else {
+				$res = $this->handler->$func( $token );
+			}
 		}
 		// Copy onAnyEnabled for TraceProxy::process() to read
 		$this->onAnyEnabled = $this->handler->onAnyEnabled;
@@ -67,13 +78,13 @@ class TraceProxy extends TokenHandler {
 		return $this->traceEvent( 'onTag', $token );
 	}
 
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		return $this->traceEvent( 'onCompoundTk', $ctk );
+	}
+
 	/** @inheritDoc */
 	public function onAny( $token ): ?array {
 		return $this->traceEvent( 'onAny', $token );
-	}
-
-	public function shouldProcessCompoundToken( Token $token ): bool {
-		return $this->handler->shouldProcessCompoundToken( $token );
 	}
 
 	public function resetState( array $options ): void {

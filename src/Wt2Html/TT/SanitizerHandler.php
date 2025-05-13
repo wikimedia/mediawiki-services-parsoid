@@ -15,6 +15,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -122,6 +123,16 @@ class SanitizerHandler extends TokenHandler {
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
 		$this->inTemplate = $options['inTemplate'];
+	}
+
+	/**
+	 * Process nested tokens and update the compound token.
+	 *
+	 * @inheritDoc
+	 */
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		$ctk->setNestedTokens( $tokensHandler->process( $ctk->getNestedTokens() ) );
+		return null;
 	}
 
 	/**

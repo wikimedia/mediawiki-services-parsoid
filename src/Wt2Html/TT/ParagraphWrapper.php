@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\IndentPreTk;
@@ -65,8 +66,19 @@ class ParagraphWrapper extends TokenHandler {
 		return $this->onNewlineOrEOF( $token );
 	}
 
-	public function shouldProcessCompoundToken( Token $token ): bool {
-		return false;
+	/**
+	 * Pass through the tokens unchanged.
+	 *
+	 * @inheritDoc
+	 */
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		if ( $ctk instanceof ListTk || $ctk instanceof IndentPreTk ) {
+			return null;
+		} else {
+			throw new UnreachableException(
+				"ParagraphWrapper: Unsupported compound token."
+			);
+		}
 	}
 
 	/**

@@ -4,7 +4,9 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -126,6 +128,37 @@ class QuoteTransformer extends TokenHandler {
 	}
 
 	/**
+	 * Process nested tokens and update the compound token
+	 * for where the integrity of the token isn't compromised.
+	 *
+	 * @inheritDoc
+	 */
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		$newToks = $tokensHandler->process( $ctk->getNestedTokens() );
+		if ( $ctk->setsEOLContext() ) {
+			$flushedOutput = $this->processQuotes();
+			if ( $flushedOutput ) {
+				PHPUtils::pushArray( $newToks, $flushedOutput );
+			}
+			$ctk->setNestedTokens( $newToks );
+			return null;
+		} else {
+			throw new UnreachableException(
+				"QuoteTransformer: We don't support non-eol-setting compound tokens."
+			);
+
+			// An alternative if/when we support other compound tokens
+			// that end up in this else branch would be to flatten them out.
+			//
+			// Since quote-transformer might buffer some of the
+			// nested tokens, the integrity of $ctk is compromised.
+			// Flatten it out.
+			//
+			// return $newToks;
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?array {
@@ -157,11 +190,11 @@ class QuoteTransformer extends TokenHandler {
 	}
 
 	/**
-	 * Handle NEWLINE tokens, which trigger the actual quote analysis on the
-	 * collected quote tokens so far.
+	 * Handle explicit EOL (NlTk/EOFTk) or implicit EOL, which trigger the
+	 * actual quote analysis on the collected quote tokens so far.
 	 * @return ?array<string|Token>
 	 */
-	private function processQuotes( Token $token ): ?array {
+	private function processQuotes( ?Token $token = null ): ?array {
 		if ( !$this->onAnyEnabled ) {
 			// Nothing to do, quick abort.
 			return null;
@@ -169,7 +202,7 @@ class QuoteTransformer extends TokenHandler {
 
 		$this->env->trace( "quote", $this->pipelineId, "NL    |", $token );
 
-		if (
+		if ( $token &&
 			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
 			( $token->dataParsoid->stx ?? '' ) === 'html'
 		) {
@@ -239,12 +272,13 @@ class QuoteTransformer extends TokenHandler {
 		$this->convertQuotesToTags();
 
 		// return all collected tokens including the newline
-		$this->currentChunk[] = $token;
+		if ( $token ) {
+			$this->currentChunk[] = $token;
+			$this->env->trace( "quote", $this->pipelineId, "-----> ", $token );
+		}
 		$this->startNewChunk();
 		// PORT-FIXME: Is there a more efficient way of doing this?
 		$res = array_flatten( $this->chunks );
-
-		$this->env->trace( "quote", $this->pipelineId, "-----> ", $token );
 
 		// prepare for next line
 		$this->reset();

@@ -151,3 +151,19 @@ baz
 
 <p>baz</p>
 !! end
+
+!! test
+Ensure ListHandler properly handles other compound tokens
+!! options
+parsoid=wt2html
+!! wikitext
+:{|
+|
+ a
+|}
+!! html/parsoid
+<dl><dd><table>
+<tbody><tr><td>
+<pre>a</pre></td></tr>
+</tbody></table></dd></dl>
+!! end

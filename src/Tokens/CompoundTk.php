@@ -48,6 +48,13 @@ abstract class CompoundTk extends Token {
 	}
 
 	/**
+	 * Does this token implicitly induce an end-of-line context?
+	 * This is true for tokens that are only generated on seeing
+	 * EOL & EOF (ex: IndentPreTk, ListTk)
+	 */
+	abstract public function setsEOLContext(): bool;
+
+	/**
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {

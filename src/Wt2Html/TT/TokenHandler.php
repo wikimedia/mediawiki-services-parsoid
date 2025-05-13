@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\CompoundTk;
@@ -10,7 +11,6 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 abstract class TokenHandler {
@@ -127,11 +127,25 @@ abstract class TokenHandler {
 	}
 
 	/**
-	 * Should the nested tokens of this compound token be processed
-	 * by this handler?
+	 * Process the compound token in a handler-specific way.
+	 * - Some handlers might ignore it and pass it through
+	 * - Some handlers might process its nested tokens and update it
+	 * - Some handlers might process its nested tokens and flatten it
+	 *
+	 * To ensure that handlers that encounter compound tokens always
+	 * have explicit handling for them, the default implementation
+	 * here will throw an exception!
+	 *
+	 * NOTE: The only reason we are processing a handler here is because
+	 * of needing to support profiling. For the profiling use case,
+	 * we will be processing a TraceProxy instead of the handler itself.
+	 *
+	 * @return ?array<string|Token>
 	 */
-	public function shouldProcessCompoundToken( Token $token ): bool {
-		return true;
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		throw new UnreachableException(
+			get_class( $this ) . ": Unsupported compound token."
+		);
 	}
 
 	/**
@@ -156,17 +170,7 @@ abstract class TokenHandler {
 					break;
 
 				case $token instanceof CompoundTk:
-					if ( $this->shouldProcessCompoundToken( $token ) ) {
-						$newToks = $this->process( $token->getNestedTokens() );
-						$fakeEOF = new EOFTk;
-						$flushedOutput = $this->onEnd( $fakeEOF );
-						if ( $flushedOutput !== null ) {
-							array_pop( $flushedOutput ); // pop fake EOF
-							PHPUtils::pushArray( $newToks, $flushedOutput );
-						}
-						$token->setNestedTokens( $newToks );
-					}
-					$res = null;
+					$res = $this->onCompoundTk( $token, $this );
 					break;
 
 				case $token instanceof EOFTk:

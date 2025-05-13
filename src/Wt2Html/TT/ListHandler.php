@@ -4,9 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
+use Wikimedia\Parsoid\Tokens\IndentPreTk;
 use Wikimedia\Parsoid\Tokens\ListTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -85,6 +88,21 @@ class ListHandler extends TokenHandler {
 			return $this->onListItem( $token );
 		} else {
 			return null;
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		if ( $ctk instanceof IndentPreTk ) {
+			// Nothing to do!
+			// IndentPre content is of no interest to us
+			return null;
+		} else {
+			throw new UnreachableException(
+				"ListHandler: Unsupported compound token."
+			);
 		}
 	}
 
