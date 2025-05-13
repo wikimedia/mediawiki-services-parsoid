@@ -116,3 +116,19 @@ parsoid=wt2html
 <tbody><tr><td>[[|]] [[|]]</td></tr>
 </tbody></table>
 !! end
+
+!! test
+SOL whitespace and newlines after lists should not be swallowed into ListTk compound token
+!! options
+parsoid=wt2html
+!! wikitext
+*a
+  
+   
+<div>b</div>
+!! html/parsoid
+<ul><li>a</li></ul>
+  <p>
+   <br></p>
+<div data-parsoid='{"stx":"html"}'>b</div>
+!! end

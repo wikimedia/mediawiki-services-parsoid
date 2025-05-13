@@ -281,10 +281,11 @@ class ListHandler extends TokenHandler {
 			$ret = $this->popTags( count( $this->currListFrame->bstack ) );
 
 			// purge all stashed sol-tokens
-			PHPUtils::pushArray( $ret, $this->currListFrame->solTokens );
+			$solTokens = $this->currListFrame->solTokens;
 			$closingNlTk = $this->currListFrame->nlTk ?? null;
 		} else {
 			$ret = [];
+			$solTokens = null;
 			$closingNlTk = null;
 		}
 
@@ -294,6 +295,9 @@ class ListHandler extends TokenHandler {
 			$ret = [ $this->currListTk ];
 		}
 
+		if ( $solTokens ) {
+			PHPUtils::pushArray( $ret, $solTokens );
+		}
 		if ( $closingNlTk ) {
 			$ret[] = $closingNlTk;
 		}
