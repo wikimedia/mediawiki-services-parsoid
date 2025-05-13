@@ -305,3 +305,6 @@ class XHtmlSerializer {
 	}
 
 }
+
+// This class was renamed in Parsoid v0.21.0
+class_alias( XHtmlSerializer::class, XMLSerializer::class );
