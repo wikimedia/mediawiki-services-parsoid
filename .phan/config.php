@@ -136,6 +136,8 @@ $cfg['suppress_issue_types'] = array_filter( $cfg['suppress_issue_types'], stati
 $cfg['exclude_file_list'][] = "src/Wt2Html/Grammar.php";
 $cfg['exclude_file_list'][] = "src/Wt2Html/TracingGrammar.php";
 $cfg['exclude_file_list'][] = "src/ParserTests/Grammar.php";
+// Exclude aliases
+$cfg['exclude_file_list'][] = "src/Wt2Html/XMLSerializer.php";
 
 // FIXME: Temporary?
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';
