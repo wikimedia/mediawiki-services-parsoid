@@ -206,15 +206,6 @@ class ListHandler extends TokenHandler {
 			} elseif ( $this->generateImpliedEndTags( $token->getName() ) ) {
 				$this->currListFrame->numOpenBlockTags++;
 			}
-
-			if ( $this->currListTk ) {
-				$this->currListTk->addToken( $token );
-				$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $token );
-				return [];
-			} else {
-				$this->env->trace( 'list', $this->pipelineId, 'RET:', $token );
-				return null;
-			}
 		}
 
 		// Nothing else left to do
