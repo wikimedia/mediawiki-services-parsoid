@@ -92,19 +92,13 @@ class DisplaySpace {
 	 * @return bool|Node
 	 */
 	private static function omitNode( Node $node ) {
-		$nodeName = DOMCompat::nodeName( $node );
-
 		// Go to next sibling if we encounter pre or raw text elements
-		if ( $nodeName === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
+		if ( DOMCompat::nodeName( $node ) === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
 			return $node->nextSibling;
+		} else {
+			// Run handlers only on text nodes
+			return !( $node instanceof Text );
 		}
-
-		// Run handlers only on text nodes
-		if ( !( $node instanceof Text ) ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -125,7 +119,6 @@ class DisplaySpace {
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[0][1];
 			self::insertDisplaySpace( $node, $offset );
-			return true;
 		}
 		return true;
 	}
@@ -148,7 +141,6 @@ class DisplaySpace {
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[1][1] + strlen( $matches[1][0] );
 			self::insertDisplaySpace( $node, $offset );
-			return true;
 		}
 		return true;
 	}
