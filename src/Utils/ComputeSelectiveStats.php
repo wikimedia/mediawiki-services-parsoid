@@ -25,14 +25,16 @@ class ComputeSelectiveStats {
 		?PageConfig $oldPage, ?PageBundle $oldPb,
 		PageConfig $newPage, PageBundle $newPb
 	): array {
-		// Default labels (ensure keys are consistent & in consistent order)
+		// Default labels (ensure keys are consistent & in consistent order).
+		// Each label key should be a valid label name accepted by StatsLib,
+		// i.e. an alphanumeric string that does not include dashes (T394053).
 		$labels = [
 			'type' => 'missing-prev',
-			'same-wt' => 'unknown',
-			'rev-diff' => 'unknown',
-			'changed-sections' => 'unknown',
-			'changed-template-sites' => 'unknown',
-			'changed-template-names' => 'unknown',
+			'same_wt' => 'unknown',
+			'rev_diff' => 'unknown',
+			'changed_sections' => 'unknown',
+			'changed_template_sites' => 'unknown',
+			'changed_template_names' => 'unknown',
 		];
 		if ( $oldPage === null || $oldPb === null ) {
 			return $labels;
@@ -41,24 +43,24 @@ class ComputeSelectiveStats {
 		$newWt = self::pc2wt( $newPage );
 
 		// Compare wikitext in both revisions
-		$labels['same-wt'] = self::bool2str( $oldWt == $newWt );
+		$labels['same_wt'] = self::bool2str( $oldWt == $newWt );
 
 		// Compare revision IDs
 		$oldRev = $oldPage->getRevisionId();
 		$newRev = $newPage->getRevisionId();
 		if ( $oldRev === $newRev ) {
 			// same revision (template update, most likely)
-			$labels['rev-diff'] = '0';
+			$labels['rev_diff'] = '0';
 		} elseif ( $oldRev === $newPage->getParentRevisionId() ) {
 			// "normal edit": new revision is the one after old revision
-			$labels['rev-diff'] = '1';
+			$labels['rev_diff'] = '1';
 		} elseif ( $newRev === $oldPage->getParentRevisionId() ) {
 			// new revision is the one *before* old revision
 			// This is probably a render triggered from RevisionOutputCache
 			// of the previous revision where the "oldRev" is coming from
 			// the parser cache and is thus the latest.  This may happen
 			// during races, vandalism patrol, HTML diffing, etc.
-			$labels['rev-diff'] = 'minus1';
+			$labels['rev_diff'] = 'minus1';
 		}
 
 		// Parse to DOM and diff
@@ -164,11 +166,11 @@ class ComputeSelectiveStats {
 		$dt->traverse( null, DOMCompat::getBody( $newDoc ), new DTState( $env ) );
 
 		# report changed sections as '0', '1', or '2+'
-		$labels['changed-sections'] = self::int2str( $sectionsModified, 2 );
+		$labels['changed_sections'] = self::int2str( $sectionsModified, 2 );
 		# report changed templates as '0', '1', or '2+'
-		$labels['changed-template-sites'] = self::int2str( $templatesModified, 2 );
+		$labels['changed_template_sites'] = self::int2str( $templatesModified, 2 );
 		# report the count of the *names* of the templates that were updated.
-		$labels['changed-template-names'] = self::int2str( count( $namedTemplates ), 2 );
+		$labels['changed_template_names'] = self::int2str( count( $namedTemplates ), 2 );
 
 		// TODO: sum up the time spent on modified (vs unmodified) templates
 
