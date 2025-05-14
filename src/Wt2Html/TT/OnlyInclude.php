@@ -31,8 +31,9 @@ class OnlyInclude extends TokenHandler {
 	 * @inheritDoc
 	 */
 	public function onAny( $token ): ?array {
-		return !empty( $this->options['inTemplate'] ) ?
-			$this->onAnyInclude( $token ) : null;
+		$enabled = $this->options['inTemplate'] &&
+			$this->env->nativeTemplateExpansionEnabled();
+		return ( $enabled ) ? $this->onAnyInclude( $token ) : null;
 	}
 
 	/**
