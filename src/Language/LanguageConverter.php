@@ -38,11 +38,10 @@ use Wikimedia\LangConv\ReplacementMachine;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\ClientError;
 use Wikimedia\Parsoid\DOM\Document;
-use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 use Wikimedia\Parsoid\Utils\Timing;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -231,7 +230,7 @@ class LanguageConverter {
 	 * construct round-trip metadata, instead of using a heuristic to guess the best variant
 	 * for each DOM subtree of wikitext.
 	 * @param Env $env
-	 * @param Node $rootNode The root node of a fragment to convert.
+	 * @param Element $rootNode The root node of a fragment to convert.
 	 * @param string|Bcp47Code $htmlVariantLanguage The variant to be used for the output DOM.
 	 *  This is a mediawiki-internal language code string (T320662, deprecated),
 	 *  or a BCP 47 language object (preferred).
@@ -241,7 +240,7 @@ class LanguageConverter {
 	 *  or a BCP 47 language object (preferred), or null.
 	 */
 	public static function baseToVariant(
-		Env $env, Node $rootNode, $htmlVariantLanguage, $wtVariantLanguage
+		Env $env, Element $rootNode, $htmlVariantLanguage, $wtVariantLanguage
 	): void {
 		// Back-compat w/ old string-passing parameter convention
 		if ( is_string( $htmlVariantLanguage ) ) {
@@ -313,7 +312,6 @@ class LanguageConverter {
 
 		// HACK: to avoid data-parsoid="{}" in the output, set the isNew flag
 		// on synthetic spans
-		DOMUtils::assertElt( $rootNode );
 		foreach ( DOMCompat::querySelectorAll(
 			$rootNode, 'span[typeof="mw:LanguageVariant"][data-mw-variant]'
 		) as $span ) {

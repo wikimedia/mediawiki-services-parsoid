@@ -165,7 +165,7 @@ class WTSUtils {
 		} elseif ( DOMCompat::nodeName( $node ) === 'br' ) {
 			return true;
 		} elseif ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
-			DOMUtils::assertElt( $node );
+			'@phan-var Element $node'; // @var Element $node
 			// Dont try any harder than this
 			return !$node->hasChildNodes() || DOMCompat::getInnerHTML( $node )[0] === "\n";
 		} else {
@@ -203,7 +203,7 @@ class WTSUtils {
 		} elseif ( self::dsrContainsOpenExtendedRangeAnnotationTag( $node, $state ) ) {
 			return false;
 		} elseif ( DOMCompat::nodeName( $node ) === 'th' || DOMCompat::nodeName( $node ) === 'td' ) {
-			DOMUtils::assertElt( $node );
+			'@phan-var Element $node'; // @var Element $node
 			// The wikitext representation for them is dependent
 			// on cell position (first cell is always single char).
 

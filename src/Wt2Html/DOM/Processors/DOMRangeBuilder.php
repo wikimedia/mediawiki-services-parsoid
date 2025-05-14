@@ -711,8 +711,7 @@ class DOMRangeBuilder {
 		$dp = DOMDataUtils::getDataParsoid( $firstNode );
 		while ( !empty( $dp->fostered ) ) {
 			$firstNode = $firstNode->nextSibling;
-			/** @var Element $firstNode */
-			DOMUtils::assertElt( $firstNode );
+			'@phan-var Element $firstNode'; // @var Element $firstNode
 			$dp = DOMDataUtils::getDataParsoid( $firstNode );
 		}
 
@@ -787,7 +786,7 @@ class DOMRangeBuilder {
 	 */
 	private static function findEncapTarget( DOMRangeInfo $range ): Element {
 		$encapTgt = $range->start;
-		'@phan-var Node $encapTgt';
+		'@phan-var Node $encapTgt'; // @var Node $encapTgt
 
 		// Skip template-marker meta-tags.
 		while ( WTUtils::isTplMarkerMeta( $encapTgt ) ||
@@ -805,7 +804,7 @@ class DOMRangeBuilder {
 			$encapTgt = $encapTgt->nextSibling;
 		}
 
-		'@phan-var Element $encapTgt';
+		'@phan-var Element $encapTgt'; // @var Node $encapTgt
 		return $encapTgt;
 	}
 

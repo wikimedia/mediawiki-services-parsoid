@@ -64,7 +64,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		DOMCompat::setInnerHTML( $parent,
 			'<table class="mw-json mw-json-object"><tbody>' );
 		$tbody = $parent->firstChild->firstChild;
-		DOMUtils::assertElt( $tbody );
+		'@phan-var Element $tbody'; // @var Element $tbody
 		$keys = array_keys( $val );
 		if ( count( $keys ) ) {
 			foreach ( $val as $k => $v ) {
@@ -96,7 +96,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		DOMCompat::setInnerHTML( $parent,
 			'<table class="mw-json mw-json-array"><tbody>' );
 		$tbody = $parent->firstChild->firstChild;
-		DOMUtils::assertElt( $tbody );
+		'@phan-var Element $tbody'; // @var Element $tbody
 		if ( count( $val ) ) {
 			foreach ( $val as $v ) {
 				self::objectRow( $tbody, null, $v );
@@ -168,7 +168,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 			DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
 		}
 
-		// We're responsible for running the standard DOMProcessorPipeline on our
+		// We're responsible for running the standard DOMPostProcessor on our
 		// resulting document.
 		$extApi->postProcessDOM( $document );
 
@@ -200,7 +200,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$tbody = $el;
 		if ( $tbody->firstChild ) {
 			$child = $tbody->firstChild;
-			DOMUtils::assertElt( $child );
+			'@phan-var Element $child'; // @var Element $child
 			if ( DOMCompat::nodeName( $child ) === 'tbody' ) {
 				$tbody = $child;
 			}
@@ -210,7 +210,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$empty = count( $rows ) === 0;
 		if ( !$empty ) {
 			$child = $rows->item( 0 )->firstChild;
-			DOMUtils::assertElt( $child );
+			'@phan-var Element $child'; // @var Element $child
 			if ( DOMUtils::hasClass( $child, 'mw-json-empty' ) ) {
 				$empty = true;
 			}
@@ -218,7 +218,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( !$empty ) {
 			for ( $i = 0; $i < count( $rows ); $i++ ) {
 				$item = $rows->item( $i );
-				DOMUtils::assertElt( $item );
+				'@phan-var Element $item'; // @var Element $item
 				self::objectRowFrom( $item, $obj, null );
 			}
 		}
@@ -231,7 +231,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 			$key = $td->textContent;
 			$td = $td->nextSibling;
 		}
-		DOMUtils::assertElt( $td );
+		'@phan-var Element $td'; // @var Element $td
 		$obj[$key] = self::valueCellFrom( $td );
 	}
 
@@ -241,7 +241,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$tbody = $el;
 		if ( $tbody->firstChild ) {
 			$child = $tbody->firstChild;
-			DOMUtils::assertElt( $child );
+			'@phan-var Element $child'; // @var Element $child
 			if ( DOMCompat::nodeName( $child ) === 'tbody' ) {
 				$tbody = $child;
 			}
@@ -251,7 +251,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		$empty = count( $rows ) === 0;
 		if ( !$empty ) {
 			$child = $rows->item( 0 )->firstChild;
-			DOMUtils::assertElt( $child );
+			'@phan-var Element $child'; // @var Element $child
 			if ( DOMUtils::hasClass( $child, 'mw-json-empty' ) ) {
 				$empty = true;
 			}
@@ -259,7 +259,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		if ( !$empty ) {
 			for ( $i = 0; $i < count( $rows ); $i++ ) {
 				$item = $rows->item( $i );
-				DOMUtils::assertElt( $item );
+				'@phan-var Element $item'; // @var Element $item
 				self::objectRowFrom( $item, $arr, $i );
 			}
 		}
@@ -313,7 +313,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 	): string {
 		$body = DOMCompat::getBody( $extApi->getTopLevelDoc() );
 		$t = $body->firstChild;
-		DOMUtils::assertElt( $t );
+		'@phan-var Element $t'; // @var Element $t
 		Assert::invariant( $t && DOMCompat::nodeName( $t ) === 'table',
 			'Expected tagName = table' );
 		self::rootValueTableFrom( $t );

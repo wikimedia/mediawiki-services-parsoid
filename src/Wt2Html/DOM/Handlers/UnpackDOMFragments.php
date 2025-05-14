@@ -151,7 +151,7 @@ class UnpackDOMFragments {
 			// Reset `fragmentContent`, since the `firstChild` may have changed in
 			// span wrapping.
 			$fragmentContent = $fragmentDOM->firstChild;
-			DOMUtils::assertElt( $fragmentContent );
+			'@phan-var Element $fragmentContent'; // @var Element $fragmentContent
 			// Transfer typeof, data-mw, and param info
 			// about attributes are transferred below.
 			DOMDataUtils::setDataMw( $fragmentContent, clone DOMDataUtils::getDataMw( $placeholder ) );
@@ -192,7 +192,7 @@ class UnpackDOMFragments {
 			!empty( $placeholderDP->fostered ) ||
 			$isTransclusion
 		) ) {
-			DOMUtils::assertElt( $fragmentContent );
+			'@phan-var Element $fragmentContent'; // @var Element $fragmentContent
 			$fragmentDP = DOMDataUtils::getDataParsoid( $fragmentContent );
 			if ( $isTransclusion ) {
 				// FIXME: An old comment from c28f137 said we just use dsr->start and
@@ -233,7 +233,7 @@ class UnpackDOMFragments {
 			PipelineUtils::addSpanWrappers( $fragmentDOM->childNodes );
 			$c = $fragmentDOM->firstChild;
 			while ( $c ) {
-				DOMUtils::assertElt( $c );
+				'@phan-var Element $c'; // @var Element $c
 				$c->setAttribute( 'about', $about );
 				$c = $c->nextSibling;
 			}
@@ -258,7 +258,7 @@ class UnpackDOMFragments {
 			// In this example, the <a> corresponding to Foo is placeholderParent and has an about.
 			// dummyNode is the DOM corresponding to "This is [[bad]], very bad". Post-fixup
 			// "[[bad]], very bad" are at encapsulation level and need about ids.
-			DOMUtils::assertElt( $placeholderParent ); // satisfy phan
+			'@phan-var Element $placeholderParent'; // @var Element $placeholderParent
 			$about = DOMCompat::getAttribute( $placeholderParent, 'about' );
 			if ( $about !== null ) {
 				self::makeChildrenEncapWrappers( $fragmentDOM, $about );
@@ -343,7 +343,7 @@ class UnpackDOMFragments {
 				PipelineUtils::addSpanWrappers( $fragmentDOM->childNodes );
 				$n = $fragmentDOM->firstChild;
 				while ( $n ) {
-					DOMUtils::assertElt( $n );
+					'@phan-var Element $n'; // @var Element $n
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$dp->fostered = true;
 					$n = $n->nextSibling;

@@ -599,7 +599,7 @@ class TableFixups {
 		$frame = $dtState->options['frame'];
 
 		$prev = $cell->previousSibling;
-		DOMUtils::assertElt( $prev );
+		'@phan-var Element $prev'; // @var Element $prev
 
 		$prevIsTd = DOMCompat::nodeName( $prev ) === 'td';
 		$prevDp = DOMDataUtils::getDataParsoid( $prev );

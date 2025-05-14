@@ -169,7 +169,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 				[ 'pwrap' => !DOMUtils::hasBlockTag( $n ), 'node' => $n ]
 			];
 		} else {
-			DOMUtils::assertElt( $n );
+			'@phan-var Element $n'; // @var Element $n
 			// splittable inline tag
 			// split for each child and merge runs
 			$children = $n->childNodes;

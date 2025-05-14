@@ -193,7 +193,7 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$doc = DOMUtils::parseHTML( $html );
 		$sel = $props['selector'] ?? 'body > *';
 		$node = DOMCompat::querySelector( $doc, $sel );
-		DOMUtils::assertElt( $node );
+		'@phan-var Element $node'; // @var Element $node
 
 		$methods = [
 			'attributes',

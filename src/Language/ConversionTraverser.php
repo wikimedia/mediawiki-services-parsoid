@@ -194,7 +194,6 @@ class ConversionTraverser extends DOMTraverser {
 		if ( !( $node instanceof Element ) ) {
 			return true;
 		}
-		DOMUtils::assertElt( $node );
 		foreach ( [ 'title', 'alt' ] as $attr ) {
 			$orig = DOMCompat::getAttribute( $node, $attr );
 			if ( $orig === null ) {

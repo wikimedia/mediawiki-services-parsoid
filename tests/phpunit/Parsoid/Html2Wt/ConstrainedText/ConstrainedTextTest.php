@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\DOMUtils;
 
 /**
  * @coversDefaultClass \Wikimedia\Parsoid\Html2Wt\ConstrainedText\ConstrainedText
@@ -34,7 +33,7 @@ class ConstrainedTextTest extends \PHPUnit\Framework\TestCase {
 		] );
 		$doc = ContentUtils::createAndLoadDocument( $t->html );
 		$node = DOMCompat::getBody( $doc )->firstChild;
-		DOMUtils::assertElt( $node );
+		'@phan-var Element $node'; // @var Element $node
 		$dataParsoid = DOMDataUtils::getDataParsoid( $node );
 
 		// Test ConstrainedText.fromSelSer

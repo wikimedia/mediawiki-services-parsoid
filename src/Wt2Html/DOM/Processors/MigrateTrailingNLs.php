@@ -212,7 +212,7 @@ class MigrateTrailingNLs implements Wt2HtmlDOMProcessor {
 				while ( $n ) {
 					// TSR is guaranteed to exist and be valid
 					// (checked by hasZeroWidthWT above)
-					DOMUtils::assertElt( $n );
+					'@phan-var Element $n'; // @var Element $n
 					$dp = DOMDataUtils::getDataParsoid( $n );
 					$dp->tsr = $dp->tsr->offset( -$tsrCorrection );
 					$n = $n->nextSibling;

@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Ext\Gallery;
 
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
-use Wikimedia\Parsoid\Ext\DOMUtils;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 
@@ -36,7 +35,7 @@ class PackedMode extends TraditionalMode {
 	/** @inheritDoc */
 	public function scaleMedia( Opts $opts, Element $wrapper ) {
 		$elt = $wrapper->firstChild->firstChild;
-		DOMUtils::assertElt( $elt );
+		'@phan-var Element $elt'; // @var Element $elt
 		$width = DOMCompat::getAttribute( $elt, 'width' );
 		if ( !is_numeric( $width ) ) {
 			$width = $opts->imageWidth;

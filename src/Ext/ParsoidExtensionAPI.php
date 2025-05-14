@@ -1113,7 +1113,7 @@ class ParsoidExtensionAPI {
 			$error = "{$extTagName}_invalid_image";
 			return null;
 		}
-		DOMUtils::assertElt( $thumb );
+		'@phan-var Element $thumb'; // @var Element $thumb
 
 		// Detach the $thumb since the $domFragment is going out of scope
 		// See https://bugs.php.net/bug.php?id=39593

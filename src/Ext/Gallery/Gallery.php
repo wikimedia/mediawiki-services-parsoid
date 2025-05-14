@@ -261,11 +261,11 @@ class Gallery extends ExtensionTagHandler implements ExtensionModule {
 		for ( $child = $node->firstChild; $child; $child = $child->nextSibling ) {
 			switch ( $child->nodeType ) {
 				case XML_ELEMENT_NODE:
-					DOMUtils::assertElt( $child );
+					'@phan-var Element $child'; // @var Element $child
 					// Ignore if it isn't a "gallerybox"
 					if (
-					DOMCompat::nodeName( $child ) !== 'li' ||
-					!DOMUtils::hasClass( $child, 'gallerybox' )
+						DOMCompat::nodeName( $child ) !== 'li' ||
+						!DOMUtils::hasClass( $child, 'gallerybox' )
 					) {
 						break;
 					}

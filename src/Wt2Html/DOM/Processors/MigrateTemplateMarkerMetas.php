@@ -112,6 +112,8 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 			return;
 		}
 
+		'@phan-var Element $node'; // @var Element $node
+
 		// Check if $node is a fostered node
 		$fostered = !empty( DOMDataUtils::getDataParsoid( $node )->fostered );
 
@@ -120,7 +122,6 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 			// We can migrate the meta-tag across this node's start-tag barrier only
 			// if that start-tag is zero-width, or auto-inserted.
 			$tagWidth = Consts::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
-			DOMUtils::assertElt( $node );
 			if ( ( $tagWidth && $tagWidth[0] === 0 && !WTUtils::isLiteralHTMLNode( $node ) ) ||
 				!empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedStart )
 			) {
@@ -144,7 +145,7 @@ class MigrateTemplateMarkerMetas implements Wt2HtmlDOMProcessor {
 			// We can migrate the meta-tag across this node's end-tag barrier only
 			// if that end-tag is zero-width, or auto-inserted.
 			$tagWidth = Consts::$WtTagWidths[DOMCompat::nodeName( $node )] ?? null;
-			DOMUtils::assertElt( $node );
+			'@phan-var Element $node'; // @var Element $node
 			if ( ( $tagWidth && $tagWidth[1] === 0 &&
 				!WTUtils::isLiteralHTMLNode( $node ) ) ||
 				( !empty( DOMDataUtils::getDataParsoid( $node )->autoInsertedEnd ) &&

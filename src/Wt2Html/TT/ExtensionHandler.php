@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Ext\ExtensionError;
 use Wikimedia\Parsoid\Ext\ExtensionTag;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
@@ -118,7 +119,7 @@ class ExtensionHandler extends TokenHandler {
 				$errors = $extApi->getErrors();
 				if ( $extConfig['options']['wt2html']['customizesDataMw'] ?? false ) {
 					$firstNode = $domFragment->firstChild;
-					DOMUtils::assertElt( $firstNode );
+					'@phan-var Element $firstNode'; // @var Element $firstNode
 					$dataMw = DOMDataUtils::getDataMw( $firstNode );
 				}
 			} catch ( ExtensionError $e ) {
@@ -226,7 +227,7 @@ class ExtensionHandler extends TokenHandler {
 			// Now get the firstNode
 			$firstNode = $domFragment->firstChild;
 
-			DOMUtils::assertElt( $firstNode );
+			'@phan-var Element $firstNode'; // @var Element $firstNode
 
 			// Adds the wrapper attributes to the first element
 			DOMUtils::addTypeOf( $firstNode, "mw:Extension/{$extensionName}" );

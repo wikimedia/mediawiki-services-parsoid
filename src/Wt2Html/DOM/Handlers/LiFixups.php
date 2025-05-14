@@ -169,7 +169,7 @@ class LiFixups {
 			$list = null;
 			while ( $outerList !== $list ) {
 				$list = $li->parentNode;
-				DOMUtils::assertElt( $list );
+				'@phan-var Element $list'; // @var Element $list
 
 				$liDp = DOMDataUtils::getDataParsoid( $li );
 				if ( !empty( $liDp->dsr ) ) {
