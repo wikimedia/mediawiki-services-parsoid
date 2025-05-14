@@ -142,7 +142,6 @@ $cfg['exclude_file_list'][] = "src/Wt2Html/XMLSerializer.php";
 // FIXME: Temporary?
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';
 $cfg['suppress_issue_types'][] = 'PhanTypePossiblyInvalidDimOffset';
-$cfg['suppress_issue_types'][] = 'MediaWikiNoEmptyIfDefined';
 
 // This is too spammy for now. TODO enable
 $cfg['null_casts_as_any_type'] = true;

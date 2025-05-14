@@ -9,9 +9,8 @@ use Wikimedia\Parsoid\DOM\Element;
  * A simple pair of DOM elements
  */
 class ElementRange {
-	/** @var Element */
-	public $startElem;
 
-	/** @var Element */
-	public $endElem;
+	public ?Element $startElem = null;
+
+	public ?Element $endElem = null;
 }

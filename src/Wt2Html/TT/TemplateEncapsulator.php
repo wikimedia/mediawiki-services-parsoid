@@ -288,7 +288,7 @@ class TemplateEncapsulator {
 	private function getParamHTML( ParamInfo $paramInfo ): void {
 		$srcStart = $paramInfo->srcOffsets->value->start;
 		$srcEnd = $paramInfo->srcOffsets->value->end;
-		if ( !empty( $paramInfo->spc ) ) {
+		if ( $paramInfo->spc !== null ) {
 			$srcStart += strlen( $paramInfo->spc[2] );
 			$srcEnd -= strlen( $paramInfo->spc[3] );
 		}

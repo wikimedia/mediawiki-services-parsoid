@@ -232,8 +232,9 @@ class WTSUtils {
 			// showed up on the same line via the "||" or "!!" syntax, nothing
 			// to worry about.
 			return ( DOMDataUtils::getDataParsoid( $node )->stx ?? '' ) !== 'row';
-		} elseif ( $node instanceof Element && DOMCompat::nodeName( $node ) === 'tr' &&
-			empty( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
+		} elseif (
+			$node instanceof Element && DOMCompat::nodeName( $node ) === 'tr' &&
+			!isset( DOMDataUtils::getDataParsoid( $node )->startTagSrc )
 		) {
 			// If this <tr> didn't have a startTagSrc, it would have been
 			// the first row of a table in original wikitext. So, it is safe
@@ -304,7 +305,7 @@ class WTSUtils {
 	private static function dsrContainsOpenExtendedRangeAnnotationTag( Node $node,
 		SerializerState $state
 	): bool {
-		if ( empty( $state->openAnnotations ) || !$node instanceof Element ) {
+		if ( ( !$state->openAnnotations ) || !$node instanceof Element ) {
 			return false;
 		}
 

@@ -572,11 +572,11 @@ abstract class SiteConfig {
 			$patterns = [ [], [] ];
 			foreach ( $this->interwikiMapNoNamespaces() as $key => $iw ) {
 				$key = (string)$key;
-				$lang = (int)( !empty( $iw['language'] ) );
+				$lang = (int)( isset( $iw['language'] ) );
 
 				$url = $iw['url'];
 				$protocolRelative = substr( $url, 0, 2 ) === '//';
-				if ( !empty( $iw['protorel'] ) ) {
+				if ( $iw['protorel'] ?? false ) {
 					$url = preg_replace( '/^https?:/', '', $url );
 					$protocolRelative = true;
 				}
@@ -589,7 +589,7 @@ abstract class SiteConfig {
 					// Convert placeholder to group match
 					. strtr( preg_quote( $url, '/' ), [ '\\$1' => '(.*?)' ] );
 
-				if ( !empty( $iw['local'] ) ) {
+				if ( $iw['local'] ?? false ) {
 					// ./$interwikiPrefix:$title and
 					// $interwikiPrefix%3A$title shortcuts
 					// are recognized and the local wiki forwards
@@ -1035,7 +1035,7 @@ abstract class SiteConfig {
 	}
 
 	private function populateMagicWords() {
-		if ( !empty( $this->mwAliases ) ) {
+		if ( $this->mwAliases !== null ) {
 			return;
 		}
 

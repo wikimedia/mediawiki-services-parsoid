@@ -472,7 +472,7 @@ class ParsoidExtensionAPI {
 				DOMDataUtils::getDataParsoid( $wrapper )->empty = true;
 			}
 
-			if ( !empty( $this->extTag->isSelfClosed() ) ) {
+			if ( $this->extTag->isSelfClosed() ) {
 				DOMDataUtils::getDataParsoid( $wrapper )->selfClose = true;
 			}
 		}

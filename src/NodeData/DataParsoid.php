@@ -52,7 +52,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  *
  * Template parameter infos produced by TemplateHandler. After unserialization,
  * the objects are not fully populated.
- * @property ParamInfo[][]|null $pi
+ * @property list<list<ParamInfo>>|null $pi
  *
  * DOM fragment identifier for DocumentFragment tunneled through Tokens.
  * The identifier here indexes into Env::$fragmentMap to map to a

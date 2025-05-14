@@ -678,7 +678,7 @@ class WikitextSerializer {
 		// Account for clients not setting the `i`, see T238721
 		$dpArgInfo = $part->i !== null ? ( $dp->pi[$part->i] ?? [] ) : [];
 
-		// Build a key -> arg info map
+		// Build a key -> arg info map (array<string,ParamInfo>)
 		$dpArgInfoMap = [];
 		foreach ( $dpArgInfo as $info ) {
 			$dpArgInfoMap[$info->k] = $info;
@@ -695,7 +695,7 @@ class WikitextSerializer {
 		foreach ( $tplKeysFromDataMw as $key => $param ) {
 			// Storing keys in an array can turn them into ints; stringify.
 			$key = (string)$key;
-			$argInfo = $dpArgInfoMap[$key] ?? [];
+			$argInfo = $dpArgInfoMap[$key] ?? new ParamInfo( $key );
 
 			// TODO: Other formats?
 			// Only consider the html parameter if the wikitext one
@@ -718,7 +718,7 @@ class WikitextSerializer {
 			Assert::invariant( is_string( $value ), "For param: $key, wt property should be a string '
 				. 'but got: $value" );
 
-			$serializeAsNamed = !empty( $argInfo->named );
+			$serializeAsNamed = $argInfo->named;
 
 			// The name is usually equal to the parameter key, but
 			// if there's a key->wt attribute, use that.
@@ -747,7 +747,7 @@ class WikitextSerializer {
 
 		$numPositionalArgs = 0;
 		foreach ( $dpArgInfo as $pi ) {
-			if ( isset( $tplKeysFromDataMw[trim( $pi->k )] ) && empty( $pi->named ) ) {
+			if ( isset( $tplKeysFromDataMw[trim( $pi->k )] ) && !$pi->named ) {
 				$numPositionalArgs++;
 			}
 		}

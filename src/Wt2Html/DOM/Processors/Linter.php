@@ -202,7 +202,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 				);
 			}
 			$name = null;
-			if ( !empty( $p0->href ) ) { // Could be "function"
+			if ( $p0->href !== null ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
 				$name = PHPUtils::stripPrefix( $p0->href, './' );
 			} else {
@@ -737,7 +737,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 						// Identify the dsr-span of the opening tag
 						// of the table that needs to be deleted
 						$x = $nodeDSR === null ? null : ( clone $nodeDSR );
-						if ( !empty( $x->openWidth ) ) {
+						if ( $x->openWidth ?? 0 ) {
 							$x->end = $x->innerStart();
 							$x->openWidth = 0;
 							$x->closeWidth = 0;

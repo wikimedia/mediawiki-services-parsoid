@@ -910,7 +910,7 @@ class WikiLinkHandler extends TokenHandler {
 		// 'imgOption' is the key we'd put in opts; it names the 'group'
 		// for the option, and doesn't have an img_ prefix.
 		$imgOption = Consts::$Media['SimpleOptions'][$canonicalOption] ?? null;
-		if ( !empty( $imgOption ) ) {
+		if ( $imgOption !== null ) {
 			return [
 				'ck' => $imgOption,
 				'v' => $shortCanonicalOption,

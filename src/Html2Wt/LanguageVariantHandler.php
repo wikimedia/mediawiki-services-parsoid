@@ -66,7 +66,7 @@ class LanguageVariantHandler {
 	 * @return string
 	 */
 	private static function combine( string $flagStr, string $bodyStr, $useTrailingSemi ): string {
-		if ( !empty( $flagStr ) || str_contains( $bodyStr, '|' ) ) {
+		if ( $flagStr !== '' || str_contains( $bodyStr, '|' ) ) {
 			$flagStr .= '|';
 		}
 		if ( $useTrailingSemi !== false ) {
@@ -109,7 +109,7 @@ class LanguageVariantHandler {
 		$insertOriginalWhitespace = static function ( $f ) use ( $originalFlags, $protectFunc, $flSp ) {
 			// Reinsert the original whitespace around the flag (if any)
 			$i = $originalFlags[$f] ?? null;
-			if ( !empty( $protectFunc ) ) {
+			if ( $protectFunc !== null ) {
 				$p = self::$protectFunc( $f );
 			} else {
 				$p = $f;

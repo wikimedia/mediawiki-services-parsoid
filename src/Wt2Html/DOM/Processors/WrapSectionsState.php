@@ -118,7 +118,7 @@ class WrapSectionsState {
 					// comes from the current page. But, legacy parser returns 'false'
 					// for this, so we'll return null as well instead of current title.
 					$metadata->fromTitle = null;
-				} elseif ( !empty( $p0->href ) ) {
+				} elseif ( $p0->href !== null ) {
 					// Pick template title, but strip leading "./" prefix
 					$tplHref = Utils::decodeURIComponent( $p0->href );
 					$metadata->fromTitle = PHPUtils::stripPrefix( $tplHref, './' );

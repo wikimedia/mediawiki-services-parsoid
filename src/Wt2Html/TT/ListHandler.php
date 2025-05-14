@@ -425,12 +425,12 @@ class ListHandler extends TokenHandler {
 		while ( $n > 0 ) {
 			// push list item..
 			$temp = array_pop( $this->currListFrame->endtags );
-			if ( !empty( $temp ) ) {
+			if ( $temp ) {
 				$tokens[] = $temp;
 			}
 			// and the list end tag
 			$temp = array_pop( $this->currListFrame->endtags );
-			if ( !empty( $temp ) ) {
+			if ( $temp ) {
 				$tokens[] = $temp;
 			}
 			$n--;
