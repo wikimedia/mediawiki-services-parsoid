@@ -66,22 +66,22 @@ e
 f
 !! html/php
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>b
 </p>
-<h2><span class="mw-headline" id="2.1">2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="2.1">2.1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>c
 </p>
-<h2><span class="mw-headline" id="2.2">2.2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2.2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="2.2">2.2</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2.2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>d
 </p>
-<h3><span class="mw-headline" id="2.2.1">2.2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 2.2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h3>
+<div class="mw-heading mw-heading3"><h3 id="2.2.1">2.2.1</h3><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 2.2.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>e
 </p>
-<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="3">3</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=6" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>f
 </p>
 !! html/parsoid
@@ -134,13 +134,13 @@ c
 Para 2 with a </p><div>nested in it</div>
 <p>Para 3.
 </p>
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>b
 </p>
-<h2><span class="mw-headline" id="2.1">2.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="2.1">2.1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>c
 </p>
 !! html/parsoid
@@ -184,16 +184,16 @@ c
 d
 !! html/php
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h2><span class="mw-headline" id="1.1">1.1</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.1">1.1</h2></div>
 <p>b
 </p>
-<h2><span class="mw-headline" id="1.2">1.2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 1.2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.2">1.2</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 1.2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>c
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>d
 </p>
 !! html/parsoid
@@ -234,17 +234,17 @@ d
 e
 !! html/php
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h2><span class="mw-headline" id="1.1">1.1</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.1">1.1</h2></div>
 <p>b
 </p>
-<h3><span class="mw-headline" id="1.1.1">1.1.1</span></h3>
+<div class="mw-heading mw-heading3"><h3 id="1.1.1">1.1.1</h3></div>
 <p>d
 {{{BOOO}}} 
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>e
 </p>
 !! html/parsoid
@@ -287,20 +287,20 @@ d
 e
 !! html/php
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p><p>x
 </p>
-<h2><span class="mw-headline" id="1.1">1.1</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.1">1.1</h2></div>
 <p>b
 </p>
-<h2><span class="mw-headline" id="1.2">1.2</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.2">1.2</h2></div>
 <p>c
 </p>
-<h3><span class="mw-headline" id="1.2.1">1.2.1</span></h3>
+<div class="mw-heading mw-heading3"><h3 id="1.2.1">1.2.1</h3></div>
 <p>d
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>e
 </p>
 !! html/parsoid
@@ -344,7 +344,7 @@ c
 <div>
 <p>a
 </p>
-<h1><span class="mw-headline" id="1">1</span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1></div>
 <p>b
 </p><p>c
 </p>
@@ -388,17 +388,17 @@ d
 e
 !! html/php
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h1><span class="mw-headline" id="2">2</span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1></div>
 <p>b
 </p>
-<h2><span class="mw-headline" id="2.1">2.1</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="2.1">2.1</h2></div>
 <p>c
 </p><p>d
 </p>
-<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="3">3</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>e
 </p>
 !! html/parsoid
@@ -447,17 +447,17 @@ d
 e
 !! html/php
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h2><span class="mw-headline" id="1.2">1.2</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.2">1.2</h2></div>
 <p>b
 </p>
-<h1><span class="mw-headline" id="2">2</span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1></div>
 <p>c
 </p><p>d
 </p>
-<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="3">3</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>e
 </p>
 !! html/parsoid
@@ -505,20 +505,20 @@ e
 </p>
 <div style="border:1px solid red;">
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h2><span class="mw-headline" id="1.1">1.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 1.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.1">1.1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 1.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>b
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>c
 </p>
 </div>
-<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="3">3</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>d
 </p>
-<h2><span class="mw-headline" id="3.1">3.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 3.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="3.1">3.1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 3.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>e
 </p>
 !! html/parsoid
@@ -566,12 +566,12 @@ hi
 <p>hi
 </p>
 <div>
-<h3><span class="mw-headline" id="ho">ho</span></h3>
+<div class="mw-heading mw-heading3"><h3 id="ho">ho</h3></div>
 </div>
-<h2><span class="mw-headline" id="hi">hi</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: hi">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="ho_2">ho</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: ho">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="hi_2">hi</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: hi">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="ho_3">ho</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: ho">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="hi">hi</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: hi">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="ho_2">ho</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: ho">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="hi_2">hi</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: hi">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="ho_3">ho</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: ho">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 !! html/parsoid
 <section data-mw-section-id="-1"><p>hi</p>
 
@@ -616,25 +616,25 @@ g
 <p>foo
 </p>
 
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
 <div style="border:1px solid red;">
 <p>b
 </p>
-<h2><span class="mw-headline" id="1.1">1.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 1.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="1.1">1.1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 1.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>c
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>d
 </p>
 </div>
 <p>e
 </p>
-<h1><span class="mw-headline" id="3">3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="3">3</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: 3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>f
 </p>
-<h2><span class="mw-headline" id="3.1">3.1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 3.1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="3.1">3.1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: 3.1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>g
 </p>
 !! html/parsoid
@@ -682,10 +682,10 @@ foo
 <p>foo
 </p>
 
-<h1><span class="mw-headline" id="a">a</span></h1>
-<h1><span class="mw-headline" id="b">b</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
-<h1><span class="mw-headline" id="c">c</span></h1>
-<h1><span class="mw-headline" id="d">d</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: d">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="a">a</h1></div>
+<div class="mw-heading mw-heading1"><h1 id="b">b</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: b">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading1"><h1 id="c">c</h1></div>
+<div class="mw-heading mw-heading1"><h1 id="d">d</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: d">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 !! html/parsoid
 <section data-mw-section-id="0"><p>foo</p>
 
@@ -714,10 +714,10 @@ a
 =2=
 b
 !! html/php
-<h1><span class="mw-headline" id="1">1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="1">1</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: 1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>a
 </p>
-<h1><span class="mw-headline" id="2">2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="2">2</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: 2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>b
 </p>
 !! html/parsoid
@@ -749,8 +749,8 @@ foo
 <p>foo
 </p>
 <div>
-<h2><span class="mw-headline" id="a">a</span></h2>
-<h2><span class="mw-headline" id="b">b</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="a">a</h2></div>
+<div class="mw-heading mw-heading2"><h2 id="b">b</h2></div>
 </div>
 !! html/parsoid
 <section data-mw-section-id="-1"><p>foo</p>
@@ -775,9 +775,9 @@ parsoid={
 }}
 ==PHP section=3==
 !! html/php
-<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_2">This is counted as if it were section 2</span></h2>
-<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D1">PHP section=1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="This_is_counted_as_if_it_were_section_2">This is counted as if it were section 2</h2></div>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D3">PHP section=3</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 !! html/parsoid
 <section data-mw-section-id="0"></section><section data-mw-section-id="1"><h2 id="PHP_section=1" data-parsoid="{}"><span id="PHP_section.3D1" typeof="mw:FallbackId"></span>PHP section=1</h2>
 </section><section data-mw-section-id="-1"><h2 about="#mwt1" typeof="mw:Transclusion" id="This_is_counted_as_if_it_were_section_2" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"== This is counted as if it were section 2 =="}},"i":0}}]}'>This is counted as if it were section 2</h2>
@@ -817,21 +817,21 @@ wgParserEnableLegacyMediaDOM=false
 ==PHP section=10==
 !! html/php
 
-<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D1">PHP section=1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>Not a section
 </p>
-<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_4">This is counted as if it were section 4</span></h2>
-<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_4_2">This is counted as if it were section 4</span></h2>
-<h2><span class="mw-headline" id="This_is_counted_as_if_it_were_section_4_3">This is counted as if it were section 4</span></h2>
-<h2><span class="mw-headline" id="PHP_section.3D5">PHP section=5</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: PHP section=5">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D3">PHP section=3</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="This_is_counted_as_if_it_were_section_4">This is counted as if it were section 4</h2></div>
+<div class="mw-heading mw-heading2"><h2 id="This_is_counted_as_if_it_were_section_4_2">This is counted as if it were section 4</h2></div>
+<div class="mw-heading mw-heading2"><h2 id="This_is_counted_as_if_it_were_section_4_3">This is counted as if it were section 4</h2></div>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D5">PHP section=5</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=5" title="Edit section: PHP section=5">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p data-ignored="== This is counted as if it were section 6 ==">Not a section</p>
-<h2><span class="mw-headline" id="PHP_section.3D7">PHP section=7</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=7" title="Edit section: PHP section=7">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D7">PHP section=7</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=7" title="Edit section: PHP section=7">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>Not a ==heading==
 </p>
-<h2><span class="mw-headline" id="PHP_section.3D8">PHP section=8</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=8" title="Edit section: PHP section=8">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="/wiki/File:Foobar.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a><figcaption> <h2><span class="mw-headline" id="This_is_section_9.2C_even_though_it.27s_in_a_caption">This is section 9, even though it's in a caption</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=9" title="Edit section: This is section 9, even though it&#39;s in a caption">edit</a><span class="mw-editsection-bracket">]</span></span></h2> </figcaption></figure>
-<h2><span class="mw-headline" id="PHP_section.3D10">PHP section=10</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=10" title="Edit section: PHP section=10">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D8">PHP section=8</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=8" title="Edit section: PHP section=8">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><a href="/wiki/File:Foobar.jpg" class="mw-file-description"><img src="http://example.com/images/thumb/3/3a/Foobar.jpg/180px-Foobar.jpg" decoding="async" width="180" height="20" class="mw-file-element" srcset="http://example.com/images/thumb/3/3a/Foobar.jpg/270px-Foobar.jpg 1.5x, http://example.com/images/thumb/3/3a/Foobar.jpg/360px-Foobar.jpg 2x" /></a><figcaption> <div class="mw-heading mw-heading2"><h2 id="This_is_section_9.2C_even_though_it.27s_in_a_caption">This is section 9, even though it's in a caption</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=9" title="Edit section: This is section 9, even though it&#39;s in a caption">edit</a><span class="mw-editsection-bracket">]</span></span></div> </figcaption></figure>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D10">PHP section=10</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=10" title="Edit section: PHP section=10">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 !! html/parsoid
 <section data-mw-section-id="0"><meta property="mw:PageProp/toc" data-mw='{"autoGenerated":true}'/></section><section data-mw-section-id="1"><h2 id="PHP_section=1" data-parsoid="{}"><span id="PHP_section.3D1" typeof="mw:FallbackId"></span>PHP section=1</h2>
 <p><span about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1"},{"k":"2"}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"Not a section"},"2":{"wt":"\n== This is counted as if it were section 2 ==\n"}},"i":0}}]}'>Not a section</span></p>
@@ -869,10 +869,10 @@ parsoid={
 ==PHP section=4==
 !! html/php
 
-<h2><span class="mw-headline" id="PHP_section.3D1">PHP section=1</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="PHP_section.3D2">PHP section=2</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: PHP section=2">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="PHP_section.3D3">PHP section=3</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
-<h2><span class="mw-headline" id="PHP_section.3D4">PHP section=4</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: PHP section=4">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D1">PHP section=1</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: PHP section=1">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D2">PHP section=2</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=2" title="Edit section: PHP section=2">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D3">PHP section=3</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=3" title="Edit section: PHP section=3">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="PHP_section.3D4">PHP section=4</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=4" title="Edit section: PHP section=4">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 !! html/parsoid
 PARSOID HAS A BUG HERE: T215628
 !! end
@@ -893,7 +893,7 @@ x
 !! html/php
 <p>x
 </p>
-<h2><span class="mw-headline" id="boo">boo</span></h2>
+<div class="mw-heading mw-heading2"><h2 id="boo">boo</h2></div>
 !! html/parsoid
 <section data-mw-section-id="0" about="#mwt2" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":["&lt;!-- 내 (use a multi-byte char to demonstrate effect of bad offsets) -->\n",{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'><!-- 내 (use a multi&#x2D;byte char to demonstrate effect of bad offsets) -->
 <p about="#mwt1" typeof="mw:Transclusion" data-parsoid='{"pi":[[{"k":"1","named":true,"spc":["","","\n","\n"]}]]}' data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"x\n==boo=="}},"i":0}}]}'>x</p><span about="#mwt1">
@@ -912,8 +912,8 @@ parsoid={
 {{Foobar1}}
 y
 !! html/php
-<h1><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
-<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar1&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading1"><h1 id="x">x</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></div>
+<div class="mw-heading mw-heading2"><h2 id="bar">bar</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar1&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>baz
 y
 </p>
@@ -938,10 +938,10 @@ parsoid={
 {{Foobar2}}
 y
 !! html/php
-<h1><span class="mw-headline" id="x">x</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></h1>
+<div class="mw-heading mw-heading1"><h1 id="x">x</h1><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Parser_test&amp;action=edit&amp;section=1" title="Edit section: x">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p><br />
 </p>
-<h2><span class="mw-headline" id="bar">bar</span><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar2&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></h2>
+<div class="mw-heading mw-heading2"><h2 id="bar">bar</h2><span class="mw-editsection"><span class="mw-editsection-bracket">[</span><a href="/index.php?title=Template:Foobar2&amp;action=edit&amp;section=T-1" title="Edit section: bar">edit</a><span class="mw-editsection-bracket">]</span></span></div>
 <p>baz
 y
 </p>
