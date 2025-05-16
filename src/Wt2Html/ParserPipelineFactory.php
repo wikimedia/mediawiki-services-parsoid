@@ -235,7 +235,7 @@ class ParserPipelineFactory {
 
 	// Skipping sections, addmetadata from the above pipeline
 	//
-	// FIXME: Skip extpp, linter, lang-converter, redlinks, gen-anchors, dedupe-heading-ids, convertoffsets for now.
+	// FIXME: Skip extpp, lang-converter, redlinks, gen-anchors, dedupe-heading-ids, convertoffsets for now.
 	// This replicates behavior prior to this refactor.
 	public const FULL_PARSE_EMBEDDED_DOC_DOM_TRANSFORMS = [
 		// Even though displayspace *could* be run in the nested pipeline,
@@ -243,7 +243,9 @@ class ParserPipelineFactory {
 		// with french spacing, we should run it once on the full DOM including
 		// content of all extensions (wikitext-produced or not).
 		'displayspace',
-		'dedupe-styles', 'strip-metas',
+		'dedupe-styles',
+		'linter',
+		'strip-metas',
 		'cleanup',
 		'embedded-docs', // Need to run this recursively
 		'markDiscardableDP'
