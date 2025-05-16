@@ -3,9 +3,12 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\ListTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
+use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
 
 /**
  * Private helper class for ListHandler.
@@ -64,4 +67,52 @@ class ListFrame {
 	public function __construct() {
 		$this->listTk = new ListTk;
 	}
+
+	/**
+	 * Handle popping tags after processing
+	 *
+	 * @param int $n
+	 * @return array<string|Token>
+	 */
+	public function popTags( int $n ): array {
+		$tokens = [];
+		while ( $n > 0 ) {
+			// push list item..
+			$temp = array_pop( $this->endtags );
+			if ( $temp ) {
+				$tokens[] = $temp;
+			}
+			// and the list end tag
+			$temp = array_pop( $this->endtags );
+			if ( $temp ) {
+				$tokens[] = $temp;
+			}
+			$n--;
+		}
+		return $tokens;
+	}
+
+	/**
+	 * Push a list
+	 *
+	 * @return array<Token>
+	 */
+	public function pushList(
+		array $container, DataParsoid $dp1, DataParsoid $dp2
+	): array {
+		$this->endtags[] = new EndTagTk( $container['list'] );
+		$this->endtags[] = new EndTagTk( $container['item'] );
+
+		if ( $container['item'] === 'dd' ) {
+			$this->haveDD = true;
+		} elseif ( $container['item'] === 'dt' ) {
+			$this->haveDD = false; // reset
+		}
+
+		return [
+			new TagTk( $container['list'], [], $dp1 ),
+			new TagTk( $container['item'], [], $dp2 )
+		];
+	}
+
 }

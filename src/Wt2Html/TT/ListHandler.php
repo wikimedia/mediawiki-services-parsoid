@@ -290,7 +290,7 @@ class ListHandler extends TokenHandler {
 		$this->env->trace( 'list', $this->pipelineId, '----closing all lists----' );
 
 		// pop all open list item tokens onto $listFrame->listTk
-		$ret = self::popTags( $listFrame, count( $listFrame->bstack ) );
+		$ret = $listFrame->popTags( count( $listFrame->bstack ) );
 		$listFrame->listTk->addTokens( $ret );
 		$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]: ', $ret );
 
@@ -365,54 +365,6 @@ class ListHandler extends TokenHandler {
 			}
 		}
 		return $i;
-	}
-
-	/**
-	 * Push a list
-	 *
-	 * @return array<Token>
-	 */
-	private static function pushList(
-		ListFrame $listFrame, array $container, DataParsoid $dp1, DataParsoid $dp2
-	): array {
-		$listFrame->endtags[] = new EndTagTk( $container['list'] );
-		$listFrame->endtags[] = new EndTagTk( $container['item'] );
-
-		if ( $container['item'] === 'dd' ) {
-			$listFrame->haveDD = true;
-		} elseif ( $container['item'] === 'dt' ) {
-			$listFrame->haveDD = false; // reset
-		}
-
-		return [
-			new TagTk( $container['list'], [], $dp1 ),
-			new TagTk( $container['item'], [], $dp2 )
-		];
-	}
-
-	/**
-	 * Handle popping tags after processing
-	 *
-	 * @param ListFrame $listFrame
-	 * @param int $n
-	 * @return array<string|Token>
-	 */
-	private static function popTags( ListFrame $listFrame, int $n ): array {
-		$tokens = [];
-		while ( $n > 0 ) {
-			// push list item..
-			$temp = array_pop( $listFrame->endtags );
-			if ( $temp ) {
-				$tokens[] = $temp;
-			}
-			// and the list end tag
-			$temp = array_pop( $listFrame->endtags );
-			if ( $temp ) {
-				$tokens[] = $temp;
-			}
-			$n--;
-		}
-		return $tokens;
 	}
 
 	/** Check for Dt Dd sequence */
@@ -495,7 +447,7 @@ class ListHandler extends TokenHandler {
 				 * the 3rd bullet is the dt-dd transition
 				 * ------------------------------------------------ */
 
-				$tokens = self::popTags( $listFrame, count( $bs ) - $prefixLen - 1 );
+				$tokens = $listFrame->popTags( count( $bs ) - $prefixLen - 1 );
 				$tokens = array_merge( $listFrame->solTokens, $tokens );
 				$newName = self::$bullet_chars_map[$bn[$prefixLen]]['item'];
 				$endTag = array_pop( $listFrame->endtags );
@@ -529,7 +481,7 @@ class ListHandler extends TokenHandler {
 				$tokens = array_merge(
 					$listFrame->solTokens,
 					$tokens,
-					self::popTags( $listFrame, count( $bs ) - $prefixLen )
+					$listFrame->popTags( count( $bs ) - $prefixLen )
 				);
 				if ( $listFrame->nlTk ) {
 					$tokens[] = $listFrame->nlTk;
@@ -592,8 +544,8 @@ class ListHandler extends TokenHandler {
 					$listItemDP = $this->makeDP( $tokenDP, $i, $i + 1 );
 				}
 
-				PHPUtils::pushArray( $tokens, self::pushList(
-					$listFrame, self::$bullet_chars_map[$bn[$i]], $listDP, $listItemDP
+				PHPUtils::pushArray( $tokens, $listFrame->pushList(
+					self::$bullet_chars_map[$bn[$i]], $listDP, $listItemDP
 				) );
 			}
 			$res = $tokens;
