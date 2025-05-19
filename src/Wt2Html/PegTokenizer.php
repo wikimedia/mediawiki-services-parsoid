@@ -17,33 +17,24 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
-use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\WikiPEG\SyntaxError;
 
 class PegTokenizer extends PipelineStage {
-	/**
-	 * Cache <src,startRule> --> token array.
-	 * No need to retokenize identical strings
-	 * Expected benefits:
-	 * - same expanded template source used multiple times on a page
-	 * - convertToString calls
-	 * - calls from TableFixups and elsewhere to tokenize* methods
-	 */
-	private static array $cache = [];
-	/**
-	 * Track how often a tokenizer string is seen -- can be used
-	 * to reduce caching overheads by only caching on the second
-	 * occurence.
-	 * @var array<string,int>
-	 */
-	private static array $sourceCounts = [];
-
 	private array $options;
 	private array $offsets;
 	private ?SyntaxError $lastError = null;
 	/** @var Grammar|TracingGrammar|null */
 	private $grammar = null;
 	private bool $tracing;
+	/**
+	 * No need to retokenize identical strings
+	 * Cache <src,startRule> --> token array.
+	 * Expected benefits:
+	 * - same expanded template source used multiple times on a page
+	 * - convertToString calls
+	 * - calls from TableFixups and elsewhere to tokenize* methods
+	 */
+	private TokenCache $cache;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -54,6 +45,12 @@ class PegTokenizer extends PipelineStage {
 		$this->options = $options;
 		$this->offsets = [];
 		$this->tracing = $env->hasTraceFlag( 'grammar' );
+		// Cache only on seeing the same source the second time.
+		// This minimizes cache bloat & token cloning penalties.
+		$this->cache = $this->env->getCache(
+			"PegTokenizer",
+			[ "repeatThreshold" => 1, "cloneValue" => true ]
+		);
 	}
 
 	private function initGrammar() {
@@ -170,10 +167,6 @@ class PegTokenizer extends PipelineStage {
 			'env' => $this->env
 		];
 
-		if ( $this->tracing ) {
-			$args['tracer'] = new Tracer( $text );
-		}
-
 		// crc32 is much faster than md5 and since we are verifying a
 		// $text match when reusing cache contents, hash collisions are okay.
 		//
@@ -186,10 +179,13 @@ class PegTokenizer extends PipelineStage {
 			"|" . (int)$args['sol'] .
 			"|" . $args['startRule'] .
 			"|" . $args['pipelineOffset'];
-		$cachedOutput = self::$cache[$cacheKey] ?? null;
-		if ( $cachedOutput && $cachedOutput['text'] === $text ) {
-			$res = Utils::cloneArray( $cachedOutput['tokens'] );
+		$res = $this->cache->lookup( $cacheKey, $text );
+		if ( $res !== null ) {
 			return $res;
+		}
+
+		if ( $this->tracing ) {
+			$args['tracer'] = new Tracer( $text );
 		}
 
 		$start = null;
@@ -210,12 +206,8 @@ class PegTokenizer extends PipelineStage {
 			$profile->bumpTimeUse( 'PEG', hrtime( true ) - $start, 'PEG' );
 		}
 
-		self::$sourceCounts[$cacheKey] = ( self::$sourceCounts[$cacheKey] ?? 0 ) + 1;
-		if ( is_array( $toks ) && self::$sourceCounts[$cacheKey] > 1 ) {
-			self::$cache[$cacheKey] = [
-				'text' => $text,
-				'tokens' => Utils::cloneArray( $toks )
-			];
+		if ( is_array( $toks ) ) {
+			$this->cache->cache( $cacheKey, $toks, $text );
 		}
 
 		return $toks;

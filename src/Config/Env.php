@@ -29,8 +29,8 @@ use Wikimedia\Parsoid\Wikitext\ContentModelHandler as WikitextContentModelHandle
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
+use Wikimedia\Parsoid\Wt2Html\TokenCache;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\RemexPipeline;
-use Wikimedia\Parsoid\Wt2Html\TT\WikiLinkHandler;
 
 /**
  * Environment/Envelope class for Parsoid
@@ -173,6 +173,12 @@ class Env {
 	public array $pageCache = [];
 
 	/**
+	 * Token caches used in the pipeline
+	 * @var array<TokenCache>
+	 */
+	private array $tokenCaches = [];
+
+	/**
 	 * The current top-level document. During wt2html, this will be the document
 	 * associated with the RemexPipeline. During html2wt, this will be the
 	 * input document, typically passed as a constructor option.
@@ -301,11 +307,6 @@ class Env {
 		$this->metadata->setTOCData( $this->tocData );
 
 		$this->wikitextContentModelHandler = new WikitextContentModelHandler( $this );
-
-		// Initialize caches
-		// This is needed because parser tests reuse pipelines
-		// and we don't want link output reused across tests.
-		WikiLinkHandler::initCaches();
 	}
 
 	/**
@@ -487,6 +488,23 @@ class Env {
 	 */
 	public function getPipelineFactory(): ParserPipelineFactory {
 		return $this->pipelineFactory;
+	}
+
+	/**
+	 * Get a token cache for a given cache name. A cache is shared across all pipelines
+	 * and processing that happens in the lifetime of this Env object.
+	 * @param string $cacheName Key to retrieve a token cache
+	 * @param array{repeatThreshold:int,cloneValue:bool} $newCacheOpts Opts for the new cache
+	 */
+	public function getCache( string $cacheName, array $newCacheOpts ): TokenCache {
+		if ( !isset( $this->tokenCaches[$cacheName] ) ) {
+			$this->tokenCaches[$cacheName] = new TokenCache(
+				$newCacheOpts['repeatThreshold'],
+				$newCacheOpts['cloneValue']
+			);
+		}
+
+		return $this->tokenCaches[$cacheName];
 	}
 
 	/**
