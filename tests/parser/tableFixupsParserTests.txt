@@ -197,8 +197,6 @@ Table cell attributes and content from multiple templates
 
 !! test
 Table cell attribute merging edge cases
-!! config
-wgParserEnableLegacyMediaDOM=false
 !! wikitext
 {|
 | {{td_attrs_and_content|1=<div>foo</div> class="foo"}} baz

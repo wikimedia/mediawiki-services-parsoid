@@ -61,10 +61,6 @@
 				"path": "tests/parser/langParserTests.txt",
 				"expectedSHA1": "84ae2d25280991205cb6650778371813fe66171b"
 			},
-			"legacyMedia.txt": {
-				"path": "tests/parser/legacyMedia.txt",
-				"expectedSHA1": "a9c98d4b014b4ae800fe1e42b52c8ba4536831b8"
-			},
 			"magicLinks.txt": {
 				"path": "tests/parser/magicLinks.txt",
 				"expectedSHA1": "e6fad7c8d28ab33cc151b4fd0f5eece05729348c"

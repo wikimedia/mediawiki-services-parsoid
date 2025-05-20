@@ -791,8 +791,6 @@ notoc
 parsoid={
   "wrapSections": true
 }
-!! config
-wgParserEnableLegacyMediaDOM=false
 !! wikitext
 ==PHP section=1==
 {{1x|Not a section|
