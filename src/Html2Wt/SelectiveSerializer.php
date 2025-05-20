@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-use Composer\Semver\Semver;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
@@ -171,11 +170,9 @@ class SelectiveSerializer {
 	}
 
 	private function preprocessDOMForSelser( Element $body ): void {
-		if ( Semver::satisfies( $this->env->getInputContentVersion(), '>=2.1.2' ) ) {
-			// Wrap text node children of <li> elements in dummy spans
-			$this->wrapTextChildrenOfNode( $body, 'li' );
-			$this->wrapTextChildrenOfNode( $body, 'dd' );
-		}
+		// Wrap text node children of <li> elements in dummy spans
+		$this->wrapTextChildrenOfNode( $body, 'li' );
+		$this->wrapTextChildrenOfNode( $body, 'dd' );
 	}
 
 	/**
