@@ -19,13 +19,8 @@ use Wikimedia\Parsoid\Tokens\XMLTagTk;
  *
  * Ex: indent-pre, quote, paragraph, lists, token-stream-patcher
  *
- * They always implement onEnd, at least one of onNewline or onAny handler,
- * and sometimes the onTag handler as well. Some implement all four.
- *
- * FIXME: Ideally, they would all implement the onNewline handler,
- * but it looks like the ListHandler processes newlines in onAny.
- * In a future refactoring, it might be cleaner to extract newline
- * processing into the onNewline handler.
+ * They always implement the onEnd and onNewline handlers,
+ * with the onAny and onTag handlers being optional.
  */
 abstract class LineBasedHandler extends TokenHandler {
 	protected bool $onAnyEnabled = true;
@@ -78,9 +73,7 @@ abstract class LineBasedHandler extends TokenHandler {
 	 *     may be the cumulative transformation of this token
 	 *     and other previous tokens before this.
 	 */
-	public function onEnd( EOFTk $token ): ?array {
-		return null;
-	}
+	abstract public function onEnd( EOFTk $token ): ?array;
 
 	/**
 	 * This handler is called for newline tokens only
@@ -93,9 +86,7 @@ abstract class LineBasedHandler extends TokenHandler {
 	 *     may be the cumulative transformation of this token
 	 *     and other previous tokens before this.
 	 */
-	public function onNewline( NlTk $token ): ?array {
-		return null;
-	}
+	abstract public function onNewline( NlTk $token ): ?array;
 
 	/** @inheritDoc */
 	public function process( array $tokens ): array {

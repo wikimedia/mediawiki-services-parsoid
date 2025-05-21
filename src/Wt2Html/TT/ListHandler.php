@@ -9,7 +9,6 @@ use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\IndentPreTk;
-use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -105,6 +104,42 @@ class ListHandler extends LineBasedHandler {
 	/**
 	 * @inheritDoc
 	 */
+	public function onNewline( $token ): ?array {
+		$this->env->trace( 'list', $this->pipelineId, 'NEWLINE:', $token );
+
+		if ( !$this->onAnyEnabled ) {
+			return null;
+		}
+
+		// onAny handler is only active when there's at least one list frame
+		// on the stack, even if it is not active
+		$listFrame = $this->getListFrame();
+
+		if ( !$this->haveActiveListFrame ) {
+			$listFrame->listTk->addToken( $token );
+			$this->env->trace( 'list', $this->pipelineId, 'RET[LIST]:', $token );
+			return [];
+		}
+
+		if ( $listFrame->atEOL ) {
+			// Non-list item in newline context
+			// ==> close all previous lists and reset frame to null
+			return $this->closeLists( $listFrame, $token );
+		} else {
+			$listFrame->atEOL = true;
+			$listFrame->nlTk = $token;
+			$listFrame->haveDD = false;
+			// php's findColonNoLinks is run in doBlockLevels, which examines
+			// the text line-by-line. At nltk, any open tags will cease having
+			// an effect.
+			$listFrame->numOpenTags = 0;
+			return [];
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public function onAny( $token ): ?array {
 		$this->env->trace( 'list', $this->pipelineId, 'ANY:', $token );
 
@@ -183,21 +218,6 @@ class ListHandler extends LineBasedHandler {
 			}
 
 		/* Non-block tag -- fall-through to other tests below */
-		} elseif ( $token instanceof NlTk ) {
-			if ( $listFrame->atEOL ) {
-				// Non-list item in newline context
-				// ==> close all previous lists and reset frame to null
-				return $this->closeLists( $listFrame, $token );
-			} else {
-				$listFrame->atEOL = true;
-				$listFrame->nlTk = $token;
-				$listFrame->haveDD = false;
-				// php's findColonNoLinks is run in doBlockLevels, which examines
-				// the text line-by-line. At nltk, any open tags will cease having
-				// an effect.
-				$listFrame->numOpenTags = 0;
-				return [];
-			}
 		}
 
 		if ( $listFrame->atEOL ) {
