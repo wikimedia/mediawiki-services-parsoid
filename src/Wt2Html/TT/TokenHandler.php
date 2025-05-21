@@ -3,9 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
@@ -51,28 +49,6 @@ abstract class TokenHandler {
 	 */
 	public function isDisabled(): bool {
 		return $this->disabled;
-	}
-
-	/**
-	 * Process the compound token in a handler-specific way.
-	 * - Some handlers might ignore it and pass it through
-	 * - Some handlers might process its nested tokens and update it
-	 * - Some handlers might process its nested tokens and flatten it
-	 *
-	 * To ensure that handlers that encounter compound tokens always
-	 * have explicit handling for them, the default implementation
-	 * here will throw an exception!
-	 *
-	 * NOTE: The only reason we are processing a handler here is because
-	 * of needing to support profiling. For the profiling use case,
-	 * we will be processing a TraceProxy instead of the handler itself.
-	 *
-	 * @return ?array<string|Token>
-	 */
-	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
-		throw new UnreachableException(
-			get_class( $this ) . ": Unsupported compound token."
-		);
 	}
 
 	/**

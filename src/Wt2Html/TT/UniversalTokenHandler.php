@@ -33,8 +33,10 @@ abstract class UniversalTokenHandler extends TokenHandler {
 	public function process( array $tokens ): array {
 		$accum = [];
 		foreach ( $tokens as $token ) {
-			$res = $token instanceof CompoundTk ? $this->onCompoundTk( $token, $this ) : null;
-			if ( $res === null ) {
+			if ( $token instanceof CompoundTk ) {
+				$token->setNestedTokens( $this->process( $token->getNestedTokens() ) );
+				$res = null;
+			} else {
 				$res = $this->onAny( $token );
 			}
 			if ( $res === null ) {

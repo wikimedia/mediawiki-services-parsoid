@@ -3,7 +3,6 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
-use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
 
@@ -32,17 +31,21 @@ abstract class XMLTagBasedHandler extends TokenHandler {
 		return null;
 	}
 
-	/** @inheritDoc */
+	/**
+	 * At present, compound tokens don't pass through here because this class
+	 * is only used in TokenTransform2 and compound tokens appear in
+	 * TokenTransform3.  If ever that changes, we probably want to process
+	 * them similar to how UniversalTokenHandler does.
+	 *
+	 * @inheritDoc
+	 */
 	public function process( array $tokens ): array {
 		$accum = [];
 		foreach ( $tokens as $token ) {
 			$res = null;
 			if ( $token instanceof XMLTagTk ) {
 				$res = $this->onTag( $token );
-			} elseif ( $token instanceof CompoundTk ) {
-				$res = $this->onCompoundTk( $token, $this );
 			}
-
 			if ( $res === null ) {
 				$accum[] = $token;
 			} else {
@@ -52,7 +55,6 @@ abstract class XMLTagBasedHandler extends TokenHandler {
 				}
 			}
 		}
-
 		return $accum;
 	}
 }
