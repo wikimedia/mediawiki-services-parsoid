@@ -130,8 +130,7 @@ class ParserPipelineFactory {
 		'displayspace' => [
 			'name' => 'DisplaySpace',
 			'handlers' => [
-				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'leftHandler' ] ],
-				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'rightHandler' ] ],
+				[ 'nodeName' => null, 'action' => [ DisplaySpace::class, 'textHandler' ] ],
 			]
 		],
 		'linkclasses' => [

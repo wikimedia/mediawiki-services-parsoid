@@ -86,63 +86,42 @@ class DisplaySpace {
 	}
 
 	/**
-	 * Omit handling node
-	 *
-	 * @param Node $node
-	 * @return bool|Node
-	 */
-	private static function omitNode( Node $node ) {
-		// Go to next sibling if we encounter pre or raw text elements
-		if ( DOMCompat::nodeName( $node ) === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
-			return $node->nextSibling;
-		} else {
-			// Run handlers only on text nodes
-			return !( $node instanceof Text );
-		}
-	}
-
-	/**
 	 * French spaces, Guillemet-left
-	 *
-	 * @param Node $node
-	 * @return bool|Element
 	 */
-	public static function leftHandler( Node $node ) {
-		$omit = self::omitNode( $node );
-		if ( $omit !== false ) {
-			return $omit;
-		}
-
-		'@phan-var Text $node'; // @var Text $node
-
+	public static function leftHandler( Text $node ): void {
 		$key = array_keys( array_slice( Sanitizer::FIXTAGS, 0, 1 ) )[0];
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[0][1];
 			self::insertDisplaySpace( $node, $offset );
 		}
-		return true;
 	}
 
 	/**
 	 * French spaces, Guillemet-right
-	 *
-	 * @param Node $node
-	 * @return bool|Element
 	 */
-	public static function rightHandler( Node $node ) {
-		$omit = self::omitNode( $node );
-		if ( $omit !== false ) {
-			return $omit;
-		}
-
-		'@phan-var Text $node'; // @var Text $node
-
+	public static function rightHandler( Text $node ): void {
 		$key = array_keys( array_slice( Sanitizer::FIXTAGS, 1, 1 ) )[0];
 		if ( preg_match( $key, $node->nodeValue, $matches, PREG_OFFSET_CAPTURE ) ) {
 			$offset = $matches[1][1] + strlen( $matches[1][0] );
 			self::insertDisplaySpace( $node, $offset );
 		}
-		return true;
 	}
 
+	/**
+	 * @param Node $node
+	 * @return bool|Element
+	 */
+	public static function textHandler( Node $node ) {
+		// Go to next sibling if we encounter pre or raw text elements
+		if ( DOMCompat::nodeName( $node ) === 'pre' || DOMUtils::isRawTextElement( $node ) ) {
+			return $node->nextSibling;
+		}
+
+		if ( $node instanceof Text ) {
+			self::leftHandler( $node );
+			self::rightHandler( $node );
+		}
+
+		return true;
+	}
 }
