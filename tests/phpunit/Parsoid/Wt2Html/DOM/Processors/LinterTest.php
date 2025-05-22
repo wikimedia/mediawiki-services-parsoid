@@ -512,6 +512,13 @@ class LinterTest extends TestCase {
 		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
 		$this->assertEquals( [ 23, 45, null, null ], $result[0]['dsr'], $desc );
 		$this->assertEquals( 'foo', $result[0]['params']['items'][0] ?? '', $desc );
+
+		$desc = 'should lint bogus image options in embedded content in template';
+		$result = $this->wtToLint( '{{1x|<indicator name="test">[[File:a.jpg|foo|bar]]</indicator>}}' );
+		$this->assertCount( 1, $result, $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 0, 64, null, null ], $result[0]['dsr'], $desc );
+		$this->assertEquals( 'foo', $result[0]['params']['items'][0] ?? '', $desc );
 	}
 
 	/**

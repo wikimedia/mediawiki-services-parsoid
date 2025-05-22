@@ -109,6 +109,7 @@ class PipelineUtils {
 	 *          source text that $content corresponds to
 	 *    - bool   sol Whether tokens should be processed in start-of-line context.
 	 *    - bool   toplevel Whether the pipeline is considered atTopLevel
+	 *    - stdClass   tplInfo Template info for pipelines created when DOM processing
 	 * @return array<Token|string>|DocumentFragment (depending on pipeline type)
 	 */
 	public static function processContentInPipeline(
@@ -123,6 +124,7 @@ class PipelineUtils {
 		$pipeline->init( [
 			// NOTE: some pipelines force toplevel to true
 			'toplevel' => $opts['toplevel'] ?? false,
+			'tplInfo' => $opts['tplInfo'] ?? null,
 			'frame' => $frame,
 			'tplArgs' => $opts['tplArgs'] ?? null,
 			'srcText' => $opts['srcText'] ?? $frame->getSrcText(),

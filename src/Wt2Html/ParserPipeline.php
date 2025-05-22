@@ -210,6 +210,7 @@ class ParserPipeline {
 		$this->resetState( [
 			'toplevel' => $this->atTopLevel,
 			'toFragment' => $initialState['toFragment'] ?? true,
+			'tplInfo' => $initialState['tplInfo'] ?? null,
 		] );
 
 		// Set frame

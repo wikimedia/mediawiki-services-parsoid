@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
+use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Node;
@@ -22,6 +23,7 @@ class DOMProcessorPipeline extends PipelineStage {
 	private ParsoidExtensionAPI $extApi; // Provides post-processing support to extensions
 	private string $timeProfile = '';
 	private ?SelectiveUpdateData $selparData = null;
+	private ?stdClass $tplInfo = null;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",
@@ -136,6 +138,8 @@ class DOMProcessorPipeline extends PipelineStage {
 					'extApi' => $this->extApi,
 					'frame' => $this->frame,
 					'selparData' => $this->selparData,
+					// For linting embedded docs
+					'tplInfo' => $this->tplInfo,
 				] + $this->options,
 				$this->atTopLevel
 			);
@@ -189,4 +193,13 @@ class DOMProcessorPipeline extends PipelineStage {
 		$this->process( $node, $options );
 		yield $node;
 	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function resetState( array $options ): void {
+		parent::resetState( $options );
+		$this->tplInfo = $options['tplInfo'] ?? null;
+	}
+
 }

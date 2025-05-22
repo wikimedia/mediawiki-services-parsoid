@@ -1409,7 +1409,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 					function ( $extRootNode ) use ( $env, $tplInfo ) {
 						$this->findLints(
 							$extRootNode, $env,
-							empty( $tplInfo->isTemplated ) ? null : $tplInfo
+							( $tplInfo->isTemplated ?? false ) ? $tplInfo : null
 						);
 					}
 				);
@@ -1452,7 +1452,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 		$siteConfig = $env->getSiteConfig();
 		$timer = Timing::start( $siteConfig );
 
-		$this->findLints( $root, $env );
+		// Pass in pipeline tplInfo for when we're linting embedded docs
+		$this->findLints( $root, $env, $options['tplInfo'] );
 		$this->postProcessLints( $env->getLints(), $env );
 
 		$timer->end( "linting", "linting", [] );
