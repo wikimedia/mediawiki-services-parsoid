@@ -11,6 +11,7 @@ use Wikimedia\Parsoid\Fragments\DomPFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -157,7 +158,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 						if ( $ntt->getName() === 'mw-quote' ) {
 							$buf .= $ntt->getAttributeV( 'value' );
 						} elseif (
-							!TokenUtils::isEmptyLineMetaToken( $ntt ) &&
+							!( $ntt instanceof EmptyLineTk ) &&
 							$ntt->getName() !== 'template' &&
 							$ntt->getName() !== 'templatearg' &&
 							// Ignore annotations in template targets

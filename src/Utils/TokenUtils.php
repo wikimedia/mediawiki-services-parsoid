@@ -8,6 +8,7 @@ use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
@@ -167,6 +168,8 @@ class TokenUtils {
 			return (bool)preg_match( '/^[ \t]*$/D', $token );
 		} elseif ( self::isSolTransparentLinkTag( $token ) ) {
 			return true;
+		} elseif ( $token instanceof EmptyLineTk ) {
+			return true;
 		} elseif ( $token instanceof CommentTk && !self::isTranslationUnitMarker( $env, $token ) ) {
 			return true;
 		} elseif ( self::isBehaviorSwitch( $env, $token ) ) {
@@ -217,18 +220,6 @@ class TokenUtils {
 		return $env->hasAnnotations &&
 			$env->getSiteConfig()->isAnnotationTag( 'translate' ) &&
 			preg_match( '/^T:/', $token->value ) === 1;
-	}
-
-	/**
-	 * Is token a transparent link tag?
-	 *
-	 * @param Token|string $token
-	 * @return bool
-	 */
-	public static function isEmptyLineMetaToken( $token ): bool {
-		return $token instanceof SelfclosingTagTk &&
-			$token->getName() === 'meta' &&
-			$token->getAttributeV( 'typeof' ) === 'mw:EmptyLine';
 	}
 
 	/**
@@ -558,9 +549,6 @@ class TokenUtils {
 			if ( isset( $input->dataParsoid->tmp->extLinkContentOffsets ) ) {
 				self::collectOffsets( $input->dataParsoid->tmp->extLinkContentOffsets, $offsetFunc );
 			}
-			if ( isset( $input->dataParsoid->tokens ) ) {
-				self::collectOffsets( $input->dataParsoid->tokens, $offsetFunc );
-			}
 			if ( isset( $input->dataParsoid->extTagOffsets ) ) {
 				self::collectOffsets( $input->dataParsoid->extTagOffsets, $offsetFunc );
 			}
@@ -649,7 +637,7 @@ class TokenUtils {
 				( empty( $opts['retainNLs'] ) && $token instanceof NlTk )
 			) {
 				// strip comments and newlines
-			} elseif ( !empty( $opts['stripEmptyLineMeta'] ) && self::isEmptyLineMetaToken( $token ) ) {
+			} elseif ( !empty( $opts['stripEmptyLines'] ) && ( $token instanceof EmptyLineTk ) ) {
 				// If requested, strip empty line meta tokens too.
 			} elseif ( !empty( $opts['includeEntities'] ) && self::isEntitySpanToken( $token ) ) {
 				$out .= $token->dataParsoid->src;

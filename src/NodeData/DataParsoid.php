@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
-use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Parsoid data for a DOM node. Managed by DOMDataUtils::get/setDataParsoid().
@@ -89,10 +88,6 @@ use Wikimedia\Parsoid\Utils\Utils;
  *
  * The link token associated with a redirect
  * @property Token|null $linkTk
- *
- * On a meta mw:EmptyLine, the associated comment and whitespace tokens. Used
- * in this sense by both the tokenizer and TokenStreamPatcher.
- * @property array<Token> $tokens
  *
  * This is set to "extlink" on auto URL (external hotlink) image links.
  * @property string|null $type
@@ -248,11 +243,13 @@ class DataParsoid implements JsonCodecable {
 		// Deep clone non-primitive properties
 
 		// 1. Properties which are lists of cloneable objects
-		foreach ( [ 'tokens', ] as $prop ) {
-			if ( isset( $this->$prop ) ) {
-				$this->$prop = Utils::cloneArray( $this->$prop );
-			}
-		}
+		// None currently
+		// foreach ( [ ] as $prop ) {
+		// 	if ( isset( $this->$prop ) ) {
+		// 		$this->$prop = Utils::cloneArray( $this->$prop );
+		// 	}
+		// }
+
 		// 2. Properties which are cloneable objects
 		foreach ( [ 'tmp', 'linkTk', 'tsr', 'dsr', 'extTagOffsets' ] as $prop ) {
 			if ( isset( $this->$prop ) ) {

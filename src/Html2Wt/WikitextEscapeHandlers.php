@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -723,13 +724,16 @@ class WikitextEscapeHandlers {
 			// Now put back the escaping we removed above
 			$tSrc = WTSUtils::escapeNowikiTags( $tsr->substr( $text ) );
 			switch ( true ) {
-				case $t instanceof NlTk:
-					$buf .= $tSrc;
-					$sol = true;
-					break;
 				case $t instanceof CommentTk:
 					// Comments are sol-transparent
 					$buf .= $tSrc;
+					break;
+				case $t instanceof EmptyLineTk:
+					$sol = true;
+					break;
+				case $t instanceof NlTk:
+					$buf .= $tSrc;
+					$sol = true;
 					break;
 				case $t instanceof TagTk:
 					// Treat tokens with missing tags as self-closing tokens
@@ -748,12 +752,8 @@ class WikitextEscapeHandlers {
 					$sol = false;
 					break;
 				case $t instanceof SelfclosingTagTk:
-					if ( $t->getName() !== 'meta' ||
-						!TokenUtils::hasTypeOf( $t, 'mw:EmptyLine' )
-					) {
-						// Don't bother with marker or empty-line metas
-						self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
-					}
+					// Don't bother with marker metas
+					self::nowikiWrap( $tSrc, true, $inNowiki, $nowikisAdded, $buf );
 					$sol = false;
 					break;
 			}
@@ -1197,6 +1197,7 @@ class WikitextEscapeHandlers {
 
 			switch ( true ) {
 				case $t instanceof TagTk:
+				case $t instanceof EmptyLineTk:
 				case $t instanceof EndTagTk:
 				case $t instanceof NlTk:
 				case $t instanceof CommentTk:

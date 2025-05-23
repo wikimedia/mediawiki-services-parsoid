@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\CompoundTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -106,6 +107,9 @@ abstract class LineBasedHandler extends TokenHandler {
 	 * @return ?array<string|Token>
 	 */
 	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		if ( $ctk instanceof EmptyLineTk ) {
+			return null;
+		}
 		throw new UnreachableException(
 			get_class( $this ) . ": Unsupported compound token."
 		);

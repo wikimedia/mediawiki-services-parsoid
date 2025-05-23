@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Tokens;
 
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
@@ -17,9 +18,10 @@ abstract class CompoundTk extends Token {
 
 	/**
 	 * @param array<string|Token> $nestedToks
+	 * @param ?DataParsoid $dp
 	 */
-	public function __construct( array $nestedToks = [] ) {
-		parent::__construct( null, null );
+	public function __construct( array $nestedToks = [], ?DataParsoid $dp = null ) {
+		parent::__construct( $dp ?? new DataParsoid, null );
 		$this->nestedTokens = $nestedToks;
 	}
 
@@ -58,9 +60,11 @@ abstract class CompoundTk extends Token {
 	 * @inheritDoc
 	 */
 	public function jsonSerialize(): array {
-		return [
+		$ret = [
 			'type' => $this->getType(),
-			'nestedTokens' => $this->nestedTokens
+			'nestedTokens' => $this->nestedTokens,
+			'dataParsoid' => $this->dataParsoid
 		];
+		return $ret;
 	}
 }

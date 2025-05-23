@@ -126,22 +126,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 				],
 			],
 		],
-		[
-			'name' => 'empty line meta token',
-			'token' => [
-				'type' => 'SelfclosingTagTk',
-				'name' => 'meta',
-				'attribs' => [
-					[ 'k' => 'typeof', 'v' => 'mw:EmptyLine' ],
-				],
-				'dataParsoid' => [
-					'tokens' => [
-						[ 'type' => 'NlTk' ],
-					],
-				],
-			],
-			'isEmptyLineMetaToken' => true,
-		],
 	];
 
 	public static function provideTokens() {
@@ -250,18 +234,6 @@ class TokenUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertEquals(
 			$testCase['isEntitySpanToken'] ?? false,
 			TokenUtils::isEntitySpanToken( $token )
-		);
-	}
-
-	/**
-	 * @covers ::isEmptyLineMetaToken
-	 * @dataProvider provideTokens
-	 */
-	public function testIsEmptyLineMetaToken( array $testCase ) {
-		$token = $testCase['token'];
-		$this->assertEquals(
-			$testCase['isEmptyLineMetaToken'] ?? false,
-			TokenUtils::isEmptyLineMetaToken( $token )
 		);
 	}
 

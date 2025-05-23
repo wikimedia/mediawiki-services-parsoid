@@ -4,40 +4,42 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
+use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 /**
- * OnlyInclude sadly forces synchronous template processing, as it needs to
- * hold onto all tokens in case an onlyinclude block is encountered later.
- * This can fortunately be worked around by caching the tokens after
- * onlyinclude processing (which is a good idea anyway).
+ * OnlyInclude needs to buffer tokens in case an onlyinclude block is encountered later.
  */
 class OnlyInclude extends UniversalTokenHandler {
-	/** @var array */
-	private $accum = [];
+	private array $accum = [];
+	private bool $inOnlyInclude = false;
+	private bool $foundOnlyInclude = false;
+	private bool $enabled = true;
 
-	/** @var bool */
-	private $inOnlyInclude = false;
-
-	/** @var bool */
-	private $foundOnlyInclude = false;
-
-	/**
-	 * @inheritDoc
-	 */
-	public function onAny( $token ): ?array {
-		$enabled = $this->options['inTemplate'] &&
+	public function __construct( TokenHandlerPipeline $manager, array $options ) {
+		parent::__construct( $manager, $options );
+		$this->enabled = $this->options['inTemplate'] &&
 			$this->env->nativeTemplateExpansionEnabled();
-		return ( $enabled ) ? $this->onAnyInclude( $token ) : null;
+	}
+
+	/** @inheritDoc */
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		return $this->enabled ? $this->onAnyInclude( $ctk ) : null;
+	}
+
+	/** @inheritDoc */
+	public function onAny( $token ): ?array {
+		return $this->enabled ? $this->onAnyInclude( $token ) : null;
 	}
 
 	/**
-	 * @param Token|array $token
+	 * @param Token|string $token
 	 * @return ?array<string|Token>
 	 */
 	private function onAnyInclude( $token ): ?array {

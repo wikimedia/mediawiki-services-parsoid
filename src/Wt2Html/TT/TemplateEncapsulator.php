@@ -126,7 +126,7 @@ class TemplateEncapsulator {
 			}
 
 			$kWt = trim( $kSrc );
-			$k = TokenUtils::tokensToString( $param->k, true, [ 'stripEmptyLineMeta' => true ] );
+			$k = TokenUtils::tokensToString( $param->k, true, [ 'stripEmptyLines' => true ] );
 			if ( is_array( $k ) ) {
 				// The PHP parser only removes comments and whitespace to construct
 				// the real parameter name, so if there were other tokens, use the

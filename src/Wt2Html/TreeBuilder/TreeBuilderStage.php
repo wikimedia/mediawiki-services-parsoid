@@ -289,12 +289,6 @@ class TreeBuilderStage extends PipelineStage {
 		} elseif ( $token instanceof SelfclosingTagTk ) {
 			$tName = $token->getName();
 
-			// Re-expand an empty-line meta-token into its constituent comment + WS tokens
-			if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-				$this->processChunk( $dataParsoid->tokens );
-				return;
-			}
-
 			$wasInserted = false;
 
 			// Transclusion metas are placeholders and are eliminated after template-wrapping.

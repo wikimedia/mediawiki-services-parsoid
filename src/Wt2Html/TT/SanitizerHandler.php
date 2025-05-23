@@ -15,6 +15,8 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\Sanitizer;
+use Wikimedia\Parsoid\Tokens\CompoundTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -123,6 +125,14 @@ class SanitizerHandler extends UniversalTokenHandler {
 		$this->inTemplate = $options['inTemplate'];
 	}
 
+	/** @inheritDoc */
+	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		if ( !( $ctk instanceof EmptyLineTk ) ) {
+			$ctk->setNestedTokens( $tokensHandler->process( $ctk->getNestedTokens() ) );
+		}
+		return null;
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -132,12 +142,6 @@ class SanitizerHandler extends UniversalTokenHandler {
 		}
 		$env = $this->env;
 		$env->trace( 'sanitizer', $this->pipelineId, $token );
-
-		// Pass through a transparent line meta-token
-		if ( TokenUtils::isEmptyLineMetaToken( $token ) ) {
-			$env->trace( 'sanitizer', $this->pipelineId, '--unchanged--' );
-			return null;
-		}
 
 		$newToken = $this->sanitizeToken(
 			$env->getSiteConfig(), $this->manager->getFrame(), $token, $this->inTemplate

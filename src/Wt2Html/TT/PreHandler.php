@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CommentTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\IndentPreTk;
@@ -435,7 +436,7 @@ class PreHandler extends LineBasedHandler {
 		if ( $token instanceof CommentTk ) {
 			$tsr = isset( $token->dataParsoid->tsr ) ? $token->dataParsoid->tsr->end :
 				( ( $tsr === -1 ) ? -1 : WTUtils::decodedCommentLength( $token ) + $tsr );
-		} elseif ( $token instanceof SelfclosingTagTk ) {
+		} elseif ( $token instanceof SelfclosingTagTk || $token instanceof EmptyLineTk ) {
 			// meta-tag (cannot compute)
 			$tsr = -1;
 		} elseif ( $tsr !== -1 ) {

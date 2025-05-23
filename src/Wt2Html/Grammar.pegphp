@@ -15,6 +15,7 @@
 	use Wikimedia\Parsoid\NodeData\TempData;
 	use Wikimedia\Parsoid\Tokens\CommentTk;
 	use Wikimedia\Parsoid\Tokens\EOFTk;
+	use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 	use Wikimedia\Parsoid\Tokens\EndTagTk;
 	use Wikimedia\Parsoid\Tokens\KV;
 	use Wikimedia\Parsoid\Tokens\KVSourceRange;
@@ -2739,8 +2740,5 @@ empty_lines_with_comments =
 	p:("" { return $this->endOffset(); }) c:(space* comment space_or_comment* newline)+ {
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $p, $this->endOffset() );
-		$dp->tokens = TokenizerUtils::flattenIfArray( $c );
-		return [
-			new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:EmptyLine' ) ], $dp )
-		];
+		return [ new EmptyLineTk( TokenizerUtils::flattenIfArray( $c ), $dp ) ];
 	}

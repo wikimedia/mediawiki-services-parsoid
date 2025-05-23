@@ -6,6 +6,7 @@ namespace Wikimedia\Parsoid\Wt2Html\TT;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CompoundTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\IndentPreTk;
@@ -90,9 +91,9 @@ class ListHandler extends LineBasedHandler {
 	 * @inheritDoc
 	 */
 	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
-		if ( $ctk instanceof IndentPreTk ) {
+		if ( $ctk instanceof EmptyLineTk || $ctk instanceof IndentPreTk ) {
 			// Nothing to do!
-			// IndentPre content is of no interest to us
+			// IndentPre content / empty lines are of no interest to us
 			return null;
 		} else {
 			throw new UnreachableException(
