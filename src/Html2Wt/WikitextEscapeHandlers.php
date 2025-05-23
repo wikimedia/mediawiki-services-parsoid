@@ -11,7 +11,7 @@ use Wikimedia\Parsoid\Tokens\CommentTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
-use Wikimedia\Parsoid\Tokens\SelfClosingTagTk;
+use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;

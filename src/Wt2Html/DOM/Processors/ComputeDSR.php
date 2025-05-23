@@ -284,7 +284,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * tags that the tokenizer generates, the TSR values applies to the entire
 	 * DOM subtree (opening tag + content + closing tag).
 	 *
-	 * Ex: So [[foo]] will get tokenized to a SelfClosingTagTk(...) with a TSR
+	 * Ex: So [[foo]] will get tokenized to a SelfclosingTagTk(...) with a TSR
 	 * value of [0,7].  The DSR algorithm will then use that info and assign
 	 * the a-tag rooted at the <a href='...'>foo</a> DOM subtree a DSR value of
 	 * [0,7,2,2], where 2 and 2 refer to the opening and closing tag widths.

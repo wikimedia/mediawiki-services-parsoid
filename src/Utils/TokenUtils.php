@@ -98,7 +98,7 @@ class TokenUtils {
 		return $token && !is_string( $token ) &&
 			( $token instanceof TagTk ||
 			$token instanceof EndTagTk ||
-			$token instanceof SelfClosingTagTk ) &&
+			$token instanceof SelfclosingTagTk ) &&
 			isset( $token->dataParsoid->stx ) &&
 			$token->dataParsoid->stx === 'html';
 	}
