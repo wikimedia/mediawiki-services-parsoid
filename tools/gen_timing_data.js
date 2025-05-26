@@ -64,7 +64,7 @@ const standardOpts = {
 let argv = null;
 let MW_ACCESS_TOKEN = null;
 // To get past local caches
-const randomQS = (Math.random()).toString(36).substring(7);
+const randomQS = (Math.random()).toString(36).slice(7);
 
 function retryingHTTPRequest(retries, requestOptions, delay) {
 	delay = delay || 100; // start with 100ms
