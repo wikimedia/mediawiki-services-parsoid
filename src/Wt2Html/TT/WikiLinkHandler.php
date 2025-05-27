@@ -43,6 +43,9 @@ use Wikimedia\Parsoid\Wt2Html\TokenCache;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class WikiLinkHandler extends XMLTagBasedHandler {
+	/** Disable caching till we fix cloning of DOM fragments in data-parsoid */
+	private static bool $cachingEnabled = false;
+
 	private static function hrefParts( string $str ): ?array {
 		if ( preg_match( '/^([^:]+):(.*)$/D', $str, $matches ) ) {
 			return [ 'prefix' => $matches[1], 'title' => $matches[2] ];
@@ -52,7 +55,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	}
 
 	private PegTokenizer $urlParser;
-	private TokenCache $wikilinkCache;
+	private ?TokenCache $wikilinkCache = null;
 
 	/** @inheritDoc */
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
@@ -66,10 +69,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		// Cache only on seeing the same source the fourth time.
 		// This minimizes cache bloat & token cloning penalties
 		// and reserving benefits for links seen at least 5 times.
-		$this->wikilinkCache = $this->manager->getEnv()->getCache(
-			"wikilink",
-			[ "repeatThreshold" => 3, "cloneValue" => true ]
-		);
+		if ( self::$cachingEnabled ) {
+			$this->wikilinkCache = $this->manager->getEnv()->getCache(
+				"wikilink",
+				[ "repeatThreshold" => 3, "cloneValue" => true ]
+			);
+		}
 	}
 
 	/**
@@ -304,7 +309,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		// Given wikilink-syntax source, token output is deterministic
 		// and so we can benefit from caching.
 		$src = $token->dataParsoid->src ?? '';
-		$isCacheable = ( $tsrStart !== null && strlen( $src ) > 0 );
+		$isCacheable = ( $this->wikilinkCache && $tsrStart !== null && strlen( $src ) > 0 );
 		if ( $isCacheable ) {
 			$cachedOutput = $this->wikilinkCache->lookup( $src );
 			if ( $cachedOutput !== null ) {

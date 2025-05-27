@@ -167,3 +167,21 @@ parsoid=wt2html
 <pre>a</pre></td></tr>
 </tbody></table></dd></dl>
 !! end
+
+!! test
+Ensure WikiLink caching handles embedded fragments properly
+!! options
+parsoid=wt2html
+!! wikitext
+1. [[Foo|<spantag>a</spantag>]]
+2. [[Foo|<spantag>a</spantag>]]
+3. [[Foo|<spantag>a</spantag>]]
+4. [[Foo|<spantag>a</spantag>]]
+5. [[Foo|<spantag>a</spantag>]]
+!! html/parsoid
+<p>1. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt1" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a>
+2. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt2" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a>
+3. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt3" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a>
+4. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt4" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a>
+5. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt5" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a></p>
+!! end
