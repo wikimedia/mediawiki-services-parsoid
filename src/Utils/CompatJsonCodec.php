@@ -59,7 +59,7 @@ class CompatJsonCodec extends JsonCodec {
 					// JsonUnserializer which is required as the first argument
 					// T346829, T327439#8634426
 					// That's ok, though, we can still *serialize* objects for
-					// test cases even if we can't unserialize them.
+					// test cases or logging even if we can't unserialize them.
 					throw new \InvalidArgumentException( "Unserialization of this $className not possible" );
 				}
 
