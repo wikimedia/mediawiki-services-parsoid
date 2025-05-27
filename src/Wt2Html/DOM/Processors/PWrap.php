@@ -60,9 +60,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			DOMDataUtils::getDataParsoid( $n )->getTempFlag( TempData::WRAPPER )
 		) {
 			if ( DOMUtils::hasTypeOf( $n, 'mw:DOMFragment' ) ) {
-				$domFragment = $env->getDOMFragment(
-					DOMDataUtils::getDataParsoid( $n )->html
-				);
+				$domFragment = DOMDataUtils::getDataParsoid( $n )->html;
 				return self::pWrapOptionalChildren( $env, $domFragment );
 			} else {
 				return self::pWrapOptionalChildren( $env, $n );

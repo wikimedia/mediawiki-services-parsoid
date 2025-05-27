@@ -7,8 +7,10 @@ use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Core\DomSourceRange;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 
 /**
@@ -54,10 +56,8 @@ use Wikimedia\Parsoid\Utils\Utils;
  * the objects are not fully populated.
  * @property list<list<ParamInfo>>|null $pi
  *
- * DOM fragment identifier for DocumentFragment tunneled through Tokens.
- * The identifier here indexes into Env::$fragmentMap to map to a
- * DocumentFragment.
- * @property string|null $html
+ * DocumentFragment content tunneled through for DOMFragment Token.
+ * @property DocumentFragment|null $html
  *
  * On mw:Entity spans this is set to the decoded entity value.
  * @property string|null $srcContent
@@ -264,6 +264,12 @@ class DataParsoid implements JsonCodecable {
 		if ( isset( $this->extTagOffsets ) ) {
 			$this->extTagOffsets = clone $this->extTagOffsets;
 		}
+		// Document fragments are special
+		foreach ( [ 'html' ] as $field ) {
+			if ( isset( $this->$field ) ) {
+				$this->$field = DOMDataUtils::cloneDocumentFragment( $this->$field );
+			}
+		}
 	}
 
 	public function isModified(): bool {
@@ -338,6 +344,7 @@ class DataParsoid implements JsonCodecable {
 				'tsr' => $sr,
 				'pi' => Hint::build( ParamInfo::class, Hint::LIST, Hint::LIST ),
 				'linkTk' => Token::class,
+				'html' => DocumentFragment::class,
 			];
 		}
 		return $hints[$keyname] ?? null;

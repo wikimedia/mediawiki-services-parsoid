@@ -222,7 +222,7 @@ class TableFixups {
 						// "&#10;" is "\n" which breaks attribute parsing!
 						$buf[] = DOMDataUtils::getDataParsoid( $child )->src ?? $child->textContent;
 					} elseif ( DOMUtils::hasTypeOf( $child, 'mw:DOMFragment' ) ) {
-						$fragDOM = $env->getDOMFragment( DOMDataUtils::getDataParsoid( $child )->html );
+						$fragDOM = DOMDataUtils::getDataParsoid( $child )->html;
 						// FIXME: This is correct only for nowikis.
 						// For everything else, we need to figure out what needs to happen
 						// here wrt the extension opening & closing tags.

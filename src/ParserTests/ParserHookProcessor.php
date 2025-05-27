@@ -32,8 +32,7 @@ class ParserHookProcessor extends ExtDOMProcessor {
 				}
 			} elseif ( WTUtils::isSealedFragmentOfType( $node, 'sealtag' ) ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
-				$contentId = $dp->html;
-				$content = $extApi->getContentDOM( $contentId );
+				$content = $dp->html;
 				$span = $content->firstChild;
 
 				// In case it's templated
@@ -48,7 +47,7 @@ class ParserHookProcessor extends ExtDOMProcessor {
 				DOMUtils::addTypeOf( $span, 'mw:Extension/sealtag' );
 
 				$node->parentNode->replaceChild( $span, $node );
-				$extApi->clearContentDOM( $contentId );
+				unset( $dp->html );
 			}
 			$extApi->processAttributeEmbeddedDom(
 				$node, function ( $domFragment ) use ( $extApi ) {

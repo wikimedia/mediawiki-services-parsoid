@@ -328,8 +328,7 @@ class ContentUtils {
 			if ( DOMUtils::matchTypeOf( $node, '#^mw:DOMFragment/sealed/\w+$#D' ) ) {
 				$dp = DOMDataUtils::getDataParsoid( $node );
 				if ( $dp->html ?? null ) {
-					$domFragment = $env->getDOMFragment( $dp->html );
-					DOMPostOrder::traverse( $domFragment, $convertNode );
+					DOMPostOrder::traverse( $dp->html, $convertNode );
 				}
 			}
 		};
@@ -460,18 +459,6 @@ class ContentUtils {
 			$buf .= "----- {$title} -----\n";
 		}
 		$buf .= self::dumpNode( $rootNode, $options ) . "\n";
-
-		// Dump cached fragments
-		if ( !empty( $options['dumpFragmentMap'] ) ) {
-			foreach ( $options['env']->getDOMFragmentMap() as $k => $fragment ) {
-				$buf .= str_repeat( '=', 15 ) . "\n";
-				$buf .= "FRAGMENT {$k}\n";
-				$buf .= self::dumpNode(
-					is_array( $fragment ) ? $fragment[0] : $fragment,
-					$options
-				) . "\n";
-			}
-		}
 
 		if ( empty( $options['quiet'] ) ) {
 			$buf .= str_repeat( '-', mb_strlen( $title ) + 12 ) . "\n";

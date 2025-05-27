@@ -130,8 +130,7 @@ class UnpackDOMFragments {
 
 		$env = $state->env;
 		$placeholderDP = DOMDataUtils::getDataParsoid( $placeholder );
-		Assert::invariant( str_starts_with( $placeholderDP->html, 'mwf' ), '' );
-		$fragmentDOM = $env->getDOMFragment( $placeholderDP->html );
+		$fragmentDOM = $placeholderDP->html;
 		$fragmentContent = $fragmentDOM->firstChild;
 		$placeholderParent = $placeholder->parentNode;
 
@@ -361,7 +360,7 @@ class UnpackDOMFragments {
 
 		// Empty out $fragmentDOM since the call below asserts it
 		DOMCompat::replaceChildren( $fragmentDOM );
-		$env->removeDOMFragment( $placeholderDP->html );
+		unset( $placeholderDP->html );
 
 		return $nextNode;
 	}

@@ -665,10 +665,8 @@ class TokenUtils {
 				self::hasDOMFragmentType( $token )
 			) {
 				// Handle dom fragments
-				$domFragment = $opts['env']->getDOMFragment(
-					$token->dataParsoid->html
-				);
-				// Calling `env->removeDOMFragment()` here is case dependent
+				$domFragment = $token->dataParsoid->html;
+				// Removing the DOMFragment here is case dependent
 				// but should be rare enough when permissible that it can be
 				// ignored.
 				// FIXME: The correct thing to do would be to return
