@@ -675,6 +675,9 @@ class PipelineUtils {
 	 * of the HTML DOM for the purposes of additional token transformations
 	 * that will be applied to them.
 	 *
+	 * The DOMProcessorPipeline will unpack the fragment and insert the HTML
+	 * back into the DOM.
+	 *
 	 * @param Env $env
 	 *    The active environment/context.
 	 * @param Token $token
@@ -697,7 +700,7 @@ class PipelineUtils {
 	 *    - string wrapperName
 	 * @return array<Token|string>
 	 */
-	public static function encapsulateExpansionHTML(
+	public static function tunnelDOMThroughTokens(
 		Env $env, Token $token, DocumentFragment $domFragment, array $opts
 	): array {
 		$opts['unpackOutput'] ??= true; // Default
@@ -809,32 +812,6 @@ class PipelineUtils {
 		if ( count( $textCommentAccum ) ) {
 			self::wrapAccum( $doc, $textCommentAccum );
 		}
-	}
-
-	/**
-	 * Convert a HTML5 DOM into a mw:DOMFragment and generate appropriate
-	 * tokens to insert into the token stream for further processing.
-	 *
-	 * The DOMProcessorPipeline will unpack the fragment and insert the HTML
-	 * back into the DOM.
-	 *
-	 * @param Env $env
-	 *    The active environment/context.
-	 * @param Token $token
-	 *    The token that generated the DOM.
-	 * @param DocumentFragment $domFragment
-	 *    The DOM that the token expanded to.
-	 * @param array $opts
-	 *    Options to be passed onto the encapsulation code
-	 *    See encapsulateExpansionHTML's doc. for more info about these options.
-	 * @return array<Token|string>
-	 */
-	public static function tunnelDOMThroughTokens(
-		Env $env, Token $token, DocumentFragment $domFragment, array $opts
-	): array {
-		// Get placeholder tokens to get our subdom through the token processing
-		// stages. These will be finally unwrapped on the DOM.
-		return self::encapsulateExpansionHTML( $env, $token, $domFragment, $opts );
 	}
 
 	/**
