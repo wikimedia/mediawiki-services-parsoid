@@ -64,7 +64,7 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 	public static function provideSelectiveUpdate() {
 		// phpcs:disable Generic.Files.LineLength.TooLong
 		return [
-			[
+			"unrelated templates do not change" => [
 				'template',
 				[
 					'editedtemplatetitle' => '1x',
@@ -74,7 +74,7 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 				],
 				'<p data-parsoid=\'{"dsr":[0,26,0,0]}\'><span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[0,10,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"2x","href":"./Template:2x"},"params":{"1":{"wt":"456"}},"i":0}}]}\'>456456</span> does not update</p>',
 			],
-			[
+			"one targeted template" => [
 				'template',
 				[
 					'editedtemplatetitle' => '1x',
@@ -82,9 +82,9 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 					'preprocessCalls' => 1,
 					'revHTML' => '<p data-parsoid=\'{"dsr":[0,45,0,0]}\'>testing <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[8,18,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}\'>123</span> does not update <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[35,45,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"2x","href":"./Template:2x"},"params":{"1":{"wt":"456"}},"i":0}}]}\'>456456</span></p>',
 				],
-				'<p data-parsoid=\'{"dsr":[0,45,0,0]}\'>testing <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[8,18,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}\'>123123</span> does not update <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[35,45,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"2x","href":"./Template:2x"},"params":{"1":{"wt":"456"}},"i":0}}]}\'>456456</span></p>',
+				'<p data-parsoid=\'{"dsr":[0,45,0,0]}\'>testing <span about="#mwt3" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[8,18,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}\'>123123</span> does not update <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[35,45,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"2x","href":"./Template:2x"},"params":{"1":{"wt":"456"}},"i":0}}]}\'>456456</span></p>',
 			],
-			[
+			"two targeted templates" => [
 				'template',
 				[
 					'editedtemplatetitle' => '1x',
@@ -92,7 +92,7 @@ class SelectiveUpdateTest extends \PHPUnit\Framework\TestCase {
 					'revText' => 'testing {{1x|123}} and {{1x|hiho}}',
 					'revHTML' => '<p data-parsoid=\'{"dsr":[0,34,0,0]}\'>testing <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[8,18,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}\'>123</span> and <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[23,34,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"hiho"}},"i":0}}]}\'>hiho</span></p>',
 				],
-				'<p data-parsoid=\'{"dsr":[0,34,0,0]}\'>testing <span about="#mwt1" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[8,18,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}\'>123123</span> and <span about="#mwt2" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[23,34,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"hiho"}},"i":0}}]}\'>hihohiho</span></p>',
+				'<p data-parsoid=\'{"dsr":[0,34,0,0]}\'>testing <span about="#mwt3" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[8,18,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"123"}},"i":0}}]}\'>123123</span> and <span about="#mwt4" typeof="mw:Transclusion" data-parsoid=\'{"pi":[[{"k":"1"}]],"dsr":[23,34,null,null]}\' data-mw=\'{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"hiho"}},"i":0}}]}\'>hihohiho</span></p>',
 			],
 		];
 		// phpcs:enable Generic.Files.LineLength.TooLong

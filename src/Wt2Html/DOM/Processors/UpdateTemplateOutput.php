@@ -16,7 +16,6 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 class UpdateTemplateOutput implements Wt2HtmlDOMProcessor {
 	/**
 	 * FIXME:
-	 * -- mwt-id counter may need to be reset!
 	 * -- We have hardcoded check for Template: in English
 	 * -- We aren't checking for other instances (ex: template args)
 	 * -- We aren't checking for indirect dependencies (ex: nested templates)

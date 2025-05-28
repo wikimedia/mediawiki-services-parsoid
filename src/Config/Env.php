@@ -107,12 +107,6 @@ class Env {
 	 */
 	private int $fid = 1;
 
-	/** Used to generate uids as needed during this parse */
-	private int $uid = 1;
-
-	/** Used to generate annotation uids as needed during this parse */
-	private int $annUid = 0;
-
 	/** Lints recorded */
 	private array $lints = [];
 	public bool $logLinterData = false;
@@ -458,14 +452,6 @@ class Env {
 	}
 
 	/**
-	 * Get the current uid counter value
-	 * @return int
-	 */
-	public function getUID(): int {
-		return $this->uid;
-	}
-
-	/**
 	 * Get the current fragment id counter value
 	 * @return int
 	 */
@@ -721,27 +707,11 @@ class Env {
 	}
 
 	/**
-	 * Generate a new uid
-	 * @return int
-	 */
-	public function generateUID(): int {
-		return $this->uid++;
-	}
-
-	/**
-	 * Generate a new annotation uid
-	 * @return int
-	 */
-	public function generateAnnotationUID(): int {
-		return $this->annUid++;
-	}
-
-	/**
 	 * Generate a new annotation id
 	 * @return string
 	 */
 	public function newAnnotationId(): string {
-		return "mwa" . $this->generateAnnotationUID();
+		return DOMDataUtils::getBag( $this->topLevelDoc )->newAnnotationId();
 	}
 
 	/**
@@ -749,7 +719,7 @@ class Env {
 	 * @return string
 	 */
 	public function newAboutId(): string {
-		return '#mwt' . $this->generateUID();
+		return DOMDataUtils::getBag( $this->topLevelDoc )->newAboutId();
 	}
 
 	/**

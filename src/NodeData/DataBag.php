@@ -15,6 +15,12 @@ class DataBag {
 	/** An id counter for this document used for the dataObject map */
 	private int $nodeId = 0;
 
+	/** An id counter for this document used for about IDs. */
+	private int $aboutId = 1;
+
+	/** An id counter for this document used for annotation IDs. */
+	private int $annotationId = 0;
+
 	/**
 	 * Track whether or not data attributes have been loaded for this
 	 * document. See DOMDataUtils::visitAndLoadDataAttribs().
@@ -49,5 +55,31 @@ class DataBag {
 		$nodeId = $this->nodeId++;
 		$this->dataObject[$nodeId] = $data;
 		return $nodeId;
+	}
+
+	public function newAboutId(): string {
+		return '#mwt' . ( $this->aboutId++ );
+	}
+
+	public function seenAboutId( string $id ): void {
+		if ( str_starts_with( $id, '#mwt' ) ) {
+			$val = intval( substr( $id, 4 ) );
+			if ( $this->aboutId <= $val ) {
+				$this->aboutId = $val + 1;
+			}
+		}
+	}
+
+	public function newAnnotationId(): string {
+		return "mwa" . ( $this->annotationId++ );
+	}
+
+	public function seenAnnotationId( string $id ): void {
+		if ( str_starts_with( $id, 'mwa' ) ) {
+			$val = intval( substr( $id, 3 ) );
+			if ( $this->annotationId <= $val ) {
+				$this->annotationId = $val + 1;
+			}
+		}
 	}
 }

@@ -237,7 +237,7 @@ class ParsoidExtensionAPI {
 	 * @return string
 	 */
 	public function newAboutId(): string {
-		return $this->env->newAboutId();
+		return DOMDataUtils::getBag( $this->getTopLevelDoc() )->newAboutId();
 	}
 
 	/**

@@ -291,6 +291,9 @@ class UnpackDOMFragments {
 			// are misnested.  Check the data-object-ids of all the nodes we
 			// just created and renumber & clone the node data for any which
 			// got copied.
+			// XXX: annotation ranges and about ids will get merged, since we
+			// can't tell which nodes were copied from the active formatting
+			// list and which were 'original'.
 			DOMDataUtils::dedupeNodeData( $unpackedFragment );
 
 			DOMUtils::migrateChildren(

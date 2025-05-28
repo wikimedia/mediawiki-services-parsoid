@@ -112,32 +112,48 @@ class DOMDataUtils {
 		return self::getBag( $doc )->stashObject( $obj );
 	}
 
-	public static function dedupeNodeData( Node ...$nodes ): void {
-		if ( count( $nodes ) === 0 ) {
-			return;
-		}
-		$seen = [];
-		$bag = self::getBag( $nodes[0]->ownerDocument );
-		foreach ( $nodes as $node ) {
-			self::dedupeNodeDataVisitor( $bag, $seen, $node );
-		}
+	public static function dedupeNodeData( Node $clonedRoot ): void {
+		$bag = self::getBag( $clonedRoot->ownerDocument );
+		$aboutMap = [];
+		self::dedupeNodeDataVisitor( $bag, $aboutMap, $clonedRoot );
 	}
 
 	private static function dedupeNodeDataVisitor(
-		DataBag $bag, array &$seen, Node $node
+		DataBag $bag, array &$aboutMap, Node $node
 	) {
-		if ( $node instanceof Element && $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			$id = (int)DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
-			if ( $seen[$id] ?? false ) {
-				// dedupe!
+		if ( $node instanceof Element ) {
+			if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
+				$id = (int)DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
+				// Object IDs should always be unique, so we don't have
+				// to remember what the new ID is.
+				// (Note that UnpackDOMFragments may call us with nodes which
+				// don't have unique ids, though!)
 				$nd = $bag->getObject( $id );
 				$node->removeAttribute( self::DATA_OBJECT_ATTR_NAME );
-				self::setNodeData( $node, $nd->cloneNodeData() );
+				$nd = $nd->cloneNodeData();
+				self::setNodeData( $node, $nd );
+
+				// Deduplicate annotation range ids
+				// These can occur multiple times in a given subtree, so we
+				// need to record the mapping for future use.
+				// (There's no DataMw unless there was a DATA_OBJECT_ATTR_NAME)
+				if ( isset( $nd->mw->rangeId ) ) {
+					$oldAbout = $nd->mw->rangeId;
+					$aboutMap[$oldAbout] ??= $bag->newAnnotationId();
+					$nd->mw->rangeId = $aboutMap[$oldAbout];
+				}
 			}
-			$seen[$id] = true;
+			if ( $node->hasAttribute( 'about' ) ) {
+				// Deduplicate transclusion ids
+				// As with annotation ranges, these can occur multiple times
+				// in a given subtree, so we need to record the mapping used.
+				$oldAbout = DOMCompat::getAttribute( $node, 'about' );
+				$aboutMap[$oldAbout] ??= $bag->newAboutId();
+				$node->setAttribute( 'about', $aboutMap[$oldAbout] );
+			}
 		}
 		foreach ( $node->childNodes as $child ) {
-			self::dedupeNodeDataVisitor( $bag, $seen, $child );
+			self::dedupeNodeDataVisitor( $bag, $aboutMap, $child );
 		}
 	}
 
@@ -600,6 +616,7 @@ class DOMDataUtils {
 		if ( !( $node instanceof Element ) ) {
 			return;
 		}
+		$bag = self::getBag( $node->ownerDocument ?? $node );
 		$nodeData = self::getNodeData( $node, $options['loadFromPageBundle'] ?? null );
 		$codec = self::getCodec( $node );
 		$dataParsoidAttr = DOMCompat::getAttribute( $node, 'data-parsoid' );
@@ -633,6 +650,14 @@ class DOMDataUtils {
 			}
 			self::setDataMw( $node, $dmw );
 			$node->removeAttribute( 'data-mw' );
+		}
+
+		$about = DOMCompat::getAttribute( $node, 'about' );
+		if ( $about !== null ) {
+			$bag->seenAboutId( $about );
+		}
+		if ( isset( $nodeData->mw->rangeId ) ) {
+			$bag->seenAnnotationId( $nodeData->mw->rangeId );
 		}
 
 		// We don't load rich attributes here: that will be done lazily as
@@ -805,48 +830,36 @@ class DOMDataUtils {
 	}
 
 	/**
-	 * Clones a node and its data bag
-	 * @param Element $elt
-	 * @param bool $deep
-	 * @return Element
+	 * Clones a node and its data bag.
 	 */
-	public static function cloneNode( Element $elt, bool $deep ): Element {
+	public static function cloneNode( Node $elt, bool $deep ): Node {
 		$clone = $elt->cloneNode( $deep );
 		'@phan-var Element $clone'; // @var Element $clone
 		// We do not need to worry about $deep because a shallow clone does not have child nodes,
 		// so it's always cloning data on the cloned tree (which may be empty).
-		self::fixClonedData( $clone );
+		self::dedupeNodeData( $clone );
+		return $clone;
+	}
+
+	// Two specific helper methods to work around the lack of constrainted
+	// templated types in phan.
+
+	/**
+	 * Clones an element and its data bag(s)
+	 */
+	public static function cloneElement( Element $elt, bool $deep ): Element {
+		$clone = self::cloneNode( $elt, $deep );
+		'@phan-var Element $clone'; // @var Element $clone
 		return $clone;
 	}
 
 	/**
-	 * Clones a DocumentFragment and its associated data bags
+	 * Deep clone a DocumentFragment and its associated data bags
 	 */
 	public static function cloneDocumentFragment( DocumentFragment $df ): DocumentFragment {
-		$clone = $df->cloneNode( true );
+		$clone = self::cloneNode( $df, true );
 		'@phan-var DocumentFragment $clone'; // @var DocumentFragment $clone
-		foreach ( $clone->childNodes as $child ) {
-			if ( $child instanceof Element ) {
-				self::fixClonedData( $child );
-			}
-		}
 		return $clone;
-	}
-
-	/**
-	 * Recursively fixes cloned data from $elt: to avoid conflicts of element IDs, we clone the
-	 * data and set it in the node with a new element ID (which setNodeData does).
-	 * @param Element $elt
-	 */
-	private static function fixClonedData( Element $elt ): void {
-		if ( $elt->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
-			self::setNodeData( $elt, clone self::getNodeData( $elt ) );
-		}
-		foreach ( $elt->childNodes as $child ) {
-			if ( $child instanceof Element ) {
-				self::fixClonedData( $child );
-			}
-		}
 	}
 
 	// This is a generic (and somewhat optimistic) interface for

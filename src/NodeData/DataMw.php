@@ -136,9 +136,7 @@ class DataMw implements JsonCodecable {
 		// Document fragments are special
 		foreach ( [ 'caption', 'html' ] as $field ) {
 			if ( isset( $this->$field ) ) {
-				$oldField = $this->$field;
-				$this->$field = $oldField->cloneNode( true );
-				DOMDataUtils::dedupeNodeData( $oldField, $this->$field );
+				$this->$field = DOMDataUtils::cloneDocumentFragment( $this->$field );
 			}
 		}
 		// Generic stdClass, use PHP serialization as a kludge
