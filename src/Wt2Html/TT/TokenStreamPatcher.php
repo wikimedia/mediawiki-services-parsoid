@@ -50,10 +50,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 	/**
 	 * Resets any internal state for this token handler.
 	 *
-	 * @param array $parseOpts
+	 * @param array $options
 	 */
-	public function resetState( array $parseOpts ): void {
-		parent::resetState( $parseOpts );
+	public function resetState( array $options ): void {
+		parent::resetState( $options );
 		$this->inIndependentParse = $this->atTopLevel || isset( $this->options['attrExpansion'] );
 	}
 

@@ -188,7 +188,7 @@ class PreHandler extends LineBasedHandler {
 		}
 	}
 
-	public function resetState( array $opts ): void {
+	public function resetState( array $options ): void {
 		$this->reset();
 	}
 

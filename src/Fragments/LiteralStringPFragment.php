@@ -52,8 +52,8 @@ class LiteralStringPFragment extends PFragment {
 	}
 
 	/** @inheritDoc */
-	public function asDom( ParsoidExtensionAPI $ext, bool $release = false ): DocumentFragment {
-		$doc = $ext->getTopLevelDoc();
+	public function asDom( ParsoidExtensionAPI $extApi, bool $release = false ): DocumentFragment {
+		$doc = $extApi->getTopLevelDoc();
 		$df = $doc->createDocumentFragment();
 		if ( !$this->isEmpty() ) {
 			$df->appendChild( $doc->createTextNode( $this->value ) );
@@ -62,7 +62,7 @@ class LiteralStringPFragment extends PFragment {
 	}
 
 	/** @inheritDoc */
-	public function asHtmlString( ParsoidExtensionAPI $ext ): string {
+	public function asHtmlString( ParsoidExtensionAPI $extApi ): string {
 		return Utils::escapeHtml( $this->value );
 	}
 

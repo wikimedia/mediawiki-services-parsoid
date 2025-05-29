@@ -157,11 +157,11 @@ class TokenHandlerPipeline extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function resetState( array $opts ): void {
+	public function resetState( array $options ): void {
 		$this->hasShuttleTokens = false;
-		parent::resetState( $opts );
+		parent::resetState( $options );
 		foreach ( $this->transformers as $transformer ) {
-			$transformer->resetState( $opts );
+			$transformer->resetState( $options );
 		}
 	}
 
@@ -171,25 +171,26 @@ class TokenHandlerPipeline extends PipelineStage {
 	 *
 	 * Process a chunk of tokens.
 	 *
-	 * @param array $tokens Array of tokens to process
-	 * @param array $opts
+	 * @param array $input Array of tokens to process
+	 * @param array $options
+	 *
 	 * @return array Returns the array of processed tokens
 	 */
-	public function process( $tokens, array $opts ): array {
-		return $this->processChunk( $tokens );
+	public function process( $input, array $options ): array {
+		return $this->processChunk( $input );
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function processChunkily( $input, array $opts ): Generator {
+	public function processChunkily( $input, array $options ): Generator {
 		if ( $this->prevStage ) {
-			foreach ( $this->prevStage->processChunkily( $input, $opts ) as $chunk ) {
+			foreach ( $this->prevStage->processChunkily( $input, $options ) as $chunk ) {
 				'@phan-var array $chunk'; // @var array $chunk
 				yield $this->processChunk( $chunk );
 			}
 		} else {
-			yield $this->process( $input, $opts );
+			yield $this->process( $input, $options );
 		}
 	}
 }

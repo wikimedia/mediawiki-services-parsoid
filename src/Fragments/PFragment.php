@@ -164,8 +164,8 @@ abstract class PFragment implements JsonCodecable {
 	 *  Subclassses must implement either ::asDom() or ::asHtmlString()
 	 *  to avoid infinite mutual recursion.
 	 */
-	public function asDom( ParsoidExtensionAPI $ext, bool $release = false ): DocumentFragment {
-		return $ext->htmlToDom( $this->asHtmlString( $ext ) );
+	public function asDom( ParsoidExtensionAPI $extApi, bool $release = false ): DocumentFragment {
+		return $extApi->htmlToDom( $this->asHtmlString( $extApi ) );
 	}
 
 	/**
@@ -179,8 +179,8 @@ abstract class PFragment implements JsonCodecable {
 	 *  Subclassses must implement either ::asDom() or ::asHtmlString()
 	 *  to avoid infinite mutual recursion.
 	 */
-	public function asHtmlString( ParsoidExtensionAPI $ext ): string {
-		return $ext->domToHtml( $this->asDom( $ext ), true );
+	public function asHtmlString( ParsoidExtensionAPI $extApi ): string {
+		return $extApi->domToHtml( $this->asDom( $extApi ), true );
 	}
 
 	/**
@@ -277,8 +277,8 @@ abstract class PFragment implements JsonCodecable {
 	 * @see PPFrame::expand() in core
 	 * @see frame:expandTemplate(), frame:getArgument():expand() in Scribunto
 	 */
-	public function expand( ParsoidExtensionAPI $ext, ?bool &$error = null ): PFragment {
-		return $ext->preprocessFragment( $this, $error );
+	public function expand( ParsoidExtensionAPI $extApi, ?bool &$error = null ): PFragment {
+		return $extApi->preprocessFragment( $this, $error );
 	}
 
 	/**
@@ -288,7 +288,7 @@ abstract class PFragment implements JsonCodecable {
 	 * raw text, including surrounding the desired text with <nowiki>
 	 * (T390345).
 	 */
-	public function toRawText( ParsoidExtensionAPI $ext ): string {
+	public function toRawText( ParsoidExtensionAPI $extApi ): string {
 		/* TODO T390345: This should expand the fragment and then:
 		 * - If the trimmed result consists of a <nowiki>, then return the
 		 *   contents of that <nowiki>
@@ -302,7 +302,7 @@ abstract class PFragment implements JsonCodecable {
 		 * example, a PFragmentHandler which returns a LiteralPFragment)
 		 * if we need literal treatment of `&`.
 		 */
-		return $this->asDom( $ext )->textContent;
+		return $this->asDom( $extApi )->textContent;
 	}
 
 	/**

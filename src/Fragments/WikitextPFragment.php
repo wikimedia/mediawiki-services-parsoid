@@ -172,8 +172,8 @@ class WikitextPFragment extends PFragment {
 	}
 
 	/** @inheritDoc */
-	public function asDom( ParsoidExtensionAPI $ext, bool $release = false ): DocumentFragment {
-		return $ext->wikitextToDOM( $this, [], true );
+	public function asDom( ParsoidExtensionAPI $extApi, bool $release = false ): DocumentFragment {
+		return $extApi->wikitextToDOM( $this, [], true );
 	}
 
 	/** @inheritDoc */

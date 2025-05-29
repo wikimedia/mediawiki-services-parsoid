@@ -49,13 +49,14 @@ class ParamInfo implements JsonCodecable {
 
 	/**
 	 * Create an object from unserialized data-parsoid.pi
-	 * @param array $data
+	 *
+	 * @param array $json
 	 * @return self
 	 */
-	public static function newFromJsonArray( array $data ): ParamInfo {
-		$info = new self( $data['k'] ?? '' );
-		$info->named = $data['named'] ?? false;
-		$info->spc = $data['spc'] ?? null;
+	public static function newFromJsonArray( array $json ): ParamInfo {
+		$info = new self( $json['k'] ?? '' );
+		$info->named = $json['named'] ?? false;
+		$info->spc = $json['spc'] ?? null;
 		return $info;
 	}
 

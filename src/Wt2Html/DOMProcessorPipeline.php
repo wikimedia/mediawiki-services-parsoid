@@ -167,14 +167,14 @@ class DOMProcessorPipeline extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function process( $node, array $opts ) {
-		if ( isset( $opts['selparData'] ) ) {
-			$this->selparData = $opts['selparData'];
+	public function process( $input, array $options ) {
+		if ( isset( $options['selparData'] ) ) {
+			$this->selparData = $options['selparData'];
 		}
-		'@phan-var Node $node'; // @var Node $node
-		$this->doPostProcess( $node );
+		'@phan-var Node $input'; // @var Node $input
+		$this->doPostProcess( $input );
 		// @phan-suppress-next-line PhanTypeMismatchReturnSuperType
-		return $node;
+		return $input;
 	}
 
 	/**

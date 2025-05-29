@@ -61,15 +61,17 @@ class KVSourceRange implements JsonCodecable {
 	/**
 	 * Create a new key-value source offset range from an array of
 	 * integers (such as created during JSON serialization).
-	 * @param int[] $so
+	 *
+	 * @param int[] $json
+	 *
 	 * @return KVSourceRange
 	 */
-	public static function newFromJsonArray( array $so ): KVSourceRange {
+	public static function newFromJsonArray( array $json ): KVSourceRange {
 		Assert::invariant(
-			count( $so ) === 4,
+			count( $json ) === 4,
 			'Not enough elements in KVSourceRange array'
 		);
-		return new KVSourceRange( $so[0], $so[1], $so[2], $so[3] );
+		return new KVSourceRange( $json[0], $json[1], $json[2], $json[3] );
 	}
 
 	/**

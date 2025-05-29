@@ -71,9 +71,9 @@ class DomPFragment extends PFragment {
 	}
 
 	/** @inheritDoc */
-	public function asDom( ParsoidExtensionAPI $ext, bool $release = false ): DocumentFragment {
+	public function asDom( ParsoidExtensionAPI $extApi, bool $release = false ): DocumentFragment {
 		Assert::invariant(
-			$ext->getTopLevelDoc() === $this->value->ownerDocument,
+			$extApi->getTopLevelDoc() === $this->value->ownerDocument,
 			"All fragments should belong to the Parsoid top level doc"
 		);
 		$df = $this->value;
@@ -87,12 +87,12 @@ class DomPFragment extends PFragment {
 	}
 
 	/** @inheritDoc */
-	public function asHtmlString( ParsoidExtensionAPI $ext ): string {
+	public function asHtmlString( ParsoidExtensionAPI $extApi ): string {
 		Assert::invariant(
-			$ext->getTopLevelDoc() === $this->value->ownerDocument,
+			$extApi->getTopLevelDoc() === $this->value->ownerDocument,
 			"All fragments should belong to the Parsoid top level doc"
 		);
-		return $ext->domToHtml( $this->value, true, false );
+		return $extApi->domToHtml( $this->value, true, false );
 	}
 
 	/**

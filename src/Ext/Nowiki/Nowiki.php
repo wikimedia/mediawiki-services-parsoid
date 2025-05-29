@@ -39,14 +39,14 @@ class Nowiki extends ExtensionTagHandler implements ExtensionModule {
 
 	/** @inheritDoc */
 	public function sourceToDom(
-		ParsoidExtensionAPI $extApi, string $txt, array $extArgs
+		ParsoidExtensionAPI $extApi, string $content, array $args
 	): DocumentFragment {
 		$domFragment = $extApi->htmlToDom( '' );
 		$doc = $domFragment->ownerDocument;
 		$span = $doc->createElement( 'span' );
 		DOMUtils::addTypeOf( $span, 'mw:Nowiki' );
 
-		foreach ( preg_split( '/(&[#0-9a-zA-Z]+;)/', $txt, -1, PREG_SPLIT_DELIM_CAPTURE ) as $i => $t ) {
+		foreach ( preg_split( '/(&[#0-9a-zA-Z]+;)/', $content, -1, PREG_SPLIT_DELIM_CAPTURE ) as $i => $t ) {
 			if ( $i % 2 === 1 ) {
 				$cc = Utils::decodeWtEntities( $t );
 				if ( $cc !== $t ) {

@@ -51,7 +51,7 @@ class HtmlPFragment extends PFragment {
 	}
 
 	/** @inheritDoc */
-	public function asHtmlString( ParsoidExtensionAPI $ext ): string {
+	public function asHtmlString( ParsoidExtensionAPI $extApi ): string {
 		return $this->value;
 	}
 

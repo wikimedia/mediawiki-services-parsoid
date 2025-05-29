@@ -84,14 +84,15 @@ class PegTokenizer extends PipelineStage {
 	 * the generic arg types to be specific to this pipeline stage.
 	 *
 	 * @param string $input wikitext to tokenize
-	 * @param array{sol:bool} $opts
+	 * @param array{sol:bool} $options
 	 * - atTopLevel: (bool) Whether we are processing the top-level document
 	 * - sol: (bool) Whether input should be processed in start-of-line context
+	 *
 	 * @return array|false The token array, or false for a syntax error
 	 */
-	public function process( $input, array $opts ) {
+	public function process( $input, array $options ) {
 		Assert::invariant( is_string( $input ), "Input should be a string" );
-		return $this->tokenizeSync( $input, $opts );
+		return $this->tokenizeSync( $input, $options );
 	}
 
 	/**
@@ -103,18 +104,18 @@ class PegTokenizer extends PipelineStage {
 	 * Consumers are supposed to register with PegTokenizer before calling
 	 * process().
 	 *
-	 * @param string $text
-	 * @param array{sol:bool} $opts
+	 * @param string $input
+	 * @param array{sol:bool} $options
 	 *   - sol (bool) Whether text should be processed in start-of-line context.
 	 * @return Generator
 	 */
-	public function processChunkily( $text, array $opts ): Generator {
+	public function processChunkily( $input, array $options ): Generator {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
 
-		Assert::invariant( is_string( $text ), "Input should be a string" );
-		Assert::invariant( isset( $opts['sol'] ), "Sol should be set" );
+		Assert::invariant( is_string( $input ), "Input should be a string" );
+		Assert::invariant( isset( $options['sol'] ), "Sol should be set" );
 
 		// Kick it off!
 		$pipelineOffset = $this->offsets['startOffset'] ?? 0;
@@ -123,20 +124,20 @@ class PegTokenizer extends PipelineStage {
 			'pipelineId' => $this->getPipelineId(),
 			'pegTokenizer' => $this,
 			'pipelineOffset' => $pipelineOffset,
-			'sol' => $opts['sol'],
+			'sol' => $options['sol'],
 			'stream' => true,
 			'startRule' => 'start_async',
 		];
 
 		if ( $this->tracing ) {
-			$args['tracer'] = new Tracer( $text );
+			$args['tracer'] = new Tracer( $input );
 		}
 
 		try {
 			// Wrap wikipeg's generator with our own generator
 			// to catch exceptions and track time usage.
 			// @phan-suppress-next-line PhanTypeInvalidYieldFrom
-			yield from $this->grammar->parse( $text, $args );
+			yield from $this->grammar->parse( $input, $args );
 			yield [ new EOFTk() ];
 		} catch ( SyntaxError $e ) {
 			$this->lastError = $e;
@@ -267,11 +268,11 @@ class PegTokenizer extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function resetState( array $opts ): void {
+	public function resetState( array $options ): void {
 		TokenizerUtils::resetAnnotationIncludeRegex();
 		if ( $this->grammar ) {
 			$this->grammar->resetState();
 		}
-		parent::resetState( $opts );
+		parent::resetState( $options );
 	}
 }

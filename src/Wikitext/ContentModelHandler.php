@@ -236,7 +236,7 @@ class ContentModelHandler extends IContentModelHandler {
 	 * @inheritDoc
 	 */
 	public function fromDOM(
-		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selserData = null
+		ParsoidExtensionAPI $extApi, ?SelectiveUpdateData $selectiveUpdateData = null
 	): string {
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
@@ -244,10 +244,10 @@ class ContentModelHandler extends IContentModelHandler {
 
 		$this->canonicalizeDOM( $env, $env->getTopLevelDoc() );
 
-		$serializerOpts = [ 'selserData' => $selserData ];
-		if ( $selserData ) {
+		$serializerOpts = [ 'selserData' => $selectiveUpdateData ];
+		if ( $selectiveUpdateData ) {
 			$serializer = new SelectiveSerializer( $env, $serializerOpts );
-			$this->setupSelser( $extApi, $selserData );
+			$this->setupSelser( $extApi, $selectiveUpdateData );
 			$wtsType = 'selser';
 		} else {
 			// Fallback
