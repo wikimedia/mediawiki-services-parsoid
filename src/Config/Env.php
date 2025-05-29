@@ -355,7 +355,7 @@ class Env {
 	 */
 	public function pushNewProfile(): Profile {
 		$currProfile = count( $this->profileStack ) > 0 ? $this->getCurrentProfile() : null;
-		$profile = new Profile();
+		$profile = new Profile( $this, isset( $this->debugFlags['oom'] ) );
 		$this->profileStack[] = $profile;
 		if ( $currProfile !== null ) {
 			$currProfile->pushNestedProfile( $profile );

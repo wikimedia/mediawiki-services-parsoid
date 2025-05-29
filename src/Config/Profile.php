@@ -26,10 +26,24 @@ class Profile {
 	private array $nestedProfiles = [];
 
 	/**
+	 * Piggyback on top time profiling since it is a convenient
+	 * place/event at which to also dump memory usage statistics.
+	 * This is bit of a hack to pollute this class, but it is good
+	 * enough for development use.
+	 */
+	private bool $debugOOM;
+	private Env $env;
+
+	/**
 	 * This is the most recently pushed nested profile from a nested pipeline.
 	 * @var ?Profile
 	 */
 	private ?Profile $recentNestedProfile = null;
+
+	public function __construct( Env $env, bool $debugOOM = false ) {
+		$this->debugOOM = $debugOOM;
+		$this->env = $env;
+	}
 
 	public function start(): void {
 		$this->startTime = hrtime( true );
@@ -75,6 +89,10 @@ class Profile {
 	 * @param string|null $cat
 	 */
 	public function bumpTimeUse( string $resource, $time, ?string $cat = null ): void {
+		// Dont spam: skip memory usage dump at a fine-grained per-handler-call level
+		if ( $this->debugOOM && !preg_match( "/::/", $resource ) ) {
+			$this->env->writeDump( "$resource-PMU: " . ( memory_get_peak_usage() / 1048576 ) );
+		}
 		$this->bumpProfileTimeUse( $this->timeProfile, $resource, $time, $cat );
 	}
 
@@ -216,7 +234,7 @@ class Profile {
 	}
 
 	private function reduceProfileTree(): Profile {
-		$reducedProfile = new Profile();
+		$reducedProfile = new Profile( $this->env, $this->debugOOM );
 		$reducedProfile->startTime = $this->startTime;
 		$reducedProfile->endTime = $this->endTime;
 		$this->reduce( $reducedProfile );
