@@ -199,6 +199,7 @@ class ParsoidExtensionAPI {
 	 * The use of this method is discouraged; use ::addPageContentI18nAttribute(...) and
 	 * ::addInterfaceI18nAttribute(...) where possible rather than, respectively,
 	 * ::addLangI18nAttribute(..., $wgContLang, ...) and ::addLangI18nAttribute(..., $wgLang, ...).
+	 *
 	 * @param Element $element element on which to add internationalization information
 	 * @param Bcp47Code $lang language in which the  attribute will be localized
 	 * @param string $name name of the attribute whose value will be localized
@@ -207,7 +208,7 @@ class ParsoidExtensionAPI {
 	 */
 	public function addLangI18nAttribute(
 		Element $element, Bcp47Code $lang, string $name, string $key, array $params
-	) {
+	): void {
 		WTUtils::addLangI18nAttribute( $element, $lang, $name, $key, $params );
 	}
 
@@ -308,6 +309,7 @@ class ParsoidExtensionAPI {
 	/**
 	 * Are we parsing for a preview?
 	 * FIXME: Right now, we never do; when we do, this needs to be modified to reflect reality
+	 *
 	 * @unstable
 	 * @return bool
 	 */
@@ -647,11 +649,12 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * Normalizes spaces from extension tag arguments, except for those keyed by values in $exceptions
+	 *
 	 * @param KV[] &$extArgs Array of extension args
 	 * @param array[] $action array that is either empty or has one key, 'except' or 'only', which defines the
 	 * attributes that should be respectively excluded or only included from the normalization
 	 */
-	public function normalizeWhiteSpaceInArgs( array &$extArgs, array $action = [] ) {
+	public function normalizeWhiteSpaceInArgs( array &$extArgs, array $action = [] ): void {
 		$except = $action['except'] ?? null;
 		$only = $action['only'] ?? null;
 
@@ -870,9 +873,10 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * FIXME: This is a bit broken - shouldn't be needed ideally
+	 *
 	 * @param string $flag
 	 */
-	public function setHtml2wtStateFlag( string $flag ) {
+	public function setHtml2wtStateFlag( string $flag ): void {
 		$this->serializerState->{$flag} = true;
 	}
 

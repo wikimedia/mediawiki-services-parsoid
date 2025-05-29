@@ -296,7 +296,7 @@ class Env {
 	/**
 	 * Check to see if the PHP platform is sensible
 	 */
-	private static function checkPlatform() {
+	private static function checkPlatform(): void {
 		static $checked;
 		if ( !$checked ) {
 			$highBytes =
@@ -391,9 +391,10 @@ class Env {
 
 	/**
 	 * Write out a string (because it was requested by dumpFlags)
+	 *
 	 * @param string $str
 	 */
-	public function writeDump( string $str ) {
+	public function writeDump( string $str ): void {
 		$this->log( 'dump', $str );
 	}
 
@@ -505,9 +506,10 @@ class Env {
 	/**
 	 * Update the current offset type. Only
 	 * Parsoid\Wt2Html\DOM\Processors\ConvertOffsets should be doing this.
+	 *
 	 * @param ('byte'|'ucs2'|'char') $offsetType 'byte', 'ucs2', or 'char'
 	 */
-	public function setCurrentOffsetType( string $offsetType ) {
+	public function setCurrentOffsetType( string $offsetType ): void {
 		$this->currentOffsetType = $offsetType;
 	}
 
@@ -1046,6 +1048,8 @@ class Env {
 
 	/**
 	 * Get an array of attributes to apply to an anchor linking to $url
+	 *
+	 * @return array{rel?: list<'nofollow'|'noopener'|'noreferrer'>, target?: string}
 	 */
 	public function getExternalLinkAttribs( string $url ): array {
 		$siteConfig = $this->getSiteConfig();

@@ -202,9 +202,9 @@ abstract class SiteConfig {
 	 * Return the set of Parsoid extension modules associated with this
 	 * SiteConfig.
 	 *
-	 * @return ExtensionModule[]
+	 * @return list<ExtensionModule>
 	 */
-	final public function getExtensionModules() {
+	final public function getExtensionModules(): array {
 		if ( $this->extModules === null ) {
 			$this->extModules = [];
 			foreach ( self::$coreExtModules as $m ) {

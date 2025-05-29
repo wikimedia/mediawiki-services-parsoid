@@ -1412,7 +1412,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			}
 
 			// Default node handler
-			if ( $handled === false ) {
+			if ( !$handled ) {
 				// Lint this node
 				$this->logWikitextFixups( $node, $env, $tplInfo );
 

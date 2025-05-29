@@ -24,6 +24,9 @@ class SlideshowMode extends TraditionalMode {
 		/* do nothing */
 	}
 
+	/**
+	 * @return list{'mediawiki.page.gallery.slideshow'}
+	 */
 	public function getModules(): array {
 		return [ 'mediawiki.page.gallery.slideshow' ];
 	}

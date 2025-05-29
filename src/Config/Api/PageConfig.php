@@ -102,7 +102,7 @@ class PageConfig extends IPageConfig {
 		}
 	}
 
-	private function loadData() {
+	private function loadData(): void {
 		if ( $this->page !== null ) {
 			return;
 		}

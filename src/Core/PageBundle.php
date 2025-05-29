@@ -112,10 +112,12 @@ class PageBundle implements JsonCodecable {
 		return true;
 	}
 
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
 	/**
-	 * @return array
+	 * @return array{contentmodel: string, html: array{headers: array, body: string}, data-parsoid: array{headers: array{content-type: string}, body: ?array{counter?: int, offsetType?: 'byte'|'char'|'ucs2', ids: array<string, array>}}, data-mw?: array{headers: array{content-type: string}, body: ?array{ids: array<string, array>}}}
 	 */
-	public function responseData() {
+	public function responseData(): array {
 		$version = $this->version ?? '0.0.0';
 		$responseData = [
 			'contentmodel' => $this->contentmodel ?? '',
@@ -148,6 +150,8 @@ class PageBundle implements JsonCodecable {
 		}
 		return $responseData;
 	}
+
+	// phpcs:enable Generic.Files.LineLength.TooLong
 
 	/**
 	 * Convert a DomPageBundle to a PageBundle.

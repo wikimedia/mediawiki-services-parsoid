@@ -205,6 +205,9 @@ class TraditionalMode extends Mode {
 		return $domFragment;
 	}
 
+	/**
+	 * @return list{'mediawiki.page.gallery.styles'}
+	 */
 	public function getModuleStyles(): array {
 		return [ 'mediawiki.page.gallery.styles' ];
 	}

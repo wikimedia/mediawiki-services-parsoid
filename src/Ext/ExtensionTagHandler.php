@@ -23,6 +23,7 @@ abstract class ExtensionTagHandler {
 
 	/**
 	 * Convert an extension tag's content to "prepared and loaded" DOM.
+	 *
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param string $content Extension tag content
 	 * @param array $args Extension tag arguments
@@ -113,13 +114,14 @@ abstract class ExtensionTagHandler {
 	 */
 	public function lintHandler(
 		ParsoidExtensionAPI $extApi, Element $rootNode, callable $defaultHandler
-	) {
+	): bool {
 		/* Use default linter */
 		return false;
 	}
 
 	/**
 	 * Serialize a DOM node created by this extension to wikitext.
+	 *
 	 * @param ParsoidExtensionAPI $extApi
 	 * @param Element $node A node in a "prepared and loaded" document.
 	 * @param bool $wrapperUnmodified

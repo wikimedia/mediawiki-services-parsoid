@@ -78,9 +78,10 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 
 	/**
 	 * Add a new section to this TOCData.
+	 *
 	 * @param SectionMetadata $s
 	 */
-	public function addSection( SectionMetadata $s ) {
+	public function addSection( SectionMetadata $s ): void {
 		$this->sections[] = $s;
 	}
 
@@ -181,7 +182,8 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 	 * This is helpful as b/c support while we transition to objects,
 	 * but it drops some properties from this class and shouldn't be used
 	 * in new code.
-	 * @return array
+	 *
+	 * @return array<array>
 	 */
 	public function toLegacy(): array {
 		return array_map(
@@ -310,7 +312,11 @@ class TOCData implements \JsonSerializable, JsonCodecable {
 		return $tocData;
 	}
 
-	/** @inheritDoc */
+	/**
+	 * @inheritDoc
+	 *
+	 * @return ?Hint<SectionMetadata>
+	 */
 	public static function jsonClassHintFor( string $keyName ) {
 		if ( $keyName === 'sections' ) {
 			return Hint::build( SectionMetadata::class, Hint::LIST );

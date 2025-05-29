@@ -898,7 +898,8 @@ class Sanitizer {
 	 * @param ?string $tagName
 	 * @param ?XMLTagTk $token
 	 * @param array $attrs
-	 * @return array
+	 *
+	 * @return array<string, list{?string, mixed, mixed}>
 	 */
 	public static function sanitizeTagAttrs(
 		SiteConfig $siteConfig, ?string $tagName, ?XMLTagTk $token, array $attrs

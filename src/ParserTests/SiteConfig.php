@@ -73,7 +73,7 @@ class SiteConfig extends ApiSiteConfig {
 		return ParserHook::getParserTestConfigFileName();
 	}
 
-	public function reset() {
+	public function reset(): void {
 		parent::reset();
 
 		// adjust config to match that used for PHP tests

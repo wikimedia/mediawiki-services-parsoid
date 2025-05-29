@@ -25,8 +25,6 @@ class DOMDataUtils {
 
 	/**
 	 * Set data parsoid info on a DOM element
-	 * @param Element $elt
-	 * @param ?DataParsoid $dp data-parsoid
 	 */
 	public static function setDataParsoid( Element $elt, ?DataParsoid $dp ): void {
 		DDU::setDataParsoid( $elt, $dp );
@@ -34,10 +32,8 @@ class DOMDataUtils {
 
 	/**
 	 * Get data meta wiki info from a DOM element
-	 * @param Element $elt
-	 * @return ?DataMw
 	 */
-	public static function getDataMw( Element $elt ): ?DataMw {
+	public static function getDataMw( Element $elt ): DataMw {
 		return DDU::getDataMw( $elt );
 	}
 

@@ -147,6 +147,9 @@ class Profile {
 		return $b[1] - $a[1];
 	}
 
+	/**
+	 * @return array{buf: string, total: float|int}
+	 */
 	private function formatProfile( array $profile, array $options = [] ): array {
 		// Sort time profile in descending order
 

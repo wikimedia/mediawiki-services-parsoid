@@ -75,6 +75,9 @@ class PackedMode extends TraditionalMode {
 		$box->appendChild( $wrapper );
 	}
 
+	/**
+	 * @return list{'mediawiki.page.gallery'}
+	 */
 	public function getModules(): array {
 		return [ 'mediawiki.page.gallery' ];
 	}
