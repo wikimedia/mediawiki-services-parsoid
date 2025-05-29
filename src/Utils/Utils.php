@@ -163,16 +163,6 @@ class Utils {
 	}
 
 	/**
-	 * This should not be used.
-	 * @param string $txt URL to encode using PHP encoding
-	 * @return string
-	 */
-	public static function phpURLEncode( $txt ) {
-		// @phan-suppress-previous-line PhanPluginNeverReturnMethod
-		throw new \BadMethodCallException( 'Use urlencode( $txt ) instead' );
-	}
-
-	/**
 	 * Percent-decode only valid UTF-8 characters, leaving other encoded bytes alone.
 	 *
 	 * Distinct from `decodeURIComponent` in that certain escapes are not decoded,
