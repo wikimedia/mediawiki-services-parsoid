@@ -153,10 +153,6 @@ class TestUtils {
 			return $out;
 		}
 
-		// Normalize headings by stripping out Parsoid-added ids so that we don't
-		// have to add these ids to every parser test that uses headings.
-		// We will test the id generation scheme separately via mocha tests.
-		$out = preg_replace( '/(<h[1-6].*?) id="[^\"]*"([^>]*>)/u', '$1$2', $out );
 		// strip meta/link elements
 		$out = preg_replace(
 			'#</?(?:meta|link)(?: [^\0-\cZ\s"\'>/=]+(?:=(?:"[^"]*"|\'[^\']*\'))?)*/?>#u',

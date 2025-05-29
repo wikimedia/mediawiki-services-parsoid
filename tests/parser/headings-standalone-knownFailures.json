@@ -66,7 +66,6 @@
     "HHP2.1: Heuristics for headings in preprocessor parenthetical structures": {
         "wt2html": "<p data-parsoid='{\"dsr\":[0,6,0,0]}'>{{foo|</p>\n<h1 id=\"heading\" data-parsoid='{\"dsr\":[7,16,1,1]}'>heading</h1>",
         "wt2wt": "<nowiki>{{foo|</nowiki>\n=heading=\n",
-        "html2html": "<p data-parsoid='{\"dsr\":[0,23,0,0]}'><span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[0,23,8,9]}'>{{foo|</span></p>\n\n<div class=\"mw-heading mw-heading1\" data-parsoid='{\"stx\":\"html\",\"dsr\":[25,80,36,6]}'>\n<h1 id=\"heading\" data-parsoid='{\"dsr\":[62,73,1,1,1,1]}'>heading</h1>\n</div>",
         "html2wt": "<nowiki>{{foo|</nowiki>\n\n<div class=\"mw-heading mw-heading1\">\n= heading =\n</div>",
         "selser [0,2,4]": "{{foo|\n\nyqaqb9\n\n1ryqcax",
         "selser [0,4,2]": "{{foo|\n\n1a212y6\n\n1de13a0\n\n=heading=",
