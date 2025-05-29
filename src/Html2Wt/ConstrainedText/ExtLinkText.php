@@ -35,7 +35,7 @@ class ExtLinkText extends ConstrainedText {
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts
-	): ?ExtLinkText {
+	): ?self {
 		$stx = $dataParsoid->stx ?? '';
 		if ( DOMUtils::hasRel( $node, 'mw:ExtLink' ) &&
 			!in_array( $stx, [ 'simple', 'piped' ], true )

@@ -96,11 +96,8 @@ class Parsoid {
 	 * the supplied version, when interpreted with semver caret semantics.
 	 * This will allow us to make backwards compatible changes, without the need
 	 * for clients to bump the version in their headers all the time.
-	 *
-	 * @param string $version
-	 * @return string|null
 	 */
-	public static function resolveContentVersion( string $version ) {
+	public static function resolveContentVersion( string $version ): ?string {
 		foreach ( self::AVAILABLE_VERSIONS as $a ) {
 			if ( Semver::satisfies( $a, "^{$version}" ) &&
 				// The section wrapping in 1.6.x should have induced a major
@@ -157,7 +154,7 @@ class Parsoid {
 	 * @param ContentMetadataCollector $metadata
 	 * @param array $options See wikitext2html.
 	 * @param ?SelectiveUpdateData $selparData See wikitext2html.
-	 * @return array{0:Env,1:Document,2:?string}
+	 * @return list{Env,Document,?string}
 	 *  The returned document is in "prepared and loaded" form.
 	 */
 	private function parseWikitext(
@@ -316,14 +313,11 @@ class Parsoid {
 		}
 	}
 
-	/**
-	 *
-	 */
 	private function recordParseMetrics(
 		Env $env, float $parseTimeMs,
 		array $out, ?array $headers, string $contentmodel,
 		array $options
-	) {
+	): void {
 		$metrics = $this->siteConfig->metrics();
 
 		$pageConfig = $env->getPageConfig();
@@ -515,12 +509,9 @@ class Parsoid {
 		return $wikitext;
 	}
 
-	/**
-	 *
-	 */
 	private function recordSerializationMetrics(
 		array $options, float $serialTime, string $wikitext
-	) {
+	): void {
 		$siteConfig = $this->siteConfig;
 		$metrics = $siteConfig->metrics();
 
@@ -779,7 +770,7 @@ class Parsoid {
 	 *
 	 * @param PageBundle $pageBundle
 	 */
-	private static function downgrade999to2( PageBundle $pageBundle ) {
+	private static function downgrade999to2( PageBundle $pageBundle ): void {
 		// Effectively, skip applying data-parsoid.  Note that if we were to
 		// support a pb2html downgrade, we'd need to apply the full thing,
 		// but that would create complications where ids would be left behind.

@@ -48,8 +48,9 @@ class NodeData {
 	 * Deep clone this object
 	 * If $stripSealedFragments is true, sealed DOMFragment included in expanded attributes are deleted in the
 	 * clone.
+	 *
 	 * @param bool $stripSealedFragments
-	 * @return self
+	 * @return static
 	 */
 	public function cloneNodeData( bool $stripSealedFragments = false ): self {
 		$nd = clone $this;

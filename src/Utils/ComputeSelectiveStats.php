@@ -19,7 +19,12 @@ use Wikimedia\Parsoid\NodeData\TemplateInfo;
  */
 class ComputeSelectiveStats {
 
-	/** @return array<string,string> */
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
+	/**
+	 * @return array{type: string, same_wt: string, rev_diff: string, changed_sections: string, changed_template_sites: string, changed_template_names: string}
+	 */
+	// phpcs:enable Generic.Files.LineLength.TooLong
 	public static function classify(
 		Env $env,
 		?PageConfig $oldPage, ?PageBundle $oldPb,
@@ -229,7 +234,11 @@ class ComputeSelectiveStats {
 		return 'other';
 	}
 
-	/** Convert a boolean to a string for labelling purposes. */
+	/**
+	 * Convert a boolean to a string for labelling purposes.
+	 *
+	 * @phan-return 'false'|'true'|'unknown'
+	 */
 	private static function bool2str( ?bool $val ): string {
 		return ( $val === true ) ? 'true' : (
 			( $val === false ) ? 'false' : 'unknown'

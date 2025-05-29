@@ -341,7 +341,7 @@ class SerializerState {
 		$this->sep->lastSourceNode = $node;
 	}
 
-	private function resetSep() {
+	private function resetSep(): void {
 		$this->sep = (object)[
 			'constraints' => null,
 			'src' => null,
@@ -504,10 +504,11 @@ class SerializerState {
 
 	/**
 	 * Accumulates chunks on the current line.
+	 *
 	 * @param ConstrainedText $chunk
 	 * @param string $logPrefix
 	 */
-	private function pushToCurrLine( ConstrainedText $chunk, string $logPrefix ) {
+	private function pushToCurrLine( ConstrainedText $chunk, string $logPrefix ): void {
 		// Emitting text that has not been escaped
 		$this->currLine->text .= $chunk->text;
 
@@ -905,18 +906,20 @@ class SerializerState {
 
 	/**
 	 * Take notes of the open annotation ranges and whether they have been extended.
+	 *
 	 * @param string $ann
 	 * @param bool $extended
 	 */
-	public function openAnnotationRange( string $ann, bool $extended ) {
+	public function openAnnotationRange( string $ann, bool $extended ): void {
 		$this->openAnnotations[$ann] = $extended;
 	}
 
 	/**
 	 * Removes the corresponding annotation range from the list of open ranges.
+	 *
 	 * @param string $ann
 	 */
-	public function closeAnnotationRange( string $ann ) {
+	public function closeAnnotationRange( string $ann ): void {
 		unset( $this->openAnnotations[$ann] );
 	}
 

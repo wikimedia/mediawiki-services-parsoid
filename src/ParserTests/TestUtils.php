@@ -459,7 +459,7 @@ class TestUtils {
 	/**
 	 * Removes DSR from data-parsoid for test normalization of an element.
 	 */
-	public static function filterNodeDsr( Element $el ) {
+	public static function filterNodeDsr( Element $el ): void {
 		$dp = DOMDataUtils::getDataParsoid( $el );
 		unset( $dp->dsr );
 		// XXX: could also set TempData::IS_NEW if !$dp->isModified(),

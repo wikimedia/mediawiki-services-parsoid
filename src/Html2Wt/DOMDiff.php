@@ -99,7 +99,8 @@ class DOMDiff {
 	 *
 	 * @param Element $nodeA
 	 * @param Element $nodeB
-	 * @return array
+	 *
+	 * @return array{isEmpty: bool}
 	 */
 	public function diff( Element $nodeA, Element $nodeB ): array {
 		Assert::invariant(

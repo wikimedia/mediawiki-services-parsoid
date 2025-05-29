@@ -196,8 +196,9 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 	 * context to be set to a token.
 	 *
 	 * @param string $name
-	 * @return array Information about the shadow info attached to this attribute:
-	 *   - value: (string|Token|array<Token|string>)
+	 * @return array{value: string|Token|array<Token|KV|string>, modified: bool, fromsrc: bool}
+	 *  Information about the shadow info attached to this attribute:
+	 *   - value: (string|Token|array<Token|KV|string>)
 	 *     When modified is false and fromsrc is true, this is always a string.
 	 *   - modified: (bool)
 	 *   - fromsrc: (bool)

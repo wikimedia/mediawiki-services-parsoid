@@ -7,12 +7,12 @@ use Wikimedia\LangConv\FstReplacementMachine;
 
 class KuConverter extends LanguageConverter {
 
-	public function loadDefaultTables() {
+	public function loadDefaultTables(): void {
 		$this->setMachine( new FstReplacementMachine( 'ku', [ 'ku-arab', 'ku-latn' ] ) );
 	}
 
-	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-	public function findVariantLink( $link, $nt, $ignoreOtherCond ) {
+	/** @inheritDoc */
+	public function findVariantLink( $link, $nt, $ignoreOtherCond ): array {
 		$ns = $nt->getNamespace();
 		// do not try to find variants for usernames
 		if ( $ns->isUser() || $ns->isUserTalk ) {

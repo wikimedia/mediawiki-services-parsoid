@@ -16,6 +16,12 @@ use Wikimedia\Parsoid\Wikitext\Consts;
  */
 class LanguageVariantHandler {
 
+	/**
+	 * Expand a whitespace sequence.
+	 * @see \Wikimedia\Parsoid\Wt2Html\TT\LanguageVariantHandler::compressSpArray
+	 * @param list<int|string> $a
+	 * @return list<string>
+	 */
 	private static function expandSpArray( array $a ): array {
 		$result = [];
 		foreach ( $a as $el ) {

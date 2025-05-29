@@ -47,7 +47,7 @@ class Histogram {
 		];
 	}
 
-	public function observe( string $name, float $value, array $labels = [] ) {
+	public function observe( string $name, float $value, array $labels = [] ): void {
 		if ( !array_key_exists( $name, $this->parseSizeMetricsMeanSkip ) ) {
 			throw new InvalidArgumentException( 'Unsupported metric: ' . $name );
 		}

@@ -81,8 +81,8 @@ class PHPUtils {
 	/**
 	 * Convert array to associative array usable as a read-only Set.
 	 *
-	 * @param array $a
-	 * @return array
+	 * @param list<string> $a
+	 * @return array<string,true>
 	 */
 	public static function makeSet( array $a ): array {
 		return array_fill_keys( $a, true );

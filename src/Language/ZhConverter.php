@@ -8,12 +8,12 @@ use Wikimedia\LangConv\ZhReplacementMachine;
 /* @note: Use of this class is currently disabled in production, see T346657 */
 class ZhConverter extends LanguageConverter {
 
-	public function loadDefaultTables() {
+	public function loadDefaultTables(): void {
 		$this->setMachine( new ZhReplacementMachine() );
 	}
 
-	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-	public function findVariantLink( $link, $nt, $ignoreOtherCond ) {
+	/** @inheritDoc */
+	public function findVariantLink( $link, $nt, $ignoreOtherCond ): array {
 		$ns = $nt->getNamespace();
 		// do not try to find variants for usernames
 		if ( $ns->isUser() || $ns->isUserTalk ) {

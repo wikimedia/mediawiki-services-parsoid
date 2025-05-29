@@ -512,11 +512,12 @@ class MockSiteConfig extends SiteConfig {
 
 	/**
 	 * Generate mock histogram buckets
+	 *
 	 * @param float $mean
 	 * @param int $skip
-	 * @return array
+	 * @return list<float>
 	 */
 	public function getHistogramBuckets( float $mean, int $skip ) {
-		return [ 0, $mean, 2 * $mean ];
+		return [ 0., $mean, 2 * $mean ];
 	}
 }

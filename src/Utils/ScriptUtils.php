@@ -15,7 +15,8 @@ class ScriptUtils {
 	 * and return them as an associative array with flags as keys and true as value.
 	 *
 	 * @param string $origFlag The original flag string.
-	 * @return array
+	 *
+	 * @return array<string, true>
 	 */
 	private static function fetchFlagsMap( string $origFlag ): array {
 		$objFlags = explode( ',', $origFlag );

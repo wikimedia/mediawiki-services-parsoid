@@ -64,7 +64,7 @@ class ParamInfo implements JsonCodecable {
 	 * Serialize for data-parsoid.pi. The rest of the data is temporary, it is
 	 * not needed across requests.
 	 *
-	 * @return array
+	 * @return array{k: string, named?: true, spc?: array<string>}
 	 */
 	public function toJsonArray(): array {
 		$ret = [ 'k' => $this->k ];

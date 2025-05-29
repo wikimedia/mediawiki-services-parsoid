@@ -28,6 +28,9 @@ class DOMDataCodec extends JsonCodec {
 		return $count === 0 ? $base : "$base-$count";
 	}
 
+	/**
+	 * @return list{string, int}
+	 */
 	private static function splitTID( string $tid ): array {
 		[ $base, $count ] = array_pad( explode( '-', $tid, 2 ), 2, '0' );
 		return [ $base, intval( $count ) ];

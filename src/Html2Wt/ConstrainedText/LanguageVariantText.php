@@ -26,7 +26,7 @@ class LanguageVariantText extends RegExpConstrainedText {
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts
-	): ?LanguageVariantText {
+	): ?self {
 		if ( DOMUtils::hasTypeOf( $node, 'mw:LanguageVariant' ) ) {
 			return new LanguageVariantText( $text, $node );
 		}

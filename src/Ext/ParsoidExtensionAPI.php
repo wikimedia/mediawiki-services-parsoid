@@ -1172,7 +1172,7 @@ class ParsoidExtensionAPI {
 	 * The converse to ::renderMedia.
 	 *
 	 * @param MediaStructure $ms
-	 * @return array Where,
+	 * @return array{0:string,1:string} Where,
 	 *   [0] is the media title string
 	 *   [1] is the string of media options
 	 */
@@ -1190,17 +1190,19 @@ class ParsoidExtensionAPI {
 
 	/**
 	 * @param array $modules
+	 *
 	 * @deprecated Use ::getMetadata()->appendOutputStrings( MODULE, ...) instead.
 	 */
-	public function addModules( array $modules ) {
+	public function addModules( array $modules ): void {
 		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE, $modules );
 	}
 
 	/**
 	 * @param array $modulestyles
+	 *
 	 * @deprecated Use ::getMetadata()->appendOutputStrings(MODULE_STYLE, ...) instead.
 	 */
-	public function addModuleStyles( array $modulestyles ) {
+	public function addModuleStyles( array $modulestyles ): void {
 		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE_STYLE, $modulestyles );
 	}
 

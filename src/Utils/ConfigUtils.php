@@ -12,7 +12,8 @@ class ConfigUtils {
 	 * configured or obtaianed via an API)
 	 *
 	 * @param array $iwData
-	 * @return array
+	 *
+	 * @return array<array>
 	 */
 	public static function computeInterwikiMap( array $iwData ): array {
 		$interwikiMap = [];

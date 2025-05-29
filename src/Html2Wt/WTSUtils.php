@@ -45,7 +45,7 @@ class WTSUtils {
 	 * @param Element $node
 	 * @param string $name
 	 * @param ?string $curVal
-	 * @return array
+	 * @return array{value: mixed, modified: bool, fromsrc: bool}
 	 */
 	public static function getShadowInfo( Element $node, string $name, ?string $curVal ): array {
 		$dp = DOMDataUtils::getDataParsoid( $node );

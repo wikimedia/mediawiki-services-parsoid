@@ -132,7 +132,9 @@ class DOMHandler {
 	 *
 	 * @param Element $node
 	 * @param Node $otherNode
-	 * @return array An array in the form [ 'min' => <int>, 'max' => <int> ] or an empty array.
+	 *
+	 * @return array{}|array{min: 0|1|2, max: 1|2} An array in the form
+	 *  [ 'min' => <int>, 'max' => <int> ] or an empty array.
 	 */
 	protected function wtListEOL( Element $node, Node $otherNode ): array {
 		if ( !( $otherNode instanceof Element ) || DOMUtils::atTheTop( $otherNode ) ) {
@@ -247,9 +249,11 @@ class DOMHandler {
 
 	/**
 	 * Helper: Newline constraint helper for table nodes
+	 *
 	 * @param Node $node
 	 * @param Node $origNode
-	 * @return int
+	 *
+	 * @return 1|2
 	 */
 	protected function maxNLsInTable( Node $node, Node $origNode ): int {
 		return ( WTUtils::isNewElt( $node ) || WTUtils::isNewElt( $origNode ) ) ? 1 : 2;
@@ -387,10 +391,11 @@ class DOMHandler {
 	 * Uneditable forms wrapped with mw:Placeholder tags OR unedited nowikis
 	 * N.B. We no longer emit self-closed nowikis as placeholders, so remove this
 	 * once all our stored content is updated.
+	 *
 	 * @param Element $node
 	 * @param SerializerState $state
 	 */
-	protected function emitPlaceholderSrc( Element $node, SerializerState $state ) {
+	protected function emitPlaceholderSrc( Element $node, SerializerState $state ): void {
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		if ( preg_match( '!<nowiki\s*/>!', $dp->src ?? '' ) ) {
 			$state->hasSelfClosingNowikis = true;

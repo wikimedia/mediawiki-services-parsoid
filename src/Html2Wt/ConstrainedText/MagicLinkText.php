@@ -25,7 +25,7 @@ class MagicLinkText extends RegExpConstrainedText {
 
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
-		Env $env, array $opts ): ?MagicLinkText {
+		Env $env, array $opts ): ?self {
 		$stx = $dataParsoid->stx ?? null;
 		if ( $stx === 'magiclink' ) {
 			return new MagicLinkText( $text, $node );

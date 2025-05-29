@@ -430,11 +430,8 @@ class DOMNormalizer {
 	 * When an A tag is encountered, if there are format tags inside, move them outside
 	 * Also merge a single sibling A tag that is mergable
 	 * The link href and text must match for this normalization to take effect
-	 *
-	 * @param Element $node
-	 * @return Node|null
 	 */
-	public function moveFormatTagOutsideATag( Element $node ): ?Node {
+	public function moveFormatTagOutsideATag( Element $node ): Element {
 		if ( DOMCompat::nodeName( $node ) !== 'a' ) {
 			return $node;
 		}
@@ -791,7 +788,7 @@ class DOMNormalizer {
 	/**
 	 * @param Element|DocumentFragment $node
 	 */
-	public function normalize( Node $node ) {
+	public function normalize( Node $node ): void {
 		$this->processNode( $node, true );
 	}
 }

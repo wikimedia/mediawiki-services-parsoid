@@ -218,8 +218,9 @@ class WikitextSerializer {
 	/**
 	 * @param Element $node
 	 * @param string $key
-	 * @return array|null A tuple in {@link WTSUtils::getShadowInfo()} format,
-	 *   with an extra 'fromDataMW' flag.
+	 *
+	 * @return ?array{value: string, modified: false, fromsrc: true, fromDataMW: true}
+	 *   A tuple in {@link WTSUtils::getShadowInfo()} format, with an extra 'fromDataMW' flag.
 	 */
 	public function getAttributeValueAsShadowInfo( Element $node, string $key ): ?array {
 		$v = $this->getAttributeValue( $node, $key );

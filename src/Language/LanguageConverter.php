@@ -90,7 +90,7 @@ class LanguageConverter {
 		$this->loadDefaultTables();
 	}
 
-	public function loadDefaultTables() {
+	public function loadDefaultTables(): void {
 	}
 
 	/**
@@ -144,8 +144,13 @@ class LanguageConverter {
 		return new Language();
 	}
 
-	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-	public function findVariantLink( $link, $nt, $ignoreOtherCond ) {
+	/**
+	 * @param mixed $link
+	 * @param mixed $nt
+	 * @param bool $ignoreOtherCond
+	 * @return array{nt: mixed, link: mixed}
+	 */
+	public function findVariantLink( $link, $nt, $ignoreOtherCond ): array {
 		// XXX unimplemented
 		return [ 'nt' => $nt, 'link' => $link ];
 	}
@@ -154,6 +159,7 @@ class LanguageConverter {
 	 * @param string $fromVariant
 	 * @param string $text
 	 * @param string $toVariant
+	 *
 	 * @suppress PhanEmptyPublicMethod
 	 */
 	public function translate( $fromVariant, $text, $toVariant ) {
@@ -365,8 +371,8 @@ class LanguageConverter {
 	 *
 	 * @param Document $doc
 	 * @param string $text
-	 * @param LanguageConverter|null $langconv
-	 * @return string[] map of converted variants keyed by variant language
+	 * @param ?LanguageConverter $langconv
+	 * @return array<string,string> map of converted variants keyed by variant language
 	 */
 	public static function autoConvertToAllVariants(
 		Document $doc,

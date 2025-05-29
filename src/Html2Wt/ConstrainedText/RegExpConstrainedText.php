@@ -12,9 +12,9 @@ namespace Wikimedia\Parsoid\Html2Wt\ConstrainedText;
  * tried by `fromSelSer`.
  */
 abstract class RegExpConstrainedText extends ConstrainedText {
-	/** @var \Closure(string):bool */
+	/** @var callable(string):bool */
 	public $prefixMatcher;
-	/** @var \Closure(string):bool */
+	/** @var callable(string):bool */
 	public $suffixMatcher;
 
 	protected function __construct( array $args ) {

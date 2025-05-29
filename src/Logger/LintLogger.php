@@ -80,10 +80,7 @@ class LintLogger {
 		}
 	}
 
-	/**
-	 *
-	 */
-	public function logLintOutput() {
+	public function logLintOutput(): void {
 		$env = $this->env;
 
 		// We only want to send to the MW API if this was a request to parse

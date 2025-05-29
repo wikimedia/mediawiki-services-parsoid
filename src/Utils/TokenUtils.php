@@ -612,8 +612,9 @@ class TokenUtils {
 
 	/**
 	 * Transform `"\n"` and `"\r\n"` in the input string to {@link NlTk} tokens.
+	 *
 	 * @param string $str
-	 * @return array (interspersed string and NlTk tokens)
+	 * @return non-empty-list<NlTk|string> (interspersed string and NlTk tokens)
 	 */
 	public static function newlinesToNlTks( string $str ): array {
 		$toks = preg_split( '/\n|\r\n/', $str );
@@ -633,13 +634,10 @@ class TokenUtils {
 	 * @param bool $strict Whether to abort as soon as we find a token we
 	 *   can't stringify.
 	 * @param array<string,bool|Env> $opts
-	 * @return string|array{0:string,1:Array<Token|string>}
+	 * @return string|list{string,array<Token|string>}
 	 *   The stringified tokens. If $strict is true, returns a two-element
 	 *   array containing string prefix and the remainder of the tokens as
 	 *   soon as we encounter something we can't stringify.
-	 *
-	 * Unsure why phan is whining about $opts array accesses.
-	 * So for now, I am simply suppressing those warnings.
 	 */
 	public static function tokensToString( $tokens, bool $strict = false, array $opts = [] ) {
 		if ( is_string( $tokens ) ) {

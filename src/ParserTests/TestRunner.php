@@ -275,10 +275,13 @@ class TestRunner {
 		return $env;
 	}
 
-	private function normalizeTitleKey( string $title ): string {
+	private function normalizeTitleKey( string $title ): ?string {
 		return $this->dummyEnv->normalizedTitleKey( $title, false, true );
 	}
 
+	/**
+	 * @return list<callable():void>
+	 */
 	private function addArticle( Article $art ): array {
 		$key = $this->normalizeTitleKey( $art->title );
 		$oldVal = $this->articles[$key] ?? null;
@@ -843,6 +846,9 @@ class TestRunner {
 			$this->stats, $test, $options, $mode, $expected, $actual );
 	}
 
+	/**
+	 * @return array{exitCode: int, stats: Stats, file: string, knownFailuresChanged: bool}
+	 */
 	private function updateKnownFailures( array $options ): array {
 		// Check in case any tests were removed but we didn't update
 		// the knownFailures

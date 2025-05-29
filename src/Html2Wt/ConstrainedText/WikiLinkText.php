@@ -65,7 +65,7 @@ class WikiLinkText extends RegExpConstrainedText {
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts
-	): ?WikiLinkText {
+	): ?self {
 		$stx = $dataParsoid->stx ?? '';
 		if (
 			DOMUtils::matchRel( $node, '#^mw:WikiLink(/Interwiki)?$#D' ) &&

@@ -52,7 +52,7 @@ class AutoURLLinkText extends RegExpConstrainedText {
 	protected static function fromSelSerImpl(
 		string $text, Element $node, DataParsoid $dataParsoid,
 		Env $env, array $opts
-	): ?AutoURLLinkText {
+	): ?self {
 		$stx = $dataParsoid->stx ?? null;
 		$type = $dataParsoid->type ?? null;
 		if (

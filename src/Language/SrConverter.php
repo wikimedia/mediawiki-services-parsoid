@@ -9,13 +9,13 @@ use Wikimedia\Parsoid\Utils\Utils;
 
 class SrConverter extends LanguageConverter {
 
-	public function loadDefaultTables() {
+	public function loadDefaultTables(): void {
 		# T320662: should be converted from mediawiki-internal codes
 		$this->setMachine( new FstReplacementMachine( 'sr', [ 'sr-ec', 'sr-el' ] ) );
 	}
 
-	// phpcs:ignore MediaWiki.Commenting.FunctionComment.MissingDocumentationPublic
-	public function findVariantLink( $link, $nt, $ignoreOtherCond ) {
+	/** @inheritDoc */
+	public function findVariantLink( $link, $nt, $ignoreOtherCond ): array {
 		$ns = $nt->getNamespace();
 		// do not try to find variants for usernames
 		if ( $ns->isUser() || $ns->isUserTalk ) {

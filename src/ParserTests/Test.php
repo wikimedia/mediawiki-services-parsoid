@@ -262,10 +262,8 @@ class Test extends Item {
 	/**
 	 * Apply manually-specified changes, which are provided in a pseudo-jQuery
 	 * format.
-	 *
-	 * @param Document $doc
 	 */
-	public function applyManualChanges( Document $doc ) {
+	public function applyManualChanges( Document $doc ): void {
 		$changes = $this->options['parsoid']['changes'];
 		$err = null;
 		// changes are specified using jquery methods.
@@ -432,12 +430,8 @@ class Test extends Item {
 
 	/**
 	 * Make changes to a DOM in order to run a selser test on it.
-	 *
-	 * @param array $dumpOpts
-	 * @param Document $doc
-	 * @param array $changelist
 	 */
-	public function applyChanges( array $dumpOpts, Document $doc, array $changelist ) {
+	public function applyChanges( array $dumpOpts, Document $doc, array $changelist ): void {
 		$logger = $dumpOpts['logger'] ?? null;
 		// Seed the random-number generator based on the item title and changelist
 		$alea = new Alea( ( json_encode( $changelist ) ) . ( $this->testName ?? '' ) );
@@ -863,7 +857,8 @@ class Test extends Item {
 	 * @param Element|string $actual
 	 * @param ?string $normExpected
 	 * @param bool $standalone
-	 * @return array
+	 *
+	 * @return list{string, string}
 	 */
 	public function normalizeHTML( $actual, ?string $normExpected, bool $standalone = true ): array {
 		$opts = $this->options;
@@ -927,7 +922,8 @@ class Test extends Item {
 	 * @param string $actual
 	 * @param string $expected
 	 * @param bool $standalone
-	 * @return array
+	 *
+	 * @return list{string, string}
 	 */
 	public function normalizeWT( string $actual, string $expected, bool $standalone = true ): array {
 		// No other normalizations at this time

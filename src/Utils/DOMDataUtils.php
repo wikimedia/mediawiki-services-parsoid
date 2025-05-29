@@ -93,7 +93,7 @@ class DOMDataUtils {
 	 * @param Document $topLevelDoc
 	 * @param Document $childDoc
 	 */
-	public static function prepareChildDoc( Document $topLevelDoc, Document $childDoc ) {
+	public static function prepareChildDoc( Document $topLevelDoc, Document $childDoc ): void {
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 		Assert::invariant( $topLevelDoc->bag instanceof DataBag, 'doc bag not set' );
 		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
@@ -120,7 +120,7 @@ class DOMDataUtils {
 
 	private static function dedupeNodeDataVisitor(
 		DataBag $bag, array &$aboutMap, Node $node
-	) {
+	): void {
 		if ( $node instanceof Element ) {
 			if ( $node->hasAttribute( self::DATA_OBJECT_ATTR_NAME ) ) {
 				$id = (int)DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
@@ -675,11 +675,12 @@ class DOMDataUtils {
 
 	/**
 	 * Builds an index of id attributes seen in the DOM
+	 *
 	 * @param Env|ParsoidExtensionAPI|null $env Provide an env or a parsoid
 	 *  extension API in order to properly traverse
 	 *  document fragments embedded in extension DOM.
 	 * @param Document $doc
-	 * @return array
+	 * @return array<string, true>
 	 */
 	public static function usedIdIndex( $env, Document $doc ): array {
 		$index = [];

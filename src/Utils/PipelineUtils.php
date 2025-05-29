@@ -15,7 +15,6 @@ use Wikimedia\Parsoid\DOM\NodeList;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
-use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\NodeData\TempData;
 use Wikimedia\Parsoid\Tokens\CommentTk;
@@ -414,7 +413,8 @@ class PipelineUtils {
 	 *    (usually false for nested templates since they are never directly editable).
 	 * @param bool $inTemplate
 	 *    Unexpanded templates can occur in the content of extension tags.
-	 * @return array
+	 *
+	 * @return list<array>
 	 */
 	public static function expandAttrValuesToDOM(
 		Env $env, $frame, array $vals, bool $expandTemplates, bool $inTemplate
@@ -432,7 +432,8 @@ class PipelineUtils {
 	 *
 	 * @param Element $node
 	 * @param array<string,string> $attrs
-	 * @return array{attrs:KV[],dataParsoid:?DataParsoid,dataMw:?DataMw}
+	 *
+	 * @return array{attrs: list<KV>, dataParsoid: DataParsoid, dataMw: ?\Wikimedia\Parsoid\NodeData\DataMw}
 	 */
 	private static function domAttrsToTagAttrs( Element $node, array $attrs ): array {
 		$out = [];

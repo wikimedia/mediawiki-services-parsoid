@@ -119,10 +119,11 @@ class DOMUtils {
 	/**
 	 * Assert that this is a DOM element node.
 	 * This is primarily to help phan analyze variable types.
+	 *
 	 * @phan-assert Element $node
+	 *
 	 * @param ?Node $node
-	 * @return bool Always returns true
-	 * @phan-assert Element $node
+	 * @return true Always returns true
 	 */
 	public static function assertElt( ?Node $node ): bool {
 		Assert::invariant( $node instanceof Element, "Expected an element" );

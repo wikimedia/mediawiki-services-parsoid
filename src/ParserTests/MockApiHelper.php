@@ -530,14 +530,15 @@ class MockApiHelper extends ApiHelper {
 	/**
 	 * Register an article defined in parsertests so that we can return
 	 * the proper known/missing information about that title.
+	 *
 	 * @param string $key The normalized title of the article
 	 * @param Article $article The contents of the article
-	 * @return callable
+	 * @return callable():void
 	 */
 	public function addArticle( string $key, Article $article ): callable {
 		$oldVal = $this->articleCache[$key] ?? null;
 		$this->articleCache[$key] = $article;
-		return function () use ( $key, $oldVal ) {
+		return function () use ( $key, $oldVal ): void {
 			$this->articleCache[$key] = $oldVal;
 		};
 	}
@@ -579,6 +580,7 @@ class MockApiHelper extends ApiHelper {
 	 * image may become 883px in 2x mode.  Resist the temptation to "optimize"
 	 * this by computing the transformed size once and then scaling that;
 	 * always scale the input dimensions instead.
+	 *
 	 * @see ImageHandler::normaliseParams, MediaHandler::fitBoxWidth,
 	 * File::scaleHeight, etc, in core.
 	 *
@@ -590,7 +592,7 @@ class MockApiHelper extends ApiHelper {
 	 * @param int|float|null &$twidth Thumbnail width (inout parameter)
 	 * @param int|float|null &$theight Thumbnail height (inout parameter)
 	 */
-	public static function transformHelper( $width, $height, &$twidth, &$theight ) {
+	public static function transformHelper( $width, $height, &$twidth, &$theight ): void {
 		if ( $theight === null ) {
 			// File::scaleHeight in PHP
 			$theight = round( $height * $twidth / $width );
@@ -1011,6 +1013,9 @@ class MockApiHelper extends ApiHelper {
 		return [ 'parse' => $parse ];
 	}
 
+	/**
+	 * @return ?array{wikitext: string}
+	 */
 	private function preProcess(
 		string $title, string $text, ?int $revid
 	): ?array {
