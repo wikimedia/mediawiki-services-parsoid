@@ -248,7 +248,7 @@ class LanguageVariantHandler {
 					$dataMWV->twoway ?? [];
 				$text = implode( ';',
 					array_map(
-						function ( $rule, $idx ) use ( $state, $textSp ) {
+						function ( $rule, $idx ) use ( $state, $textSp, &$trailingSemi ) {
 							$text = self::ser( $state, $rule->t, [ 'protect' => '/;|\}-/' ] );
 							if ( $rule->l === '*' ) {
 								$trailingSemi = false;

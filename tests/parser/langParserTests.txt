@@ -506,6 +506,22 @@ language=zh htmlVariantLanguage=zh-Hant-TW
 !! end
 
 !! test
+html2wt support for edited wildcard rule (strip trailing semi where needed)
+!! options
+language=zh htmlVariantLanguage=zh-Hant-TW
+parsoid={
+  "modes": ["wt2wt", "selser"],
+  "changes": [
+    ["meta[typeof]", "attr", "data-mw-variant", "{\"add\":true,\"twoway\":[{\"l\":\"*\",\"t\":\"content\"}]}"]
+  ]
+}
+!! wikitext
+test: -{H|zh:content; }-
+!! wikitext/edited
+test: -{H|content}-
+!! end
+
+!! test
 Filter syntax for language variants
 !! options
 language=zh htmlVariantLanguage=zh-Hant-TW
