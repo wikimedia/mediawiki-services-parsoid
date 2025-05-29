@@ -1,15 +1,6 @@
 <?php
 declare( strict_types = 1 );
 
-/**
- * Tokenizer for wikitext, using WikiPEG and a
- * separate PEG grammar file
- * (Grammar.pegphp)
- *
- * Use along with a {@link Wt2Html/TreeBuilder/TreeBuilderStage} and the
- * {@link DOMProcessorPipeline}(s) for HTML output.
- */
-
 namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
@@ -19,6 +10,10 @@ use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\WikiPEG\SyntaxError;
 
+/**
+ * Tokenizer for wikitext, using WikiPEG and a
+ * separate PEG grammar file (Grammar.pegphp)
+ */
 class PegTokenizer extends PipelineStage {
 	private array $options;
 	private array $offsets;
@@ -53,7 +48,7 @@ class PegTokenizer extends PipelineStage {
 		);
 	}
 
-	private function initGrammar() {
+	private function initGrammar(): void {
 		if ( !$this->grammar ) {
 			$this->grammar = $this->tracing ? new TracingGrammar : new Grammar;
 		}
@@ -96,13 +91,7 @@ class PegTokenizer extends PipelineStage {
 	}
 
 	/**
-	 * The text is tokenized in chunks (one per top-level block)
-	 * and registered event listeners are called with the chunk
-	 * to let it get processed further.
-	 *
-	 * The main worker. Sets up event emission ('chunk' and 'end' events).
-	 * Consumers are supposed to register with PegTokenizer before calling
-	 * process().
+	 * The text is tokenized in chunks (one per top-level block).
 	 *
 	 * @param string $input
 	 * @param array{sol:bool} $options
@@ -248,21 +237,6 @@ class PegTokenizer extends PipelineStage {
 	 */
 	public function tokenizeTableCellAttributes( string $text, bool $sol ) {
 		return $this->tokenizeAs( $text, 'row_syntax_table_args', $sol );
-	}
-
-	/**
-	 * If a tokenize method returned false, this will return a string describing the error,
-	 * suitable for use in a log entry. If there has not been any error, returns false.
-	 *
-	 * @return string|false
-	 */
-	public function getLastErrorLogMessage() {
-		if ( $this->lastError ) {
-			return "Tokenizer parse error at input location {$this->lastError->location}: " .
-				$this->lastError->getMessage();
-		} else {
-			return false;
-		}
 	}
 
 	/**
