@@ -1,44 +1,18 @@
 {
-	"Basic section headings": {
-		"wt2html": "<h2 id=\"Headline_1\" data-parsoid='{\"dsr\":[0,14,2,2]}'>Headline 1</h2>\n<p data-parsoid='{\"dsr\":[15,24,0,0]}'>Some text</p>\n\n<h2 id=\"Headline_2\" data-parsoid='{\"dsr\":[26,40,2,2]}'>Headline 2</h2>\n<p data-parsoid='{\"dsr\":[41,45,0,0]}'>More</p>\n<h3 id=\"Smaller_headline\" data-parsoid='{\"dsr\":[46,68,3,3]}'>Smaller headline</h3>\n<p data-parsoid='{\"dsr\":[69,78,0,0]}'>Blah blah</p>"
-	},
-	"Disable TOC": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,4,0,0]}'>Lead</p>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[5,18,2,2]}'>Section 1</h2>\n<h2 id=\"Section_2\" data-parsoid='{\"dsr\":[19,32,2,2]}'>Section 2</h2>\n<h2 id=\"Section_3\" data-parsoid='{\"dsr\":[33,46,2,2]}'>Section 3</h2>\n<h2 id=\"Section_4\" data-parsoid='{\"dsr\":[47,60,2,2]}'>Section 4</h2>\n<h2 id=\"Section_5\" data-parsoid='{\"dsr\":[61,74,2,2]}'>Section 5</h2>"
-	},
 	"Editable headings can only have trailing comments and whitespace": {
 		"wt2wt": "====test====\nyup\n\n====hi ho====\n<noinclude>\nnope\n</noinclude>\n\n====test 2====\nanother yup\n\n<!-- well -->====ha ha====\nback to nope\n\n====he he====  <!-- but this is ok -->\nsee"
 	},
 	"Ensure comments in toc lines are stripped": {
 		"wt2html": "Sections:"
 	},
-	"Extra newlines followed by heading": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,1,0,0]}'>a</p>\n<p data-parsoid='{\"dsr\":[2,3,0,0]}'>\n<br data-parsoid='{\"dsr\":[3,3,0,0]}'/></p>\n<h1 id=\"b\" data-parsoid='{\"dsr\":[4,7,1,1]}'>b</h1>\n<p data-parsoid='{\"dsr\":[8,13,0,0]}'><a rel=\"mw:WikiLink\" href=\"./A\" title=\"A\" data-parsoid='{\"stx\":\"simple\",\"a\":{\"href\":\"./A\"},\"sa\":{\"href\":\"a\"},\"dsr\":[8,13,2,2]}'>a</a></p>\n<p data-parsoid='{\"dsr\":[14,15,0,0]}'>\n<br data-parsoid='{\"dsr\":[15,15,0,0]}'/></p>\n<h1 id=\"b_2\" data-parsoid='{\"dsr\":[16,19,1,1]}'>b</h1>"
-	},
 	"HHP2.1: Heuristics for headings in preprocessor parenthetical structures": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,6,0,0]}'>{{foo|</p>\n<h1 id=\"heading\" data-parsoid='{\"dsr\":[7,16,1,1]}'>heading</h1>",
 		"wt2wt": "<nowiki>{{foo|</nowiki>\n=heading=\n"
 	},
 	"HHP2.2: Heuristics for headings in preprocessor parenthetical structures": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,6,0,0]}'>{{foo|</p>\n<h2 id=\"heading\" data-parsoid='{\"dsr\":[7,18,2,2]}'>heading</h2>",
 		"wt2wt": "<nowiki>{{foo|</nowiki>\n==heading==\n"
-	},
-	"Inclusion of !userCanEdit() content": {
-		"wt2html": "<h2 about=\"#mwt\" typeof=\"mw:Transclusion\" id=\"header\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,18,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"MediaWiki:Fake\",\"href\":\"./MediaWiki:Fake\"},\"params\":{},\"i\":0}}]}'>header</h2>"
-	},
-	"Link inside a section heading": {
-		"wt2html": "<h2 id=\"Section_with_a_link_in_it\" data-parsoid='{\"dsr\":[0,43,2,2]}'>Section with a <a rel=\"mw:WikiLink\" href=\"./Main_Page\" title=\"Main Page\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Main_Page\"},\"sa\":{\"href\":\"Main Page\"},\"dsr\":[17,35,12,2]}'>link</a> in it</h2>"
-	},
-	"Morwen/13: Unclosed link followed by heading": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,6,0,0]}'>[[link</p>\n<h2 id=\"heading\" data-parsoid='{\"dsr\":[7,18,2,2]}'>heading</h2>"
 	},
 	"Nested section numbering": {
 		"metadata": "Sections:\n h3 index:1 toclevel:1 number:1 title:Parser_test off:0 anchor/linkAnchor:out line:out\n h3 index:T-1 toclevel:1 number:2 title:Template:With_heading_nesting off:NULL anchor/linkAnchor:in_4 line:in 4\n h3 index:T-2 toclevel:1 number:3 title:Template:With_heading_nesting off:NULL anchor/linkAnchor:in_2 line:in 2\n h3 index:T-3 toclevel:1 number:4 title:Template:With_heading_nesting off:NULL anchor/linkAnchor:in_3 line:in 3"
-	},
-	"Resolving duplicate section names": {
-		"wt2html": "<h2 id=\"Foo_bar\" data-parsoid='{\"dsr\":[0,11,2,2]}'>Foo bar</h2>\n<h2 id=\"Foo_bar_2\" data-parsoid='{\"dsr\":[12,23,2,2]}'>Foo bar</h2>"
-	},
-	"Resolving duplicate section names with differing case (T12721)": {
-		"wt2html": "<h2 id=\"Foo_bar\" data-parsoid='{\"dsr\":[0,11,2,2]}'>Foo bar</h2>\n<h2 id=\"Foo_Bar_2\" data-parsoid='{\"dsr\":[12,23,2,2]}'>Foo Bar</h2>"
 	},
 	"Section headings with TOC, language conversion rules, and displaytitle\n(T306862, T331316, T26072)": {
 		"metadata": "Parser test\nSections:\n h2 index:1 toclevel:1 number:1 title:Parser_test off:192 anchor/linkAnchor:Foo line:Foo\n h2 index:2 toclevel:1 number:2 title:Parser_test off:209 anchor/linkAnchor:Bar line:Bar\n h2 index:3 toclevel:1 number:3 title:Parser_test off:226 anchor/linkAnchor:-{Foo_Bar}- line:-{Foo Bar}-"
@@ -66,14 +40,5 @@
 	},
 	"T307691: show-toc flag: not \"enough\" sections, but __TOC__": {
 		"wt2wt": "==One==\n__TOC__"
-	},
-	"T8563: Edit link generation for section shown by <includeonly>": {
-		"wt2html": "<span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,23,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"includeonly section\",\"href\":\"./Template:Includeonly_section\"},\"params\":{},\"i\":0}}]}'>\n</span><h2 about=\"#mwt\" id=\"Includeonly_section\">Includeonly section</h2><span about=\"#mwt\">\n\n</span><h2 about=\"#mwt\" id=\"Section_T-1\">Section T-1</h2>"
-	},
-	"T8563: Edit link generation for section suppressed by <includeonly>": {
-		"wt2html": "<meta typeof=\"mw:Includes/IncludeOnly\" data-parsoid='{\"dsr\":[0,52,null,null]}' data-mw='{\"src\":\"&lt;includeonly>\\n==Includeonly section==\\n&lt;/includeonly>\"}'/><meta typeof=\"mw:Includes/IncludeOnly/End\" data-parsoid='{\"src\":\"\",\"dsr\":[52,52,null,null]}'/>\n<h2 id=\"Section_1\" data-parsoid='{\"dsr\":[53,66,2,2]}'>Section 1</h2>"
-	},
-	"nowiki inside link inside heading (T20295)": {
-		"wt2html": "<h2 id=\"xyz\" data-parsoid='{\"dsr\":[0,32,2,2]}'><a rel=\"mw:WikiLink\" href=\"./Foo\" title=\"Foo\" data-parsoid='{\"stx\":\"piped\",\"a\":{\"href\":\"./Foo\"},\"sa\":{\"href\":\"foo\"},\"dsr\":[2,30,6,2]}'>x<span typeof=\"mw:Nowiki\" data-parsoid='{\"dsr\":[9,27,8,9]}'>y</span>z</a></h2>"
 	}
 }

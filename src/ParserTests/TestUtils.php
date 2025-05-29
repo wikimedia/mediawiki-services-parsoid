@@ -337,19 +337,26 @@ class TestUtils {
 
 	/**
 	 * Strip some php output we aren't generating.
-	 *
-	 * @param string $html
-	 * @return string
 	 */
-	public static function normalizePhpOutput( string $html ): string {
-		return preg_replace(
-			// do not expect section editing for now
-			'/<span[^>]+class="mw-headline"[^>]*>(.*?)<\/span> '
-			. '*(<span class="mw-editsection"><span class="mw-editsection-bracket">'
-			. '\[<\/span>.*?<span class="mw-editsection-bracket">\]<\/span><\/span>)?/u',
-			'$1',
-			$html
-		);
+	public static function normalizePhpOutput( Element $body ): void {
+		// Do not expect section editing for now
+		foreach ( DOMCompat::querySelectorAll( $body, '.mw-editsection' ) as $span ) {
+			DOMCompat::remove( $span );
+		}
+		foreach ( DOMCompat::querySelectorAll( $body, '.mw-heading' ) as $div ) {
+			$nodes = DOMUtils::childNodes( $div );
+			foreach ( $nodes as $i => $child ) {
+				// Remove the nls
+				if ( $i === 0 && $child instanceof Text ) {
+					$child->data = preg_replace( "/^\n/uD", '', $child->data );
+				}
+				if ( $i === ( count( $nodes ) - 1 ) && $child instanceof Text ) {
+					$child->data = preg_replace( "/\n$/uD", '', $child->data );
+				}
+				$div->parentNode->insertBefore( $child, $div );
+			}
+			DOMCompat::remove( $div );
+		}
 	}
 
 	/**
@@ -363,6 +370,7 @@ class TestUtils {
 	public static function normalizeHTML( string $source ): string {
 		try {
 			$body = self::unwrapSpansAndNormalizeIEW( DOMCompat::getBody( DOMUtils::parseHTML( $source ) ) );
+			self::normalizePhpOutput( $body );
 			$html = ContentUtils::toXML( $body, [ 'innerXML' => true ] );
 
 			// a few things we ignore for now..
@@ -372,7 +380,6 @@ class TestUtils {
 				'/<div[^>]+?id="toc"[^>]*>\s*<div id="toctitle"[^>]*>[\s\S]+?<\/div>[\s\S]+?<\/div>\s*/u',
 				'',
 				$html );
-			$html = self::normalizePhpOutput( $html );
 			// remove empty span tags
 			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/u', '$1', $html );
 			$html = preg_replace( '/<span>\s*<\/span>/u', '', $html );

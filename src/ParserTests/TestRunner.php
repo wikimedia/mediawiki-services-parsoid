@@ -447,16 +447,16 @@ class TestRunner {
 		// Source preparation
 		if ( $startsAtHtml ) {
 			$html = $test->parsoidHtml ?? '';
-			if ( !$parsoidOnly ) {
-				// Strip some php output that has no wikitext representation
-				// (like .mw-editsection) and won't html2html roundtrip and
-				// therefore causes false failures.
-				$html = TestUtils::normalizePhpOutput( $html );
-			}
 			// FUTURE WORK: it would be better if we used
 			// ContentUtils::createAndLoadDocument() here -- and for all of the
 			// ::parseHTML() calls below this as well.
 			$doc = DOMUtils::parseHTML( $html );
+			if ( !$parsoidOnly ) {
+				// Strip some php output that has no wikitext representation
+				// (like .mw-editsection) and won't html2html roundtrip and
+				// therefore causes false failures.
+				TestUtils::normalizePhpOutput( DOMCompat::getBody( $doc ) );
+			}
 			$wt = $this->convertHtml2Wt( $env, $test, $mode, $doc );
 		} else { // startsAtWikitext
 			// Always serialize DOM to string and reparse before passing to wt2wt
