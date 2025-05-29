@@ -17,6 +17,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
 /**
@@ -95,10 +96,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isHTMLTag( $token ): bool {
-		return $token && !is_string( $token ) &&
-			( $token instanceof TagTk ||
-			$token instanceof EndTagTk ||
-			$token instanceof SelfclosingTagTk ) &&
+		return ( $token instanceof XMLTagTk ) &&
 			isset( $token->dataParsoid->stx ) &&
 			$token->dataParsoid->stx === 'html';
 	}
@@ -131,11 +129,7 @@ class TokenUtils {
 	 * @return bool
 	 */
 	public static function isSolTransparentLinkTag( $token ): bool {
-		return (
-				$token instanceof SelfclosingTagTk ||
-				$token instanceof TagTk ||
-				$token instanceof EndTagTk
-			) &&
+		return ( $token instanceof XMLTagTk ) &&
 			$token->getName() === 'link' &&
 			preg_match( self::SOL_TRANSPARENT_LINK_REGEX, $token->getAttributeV( 'rel' ) ?? '' );
 	}
@@ -303,12 +297,10 @@ class TokenUtils {
 		// update/clear tsr
 		for ( $i = 0, $n = count( $tokens );  $i < $n;  $i++ ) {
 			$t = $tokens[$i];
-			switch ( is_object( $t ) ? get_class( $t ) : null ) {
-				case TagTk::class:
-				case SelfclosingTagTk::class:
-				case NlTk::class:
-				case CommentTk::class:
-				case EndTagTk::class:
+			switch ( true ) {
+				case $t instanceof XMLTagTk:
+				case $t instanceof NlTk:
+				case $t instanceof CommentTk:
 					$da = $t->dataParsoid;
 					$tsr = $da->tsr ?? null;
 					if ( $tsr ) {

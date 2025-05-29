@@ -487,7 +487,7 @@ class WikitextEscapeHandlers {
 
 		$tokens = $this->tokenizeStr( $text, $sol );
 
-		// If the token stream has a TagTk, SelfclosingTagTk, EndTagTk or CommentTk
+		// If the token stream has a XmlTagTk or CommentTk
 		// then this text needs escaping!
 		$numEntities = 0;
 		foreach ( $tokens as $t ) {
