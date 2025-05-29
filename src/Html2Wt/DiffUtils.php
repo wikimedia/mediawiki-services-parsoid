@@ -137,6 +137,11 @@ class DiffUtils {
 		return $meta;
 	}
 
+	/**
+	 * @param Element $node
+	 * @param string[] $ignoreableAttribs
+	 * @return array<string,mixed>
+	 */
 	private static function getAttributes( Element $node, array $ignoreableAttribs ): array {
 		$h = DOMUtils::attributes( $node );
 		foreach ( $h as $name => $value ) {
@@ -163,8 +168,8 @@ class DiffUtils {
 	 *
 	 * @param Element $nodeA
 	 * @param Element $nodeB
-	 * @param array $ignoreableAttribs
-	 * @param array $specializedAttribHandlers
+	 * @param string[] $ignoreableAttribs
+	 * @param array<string,callable(Element,mixed,Element,mixed):bool> $specializedAttribHandlers
 	 * @return bool
 	 */
 	public static function attribsEquals(

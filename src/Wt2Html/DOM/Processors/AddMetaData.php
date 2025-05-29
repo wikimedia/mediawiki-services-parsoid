@@ -45,7 +45,7 @@ class AddMetaData implements Wt2HtmlDOMProcessor {
 			],
 			'rev_timestamp' => [
 				'property' => 'dc:modified',
-				'content' => static function ( $m ) {
+				'content' => static function ( $m ): string {
 					# Convert from TS_MW ("mediawiki timestamp") format
 					$dt = DateTime::createFromFormat( 'YmdHis', $m['rev_timestamp'] );
 					# Note that DateTime::ISO8601 is not actually ISO8601, alas.

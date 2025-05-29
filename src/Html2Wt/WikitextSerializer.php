@@ -548,7 +548,7 @@ class WikitextSerializer {
 		// so that newly-added parameters are placed near the parameters which
 		// templatedata says they should be adjacent to.
 		$nearestOrder = $origOrder;
-		$reduceF = static function ( $acc, $val ) use ( &$origOrder, &$nearestOrder ) {
+		$reduceF = static function ( array $acc, $val ) use ( &$origOrder, &$nearestOrder ): array {
 			if ( isset( $origOrder[$val] ) ) {
 				$acc = $origOrder[$val];
 			}
@@ -1320,7 +1320,7 @@ class WikitextSerializer {
 			return $line;
 		}
 
-		$escaper = static function ( string $wt ) use ( $state ) {
+		$escaper = static function ( string $wt ) use ( $state ): string {
 			$ret = $state->serializer->wteHandlers->escapedText( $state, false, $wt, false, true );
 			return $ret;
 		};

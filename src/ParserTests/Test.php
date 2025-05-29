@@ -277,7 +277,7 @@ class Test extends Item {
 		// on the results of the selector in the first argument, which is
 		// a good way to get at the text and comment nodes
 		$jquery = [
-			'after' => static function ( Node $node, string $html ) {
+			'after' => static function ( Node $node, string $html ): void {
 				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
@@ -297,7 +297,7 @@ class Test extends Item {
 					DOMUtils::migrateChildren( $div, $node->parentNode, $node->nextSibling );
 				}
 			},
-			'append' => static function ( Node $node, string $html ) {
+			'append' => static function ( Node $node, string $html ): void {
 				if ( DOMCompat::nodeName( $node ) === 'tr' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
@@ -309,11 +309,11 @@ class Test extends Item {
 					DOMUtils::migrateChildren( $div, $node );
 				}
 			},
-			'attr' => static function ( Node $node, string $name, string $val ) {
+			'attr' => static function ( Node $node, string $name, string $val ): void {
 				'@phan-var Element $node'; // @var Element $node
 				$node->setAttribute( $name, $val );
 			},
-			'before' => static function ( Node $node, string $html ) {
+			'before' => static function ( Node $node, string $html ): void {
 				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
@@ -332,26 +332,26 @@ class Test extends Item {
 					DOMUtils::migrateChildren( $div, $node->parentNode, $node );
 				}
 			},
-			'removeAttr' => static function ( Node $node, string $name ) {
+			'removeAttr' => static function ( Node $node, string $name ): void {
 				'@phan-var Element $node'; // @var Element $node
 				$node->removeAttribute( $name );
 			},
-			'removeClass' => static function ( Node $node, string $c ) {
+			'removeClass' => static function ( Node $node, string $c ): void {
 				'@phan-var Element $node'; // @var Element $node
 				DOMCompat::getClassList( $node )->remove( $c );
 			},
-			'addClass' => static function ( Node $node, string $c ) {
+			'addClass' => static function ( Node $node, string $c ): void {
 				'@phan-var Element $node'; // @var Element $node
 				DOMCompat::getClassList( $node )->add( $c );
 			},
-			'text' => static function ( Node $node, string $t ) {
+			'text' => static function ( Node $node, string $t ): void {
 				$node->textContent = $t;
 			},
-			'html' => static function ( Node $node, string $h ) {
+			'html' => static function ( Node $node, string $h ): void {
 				'@phan-var Element $node'; // @var Element $node
 				DOMCompat::setInnerHTML( $node, $h );
 			},
-			'remove' => static function ( Node $node, ?string $optSelector = null ) {
+			'remove' => static function ( Node $node, ?string $optSelector = null ): void {
 				// jquery lets us specify an optional selector to further
 				// restrict the removed elements.
 				// text nodes don't have the "querySelectorAll" method, so
@@ -371,11 +371,11 @@ class Test extends Item {
 					}
 				}
 			},
-			'empty' => static function ( Node $node ) {
+			'empty' => static function ( Node $node ): void {
 				'@phan-var Element $node'; // @var Element $node
 				DOMCompat::replaceChildren( $node );
 			},
-			'wrap' => static function ( Node $node, string $w ) {
+			'wrap' => static function ( Node $node, string $w ): void {
 				$frag = $node->ownerDocument->createElement( 'div' );
 				DOMCompat::setInnerHTML( $frag, $w );
 				$first = $frag->firstChild;

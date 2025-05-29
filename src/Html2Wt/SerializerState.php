@@ -414,7 +414,7 @@ class SerializerState {
 		}
 		// check the UTF-8 ranges.
 		$src = $this->selserData->revText;
-		$check = static function ( $start, $end ) use ( $src ) {
+		$check = static function ( int $start, int $end ) use ( $src ): bool {
 			if ( $start === $end ) {
 				// zero-length string is always ok
 				return true;

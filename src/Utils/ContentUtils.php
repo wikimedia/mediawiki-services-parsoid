@@ -276,7 +276,7 @@ class ContentUtils {
 	): void {
 		$convertNode = static function ( Node $node ) use (
 			$env, $extAPI, $dsrFunc, &$convertNode
-		) {
+		): void {
 			if ( !( $node instanceof Element ) ) {
 				return;
 			}
@@ -361,7 +361,7 @@ class ContentUtils {
 		}
 		$offsetMap = [];
 		$offsets = [];
-		$collect = static function ( int $n ) use ( &$offsetMap, &$offsets ) {
+		$collect = static function ( int $n ) use ( &$offsetMap, &$offsets ): void {
 			if ( !array_key_exists( $n, $offsetMap ) ) {
 				$box = (object)[ 'value' => $n ];
 				$offsetMap[$n] = $box;
@@ -369,7 +369,7 @@ class ContentUtils {
 			}
 		};
 		// Collect DSR offsets throughout the document
-		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect ) {
+		$collectDSR = static function ( DomSourceRange $dsr ) use ( $collect ): DomSourceRange {
 			if ( $dsr->start !== null ) {
 				$collect( $dsr->start );
 				$collect( $dsr->innerStart() );
@@ -391,7 +391,7 @@ class ContentUtils {
 			$env->topFrame->getSrcText(), $from, $to, $offsets
 		);
 		// Apply converted offsets
-		$applyDSR = static function ( DomSourceRange $dsr ) use ( $offsetMap ) {
+		$applyDSR = static function ( DomSourceRange $dsr ) use ( $offsetMap ): DomSourceRange {
 			$start = $dsr->start;
 			$openWidth = $dsr->openWidth;
 			if ( $start !== null ) {

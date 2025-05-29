@@ -935,7 +935,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 			}
 		}
 
-		$markProcessedNodes = static function () use ( &$nowrapNodes ) { // Helper
+		$markProcessedNodes = static function () use ( &$nowrapNodes ): void { // Helper
 			foreach ( $nowrapNodes as $o ) {
 				// Phan fails at applying the instanceof type restriction to the array member when analyzing the
 				// following call, but is fine when it's copied to a local variable.

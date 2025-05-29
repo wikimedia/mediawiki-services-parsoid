@@ -284,7 +284,7 @@ class TestRunner {
 		$oldVal = $this->articles[$key] ?? null;
 		$this->articles[$key] = $art->text;
 		$teardown = [
-			function () use ( $key, $oldVal ) {
+			function () use ( $key, $oldVal ): void {
 				$this->articles[$key] = $oldVal;
 			},
 			$this->mockApi->addArticle( $key, $art ),

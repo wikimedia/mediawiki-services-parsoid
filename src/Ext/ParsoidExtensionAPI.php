@@ -661,7 +661,7 @@ class ParsoidExtensionAPI {
 		}
 
 		if ( $except ) {
-			$closure = static function ( $key, $value ) use ( $except ) {
+			$closure = static function ( string $key, $value ) use ( $except ) {
 				if ( in_array( strtolower( trim( $key ) ), $except, true ) ) {
 					return $value;
 				} else {
@@ -669,7 +669,7 @@ class ParsoidExtensionAPI {
 				}
 			};
 		} elseif ( $only ) {
-			$closure = static function ( $key, $value ) use ( $only ) {
+			$closure = static function ( string $key, $value ) use ( $only ) {
 				if ( in_array( strtolower( trim( $key ) ), $only, true ) ) {
 					return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
 				} else {
@@ -677,7 +677,7 @@ class ParsoidExtensionAPI {
 				}
 			};
 		} else {
-			$closure = static function ( $key, $value ) {
+			$closure = static function ( string $key, $value ): string {
 				return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
 			};
 		}

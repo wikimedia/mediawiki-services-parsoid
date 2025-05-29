@@ -448,7 +448,7 @@ class AddMediaInfo implements Wt2HtmlDOMProcessor {
 
 		if ( $isImage ) {
 			$anchor = $doc->createElement( 'a' );
-			$addDescriptionLink = static function ( Title $title ) use ( $env, $anchor, $page, $lang ) {
+			$addDescriptionLink = static function ( Title $title ) use ( $env, $anchor, $page, $lang ): void {
 				$href = $env->makeLink( $title );
 				$qs = [];
 				if ( $page > 0 ) {

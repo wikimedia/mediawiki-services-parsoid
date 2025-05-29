@@ -12,6 +12,8 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\NodeData\DataMw;
+use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -50,7 +52,7 @@ class DOMDiff {
 	public $extApi;
 
 	/**
-	 * @var array
+	 * @var array<string,callable(Element,mixed,Element,mixed):bool>
 	 */
 	public $specializedAttribHandlers;
 
@@ -67,7 +69,9 @@ class DOMDiff {
 		$this->env = $env;
 		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->specializedAttribHandlers = [
-			'data-mw' => function ( $nodeA, $dmwA, $nodeB, $dmwB ) {
+			'data-mw' => function (
+				Element $nodeA, DataMw $dmwA, Element $nodeB, DataMw $dmwB
+			): bool {
 				if ( isset( $dmwA->caption ) && isset( $dmwB->caption ) ) {
 					if ( !$this->treeEquals( $dmwA->caption, $dmwB->caption, true ) ) {
 						return false;
@@ -77,9 +81,13 @@ class DOMDiff {
 					unset( $dmwA['caption'] );
 					unset( $dmwB['caption'] );
 				}
+				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 				return $dmwA == $dmwB;
 			},
-			'data-parsoid' => static function ( $nodeA, $dpA, $nodeB, $dpB ) {
+			'data-parsoid' => static function (
+				Element $nodeA, DataParsoid $dpA, Element $nodeB, DataParsoid $dpB
+			): bool {
+				// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
 				return $dpA == $dpB;
 			},
 		];

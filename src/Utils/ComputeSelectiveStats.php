@@ -77,7 +77,9 @@ class ComputeSelectiveStats {
 			}
 			return $dp;
 		};
-		$dd->specializedAttribHandlers['data-parsoid'] = static function ( $nA, $vA, $nB, $vB ) use ( $cleanDP ) {
+		$dd->specializedAttribHandlers['data-parsoid'] = static function (
+			Element $nA, DataParsoid $vA, Element $nB, DataParsoid $vB
+		) use ( $cleanDP ): bool {
 			// This is deliberately a not-strict equality comparisong between
 			// two DataParsoid objects.
 			// @phan-suppress-next-line PhanPluginComparisonObjectEqualityNotStrict
@@ -85,7 +87,9 @@ class ComputeSelectiveStats {
 		};
 		// Ignore differences in 'id' attributes, since these are a side-effect
 		// of data-parsoid/page bundle encapsulation.
-		$dd->specializedAttribHandlers['id'] = static function ( $nA, $vA, $nB, $vB ) {
+		$dd->specializedAttribHandlers['id'] = static function (
+			Element $nA, string $vA, Element $nB, string $vB
+		): bool {
 			// XXX we can't really tell synthethic ID attributes created by
 			// DOMDataUtils::storeInPageBundle() from "real" ID attributes
 			// in user wikitext.  Hackishly ignore differences in any ID

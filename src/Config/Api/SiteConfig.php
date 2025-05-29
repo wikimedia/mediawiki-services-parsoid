@@ -337,7 +337,7 @@ class SiteConfig extends ISiteConfig {
 		}
 
 		$redirect = '(?i:\#REDIRECT)';
-		$quote = static function ( $s ) {
+		$quote = static function ( string $s ): string {
 			$q = preg_quote( $s, '@' );
 			# Note that PHP < 7.3 doesn't escape # in preg_quote.  That means
 			# that the $redirect regexp will fail if used with the `x` flag.

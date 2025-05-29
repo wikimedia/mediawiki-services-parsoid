@@ -1287,7 +1287,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				}
 			}
 
-			$recordCaption = static function () use ( $oContent, $oText, $dataParsoid, &$opts ) {
+			$recordCaption = static function () use ( $oContent, $oText, $dataParsoid, &$opts ): void {
 				$optsCaption = [
 					'v' => $oContent->v,
 					'src' => $oContent->vsrc ?? $oText,
