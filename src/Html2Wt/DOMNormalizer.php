@@ -316,8 +316,6 @@ class DOMNormalizer {
 
 	public function stripIfEmpty( Element $node ): ?Node {
 		$next = DiffDOMUtils::nextNonDeletedSibling( $node );
-		$dp = DOMDataUtils::getDataParsoid( $node );
-		$autoInserted = isset( $dp->autoInsertedStart ) || isset( $dp->autoInsertedEnd );
 
 		$strippable =
 			DiffDOMUtils::nodeEssentiallyEmpty( $node, false );
@@ -725,7 +723,6 @@ class DOMNormalizer {
 		// recurse = false => assume the subtree is already normalized
 
 		// Normalize node till it stabilizes
-		$next = null;
 		while ( true ) {
 			// Skip templated content
 			while ( $node && WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {

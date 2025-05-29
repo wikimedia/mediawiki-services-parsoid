@@ -170,7 +170,6 @@ class ParsoidLogger {
 	 * @return string
 	 */
 	private function logMessage( ?string $logType, array $args ): string {
-		$numArgs = count( $args );
 		$output = $logType ? "[$logType]" : '';
 		foreach ( $args as $arg ) {
 			// don't use is_callable, it would return true for any string that happens to be a function name

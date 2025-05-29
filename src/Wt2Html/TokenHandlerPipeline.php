@@ -134,7 +134,7 @@ class TokenHandlerPipeline extends PipelineStage {
 		if ( $this->hasShuttleTokens ) {
 			$this->hasShuttleTokens = false;
 			$accum = [];
-			foreach ( $tokens as $i => $t ) {
+			foreach ( $tokens as $t ) {
 				if ( $t instanceof SelfclosingTagTk && $t->getName() === 'mw:thp-end' ) {
 					$toks = $t->dataParsoid->getTemp()->shuttleTokens;
 					PHPUtils::pushArray( $accum, $toks );

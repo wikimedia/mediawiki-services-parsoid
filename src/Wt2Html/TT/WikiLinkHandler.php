@@ -358,7 +358,6 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 			return self::bailTokens( $this->manager, $token );
 		}
 
-		$target = null;
 		try {
 			$target = $this->getWikiLinkTargetInfo( $token, $hrefTokenStr, $hrefKV->vsrc );
 		} catch ( TitleException | InternalException $e ) {
@@ -1016,9 +1015,6 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 */
 	private static function stringifyOptionTokens( array $tstream, string $prefix, Env $env ) {
 		// Seems like this should be a more general "stripTags"-like function?
-		$tokenType = null;
-		$tkHref = null;
-		$nextResult = null;
 		$skipToEndOf = null;
 		$optInfo = null;
 		$resultStr = '';
@@ -1417,7 +1413,6 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 			// Collect source wikitext for image options for possible template expansion.
 			$maybeOpt = !isset( self::getUsed()[$opt['ck']] );
-			$expOpt = null;
 			// Links more often than not show up as arrays here because they're
 			// tokenized as `autourl`.  To avoid unnecessarily considering them
 			// expanded, we'll use a more restrictive test, at the cost of

@@ -76,7 +76,6 @@ class DOMProcessorPipeline extends PipelineStage {
 		}
 
 		$prefix = null;
-		$traceLevel = null;
 		$resourceCategory = null;
 
 		$profile = null;

@@ -972,7 +972,6 @@ class MockApiHelper extends ApiHelper {
 			return [ 'text' => preg_replace( '/\{\{subst:1x\|([^}]+)\}\}/', '$1', $text, 1 ) ];
 		}
 
-		$res = null;
 		// Render to html the contents of known extension tags
 		// These are the only known extensions (besides native extensions)
 		// used in parser tests currently. This would need to be updated

@@ -261,7 +261,6 @@ class ConstrainedText {
 			DOMDataUtils::getDataParsoid( $lastChild ) : null;
 		$prefixChunks = [];
 		$suffixChunks = [];
-		$len = null;
 		$ignorePrefix = $opts['ignorePrefix'] ?? false;
 		$ignoreSuffix = $opts['ignoreSuffix'] ?? false;
 		// check to see if first child's DSR start is the same as this node's

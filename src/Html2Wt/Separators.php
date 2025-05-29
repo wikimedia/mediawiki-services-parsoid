@@ -811,7 +811,6 @@ class Separators {
 					!DiffUtils::directChildrenChanged( $prevNode->parentNode )
 				) {
 					$endDsr = DOMDataUtils::getDataParsoid( $prevNode->previousSibling )->dsr->end ?? null;
-					$correction = null;
 					if ( is_int( $endDsr ) ) {
 						if ( $prevNode instanceof Comment ) {
 							'@phan-var Comment $prevNode'; // @var Comment $prevNode

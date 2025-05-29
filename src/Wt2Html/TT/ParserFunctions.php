@@ -129,7 +129,6 @@ class ParserFunctions {
 	private function switchLookupFallback(
 		Frame $frame, array $kvs, string $key, array $dict, $v = null
 	): array {
-		$kv = null;
 		$l = count( $kvs );
 		$this->env->log( 'debug', 'switchLookupFallback', $key, $v );
 		// 'v' need not be a string in cases where it is the last fall-through case
@@ -533,12 +532,10 @@ class ParserFunctions {
 
 	public function pf_currentmonthnamegen( $token, Frame $frame, Params $params ): array {
 		// XXX Actually use genitive form!
-		$args = $params->args;
 		return $this->pfTime_tokens( 'F', [] );
 	}
 
 	public function pf_localmonthnamegen( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return $this->pfTimel_tokens( 'F', [] );
 	}
 
@@ -640,7 +637,6 @@ class ParserFunctions {
 	}
 
 	public function pf_pagelanguage( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		// The language (code) of the current page.
 		// Note: this is exposed as a mediawiki-internal code.
 		$code = Utils::bcp47ToMwCode(
@@ -666,7 +662,6 @@ class ParserFunctions {
 		$target = $args[0]->k;
 		$target = str_replace( ' ', '_', $target ?: ( $this->prefixedTitleText() ) );
 		$wikiConf = $this->env->getSiteConfig();
-		$url = null;
 		if ( $args[1] ) {
 			$url = $wikiConf->server() .
 				$wikiConf->script() .
@@ -704,12 +699,10 @@ class ParserFunctions {
 	}
 
 	public function pf_pagesize( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ '100' ];
 	}
 
 	public function pf_sitename( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ 'MediaWiki' ];
 	}
 
@@ -757,7 +750,6 @@ class ParserFunctions {
 	}
 
 	public function pf_protectionlevel( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ '' ];
 	}
 
@@ -765,7 +757,6 @@ class ParserFunctions {
 		$args = $params->args;
 		$nsid = null;
 		$target = $args[0]->k;
-		$env = $this->env;
 		$normalizedTarget = str_replace( ' ', '_', mb_strtolower( $target ) );
 
 		$siteConfig = $this->env->getSiteConfig();
@@ -783,17 +774,14 @@ class ParserFunctions {
 	}
 
 	public function pf_subjectspace( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ 'Main' ];
 	}
 
 	public function pf_talkspace( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ 'Talk' ];
 	}
 
 	public function pf_numberofarticles( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ '1' ];
 	}
 
@@ -803,7 +791,6 @@ class ParserFunctions {
 	}
 
 	public function pf_contentlanguage( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		// Despite the name, this returns the wiki's default interface language
 		// ($wgLanguageCode), *not* the language of the current page content.
 		// Note: this is exposed as a mediawiki-internal code.
@@ -818,7 +805,6 @@ class ParserFunctions {
 	}
 
 	public function pf_numberoffiles( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ '2' ];
 	}
 
@@ -846,22 +832,18 @@ class ParserFunctions {
 	}
 
 	public function pf_pagename( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ $this->prefixedTitleText() ];
 	}
 
 	public function pf_pagenamebase( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ $this->prefixedTitleText() ];
 	}
 
 	public function pf_scriptpath( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		return [ $this->env->getSiteConfig()->scriptpath() ];
 	}
 
 	public function pf_server( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		$dataParsoid = clone $token->dataParsoid;
 		return [
 			new TagTk( 'a', [
@@ -877,13 +859,11 @@ class ParserFunctions {
 	}
 
 	public function pf_servername( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		$server = $this->env->getSiteConfig()->server();
 		return [ preg_replace( '#^https?://#', '', $server, 1 ) ];
 	}
 
 	public function pf_talkpagename( $token, Frame $frame, Params $params ): array {
-		$args = $params->args;
 		$title = $this->prefixedTitleText();
 		return [ preg_replace( '/^[^:]:/', 'Talk:', $title, 1 ) ];
 	}

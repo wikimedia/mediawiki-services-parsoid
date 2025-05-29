@@ -151,8 +151,6 @@ class DOMDiff {
 
 			// Passed all tests, node itself is equal.
 			if ( $deep ) {
-				$childA = null;
-				$childB = null;
 				// Compare # of children, since that's fast.
 				// (Avoid de-optimizing DOM by using node#childNodes)
 				for ( $childA = $nodeA->firstChild, $childB = $nodeB->firstChild;
@@ -207,7 +205,6 @@ class DOMDiff {
 		// marking using heuristics like look-ahead on siblings.
 		$baseNode = $baseParentNode->firstChild;
 		$newNode = $newParentNode->firstChild;
-		$lookaheadNode = null;
 		$foundDiffOverall = false;
 
 		while ( $baseNode && $newNode ) {

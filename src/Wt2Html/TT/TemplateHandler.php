@@ -401,7 +401,6 @@ class TemplateHandler extends XMLTagBasedHandler {
 
 		// Resolve a possibly relative link and
 		// normalize the target before template processing.
-		$title = null;
 		try {
 			$title = $env->resolveTitle( $target );
 		} catch ( TitleException $e ) {
@@ -726,9 +725,6 @@ class TemplateHandler extends XMLTagBasedHandler {
 	private function processSpecialMagicWord(
 		TemplateEncapsulator $state, array $resolvedTgt
 	): TemplateExpansionResult {
-		$env = $this->env;
-		$tplToken = $state->token;
-
 		// Special case for {{!}} magic word.
 		//
 		// If we tokenized as a magic word, we meant for it to expand to a
@@ -794,7 +790,6 @@ class TemplateHandler extends XMLTagBasedHandler {
 			return $this->convertToString( $token );
 		}
 
-		$toks = null;
 		$text = $token->dataParsoid->src ?? '';
 
 		$tgt = $this->resolveTemplateTarget(

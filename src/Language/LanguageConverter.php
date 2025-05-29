@@ -255,7 +255,6 @@ class LanguageConverter {
 		}
 		// PageConfig guarantees getPageLanguage() never returns null.
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
-		$guesser = null;
 
 		$loadTiming = Timing::start( $env->getSiteConfig() );
 		$languageClass = self::loadLanguage( $env, $pageLangCode );

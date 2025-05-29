@@ -53,7 +53,6 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 	 * @return bool
 	 */
 	private static function removeTransclusionShadows( Node $node ): bool {
-		$sibling = null;
 		$fosteredTransclusions = false;
 		if ( $node instanceof Element ) {
 			if ( DOMUtils::isMarkerMeta( $node, 'mw:TransclusionShadow' ) ) {

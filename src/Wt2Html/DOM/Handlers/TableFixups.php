@@ -77,7 +77,7 @@ class TableFixups {
 		$frame = $dtState->options['frame'];
 
 		$index = 0;
-		foreach ( $transclusions as $i => $tpl ) {
+		foreach ( $transclusions as $tpl ) {
 			$tplDp = DOMDataUtils::getDataParsoid( $tpl );
 			Assert::invariant( Utils::isValidDSR( $tplDp->dsr ?? null ), 'Expected valid DSR' );
 
@@ -284,7 +284,6 @@ class TableFixups {
 		DTState $dtState, Element $cell, ?Element $templateWrapper
 	): void {
 		$env = $dtState->env;
-		$frame = $dtState->options['frame'];
 		// Collect attribute content and examine it
 		$attributishContent = self::collectAttributishContent( $env, $cell, $templateWrapper );
 		if ( !$attributishContent ) {
@@ -374,7 +373,6 @@ class TableFixups {
 	 */
 	private static function stripTrailingPipe( Element $cell ): ?string {
 		$lc = $cell->lastChild;
-		$txt = '';
 		while ( $lc && !( $lc instanceof Text ) ) {
 			$lc = $lc->lastChild;
 		}
@@ -915,7 +913,6 @@ class TableFixups {
 
 		// If the cell didn't have attrs, extract and reparse templated attrs
 		if ( $cellDp->getTempFlag( TempData::NO_ATTRS ) ) {
-			$frame = $dtState->options['frame'];
 			$templateWrapper = DOMUtils::hasTypeOf( $cell, 'mw:Transclusion' ) ? $cell : null;
 			self::reparseTemplatedAttributes( $dtState, $cell, $templateWrapper );
 		}
@@ -940,7 +937,7 @@ class TableFixups {
 				// FIXME: This skips over scenarios like <div>foo||bar</div>.
 				$cellName = DOMCompat::nodeName( $cell );
 				$hasSpanWrapper = !( $child instanceof Text );
-				$match = $match1 = $match2 = null;
+				$match1 = $match2 = null;
 
 				// Find the first match of ||
 				preg_match( '/^((?:[^|]*(?:\|[^|])?)*)\|\|([^|].*)?$/D', $child->textContent, $match1 );

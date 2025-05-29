@@ -197,8 +197,6 @@ class TestUtils {
 			return;
 		}
 
-		$child = null;
-		$next = null;
 		for ( $child = $node->firstChild; $child; $child = $next ) {
 			$next = $child->nextSibling;
 			if ( $child instanceof Element && DOMCompat::nodeName( $child ) === 'span' &&
@@ -229,9 +227,6 @@ class TestUtils {
 	private static function normalizeIEWVisitor(
 		Node $node, array $opts
 	): Node {
-		$child = null;
-		$next = null;
-		$prev = null;
 		if ( DOMCompat::nodeName( $node ) === 'pre' ) {
 			// Preserve newlines in <pre> tags
 			$opts['inPRE'] = true;

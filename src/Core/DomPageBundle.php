@@ -229,7 +229,6 @@ class DomPageBundle implements JsonCodecable {
 	 * @return DomPageBundle
 	 */
 	public static function fromSingleDocument( Document $doc, array $options = [] ): DomPageBundle {
-		$pb = null;
 		$dpScriptElt = DOMCompat::getElementById( $doc, 'mw-pagebundle' );
 		Assert::invariant( $dpScriptElt !== null, "no page bundle found" );
 		$dpScriptElt->parentNode->removeChild( $dpScriptElt );

@@ -101,7 +101,7 @@ class Parsoid {
 	 * @return string|null
 	 */
 	public static function resolveContentVersion( string $version ) {
-		foreach ( self::AVAILABLE_VERSIONS as $i => $a ) {
+		foreach ( self::AVAILABLE_VERSIONS as $a ) {
 			if ( Semver::satisfies( $a, "^{$version}" ) &&
 				// The section wrapping in 1.6.x should have induced a major
 				// version bump, since it requires upgrading clients to

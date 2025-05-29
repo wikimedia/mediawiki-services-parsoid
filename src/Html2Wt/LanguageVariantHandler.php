@@ -148,7 +148,6 @@ class LanguageVariantHandler {
 		$flSp = self::expandSpArray( $dp->flSp ?? [] );
 		$textSp = self::expandSpArray( $dp->tSp ?? [] );
 		$trailingSemi = false;
-		$text = null;
 		$flags = [];
 		$originalFlags = [];
 		if ( isset( $dp->fl ) ) {

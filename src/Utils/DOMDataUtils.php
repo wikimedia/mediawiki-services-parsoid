@@ -1370,7 +1370,6 @@ class DOMDataUtils {
 				) {
 					continue; // skip this for now
 				}
-				$flat = null;
 				if ( is_array( $v ) ) {
 					// If $v is an array, it was never decoded.
 					$json = $v[0];

@@ -64,7 +64,6 @@ class ExtensionHandler extends XMLTagBasedHandler {
 	private function onExtension( Token $token ): array {
 		$env = $this->env;
 		$siteConfig = $env->getSiteConfig();
-		$pageConfig = $env->getPageConfig();
 		$extensionName = $token->getAttributeV( 'name' );
 		$extConfig = $env->getSiteConfig()->getExtTagConfig( $extensionName );
 

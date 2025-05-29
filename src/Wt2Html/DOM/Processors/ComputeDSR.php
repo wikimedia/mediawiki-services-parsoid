@@ -544,7 +544,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						$newDsr = [ $ccs, $cce ];
 					} else {
 						$env->trace( "dsr", static function () use (
-							$env, $cs, $ce, $stWidth, $etWidth, $ccs, $cce
+							$cs, $ce, $stWidth, $etWidth, $ccs, $cce
 						) {
 							return "     before-recursing:" .
 								"[cs,ce]=" . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
@@ -595,7 +595,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 						$dp->dsr = new DomSourceRange( $cs, $ce, $stWidth, $etWidth );
 					}
 
-					$env->trace( "dsr", static function () use ( $frame, $child, $cs, $ce, $dp ) {
+					$env->trace( "dsr", static function () use ( $child, $cs, $ce ) {
 						return "     UPDATING " . DOMCompat::nodeName( $child ) .
 							" with " . PHPUtils::jsonEncode( [ $cs, $ce ] ) .
 							"; typeof: " . ( DOMCompat::getAttribute( $child, "typeof" ) ?? '' );
@@ -636,7 +636,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 							}
 
 							// Update and move right
-							$env->trace( "dsr", static function () use ( $frame, $newCE, $sibling, $siblingDP ) {
+							$env->trace( "dsr", static function () use ( $newCE, $sibling, $siblingDP ) {
 								return "     CHANGING ce.start of " . DOMCompat::nodeName( $sibling ) .
 									" from " . $siblingDP->dsr->start . " to " . $newCE;
 							} );

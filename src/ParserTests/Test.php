@@ -278,8 +278,6 @@ class Test extends Item {
 		// a good way to get at the text and comment nodes
 		$jquery = [
 			'after' => static function ( Node $node, string $html ) {
-				$div = null;
-				$tbl = null;
 				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
@@ -316,8 +314,6 @@ class Test extends Item {
 				$node->setAttribute( $name, $val );
 			},
 			'before' => static function ( Node $node, string $html ) {
-				$div = null;
-				$tbl = null;
 				if ( DOMCompat::nodeName( $node->parentNode ) === 'tbody' ) {
 					$tbl = $node->ownerDocument->createElement( 'table' );
 					DOMCompat::setInnerHTML( $tbl, $html );
@@ -462,7 +458,6 @@ class Test extends Item {
 			$str = $randomString();
 			$ownerDoc = $n->ownerDocument;
 			$wrapperName = null;
-			$newNode = null;
 
 			// Don't separate legacy IDs from their H? node.
 			if ( WTUtils::isFallbackIdSpan( $n ) ) {
@@ -746,7 +741,6 @@ class Test extends Item {
 
 		$body = DOMCompat::getBody( $doc );
 
-		$changetree = null;
 		$numAttempts = 0;
 		do {
 			$numAttempts++;

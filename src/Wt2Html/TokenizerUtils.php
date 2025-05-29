@@ -243,7 +243,6 @@ class TokenizerUtils {
 	public static function buildXMLTag( string $name, string $lcName, array $attribs, $endTag,
 		bool $selfClose, SourceRange $tsr
 	): Token {
-		$tok = null;
 		$da = new DataParsoid;
 		$da->tsr = $tsr;
 		$da->stx = 'html';

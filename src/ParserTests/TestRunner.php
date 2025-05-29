@@ -366,7 +366,6 @@ class TestRunner {
 	 * @return string
 	 */
 	private function convertHtml2Wt( Env $env, Test $test, string $mode, Document $doc ): string {
-		$startsAtWikitext = $mode === 'wt2wt' || $mode === 'wt2html' || $mode === 'selser';
 		if ( $mode === 'selser' ) {
 			$selserData = new SelectiveUpdateData( $test->wikitext, $test->cachedBODYstr );
 		} else {
@@ -449,7 +448,6 @@ class TestRunner {
 			!isset( $testOpts['parsoid']['normalizePhp'] )
 		);
 		$test->time['start'] = hrtime( true );
-		$doc = null;
 		$wt = null;
 
 		if ( isset( $test->sections['html/parsoid+standalone'] ) ) {
@@ -1182,7 +1180,6 @@ class TestRunner {
 		// Ensure ParserHook is always registered!
 		$teardown[] = $this->siteConfig->registerParserTestExtension( ParserHook::class );
 
-		$runner = $this;
 		$test->testAllModes( $targetModes, $options, Closure::fromCallable( [ $this, 'runTest' ] ) );
 
 		foreach ( array_reverse( $teardown ) as $t ) {

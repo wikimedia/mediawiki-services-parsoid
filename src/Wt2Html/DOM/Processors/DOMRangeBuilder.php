@@ -207,7 +207,6 @@ class DOMRangeBuilder {
 			if ( $startsInFosterablePosn ) {
 				// Expand range!
 				$range->start = $range->end = $range->start->parentNode;
-				$startsInFosterablePosn = false;
 			} else {
 				$emptySpan = $this->document->createElement( 'span' );
 				$range->start->parentNode->insertBefore( $emptySpan, $endElem );
@@ -585,7 +584,7 @@ class DOMRangeBuilder {
 
 			$this->verifyTplInfoExpectation( $templateInfo, $tmp );
 
-			$this->env->trace( "{$this->traceType}/merge", static function () use ( &$DOMDataUtils, &$r ) {
+			$this->env->trace( "{$this->traceType}/merge", static function () use ( &$r ) {
 				$msg = '';
 				$dp1 = DOMDataUtils::getDataParsoid( $r->start );
 				$dp2 = DOMDataUtils::getDataParsoid( $r->end );

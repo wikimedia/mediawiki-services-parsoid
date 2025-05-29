@@ -95,7 +95,6 @@ class AttributeExpander extends UniversalTokenHandler {
 		$preNLBuf = [];
 		$postNLBuf = null;
 		$startMeta = null;
-		$metaTokens = null;
 
 		// Split the token array around the first newline token.
 		$startMetaIndex = null;
@@ -268,7 +267,6 @@ class AttributeExpander extends UniversalTokenHandler {
 		// objects in the common case where nothing of significance
 		// happens in this code.
 		$newAttrs = null;
-		$nlTkPos = -1;
 		$nlTkOkay = TokenUtils::isHTMLTag( $token ) || !TokenUtils::isTableTag( $token );
 		$annotationTypes = [];
 

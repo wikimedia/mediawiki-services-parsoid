@@ -555,7 +555,6 @@ class Env {
 		$origName = $str;
 		$str = trim( $str );
 
-		$pageConfig = $this->getPageConfig();
 		$title = $this->getContextTitle();
 
 		// Resolve lonely fragments (important if the current page is a subpage,

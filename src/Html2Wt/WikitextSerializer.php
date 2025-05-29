@@ -538,7 +538,7 @@ class WikitextSerializer {
 		}
 		// Canonical parameter key gets the same order as an alias parameter
 		// found in the original wikitext.
-		foreach ( $dpArgInfo as $i => $argInfo ) {
+		foreach ( $dpArgInfo as $argInfo ) {
 			$canon = $aliasMap[$argInfo->k] ?? null;
 			if ( $canon !== null && !array_key_exists( $canon['key'], $origOrder ) ) {
 				$origOrder[$canon['key']] = $origOrder[$argInfo->k];
@@ -722,7 +722,6 @@ class WikitextSerializer {
 
 			// The name is usually equal to the parameter key, but
 			// if there's a key->wt attribute, use that.
-			$name = null;
 			if ( $param->keyWt !== null ) {
 				$name = $param->keyWt;
 				// And make it appear even if there wasn't any data-parsoid information.
@@ -913,7 +912,6 @@ class WikitextSerializer {
 			//
 			// Fetch template data for the template
 			$tplData = null;
-			$apiResp = null;
 			if ( $part->href !== null && $useTplData ) {
 				// Not a parser function
 				try {
@@ -1223,7 +1221,6 @@ class WikitextSerializer {
 	 */
 	public function serializeNode( Node $node ): ?Node {
 		$nodeName = DOMCompat::nodeName( $node );
-		$domHandler = $method = null;
 		$domHandlerFactory = new DOMHandlerFactory();
 		$state = $this->state;
 		$state->currNode = $node;
@@ -1357,7 +1354,7 @@ class WikitextSerializer {
 			$reqd = !preg_match( $this->env->getSiteConfig()->solTransparentWikitextRegexp(), $rest );
 
 			if ( $reqd ) {
-				foreach ( $htmlTags[0] as $j => $rawTagName ) {
+				foreach ( $htmlTags[0] as $rawTagName ) {
 					// Strip </, attributes, and > to get the tagname
 					$tagName = preg_replace( '/<\/?|\s.*|>/', '', $rawTagName );
 					if ( !isset( Consts::$HTML['HTML5Tags'][$tagName] ) ) {

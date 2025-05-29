@@ -276,7 +276,6 @@ class ContentUtils {
 	public static function shiftDSR(
 		Env $env, Node $rootNode, callable $dsrFunc, ParsoidExtensionAPI $extAPI
 	): Node {
-		$doc = $rootNode->ownerDocument;
 		$convertNode = static function ( Node $node ) use (
 			$env, $extAPI, $dsrFunc, &$convertNode
 		) {

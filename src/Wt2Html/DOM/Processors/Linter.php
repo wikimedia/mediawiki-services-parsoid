@@ -201,7 +201,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 					"a single part will always be a TemplateInfo not a string"
 				);
 			}
-			$name = null;
 			if ( $p0->href !== null ) { // Could be "function"
 				// PORT-FIXME: Should that be SiteConfig::relativeLinkPrefix() rather than './'?
 				$name = PHPUtils::stripPrefix( $p0->href, './' );
@@ -273,7 +272,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 			return $this->hasMisnestableContent( $node->parentNode, $name );
 		}
 
-		$contentNode = null;
 		if ( DOMCompat::nodeName( $next ) === 'p' && !WTUtils::isLiteralHTMLNode( $next ) ) {
 			$contentNode = DiffDOMUtils::firstNonSepChild( $next );
 		} else {
@@ -385,7 +383,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// We record the original DSR in the tmp attribute
 		// for that reason.
 		$dsr = self::findLintDSR( $tplLintInfo, $tplInfo, $dp->tmp->origDSR ?? $dp->dsr ?? null );
-		$lintObj = null;
 		if ( DOMUtils::isMarkerMeta( $c, 'mw:Placeholder/StrippedTag' ) ) {
 			$lintObj = [
 				'dsr' => $dsr,
@@ -406,7 +403,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		//
 		// 4. c doesn't have DSR info and doesn't come from a template either
 		$cNodeName = DOMCompat::nodeName( $c );
-		$ancestor = null;
 		$isHtmlElement = WTUtils::hasLiteralHTMLMarker( $dp );
 		if ( !Utils::isVoidElement( $cNodeName ) &&
 			$cNodeName !== 'tbody' &&
@@ -594,7 +590,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 			$this->obsoleteTagsRE = '/^(?:' . implode( '|', $elts ) . ')$/D';
 		}
 
-		$tplLintInfo = null;
 		if ( ( empty( $dp->autoInsertedStart ) || empty( $dp->autoInsertedEnd ) ) &&
 			preg_match( $this->obsoleteTagsRE, DOMCompat::nodeName( $c ) )
 		) {
@@ -874,7 +869,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 		// If so, editors would need to edit this run of nodes to introduce
 		// whitespace breaks as necessary so that HTML5 browsers get that
 		// same opportunity when Tidy is removed.
-		$s = null;
 		$nowrapNodes = [];
 		'@phan-var array<array{node:Node,tidybug:bool,hasLeadingWS:bool}> $nowrapNodes';
 		$startNode = $node;
@@ -1096,7 +1090,6 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private function lintMultilineHtmlTableInList(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
 	): void {
-		$li = null;
 		if ( !WTUtils::isLiteralHTMLNode( $node ) ||
 			DOMCompat::nodeName( $node ) !== 'table' ||
 			// phpcs:ignore Generic.CodeAnalysis.AssignmentInCondition.Found

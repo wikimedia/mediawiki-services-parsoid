@@ -184,10 +184,6 @@ class SelectiveSerializer {
 	 * @return string
 	 */
 	public function serializeDOM( Document $doc ): string {
-		$serializeStart = null;
-		$domDiffStart = null;
-		$r = null;
-
 		$body = DOMCompat::getBody( $doc );
 		$oldBody = DOMCompat::getBody( $this->selserData->revDOM );
 

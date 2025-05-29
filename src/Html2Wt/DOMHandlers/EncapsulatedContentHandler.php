@@ -40,7 +40,6 @@ class EncapsulatedContentHandler extends DOMHandler {
 		$serializer = $state->serializer;
 		$dp = DOMDataUtils::getDataParsoid( $node );
 		$dataMw = DOMDataUtils::getDataMw( $node );
-		$src = null;
 		$transclusionType = DOMUtils::matchTypeOf( $node, '/^mw:(Transclusion|Param)$/' );
 		$extTagName = WTUtils::getExtTagName( $node );
 		if ( $transclusionType ) {

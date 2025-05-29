@@ -49,9 +49,6 @@ class SanitizerHandler extends UniversalTokenHandler {
 	private function sanitizeToken(
 		SiteConfig $siteConfig, Frame $frame, $token, bool $inTemplate
 	) {
-		$i = null;
-		$l = null;
-		$kv = null;
 		$attribs = $token->attribs ?? null;
 		$allowedTags = Consts::$Sanitizer['AllowedLiteralTags'];
 

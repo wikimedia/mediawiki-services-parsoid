@@ -44,7 +44,6 @@ class RemoveRedLinks {
 					// believe that the order of the parameters should not be modified here.
 					// There is however no guarantee whatsoever in the documentation or spec
 					// of these methods.
-					$newQueryParams = http_build_query( $queryElts );
 
 					if ( count( $queryElts ) === 0 ) {
 						// avoids the insertion of ? on empty query string

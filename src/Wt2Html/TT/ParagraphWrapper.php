@@ -315,7 +315,6 @@ class ParagraphWrapper extends LineBasedHandler {
 	private function processPendingNLs(): array {
 		$resToks = $this->tokenBuffer;
 		$newLineCount = $this->newLineCount;
-		$nlTk = null;
 		$nlOffset = 0;
 
 		$this->env->trace( 'p-wrap', $this->pipelineId, '        NL-count:', $newLineCount );
@@ -399,7 +398,6 @@ class ParagraphWrapper extends LineBasedHandler {
 	 */
 	public function onAny( $token ): ?array {
 		$this->env->trace( 'p-wrap', $this->pipelineId, 'ANY   |', $token );
-		$res = null;
 
 		if ( is_string( $token ) ||
 			$token instanceof CommentTk || TokenUtils::isEmptyLineMetaToken( $token )

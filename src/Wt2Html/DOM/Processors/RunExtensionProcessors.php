@@ -80,7 +80,7 @@ class RunExtensionProcessors implements Wt2HtmlDOMProcessor {
 	private function initialize( Env $env ): array {
 		$extProcessors = [];
 		foreach ( $env->getSiteConfig()->getExtDOMProcessors() as $extName => $domProcs ) {
-			foreach ( $domProcs as $i => $classNameOrSpec ) {
+			foreach ( $domProcs as $classNameOrSpec ) {
 				// Extension post processor, object factory spec given
 				$objectFactory = $env->getSiteConfig()->getObjectFactory();
 				$extProcessors[] = $objectFactory->createObject( $classNameOrSpec, [

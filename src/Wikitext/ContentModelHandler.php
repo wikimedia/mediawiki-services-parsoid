@@ -220,7 +220,7 @@ class ContentModelHandler extends IContentModelHandler {
 
 		// Run any registered DOM preprocessors
 		foreach ( $siteConfig->getExtDOMProcessors() as $extName => $domProcs ) {
-			foreach ( $domProcs as $i => $classNameOrSpec ) {
+			foreach ( $domProcs as $classNameOrSpec ) {
 				$c = $siteConfig->getObjectFactory()->createObject( $classNameOrSpec, [
 					'allowClassName' => true,
 					'assertClass' => ExtDOMProcessor::class,

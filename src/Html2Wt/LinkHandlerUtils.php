@@ -623,7 +623,6 @@ class LinkHandlerUtils {
 	private static function serializeAsWikiLink(
 		Element $node, SerializerState $state, stdClass $linkData
 	): void {
-		$contentParts = null;
 		$contentSrc = '';
 		$isPiped = false;
 		$needsEscaping = true;
@@ -830,7 +829,6 @@ class LinkHandlerUtils {
 			$state->redirectText = 'unbuffered';
 		}
 
-		$pipedText = null;
 		if ( $escapedTgt && $escapedTgt->invalidLink ) {
 			// If the link target was invalid, instead of emitting an invalid link,
 			// omit the link and serialize just the content instead. But, log the
@@ -906,8 +904,6 @@ class LinkHandlerUtils {
 
 		// serialize as auto-numbered external link
 		// [http://example.com]
-		$linktext = null;
-		$class = null;
 		// If it's just anchor text, serialize as an internal link.
 		if ( $pureHashMatch ) {
 			$class = WikiLinkText::class;
@@ -1018,7 +1014,6 @@ class LinkHandlerUtils {
 			$hrefStr = self::escapeExtLinkURL( self::getHref( $env, $node ) );
 			$handler = [ $state->serializer->wteHandlers, 'aHandler' ];
 			$str = $state->serializeLinkChildrenToString( $node, $handler );
-			$chunk = null;
 			if ( !$hrefStr ) {
 				// Without an href, we just emit the string as text.
 				// However, to preserve targets for anchor links,
@@ -1143,7 +1138,6 @@ class LinkHandlerUtils {
 		};
 
 		// Try to identify the local title to use for the link.
-		$link = null;
 
 		$linkFromDataMw = WTSUtils::getAttrFromDataMw( $outerDMW, 'link', true );
 		if ( $linkFromDataMw !== null ) {
@@ -1299,7 +1293,6 @@ class LinkHandlerUtils {
 		// can also be "extra" classes added by `img_class` as well.)
 		$classes = DOMCompat::getClassList( $outerElt );
 		$extra = []; // 'extra' classes
-		$val = null;
 
 		foreach ( $classes as $c ) {
 			switch ( $c ) {

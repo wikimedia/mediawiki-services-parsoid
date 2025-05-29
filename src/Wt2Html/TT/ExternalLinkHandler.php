@@ -80,8 +80,6 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 	 * @return ?array<string|Token>
 	 */
 	private function onUrlLink( Token $token ): ?array {
-		$tagAttrs = null;
-		$builtTag = null;
 		$env = $this->env;
 		$origHref = $token->getAttributeV( 'href' );
 		$href = TokenUtils::tokensToString( $origHref );
@@ -144,8 +142,6 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 	 * @return ?array<string|Token>
 	 */
 	private function onExtLink( Token $token ): ?array {
-		$newAttrs = null;
-		$aStart = null;
 		$env = $this->env;
 		$origHref = $token->getAttributeV( 'href' );
 		$hasExpandedAttrs = TokenUtils::hasTypeOf( $token, 'mw:ExpandedAttrs' );
@@ -160,7 +156,6 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 		$magLinkType = TokenUtils::matchTypeOf(
 			$token, '#^mw:(Ext|Wiki)Link/(ISBN|RFC|PMID)$#'
 		);
-		$tokens = null;
 
 		if ( $magLinkType ) {
 			$newHref = $href;

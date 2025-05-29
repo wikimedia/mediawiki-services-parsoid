@@ -105,7 +105,6 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		$tsr = $dataParsoid->tsr;
 		$flags = $dataParsoid->flags;
 		$flagSp = $dataParsoid->flagSp;
-		$isMeta = false;
 		$sawFlagA = false;
 
 		// remove trailing semicolon marker, if present
@@ -118,9 +117,6 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		// convert all variant texts to DOM
 		$isBlock = false;
 		$texts = array_map( function ( array $t ) use ( $manager, $options, $attribs, &$isBlock ) {
-			$text = null;
-			$from = null;
-			$to = null;
 			if ( isset( $t['twoway'] ) ) {
 				$text = $this->convertOne( $manager, $options, $t['text'], $attribs );
 				$isBlock = $isBlock || !empty( $text['isBlock'] );
@@ -160,7 +156,6 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 		// To avoid too much data-mw bloat, only the top level keys in
 		// data-mw-variant are "human readable".  Nested keys are single-letter:
 		// `l` for `language`, `t` for `text` or `to`, `f` for `from`.
-		$dataMWV = null;
 		if ( count( $flags ) === 0 && count( $dataParsoid->variants ) > 0 ) {
 			// "Restrict possible variants to a limited set"
 			$dataMWV = [

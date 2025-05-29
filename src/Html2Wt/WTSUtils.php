@@ -195,9 +195,6 @@ class WTSUtils {
 	 * @return bool
 	 */
 	public static function origSrcValidInEditedContext( SerializerState $state, Node $node ): bool {
-		$env = $state->getEnv();
-		$prev = null;
-
 		if ( WTUtils::isRedirectLink( $node ) ) {
 			return DOMUtils::atTheTop( $node->parentNode ) && !$node->previousSibling;
 		} elseif ( self::dsrContainsOpenExtendedRangeAnnotationTag( $node, $state ) ) {

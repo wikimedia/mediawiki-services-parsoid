@@ -137,7 +137,6 @@ class ParserHook extends ExtensionTagHandler implements ExtensionModule {
 			// FIXME: One-off PHP parser state leak. This needs a better solution.
 			'inPHPBlock' => true
 		];
-		$src = '';
 		if ( $wrapperUnmodified && isset( $dataMw->body->extsrc ) ) {
 			$src = $dataMw->body->extsrc;
 		} elseif ( $extName === 'embedtag' && isset( $dataMw->body->html ) ) {

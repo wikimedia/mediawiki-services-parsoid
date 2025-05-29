@@ -561,7 +561,6 @@ class PipelineUtils {
 			}
 		}
 
-		$wrapperName = null;
 		if ( $wrapperType === 'BLOCK' && !DOMUtils::isWikitextBlockNode( $node ) ) {
 			$wrapperName = 'div';
 		} elseif ( DOMCompat::nodeName( $node ) === 'a' ) {
