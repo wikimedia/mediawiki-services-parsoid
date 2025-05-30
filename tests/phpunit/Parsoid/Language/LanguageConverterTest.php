@@ -16,7 +16,8 @@ class LanguageConverterTest extends TestCase {
 		$env = self::getMockEnv( 'de' );
 		$doc = DOMCompat::newDocument( true );
 
-		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
+		$langconv = LanguageConverter::loadLanguageConverter( $env );
+		$variants = LanguageConverter::autoConvertToAllVariants( $doc, 'test', $langconv );
 
 		$this->assertSame( [], $variants );
 	}
@@ -26,7 +27,8 @@ class LanguageConverterTest extends TestCase {
 		$env = self::getMockEnv( 'sr' );
 		$doc = DOMCompat::newDocument( true );
 
-		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, '123' );
+		$langconv = LanguageConverter::loadLanguageConverter( $env );
+		$variants = LanguageConverter::autoConvertToAllVariants( $doc, '123', $langconv );
 
 		$this->assertSame( [], $variants );
 	}
@@ -36,7 +38,8 @@ class LanguageConverterTest extends TestCase {
 		$env = self::getMockEnv( 'sr' );
 		$doc = DOMCompat::newDocument( true );
 
-		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
+		$langconv = LanguageConverter::loadLanguageConverter( $env );
+		$variants = LanguageConverter::autoConvertToAllVariants( $doc, 'test', $langconv );
 
 		$this->assertSame( [ 'sr-ec' => 'тест' ], $variants );
 	}
@@ -46,7 +49,8 @@ class LanguageConverterTest extends TestCase {
 		$env = self::getMockEnv( 'zh' );
 		$doc = DOMCompat::newDocument( true );
 
-		$variants = LanguageConverter::autoConvertToAllVariants( $env, $doc, 'test' );
+		$langconv = LanguageConverter::loadLanguageConverter( $env );
+		$variants = LanguageConverter::autoConvertToAllVariants( $doc, 'test', $langconv );
 
 		$this->assertSame( [], $variants );
 	}

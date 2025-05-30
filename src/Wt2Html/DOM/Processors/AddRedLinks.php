@@ -198,6 +198,8 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 		$origsByVariant = [];
 
+		$langConverter = LanguageConverter::loadLanguageConverter( $env );
+
 		// Gather all nonexistent page titles to search for their variants
 		foreach ( array_keys( $titles ) as $title ) {
 			if (
@@ -210,7 +212,7 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 			// array_keys converts strings representing numbers to ints.
 			// So, cast $title to string explicitly.
-			$variantTitles = LanguageConverter::autoConvertToAllVariants( $env, $doc, (string)$title );
+			$variantTitles = LanguageConverter::autoConvertToAllVariants( $doc, (string)$title, $langConverter );
 
 			foreach ( $variantTitles as $variantTitle ) {
 				$origsByVariant[$variantTitle][] = $title;
@@ -244,7 +246,6 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 				}
 			}
 		}
-
 		return $variantsByOrig;
 	}
 }

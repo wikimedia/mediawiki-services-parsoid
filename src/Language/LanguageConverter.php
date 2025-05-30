@@ -348,37 +348,39 @@ class LanguageConverter {
 		return $validTarget;
 	}
 
-	/**
-	 * Convert a string in an unknown variant of the page language to all its possible variants.
-	 *
-	 * @param Env $env
-	 * @param Document $doc
-	 * @param string $text
-	 * @return string[] map of converted variants keyed by variant language
-	 */
-	public static function autoConvertToAllVariants(
-		Env $env,
-		Document $doc,
-		string $text
-	): array {
+	public static function loadLanguageConverter( Env $env ): ?LanguageConverter {
 		$pageLangCode = $env->getPageConfig()->getPageLanguageBcp47();
-
-		// Parsoid's Chinese language converter implementation is not performant enough,
-		// so disable it explicitly (T346657).
-		if ( $pageLangCode->toBcp47Code() === 'zh' ) {
-			return [];
-		}
 
 		if ( $env->getSiteConfig()->variantsFor( $pageLangCode ) === null ) {
 			// Optimize for the common case where the page language has no variants.
-			return [];
+			return null;
 		}
 
 		$languageClass = self::loadLanguage( $env, $pageLangCode );
 		$lang = new $languageClass();
-		$langconv = $lang->getConverter();
+		return $lang->getConverter();
+	}
 
+	/**
+	 * Convert a string in an unknown variant of the page language to all its possible variants.
+	 *
+	 * @param Document $doc
+	 * @param string $text
+	 * @param LanguageConverter|null $langconv
+	 * @return string[] map of converted variants keyed by variant language
+	 */
+	public static function autoConvertToAllVariants(
+		Document $doc,
+		string $text,
+		?LanguageConverter $langconv
+	): array {
 		if ( $langconv === null || $langconv->getMachine() === null ) {
+			return [];
+		}
+
+		// Parsoid's Chinese language converter implementation is not performant enough,
+		// so disable it explicitly (T346657).
+		if ( $langconv instanceof ZhConverter ) {
 			return [];
 		}
 
