@@ -146,10 +146,13 @@ class DiffUtils {
 		}
 		// If there's no special attribute handler, we want a straight
 		// comparison of these.
+		// XXX This has the side-effect of allocating empty DataParsoid/DataMw
+		// on each node; also we should ideally treat all rich attributes
+		// consistently.
 		if ( !in_array( 'data-parsoid', $ignoreableAttribs, true ) ) {
 			$h['data-parsoid'] = DOMDataUtils::getDataParsoid( $node );
 		}
-		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) && !DOMDataUtils::getDataMw( $node )->isEmpty() ) {
+		if ( !in_array( 'data-mw', $ignoreableAttribs, true ) ) {
 			$h['data-mw'] = DOMDataUtils::getDataMw( $node );
 		}
 		return $h;
@@ -184,10 +187,16 @@ class DiffUtils {
 				return false;
 			}
 
+			// Use a specialized compare function, if provided
 			$attribEquals = $specializedAttribHandlers[$k] ?? null;
 			if ( $attribEquals ) {
-				// Use a specialized compare function, if provided
-				if ( !$hA[$k] || !$hB[$k] || !$attribEquals( $nodeA, $hA[$k], $nodeB, $hB[$k] ) ) {
+				if ( $hA[$k] === null && $hB[$k] === null ) {
+					/* two nulls count as equal */
+				} elseif ( $hA[$k] === null || $hB[$k] === null ) {
+					/* only one null => not equal */
+					return false;
+				// only invoke attribute comparator when both are non-null
+				} elseif ( !$attribEquals( $nodeA, $hA[$k], $nodeB, $hB[$k] ) ) {
 					return false;
 				}
 			} elseif ( $hA[$k] !== $hB[$k] ) {
