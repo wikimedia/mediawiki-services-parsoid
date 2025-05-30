@@ -36,7 +36,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	private ?string $obsoleteTagsRE = null;
 	private array $seenIds = [];
 
-	/** @var array<string,bool>|null */
+	/** @var ?array<string,true> */
 	private ?array $tagsWithChangedMisnestingBehavior = null;
 
 	/**
@@ -77,8 +77,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * https://phabricator.wikimedia.org/T176363#3628173 verifies that this list of
 	 * tags all demonstrate this behavior.
 	 *
-	 * @return array
-	 * @phan-return array<string,bool>
+	 * @return array<string,true>
 	 */
 	private function getTagsWithChangedMisnestingBehavior(): array {
 		if ( $this->tagsWithChangedMisnestingBehavior === null ) {
@@ -175,6 +174,8 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 * FIXME: We might potentially be computing this information redundantly
 	 * for every lint we find within this template's content. It could probably
 	 * be cached in tplInfo after it is computed once.
+	 *
+	 * @return ?array{multiPartTemplateBlock?: true, name?: string}
 	 */
 	public static function findEnclosingTemplateName( Env $env, ?stdClass $tplInfo ): ?array {
 		if ( !$tplInfo ) {
@@ -1289,7 +1290,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	 */
 	private function lintIds(
 		Env $env, Element $node, DataParsoid $dp, ?stdClass $tplInfo
-	) {
+	): void {
 		$id = DOMCompat::getAttribute( $node, 'id' );
 
 		if ( DOMUtils::isHeading( $node ) ) {

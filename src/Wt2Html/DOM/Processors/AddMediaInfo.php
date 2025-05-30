@@ -23,15 +23,17 @@ use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
 
 class AddMediaInfo implements Wt2HtmlDOMProcessor {
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
 	/**
 	 * Extract the dimensions for media.
 	 *
 	 * @param Env $env
-	 * @param array $attrs
-	 * @param array $info
-	 * @phan-param array{size:array{height?:int,width?:int},format:string} $attrs
-	 * @return array
+	 * @param array{dims:array{height?:int,width?:int},format:string} $attrs
+	 * @param array{height:int,width:int,thumburl?:string,thumbheight?:int,thumbwidth?:int,mediatype:string,mustRender?:mixed} $info
+	 * @return array{height: int, width: int}
 	 */
+	// phpcs:enable Generic.Files.LineLength.TooLong
 	private static function handleSize( Env $env, array $attrs, array $info ): array {
 		$height = $info['height'];
 		$width = $info['width'];

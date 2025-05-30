@@ -181,9 +181,10 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param Env $env
 	 * @param Document $doc
-	 * @param array $titles map keyed by page titles
-	 * @param array $titleMap map of resolved page data keyed by title
-	 * @return array map of resolved variant page data keyed by original title
+	 * @param array<string,true> $titles map keyed by page titles
+	 * @param array<string,array> $titleMap map of resolved page data keyed by title
+	 *
+	 * @return array<string,array> map of resolved variant page data keyed by original title
 	 */
 	private function getVariantTitles(
 		Env $env,

@@ -24,7 +24,7 @@ use Wikimedia\Parsoid\Wt2Html\TT\PreHandler;
 class CleanUp {
 	/**
 	 * @param Element $node
-	 * @return bool|Element
+	 * @return bool|?Node
 	 */
 	public static function stripMarkerMetas( Element $node ) {
 		// This meta tag can never have data-mw associated with it.
@@ -122,7 +122,7 @@ class CleanUp {
 	/**
 	 * @param Node $node
 	 * @param DTState $state
-	 * @return bool|Node
+	 * @return bool|?Node
 	 */
 	public static function handleEmptyElements( Node $node, DTState $state ) {
 		// Set by isEmptyNode() to indicate whether a node which is "empty" contained
@@ -261,7 +261,7 @@ class CleanUp {
 	 *
 	 * @param Node $node
 	 * @param DTState $state
-	 * @return bool|Node The next node or true to continue with $node->nextSibling
+	 * @return bool|?Node The next node or true to continue with $node->nextSibling
 	 */
 	public static function finalCleanup( Node $node, DTState $state ) {
 		if ( !( $node instanceof Element ) ) {
@@ -359,7 +359,7 @@ class CleanUp {
 	 *
 	 * @param Node $node
 	 * @param DTState $state
-	 * @return bool|Node The next node or true to continue with $node->nextSibling
+	 * @return bool|?Node The next node or true to continue with $node->nextSibling
 	 */
 	public static function markDiscardableDataParsoid( Node $node, DTState $state ) {
 		if ( !( $node instanceof Element ) ) {

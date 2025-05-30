@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\InternalException;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wt2Html\DOM\Handlers\AddAnnotationIds;
@@ -483,12 +484,16 @@ class ParserPipelineFactory {
 		$this->env = $env;
 	}
 
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
 	/**
 	 * Default options processing
 	 *
 	 * @param array $options
-	 * @return array
+	 *
+	 * @return array{expandTemplates:bool, inTemplate:bool, extTag?:bool, extTagOpts?:bool, inlineContext?:bool, attrExpansion?:bool}
 	 */
+	// phpcs:enable Generic.Files.LineLength.TooLong
 	private function defaultOptions( array $options ): array {
 		// default: not in a template
 		$options['inTemplate'] ??= false;
@@ -507,6 +512,10 @@ class ParserPipelineFactory {
 		return $options;
 	}
 
+	/**
+	 * @param list<string> $procNames
+	 * @return list<array{name:string,shortcut:string,Processor:class-string}>
+	 */
 	public static function procNamesToProcs( array $procNames ): array {
 		$processors = [];
 		foreach ( $procNames as $name ) {
@@ -607,7 +616,9 @@ class ParserPipelineFactory {
 			'toFragment' => false,
 		] );
 		// Top-level doc parsing always start in SOL state
-		return $pipe->parseChunkily( $src, [ 'sol' => true ] )->ownerDocument;
+		$body = $pipe->parseChunkily( $src, [ 'sol' => true ] );
+		'@phan-var Element $body'; // @var Element $body
+		return $body->ownerDocument;
 	}
 
 	/**

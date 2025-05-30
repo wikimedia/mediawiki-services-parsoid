@@ -298,7 +298,8 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 	 * @param ?int $e end position, exclusive
 	 * @param int $dsrCorrection
 	 * @param array $opts
-	 * @return array
+	 *
+	 * @return list{?int, ?int}
 	 */
 	private function computeNodeDSR(
 		Frame $frame, Node $node, ?int $s, ?int $e, int $dsrCorrection,

@@ -69,7 +69,7 @@ class ContentModelHandler extends IContentModelHandler {
 	 */
 	private function setupSelser(
 		ParsoidExtensionAPI $extApi, SelectiveUpdateData $selserData
-	) {
+	): void {
 		$env = $this->env;
 
 		// Why is it safe to use a reparsed dom for dom diff'ing?

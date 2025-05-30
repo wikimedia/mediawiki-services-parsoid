@@ -93,9 +93,9 @@ class Frame {
 
 	/**
 	 * Expand / convert a thunk (a chunk of tokens not yet fully expanded).
-	 * @param array<Token|string> $chunk
-	 * @param array $options
-	 * @return array<Token|string>
+	 * @param list<Token|string> $chunk
+	 * @param array{expandTemplates:bool,inTemplate:bool,attrExpansion?:bool,srcOffsets?:?SourceRange} $options
+	 * @return list<Token|string>
 	 */
 	public function expand( array $chunk, array $options ): array {
 		$this->env->log( 'debug', 'Frame.expand', $chunk );
@@ -167,7 +167,8 @@ class Frame {
 	/**
 	 * @param mixed $arg
 	 * @param SourceRange $srcOffsets
-	 * @return array
+	 *
+	 * @return list<Token|string>
 	 */
 	private function expandArg( $arg, SourceRange $srcOffsets ): array {
 		if ( is_string( $arg ) ) {

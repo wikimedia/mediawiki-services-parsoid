@@ -472,6 +472,7 @@ class WrapSectionsState {
 		} while ( $n && !self::isParsoidSection( $n ) );
 
 		Assert::invariant( $n instanceof Element, "Expected to find Parsoid-section ancestor" );
+		'@phan-var Element $n'; // @var Element $n
 		return $n;
 	}
 
@@ -726,7 +727,7 @@ class WrapSectionsState {
 		}
 	}
 
-	private function convertTOCOffsets() {
+	private function convertTOCOffsets(): void {
 		// Create reference array from all the codepointOffsets
 		$offsets = [];
 		foreach ( $this->env->getTOCData()->getSections() as $section ) {

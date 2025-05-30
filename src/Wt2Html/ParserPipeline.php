@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -151,7 +152,7 @@ class ParserPipeline {
 	 * @param array{sol:bool} $opts
 	 *  - atTopLevel: (bool) Whether we are processing the top-level document
 	 *  - sol: (bool) Whether input should be processed in start-of-line context
-	 * @return Document|array final DOM or array of token chnks
+	 * @return Element|array final <body> element or array of token chnks
 	 */
 	public function parseChunkily( string $input, array $opts ) {
 		$profile = $this->env->profiling() ? $this->env->pushNewProfile() : null;
@@ -201,7 +202,7 @@ class ParserPipeline {
 	 * @param array $initialState Once the pipeline is retrieved / constructed,
 	 * it will be initialized with this state.
 	 */
-	public function init( array $initialState = [] ) {
+	public function init( array $initialState = [] ): void {
 		// Reset pipeline state once per top-level doc.
 		// This clears state from any per-doc global state
 		// maintained across all pipelines used by the document.

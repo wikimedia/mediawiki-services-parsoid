@@ -183,7 +183,7 @@ class TableFixups {
 	 * @param Env $env
 	 * @param Element $cell known to be <td> / <th>
 	 * @param ?Element $templateWrapper
-	 * @return ?array
+	 * @return ?array{txt: string, frags: list<?string>, transclusions: list<Element>}
 	 */
 	public static function collectAttributishContent(
 		Env $env, Element $cell, ?Element $templateWrapper
@@ -801,6 +801,8 @@ class TableFixups {
 
 	/**
 	 * $cell is known to be <td>/<th>
+	 *
+	 * @return int One of self::NO_REPARSING, ::COMBINE_WITH_PREV_CELL, ::OTHER_REPARSE
 	 */
 	private static function getReparseType( Element $cell, DTState $dtState ): int {
 		$dp = DOMDataUtils::getDataParsoid( $cell );

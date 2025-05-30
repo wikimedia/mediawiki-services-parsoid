@@ -35,7 +35,7 @@ class PWrapState {
 	/**
 	 * Unwrap + reset
 	 */
-	public function reset() {
+	public function reset(): void {
 		$this->unwrapTrailingPWrapOptionalNodes();
 
 		$this->p = null;
@@ -48,7 +48,7 @@ class PWrapState {
 	 *
 	 * @param Node $n
 	 */
-	public function processOptionalNode( Node $n ) {
+	public function processOptionalNode( Node $n ): void {
 		$t = DOMUtils::matchNameAndTypeOf( $n, 'meta', self::RANGE_TYPE_RE );
 		$this->hasOptionalNode = (bool)$t || $this->hasOptionalNode;
 		if ( $t && !str_ends_with( $t, '/End' ) ) {
@@ -63,7 +63,7 @@ class PWrapState {
 	 * and annotations. Unwrapping can prevent unnecessary expansion
 	 * of template/annotation ranges.
 	 */
-	private function unwrapTrailingPWrapOptionalNodes() {
+	private function unwrapTrailingPWrapOptionalNodes(): void {
 		if ( $this->hasOptionalNode ) {
 			$lastChild = $this->p->lastChild;
 			while ( PWrap::pWrapOptional( $this->env, $lastChild ) ) {

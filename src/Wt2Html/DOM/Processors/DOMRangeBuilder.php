@@ -149,10 +149,8 @@ class DOMRangeBuilder {
 				/**
 				 * The point of the above loop is to ensure we're working
 				 * with a Element if there is an $n.
-				 *
-				 * @var Element $n
 				 */
-				'@phan-var Element $n';
+				'@phan-var Element $n'; // @var Element $n
 				$dsr = DOMDataUtils::getDataParsoid( $n )->dsr ?? null;
 			}
 
@@ -180,7 +178,9 @@ class DOMRangeBuilder {
 	 * @return string
 	 */
 	protected function getRangeId( Element $node ): string {
-		return DOMCompat::getAttribute( $node, "about" );
+		$rangeId = DOMCompat::getAttribute( $node, "about" );
+		'@phan-var string $rangeId'; // asserting this is not null
+		return $rangeId;
 	}
 
 	/**
@@ -459,8 +459,9 @@ class DOMRangeBuilder {
 	 * Record template info in $this->compoundTpls as we go.
 	 *
 	 * @param Node $docRoot
-	 * @param DOMRangeInfo[] $tplRanges The potentially overlapping ranges
-	 * @return DOMRangeInfo[] The non-overlapping ranges
+	 * @param list<DOMRangeInfo> $tplRanges The potentially overlapping ranges
+	 *
+	 * @return list<DOMRangeInfo> The non-overlapping ranges
 	 */
 	public function findTopLevelNonOverlappingRanges( Node $docRoot, array $tplRanges ): array {
 		// For each node, assign an attribute that is a record of all

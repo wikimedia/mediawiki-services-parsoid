@@ -56,7 +56,7 @@ class HandleLinkNeighbours {
 	 * @param string $regex
 	 * @param Element $aNode
 	 * @param ?string $baseAbout
-	 * @return array
+	 * @return list<array{fromTpl: bool, node: Text, src: non-empty-string}>
 	 */
 	private static function findAndHandleNeighbour(
 		Env $env, bool $goForward, string $regex, Element $aNode, ?string $baseAbout

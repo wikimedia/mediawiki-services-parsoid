@@ -95,7 +95,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 *
 	 * @param Element $n
 	 * @param array $a
-	 * @return array
+	 * @return list<array{pwrap: mixed, node?: Element}>
 	 */
 	private function mergeRuns( Element $n, array $a ): array {
 		$ret = [];
@@ -220,7 +220,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @param Env $env
 	 * @param Element|DocumentFragment $root
 	 */
-	private function pWrapDOM( Env $env, Node $root ) {
+	private function pWrapDOM( Env $env, Node $root ): void {
 		$state = new PWrapState( $env );
 		$c = $root->firstChild;
 		while ( $c ) {
@@ -266,7 +266,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	 * @param Element|DocumentFragment $root
 	 * @param string $tagName
 	 */
-	private function pWrapInsideTag( Env $env, Node $root, string $tagName ) {
+	private function pWrapInsideTag( Env $env, Node $root, string $tagName ): void {
 		$c = $root->firstChild;
 		while ( $c ) {
 			$next = $c->nextSibling;

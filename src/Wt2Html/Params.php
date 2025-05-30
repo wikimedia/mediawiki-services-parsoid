@@ -96,7 +96,8 @@ class Params {
 	 *
 	 * @param int $start
 	 * @param int $end
-	 * @return array
+	 *
+	 * @return list<KV>
 	 */
 	public function getSlice( int $start, int $end ): array {
 		$out = [];

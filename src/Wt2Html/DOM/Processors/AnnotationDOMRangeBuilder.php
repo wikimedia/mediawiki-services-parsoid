@@ -91,9 +91,10 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	 * Makes the DOM range between $range->startElem and $range->endElem uneditable by wrapping
 	 * it into a <div> (for block ranges) or <span> (for inline ranges) with the mw:ExtendedAnnRange
 	 * type.
+	 *
 	 * @param DOMRangeInfo $range
 	 */
-	private function makeUneditable( DOMRangeInfo $range ) {
+	private function makeUneditable( DOMRangeInfo $range ): void {
 		$startMeta = $range->startElem;
 		$endMeta = $range->endElem;
 

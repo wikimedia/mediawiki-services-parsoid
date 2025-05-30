@@ -114,9 +114,10 @@ class UnpackDOMFragments {
 	/**
 	 * DOMTraverser handler that unpacks DOM fragments which were injected in the
 	 * token pipeline.
+	 *
 	 * @param Node $placeholder
 	 * @param DTState $state
-	 * @return bool|Node
+	 * @return bool|?Node
 	 */
 	public static function handler( Node $placeholder, DTState $state ) {
 		if ( !$placeholder instanceof Element ) {

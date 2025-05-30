@@ -26,7 +26,7 @@ class Consts {
 	public static array $wikitextBlockElems;
 	public static string $strippedUrlCharacters;
 
-	public static function init() {
+	public static function init(): void {
 		/*
 		 * Valid media options:
 		 * - Prefix options are of the form "alt=foo"
