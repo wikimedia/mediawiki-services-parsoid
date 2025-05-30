@@ -277,7 +277,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			case self::LINKTYPE_MEDIA:
 			case self::LINKTYPE_SPECIAL:
 			case self::LINKTYPE_TEMPLATE:
-				foreach ( $this->get( $linkType ) as $link => $ignore ) {
+				foreach ( $this->get( $linkType ) as $link => $_ignore ) {
 					$result[] = [
 						'link' => $this->stringToLink( (string)$link ),
 					];
@@ -363,7 +363,7 @@ class StubMetadataCollector implements ContentMetadataCollector {
 			}
 		}
 		$result = [];
-		foreach ( ( $this->storage[$which] ?? [] ) as $key => $ignore ) {
+		foreach ( ( $this->storage[$which] ?? [] ) as $key => $_ignore ) {
 			$result[$key] = $this->get( $which, (string)$key );
 		}
 		return $result;

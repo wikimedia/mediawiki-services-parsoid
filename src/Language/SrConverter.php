@@ -37,8 +37,8 @@ class SrConverter extends LanguageConverter {
 		$r = [];
 		$machine = $this->getMachine();
 		'@phan-var FstReplacementMachine $machine'; /* @var FstReplacementMachine $machine */
-		foreach ( $machine->getCodes() as $code => $ignore1 ) {
-			foreach ( $machine->getCodes() as $othercode => $ignore2 ) {
+		foreach ( $machine->getCodes() as $code => $_ignore1 ) {
+			foreach ( $machine->getCodes() as $othercode => $_ignore2 ) {
 				if ( $code === $othercode ) {
 					return false;
 				}

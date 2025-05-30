@@ -323,8 +323,10 @@ class PHPUtils {
 			return;
 		}
 		ksort( $array );
-		foreach ( $array as $k => $v ) {
-			self::sortArray( $array[$k] );
+		foreach ( $array as &$v ) {
+			if ( is_array( $v ) ) {
+				self::sortArray( $v );
+			}
 		}
 	}
 

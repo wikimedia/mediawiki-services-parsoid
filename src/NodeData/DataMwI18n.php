@@ -43,7 +43,7 @@ class DataMwI18n implements RichCodecable {
 	 */
 	public function getAttributeNames(): array {
 		$res = [];
-		foreach ( $this->i18nInfo as $k => $v ) {
+		foreach ( $this->i18nInfo as $k => $_v ) {
 			if ( $k !== '/' ) {
 				$res[] = $k;
 			}

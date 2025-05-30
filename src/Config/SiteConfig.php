@@ -1314,7 +1314,7 @@ abstract class SiteConfig {
 		$regex = '!^(?:' . implode( '|', $pats ) . ')$!';
 		return static function ( $text ) use ( $pats, $regex ) {
 			if ( preg_match( $regex, $text, $m ) ) {
-				foreach ( $pats as $k => $re ) {
+				foreach ( $pats as $k => $_re ) {
 					if ( isset( $m[$k] ) && $m[$k] !== '' ) {
 						return [ $k, $m[$k] ];
 					}

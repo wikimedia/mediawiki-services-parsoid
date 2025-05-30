@@ -584,7 +584,7 @@ class TestRunner {
 		}
 
 		if ( isset( $opts['extlinks'] ) ) {
-			foreach ( $output->getExternalLinks() as $url => $ignore ) {
+			foreach ( $output->getExternalLinks() as $url => $_ignore ) {
 				$after[] = "extlink=$url";
 			}
 		}
@@ -881,7 +881,7 @@ class TestRunner {
 				$testKnownFailures = json_decode( $old, true );
 				foreach ( $testKnownFailures as $key => $knownFailure ) {
 					if ( !in_array( $key, $this->skipped, true ) ) {
-						$testKnownFailures[$key] = array_filter( $testKnownFailures[$key],
+						$testKnownFailures[$key] = array_filter( $knownFailure,
 							static function ( $k ) use ( $kfModes ) {
 								return !in_array( $k, $kfModes, true ) &&
 									( !str_starts_with( $k, 'selser' ) || !in_array( 'selser', $kfModes, true ) );

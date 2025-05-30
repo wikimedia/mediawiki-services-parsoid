@@ -176,7 +176,7 @@ class LanguageVariantHandler {
 			unset( $dataMWV->unidir );
 		}
 
-		foreach ( get_object_vars( $dataMWV ) as $key => $val ) {
+		foreach ( get_object_vars( $dataMWV ) as $key => $_val ) {
 			if ( isset( Consts::$LCNameMap[$key] ) ) {
 				$flags[Consts::$LCNameMap[$key]] = true;
 			}

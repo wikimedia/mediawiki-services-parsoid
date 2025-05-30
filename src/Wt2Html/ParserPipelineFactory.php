@@ -502,7 +502,7 @@ class ParserPipelineFactory {
 		$options['expandTemplates'] ??= true;
 
 		// Catch pipeline option typos
-		foreach ( $options as $k => $v ) {
+		foreach ( $options as $k => $_v ) {
 			Assert::invariant(
 				in_array( $k, self::SUPPORTED_OPTIONS, true ),
 				'Invalid cacheKey option: ' . $k

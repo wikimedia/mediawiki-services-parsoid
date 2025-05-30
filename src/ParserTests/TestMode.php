@@ -107,7 +107,7 @@ class TestMode implements Stringable {
 	public static function requestedTestModes( array $options, bool $ifEmptySetAll = true ) {
 		if ( $ifEmptySetAll ) {
 			$allModes = true;
-			foreach ( self::TEST_MODES as $mode => $ignore ) {
+			foreach ( self::TEST_MODES as $mode => $_ignore ) {
 				if ( $options[$mode] ?? false ) {
 					$allModes = false;
 				}

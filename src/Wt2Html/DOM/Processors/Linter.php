@@ -100,7 +100,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 				'map', 'object', 'pre', 'progress', 'video',
 			] );
 			$this->tagsWithChangedMisnestingBehavior = [];
-			foreach ( Consts::$HTML['HTML5Tags'] as $tag => $dummy ) {
+			foreach ( Consts::$HTML['HTML5Tags'] as $tag => $_ignore ) {
 				if ( isset( Consts::$Sanitizer['AllowedLiteralTags'][$tag] ) &&
 					!isset( $HTML4TidyBlockTags[$tag] ) &&
 					!isset( Consts::$HTML['FormattingTags'][$tag] ) &&
@@ -580,7 +580,7 @@ class Linter implements Wt2HtmlDOMProcessor {
 	): void {
 		if ( !$this->obsoleteTagsRE ) {
 			$elts = [];
-			foreach ( Consts::$HTML['OlderHTMLTags'] as $tag => $dummy ) {
+			foreach ( Consts::$HTML['OlderHTMLTags'] as $tag => $_ignore ) {
 				// Looks like all existing editors let editors add the <big> tag.
 				// VE has a button to add <big>, it seems so does the WikiEditor
 				// and JS wikitext editor. So, don't flag BIG as an obsolete tag.

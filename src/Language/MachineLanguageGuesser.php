@@ -30,7 +30,7 @@ class MachineLanguageGuesser extends LanguageGuesser {
 		$destCode = Utils::bcp47ToMwCode( $destCode );
 
 		$codes = [];
-		foreach ( $machine->getCodes() as $invertCode => $ignore ) {
+		foreach ( $machine->getCodes() as $invertCode => $_ignore ) {
 			if ( $machine->isValidCodePair( $destCode, $invertCode ) ) {
 				$codes[] = $invertCode;
 			}
