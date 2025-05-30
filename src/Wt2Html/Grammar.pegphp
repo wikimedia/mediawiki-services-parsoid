@@ -981,28 +981,21 @@ template_param =
 			return [
 				'kEndPos' => $kEndPos,
 				'vStartPos' => $vStartPos,
-				'value' => TokenizerUtils::flattenString( [ $optSp, $tpv['tokens'] ?? [] ] ),
+				'value' => ( $tpv === null ) ? '' :
+					TokenizerUtils::flattenString( [ $optSp, $tpv['tokens'] ] ),
 			];
 		}
 	)? {
 		if ( $val !== null ) {
-			if ( $val['value'] !== null ) {
-				$so = new KVSourceRange(
-					$this->startOffset(), $val['kEndPos'],
-					$val['vStartPos'], $this->endOffset()
-				);
-				return new KV(
-					$name,
-					TokenizerUtils::flattenIfArray( $val['value'] ),
-					$so
-				);
-			} else {
-				return new KV(
-					TokenizerUtils::flattenIfArray( $name ),
-					'',
-					$so
-				);
-			}
+			$so = new KVSourceRange(
+				$this->startOffset(), $val['kEndPos'],
+				$val['vStartPos'], $this->endOffset()
+			);
+			return new KV(
+				$name,
+				TokenizerUtils::flattenIfArray( $val['value'] ),
+				$so
+			);
 		} else {
 			$so = new SourceRange( $this->startOffset(), $this->endOffset() );
 			return new KV(
