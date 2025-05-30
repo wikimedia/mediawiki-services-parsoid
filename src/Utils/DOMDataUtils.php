@@ -139,8 +139,12 @@ class DOMDataUtils {
 				// (There's no DataMw unless there was a DATA_OBJECT_ATTR_NAME)
 				if ( isset( $nd->mw->rangeId ) ) {
 					$oldAbout = $nd->mw->rangeId;
-					$aboutMap[$oldAbout] ??= $bag->newAnnotationId();
-					$nd->mw->rangeId = $aboutMap[$oldAbout];
+					$isStart = false;
+					$type = WTUtils::extractAnnotationType( $node, $isStart );
+					if ( $type !== null && $isStart ) {
+						$aboutMap[$oldAbout] = $bag->newAnnotationId();
+					}
+					$nd->mw->rangeId = $aboutMap[$oldAbout] ?? $oldAbout;
 				}
 			}
 			if ( $node->hasAttribute( 'about' ) ) {
@@ -148,8 +152,10 @@ class DOMDataUtils {
 				// As with annotation ranges, these can occur multiple times
 				// in a given subtree, so we need to record the mapping used.
 				$oldAbout = DOMCompat::getAttribute( $node, 'about' );
-				$aboutMap[$oldAbout] ??= $bag->newAboutId();
-				$node->setAttribute( 'about', $aboutMap[$oldAbout] );
+				if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
+					$aboutMap[$oldAbout] = $bag->newAboutId();
+				}
+				$node->setAttribute( 'about', $aboutMap[$oldAbout] ?? $oldAbout );
 			}
 		}
 		foreach ( $node->childNodes as $child ) {

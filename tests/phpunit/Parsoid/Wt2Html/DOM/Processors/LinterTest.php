@@ -1245,6 +1245,25 @@ class LinterTest extends TestCase {
 			"[http://foo.bar/other.link text content [[File:Audio.oga]] audio]<span>this is an Element</span>",
 			[ 0, 65, 27, 1 ],
 		];
+
+		yield "should lint template-generated wikilink in external link" => [
+			'[http://google.com {{1x|[[Google]]}}]',
+			[ 0, 37, 19, 1 ],
+			false,
+			static function ( $testCase, $result ) {
+				$testCase->assertFalse( isset( $result[0]['templateInfo'] ) );
+			},
+		];
+
+		yield "should lint template-generated link-in-link not at top level" => [
+			'foo {{1x|foo [http://google.com [[Google]]] bar}} bar',
+			[ 4, 49, null, null ],
+			false,
+			static function ( $testCase, $result ) {
+				$testCase->assertTrue( isset( $result[0]['templateInfo'] ) );
+				$testCase->assertEquals( 'Template:1x', $result[0]['templateInfo']['name'] );
+			},
+		];
 	}
 
 	/**
