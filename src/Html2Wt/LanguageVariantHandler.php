@@ -115,7 +115,7 @@ class LanguageVariantHandler {
 				$p = $f;
 			}
 			if ( $i !== null && ( 2 * $i + 1 ) < count( $flSp ) ) {
-				return $flSp[2 * $i] + $p + $flSp[2 * $i + 1];
+				return $flSp[2 * $i] . $p . $flSp[2 * $i + 1];
 			}
 			return $p;
 		};

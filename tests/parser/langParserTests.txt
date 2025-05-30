@@ -522,6 +522,20 @@ test: -{H|content}-
 !! end
 
 !! test
+html2wt support for wildcard rule with whitespace around flag value
+!! options
+language=zh htmlVariantLanguage=zh-Hant-TW
+parsoid=wt2html,wt2wt,html2html
+!! wikitext
+test: -{ H  |all variants}-
+!! html/php
+<p>test: 
+</p>
+!! html/parsoid
+<p>test: <meta typeof="mw:LanguageVariant" data-mw-variant='{"add":true,"twoway":[{"l":"*","t":"all variants"}]}'/></p>
+!! end
+
+!! test
 Filter syntax for language variants
 !! options
 language=zh htmlVariantLanguage=zh-Hant-TW
