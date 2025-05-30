@@ -18,12 +18,7 @@ class DOMBuilder extends RemexDOMBuilder {
 		] );
 	}
 
-	/**
-	 * @param string|null $doctypeName
-	 * @param string|null $public
-	 * @param string|null $system
-	 * @return \DOMDocument
-	 */
+	/** @inheritDoc */
 	protected function createDocument(
 		?string $doctypeName = null,
 		?string $public = null,

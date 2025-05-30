@@ -6,7 +6,10 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Document;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
 
 /**
@@ -65,7 +68,10 @@ abstract class PipelineStage {
 
 	/**
 	 * Register a token transformer
+	 *
 	 * @param TokenHandler $t
+	 *
+	 * @return never
 	 */
 	public function addTransformer( TokenHandler $t ): void {
 		throw new \BadMethodCallException( "This pipeline stage doesn't accept token transformers." );
@@ -110,11 +116,11 @@ abstract class PipelineStage {
 	 * signal will follow.
 	 *
 	 * @param string|array|Document $input
-	 * @param array{sol:bool} $options
+	 * @param array{atTopLevel:bool,sol:bool} $options
 	 *  - atTopLevel: (bool) Whether we are processing the top-level document
 	 *  - sol: (bool) Whether input should be processed in start-of-line context
 	 *  - chunky (bool) Whether we are processing the input chunkily.
-	 * @return array|Document
+	 * @return list<Token|string>|Element|DocumentFragment
 	 */
 	abstract public function process( $input, array $options );
 
@@ -128,10 +134,10 @@ abstract class PipelineStage {
 	 * will provide specialized implementations that handle their input type.
 	 *
 	 * @param string|array|Document $input
-	 * @param array{sol:bool} $options
+	 * @param array{atTopLevel:bool,sol:bool} $options
 	 *  - atTopLevel: (bool) Whether we are processing the top-level document
 	 *  - sol: (bool) Whether input should be processed in start-of-line context
-	 * @return Generator
+	 * @return Generator<list<Token|string>|Element|DocumentFragment>
 	 */
 	abstract public function processChunkily(
 		$input, array $options

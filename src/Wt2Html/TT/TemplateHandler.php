@@ -130,7 +130,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 	 *     [ "uc:foo ", [ wikilink-token, " ", template-token, " bar" ] ]
 	 *
 	 * @param array<string|Token> $tokens
-	 * @return array first element is always a string
+	 * @return list{string, ?array<Token|string>} first element is always a string
 	 */
 	private function processToString( array $tokens ): array {
 		$maybeTarget = TokenUtils::tokensToString( $tokens, true, [ 'retainNLs' => true ] );
@@ -248,13 +248,16 @@ class TemplateHandler extends XMLTagBasedHandler {
 		return (bool)preg_match( $this->safeSubstRegex, $prefix . ':' );
 	}
 
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
 	/**
 	 * @param TemplateEncapsulator $state
 	 * @param string|Token|array $targetToks
 	 * @param SourceRange $srcOffsets
-	 * @return array|null
+	 * @return ?array{magicWordType: '!'|null, name: string, title: Title, isVariable?: true, pfArg?: string|list<string|Token>, srcOffsets?: SourceRange, isParserFunction?: true, localName?: string, haveColon?: bool, handler?: \Wikimedia\Parsoid\Ext\PFragmentHandler, handlerOptions?: array}
 	 */
 	private function resolveTemplateTarget(
+		// phpcs:enable Generic.Files.LineLength.TooLong
 		TemplateEncapsulator $state, $targetToks, $srcOffsets
 	): ?array {
 		$additionalToks = null;
@@ -465,7 +468,8 @@ class TemplateHandler extends XMLTagBasedHandler {
 	 * @param mixed $target
 	 * @param Title $title
 	 * @param bool $ignoreLoop
-	 * @return ?array<string|Token>
+	 *
+	 * @return ?list<string|Token>
 	 */
 	private function enforceTemplateConstraints( $target, Title $title, bool $ignoreLoop ): ?array {
 		$error = $this->manager->getFrame()->loopAndDepthCheck(
@@ -574,6 +578,8 @@ class TemplateHandler extends XMLTagBasedHandler {
 
 	/**
 	 * Process a fetched template source to a token stream.
+	 *
+	 * @return list<string|Token>
 	 */
 	private function processTemplateSource(
 		Frame $frame, Token $token, array $tplArgs, string $src,

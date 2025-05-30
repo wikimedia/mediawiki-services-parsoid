@@ -91,11 +91,17 @@ class AttributeExpander extends UniversalTokenHandler {
 		return -1;
 	}
 
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
+	/**
+	 * @return array{metaTokens: list{0?: SelfclosingTagTk}, preNLBuf: list<string|Token>, postNLBuf: list<string|Token>}
+	 */
 	private static function splitTokens(
+		// phpcs:enable Generic.Files.LineLength.TooLong
 		Frame $frame, XMLTagTk $token, int $nlTkPos, array $tokens, bool $wrapTemplates
 	): array {
 		$preNLBuf = [];
-		$postNLBuf = null;
+		$postNLBuf = [];
 		$startMeta = null;
 
 		// Split the token array around the first newline token.
@@ -174,6 +180,8 @@ class AttributeExpander extends UniversalTokenHandler {
 		}
 	}
 
+	// phpcs:disable Generic.Files.LineLength.TooLong
+
 	/**
 	 * This helper method strips all meta tags introduced by
 	 * transclusions, etc. and returns the content.
@@ -181,9 +189,11 @@ class AttributeExpander extends UniversalTokenHandler {
 	 * @param Env $env
 	 * @param array $tokens
 	 * @param bool $wrapTemplates
-	 * @return array
+	 *
+	 * @return array{hasGeneratedContent: bool, annotationType: list<string>, value: list<Token|string>}
 	 */
 	private static function stripMetaTags(
+		// phpcs:enable Generic.Files.LineLength.TooLong
 		Env $env, array $tokens, bool $wrapTemplates
 	): array {
 		$buf = [];

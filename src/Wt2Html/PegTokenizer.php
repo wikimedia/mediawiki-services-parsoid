@@ -8,6 +8,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
+use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\WikiPEG\SyntaxError;
 
 /**
@@ -93,9 +94,10 @@ class PegTokenizer extends PipelineStage {
 	 * The text is tokenized in chunks (one per top-level block).
 	 *
 	 * @param string $input
-	 * @param array{sol:bool} $options
+	 * @param array{atTopLevel:bool,sol:bool} $options
+	 *   - atTopLevel: (bool) Whether we are processing the top-level document
 	 *   - sol (bool) Whether text should be processed in start-of-line context.
-	 * @return Generator
+	 * @return Generator<list<Token|string>>
 	 */
 	public function processChunkily( $input, array $options ): Generator {
 		if ( !$this->grammar ) {

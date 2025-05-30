@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\ListTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
-use Wikimedia\Parsoid\Tokens\Token;
 
 /**
  * Private helper class for ListHandler.
@@ -42,7 +41,7 @@ class ListFrame {
 	public array $bstack = [];
 	/**
 	 * Stack of end tags
-	 * @var array<EndTagTk>
+	 * @var list<EndTagTk>
 	 */
 	public array $endtags = [];
 	/**
@@ -72,7 +71,7 @@ class ListFrame {
 	 * Handle popping tags after processing
 	 *
 	 * @param int $n
-	 * @return array<string|Token>
+	 * @return list<EndTagTk>
 	 */
 	public function popTags( int $n ): array {
 		$tokens = [];
@@ -95,7 +94,7 @@ class ListFrame {
 	/**
 	 * Push a list
 	 *
-	 * @return array<Token>
+	 * @return list{TagTk, TagTk}
 	 */
 	public function pushList(
 		array $container, DataParsoid $dp1, DataParsoid $dp2

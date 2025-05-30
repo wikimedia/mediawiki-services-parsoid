@@ -55,7 +55,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 		$this->inIndependentParse = $this->atTopLevel || isset( $this->options['attrExpansion'] );
 	}
 
-	private function reset() {
+	private function reset(): void {
 		$this->srcOffset = 0;
 		$this->sol = true;
 		$this->tokenBuf = [];
@@ -92,7 +92,7 @@ class TokenStreamPatcher extends LineBasedHandler {
 	/**
 	 * Clear start of line info
 	 */
-	private function clearSOL() {
+	private function clearSOL(): void {
 		// clear tsr and sol flag
 		$this->srcOffset = null;
 		$this->sol = false;

@@ -153,8 +153,6 @@ class PreHandler extends LineBasedHandler {
 	 * as a meta-tag, we <pre> tag will not get a 1-char width during DSR computation since
 	 * this meta-tag will consume that width. Accordingly, once we strip this meta-tag in the
 	 * cleanup pass, we will reassign its width to the opening tag width of the <pre> tag.
-	 *
-	 * @return Token
 	 */
 	public static function newIndentPreWS(): Token {
 		return new SelfclosingTagTk( 'meta', [ new KV( 'typeof', 'mw:IndentPreWS' ) ] );
@@ -219,7 +217,7 @@ class PreHandler extends LineBasedHandler {
 	/**
 	 * Wrap buffered tokens with <pre>..</pre>
 	 *
-	 * @return array<string|Token>
+	 * @return list<string|Token>
 	 */
 	private function genPre(): array {
 		$ret = [];

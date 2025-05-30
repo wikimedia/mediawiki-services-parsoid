@@ -59,6 +59,9 @@ trait TracingTrait {
 		return $res;
 	}
 
+	/**
+	 * @return ?list<string|Token>
+	 */
 	public function onCompoundTk( CompoundTk $token, TokenHandler $tokensHandler ): ?array {
 		return $this->traceEvent( 'onCompoundTk', $token );
 	}

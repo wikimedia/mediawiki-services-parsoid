@@ -103,8 +103,6 @@ abstract class LineBasedHandler extends TokenHandler {
 	 * NOTE: The only reason we are processing a handler here is because
 	 * of needing to support profiling. For the profiling use case,
 	 * we will be passing a TraceProxy instead of the handler itself.
-	 *
-	 * @return ?array<string|Token>
 	 */
 	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
 		if ( $ctk instanceof EmptyLineTk ) {

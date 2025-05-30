@@ -35,7 +35,8 @@ class BehaviorSwitchHandler extends XMLTagBasedHandler {
 	/**
 	 * Main handler.
 	 * See {@link TokenHandlerPipeline#addTransform}'s transformation parameter.
-	 * @return array<Token>
+	 *
+	 * @return list<SelfclosingTagTk>
 	 */
 	public function onBehaviorSwitch( Token $token ): array {
 		$env = $this->env;

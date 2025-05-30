@@ -209,7 +209,7 @@ class QuoteTransformer extends LineBasedHandler {
 	/**
 	 * Handle explicit EOL (NlTk/EOFTk) or implicit EOL, which trigger the
 	 * actual quote analysis on the collected quote tokens so far.
-	 * @return ?array<string|Token>
+	 * @return ?list<string|Token>
 	 */
 	private function processQuotes( ?Token $token = null ): ?array {
 		if ( !$this->onAnyEnabled ) {

@@ -29,11 +29,13 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 
 	/**
 	 * convert one variant text to dom.
+	 *
 	 * @param TokenHandlerPipeline $manager
 	 * @param array $options
 	 * @param string $t
 	 * @param array $attribs
-	 * @return array
+	 *
+	 * @return array{xmlstr: string, isBlock: bool}
 	 */
 	private function convertOne( TokenHandlerPipeline $manager, array $options, string $t,
 		array $attribs ): array {
@@ -64,9 +66,10 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 	}
 
 	/**
-	 * compress a whitespace sequence
-	 * @param ?array $a
-	 * @return ?array
+	 * Compress a whitespace sequence.
+	 * @see \Wikimedia\Parsoid\Html2Wt\LanguageVariantHandler::expandSpArrary
+	 * @param ?list<string> $a
+	 * @return ?list<int|string>
 	 */
 	private function compressSpArray( ?array $a ): ?array {
 		$result = [];

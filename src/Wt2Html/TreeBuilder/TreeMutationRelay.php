@@ -109,7 +109,7 @@ class TreeMutationRelay extends RelayTreeHandler {
 	 */
 	public function insertElement(
 		$preposition, $ref, Element $element, $void, $sourceStart, $sourceLength
-	) {
+	): void {
 		// Elements can be inserted twice due to reparenting by the adoption
 		// agency algorithm. If this is a reparenting, we don't want to
 		// override autoInsertedStart flag set the first time around.
@@ -144,7 +144,7 @@ class TreeMutationRelay extends RelayTreeHandler {
 	 * @param int $sourceStart
 	 * @param int $sourceLength
 	 */
-	public function endTag( Element $element, $sourceStart, $sourceLength ) {
+	public function endTag( Element $element, $sourceStart, $sourceLength ): void {
 		$this->nextHandler->endTag( $element, $sourceStart, $sourceLength );
 
 		if ( $sourceLength === $this->matchEndLength ) {
@@ -196,7 +196,7 @@ class TreeMutationRelay extends RelayTreeHandler {
 	 * @param Element $newParent
 	 * @param int $sourceStart
 	 */
-	public function reparentChildren( Element $element, Element $newParent, $sourceStart ) {
+	public function reparentChildren( Element $element, Element $newParent, $sourceStart ): void {
 		$this->nextHandler->reparentChildren( $element, $newParent, $sourceStart );
 		if ( $this->isMarkable( $newParent ) ) {
 			/** @var DOMElement $node */

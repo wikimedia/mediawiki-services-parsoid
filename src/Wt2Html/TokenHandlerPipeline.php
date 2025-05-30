@@ -93,6 +93,9 @@ class TokenHandlerPipeline extends PipelineStage {
 		$this->transformers[] = $t;
 	}
 
+	/**
+	 * @return list{SelfclosingTagTk}
+	 */
 	public function shuttleTokensToEndOfStage( array $toks ): array {
 		$this->hasShuttleTokens = true;
 		$thpEnd = new SelfclosingTagTk( 'mw:thp-end' );

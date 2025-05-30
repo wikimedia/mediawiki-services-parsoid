@@ -71,8 +71,8 @@ class TokenizerUtils {
 
 	/**
 	 * FIXME: document
-	 * @param mixed $c
-	 * @return mixed
+	 * @param array $c
+	 * @return non-empty-string|list<non-empty-string|Token>
 	 */
 	public static function flattenString( $c ) {
 		$out = self::flattenStringlist( $c );
@@ -85,8 +85,10 @@ class TokenizerUtils {
 
 	/**
 	 * FIXME: document
+	 *
 	 * @param array $c
-	 * @return array
+	 *
+	 * @return list<non-empty-string|Token>
 	 */
 	public static function flattenStringlist( array $c ): array {
 		$out = [];
@@ -113,10 +115,11 @@ class TokenizerUtils {
 	}
 
 	/**
-	 * @param mixed $value
+	 * @phan-template T
+	 * @param T $value
 	 * @param int $start start of TSR range
 	 * @param int $end end of TSR range
-	 * @return array
+	 * @return array{value: T, srcOffsets: SourceRange}
 	 */
 	public static function getAttrVal( $value, int $start, int $end ): array {
 		return [ 'value' => $value, 'srcOffsets' => new SourceRange( $start, $end ) ];
@@ -401,8 +404,9 @@ class TokenizerUtils {
 
 	/**
 	 * Pop off the end comments, if any.
+	 *
 	 * @param array &$attrs
-	 * @return array|null
+	 * @return ?array{buf: array, commentStartPos: int}
 	 */
 	public static function popComments( array &$attrs ): ?array {
 		$buf = [];
@@ -453,9 +457,9 @@ class TokenizerUtils {
 
 	/**
 	 * @param Env $env
-	 * @param mixed $token
+	 * @param Token|string $token
 	 */
-	public static function enforceParserResourceLimits( Env $env, $token ) {
+	public static function enforceParserResourceLimits( Env $env, $token ): void {
 		if ( $token instanceof TagTk || $token instanceof SelfclosingTagTk ) {
 			$resource = null;
 			switch ( $token->getName() ) {

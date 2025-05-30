@@ -80,7 +80,7 @@ class RemexPipeline {
 	 *
 	 * @param array $attribs
 	 */
-	public function insertUnfosteredMeta( array $attribs ) {
+	public function insertUnfosteredMeta( array $attribs ): void {
 		$this->dispatcher->flushTableText();
 		$this->dispatcher->inHead->startTag(
 			'meta',

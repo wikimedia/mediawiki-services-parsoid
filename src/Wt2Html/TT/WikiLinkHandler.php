@@ -46,6 +46,9 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	/** Disable caching till we fix cloning of DOM fragments in data-parsoid */
 	private static bool $cachingEnabled = true;
 
+	/**
+	 * @return ?array{prefix: string, title: string}
+	 */
 	private static function hrefParts( string $str ): ?array {
 		if ( preg_match( '/^([^:]+):(.*)$/D', $str, $matches ) ) {
 			return [ 'prefix' => $matches[1], 'title' => $matches[2] ];
@@ -448,11 +451,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 *   if one is provided (rdfaType)
 	 * - Collates about, typeof, and linkAttrs into a new attr. array
 	 *
-	 * @param array $attrs
+	 * @param list<KV> $attrs
 	 * @param bool $getLinkText
 	 * @param ?string $rdfaType
-	 * @param ?array $linkAttrs
-	 * @return array
+	 * @param ?list<KV> $linkAttrs
+	 *
+	 * @return array{attribs: list<KV>, contentKVs: list<KV>, hasRdfaType: bool}
 	 */
 	public static function buildLinkAttrs(
 		array $attrs, bool $getLinkText, ?string $rdfaType,
@@ -878,10 +882,12 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 * Get the style and class lists for an image's wrapper element.
 	 *
 	 * @param array $opts The option hash from renderFile.
-	 * @return array with boolean isInline Whether the image is inline after handling options.
-	 *               or classes The list of classes for the wrapper.
+	 *
+	 * @return array{classes: list<string>, isInline: bool}
+	 *  - isInline: Whether the image is inline after handling options
+	 *  - classes: The list of classes for the wrapper.
 	 */
-	private static function getWrapperInfo( array $opts ) {
+	private static function getWrapperInfo( array $opts ): array {
 		$format = self::getFormat( $opts );
 		$isInline = !in_array( $format, [ 'thumbnail', 'manualthumb', 'framed' ], true );
 		$classes = [];
@@ -922,11 +928,11 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 *
 	 * @param string $optStr
 	 * @param Env $env
-	 * @return array|null
-	 * 	 ck Canonical key for the image option.
-	 *   v Value of the option.
-	 *   ak Aliased key for the image option - includes `"$1"` for placeholder.
-	 *   s Whether it's a simple option or one with a value.
+	 * @return ?array{ck: string, v: string, ak: string, s: bool}
+	 * - ck: Canonical key for the image option.
+	 * - v: Value of the option.
+	 * - ak: Aliased key for the image option; includes `"$1"` for placeholder.
+	 * - s: Whether it's a simple option or one with a value.
 	 */
 	private static function getOptionInfo( string $optStr, Env $env ): ?array {
 		$oText = trim( $optStr );
@@ -1012,9 +1018,9 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 * @param array $tstream
 	 * @param string $prefix Anything that came before this part of the recursive call stack.
 	 * @param Env $env
-	 * @return string|string[]|null
+	 * @return ?string
 	 */
-	private static function stringifyOptionTokens( array $tstream, string $prefix, Env $env ) {
+	private static function stringifyOptionTokens( array $tstream, string $prefix, Env $env ): ?string {
 		// Seems like this should be a more general "stripTags"-like function?
 		$skipToEndOf = null;
 		$optInfo = null;

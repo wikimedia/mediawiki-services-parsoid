@@ -4,6 +4,7 @@
 // phpcs:disable MediaWiki.NamingConventions.LowerCamelFunctionsName.FunctionName
 // phpcs:disable MediaWiki.Commenting.FunctionComment.WrongStyle
 // phpcs:disable MediaWiki.Commenting.FunctionComment.MissingDocumentationPrivate
+// phpcs:disable MediaWiki.Commenting.FunctionComment.MissingParamTag
 
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
@@ -16,6 +17,7 @@ use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\TagTk;
+use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
@@ -248,6 +250,9 @@ class ParserFunctions {
 		}
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_expr( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -300,16 +305,25 @@ class ParserFunctions {
 		}
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_lc( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		return [ mb_strtolower( $args[0]->k ) ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_uc( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		return [ mb_strtoupper( $args[0]->k ) ];
 	}
 
+	/**
+	 * @return list{0?: string}
+	 */
 	public function pf_ucfirst( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -321,6 +335,9 @@ class ParserFunctions {
 		}
 	}
 
+	/**
+	 * @return list{0?: string}
+	 */
 	public function pf_lcfirst( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -332,6 +349,9 @@ class ParserFunctions {
 		}
 	}
 
+	/**
+	 * @return list{0?: string}
+	 */
 	public function pf_padleft( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -362,6 +382,9 @@ class ParserFunctions {
 		}
 	}
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_padright( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -407,7 +430,7 @@ class ParserFunctions {
 		}
 	}
 
-	private function tag_worker( $target, array $kvs ) {
+	private function tag_worker( $target, array $kvs ): array {
 		$tagTk = new TagTk( $target );
 		$toks = [ $tagTk ];
 		$tagAttribs = [];
@@ -566,7 +589,10 @@ class ParserFunctions {
 		return $this->pfTime( $target, $args, true );
 	}
 
-	private function pfTime( $target, $args, $isLocal = false ) {
+	/**
+	 * @return list{string}
+	 */
+	private function pfTime( $target, $args, $isLocal = false ): array {
 		$date = new DateTime( "now", new DateTimeZone( "UTC" ) );
 
 		$timestamp = $this->env->getSiteConfig()->fakeTimestamp();
@@ -585,6 +611,9 @@ class ParserFunctions {
 		}
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_localurl( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -606,36 +635,54 @@ class ParserFunctions {
 
 	/* Stub section: Pick any of these and actually implement them!  */
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_formatnum( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
 		return [ $target ];
 	}
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_currentpage( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
 		return [ $target ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_pagenamee( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
 		return [ explode( ':', $target, 2 )[1] ?? '' ];
 	}
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_fullpagename( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
 		return [ $target ?: ( $this->prefixedTitleText() ) ];
 	}
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_fullpagenamee( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
 		return [ $target ?: ( $this->prefixedTitleText() ) ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_pagelanguage( $token, Frame $frame, Params $params ): array {
 		// The language (code) of the current page.
 		// Note: this is exposed as a mediawiki-internal code.
@@ -645,6 +692,9 @@ class ParserFunctions {
 		return [ $code ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_directionmark( $token, Frame $frame, Params $args ): array {
 		// The directionality of the current page.
 		$dir = $this->env->getPageConfig()->getPageLanguageDir();
@@ -657,6 +707,9 @@ class ParserFunctions {
 		return $this->pf_directionmark( $token, $frame, $args );
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_fullurl( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -678,6 +731,9 @@ class ParserFunctions {
 		return [ $url ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_urlencode( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -698,15 +754,21 @@ class ParserFunctions {
 		return $this->expandKV( $args[1], $frame );
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_pagesize( $token, Frame $frame, Params $params ): array {
 		return [ '100' ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_sitename( $token, Frame $frame, Params $params ): array {
 		return [ 'MediaWiki' ];
 	}
 
-	private function encodeCharEntity( string $c, array &$tokens ) {
+	private function encodeCharEntity( string $c, array &$tokens ): void {
 		$enc = Utils::entityEncodeAll( $c );
 		$dp = new DataParsoid;
 		$dp->src = $enc;
@@ -749,10 +811,16 @@ class ParserFunctions {
 		return $tokens;
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_protectionlevel( $token, Frame $frame, Params $params ): array {
 		return [ '' ];
 	}
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_ns( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$nsid = null;
@@ -773,23 +841,38 @@ class ParserFunctions {
 		return [ $target ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_subjectspace( $token, Frame $frame, Params $params ): array {
 		return [ 'Main' ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_talkspace( $token, Frame $frame, Params $params ): array {
 		return [ 'Talk' ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_numberofarticles( $token, Frame $frame, Params $params ): array {
 		return [ '1' ];
 	}
 
+	/**
+	 * @return list<string|Token|list<string|Token>>
+	 */
 	public function pf_language( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		return [ $args[0]->k ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_contentlanguage( $token, Frame $frame, Params $params ): array {
 		// Despite the name, this returns the wiki's default interface language
 		// ($wgLanguageCode), *not* the language of the current page content.
@@ -804,10 +887,16 @@ class ParserFunctions {
 		return $this->pf_contentlanguage( $token, $frame, $params );
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_numberoffiles( $token, Frame $frame, Params $params ): array {
 		return [ '2' ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_namespace( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -816,6 +905,9 @@ class ParserFunctions {
 		return [ count( $pieces ) > 1 ? $pieces[0] : 'Main' ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_namespacee( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$target = $args[0]->k;
@@ -824,6 +916,9 @@ class ParserFunctions {
 		return [ count( $pieces ) > 1 ? $pieces[0] : 'Main' ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_namespacenumber( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$a = explode( ':', $args[0]->k );
@@ -831,18 +926,30 @@ class ParserFunctions {
 		return [ (string)$this->env->getSiteConfig()->namespaceId( $target ) ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_pagename( $token, Frame $frame, Params $params ): array {
 		return [ $this->prefixedTitleText() ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_pagenamebase( $token, Frame $frame, Params $params ): array {
 		return [ $this->prefixedTitleText() ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_scriptpath( $token, Frame $frame, Params $params ): array {
 		return [ $this->env->getSiteConfig()->scriptpath() ];
 	}
 
+	/**
+	 * @return list{TagTk, string, EndTagTk}
+	 */
 	public function pf_server( $token, Frame $frame, Params $params ): array {
 		$dataParsoid = clone $token->dataParsoid;
 		return [
@@ -858,16 +965,25 @@ class ParserFunctions {
 		];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_servername( $token, Frame $frame, Params $params ): array {
 		$server = $this->env->getSiteConfig()->server();
 		return [ preg_replace( '#^https?://#', '', $server, 1 ) ];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_talkpagename( $token, Frame $frame, Params $params ): array {
 		$title = $this->prefixedTitleText();
 		return [ preg_replace( '/^[^:]:/', 'Talk:', $title, 1 ) ];
 	}
 
+	/**
+	 * @return list{SelfclosingTagTk}
+	 */
 	public function pf_defaultsort( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$key = $args[0]->k;
@@ -880,6 +996,9 @@ class ParserFunctions {
 		];
 	}
 
+	/**
+	 * @return list{SelfclosingTagTk}
+	 */
 	public function pf_displaytitle( $token, Frame $frame, Params $params ): array {
 		$args = $params->args;
 		$key = $args[0]->k;
@@ -892,6 +1011,9 @@ class ParserFunctions {
 		];
 	}
 
+	/**
+	 * @return list{string}
+	 */
 	public function pf_equal( $token, Frame $frame, Params $params ): array {
 		return [ '=' ];
 	}

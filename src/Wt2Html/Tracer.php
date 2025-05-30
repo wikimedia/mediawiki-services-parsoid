@@ -13,9 +13,9 @@ class Tracer extends DefaultTracer {
 	}
 
 	/**
-	 * @param array $event
+	 * @param array{location:\Wikimedia\WikiPEG\LocationRange,type:string,rule:string,args?:array} $event
 	 */
-	protected function log( $event ) {
+	protected function log( $event ): void {
 		$offset = $event['location']->start->offset;
 		print str_pad(
 			'' . $event['location'],
