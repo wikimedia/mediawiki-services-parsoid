@@ -271,11 +271,10 @@ class ContentUtils {
 	 * @param Node $rootNode
 	 * @param callable $dsrFunc
 	 * @param ParsoidExtensionAPI $extAPI
-	 * @return Node Returns the $rootNode passed in to allow chaining.
 	 */
 	public static function shiftDSR(
 		Env $env, Node $rootNode, callable $dsrFunc, ParsoidExtensionAPI $extAPI
-	): Node {
+	): void {
 		$convertNode = static function ( Node $node ) use (
 			$env, $extAPI, $dsrFunc, &$convertNode
 		) {
@@ -333,7 +332,6 @@ class ContentUtils {
 			}
 		};
 		DOMPostOrder::traverse( $rootNode, $convertNode );
-		return $rootNode; // chainable
 	}
 
 	/**
