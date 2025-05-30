@@ -38,7 +38,6 @@ use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
-use Wikimedia\Parsoid\Wt2Html\PegTokenizer;
 use Wikimedia\Parsoid\Wt2Html\TokenCache;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
@@ -57,17 +56,11 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 	}
 
-	private PegTokenizer $urlParser;
 	private ?TokenCache $wikilinkCache = null;
 
 	/** @inheritDoc */
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {
 		parent::__construct( $manager, $options );
-
-		// Create a new peg parser for image options.
-		// Actually the regular tokenizer, but we'll call it with the
-		// url rule only.
-		$this->urlParser = new PegTokenizer( $this->env );
 
 		// Cache only on seeing the same source the fourth time.
 		// This minimizes cache bloat & token cloning penalties

@@ -11,7 +11,6 @@ class Consts {
 	public static array $WikitextTagsWithTrimmableWS;
 	public static array $HTMLTagsRequiringSOLContext;
 	public static array $WTQuoteTags;
-	public static array $SolSpaceSensitiveTags;
 	public static array $HTML;
 	public static array $WTTagsWithNoClosingTags;
 	public static array $Output;
