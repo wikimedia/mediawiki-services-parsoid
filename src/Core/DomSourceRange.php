@@ -234,10 +234,11 @@ class DomSourceRange extends SourceRange {
 	/**
 	 * Create a new DomSourceRange from an array of integers/null (such as
 	 * created during JSON serialization).
-	 * @param array<int|null> $dsr
+	 * @param array<int|null> $json
 	 * @return DomSourceRange
 	 */
-	public static function newFromJsonArray( array $dsr ): DomSourceRange {
+	public static function newFromJsonArray( array $json ): DomSourceRange {
+		$dsr = $json;
 		$n = count( $dsr );
 		Assert::invariant( $n === 2 || $n === 4 || $n === 6, 'Not enough elements in DSR array' );
 		return new DomSourceRange(

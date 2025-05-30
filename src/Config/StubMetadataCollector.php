@@ -100,8 +100,8 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	}
 
 	/** @inheritDoc */
-	public function setOutputFlag( string $name, bool $value = true ): void {
-		$this->collect( 'outputflags', $name, (string)$value, self::MERGE_STRATEGY_WRITE_ONCE );
+	public function setOutputFlag( string $name, bool $val = true ): void {
+		$this->collect( 'outputflags', $name, (string)$val, self::MERGE_STRATEGY_WRITE_ONCE );
 	}
 
 	/** @inheritDoc */
@@ -199,9 +199,9 @@ class StubMetadataCollector implements ContentMetadataCollector {
 	}
 
 	/** @inheritDoc */
-	public function addImage( LinkTarget $link, $timestamp = null, $sha1 = null ): void {
+	public function addImage( LinkTarget $name, $timestamp = null, $sha1 = null ): void {
 		# Fragments are stripped when collecting.
-		$link = $link->createFragmentTarget( '' );
+		$link = $name->createFragmentTarget( '' );
 		$this->collect(
 			self::LINKTYPE_MEDIA,
 			$this->linkToString( $link ),

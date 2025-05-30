@@ -444,10 +444,10 @@ interface ContentMetadataCollector {
 
 	/**
 	 * @see OutputPage::addModuleStyles
-	 * @param string[] $modules
+	 * @param string[] $moduleStyles
 	 * @deprecated use ::appendOutputStrings(::MODULE_STYLE, ...)
 	 */
-	public function addModuleStyles( array $modules ): void;
+	public function addModuleStyles( array $moduleStyles ): void;
 
 	/**
 	 * Sets parser limit report data for a key
