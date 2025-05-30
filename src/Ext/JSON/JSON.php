@@ -205,19 +205,18 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 				$tbody = $child;
 			}
 		}
-		$rows = $tbody->childNodes;
+		$rows = DOMUtils::childNodes( $tbody );
 		$obj = [];
 		$empty = count( $rows ) === 0;
 		if ( !$empty ) {
-			$child = $rows->item( 0 )->firstChild;
+			$child = $rows[0]->firstChild;
 			'@phan-var Element $child'; // @var Element $child
 			if ( DOMUtils::hasClass( $child, 'mw-json-empty' ) ) {
 				$empty = true;
 			}
 		}
 		if ( !$empty ) {
-			for ( $i = 0; $i < count( $rows ); $i++ ) {
-				$item = $rows->item( $i );
+			foreach ( $rows as $item ) {
 				'@phan-var Element $item'; // @var Element $item
 				self::objectRowFrom( $item, $obj, null );
 			}
@@ -246,19 +245,18 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 				$tbody = $child;
 			}
 		}
-		$rows = $tbody->childNodes;
+		$rows = DOMUtils::childNodes( $tbody );
 		$arr = [];
 		$empty = count( $rows ) === 0;
 		if ( !$empty ) {
-			$child = $rows->item( 0 )->firstChild;
+			$child = $rows[0]->firstChild;
 			'@phan-var Element $child'; // @var Element $child
 			if ( DOMUtils::hasClass( $child, 'mw-json-empty' ) ) {
 				$empty = true;
 			}
 		}
 		if ( !$empty ) {
-			for ( $i = 0; $i < count( $rows ); $i++ ) {
-				$item = $rows->item( $i );
+			foreach ( $rows as $i => $item ) {
 				'@phan-var Element $item'; // @var Element $item
 				self::objectRowFrom( $item, $arr, $i );
 			}

@@ -30,7 +30,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 			"<html><body><!--$html--></body></html>"
 		);
 		$body = $doc->getElementsByTagName( "body" )->item( 0 );
-		$node = $body->childNodes->item( 0 );
+		$node = $body->firstChild;
 		$actualLen = WTUtils::decodedCommentLength( $node );
 		$this->assertEquals( $length, $actualLen );
 	}

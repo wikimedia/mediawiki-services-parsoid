@@ -547,7 +547,7 @@ class TableFixups {
 					$frag->appendChild( $doc->createTextNode( '|' ) );
 				}
 			}
-			$children = iterator_to_array( $frag->childNodes );
+			$children = DOMUtils::childNodes( $frag );
 		}
 
 		// Append new children

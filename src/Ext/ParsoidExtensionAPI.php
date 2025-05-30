@@ -750,7 +750,7 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Copy $from->childNodes to $to and clone the data attributes of $from
+	 * Copy childNodes of $from to $to and clone the data attributes of $from
 	 * to $to.
 	 *
 	 * @param Element $from

@@ -11,7 +11,6 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\DOM\NodeList;
 use Wikimedia\Parsoid\DOM\Text;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
@@ -551,7 +550,7 @@ class PipelineUtils {
 			// FIXME(arlolra): Do we need a mechanism to specify content
 			// categories?
 		} else {
-			foreach ( $domFragment->childNodes as $n ) {
+			foreach ( DOMUtils::childNodes( $domFragment ) as $n ) {
 				if (
 					DOMUtils::isWikitextBlockNode( $n ) ||
 					DOMUtils::hasBlockElementDescendant( $n )
@@ -774,30 +773,20 @@ class PipelineUtils {
 	 * Wrap text and comment nodes in a node list into spans, so that all
 	 * top-level nodes are elements.
 	 *
-	 * @param NodeList $nodes List of DOM nodes to wrap, mix of node types.
+	 * @param list<Node> $nodes List of DOM nodes to wrap, mix of node types.
 	 * @param ?Node $startAt
 	 * @param ?Node $stopAt
 	 */
 	public static function addSpanWrappers(
-		$nodes,
+		array $nodes,
 		?Node $startAt = null,
 		?Node $stopAt = null
 	): void {
 		$textCommentAccum = [];
-		$doc = $nodes->item( 0 )->ownerDocument;
-
-		// Build a real array out of nodes.
-		//
-		// Operating directly on DOM child-nodes array
-		// and manipulating them by adding span wrappers
-		// changes the traversal itself
-		$nodeBuf = [];
-		foreach ( $nodes as $node ) {
-			$nodeBuf[] = $node;
-		}
+		$doc = $nodes[0]->ownerDocument;
 
 		$start = ( $startAt === null );
-		foreach ( $nodeBuf as $node ) {
+		foreach ( $nodes as $node ) {
 			if ( !$start ) {
 				if ( $startAt !== $node ) {
 					continue;

@@ -376,7 +376,7 @@ class ComputeDSR implements Wt2HtmlDOMProcessor {
 			$env->trace( "dsr", static function () use ( $child, $cs, $ce ) {
 				// slow, for debugging only
 				$i = 0;
-				foreach ( $child->parentNode->childNodes as $x ) {
+				foreach ( DOMUtils::childNodes( $child->parentNode ) as $x ) {
 					if ( $x === $child ) {
 						break;
 					}

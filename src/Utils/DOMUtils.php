@@ -90,6 +90,26 @@ class DOMUtils {
 	}
 
 	/**
+	 * Many DOM implementations will de-optimize the representation of a
+	 * Node if `$node->childNodes` is accessed, converting the linked list
+	 * of node children to an array which is then expensive to mutate.
+	 *
+	 * This method returns an array of child nodes, but uses the
+	 * `->firstChild`/`->nextSibling` accessors to obtain it, avoiding
+	 * deoptimization.  This is also robust against concurrent mutation.
+	 *
+	 * @param Node $n
+	 * @return list<Node> the child nodes
+	 */
+	public static function childNodes( Node $n ): array {
+		$result = [];
+		for ( $child = $n->firstChild; $child !== null; $child = $child->nextSibling ) {
+			$result[] = $child;
+		}
+		return $result;
+	}
+
+	/**
 	 * Copy 'from'.childNodes to 'to' adding them before 'beforeNode'
 	 * 'from' and 'to' belong to different documents.
 	 *

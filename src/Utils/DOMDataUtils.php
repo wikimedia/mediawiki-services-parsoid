@@ -158,7 +158,7 @@ class DOMDataUtils {
 				$node->setAttribute( 'about', $aboutMap[$oldAbout] ?? $oldAbout );
 			}
 		}
-		foreach ( $node->childNodes as $child ) {
+		foreach ( DOMUtils::childNodes( $node ) as $child ) {
 			self::dedupeNodeDataVisitor( $bag, $aboutMap, $child );
 		}
 	}

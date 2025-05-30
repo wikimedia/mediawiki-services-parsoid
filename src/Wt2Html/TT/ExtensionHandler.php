@@ -221,7 +221,7 @@ class ExtensionHandler extends XMLTagBasedHandler {
 
 			// Wrap the top-level nodes so that we have a firstNode element
 			// to annotate with the typeof and to apply about ids.
-			PipelineUtils::addSpanWrappers( $domFragment->childNodes );
+			PipelineUtils::addSpanWrappers( DOMUtils::childNodes( $domFragment ) );
 
 			// Now get the firstNode
 			$firstNode = $domFragment->firstChild;

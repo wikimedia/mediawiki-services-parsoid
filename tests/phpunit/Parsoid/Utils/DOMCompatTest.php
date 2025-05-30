@@ -668,7 +668,7 @@ HTML;
 		}
 
 		DOMCompat::normalize( $body );
-		$this->assertSame( $expectedNodeCount, $div->childNodes->length );
+		$this->assertCount( $expectedNodeCount, DOMUtils::childNodes( $div ) );
 	}
 
 	public static function provideNormalize() {

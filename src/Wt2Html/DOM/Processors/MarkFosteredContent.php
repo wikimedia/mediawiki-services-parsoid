@@ -159,8 +159,7 @@ class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 			$tableParent->insertBefore( $e, $tableNextSibling );
 		} elseif ( $e instanceof Element && $e->hasChildNodes() ) {
 			// avoid iterating over a mutated DOMNodeList
-			$childNodeList = iterator_to_array( $e->childNodes );
-			foreach ( $childNodeList as $child ) {
+			foreach ( DOMUtils::childNodes( $e ) as $child ) {
 				self::moveFosteredAnnotations( $child, $firstFosteredNode, $tableParent, $tableNextSibling );
 			}
 		}

@@ -92,7 +92,7 @@ class DOMCompat {
 		if ( $document->documentElement === null ) {
 			return null;
 		}
-		foreach ( $document->documentElement->childNodes as $element ) {
+		foreach ( DOMUtils::childNodes( $document->documentElement ) as $element ) {
 			/** @var Element $element */
 			$nodeName = self::nodeName( $element );
 			if ( $nodeName === 'body' || $nodeName === 'frameset' ) {
@@ -122,7 +122,7 @@ class DOMCompat {
 		if ( $document->documentElement === null ) {
 			return null;
 		}
-		foreach ( $document->documentElement->childNodes as $element ) {
+		foreach ( DOMUtils::childNodes( $document->documentElement ) as $element ) {
 			/** @var Element $element */
 			if ( self::nodeName( $element ) === 'head' ) {
 				$document->head = $element; // Caching!

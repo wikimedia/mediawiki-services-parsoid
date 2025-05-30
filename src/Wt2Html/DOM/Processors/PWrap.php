@@ -30,7 +30,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 	}
 
 	private static function pWrapOptionalChildren( Env $env, Node $n ): bool {
-		foreach ( $n->childNodes as $c ) {
+		foreach ( DOMUtils::childNodes( $n ) as $c ) {
 			if ( !self::pWrapOptional( $env, $c ) ) {
 				return false;
 			}
@@ -161,7 +161,7 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			return [ [ 'pwrap' => null, 'node' => $n ] ];
 		} elseif ( $n instanceof Text ) {
 			return [ [ 'pwrap' => true, 'node' => $n ] ];
-		} elseif ( !$this->isSplittableTag( $n ) || count( $n->childNodes ) === 0 ) {
+		} elseif ( !$this->isSplittableTag( $n ) || $n->firstChild === null ) {
 			// block tag OR non-splittable inline tag
 			return [
 				[ 'pwrap' => !DOMUtils::hasBlockTag( $n ), 'node' => $n ]
@@ -170,9 +170,8 @@ class PWrap implements Wt2HtmlDOMProcessor {
 			'@phan-var Element $n'; // @var Element $n
 			// splittable inline tag
 			// split for each child and merge runs
-			$children = $n->childNodes;
 			$splits = [];
-			foreach ( $children as $child ) {
+			foreach ( DOMUtils::childNodes( $n ) as $child ) {
 				$splits[] = $this->split( $env, $child );
 			}
 			return $this->mergeRuns( $n, $this->flatten( $splits ) );

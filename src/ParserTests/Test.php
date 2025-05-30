@@ -408,7 +408,7 @@ class Test extends Item {
 				$change = array_slice( $change, 1 );
 				$acc = [];
 				foreach ( $els as $el ) {
-					PHPUtils::pushArray( $acc, iterator_to_array( $el->childNodes ) );
+					PHPUtils::pushArray( $acc, DOMUtils::childNodes( $el ) );
 				}
 				$els = $acc;
 			}
@@ -516,14 +516,9 @@ class Test extends Item {
 			&$applyChangesInternal, $removeNode, $insertNewNode,
 			$randomString, $logger
 		): void {
-			if ( count( $node->childNodes ) < count( $changes ) ) {
+			$nodeArray = DOMUtils::childNodes( $node );
+			if ( count( $nodeArray ) < count( $changes ) ) {
 				throw new Error( "Error: more changes than nodes to apply them to!" );
-			}
-
-			// Clone array since we are mutating the children in the changes loop below
-			$nodeArray = [];
-			foreach ( $node->childNodes as $n ) {
-				$nodeArray[] = $n;
 			}
 
 			foreach ( $changes as $i => $change ) {
@@ -699,8 +694,7 @@ class Test extends Item {
 		): array {
 			// Seed the random-number generator based on the item title
 			$changelist = [];
-			$children = $node->childNodes ? iterator_to_array( $node->childNodes ) : [];
-			foreach ( $children as $child ) {
+			foreach ( DOMUtils::childNodes( $node ) as $child ) {
 				$changeType = $defaultChangeType;
 				if ( $domSubtreeIsEditable( $child ) ) {
 					if ( $nodeIsUneditable( $child ) || $alea->random() < 0.5 ) {
