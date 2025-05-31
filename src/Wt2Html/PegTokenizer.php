@@ -17,7 +17,6 @@ use Wikimedia\WikiPEG\SyntaxError;
 class PegTokenizer extends PipelineStage {
 	private array $options;
 	private array $offsets;
-	private ?SyntaxError $lastError = null;
 	/** @var Grammar|TracingGrammar|null */
 	private $grammar = null;
 	private bool $tracing;
@@ -122,16 +121,11 @@ class PegTokenizer extends PipelineStage {
 			$args['tracer'] = new Tracer( $input );
 		}
 
-		try {
-			// Wrap wikipeg's generator with our own generator
-			// to catch exceptions and track time usage.
-			// @phan-suppress-next-line PhanTypeInvalidYieldFrom
-			yield from $this->grammar->parse( $input, $args );
-			yield [ new EOFTk() ];
-		} catch ( SyntaxError $e ) {
-			$this->lastError = $e;
-			throw $e;
-		}
+		// Wrap wikipeg's generator with our own generator
+		// to track time usage.
+		// @phan-suppress-next-line PhanTypeInvalidYieldFrom
+		yield from $this->grammar->parse( $input, $args );
+		yield [ new EOFTk() ];
 	}
 
 	/**
@@ -188,7 +182,6 @@ class PegTokenizer extends PipelineStage {
 		try {
 			$toks = $this->grammar->parse( $text, $args );
 		} catch ( SyntaxError $e ) {
-			$this->lastError = $e;
 			return false;
 		}
 
