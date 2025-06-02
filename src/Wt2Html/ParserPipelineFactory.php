@@ -553,7 +553,7 @@ class ParserPipelineFactory {
 
 		foreach ( $recipeStages as $stageId ) {
 			$stageData = self::STAGES[$stageId];
-			$stage = new $stageData["class"]( $this->env, $options, $stageId, $prevStage );
+			$stage = new $stageData["class"]( $this->env, $options, $stageId );
 			if ( isset( $stageData["token-handlers"] ) ) {
 				foreach ( $stageData["token-handlers"] as $tName ) {
 					$stage->addTransformer( new $tName( $stage, $options ) );

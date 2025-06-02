@@ -56,11 +56,8 @@ class TreeBuilderStage extends PipelineStage {
 	/** @var string */
 	private $textContentBuffer = '';
 
-	public function __construct(
-		Env $env, array $options = [], string $stageId = "",
-		?PipelineStage $prevStage = null
-	) {
-		parent::__construct( $env, $prevStage );
+	public function __construct( Env $env, array $options = [], string $stageId = "" ) {
+		parent::__construct( $env );
 
 		// Reset variable state and set up the parser
 		$this->resetState( [] );
@@ -143,14 +140,7 @@ class TreeBuilderStage extends PipelineStage {
 	 * @return DocumentFragment|Element
 	 */
 	public function finalizeDOM(): Node {
-		// Check if the EOFTk actually made it all the way through, and flag the
-		// page where it did not!
-		if ( $this->lastToken !== null && !( $this->lastToken instanceof EOFTk ) ) {
-			$this->env->log(
-				'error', 'EOFTk was lost in page',
-				$this->env->getContextTitle()->getPrefixedText()
-			);
-		}
+		Assert::invariant( $this->lastToken instanceof EOFTk, 'EOFTk was lost!' );
 
 		if ( $this->toFragment ) {
 			$node = $this->remexPipeline->documentFragment;
@@ -498,16 +488,16 @@ class TreeBuilderStage extends PipelineStage {
 		string|array|DocumentFragment|Element $input,
 		array $options
 	): Generator {
-		if ( $this->prevStage ) {
-			foreach ( $this->prevStage->processChunkily( $input, $options ) as $chunk ) {
-				Assert::invariant( is_array( $chunk ), "Chunk should be an array" );
-				'@phan-var array $chunk'; // @var array $chunk
-				$this->processChunk( $chunk );
-			}
-			yield $this->finalizeDOM();
-		} else {
-			yield $this->process( $input, $options );
-		}
+		'@phan-var array $input'; // @var array $chunk
+		$this->processChunk( $input );
+		yield [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function finalize(): Generator {
+		yield $this->finalizeDOM();
 	}
 
 	private function hasAfe(): bool {

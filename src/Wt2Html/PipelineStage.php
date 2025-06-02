@@ -24,13 +24,6 @@ use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
  */
 abstract class PipelineStage {
 	/**
-	 * Previous pipeline stage that generates input for this stage.
-	 * Will be null for the first pipeline stage.
-	 * @var ?PipelineStage
-	 */
-	protected $prevStage;
-
-	/**
 	 * This is primarily a debugging aid.
 	 * @var int
 	 */
@@ -47,9 +40,8 @@ abstract class PipelineStage {
 	/** @var Frame */
 	protected $frame;
 
-	public function __construct( Env $env, ?PipelineStage $prevStage = null ) {
+	public function __construct( Env $env ) {
 		$this->env = $env;
-		$this->prevStage = $prevStage;
 	}
 
 	public function setPipelineId( int $id ): void {
@@ -144,4 +136,10 @@ abstract class PipelineStage {
 		string|array|DocumentFragment|Element $input,
 		array $options
 	): Generator;
+
+	/**
+	 * Finalize stage. This lets us not worry about tracking EOFTk but
+	 * still ensures that we always exit the pipeline no matter the error.
+	 */
+	abstract public function finalize(): Generator;
 }

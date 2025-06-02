@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Wt2Html;
 
+use Generator;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
@@ -12,7 +13,6 @@ use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMCompat;
-use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Wrap some stages into a pipeline.
@@ -145,6 +145,24 @@ class ParserPipeline {
 	}
 
 	/**
+	 * @param array<PipelineStage> $stages
+	 * @param string $input
+	 * @param array $opts
+	 */
+	private function processPipelineStages( array $stages, string $input, array $opts ): Generator {
+		$currStage = array_pop( $stages );
+		$prevStages = $stages;
+		if ( count( $prevStages ) === 0 ) {
+			yield from $currStage->processChunkily( $input, $opts );
+		} else {
+			foreach ( $this->processPipelineStages( $prevStages, $input, $opts ) as $prevStageOutput ) {
+				yield from $currStage->processChunkily( $prevStageOutput, $opts );
+			}
+		}
+		yield from $currStage->finalize();
+	}
+
+	/**
 	 * Parse input in chunks
 	 *
 	 * @param string $input Input wikitext
@@ -160,8 +178,7 @@ class ParserPipeline {
 		}
 
 		$ret = [];
-		$lastStage = PHPUtils::lastItem( $this->stages );
-		foreach ( $lastStage->processChunkily( $input, $opts ) as $output ) {
+		foreach ( $this->processPipelineStages( $this->stages, $input, $opts ) as $output ) {
 			$ret[] = $output;
 		}
 

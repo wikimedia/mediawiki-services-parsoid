@@ -27,12 +27,8 @@ class DOMProcessorPipeline extends PipelineStage {
 	private ?SelectiveUpdateData $selparData = null;
 	private ?stdClass $tplInfo = null;
 
-	public function __construct(
-		Env $env, array $options = [], string $stageId = "",
-		?PipelineStage $prevStage = null
-	) {
-		parent::__construct( $env, $prevStage );
-
+	public function __construct( Env $env, array $options = [], string $stageId = "" ) {
+		parent::__construct( $env );
 		$this->options = $options;
 		$this->extApi = new ParsoidExtensionAPI( $env );
 	}
@@ -188,17 +184,10 @@ class DOMProcessorPipeline extends PipelineStage {
 		string|array|DocumentFragment|Element $input,
 		array $options
 	): Generator {
-		if ( $this->prevStage ) {
-			// The previous stage will yield a DOM.
-			// FIXME: Should we change the signature of that to return a DOM
-			// If we do so, a pipeline stage returns either a generator or
-			// concrete output (in this case, a DOM).
-			$node = $this->prevStage->processChunkily( $input, $options )->current();
-		} else {
-			$node = $input;
+		if ( $input !== [] ) {
+			$this->process( $input, $options );
+			yield $input;
 		}
-		$this->process( $node, $options );
-		yield $node;
 	}
 
 	/**
@@ -209,4 +198,10 @@ class DOMProcessorPipeline extends PipelineStage {
 		$this->tplInfo = $options['tplInfo'] ?? null;
 	}
 
+	/**
+	 * @inheritDoc
+	 */
+	public function finalize(): Generator {
+		yield [];
+	}
 }

@@ -49,11 +49,8 @@ class TokenHandlerPipeline extends PipelineStage {
 	/** @var bool */
 	private $hasShuttleTokens = false;
 
-	public function __construct(
-		Env $env, array $options, string $stageId,
-		?PipelineStage $prevStage = null
-	) {
-		parent::__construct( $env, $prevStage );
+	public function __construct( Env $env, array $options, string $stageId ) {
+		parent::__construct( $env );
 		$this->options = $options;
 		$this->pipelineId = null;
 		$this->traceType = 'thp:' . str_replace( 'TokenTransform', '', $stageId );
@@ -187,13 +184,13 @@ class TokenHandlerPipeline extends PipelineStage {
 	 * @inheritDoc
 	 */
 	public function processChunkily( $input, array $options ): Generator {
-		if ( $this->prevStage ) {
-			foreach ( $this->prevStage->processChunkily( $input, $options ) as $chunk ) {
-				'@phan-var array $chunk'; // @var array $chunk
-				yield $this->processChunk( $chunk );
-			}
-		} else {
-			yield $this->process( $input, $options );
-		}
+		yield $this->processChunk( $input );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function finalize(): Generator {
+		yield [];
 	}
 }
