@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\NodeData;
 
 use Psr\Container\ContainerInterface;
-use stdClass;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\JsonCodec\JsonClassCodec;
 use Wikimedia\JsonCodec\JsonCodecable;
@@ -25,7 +24,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property string $name
  * @property string $extPrefix
  * @property string $extSuffix
- * @property list<DataMwAttrib> $attribs Extended attributes of an HTML tag
+ * @property list<DataMwAttrib> $attribs Complex attributes of an HTML tag
  * @property string $src
  * @property DocumentFragment $caption
  * @property string $thumb
@@ -42,7 +41,7 @@ use Wikimedia\Parsoid\Utils\Utils;
  * @property string $rangeId
  * @property SourceRange $wtOffsets
  * @property bool $extendedRange
- * @property stdClass $attrs Attributes for an extension tag or annotation (T367616 should be renamed)
+ * @property DataMwExtAttribs $extAttribs Attributes for an extension tag or annotation
  */
 #[\AllowDynamicProperties]
 class DataMw implements JsonCodecable {
@@ -52,7 +51,11 @@ class DataMw implements JsonCodecable {
 			switch ( $k ) {
 				case 'attrs':
 					// T367616: facilitate renaming.
-					$this->attrs = $v;
+					if ( $v instanceof DataMwExtAttribs ) {
+						$this->extAttribs = $v;
+					} else {
+						$this->extAttribs = new DataMwExtAttribs( $v );
+					}
 					break;
 				// Add cases here for components which should be instantiated
 				// as proper classes.
@@ -77,8 +80,8 @@ class DataMw implements JsonCodecable {
 	 * @return ?array<string|int,string|array<Token|string>>
 	 */
 	public function getExtAttribs(): ?array {
-		if ( isset( $this->attrs ) ) {
-			return (array)$this->attrs;
+		if ( isset( $this->extAttribs ) ) {
+			return $this->extAttribs->getValues();
 		}
 		return null;
 	}
@@ -90,7 +93,10 @@ class DataMw implements JsonCodecable {
 	 * @return string|array<Token|string>|null
 	 */
 	public function getExtAttrib( string $name ) {
-		return $this->attrs->$name ?? null;
+		if ( isset( $this->extAttribs ) ) {
+			return $this->extAttribs->get( $name );
+		}
+		return null;
 	}
 
 	/**
@@ -101,14 +107,10 @@ class DataMw implements JsonCodecable {
 	 *  Setting to null will unset it from the array.
 	 */
 	public function setExtAttrib( string $name, $value ): void {
-		if ( !isset( $this->attrs ) ) {
-			$this->attrs = (object)[];
+		if ( !isset( $this->extAttribs ) ) {
+			$this->extAttribs = new DataMwExtAttribs;
 		}
-		if ( $value === null ) {
-			unset( $this->attrs->$name );
-		} else {
-			$this->attrs->$name = $value;
-		}
+		$this->extAttribs->set( $name, $value );
 	}
 
 	public function __clone() {
@@ -121,7 +123,7 @@ class DataMw implements JsonCodecable {
 			}
 		}
 		// 2. Properties which are cloneable objects
-		foreach ( [ 'body', 'wtOffsets' ] as $prop ) {
+		foreach ( [ 'body', 'wtOffsets', 'extAttribs' ] as $prop ) {
 			if ( isset( $this->$prop ) ) {
 				$this->$prop = clone $this->$prop;
 			}
@@ -130,13 +132,6 @@ class DataMw implements JsonCodecable {
 		foreach ( [ 'caption', 'html' ] as $field ) {
 			if ( isset( $this->$field ) ) {
 				$this->$field = DOMDataUtils::cloneDocumentFragment( $this->$field );
-			}
-		}
-		// Generic stdClass, use PHP serialization as a kludge
-		// T367616: We should fix this to use a real class.
-		foreach ( [ 'attrs', ] as $prop ) {
-			if ( isset( $this->$prop ) ) {
-				$this->$prop = unserialize( serialize( $this->$prop ) );
 			}
 		}
 	}
@@ -149,7 +144,7 @@ class DataMw implements JsonCodecable {
 				'attribs' => Hint::build( DataMwAttrib::class, Hint::USE_SQUARE, Hint::LIST ),
 				// T367616: 'attrs' should be renamed to 'extAttribs' in
 				// a future revision of the MediaWiki DOM Spec
-				'attrs' => Hint::build( stdClass::class, Hint::ALLOW_OBJECT ),
+				'attrs' => Hint::build( DataMwExtAttribs::class, Hint::ALLOW_OBJECT ),
 				'body' => Hint::build( DataMwBody::class, Hint::ALLOW_OBJECT ),
 				'wtOffsets' => Hint::build( SourceRange::class, Hint::USE_SQUARE ),
 				'parts' => Hint::build( TemplateInfo::class, Hint::STDCLASS, Hint::LIST ),
@@ -164,6 +159,14 @@ class DataMw implements JsonCodecable {
 	/** @inheritDoc */
 	public function toJsonArray( JsonCodecInterface $codec ): array {
 		$result = (array)$this;
+		$order = array_flip( array_keys( $result ) );
+		// T367616: 'attrs' should be renamed to 'extAttribs' in
+		// a future revision of the MediaWiki DOM Spec
+		if ( isset( $result['extAttribs'] ) ) {
+			$order['attrs'] = $order['extAttribs'];
+			$result['attrs'] = $result['extAttribs'];
+			unset( $result['extAttribs'] );
+		}
 		// T367141: Third party clients (eg Cite) create arrays instead of
 		// error objects.  We should convert them to proper DataMwError
 		// objects once those exist.
@@ -204,11 +207,13 @@ class DataMw implements JsonCodecable {
 				}
 			}
 		}
+		uksort( $result, static fn ( $a, $b )=>( $order[$a] ?? -1 ) - ( $order[$b] ?? -1 ) );
 		return $result;
 	}
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( JsonCodecInterface $codec, array $json ): DataMw {
+		$order = array_flip( array_keys( $json ) );
 		// Decode legacy encoding of parts.
 		if ( isset( $json['parts'] ) ) {
 			$json['parts'] = array_map( static function ( $p ) {
@@ -239,6 +244,14 @@ class DataMw implements JsonCodecable {
 					$codec->newFromJsonArray( $c, DocumentFragment::class );
 			}
 		}
+		// T367616: 'attrs' should be renamed to 'extAttribs' in
+		// a future revision of the MediaWiki DOM Spec
+		if ( isset( $json['attrs'] ) ) {
+			$order['extAttribs'] = $order['attrs'];
+			$json['extAttribs'] = $json['attrs'];
+			unset( $json['attrs'] );
+		}
+		uksort( $json, static fn ( $a, $b )=>( $order[$a] ?? -1 ) - ( $order[$b] ?? -1 ) );
 		return new DataMw( $json );
 	}
 

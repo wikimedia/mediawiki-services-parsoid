@@ -1396,7 +1396,7 @@ class DOMDataUtils {
 					$encoded = PHPUtils::jsonEncode( $json );
 					$node->setAttribute( $attrName, $encoded );
 				} else {
-					// For compatibility, store the rich value in data-mw.attrs
+					// For compatibility, store the rich value in data-mw.attribs
 					// and store a flattened version in the $attrName.
 					if ( $flat !== null ) {
 						$node->setAttribute( $attrName, $flat );

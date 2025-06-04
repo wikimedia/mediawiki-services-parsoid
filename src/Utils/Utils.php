@@ -12,6 +12,7 @@ use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\Core\Sanitizer;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwBody;
+use Wikimedia\Parsoid\NodeData\DataMwExtAttribs;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Wikitext\Consts;
 
@@ -464,9 +465,9 @@ class Utils {
 		$options = $extToken->getAttributeV( 'options' );
 		$defaultDataMw = new DataMw( [
 			'name' => $name,
-			// Back-compat w/ existing DOM spec output: ensure 'attrs'
+			// Back-compat w/ existing DOM spec output: ensure 'extAttribs'
 			// exists even if there are no attributes.
-			'attrs' => (object)[],
+			'extAttribs' => new DataMwExtAttribs,
 		] );
 		foreach ( TokenUtils::kvToHash( $options ) as $name => $value ) {
 			// Explicit cast to string is needed here, since a numeric
