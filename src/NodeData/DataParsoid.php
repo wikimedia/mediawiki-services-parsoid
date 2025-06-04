@@ -245,26 +245,21 @@ class DataParsoid implements JsonCodecable {
 	 * Deeply clone this object
 	 */
 	public function __clone() {
-		// Properties that need deep cloning
-		if ( isset( $this->tmp ) ) {
-			$this->tmp = clone $this->tmp;
+		// Deep clone non-primitive properties
+
+		// 1. Properties which are lists of cloneable objects
+		foreach ( [ 'tokens', ] as $prop ) {
+			if ( isset( $this->$prop ) ) {
+				$this->$prop = Utils::cloneArray( $this->$prop );
+			}
 		}
-		if ( isset( $this->linkTk ) ) {
-			$this->linkTk = clone $this->linkTk;
+		// 2. Properties which are cloneable objects
+		foreach ( [ 'tmp', 'linkTk', 'tsr', 'dsr', 'extTagOffsets' ] as $prop ) {
+			if ( isset( $this->$prop ) ) {
+				$this->$prop = clone $this->$prop;
+			}
 		}
-		if ( isset( $this->tokens ) ) {
-			$this->tokens = Utils::cloneArray( $this->tokens );
-		}
-		if ( isset( $this->tsr ) ) {
-			$this->tsr = clone $this->tsr;
-		}
-		if ( isset( $this->dsr ) ) {
-			$this->dsr = clone $this->dsr;
-		}
-		if ( isset( $this->extTagOffsets ) ) {
-			$this->extTagOffsets = clone $this->extTagOffsets;
-		}
-		// Document fragments are special
+		// 3. Properties which are DocumentFragments
 		foreach ( [ 'html' ] as $field ) {
 			if ( isset( $this->$field ) ) {
 				$this->$field = DOMDataUtils::cloneDocumentFragment( $this->$field );

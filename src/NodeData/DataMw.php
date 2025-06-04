@@ -13,6 +13,7 @@ use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
+use Wikimedia\Parsoid\Utils\Utils;
 
 /**
  * Editing data for a DOM node.  Managed by DOMDataUtils::get/setDataMw().
@@ -112,34 +113,27 @@ class DataMw implements JsonCodecable {
 
 	public function __clone() {
 		// Deep clone non-primitive properties
-		if ( isset( $this->parts ) ) {
-			foreach ( $this->parts as &$part ) {
-				if ( !is_string( $part ) ) {
-					$part = clone $part;
-				}
-			}
-		}
-		// Properties which are lists of cloneable objects
-		foreach ( [ 'attribs', 'errors' ] as $prop ) {
+
+		// 1. Properties which are lists of cloneable objects
+		foreach ( [ 'parts', 'attribs', 'errors' ] as $prop ) {
 			if ( isset( $this->$prop ) ) {
-				foreach ( $this->$prop as &$item ) {
-					$item = clone $item;
-				}
+				$this->$prop = Utils::cloneArray( $this->$prop );
 			}
 		}
-		// Properties which are cloneable objects
+		// 2. Properties which are cloneable objects
 		foreach ( [ 'body', 'wtOffsets' ] as $prop ) {
 			if ( isset( $this->$prop ) ) {
 				$this->$prop = clone $this->$prop;
 			}
 		}
-		// Document fragments are special
+		// 3. Properties which are DocumentFragments
 		foreach ( [ 'caption', 'html' ] as $field ) {
 			if ( isset( $this->$field ) ) {
 				$this->$field = DOMDataUtils::cloneDocumentFragment( $this->$field );
 			}
 		}
 		// Generic stdClass, use PHP serialization as a kludge
+		// T367616: We should fix this to use a real class.
 		foreach ( [ 'attrs', ] as $prop ) {
 			if ( isset( $this->$prop ) ) {
 				$this->$prop = unserialize( serialize( $this->$prop ) );
