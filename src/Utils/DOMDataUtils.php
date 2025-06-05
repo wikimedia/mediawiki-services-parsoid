@@ -152,7 +152,7 @@ class DOMDataUtils {
 				// As with annotation ranges, these can occur multiple times
 				// in a given subtree, so we need to record the mapping used.
 				$oldAbout = DOMCompat::getAttribute( $node, 'about' );
-				if ( DOMUtils::hasTypeOf( $node, 'mw:Transclusion' ) ) {
+				if ( WTUtils::isFirstEncapsulationWrapperNode( $node ) ) {
 					$aboutMap[$oldAbout] = $bag->newAboutId();
 				}
 				$node->setAttribute( 'about', $aboutMap[$oldAbout] ?? $oldAbout );
