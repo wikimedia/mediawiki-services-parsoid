@@ -25,21 +25,16 @@ class DOMFragmentBuilder extends XMLTagBasedHandler {
 	 * 2. In some cases, if templates need not be nested entirely within the
 	 *    boundary of the token, we cannot process the contents in a new scope.
 	 * @param array $toks
-	 * @param Token $contextTok
+	 * @param bool $isLinkContext
 	 * @return bool
 	 */
-	private function processContentInOwnPipeline( array $toks, Token $contextTok ): bool {
-		$linkContext = (
-			$contextTok instanceof XMLTagTk &&
-			( $contextTok->getName() === 'wikilink' || $contextTok->getName() === 'extlink' )
-		);
-
+	private function processContentInOwnPipeline( array $toks, bool $isLinkContext ): bool {
 		// For wikilinks and extlinks, templates should be properly nested
 		// in the content section. So, we can process them in sub-pipelines.
 		// But, for other context-toks, we should back out. FIXME: Can be smarter and
 		// detect proper template nesting, but, that can be a later enhancement
 		// when dom-scope-tokens are used in other contexts.
-		Assert::invariant( $linkContext, 'A link context is assumed.' );
+		Assert::invariant( $isLinkContext, 'A link context is assumed.' );
 
 		foreach ( $toks as $t ) {
 			if ( $t instanceof XMLTagTk ) {
@@ -57,12 +52,13 @@ class DOMFragmentBuilder extends XMLTagBasedHandler {
 	 * @return array<string|Token>
 	 */
 	private function buildDOMFragment( Token $scopeToken ): array {
+		$contextTokName = $scopeToken->getAttributeV( 'contextTokName' );
+		$linkContext = $contextTokName === 'wikilink' || $contextTokName === 'extlink';
+
 		$contentKV = $scopeToken->getAttributeKV( 'content' );
 		$content = $contentKV->v;
 		if (
-			is_string( $content ) || !$this->processContentInOwnPipeline(
-				$content, $scopeToken->getAttributeV( 'contextTok' )
-			)
+			is_string( $content ) || !$this->processContentInOwnPipeline( $content, $linkContext )
 		) {
 			// New pipeline not needed. Pass them through
 			return is_string( $content ) ? [ $content ] : $content;
