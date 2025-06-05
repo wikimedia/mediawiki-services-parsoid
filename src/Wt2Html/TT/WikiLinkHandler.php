@@ -44,7 +44,7 @@ use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class WikiLinkHandler extends XMLTagBasedHandler {
 	/** Disable caching till we fix cloning of DOM fragments in data-parsoid */
-	private static bool $cachingEnabled = false;
+	private static bool $cachingEnabled = true;
 
 	private static function hrefParts( string $str ): ?array {
 		if ( preg_match( '/^([^:]+):(.*)$/D', $str, $matches ) ) {
@@ -303,6 +303,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 	 * @throws InternalException
 	 */
 	private function onWikiLink( Token $token ): array {
+		$env = $this->env;
 		$tsrStart = $token->dataParsoid->tsr->start ?? null;
 
 		// Check if we have cached output for this wikilink source.
@@ -316,11 +317,11 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 				$offset = $tsrStart - $cachedOutput['start'];
 				$toks = $cachedOutput['tokens'];
 				TokenUtils::shiftTokenTSR( $toks, $offset );
+				TokenUtils::dedupeAboutIds( $env, $toks );
 				return $toks;
 			}
 		}
 
-		$env = $this->env;
 		$hrefKV = $token->getAttributeKV( 'href' );
 		$hrefTokenStr = TokenUtils::tokensToString( $hrefKV->v );
 

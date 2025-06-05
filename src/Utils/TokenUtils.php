@@ -262,6 +262,41 @@ class TokenUtils {
 	}
 
 	/**
+	 * @param Env $env
+	 * @param array<mixed> $maybeTokens
+	 *   Attribute arrays in tokens may be tokens or something else.
+	 */
+	public static function dedupeAboutIds( Env $env, array $maybeTokens ): void {
+		$aboutMap = [];
+		foreach ( $maybeTokens as $t ) {
+			if ( $t instanceof Token ) {
+				foreach ( $t->attribs as $kv ) {
+					if ( $kv->k === 'about' ) {
+						$oldAbout = $kv->v;
+						$newAbout = $aboutMap[$oldAbout] ?? null;
+						if ( !$newAbout ) {
+							$newAbout = $aboutMap[$oldAbout] = $env->newAboutId();
+						}
+						$t->setAttribute( 'about', $newAbout );
+					} else {
+						if ( $kv->k instanceof Token ) {
+							self::dedupeAboutIds( $env, [ $kv->k ] );
+						} elseif ( is_array( $kv->k ) ) {
+							self::dedupeAboutIds( $env, $kv->k );
+						}
+
+						if ( $kv->v instanceof Token ) {
+							self::dedupeAboutIds( $env, [ $kv->v ] );
+						} elseif ( is_array( $kv->v ) ) {
+							self::dedupeAboutIds( $env, $kv->v );
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Shift TSR of a token
 	 *
 	 * PORT-FIXME: In JS this was sometimes called with $offset=undefined, which meant do
