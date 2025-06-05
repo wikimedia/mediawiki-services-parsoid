@@ -4,7 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Utils;
 
 use Closure;
-use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\DomSourceRange;
@@ -427,7 +426,6 @@ class ContentUtils {
 	 * @param Node $rootNode
 	 * @param string $title
 	 * @param array $options Associative array of options:
-	 *   - dumpFragmentMap: Dump the fragment map from env
 	 *   - quiet: Suppress separators
 	 *
 	 * storeDataAttribs options:
@@ -448,10 +446,6 @@ class ContentUtils {
 	public static function dumpDOM(
 		Node $rootNode, string $title = '', array $options = []
 	): string {
-		if ( !empty( $options['dumpFragmentMap'] ) ) {
-			Assert::invariant( isset( $options['env'] ), "env should be set" );
-		}
-
 		$buf = '';
 		if ( empty( $options['quiet'] ) ) {
 			$buf .= "----- {$title} -----\n";
