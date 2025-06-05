@@ -75,7 +75,7 @@ class XHtmlSerializer {
 	 */
 	private static function serializeToString( Node $node, array $options, callable $accum ): void {
 		$smartQuote = $options['smartQuote'];
-		$saveData = $options['saveData'];
+		$noSideEffects = $options['noSideEffects'];
 		switch ( $node->nodeType ) {
 			case XML_ELEMENT_NODE:
 				'@phan-var Element $node'; // @var Element $node
@@ -86,7 +86,7 @@ class XHtmlSerializer {
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
 				$attrs = DOMUtils::attributes( $node );
-				if ( $saveData ) {
+				if ( $noSideEffects ) {
 					DOMDataUtils::dumpRichAttribs( $node, $attrs, $options['keepTmp'], $options['storeDiffMark'] );
 				}
 				foreach ( $attrs as $an => $av ) {
@@ -250,7 +250,7 @@ class XHtmlSerializer {
 	 *   - innerXML (bool, default false): only serialize the contents of $node, exclude $node itself
 	 *   - captureOffsets (bool, default false): return tag position data (see below)
 	 *   - addDoctype (bool, default true): prepend a DOCTYPE when a full HTML document is serialized
-	 *   - saveData (bool, default false): Copy the NodeData into JSON attributes. This is for
+	 *   - noSideEffects (bool, default false): Copy the NodeData into JSON attributes. This is for
 	 *     debugging purposes only, the normal code path is to use DOMDataUtils::storeDataAttribs().
 	 *   - keepTmp (bool, default false): When saving data, include DataParsoid::$tmp.
 	 * @return array An array with the following data:
@@ -269,7 +269,7 @@ class XHtmlSerializer {
 			'innerXML' => false,
 			'captureOffsets' => false,
 			'addDoctype' => true,
-			'saveData' => false,
+			'noSideEffects' => false,
 			'keepTmp' => false,
 			'storeDiffMark' => false,
 		];

@@ -174,7 +174,7 @@ class DOMDataCodec extends JsonCodec {
 				} elseif ( $this->codec->options['noSideEffects'] ?? false ) {
 					return [ '_h' => XHtmlSerializer::serialize( $df, [
 						'innerXML' => true,
-						'saveData' => true,
+						'noSideEffects' => true,
 					] )['html'] ];
 				} else {
 					DOMDataUtils::visitAndStoreDataAttribs(

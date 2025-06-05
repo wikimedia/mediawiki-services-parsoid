@@ -418,7 +418,7 @@ class ContentUtils {
 	 * @return string
 	 */
 	private static function dumpNode( Node $node, array $options ): string {
-		return self::toXML( $node, $options + [ 'saveData' => true ] );
+		return self::toXML( $node, $options + [ 'noSideEffects' => true ] );
 	}
 
 	/**

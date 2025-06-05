@@ -5,11 +5,10 @@ namespace Wikimedia\Parsoid\Logger;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use Wikimedia\JsonCodec\JsonClassCodec;
 use Wikimedia\JsonCodec\JsonCodec;
-use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Utils\CompatJsonCodec;
+use Wikimedia\Parsoid\Utils\DOMCompat;
+use Wikimedia\Parsoid\Utils\DOMDataCodec;
 use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
@@ -68,26 +67,10 @@ class ParsoidLogger {
 	 */
 	public function __construct( LoggerInterface $backendLogger, array $options ) {
 		$this->backendLogger = $backendLogger;
-		$this->codec = new CompatJsonCodec;
-		// Ensure we can serialize embedded document fragments for logging
-		$this->codec->addCodecFor( DocumentFragment::class, new class implements JsonClassCodec {
-			/** @inheritDoc */
-			public function toJsonArray( $df ): array {
-				'@phan-var DocumentFragment $df';
-				$out = XHtmlSerializer::serialize( $df, [ 'saveData' => true ] );
-				return [ '_h' => $out['html'] ];
-			}
-
-			/** @return never */
-			public function newFromJsonArray( string $className, array $json ) {
-				throw new \InvalidArgumentException( "Unserialization should not be invoked" );
-			}
-
-			/** @inheritDoc */
-			public function jsonClassHintFor( string $className, string $keyName ) {
-				return null;
-			}
-		} );
+		$this->codec = new DOMDataCodec(
+			$options['ownerDoc'] ?? DOMCompat::newDocument( true ),
+			[ 'noSideEffects' => true, ]
+		);
 
 		$rePatterns = $options['logLevels'];
 		if ( $options['traceFlags'] ) {
@@ -185,7 +168,7 @@ class ParsoidLogger {
 				}
 			} elseif ( $arg instanceof Node ) {
 				$output .= ' ' .
-					XHtmlSerializer::serialize( $arg, [ 'saveData' => true ] )['html'];
+					XHtmlSerializer::serialize( $arg, [ 'noSideEffects' => true ] )['html'];
 			} else {
 				$encode = fn ( $x ) => $this->codec->toJsonArray(
 					$x,

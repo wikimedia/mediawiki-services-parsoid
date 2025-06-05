@@ -255,18 +255,6 @@ class Env {
 		$this->requestOffsetType = $options['offsetType'] ?? 'byte';
 		$this->logLinterData = !empty( $options['logLinterData'] );
 		$this->linterOverrides = $options['linterOverrides'] ?? [];
-		$this->traceFlags = $options['traceFlags'] ?? [];
-		$this->dumpFlags = $options['dumpFlags'] ?? [];
-		$this->debugFlags = $options['debugFlags'] ?? [];
-		$this->parsoidLogger = new ParsoidLogger( $this->siteConfig->getLogger(), [
-			'logLevels' => $options['logLevels'] ?? [ 'fatal', 'error', 'warn', 'info' ],
-			'debugFlags' => $this->debugFlags,
-			'dumpFlags' => $this->dumpFlags,
-			'traceFlags' => $this->traceFlags
-		] );
-		if ( $this->hasTraceFlag( 'time' ) ) {
-			$this->profiling = true;
-		}
 		$this->setupTopLevelDoc( $options['topLevelDoc'] ?? null );
 		if ( $options['pageBundle'] ?? false ) {
 			$this->pageBundle = DomPageBundle::newEmpty(
@@ -287,6 +275,20 @@ class Env {
 		// OR to refresh the attached DOC (html2html as in 2.).
 		// Constructing a new Env in both cases could eliminate this issue.
 		$this->metadata->setTOCData( $this->tocData );
+
+		$this->traceFlags = $options['traceFlags'] ?? [];
+		$this->dumpFlags = $options['dumpFlags'] ?? [];
+		$this->debugFlags = $options['debugFlags'] ?? [];
+		$this->parsoidLogger = new ParsoidLogger( $this->siteConfig->getLogger(), [
+			'logLevels' => $options['logLevels'] ?? [ 'fatal', 'error', 'warn', 'info' ],
+			'debugFlags' => $this->debugFlags,
+			'dumpFlags' => $this->dumpFlags,
+			'traceFlags' => $this->traceFlags,
+			'ownerDoc' => $this->getTopLevelDoc(),
+		] );
+		if ( $this->hasTraceFlag( 'time' ) ) {
+			$this->profiling = true;
+		}
 
 		$this->wikitextContentModelHandler = new WikitextContentModelHandler( $this );
 	}
