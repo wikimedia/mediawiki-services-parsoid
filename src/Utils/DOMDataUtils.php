@@ -1430,7 +1430,7 @@ class DOMDataUtils {
 		$codec = self::getCodec( $node );
 		// Reset to a default set of codec options
 		// (in particular, make sure 'useFragmentBank' is not set)
-		$oldOptions = $codec->setOptions( [] );
+		$oldOptions = $codec->setOptions( [ 'noSideEffects' => true, ] );
 		foreach ( get_object_vars( $nodeData ) as $k => $v ) {
 			// Look for dynamic properties with names w/ the proper prefix
 			if ( str_starts_with( $k, self::RICH_ATTR_DATA_PREFIX ) ) {
