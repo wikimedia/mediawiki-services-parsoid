@@ -31,7 +31,7 @@ class PegTokenizer extends PipelineStage {
 	 * - convertToString calls
 	 * - calls from TableFixups and elsewhere to tokenize* methods
 	 */
-	private TokenCache $cache;
+	private PipelineContentCache $cache;
 
 	public function __construct(
 		Env $env, array $options = [], string $stageId = "",

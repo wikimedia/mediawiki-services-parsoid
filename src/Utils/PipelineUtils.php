@@ -6,12 +6,14 @@ namespace Wikimedia\Parsoid\Utils;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Comment;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\DOM\Text;
+use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Fragments\PFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
@@ -367,22 +369,75 @@ class PipelineUtils {
 		Env $env, Frame $frame, array $v, bool $expandTemplates, bool $inTemplate
 	): array {
 		if ( is_array( $v['html'] ?? null ) ) {
-			// Set up pipeline options
-			$opts = [
-				'pipelineType' => 'expanded-tokens-to-fragment',
-				'pipelineOpts' => [
-					'attrExpansion' => true,
-					'inlineContext' => true,
-					'expandTemplates' => $expandTemplates,
-					'inTemplate' => $inTemplate
-				],
-				'srcOffsets' => $v['srcOffsets'],
-				'sol' => true
-			];
-			$content = array_merge( $v['html'], [ new EOFTk() ] );
-			$domFragment = self::processContentInPipeline(
-				$env, $frame, $content, $opts
-			);
+			$attrCache = null;
+			$cacheKey = null;
+			$domFragment = null;
+			$isCacheable = false;
+			$vSrcOffsets = $v['srcOffsets'];
+			$tsrStart = $vSrcOffsets->start;
+
+			if ( $tsrStart >= 0 && $vSrcOffsets->length() > 0 ) {
+				$vSrc = $vSrcOffsets->substr( $frame->getSrcText() );
+				$attrCache = $env->getCache(
+					"AttributeExpansion",
+					[
+						"repeatThreshold" => 4,
+						"cloneValue" => static function ( array $value ) {
+							$value['fragment'] = DOMDataUtils::cloneNode( $value['fragment'], true );
+							return $value;
+						}
+					]
+				);
+
+				if ( strlen( $vSrc ) > 0 ) {
+					$isCacheable = true;
+					// $expandTemplates & $inTemplate are pipeline options below
+					// and should be part of the cache key
+					$cacheKey = ( $expandTemplates ? 'e1-' : 'e0-' ) .
+						( $inTemplate ? 't1-' : 't0-' ) . $vSrc;
+				}
+			}
+
+			if ( $isCacheable ) {
+				$cachedOutput = $attrCache->lookup( $cacheKey );
+				if ( $cachedOutput !== null ) {
+					$offset = $tsrStart - $cachedOutput['start'];
+					$domFragment = $cachedOutput['fragment'];
+					ContentUtils::shiftDSR(
+						$env, $domFragment,
+						static function ( DomSourceRange $dsr ) use ( $offset ) {
+							return $dsr->offset( $offset );
+						},
+						new ParsoidExtensionAPI( $env )
+					);
+				}
+			}
+
+			if ( $domFragment === null ) {
+				$domFragment = self::processContentInPipeline(
+					$env,
+					$frame,
+					array_merge( $v['html'], [ new EOFTk() ] ),
+					[
+						'pipelineType' => 'expanded-tokens-to-fragment',
+						'pipelineOpts' => [
+							'attrExpansion' => true,
+							'inlineContext' => true,
+							'expandTemplates' => $expandTemplates,
+							'inTemplate' => $inTemplate
+						],
+						'srcOffsets' => $vSrcOffsets,
+						'sol' => true
+					]
+				);
+				if ( $isCacheable ) {
+					$attrCache->cache( $cacheKey, [
+						'start' => $tsrStart,
+						'fragment' => $domFragment
+					] );
+				}
+			}
+
 			// Since we aren't at the top level, data attrs
 			// were not applied in cleanup.  However, tmp
 			// was stripped.

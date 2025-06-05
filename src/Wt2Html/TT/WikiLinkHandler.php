@@ -38,7 +38,7 @@ use Wikimedia\Parsoid\Utils\TitleException;
 use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Utils\Utils;
 use Wikimedia\Parsoid\Wikitext\Consts;
-use Wikimedia\Parsoid\Wt2Html\TokenCache;
+use Wikimedia\Parsoid\Wt2Html\PipelineContentCache;
 use Wikimedia\Parsoid\Wt2Html\TokenHandlerPipeline;
 
 class WikiLinkHandler extends XMLTagBasedHandler {
@@ -56,7 +56,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		}
 	}
 
-	private ?TokenCache $wikilinkCache = null;
+	private ?PipelineContentCache $wikilinkCache = null;
 
 	/** @inheritDoc */
 	public function __construct( TokenHandlerPipeline $manager, array $options ) {

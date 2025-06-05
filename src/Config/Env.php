@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Config;
 
+use Closure;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
@@ -28,7 +29,7 @@ use Wikimedia\Parsoid\Wikitext\ContentModelHandler as WikitextContentModelHandle
 use Wikimedia\Parsoid\Wt2Html\Frame;
 use Wikimedia\Parsoid\Wt2Html\PageConfigFrame;
 use Wikimedia\Parsoid\Wt2Html\ParserPipelineFactory;
-use Wikimedia\Parsoid\Wt2Html\TokenCache;
+use Wikimedia\Parsoid\Wt2Html\PipelineContentCache;
 use Wikimedia\Parsoid\Wt2Html\TreeBuilder\RemexPipeline;
 
 /**
@@ -156,9 +157,9 @@ class Env {
 
 	/**
 	 * Token caches used in the pipeline
-	 * @var array<TokenCache>
+	 * @var array<PipelineContentCache>
 	 */
-	private array $tokenCaches = [];
+	private array $pipelineContentCaches = [];
 
 	/**
 	 * The current top-level document. During wt2html, this will be the document
@@ -453,17 +454,17 @@ class Env {
 	 * Get a token cache for a given cache name. A cache is shared across all pipelines
 	 * and processing that happens in the lifetime of this Env object.
 	 * @param string $cacheName Key to retrieve a token cache
-	 * @param array{repeatThreshold:int,cloneValue:bool} $newCacheOpts Opts for the new cache
+	 * @param array{repeatThreshold:int,cloneValue:bool|Closure} $newCacheOpts Opts for the new cache
 	 */
-	public function getCache( string $cacheName, array $newCacheOpts ): TokenCache {
-		if ( !isset( $this->tokenCaches[$cacheName] ) ) {
-			$this->tokenCaches[$cacheName] = new TokenCache(
+	public function getCache( string $cacheName, array $newCacheOpts ): PipelineContentCache {
+		if ( !isset( $this->pipelineContentCaches[$cacheName] ) ) {
+			$this->pipelineContentCaches[$cacheName] = new PipelineContentCache(
 				$newCacheOpts['repeatThreshold'],
 				$newCacheOpts['cloneValue']
 			);
 		}
 
-		return $this->tokenCaches[$cacheName];
+		return $this->pipelineContentCaches[$cacheName];
 	}
 
 	/**
