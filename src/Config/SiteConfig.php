@@ -1908,7 +1908,7 @@ abstract class SiteConfig {
 		$handler->setFormatter( new LineFormatter( $format, null, true ) );
 		$logger->pushHandler( $handler );
 
-		if ( $filePath ) {
+		if ( $filePath && !str_starts_with( $filePath, 'php://' ) ) {
 			// Separator between logs since StreamHandler appends
 			$logger->log( Logger::INFO, "-------------- starting fresh log --------------" );
 		}

@@ -303,7 +303,7 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$services = MediaWikiServices::getInstance();
 		$siteConfig = $services->getParsoidSiteConfig();
 		// Overwriting logger so that it logs to console/file
-		$logFilePath = null;
+		$logFilePath = 'php://stderr';
 		if ( $this->hasOption( 'logFile' ) ) {
 			$logFilePath = $this->getOption( 'logFile' );
 		}
@@ -355,10 +355,11 @@ class Parse extends \Wikimedia\Parsoid\Tools\Maintenance {
 		$api = new ApiHelper( $configOpts );
 
 		$siteConfig = new SiteConfig( $api, $configOpts );
+		$logFilePath = 'php://stderr';
 		if ( $this->hasOption( 'logFile' ) ) {
-			// Overwrite logger so that it logs to file
-			$siteConfig->setLogger( SiteConfig::createLogger( $this->getOption( 'logFile' ) ) );
+			$logFilePath = $this->getOption( 'logFile' );
 		}
+		$siteConfig->setLogger( SiteConfig::createLogger( $logFilePath ) );
 		$dataAccess = new DataAccess( $api, $siteConfig, $configOpts );
 		$this->siteConfig = $siteConfig;
 		$configOpts['title'] = isset( $configOpts['title'] )
