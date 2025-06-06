@@ -185,3 +185,17 @@ parsoid=wt2html
 4. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt4" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a>
 5. <a rel="mw:WikiLink" href="./Foo?action=edit&amp;redlink=1" title="Foo" class="new" typeof="mw:LocalizedAttrs" data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["Foo"]}}'><span typeof="mw:Extension/spantag" about="#mwt5" data-mw='{"name":"spantag","attrs":{},"body":{"extsrc":"a"}}'>a</span></a></p>
 !! end
+
+# The integrity of empty-line-tk should not get compromised
+# because of QuoteHandler's onCompoundTk handling of compound tokens
+!! test
+QuoteHandler::onCompoundTk should not corrupt EmptyLineTk tokens
+!! options
+parsoid=wt2html
+!! wikitext
+<table><tr><td>''a''</td><td title="&amp;">b</td></tr></table>
+[[Category:C]]
+!! html/parsoid
+<table data-parsoid='{"stx":"html"}'><tbody><tr data-parsoid='{"stx":"html"}'><td data-parsoid='{"stx":"html"}'><i>a</i></td><td title="&amp;" data-parsoid='{"stx":"html","a":{"title":"&amp;"},"sa":{"title":"&amp;amp;"}}'>b</td></tr></tbody></table>
+<link rel="mw:PageProp/Category" href="./Category:C" />
+!! end

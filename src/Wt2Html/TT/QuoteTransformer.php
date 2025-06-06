@@ -7,6 +7,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
 use Wikimedia\Parsoid\Tokens\CompoundTk;
+use Wikimedia\Parsoid\Tokens\EmptyLineTk;
 use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\NlTk;
@@ -138,6 +139,18 @@ class QuoteTransformer extends LineBasedHandler {
 	 * @inheritDoc
 	 */
 	public function onCompoundTk( CompoundTk $ctk, TokenHandler $tokensHandler ): ?array {
+		if ( $ctk instanceof EmptyLineTk ) {
+			// TSP might create EmptyLineTk by swallowing a NlTk into it
+			// rather than requiring it to precede a EmptyLineTk.
+			// So, call processQuotes always.
+			// * If there was a NlTk seen before it, the buffers are empty,
+			//   and we return null and $ctk is passed through.
+			// * If there was no NlTk before it (TSP case), we effectively
+			//   flush the buffers and send the $ctk after that.
+			// In either case, we are good.
+			return $this->processQuotes( $ctk );
+		}
+
 		$newToks = $tokensHandler->process( $ctk->getNestedTokens() );
 		if ( $ctk->setsEOLContext() ) {
 			$flushedOutput = $this->processQuotes();
