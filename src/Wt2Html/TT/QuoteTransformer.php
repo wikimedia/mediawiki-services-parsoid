@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
 use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\PHPUtils;
+use Wikimedia\Parsoid\Utils\TokenUtils;
 use Wikimedia\Parsoid\Wt2html\TokenHandlerPipeline;
 
 /**
@@ -104,7 +105,10 @@ class QuoteTransformer extends LineBasedHandler {
 		$tkName = $token->getName();
 		if ( $tkName === 'mw-quote' ) {
 			return $this->onQuote( $token );
-		} elseif ( $tkName === 'td' || $tkName === 'th' ) {
+		} elseif (
+			( $tkName === 'td' || $tkName === 'th' ) &&
+			!TokenUtils::isHTMLTag( $token )
+		) {
 			return $this->processQuotes( $token );
 		} else {
 			return null;
@@ -201,14 +205,6 @@ class QuoteTransformer extends LineBasedHandler {
 		}
 
 		$this->env->trace( "quote", $this->pipelineId, "NL    |", $token );
-
-		if (
-			$token instanceof XMLTagTk &&
-			( $token->getName() === 'td' || $token->getName() === 'th' ) &&
-			( $token->dataParsoid->stx ?? '' ) === 'html'
-		) {
-			return null;
-		}
 
 		// count number of bold and italics
 		$numbold = 0;
