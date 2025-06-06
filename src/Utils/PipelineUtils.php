@@ -625,6 +625,9 @@ class PipelineUtils {
 				if ( isset( $nodeData->parsoid->tmp->endTSR ) ) {
 					unset( $nodeData->parsoid->tmp->endTSR );
 				}
+				if ( isset( $nodeData->parsoid->html ) ) {
+					unset( $nodeData->parsoid->html );
+				}
 
 				// The "in transclusion" flag was set on the first child for template
 				// wrapping in the nested pipeline, and doesn't apply to the dom
