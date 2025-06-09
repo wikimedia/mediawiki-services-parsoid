@@ -404,7 +404,7 @@ br =
 inline_breaks =
 	& [=|!{}:;\r\n[\]\-]
 	(
-		annOrExtTag: <annOrExtTag>
+		tagType: <tagType>
 		h: <h>
 		extlink: <extlink>
 		intemplate: <intemplate>
@@ -420,7 +420,7 @@ inline_breaks =
 		th: <th>
 		& {
 			return TokenizerUtils::inlineBreaks( $this->input, $this->endOffset(), [
-				'annOrExtTag' => $annOrExtTag,
+				'tagType' => $tagType,
 				'h' => $h,
 				'extlink' => $extlink,
 				'intemplate' => $intemplate,
@@ -447,7 +447,7 @@ inlineline =
 		return TokenizerUtils::flattenStringlist( $c );
 	}
 
-html_tag = xmlish_tag<annOrExtTag=false>
+html_tag = xmlish_tag<tagType="html">
 
 // Doesn't use wellformed_extension_tag because html_tag is permissible
 angle_bracket_markup =
@@ -1472,7 +1472,10 @@ quote =
 // In coordination with language team, get rid of this hack once all old uses
 // are migrated to new syntax (T274881).
 tvar_old_syntax_closing_HACK =
-	!<annOrExtTag>
+	tagType: <tagType>
+	& {
+		return $tagType !== 'anno';
+	}
 	"</>"
 	& { return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); }
 	{
@@ -1483,7 +1486,10 @@ tvar_old_syntax_closing_HACK =
 	}
 
 annotation_check =
-	!<annOrExtTag>
+	tagType: <tagType>
+	& {
+		return $tagType !== 'anno';
+	}
 	start:xmlish_start
 	&{
 		list(,$name) = $start;
@@ -1494,7 +1500,7 @@ annotation_tag =
 	& { return $this->annotationsEnabledOnWiki; /* short-circuit! */ }
 	tag:( tvar_old_syntax_closing_HACK / (
 		&annotation_check
-		t:xmlish_tag<annOrExtTag>
+		t:xmlish_tag<tagType="anno">
 		{
 			$end = ( $t instanceof EndTagTk );
 			$attribs = $t->attribs;
@@ -1544,8 +1550,14 @@ annotation_tag =
 		}
 	}
 
+html_or_empty =
+	tagType: <tagType>
+	& {
+		return ( $tagType === 'html' || $tagType === '' );
+	}
+
 extension_check =
-	!<annOrExtTag>
+	html_or_empty
 	start:xmlish_start
 	&{
 		list(,$name) = $start;
@@ -1559,7 +1571,7 @@ extension_check =
 
 maybe_extension_tag =
 	&extension_check
-	t:xmlish_tag<annOrExtTag>
+	t:xmlish_tag<tagType="ext">
 	{
 		$tagName = mb_strtolower( $t->getName() );
 		$dp = $t->dataParsoid;
@@ -1678,7 +1690,7 @@ wellformed_extension_tag =
 	{ return $extToken; }
 
 nowiki_check =
-	!<annOrExtTag>
+	html_or_empty
 	start:xmlish_start
 	&{
 		list(,$name) = $start;
@@ -1721,13 +1733,13 @@ space_or_newline_or_solidus = space_or_newline / (s:"/" !">" { return $s; })
 xmlish_start = "<" end:"/"? name:tag_name { return [ $end, $name ]; }
 
 xmlish_tag =
-	annOrExtTag: <annOrExtTag>
+	tagType: <tagType>
 	start:xmlish_start
 	& {
 		// Only enforce ascii alpha first char for non-extension tags.
 		// See tag_name above for the details.
 		list(,$name) = $start;
-		return $annOrExtTag ||
+		return $tagType !== 'html' ||
 			( preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name ) );
 	}
 	// By the time we get to `doTableStuff` in the old parser, we've already
@@ -1743,7 +1755,7 @@ xmlish_tag =
 
 		// Extension tags don't necessarily have the same semantics as html tags,
 		// so don't treat them as void elements.
-		$isVoidElt = Utils::isVoidElement( $lcName ) && !$annOrExtTag;
+		$isVoidElt = Utils::isVoidElement( $lcName ) && $tagType === 'html';
 
 		// Support </br>
 		if ( $lcName === 'br' && $end ) {
@@ -1825,7 +1837,7 @@ table_attribute =
 // exception, since they're stripped beforehand.
 less_than =
 	$(
-		&<annOrExtTag>
+		!html_or_empty
 		"<"
 	)
 
@@ -2408,7 +2420,7 @@ htmlentity =
  */
 
 include_check =
-	!<annOrExtTag>
+	html_or_empty
 	start:xmlish_start
 	&{
 		list(,$name) = $start;
@@ -2417,7 +2429,7 @@ include_check =
 
 include_limits =
 	&include_check
-	t:xmlish_tag<annOrExtTag> {
+	t:xmlish_tag<tagType="inc"> {
 		$tagName = mb_strtolower( $t->getName() );
 		switch ( $tagName ) {
 			case 'includeonly':
