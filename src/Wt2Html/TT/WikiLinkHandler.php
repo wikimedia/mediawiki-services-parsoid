@@ -269,7 +269,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$frameSrc = $frame->getSrcText();
 		$linkSrc = $tsr->substr( $frameSrc );
 		$src = substr( $linkSrc, 1 );
-		if ( $src === false ) {
+		if ( $src === '' ) {
 			$manager->getEnv()->log(
 				'error', 'Unable to determine link source.',
 				"frame: $frameSrc", 'tsr: ', $tsr,

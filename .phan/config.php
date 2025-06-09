@@ -11,7 +11,6 @@ $hasLangConv = is_dir( "{$root}/vendor/wikimedia/langconv" );
 
 if ( $STANDALONE ) {
 	$cfg = require __DIR__ . '/../vendor/mediawiki/mediawiki-phan-config/src/config-library.php';
-	$cfg['target_php_version'] = '8.1';
 
 	$cfg['directory_list'] = [
 		# not the extension directory, it requires MW (ie, "not standalone")
@@ -55,7 +54,7 @@ if ( $STANDALONE ) {
 	}
 }
 
-$cfg['minimum_target_php_version'] = '7.4';
+$cfg['minimum_target_php_version'] = '8.1';
 
 // If the optional wikimedia/langconv package isn't installed, ignore files
 // which require it.

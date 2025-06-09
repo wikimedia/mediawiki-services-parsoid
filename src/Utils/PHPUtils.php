@@ -170,10 +170,7 @@ class PHPUtils {
 		} else {
 			$ss = substr( $s, $start, $length );
 		}
-		if ( $ss === false ) {
-			$ss = '';
-		}
-		if ( strlen( $ss ) === 0 ) {
+		if ( $ss === '' ) {
 			return $ss;
 		}
 		$firstChar = ord( $ss );
