@@ -1,8 +1,5 @@
 <?php
 declare( strict_types = 1 );
-// Suppress UnusedPluginSuppression because
-// Phan on PHP 7.4 and PHP 8.1 need different suppressions
-// @phan-file-suppress UnusedPluginSuppression,UnusedPluginFileSuppression
 
 namespace Wikimedia\Parsoid\Utils;
 
@@ -667,7 +664,6 @@ class WTUtils {
 				$syntaxLen = 4;
 			}
 		} elseif ( $node instanceof CommentTk ) {
-			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
 			if ( isset( $node->dataParsoid->unclosedComment ) ) {
 				$syntaxLen = 4;
 			}
