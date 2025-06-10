@@ -227,13 +227,6 @@ start_async =
 				return true;
 			}
 		) { return $t; }
-		/ newline* &{
-			// "tlb" matches "block" matches "sol" matches "newlineToken"
-			// But, "tlb" is prefixed with a !eof clause, so, we should only
-			// get here on eof. So, safe to unconditionally terminate the
-			// generator loop here.
-			return false;
-		}
 	)*
 
 /*
@@ -1840,7 +1833,16 @@ less_than =
 // by html5 and what's necessary to give directive a chance.
 // See: http://www.w3.org/TR/html5/syntax.html#attributes-0
 generic_attribute_name =
-	q:$(["'=]?) // From #before-attribute-name-state, < is omitted for directive
+	first:(
+	  // From #before-attribute-name-state, < is omitted for directive
+	  $(["'=]) // add a double quote to fix syntax highlighting: "
+	  / generic_attribute_name_piece
+	) rest:generic_attribute_name_piece*
+	{
+		array_unshift( $rest, $first );
+		return TokenizerUtils::flattenString( $rest );
+	}
+generic_attribute_name_piece =
 	r:(
 		$[^ \t\r\n\0/=><&{}\-!|]+
 		/ !inline_breaks
@@ -1850,12 +1852,7 @@ generic_attribute_name =
 			/ less_than
 			/ $( !( space_or_newline / [\0/=><] ) . )
 		) { return $t; }
-	)*
-	& { return count( $r ) > 0 || $q !== ''; }
-	{
-		array_unshift( $r, $q );
-		return TokenizerUtils::flattenString( $r );
-	}
+	)
 
 // Also accept these chars in a wikitext table or tr attribute name position.
 // They are normally not matched by the table_attribute_name.
@@ -1865,7 +1862,16 @@ broken_table_attribute_name_char = c:[\0/=>] { return new KV( $c, '' ); }
 // (That doesn't make sense (ie. match the old parser) in the generic case.)
 // We also give a chance to break on \[ (see T2553).
 table_attribute_name =
-	q:$(["'=]?) // From #before-attribute-name-state, < is omitted for directive
+	first:(
+	  // From #before-attribute-name-state, < is omitted for directive
+	  $(["'=]) // add a double quote to fix syntax highlighting: "
+	  / table_attribute_name_piece
+	) rest:table_attribute_name_piece*
+	{
+		array_unshift( $rest, $first );
+		return TokenizerUtils::flattenString( $rest );
+	}
+table_attribute_name_piece =
 	r:(
 		$[^ \t\r\n\0/=><&{}\-!|\[]+
 		/ !inline_breaks
@@ -1879,12 +1885,7 @@ table_attribute_name =
 			/ &'<' x:html_tag ill:inlineline? { return array_merge( [$x], $ill ?: [] ); }
 			/ $( !( space_or_newline / [\0/=>] ) . )
 		) { return $t; }
-	)*
-	& { return count( $r ) > 0 || $q !== ''; }
-	{
-		array_unshift( $r, $q );
-		return TokenizerUtils::flattenString( $r );
-	}
+	)
 
 // Attribute value, quoted variants can span multiple lines.
 // Missing end quote: accept /> look-ahead as heuristic.

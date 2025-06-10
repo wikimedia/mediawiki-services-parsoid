@@ -203,73 +203,73 @@ class Grammar extends \Wikimedia\WikiPEG\PEGParserBase {
 7 => ["type" => "any", "description" => "any character"],
 8 => ["type" => "other", "description" => "extlink"],
 9 => ["type" => "other", "description" => "tlb"],
-10 => ["type" => "literal", "value" => "\x0a", "description" => "\"\\n\""],
-11 => ["type" => "literal", "value" => "\x0d\x0a", "description" => "\"\\r\\n\""],
-12 => ["type" => "literal", "value" => "|", "description" => "\"|\""],
-13 => ["type" => "literal", "value" => "{{!}}", "description" => "\"{{!}}\""],
-14 => ["type" => "class", "value" => "[ \\t]", "description" => "[ \\t]"],
-15 => ["type" => "literal", "value" => "//", "description" => "\"//\""],
-16 => ["type" => "class", "value" => "[A-Za-z]", "description" => "[A-Za-z]"],
-17 => ["type" => "class", "value" => "[-A-Za-z0-9+.]", "description" => "[-A-Za-z0-9+.]"],
-18 => ["type" => "literal", "value" => ":", "description" => "\":\""],
-19 => ["type" => "literal", "value" => "[", "description" => "\"[\""],
-20 => ["type" => "class", "value" => "[0-9A-Fa-f:.]", "description" => "[0-9A-Fa-f:.]"],
-21 => ["type" => "literal", "value" => "]", "description" => "\"]\""],
-22 => ["type" => "class", "value" => "[^ \\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f&\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]", "description" => "[^ \\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f&\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]"],
-23 => ["type" => "literal", "value" => "<!--", "description" => "\"<!--\""],
-24 => ["type" => "literal", "value" => "-->", "description" => "\"-->\""],
-25 => ["type" => "literal", "value" => "=", "description" => "\"=\""],
-26 => ["type" => "class", "value" => "[\\0/=>]", "description" => "[\\0/=>]"],
-27 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
-28 => ["type" => "literal", "value" => ";", "description" => "\";\""],
+10 => ["type" => "literal", "value" => "|", "description" => "\"|\""],
+11 => ["type" => "literal", "value" => "{{!}}", "description" => "\"{{!}}\""],
+12 => ["type" => "class", "value" => "[ \\t]", "description" => "[ \\t]"],
+13 => ["type" => "literal", "value" => "//", "description" => "\"//\""],
+14 => ["type" => "class", "value" => "[A-Za-z]", "description" => "[A-Za-z]"],
+15 => ["type" => "class", "value" => "[-A-Za-z0-9+.]", "description" => "[-A-Za-z0-9+.]"],
+16 => ["type" => "literal", "value" => ":", "description" => "\":\""],
+17 => ["type" => "literal", "value" => "[", "description" => "\"[\""],
+18 => ["type" => "class", "value" => "[0-9A-Fa-f:.]", "description" => "[0-9A-Fa-f:.]"],
+19 => ["type" => "literal", "value" => "]", "description" => "\"]\""],
+20 => ["type" => "class", "value" => "[^ \\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f&\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]", "description" => "[^ \\]\\[\\r\\n\"'<>\\x00-\\x20\\x7f&\\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000{]"],
+21 => ["type" => "literal", "value" => "<!--", "description" => "\"<!--\""],
+22 => ["type" => "literal", "value" => "-->", "description" => "\"-->\""],
+23 => ["type" => "literal", "value" => "=", "description" => "\"=\""],
+24 => ["type" => "class", "value" => "[\\0/=>]", "description" => "[\\0/=>]"],
+25 => ["type" => "class", "value" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[ \\u00A0\\u1680\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
+26 => ["type" => "literal", "value" => ";", "description" => "\";\""],
+27 => ["type" => "literal", "value" => "\x0a", "description" => "\"\\n\""],
+28 => ["type" => "literal", "value" => "\x0d\x0a", "description" => "\"\\r\\n\""],
 29 => ["type" => "literal", "value" => "{", "description" => "\"{\""],
 30 => ["type" => "class", "value" => "[#0-9a-zA-Z\u{5e8}\u{5dc}\u{5de}\u{631}\u{644}\u{645}]", "description" => "[#0-9a-zA-Z\u{5e8}\u{5dc}\u{5de}\u{631}\u{644}\u{645}]"],
 31 => ["type" => "class", "value" => "[\"'=]", "description" => "[\"'=]"],
-32 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]"],
-33 => ["type" => "literal", "value" => "'", "description" => "\"'\""],
-34 => ["type" => "literal", "value" => "\"", "description" => "\"\\\"\""],
-35 => ["type" => "literal", "value" => "/", "description" => "\"/\""],
-36 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]"],
-37 => ["type" => "class", "value" => "[ \\t\\n\\r\\x0c]", "description" => "[ \\t\\n\\r\\x0c]"],
-38 => ["type" => "class", "value" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
-39 => ["type" => "class", "value" => "[&|{\\-!}=]", "description" => "[&|{\\-!}=]"],
-40 => ["type" => "class", "value" => "[']", "description" => "[']"],
-41 => ["type" => "literal", "value" => "[[", "description" => "\"[[\""],
-42 => ["type" => "class", "value" => "[*#:;]", "description" => "[*#:;]"],
-43 => ["type" => "literal", "value" => "{{", "description" => "\"{{\""],
-44 => ["type" => "class", "value" => "[^{}&<\\-!\\['\\r\\n|]", "description" => "[^{}&<\\-!\\['\\r\\n|]"],
-45 => ["type" => "class", "value" => "[{}&<\\-!\\[]", "description" => "[{}&<\\-!\\[]"],
-46 => ["type" => "class", "value" => "[^{}&<\\-!\\[\"\\r\\n|]", "description" => "[^{}&<\\-!\\[\"\\r\\n|]"],
-47 => ["type" => "class", "value" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]", "description" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]"],
-48 => ["type" => "literal", "value" => "<", "description" => "\"<\""],
-49 => ["type" => "class", "value" => "[^{}&<\\-|/'>]", "description" => "[^{}&<\\-|/'>]"],
-50 => ["type" => "class", "value" => "[{}&\\-|/]", "description" => "[{}&\\-|/]"],
-51 => ["type" => "class", "value" => "[^{}&<\\-|/\">]", "description" => "[^{}&<\\-|/\">]"],
-52 => ["type" => "class", "value" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]", "description" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]"],
-53 => ["type" => "literal", "value" => "__", "description" => "\"__\""],
-54 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=]", "description" => "[^-'<[{\\n\\r:;\\]}|!=]"],
-55 => ["type" => "literal", "value" => "-", "description" => "\"-\""],
-56 => ["type" => "literal", "value" => "''", "description" => "\"''\""],
-57 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
-58 => ["type" => "class", "value" => "[^ \\t\\n\\r\\x0c:\\[]", "description" => "[^ \\t\\n\\r\\x0c:\\[]"],
-59 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
-60 => ["type" => "literal", "value" => "{{{", "description" => "\"{{{\""],
-61 => ["type" => "literal", "value" => "}}}", "description" => "\"}}}\""],
-62 => ["type" => "literal", "value" => "}}", "description" => "\"}}\""],
-63 => ["type" => "literal", "value" => "]]", "description" => "\"]]\""],
-64 => ["type" => "literal", "value" => ">", "description" => "\">\""],
-65 => ["type" => "class", "value" => "[0-9]", "description" => "[0-9]"],
-66 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
-67 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
+32 => ["type" => "literal", "value" => "'", "description" => "\"'\""],
+33 => ["type" => "literal", "value" => "\"", "description" => "\"\\\"\""],
+34 => ["type" => "literal", "value" => "/", "description" => "\"/\""],
+35 => ["type" => "class", "value" => "[ \\t\\n\\r\\x0c]", "description" => "[ \\t\\n\\r\\x0c]"],
+36 => ["type" => "class", "value" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]", "description" => "[^<[{\\n\\r|!\\]}\\-\\t&=\"' \\u00A0\\u1680\\u180E\\u2000-\\u200A\\u202F\\u205F\\u3000]"],
+37 => ["type" => "class", "value" => "[&|{\\-!}=]", "description" => "[&|{\\-!}=]"],
+38 => ["type" => "class", "value" => "[']", "description" => "[']"],
+39 => ["type" => "literal", "value" => "[[", "description" => "\"[[\""],
+40 => ["type" => "class", "value" => "[*#:;]", "description" => "[*#:;]"],
+41 => ["type" => "literal", "value" => "{{", "description" => "\"{{\""],
+42 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|\\[]"],
+43 => ["type" => "class", "value" => "[^{}&<\\-!\\['\\r\\n|]", "description" => "[^{}&<\\-!\\['\\r\\n|]"],
+44 => ["type" => "class", "value" => "[{}&<\\-!\\[]", "description" => "[{}&<\\-!\\[]"],
+45 => ["type" => "class", "value" => "[^{}&<\\-!\\[\"\\r\\n|]", "description" => "[^{}&<\\-!\\[\"\\r\\n|]"],
+46 => ["type" => "class", "value" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]", "description" => "[^{}&<\\-!\\[ \\t\\n\\r\\x0c|]"],
+47 => ["type" => "class", "value" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]", "description" => "[^ \\t\\r\\n\\0/=><&{}\\-!|]"],
+48 => ["type" => "class", "value" => "[^{}&<\\-|/'>]", "description" => "[^{}&<\\-|/'>]"],
+49 => ["type" => "class", "value" => "[{}&\\-|/]", "description" => "[{}&\\-|/]"],
+50 => ["type" => "class", "value" => "[^{}&<\\-|/\">]", "description" => "[^{}&<\\-|/\">]"],
+51 => ["type" => "class", "value" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]", "description" => "[^{}&<\\-|/ \\t\\n\\r\\x0c>]"],
+52 => ["type" => "literal", "value" => "__", "description" => "\"__\""],
+53 => ["type" => "class", "value" => "[^-'<[{\\n\\r:;\\]}|!=]", "description" => "[^-'<[{\\n\\r:;\\]}|!=]"],
+54 => ["type" => "literal", "value" => "-", "description" => "\"-\""],
+55 => ["type" => "literal", "value" => "''", "description" => "\"''\""],
+56 => ["type" => "class", "value" => "[ \\t\\n\\r\\0\\x0b]", "description" => "[ \\t\\n\\r\\0\\x0b]"],
+57 => ["type" => "class", "value" => "[^ \\t\\n\\r\\x0c:\\[]", "description" => "[^ \\t\\n\\r\\x0c:\\[]"],
+58 => ["type" => "literal", "value" => "----", "description" => "\"----\""],
+59 => ["type" => "literal", "value" => "{{{", "description" => "\"{{{\""],
+60 => ["type" => "literal", "value" => "}}}", "description" => "\"}}}\""],
+61 => ["type" => "literal", "value" => "}}", "description" => "\"}}\""],
+62 => ["type" => "literal", "value" => "<", "description" => "\"<\""],
+63 => ["type" => "class", "value" => "[0-9]", "description" => "[0-9]"],
+64 => ["type" => "literal", "value" => "ISBN", "description" => "\"ISBN\""],
+65 => ["type" => "class", "value" => "[xX]", "description" => "[xX]"],
+66 => ["type" => "literal", "value" => "]]", "description" => "\"]]\""],
+67 => ["type" => "literal", "value" => ">", "description" => "\">\""],
 68 => ["type" => "literal", "value" => "</>", "description" => "\"</>\""],
 69 => ["type" => "literal", "value" => "}", "description" => "\"}\""],
 70 => ["type" => "literal", "value" => "#parsoid\x00fragment:", "description" => "\"#parsoid\\u0000fragment:\""],
-71 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
-72 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
-73 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
-74 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
-75 => ["type" => "literal", "value" => "-{", "description" => "\"-{\""],
-76 => ["type" => "literal", "value" => "}-", "description" => "\"}-\""],
+71 => ["type" => "literal", "value" => "RFC", "description" => "\"RFC\""],
+72 => ["type" => "literal", "value" => "PMID", "description" => "\"PMID\""],
+73 => ["type" => "literal", "value" => "-{", "description" => "\"-{\""],
+74 => ["type" => "literal", "value" => "}-", "description" => "\"}-\""],
+75 => ["type" => "class", "value" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]", "description" => "[^<[{\\n\\r\\t|!\\]}{ &\\-]"],
+76 => ["type" => "class", "value" => "[!<\\-\\}\\]\\n\\r]", "description" => "[!<\\-\\}\\]\\n\\r]"],
 77 => ["type" => "literal", "value" => "+", "description" => "\"+\""],
 78 => ["type" => "class", "value" => "[^\\t\\n\\v />\\0]", "description" => "[^\\t\\n\\v />\\0]"],
 79 => ["type" => "literal", "value" => "!", "description" => "\"!\""],
@@ -307,16 +307,7 @@ private function a1($t) {
 private function a2($t) {
  return $t; 
 }
-private function a3() {
-
-			// "tlb" matches "block" matches "sol" matches "newlineToken"
-			// But, "tlb" is prefixed with a !eof clause, so, we should only
-			// get here on eof. So, safe to unconditionally terminate the
-			// generator loop here.
-			return false;
-		
-}
-private function a4($t, $n) {
+private function a3($t, $n) {
 
 		if ( count( $t ) ) {
 			$ret = TokenizerUtils::flattenIfArray( $t );
@@ -330,13 +321,13 @@ private function a4($t, $n) {
 		return $ret;
 	
 }
-private function a5($b, $p) {
+private function a4($b, $p) {
  $this->unreachable(); 
 }
-private function a6($b, $p, $ta) {
+private function a5($b, $p, $ta) {
  return $this->endOffset(); 
 }
-private function a7($b, $p, $ta, $tsEndPos, $s2) {
+private function a6($b, $p, $ta, $tsEndPos, $s2) {
 
 		$coms = TokenizerUtils::popComments( $ta );
 		if ( $coms ) {
@@ -357,41 +348,41 @@ private function a7($b, $p, $ta, $tsEndPos, $s2) {
 		);
 	
 }
-private function a8($proto, $addr, $he) {
+private function a7($proto, $addr, $he) {
  return $he; 
 }
-private function a9($proto, $addr, $r) {
+private function a8($proto, $addr, $r) {
  return $r; 
 }
-private function a10($proto, $addr, $c) {
+private function a9($proto, $addr, $c) {
  return $c; 
 }
-private function a11($proto, $addr, $path) {
+private function a10($proto, $addr, $path) {
  return $addr !== '' || count( $path ) > 0; 
 }
-private function a12($proto, $addr, $path) {
+private function a11($proto, $addr, $path) {
 
 		return TokenizerUtils::flattenString( array_merge( [ $proto, $addr ], $path ) );
 	
 }
-private function a13($as, $s, $p) {
+private function a12($as, $s, $p) {
 
 		return [ $as, $s, $p ];
 	
 }
-private function a14($b) {
+private function a13($b) {
  return $b; 
 }
-private function a15($r) {
+private function a14($r) {
  return TokenizerUtils::flattenIfArray( $r ); 
 }
-private function a16() {
+private function a15() {
  return $this->endOffset(); 
 }
-private function a17($p0, $addr, $target) {
+private function a16($p0, $addr, $target) {
  return TokenizerUtils::flattenString( [ $addr, $target ] ); 
 }
-private function a18($p0, $flat) {
+private function a17($p0, $flat) {
 
 			// Protocol must be valid and there ought to be at least one
 			// post-protocol character.  So strip last char off target
@@ -403,16 +394,16 @@ private function a18($p0, $flat) {
 			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
 		
 }
-private function a19($p0, $flat) {
+private function a18($p0, $flat) {
  return $this->endOffset(); 
 }
-private function a20($p0, $flat, $p1, $sp) {
+private function a19($p0, $flat, $p1, $sp) {
  return $this->endOffset(); 
 }
-private function a21($p0, $flat, $p1, $sp, $p2, $content) {
+private function a20($p0, $flat, $p1, $sp, $p2, $content) {
  return $this->endOffset(); 
 }
-private function a22($p0, $flat, $p1, $sp, $p2, $content, $p3) {
+private function a21($p0, $flat, $p1, $sp, $p2, $content, $p3) {
 
 			$tsr1 = new SourceRange( $p0, $p1 );
 			$tsr2 = new SourceRange( $p2, $p3 );
@@ -431,10 +422,10 @@ private function a22($p0, $flat, $p1, $sp, $p2, $content, $p3) {
 				)
 			]; 
 }
-private function a23($r) {
+private function a22($r) {
  return $r; 
 }
-private function a24($b) {
+private function a23($b) {
 
 		// Clear the tokenizer's backtracking cache after matching each
 		// toplevelblock. There won't be any backtracking as a document is just a
@@ -456,16 +447,16 @@ private function a24($b) {
 		return $this->emitChunk( $tokens );
 	
 }
-private function a25() {
+private function a24() {
  return [ new NlTk( $this->tsrOffsets() ) ]; 
 }
-private function a26($p) {
+private function a25($p) {
  return Utils::isProtocolValid( $p, $this->env ); 
 }
-private function a27($p) {
+private function a26($p) {
  return $p; 
 }
-private function a28($annOrExtTag, $h, $extlink, $intemplate, &$preproc, $equal, $table, $templateArg, $tableCellArg, $semicolon, $arrow, $linkdesc, $colon, &$th) {
+private function a27($annOrExtTag, $h, $extlink, $intemplate, &$preproc, $equal, $table, $templateArg, $tableCellArg, $semicolon, $arrow, $linkdesc, $colon, &$th) {
 
 			return TokenizerUtils::inlineBreaks( $this->input, $this->endOffset(), [
 				'annOrExtTag' => $annOrExtTag,
@@ -485,7 +476,7 @@ private function a28($annOrExtTag, $h, $extlink, $intemplate, &$preproc, $equal,
 			], $this->env );
 		
 }
-private function a29($c, $cEnd) {
+private function a28($c, $cEnd) {
 
 		$data = WTUtils::encodeComment( $c );
 		$dp = new DataParsoid;
@@ -496,12 +487,12 @@ private function a29($c, $cEnd) {
 		return [ new CommentTk( $data, $dp ) ];
 	
 }
-private function a30($t) {
+private function a29($t) {
 
 		return $t;
 	
 }
-private function a31($cc) {
+private function a30($cc) {
 
 		// if this is an invalid entity, don't tag it with 'mw:Entity'
 		// note that some entities (like &acE;) decode to 2 codepoints!
@@ -522,13 +513,13 @@ private function a31($cc) {
 		];
 	
 }
-private function a32($namePos0, $name) {
+private function a31($namePos0, $name) {
  return $this->endOffset(); 
 }
-private function a33($namePos0, $name, $namePos1, $v) {
+private function a32($namePos0, $name, $namePos1, $v) {
  return $v; 
 }
-private function a34($namePos0, $name, $namePos1, $vd) {
+private function a33($namePos0, $name, $namePos1, $vd) {
 
 	// NB: Keep in sync w/ generic_newline_attribute
 	$res = null;
@@ -549,10 +540,10 @@ private function a34($namePos0, $name, $namePos1, $vd) {
 	return $res;
 
 }
-private function a35($c) {
+private function a34($c) {
  return new KV( $c, '' ); 
 }
-private function a36($namePos0, $name, $namePos1, $vd) {
+private function a35($namePos0, $name, $namePos1, $vd) {
 
 	// NB: Keep in sync w/ table_attibute
 	$res = null;
@@ -573,18 +564,18 @@ private function a36($namePos0, $name, $namePos1, $vd) {
 	return $res;
 
 }
-private function a37($s) {
+private function a36($s) {
  return $s; 
 }
-private function a38($c) {
+private function a37($c) {
 
 		return TokenizerUtils::flattenStringlist( $c );
 	
 }
-private function a39($lc) {
+private function a38($lc) {
  return $lc; 
 }
-private function a40($bullets, $colons, $d) {
+private function a39($bullets, $colons, $d) {
 
 		$bulletToks = [];
 		// Leave bullets as an array -- list handler expects this
@@ -618,7 +609,7 @@ private function a40($bullets, $colons, $d) {
 		return $bulletToks;
 	
 }
-private function a41($bullets, $sc, $tbl) {
+private function a40($bullets, $sc, $tbl) {
 
 	// Leave bullets as an array -- list handler expects this
 	$tsr = $this->tsrOffsets( 'start' );
@@ -629,7 +620,7 @@ private function a41($bullets, $sc, $tbl) {
 	return array_merge( [ $li ], $sc, $tbl );
 
 }
-private function a42($bullets, $c) {
+private function a41($bullets, $c) {
 
 		// Leave bullets as an array -- list handler expects this
 		$tsr = $this->tsrOffsets( 'start' );
@@ -640,57 +631,48 @@ private function a42($bullets, $c) {
 		return array_merge( [ $li ], $c ?: [] );
 	
 }
-private function a43() {
+private function a42() {
  return $this->endOffset() === $this->inputLength; 
 }
-private function a44($r, $cil, $bl) {
+private function a43($r, $cil, $bl) {
 
 		$this->hasSOLTransparentAtStart = true;
 		return array_merge( [ $r ], $cil, $bl ?: [] );
 	
 }
-private function a45($a) {
+private function a44($a) {
  return $a; 
 }
-private function a46($a, $b) {
+private function a45($a, $b) {
  return [ $a, $b ]; 
 }
-private function a47($m) {
+private function a46($m) {
 
 		return Utils::decodeWtEntities( $m );
 	
 }
-private function a48($q, $x, $ill) {
- return array_merge( [$x], $ill ?: [] ); 
-}
-private function a49($q, $t) {
- return $t; 
-}
-private function a50($q, $r) {
- return count( $r ) > 0 || $q !== ''; 
-}
-private function a51($q, $r) {
+private function a47($first, $rest) {
 
-		array_unshift( $r, $q );
-		return TokenizerUtils::flattenString( $r );
+		array_unshift( $rest, $first );
+		return TokenizerUtils::flattenString( $rest );
 	
 }
-private function a52($s, $t, $q) {
+private function a48($s, $t, $q) {
 
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() - strlen( $q ) );
 	
 }
-private function a53($s, $t) {
+private function a49($s, $t) {
 
 		return TokenizerUtils::getAttrVal( $t, $this->startOffset() + strlen( $s ), $this->endOffset() );
 	
 }
-private function a54($r) {
+private function a50($r) {
 
 		return TokenizerUtils::flattenString( $r );
 	
 }
-private function a55() {
+private function a51() {
 
 			if ( preg_match( $this->reUrltextLookahead, $this->input, $m, 0, $this->currPos ) ) {
 				$plain = $m[1];
@@ -703,41 +685,41 @@ private function a55() {
 			}
 		
 }
-private function a56() {
+private function a52() {
 
 			$this->currPos += strlen( $this->urltextPlainSegment );
 			return $this->urltextPlainSegment;
 		
 }
-private function a57() {
+private function a53() {
  return $this->urltextFoundAutolink; 
 }
-private function a58($al) {
+private function a54($al) {
  return $al; 
 }
-private function a59($he) {
+private function a55($he) {
  return $he; 
 }
-private function a60($bs) {
+private function a56($bs) {
  return $bs; 
 }
-private function a61($c) {
+private function a57($c) {
  return $this->endOffset(); 
 }
-private function a62($c, $cpos) {
+private function a58($c, $cpos) {
 
 	return [ $c, $cpos ];
 
 }
-private function a63() {
+private function a59() {
  return $this->endOffset() === 0 && !$this->pipelineOffset; 
 }
-private function a64($rw, $sp, $c, $wl) {
+private function a60($rw, $sp, $c, $wl) {
 
 		return count( $wl ) === 1 && $wl[0] instanceof Token;
 	
 }
-private function a65($rw, $sp, $c, $wl) {
+private function a61($rw, $sp, $c, $wl) {
 
 		$link = $wl[0];
 		if ( $sp ) {
@@ -759,42 +741,45 @@ private function a65($rw, $sp, $c, $wl) {
 		return $redirect;
 	
 }
-private function a66($tl) {
+private function a62($tl) {
  return $tl; 
 }
-private function a67($s, $os, $so) {
+private function a63($s, $os, $so) {
  return array_merge( $os, $so ); 
 }
-private function a68($s, $s2, $bl) {
+private function a64($s, $s2, $bl) {
 
 		return array_merge( $s, $s2 ?: [], $bl );
 	
 }
-private function a69() {
+private function a65() {
  return $this->endOffset() === 0 || ($this->input[$this->currPos] ?? '') === "\n"; 
 }
-private function a70($sp, $elc, $st) {
+private function a66($sp, $elc, $st) {
 
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 
 }
-private function a71(&$preproc, $t) {
+private function a67(&$preproc, $t) {
 
 		$preproc = null;
 		return $t;
 	
 }
-private function a72($v) {
+private function a68($x, $ill) {
+ return array_merge( [$x], $ill ?: [] ); 
+}
+private function a69($v) {
  return $v; 
 }
-private function a73($e) {
+private function a70($e) {
  return $e; 
 }
-private function a74() {
+private function a71() {
  return Utils::isUniWord(Utils::lastUniChar( $this->input, $this->endOffset() ) ); 
 }
-private function a75($bs) {
+private function a72($bs) {
 
 		if ( $this->siteConfig->isBehaviorSwitch( $bs ) ) {
 			$dp = new DataParsoid;
@@ -809,7 +794,7 @@ private function a75($bs) {
 		}
 	
 }
-private function a76($quotes) {
+private function a73($quotes) {
 
 		// sequences of four or more than five quotes are assumed to start
 		// with some number of plain-text apostrophes.
@@ -839,12 +824,12 @@ private function a76($quotes) {
 		return $result;
 	
 }
-private function a77($rw) {
+private function a74($rw) {
 
 			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
 		
 }
-private function a78($t) {
+private function a75($t) {
 
 		$tagName = mb_strtolower( $t->getName() );
 		switch ( $tagName ) {
@@ -951,10 +936,10 @@ private function a78($t) {
 		}
 	
 }
-private function a79() {
+private function a76() {
  return $this->annotationsEnabledOnWiki; /* short-circuit! */ 
 }
-private function a80($t) {
+private function a77($t) {
 
 			$end = ( $t instanceof EndTagTk );
 			$attribs = $t->attribs;
@@ -992,7 +977,7 @@ private function a80($t) {
 			return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp, $datamw );
 		
 }
-private function a81($tag) {
+private function a78($tag) {
 
 		// FIXME: Suppress annotation meta tokens from template pipelines
 		// since they may not have TSR values and won't get recognized as
@@ -1005,16 +990,16 @@ private function a81($tag) {
 		}
 	
 }
-private function a82($s, $ill) {
+private function a79($s, $ill) {
  return $ill ?: []; 
 }
-private function a83($s, $ce) {
+private function a80($s, $ce) {
  return $ce || strlen( $s ) > 2; 
 }
-private function a84($s, $ce) {
+private function a81($s, $ce) {
  return $this->endOffset(); 
 }
-private function a85($s, $ce, $endTPos, $spc) {
+private function a82($s, $ce, $endTPos, $spc) {
 
 			$c = null;
 			$e = null;
@@ -1087,13 +1072,13 @@ private function a85($s, $ce, $endTPos, $spc) {
 			return $res;
 		
 }
-private function a86($d) {
+private function a83($d) {
  return null; 
 }
-private function a87($d) {
+private function a84($d) {
  return true; 
 }
-private function a88($d, $lineContent) {
+private function a85($d, $lineContent) {
 
 		$dataParsoid = new DataParsoid;
 		$dataParsoid->tsr = $this->tsrOffsets();
@@ -1106,12 +1091,12 @@ private function a88($d, $lineContent) {
 		return [new SelfclosingTagTk( 'hr', [], $dataParsoid )];
 	
 }
-private function a89($sc, $tl) {
+private function a86($sc, $tl) {
 
 		return array_merge($sc, $tl);
 	
 }
-private function a90($s) {
+private function a87($s) {
 
 		if ( $s !== '' ) {
 			return [ $s ];
@@ -1120,40 +1105,40 @@ private function a90($s) {
 		}
 	
 }
-private function a91() {
+private function a88() {
 
 		// Use the sol flag only at the start of the input
 		return $this->endOffset() === 0 && $this->options['sol'];
 	
 }
-private function a92() {
+private function a89() {
 
 		return [];
 	
 }
-private function a93($p, $c) {
+private function a90($p, $c) {
 
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $p, $this->endOffset() );
 		return [ new EmptyLineTk( TokenizerUtils::flattenIfArray( $c ), $dp ) ];
 	
 }
-private function a94($p, $target) {
+private function a91($p, $target) {
  return $this->endOffset(); 
 }
-private function a95($p, $target, $p0, $v) {
+private function a92($p, $target, $p0, $v) {
  return $this->endOffset(); 
 }
-private function a96($p, $target, $p0, $v, $p1) {
+private function a93($p, $target, $p0, $v, $p1) {
 
 				// empty argument
 				return [ 'tokens' => $v, 'srcOffsets' => new SourceRange( $p0, $p1 ) ];
 			
 }
-private function a97($p, $target, $r) {
+private function a94($p, $target, $r) {
  return $r; 
 }
-private function a98($p, $target, $params) {
+private function a95($p, $target, $params) {
 
 		$kvs = [];
 
@@ -1177,23 +1162,23 @@ private function a98($p, $target, $params) {
 		return $obj;
 	
 }
-private function a99($target) {
+private function a96($target) {
  return $this->endOffset(); 
 }
-private function a100($target, $p0, $v) {
+private function a97($target, $p0, $v) {
  return $this->endOffset(); 
 }
-private function a101($target, $p0, $v, $p1) {
+private function a98($target, $p0, $v, $p1) {
 
 				// empty argument
 				$tsr0 = new SourceRange( $p0, $p1 );
 				return new KV( '', TokenizerUtils::flattenIfArray( $v ), $tsr0->expandTsrV() );
 			
 }
-private function a102($target, $r) {
+private function a99($target, $r) {
  return $r; 
 }
-private function a103($target, $params) {
+private function a100($target, $params) {
 
 		// Insert target as first positional attribute, so that it can be
 		// generically expanded. The TemplateHandler then needs to shift it out
@@ -1206,119 +1191,16 @@ private function a103($target, $params) {
 		return $obj;
 	
 }
-private function a104($spos, $target) {
- return $this->endOffset(); 
-}
-private function a105($spos, $target, $tpos, $l) {
- return [$l,null]; 
-}
-private function a106($spos, $target, $tpos, $l) {
- return [null,$l]; 
-}
-private function a107($spos, $target, $tpos, $lcs) {
-
-		[$lcs, $not_wikilink] = $lcs;
-		$pipeTrick = $lcs && count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
-		if ( $target === null || $pipeTrick || $not_wikilink) {
-			$textTokens = [];
-			$textTokens[] = '[[';
-			if ( $target ) {
-				$textTokens[] = $target;
-			}
-			foreach ( $lcs ?? [] as $a ) {
-				// $a[0] is a pipe
-				// FIXME: Account for variation, emit a template tag
-				$textTokens[] = '|';
-				// $a[1] is a mw:maybeContent attribute
-				if ( count( $a[1]->v ) > 0 ) {
-					$textTokens[] = $a[1]->v;
-				}
-			}
-			if ( $not_wikilink ) {
-			   $textTokens[] = $not_wikilink;
-			}
-			$textTokens[] = ']]';
-			return $textTokens;
-		}
-		$tsr = new SourceRange( $spos, $tpos );
-		$hrefKV = new KV(
-			'href', $target, $tsr->expandTsrV(), null,
-			$tsr->substr( $this->input )
-		);
-		$obj = new SelfclosingTagTk( 'wikilink' );
-		$attribs = array_map( static fn ( $lc ) => $lc[1], $lcs );
-		$obj->attribs = array_merge( [$hrefKV], $attribs );
-		$dp = new DataParsoid;
-		$dp->tsr = $this->tsrOffsets();
-		$dp->src = $this->text();
-		// Capture a variation in the separator between target
-		// and contents.  Note that target might have other templates
-		// that emit pipes, so this might not actually be the first
-		// separator, but the WikiLinkHandler doesn't support that
-		// yet, see onWikiLink.
-		if ( $lcs && $lcs[0][0] !== '|' ) {
-			$dp->firstPipeSrc = $lcs[0][0];
-		}
-		$obj->dataParsoid = $dp;
-		return [ $obj ];
-	
-}
-private function a108(&$preproc) {
- $preproc = null; return true; 
-}
-private function a109(&$preproc, $a) {
-
-		return $a;
-	
-}
-private function a110($extToken) {
+private function a101($extToken) {
  return $extToken->getName() === 'extension'; 
 }
-private function a111($extToken) {
+private function a102($extToken) {
  return $extToken; 
 }
-private function a112($annOrExtTag, $start) {
-
-		// Only enforce ascii alpha first char for non-extension tags.
-		// See tag_name above for the details.
-		list(,$name) = $start;
-		return $annOrExtTag ||
-			( preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name ) );
-	
-}
-private function a113($annOrExtTag, $start, $attribs, $selfclose) {
-
-		list($end, $name) = $start;
-		$lcName = mb_strtolower( $name );
-
-		// Extension tags don't necessarily have the same semantics as html tags,
-		// so don't treat them as void elements.
-		$isVoidElt = Utils::isVoidElement( $lcName ) && !$annOrExtTag;
-
-		// Support </br>
-		if ( $lcName === 'br' && $end ) {
-			$end = null;
-		}
-
-		$tsr = $this->tsrOffsets();
-		$res = TokenizerUtils::buildXMLTag(
-			$name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, $tsr
-		);
-
-		// change up data-attribs in one scenario
-		// void-elts that aren't self-closed ==> useful for accurate RT-ing
-		if ( !$selfclose && $isVoidElt ) {
-			unset( $res->dataParsoid->selfClose );
-			$res->dataParsoid->noClose = true;
-		}
-
-		return $res;
-	
-}
-private function a114($proto, $addr, $rhe) {
+private function a103($proto, $addr, $rhe) {
  return $rhe === '<' || $rhe === '>' || $rhe === "\u{A0}"; 
 }
-private function a115($proto, $addr, $path) {
+private function a104($proto, $addr, $path) {
 
 			// as in Parser.php::makeFreeExternalLink, we're going to
 			// yank trailing punctuation out of this match.
@@ -1339,10 +1221,10 @@ private function a115($proto, $addr, $path) {
 			return $url;
 		
 }
-private function a116($r) {
+private function a105($r) {
  return $r !== null; 
 }
-private function a117($r) {
+private function a106($r) {
 
 		$tsr = $this->tsrOffsets();
 		$dp = new DataParsoid;
@@ -1351,7 +1233,7 @@ private function a117($r) {
 		return $res;
 	
 }
-private function a118($ref, $sp, $identifier) {
+private function a107($ref, $sp, $identifier) {
 
 		$base_urls = [
 			'RFC' => 'https://datatracker.ietf.org/doc/html/rfc%s',
@@ -1377,10 +1259,10 @@ private function a118($ref, $sp, $identifier) {
 		];
 	
 }
-private function a119() {
+private function a108() {
  return $this->siteConfig->magicLinkEnabled("ISBN"); 
 }
-private function a120($sp, $isbn) {
+private function a109($sp, $isbn) {
 
 			// Convert isbn token-and-entity array to stripped string.
 			$stripped = '';
@@ -1392,14 +1274,14 @@ private function a120($sp, $isbn) {
 			return strtoupper( preg_replace( '/[^\dX]/i', '', $stripped ) );
 		
 }
-private function a121($sp, $isbn, $isbncode) {
+private function a110($sp, $isbn, $isbncode) {
 
 		// ISBNs can only be 10 or 13 digits long (with a specific format)
 		return strlen( $isbncode ) === 10
 			|| ( strlen( $isbncode ) === 13 && preg_match( '/^97[89]/', $isbncode ) );
 	
 }
-private function a122($sp, $isbn, $isbncode) {
+private function a111($sp, $isbn, $isbncode) {
 
 		$tsr = $this->tsrOffsets();
 		$dp = new DataParsoid;
@@ -1421,7 +1303,7 @@ private function a122($sp, $isbn, $isbncode) {
 		];
 	
 }
-private function a123($t) {
+private function a112($t) {
 
 		$tagName = mb_strtolower( $t->getName() );
 		$dp = $t->dataParsoid;
@@ -1533,16 +1415,119 @@ private function a123($t) {
 		], $dp );
 	
 }
-private function a124($start) {
+private function a113($spos, $target) {
+ return $this->endOffset(); 
+}
+private function a114($spos, $target, $tpos, $l) {
+ return [$l,null]; 
+}
+private function a115($spos, $target, $tpos, $l) {
+ return [null,$l]; 
+}
+private function a116($spos, $target, $tpos, $lcs) {
+
+		[$lcs, $not_wikilink] = $lcs;
+		$pipeTrick = $lcs && count( $lcs ) === 1 && count( $lcs[0][1]->v ) === 0;
+		if ( $target === null || $pipeTrick || $not_wikilink) {
+			$textTokens = [];
+			$textTokens[] = '[[';
+			if ( $target ) {
+				$textTokens[] = $target;
+			}
+			foreach ( $lcs ?? [] as $a ) {
+				// $a[0] is a pipe
+				// FIXME: Account for variation, emit a template tag
+				$textTokens[] = '|';
+				// $a[1] is a mw:maybeContent attribute
+				if ( count( $a[1]->v ) > 0 ) {
+					$textTokens[] = $a[1]->v;
+				}
+			}
+			if ( $not_wikilink ) {
+			   $textTokens[] = $not_wikilink;
+			}
+			$textTokens[] = ']]';
+			return $textTokens;
+		}
+		$tsr = new SourceRange( $spos, $tpos );
+		$hrefKV = new KV(
+			'href', $target, $tsr->expandTsrV(), null,
+			$tsr->substr( $this->input )
+		);
+		$obj = new SelfclosingTagTk( 'wikilink' );
+		$attribs = array_map( static fn ( $lc ) => $lc[1], $lcs );
+		$obj->attribs = array_merge( [$hrefKV], $attribs );
+		$dp = new DataParsoid;
+		$dp->tsr = $this->tsrOffsets();
+		$dp->src = $this->text();
+		// Capture a variation in the separator between target
+		// and contents.  Note that target might have other templates
+		// that emit pipes, so this might not actually be the first
+		// separator, but the WikiLinkHandler doesn't support that
+		// yet, see onWikiLink.
+		if ( $lcs && $lcs[0][0] !== '|' ) {
+			$dp->firstPipeSrc = $lcs[0][0];
+		}
+		$obj->dataParsoid = $dp;
+		return [ $obj ];
+	
+}
+private function a117(&$preproc) {
+ $preproc = null; return true; 
+}
+private function a118(&$preproc, $a) {
+
+		return $a;
+	
+}
+private function a119($start) {
 
 		list(,$name) = $start;
 		return WTUtils::isIncludeTag( mb_strtolower( $name ) );
 	
 }
-private function a125() {
+private function a120($annOrExtTag, $start) {
+
+		// Only enforce ascii alpha first char for non-extension tags.
+		// See tag_name above for the details.
+		list(,$name) = $start;
+		return $annOrExtTag ||
+			( preg_match( '/^[A-Za-z]/', $name ) && $this->isXMLTag( $name ) );
+	
+}
+private function a121($annOrExtTag, $start, $attribs, $selfclose) {
+
+		list($end, $name) = $start;
+		$lcName = mb_strtolower( $name );
+
+		// Extension tags don't necessarily have the same semantics as html tags,
+		// so don't treat them as void elements.
+		$isVoidElt = Utils::isVoidElement( $lcName ) && !$annOrExtTag;
+
+		// Support </br>
+		if ( $lcName === 'br' && $end ) {
+			$end = null;
+		}
+
+		$tsr = $this->tsrOffsets();
+		$res = TokenizerUtils::buildXMLTag(
+			$name, $lcName, $attribs, $end, !!$selfclose || $isVoidElt, $tsr
+		);
+
+		// change up data-attribs in one scenario
+		// void-elts that aren't self-closed ==> useful for accurate RT-ing
+		if ( !$selfclose && $isVoidElt ) {
+			unset( $res->dataParsoid->selfClose );
+			$res->dataParsoid->noClose = true;
+		}
+
+		return $res;
+	
+}
+private function a122() {
  return $this->env->hasAnnotations && $this->siteConfig->isAnnotationTag( 'tvar' ); 
 }
-private function a126() {
+private function a123() {
 
 		$metaAttrs = [ new KV( 'typeof', 'mw:Annotation/tvar/End' ) ];
 		$dp = new DataParsoid();
@@ -1550,13 +1535,13 @@ private function a126() {
 		return new SelfclosingTagTk ( 'meta', $metaAttrs, $dp );
 	
 }
-private function a127($start) {
+private function a124($start) {
 
 		list(,$name) = $start;
 		return WTUtils::isAnnotationTag( $this->env, $name );
 	
 }
-private function a128($p, $b) {
+private function a125($p, $b) {
 
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $this->startOffset(), $this->endOffset() );
@@ -1569,7 +1554,7 @@ private function a128($p, $b) {
 		return [ $tblEnd ];
 	
 }
-private function a129($il) {
+private function a126($il) {
 
 		// il is guaranteed to be an array -- so, tu.flattenIfArray will
 		// always return an array
@@ -1580,18 +1565,18 @@ private function a129($il) {
 		return [ 'tokens' => $r, 'srcOffsets' => $this->tsrOffsets() ];
 	
 }
-private function a130($tpt) {
+private function a127($tpt) {
 
 		return [ 'tokens' => $tpt, 'srcOffsets' => $this->tsrOffsets() ];
 	
 }
-private function a131($name) {
+private function a128($name) {
  return $this->endOffset(); 
 }
-private function a132($name, $kEndPos) {
+private function a129($name, $kEndPos) {
  return $this->endOffset(); 
 }
-private function a133($name, $kEndPos, $vStartPos, $optSp, $tpv) {
+private function a130($name, $kEndPos, $vStartPos, $optSp, $tpv) {
 
 			return [
 				'kEndPos' => $kEndPos,
@@ -1601,7 +1586,7 @@ private function a133($name, $kEndPos, $vStartPos, $optSp, $tpv) {
 			];
 		
 }
-private function a134($name, $val) {
+private function a131($name, $val) {
 
 		if ( $val !== null ) {
 			$so = new KVSourceRange(
@@ -1623,49 +1608,32 @@ private function a134($name, $val) {
 		}
 	
 }
-private function a135() {
+private function a132() {
 
 		$so = new SourceRange( $this->startOffset(), $this->endOffset() );
 		return new KV( '', '', $so->expandTsrV() );
 	
 }
-private function a136($t, $wr) {
- return $wr; 
-}
-private function a137($p) {
- return $this->endOffset(); 
-}
-private function a138($p, $startPos, $lt) {
-
-			$tsr = new SourceRange( $startPos, $this->endOffset() );
-			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
-			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
-			return [$p, $maybeContent];
-		
-}
-private function a139($end, $name) {
- return [ $end, $name ]; 
-}
-private function a140() {
+private function a133() {
  return $this->siteConfig->magicLinkEnabled("RFC"); 
 }
-private function a141() {
+private function a134() {
 
 	return 'RFC';
 
 }
-private function a142() {
+private function a135() {
  return $this->siteConfig->magicLinkEnabled("PMID"); 
 }
-private function a143() {
+private function a136() {
 
 	return 'PMID';
 
 }
-private function a144($he) {
+private function a137($he) {
  return is_array( $he ) && $he[ 1 ] === "\u{A0}"; 
 }
-private function a145($start) {
+private function a138($start) {
 
 		list(,$name) = $start;
 		return isset( $this->extTags[mb_strtolower( $name )] ) &&
@@ -1676,13 +1644,13 @@ private function a145($start) {
 			!WTUtils::isAnnotationTag( $this->env, $name );
 	
 }
-private function a146() {
+private function a139() {
  return $this->startOffset(); 
 }
-private function a147($lv0) {
+private function a140($lv0) {
  return $this->env->langConverterEnabled(); 
 }
-private function a148($lv0, $ff) {
+private function a141($lv0, $ff) {
 
 			// if flags contains 'R', then don't treat ; or : specially inside.
 			if ( isset( $ff['flags'] ) ) {
@@ -1693,31 +1661,31 @@ private function a148($lv0, $ff) {
 			return $ff;
 		
 }
-private function a149($lv0) {
+private function a142($lv0) {
  return !$this->env->langConverterEnabled(); 
 }
-private function a150($lv0) {
+private function a143($lv0) {
 
 			// if language converter not enabled, don't try to parse inside.
 			return [ 'raw' => true ];
 		
 }
-private function a151($lv0, $f) {
+private function a144($lv0, $f) {
  return $f['raw']; 
 }
-private function a152($lv0, $f, $lv) {
+private function a145($lv0, $f, $lv) {
  return [ [ 'text' => $lv ] ]; 
 }
-private function a153($lv0, $f) {
+private function a146($lv0, $f) {
  return !$f['raw']; 
 }
-private function a154($lv0, $f, $lv) {
+private function a147($lv0, $f, $lv) {
  return $lv; 
 }
-private function a155($lv0, $f, $ts) {
+private function a148($lv0, $f, $ts) {
  return $this->endOffset(); 
 }
-private function a156($lv0, $f, $ts, $lv1) {
+private function a149($lv0, $f, $ts, $lv1) {
 
 		if ( !$this->env->langConverterEnabled() ) {
 			return [ '-{', $ts[0]['text']['tokens'], '}-' ];
@@ -1764,19 +1732,36 @@ private function a156($lv0, $f, $ts, $lv1) {
 		];
 	
 }
-private function a157($r, &$preproc) {
+private function a150($r, &$preproc) {
 
 		$preproc = null;
 		return $r;
 	
 }
-private function a158($p, $dashes) {
- $this->unreachable(); 
+private function a151($t, $wr) {
+ return $wr; 
 }
-private function a159($p, $dashes, $a) {
+private function a152($p) {
  return $this->endOffset(); 
 }
-private function a160($p, $dashes, $a, $tagEndPos, $s2) {
+private function a153($p, $startPos, $lt) {
+
+			$tsr = new SourceRange( $startPos, $this->endOffset() );
+			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
+			$maybeContent->vsrc = substr( $this->input, $startPos, $this->endOffset() - $startPos );
+			return [$p, $maybeContent];
+		
+}
+private function a154($end, $name) {
+ return [ $end, $name ]; 
+}
+private function a155($p, $dashes) {
+ $this->unreachable(); 
+}
+private function a156($p, $dashes, $a) {
+ return $this->endOffset(); 
+}
+private function a157($p, $dashes, $a, $tagEndPos, $s2) {
 
 		$coms = TokenizerUtils::popComments( $a );
 		if ( $coms ) {
@@ -1795,7 +1780,7 @@ private function a160($p, $dashes, $a, $tagEndPos, $s2) {
 		return array_merge( [ $trToken ], $coms ? $coms['buf'] : [], $s2 );
 	
 }
-private function a161($p, $td, $tds) {
+private function a158($p, $td, $tds) {
 
 		// Avoid modifying a cached result
 		$td[0] = clone $td[0];
@@ -1809,10 +1794,10 @@ private function a161($p, $td, $tds) {
 		return array_merge( $td, $tds );
 	
 }
-private function a162($p, $args) {
+private function a159($p, $args) {
  return $this->endOffset(); 
 }
-private function a163($p, $args, $tagEndPos, $c) {
+private function a160($p, $args, $tagEndPos, $c) {
 
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
@@ -1820,10 +1805,10 @@ private function a163($p, $args, $tagEndPos, $c) {
 		);
 	
 }
-private function a164($i) {
+private function a161($i) {
  return $i; 
 }
-private function a165($il) {
+private function a162($il) {
 
 		// il is guaranteed to be an array -- so, tu.flattenIfArray will
 		// always return an array
@@ -1834,13 +1819,13 @@ private function a165($il) {
 		return $r;
 	
 }
-private function a166() {
+private function a163() {
  return ''; 
 }
-private function a167($ff) {
+private function a164($ff) {
  return $ff; 
 }
-private function a168($f) {
+private function a165($f) {
 
 		// Collect & separate flags and variants into a hashtable (by key) and ordered list
 		$flags = [];
@@ -1910,7 +1895,7 @@ private function a168($f) {
 		}
 	
 }
-private function a169($tokens) {
+private function a166($tokens) {
 
 		return [
 			'tokens' => TokenizerUtils::flattenStringlist( $tokens ),
@@ -1918,10 +1903,10 @@ private function a169($tokens) {
 		];
 	
 }
-private function a170($o, $oo) {
+private function a167($o, $oo) {
  return $oo; 
 }
-private function a171($o, $rest, $tr) {
+private function a168($o, $rest, $tr) {
 
 		array_unshift( $rest, $o );
 		// if the last bogus option is just spaces, keep them; otherwise
@@ -1935,10 +1920,10 @@ private function a171($o, $rest, $tr) {
 		return $rest;
 	
 }
-private function a172($lvtext) {
+private function a169($lvtext) {
  return [ [ 'text' => $lvtext ] ]; 
 }
-private function a173($thTag, $thTags) {
+private function a170($thTag, $thTags) {
 
 		// Avoid modifying a cached result
 		$thTag[0] = clone $thTag[0];
@@ -1949,10 +1934,10 @@ private function a173($thTag, $thTags) {
 		return $thTags;
 	
 }
-private function a174($arg) {
+private function a171($arg) {
  return $this->endOffset(); 
 }
-private function a175($arg, $tagEndPos, $td) {
+private function a172($arg, $tagEndPos, $td) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos );
@@ -1961,7 +1946,7 @@ private function a175($arg, $tagEndPos, $td) {
 		);
 	
 }
-private function a176($pp, $tdt) {
+private function a173($pp, $tdt) {
 
 			// Avoid modifying cached dataParsoid object
 			$tdt[0] = clone $tdt[0];
@@ -1977,12 +1962,12 @@ private function a176($pp, $tdt) {
 			return $tdt;
 		
 }
-private function a177($b) {
+private function a174($b) {
 
 		return $b;
 	
 }
-private function a178($sp1, $f, $sp2, $more) {
+private function a175($sp1, $f, $sp2, $more) {
 
 		$r = ( $more && $more[1] ) ? $more[1] : [ 'sp' => [], 'flags' => [] ];
 		// Note that sp and flags are in reverse order, since we're using
@@ -1993,12 +1978,12 @@ private function a178($sp1, $f, $sp2, $more) {
 		return $r;
 	
 }
-private function a179($sp) {
+private function a176($sp) {
 
 		return [ 'sp' => [ $sp ], 'flags' => [] ];
 	
 }
-private function a180($sp1, $lang, $sp2, $sp3, $lvtext) {
+private function a177($sp1, $lang, $sp2, $sp3, $lvtext) {
 
 		return [
 			'twoway' => true,
@@ -2008,7 +1993,7 @@ private function a180($sp1, $lang, $sp2, $sp3, $lvtext) {
 		];
 	
 }
-private function a181($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
+private function a178($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 
 		return [
 			'oneway' => true,
@@ -2019,7 +2004,7 @@ private function a181($sp1, $from, $sp2, $lang, $sp3, $sp4, $to) {
 		];
 	
 }
-private function a182($arg, $tagEndPos, &$th, $d) {
+private function a179($arg, $tagEndPos, &$th, $d) {
 
 			// Ignore newlines found in transclusions!
 			// This is not perfect (since {{..}} may not always tokenize to transclusions).
@@ -2031,7 +2016,7 @@ private function a182($arg, $tagEndPos, &$th, $d) {
 			return $d;
 		
 }
-private function a183($arg, $tagEndPos, $c) {
+private function a180($arg, $tagEndPos, $c) {
 
 		$tagStart = $this->startOffset();
 		$tsr = new SourceRange( $tagStart, $tagEndPos );
@@ -2040,7 +2025,7 @@ private function a183($arg, $tagEndPos, $c) {
 		);
 	
 }
-private function a184($pp, $tht) {
+private function a181($pp, $tht) {
 
 			// Avoid modifying cached dataParsoid object
 			$tht[0] = clone $tht[0];
@@ -2056,21 +2041,16 @@ private function a184($pp, $tht) {
 			return $tht;
 		
 }
-private function a185($r) {
-
-		return $r;
-	
-}
-private function a186($f) {
+private function a182($f) {
  return [ 'flag' => $f ]; 
 }
-private function a187($v) {
+private function a183($v) {
  return [ 'variant' => $v ]; 
 }
-private function a188($b) {
+private function a184($b) {
  return [ 'bogus' => $b ]; /* bad flag */
 }
-private function a189($n, $sp) {
+private function a185($n, $sp) {
 
 		$tsr = $this->tsrOffsets();
 		$tsr->end -= strlen( $sp );
@@ -2080,16 +2060,21 @@ private function a189($n, $sp) {
 		];
 	
 }
-private function a190($ext) {
+private function a186($r) {
+
+		return $r;
+	
+}
+private function a187($ext) {
  return $ext; 
 }
-private function a191($extToken) {
+private function a188($extToken) {
 
 		$txt = Utils::extractExtBody( $extToken );
 		return Utils::decodeWtEntities( $txt );
 	
 }
-private function a192($start) {
+private function a189($start) {
 
 		list(,$name) = $start;
 		return ( mb_strtolower( $name ) === 'nowiki' );
@@ -2099,7 +2084,6 @@ private function a192($start) {
 	// generated
 	private function streamstart_async($silence, &$param_preproc) {
   for (;;) {
-    // start choice_1
     $p2 = $this->currPos;
     // start seq_1
     $p3 = $this->currPos;
@@ -2134,36 +2118,6 @@ private function a192($start) {
     if ($r1!==self::$FAILED) {
       $this->savedPos = $p2;
       $r1 = $this->a2($r5);
-      goto choice_1;
-    }
-    // free $p3
-    // start seq_2
-    $p3 = $this->currPos;
-    $r7 = [];
-    for (;;) {
-      $r8 = $this->parsenewline($silence);
-      if ($r8!==self::$FAILED) {
-        $r7[] = $r8;
-      } else {
-        break;
-      }
-    }
-    // free $r8
-    $this->savedPos = $this->currPos;
-    $r8 = $this->a3();
-    if ($r8) {
-      $r8 = false;
-    } else {
-      $r8 = self::$FAILED;
-      $this->currPos = $p3;
-      $r1 = self::$FAILED;
-      goto seq_2;
-    }
-    $r1 = [$r7,$r8];
-    seq_2:
-    // free $p3
-    choice_1:
-    if ($r1!==self::$FAILED) {
       yield $r1;
     } else {
       if ($this->currPos < $this->inputLength) {
@@ -2172,10 +2126,11 @@ private function a192($start) {
       }
       break;
     }
+    // free $p3
   }
 }
 private function parsestart($silence, &$param_preproc) {
-  $key = json_encode([306, $param_preproc]);
+  $key = json_encode([310, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2213,7 +2168,7 @@ private function parsestart($silence, &$param_preproc) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a4($r4, $r5);
+    $r1 = $this->a3($r4, $r5);
   } else {
     if (!$silence) {$this->fail(1);}
   }
@@ -2227,7 +2182,7 @@ private function parsestart($silence, &$param_preproc) {
   return $r1;
 }
 private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([512, $boolParams & 0x7fbf, $param_preproc, $param_th]);
+  $key = json_encode([520, $boolParams & 0x7fbf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2263,7 +2218,7 @@ private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$
     goto choice_1;
   }
   $this->savedPos = $this->currPos;
-  $r6 = $this->a5($r4, $r5);
+  $r6 = $this->a4($r4, $r5);
   if ($r6) {
     $r6 = false;
   } else {
@@ -2281,7 +2236,7 @@ private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$
   // tsEndPos <- $r7
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a6($r4, $r5, $r6);
+    $r7 = $this->a5($r4, $r5, $r6);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -2302,7 +2257,7 @@ private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a7($r4, $r5, $r6, $r7, $r9);
+    $r1 = $this->a6($r4, $r5, $r6, $r7, $r9);
   } else {
     if (!$silence) {$this->fail(2);}
   }
@@ -2316,7 +2271,7 @@ private function parsetable_start_tag($silence, $boolParams, &$param_preproc, &$
   return $r1;
 }
 private function parseurl($silence, &$param_preproc) {
-  $key = json_encode([368, $param_preproc]);
+  $key = json_encode([372, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2500,7 +2455,7 @@ private function parseurl($silence, &$param_preproc) {
     seq_7:
     if ($r25!==self::$FAILED) {
       $this->savedPos = $p14;
-      $r25 = $this->a8($r4, $r5, $r27);
+      $r25 = $this->a7($r4, $r5, $r27);
       goto choice_4;
     }
     // free $p16
@@ -2522,7 +2477,7 @@ private function parseurl($silence, &$param_preproc) {
     seq_3:
     if ($r12!==self::$FAILED) {
       $this->savedPos = $p10;
-      $r12 = $this->a9($r4, $r5, $r25);
+      $r12 = $this->a8($r4, $r5, $r25);
     }
     // free $p13
     choice_2:
@@ -2536,7 +2491,7 @@ private function parseurl($silence, &$param_preproc) {
     seq_2:
     if ($r7!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r7 = $this->a10($r4, $r5, $r12);
+      $r7 = $this->a9($r4, $r5, $r12);
       $r6[] = $r7;
     } else {
       break;
@@ -2546,7 +2501,7 @@ private function parseurl($silence, &$param_preproc) {
   // path <- $r6
   // free $r7
   $this->savedPos = $this->currPos;
-  $r7 = $this->a11($r4, $r5, $r6);
+  $r7 = $this->a10($r4, $r5, $r6);
   if ($r7) {
     $r7 = false;
   } else {
@@ -2559,7 +2514,7 @@ private function parseurl($silence, &$param_preproc) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a12($r4, $r5, $r6);
+    $r1 = $this->a11($r4, $r5, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -2571,7 +2526,7 @@ private function parseurl($silence, &$param_preproc) {
   return $r1;
 }
 private function parserow_syntax_table_args($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([534, $boolParams & 0x7eff, $param_preproc, $param_th]);
+  $key = json_encode([542, $boolParams & 0x7eff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2626,7 +2581,7 @@ private function parserow_syntax_table_args($silence, $boolParams, &$param_prepr
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a13($r4, $r5, $r7);
+    $r1 = $this->a12($r4, $r5, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -2638,7 +2593,7 @@ private function parserow_syntax_table_args($silence, $boolParams, &$param_prepr
   return $r1;
 }
 private function parsetable_attributes($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([310, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([314, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2675,7 +2630,7 @@ private function parsetable_attributes($silence, $boolParams, &$param_preproc, &
     seq_1:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r2 = $this->a14($r6);
+      $r2 = $this->a13($r6);
     }
     // free $p4
     choice_1:
@@ -2695,7 +2650,7 @@ private function parsetable_attributes($silence, $boolParams, &$param_preproc, &
   return $r1;
 }
 private function parsegeneric_newline_attributes($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([308, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([312, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2725,7 +2680,7 @@ private function parsegeneric_newline_attributes($silence, $boolParams, &$param_
   return $r1;
 }
 private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
-  $key = json_encode([378, $param_preproc]);
+  $key = json_encode([382, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2763,7 +2718,7 @@ private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a15($r3);
+    $r1 = $this->a14($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -2774,7 +2729,7 @@ private function parsetplarg_or_template_or_bust($silence, &$param_preproc) {
   return $r1;
 }
 private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([354, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([358, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -2811,7 +2766,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   // p0 <- $r9
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p10;
-    $r9 = $this->a16();
+    $r9 = $this->a15();
   } else {
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -2865,7 +2820,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   // flat <- $r11
   if ($r11!==self::$FAILED) {
     $this->savedPos = $p12;
-    $r11 = $this->a17($r9, $r14, $r18);
+    $r11 = $this->a16($r9, $r14, $r18);
   } else {
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -2873,7 +2828,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   }
   // free $p13
   $this->savedPos = $this->currPos;
-  $r19 = $this->a18($r9, $r11);
+  $r19 = $this->a17($r9, $r11);
   if ($r19) {
     $r19 = false;
   } else {
@@ -2887,7 +2842,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   // p1 <- $r20
   if ($r20!==self::$FAILED) {
     $this->savedPos = $p13;
-    $r20 = $this->a19($r9, $r11);
+    $r20 = $this->a18($r9, $r11);
   } else {
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -2923,7 +2878,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   // p2 <- $r22
   if ($r22!==self::$FAILED) {
     $this->savedPos = $p15;
-    $r22 = $this->a20($r9, $r11, $r20, $r21);
+    $r22 = $this->a19($r9, $r11, $r20, $r21);
   } else {
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -2939,7 +2894,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   // p3 <- $r24
   if ($r24!==self::$FAILED) {
     $this->savedPos = $p25;
-    $r24 = $this->a21($r9, $r11, $r20, $r21, $r22, $r23);
+    $r24 = $this->a20($r9, $r11, $r20, $r21, $r22, $r23);
   } else {
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -2959,7 +2914,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   // r <- $r5
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a22($r9, $r11, $r20, $r21, $r22, $r23, $r24);
+    $r5 = $this->a21($r9, $r11, $r20, $r21, $r22, $r23, $r24);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -2970,7 +2925,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a23($r5);
+    $r1 = $this->a22($r5);
   } else {
     if (!$silence) {$this->fail(8);}
   }
@@ -2984,7 +2939,7 @@ private function parseextlink($silence, $boolParams, &$param_preproc, &$param_th
   return $r1;
 }
 private function parselist_item($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([488, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([496, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3015,7 +2970,7 @@ private function parselist_item($silence, $boolParams, &$param_preproc, &$param_
   return $r1;
 }
 private function parsetlb($silence, &$param_preproc) {
-  $key = json_encode([314, $param_preproc]);
+  $key = json_encode([318, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3049,7 +3004,7 @@ private function parsetlb($silence, &$param_preproc) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a24($r6);
+    $r1 = $this->a23($r6);
   } else {
     if (!$silence) {$this->fail(9);}
   }
@@ -3062,43 +3017,8 @@ private function parsetlb($silence, &$param_preproc) {
   );
   return $r1;
 }
-private function parsenewline($silence) {
-  $key = 580;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start choice_1
-  if (($this->input[$this->currPos] ?? null) === "\x0a") {
-    $this->currPos++;
-    $r1 = "\x0a";
-    goto choice_1;
-  } else {
-    if (!$silence) {$this->fail(10);}
-    $r1 = self::$FAILED;
-  }
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
-    $r1 = "\x0d\x0a";
-    $this->currPos += 2;
-  } else {
-    if (!$silence) {$this->fail(11);}
-    $r1 = self::$FAILED;
-  }
-  choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
 private function parsenewlineToken($silence) {
-  $key = 582;
+  $key = 590;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3111,7 +3031,7 @@ private function parsenewlineToken($silence) {
   $r1 = $this->discardnewline($silence);
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a25();
+    $r1 = $this->a24();
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3122,7 +3042,7 @@ private function parsenewlineToken($silence) {
   return $r1;
 }
 private function parsepipe($silence) {
-  $key = 568;
+  $key = 576;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3137,14 +3057,14 @@ private function parsepipe($silence) {
     $r1 = "|";
     goto choice_1;
   } else {
-    if (!$silence) {$this->fail(12);}
+    if (!$silence) {$this->fail(10);}
     $r1 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
     $r1 = "{{!}}";
     $this->currPos += 5;
   } else {
-    if (!$silence) {$this->fail(13);}
+    if (!$silence) {$this->fail(11);}
     $r1 = self::$FAILED;
   }
   choice_1:
@@ -3157,7 +3077,7 @@ private function parsepipe($silence) {
   return $r1;
 }
 private function parsespace($silence) {
-  $key = 572;
+  $key = 580;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3171,7 +3091,7 @@ private function parsespace($silence) {
     $this->currPos++;
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(14);}
+    if (!$silence) {$this->fail(12);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3182,7 +3102,7 @@ private function parsespace($silence) {
   return $r1;
 }
 private function parseurl_protocol($silence) {
-  $key = 364;
+  $key = 368;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3201,7 +3121,7 @@ private function parseurl_protocol($silence) {
     $this->currPos += 2;
     goto choice_1;
   } else {
-    if (!$silence) {$this->fail(15);}
+    if (!$silence) {$this->fail(13);}
     $r4 = self::$FAILED;
   }
   // start seq_2
@@ -3211,7 +3131,7 @@ private function parseurl_protocol($silence) {
     $this->currPos++;
   } else {
     $r7 = self::$FAILED;
-    if (!$silence) {$this->fail(16);}
+    if (!$silence) {$this->fail(14);}
     $r4 = self::$FAILED;
     goto seq_2;
   }
@@ -3221,7 +3141,7 @@ private function parseurl_protocol($silence) {
       $this->currPos++;
     } else {
       $r9 = self::$FAILED;
-      if (!$silence) {$this->fail(17);}
+      if (!$silence) {$this->fail(15);}
       break;
     }
   }
@@ -3237,7 +3157,7 @@ private function parseurl_protocol($silence) {
     $this->currPos++;
     $r8 = ":";
   } else {
-    if (!$silence) {$this->fail(18);}
+    if (!$silence) {$this->fail(16);}
     $r8 = self::$FAILED;
     $this->currPos = $p6;
     $r4 = self::$FAILED;
@@ -3247,7 +3167,7 @@ private function parseurl_protocol($silence) {
     $r9 = "//";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(15);}
+    if (!$silence) {$this->fail(13);}
     $r9 = self::$FAILED;
     $r9 = null;
   }
@@ -3265,7 +3185,7 @@ private function parseurl_protocol($silence) {
   }
   // free $p5
   $this->savedPos = $this->currPos;
-  $r10 = $this->a26($r4);
+  $r10 = $this->a25($r4);
   if ($r10) {
     $r10 = false;
   } else {
@@ -3278,7 +3198,7 @@ private function parseurl_protocol($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a27($r4);
+    $r1 = $this->a26($r4);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -3290,7 +3210,7 @@ private function parseurl_protocol($silence) {
   return $r1;
 }
 private function parseipv6urladdr($silence) {
-  $key = 372;
+  $key = 376;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3306,7 +3226,7 @@ private function parseipv6urladdr($silence) {
     $this->currPos++;
     $r4 = "[";
   } else {
-    if (!$silence) {$this->fail(19);}
+    if (!$silence) {$this->fail(17);}
     $r4 = self::$FAILED;
     $r2 = self::$FAILED;
     goto seq_1;
@@ -3319,7 +3239,7 @@ private function parseipv6urladdr($silence) {
       $r5 = true;
     } else {
       $r6 = self::$FAILED;
-      if (!$silence) {$this->fail(20);}
+      if (!$silence) {$this->fail(18);}
       break;
     }
   }
@@ -3333,7 +3253,7 @@ private function parseipv6urladdr($silence) {
     $this->currPos++;
     $r6 = "]";
   } else {
-    if (!$silence) {$this->fail(21);}
+    if (!$silence) {$this->fail(19);}
     $r6 = self::$FAILED;
     $this->currPos = $p3;
     $r2 = self::$FAILED;
@@ -3357,7 +3277,7 @@ private function parseipv6urladdr($silence) {
   return $r2;
 }
 private function discardinline_breaks($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([337, $boolParams & 0x1ffe, $param_preproc, $param_th]);
+  $key = json_encode([341, $boolParams & 0x1ffe, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3384,7 +3304,7 @@ private function discardinline_breaks($silence, $boolParams, &$param_preproc, &$
   // start seq_2
   $p3 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r6 = $this->a28(/*annOrExtTag*/($boolParams & 0x2) !== 0, /*h*/($boolParams & 0x4) !== 0, /*extlink*/($boolParams & 0x8) !== 0, /*intemplate*/($boolParams & 0x10) !== 0, $param_preproc, /*equal*/($boolParams & 0x20) !== 0, /*table*/($boolParams & 0x40) !== 0, /*templateArg*/($boolParams & 0x80) !== 0, /*tableCellArg*/($boolParams & 0x100) !== 0, /*semicolon*/($boolParams & 0x200) !== 0, /*arrow*/($boolParams & 0x400) !== 0, /*linkdesc*/($boolParams & 0x800) !== 0, /*colon*/($boolParams & 0x1000) !== 0, $param_th);
+  $r6 = $this->a27(/*annOrExtTag*/($boolParams & 0x2) !== 0, /*h*/($boolParams & 0x4) !== 0, /*extlink*/($boolParams & 0x8) !== 0, /*intemplate*/($boolParams & 0x10) !== 0, $param_preproc, /*equal*/($boolParams & 0x20) !== 0, /*table*/($boolParams & 0x40) !== 0, /*templateArg*/($boolParams & 0x80) !== 0, /*tableCellArg*/($boolParams & 0x100) !== 0, /*semicolon*/($boolParams & 0x200) !== 0, /*arrow*/($boolParams & 0x400) !== 0, /*linkdesc*/($boolParams & 0x800) !== 0, /*colon*/($boolParams & 0x1000) !== 0, $param_th);
   if ($r6) {
     $r6 = false;
   } else {
@@ -3413,7 +3333,7 @@ private function discardinline_breaks($silence, $boolParams, &$param_preproc, &$
   return $r2;
 }
 private function parseno_punctuation_char($silence) {
-  $key = 366;
+  $key = 370;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3427,7 +3347,7 @@ private function parseno_punctuation_char($silence) {
     $this->currPos += strlen($r1);
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(22);}
+    if (!$silence) {$this->fail(20);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3438,7 +3358,7 @@ private function parseno_punctuation_char($silence) {
   return $r1;
 }
 private function parsecomment($silence) {
-  $key = 586;
+  $key = 594;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3454,7 +3374,7 @@ private function parsecomment($silence) {
     $r4 = "<!--";
     $this->currPos += 4;
   } else {
-    if (!$silence) {$this->fail(23);}
+    if (!$silence) {$this->fail(21);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -3514,7 +3434,7 @@ private function parsecomment($silence) {
     $this->currPos += 3;
     goto choice_1;
   } else {
-    if (!$silence) {$this->fail(24);}
+    if (!$silence) {$this->fail(22);}
     $r7 = self::$FAILED;
   }
   $r7 = $this->discardeof($silence);
@@ -3533,7 +3453,7 @@ private function parsecomment($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a29($r5, $r7);
+    $r1 = $this->a28($r5, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -3545,7 +3465,7 @@ private function parsecomment($silence) {
   return $r1;
 }
 private function parsetplarg_or_template($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([374, $boolParams & 0x7fef, $param_th, $param_preproc]);
+  $key = json_encode([378, $boolParams & 0x7fef, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3582,7 +3502,7 @@ private function parsetplarg_or_template($silence, $boolParams, &$param_th, &$pa
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a30($r6);
+    $r1 = $this->a29($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -3594,7 +3514,7 @@ private function parsetplarg_or_template($silence, $boolParams, &$param_th, &$pa
   return $r1;
 }
 private function parsehtmlentity($silence) {
-  $key = 542;
+  $key = 550;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3609,7 +3529,7 @@ private function parsehtmlentity($silence) {
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a31($r3);
+    $r1 = $this->a30($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3620,7 +3540,7 @@ private function parsehtmlentity($silence) {
   return $r1;
 }
 private function discardoptional_spaces($silence) {
-  $key = 575;
+  $key = 583;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3635,7 +3555,7 @@ private function discardoptional_spaces($silence) {
       $this->currPos++;
     } else {
       $r2 = self::$FAILED;
-      if (!$silence) {$this->fail(14);}
+      if (!$silence) {$this->fail(12);}
       break;
     }
   }
@@ -3651,7 +3571,7 @@ private function discardoptional_spaces($silence) {
   return $r1;
 }
 private function discardpipe($silence) {
-  $key = 569;
+  $key = 577;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3666,14 +3586,14 @@ private function discardpipe($silence) {
     $r1 = "|";
     goto choice_1;
   } else {
-    if (!$silence) {$this->fail(12);}
+    if (!$silence) {$this->fail(10);}
     $r1 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "{{!}}", $this->currPos, 5, false) === 0) {
     $r1 = "{{!}}";
     $this->currPos += 5;
   } else {
-    if (!$silence) {$this->fail(13);}
+    if (!$silence) {$this->fail(11);}
     $r1 = self::$FAILED;
   }
   choice_1:
@@ -3686,7 +3606,7 @@ private function discardpipe($silence) {
   return $r1;
 }
 private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([474, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([478, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3710,7 +3630,7 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
   // namePos0 <- $r5
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a16();
+    $r5 = $this->a15();
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -3728,7 +3648,7 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
   // namePos1 <- $r8
   if ($r8!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r8 = $this->a32($r5, $r7);
+    $r8 = $this->a31($r5, $r7);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -3746,7 +3666,7 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
     $this->currPos++;
     $r14 = "=";
   } else {
-    if (!$silence) {$this->fail(25);}
+    if (!$silence) {$this->fail(23);}
     $r14 = self::$FAILED;
     $this->currPos = $p12;
     $r10 = self::$FAILED;
@@ -3761,7 +3681,7 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
   seq_2:
   if ($r10!==self::$FAILED) {
     $this->savedPos = $p11;
-    $r10 = $this->a33($r5, $r7, $r8, $r15);
+    $r10 = $this->a32($r5, $r7, $r8, $r15);
   } else {
     $r10 = null;
   }
@@ -3771,7 +3691,7 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a34($r5, $r7, $r8, $r10);
+    $r1 = $this->a33($r5, $r7, $r8, $r10);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -3783,7 +3703,7 @@ private function parsetable_attribute($silence, $boolParams, &$param_preproc, &$
   return $r1;
 }
 private function parsebroken_table_attribute_name_char($silence) {
-  $key = 480;
+  $key = 486;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3798,12 +3718,12 @@ private function parsebroken_table_attribute_name_char($silence) {
     $r3 = $this->input[$this->currPos++];
   } else {
     $r3 = self::$FAILED;
-    if (!$silence) {$this->fail(26);}
+    if (!$silence) {$this->fail(24);}
   }
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a35($r3);
+    $r1 = $this->a34($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3814,7 +3734,7 @@ private function parsebroken_table_attribute_name_char($silence) {
   return $r1;
 }
 private function parsegeneric_newline_attribute($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([472, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([476, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3846,7 +3766,7 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
   // namePos0 <- $r4
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r4 = $this->a16();
+    $r4 = $this->a15();
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -3864,7 +3784,7 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
   // namePos1 <- $r7
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a32($r4, $r5);
+    $r7 = $this->a31($r4, $r5);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -3890,7 +3810,7 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
     $this->currPos++;
     $r12 = "=";
   } else {
-    if (!$silence) {$this->fail(25);}
+    if (!$silence) {$this->fail(23);}
     $r12 = self::$FAILED;
     $this->currPos = $p11;
     $r9 = self::$FAILED;
@@ -3905,7 +3825,7 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
   seq_2:
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p10;
-    $r9 = $this->a33($r4, $r5, $r7, $r13);
+    $r9 = $this->a32($r4, $r5, $r7, $r13);
   } else {
     $r9 = null;
   }
@@ -3915,7 +3835,7 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a36($r4, $r5, $r7, $r9);
+    $r1 = $this->a35($r4, $r5, $r7, $r9);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -3927,7 +3847,7 @@ private function parsegeneric_newline_attribute($silence, $boolParams, &$param_p
   return $r1;
 }
 private function parseextlink_nonipv6url($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([552, $boolParams & 0x77ff, $param_preproc, $param_th]);
+  $key = json_encode([560, $boolParams & 0x77ff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3948,7 +3868,7 @@ private function parseextlink_nonipv6url($silence, $boolParams, &$param_preproc,
   return $r1;
 }
 private function discardspace($silence) {
-  $key = 573;
+  $key = 581;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3962,7 +3882,7 @@ private function discardspace($silence) {
     $this->currPos++;
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(14);}
+    if (!$silence) {$this->fail(12);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3973,7 +3893,7 @@ private function discardspace($silence) {
   return $r1;
 }
 private function discardunispace($silence) {
-  $key = 599;
+  $key = 607;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -3987,7 +3907,7 @@ private function discardunispace($silence) {
     $this->currPos += strlen($r1);
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(27);}
+    if (!$silence) {$this->fail(25);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -3998,7 +3918,7 @@ private function discardunispace($silence) {
   return $r1;
 }
 private function parseinlineline($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([338, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([342, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4064,7 +3984,7 @@ private function parseinlineline($silence, $boolParams, &$param_preproc, &$param
     seq_2:
     if ($r9!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r9 = $this->a37($r13);
+      $r9 = $this->a36($r13);
     }
     // free $p10
     choice_2:
@@ -4078,7 +3998,7 @@ private function parseinlineline($silence, $boolParams, &$param_preproc, &$param
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p5;
-      $r4 = $this->a23($r9);
+      $r4 = $this->a22($r9);
     }
     // free $p6
     choice_1:
@@ -4096,7 +4016,7 @@ private function parseinlineline($silence, $boolParams, &$param_preproc, &$param
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a38($r3);
+    $r1 = $this->a37($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -4107,7 +4027,7 @@ private function parseinlineline($silence, $boolParams, &$param_preproc, &$param
   return $r1;
 }
 private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([496, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([504, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4172,7 +4092,7 @@ private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
     seq_2:
     if ($r5!==self::$FAILED) {
       $this->savedPos = $p6;
-      $r5 = $this->a39($r14);
+      $r5 = $this->a38($r14);
       $r4[] = $r5;
     } else {
       break;
@@ -4185,7 +4105,7 @@ private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
     $this->currPos++;
     $r5 = ";";
   } else {
-    if (!$silence) {$this->fail(28);}
+    if (!$silence) {$this->fail(26);}
     $r5 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -4222,7 +4142,7 @@ private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a40($r4, $r15, $r16);
+    $r1 = $this->a39($r4, $r15, $r16);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -4234,7 +4154,7 @@ private function parsedtdd($silence, $boolParams, &$param_preproc, &$param_th) {
   return $r1;
 }
 private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([492, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([500, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4255,7 +4175,7 @@ private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$pa
       $r5 = ":";
       $r4[] = $r5;
     } else {
-      if (!$silence) {$this->fail(18);}
+      if (!$silence) {$this->fail(16);}
       $r5 = self::$FAILED;
       break;
     }
@@ -4303,7 +4223,7 @@ private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$pa
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a41($r4, $r5, $r8);
+    $r1 = $this->a40($r4, $r5, $r8);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -4315,7 +4235,7 @@ private function parsehacky_dl_uses($silence, $boolParams, &$param_preproc, &$pa
   return $r1;
 }
 private function parseli($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([490, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([498, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4373,7 +4293,7 @@ private function parseli($silence, $boolParams, &$param_preproc, &$param_th) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a42($r4, $r5);
+    $r1 = $this->a41($r4, $r5);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -4385,7 +4305,7 @@ private function parseli($silence, $boolParams, &$param_preproc, &$param_th) {
   return $r1;
 }
 private function discardeof($silence) {
-  $key = 579;
+  $key = 587;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4395,7 +4315,7 @@ private function discardeof($silence) {
   }
 
   $this->savedPos = $this->currPos;
-  $r1 = $this->a43();
+  $r1 = $this->a42();
   if ($r1) {
     $r1 = false;
   } else {
@@ -4410,7 +4330,7 @@ private function discardeof($silence) {
   return $r1;
 }
 private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([320, $boolParams & 0x7fff, $param_th, $param_preproc]);
+  $key = json_encode([324, $boolParams & 0x7fff, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4462,7 +4382,7 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a44($r6, $r7, $r8);
+    $r1 = $this->a43($r6, $r7, $r8);
     goto choice_1;
   }
   // free $p3
@@ -4535,7 +4455,7 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   seq_2:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a37($r10);
+    $r1 = $this->a36($r10);
   }
   // free $p4
   choice_1:
@@ -4548,7 +4468,7 @@ private function parseblock($silence, $boolParams, &$param_th, &$param_preproc) 
   return $r1;
 }
 private function discardnewline($silence) {
-  $key = 581;
+  $key = 589;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4563,14 +4483,14 @@ private function discardnewline($silence) {
     $r1 = "\x0a";
     goto choice_1;
   } else {
-    if (!$silence) {$this->fail(10);}
+    if (!$silence) {$this->fail(27);}
     $r1 = self::$FAILED;
   }
   if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
     $r1 = "\x0d\x0a";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(11);}
+    if (!$silence) {$this->fail(28);}
     $r1 = self::$FAILED;
   }
   choice_1:
@@ -4583,7 +4503,7 @@ private function discardnewline($silence) {
   return $r1;
 }
 private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([376, $boolParams & 0x7fff, $param_th, $param_preproc]);
+  $key = json_encode([380, $boolParams & 0x7fff, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4691,7 +4611,7 @@ private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a45($r15);
+    $r1 = $this->a44($r15);
     goto choice_1;
   }
   // free $p3
@@ -4778,7 +4698,7 @@ private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_
   seq_4:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a46($r16, $r22);
+    $r1 = $this->a45($r16, $r22);
     goto choice_1;
   }
   // free $p4
@@ -4857,7 +4777,7 @@ private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_
   seq_7:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r1 = $this->a46($r23, $r29);
+    $r1 = $this->a45($r23, $r29);
     goto choice_1;
   }
   // free $p6
@@ -4872,7 +4792,7 @@ private function parsetplarg_or_template_guarded($silence, $boolParams, &$param_
   return $r1;
 }
 private function parseraw_htmlentity($silence) {
-  $key = 540;
+  $key = 548;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4916,7 +4836,7 @@ private function parseraw_htmlentity($silence) {
     $this->currPos++;
     $r8 = ";";
   } else {
-    if (!$silence) {$this->fail(28);}
+    if (!$silence) {$this->fail(26);}
     $r8 = self::$FAILED;
     $this->currPos = $p5;
     $r3 = self::$FAILED;
@@ -4935,7 +4855,7 @@ private function parseraw_htmlentity($silence) {
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a47($r3);
+    $r1 = $this->a46($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -4946,7 +4866,7 @@ private function parseraw_htmlentity($silence) {
   return $r1;
 }
 private function parsetable_attribute_name($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([482, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([488, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -4960,183 +4880,41 @@ private function parsetable_attribute_name($silence, $boolParams, &$param_prepro
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
+  // start choice_1
   $p5 = $this->currPos;
   if (strspn($this->input, "\"'=", $this->currPos, 1) !== 0) {
     $r4 = $this->input[$this->currPos++];
+    $r4 = substr($this->input, $p5, $this->currPos - $p5);
+    goto choice_1;
   } else {
     $r4 = self::$FAILED;
     if (!$silence) {$this->fail(31);}
-    $r4 = null;
+    $r4 = self::$FAILED;
   }
-  // q <- $r4
-  $r4 = substr($this->input, $p5, $this->currPos - $p5);
   // free $p5
+  $r4 = $this->parsetable_attribute_name_piece($silence, $boolParams, $param_preproc, $param_th);
+  choice_1:
+  // first <- $r4
+  if ($r4===self::$FAILED) {
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
   $r6 = [];
   for (;;) {
-    // start choice_1
-    $p5 = $this->currPos;
-    $r7 = self::$FAILED;
-    for (;;) {
-      if (strcspn($this->input, " \x09\x0d\x0a\x00/=><&{}-!|[", $this->currPos, 1) !== 0) {
-        $r8 = self::consumeChar($this->input, $this->currPos);
-        $r7 = true;
-      } else {
-        $r8 = self::$FAILED;
-        if (!$silence) {$this->fail(32);}
-        break;
-      }
-    }
-    if ($r7!==self::$FAILED) {
-      $r7 = substr($this->input, $p5, $this->currPos - $p5);
-      goto choice_1;
-    } else {
-      $r7 = self::$FAILED;
-    }
-    // free $r8
-    // free $p5
-    $p5 = $this->currPos;
-    // start seq_2
-    $p9 = $this->currPos;
-    $p10 = $this->currPos;
-    $r8 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-    if ($r8 === self::$FAILED) {
-      $r8 = false;
-    } else {
-      $r8 = self::$FAILED;
-      $this->currPos = $p10;
-      $r7 = self::$FAILED;
-      goto seq_2;
-    }
-    // free $p10
-    // start choice_2
-    $p10 = $this->currPos;
-    $r11 = $this->discardwikilink($silence, $boolParams, $param_th, $param_preproc);
-    if ($r11!==self::$FAILED) {
-      $r11 = substr($this->input, $p10, $this->currPos - $p10);
-      goto choice_2;
-    } else {
-      $r11 = self::$FAILED;
-    }
-    // free $p10
-    $r11 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
-    if ($r11!==self::$FAILED) {
-      goto choice_2;
-    }
-    $p10 = $this->currPos;
-    // start seq_3
-    $p12 = $this->currPos;
-    $p13 = $this->currPos;
-    if (($this->input[$this->currPos] ?? null) === "<") {
-      $this->currPos++;
-      $r14 = "<";
-      $r14 = false;
-      $this->currPos = $p13;
-    } else {
-      $r14 = self::$FAILED;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    // free $p13
-    $r15 = $this->parsehtml_tag($silence, $boolParams, $param_preproc, $param_th);
-    // x <- $r15
-    if ($r15===self::$FAILED) {
-      $this->currPos = $p12;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    $r16 = $this->parseinlineline($silence, $boolParams, $param_preproc, $param_th);
-    if ($r16===self::$FAILED) {
-      $r16 = null;
-    }
-    // ill <- $r16
-    $r11 = true;
-    seq_3:
-    if ($r11!==self::$FAILED) {
-      $this->savedPos = $p10;
-      $r11 = $this->a48($r4, $r15, $r16);
-      goto choice_2;
-    }
-    // free $p12
-    $p12 = $this->currPos;
-    // start seq_4
-    $p13 = $this->currPos;
-    $p17 = $this->currPos;
-    // start choice_3
-    $r18 = $this->discardspace_or_newline(true);
-    if ($r18!==self::$FAILED) {
-      goto choice_3;
-    }
-    if (strspn($this->input, "\x00/=>", $this->currPos, 1) !== 0) {
-      $r18 = $this->input[$this->currPos++];
-    } else {
-      $r18 = self::$FAILED;
-    }
-    choice_3:
-    if ($r18 === self::$FAILED) {
-      $r18 = false;
-    } else {
-      $r18 = self::$FAILED;
-      $this->currPos = $p17;
-      $r11 = self::$FAILED;
-      goto seq_4;
-    }
-    // free $p17
-    if ($this->currPos < $this->inputLength) {
-      $r19 = self::consumeChar($this->input, $this->currPos);;
-    } else {
-      $r19 = self::$FAILED;
-      if (!$silence) {$this->fail(7);}
-      $this->currPos = $p13;
-      $r11 = self::$FAILED;
-      goto seq_4;
-    }
-    $r11 = true;
-    seq_4:
-    if ($r11!==self::$FAILED) {
-      $r11 = substr($this->input, $p12, $this->currPos - $p12);
-    } else {
-      $r11 = self::$FAILED;
-    }
-    // free $p13
-    // free $p12
-    choice_2:
-    // t <- $r11
-    if ($r11===self::$FAILED) {
-      $this->currPos = $p9;
-      $r7 = self::$FAILED;
-      goto seq_2;
-    }
-    $r7 = true;
-    seq_2:
-    if ($r7!==self::$FAILED) {
-      $this->savedPos = $p5;
-      $r7 = $this->a49($r4, $r11);
-    }
-    // free $p9
-    choice_1:
+    $r7 = $this->parsetable_attribute_name_piece($silence, $boolParams, $param_preproc, $param_th);
     if ($r7!==self::$FAILED) {
       $r6[] = $r7;
     } else {
       break;
     }
   }
-  // r <- $r6
+  // rest <- $r6
   // free $r7
-  $this->savedPos = $this->currPos;
-  $r7 = $this->a50($r4, $r6);
-  if ($r7) {
-    $r7 = false;
-  } else {
-    $r7 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
   $r1 = true;
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a51($r4, $r6);
+    $r1 = $this->a47($r4, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -5148,7 +4926,7 @@ private function parsetable_attribute_name($silence, $boolParams, &$param_prepro
   return $r1;
 }
 private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([486, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([494, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5183,7 +4961,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
     $this->currPos++;
     $r7 = "'";
   } else {
-    if (!$silence) {$this->fail(33);}
+    if (!$silence) {$this->fail(32);}
     $r7 = self::$FAILED;
     $this->currPos = $p6;
     $r4 = self::$FAILED;
@@ -5213,7 +4991,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
     $r9 = "'";
     goto choice_2;
   } else {
-    if (!$silence) {$this->fail(33);}
+    if (!$silence) {$this->fail(32);}
     $r9 = self::$FAILED;
   }
   $p6 = $this->currPos;
@@ -5251,7 +5029,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a52($r4, $r8, $r9);
+    $r1 = $this->a48($r4, $r8, $r9);
     goto choice_1;
   }
   // free $p3
@@ -5278,7 +5056,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
     $this->currPos++;
     $r12 = "\"";
   } else {
-    if (!$silence) {$this->fail(34);}
+    if (!$silence) {$this->fail(33);}
     $r12 = self::$FAILED;
     $this->currPos = $p11;
     $r10 = self::$FAILED;
@@ -5308,7 +5086,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
     $r14 = "\"";
     goto choice_4;
   } else {
-    if (!$silence) {$this->fail(34);}
+    if (!$silence) {$this->fail(33);}
     $r14 = self::$FAILED;
   }
   $p11 = $this->currPos;
@@ -5346,7 +5124,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
   seq_3:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a52($r10, $r13, $r14);
+    $r1 = $this->a48($r10, $r13, $r14);
     goto choice_1;
   }
   // free $p5
@@ -5415,7 +5193,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
   seq_5:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p5;
-    $r1 = $this->a53($r15, $r16);
+    $r1 = $this->a49($r15, $r16);
   }
   // free $p6
   choice_1:
@@ -5428,7 +5206,7 @@ private function parsetable_att_value($silence, $boolParams, &$param_preproc, &$
   return $r1;
 }
 private function discardspace_or_newline_or_solidus($silence) {
-  $key = 467;
+  $key = 471;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5450,7 +5228,7 @@ private function discardspace_or_newline_or_solidus($silence) {
     $this->currPos++;
     $r4 = "/";
   } else {
-    if (!$silence) {$this->fail(35);}
+    if (!$silence) {$this->fail(34);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -5476,7 +5254,7 @@ private function discardspace_or_newline_or_solidus($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a37($r4);
+    $r1 = $this->a36($r4);
   }
   // free $p3
   choice_1:
@@ -5489,7 +5267,7 @@ private function discardspace_or_newline_or_solidus($silence) {
   return $r1;
 }
 private function parsegeneric_attribute_name($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([478, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([482, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5503,143 +5281,41 @@ private function parsegeneric_attribute_name($silence, $boolParams, &$param_prep
   $p2 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
+  // start choice_1
   $p5 = $this->currPos;
   if (strspn($this->input, "\"'=", $this->currPos, 1) !== 0) {
     $r4 = $this->input[$this->currPos++];
+    $r4 = substr($this->input, $p5, $this->currPos - $p5);
+    goto choice_1;
   } else {
     $r4 = self::$FAILED;
     if (!$silence) {$this->fail(31);}
-    $r4 = null;
+    $r4 = self::$FAILED;
   }
-  // q <- $r4
-  $r4 = substr($this->input, $p5, $this->currPos - $p5);
   // free $p5
+  $r4 = $this->parsegeneric_attribute_name_piece($silence, $boolParams, $param_preproc, $param_th);
+  choice_1:
+  // first <- $r4
+  if ($r4===self::$FAILED) {
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
   $r6 = [];
   for (;;) {
-    // start choice_1
-    $p5 = $this->currPos;
-    $r7 = self::$FAILED;
-    for (;;) {
-      if (strcspn($this->input, " \x09\x0d\x0a\x00/=><&{}-!|", $this->currPos, 1) !== 0) {
-        $r8 = self::consumeChar($this->input, $this->currPos);
-        $r7 = true;
-      } else {
-        $r8 = self::$FAILED;
-        if (!$silence) {$this->fail(36);}
-        break;
-      }
-    }
-    if ($r7!==self::$FAILED) {
-      $r7 = substr($this->input, $p5, $this->currPos - $p5);
-      goto choice_1;
-    } else {
-      $r7 = self::$FAILED;
-    }
-    // free $r8
-    // free $p5
-    $p5 = $this->currPos;
-    // start seq_2
-    $p9 = $this->currPos;
-    $p10 = $this->currPos;
-    $r8 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-    if ($r8 === self::$FAILED) {
-      $r8 = false;
-    } else {
-      $r8 = self::$FAILED;
-      $this->currPos = $p10;
-      $r7 = self::$FAILED;
-      goto seq_2;
-    }
-    // free $p10
-    // start choice_2
-    $r11 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
-    if ($r11!==self::$FAILED) {
-      goto choice_2;
-    }
-    $r11 = $this->parseless_than($silence, $boolParams);
-    if ($r11!==self::$FAILED) {
-      goto choice_2;
-    }
-    $p10 = $this->currPos;
-    // start seq_3
-    $p12 = $this->currPos;
-    $p13 = $this->currPos;
-    // start choice_3
-    $r14 = $this->discardspace_or_newline(true);
-    if ($r14!==self::$FAILED) {
-      goto choice_3;
-    }
-    if (strspn($this->input, "\x00/=><", $this->currPos, 1) !== 0) {
-      $r14 = $this->input[$this->currPos++];
-    } else {
-      $r14 = self::$FAILED;
-    }
-    choice_3:
-    if ($r14 === self::$FAILED) {
-      $r14 = false;
-    } else {
-      $r14 = self::$FAILED;
-      $this->currPos = $p13;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    // free $p13
-    if ($this->currPos < $this->inputLength) {
-      $r15 = self::consumeChar($this->input, $this->currPos);;
-    } else {
-      $r15 = self::$FAILED;
-      if (!$silence) {$this->fail(7);}
-      $this->currPos = $p12;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    $r11 = true;
-    seq_3:
-    if ($r11!==self::$FAILED) {
-      $r11 = substr($this->input, $p10, $this->currPos - $p10);
-    } else {
-      $r11 = self::$FAILED;
-    }
-    // free $p12
-    // free $p10
-    choice_2:
-    // t <- $r11
-    if ($r11===self::$FAILED) {
-      $this->currPos = $p9;
-      $r7 = self::$FAILED;
-      goto seq_2;
-    }
-    $r7 = true;
-    seq_2:
-    if ($r7!==self::$FAILED) {
-      $this->savedPos = $p5;
-      $r7 = $this->a49($r4, $r11);
-    }
-    // free $p9
-    choice_1:
+    $r7 = $this->parsegeneric_attribute_name_piece($silence, $boolParams, $param_preproc, $param_th);
     if ($r7!==self::$FAILED) {
       $r6[] = $r7;
     } else {
       break;
     }
   }
-  // r <- $r6
+  // rest <- $r6
   // free $r7
-  $this->savedPos = $this->currPos;
-  $r7 = $this->a50($r4, $r6);
-  if ($r7) {
-    $r7 = false;
-  } else {
-    $r7 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
   $r1 = true;
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a51($r4, $r6);
+    $r1 = $this->a47($r4, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -5651,7 +5327,7 @@ private function parsegeneric_attribute_name($silence, $boolParams, &$param_prep
   return $r1;
 }
 private function discardspace_or_newline($silence) {
-  $key = 595;
+  $key = 603;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5664,7 +5340,7 @@ private function discardspace_or_newline($silence) {
     $r1 = $this->input[$this->currPos++];
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(37);}
+    if (!$silence) {$this->fail(35);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -5675,7 +5351,7 @@ private function discardspace_or_newline($silence) {
   return $r1;
 }
 private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([484, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([492, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -5710,7 +5386,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
     $this->currPos++;
     $r7 = "'";
   } else {
-    if (!$silence) {$this->fail(33);}
+    if (!$silence) {$this->fail(32);}
     $r7 = self::$FAILED;
     $this->currPos = $p6;
     $r4 = self::$FAILED;
@@ -5740,7 +5416,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
     $r9 = "'";
     goto choice_2;
   } else {
-    if (!$silence) {$this->fail(33);}
+    if (!$silence) {$this->fail(32);}
     $r9 = self::$FAILED;
   }
   $p6 = $this->currPos;
@@ -5785,7 +5461,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a52($r4, $r8, $r9);
+    $r1 = $this->a48($r4, $r8, $r9);
     goto choice_1;
   }
   // free $p3
@@ -5812,7 +5488,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
     $this->currPos++;
     $r14 = "\"";
   } else {
-    if (!$silence) {$this->fail(34);}
+    if (!$silence) {$this->fail(33);}
     $r14 = self::$FAILED;
     $this->currPos = $p10;
     $r13 = self::$FAILED;
@@ -5842,7 +5518,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
     $r16 = "\"";
     goto choice_3;
   } else {
-    if (!$silence) {$this->fail(34);}
+    if (!$silence) {$this->fail(33);}
     $r16 = self::$FAILED;
   }
   $p10 = $this->currPos;
@@ -5887,7 +5563,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
   seq_4:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a52($r13, $r15, $r16);
+    $r1 = $this->a48($r13, $r15, $r16);
     goto choice_1;
   }
   // free $p5
@@ -5964,7 +5640,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
   seq_7:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p5;
-    $r1 = $this->a53($r20, $r21);
+    $r1 = $this->a49($r20, $r21);
   }
   // free $p6
   choice_1:
@@ -5977,7 +5653,7 @@ private function parsegeneric_att_value($silence, $boolParams, &$param_preproc, 
   return $r1;
 }
 private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([554, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([562, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6001,7 +5677,7 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
         $r4 = true;
       } else {
         $r6 = self::$FAILED;
-        if (!$silence) {$this->fail(38);}
+        if (!$silence) {$this->fail(36);}
         break;
       }
     }
@@ -6036,7 +5712,7 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
       $r9 = $this->input[$this->currPos++];
     } else {
       $r9 = self::$FAILED;
-      if (!$silence) {$this->fail(39);}
+      if (!$silence) {$this->fail(37);}
     }
     choice_2:
     // s <- $r9
@@ -6049,7 +5725,7 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p5;
-      $r4 = $this->a37($r9);
+      $r4 = $this->a36($r9);
       goto choice_1;
     }
     // free $p7
@@ -6061,7 +5737,7 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
       $this->currPos++;
     } else {
       $r10 = self::$FAILED;
-      if (!$silence) {$this->fail(40);}
+      if (!$silence) {$this->fail(38);}
       $r4 = self::$FAILED;
       goto seq_2;
     }
@@ -6106,7 +5782,7 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
+    $r1 = $this->a50($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -6117,7 +5793,7 @@ private function parseextlink_nonipv6url_parameterized($silence, $boolParams, &$
   return $r1;
 }
 private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([538, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([546, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6135,7 +5811,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     // start seq_1
     $p4 = $this->currPos;
     $this->savedPos = $this->currPos;
-    $r5 = $this->a55();
+    $r5 = $this->a51();
     if ($r5) {
       $r5 = false;
     } else {
@@ -6147,7 +5823,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     seq_1:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r2 = $this->a56();
+      $r2 = $this->a52();
       goto choice_1;
     }
     // free $p4
@@ -6155,7 +5831,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     // start seq_2
     $p6 = $this->currPos;
     $this->savedPos = $this->currPos;
-    $r7 = $this->a57();
+    $r7 = $this->a53();
     if ($r7) {
       $r7 = false;
     } else {
@@ -6174,7 +5850,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     seq_2:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p4;
-      $r2 = $this->a58($r8);
+      $r2 = $this->a54($r8);
       goto choice_1;
     }
     // free $p6
@@ -6204,7 +5880,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     seq_3:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p6;
-      $r2 = $this->a59($r12);
+      $r2 = $this->a55($r12);
       goto choice_1;
     }
     // free $p9
@@ -6234,7 +5910,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
     seq_4:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r2 = $this->a60($r15);
+      $r2 = $this->a56($r15);
       goto choice_1;
     }
     // free $p10
@@ -6259,7 +5935,7 @@ private function parseurltext($silence, $boolParams, &$param_preproc, &$param_th
   return $r1;
 }
 private function parseinline_element($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([344, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([348, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6297,7 +5973,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a23($r6);
+    $r1 = $this->a22($r6);
     goto choice_1;
   }
   // free $p3
@@ -6327,7 +6003,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   seq_2:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a23($r9);
+    $r1 = $this->a22($r9);
     goto choice_1;
   }
   // free $p4
@@ -6357,7 +6033,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   seq_3:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r1 = $this->a23($r12);
+    $r1 = $this->a22($r12);
     goto choice_1;
   }
   // free $p7
@@ -6370,7 +6046,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
       $r14 = "[[";
       $this->currPos += 2;
     } else {
-      if (!$silence) {$this->fail(41);}
+      if (!$silence) {$this->fail(39);}
       $r14 = self::$FAILED;
       $r13 = self::$FAILED;
       goto seq_4;
@@ -6437,7 +6113,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   seq_5:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r1 = $this->a23($r17);
+    $r1 = $this->a22($r17);
     goto choice_1;
   }
   // free $p10
@@ -6467,7 +6143,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   seq_6:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p10;
-    $r1 = $this->a23($r20);
+    $r1 = $this->a22($r20);
   }
   // free $p15
   choice_1:
@@ -6480,7 +6156,7 @@ private function parseinline_element($silence, $boolParams, &$param_preproc, &$p
   return $r1;
 }
 private function discardlist_char($silence) {
-  $key = 499;
+  $key = 507;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6493,7 +6169,7 @@ private function discardlist_char($silence) {
     $r1 = $this->input[$this->currPos++];
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(42);}
+    if (!$silence) {$this->fail(40);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -6504,7 +6180,7 @@ private function discardlist_char($silence) {
   return $r1;
 }
 private function parselist_char($silence) {
-  $key = 498;
+  $key = 506;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6517,7 +6193,7 @@ private function parselist_char($silence) {
     $r1 = $this->input[$this->currPos++];
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(42);}
+    if (!$silence) {$this->fail(40);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -6528,7 +6204,7 @@ private function parselist_char($silence) {
   return $r1;
 }
 private function parsedtdd_colon($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([494, $boolParams & 0x6fff, $param_preproc, $param_th]);
+  $key = json_encode([502, $boolParams & 0x6fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6553,9 +6229,9 @@ private function parsedtdd_colon($silence, $boolParams, &$param_preproc, &$param
     $this->currPos++;
     $r5 = ":";
     $this->savedPos = $p6;
-    $r5 = $this->a61($r4);
+    $r5 = $this->a57($r4);
   } else {
-    if (!$silence) {$this->fail(18);}
+    if (!$silence) {$this->fail(16);}
     $r5 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -6565,7 +6241,7 @@ private function parsedtdd_colon($silence, $boolParams, &$param_preproc, &$param
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a62($r4, $r5);
+    $r1 = $this->a58($r4, $r5);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -6577,7 +6253,7 @@ private function parsedtdd_colon($silence, $boolParams, &$param_preproc, &$param
   return $r1;
 }
 private function discardeolf($silence) {
-  $key = 585;
+  $key = 593;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6602,7 +6278,7 @@ private function discardeolf($silence) {
   return $r1;
 }
 private function parsespace_or_comment($silence) {
-  $key = 588;
+  $key = 596;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6627,7 +6303,7 @@ private function parsespace_or_comment($silence) {
   return $r1;
 }
 private function discardsof($silence) {
-  $key = 577;
+  $key = 585;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6637,7 +6313,7 @@ private function discardsof($silence) {
   }
 
   $this->savedPos = $this->currPos;
-  $r1 = $this->a63();
+  $r1 = $this->a59();
   if ($r1) {
     $r1 = false;
   } else {
@@ -6652,7 +6328,7 @@ private function discardsof($silence) {
   return $r1;
 }
 private function parseredirect($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([316, $boolParams & 0x7fff, $param_th, $param_preproc]);
+  $key = json_encode([320, $boolParams & 0x7fff, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6698,7 +6374,7 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
     $this->currPos++;
     $r9 = ":";
   } else {
-    if (!$silence) {$this->fail(18);}
+    if (!$silence) {$this->fail(16);}
     $r9 = self::$FAILED;
     $r7 = self::$FAILED;
     goto seq_2;
@@ -6734,7 +6410,7 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r11 = $this->a64($r4, $r5, $r7, $r10);
+  $r11 = $this->a60($r4, $r5, $r7, $r10);
   if ($r11) {
     $r11 = false;
   } else {
@@ -6747,7 +6423,7 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a65($r4, $r5, $r7, $r10);
+    $r1 = $this->a61($r4, $r5, $r7, $r10);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -6759,7 +6435,7 @@ private function parseredirect($silence, $boolParams, &$param_th, &$param_prepro
   return $r1;
 }
 private function parsesol_transparent($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([604, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([612, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6794,7 +6470,7 @@ private function parsesol_transparent($silence, $boolParams, &$param_preproc, &$
   return $r1;
 }
 private function parseblock_line($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([332, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([336, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6843,7 +6519,7 @@ private function parseblock_line($silence, $boolParams, &$param_preproc, &$param
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a66($r6);
+    $r1 = $this->a62($r6);
   }
   // free $p3
   choice_1:
@@ -6856,7 +6532,7 @@ private function parseblock_line($silence, $boolParams, &$param_preproc, &$param
   return $r1;
 }
 private function parseblock_lines($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([328, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([332, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6896,7 +6572,7 @@ private function parseblock_lines($silence, $boolParams, &$param_preproc, &$para
   seq_2:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a67($r4, $r8, $r9);
+    $r5 = $this->a63($r4, $r8, $r9);
   } else {
     $r5 = null;
   }
@@ -6913,7 +6589,7 @@ private function parseblock_lines($silence, $boolParams, &$param_preproc, &$para
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a68($r4, $r5, $r10);
+    $r1 = $this->a64($r4, $r5, $r10);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -6925,7 +6601,7 @@ private function parseblock_lines($silence, $boolParams, &$param_preproc, &$para
   return $r1;
 }
 private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([606, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([614, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -6940,7 +6616,7 @@ private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
   // start seq_1
   $p3 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r4 = $this->a69();
+  $r4 = $this->a65();
   if ($r4) {
     $r4 = false;
   } else {
@@ -6975,7 +6651,7 @@ private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a70($r5, $r6, $r7);
+    $r1 = $this->a66($r5, $r6, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -6987,7 +6663,7 @@ private function parsesol($silence, $boolParams, &$param_preproc, &$param_th) {
   return $r1;
 }
 private function discardtplarg($silence, $boolParams, &$param_th) {
-  $key = json_encode([389, $boolParams & 0x7fff, $param_th]);
+  $key = json_encode([393, $boolParams & 0x7fff, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7006,7 +6682,7 @@ private function discardtplarg($silence, $boolParams, &$param_th) {
   return $r1;
 }
 private function parsetemplate($silence, $boolParams, &$param_th) {
-  $key = json_encode([380, $boolParams & 0x7fff, $param_th]);
+  $key = json_encode([384, $boolParams & 0x7fff, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7025,7 +6701,7 @@ private function parsetemplate($silence, $boolParams, &$param_th) {
   return $r1;
 }
 private function parsebroken_template($silence, &$param_preproc) {
-  $key = json_encode([382, $param_preproc]);
+  $key = json_encode([386, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7042,7 +6718,7 @@ private function parsebroken_template($silence, &$param_preproc) {
     $r4 = "{{";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(43);}
+    if (!$silence) {$this->fail(41);}
     $r4 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -7052,7 +6728,7 @@ private function parsebroken_template($silence, &$param_preproc) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a71($param_preproc, $r4);
+    $r1 = $this->a67($param_preproc, $r4);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -7064,7 +6740,7 @@ private function parsebroken_template($silence, &$param_preproc) {
   return $r1;
 }
 private function parsetplarg($silence, $boolParams, &$param_th) {
-  $key = json_encode([388, $boolParams & 0x7fff, $param_th]);
+  $key = json_encode([392, $boolParams & 0x7fff, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7082,35 +6758,8 @@ private function parsetplarg($silence, $boolParams, &$param_th) {
   );
   return $r1;
 }
-private function discardwikilink($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([435, $boolParams & 0x7fff, $param_th, $param_preproc]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    return $cached->result;
-  }
-  $saved_th=$param_th;
-  $saved_preproc=$param_preproc;
-  // start choice_1
-  $r1 = $this->discardwikilink_preproc($silence, $boolParams, self::newRef("]]"), $param_th);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
-  $r1 = $this->discardbroken_wikilink($silence, $boolParams, $param_preproc, $param_th);
-  choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsedirective($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([548, $boolParams & 0x7fff, $param_preproc, $param_th]);
+private function parsetable_attribute_name_piece($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([490, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7122,41 +6771,135 @@ private function parsedirective($silence, $boolParams, &$param_preproc, &$param_
   $saved_preproc=$param_preproc;
   $saved_th=$param_th;
   // start choice_1
-  $r1 = $this->parsecomment($silence);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
+  $p2 = $this->currPos;
+  $r1 = self::$FAILED;
+  for (;;) {
+    if (strcspn($this->input, " \x09\x0d\x0a\x00/=><&{}-!|[", $this->currPos, 1) !== 0) {
+      $r3 = self::consumeChar($this->input, $this->currPos);
+      $r1 = true;
+    } else {
+      $r3 = self::$FAILED;
+      if (!$silence) {$this->fail(42);}
+      break;
+    }
   }
-  $r1 = $this->parseannotation_tag($silence, $boolParams, $param_preproc, $param_th);
   if ($r1!==self::$FAILED) {
+    $r1 = substr($this->input, $p2, $this->currPos - $p2);
     goto choice_1;
+  } else {
+    $r1 = self::$FAILED;
   }
-  $r1 = $this->parsewellformed_extension_tag($silence, $boolParams, $param_preproc, $param_th);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
-  $r1 = $this->parsetplarg_or_template($silence, $boolParams, $param_th, $param_preproc);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
+  // free $r3
+  // free $p2
   $p2 = $this->currPos;
   // start seq_1
-  $p3 = $this->currPos;
   $p4 = $this->currPos;
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-{", $this->currPos, 2, false) === 0) {
-    $r5 = "-{";
-    $this->currPos += 2;
-    $r5 = false;
-    $this->currPos = $p4;
+  $p5 = $this->currPos;
+  $r3 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+  if ($r3 === self::$FAILED) {
+    $r3 = false;
   } else {
-    $r5 = self::$FAILED;
+    $r3 = self::$FAILED;
+    $this->currPos = $p5;
     $r1 = self::$FAILED;
     goto seq_1;
   }
-  // free $p4
-  $r6 = $this->parselang_variant_or_tpl($silence, $boolParams, $param_th, $param_preproc);
-  // v <- $r6
+  // free $p5
+  // start choice_2
+  $p5 = $this->currPos;
+  $r6 = $this->discardwikilink($silence, $boolParams, $param_th, $param_preproc);
+  if ($r6!==self::$FAILED) {
+    $r6 = substr($this->input, $p5, $this->currPos - $p5);
+    goto choice_2;
+  } else {
+    $r6 = self::$FAILED;
+  }
+  // free $p5
+  $r6 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
+  if ($r6!==self::$FAILED) {
+    goto choice_2;
+  }
+  $p5 = $this->currPos;
+  // start seq_2
+  $p7 = $this->currPos;
+  $p8 = $this->currPos;
+  if (($this->input[$this->currPos] ?? null) === "<") {
+    $this->currPos++;
+    $r9 = "<";
+    $r9 = false;
+    $this->currPos = $p8;
+  } else {
+    $r9 = self::$FAILED;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  // free $p8
+  $r10 = $this->parsehtml_tag($silence, $boolParams, $param_preproc, $param_th);
+  // x <- $r10
+  if ($r10===self::$FAILED) {
+    $this->currPos = $p7;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  $r11 = $this->parseinlineline($silence, $boolParams, $param_preproc, $param_th);
+  if ($r11===self::$FAILED) {
+    $r11 = null;
+  }
+  // ill <- $r11
+  $r6 = true;
+  seq_2:
+  if ($r6!==self::$FAILED) {
+    $this->savedPos = $p5;
+    $r6 = $this->a68($r10, $r11);
+    goto choice_2;
+  }
+  // free $p7
+  $p7 = $this->currPos;
+  // start seq_3
+  $p8 = $this->currPos;
+  $p12 = $this->currPos;
+  // start choice_3
+  $r13 = $this->discardspace_or_newline(true);
+  if ($r13!==self::$FAILED) {
+    goto choice_3;
+  }
+  if (strspn($this->input, "\x00/=>", $this->currPos, 1) !== 0) {
+    $r13 = $this->input[$this->currPos++];
+  } else {
+    $r13 = self::$FAILED;
+  }
+  choice_3:
+  if ($r13 === self::$FAILED) {
+    $r13 = false;
+  } else {
+    $r13 = self::$FAILED;
+    $this->currPos = $p12;
+    $r6 = self::$FAILED;
+    goto seq_3;
+  }
+  // free $p12
+  if ($this->currPos < $this->inputLength) {
+    $r14 = self::consumeChar($this->input, $this->currPos);;
+  } else {
+    $r14 = self::$FAILED;
+    if (!$silence) {$this->fail(7);}
+    $this->currPos = $p8;
+    $r6 = self::$FAILED;
+    goto seq_3;
+  }
+  $r6 = true;
+  seq_3:
+  if ($r6!==self::$FAILED) {
+    $r6 = substr($this->input, $p7, $this->currPos - $p7);
+  } else {
+    $r6 = self::$FAILED;
+  }
+  // free $p8
+  // free $p7
+  choice_2:
+  // t <- $r6
   if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
+    $this->currPos = $p4;
     $r1 = self::$FAILED;
     goto seq_1;
   }
@@ -7164,63 +6907,11 @@ private function parsedirective($silence, $boolParams, &$param_preproc, &$param_
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a72($r6);
-    goto choice_1;
-  }
-  // free $p3
-  $p3 = $this->currPos;
-  // start seq_2
-  $p4 = $this->currPos;
-  $p7 = $this->currPos;
-  if (($this->input[$this->currPos] ?? null) === "&") {
-    $this->currPos++;
-    $r8 = "&";
-    $r8 = false;
-    $this->currPos = $p7;
-  } else {
-    $r8 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_2;
-  }
-  // free $p7
-  $r9 = $this->parsehtmlentity($silence);
-  // e <- $r9
-  if ($r9===self::$FAILED) {
-    $this->currPos = $p4;
-    $r1 = self::$FAILED;
-    goto seq_2;
-  }
-  $r1 = true;
-  seq_2:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p3;
-    $r1 = $this->a73($r9);
-    goto choice_1;
+    $r1 = $this->a2($r6);
   }
   // free $p4
-  $r1 = $this->parseinclude_limits($silence, $boolParams, $param_preproc, $param_th);
   choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsehtml_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([340, $boolParams & 0x7ebd, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $r1 = $this->parsexmlish_tag($silence, $boolParams & ~0x2, $param_preproc, $param_th);
+  // r <- $r1
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r1,
@@ -7230,7 +6921,7 @@ private function parsehtml_tag($silence, $boolParams, &$param_preproc, &$param_t
   return $r1;
 }
 private function parsetable_attribute_preprocessor_text_single($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([564, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([572, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7253,7 +6944,7 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
         $r4 = true;
       } else {
         $r6 = self::$FAILED;
-        if (!$silence) {$this->fail(44);}
+        if (!$silence) {$this->fail(43);}
         break;
       }
     }
@@ -7288,7 +6979,7 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
       $r9 = $this->input[$this->currPos++];
     } else {
       $r9 = self::$FAILED;
-      if (!$silence) {$this->fail(45);}
+      if (!$silence) {$this->fail(44);}
     }
     choice_2:
     // s <- $r9
@@ -7301,7 +6992,7 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p5;
-      $r4 = $this->a37($r9);
+      $r4 = $this->a36($r9);
     }
     // free $p7
     choice_1:
@@ -7316,7 +7007,7 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
+    $r1 = $this->a50($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -7327,7 +7018,7 @@ private function parsetable_attribute_preprocessor_text_single($silence, $boolPa
   return $r1;
 }
 private function parsetable_attribute_preprocessor_text_double($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([566, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([574, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7346,6 +7037,103 @@ private function parsetable_attribute_preprocessor_text_double($silence, $boolPa
     $r4 = self::$FAILED;
     for (;;) {
       if (strcspn($this->input, "{}&<-![\"\x0d\x0a|", $this->currPos, 1) !== 0) {
+        $r6 = self::consumeChar($this->input, $this->currPos);
+        $r4 = true;
+      } else {
+        $r6 = self::$FAILED;
+        if (!$silence) {$this->fail(45);}
+        break;
+      }
+    }
+    if ($r4!==self::$FAILED) {
+      $r4 = substr($this->input, $p5, $this->currPos - $p5);
+      goto choice_1;
+    } else {
+      $r4 = self::$FAILED;
+    }
+    // free $r6
+    // free $p5
+    $p5 = $this->currPos;
+    // start seq_1
+    $p7 = $this->currPos;
+    $p8 = $this->currPos;
+    $r6 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+    if ($r6 === self::$FAILED) {
+      $r6 = false;
+    } else {
+      $r6 = self::$FAILED;
+      $this->currPos = $p8;
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    // free $p8
+    // start choice_2
+    $r9 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
+    if ($r9!==self::$FAILED) {
+      goto choice_2;
+    }
+    if (strspn($this->input, "{}&<-![", $this->currPos, 1) !== 0) {
+      $r9 = $this->input[$this->currPos++];
+    } else {
+      $r9 = self::$FAILED;
+      if (!$silence) {$this->fail(44);}
+    }
+    choice_2:
+    // s <- $r9
+    if ($r9===self::$FAILED) {
+      $this->currPos = $p7;
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    $r4 = true;
+    seq_1:
+    if ($r4!==self::$FAILED) {
+      $this->savedPos = $p5;
+      $r4 = $this->a36($r9);
+    }
+    // free $p7
+    choice_1:
+    if ($r4!==self::$FAILED) {
+      $r3[] = $r4;
+    } else {
+      break;
+    }
+  }
+  // r <- $r3
+  // free $r4
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a50($r3);
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsetable_attribute_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([570, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  $r3 = [];
+  for (;;) {
+    // start choice_1
+    $p5 = $this->currPos;
+    $r4 = self::$FAILED;
+    for (;;) {
+      if (strcspn($this->input, "{}&<-![ \x09\x0a\x0d\x0c|", $this->currPos, 1) !== 0) {
         $r6 = self::consumeChar($this->input, $this->currPos);
         $r4 = true;
       } else {
@@ -7385,7 +7173,7 @@ private function parsetable_attribute_preprocessor_text_double($silence, $boolPa
       $r9 = $this->input[$this->currPos++];
     } else {
       $r9 = self::$FAILED;
-      if (!$silence) {$this->fail(45);}
+      if (!$silence) {$this->fail(44);}
     }
     choice_2:
     // s <- $r9
@@ -7398,104 +7186,7 @@ private function parsetable_attribute_preprocessor_text_double($silence, $boolPa
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p5;
-      $r4 = $this->a37($r9);
-    }
-    // free $p7
-    choice_1:
-    if ($r4!==self::$FAILED) {
-      $r3[] = $r4;
-    } else {
-      break;
-    }
-  }
-  // r <- $r3
-  // free $r4
-  $r1 = $r3;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsetable_attribute_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([562, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  $r3 = [];
-  for (;;) {
-    // start choice_1
-    $p5 = $this->currPos;
-    $r4 = self::$FAILED;
-    for (;;) {
-      if (strcspn($this->input, "{}&<-![ \x09\x0a\x0d\x0c|", $this->currPos, 1) !== 0) {
-        $r6 = self::consumeChar($this->input, $this->currPos);
-        $r4 = true;
-      } else {
-        $r6 = self::$FAILED;
-        if (!$silence) {$this->fail(47);}
-        break;
-      }
-    }
-    if ($r4!==self::$FAILED) {
-      $r4 = substr($this->input, $p5, $this->currPos - $p5);
-      goto choice_1;
-    } else {
-      $r4 = self::$FAILED;
-    }
-    // free $r6
-    // free $p5
-    $p5 = $this->currPos;
-    // start seq_1
-    $p7 = $this->currPos;
-    $p8 = $this->currPos;
-    $r6 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-    if ($r6 === self::$FAILED) {
-      $r6 = false;
-    } else {
-      $r6 = self::$FAILED;
-      $this->currPos = $p8;
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    // free $p8
-    // start choice_2
-    $r9 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
-    if ($r9!==self::$FAILED) {
-      goto choice_2;
-    }
-    if (strspn($this->input, "{}&<-![", $this->currPos, 1) !== 0) {
-      $r9 = $this->input[$this->currPos++];
-    } else {
-      $r9 = self::$FAILED;
-      if (!$silence) {$this->fail(45);}
-    }
-    choice_2:
-    // s <- $r9
-    if ($r9===self::$FAILED) {
-      $this->currPos = $p7;
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    $r4 = true;
-    seq_1:
-    if ($r4!==self::$FAILED) {
-      $this->savedPos = $p5;
-      $r4 = $this->a37($r9);
+      $r4 = $this->a36($r9);
     }
     // free $p7
     choice_1:
@@ -7513,7 +7204,7 @@ private function parsetable_attribute_preprocessor_text($silence, $boolParams, &
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
+    $r1 = $this->a50($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -7523,55 +7214,130 @@ private function parsetable_attribute_preprocessor_text($silence, $boolParams, &
   );
   return $r1;
 }
-private function parseless_than($silence, $boolParams) {
-  $key = json_encode([476, $boolParams & 0x2]);
+private function parsegeneric_attribute_name_piece($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([484, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
     $this->currPos = $cached->nextPos;
-
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
     return $cached->result;
   }
-
-  $p1 = $this->currPos;
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  // start choice_1
+  $p2 = $this->currPos;
+  $r1 = self::$FAILED;
+  for (;;) {
+    if (strcspn($this->input, " \x09\x0d\x0a\x00/=><&{}-!|", $this->currPos, 1) !== 0) {
+      $r3 = self::consumeChar($this->input, $this->currPos);
+      $r1 = true;
+    } else {
+      $r3 = self::$FAILED;
+      if (!$silence) {$this->fail(47);}
+      break;
+    }
+  }
+  if ($r1!==self::$FAILED) {
+    $r1 = substr($this->input, $p2, $this->currPos - $p2);
+    goto choice_1;
+  } else {
+    $r1 = self::$FAILED;
+  }
+  // free $r3
+  // free $p2
+  $p2 = $this->currPos;
   // start seq_1
-  $p3 = $this->currPos;
-  if (/*annOrExtTag*/($boolParams & 0x2) !== 0) {
-    $r4 = false;
+  $p4 = $this->currPos;
+  $p5 = $this->currPos;
+  $r3 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+  if ($r3 === self::$FAILED) {
+    $r3 = false;
   } else {
-    $r4 = self::$FAILED;
-    $r2 = self::$FAILED;
+    $r3 = self::$FAILED;
+    $this->currPos = $p5;
+    $r1 = self::$FAILED;
     goto seq_1;
   }
-  if (($this->input[$this->currPos] ?? null) === "<") {
-    $this->currPos++;
-    $r5 = "<";
+  // free $p5
+  // start choice_2
+  $r6 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
+  if ($r6!==self::$FAILED) {
+    goto choice_2;
+  }
+  $r6 = $this->parseless_than($silence, $boolParams);
+  if ($r6!==self::$FAILED) {
+    goto choice_2;
+  }
+  $p5 = $this->currPos;
+  // start seq_2
+  $p7 = $this->currPos;
+  $p8 = $this->currPos;
+  // start choice_3
+  $r9 = $this->discardspace_or_newline(true);
+  if ($r9!==self::$FAILED) {
+    goto choice_3;
+  }
+  if (strspn($this->input, "\x00/=><", $this->currPos, 1) !== 0) {
+    $r9 = $this->input[$this->currPos++];
   } else {
-    if (!$silence) {$this->fail(48);}
-    $r5 = self::$FAILED;
-    $this->currPos = $p3;
-    $r2 = self::$FAILED;
+    $r9 = self::$FAILED;
+  }
+  choice_3:
+  if ($r9 === self::$FAILED) {
+    $r9 = false;
+  } else {
+    $r9 = self::$FAILED;
+    $this->currPos = $p8;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  // free $p8
+  if ($this->currPos < $this->inputLength) {
+    $r10 = self::consumeChar($this->input, $this->currPos);;
+  } else {
+    $r10 = self::$FAILED;
+    if (!$silence) {$this->fail(7);}
+    $this->currPos = $p7;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  $r6 = true;
+  seq_2:
+  if ($r6!==self::$FAILED) {
+    $r6 = substr($this->input, $p5, $this->currPos - $p5);
+  } else {
+    $r6 = self::$FAILED;
+  }
+  // free $p7
+  // free $p5
+  choice_2:
+  // t <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p4;
+    $r1 = self::$FAILED;
     goto seq_1;
   }
-  $r2 = true;
+  $r1 = true;
   seq_1:
-  if ($r2!==self::$FAILED) {
-    $r2 = substr($this->input, $p1, $this->currPos - $p1);
-  } else {
-    $r2 = self::$FAILED;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a2($r6);
   }
-  // free $p3
-  // free $p1
+  // free $p4
+  choice_1:
+  // r <- $r1
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
-    $r2,
-    self::$UNDEFINED,
-    self::$UNDEFINED
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
   );
-  return $r2;
+  return $r1;
 }
 private function parseattribute_preprocessor_text_single($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([558, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([566, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7594,7 +7360,7 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
         $r4 = true;
       } else {
         $r6 = self::$FAILED;
-        if (!$silence) {$this->fail(49);}
+        if (!$silence) {$this->fail(48);}
         break;
       }
     }
@@ -7650,7 +7416,7 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
       $r10 = $this->input[$this->currPos++];
     } else {
       $r10 = self::$FAILED;
-      if (!$silence) {$this->fail(50);}
+      if (!$silence) {$this->fail(49);}
     }
     choice_2:
     // s <- $r10
@@ -7663,7 +7429,7 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p5;
-      $r4 = $this->a37($r10);
+      $r4 = $this->a36($r10);
     }
     // free $p7
     choice_1:
@@ -7678,7 +7444,7 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
+    $r1 = $this->a50($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -7689,7 +7455,7 @@ private function parseattribute_preprocessor_text_single($silence, $boolParams, 
   return $r1;
 }
 private function parseattribute_preprocessor_text_double($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([560, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([568, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7708,6 +7474,124 @@ private function parseattribute_preprocessor_text_double($silence, $boolParams, 
     $r4 = self::$FAILED;
     for (;;) {
       if (strcspn($this->input, "{}&<-|/\">", $this->currPos, 1) !== 0) {
+        $r6 = self::consumeChar($this->input, $this->currPos);
+        $r4 = true;
+      } else {
+        $r6 = self::$FAILED;
+        if (!$silence) {$this->fail(50);}
+        break;
+      }
+    }
+    if ($r4!==self::$FAILED) {
+      $r4 = substr($this->input, $p5, $this->currPos - $p5);
+      goto choice_1;
+    } else {
+      $r4 = self::$FAILED;
+    }
+    // free $r6
+    // free $p5
+    $p5 = $this->currPos;
+    // start seq_1
+    $p7 = $this->currPos;
+    $p8 = $this->currPos;
+    $r6 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+    if ($r6 === self::$FAILED) {
+      $r6 = false;
+    } else {
+      $r6 = self::$FAILED;
+      $this->currPos = $p8;
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    // free $p8
+    $p8 = $this->currPos;
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "/>", $this->currPos, 2, false) === 0) {
+      $r9 = "/>";
+      $this->currPos += 2;
+    } else {
+      $r9 = self::$FAILED;
+    }
+    if ($r9 === self::$FAILED) {
+      $r9 = false;
+    } else {
+      $r9 = self::$FAILED;
+      $this->currPos = $p8;
+      $this->currPos = $p7;
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    // free $p8
+    // start choice_2
+    $r10 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
+    if ($r10!==self::$FAILED) {
+      goto choice_2;
+    }
+    $r10 = $this->parseless_than($silence, $boolParams);
+    if ($r10!==self::$FAILED) {
+      goto choice_2;
+    }
+    if (strspn($this->input, "{}&-|/", $this->currPos, 1) !== 0) {
+      $r10 = $this->input[$this->currPos++];
+    } else {
+      $r10 = self::$FAILED;
+      if (!$silence) {$this->fail(49);}
+    }
+    choice_2:
+    // s <- $r10
+    if ($r10===self::$FAILED) {
+      $this->currPos = $p7;
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    $r4 = true;
+    seq_1:
+    if ($r4!==self::$FAILED) {
+      $this->savedPos = $p5;
+      $r4 = $this->a36($r10);
+    }
+    // free $p7
+    choice_1:
+    if ($r4!==self::$FAILED) {
+      $r3[] = $r4;
+    } else {
+      break;
+    }
+  }
+  // r <- $r3
+  // free $r4
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a50($r3);
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parseattribute_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([564, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  $r3 = [];
+  for (;;) {
+    // start choice_1
+    $p5 = $this->currPos;
+    $r4 = self::$FAILED;
+    for (;;) {
+      if (strcspn($this->input, "{}&<-|/ \x09\x0a\x0d\x0c>", $this->currPos, 1) !== 0) {
         $r6 = self::consumeChar($this->input, $this->currPos);
         $r4 = true;
       } else {
@@ -7768,7 +7652,7 @@ private function parseattribute_preprocessor_text_double($silence, $boolParams, 
       $r10 = $this->input[$this->currPos++];
     } else {
       $r10 = self::$FAILED;
-      if (!$silence) {$this->fail(50);}
+      if (!$silence) {$this->fail(49);}
     }
     choice_2:
     // s <- $r10
@@ -7781,125 +7665,7 @@ private function parseattribute_preprocessor_text_double($silence, $boolParams, 
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p5;
-      $r4 = $this->a37($r10);
-    }
-    // free $p7
-    choice_1:
-    if ($r4!==self::$FAILED) {
-      $r3[] = $r4;
-    } else {
-      break;
-    }
-  }
-  // r <- $r3
-  // free $r4
-  $r1 = $r3;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parseattribute_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([556, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  $r3 = [];
-  for (;;) {
-    // start choice_1
-    $p5 = $this->currPos;
-    $r4 = self::$FAILED;
-    for (;;) {
-      if (strcspn($this->input, "{}&<-|/ \x09\x0a\x0d\x0c>", $this->currPos, 1) !== 0) {
-        $r6 = self::consumeChar($this->input, $this->currPos);
-        $r4 = true;
-      } else {
-        $r6 = self::$FAILED;
-        if (!$silence) {$this->fail(52);}
-        break;
-      }
-    }
-    if ($r4!==self::$FAILED) {
-      $r4 = substr($this->input, $p5, $this->currPos - $p5);
-      goto choice_1;
-    } else {
-      $r4 = self::$FAILED;
-    }
-    // free $r6
-    // free $p5
-    $p5 = $this->currPos;
-    // start seq_1
-    $p7 = $this->currPos;
-    $p8 = $this->currPos;
-    $r6 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-    if ($r6 === self::$FAILED) {
-      $r6 = false;
-    } else {
-      $r6 = self::$FAILED;
-      $this->currPos = $p8;
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    // free $p8
-    $p8 = $this->currPos;
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "/>", $this->currPos, 2, false) === 0) {
-      $r9 = "/>";
-      $this->currPos += 2;
-    } else {
-      $r9 = self::$FAILED;
-    }
-    if ($r9 === self::$FAILED) {
-      $r9 = false;
-    } else {
-      $r9 = self::$FAILED;
-      $this->currPos = $p8;
-      $this->currPos = $p7;
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    // free $p8
-    // start choice_2
-    $r10 = $this->parsedirective($silence, $boolParams, $param_preproc, $param_th);
-    if ($r10!==self::$FAILED) {
-      goto choice_2;
-    }
-    $r10 = $this->parseless_than($silence, $boolParams);
-    if ($r10!==self::$FAILED) {
-      goto choice_2;
-    }
-    if (strspn($this->input, "{}&-|/", $this->currPos, 1) !== 0) {
-      $r10 = $this->input[$this->currPos++];
-    } else {
-      $r10 = self::$FAILED;
-      if (!$silence) {$this->fail(50);}
-    }
-    choice_2:
-    // s <- $r10
-    if ($r10===self::$FAILED) {
-      $this->currPos = $p7;
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    $r4 = true;
-    seq_1:
-    if ($r4!==self::$FAILED) {
-      $this->savedPos = $p5;
-      $r4 = $this->a37($r10);
+      $r4 = $this->a36($r10);
     }
     // free $p7
     choice_1:
@@ -7917,7 +7683,7 @@ private function parseattribute_preprocessor_text($silence, $boolParams, &$param
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
+    $r1 = $this->a50($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -7927,8 +7693,107 @@ private function parseattribute_preprocessor_text($silence, $boolParams, &$param
   );
   return $r1;
 }
+private function parsedirective($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([556, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  // start choice_1
+  $r1 = $this->parsecomment($silence);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->parseannotation_tag($silence, $boolParams, $param_preproc, $param_th);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->parsewellformed_extension_tag($silence, $boolParams, $param_preproc, $param_th);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->parsetplarg_or_template($silence, $boolParams, $param_th, $param_preproc);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $p4 = $this->currPos;
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-{", $this->currPos, 2, false) === 0) {
+    $r5 = "-{";
+    $this->currPos += 2;
+    $r5 = false;
+    $this->currPos = $p4;
+  } else {
+    $r5 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p4
+  $r6 = $this->parselang_variant_or_tpl($silence, $boolParams, $param_th, $param_preproc);
+  // v <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a69($r6);
+    goto choice_1;
+  }
+  // free $p3
+  $p3 = $this->currPos;
+  // start seq_2
+  $p4 = $this->currPos;
+  $p7 = $this->currPos;
+  if (($this->input[$this->currPos] ?? null) === "&") {
+    $this->currPos++;
+    $r8 = "&";
+    $r8 = false;
+    $this->currPos = $p7;
+  } else {
+    $r8 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_2;
+  }
+  // free $p7
+  $r9 = $this->parsehtmlentity($silence);
+  // e <- $r9
+  if ($r9===self::$FAILED) {
+    $this->currPos = $p4;
+    $r1 = self::$FAILED;
+    goto seq_2;
+  }
+  $r1 = true;
+  seq_2:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p3;
+    $r1 = $this->a70($r9);
+    goto choice_1;
+  }
+  // free $p4
+  $r1 = $this->parseinclude_limits($silence, $boolParams, $param_preproc, $param_th);
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
 private function parseautolink($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([352, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([356, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -7950,7 +7815,7 @@ private function parseautolink($silence, $boolParams, &$param_preproc, &$param_t
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r5 = $this->a74();
+  $r5 = $this->a71();
   if (!$r5) {
     $r5 = false;
   } else {
@@ -7980,7 +7845,7 @@ private function parseautolink($silence, $boolParams, &$param_preproc, &$param_t
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a23($r6);
+    $r1 = $this->a22($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -7992,7 +7857,7 @@ private function parseautolink($silence, $boolParams, &$param_preproc, &$param_t
   return $r1;
 }
 private function parsebehavior_switch($silence) {
-  $key = 348;
+  $key = 352;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8009,7 +7874,7 @@ private function parsebehavior_switch($silence) {
     $r6 = "__";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(53);}
+    if (!$silence) {$this->fail(52);}
     $r6 = self::$FAILED;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -8024,7 +7889,7 @@ private function parsebehavior_switch($silence) {
     $r8 = "__";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(53);}
+    if (!$silence) {$this->fail(52);}
     $r8 = self::$FAILED;
     $this->currPos = $p5;
     $r3 = self::$FAILED;
@@ -8043,7 +7908,7 @@ private function parsebehavior_switch($silence) {
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a75($r3);
+    $r1 = $this->a72($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -8054,7 +7919,7 @@ private function parsebehavior_switch($silence) {
   return $r1;
 }
 private function parsetext_char($silence) {
-  $key = 536;
+  $key = 544;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8067,7 +7932,7 @@ private function parsetext_char($silence) {
     $r1 = self::consumeChar($this->input, $this->currPos);
   } else {
     $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(54);}
+    if (!$silence) {$this->fail(53);}
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -8078,7 +7943,7 @@ private function parsetext_char($silence) {
   return $r1;
 }
 private function parseangle_bracket_markup($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([342, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([346, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8117,7 +7982,7 @@ private function parseangle_bracket_markup($silence, $boolParams, &$param_prepro
   return $r1;
 }
 private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([402, $boolParams & 0x7fff, $param_th, $param_preproc]);
+  $key = json_encode([406, $boolParams & 0x7fff, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8219,7 +8084,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a45($r15);
+    $r1 = $this->a44($r15);
     goto choice_1;
   }
   // free $p3
@@ -8233,7 +8098,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
     $this->currPos++;
     $r17 = "-";
   } else {
-    if (!$silence) {$this->fail(55);}
+    if (!$silence) {$this->fail(54);}
     $r17 = self::$FAILED;
     $r16 = self::$FAILED;
     goto seq_5;
@@ -8309,7 +8174,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   seq_4:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a46($r16, $r22);
+    $r1 = $this->a45($r16, $r22);
     goto choice_1;
   }
   // free $p4
@@ -8323,7 +8188,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
     $this->currPos++;
     $r24 = "-";
   } else {
-    if (!$silence) {$this->fail(55);}
+    if (!$silence) {$this->fail(54);}
     $r24 = self::$FAILED;
     $r23 = self::$FAILED;
     goto seq_8;
@@ -8408,7 +8273,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   seq_7:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r1 = $this->a46($r23, $r28);
+    $r1 = $this->a45($r23, $r28);
     goto choice_1;
   }
   // free $p6
@@ -8438,7 +8303,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   seq_10:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r1 = $this->a45($r31);
+    $r1 = $this->a44($r31);
   }
   // free $p8
   choice_1:
@@ -8451,7 +8316,7 @@ private function parselang_variant_or_tpl($silence, $boolParams, &$param_th, &$p
   return $r1;
 }
 private function parsewikilink($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([434, $boolParams & 0x7fff, $param_th, $param_preproc]);
+  $key = json_encode([438, $boolParams & 0x7fff, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8478,7 +8343,7 @@ private function parsewikilink($silence, $boolParams, &$param_th, &$param_prepro
   return $r1;
 }
 private function parsequote($silence) {
-  $key = 444;
+  $key = 448;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8495,7 +8360,7 @@ private function parsequote($silence) {
     $r6 = "''";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(56);}
+    if (!$silence) {$this->fail(55);}
     $r6 = self::$FAILED;
     $r3 = self::$FAILED;
     goto seq_1;
@@ -8505,7 +8370,7 @@ private function parsequote($silence) {
       $this->currPos++;
       $r8 = "'";
     } else {
-      if (!$silence) {$this->fail(33);}
+      if (!$silence) {$this->fail(32);}
       $r8 = self::$FAILED;
       break;
     }
@@ -8531,7 +8396,7 @@ private function parsequote($silence) {
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a76($r3);
+    $r1 = $this->a73($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -8542,7 +8407,7 @@ private function parsequote($silence) {
   return $r1;
 }
 private function parseinlineline_break_on_colon($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([500, $boolParams & 0x6fff, $param_preproc, $param_th]);
+  $key = json_encode([508, $boolParams & 0x6fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8563,7 +8428,7 @@ private function parseinlineline_break_on_colon($silence, $boolParams, &$param_p
   return $r1;
 }
 private function parseredirect_word($silence) {
-  $key = 318;
+  $key = 322;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8580,7 +8445,7 @@ private function parseredirect_word($silence) {
       $r5 = $this->input[$this->currPos++];
     } else {
       $r5 = self::$FAILED;
-      if (!$silence) {$this->fail(57);}
+      if (!$silence) {$this->fail(56);}
       break;
     }
   }
@@ -8599,7 +8464,7 @@ private function parseredirect_word($silence) {
       $r4 = true;
     } else {
       $r5 = self::$FAILED;
-      if (!$silence) {$this->fail(58);}
+      if (!$silence) {$this->fail(57);}
       break;
     }
   }
@@ -8615,7 +8480,7 @@ private function parseredirect_word($silence) {
   // free $r5
   // free $p6
   $this->savedPos = $this->currPos;
-  $r5 = $this->a77($r4);
+  $r5 = $this->a74($r4);
   if ($r5) {
     $r5 = false;
   } else {
@@ -8642,7 +8507,7 @@ private function parseredirect_word($silence) {
   return $r2;
 }
 private function parseinclude_limits($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([546, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([554, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8677,7 +8542,7 @@ private function parseinclude_limits($silence, $boolParams, &$param_preproc, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a78($r6);
+    $r1 = $this->a75($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -8689,7 +8554,7 @@ private function parseinclude_limits($silence, $boolParams, &$param_preproc, &$p
   return $r1;
 }
 private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([450, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([454, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8704,7 +8569,7 @@ private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$p
   // start seq_1
   $p3 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r4 = $this->a79();
+  $r4 = $this->a76();
   if ($r4) {
     $r4 = false;
   } else {
@@ -8741,7 +8606,7 @@ private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$p
   seq_2:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a80($r10);
+    $r5 = $this->a77($r10);
   }
   // free $p7
   choice_1:
@@ -8755,7 +8620,7 @@ private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a81($r5);
+    $r1 = $this->a78($r5);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -8767,7 +8632,7 @@ private function parseannotation_tag($silence, $boolParams, &$param_preproc, &$p
   return $r1;
 }
 private function parseheading($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([346, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([350, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8804,7 +8669,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
       $r10 = "=";
       $r8 = true;
     } else {
-      if (!$silence) {$this->fail(25);}
+      if (!$silence) {$this->fail(23);}
       $r10 = self::$FAILED;
       break;
     }
@@ -8830,7 +8695,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   $r11 = $r13;
   if ($r11!==self::$FAILED) {
     $this->savedPos = $p12;
-    $r11 = $this->a82($r8, $r13);
+    $r11 = $this->a79($r8, $r13);
   } else {
     $r10 = self::$FAILED;
     goto seq_3;
@@ -8843,7 +8708,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
       $r16 = "=";
       $r15 = true;
     } else {
-      if (!$silence) {$this->fail(25);}
+      if (!$silence) {$this->fail(23);}
       $r16 = self::$FAILED;
       break;
     }
@@ -8866,7 +8731,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   // free $p9
   // ce <- $r10
   $this->savedPos = $this->currPos;
-  $r16 = $this->a83($r8, $r10);
+  $r16 = $this->a80($r8, $r10);
   if ($r16) {
     $r16 = false;
   } else {
@@ -8880,7 +8745,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   // endTPos <- $r17
   if ($r17!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r17 = $this->a84($r8, $r10);
+    $r17 = $this->a81($r8, $r10);
   } else {
     $this->currPos = $p7;
     $r6 = self::$FAILED;
@@ -8919,7 +8784,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   // r <- $r6
   if ($r6!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r6 = $this->a85($r8, $r10, $r17, $r18);
+    $r6 = $this->a82($r8, $r10, $r17, $r18);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -8930,7 +8795,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a23($r6);
+    $r1 = $this->a22($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -8942,7 +8807,7 @@ private function parseheading($silence, $boolParams, &$param_preproc, &$param_th
   return $r1;
 }
 private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([330, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([334, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -8960,7 +8825,7 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
     $r4 = "----";
     $this->currPos += 4;
   } else {
-    if (!$silence) {$this->fail(59);}
+    if (!$silence) {$this->fail(58);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -8971,7 +8836,7 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
       $this->currPos++;
       $r7 = "-";
     } else {
-      if (!$silence) {$this->fail(55);}
+      if (!$silence) {$this->fail(54);}
       $r7 = self::$FAILED;
       break;
     }
@@ -9006,7 +8871,7 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
   seq_2:
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r7 = $this->a86($r5);
+    $r7 = $this->a83($r5);
     goto choice_1;
   }
   // free $p8
@@ -9014,7 +8879,7 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
   $r7 = '';
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r7 = $this->a87($r5);
+    $r7 = $this->a84($r5);
   }
   choice_1:
   // lineContent <- $r7
@@ -9027,7 +8892,7 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a88($r5, $r7);
+    $r1 = $this->a85($r5, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -9039,7 +8904,7 @@ private function parsehr($silence, $boolParams, &$param_preproc, &$param_th) {
   return $r1;
 }
 private function parsetable_line($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([508, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([516, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9097,7 +8962,7 @@ private function parsetable_line($silence, $boolParams, &$param_preproc, &$param
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a89($r4, $r7);
+    $r1 = $this->a86($r4, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -9109,7 +8974,7 @@ private function parsetable_line($silence, $boolParams, &$param_preproc, &$param
   return $r1;
 }
 private function parseoptionalSpaceToken($silence) {
-  $key = 592;
+  $key = 600;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9131,7 +8996,7 @@ private function parseoptionalSpaceToken($silence) {
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a90($r3);
+    $r1 = $this->a87($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -9142,7 +9007,7 @@ private function parseoptionalSpaceToken($silence) {
   return $r1;
 }
 private function parsesol_prefix($silence) {
-  $key = 608;
+  $key = 616;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9158,11 +9023,11 @@ private function parsesol_prefix($silence) {
   }
   $p2 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r1 = $this->a91();
+  $r1 = $this->a88();
   if ($r1) {
     $r1 = false;
     $this->savedPos = $p2;
-    $r1 = $this->a92();
+    $r1 = $this->a89();
   } else {
     $r1 = self::$FAILED;
   }
@@ -9176,7 +9041,7 @@ private function parsesol_prefix($silence) {
   return $r1;
 }
 private function parseempty_lines_with_comments($silence) {
-  $key = 610;
+  $key = 618;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9193,7 +9058,7 @@ private function parseempty_lines_with_comments($silence) {
   // p <- $r4
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p5;
-    $r4 = $this->a16();
+    $r4 = $this->a15();
   } else {
     $r1 = self::$FAILED;
     goto seq_1;
@@ -9257,7 +9122,7 @@ private function parseempty_lines_with_comments($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a93($r4, $r6);
+    $r1 = $this->a90($r4, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -9269,7 +9134,7 @@ private function parseempty_lines_with_comments($silence) {
   return $r1;
 }
 private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([391, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([395, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9287,7 +9152,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     $r4 = "{{{";
     $this->currPos += 3;
   } else {
-    if (!$silence) {$this->fail(60);}
+    if (!$silence) {$this->fail(59);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -9311,7 +9176,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
   // p <- $r5
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r5 = $this->a16();
+    $r5 = $this->a15();
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -9344,7 +9209,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
       $this->currPos++;
       $r12 = "|";
     } else {
-      if (!$silence) {$this->fail(12);}
+      if (!$silence) {$this->fail(10);}
       $r12 = self::$FAILED;
       $this->currPos = $p11;
       $r9 = self::$FAILED;
@@ -9359,7 +9224,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     // p0 <- $r16
     if ($r16!==self::$FAILED) {
       $this->savedPos = $p17;
-      $r16 = $this->a94($r5, $r6);
+      $r16 = $this->a91($r5, $r6);
     } else {
       $r13 = self::$FAILED;
       goto seq_3;
@@ -9380,7 +9245,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     // p1 <- $r19
     if ($r19!==self::$FAILED) {
       $this->savedPos = $p20;
-      $r19 = $this->a95($r5, $r6, $r16, $r18);
+      $r19 = $this->a92($r5, $r6, $r16, $r18);
     } else {
       $this->currPos = $p15;
       $r13 = self::$FAILED;
@@ -9415,7 +9280,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     seq_3:
     if ($r13!==self::$FAILED) {
       $this->savedPos = $p14;
-      $r13 = $this->a96($r5, $r6, $r16, $r18, $r19);
+      $r13 = $this->a93($r5, $r6, $r16, $r18, $r19);
       goto choice_1;
     }
     // free $p15
@@ -9431,7 +9296,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     seq_2:
     if ($r9!==self::$FAILED) {
       $this->savedPos = $p10;
-      $r9 = $this->a97($r5, $r6, $r13);
+      $r9 = $this->a94($r5, $r6, $r13);
       $r8[] = $r9;
     } else {
       break;
@@ -9464,7 +9329,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
     $r23 = "}}}";
     $this->currPos += 3;
   } else {
-    if (!$silence) {$this->fail(61);}
+    if (!$silence) {$this->fail(60);}
     $r23 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -9474,7 +9339,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a98($r5, $r6, $r8);
+    $r1 = $this->a95($r5, $r6, $r8);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -9486,7 +9351,7 @@ private function discardtplarg_preproc($silence, $boolParams, &$param_preproc, &
   return $r1;
 }
 private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([384, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([388, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9505,7 +9370,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     $r4 = "{{";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(43);}
+    if (!$silence) {$this->fail(41);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -9559,7 +9424,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
       $this->currPos++;
       $r10 = "|";
     } else {
-      if (!$silence) {$this->fail(12);}
+      if (!$silence) {$this->fail(10);}
       $r10 = self::$FAILED;
       $this->currPos = $p9;
       $r7 = self::$FAILED;
@@ -9574,7 +9439,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     // p0 <- $r14
     if ($r14!==self::$FAILED) {
       $this->savedPos = $p15;
-      $r14 = $this->a99($r5);
+      $r14 = $this->a96($r5);
     } else {
       $r11 = self::$FAILED;
       goto seq_3;
@@ -9595,7 +9460,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     // p1 <- $r17
     if ($r17!==self::$FAILED) {
       $this->savedPos = $p18;
-      $r17 = $this->a100($r5, $r14, $r16);
+      $r17 = $this->a97($r5, $r14, $r16);
     } else {
       $this->currPos = $p13;
       $r11 = self::$FAILED;
@@ -9630,7 +9495,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     seq_3:
     if ($r11!==self::$FAILED) {
       $this->savedPos = $p12;
-      $r11 = $this->a101($r5, $r14, $r16, $r17);
+      $r11 = $this->a98($r5, $r14, $r16, $r17);
       goto choice_3;
     }
     // free $p13
@@ -9646,7 +9511,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     seq_2:
     if ($r7!==self::$FAILED) {
       $this->savedPos = $p8;
-      $r7 = $this->a102($r5, $r11);
+      $r7 = $this->a99($r5, $r11);
       $r6[] = $r7;
     } else {
       break;
@@ -9679,7 +9544,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     $r21 = "}}";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(62);}
+    if (!$silence) {$this->fail(61);}
     $r21 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -9689,7 +9554,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a103($r5, $r6);
+    $r1 = $this->a100($r5, $r6);
     goto choice_1;
   }
   // free $p3
@@ -9700,7 +9565,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     $r22 = "{{";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(43);}
+    if (!$silence) {$this->fail(41);}
     $r22 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_4;
@@ -9723,7 +9588,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
     $r23 = "}}";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(62);}
+    if (!$silence) {$this->fail(61);}
     $r23 = self::$FAILED;
     $this->currPos = $p9;
     $r1 = self::$FAILED;
@@ -9748,7 +9613,7 @@ private function parsetemplate_preproc($silence, $boolParams, &$param_preproc, &
   return $r1;
 }
 private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([390, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([394, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9766,7 +9631,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     $r4 = "{{{";
     $this->currPos += 3;
   } else {
-    if (!$silence) {$this->fail(60);}
+    if (!$silence) {$this->fail(59);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -9790,7 +9655,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
   // p <- $r5
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r5 = $this->a16();
+    $r5 = $this->a15();
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -9823,7 +9688,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
       $this->currPos++;
       $r12 = "|";
     } else {
-      if (!$silence) {$this->fail(12);}
+      if (!$silence) {$this->fail(10);}
       $r12 = self::$FAILED;
       $this->currPos = $p11;
       $r9 = self::$FAILED;
@@ -9838,7 +9703,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     // p0 <- $r16
     if ($r16!==self::$FAILED) {
       $this->savedPos = $p17;
-      $r16 = $this->a94($r5, $r6);
+      $r16 = $this->a91($r5, $r6);
     } else {
       $r13 = self::$FAILED;
       goto seq_3;
@@ -9859,7 +9724,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     // p1 <- $r19
     if ($r19!==self::$FAILED) {
       $this->savedPos = $p20;
-      $r19 = $this->a95($r5, $r6, $r16, $r18);
+      $r19 = $this->a92($r5, $r6, $r16, $r18);
     } else {
       $this->currPos = $p15;
       $r13 = self::$FAILED;
@@ -9894,7 +9759,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     seq_3:
     if ($r13!==self::$FAILED) {
       $this->savedPos = $p14;
-      $r13 = $this->a96($r5, $r6, $r16, $r18, $r19);
+      $r13 = $this->a93($r5, $r6, $r16, $r18, $r19);
       goto choice_1;
     }
     // free $p15
@@ -9910,7 +9775,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     seq_2:
     if ($r9!==self::$FAILED) {
       $this->savedPos = $p10;
-      $r9 = $this->a97($r5, $r6, $r13);
+      $r9 = $this->a94($r5, $r6, $r13);
       $r8[] = $r9;
     } else {
       break;
@@ -9943,7 +9808,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
     $r23 = "}}}";
     $this->currPos += 3;
   } else {
-    if (!$silence) {$this->fail(61);}
+    if (!$silence) {$this->fail(60);}
     $r23 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -9953,7 +9818,7 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a98($r5, $r6, $r8);
+    $r1 = $this->a95($r5, $r6, $r8);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -9964,8 +9829,35 @@ private function parsetplarg_preproc($silence, $boolParams, &$param_preproc, &$p
   );
   return $r1;
 }
-private function discardwikilink_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([439, $boolParams & 0x7fff, $param_preproc, $param_th]);
+private function discardwikilink($silence, $boolParams, &$param_th, &$param_preproc) {
+  $key = json_encode([439, $boolParams & 0x7fff, $param_th, $param_preproc]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
+  }
+  $saved_th=$param_th;
+  $saved_preproc=$param_preproc;
+  // start choice_1
+  $r1 = $this->discardwikilink_preproc($silence, $boolParams, self::newRef("]]"), $param_th);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->discardbroken_wikilink($silence, $boolParams, $param_preproc, $param_th);
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsehtml_tag($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([344, $boolParams & 0x7ebd, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -9976,201 +9868,64 @@ private function discardwikilink_preproc($silence, $boolParams, &$param_preproc,
   }
   $saved_preproc=$param_preproc;
   $saved_th=$param_th;
-  $p2 = $this->currPos;
+  $r1 = $this->parsexmlish_tag($silence, $boolParams & ~0x2, $param_preproc, $param_th);
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parseless_than($silence, $boolParams) {
+  $key = json_encode([480, $boolParams & 0x2]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  $p1 = $this->currPos;
   // start seq_1
   $p3 = $this->currPos;
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "[[", $this->currPos, 2, false) === 0) {
-    $r4 = "[[";
-    $this->currPos += 2;
+  if (/*annOrExtTag*/($boolParams & 0x2) !== 0) {
+    $r4 = false;
   } else {
-    if (!$silence) {$this->fail(41);}
     $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
+    $r2 = self::$FAILED;
     goto seq_1;
   }
-  $p6 = $this->currPos;
-  $r5 = '';
-  // spos <- $r5
-  if ($r5!==self::$FAILED) {
-    $this->savedPos = $p6;
-    $r5 = $this->a16();
+  if (($this->input[$this->currPos] ?? null) === "<") {
+    $this->currPos++;
+    $r5 = "<";
   } else {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r7 = $this->parsewikilink_preprocessor_text($silence, $boolParams, $param_preproc, $param_th);
-  if ($r7===self::$FAILED) {
-    $r7 = null;
-  }
-  // target <- $r7
-  $p9 = $this->currPos;
-  $r8 = '';
-  // tpos <- $r8
-  if ($r8!==self::$FAILED) {
-    $this->savedPos = $p9;
-    $r8 = $this->a104($r5, $r7);
-  } else {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // start choice_1
-  $p11 = $this->currPos;
-  // start seq_2
-  $p12 = $this->currPos;
-  $r13 = $this->parsewikilink_content($silence, $boolParams, $param_preproc, $param_th);
-  // l <- $r13
-  if ($r13===self::$FAILED) {
-    $r10 = self::$FAILED;
-    goto seq_2;
-  }
-  $r14 = $this->discardinline_breaks($silence, $boolParams, $param_preproc, $param_th);
-  if ($r14===self::$FAILED) {
-    $this->currPos = $p12;
-    $r10 = self::$FAILED;
-    goto seq_2;
-  }
-  $r10 = true;
-  seq_2:
-  if ($r10!==self::$FAILED) {
-    $this->savedPos = $p11;
-    $r10 = $this->a105($r5, $r7, $r8, $r13);
-    goto choice_1;
-  }
-  // free $p12
-  $p12 = $this->currPos;
-  $r15 = $this->parseinlineline($silence, $boolParams, $param_preproc, $param_th);
-  // l <- $r15
-  $r10 = $r15;
-  if ($r10!==self::$FAILED) {
-    $this->savedPos = $p12;
-    $r10 = $this->a106($r5, $r7, $r8, $r15);
-  }
-  choice_1:
-  // lcs <- $r10
-  if ($r10===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "]]", $this->currPos, 2, false) === 0) {
-    $r16 = "]]";
-    $this->currPos += 2;
-  } else {
-    if (!$silence) {$this->fail(63);}
-    $r16 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a107($r5, $r7, $r8, $r10);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([437, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $p4 = $this->currPos;
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "[[", $this->currPos, 2, false) === 0) {
-    $r5 = "[[";
-    $this->currPos += 2;
-    $r5 = false;
-    $this->currPos = $p4;
-  } else {
+    if (!$silence) {$this->fail(62);}
     $r5 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $p4
-  $this->savedPos = $this->currPos;
-  $r6 = $this->a108($param_preproc);
-  if ($r6) {
-    $r6 = false;
-  } else {
-    $r6 = self::$FAILED;
     $this->currPos = $p3;
-    $r1 = self::$FAILED;
+    $r2 = self::$FAILED;
     goto seq_1;
   }
-  // start seq_2
-  $p4 = $this->currPos;
-  if (($this->input[$this->currPos] ?? null) === "[") {
-    $this->currPos++;
-    $r8 = "[";
-  } else {
-    if (!$silence) {$this->fail(19);}
-    $r8 = self::$FAILED;
-    $r7 = self::$FAILED;
-    goto seq_2;
-  }
-  // start choice_1
-  $r9 = $this->parseextlink($silence, $boolParams, $param_preproc, $param_th);
-  if ($r9!==self::$FAILED) {
-    goto choice_1;
-  }
-  if (($this->input[$this->currPos] ?? null) === "[") {
-    $this->currPos++;
-    $r9 = "[";
-  } else {
-    if (!$silence) {$this->fail(19);}
-    $r9 = self::$FAILED;
-  }
-  choice_1:
-  if ($r9===self::$FAILED) {
-    $this->currPos = $p4;
-    $r7 = self::$FAILED;
-    goto seq_2;
-  }
-  $r7 = [$r8,$r9];
-  seq_2:
-  // a <- $r7
-  if ($r7===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $p4
-  $r1 = true;
+  $r2 = true;
   seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a109($param_preproc, $r7);
+  if ($r2!==self::$FAILED) {
+    $r2 = substr($this->input, $p1, $this->currPos - $p1);
+  } else {
+    $r2 = self::$FAILED;
   }
   // free $p3
+  // free $p1
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
   );
-  return $r1;
+  return $r2;
 }
 private function parsewellformed_extension_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([456, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([460, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10191,7 +9946,7 @@ private function parsewellformed_extension_tag($silence, $boolParams, &$param_pr
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r5 = $this->a110($r4);
+  $r5 = $this->a101($r4);
   if ($r5) {
     $r5 = false;
   } else {
@@ -10204,108 +9959,7 @@ private function parsewellformed_extension_tag($silence, $boolParams, &$param_pr
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a111($r4);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsexmlish_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([470, $boolParams & 0x7ebf, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $r4 = $this->parsexmlish_start($silence);
-  // start <- $r4
-  if ($r4===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $this->savedPos = $this->currPos;
-  $r5 = $this->a112(/*annOrExtTag*/($boolParams & 0x2) !== 0, $r4);
-  if ($r5) {
-    $r5 = false;
-  } else {
-    $r5 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r6 = $this->parsegeneric_newline_attributes($silence, $boolParams & ~0x140, $param_preproc, $param_th);
-  // attribs <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  for (;;) {
-    $r8 = $this->discardspace_or_newline_or_solidus($silence);
-    if ($r8===self::$FAILED) {
-      break;
-    }
-  }
-  // free $r8
-  $r7 = true;
-  if ($r7===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $r7
-  if (($this->input[$this->currPos] ?? null) === "/") {
-    $this->currPos++;
-    $r7 = "/";
-  } else {
-    if (!$silence) {$this->fail(35);}
-    $r7 = self::$FAILED;
-    $r7 = null;
-  }
-  // selfclose <- $r7
-  for (;;) {
-    $r9 = $this->discardspace($silence);
-    if ($r9===self::$FAILED) {
-      break;
-    }
-  }
-  // free $r9
-  $r8 = true;
-  if ($r8===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $r8
-  if (($this->input[$this->currPos] ?? null) === ">") {
-    $this->currPos++;
-    $r8 = ">";
-  } else {
-    if (!$silence) {$this->fail(64);}
-    $r8 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a113(/*annOrExtTag*/($boolParams & 0x2) !== 0, $r4, $r6, $r7);
+    $r1 = $this->a102($r4);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -10317,7 +9971,7 @@ private function parsexmlish_tag($silence, $boolParams, &$param_preproc, &$param
   return $r1;
 }
 private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([370, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([374, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10405,7 +10059,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
       $this->currPos++;
       $r18 = "'";
     } else {
-      if (!$silence) {$this->fail(33);}
+      if (!$silence) {$this->fail(32);}
       $r18 = self::$FAILED;
       $r16 = self::$FAILED;
       goto seq_4;
@@ -10458,7 +10112,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
       goto seq_6;
     }
     $this->savedPos = $this->currPos;
-    $r24 = $this->a114($r8, $r9, $r23);
+    $r24 = $this->a103($r8, $r9, $r23);
     if ($r24) {
       $r24 = false;
     } else {
@@ -10506,7 +10160,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
     seq_7:
     if ($r25!==self::$FAILED) {
       $this->savedPos = $p19;
-      $r25 = $this->a8($r8, $r9, $r28);
+      $r25 = $this->a7($r8, $r9, $r28);
       goto choice_3;
     }
     // free $p22
@@ -10528,7 +10182,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
     seq_5:
     if ($r16!==self::$FAILED) {
       $this->savedPos = $p14;
-      $r16 = $this->a9($r8, $r9, $r25);
+      $r16 = $this->a8($r8, $r9, $r25);
     }
     // free $p17
     choice_2:
@@ -10542,7 +10196,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
     seq_3:
     if ($r11!==self::$FAILED) {
       $this->savedPos = $p12;
-      $r11 = $this->a10($r8, $r9, $r16);
+      $r11 = $this->a9($r8, $r9, $r16);
       $r10[] = $r11;
     } else {
       break;
@@ -10556,7 +10210,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
   // r <- $r6
   if ($r6!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r6 = $this->a115($r8, $r9, $r10);
+    $r6 = $this->a104($r8, $r9, $r10);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -10564,7 +10218,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
   }
   // free $p7
   $this->savedPos = $this->currPos;
-  $r11 = $this->a116($r6);
+  $r11 = $this->a105($r6);
   if ($r11) {
     $r11 = false;
   } else {
@@ -10577,7 +10231,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a117($r6);
+    $r1 = $this->a106($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -10589,7 +10243,7 @@ private function parseautourl($silence, $boolParams, &$param_preproc, &$param_th
   return $r1;
 }
 private function parseautoref($silence) {
-  $key = 360;
+  $key = 364;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10641,7 +10295,7 @@ private function parseautoref($silence) {
       $r6 = true;
     } else {
       $r8 = self::$FAILED;
-      if (!$silence) {$this->fail(65);}
+      if (!$silence) {$this->fail(63);}
       break;
     }
   }
@@ -10666,7 +10320,7 @@ private function parseautoref($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a118($r4, $r5, $r6);
+    $r1 = $this->a107($r4, $r5, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -10678,7 +10332,7 @@ private function parseautoref($silence) {
   return $r1;
 }
 private function parseisbn($silence) {
-  $key = 362;
+  $key = 366;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10691,7 +10345,7 @@ private function parseisbn($silence) {
   // start seq_1
   $p3 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r4 = $this->a119();
+  $r4 = $this->a108();
   if ($r4) {
     $r4 = false;
   } else {
@@ -10703,7 +10357,7 @@ private function parseisbn($silence) {
     $r5 = "ISBN";
     $this->currPos += 4;
   } else {
-    if (!$silence) {$this->fail(66);}
+    if (!$silence) {$this->fail(64);}
     $r5 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -10735,7 +10389,7 @@ private function parseisbn($silence) {
     $this->currPos++;
   } else {
     $r9 = self::$FAILED;
-    if (!$silence) {$this->fail(65);}
+    if (!$silence) {$this->fail(63);}
     $r7 = self::$FAILED;
     goto seq_2;
   }
@@ -10759,7 +10413,7 @@ private function parseisbn($silence) {
       $this->currPos++;
     } else {
       $r14 = self::$FAILED;
-      if (!$silence) {$this->fail(65);}
+      if (!$silence) {$this->fail(63);}
       $this->currPos = $p12;
       $r11 = self::$FAILED;
       goto seq_3;
@@ -10801,7 +10455,7 @@ private function parseisbn($silence) {
     $this->currPos++;
   } else {
     $r16 = self::$FAILED;
-    if (!$silence) {$this->fail(67);}
+    if (!$silence) {$this->fail(65);}
     $this->currPos = $p12;
     $r11 = self::$FAILED;
     goto seq_4;
@@ -10833,14 +10487,14 @@ private function parseisbn($silence) {
   // isbncode <- $r17
   if ($r17!==self::$FAILED) {
     $this->savedPos = $p8;
-    $r17 = $this->a120($r6, $r7);
+    $r17 = $this->a109($r6, $r7);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
     goto seq_1;
   }
   $this->savedPos = $this->currPos;
-  $r18 = $this->a121($r6, $r7, $r17);
+  $r18 = $this->a110($r6, $r7, $r17);
   if ($r18) {
     $r18 = false;
   } else {
@@ -10853,7 +10507,7 @@ private function parseisbn($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a122($r6, $r7, $r17);
+    $r1 = $this->a111($r6, $r7, $r17);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -10865,7 +10519,7 @@ private function parseisbn($silence) {
   return $r1;
 }
 private function discardbehavior_text($silence) {
-  $key = 351;
+  $key = 355;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10904,7 +10558,7 @@ private function discardbehavior_text($silence) {
       $this->currPos++;
       $r7 = "-";
     } else {
-      if (!$silence) {$this->fail(55);}
+      if (!$silence) {$this->fail(54);}
       $r7 = self::$FAILED;
     }
     choice_1:
@@ -10938,7 +10592,7 @@ private function discardbehavior_text($silence) {
   return $r2;
 }
 private function parsemaybe_extension_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([454, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([458, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -10973,7 +10627,7 @@ private function parsemaybe_extension_tag($silence, $boolParams, &$param_preproc
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a123($r6);
+    $r1 = $this->a112($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -10985,7 +10639,7 @@ private function parsemaybe_extension_tag($silence, $boolParams, &$param_preproc
   return $r1;
 }
 private function parselang_variant($silence, $boolParams, &$param_th, &$param_preproc) {
-  $key = json_encode([406, $boolParams & 0x7ff7, $param_th, $param_preproc]);
+  $key = json_encode([410, $boolParams & 0x7ff7, $param_th, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11012,7 +10666,7 @@ private function parselang_variant($silence, $boolParams, &$param_th, &$param_pr
   return $r1;
 }
 private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([438, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([442, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11030,7 +10684,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
     $r4 = "[[";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(41);}
+    if (!$silence) {$this->fail(39);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -11040,7 +10694,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   // spos <- $r5
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a16();
+    $r5 = $this->a15();
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -11056,7 +10710,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   // tpos <- $r8
   if ($r8!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r8 = $this->a104($r5, $r7);
+    $r8 = $this->a113($r5, $r7);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -11082,7 +10736,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   seq_2:
   if ($r10!==self::$FAILED) {
     $this->savedPos = $p11;
-    $r10 = $this->a105($r5, $r7, $r8, $r13);
+    $r10 = $this->a114($r5, $r7, $r8, $r13);
     goto choice_1;
   }
   // free $p12
@@ -11092,7 +10746,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   $r10 = $r15;
   if ($r10!==self::$FAILED) {
     $this->savedPos = $p12;
-    $r10 = $this->a106($r5, $r7, $r8, $r15);
+    $r10 = $this->a115($r5, $r7, $r8, $r15);
   }
   choice_1:
   // lcs <- $r10
@@ -11105,7 +10759,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
     $r16 = "]]";
     $this->currPos += 2;
   } else {
-    if (!$silence) {$this->fail(63);}
+    if (!$silence) {$this->fail(66);}
     $r16 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -11115,7 +10769,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a107($r5, $r7, $r8, $r10);
+    $r1 = $this->a116($r5, $r7, $r8, $r10);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -11127,7 +10781,7 @@ private function parsewikilink_preproc($silence, $boolParams, &$param_preproc, &
   return $r1;
 }
 private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([436, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([440, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11154,7 +10808,7 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
   }
   // free $p4
   $this->savedPos = $this->currPos;
-  $r6 = $this->a108($param_preproc);
+  $r6 = $this->a117($param_preproc);
   if ($r6) {
     $r6 = false;
   } else {
@@ -11169,7 +10823,7 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
     $this->currPos++;
     $r8 = "[";
   } else {
-    if (!$silence) {$this->fail(19);}
+    if (!$silence) {$this->fail(17);}
     $r8 = self::$FAILED;
     $r7 = self::$FAILED;
     goto seq_2;
@@ -11183,7 +10837,7 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
     $this->currPos++;
     $r9 = "[";
   } else {
-    if (!$silence) {$this->fail(19);}
+    if (!$silence) {$this->fail(17);}
     $r9 = self::$FAILED;
   }
   choice_1:
@@ -11205,7 +10859,7 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a109($param_preproc, $r7);
+    $r1 = $this->a118($param_preproc, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -11217,7 +10871,210 @@ private function parsebroken_wikilink($silence, $boolParams, &$param_preproc, &$
   return $r1;
 }
 private function discardinclude_check($silence, $boolParams) {
-  $key = json_encode([545, $boolParams & 0x2]);
+  $key = json_encode([553, $boolParams & 0x2]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start seq_1
+  $p1 = $this->currPos;
+  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
+    $r3 = false;
+  } else {
+    $r3 = self::$FAILED;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $r4 = $this->parsexmlish_start($silence);
+  // start <- $r4
+  if ($r4===self::$FAILED) {
+    $this->currPos = $p1;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $this->savedPos = $this->currPos;
+  $r5 = $this->a119($r4);
+  if ($r5) {
+    $r5 = false;
+  } else {
+    $r5 = self::$FAILED;
+    $this->currPos = $p1;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $r2 = true;
+  seq_1:
+  // free $r2,$p1
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r2;
+}
+private function parsexmlish_tag($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([474, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $r4 = $this->parsexmlish_start($silence);
+  // start <- $r4
+  if ($r4===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $this->savedPos = $this->currPos;
+  $r5 = $this->a120(/*annOrExtTag*/($boolParams & 0x2) !== 0, $r4);
+  if ($r5) {
+    $r5 = false;
+  } else {
+    $r5 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r6 = $this->parsegeneric_newline_attributes($silence, $boolParams & ~0x140, $param_preproc, $param_th);
+  // attribs <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  for (;;) {
+    $r8 = $this->discardspace_or_newline_or_solidus($silence);
+    if ($r8===self::$FAILED) {
+      break;
+    }
+  }
+  // free $r8
+  $r7 = true;
+  if ($r7===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $r7
+  if (($this->input[$this->currPos] ?? null) === "/") {
+    $this->currPos++;
+    $r7 = "/";
+  } else {
+    if (!$silence) {$this->fail(34);}
+    $r7 = self::$FAILED;
+    $r7 = null;
+  }
+  // selfclose <- $r7
+  for (;;) {
+    $r9 = $this->discardspace($silence);
+    if ($r9===self::$FAILED) {
+      break;
+    }
+  }
+  // free $r9
+  $r8 = true;
+  if ($r8===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $r8
+  if (($this->input[$this->currPos] ?? null) === ">") {
+    $this->currPos++;
+    $r8 = ">";
+  } else {
+    if (!$silence) {$this->fail(67);}
+    $r8 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a121(/*annOrExtTag*/($boolParams & 0x2) !== 0, $r4, $r6, $r7);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsetvar_old_syntax_closing_HACK($silence, $boolParams) {
+  $key = json_encode([450, $boolParams & 0x2]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
+    $r4 = false;
+  } else {
+    $r4 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "</>", $this->currPos, 3, false) === 0) {
+    $r5 = "</>";
+    $this->currPos += 3;
+  } else {
+    if (!$silence) {$this->fail(68);}
+    $r5 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $this->savedPos = $this->currPos;
+  $r6 = $this->a122();
+  if ($r6) {
+    $r6 = false;
+  } else {
+    $r6 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a123();
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function discardannotation_check($silence, $boolParams) {
+  $key = json_encode([453, $boolParams & 0x2]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11263,110 +11120,8 @@ private function discardinclude_check($silence, $boolParams) {
   );
   return $r2;
 }
-private function parsetvar_old_syntax_closing_HACK($silence, $boolParams) {
-  $key = json_encode([446, $boolParams & 0x2]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
-    $r4 = false;
-  } else {
-    $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "</>", $this->currPos, 3, false) === 0) {
-    $r5 = "</>";
-    $this->currPos += 3;
-  } else {
-    if (!$silence) {$this->fail(68);}
-    $r5 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $this->savedPos = $this->currPos;
-  $r6 = $this->a125();
-  if ($r6) {
-    $r6 = false;
-  } else {
-    $r6 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a126();
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function discardannotation_check($silence, $boolParams) {
-  $key = json_encode([449, $boolParams & 0x2]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start seq_1
-  $p1 = $this->currPos;
-  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
-    $r3 = false;
-  } else {
-    $r3 = self::$FAILED;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $r4 = $this->parsexmlish_start($silence);
-  // start <- $r4
-  if ($r4===self::$FAILED) {
-    $this->currPos = $p1;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $this->savedPos = $this->currPos;
-  $r5 = $this->a127($r4);
-  if ($r5) {
-    $r5 = false;
-  } else {
-    $r5 = self::$FAILED;
-    $this->currPos = $p1;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $r2 = true;
-  seq_1:
-  // free $r2,$p1
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r2,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r2;
-}
 private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([607, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([615, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11381,7 +11136,7 @@ private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) 
   // start seq_1
   $p3 = $this->currPos;
   $this->savedPos = $this->currPos;
-  $r4 = $this->a69();
+  $r4 = $this->a65();
   if ($r4) {
     $r4 = false;
   } else {
@@ -11416,7 +11171,7 @@ private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) 
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a70($r5, $r6, $r7);
+    $r1 = $this->a66($r5, $r6, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -11428,7 +11183,7 @@ private function discardsol($silence, $boolParams, &$param_preproc, &$param_th) 
   return $r1;
 }
 private function parsetable_content_line($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([510, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([518, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11463,7 +11218,7 @@ private function parsetable_content_line($silence, $boolParams, &$param_preproc,
   return $r1;
 }
 private function parsetable_end_tag($silence) {
-  $key = 532;
+  $key = 540;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11496,7 +11251,7 @@ private function parsetable_end_tag($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a128($r4, $r5);
+    $r1 = $this->a125($r4, $r5);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -11507,8 +11262,43 @@ private function parsetable_end_tag($silence) {
   );
   return $r1;
 }
+private function parsenewline($silence) {
+  $key = 588;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start choice_1
+  if (($this->input[$this->currPos] ?? null) === "\x0a") {
+    $this->currPos++;
+    $r1 = "\x0a";
+    goto choice_1;
+  } else {
+    if (!$silence) {$this->fail(27);}
+    $r1 = self::$FAILED;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "\x0d\x0a", $this->currPos, 2, false) === 0) {
+    $r1 = "\x0d\x0a";
+    $this->currPos += 2;
+  } else {
+    if (!$silence) {$this->fail(28);}
+    $r1 = self::$FAILED;
+  }
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
 private function discardnl_comment_space($silence) {
-  $key = 591;
+  $key = 599;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11533,7 +11323,7 @@ private function discardnl_comment_space($silence) {
   return $r1;
 }
 private function parseinlineline_in_tpls($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([400, $boolParams & 0x7e17, $param_preproc, $param_th]);
+  $key = json_encode([404, $boolParams & 0x7e17, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11568,7 +11358,7 @@ private function parseinlineline_in_tpls($silence, $boolParams, &$param_preproc,
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a129($r3);
+    $r1 = $this->a126($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -11579,7 +11369,7 @@ private function parseinlineline_in_tpls($silence, $boolParams, &$param_preproc,
   return $r1;
 }
 private function parsenl_comment_space($silence) {
-  $key = 590;
+  $key = 598;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11604,7 +11394,7 @@ private function parsenl_comment_space($silence) {
   return $r1;
 }
 private function parsetemplate_param_value($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([396, $boolParams & 0x7e17, $param_preproc, $param_th]);
+  $key = json_encode([400, $boolParams & 0x7e17, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11621,7 +11411,7 @@ private function parsetemplate_param_value($silence, $boolParams, &$param_prepro
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a130($r3);
+    $r1 = $this->a127($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -11632,7 +11422,7 @@ private function parsetemplate_param_value($silence, $boolParams, &$param_prepro
   return $r1;
 }
 private function parseparsoid_fragment_marker($silence) {
-  $key = 386;
+  $key = 390;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11661,7 +11451,7 @@ private function parseparsoid_fragment_marker($silence) {
       $r5 = true;
     } else {
       $r6 = self::$FAILED;
-      if (!$silence) {$this->fail(65);}
+      if (!$silence) {$this->fail(63);}
       break;
     }
   }
@@ -11689,7 +11479,7 @@ private function parseparsoid_fragment_marker($silence) {
   return $r2;
 }
 private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([392, $boolParams & 0x7e17, $param_preproc, $param_th]);
+  $key = json_encode([396, $boolParams & 0x7e17, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11718,7 +11508,7 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   // kEndPos <- $r8
   if ($r8!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r8 = $this->a131($r4);
+    $r8 = $this->a128($r4);
   } else {
     $r5 = self::$FAILED;
     goto seq_2;
@@ -11727,7 +11517,7 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
     $this->currPos++;
     $r10 = "=";
   } else {
-    if (!$silence) {$this->fail(25);}
+    if (!$silence) {$this->fail(23);}
     $r10 = self::$FAILED;
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -11738,7 +11528,7 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   // vStartPos <- $r11
   if ($r11!==self::$FAILED) {
     $this->savedPos = $p12;
-    $r11 = $this->a132($r4, $r8);
+    $r11 = $this->a129($r4, $r8);
   } else {
     $this->currPos = $p7;
     $r5 = self::$FAILED;
@@ -11760,7 +11550,7 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   seq_2:
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a133($r4, $r8, $r11, $r13, $r14);
+    $r5 = $this->a130($r4, $r8, $r11, $r13, $r14);
   } else {
     $r5 = null;
   }
@@ -11770,7 +11560,7 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a134($r4, $r5);
+    $r1 = $this->a131($r4, $r5);
     goto choice_1;
   }
   // free $p3
@@ -11782,7 +11572,7 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
     $r1 = false;
     $this->currPos = $p7;
     $this->savedPos = $p3;
-    $r1 = $this->a135();
+    $r1 = $this->a132();
   } else {
     $r1 = self::$FAILED;
   }
@@ -11796,8 +11586,730 @@ private function parsetemplate_param($silence, $boolParams, &$param_preproc, &$p
   );
   return $r1;
 }
+private function discardwikilink_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([443, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "[[", $this->currPos, 2, false) === 0) {
+    $r4 = "[[";
+    $this->currPos += 2;
+  } else {
+    if (!$silence) {$this->fail(39);}
+    $r4 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $p6 = $this->currPos;
+  $r5 = '';
+  // spos <- $r5
+  if ($r5!==self::$FAILED) {
+    $this->savedPos = $p6;
+    $r5 = $this->a15();
+  } else {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r7 = $this->parsewikilink_preprocessor_text($silence, $boolParams, $param_preproc, $param_th);
+  if ($r7===self::$FAILED) {
+    $r7 = null;
+  }
+  // target <- $r7
+  $p9 = $this->currPos;
+  $r8 = '';
+  // tpos <- $r8
+  if ($r8!==self::$FAILED) {
+    $this->savedPos = $p9;
+    $r8 = $this->a113($r5, $r7);
+  } else {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // start choice_1
+  $p11 = $this->currPos;
+  // start seq_2
+  $p12 = $this->currPos;
+  $r13 = $this->parsewikilink_content($silence, $boolParams, $param_preproc, $param_th);
+  // l <- $r13
+  if ($r13===self::$FAILED) {
+    $r10 = self::$FAILED;
+    goto seq_2;
+  }
+  $r14 = $this->discardinline_breaks($silence, $boolParams, $param_preproc, $param_th);
+  if ($r14===self::$FAILED) {
+    $this->currPos = $p12;
+    $r10 = self::$FAILED;
+    goto seq_2;
+  }
+  $r10 = true;
+  seq_2:
+  if ($r10!==self::$FAILED) {
+    $this->savedPos = $p11;
+    $r10 = $this->a114($r5, $r7, $r8, $r13);
+    goto choice_1;
+  }
+  // free $p12
+  $p12 = $this->currPos;
+  $r15 = $this->parseinlineline($silence, $boolParams, $param_preproc, $param_th);
+  // l <- $r15
+  $r10 = $r15;
+  if ($r10!==self::$FAILED) {
+    $this->savedPos = $p12;
+    $r10 = $this->a115($r5, $r7, $r8, $r15);
+  }
+  choice_1:
+  // lcs <- $r10
+  if ($r10===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "]]", $this->currPos, 2, false) === 0) {
+    $r16 = "]]";
+    $this->currPos += 2;
+  } else {
+    if (!$silence) {$this->fail(66);}
+    $r16 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a116($r5, $r7, $r8, $r10);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function discardbroken_wikilink($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([441, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $p4 = $this->currPos;
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "[[", $this->currPos, 2, false) === 0) {
+    $r5 = "[[";
+    $this->currPos += 2;
+    $r5 = false;
+    $this->currPos = $p4;
+  } else {
+    $r5 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p4
+  $this->savedPos = $this->currPos;
+  $r6 = $this->a117($param_preproc);
+  if ($r6) {
+    $r6 = false;
+  } else {
+    $r6 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // start seq_2
+  $p4 = $this->currPos;
+  if (($this->input[$this->currPos] ?? null) === "[") {
+    $this->currPos++;
+    $r8 = "[";
+  } else {
+    if (!$silence) {$this->fail(17);}
+    $r8 = self::$FAILED;
+    $r7 = self::$FAILED;
+    goto seq_2;
+  }
+  // start choice_1
+  $r9 = $this->parseextlink($silence, $boolParams, $param_preproc, $param_th);
+  if ($r9!==self::$FAILED) {
+    goto choice_1;
+  }
+  if (($this->input[$this->currPos] ?? null) === "[") {
+    $this->currPos++;
+    $r9 = "[";
+  } else {
+    if (!$silence) {$this->fail(17);}
+    $r9 = self::$FAILED;
+  }
+  choice_1:
+  if ($r9===self::$FAILED) {
+    $this->currPos = $p4;
+    $r7 = self::$FAILED;
+    goto seq_2;
+  }
+  $r7 = [$r8,$r9];
+  seq_2:
+  // a <- $r7
+  if ($r7===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p4
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a118($param_preproc, $r7);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parseRFC($silence) {
+  $key = 360;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $this->savedPos = $this->currPos;
+  $r4 = $this->a133();
+  if ($r4) {
+    $r4 = false;
+  } else {
+    $r4 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "RFC", $this->currPos, 3, false) === 0) {
+    $r5 = "RFC";
+    $this->currPos += 3;
+  } else {
+    if (!$silence) {$this->fail(71);}
+    $r5 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a134();
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsePMID($silence) {
+  $key = 362;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $this->savedPos = $this->currPos;
+  $r4 = $this->a135();
+  if ($r4) {
+    $r4 = false;
+  } else {
+    $r4 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "PMID", $this->currPos, 4, false) === 0) {
+    $r5 = "PMID";
+    $this->currPos += 4;
+  } else {
+    if (!$silence) {$this->fail(72);}
+    $r5 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a136();
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsespace_or_nbsp($silence) {
+  $key = 608;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start choice_1
+  $r1 = $this->parsespace($silence);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $r1 = $this->parseunispace($silence);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $p4 = $this->currPos;
+  if (($this->input[$this->currPos] ?? null) === "&") {
+    $this->currPos++;
+    $r5 = "&";
+    $r5 = false;
+    $this->currPos = $p4;
+  } else {
+    $r5 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p4
+  $r6 = $this->parsehtmlentity($silence);
+  // he <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $this->savedPos = $this->currPos;
+  $r7 = $this->a137($r6);
+  if ($r7) {
+    $r7 = false;
+  } else {
+    $r7 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a55($r6);
+  }
+  // free $p3
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function discardend_of_word($silence) {
+  $key = 605;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start choice_1
+  $r1 = $this->discardeof($silence);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  $p2 = $this->currPos;
+  $r1 = $this->input[$this->currPos] ?? '';
+  if (preg_match("/^[A-Za-z0-9_]/", $r1)) {
+    $this->currPos++;
+  } else {
+    $r1 = self::$FAILED;
+  }
+  if ($r1 === self::$FAILED) {
+    $r1 = false;
+  } else {
+    $r1 = self::$FAILED;
+    $this->currPos = $p2;
+  }
+  // free $p2
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsespace_or_nbsp_or_dash($silence) {
+  $key = 610;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start choice_1
+  $r1 = $this->parsespace_or_nbsp($silence);
+  if ($r1!==self::$FAILED) {
+    goto choice_1;
+  }
+  if (($this->input[$this->currPos] ?? null) === "-") {
+    $this->currPos++;
+    $r1 = "-";
+  } else {
+    if (!$silence) {$this->fail(54);}
+    $r1 = self::$FAILED;
+  }
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function discardtext_char($silence) {
+  $key = 545;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  if (strcspn($this->input, "-'<[{\x0a\x0d:;]}|!=", $this->currPos, 1) !== 0) {
+    $r1 = self::consumeChar($this->input, $this->currPos);
+  } else {
+    $r1 = self::$FAILED;
+    if (!$silence) {$this->fail(53);}
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function discardextension_check($silence, $boolParams) {
+  $key = json_encode([457, $boolParams & 0x2]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start seq_1
+  $p1 = $this->currPos;
+  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
+    $r3 = false;
+  } else {
+    $r3 = self::$FAILED;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $r4 = $this->parsexmlish_start($silence);
+  // start <- $r4
+  if ($r4===self::$FAILED) {
+    $this->currPos = $p1;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $this->savedPos = $this->currPos;
+  $r5 = $this->a138($r4);
+  if ($r5) {
+    $r5 = false;
+  } else {
+    $r5 = self::$FAILED;
+    $this->currPos = $p1;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $r2 = true;
+  seq_1:
+  // free $r2,$p1
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r2;
+}
+private function parselang_variant_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([412, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $p5 = $this->currPos;
+  // lv0 <- $r4
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-{", $this->currPos, 2, false) === 0) {
+    $r4 = "-{";
+    $this->currPos += 2;
+    $this->savedPos = $p5;
+    $r4 = $this->a139();
+  } else {
+    if (!$silence) {$this->fail(73);}
+    $r4 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // start choice_1
+  $p7 = $this->currPos;
+  // start seq_2
+  $p8 = $this->currPos;
+  $this->savedPos = $this->currPos;
+  $r9 = $this->a140($r4);
+  if ($r9) {
+    $r9 = false;
+  } else {
+    $r9 = self::$FAILED;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  $r10 = $this->parseopt_lang_variant_flags($silence, $boolParams, $param_preproc, $param_th);
+  // ff <- $r10
+  if ($r10===self::$FAILED) {
+    $this->currPos = $p8;
+    $r6 = self::$FAILED;
+    goto seq_2;
+  }
+  $r6 = true;
+  seq_2:
+  if ($r6!==self::$FAILED) {
+    $this->savedPos = $p7;
+    $r6 = $this->a141($r4, $r10);
+    goto choice_1;
+  }
+  // free $p8
+  $p8 = $this->currPos;
+  // start seq_3
+  $p11 = $this->currPos;
+  $this->savedPos = $this->currPos;
+  $r12 = $this->a142($r4);
+  if ($r12) {
+    $r12 = false;
+  } else {
+    $r12 = self::$FAILED;
+    $r6 = self::$FAILED;
+    goto seq_3;
+  }
+  $r6 = true;
+  seq_3:
+  if ($r6!==self::$FAILED) {
+    $this->savedPos = $p8;
+    $r6 = $this->a143($r4);
+  }
+  // free $p11
+  choice_1:
+  // f <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // start choice_2
+  $p11 = $this->currPos;
+  // start seq_4
+  $p14 = $this->currPos;
+  $this->savedPos = $this->currPos;
+  $r15 = $this->a144($r4, $r6);
+  if ($r15) {
+    $r15 = false;
+  } else {
+    $r15 = self::$FAILED;
+    $r13 = self::$FAILED;
+    goto seq_4;
+  }
+  $r16 = $this->parselang_variant_text($silence, $boolParams, $param_preproc, $param_th);
+  // lv <- $r16
+  if ($r16===self::$FAILED) {
+    $this->currPos = $p14;
+    $r13 = self::$FAILED;
+    goto seq_4;
+  }
+  $r13 = true;
+  seq_4:
+  if ($r13!==self::$FAILED) {
+    $this->savedPos = $p11;
+    $r13 = $this->a145($r4, $r6, $r16);
+    goto choice_2;
+  }
+  // free $p14
+  $p14 = $this->currPos;
+  // start seq_5
+  $p17 = $this->currPos;
+  $this->savedPos = $this->currPos;
+  $r18 = $this->a146($r4, $r6);
+  if ($r18) {
+    $r18 = false;
+  } else {
+    $r18 = self::$FAILED;
+    $r13 = self::$FAILED;
+    goto seq_5;
+  }
+  $r19 = $this->parselang_variant_option_list($silence, $boolParams, $param_preproc, $param_th);
+  // lv <- $r19
+  if ($r19===self::$FAILED) {
+    $this->currPos = $p17;
+    $r13 = self::$FAILED;
+    goto seq_5;
+  }
+  $r13 = true;
+  seq_5:
+  if ($r13!==self::$FAILED) {
+    $this->savedPos = $p14;
+    $r13 = $this->a147($r4, $r6, $r19);
+  }
+  // free $p17
+  choice_2:
+  // ts <- $r13
+  if ($r13===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r20 = $this->discardinline_breaks($silence, $boolParams, $param_preproc, $param_th);
+  if ($r20===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $p17 = $this->currPos;
+  // lv1 <- $r21
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "}-", $this->currPos, 2, false) === 0) {
+    $r21 = "}-";
+    $this->currPos += 2;
+    $this->savedPos = $p17;
+    $r21 = $this->a148($r4, $r6, $r13);
+  } else {
+    if (!$silence) {$this->fail(74);}
+    $r21 = self::$FAILED;
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a149($r4, $r6, $r13, $r21);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsebroken_lang_variant($silence, &$param_preproc) {
+  $key = json_encode([408, $param_preproc]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  // r <- $r4
+  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-{", $this->currPos, 2, false) === 0) {
+    $r4 = "-{";
+    $this->currPos += 2;
+  } else {
+    if (!$silence) {$this->fail(73);}
+    $r4 = self::$FAILED;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a150($r4, $param_preproc);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
 private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([550, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([558, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11820,7 +12332,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
         $r5 = true;
       } else {
         $r7 = self::$FAILED;
-        if (!$silence) {$this->fail(71);}
+        if (!$silence) {$this->fail(75);}
         break;
       }
     }
@@ -11895,7 +12407,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
       $r15 = $this->input[$this->currPos++];
     } else {
       $r15 = self::$FAILED;
-      if (!$silence) {$this->fail(72);}
+      if (!$silence) {$this->fail(76);}
     }
     choice_3:
     if ($r15===self::$FAILED) {
@@ -11923,7 +12435,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
     seq_1:
     if ($r4!==self::$FAILED) {
       $this->savedPos = $p6;
-      $r4 = $this->a136($r5, $r11);
+      $r4 = $this->a151($r5, $r11);
     }
     // free $p8
     choice_1:
@@ -11941,7 +12453,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a54($r3);
+    $r1 = $this->a50($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -11952,7 +12464,7 @@ private function parsewikilink_preprocessor_text($silence, $boolParams, &$param_
   return $r1;
 }
 private function parsewikilink_content($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([432, $boolParams & 0x77df, $param_preproc, $param_th]);
+  $key = json_encode([436, $boolParams & 0x77df, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -11979,7 +12491,7 @@ private function parsewikilink_content($silence, $boolParams, &$param_preproc, &
     // startPos <- $r6
     if ($r6!==self::$FAILED) {
       $this->savedPos = $p7;
-      $r6 = $this->a137($r5);
+      $r6 = $this->a152($r5);
     } else {
       $this->currPos = $p4;
       $r2 = self::$FAILED;
@@ -11994,7 +12506,7 @@ private function parsewikilink_content($silence, $boolParams, &$param_preproc, &
     seq_1:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r2 = $this->a138($r5, $r6, $r8);
+      $r2 = $this->a153($r5, $r6, $r8);
       $r1[] = $r2;
     } else {
       break;
@@ -12011,7 +12523,7 @@ private function parsewikilink_content($silence, $boolParams, &$param_preproc, &
   return $r1;
 }
 private function parsexmlish_start($silence) {
-  $key = 468;
+  $key = 472;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12027,7 +12539,7 @@ private function parsexmlish_start($silence) {
     $this->currPos++;
     $r4 = "<";
   } else {
-    if (!$silence) {$this->fail(48);}
+    if (!$silence) {$this->fail(62);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -12036,7 +12548,7 @@ private function parsexmlish_start($silence) {
     $this->currPos++;
     $r5 = "/";
   } else {
-    if (!$silence) {$this->fail(35);}
+    if (!$silence) {$this->fail(34);}
     $r5 = self::$FAILED;
     $r5 = null;
   }
@@ -12052,536 +12564,19 @@ private function parsexmlish_start($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a139($r5, $r6);
+    $r1 = $this->a154($r5, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
     $r1,
     self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parseRFC($silence) {
-  $key = 356;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $this->savedPos = $this->currPos;
-  $r4 = $this->a140();
-  if ($r4) {
-    $r4 = false;
-  } else {
-    $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "RFC", $this->currPos, 3, false) === 0) {
-    $r5 = "RFC";
-    $this->currPos += 3;
-  } else {
-    if (!$silence) {$this->fail(73);}
-    $r5 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a141();
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsePMID($silence) {
-  $key = 358;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $this->savedPos = $this->currPos;
-  $r4 = $this->a142();
-  if ($r4) {
-    $r4 = false;
-  } else {
-    $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "PMID", $this->currPos, 4, false) === 0) {
-    $r5 = "PMID";
-    $this->currPos += 4;
-  } else {
-    if (!$silence) {$this->fail(74);}
-    $r5 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a143();
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsespace_or_nbsp($silence) {
-  $key = 600;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start choice_1
-  $r1 = $this->parsespace($silence);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
-  $r1 = $this->parseunispace($silence);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $p4 = $this->currPos;
-  if (($this->input[$this->currPos] ?? null) === "&") {
-    $this->currPos++;
-    $r5 = "&";
-    $r5 = false;
-    $this->currPos = $p4;
-  } else {
-    $r5 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $p4
-  $r6 = $this->parsehtmlentity($silence);
-  // he <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $this->savedPos = $this->currPos;
-  $r7 = $this->a144($r6);
-  if ($r7) {
-    $r7 = false;
-  } else {
-    $r7 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a59($r6);
-  }
-  // free $p3
-  choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function discardend_of_word($silence) {
-  $key = 597;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start choice_1
-  $r1 = $this->discardeof($silence);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
-  $p2 = $this->currPos;
-  $r1 = $this->input[$this->currPos] ?? '';
-  if (preg_match("/^[A-Za-z0-9_]/", $r1)) {
-    $this->currPos++;
-  } else {
-    $r1 = self::$FAILED;
-  }
-  if ($r1 === self::$FAILED) {
-    $r1 = false;
-  } else {
-    $r1 = self::$FAILED;
-    $this->currPos = $p2;
-  }
-  // free $p2
-  choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsespace_or_nbsp_or_dash($silence) {
-  $key = 602;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start choice_1
-  $r1 = $this->parsespace_or_nbsp($silence);
-  if ($r1!==self::$FAILED) {
-    goto choice_1;
-  }
-  if (($this->input[$this->currPos] ?? null) === "-") {
-    $this->currPos++;
-    $r1 = "-";
-  } else {
-    if (!$silence) {$this->fail(55);}
-    $r1 = self::$FAILED;
-  }
-  choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function discardtext_char($silence) {
-  $key = 537;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  if (strcspn($this->input, "-'<[{\x0a\x0d:;]}|!=", $this->currPos, 1) !== 0) {
-    $r1 = self::consumeChar($this->input, $this->currPos);
-  } else {
-    $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(54);}
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function discardextension_check($silence, $boolParams) {
-  $key = json_encode([453, $boolParams & 0x2]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start seq_1
-  $p1 = $this->currPos;
-  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
-    $r3 = false;
-  } else {
-    $r3 = self::$FAILED;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $r4 = $this->parsexmlish_start($silence);
-  // start <- $r4
-  if ($r4===self::$FAILED) {
-    $this->currPos = $p1;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $this->savedPos = $this->currPos;
-  $r5 = $this->a145($r4);
-  if ($r5) {
-    $r5 = false;
-  } else {
-    $r5 = self::$FAILED;
-    $this->currPos = $p1;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $r2 = true;
-  seq_1:
-  // free $r2,$p1
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r2,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r2;
-}
-private function parselang_variant_preproc($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([408, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $p5 = $this->currPos;
-  // lv0 <- $r4
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-{", $this->currPos, 2, false) === 0) {
-    $r4 = "-{";
-    $this->currPos += 2;
-    $this->savedPos = $p5;
-    $r4 = $this->a146();
-  } else {
-    if (!$silence) {$this->fail(75);}
-    $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // start choice_1
-  $p7 = $this->currPos;
-  // start seq_2
-  $p8 = $this->currPos;
-  $this->savedPos = $this->currPos;
-  $r9 = $this->a147($r4);
-  if ($r9) {
-    $r9 = false;
-  } else {
-    $r9 = self::$FAILED;
-    $r6 = self::$FAILED;
-    goto seq_2;
-  }
-  $r10 = $this->parseopt_lang_variant_flags($silence, $boolParams, $param_preproc, $param_th);
-  // ff <- $r10
-  if ($r10===self::$FAILED) {
-    $this->currPos = $p8;
-    $r6 = self::$FAILED;
-    goto seq_2;
-  }
-  $r6 = true;
-  seq_2:
-  if ($r6!==self::$FAILED) {
-    $this->savedPos = $p7;
-    $r6 = $this->a148($r4, $r10);
-    goto choice_1;
-  }
-  // free $p8
-  $p8 = $this->currPos;
-  // start seq_3
-  $p11 = $this->currPos;
-  $this->savedPos = $this->currPos;
-  $r12 = $this->a149($r4);
-  if ($r12) {
-    $r12 = false;
-  } else {
-    $r12 = self::$FAILED;
-    $r6 = self::$FAILED;
-    goto seq_3;
-  }
-  $r6 = true;
-  seq_3:
-  if ($r6!==self::$FAILED) {
-    $this->savedPos = $p8;
-    $r6 = $this->a150($r4);
-  }
-  // free $p11
-  choice_1:
-  // f <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // start choice_2
-  $p11 = $this->currPos;
-  // start seq_4
-  $p14 = $this->currPos;
-  $this->savedPos = $this->currPos;
-  $r15 = $this->a151($r4, $r6);
-  if ($r15) {
-    $r15 = false;
-  } else {
-    $r15 = self::$FAILED;
-    $r13 = self::$FAILED;
-    goto seq_4;
-  }
-  $r16 = $this->parselang_variant_text($silence, $boolParams, $param_preproc, $param_th);
-  // lv <- $r16
-  if ($r16===self::$FAILED) {
-    $this->currPos = $p14;
-    $r13 = self::$FAILED;
-    goto seq_4;
-  }
-  $r13 = true;
-  seq_4:
-  if ($r13!==self::$FAILED) {
-    $this->savedPos = $p11;
-    $r13 = $this->a152($r4, $r6, $r16);
-    goto choice_2;
-  }
-  // free $p14
-  $p14 = $this->currPos;
-  // start seq_5
-  $p17 = $this->currPos;
-  $this->savedPos = $this->currPos;
-  $r18 = $this->a153($r4, $r6);
-  if ($r18) {
-    $r18 = false;
-  } else {
-    $r18 = self::$FAILED;
-    $r13 = self::$FAILED;
-    goto seq_5;
-  }
-  $r19 = $this->parselang_variant_option_list($silence, $boolParams, $param_preproc, $param_th);
-  // lv <- $r19
-  if ($r19===self::$FAILED) {
-    $this->currPos = $p17;
-    $r13 = self::$FAILED;
-    goto seq_5;
-  }
-  $r13 = true;
-  seq_5:
-  if ($r13!==self::$FAILED) {
-    $this->savedPos = $p14;
-    $r13 = $this->a154($r4, $r6, $r19);
-  }
-  // free $p17
-  choice_2:
-  // ts <- $r13
-  if ($r13===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r20 = $this->discardinline_breaks($silence, $boolParams, $param_preproc, $param_th);
-  if ($r20===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $p17 = $this->currPos;
-  // lv1 <- $r21
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "}-", $this->currPos, 2, false) === 0) {
-    $r21 = "}-";
-    $this->currPos += 2;
-    $this->savedPos = $p17;
-    $r21 = $this->a155($r4, $r6, $r13);
-  } else {
-    if (!$silence) {$this->fail(76);}
-    $r21 = self::$FAILED;
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a156($r4, $r6, $r13, $r21);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parsebroken_lang_variant($silence, &$param_preproc) {
-  $key = json_encode([404, $param_preproc]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  // r <- $r4
-  if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "-{", $this->currPos, 2, false) === 0) {
-    $r4 = "-{";
-    $this->currPos += 2;
-  } else {
-    if (!$silence) {$this->fail(75);}
-    $r4 = self::$FAILED;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a157($r4, $param_preproc);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
     self::$UNDEFINED
   );
   return $r1;
 }
 private function parsetable_heading_tags($silence, $boolParams, &$param_preproc) {
-  $key = json_encode([518, $boolParams & 0x7fff, $param_preproc]);
+  $key = json_encode([526, $boolParams & 0x7fff, $param_preproc]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12600,7 +12595,7 @@ private function parsetable_heading_tags($silence, $boolParams, &$param_preproc)
   return $r1;
 }
 private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([516, $boolParams & 0x7fbf, $param_preproc, $param_th]);
+  $key = json_encode([524, $boolParams & 0x7fbf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12636,7 +12631,7 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
       $r8 = "-";
       $r6 = true;
     } else {
-      if (!$silence) {$this->fail(55);}
+      if (!$silence) {$this->fail(54);}
       $r8 = self::$FAILED;
       break;
     }
@@ -12658,7 +12653,7 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
     goto choice_1;
   }
   $this->savedPos = $this->currPos;
-  $r8 = $this->a158($r5, $r6);
+  $r8 = $this->a155($r5, $r6);
   if ($r8) {
     $r8 = false;
   } else {
@@ -12676,7 +12671,7 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
   // tagEndPos <- $r9
   if ($r9!==self::$FAILED) {
     $this->savedPos = $p7;
-    $r9 = $this->a159($r5, $r6, $r8);
+    $r9 = $this->a156($r5, $r6, $r8);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -12697,7 +12692,7 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a160($r5, $r6, $r8, $r9, $r10);
+    $r1 = $this->a157($r5, $r6, $r8, $r9, $r10);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -12709,7 +12704,7 @@ private function parsetable_row_tag($silence, $boolParams, &$param_preproc, &$pa
   return $r1;
 }
 private function parsetable_data_tags($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([526, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([534, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12772,7 +12767,7 @@ private function parsetable_data_tags($silence, $boolParams, &$param_preproc, &$
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a161($r5, $r8, $r9);
+    $r1 = $this->a158($r5, $r8, $r9);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -12784,7 +12779,7 @@ private function parsetable_data_tags($silence, $boolParams, &$param_preproc, &$
   return $r1;
 }
 private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([514, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([522, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12832,7 +12827,7 @@ private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, 
   // tagEndPos <- $r8
   if ($r8!==self::$FAILED) {
     $this->savedPos = $p9;
-    $r8 = $this->a162($r5, $r7);
+    $r8 = $this->a159($r5, $r7);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -12853,7 +12848,7 @@ private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, 
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a163($r5, $r7, $r8, $r10);
+    $r1 = $this->a160($r5, $r7, $r8, $r10);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -12865,7 +12860,7 @@ private function parsetable_caption_tag($silence, $boolParams, &$param_preproc, 
   return $r1;
 }
 private function discardnewlineToken($silence) {
-  $key = 583;
+  $key = 591;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12878,7 +12873,7 @@ private function discardnewlineToken($silence) {
   $r1 = $this->discardnewline($silence);
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a25();
+    $r1 = $this->a24();
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -12889,7 +12884,7 @@ private function discardnewlineToken($silence) {
   return $r1;
 }
 private function discardspace_or_comment($silence) {
-  $key = 589;
+  $key = 597;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12914,7 +12909,7 @@ private function discardspace_or_comment($silence) {
   return $r1;
 }
 private function parsenested_inlineline($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([326, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([330, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12950,7 +12945,7 @@ private function parsenested_inlineline($silence, $boolParams, &$param_preproc, 
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a164($r6);
+    $r1 = $this->a161($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -12962,7 +12957,7 @@ private function parsenested_inlineline($silence, $boolParams, &$param_preproc, 
   return $r1;
 }
 private function parsetemplate_param_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([398, $boolParams & 0x7e37, $param_preproc, $param_th]);
+  $key = json_encode([402, $boolParams & 0x7e37, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -12997,7 +12992,7 @@ private function parsetemplate_param_text($silence, $boolParams, &$param_preproc
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a165($r3);
+    $r1 = $this->a162($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -13008,7 +13003,7 @@ private function parsetemplate_param_text($silence, $boolParams, &$param_preproc
   return $r1;
 }
 private function parsetemplate_param_name($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([394, $boolParams & 0x7e17, $param_preproc, $param_th]);
+  $key = json_encode([398, $boolParams & 0x7e17, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13032,7 +13027,7 @@ private function parsetemplate_param_name($silence, $boolParams, &$param_preproc
     $r1 = false;
     $this->currPos = $p3;
     $this->savedPos = $p2;
-    $r1 = $this->a166();
+    $r1 = $this->a163();
   } else {
     $r1 = self::$FAILED;
   }
@@ -13046,8 +13041,253 @@ private function parsetemplate_param_name($silence, $boolParams, &$param_preproc
   );
   return $r1;
 }
+private function parseunispace($silence) {
+  $key = 606;
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  $r1 = self::charAt($this->input, $this->currPos);
+  if (preg_match("/^[ \\x{a0}\\x{1680}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}]/u", $r1)) {
+    $this->currPos += strlen($r1);
+  } else {
+    $r1 = self::$FAILED;
+    if (!$silence) {$this->fail(25);}
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parseopt_lang_variant_flags($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([414, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  $p4 = $this->currPos;
+  // start seq_1
+  $p5 = $this->currPos;
+  $r6 = $this->parselang_variant_flags($silence, $boolParams, $param_preproc, $param_th);
+  // ff <- $r6
+  if ($r6===self::$FAILED) {
+    $r3 = self::$FAILED;
+    goto seq_1;
+  }
+  if (($this->input[$this->currPos] ?? null) === "|") {
+    $this->currPos++;
+    $r7 = "|";
+  } else {
+    if (!$silence) {$this->fail(10);}
+    $r7 = self::$FAILED;
+    $this->currPos = $p5;
+    $r3 = self::$FAILED;
+    goto seq_1;
+  }
+  $r3 = true;
+  seq_1:
+  if ($r3!==self::$FAILED) {
+    $this->savedPos = $p4;
+    $r3 = $this->a164($r6);
+  } else {
+    $r3 = null;
+  }
+  // free $p5
+  // f <- $r3
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a165($r3);
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parselang_variant_text($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([430, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  $r3 = [];
+  for (;;) {
+    // start choice_1
+    $r4 = $this->parseinlineline($silence, $boolParams, $param_preproc, $param_th);
+    if ($r4!==self::$FAILED) {
+      goto choice_1;
+    }
+    if (($this->input[$this->currPos] ?? null) === "|") {
+      $this->currPos++;
+      $r4 = "|";
+    } else {
+      if (!$silence) {$this->fail(10);}
+      $r4 = self::$FAILED;
+    }
+    choice_1:
+    if ($r4!==self::$FAILED) {
+      $r3[] = $r4;
+    } else {
+      break;
+    }
+  }
+  // tokens <- $r3
+  // free $r4
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a166($r3);
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parselang_variant_option_list($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([422, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  // start choice_1
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $r4 = $this->parselang_variant_option($silence, $boolParams, $param_preproc, $param_th);
+  // o <- $r4
+  if ($r4===self::$FAILED) {
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r5 = [];
+  for (;;) {
+    $p7 = $this->currPos;
+    // start seq_2
+    $p8 = $this->currPos;
+    if (($this->input[$this->currPos] ?? null) === ";") {
+      $this->currPos++;
+      $r9 = ";";
+    } else {
+      if (!$silence) {$this->fail(26);}
+      $r9 = self::$FAILED;
+      $r6 = self::$FAILED;
+      goto seq_2;
+    }
+    $r10 = $this->parselang_variant_option($silence, $boolParams, $param_preproc, $param_th);
+    // oo <- $r10
+    if ($r10===self::$FAILED) {
+      $this->currPos = $p8;
+      $r6 = self::$FAILED;
+      goto seq_2;
+    }
+    $r6 = true;
+    seq_2:
+    if ($r6!==self::$FAILED) {
+      $this->savedPos = $p7;
+      $r6 = $this->a167($r4, $r10);
+      $r5[] = $r6;
+    } else {
+      break;
+    }
+    // free $p8
+  }
+  // rest <- $r5
+  // free $r6
+  $r6 = [];
+  for (;;) {
+    // start seq_3
+    $p8 = $this->currPos;
+    if (($this->input[$this->currPos] ?? null) === ";") {
+      $this->currPos++;
+      $r12 = ";";
+    } else {
+      if (!$silence) {$this->fail(26);}
+      $r12 = self::$FAILED;
+      $r11 = self::$FAILED;
+      goto seq_3;
+    }
+    $p13 = $this->currPos;
+    $r14 = $this->discardbogus_lang_variant_option($silence, $boolParams, $param_preproc, $param_th);
+    if ($r14!==self::$FAILED) {
+      $r14 = substr($this->input, $p13, $this->currPos - $p13);
+    } else {
+      $r14 = self::$FAILED;
+      $this->currPos = $p8;
+      $r11 = self::$FAILED;
+      goto seq_3;
+    }
+    // free $p13
+    $r11 = [$r12,$r14];
+    seq_3:
+    if ($r11!==self::$FAILED) {
+      $r6[] = $r11;
+    } else {
+      break;
+    }
+    // free $p8
+  }
+  // tr <- $r6
+  // free $r11
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a168($r4, $r5, $r6);
+    goto choice_1;
+  }
+  // free $p3
+  $p3 = $this->currPos;
+  $r11 = $this->parselang_variant_text($silence, $boolParams, $param_preproc, $param_th);
+  // lvtext <- $r11
+  $r1 = $r11;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p3;
+    $r1 = $this->a169($r11);
+  }
+  choice_1:
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
 private function parselink_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([440, $boolParams & 0x77df, $param_preproc, $param_th]);
+  $key = json_encode([444, $boolParams & 0x77df, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13068,7 +13308,7 @@ private function parselink_text($silence, $boolParams, &$param_preproc, &$param_
   return $r1;
 }
 private function parsetag_name($silence) {
-  $key = 464;
+  $key = 468;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13104,253 +13344,8 @@ private function parsetag_name($silence) {
   );
   return $r2;
 }
-private function parseunispace($silence) {
-  $key = 598;
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  $r1 = self::charAt($this->input, $this->currPos);
-  if (preg_match("/^[ \\x{a0}\\x{1680}\\x{2000}-\\x{200a}\\x{202f}\\x{205f}\\x{3000}]/u", $r1)) {
-    $this->currPos += strlen($r1);
-  } else {
-    $r1 = self::$FAILED;
-    if (!$silence) {$this->fail(27);}
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parseopt_lang_variant_flags($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([410, $boolParams & 0x7ebf, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  $p4 = $this->currPos;
-  // start seq_1
-  $p5 = $this->currPos;
-  $r6 = $this->parselang_variant_flags($silence, $boolParams, $param_preproc, $param_th);
-  // ff <- $r6
-  if ($r6===self::$FAILED) {
-    $r3 = self::$FAILED;
-    goto seq_1;
-  }
-  if (($this->input[$this->currPos] ?? null) === "|") {
-    $this->currPos++;
-    $r7 = "|";
-  } else {
-    if (!$silence) {$this->fail(12);}
-    $r7 = self::$FAILED;
-    $this->currPos = $p5;
-    $r3 = self::$FAILED;
-    goto seq_1;
-  }
-  $r3 = true;
-  seq_1:
-  if ($r3!==self::$FAILED) {
-    $this->savedPos = $p4;
-    $r3 = $this->a167($r6);
-  } else {
-    $r3 = null;
-  }
-  // free $p5
-  // f <- $r3
-  $r1 = $r3;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a168($r3);
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parselang_variant_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([426, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  $r3 = [];
-  for (;;) {
-    // start choice_1
-    $r4 = $this->parseinlineline($silence, $boolParams, $param_preproc, $param_th);
-    if ($r4!==self::$FAILED) {
-      goto choice_1;
-    }
-    if (($this->input[$this->currPos] ?? null) === "|") {
-      $this->currPos++;
-      $r4 = "|";
-    } else {
-      if (!$silence) {$this->fail(12);}
-      $r4 = self::$FAILED;
-    }
-    choice_1:
-    if ($r4!==self::$FAILED) {
-      $r3[] = $r4;
-    } else {
-      break;
-    }
-  }
-  // tokens <- $r3
-  // free $r4
-  $r1 = $r3;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a169($r3);
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
-private function parselang_variant_option_list($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([418, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  // start choice_1
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $r4 = $this->parselang_variant_option($silence, $boolParams, $param_preproc, $param_th);
-  // o <- $r4
-  if ($r4===self::$FAILED) {
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r5 = [];
-  for (;;) {
-    $p7 = $this->currPos;
-    // start seq_2
-    $p8 = $this->currPos;
-    if (($this->input[$this->currPos] ?? null) === ";") {
-      $this->currPos++;
-      $r9 = ";";
-    } else {
-      if (!$silence) {$this->fail(28);}
-      $r9 = self::$FAILED;
-      $r6 = self::$FAILED;
-      goto seq_2;
-    }
-    $r10 = $this->parselang_variant_option($silence, $boolParams, $param_preproc, $param_th);
-    // oo <- $r10
-    if ($r10===self::$FAILED) {
-      $this->currPos = $p8;
-      $r6 = self::$FAILED;
-      goto seq_2;
-    }
-    $r6 = true;
-    seq_2:
-    if ($r6!==self::$FAILED) {
-      $this->savedPos = $p7;
-      $r6 = $this->a170($r4, $r10);
-      $r5[] = $r6;
-    } else {
-      break;
-    }
-    // free $p8
-  }
-  // rest <- $r5
-  // free $r6
-  $r6 = [];
-  for (;;) {
-    // start seq_3
-    $p8 = $this->currPos;
-    if (($this->input[$this->currPos] ?? null) === ";") {
-      $this->currPos++;
-      $r12 = ";";
-    } else {
-      if (!$silence) {$this->fail(28);}
-      $r12 = self::$FAILED;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    $p13 = $this->currPos;
-    $r14 = $this->discardbogus_lang_variant_option($silence, $boolParams, $param_preproc, $param_th);
-    if ($r14!==self::$FAILED) {
-      $r14 = substr($this->input, $p13, $this->currPos - $p13);
-    } else {
-      $r14 = self::$FAILED;
-      $this->currPos = $p8;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    // free $p13
-    $r11 = [$r12,$r14];
-    seq_3:
-    if ($r11!==self::$FAILED) {
-      $r6[] = $r11;
-    } else {
-      break;
-    }
-    // free $p8
-  }
-  // tr <- $r6
-  // free $r11
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a171($r4, $r5, $r6);
-    goto choice_1;
-  }
-  // free $p3
-  $p3 = $this->currPos;
-  $r11 = $this->parselang_variant_text($silence, $boolParams, $param_preproc, $param_th);
-  // lvtext <- $r11
-  $r1 = $r11;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p3;
-    $r1 = $this->a172($r11);
-  }
-  choice_1:
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
 private function parsetable_heading_tags_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([520, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([528, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13391,7 +13386,7 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, &$
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a173($r5, $r6);
+    $r1 = $this->a170($r5, $r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -13403,7 +13398,7 @@ private function parsetable_heading_tags_parameterized($silence, $boolParams, &$
   return $r1;
 }
 private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([528, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([536, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13443,7 +13438,7 @@ private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$p
   // tagEndPos <- $r7
   if ($r7!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r7 = $this->a174($r6);
+    $r7 = $this->a171($r6);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -13464,7 +13459,7 @@ private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$p
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a175($r6, $r7, $r8);
+    $r1 = $this->a172($r6, $r7, $r8);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -13476,7 +13471,7 @@ private function parsetable_data_tag($silence, $boolParams, &$param_preproc, &$p
   return $r1;
 }
 private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([530, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([538, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13509,7 +13504,7 @@ private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
     seq_1:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r2 = $this->a176($r5, $r6);
+      $r2 = $this->a173($r5, $r6);
       $r1[] = $r2;
     } else {
       break;
@@ -13526,7 +13521,7 @@ private function parsetds($silence, $boolParams, &$param_preproc, &$param_th) {
   return $r1;
 }
 private function parsenested_block_in_table($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([324, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([328, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13641,7 +13636,7 @@ private function parsenested_block_in_table($silence, $boolParams, &$param_prepr
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a177($r13);
+    $r1 = $this->a174($r13);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -13653,7 +13648,7 @@ private function parsenested_block_in_table($silence, $boolParams, &$param_prepr
   return $r1;
 }
 private function discardcomment($silence) {
-  $key = 587;
+  $key = 595;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13669,7 +13664,7 @@ private function discardcomment($silence) {
     $r4 = "<!--";
     $this->currPos += 4;
   } else {
-    if (!$silence) {$this->fail(23);}
+    if (!$silence) {$this->fail(21);}
     $r4 = self::$FAILED;
     $r1 = self::$FAILED;
     goto seq_1;
@@ -13729,7 +13724,7 @@ private function discardcomment($silence) {
     $this->currPos += 3;
     goto choice_1;
   } else {
-    if (!$silence) {$this->fail(24);}
+    if (!$silence) {$this->fail(22);}
     $r7 = self::$FAILED;
   }
   $r7 = $this->discardeof($silence);
@@ -13748,7 +13743,7 @@ private function discardcomment($silence) {
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a29($r5, $r7);
+    $r1 = $this->a28($r5, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -13760,7 +13755,7 @@ private function discardcomment($silence) {
   return $r1;
 }
 private function parsenested_block($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([322, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([326, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -13796,7 +13791,7 @@ private function parsenested_block($silence, $boolParams, &$param_preproc, &$par
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a14($r6);
+    $r1 = $this->a13($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -13807,203 +13802,8 @@ private function parsenested_block($silence, $boolParams, &$param_preproc, &$par
   );
   return $r1;
 }
-private function parselink_text_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([442, $boolParams & 0x7fff, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  $r3 = [];
-  for (;;) {
-    // start choice_1
-    // start seq_1
-    $p5 = $this->currPos;
-    $r6 = $this->parsesol($silence, $boolParams, $param_preproc, $param_th);
-    if ($r6===self::$FAILED) {
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    // start choice_2
-    $r7 = $this->parseheading($silence, $boolParams, $param_preproc, $param_th);
-    if ($r7!==self::$FAILED) {
-      goto choice_2;
-    }
-    $r7 = $this->parsehr($silence, $boolParams, $param_preproc, $param_th);
-    if ($r7!==self::$FAILED) {
-      goto choice_2;
-    }
-    $r7 = $this->parsefull_table_in_link_caption($silence, $boolParams, $param_preproc, $param_th);
-    choice_2:
-    if ($r7===self::$FAILED) {
-      $this->currPos = $p5;
-      $r4 = self::$FAILED;
-      goto seq_1;
-    }
-    $r4 = [$r6,$r7];
-    seq_1:
-    if ($r4!==self::$FAILED) {
-      goto choice_1;
-    }
-    // free $p5
-    $r4 = $this->parseurltext($silence, $boolParams, $param_preproc, $param_th);
-    if ($r4!==self::$FAILED) {
-      goto choice_1;
-    }
-    $p5 = $this->currPos;
-    // start seq_2
-    $p8 = $this->currPos;
-    $p9 = $this->currPos;
-    $r10 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-    if ($r10 === self::$FAILED) {
-      $r10 = false;
-    } else {
-      $r10 = self::$FAILED;
-      $this->currPos = $p9;
-      $r4 = self::$FAILED;
-      goto seq_2;
-    }
-    // free $p9
-    // start choice_3
-    $r11 = $this->parseinline_element($silence, $boolParams, $param_preproc, $param_th);
-    if ($r11!==self::$FAILED) {
-      goto choice_3;
-    }
-    // start seq_3
-    $p9 = $this->currPos;
-    if (($this->input[$this->currPos] ?? null) === "[") {
-      $this->currPos++;
-      $r12 = "[";
-    } else {
-      if (!$silence) {$this->fail(19);}
-      $r12 = self::$FAILED;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    $r13 = [];
-    for (;;) {
-      $r14 = $this->parsetext_char($silence);
-      if ($r14!==self::$FAILED) {
-        $r13[] = $r14;
-      } else {
-        break;
-      }
-    }
-    if (count($r13) === 0) {
-      $r13 = self::$FAILED;
-    }
-    if ($r13===self::$FAILED) {
-      $this->currPos = $p9;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    // free $r14
-    if (($this->input[$this->currPos] ?? null) === "]") {
-      $this->currPos++;
-      $r14 = "]";
-    } else {
-      if (!$silence) {$this->fail(21);}
-      $r14 = self::$FAILED;
-      $this->currPos = $p9;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    $p15 = $this->currPos;
-    $p17 = $this->currPos;
-    // start choice_4
-    $p18 = $this->currPos;
-    if (($this->input[$this->currPos] ?? null) === "]") {
-      $this->currPos++;
-      $r16 = "]";
-    } else {
-      $r16 = self::$FAILED;
-    }
-    if ($r16 === self::$FAILED) {
-      $r16 = false;
-      goto choice_4;
-    } else {
-      $r16 = self::$FAILED;
-      $this->currPos = $p18;
-    }
-    // free $p18
-    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "]]", $this->currPos, 2, false) === 0) {
-      $r16 = "]]";
-      $this->currPos += 2;
-    } else {
-      $r16 = self::$FAILED;
-    }
-    choice_4:
-    if ($r16!==self::$FAILED) {
-      $r16 = false;
-      $this->currPos = $p17;
-      $r16 = substr($this->input, $p15, $this->currPos - $p15);
-    } else {
-      $r16 = self::$FAILED;
-      $this->currPos = $p9;
-      $r11 = self::$FAILED;
-      goto seq_3;
-    }
-    // free $p17
-    // free $p15
-    $r11 = [$r12,$r13,$r14,$r16];
-    seq_3:
-    if ($r11!==self::$FAILED) {
-      goto choice_3;
-    }
-    // free $p9
-    if ($this->currPos < $this->inputLength) {
-      $r11 = self::consumeChar($this->input, $this->currPos);;
-    } else {
-      $r11 = self::$FAILED;
-      if (!$silence) {$this->fail(7);}
-    }
-    choice_3:
-    // r <- $r11
-    if ($r11===self::$FAILED) {
-      $this->currPos = $p8;
-      $r4 = self::$FAILED;
-      goto seq_2;
-    }
-    $r4 = true;
-    seq_2:
-    if ($r4!==self::$FAILED) {
-      $this->savedPos = $p5;
-      $r4 = $this->a23($r11);
-    }
-    // free $p8
-    choice_1:
-    if ($r4!==self::$FAILED) {
-      $r3[] = $r4;
-    } else {
-      break;
-    }
-  }
-  if (count($r3) === 0) {
-    $r3 = self::$FAILED;
-  }
-  // c <- $r3
-  // free $r4
-  $r1 = $r3;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a38($r3);
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
 private function parselang_variant_flags($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([412, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([416, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14068,7 +13868,7 @@ private function parselang_variant_flags($silence, $boolParams, &$param_preproc,
     $this->currPos++;
     $r9 = ";";
   } else {
-    if (!$silence) {$this->fail(28);}
+    if (!$silence) {$this->fail(26);}
     $r9 = self::$FAILED;
     $r8 = self::$FAILED;
     goto seq_2;
@@ -14088,7 +13888,7 @@ private function parselang_variant_flags($silence, $boolParams, &$param_preproc,
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a178($r4, $r6, $r7, $r8);
+    $r1 = $this->a175($r4, $r6, $r7, $r8);
     goto choice_1;
   }
   // free $p3
@@ -14112,7 +13912,7 @@ private function parselang_variant_flags($silence, $boolParams, &$param_preproc,
   $r1 = $r11;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a179($r11);
+    $r1 = $this->a176($r11);
   }
   choice_1:
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -14124,7 +13924,7 @@ private function parselang_variant_flags($silence, $boolParams, &$param_preproc,
   return $r1;
 }
 private function parselang_variant_option($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([422, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([426, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14187,7 +13987,7 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
     $this->currPos++;
     $r8 = ":";
   } else {
-    if (!$silence) {$this->fail(18);}
+    if (!$silence) {$this->fail(16);}
     $r8 = self::$FAILED;
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -14229,7 +14029,7 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a180($r4, $r6, $r7, $r9, $r10);
+    $r1 = $this->a177($r4, $r6, $r7, $r9, $r10);
     goto choice_1;
   }
   // free $p3
@@ -14326,7 +14126,7 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
     $this->currPos++;
     $r18 = ":";
   } else {
-    if (!$silence) {$this->fail(18);}
+    if (!$silence) {$this->fail(16);}
     $r18 = self::$FAILED;
     $this->currPos = $p5;
     $r1 = self::$FAILED;
@@ -14368,7 +14168,7 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
   seq_2:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p3;
-    $r1 = $this->a181($r11, $r13, $r15, $r16, $r17, $r19, $r20);
+    $r1 = $this->a178($r11, $r13, $r15, $r16, $r17, $r19, $r20);
   }
   // free $p5
   choice_1:
@@ -14381,7 +14181,7 @@ private function parselang_variant_option($silence, $boolParams, &$param_preproc
   return $r1;
 }
 private function discardbogus_lang_variant_option($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([421, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([425, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14404,8 +14204,203 @@ private function discardbogus_lang_variant_option($silence, $boolParams, &$param
   );
   return $r1;
 }
+private function parselink_text_parameterized($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([446, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  $r3 = [];
+  for (;;) {
+    // start choice_1
+    // start seq_1
+    $p5 = $this->currPos;
+    $r6 = $this->parsesol($silence, $boolParams, $param_preproc, $param_th);
+    if ($r6===self::$FAILED) {
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    // start choice_2
+    $r7 = $this->parseheading($silence, $boolParams, $param_preproc, $param_th);
+    if ($r7!==self::$FAILED) {
+      goto choice_2;
+    }
+    $r7 = $this->parsehr($silence, $boolParams, $param_preproc, $param_th);
+    if ($r7!==self::$FAILED) {
+      goto choice_2;
+    }
+    $r7 = $this->parsefull_table_in_link_caption($silence, $boolParams, $param_preproc, $param_th);
+    choice_2:
+    if ($r7===self::$FAILED) {
+      $this->currPos = $p5;
+      $r4 = self::$FAILED;
+      goto seq_1;
+    }
+    $r4 = [$r6,$r7];
+    seq_1:
+    if ($r4!==self::$FAILED) {
+      goto choice_1;
+    }
+    // free $p5
+    $r4 = $this->parseurltext($silence, $boolParams, $param_preproc, $param_th);
+    if ($r4!==self::$FAILED) {
+      goto choice_1;
+    }
+    $p5 = $this->currPos;
+    // start seq_2
+    $p8 = $this->currPos;
+    $p9 = $this->currPos;
+    $r10 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+    if ($r10 === self::$FAILED) {
+      $r10 = false;
+    } else {
+      $r10 = self::$FAILED;
+      $this->currPos = $p9;
+      $r4 = self::$FAILED;
+      goto seq_2;
+    }
+    // free $p9
+    // start choice_3
+    $r11 = $this->parseinline_element($silence, $boolParams, $param_preproc, $param_th);
+    if ($r11!==self::$FAILED) {
+      goto choice_3;
+    }
+    // start seq_3
+    $p9 = $this->currPos;
+    if (($this->input[$this->currPos] ?? null) === "[") {
+      $this->currPos++;
+      $r12 = "[";
+    } else {
+      if (!$silence) {$this->fail(17);}
+      $r12 = self::$FAILED;
+      $r11 = self::$FAILED;
+      goto seq_3;
+    }
+    $r13 = [];
+    for (;;) {
+      $r14 = $this->parsetext_char($silence);
+      if ($r14!==self::$FAILED) {
+        $r13[] = $r14;
+      } else {
+        break;
+      }
+    }
+    if (count($r13) === 0) {
+      $r13 = self::$FAILED;
+    }
+    if ($r13===self::$FAILED) {
+      $this->currPos = $p9;
+      $r11 = self::$FAILED;
+      goto seq_3;
+    }
+    // free $r14
+    if (($this->input[$this->currPos] ?? null) === "]") {
+      $this->currPos++;
+      $r14 = "]";
+    } else {
+      if (!$silence) {$this->fail(19);}
+      $r14 = self::$FAILED;
+      $this->currPos = $p9;
+      $r11 = self::$FAILED;
+      goto seq_3;
+    }
+    $p15 = $this->currPos;
+    $p17 = $this->currPos;
+    // start choice_4
+    $p18 = $this->currPos;
+    if (($this->input[$this->currPos] ?? null) === "]") {
+      $this->currPos++;
+      $r16 = "]";
+    } else {
+      $r16 = self::$FAILED;
+    }
+    if ($r16 === self::$FAILED) {
+      $r16 = false;
+      goto choice_4;
+    } else {
+      $r16 = self::$FAILED;
+      $this->currPos = $p18;
+    }
+    // free $p18
+    if ($this->currPos >= $this->inputLength ? false : substr_compare($this->input, "]]", $this->currPos, 2, false) === 0) {
+      $r16 = "]]";
+      $this->currPos += 2;
+    } else {
+      $r16 = self::$FAILED;
+    }
+    choice_4:
+    if ($r16!==self::$FAILED) {
+      $r16 = false;
+      $this->currPos = $p17;
+      $r16 = substr($this->input, $p15, $this->currPos - $p15);
+    } else {
+      $r16 = self::$FAILED;
+      $this->currPos = $p9;
+      $r11 = self::$FAILED;
+      goto seq_3;
+    }
+    // free $p17
+    // free $p15
+    $r11 = [$r12,$r13,$r14,$r16];
+    seq_3:
+    if ($r11!==self::$FAILED) {
+      goto choice_3;
+    }
+    // free $p9
+    if ($this->currPos < $this->inputLength) {
+      $r11 = self::consumeChar($this->input, $this->currPos);;
+    } else {
+      $r11 = self::$FAILED;
+      if (!$silence) {$this->fail(7);}
+    }
+    choice_3:
+    // r <- $r11
+    if ($r11===self::$FAILED) {
+      $this->currPos = $p8;
+      $r4 = self::$FAILED;
+      goto seq_2;
+    }
+    $r4 = true;
+    seq_2:
+    if ($r4!==self::$FAILED) {
+      $this->savedPos = $p5;
+      $r4 = $this->a22($r11);
+    }
+    // free $p8
+    choice_1:
+    if ($r4!==self::$FAILED) {
+      $r3[] = $r4;
+    } else {
+      break;
+    }
+  }
+  if (count($r3) === 0) {
+    $r3 = self::$FAILED;
+  }
+  // c <- $r3
+  // free $r4
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a37($r3);
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
 private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([522, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([530, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14429,7 +14424,7 @@ private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, 
   // tagEndPos <- $r5
   if ($r5!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r5 = $this->a174($r4);
+    $r5 = $this->a171($r4);
   } else {
     $this->currPos = $p3;
     $r1 = self::$FAILED;
@@ -14451,7 +14446,7 @@ private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, 
     seq_2:
     if ($r8!==self::$FAILED) {
       $this->savedPos = $p9;
-      $r8 = $this->a182($r4, $r5, $param_th, $r11);
+      $r8 = $this->a179($r4, $r5, $param_th, $r11);
       $r7[] = $r8;
     } else {
       break;
@@ -14464,7 +14459,7 @@ private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, 
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a183($r4, $r5, $r7);
+    $r1 = $this->a180($r4, $r5, $r7);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -14476,7 +14471,7 @@ private function parsetable_heading_tag($silence, $boolParams, &$param_preproc, 
   return $r1;
 }
 private function parseths($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([524, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([532, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14519,7 +14514,7 @@ private function parseths($silence, $boolParams, &$param_preproc, &$param_th) {
     seq_1:
     if ($r2!==self::$FAILED) {
       $this->savedPos = $p3;
-      $r2 = $this->a184($r5, $r6);
+      $r2 = $this->a181($r5, $r6);
       $r1[] = $r2;
     } else {
       break;
@@ -14536,7 +14531,7 @@ private function parseths($silence, $boolParams, &$param_preproc, &$param_th) {
   return $r1;
 }
 private function parsepipe_pipe($silence) {
-  $key = 570;
+  $key = 578;
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14570,56 +14565,8 @@ private function parsepipe_pipe($silence) {
   );
   return $r1;
 }
-private function parsefull_table_in_link_caption($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([502, $boolParams & 0x5ffe, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $p4 = $this->currPos;
-  $r5 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
-  if ($r5 === self::$FAILED) {
-    $r5 = false;
-  } else {
-    $r5 = self::$FAILED;
-    $this->currPos = $p4;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $p4
-  $r6 = $this->parseembedded_full_table($silence, ($boolParams & ~0x801) | 0x2040, $param_preproc, $param_th);
-  // r <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a185($r6);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
 private function parselang_variant_flag($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([414, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([418, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14643,7 +14590,7 @@ private function parselang_variant_flag($silence, $boolParams, &$param_preproc, 
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a186($r3);
+    $r1 = $this->a182($r3);
     goto choice_1;
   }
   $p4 = $this->currPos;
@@ -14652,7 +14599,7 @@ private function parselang_variant_flag($silence, $boolParams, &$param_preproc, 
   $r1 = $r5;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p4;
-    $r1 = $this->a187($r5);
+    $r1 = $this->a183($r5);
     goto choice_1;
   }
   $p6 = $this->currPos;
@@ -14713,7 +14660,7 @@ private function parselang_variant_flag($silence, $boolParams, &$param_preproc, 
   $r1 = $r7;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p6;
-    $r1 = $this->a188($r7);
+    $r1 = $this->a184($r7);
   }
   choice_1:
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -14725,7 +14672,7 @@ private function parselang_variant_flag($silence, $boolParams, &$param_preproc, 
   return $r1;
 }
 private function parselang_variant_name($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([416, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([420, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14788,7 +14735,7 @@ private function parselang_variant_name($silence, $boolParams, &$param_preproc, 
   return $r1;
 }
 private function parselang_variant_nowiki($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([424, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([428, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14831,7 +14778,7 @@ private function parselang_variant_nowiki($silence, $boolParams, &$param_preproc
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a189($r4, $r5);
+    $r1 = $this->a185($r4, $r5);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -14843,7 +14790,7 @@ private function parselang_variant_nowiki($silence, $boolParams, &$param_preproc
   return $r1;
 }
 private function parselang_variant_text_no_semi($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([428, $boolParams & 0x7dff, $param_preproc, $param_th]);
+  $key = json_encode([432, $boolParams & 0x7dff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14864,7 +14811,7 @@ private function parselang_variant_text_no_semi($silence, $boolParams, &$param_p
   return $r1;
 }
 private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([430, $boolParams & 0x79ff, $param_preproc, $param_th]);
+  $key = json_encode([434, $boolParams & 0x79ff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14885,7 +14832,7 @@ private function parselang_variant_text_no_semi_or_arrow($silence, $boolParams, 
   return $r1;
 }
 private function discardlang_variant_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([427, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([431, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -14908,7 +14855,7 @@ private function discardlang_variant_text($silence, $boolParams, &$param_preproc
       $this->currPos++;
       $r4 = "|";
     } else {
-      if (!$silence) {$this->fail(12);}
+      if (!$silence) {$this->fail(10);}
       $r4 = self::$FAILED;
     }
     choice_1:
@@ -14923,7 +14870,130 @@ private function discardlang_variant_text($silence, $boolParams, &$param_preproc
   $r1 = $r3;
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a169($r3);
+    $r1 = $this->a166($r3);
+  }
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsefull_table_in_link_caption($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([510, $boolParams & 0x5ffe, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $p4 = $this->currPos;
+  $r5 = $this->discardinline_breaks(true, $boolParams, $param_preproc, $param_th);
+  if ($r5 === self::$FAILED) {
+    $r5 = false;
+  } else {
+    $r5 = self::$FAILED;
+    $this->currPos = $p4;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p4
+  $r6 = $this->parseembedded_full_table($silence, ($boolParams & ~0x801) | 0x2040, $param_preproc, $param_th);
+  // r <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a186($r6);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([465, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  // start seq_1
+  $p3 = $this->currPos;
+  $p4 = $this->currPos;
+  $r5 = $this->discardnowiki_check(true, $boolParams);
+  if ($r5!==self::$FAILED) {
+    $r5 = false;
+    $this->currPos = $p4;
+  } else {
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p4
+  $r6 = $this->parsewellformed_extension_tag($silence, $boolParams, $param_preproc, $param_th);
+  // ext <- $r6
+  if ($r6===self::$FAILED) {
+    $this->currPos = $p3;
+    $r1 = self::$FAILED;
+    goto seq_1;
+  }
+  $r1 = true;
+  seq_1:
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a187($r6);
+  }
+  // free $p3
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r1,
+    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
+    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
+  );
+  return $r1;
+}
+private function parsenowiki_text($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([466, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
+    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
+    return $cached->result;
+  }
+  $saved_preproc=$param_preproc;
+  $saved_th=$param_th;
+  $p2 = $this->currPos;
+  $r3 = $this->parsenowiki($silence, $boolParams, $param_preproc, $param_th);
+  // extToken <- $r3
+  $r1 = $r3;
+  if ($r1!==self::$FAILED) {
+    $this->savedPos = $p2;
+    $r1 = $this->a188($r3);
   }
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
     $this->currPos,
@@ -14934,7 +15004,7 @@ private function discardlang_variant_text($silence, $boolParams, &$param_preproc
   return $r1;
 }
 private function parseembedded_full_table($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([506, $boolParams & 0x7fff, $param_preproc, $param_th]);
+  $key = json_encode([514, $boolParams & 0x7fff, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15063,8 +15133,55 @@ private function parseembedded_full_table($silence, $boolParams, &$param_preproc
   );
   return $r2;
 }
-private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([461, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+private function discardnowiki_check($silence, $boolParams) {
+  $key = json_encode([463, $boolParams & 0x2]);
+  $bucket = $this->currPos;
+  $cached = $this->cache[$bucket][$key] ?? null;
+  if ($cached) {
+    $this->currPos = $cached->nextPos;
+
+    return $cached->result;
+  }
+
+  // start seq_1
+  $p1 = $this->currPos;
+  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
+    $r3 = false;
+  } else {
+    $r3 = self::$FAILED;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $r4 = $this->parsexmlish_start($silence);
+  // start <- $r4
+  if ($r4===self::$FAILED) {
+    $this->currPos = $p1;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $this->savedPos = $this->currPos;
+  $r5 = $this->a189($r4);
+  if ($r5) {
+    $r5 = false;
+  } else {
+    $r5 = self::$FAILED;
+    $this->currPos = $p1;
+    $r2 = self::$FAILED;
+    goto seq_1;
+  }
+  $r2 = true;
+  seq_1:
+  // free $r2,$p1
+  $this->cache[$bucket][$key] = new GrammarCacheEntry(
+    $this->currPos,
+    $r2,
+    self::$UNDEFINED,
+    self::$UNDEFINED
+  );
+  return $r2;
+}
+private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th) {
+  $key = json_encode([464, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15099,7 +15216,7 @@ private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_t
   seq_1:
   if ($r1!==self::$FAILED) {
     $this->savedPos = $p2;
-    $r1 = $this->a190($r6);
+    $r1 = $this->a187($r6);
   }
   // free $p3
   $this->cache[$bucket][$key] = new GrammarCacheEntry(
@@ -15110,36 +15227,8 @@ private function discardnowiki($silence, $boolParams, &$param_preproc, &$param_t
   );
   return $r1;
 }
-private function parsenowiki_text($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([462, $boolParams & 0x7ebf, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  $r3 = $this->parsenowiki($silence, $boolParams, $param_preproc, $param_th);
-  // extToken <- $r3
-  $r1 = $r3;
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a191($r3);
-  }
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
-}
 private function parseembedded_full_table_line_prefix($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([504, $boolParams & 0x7ebf, $param_preproc, $param_th]);
+  $key = json_encode([512, $boolParams & 0x7ebf, $param_preproc, $param_th]);
   $bucket = $this->currPos;
   $cached = $this->cache[$bucket][$key] ?? null;
   if ($cached) {
@@ -15177,100 +15266,6 @@ private function parseembedded_full_table_line_prefix($silence, $boolParams, &$p
     $saved_th !== $param_th ? $param_th : self::$UNDEFINED
   );
   return $r2;
-}
-private function discardnowiki_check($silence, $boolParams) {
-  $key = json_encode([459, $boolParams & 0x2]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-
-    return $cached->result;
-  }
-
-  // start seq_1
-  $p1 = $this->currPos;
-  if (!(/*annOrExtTag*/($boolParams & 0x2) !== 0)) {
-    $r3 = false;
-  } else {
-    $r3 = self::$FAILED;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $r4 = $this->parsexmlish_start($silence);
-  // start <- $r4
-  if ($r4===self::$FAILED) {
-    $this->currPos = $p1;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $this->savedPos = $this->currPos;
-  $r5 = $this->a192($r4);
-  if ($r5) {
-    $r5 = false;
-  } else {
-    $r5 = self::$FAILED;
-    $this->currPos = $p1;
-    $r2 = self::$FAILED;
-    goto seq_1;
-  }
-  $r2 = true;
-  seq_1:
-  // free $r2,$p1
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r2,
-    self::$UNDEFINED,
-    self::$UNDEFINED
-  );
-  return $r2;
-}
-private function parsenowiki($silence, $boolParams, &$param_preproc, &$param_th) {
-  $key = json_encode([460, $boolParams & 0x7ebf, $param_preproc, $param_th]);
-  $bucket = $this->currPos;
-  $cached = $this->cache[$bucket][$key] ?? null;
-  if ($cached) {
-    $this->currPos = $cached->nextPos;
-    if ($cached->preproc !== self::$UNDEFINED) { $param_preproc = $cached->preproc; }
-    if ($cached->th !== self::$UNDEFINED) { $param_th = $cached->th; }
-    return $cached->result;
-  }
-  $saved_preproc=$param_preproc;
-  $saved_th=$param_th;
-  $p2 = $this->currPos;
-  // start seq_1
-  $p3 = $this->currPos;
-  $p4 = $this->currPos;
-  $r5 = $this->discardnowiki_check(true, $boolParams);
-  if ($r5!==self::$FAILED) {
-    $r5 = false;
-    $this->currPos = $p4;
-  } else {
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  // free $p4
-  $r6 = $this->parsewellformed_extension_tag($silence, $boolParams, $param_preproc, $param_th);
-  // ext <- $r6
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p3;
-    $r1 = self::$FAILED;
-    goto seq_1;
-  }
-  $r1 = true;
-  seq_1:
-  if ($r1!==self::$FAILED) {
-    $this->savedPos = $p2;
-    $r1 = $this->a190($r6);
-  }
-  // free $p3
-  $this->cache[$bucket][$key] = new GrammarCacheEntry(
-    $this->currPos,
-    $r1,
-    $saved_preproc !== $param_preproc ? $param_preproc : self::$UNDEFINED,
-    $saved_th !== $param_th ? $param_th : self::$UNDEFINED
-  );
-  return $r1;
 }
 
 	public function parse( $input, $options = [] ) {
