@@ -198,7 +198,7 @@ start "start" =
 generic_newline_attributes "generic_newline_attributes" = generic_newline_attribute*
 
 table_attributes "table_attributes" =
-	(table_attribute / optionalSpaceToken b:broken_table_attribute_name_char { return $b; })*
+	(table_attribute / optional_spaces b:broken_table_attribute_name_char { return $b; })*
 
 /*
  * This rule exists to support tokenizing the document in chunks.
@@ -227,7 +227,7 @@ start_async =
 				return true;
 			}
 		) { return $t; }
-		/ newlineToken* &{
+		/ newline* &{
 			// "tlb" matches "block" matches "sol" matches "newlineToken"
 			// But, "tlb" is prefixed with a !eof clause, so, we should only
 			// get here on eof. So, safe to unconditionally terminate the
@@ -345,6 +345,9 @@ nested_block = !inline_breaks b:block { return $b; }
  * table_start_tag (for nested tables).
  */
 nested_block_in_table =
+	// nested_block starts with !inline_breaks so test it early here as
+	// an optimization
+	!inline_breaks<tableDataBlock>
 	// XXX: don't rely on a lame look-ahead like this; use syntax stops
 	// instead, so that multi-line th content followed by a line prefixed with
 	// a comment is also handled. Alternatively, implement a sol look-behind
@@ -1798,11 +1801,11 @@ generic_newline_attribute =
 
 // A single-line attribute.
 table_attribute =
-	s:optionalSpaceToken
+	optional_spaces
 	namePos0:("" { return $this->endOffset(); })
 	name:table_attribute_name
 	namePos1:("" { return $this->endOffset(); })
-	vd:(optionalSpaceToken "=" v:table_att_value? { return $v; })?
+	vd:(optional_spaces "=" v:table_att_value? { return $v; })?
 {
 	// NB: Keep in sync w/ generic_newline_attribute
 	$res = null;
@@ -2287,7 +2290,7 @@ table_end_tag =
  * match if followed by double pipe (row-based syntax).
  */
 row_syntax_table_args =
-	as:table_attributes<tableCellArg> s:optional_spaces p:pipe !pipe {
+	as:table_attributes<tableCellArg> s:$optional_spaces p:pipe !pipe {
 		return [ $as, $s, $p ];
 	}
 
@@ -2637,7 +2640,7 @@ pipe_pipe = "||" / "{{!}}{{!}}"
 
 space = [ \t]
 
-optional_spaces = $[ \t]*
+optional_spaces = [ \t]*
 
 // Start of file
 sof = & { return $this->endOffset() === 0 && !$this->pipelineOffset; }
@@ -2674,7 +2677,7 @@ space_or_comment = space / comment
 nl_comment_space = newlineToken / space_or_comment
 
 optionalSpaceToken =
-	s:optional_spaces {
+	s:$optional_spaces {
 		if ( $s !== '' ) {
 			return [ $s ];
 		} else {
@@ -2716,7 +2719,10 @@ space_or_nbsp_or_dash =
 // Elements that do not break beginning or end of line for blocks (headers for instance)
 sol_transparent = comment / include_limits / annotation_tag / behavior_switch
 
-sol = sp:sol_prefix elc:empty_lines_with_comments? st:sol_transparent* {
+sol =
+  // optimization: fail fast before putting entries in the backtracking cache
+  &{ return $this->endOffset() === 0 || ($this->input[$this->currPos] ?? '') === "\n"; }
+    sp:sol_prefix elc:empty_lines_with_comments? st:sol_transparent* {
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];
 }
