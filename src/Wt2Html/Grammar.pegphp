@@ -298,7 +298,7 @@ redirect =
 redirect_word =
 	$(
 		[ \t\n\r\0\x0b]*
-		rw:$(!space_or_newline ![:\[] .)+
+		rw:$([^ \t\n\r\x0c:\[]+)
 		& {
 			return preg_match( $this->env->getSiteConfig()->getMagicWordMatcher( 'redirect' ), $rw );
 		}
