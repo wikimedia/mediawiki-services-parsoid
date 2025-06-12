@@ -110,13 +110,22 @@ class LiFixups {
 
 			// Find the outermost list -- content will be moved after it
 			$outerList = $li->parentNode;
+			// Expected that $outerList is a list container (ul/dl/ol),
+			// and we're checking whether its parent is a list *item* (li/dd/etc)
 			while ( DOMUtils::isListItem( $outerList->parentNode ) ) {
+				// if so, $p will be another list item...
 				$p = $outerList->parentNode;
 				// Bail if we find ourself on a path that is not the rightmost path.
 				if ( $p->nextSibling !== null ) {
 					return true;
 				}
+				// ...and we expect that $p->parentNode will be a list
+				// container. (Bail if it's not)
+				if ( !DOMUtils::isList( $p->parentNode ) ) {
+					break;
+				}
 				$outerList = $p->parentNode;
+				// Now $outerList->parentNode might be a list item again.
 			}
 
 			// Find last migratable node
