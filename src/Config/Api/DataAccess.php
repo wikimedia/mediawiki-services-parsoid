@@ -300,17 +300,19 @@ class DataAccess extends IDataAccess {
 				unset( $value['_mw-strategy'] );
 			}
 			if ( $strategy === 'union' ) {
+				// @phan-var array<string|int,true> $value
 				foreach ( $value as $item => $_ignore ) {
-					$metadata->appendJsConfigVar( $key, $item );
+					$metadata->appendJsConfigVar( (string)$key, (string)$item );
 				}
 			} else {
-				$metadata->setJsConfigVar( $key, $value );
+				$metadata->setJsConfigVar( (string)$key, $value );
 			}
 		}
 		foreach ( ( $data['externallinks'] ?? [] ) as $url ) {
 			$metadata->addExternalLink( $url );
 		}
 		foreach ( ( $data['properties'] ?? [] ) as $name => $value ) {
+			$name = (string)$name;
 			if ( is_string( $value ) ) {
 				$metadata->setUnsortedPageProperty( $name, $value );
 			} elseif ( is_numeric( $value ) ) {
