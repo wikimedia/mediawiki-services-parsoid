@@ -4,6 +4,7 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Wt2Html\DOM\Processors;
 
 use PHPUnit\Framework\TestCase;
+use Wikimedia\Parsoid\Mocks\LinterTag;
 use Wikimedia\Parsoid\Mocks\MockDataAccess;
 use Wikimedia\Parsoid\Mocks\MockPageConfig;
 use Wikimedia\Parsoid\Mocks\MockPageContent;
@@ -25,6 +26,7 @@ class LinterTest extends TestCase {
 			'linterOverrides' => $linterOverrides,
 		];
 		$siteConfig = new MockSiteConfig( $siteOptions );
+		$siteConfig->registerExtensionModule( LinterTag::class );
 
 		$dataAccess = new MockDataAccess( $siteConfig, [] );
 		$parsoid = new Parsoid( $siteConfig, $dataAccess );
@@ -1813,6 +1815,22 @@ class LinterTest extends TestCase {
 		$this->assertCount( 2, $result, $desc );
 		$this->assertEquals( 'empty-heading', $result[0]['type'], $desc );
 		$this->assertEquals( 'empty-heading', $result[1]['type'], $desc );
+	}
+
+	/**
+	 * @covers \Wikimedia\Parsoid\Ext\ExtensionTagHandler::lintHandler
+	 */
+	public function testLintHandler(): void {
+		$desc = "should skip node when linting";
+		$result = $this->wtToLint(
+			"<linter>" .
+			"[[File:Foobar.jpg|bogus|caption]]" .
+			"<div class='skip'>[[File:Foobar.jpg|bogus|caption]]</div>" .
+			"</linter>"
+		);
+		$this->assertCount( 2, $result, $desc );
+		$this->assertEquals( 'bogus-image-options', $result[0]['type'], $desc );
+		$this->assertEquals( [ 8, 41, null, null ], $result[0]['dsr'], $desc );
 	}
 
 }
