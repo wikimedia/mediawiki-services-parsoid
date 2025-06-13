@@ -648,47 +648,6 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * Normalizes spaces from extension tag arguments, except for those keyed by values in $exceptions
-	 *
-	 * @param KV[] &$extArgs Array of extension args
-	 * @param array[] $action array that is either empty or has one key, 'except' or 'only', which defines the
-	 * attributes that should be respectively excluded or only included from the normalization
-	 */
-	public function normalizeWhiteSpaceInArgs( array &$extArgs, array $action = [] ): void {
-		$except = $action['except'] ?? null;
-		$only = $action['only'] ?? null;
-
-		if ( $except && $only ) {
-			$this->log( 'warn', 'normalizeWhiteSpaceInArgs should not have both except and only parameters' );
-			return;
-		}
-
-		if ( $except ) {
-			$closure = static function ( string $key, $value ) use ( $except ) {
-				if ( in_array( strtolower( trim( $key ) ), $except, true ) ) {
-					return $value;
-				} else {
-					return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
-				}
-			};
-		} elseif ( $only ) {
-			$closure = static function ( string $key, $value ) use ( $only ) {
-				if ( in_array( strtolower( trim( $key ) ), $only, true ) ) {
-					return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
-				} else {
-					return $value;
-				}
-			};
-		} else {
-			$closure = static function ( string $key, $value ): string {
-				return trim( preg_replace( '/[\r\n\t ]+/', ' ', $value ) );
-			};
-		}
-
-		$this->updateAllArgs( $extArgs, $closure );
-	}
-
-	/**
 	 * This method adds a new argument to the extension args array
 	 * @param KV[] &$extArgs
 	 * @param string $key

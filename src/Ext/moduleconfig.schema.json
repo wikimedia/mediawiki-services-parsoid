@@ -53,6 +53,11 @@
 				}
 			]
 		},
+		"AttributeWSEnum": {
+			"enum": [
+				"normalize", "keepspaces", "trim"
+			]
+		},
 		"ExtensionTagHandler": {
 			"type": "object",
 			"required": [
@@ -92,10 +97,16 @@
 								"embedsHTMLInAttributes": {
 									"type": "boolean"
 								},
-								"attributeWSNormalizationPref": {
-									"enum": [
-										"normalize", "keepspaces", "trim"
-									]
+								"attributeWSNormalizationDefault": {
+									"$ref": "#/definitions/AttributeWSEnum"
+								},
+								"attributeWSNormalization": {
+									"type": "object",
+									"patternProperties": {
+										".*": {
+											"$ref": "#/definitions/AttributeWSEnum"
+										}
+									}
 								},
 								"customizesDataMw": {
 									"type": "boolean"

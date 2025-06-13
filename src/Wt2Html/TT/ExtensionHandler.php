@@ -28,7 +28,7 @@ class ExtensionHandler extends XMLTagBasedHandler {
 		parent::__construct( $manager, $options );
 	}
 
-	private static function normalizeExtOptions( array $options, string $normalizeFlag ): array {
+	private static function normalizeExtOptions( array $options, string $defaultNorm, array $exceptions ): array {
 		// Mimics Sanitizer::decodeTagAttributes from the PHP parser
 		//
 		// Extension options should always be interpreted as plain text. The
@@ -41,6 +41,8 @@ class ExtensionHandler extends XMLTagBasedHandler {
 			// string, as it can be a token stream if the parser has recognized it
 			// as a directive.
 			$v = $o->vsrc ?? TokenUtils::tokensToString( $o->v, false, [ 'includeEntities' => true ] );
+
+			$normalizeFlag = $exceptions[$o->k] ?? $defaultNorm;
 
 			// Let extensions decide which format they want their options in; by default they are interpreted as
 			// with normalized spaces and trimmed.
@@ -92,8 +94,9 @@ class ExtensionHandler extends XMLTagBasedHandler {
 
 		$nativeExt = $siteConfig->getExtTagImpl( $extensionName );
 		$options = $token->getAttributeV( 'options' );
-		$normalizeFlag = $extConfig['options']['wt2html']['attributeWSNormalizationPref'] ?? 'normalize';
-		$token->setAttribute( 'options', self::normalizeExtOptions( $options, $normalizeFlag ) );
+		$normalizeFlag = $extConfig['options']['wt2html']['attributeWSNormalizationDefault'] ?? 'normalize';
+		$normalizeExceptions = $extConfig['options']['wt2html']['attributeWSNormalization'] ?? [];
+		$token->setAttribute( 'options', self::normalizeExtOptions( $options, $normalizeFlag, $normalizeExceptions ) );
 
 		// Call after normalizing extension options, since that can affect the result
 		$dataMw = Utils::getExtArgInfo( $token );
