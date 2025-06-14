@@ -270,7 +270,7 @@ class TokenUtils {
 		$aboutMap = [];
 		foreach ( $maybeTokens as $t ) {
 			if ( $t instanceof Token ) {
-				foreach ( $t->attribs as $kv ) {
+				foreach ( $t->attribs ?? [] as $kv ) {
 					if ( $kv->k === 'about' ) {
 						$oldAbout = $kv->v;
 						$newAbout = $aboutMap[$oldAbout] ?? null;
