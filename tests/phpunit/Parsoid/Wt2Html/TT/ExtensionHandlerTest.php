@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Ext\Pre\Pre;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\NodeData\DataParsoid;
+use Wikimedia\Parsoid\Tokens\EndTagTk;
 use Wikimedia\Parsoid\Tokens\KV;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
@@ -24,7 +25,9 @@ class ExtensionHandlerTest extends TestCase {
 			new KV( 'totrim', '  this should  be trimmed ' ),
 			new KV( 'tonorm', '  this should  be normalized ' ),
 			new KV( 'keep', '  this should  stay as is ' ),
-			new KV( 'default', '  this is handled  by default ' )
+			new KV( 'default', '  this is handled  by default ' ),
+			new KV( [ new TagTk( 'i' ), 'plop', new EndTagTk( 'i' ) ],
+				' this should not crash  and is handled by default ' )
 		] );
 		$tag->addAttribute( 'source', '<section>' );
 		$tag->dataParsoid = new DataParsoid();
@@ -72,8 +75,9 @@ class ExtensionHandlerTest extends TestCase {
 			new KV( 'totrim', 'this should  be trimmed' ),
 			new KV( 'tonorm', 'this should be normalized' ),
 			new KV( 'keep', '  this should  stay as is ' ),
-			new KV( 'default', 'this is handled  by default' )
-			], $res );
+			new KV( 'default', 'this is handled  by default' ),
+			new KV( 'plop', 'this should not crash  and is handled by default' )
+		], $res );
 	}
 
 }

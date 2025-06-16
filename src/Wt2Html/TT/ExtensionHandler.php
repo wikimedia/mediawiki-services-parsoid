@@ -42,7 +42,11 @@ class ExtensionHandler extends XMLTagBasedHandler {
 			// as a directive.
 			$v = $o->vsrc ?? TokenUtils::tokensToString( $o->v, false, [ 'includeEntities' => true ] );
 
-			$normalizeFlag = $exceptions[$o->k] ?? $defaultNorm;
+			if ( is_string( $o->k ) ) {
+				$normalizeFlag = $exceptions[$o->k] ?? $defaultNorm;
+			} else {
+				$normalizeFlag = $defaultNorm;
+			}
 
 			// Let extensions decide which format they want their options in; by default they are interpreted as
 			// with normalized spaces and trimmed.
