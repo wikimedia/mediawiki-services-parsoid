@@ -119,6 +119,9 @@ if ( $STANDALONE ) {
 }
 wfCollectPhpFiles( "vendor/composer/composer", $cfg['exclude_file_list'] );
 wfCollectPhpFiles( "vendor/php-parallel-lint/php-parallel-lint", $cfg['exclude_file_list'] );
+# Libraries with stubs which make phan unhappy
+# (Id0196efe83ea8ee8a35041da27bc87fd57070ed4)
+wfCollectPhpFiles( 'vendor/marc-mabe/php-enum/stubs', $cfg['exclude_file_list'] );
 
 // Exclude src/DOM in favour of .phan/stubs/DomImpl.php
 wfCollectPhpFiles( 'src/DOM', $cfg['exclude_file_list'] );
