@@ -415,7 +415,7 @@ class DOMDiff {
 		return $subtreeDiffers;
 	}
 
-	private function markNode( Node $node, string $mark, bool $blockNodeDeleted = false ): void {
+	private function markNode( Node $node, DiffMarkers $mark, bool $blockNodeDeleted = false ): void {
 		$meta = DiffUtils::addDiffMark( $node, $this->env, $mark );
 
 		if ( $meta && $blockNodeDeleted ) {

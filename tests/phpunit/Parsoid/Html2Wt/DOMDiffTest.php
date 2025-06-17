@@ -52,7 +52,7 @@ class DOMDiffTest extends TestCase {
 				$dpd = DiffUtils::getDiffMark( $node );
 				$markers = $dpd ? $dpd->toJsonArray()['diff'] : [];
 
-				$this->assertEqualsCanonicalizing( $spec['markers'], $markers );
+				$this->assertEqualsCanonicalizing( array_column( $spec['markers'], 'value' ), $markers );
 			}
 		}
 	}

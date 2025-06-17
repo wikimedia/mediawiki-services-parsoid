@@ -3,34 +3,17 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Html2Wt;
 
-class DiffMarkers {
-	/**
-	 * @var string
-	 */
-	public const DELETED = 'deleted';
+enum DiffMarkers: string {
 
-	/**
-	 * @var string
-	 */
-	public const INSERTED = 'inserted';
+	case DELETED = 'deleted';
 
-	/**
-	 * @var string
-	 */
-	public const MOVED = 'moved';
+	case INSERTED = 'inserted';
 
-	/**
-	 * @var string
-	 */
-	public const CHILDREN_CHANGED = 'children-changed';
+	case MOVED = 'moved';
 
-	/**
-	 * @var string
-	 */
-	public const SUBTREE_CHANGED = 'subtree-changed';
+	case CHILDREN_CHANGED = 'children-changed';
 
-	/**
-	 * @var string
-	 */
-	public const MODIFIED_WRAPPER = 'modified-wrapper';
+	case SUBTREE_CHANGED = 'subtree-changed';
+
+	case MODIFIED_WRAPPER = 'modified-wrapper';
 }

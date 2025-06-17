@@ -168,7 +168,7 @@ class DOMNormalizer {
 		return false;
 	}
 
-	public function addDiffMarks( Node $node, string $mark, bool $dontRecurse = false ): void {
+	public function addDiffMarks( Node $node, DiffMarkers $mark, bool $dontRecurse = false ): void {
 		if ( !$this->state->selserMode || DiffUtils::hasDiffMark( $node, $mark ) ) {
 			return;
 		}

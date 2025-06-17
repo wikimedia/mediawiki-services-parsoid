@@ -232,10 +232,14 @@ class DiffUtilsTest extends TestCase {
 		return $nodes[0];
 	}
 
+	/**
+	 * @param Element $node
+	 * @param list<DiffMarkers> $markers
+	 */
 	private function checkMarkers( Element $node, array $markers ): void {
 		$dpd = DOMDataUtils::getDataParsoidDiff( $node );
 		$diff = $dpd ? $dpd->toJsonArray()['diff'] : [];
-		$this->assertEqualsCanonicalizing( $markers, $diff );
+		$this->assertEqualsCanonicalizing( array_column( $markers, 'value' ), $diff );
 	}
 
 }

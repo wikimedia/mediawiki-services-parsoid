@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\NodeData;
 
 use Wikimedia\JsonCodec\JsonCodecable;
 use Wikimedia\JsonCodec\JsonCodecableTrait;
+use Wikimedia\Parsoid\Html2Wt\DiffMarkers;
 use Wikimedia\Parsoid\Utils\RichCodecable;
 
 /**
@@ -15,7 +16,7 @@ class DataParsoidDiff implements JsonCodecable, RichCodecable {
 	use JsonCodecableTrait;
 
 	/**
-	 * @var array<string, bool> Set of diff markers.
+	 * @var array<string, true> Set of diff markers.
 	 * @see DiffMarkers class
 	 */
 	private array $diff = [];
@@ -27,25 +28,25 @@ class DataParsoidDiff implements JsonCodecable, RichCodecable {
 	/**
 	 * Add the given mark to this set.
 	 */
-	public function addDiffMarker( string $mark ): void {
-		$this->diff[$mark] = true;
+	public function addDiffMarker( DiffMarkers $mark ): void {
+		$this->diff[$mark->value] = true;
 	}
 
 	/**
 	 * Returns true if the given mark is present.
 	 */
-	public function hasDiffMarker( string $mark ): bool {
-		return $this->diff[$mark] ?? false;
+	public function hasDiffMarker( DiffMarkers $mark ): bool {
+		return $this->diff[$mark->value] ?? false;
 	}
 
 	/**
 	 * Returns true if no marks other than the given ones are present.
 	 */
-	public function hasOnlyDiffMarkers( string ...$marks ): bool {
+	public function hasOnlyDiffMarkers( DiffMarkers ...$marks ): bool {
 		// Count the given marks, then compare that to the count of all marks.
 		$count = 0;
 		foreach ( $marks as $m ) {
-			$count += ( $this->diff[$m] ?? false ) ? 1 : 0;
+			$count += ( $this->diff[$m->value] ?? false ) ? 1 : 0;
 		}
 		return $count === count( $this->diff );
 	}
@@ -80,7 +81,7 @@ class DataParsoidDiff implements JsonCodecable, RichCodecable {
 	public static function newFromJsonArray( array $json ): DataParsoidDiff {
 		$dpd = new DataParsoidDiff;
 		foreach ( $json['diff'] as $mark ) {
-			$dpd->addDiffMarker( $mark );
+			$dpd->addDiffMarker( DiffMarkers::from( $mark ) );
 		}
 		return $dpd;
 	}
