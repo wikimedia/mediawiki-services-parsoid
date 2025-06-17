@@ -201,6 +201,10 @@ class AddRedLinks implements Wt2HtmlDOMProcessor {
 
 		$langConverter = LanguageConverter::loadLanguageConverter( $env );
 
+		if ( !$langConverter ) {
+			return [];
+		}
+
 		// Gather all nonexistent page titles to search for their variants
 		foreach ( array_keys( $titles ) as $title ) {
 			if (

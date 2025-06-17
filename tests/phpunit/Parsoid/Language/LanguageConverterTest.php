@@ -53,6 +53,7 @@ class LanguageConverterTest extends TestCase {
 		$langconv = LanguageConverter::loadLanguageConverter( $env );
 		$variants = LanguageConverter::autoConvertToAllVariants( $doc, 'test', $langconv );
 
+		$this->assertNull( $langconv );
 		$this->assertSame( [], $variants );
 	}
 
