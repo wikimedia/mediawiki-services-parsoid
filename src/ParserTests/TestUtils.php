@@ -343,6 +343,7 @@ class TestUtils {
 		foreach ( DOMCompat::querySelectorAll( $body, '.mw-editsection' ) as $span ) {
 			DOMCompat::remove( $span );
 		}
+		// Parsoid adds heading wrappers in an OutputTransform stage
 		foreach ( DOMCompat::querySelectorAll( $body, '.mw-heading' ) as $div ) {
 			$nodes = DOMUtils::childNodes( $div );
 			foreach ( $nodes as $i => $child ) {
@@ -356,6 +357,11 @@ class TestUtils {
 				$div->parentNode->insertBefore( $child, $div );
 			}
 			DOMCompat::remove( $div );
+		}
+		// Do not expect a toc for now
+		$toc = DOMCompat::querySelector( $body, '#toc' );
+		if ( $toc ) {
+			DOMCompat::remove( $toc );
 		}
 	}
 
@@ -375,11 +381,7 @@ class TestUtils {
 
 			// a few things we ignore for now..
 			//  .replace(/\/wiki\/Main_Page/g, 'Main Page')
-			// do not expect a toc for now
-			$html = preg_replace(
-				'/<div[^>]+?id="toc"[^>]*>\s*<div id="toctitle"[^>]*>[\s\S]+?<\/div>[\s\S]+?<\/div>\s*/u',
-				'',
-				$html );
+
 			// remove empty span tags
 			$html = preg_replace( '/(\s)<span>\s*<\/span>\s*/u', '$1', $html );
 			$html = preg_replace( '/<span>\s*<\/span>/u', '', $html );
