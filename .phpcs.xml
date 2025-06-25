@@ -12,4 +12,5 @@
 		<exclude name="MediaWiki.WhiteSpace.SpaceBeforeSingleLineComment.NewLineComment" />
 	</rule>
 	<rule ref="Squiz.Arrays.ArrayBracketSpacing" />
+	<rule ref="Generic.PHP.RequireStrictTypes" />
 </ruleset>

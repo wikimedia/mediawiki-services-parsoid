@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 namespace Test\Parsoid\Html2Wt\ConstrainedText;
 
 use Wikimedia\Parsoid\Html2Wt\ConstrainedText\AutoURLLinkText;

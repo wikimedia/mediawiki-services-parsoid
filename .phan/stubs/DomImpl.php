@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 # For the purpose of phan, we're always using IDLeDOM.  That avoids the
 # type variance/co-variance issues involved in teaching phan about our
 # DOM subclasses, and also keeps us from accessing any private implementation

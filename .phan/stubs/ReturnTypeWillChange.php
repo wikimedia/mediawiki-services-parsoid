@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 /**
  * See https://wiki.php.net/rfc/internal_method_return_types and

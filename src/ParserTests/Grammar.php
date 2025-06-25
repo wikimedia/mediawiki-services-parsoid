@@ -8,6 +8,7 @@
 
 
 /* File-scope initializer */
+declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\ParserTests;
 
 use Wikimedia\Parsoid\Utils\PHPUtils;

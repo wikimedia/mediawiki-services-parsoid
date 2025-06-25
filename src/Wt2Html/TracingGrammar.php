@@ -5,8 +5,11 @@
  */
 
 
-namespace Wikimedia\Parsoid\Wt2Html;
 
+
+
+declare( strict_types = 1 );
+namespace Wikimedia\Parsoid\Wt2Html;
 
 	use Wikimedia\Assert\UnreachableException;
 	use Wikimedia\JsonCodec\JsonCodec;

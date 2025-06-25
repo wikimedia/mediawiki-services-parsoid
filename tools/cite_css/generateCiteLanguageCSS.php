@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 function wfGetCSS( string $selector, array $rules ): string {
 	return "$selector {\n\t" . implode( "\n\t", $rules ) . "\n}\n";

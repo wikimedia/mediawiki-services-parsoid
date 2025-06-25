@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 /**
  * We want to make this whole thing as seamless as possible to the
  * end-user. Unfortunately, we can't do _all_ of the work in the class

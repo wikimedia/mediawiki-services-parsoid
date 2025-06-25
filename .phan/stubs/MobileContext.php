@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 // Stub MobileContext class from MobileFrontend extension
 class MobileContext extends ContextSource {

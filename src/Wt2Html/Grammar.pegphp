@@ -5,6 +5,9 @@
  * used where further processing on the token stream is needed.
  */
 {
+declare( strict_types = 1 );
+namespace Wikimedia\Parsoid\Wt2Html;
+
 	use Wikimedia\Assert\UnreachableException;
 	use Wikimedia\JsonCodec\JsonCodec;
 	use Wikimedia\Parsoid\Config\Env;

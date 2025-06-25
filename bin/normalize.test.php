@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 // PORT-FIXME: Incomplete. Doesn't support CLI flags of the JS version
 

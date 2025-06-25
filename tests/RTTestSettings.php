@@ -1,4 +1,5 @@
 <?php
+declare( strict_types = 1 );
 
 // This file is loaded from wmf-config's CommonSettings.php
 
