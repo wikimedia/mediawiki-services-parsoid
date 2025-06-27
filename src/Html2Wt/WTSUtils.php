@@ -371,7 +371,7 @@ class WTSUtils {
 	}
 
 	public static function hasNonIgnorableAttributes( Element $node ): bool {
-		foreach ( DOMUtils::attributes( $node ) as $k => $v ) {
+		foreach ( DOMCompat::attributes( $node ) as $k => $v ) {
 			$k = (string)$k;
 			if (
 				!preg_match( '/^data-parsoid/', $k ) &&

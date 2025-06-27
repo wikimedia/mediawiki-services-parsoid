@@ -135,7 +135,7 @@ class CleanUp {
 		) {
 			return true;
 		}
-		foreach ( DOMUtils::attributes( $node ) as $name => $_value ) {
+		foreach ( DOMCompat::attributes( $node ) as $name => $_value ) {
 			// Skip the Parsoid-added data attribute and template-wrapping attributes
 			if ( $name === DOMDataUtils::DATA_OBJECT_ATTR_NAME ||
 				( ( $state->tplInfo ?? null ) && isset( self::ALLOWED_TPL_WRAPPER_ATTRS[$name] ) )

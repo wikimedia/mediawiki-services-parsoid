@@ -986,7 +986,7 @@ class LinkHandlerUtils {
 			];
 
 			$isComplexLink = false;
-			foreach ( DOMUtils::attributes( $node ) as $name => $_value ) {
+			foreach ( DOMCompat::attributes( $node ) as $name => $_value ) {
 				// XXX: Don't drop rel and class in every case once a tags are
 				// actually supported in the MW default config?
 				if ( !isset( $safeAttr[$name] ) ) {

@@ -70,7 +70,7 @@ class Headings {
 					} else {
 						# We strip any parameter from accepted tags except dir="rtl|ltr" from <span>,
 						# to allow setting directionality in toc items.
-						foreach ( DOMUtils::attributes( $c ) as $key => $val ) {
+						foreach ( DOMCompat::attributes( $c ) as $key => $val ) {
 							if ( $cName === 'span' ) {
 								if ( $key !== 'dir' || ( $val !== 'ltr' && $val !== 'rtl' ) ) {
 									$c->removeAttribute( $key );

@@ -559,6 +559,36 @@ class DOMCompat {
 	}
 
 	/**
+	 * Get an associative array of attributes, suitable for serialization.
+	 *
+	 * Add the xmlns attribute if available, to workaround PHP's surprising
+	 * behavior with the xmlns attribute: HTML is *not* an XML document,
+	 * but various parts of PHP pretend that it is, sort of.
+	 *
+	 * @param Element $element
+	 * @return array<string,string>
+	 * @see https://phabricator.wikimedia.org/T235295
+	 * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/attributes
+	 * @note Note that unlike the spec this method returns an associative
+	 *  array, not a NamedNodeMap, and as such is not an exact replacement
+	 *  for the DOM `attributes` property.
+	 */
+	public static function attributes( Element $element ): array {
+		$result = [];
+		if ( !self::isStandardsMode( $element ) ) {
+			// The 'xmlns' attribute is "invisible" T235295
+			$xmlns = self::getAttribute( $element, 'xmlns' );
+			if ( $xmlns !== null ) {
+				$result['xmlns'] = $xmlns;
+			}
+		}
+		foreach ( $element->attributes as $attr ) {
+			$result[$attr->name] = $attr->value;
+		}
+		return $result;
+	}
+
+	/**
 	 * Return the class list of this element.
 	 * @param Element $node
 	 * @return TokenList

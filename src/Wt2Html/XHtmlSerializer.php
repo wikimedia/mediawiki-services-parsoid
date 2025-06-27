@@ -85,7 +85,7 @@ class XHtmlSerializer {
 					$node->firstChild;
 				$localName = $node->localName;
 				$accum( '<' . $localName, $node );
-				$attrs = DOMUtils::attributes( $node );
+				$attrs = DOMCompat::attributes( $node );
 				if ( $noSideEffects ) {
 					DOMDataUtils::dumpRichAttribs( $node, $attrs, $options['keepTmp'], $options['storeDiffMark'] );
 				}

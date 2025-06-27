@@ -338,13 +338,13 @@ class WikitextSerializer {
 	/**
 	 * @param Element $node
 	 * @param ?array $attrs Optional attributes array to serialize in the
-	 *   context of $node instead of using the default DOMUtils::attributes
+	 *   context of $node instead of using the default DOMCompat::attributes
 	 *   call on $node.
 	 * @return string
 	 */
 	public function serializeAttributes( Element $node, ?array $attrs = null ): string {
 		$out = [];
-		$attrs ??= DOMUtils::attributes( $node );
+		$attrs ??= DOMCompat::attributes( $node );
 		foreach ( $attrs as $k => $v ) {
 			// Explicit conversion to string because PHP will convert to int
 			// if $k is numeric

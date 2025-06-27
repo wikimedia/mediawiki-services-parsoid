@@ -156,7 +156,7 @@ class WTUtilsTest extends \PHPUnit\Framework\TestCase {
 		$newDoc = ContentUtils::createAndLoadDocument(
 			'<html><body>' . DOMUtils::getFragmentInnerHTML( $fragment ) . '</body></html>' );
 		$span = DOMCompat::getBody( $newDoc )->firstChild;
-		$typeof = DOMUtils::attributes( $span )['typeof'];
+		$typeof = DOMCompat::attributes( $span )['typeof'];
 		self::assertEquals( 'mw:I18n mw:LocalizedAttrs', $typeof );
 		$spanI18n = DOMDataUtils::getDataNodeI18n( $span );
 		self::assertNotNull( $spanI18n );

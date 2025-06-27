@@ -826,29 +826,11 @@ class DOMUtils {
 	}
 
 	/**
-	 * Get an associative array of attributes, suitable for serialization.
-	 *
-	 * Add the xmlns attribute if available, to workaround PHP's surprising
-	 * behavior with the xmlns attribute: HTML is *not* an XML document,
-	 * but various parts of PHP pretend that it is, sort of.
-	 *
-	 * @param Element $element
-	 * @return array<string,string>
-	 * @see https://phabricator.wikimedia.org/T235295
+	 * @see DOMCompat::attributes()
+	 * @deprecated Use DOMCompat::attributes
 	 */
 	public static function attributes( Element $element ): array {
-		$result = [];
-		if ( !DOMCompat::isStandardsMode( $element ) ) {
-			// The 'xmlns' attribute is "invisible" T235295
-			$xmlns = DOMCompat::getAttribute( $element, 'xmlns' );
-			if ( $xmlns !== null ) {
-				$result['xmlns'] = $xmlns;
-			}
-		}
-		foreach ( $element->attributes as $attr ) {
-			$result[$attr->name] = $attr->value;
-		}
-		return $result;
+		return DOMCompat::attributes( $element );
 	}
 
 	public static function isMetaDataTag( Element $node ): bool {

@@ -459,7 +459,7 @@ class PipelineUtils {
 	private static function convertDOMtoTokens( Node $node, array $tokBuf ): array {
 		if ( $node instanceof Element ) {
 			$nodeName = DOMCompat::nodeName( $node );
-			$attrInfo = self::domAttrsToTagAttrs( $node, DOMUtils::attributes( $node ) );
+			$attrInfo = self::domAttrsToTagAttrs( $node, DOMCompat::attributes( $node ) );
 
 			if ( Utils::isVoidElement( $nodeName ) ) {
 				$tokBuf[] = new SelfclosingTagTk(
@@ -600,7 +600,7 @@ class PipelineUtils {
 				$workNode = $node->ownerDocument->createElement( $wrapperName );
 
 				// Copy over attributes
-				foreach ( DOMUtils::attributes( $node ) as $name => $value ) {
+				foreach ( DOMCompat::attributes( $node ) as $name => $value ) {
 					// "typeof" is ignored since it'll be removed below.
 					if ( $name !== 'typeof' ) {
 						$workNode->setAttribute( $name, $value );

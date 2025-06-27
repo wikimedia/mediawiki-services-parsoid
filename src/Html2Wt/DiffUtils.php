@@ -140,7 +140,7 @@ class DiffUtils {
 	 * @return array<string,mixed>
 	 */
 	private static function getAttributes( Element $node, array $ignoreableAttribs ): array {
-		$h = DOMUtils::attributes( $node );
+		$h = DOMCompat::attributes( $node );
 		foreach ( $h as $name => $_value ) {
 			if ( in_array( $name, $ignoreableAttribs, true ) ) {
 				unset( $h[$name] );

@@ -314,13 +314,13 @@ HTML;
 				'expectedTagHtmls' => [],
 			],
 			/* not yet supported in css-parser
-			'attribute, case insensitive' => [
-				'html' => $html1,
-				'selector' => '[rel="C"i]',
-				'context' => null,
-				'expectedTagHtmls' => [],
-			],
-			*/
+			   'attribute, case insensitive' => [
+			   'html' => $html1,
+			   'selector' => '[rel="C"i]',
+			   'context' => null,
+			   'expectedTagHtmls' => [],
+			   ],
+			 */
 			'attribute word' => [
 				'html' => $html1,
 				'selector' => '[class~=b2]',
@@ -334,13 +334,13 @@ HTML;
 				'expectedTagHtmls' => [],
 			],
 			/* not yet supported in css-parser
-			'attribute word, case insensitive' => [
-				'html' => $html1,
-				'selector' => '[class~="B2"i]',
-				'context' => null,
-				'expectedTagHtmls' => [ 'b' ],
-			],
-			*/
+			   'attribute word, case insensitive' => [
+			   'html' => $html1,
+			   'selector' => '[class~="B2"i]',
+			   'context' => null,
+			   'expectedTagHtmls' => [ 'b' ],
+			   ],
+			 */
 			'tag' => [
 				'html' => $html1,
 				'selector' => 'span',
@@ -712,5 +712,41 @@ HTML;
 		$q = $doc->getElementById( 'this-is-an-id' );
 		$this->assertNotEquals( null, $q );
 		$this->assertEquals( 'this-is-an-id', DOMCompat::getAttribute( $q, 'id' ) );
+	}
+
+	/**
+	 * Test element attributes methods.
+	 *
+	 * @covers ::attributes
+	 * @dataProvider provideElementAttributes
+	 */
+	public function testElementAttributes( string $html, array $expected ) {
+		$doc = DOMUtils::parseHTML( $html );
+		$sel = $props['selector'] ?? 'body > *';
+		$node = DOMCompat::querySelector( $doc, $sel );
+		'@phan-var Element $node'; // @var Element $node
+
+		$actual['attributes'] = DOMCompat::attributes( $node );
+		$this->assertSame( $expected, $actual );
+	}
+
+	public static function provideElementAttributes() {
+		return [
+			[ '<a href="xyz">foo<!--bar--></a>', [
+				'attributes' => [ 'href' => 'xyz' ],
+			] ],
+			[ '<link rel="foo" />', [
+				'attributes' => [ 'rel' => 'foo' ],
+			] ],
+			[ '<base href="//foo/" />', [
+				'attributes' => [ 'href' => '//foo/' ],
+			] ],
+			[ '<meta name="foo" />', [
+				'attributes' => [ 'name' => 'foo' ],
+			] ],
+			[ '<span xmlns="test" class="foo">bar</span>', [
+				'attributes' => [ 'xmlns' => 'test', 'class' => 'foo' ],
+			] ],
+		];
 	}
 }
