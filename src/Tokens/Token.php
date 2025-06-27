@@ -64,6 +64,8 @@ abstract class Token implements JsonCodecable, \JsonSerializable {
 				return DOMDataUtils::getCodecHints()['data-mw'];
 			case 'attribs':
 				return Hint::build( KV::class, Hint::LIST );
+			case 'nestedTokens':
+				return new Hint( self::hint(), Hint::LIST );
 			default:
 				return null;
 		}
