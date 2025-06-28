@@ -323,7 +323,7 @@ block =
  * may not have started with a <td>. The block_lines rule above does allow
  * SOLs to be matched when required for lists, headings, hrs, and fresh table lines.
  */
-	/ ( &<tableCaption> / &<fullTable> / !<tableDataBlock> ) s:sol !sof !inline_breaks { return $s; }
+	/ ( &<tableCaption> / &<fullTable> / !<tableDataBlock> ) s:sol !sof !inline_breaks notempty { return $s; }
 
 /*
  * A block nested in other constructs. Avoid eating end delimiters for other
@@ -2111,7 +2111,7 @@ table_content_line =
 table_start_tag "table_start_tag" =
 	b:"{" p:pipe
 	// ok to normalize away stray |} on rt (see T59360)
-	ta:(table_attributes<table=false> / &{ $this->unreachable(); })
+	ta:(table_attributes<table=false> / unreachable)
 	tsEndPos:("" { return $this->endOffset(); })
 	s2:space*
 	{
@@ -2134,6 +2134,8 @@ table_start_tag "table_start_tag" =
 		);
 	}
 
+unreachable [unreachable] = &{ $this->unreachable(); } ""
+
 // FIXME: Not sure if we want to support it, but this should allow columns.
 table_caption_tag =
 	// avoid recursion via nested_block_in_table
@@ -2152,7 +2154,7 @@ table_row_tag =
 	// avoid recursion via nested_block_in_table
 	! <tableDataBlock>
 	p:pipe dashes:$"-"+
-	a:(table_attributes<table=false> / &{ $this->unreachable(); })
+	a:(table_attributes<table=false> / unreachable)
 	tagEndPos:("" { return $this->endOffset(); })
 	s2:space*
 	{
@@ -2364,7 +2366,7 @@ urltext =
 				return false;
 			}
 		}
-		'' {
+		notempty {
 			$this->currPos += strlen( $this->urltextPlainSegment );
 			return $this->urltextPlainSegment;
 		}
@@ -2373,6 +2375,8 @@ urltext =
 		/ & ('__') bs:behavior_switch { return $bs; }
 		/ text_char
 	)+
+
+notempty [empty=false,cache=false] = ""
 
 raw_htmlentity =
 	m:$("&" [#0-9a-zA-Zרלמرلم]+ ";") {
