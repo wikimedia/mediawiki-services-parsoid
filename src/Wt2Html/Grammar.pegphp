@@ -2733,8 +2733,8 @@ space_or_nbsp_or_dash =
 sol_transparent = comment / include_limits / annotation_tag / behavior_switch
 
 sol =
-  // optimization: fail fast before putting entries in the backtracking cache
-  &{ return $this->endOffset() === 0 || ($this->input[$this->currPos] ?? '') === "\n"; }
+  // optimization: fail fast before putting more entries in the backtracking cache
+  &{ return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; }
     sp:sol_prefix elc:empty_lines_with_comments? st:sol_transparent* {
 	$this->hasSOLTransparentAtStart = ( count( $st ) > 0 );
 	return [ $sp, $elc ?? [], $st ];

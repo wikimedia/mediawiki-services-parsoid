@@ -753,7 +753,7 @@ private function a64($s, $s2, $bl) {
 	
 }
 private function a65() {
- return $this->endOffset() === 0 || ($this->input[$this->currPos] ?? '') === "\n"; 
+ return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; 
 }
 private function a66($sp, $elc, $st) {
 
