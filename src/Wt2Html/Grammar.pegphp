@@ -477,7 +477,7 @@ heading =
 			$'='+
 		)?
 		& { return $ce || strlen( $s ) > 2; }
-		endTPos:("" { return $this->endOffset(); })
+		endTPos:POSITION
 		spc:( space / sol_transparent )*
 		&eolf
 		{
@@ -597,7 +597,7 @@ extlink "extlink" =
 	! <extlink> // extlink cannot be nested
 	r:(
 		"["
-		p0:( "" { return $this->endOffset(); })
+		p0:POSITION
 		flat:(
 			addr:(url_protocol ipv6urladdr / "")
 			target:(extlink_nonipv6url<extlink> / "")
@@ -613,11 +613,11 @@ extlink "extlink" =
 			}
 			return Utils::isProtocolValid( substr( $flat, 0, -1 ), $this->env );
 		}
-		p1:( "" { return $this->endOffset(); })
+		p1:POSITION
 		sp:$( space / unispace )*
-		p2:( "" { return $this->endOffset(); })
+		p2:POSITION
 		content:inlineline<extlink>?
-		p3:( "" { return $this->endOffset(); })
+		p3:POSITION
 		"]" {
 			$tsr1 = new SourceRange( $p0, $p1 );
 			$tsr2 = new SourceRange( $p2, $p3 );
@@ -888,9 +888,9 @@ template_preproc =
 	params:(
 		nl_comment_space* "|"
 		r:(
-			p0:("" { return $this->endOffset(); })
+			p0:POSITION
 			v:nl_comment_space*
-			p1:("" { return $this->endOffset(); })
+			p1:POSITION
 			&("|" / "}}")
 			{
 				// empty argument
@@ -923,14 +923,14 @@ tplarg =
 
 tplarg_preproc =
 	"{{{" nl_comment_space*
-	p:("" { return $this->endOffset(); })
+	p:POSITION
 	target:inlineline_in_tpls?
 	params:(
 		nl_comment_space* "|"
 		r:(
-			p0:("" { return $this->endOffset(); })
+			p0:POSITION
 			v:nl_comment_space*
-			p1:("" { return $this->endOffset(); })
+			p1:POSITION
 			&("|" / "}}}")
 			{
 				// empty argument
@@ -967,10 +967,10 @@ tplarg_preproc =
 template_param =
 	name:template_param_name
 	val:(
-		kEndPos:("" { return $this->endOffset(); })
+		kEndPos:POSITION
 		// no optionalSpaceToken here, it's eaten by template_param_name
 		"="
-		vStartPos:("" { return $this->endOffset(); })
+		vStartPos:POSITION
 		optSp:optionalSpaceToken
 		tpv:template_param_value? {
 			return [
@@ -1092,7 +1092,7 @@ lang_variant_preproc =
 		lv:lang_variant_option_list { return $lv; }
 	)
 	inline_breaks
-	lv1:("}-" { return $this->endOffset(); })
+	lv1:("}-" @POSITION)
 	{
 		if ( !$this->env->langConverterEnabled() ) {
 			return [ '-{', $ts[0]['text']['tokens'], '}-' ];
@@ -1321,7 +1321,7 @@ lang_variant_text_no_semi_or_arrow =
 wikilink_content =
 	(
 		p:pipe
-		startPos:("" { return $this->endOffset(); })
+		startPos:POSITION
 		lt:link_text? {
 			$tsr = new SourceRange( $startPos, $this->endOffset() );
 			$maybeContent = new KV( 'mw:maybeContent', $lt ?? [], $tsr->expandTsrV() );
@@ -1348,9 +1348,9 @@ broken_wikilink =
 
 wikilink_preproc =
 	"[["
-	spos:("" { return $this->endOffset(); })
+	spos:POSITION
 	target:wikilink_preprocessor_text?
-	tpos:("" { return $this->endOffset(); })
+	tpos:POSITION
 	lcs:(
 	  l:wikilink_content inline_breaks { return [$l,null]; }
 	  / l:inlineline { return [null,$l]; }
@@ -1776,9 +1776,9 @@ xmlish_tag =
 // A generic attribute that can span multiple lines.
 generic_newline_attribute =
 	space_or_newline_or_solidus*
-	namePos0:("" { return $this->endOffset(); })
+	namePos0:POSITION
 	name:generic_attribute_name
-	namePos1:("" { return $this->endOffset(); })
+	namePos1:POSITION
 	vd:(space_or_newline* "=" v:generic_att_value? { return $v; })?
 {
 	// NB: Keep in sync w/ table_attibute
@@ -1803,9 +1803,9 @@ generic_newline_attribute =
 // A single-line attribute.
 table_attribute =
 	optional_spaces
-	namePos0:("" { return $this->endOffset(); })
+	namePos0:POSITION
 	name:table_attribute_name
-	namePos1:("" { return $this->endOffset(); })
+	namePos1:POSITION
 	vd:(optional_spaces "=" v:table_att_value? { return $v; })?
 {
 	// NB: Keep in sync w/ generic_newline_attribute
@@ -1966,7 +1966,7 @@ hacky_dl_uses =
 	return array_merge( [ $li ], $sc, $tbl );
 }
 
-dtdd_colon = c:inlineline_break_on_colon? cpos:(":" { return $this->endOffset(); })
+dtdd_colon = c:inlineline_break_on_colon? cpos:(":" @POSITION)
 {
 	return [ $c, $cpos ];
 }
@@ -2112,7 +2112,7 @@ table_start_tag "table_start_tag" =
 	b:"{" p:pipe
 	// ok to normalize away stray |} on rt (see T59360)
 	ta:(table_attributes<table=false> / unreachable)
-	tsEndPos:("" { return $this->endOffset(); })
+	tsEndPos:POSITION
 	s2:space*
 	{
 		$coms = TokenizerUtils::popComments( $ta );
@@ -2142,7 +2142,7 @@ table_caption_tag =
 	! <tableDataBlock>
 	p:pipe "+"
 	args:row_syntax_table_args?
-	tagEndPos:("" { return $this->endOffset(); })
+	tagEndPos:POSITION
 	c:nested_block_in_table<tableCaption>* {
 		$tsr = new SourceRange( $this->startOffset(), $tagEndPos );
 		return TokenizerUtils::buildTableTokens(
@@ -2155,7 +2155,7 @@ table_row_tag =
 	! <tableDataBlock>
 	p:pipe dashes:$"-"+
 	a:(table_attributes<table=false> / unreachable)
-	tagEndPos:("" { return $this->endOffset(); })
+	tagEndPos:POSITION
 	s2:space*
 	{
 		$coms = TokenizerUtils::popComments( $a );
@@ -2192,7 +2192,7 @@ table_heading_tags_parameterized =
 
 table_heading_tag =
 	arg:row_syntax_table_args?
-	tagEndPos:("" { return $this->endOffset(); })
+	tagEndPos:POSITION
 	c:(
 		th:<&th>
 		d:nested_block_in_table {
@@ -2253,7 +2253,7 @@ table_data_tag =
 	! "}"
 	arg:row_syntax_table_args?
 	// use inline_breaks to break on tr etc
-	tagEndPos:("" { return $this->endOffset(); })
+	tagEndPos:POSITION
 	td:nested_block_in_table*
 	{
 		$tagStart = $this->startOffset();
@@ -2667,6 +2667,8 @@ newlineToken [inline] = newline { return [ new NlTk( $this->tsrOffsets() ) ]; }
 
 eolf [inline] = newline / eof
 
+POSITION [cache=false] = "" { return $this->endOffset(); }
+
 // The old parser does a straight str.replace(/<!--((?!-->).)*-->/g, "")
 // but, as always, things around here are a little more complicated.
 //
@@ -2752,7 +2754,7 @@ sol_prefix [inline] =
 // This rule requires at least one comment to be matched
 // This matches a run of empty lines with comments
 empty_lines_with_comments =
-	p:("" { return $this->endOffset(); }) c:(space* comment space_or_comment* newline)+ {
+	p:POSITION c:(space* comment space_or_comment* newline)+ {
 		$dp = new DataParsoid;
 		$dp->tsr = new SourceRange( $p, $this->endOffset() );
 		return [ new EmptyLineTk( TokenizerUtils::flattenIfArray( $c ), $dp ) ];
