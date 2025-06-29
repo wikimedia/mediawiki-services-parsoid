@@ -7,6 +7,8 @@ use Generator;
 use stdClass;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -166,7 +168,10 @@ class DOMProcessorPipeline extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function process( $input, array $options ) {
+	public function process(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): array|Element|DocumentFragment {
 		if ( isset( $options['selparData'] ) ) {
 			$this->selparData = $options['selparData'];
 		}
@@ -179,7 +184,10 @@ class DOMProcessorPipeline extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function processChunkily( $input, array $options ): Generator {
+	public function processChunkily(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): Generator {
 		if ( $this->prevStage ) {
 			// The previous stage will yield a DOM.
 			// FIXME: Should we change the signature of that to return a DOM

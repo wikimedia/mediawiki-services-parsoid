@@ -107,25 +107,25 @@ class ParserPipeline {
 	 * in case that first stage is the source of input chunks we are processing
 	 * in the rest of the pipeline)
 	 *
-	 * @param string|Token|array<Token|string>|DocumentFragment $input
+	 * @param string|Token|array<Token|string>|DocumentFragment|Element $input
 	 * @param array{sol:bool} $opts
 	 *  - sol (bool) Whether tokens should be processed in start-of-line context.
 	 *  - chunky (bool) Whether we are processing the input chunkily.
 	 *                  If so, the first stage will be skipped
-	 * @return array|Document
+	 * @return array|DocumentFragment|Element
 	 */
-	public function parse( $input, array $opts ) {
+	public function parse(
+		string|Token|array|DocumentFragment|Element $input,
+		array $opts
+	): array|DocumentFragment|Element {
 		$profile = $this->env->profiling() ? $this->env->pushNewProfile() : null;
 		if ( $profile !== null ) {
 			$profile->start();
 		}
 
 		$output = $input;
-		foreach ( $this->stages as $stage ) {
+		foreach ( $this->stages as $i => $stage ) {
 			$output = $stage->process( $output, $opts );
-			if ( $output === null ) {
-				throw new \RuntimeException( 'Stage ' . get_class( $stage ) . ' generated null output.' );
-			}
 		}
 
 		$this->env->getPipelineFactory()->returnPipeline( $this );

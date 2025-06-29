@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Wt2Html\TreeBuilder;
 
 use Generator;
+use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
@@ -481,7 +482,11 @@ class TreeBuilderStage extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function process( $input, array $options ) {
+	public function process(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): array|Element|DocumentFragment {
+		Assert::invariant( is_array( $input ), "Input should be an array" );
 		'@phan-var array $input'; // @var array $input
 		$this->processChunk( $input );
 		return $this->finalizeDOM();
@@ -490,9 +495,13 @@ class TreeBuilderStage extends PipelineStage {
 	/**
 	 * @inheritDoc
 	 */
-	public function processChunkily( $input, array $options ): Generator {
+	public function processChunkily(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): Generator {
 		if ( $this->prevStage ) {
 			foreach ( $this->prevStage->processChunkily( $input, $options ) as $chunk ) {
+				Assert::invariant( is_array( $chunk ), "Chunk should be an array" );
 				'@phan-var array $chunk'; // @var array $chunk
 				$this->processChunk( $chunk );
 			}

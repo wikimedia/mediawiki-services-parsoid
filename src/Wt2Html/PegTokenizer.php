@@ -6,6 +6,8 @@ namespace Wikimedia\Parsoid\Wt2Html;
 use Generator;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\DOM\DocumentFragment;
+use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\EOFTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\Token;
@@ -78,28 +80,42 @@ class PegTokenizer extends PipelineStage {
 	 * See PipelineStage::process docs as well. This doc block refines
 	 * the generic arg types to be specific to this pipeline stage.
 	 *
-	 * @param string $input wikitext to tokenize
+	 * @param string|array|DocumentFragment|Element $input
+	 *   Wikitext to tokenize. In practice this should be a string.
 	 * @param array{sol:bool} $options
 	 * - atTopLevel: (bool) Whether we are processing the top-level document
 	 * - sol: (bool) Whether input should be processed in start-of-line context
 	 *
-	 * @return array|false The token array, or false for a syntax error
+	 * @return array The token array
+	 * @throws SyntaxError
 	 */
-	public function process( $input, array $options ) {
+	public function process(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): array|Element|DocumentFragment {
 		Assert::invariant( is_string( $input ), "Input should be a string" );
-		return $this->tokenizeSync( $input, $options );
+		$result = $this->tokenizeSync( $input, $options, $exception );
+		if ( $result === false ) {
+			// Should never happen.
+			throw $exception;
+		}
+		return $result;
 	}
 
 	/**
 	 * The text is tokenized in chunks (one per top-level block).
 	 *
-	 * @param string $input
+	 * @param string|array|DocumentFragment|Element $input
+	 *   Wikitext to tokenize. In practice this should be a string.
 	 * @param array{atTopLevel:bool,sol:bool} $options
 	 *   - atTopLevel: (bool) Whether we are processing the top-level document
 	 *   - sol (bool) Whether text should be processed in start-of-line context.
 	 * @return Generator<list<Token|string>>
 	 */
-	public function processChunkily( $input, array $options ): Generator {
+	public function processChunkily(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): Generator {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
@@ -138,9 +154,10 @@ class PegTokenizer extends PipelineStage {
 	 * @param array{sol:bool} $args
 	 * - sol: (bool) Whether input should be processed in start-of-line context.
 	 * - startRule: (string) which tokenizer rule to tokenize with
+	 * @param SyntaxError|null &$exception a syntax error, if thrown.
 	 * @return array|false The token array, or false for a syntax error
 	 */
-	public function tokenizeSync( string $text, array $args ) {
+	public function tokenizeSync( string $text, array $args, &$exception = null ) {
 		if ( !$this->grammar ) {
 			$this->initGrammar();
 		}
@@ -184,6 +201,7 @@ class PegTokenizer extends PipelineStage {
 		try {
 			$toks = $this->grammar->parse( $text, $args );
 		} catch ( SyntaxError $e ) {
+			$exception = $e;
 			return false;
 		}
 

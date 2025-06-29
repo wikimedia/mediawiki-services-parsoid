@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Wt2Html;
 
 use Generator;
 use Wikimedia\Parsoid\Config\Env;
-use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Tokens\SourceRange;
@@ -115,14 +114,17 @@ abstract class PipelineStage {
 	 * will be processed by this pipeline stage and no further input or an EOF
 	 * signal will follow.
 	 *
-	 * @param string|array|Document $input
+	 * @param string|array|DocumentFragment|Element $input
 	 * @param array{atTopLevel:bool,sol:bool} $options
 	 *  - atTopLevel: (bool) Whether we are processing the top-level document
 	 *  - sol: (bool) Whether input should be processed in start-of-line context
 	 *  - chunky (bool) Whether we are processing the input chunkily.
-	 * @return list<Token|string>|Element|DocumentFragment
+	 * @return list<Token|string>|DocumentFragment|Element
 	 */
-	abstract public function process( $input, array $options );
+	abstract public function process(
+		string|array|DocumentFragment|Element $input,
+		array $options
+	): array|Element|DocumentFragment;
 
 	/**
 	 * Process wikitext, an array of tokens, or a DOM document depending on
@@ -133,13 +135,14 @@ abstract class PipelineStage {
 	 * Implementations that don't consume tokens (ex: Tokenizer, DOMProcessorPipeline)
 	 * will provide specialized implementations that handle their input type.
 	 *
-	 * @param string|array|Document $input
+	 * @param string|array|DocumentFragment|Element $input
 	 * @param array{atTopLevel:bool,sol:bool} $options
 	 *  - atTopLevel: (bool) Whether we are processing the top-level document
 	 *  - sol: (bool) Whether input should be processed in start-of-line context
-	 * @return Generator<list<Token|string>|Element|DocumentFragment>
+	 * @return Generator<list<Token|string>|DocumentFragment|Element>
 	 */
 	abstract public function processChunkily(
-		$input, array $options
+		string|array|DocumentFragment|Element $input,
+		array $options
 	): Generator;
 }
