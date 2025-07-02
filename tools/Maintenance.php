@@ -131,6 +131,7 @@ if ( $parsoidMode === 'integrated' ) {
 } else {
 	/* Use Parsoid's stand-alone clone of the Maintenance framework */
 	require_once __DIR__ . '/../vendor/autoload.php';
+	error_reporting( E_ALL );
 
 	abstract class Maintenance extends OptsProcessor {
 		/** @var bool Whether to perform Parsoid-specific processing */
