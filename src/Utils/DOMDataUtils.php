@@ -8,6 +8,7 @@ use InvalidArgumentException;
 use stdClass;
 use TypeError;
 use UnexpectedValueException;
+use WeakMap;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
@@ -40,20 +41,66 @@ class DOMDataUtils {
 	/** The internal property prefix used for rich attribute type hints. */
 	private const RICH_ATTR_HINT_PREFIX = 'rich-hint-';
 
+	/** Backing storage for "extension data" on a Document. */
+	private static array $docMap = [];
+
+	/**
+	 * Associate additional data with a Document, without resorting to
+	 * a dynamic property.
+	 *
+	 * Note that our data is hung off the top-level Document because it is
+	 * the only object guaranteed to be kept live during the duration of a
+	 * parse.  Individual Nodes and Elements will be garbage collected as
+	 * soon as local variable references are dropped (the fact that backing
+	 * data is referenced from the Document does not prevent this) which
+	 * would erase the entry from the WeakMap used here.
+	 *
+	 * @param Document $doc
+	 * @param string $key
+	 * @param mixed $value
+	 */
+	private static function setExtensionData( Document $doc, string $key, $value ): void {
+		if ( !isset( self::$docMap[$key] ) ) {
+			self::$docMap[$key] = new WeakMap();
+		}
+		self::$docMap[$key]->offsetSet( $doc, $value );
+	}
+
+	/**
+	 * Retrieve additional data associated with a Document.
+	 *
+	 * See discussion in ::setExtensionData() above.
+	 *
+	 * @param Document $doc
+	 * @param string $key
+	 * @return mixed
+	 * @throws \Error if $key is not found.
+	 */
+	private static function getExtensionData( Document $doc, string $key ) {
+		if ( !isset( self::$docMap[$key] ) ) {
+			throw new \Error( "$key not found" );
+		}
+		return self::$docMap[$key]->offsetGet( $doc );
+	}
+
+	/**
+	 * Determine if there is extension data for $key associated with the
+	 * given document.
+	 */
+	private static function hasExtensionData( Document $doc, string $key ): bool {
+		if ( !isset( self::$docMap[$key] ) ) {
+			return false;
+		}
+		return self::$docMap[$key]->offsetExists( $doc );
+	}
+
 	/**
 	 * Return the dynamic "bag" property of a Document.
 	 * @param Document $doc
 	 * @return DataBag
 	 */
 	public static function getBag( Document $doc ): DataBag {
-		if ( method_exists( $doc, "getExtensionData" ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			return $doc->getExtensionData( "bag" );
-		}
-		// This is a dynamic property; it is not declared.
-		// All references go through here so we can suppress phan's complaint.
-		// @phan-suppress-next-line PhanUndeclaredProperty
-		return $doc->bag;
+		return self::getExtensionData( $doc, "bag" );
 	}
 
 	/**
@@ -64,24 +111,11 @@ class DOMDataUtils {
 	public static function getCodec( Node $node ): DOMDataCodec {
 		// Owner document is set for all nodes except Document itself.
 		$doc = $node->ownerDocument ?? $node;
-		if ( method_exists( $doc, "getExtensionData" ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			return $doc->getExtensionData( "codec" );
-		}
-		// This is a dynamic property; it is not declared.
-		// All references go through here so we can suppress phan's complaint.
-		// @phan-suppress-next-line PhanUndeclaredProperty
-		return $doc->codec;
+		return self::getExtensionData( $doc, "codec" );
 	}
 
 	public static function isPrepared( Document $doc ): bool {
-		if ( method_exists( $doc, "getExtensionData" ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			return $doc->getExtensionData( "bag" ) !== null;
-		}
-		// `bag` is a deliberate dynamic property; see DOMDataUtils::getBag()
-		// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-		return isset( $doc->bag );
+		return self::hasExtensionData( $doc, "bag" );
 	}
 
 	public static function isPreparedAndLoaded( Document $doc ): bool {
@@ -91,18 +125,8 @@ class DOMDataUtils {
 	public static function prepareDoc( Document $doc ): void {
 		$bag = new DataBag();
 		$codec = new DOMDataCodec( $doc, [] );
-		if ( method_exists( $doc, "setExtensionData" ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			$doc->setExtensionData( "bag", $bag );
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			$doc->setExtensionData( "codec", $codec );
-		} else {
-			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-			$doc->bag = $bag;
-			// `codec` is a deliberate dynamic property; see DOMDataUtils::getCodec()
-			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-			$doc->codec = $codec;
-		}
+		self::setExtensionData( $doc, "bag", $bag );
+		self::setExtensionData( $doc, "codec", $codec );
 
 		// Cache the head and body.
 		DOMCompat::getHead( $doc );
@@ -114,19 +138,8 @@ class DOMDataUtils {
 	 * @param Document $childDoc
 	 */
 	public static function prepareChildDoc( Document $topLevelDoc, Document $childDoc ): void {
-		if ( method_exists( $childDoc, "setExtensionData" ) ) {
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			$childDoc->setExtensionData( "bag", $topLevelDoc->getExtensionData( "bag" ) );
-			// @phan-suppress-next-line PhanUndeclaredMethod Dodo extension
-			$childDoc->setExtensionData( "codec", $topLevelDoc->getExtensionData( "codec" ) );
-		} else {
-			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-			Assert::invariant( $topLevelDoc->bag instanceof DataBag, 'doc bag not set' );
-			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-			$childDoc->bag = $topLevelDoc->bag;
-			// @phan-suppress-next-line PhanUndeclaredProperty dynamic property
-			$childDoc->codec = $topLevelDoc->codec;
-		}
+		self::setExtensionData( $childDoc, "bag", self::getExtensionData( $topLevelDoc, "bag" ) );
+		self::setExtensionData( $childDoc, "codec", self::getExtensionData( $topLevelDoc, "codec" ) );
 	}
 
 	/**
