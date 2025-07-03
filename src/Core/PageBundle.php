@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Composer\Semver\Semver;
-use Wikimedia\JsonCodec\JsonCodecable;
-use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
@@ -23,51 +21,22 @@ use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
  * See DomPageBundle for a similar structure used where the HTML string
  * has been parsed into a DOM.
  */
-class PageBundle implements JsonCodecable {
-	use JsonCodecableTrait;
-
-	/** The document, as an HTML string. */
-	public string $html;
-
-	/**
-	 * A map from ID to the array serialization of DataParsoid for the Node
-	 * with that ID.
-	 *
-	 * @var null|array{counter?:int,offsetType?:'byte'|'ucs2'|'char',ids:array<string,array>}
-	 */
-	public $parsoid;
-
-	/**
-	 * A map from ID to the array serialization of DataMw for the Node
-	 * with that ID.
-	 *
-	 * @var null|array{ids:array<string,array>}
-	 */
-	public $mw;
-
-	/** @var ?string */
-	public $version;
-
-	/**
-	 * A map of HTTP headers: both name and value should be strings.
-	 * @var array<string,string>|null
-	 */
-	public $headers;
-
-	/** @var string|null */
-	public $contentmodel;
+class PageBundle extends BasePageBundle {
 
 	public function __construct(
-		string $html, ?array $parsoid = null, ?array $mw = null,
+		/** The document, as an HTML string. */
+		public string $html,
+		?array $parsoid = null, ?array $mw = null,
 		?string $version = null, ?array $headers = null,
 		?string $contentmodel = null
 	) {
-		$this->html = $html;
-		$this->parsoid = $parsoid;
-		$this->mw = $mw;
-		$this->version = $version;
-		$this->headers = $headers;
-		$this->contentmodel = $contentmodel;
+		parent::__construct(
+			parsoid: $parsoid,
+			mw: $mw,
+			version: $version,
+			headers: $headers,
+			contentmodel: $contentmodel,
+		);
 	}
 
 	public static function newEmpty(
@@ -214,23 +183,18 @@ class PageBundle implements JsonCodecable {
 	public function toJsonArray(): array {
 		return [
 			'html' => $this->html,
-			'parsoid' => $this->parsoid,
-			'mw' => $this->mw,
-			'version' => $this->version,
-			'headers' => $this->headers,
-			'contentmodel' => $this->contentmodel,
-		];
+		] + parent::toJsonArray();
 	}
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): PageBundle {
 		return new PageBundle(
-			$json['html'] ?? '',
-			$json['parsoid'] ?? null,
-			$json['mw'] ?? null,
-			$json['version'] ?? null,
-			$json['headers'] ?? null,
-			$json['contentmodel'] ?? null
+			html: $json['html'] ?? '',
+			parsoid: $json['parsoid'] ?? null,
+			mw: $json['mw'] ?? null,
+			version: $json['version'] ?? null,
+			headers: $json['headers'] ?? null,
+			contentmodel: $json['contentmodel'] ?? null
 		);
 	}
 }

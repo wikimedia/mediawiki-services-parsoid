@@ -4,8 +4,6 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
-use Wikimedia\JsonCodec\JsonCodecable;
-use Wikimedia\JsonCodec\JsonCodecableTrait;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
@@ -29,51 +27,23 @@ use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
  * See PageBundle for a similar structure used where the HTML DOM has been
  * serialized into a string.
  */
-class DomPageBundle implements JsonCodecable {
-	use JsonCodecableTrait;
-
-	/** The document, as a DOM. */
-	public ?Document $doc;
-
-	/**
-	 * A map from ID to the array serialization of DataParsoid for the Node
-	 * with that ID.
-	 *
-	 * @var null|array{counter?:int,offsetType?:'byte'|'ucs2'|'char',ids:array<string,array>}
-	 */
-	public $parsoid;
-
-	/**
-	 * A map from ID to the array serialization of DataMw for the Node
-	 * with that ID.
-	 *
-	 * @var null|array{ids:array<string,array>}
-	 */
-	public $mw;
-
-	/** @var ?string */
-	public $version;
-
-	/**
-	 * A map of HTTP headers: both name and value should be strings.
-	 * @var array<string,string>|null
-	 */
-	public $headers;
-
-	/** @var string|null */
-	public $contentmodel;
+class DomPageBundle extends BasePageBundle {
+	private bool $invalid = false;
 
 	public function __construct(
-		Document $doc, ?array $parsoid = null, ?array $mw = null,
+		/** The document, as a DOM. */
+		public Document $doc,
+		?array $parsoid = null, ?array $mw = null,
 		?string $version = null, ?array $headers = null,
-		?string $contentmodel = null
+		?string $contentmodel = null,
 	) {
-		$this->doc = $doc;
-		$this->parsoid = $parsoid;
-		$this->mw = $mw;
-		$this->version = $version;
-		$this->headers = $headers;
-		$this->contentmodel = $contentmodel;
+		parent::__construct(
+			parsoid: $parsoid,
+			mw: $mw,
+			version: $version,
+			headers: $headers,
+			contentmodel: $contentmodel,
+		);
 		Assert::invariant(
 			!self::isSingleDocument( $doc ),
 			'single document should be unpacked before DomPageBundle created'
@@ -130,6 +100,7 @@ class DomPageBundle implements JsonCodecable {
 	 * directly from the DOM and should be avoided if possible.
 	 */
 	public function toDom( bool $load = true, ?array $options = null ): Document {
+		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->doc;
 		if ( $load ) {
 			$options ??= [];
@@ -149,7 +120,7 @@ class DomPageBundle implements JsonCodecable {
 		} else {
 			self::apply( $doc, $this );
 		}
-		$this->doc = null; // Prevent reuse of the DomPageBundle
+		$this->invalid = true;
 		return $doc;
 	}
 
@@ -206,6 +177,7 @@ class DomPageBundle implements JsonCodecable {
 	 * @see ::fromSingleDocument()
 	 */
 	public function toSingleDocument(): Document {
+		Assert::invariant( !$this->invalid, "invalidated" );
 		$script = DOMUtils::appendToHead( $this->doc, 'script', [
 			'id' => 'mw-pagebundle',
 			'type' => 'application/x-mw-pagebundle',
@@ -213,7 +185,7 @@ class DomPageBundle implements JsonCodecable {
 		$script->appendChild( $this->doc->createTextNode( $this->encodeForHeadElement() ) );
 		$doc = $this->doc;
 		// Invalidate this DomPageBundle to prevent us from using it again.
-		$this->doc = null;
+		$this->invalid = true;
 		return $doc;
 	}
 
@@ -285,6 +257,7 @@ class DomPageBundle implements JsonCodecable {
 	 * @return string an HTML string
 	 */
 	public function toSingleDocumentHtml( array $options = [] ): string {
+		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->toSingleDocument();
 		return XHtmlSerializer::serialize( $doc, $options )['html'];
 	}
@@ -296,6 +269,7 @@ class DomPageBundle implements JsonCodecable {
 	 * @return string an HTML string
 	 */
 	public function toInlineAttributeHtml( array $options = [] ): string {
+		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->toDom( false );
 		if ( $options['body_only'] ?? false ) {
 			$node = DOMCompat::getBody( $doc );
@@ -338,6 +312,7 @@ class DomPageBundle implements JsonCodecable {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
+		Assert::invariant( !$this->invalid, "invalidated" );
 		return PageBundle::fromDomPageBundle( $this )->toJsonArray();
 	}
 
