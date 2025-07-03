@@ -13,6 +13,7 @@ use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
@@ -222,10 +223,10 @@ class DOMDataUtils {
 	 * Get data object from a node.
 	 *
 	 * @param Element $node node
-	 * @param ?DomPageBundle $pb Optional source for node data
+	 * @param ?BasePageBundle $pb Optional source for node data
 	 * @return NodeData
 	 */
-	public static function getNodeData( Element $node, ?DomPageBundle $pb = null ): NodeData {
+	public static function getNodeData( Element $node, ?BasePageBundle $pb = null ): NodeData {
 		$nodeId = DOMCompat::getAttribute( $node, self::DATA_OBJECT_ATTR_NAME );
 		if ( $nodeId === null ) {
 			// Initialized on first request
