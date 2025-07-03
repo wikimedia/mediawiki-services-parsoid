@@ -641,7 +641,7 @@ class WTUtils {
 		// that the string "-->" never shows up.  (See above.)
 		return preg_replace_callback( '/--(&(amp;)*gt;|>)/', static function ( $m ) {
 			$s = $m[0];
-				return $s === '-->' ? '--&gt;' : '--&amp;' . substr( $s, 3 );
+			return $s === '-->' ? '--&gt;' : '--&amp;' . substr( $s, 3 );
 		}, $trueValue );
 	}
 

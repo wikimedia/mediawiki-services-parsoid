@@ -16,6 +16,7 @@ use Wikimedia\Parsoid\Tokens\SelfclosingTagTk;
 use Wikimedia\Parsoid\Tokens\SourceRange;
 use Wikimedia\Parsoid\Tokens\TagTk;
 use Wikimedia\Parsoid\Tokens\Token;
+use Wikimedia\Parsoid\Tokens\XMLTagTk;
 use Wikimedia\Parsoid\Utils\DiffDOMUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -394,7 +395,9 @@ class WikitextEscapeHandlers {
 			$t = $tokens[$i];
 			if ( is_string( $t ) ) {
 				$buf = $t . $buf;
-			} elseif ( $t->getName() === 'wikilink' ) {
+			} elseif ( $t instanceof CommentTk ) {
+				$buf = WTSUtils::commentWT( $t->value ) . $buf;
+			} elseif ( $t instanceof XMLTagTk && $t->getName() === 'wikilink' ) {
 				$target = $t->getAttributeV( 'href' );
 				if ( is_array( $target ) ) {
 					// FIXME: Can lead to false negatives.
@@ -410,7 +413,7 @@ class WikitextEscapeHandlers {
 				// Assumes 'src' will always be present which it seems to be.
 				// Tests will fail if anything changes in the tokenizer.
 				$buf = $t->dataParsoid->src . $buf;
-			} elseif ( $t->getName() === 'extlink' ) {
+			} elseif ( $t instanceof XMLTagTk && $t->getName() === 'extlink' ) {
 				// Check if the extlink came from a template which in the end
 				// would not really parse as an extlink.
 
