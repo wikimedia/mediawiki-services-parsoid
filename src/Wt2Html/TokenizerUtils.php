@@ -307,7 +307,8 @@ class TokenizerUtils {
 				return false;
 
 			case '|':
-				return !$stops['annOrExtTag'] && (
+				$htmlOrEmpty = ( $stops['tagType'] === 'html' || $stops['tagType'] === '' );
+				return $htmlOrEmpty && (
 					$stops['templateArg']
 					|| $stops['tableCellArg']
 					|| $stops['linkdesc']
