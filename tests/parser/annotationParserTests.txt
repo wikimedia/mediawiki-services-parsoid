@@ -1122,10 +1122,10 @@ T396421: Permit annotation tags in extension tags
 !! options
 annotations=1
 !! wikitext
-<gallery caption="<dummyanno>Empty gallery</dummyanno>">
+<gallery caption="<dummyanno><!--T:1-->Empty gallery</dummyanno>">
 </gallery>
 !! html/parsoid
 <ul class="gallery mw-gallery-traditional" typeof="mw:Extension/gallery" about="#mwt1" data-mw='{"name":"gallery","attrs":{},"body":{}}'>
-<li class="gallerycaption"><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[18,29]}'/>Empty gallery<meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[42,54]}'/></li>
+<li class="gallerycaption"><meta typeof="mw:Annotation/dummyanno" data-mw='{"rangeId":"mwa0","extendedRange":false,"wtOffsets":[18,29]}'/><!--T:1-->Empty gallery<meta typeof="mw:Annotation/dummyanno/End" data-mw='{"wtOffsets":[52,64]}'/></li>
 </ul>
 !! end

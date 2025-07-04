@@ -100,7 +100,7 @@ class WikitextSerializer {
 	public Env $env;
 	private SerializerState $state;
 	public WikitextEscapeHandlers $wteHandlers;
-	private ?string $annotationTagRE = null;
+	private ?string $commentsOrAnnotationsRE = null;
 
 	/** Trace type for Env::trace() */
 	public string $logType;
@@ -118,9 +118,10 @@ class WikitextSerializer {
 		$this->wteHandlers = new WikitextEscapeHandlers( $env, $options['extName'] ?? null );
 
 		$annotationTags = $env->getSiteConfig()->getAnnotationTags();
-		if ( $annotationTags ) {
-			$this->annotationTagRE = "#(</?(?:" . implode( '|', $annotationTags ) . ")[^>]*>)#ui";
-		}
+		$this->commentsOrAnnotationsRE = "#(" .
+			Utils::COMMENT_REGEXP_FRAGMENT .
+			( $annotationTags ? "|</?(?:" . implode( '|', $annotationTags ) . ")[^>]*>" : '' ) .
+			")#ui";
 	}
 
 	/**
@@ -434,11 +435,10 @@ class WikitextSerializer {
 				// PORT-FIXME: is this type safe? $vv could be a ConstrainedText
 				if ( $vv !== null && strlen( $vv ) > 0 ) {
 					if ( !$vInfo['fromsrc'] ) {
-						if ( $this->annotationTagRE !== null ) {
-							$vs = preg_split( $this->annotationTagRE, $vv, -1, PREG_SPLIT_DELIM_CAPTURE );
-						} else {
-							$vs = [ $vv ];
-						}
+						$vs = preg_split(
+							$this->commentsOrAnnotationsRE, $vv, -1,
+							PREG_SPLIT_DELIM_CAPTURE
+						);
 						$vv = '';
 						foreach ( $vs as $i => $vsi ) {
 							if ( $i % 2 === 0 ) {
