@@ -1260,7 +1260,7 @@ class TestRunner {
 			try {
 				$this->envOptions = $defaultOpts;
 				$this->processTest( $test, $options );
-			} catch ( UnexpectedException $e ) {
+			} catch ( UnexpectedException ) {
 				// Exit unexpected
 				break;
 			}

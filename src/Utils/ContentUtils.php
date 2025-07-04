@@ -275,7 +275,7 @@ class ContentUtils {
 		Env $env, Node $rootNode, callable $dsrFunc, ParsoidExtensionAPI $extAPI
 	): void {
 		$convertNode = static function ( Node $node ) use (
-			$env, $extAPI, $dsrFunc, &$convertNode
+			$extAPI, $dsrFunc, &$convertNode
 		): void {
 			if ( !( $node instanceof Element ) ) {
 				return;

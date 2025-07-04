@@ -603,7 +603,7 @@ class WrapSectionsState {
 			$dataMw = new DataMw( [] );
 			$dataMw->parts = $parts;
 			DOMDataUtils::setDataMw( $wrapper, $dataMw );
-		} catch ( InternalException $e ) {
+		} catch ( InternalException ) {
 			// We don't have accurate template wrapping information.
 			// Set typeof to 'mw:Placeholder' since 'mw:Transclusion'
 			// typeof is not actionable without valid data-mw.

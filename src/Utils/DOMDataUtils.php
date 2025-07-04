@@ -1005,7 +1005,7 @@ class DOMDataUtils {
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
 	 * @param class-string<T>|Hint<T> $classHint
-	 * @return ?T The attribute value, or null if not present.
+	 * @return T|null The attribute value, or null if not present.
 	 */
 	public static function getAttributeObject(
 		Element $node, string $name, $classHint
@@ -1058,7 +1058,7 @@ class DOMDataUtils {
 	 * @param Element $node The node on which the attribute is to be found.
 	 * @param string $name The name of the attribute.
 	 * @param class-string<T>|Hint<T> $classHint
-	 * @return ?T The attribute value, or null if not present.
+	 * @return T|null The attribute value, or null if not present.
 	 */
 	public static function getAttributeObjectDefault(
 		Element $node, string $name, $classHint

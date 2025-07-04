@@ -85,6 +85,7 @@ class DataMwI18n implements RichCodecable {
 		return new DataMwI18n;
 	}
 
+	/** @return Hint<DataMwI18n> */
 	public static function hint(): Hint {
 		return Hint::build( self::class, Hint::ALLOW_OBJECT );
 	}

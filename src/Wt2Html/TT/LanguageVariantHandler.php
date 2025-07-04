@@ -186,7 +186,7 @@ class LanguageVariantHandler extends XMLTagBasedHandler {
 			) {
 				if ( isset( $dataMWV['add'] ) || isset( $dataMWV['remove'] ) ) {
 					$variants = [ '*' ];
-					$twoway = array_map( static function ( string $code ) use ( $texts, &$sawTwoway ) {
+					$twoway = array_map( static function ( string $code ) use ( $texts ) {
 						return [ 'l' => $code, 't' => $texts[0]['text'] ];
 					}, $variants );
 					$sawTwoway = true;

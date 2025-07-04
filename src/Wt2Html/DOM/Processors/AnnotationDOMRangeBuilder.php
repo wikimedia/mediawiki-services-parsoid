@@ -306,7 +306,7 @@ class AnnotationDOMRangeBuilder extends DOMRangeBuilder {
 	public function execute( Node $root ): void {
 		try {
 			$annRanges = $this->findWrappableMetaRanges( $root );
-		} catch ( RangeBuilderException $e ) {
+		} catch ( RangeBuilderException ) {
 			$this->env->log( 'warn', 'The annotation ranges could not be fully detected. ' .
 				' Annotation processing cancelled. ' );
 			return;

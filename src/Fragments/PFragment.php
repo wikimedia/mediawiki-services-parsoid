@@ -368,7 +368,10 @@ abstract class PFragment implements JsonCodecable {
 		];
 	}
 
-	/** @inheritDoc */
+	/**
+	 * @inheritDoc
+	 * @throws JsonException
+	 */
 	public static function newFromJsonArray( array $json ): PFragment {
 		foreach ( self::$FRAGMENT_TYPES as $c ) {
 			if ( isset( $json[$c::TYPE_HINT] ) ) {

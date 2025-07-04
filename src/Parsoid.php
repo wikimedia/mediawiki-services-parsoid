@@ -76,7 +76,7 @@ class Parsoid {
 				// handle the null return value as gracefully as
 				// possible for safety."
 				'null';
-		} catch ( \Throwable $t ) {
+		} catch ( \Throwable ) {
 			// Belt-and-suspenders protection against parts of the composer
 			// runtime API being absent in production.
 			return 'error';

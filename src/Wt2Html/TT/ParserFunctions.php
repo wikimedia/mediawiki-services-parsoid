@@ -261,7 +261,7 @@ class ParserFunctions {
 			try {
 				// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.eval
 				$res = eval( $target );
-			} catch ( \Exception $e ) {
+			} catch ( \Exception ) {
 				$res = null;
 			}
 		} else {
@@ -285,7 +285,7 @@ class ParserFunctions {
 			try {
 				// phpcs:ignore MediaWiki.Usage.ForbiddenFunctions.eval
 				$res = eval( $target );
-			} catch ( \Exception $e ) {
+			} catch ( \Exception ) {
 				return [ 'class="error" in expression ' . $target ];
 			}
 		}

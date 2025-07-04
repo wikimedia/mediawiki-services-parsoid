@@ -175,7 +175,7 @@ class Headings {
 		try {
 			$title = $env->makeTitleFromURLDecodedStr( "#{$text}" );
 			return $title->getFragment();
-		} catch ( TitleException $e ) {
+		} catch ( TitleException ) {
 			return $text;
 		}
 	}

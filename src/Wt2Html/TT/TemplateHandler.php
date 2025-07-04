@@ -407,7 +407,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		// normalize the target before template processing.
 		try {
 			$title = $env->resolveTitle( $target );
-		} catch ( TitleException $e ) {
+		} catch ( TitleException ) {
 			// Invalid template target!
 			return null;
 		}

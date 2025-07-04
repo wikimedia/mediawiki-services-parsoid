@@ -820,7 +820,7 @@ abstract class SiteConfig {
 			if ( $jsConfigVars ) {
 				$content = PHPUtils::jsonEncode( $jsConfigVars );
 			}
-		} catch ( \Exception $e ) {
+		} catch ( \Exception ) {
 			// Similar to ResourceLoader::makeConfigSetScript.  See T289358
 			$this->getLogger()->log(
 				LogLevel::WARNING,

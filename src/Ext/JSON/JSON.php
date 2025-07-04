@@ -164,7 +164,7 @@ class JSON extends ContentModelHandler implements ExtensionModule {
 		try {
 			$src = json_decode( $jsonText, false, 6, JSON_THROW_ON_ERROR );
 			self::rootValueTable( $body, $src );
-		} catch ( JsonException $e ) {
+		} catch ( JsonException ) {
 			DOMCompat::setInnerHTML( $body, self::PARSE_ERROR_HTML );
 		}
 

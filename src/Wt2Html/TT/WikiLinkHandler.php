@@ -357,7 +357,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 		try {
 			$target = $this->getWikiLinkTargetInfo( $token, $hrefTokenStr, $hrefKV->vsrc );
-		} catch ( TitleException | InternalException $e ) {
+		} catch ( TitleException | InternalException ) {
 			// Invalid title
 			return self::bailTokens( $this->manager, $token );
 		}
@@ -666,7 +666,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$newTk = new TagTk( 'a' );
 		try {
 			$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target, true );
-		} catch ( InternalException $e ) {
+		} catch ( InternalException ) {
 			return self::bailTokens( $this->manager, $token );
 		}
 
@@ -690,7 +690,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$newTk = new SelfclosingTagTk( 'link' );
 		try {
 			$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target );
-		} catch ( InternalException $e ) {
+		} catch ( InternalException ) {
 			return self::bailTokens( $this->manager, $token );
 		}
 		$env = $this->env;
@@ -772,7 +772,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$newTk = new SelfclosingTagTk( 'link', [], $token->dataParsoid );
 		try {
 			$this->addLinkAttributesAndGetContent( $newTk, $token, $target );
-		} catch ( InternalException $e ) {
+		} catch ( InternalException ) {
 			return self::bailTokens( $this->manager, $token );
 		}
 
@@ -824,7 +824,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 		$newTk = new TagTk( 'a', [], $token->dataParsoid );
 		try {
 			$content = $this->addLinkAttributesAndGetContent( $newTk, $token, $target, true );
-		} catch ( InternalException $e ) {
+		} catch ( InternalException ) {
 			return self::bailTokens( $this->manager, $token );
 		}
 
@@ -1655,7 +1655,7 @@ class WikiLinkHandler extends XMLTagBasedHandler {
 
 		try {
 			$content = $this->addLinkAttributesAndGetContent( $link, $token, $target );
-		} catch ( InternalException $e ) {
+		} catch ( InternalException ) {
 			return self::bailTokens( $this->manager, $token );
 		}
 

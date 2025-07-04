@@ -198,7 +198,7 @@ class TableFixups {
 		// same logic uniformly.
 
 		$traverse = static function ( ?Node $child ) use (
-			&$traverse, &$buf, &$frags, &$transclusions, $env
+			&$traverse, &$buf, &$frags, &$transclusions
 		): bool {
 			while ( $child ) {
 				if ( $child instanceof Comment ) {

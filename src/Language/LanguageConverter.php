@@ -136,7 +136,7 @@ class LanguageConverter {
 				$languageClass = self::classFromCode( $lang, $fallback );
 				return new $languageClass();
 			}
-		} catch ( \Error $e ) {
+		} catch ( \Error ) {
 			/* fall through */
 		}
 		$fallback = (string)$fallback;
