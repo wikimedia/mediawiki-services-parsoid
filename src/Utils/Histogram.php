@@ -30,7 +30,7 @@ class Histogram {
 				"skip" => 4
 			],
 			'wt2html_msPerKB' => [
-				"mean" => 0.02,
+				"mean" => 7.4,
 				"skip" => 4
 			],
 			'html2wt_size_input_bytes' => [
@@ -42,7 +42,7 @@ class Histogram {
 				"skip" => 4
 			],
 			'html2wt_msPerKB' => [
-				"mean" => 0.007,
+				"mean" => 0.8,
 				"skip" => 4
 			]
 		];
