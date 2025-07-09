@@ -1636,6 +1636,10 @@
         "html2html": "<p data-parsoid='{\"dsr\":[0,193,0,0]}'>ולדימיר לנין (ברוסית: <bdi lang=\"ru\" data-parsoid='{\"stx\":\"html\",\"dsr\":[39,87,15,6]}'>Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי.</p>",
         "html2wt": "ולדימיר לנין (ברוסית: <bdi lang=\"ru\">Владимир Ленин</bdi>, 24 באפריל 1870–22 בינואר 1924) הוא מנהיג פוליטי קומוניסטי רוסי."
     },
+    "percent-encoding and + signs in internal links (T28410)": {
+        "selser [[0,0,0,0,[3],2,[4],4,2,4,3,3,4,4,3,4,[[[4]]],2,0,0,4]]": "[[User:+%]] [[Page+title%]]\ng6ebew [[%+|102p4ly]]<nowiki/>x43yh1kpwnbz[[%+ ]]1iz2d212bu4rt1hl6hdav5u0kv[[File:%+abc%39|foo|[[bar]]]]164yade\n[[%33%45]] mdq65u",
+        "selser [[4,2,[4],2,[3],0,2,0,0,4,0,3,[4],2,1,0,0,4,0,0,2]]": "145pa6l129ts4i [[Page+title%|1wirx1k]]1gqpjm3\n40e2zd[[%+|%20]] [[%+ ]]15mcys[[%+r]][[%|1bzm99r]]11b6xgc [[+]] [[File:%+abc%39|foo|[[bar]]]]jk1r4l[[%33%45]] 1qjrzva[[%33%45+]]"
+    },
     "text with character entity: eacute": {
         "html2wt": "I always thought é was a cute letter.\n"
     },
