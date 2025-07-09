@@ -340,7 +340,10 @@ class TokenizerUtils {
 					&& !$stops['extlink']
 					&& !$stops['intemplate']
 					&& !$stops['linkdesc']
-					&& !( $stops['preproc'] === '}-' );
+					// ':' inside -{ .. }- or {{ .. }} should
+					// not trigger the colon break
+					&& $stops['preproc'] !== '}-'
+					&& $stops['preproc'] !== '}}';
 
 			case ';':
 				return $stops['semicolon'];
