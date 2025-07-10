@@ -408,7 +408,7 @@ inline_breaks =
 		h: <h>
 		extlink: <extlink>
 		intemplate: <intemplate>
-		preproc: <preproc>
+		preproc: <&preproc>
 		equal: <equal>
 		table: <table>
 		templateArg: <templateArg>
@@ -417,7 +417,7 @@ inline_breaks =
 		arrow: <arrow>
 		linkdesc: <linkdesc>
 		colon: <colon>
-		th: <th>
+		th: <&th>
 		& {
 			return TokenizerUtils::inlineBreaks( $this->input, $this->endOffset(), [
 				'annOrExtTag' => $annOrExtTag,
