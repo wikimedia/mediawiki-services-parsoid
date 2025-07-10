@@ -401,7 +401,7 @@ br =
 		] );
 	}
 
-inline_breaks =
+inline_breaks [cache=false] =
 	& [=|!{}:;\r\n[\]\-]
 	(
 		tagType: <tagType>
@@ -2642,26 +2642,26 @@ table_attribute_preprocessor_text_double =
 	}
 
 // Special-case support for those pipe templates
-pipe = "|" / "{{!}}"
+pipe [inline] = "|" / "{{!}}"
 
 // SSS FIXME: what about |{{!}} and {{!}}|
-pipe_pipe = "||" / "{{!}}{{!}}"
+pipe_pipe [inline] = "||" / "{{!}}{{!}}"
 
-space = [ \t]
+space [inline] = [ \t]
 
-optional_spaces = [ \t]*
+optional_spaces [inline] = [ \t]*
 
 // Start of file
-sof = & { return $this->endOffset() === 0 && !$this->pipelineOffset; }
+sof [inline] = & { return $this->endOffset() === 0 && !$this->pipelineOffset; }
 
 // End of file
-eof = & { return $this->endOffset() === $this->inputLength; }
+eof [inline] = & { return $this->endOffset() === $this->inputLength; }
 
-newline = '\n' / '\r\n'
+newline [inline] = '\n' / '\r\n'
 
-newlineToken = newline { return [ new NlTk( $this->tsrOffsets() ) ]; }
+newlineToken [inline] = newline { return [ new NlTk( $this->tsrOffsets() ) ]; }
 
-eolf = newline / eof
+eolf [inline] = newline / eof
 
 // The old parser does a straight str.replace(/<!--((?!-->).)*-->/g, "")
 // but, as always, things around here are a little more complicated.
@@ -2681,11 +2681,11 @@ comment =
 		return [ new CommentTk( $data, $dp ) ];
 	}
 
-space_or_comment = space / comment
+space_or_comment [inline] = space / comment
 
-nl_comment_space = newlineToken / space_or_comment
+nl_comment_space [inline] = newlineToken / space_or_comment
 
-optionalSpaceToken =
+optionalSpaceToken [inline] =
 	s:$optional_spaces {
 		if ( $s !== '' ) {
 			return [ $s ];
@@ -2700,35 +2700,35 @@ optionalSpaceToken =
  * of Perl, which PHP inherited via the PCRE (Perl-Compatible Regular
  * Expressions) library.
  */
-space_or_newline = [ \t\n\r\x0c]
+space_or_newline [inline] = [ \t\n\r\x0c]
 
 /* This rule corresponds to \b in the PHP preg_* functions,
  * after a word character.  That is, it's a zero-width lookahead that
  * the next character is not a word character.
  */
-end_of_word = eof / ![A-Za-z0-9_]
+end_of_word [inline] = eof / ![A-Za-z0-9_]
 
 // Unicode "separator, space" category.  It covers the \u0020 space as well
 // as \u3000 IDEOGRAPHIC SPACE (see bug 19052).  In PHP this is \p{Zs}.
 // Keep this up-to-date with the characters tagged ;Zs; in
 // http://www.unicode.org/Public/UNIDATA/UnicodeData.txt
-unispace = [ \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
+unispace [inline] = [ \u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]
 
 // Non-newline whitespace, including non-breaking spaces.  Used for magic links.
-space_or_nbsp =
+space_or_nbsp [inline] =
 	space // includes \t
 	/ unispace
 	/ & "&" he:htmlentity &{ return is_array( $he ) && $he[ 1 ] === "\u{A0}"; }
 	{ return $he; }
 
 // Used within ISBN magic links
-space_or_nbsp_or_dash =
+space_or_nbsp_or_dash [inline] =
 	space_or_nbsp / "-"
 
 // Elements that do not break beginning or end of line for blocks (headers for instance)
 sol_transparent = comment / include_limits / annotation_tag / behavior_switch
 
-sol =
+sol [inline] =
   // optimization: fail fast before putting more entries in the backtracking cache
   &{ return $this->endOffset() === 0 || strspn($this->input, "\r\n", $this->currPos, 1) > 0; }
     sp:sol_prefix elc:empty_lines_with_comments? st:sol_transparent* {
@@ -2736,7 +2736,7 @@ sol =
 	return [ $sp, $elc ?? [], $st ];
 }
 
-sol_prefix =
+sol_prefix [inline] =
 	newlineToken
 	/ & {
 		// Use the sol flag only at the start of the input
