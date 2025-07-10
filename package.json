@@ -15,7 +15,7 @@
 		"semver": "^6.1.0",
 		"simplediff": "^0.1.1",
 		"wikimedia-langconv": "^0.1.0",
-		"wikipeg": "git+https://gerrit.wikimedia.org/r/wikipeg#572472f747b0abed0c38e7d2ecfd6366138f3ab6",
+		"wikipeg": "git+https://gerrit.wikimedia.org/r/wikipeg#04185b9e37f82df259f3280a6e71c0057c52e460",
 		"yargs": "^16.2.0"
 	},
 	"devDependencies": {
