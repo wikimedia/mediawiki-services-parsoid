@@ -6,7 +6,7 @@ namespace Wikimedia\Parsoid\Utils;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\Config\PageConfig;
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\Html2Wt\DiffUtils;
 use Wikimedia\Parsoid\Html2Wt\DOMDiff;
@@ -22,8 +22,8 @@ class ComputeSelectiveStats {
 	/** @return array<string,string> */
 	public static function classify(
 		Env $env,
-		?PageConfig $oldPage, ?PageBundle $oldPb,
-		PageConfig $newPage, PageBundle $newPb
+		?PageConfig $oldPage, ?HtmlPageBundle $oldPb,
+		PageConfig $newPage, HtmlPageBundle $newPb
 	): array {
 		// Default labels (ensure keys are consistent & in consistent order)
 		$labels = [
@@ -62,8 +62,8 @@ class ComputeSelectiveStats {
 		}
 
 		// Parse to DOM and diff
-		$oldDoc = DomPageBundle::fromPageBundle( $oldPb )->toDom();
-		$newDoc = DomPageBundle::fromPageBundle( $newPb )->toDom();
+		$oldDoc = DomPageBundle::fromHtmlPageBundle( $oldPb )->toDom();
+		$newDoc = DomPageBundle::fromHtmlPageBundle( $newPb )->toDom();
 		$dd = new DOMDiff( $env );
 		// Don't skip over template content!
 		$dd->skipEncapsulatedContent = false;

@@ -17,7 +17,7 @@ use Wikimedia\JsonCodec\JsonCodecableTrait;
  * array" form; that is, they are flat arrays appropriate for json-encoding
  * and do not contain DataParsoid or DataMw objects.
  *
- * See DomPageBundle and PageBundle for similar structures which include
+ * See DomPageBundle and HtmlPageBundle for similar structures which include
  * the actual HTML/DOM content.
  */
 class BasePageBundle implements JsonCodecable {
