@@ -138,6 +138,7 @@ $cfg['exclude_file_list'][] = "src/Wt2Html/TracingGrammar.php";
 $cfg['exclude_file_list'][] = "src/ParserTests/Grammar.php";
 // Exclude aliases
 $cfg['exclude_file_list'][] = "src/Wt2Html/XMLSerializer.php";
+$cfg['exclude_file_list'][] = "src/Core/PageBundle.php";
 
 // FIXME: Temporary?
 $cfg['suppress_issue_types'][] = 'PhanTypeArraySuspiciousNullable';

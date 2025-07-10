@@ -24,7 +24,7 @@ use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
  * array" form; that is, they are flat arrays appropriate for json-encoding
  * and do not contain DataParsoid or DataMw objects.
  *
- * See PageBundle for a similar structure used where the HTML DOM has been
+ * See HtmlPageBundle for a similar structure used where the HTML DOM has been
  * serialized into a string.
  */
 class DomPageBundle extends BasePageBundle {
@@ -72,12 +72,12 @@ class DomPageBundle extends BasePageBundle {
 	}
 
 	/**
-	 * Create a DomPageBundle from a PageBundle.
+	 * Create a DomPageBundle from a HtmlPageBundle.
 	 *
-	 * This simply parses the HTML string from the PageBundle, preserving
+	 * This simply parses the HTML string from the HtmlPageBundle, preserving
 	 * the metadata.
 	 */
-	public static function fromPageBundle( PageBundle $pb ): DomPageBundle {
+	public static function fromHtmlPageBundle( HtmlPageBundle $pb ): DomPageBundle {
 		return new DomPageBundle(
 			DOMUtils::parseHTML( $pb->html ),
 			$pb->parsoid,
@@ -86,6 +86,11 @@ class DomPageBundle extends BasePageBundle {
 			$pb->headers,
 			$pb->contentmodel
 		);
+	}
+
+	/** @deprecated since 0.22; use ::fromHtmlPageBundle */
+	public static function fromPageBundle( HtmlPageBundle $pb ): DomPageBundle {
+		return self::fromHtmlPageBundle( $pb );
 	}
 
 	/**
@@ -313,12 +318,12 @@ class DomPageBundle extends BasePageBundle {
 	/** @inheritDoc */
 	public function toJsonArray(): array {
 		Assert::invariant( !$this->invalid, "invalidated" );
-		return PageBundle::fromDomPageBundle( $this )->toJsonArray();
+		return HtmlPageBundle::fromDomPageBundle( $this )->toJsonArray();
 	}
 
 	/** @inheritDoc */
 	public static function newFromJsonArray( array $json ): DomPageBundle {
-		$pb = PageBundle::newFromJsonArray( $json );
-		return self::fromPageBundle( $pb );
+		$pb = HtmlPageBundle::newFromJsonArray( $json );
+		return self::fromHtmlPageBundle( $pb );
 	}
 }

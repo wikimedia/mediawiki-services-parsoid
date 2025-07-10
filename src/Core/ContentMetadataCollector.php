@@ -17,7 +17,7 @@ namespace Wikimedia\Parsoid\Core;
  * In core this is implemented by ParserOutput.  Core uses
  * ParserOutput to record the rendered HTML (and rendered table of
  * contents HTML), but on the Parsoid side we're going to keep
- * rendered HTML DOM out of this interface (we use PageBundle for
+ * rendered HTML DOM out of this interface (we use HtmlPageBundle for
  * this).
  */
 interface ContentMetadataCollector {

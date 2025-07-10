@@ -17,7 +17,7 @@ use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Config\StubMetadataCollector;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\Core\ResourceLimitExceededException;
 use Wikimedia\Parsoid\Core\SelectiveUpdateData;
 use Wikimedia\Parsoid\DOM\Document;
@@ -243,14 +243,14 @@ class Parsoid {
 	 *                             update, and could even be from a "newer"
 	 *                             revision (if this is a render of an old
 	 *                             revision).
-	 *   'previousOutput'       => (?PageBundle) output of the prior parse of
+	 *   'previousOutput'       => (?HtmlPageBundle) output of the prior parse of
 	 *                             'previousInput'
 	 * ]
 	 * @param ?array &$headers
 	 * @param ?ContentMetadataCollector $metadata Pass in a CMC in order to
 	 *  collect and retrieve metadata about the parse.
 	 * @param ?SelectiveUpdateData $selparData
-	 * @return PageBundle|string
+	 * @return HtmlPageBundle|string
 	 */
 	public function wikitext2html(
 		PageConfig $pageConfig, array $options = [], ?array &$headers = null,
@@ -285,7 +285,7 @@ class Parsoid {
 
 		if ( $env->pageBundle ) {
 			$out = [
-				'pb' => PageBundle::fromDomPageBundle( $env->pageBundle, [
+				'pb' => HtmlPageBundle::fromDomPageBundle( $env->pageBundle, [
 					'body_only' => $body_only,
 					'contentversion' => $env->getOutputContentVersion(),
 					'headers' => $headers,
@@ -403,7 +403,7 @@ class Parsoid {
 		try {
 			// create new page bundle for this computation to ensure we
 			// don't inadvertently corrupt the main document result.
-			$newPb = new PageBundle(
+			$newPb = new HtmlPageBundle(
 				$out['html'],
 				$out['pb']->parsoid ?? null, $out['pb']->mw ?? null,
 				$env->getOutputContentVersion(),
@@ -455,7 +455,7 @@ class Parsoid {
 	 * Serialize DOM to wikitext.
 	 *
 	 * @param PageConfig $pageConfig
-	 * @param Document|PageBundle|DomPageBundle $doc This is either a page
+	 * @param Document|HtmlPageBundle|DomPageBundle $doc This is either a page
 	 *   bundle or a "naive" DOM without special handling of
 	 *   data-parsoid/data-mw etc.  A naive DOM can either be in "single
 	 *   document" form (data attributes in an element in the <head>) or in
@@ -575,7 +575,7 @@ class Parsoid {
 	}
 
 	/**
-	 * Update the supplied PageBundle based on the `$update` type.
+	 * Update the supplied HtmlPageBundle based on the `$update` type.
 	 *
 	 *   'convertoffsets': Convert offsets between formats (byte, char, ucs2)
 	 *   'redlinks': Refreshes the classes of known, missing, etc. links.
@@ -585,14 +585,14 @@ class Parsoid {
 	 *
 	 * @param PageConfig $pageConfig
 	 * @param string $update 'redlinks'|'variant'
-	 * @param PageBundle|DomPageBundle $pb
+	 * @param HtmlPageBundle|DomPageBundle $pb
 	 * @param array $options
-	 * @return PageBundle
+	 * @return HtmlPageBundle
 	 */
 	public function pb2pb(
 		PageConfig $pageConfig, string $update, $pb,
 		array $options = []
-	): PageBundle {
+	): HtmlPageBundle {
 		$envOptions = [
 			'pageBundle' => true,
 			'topLevelDoc' => self::prepareAndLoadDocOrBundle( $pb ),
@@ -606,7 +606,7 @@ class Parsoid {
 		switch ( $update ) {
 			case 'convertoffsets':
 				// This method also calls Env::setCurrentOffsetType, which
-				// is used by PageBundle::fromDomPageBundle() below to set
+				// is used by HtmlPageBundle::fromDomPageBundle() below to set
 				// 'offsetType' in the 'parsoid' property of the page bundle
 				ContentUtils::convertOffsets(
 					$env, $doc, $options['inputOffsetType'], $options['outputOffsetType']
@@ -677,7 +677,7 @@ class Parsoid {
 					DOMDataUtils::usedIdIndex( $env, $doc ) : null,
 			]
 		);
-		return PageBundle::fromDomPageBundle( $env->pageBundle, [
+		return HtmlPageBundle::fromDomPageBundle( $env->pageBundle, [
 			'body_only' => !empty( $options['body_only'] ),
 			// Prefer the passed in version, since this was just a transformation
 			'contentversion' => $pb->version ?? $env->getOutputContentVersion(),
@@ -715,10 +715,10 @@ class Parsoid {
 	 * Downgrade a document to an older content version.
 	 *
 	 * @param string[] $dg Value returned by findDowngrade().
-	 * @param PageBundle $pageBundle
+	 * @param HtmlPageBundle $pageBundle
 	 */
 	public static function downgrade(
-		array $dg, PageBundle $pageBundle
+		array $dg, HtmlPageBundle $pageBundle
 	): void {
 		foreach ( self::DOWNGRADES as [ 'from' => $dgFrom, 'to' => $dgTo, 'func' => $dgFunc ] ) {
 			if ( $dg['from'] === $dgFrom && $dg['to'] === $dgTo ) {
@@ -768,19 +768,19 @@ class Parsoid {
 	/**
 	 * Downgrade the given document and pagebundle from 999.x to 2.x.
 	 *
-	 * @param PageBundle $pageBundle
+	 * @param HtmlPageBundle $pageBundle
 	 */
-	private static function downgrade999to2( PageBundle $pageBundle ): void {
+	private static function downgrade999to2( HtmlPageBundle $pageBundle ): void {
 		// Effectively, skip applying data-parsoid.  Note that if we were to
 		// support a pb2html downgrade, we'd need to apply the full thing,
 		// but that would create complications where ids would be left behind.
-		// See the comment in around `DOMDataUtils::applyPageBundle`
-		$newPageBundle = new PageBundle(
+		// See the doc comment for `DomPageBundle::apply()`
+		$newHtmlPageBundle = new HtmlPageBundle(
 			$pageBundle->html,
 			null,
 			$pageBundle->mw
 		);
-		$pageBundle->html = $newPageBundle->toInlineAttributeHtml();
+		$pageBundle->html = $newHtmlPageBundle->toInlineAttributeHtml();
 
 		// Now, modify the pagebundle to the expected form.  This is important
 		// since, at least in the serialization path, the original pb will be
@@ -793,7 +793,7 @@ class Parsoid {
 	 * Convert an input document in a variety of formats (page bundle, etc)
 	 * to a "prepared and loaded" document suitable to be given to
 	 * Env::setupTopLevelDoc()
-	 * @param Document|PageBundle|DomPageBundle $topLevelDoc
+	 * @param Document|HtmlPageBundle|DomPageBundle $topLevelDoc
 	 * @return Document
 	 */
 	private static function prepareAndLoadDocOrBundle( $topLevelDoc ): Document {
@@ -805,9 +805,9 @@ class Parsoid {
 		) {
 			$topLevelDoc = DomPageBundle::fromSingleDocument( $topLevelDoc );
 		}
-		// Convert a PageBundle (string html) to a DomPageBundle (DOM)
-		if ( $topLevelDoc instanceof PageBundle ) {
-			$topLevelDoc = DomPageBundle::fromPageBundle( $topLevelDoc );
+		// Convert a HtmlPageBundle (string html) to a DomPageBundle (DOM)
+		if ( $topLevelDoc instanceof HtmlPageBundle ) {
+			$topLevelDoc = DomPageBundle::fromHtmlPageBundle( $topLevelDoc );
 		}
 		// Use DomPageBundle::toDom() to efficiently apply and load
 		// (without necessarily having to add attributes to the DOM)
