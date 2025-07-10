@@ -407,7 +407,6 @@ inline_breaks =
 		annOrExtTag: <annOrExtTag>
 		h: <h>
 		extlink: <extlink>
-		intemplate: <intemplate>
 		preproc: <&preproc>
 		equal: <equal>
 		table: <table>
@@ -423,7 +422,6 @@ inline_breaks =
 				'annOrExtTag' => $annOrExtTag,
 				'h' => $h,
 				'extlink' => $extlink,
-				'intemplate' => $intemplate,
 				'preproc' => $preproc,
 				'equal' => $equal,
 				'table' => $table,
@@ -832,15 +830,13 @@ ipv6urladdr =
  */
 tplarg_or_template =
 	&'{{'
-	t:tplarg_or_template_guarded<intemplate=true> {
-		return $t;
-	}
-
-tplarg_or_template_guarded =
-	&('{{' &('{{{'+ !'{') tplarg) a:(template/broken_template) { return $a; }
-	/ a:$('{' &('{{{'+ !'{'))? b:tplarg { return [ $a, $b ]; }
-	/ a:$('{' &('{{' !'{'))? b:template { return [ $a, $b ]; }
-	/ broken_template
+	t:(
+		&('{{' &('{{{'+ !'{') tplarg) a:(template/broken_template) { return $a; }
+		/ a:$('{' &('{{{'+ !'{'))? b:tplarg { return [ $a, $b ]; }
+		/ a:$('{' &('{{' !'{'))? b:template { return [ $a, $b ]; }
+		/ broken_template
+	)
+	{ return $t; }
 
 tplarg_or_template_or_bust =
 	r:(tplarg_or_template / .)+ { return TokenizerUtils::flattenIfArray( $r ); }

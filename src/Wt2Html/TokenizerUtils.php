@@ -318,7 +318,7 @@ class TokenizerUtils {
 
 			case '!':
 				return $stops['th']
-					&& !$stops['intemplate']
+					&& $stops['preproc'] !== '}}'
 					&& $c2 === '!';
 
 			case '{':
@@ -338,7 +338,6 @@ class TokenizerUtils {
 			case ':':
 				return $stops['colon']
 					&& !$stops['extlink']
-					&& !$stops['intemplate']
 					&& !$stops['linkdesc']
 					// ':' inside -{ .. }- or {{ .. }} should
 					// not trigger the colon break
