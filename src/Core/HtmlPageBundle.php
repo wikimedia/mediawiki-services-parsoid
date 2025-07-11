@@ -28,7 +28,9 @@ class HtmlPageBundle extends BasePageBundle {
 		public string $html,
 		?array $parsoid = null, ?array $mw = null,
 		?string $version = null, ?array $headers = null,
-		?string $contentmodel = null
+		?string $contentmodel = null,
+		/** @var array<string,string> Additional named HTML fragments. */
+		public array $fragments = [],
 	) {
 		parent::__construct(
 			parsoid: $parsoid,
@@ -135,19 +137,24 @@ class HtmlPageBundle extends BasePageBundle {
 	 * @return self
 	 */
 	public static function fromDomPageBundle( DomPageBundle $dpb, array $options = [] ): self {
+		$fragments = array_map(
+			static fn ( $f ) => XHtmlSerializer::serialize( $f, $options )['html'],
+			$dpb->fragments
+		);
 		$node = $dpb->doc;
 		if ( $options['body_only'] ?? false ) {
 			$node = DOMCompat::getBody( $dpb->doc );
 			$options += [ 'innerXML' => true ];
 		}
-		$out = XHtmlSerializer::serialize( $node, $options );
+		$out = XHtmlSerializer::serialize( $node, $options )['html'];
 		$pb = new self(
-			$out['html'],
+			$out,
 			$dpb->parsoid,
 			$dpb->mw,
 			$dpb->version ?? $options['contentversion'] ?? null,
 			$dpb->headers ?? $options['headers'] ?? null,
-			$dpb->contentmodel ?? $options['contentmodel'] ?? null
+			$dpb->contentmodel ?? $options['contentmodel'] ?? null,
+			$fragments,
 		);
 		if ( isset( $options['offsetType'] ) ) {
 			$pb->parsoid['offsetType'] ??= $options['offsetType'];
@@ -181,9 +188,13 @@ class HtmlPageBundle extends BasePageBundle {
 
 	/** @inheritDoc */
 	public function toJsonArray(): array {
-		return [
+		$result = [
 			'html' => $this->html,
 		] + parent::toJsonArray();
+		if ( $this->fragments ) {
+			$result['fragments'] = $this->fragments;
+		}
+		return $result;
 	}
 
 	/** @inheritDoc */
@@ -194,7 +205,8 @@ class HtmlPageBundle extends BasePageBundle {
 			mw: $json['mw'] ?? null,
 			version: $json['version'] ?? null,
 			headers: $json['headers'] ?? null,
-			contentmodel: $json['contentmodel'] ?? null
+			contentmodel: $json['contentmodel'] ?? null,
+			fragments: $json['fragments'] ?? [],
 		);
 	}
 }
