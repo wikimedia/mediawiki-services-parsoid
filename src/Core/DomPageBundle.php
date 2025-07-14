@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -105,6 +106,17 @@ class DomPageBundle extends BasePageBundle {
 	/**
 	 * Return a DOM from the contents of this page bundle.
 	 *
+	 * @note Although technically the Document and DocumentFragments
+	 * held by the DomPageBundle are the same as the Document and
+	 * DocumentFragments returned from this method, the former are not
+	 * directly usable (parsoid/mw attributes are not loaded or present
+	 * in inline attributes) while the latter are.  It is recommended
+	 * that you treat the Document/DocumentFragment held by the DomPageBundle
+	 * and the Document/DocumentFragment returned by this method as separate
+	 * objects and consider the DomPageBundle "used up" and invalid once
+	 * ::toDom() is called.
+	 *
+	 * @param bool $load
 	 * If `$load` is true (the default), the returned DOM will be prepared
 	 * and loaded using `$options`.
 	 *
@@ -112,10 +124,16 @@ class DomPageBundle extends BasePageBundle {
 	 * page bundle will be converted to inline attributes in the DOM.  This
 	 * process is less efficient than preparing and loading the document
 	 * directly from the DOM and should be avoided if possible.
+	 * @param ?array $options Additional options to
+	 *  DOMDataUtils::visitAndLoadDataAttribs, used when $load is true.
+	 * @param ?array<string,DocumentFragment> &$fragments Additional fragments
+	 *  present in the page bundle, which will also be loaded as necessary.
+	 *  This is an output parameter.
 	 */
-	public function toDom( bool $load = true, ?array $options = null, array &$fragments = [] ): Document {
+	public function toDom( bool $load = true, ?array $options = null, ?array &$fragments = null ): Document {
 		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->doc;
+		$fragments = [];
 		if ( $load ) {
 			$options ??= [];
 			DOMDataUtils::prepareDoc( $doc );
@@ -257,11 +275,14 @@ class DomPageBundle extends BasePageBundle {
 			$metadata->headers ?? $options['headers'] ?? null,
 			$metadata->contentmodel ?? $options['contentmodel'] ?? null
 		);
-		// XXX We can't create a full idIndex unless we can traverse
+		// We can't create a full idIndex unless we can traverse
 		// extension content, which requires an Env or a ParsoidExtensionAPI,
 		// but as long as your extension content doesn't contain IDs beginning
 		// with 'mw' you'll be fine.
-		$env = $options['env'] ?? $options['extAPI'] ?? null;
+		// Providing a `siteConfig` ought to be sufficient, since we just
+		// need access to the registered extension and fragment handlers.
+		$env = $options['env'] ?? $options['extAPI'] ??
+			new MockEnv( [ 'siteConfig' => $options['siteConfig'] ?? null ] );
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->version,
@@ -303,10 +324,12 @@ class DomPageBundle extends BasePageBundle {
 	 * Convert this DomPageBundle to "inline attribute" form, where page bundle
 	 * information is represented as inline JSON-valued attributes.
 	 * @param array $options XHtmlSerializer options
-	 * @param array<string,string> &$fragments
+	 * @param array<string,string>|null &$fragments Additional fragments from the
+	 *  page bundle which will also be serialized to HTML strings.
+	 *  This is an output parameter.
 	 * @return string an HTML string
 	 */
-	public function toInlineAttributeHtml( array $options = [], array &$fragments = [] ): string {
+	public function toInlineAttributeHtml( array $options = [], ?array &$fragments = null ): string {
 		Assert::invariant( !$this->invalid, "invalidated" );
 		$doc = $this->toDom( false, null, $fragments );
 		foreach ( $fragments as $name => $f ) {
