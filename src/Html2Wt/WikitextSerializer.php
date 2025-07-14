@@ -390,14 +390,13 @@ class WikitextSerializer {
 			if ( $k === 'class'
 				 && isset( Consts::$Output['FlaggedEmptyElts'][DOMCompat::nodeName( $node )] )
 			) {
-				// Overwrite $v.  Cleanup::handleEmptyElements won't add the
-				// mw-empty-elt class if the node had attributes to begin with
-				// (particularly a "class" attribute) but an edit may have
-				// made this multi-valued so attempt to serialize that.  It's
-				// a bit ambiguous what to do here since this won't html2html
-				// with the mw-empty-elt anymore.  It might be better to force
-				// clients to remove mw-empty-elt if they want to add a class.
-				$v = preg_replace( '/\bmw-empty-elt\b/', '', $v, 1 );
+				// Overwrite $v.  Cleanup::handleEmptyElements may have made
+				// this multivalued.  It's a bit ambiguous what to do here
+				// if a client added a class to an mw-empty-elt since, for the
+				// most part, it won't html2html with the mw-empty-elt anymore.
+				// It might be better to force clients to remove mw-empty-elt
+				// if they want to add a class though.
+				$v = preg_replace( '/\b ?mw-empty-elt\b/', '', $v, 1 );
 				if ( !$v ) {
 					continue;
 				}

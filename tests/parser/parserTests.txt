@@ -13656,7 +13656,7 @@ Accept empty attributes in th-cells
 </th></tr></tbody></table>
 !! end
 
-!!test
+!! test
 Empty table rows go away
 !! wikitext
 {|
@@ -13665,7 +13665,7 @@ Empty table rows go away
 |- class="foo"
 |-
 |}
-!! html
+!! html/php
 <table>
 <tbody><tr>
 <td>Hello
@@ -13674,6 +13674,12 @@ Empty table rows go away
 </td></tr>
 
 </tbody></table>
+!! html/parsoid
+<table>
+<tbody><tr><td>Hello</td>
+<td>there</td></tr>
+<tr class="foo mw-empty-elt"></tr>
+<tr class="mw-empty-elt"></tr>
 !! end
 
 ###

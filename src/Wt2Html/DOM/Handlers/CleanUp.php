@@ -135,15 +135,21 @@ class CleanUp {
 		) {
 			return true;
 		}
-		foreach ( DOMCompat::attributes( $node ) as $name => $_value ) {
-			// Skip the Parsoid-added data attribute and template-wrapping attributes
-			if ( $name === DOMDataUtils::DATA_OBJECT_ATTR_NAME ||
-				( ( $state->tplInfo ?? null ) && isset( self::ALLOWED_TPL_WRAPPER_ATTRS[$name] ) )
-			) {
-				continue;
-			}
 
-			return true;
+		// While RemexCompatFormatter::element in the legacy parser will only
+		// mark these nodes as empty elements if they don't have any
+		// attributes, Parser::handleTables will drop empty wikitext syntax
+		// trs, regardless of attributes.
+		if ( DOMCompat::nodeName( $node ) !== 'tr' || WTUtils::isLiteralHTMLNode( $node ) ) {
+			foreach ( DOMCompat::attributes( $node ) as $name => $_value ) {
+				// Skip the Parsoid-added data attribute and template-wrapping attributes
+				if ( $name === DOMDataUtils::DATA_OBJECT_ATTR_NAME ||
+					( ( $state->tplInfo ?? null ) && isset( self::ALLOWED_TPL_WRAPPER_ATTRS[$name] ) )
+				) {
+					continue;
+				}
+				return true;
+			}
 		}
 
 		/**
