@@ -33,6 +33,7 @@ abstract class ExtensionTagHandler {
 	 *   `DocumentFragment` if returning some parsed content
 	 *   `false` to fallback to the default handler for the content
 	 *   `null` to drop the instance completely
+	 * @throws ExtensionError
 	 */
 	public function sourceToDom(
 		ParsoidExtensionAPI $extApi, string $content, array $args
