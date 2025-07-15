@@ -79,11 +79,10 @@ class DOMTraverser {
 		// return a different node which aborts processing. By processing
 		// attributes first, we ensure attribute are always processed.
 		if ( $node instanceof Element && $this->applyToAttributeEmbeddedHTML ) {
-			$self = $this;
 			ContentUtils::processAttributeEmbeddedDom(
 				$extAPI,
 				$node,
-				static function ( DocumentFragment $dom ) use ( $self, $extAPI, $state ) {
+				function ( DocumentFragment $dom ) use ( $extAPI, $state ) {
 					// We are processing a nested document (which by definition
 					// is not a top-level document).
 					// FIXME:
@@ -99,7 +98,7 @@ class DOMTraverser {
 					//    traversal object here and that feels a little bit "more correct"
 					//    than reusing partial state.
 					$newState = $state ? new DTState( $state->env, $state->options, false ) : null;
-					$self->traverse( $extAPI, $dom, $newState );
+					$this->traverse( $extAPI, $dom, $newState );
 					return true; // $dom might have been changed
 				}
 			);

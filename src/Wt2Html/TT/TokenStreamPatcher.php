@@ -66,11 +66,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * @inheritDoc
 	 */
 	public function onNewline( NlTk $token ): ?array {
-		$self = $this;
 		$this->env->trace( 'tsp', $this->pipelineId,
-			static function () use ( $self, $token ) {
-				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
-					";sol=" . ( $self->sol ? "yes" : "no " ) . ') ' .
+			function () use ( $token ) {
+				return "(indep=" . ( $this->inIndependentParse ? "yes" : "no " ) .
+					";sol=" . ( $this->sol ? "yes" : "no " ) . ') ' .
 					PHPUtils::jsonEncode( $token );
 			}
 		);
@@ -185,11 +184,10 @@ class TokenStreamPatcher extends LineBasedHandler {
 	 * @return ?array<string|Token>
 	 */
 	public function onAnyInternal( $token ): ?array {
-		$self = $this;
 		$this->env->trace( 'tsp', $this->pipelineId,
-			static function () use ( $self, $token ) {
-				return "(indep=" . ( $self->inIndependentParse ? "yes" : "no " ) .
-					";sol=" . ( $self->sol ? "yes" : "no " ) . ') ' .
+			function () use ( $token ) {
+				return "(indep=" . ( $this->inIndependentParse ? "yes" : "no " ) .
+					";sol=" . ( $this->sol ? "yes" : "no " ) . ') ' .
 					PHPUtils::jsonEncode( $token );
 			}
 		);
