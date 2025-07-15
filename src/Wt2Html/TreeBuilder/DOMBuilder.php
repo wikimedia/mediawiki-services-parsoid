@@ -17,6 +17,7 @@ class DOMBuilder extends RemexDOMBuilder {
 			'suppressIdAttribute' => !DOMCompat::isUsing84Dom(),
 			'domExceptionClass' => DOMException::class,
 			'domImplementationClass' => DOMImplementation::class,
+			'suppressHtmlNamespace' => true,
 		] : [
 			'suppressHtmlNamespace' => true,
 		] );

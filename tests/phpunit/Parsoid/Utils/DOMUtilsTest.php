@@ -5,6 +5,7 @@ namespace Test\Parsoid\Utils;
 
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
  * @coversDefaultClass  \Wikimedia\Parsoid\Utils\DOMUtils
@@ -355,4 +356,13 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 		$this->assertTrue( DOMUtils::hasClass( $el, '\\d' ) );
 	}
 
+	/**
+	 * @covers ::parseHTML
+	 */
+	public function testParseHTML() {
+		$doc = DOMUtils::parseHtml( '<mw:editsection>foo</mw:editsection>' );
+		$body = DOMCompat::getBody( $doc );
+		$html = XHtmlSerializer::serialize( $body, [ 'innerXML' => true ] )['html'];
+		$this->assertEquals( '<mw:editsection>foo</mw:editsection>', $html );
+	}
 }
