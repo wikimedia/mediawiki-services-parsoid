@@ -95,12 +95,11 @@ foreach ( $allLangs as $lang ) {
 			$cssRules = [];
 			$cssRules[] = "system: numeric;";
 			$cssRules[] = "symbols: " . implode(
+				' ',
 				array_map(
-					static function ( $digit ) {
-						return "'" . $digit . "'";
-					},
-					$digits ),
-				' ' ) . ';';
+					static fn ( $digit ) => "'$digit'",
+					$digits
+				) ) . ';';
 			$out[] = wfGetCSS( $cssSel, $cssRules );
 		}
 		$out[] = wfGetCSS(
@@ -121,5 +120,5 @@ foreach ( $allLangs as $lang ) {
 				" '$separator' counter( mw-ref-linkback, $counterType );" ]
 		);
 	}
-	file_put_contents( "./tools/cite_css/ext.cite.style.$lang.css", implode( $out, "\n" ) );
+	file_put_contents( "./tools/cite_css/ext.cite.style.$lang.css", implode( "\n", $out ) );
 }
