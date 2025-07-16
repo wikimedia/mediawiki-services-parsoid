@@ -17,20 +17,17 @@ use Wikimedia\Parsoid\NodeData\DataMwError;
  */
 class ExtensionError extends Exception {
 
-	/**
-	 * @var DataMwError
-	 */
-	public $err;
+	public readonly DataMwError $err;
 
 	/**
-	 * @param string $key
+	 * @param DataMwError|string $key
 	 * @param mixed ...$params
 	 */
 	public function __construct(
-		string $key = 'mw-extparse-error', ...$params
+		DataMwError|string $key = 'mw-extparse-error', ...$params
 	) {
 		parent::__construct();
-		$this->err = new DataMwError( $key, $params );
+		$this->err = $key instanceof DataMwError ? $key : new DataMwError( $key, $params );
 	}
 
 }

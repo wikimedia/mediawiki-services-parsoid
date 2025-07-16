@@ -116,13 +116,14 @@ class ParsoidExtensionAPI {
 	 * with the localized message.  See T266666
 	 *
 	 * @unstable
-	 * @param string $key
+	 * @param DataMwError|string $key
 	 * @param mixed ...$params
 	 * @return DocumentFragment
 	 */
-	public function pushError( string $key, ...$params ): DocumentFragment {
-		$this->errors[] = new DataMwError( $key, $params );
-		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $key, $params );
+	public function pushError( DataMwError|string $key, ...$params ): DocumentFragment {
+		$err = $key instanceof DataMwError ? $key : new DataMwError( $key, $params );
+		$this->errors[] = $err;
+		return WTUtils::createInterfaceI18nFragment( $this->getTopLevelDoc(), $err->key, $params );
 	}
 
 	/**
