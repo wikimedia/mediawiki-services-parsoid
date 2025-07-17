@@ -8,7 +8,6 @@ use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -21,7 +20,6 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
  */
 class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 	private Env $env;
-	private ParsoidExtensionAPI $extApi;
 
 	private function processNode( Node $root, ?stdClass $tplInfo = null ): void {
 		$node = $root->firstChild;
@@ -45,7 +43,7 @@ class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 			}
 
 			ContentUtils::processAttributeEmbeddedDom(
-				$this->extApi,
+				$this->env->getSiteConfig(),
 				$node,
 				function ( DocumentFragment $df ) use ( $tplInfo ) {
 					PipelineUtils::processContentInPipeline(
@@ -84,7 +82,6 @@ class ProcessEmbeddedDocs implements Wt2HtmlDOMProcessor {
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$this->env = $env;
-		$this->extApi = new ParsoidExtensionAPI( $env );
 		$this->processNode( $root );
 	}
 }

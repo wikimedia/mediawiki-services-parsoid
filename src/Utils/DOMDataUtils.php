@@ -12,14 +12,13 @@ use WeakMap;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\JsonCodec\Hint;
-use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\BasePageBundle;
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\NodeData\DataBag;
 use Wikimedia\Parsoid\NodeData\DataMw;
 use Wikimedia\Parsoid\NodeData\DataMwAttrib;
@@ -717,16 +716,15 @@ class DOMDataUtils {
 	/**
 	 * Builds an index of id attributes seen in the DOM
 	 *
-	 * @param Env|ParsoidExtensionAPI|null $env Provide an env or a parsoid
-	 *  extension API in order to properly traverse
-	 *  document fragments embedded in extension DOM.
+	 * @param SiteConfig $siteConfig A SiteConfig is required to properly
+	 *   traverse document fragments embedded in extension DOM.
 	 * @param Document $doc
 	 * @param array<string,DocumentFragment> $fragments
 	 * @return array<string, true>
 	 */
-	public static function usedIdIndex( $env, Document $doc, array $fragments = [] ): array {
+	public static function usedIdIndex( SiteConfig $siteConfig, Document $doc, array $fragments = [] ): array {
 		$index = [];
-		$t = new DOMTraverser( false, $env !== null );
+		$t = new DOMTraverser( false, true );
 		$t->addHandler( null, static function ( $n, $state ) use ( &$index ) {
 			if ( $n instanceof Element ) {
 				$id = DOMCompat::getAttribute( $n, 'id' );
@@ -736,10 +734,9 @@ class DOMDataUtils {
 			}
 			return true;
 		} );
-		$extApi = ( $env instanceof Env ) ? new ParsoidExtensionAPI( $env ) : $env;
-		$t->traverse( $extApi, DOMCompat::getBody( $doc ) );
+		$t->traverse( $siteConfig, DOMCompat::getBody( $doc ) );
 		foreach ( $fragments as $name => $f ) {
-			$t->traverse( $extApi, $f );
+			$t->traverse( $siteConfig, $f );
 		}
 		return $index;
 	}

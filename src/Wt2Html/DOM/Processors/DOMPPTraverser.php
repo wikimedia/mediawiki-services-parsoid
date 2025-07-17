@@ -5,7 +5,6 @@ namespace Wikimedia\Parsoid\Wt2Html\DOM\Processors;
 
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Utils\DOMTraverser;
 use Wikimedia\Parsoid\Utils\DTState;
 use Wikimedia\Parsoid\Wt2Html\DOMProcessorPipeline;
@@ -40,6 +39,6 @@ class DOMPPTraverser implements Wt2HtmlDOMProcessor {
 		Env $env, Node $root, array $options = [], bool $atTopLevel = false
 	): void {
 		$state = new DTState( $env, $options, $atTopLevel );
-		$this->dt->traverse( new ParsoidExtensionAPI( $env ), $root, $state );
+		$this->dt->traverse( $env->getSiteConfig(), $root, $state );
 	}
 }

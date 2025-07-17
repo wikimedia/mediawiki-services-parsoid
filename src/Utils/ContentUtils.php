@@ -6,12 +6,14 @@ namespace Wikimedia\Parsoid\Utils;
 use Closure;
 use Wikimedia\Assert\UnreachableException;
 use Wikimedia\Parsoid\Config\Env;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\DomSourceRange;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
 use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
+use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
@@ -143,7 +145,7 @@ class ContentUtils {
 	 * Ex: inline media captions that aren't rendered, language variant markup,
 	 *     attributes that are transcluded. More scenarios might be added later.
 	 *
-	 * @param ParsoidExtensionAPI $extAPI
+	 * @param ParsoidExtensionAPI|SiteConfig $siteConfig
 	 * @param Element $elt The node whose data attributes need to be examined
 	 * @param callable(DocumentFragment):bool $proc
 	 *        The processor that will process the embedded HTML.
@@ -151,14 +153,26 @@ class ContentUtils {
 	 *        and is expected to return true if that fragment was modified.
 	 */
 	public static function processAttributeEmbeddedDom(
-		ParsoidExtensionAPI $extAPI, Element $elt, callable $proc
+		$siteConfig, Element $elt, callable $proc
 	): void {
-		$str2df2str = static function ( string $html ) use ( $extAPI, $proc ): string {
-			$dom = $extAPI->htmlToDom( $html );
+		if ( $siteConfig instanceof ParsoidExtensionAPI ) {
+			$siteConfig = $siteConfig->getSiteConfig();
+			$siteConfig->deprecated( __METHOD__ . ' with ParsoidExtensionAPI', '0.22' );
+		}
+		$str2df2str = static function ( string $html ) use ( $elt, $proc ): string {
+			$dom = ContentUtils::createAndLoadDocumentFragment(
+				$elt->ownerDocument, $html
+			);
 			$ret = $proc( $dom );
-			return $ret ? $extAPI->domToHtml( $dom, true, true ) : $html;
+			if ( $ret ) {
+				$html = ContentUtils::ppToXML( $dom, [
+					'innerXML' => true,
+					'fragment' => true,
+				] );
+			}
+			return $html;
 		};
-		self::processAttributeEmbeddedHTMLInternal( $extAPI, $elt, $str2df2str );
+		self::processAttributeEmbeddedHTMLInternal( $siteConfig, $elt, $str2df2str );
 
 		if ( WTUtils::isInlineMedia( $elt ) ) {
 			$caption = DOMDataUtils::getDataMw( $elt )->caption ?? null;
@@ -170,17 +184,19 @@ class ContentUtils {
 		// Process extension-specific embedded DocumentFragments
 		$extTagName = WTUtils::getExtTagName( $elt );
 		if ( $extTagName ) {
-			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $extTagName );
+			$extConfig = $siteConfig->getExtTagConfig( $extTagName );
 			if ( $extConfig['options']['wt2html']['embedsDomInAttributes'] ?? false ) {
-				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $extTagName );
+				$tagHandler = $siteConfig->getExtTagImpl( $extTagName );
+				$extAPI = self::extApiWrapper( $siteConfig );
 				$tagHandler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
 			}
 		}
 		$key = WTUtils::getPFragmentHandlerKey( $elt );
 		if ( $key ) {
-			$config = $extAPI->getSiteConfig()->getPFragmentHandlerConfig( $key );
+			$config = $siteConfig->getPFragmentHandlerConfig( $key );
 			if ( $config['options']['embedsDomInAttributes'] ?? false ) {
-				$handler = $extAPI->getSiteConfig()->getPFragmentHandlerImpl( $key );
+				$handler = $siteConfig->getPFragmentHandlerImpl( $key );
+				$extAPI = self::extApiWrapper( $siteConfig );
 				$handler->processAttributeEmbeddedDom( $extAPI, $elt, $proc );
 			}
 		}
@@ -209,11 +225,11 @@ class ContentUtils {
 		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
 	): void {
 		$extAPI->getSiteConfig()->deprecated( __METHOD__, "0.21" );
-		self::processAttributeEmbeddedHTMLInternal( $extAPI, $elt, $proc );
+		self::processAttributeEmbeddedHTMLInternal( $extAPI->getSiteConfig(), $elt, $proc );
 	}
 
 	private static function processAttributeEmbeddedHTMLInternal(
-		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
+		SiteConfig $siteConfig, Element $elt, Closure $proc
 	): void {
 		if ( !$elt->hasAttribute( 'typeof' ) ) {
 			return;
@@ -262,12 +278,26 @@ class ContentUtils {
 		// Process extension-specific embedded HTML
 		$extTagName = WTUtils::getExtTagName( $elt );
 		if ( $extTagName ) {
-			$extConfig = $extAPI->getSiteConfig()->getExtTagConfig( $extTagName );
+			$extConfig = $siteConfig->getExtTagConfig( $extTagName );
 			if ( $extConfig['options']['wt2html']['embedsHTMLInAttributes'] ?? false ) {
-				$tagHandler = $extAPI->getSiteConfig()->getExtTagImpl( $extTagName );
+				$tagHandler = $siteConfig->getExtTagImpl( $extTagName );
+				$extAPI = self::extApiWrapper( $siteConfig );
 				$tagHandler->processAttributeEmbeddedHTML( $extAPI, $elt, $proc );
 			}
 		}
+	}
+
+	/**
+	 * Temporary backward-compatibility thunk to wrap a SiteConfig as
+	 * a ParsoidExtensionAPI.
+	 */
+	private static function extApiWrapper(
+		SiteConfig $siteConfig
+	): ParsoidExtensionAPI {
+		// This is a backward-compatibility hack!
+		return new ParsoidExtensionAPI( new MockEnv( [
+			'siteConfig' => $siteConfig,
+		] ) );
 	}
 
 	/**
@@ -275,13 +305,18 @@ class ContentUtils {
 	 * @param Env $env
 	 * @param Node $rootNode
 	 * @param callable $dsrFunc
-	 * @param ParsoidExtensionAPI $extAPI
+	 * @param ?ParsoidExtensionAPI $extAPI Deprecated (unused)
 	 */
 	public static function shiftDSR(
-		Env $env, Node $rootNode, callable $dsrFunc, ParsoidExtensionAPI $extAPI
+		Env $env, Node $rootNode, callable $dsrFunc,
+		?ParsoidExtensionAPI $extAPI = null
 	): void {
+		$siteConfig = $env->getSiteConfig();
+		if ( $extAPI !== null ) {
+			$siteConfig->deprecated( __METHOD__ . ' with ParsoidExtensionAPI', '0.22' );
+		}
 		$convertNode = static function ( Node $node ) use (
-			$extAPI, $dsrFunc, &$convertNode
+			$siteConfig, $dsrFunc, &$convertNode
 		): void {
 			if ( !( $node instanceof Element ) ) {
 				return;
@@ -315,7 +350,7 @@ class ContentUtils {
 
 			// Handle embedded HTML in attributes
 			self::processAttributeEmbeddedDom(
-				$extAPI, $node,
+				$siteConfig, $node,
 				static function ( DocumentFragment $df ) use ( $convertNode ): bool {
 					DOMPostOrder::traverse( $df, $convertNode );
 					return true;
@@ -387,8 +422,7 @@ class ContentUtils {
 			return $dsr;
 		};
 		$body = DOMCompat::getBody( $doc );
-		$extAPI = new ParsoidExtensionAPI( $env );
-		self::shiftDSR( $env, $body, $collectDSR, $extAPI );
+		self::shiftDSR( $env, $body, $collectDSR );
 		if ( count( $offsets ) === 0 ) {
 			return; /* nothing to do (shouldn't really happen) */
 		}
@@ -414,7 +448,7 @@ class ContentUtils {
 				$start, $end, $openWidth, $closeWidth
 			);
 		};
-		self::shiftDSR( $env, $body, $applyDSR, $extAPI );
+		self::shiftDSR( $env, $body, $applyDSR );
 	}
 
 	/**

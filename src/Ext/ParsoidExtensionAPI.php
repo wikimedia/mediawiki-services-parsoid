@@ -449,7 +449,7 @@ class ParsoidExtensionAPI {
 			}
 
 			if ( $dsrFn ) {
-				ContentUtils::shiftDSR( $this->env, $domFragment, $dsrFn, $this );
+				ContentUtils::shiftDSR( $this->env, $domFragment, $dsrFn );
 			}
 		}
 		return $domFragment;
@@ -710,7 +710,7 @@ class ParsoidExtensionAPI {
 	 *        and is expected to return true if that fragment was modified.
 	 */
 	public function processAttributeEmbeddedDom( Element $elt, callable $proc ): void {
-		ContentUtils::processAttributeEmbeddedDom( $this, $elt, $proc );
+		ContentUtils::processAttributeEmbeddedDom( $this->getSiteConfig(), $elt, $proc );
 	}
 
 	/**

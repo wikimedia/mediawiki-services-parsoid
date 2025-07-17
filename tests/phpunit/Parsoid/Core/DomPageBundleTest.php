@@ -6,6 +6,7 @@ namespace Test\Parsoid\Core;
 
 use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\HtmlPageBundle;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -74,7 +75,9 @@ EOF
 </html>
 EOF;
 		$doc = ContentUtils::createAndLoadDocument( $html );
-		$dpb = DomPageBundle::fromLoadedDocument( $doc );
+		$dpb = DomPageBundle::fromLoadedDocument(
+			$doc, siteConfig: new MockSiteConfig( [] )
+		);
 		self::assertIsArray( $dpb->parsoid['ids'] );
 		$html2 = $dpb->toSingleDocumentHtml();
 		$this->assertEquals( <<<'EOF'
@@ -106,7 +109,8 @@ EOF
 		);
 		// Serialialize back to DomPageBundle.
 		$dpb = DomPageBundle::fromLoadedDocument(
-			$doc, fragments: [ 'hello' => $df ]
+			$doc, fragments: [ 'hello' => $df ],
+			siteConfig: new MockSiteConfig( [] ),
 		);
 		// And check that it looks right!
 		$this->assertEquals( $data['pageBundleAfter'], $dpb->toJsonArray() );

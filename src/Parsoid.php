@@ -267,7 +267,7 @@ class Parsoid {
 			'outputContentVersion' => $env->getOutputContentVersion(),
 			'useFragmentBank' => $options['useFragmentBank'] ?? false,
 			'idIndex' => $env->pageBundle ?
-				DOMDataUtils::usedIdIndex( $env, $doc ) : null,
+				DOMDataUtils::usedIdIndex( $env->getSiteConfig(), $doc ) : null,
 		] );
 		$parseTimeMs = $parseTiming->end();
 
@@ -674,7 +674,7 @@ class Parsoid {
 				'storeInPageBundle' => $env->pageBundle,
 				'outputContentVersion' => $env->getOutputContentVersion(),
 				'idIndex' => $env->pageBundle ?
-					DOMDataUtils::usedIdIndex( $env, $doc ) : null,
+					DOMDataUtils::usedIdIndex( $env->getSiteConfig(), $doc ) : null,
 			]
 		);
 		return HtmlPageBundle::fromDomPageBundle( $env->pageBundle, [

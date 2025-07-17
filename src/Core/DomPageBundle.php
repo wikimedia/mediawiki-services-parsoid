@@ -4,11 +4,12 @@ declare( strict_types = 1 );
 namespace Wikimedia\Parsoid\Core;
 
 use Wikimedia\Assert\Assert;
+use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\DOM\Document;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -264,10 +265,12 @@ class DomPageBundle extends BasePageBundle {
 	 * @param Document $doc Should be "prepared and loaded"
 	 * @param array $options store options
 	 * @param array<string,DocumentFragment> $fragments
+	 * @param ?SiteConfig $siteConfig
 	 * @return DomPageBundle
 	 */
 	public static function fromLoadedDocument(
-		Document $doc, array $options = [], array $fragments = []
+		Document $doc, array $options = [], array $fragments = [],
+		?SiteConfig $siteConfig = null,
 	): DomPageBundle {
 		$metadata = $options['pageBundle'] ?? null;
 		$dpb = self::newEmpty(
@@ -277,17 +280,18 @@ class DomPageBundle extends BasePageBundle {
 			$metadata->contentmodel ?? $options['contentmodel'] ?? null
 		);
 		// We can't create a full idIndex unless we can traverse
-		// extension content, which requires an Env or a ParsoidExtensionAPI,
+		// extension content, which requires a SiteConfig,
 		// but as long as your extension content doesn't contain IDs beginning
 		// with 'mw' you'll be fine.
-		// Providing a `siteConfig` ought to be sufficient, since we just
-		// need access to the registered extension and fragment handlers.
-		$env = $options['env'] ?? $options['extAPI'] ??
-			new MockEnv( [ 'siteConfig' => $options['siteConfig'] ?? null ] );
+		$siteConfig ??= $options['siteConfig'] ?? null;
+		if ( $siteConfig === null ) {
+			PHPUtils::deprecated( __METHOD__ . ' without siteConfig', '0.22' );
+			$siteConfig = new MockSiteConfig( [] );
+		}
 		$options = [
 			'storeInPageBundle' => $dpb,
 			'outputContentVersion' => $dpb->version,
-			'idIndex' => DOMDataUtils::usedIdIndex( $env, $doc, $fragments ),
+			'idIndex' => DOMDataUtils::usedIdIndex( $siteConfig, $doc, $fragments ),
 		] + $options;
 		DOMDataUtils::visitAndStoreDataAttribs(
 			DOMCompat::getBody( $doc ), $options

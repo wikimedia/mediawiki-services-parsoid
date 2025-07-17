@@ -8,6 +8,7 @@ use Wikimedia\Parsoid\Core\DomPageBundle;
 use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Mocks\MockEnv;
+use Wikimedia\Parsoid\Mocks\MockSiteConfig;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMDataUtils;
@@ -31,7 +32,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		DOMDataUtils::storeInPageBundle( $dpb, $p, (object)[
 			'parsoid' => [ 'go' => 'team' ],
 			'mw' => [ 'test' => 'me' ],
-		], DOMDataUtils::usedIdIndex( null, $p->ownerDocument ) );
+		], DOMDataUtils::usedIdIndex( new MockSiteConfig( [] ), $p->ownerDocument ) );
 		$id = DOMCompat::getAttribute( $p, 'id' ) ?? '';
 		$this->assertNotEquals( '', $id );
 		// Use the 'native' getElementById, not DOMCompat::getElementById,
@@ -277,6 +278,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$html = DomPageBundle::fromLoadedDocument( $doc, [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
+				'siteConfig' => new MockSiteConfig( [] ),
 			] )->toInlineAttributeHtml();
 			$this->assertSame(
 				$useFragmentBank ?
@@ -362,6 +364,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 			$html = DomPageBundle::fromLoadedDocument( $doc, [
 				'useFragmentBank' => $useFragmentBank,
 				'discardDataParsoid' => true,
+				'siteConfig' => new MockSiteConfig( [] ),
 			] )->toInlineAttributeHtml();
 			$this->assertSame(
 				$useFragmentBank ?
@@ -440,6 +443,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 		// Serialize
 		$html = DomPageBundle::fromLoadedDocument( $doc, [
 			'useFragmentBank' => $useFragmentBank,
+			'siteConfig' => new MockSiteConfig( [] ),
 		] )->toSingleDocumentHtml();
 		$this->assertSame(
 			$useFragmentBank ?

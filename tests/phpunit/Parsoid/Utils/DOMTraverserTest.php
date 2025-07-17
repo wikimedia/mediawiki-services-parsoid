@@ -7,7 +7,6 @@ use PHPUnit\Framework\Assert;
 use Wikimedia\Parsoid\Config\Env;
 use Wikimedia\Parsoid\DOM\Element;
 use Wikimedia\Parsoid\DOM\Node;
-use Wikimedia\Parsoid\Ext\ParsoidExtensionAPI;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
@@ -62,7 +61,7 @@ HTML;
 			}
 			return true;
 		} );
-		$traverser->traverse( new ParsoidExtensionAPI( $env ), $doc->documentElement, $state );
+		$traverser->traverse( $env->getSiteConfig(), $doc->documentElement, $state );
 		$this->assertSame( $expectedTrace, $trace );
 	}
 
