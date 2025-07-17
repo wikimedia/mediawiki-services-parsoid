@@ -892,8 +892,9 @@ class TemplateHandler extends XMLTagBasedHandler {
 				],
 				$wikitext,
 				[
-					// We need to expand embedded {{#parsoid-fragment}}
-					// markers still (T385806)
+					// PFragmentHandlers are expressly allowed to request
+					// template expansion.  This supports the lazy
+					// evaluation of arguments and other fun features.
 					'expandTemplates' => true,
 				] + $this->options
 			);
@@ -923,6 +924,36 @@ class TemplateHandler extends XMLTagBasedHandler {
 			} else {
 				return $this->expandTemplateNatively( $state, $resolvedTgt, $newAttribs );
 			}
+		} elseif ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
+			// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
+			// This is an atomic DOM subtree/forest, and so we're going
+			// to process it all the way to DOM.  Contrast with our
+			// handling of a PFragment return value from a parser
+			// function below, which process to tokens only.
+			$pFragment = $env->getPFragment( $text );
+			$domFragment = $pFragment->asDom(
+				new ParsoidExtensionAPI(
+					$env, [
+						'wt2html' => [
+							'frame' => $this->manager->getFrame(),
+							'parseOpts' => [
+								// This fragment comes from a template and it is important to set
+								// the 'inTemplate' parse option for it.
+								'inTemplate' => true,
+								// There might be translcusions within this fragment and we want
+								// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
+								'expandTemplates' => true
+							] + $this->options
+						]
+					]
+				)
+			);
+			$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
+			$toks = $this->processTemplateTokens( $toks );
+			// This is an internal strip marker, it should be wrapped at a
+			// higher level and we don't need to wrap it again.
+			$wrapTemplates = false;
+			return new TemplateExpansionResult( $toks, true, $wrapTemplates );
 		} elseif ( $expandTemplates ) {
 			// Use MediaWiki's preprocessor
 			//
@@ -954,90 +985,56 @@ class TemplateHandler extends XMLTagBasedHandler {
 				return new TemplateExpansionResult( $error );
 			}
 
-			if ( str_starts_with( $text, PipelineUtils::PARSOID_FRAGMENT_PREFIX ) ) {
-				// See PipelineUtils::pFragmentToParsoidFragmentMarkers()
-				// This is an atomic DOM subtree/forest, and so we're going
-				// to process it all the way to DOM.  Contrast with our
-				// handling of a PFragment return value from a parser
-				// function below, which process to tokens only.
-				$pFragment = $env->getPFragment( $text );
-				$domFragment = $pFragment->asDom(
-					new ParsoidExtensionAPI(
-						$env, [
-							'wt2html' => [
-								'frame' => $this->manager->getFrame(),
-								'parseOpts' => [
-									// This fragment comes from a template and it is important to set
-									// the 'inTemplate' parse option for it.
-									'inTemplate' => true,
-									// There might be translcusions within this fragment and we want
-									// to expand them. Ex: {{1x|<ref>{{my-tpl}}foo</ref>}}
-									'expandTemplates' => true
-								] + $this->options
-							]
-						]
-					)
+			// Fetch and process the template expansion
+			$error = false;
+			$fragment = Wikitext::preprocessFragment(
+				$env, WikitextPFragment::newFromWt( $text, null ), $error
+			);
+			if ( $error ) {
+				return new TemplateExpansionResult(
+					[ $fragment->killMarkers() ], false, $this->wrapTemplates
 				);
-				$toks = PipelineUtils::tunnelDOMThroughTokens( $env, $token, $domFragment, [] );
-				$toks = $this->processTemplateTokens( $toks );
-				// This is an internal strip marker, it should be wrapped at a
-				// higher level and we don't need to wrap it again.
-				$wrapTemplates = false;
-				return new TemplateExpansionResult( $toks, true, $wrapTemplates );
 			} else {
-				// Fetch and process the template expansion
-				$error = false;
-				$fragment = Wikitext::preprocessFragment(
-					$env, WikitextPFragment::newFromWt( $text, null ), $error
-				);
-				if ( $error ) {
-					return new TemplateExpansionResult(
-						[ $fragment->killMarkers() ], false, $this->wrapTemplates
-					);
+				if (
+					$fragment instanceof WikitextPFragment &&
+					!$fragment->containsMarker()
+				) {
+					// Optimize simple case
+					$wikitext = $fragment->killMarkers();
 				} else {
-					if (
-						$fragment instanceof WikitextPFragment &&
-						!$fragment->containsMarker()
-					) {
-						// Optimize simple case
-						$wikitext = $fragment->killMarkers();
-						$expandTemplates = false;
-					} else {
-						// This is a mixed expansion which contains wikitext and
-						// atomic PFragments.  Process this to tokens.
-						// (Contrast with the processing of {{#parsoid-fragment}}
-						// above, which represents an atomic PFragment.)
-						[
-							'wikitext' => $wikitext,
-						] = PipelineUtils::preparePFragment(
-							$env,
-							$this->manager->getFrame(),
-							$fragment,
-							[
-								// options
-							]
-						);
-						// We need to expand embedded {{#parsoid-fragment}}
-						// markers still (T385806)
-						$expandTemplates = true;
-					}
-					$tplToks = $this->processTemplateSource(
+					// This is a mixed expansion which contains wikitext and
+					// atomic PFragments.  Process this to tokens.
+					// (Contrast with the processing of {{#parsoid-fragment}}
+					// above, which represents an atomic PFragment.)
+					[
+						'wikitext' => $wikitext,
+					] = PipelineUtils::preparePFragment(
+						$env,
 						$this->manager->getFrame(),
-						$token,
+						$fragment,
 						[
-							'name' => $templateName,
-							'title' => $templateTitle,
-							'attribs' => $attribs
-						],
-						$wikitext,
-						[
-							'expandTemplates' => $expandTemplates,
-						] + $this->options
-					);
-					return new TemplateExpansionResult(
-						$tplToks, true, $this->wrapTemplates
+							// options
+						]
 					);
 				}
+				$tplToks = $this->processTemplateSource(
+					$this->manager->getFrame(),
+					$token,
+					[
+						'name' => $templateName,
+						'title' => $templateTitle,
+						'attribs' => $attribs
+					],
+					$wikitext,
+					[
+						// Template like content returned from the
+						// preprocessor should not be further expanded
+						'expandTemplates' => false,
+					] + $this->options
+				);
+				return new TemplateExpansionResult(
+					$tplToks, true, $this->wrapTemplates
+				);
 			}
 		} else {
 			// We don't perform recursive template expansion- something

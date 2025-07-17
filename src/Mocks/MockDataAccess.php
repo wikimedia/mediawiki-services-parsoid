@@ -10,6 +10,7 @@ use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Config\SiteConfig;
 use Wikimedia\Parsoid\Core\ContentMetadataCollector;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Fragments\LiteralStringPFragment;
 use Wikimedia\Parsoid\Fragments\WikitextPFragment;
 use Wikimedia\Parsoid\ParserTests\MockApiHelper;
 use Wikimedia\Parsoid\Utils\PHPUtils;
@@ -594,6 +595,10 @@ class MockDataAccess extends DataAccess {
 				Title::newFromText( 'Category:Mangle', $this->siteConfig ),
 				'ho'
 			);
+		} elseif ( $wikitext === '{{loop}}' ) {
+			$lit = LiteralStringPFragment::newFromLiteral( 'meh', null );
+			$wt = '{{loop}}';
+			return WikitextPFragment::newFromSplitWt( [ $lit, $wt ] );
 		} else {
 			$ret = '';
 		}

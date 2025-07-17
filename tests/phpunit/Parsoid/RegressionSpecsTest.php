@@ -343,4 +343,16 @@ EOT;
 		$this->assertNull( DOMCompat::getAttribute( $syntheticSection, 'about' ) );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\TT\TemplateHandler
+	 */
+	public function testLoop(): void {
+		$description = "123";
+		$wt = <<<EOT
+Meh {{loop}}
+EOT;
+		$docBody = $this->parseWT( $wt );
+		$this->assertEquals( 'Meh meh{{loop}}', $docBody->textContent );
+	}
+
 }
