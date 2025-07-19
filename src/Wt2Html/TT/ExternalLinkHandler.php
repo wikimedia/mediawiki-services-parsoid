@@ -72,7 +72,7 @@ class ExternalLinkHandler extends XMLTagBasedHandler {
 		return $hasImageExtension &&
 			// true if some prefix in the list matches href
 			self::arraySome( $allowedPrefixes, static function ( string $prefix ) use ( &$href ) {
-				return $prefix === "" || strpos( $href, $prefix ) === 0;
+				return $prefix === "" || str_starts_with( $href, $prefix );
 			} );
 	}
 

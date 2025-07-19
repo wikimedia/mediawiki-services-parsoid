@@ -301,7 +301,7 @@ class OptsProcessor {
 					$arg = next( $argv );
 				}
 				break;
-			} elseif ( substr( $arg, 0, 2 ) == '--' ) {
+			} elseif ( str_starts_with( $arg, '--' ) ) {
 				# Long options
 				$option = substr( $arg, 2 );
 				if ( isset( $this->params[$option] ) && $this->params[$option]['withArg'] ) {
@@ -319,7 +319,7 @@ class OptsProcessor {
 			} elseif ( $arg == '-' ) {
 				# Lonely "-", often used to indicate stdin or stdout.
 				$args[] = $arg;
-			} elseif ( substr( $arg, 0, 1 ) == '-' ) {
+			} elseif ( str_starts_with( $arg, '-' ) ) {
 				# Short options
 				$argLength = strlen( $arg );
 				for ( $p = 1; $p < $argLength; $p++ ) {

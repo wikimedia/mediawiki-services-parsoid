@@ -176,7 +176,7 @@ class ConversionTraverser extends DOMTraverser {
 			// (b) it looks like a URL (protocol-relative links excluded)
 			$linkText = $el->textContent; // XXX: this could be expensive
 			if ( Utils::isProtocolValid( $linkText, $env )
-				 && substr( $linkText, 0, 2 ) !== '//'
+				&& !str_starts_with( $linkText, '//' )
 			) {
 				return $el->nextSibling;
 			}

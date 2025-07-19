@@ -36,7 +36,7 @@ class ConfigUtils {
 
 			// Not sure why Phan thinks $iwEntry['url'] is a bool
 			// @phan-suppress-next-line PhanTypeMismatchArgumentInternal
-			if ( strpos( $iwEntry['url'], '$1' ) === false ) {
+			if ( !str_contains( $iwEntry['url'], '$1' ) ) {
 				$iwEntry['url'] .= '$1';
 			}
 			$iwEntry = array_intersect_key( $iwEntry, $keys );

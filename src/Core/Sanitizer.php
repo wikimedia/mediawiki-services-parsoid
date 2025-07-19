@@ -754,7 +754,7 @@ class Sanitizer {
 		$foundStart = false;
 		$encStart = preg_quote( $startDelim, '!' );
 		$encEnd = preg_quote( $endDelim, '!' );
-		$strcmp = strpos( $flags, 'i' ) === false ? 'strcmp' : 'strcasecmp';
+		$strcmp = !str_contains( $flags, 'i' ) ? 'strcmp' : 'strcasecmp';
 		$endLength = strlen( $endDelim );
 		$m = [];
 		while ( $inputPos < strlen( $subject ) &&
@@ -1091,7 +1091,7 @@ class Sanitizer {
 		$text = self::normalizeCss( $text );
 		// \000-\010\013\016-\037\177 are the octal escape sequences
 		if ( preg_match( '/[\000-\010\013\016-\037\177]/', $text )
-			|| strpos( $text, self::UTF8_REPLACEMENT ) !== false
+			|| str_contains( $text, self::UTF8_REPLACEMENT )
 		) {
 			return '/* invalid control char */';
 		} elseif ( preg_match( self::INSECURE_RE, $text ) ) {

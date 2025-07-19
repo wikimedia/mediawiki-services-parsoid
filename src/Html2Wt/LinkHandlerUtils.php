@@ -126,7 +126,7 @@ class LinkHandlerUtils {
 				// even though "|" is an invalid character, we still need to ensure
 				// it doesn't appear in there.  The percent encoded version is fine
 				// in the fragment, since it won't break the parse.
-				strpos( $linkTarget, '|' ) !== false,
+				str_contains( $linkTarget, '|' ),
 		];
 	}
 
@@ -227,7 +227,7 @@ class LinkHandlerUtils {
 		// handling code.)
 		if ( $rtData->type === 'mw:WikiLink' &&
 			( preg_match( '#^(\w+:)?//#', $rtData->href ) ||
-				substr( $rtData->origHref ?? '', 0, 1 ) === '/' )
+				str_starts_with( $rtData->origHref ?? '', '/' ) )
 		) {
 			$rtData->type = 'mw:ExtLink';
 		}
@@ -326,7 +326,7 @@ class LinkHandlerUtils {
 			// but gets percent encoded on the way out since it has special
 			// semantics in a url.  That will break the url we're serializing, so
 			// protect it.
-			strpos( $targetForQmarkCheck, '?' ) === false &&
+			!str_contains( $targetForQmarkCheck, '?' ) &&
 			// Ensure we have a valid link target, otherwise falling back to extlink
 			// is preferable, since it won't serialize as a link.
 			(
@@ -510,7 +510,7 @@ class LinkHandlerUtils {
 	 * @return bool
 	 */
 	private static function hasAutoUrlTerminatingChars( string $url ): bool {
-		$sep = TokenizerUtils::getAutoUrlTerminatingChars( strpos( $url, '(' ) !== false );
+		$sep = TokenizerUtils::getAutoUrlTerminatingChars( str_contains( $url, '(' ) );
 		return str_contains( $sep, substr( $url, -1 ) );
 	}
 
@@ -895,7 +895,7 @@ class LinkHandlerUtils {
 
 		$siteConfig = $state->getEnv()->getSiteConfig();
 
-		$pureHashMatch = substr( $urlStr, 0, 1 ) === '#';
+		$pureHashMatch = str_starts_with( $urlStr, '#' );
 		// Fully serialize the content
 		$contentStr = $state->serializeLinkChildrenToString(
 			$node,

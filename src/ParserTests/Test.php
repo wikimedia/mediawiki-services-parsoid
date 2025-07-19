@@ -208,7 +208,7 @@ class Test extends Item {
 		}
 
 		if ( !empty( $testFilter['string'] ) ) {
-			return strpos( $this->testName, $testFilter['raw'] ) !== false;
+			return str_contains( $this->testName, $testFilter['raw'] );
 		}
 
 		return true; // Trivial match because of a bad test filter

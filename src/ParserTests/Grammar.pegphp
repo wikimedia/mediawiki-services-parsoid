@@ -23,7 +23,7 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 		$g = new Grammar();
 		$g->filename = $filename;
 		$contents = file_get_contents( $filename ) ?: '';
-		if ( substr( $contents, -1 ) !== "\n" ) {
+		if ( !str_ends_with( $contents, "\n" ) ) {
 			# ensure that the file is terminated with a newline
 			# to match `end_section` rule (and other uses of `eol`)
 			$contents .= "\n";

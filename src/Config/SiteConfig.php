@@ -593,7 +593,7 @@ abstract class SiteConfig {
 				$lang = (int)( isset( $iw['language'] ) );
 
 				$url = $iw['url'];
-				$protocolRelative = substr( $url, 0, 2 ) === '//';
+				$protocolRelative = str_starts_with( $url, '//' );
 				if ( $iw['protorel'] ?? false ) {
 					$url = preg_replace( '/^https?:/', '', $url );
 					$protocolRelative = true;
@@ -706,7 +706,7 @@ abstract class SiteConfig {
 		if ( $this->linkTrailRegex === false ) {
 			$trail = $this->linkTrail();
 			$trail = str_replace( '(.*)$', '', $trail );
-			if ( strpos( $trail, '()' ) !== false ) {
+			if ( str_contains( $trail, '()' ) ) {
 				// Empty regex from zh-hans
 				$this->linkTrailRegex = null;
 			} else {
@@ -1072,7 +1072,7 @@ abstract class SiteConfig {
 					$alias = mb_strtolower( $alias );
 					$this->mwAliases[$magicword][] = $alias;
 				}
-				if ( substr( $alias, 0, 2 ) === '__' ) {
+				if ( str_starts_with( $alias, '__' ) ) {
 					$this->behaviorSwitches[$alias] = [ $caseSensitive, $magicword ];
 				}
 				if ( $isVariable ) {

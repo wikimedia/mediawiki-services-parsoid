@@ -491,7 +491,7 @@ class SerializerState {
 		// Don't get tripped by newlines in comments!  Be wary of nowikis added
 		// by makeSepIndentPreSafe on the last line.
 		$nonCommentSep = preg_replace( Utils::COMMENT_REGEXP, '', $sep );
-		if ( substr( $nonCommentSep, -1 ) === "\n" ) {
+		if ( str_ends_with( $nonCommentSep, "\n" ) ) {
 			$this->onSOL = true;
 		}
 

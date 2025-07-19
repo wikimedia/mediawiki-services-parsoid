@@ -677,7 +677,7 @@ class WikitextSerializer {
 		// Short-circuit transclusions without params
 		$paramKeys = array_map( static fn ( ParamInfo $pi ) => $pi->k, $part->paramInfos );
 		if ( !$paramKeys ) {
-			if ( substr( $formatEnd, 0, 1 ) === "\n" ) {
+			if ( str_starts_with( $formatEnd, "\n" ) ) {
 				$formatEnd = substr( $formatEnd, 1 );
 			}
 			return $buf . $formatEnd;
@@ -831,7 +831,7 @@ class WikitextSerializer {
 				// by adding missing newlines.
 				$spc = $dpArgInfoMap[$arg['dpKey']]->spc ?? null;
 				if ( $spc && ( !$format || preg_match( Utils::COMMENT_REGEXP, $spc[3] ?? '' ) ) ) {
-					$nl = ( substr( $formatParamName, 0, 1 ) === "\n" ) ? "\n" : '';
+					$nl = str_starts_with( $formatParamName, "\n" ) ? "\n" : '';
 					$modFormatParamName = $nl . '|' . $spc[0] . '_' . $spc[1] . '=' . $spc[2];
 					$modFormatParamValue = '_' . $spc[3];
 				} else {
@@ -842,7 +842,7 @@ class WikitextSerializer {
 
 			// Don't create duplicate newlines.
 			$trailing = preg_match( self::TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP, $buf );
-			if ( $trailing && substr( $formatParamName, 0, 1 ) === "\n" ) {
+			if ( $trailing && str_starts_with( $formatParamName, "\n" ) ) {
 				$modFormatParamName = substr( $formatParamName, 1 );
 			}
 
@@ -852,7 +852,7 @@ class WikitextSerializer {
 
 		// Don't create duplicate newlines.
 		if ( preg_match( self::TRAILING_COMMENT_OR_WS_AFTER_NL_REGEXP, $buf )
-			 && substr( $formatEnd, 0, 1 ) === "\n"
+			&& str_starts_with( $formatEnd, "\n" )
 		) {
 			$buf .= substr( $formatEnd, 1 );
 		} else {
@@ -868,10 +868,10 @@ class WikitextSerializer {
 				while ( $next instanceof Comment ) {
 					$next = DiffDOMUtils::nextNonDeletedSibling( $next );
 				}
-				if ( !( $next instanceof Text ) || substr( $next->nodeValue, 0, 1 ) !== "\n" ) {
+				if ( !( $next instanceof Text ) || !str_starts_with( $next->nodeValue, "\n" ) ) {
 					$buf .= "\n";
 				}
-			} elseif ( !is_string( $nextPart ) || substr( $nextPart, 0, 1 ) !== "\n" ) {
+			} elseif ( !is_string( $nextPart ) || !str_starts_with( $nextPart, "\n" ) ) {
 				// If nextPart is another template, and it wants a leading nl,
 				// this \n we add here will count towards that because of the
 				// formatSOL check at the top.
@@ -1498,8 +1498,8 @@ class WikitextSerializer {
 				// We only want to process:
 				// - trailing single quotes (bar')
 				// - or single quotes by themselves without a preceding '' sequence
-				if ( substr( $p[$j - 1], -1 ) === "'"
-					&& !( $p[$j - 1] === "'" && $j > 1 && substr( $p[$j - 2], -2 ) === "''" )
+				if ( str_ends_with( $p[$j - 1], "'" )
+					&& !( $p[$j - 1] === "'" && $j > 1 && str_ends_with( $p[$j - 2], "''" ) )
 					// Consider <b>foo<i>bar'</i>baz</b> or <b>foo'<i>bar'</i>baz</b>.
 					// The <nowiki/> before the <i> or </i> cannot be stripped
 					// if the <i> is embedded inside another quote.

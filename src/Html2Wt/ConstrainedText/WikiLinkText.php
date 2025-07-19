@@ -45,7 +45,7 @@ class WikiLinkText extends RegExpConstrainedText {
 			'badSuffix' => ( $noTrails ) ? null : $siteConfig->linkTrailRegex(),
 		] );
 		// We match link trails greedily when they exist.
-		if ( !( $noTrails || substr( $text, -1 ) === ']' ) ) {
+		if ( !( $noTrails || str_ends_with( $text, ']' ) ) ) {
 			$this->greedy = true;
 		}
 	}

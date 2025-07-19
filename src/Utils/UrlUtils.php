@@ -54,7 +54,7 @@ class UrlUtils {
 		}
 
 		// Split authority and path
-		if ( substr( $url, 0, 2 ) === '//' ) {
+		if ( str_starts_with( $url, '//' ) ) {
 			$i = strpos( $url, '/', 2 );
 			if ( $i === false ) {
 				$ret['authority'] = substr( $url, 2 );

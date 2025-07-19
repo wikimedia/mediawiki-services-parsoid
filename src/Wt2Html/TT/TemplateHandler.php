@@ -275,7 +275,7 @@ class TemplateHandler extends XMLTagBasedHandler {
 		$prefix = trim( $pieces[0] );
 
 		// Parser function names usually (not always) start with a hash
-		$hasHash = substr( $target, 0, 1 ) === '#';
+		$hasHash = str_starts_with( $target, '#' );
 		// String found after the colon will be the parser function arg
 		$haveColon = count( $pieces ) > 1;
 

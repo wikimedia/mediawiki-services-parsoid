@@ -113,7 +113,7 @@ class WikitextEscapeHandlers {
 		// Those newline separators can prevent unnecessary <nowiki/> protection
 		// if the string begins with one or more newlines before a leading quote.
 		$origText = $node->textContent;
-		if ( substr( $origText, 0, 1 ) === "'" ) {
+		if ( str_starts_with( $origText, "'" ) ) {
 			$prev = DiffDOMUtils::previousNonDeletedSibling( $node );
 			if ( !$prev ) {
 				$prev = $node->parentNode;
@@ -140,7 +140,7 @@ class WikitextEscapeHandlers {
 		// Those newline separators can prevent unnecessary <nowiki/> protection
 		// if the string ends with a trailing quote and then one or more newlines.
 		$origText = $node->textContent;
-		if ( substr( $origText, -1 ) === "'" ) {
+		if ( str_ends_with( $origText, "'" ) ) {
 			$next = DiffDOMUtils::nextNonDeletedSibling( $node );
 			if ( !$next ) {
 				$next = $node->parentNode;
@@ -969,7 +969,7 @@ class WikitextEscapeHandlers {
 			// - the text will get parsed as a link in
 			$env->trace( 'wt-escape', '---Links: complex single-line test---' );
 			return $this->escapedText( $state, $sol, $text );
-		} elseif ( !empty( $opts['isLastChild'] ) && substr( $text, -1 ) === '=' ) {
+		} elseif ( !empty( $opts['isLastChild'] ) && str_ends_with( $text, '=' ) ) {
 			// 1. we have an open heading char, and
 			// - text ends in a '='
 			// - text comes from the last child

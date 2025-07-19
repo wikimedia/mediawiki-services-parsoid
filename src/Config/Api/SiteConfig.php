@@ -276,10 +276,10 @@ class SiteConfig extends ISiteConfig {
 			foreach ( $mw['aliases'] as $alias ) {
 				$this->apiMagicWords[$mwName][] = $alias;
 				// Aliases for double underscore mws include the underscores
-				if ( substr( $alias, 0, 2 ) === '__' && substr( $alias, -2 ) === '__' ) {
+				if ( str_starts_with( $alias, '__' ) && str_ends_with( $alias, '__' ) ) {
 					$bsws[$cs][] = preg_quote( substr( $alias, 2, -2 ), '@' );
 				}
-				if ( strpos( $alias, '$1' ) !== false ) {
+				if ( str_contains( $alias, '$1' ) ) {
 					$pmws[$cs][] = strtr( preg_quote( $alias, '/' ), [ '\\$1' => "(.*?)" ] );
 				}
 				$allMWs[$cs][] = preg_quote( $alias, '/' );
@@ -387,7 +387,7 @@ class SiteConfig extends ISiteConfig {
 
 		$url = $this->siteData['server'] . $this->siteData['articlepath'];
 
-		if ( substr( $url, -2 ) !== '$1' ) {
+		if ( !str_ends_with( $url, '$1' ) ) {
 			throw new \UnexpectedValueException( "Article path '$url' does not have '$1' at the end" );
 		}
 		$url = substr( $url, 0, -2 );
@@ -720,7 +720,7 @@ class SiteConfig extends ISiteConfig {
 			}
 
 			$syn = $func;
-			if ( substr( $syn, -1 ) === ':' ) {
+			if ( str_ends_with( $syn, ':' ) ) {
 				$syn = substr( $syn, 0, -1 );
 			}
 			if ( !isset( self::$noHashFunctions[$magicword] ) ) {
