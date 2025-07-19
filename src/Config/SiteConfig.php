@@ -1917,4 +1917,43 @@ abstract class SiteConfig {
 
 	/** @return string|false */
 	abstract public function getExternalLinkTarget();
+
+	/**
+	 * Logs a warning that a deprecated feature was used.
+	 *
+	 * Can be overridden to use similar functionality in the
+	 * host MediaWiki (wfDeprecated).
+	 *
+	 * @param string $function Feature that is deprecated.
+	 * @param string $version Version of Parsoid that the feature
+	 *  was deprecated in
+	 * @param int $callerOffset How far up the call stack is the original
+	 *  caller. 2 = function that called the function that called
+	 *  SiteConfig::deprecated()
+	 */
+	public function deprecated( string $function, string $version, int $callerOffset = 2 ): void {
+		// By default, use our @internal implementation.
+		PHPUtils::deprecated( $function, $version, $callerOffset + 1 );
+	}
+
+	/**
+	 * Deprecation messages matching the supplied regex will be suppressed.
+	 * Use this to filter deprecation warnings when testing deprecated code.
+	 *
+	 * @param string $regex
+	 */
+	public function filterDeprecationForTest(
+		string $regex
+	): void {
+		// By default, use our @internal implementation
+		PHPUtils::filterDeprecationForTest( $regex );
+	}
+
+	/**
+	 * Clear all deprecation filters.
+	 */
+	public function clearDeprecationFilters(): void {
+		// By default, use our @internal implementation
+		PHPUtils::clearDeprecationFilters();
+	}
 }

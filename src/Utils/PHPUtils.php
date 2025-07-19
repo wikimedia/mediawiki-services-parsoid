@@ -362,9 +362,10 @@ class PHPUtils {
 	 *
 	 * @param string $reason
 	 * @return never
-	 * @deprecated Just throw an UnreachableException instead.
+	 * @deprecated since 0.16; just throw an UnreachableException instead.
 	 */
 	public static function unreachable( string $reason = "should never happen" ) {
+		self::deprecated( __METHOD__, "0.16" );
 		throw new UnreachableException( $reason );
 	}
 
@@ -404,6 +405,124 @@ class PHPUtils {
 		} else {
 			return $subject;
 		}
+	}
+
+	/**
+	 * @var array<string,true> Keys are regexes
+	 */
+	private static $deprecationFilters = [];
+
+	/**
+	 * Logs a warning that a deprecated feature was used.
+	 *
+	 * Where possible, SiteConfig::deprecated() should be used instead,
+	 * which will use similar capabilities in the host environment.
+	 *
+	 * @param string $function Feature that is deprecated.
+	 * @param string $version Version of Parsoid that the feature
+	 *  was deprecated in
+	 * @param int $callerOffset How far up the call stack is the original
+	 *  caller. 2 = function that called the function that called
+	 *  PHPUtils::deprecated()
+	 * @internal External code should use similar facilities in the host
+	 */
+	public static function deprecated( string $function, string $version, int $callerOffset = 2 ) {
+		$msg = "Use of $function was deprecated in Parsoid $version.";
+		$callerDescription = self::getCallerDescription( $callerOffset );
+		$callerFunc = $callerDescription['func'];
+
+		// Check to see if there already was a warning about this function
+		static $deprecationWarnings = [];
+		if ( isset( $deprecationWarnings[$msg][$callerFunc] ) ) {
+			return;
+		}
+		$deprecationWarnings[$msg][$callerFunc] = true;
+
+		$msg = self::formatCallerDescription( $msg, $callerDescription );
+
+		foreach ( self::$deprecationFilters as $filter => $ignore ) {
+			if ( preg_match( $filter, $msg ) ) {
+				return;
+			}
+		}
+
+		trigger_error( $msg, E_USER_DEPRECATED );
+	}
+
+	/**
+	 * Deprecation messages matching the supplied regex will be suppressed.
+	 * Use this to filter deprecation warnings when testing deprecated code.
+	 *
+	 * @param string $regex
+	 */
+	public static function filterDeprecationForTest(
+		string $regex
+	): void {
+		if ( !( defined( 'MW_PHPUNIT_TEST' ) || defined( 'MW_PARSER_TEST' ) ) ) {
+			throw new \LogicException( __METHOD__ . ' can only be used in tests' );
+		}
+		self::$deprecationFilters[$regex] = true;
+	}
+
+	/**
+	 * Clear all deprecation filters.
+	 */
+	public static function clearDeprecationFilters() {
+		self::$deprecationFilters = [];
+	}
+
+	// The below two methods are copied verbatim from MWDebug.php in
+	// MediaWiki.  They probably don't have to be carefully synchronized,
+	// because when we're running in integrated mode SiteConfig::deprecated()
+	// will be overridden to use wfDeprecated in the integrated MediaWiki.
+
+	/**
+	 * Get an array describing the calling function at a specified offset.
+	 *
+	 * @param int $callerOffset How far up the callstack is the original
+	 *    caller. 0 = function that called getCallerDescription()
+	 * @return array Array with two keys: 'file' and 'func'
+	 */
+	private static function getCallerDescription( $callerOffset ) {
+		$callers = function_exists( 'debug_backtrace' ) ? debug_backtrace() : [];
+
+		if ( isset( $callers[$callerOffset] ) ) {
+			$callerfile = $callers[$callerOffset];
+			if ( isset( $callerfile['file'] ) && isset( $callerfile['line'] ) ) {
+				$file = $callerfile['file'] . ' at line ' . $callerfile['line'];
+			} else {
+				$file = '(internal function)';
+			}
+		} else {
+			$file = '(unknown location)';
+		}
+
+		if ( isset( $callers[$callerOffset + 1] ) ) {
+			$callerfunc = $callers[$callerOffset + 1];
+			$func = '';
+			if ( isset( $callerfunc['class'] ) ) {
+				$func .= $callerfunc['class'] . '::';
+			}
+			if ( isset( $callerfunc['function'] ) ) {
+				$func .= $callerfunc['function'];
+			}
+		} else {
+			$func = 'unknown';
+		}
+
+		return [ 'file' => $file, 'func' => $func ];
+	}
+
+	/**
+	 * Append a caller description to an error message
+	 *
+	 * @param string $msg
+	 * @param array $caller Caller description from getCallerDescription()
+	 * @return string
+	 */
+	private static function formatCallerDescription( $msg, $caller ) {
+		// When changing this, update the below parseCallerDescription() method  as well.
+		return $msg . ' [Called from ' . $caller['func'] . ' in ' . $caller['file'] . ']';
 	}
 
 }

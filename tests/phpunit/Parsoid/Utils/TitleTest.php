@@ -6,6 +6,7 @@ namespace Test\Parsoid\Utils;
 use PHPUnit\Framework\MockObject\MockObject;
 use Wikimedia\Bcp47Code\Bcp47CodeValue;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 use Wikimedia\Parsoid\Utils\TitleException;
 
@@ -13,6 +14,11 @@ use Wikimedia\Parsoid\Utils\TitleException;
  * @coversDefaultClass \Wikimedia\Parsoid\Utils\Title
  */
 class TitleTest extends \PHPUnit\Framework\TestCase {
+
+	protected function tearDown(): void {
+		PHPUtils::clearDeprecationFilters();
+	}
+
 	private static function newTitle( ...$args ) {
 		// Access non-public constructor
 		$classReflection = new \ReflectionClass( Title::class );
@@ -34,7 +40,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	 */
 	public function testBasics( $args, $key, $pKey, $pText, $fragment, $ns ) {
 		$title = self::newTitle( '', ...$args );
-		$this->assertSame( $key, $title->getKey() );
+		$this->assertSame( $key, $title->getDBkey() );
 		$this->assertSame( $pKey, $title->getPrefixedDBKey() );
 		$this->assertSame( $pText, $title->getPrefixedText() );
 		$this->assertSame( $fragment, $title->getFragment() ?: null );
@@ -94,6 +100,7 @@ class TitleTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideNewFromText
 	 */
 	public function testNewFromText( $args, $key, $ns, $fragment, $lang = null, $interwiki = '', $rawKey = null ) {
+		PHPUtils::filterDeprecationForTest( '/Title::getKey was deprecated/' );
 		array_splice( $args, 1, 0, [ $this->getMockSiteConfig( $lang ?? 'en' ) ] );
 		$title = Title::newFromText( ...$args );
 		$this->assertSame( $key, $title->getKey() );

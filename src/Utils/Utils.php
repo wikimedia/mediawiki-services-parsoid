@@ -100,9 +100,10 @@ class Utils {
 	 * @param bool $deepClone
 	 * @param bool $debug
 	 * @return object|array
-	 * @deprecated Use native PHP cloning and Utils::cloneArray when needed
+	 * @deprecated since 0.21; use native PHP cloning and Utils::cloneArray when needed
 	 */
 	public static function clone( $obj, $deepClone = true, $debug = false ) {
+		PHPUtils::deprecated( __METHOD__, "0.21" );
 		if ( $debug ) {
 			if ( $obj instanceof \DOMNode ) {
 				return $obj->cloneNode( $deepClone );

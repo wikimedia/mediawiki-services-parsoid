@@ -118,9 +118,10 @@ class SourceRange implements JsonCodecable {
 	 * integers (such as created during JSON serialization).
 	 * @param int[] $sr
 	 * @return SourceRange
-	 * @deprecated
+	 * @deprecated since 0.20; use ::newFromJsonArray
 	 */
 	public static function fromArray( array $sr ): SourceRange {
+		PHPUtils::deprecated( __METHOD__, "0.20" );
 		// Dynamic dispatch (DomSourceRange subclasses this)
 		return static::newFromJsonArray( $sr );
 	}

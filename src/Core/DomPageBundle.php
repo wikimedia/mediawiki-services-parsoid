@@ -100,6 +100,7 @@ class DomPageBundle extends BasePageBundle {
 
 	/** @deprecated since 0.22; use ::fromHtmlPageBundle */
 	public static function fromPageBundle( HtmlPageBundle $pb ): DomPageBundle {
+		PHPUtils::deprecated( __METHOD__, "0.22" );
 		return self::fromHtmlPageBundle( $pb );
 	}
 

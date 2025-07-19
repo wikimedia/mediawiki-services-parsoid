@@ -5,12 +5,17 @@ namespace Test\Parsoid\Utils;
 
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Wt2Html\XHtmlSerializer;
 
 /**
  * @coversDefaultClass  \Wikimedia\Parsoid\Utils\DOMUtils
  */
 class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
+
+	protected function tearDown(): void {
+		PHPUtils::clearDeprecationFilters();
+	}
 
 	/**
 	 * Test node properties methods.
@@ -192,6 +197,7 @@ class DOMUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @dataProvider provideElementProperties
 	 */
 	public function testElementProperties( string $html, array $props ) {
+		PHPUtils::filterDeprecationForTest( '/DOMUtils::attributes/' );
 		$doc = DOMUtils::parseHTML( $html );
 		$sel = $props['selector'] ?? 'body > *';
 		$node = DOMCompat::querySelector( $doc, $sel );

@@ -158,8 +158,7 @@ class ContentUtils {
 			$ret = $proc( $dom );
 			return $ret ? $extAPI->domToHtml( $dom, true, true ) : $html;
 		};
-		// @phan-suppress-next-line PhanDeprecatedFunction internal use
-		self::processAttributeEmbeddedHTML( $extAPI, $elt, $str2df2str );
+		self::processAttributeEmbeddedHTMLInternal( $extAPI, $elt, $str2df2str );
 
 		if ( WTUtils::isInlineMedia( $elt ) ) {
 			$caption = DOMDataUtils::getDataMw( $elt )->caption ?? null;
@@ -194,7 +193,7 @@ class ContentUtils {
 	 * Ex: inline media captions that aren't rendered, language variant markup,
 	 *     attributes that are transcluded. More scenarios might be added later.
 	 *
-	 * @deprecated
+	 * @deprecated since 0.21.
 	 * Don't use this directly: use ::processAttributeEmbeddedDom().
 	 * This method may omit content which is embedded natively as
 	 * DocumentFragments instead of as HTML strings.
@@ -207,6 +206,13 @@ class ContentUtils {
 	 *        and is expected to return a possibly modified string.
 	 */
 	public static function processAttributeEmbeddedHTML(
+		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
+	): void {
+		$extAPI->getSiteConfig()->deprecated( __METHOD__, "0.21" );
+		self::processAttributeEmbeddedHTMLInternal( $extAPI, $elt, $proc );
+	}
+
+	private static function processAttributeEmbeddedHTMLInternal(
 		ParsoidExtensionAPI $extAPI, Element $elt, Closure $proc
 	): void {
 		if ( !$elt->hasAttribute( 'typeof' ) ) {

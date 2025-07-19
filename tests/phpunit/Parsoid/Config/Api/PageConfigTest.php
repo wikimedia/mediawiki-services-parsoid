@@ -6,12 +6,17 @@ namespace Test\Parsoid\Config\Api;
 use Wikimedia\Parsoid\Config\Api\PageConfig;
 use Wikimedia\Parsoid\Config\PageContent;
 use Wikimedia\Parsoid\Mocks\MockSiteConfig;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 use Wikimedia\Parsoid\Utils\Title;
 
 /**
  * @covers \Wikimedia\Parsoid\Config\Api\PageConfig
  */
 class PageConfigTest extends \PHPUnit\Framework\TestCase {
+
+	protected function tearDown(): void {
+		PHPUtils::clearDeprecationFilters();
+	}
 
 	private static array $pageConfigs = [];
 
@@ -45,8 +50,14 @@ class PageConfigTest extends \PHPUnit\Framework\TestCase {
 	}
 
 	public function testGetNs() {
+		PHPUtils::filterDeprecationForTest( '/::getNs was deprecated/' );
 		$this->assertSame( 0, $this->getPageConfig( 'missing' )->getNs() );
 		$this->assertSame( 12, $this->getPageConfig( 'existing' )->getNs() );
+	}
+
+	public function testGetLinkTarget() {
+		$this->assertSame( 0, $this->getPageConfig( 'missing' )->getLinkTarget()->getNamespace() );
+		$this->assertSame( 12, $this->getPageConfig( 'existing' )->getLinkTarget()->getNamespace() );
 	}
 
 	public function testGetPageId() {

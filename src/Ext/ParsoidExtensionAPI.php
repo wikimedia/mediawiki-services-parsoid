@@ -354,15 +354,19 @@ class ParsoidExtensionAPI {
 	}
 
 	/**
-	 * @deprecated Use ::clearContentId() instead
+	 * @deprecated since 0.22; use ::clearContentId() instead
 	 */
 	public function clearContentDOM( string $contentId ): void {
+		// Can't hard-deprecate this until Cite is rewritten to use
+		// getContentDOM/clearContentId instead of
+		// getContentId/clearContentDOM.
 		/* does nothing */
 	}
 
 	/**
 	 * Get an ID from a Node which is storing a DOMFragment, which can
 	 * be passed to ::getContentDOM() to retrieve the DOMFragment.
+	 * @deprecated since 0.22; use ::getContentDOM() instead
 	 */
 	public function getContentId( Element $node ): string {
 		return DOMCompat::getAttribute( $node, DOMDataUtils::DATA_OBJECT_ATTR_NAME );
@@ -676,8 +680,7 @@ class ParsoidExtensionAPI {
 	 *
 	 * Ex: inline media captions that aren't rendered, language variant markup,
 	 *     attributes that are transcluded. More scenarios might be added later.
-	 * @deprecated
-	 * Don't use this directly: use ::processAttributeEmbeddedDom().
+	 * @deprecated since 0.21; use ::processAttributeEmbeddedDom().
 	 * This method may omit content which is embedded natively as
 	 * DocumentFragments instead of as HTML strings.
 	 *
@@ -688,6 +691,7 @@ class ParsoidExtensionAPI {
 	 *        and is expected to return a possibly modified string.
 	 */
 	public function processAttributeEmbeddedHTML( Element $elt, Closure $proc ): void {
+		$this->getSiteConfig()->deprecated( __METHOD__, "0.21" );
 		// @phan-suppress-next-line PhanDeprecatedFunction
 		ContentUtils::processAttributeEmbeddedHTML( $this, $elt, $proc );
 	}
@@ -741,9 +745,10 @@ class ParsoidExtensionAPI {
 	 *  - 'src' expanded wikitext OR error message to print
 	 *     FIXME: Maybe error message should be localizable
 	 *  - 'fragment' Optional fragment (wikitext plus strip state)
-	 * @deprecated Use ::preprocessFragment instead
+	 * @deprecated since 0.21; use ::preprocessFragment instead
 	 */
 	public function preprocessWikitext( string $wikitext ) {
+		$this->getSiteConfig()->deprecated( __METHOD__, "0.21" );
 		$error = false;
 		$result = $this->preprocessFragment(
 			WikitextPFragment::newFromWt( $wikitext, null ),
@@ -1151,18 +1156,20 @@ class ParsoidExtensionAPI {
 	/**
 	 * @param array $modules
 	 *
-	 * @deprecated Use ::getMetadata()->appendOutputStrings( MODULE, ...) instead.
+	 * @deprecated since 0.20; use ::getMetadata()->appendOutputStrings( MODULE, ...) instead.
 	 */
 	public function addModules( array $modules ): void {
+		$this->getSiteConfig()->deprecated( __METHOD__, "0.20" );
 		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE, $modules );
 	}
 
 	/**
 	 * @param array $modulestyles
 	 *
-	 * @deprecated Use ::getMetadata()->appendOutputStrings(MODULE_STYLE, ...) instead.
+	 * @deprecated since 0.20; use ::getMetadata()->appendOutputStrings(MODULE_STYLE, ...) instead.
 	 */
 	public function addModuleStyles( array $modulestyles ): void {
+		$this->getSiteConfig()->deprecated( __METHOD__, "0.20" );
 		$this->getMetadata()->appendOutputStrings( CMCSS::MODULE_STYLE, $modulestyles );
 	}
 

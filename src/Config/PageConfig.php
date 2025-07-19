@@ -5,6 +5,7 @@ namespace Wikimedia\Parsoid\Config;
 
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\Parsoid\Core\LinkTarget;
+use Wikimedia\Parsoid\Utils\PHPUtils;
 
 /**
  * Page-level configuration interface for Parsoid
@@ -55,6 +56,7 @@ abstract class PageConfig {
 	 * @deprecated Use ::getLinkTarget()->getNamespace() instead
 	 */
 	public function getNs(): int {
+		PHPUtils::deprecated( __METHOD__, "0.22" );
 		return $this->getLinkTarget()->getNamespace();
 	}
 

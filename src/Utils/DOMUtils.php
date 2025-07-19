@@ -827,9 +827,10 @@ class DOMUtils {
 
 	/**
 	 * @see DOMCompat::attributes()
-	 * @deprecated Use DOMCompat::attributes
+	 * @deprecated since 0.22; use DOMCompat::attributes()
 	 */
 	public static function attributes( Element $element ): array {
+		PHPUtils::deprecated( __METHOD__, "0.22" );
 		return DOMCompat::attributes( $element );
 	}
 

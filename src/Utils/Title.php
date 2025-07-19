@@ -270,9 +270,10 @@ class Title implements LinkTarget {
 	 *
 	 * @return string
 	 * @see ::getDBkey()
-	 * @deprecated
+	 * @deprecated since 0.20; use ::getDBkey()
 	 */
 	public function getKey(): string {
+		PHPUtils::deprecated( __METHOD__, "0.20" );
 		if ( $this->interwiki ) {
 			return $this->interwiki . ':' . $this->dbkey;
 		}

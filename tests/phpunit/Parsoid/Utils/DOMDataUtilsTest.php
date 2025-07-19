@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Utils;
 
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\DOM\DocumentFragment;
 use Wikimedia\Parsoid\Mocks\MockEnv;
 use Wikimedia\Parsoid\Utils\ContentUtils;
@@ -23,7 +23,7 @@ class DOMDataUtilsTest extends \PHPUnit\Framework\TestCase {
 	 * @covers ::storeInPageBundle
 	 */
 	public function testStoreInPageBundle() {
-		$dpb = DomPageBundle::fromPageBundle( PageBundle::newEmpty(
+		$dpb = DomPageBundle::fromHtmlPageBundle( HtmlPageBundle::newEmpty(
 			"<p>Hello, world</p>"
 		) );
 		DOMDataUtils::prepareDoc( $dpb->doc );

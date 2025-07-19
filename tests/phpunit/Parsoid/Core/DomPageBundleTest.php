@@ -5,7 +5,7 @@ declare( strict_types = 1 );
 namespace Test\Parsoid\Core;
 
 use Wikimedia\Parsoid\Core\DomPageBundle;
-use Wikimedia\Parsoid\Core\PageBundle;
+use Wikimedia\Parsoid\Core\HtmlPageBundle;
 use Wikimedia\Parsoid\Utils\ContentUtils;
 use Wikimedia\Parsoid\Utils\DOMCompat;
 use Wikimedia\Parsoid\Utils\DOMUtils;
@@ -15,11 +15,11 @@ use Wikimedia\Parsoid\Utils\DOMUtils;
  */
 class DomPageBundleTest extends \PHPUnit\Framework\TestCase {
 	/**
-	 * @covers ::fromPageBundle
+	 * @covers ::fromHtmlPageBundle
 	 * @covers ::toSingleDocument
 	 */
 	public function testInjectPageBundle() {
-		$dpb = DomPageBundle::fromPageBundle( PageBundle::newEmpty(
+		$dpb = DomPageBundle::fromHtmlPageBundle( HtmlPageBundle::newEmpty(
 			"Hello, world"
 		) );
 		$doc = $dpb->toSingleDocument();
