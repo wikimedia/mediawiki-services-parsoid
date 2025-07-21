@@ -84,9 +84,6 @@ class XHtmlSerializer {
 					DOMCompat::getTemplateElementContent( $node )->firstChild :
 					$node->firstChild;
 				$localName = $node->localName;
-				if ( $node->prefix ) {
-					$localName = $node->prefix . ':' . $localName;
-				}
 				$accum( '<' . $localName, $node );
 				$attrs = DOMCompat::attributes( $node );
 				if ( $noSideEffects ) {
