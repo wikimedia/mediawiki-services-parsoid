@@ -355,4 +355,23 @@ EOT;
 		$this->assertEquals( 'Meh meh{{loop}}', $docBody->textContent );
 	}
 
+	/**
+	 * @covers \Wikimedia\Parsoid\Wt2Html\XHtmlSerializer
+	 */
+	public function testMath(): void {
+		$description = "Math";
+		$wt = <<<EOT
+		<math>x</math>
+EOT;
+		$siteConfig = new MockSiteConfig( [] );
+		$dataAccess = new MockDataAccess( $siteConfig, [] );
+		$parsoid = new Parsoid( $siteConfig, $dataAccess );
+
+		$content = new MockPageContent( [ 'main' => $wt ] );
+		$pageConfig = new MockPageConfig( $siteConfig, [], $content );
+		$html = $parsoid->wikitext2html( $pageConfig, [] );
+
+		$this->assertStringNotContainsString( '<default:math', $html );
+		$this->assertStringContainsString( '<math ', $html );
+	}
 }

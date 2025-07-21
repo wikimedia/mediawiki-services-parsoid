@@ -558,6 +558,11 @@ class MockDataAccess extends DataAccess {
 				$html = "";
 				break;
 
+			case 'math':
+				// phpcs:ignore Generic.Files.LineLength.TooLong
+				$html = '<math xmlns="http://www.w3.org/1998/Math/MathML"><mrow data-mjx-texclass="ORD"><mstyle displaystyle="true" scriptlevel="0"><mi>x</mi></mstyle></mrow></math>';
+				break;
+
 			default:
 				throw new Error( 'Unhandled extension type encountered in: ' . $wikitext );
 		}
