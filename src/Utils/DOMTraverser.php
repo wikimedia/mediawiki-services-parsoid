@@ -143,8 +143,8 @@ class DOMTraverser {
 	 */
 	public function traverse( $siteConfig, Node $workNode, ?DTState $state = null ): void {
 		if ( $siteConfig instanceof ParsoidExtensionAPI ) {
-			// @deprecated but still used by Kartographer, etc.
 			$siteConfig = $siteConfig->getSiteConfig();
+			$siteConfig->deprecated( __METHOD__ . ' with ParsoidExtensionAPI', '0.22' );
 		}
 		$this->traverseInternal( true, $siteConfig, $workNode, $state );
 	}
