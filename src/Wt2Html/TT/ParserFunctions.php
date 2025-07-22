@@ -330,7 +330,7 @@ class ParserFunctions {
 		$target = $args[0]->k;
 		'@phan-var string $target';
 		if ( $target ) {
-			return [ mb_strtoupper( mb_substr( $target, 0, 1 ) ) . mb_substr( $target, 1 ) ];
+			return [ $this->env->getSiteConfig()->ucfirst( $target ) ];
 		} else {
 			return [];
 		}

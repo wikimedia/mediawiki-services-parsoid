@@ -1029,7 +1029,6 @@
         "html2wt": "Blah\n"
     },
     "T33490 Turkish: ucfirst 'ix'": {
-        "wt2html": "<p data-parsoid='{\"dsr\":[0,14,0,0]}'><span about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[]],\"dsr\":[0,14,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"ucfirst:ix\",\"function\":\"ucfirst\"},\"params\":{},\"i\":0}}]}'>Ix</span></p>",
         "html2wt": "İx\n"
     },
     "T368721: Closing block tags not on the stack of open elements in lists": {

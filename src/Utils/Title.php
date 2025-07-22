@@ -3,6 +3,7 @@ declare( strict_types = 1 );
 
 namespace Wikimedia\Parsoid\Utils;
 
+use UtfNormal\Validator as UtfNormalValidator;
 use Wikimedia\Assert\Assert;
 use Wikimedia\IPUtils;
 use Wikimedia\Parsoid\Config\SiteConfig;
@@ -210,8 +211,11 @@ class Title implements LinkTarget {
 		# Normally, all wiki links are forced to have an initial capital letter so [[foo]]
 		# and [[Foo]] point to the same place.  Don't force it for interwikis, since the
 		# other site might be case-sensitive.
-		if ( $interwiki === null && $siteConfig->namespaceCase( $ns ) === 'first-letter' ) {
-			$title = $siteConfig->ucfirst( $title );
+		if ( $interwiki === null ) {
+			$title = UtfNormalValidator::toNFC( $title );
+			if ( $siteConfig->namespaceCase( $ns ) === 'first-letter' ) {
+				$title = $siteConfig->ucfirst( $title );
+			}
 		}
 
 		# Can't make a link to a namespace alone... "empty" local links can only be

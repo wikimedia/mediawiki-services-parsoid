@@ -15,6 +15,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
+use UtfNormal\Validator as UtfNormalValidator;
 use Wikimedia\Assert\Assert;
 use Wikimedia\Bcp47Code\Bcp47Code;
 use Wikimedia\ObjectFactory\ObjectFactory;
@@ -490,7 +491,11 @@ abstract class SiteConfig {
 	}
 
 	/**
-	 * Uppercasing method for titles
+	 * Uppercasing method for titles.
+	 *
+	 * This is a SiteConfig method because mediawiki-core can actually
+	 * configure $wgOverrideUcfirstCharacters to change the way uppercasing
+	 * is done, which is useful for Unicode version transitions (T219279).
 	 * @param string $str
 	 * @return string
 	 */
@@ -508,7 +513,9 @@ abstract class SiteConfig {
 		} else {
 			// fall back to more complex logic in case of multibyte strings
 			$char = mb_substr( $str, 0, 1 );
-			return mb_strtoupper( $char ) . mb_substr( $str, 1 );
+			return UtfNormalValidator::toNFC(
+				mb_convert_case( $char, MB_CASE_TITLE ) . mb_substr( $str, 1 )
+			);
 		}
 	}
 

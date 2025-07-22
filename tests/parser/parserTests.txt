@@ -8326,7 +8326,6 @@ Test for unicode normalization
 The page's name is U+05d0 U+05b7, with non-canonical form U+FB2E
 !! endarticle
 
-# Parsoid has a regression here (T258858) note the incorrect redlink as well
 !! test
 (T21451) Links should refer to the normalized form.
 !! wikitext
@@ -8343,11 +8342,11 @@ The page's name is U+05d0 U+05b7, with non-canonical form U+FB2E
 <a href="/wiki/%D7%90%D6%B7" title="אַ">אַ</a>
 </p>
 !! html/parsoid
-<p><a rel="mw:WikiLink" href="./אַ?action=edit&amp;redlink=1" title="אַ" class="new" typeof="mw:LocalizedAttrs" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#xFB2E;"}}' data-mw-i18n='{"title":{"lang":"x-page","key":"red-link-title","params":["אַ"]}}'>אַ</a>
-<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#x5d0;&amp;#x5b7;"}}'>אַ</a>
-<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#x5d0;ַ"}}'>אַ</a>
-<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"א&amp;#x5b7;"}}'>אַ</a>
-<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"אַ"}}'>אַ</a></p>
+<p data-parsoid='{"dsr":[0,68,0,0]}'><a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#xFB2E;"},"dsr":[0,12,2,2]}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#x5d0;&amp;#x5b7;"},"dsr":[13,31,2,2]}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"&amp;#x5d0;ַ"},"dsr":[32,45,2,2]}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"א&amp;#x5b7;"},"dsr":[46,59,2,2]}'>אַ</a>
+<a rel="mw:WikiLink" href="./אַ" title="אַ" data-parsoid='{"stx":"simple","a":{"href":"./אַ"},"sa":{"href":"אַ"},"dsr":[60,68,2,2]}'>אַ</a></p>
 !! end
 
 !! test
