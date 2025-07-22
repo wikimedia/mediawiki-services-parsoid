@@ -47,7 +47,7 @@ testfile =
 	lined_chunk+
 
 testfile_options =
-	l:("" { return $this->lineNum; })
+	l:LINE_NUM
 	sec:option_section end_section {
 	return $this->addLines( $l, $sec );
 }
@@ -57,23 +57,19 @@ testfile_options =
  */
 eol = nl:"\n" { $this->lineNum++; return $nl; }
 
-lined_chunk = l:("" { return $this->lineNum; }) c:chunk {
+lined_chunk = l:LINE_NUM c:chunk {
 	return $this->addLines($l, $c);
 }
+
+LINE_NUM = "" { return $this->lineNum; }
 
 whitespace = [ \t]+
 
 ws = whitespace
 
-rest_of_line = c:([^\n]*) eol
-{
-	return implode($c);
-}
+rest_of_line = @$([^\n]*) eol
 
-line = (!"!!") line:rest_of_line
-{
-	return $line;
-}
+line = (!"!!") @rest_of_line
 
 text = lines:line*
 {
@@ -92,10 +88,10 @@ chunk =
 	 * hand-coded parser test parser this was just ignored as a comment.
 	 * We'll go ahead and parse it, then emit a warning in TestFileReader.
 	 */
-	/ l: line { return [ 'type' => 'line', 'text' => $l ]; }
+	/ l:line { return [ 'type' => 'line', 'text' => $l ]; }
 
 format =
-	l:("" { return $this->lineNum; })
+	l:LINE_NUM
 	"!!" ws? version_keyword ws+ v:$([0-9]+) rest_of_line {
 		return $this->addLines( $l, [ 'type' => 'version', 'text' => $v ] );
 	}
@@ -120,13 +116,13 @@ article =
 }
 
 start_article =
-	"!!" ws? "article" ws? eol
+	"!!" ws? @"article" ws? eol
 
 start_text =
-	"!!" ws? "text" ws? eol
+	"!!" ws? @"text" ws? eol
 
 end_article =
-	"!!" ws? "endarticle" ws? eol
+	"!!" ws? @"endarticle" ws? eol
 
 // function hooks
 
@@ -136,10 +132,10 @@ functionhooks = start_functionhooks text:text ( end_functionhooks / end_section 
 }
 
 start_functionhooks =
-	"!!" ws? "functionhooks" ":"? ws? eol
+	"!!" ws? @"functionhooks" ":"? ws? eol
 
 end_functionhooks =
-	"!!" ws? "endfunctionhooks" ":"? ws? eol
+	"!!" ws? @"endfunctionhooks" ":"? ws? eol
 
 test =
 	start_test
@@ -183,7 +179,7 @@ test =
 }
 
 section =
-	"!!" ws? (!"test") (!"end") (!"options") (!"config") name:(c:[^ \t\r\n]+ { return implode( $c ); }) rest_of_line
+	"!!" ws? (!"test") (!"end") (!"options") (!"config") name:$([^ \t\r\n]+) rest_of_line
 	text:text
 {
 	return [ 'name' => $name, 'text' => $text ];
@@ -240,15 +236,18 @@ a_config_line = k:option_name v:config_value
 	return [ 'k' => $k, 'v' => $v ];
 }
 
-config_value = ws? "=" ws? v:valid_json_value { return $v; }
+config_value = ws? "=" ws? @valid_json_value
 
 valid_json_value = v:$(quoted_value / plain_value / array_value / json_value) &{
   // validate this as acceptable JSON
   // (this ensures that wikipeg throws a syntax error if
-  // the JSON is invalid; note that PHP 7.3 would allow us
-  // to use JSON_THROW_ON_ERROR instead of json_last_error()...)
-  $ignore = json_decode($v, true, 100);
-  return (json_last_error() === JSON_ERROR_NONE);
+  // the JSON is invalid)
+  try {
+    json_decode($v, true, 100, JSON_THROW_ON_ERROR);
+    return true;
+  } catch (\JsonException) {
+    return false;
+  }
 } {
   // The value is valid JSON; return the decoded value.
   return json_decode($v, true);
@@ -266,10 +265,7 @@ an_option = k:option_name v:option_value?
 	return [ 'k' => strtolower( $k ), 'v' => $v ?? '' ];
 }
 
-option_name = c:[^ \t\n=!]+
-{
-	return implode($c);
-}
+option_name = $([^ \t\n=!]+)
 
 option_value = ws? "=" ws? ovl:option_value_list
 {
@@ -277,7 +273,7 @@ option_value = ws? "=" ws? ovl:option_value_list
 }
 
 option_value_list = v:an_option_value
-					rest:( ws? "," ws? ovl:option_value_list { return $ovl; })?
+	rest:( ws? "," ws? @option_value_list )?
 {
 	$result = [ $v ];
 	if ( $rest && count( $rest ) > 0 ) {
@@ -294,12 +290,12 @@ an_option_value = v:(link_target_value / quoted_value / plain_value / json_value
 	return $v;
 }
 
-link_target_value = "[[" v:[^\]\n]* "]]"
+link_target_value = "[[" v:$([^\]\n]*) "]]"
 {
 	// Perhaps we should canonicalize the title?
 	// Protect with JSON.stringify just in case the link target starts with
 	// double-quote or open-brace.
-	return PHPUtils::jsonEncode( implode( $v ) );
+	return PHPUtils::jsonEncode( $v );
 }
 
 quoted_value = [\"] v:( [^\\\"\n] / ("\\" c:[^\n] { return "\\" . $c; } ) )* [\"]
@@ -307,10 +303,7 @@ quoted_value = [\"] v:( [^\\\"\n] / ("\\" c:[^\n] { return "\\" . $c; } ) )* [\"
 	return '"' . implode( $v ) . '"';
 }
 
-plain_value = v:[^ \t\n\"\'\[\]=,!\{]+
-{
-	return implode( $v );
-}
+plain_value = $([^ \t\n\"\'\[\]=,!\{]+)
 
 array_value = "[" v:( [^\"\[\]\n] / quoted_value / array_value / eol )* "]"
 {
@@ -323,10 +316,10 @@ json_value = "{" v:( [^\"\{\}\n] / quoted_value / json_value / eol )* "}"
 }
 
 start_test =
-	"!!" ws? "test" ws? eol
+	"!!" ws? @"test" ws? eol
 
 end_section =
-	"!!" ws? "end" ws? eol
+	"!!" ws? @"end" ws? eol
 
 hooks = start_hooks text:text ( end_hooks / end_section )
 {
@@ -334,7 +327,7 @@ hooks = start_hooks text:text ( end_hooks / end_section )
 }
 
 start_hooks =
-	"!!" ws? "hooks" ":"? ws? eol
+	"!!" ws? @"hooks" ":"? ws? eol
 
 end_hooks =
-	"!!" ws? "endhooks" ws? eol
+	"!!" ws? @"endhooks" ws? eol
