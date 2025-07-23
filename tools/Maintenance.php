@@ -50,7 +50,7 @@ if ( $parsoidMode === 'integrated' ) {
 	// @phan-suppress-next-line PhanUndeclaredClassStaticProperty
 	\AutoLoader::registerNamespaces( [
 		// Keep this in sync with the "autoload" clause in /composer.json!
-		'Wikimedia\\Parsoid\\' => __DIR__ . "/../src",
+		'Wikimedia\\Parsoid\\' => __DIR__ . "/../src/",
 		// And this is from autoload-dev
 		'Wikimedia\\Parsoid\\Tools\\' => __DIR__ . "/../tools/",
 	] );
