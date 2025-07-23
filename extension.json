@@ -10,7 +10,7 @@
 		}
 	},
 	"AutoloadNamespaces": {
-		"MWParsoid\\": "extension/src"
+		"MWParsoid\\": "extension/src/"
 	},
 	"config": {
 		"ParsoidEnableREST": {
