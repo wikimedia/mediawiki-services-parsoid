@@ -285,7 +285,8 @@ class TokenizerUtils {
 				if ( $stops['arrow'] && $c2 === '>' ) {
 					return true;
 				}
-				if ( $stops['equal'] ) {
+				$htmlOrEmpty = ( $stops['tagType'] === 'html' || $stops['tagType'] === '' );
+				if ( $stops['equal'] && $htmlOrEmpty ) {
 					return true;
 				}
 				if ( $stops['h'] ) {

@@ -1,6 +1,5 @@
 {
-	"T400080: Numbered args with tags with attributes should break on equals": {
-		"wt2html": "<p data-parsoid='{\"dsr\":[0,29,0,0]}'><span about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;div class=\\\"a\\\">a&lt;/div>\"}},\"i\":0}}]}'>{{{1}}}</span></p>",
-		"wt2wt": "{{1x|1=<div class=\"a\">a</div>}}"
+	"T400080: Numbered args of pfs with tags with attributes should not be serialized as named": {
+		"wt2html": "<div about=\"#mwt\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"pi\":[[{\"k\":\"&lt;span class\",\"named\":true}]],\"dsr\":[0,37,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"#tag:div\",\"function\":\"tag\"},\"params\":{\"&lt;span class\":{\"wt\":\"\\\"c\\\">a&lt;/span>\"}},\"i\":0}}]}'><span class=\"c\">a</span></div>"
 	}
 }

@@ -1768,7 +1768,9 @@ generic_newline_attribute =
 	namePos0:POSITION
 	name:generic_attribute_name
 	namePos1:POSITION
-	vd:(space_or_newline* "=" @generic_att_value?)?
+	space_or_newline*
+	!inline_breaks
+	vd:("=" @generic_att_value?)?
 {
 	// NB: Keep in sync w/ table_attibute
 	$res = null;

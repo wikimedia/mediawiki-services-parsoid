@@ -4714,65 +4714,80 @@ return $this->traceCall(function($boolParams, $param_tagType, &$param_preproc, &
   // free $p7,$r6,$r9
   $r9 = $this->parsePOSITION(true);
   // namePos1 <- $r9
+  $r6 = strspn($this->input, "\x09\x0a\x0c\x0d ", $this->currPos);
+  $this->currPos += $r6;
+  $p7 = $this->currPos;
+  $r12 = $param_preproc;
+  $r13 = $param_th;
+  $r11 = $this->discardinline_breaks($boolParams, $param_tagType, $param_preproc, $param_th);
+  if ($r11 === self::$FAILED) {
+    $r11 = false;
+  } else {
+    $r11 = self::$FAILED;
+    $this->currPos = $p7;
+    $param_preproc = $r12;
+    $param_th = $r13;
+    $this->currPos = $p1;
+    $param_preproc = $r2;
+    $param_th = $r3;
+    $r4 = self::$FAILED;
+    goto seq_1;
+  }
+  // free $p7,$r12,$r13
   // start seq_4
   $p7 = $this->currPos;
-  $r11 = $param_preproc;
-  $r12 = $param_th;
-  $r13 = strspn($this->input, "\x09\x0a\x0c\x0d ", $this->currPos);
-  $this->currPos += $r13;
+  $r12 = $param_preproc;
+  $r14 = $param_th;
   if (($this->input[$this->currPos] ?? null) === "=") {
-    $r14 = true;
+    $r15 = true;
     $this->currPos++;
   } else {
-    $r14 = self::$FAILED;
-    $this->currPos = $p7;
-    $param_preproc = $r11;
-    $param_th = $r12;
-    $r6 = self::$FAILED;
+    $r15 = self::$FAILED;
+    $r13 = self::$FAILED;
     goto seq_4;
   }
   // start seq_5
-  $p15 = $this->currPos;
-  $r16 = $param_preproc;
-  $r17 = $param_th;
-  $r18 = self::charAt($this->input, $this->currPos);
-  if ($r18 !== '' && !($r18 === ">")) {
-    $r18 = false;
-    $this->currPos = $p15;
-    $param_preproc = $r16;
-    $param_th = $r17;
+  $p16 = $this->currPos;
+  $r17 = $param_preproc;
+  $r18 = $param_th;
+  $r19 = self::charAt($this->input, $this->currPos);
+  if ($r19 !== '' && !($r19 === ">")) {
+    $r19 = false;
+    $this->currPos = $p16;
+    $param_preproc = $r17;
+    $param_th = $r18;
   } else {
-    $r18 = self::$FAILED;
-    $r6 = self::$FAILED;
+    $r19 = self::$FAILED;
+    $r13 = self::$FAILED;
     goto seq_5;
   }
-  $r6 = $this->parsegeneric_att_value($boolParams, $param_tagType, $param_preproc, $param_th);
-  if ($r6===self::$FAILED) {
-    $this->currPos = $p15;
-    $param_preproc = $r16;
-    $param_th = $r17;
-    $r6 = self::$FAILED;
+  $r13 = $this->parsegeneric_att_value($boolParams, $param_tagType, $param_preproc, $param_th);
+  if ($r13===self::$FAILED) {
+    $this->currPos = $p16;
+    $param_preproc = $r17;
+    $param_th = $r18;
+    $r13 = self::$FAILED;
     goto seq_5;
   }
   seq_5:
-  if ($r6===self::$FAILED) {
-    $r6 = null;
+  if ($r13===self::$FAILED) {
+    $r13 = null;
   }
-  // free $p15,$r16,$r17
+  // free $p16,$r17,$r18
   seq_4:
-  if ($r6===self::$FAILED) {
-    $r6 = null;
+  if ($r13===self::$FAILED) {
+    $r13 = null;
   }
-  // free $r18
-  // free $p7,$r11,$r12
-  // vd <- $r6
+  // free $r19
+  // free $p7,$r12,$r14
+  // vd <- $r13
   $r4 = true;
   seq_1:
   if ($r4!==self::$FAILED) {
     $this->savedPos = $p1;
-    $r4 = $this->a25($r5, $r10, $r9, $r6);
+    $r4 = $this->a25($r5, $r10, $r9, $r13);
   }
-  // free $r8,$r13,$r14
+  // free $r8,$r6,$r11,$r15
   $this->cache[$bucket][$key] = new TracingGrammarCacheEntry(
     $this->currPos,
     $r4,

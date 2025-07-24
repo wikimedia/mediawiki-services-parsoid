@@ -1929,7 +1929,7 @@ T400080: Numbered args of pfs with tags with attributes should not be serialized
 {{#tag:div|<span class="c">a</span>}}
 !! html/php
 <div><span class="c">a</span></div>
-!! html/parsoid
+!! html/parsoid+integrated
 <div typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"#tag:div","function":"tag"},"params":{"1":{"wt":"&lt;span class=\"c\">a&lt;/span>"}},"i":0}}]}'><span class="c">a</span></div>
 !! end
 
