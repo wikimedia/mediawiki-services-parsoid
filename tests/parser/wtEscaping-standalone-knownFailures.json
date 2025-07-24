@@ -8,6 +8,11 @@
     "Lists: 4. No escapes needed": {
         "html2wt": "* foo*bar\n\n* ''foo''*bar\n\n* [[Foo]]: bar\n\n* [[Foo]]*bar\n"
     },
+    "T400080: Numbered args with tags with attributes should break on equals": {
+        "wt2html": "<div class=\"a\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;div class=\\\"a\\\">a&lt;/div>\"}},\"i\":0}}]}'>a</div>",
+        "wt2wt": "{{1x|1=<div class=\"a\">a</div>}}",
+        "html2html": "<div class=\"a\" about=\"#mwt1\" typeof=\"mw:Transclusion\" data-parsoid='{\"stx\":\"html\",\"pi\":[[{\"k\":\"1\"}]],\"dsr\":[0,29,null,null]}' data-mw='{\"parts\":[{\"template\":{\"target\":{\"wt\":\"1x\",\"href\":\"./Template:1x\"},\"params\":{\"1\":{\"wt\":\"&lt;div class=\\\"a\\\">a&lt;/div>\"}},\"i\":0}}]}'>a</div>"
+    },
     "Tables: 4d. No escaping needed": {
         "html2wt": "{|\n|[[Foo]]-bar\n|| +1\n|| -2\n|}"
     }

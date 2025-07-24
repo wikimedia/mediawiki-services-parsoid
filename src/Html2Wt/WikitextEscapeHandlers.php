@@ -1215,10 +1215,16 @@ class WikitextEscapeHandlers {
 						// FIXME $da->tsr will be undefined below.
 						// Should we throw an explicit exception here?
 					}
+					// Template arg parsing has higher precendence than xml
+					// tag attributes, so the '=' would need protection.
+					// However, extensions are an exception.
+					$checkNowiki = $t instanceof XMLTagTk &&
+						WTUtils::hasLiteralHTMLMarker( $da ) &&
+						$t->getName() !== 'extension';
 					self::appendStr(
 						$da->tsr->substr( $arg ),
 						$last,
-						false,
+						$checkNowiki,
 						$buf,
 						$openNowiki,
 						$isTemplate,
@@ -1273,10 +1279,15 @@ class WikitextEscapeHandlers {
 							}
 						}
 					} else {
+						// Template arg parsing has higher precendence than xml
+						// tag attributes, so the '=' would need protection.
+						// However, extensions are an exception.
+						$checkNowiki = WTUtils::hasLiteralHTMLMarker( $da ) &&
+							$t->getName() !== 'extension';
 						self::appendStr(
 							$tkSrc,
 							$last,
-							false,
+							$checkNowiki,
 							$buf,
 							$openNowiki,
 							$isTemplate,

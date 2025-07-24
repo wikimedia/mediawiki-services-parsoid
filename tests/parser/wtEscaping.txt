@@ -1899,3 +1899,26 @@ DEF
 {{!}}}}}
 b
 !! end
+
+## It's important to omit the data-parsoid attribute so serialization
+## doesn't start off as a named argument
+!! test
+T400080: Numbered args with tags with attributes should serialize as named
+!! wikitext
+{{1x|1=<div class="a">a</div>}}
+!! html/php
+<div class="a">a</div>
+!! html/parsoid
+<div class="a" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"1":{"wt":"&lt;div class=\"a\">a&lt;/div>"}},"i":0}}]}'>a</div>
+!! end
+
+!! test
+T400080: Numbered args with tags with attributes should break on equals
+!! wikitext
+{{1x|<div class="a">a</div>}}
+!! html/php
+<p>{{{1}}}
+</p>
+!! html/parsoid
+<p><span about="#mwt1" typeof="mw:Transclusion" data-mw='{"parts":[{"template":{"target":{"wt":"1x","href":"./Template:1x"},"params":{"&lt;div class":{"wt":"\"a\">a&lt;/div>"}},"i":0}}]}'>{{{1}}}</span></p>
+!! end
