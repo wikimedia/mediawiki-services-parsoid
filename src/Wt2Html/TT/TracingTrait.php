@@ -1,14 +1,13 @@
 <?php
 declare( strict_types = 1 );
 
+// @phan-file-suppress PhanUndeclaredProperty
+
 namespace Wikimedia\Parsoid\Wt2Html\TT;
 
 use Wikimedia\Parsoid\Tokens\CompoundTk;
 use Wikimedia\Parsoid\Tokens\Token;
 
-/**
- * @phan-file-suppress PhanUndeclaredProperty
- */
 trait TracingTrait {
 	private string $traceType;
 	private TokenHandler $handler;
