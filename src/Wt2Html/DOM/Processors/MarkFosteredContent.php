@@ -27,7 +27,6 @@ use Wikimedia\Parsoid\Wt2Html\Wt2HtmlDOMProcessor;
  * content".
  *
  * http://www.w3.org/TR/html5/syntax.html#foster-parent
- * @module
  */
 class MarkFosteredContent implements Wt2HtmlDOMProcessor {
 	/**

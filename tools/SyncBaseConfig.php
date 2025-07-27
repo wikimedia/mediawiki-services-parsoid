@@ -14,7 +14,6 @@ use Wikimedia\Parsoid\Config\Api\SiteConfig;
  * This tool allows to sync the parsoid/baseconfig files with the latest version running. See
  * README in that directory for more information.
  */
-
 class SyncBaseConfig extends FetchingTool {
 	/** Creates supported parameters and description for the syncbaseconfig script and adds the
 	 * generic ones

@@ -8,7 +8,9 @@ require __DIR__ . '/HtmlPageBundle.php';
 
 // phpcs:ignore Generic.CodeAnalysis.UnconditionalIfStatement.Found
 if ( false ) {
-	// For classmap-authoritative support (T393983)
+	/**
+	 * For classmap-authoritative support (T393983)
+	 */
 	class PageBundle extends HtmlPageBundle {
 	}
 }

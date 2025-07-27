@@ -17,7 +17,6 @@ use Wikimedia\Parsoid\Utils\PHPUtils;
 /**
  * Wrap some stages into a pipeline.
  */
-
 class ParserPipeline {
 	private bool $alwaysToplevel;
 	private bool $atTopLevel;

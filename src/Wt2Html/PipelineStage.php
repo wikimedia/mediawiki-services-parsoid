@@ -22,7 +22,6 @@ use Wikimedia\Parsoid\Wt2Html\TT\TokenHandler;
  * The Token Transform Manager could eventually go away and be directly replaced by
  * the very many token transformers that are represented by the abstract TokenHandler class.
  */
-
 abstract class PipelineStage {
 	/**
 	 * Previous pipeline stage that generates input for this stage.

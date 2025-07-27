@@ -9,9 +9,7 @@ use Wikimedia\Assert\UnreachableException;
 /**
  * This file contains Parsoid-independent PHP helper functions.
  * Over time, more functions can be migrated out of various other files here.
- * @module
  */
-
 class PHPUtils {
 	/**
 	 * Convert a counter to a Base64 encoded string.

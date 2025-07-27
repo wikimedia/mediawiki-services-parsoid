@@ -54,7 +54,6 @@ use Wikimedia\Parsoid\Wt2Html\Frame;
  *
  * FIXME: At some point, more of the details should be extracted and documented
  * in pseudo-code as an algorithm.
- * @module
  */
 class DOMRangeBuilder {
 

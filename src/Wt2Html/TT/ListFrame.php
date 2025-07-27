@@ -23,7 +23,7 @@ use Wikimedia\Parsoid\Tokens\TagTk;
  * So, if you ignore tables, there will only be a single list frame ever
  * in the list-frame stack maintained in ListHandler.
  *
- * @private
+ * @internal
  */
 class ListFrame {
 	/**
